@@ -1,0 +1,4624 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<root>
+<!--
+    External String Table: VV3 by Last Day of Work
+
+    Note: line breaks in the strings below are represented by the character sequence \n
+    actual linebreak characters (linefeed and return characters) will be ignored when the file is read
+    and can be used to make this document more manageable and readable
+ -->
+<Text id="eTIME_STOPPED">
+TIME STOPPED
+</Text>
+<Text id="eString_CleaningUpMold">
+Cleaning up the nasty mold
+</Text>
+<Text id="eString_PlayingJokeOnAdults">
+Playing a joke on the adults
+</Text>
+<Text id="eString_SwimmingInOcean">
+Swimming in the ocean
+</Text>
+<Text id="eString_RelaxingInTheOcean">
+Relaxing in the ocean
+</Text>
+<Text id="eString_TryingToCatchAFish">
+Trying to catch a fish
+</Text>
+<Text id="eString_TakingFlowerToLab">
+Taking flower to lab
+</Text>
+<Text id="eString_ChiefChangesBoatPeeps">
+Since you have selected to use the in-game tutorial,\n
+the Chief has stepped in and changed the makeup of\n
+the expedition for a better chance of success.
+</Text>
+<Text id="eString_BurpingUpSoapBubbles">
+Burping up soap bubbles
+</Text>
+<Text id="eString_ThrowingUpStew">
+Throwing up soapy stew!
+</Text>
+<Text id="eString_CuriousAboutFishStatue">
+Curious about the majestic fish statue
+</Text>
+<Text id="eString_CuriousAboutPipes">
+Curious about the pipes
+</Text>
+<Text id="eString_CuriousAboutCarvings">
+Curious about the carvings
+</Text>
+<Text id="eString_CuriousAboutHoleInTree">
+Curious about the hole in the tree
+</Text>
+<Text id="eString_ShowingBabyWindFlutes">
+Showing baby the wind flutes
+</Text>
+<Text id="eString_ShowingBabyBeach">
+Showing baby the beach
+</Text>
+<Text id="eString_ShowingBabyCookingArea">
+Showing baby the cooking area
+</Text>
+<Text id="eString_ShowingBabyBlackberries">
+Showing baby the blackberries
+</Text>
+<Text id="eString_ShowingBabyTidePool">
+Showing baby the tide pool
+</Text>
+<Text id="eString_ShowingBabyFishStatue">
+Showing baby the fish statue
+</Text>
+<Text id="eString_ShowingBabyTheTree">
+Showing baby the tree
+</Text>
+<Text id="eString_JumpingContest">
+Jumping contest
+</Text>
+<Text id="eString_Racing">
+Racing!
+</Text>
+<Text id="eString_WatchingDebrisBuildUp">
+Watching debris build up
+</Text>
+<Text id="eString_CuriousAboutBlackedRocks">
+Curious about the blackened rocks
+</Text>
+<Text id="eString_PlayingByBanyon">
+Playing by the banyan tree
+</Text>
+<Text id="eString_AdmiringBanyan">
+Admiring the banyan tree
+</Text>
+<Text id="eString_CuriousAboutHerbs">
+Curious about the herbs
+</Text>
+<Text id="eString_CuriousAboutDryWood">
+Curious about the dry wood
+</Text>
+<Text id="eString_CuriousAboutDriedGrass">
+Curious about the dried grass
+</Text>
+<Text id="eString_CuriousAboutHoleInGround">
+Curious about the hole in the ground
+</Text>
+<Text id="eString_CuriousAboutMossyRocks">
+Curious about the mossy rocks
+</Text>
+<Text id="eString_CuriousAboutPierRuins">
+Curious about the ruined piers
+</Text>
+<Text id="eString_CuriousAboutPuddle">
+Curious about the puddle
+</Text>
+<Text id="eString_CuriousAboutSickBranch">
+Curious about the sick branch
+</Text>
+<Text id="eString_CuriousAboutPit">
+Curious about the pit
+</Text>
+<Text id="eString_CuriousAboutStalks">
+Curious about the stalks
+</Text>
+<Text id="eString_CantWashLaundry">
+Can't wash laundry now
+</Text>
+<Text id="eString_GoingToPlayInNursery">
+Going to play in the nursery
+</Text>
+<Text id="eString_TryingToDecideOnActivity">
+Choosing an activity
+</Text>
+<Text id="eString_LearningAboutMagic">
+Learning about magic
+</Text>
+<Text id="eString_GoofingOffWithShells">
+Goofing off playing with shells
+</Text>
+<Text id="eString_LearningAboutWriting">
+Learning about writing
+</Text>
+<Text id="eString_LearningAboutNature">
+Learning about nature
+</Text>
+<Text id="eString_LearningAboutReading">
+Learning about reading
+</Text>
+<Text id="eString_LearningAboutMusic">
+Learning about music
+</Text>
+<Text id="eString_WipingGunkOnTree">
+Wiping sticky gunk off on tree
+</Text>
+<Text id="eString_CoveredWithStickyJuice">
+Covered with sticky plant juice
+</Text>
+<Text id="eString_TakingVinesToLab">
+Taking some vines to the lab
+</Text>
+<Text id="eString_CoveringHotRocks">
+Covering the hot rocks
+</Text>
+<Text id="eString_ShakingDownFruit">
+Shaking down some fruit!
+</Text>
+<Text id="eString_TreeOfLifeNearlyDead">
+The Tree of Life is nearly dead.
+</Text>
+<Text id="eString_TreeOfLifeGravelyIll">
+The Tree of Life is gravely ill.
+</Text>
+<Text id="eString_TreeOfLifeIll">
+The Tree of Life is ill.
+</Text>
+<Text id="eString_TreeOfLifeRecovering">
+The Tree of Life is recovering.
+</Text>
+<Text id="eString_TreeOfLifeNearlyRecovred">
+The Tree of Life is nearly recovered.
+</Text>
+<Text id="eString_TreeOfLifeRestored">
+The Tree of Life is restored!
+</Text>
+<Text id="eString_GraveIsEmpty">
+This grave is empty.
+</Text>
+<Text id="eString_AdmiringLeiInTree">
+Admiring a lei in the tree
+</Text>
+<Text id="eString_TreeIsStillQuiteIll">
+The tree is still quite ill.
+</Text>
+<Text id="eString_LeiAlreadyStarted">
+A lei has already been started!
+</Text>
+<Text id="eString_LeiNotFinished">
+The lei needs more flowers.
+</Text>
+<Text id="eString_SeesLeiNeedsMoreFlowers">
+{name} sees a lei that needs more flowers.
+</Text>
+<Text id="eString_SeesBraidNeedsRepair">
+{name} sees a braid needing repair.
+</Text>
+<Text id="eString_SeesCratesWithBraids">
+{name} sees moth-eaten braids in crates.
+</Text>
+<Text id="eString_SeesBeautifulFlower">
+{name} sees a beautiful flower.
+</Text>
+<Text id="eString_FlowerIsInFullBloom">
+This flower is in full bloom!
+</Text>
+<Text id="eString_FlowerNotReady">
+This flower is not in full bloom yet!
+</Text>
+<Text id="eString_HangingLeiOnTree">
+Hanging a lei on the tree
+</Text>
+<Text id="eString_TakingBraidToAssembleLei">
+Taking braid to start a lei
+</Text>
+<Text id="eString_RepairLeiBraid">
+Repairing braid for a lei
+</Text>
+<Text id="eString_PickFlowerForLei">
+Picking a flower for the lei
+</Text>
+<Text id="eString_MustMasterDendrologyToCureTree">
+Your tribe must master dendrology to cure the tree.
+</Text>
+<Text id="eString_OnlyPureOfBodyCanEnter">
+Only those pure of body can purify the tree.
+</Text>
+<Text id="eString_OnlyPureOfMindCanSee">
+Only those pure of mind can see the corruption.
+</Text>
+<Text id="eString_PurifyingTree">
+Purifying the tree
+</Text>
+<Text id="eString_NotEnoughWaterInPond">
+Not enough water in the pond!
+</Text>
+<Text id="eString_GettingCleanInPond">
+Getting clean in soapy pond
+</Text>
+<Text id="eString_SeesGoodPlaceForBath">
+{name} sees a good place to get clean.
+</Text>
+<Text id="eString_SeesGoodPlaceForMeditation">
+{name} sees a good spot for meditation.
+</Text>
+<Text id="eString_Meditating">
+Meditating to purify the mind
+</Text>
+<Text id="eSayNotPeacefulEnoughToMeditate">
+It's not peaceful enough to meditate here!
+</Text>
+<Text id="eString_SeesCorruptedHoleInTree">
+{name} sees corrupted hole in the tree.
+</Text>
+<Text id="eString_Select">
+Select
+</Text>
+<Text id="eString_Reject">
+Reject
+</Text>
+<Text id="eString_SelectSceneTitle">
+Select 5 villagers
+</Text>
+<Text id="eString_Completed">
+Completed
+</Text>
+<Text id="eString_Mausoleum">
+Mausoleum
+</Text>
+<Text id="eSaySeesMossyOddRocks">
+{name} sees odd rocks covered by moss.
+</Text>
+<Text id="eSaySeesBigRocksUnderDebris">
+{name} sees large rocks under debris.
+</Text>
+<Text id="eSayGrandFeast">
+It's a grand feast!
+</Text>
+<Text id="eSaySmellsLikeFlowers">
+This smells like flowers!
+</Text>
+<Text id="eSayThisIsSpicy">
+This stew is really spicy!
+</Text>
+<Text id="eString_DrinkingFromStream">
+Drinking from stream
+</Text>
+<Text id="eString_AskNeedHelp">
+Do you need help?
+</Text>
+<Text id="eSayCanMoveHut">
+You can drag this building to a new location.
+</Text>
+<Text id="eSayUnhappyFrogs">
+These frogs don't look happy!
+</Text>
+<Text id="eSayRescuingFrogs">
+Rescuing frogs
+</Text>
+<Text id="eSayFood">
+Food
+</Text>
+<Text id="eSayBetterFarming">
+This villager improved at farming.
+</Text>
+<Text id="eSayVillagerSelected">
+Villager selected.
+</Text>
+<Text id="eSayClickToZoom">
+Click anywhere on the map to zoom in.
+</Text>
+<Text id="eSayClickToContinue">
+Click anywhere...
+</Text>
+<Text id="eSayTryingToLearn">
+The villager is trying to learn...
+</Text>
+<Text id="eSayEatingHealed">
+Your villager feels healthier after eating.
+</Text>
+<Text id="eSayWelcome">
+Welcome to Virtual Villagers: The Tree Of Life
+</Text>
+<Text id="eSayBetterAlchemy">
+This villager improved at alchemy!
+</Text>
+<Text id="eSayTryingToResearch">
+Attempting research.
+</Text>
+<Text id="eSayBetterResearch">
+This villager improved at research!
+</Text>
+<Text id="eSayMasteredHerb">
+Your villagers now understand this herb!
+</Text>
+<Text id="eSayFailedResearch">
+The villager wasn't successful this time.
+</Text>
+<Text id="eSayOuch">
+Ouch! The villager was injured doing this task.
+</Text>
+<Text id="eSayFailedSkill">
+The villager wasn't successful this time.
+</Text>
+<Text id="eSayBetterBreeding">
+This villager improved at parenting!
+</Text>
+<Text id="eSayAlreadyMaster">
+This villager already mastered this skill!
+</Text>
+<Text id="eSayBetterConstruction">
+This villager improved at building!
+</Text>
+<Text id="eSayConfusedTech">
+Additional research may be necessary.
+</Text>
+<Text id="eSayLearnFailed">
+This villager needs more practice.
+</Text>
+<Text id="eSayBetterHealing">
+This villager improved at healing!
+</Text>
+<Text id="eSayNeedFirewood">
+There is no firewood here.
+</Text>
+<Text id="eSayNeedFire">
+There is no fire.
+</Text>
+<Text id="eSayRockNotHotEnough">
+The rock is not hot enough.
+</Text>
+<Text id="eSayCauldronHasNoWater">
+There is no water in the pot.
+</Text>
+<Text id="eSayClothMakingInProgress">
+Cloth making percent completed:
+</Text>
+<Text id="eString_ClothAvailable">
+Cloth bolts available:
+</Text>
+<Text id="eSayNeedSpecialFish">
+Through advanced food technology,\n
+your villagers have determined that\n
+special algae-eating fish are needed\n
+to restore the ocean to its former\n
+pristine beauty.\n
+\n
+These fish must be located at once!\n
+</Text>
+<Text id="eSayNeedKindling">
+Some dry grass would help the fire ignite.
+</Text>
+<Text id="eSayOnlyChildren">
+Only children can see collectibles.
+</Text>
+<Text id="eSayOnlyScientist">
+Maybe a skilled scientist would understand these.
+</Text>
+<Text id="eSayFoodLevel">
+Food available to villagers:
+</Text>
+<Text id="eSayConcernedFood">
+They're too hungry to think about this!
+</Text>
+<Text id="eSaySickCannotMate">
+They're not feeling well enough for this!
+</Text>
+<Text id="eSayUnknown">
+???
+</Text>
+<Text id="eSayAlreadyPregnant">
+She's nursing a baby!
+</Text>
+<Text id="eSaySameGender">
+These villagers are both the same gender.
+</Text>
+<Text id="eSayNoClick">
+That didn't go too well.
+</Text>
+<Text id="eSayNoNoFruit">
+That tree has no fruit now.
+</Text>
+<Text id="eSayConcernedHousing">
+There isn't enough housing to support more population!
+</Text>
+<Text id="eSayAlreadyDoneToday">
+The chief can only do this once every 24 hours.
+</Text>
+<Text id="eSayWellWaterGarden">
+Perhaps with better water...
+</Text>
+<Text id="eSayTooYoung">
+This villager is still too young!
+</Text>
+<Text id="eSayTooOld">
+This villager is elderly and not interested.
+</Text>
+<Text id="eSayGameOver">
+Your tribe has been lost! Game over.
+</Text>
+<Text id="eSayNoFruit">
+It looks like it could produce fruit...
+</Text>
+<Text id="eSaySkillSet">
+Preferred skill chosen.
+</Text>
+<Text id="eSayFullyResearched">
+This is fully researched!
+</Text>
+<Text id="eSayInsufficientTechPts">
+You don't have enough tech points!
+</Text>
+<Text id="eSayDaughterOf">
+Daughter of 
+</Text>
+<Text id="eSaySonOf">
+Son of 
+</Text>
+<Text id="eSayOnlyRegistered">
+Only available in the full version!
+</Text>
+<Text id="eSayNoFishing">
+Your villagers don't know how to fish!
+</Text>
+<Text id="eSayIsDead">
+That villager is dead!
+</Text>
+<Text id="eSayNeedLoveshack">
+The love shack has not been completed!
+</Text>
+<Text id="eSayFoundCrab">
+This villager found a crab!
+</Text>
+<Text id="eSayGamePaused">
+GAME PAUSED
+</Text>
+<Text id="eTechPointsAvailable">
+Tech Points Available: %i
+</Text>
+<Text id="eTechNotAvailableInDemo">
+The next level of this tech is not available in the demo version!\n
+You can purchase the full version from the main menu.
+</Text>
+<Text id="eSayTechPoints">
+Tech Points 
+</Text>
+<Text id="eSayTechPointsTable">
+Tech Points
+</Text>
+<Text id="eSayBlockageProgress">
+Percentage of blockage cleared:
+</Text>
+<Text id="eSayConstructionProgress">
+Percentage construction completed:
+</Text>
+<Text id="eSayFireProgress">
+Time remaining for fire:
+</Text>
+<Text id="eSayNotEnoughToHarvest">
+There is not enough to harvest.
+</Text>
+<Text id="eSayTechPointsAvail">
+Tech Points Available:
+</Text>
+<Text id="eSayKidsCantSwim">
+Children can't swim!
+</Text>
+<Text id="eSayOnlyAdeptBuilder">
+Only an adept builder can attempt this.
+</Text>
+<Text id="eSayOnlyMasterBuilder">
+Only a master builder can attempt this.
+</Text>
+<Text id="eSayNoRepairNeeded">
+This hut is still in good repair.
+</Text>
+<Text id="eSayConfirmDelete">
+Are you sure you want to delete this player?
+</Text>
+<Text id="eSayConfirmRestart">
+Are you sure you want to restart the current game?
+</Text>
+<Text id="eSayGoodDrag">
+Good! Try dragging the map some more!
+</Text>
+<Text id="eSayGoodVillagerDrag">
+Good! Drag that villager a bit more!
+</Text>
+<Text id="eSayOnlyMasterFarmer">
+It is not clear to this villager what to do.
+</Text>
+<Text id="eSayPuzzleIncomplete">
+This milestone has not been completed!
+</Text>
+<Text id="eSayCommonFishScales">
+ of 4 common fish scales found.
+</Text>
+<Text id="eSayUncommonFishScales">
+ of 4 uncommon fish scales found.
+</Text>
+<Text id="eSayRareFishScales">
+ of 4 rare fish scales found.
+</Text>
+<Text id="eSayCommonLabPiece">
+ of 4 common lab pieces found.
+</Text>
+<Text id="eSayUncommonLabPiece">
+ of 4 uncommon lab pieces found.
+</Text>
+<Text id="eSayRareLabPiece">
+ of 4 rare lab pieces found.
+</Text>
+<Text id="eSayCommonMausoleumPiece">
+ of 4 common mausoleum pieces found.
+</Text>
+<Text id="eSayUncommonMausoleumPiece">
+ of 4 uncommon mausoleum pieces found.
+</Text>
+<Text id="eSayRareMausoleumPiece">
+ of 4 rare mausoleum pieces found.
+</Text>
+<Text id="eSayCommonWindflutes">
+ of 4 common wind flutes found.
+</Text>
+<Text id="eSayUncommonWindflutes">
+ of 4 uncommon wind flutes found.
+</Text>
+<Text id="eSayRareWindflutes">
+ of 4 rare wind flutes found.
+</Text>
+<Text id="eSayKeysFound">
+ of 3 keys found.
+</Text>
+<Text id="eSayInternalError">
+Internal Error. No Available String
+</Text>
+<Text id="eSayOK">
+OK
+</Text>
+<Text id="eSayHelp">
+Help
+</Text>
+<Text id="eSayMenu">
+Menu
+</Text>
+<Text id="eSayCredits">
+Credits
+</Text>
+<Text id="eSayPuzzles">
+Puzzles
+</Text>
+<Text id="eSayCollections">
+Collections
+</Text>
+<Text id="eSayMap">
+Map
+</Text>
+<Text id="eSayTech">
+Tech
+</Text>
+<Text id="eSayDetail">
+Detail
+</Text>
+<Text id="eSayTrophies">
+Trophies
+</Text>
+<Text id="eSayYes">
+Yes
+</Text>
+<Text id="eSayNo">
+No
+</Text>
+<Text id="eSaySkipIntro">
+Skip All
+</Text>
+<Text id="eSayExpired">
+EXPIRED VERSION: CONTACT DEVELOPER
+</Text>
+<Text id="eSayLoading">
+Loading...
+</Text>
+<Text id="eSayPopulation">
+Population
+</Text>
+<Text id="eSayName">
+Name
+</Text>
+<Text id="eSaySkill">
+Skill
+</Text>
+<Text id="eSayAction">
+Action
+</Text>
+<Text id="eSayUntrained">
+Untrained
+</Text>
+<Text id="eSayNovice">
+Novice 
+</Text>
+<Text id="eSayApprentice	">
+Apprentice 
+</Text>
+<Text id="eSayTrainee">
+Trainee 
+</Text>
+<Text id="eSayAdept">
+Adept 
+</Text>
+<Text id="eSayMaster">
+Master 
+</Text>
+<Text id="eSayElder">
+Scholar
+</Text>
+<Text id="eSayChief">
+Tribal Chief
+</Text>
+<Text id="eSayFarmer">
+Farmer
+</Text>
+<Text id="eSayParent">
+Parent
+</Text>
+<Text id="eSayBuilder">
+Builder
+</Text>
+<Text id="eSayScientist">
+Scientist
+</Text>
+<Text id="eSayDoctor">
+Doctor
+</Text>
+<Text id="eSayDone">
+Done
+</Text>
+<Text id="eSaySeesMushroom">
+ sees a mushroom!
+</Text>
+<Text id="eSayLookingExcitedly">
+{name} is looking excitedly at everything.
+</Text>
+<Text id="eSaySeesClothingHutSite">
+{He/She} sees where they are building the clothing hut.
+</Text>
+<Text id="eSayRestHospital">
+Recovering at the hospital
+</Text>
+<Text id="eSayCannotBuyClothes">
+Not enough tech points to make new clothes!
+</Text>
+<Text id="eSaySeesOcean">
+{name} sees the ocean.
+</Text>
+<Text id="eSaySeesSomething">
+ sees something.
+</Text>
+<Text id="eSayTryWork">
+ could try to work here.
+</Text>
+<Text id="eSayCouldTryResearch">
+ could try to work on research here.
+</Text>
+<Text id="eSaySeesTheFirePit">
+This might be a good spot for a fire.
+</Text>
+<Text id="eSaySeesTheFire">
+{name} sees the warm fire.
+</Text>
+<Text id="eSaySeesTheStewBeingMade">
+ sees an unfinished stew.
+</Text>
+<Text id="eSaySeesKindling">
+{name} sees very dry grass.
+</Text>
+<Text id="eSaySeesFirewood">
+{name} sees dry wood.
+</Text>
+<Text id="eSaySeesFreshWaterPots">
+{name} sees fresh water pots
+</Text>
+<Text id="eSaySeesSaltWaterPots">
+{name} sees salt water pots
+</Text>
+<Text id="eSaySeesHeatingRocks">
+{name} sees blackened rocks
+</Text>
+<Text id="eSaySeesFishbone">
+{name} sees a large dried fish bone.
+</Text>
+<Text id="eSaySeesBlockage">
+{name} sees debris blocking the stream.
+</Text>
+<Text id="eSaySeesBlockageReturning">
+{name} sees debris starting to block the stream again.
+</Text>
+<Text id="eSayFruitwellTooComplicatedConfused">
+Removing these rocks seems technically challenging.
+</Text>
+<Text id="eSayPercentBlocked">
+Stream obstruction percentage: 
+</Text>
+<Text id="eSayPercentDebris">
+Remaining debris percentage: 
+</Text>
+<Text id="eSaySeesKeystone">
+{name} sees a rock with a familiar shape.
+</Text>
+<Text id="eSaySeesBlackberries">
+{name} sees ripe blackberries.
+</Text>
+<Text id="eSayHoverFruitwellUnstarted">
+{name} sees something under the debris.
+</Text>
+<Text id="eSayHoverFruitwellUncovered">
+{name} sees a hole with a rock in it.
+</Text>
+<Text id="eSayHoverFruitwellHotRocks">
+{name} sees a hole with a hot rock in it.
+</Text>
+<Text id="eSayHoverFruitwellReady">
+{name} sees a hot cooking hole.
+</Text>
+<Text id="eSayClickFruitwellUnstarted">
+There might be something buried here.
+</Text>
+<Text id="eSayClickFruitwellUncovered">
+There's a round rock in here.
+</Text>
+<Text id="eSayClickFruitwellHotRocks">
+There's a hot rock in here.
+</Text>
+<Text id="eSayClickFruitwellReady">
+This pit is ready to cook fruit.
+</Text>
+<Text id="eSayEarthenOvenReady">
+Preparing fruit in cooking pit
+</Text>
+<Text id="eSayClickFruitTree">
+There's fruit on this tree, but it needs cooking.
+</Text>
+<Text id="eSayHoverFruitTree">
+{name} sees hard fruit on this tree.
+</Text>
+<Text id="eSaySeesSoapSupply">
+{name} sees soap supply.
+</Text>
+<Text id="eSayAddingSoapToPond">
+Adding soap to the pond
+</Text>
+<Text id="eSayItLooksUnsafe">
+{name} thinks this looks unsafe.
+</Text>
+<Text id="eSayGoodPlaceToFish">
+{name} sees a good spot for a fishing net. 
+</Text>
+<Text id="eSaySeesSlowMovingCrab">
+{name} sees a slow-moving crab.
+</Text>
+<Text id="eSaySeesFastMovingCrab">
+{name} sees a fast-moving crab.
+</Text>
+<Text id="eSayCrabsTooFastToCatch">
+The crab is way too fast to catch.
+</Text>
+<Text id="eSayCatchingCrab">
+Catching a crab
+</Text>
+<Text id="eSayKidsShouldntPickUpCrabs">
+Kids shouldn't pick up crabs!
+</Text>
+<Text id="eSayDistractingCrab">
+Distracting the crab
+</Text>
+<Text id="eSayHoverBflyStalksDry">
+{name} sees dry stalks.
+</Text>
+<Text id="eSayNumCuttingTool">
+Cutting tools left: 
+</Text>
+<Text id="eSayNumSoaps">
+Bars of soap left: 
+</Text>
+<Text id="eSayNeedSoap">
+The stump needs to be cleaned.
+</Text>
+<Text id="eSayNumCloth">
+Bolts of cloth left: 
+</Text>
+<Text id="eSayBerriesLeft">
+Berries remaining: 
+</Text>
+<Text id="eSayHoverBflyStalksGreen">
+{name} sees green stalks.
+</Text>
+<Text id="eSayWanderAround">
+Wandering around
+</Text>
+<Text id="eSayWhereButterflies">
+Where did the butterflies go?
+</Text>
+<Text id="eSaySeesTreeTrunk">
+{name} sees a sturdy tree with nice, dry bark.
+</Text>
+<Text id="eSayToolToCutStalks">
+Looking for a tool to cut some stalks
+</Text>
+<Text id="eSayBackToStalksWithTool">
+Returning to stalks with a tool
+</Text>
+<Text id="eSayBringCutStalksToTree">
+Bringing cut stalks to the tree
+</Text>
+<Text id="eSayRubPlantOnTree">
+Rubbing plant juice on the tree
+</Text>
+<Text id="eSayHoverFruitwellCovering">
+Maybe this could cover something?
+</Text>
+<Text id="eSayClickFruitwellCovering">
+Large, broad leaves.
+</Text>
+<Text id="eSayStalksHealing">
+The stalks are still recovering.
+</Text>
+<Text id="eSayStalksHealed">
+The stalks are healthy.
+</Text>
+<Text id="eSayStalksDry">
+The stalks are dead and dry.
+</Text>
+<Text id="eSayTryFixNets">
+Attempting to fix fishing nets
+</Text>
+<Text id="eSayTryFixPiers">
+Attempting to fix the piers
+</Text>
+<Text id="eSayTryGetFish">
+Retrieving a fish
+</Text>
+<Text id="eSayTryWrapBranch">
+Attempting to bind the branch
+</Text>
+<Text id="eSayTryCutBranch">
+Attempting to cut the branch
+</Text>
+<Text id="eSayTrySoapRepair">
+Attempting to clean the stump
+</Text>
+<Text id="eSayTryCutStalks">
+Attempting to cut some stalks
+</Text>
+<Text id="eSayInstallKeystone">
+Attempting to install the keystone
+</Text>
+<Text id="eSayStompingFruit">
+Stomping on fruit
+</Text>
+<Text id="eSayCarryingHotRock">
+Carrying a hot rock
+</Text>
+<Text id="eSayTryBuryFruit">
+Attempting to retrieve fruit
+</Text>
+<Text id="eSayTryHeatRocks">
+Attempting to heat rocks
+</Text>
+<Text id="eSayNeedCuttingTool">
+They need a cutting tool for this!
+</Text>
+<Text id="eSayHarvestFishBone">
+Retrieving a fish bone
+</Text>
+<Text id="eSayTakeToolToFire">
+Taking a bone to the fire
+</Text>
+<Text id="eSayTakeToolForSharpening">
+Taking hardened bone to work area
+</Text>
+<Text id="eSaySharpenTool">
+Sharpening into a cutting tool
+</Text>
+<Text id="eSayTooHeavy">
+It's too heavy.
+</Text>
+<Text id="eSayNotSmartEnuf">
+This job requires calculations.
+</Text>
+<Text id="eSayNeedCloth">
+They need cloth for this!
+</Text>
+<Text id="eSaySeesHerb1">
+{name} sees a spicy-smelling plant.
+</Text>
+<Text id="eSaySeesHerb2">
+{name} sees a sweet-smelling plant.
+</Text>
+<Text id="eSaySeesHerb3">
+{name} sees a soapy-smelling plant.
+</Text>
+<Text id="eSaySeesHerb4">
+{name} sees pulpy vines.
+</Text>
+<Text id="eSayRunFromWasps">
+Running away from wasps!
+</Text>
+<Text id="eSayWellInUse">
+There is no more room in the cooking pit!
+</Text>
+<Text id="eSayNoFruitInWell">
+There is no fruit in the cooking pit!
+</Text>
+<Text id="eSayNoFire">
+There is no fire burning!
+</Text>
+<Text id="eSaySeesHospital">
+{name} sees the hospital.
+</Text>
+<Text id="eSaySeesClothingHut">
+{name} sees the clothing hut.
+</Text>
+<Text id="eSaySeesLoveShack">
+{name} sees the love shack.
+</Text>
+<Text id="eSaySeesStonePile">
+{name} sees a pile of loose stones.
+</Text>
+<Text id="eSaySeesRubble">
+{name} sees a pile of rubble.
+</Text>
+<Text id="eSaySeesLeaves">
+{name} sees a pile of leaves.
+</Text>
+<Text id="eSaySeesRoster">
+{name} sees the mausoleum.
+</Text>
+<Text id="eSaySeesFoodbin">
+{name} sees the food bin.
+</Text>
+<Text id="eSaySeesLowFoodbin">
+{name} sees very little food in the food bin!
+</Text>
+<Text id="eSaySeesAbundantFoodbin">
+{name} sees the food bin is packed with delicious food.
+</Text>
+<Text id="eSaySeesEmptyFoodbin">
+{name} sees the food bin is empty!
+</Text>
+<Text id="eSaySeesAlchemyPot">
+{name} sees the cooking pot.
+</Text>
+<Text id="eSaySeesLowWell">
+{name} sees a low well.
+</Text>
+<Text id="eSaySeesAlchemyTable">
+{name} sees the cooking table.
+</Text>
+<Text id="eSaySeesCorpse">
+{name} sees the remains of {name2}.
+</Text>
+<Text id="eSaySeesVillager">
+{name} sees {name2}.
+</Text>
+<Text id="eSaySeesVillagerWithBaby">
+{name} sees {name2} with her baby.
+</Text>
+<Text id="eSaySeesResearchEquipment">
+{name} sees research equipment.
+</Text>
+<Text id="eSaySeesResearchTable">
+{name} sees the research table.
+</Text>
+<Text id="eSaySeesDebris">
+{name} sees debris.
+</Text>
+<Text id="eSaySeesHouse">
+{name} sees a hut.
+</Text>
+<Text id="eSaySeesDamagedHouse">
+{name} sees a house that needs to be repaired.
+</Text>
+<Text id="eSaySeesSignificantlyDamagedHouse">
+{name} sees a ruined hut of some kind.
+</Text>
+<Text id="eSaySeesSeverelyDamagedHouse">
+{name} sees what might have been a hut once.
+</Text>
+<Text id="eSaySeesTree">
+{name} sees a fruit tree.
+</Text>
+<Text id="eSayPlay">
+Play
+</Text>
+<Text id="eSayStartOver">
+Start Over
+</Text>
+<Text id="eSayOptions">
+Options
+</Text>
+<Text id="eSayQuit">
+Quit
+</Text>
+<Text id="eSayBuyNow">
+BUY NOW!
+</Text>
+<Text id="eSayChangePlayer">
+Change Tribe
+</Text>
+<Text id="eSayCurrentPlayer">
+Current Tribe:
+</Text>
+<Text id="eSayBuy">
+Buy
+</Text>
+<Text id="eSayTechPointsCln">
+Tech Points:
+</Text>
+<Text id="eSayTechnologies">
+Technologies
+</Text>
+<Text id="eSayLevel1">
+Level 1
+</Text>
+<Text id="eSayLevel2">
+Level 2
+</Text>
+<Text id="eSayLevel3">
+Level 3
+</Text>
+<Text id="eSayFarming">
+Farming
+</Text>
+<Text id="eSayHereLies">
+Here Lies 
+</Text>
+<Text id="eSayJob">
+Job
+</Text>
+<Text id="eSayAge">
+Age
+</Text>
+<Text id="eSortBy">
+Sort By:
+</Text>
+<Text id="eSayHealth">
+Health
+</Text>
+<Text id="eSayDecomposing">
+Decomposing
+</Text>
+<Text id="eSayNothing">
+Nothing
+</Text>
+<Text id="eSayGoingVlgCenter">
+Going to village center
+</Text>
+<Text id="eSayMeditating">
+Meditating
+</Text>
+<Text id="eSayNatureCalling">
+Nature is calling!
+</Text>
+<Text id="eSayGettingNewClothes">
+Getting new clothes!
+</Text>
+<Text id="eSayStrolling">
+Strolling
+</Text>
+<Text id="eSayExercising">
+Exercising
+</Text>
+<Text id="eSayCuriousCreek">
+Playing in the very narrow stream
+</Text>
+<Text id="eSayCuriousDryGrass">
+Looking at the dry grass
+</Text>
+<Text id="eSayCuriousRoster">
+Looking at the bush
+</Text>
+<Text id="eSayCuriousCoconuts">
+Trying to reach coconuts
+</Text>
+<Text id="eSayCuriousVines">
+Curious about the vines
+</Text>
+<Text id="eSayCuriousDrySoil">
+Curious about the patch of soil
+</Text>
+<Text id="eSayCuriousFire">
+Looking at the fire
+</Text>
+<Text id="eSaySeesUnusual">
+Sees something unusual...
+</Text>
+<Text id="eSayRainDancing">
+Rain dancing
+</Text>
+<Text id="eSayLaundry">
+Doing laundry
+</Text>
+<Text id="eSayChatting">
+Chatting
+</Text>
+<Text id="eSayTellingJoke">
+Telling a joke
+</Text>
+<Text id="eSayArguing">
+Arguing
+</Text>
+<Text id="eSayComplaining">
+Complaining
+</Text>
+<Text id="eSayPraising">
+Praising
+</Text>
+<Text id="eSayTeaching">
+Teaching
+</Text>
+<Text id="eSayNotFeelWell">
+Not feeling well
+</Text>
+<Text id="eSayAgitated">
+Jumpy!
+</Text>
+<Text id="eSayForaging">
+Foraging
+</Text>
+<Text id="eSayBuildingHut">
+Building a hut
+</Text>
+<Text id="eSayBuildingHospital">
+Building a hospital
+</Text>
+<Text id="eSayBuildingClothingHut">
+Building a clothing hut
+</Text>
+<Text id="eSayBuilgingHospital">
+Building a hospital
+</Text>
+<Text id="eSayExaminingHut">
+Examining the hut
+</Text>
+<Text id="eSayFixingHut">
+Fixing the hut
+</Text>
+<Text id="eSayRebuildingLoveshack">
+Rebuilding broken hut
+</Text>
+<Text id="eSayResearching">
+Researching
+</Text>
+<Text id="eSayGoingIndoors">
+Going indoors
+</Text>
+<Text id="eSayGatheringFirewood">
+Gathering firewood
+</Text>
+<Text id="eSayStartingFire">
+Starting a fire
+</Text>
+<Text id="eSayMakingCuttingTool">
+Heat treating a fish bone
+</Text>
+<Text id="eSayNeedDendrology">
+This may require more research.
+</Text>
+<Text id="eSayFillingCauldronFreshWater">
+Filling a pot with fresh water
+</Text>
+<Text id="eSayFillingCauldronSaltWater">
+Filling a pot with salt water
+</Text>
+<Text id="eSayHeatingRockInFire">
+Heating a rock in the fire
+</Text>
+<Text id="eSayTakingHotRockToCauldron">
+Taking a hot rock to the pot
+</Text>
+<Text id="eSayAddingToStew">
+Adding to the stew
+</Text>
+<Text id="eSayRetrievingPot">
+Retrieving a cauldron
+</Text>
+<Text id="eSayGatheringKindling">
+Gathering dry grass
+</Text>
+<Text id="eSayRunningAway">
+Running away
+</Text>
+<Text id="eSayNeedAdeptResearcher">
+It would be best to leave this for an adept scientist.
+</Text>
+<Text id="eSayBuryDead">
+Burying the dead
+</Text>
+<Text id="eSayCelebrating">
+Celebrating
+</Text>
+<Text id="eSayHonoring">
+Honoring
+</Text>
+<Text id="eSayNoFood">
+The tribe has too little food for that!
+</Text>
+<Text id="eSayNoFireForFruit">
+There needs to be a fire going!
+</Text>
+<Text id="eSayRocksNotHot">
+The rocks aren't hot yet!
+</Text>
+<Text id="eSayRocksNeedToBeCovered">
+The rocks need to be covered.
+</Text>
+<Text id="eSayRocksMissingFromPit">
+Looks like there were rocks here.
+</Text>
+<Text id="eSayNeedsMoreIngredients">
+ more herbs needed.
+</Text>
+<Text id="eSayStewIsReady">
+A hot stew is ready!
+</Text>
+<Text id="eSayPickingMushroom">
+Picking a mushroom
+</Text>
+<Text id="eSayPickingCollectable">
+Collecting a new item!
+</Text>
+<Text id="eSayPickingUncommonCollectable">
+Collecting a new uncommon item!
+</Text>
+<Text id="eSayPickingRareCollectable">
+Collecting a new rare item!
+</Text>
+<Text id="eSayPickingOldCollectable">
+Collecting an item for the scientists
+</Text>
+<Text id="eSayCollectingFishScale">
+Collecting a fish scale
+</Text>
+<Text id="eSayCollectingUncommonFishScale">
+Collecting an uncommon scale
+</Text>
+<Text id="eSayCollectingRareFishScale">
+Collecting a rare fish scale!
+</Text>
+<Text id="eSayCollectingLabEquipment">
+Collecting lab gear
+</Text>
+<Text id="eSayCollectingUncommonLabEquipment">
+Collecting uncommon lab gear
+</Text>
+<Text id="eSayCollectingRareLabEquipment">
+Collecting rare lab gear!
+</Text>
+<Text id="eSayCollectingMausoleumMural">
+Collecting mausoleum piece
+</Text>
+<Text id="eSayCollectingUncommonMausoleumMural">
+Collecting uncommon piece
+</Text>
+<Text id="eSayCollectingRareMausoleumMural">
+Collecting rare mausoleum piece!
+</Text>
+<Text id="eSayCollectingWindflute">
+Collecting a wind flute head
+</Text>
+<Text id="eSayCollectingUncommonWindflute">
+Collecting uncommon flute head
+</Text>
+<Text id="eSayCollectingRareWindflute">
+Collecting a rare flute head!
+</Text>
+<Text id="eSayEnoughHerbs">
+This stew already has plenty of herbs.
+</Text>
+<Text id="eSayNeedMoreHerbs">
+Still need %d additional herbs!
+</Text>
+<Text id="eSayHerbsReady">
+The herbs are ready to make a stew.
+</Text>
+<Text id="eSaySwimming">
+Going swimming
+</Text>
+<Text id="eSayDiving">
+Diving into the pond
+</Text>
+<Text id="eSayHuntingFish">
+Catching algae-eating fish!
+</Text>
+<Text id="eSayTellStory">
+Telling a story
+</Text>
+<Text id="eSayListenStory">
+Listening to a story
+</Text>
+<Text id="eSayWaitingSomeone">
+Waiting for someone
+</Text>
+<Text id="eSayEmbracing">
+Embracing
+</Text>
+<Text id="eSayHealing">
+Healing someone
+</Text>
+<Text id="eSayCuriousCactus">
+Curious about the strange flower
+</Text>
+<Text id="eSayCaringForBaby">
+Caring for baby
+</Text>
+<Text id="eSayGoToSchool">
+Attending lecture
+</Text>
+<Text id="eSayHidingInHut">
+Hiding in the hut
+</Text>
+<Text id="eSayDrinkingRain">
+Drinking rain
+</Text>
+<Text id="eSayDoingLaundry">
+Washing the laundry
+</Text>
+<Text id="eSayDryingLaundry">
+Putting laundry out to dry
+</Text>
+<Text id="eSayDayOfHonor">
+Honoring the dead
+</Text>
+<Text id="eSayBlessingsDay">
+Honoring the guiding hand
+</Text>
+<Text id="eSayIsolaDay">
+Celebrating Isola Day
+</Text>
+<Text id="eSayBanyanFestival">
+Celebrating Banyan Festival
+</Text>
+<Text id="eSayUnsure">
+Unsure what to do
+</Text>
+<Text id="eSayShakingHead">
+Shaking head
+</Text>
+<Text id="eSayItsRaining">
+It's raining!
+</Text>
+<Text id="eSayLikesList">
+ ants, crowds, resting, laundry, medicine, turnips, butterflies, flowers, bees, the
+ dark, caves, herbs, berries, snakes, wind, rocks, heights, the ocean, playing, exploring,
+ blue, green, red, yellow, drums, bushes, bananas, coconuts, sand, sunlight, wood,
+ crab meat, whale meat, fish, fruit, papaya, flies, swimming, running, learning, dancing,
+ monkeys, parrots, work, lifting, surprises, jokes, sleeping, jumping, cooking, fire,
+ eating, dragonflies, owls, dreaming, children, talking, holidays, vegetables, quiet,
+ clouds, dirt, frogs, soap, magic, plants, rain, fog, sitting, sharks, honey, stories,
+ coral, thunder, lightning, pearls, stars, mango, nature
+</Text>
+<Text id="eSayDislikesList">
+ ants, crowds, resting, laundry, medicine, turnips, butterflies, flowers, bees, the
+ dark, caves, herbs, berries, snakes, wind, rocks, heights, the ocean, playing, exploring,
+ blue, green, red, yellow, drums, bushes, bananas, coconuts, sand, sunlight, wood,
+ crab meat, whale meat, fish, fruit, papaya, flies, swimming, running, learning, dancing,
+ monkeys, parrots, work, lifting, surprises, jokes, sleeping, jumping, cooking, fire,
+ eating, dragonflies, owls, dreaming, children, talking, holidays, vegetables, quiet,
+ clouds, dirt, frogs, soap, magic, plants, rain, fog, sitting, sharks, honey, stories,
+ coral, thunder, lightning, pearls, stars, mango, nature
+</Text>
+<Text id="eSayVillagerDetail">
+Villager Detail
+</Text>
+<Text id="eSaySkills">
+Skills
+</Text>
+<Text id="eSayResearch">
+Research
+</Text>
+<Text id="eSayBreeding">
+Parenting
+</Text>
+<Text id="eSayBuilding">
+Building
+</Text>
+<Text id="eSayHealingDetail">
+Healing
+</Text>
+<Text id="eSayGender">
+Gender
+</Text>
+<Text id="eSayStatus">
+Status
+</Text>
+<Text id="eSayLikes">
+Likes
+</Text>
+<Text id="eSayDislikes">
+Dislikes
+</Text>
+<Text id="eSayWeaningIn">
+Weaning in:
+</Text>
+<Text id="eSayMale">
+Male
+</Text>
+<Text id="eSayFemale">
+Female
+</Text>
+<Text id="eSayDead">
+Dead
+</Text>
+<Text id="eSaySick">
+Sick
+</Text>
+<Text id="eSayWeakened">
+Weakened
+</Text>
+<Text id="eSayElderly">
+Elderly
+</Text>
+<Text id="eSayHealthy">
+Healthy
+</Text>
+<Text id="eSayNursingFor">
+Nursing for:
+</Text>
+<Text id="eSayMin">
+min
+</Text>
+<Text id="eSayGuidingHand">
+Greeting the guiding hand
+</Text>
+<Text id="eSayCoolFeet">
+Cooling feet in the stream
+</Text>
+<Text id="eSayTeachChildren">
+Teaching children
+</Text>
+<Text id="eSayFailedPotion">
+This stew needs something nutritious!
+</Text>
+<Text id="eSayAttendLessons">
+Attending lessons
+</Text>
+<Text id="eSayPlayTag">
+Playing tag
+</Text>
+<Text id="eSayPlayTagIt">
+Playing tag - "It" 
+</Text>
+<Text id="eSayHe">
+He
+</Text>
+<Text id="eSayShe">
+She
+</Text>
+<Text id="eSayHeSmall">
+he
+</Text>
+<Text id="eSaySheSmall">
+she
+</Text>
+<Text id="eSayHimSmall">
+him
+</Text>
+<Text id="eSayHerSmall">
+her
+</Text>
+<Text id="eSayHisSmall">
+his
+</Text>
+<Text id="eSayNext">
+Next
+</Text>
+<Text id="eString_XofY">
+%d of %d
+</Text>
+<Text id="eSayPrev">
+Previous
+</Text>
+<Text id="eSayChooseClothes">
+Choose an outfit for your villager!
+</Text>
+<Text id="eSayTastesBitter">
+Nasty! It's bitter.
+</Text>
+<Text id="eSayTastesSaltyDisgusting">
+Too salty! It's disgusting.
+</Text>
+<Text id="eSayHic">
+Oh no, hiccups!
+</Text>
+<Text id="eSayYikes">
+Yikes!
+</Text>
+<Text id="eSayWoah">
+Whoa!
+</Text>
+<Text id="eSayYummy">
+Yummy!
+</Text>
+<Text id="eSayFeelSick">
+I feel sick!
+</Text>
+<Text id="eSayFeelsBetter">
+{He/She} feels better.
+</Text>
+<Text id="eSayLearnsFaster">
+{He/She} feels smarter.
+</Text>
+<Text id="eSayTechBonus">
+{He/She} has scientific clarity.
+</Text>
+<Text id="eSayFeelsLikeNew">
+{He/She} feels much healthier!
+</Text>
+<Text id="eSayCantDrinkAgain">
+That villager can't eat more stew so soon.
+</Text>
+<Text id="eSayHealedButStarving">
+This stew works better when the tribe is eating well.
+</Text>
+<Text id="eSayFeelsLight">
+{He/She} feels light and springy!
+</Text>
+<Text id="eSayFeelsRomantic">
+{He/She} feels romantic!
+</Text>
+<Text id="eSayFeelsHungry">
+{He/She} suddenly feels very hungry!
+</Text>
+<Text id="eSayFeelsItchy">
+{He/She} is all itchy!
+</Text>
+<Text id="eSayFeelsFertile">
+{He/She} feels fertile.
+</Text>
+<Text id="eSayFeelsDown">
+{He/She} feels kind of down.
+</Text>
+<Text id="eSayFeelsSleepy">
+So sleepy...
+</Text>
+<Text id="eSayFeelsATrance">
+{He/She} feels a trance coming on.
+</Text>
+<Text id="eSayFeelsVeryFertile">
+{He/She} feels very fertile.
+</Text>
+<Text id="eSayFeelsTired">
+{He/She} feels tired...
+</Text>
+<Text id="eSayFeelsFaint">
+{He/She} feels woozy.
+</Text>
+<Text id="eSayFeelsHappy">
+{He/She} has happy feet!
+</Text>
+<Text id="eSayNeedsWarming">
+{He/She} is freezing!
+</Text>
+<Text id="eSayNeedsCooling">
+{He/She} is way too hot!
+</Text>
+<Text id="eSayHasStomachAche">
+{He/She} has a stomachache.
+</Text>
+<Text id="eSayAwfulPotion">
+That stew was awful.
+</Text>
+<Text id="eSayCantMove">
+...can't move...
+</Text>
+<Text id="eSayGotToGo">
+{He/She} has got to go!
+</Text>
+<Text id="eSayIsEveryoneSlow">
+Is everyone else slowing down?
+</Text>
+<Text id="eSayMustExercise">
+Must exercise!
+</Text>
+<Text id="eSayFunPotion">
+Whee! What a fun stew!
+</Text>
+<Text id="eSayTooHot">
+Trying to cool off
+</Text>
+<Text id="eSayNoPotion">
+There is no stew ready!
+</Text>
+<Text id="eSayTooCold">
+Trying to get warm
+</Text>
+<Text id="eSayTrance">
+In a trance
+</Text>
+<Text id="eSaySprituality">
+Having an epiphany
+</Text>
+<Text id="eSayParalyzed">
+Paralyzed
+</Text>
+<Text id="eSayBadDancingChief">
+Leading a dance poorly
+</Text>
+<Text id="eSayBadDancing">
+Dancing poorly
+</Text>
+<Text id="eSayGarlicBreath">
+Throwing up!
+</Text>
+<Text id="eSayBubbleBreath">
+That tasted soapy!
+</Text>
+<Text id="eSayHiccups">
+Hic!
+</Text>
+<Text id="eSayPlayInDirt">
+Playing in the dirt
+</Text>
+<Text id="eSayBlind">
+Who turned out the lights?!
+</Text>
+<Text id="eSayCrazy">
+Blannesamagawa loomajoobamooga!!
+</Text>
+<Text id="eSayGoingToSweetPotion">
+Something smells YUMMY!
+</Text>
+<Text id="eSayHonoringTree">
+Honoring the tree
+</Text>
+<Text id="eSayContemplatingTree">
+Contemplating the tree
+</Text>
+<Text id="eSayTeachingBabyToTalk">
+Teaching baby some words
+</Text>
+<Text id="eSayCleaningUpMud">
+Cleaning up after the rain
+</Text>
+<Text id="eSayPlayingInSand">
+Making sandcastles
+</Text>
+<Text id="eSayPotIsEmpty">
+The pot is empty.
+</Text>
+<Text id="eSayPotIsNotEmpty">
+The cooking pot is not empty!
+</Text>
+<Text id="eSayPotHasFreshWater">
+The pot is full of fresh water.
+</Text>
+<Text id="eSayPotHasBoilingFreshWater">
+The pot is full of boiling fresh water.
+</Text>
+<Text id="eSayPotHasSaltWater">
+The pot is full of salt water.
+</Text>
+<Text id="eSayPotHasBoilingSaltWater">
+The pot is full of boiling salt water.
+</Text>
+<Text id="eSayWaterIsNotBoiling">
+The pot needs boiling water.
+</Text>
+<Text id="eSayUnfinishedStewCooking">
+An unfinished stew is cooking.
+</Text>
+<Text id="eSayUnfinishedStewIsCold">
+The pot contains a cold unfinished stew.
+</Text>
+<Text id="eSayPotionReady">
+This stew will evaporate in %dm %02ds
+</Text>
+<Text id="eSayItchy">
+Itchy
+</Text>
+<Text id="eSayFaint">
+Feeling faint
+</Text>
+<Text id="eSayTryToReachKey">
+Trying to reach the key
+</Text>
+<Text id="eSayClearingRubble">
+Clearing rubble
+</Text>
+<Text id="eSayClearingDebris">
+Clearing debris
+</Text>
+<Text id="eSayKeepingStreamClear">
+Keeping the stream clear
+</Text>
+<Text id="eSayHarvestFruit">
+Harvesting fruit
+</Text>
+<Text id="eSayCookFruit">
+Cooking fruit in an earthen oven
+</Text>
+<Text id="eSayCarryFruitStore">
+Carrying fruit to the food bin
+</Text>
+<Text id="eSayCarryFruitStew">
+Carrying fruit to the cooking pot
+</Text>
+<Text id="eSayGatherHerbs">
+Gathering herbs
+</Text>
+<Text id="eSayStackingSoap">
+Stacking soap
+</Text>
+<Text id="eSaySoapIsReady">
+Soap is ready to stack.
+</Text>
+<Text id="eSaySeesFlatRock">
+{name} sees a flat rock for pounding pulp.
+</Text>
+<Text id="eSayMakingCloth">
+Making cloth
+</Text>
+<Text id="eSaySeesPulpyVines">
+{name} sees the pulpy vines.
+</Text>
+<Text id="eSayCuttingPulpyVines">
+Cutting some pulpy vines
+</Text>
+<Text id="eSayConfusedByToughVines">
+Don't know what to do with these tough vines!
+</Text>
+<Text id="eSayVinesTooTough">
+These vines are too tough to tear!
+</Text>
+<Text id="eSaySpreadingPulp">
+Spreading cloth pulp
+</Text>
+<Text id="eSayClothFinished">
+Storing finished cloth
+</Text>
+<Text id="eSayClothPulpIsReady">
+Pulp for cloth is ready.
+</Text>
+<Text id="eSayNurserySchool">
+Getting some schooling
+</Text>
+<Text id="eSaySeesNurserySchool">
+{name} sees the completed nursery school.
+</Text>
+<Text id="eSayTeachingAtNursery">
+Teaching at the nursery school
+</Text>
+<Text id="eSaySeesNurserySchoolConstruction">
+{name} sees a nursery school under construction.
+</Text>
+<Text id="eSaySeesNurserySchoolFoundation">
+{name} sees a nursery school foundation.
+</Text>
+<Text id="eSayNotEnoughSkills">
+Not enough skills to teach!
+</Text>
+<Text id="eSayAlchemistPresent">
+Too many cooks spoil the broth!
+</Text>
+<Text id="eSayGetOutOfRain">
+Getting out of the rain
+</Text>
+<Text id="eSayInspectingFood">
+Inspecting the food
+</Text>
+<Text id="eSayPlaying">
+Playing
+</Text>
+<Text id="eSayStomping">
+Stomping
+</Text>
+<Text id="eSayWashFace">
+Washing face
+</Text>
+<Text id="eSayWashHands">
+Washing hands
+</Text>
+<Text id="eSayBathing">
+Bathing
+</Text>
+<Text id="eSayLookAtFishies">
+Looking at fishies
+</Text>
+<Text id="eSayLookForMushrooms">
+Looking for mushrooms
+</Text>
+<Text id="eSayLookForCollectibles">
+Looking for collectibles
+</Text>
+<Text id="eSayStumbling">
+Running around
+</Text>
+<Text id="eSayDoingExercise">
+Doing exercise
+</Text>
+<Text id="eSaySwimWithFish">
+Swimming with fish
+</Text>
+<Text id="eSayCuriousHerb1">
+Curious about spicy-smelling plant
+</Text>
+<Text id="eSayCuriousHerb2">
+Curious about sweet-smelling plant
+</Text>
+<Text id="eSayCuriousHerb3">
+Curious about soapy-smelling plant
+</Text>
+<Text id="eSayCuriousHerb4">
+Curious about the pulpy vines
+</Text>
+<Text id="eSayPlaySeesaw">
+Playing seesaw
+</Text>
+<Text id="eSayLonely">
+A little bit lonely
+</Text>
+<Text id="eSayWashBaby">
+Washing baby
+</Text>
+<Text id="eSayChangeBaby">
+Changing baby
+</Text>
+<Text id="eSayWatchPeopleWork">
+Watching people work
+</Text>
+<Text id="eSayDoAlchemy">
+Cooking
+</Text>
+<Text id="eSayEmptyPot">
+Emptying the pot
+</Text>
+<Text id="eSayUsePotion">
+Eating some stew
+</Text>
+<Text id="eSayDirectWork">
+Directing work
+</Text>
+<Text id="eSayRefusing">
+Refusing
+</Text>
+<Text id="eSayFruitTooHard">
+This fruit needs to be cooked!
+</Text>
+<Text id="eSayBuildScaffold">
+Building scaffolding
+</Text>
+<Text id="eSayNeedLieDown">
+Needs to lie down
+</Text>
+<Text id="eSayNeedSitDown">
+Needs to sit down
+</Text>
+<Text id="eSayLookForGrownup">
+Looking for mommy
+</Text>
+<Text id="eSayLookForGrownup2">
+Looking for daddy
+</Text>
+<Text id="eSayPlayPuddles">
+Playing in puddles
+</Text>
+<Text id="eSayInspectHut">
+Inspecting the hut
+</Text>
+<Text id="eSayShowHerbs">
+Showing baby the herbs
+</Text>
+<Text id="eSayHidingSomething">
+Hiding something
+</Text>
+<Text id="eSaySpringCleaning">
+Spring cleaning
+</Text>
+<Text id="eSaySunBaby">
+Enjoying the beach with baby
+</Text>
+<Text id="eSayPracticeDance">
+Secretly practicing a dance
+</Text>
+<Text id="eSayTryGetWarm">
+Trying to get warm
+</Text>
+<Text id="eSayDepositFood">
+Depositing food
+</Text>
+<Text id="eSayReconstructLab">
+Reconstructing alchemy lab
+</Text>
+<Text id="eSayHarvestingBlackberries">
+Harvesting blackberries
+</Text>
+<Text id="eStatisicsLabel">
+Statistics
+</Text>
+<Text id="eAchievementsLabel">
+Awards
+</Text>
+<Text id="eSRemainsSuffix">
+%s's remains
+</Text>
+<Text id="eCollectFishSuffix">
+collected some fish.
+</Text>
+<Text id="eIntroPage1Line1">
+There was once a mysterious island called Isola,\n
+</Text>
+<Text id="eIntroPage1Line2">
+home to a tribe of lost refugees.\n
+</Text>
+<Text id="eIntroPage2Line1">
+Many generations had flourished on the island, but the tribal chief was now troubled.\n
+</Text>
+<Text id="eIntroPage2Line2">
+Life had begun to slowly diminish. Where have the birds gone?\n
+</Text>
+<Text id="eIntroPage2Line3">
+The fish? Is Isola dying? An expedition is to be formed,\n
+</Text>
+<Text id="eIntroPage2Line4">
+and the chief prays for guidance from above...\n
+</Text>
+<Text id="eIntroPage4Line1">
+With divine guidance, the expedition was planned and launched.\n
+</Text>
+<Text id="eIntroPage4Line2">
+After days of wandering aimlessly through the jungle, they realized that they were
+ lost.\n
+</Text>
+<Text id="eIntroPage4Line3">
+As their hope was failing, they crashed through some thorny brambles \n
+</Text>
+<Text id="eIntroPage4Line4">
+and stumbled onto something they could not have expected.\n
+</Text>
+<Text id="eIntroPage5Line1">
+They found themselves at the edge of a clearing on the eastern shore of the island.\n
+</Text>
+<Text id="eIntroPage5Line2">
+Rooted in the sandy silt of a dry creek bed, an enormous, dying tree stood forsaken.\n
+</Text>
+<Text id="eIntroPage5Line3">
+Do you need help getting started?\n
+</Text>
+<Text id="eIntroPage5Line6">
+ \n
+</Text>
+<Text id="eMidGamePage1Line1">
+With the stubborn moss removed,  \n
+</Text>
+<Text id="eMidGamePage1Line2">
+beautiful runes are visible on the rocks.\n
+</Text>
+<Text id="eMidGamePage1Line3">
+A hidden story is revealed...\n
+</Text>
+<Text id="eMidGamePage2Line1">
+Before anything lived on Isola, there was only a single sapling.\n
+</Text>
+<Text id="eMidGamePage2Line2">
+How it came to be on the island no one can possibly know.\n
+</Text>
+<Text id="eMidGamePage2Line3">
+\n
+</Text>
+<Text id="eMidGamePage3Line1">
+The tree grew and thrived. Over hundreds of years it became strong and ancient.\n
+</Text>
+<Text id="eMidGamePage3Line2">
+It was so full of life, and so deeply rooted, that the island itself\n
+</Text>
+<Text id="eMidGamePage3Line3">
+was infused with a unique and potent life force.\n
+</Text>
+<Text id="eMidGamePage4Line1">
+The power of nature and the power of magic alike \n
+</Text>
+<Text id="eMidGamePage4Line2">
+emanated from the essence of this great tree. This is what enabled\n
+</Text>
+<Text id="eMidGamePage4Line3">
+the inhabitants of Isola to perform such wonders as they did.\n
+</Text>
+<Text id="eMidGamePage5Line1">
+But what has become of the tree?  \n
+</Text>
+<Text id="eMidGamePage5Line2">
+Is it being undone by some great illness or curse?\n
+</Text>
+<Text id="eMidGamePage5Line3">
+If it dies, that which makes Isola special will be lost forever...\n
+</Text>
+<Text id="eEndGamePage1Line1">
+Once a lone sapling on a barren island...\n
+</Text>
+<Text id="eEndGamePage2Line1">
+Now, once more a thriving and mighty banyan tree, healed and showing new growth.\n
+</Text>
+<Text id="eEndGamePage3Line1">
+Life and balance, nature and magic, have been restored to Isola.\n
+</Text>
+<Text id="eEndGamePage3Line2">
+As your villagers continue to grow and thrive, they are drawn to the mysterious tree.\n
+</Text>
+<Text id="eEndGamePage3Line3">
+The importance of the Tree of Life, will never again be forgotten...\n
+</Text>
+<Text id="eEndGamePage4Line1">
+...by your villagers.\n
+</Text>
+<Text id="eEndGamePage5Line1">
+...or by anyone else.\n
+</Text>
+<Text id="eReplayTutorialInstruction">
+Replay Tutorial Instruction
+</Text>
+<Text id="eTTipInstruct1					">
+Let's explore the area...\n
+click  and  hold  the  mouse  button \n
+anywhere on the ground and drag the \n
+mouse to  move around  the  village.\n
+</Text>
+<Text id="eTTipInfo2">
+Good! This is how you move about \n
+the island. Feel free to explore your\n
+little village.\n
+</Text>
+<Text id="eTTipInstruct3">
+Let's get to know one of the villagers...\n
+find and click a villager to select them.\n
+</Text>
+<Text id="eTTipInfo4">
+Perfect! A white circle shows which \n
+villager is  selected.  See important   \n
+details about this villager, like their \n
+name, at the bottom of the screen.\n
+</Text>
+<Text id="eTTipInstruct5">
+Let's move a villager...\n
+click and hold the mouse button \n
+on a villager and drag the mouse\n
+to move them.\n
+</Text>
+<Text id="eTTipInfo6">
+Excellent! Moving villagers influences their \n
+behavior. Drag and drop villagers anywhere  \n
+you like to help them  explore useful or  \n
+interesting places in the village.\n
+</Text>
+<Text id="eTTipInstruct7">
+Your little villagers must be hungry,\n
+after their long expedition. Fortunately, \n
+there are some blackberries available. \n
+Just drag someone to the blackberry bush\n
+and they will attempt to gather some berries.\n
+</Text>
+<Text id="eTTipInfo8">
+Great job! Your villagers can survive on \n
+these blackberries until they find a more \n
+sustainable source of food.\n
+</Text>
+<Text id="eTTipInstruct9">
+Your villagers would benefit from a \n
+warm and cozy fire. First, drag an \n
+adult villager to this pile of \n
+driftwood, so they can gather wood.\n
+</Text>
+<Text id="eTTipInfo10">
+Well done. There is a pile of dry firewood in\n
+the fire pit.\n
+</Text>
+<Text id="eTTipInstruct11">
+Kindling is also needed to start a fire.\n
+Drag your villager to this patch of dry grass.\n
+</Text>
+<Text id="eTTipInfo12">
+Good. Your villager put an armful of dry grass into the fire pit.\n
+</Text>
+<Text id="eTTipInstruct13">
+With dry firewood and kindling, all that's\n
+necessary to start the fire is to\n
+drag a villager to the fire pit.\n
+</Text>
+<Text id="eTTipInfo14">
+Well done! Your tribe can now enjoy\n
+the benefits of a hot, crackling\n
+fire on those chilly nights.\n
+</Text>
+<Text id="eTTipInstruct15">
+Your villagers interact with many\n
+locations around the map. Let's\n
+start by dragging one of them to this\n
+hut that needs some repair. \n
+</Text>
+<Text id="eTTipInfo16">
+Excellent! This hut is the love shack and is\n
+needed for villagers to 'discuss' having a baby. Keep working on it -- \n
+this hut will be built much faster than other huts. By the way, any hut that has\n
+not been worked on yet can be relocated by dragging it\n
+around the map. Release it anywhere when its footprint is green\n
+.
+</Text>
+<Text id="eTTipInstruct17">
+Let's teach a villager to research...\n
+drag an adult villager to the large \n
+table at the center of the big structure.\n
+</Text>
+<Text id="eTTipInfo18">
+Great!  This  villager is  learning  to \n
+research. As research  skills improve, \n
+you  gain  tech  points  that  can be  \n
+spent like money on new technologies.\n
+</Text>
+<Text id="eTTipInstruct21">
+Let's check out the Technologies screen...\n
+click the 'Tech' button on the left side of \n
+the screen.\n
+</Text>
+<Text id="eTTipInfo22">
+Welcome to the Technologies screen.\n
+Use the tech points gained from research\n
+to upgrade a variety of different technologies.\n
+Click a '?' to learn more about a technology. \n
+</Text>
+<Text id="eTTipInstruct25">
+Children can also contribute to village life.\n
+Their keen eyes can spot mushrooms and small\n
+collectibles that adults might overlook.\n
+Drag a child to this collectible before it\n
+disappears.\n
+</Text>
+<Text id="eTTipInfo26">
+Ooooh, the child found a collectible!\n
+Your villagers can collect Isola's small and\n
+beautiful treasures, but only when found by\n
+a child. The same collectible found more than\n
+once is converted into tech points.\n
+</Text>
+<Text id="eTTipInstruct27">
+Let's check out the Collections screen.\n
+Click the 'Collections' button on the left\n
+side of the screen. \n
+</Text>
+<Text id="eTTipInfo28">
+Welcome to the Collections screen.\n
+Here you can see which collectibles your\n
+village children have gathered. Each set of collectibles\n
+benefits your tribe in some way. For example, each\n
+time you find a new piece of lab equipment, the\n
+researchers are permanently more productive!\n
+</Text>
+<Text id="eTTipInstruct29">
+Oh no!  One of  your little villagers is \n
+sick.  Let's train a healer. Find the sick \n
+villager, then drag a second villager onto  \n
+the sick one.\n
+</Text>
+<Text id="eTTipInfo30">
+Wonderful! The sick villager is better.\n
+Your healer also gained healing skill,\n
+which is essential for your villagers \n
+to lead long and healthy lives.\n
+</Text>
+<Text id="eTTipInstruct31">
+Let's learn more about a villager...\n
+click the 'Detail' button at the \n
+bottom of the screen.\n
+</Text>
+<Text id="eTTipInfo32">
+Welcome to the Detail screen.\n
+Learn more about each villager, such \n
+as age, health and skills. Check the \n
+box to the right of a skill to set a \n
+skill preference. Click 'Done' to return\n
+to the main screen.\n
+</Text>
+<Text id="eTTipInstruct33">
+Some of the mysteries of the island will require\n
+that other puzzles are solved first, or that \n
+certain supplies have been made available. Let's\n
+help your villagers with an easy one-- making a\n
+supply of cutting tools. Drop someone on this giant\n
+fish skeleton on the beach.\n
+</Text>
+<Text id="eTTipInfo34">
+Excellent! \n
+Your villagers have 3 cutting tools available now. \n
+They can make more any time they need them-- all you \n
+have to do is drop another villager on the giant fish \n
+skeleton again.\n
+</Text>
+<Text id="eTTipInstruct35">
+You can see the status of the game's puzzles on the Puzzles and Milestones screen.
+ \n
+Click the 'Puzzles' button on the left  \n
+side of the screen. \n
+</Text>
+<Text id="eTTipInfo36">
+Welcome to the Puzzles and Milestones screen.\n
+The island is full of puzzles and hidden secrets\n
+waiting to be discovered. Your goal is to solve\n
+Isola's sixteen puzzles while helping your tribe\n
+survive.\n
+</Text>
+<Text id="eTTipInstruct37">
+Well, as we approach the conclusion of this tutorial, \n
+we are really going to need that love shack finished. \n
+Keep deploying villagers (especially ones with building \n
+skill) on it until construction is complete. \n
+</Text>
+<Text id="eTTipInfo38">
+Good!\n
+The love shack is a romantic hut and a perfect place \n
+for village couples to discuss starting or adding to \n
+their families and the tribe!\n
+</Text>
+<Text id="eTTipInstruct39">
+Let's make some babies...\n
+drag an adult male villager onto an \n
+adult female villager or vice versa. \n
+A villager will not seek a mate on \n
+their own unless they are trained, and \n
+Parenting is set as their preferred skill.\n
+</Text>
+<Text id="eTTipInfo40">
+Good!  They get along and  want to\n
+go indoors for some privacy. With any \n
+luck, the stork may bring a new baby.\n
+</Text>
+<Text id="eTTipStandAloneWelcome">
+Welcome to Virtual Villagers: The Tree Of Life\n
+\n
+Relief replaces panic as the villagers realize \n
+that they have been granted success in their \n
+quest for answers.  They are certain that they \n
+have been led to this forsaken, dying tree. As \n
+they pray for continued guidance, they begin to \n
+seek a way to save it . . . and all of Isola!\n
+</Text>
+<Text id="eTTipStandAloneDragFail">
+Almost! Click and hold the mouse button \n
+anywhere  on the  ground and  drag  the  \n
+mouse to move around the village.\n
+</Text>
+<Text id="eTTipStandAloneBlackberryWait">
+Good! Let's wait while the villager gathers blackberries. \n
+If they succeed, they will bring some to\n
+the food bin near the center of the village. \n
+</Text>
+<Text id="eTTipStandAloneBlackberryFail">
+Darn! The villager didn't succeed.\n
+Sometimes it takes a few tries, so drag\n
+the same villager to the blackberries again.\n
+</Text>
+<Text id="eTTipStandAloneResearchWait">
+Good! Let's give the villager a \n
+moment to  research.  If they \n
+succeed, you will earn tech points.\n
+</Text>
+<Text id="eTTipStandAloneResearchFail">
+Oh, well! The villager was unsuccessful \n
+at research. Drag the same villager to \n
+the table again.\n
+</Text>
+<Text id="eTTipStandAloneBreedFail">
+Too bad! They didn't get along or \n
+aren't in the mood. Try again with \n
+the same couple or try a different \n
+pair to see if love blossoms.
+</Text>
+<Text id="eTTipStandAloneFirstPreg">
+Congratulations! The stork  brought \n
+a baby. Be careful! A mother \n
+cares for her child until age two and \n
+won't do much else.\n
+</Text>
+<Text id="eTTipStandAloneHealFail">
+Shoot! The villager is still sick.\n
+Drag the same villager onto \n
+the sick one again.\n
+</Text>
+<Text id="eTTipStandAloneFirstDeath">
+I'm sorry. One of your little villagers is dead.\n
+Villagers die of old age, but they can also die \n
+from disease and starvation. Buying medicine \n
+technology helps your villagers live longer \n
+and have fewer diseases.\n
+</Text>
+<Text id="eTTipStandAloneMiniMap">
+Welcome to the Overview Map. \n
+Enjoy a  bird's-eye  view of your village,\n
+then click anywhere on the map to zoom\n
+in to that spot.\n
+</Text>
+<Text id="eTTipStandAloneRealTime">
+Virtual Villagers is a true real-time game.\n
+Your tribe continues to do what they have learned,\n
+even when the computer is off or you stop playing,\n
+but remember to check  back  often to care for \n
+your little villagers! Have fun!\n
+</Text>
+<Text id="eTTipStandAloneFinal">
+You have mastered the basics!\n
+How you manage your tribe now is up to you!\n
+Decide wisely who will do what. Your villagers \n
+will slowly learn to do the tasks you show them.\n
+Once survival is no longer an issue, you can\n
+help them uncover the hidden secrets of Isola!\n
+Remember that the game continues to run, even\n
+when it is off, so keep a close eye on your tribe!\n
+</Text>
+<Text id="eTTipStandAloneConfused">
+Hmmm... this villager is confused.\n
+Sometimes villagers need more skill \n
+or more advanced technology before \n
+they understand what to do.\n
+</Text>
+<Text id="eTTipStandAloneSkillPref">
+Great! You set a villager's skill preference.\n
+From now on, they prefer this type of work \n
+and gain skill the more they practice.\n
+</Text>
+<Text id="eTTipStandAloneChildrenNoWork">
+Nice try, but children don't work. They\n
+love to play and won't do what you ask \n
+until they grow up. They can still help\n
+out though, as they sometimes find\n
+delicious mushrooms or collectibles.\n
+</Text>
+<Text id="eTTipStandAloneMommiesNoWork">
+Nursing mothers don't work while they \n
+are caring for an infant. \n
+</Text>
+<Text id="eTTipStandAloneCuttingToolWait">
+Good. Let's watch this villager make a supply \n
+of cutting tools for the tribe. \n
+</Text>
+<Text id="eTipFirstTrainee">
+Congratulations! One of your villager's \n
+reached the `Trainee` level in a skill \n
+category.\n
+</Text>
+<Text id="eTipFirstAdept">
+Congratulations! One of your villager's \n
+reached  the `Adept` level in a skill \n
+category.\n
+</Text>
+<Text id="eTipFoodOk">
+Good job! Your villagers aren't worried about\n
+food anymore. Now you can focus on research\n
+and increasing the population of the village.\n
+</Text>
+<Text id="eTipFirstAdult">
+One of the young children of your tribe is now\n
+old enough to work! Your tribe needs every\n
+able-bodied person to help out, so find that\n
+villager and keep everyone productive.\n
+</Text>
+<Text id="eTipFirstMaster">
+One of your villagers is a master in a skill!\n
+This is a great accomplishment. Making any one\n
+villager a master in all five skills grants\n
+that villager the prestigious title of Scholar.\n
+</Text>
+<Text id="eTipAbsPopCap">
+Congratulations! Your village reached\n
+its maximum sustainable population!\n
+</Text>
+<Text id="eTipNewRecipe">
+Your villagers found an interesting new\n
+recipe!\n
+</Text>
+<Text id="eTipYouLose">
+Alas, the fates were not kind to your village.\n
+All of your little villagers died. The island \n
+of Isola remains a myth and its mysteries \n
+unsolved.\n
+</Text>
+<Text id="eTipPuzzlePotionsMade">
+The potions made\n
+\n
+Potion Made\n
+\n
+</Text>
+<Text id="eTipPuzzleStreamRestored">
+The Stream \n
+\n
+Your villagers have restored the normal \n
+life-giving flow of the stream.\n
+</Text>
+<Text id="eTipPuzzleFruitwellsRestored">
+The Cooking Pit\n
+\n
+Your villagers have restored the fruit \n
+cooking pit back to functional condition.\n
+</Text>
+<Text id="eTipPuzzleButterfliesRestored">
+The Butterflies\n
+\n
+Your villagers have made the Tree of Life \n
+attractive to butterflies again.\n
+</Text>
+<Text id="eTipPuzzleCuttingToolsComplete">
+The Cutting Tool\n
+\n
+Your villagers have discovered a method \n
+for the manufacture of cutting tools.\n
+</Text>
+<Text id="eTipPuzzleFrogRescueComplete">
+The Frog Rescue\n
+\n
+Your villagers have rescued some frogs. \n
+Good for them!\n
+</Text>
+<Text id="eTipPuzzleMakingClothComplete">
+Cloth Invented\n
+\n
+Your villagers have discovered a method \n
+for the manufacture of cloth.\n
+</Text>
+<Text id="eTipPuzzleFishingComplete">
+Fishing Nets\n
+\n
+Your villagers have repaired the fish traps. \n
+Now they can add fish to their diet.\n
+</Text>
+<Text id="eTipPuzzleSoapInvented">
+Soap Invented\n
+\n
+Your villagers have invented soap! \n
+Now they can wash behind their ears.\n
+</Text>
+<Text id="eTipPuzzleBoilingWater">
+Boiling Water\n
+\n
+Your villagers figured out how \n
+to boil water. Good for them!\n
+</Text>
+<Text id="eTipPuzzleMossyRocks">
+The Mossy Rocks\n
+\n
+A story seems to be carved  \n
+in the rocks!\n
+</Text>
+<Text id="eTipPuzzleGrandFeast">
+The Grand Feast\n
+\n
+The villagers have put together\n
+a marvelous feast!\n
+</Text>
+<Text id="eTipPuzzleNurserySchoolComplete">
+The Nursery School\n
+\n
+Your villagers have built a nursery school. \n
+This will help them raise smarter\n
+children.\n
+</Text>
+<Text id="eTipPuzzleHonorTreeComplete">
+Honoring the Tree\n
+\n
+Your villagers have honored the tree. \n
+</Text>
+<Text id="eTipPuzzlePruningPuzzle">
+Pruning the Tree\n
+\n
+Your villagers have successfully \n
+treated the damaged tree limb.\n
+</Text>
+<Text id="eTipPuzzleTreeDecorated">
+Decorating the Tree\n
+\n
+Your villagers have successfully \n
+decorated the tree.\n
+</Text>
+<Text id="eTipPuzzleHut1Built">
+A New Hut!\n
+\n
+Your villagers have restored one of the\n
+broken huts! Your tribe can now support a\n
+larger population.\n
+</Text>
+<Text id="eTipPuzzleClothingHutBuilt">
+The Clothing Hut\n
+\n
+Your villagers can now spend extra tech\n
+points to customize their outfits.\n
+</Text>
+<Text id="eTipPuzzleLoveShackBuilt">
+The Love Shack\n
+\n
+Your villagers now have a private, romantic\n
+place to which they can retreat.\n
+</Text>
+<Text id="eTipPuzzleFireStarted">
+Fire!\n
+\n
+When a fire is burning, your villagers\n
+are happier and less vulnerable to disease.\n
+</Text>
+<Text id="eTipPuzzlePurifyTree">
+Purify Tree!\n
+\n
+The tree has been purified.
+</Text>
+<Text id="eTipPuzzleDecorateTree">
+Decorate Tree!\n
+\n
+The tree has been adorned with\n
+ ceremonial ornaments.
+</Text>
+<Text id="eTipPuzzleFishScaleCollectionComplete">
+Fish Scale Collection\n
+\n
+Your children collected all of the\n
+different fish scales found on Isola!\n
+Your maximum village population \n
+is increased by 5.
+</Text>
+<Text id="eTipPuzzleLabPieceCollectionComplete">
+Lab Equipment Collection\n
+\n
+Your children collected all of the\n
+different types of lab equipment found on \n
+Isola! Your maximum village population \n
+is increased by 5.\n
+</Text>
+<Text id="eTipPuzzleMausoleumCollectionComplete">
+Mausoleum Mural Collection\n
+\n
+Your children collected all of the\n
+different mausoleum mural pieces found on \n
+Isola! Your maximum village population \n
+is increased by 5.\n
+</Text>
+<Text id="eTipPuzzleWindFluteCollectionComplete">
+Wind Flute Collection\n
+\n
+Your children collected all of the\n
+different types of wind flutes found on \n
+Isola! Your maximum village population \n
+is increased by 5.\n
+</Text>
+<Text id="eTipPuzzleAllCollectionsComplete">
+All Collections Complete!\n
+\n
+Well done! Your children completed all\n
+four of the collections. In addition to\n
+keeping the collections, your maximum\n
+village population is increased by 5!\n
+</Text>
+<Text id="eEulogyDefault">
+Respected Citizen
+</Text>
+<Text id="eEulogyTextFarmer1">
+Child Of the Earth
+</Text>
+<Text id="eEulogyTextFarmer2">
+Nature's Friend
+</Text>
+<Text id="eEulogyTextResearcher1">
+Dedicated Student
+</Text>
+<Text id="eEulogyTextResearcher2">
+Inspired Inventor
+</Text>
+<Text id="eEulogyTextBreeder1">
+Parent, Teacher, Friend
+</Text>
+<Text id="eEulogyTextBreeder2">
+Dedicated to Children
+</Text>
+<Text id="eEulogyTextDoctor1">
+Guardian of Health
+</Text>
+<Text id="eEulogyTextDoctor2">
+Dedicated to Others
+</Text>
+<Text id="eEulogyTextBuilder1">
+Inspired Architect
+</Text>
+<Text id="eEulogyTextBuilder2">
+Strong Arms, Big Heart
+</Text>
+<Text id="eEulogyTextChild1">
+Curious and Playful
+</Text>
+<Text id="eEulogyTextChild2">
+Loving and Special
+</Text>
+<Text id="eEulogyTextElder1">
+Scholar
+</Text>
+<Text id="eStringCauseOfDeathUnknown">
+Unknown causes
+</Text>
+<Text id="eStringCauseOfDeathDisease">
+Disease
+</Text>
+<Text id="eStringCauseOfDeathStarvation">
+Starvation
+</Text>
+<Text id="eStringCauseOfDeathOldAge">
+Old age
+</Text>
+<Text id="eStringCauseOfDeathVocationalInjury">
+Work accident
+</Text>
+<Text id="eStringCauseOfDeathActOfNature">
+Act of Nature
+</Text>
+<Text id="eStringCauseOfDeath">
+Cause of Death
+</Text>
+<Text id="eStringRosterOfTheDead">
+Roster of the Dead
+</Text>
+<Text id="eEventTsunamiTitle">
+The Tsunami
+</Text>
+<Text id="eEventTsunamiDesc">
+One morning, the villagers noticed that the beach looked very wrong.  The waves had
+ ceased their normal rhythm, and the water had receded so far that it almost looked
+ as though the ocean itself was drying up.  Their apprehension became alarm as a powerful
+ tsunami crashed down upon the village, obliterating structures, and, sadly, sweeping
+ many villagers to a watery end.
+</Text>
+<Text id="eEventTheCreepingMoldTitle">
+The Creeping Mold
+</Text>
+<Text id="eEventTheCreepingMoldDesc">
+One morning, the villagers noticed that there was an aggressive and toxic mold spreading
+ inside the food bin and ruining the contents. The frantic villagers do their best
+ to save the food, but they can't save it all...
+</Text>
+<Text id="eEventAllergySeasonTitle">
+The Allergy Season
+</Text>
+<Text id="eEventAllergySeasonDesc">
+It's springtime, and all the flowers are in bloom. Many of the villagers suffer a
+ temporary bout of hay fever.
+</Text>
+<Text id="eEventIsolaDayTitle">
+Isola Day Celebration
+</Text>
+<Text id="eEventIsolaDayDesc">
+Today is the day that the villagers commemorate their arrival on the island of Isola
+ with dancing, celebration, and feasts!
+</Text>
+<Text id="eEventTheRainySeasonTitle">
+The Rainy Season
+</Text>
+<Text id="eEventTheRainySeasonDesc">
+Today is the first day of the rainy season, marked by the first afternoon monsoon.
+ Wow! It's really coming down! 
+</Text>
+<Text id="eEventTheColdSnapTitle">
+The Cold Snap
+</Text>
+<Text id="eEventTheColdSnapDesc">
+An unseasonably cold, wet wind has blown through the village.  The villagers were
+ going to huddle around the fire, but the wet, icy drizzle put out the fire! 
+</Text>
+<Text id="eEventTheSaltyAirTitle">
+The Salty Air
+</Text>
+<Text id="eEventTheSaltyAirDesc">
+A freak wind has come up, filling the air with salt laden sand, apparently from some
+ nearby salt flat. The salty dust is stifling and burning the villagers' eyes, and
+ they all have to hide until things settle down. 
+</Text>
+<Text id="eEventTheMonsoonTitle">
+"A Monsoon!"
+</Text>
+<Text id="eEventTheMonsoonDesc">
+The village is being pounded by a sudden, heavy rain, with drops the size of grapes!
+ The villagers can barely see where they are going. This is certainly going to make
+ it hard for them to get their chores done today.
+</Text>
+<Text id="eEventTheStingingWaspsTitle">
+The Stinging Wasps
+</Text>
+<Text id="eEventTheStingingWaspsDesc">
+Wasps have made their way through the brambles and started to make nests around the
+ village. Unaware of the unwelcome visitors, the villagers continue playing and working
+ nearby. Many villagers have been stung, and some of them are experiencing a bad reaction
+ to the stings.
+</Text>
+<Text id="eEventTheTheBanyanFestivalTitle">
+The Festival of the Banyan
+</Text>
+<Text id="eEventTheTheBanyanFestivalDesc">
+Today the villagers decide to celebrate collecting their 500th mushroom. Such industry
+ from those little youngsters is indeed worthy of praise and glad celebration! There
+ will be dancing and cake for the children.
+</Text>
+<Text id="eEventThePureSeaAirTitle">
+The Pure Sea Air
+</Text>
+<Text id="eEventThePureSeaAirDesc">
+The weather has been very pleasant lately, and the air smells especially pure and
+ clean. Everyone's lungs feel great, and their stuffy noses have cleared right up!
+ 
+</Text>
+<Text id="eEventCanoeFromOtherSideTitle">
+The Canoe from the Other Side
+</Text>
+<Text id="eEventCanoeFromOtherSideDesc">
+A canoe has just landed on the beach, piloted by a villager from another part of Isola.
+ 
+</Text>
+<Text id="eEventMysteriousFogFoodBonusTitle">
+The Mysterious Footprints
+</Text>
+<Text id="eEventMysteriousFogFoodBonusDesc">
+One morning the villagers notice that strange footprints have appeared on the ground
+ overnight. They later discover that a wealth of honeycombs have appeared, seemingly
+ out of nowhere.\n
+\n
+Your village gains {award} food.
+</Text>
+<Text id="eEventMysteriousFogFoodPenaltyTitle">
+The Mysterious Footprints
+</Text>
+<Text id="eEventMysteriousFogFoodPenaltyDesc">
+One morning the villagers notice that strange footprints have appeared on the ground
+ overnight. They later discover that someone or something has stolen some food.\n
+\n
+Your village has lost {award} food.
+</Text>
+<Text id="eEventMysteriousFogTechBonusTitle">
+The Mysterious Footprints
+</Text>
+<Text id="eEventMysteriousFogTechBonusDesc">
+One morning the villagers notice that strange footprints have appeared on the ground
+ overnight. They later discover a number of very useful scientific instruments that
+ seem to have come out of nowhere, as though they simply fell from the sky.\n
+\n
+Your village has gained {award} tech points.
+</Text>
+<Text id="eEventMysteriousFogTechPenaltyTitle">
+The Mysterious Footprints
+</Text>
+<Text id="eEventMysteriousFogTechPenaltyDesc">
+One morning the villagers notice that strange footprints have appeared on the ground
+ overnight. They later discover that someone or something has stolen some important
+ research tools.\n
+\n
+Your village has lost {award} tech points.
+</Text>
+<Text id="eEventDayOfHonorTitle">
+Day of Honor
+</Text>
+<Text id="eEventDayOfHonorDesc">
+Today is the day that the villagers pay their respects to those who have passed on.
+ 
+</Text>
+<Text id="eEventBlessingsDayTitle">
+Blessings Day Celebration
+</Text>
+<Text id="eEventBlessingsDayDesc">
+Today is the day that the villagers give thanks to those that guide their fate and
+ for all the blessings they enjoy on the island of Isola. There will be dancing and
+ ceremonies, followed by a sumptuous feast!
+</Text>
+<Text id="eEventACloserLookTitle">
+A Closer Look
+</Text>
+<Text id="eEventACloserLookDesc">
+One of the more meticulous farmers has just noticed that there are a whole bunch of
+ berries growing way in the back, where they had been previously overlooked. It looks
+ like there are quite a few more berries left than they thought!
+</Text>
+<Text id="eEventDaredevilBarrelEventTitle">
+Daredevil Barrel...of Babies! 
+</Text>
+<Text id="eEventDaredevilBarrelEventDesc">
+The villagers hear a racket in the distance that sounds like a large drum rolling
+ down a hill. A moment later, they see a barrel with little heads peeking out of it
+ appear at the top of the highest waterfall. Horrified, they watch it plummet down
+ the waterfalls, until it reaches the pond. It bobs about in the water, and they manage
+ to grab it before it sinks. Much to their relief, they find several giggling kids
+ in the barrel, completely unharmed!
+</Text>
+<Text id="eEventTheVillageAndTheTree_MallaiseTitle">
+The State of the Tree
+</Text>
+<Text id="eEventTheVillageAndTheTree_MallaiseDesc">
+The villagers have been feeling glum and moody recently. Seeing the sacred tree in
+ such a sorry state has had an adverse effect on their health and sense of well-being.
+ 
+</Text>
+<Text id="eTheEventVillageAndTheTree_EuphoriaTitle">
+The State of the Tree
+</Text>
+<Text id="eTheEventVillageAndTheTree_EuphoriaDesc">
+The villagers have been very happy and ambitious lately. Encouraged and inspired by
+ the improving health of the sacred tree, everyone seems to feel rejuvenated.
+</Text>
+<Text id="eEventAbandonedInfantsTitle">
+The Abandoned Infants 
+</Text>
+<Text id="eEventAbandonedInfantsDesc">
+As the sun comes up, the tribe is greeted by desperate crying coming from the bushes.
+ Several babies have been abandoned by someone, although they have been carefully
+ swaddled to keep them warm and comfortable. Some of the tribe's women graciously
+ volunteer to take care of the poor infants.
+</Text>
+<Text id="eEventArcOfColorsTitle">
+The Arc of Brilliant Colors
+</Text>
+<Text id="eEventArcOfColorsDesc">
+After a rain, {name} sees an arc of brilliant colors in the sky. {He/She} has seen
+ these before and knows that they don't last long, but {he/she} would like to know
+ what is at the end of one. \n
+\n
+The left side of the arc appears to be near the mausoleum, while the right side appears
+ to be dangerously close to the eastern cliff.
+</Text>
+<Text id="eEventArcOfColorsChoiceA">
+Run to the left side
+</Text>
+<Text id="eEventArcOfColorsChoiceB">
+Run to the right side
+</Text>
+<Text id="eEventArcOfColorsResultA">
+The arc grows fainter and fainter as {name} approaches its left side. Upon arriving
+ at the mausoleum, {he/she} sees that there is no more trace of it. Perhaps it was
+ sent from those who have passed on, so that they wouldn't be forgotten.
+</Text>
+<Text id="eEventArcOfColorsResultB1">
+The arc seems to go just behind the cliff. Just a little further, and {he/she} can
+ see what is back there. Oops! {name} falls from the cliff into the shallow water
+ and hurts {his/her} head! {He/She} vows never to try anything like that again.
+</Text>
+<Text id="eEventArcOfColorsResultB2">
+The arc seems to go just behind the cliff. Just a little further and {he/she} can
+ see what is back there. Wow! {He/She} sees a huge patch of rare mushrooms and scoops
+ them up for the tribe. \n
+\n
+Your tribe gains 300 food.
+</Text>
+<Text id="eEventRobberCrabTitle">
+The Robber Crab
+</Text>
+<Text id="eEventRobberCrabDesc">
+While looking for shells on the beach, {name} spots a rare robber crab. The tails
+ of these crabs are known to have potent healing properties.
+</Text>
+<Text id="eEventRobberCrabChoiceA">
+Cut off its tail
+</Text>
+<Text id="eEventRobberCrabChoiceB">
+Let it go
+</Text>
+<Text id="eEventRobberCrabResultA">
+{name} brings the crab to the lab where they carefully remove its tail. The poor crab
+ dies, but the healing fluid is easily extracted from the tail. Now that they know
+ how to do this, the entire tribe becomes better healers.
+</Text>
+<Text id="eEventRobberCrabResultB">
+Feeling sorry for the poor crab, {name} leaves it alone. Following the crab, {he/she}
+ discovers that the crab has returned to a nest, where it has been storing food and
+ covering it in salt crystals. When {he/she} explains this to the scientists, they
+ develop a much better method for storing food. \n
+\n
+Your tribe gains a level of food mastery.
+</Text>
+<Text id="eEventPhosphorescentFungiTitle">
+The Phosphorescent Fungi
+</Text>
+<Text id="eEventPhosphorescentFungiDesc">
+While searching for mushrooms, {name} sees a large, colorful fungus with bright dots
+ on it. These bright mushrooms are known to be dangerous, and {he/she} wonders what
+ to do with it.
+</Text>
+<Text id="eEventPhosphorescentFungiChoiceA">
+Throw it into the ocean
+</Text>
+<Text id="eEventPhosphorescentFungiChoiceB">
+Admire it from afar
+</Text>
+<Text id="eEventPhosphorescentFungiResultA">
+{name} reaches down to pick the mushroom and cast it into the ocean. Upon touching
+ it, {he/she} is gripped by vivid dreams and wakes up two days later with a splitting
+ headache, but an unexplainable understanding of science.
+</Text>
+<Text id="eEventPhosphorescentFungiResultB">
+{name} decides to leave the hazardous mushroom alone. Unfortunately, it multiplies
+ over the next few weeks and somehow finds its way into their food source. Several
+ from the tribe get sick, and others are acting strangely for days to come.
+</Text>
+<Text id="eEventTheMedicalEmergencyTitle">
+The Medical Emergency
+</Text>
+<Text id="eEventTheMedicalEmergencyDesc">
+{name} has been having very bad abdominal pains all morning. By afternoon, {he/she}
+ is overcome by  pain and high fever. The villagers  have been able to partially translate
+ an ancient scroll, left by Isola's original inhabitants, that describes this illness
+ exactly. The medical procedure is extremely dangerous and is barely within the villagers'
+ technical reach.
+</Text>
+<Text id="eEventTheMedicalEmergencyChoiceA">
+Attempt the procedure
+</Text>
+<Text id="eEventTheMedicalEmergencyChoiceB">
+Let the illness take its course
+</Text>
+<Text id="eEventTheMedicalEmergencyResultA1">
+The villagers give {name} some special leaves and bark to chew for a while to help
+ control pain. The procedure takes longer than expected, but, to the great relief
+ of all concerned, {name} eventually makes a complete recovery. {name}, as a sign
+ of gratitude towards the villagers, is inspired to study the medical arts and improve
+ the medical knowledge of the tribe.
+</Text>
+<Text id="eEventTheMedicalEmergencyResultA2">
+The villagers give {name} some special leaves and bark to chew for a while to help
+ control pain. Shortly after the start of the procedure, grave complications arise
+ and {name} worsens until {he/she} quietly passes away. The villagers grieve very
+ much for {name} and reflect on their attempt to meddle with the natural order of
+ things.
+</Text>
+<Text id="eEventTheMedicalEmergencyResultB">
+The villagers feel that the procedure is still out of their reach. Thanks to their
+ years of research, though, they know that recovery can occur through the use of a
+ regimen of herbal preparations. {name} survives, even though {his/her} health never
+ fully returns. {name} has chronic stomach pains and finds it difficult to walk very
+ far or stand up for long periods of time.
+</Text>
+<Text id="eEventTheReturnOfBigglesTitle">
+The Return of Biggles
+</Text>
+<Text id="eEventTheReturnOfBigglesDesc">
+Late one night, {name} spots a mysterious figure working in the lab...
+</Text>
+<Text id="eEventTheReturnOfBigglesChoiceA">
+Confront him
+</Text>
+<Text id="eEventTheReturnOfBigglesChoiceB">
+Watch him work
+</Text>
+<Text id="eEventTheReturnOfBigglesResultA">
+"Hello. My name is Biggles.  Nice to meet you! Alas, I'm afraid you've seen too much."
+ Biggles smiles, and raises a jeweled talisman. There is a flash of light. When {name}
+ wakes up, {he/she} can't seem to remember anything, even {his/her} own name! Oddly,
+ {name} seems to have somehow gained uncanny insights into matters of science.
+</Text>
+<Text id="eEventTheReturnOfBigglesResultB">
+Using ordinary equipment from the lab, the man performs a number of miraculous procedures
+ far beyond the villager's knowledge. He knows he's being watched, and, without turning
+ around, he says, "My name is Biggles. I am here to correct certain errors. You'll
+ thank me later!" He puts some glowing objects in his pockets and vanishes in a blinding
+ light. He has left behind some of his amazing improvised devices. \n
+\n
+Your village gains {award} tech points.
+</Text>
+<Text id="eEventThePinkShellTitle">
+The Pink Shell
+</Text>
+<Text id="eEventThePinkShellDesc">
+{name} sees a gorgeous pink shell on the beach. {He/She} wonders what to do with it.
+ 
+</Text>
+<Text id="eEventThePinkShellChoiceA">
+Pick it up and listen inside
+</Text>
+<Text id="eEventThePinkShellChoiceB">
+Admire it without touching it
+</Text>
+<Text id="eEventThePinkShellResultA">
+{name} picks up the beautiful shell and holds it up to {his/her} ear, because {he/she}
+ has been told that you can hear the ocean in such things. Ow!! A tiny crab is living
+ in the shell and bites {name} on the ear before scuttling away. Well, needless to
+ say, {name} is not a fan of crabs anymore. 
+</Text>
+<Text id="eEventThePinkShellResultB">
+It's such a pretty shell! What's this? The shell appears to grow legs and scuttles
+ away. {name} develops a new appreciation for life on the island. 
+</Text>
+<Text id="eEventTheCalabashInstrumentTitle">
+The Calabash Instrument
+</Text>
+<Text id="eEventTheCalabashInstrumentDesc">
+{name} found a hollow bamboo tube embedded neatly in the ground. Inside, it has some
+ notches. {He/She} wonders what to do with it and considers pouring some water into
+ it. 
+</Text>
+<Text id="eEventTheCalabashInstrumentChoiceA">
+Fill it up to the first notch
+</Text>
+<Text id="eEventTheCalabashInstrumentChoiceB">
+Fill it to the top
+</Text>
+<Text id="eEventTheCalabashInstrumentResultA">
+After filling it to the first notch, {name} puzzles over how the device might work.
+ Consulting with the scientists, {he/she} determines that this device can be used
+ to predict the tides. \n
+\n
+The tribe gains 3000 tech points and learns that the tide pool is accessible every
+ 2 hours.
+</Text>
+<Text id="eEventTheCalabashInstrumentResultB">
+{name} fills it to the top and speculates about the use of this device. {He/She} consults
+ the scientists, and they determine that it should be filled only to the first notch.
+ A heated argument ensues, because there is no way to remove the water right now.
+ The scuffle in the lab has damaged some experiments, and the tribe is left with only
+ dubious assumptions about this device.\n
+\n
+The tribe loses 2000 tech points
+</Text>
+<Text id="eEventTheClimberTitle">
+The Climber
+</Text>
+<Text id="eEventTheClimberDesc">
+{name} decides to climb the great banyan, thinking that it would be a great achievement
+ to climb the Tree of Life! Unfortunately {he/she} gets stuck at the top of the tree
+ and can't figure out how to get back down. 
+</Text>
+<Text id="eEventTheClimberChoiceA">
+Try to find a way down
+</Text>
+<Text id="eEventTheClimberChoiceB">
+Start yelling for help
+</Text>
+<Text id="eEventTheClimberResultA">
+The first step was a bad one. {name} tumbles down through the branches, badly hurting
+ {his/her} leg, and lands behind the tree. {He/She} lies there for a full day and
+ night before being discovered and rescued by the tribe. This time let {him/her} bond
+ with the tree in an unexpected way.\n
+\n
+Your tribe gains a level of Dendrology tech.
+</Text>
+<Text id="eEventTheClimberResultB">
+{name} calls for help, and members of the tribe quickly come to the rescue and tell
+ {him/her} to try to climb down.  {He/She} takes a tentative first step and falls,
+ but is caught by the waiting tribe members. Embarrassment and lost productivity are
+ all there is to show for this misadventure.\n
+\n
+Your tribe loses 500 tech points.
+</Text>
+<Text id="eEventTheMosquitoLarvaeTitle">
+The Mosquito Larvae
+</Text>
+<Text id="eEventTheMosquitoLarvaeDesc">
+{name} notices that there are mosquito larvae collecting in the pond. Nobody wants
+ a mosquito infestation, so the villagers decide that they should try to do something
+ about them. 
+</Text>
+<Text id="eEventTheMosquitoLarvaeChoiceA">
+Put soap in the pond
+</Text>
+<Text id="eEventTheMosquitoLarvaeChoiceB">
+ Pour oil in the pond
+</Text>
+<Text id="eEventTheMosquitoLarvaeResultA">
+After putting soap in the pond, the tribe discovers that the only effect of adding
+ the soap is that they are being eaten alive by very clean mosquitoes. 
+</Text>
+<Text id="eEventTheMosquitoLarvaeResultB">
+Using oil from various plants, the tribe covers the pond water with a thin layer of
+ oil. The mosquito larvae, unable to breathe, quickly perish.\n
+\n
+The tribal scientists observe this and gain 500 tech points.
+</Text>
+<Text id="eEventTheFacesInTheNightTitle">
+Faces in the Night
+</Text>
+<Text id="eEventTheFacesInTheNightDesc">
+Several nights in a row now, {name} has seen glowing faces in the trees at the edge
+ of the village. {He/She} doesn't want to appear foolish, but wonders if {he/she}
+ should inform the tribe.
+</Text>
+<Text id="eEventTheFacesInTheNightChoiceA">
+Inform the tribe
+</Text>
+<Text id="eEventTheFacesInTheNightChoiceB">
+Ignore the faces
+</Text>
+<Text id="eEventTheFacesInTheNightResultA">
+{name} is relieved that the tribe, while skeptical, decides that it's wise to investigate
+ these glowing faces. They discover that they are actually luminous algae in the bushes.
+ The scientists eagerly harvest them for use in the lab.\n
+\n
+Your tribe gains 1000 tech points.
+</Text>
+<Text id="eEventTheFacesInTheNightResultB">
+{name} tries to pretend they don't exist. {He/She} doesn't sleep well anymore, and
+ becomes jumpy and restless and much less effective at work.
+</Text>
+<Text id="eEventTheScreamingBabyTitle">
+The Screaming Baby
+</Text>
+<Text id="eEventTheScreamingBabyDesc">
+{name} is having a difficult time with her baby, who won't stop screaming. She is
+ receiving conflicting advice from the other villagers. Some say the baby should be
+ left alone in a dark, quiet place to calm itself. Others suggest that the baby needs
+ a fun diversion and advise her to take the baby to the beach and dance around.
+</Text>
+<Text id="eEventTheScreamingBabyChoiceA">
+Leave baby alone
+</Text>
+<Text id="eEventTheScreamingBabyChoiceB">
+Take baby to the beach
+</Text>
+<Text id="eEventTheScreamingBabyResultA">
+The baby's screaming gets more and more desperate until everyone in the tribe is distracted.
+ Eventually it cries itself to sleep, and mommy is a mess.
+</Text>
+<Text id="eEventTheScreamingBabyResultB">
+The soothing sound of the ocean, combined with the rhythmic dancing, lull the baby
+ into a blissful sleep. Mommy got a much-needed rest and is very grateful to the tribe
+ for their help.
+</Text>
+<Text id="eEventTheSealedBoxTitle">
+The Sealed Box
+</Text>
+<Text id="eEventTheSealedBoxDesc">
+{name} is swimming in the ocean one day when {he/she} bumps into a floating box. It
+ appears to be carefully sealed, and {he/she} wants to bring it back to the village,
+ but the tide is pulling it out. It would be very risky to try and swim back with
+ this box. 
+</Text>
+<Text id="eEventTheSealedBoxChoiceA">
+Swim back with the box
+</Text>
+<Text id="eEventTheSealedBoxChoiceB">
+Let it go
+</Text>
+<Text id="eEventTheSealedBoxResultA1">
+{name} barely manages to get the box back to the beach. Upon opening it, the tribe
+ finds glass bottles of all sizes. These will certainly change how they work in the
+ lab. \n
+\n
+Your tribe gains 5000 tech points.
+</Text>
+<Text id="eEventTheSealedBoxResultA2">
+Making slow progress, {name} proceeds to drag the box to the beach. Larger and larger
+ waves crash against {him/her}, but the shore is getting closer. Suddenly an enormous
+ wave blocks out the sun and turns the water white. When the ocean calms again, the
+ box is floating back out to sea, and {name} is nowhere to be seen. 
+</Text>
+<Text id="eEventTheSealedBoxResultB">
+{name} seriously doubts that {he/she} can safely bring the box back. Whatever was
+ inside could not make up for the loss of {his/her} life. {He/She} gives it a shove,
+ and the box floats farther and farther out to sea until it is out of sight.
+</Text>
+<Text id="eEventTheWetBookTitle">
+The Wet Book
+</Text>
+<Text id="eEventTheWetBookDesc">
+{name} is strolling along the beach one morning when {he/she} trips over something
+ covered in algae. {He/She} removes the algae and finds a waterlogged book. Opening
+ the cover, which disintegrates almost immediately, {name} sees that it appears to
+ be a book of knowledge, but the pages are falling apart. {He/She} has two choices:
+ read each page as it disintegrates or try to carefully carry the whole thing back
+ to the lab.
+</Text>
+<Text id="eEventTheWetBookChoiceA">
+Read each page
+</Text>
+<Text id="eEventTheWetBookChoiceB">
+Bring it to the lab
+</Text>
+<Text id="eEventTheWetBookResultA">
+{He/She} is barely able to read each page before the waterlogged parchment turns to
+ mush. There is a section on farming, a section on building, a section on everything.
+ {name} feels enriched by the text but regrets that {he/she} was unable to share it
+ with the tribe. 
+</Text>
+<Text id="eEventTheWetBookResultB">
+Despite carefully cradling the book and rushing back to the lab, by the time {he/she}
+ gets there, only one section of the book is still intact. The remaining section contains
+ practices and techniques for nurturing children. The entire tribe studies the text
+ and is grateful for what they were able to salvage.
+</Text>
+<Text id="eEventTheLieTitle">
+The Lie
+</Text>
+<Text id="eEventTheLieDesc">
+{name} found a delicious rare mushroom and ate it, instead of bringing it back to
+ the food bin as {he/she} had been taught to do. An adult was nearby and asked, "What
+ are you doing, little one?" {He/She} isn't sure what to say. 
+</Text>
+<Text id="eEventTheLieChoiceA">
+Lie
+</Text>
+<Text id="eEventTheLieChoiceB">
+Tell the truth
+</Text>
+<Text id="eEventTheLieResultA">
+{name} denies eating the mushroom. The adult silently looks at {him/her} for a long
+ time, and then walks off. Immediately afterward {name} feels ashamed and remorseful.
+ {He/She} decides to make up for it on {his/her} own by skipping meals for a week.
+</Text>
+<Text id="eEventTheLieResultB">
+{name} admits to eating the mushroom. The adult says, "You know that was wrong. Now
+ go help the farmers pick blackberries -- and no dinner for you tonight." {name} feels
+ better at having told the truth and learns a lot by helping the farmers that afternoon.
+ They also let {him/her} nibble on blackberries.
+</Text>
+<Text id="eEventAspiringDoctorV1Title">
+The Aspiring Doctor
+</Text>
+<Text id="eEventAspiringDoctorV1Desc">
+{name} has fallen gravely ill. {He/She} is also an aspiring healer and has long theorized
+ that pure algae from the sea has healing properties. 
+</Text>
+<Text id="eEventAspiringDoctorV1ChoiceA">
+Eat algae
+</Text>
+<Text id="eEventAspiringDoctorV1ChoiceB">
+Better not
+</Text>
+<Text id="eEventAspiringDoctorV1ResultA">
+The algae is nutritious, if not delicious. Whether it was due to healing properties
+ or just additional nourishment from the algae is hard to say, but {name} feels better
+ and has learned something.
+</Text>
+<Text id="eEventAspiringDoctorV1ResultB">
+{name} decides to stick to the tried and true and not risk experimenting with unproven
+ remedies. The disease will have to run its course. 
+</Text>
+<Text id="eEventAspiringDoctorV2Title">
+The Aspiring Doctor
+</Text>
+<Text id="eEventAspiringDoctorV2Desc">
+{name} has fallen gravely ill. {He/She} is also an aspiring healer and has long theorized
+ that water from the magnificent ocean surrounding Isola should have healing properties.
+</Text>
+<Text id="eEventAspiringDoctorV2ChoiceA">
+Drink sea water
+</Text>
+<Text id="eEventAspiringDoctorV2ChoiceB">
+Better not
+</Text>
+<Text id="eEventAspiringDoctorV2ResultA">
+{name} bravely drinks {his/her} fill of ocean water from a wooden bowl. A few moments
+ later {he/she} becomes violently ill and is worse off than before.
+</Text>
+<Text id="eEventAspiringDoctorV2ResultB">
+{name} thinks that it's better to listen to one's body, and {his/her} body is definitely
+ telling {him/her} not to drink ocean water. {He/She} decides to apply this philosophy
+ in the study of medicine. Although {name} is still sick, {he/she} feels a bit wiser.
+ 
+</Text>
+<Text id="eEventAspiringDoctorV3Title">
+The Aspiring Doctor
+</Text>
+<Text id="eEventAspiringDoctorV3Desc">
+{name} has fallen gravely ill. {He/She} is also an aspiring healer and has long theorized
+ that the bright, forbidden mushrooms that grow under rocks have healing properties,
+ if eaten in TINY amounts. 
+</Text>
+<Text id="eEventAspiringDoctorV3ChoiceA">
+Eat a bit
+</Text>
+<Text id="eEventAspiringDoctorV3ChoiceB">
+Better not
+</Text>
+<Text id="eEventAspiringDoctorV3ResultA">
+{name} takes a tiny nibble of the bright, forbidden mushroom. It tastes bitter and
+ dry. A couple of hours later {he/she} has violent fits, but the next morning the
+ illness seems to have passed. That wasn't exactly a pleasant way to get through the
+ sickness, but it did work, and {he/she} learned something.
+</Text>
+<Text id="eEventAspiringDoctorV3ResultB">
+It's better to not mess with dangerous mushrooms. After all, it is probably just a
+ bad cold. {name} decides to just wait the illness out. 
+</Text>
+<Text id="eEventAspiringDoctorV4Title">
+The Aspiring Doctor
+</Text>
+<Text id="eEventAspiringDoctorV4Desc">
+{name} has fallen gravely ill. {He/She} is also an aspiring healer and has long theorized
+ that eating a bit of bark from the Tree of Life would have to be healthful. 
+</Text>
+<Text id="eEventAspiringDoctorV4ChoiceA">
+Eat a bit
+</Text>
+<Text id="eEventAspiringDoctorV4ChoiceB">
+Better not
+</Text>
+<Text id="eEventAspiringDoctorV4ResultA">
+{name} takes a bit of shaved bark from the tree and nibbles on it. The bitter juices
+ actually have a pleasant flavor. It could just be coincidence, but the next morning
+ {he/she} feels considerably better.
+</Text>
+<Text id="eEventAspiringDoctorV4ResultB">
+It's better to not mess with eating random things. {name} decides to just wait the
+ illness out. 
+</Text>
+<Text id="eEventAspiringDoctorV5Title">
+The Aspiring Doctor
+</Text>
+<Text id="eEventAspiringDoctorV5Desc">
+{name} has fallen gravely ill. {He/She} is also an aspiring healer and has long wondered
+ if fasting for a full day would cleanse the body of the poisons causing the illness.
+</Text>
+<Text id="eEventAspiringDoctorV5ChoiceA">
+Fast
+</Text>
+<Text id="eEventAspiringDoctorV5ChoiceB">
+Eat
+</Text>
+<Text id="eEventAspiringDoctorV5ResultA">
+{name} foregoes all food for a full 24 hours. The next day {he/she} is still sick,
+ feels even worse, and is very weak from hunger. Oh well, at least it is a lesson
+ learned.
+</Text>
+<Text id="eEventAspiringDoctorV5ResultB">
+{name} is just too hungry to pull this off. Maybe next time. 
+</Text>
+<Text id="eEventAspiringDoctorV6Title">
+The Aspiring Doctor
+</Text>
+<Text id="eEventAspiringDoctorV6Desc">
+{name} has suffered a painful cut on {his/her} leg. {He/She} is an aspiring healer
+ and has long wondered which would be a more effective way to treat such a wound:
+ mashed bark from the Tree of Life or mashed up rare mushrooms.
+</Text>
+<Text id="eEventAspiringDoctorV6ChoiceA">
+Use bark
+</Text>
+<Text id="eEventAspiringDoctorV6ChoiceB">
+Use mushrooms
+</Text>
+<Text id="eEventAspiringDoctorV6ResultA">
+{name} makes a mushy paste with smashed tree bark from the Tree of Life. {He/She}
+ packs the mush into the cut and notices immediately that the pain lessens. By the
+ next morning the wound is almost healed! {name} gains useful medicine knowledge from
+ the experiment!
+</Text>
+<Text id="eEventAspiringDoctorV6ResultB">
+{name} figures that mushrooms are good for people, so maybe they would help in an
+ open cut. {He/She} mashes up mushrooms and softens them with sea water. Then {he/she}
+ spreads this paste into the cut. The next morning, the cut is festering and yellow.
+ Oh well, live and learn!
+</Text>
+<Text id="eEventAspiringScientistV1Title">
+The Aspiring Scientist
+</Text>
+<Text id="eEventAspiringScientistV1Desc">
+{name} is a very curious individual. {He/She} is eager to conduct innovative experiments
+ in the lab, but wasteful and dangerous experiments are discouraged by the others.
+ In the dark of night, {he/she} is trying a new one: A mixture of the smelly yellow
+ salts of the pond, coal from the fire, and one other ingredient. Should {he/she}
+ try the white salts from the rocky cliff or dried algae?
+</Text>
+<Text id="eEventAspiringScientistV1ChoiceA">
+Try the salts
+</Text>
+<Text id="eEventAspiringScientistV1ChoiceB">
+Use algae
+</Text>
+<Text id="eEventAspiringScientistV1ResultA">
+{name} finishes the concoction using the white salts. {He/She} was hoping for a healing
+ salve, but it seems too coarse to use. Maybe heating it up over a fire...BOOM! The
+ mixture promptly explodes with unusual force. {name} is injured, but the scientists
+ learn an interesting new chemical composition. \n
+\n
+The tribe gains 2000 tech points.
+</Text>
+<Text id="eEventAspiringScientistV1ResultB">
+Putting the algae into the mixture just made a dusty, crunchy mess that smelled mildly
+ foul. {name} tried adding water to mix the ingredients better, but it just made a
+ disgusting greenish-brown sludge that ended up being a waste of research materials.
+ \n
+\n
+The tribe loses 1000 tech points. 
+</Text>
+<Text id="eEventInnovationInConstructionTitle">
+Innovation in Construction
+</Text>
+<Text id="eEventInnovationInConstructionDesc">
+{name} has devised a new way to approach hut construction. {He/She} believes that
+ having a worker at the top of the structure to hoist building materials to the top
+ would make hut construction more efficient. {He/She} volunteers to test the technique,
+ despite it being extremely dangerous. A fall could mean injury or even death!
+</Text>
+<Text id="eEventInnovationInConstructionChoiceA">
+Try the technique
+</Text>
+<Text id="eEventInnovationInConstructionChoiceB">
+It is too dangerous
+</Text>
+<Text id="eEventInnovationInConstructionResultA1">
+{name} climbs up high on a scaffolding and demonstrates {his/her} new technique to
+ the tribe. The new method of lifting wood and supplies to the hard-to-reach areas
+ of the structure is a great success. {He/She} is certainly becoming a skilled builder!
+</Text>
+<Text id="eEventInnovationInConstructionResultA2">
+Perched at the top of a scaffolding, {name} tries to stay on {his/her} feet but soon
+ loses {his/her} balance and falls a great distance to the hard ground.
+</Text>
+<Text id="eEventInnovationInConstructionResultB">
+It could work, but {name} does not think it is worth the risk. Any advantage gained
+ by innovative work techniques would never make up for all the pain and trouble of
+ a serious injury. Better just forget it.
+</Text>
+<Text id="eEventInnovationInFarmingTitle">
+Innovation in Farming
+</Text>
+<Text id="eEventInnovationInFarmingDesc">
+{name} believes that the fruit would cook faster in the cooking pit if {he/she} was
+ balanced on top of the covered fruit, applying constant pressure while it cooks.
+ This is obviously extremely dangerous, but could it work?
+</Text>
+<Text id="eEventInnovationInFarmingChoiceA">
+Try standing on fruit
+</Text>
+<Text id="eEventInnovationInFarmingChoiceB">
+That is too dangerous
+</Text>
+<Text id="eEventInnovationInFarmingResultA1">
+{name} sets the fruit under a banana leaf and begins to balance on the hard round
+ bump. In a few moments the fruit begins to soften, and {name} quickly hops off and
+ retrieves the cooked fruit! It is very effective and {name} is setting the bar among
+ farmers!
+</Text>
+<Text id="eEventInnovationInFarmingResultA2">
+{name} sets the fruit under a banana leaf and prepares to step onto the fruit. Even
+ before {his/her} foot reaches the covered fruit, {he/she} slips and stumbles into
+ the hot coals! That was a bad idea...
+</Text>
+<Text id="eEventInnovationInFarmingResultB">
+{name} knows better than to try this kind of crazy thing. Those coals are hot, and
+ very unforgiving.
+</Text>
+<Text id="eEventChildInTheTreeTitle">
+Tough Lessons
+</Text>
+<Text id="eEventChildInTheTreeDesc">
+{name} hears crying and finds a village child stuck high up on a branch in the great
+ Tree of Life. No amount of coaxing will bring {him/her} down. It will be very dangerous
+ for an adult to climb that high on the tree and help the child down. Perhaps the
+ child should be left to have a lesson about consequences.
+</Text>
+<Text id="eEventChildInTheTreeChoiceA">
+Climb the Tree
+</Text>
+<Text id="eEventChildInTheTreeChoiceB">
+Leave the Child
+</Text>
+<Text id="eEventChildInTheTreeResultA1">
+{name} climbs up the tree and helps the child find a path back down through the branches.
+ Predictably, {name}'s own descent does not go so smoothly. The second branch {he/she}
+ touches snaps loudly! {name} tumbles down through the branches and hits the ground
+ hard. Oh well, parenting requires sacrifices.
+</Text>
+<Text id="eEventChildInTheTreeResultB">
+Children have to learn about the consequences of their actions. {name} leaves the
+ child. Hours later the small, subdued youth returns to the village, bruised and angry.
+ It is not obvious whether it was a lesson about consequences or just a lesson about
+ falling down.
+</Text>
+<Text id="eEventThePrettyShellTitle">
+The Pretty Shell
+</Text>
+<Text id="eEventThePrettyShellDesc">
+Two children have been constantly fighting over a pretty, round shell.{name} is sick
+ of the bickering and decides to intervene. The children will have to either be taught
+ to share the shell, or they will have to decide who will keep it.
+</Text>
+<Text id="eEventThePrettyShellChoiceA">
+Teach kids sharing
+</Text>
+<Text id="eEventThePrettyShellChoiceB">
+Teach kids negotiation
+</Text>
+<Text id="eEventThePrettyShellResultA1">
+Sharing is important, and teaching children about this is good parenting. They agree
+ to share the shell, and {name} reflects on how well this went.
+</Text>
+<Text id="eEventThePrettyShellResultB">
+Not everything can be shared, and in this case a lesson about negotiation is more
+ valuable. However, even after they pick an owner for the shell, one of the children
+ feels very bad, outmatched at the debate over the shell. Still, the fighting has
+ stopped. {name}'s approach was innovative and effective, although maybe a bit harsh.
+</Text>
+<Text id="eEventBigglesPaysAVisitTitle">
+The Legendary Stranger
+</Text>
+<Text id="eEventBigglesPaysAVisitDesc">
+{name} discovers a mysterious figure lurking by the tree one night.  Sensing {name},
+ the figure turns, smiles and says: "Hello, my  child. My name is Biggles. Perhaps
+ you have heard of me? I have been watching you. Your people have done well in returning
+ the balance to Isola. I will tell you something: The island, like life, is a wheel.
+ This tree you see here is its axle. To restore balance the axle must be true. Now,
+ because your people are worthy, I will answer one question:" 
+</Text>
+<Text id="eEventBigglesPaysAVisitChoiceA">
+How should we care for our people?
+</Text>
+<Text id="eEventBigglesPaysAVisitChoiceB">
+How should we care for the tree?
+</Text>
+<Text id="eEventBigglesPaysAVisitResultA1">
+"Yes, I see that you are a good and caring people. I will teach you a secret." Biggles
+ teaches {name} some advanced and arcane medical knowledge. When {name} turns to thank
+ him, he is simply not there! Where could he have gone?
+</Text>
+<Text id="eEventBigglesPaysAVisitResultB">
+"Yes, I see that you  are a good and wise people. I will teach you a secret." Biggles
+ teaches {name} some advanced and arcane techniques in dendrology. When {name} turns
+ to thank him, he is simply not there! Where could he have gone?
+</Text>
+<Text id="eTechScienceLabel">
+Science
+</Text>
+<Text id="eTechMedicineLabel">
+Medicine
+</Text>
+<Text id="eTechLearningLabel">
+Learning
+</Text>
+<Text id="eTechRestorationLabel">
+Construction
+</Text>
+<Text id="eTechFoodMasteryLabel">
+Food Mastery
+</Text>
+<Text id="eTechDendrologyLabel">
+Dendrology
+</Text>
+<Text id="eTechScienceInfo">
+           Science\n
+ \n
+Advancements in science enable your\n
+villagers to accumulate tech points\n
+faster.\n
+\n
+</Text>
+<Text id="eTechMedicineInfo">
+            Medicine Technology\n
+ \n
+Advancements in medicine reduce the\n
+frequency of disease on the island and\n
+significantly increase longevity and\n
+fertility rates.\n
+\n
+At level 3 your tribe will build a\n
+hospital for training and treatment.\n
+\n
+</Text>
+<Text id="eTechLearningInfo">
+          Learning\n
+ \n
+Advancements in learning cause your\n
+villagers to pick up new tasks faster.\n
+At Level 3 your tribe will build a nursery\n
+school where children can be educated.\n
+\n
+</Text>
+<Text id="eTechRestorationInfo">
+          Construction\n
+ \n
+Advancements in construction enable \n
+your villagers to build and repair\n
+various structures.\n
+\n
+</Text>
+<Text id="eTechFoodMasteryInfo">
+           Food Mastery \n
+\n
+This tech increases your villagers'\n
+understanding about preparing and storing \n
+all types of food.\n
+At Level 1 your tribe has a basic understanding.\n
+At Level 2 your tribe gets a 50 percent bonus.\n
+At Level 3 all food gathered is doubled.\n
+\n
+</Text>
+<Text id="eTechDendrologyInfo">
+                     Dendrology\n
+ \n
+Dendrology is the study of trees.\n
+This technology will be needed to\n
+fully understand, and eventually heal,\n
+the Tree of Life.\n
+\n
+</Text>
+<Text id="eTechLevel">
+Your villagers have Level 
+</Text>
+<Text id="eTechNextLevel">
+.\n
+The next level costs: 
+</Text>
+<Text id="eTechCost">
+Cost:
+</Text>
+<Text id="eTechPts">
+pts
+</Text>
+<Text id="eTechResearchedNoPrice">
+Complete
+</Text>
+<Text id="eTechFullyResearched">
+Your villagers have fully mastered\n
+this technology!
+</Text>
+<Text id="eTechConfirmPath">
+             Are you sure?\n
+  Once you choose a faction for\n
+your tribe, you cannot change it.\n
+</Text>
+<Text id="eTechPathAlreadyChosen">
+You have already chosen your faction!
+</Text>
+<Text id="eRandomTip1">
+Certain herbs on the island can be used in cooking.
+</Text>
+<Text id="eRandomTip2">
+One male villager can father many children.
+</Text>
+<Text id="eRandomTip3">
+There are many useful spots to which you can drag villagers.
+</Text>
+<Text id="eRandomTip4">
+Children can inherit some skill from their parents.
+</Text>
+<Text id="eRandomTip5">
+Researching medicine reduces disease and extends longevity.
+</Text>
+<Text id="eRandomTip6">
+Children can start working around age 14.
+</Text>
+<Text id="eRandomTip7">
+Pause the game if you go away for very long.
+</Text>
+<Text id="eRandomTip8">
+If your healer is sick, who is healing your villagers?
+</Text>
+<Text id="eRandomTip9">
+Sick or nursing villagers do not work.
+</Text>
+<Text id="eRandomTip10">
+Bored villagers tend to hang around the center of the village.
+</Text>
+<Text id="eRandomTip11">
+A villager prefers the skill type you set.
+</Text>
+<Text id="eRandomTip12">
+Sometimes villagers stubbornly do what they want.
+</Text>
+<Text id="eRandomTip13">
+Likes and dislikes can affect a villager's behavior.
+</Text>
+<Text id="eRandomTip14">
+Where is Isola?
+</Text>
+<Text id="eRandomTip15">
+You can control whether villagers embrace or not.
+</Text>
+<Text id="eRandomTip16">
+Set parenting skill to allow villagers to initiate embracing.
+</Text>
+<Text id="eRandomTip17">
+Villagers can die of old age, disease, or starvation.
+</Text>
+<Text id="eRandomTip18">
+M displays the map. SPACE toggles pause on and off.
+</Text>
+<Text id="eRandomTip19">
+Adult villagers are naturally excellent swimmers.
+</Text>
+<Text id="eRandomTip20">
+Time passes whether you're playing the game or not.
+</Text>
+<Text id="eRandomTip21">
+Success at a task may entail meeting key requirements first.
+</Text>
+<Text id="eRandomTip22">
+Reaching a milestone can benefit your villagers.
+</Text>
+<Text id="eRandomTip23">
+Gently selecting villagers doesn't disrupt what they're doing.
+</Text>
+<Text id="eRandomTip24">
+It can take several tries to teach something to a villager.
+</Text>
+<Text id="eRandomTip25">
+Safe and happy villagers attempt new things.
+</Text>
+<Text id="eRandomTip26">
+Master scientists produce more tech points than others.
+</Text>
+<Text id="eRandomTip27">
+A villager's skill preference can be set on the Detail Screen.
+</Text>
+<Text id="eRandomTip28">
+Your village can grow to a large population.
+</Text>
+<Text id="eRandomTip29">
+Building more huts supports a larger population.
+</Text>
+<Text id="eRandomTip30">
+Sick villagers tend to hang around the medical area.
+</Text>
+<Text id="eRandomTip31">
+The 'Learning' tech makes villagers learn new things faster.
+</Text>
+<Text id="eRandomTip32">
+Empty the pot by dropping a villager on the nearby grating.
+</Text>
+<Text id="eRandomTip33">
+What happened to the tree?
+</Text>
+<Text id="eRandomTip34">
+Fire assists researchers.
+</Text>
+<Text id="eRandomTip35">
+Cooking stews can benefit your villagers.
+</Text>
+<Text id="eRandomTip36">
+Skills can be learned by performing various tasks.
+</Text>
+<Text id="eRandomTip37">
+Add wood to your fire, so that you don't have to relight it.
+</Text>
+<Text id="eRandomTip38">
+Duplicate collectibles are turned into tech points.
+</Text>
+<Text id="eRandomTip39">
+Lab collectibles permanently improve research productivity.
+</Text>
+<Text id="eRandomTip40">
+Keep a fire burning to reduce disease.
+</Text>
+<Text id="eRandomTip41">
+Medicine improves fertility.
+</Text>
+<Text id="eRandomTip42">
+Different combinations of herbs make different stews.
+</Text>
+<Text id="eRandomTip43">
+Only fresh water stews are edible.
+</Text>
+<Text id="eRandomTip44">
+Children can gather herbs to bring to the lab.
+</Text>
+<Text id="eRandomTip45">
+You can zip around the island with your numeric keys.
+</Text>
+<Text id="eRandomTip46">
+Children will tend to look like their parents.
+</Text>
+<Text id="eRandomTip47">
+Older villagers start to slow down.
+</Text>
+<Text id="eRandomTip48">
+Highly skilled villagers have more effect on children.
+</Text>
+<Text id="eRandomTip49">
+Kids can't swim.
+</Text>
+<Text id="eRandomTip50">
+The more skill your nursery school teacher has, the better.
+</Text>
+<Text id="ePoints">
+points.
+</Text>
+<Text id="eAge">
+Age: 
+</Text>
+<Text id="eStatus">
+Status: 
+</Text>
+<Text id="ePregnant">
+Nursing
+</Text>
+<Text id="eSick">
+Sick
+</Text>
+<Text id="eDead">
+Dead
+</Text>
+<Text id="eOverviewSceneLabel">
+Overview Map
+</Text>
+<Text id="ePuzzlesSceneLabel">
+Puzzles and Milestones
+</Text>
+<Text id="eCollectionsSceneLabel">
+Collections
+</Text>
+<Text id="eCollectionsFishScalesLabel">
+Fish Scales:
+</Text>
+<Text id="eString_FishScales">
+fish scales collected
+</Text>
+<Text id="eCollectionsLabPiecesLabel">
+Research Lab:
+</Text>
+<Text id="eString_LabEquipment">
+pieces of lab equipment collected
+</Text>
+<Text id="eCollectionsMausoleumLabel">
+Mausoleum:
+</Text>
+<Text id="eString_MuralPieces">
+mausoleum mural pieces collected
+</Text>
+<Text id="eCollectionsFlutesLabel">
+Wind Flutes:
+</Text>
+<Text id="eString_Flutes">
+flutes collected
+</Text>
+<Text id="eCollectionsOf">
+ of 
+</Text>
+<Text id="ePuzzlesButton">
+Puzzles
+</Text>
+<Text id="eStatisticsButton">
+Statistics
+</Text>
+<Text id="eCompletedIn">
+Completed in 
+</Text>
+<Text id="eHours">
+hours
+</Text>
+<Text id="eIsolaYears">
+Isola years
+</Text>
+<Text id="eUnknown">
+Unknown
+</Text>
+<Text id="ePlayer">
+Tribe: 
+</Text>
+<Text id="ePleaseEnterANickName">
+Please name your tribe...
+</Text>
+<Text id="eChangePlayer">
+CHANGE TRIBE
+</Text>
+<Text id="eNewPlayer">
+NEW PLAYER
+</Text>
+<Text id="eOK">
+OK
+</Text>
+<Text id="eCancel">
+Cancel
+</Text>
+<Text id="eDelete">
+Delete
+</Text>
+<Text id="eRefresh">
+Refresh
+</Text>
+<Text id="eDeletePlayerConfirm">
+Are you sure you want to delete the player?
+</Text>
+<Text id="eChangeClothesConfirm">
+Do you want to spend 5000 tech points to change this villager's clothes?
+</Text>
+<Text id="eAttemptingConnect">
+Sending and receiving stats...
+</Text>
+<Text id="eStatsUpdated">
+Statistics successfully updated!
+</Text>
+<Text id="eUpdateFailed">
+Update failed. Can't connect to server.
+</Text>
+<Text id="eNoStats">
+No stats to update yet!
+</Text>
+<Text id="eCaringBaby">
+Caring for baby
+</Text>
+<Text id="eWorriedFood">
+Worried about food
+</Text>
+<Text id="eStudyingMedicine">
+Studying medicine
+</Text>
+<Text id="eGetMedicalPlant">
+Retrieving medicinal plant for study
+</Text>
+<Text id="eStudyingMedicalPlant">
+Studying medicinal plant
+</Text>
+<Text id="eWorriedHousing">
+Worried about housing
+</Text>
+<Text id="eThinking">
+Thinking
+</Text>
+<Text id="eBored">
+Bored
+</Text>
+<Text id="eDancing">
+Dancing
+</Text>
+<Text id="eRelaxingBeach">
+Relaxing at the beach
+</Text>
+<Text id="eSitting">
+Sitting
+</Text>
+<Text id="eString_Resting">
+Resting
+</Text>
+<Text id="eWatchingClouds">
+Watching the clouds
+</Text>
+<Text id="eFishing">
+Fishing
+</Text>
+<Text id="eLeavingWater">
+Leaving the water
+</Text>
+<Text id="eEating">
+Eating
+</Text>
+<Text id="eReflecting">
+Reflecting
+</Text>
+<Text id="eCoolingFeet">
+Cooling feet in stream
+</Text>
+<Text id="eBehaviorLabelWashingFace">
+Washing face
+</Text>
+<Text id="eBehaviorLabelWashingHands">
+Washing hands
+</Text>
+<Text id="eBehaviorLabelTakingAShower">
+Taking a shower
+</Text>
+<Text id="eBehaviorLabelWashingFeet">
+Washing feet
+</Text>
+<Text id="eGettingDrink">
+Getting a drink
+</Text>
+<Text id="eWateringField">
+Watering the field
+</Text>
+<Text id="eClearingBlockage">
+Clearing blockage
+</Text>
+<Text id="eEnjoyingBath">
+Enjoying the pond
+</Text>
+<Text id="eConfused">
+Confused
+</Text>
+<Text id="eHonoringDead">
+Honoring the Dead
+</Text>
+<Text id="eSayNoRoom">
+There is no more room to help out.
+</Text>
+<Text id="eSayOnlyBuilders">
+Only skilled builders can help push this.
+</Text>
+<Text id="eMakingParty">
+Making a party
+</Text>
+<Text id="eObserving">
+Observing
+</Text>
+<Text id="eDigging">
+Digging
+</Text>
+<Text id="eFixingHut">
+Fixing the hut
+</Text>
+<Text id="eFoundingSchool">
+Founding a school
+</Text>
+<Text id="eRelaxing">
+Relaxing
+</Text>
+<Text id="eDemo">
+Demo version has a max population of 9!
+</Text>
+<Text id="eYourStatistics">
+YOUR STATISTICS
+</Text>
+<Text id="eInternetStatistics">
+INTERNET STATISTICS
+</Text>
+<Text id="eRealHoursPlayed">
+Real Hours Played
+</Text>
+<Text id="eYourRank">
+Your rank:
+</Text>
+<Text id="ePressRefresh">
+Press Refresh
+</Text>
+<Text id="ePointsEarned">
+Points Earned
+</Text>
+<Text id="eBabiesMade">
+Babies Made
+</Text>
+<Text id="eFoodGathered">
+Food Gathered
+</Text>
+<Text id="ePeepsCured">
+People Cured
+</Text>
+<Text id="eCrabsFound">
+Mushrooms Found
+</Text>
+<Text id="eMaxPop">
+Highest Population
+</Text>
+<Text id="eTotemsMade">
+Village Elders
+</Text>
+<Text id="eOldestVillager">
+Oldest Villager
+</Text>
+<Text id="eNumCrisis">
+Island Events Seen
+</Text>
+<Text id="eTwinsBirthed">
+Special Stews Found
+</Text>
+<Text id="eTripletsBirthed">
+Triplets Birthed
+</Text>
+<Text id="ePuzzlesSolved">
+Puzzles Solved
+</Text>
+<Text id="eAverage">
+Average:
+</Text>
+<Text id="eString_AchievementLiteSnackTitle">
+A Light Snack
+</Text>
+<Text id="eString_AchievementLiteSnackDesc">
+You harvested 1000 food
+</Text>
+<Text id="eString_AchievementBalancedMealTitle">
+A Balanced Meal
+</Text>
+<Text id="eString_AchievementBalancedMealDesc">
+You harvested 10,000 food
+</Text>
+<Text id="eString_AchievementSupersizeTitle">
+Supersize
+</Text>
+<Text id="eString_AchievementSupersizeDesc">
+You harvested 100,000 food
+</Text>
+<Text id="eString_AchievementAllYouCanEatTitle">
+All You Can Eat
+</Text>
+<Text id="eString_AchievementAllYouCanEatDesc">
+You harvested 1,000,000 food
+</Text>
+<Text id="eString_AchievementProgressTitle">
+Progress
+</Text>
+<Text id="eString_AchievementProgressDesc">
+You produced 1000 tech points
+</Text>
+<Text id="eString_AchievementProlificProgressTitle">
+Prolific Progress
+</Text>
+<Text id="eString_AchievementProlificProgressDesc">
+You produced 10,000 tech points
+</Text>
+<Text id="eString_AchievementAbundantProgressTitle">
+Abundant Progress
+</Text>
+<Text id="eString_AchievementAbundantProgressDesc">
+You produced 100,000 tech points
+</Text>
+<Text id="eString_AchievementResearchDevTitle">
+Research and Development
+</Text>
+<Text id="eString_AchievementResearchDevDesc">
+You produced 1,000,000 tech points
+</Text>
+<Text id="eString_AchievementShroomsTitle">
+'Shrooms
+</Text>
+<Text id="eString_AchievementShroomsDesc">
+You picked 25 mushrooms
+</Text>
+<Text id="eString_AchievementMoreShroomsTitle">
+More 'Shrooms
+</Text>
+<Text id="eString_AchievementMoreShroomsDesc">
+You picked 100 mushrooms
+</Text>
+<Text id="eString_AchievementFungusAmongUsTitle">
+Fungus Among Us
+</Text>
+<Text id="eString_AchievementFungusAmongUsDesc">
+You picked 500 mushrooms
+</Text>
+<Text id="eString_AchievementGourmetShroomsTitle">
+Gourmet 'Shrooms
+</Text>
+<Text id="eString_AchievementGourmetShroomsDesc">
+You picked 5 rare mushrooms
+</Text>
+<Text id="eString_AchievementLoveShroomsTitle">
+I Love 'Shrooms
+</Text>
+<Text id="eString_AchievementLoveShroomsDesc">
+You picked 25 rare mushrooms
+</Text>
+<Text id="eString_AchievementObsessedShroomsTitle">
+Obsessed With 'Shrooms
+</Text>
+<Text id="eString_AchievementObsessedShroomsDesc">
+You picked 100 rare mushrooms
+</Text>
+<Text id="eString_AchievementFishScalesTitle">
+Fish Scales
+</Text>
+<Text id="eString_AchievementFishScalesDesc">
+You completed the collection of fish scales
+</Text>
+<Text id="eString_AchievementMausoleumDoorTitle">
+Mausoleum Mural
+</Text>
+<Text id="eString_AchievementMausoleumDoorDesc">
+You put together the mausoleum mural
+</Text>
+<Text id="eString_AchievementWindFlutesTitle">
+Wind Flutes
+</Text>
+<Text id="eString_AchievementWindFlutesDesc">
+You completed the collection of wind flutes
+</Text>
+<Text id="eString_AchievementAlchemyLabTitle">
+Research Lab
+</Text>
+<Text id="eString_AchievementAlchemyLabDesc">
+You completed the collection of lab gear
+</Text>
+<Text id="eString_AchievementMasterCollectorTitle">
+Master Collector
+</Text>
+<Text id="eString_AchievementMasterCollectorDesc">
+You completed all 4 collections
+</Text>
+<Text id="eString_AchievementWindBlowsTitle">
+Know Which Way the Wind Blows
+</Text>
+<Text id="eString_AchievementWindBlowsDesc">
+The wind flutes played 25 times
+</Text>
+<Text id="eString_AchievementTinyBlessingTitle">
+A Tiny Blessing
+</Text>
+<Text id="eString_AchievementTinyBlessingDesc">
+You had a baby
+</Text>
+<Text id="eString_AchievementTwoTinyBlessingTitle">
+Two Tiny Blessings
+</Text>
+<Text id="eString_AchievementTwoTinyBlessingDesc">
+You had twins
+</Text>
+<Text id="eString_AchievementHelpTitle">
+Help!
+</Text>
+<Text id="eString_AchievementHelpDesc">
+You had triplets
+</Text>
+<Text id="eString_AchievementSugarSpiceTitle">
+Sugar and Spice
+</Text>
+<Text id="eString_AchievementSugarSpiceDesc">
+10 baby girls were born and nursed
+</Text>
+<Text id="eString_AchievementSnipsSnailsTitle">
+Snips and Snails
+</Text>
+<Text id="eString_AchievementSnipsSnailsDesc">
+10 baby boys were born and nursed
+</Text>
+<Text id="eString_AchievementGoodStartTitle">
+A Good Start
+</Text>
+<Text id="eString_AchievementGoodStartDesc">
+You reached a population of 10
+</Text>
+<Text id="eString_AchievementCrowdControlTitle">
+Crowd Control
+</Text>
+<Text id="eString_AchievementCrowdControlDesc">
+You reached a population of 100
+</Text>
+<Text id="eString_AchievementMasterScienceTitle">
+The Genius of Einstein
+</Text>
+<Text id="eString_AchievementMasterScienceDesc">
+A villager has mastered research
+</Text>
+<Text id="eString_AchievementMasterConstructionTitle">
+Mechanical Mastermind
+</Text>
+<Text id="eString_AchievementMasterConstructionDesc">
+A villager has mastered building
+</Text>
+<Text id="eString_AchievementMasterParentingTitle">
+Prolific Progenitor
+</Text>
+<Text id="eString_AchievementMasterParentingDesc">
+A villager has mastered parenting
+</Text>
+<Text id="eString_AchievementMasterMedicineTitle">
+Hippocrates
+</Text>
+<Text id="eString_AchievementMasterMedicineDesc">
+A villager has mastered medicine
+</Text>
+<Text id="eString_AchievementMasterFarmingTitle">
+Paragon of Agriculture
+</Text>
+<Text id="eString_AchievementMasterFarmingDesc">
+A villager has mastered farming
+</Text>
+<Text id="eString_AchievementJackTradesTitle">
+Scholar
+</Text>
+<Text id="eString_AchievementJackTradesDesc">
+A villager has mastered all 5 skills
+</Text>
+<Text id="eString_AchievementSkilledWorkersTitle">
+Plentiful Polymaths
+</Text>
+<Text id="eString_AchievementSkilledWorkersDesc">
+You had 10 masters of all skills
+</Text>
+<Text id="eString_AchievementTribeGeniusesTitle">
+A Tribe of Geniuses
+</Text>
+<Text id="eString_AchievementTribeGeniusesDesc">
+You had 100 masters of all skills
+</Text>
+<Text id="eString_AchievementBankingFutureTitle">
+Banking on the Future
+</Text>
+<Text id="eString_AchievementBankingFutureDesc">
+You had a Scholar teach in the nursery school
+</Text>
+<Text id="eString_AchievementFullResearchLearningTitle">
+Honor Roll
+</Text>
+<Text id="eString_AchievementFullResearchLearningDesc">
+You fully researched Learning
+</Text>
+<Text id="eString_AchievementFullResearchScienceTitle">
+High Tech
+</Text>
+<Text id="eString_AchievementFullResearchScienceDesc">
+You fully researched Science
+</Text>
+<Text id="eString_AchievementFullResearchFoodTitle">
+Bumper Crop
+</Text>
+<Text id="eString_AchievementFullResearchFoodDesc">
+You fully researched Food Mastery
+</Text>
+<Text id="eString_AchievementFullResearchDendrologyTitle">
+Tree Surgeon
+</Text>
+<Text id="eString_AchievementFullResearchDendrologyDesc">
+You fully researched Dendrology
+</Text>
+<Text id="eString_AchievementFullResearchMedicineTitle">
+Medical School
+</Text>
+<Text id="eString_AchievementFullResearchMedicineDesc">
+You fully researched Medicine
+</Text>
+<Text id="eString_AchievementFullResearchConstructionTitle">
+General Contractor
+</Text>
+<Text id="eString_AchievementFullResearchConstructionDesc">
+You fully researched Construction
+</Text>
+<Text id="eString_AchievementFullResearchAllTechTitle">
+Ivy League
+</Text>
+<Text id="eString_AchievementFullResearchAllTechDesc">
+You fully researched all 6 technologies
+</Text>
+<Text id="eString_AchievementEventfulIslandTitle">
+An Eventful Island
+</Text>
+<Text id="eString_AchievementEventfulIslandDesc">
+You encountered 10 island events
+</Text>
+<Text id="eString_AchievementNeverADullMomentTitle">
+Never a Dull Moment
+</Text>
+<Text id="eString_AchievementNeverADullMomentDesc">
+You encountered 50 island events
+</Text>
+<Text id="eString_AchievementRoomGrowTitle">
+Room to Grow
+</Text>
+<Text id="eString_AchievementRoomGrowDesc">
+Your tribe built 3 housing huts
+</Text>
+<Text id="eString_AchievementPlacePlayLearnTitle">
+A Place to Play and Learn
+</Text>
+<Text id="eString_AchievementPlacePlayLearnDesc">
+Your tribe built a nursery school
+</Text>
+<Text id="eString_AchievementNotFeelHowLookTitle">
+It's How You Look, Not How You Feel
+</Text>
+<Text id="eString_AchievementNotFeelHowLookDesc">
+Your tribe built a clothing hut
+</Text>
+<Text id="eString_AchievementSwineFluTitle">
+Advanced Medicine
+</Text>
+<Text id="eString_AchievementSwineFluDesc">
+Your tribe built a hospital
+</Text>
+<Text id="eString_AchievementTriageTitle">
+Triage
+</Text>
+<Text id="eString_AchievementTriageDesc">
+You cured 10 villagers
+</Text>
+<Text id="eString_AchievementMedicineManTitle">
+Medicine Man
+</Text>
+<Text id="eString_AchievementMedicineManDesc">
+You cured 50 villagers
+</Text>
+<Text id="eString_AchievementMiracleWorkerTitle">
+Miracle Worker
+</Text>
+<Text id="eString_AchievementMiracleWorkerDesc">
+You cured 100 villagers
+</Text>
+<Text id="eString_AchievementRubSticksTitle">
+Rub Those Sticks Together! 
+</Text>
+<Text id="eString_AchievementRubSticksDesc">
+The fire was lit 50 times
+</Text>
+<Text id="eString_AchievementVigilentCamperTitle">
+Vigilant Campers
+</Text>
+<Text id="eString_AchievementVigilentCamperDesc">
+You kept the fire going for 100 hours
+</Text>
+<Text id="eString_AchievementMasterAnglerTitle">
+Master Angler
+</Text>
+<Text id="eString_AchievementMasterAnglerDesc">
+You caught 100 golden fish 
+</Text>
+<Text id="eString_AchievementPlumberTitle">
+Plumber
+</Text>
+<Text id="eString_AchievementPlumberDesc">
+You cleared debris from the waterway
+</Text>
+<Text id="eString_AchievementCivilEngineerTitle">
+Civil Engineer
+</Text>
+<Text id="eString_AchievementCivilEngineerDesc">
+You kept 1000 units of debris from building up
+</Text>
+<Text id="eString_AchievementKeepCleanTitle">
+Keeping It Clean
+</Text>
+<Text id="eString_AchievementKeepCleanDesc">
+You made 10 bars of soap
+</Text>
+<Text id="eString_AchievementMrCleanTitle">
+Mr. Clean 
+</Text>
+<Text id="eString_AchievementMrCleanDesc">
+You made 50 bars of soap
+</Text>
+<Text id="eString_AchievementApprenticeBlacksmithTitle">
+Apprentice Blacksmith
+</Text>
+<Text id="eString_AchievementApprenticeBlacksmithDesc">
+You made 10 cutting tools
+</Text>
+<Text id="eString_AchievementJournemanBlacksmithTitle">
+Journeyman Blacksmith 
+</Text>
+<Text id="eString_AchievementJournemanBlacksmithDesc">
+You made 50 cutting tools
+</Text>
+<Text id="eString_AchievementTailorTitle">
+Tailor
+</Text>
+<Text id="eString_AchievementTailorDesc">
+You made 10 bolts of cloth
+</Text>
+<Text id="eString_AchievementOpenBoutiqueTitle">
+Open a Boutique!
+</Text>
+<Text id="eString_AchievementOpenBoutiqueDesc">
+You made 50 bolts of cloth
+</Text>
+<Text id="eString_AchievementFashionistaTitle">
+Fashionista
+</Text>
+<Text id="eString_AchievementFashionistaDesc">
+You purchased 100 outfits
+</Text>
+<Text id="eString_AchievementPopRocksTitle">
+Pop Rocks
+</Text>
+<Text id="eString_AchievementPopRocksDesc">
+You heated 100 rocks
+</Text>
+<Text id="eString_AchievementApprenticePharmacistTitle">
+Sous Chef
+</Text>
+<Text id="eString_AchievementApprenticePharmacistDesc">
+You made 10 stews
+</Text>
+<Text id="eString_AchievementDrugstoreTitle">
+Executive Chef
+</Text>
+<Text id="eString_AchievementDrugstoreDesc">
+You made 50 stews
+</Text>
+<Text id="eString_AchievementPickupHicupsTitle">
+Pick-up Hiccups
+</Text>
+<Text id="eString_AchievementPickupHicupsDesc">
+25 villagers had hiccups
+</Text>
+<Text id="eString_AchievementSoapyStewTitle">
+Soapy Stew
+</Text>
+<Text id="eString_AchievementSoapyStewDesc">
+25 villagers were burping bubbles
+</Text>
+<Text id="eString_AchievementGreaterFeastTitle">
+A Grandiose Feast
+</Text>
+<Text id="eString_AchievementGreaterFeastDesc">
+50 villagers enjoyed a grand feast together
+</Text>
+<Text id="eString_AchievementRomperRoomTitle">
+Romper Room
+</Text>
+<Text id="eString_AchievementRomperRoomDesc">
+25 children attended nursery school together
+</Text>
+<Text id="eString_AchievementProlificProcreationTitle">
+Prolific Procreation
+</Text>
+<Text id="eString_AchievementProlificProcreationDesc">
+You had 10 villagers nursing simultaneously
+</Text>
+<Text id="eString_AchievementPoolPartyTitle">
+Pool Party
+</Text>
+<Text id="eString_AchievementPoolPartyDesc">
+You packed 25 villagers into the pond
+</Text>
+<Text id="eString_AchievementGhostsTitle">
+Vestigial Visitors
+</Text>
+<Text id="eString_AchievementGhostsDesc">
+You were visited by 25 ghosts
+</Text>
+<Text id="eString_AchievementWiseTitle">
+Wise
+</Text>
+<Text id="eString_AchievementWiseDesc">
+One of your villagers reached the age of 60
+</Text>
+<Text id="eString_AchievementElderTitle">
+Elder
+</Text>
+<Text id="eString_AchievementElderDesc">
+One of your villagers reached the age of 70
+</Text>
+<Text id="eString_AchievementOverAchieverTitle">
+Achiever
+</Text>
+<Text id="eString_AchievementOverAchieverDesc">
+You completed 25 achievements
+</Text>
+<Text id="eString_AchievementUnachievableTitle">
+Over-Achiever
+</Text>
+<Text id="eString_AchievementUnachievableDesc">
+You completed 50 achievements
+</Text>
+<Text id="eString_AchievementImpossibleDreamTitle">
+Master Achiever
+</Text>
+<Text id="eString_AchievementImpossibleDreamDesc">
+You have achieved 75 achievements
+</Text>
+<Text id="eSounds">
+Sounds
+</Text>
+<Text id="eMusic">
+Music
+</Text>
+<Text id="eVoiceover">
+Voiceovers
+</Text>
+<Text id="eMusicTracks">
+Music Tracks
+</Text>
+<Text id="eEnabled">
+Enabled
+</Text>
+<Text id="eDisabled">
+Disabled
+</Text>
+<Text id="eDifficulty">
+Difficulty
+</Text>
+<Text id="eEasy">
+Easy
+</Text>
+<Text id="eMedium">
+Medium
+</Text>
+<Text id="eHard">
+Hard
+</Text>
+<Text id="eGameSpeed">
+Game Speed
+</Text>
+<Text id="eStopTime">
+Paused
+</Text>
+<Text id="eNormal">
+Normal
+</Text>
+<Text id="eHalfSpeed">
+Slow
+</Text>
+<Text id="e2xSpeed">
+Fast
+</Text>
+<Text id="eFullscreen">
+Fullscreen
+</Text>
+<Text id="eOn">
+On
+</Text>
+<Text id="eOff">
+Off
+</Text>
+<Text id="eGameExpired">
+This game has expired.\n
+\n
+Contact www.LDW.com
+</Text>
+<Text id="eAskReturnToFullScreen">
+Restored from sleep mode.\n
+\n
+Return to full screen game play?
+</Text>
+</root>

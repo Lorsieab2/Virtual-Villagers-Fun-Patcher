@@ -94,6 +94,7 @@ FILES = [
     # patcher cannot apply the "Optional Text Changes" (VV4) or "Guardians
     # of Isola" (VV5) fun patches, nor restore them on removal.
     "assets/text-changes/vv4-sm.xml",
+    "assets/text-changes/vv4-sm-base.xml",
     "data/guardians_of_isola/new/Assets/sm.xml",
     "data/guardians_of_isola/base/Assets/sm.xml",
     "data/guardians_of_isola/new/Images/BlinkyEyes.png",
