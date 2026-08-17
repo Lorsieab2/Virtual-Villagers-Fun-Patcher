@@ -307,7 +307,15 @@ MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
     MASK_OVERLAY_FILE_OFFSET - SHR_FILE_OFFSET
 )
 MASK_SURFACES_VA = MASK_OVERLAY_VA  # 5 x SDL_Surface* cache, NULL until first draw
-MASK_PATHS_VA = MASK_OVERLAY_VA + 0x14  # 5 x 8-byte "mN.png\0\0" companion filenames
+# Every asset filename string anywhere in the stock exe is bare (no "/" or
+# "\\" -- confirmed via a full-binary string scan), yet the actual files
+# all live under Images/ on disk, so the native loader must be
+# constructing that prefix at load time rather than relying on a CWD
+# that happens to already be Images/. Matching that same convention
+# ("Images/mN.png") rather than a bare filename in the exe's own root
+# directory, since that's the one relative-path shape already proven to
+# work for every other asset this game loads.
+MASK_PATHS_VA = MASK_OVERLAY_VA + 0x14  # 5 x 16-byte "Images/mN.png\0" companion paths
 # Playtested: the first build drew the mask right after the occupied
 # check (before the native head/body/clothing draw for that same
 # iteration), so the native head painted right over it every frame --
@@ -319,9 +327,9 @@ MASK_PATHS_VA = MASK_OVERLAY_VA + 0x14  # 5 x 8-byte "mN.png\0\0" companion file
 # draw happens in MASK_BACKEDGE_HOOK below, at the loop's single
 # convergence point, strictly after all native drawing for that
 # iteration is done.
-MASK_PENDING_RECORD_VA = MASK_OVERLAY_VA + 0x3C  # 0 = nothing pending, else record ptr
-MASK_PENDING_CHOICE_VA = MASK_OVERLAY_VA + 0x40  # 1..5, valid only when PENDING_RECORD != 0
-MASK_HOOK_VA = MASK_OVERLAY_VA + 0x44  # stash-only hook (occupied-check splice)
+MASK_PENDING_RECORD_VA = MASK_OVERLAY_VA + 0x64  # 0 = nothing pending, else record ptr
+MASK_PENDING_CHOICE_VA = MASK_OVERLAY_VA + 0x68  # 1..5, valid only when PENDING_RECORD != 0
+MASK_HOOK_VA = MASK_OVERLAY_VA + 0x6C  # stash-only hook (occupied-check splice)
 # MASK_BACKEDGE_HOOK_VA is NOT a fixed offset -- it's wherever
 # mask_hook_code actually ends, computed from its real assembled length
 # once main() assembles it. A hardcoded guess here bit us once already:
@@ -1970,7 +1978,7 @@ def main() -> None:
     # all native drawing for that iteration is done.
     mask_surfaces_data = b"\0" * 20
     mask_paths_data = b"".join(
-        f"m{n}.png".encode("ascii").ljust(8, b"\0") for n in range(1, 6)
+        f"Images/m{n}.png".encode("ascii").ljust(16, b"\0") for n in range(1, 6)
     )
     mask_pending_data = b"\0" * 8  # MASK_PENDING_RECORD, MASK_PENDING_CHOICE
     mask_hook_code = assemble(
@@ -2011,7 +2019,7 @@ def main() -> None:
             test ecx, ecx
             jnz mask2_have_surface
             mov eax, ebx
-            shl eax, 3
+            shl eax, 4
             add eax, {MASK_PATHS_VA:#x}
             push eax
             call {IMG_LOAD_THUNK_VA:#x}
@@ -2254,7 +2262,7 @@ def main() -> None:
         ] + [
             {
                 "source": f"assets/origins/m{n}.png",
-                "destination": f"m{n}.png",
+                "destination": f"Images/m{n}.png",
                 "sha256": hashlib.sha256(
                     (ROOT / "assets" / "origins" / f"m{n}.png").read_bytes()
                 ).hexdigest().upper(),
