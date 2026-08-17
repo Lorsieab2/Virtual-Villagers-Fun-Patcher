@@ -684,7 +684,7 @@
       "output_tag": "Clickable Tips",
       "behavior_changes": [
         "Adds a click target on the curled vine beneath the on-screen Puzzles button; clicking it shows a random eRandomTip in the gray message bar and plays the hou.ogg chime.",
-        "Advances a private click counter used to pick the next tip."
+        "Picks the tip at random each click (rdtsc-seeded); no persistent state."
       ],
       "explicit_non_changes": [
         "No gameplay, villager, economy, or save-data changes.",
@@ -700,9 +700,9 @@
         },
         {
           "offset": "0x94890",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "609C81FAA40000007C4B81FAC20000007F4381F9D90200007C3B81F9F50200007F33A1FC2F7B0040A3FC2F7B0031D2BB32000000F7F381C2610400006AFF52B9680F5200E887A6FBFFB940F451006A61E85B7BFBFF9D6183C4085152E97001F7FF",
-          "purpose": "clickable-tips handler cave: on a qualifying click, pick a random eRandomTip and show it via Bar::SetText (0x44EF60), play hou.ogg via SoundMgr::PlaySound (0x44C440), bump the click counter, then run the displaced dispatch bytes"
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "609C81FAA40000007C4281FAC20000007F3A81F9D90200007C3281F9F50200007F2A0F3131D2BB32000000F7F381C2610400006AFF52B9680F5200E890A6FBFFB940F451006A61E8647BFBFF9D6183C4085152E97901F7FF",
+          "purpose": "clickable-tips handler cave: on a qualifying click, pick a random eRandomTip and show it via Bar::SetText (0x44EF60), play hou.ogg via SoundMgr::PlaySound (0x44C440), then run the displaced dispatch bytes"
         }
       ]
     },

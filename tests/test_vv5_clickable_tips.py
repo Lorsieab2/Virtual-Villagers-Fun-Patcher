@@ -43,11 +43,13 @@ class HandlerWiringTest(unittest.TestCase):
         self.assertEqual(tips.TIP_ID_BASE, 0x461)
         self.assertEqual(tips.TIP_ID_BASE + tips.TIP_COUNT - 1, 0x492)
 
-    def test_counter_lives_in_writable_shr_not_text(self) -> None:
-        # the click counter must be written outside read-only .text
-        self.assertGreaterEqual(tips.COUNTER_VA, 0x7B2000)
-        self.assertLess(tips.COUNTER_VA, 0x7B3000)
-        self.assertTrue(any(i.mnemonic == "mov" and hex(tips.COUNTER_VA) in i.op_str for i in self.ins))
+    def test_selects_tip_at_random_via_rdtsc(self) -> None:
+        # the tip index comes from rdtsc (CPU timestamp) folded by the tip count,
+        # so each click is random rather than a predictable running counter
+        self.assertTrue(any(i.mnemonic == "rdtsc" for i in self.ins))
+        self.assertTrue(any(i.mnemonic == "div" for i in self.ins))
+        # no writable-scratch counter is used anymore
+        self.assertFalse(hasattr(tips, "COUNTER_VA"))
 
     def test_tail_returns_to_hook_plus_five(self) -> None:
         jmps = [int(i.op_str, 16) for i in self.ins if i.mnemonic == "jmp"]
