@@ -677,6 +677,36 @@
   ],
   "fun_patches": [
     {
+      "id": "vv5_clickable_tips",
+      "game_id": "vv5",
+      "name": "Clickable Tips",
+      "description": "Clicking the curled vine beneath the on-screen Puzzles button shows a random in-game tip in the gray message bar (with the engine's own auto-hide timer) and plays the hou.ogg chime.",
+      "output_tag": "Clickable Tips",
+      "behavior_changes": [
+        "Adds a click target on the curled vine beneath the on-screen Puzzles button; clicking it shows a random eRandomTip in the gray message bar and plays the hou.ogg chime.",
+        "Advances a private click counter used to pick the next tip."
+      ],
+      "explicit_non_changes": [
+        "No gameplay, villager, economy, or save-data changes.",
+        "Uses only unused .text code padding and one writable scratch dword; no existing engine code or data is altered besides the single hooked click-dispatch site."
+      ],
+      "evidence_status": "static + in-game verified (tip text and hou.ogg chime confirmed in playtest)",
+      "patches": [
+        {
+          "offset": "0x4A5C",
+          "before": "83C4085152",
+          "after": "E92FFE0800",
+          "purpose": "hook the on-screen click-dispatch site (0x404A5C) to the clickable-tips handler cave"
+        },
+        {
+          "offset": "0x94890",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "609C81FAA40000007C4B81FAC20000007F4381F9D90200007C3B81F9F50200007F33A1FC2F7B0040A3FC2F7B0031D2BB32000000F7F381C2610400006AFF52B9680F5200E887A6FBFFB940F451006A61E85B7BFBFF9D6183C4085152E97001F7FF",
+          "purpose": "clickable-tips handler cave: on a qualifying click, pick a random eRandomTip and show it via Bar::SetText (0x44EF60), play hou.ogg via SoundMgr::PlaySound (0x44C440), bump the click counter, then run the displaced dispatch bytes"
+        }
+      ]
+    },
+    {
       "id": "vv1_visual_mods",
       "game_id": "vv1",
       "name": "Visual Mods",

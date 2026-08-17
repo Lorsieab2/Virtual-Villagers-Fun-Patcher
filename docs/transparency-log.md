@@ -456,6 +456,16 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 
 ### Optional features
 
+#### Clickable Tips (`vv5_clickable_tips`)
+
+Clicking the curled vine beneath the on-screen Puzzles button shows a random in-game tip in the gray message bar (with the engine's own auto-hide timer) and plays the hou.ogg chime.
+
+- Behavior changes: Adds a click target on the curled vine beneath the on-screen Puzzles button; clicking it shows a random eRandomTip in the gray message bar and plays the hou.ogg chime. Advances a private click counter used to pick the next tip.
+- Explicit non-changes/exclusions: No gameplay, villager, economy, or save-data changes. Uses only unused .text code padding and one writable scratch dword; no existing engine code or data is altered besides the single hooked click-dispatch site.
+- Dependencies: none
+- Evidence status: static + in-game verified (tip text and hou.ogg chime confirmed in playtest)
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Easier Devotee Training (`vv5_easier_devotee_training`)
 
 Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.
