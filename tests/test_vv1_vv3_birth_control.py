@@ -15,7 +15,7 @@ from vv_fun_patcher import load_fun_patches  # noqa: E402
 
 VV1_SHA256 = "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
 VV3_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
-VV1_PAGE_SHA256 = "0DC027BCEE9B5D551FE8A167D61DFFA1D44A1A5D56537D48913E218B10A79D85"
+VV1_PAGE_SHA256 = "5EB1DB10B67DDAB3BFF678015BC2FB0330F3D8637F6944D530CA2271677FC578"
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
 
 
@@ -74,6 +74,15 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         manual_candidate = bytes.fromhex("8BC369C0D803000003C681B848030000E8030000")
         self.assertIn(manual_candidate, page[0x000:0x080])
         self.assertNotIn(bytes.fromhex("81BF48030000E8030000"), page)
+        # Regression pin for the second half of the same stale-EDI bug
+        # (live crash at 0x43DDE1, Windows fault offset 0x3DDE1): the reject
+        # path jumps into the stock block at 0x43DD9E, which dereferences the
+        # candidate record out of EDI six times. EDI holds the RNG(3)+5
+        # duration by this splice point, so the reject path MUST rebuild it as
+        # esi + ebx*0x3D8 first. Without these bytes the manual drag-pair
+        # crashes on rejection instead of on the age compare.
+        manual_reject_restores_edi = bytes.fromhex("8BFB69FFD803000001F7")
+        self.assertIn(manual_reject_restores_edi, page[0x000:0x080])
         self.assertEqual(page[0x080:0x086], bytes.fromhex("813868010000"))
         self.assertEqual(page[0x0C0:0x0C6], bytes.fromhex("813968010000"))
         self.assertEqual(page[0x100:0x107], bytes.fromhex("8178F468010000"))

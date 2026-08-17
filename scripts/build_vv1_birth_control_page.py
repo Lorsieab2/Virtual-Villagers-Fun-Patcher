@@ -103,6 +103,30 @@ def build_page() -> tuple[bytes, dict[str, object]]:
     asm.jcc(0x8D, "manual_reject")  # jge: candidate/carrier is age 50+
     asm.jmp(0x43DD5E)
     asm.label("manual_reject")
+    # SECOND HALF OF THE SAME BUG (crash at 0x43DDE1, confirmed from a live
+    # Windows Application-log 0xC0000005 record with fault offset 0x3DDE1).
+    # The stock reject block at 0x43DD9E reads the *candidate record* out of
+    # EDI six times (0x43DDE1, 0x43DDF4, 0x43DE06, 0x43DE1A, 0x43DE2E) --
+    # which is correct for the stock code paths that reach it, since they all
+    # branch there from the eligibility checks near the top of the function,
+    # while EDI still holds the candidate pointer set at 0x43DB32.
+    #
+    # This hook is spliced much later (0x43DD03), and by that point EDI has
+    # been reassigned to the RNG(3)+5 duration value -- the exact same stale-
+    # EDI fact that caused the first crash at page offset 0x22. Jumping
+    # straight to 0x43DD9E therefore crashed on the first of those six reads.
+    # Fixing only the age-compare left this second dereference live, which is
+    # why the crash "came back" at a new address after the first fix.
+    #
+    # EBX (candidate index), ESI (this), and EBP (actor record) are all still
+    # valid here, so rebuild EDI exactly the way stock does at 0x43DB23-
+    # 0x43DB32 before entering the block. Only the reject path restores EDI:
+    # both accept paths (0x43DD0A / 0x43DD5E) fall into the conception
+    # dispatch, which passes EDI to FUN_0043BBC0 *as* the duration and must
+    # keep the RNG value untouched.
+    asm.emit(bytes.fromhex("8BFB"))  # mov edi, ebx
+    asm.emit(bytes.fromhex("69FFD8030000"))  # imul edi, edi, 0x3D8
+    asm.emit(bytes.fromhex("01F7"))  # add edi, esi -> edi = candidate record
     asm.jmp(0x43DD9E)
 
     # The two ordinary action-9 writer-reaching scans retain the stock lower
