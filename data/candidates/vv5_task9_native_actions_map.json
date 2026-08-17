@@ -22,7 +22,7 @@
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "89DD05FD96028E93CBD5FDE8BB727D49158C39B0480EEA703EC3016FE8458651"
+      "source_text_sha256": "6D8F2466E8832A89ABD54B51D15FBF63861EC769FE1EB029376746834CFFE269"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -30,7 +30,7 @@
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "3072BACFB635807D2B37708E336D8CF409CD855EC5487C2F95742B9D4DD7A223"
+      "source_text_sha256": "946172047B9EE8EB9576E8BDE45B3556039DBD4EB9EC4BD780F5E714637FC5C3"
     },
     "companion_builder": {
       "path": "scripts/build_vv5_task9_origins_dll.ps1",
@@ -67,8 +67,8 @@
     "unchanged": true
   },
   "companion": {
-    "size": 1694720,
-    "sha256": "E96416AC11189E58C13A232238B25E99B6B527E4B12299F0D68A196EBBF25FE7"
+    "size": 1741824,
+    "sha256": "3741A36A61797D7F35CDB8010991CB1E3E4E5158086F6F0C914370A6D8B2A6C0"
   },
   "payload": {
     "sha256": "4F84674C1DD8E749D7F9C927059DBBF3FF3A079498EDB72DAFAC2F307E227621",

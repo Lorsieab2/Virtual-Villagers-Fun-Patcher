@@ -75,8 +75,10 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
 #define IDB_HEAD_F_OLD   3004
 #define IDB_BODY_M       3011
 #define IDB_BODY_F       3012
+#define IDB_MASK_PREVIEW 3013
 #define IDC_BODY_PREVIEW 3101
 #define IDC_HEAD_PREVIEW 3102
+#define IDC_MASK_PREVIEW 3110
 #define IDC_BODY_PREV    3103
 #define IDC_BODY_NEXT    3104
 #define IDC_HEAD_PREV    3105
@@ -184,6 +186,10 @@ static INT_PTR CALLBACK appearance_dialog(
             appearance_draw(item, appearance_head_bitmap(), appearance_head);
             return TRUE;
         }
+        if (item->CtlID == IDC_MASK_PREVIEW) {
+            appearance_draw(item, IDB_MASK_PREVIEW, appearance_mask);
+            return TRUE;
+        }
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command == IDC_BODY_PREV) {
@@ -209,11 +215,13 @@ static INT_PTR CALLBACK appearance_dialog(
         if (command == IDC_MASK_PREV) {
             appearance_mask = (appearance_mask + APPEARANCE_MASK_COUNT - 1) % APPEARANCE_MASK_COUNT;
             appearance_update_mask_label(window);
+            appearance_repaint(window, IDC_MASK_PREVIEW);
             return TRUE;
         }
         if (command == IDC_MASK_NEXT) {
             appearance_mask = (appearance_mask + 1) % APPEARANCE_MASK_COUNT;
             appearance_update_mask_label(window);
+            appearance_repaint(window, IDC_MASK_PREVIEW);
             return TRUE;
         }
         if (command == IDOK) {
