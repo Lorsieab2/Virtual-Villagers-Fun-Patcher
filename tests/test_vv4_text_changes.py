@@ -42,8 +42,38 @@ class VV4TextChangesTests(unittest.TestCase):
         self.assertTrue(base.is_file(), "base sm.xml restore asset is missing")
         self.assertEqual(_sha(edited), c["sha256"].upper())
         self.assertEqual(_sha(base), c["restore_sha256"].upper())
-        # preimage (what must be on disk before the swap) == the base file
+        # the guard compares against the base file
         self.assertEqual(c["preimage_sha256"].upper(), c["restore_sha256"].upper())
+
+    def _apply_over(self, current_bytes: bytes):
+        """Run _copy_companion_files against a temp game whose Assets/sm.xml is
+        `current_bytes`; return the resulting sm.xml Path (raises on guard)."""
+        import tempfile
+        feature = next(p for p in v.load_fun_patches()
+                       if p.id == "vv4_optional_text_changes")
+        td = tempfile.mkdtemp()
+        out = Path(td)
+        (out / "Assets").mkdir()
+        sm = out / "Assets" / "sm.xml"
+        sm.write_bytes(current_bytes)
+        v._copy_companion_files(out, [feature])
+        return sm
+
+    def test_apply_over_base_installs_edit(self) -> None:
+        base = (ROOT / self.companion["restore_source"]).read_bytes()
+        sm = self._apply_over(base)
+        self.assertEqual(_sha(sm), self.companion["sha256"].upper())
+
+    def test_reapply_over_already_edited_is_idempotent(self) -> None:
+        # the re-apply case that used to fail with "preimage mismatch"
+        edited = (ROOT / self.companion["source"]).read_bytes()
+        sm = self._apply_over(edited)
+        self.assertEqual(_sha(sm), self.companion["sha256"].upper())
+
+    def test_apply_over_foreign_sm_xml_is_refused(self) -> None:
+        # a localized/user-modified file must NOT be silently clobbered
+        with self.assertRaises(v.PatcherError):
+            self._apply_over(b"<root>a localized or user-modified sm.xml</root>\r\n")
 
     def test_apply_then_remove_round_trip_restores_base(self) -> None:
         feature = next(p for p in v.load_fun_patches()
