@@ -178,6 +178,16 @@ Each child who finishes the unlocked Going to school activity gains 7 to 9 point
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Visual Mods (`vv1_visual_mods`)
+
+Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.
+
+- Behavior changes: Swaps Images/lagoon_restored.jpg, Images/garden_restored.png, Images/MapX1Y2.jpg, and Images/MapX2Y1.jpg for decorated versions (flowers at the lagoon and love hut, clothes at the extra hut near the farm, and colorful flowers in the restored garden). Only these four image files are replaced; each is restored to the exact base-game file when the patch is removed.
+- Explicit non-changes/exclusions: No executable bytes are patched. No gameplay, stats, collectibles, or save data are affected.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Write Village Statistics to Text File (`vv1_write_village_statistics`)
 
 After a successful save, writes the village's lifetime statistics to a Village Statistics text file.

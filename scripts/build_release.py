@@ -120,6 +120,15 @@ FILES = [
     "data/guardians_of_isola/base/Images/idol_states.png",
     "data/guardians_of_isola/new/Images/mainmenu.jpg",
     "data/guardians_of_isola/base/Images/mainmenu.jpg",
+    # VV1 "Visual Mods" fun patch (asset-swap) companion + base-restore images.
+    "data/vv1_visual_mods/new/Images/garden_restored.png",
+    "data/vv1_visual_mods/base/Images/garden_restored.png",
+    "data/vv1_visual_mods/new/Images/lagoon_restored.jpg",
+    "data/vv1_visual_mods/base/Images/lagoon_restored.jpg",
+    "data/vv1_visual_mods/new/Images/MapX1Y2.jpg",
+    "data/vv1_visual_mods/base/Images/MapX1Y2.jpg",
+    "data/vv1_visual_mods/new/Images/MapX2Y1.jpg",
+    "data/vv1_visual_mods/base/Images/MapX2Y1.jpg",
 ]
 
 def main() -> int:
