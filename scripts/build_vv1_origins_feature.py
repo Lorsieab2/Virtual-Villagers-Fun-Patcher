@@ -376,6 +376,17 @@ MASK_BACKEDGE_RESUME_VA = 0x4388D5  # native "jl 0x437798" right after the displ
 # code calls these fixed jump-table thunks, never the IAT slot itself.
 SDL_UPPERBLIT_THUNK_VA = 0x44A9AC
 IMG_LOAD_THUNK_VA = 0x44AA78
+# DIAGNOSTIC ONLY (temporary): SDL_FillRect thunk, found via a raw
+# "FF 25 <IAT slot>" byte-pattern scan rather than the same disassembly
+# sweep that found the other two thunks -- capstone's linear disassembly
+# didn't land on it cleanly in this region, the same class of desync
+# already seen once this session. Used to isolate whether the
+# destination-surface/position computation is correct independent of
+# whether IMG_Load/the mask PNG itself is the remaining problem: a
+# solid, unmissable fill at the exact same computed surface+rect either
+# proves that half of the pipeline correct or rules it out outright,
+# rather than guessing again.
+SDL_FILLRECT_THUNK_VA = 0x44A99A
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -2039,6 +2050,16 @@ def main() -> None:
             mov edi, dword ptr [ebp + 8]
             sub edi, dword ptr [edx + 8]
             add edi, 19
+            push 65
+            push 40
+            push edi
+            push eax
+            mov edx, esp
+            push 0xffffffff
+            push edx
+            push ebx
+            call {SDL_FILLRECT_THUNK_VA:#x}
+            add esp, 12 + 16
             push 0
             push 0
             push edi
