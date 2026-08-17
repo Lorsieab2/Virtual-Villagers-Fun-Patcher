@@ -2030,6 +2030,7 @@ def main() -> None:
             test ecx, ecx
             jz mask2_draw_done
             mov ebx, dword ptr [esi + 0x3e00c]
+            mov ebx, dword ptr [ebx]
             mov ebx, dword ptr [ebx + 0x30]
             mov edx, dword ptr [esi + 0x3e010]
             mov eax, dword ptr [ebp + 4]
