@@ -7,5 +7,5 @@ EXPORTS
     ConfirmVV5Task9Action=_ConfirmVV5Task9Action@12
     ShowVV5Task9Result=_ShowVV5Task9Result@16
     ShowVV5Task9GeneticsWarning=_ShowVV5Task9GeneticsWarning@0
-    ShowAppearanceChooser=_ShowAppearanceChooser@16
+    ShowAppearanceChooser=_ShowAppearanceChooser@20
     ApplyVV5EqualDivision=_ApplyVV5EqualDivision@8
