@@ -148,21 +148,27 @@
     },
     {
       "offset": "0x8BEA8",
-      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "0000000000000000000000000000000000000000496D616765732F6D312E706E67000000496D616765732F6D322E706E67000000496D616765732F6D332E706E67000000496D616765732F6D342E706E67000000496D616765732F6D352E706E6700000000000000000000000000000000000000000000009CFF0514DF48009D752C0FB6907403000085D2741283FA05770DA30CDF4800891510DF4800EB0AC7050CDF480000000000E96898FAFFC7050CDF480000000000E969A9FAFF8B4E086A00FF0518DF4800833D0CDF4800007437608B5E30891D1CDF480068C800000068C8000000682C010000689001000089E26AFF5253E8F8C9FBFF83C41CC7050CDF48000000000061E95361F9FF",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "0000000000000000000000000000000000000000496D616765732F6D312E706E67000000496D616765732F6D322E706E67000000496D616765732F6D332E706E67000000496D616765732F6D342E706E67000000496D616765732F6D352E706E67000000000000000000000000000000000000000000000000000000000000009CFF0514DF48009D0F8598A9FAFFA324DF48000FB6907403000085D2741083FA05770BA30CDF4800891510DF4800E96398FAFF8B4E086A00FF0518DF4800538B1D20DF4800891D1CDF48005B833D0CDF4800007434608B1D20DF480068C800000068C8000000682C010000689001000089E26AFF5253E8F7C9FBFF83C41CC7050CDF48000000000061E95261F9FF8B4E30890D20DF48005189F1E97BB1F7FF",
       "purpose": "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames + a 2-dword pending-draw slot, then the stash-only occupied-check hook and the draw hook that runs at the loop's back-edge -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field"
     },
     {
       "offset": "0x377B8",
       "before": "0F8510110000",
-      "after": "E96367050090",
+      "after": "E96B67050090",
       "purpose": "splice the mask-overlay stash hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, neither is modified by this hook"
     },
     {
       "offset": "0x24103",
       "before": "8B4E086A00",
-      "after": "E95D9E0600",
-      "purpose": "splice the mask-overlay draw hook into FUN_00423390 right after its own 'call sub_437790' returns -- ESI there is FUN_00423390's own fastcall param_1 (the real app object), confirmed callee-saved by sub_437790 (push esi/pop esi at its entry/exit), so esi+0x30 is a single, correct dereference for the actual displayed surface, unlike sub_437790's own esi (a different, nested sub-object). Reproduces the displaced 'mov ecx,[esi+8] / push 0' pair exactly before resuming the native call that follows"
+      "after": "E9539E0600",
+      "purpose": "splice the mask-overlay draw hook into FUN_00423390 right after its own 'call sub_437790' returns. Reproduces the displaced 'mov ecx,[esi+8] / push 0' pair exactly before resuming the native call that follows; the draw itself now targets DEST_SURFACE_CACHE_VA (see MASK_THIRD_DETOUR below) rather than this function's own esi+0x30, which direct ReadProcessMemory inspection proved reads a stable but invalid surface here (0x0BAD0D60, w=904 h=0 pitch=0 pixels=0x5D9, 10/10 samples)"
+    },
+    {
+      "offset": "0x913C",
+      "before": "8B4E30518BCE",
+      "after": "E9754E080090",
+      "purpose": "splice into FUN_00409060 (the true main per-frame tick) immediately before its own call to FUN_00403830 (the function that does the real SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain) -- reproduces the displaced 'mov ecx,[esi+0x30] / push ecx / mov ecx,esi' trio exactly (native presentation is bit-for-bit unchanged) and additionally caches that same, definitively-correct destination-surface pointer into DEST_SURFACE_CACHE_VA for the mask draw hook (splice point 2) to consume"
     },
     {
       "offset": "0x8B530",

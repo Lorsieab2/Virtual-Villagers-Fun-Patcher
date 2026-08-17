@@ -337,7 +337,33 @@ MASK_PENDING_CHOICE_VA = MASK_OVERLAY_VA + 0x68  # 1..5, valid only when PENDING
 DEBUG_HOOK1_COUNTER_VA = MASK_OVERLAY_VA + 0x6C  # incremented every hook1 (occupied-check) visit
 DEBUG_HOOK2_COUNTER_VA = MASK_OVERLAY_VA + 0x70  # incremented every hook2 (back-edge) visit
 DEBUG_LAST_SURFACE_VA = MASK_OVERLAY_VA + 0x74  # last computed dest-surface pointer
-MASK_HOOK_VA = MASK_OVERLAY_VA + 0x78  # stash-only hook (occupied-check splice)
+# Ground truth, refreshed every real frame: FUN_00409060 (the actual main
+# per-frame tick -- confirmed via Ghidra to be the function that calls
+# FUN_00403830, which itself does SDL_UpdateTexture/RenderClear/RenderCopy/
+# RenderPresent) reads *(its own esi + 0x30) at 0x40913c and pushes that
+# exact value as FUN_00403830's surface argument one instruction later --
+# there is no more direct proof obtainable that a given pointer *is* the
+# real, currently-presented destination surface than reading it at the
+# literal call site that presents it. MASK_THIRD_DETOUR below reproduces
+# that read and additionally stashes it here, once per real frame, so any
+# other hook (which may run in a different object's context, e.g.
+# FUN_00423390's own esi+0x30 -- proven by direct ReadProcessMemory
+# inspection to read a stable but garbage 0x0BAD0D60 there, 10/10 samples
+# over ~2s) can use this cached value instead of trying to recompute the
+# same pointer from a context where it isn't reliably valid. The pointer
+# itself is expected to be the same persistent surface object for the
+# whole process lifetime (allocated once, not reallocated per frame), so a
+# one-frame-old cached copy read from a different hook earlier in the next
+# frame is still correct -- only its *contents* change every frame, not
+# its address.
+DEST_SURFACE_CACHE_VA = MASK_OVERLAY_VA + 0x78
+# DIAGNOSTIC ONLY (temporary): unconditionally stashes the most recent
+# occupied villager's record pointer, regardless of whether that villager
+# has a mask choice set -- lets an outside tool locate a live, valid
+# record to poke a mask byte into for an end-to-end render test without
+# needing the in-game picker UI clicked first.
+DEBUG_LAST_OCCUPIED_RECORD_VA = MASK_OVERLAY_VA + 0x7C
+MASK_HOOK_VA = MASK_OVERLAY_VA + 0x80  # stash-only hook (occupied-check splice)
 # MASK_BACKEDGE_HOOK_VA is NOT a fixed offset -- it's wherever
 # mask_hook_code actually ends, computed from its real assembled length
 # once main() assembles it. A hardcoded guess here bit us once already:
@@ -390,6 +416,30 @@ MASK_BACKEDGE_DETOUR_FILE_OFFSET = 0x24103
 MASK_BACKEDGE_DETOUR_VA = IMAGE_BASE + MASK_BACKEDGE_DETOUR_FILE_OFFSET
 MASK_BACKEDGE_DETOUR_ORIGINAL_BYTES = bytes.fromhex("8B4E086A00")  # mov ecx,[esi+8] ; push 0
 MASK_BACKEDGE_RESUME_VA = 0x424108  # native "call 0x41ab20" right after the displaced pair
+
+# Splice point 3: FUN_00409060, the true main per-frame tick (confirmed via
+# Ghidra decompile -- it drives mouse/cursor state, the frame-timing
+# SDL_Delay pair, and calls FUN_00403830, which does the real
+# SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain). Playtested:
+# splice point 2 (FUN_00423390's own esi+0x30) read a stable but obviously
+# invalid surface (0x0BAD0D60, w=904 h=0 pitch=0 pixels=0x5D9, 10/10 samples
+# over ~2s -- not a race, genuinely the wrong/uninitialized value at that
+# point in the frame lifecycle). This splice doesn't replace splice point 2
+# -- it feeds it. FUN_00409060's own esi is its fastcall param_1, and
+# 0x40913c ("mov ecx,[esi+0x30]") is decompiled as literally the surface
+# argument passed to FUN_00403830 one instruction later ("call 0x403830" at
+# 0x409145) -- there is no more direct evidence a pointer is the real,
+# currently-presented surface than reading it at its own presentation call
+# site. This hook reproduces that exact 3-instruction sequence unchanged
+# (native behavior bit-for-bit identical) and additionally stashes the same
+# value into DEST_SURFACE_CACHE_VA. mask_backedge_hook_code (splice point 2)
+# now reads that cache instead of recomputing esi+0x30 in its own,
+# apparently-unreliable context.
+MASK_THIRD_DETOUR_FILE_OFFSET = 0x913C
+MASK_THIRD_DETOUR_VA = IMAGE_BASE + MASK_THIRD_DETOUR_FILE_OFFSET
+MASK_THIRD_DETOUR_ORIGINAL_BYTES = bytes.fromhex("8B4E30518BCE")
+# mov ecx,[esi+0x30] ; push ecx ; mov ecx,esi
+MASK_THIRD_RESUME_VA = 0x409142  # native "mov [esi+0x78],eax" right after the displaced trio
 
 # Callable import thunks (jmp dword ptr [IAT slot]) for SDL2/SDL2_image --
 # found via Ghidra decompiling FUN_00403d00 (SDL_UpperBlit(src, srcrect,
@@ -2014,28 +2064,37 @@ def main() -> None:
     mask_paths_data = b"".join(
         f"Images/m{n}.png".encode("ascii").ljust(16, b"\0") for n in range(1, 6)
     )
-    mask_pending_data = b"\0" * 20  # MASK_PENDING_RECORD, MASK_PENDING_CHOICE, 3 debug dwords
+    mask_pending_data = b"\0" * 28  # MASK_PENDING_RECORD, MASK_PENDING_CHOICE, 3 debug dwords, DEST_SURFACE_CACHE, DEBUG_LAST_OCCUPIED_RECORD
     mask_hook_code = assemble(
         f"""
             pushfd
             inc dword ptr [{DEBUG_HOOK1_COUNTER_VA:#x}]
             popfd
-            jnz mask_native_skip
+            jnz {MASK_NATIVE_SKIP_TARGET_VA:#x}
+            mov dword ptr [{DEBUG_LAST_OCCUPIED_RECORD_VA:#x}], eax
             movzx edx, byte ptr [eax + 0x374]
             test edx, edx
-            jz mask_clear_pending
+            jz mask_resume
             cmp edx, 5
-            ja mask_clear_pending
+            ja mask_resume
+            # Only ever SET the pending slot, never clear it here -- this
+            # hook fires once per occupied villager per frame (up to 256
+            # times), so clearing on every villager without a mask (the
+            # old behaviour) meant whichever villager was iterated LAST
+            # each frame won, regardless of whether IT had a mask --
+            # hook2 (which runs once per frame, after this entire loop)
+            # almost always saw 0 unless the one masked villager happened
+            # to be the highest-index occupied slot. Only a villager that
+            # DOES have a valid mask choice may now touch this slot, so a
+            # single masked villager's choice survives the rest of the
+            # loop regardless of population or slot order. (Still only
+            # ever tracks one villager at a time if multiple have masks
+            # set simultaneously -- multi-villager concurrent mask draw
+            # is future work, see the overlay's own top-level comment.)
             mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], eax
             mov dword ptr [{MASK_PENDING_CHOICE_VA:#x}], edx
-            jmp mask_resume
-        mask_clear_pending:
-            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
         mask_resume:
             jmp {MASK_RESUME_VA:#x}
-        mask_native_skip:
-            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
-            jmp {MASK_NATIVE_SKIP_TARGET_VA:#x}
         """,
         MASK_HOOK_VA,
     )
@@ -2048,11 +2107,14 @@ def main() -> None:
             mov ecx, dword ptr [esi + 8]
             push 0
             inc dword ptr [{DEBUG_HOOK2_COUNTER_VA:#x}]
+            push ebx
+            mov ebx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
+            mov dword ptr [{DEBUG_LAST_SURFACE_VA:#x}], ebx
+            pop ebx
             cmp dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
             je mask2_done
             pushad
-            mov ebx, dword ptr [esi + 0x30]
-            mov dword ptr [{DEBUG_LAST_SURFACE_VA:#x}], ebx
+            mov ebx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
             push 200
             push 200
             push 300
@@ -2070,12 +2132,28 @@ def main() -> None:
         """,
         mask_backedge_hook_va,
     )
+    # Splice point 3 (see MASK_THIRD_DETOUR_* above): reproduces
+    # FUN_00409060's own displaced "mov ecx,[esi+0x30] / push ecx /
+    # mov ecx,esi" exactly, plus one extra store to cache that same value
+    # for splice point 2 to consume.
+    mask_frame_cache_va = mask_backedge_hook_va + len(mask_backedge_hook_code)
+    mask_frame_cache_code = assemble(
+        f"""
+            mov ecx, dword ptr [esi + 0x30]
+            mov dword ptr [{DEST_SURFACE_CACHE_VA:#x}], ecx
+            push ecx
+            mov ecx, esi
+            jmp {MASK_THIRD_RESUME_VA:#x}
+        """,
+        mask_frame_cache_va,
+    )
     mask_overlay_blob = (
         mask_surfaces_data
         + mask_paths_data
         + mask_pending_data
         + mask_hook_code
         + mask_backedge_hook_code
+        + mask_frame_cache_code
     )
     patch(
         MASK_OVERLAY_FILE_OFFSET,
@@ -2106,7 +2184,20 @@ def main() -> None:
         MASK_BACKEDGE_DETOUR_FILE_OFFSET,
         MASK_BACKEDGE_DETOUR_ORIGINAL_BYTES,
         mask_backedge_detour_code,
-        "splice the mask-overlay draw hook into FUN_00423390 right after its own 'call sub_437790' returns -- ESI there is FUN_00423390's own fastcall param_1 (the real app object), confirmed callee-saved by sub_437790 (push esi/pop esi at its entry/exit), so esi+0x30 is a single, correct dereference for the actual displayed surface, unlike sub_437790's own esi (a different, nested sub-object). Reproduces the displaced 'mov ecx,[esi+8] / push 0' pair exactly before resuming the native call that follows",
+        "splice the mask-overlay draw hook into FUN_00423390 right after its own 'call sub_437790' returns. Reproduces the displaced 'mov ecx,[esi+8] / push 0' pair exactly before resuming the native call that follows; the draw itself now targets DEST_SURFACE_CACHE_VA (see MASK_THIRD_DETOUR below) rather than this function's own esi+0x30, which direct ReadProcessMemory inspection proved reads a stable but invalid surface here (0x0BAD0D60, w=904 h=0 pitch=0 pixels=0x5D9, 10/10 samples)",
+    )
+    mask_frame_cache_detour_code = assemble(
+        f"""
+            jmp {mask_frame_cache_va:#x}
+            nop
+        """,
+        MASK_THIRD_DETOUR_VA,
+    )
+    patch(
+        MASK_THIRD_DETOUR_FILE_OFFSET,
+        MASK_THIRD_DETOUR_ORIGINAL_BYTES,
+        mask_frame_cache_detour_code,
+        "splice into FUN_00409060 (the true main per-frame tick) immediately before its own call to FUN_00403830 (the function that does the real SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain) -- reproduces the displaced 'mov ecx,[esi+0x30] / push ecx / mov ecx,esi' trio exactly (native presentation is bit-for-bit unchanged) and additionally caches that same, definitively-correct destination-surface pointer into DEST_SURFACE_CACHE_VA for the mask draw hook (splice point 2) to consume",
     )
 
     patch(
