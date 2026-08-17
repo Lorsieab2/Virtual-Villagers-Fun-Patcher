@@ -17,7 +17,32 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "8B29E66ADFE162028205EBE5BF068D7A9FB5150FF2F4D946D9C6B77B313D7134"
+      "sha256": "29FC06E739A6851DB7BBB52DF4EDE5A16ED813688FAAAF84785A669D88DC5452"
+    },
+    {
+      "source": "assets/origins/m1.png",
+      "destination": "m1.png",
+      "sha256": "416196100305DED7F71B30340707CD77234C98A91796AFFCD702824D94C674B4"
+    },
+    {
+      "source": "assets/origins/m2.png",
+      "destination": "m2.png",
+      "sha256": "C867FEDE8EED8572CE1380596B2385E109538731EAE8D22F650823C09B2B5840"
+    },
+    {
+      "source": "assets/origins/m3.png",
+      "destination": "m3.png",
+      "sha256": "4DC01D32D2B855AA12B9BE4BCDEDD862030D86DB59F4910E59CA1B1D4EBFE5AD"
+    },
+    {
+      "source": "assets/origins/m4.png",
+      "destination": "m4.png",
+      "sha256": "3C63DB1E2760E32F45ADE0AAC25F21FC170C02736D2D0AE29135809D950B5801"
+    },
+    {
+      "source": "assets/origins/m5.png",
+      "destination": "m5.png",
+      "sha256": "518364FDE8ECDCF0F60C43370A0035F304C3CE0EA57DDB9888EAC51B6B72D37A"
     }
   ],
   "doubler_evidence": {
@@ -120,6 +145,18 @@
       "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "8D82A8030000B904000000833826740C83C0044975F5B802000000C3C700FFFFFFFFB805000000C3",
       "purpose": "Details Grant Running: when all 4 Like slots are full, clear any Running Dislike for free (OFFICIAL spreadsheet edge case) and report whether one was actually cleared; tail-jumped into from DETAIL_PREFLIGHT_VA's own exhausted Like-slot scan"
+    },
+    {
+      "offset": "0x8BEA8",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "00000000000000000000000000000000000000006D312E706E6700006D322E706E6700006D332E706E6700006D342E706E6700006D352E706E67000075760FB6907403000085D274666089C54A89D38B0C9DA8DE480085C9751C89D8C1E00305BCDE480050E866CBFBFF83C40489049DA8DE480089C185C974348B9E0CE003008B5B308B9610E003008B45042B420C83E80D8B7D082B7A0883C7136A006A00575054536A0051E859CAFBFF83C42061E96298FAFFE96DA9FAFF",
+      "purpose": "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames, then the additive per-frame draw hook -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field"
+    },
+    {
+      "offset": "0x377B8",
+      "before": "0F8510110000",
+      "after": "E92767050090",
+      "purpose": "splice the mask-overlay hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, both fully restored by POPAD before the hook resumes it"
     },
     {
       "offset": "0x8B530",
