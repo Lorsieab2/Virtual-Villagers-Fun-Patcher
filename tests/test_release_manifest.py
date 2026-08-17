@@ -55,6 +55,27 @@ class ReleaseManifestTests(unittest.TestCase):
         missing = [relative for relative in release.FILES if not (ROOT / relative).is_file()]
         self.assertEqual(missing, [])
 
+    def test_release_manifest_bundles_every_fun_patch_companion_file(self) -> None:
+        """Asset-swap fun patches (e.g. VV4 Optional Text, VV5 Guardians of
+        Isola) ship no executable patches; their companion source/restore
+        files must be in the release bundle or the patch cannot be applied
+        or reverted by an end user."""
+        import sys
+
+        sys.path.insert(0, str(ROOT / "src"))
+        from vv_fun_patcher import load_fun_patches  # noqa: E402
+
+        release = load_release_module()
+        bundled = set(release.FILES)
+        missing: dict[str, list[str]] = {}
+        for patch in load_fun_patches():
+            for companion in patch.raw.get("companion_files", []):
+                for key in ("source", "restore_source"):
+                    path = companion.get(key)
+                    if path and path not in bundled:
+                        missing.setdefault(patch.id, []).append(path)
+        self.assertEqual(missing, {}, f"companion files absent from release bundle: {missing}")
+
 
 if __name__ == "__main__":
     unittest.main()
