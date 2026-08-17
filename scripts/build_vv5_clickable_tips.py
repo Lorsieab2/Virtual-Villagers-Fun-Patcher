@@ -50,8 +50,8 @@ DEFAULT_INPUT = (
 # --- addresses (image base 0x400000) -------------------------------------
 HOOK_VA = 0x404A5C          # click-dispatch site; displaced bytes below
 HOOK_PREIMAGE = bytes.fromhex("83C4085152")   # add esp,8 ; push ecx ; push edx
-CODE_VA = 0x494900          # .text cave for the handler
-CAVE_LO, CAVE_HI = 0x494610, 0x4949B0  # cave span kept zero apart from the handler
+CODE_VA = 0x494890          # .text cave for the handler (free of every VV5 feature cave)
+CAVE_LO, CAVE_HI = 0x494610, 0x4948F8  # cave span kept zero apart from the handler
 COUNTER_VA = 0x7B2FFC       # writable .shr slack (NOT .text: writes there fault)
 
 BAR_THIS = 0x520F68         # bar object (Bar::SetText `this`)
@@ -69,7 +69,7 @@ VINE_Y_LO, VINE_Y_HI = 164, 194
 
 # known-good reproducibility pins (informational; enforced only on a match)
 KNOWN_PARENT_SHA256 = "869C5CBA8CC051B4623B159F0BB3DC60462FE4D9CBA0A013755A893F0D2EECFB"
-KNOWN_RESULT_SHA256 = "C193180ADAC0C15546EAB33A49A262F0CD5370C053DE3A8B1E3B3224AC14651E"
+KNOWN_RESULT_SHA256 = "E015F0C88765A99ED8C167CD5F1EA1553C39FEFB602B4EDD2E931E087BD3A1A1"
 
 
 def _handler_bytes() -> bytes:
