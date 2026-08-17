@@ -59,7 +59,7 @@ Energy Needed:%d
 </Text>
 <Text id="eString_SpawnButterfliesDetailHint">
 Spawn Butterflies: spawn a cluster of lovely, distracting butterflies! \n 
-The island's butterflies remind villagers of life's joys and beauty, \n 
+The island's butterflies remind villagers of life's beauty, \n 
 drawing people together.
 </Text>
 <Text id="eString_SwarmOfBeesDetailHint">
@@ -80,8 +80,7 @@ signalling places where renewal and restoration are most needed.
 </Text>
 <Text id="eString_HandOfBloomDetailHint">
 Hand of Bloom: spontaneous vegetative growth. The island \n 
-nourishes all who live in harmony with its magic. Shared needs \n 
-bring people closer with their desire for fulfillment.
+nourishes all who live in harmony with its magic. 
 </Text>
 <Text id="eString_RainStormDetailHint">
 Tempest: summon a grand storm! The island's sorrow cries out \n 
@@ -89,21 +88,20 @@ to the heavens, bringing forth cleansing, renewal and healing in its wake.
 </Text>
 <Text id="eString_EarthquakeDetailHint">
 Earthquake: shake the very island itself! The island rumbles \n 
-with renewed strength and vigor, reminding all to listen closely to its call for solidarity.
+with renewed strength and vigor, reminding all to listen closely to its call.
 </Text>
 <Text id="eString_FogOfDoomDetailHint">
 Fog of Doom: a fog so thick that visibility is crippled. \n 
- The island conceals what must rest unseen, \n 
- clearing the way for understanding and change.
+The island conceals the physical and the divine, allowing people to see \n 
+what remains hidden in the heart. 
 </Text>
 <Text id="eString_TimeWarpDetailHint">
 Time Warp: accelerate time for one islander. The island \n  
-grants swiftness and mastery, showing that wisdom \n 
-can inspire others to grow.
+grants adaptability and wisdom as gifts to improve others' lives.
 </Text>
 <Text id="eString_GrantYouthDetailHint">
 Grant Youth: make someone (quite) young again. The island \n 
-offers second chances, allowing villagers to recuperate both wiser and stronger.
+offers second chances, allowing villagers to rise both wiser and stronger.
 </Text>
 <Text id="eString_ReanimateDetailHint">
 Revive: bring a fallen tribe member back! The island breathes \n 
@@ -713,7 +711,7 @@ Recovering at the hospital
 {name} sees a piece of a necklace.
 </Text>
 <Text id="eSaySeesMaskOnStump">
-{name} sees an abandoned mask.
+{name} sees a memorial for the fallen.
 </Text>
 <Text id="eSayChiefMumbles">
 The chief mumbles sadly about his daughter.
@@ -1972,16 +1970,16 @@ Do you need help getting started?\n
 On this day the new believer told his sad story.\n
 </Text>
 <Text id="eMidGamePage2Line1">
-Long ago there was a war between two factions in the island.\n
+"Long ago there was a war between two factions in the island.\n
 </Text>
 <Text id="eMidGamePage2Line2">
 The conflict began with a forbidden love...\n
 </Text>
 <Text id="eMidGamePage2Line3">
-but ended with bloodshed and destruction.\n
+but ended with bloodshed and destruction."\n
 </Text>
 <Text id="eMidGamePage3Line1">
-Those who survived the battle fled into the night.\n
+"Those who survived the battle fled into the night.\n
 </Text>
 <Text id="eMidGamePage3Line2">
 Many were lost.\n
@@ -1990,68 +1988,68 @@ Many were lost.\n
 Families were separated and shattered.\n
 </Text>
 <Text id="eMidGamePage3Line4">
-The loss...was too great.\n
+The loss...was too great."\n
 </Text>
 <Text id="eMidGamePage4Line1">
-We retreated into the jungle and into a despair\n
+"We retreated into the jungle and into a despair so deep and suffocating that we lost all hope.\n
 </Text>
 <Text id="eMidGamePage4Line2">
-so deep and suffocating that we lost all hope.\n
+We stopped believing in the island, in any guiding force. We even stopped believing in ourselves, \n
 </Text>
 <Text id="eMidGamePage4Line3">
-We stopped believing in the island, in any guiding force.\n
+ and so we covered our faces with these masks to protect us. We vowed to never forget \n
 </Text>
 <Text id="eMidGamePage4Line4">
-We stopped even believing in ourselves, and so we covered our faces with these masks to protect us.\n
+the horrors we endured, and to carry on the memory of those who perished.\n
 </Text>
 <Text id="eMidGamePage4Line5">
-We vowed to live on, to carry on the work left behind by those that perished. Even now, they guide us.\n
+ Even now, they guide us."\n
 </Text>
 <Text id="eMidGamePage5Line1">
-Your kindness, your words and actions, have reminded me that life can be wonderful again. \n 
+"Your kindness, your words and actions, have reminded me that life is wonderful and worth living.\n 
 </Text>
 <Text id="eMidGamePage5Line2">
-This is what our ancestors believed. The others still live in fear and sorrow, as I once did. We must help them see \n 
+The others still live in fear and sorrow, as I once did. We must help them see \n 
 </Text>
 <Text id="eMidGamePage5Line3">
-that the masks are more than that - symbols of healing and remembrance, \n 
+the goodness in people, without forgetting the sacrifices of the past.\n 
 </Text>
 <Text id="eMidGamePage5Line4">
-tributes to those we lost and the strength that still endures within us.\n \n
+I will keep this mask here with me to commemorate those we lost and to remind myself of  \n 
 </Text>
 <Text id="eMidGamePage5Line5">
-Our chief... he had a daughter...\n
+the trials I worked so hard to overcome. Our chief... he had a daughter..."\n
 </Text>
 <Text id="eEndGamePage1Line1">
-This necklace...\n
+"This necklace...\n
 </Text>
 <Text id="eEndGamePage1Line2">
 I know this necklace.\n
 </Text>
 <Text id="eEndGamePage1Line3">
-It belonged to my daughter.\n
+It belonged to my daughter."\n
 </Text>
 <Text id="eEndGamePage2Line1">
-I loved my daughter. I had forgotten that love.\n
+"I loved my daughter. I had forgotten that love.\n
 </Text>
 <Text id="eEndGamePage2Line2">
 I thought I could never love again. I've longed to see her all this time.\n
 </Text>
 <Text id="eEndGamePage2Line3">
-Seeing this necklace has reminded me of how much she loved life, and all things in this world. \n
+Seeing this necklace again has reminded me of how much she loved life, and all things in this world." \n
 </Text>
 <Text id="eEndGamePage3Line1">
 The Chief realizes his daughter would not have wanted him to live shut off from the world. \n
 With a trembling hand, he reaches out, at last opening his heart to the kindness around him. \n
 </Text>
 <Text id="eEndGamePage3Line2">
-\n "Thank you, everyone, for all you've done. Our ancestors have truly blessed us, all this time." \n 
+\n "Thank you, everyone, for all you've done. Our ancestors have truly blessed us all this time." \n 
 </Text>
 <Text id="eEndGamePage3Line3">
-\n After surviving much hardship and sorrow, all peoples of Isola now stand as one. \n 
+\n After overcoming many challenges, all tribes of Isola now unite as one. \n 
 </Text>
 <Text id="eEndGamePage3Line4">
-\n The lost have found one another again, and the grieving are no longer alone. Harmony has returned to Isola! \n
+\n The lost have found hope, and the sorrowful can finally let go of their pain. Harmony has returned to Isola! \n
 </Text>
 <Text id="eReplayTutorialInstruction">
 Replay Tutorial Instruction
@@ -2143,9 +2141,9 @@ When the villager's Trust meter crosses the middle, he or she will \n
 become allied with your tribe.\n
 </Text>
 <Text id="eTTipInstruct17">
-Villagers who are allied with you increase your \n
-Harmonic Energy. Harmonic Energy is a measure of peace and balance on Isola, \n
-which strengthens its Magic Powers. The island responds to the world and its people. \n
+Villagers who are allied with you increase the island's \n
+Life Energy. Life Energy is a measure of peace and balance on Isola, \n
+which strengthens its Magic Powers. Isola responds to the world and its people. \n
 Its magic is mysterious and beautiful - but also unpredictable. \n
 When the island unleashes its magic, villagers can respond in various ways. \n
 Let's try a Power now and spawn some butterflies. \n
@@ -2155,8 +2153,8 @@ then click somewhere to release them.\n
 <Text id="eTTipInfo18">
 Wow! Butterflies are great for distracting \n
 children of all kinds. \n
-Notice how you used a little bit of your Harmonic Energy. \n
-The more tribe members you have, the faster your \n
+Notice how you used a little bit of Life Energy. \n
+The more villagers that trust your tribe, the faster the \n
 energy will replenish.\n
 </Text>
 <Text id="eTTipInstruct19">
@@ -2168,9 +2166,9 @@ table at the center of the lab.\n
 Oh no! Your villager is being chased away! \n
 The Native Isolans have settled this place for many centuries \n
 and have great fear of strangers. From the looks of things, \n
-they appear to have gone through a lot of hardship - something that your villagers know all too well. \n
+they appear to have gone through a lot of hardship.\n
 In order to gain tech points, you will need \n
-to help them restore their village by working together. \n
+to help the Isolans restore their village by working together. \n
 Once you renovate the research area, the tribe can start \n
 generating tech points.\n
 </Text>
@@ -2185,7 +2183,7 @@ Use the tech points gained from research \n
 to upgrade a variety of different technologies. \n
 The right side of the screen shows all the powers \n
 you have unlocked, as well as those you have not yet unlocked. \n
-They can be unlocked by increasing your Harmonic Energy. \n
+They can be unlocked by increasing Isola's Life Energy. \n
 Click 'Done' to return to the main screen. \n
 </Text>
 <Text id="eTTipInstruct25">
@@ -2199,7 +2197,7 @@ Ooooh! The child found a relic! \n
 Your villagers can collect Isola's small and \n
 beautiful treasures, but only when found by \n
 a child. Repeat relics are converted into \n
-Harmonic Energy, while repeat lab gear gets converted into tech points.\n
+Life Energy, while repeat lab gear gets converted into tech points.\n
 </Text>
 <Text id="eTTipInstruct27">
 Let's check out the Collections screen. \n
@@ -2210,8 +2208,8 @@ side of the screen. \n
 Welcome to the Collections screen. \n
 Here you can see which collectibles your \n
 village children have gathered. Each relic that \n
-you collect permanently increases your maximum \n
-Harmonic Energy. Each piece of lab gear permanently \n
+you collect permanently increases the maximum \n
+Life Energy level. Each piece of lab gear permanently \n
 increases tech point production! \n
 Click 'Done' to return to the main screen. \n
 </Text>
@@ -2406,7 +2404,7 @@ You cannot view details about this villager. They don't trust you yet.\n
 </Text>
 <Text id="eTTipOneOffFirstConversion">
 You befriended someone and helped them in their time of need! Any time you increase your tribe's population, \n
-through conversation or new babies, you increase your max energy, \n
+through conversation or new babies, you increase Isola's Life Energy, \n
 which can eventually unlock new powers!
 </Text>
 <Text id="eTTipOneOffFirstTotem">
@@ -2415,12 +2413,12 @@ fix them. If you are stuck, work on increasing population \n
 and collecting relics.
 </Text>
 <Text id="eTTipOneOffFirstRelic">
-Recovering relics adds to your max energy, \n
+Recovering relics adds to Isola's Life Energy, \n
 which can unlock new, exciting powers!
 </Text>
 <Text id="eTTipOneOffPolisher">
 Assigning builders to polish the statue helps them to \n
-practice building and gives you a bit of energy each time!
+practice building and gives the island a bit of energy each time!
 </Text>
 <Text id="eTTipOneOffTired">
 You can only try to talk to the Native Isolans once, then you must wait a while before you
@@ -2473,43 +2471,57 @@ Now they have a place to store food.\n
 <Text id="eTipPuzzleFoodTotemComplete">
 The Hungry Totem\n
 \n
-Your villagers have restored the Hungry Totem. \n The Hungry Totem blesses the tribe's farmers with a bountiful harvest. \n
-Now they can add noni fruit to their diet.\n
+Your villagers have restored the Hungry Totem. \n 
+The Hungry Totem blesses the tribe's farmers with \n
+a bountiful harvest. Now they can add noni fruit \n
+to their diet.\n
 </Text>
 <Text id="eTipPuzzleClosedEyeTotemComplete">
 The Blind Totem\n
 \n
-Your villagers have reactivated the Blind Totem. \n The Blind Totem allows the villagers to see what is invisible to the eye and essential to the heart.\n
+Your villagers have reactivated the Blind Totem. \n 
+The Blind Totem allows the villagers to see the \n
+hidden truths of the world. \n
 Your vision in this area is restored!\n
 </Text>
 <Text id="eTipPuzzleRainbowTotemComplete">
 The Rainbow Totem\n
 \n
-Your villagers have restored the Rainbow Totem. \n The Rainbow Totem stands as a beacon of peace and harmony between tribes. \n
+Your villagers have restored the Rainbow Totem. \n
+The Rainbow Totem stands as a beacon of peace \n
+and harmony between tribes. \n
 The warm springs are now theirs to enjoy and share.\n
 </Text>
 <Text id="eTipPuzzleChildrensTotemComplete">
 The Hollow Totem\n
 \n
-Your village children have restored the Hollow Totem. \n The Hollow Totem provides a safe and engaging place for children to play in. \n
+Your village children have restored the Hollow Totem. \n 
+Crafted by delicate hands, the Hollow Totem is \n
+a gentle protector that watches over the safety and \n
+security of its people. \n
 The lake is now part of the villagers' domain.\n
 </Text>
 <Text id="eTipPuzzleResearchTotemComplete">
 The Knowing Totem\n
 \n
-Your villagers have restored the Knowing Totem. \n The Knowing Totem gives clarity and wisdom to the tribe's scientists. \n
+Your villagers have restored the Knowing Totem. \n 
+The Knowing Totem gives clarity and wisdom to \n
+the tribe's scientists. \n
 They have gained access to the lab.\n
 </Text>
 <Text id="eTipPuzzleMedicineTotemComplete">
 The Pain Totem\n
 \n
-Your villagers have restored the Pain Totem. \n The Pain Totem bestows healing and protection to the sick. \n
+Your villagers have restored the Pain Totem. \n 
+The Pain Totem bestows healing and protection to the sick. \n
 They have gained access to a healing area.\n
 </Text>
 <Text id="eTipPuzzleBuildingTotemComplete">
 The Blocking Totem\n
 \n
-Your villagers have restored the Blocking Totem. \n The Blocking Totem grants the tribe strength and solidarity in times of hardship.\n
+Your villagers have restored the Blocking Totem. \n 
+The Blocking Totem grants the tribe strength and \n
+solidarity in times of hardship.\n
 They can now dig out the mausoleum safely.\n
 </Text>
 <Text id="eTipPuzzleConvertMasterDoctorComplete">
@@ -2527,18 +2539,23 @@ heartbroken Chief a new lease on life! \n
 <Text id="eTipPuzzleConvertLastHeathenComplete">
 A Family Reunited\n
 \n
-The tribes of Isola have now fully united in friendship. \n  They now gather as one family, ready to face the future together. \n As Isola's Guardians of Harmony, \n the villagers will forever be grateful for your help \n in restoring peace and balance to their beloved island home. Thank you for playing!\n
+The tribes of Isola have now fully united in friendship. \n  
+They now gather as one family, ready to face the future together. \n
+As Isola's Guardians of Harmony, the villagers will forever be \n
+grateful for your help in restoring peace and balance to their \n
+beloved island home. Thank you for playing!\n
 </Text>
 <Text id="eTipPuzzleBelieverIdolComplete">
 The Tribute Statue\n
 \n
 Your villagers have sculpted a grand statue! \n
-This will maximize accumulation of Harmonic Energy.\n
+This will maximize accumulation of Life Energy.\n
 </Text>
 <Text id="eTipPuzzleHeathenMommyComplete">
 The Protective Parent\n
 \n
-Your villagers have calmed the protective parent, \n who no longer fears your villagers! \n
+Your villagers have calmed the protective parent, \n
+who no longer fears your villagers! \n
 </Text>
 <Text id="eTipPuzzleNurserySchoolComplete">
 The Nursery School\n
@@ -2563,7 +2580,8 @@ of the despondent builder! \n
 The Despairing Farmer\n
 \n
 Your villagers have restored an \n
-advanced hydroponic farm, \n lifting the despairing farmer's spirits.\n
+advanced hydroponic farm, \n 
+lifting the despairing farmer's spirits.\n
 </Text>
 <Text id="eTipPuzzleHut1Built">
 A New Hut!\n
@@ -2936,11 +2954,8 @@ Your tribe gains tech points.
 The Especially Offensive Cloud
 </Text>
 <Text id="eEventTheEspeciallyOffensiveCloudDesc">
-The Native Isolans often experiment with magic and technology in the lab, and explosions sometimes
- result as a side effect. During one such experiment, one of the apprentices makes a mistake and accidentally creates
- the most truly offensive, foul, and utterly eye-watering cloud of lingering gas to
- ever assault a nose! This cloud has spread throughout the village, and everyone has
- no choice but to hide until it clears.
+The Native Isolans often experiment with magic and technology in the lab, and unpredictable things happen as a side effect. During one such experiment, one of the apprentices makes a mistake and accidentally creates
+ the most truly offensive, foul, and utterly eye-watering cloud of lingering gas to ever assault a nose! The lab, and soon the entire village, is quickly evacuated as dozens of villagers flee in panic covering their noses and mouths.  The scientists manage to fully decontaminate the area, determining no further threat to health and safety. The apprentice's pride may have been injured a bit, but no harm or hard feelings have been made. The unfortunate incident quickly becomes a cautionary tale as well as a humorous memory for the ages.
 </Text>
 <Text id="eEventTheBottleOfHotsauceTitle">
 The Bottle of Spicy Juice
@@ -3084,8 +3099,7 @@ Day of Honor
 </Text>
 <Text id="eEventDayOfHonorDesc">
 Today is the day that the villagers pay their respects to those who have passed on.
- 
-</Text>
+ </Text>
 <Text id="eEventBlessingsDayTitle">
 Blessings Day Celebration
 </Text>
@@ -3130,8 +3144,7 @@ The State of the Tree
 <Text id="eEventTheVillageAndTheTree_MallaiseDesc">
 The villagers have been feeling glum and moody recently. Seeing the sacred tree in
  such a sorry state has had an adverse effect on their health and sense of well-being.
- 
-</Text>
+ </Text>
 <Text id="eEventNewsFromAnotherTribe1Title">
 News From Another Tribe
 </Text>
@@ -3185,8 +3198,7 @@ Let it go
  pests are hiding somewhere in {his/her} bed. {He/She} turns the whole place inside
  out, fumigating with a smoldering piece of wood, until {he/she} is satisfied that
  it's safe to go back to sleep. Unfortunately, it is now dawn, and {he/she} is exhausted.
- 
-</Text>
+ </Text>
 <Text id="eEventTheBedBugsResultB">
 {name} is not happy about the bug infestation, but {he/she} is too tired to do anything
  about it now. {name} decides to go back to sleep. In the morning, {he/she} is covered
@@ -3213,7 +3225,7 @@ After some reflection, {name} decides to live amongst the Isolans for a while in
 </Text>
 <Text id="eEventTheMaskResultB">
 {name} wonders what happened to the mask's owner. Did they lose it, or did they decide to take it off? Either way, {he/she} believes it's wrong to touch someone else's property without permission. {He/She} wishes the mask's owner well and carries on their way. {name} feels good having done the right thing, and learns to respect others better.
-{name} gains trust. You gain energy.
+{name} gains trust. Isola gains Life Energy.
 </Text>
 <Text id="eEventTheHeathenToyTitle">
 The Lost Toy
@@ -3374,8 +3386,7 @@ A Groundbreaking Discovery
 </Text>
 <Text id="eEventYoureDoinItWrongDesc">
 {name} has become fascinated by the Isolans' scientific advancement and prowess. {He/She} would like to observe their experiments in-person,
-as it seems they're about to reach a groundbreaking step in their latest discovery. As an aspiring scientist, {name} knows that new research is untested and
-carries a risk of danger, but is not sure whether to attend or pass up on this rare opportunity for their own safety.
+as it seems they're about to reach a groundbreaking step in their latest discovery. As an aspiring scientist, {name} knows that new research is untested and carries a risk of danger, but is not sure whether to attend or pass up on this rare opportunity for their own safety.
 </Text>
 <Text id="eEventYoureDoinItWrongChoiceA">
 Observe the scientists
@@ -3387,11 +3398,11 @@ Seems dangerous; better not interfere!
 {name} is delighted by the progress made on this experiment.  However, during a crucial and extremely precise technique, a sudden explosion happens, and everyone present has to evacuate the lab! {name}, along with the other scientists, is left shaken and injured, but overall, has no hard feelings. This is all just part of research and development, after all!
 </Text>
 <Text id="eEventYoureDoinItWrongResultA2">
-{name} is delighted by the progress made on this experiment. {He/She} has learned a lot about the Isolans' way of thinking and was able to share their own ideas with the greater scientific community. {name} has made a lot of wonderful connections and is feeling ecstatic at the possibility of collaborating with the Isolans on new research projects in the future! 
+{name} is delighted by the progress made on this experiment. {He/She} has learned a lot about the Isolans' way of thinking and was able to share {his/her} own ideas with the greater scientific community. {name} has made a lot of wonderful connections and is feeling ecstatic at the possibility of collaborating with the Isolans on new research projects in the future! 
 </Text>
 <Text id="eEventYoureDoinItWrongResultB">
-{name} decides that the lab is too crowded right now and being there would only be a nuisance. Anyway, it's none of their business to interfere with others' experiments. {name} decides it might be best
-to leave them alone. 
+{name} decides that the lab is too crowded right now and being there would only be a nuisance. Anyway, it's none of {his/her} business to interfere with others' experiments. {name} decides it might be best
+ to leave them alone. 
 </Text>
 <Text id="eEventTheMissingKidsTitle">
 The Missing Kids
@@ -3434,7 +3445,7 @@ Refuse the tour
 </Text>
 <Text id="eEventOutreachResultA">
 Offering a tour, the envoy is delighted to see how well-off the villagers are and
- offers a tour in return. It is most enlightening to the villagers, and each tribe learns something interesting about the other's culture and beliefs. The members of the village's expedition team agree to a trade deal with the Isolan envoy, and exchange some useful artifacts and knowledge. Could this be the first step towards an understanding?
+ offers a tour in return. It is most enlightening to the villagers, and each tribe learns something interesting about the other's culture and beliefs. The members of the village's expedition team agree to a trade deal with the Isolan envoy, and exchange some useful artifacts, knowledge and food items. Could this be the first step towards an understanding?
 </Text>
 <Text id="eEventOutreachResultB">
 The Isolan envoy is disappointed, but leaves in peace.
@@ -3463,8 +3474,8 @@ Your tribe gains a level in science.
 <Text id="eEventTheAdvancedArtifactsResultB2">
 Unfortunately, the research is not well received. The villagers find several flaws in {name}'s hypothesis, 
 and raise a lot of questions about {his/her} methodology of study.
- {name} is flustered and unable to defend {himself/herself} against the onslaught of questions. The senior scientists 
- advise {him/her} to start from scratch and reformulate their entire experiment.
+ {name} is flustered and unable to defend {himself/herself} against the tirade of questions. The senior scientists 
+ advise {him/her} to start from scratch and reformulate {his/her} entire experiment.
  {name} is very disappointed and decides that {he/she}
  may not be cut out to be a scientist after all.
 </Text>
@@ -3478,7 +3489,7 @@ Trick Or Trade
 </Text>
 <Text id="eEventTrickOrTradeDesc">
 {name} has discovered that the Isolans have some important scrolls stored in their lab supplies. They don't seem to be using them, but {name} believes that these scrolls
-might have some useful information that could help them overcome a particularly difficult research problem. {name} thinks that {he/she} could
+might have some useful information that could help {him/her} overcome a particularly difficult research problem. {name} thinks that {he/she} could
  either try to negotiate a trade or perhaps {he/she} could "borrow" them, with the proper
  distraction.
 </Text>
@@ -3489,14 +3500,14 @@ Employ a clever ruse
 Trade some food for the scrolls
 </Text>
 <Text id="eEventTrickOrTradeResultA">
-Against their better judgement, {name} crafts a large smoke bomb instead of focusing on their research. At midnight, {name} deploys the smoke bomb and sneaks into the Isolans' camp to steal the scrolls. The next morning, rumors of a theft spread around both villages, triggering fights and distrust among the people. {name} tries to use the scrolls' knowledge in their research but is unable to find a solution.
-Looking at the scrolls again, {name} discovers that there is a piece missing and is mortified at what they've done. Realizing their mistake, {he/she} sheepishly returns the scrolls and confesses in the middle of the conflict. Everyone is disappointed at {his/her} deceit, but is grateful for their honesty. {name} is ashamed of their actions and vows to work harder from now on.\n
+Against {his/her} better judgement, {name} crafts a large smoke bomb instead of focusing on their research. At midnight, {name} deploys the smoke bomb and sneaks into the Isolans' camp to steal the scrolls. The next morning, rumors of a theft spread around both villages, triggering fights and distrust among the people. {name} tries to use the scrolls' knowledge in {his/her} research but is unable to find a solution.
+Looking at the scrolls again, {name} discovers that there is a piece missing and is mortified at what {he/she}'s done. Realizing {his/her} mistake, {he/she} sheepishly returns the scrolls and confesses in the middle of the conflict. Everyone is disappointed at {name}'s deceit, but is grateful for {his/her} honesty. {name} is ashamed of {his/her} actions and vows to work harder from now on.\n
 Your tribe gains 1500 tech points.
 </Text>
 <Text id="eEventTheSealedBoxResultB">
 {name} arranges a barter session with an envoy from the Isolans' village. Finally, they
  agree to trade the scrolls for 100 food. The trade goes smoothly, and {name} gains
- some respect from the Isolans for their honest business practices. Also, one of the
+ some respect from the Isolans for {his/her} honest business practices. Also, one of the
  Isolan scientists reveals a missing piece that they had kept for safekeeping! Good thing they mentioned it! \n
 Your tribe gains 3000 tech points.
 </Text>
@@ -3555,10 +3566,8 @@ The villagers decide to try using a potion to destroy the pests outright. While 
 The Visitor
 </Text>
 <Text id="eEventTheDefectorDesc">
-One of the Isolans approaches your villagers, saying they wish to understand them better. They speak of fear and confusion between the tribes, and hope that living together might help bridge the divide. {He/She} seems very sincere, but some of the villagers
- are a little suspicious, because this petitioner can't have come to understand much
- about their ways or culture in such a short time. Should they welcome the
-stranger into their tribe or politely send {him/her} back to {his/her} people?
+One of the Isolans approaches your villagers, saying they wish to understand the tribe better. They speak of fear and confusion between their people, and hope that living together might help bridge the divide. {He/She} seems very sincere, but some of the villagers
+ are a little suspicious, because this petitioner can't have come to understand much about their ways or culture in such a short time. Should they welcome the stranger into their tribe or politely send {him/her} back to {his/her} people?
 </Text>
 <Text id="eEventTheDefectorChoiceA">
 Accept the petitioner
@@ -3567,10 +3576,10 @@ Accept the petitioner
 Better not
 </Text>
 <Text id="eEventTheDefectorResultA1">
-At first, {he/she} is quiet and uneasy. The villagers, too, struggle to know what to say or do. But little by little, through small acts of kindness and patience on both sides, fear begins to fade. Eventually, {name} comes out of {his/her} shell and becomes a valued part of the community.
+At first, {name} is quiet and uneasy. The villagers, too, struggle to know what to say or do. But little by little, through small acts of kindness and patience on both sides, fear begins to fade. Eventually, {name} comes out of {his/her} shell and becomes a valued part of the community.
 </Text>
 <Text id="eEventTheDefectorResultA2">
-Despite their best efforts to help, nerves and miscommunication lead to an accident that damages important tools. Embarrassed and afraid of causing more trouble, {name} quietly returns to their people. The villagers feel regret, realizing how fragile new trust can be.
+Despite their best efforts to help, nerves and miscommunication lead to an accident that damages important tools. Embarrassed and afraid of causing more trouble, {name} quietly returns to {his/her} people. The villagers feel regret, realizing how fragile new trust can be.
 Your tribe loses 2,000 tech points. 
 </Text>
 <Text id="eEventTheDefectorResultB">
@@ -3597,7 +3606,7 @@ Use it as a cooking strainer
 {name} decides that the bowl must certainly be a hat and promptly puts it on. {He/She}
  likes how it shades {his/her} eyes from the sun. However, {he/she} also notices that
  the Isolans greatly admire the hat. It seems that skillful crafting is highly appreciated in their culture. {name}
-realizes that {he/she} has something in common with the Isolans, and is able to develop better relationships with them.
+ realizes that {he/she} has something in common with the Isolans, and is able to develop better relationships with them.
 </Text>
 <Text id="eEventTheStrawHatResultB">
 The bowl works splendidly as a strainer for their traditional method of preparing
@@ -3635,8 +3644,8 @@ The Cracked Mask
 <Text id="eEventTheCrackedMaskDesc">
 One of the Isolans has a sack on their head instead of their mask and seems very
  distraught. On a nearby rock lies a wooden mask broken in two. {name} knows that a simple
- glue can easily be made from noni sap and sand, but this Isolan seems too upset to remember how. {name} wonders whether to help the Isolan fix the mask, or tell them to let it go, as it's broken, and {he/she} can always get a new one.\n
-What should {name} do?
+ glue can easily be made from noni sap and sand, but this Isolan seems too upset to remember how. {name} wonders whether to help the Isolan fix the mask, or tell them to let it go, as it's broken, and they can always get a new one.\n
+ What should {name} do?
 </Text>
 <Text id="eEventTheCrackedMaskChoiceA">
 Help fix the mask
@@ -3645,7 +3654,7 @@ Help fix the mask
 Tell them to let it go
 </Text>
 <Text id="eEventTheCrackedMaskResultA">
-{name} approaches the Isolan and starts speaking, but the Isolan is startled by their sudden appearance and hits {him/her} in self-defense. Once they realize {name}'s true intentions, they apologize and gladly accept 
+{name} approaches the Isolan and starts speaking, but the Isolan is startled by {his/her} sudden appearance and hits {him/her} in self-defense. Once they realize {name}'s true intentions, they apologize and gladly accept 
 {his/her} help. While working together, the Isolan explains that the masks provide protection and safety and are deeply cherished by their people. "These masks are priceless. They are unique, just like we are.
 Whenever we feel betrayed by the world, they remind us that we're resilient and strong. There are others like us, who understand what we've gone through, and that we belong in this world." {name} recalls the stories of their ancestors, who experienced similar struggles of their own after surviving the destruction of their home. "Really? So you know what it's like? That's... good to know..." the Isolan says quietly. {name} observes the Isolan's eyes tear up as they 
 carefully fit the broken halves of the mask back together. {He/She} senses that this act of kindness 
@@ -3653,7 +3662,7 @@ healed more than just the Isolan's mask. Something deep within their heart began
 Though slightly injured, {name} realizes that their peoples have more in common than they thought. {name} appears to have made a friend and gained valuable experience in treating others with tact and empathy.
 </Text>
 <Text id="eEventTheCrackedMaskResultB">
-The Isolan is devastated by {name}'s careless words, and cries that this mask is the only thing they had left to protect {himself/herself}. "Now I've got nothing! Nothing!" The Isolan, feeling vulnerable and defenseless, yells for help. {name} is taken aback by the Isolan's emotional distress, not fully grasping the depth of their fear. The
+The Isolan is devastated by {name}'s careless words, and cries that this mask is the only thing they had left to protect themself. "Now I've got nothing! Nothing!" The Isolan, feeling vulnerable and defenseless, yells for help. {name} is taken aback by the Isolan's emotional distress, not fully grasping the depth of their fear. The
  commotion causes other members of their tribe to rush over and defend their friend. Believing {name} to be an enemy, they quickly overwhelm
  and capture {name}, forcing {him/her} to answer to their Chief.
 </Text>
@@ -3940,8 +3949,8 @@ At Level 3 all food gathered is doubled.\n
                      Spirituality\n
  \n
 Training your villagers in spirituality \n
-increases your maximum Harmonic Energy, allows \n
-statue upgrades and helps your tribe foster trust with the Isolans.\n
+increases Isola's Life Energy, allows \n
+statue upgrades and helps the tribes foster trust in each other.\n
 \n
 </Text>
 <Text id="eTechLevel">
@@ -3973,7 +3982,7 @@ your tribe, you cannot change it.\n
 You have already chosen your faction!
 </Text>
 <Text id="eRandomTip1">
-Relics increase your max energy. Lab gear increases tech points.
+Relics increase the island's life energy. Lab gear increases tech points.
 </Text>
 <Text id="eRandomTip2">
 One male villager can father many children.
@@ -4084,7 +4093,7 @@ Skills can be learned by performing various tasks.
 Add wood to your fire, so that you don't have to relight it.
 </Text>
 <Text id="eRandomTip38">
-Duplicate relics turn into energy for you.
+Duplicate relics turn into the island's life energy.
 </Text>
 <Text id="eRandomTip39">
 Lab collectibles permanently improve research productivity.

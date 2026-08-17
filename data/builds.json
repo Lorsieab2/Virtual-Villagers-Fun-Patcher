@@ -1633,8 +1633,8 @@
         {
           "source": "data/guardians_of_isola/new/Assets/sm.xml",
           "destination": "Assets/sm.xml",
-          "size": 149538,
-          "sha256": "30BC2E797749457A62535C234B581B8EB2E262C1EEF5358E762556A9E61B0723",
+          "size": 149915,
+          "sha256": "203D4BD689DC032989F57C09992F82115B5D473C7079611E2BFD7140DA5FE89A",
           "preimage_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071",
           "restore_source": "data/guardians_of_isola/base/Assets/sm.xml",
           "restore_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071"

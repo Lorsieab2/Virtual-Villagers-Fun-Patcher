@@ -5,3 +5,7 @@
 /data/candidates/vv3_individual_full_mastery_candidate_map.json text eol=lf
 assets/text-changes/vv4-sm.xml -text
 assets/text-changes/vv4-sm-base.xml -text
+
+# Guardians of Isola swap assets are authenticated by exact-byte hashes;
+# never let autocrlf rewrite line endings (would break the manifest pins).
+data/guardians_of_isola/** -text
