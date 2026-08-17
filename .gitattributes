@@ -4,3 +4,4 @@
 /data/candidates/vv3_individual_full_mastery_candidate.json text eol=lf
 /data/candidates/vv3_individual_full_mastery_candidate_map.json text eol=lf
 assets/text-changes/vv4-sm.xml -text
+assets/text-changes/vv4-sm-base.xml -text
