@@ -93,6 +93,9 @@ FILES = [
     # Fun-patch companion assets (asset-swap patches). Without these the
     # patcher cannot apply the "Optional Text Changes" (VV4) or "Guardians
     # of Isola" (VV5) fun patches, nor restore them on removal.
+    # The manifest itself must ship too, or the patch never loads (the loader
+    # reads data/vv4_text_changes.json) and it silently never appears.
+    "data/vv4_text_changes.json",
     "assets/text-changes/vv4-sm.xml",
     "assets/text-changes/vv4-sm-base.xml",
     "data/guardians_of_isola/new/Assets/sm.xml",

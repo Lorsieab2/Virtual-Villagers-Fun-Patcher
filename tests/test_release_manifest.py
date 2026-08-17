@@ -55,6 +55,33 @@ class ReleaseManifestTests(unittest.TestCase):
         missing = [relative for relative in release.FILES if not (ROOT / relative).is_file()]
         self.assertEqual(missing, [])
 
+    def test_release_manifest_bundles_every_fun_patch_manifest(self) -> None:
+        """Every JSON manifest the fun-patch loader reads must ship in the
+        release, or the patch silently never appears in the packaged patcher
+        (this is exactly how the VV4 Optional Text Changes patch went missing:
+        its assets shipped but data/vv4_text_changes.json did not)."""
+        import sys
+
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_fun_patcher as vfp  # noqa: E402
+
+        release = load_release_module()
+        bundled = set(release.FILES)
+        paths: list[Path] = []
+        for tup in (vfp.ORIGINS_FEATURE_PATHS,
+                    vfp.ORIGINS_VILLAGE_WIDE_FEATURE_PATHS,
+                    vfp.TEXT_CHANGES_FEATURE_PATHS):
+            paths.extend(tup)
+        paths.append(vfp.STATISTICS_FEATURES_PATH)
+        missing = []
+        for p in paths:
+            if not p.is_file():
+                continue  # only guard manifests that actually exist on disk
+            rel = p.resolve().relative_to(ROOT.resolve()).as_posix()
+            if rel not in bundled:
+                missing.append(rel)
+        self.assertEqual(missing, [], f"fun-patch manifests absent from release bundle: {missing}")
+
     def test_release_manifest_bundles_every_fun_patch_companion_file(self) -> None:
         """Asset-swap fun patches (e.g. VV4 Optional Text, VV5 Guardians of
         Isola) ship no executable patches; their companion source/restore
