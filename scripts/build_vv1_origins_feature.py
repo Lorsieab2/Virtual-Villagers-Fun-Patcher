@@ -329,7 +329,15 @@ MASK_PATHS_VA = MASK_OVERLAY_VA + 0x14  # 5 x 16-byte "Images/mN.png\0" companio
 # iteration is done.
 MASK_PENDING_RECORD_VA = MASK_OVERLAY_VA + 0x64  # 0 = nothing pending, else record ptr
 MASK_PENDING_CHOICE_VA = MASK_OVERLAY_VA + 0x68  # 1..5, valid only when PENDING_RECORD != 0
-MASK_HOOK_VA = MASK_OVERLAY_VA + 0x6C  # stash-only hook (occupied-check splice)
+# DIAGNOSTIC ONLY (temporary): externally-readable heartbeat counters and
+# a snapshot of the last computed destination surface, so reachability
+# and the destination-surface value can be verified directly via
+# ReadProcessMemory from outside the game instead of guessing from
+# visual (non-)results.
+DEBUG_HOOK1_COUNTER_VA = MASK_OVERLAY_VA + 0x6C  # incremented every hook1 (occupied-check) visit
+DEBUG_HOOK2_COUNTER_VA = MASK_OVERLAY_VA + 0x70  # incremented every hook2 (back-edge) visit
+DEBUG_LAST_SURFACE_VA = MASK_OVERLAY_VA + 0x74  # last computed dest-surface pointer
+MASK_HOOK_VA = MASK_OVERLAY_VA + 0x78  # stash-only hook (occupied-check splice)
 # MASK_BACKEDGE_HOOK_VA is NOT a fixed offset -- it's wherever
 # mask_hook_code actually ends, computed from its real assembled length
 # once main() assembles it. A hardcoded guess here bit us once already:
@@ -1991,9 +1999,12 @@ def main() -> None:
     mask_paths_data = b"".join(
         f"Images/m{n}.png".encode("ascii").ljust(16, b"\0") for n in range(1, 6)
     )
-    mask_pending_data = b"\0" * 8  # MASK_PENDING_RECORD, MASK_PENDING_CHOICE
+    mask_pending_data = b"\0" * 20  # MASK_PENDING_RECORD, MASK_PENDING_CHOICE, 3 debug dwords
     mask_hook_code = assemble(
         f"""
+            pushfd
+            inc dword ptr [{DEBUG_HOOK1_COUNTER_VA:#x}]
+            popfd
             jnz mask_native_skip
             movzx edx, byte ptr [eax + 0x374]
             test edx, edx
@@ -2020,10 +2031,12 @@ def main() -> None:
     mask_backedge_hook_code = assemble(
         f"""
             pushad
+            inc dword ptr [{DEBUG_HOOK2_COUNTER_VA:#x}]
             mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
             mov ebx, dword ptr [esi + 0x3e00c]
             mov ebx, dword ptr [ebx]
             mov ebx, dword ptr [ebx + 0x30]
+            mov dword ptr [{DEBUG_LAST_SURFACE_VA:#x}], ebx
             push 200
             push 200
             push 10
