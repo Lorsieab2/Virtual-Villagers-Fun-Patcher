@@ -72,6 +72,38 @@ class GuardiansOfIsolaTests(unittest.TestCase):
             # Destinations stay inside Assets/ or Images/.
             self.assertRegex(item["destination"], r"^(Assets|Images)/[^\\/]+$")
 
+    def test_replacement_images_match_stock_dimensions_and_mode(self) -> None:
+        """Each replacement image must have the exact pixel dimensions and colour
+        mode of the stock image it overwrites.
+
+        The game blits these as fixed-geometry sprite strips (e.g. the totem
+        strips and the blink/mask strips): a replacement with different
+        dimensions passes every hash/size/bundle check yet renders misaligned or
+        clipped in-game -- a "has all its assets but is not functional" failure
+        this suite otherwise cannot catch.
+        """
+        try:
+            from PIL import Image
+        except ImportError:  # pragma: no cover - Pillow always present in CI
+            self.skipTest("Pillow not available")
+        checked = 0
+        for item in self.companions:
+            dest = item["destination"]
+            if not dest.lower().endswith((".png", ".jpg", ".jpeg", ".bmp")):
+                continue
+            with Image.open(ROOT / item["restore_source"]) as base, \
+                    Image.open(ROOT / item["source"]) as new:
+                self.assertEqual(
+                    new.size, base.size,
+                    f"{dest}: replacement {new.size} != stock {base.size}",
+                )
+                self.assertEqual(
+                    new.mode, base.mode,
+                    f"{dest}: replacement mode {new.mode} != stock {base.mode}",
+                )
+            checked += 1
+        self.assertEqual(checked, 12, "expected 12 image companions to be checked")
+
     def test_enable_swaps_in_and_disable_restores_exact_base_bytes(self) -> None:
         with tempfile.TemporaryDirectory(prefix="vv5-guardians-") as td:
             root = Path(td)
