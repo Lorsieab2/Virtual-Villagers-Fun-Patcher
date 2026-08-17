@@ -236,7 +236,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # Running Dislike-clear helper; and the detour
                         # splicing that hook into sub_437790's per-villager
                         # render loop right after its own occupied check.
-                        "0x8BEA8", "0x377B8",
+                        "0x8BEA8", "0x377B8", "0x388CE",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],
