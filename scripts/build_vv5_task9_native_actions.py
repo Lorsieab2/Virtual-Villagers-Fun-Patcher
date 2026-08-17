@@ -2368,6 +2368,9 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, dword ptr [esi+0x1BBC]
         mov dword ptr [ebp-0x20], eax
         mov dword ptr [ebp-0x30], eax
+        movzx eax, byte ptr [esi+0x1BC0]
+        mov dword ptr [ebp-0x24], eax
+        mov dword ptr [ebp-0x14], eax
         mov eax, dword ptr [0x51D5F8]
         cmp eax, 5000
         jb insufficient
@@ -2378,6 +2381,8 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         cmp eax, 1
         jne cancelled
         mov esi, dword ptr [ebp-0x18]
+        lea eax, [ebp-0x24]
+        push eax
         lea eax, [ebp-0x20]
         push eax
         lea eax, [ebp-0x1C]
@@ -2394,6 +2399,9 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jne head_changed
         mov eax, dword ptr [ebp-0x20]
         cmp eax, dword ptr [ebp-0x30]
+        jne appearance_changed
+        mov eax, dword ptr [ebp-0x24]
+        cmp eax, dword ptr [ebp-0x14]
         je no_change
         jmp appearance_changed
     head_changed:
@@ -2417,6 +2425,8 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [esi+0x1BB8], eax
         mov eax, dword ptr [ebp-0x20]
         mov dword ptr [esi+0x1BBC], eax
+        mov eax, dword ptr [ebp-0x24]
+        mov byte ptr [esi+0x1BC0], al
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x28], eax
         push -5000

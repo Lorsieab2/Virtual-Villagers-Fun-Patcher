@@ -85,11 +85,29 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
 #define APPEARANCE_BODY_COUNT 29
 #define APPEARANCE_CELL_W 40
 #define APPEARANCE_CELL_H 65
+/* Cosmetic Heathen-mask overlay: a purely visual per-villager choice stored by
+   the native handler in record byte +0x1BC0 (0..5). It is rendered by a
+   transient render-time faction flip in the exe patch and touches no faction
+   state, so the villager stays a believer in every game system. */
+#define IDC_MASK_LABEL   3107
+#define IDC_MASK_PREV    3108
+#define IDC_MASK_NEXT    3109
+#define APPEARANCE_MASK_COUNT 6
+
+static const char *const APPEARANCE_MASK_NAMES[APPEARANCE_MASK_COUNT] = {
+    "(None)", "Blue Mask", "Orange Mask", "Red Mask", "Purple Mask",
+    "Tribal Chief Mask"
+};
 
 static int appearance_sex;   /* 0 = male, 1 = female */
 static int appearance_old;   /* 0 = young head atlas, 1 = old head atlas */
 static int appearance_head;
 static int appearance_body;
+static int appearance_mask;  /* 0 = none, 1..5 = Blue/Orange/Red/Purple/Chief */
+
+static void appearance_update_mask_label(HWND window) {
+    SetDlgItemTextA(window, IDC_MASK_LABEL, APPEARANCE_MASK_NAMES[appearance_mask]);
+}
 
 static int appearance_head_bitmap(void) {
     if (appearance_sex) {
@@ -154,6 +172,7 @@ static INT_PTR CALLBACK appearance_dialog(
     LPARAM lparam
 ) {
     if (message == WM_INITDIALOG) {
+        appearance_update_mask_label(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
@@ -187,6 +206,16 @@ static INT_PTR CALLBACK appearance_dialog(
             appearance_repaint(window, IDC_HEAD_PREVIEW);
             return TRUE;
         }
+        if (command == IDC_MASK_PREV) {
+            appearance_mask = (appearance_mask + APPEARANCE_MASK_COUNT - 1) % APPEARANCE_MASK_COUNT;
+            appearance_update_mask_label(window);
+            return TRUE;
+        }
+        if (command == IDC_MASK_NEXT) {
+            appearance_mask = (appearance_mask + 1) % APPEARANCE_MASK_COUNT;
+            appearance_update_mask_label(window);
+            return TRUE;
+        }
         if (command == IDOK) {
             EndDialog(window, 1);
             return TRUE;
@@ -206,13 +235,15 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
     int sex,
     int age,
     int *head,
-    int *body
+    int *body,
+    int *mask
 ) {
     INT_PTR result;
     appearance_sex = sex ? 1 : 0;
     appearance_old = age >= 1100 ? 1 : 0;
     appearance_head = (head && *head >= 0 && *head < APPEARANCE_HEAD_COUNT) ? *head : 0;
     appearance_body = (body && *body >= 0 && *body < APPEARANCE_BODY_COUNT) ? *body : 0;
+    appearance_mask = (mask && *mask >= 0 && *mask < APPEARANCE_MASK_COUNT) ? *mask : 0;
 
     result = DialogBoxParamA(
         module_instance,
@@ -227,6 +258,9 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
         }
         if (body) {
             *body = appearance_body;
+        }
+        if (mask) {
+            *mask = appearance_mask;
         }
         return 1;
     }
