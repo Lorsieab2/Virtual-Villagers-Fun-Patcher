@@ -308,9 +308,31 @@ MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
 )
 MASK_SURFACES_VA = MASK_OVERLAY_VA  # 5 x SDL_Surface* cache, NULL until first draw
 MASK_PATHS_VA = MASK_OVERLAY_VA + 0x14  # 5 x 8-byte "mN.png\0\0" companion filenames
-MASK_HOOK_VA = MASK_OVERLAY_VA + 0x3C  # additive draw hook itself
+# Playtested: the first build drew the mask right after the occupied
+# check (before the native head/body/clothing draw for that same
+# iteration), so the native head painted right over it every frame --
+# invisible, not broken. Split into two hooks instead: this one (at the
+# occupied check, unchanged position) only validates the choice and
+# STASHES the record pointer + choice in cave memory -- registers can't
+# carry a value reliably across the rest of the iteration, since several
+# draw branches repurpose EDI/EAX/etc. for their own scratch. The actual
+# draw happens in MASK_BACKEDGE_HOOK below, at the loop's single
+# convergence point, strictly after all native drawing for that
+# iteration is done.
+MASK_PENDING_RECORD_VA = MASK_OVERLAY_VA + 0x3C  # 0 = nothing pending, else record ptr
+MASK_PENDING_CHOICE_VA = MASK_OVERLAY_VA + 0x40  # 1..5, valid only when PENDING_RECORD != 0
+MASK_HOOK_VA = MASK_OVERLAY_VA + 0x44  # stash-only hook (occupied-check splice)
+# MASK_BACKEDGE_HOOK_VA is NOT a fixed offset -- it's wherever
+# mask_hook_code actually ends, computed from its real assembled length
+# once main() assembles it. A hardcoded guess here bit us once already:
+# the stash hook is 61 bytes, not the 60 (0x3C) originally assumed, which
+# shifted every call/jmp target inside the draw hook by exactly 1 byte
+# (every one of them silently landed 1 byte into the middle of its real
+# target instruction -- confirmed via disassembly, that's what actually
+# broke the mask never appearing in the first live playtest of this
+# two-hook design). Computing it from the real length can't drift again.
 
-# Splice point: sub_437790's per-villager render loop, immediately after
+# Splice point 1: sub_437790's per-villager render loop, immediately after
 # its own occupied-flag check (JNZ 0x4388CE if byte [eax+0x28] != 1). EAX
 # already holds the record base pointer and ESI the manager base at this
 # exact instruction -- both are read-only inputs for the mask hook and
@@ -323,6 +345,20 @@ MASK_DETOUR_VA = IMAGE_BASE + MASK_DETOUR_FILE_OFFSET
 MASK_DETOUR_ORIGINAL_BYTES = bytes.fromhex("0F8510110000")  # JNZ 0x4388CE
 MASK_NATIVE_SKIP_TARGET_VA = 0x4388CE  # original JNZ target (continue loop)
 MASK_RESUME_VA = 0x4377BE  # instruction right after the displaced JNZ
+
+# Splice point 2: the loop's own back-edge -- "inc edi / cmp edi, 0x100"
+# (7 bytes combined) at 0x4388CE, confirmed via a full-.text xref scan to
+# be the SINGLE point every one of the loop's 19 distinct draw/skip
+# branches converges on before testing the loop condition again, and
+# confirmed nothing jumps into the middle of the 7-byte pair (only ever
+# targeted at its exact start). ESI (manager base) is guaranteed intact
+# here by construction -- the very next iteration's own first instruction
+# (0x437798) reuses it as the manager base, so the native code itself
+# would already be broken if it weren't.
+MASK_BACKEDGE_DETOUR_FILE_OFFSET = 0x388CE
+MASK_BACKEDGE_DETOUR_VA = IMAGE_BASE + MASK_BACKEDGE_DETOUR_FILE_OFFSET
+MASK_BACKEDGE_DETOUR_ORIGINAL_BYTES = bytes.fromhex("4781FF00010000")  # inc edi ; cmp edi, 0x100
+MASK_BACKEDGE_RESUME_VA = 0x4388D5  # native "jl 0x437798" right after the displaced pair
 
 # Callable import thunks (jmp dword ptr [IAT slot]) for SDL2/SDL2_image --
 # found via Ghidra decompiling FUN_00403d00 (SDL_UpperBlit(src, srcrect,
@@ -1918,25 +1954,62 @@ def main() -> None:
     # wrapper class -- confirmed via Ghidra that IMG_Load/SDL_UpperBlit are
     # both directly callable at fixed addresses in this exact build (no
     # GetProcAddress needed).
+    #
+    # First live playtest (draw hook spliced right at the occupied check,
+    # a single site) showed the picker/persistence working but no visible
+    # mask -- the native head/body/clothing draw for that SAME iteration
+    # happens *after* that splice point, so it painted right over the
+    # mask every frame. Split into two hooks: this splice only validates
+    # the choice and stashes (record pointer, choice) in cave memory --
+    # several draw branches later in the same iteration repurpose
+    # EDI/EAX/etc. for their own scratch, so a register can't reliably
+    # carry the value across the rest of the iteration. The actual draw
+    # happens in the second hook, at the loop's own back-edge (confirmed
+    # via a full-.text xref scan to be the single point every one of the
+    # loop's 19 distinct draw/skip branches converges on), strictly after
+    # all native drawing for that iteration is done.
     mask_surfaces_data = b"\0" * 20
     mask_paths_data = b"".join(
         f"m{n}.png".encode("ascii").ljust(8, b"\0") for n in range(1, 6)
     )
+    mask_pending_data = b"\0" * 8  # MASK_PENDING_RECORD, MASK_PENDING_CHOICE
     mask_hook_code = assemble(
         f"""
             jnz mask_native_skip
             movzx edx, byte ptr [eax + 0x374]
             test edx, edx
-            jz mask_resume
+            jz mask_clear_pending
             cmp edx, 5
-            ja mask_resume
+            ja mask_clear_pending
+            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], eax
+            mov dword ptr [{MASK_PENDING_CHOICE_VA:#x}], edx
+            jmp mask_resume
+        mask_clear_pending:
+            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
+        mask_resume:
+            jmp {MASK_RESUME_VA:#x}
+        mask_native_skip:
+            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
+            jmp {MASK_NATIVE_SKIP_TARGET_VA:#x}
+        """,
+        MASK_HOOK_VA,
+    )
+    # Computed from mask_hook_code's real assembled length -- see the
+    # comment on MASK_BACKEDGE_HOOK_VA's declaration above for why this
+    # must never be a hardcoded offset.
+    mask_backedge_hook_va = MASK_HOOK_VA + len(mask_hook_code)
+    mask_backedge_hook_code = assemble(
+        f"""
+            cmp dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
+            je mask2_done
             pushad
-            mov ebp, eax
+            mov ebp, dword ptr [{MASK_PENDING_RECORD_VA:#x}]
+            mov edx, dword ptr [{MASK_PENDING_CHOICE_VA:#x}]
             dec edx
             mov ebx, edx
             mov ecx, dword ptr [{MASK_SURFACES_VA:#x} + ebx * 4]
             test ecx, ecx
-            jnz mask_have_surface
+            jnz mask2_have_surface
             mov eax, ebx
             shl eax, 3
             add eax, {MASK_PATHS_VA:#x}
@@ -1945,9 +2018,9 @@ def main() -> None:
             add esp, 4
             mov dword ptr [{MASK_SURFACES_VA:#x} + ebx * 4], eax
             mov ecx, eax
-        mask_have_surface:
+        mask2_have_surface:
             test ecx, ecx
-            jz mask_draw_done
+            jz mask2_draw_done
             mov ebx, dword ptr [esi + 0x3e00c]
             mov ebx, dword ptr [ebx + 0x30]
             mov edx, dword ptr [esi + 0x3e010]
@@ -1967,21 +2040,28 @@ def main() -> None:
             push ecx
             call {SDL_UPPERBLIT_THUNK_VA:#x}
             add esp, 32
-        mask_draw_done:
+        mask2_draw_done:
+            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
             popad
-        mask_resume:
-            jmp {MASK_RESUME_VA:#x}
-        mask_native_skip:
-            jmp {MASK_NATIVE_SKIP_TARGET_VA:#x}
+        mask2_done:
+            inc edi
+            cmp edi, 0x100
+            jmp {MASK_BACKEDGE_RESUME_VA:#x}
         """,
-        MASK_HOOK_VA,
+        mask_backedge_hook_va,
     )
-    mask_overlay_blob = mask_surfaces_data + mask_paths_data + mask_hook_code
+    mask_overlay_blob = (
+        mask_surfaces_data
+        + mask_paths_data
+        + mask_pending_data
+        + mask_hook_code
+        + mask_backedge_hook_code
+    )
     patch(
         MASK_OVERLAY_FILE_OFFSET,
         b"\0" * len(mask_overlay_blob),
         mask_overlay_blob,
-        "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames, then the additive per-frame draw hook -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field",
+        "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames + a 2-dword pending-draw slot, then the stash-only occupied-check hook and the draw hook that runs at the loop's back-edge -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field",
     )
     mask_detour_code = assemble(
         f"""
@@ -1994,7 +2074,21 @@ def main() -> None:
         MASK_DETOUR_FILE_OFFSET,
         MASK_DETOUR_ORIGINAL_BYTES,
         mask_detour_code,
-        "splice the mask-overlay hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, both fully restored by POPAD before the hook resumes it",
+        "splice the mask-overlay stash hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, neither is modified by this hook",
+    )
+    mask_backedge_detour_code = assemble(
+        f"""
+            jmp {mask_backedge_hook_va:#x}
+            nop
+            nop
+        """,
+        MASK_BACKEDGE_DETOUR_VA,
+    )
+    patch(
+        MASK_BACKEDGE_DETOUR_FILE_OFFSET,
+        MASK_BACKEDGE_DETOUR_ORIGINAL_BYTES,
+        mask_backedge_detour_code,
+        "splice the mask-overlay draw hook into sub_437790's loop back-edge (the single point every one of its 19 distinct per-villager draw/skip branches converges on) -- the hook reproduces the displaced 'inc edi / cmp edi, 0x100' pair exactly before resuming the native 'jl' that follows, so loop iteration is bit-for-bit unchanged",
     )
 
     patch(
