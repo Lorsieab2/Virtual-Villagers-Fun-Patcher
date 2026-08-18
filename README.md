@@ -77,6 +77,18 @@ Building skill gains, and completion behavior. Villagers assigned to other
 jobs retain their stock high-food scheduling. The shared scheduler covers both
 ordinary play and elapsed-time catch-up.
 
+## VV1: Visual Mods
+
+Enable **Visual Mods (A New Home)** for a purely cosmetic scene refresh. The
+patch swaps four images in the game's `Images` folder: `lagoon_restored.jpg`,
+`garden_restored.png`, `MapX1Y2.jpg`, and `MapX2Y1.jpg`. That adds decorative
+flowers to the lagoon and love hut, clothes to the extra hut near the farm, and
+colorful flowers to the restored garden. Credit to the original mod creators.
+
+No executable bytes are patched, and no gameplay, stats, collectibles, or save
+data are affected. Only those four files are replaced, and each is restored to
+the exact base-game file when the patch is not selected.
+
 ## VV1 Origins playtest package
 
 The requested playtest package exposes the combined **Enable Origins Tech,
@@ -257,6 +269,30 @@ delivery remain unchanged.
 
 Enable **Gong of Wonder Coconuts Fix (The Lost Children)** so the coconut outcome adds 30 to the trees' existing amount. Stock VV2 assigns the coconut resource to 30, which can erase a larger existing supply. The patch corrects both stock outcome paths and changes no other Gong result.
 
+## VV5: Clickable Tips
+
+Enable **Clickable Tips (New Believers)** to make the curled vine beneath the
+on-screen Puzzles button clickable. Each click shows a random in-game tip in the
+gray message bar, using the engine's own auto-hide timer, and plays the `hou.ogg`
+chime. The tip is picked at random on every click and no state is stored.
+
+The patch changes no gameplay, villager, economy, or save data. It uses unused
+`.text` code padding plus a single hooked click-dispatch site; no other engine
+code or data is altered, and no persistent or scratch memory is written. Tip text
+and the chime are confirmed in playtest.
+
+## VV5: Guardians of Isola Rewrite
+
+Enable **Guardians of Isola Rewrite (New Believers)** to overhaul the New
+Believers story presentation. It replaces the in-game text (`Assets/sm.xml`) and
+twelve story/UI images -- the five totem strips, the idol states, the
+blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola
+rewrite.
+
+The rewrite is purely presentational: no gameplay, executable, or save bytes
+change, and every replaced file is restored to its exact base-game version when
+the patch is not selected.
+
 ## VV5: Heathen Mommy Puzzle Restoration
 
 Enable **Heathen Mommy Puzzle Restoration (New Believers)** to restore the natural-build Heathen Mommy to newly created villages and restore the hidden 17th Heathen Parent graphic to the Puzzles screen. Its full visible tile rolls over to **This milestone has not been completed!** while locked and **The Heathen Parent** when completed. The supplied natural build creates a 29th Heathen with tag 17, initializes her, and assigns one forced nursing baby. The supported modern initializer creates only 28 Heathens and omits that sequence.
@@ -285,6 +321,18 @@ VV5 features remain native and unchanged.
 Enable **Complete Fish Scales = Golden Fish in Nets (The Tree of Life)** to delay Golden Fish eligibility until all 12 Fish Scales have been collected. Stock VV4 allows Golden Fish after only one scale and uses the chance `2 × collected scales + 1%`.
 
 The patch changes only the eligibility threshold from 1 to 12. At full completion, the stock formula still gives a 25% Golden Fish chance. Normal fish, fishing animations, food awards, scale collection, and all other fishing outcomes remain unchanged.
+
+## VV4: Optional Text Changes
+
+Enable **Optional Text changes (The Tree of Life)** to replace some in-game text
+with wording consistent with the other Virtual Villagers games. The "Scholar"
+villager title becomes **Esteemed Elder**, and a few labels and event lines are
+capitalized and punctuated to match. The patch swaps `Assets/sm.xml` for the
+edited copy; deselecting it leaves the base-game text untouched and restores the
+exact base-game file.
+
+No executable bytes are changed, and no gameplay, stats, collectibles, or save
+data are affected.
 
 ## VV4: Enable Origins-Exclusive Features
 
@@ -461,7 +509,10 @@ selected games under another parent folder. It copies every file and subfolder
 from the original game folder, verifies the copied files by SHA-256, keeps the
 stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The
 original folder and original EXE are never edited, renamed, replaced, or
-deleted. Applying another population mode refreshes that mode's same short folder
+deleted. Asset-swap patches such as VV1 Visual Mods, VV4 Optional
+Text changes, and the VV5 Guardians of Isola Rewrite replace their listed image
+and text files inside that copy only; the base-game files are restored whenever
+the patch is not selected. Applying another population mode refreshes that mode's same short folder
 after confirmation.
 
 ## Exact-build safety
