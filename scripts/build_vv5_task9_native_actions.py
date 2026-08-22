@@ -149,6 +149,8 @@ OFF = {
     "division_parenting": 0x6000,
     "division_no_parenting": 0x6200,
     "apply_division": 0x6400,
+    "mask_flip": 0x6800,
+    "mask_restore": 0x6A00,
     "strings": 0x7000,
 }
 
@@ -183,6 +185,8 @@ SIZES = {
     "division_parenting": 0x200,
     "division_no_parenting": 0x200,
     "apply_division": 0x80,
+    "mask_flip": 0x200,
+    "mask_restore": 0x200,
 }
 
 
@@ -3155,6 +3159,99 @@ def build_division(
     """)
 
 
+def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
+    """Heathen-mask cosmetic render (stock layouts only).
+
+    Renders the mask chosen by the Change-Appearance picker (persistent record
+    byte +0x1BC0, 0=none / 1-5 = Blue/Orange/Red/Purple/Chief) on a Believer, by
+    a transient faction flip bracketed to the head+mask draw of the per-villager
+    render fn 0x4720E0. Three stock-only .text detours drive it:
+
+      * mask_flip is entered from 0x472481 (just past the selection-ring block).
+        For a Believer with a mask choice it saves the colour fields + villager
+        pointer, sets the chosen colour, flips faction +0x1CEC to heathen, and
+        marks a guard; the ring already drew with the real faction so it stays
+        white. It replays the displaced `mov ecx,[esp+0xbc]` and returns.
+      * mask_restore is entered from BOTH function epilogues (0x472B0F, 0x472B57
+        = add esp,0xA8; ret 8). esi is popped by then, so it reverts faction +
+        colours through the saved villager pointer, clears the guard, and runs
+        the displaced epilogue. Non-masked villagers hit a guard-clear no-op.
+
+    Scratch lives in free .data BSS 0x7B1D00 (guard / saved orange,red,colorfield
+    / villager pointer), never in .text caves, so it never contends with the
+    population, statistics, or other .text-cave features."""
+    flip = put(page, page_va, "mask_flip", """
+        push eax
+        push edx
+        movzx eax, byte ptr [esi+0x1BC0]
+        test eax, eax
+        je mf_done
+        cmp eax, 5
+        ja mf_done
+        cmp byte ptr [esi+0x1CEC], 0
+        jne mf_done
+        mov byte ptr [0x7B1D00], 1
+        mov [0x7B1D10], esi
+        movzx edx, byte ptr [esi+0x1CED]
+        mov [0x7B1D04], edx
+        movzx edx, byte ptr [esi+0x1CEE]
+        mov [0x7B1D08], edx
+        movzx edx, byte ptr [esi+0x1CFC]
+        mov [0x7B1D0C], edx
+        mov byte ptr [esi+0x1CED], 0
+        mov byte ptr [esi+0x1CEE], 0
+        mov byte ptr [esi+0x1CFC], 0
+        cmp eax, 2
+        je mf_orange
+        cmp eax, 3
+        je mf_red
+        cmp eax, 4
+        je mf_purple
+        cmp eax, 5
+        je mf_chief
+        jmp mf_setf
+    mf_orange:
+        mov byte ptr [esi+0x1CED], 1
+        jmp mf_setf
+    mf_red:
+        mov byte ptr [esi+0x1CEE], 1
+        jmp mf_setf
+    mf_purple:
+        mov byte ptr [esi+0x1CFC], 12
+        jmp mf_setf
+    mf_chief:
+        mov byte ptr [esi+0x1CFC], 13
+    mf_setf:
+        mov byte ptr [esi+0x1CEC], 1
+    mf_done:
+        pop edx
+        pop eax
+        mov ecx, [esp+0xBC]
+        jmp 0x472488
+    """)
+    restore = put(page, page_va, "mask_restore", """
+        cmp byte ptr [0x7B1D00], 0
+        je mr_done
+        push eax
+        push edx
+        mov eax, [0x7B1D10]
+        mov byte ptr [eax+0x1CEC], 0
+        mov edx, [0x7B1D04]
+        mov byte ptr [eax+0x1CED], dl
+        mov edx, [0x7B1D08]
+        mov byte ptr [eax+0x1CEE], dl
+        mov edx, [0x7B1D0C]
+        mov byte ptr [eax+0x1CFC], dl
+        mov byte ptr [0x7B1D00], 0
+        pop edx
+        pop eax
+    mr_done:
+        add esp, 0xA8
+        ret 8
+    """)
+    return {"mask_flip": flip, "mask_restore": restore}
+
+
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VVT9PG\0\0"
@@ -3191,6 +3288,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["division_no_parenting"] = build_division(
             page, page_va, "division_no_parenting", parenting=0, action=24
         )
+        routines.update(build_mask_render(page, page_va))
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},
@@ -3456,6 +3554,40 @@ def main() -> None:
             "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
             "purpose": "Barrel of Babies (VV2 approach): on Technologies screen close (command 0) arm the deferred native three-child Barrel so it presents with the main-village owner after the menu closes",
         })
+    # Heathen-mask cosmetic render (stock only): three detours into the Task9
+    # page's mask_flip / mask_restore routines so the +0x1BC0 picker choice is
+    # actually rendered. The render hook lives in the appended .vv5t9 page (never
+    # a .text cave), so it cannot contend with the population / statistics / other
+    # cave features. mask_flip enters after the selection-ring block (0x472481,
+    # 7-byte `mov ecx,[esp+0xbc]` replayed inside the routine); mask_restore
+    # enters from both epilogues (0x472B0F / 0x472B57 = add esp,0xA8; ret 8).
+    mask_flip_site = 0x472481
+    mask_flip_preimage = "8B8C24BC000000"      # mov ecx, [esp+0xBC] (7 bytes)
+    mask_restore_sites = (0x472B0F, 0x472B57)
+    mask_restore_preimage = "81C4A80000"       # add esp, 0xA8 (first 5 of 6 bytes)
+    if stock[mask_flip_site - 0x400000 : mask_flip_site - 0x400000 + 7].hex().upper() != mask_flip_preimage:
+        raise RuntimeError("Heathen-mask flip-site preimage drift at 0x472481")
+    for site in mask_restore_sites:
+        if stock[site - 0x400000 : site - 0x400000 + 5].hex().upper() != mask_restore_preimage:
+            raise RuntimeError(f"Heathen-mask epilogue preimage drift at 0x{site:X}")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        overrides = result["patch_mode_overrides"].setdefault(mode, [])
+        rel = (page_va + OFF["mask_flip"]) - (mask_flip_site + 5)
+        overrides.append({
+            "offset": f"0x{mask_flip_site - 0x400000:X}",
+            "before": mask_flip_preimage,
+            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "9090",
+            "purpose": "Heathen mask: after the selection-ring block, flip a chosen-mask Believer to its heathen head+mask for the head draw (the ring keeps believer-white)",
+        })
+        for site in mask_restore_sites:
+            rel = (page_va + OFF["mask_restore"]) - (site + 5)
+            overrides.append({
+                "offset": f"0x{site - 0x400000:X}",
+                "before": mask_restore_preimage,
+                "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
+                "purpose": "Heathen mask: at the render-fn epilogue, revert the transient faction+colour flip via the saved villager pointer, then run the displaced add esp,0xA8; ret 8",
+            })
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
     map_record = {

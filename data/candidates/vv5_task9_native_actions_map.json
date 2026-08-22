@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "37BE3CDF9F0FF770089E37361054CD45A02229883E5C6576027C7361B2ED7E62"
+      "source_text_sha256": "3EFF3350151B4EA63F1ECA272550BC2CE7D516CBB6850985053765ABA2ECC26F"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -107,7 +107,7 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "4B00543E72753D50D6EEA88B848EC1AD903B539C13CCBDC771CAA5528172E055",
+      "page_sha256": "CD0D7291731AE4FEF170926A70A8EE1A1BAFAE3DE50AC7085B4F3B5347627E8C",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -138,7 +138,9 @@
         "age18_all": "DFECB703FF873C8DB77C8AA4C93DF612DB2C35E846E9ECB4247211356391B919",
         "barrel_close_arm": "39FC5674556672F2705452A330A07211D41E3123E166F06947D4F9D63A8428CC",
         "division_parenting": "58584E16ED147A4A21765D57515618DEF88267284DCB6913D522166F011E3545",
-        "division_no_parenting": "034EC33FC099B326937BA83C848519C0E71861B6C04E18D8F5DC7A1CDBF256C2"
+        "division_no_parenting": "034EC33FC099B326937BA83C848519C0E71861B6C04E18D8F5DC7A1CDBF256C2",
+        "mask_flip": "24166C59DEC71015E63C4DA31A27C362D98D162D0C5E32DF61871CACEFBE05FF",
+        "mask_restore": "E787B82CC38087414729930E3FE5C863BD2E9A2EAAEA6AC6323BF62C446B4C03"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -170,7 +172,9 @@
         "age18_all": 320,
         "barrel_close_arm": 57,
         "division_parenting": 155,
-        "division_no_parenting": 155
+        "division_no_parenting": 155,
+        "mask_flip": 189,
+        "mask_restore": 77
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
@@ -229,7 +233,7 @@
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "4B00543E72753D50D6EEA88B848EC1AD903B539C13CCBDC771CAA5528172E055",
+      "page_sha256": "CD0D7291731AE4FEF170926A70A8EE1A1BAFAE3DE50AC7085B4F3B5347627E8C",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -260,7 +264,9 @@
         "age18_all": "DFECB703FF873C8DB77C8AA4C93DF612DB2C35E846E9ECB4247211356391B919",
         "barrel_close_arm": "39FC5674556672F2705452A330A07211D41E3123E166F06947D4F9D63A8428CC",
         "division_parenting": "58584E16ED147A4A21765D57515618DEF88267284DCB6913D522166F011E3545",
-        "division_no_parenting": "034EC33FC099B326937BA83C848519C0E71861B6C04E18D8F5DC7A1CDBF256C2"
+        "division_no_parenting": "034EC33FC099B326937BA83C848519C0E71861B6C04E18D8F5DC7A1CDBF256C2",
+        "mask_flip": "24166C59DEC71015E63C4DA31A27C362D98D162D0C5E32DF61871CACEFBE05FF",
+        "mask_restore": "E787B82CC38087414729930E3FE5C863BD2E9A2EAAEA6AC6323BF62C446B4C03"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -292,7 +298,9 @@
         "age18_all": 320,
         "barrel_close_arm": 57,
         "division_parenting": 155,
-        "division_no_parenting": 155
+        "division_no_parenting": 155,
+        "mask_flip": 189,
+        "mask_restore": 77
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
