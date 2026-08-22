@@ -377,13 +377,13 @@ MASK_CELL_H = 160
 # The native head draw at 0x438107-0x438150 computes its destination as
 #     x = record[+4] - village[+8]
 #     y = record[+8] - village[+0xc] + 0x27
-# The mask cell's top sits 83px above the head cell's top (the highest of
+# The mask cell's top sits 85px above the head cell's top (the highest of
 # the five colours' per-facing offsets), so the cell is drawn at
-# 0x27 - 83, i.e. 44px ABOVE the villager's own y.
+# 0x27 - 85, i.e. 46px ABOVE the villager's own y.
 #
 # Getting this wrong is not subtle: the first build stashed the raw y with no
 # offset at all, which would have drawn every mask 39px above its villager.
-MASK_DRAW_Y_OFFSET = -44
+MASK_DRAW_Y_OFFSET = -46
 # The village/camera object hanging off the villager manager. Its +8/+0xC are
 # the scroll offsets every native draw in sub_437790 subtracts.
 VILLAGE_OBJECT_OFFSET = 0x3E010

@@ -75,16 +75,15 @@ class VV1MaskSheetGeometryTests(unittest.TestCase):
                 self.assertEqual(w, self.sheets.CELL_W * self.sheets.FACINGS)
                 self.assertEqual(h, self.sheets.SHEET_CELL_H)
 
-    def test_art_is_used_verbatim(self) -> None:
-        """No scaling and no repainting: every pixel the sheet keeps is the
-        supplied art's own pixel, at the offset recovered from the mockups.
+    def test_gridded_art_is_used_verbatim(self) -> None:
+        """For the strip colours: every pixel the sheet keeps is the supplied
+        art's own pixel, at the offset recovered from that colour's mockup.
 
-        Pixels may be REMOVED -- a facing whose art is wider than the 40px cell
-        bleeds a few crumbs into its neighbour's column, and those are stripped
-        so they do not render as specks floating above the villager. Nothing
-        may be recoloured or moved.
+        Pixels may be REMOVED -- art wider than the 40px cell bleeds crumbs into
+        the neighbouring column, and those are stripped so they do not render as
+        specks floating above the villager. Nothing may be recoloured or moved.
         """
-        for colour in self.sheets.COLOURS:
+        for colour in self.sheets.GRIDDED:
             art = Image.open(
                 ROOT / "assets" / "origins" / "mask-art" / f"{colour}.png"
             ).convert("RGBA")
@@ -110,22 +109,60 @@ class VV1MaskSheetGeometryTests(unittest.TestCase):
                                 )
                             elif src[x, y][3] > 128:
                                 removed += 1
-                    self.assertLess(
-                        removed,
-                        60,
-                        f"{colour} facing {facing}: {removed}px dropped -- far "
-                        "more than neighbour bleed, check the offsets",
+                    self.assertLess(removed, 60, f"{colour} facing {facing}")
+
+    def test_packed_atlas_frames_are_moved_not_redrawn(self) -> None:
+        """Chief's atlas is separated into frames and repositioned; each frame's
+        own pixels must survive that intact."""
+        for colour, value in self.sheets.MASK_OFFSETS.items():
+            if value is not self.sheets.PACKED:
+                continue
+            art = Image.open(
+                ROOT / "assets" / "origins" / "mask-art" / f"{colour}.png"
+            ).convert("RGBA")
+            boxes = self.sheets._islands(art)
+            sheet = self.sheets._sheet(colour)
+            self.assertEqual(len(boxes), self.sheets.FACINGS)
+            for facing, box in enumerate(boxes):
+                with self.subTest(colour=colour, facing=facing):
+                    frame = art.crop(box)
+                    cell = sheet.crop(
+                        (
+                            self.sheets.CELL_W * facing,
+                            0,
+                            self.sheets.CELL_W * (facing + 1),
+                            self.sheets.SHEET_CELL_H,
+                        )
+                    )
+                    kept = sum(1 for px in cell.getdata() if px[3] > 128)
+                    orig = sum(1 for px in frame.getdata() if px[3] > 128)
+                    self.assertGreater(
+                        kept,
+                        orig * 0.9,
+                        f"{colour} facing {facing}: only {kept} of {orig} px "
+                        "survived placement",
                     )
 
-    def test_chief_uses_per_frame_offsets(self) -> None:
-        """Chief's art staggers three facings ~45px below the rest; a single
-        offset leaves those villagers' heads exposed above the mask."""
-        offsets = self.sheets._frame_offsets("chief")
-        ys = {y for _, y in offsets}
-        self.assertGreater(
-            len(ys), 1, "chief must keep per-facing offsets, not one shared offset"
-        )
-        self.assertEqual(len(offsets), self.sheets.FACINGS)
+    def test_packed_atlas_matches_the_verified_colours(self) -> None:
+        """A packed atlas carries no alignment of its own, so it is placed from
+        the colours whose mockups verify. It must actually land in their band."""
+        ref = self.sheets._reference_placement()
+        for colour, value in self.sheets.MASK_OFFSETS.items():
+            if value is not self.sheets.PACKED:
+                continue
+            sheet = self.sheets._sheet(colour)
+            for facing, (centre, chin) in enumerate(ref):
+                with self.subTest(colour=colour, facing=facing):
+                    box = sheet.crop(
+                        (
+                            self.sheets.CELL_W * facing,
+                            0,
+                            self.sheets.CELL_W * (facing + 1),
+                            self.sheets.SHEET_CELL_H,
+                        )
+                    ).getbbox()
+                    self.assertLessEqual(abs(box[3] - chin), 2)
+                    self.assertLessEqual(abs((box[0] + box[2]) / 2 - centre), 2)
 
 
 if __name__ == "__main__":
