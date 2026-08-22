@@ -209,7 +209,7 @@ BEGIN
     DEFPUSHBUTTON "Cancel", 2, 120, 313, 70, 14
 END
 
-213 DIALOGEX 0, 0, 250, 292
+213 DIALOGEX 0, 0, 250, 286
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
@@ -224,13 +224,13 @@ BEGIN
     PUSHBUTTON  "<", 3105, 130, 72, 16, 16
     PUSHBUTTON  ">", 3106, 224, 72, 16, 16
 
-    CTEXT       "Mask", -1, 90, 142, 70, 9
-    CONTROL     "", 3110, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 90, 154, 70, 80
-    PUSHBUTTON  "<", 3108, 66, 186, 16, 16
-    PUSHBUTTON  ">", 3109, 168, 186, 16, 16
-    CTEXT       "(None)", 3107, 40, 238, 170, 11
+    CTEXT       "Mask", -1, 90, 146, 70, 9
+    PUSHBUTTON  "<", 3108, 66, 182, 16, 16
+    CONTROL     "", 3110, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 100, 158, 50, 74
+    PUSHBUTTON  ">", 3109, 168, 182, 16, 16
+    CTEXT       "(None)", 3107, 40, 238, 170, 10
 
-    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 254, 222, 9
-    DEFPUSHBUTTON "OK", 1, 66, 270, 50, 16
-    PUSHBUTTON  "Cancel", 2, 134, 270, 50, 16
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 252, 222, 9
+    DEFPUSHBUTTON "OK", 1, 66, 264, 50, 16
+    PUSHBUTTON  "Cancel", 2, 134, 264, 50, 16
 END

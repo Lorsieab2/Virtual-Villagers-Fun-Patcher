@@ -28,9 +28,10 @@ BACKGROUND = (236, 236, 236)
 SRC_CELL_W, SRC_CELL_H = 65, 145      # VV5 uniform cell (520x725 / 8 / 5)
 FRONT_FRAME = 5                        # front-facing frame (matches head preview)
 MASK_ROWS = 5
-# Preview cell: wide enough for the widest mask, tall enough for the Tribal
-# Chief's feathers (frame-5 content maxes ~37x72), with a little margin.
-MASK_CELL_W, MASK_CELL_H = 65, 80
+# Match the VV5 New Believers chooser exactly: the mask preview uses the same
+# 40x65 head/body cell, with each mask scaled to fit (preserving aspect) and
+# centred -- so the chooser sprites are the same size across all games.
+MASK_CELL_W, MASK_CELL_H = 40, 65
 DEFAULT_SRC = Path(
     r"C:/Users/Owner/Downloads/Virtual Villagers - New Believers/Images/vv5_heathenheads.png"
 )
@@ -42,11 +43,12 @@ def build(src_path: Path) -> Path:
     for r in range(MASK_ROWS):
         x = FRONT_FRAME * SRC_CELL_W
         cell = sheet.crop((x, r * SRC_CELL_H, x + SRC_CELL_W, r * SRC_CELL_H + SRC_CELL_H))
-        content = cell.crop(cell.getbbox())          # tight, native size (no scaling)
+        content = cell.crop(cell.getbbox())          # tight native content
+        scale = min(MASK_CELL_W / content.width, MASK_CELL_H / content.height)
+        nw, nh = max(1, int(round(content.width * scale))), max(1, int(round(content.height * scale)))
+        content = content.resize((nw, nh), Image.LANCZOS)
         base = Image.new("RGBA", (MASK_CELL_W, MASK_CELL_H), BACKGROUND + (255,))
-        px = (MASK_CELL_W - content.width) // 2
-        py = (MASK_CELL_H - content.height) // 2
-        base.alpha_composite(content, (max(0, px), max(0, py)))
+        base.alpha_composite(content, ((MASK_CELL_W - nw) // 2, (MASK_CELL_H - nh) // 2))
         # cell 0 stays blank ((None)); masks fill cells 1..5
         strip.paste(base.convert("RGB"), ((r + 1) * MASK_CELL_W, 0))
     OUT.mkdir(parents=True, exist_ok=True)

@@ -705,10 +705,11 @@ static const char *const vv3_mask_names[VV3_MASK_COUNT] = {
 #define VV3_APPEARANCE_CELL_H 65
 #define VV3_HEAD_COUNT 30
 #define VV3_BODY_COUNT 29
-/* The mask preview strip uses a taller native cell (front-facing frame, tight-
-   cropped + centred) so the taller masks (e.g. the Tribal Chief) read as tall. */
-#define VV3_MASK_CELL_W 65
-#define VV3_MASK_CELL_H 80
+/* The mask preview uses the same 40x65 head/body cell (each mask scaled to fit
+   + centred), matching the VV5 New Believers chooser so the chooser sprites are
+   the same size across games. */
+#define VV3_MASK_CELL_W 40
+#define VV3_MASK_CELL_H 65
 
 static int vv3_appearance_sex;
 static int vv3_appearance_old;
