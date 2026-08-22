@@ -52,6 +52,7 @@ CALLER_LO, CALLER_HI = 0x445B50, 0x4478DF
 CHILD_CALLER_LO, CHILD_CALLER_HI = 0x445540, 0x4478DF
 DRAWOBJ_PTR = 0xE574D0
 HEAD_ATLASES = (0xE574A0, 0xE574A8, 0xE574AC, 0xE574B0, 0xE574B4)
+MASK_BYTE_OFF = 0x588             # unused per-villager record byte = mask choice (0=none, 1..5)
 
 # --- init detour (asset-load tail) -----------------------------------------
 INIT_VA = 0x44C5E6                # `mov [esi+0xe574d8], eax` (6 bytes)
@@ -119,25 +120,29 @@ def build(out_path: Path) -> None:
         ja   aorig
         mov  eax, [esi+edi*4+0xe57090]
         imul eax, eax, 0xe48c
-        add  eax, esi
-        mov  eax, [eax+0x548]
-        cmp  eax, [esp+0x14]                 /* row arg == head index? */
+        add  eax, esi                         /* eax = villager record base */
+        mov  edx, [eax+0x548]                 /* head index */
+        cmp  edx, [esp+0x14]                  /* row arg == head index? */
         jne  aorig
-        mov  eax, [esp+8]                     /* atlas arg in head set? */
-        cmp  eax, [esi+0x{HEAD_ATLASES[0]:X}]
-        je   amask
-        cmp  eax, [esi+0x{HEAD_ATLASES[1]:X}]
-        je   amask
-        cmp  eax, [esi+0x{HEAD_ATLASES[2]:X}]
-        je   amask
-        cmp  eax, [esi+0x{HEAD_ATLASES[3]:X}]
-        je   amask
-        cmp  eax, [esi+0x{HEAD_ATLASES[4]:X}]
-        je   amask
+        mov  edx, [esp+8]                     /* atlas arg in head set? */
+        cmp  edx, [esi+0x{HEAD_ATLASES[0]:X}]
+        je   a_have
+        cmp  edx, [esi+0x{HEAD_ATLASES[1]:X}]
+        je   a_have
+        cmp  edx, [esi+0x{HEAD_ATLASES[2]:X}]
+        je   a_have
+        cmp  edx, [esi+0x{HEAD_ATLASES[3]:X}]
+        je   a_have
+        cmp  edx, [esi+0x{HEAD_ATLASES[4]:X}]
+        je   a_have
     aorig:
         pop  eax
         mov  ecx, [ecx]
         jmp  0x{REAL_DRAW:X}
+    a_have:
+        movzx edx, byte ptr [eax+0x{MASK_BYTE_OFF:X}]   /* per-villager mask choice */
+        test edx, edx
+        jz   aorig                            /* 0 = no mask */
     amask:
         pop  eax                              /* [esp]=ret, [+4..+14]=atlas,x,y,row,frame */
         /* 1) original HEAD first (so the mask paints ON TOP) */
@@ -149,15 +154,20 @@ def build(out_path: Path) -> None:
         mov  ecx, [esi+0x{DRAWOBJ_PTR:X}]
         mov  ecx, [ecx]
         call 0x{REAL_DRAW:X}                 /* head draw (ret 0x14) */
-        /* 2) MASK on top: identical x,y,frame; row=mask; atlas=mask (same cell => auto scale) */
+        /* 2) MASK on top: identical x,y,frame; row = maskByte-1; atlas=mask */
         mov  eax, [0x{MASK_ATLAS_PTR:X}]
         test eax, eax
         jz   adone
+        mov  eax, [esi+edi*4+0xe57090]        /* recompute record (esi/edi preserved) */
+        imul eax, eax, 0xe48c
+        add  eax, esi
+        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]
+        dec  eax                              /* mask row = byte-1 */
         push dword ptr [esp+0x14]             /* frame */
-        push 0x{MASK_ROW_TEST:X}              /* mask row */
-        mov  eax, [esp+0x14]                  /* y */
-        sub  eax, 0x{ADULT_MASK_DY:X}         /* lift 32px (unscaled adult) */
-        push eax
+        push eax                              /* mask row */
+        mov  edx, [esp+0x14]                  /* y */
+        sub  edx, 0x{ADULT_MASK_DY:X}
+        push edx
         push dword ptr [esp+0x14]             /* x */
         push dword ptr [0x{MASK_ATLAS_PTR:X}] /* mask atlas */
         mov  ecx, [esi+0x{DRAWOBJ_PTR:X}]
@@ -180,19 +190,34 @@ def build(out_path: Path) -> None:
         ja   corig
         mov  eax, [esp+8]
         cmp  eax, [esi+0x{HEAD_ATLASES[0]:X}]
-        je   cmask
+        je   c_have
         cmp  eax, [esi+0x{HEAD_ATLASES[1]:X}]
-        je   cmask
+        je   c_have
         cmp  eax, [esi+0x{HEAD_ATLASES[2]:X}]
-        je   cmask
+        je   c_have
         cmp  eax, [esi+0x{HEAD_ATLASES[3]:X}]
-        je   cmask
+        je   c_have
         cmp  eax, [esi+0x{HEAD_ATLASES[4]:X}]
-        je   cmask
+        je   c_have
     corig:
         pop  eax
         mov  ecx, [ecx]
         jmp  0x{CHILD_REAL_DRAW:X}
+    c_have:
+        /* record base: village (caller>=0x445b50) = esi+[esi+edi*4+0xe57090]*0xe48c with
+           edi=villager index; portrait (caller<0x445b50) = edi (holds the record base). */
+        cmp  dword ptr [esp+4], 0x{CALLER_LO:X}
+        jb   c_prt1
+        mov  eax, [esi+edi*4+0xe57090]
+        imul eax, eax, 0xe48c
+        add  eax, esi
+        jmp  c_rec1
+    c_prt1:
+        mov  eax, edi
+    c_rec1:
+        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]
+        test eax, eax
+        jz   corig
     cmask:
         pop  eax                              /* [esp]=ret, [+4..+1c]=atlas,x,y,headIdx,3,scaledRow,1 */
         /* 1) original HEAD first (all 7 args unchanged) so mask paints on top */
@@ -210,10 +235,22 @@ def build(out_path: Path) -> None:
         mov  eax, [0x{MASK_ATLAS_PTR:X}]
         test eax, eax
         jz   cdone
+        /* mask row = [record+0x588]-1; record via caller branch ([esp]=ret here) */
+        cmp  dword ptr [esp], 0x{CALLER_LO:X}
+        jb   c_prt2
+        mov  eax, [esi+edi*4+0xe57090]
+        imul eax, eax, 0xe48c
+        add  eax, esi
+        jmp  c_rec2
+    c_prt2:
+        mov  eax, edi
+    c_rec2:
+        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]
+        dec  eax                              /* eax = mask row (survives the next 3 pushes) */
         push dword ptr [esp+0x1c]             /* arg7 = 1 */
         push dword ptr [esp+0x1c]             /* arg6 = scaledRow (same scale) */
         push dword ptr [esp+0x1c]             /* arg5 = 3 */
-        push 0x{MASK_ROW_TEST:X}              /* arg4 = mask row (was headIdx) */
+        push eax                              /* arg4 = mask row (was headIdx) */
         /* arg3 = y - lift; lift = arg6*mul>>7, mul depends on caller (in-world vs portrait) */
         mov  eax, [esp+0x28]                  /* arg6 = scaledRow (age-scale) */
         mov  edx, 0x{CHILD_DY_MUL:X}          /* in-world child multiplier (default) */
