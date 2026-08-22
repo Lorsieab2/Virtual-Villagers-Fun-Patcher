@@ -124,6 +124,26 @@ static const char *const g_mask_names[VV_MASK_COUNT] = {
     "Tribal Chief Mask"
 };
 
+/* +0x1BC4 is unused by the game but NOT zero-initialised, so a raw read yields
+   garbage. Store the mask as a 32-bit magic-tagged value (high 3 bytes = tag,
+   low byte = mask 1..5) and treat an untagged/out-of-range slot as (None). The
+   render-hook cave applies the same check. */
+#define VV_MASK_MAGIC 0x4D534B00u
+static int vv_get_mask(const unsigned char *villager) {
+    unsigned int d = *(const unsigned int *)(villager + VV_MASK_OFFSET);
+    if ((d & 0xFFFFFF00u) != VV_MASK_MAGIC) {
+        return 0;
+    }
+    d &= 0xFFu;
+    return d < (unsigned int)VV_MASK_COUNT ? (int)d : 0;
+}
+static void vv_set_mask(unsigned char *villager, int mask) {
+    *(unsigned int *)(villager + VV_MASK_OFFSET) =
+        (mask > 0 && mask < VV_MASK_COUNT)
+            ? (VV_MASK_MAGIC | (unsigned int)mask)
+            : 0u;
+}
+
 static HINSTANCE module_instance;
 
 enum {
@@ -535,7 +555,7 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
 static void appearance_revert(void) {
     *(int *)(appearance_state.villager + VV_HEAD_OFFSET) = appearance_state.original_head;
     *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET) = appearance_state.original_body;
-    *(appearance_state.villager + VV_MASK_OFFSET) = (unsigned char)appearance_state.original_mask;
+    vv_set_mask(appearance_state.villager, appearance_state.original_mask);
 }
 
 /* Writes each tentative value straight into the live villager record so
@@ -558,11 +578,8 @@ static INT_PTR CALLBACK appearance_dialog(
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; the owner-drawn previews read the
            live head/body/mask fields directly. Show the current mask name. */
-        unsigned char m = *(appearance_state.villager + VV_MASK_OFFSET);
-        if (m >= VV_MASK_COUNT) {
-            m = 0;
-        }
-        SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[m]);
+        SetDlgItemTextA(window, ID_MASK_LABEL,
+                        g_mask_names[vv_get_mask(appearance_state.villager)]);
         vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
@@ -579,9 +596,9 @@ static INT_PTR CALLBACK appearance_dialog(
         }
         if (dis->CtlID == ID_MASK_PIC) {
             /* Preview = the isolated mask, front-facing (VV5 parity); (None)
-               shows a blank cell. The mask is a single byte at +0x1BC4. */
-            unsigned char mask = *(appearance_state.villager + VV_MASK_OFFSET);
-            appearance_draw_mask_cell(dis->hDC, dis->rcItem, mask);
+               shows a blank cell. */
+            appearance_draw_mask_cell(dis->hDC, dis->rcItem,
+                                      vv_get_mask(appearance_state.villager));
             return TRUE;
         }
         return FALSE;
@@ -591,11 +608,11 @@ static INT_PTR CALLBACK appearance_dialog(
         int body_count = appearance_state.body_count;
         int *head = (int *)(appearance_state.villager + VV_HEAD_OFFSET);
         int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
-        unsigned char *mask = appearance_state.villager + VV_MASK_OFFSET;
         if (command == ID_MASK_PREV || command == ID_MASK_NEXT) {
             int delta = (command == ID_MASK_NEXT) ? 1 : (VV_MASK_COUNT - 1);
-            *mask = (unsigned char)((*mask + delta) % VV_MASK_COUNT);
-            SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[*mask]);
+            int m = (vv_get_mask(appearance_state.villager) + delta) % VV_MASK_COUNT;
+            vv_set_mask(appearance_state.villager, m);
+            SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[m]);
             InvalidateRect(GetDlgItem(window, ID_MASK_PIC), NULL, TRUE);
             return TRUE;
         }
@@ -622,7 +639,8 @@ static INT_PTR CALLBACK appearance_dialog(
         if (command == IDOK) {
             int head_changed = (*head != appearance_state.original_head);
             int body_changed = (*body != appearance_state.original_body);
-            int mask_changed = (*mask != (unsigned char)appearance_state.original_mask);
+            int mask_changed = (vv_get_mask(appearance_state.villager)
+                                != appearance_state.original_mask);
             if (!head_changed && !body_changed && !mask_changed) {
                 /* OK with nothing changed: no write, no charge (return 0). */
                 MessageBoxA(window,
@@ -674,16 +692,9 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
-    {
-        /* Clamp a stale/garbage byte to (None) so pre-patch saves and unused
-           values never index outside the mask table. */
-        unsigned char m = *(villager + VV_MASK_OFFSET);
-        if (m >= VV_MASK_COUNT) {
-            m = 0;
-            *(villager + VV_MASK_OFFSET) = 0;
-        }
-        appearance_state.original_mask = m;
-    }
+    /* A magic-untagged (uninitialised) slot reads as (None); no write-back so an
+       unopened villager's garbage never counts as a change. */
+    appearance_state.original_mask = vv_get_mask(villager);
     appearance_state.head_count = VV_HEAD_COUNT;
     appearance_state.body_count = VV_BODY_COUNT;
     appearance_state.sex = *(int *)(villager + VV_SEX_OFFSET);

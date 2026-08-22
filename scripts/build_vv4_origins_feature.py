@@ -145,6 +145,10 @@ MASK_CAVE_FILE_OFFSET = 0xCCD80
  MASK_S_RET) = (0x728D60, 0x728D64, 0x728D68, 0x728D6C, 0x728D70, 0x728D74,
                 0x728D78)
 MASK_BYTE_OFFSET = 0x1BC4
+# The mask is stored as a 32-bit magic-tagged value at +0x1BC4 (unused, but not
+# zero-initialised): high 24 bits = tag, low byte = mask 1..5 (0/absent = none).
+MASK_MAGIC = 0x4D534B00        # "MSK" tag in the high 3 bytes
+VV_MASK_COUNT = 6              # (None) + 5 masks; valid stored mask is 1..5
 MASK_ROW_FIELDS = {0xC3C24: (30, 35), 0xC3B94: (30, 35)}  # male / female heads
 MASK_HEAD_ATLASES = ("male_heads00.png", "male_heads10.png",
                      "female_heads00.png", "female_heads10.png")
@@ -1535,10 +1539,28 @@ def main() -> None:
           "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
     patch(VV4_DETAIL_RECORD_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
           "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)")
+    # +0x1BC4 is unused by the game (0 code refs) but is NOT zero-initialized,
+    # so a raw byte read there yields garbage -> random masks on villagers who
+    # never set one. Store the mask as a 32-bit magic-tagged value
+    # (0x4D534B00 | mask, "MSK" + mask) and gate on the tag, so uninitialized
+    # records read as "no mask". eax must hold the 1..5 mask when the gate falls
+    # through to `add eax, 29`.
+    mask_gate = f"""
+        mov eax, [esi + {MASK_BYTE_OFFSET}]
+        mov edx, eax
+        and edx, 0xFFFFFF00
+        cmp edx, {MASK_MAGIC:#x}
+        jne mask_done
+        movzx eax, al
+        test eax, eax
+        jz mask_done
+        cmp eax, {VV_MASK_COUNT}
+        jae mask_done
+    """
     mask_cave = mask_cave_bytes(
         MASK_CAVE_VA,
         (MASK_S_ECX, MASK_S_A0, MASK_S_A1, MASK_S_A2, MASK_S_A4, MASK_S_A5, MASK_S_RET),
-        f"movzx eax, byte ptr [esi + {MASK_BYTE_OFFSET}]\n test eax, eax\n jz mask_done")
+        mask_gate)
     patch(MASK_CAVE_FILE_OFFSET, b"\0" * len(mask_cave), mask_cave,
           "Heathen mask: world/panel render-hook cave -- draw the head normally, then (when +0x1BC4 is 1..5) re-draw head-atlas row 29+byte on top; no villager fields written")
     for site in MASK_CALL_SITES:
