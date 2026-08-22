@@ -63,11 +63,28 @@ MASK_OFFSETS = {
     "orange": (18, -12),
     "red": (18, -29),
     "purple": (4, -13),
+    # Chief cannot be derived from its mockup the way the others were. That
+    # mockup is not a straight overlay -- the head/mask pairs are scattered --
+    # and on the facings where this mask covers the head completely there is no
+    # hair left to correlate a head position against, so the recovered offsets
+    # were only as good as a head guess on those frames.
+    #
+    # These are anchored to the other four colours instead. All five are face
+    # masks, and on the four verified colours the mask's chin lands in a tight
+    # +24..+29 band below the head-cell top on every facing (median per facing
+    # in TARGET_CHIN_Y). Chief is placed to match that band, which is a
+    # measurement against known-good art rather than against the one mockup
+    # that cannot be trusted for this.
     "chief": [
-        (1, -38), (1, -38), (1, -81), (1, -38),
-        (1, -85), (1, -38), (1, -83),
+        (1, -36), (1, -38), (1, -83), (1, -34),
+        (1, -83), (1, -46), (1, -81),
     ],
 }
+
+
+# Median chin position of the four mockup-verified colours, per facing. Chief
+# is aligned to this; see its entry in MASK_OFFSETS.
+TARGET_CHIN_Y = [27.5, 27.5, 27.5, 28.5, 26.5, 26.5, 27.0]
 
 
 def _frame_offsets(colour: str) -> list[tuple[int, int]]:
