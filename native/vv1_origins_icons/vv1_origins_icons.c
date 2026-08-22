@@ -234,10 +234,6 @@ enum {
    source images (see that script's docstring for the decompiled proof). */
 #define APPEARANCE_CELL_W 40
 #define APPEARANCE_CELL_H 65
-/* The mask sheet uses a taller cell than head/body: the VV5 art's feather
-   plumes rise above the head, so the generated sheet is 76px per row rather
-   than 65 (see scripts/build_vv1_heathen_mask_sheets.py). */
-#define MASK_CELL_H 76
 
 /* Only one appearance picker can be open at a time (it is a modal dialog),
    so a single file-scope slot for its working state is sufficient -- this
@@ -369,14 +365,19 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
     return result;
 }
 
-/* Crops row `index` (one villager-record value = one 40x65 row) out of
-   the strip for the current villager's sex and stretches it to fill the
-   owner-draw control's actual rect, the same StretchBlt/COLORONCOLOR
-   approach the stock renderer itself would use for an arbitrary preview
-   size. */
-static void appearance_draw_cell(
-    DRAWITEMSTRUCT *item, int bitmap_id, int index, int cell_h
-) {
+/* Crops row `index` (one villager-record value = one cell row) out of the
+   strip for the current villager's sex and draws it into the owner-draw
+   control's rect.
+
+   The sprite is fitted, not stretched: it is scaled by the SMALLER of the
+   two axis ratios and centred, so its aspect ratio is preserved and any
+   leftover space stays background. Stretching each axis independently (what
+   this did before) distorted every preview, and made VV1's pickers visibly
+   different from VV5's for the same art. This is VV5's own math, so head and
+   body -- and now the mask preview too, which is generated on that same
+   40x65 cell -- render identically in both games' pickers. */
+static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+    const int cell_h = APPEARANCE_CELL_H;
     RECT rc = item->rcItem;
     int width = rc.right - rc.left;
     int height = rc.bottom - rc.top;
@@ -384,6 +385,8 @@ static void appearance_draw_cell(
     HBITMAP bitmap;
     HDC source;
     HBITMAP previous;
+    double scale_x, scale_y, scale;
+    int draw_w, draw_h, draw_x, draw_y;
 
     FillRect(item->hDC, &rc, background);
     DeleteObject(background);
@@ -395,9 +398,17 @@ static void appearance_draw_cell(
     source = CreateCompatibleDC(item->hDC);
     previous = (HBITMAP)SelectObject(source, bitmap);
 
+    scale_x = (double)width / APPEARANCE_CELL_W;
+    scale_y = (double)height / cell_h;
+    scale = scale_x < scale_y ? scale_x : scale_y;
+    draw_w = (int)(APPEARANCE_CELL_W * scale);
+    draw_h = (int)(cell_h * scale);
+    draw_x = rc.left + (width - draw_w) / 2;
+    draw_y = rc.top + (height - draw_h) / 2;
+
     SetStretchBltMode(item->hDC, COLORONCOLOR);
     StretchBlt(
-        item->hDC, rc.left, rc.top, width, height,
+        item->hDC, draw_x, draw_y, draw_w, draw_h,
         source, 0, index * cell_h, APPEARANCE_CELL_W, cell_h,
         SRCCOPY
     );
@@ -405,10 +416,6 @@ static void appearance_draw_cell(
     SelectObject(source, previous);
     DeleteDC(source);
     DeleteObject(bitmap);
-}
-
-static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
-    appearance_draw_cell(item, bitmap_id, index, APPEARANCE_CELL_H);
 }
 
 static void appearance_repaint(HWND window, int control_id) {
@@ -492,11 +499,10 @@ static INT_PTR CALLBACK appearance_dialog(
             return TRUE;
         }
         if (item->CtlID == IDC_MASK_PREVIEW) {
-            appearance_draw_cell(
+            appearance_draw(
                 item,
                 IDB_MASK,
-                *(appearance_state.villager + VV_MASK_OFFSET),
-                MASK_CELL_H
+                *(appearance_state.villager + VV_MASK_OFFSET)
             );
             return TRUE;
         }
