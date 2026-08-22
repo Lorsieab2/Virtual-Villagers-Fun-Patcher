@@ -8,3 +8,6 @@ patcher_local_settings.json
 
 # Local playtest stock-exe inputs (never commit game binaries)
 inputs/
+
+# local build/test scratch outputs (never commit)
+scratchpad/
