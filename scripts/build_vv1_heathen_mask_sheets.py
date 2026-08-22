@@ -109,6 +109,16 @@ COLOURS = ["blue", "orange", "red", "purple", "chief"]
 # way the previewed head does.
 PREVIEW_FRAME = 5
 PREVIEW_BG = (236, 236, 236)
+# The preview cell is 40x65 -- APPEARANCE_CELL_H in the DLL, and the same cell
+# VV5's own picker previews its masks in -- NOT the 76px in-game sheet cell.
+# The extra 11px in the sheet is plume headroom for the in-game blit; carrying
+# it into the thumbnail just shrinks the mask by ~14% relative to VV5's for no
+# reason, because the aspect-preserving fit then scales to the taller cell.
+#
+# In-game sizing is untouched by this: assets/origins/mN.png stay 76px cells at
+# native art size. Only the thumbnail is re-fitted, and only downwards, and
+# only for the two colour rows whose headdress genuinely exceeds 65px.
+PREVIEW_CELL_H = 65
 PREVIEW_BMP = ROOT / "native" / "vv1_origins_icons" / "appearance" / "mask.bmp"
 
 
@@ -200,16 +210,20 @@ def build() -> list[tuple[Path, bytes]]:
 
 
 def build_preview_strip() -> bytes:
-    """One 40x(76*6) BMP: row 0 blank, rows 1-5 the five masks head-on.
+    """One 40x(65*6) BMP: row 0 blank, rows 1-5 the five masks head-on.
 
-    Flattened onto the dialog's own background colour because a BMP resource
-    carries no alpha; appearance_draw() fills the same colour before blitting,
-    so the seam is invisible.
+    Each mask is cropped to its own content, scaled DOWN only if it exceeds the
+    cell (aspect preserved), and centred -- so the thumbnail fills the cell the
+    same way VV5's does instead of floating inside leftover plume headroom.
+
+    Flattened onto the dialog's background colour because a BMP resource
+    carries no alpha; appearance_draw() fills the same colour first, so the
+    seam is invisible.
     """
     import io
 
     rows = 1 + MASK_ROWS
-    strip = Image.new("RGB", (CELL_W, SHEET_CELL_H * rows), PREVIEW_BG)
+    strip = Image.new("RGB", (CELL_W, PREVIEW_CELL_H * rows), PREVIEW_BG)
     for row in range(MASK_ROWS):
         sheet = Image.open(OUT_DIR / f"m{row + 1}.png").convert("RGBA")
         cell = sheet.crop(
@@ -220,9 +234,18 @@ def build_preview_strip() -> bytes:
                 SHEET_CELL_H,
             )
         )
-        flat = Image.new("RGB", cell.size, PREVIEW_BG)
-        flat.paste(cell, (0, 0), cell)
-        strip.paste(flat, (0, SHEET_CELL_H * (row + 1)))
+        bbox = cell.getbbox()
+        art = cell.crop(bbox) if bbox else cell
+        aw, ah = art.size
+        scale = min(CELL_W / aw, PREVIEW_CELL_H / ah, 1.0)
+        if scale < 1.0:
+            art = art.resize(
+                (max(1, int(aw * scale)), max(1, int(ah * scale))), Image.LANCZOS
+            )
+            aw, ah = art.size
+        flat = Image.new("RGB", (CELL_W, PREVIEW_CELL_H), PREVIEW_BG)
+        flat.paste(art, ((CELL_W - aw) // 2, (PREVIEW_CELL_H - ah) // 2), art)
+        strip.paste(flat, (0, PREVIEW_CELL_H * (row + 1)))
     buf = io.BytesIO()
     strip.save(buf, "BMP")
     return buf.getvalue()
@@ -249,7 +272,7 @@ def main() -> int:
         path.write_bytes(data)
         print(f"wrote {path.relative_to(ROOT)} ({len(data)} bytes)")
     print(f"geometry: {FACINGS} facings x {CELL_W}x{SHEET_CELL_H}, native size, no scaling, nothing cropped")
-    print(f"preview strip: {CELL_W}x{SHEET_CELL_H * (1 + MASK_ROWS)} (frame {PREVIEW_FRAME}, row 0 = None)")
+    print(f"preview strip: {CELL_W}x{PREVIEW_CELL_H * (1 + MASK_ROWS)} (frame {PREVIEW_FRAME}, row 0 = None)")
     return 0
 
 
