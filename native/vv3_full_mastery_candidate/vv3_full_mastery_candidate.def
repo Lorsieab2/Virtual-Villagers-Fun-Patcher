@@ -8,4 +8,4 @@ EXPORTS
     ShowOriginsUpgradeResult=_ShowOriginsUpgradeResult@4
     EqualDivisionOfLabor=_EqualDivisionOfLabor@4
     ShowOriginsFullMasteryResult=_ShowOriginsFullMasteryResult@8
-    ShowVV3AppearanceChooser=_ShowVV3AppearanceChooser@20
+    ShowVV3AppearanceChooser=_ShowVV3AppearanceChooser@16

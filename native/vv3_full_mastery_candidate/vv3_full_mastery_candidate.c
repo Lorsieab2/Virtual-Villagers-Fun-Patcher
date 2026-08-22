@@ -690,15 +690,6 @@ __declspec(dllexport) int __stdcall ShowOriginsFullMasteryResult(
 #define IDC_BODY_NEXT    3104
 #define IDC_HEAD_PREV    3105
 #define IDC_HEAD_NEXT    3106
-#define IDC_MASK_NAME    3107
-#define IDC_MASK_PREV    3108
-#define IDC_MASK_NEXT    3109
-#define VV3_MASK_COUNT   6   /* 0=(None), 1..5 = Blue/Orange/Red/Purple/Chief */
-
-static const char *const vv3_mask_names[VV3_MASK_COUNT] = {
-    "(None)", "Blue Mask", "Orange Mask", "Red Mask", "Purple Mask",
-    "Tribal Chief Mask"
-};
 #define VV3_APPEARANCE_CELL_W 40
 #define VV3_APPEARANCE_CELL_H 65
 #define VV3_HEAD_COUNT 30
@@ -708,7 +699,6 @@ static int vv3_appearance_sex;
 static int vv3_appearance_old;
 static int vv3_appearance_head;
 static int vv3_appearance_body;
-static int vv3_appearance_mask;   /* 0..VV3_MASK_COUNT-1 */
 
 static int vv3_appearance_head_bitmap(void) {
     if (vv3_appearance_sex) {
@@ -772,7 +762,6 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
     (void)lparam;
     if (message == WM_INITDIALOG) {
         center_topmost_on_owner(window);
-        SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
@@ -806,17 +795,6 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
             vv3_appearance_repaint(window, IDC_HEAD_PREVIEW);
             return TRUE;
         }
-        if (command == IDC_MASK_PREV) {
-            vv3_appearance_mask =
-                (vv3_appearance_mask + VV3_MASK_COUNT - 1) % VV3_MASK_COUNT;
-            SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
-            return TRUE;
-        }
-        if (command == IDC_MASK_NEXT) {
-            vv3_appearance_mask = (vv3_appearance_mask + 1) % VV3_MASK_COUNT;
-            SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
-            return TRUE;
-        }
         if (command == IDOK) {
             EndDialog(window, 1);
             return TRUE;
@@ -836,22 +814,18 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     int sex,
     int age,
     int *head,
-    int *body,
-    int *mask
+    int *body
 ) {
     INT_PTR result;
     HWND owner;
     int orig_head;
     int orig_body;
-    int orig_mask;
     vv3_appearance_sex = sex ? 1 : 0;
     vv3_appearance_old = age >= 1100 ? 1 : 0;
     vv3_appearance_head = (head && *head >= 0 && *head < VV3_HEAD_COUNT) ? *head : 0;
     vv3_appearance_body = (body && *body >= 0 && *body < VV3_BODY_COUNT) ? *body : 0;
-    vv3_appearance_mask = (mask && *mask >= 0 && *mask < VV3_MASK_COUNT) ? *mask : 0;
     orig_head = vv3_appearance_head;
     orig_body = vv3_appearance_body;
-    orig_mask = vv3_appearance_mask;
 
     owner = begin_modal_over_game();
     result = DialogBoxParamA(
@@ -868,8 +842,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
         return 0;
     }
     /* OK with nothing changed: report it and do not charge. */
-    if (vv3_appearance_head == orig_head && vv3_appearance_body == orig_body &&
-        vv3_appearance_mask == orig_mask) {
+    if (vv3_appearance_head == orig_head && vv3_appearance_body == orig_body) {
         MessageBoxA(GetForegroundWindow(),
             "The appearance is unchanged. No tech points have been deducted.",
             "Villager Upgrades",
@@ -877,7 +850,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
         return 0;
     }
     /* The head field is hereditary, so changing it warns first; Cancel backs
-       out with no write and no charge.  The mask is purely cosmetic (no warning). */
+       out with no write and no charge. */
     if (vv3_appearance_head != orig_head) {
         if (MessageBoxA(GetForegroundWindow(),
                 "Warning: This will change the villager's head genetics.",
@@ -892,9 +865,6 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     }
     if (body) {
         *body = vv3_appearance_body;
-    }
-    if (mask) {
-        *mask = vv3_appearance_mask;
     }
     return 1;
 }
