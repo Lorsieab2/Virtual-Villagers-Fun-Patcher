@@ -211,10 +211,16 @@ enum {
     ID_MASK_PREV = 2020,
     IDC_MASK_LABEL = 2021,
     ID_MASK_NEXT = 2022,
+    /* Owner-draw mask preview, matching VV5's picker layout for parity. */
+    IDC_MASK_PREVIEW = 2023,
     IDB_HEAD_M = 3001,
     IDB_HEAD_F = 3002,
     IDB_BODY_M = 3011,
     IDB_BODY_F = 3012,
+    /* One 40-wide column, six 76px rows: row 0 blank for "(None)", rows 1-5
+       the five masks head-on. Built by build_vv1_heathen_mask_sheets.py, so
+       the strip is indexed by the mask value directly. */
+    IDB_MASK = 3021,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
     STATE_RUNNING_ONLY = 0x40000,
@@ -228,6 +234,10 @@ enum {
    source images (see that script's docstring for the decompiled proof). */
 #define APPEARANCE_CELL_W 40
 #define APPEARANCE_CELL_H 65
+/* The mask sheet uses a taller cell than head/body: the VV5 art's feather
+   plumes rise above the head, so the generated sheet is 76px per row rather
+   than 65 (see scripts/build_vv1_heathen_mask_sheets.py). */
+#define MASK_CELL_H 76
 
 /* Only one appearance picker can be open at a time (it is a modal dialog),
    so a single file-scope slot for its working state is sufficient -- this
@@ -364,7 +374,9 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
    owner-draw control's actual rect, the same StretchBlt/COLORONCOLOR
    approach the stock renderer itself would use for an arbitrary preview
    size. */
-static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+static void appearance_draw_cell(
+    DRAWITEMSTRUCT *item, int bitmap_id, int index, int cell_h
+) {
     RECT rc = item->rcItem;
     int width = rc.right - rc.left;
     int height = rc.bottom - rc.top;
@@ -386,13 +398,17 @@ static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
     SetStretchBltMode(item->hDC, COLORONCOLOR);
     StretchBlt(
         item->hDC, rc.left, rc.top, width, height,
-        source, 0, index * APPEARANCE_CELL_H, APPEARANCE_CELL_W, APPEARANCE_CELL_H,
+        source, 0, index * cell_h, APPEARANCE_CELL_W, cell_h,
         SRCCOPY
     );
 
     SelectObject(source, previous);
     DeleteDC(source);
     DeleteObject(bitmap);
+}
+
+static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+    appearance_draw_cell(item, bitmap_id, index, APPEARANCE_CELL_H);
 }
 
 static void appearance_repaint(HWND window, int control_id) {
@@ -475,6 +491,15 @@ static INT_PTR CALLBACK appearance_dialog(
             );
             return TRUE;
         }
+        if (item->CtlID == IDC_MASK_PREVIEW) {
+            appearance_draw_cell(
+                item,
+                IDB_MASK,
+                *(appearance_state.villager + VV_MASK_OFFSET),
+                MASK_CELL_H
+            );
+            return TRUE;
+        }
         if (item->CtlID == IDC_BODY_PREVIEW) {
             appearance_draw(
                 item,
@@ -521,6 +546,7 @@ static INT_PTR CALLBACK appearance_dialog(
                 : (*mask + 1) % VV_MASK_COUNT;
             *mask = (unsigned char)next;
             SetDlgItemTextA(window, IDC_MASK_LABEL, vv1_mask_name(next));
+            appearance_repaint(window, IDC_MASK_PREVIEW);
             return TRUE;
         }
         if (command == IDOK) {

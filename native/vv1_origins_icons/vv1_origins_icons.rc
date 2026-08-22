@@ -31,6 +31,7 @@
 3002 BITMAP "appearance/head_f.bmp"
 3011 BITMAP "appearance/body_m.bmp"
 3012 BITMAP "appearance/body_f.bmp"
+3021 BITMAP "appearance/mask.bmp"
 #endif
 
 #define DS_MODALFRAME 0x0080L
@@ -165,7 +166,7 @@ END
    build from carrying this unused dialog and its (already-guarded)
    art. */
 #ifndef VVFP_VV2_BUILD
-203 DIALOGEX 0, 0, 250, 216
+203 DIALOGEX 0, 0, 250, 286
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
@@ -184,14 +185,20 @@ BEGIN
        into the same paid transaction as head/body (one 5,000-point
        charge covers whatever combination of the three actually changed;
        "changed" and the charge itself are still entirely the caller's
-       job, same as always). */
-    CTEXT       "Mask", -1, 90, 142, 70, 9
-    PUSHBUTTON  "<", 2020, 70, 154, 16, 16
-    CTEXT       "(None)", 2021, 90, 157, 70, 9
-    PUSHBUTTON  ">", 2022, 164, 154, 16, 16
+       job, same as always).
 
-    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 178, 222, 9
-    DEFPUSHBUTTON "OK",     1, 66, 196, 50, 16
-    PUSHBUTTON    "Cancel", 2, 134, 196, 50, 16
+       Laid out to match VV5's own Change Appearance picker for parity:
+       a centred owner-draw preview between the two arrows, with the
+       mask's name on its own line underneath. Control IDs stay in VV1's
+       existing 20xx block rather than copying VV5's 31xx ids. */
+    CTEXT       "Mask", -1, 90, 146, 70, 9
+    PUSHBUTTON  "<", 2020, 66, 182, 16, 16
+    CONTROL     "", 2023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 100, 158, 50, 74
+    PUSHBUTTON  ">", 2022, 168, 182, 16, 16
+    CTEXT       "(None)", 2021, 40, 238, 170, 10
+
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 252, 222, 9
+    DEFPUSHBUTTON "OK",     1, 66, 264, 50, 16
+    PUSHBUTTON    "Cancel", 2, 134, 264, 50, 16
 END
 #endif
