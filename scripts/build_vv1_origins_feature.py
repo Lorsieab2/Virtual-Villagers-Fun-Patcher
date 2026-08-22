@@ -366,30 +366,25 @@ MASK_HOOK_VA = MASK_OVERLAY_VA + 0x3C  # stash-only hook (occupied-check splice)
 # grid, so the blit is a straight cell-for-cell overlay and all alignment
 # lives in the art rather than in this assembly.
 MASK_CELL_W = 40
-# NOT the head cell's 65. The generated sheet uses its own taller cell so the
-# feather plumes, which rise above the head, are not clipped -- see
-# scripts/build_vv1_heathen_mask_sheets.py. Frame heights across the five
-# colour rows run 32..72 (the Tribal Chief headdress is the tallest), so the
-# sheet cell is 76 with each frame's face point anchored at row 45.
-MASK_CELL_H = 76
-# Vertical alignment, derived rather than guessed. The native head draw at
-# 0x438107-0x438150 computes its destination as:
+# The sheets are built from supplied art that was authored against VV1's own
+# head atlas (see scripts/build_vv1_heathen_mask_sheets.py). Its cell spans
+# every colour's art, including the Tribal Chief headdress, so it is taller
+# than the 65px head cell -- the plumes rise well above the head.
+MASK_CELL_H = 160
+# Vertical alignment, derived rather than guessed, and now anchored to the
+# supplied art rather than to a face-fraction estimate.
+#
+# The native head draw at 0x438107-0x438150 computes its destination as
 #     x = record[+4] - village[+8]
 #     y = record[+8] - village[+0xc] + 0x27
-# and the head's own skin centroid sits ~17px down its 65px cell (measured
-# 16.8-17.6 across all seven facings). The mask's face point is at row 45 of
-# its sheet cell, so the mask cell's top must land at
-#     head_face_screen_y - 45 = (y + 0x27) + 17 - 45 = y + 11
+# The mask cell's top sits 85px above the head cell's top (the highest of the
+# five colours' per-facing offsets, recovered by correlating the supplied
+# mockups against the stock head atlas), so the cell is drawn at 0x27 - 85,
+# i.e. 46px ABOVE the villager's own y.
+#
 # Getting this wrong is not subtle: the first build stashed the raw y with no
 # offset at all, which would have drawn every mask 39px above its villager.
-#
-# The derived value is 11; the shipped value is 7, chosen off a rendered sweep
-# of candidate offsets composited exactly the way the game composites them
-# (mask over head, head cell at +0x27, mask cell at this offset). 5..9 all sit
-# correctly on the head, 11 reads slightly low, and -3 leaves the villager's
-# face visible under the mask. This is the single constant to change if the
-# mask wants nudging up or down -- nothing else depends on it.
-MASK_DRAW_Y_OFFSET = 7
+MASK_DRAW_Y_OFFSET = -46
 # The village/camera object hanging off the villager manager. Its +8/+0xC are
 # the scroll offsets every native draw in sub_437790 subtracts.
 VILLAGE_OBJECT_OFFSET = 0x3E010

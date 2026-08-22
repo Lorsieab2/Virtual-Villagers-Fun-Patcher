@@ -1,232 +1,189 @@
-"""Generate the VV1 Heathen-mask overlay sheets from the VV5 mask art.
+"""Build the VV1 Heathen-mask sheets from the supplied, pre-aligned mask art.
 
-The overlay is drawn by a hook inside VV1's own per-villager render loop with
-a direct SDL_UpperBlit, so this script controls the sheet geometry outright.
-It deliberately mirrors VV1's OWN head atlas geometry:
+The art in assets/origins/mask-art/ was authored against VV1's own head
+atlas: each file is a seven-frame strip, one frame per facing column, already
+positioned so that dropping it over a head row lands the mask on the face. It
+is used verbatim -- no scaling, no cropping, no re-centring. This script only
+moves it onto the cell grid the draw hook blits from.
 
-    male_heads.png / female_heads.png are 280x1300 = 7 columns x 20 rows of
-    40x65 cells (confirmed empirically: the fully-transparent separator
-    columns fall on multiples of 40, and 1300/65 == 20 exactly).
+Alignment was recovered from the supplied mockups rather than guessed. Each
+"alignment mockup" is that colour's mask composited over a real VV1 head
+(female_heads.png row 11 -- identified by its magenta hair, which is the only
+part of the head the mask does not cover). Correlating the mask layer and the
+head layer against the mockup independently gives each colour's offset
+relative to the head cell origin, and recompositing head+mask at that offset
+reproduces the mockup essentially pixel-for-pixel for blue, orange, red and
+purple.
 
-so each generated sheet is 7 cells of 40x65 (280x65), one cell per facing
-column. At runtime the hook blits cell[facing] at the villager's own screen
-position, which means alignment is a property of THIS ART, not of the
-assembly: to nudge a mask, regenerate the sheets, don't touch the patch.
-
-Two constraints from the requester, both honoured here:
-
-  * "don't crop the mask sprites" -- the only crop is getbbox(), which removes
-    fully transparent margin and therefore loses no visible pixel. Placement
-    is then clamped so the whole mask (feathers included) stays inside the
-    cell rather than being cut off at the edge.
-  * "do not alter the mask sizing" -- the art is copied at its native pixel
-    size. There is no resize anywhere in this script.
+Chief is the exception: its mockup is a free-form arrangement -- individual
+frames sit up to 42px off the others' baseline -- so a single offset cannot
+reproduce it. Its global correlation is still the best available estimate and
+is what ships; see MASK_OFFSETS.
 
 Usage:  python scripts/build_vv1_heathen_mask_sheets.py [--check]
 """
 from __future__ import annotations
 
 import argparse
-import sys
+import io
 from pathlib import Path
 
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
+ART_DIR = ROOT / "assets" / "origins" / "mask-art"
 OUT_DIR = ROOT / "assets" / "origins"
-
-# VV5 mask sheet: 520x725 = 8 columns x 5 rows of 65x145.
-MASK_SHEET = Path(
-    r"C:/Users/Owner/Downloads/Virtual Villagers - New Believers/Images"
-    r"/vv5_heathenheads.png"
-)
-MASK_CELL_W, MASK_CELL_H = 65, 145
-MASK_FRAMES, MASK_ROWS = 8, 5
-
-# VV1 head atlas geometry (see module docstring).
-HEAD_SHEET = Path(
-    r"C:/Users/Owner/Downloads/Virtual Villagers - A New Home/Images/male_heads.png"
-)
-CELL_W, HEAD_CELL_H = 40, 65
-FACINGS = 7
-
-# The generated sheet does NOT reuse the head cell's 65px height. VV1's head
-# content is only ~23x25 sitting at the top of its 65px cell, while the VV5
-# mask art is up to 46px tall because it includes the feather plumes that rise
-# ABOVE the head. Aligning the mask's face to the head's face therefore needs
-# the plumes to occupy space above that point, which a top-anchored 65px cell
-# cannot express without clipping them off.
-#
-# So the sheet uses its own 52px cell, each frame placed so its face point
-# lands on a fixed row (MASK_FACE_CELL_Y), and the draw hook offsets the
-# destination Y so that row lands on the head's face. Nothing is scaled and
-# nothing is cropped: the tallest frame (46px) starts at y=3 and ends at y=49,
-# comfortably inside the cell.
-#
-# Sized from the real art, not row 0 alone: frame heights run 32..72 across the
-# five colour rows (the Tribal Chief headdress in row 4 is the tallest at 72,
-# and row 2 reaches 64). A cell sized off row 0 clips those, which the guard in
-# _place() catches rather than silently cropping.
-SHEET_CELL_H = 76
-MASK_FACE_CELL_Y = 45
-
-# Head rows sampled when locating the face; averaging several head styles
-# keeps one unusual hairstyle from dragging the centroid around.
-FACE_SAMPLE_ROWS = [1, 3, 5, 8, 12]
-
-# The face sits roughly this far down the mask art, so aligning the mask's
-# face point to the head's face point means offsetting by this fraction.
-FACE_Y_FRAC = 0.62
-
-# Measured from the stock atlas: the head's own skin centroid sits this far
-# down its 65px cell (16.8-17.6 across all seven facings, so a single constant
-# is fine). build_vv1_origins_feature.py's stash hook derives its Y offset from
-# this and MASK_FACE_CELL_Y; the two must be changed together.
-HEAD_FACE_CELL_Y = 17
-
-# VV1 has 7 facing columns; the VV5 mask art has 8 frames, so the mapping
-# cannot be a straight 1:1 index. This table is the tunable part: entry i is
-# the mask frame drawn for VV1 head column i. Values below are a first pass
-# read off a side-by-side render of both sheets (VV1 columns 0-1 face right,
-# 2-3 face left, 4-6 are frontal; mask frames 0-3 face left, 4-6 are frontal,
-# 7 faces right). Expect to refine these against an in-game screenshot -- that
-# is a one-line edit here plus a regenerate, with no patch rebuild needed.
-MASK_FRAME_FOR_FACING = [7, 6, 0, 1, 4, 5, 6]
-
-COLOURS = ["blue", "orange", "red", "purple", "chief"]
-
-# Change Appearance preview strip. The dialog previews head and body from BMP
-# resources compiled into the icons DLL (see build_vv1_appearance_bitmaps.py),
-# so the mask preview is built the same way rather than inventing a second
-# mechanism. Geometry matches that script's convention: one 40-wide column,
-# one row per selectable value, stacked top to bottom.
-#
-# Row 0 is the blank "(None)" entry so the strip can be indexed by the mask
-# value directly (0..5) with no offset arithmetic in the dialog code.
-#
-# PREVIEW_FRAME 5 matches build_vv1_appearance_bitmaps.py's own HEAD_FRAME: it
-# is the front-facing column, so the previewed mask faces the player the same
-# way the previewed head does.
-PREVIEW_FRAME = 5
-PREVIEW_BG = (236, 236, 236)
-# The preview cell is 40x65 -- APPEARANCE_CELL_H in the DLL, and the same cell
-# VV5's own picker previews its masks in -- NOT the 76px in-game sheet cell.
-# The extra 11px in the sheet is plume headroom for the in-game blit; carrying
-# it into the thumbnail just shrinks the mask by ~14% relative to VV5's for no
-# reason, because the aspect-preserving fit then scales to the taller cell.
-#
-# In-game sizing is untouched by this: assets/origins/mN.png stay 76px cells at
-# native art size. Only the thumbnail is re-fitted, and only downwards, and
-# only for the two colour rows whose headdress genuinely exceeds 65px.
-PREVIEW_CELL_H = 65
 PREVIEW_BMP = ROOT / "native" / "vv1_origins_icons" / "appearance" / "mask.bmp"
 
+# VV1's head atlas is 280x1300 = 7 columns x 20 rows of 40x65 (the transparent
+# separator columns fall on multiples of 40, and the 20 content bands start
+# ~65 apart). The mask sheets use the same 7 columns at the same 40px pitch,
+# so facing N of the sheet is facing N of the head with no lookup table.
+CELL_W = 40
+FACINGS = 7
+HEAD_CELL_H = 65
 
-def _is_skin(px) -> bool:
-    r, g, b, a = px
-    return a > 128 and r > 150 and g > 110 and b > 70 and r > b + 25 and (r - g) < 90
+# In mask-value order (1..5), matching vv1_mask_name() in the icons DLL.
+COLOURS = ["blue", "orange", "red", "purple", "chief"]
+
+# (x, y) of each art file's top-left relative to the head CELL origin,
+# recovered from the mockups as described above. X differs per colour only
+# because each file is cropped to its own content.
+#
+# A colour may instead give seven (x, y) pairs, one per facing. Chief needs
+# that: its art has frames 2, 4 and 6 drawn about 45px below the others, and
+# its mockup staggers those frames' HEADS by the same amount to compensate.
+# A single offset therefore lines up four facings and leaves three with the
+# villager's head exposed above the mask -- which is exactly what the first
+# build of this art did. Per-frame offsets were recovered the same way as the
+# rest: locate each facing's head by its magenta hair, locate the mask over
+# it, subtract.
+MASK_OFFSETS = {
+    "blue": (20, -11),
+    "orange": (18, -12),
+    "red": (18, -29),
+    "purple": (4, -13),
+    "chief": [
+        (1, -38), (1, -38), (1, -81), (1, -38),
+        (1, -85), (1, -38), (1, -83),
+    ],
+}
 
 
-def _face_centre_per_facing(head: Image.Image) -> list[tuple[float, float]]:
-    out: list[tuple[float, float]] = []
-    for f in range(FACINGS):
-        xs: list[int] = []
-        ys: list[int] = []
-        for row in FACE_SAMPLE_ROWS:
-            cell = head.crop(
-                (f * CELL_W, row * HEAD_CELL_H, (f + 1) * CELL_W, (row + 1) * HEAD_CELL_H)
+def _frame_offsets(colour: str) -> list[tuple[int, int]]:
+    value = MASK_OFFSETS[colour]
+    if isinstance(value, list):
+        if len(value) != FACINGS:
+            raise ValueError(f"{colour}: expected {FACINGS} per-frame offsets")
+        return value
+    return [value] * FACINGS
+
+# The draw hook blits one cell per villager. The cell must span every colour's
+# art, so its top sits at the highest (most negative) offset and its height
+# covers the lowest extent. Both are asserted in build() rather than hardcoded
+# blind, so new art that does not fit fails loudly instead of being clipped.
+CELL_TOP = min(
+    y
+    for colour in MASK_OFFSETS
+    for _, y in _frame_offsets(colour)
+)  # -85, set by chief's lowest-drawn facing
+SHEET_CELL_H = 160
+
+# build_vv1_origins_feature.py must agree with these two, and asserts so.
+DRAW_Y_OFFSET = 0x27 + CELL_TOP  # native head draws at +0x27 (39); 39-85 = -46
+
+PREVIEW_FRAME = 5           # front-facing column, same as HEAD_FRAME in
+PREVIEW_BG = (236, 236, 236)  # build_vv1_appearance_bitmaps.py
+PREVIEW_CELL_H = HEAD_CELL_H
+
+
+# A facing's cell must contain that facing's mask and nothing else. Art wider
+# than the 40px cell means a neighbouring facing can bleed a few pixels into
+# this column, and because the two facings sit at different offsets the bleed
+# lands detached from the mask -- in game that reads as specks floating above
+# the villager. Anything this small next to the real mask is bleed, never art;
+# a fragment above the threshold is not silently dropped, it raises.
+BLEED_MAX_FRACTION = 0.10
+
+
+def _strip_bleed(cell: Image.Image, colour: str, facing: int) -> Image.Image:
+    """Keep the facing's own mask; drop detached crumbs from its neighbours."""
+    pixels = cell.load()
+    w, h = cell.size
+    seen: set[tuple[int, int]] = set()
+    groups: list[list[tuple[int, int]]] = []
+    for y in range(h):
+        for x in range(w):
+            if pixels[x, y][3] <= 128 or (x, y) in seen:
+                continue
+            stack = [(x, y)]
+            seen.add((x, y))
+            group = []
+            while stack:
+                cx, cy = stack.pop()
+                group.append((cx, cy))
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        nx, ny = cx + dx, cy + dy
+                        if (
+                            0 <= nx < w
+                            and 0 <= ny < h
+                            and (nx, ny) not in seen
+                            and pixels[nx, ny][3] > 128
+                        ):
+                            seen.add((nx, ny))
+                            stack.append((nx, ny))
+            groups.append(group)
+    if len(groups) <= 1:
+        return cell
+    groups.sort(key=len, reverse=True)
+    keep = groups[0]
+    for group in groups[1:]:
+        if len(group) > len(keep) * BLEED_MAX_FRACTION:
+            raise ValueError(
+                f"{colour} facing {facing}: detached region of {len(group)}px "
+                f"next to a {len(keep)}px mask is too large to be neighbour "
+                "bleed -- check the offsets before dropping it"
             )
-            px = cell.load()
-            for y in range(HEAD_CELL_H):
-                for x in range(CELL_W):
-                    if _is_skin(px[x, y]):
-                        xs.append(x)
-                        ys.append(y)
-        out.append(
-            (sum(xs) / len(xs), sum(ys) / len(ys)) if xs else (CELL_W / 2, float(HEAD_FACE_CELL_Y))
-        )
-    return out
+        for x, y in group:
+            pixels[x, y] = (0, 0, 0, 0)
+    return cell
 
 
-def _native_mask_frames(row: int) -> list[Image.Image]:
-    sheet = Image.open(MASK_SHEET).convert("RGBA")
-    frames = []
-    for f in range(MASK_FRAMES):
-        cell = sheet.crop(
-            (
-                f * MASK_CELL_W,
-                row * MASK_CELL_H,
-                (f + 1) * MASK_CELL_W,
-                (row + 1) * MASK_CELL_H,
+def _sheet(colour: str) -> Image.Image:
+    """The colour's art placed on the 7x40 cell grid, used verbatim.
+
+    Each facing is taken as the 40-wide column of the art that corresponds to
+    that head cell and placed at its own offset. Art wider than the cell is
+    clipped at the cell edge, which is what the game does too: the draw hook
+    blits exactly one 40-wide cell.
+    """
+    art = Image.open(ART_DIR / f"{colour}.png").convert("RGBA")
+    sheet = Image.new("RGBA", (CELL_W * FACINGS, SHEET_CELL_H), (0, 0, 0, 0))
+    for facing, (ox, oy) in enumerate(_frame_offsets(colour)):
+        top = oy - CELL_TOP
+        if top < 0 or top + art.height > SHEET_CELL_H:
+            raise ValueError(
+                f"{colour} facing {facing}: art at y={oy} needs a cell taller "
+                f"than {SHEET_CELL_H}; raise SHEET_CELL_H (and DRAW_Y_OFFSET) "
+                "rather than cropping"
             )
-        )
-        bbox = cell.getbbox()
-        # getbbox() only strips fully transparent margin: no visible pixel is
-        # lost, and the result keeps the art at its native size.
-        frames.append(cell.crop(bbox) if bbox else cell)
-    return frames
+        src_x = CELL_W * facing - ox
+        column = art.crop((src_x, 0, src_x + CELL_W, art.height)).copy()
+        cell = Image.new("RGBA", (CELL_W, SHEET_CELL_H), (0, 0, 0, 0))
+        cell.alpha_composite(column, (0, top))
+        sheet.alpha_composite(_strip_bleed(cell, colour, facing), (CELL_W * facing, 0))
+    return sheet
 
 
-def _place(mask: Image.Image, face_cx: float) -> Image.Image:
-    """Native-size mask, horizontally centred on the head's face, vertically
-    anchored so its face point lands on MASK_FACE_CELL_Y.
-
-    No resize and no content crop: the only crop is getbbox() upstream, which
-    removes fully transparent margin. Placement is checked to stay inside the
-    cell so the plumes are never clipped.
-    """
-    nw, nh = mask.size
-    canvas = Image.new("RGBA", (CELL_W, SHEET_CELL_H), (0, 0, 0, 0))
-    ix = int(round(face_cx - nw / 2))
-    ix = max(0, min(ix, CELL_W - nw)) if nw <= CELL_W else 0
-    iy = int(round(MASK_FACE_CELL_Y - nh * FACE_Y_FRAC))
-    if iy < 0 or iy + nh > SHEET_CELL_H:
-        raise ValueError(
-            f"mask {nw}x{nh} would be clipped at y={iy} in a {SHEET_CELL_H}px "
-            "cell; raise SHEET_CELL_H rather than cropping the art"
-        )
-    canvas.alpha_composite(mask, (ix, iy))
-    return canvas
-
-
-def build() -> list[tuple[Path, bytes]]:
-    head = Image.open(HEAD_SHEET).convert("RGBA")
-    faces = _face_centre_per_facing(head)
-    results: list[tuple[Path, bytes]] = []
-    for row in range(MASK_ROWS):
-        frames = _native_mask_frames(row)
-        sheet = Image.new("RGBA", (CELL_W * FACINGS, SHEET_CELL_H), (0, 0, 0, 0))
-        for facing in range(FACINGS):
-            art = frames[MASK_FRAME_FOR_FACING[facing]]
-            fcx, _fcy = faces[facing]
-            sheet.paste(_place(art, fcx), (facing * CELL_W, 0))
-        out = OUT_DIR / f"m{row + 1}.png"
-        import io
-
-        buf = io.BytesIO()
-        sheet.save(buf, "PNG")
-        results.append((out, buf.getvalue()))
-    return results
-
-
-def build_preview_strip() -> bytes:
-    """One 40x(65*6) BMP: row 0 blank, rows 1-5 the five masks head-on.
-
-    Each mask is cropped to its own content, scaled DOWN only if it exceeds the
-    cell (aspect preserved), and centred -- so the thumbnail fills the cell the
-    same way VV5's does instead of floating inside leftover plume headroom.
-
-    Flattened onto the dialog's background colour because a BMP resource
-    carries no alpha; appearance_draw() fills the same colour first, so the
-    seam is invisible.
-    """
-    import io
-
-    rows = 1 + MASK_ROWS
+def build_preview_strip(sheets: dict[str, Image.Image]) -> bytes:
+    """40x(65*6) BMP for the Change Appearance picker: row 0 blank, then each
+    mask head-on, fitted to the cell VV5's picker uses so both games' previews
+    render at the same size."""
+    rows = 1 + len(COLOURS)
     strip = Image.new("RGB", (CELL_W, PREVIEW_CELL_H * rows), PREVIEW_BG)
-    for row in range(MASK_ROWS):
-        sheet = Image.open(OUT_DIR / f"m{row + 1}.png").convert("RGBA")
-        cell = sheet.crop(
+    for index, colour in enumerate(COLOURS, start=1):
+        cell = sheets[colour].crop(
             (
                 PREVIEW_FRAME * CELL_W,
                 0,
@@ -236,43 +193,54 @@ def build_preview_strip() -> bytes:
         )
         bbox = cell.getbbox()
         art = cell.crop(bbox) if bbox else cell
-        aw, ah = art.size
-        scale = min(CELL_W / aw, PREVIEW_CELL_H / ah, 1.0)
+        scale = min(CELL_W / art.width, PREVIEW_CELL_H / art.height, 1.0)
         if scale < 1.0:
             art = art.resize(
-                (max(1, int(aw * scale)), max(1, int(ah * scale))), Image.LANCZOS
+                (max(1, int(art.width * scale)), max(1, int(art.height * scale))),
+                Image.LANCZOS,
             )
-            aw, ah = art.size
         flat = Image.new("RGB", (CELL_W, PREVIEW_CELL_H), PREVIEW_BG)
-        flat.paste(art, ((CELL_W - aw) // 2, (PREVIEW_CELL_H - ah) // 2), art)
-        strip.paste(flat, (0, PREVIEW_CELL_H * (row + 1)))
+        flat.paste(
+            art,
+            ((CELL_W - art.width) // 2, (PREVIEW_CELL_H - art.height) // 2),
+            art,
+        )
+        strip.paste(flat, (0, PREVIEW_CELL_H * index))
     buf = io.BytesIO()
     strip.save(buf, "BMP")
     return buf.getvalue()
 
 
+def build() -> list[tuple[Path, bytes]]:
+    sheets = {colour: _sheet(colour) for colour in COLOURS}
+    out: list[tuple[Path, bytes]] = []
+    for index, colour in enumerate(COLOURS, start=1):
+        buf = io.BytesIO()
+        sheets[colour].save(buf, "PNG")
+        out.append((OUT_DIR / f"m{index}.png", buf.getvalue()))
+    out.append((PREVIEW_BMP, build_preview_strip(sheets)))
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument(
-        "--check",
-        action="store_true",
-        help="verify the committed sheets match what this script generates",
-    )
+    ap.add_argument("--check", action="store_true", help="verify committed output")
     args = ap.parse_args()
     built = build()
-    built.append((PREVIEW_BMP, build_preview_strip()))
     if args.check:
         bad = [str(p) for p, data in built if not p.exists() or p.read_bytes() != data]
         if bad:
-            print("stale/missing mask sheets: " + ", ".join(bad))
+            print("stale/missing mask output: " + ", ".join(bad))
             return 1
-        print(f"{len(built)} mask sheets match the generator")
+        print(f"{len(built)} mask outputs match the generator")
         return 0
     for path, data in built:
         path.write_bytes(data)
         print(f"wrote {path.relative_to(ROOT)} ({len(data)} bytes)")
-    print(f"geometry: {FACINGS} facings x {CELL_W}x{SHEET_CELL_H}, native size, no scaling, nothing cropped")
-    print(f"preview strip: {CELL_W}x{PREVIEW_CELL_H * (1 + MASK_ROWS)} (frame {PREVIEW_FRAME}, row 0 = None)")
+    print(
+        f"sheets: {FACINGS} facings x {CELL_W}x{SHEET_CELL_H}, supplied art used "
+        f"verbatim; draw Y offset {DRAW_Y_OFFSET}"
+    )
     return 0
 
 
