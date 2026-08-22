@@ -109,9 +109,35 @@ fun-patches from the on-disk manifest — filtering an in-memory `fp.raw['patche
 
 Recommended: **Option 1** (smallest, most contained), verified with a playtest.
 
-## Not built: map / village-view masks
-The village map uses a **separate, name-based animation system** (`FUN_004582A0` @0x4582A0
--> `FUN_00455AB0` strncpy's an animation *name* into `animObj+0xE48`, head -> `+0xE3C`;
-villager record `+0xDD0` = ptr to the anim object; a per-frame player draws it). It does
-**not** use the head-atlas global or `0x409FB0`, so the Detail-screen hook does nothing
-there. Map masks are a separate, unstarted effort.
+## Not built: map / village-view masks (RE mapped; needs live iteration)
+
+The village map uses a **separate, texture-index animation system** — a completely different
+pipeline from Detail. The Detail-screen hook does nothing there. RE findings (2026-08-22,
+capstone on the stock exe):
+
+- **Map render loop** (~`0x45F670`): iterates all 150 villager records (stride `0x1F8C`,
+  loop counter `cmp 0x96`), drawing each villager.
+- **Map draw primitives**: `0x42E440` / `0x42E510` — thiscall, `this = global 0x58F6F8`.
+  These are the map's sprite draws; they do **not** use Detail's `0x409FB0` or the head-atlas
+  globals. Frame/sprite indices are small ints (e.g. `2/4/9` by walking/action state) and a
+  per-villager texture table at `[edi+0x127C44]` / `[edi+0x127C48]`.
+- **Per-villager layer dispatcher** (`0x45F7E0`): reads `record+0xF20` (anim/sprite selector,
+  `cmp -1`, `cmp 0x34`), then draws up to three layers gated on animObj **state `+0xE90`**
+  (`>1`, `==3`) via `0x42E510`.
+- **animObj** = `record+0xDD0`. Anim-setup `0x455AB0` writes head→`+0xE3C`, body→`+0xE40`,
+  anim name→`+0xE48` (`strncpy 0x18`), state→`+0xE90`. Setup is driven by `FUN_004582A0`
+  (`0x4582A0`, reads head `+0xDF0`/body `+0xDF4`), called 4x (the 4 villager layers) from the
+  `0x416F80` layer fn. The player reads these fields through a **shifted pointer** (small
+  offsets), which is why `+0xE3C/+0xE40/+0xE48` never appear as disp32 reads.
+
+**Why this is a separate, larger effort than Detail:** the map does not composite from the
+head PNG atlas, so the mask-rows-30..34 trick does not apply. A map mask needs (a) the exact
+head-layer blit pinpointed as the injection point, (b) a mask texture *registered in the map's
+texture system* (`0x58F6F8` / the `[0x4B8700]` table), and (c) a per-frame draw positioned on
+the head. All of that is **per-frame render code in a 150-iteration hot loop** — injecting it
+blind (no launch) risks crashes/corruption. Recommendation: implement the map masks with live
+playtest iteration, not blind. The Detail masks (the primary, interactive surface) are done.
+
+## Superseded: earlier finish options
+The three options below were written when the cave placement was still blocked; they are kept
+only for history. The blocker is now solved (see "How the code-cave blocker was solved").
