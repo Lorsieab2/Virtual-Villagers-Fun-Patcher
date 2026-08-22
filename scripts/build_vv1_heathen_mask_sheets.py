@@ -34,6 +34,16 @@ ROOT = Path(__file__).resolve().parents[1]
 ART_DIR = ROOT / "assets" / "origins" / "mask-art"
 OUT_DIR = ROOT / "assets" / "origins"
 PREVIEW_BMP = ROOT / "native" / "vv1_origins_icons" / "appearance" / "mask.bmp"
+# Single atlas for the in-game draw, laid out the way the stock sprite loader
+# wants it: one image, COLS x ROWS of equal cells, loaded via the game's own
+# 0x40A070(this, filename, cols, rows) which derives cellW = imgW/cols and
+# cellH = imgH/rows. Column = facing, row = mask value - 1, so a draw is just
+# (row = villager byte - 1, col = facing) with no lookup.
+#
+# Going through the game's loader (rather than IMG_Load + a hand-rolled blit)
+# is what lets the mask ride the game's own scaled draw path, so children scale
+# for free instead of needing separate art.
+ATLAS_PNG = ROOT / "assets" / "origins" / "mask_atlas.png"
 
 # VV1's head atlas is 280x1300 = 7 columns x 20 rows of 40x65 (the transparent
 # separator columns fall on multiples of 40, and the 20 content bands start
@@ -307,6 +317,18 @@ def build_preview_strip(sheets: dict[str, Image.Image]) -> bytes:
     return buf.getvalue()
 
 
+def build_atlas(sheets: dict[str, Image.Image]) -> bytes:
+    """All five masks in one COLS x ROWS grid: row = mask value - 1."""
+    atlas = Image.new(
+        "RGBA", (CELL_W * FACINGS, SHEET_CELL_H * len(COLOURS)), (0, 0, 0, 0)
+    )
+    for index, colour in enumerate(COLOURS):
+        atlas.paste(sheets[colour], (0, SHEET_CELL_H * index))
+    buf = io.BytesIO()
+    atlas.save(buf, "PNG")
+    return buf.getvalue()
+
+
 def build() -> list[tuple[Path, bytes]]:
     sheets = {colour: _sheet(colour) for colour in COLOURS}
     out: list[tuple[Path, bytes]] = []
@@ -314,6 +336,7 @@ def build() -> list[tuple[Path, bytes]]:
         buf = io.BytesIO()
         sheets[colour].save(buf, "PNG")
         out.append((OUT_DIR / f"m{index}.png", buf.getvalue()))
+    out.append((ATLAS_PNG, build_atlas(sheets)))
     out.append((PREVIEW_BMP, build_preview_strip(sheets)))
     return out
 
@@ -336,6 +359,10 @@ def main() -> int:
     print(
         f"sheets: {FACINGS} facings x {CELL_W}x{SHEET_CELL_H}, supplied art used "
         f"verbatim; draw Y offset {DRAW_Y_OFFSET}"
+    )
+    print(
+        f"atlas: {FACINGS} cols x {len(COLOURS)} rows of {CELL_W}x{SHEET_CELL_H} "
+        f"= {CELL_W * FACINGS}x{SHEET_CELL_H * len(COLOURS)}"
     )
     return 0
 
