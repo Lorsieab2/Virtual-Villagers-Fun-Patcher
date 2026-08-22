@@ -47,8 +47,28 @@ MASK_FRAMES, MASK_ROWS = 8, 5
 HEAD_SHEET = Path(
     r"C:/Users/Owner/Downloads/Virtual Villagers - A New Home/Images/male_heads.png"
 )
-CELL_W, CELL_H = 40, 65
+CELL_W, HEAD_CELL_H = 40, 65
 FACINGS = 7
+
+# The generated sheet does NOT reuse the head cell's 65px height. VV1's head
+# content is only ~23x25 sitting at the top of its 65px cell, while the VV5
+# mask art is up to 46px tall because it includes the feather plumes that rise
+# ABOVE the head. Aligning the mask's face to the head's face therefore needs
+# the plumes to occupy space above that point, which a top-anchored 65px cell
+# cannot express without clipping them off.
+#
+# So the sheet uses its own 52px cell, each frame placed so its face point
+# lands on a fixed row (MASK_FACE_CELL_Y), and the draw hook offsets the
+# destination Y so that row lands on the head's face. Nothing is scaled and
+# nothing is cropped: the tallest frame (46px) starts at y=3 and ends at y=49,
+# comfortably inside the cell.
+#
+# Sized from the real art, not row 0 alone: frame heights run 32..72 across the
+# five colour rows (the Tribal Chief headdress in row 4 is the tallest at 72,
+# and row 2 reaches 64). A cell sized off row 0 clips those, which the guard in
+# _place() catches rather than silently cropping.
+SHEET_CELL_H = 76
+MASK_FACE_CELL_Y = 45
 
 # Head rows sampled when locating the face; averaging several head styles
 # keeps one unusual hairstyle from dragging the centroid around.
@@ -57,6 +77,12 @@ FACE_SAMPLE_ROWS = [1, 3, 5, 8, 12]
 # The face sits roughly this far down the mask art, so aligning the mask's
 # face point to the head's face point means offsetting by this fraction.
 FACE_Y_FRAC = 0.62
+
+# Measured from the stock atlas: the head's own skin centroid sits this far
+# down its 65px cell (16.8-17.6 across all seven facings, so a single constant
+# is fine). build_vv1_origins_feature.py's stash hook derives its Y offset from
+# this and MASK_FACE_CELL_Y; the two must be changed together.
+HEAD_FACE_CELL_Y = 17
 
 # VV1 has 7 facing columns; the VV5 mask art has 8 frames, so the mapping
 # cannot be a straight 1:1 index. This table is the tunable part: entry i is
@@ -82,16 +108,16 @@ def _face_centre_per_facing(head: Image.Image) -> list[tuple[float, float]]:
         ys: list[int] = []
         for row in FACE_SAMPLE_ROWS:
             cell = head.crop(
-                (f * CELL_W, row * CELL_H, (f + 1) * CELL_W, (row + 1) * CELL_H)
+                (f * CELL_W, row * HEAD_CELL_H, (f + 1) * CELL_W, (row + 1) * HEAD_CELL_H)
             )
             px = cell.load()
-            for y in range(CELL_H):
+            for y in range(HEAD_CELL_H):
                 for x in range(CELL_W):
                     if _is_skin(px[x, y]):
                         xs.append(x)
                         ys.append(y)
         out.append(
-            (sum(xs) / len(xs), sum(ys) / len(ys)) if xs else (CELL_W / 2, CELL_H * 0.34)
+            (sum(xs) / len(xs), sum(ys) / len(ys)) if xs else (CELL_W / 2, float(HEAD_FACE_CELL_Y))
         )
     return out
 
@@ -115,21 +141,26 @@ def _native_mask_frames(row: int) -> list[Image.Image]:
     return frames
 
 
-def _place(mask: Image.Image, face_cx: float, face_cy: float) -> Image.Image:
+def _place(mask: Image.Image, face_cx: float) -> Image.Image:
+    """Native-size mask, horizontally centred on the head's face, vertically
+    anchored so its face point lands on MASK_FACE_CELL_Y.
+
+    No resize and no content crop: the only crop is getbbox() upstream, which
+    removes fully transparent margin. Placement is checked to stay inside the
+    cell so the plumes are never clipped.
+    """
     nw, nh = mask.size
-    pad = 96
-    canvas = Image.new("RGBA", (CELL_W + 2 * pad, CELL_H + 2 * pad), (0, 0, 0, 0))
+    canvas = Image.new("RGBA", (CELL_W, SHEET_CELL_H), (0, 0, 0, 0))
     ix = int(round(face_cx - nw / 2))
-    iy = int(round(face_cy - nh * FACE_Y_FRAC))
-    # Keep the whole mask inside the cell so nothing is clipped away.
-    if nw <= CELL_W:
-        ix = max(0, min(ix, CELL_W - nw))
-    if nh <= CELL_H:
-        iy = max(0, min(iy, CELL_H - nh))
-    else:
-        iy = 0
-    canvas.alpha_composite(mask, (pad + ix, pad + iy))
-    return canvas.crop((pad, pad, pad + CELL_W, pad + CELL_H))
+    ix = max(0, min(ix, CELL_W - nw)) if nw <= CELL_W else 0
+    iy = int(round(MASK_FACE_CELL_Y - nh * FACE_Y_FRAC))
+    if iy < 0 or iy + nh > SHEET_CELL_H:
+        raise ValueError(
+            f"mask {nw}x{nh} would be clipped at y={iy} in a {SHEET_CELL_H}px "
+            "cell; raise SHEET_CELL_H rather than cropping the art"
+        )
+    canvas.alpha_composite(mask, (ix, iy))
+    return canvas
 
 
 def build() -> list[tuple[Path, bytes]]:
@@ -138,11 +169,11 @@ def build() -> list[tuple[Path, bytes]]:
     results: list[tuple[Path, bytes]] = []
     for row in range(MASK_ROWS):
         frames = _native_mask_frames(row)
-        sheet = Image.new("RGBA", (CELL_W * FACINGS, CELL_H), (0, 0, 0, 0))
+        sheet = Image.new("RGBA", (CELL_W * FACINGS, SHEET_CELL_H), (0, 0, 0, 0))
         for facing in range(FACINGS):
             art = frames[MASK_FRAME_FOR_FACING[facing]]
-            fcx, fcy = faces[facing]
-            sheet.paste(_place(art, fcx, fcy), (facing * CELL_W, 0))
+            fcx, _fcy = faces[facing]
+            sheet.paste(_place(art, fcx), (facing * CELL_W, 0))
         out = OUT_DIR / f"m{row + 1}.png"
         import io
 
@@ -171,7 +202,7 @@ def main() -> int:
     for path, data in built:
         path.write_bytes(data)
         print(f"wrote {path.relative_to(ROOT)} ({len(data)} bytes)")
-    print(f"geometry: {FACINGS} facings x {CELL_W}x{CELL_H}, native size, no scaling")
+    print(f"geometry: {FACINGS} facings x {CELL_W}x{SHEET_CELL_H}, native size, no scaling, nothing cropped")
     return 0
 
 
