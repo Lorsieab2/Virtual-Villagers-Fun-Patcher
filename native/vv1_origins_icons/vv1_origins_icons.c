@@ -47,16 +47,31 @@
    +0x374 is confirmed unused anywhere in the exact-build binary -- a
    full-.text capstone scan found zero static references to any of
    +0x374..+0x38B (24 contiguous free bytes), well clear of every other
-   mapped field (the last real one before it is the +0x36C action-id
-   check, the next is the +0x3D0 job-preference field from Equal
-   Division of Labor). Deliberately NOT the native nursing-baby-icon
-   flag at +0x29 -- that byte is real per-villager gameplay state (a
-   genuinely nursing mother already has it set), so reusing it here
-   would either double-draw over her real baby icon or silently steal
-   it. This field is drawn by an entirely separate, additive render-loop
-   hook that never reads or writes +0x29/+0x2A/+0x344. */
+   free dword at +0x3D4, proven free rather than assumed.
+
+   The first choice, +0x374, was WRONG and actively harmful: it is the
+   second byte of the villager's NAME string at +0x370. A live record read
+   back "Nuru" there, so writing a mask value renamed the villager, and the
+   render's own 1..5 range check then rejected the byte (it held 'u' = 117)
+   so nothing ever drew. "No literal displacement reference in .text" was
+   not sufficient evidence -- the name is written by a string copy, so it
+   has no such reference either.
+
+   +0x3D4 is verified two ways instead. Statically it has exactly one
+   reference in the whole executable, `mov [esi+ecx+0x3d4], ebx` at
+   0x41C344 inside the record initialiser, which zeroes it at creation:
+   nothing else writes it and nothing reads it. Empirically it is zero in
+   every live villager sampled. The zero-init is a bonus -- it makes "no
+   mask" the default for every existing and future villager with no
+   migration.
+
+   Deliberately NOT the native nursing-baby-icon flag at +0x29 -- that byte
+   is real per-villager gameplay state (a genuinely nursing mother already
+   has it set), so reusing it would either double-draw over her real baby
+   icon or silently steal it. This field is drawn by a separate, additive
+   render hook that never reads or writes +0x29/+0x2A/+0x344. */
 #ifndef VV_MASK_OFFSET
-#define VV_MASK_OFFSET 0x374
+#define VV_MASK_OFFSET 0x3D4
 #endif
 #ifndef VV_MASK_COUNT
 #define VV_MASK_COUNT 6

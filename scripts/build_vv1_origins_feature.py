@@ -357,7 +357,15 @@ MASK_PENDING_FRAME_VA = MASK_OVERLAY_VA + 0x34  # facing column, record +0x34
 # allocated once for the process lifetime, so a one-frame-old cached copy is
 # still the right address -- only its contents change per frame.
 DEST_SURFACE_CACHE_VA = MASK_OVERLAY_VA + 0x38
-MASK_HOOK_VA = MASK_OVERLAY_VA + 0x3C  # stash-only hook (occupied-check splice)
+# DIAGNOSTIC (temporary): the render did not appear in the first real
+# playtest, and the stash slots all read zero -- which cannot distinguish
+# "the stash hook never runs", "it runs but every villager's mask byte is 0"
+# and "it runs and stashes but the draw fails". These three make that
+# distinction directly readable from outside the process.
+DEBUG_HOOK1_COUNT_VA = MASK_OVERLAY_VA + 0x3C   # stash-hook invocations
+DEBUG_LAST_RECORD_VA = MASK_OVERLAY_VA + 0x40   # last occupied villager record
+DEBUG_LAST_BYTE_VA = MASK_OVERLAY_VA + 0x44     # last +0x3D4 value seen (any)
+MASK_HOOK_VA = MASK_OVERLAY_VA + 0x48  # stash-only hook (occupied-check splice)
 # Sheet geometry, and it is deliberately VV1's OWN head-atlas geometry:
 # male_heads.png/female_heads.png are 280x1300 = 7 columns x 20 rows of 40x65
 # (verified empirically -- the fully transparent separator columns land on
@@ -2048,7 +2056,7 @@ def main() -> None:
 
     # --- Cosmetic head-mask overlay (Change Appearance's Mask row) ---
     #
-    # +0x374 (VV_MASK_OFFSET in vv1_origins_icons.c) is the player's chosen
+    # +0x3D4 (VV_MASK_OFFSET in vv1_origins_icons.c) is the player's chosen
     # mask (0=none, 1..5=variant), written by the Change Appearance dialog.
     # This hook is purely additive: it never reads or writes any field the
     # native engine itself uses for anything else (deliberately NOT the
@@ -2078,11 +2086,14 @@ def main() -> None:
     mask_path_data = b"Images/m1.png\0".ljust(16, b"\0")
     # PENDING_RECORD, PENDING_CHOICE, PENDING_X, PENDING_Y, PENDING_FRAME,
     # DEST_SURFACE_CACHE.
-    mask_pending_data = b"\0" * 24
+    mask_pending_data = b"\0" * 36
     mask_hook_code = assemble(
         f"""
             jnz {MASK_NATIVE_SKIP_TARGET_VA:#x}
-            movzx edx, byte ptr [eax + 0x374]
+            inc dword ptr [{DEBUG_HOOK1_COUNT_VA:#x}]
+            mov dword ptr [{DEBUG_LAST_RECORD_VA:#x}], eax
+            movzx edx, byte ptr [eax + 0x3d4]
+            mov dword ptr [{DEBUG_LAST_BYTE_VA:#x}], edx
             test edx, edx
             jz mask_resume
             cmp edx, 5
