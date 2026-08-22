@@ -76,7 +76,9 @@ def _pe_checksum(buf: bytearray) -> tuple[int, int]:
     return ((total & 0xFFFF) + len(buf)) & 0xFFFFFFFF, off
 
 
-def build(out_path: Path) -> None:
+def build(out_path: Path, force_row: int | None = None) -> None:
+    """force_row: None = per-villager byte +0xED0 (real). An int 0..4 forces that
+    mask on every portrait (render-verify test build, no chooser needed)."""
     data = bytearray(STOCK.read_bytes())
 
     def foff(va: int) -> int:
@@ -87,6 +89,18 @@ def build(out_path: Path) -> None:
     head_cmp = "\n".join(
         f"cmp eax, dword ptr [0x{g:X}]\n je cmaskchk" for g in HEAD_ATLASES
     )
+    if force_row is None:
+        mask_gate = (
+            f"movzx eax, byte ptr [esi+0x{MASK_BYTE_OFF:X}]\n"
+            "test eax, eax\n jz corig\n jmp cmask"
+        )
+        mask_row_push = (
+            f"movzx eax, byte ptr [esi+0x{MASK_BYTE_OFF:X}]\n"
+            "dec eax\n push eax"
+        )
+    else:
+        mask_gate = "jmp cmask"                       # always mask (test)
+        mask_row_push = f"push 0x{force_row:X}"
     stub = f"""
         push eax
         mov  eax, [esp+4]
@@ -98,10 +112,7 @@ def build(out_path: Path) -> None:
         {head_cmp}
         jmp  corig
     cmaskchk:
-        movzx eax, byte ptr [esi+0x{MASK_BYTE_OFF:X}]
-        test eax, eax
-        jz   corig
-        jmp  cmask
+        {mask_gate}
     corig:
         pop  eax
         mov  ecx, [ecx]
@@ -142,9 +153,7 @@ def build(out_path: Path) -> None:
         push dword ptr [esp+0x1c]              /* arg7 = 1 */
         push dword ptr [esp+0x1c]              /* arg6 = headY (scale) */
         push dword ptr [esp+0x1c]              /* arg5 = facing */
-        movzx eax, byte ptr [esi+0x{MASK_BYTE_OFF:X}]
-        dec  eax
-        push eax                               /* arg4 = mask row (byte-1) */
+        {mask_row_push}                        /* arg4 = mask row */
         mov  eax, [esp+0x28]                   /* arg6 = headY (scale) */
         imul eax, 0x{MASK_DY_MUL:X}
         sar  eax, 0x{MASK_DY_SHIFT:X}
@@ -201,4 +210,5 @@ def build(out_path: Path) -> None:
 if __name__ == "__main__":
     import sys
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else (ROOT / "vv3_mask_stage2.exe")
-    build(out)
+    fr = int(sys.argv[2]) if len(sys.argv) > 2 else None   # e.g. 0 = force blue (test)
+    build(out, force_row=fr)
