@@ -17,7 +17,32 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "8B29E66ADFE162028205EBE5BF068D7A9FB5150FF2F4D946D9C6B77B313D7134"
+      "sha256": "29FC06E739A6851DB7BBB52DF4EDE5A16ED813688FAAAF84785A669D88DC5452"
+    },
+    {
+      "source": "assets/origins/m1.png",
+      "destination": "Images/m1.png",
+      "sha256": "416196100305DED7F71B30340707CD77234C98A91796AFFCD702824D94C674B4"
+    },
+    {
+      "source": "assets/origins/m2.png",
+      "destination": "Images/m2.png",
+      "sha256": "C867FEDE8EED8572CE1380596B2385E109538731EAE8D22F650823C09B2B5840"
+    },
+    {
+      "source": "assets/origins/m3.png",
+      "destination": "Images/m3.png",
+      "sha256": "4DC01D32D2B855AA12B9BE4BCDEDD862030D86DB59F4910E59CA1B1D4EBFE5AD"
+    },
+    {
+      "source": "assets/origins/m4.png",
+      "destination": "Images/m4.png",
+      "sha256": "3C63DB1E2760E32F45ADE0AAC25F21FC170C02736D2D0AE29135809D950B5801"
+    },
+    {
+      "source": "assets/origins/m5.png",
+      "destination": "Images/m5.png",
+      "sha256": "518364FDE8ECDCF0F60C43370A0035F304C3CE0EA57DDB9888EAC51B6B72D37A"
     }
   ],
   "doubler_evidence": {
@@ -120,6 +145,30 @@
       "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "8D82A8030000B904000000833826740C83C0044975F5B802000000C3C700FFFFFFFFB805000000C3",
       "purpose": "Details Grant Running: when all 4 Like slots are full, clear any Running Dislike for free (OFFICIAL spreadsheet edge case) and report whether one was actually cleared; tail-jumped into from DETAIL_PREFLIGHT_VA's own exhausted Like-slot scan"
+    },
+    {
+      "offset": "0x8BEA8",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "0000000000000000000000000000000000000000496D616765732F6D312E706E67000000496D616765732F6D322E706E67000000496D616765732F6D332E706E67000000496D616765732F6D342E706E67000000496D616765732F6D352E706E67000000000000000000000000000000000000000000000000000000000000009CFF0514DF48009D0F8598A9FAFFA324DF48000FB6907403000085D2741083FA05770BA30CDF4800891510DF4800E96398FAFF8B4E086A00FF0518DF4800538B1D20DF4800891D1CDF48005B833D0CDF4800007434608B1D20DF480068C800000068C8000000682C010000689001000089E26AFF5253E8F7C9FBFF83C41CC7050CDF48000000000061E95261F9FF8B4E30890D20DF48005189F1E97BB1F7FF",
+      "purpose": "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames + a 2-dword pending-draw slot, then the stash-only occupied-check hook and the draw hook that runs at the loop's back-edge -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field"
+    },
+    {
+      "offset": "0x377B8",
+      "before": "0F8510110000",
+      "after": "E96B67050090",
+      "purpose": "splice the mask-overlay stash hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, neither is modified by this hook"
+    },
+    {
+      "offset": "0x24103",
+      "before": "8B4E086A00",
+      "after": "E9539E0600",
+      "purpose": "splice the mask-overlay draw hook into FUN_00423390 right after its own 'call sub_437790' returns. Reproduces the displaced 'mov ecx,[esi+8] / push 0' pair exactly before resuming the native call that follows; the draw itself now targets DEST_SURFACE_CACHE_VA (see MASK_THIRD_DETOUR below) rather than this function's own esi+0x30, which direct ReadProcessMemory inspection proved reads a stable but invalid surface here (0x0BAD0D60, w=904 h=0 pitch=0 pixels=0x5D9, 10/10 samples)"
+    },
+    {
+      "offset": "0x913C",
+      "before": "8B4E30518BCE",
+      "after": "E9754E080090",
+      "purpose": "splice into FUN_00409060 (the true main per-frame tick) immediately before its own call to FUN_00403830 (the function that does the real SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain) -- reproduces the displaced 'mov ecx,[esi+0x30] / push ecx / mov ecx,esi' trio exactly (native presentation is bit-for-bit unchanged) and additionally caches that same, definitively-correct destination-surface pointer into DEST_SURFACE_CACHE_VA for the mask draw hook (splice point 2) to consume"
     },
     {
       "offset": "0x8B530",

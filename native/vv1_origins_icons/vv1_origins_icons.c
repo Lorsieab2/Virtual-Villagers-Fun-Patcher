@@ -43,6 +43,24 @@
 #ifndef VV_GENDER_MALE
 #define VV_GENDER_MALE 1
 #endif
+/* Purely cosmetic mask overlay choice (0 = none, 1..5 = mask variant).
+   +0x374 is confirmed unused anywhere in the exact-build binary -- a
+   full-.text capstone scan found zero static references to any of
+   +0x374..+0x38B (24 contiguous free bytes), well clear of every other
+   mapped field (the last real one before it is the +0x36C action-id
+   check, the next is the +0x3D0 job-preference field from Equal
+   Division of Labor). Deliberately NOT the native nursing-baby-icon
+   flag at +0x29 -- that byte is real per-villager gameplay state (a
+   genuinely nursing mother already has it set), so reusing it here
+   would either double-draw over her real baby icon or silently steal
+   it. This field is drawn by an entirely separate, additive render-loop
+   hook that never reads or writes +0x29/+0x2A/+0x344. */
+#ifndef VV_MASK_OFFSET
+#define VV_MASK_OFFSET 0x374
+#endif
+#ifndef VV_MASK_COUNT
+#define VV_MASK_COUNT 6
+#endif
 
 static HINSTANCE module_instance;
 
@@ -190,6 +208,9 @@ enum {
     IDC_BODY_PREVIEW = 2010,
     ID_BODY_PREV = 2011,
     ID_BODY_NEXT = 2012,
+    ID_MASK_PREV = 2020,
+    IDC_MASK_LABEL = 2021,
+    ID_MASK_NEXT = 2022,
     IDB_HEAD_M = 3001,
     IDB_HEAD_F = 3002,
     IDB_BODY_M = 3011,
@@ -227,6 +248,7 @@ static struct {
     unsigned char *villager;
     int original_head;
     int original_body;
+    int original_mask;
     int valid_count;
     int male;
     /* Set once the player accepts the head-genetics warning below, so it
@@ -234,6 +256,17 @@ static struct {
        "changing it first shows..." wording), not on every arrow click. */
     int head_warned;
 } appearance_state;
+
+static const char *vv1_mask_name(int mask) {
+    switch (mask) {
+        case 1: return "Blue Mask";
+        case 2: return "Orange Mask";
+        case 3: return "Red Mask";
+        case 4: return "Purple Mask";
+        case 5: return "Tribal Chief Mask";
+        default: return "(None)";
+    }
+}
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -369,6 +402,7 @@ static void appearance_repaint(HWND window, int control_id) {
 static void appearance_revert(void) {
     *(int *)(appearance_state.villager + VV_HEAD_OFFSET) = appearance_state.original_head;
     *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET) = appearance_state.original_body;
+    *(appearance_state.villager + VV_MASK_OFFSET) = (unsigned char)appearance_state.original_mask;
 }
 
 /* The head field is hereditary (it's the one the villager's children
@@ -419,9 +453,17 @@ static INT_PTR CALLBACK appearance_dialog(
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; WM_DRAWITEM below paints the
            starting values on the dialog's own first paint, nothing else to
-           do here besides positioning (see center_dialog_on_owner). */
+           do here besides positioning (see center_dialog_on_owner). The
+           mask row has no owner-draw preview (it's a plain text label,
+           not a bitmap strip cell), so its starting text is set directly
+           here rather than through WM_DRAWITEM. */
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
+        SetDlgItemTextA(
+            window,
+            IDC_MASK_LABEL,
+            vv1_mask_name(*(appearance_state.villager + VV_MASK_OFFSET))
+        );
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
@@ -472,9 +514,20 @@ static INT_PTR CALLBACK appearance_dialog(
             appearance_repaint(window, IDC_BODY_PREVIEW);
             return TRUE;
         }
+        if (command == ID_MASK_PREV || command == ID_MASK_NEXT) {
+            unsigned char *mask = appearance_state.villager + VV_MASK_OFFSET;
+            int next = command == ID_MASK_PREV
+                ? (*mask + VV_MASK_COUNT - 1) % VV_MASK_COUNT
+                : (*mask + 1) % VV_MASK_COUNT;
+            *mask = (unsigned char)next;
+            SetDlgItemTextA(window, IDC_MASK_LABEL, vv1_mask_name(next));
+            return TRUE;
+        }
         if (command == IDOK) {
             int changed = (*head != appearance_state.original_head)
-                || (*body != appearance_state.original_body);
+                || (*body != appearance_state.original_body)
+                || (*(appearance_state.villager + VV_MASK_OFFSET)
+                    != (unsigned char)appearance_state.original_mask);
             EndDialog(window, changed ? 1 : 2);
             return TRUE;
         }
@@ -503,6 +556,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
+    appearance_state.original_mask = *(villager + VV_MASK_OFFSET);
     appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
     appearance_state.valid_count = appearance_state.male ? 19 : 20;
     appearance_state.head_warned = 0;
