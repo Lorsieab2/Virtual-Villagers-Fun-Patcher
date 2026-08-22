@@ -108,6 +108,21 @@ static ULONG_PTR gdiplus_token = 0;
 #ifndef VV_BODY_COUNT
 #define VV_BODY_COUNT 29
 #endif
+/* Cosmetic Heathen-mask overlay. The 5 masks are appended to every head atlas
+   as rows 30..34; the render-hook cave draws head-atlas row (29 + mask) on top
+   of the villager's head when this genuinely-unused per-villager byte is set.
+   0 = none, 1..5 = Blue/Orange/Red/Purple/Tribal Chief. Writing it changes no
+   game logic (the byte is unread by the engine) and rides the save. */
+#ifndef VV_MASK_OFFSET
+#define VV_MASK_OFFSET 0x1BC4
+#endif
+#ifndef VV_MASK_COUNT
+#define VV_MASK_COUNT 6   /* (None) + 5 masks */
+#endif
+static const char *const g_mask_names[VV_MASK_COUNT] = {
+    "(None)", "Blue Mask", "Orange Mask", "Red Mask", "Purple Mask",
+    "Tribal Chief Mask"
+};
 
 static HINSTANCE module_instance;
 
@@ -126,6 +141,10 @@ enum {
     ID_BODY_PREV = 2011,
     ID_BODY_NEXT = 2012,
     ID_BODY_PIC = 2013,
+    ID_MASK_LABEL = 2020,
+    ID_MASK_PREV = 2021,
+    ID_MASK_NEXT = 2022,
+    ID_MASK_PIC = 2023,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
     STATE_RUNNING_ONLY = 0x40000,
@@ -151,6 +170,7 @@ static struct {
     unsigned char *villager;
     int original_head;
     int original_body;
+    int original_mask;
     int head_count;
     int body_count;
     int sex;      /* 0 / non-zero -> female / male sprite atlas */
@@ -186,7 +206,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
    the body sheet + column (and its per-page split). The atlas PNGs live in
    the game's Images folder; the villager re-renders live behind this dialog
    regardless, so a failed load simply shows nothing here. */
-static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int value) {
+static void appearance_draw_cell(HDC hdc, RECT rc, int is_head, int value, int clear) {
     WCHAR path[MAX_PATH];
     /* LDW engine convention (matches the VV2 companion): a non-zero sex field
        is female, zero is male. */
@@ -194,11 +214,12 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
     int age = appearance_state.is_old ? 1 : 0;
     int col, row, page;
     GpBitmap *bitmap = NULL;
-    RECT rc = dis->rcItem;
     int dstw = rc.right - rc.left;
     int dsth = rc.bottom - rc.top;
 
-    FillRect(dis->hDC, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
+    if (clear) {
+        FillRect(hdc, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
+    }
     if (is_head) {
         col = VV_HEAD_FRAME_COL;
         row = value;
@@ -211,7 +232,7 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
     }
     if (GdipCreateBitmapFromFile(path, &bitmap) == 0 && bitmap != NULL) {
         GpGraphics *graphics = NULL;
-        if (GdipCreateFromHDC(dis->hDC, &graphics) == 0 && graphics != NULL) {
+        if (GdipCreateFromHDC(hdc, &graphics) == 0 && graphics != NULL) {
             /* Preserve the 40x65 cell aspect ratio: scale by the smaller of the
                two axis ratios and centre the result, so the sprite is never
                squashed to fill a differently-proportioned control. */
@@ -474,6 +495,7 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
 static void appearance_revert(void) {
     *(int *)(appearance_state.villager + VV_HEAD_OFFSET) = appearance_state.original_head;
     *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET) = appearance_state.original_body;
+    *(appearance_state.villager + VV_MASK_OFFSET) = (unsigned char)appearance_state.original_mask;
 }
 
 /* Writes each tentative value straight into the live villager record so
@@ -495,17 +517,36 @@ static INT_PTR CALLBACK appearance_dialog(
     if (message == WM_INITDIALOG) {
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; the owner-drawn previews read the
-           live head/body fields directly, so nothing else is needed here. */
+           live head/body/mask fields directly. Show the current mask name. */
+        unsigned char m = *(appearance_state.villager + VV_MASK_OFFSET);
+        if (m >= VV_MASK_COUNT) {
+            m = 0;
+        }
+        SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[m]);
         vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
         if (dis->CtlID == ID_HEAD_PIC) {
-            appearance_draw_cell(dis, 1, *(int *)(appearance_state.villager + VV_HEAD_OFFSET));
+            appearance_draw_cell(dis->hDC, dis->rcItem, 1,
+                *(int *)(appearance_state.villager + VV_HEAD_OFFSET), 1);
             return TRUE;
         }
         if (dis->CtlID == ID_BODY_PIC) {
-            appearance_draw_cell(dis, 0, *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET));
+            appearance_draw_cell(dis->hDC, dis->rcItem, 0,
+                *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET), 1);
+            return TRUE;
+        }
+        if (dis->CtlID == ID_MASK_PIC) {
+            /* Preview = the current head with the chosen mask overlaid (masks are
+               head-atlas rows 30..34), mirroring the in-game composite; (None)
+               shows the plain head. */
+            int mask = *(int *)(appearance_state.villager + VV_MASK_OFFSET);
+            appearance_draw_cell(dis->hDC, dis->rcItem, 1,
+                *(int *)(appearance_state.villager + VV_HEAD_OFFSET), 1);
+            if (mask > 0 && mask < VV_MASK_COUNT) {
+                appearance_draw_cell(dis->hDC, dis->rcItem, 1, 29 + mask, 0);
+            }
             return TRUE;
         }
         return FALSE;
@@ -515,6 +556,14 @@ static INT_PTR CALLBACK appearance_dialog(
         int body_count = appearance_state.body_count;
         int *head = (int *)(appearance_state.villager + VV_HEAD_OFFSET);
         int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
+        unsigned char *mask = appearance_state.villager + VV_MASK_OFFSET;
+        if (command == ID_MASK_PREV || command == ID_MASK_NEXT) {
+            int delta = (command == ID_MASK_NEXT) ? 1 : (VV_MASK_COUNT - 1);
+            *mask = (unsigned char)((*mask + delta) % VV_MASK_COUNT);
+            SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[*mask]);
+            InvalidateRect(GetDlgItem(window, ID_MASK_PIC), NULL, TRUE);
+            return TRUE;
+        }
         if (command == ID_HEAD_PREV) {
             *head = (*head + head_count - 1) % head_count;
             InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
@@ -538,7 +587,8 @@ static INT_PTR CALLBACK appearance_dialog(
         if (command == IDOK) {
             int head_changed = (*head != appearance_state.original_head);
             int body_changed = (*body != appearance_state.original_body);
-            if (!head_changed && !body_changed) {
+            int mask_changed = (*mask != (unsigned char)appearance_state.original_mask);
+            if (!head_changed && !body_changed && !mask_changed) {
                 /* OK with nothing changed: no write, no charge (return 0). */
                 MessageBoxA(window,
                     "The appearance is unchanged. No tech points have been "
@@ -589,6 +639,16 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
+    {
+        /* Clamp a stale/garbage byte to (None) so pre-patch saves and unused
+           values never index outside the mask table. */
+        unsigned char m = *(villager + VV_MASK_OFFSET);
+        if (m >= VV_MASK_COUNT) {
+            m = 0;
+            *(villager + VV_MASK_OFFSET) = 0;
+        }
+        appearance_state.original_mask = m;
+    }
     appearance_state.head_count = VV_HEAD_COUNT;
     appearance_state.body_count = VV_BODY_COUNT;
     appearance_state.sex = *(int *)(villager + VV_SEX_OFFSET);
