@@ -146,28 +146,28 @@ BEGIN
     DEFPUSHBUTTON "Cancel", 2, 120, 186, 70, 14
 END
 
-203 DIALOGEX 0, 0, 400, 200
+203 DIALOGEX 0, 0, 270, 330
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
 BEGIN
-    LTEXT       "Body", -1, 10, 8, 120, 10, SS_CENTER
-    PUSHBUTTON  "<",       2011, 10,  70, 16, 24
-    CONTROL     "", 2013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 80, 124
-    PUSHBUTTON  ">",       2012, 114, 70, 16, 24
+    LTEXT       "Body", -1, 35, 8, 80, 10, SS_CENTER
+    PUSHBUTTON  "<",       2011, 15,  60, 16, 24
+    CONTROL     "", 2013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 35, 20, 80, 124
+    PUSHBUTTON  ">",       2012, 119, 60, 16, 24
 
-    LTEXT       "Head", -1, 140, 8, 120, 10, SS_CENTER
-    PUSHBUTTON  "<",       2001, 140, 70, 16, 24
-    CONTROL     "", 2003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 160, 20, 80, 124
-    PUSHBUTTON  ">",       2002, 244, 70, 16, 24
+    LTEXT       "Head", -1, 155, 8, 80, 10, SS_CENTER
+    PUSHBUTTON  "<",       2001, 135, 60, 16, 24
+    CONTROL     "", 2003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 155, 20, 80, 124
+    PUSHBUTTON  ">",       2002, 239, 60, 16, 24
 
-    LTEXT       "Mask", -1, 270, 8, 120, 10, SS_CENTER
-    PUSHBUTTON  "<",       2021, 270, 70, 16, 24
-    CONTROL     "", 2023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 290, 20, 80, 124
-    PUSHBUTTON  ">",       2022, 374, 70, 16, 24
-    LTEXT       "(None)", 2020, 270, 146, 120, 10, SS_CENTER
+    LTEXT       "Mask", -1, 95, 156, 80, 10, SS_CENTER
+    PUSHBUTTON  "<",       2021, 75,  208, 16, 24
+    CONTROL     "", 2023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 95, 168, 80, 124
+    PUSHBUTTON  ">",       2022, 179, 208, 16, 24
+    LTEXT       "(None)", 2020, 60, 298, 150, 10, SS_CENTER
 
-    LTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 10, 160, 380, 10, SS_CENTER
-    DEFPUSHBUTTON "OK",     1, 145, 178, 50, 14
-    PUSHBUTTON    "Cancel", 2, 205, 178, 50, 14
+    LTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 10, 312, 250, 10, SS_CENTER
+    DEFPUSHBUTTON "OK",     1, 80, 326, 50, 14
+    PUSHBUTTON    "Cancel", 2, 140, 326, 50, 14
 END

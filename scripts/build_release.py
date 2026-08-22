@@ -109,10 +109,8 @@ FILES = [
     "assets/vv4_masks/base/female_heads00.png",
     "assets/vv4_masks/atlases/female_heads10.png",
     "assets/vv4_masks/base/female_heads10.png",
-    "assets/vv4_masks/atlases/BigHeads00.png",
-    "assets/vv4_masks/base/BigHeads00.png",
-    "assets/vv4_masks/atlases/BigHeads10.png",
-    "assets/vv4_masks/base/BigHeads10.png",
+    # Isolated mask sheet for the Change Appearance preview.
+    "assets/vv4_masks/vv5_heathenheads_source.png",
     "data/guardians_of_isola/new/Assets/sm.xml",
     "data/guardians_of_isola/base/Assets/sm.xml",
     "data/guardians_of_isola/new/Images/BlinkyEyes.png",

@@ -139,7 +139,7 @@
     {
       "source": "assets/origins/VVFP VV4 Origins Icons.dll",
       "destination": "VVFP VV4 Origins Icons.dll",
-      "sha256": "B1E84DEF7070AF01AE48CD1B2ECCAE339FA20650C52E69A144F9863C7B7D9C04"
+      "sha256": "44A71C60AB49C791CB017E8F532DF981D90F0C53627548C4B6D30CC173FB45F9"
     },
     {
       "source": "assets/vv4_masks/atlases/male_heads00.png",
@@ -174,20 +174,9 @@
       "restore_sha256": "62801FA3F1BFE46D367F30D3562ADB768546CE01CAA499E433F1681D45F37C0E"
     },
     {
-      "source": "assets/vv4_masks/atlases/BigHeads00.png",
-      "destination": "Images/BigHeads00.png",
-      "sha256": "DA53414508DB316AEACF5D605A5F6E8161EAD856F32DDAAA504FB49929B2FE48",
-      "preimage_sha256": "A0CAE8416DD150F7CD31B78A7301073535DEF5E47B041150AE748D44BAE9BA90",
-      "restore_source": "assets/vv4_masks/base/BigHeads00.png",
-      "restore_sha256": "A0CAE8416DD150F7CD31B78A7301073535DEF5E47B041150AE748D44BAE9BA90"
-    },
-    {
-      "source": "assets/vv4_masks/atlases/BigHeads10.png",
-      "destination": "Images/BigHeads10.png",
-      "sha256": "B37ED6B744ED0A4B1A0C468EB0C69340294A7B2E88C4964F1607486366A9ED8F",
-      "preimage_sha256": "F65B0AC6B459CCCA7928724E20B784D74C7E698144F22526E2EFFB22B453E8C2",
-      "restore_source": "assets/vv4_masks/base/BigHeads10.png",
-      "restore_sha256": "F65B0AC6B459CCCA7928724E20B784D74C7E698144F22526E2EFFB22B453E8C2"
+      "source": "assets/vv4_masks/vv5_heathenheads_source.png",
+      "destination": "Images/vvfp_masks.png",
+      "sha256": "EFA9DF82A4DF0BAB11104C7E1757BFDEF95BF7D07E5EBE4C75566DEC56B01FBE"
     }
   ],
   "doubler_evidence": {
@@ -480,24 +469,6 @@
       "before": "1E",
       "after": "23",
       "purpose": "Heathen mask: bump head-atlas row count 30->35 at 0xc3b94 so rows 30..34 (the masks) are addressable"
-    },
-    {
-      "offset": "0xCCE30",
-      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "890D108E72008B442404A3148E72008B442408A3188E72008B44240CA31C8E72008B442414A3208E72008B442418A3248E72008B0424A3288E7200C70424778E7200E9F90BCEFF0FB6452C85C0742F83C01D6A00FF35248E7200FF35208E720050FF351C8E7200FF35188E7200FF35148E72008B0D108E7200E8C20BCEFFFF25288E7200",
-      "purpose": "Heathen mask: detail-portrait render-hook cave (mask byte at [ebp+0x2C]); same draw, re-draws head-atlas row 29+byte on the big head"
-    },
-    {
-      "offset": "0x3D040",
-      "before": "E82BCAFCFF",
-      "after": "E8EBBD2E00",
-      "purpose": "Heathen mask: route the detail-portrait head-draw call at 0x43d040 through the detail mask cave"
-    },
-    {
-      "offset": "0xC3CB4",
-      "before": "1E",
-      "after": "23",
-      "purpose": "Heathen mask: bump bigheads row count 30->35 at 0xc3cb4"
     },
     {
       "offset": "0x3FBE5",

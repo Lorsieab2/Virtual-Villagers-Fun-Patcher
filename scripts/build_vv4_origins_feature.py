@@ -1548,20 +1548,13 @@ def main() -> None:
     for offset, (old, new) in MASK_ROW_FIELDS.items():
         patch(offset, bytes([old]), bytes([new]),
               f"Heathen mask: bump head-atlas row count {old}->{new} at {offset:#x} so rows 30..34 (the masks) are addressable")
-    # Detail-portrait (big) head draw: its own cave (EBP gate) + row-count bump.
-    big_cave = mask_cave_bytes(
-        BIGMASK_CAVE_VA,
-        (BIG_S_ECX, BIG_S_A0, BIG_S_A1, BIG_S_A2, BIG_S_A4, BIG_S_A5, BIG_S_RET),
-        f"movzx eax, byte ptr [ebp + {BIGMASK_EBP_OFFSET}]\n test eax, eax\n jz mask_done")
-    patch(BIGMASK_CAVE_FILE_OFFSET, b"\0" * len(big_cave), big_cave,
-          "Heathen mask: detail-portrait render-hook cave (mask byte at [ebp+0x2C]); same draw, re-draws head-atlas row 29+byte on the big head")
-    patch(BIGMASK_CALL_SITE - IMAGE_BASE,
-          rel32_call(BIGMASK_CALL_SITE, MASK_DRAW_VA),
-          rel32_call(BIGMASK_CALL_SITE, BIGMASK_CAVE_VA),
-          f"Heathen mask: route the detail-portrait head-draw call at {BIGMASK_CALL_SITE:#x} through the detail mask cave")
-    _big_off, (_big_old, _big_new) = BIGHEAD_ROW_FIELD
-    patch(_big_off, bytes([_big_old]), bytes([_big_new]),
-          f"Heathen mask: bump bigheads row count {_big_old}->{_big_new} at {_big_off:#x}")
+    # Detail-portrait (big) head draw: REVERTED. The [ebp+0x2C] gate read a
+    # constant (chief mask on every villager, even with no mask set) -- the
+    # detail render's record pointer (FUN_0045d650) is not record+0x1B98 as
+    # assumed, so +0x2C is not the mask byte. Left unhooked until the correct
+    # per-villager mask source at 0x43D040 is confirmed. The detail portrait
+    # pulls the regular (already-masked) head atlas, so no bigheads swap is
+    # needed either; BIGMASK_*/BIGHEAD_* constants are retained for reference.
     patch(0x3FBE5, bytes.fromhex("E81684FDFF"), rel32_call(0x43FBE5, BARREL_COUNTDOWN_VA),
           "route the real event-scheduler tick (0x43FBE5 -> 0x418000) through the Barrel cue so a purchased barrel is presented naturally after its delay")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
@@ -1623,10 +1616,19 @@ def main() -> None:
             # bump to 35 above makes the modded exe REQUIRE the taller atlas, so
             # these ship with the feature; rows 0..29 are byte-identical to
             # stock, so mask=(None) villagers look exactly as before. The
-            # bigheads pair (masks scaled to the larger detail-portrait cell)
-            # ships for the same reason -- its row count is bumped too.
-            *(mask_atlas_companion(name)
-              for name in (*MASK_HEAD_ATLASES, *BIGHEAD_ATLASES)),
+            # (bigheads pair not shipped: the detail-portrait hook is reverted,
+            # and the portrait pulls the regular masked head atlas anyway.)
+            *(mask_atlas_companion(name) for name in MASK_HEAD_ATLASES),
+            # Isolated mask sheet for the Change Appearance preview (the DLL
+            # shows the standalone mask, front-facing, like VV5). Added file, so
+            # no preimage/restore -- it is removed on unpatch.
+            {
+                "source": "assets/vv4_masks/vv5_heathenheads_source.png",
+                "destination": "Images/vvfp_masks.png",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets/vv4_masks/vv5_heathenheads_source.png").read_bytes()
+                ).hexdigest().upper(),
+            },
         ],
         "doubler_evidence": {
             "build": {

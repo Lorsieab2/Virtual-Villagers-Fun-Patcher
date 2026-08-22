@@ -255,6 +255,46 @@ static void appearance_draw_cell(HDC hdc, RECT rc, int is_head, int value, int c
     }
 }
 
+/* Isolated Heathen-mask preview, matching VV5's Change Appearance: show the
+   selected mask on its own (not overlaid on the head), front-facing. The mask
+   sheet ships beside the head atlases as Images/vvfp_masks.png -- an 8x5 grid
+   of 65x145 cells; the front-facing view is column 5, and mask value 1..5 maps
+   to rows 0..4. (None) leaves the cell blank. */
+#define VV_MASK_SHEET L"Images\\vvfp_masks.png"
+#define VV_MASK_CELL_W 65
+#define VV_MASK_CELL_H 145
+#define VV_MASK_FRONT_COL 5
+static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
+    GpBitmap *bitmap = NULL;
+    int dstw = rc.right - rc.left;
+    int dsth = rc.bottom - rc.top;
+    FillRect(hdc, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
+    if (mask <= 0 || mask >= VV_MASK_COUNT) {
+        return;                       /* (None) -> blank cell */
+    }
+    vv4_ensure_gdiplus();
+    if (GdipCreateBitmapFromFile(VV_MASK_SHEET, &bitmap) == 0 && bitmap != NULL) {
+        GpGraphics *graphics = NULL;
+        if (GdipCreateFromHDC(hdc, &graphics) == 0 && graphics != NULL) {
+            double scale_x = (double)dstw / VV_MASK_CELL_W;
+            double scale_y = (double)dsth / VV_MASK_CELL_H;
+            double scale = scale_x < scale_y ? scale_x : scale_y;
+            int draw_w = (int)(VV_MASK_CELL_W * scale);
+            int draw_h = (int)(VV_MASK_CELL_H * scale);
+            int draw_x = rc.left + (dstw - draw_w) / 2;
+            int draw_y = rc.top + (dsth - draw_h) / 2;
+            GdipDrawImageRectRectI(
+                graphics, bitmap,
+                draw_x, draw_y, draw_w, draw_h,
+                VV_MASK_FRONT_COL * VV_MASK_CELL_W, (mask - 1) * VV_MASK_CELL_H,
+                VV_MASK_CELL_W, VV_MASK_CELL_H,
+                2, NULL, NULL, NULL);
+            GdipDeleteGraphics(graphics);
+        }
+        GdipDisposeImage(bitmap);
+    }
+}
+
 /* Full-screen support ports VV2's player-confirmed approach (its PR #13). Three
    pieces work together; the plain-dialog attempt without them left the menus
    hidden in full-screen. */
@@ -538,15 +578,10 @@ static INT_PTR CALLBACK appearance_dialog(
             return TRUE;
         }
         if (dis->CtlID == ID_MASK_PIC) {
-            /* Preview = the current head with the chosen mask overlaid (masks are
-               head-atlas rows 30..34), mirroring the in-game composite; (None)
-               shows the plain head. */
-            int mask = *(int *)(appearance_state.villager + VV_MASK_OFFSET);
-            appearance_draw_cell(dis->hDC, dis->rcItem, 1,
-                *(int *)(appearance_state.villager + VV_HEAD_OFFSET), 1);
-            if (mask > 0 && mask < VV_MASK_COUNT) {
-                appearance_draw_cell(dis->hDC, dis->rcItem, 1, 29 + mask, 0);
-            }
+            /* Preview = the isolated mask, front-facing (VV5 parity); (None)
+               shows a blank cell. The mask is a single byte at +0x1BC4. */
+            unsigned char mask = *(appearance_state.villager + VV_MASK_OFFSET);
+            appearance_draw_mask_cell(dis->hDC, dis->rcItem, mask);
             return TRUE;
         }
         return FALSE;
