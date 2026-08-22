@@ -54,6 +54,21 @@ VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 CHANGE_APPEARANCE_FILE_OFFSET = 0x7BD40
 CHANGE_APPEARANCE_VA = IMAGE_BASE + CHANGE_APPEARANCE_FILE_OFFSET
 
+# Heathen-mask render hook: free zero .text padding at 0x7B465..0x7B664 (511
+# bytes just before HEAL_CAVE; verified clear of every VV3 safety patch, variant
+# patch, and fun-patch payload).  After the villager head draw, the cave reads
+# the per-villager mask byte +0xED0 (0=none, 1..5) and redraws the head atlas at
+# row 29+byte (mask rows 30..34) on top.
+MASK_CAVE_FILE_OFFSET = 0x7B465
+MASK_CAVE_VA = IMAGE_BASE + MASK_CAVE_FILE_OFFSET
+MASK_HOOK_VA = 0x456B24
+MASK_HOOK_LEN = 0x456B2F - 0x456B24  # 11 bytes replaced (head-draw call site)
+MASK_DRAW_FN = 0x409FB0
+MASK_SPRITE_OBJ_OFF = 0x1F7C
+MASK_BYTE_OFF = 0xED0
+# Head-atlas sprite-table row-count fields (0x1E -> 0x23) so rows 30..34 exist.
+MASK_ROWCOUNT_FIELDS = (0xAAE6C, 0xAAE9C, 0xAAF2C, 0xAAF5C)
+
 # Complete/Reset all Collections action caves live in a free executable-.rdata
 # padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
 # executable).  The crowded .text tail (0x7B254..0x7B664) is fully consumed by
@@ -118,7 +133,9 @@ BARREL_PREFLIGHT_DLL_VA = PAYLOAD_VA + 0xBB6
 # Read-only strings for the cure and Change Appearance caves, placed in the
 # free .text padding after the Change Appearance cave (0x7BD40) and before the
 # .rdata boundary (0x7C000).
-EXTRA_STRINGS_FILE_OFFSET = 0x7BDC0
+EXTRA_STRINGS_FILE_OFFSET = 0x7BDE0  # after the (grown) Change Appearance cave,
+                                     # which now writes the mask byte +0xED0
+                                     # (code=148B ends 0x7BDD4; strings=515B fit to 0x7C000)
 EXTRA_STRINGS_VA = IMAGE_BASE + EXTRA_STRINGS_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x97488
 DETAIL_BUTTON_PTR = PAYLOAD_VA + 0xBF0
@@ -1443,11 +1460,13 @@ def main() -> None:
             push ebx
             push esi
             mov esi, edx
-            sub esp, 8
+            sub esp, 0xC
             mov eax, dword ptr [esi + 0xDF0]
             mov dword ptr [esp], eax
             mov eax, dword ptr [esi + 0xDF4]
             mov dword ptr [esp + 4], eax
+            movzx eax, byte ptr [esi + 0xED0]
+            mov dword ptr [esp + 8], eax
             push 0x{s['icons_dll']:X}
             call dword ptr [0x47C124]
             test eax, eax
@@ -1457,13 +1476,16 @@ def main() -> None:
             call dword ptr [0x47C128]
             test eax, eax
             je ca_done
-            lea ecx, [esp + 4]
-            lea edx, [esp]
-            push ecx
-            push edx
+            mov ebx, eax
+            lea eax, [esp + 8]
+            push eax
+            lea eax, [esp + 8]
+            push eax
+            lea eax, [esp + 8]
+            push eax
             push dword ptr [esi + 0xDC4]
             push dword ptr [esi + 0xDC8]
-            call eax
+            call ebx
             test eax, eax
             je ca_done
             sub dword ptr [0x582644], 5000
@@ -1471,14 +1493,58 @@ def main() -> None:
             mov dword ptr [esi + 0xDF0], eax
             mov eax, dword ptr [esp + 4]
             mov dword ptr [esi + 0xDF4], eax
+            mov eax, dword ptr [esp + 8]
+            mov byte ptr [esi + 0xED0], al
         ca_done:
-            add esp, 8
+            add esp, 0xC
             pop esi
             pop ebx
             ret
         """,
         CHANGE_APPEARANCE_VA,
     )
+
+    # Heathen-mask render hook cave: always draw the head (copy of the 7 stack
+    # args), then gate on the per-villager mask byte +0xED0 (0=none, 1..5); when
+    # nonzero, redraw the same head atlas at row 29+byte (mask rows 30..34) on
+    # top at the identical position/facing.  Writes NO villager state.
+    mask_cave_code = assemble(
+        f"""
+            sub esp, 0x1C
+            mov eax, dword ptr [esp + 0x1C]
+            mov dword ptr [esp], eax
+            mov eax, dword ptr [esp + 0x20]
+            mov dword ptr [esp + 4], eax
+            mov eax, dword ptr [esp + 0x24]
+            mov dword ptr [esp + 8], eax
+            mov eax, dword ptr [esp + 0x28]
+            mov dword ptr [esp + 0xC], eax
+            mov eax, dword ptr [esp + 0x2C]
+            mov dword ptr [esp + 0x10], eax
+            mov eax, dword ptr [esp + 0x30]
+            mov dword ptr [esp + 0x14], eax
+            mov eax, dword ptr [esp + 0x34]
+            mov dword ptr [esp + 0x18], eax
+            mov ecx, dword ptr [esi + 0x{MASK_SPRITE_OBJ_OFF:X}]
+            call 0x{MASK_DRAW_FN:X}
+            movzx eax, byte ptr [esi + 0x{MASK_BYTE_OFF:X}]
+            test eax, eax
+            je mask_skip
+            add eax, 29
+            mov dword ptr [esp + 0xC], eax
+            mov ecx, dword ptr [esi + 0x{MASK_SPRITE_OBJ_OFF:X}]
+            call 0x{MASK_DRAW_FN:X}
+            jmp mask_done
+        mask_skip:
+            add esp, 0x1C
+        mask_done:
+            jmp 0x{0x456B2F:X}
+        """,
+        MASK_CAVE_VA,
+    )
+    mask_hook_code = assemble(
+        f"jmp 0x{MASK_CAVE_VA:X}", MASK_HOOK_VA
+    ) + b"\x90" * (MASK_HOOK_LEN - 5)
 
     # Complete all Collections: mark collectible ids 52..99 found in the native
     # count array [0x58F428 + 0x10 + id*4], then broadcast the collectible
@@ -1665,6 +1731,25 @@ def main() -> None:
         change_appearance_code,
         "open the custom head/body appearance chooser for the selected villager",
     )
+    patch(
+        MASK_CAVE_FILE_OFFSET,
+        b"\0" * len(mask_cave_code),
+        mask_cave_code,
+        "Heathen-mask render cave: draw the per-villager mask (+0xED0) over the head",
+    )
+    patch(
+        MASK_HOOK_VA - IMAGE_BASE,
+        original[MASK_HOOK_VA - IMAGE_BASE : MASK_HOOK_VA - IMAGE_BASE + MASK_HOOK_LEN],
+        mask_hook_code,
+        "redirect the villager head-draw through the Heathen-mask cave",
+    )
+    for _rc in MASK_ROWCOUNT_FIELDS:
+        patch(
+            _rc,
+            bytes.fromhex("1E000000"),
+            bytes.fromhex("23000000"),
+            "extend head-atlas row count to include the 5 mask rows (30..34)",
+        )
     patch(
         COLLECTIONS_COMPLETE_FILE_OFFSET,
         b"\0" * len(collections_complete_code),
