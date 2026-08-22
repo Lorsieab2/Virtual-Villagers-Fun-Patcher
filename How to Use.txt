@@ -1,5 +1,18 @@
 VIRTUAL VILLAGERS FUN PATCHER
 
+SUPPORTED GAME SOURCE
+
+This patcher only supports the games downloaded from the official Last Day of
+Work (LDW) website (ldw.com), where all five PC games are free -- so there is
+no reason to get them from anywhere else. Every patch is pinned to the exact
+bytes of those free LDW builds.
+
+Other releases, such as the Steam version, are not tested and may have
+different bytes. The patcher checks each executable's SHA-256 against the
+exact supported build and refuses anything that does not match, rather than
+risk patching an unverified executable. If your game is rejected, re-download
+it from ldw.com.
+
 PHYSICAL POPULATION LIMITS
 
 A New Home and The Lost Children have 256 stock villager records.
