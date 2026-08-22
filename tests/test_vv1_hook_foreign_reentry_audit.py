@@ -82,6 +82,9 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "EB4AEC7FFDFB0B29E9CAFDC8D24F5287332FEB2CD18C057B8A78744531720352",
     ("vv1_enable_origins_exclusive_features", "0x8B004"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    ("vv1_enable_origins_exclusive_features", "0x24103"): "DC395FB7F8E554FF75AE69FF3E5AFCCEEF9DF6E4C5C8E5DB1C072B140F636E6A",
+    ("vv1_enable_origins_exclusive_features", "0x377B8"): "CEB93ED5A7F58C3264613F9148EFA6B132073DAE33A38046D8E493674342BCEC",
+    ("vv1_enable_origins_exclusive_features", "0x913C"): "3E90B7EF4CA6426AD9B06139D9BA57A0B130BFF336723E26F2D0A697F01AA0CA",
     ("vv1_f6_clothing_change_cheat", "0x1FF2E"): "A00945F8D66A35B8BDB078E933690DDE5B048C60287B716EED0276AC20A07F3E",
     ("vv1_magic_fruit_alters_mortality", "0x2EEAA"): "81719DCFD4BC20C6F136E88308A12EDFA14447AF58E3B8B6DC239BBF4053BF10",
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",
@@ -146,6 +149,16 @@ REVIEWED: dict[tuple[str, str, int], str] = {
     ): "Barrel close helper. Derefs ESI at 0x435DCD; the helper only reads "
     "ESI (never writes it) and the two calls it makes are callee-save, so "
     "ESI is the stock function's own value.",
+    (
+        "vv1_enable_origins_exclusive_features",
+        "0x377B8",
+        0x4388CE,
+    ): "Heathen-mask stash hook. This IS the displaced native branch: the "
+    "splice replaces sub_437790's own 'jnz 0x4388CE' (the not-occupied skip) "
+    "and the hook's first instruction reproduces it byte-for-byte with the "
+    "same flags and the same target, so this path is the stock control flow "
+    "unchanged. 0x4388CE is the loop back-edge (inc edi / cmp edi,0x100) and "
+    "dereferences nothing. The hook reaches it before touching any register.",
     (
         "vv1_f6_clothing_change_cheat",
         "0x1FF2E",

@@ -296,6 +296,184 @@ VV1_SKILL_FIELDS = (
     (0x3CC, 3),  # Research
 )
 
+# Cosmetic head-mask overlay (Change Appearance's Mask row, see
+# vv1_origins_icons.c's VV_MASK_OFFSET). Placed after RUNNING_DISLIKE_CLEAR,
+# the last currently-used .shr sub-cave -- 0x8BE80 + len(running_dislike_
+# clear_code) = 0x8BEA8, confirmed all-zero for 190+ bytes up to .shr's own
+# raw-section end (0x8BFFF) by a full-file zero-run scan against every
+# patch offset already claimed by this manifest.
+MASK_OVERLAY_FILE_OFFSET = 0x8BEA8
+MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
+    MASK_OVERLAY_FILE_OFFSET - SHR_FILE_OFFSET
+)
+MASK_SURFACES_VA = MASK_OVERLAY_VA  # 5 x SDL_Surface* cache, NULL until first load
+# Every asset filename string anywhere in the stock exe is bare (no "/" or
+# "\\" -- confirmed via a full-binary string scan), yet the actual files all
+# live under Images/ on disk, so the native loader constructs that prefix at
+# load time rather than relying on a CWD that already is Images/. Matching
+# that same convention ("Images/mN.png") is the one relative-path shape
+# already proven to work for every other asset this game loads.
+#
+# ONE shared path, not five. The five companion sheets differ only in a single
+# digit, so the draw hook writes that digit in place before calling IMG_Load.
+# Five separate 16-byte strings cost 80 bytes of a 344-byte cave that the real
+# SDL_UpperBlit draw needs; this costs 16 bytes and two instructions.
+MASK_PATH_VA = MASK_OVERLAY_VA + 0x14  # "Images/m1.png" + NUL
+MASK_PATH_DIGIT_VA = MASK_PATH_VA + 8  # the '1' in "m1.png", overwritten per choice
+# Playtested: the first build drew the mask right after the occupied check
+# (before the native head/body/clothing draw for that same iteration), so the
+# native head painted right over it every frame -- invisible, not broken.
+# Split into two hooks instead: the stash hook (at the occupied check) only
+# validates the choice and records what to draw, because registers cannot
+# carry a value across the rest of the iteration (several draw branches
+# repurpose EDI/EAX for their own scratch). The draw itself happens later,
+# strictly after all native drawing for that villager is done.
+#
+# The stash hook records the SCREEN POSITION too, not just the record. It is
+# the only one of the three hooks that runs with both the villager record and
+# the village object in registers, so it is the only place the position can be
+# computed at all: screen = record.xy - village.scroll_xy, exactly the
+# subtraction every native draw call in sub_437790 performs (confirmed at the
+# head-draw site 0x437d67/0x437d70, which does "sub edx,[ebx+0xc]" /
+# "sub ecx,[ebx+8]" against this same object).
+MASK_PENDING_RECORD_VA = MASK_OVERLAY_VA + 0x24  # 0 = nothing pending, else record ptr
+MASK_PENDING_CHOICE_VA = MASK_OVERLAY_VA + 0x28  # 1..5, valid only when RECORD != 0
+MASK_PENDING_X_VA = MASK_OVERLAY_VA + 0x2C  # villager screen x
+MASK_PENDING_Y_VA = MASK_OVERLAY_VA + 0x30  # villager screen y
+MASK_PENDING_FRAME_VA = MASK_OVERLAY_VA + 0x34  # facing column, record +0x34
+# Ground truth, refreshed every real frame: FUN_00409060 (the actual main
+# per-frame tick -- confirmed via Ghidra to be the function that calls
+# FUN_00403830, which itself does SDL_UpdateTexture/RenderClear/RenderCopy/
+# RenderPresent) reads *(its own esi + 0x30) at 0x40913c and pushes that exact
+# value as FUN_00403830's surface argument one instruction later -- there is no
+# more direct proof obtainable that a pointer *is* the real, currently
+# presented destination surface than reading it at the literal call site that
+# presents it. MASK_THIRD_DETOUR below reproduces that read and additionally
+# stashes it here, once per real frame, so the draw hook (which runs in a
+# different object's context -- FUN_00423390's own esi+0x30 was proven by
+# direct ReadProcessMemory inspection to be a stable but garbage 0x0BAD0D60,
+# 10/10 samples over ~2s) can use this cached value instead of recomputing the
+# same pointer from a context where it is not reliably valid. The surface is
+# allocated once for the process lifetime, so a one-frame-old cached copy is
+# still the right address -- only its contents change per frame.
+DEST_SURFACE_CACHE_VA = MASK_OVERLAY_VA + 0x38
+MASK_HOOK_VA = MASK_OVERLAY_VA + 0x3C  # stash-only hook (occupied-check splice)
+# Sheet geometry, and it is deliberately VV1's OWN head-atlas geometry:
+# male_heads.png/female_heads.png are 280x1300 = 7 columns x 20 rows of 40x65
+# (verified empirically -- the fully transparent separator columns land on
+# multiples of 40, and the 20 content bands start ~65 apart). The generated
+# mask sheets (scripts/build_vv1_heathen_mask_sheets.py) use the same cell
+# grid, so the blit is a straight cell-for-cell overlay and all alignment
+# lives in the art rather than in this assembly.
+MASK_CELL_W = 40
+# The sheets are built from supplied art that was authored against VV1's own
+# head atlas (see scripts/build_vv1_heathen_mask_sheets.py). Its cell spans
+# every colour's art, including the Tribal Chief headdress, so it is taller
+# than the 65px head cell -- the plumes rise well above the head.
+MASK_CELL_H = 160
+# Vertical alignment, derived rather than guessed, and now anchored to the
+# supplied art rather than to a face-fraction estimate.
+#
+# The native head draw at 0x438107-0x438150 computes its destination as
+#     x = record[+4] - village[+8]
+#     y = record[+8] - village[+0xc] + 0x27
+# The mask cell's top sits 85px above the head cell's top (the highest of
+# the five colours' per-facing offsets), so the cell is drawn at
+# 0x27 - 85, i.e. 46px ABOVE the villager's own y.
+#
+# Getting this wrong is not subtle: the first build stashed the raw y with no
+# offset at all, which would have drawn every mask 39px above its villager.
+MASK_DRAW_Y_OFFSET = -46
+# The village/camera object hanging off the villager manager. Its +8/+0xC are
+# the scroll offsets every native draw in sub_437790 subtracts.
+VILLAGE_OBJECT_OFFSET = 0x3E010
+VILLAGER_FACING_OFFSET = 0x34  # head-draw column (row is +0x360)
+# MASK_BACKEDGE_HOOK_VA is NOT a fixed offset -- it's wherever
+# mask_hook_code actually ends, computed from its real assembled length
+# once main() assembles it. A hardcoded guess here bit us once already:
+# the stash hook is 61 bytes, not the 60 (0x3C) originally assumed, which
+# shifted every call/jmp target inside the draw hook by exactly 1 byte
+# (every one of them silently landed 1 byte into the middle of its real
+# target instruction -- confirmed via disassembly, that's what actually
+# broke the mask never appearing in the first live playtest of this
+# two-hook design). Computing it from the real length can't drift again.
+
+# Splice point 1: sub_437790's per-villager render loop, immediately after
+# its own occupied-flag check (JNZ 0x4388CE if byte [eax+0x28] != 1). EAX
+# already holds the record base pointer and ESI the manager base at this
+# exact instruction -- both are read-only inputs for the mask hook and
+# both must come back unchanged for the native loop to resume correctly
+# (confirmed via Ghidra + capstone cross-check of sub_437790's real
+# function boundary; an earlier same-session guess at this boundary via
+# raw linear disassembly landed on the wrong function entirely).
+MASK_DETOUR_FILE_OFFSET = 0x377B8
+MASK_DETOUR_VA = IMAGE_BASE + MASK_DETOUR_FILE_OFFSET
+MASK_DETOUR_ORIGINAL_BYTES = bytes.fromhex("0F8510110000")  # JNZ 0x4388CE
+MASK_NATIVE_SKIP_TARGET_VA = 0x4388CE  # original JNZ target (continue loop)
+MASK_RESUME_VA = 0x4377BE  # instruction right after the displaced JNZ
+
+# Splice point 2: NOT inside sub_437790 (see below for why). Right after
+# FUN_00423390's own "call 0x437790" returns, at 0x424103. Playtested:
+# the original splice-point-2 design (inside sub_437790's own loop back-
+# edge) fired correctly and wrote real pixels (confirmed via direct
+# ReadProcessMemory inspection of the surface's pixel buffer -- the fill
+# color landed exactly as written) but never appeared on screen, because
+# sub_437790's own "esi" is a DIFFERENT, nested sub-object
+# (*(app_object+0x20)) from the actual app_object the game's own present
+# path (FUN_00409060 -> FUN_00403830 -> SDL_UpdateTexture/RenderCopy/
+# RenderPresent, all confirmed via Ghidra) uses -- the real displayed
+# surface is *(app_object+0x30), and there's no way to recover app_object
+# from sub_437790's esi (it's a pointer VALUE stored inside app_object,
+# not an address offset from it).
+#
+# FUN_00423390 IS called with app_object directly (its own "esi" register
+# is just its fastcall param_1), and sub_437790 is confirmed callee-saved
+# on ESI (push esi at entry / pop esi at exit) -- so immediately after
+# FUN_00423390's own "call 0x437790" returns, its "esi" is still
+# app_object, unclobbered by the callee. That gives a single, trivial
+# dereference (*(esi+0x30)) for the correct surface instead of the wrong
+# 3-level chain the original design used -- and 0x42410d, a few
+# instructions later in this same function, independently reads the same
+# esi+0x30 field for an unrelated purpose, confirming it's a real,
+# actively-used field at this exact point.
+MASK_BACKEDGE_DETOUR_FILE_OFFSET = 0x24103
+MASK_BACKEDGE_DETOUR_VA = IMAGE_BASE + MASK_BACKEDGE_DETOUR_FILE_OFFSET
+MASK_BACKEDGE_DETOUR_ORIGINAL_BYTES = bytes.fromhex("8B4E086A00")  # mov ecx,[esi+8] ; push 0
+MASK_BACKEDGE_RESUME_VA = 0x424108  # native "call 0x41ab20" right after the displaced pair
+
+# Splice point 3: FUN_00409060, the true main per-frame tick (confirmed via
+# Ghidra decompile -- it drives mouse/cursor state, the frame-timing
+# SDL_Delay pair, and calls FUN_00403830, which does the real
+# SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain). Playtested:
+# splice point 2 (FUN_00423390's own esi+0x30) read a stable but obviously
+# invalid surface (0x0BAD0D60, w=904 h=0 pitch=0 pixels=0x5D9, 10/10 samples
+# over ~2s -- not a race, genuinely the wrong/uninitialized value at that
+# point in the frame lifecycle). This splice doesn't replace splice point 2
+# -- it feeds it. FUN_00409060's own esi is its fastcall param_1, and
+# 0x40913c ("mov ecx,[esi+0x30]") is decompiled as literally the surface
+# argument passed to FUN_00403830 one instruction later ("call 0x403830" at
+# 0x409145) -- there is no more direct evidence a pointer is the real,
+# currently-presented surface than reading it at its own presentation call
+# site. This hook reproduces that exact 3-instruction sequence unchanged
+# (native behavior bit-for-bit identical) and additionally stashes the same
+# value into DEST_SURFACE_CACHE_VA. mask_backedge_hook_code (splice point 2)
+# now reads that cache instead of recomputing esi+0x30 in its own,
+# apparently-unreliable context.
+MASK_THIRD_DETOUR_FILE_OFFSET = 0x913C
+MASK_THIRD_DETOUR_VA = IMAGE_BASE + MASK_THIRD_DETOUR_FILE_OFFSET
+MASK_THIRD_DETOUR_ORIGINAL_BYTES = bytes.fromhex("8B4E30518BCE")
+# mov ecx,[esi+0x30] ; push ecx ; mov ecx,esi
+MASK_THIRD_RESUME_VA = 0x409142  # native "mov [esi+0x78],eax" right after the displaced trio
+
+# Callable import thunks (jmp dword ptr [IAT slot]) for SDL2/SDL2_image --
+# found via Ghidra decompiling FUN_00403d00 (SDL_UpperBlit(src, srcrect,
+# dst, dstrect), the primitive under every native sprite blit in this
+# build) back to its real caller; grepping the raw .text bytes for a
+# direct reference to either IAT slot finds nothing because application
+# code calls these fixed jump-table thunks, never the IAT slot itself.
+SDL_UPPERBLIT_THUNK_VA = 0x44A9AC
+IMG_LOAD_THUNK_VA = 0x44AA78
+
 
 def assemble(source: str, address: int) -> bytes:
     encoding, _ = Ks(KS_ARCH_X86, KS_MODE_32).asm(source, address)
@@ -1867,6 +2045,213 @@ def main() -> None:
         running_dislike_clear_code,
         "Details Grant Running: when all 4 Like slots are full, clear any Running Dislike for free (OFFICIAL spreadsheet edge case) and report whether one was actually cleared; tail-jumped into from DETAIL_PREFLIGHT_VA's own exhausted Like-slot scan",
     )
+
+    # --- Cosmetic head-mask overlay (Change Appearance's Mask row) ---
+    #
+    # +0x374 (VV_MASK_OFFSET in vv1_origins_icons.c) is the player's chosen
+    # mask (0=none, 1..5=variant), written by the Change Appearance dialog.
+    # This hook is purely additive: it never reads or writes any field the
+    # native engine itself uses for anything else (deliberately NOT the
+    # real nursing-baby-icon flag at +0x29 -- see vv1_origins_icons.c's own
+    # comment on VV_MASK_OFFSET for why that would have been wrong). It
+    # draws by calling SDL_UpperBlit directly with a real SDL_Surface* from
+    # IMG_Load, rather than replicating the game's own multi-level sprite-
+    # wrapper class -- confirmed via Ghidra that IMG_Load/SDL_UpperBlit are
+    # both directly callable at fixed addresses in this exact build (no
+    # GetProcAddress needed).
+    #
+    # First live playtest (draw hook spliced right at the occupied check,
+    # a single site) showed the picker/persistence working but no visible
+    # mask -- the native head/body/clothing draw for that SAME iteration
+    # happens *after* that splice point, so it painted right over the
+    # mask every frame. Split into two hooks: this splice only validates
+    # the choice and stashes (record pointer, choice) in cave memory --
+    # several draw branches later in the same iteration repurpose
+    # EDI/EAX/etc. for their own scratch, so a register can't reliably
+    # carry the value across the rest of the iteration. The actual draw
+    # happens in the second hook, at the loop's own back-edge (confirmed
+    # via a full-.text xref scan to be the single point every one of the
+    # loop's 19 distinct draw/skip branches converges on), strictly after
+    # all native drawing for that iteration is done.
+    mask_surfaces_data = b"\0" * 20
+    # One shared path; the draw hook rewrites the digit before each IMG_Load.
+    mask_path_data = b"Images/m1.png\0".ljust(16, b"\0")
+    # PENDING_RECORD, PENDING_CHOICE, PENDING_X, PENDING_Y, PENDING_FRAME,
+    # DEST_SURFACE_CACHE.
+    mask_pending_data = b"\0" * 24
+    mask_hook_code = assemble(
+        f"""
+            jnz {MASK_NATIVE_SKIP_TARGET_VA:#x}
+            movzx edx, byte ptr [eax + 0x374]
+            test edx, edx
+            jz mask_resume
+            cmp edx, 5
+            ja mask_resume
+            # Only ever SET the pending slot, never clear it here. This hook
+            # fires once per occupied villager per frame (up to 256 times), so
+            # clearing on every villager without a mask -- the original
+            # behaviour -- meant whichever villager was iterated LAST won,
+            # regardless of whether IT had a mask, and the draw hook (which
+            # runs once per frame, after the whole loop) almost always saw 0.
+            # Only a villager that DOES have a valid choice may touch the slot.
+            push ecx
+            mov ecx, dword ptr [esi + {VILLAGE_OBJECT_OFFSET:#x}]
+            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], eax
+            mov dword ptr [{MASK_PENDING_CHOICE_VA:#x}], edx
+            # screen = record.xy - village.scroll_xy, the same subtraction the
+            # native head draw performs at 0x438146/0x438126, plus the
+            # mask-cell alignment offset (see MASK_DRAW_Y_OFFSET).
+            mov edx, dword ptr [eax + 4]
+            sub edx, dword ptr [ecx + 8]
+            mov dword ptr [{MASK_PENDING_X_VA:#x}], edx
+            mov edx, dword ptr [eax + 8]
+            sub edx, dword ptr [ecx + 0xc]
+            add edx, {MASK_DRAW_Y_OFFSET}
+            mov dword ptr [{MASK_PENDING_Y_VA:#x}], edx
+            mov edx, dword ptr [eax + {VILLAGER_FACING_OFFSET:#x}]
+            mov dword ptr [{MASK_PENDING_FRAME_VA:#x}], edx
+            pop ecx
+        mask_resume:
+            jmp {MASK_RESUME_VA:#x}
+        """,
+        MASK_HOOK_VA,
+    )
+    # Computed from mask_hook_code's real assembled length -- see the comment
+    # on MASK_HOOK_VA's declaration for why this must never be hardcoded.
+    mask_backedge_hook_va = MASK_HOOK_VA + len(mask_hook_code)
+    # The draw. Runs once per frame, after sub_437790 has finished every
+    # villager, so nothing native paints over it. Everything it needs was
+    # stashed by the hook above; the destination surface comes from the
+    # per-frame cache written at the real present call site.
+    #
+    # SDL_UpperBlit(src, srcrect, dst, dstrect) is cdecl, so the caller pops:
+    # 16 bytes of arguments plus the two 16-byte SDL_Rects built on the stack.
+    # An SDL_Rect is {{x, y, w, h}}, so the fields are pushed in reverse
+    # (h, w, y, x) to leave x at the lowest address.
+    mask_backedge_hook_code = assemble(
+        f"""
+            mov ecx, dword ptr [esi + 8]
+            push 0
+            cmp dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
+            je mask2_done
+            pushad
+            mov ebx, dword ptr [{MASK_PENDING_CHOICE_VA:#x}]
+            mov eax, dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4]
+            test eax, eax
+            jnz mask2_have_surface
+            # Lazy load, once per colour per process. IMG_Load returns NULL on
+            # a missing or broken file; that NULL stays in the cache and the
+            # draw below is skipped, so a missing companion sheet degrades to
+            # "no mask" instead of crashing.
+            mov al, bl
+            add al, 0x30
+            mov byte ptr [{MASK_PATH_DIGIT_VA:#x}], al
+            push {MASK_PATH_VA:#x}
+            call {IMG_LOAD_THUNK_VA:#x}
+            add esp, 4
+            mov dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4], eax
+        mask2_have_surface:
+            test eax, eax
+            jz mask2_skip
+            mov edx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
+            test edx, edx
+            jz mask2_skip
+            # src rect: this facing's cell in the sheet
+            mov ecx, dword ptr [{MASK_PENDING_FRAME_VA:#x}]
+            imul ecx, ecx, {MASK_CELL_W}
+            push {MASK_CELL_H}
+            push {MASK_CELL_W}
+            push 0
+            push ecx
+            mov edi, esp
+            # dst rect: the villager's own screen position
+            push {MASK_CELL_H}
+            push {MASK_CELL_W}
+            push dword ptr [{MASK_PENDING_Y_VA:#x}]
+            push dword ptr [{MASK_PENDING_X_VA:#x}]
+            mov ecx, esp
+            push ecx
+            push edx
+            push edi
+            push eax
+            call {SDL_UPPERBLIT_THUNK_VA:#x}
+            add esp, 48
+        mask2_skip:
+            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
+            popad
+        mask2_done:
+            jmp {MASK_BACKEDGE_RESUME_VA:#x}
+        """,
+        mask_backedge_hook_va,
+    )
+    # Splice point 3 (see MASK_THIRD_DETOUR_* above): reproduces
+    # FUN_00409060's own displaced "mov ecx,[esi+0x30] / push ecx /
+    # mov ecx,esi" exactly, plus one extra store to cache that same value
+    # for the draw hook to consume.
+    mask_frame_cache_va = mask_backedge_hook_va + len(mask_backedge_hook_code)
+    mask_frame_cache_code = assemble(
+        f"""
+            mov ecx, dword ptr [esi + 0x30]
+            mov dword ptr [{DEST_SURFACE_CACHE_VA:#x}], ecx
+            push ecx
+            mov ecx, esi
+            jmp {MASK_THIRD_RESUME_VA:#x}
+        """,
+        mask_frame_cache_va,
+    )
+    mask_overlay_blob = (
+        mask_surfaces_data
+        + mask_path_data
+        + mask_pending_data
+        + mask_hook_code
+        + mask_backedge_hook_code
+        + mask_frame_cache_code
+    )
+    patch(
+        MASK_OVERLAY_FILE_OFFSET,
+        b"\0" * len(mask_overlay_blob),
+        mask_overlay_blob,
+        "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames + a 2-dword pending-draw slot, then the stash-only occupied-check hook and the draw hook that runs at the loop's back-edge -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field",
+    )
+    mask_detour_code = assemble(
+        f"""
+            jmp {MASK_HOOK_VA:#x}
+            nop
+        """,
+        MASK_DETOUR_VA,
+    )
+    patch(
+        MASK_DETOUR_FILE_OFFSET,
+        MASK_DETOUR_ORIGINAL_BYTES,
+        mask_detour_code,
+        "splice the mask-overlay stash hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, neither is modified by this hook",
+    )
+    mask_backedge_detour_code = assemble(
+        f"""
+            jmp {mask_backedge_hook_va:#x}
+        """,
+        MASK_BACKEDGE_DETOUR_VA,
+    )
+    patch(
+        MASK_BACKEDGE_DETOUR_FILE_OFFSET,
+        MASK_BACKEDGE_DETOUR_ORIGINAL_BYTES,
+        mask_backedge_detour_code,
+        "splice the mask-overlay draw hook into FUN_00423390 right after its own 'call sub_437790' returns. Reproduces the displaced 'mov ecx,[esi+8] / push 0' pair exactly before resuming the native call that follows; the draw itself now targets DEST_SURFACE_CACHE_VA (see MASK_THIRD_DETOUR below) rather than this function's own esi+0x30, which direct ReadProcessMemory inspection proved reads a stable but invalid surface here (0x0BAD0D60, w=904 h=0 pitch=0 pixels=0x5D9, 10/10 samples)",
+    )
+    mask_frame_cache_detour_code = assemble(
+        f"""
+            jmp {mask_frame_cache_va:#x}
+            nop
+        """,
+        MASK_THIRD_DETOUR_VA,
+    )
+    patch(
+        MASK_THIRD_DETOUR_FILE_OFFSET,
+        MASK_THIRD_DETOUR_ORIGINAL_BYTES,
+        mask_frame_cache_detour_code,
+        "splice into FUN_00409060 (the true main per-frame tick) immediately before its own call to FUN_00403830 (the function that does the real SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain) -- reproduces the displaced 'mov ecx,[esi+0x30] / push ecx / mov ecx,esi' trio exactly (native presentation is bit-for-bit unchanged) and additionally caches that same, definitively-correct destination-surface pointer into DEST_SURFACE_CACHE_VA for the mask draw hook (splice point 2) to consume",
+    )
+
     patch(
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_code),
@@ -2027,6 +2412,15 @@ def main() -> None:
                     (ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
             }
+        ] + [
+            {
+                "source": f"assets/origins/m{n}.png",
+                "destination": f"Images/m{n}.png",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets" / "origins" / f"m{n}.png").read_bytes()
+                ).hexdigest().upper(),
+            }
+            for n in range(1, 6)
         ],
         "doubler_evidence": {
             "positive_tech_writer": "0x41D120",

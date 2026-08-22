@@ -43,6 +43,24 @@
 #ifndef VV_GENDER_MALE
 #define VV_GENDER_MALE 1
 #endif
+/* Purely cosmetic mask overlay choice (0 = none, 1..5 = mask variant).
+   +0x374 is confirmed unused anywhere in the exact-build binary -- a
+   full-.text capstone scan found zero static references to any of
+   +0x374..+0x38B (24 contiguous free bytes), well clear of every other
+   mapped field (the last real one before it is the +0x36C action-id
+   check, the next is the +0x3D0 job-preference field from Equal
+   Division of Labor). Deliberately NOT the native nursing-baby-icon
+   flag at +0x29 -- that byte is real per-villager gameplay state (a
+   genuinely nursing mother already has it set), so reusing it here
+   would either double-draw over her real baby icon or silently steal
+   it. This field is drawn by an entirely separate, additive render-loop
+   hook that never reads or writes +0x29/+0x2A/+0x344. */
+#ifndef VV_MASK_OFFSET
+#define VV_MASK_OFFSET 0x374
+#endif
+#ifndef VV_MASK_COUNT
+#define VV_MASK_COUNT 6
+#endif
 
 static HINSTANCE module_instance;
 
@@ -190,10 +208,19 @@ enum {
     IDC_BODY_PREVIEW = 2010,
     ID_BODY_PREV = 2011,
     ID_BODY_NEXT = 2012,
+    ID_MASK_PREV = 2020,
+    IDC_MASK_LABEL = 2021,
+    ID_MASK_NEXT = 2022,
+    /* Owner-draw mask preview, matching VV5's picker layout for parity. */
+    IDC_MASK_PREVIEW = 2023,
     IDB_HEAD_M = 3001,
     IDB_HEAD_F = 3002,
     IDB_BODY_M = 3011,
     IDB_BODY_F = 3012,
+    /* One 40-wide column, six 76px rows: row 0 blank for "(None)", rows 1-5
+       the five masks head-on. Built by build_vv1_heathen_mask_sheets.py, so
+       the strip is indexed by the mask value directly. */
+    IDB_MASK = 3021,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
     STATE_RUNNING_ONLY = 0x40000,
@@ -227,6 +254,7 @@ static struct {
     unsigned char *villager;
     int original_head;
     int original_body;
+    int original_mask;
     int valid_count;
     int male;
     /* Set once the player accepts the head-genetics warning below, so it
@@ -234,6 +262,17 @@ static struct {
        "changing it first shows..." wording), not on every arrow click. */
     int head_warned;
 } appearance_state;
+
+static const char *vv1_mask_name(int mask) {
+    switch (mask) {
+        case 1: return "Blue Mask";
+        case 2: return "Orange Mask";
+        case 3: return "Red Mask";
+        case 4: return "Purple Mask";
+        case 5: return "Tribal Chief Mask";
+        default: return "(None)";
+    }
+}
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -326,12 +365,19 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
     return result;
 }
 
-/* Crops row `index` (one villager-record value = one 40x65 row) out of
-   the strip for the current villager's sex and stretches it to fill the
-   owner-draw control's actual rect, the same StretchBlt/COLORONCOLOR
-   approach the stock renderer itself would use for an arbitrary preview
-   size. */
+/* Crops row `index` (one villager-record value = one cell row) out of the
+   strip for the current villager's sex and draws it into the owner-draw
+   control's rect.
+
+   The sprite is fitted, not stretched: it is scaled by the SMALLER of the
+   two axis ratios and centred, so its aspect ratio is preserved and any
+   leftover space stays background. Stretching each axis independently (what
+   this did before) distorted every preview, and made VV1's pickers visibly
+   different from VV5's for the same art. This is VV5's own math, so head and
+   body -- and now the mask preview too, which is generated on that same
+   40x65 cell -- render identically in both games' pickers. */
 static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+    const int cell_h = APPEARANCE_CELL_H;
     RECT rc = item->rcItem;
     int width = rc.right - rc.left;
     int height = rc.bottom - rc.top;
@@ -339,6 +385,8 @@ static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
     HBITMAP bitmap;
     HDC source;
     HBITMAP previous;
+    double scale_x, scale_y, scale;
+    int draw_w, draw_h, draw_x, draw_y;
 
     FillRect(item->hDC, &rc, background);
     DeleteObject(background);
@@ -350,10 +398,18 @@ static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
     source = CreateCompatibleDC(item->hDC);
     previous = (HBITMAP)SelectObject(source, bitmap);
 
+    scale_x = (double)width / APPEARANCE_CELL_W;
+    scale_y = (double)height / cell_h;
+    scale = scale_x < scale_y ? scale_x : scale_y;
+    draw_w = (int)(APPEARANCE_CELL_W * scale);
+    draw_h = (int)(cell_h * scale);
+    draw_x = rc.left + (width - draw_w) / 2;
+    draw_y = rc.top + (height - draw_h) / 2;
+
     SetStretchBltMode(item->hDC, COLORONCOLOR);
     StretchBlt(
-        item->hDC, rc.left, rc.top, width, height,
-        source, 0, index * APPEARANCE_CELL_H, APPEARANCE_CELL_W, APPEARANCE_CELL_H,
+        item->hDC, draw_x, draw_y, draw_w, draw_h,
+        source, 0, index * cell_h, APPEARANCE_CELL_W, cell_h,
         SRCCOPY
     );
 
@@ -369,6 +425,7 @@ static void appearance_repaint(HWND window, int control_id) {
 static void appearance_revert(void) {
     *(int *)(appearance_state.villager + VV_HEAD_OFFSET) = appearance_state.original_head;
     *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET) = appearance_state.original_body;
+    *(appearance_state.villager + VV_MASK_OFFSET) = (unsigned char)appearance_state.original_mask;
 }
 
 /* The head field is hereditary (it's the one the villager's children
@@ -419,9 +476,17 @@ static INT_PTR CALLBACK appearance_dialog(
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; WM_DRAWITEM below paints the
            starting values on the dialog's own first paint, nothing else to
-           do here besides positioning (see center_dialog_on_owner). */
+           do here besides positioning (see center_dialog_on_owner). The
+           mask row has no owner-draw preview (it's a plain text label,
+           not a bitmap strip cell), so its starting text is set directly
+           here rather than through WM_DRAWITEM. */
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
+        SetDlgItemTextA(
+            window,
+            IDC_MASK_LABEL,
+            vv1_mask_name(*(appearance_state.villager + VV_MASK_OFFSET))
+        );
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
@@ -430,6 +495,14 @@ static INT_PTR CALLBACK appearance_dialog(
                 item,
                 appearance_state.male ? IDB_HEAD_M : IDB_HEAD_F,
                 *(int *)(appearance_state.villager + VV_HEAD_OFFSET)
+            );
+            return TRUE;
+        }
+        if (item->CtlID == IDC_MASK_PREVIEW) {
+            appearance_draw(
+                item,
+                IDB_MASK,
+                *(appearance_state.villager + VV_MASK_OFFSET)
             );
             return TRUE;
         }
@@ -472,9 +545,21 @@ static INT_PTR CALLBACK appearance_dialog(
             appearance_repaint(window, IDC_BODY_PREVIEW);
             return TRUE;
         }
+        if (command == ID_MASK_PREV || command == ID_MASK_NEXT) {
+            unsigned char *mask = appearance_state.villager + VV_MASK_OFFSET;
+            int next = command == ID_MASK_PREV
+                ? (*mask + VV_MASK_COUNT - 1) % VV_MASK_COUNT
+                : (*mask + 1) % VV_MASK_COUNT;
+            *mask = (unsigned char)next;
+            SetDlgItemTextA(window, IDC_MASK_LABEL, vv1_mask_name(next));
+            appearance_repaint(window, IDC_MASK_PREVIEW);
+            return TRUE;
+        }
         if (command == IDOK) {
             int changed = (*head != appearance_state.original_head)
-                || (*body != appearance_state.original_body);
+                || (*body != appearance_state.original_body)
+                || (*(appearance_state.villager + VV_MASK_OFFSET)
+                    != (unsigned char)appearance_state.original_mask);
             EndDialog(window, changed ? 1 : 2);
             return TRUE;
         }
@@ -503,6 +588,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
+    appearance_state.original_mask = *(villager + VV_MASK_OFFSET);
     appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
     appearance_state.valid_count = appearance_state.male ? 19 : 20;
     appearance_state.head_warned = 0;

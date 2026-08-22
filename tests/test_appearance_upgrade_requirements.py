@@ -342,6 +342,14 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # table, and equal_division_dispatch (in the
                     # confirmed-unused gap after POPULATION_FINAL_TIER).
                     "0x8B790", "0x8B8A0", "0x8BD30",
+                    # Cosmetic head-mask overlay (Change Appearance's Mask
+                    # row): 5 cached SDL_Surface* + companion-PNG filenames
+                    # plus the additive per-frame draw hook itself, in
+                    # .shr's confirmed-unused tail right after the Running
+                    # Dislike-clear helper (0x8BE80); and the detour that
+                    # splices the hook into sub_437790's per-villager
+                    # render loop right after its own occupied-flag check.
+                    "0x8BEA8", "0x377B8", "0x24103", "0x913C",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",
