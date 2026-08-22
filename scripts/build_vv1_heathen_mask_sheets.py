@@ -58,52 +58,115 @@ COLOURS = ["blue", "orange", "red", "purple", "chief"]
 # build of this art did. Per-frame offsets were recovered the same way as the
 # rest: locate each facing's head by its magenta hair, locate the mask over
 # it, subtract.
+PACKED = "packed-atlas"
+
 MASK_OFFSETS = {
     "blue": (20, -11),
     "orange": (18, -12),
     "red": (18, -29),
     "purple": (4, -13),
-    # Chief cannot be derived from its mockup the way the others were. That
-    # mockup is not a straight overlay -- the head/mask pairs are scattered --
-    # and on the facings where this mask covers the head completely there is no
-    # hair left to correlate a head position against, so the recovered offsets
-    # were only as good as a head guess on those frames.
+    # Chief is a PACKED ATLAS, not a strip. Its seven frames sit at irregular
+    # x and in two vertical rows -- solving for a single cell origin is
+    # infeasible (frame 0 requires ox <= -4 while frame 3 requires ox >= 4), so
+    # no grid can cut it. The packing therefore carries no alignment
+    # information, and its mockup cannot supply it either: that mockup is not a
+    # straight overlay, and on the facings where this mask covers the head
+    # completely there is no hair left to locate a head against.
     #
-    # These are anchored to the other four colours instead. All five are face
-    # masks, and on the four verified colours the mask's chin lands in a tight
-    # +24..+29 band below the head-cell top on every facing (median per facing
-    # in TARGET_CHIN_Y). Chief is placed to match that band, which is a
-    # measurement against known-good art rather than against the one mockup
-    # that cannot be trusted for this.
-    "chief": [
-        (1, -36), (1, -38), (1, -83), (1, -34),
-        (1, -83), (1, -46), (1, -81),
-    ],
+    # So chief's frames are separated individually and placed from the four
+    # colours that ARE verified: each frame is centred and sat on the per-facing
+    # median of their mask centre and chin. Those four reconstruct their own
+    # mockups essentially pixel-for-pixel, so this is a measurement against
+    # known-good art rather than a guess.
+    "chief": PACKED,
 }
-
-
-# Median chin position of the four mockup-verified colours, per facing. Chief
-# is aligned to this; see its entry in MASK_OFFSETS.
-TARGET_CHIN_Y = [27.5, 27.5, 27.5, 28.5, 26.5, 26.5, 27.0]
 
 
 def _frame_offsets(colour: str) -> list[tuple[int, int]]:
     value = MASK_OFFSETS[colour]
+    if value is PACKED:
+        raise ValueError(f"{colour} is a packed atlas; it has no grid offset")
     if isinstance(value, list):
         if len(value) != FACINGS:
             raise ValueError(f"{colour}: expected {FACINGS} per-frame offsets")
         return value
     return [value] * FACINGS
 
+
+GRIDDED = [c for c in ("blue", "orange", "red", "purple") if MASK_OFFSETS[c] is not PACKED]
+
+
+def _islands(image: Image.Image, min_px: int = 16) -> list[tuple[int, int, int, int]]:
+    """Bounding boxes of the image's separate blobs, left to right."""
+    pixels = image.load()
+    w, h = image.size
+    seen: set[tuple[int, int]] = set()
+    out: list[tuple[int, int, int, int]] = []
+    for y in range(h):
+        for x in range(w):
+            if pixels[x, y][3] <= 128 or (x, y) in seen:
+                continue
+            stack = [(x, y)]
+            seen.add((x, y))
+            blob = []
+            while stack:
+                cx, cy = stack.pop()
+                blob.append((cx, cy))
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        nx, ny = cx + dx, cy + dy
+                        if (
+                            0 <= nx < w
+                            and 0 <= ny < h
+                            and (nx, ny) not in seen
+                            and pixels[nx, ny][3] > 128
+                        ):
+                            seen.add((nx, ny))
+                            stack.append((nx, ny))
+            if len(blob) >= min_px:
+                xs = [a for a, _ in blob]
+                ys = [b for _, b in blob]
+                out.append((min(xs), min(ys), max(xs) + 1, max(ys) + 1))
+    out.sort()
+    return out
+
+
+_REFERENCE_CACHE: list[tuple[float, int]] | None = None
+
+
+def _reference_placement() -> list[tuple[float, int]]:
+    """Per facing, the verified colours' median mask centre-x and chin-y,
+    measured in the built sheet's own coordinates."""
+    import statistics
+
+    global _REFERENCE_CACHE
+    if _REFERENCE_CACHE is not None:
+        return _REFERENCE_CACHE
+    sheets = {c: _sheet(c) for c in GRIDDED}
+    out = []
+    for facing in range(FACINGS):
+        centres, chins = [], []
+        for c in GRIDDED:
+            cell = sheets[c].crop(
+                (CELL_W * facing, 0, CELL_W * (facing + 1), SHEET_CELL_H)
+            )
+            box = cell.getbbox()
+            centres.append((box[0] + box[2]) / 2)
+            chins.append(box[3])
+        out.append((statistics.median(centres), int(statistics.median(chins))))
+    _REFERENCE_CACHE = out
+    return out
+
 # The draw hook blits one cell per villager. The cell must span every colour's
 # art, so its top sits at the highest (most negative) offset and its height
 # covers the lowest extent. Both are asserted in build() rather than hardcoded
 # blind, so new art that does not fit fails loudly instead of being clipped.
-CELL_TOP = min(
-    y
-    for colour in MASK_OFFSETS
-    for _, y in _frame_offsets(colour)
-)  # -85, set by chief's lowest-drawn facing
+# Where the cell's top sits relative to the head cell's top. It is a chosen
+# constant rather than a derived minimum because the packed atlas is placed by
+# measurement, not by an offset, and its plumes are the tallest art here -- the
+# cell has to carry them. _sheet() raises if any colour will not fit, so this
+# cannot silently clip.
+CELL_TOP = -85
 SHEET_CELL_H = 160
 
 # build_vv1_origins_feature.py must agree with these two, and asserts so.
@@ -177,6 +240,22 @@ def _sheet(colour: str) -> Image.Image:
     """
     art = Image.open(ART_DIR / f"{colour}.png").convert("RGBA")
     sheet = Image.new("RGBA", (CELL_W * FACINGS, SHEET_CELL_H), (0, 0, 0, 0))
+    if MASK_OFFSETS[colour] is PACKED:
+        boxes = _islands(art)
+        if len(boxes) != FACINGS:
+            raise ValueError(
+                f"{colour}: found {len(boxes)} frames in the packed atlas, "
+                f"expected {FACINGS}"
+            )
+        for facing, box in enumerate(boxes):
+            frame = art.crop(box)
+            centre, chin = _reference_placement()[facing]
+            x = int(round(CELL_W * facing + centre - frame.width / 2))
+            y = chin - frame.height
+            if y < 0 or y + frame.height > SHEET_CELL_H:
+                raise ValueError(f"{colour} facing {facing} does not fit the cell")
+            sheet.alpha_composite(frame, (x, y))
+        return sheet
     for facing, (ox, oy) in enumerate(_frame_offsets(colour)):
         top = oy - CELL_TOP
         if top < 0 or top + art.height > SHEET_CELL_H:
