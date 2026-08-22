@@ -221,27 +221,29 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
         cls.by_off = {int(p["offset"], 0): p for p in cls.m["patches"]}
 
     def test_call_sites_are_redirected_to_the_mask_cave(self) -> None:
-        # 0x45F702 / 0x45F9CA file offsets = VA - 0x400000.
-        for site in (0x5F702, 0x5F9CA):
+        # (file offset -> cave VA): world/panel twins share one cave; the
+        # detail portrait has its own.
+        for site, cave in ((0x5F702, 0x728D80), (0x5F9CA, 0x728D80),
+                           (0x3D040, 0x728E30)):
             p = self.by_off[site]
             self.assertTrue(p["before"].startswith("E8"))   # was a call
             self.assertTrue(p["after"].startswith("E8"))     # still a call
-            # after-target resolves to the cave VA 0x728D80
             rel = int.from_bytes(bytes.fromhex(p["after"])[1:5], "little", signed=True)
-            self.assertEqual((0x400000 + site) + 5 + rel, 0x728D80)
+            self.assertEqual((0x400000 + site) + 5 + rel, cave)
 
     def test_row_counts_are_bumped_30_to_35(self) -> None:
-        for off in (0xC3C24, 0xC3B94):
+        for off in (0xC3C24, 0xC3B94, 0xC3CB4):   # male, female, bigheads
             p = self.by_off[off]
             self.assertEqual(p["before"], "1E")   # 30
             self.assertEqual(p["after"], "23")     # 35
 
-    def test_cave_is_present_in_zero_shr_region(self) -> None:
-        cave = self.by_off[0xCCD80]
-        self.assertEqual(set(cave["before"]), {"0"})       # was zero-filled .shr
-        self.assertGreater(len(bytes.fromhex(cave["after"])), 0)
+    def test_caves_are_present_in_zero_shr_region(self) -> None:
+        for off in (0xCCD80, 0xCCE30):
+            cave = self.by_off[off]
+            self.assertEqual(set(cave["before"]), {"0"})    # was zero-filled .shr
+            self.assertGreater(len(bytes.fromhex(cave["after"])), 0)
 
-    def test_four_head_atlases_ship_as_restorable_swaps(self) -> None:
+    def test_head_atlases_ship_as_restorable_swaps(self) -> None:
         cf = self.m["companion_files"]
         self.assertEqual(cf[0]["destination"], "VVFP VV4 Origins Icons.dll")
         atlases = {e["destination"]: e for e in cf if e["destination"].startswith("Images/")}
@@ -249,21 +251,25 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
             set(atlases),
             {f"Images/{n}" for n in
              ("male_heads00.png", "male_heads10.png",
-              "female_heads00.png", "female_heads10.png")},
+              "female_heads00.png", "female_heads10.png",
+              "BigHeads00.png", "BigHeads10.png")},
         )
         for name, e in atlases.items():
+            big = "BigHeads" in name
+            want_size = (480, 3500) if big else (320, 2275)
+            base_size = (480, 3000) if big else (320, 1950)
             for key in ("sha256", "preimage_sha256", "restore_source", "restore_sha256"):
                 self.assertIn(key, e, f"{name} missing {key}")
             # pinned hashes match the bundled bytes
             import hashlib
-            masked = (ROOT / e["source"]).read_bytes()
-            base = (ROOT / e["restore_source"]).read_bytes()
-            self.assertEqual(hashlib.sha256(masked).hexdigest().upper(), e["sha256"])
-            self.assertEqual(hashlib.sha256(base).hexdigest().upper(), e["restore_sha256"])
+            masked_bytes = (ROOT / e["source"]).read_bytes()
+            base_bytes = (ROOT / e["restore_source"]).read_bytes()
+            self.assertEqual(hashlib.sha256(masked_bytes).hexdigest().upper(), e["sha256"])
+            self.assertEqual(hashlib.sha256(base_bytes).hexdigest().upper(), e["restore_sha256"])
             self.assertEqual(e["preimage_sha256"], e["restore_sha256"])
             # masked atlas is the taller (rows 30..34 appended) 35-row sheet
-            self.assertEqual(Image.open(ROOT / e["source"]).size, (320, 2275))
-            self.assertEqual(Image.open(ROOT / e["restore_source"]).size, (320, 1950))
+            self.assertEqual(Image.open(ROOT / e["source"]).size, want_size)
+            self.assertEqual(Image.open(ROOT / e["restore_source"]).size, base_size)
 
 
 if __name__ == "__main__":

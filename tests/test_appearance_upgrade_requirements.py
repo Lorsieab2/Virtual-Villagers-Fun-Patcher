@@ -394,8 +394,11 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # spliced onto (0x5F702 walking twin, 0x5F9CA panel twin),
                     # and the two head-atlas row-count bumps 30->35 that make
                     # rows 30..34 (the masks) addressable (0xC3C24 male heads,
-                    # 0xC3B94 female heads).
+                    # 0xC3B94 female heads). Detail-portrait (big) head: its
+                    # own cave (0xCCE30), the call site 0x3D040, and the
+                    # bigheads row-count bump 0xC3CB4.
                     "0xCCD80", "0x5F702", "0x5F9CA", "0xC3C24", "0xC3B94",
+                    "0xCCE30", "0x3D040", "0xC3CB4",
                 },
                 # 0x1890F: the D37 barrel selector hook — its forced native
                 # event index is corrected from 30 (Chutes Without Ladders) to

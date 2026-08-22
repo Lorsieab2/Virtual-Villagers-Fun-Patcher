@@ -267,8 +267,11 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # Heathen-mask overlay: render-hook cave (0xCCD80), the
                         # two head-draw call sites spliced onto it (0x5F702,
                         # 0x5F9CA), and the two head-atlas row-count bumps
-                        # 30->35 (0xC3C24 male, 0xC3B94 female).
+                        # 30->35 (0xC3C24 male, 0xC3B94 female). Detail-portrait
+                        # (big) head: cave 0xCCE30, call site 0x3D040, bigheads
+                        # row-count bump 0xC3CB4.
                         "0xCCD80", "0x5F702", "0x5F9CA", "0xC3C24", "0xC3B94",
+                        "0xCCE30", "0x3D040", "0xC3CB4",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

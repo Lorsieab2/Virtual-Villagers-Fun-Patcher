@@ -172,6 +172,22 @@
       "preimage_sha256": "62801FA3F1BFE46D367F30D3562ADB768546CE01CAA499E433F1681D45F37C0E",
       "restore_source": "assets/vv4_masks/base/female_heads10.png",
       "restore_sha256": "62801FA3F1BFE46D367F30D3562ADB768546CE01CAA499E433F1681D45F37C0E"
+    },
+    {
+      "source": "assets/vv4_masks/atlases/BigHeads00.png",
+      "destination": "Images/BigHeads00.png",
+      "sha256": "DA53414508DB316AEACF5D605A5F6E8161EAD856F32DDAAA504FB49929B2FE48",
+      "preimage_sha256": "A0CAE8416DD150F7CD31B78A7301073535DEF5E47B041150AE748D44BAE9BA90",
+      "restore_source": "assets/vv4_masks/base/BigHeads00.png",
+      "restore_sha256": "A0CAE8416DD150F7CD31B78A7301073535DEF5E47B041150AE748D44BAE9BA90"
+    },
+    {
+      "source": "assets/vv4_masks/atlases/BigHeads10.png",
+      "destination": "Images/BigHeads10.png",
+      "sha256": "B37ED6B744ED0A4B1A0C468EB0C69340294A7B2E88C4964F1607486366A9ED8F",
+      "preimage_sha256": "F65B0AC6B459CCCA7928724E20B784D74C7E698144F22526E2EFFB22B453E8C2",
+      "restore_source": "assets/vv4_masks/base/BigHeads10.png",
+      "restore_sha256": "F65B0AC6B459CCCA7928724E20B784D74C7E698144F22526E2EFFB22B453E8C2"
     }
   ],
   "doubler_evidence": {
@@ -439,7 +455,7 @@
       "offset": "0xCCD80",
       "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "890D608D72008B442404A3648D72008B442408A3688D72008B44240CA36C8D72008B442414A3708D72008B442418A3748D72008B0424A3788D7200C70424C78D7200E9A90CCEFF0FB686C41B000085C0742F83C01D6A00FF35748D7200FF35708D720050FF356C8D7200FF35688D7200FF35648D72008B0D608D7200E86F0CCEFFFF25788D7200",
-      "purpose": "Heathen mask: render-hook cave -- draw the head normally, then (when +0x1BC4 is 1..5) re-draw head-atlas row 29+byte on top; no villager fields written"
+      "purpose": "Heathen mask: world/panel render-hook cave -- draw the head normally, then (when +0x1BC4 is 1..5) re-draw head-atlas row 29+byte on top; no villager fields written"
     },
     {
       "offset": "0x5F702",
@@ -464,6 +480,24 @@
       "before": "1E",
       "after": "23",
       "purpose": "Heathen mask: bump head-atlas row count 30->35 at 0xc3b94 so rows 30..34 (the masks) are addressable"
+    },
+    {
+      "offset": "0xCCE30",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "890D108E72008B442404A3148E72008B442408A3188E72008B44240CA31C8E72008B442414A3208E72008B442418A3248E72008B0424A3288E7200C70424778E7200E9F90BCEFF0FB6452C85C0742F83C01D6A00FF35248E7200FF35208E720050FF351C8E7200FF35188E7200FF35148E72008B0D108E7200E8C20BCEFFFF25288E7200",
+      "purpose": "Heathen mask: detail-portrait render-hook cave (mask byte at [ebp+0x2C]); same draw, re-draws head-atlas row 29+byte on the big head"
+    },
+    {
+      "offset": "0x3D040",
+      "before": "E82BCAFCFF",
+      "after": "E8EBBD2E00",
+      "purpose": "Heathen mask: route the detail-portrait head-draw call at 0x43d040 through the detail mask cave"
+    },
+    {
+      "offset": "0xC3CB4",
+      "before": "1E",
+      "after": "23",
+      "purpose": "Heathen mask: bump bigheads row count 30->35 at 0xc3cb4"
     },
     {
       "offset": "0x3FBE5",

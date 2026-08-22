@@ -149,6 +149,23 @@ MASK_ROW_FIELDS = {0xC3C24: (30, 35), 0xC3B94: (30, 35)}  # male / female heads
 MASK_HEAD_ATLASES = ("male_heads00.png", "male_heads10.png",
                      "female_heads00.png", "female_heads10.png")
 
+# Detail-portrait (big) head draw -- FUN_0043cdf0 @0x43D040. There EBP =
+# record+0x1B98 (head field = [EBP+0x20], body = [EBP+0x24]), so the mask byte
+# record+0x1BC4 reads as [EBP+0x2C]. The draw ABI (FUN_00409a70, 7 args, arg3 =
+# atlas row) is identical to the twins, so a second cave -- same body, EBP gate
+# instead of ESI -- hooks it. Its head atlas is masked and row-count-bumped too
+# (rows 30..34, cell 60x100, mask scaled to match) so row 29+mask is valid
+# whichever head sheet the portrait pulls.
+BIGMASK_CALL_SITE = 0x43D040
+BIGMASK_CAVE_VA = 0x728E30
+BIGMASK_CAVE_FILE_OFFSET = 0xCCE30
+(BIG_S_ECX, BIG_S_A0, BIG_S_A1, BIG_S_A2, BIG_S_A4, BIG_S_A5,
+ BIG_S_RET) = (0x728E10, 0x728E14, 0x728E18, 0x728E1C, 0x728E20, 0x728E24,
+               0x728E28)
+BIGMASK_EBP_OFFSET = 0x2C
+BIGHEAD_ROW_FIELD = (0xC3CB4, (30, 35))       # bigheads row count 30 -> 35
+BIGHEAD_ATLASES = ("BigHeads00.png", "BigHeads10.png")
+
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
 # operands, not results of a raw byte sweep.
@@ -177,53 +194,57 @@ def rel32_call(source_va: int, target_va: int) -> bytes:
     )
 
 
-def mask_cave_bytes() -> bytes:
-    """The Heathen-mask render-hook cave (see the MASK_* constants above).
+def mask_cave_bytes(cave_va: int, scratch: tuple, gate: str) -> bytes:
+    """A Heathen-mask render-hook cave.
 
     It saves the head-draw call's ecx and its stdcall args, replaces the return
     address with ``post_head`` and tail-jumps into the native draw so the head
-    is painted normally; on return it reads the per-villager mask byte and, when
-    non-zero, re-draws head-atlas row ``29 + byte`` with the SAME position and
-    facing, then returns to the site's real caller via the saved address. The
-    two-pass assemble resolves the absolute ``post_head`` immediate (its length
-    is value-independent, so the prologue length is stable)."""
+    is painted normally; on return ``gate`` loads the per-villager mask byte
+    into eax and jumps to ``mask_done`` when it is zero, otherwise the cave
+    re-draws head-atlas row ``29 + byte`` with the SAME position and facing, then
+    returns to the site's real caller via the saved address. Two call sites in
+    the same twin can share one cave (it returns via the saved address); the
+    detail portrait uses its own cave only because its mask byte lives at a
+    different register+offset (EBP vs ESI). The two-pass assemble resolves the
+    absolute ``post_head`` immediate (its length is value-independent, so the
+    prologue length is stable)."""
+    s_ecx, s_a0, s_a1, s_a2, s_a4, s_a5, s_ret = scratch
+
     def src(post_head: int) -> str:
         return f"""
-            mov [{MASK_S_ECX}], ecx
+            mov [{s_ecx}], ecx
             mov eax, [esp+4]
-            mov [{MASK_S_A0}], eax
+            mov [{s_a0}], eax
             mov eax, [esp+8]
-            mov [{MASK_S_A1}], eax
+            mov [{s_a1}], eax
             mov eax, [esp+0xC]
-            mov [{MASK_S_A2}], eax
+            mov [{s_a2}], eax
             mov eax, [esp+0x14]
-            mov [{MASK_S_A4}], eax
+            mov [{s_a4}], eax
             mov eax, [esp+0x18]
-            mov [{MASK_S_A5}], eax
+            mov [{s_a5}], eax
             mov eax, [esp]
-            mov [{MASK_S_RET}], eax
+            mov [{s_ret}], eax
             mov dword ptr [esp], {post_head}
             jmp {MASK_DRAW_VA}
         post_head:
-            movzx eax, byte ptr [esi + {MASK_BYTE_OFFSET}]
-            test eax, eax
-            jz mask_done
+            {gate}
             add eax, 29
             push 0
-            push dword ptr [{MASK_S_A5}]
-            push dword ptr [{MASK_S_A4}]
+            push dword ptr [{s_a5}]
+            push dword ptr [{s_a4}]
             push eax
-            push dword ptr [{MASK_S_A2}]
-            push dword ptr [{MASK_S_A1}]
-            push dword ptr [{MASK_S_A0}]
-            mov ecx, dword ptr [{MASK_S_ECX}]
+            push dword ptr [{s_a2}]
+            push dword ptr [{s_a1}]
+            push dword ptr [{s_a0}]
+            mov ecx, dword ptr [{s_ecx}]
             call {MASK_DRAW_VA}
         mask_done:
-            jmp dword ptr [{MASK_S_RET}]
+            jmp dword ptr [{s_ret}]
         """
     prologue = src(0).split("post_head:")[0]
-    post_head = MASK_CAVE_VA + len(assemble(prologue, MASK_CAVE_VA))
-    return assemble(src(post_head), MASK_CAVE_VA)
+    post_head = cave_va + len(assemble(prologue, cave_va))
+    return assemble(src(post_head), cave_va)
 
 
 def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str) -> None:
@@ -1514,9 +1535,12 @@ def main() -> None:
           "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
     patch(VV4_DETAIL_RECORD_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
           "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)")
-    mask_cave = mask_cave_bytes()
+    mask_cave = mask_cave_bytes(
+        MASK_CAVE_VA,
+        (MASK_S_ECX, MASK_S_A0, MASK_S_A1, MASK_S_A2, MASK_S_A4, MASK_S_A5, MASK_S_RET),
+        f"movzx eax, byte ptr [esi + {MASK_BYTE_OFFSET}]\n test eax, eax\n jz mask_done")
     patch(MASK_CAVE_FILE_OFFSET, b"\0" * len(mask_cave), mask_cave,
-          "Heathen mask: render-hook cave -- draw the head normally, then (when +0x1BC4 is 1..5) re-draw head-atlas row 29+byte on top; no villager fields written")
+          "Heathen mask: world/panel render-hook cave -- draw the head normally, then (when +0x1BC4 is 1..5) re-draw head-atlas row 29+byte on top; no villager fields written")
     for site in MASK_CALL_SITES:
         patch(site - IMAGE_BASE,
               rel32_call(site, MASK_DRAW_VA), rel32_call(site, MASK_CAVE_VA),
@@ -1524,6 +1548,20 @@ def main() -> None:
     for offset, (old, new) in MASK_ROW_FIELDS.items():
         patch(offset, bytes([old]), bytes([new]),
               f"Heathen mask: bump head-atlas row count {old}->{new} at {offset:#x} so rows 30..34 (the masks) are addressable")
+    # Detail-portrait (big) head draw: its own cave (EBP gate) + row-count bump.
+    big_cave = mask_cave_bytes(
+        BIGMASK_CAVE_VA,
+        (BIG_S_ECX, BIG_S_A0, BIG_S_A1, BIG_S_A2, BIG_S_A4, BIG_S_A5, BIG_S_RET),
+        f"movzx eax, byte ptr [ebp + {BIGMASK_EBP_OFFSET}]\n test eax, eax\n jz mask_done")
+    patch(BIGMASK_CAVE_FILE_OFFSET, b"\0" * len(big_cave), big_cave,
+          "Heathen mask: detail-portrait render-hook cave (mask byte at [ebp+0x2C]); same draw, re-draws head-atlas row 29+byte on the big head")
+    patch(BIGMASK_CALL_SITE - IMAGE_BASE,
+          rel32_call(BIGMASK_CALL_SITE, MASK_DRAW_VA),
+          rel32_call(BIGMASK_CALL_SITE, BIGMASK_CAVE_VA),
+          f"Heathen mask: route the detail-portrait head-draw call at {BIGMASK_CALL_SITE:#x} through the detail mask cave")
+    _big_off, (_big_old, _big_new) = BIGHEAD_ROW_FIELD
+    patch(_big_off, bytes([_big_old]), bytes([_big_new]),
+          f"Heathen mask: bump bigheads row count {_big_old}->{_big_new} at {_big_off:#x}")
     patch(0x3FBE5, bytes.fromhex("E81684FDFF"), rel32_call(0x43FBE5, BARREL_COUNTDOWN_VA),
           "route the real event-scheduler tick (0x43FBE5 -> 0x418000) through the Barrel cue so a purchased barrel is presented naturally after its delay")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
@@ -1584,8 +1622,11 @@ def main() -> None:
             # Heathen-mask head atlases (rows 30..34 appended). The row-count
             # bump to 35 above makes the modded exe REQUIRE the taller atlas, so
             # these ship with the feature; rows 0..29 are byte-identical to
-            # stock, so mask=(None) villagers look exactly as before.
-            *(mask_atlas_companion(name) for name in MASK_HEAD_ATLASES),
+            # stock, so mask=(None) villagers look exactly as before. The
+            # bigheads pair (masks scaled to the larger detail-portrait cell)
+            # ships for the same reason -- its row count is bumped too.
+            *(mask_atlas_companion(name)
+              for name in (*MASK_HEAD_ATLASES, *BIGHEAD_ATLASES)),
         ],
         "doubler_evidence": {
             "build": {
