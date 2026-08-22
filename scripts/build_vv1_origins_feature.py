@@ -306,64 +306,71 @@ MASK_OVERLAY_FILE_OFFSET = 0x8BEA8
 MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
     MASK_OVERLAY_FILE_OFFSET - SHR_FILE_OFFSET
 )
-MASK_SURFACES_VA = MASK_OVERLAY_VA  # 5 x SDL_Surface* cache, NULL until first draw
+MASK_SURFACES_VA = MASK_OVERLAY_VA  # 5 x SDL_Surface* cache, NULL until first load
 # Every asset filename string anywhere in the stock exe is bare (no "/" or
-# "\\" -- confirmed via a full-binary string scan), yet the actual files
-# all live under Images/ on disk, so the native loader must be
-# constructing that prefix at load time rather than relying on a CWD
-# that happens to already be Images/. Matching that same convention
-# ("Images/mN.png") rather than a bare filename in the exe's own root
-# directory, since that's the one relative-path shape already proven to
-# work for every other asset this game loads.
-MASK_PATHS_VA = MASK_OVERLAY_VA + 0x14  # 5 x 16-byte "Images/mN.png\0" companion paths
-# Playtested: the first build drew the mask right after the occupied
-# check (before the native head/body/clothing draw for that same
-# iteration), so the native head painted right over it every frame --
-# invisible, not broken. Split into two hooks instead: this one (at the
-# occupied check, unchanged position) only validates the choice and
-# STASHES the record pointer + choice in cave memory -- registers can't
-# carry a value reliably across the rest of the iteration, since several
-# draw branches repurpose EDI/EAX/etc. for their own scratch. The actual
-# draw happens in MASK_BACKEDGE_HOOK below, at the loop's single
-# convergence point, strictly after all native drawing for that
-# iteration is done.
-MASK_PENDING_RECORD_VA = MASK_OVERLAY_VA + 0x64  # 0 = nothing pending, else record ptr
-MASK_PENDING_CHOICE_VA = MASK_OVERLAY_VA + 0x68  # 1..5, valid only when PENDING_RECORD != 0
-# DIAGNOSTIC ONLY (temporary): externally-readable heartbeat counters and
-# a snapshot of the last computed destination surface, so reachability
-# and the destination-surface value can be verified directly via
-# ReadProcessMemory from outside the game instead of guessing from
-# visual (non-)results.
-DEBUG_HOOK1_COUNTER_VA = MASK_OVERLAY_VA + 0x6C  # incremented every hook1 (occupied-check) visit
-DEBUG_HOOK2_COUNTER_VA = MASK_OVERLAY_VA + 0x70  # incremented every hook2 (back-edge) visit
-DEBUG_LAST_SURFACE_VA = MASK_OVERLAY_VA + 0x74  # last computed dest-surface pointer
+# "\\" -- confirmed via a full-binary string scan), yet the actual files all
+# live under Images/ on disk, so the native loader constructs that prefix at
+# load time rather than relying on a CWD that already is Images/. Matching
+# that same convention ("Images/mN.png") is the one relative-path shape
+# already proven to work for every other asset this game loads.
+#
+# ONE shared path, not five. The five companion sheets differ only in a single
+# digit, so the draw hook writes that digit in place before calling IMG_Load.
+# Five separate 16-byte strings cost 80 bytes of a 344-byte cave that the real
+# SDL_UpperBlit draw needs; this costs 16 bytes and two instructions.
+MASK_PATH_VA = MASK_OVERLAY_VA + 0x14  # "Images/m1.png" + NUL
+MASK_PATH_DIGIT_VA = MASK_PATH_VA + 8  # the '1' in "m1.png", overwritten per choice
+# Playtested: the first build drew the mask right after the occupied check
+# (before the native head/body/clothing draw for that same iteration), so the
+# native head painted right over it every frame -- invisible, not broken.
+# Split into two hooks instead: the stash hook (at the occupied check) only
+# validates the choice and records what to draw, because registers cannot
+# carry a value across the rest of the iteration (several draw branches
+# repurpose EDI/EAX for their own scratch). The draw itself happens later,
+# strictly after all native drawing for that villager is done.
+#
+# The stash hook records the SCREEN POSITION too, not just the record. It is
+# the only one of the three hooks that runs with both the villager record and
+# the village object in registers, so it is the only place the position can be
+# computed at all: screen = record.xy - village.scroll_xy, exactly the
+# subtraction every native draw call in sub_437790 performs (confirmed at the
+# head-draw site 0x437d67/0x437d70, which does "sub edx,[ebx+0xc]" /
+# "sub ecx,[ebx+8]" against this same object).
+MASK_PENDING_RECORD_VA = MASK_OVERLAY_VA + 0x24  # 0 = nothing pending, else record ptr
+MASK_PENDING_CHOICE_VA = MASK_OVERLAY_VA + 0x28  # 1..5, valid only when RECORD != 0
+MASK_PENDING_X_VA = MASK_OVERLAY_VA + 0x2C  # villager screen x
+MASK_PENDING_Y_VA = MASK_OVERLAY_VA + 0x30  # villager screen y
+MASK_PENDING_FRAME_VA = MASK_OVERLAY_VA + 0x34  # facing column, record +0x34
 # Ground truth, refreshed every real frame: FUN_00409060 (the actual main
 # per-frame tick -- confirmed via Ghidra to be the function that calls
 # FUN_00403830, which itself does SDL_UpdateTexture/RenderClear/RenderCopy/
-# RenderPresent) reads *(its own esi + 0x30) at 0x40913c and pushes that
-# exact value as FUN_00403830's surface argument one instruction later --
-# there is no more direct proof obtainable that a given pointer *is* the
-# real, currently-presented destination surface than reading it at the
-# literal call site that presents it. MASK_THIRD_DETOUR below reproduces
-# that read and additionally stashes it here, once per real frame, so any
-# other hook (which may run in a different object's context, e.g.
-# FUN_00423390's own esi+0x30 -- proven by direct ReadProcessMemory
-# inspection to read a stable but garbage 0x0BAD0D60 there, 10/10 samples
-# over ~2s) can use this cached value instead of trying to recompute the
-# same pointer from a context where it isn't reliably valid. The pointer
-# itself is expected to be the same persistent surface object for the
-# whole process lifetime (allocated once, not reallocated per frame), so a
-# one-frame-old cached copy read from a different hook earlier in the next
-# frame is still correct -- only its *contents* change every frame, not
-# its address.
-DEST_SURFACE_CACHE_VA = MASK_OVERLAY_VA + 0x78
-# DIAGNOSTIC ONLY (temporary): unconditionally stashes the most recent
-# occupied villager's record pointer, regardless of whether that villager
-# has a mask choice set -- lets an outside tool locate a live, valid
-# record to poke a mask byte into for an end-to-end render test without
-# needing the in-game picker UI clicked first.
-DEBUG_LAST_OCCUPIED_RECORD_VA = MASK_OVERLAY_VA + 0x7C
-MASK_HOOK_VA = MASK_OVERLAY_VA + 0x80  # stash-only hook (occupied-check splice)
+# RenderPresent) reads *(its own esi + 0x30) at 0x40913c and pushes that exact
+# value as FUN_00403830's surface argument one instruction later -- there is no
+# more direct proof obtainable that a pointer *is* the real, currently
+# presented destination surface than reading it at the literal call site that
+# presents it. MASK_THIRD_DETOUR below reproduces that read and additionally
+# stashes it here, once per real frame, so the draw hook (which runs in a
+# different object's context -- FUN_00423390's own esi+0x30 was proven by
+# direct ReadProcessMemory inspection to be a stable but garbage 0x0BAD0D60,
+# 10/10 samples over ~2s) can use this cached value instead of recomputing the
+# same pointer from a context where it is not reliably valid. The surface is
+# allocated once for the process lifetime, so a one-frame-old cached copy is
+# still the right address -- only its contents change per frame.
+DEST_SURFACE_CACHE_VA = MASK_OVERLAY_VA + 0x38
+MASK_HOOK_VA = MASK_OVERLAY_VA + 0x3C  # stash-only hook (occupied-check splice)
+# Sheet geometry, and it is deliberately VV1's OWN head-atlas geometry:
+# male_heads.png/female_heads.png are 280x1300 = 7 columns x 20 rows of 40x65
+# (verified empirically -- the fully transparent separator columns land on
+# multiples of 40, and the 20 content bands start ~65 apart). The generated
+# mask sheets (scripts/build_vv1_heathen_mask_sheets.py) use the same cell
+# grid, so the blit is a straight cell-for-cell overlay and all alignment
+# lives in the art rather than in this assembly.
+MASK_CELL_W = 40
+MASK_CELL_H = 65
+# The village/camera object hanging off the villager manager. Its +8/+0xC are
+# the scroll offsets every native draw in sub_437790 subtracts.
+VILLAGE_OBJECT_OFFSET = 0x3E010
+VILLAGER_FACING_OFFSET = 0x34  # head-draw column (row is +0x360)
 # MASK_BACKEDGE_HOOK_VA is NOT a fixed offset -- it's wherever
 # mask_hook_code actually ends, computed from its real assembled length
 # once main() assembles it. A hardcoded guess here bit us once already:
@@ -449,17 +456,6 @@ MASK_THIRD_RESUME_VA = 0x409142  # native "mov [esi+0x78],eax" right after the d
 # code calls these fixed jump-table thunks, never the IAT slot itself.
 SDL_UPPERBLIT_THUNK_VA = 0x44A9AC
 IMG_LOAD_THUNK_VA = 0x44AA78
-# DIAGNOSTIC ONLY (temporary): SDL_FillRect thunk, found via a raw
-# "FF 25 <IAT slot>" byte-pattern scan rather than the same disassembly
-# sweep that found the other two thunks -- capstone's linear disassembly
-# didn't land on it cleanly in this region, the same class of desync
-# already seen once this session. Used to isolate whether the
-# destination-surface/position computation is correct independent of
-# whether IMG_Load/the mask PNG itself is the remaining problem: a
-# solid, unmissable fill at the exact same computed surface+rect either
-# proves that half of the pipeline correct or rules it out outright,
-# rather than guessing again.
-SDL_FILLRECT_THUNK_VA = 0x44A99A
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -2061,70 +2057,107 @@ def main() -> None:
     # loop's 19 distinct draw/skip branches converges on), strictly after
     # all native drawing for that iteration is done.
     mask_surfaces_data = b"\0" * 20
-    mask_paths_data = b"".join(
-        f"Images/m{n}.png".encode("ascii").ljust(16, b"\0") for n in range(1, 6)
-    )
-    mask_pending_data = b"\0" * 28  # MASK_PENDING_RECORD, MASK_PENDING_CHOICE, 3 debug dwords, DEST_SURFACE_CACHE, DEBUG_LAST_OCCUPIED_RECORD
+    # One shared path; the draw hook rewrites the digit before each IMG_Load.
+    mask_path_data = b"Images/m1.png\0".ljust(16, b"\0")
+    # PENDING_RECORD, PENDING_CHOICE, PENDING_X, PENDING_Y, PENDING_FRAME,
+    # DEST_SURFACE_CACHE.
+    mask_pending_data = b"\0" * 24
     mask_hook_code = assemble(
         f"""
-            pushfd
-            inc dword ptr [{DEBUG_HOOK1_COUNTER_VA:#x}]
-            popfd
             jnz {MASK_NATIVE_SKIP_TARGET_VA:#x}
-            mov dword ptr [{DEBUG_LAST_OCCUPIED_RECORD_VA:#x}], eax
             movzx edx, byte ptr [eax + 0x374]
             test edx, edx
             jz mask_resume
             cmp edx, 5
             ja mask_resume
-            # Only ever SET the pending slot, never clear it here -- this
-            # hook fires once per occupied villager per frame (up to 256
-            # times), so clearing on every villager without a mask (the
-            # old behaviour) meant whichever villager was iterated LAST
-            # each frame won, regardless of whether IT had a mask --
-            # hook2 (which runs once per frame, after this entire loop)
-            # almost always saw 0 unless the one masked villager happened
-            # to be the highest-index occupied slot. Only a villager that
-            # DOES have a valid mask choice may now touch this slot, so a
-            # single masked villager's choice survives the rest of the
-            # loop regardless of population or slot order. (Still only
-            # ever tracks one villager at a time if multiple have masks
-            # set simultaneously -- multi-villager concurrent mask draw
-            # is future work, see the overlay's own top-level comment.)
+            # Only ever SET the pending slot, never clear it here. This hook
+            # fires once per occupied villager per frame (up to 256 times), so
+            # clearing on every villager without a mask -- the original
+            # behaviour -- meant whichever villager was iterated LAST won,
+            # regardless of whether IT had a mask, and the draw hook (which
+            # runs once per frame, after the whole loop) almost always saw 0.
+            # Only a villager that DOES have a valid choice may touch the slot.
+            push ecx
+            mov ecx, dword ptr [esi + {VILLAGE_OBJECT_OFFSET:#x}]
             mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], eax
             mov dword ptr [{MASK_PENDING_CHOICE_VA:#x}], edx
+            # screen = record.xy - village.scroll_xy, the same subtraction the
+            # native head draw performs at 0x437d67/0x437d70.
+            mov edx, dword ptr [eax + 4]
+            sub edx, dword ptr [ecx + 8]
+            mov dword ptr [{MASK_PENDING_X_VA:#x}], edx
+            mov edx, dword ptr [eax + 8]
+            sub edx, dword ptr [ecx + 0xc]
+            mov dword ptr [{MASK_PENDING_Y_VA:#x}], edx
+            mov edx, dword ptr [eax + {VILLAGER_FACING_OFFSET:#x}]
+            mov dword ptr [{MASK_PENDING_FRAME_VA:#x}], edx
+            pop ecx
         mask_resume:
             jmp {MASK_RESUME_VA:#x}
         """,
         MASK_HOOK_VA,
     )
-    # Computed from mask_hook_code's real assembled length -- see the
-    # comment on MASK_BACKEDGE_HOOK_VA's declaration above for why this
-    # must never be a hardcoded offset.
+    # Computed from mask_hook_code's real assembled length -- see the comment
+    # on MASK_HOOK_VA's declaration for why this must never be hardcoded.
     mask_backedge_hook_va = MASK_HOOK_VA + len(mask_hook_code)
+    # The draw. Runs once per frame, after sub_437790 has finished every
+    # villager, so nothing native paints over it. Everything it needs was
+    # stashed by the hook above; the destination surface comes from the
+    # per-frame cache written at the real present call site.
+    #
+    # SDL_UpperBlit(src, srcrect, dst, dstrect) is cdecl, so the caller pops:
+    # 16 bytes of arguments plus the two 16-byte SDL_Rects built on the stack.
+    # An SDL_Rect is {{x, y, w, h}}, so the fields are pushed in reverse
+    # (h, w, y, x) to leave x at the lowest address.
     mask_backedge_hook_code = assemble(
         f"""
             mov ecx, dword ptr [esi + 8]
             push 0
-            inc dword ptr [{DEBUG_HOOK2_COUNTER_VA:#x}]
-            push ebx
-            mov ebx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
-            mov dword ptr [{DEBUG_LAST_SURFACE_VA:#x}], ebx
-            pop ebx
             cmp dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
             je mask2_done
             pushad
-            mov ebx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
-            push 200
-            push 200
-            push 300
-            push 400
-            mov edx, esp
-            push 0xffffffff
+            mov ebx, dword ptr [{MASK_PENDING_CHOICE_VA:#x}]
+            mov eax, dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4]
+            test eax, eax
+            jnz mask2_have_surface
+            # Lazy load, once per colour per process. IMG_Load returns NULL on
+            # a missing or broken file; that NULL stays in the cache and the
+            # draw below is skipped, so a missing companion sheet degrades to
+            # "no mask" instead of crashing.
+            mov al, bl
+            add al, 0x30
+            mov byte ptr [{MASK_PATH_DIGIT_VA:#x}], al
+            push {MASK_PATH_VA:#x}
+            call {IMG_LOAD_THUNK_VA:#x}
+            add esp, 4
+            mov dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4], eax
+        mask2_have_surface:
+            test eax, eax
+            jz mask2_skip
+            mov edx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
+            test edx, edx
+            jz mask2_skip
+            # src rect: this facing's cell in the sheet
+            mov ecx, dword ptr [{MASK_PENDING_FRAME_VA:#x}]
+            imul ecx, ecx, {MASK_CELL_W}
+            push {MASK_CELL_H}
+            push {MASK_CELL_W}
+            push 0
+            push ecx
+            mov edi, esp
+            # dst rect: the villager's own screen position
+            push {MASK_CELL_H}
+            push {MASK_CELL_W}
+            push dword ptr [{MASK_PENDING_Y_VA:#x}]
+            push dword ptr [{MASK_PENDING_X_VA:#x}]
+            mov ecx, esp
+            push ecx
             push edx
-            push ebx
-            call {SDL_FILLRECT_THUNK_VA:#x}
-            add esp, 12 + 16
+            push edi
+            push eax
+            call {SDL_UPPERBLIT_THUNK_VA:#x}
+            add esp, 48
+        mask2_skip:
             mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
             popad
         mask2_done:
@@ -2135,7 +2168,7 @@ def main() -> None:
     # Splice point 3 (see MASK_THIRD_DETOUR_* above): reproduces
     # FUN_00409060's own displaced "mov ecx,[esi+0x30] / push ecx /
     # mov ecx,esi" exactly, plus one extra store to cache that same value
-    # for splice point 2 to consume.
+    # for the draw hook to consume.
     mask_frame_cache_va = mask_backedge_hook_va + len(mask_backedge_hook_code)
     mask_frame_cache_code = assemble(
         f"""
@@ -2149,7 +2182,7 @@ def main() -> None:
     )
     mask_overlay_blob = (
         mask_surfaces_data
-        + mask_paths_data
+        + mask_path_data
         + mask_pending_data
         + mask_hook_code
         + mask_backedge_hook_code
