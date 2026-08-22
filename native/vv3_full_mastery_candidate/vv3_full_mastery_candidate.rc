@@ -15,6 +15,7 @@
 3004 BITMAP "appearance/head_f_old.bmp"
 3011 BITMAP "appearance/body_m.bmp"
 3012 BITMAP "appearance/body_f.bmp"
+3021 BITMAP "appearance/mask_strip.bmp"
 
 #define DS_MODALFRAME 0x0080L
 #define DS_SETFONT 0x0040L
@@ -208,7 +209,7 @@ BEGIN
     DEFPUSHBUTTON "Cancel", 2, 120, 313, 70, 14
 END
 
-213 DIALOGEX 0, 0, 250, 224
+213 DIALOGEX 0, 0, 250, 292
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
@@ -223,12 +224,13 @@ BEGIN
     PUSHBUTTON  "<", 3105, 130, 72, 16, 16
     PUSHBUTTON  ">", 3106, 224, 72, 16, 16
 
-    CTEXT       "Heathen Mask", -1, 90, 144, 70, 9
-    PUSHBUTTON  "<", 3108, 46, 157, 16, 14
-    CTEXT       "(None)", 3107, 64, 159, 122, 11
-    PUSHBUTTON  ">", 3109, 188, 157, 16, 14
+    CTEXT       "Mask", -1, 90, 142, 70, 9
+    CONTROL     "", 3110, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 90, 154, 70, 80
+    PUSHBUTTON  "<", 3108, 66, 186, 16, 16
+    PUSHBUTTON  ">", 3109, 168, 186, 16, 16
+    CTEXT       "(None)", 3107, 40, 238, 170, 11
 
-    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 182, 222, 9
-    DEFPUSHBUTTON "OK", 1, 66, 200, 50, 16
-    PUSHBUTTON  "Cancel", 2, 134, 200, 50, 16
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 254, 222, 9
+    DEFPUSHBUTTON "OK", 1, 66, 270, 50, 16
+    PUSHBUTTON  "Cancel", 2, 134, 270, 50, 16
 END

@@ -693,6 +693,8 @@ __declspec(dllexport) int __stdcall ShowOriginsFullMasteryResult(
 #define IDC_MASK_NAME    3107
 #define IDC_MASK_PREV    3108
 #define IDC_MASK_NEXT    3109
+#define IDC_MASK_PREVIEW 3110
+#define IDB_MASK_STRIP   3021
 #define VV3_MASK_COUNT   6   /* 0=(None), 1..5 = Blue/Orange/Red/Purple/Chief */
 
 static const char *const vv3_mask_names[VV3_MASK_COUNT] = {
@@ -703,6 +705,10 @@ static const char *const vv3_mask_names[VV3_MASK_COUNT] = {
 #define VV3_APPEARANCE_CELL_H 65
 #define VV3_HEAD_COUNT 30
 #define VV3_BODY_COUNT 29
+/* The mask preview strip uses a taller native cell (front-facing frame, tight-
+   cropped + centred) so the taller masks (e.g. the Tribal Chief) read as tall. */
+#define VV3_MASK_CELL_W 65
+#define VV3_MASK_CELL_H 80
 
 static int vv3_appearance_sex;
 static int vv3_appearance_old;
@@ -721,7 +727,8 @@ static int vv3_appearance_body_bitmap(void) {
     return vv3_appearance_sex ? IDB_BODY_F : IDB_BODY_M;
 }
 
-static void vv3_appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+static void vv3_appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index,
+                                int cell_w, int cell_h) {
     RECT rc = item->rcItem;
     int width = rc.right - rc.left;
     int height = rc.bottom - rc.top;
@@ -742,19 +749,19 @@ static void vv3_appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) 
     source = CreateCompatibleDC(item->hDC);
     previous = (HBITMAP)SelectObject(source, bitmap);
 
-    scale_x = (double)width / VV3_APPEARANCE_CELL_W;
-    scale_y = (double)height / VV3_APPEARANCE_CELL_H;
+    scale_x = (double)width / cell_w;
+    scale_y = (double)height / cell_h;
     scale = scale_x < scale_y ? scale_x : scale_y;
-    draw_w = (int)(VV3_APPEARANCE_CELL_W * scale);
-    draw_h = (int)(VV3_APPEARANCE_CELL_H * scale);
+    draw_w = (int)(cell_w * scale);
+    draw_h = (int)(cell_h * scale);
     draw_x = rc.left + (width - draw_w) / 2;
     draw_y = rc.top + (height - draw_h) / 2;
 
     SetStretchBltMode(item->hDC, COLORONCOLOR);
     StretchBlt(
         item->hDC, draw_x, draw_y, draw_w, draw_h,
-        source, index * VV3_APPEARANCE_CELL_W, 0,
-        VV3_APPEARANCE_CELL_W, VV3_APPEARANCE_CELL_H, SRCCOPY
+        source, index * cell_w, 0,
+        cell_w, cell_h, SRCCOPY
     );
 
     SelectObject(source, previous);
@@ -777,11 +784,18 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
         if (item->CtlID == IDC_BODY_PREVIEW) {
-            vv3_appearance_draw(item, vv3_appearance_body_bitmap(), vv3_appearance_body);
+            vv3_appearance_draw(item, vv3_appearance_body_bitmap(), vv3_appearance_body,
+                                VV3_APPEARANCE_CELL_W, VV3_APPEARANCE_CELL_H);
             return TRUE;
         }
         if (item->CtlID == IDC_HEAD_PREVIEW) {
-            vv3_appearance_draw(item, vv3_appearance_head_bitmap(), vv3_appearance_head);
+            vv3_appearance_draw(item, vv3_appearance_head_bitmap(), vv3_appearance_head,
+                                VV3_APPEARANCE_CELL_W, VV3_APPEARANCE_CELL_H);
+            return TRUE;
+        }
+        if (item->CtlID == IDC_MASK_PREVIEW) {
+            vv3_appearance_draw(item, IDB_MASK_STRIP, vv3_appearance_mask,
+                                VV3_MASK_CELL_W, VV3_MASK_CELL_H);
             return TRUE;
         }
     } else if (message == WM_COMMAND) {
@@ -810,11 +824,13 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
             vv3_appearance_mask =
                 (vv3_appearance_mask + VV3_MASK_COUNT - 1) % VV3_MASK_COUNT;
             SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
+            vv3_appearance_repaint(window, IDC_MASK_PREVIEW);
             return TRUE;
         }
         if (command == IDC_MASK_NEXT) {
             vv3_appearance_mask = (vv3_appearance_mask + 1) % VV3_MASK_COUNT;
             SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
+            vv3_appearance_repaint(window, IDC_MASK_PREVIEW);
             return TRUE;
         }
         if (command == IDOK) {
