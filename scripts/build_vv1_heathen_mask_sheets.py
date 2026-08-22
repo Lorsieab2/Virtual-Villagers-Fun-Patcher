@@ -95,6 +95,22 @@ MASK_FRAME_FOR_FACING = [7, 6, 0, 1, 4, 5, 6]
 
 COLOURS = ["blue", "orange", "red", "purple", "chief"]
 
+# Change Appearance preview strip. The dialog previews head and body from BMP
+# resources compiled into the icons DLL (see build_vv1_appearance_bitmaps.py),
+# so the mask preview is built the same way rather than inventing a second
+# mechanism. Geometry matches that script's convention: one 40-wide column,
+# one row per selectable value, stacked top to bottom.
+#
+# Row 0 is the blank "(None)" entry so the strip can be indexed by the mask
+# value directly (0..5) with no offset arithmetic in the dialog code.
+#
+# PREVIEW_FRAME 5 matches build_vv1_appearance_bitmaps.py's own HEAD_FRAME: it
+# is the front-facing column, so the previewed mask faces the player the same
+# way the previewed head does.
+PREVIEW_FRAME = 5
+PREVIEW_BG = (236, 236, 236)
+PREVIEW_BMP = ROOT / "native" / "vv1_origins_icons" / "appearance" / "mask.bmp"
+
 
 def _is_skin(px) -> bool:
     r, g, b, a = px
@@ -183,6 +199,35 @@ def build() -> list[tuple[Path, bytes]]:
     return results
 
 
+def build_preview_strip() -> bytes:
+    """One 40x(76*6) BMP: row 0 blank, rows 1-5 the five masks head-on.
+
+    Flattened onto the dialog's own background colour because a BMP resource
+    carries no alpha; appearance_draw() fills the same colour before blitting,
+    so the seam is invisible.
+    """
+    import io
+
+    rows = 1 + MASK_ROWS
+    strip = Image.new("RGB", (CELL_W, SHEET_CELL_H * rows), PREVIEW_BG)
+    for row in range(MASK_ROWS):
+        sheet = Image.open(OUT_DIR / f"m{row + 1}.png").convert("RGBA")
+        cell = sheet.crop(
+            (
+                PREVIEW_FRAME * CELL_W,
+                0,
+                (PREVIEW_FRAME + 1) * CELL_W,
+                SHEET_CELL_H,
+            )
+        )
+        flat = Image.new("RGB", cell.size, PREVIEW_BG)
+        flat.paste(cell, (0, 0), cell)
+        strip.paste(flat, (0, SHEET_CELL_H * (row + 1)))
+    buf = io.BytesIO()
+    strip.save(buf, "BMP")
+    return buf.getvalue()
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -192,6 +237,7 @@ def main() -> int:
     )
     args = ap.parse_args()
     built = build()
+    built.append((PREVIEW_BMP, build_preview_strip()))
     if args.check:
         bad = [str(p) for p, data in built if not p.exists() or p.read_bytes() != data]
         if bad:
@@ -203,6 +249,7 @@ def main() -> int:
         path.write_bytes(data)
         print(f"wrote {path.relative_to(ROOT)} ({len(data)} bytes)")
     print(f"geometry: {FACINGS} facings x {CELL_W}x{SHEET_CELL_H}, native size, no scaling, nothing cropped")
+    print(f"preview strip: {CELL_W}x{SHEET_CELL_H * (1 + MASK_ROWS)} (frame {PREVIEW_FRAME}, row 0 = None)")
     return 0
 
 
