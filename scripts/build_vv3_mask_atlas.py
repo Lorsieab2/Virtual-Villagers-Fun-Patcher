@@ -1,19 +1,21 @@
 """Append the user's pre-aligned Heathen-mask art to the VV3 head atlases.
 
-The mask art (assets/vv3_heathen_masks/mask_<color>.png) is an 8-frame
-directional strip at head-atlas x-scale (40 px/frame), pre-aligned by the user
-to the exact head sprites.  Each strip is composited into the head atlas as new
-rows 30..34 at x=0, with only a per-mask vertical seat (SEAT_DY) so the face
-sits on the head.  No scaling, no per-frame nudging -- the art carries its own
-alignment.
+The mask art (assets/vv3_heathen_masks/mask_<color>.png) is the user's aligned
+"port" canvas: a 520x1286 image where the 8 directional masks are placed to sit
+exactly on the VV3 head sprites.  The head origin in that canvas is (106, 1149)
+-- i.e. atlas head-frame-0 top-left maps to canvas (106, 1149) -- verified by a
+100% pixel match of the ginger reference head (male_heads row 22).  So each mask
+row is just the port translated by (-106, -1149) into the 320x65 head cell.
 
 Rows (mask byte +0xED0 -> atlas row 29+byte):
     30 blue (1), 31 orange (2), 32 red (3), 33 purple (4), 34 chief (5).
 
-NOTE ON HEIGHT: the head atlas cell is 40x65, so any mask taller than the room
-above the head (notably the Tribal Chief's feathers and the red horns) is
-clipped at the cell top.  Showing the full towering masks needs the two-cell
-render (tracked separately); this builder produces the single-cell version.
+The chief uses a staggered per-frame canvas and is handled by its own path
+(build_vv3_chief_mask_row); the straight-row masks use the shared offset.
+
+NOTE ON HEIGHT: masks whose tall parts (red horns, purple ears, chief feathers)
+rise above the 65px head cell are clipped here (single-cell).  Showing them in
+full needs the two-cell "towering" render, tracked separately.
 
 Usage:  python build_vv3_mask_atlas.py "<game Images dir>"
 """
@@ -26,12 +28,11 @@ from PIL import Image
 
 CELL_W, CELL_H = 40, 65
 FRAMES = 8
-# rows 30..34, in mask-byte order (1..5)
+# atlas head-frame-0 origin within the user's 520x1286 port canvas
+CANVAS_DX, CANVAS_DY = 106, 1149
+# rows 30..34 in mask-byte order (1..5); chief handled per-frame
+STRAIGHT_MASKS = ["blue", "orange", "red", "purple"]
 MASK_ORDER = ["blue", "orange", "red", "purple", "chief"]
-# per-mask vertical seat (atlas-y offset; negative = up), derived from the
-# user's alignment mockups against female_heads row 26 (head position is
-# consistent across every head row and atlas).
-SEAT_DY = {"blue": -4, "orange": -2, "red": -20, "purple": -4, "chief": -54}
 
 SRC = Path(__file__).resolve().parents[1] / "assets" / "vv3_heathen_masks"
 HEAD_ATLASES = [
@@ -40,11 +41,19 @@ HEAD_ATLASES = [
 ]
 
 
-def _mask_row(color: str) -> Image.Image:
+def _straight_mask_row(color: str) -> Image.Image:
     port = Image.open(SRC / f"mask_{color}.png").convert("RGBA")
     row = Image.new("RGBA", (CELL_W * FRAMES, CELL_H), (0, 0, 0, 0))
-    row.alpha_composite(port, (0, SEAT_DY[color]))   # clips to the 65px cell
+    row.alpha_composite(port, (-CANVAS_DX, -CANVAS_DY))   # clips to the 65px cell
     return row
+
+
+def _mask_row(color: str) -> Image.Image:
+    if color in STRAIGHT_MASKS:
+        return _straight_mask_row(color)
+    # chief: staggered layout, per-frame (deferred). Placeholder = empty row so
+    # the atlas keeps 35 rows and selecting the chief shows the head cleanly.
+    return Image.new("RGBA", (CELL_W * FRAMES, CELL_H), (0, 0, 0, 0))
 
 
 def apply_to_atlas(atlas_path: Path) -> None:
@@ -53,7 +62,7 @@ def apply_to_atlas(atlas_path: Path) -> None:
         src = Image.open(bak).convert("RGBA")          # clean 30-row original
     else:
         src = Image.open(atlas_path).convert("RGBA")
-        bak.write_bytes(atlas_path.read_bytes())       # back up the original
+        bak.write_bytes(atlas_path.read_bytes())
     w = src.width
     new_rows = 30 + len(MASK_ORDER)
     out = Image.new("RGBA", (w, CELL_H * new_rows), (0, 0, 0, 0))
@@ -61,13 +70,13 @@ def apply_to_atlas(atlas_path: Path) -> None:
     for i, color in enumerate(MASK_ORDER):
         out.alpha_composite(_mask_row(color), (0, (30 + i) * CELL_H))
     out.save(atlas_path)
-    print(f"  {atlas_path.name}: 30 -> {new_rows} rows (user art, x=0 seated)")
+    print(f"  {atlas_path.name}: 30 -> {new_rows} rows (blue/orange/red/purple aligned; chief pending)")
 
 
 def main(images_dir: Path) -> None:
     for name in HEAD_ATLASES:
         apply_to_atlas(images_dir / name)
-    print("done; head atlases carry the user's mask rows 30..34 (single-cell)")
+    print("done")
 
 
 if __name__ == "__main__":
