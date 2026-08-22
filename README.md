@@ -2,6 +2,8 @@
 
 An offline Windows patcher for miscellaneous fun patches in all five classic Virtual Villagers PC games.
 
+**Supported game source:** This patcher only supports the games downloaded from the official **Last Day of Work (LDW) website** (ldw.com), where all five PC games are available for free — so there's no reason to get them from anywhere else. Every patch is pinned to the exact bytes of those free LDW builds. Other releases (for example the Steam version) are not tested and may have different bytes; if a game isn't the LDW download, the patcher rejects it rather than risk patching an unverified executable.
+
 The app uses the supplied transparent `Island.png` artwork as its title-bar icon and as small image decorations around both its name and the credit:
 
 `[Island image] Created with Codex AI. Made with love by Lorsieab2 :) [Island image]`
