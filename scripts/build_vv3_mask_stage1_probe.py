@@ -37,7 +37,9 @@ RETURN_VA = 0x456B2F
 CAVE_VA = 0x47B254
 DRAW_FN = 0x409FB0
 SPRITE_OBJ_OFF = 0x1F7C
-Y_LIFT = 0x30               # px to lift the proof head so it's visibly separate
+MASK_BYTE_OFF = 0xED0       # genuinely-unused per-villager byte (0=none, 1..5=mask);
+                           # runtime-verified all-zero across live villagers + never
+                           # referenced in .text. Rides the save with the record.
 
 
 def _pe_checksum(buf: bytearray) -> int:
@@ -57,11 +59,11 @@ def build(out_path: Path) -> None:
     data = bytearray(STOCK.read_bytes())
     ks = keystone.Ks(keystone.KS_ARCH_X86, keystone.KS_MODE_32)
 
-    # MASK PROOF: draw the head (from a copy of the 7 args), then draw the SAME
-    # head atlas at ROW 30 (Blue mask) on top at the same position/facing.  Forced
-    # on every villager for the proof; row 30..34 = the 5 mask sprites appended to
-    # the head atlases by build_vv3_mask_atlas.py.
-    MASK_ROW = 30
+    # PER-VILLAGER MASK: always draw the head (from a copy of the 7 args), then
+    # read the villager's mask byte at +0xED0 (0 = no mask; 1..5 = Blue/Orange/Red/
+    # Purple/Chief).  When nonzero, redraw the SAME head atlas at row (29+byte) on
+    # top at the same position/facing.  Rows 30..34 are the 5 mask sprites appended
+    # to the head atlases by build_vv3_mask_atlas.py.  Writes NO villager state.
     cave_asm = f"""
         sub  esp, 0x1C                    /* scratch copy of the 7 args for HEAD */
         mov  eax, [esp+0x1C]
@@ -80,9 +82,17 @@ def build(out_path: Path) -> None:
         mov  [esp+0x18], eax              /* 1 */
         mov  ecx, [esi+0x{SPRITE_OBJ_OFF:X}]
         call 0x{DRAW_FN:X}                /* HEAD draw (restores esp to original) */
-        mov  dword ptr [esp+0x0C], {MASK_ROW}  /* force mask row on the original args */
+        movzx eax, byte ptr [esi+0x{MASK_BYTE_OFF:X}]  /* per-villager mask choice */
+        test eax, eax
+        je   mask_skip                    /* 0 = no mask */
+        add  eax, 29                      /* maskRow = 29 + byte (1->30 .. 5->34) */
+        mov  dword ptr [esp+0x0C], eax    /* set mask row on the original args */
         mov  ecx, [esi+0x{SPRITE_OBJ_OFF:X}]
-        call 0x{DRAW_FN:X}                /* MASK draw on top */
+        call 0x{DRAW_FN:X}                /* MASK draw on top (ret 0x1C -> esp+=0x1C) */
+        jmp  mask_done
+    mask_skip:
+        add  esp, 0x1C                    /* discard the unused head args */
+    mask_done:
         jmp  0x{RETURN_VA:X}
     """
     cave_bytes, _ = ks.asm(cave_asm, addr=CAVE_VA)
