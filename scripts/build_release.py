@@ -98,6 +98,17 @@ FILES = [
     "data/vv4_text_changes.json",
     "assets/text-changes/vv4-sm.xml",
     "assets/text-changes/vv4-sm-base.xml",
+    # VV4 Heathen-mask head atlases (masked + stock-restore), pinned by
+    # data/vv4_origins_feature.json's companion_files. Both halves of every
+    # swap must ship or the origins patch can't apply/restore in the release.
+    "assets/vv4_masks/atlases/male_heads00.png",
+    "assets/vv4_masks/base/male_heads00.png",
+    "assets/vv4_masks/atlases/male_heads10.png",
+    "assets/vv4_masks/base/male_heads10.png",
+    "assets/vv4_masks/atlases/female_heads00.png",
+    "assets/vv4_masks/base/female_heads00.png",
+    "assets/vv4_masks/atlases/female_heads10.png",
+    "assets/vv4_masks/base/female_heads10.png",
     "data/guardians_of_isola/new/Assets/sm.xml",
     "data/guardians_of_isola/base/Assets/sm.xml",
     "data/guardians_of_isola/new/Images/BlinkyEyes.png",

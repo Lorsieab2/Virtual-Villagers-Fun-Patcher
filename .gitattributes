@@ -9,3 +9,7 @@ assets/text-changes/vv4-sm-base.xml -text
 # Guardians of Isola swap assets are authenticated by exact-byte hashes;
 # never let autocrlf rewrite line endings (would break the manifest pins).
 data/guardians_of_isola/** -text
+
+# VV4 Heathen-mask head atlases (masked + base) are pinned by exact-byte
+# hashes in data/vv4_origins_feature.json; keep blobs byte-identical.
+assets/vv4_masks/** -text

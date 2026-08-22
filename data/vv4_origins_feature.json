@@ -140,6 +140,38 @@
       "source": "assets/origins/VVFP VV4 Origins Icons.dll",
       "destination": "VVFP VV4 Origins Icons.dll",
       "sha256": "B1E84DEF7070AF01AE48CD1B2ECCAE339FA20650C52E69A144F9863C7B7D9C04"
+    },
+    {
+      "source": "assets/vv4_masks/atlases/male_heads00.png",
+      "destination": "Images/male_heads00.png",
+      "sha256": "DE8C6D29B1E7F3EBDFCD71E042F0F636AE6A5851DB5604228E94E6597D89ED89",
+      "preimage_sha256": "098917FB935057BE39E68BF7E58420273585E29A74783E039F4216BE3F7EDE9F",
+      "restore_source": "assets/vv4_masks/base/male_heads00.png",
+      "restore_sha256": "098917FB935057BE39E68BF7E58420273585E29A74783E039F4216BE3F7EDE9F"
+    },
+    {
+      "source": "assets/vv4_masks/atlases/male_heads10.png",
+      "destination": "Images/male_heads10.png",
+      "sha256": "52F7235A48F51FD25EEE84F4C100DEB0C573CFA5634ABD1170312878FD71B5B2",
+      "preimage_sha256": "9407A477BC4D904C10E02BC594AECFBBBE38C6B1625192435A315ABBB38D6CFC",
+      "restore_source": "assets/vv4_masks/base/male_heads10.png",
+      "restore_sha256": "9407A477BC4D904C10E02BC594AECFBBBE38C6B1625192435A315ABBB38D6CFC"
+    },
+    {
+      "source": "assets/vv4_masks/atlases/female_heads00.png",
+      "destination": "Images/female_heads00.png",
+      "sha256": "C7B5AF18A59DD269C7C2476A622D668B966711CA6C4A094420FE8444A9D619E7",
+      "preimage_sha256": "0592E888702B230BBD935370F62BCA497739E2C1FF37E1B19A6A968885C9F8BB",
+      "restore_source": "assets/vv4_masks/base/female_heads00.png",
+      "restore_sha256": "0592E888702B230BBD935370F62BCA497739E2C1FF37E1B19A6A968885C9F8BB"
+    },
+    {
+      "source": "assets/vv4_masks/atlases/female_heads10.png",
+      "destination": "Images/female_heads10.png",
+      "sha256": "92CBD65F58CAF03B884A7F8706DA47084C5ED5A679B79AAA6543FC57F8697211",
+      "preimage_sha256": "62801FA3F1BFE46D367F30D3562ADB768546CE01CAA499E433F1681D45F37C0E",
+      "restore_source": "assets/vv4_masks/base/female_heads10.png",
+      "restore_sha256": "62801FA3F1BFE46D367F30D3562ADB768546CE01CAA499E433F1681D45F37C0E"
     }
   ],
   "doubler_evidence": {
@@ -402,6 +434,36 @@
       "before": "00000000",
       "after": "00000000",
       "purpose": "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)"
+    },
+    {
+      "offset": "0xCCD80",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "890D608D72008B442404A3648D72008B442408A3688D72008B44240CA36C8D72008B442414A3708D72008B442418A3748D72008B0424A3788D7200C70424C78D7200E9A90CCEFF0FB686C41B000085C0742F83C01D6A00FF35748D7200FF35708D720050FF356C8D7200FF35688D7200FF35648D72008B0D608D7200E86F0CCEFFFF25788D7200",
+      "purpose": "Heathen mask: render-hook cave -- draw the head normally, then (when +0x1BC4 is 1..5) re-draw head-atlas row 29+byte on top; no villager fields written"
+    },
+    {
+      "offset": "0x5F702",
+      "before": "E869A3FAFF",
+      "after": "E879962C00",
+      "purpose": "Heathen mask: route the head-draw call at 0x45f702 through the mask cave"
+    },
+    {
+      "offset": "0x5F9CA",
+      "before": "E8A1A0FAFF",
+      "after": "E8B1932C00",
+      "purpose": "Heathen mask: route the head-draw call at 0x45f9ca through the mask cave"
+    },
+    {
+      "offset": "0xC3C24",
+      "before": "1E",
+      "after": "23",
+      "purpose": "Heathen mask: bump head-atlas row count 30->35 at 0xc3c24 so rows 30..34 (the masks) are addressable"
+    },
+    {
+      "offset": "0xC3B94",
+      "before": "1E",
+      "after": "23",
+      "purpose": "Heathen mask: bump head-atlas row count 30->35 at 0xc3b94 so rows 30..34 (the masks) are addressable"
     },
     {
       "offset": "0x3FBE5",

@@ -264,6 +264,11 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # matching purchase gate.
                         "0xCCB10", "0x14D50", "0x3FBE5", "0x4098C",
                         "0x14DCA", "0x14E0D", "0xCCB40", "0xCCB60", "0xCCC00",
+                        # Heathen-mask overlay: render-hook cave (0xCCD80), the
+                        # two head-draw call sites spliced onto it (0x5F702,
+                        # 0x5F9CA), and the two head-atlas row-count bumps
+                        # 30->35 (0xC3C24 male, 0xC3B94 female).
+                        "0xCCD80", "0x5F702", "0x5F9CA", "0xC3C24", "0xC3B94",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],
