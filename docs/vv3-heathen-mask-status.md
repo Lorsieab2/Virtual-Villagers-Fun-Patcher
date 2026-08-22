@@ -7,15 +7,32 @@ must persist across save/reload; masks are tall (extend above the head).
 
 ## TL;DR — where it stands
 
-- **Detail-screen render: solved and proven** (standalone probe on the stock exe).
-- **DLL chooser UI: designed and built** (in git history, commit `5983a77`).
+- **Full-exe Detail-screen integration: DONE and building green.** Origins + village-wide +
+  mask compose in all modes (63 patches) with no overlap and valid PE checksums; the VV3
+  origins tests pass.
+- **Detail-screen render: solved and proven** (standalone probe + integrated payload hook).
+- **DLL chooser UI: built** (mask cycler in the Change Appearance dialog; export `@20`
+  writes `record + 0xED0` on OK).
 - **Per-villager persistence byte: found and verified** (`record + 0xED0`, unused).
-- **Map/village-view render: not built** (separate name-based animation system).
-- **BLOCKER — full-exe integration:** the VV3 `.text`/`.rdata` code-cave padding is
-  **fully allocated** by existing features. The ~108-byte mask render cave has nowhere to
-  live without invasive, launch-only-verifiable changes. The branch tip has been **reverted
-  to a clean, building state** (58 patches, valid checksum) rather than left broken. The
-  integration attempt is preserved in commit `5983a77` for reference.
+- **Map/village-view render: still not built** (separate name-based animation system).
+- **Remaining before ship:** one **live playtest** (open Change Appearance, pick a mask,
+  confirm it renders on the Detail portrait and rides save/reload) and the **atlas deploy
+  step** (`build_vv3_mask_atlas.py` must append rows 30..34 to the game's `Images/` head
+  atlases — the row-count bump reads out-of-bounds without it).
+
+## How the code-cave blocker was solved
+
+The VV3 `.text`/extended-`.rdata` padding is fully reserved by other features (statistics
+alone reserves a 512-byte cave at `0x7B464..0x7B664`, village-wide `0x7B820..0x7BD40`, etc.),
+so there is no free standalone `.text` cave for the ~108-byte mask render routine. The first
+attempt (commit `5983a77`) placed the cave at `0x7B465` — **inside** statistics' reservation —
+which collided. The fix: emit the cave **inside the always-present Origins payload**, in the
+free gap between `detail_menu` (ends `+0xAD4`) and `village_preflight` (`+0xB80`), at
+`PAYLOAD_VA + 0xAD8` (`0x4A3C58`). It is written with the payload's `put()` helper, whose
+occupied-check guards against any payload-layout collision, and the payload region is already
+executable via the Origins `0x24C` section-flags patch. The head-draw hook at `0x456B24`
+(`jmp 0x4A3C58` + 6 NOPs) reaches it, and the relative `call 0x409FB0` / `jmp 0x456B2F`
+re-resolve correctly from the new location (capstone-verified).
 
 ## What works (proven / built)
 

@@ -119,13 +119,18 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 0x18452,
                 0x263F0,
                 0x27130,
+                0x56B24,
                 0x6547D,
                 0x65640,
                 0x6DA2C,
                 0x6E530,
                 0x7BD40,
-                0x7BDC0,
+                0x7BDE0,
                 0xA3180,
+                0xAAE6C,
+                0xAAE9C,
+                0xAAF2C,
+                0xAAF5C,
             },
         )
         section_patch = next(
@@ -351,7 +356,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "212D56694DF24D199F9B8EB2967E2C50887265C32EF1115C98820B36F12BADFF",
+            "729DDBC1D3DB7847EFA93E204C902D085381BD86239C243323BA66DF7D6AF7C5",
         )
         self.assertEqual(
             bytes.fromhex(
