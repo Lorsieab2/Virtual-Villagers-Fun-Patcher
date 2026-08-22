@@ -178,6 +178,16 @@ Each child who finishes the unlocked Going to school activity gains 7 to 9 point
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Visual Mods (`vv1_visual_mods`)
+
+Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.
+
+- Behavior changes: Swaps Images/lagoon_restored.jpg, Images/garden_restored.png, Images/MapX1Y2.jpg, and Images/MapX2Y1.jpg for decorated versions (flowers at the lagoon and love hut, clothes at the extra hut near the farm, and colorful flowers in the restored garden). Only these four image files are replaced; each is restored to the exact base-game file when the patch is removed.
+- Explicit non-changes/exclusions: No executable bytes are patched. No gameplay, stats, collectibles, or save data are affected.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Write Village Statistics to Text File (`vv1_write_village_statistics`)
 
 After a successful save, writes the village's lifetime statistics to a Village Statistics text file.
@@ -445,6 +455,16 @@ After a successful save, writes the village's lifetime statistics to a Village S
 Supported stock identity is the exact `Virtual Villagers - New Believers.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 13 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
 
 ### Optional features
+
+#### Clickable Tips (`vv5_clickable_tips`)
+
+Clicking the curled vine beneath the on-screen Puzzles button shows a random in-game tip in the gray message bar (with the engine's own auto-hide timer) and plays the hou.ogg chime.
+
+- Behavior changes: Adds a click target on the curled vine beneath the on-screen Puzzles button; clicking it shows a random eRandomTip in the gray message bar and plays the hou.ogg chime. Picks the tip at random each click (rdtsc-seeded); no persistent state.
+- Explicit non-changes/exclusions: No gameplay, villager, economy, or save-data changes. Uses only unused .text code padding; no existing engine code or data is altered besides the single hooked click-dispatch site, and no persistent or scratch memory is written.
+- Dependencies: none
+- Evidence status: static + in-game verified (tip text and hou.ogg chime confirmed in playtest)
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Easier Devotee Training (`vv5_easier_devotee_training`)
 

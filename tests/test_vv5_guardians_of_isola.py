@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import struct
 import sys
 import tempfile
 import unittest
@@ -32,6 +33,31 @@ EXPECTED_DESTINATIONS = {
 
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+
+
+def image_geometry(data: bytes) -> tuple:
+    """Return (format, width, height, *format-descriptor) from a PNG or JPEG's
+    header, without any third-party imaging library.
+
+    PNG -> ("PNG", width, height, bit_depth, colour_type)
+    JPEG -> ("JPEG", width, height, component_count)
+    """
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        width, height = struct.unpack(">II", data[16:24])
+        return ("PNG", width, height, data[24], data[25])
+    if data[:2] == b"\xff\xd8":  # JPEG
+        i = 2
+        while i + 9 < len(data):
+            if data[i] != 0xFF:
+                i += 1
+                continue
+            marker = data[i + 1]
+            if 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):
+                height, width = struct.unpack(">HH", data[i + 5:i + 9])
+                return ("JPEG", width, height, data[i + 9])
+            i += 2 + struct.unpack(">H", data[i + 2:i + 4])[0]
+        raise ValueError("no JPEG start-of-frame marker found")
+    raise ValueError("unrecognized image format")
 
 
 class GuardiansOfIsolaTests(unittest.TestCase):
@@ -71,6 +97,33 @@ class GuardiansOfIsolaTests(unittest.TestCase):
             self.assertNotEqual(item["sha256"].upper(), item["restore_sha256"].upper())
             # Destinations stay inside Assets/ or Images/.
             self.assertRegex(item["destination"], r"^(Assets|Images)/[^\\/]+$")
+
+    def test_replacement_images_match_stock_dimensions_and_format(self) -> None:
+        """Each replacement image must have the exact pixel dimensions and pixel
+        format of the stock image it overwrites.
+
+        The game blits these as fixed-geometry sprite strips (e.g. the totem
+        strips and the blink/mask strips): a replacement with different
+        dimensions passes every hash/size/bundle check yet renders misaligned or
+        clipped in-game -- a "has all its assets but is not functional" failure
+        this suite otherwise cannot catch.
+
+        Geometry is read straight from the PNG/JPEG headers so the check has no
+        third-party dependency and always runs (never silently skips).
+        """
+        checked = 0
+        for item in self.companions:
+            dest = item["destination"].lower()
+            if not dest.endswith((".png", ".jpg", ".jpeg")):
+                continue
+            base = image_geometry((ROOT / item["restore_source"]).read_bytes())
+            new = image_geometry((ROOT / item["source"]).read_bytes())
+            self.assertEqual(
+                new, base,
+                f"{item['destination']}: replacement geometry {new} != stock {base}",
+            )
+            checked += 1
+        self.assertEqual(checked, 12, "expected 12 image companions to be checked")
 
     def test_enable_swaps_in_and_disable_restores_exact_base_bytes(self) -> None:
         with tempfile.TemporaryDirectory(prefix="vv5-guardians-") as td:

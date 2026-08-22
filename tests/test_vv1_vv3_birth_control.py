@@ -15,7 +15,7 @@ from vv_fun_patcher import load_fun_patches  # noqa: E402
 
 VV1_SHA256 = "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
 VV3_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
-VV1_PAGE_SHA256 = "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8"
+VV1_PAGE_SHA256 = "5EB1DB10B67DDAB3BFF678015BC2FB0330F3D8637F6944D530CA2271677FC578"
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
 
 
@@ -35,11 +35,11 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         patches = _patches("vv1_birth_control")
         expected = {
             0x3DD03: ("83BD5003000002", "E9F82205009090"),
-            0x46E96: ("813868010000", "E9A591040090"),
-            0x47084: ("813968010000", "E9F78F040090"),
-            0x477FA: ("3950F47C2A", "E9C1880400"),
+            0x46E96: ("813868010000", "E9E591040090"),
+            0x47084: ("813968010000", "E93790040090"),
+            0x477FA: ("3950F47C2A", "E901890400"),
             0x39C80: ("83FE01", "83FE05"),
-            0x39C83: ("0F8E99FEFFFF", "E97864050090"),
+            0x39C83: ("0F8E99FEFFFF", "E9B864050090"),
         }
         self.assertEqual(len(patches), 6)
         for patch in patches:
@@ -66,10 +66,27 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(page).hexdigest().upper(), VV1_PAGE_SHA256)
         self.assertEqual(details["page_sha256"], VV1_PAGE_SHA256)
         self.assertEqual(page[0x000:0x007], bytes.fromhex("83BD5003000002"))
-        self.assertEqual(page[0x040:0x046], bytes.fromhex("813868010000"))
-        self.assertEqual(page[0x080:0x086], bytes.fromhex("813968010000"))
-        self.assertEqual(page[0x0C0:0x0C7], bytes.fromhex("8178F468010000"))
-        self.assertEqual(page[0x100:0x106], bytes.fromhex("0F8E3E000000"))
+        # The "actor is not the category-2 carrier" branch must recompute the
+        # candidate record from EBX*0x3D8+ESI rather than read a stale EDI --
+        # see build_vv1_birth_control_page.py's own comment on this fix (EDI
+        # is reassigned twice by the stock function before this splice point,
+        # ending up as a small RNG(3)+5 integer, not a pointer).
+        manual_candidate = bytes.fromhex("8BC369C0D803000003C681B848030000E8030000")
+        self.assertIn(manual_candidate, page[0x000:0x080])
+        self.assertNotIn(bytes.fromhex("81BF48030000E8030000"), page)
+        # Regression pin for the second half of the same stale-EDI bug
+        # (live crash at 0x43DDE1, Windows fault offset 0x3DDE1): the reject
+        # path jumps into the stock block at 0x43DD9E, which dereferences the
+        # candidate record out of EDI six times. EDI holds the RNG(3)+5
+        # duration by this splice point, so the reject path MUST rebuild it as
+        # esi + ebx*0x3D8 first. Without these bytes the manual drag-pair
+        # crashes on rejection instead of on the age compare.
+        manual_reject_restores_edi = bytes.fromhex("8BFB69FFD803000001F7")
+        self.assertIn(manual_reject_restores_edi, page[0x000:0x080])
+        self.assertEqual(page[0x080:0x086], bytes.fromhex("813868010000"))
+        self.assertEqual(page[0x0C0:0x0C6], bytes.fromhex("813968010000"))
+        self.assertEqual(page[0x100:0x107], bytes.fromhex("8178F468010000"))
+        self.assertEqual(page[0x140:0x146], bytes.fromhex("0F8E3E000000"))
         self.assertIn(bytes.fromhex("817FD003000002"), page)
         self.assertIn(bytes.fromhex("6A64"), page)
         self.assertIn(bytes.fromhex("83C40483F84B"), page)

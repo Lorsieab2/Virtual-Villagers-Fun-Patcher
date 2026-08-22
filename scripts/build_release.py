@@ -90,6 +90,49 @@ FILES = [
     "native/vv5_task9_origins/vv5_task9_origins.c",
     "native/vv5_task9_origins/vv5_task9_origins.def",
     "native/vv5_task9_origins/vv5_task9_origins.rc",
+    # Fun-patch companion assets (asset-swap patches). Without these the
+    # patcher cannot apply the "Optional Text Changes" (VV4) or "Guardians
+    # of Isola" (VV5) fun patches, nor restore them on removal.
+    # The manifest itself must ship too, or the patch never loads (the loader
+    # reads data/vv4_text_changes.json) and it silently never appears.
+    "data/vv4_text_changes.json",
+    "assets/text-changes/vv4-sm.xml",
+    "assets/text-changes/vv4-sm-base.xml",
+    "data/guardians_of_isola/new/Assets/sm.xml",
+    "data/guardians_of_isola/base/Assets/sm.xml",
+    "data/guardians_of_isola/new/Images/BlinkyEyes.png",
+    "data/guardians_of_isola/base/Images/BlinkyEyes.png",
+    "data/guardians_of_isola/new/Images/BlinkyEyesSm.png",
+    "data/guardians_of_isola/base/Images/BlinkyEyesSm.png",
+    "data/guardians_of_isola/new/Images/BuildingTotemStrip.png",
+    "data/guardians_of_isola/base/Images/BuildingTotemStrip.png",
+    "data/guardians_of_isola/new/Images/ChildrensTotemStrip.png",
+    "data/guardians_of_isola/base/Images/ChildrensTotemStrip.png",
+    "data/guardians_of_isola/new/Images/FoodTotemStrip.png",
+    "data/guardians_of_isola/base/Images/FoodTotemStrip.png",
+    "data/guardians_of_isola/new/Images/MedicineTotemStrip.png",
+    "data/guardians_of_isola/base/Images/MedicineTotemStrip.png",
+    "data/guardians_of_isola/new/Images/RainbowTotemStrip.png",
+    "data/guardians_of_isola/base/Images/RainbowTotemStrip.png",
+    "data/guardians_of_isola/new/Images/ResearchTotemStrip.png",
+    "data/guardians_of_isola/base/Images/ResearchTotemStrip.png",
+    "data/guardians_of_isola/new/Images/blinkEyesMaskStrip.png",
+    "data/guardians_of_isola/base/Images/blinkEyesMaskStrip.png",
+    "data/guardians_of_isola/new/Images/blinkEyesMaskStripSm.png",
+    "data/guardians_of_isola/base/Images/blinkEyesMaskStripSm.png",
+    "data/guardians_of_isola/new/Images/idol_states.png",
+    "data/guardians_of_isola/base/Images/idol_states.png",
+    "data/guardians_of_isola/new/Images/mainmenu.jpg",
+    "data/guardians_of_isola/base/Images/mainmenu.jpg",
+    # VV1 "Visual Mods" fun patch (asset-swap) companion + base-restore images.
+    "data/vv1_visual_mods/new/Images/garden_restored.png",
+    "data/vv1_visual_mods/base/Images/garden_restored.png",
+    "data/vv1_visual_mods/new/Images/lagoon_restored.jpg",
+    "data/vv1_visual_mods/base/Images/lagoon_restored.jpg",
+    "data/vv1_visual_mods/new/Images/MapX1Y2.jpg",
+    "data/vv1_visual_mods/base/Images/MapX1Y2.jpg",
+    "data/vv1_visual_mods/new/Images/MapX2Y1.jpg",
+    "data/vv1_visual_mods/base/Images/MapX2Y1.jpg",
 ]
 
 def main() -> int:

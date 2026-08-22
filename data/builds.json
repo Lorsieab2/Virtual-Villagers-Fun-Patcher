@@ -677,6 +677,91 @@
   ],
   "fun_patches": [
     {
+      "id": "vv5_clickable_tips",
+      "game_id": "vv5",
+      "name": "Clickable Tips",
+      "description": "Clicking the curled vine beneath the on-screen Puzzles button shows a random in-game tip in the gray message bar (with the engine's own auto-hide timer) and plays the hou.ogg chime.",
+      "output_tag": "Clickable Tips",
+      "behavior_changes": [
+        "Adds a click target on the curled vine beneath the on-screen Puzzles button; clicking it shows a random eRandomTip in the gray message bar and plays the hou.ogg chime.",
+        "Picks the tip at random each click (rdtsc-seeded); no persistent state."
+      ],
+      "explicit_non_changes": [
+        "No gameplay, villager, economy, or save-data changes.",
+        "Uses only unused .text code padding; no existing engine code or data is altered besides the single hooked click-dispatch site, and no persistent or scratch memory is written."
+      ],
+      "evidence_status": "static + in-game verified (tip text and hou.ogg chime confirmed in playtest)",
+      "patches": [
+        {
+          "offset": "0x4A5C",
+          "before": "83C4085152",
+          "after": "E92FFE0800",
+          "purpose": "hook the on-screen click-dispatch site (0x404A5C) to the clickable-tips handler cave"
+        },
+        {
+          "offset": "0x94890",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "609C81FAA40000007C4281FAC20000007F3A81F9D90200007C3281F9F50200007F2A0F3131D2BB32000000F7F381C2610400006AFF52B9680F5200E890A6FBFFB940F451006A61E8647BFBFF9D6183C4085152E97901F7FF",
+          "purpose": "clickable-tips handler cave: on a qualifying click, pick a random eRandomTip and show it via Bar::SetText (0x44EF60), play hou.ogg via SoundMgr::PlaySound (0x44C440), then run the displaced dispatch bytes"
+        }
+      ]
+    },
+    {
+      "id": "vv1_visual_mods",
+      "game_id": "vv1",
+      "name": "Visual Mods",
+      "description": "Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.",
+      "output_tag": "Visual Mods",
+      "behavior_changes": [
+        "Swaps Images/lagoon_restored.jpg, Images/garden_restored.png, Images/MapX1Y2.jpg, and Images/MapX2Y1.jpg for decorated versions (flowers at the lagoon and love hut, clothes at the extra hut near the farm, and colorful flowers in the restored garden).",
+        "Only these four image files are replaced; each is restored to the exact base-game file when the patch is removed."
+      ],
+      "explicit_non_changes": [
+        "No executable bytes are patched.",
+        "No gameplay, stats, collectibles, or save data are affected."
+      ],
+      "evidence_status": "static source/manifest verification performed; runtime/player confirmation pending",
+      "patches": [],
+      "companion_files": [
+        {
+          "source": "data/vv1_visual_mods/new/Images/garden_restored.png",
+          "destination": "Images/garden_restored.png",
+          "size": 310812,
+          "sha256": "528FA97BDEEA43E7D4E1C456CDC27080E4FE65964D683AD137A08E21A9B79FC7",
+          "preimage_sha256": "9313669468F39769A03AC669BDDB3FDF50743F54C67FE55946E8F81A1404BA0E",
+          "restore_source": "data/vv1_visual_mods/base/Images/garden_restored.png",
+          "restore_sha256": "9313669468F39769A03AC669BDDB3FDF50743F54C67FE55946E8F81A1404BA0E"
+        },
+        {
+          "source": "data/vv1_visual_mods/new/Images/lagoon_restored.jpg",
+          "destination": "Images/lagoon_restored.jpg",
+          "size": 44953,
+          "sha256": "56EF82343D490FC676D9EBD88395E52DC401421C29D8920D8F0E5BEF48FF5425",
+          "preimage_sha256": "246F1A15D62B7A9AF19CED14551BA03E1D3310B8DD93E3A4E44405CEA445872B",
+          "restore_source": "data/vv1_visual_mods/base/Images/lagoon_restored.jpg",
+          "restore_sha256": "246F1A15D62B7A9AF19CED14551BA03E1D3310B8DD93E3A4E44405CEA445872B"
+        },
+        {
+          "source": "data/vv1_visual_mods/new/Images/MapX1Y2.jpg",
+          "destination": "Images/MapX1Y2.jpg",
+          "size": 69849,
+          "sha256": "9106E4BEBC2463262EE917C5CAA85FD915F7C86C55AFDF66E2B1480ECEFE33EC",
+          "preimage_sha256": "47E4BA41096424DB50D8C1928352B05D7AE0FB978488CCA5B393752398AD4E35",
+          "restore_source": "data/vv1_visual_mods/base/Images/MapX1Y2.jpg",
+          "restore_sha256": "47E4BA41096424DB50D8C1928352B05D7AE0FB978488CCA5B393752398AD4E35"
+        },
+        {
+          "source": "data/vv1_visual_mods/new/Images/MapX2Y1.jpg",
+          "destination": "Images/MapX2Y1.jpg",
+          "size": 84610,
+          "sha256": "E50204BDD3CF93131E001428214D78BE4EC98CE91086F6B2EA44E52C5570A113",
+          "preimage_sha256": "12AB125C1D4DEB0CA5290D4F6917E0A3DD3BEB2000549E5DE57625ED181DBF73",
+          "restore_source": "data/vv1_visual_mods/base/Images/MapX2Y1.jpg",
+          "restore_sha256": "12AB125C1D4DEB0CA5290D4F6917E0A3DD3BEB2000549E5DE57625ED181DBF73"
+        }
+      ]
+    },
+    {
       "id": "vv2_easier_healing_mastery",
       "game_id": "vv2",
       "name": "Easier Healing Mastery",
@@ -1415,7 +1500,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
+            "page_sha256": "5EB1DB10B67DDAB3BFF678015BC2FB0330F3D8637F6944D530CA2271677FC578",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1444,7 +1529,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
+            "page_sha256": "5EB1DB10B67DDAB3BFF678015BC2FB0330F3D8637F6944D530CA2271677FC578",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1473,7 +1558,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
+            "page_sha256": "5EB1DB10B67DDAB3BFF678015BC2FB0330F3D8637F6944D530CA2271677FC578",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1508,19 +1593,19 @@
         {
           "offset": "0x46E96",
           "before": "813868010000",
-          "after": "E9A591040090",
+          "after": "E9E591040090",
           "purpose": "add a candidate-only internal-age-1000 upper bound to the first action-9 writer-reaching scan"
         },
         {
           "offset": "0x47084",
           "before": "813968010000",
-          "after": "E9F78F040090",
+          "after": "E93790040090",
           "purpose": "add a candidate-only internal-age-1000 upper bound to the second action-9 writer-reaching scan"
         },
         {
           "offset": "0x477FA",
           "before": "3950F47C2A",
-          "after": "E9C1880400",
+          "after": "E901890400",
           "purpose": "add a candidate-only internal-age-1000 upper bound to the planner scan while preserving the stock initiator check"
         },
         {
@@ -1532,7 +1617,7 @@
         {
           "offset": "0x39C83",
           "before": "0F8E99FEFFFF",
-          "after": "E97864050090",
+          "after": "E9B864050090",
           "purpose": "route the VV1 embracing chooser tail through the owned page for the native score roll and preference fallback"
         }
       ]
@@ -1548,8 +1633,8 @@
         {
           "source": "data/guardians_of_isola/new/Assets/sm.xml",
           "destination": "Assets/sm.xml",
-          "size": 149538,
-          "sha256": "30BC2E797749457A62535C234B581B8EB2E262C1EEF5358E762556A9E61B0723",
+          "size": 149915,
+          "sha256": "203D4BD689DC032989F57C09992F82115B5D473C7079611E2BFD7140DA5FE89A",
           "preimage_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071",
           "restore_source": "data/guardians_of_isola/base/Assets/sm.xml",
           "restore_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071"

@@ -7612,23 +7612,34 @@ def _copy_companion_files(
                 if not source.is_file():
                     raise PatcherError(f"Required companion file is missing: {source}")
                 expected_hash = item["sha256"].upper()
+                if sha256(source) != expected_hash:
+                    raise PatcherError(f"Companion file hash mismatch: {source.name}")
                 preimage_hash = str(item.get("preimage_sha256", "")).upper() or None
-                if preimage_hash:
-                    destination = output_folder / destination_name
-                    if not destination.is_file() or sha256(destination) != preimage_hash:
+                destination = output_folder / destination_name
+                # Idempotent re-apply: if the destination is already the exact
+                # patched file, there is nothing to do.  This lets the patch be
+                # re-applied over an already-patched game without tripping the
+                # preimage guard, while a foreign/localized file (neither the
+                # base nor the patched file) is still refused rather than
+                # silently clobbered.
+                already_applied = (
+                    destination.is_file() and sha256(destination) == expected_hash
+                )
+                if not already_applied:
+                    if preimage_hash and (
+                        not destination.is_file()
+                        or sha256(destination) != preimage_hash
+                    ):
                         raise PatcherError(
                             f"Companion replacement preimage mismatch: {destination}"
                         )
-                if sha256(source) != expected_hash:
-                    raise PatcherError(f"Companion file hash mismatch: {source.name}")
-                destination = output_folder / destination_name
-                _atomic_companion_replace(
-                    source,
-                    destination,
-                    source_hash=expected_hash,
-                    preimage_hash=preimage_hash,
-                    feature_id=feature.id,
-                )
+                    _atomic_companion_replace(
+                        source,
+                        destination,
+                        source_hash=expected_hash,
+                        preimage_hash=preimage_hash,
+                        feature_id=feature.id,
+                    )
                 copied.append(
                     {
                         "feature": feature.id,

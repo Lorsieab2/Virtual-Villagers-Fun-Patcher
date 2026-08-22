@@ -8,7 +8,8 @@ VV5 build:
 
   * a code cave at .text VA ``0x494900`` (currently zero padding),
   * a 5-byte hook over the click-dispatch site at ``0x404A5C``,
-  * one dword of the writable ``.shr`` slack (``0x7B2FFC``) as a click counter.
+  * a random tip index each click from ``rdtsc`` (CPU timestamp counter) — no
+    external RNG, no writable scratch needed.
 
 Everything the handler calls is native engine code:
 
@@ -50,10 +51,8 @@ DEFAULT_INPUT = (
 # --- addresses (image base 0x400000) -------------------------------------
 HOOK_VA = 0x404A5C          # click-dispatch site; displaced bytes below
 HOOK_PREIMAGE = bytes.fromhex("83C4085152")   # add esp,8 ; push ecx ; push edx
-CODE_VA = 0x494900          # .text cave for the handler
-CAVE_LO, CAVE_HI = 0x494610, 0x4949B0  # cave span kept zero apart from the handler
-COUNTER_VA = 0x7B2FFC       # writable .shr slack (NOT .text: writes there fault)
-
+CODE_VA = 0x494890          # .text cave for the handler (free of every VV5 feature cave)
+CAVE_LO, CAVE_HI = 0x494610, 0x4948F8  # cave span kept zero apart from the handler
 BAR_THIS = 0x520F68         # bar object (Bar::SetText `this`)
 BAR_SETTEXT = 0x44EF60      # Bar::SetText(stringId, param); ret 8
 SND_MGR = 0x51F440          # SoundMgr singleton
@@ -69,7 +68,7 @@ VINE_Y_LO, VINE_Y_HI = 164, 194
 
 # known-good reproducibility pins (informational; enforced only on a match)
 KNOWN_PARENT_SHA256 = "869C5CBA8CC051B4623B159F0BB3DC60462FE4D9CBA0A013755A893F0D2EECFB"
-KNOWN_RESULT_SHA256 = "C193180ADAC0C15546EAB33A49A262F0CD5370C053DE3A8B1E3B3224AC14651E"
+KNOWN_RESULT_SHA256 = "CA6A1E9A8A9E0D5927AD263F199E1C5FF4EEF38583F05BF25807DC5DAA299DC2"
 
 
 def _handler_bytes() -> bytes:
@@ -84,9 +83,7 @@ def _handler_bytes() -> bytes:
         jl done
         cmp ecx,{VINE_X_HI}
         jg done
-        mov eax,[{COUNTER_VA}]
-        inc eax
-        mov [{COUNTER_VA}],eax
+        rdtsc
         xor edx,edx
         mov ebx,{TIP_COUNT}
         div ebx
@@ -118,26 +115,20 @@ def build(parent: bytes) -> bytes:
     def sect(name: bytes):
         return next(s for s in pe.sections if s.Name.rstrip(b"\x00") == name)
 
-    text, shr = sect(b".text"), sect(b".shr")
+    text = sect(b".text")
 
     def v2f_text(va: int) -> int:
         return text.PointerToRawData + (va - (ib + text.VirtualAddress))
-
-    def v2f_shr(va: int) -> int:
-        return shr.PointerToRawData + (va - (ib + shr.VirtualAddress))
 
     # preconditions
     if raw[v2f_text(HOOK_VA):v2f_text(HOOK_VA) + 5] != HOOK_PREIMAGE:
         raise ValueError("hook preimage mismatch at 0x404A5C; parent is not a supported VV5 build")
     if any(raw[v2f_text(a)] for a in range(CAVE_LO, CAVE_HI)):
         raise ValueError("code cave 0x494610..0x4949B0 is not free")
-    if not (shr.Characteristics & 0x80000000):
-        raise ValueError(".shr section is not writable")
 
-    # apply: zero cave, clear counter, write handler, install hook, fix checksum
+    # apply: zero cave, write handler, install hook, fix checksum
     for a in range(CAVE_LO, CAVE_HI):
         raw[v2f_text(a)] = 0
-    raw[v2f_shr(COUNTER_VA):v2f_shr(COUNTER_VA) + 4] = b"\x00\x00\x00\x00"
     code = _handler_bytes()
     raw[v2f_text(CODE_VA):v2f_text(CODE_VA) + len(code)] = code
     rel = CODE_VA - (HOOK_VA + 5)
