@@ -11,7 +11,7 @@ child 0x409600->0x408CF0 7-arg, gated to head draws in FUN_00445b50).  Stage 2:
      atlas at the head anchor (same frame/facing + x, y lifted MASK_DY) so the mask
      sits on the villager's face; feathers rise above.  Head still draws under it.
 
-STAGE 2 hardcodes ONE mask row for EVERY villager (MASK_ROW_TEST) — no +0x588 byte
+STAGE 2 hardcodes ONE mask row for EVERY villager (MASK_ROW_TEST) — no gate byte
 / chooser yet — purely to confirm the atlas loads, draws, scales (children) and
 aligns.  Writes NO villager state.  Checksum-fixed test exe for live playtest.
 
@@ -52,7 +52,11 @@ CALLER_LO, CALLER_HI = 0x445B50, 0x4478DF
 CHILD_CALLER_LO, CHILD_CALLER_HI = 0x445540, 0x4478DF
 DRAWOBJ_PTR = 0xE574D0
 HEAD_ATLASES = (0xE574A0, 0xE574A8, 0xE574AC, 0xE574B0, 0xE574B4)
-MASK_BYTE_OFF = 0x588             # unused per-villager record byte = mask choice (0=none, 1..5)
+MASK_BYTE_OFF = 0x680             # unused per-villager record byte = mask choice (0=none, 1..5)
+# NOTE: do NOT use 0x588 — it lies INSIDE the villager-name string buffer (+0x564, 66-byte cap
+# via the string-copy at 0x4682bd; default name "Biggles" @0x476774). A stored gate there would
+# be wiped by any rename/reload and could corrupt a >=36-char name. 0x680 sits deep in the
+# unreferenced 0x5f8..0x6e8 record gap, clear of every string buffer (verified: zero disp refs).
 
 # --- init detour (asset-load tail) -----------------------------------------
 INIT_VA = 0x44C5E6                # `mov [esi+0xe574d8], eax` (6 bytes)
