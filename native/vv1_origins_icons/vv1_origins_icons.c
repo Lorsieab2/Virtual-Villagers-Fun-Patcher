@@ -77,8 +77,8 @@
    only holds a record POINTER, so it converts back using the villager-array
    base the render hook stashes every frame. Every conversion is fully
    validated; anything unexpected fails closed to "no mask", never a write. */
-#define VV_MASK_TABLE ((unsigned char *)0x0048D100)
-#define VV_MASK_MANAGER (*(unsigned char **)0x0048DEE4)
+#define VV_MASK_TABLE ((unsigned char *)0x0048CD20)   /* .data BSS, W^X-safe */
+#define VV_MASK_MANAGER (*(unsigned char **)0x0048CDD0) /* .data BSS, W^X-safe */
 #define VV_RECORD_STRIDE 0x3D8
 #define VV_MASK_SLOTS 256
 

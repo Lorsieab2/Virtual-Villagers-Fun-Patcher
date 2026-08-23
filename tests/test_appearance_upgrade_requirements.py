@@ -292,6 +292,12 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x270", "0x28C", "0x28470", "0x56900",
                     "0x85D30", "0x8B009", "0x8B530", "0x8B710",
                     "0x35ACA", "0x8B900",
+                    # .data VirtualSize extended to 0x7000 so it formally owns
+                    # the BSS page (0x48CD18..0x48D000) that now holds all
+                    # writable mask state -- keeping runtime writes out of the
+                    # executable .shr section (W^X), which is what stopped
+                    # Malwarebytes quarantining the running village.
+                    "0x248",
                     # Villager Details "Change Appearance" row: a dedicated
                     # dispatch router at 0x8BA00 (isolated from detail_menu's
                     # own shared, byte-constrained cave -- it only ever does

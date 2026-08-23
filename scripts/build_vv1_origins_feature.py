@@ -302,24 +302,64 @@ VV1_SKILL_FIELDS = (
 # clear_code) = 0x8BEA8, confirmed all-zero for 190+ bytes up to .shr's own
 # raw-section end (0x8BFFF) by a full-file zero-run scan against every
 # patch offset already claimed by this manifest.
+# --- W^X split: writable mask state lives in .data, not executable .shr ---
+#
+# Malwarebytes' behavioural engine quarantines the process the moment the
+# village render loop starts, because the stash hook writes MASK_MANAGER_VA
+# every frame into .shr -- a section that is simultaneously executable.
+# Writing to an executable page at runtime is the classic self-modifying-code
+# signature. Proven by elimination: the same patched exe with .shr merely
+# marked RWX but never written survives; it is the runtime WRITE into an
+# executable page that trips the heuristic, and it fires exactly when the
+# village starts rendering (which is when the per-frame store begins).
+#
+# The fix is the W^X rule: code is executable-not-writable, data is
+# writable-not-executable. Every mask datum that is written at runtime moves
+# into the .data section's zero-filled BSS tail (0x48CD18..0x48D000, already
+# mapped RW and NON-executable, extended below to own the whole page). Only
+# read-only constants (the companion-PNG path strings) stay in .shr, which
+# Stage 3 will mark read+execute. The mask CODE stays in .shr; it references
+# these VAs, so repointing the constants moves the writes with zero assembly
+# edits.
+DATA_SCRATCH_BASE_VA = 0x48CD20  # 8-aligned start of .data's BSS tail gap
+# Mask writable state, laid out in .data (all zero-initialised by the loader):
+MASK_TABLE_VA = DATA_SCRATCH_BASE_VA + 0x00  # 256 villagers x 4 bits = 128 bytes
+MASK_TABLE_SIZE = 128
+MASK_SURFACES_VA = DATA_SCRATCH_BASE_VA + 0x80  # 5 x SDL_Surface* cache
+MASK_PENDING_RECORD_VA = DATA_SCRATCH_BASE_VA + 0x98
+MASK_PENDING_CHOICE_VA = DATA_SCRATCH_BASE_VA + 0x9C
+MASK_PENDING_X_VA = DATA_SCRATCH_BASE_VA + 0xA0
+MASK_PENDING_Y_VA = DATA_SCRATCH_BASE_VA + 0xA4
+MASK_PENDING_FRAME_VA = DATA_SCRATCH_BASE_VA + 0xA8
+DEST_SURFACE_CACHE_VA = DATA_SCRATCH_BASE_VA + 0xAC
+MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0xB0
+MASK_DATA_SCRATCH_END_VA = DATA_SCRATCH_BASE_VA + 0xB4  # first free .data byte
+
 MASK_OVERLAY_FILE_OFFSET = 0x8BEA8
 MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
     MASK_OVERLAY_FILE_OFFSET - SHR_FILE_OFFSET
 )
-MASK_SURFACES_VA = MASK_OVERLAY_VA  # 5 x SDL_Surface* cache, NULL until first load
-# Every asset filename string anywhere in the stock exe is bare (no "/" or
-# "\\" -- confirmed via a full-binary string scan), yet the actual files all
-# live under Images/ on disk, so the native loader constructs that prefix at
-# load time rather than relying on a CWD that already is Images/. Matching
-# that same convention ("Images/mN.png") is the one relative-path shape
-# already proven to work for every other asset this game loads.
-#
-# ONE shared path, not five. The five companion sheets differ only in a single
-# digit, so the draw hook writes that digit in place before calling IMG_Load.
-# Five separate 16-byte strings cost 80 bytes of a 344-byte cave that the real
-# SDL_UpperBlit draw needs; this costs 16 bytes and two instructions.
-MASK_PATH_VA = MASK_OVERLAY_VA + 0x14  # "Images/m1.png" + NUL
-MASK_PATH_DIGIT_VA = MASK_PATH_VA + 8  # the '1' in "m1.png", overwritten per choice
+# Read-only companion-PNG path strings. They are genuine read-only constants,
+# so they belong in .rdata, and they are added to the Origins string cave in
+# main() (MASK_PATHS_VA is assigned there, right after the base strings) --
+# that cave is private to this feature, unlike the .text slack, which several
+# other fun-patches (population-saturation guards, school-lessons, ...) also
+# claim, and unlike the mask cave, which is 5 bytes too small to also hold
+# them. Five 16-byte NUL-padded strings so the draw hook can select one by
+# (choice << 4) instead of writing a digit into a shared string -- an in-place
+# digit write is itself a write into executable memory and would defeat the
+# whole W^X split. Every asset filename in the stock exe is bare (no path
+# separator), yet the files live under Images/ on disk, so the loader builds
+# that prefix at load time; "Images/mN.png" is the one relative-path shape
+# already proven to work for this game.
+MASK_PATH_STRIDE = 0x10  # 16-byte stride so the draw hook selects by (choice<<4)
+mask_paths_data = b"".join(
+    f"Images/m{n}.png\0".encode("ascii").ljust(MASK_PATH_STRIDE, b"\0")
+    for n in range(1, 6)
+)
+assert len(mask_paths_data) == 5 * MASK_PATH_STRIDE
+# MASK_PATHS_VA is assigned in main() once the string cave offset is known.
+# The mask cave itself holds only code.
 # Playtested: the first build drew the mask right after the occupied check
 # (before the native head/body/clothing draw for that same iteration), so the
 # native head painted right over it every frame -- invisible, not broken.
@@ -336,41 +376,31 @@ MASK_PATH_DIGIT_VA = MASK_PATH_VA + 8  # the '1' in "m1.png", overwritten per ch
 # subtraction every native draw call in sub_437790 performs (confirmed at the
 # head-draw site 0x437d67/0x437d70, which does "sub edx,[ebx+0xc]" /
 # "sub ecx,[ebx+8]" against this same object).
-MASK_PENDING_RECORD_VA = MASK_OVERLAY_VA + 0x24  # 0 = nothing pending, else record ptr
-MASK_PENDING_CHOICE_VA = MASK_OVERLAY_VA + 0x28  # 1..5, valid only when RECORD != 0
-MASK_PENDING_X_VA = MASK_OVERLAY_VA + 0x2C  # villager screen x
-MASK_PENDING_Y_VA = MASK_OVERLAY_VA + 0x30  # villager screen y
-MASK_PENDING_FRAME_VA = MASK_OVERLAY_VA + 0x34  # facing column, record +0x34
-# Ground truth, refreshed every real frame: FUN_00409060 (the actual main
-# per-frame tick -- confirmed via Ghidra to be the function that calls
-# FUN_00403830, which itself does SDL_UpdateTexture/RenderClear/RenderCopy/
-# RenderPresent) reads *(its own esi + 0x30) at 0x40913c and pushes that exact
-# value as FUN_00403830's surface argument one instruction later -- there is no
-# more direct proof obtainable that a pointer *is* the real, currently
-# presented destination surface than reading it at the literal call site that
-# presents it. MASK_THIRD_DETOUR below reproduces that read and additionally
-# stashes it here, once per real frame, so the draw hook (which runs in a
-# different object's context -- FUN_00423390's own esi+0x30 was proven by
-# direct ReadProcessMemory inspection to be a stable but garbage 0x0BAD0D60,
-# 10/10 samples over ~2s) can use this cached value instead of recomputing the
-# same pointer from a context where it is not reliably valid. The surface is
-# allocated once for the process lifetime, so a one-frame-old cached copy is
-# still the right address -- only its contents change per frame.
-DEST_SURFACE_CACHE_VA = MASK_OVERLAY_VA + 0x38
-# The villager-array base (== the compositor's ESI, the same value the game
-# itself adds to idx*0x3D8 at 0x43779f to form a record pointer). Stashed by
-# the stash hook so the DLL's Change Appearance dialog can turn the record
-# pointer it holds back into a record INDEX -- the key the mask table uses.
-# Written every frame; the DLL only ever reads it, and treats 0 as "engine
-# not running yet", which is the fail-safe state (no mask write happens).
-MASK_MANAGER_VA = MASK_OVERLAY_VA + 0x3C
-# The hook code is emitted immediately after the cave's data blocks
-# (surfaces 20 + path 16 + pending 36 = 0x48 bytes), so this offset is not
-# free to choose -- it MUST equal that total. Setting it to 0x3C+4 while the
-# data still ran to 0x48 assembled the hook for a base 8 bytes below where it
-# was actually written, which silently skewed every absolute branch out of it
-# (the resume jmp landed mid-instruction at 0x4377c6 instead of 0x4377be).
-MASK_HOOK_VA = MASK_OVERLAY_VA + 0x48  # stash-only hook (occupied-check splice)
+# The stash hook records the SCREEN POSITION too, not just the record. It is
+# the only one of the three hooks that runs with both the villager record and
+# the village object in registers, so it is the only place the position can be
+# computed at all: screen = record.xy - village.scroll_xy, exactly the
+# subtraction every native draw call in sub_437790 performs (confirmed at the
+# head-draw site 0x437d67/0x437d70, which does "sub edx,[ebx+0xc]" /
+# "sub ecx,[ebx+8]" against this same object). MASK_PENDING_* live in .data
+# (see the W^X split above), written by this hook each frame.
+#
+# DEST_SURFACE_CACHE_VA: ground truth refreshed every real frame. FUN_00409060
+# (the actual main per-frame tick -- confirmed via Ghidra to call FUN_00403830,
+# which does SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent) reads
+# *(its own esi + 0x30) at 0x40913c and pushes that exact value as
+# FUN_00403830's surface argument one instruction later. MASK_THIRD_DETOUR
+# reproduces that read and stashes it, once per real frame, so the draw hook
+# (which runs in a different object's context -- FUN_00423390's own esi+0x30
+# was proven by direct ReadProcessMemory inspection to be a stable but garbage
+# 0x0BAD0D60) can use the cached value instead. Also in .data now.
+#
+# MASK_HOOK_VA: the mask code begins right after the read-only path strings in
+# .shr. Computed from the strings' real length so it can never drift out of
+# sync with the emitted blob (a hardcoded offset once put the hook 8 bytes off
+# its assembly base, skewing every absolute branch out of it -- the resume jmp
+# landed mid-instruction at 0x4377c6 instead of 0x4377be).
+MASK_HOOK_VA = MASK_OVERLAY_VA  # cave holds code only; strings in .text slack
 
 # --- Where a villager's chosen mask actually lives ---------------------
 #
@@ -392,22 +422,13 @@ MASK_HOOK_VA = MASK_OVERLAY_VA + 0x48  # stash-only hook (occupied-check splice)
 # holding a small value -- writing 1..5 into one would make the engine read
 # that dword as e.g. 0x03000000. VV1's 984-byte record is simply full.
 #
-# So the selection lives in memory THIS PATCH owns instead: 256 villagers,
-# one nibble each, 128 bytes. Unlike a record byte, "free" here is provable
-# from the build rather than inferred from a sample -- the accompanying test
-# asserts zero absolute references into this window and zero non-zero bytes
-# in every rendered population variant. The engine cannot touch it, so no
-# amount of save/load or villager churn can corrupt it, and a stale entry is
-# cosmetic-only by construction.
-#
-# Placed at the END of the 0x8B07E..0x8B180 gap so that both neighbours keep
-# their growth room: the preflight cave below keeps 130 bytes, and the
-# village-wide payload at 0x8B180 starts exactly where this table ends.
-MASK_TABLE_FILE_OFFSET = 0x8B100
-MASK_TABLE_VA = IMAGE_BASE + SHR_RVA + (
-    MASK_TABLE_FILE_OFFSET - SHR_FILE_OFFSET
-)
-MASK_TABLE_SIZE = 128  # 256 villagers x 4 bits
+# So the selection lives in memory THIS PATCH owns instead (MASK_TABLE_VA,
+# defined in the W^X block above): 256 villagers, one nibble each, 128 bytes.
+# It lives in .data rather than executable .shr so the DLL can write it without
+# a write into an executable page. Unlike a record byte, "free" here is
+# provable from the build rather than inferred from a sample. The engine cannot
+# touch it, so no amount of save/load or villager churn can corrupt it, and a
+# stale entry is cosmetic-only by construction.
 # Sheet geometry, and it is deliberately VV1's OWN head-atlas geometry:
 # male_heads.png/female_heads.png are 280x1300 = 7 columns x 20 rows of 40x65
 # (verified empirically -- the fully transparent separator columns land on
@@ -586,6 +607,16 @@ def main() -> None:
         "Everyone is at full health already. No villagers are sick. "
         "No tech points have been deducted.",
     )
+
+    # Cosmetic-mask companion-PNG path strings live here in the read-only
+    # string cave (.rdata), fixed 16-byte stride so the draw hook selects one
+    # by (choice << 4). Aligned to a 16-byte boundary first so MASK_PATHS_VA +
+    # (choice-1)*0x10 is exact. Kept out of executable memory entirely; see the
+    # W^X notes on the mask overlay.
+    while len(strings) % MASK_PATH_STRIDE:
+        strings.append(0)
+    mask_paths_va = STRINGS_VA + len(strings)
+    strings.extend(mask_paths_data)
 
     # tech_cost_table/detail_cost_table are the only tables the charge
     # logic actually reads (legacy_charge indexes tech_cost_table by row;
@@ -2127,12 +2158,9 @@ def main() -> None:
     # via a full-.text xref scan to be the single point every one of the
     # loop's 19 distinct draw/skip branches converges on), strictly after
     # all native drawing for that iteration is done.
-    mask_surfaces_data = b"\0" * 20
-    # One shared path; the draw hook rewrites the digit before each IMG_Load.
-    mask_path_data = b"Images/m1.png\0".ljust(16, b"\0")
-    # PENDING_RECORD, PENDING_CHOICE, PENDING_X, PENDING_Y, PENDING_FRAME,
-    # DEST_SURFACE_CACHE.
-    mask_pending_data = b"\0" * 36
+    # Surfaces/pending/dest-cache/manager all live in .data now (see the W^X
+    # split), so no writable data blob is emitted here -- only the read-only
+    # path strings (mask_paths_data, defined above) precede the code.
     mask_hook_code = assemble(
         f"""
             jnz {MASK_NATIVE_SKIP_TARGET_VA:#x}
@@ -2216,10 +2244,14 @@ def main() -> None:
             # a missing or broken file; that NULL stays in the cache and the
             # draw below is skipped, so a missing companion sheet degrades to
             # "no mask" instead of crashing.
-            mov al, bl
-            add al, 0x30
-            mov byte ptr [{MASK_PATH_DIGIT_VA:#x}], al
-            push {MASK_PATH_VA:#x}
+            # Select this colour's read-only path string by index instead of
+            # rewriting a shared string's digit in place -- an in-place write
+            # would be a write into executable .shr, the exact thing the W^X
+            # split exists to remove. addr = MASK_PATHS_VA + (choice-1)*0x10.
+            mov eax, ebx
+            shl eax, 4
+            add eax, {mask_paths_va - MASK_PATH_STRIDE:#x}
+            push eax
             call {IMG_LOAD_THUNK_VA:#x}
             add esp, 4
             mov dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4], eax
@@ -2273,18 +2305,17 @@ def main() -> None:
         mask_frame_cache_va,
     )
     mask_overlay_blob = (
-        mask_surfaces_data
-        + mask_path_data
-        + mask_pending_data
-        + mask_hook_code
+        mask_hook_code
         + mask_backedge_hook_code
         + mask_frame_cache_code
     )
+    # The read-only path strings were already appended to the .rdata string
+    # cave above (mask_paths_va); no separate patch is needed for them here.
     patch(
         MASK_OVERLAY_FILE_OFFSET,
         b"\0" * len(mask_overlay_blob),
         mask_overlay_blob,
-        "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames + a 2-dword pending-draw slot, then the stash-only occupied-check hook and the draw hook that runs at the loop's back-edge -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field",
+        "cosmetic head-mask overlay: the stash-only occupied-check hook, the draw hook that runs at the loop's back-edge, and the per-frame destination-surface cache hook -- lazy-IMG_Load's a mask PNG once per colour (cached in .data forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over. All writable state (surface cache, pending-draw slot, dest-surface cache, villager-array base, and the 128-byte mask table) lives in .data, NOT in this executable .shr blob, so nothing writes into an executable page at runtime (W^X). Never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field",
     )
     mask_detour_code = assemble(
         f"""
@@ -2384,6 +2415,15 @@ def main() -> None:
         bytes.fromhex("30ED0200"),
         bytes.fromhex("00F00200"),
         "extend the mapped .rdata VirtualSize to cover the Origins strings tail",
+    )
+    patch(
+        0x248,
+        bytes.fromhex("186D0000"),
+        bytes.fromhex("00700000"),
+        "extend .data VirtualSize to 0x7000 so it formally owns the BSS page "
+        "(0x48CD18..0x48D000) that now holds all writable mask state -- keeping "
+        "runtime writes out of the executable .shr section (W^X); .data stays "
+        "RW/non-executable, so no write ever lands on an executable page",
     )
     patch(
         0x270,

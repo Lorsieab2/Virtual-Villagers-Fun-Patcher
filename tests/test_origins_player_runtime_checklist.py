@@ -174,6 +174,10 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     repaired_offsets = {
                         "0x270",
                         "0x28C",
+                        # .data VirtualSize extended to 0x7000 so it owns the
+                        # BSS page holding all writable mask state (W^X) --
+                        # keeping runtime writes off the executable .shr page.
+                        "0x248",
                         "0x28470",
                         "0x56900",
                         "0x85D30",
