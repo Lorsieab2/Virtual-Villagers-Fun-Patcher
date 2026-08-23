@@ -44,38 +44,85 @@
 #define VV_GENDER_MALE 1
 #endif
 /* Purely cosmetic mask overlay choice (0 = none, 1..5 = mask variant).
-   +0x374 is confirmed unused anywhere in the exact-build binary -- a
-   full-.text capstone scan found zero static references to any of
-   +0x374..+0x38B (24 contiguous free bytes), well clear of every other
-   free dword at +0x3D4, proven free rather than assumed.
-
-   The first choice, +0x374, was WRONG and actively harmful: it is the
-   second byte of the villager's NAME string at +0x370. A live record read
-   back "Nuru" there, so writing a mask value renamed the villager, and the
-   render's own 1..5 range check then rejected the byte (it held 'u' = 117)
-   so nothing ever drew. "No literal displacement reference in .text" was
-   not sufficient evidence -- the name is written by a string copy, so it
-   has no such reference either.
-
-   +0x3D4 is verified two ways instead. Statically it has exactly one
-   reference in the whole executable, `mov [esi+ecx+0x3d4], ebx` at
-   0x41C344 inside the record initialiser, which zeroes it at creation:
-   nothing else writes it and nothing reads it. Empirically it is zero in
-   every live villager sampled. The zero-init is a bonus -- it makes "no
-   mask" the default for every existing and future villager with no
-   migration.
 
    Deliberately NOT the native nursing-baby-icon flag at +0x29 -- that byte
    is real per-villager gameplay state (a genuinely nursing mother already
    has it set), so reusing it would either double-draw over her real baby
-   icon or silently steal it. This field is drawn by a separate, additive
-   render hook that never reads or writes +0x29/+0x2A/+0x344. */
-#ifndef VV_MASK_OFFSET
-#define VV_MASK_OFFSET 0x3D4
-#endif
+   icon or silently steal it. The render hook is additive and never reads or
+   writes +0x29/+0x2A/+0x344.
+
+   Where the choice actually lives is documented on VV_MASK_TABLE below: not
+   in the villager record at all. */
 #ifndef VV_MASK_COUNT
 #define VV_MASK_COUNT 6
 #endif
+
+/* The chosen mask is NOT stored in the villager record. Two record bytes were
+   tried and both proved occupied by the engine in ways a static displacement
+   scan cannot see: +0x374 was inside the villager NAME buffer (names are
+   written by bulk string copies, so nothing "references" the byte -- it was
+   silently renaming villagers), and +0x3D4 is written by the save-LOAD path
+   (all-zero across a 40-villager sample, but 14 of a real save's 210
+   villagers had non-zero values on a fresh load with no mask ever set).
+   A scan of all 211 records found no run of >=4 always-zero bytes, and every
+   always-zero byte is the high byte of a dword holding a small value.
+
+   So the selection lives in a table the PATCH owns, in its .shr cave: 256
+   villagers, one nibble each. The engine cannot touch it, so no amount of
+   save/load or villager churn can corrupt game state through it, and the
+   worst possible failure is a cosmetic stale entry.
+
+   Keyed by record INDEX -- the same key the render hook uses, which it forms
+   exactly as the engine does at 0x437798 (manager + index*0x3D8). The dialog
+   only holds a record POINTER, so it converts back using the villager-array
+   base the render hook stashes every frame. Every conversion is fully
+   validated; anything unexpected fails closed to "no mask", never a write. */
+#define VV_MASK_TABLE ((unsigned char *)0x0048D100)
+#define VV_MASK_MANAGER (*(unsigned char **)0x0048DEE4)
+#define VV_RECORD_STRIDE 0x3D8
+#define VV_MASK_SLOTS 256
+
+static int vv1_mask_index(unsigned char *villager) {
+    unsigned char *base = VV_MASK_MANAGER;
+    size_t delta;
+    size_t index;
+    if (base == NULL || villager == NULL || villager < base) {
+        return -1;  /* engine not running yet, or a pointer we don't own */
+    }
+    delta = (size_t)(villager - base);
+    if (delta % VV_RECORD_STRIDE != 0) {
+        return -1;  /* not a record boundary -- refuse rather than guess */
+    }
+    index = delta / VV_RECORD_STRIDE;
+    if (index >= VV_MASK_SLOTS) {
+        return -1;
+    }
+    return (int)index;
+}
+
+static unsigned char vv1_mask_get(unsigned char *villager) {
+    int index = vv1_mask_index(villager);
+    unsigned char packed;
+    if (index < 0) {
+        return 0;
+    }
+    packed = VV_MASK_TABLE[index >> 1];
+    return (index & 1)
+        ? (unsigned char)(packed >> 4)
+        : (unsigned char)(packed & 0x0F);
+}
+
+static void vv1_mask_set(unsigned char *villager, unsigned char value) {
+    int index = vv1_mask_index(villager);
+    unsigned char *slot;
+    if (index < 0 || value >= VV_MASK_COUNT) {
+        return;
+    }
+    slot = &VV_MASK_TABLE[index >> 1];
+    *slot = (index & 1)
+        ? (unsigned char)((*slot & 0x0F) | (value << 4))
+        : (unsigned char)((*slot & 0xF0) | value);
+}
 
 static HINSTANCE module_instance;
 
@@ -440,7 +487,7 @@ static void appearance_repaint(HWND window, int control_id) {
 static void appearance_revert(void) {
     *(int *)(appearance_state.villager + VV_HEAD_OFFSET) = appearance_state.original_head;
     *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET) = appearance_state.original_body;
-    *(appearance_state.villager + VV_MASK_OFFSET) = (unsigned char)appearance_state.original_mask;
+    vv1_mask_set(appearance_state.villager, (unsigned char)appearance_state.original_mask);
 }
 
 /* The head field is hereditary (it's the one the villager's children
@@ -500,7 +547,7 @@ static INT_PTR CALLBACK appearance_dialog(
         SetDlgItemTextA(
             window,
             IDC_MASK_LABEL,
-            vv1_mask_name(*(appearance_state.villager + VV_MASK_OFFSET))
+            vv1_mask_name(vv1_mask_get(appearance_state.villager))
         );
         return TRUE;
     } else if (message == WM_DRAWITEM) {
@@ -517,7 +564,7 @@ static INT_PTR CALLBACK appearance_dialog(
             appearance_draw(
                 item,
                 IDB_MASK,
-                *(appearance_state.villager + VV_MASK_OFFSET)
+                vv1_mask_get(appearance_state.villager)
             );
             return TRUE;
         }
@@ -561,11 +608,11 @@ static INT_PTR CALLBACK appearance_dialog(
             return TRUE;
         }
         if (command == ID_MASK_PREV || command == ID_MASK_NEXT) {
-            unsigned char *mask = appearance_state.villager + VV_MASK_OFFSET;
+            unsigned char mask = vv1_mask_get(appearance_state.villager);
             int next = command == ID_MASK_PREV
-                ? (*mask + VV_MASK_COUNT - 1) % VV_MASK_COUNT
-                : (*mask + 1) % VV_MASK_COUNT;
-            *mask = (unsigned char)next;
+                ? (mask + VV_MASK_COUNT - 1) % VV_MASK_COUNT
+                : (mask + 1) % VV_MASK_COUNT;
+            vv1_mask_set(appearance_state.villager, (unsigned char)next);
             SetDlgItemTextA(window, IDC_MASK_LABEL, vv1_mask_name(next));
             appearance_repaint(window, IDC_MASK_PREVIEW);
             return TRUE;
@@ -573,7 +620,7 @@ static INT_PTR CALLBACK appearance_dialog(
         if (command == IDOK) {
             int changed = (*head != appearance_state.original_head)
                 || (*body != appearance_state.original_body)
-                || (*(appearance_state.villager + VV_MASK_OFFSET)
+                || (vv1_mask_get(appearance_state.villager)
                     != (unsigned char)appearance_state.original_mask);
             EndDialog(window, changed ? 1 : 2);
             return TRUE;
@@ -603,7 +650,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
-    appearance_state.original_mask = *(villager + VV_MASK_OFFSET);
+    appearance_state.original_mask = vv1_mask_get(villager);
     appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
     appearance_state.valid_count = appearance_state.male ? 19 : 20;
     appearance_state.head_warned = 0;

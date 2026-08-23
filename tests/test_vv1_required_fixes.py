@@ -705,13 +705,14 @@ class VV1RequiredFixTests(unittest.TestCase):
         image_base = pe.OPTIONAL_HEADER.ImageBase
         va = image_base + target_rva
         image = pe.get_memory_mapped_image()
-        # 0x60 was enough before the cosmetic mask field
-        # (appearance_state.original_mask = *(villager + VV_MASK_OFFSET))
-        # was added right after the head/body reads at the top of this
-        # same function -- that extra read+store pushed the gender
-        # sete/setne pair a few bytes past the old window boundary, so
-        # this needs a bit more room, not a different check.
-        picker_insns = list(md.disasm(image[target_rva:target_rva + 0x80], va))
+        # This window has had to grow twice, both times because more work was
+        # added ABOVE the gender read at the top of this same function, not
+        # because the check itself changed: first the cosmetic mask field
+        # (0x60 -> 0x80), then again when the mask moved out of the villager
+        # record into the patch-owned nibble table -- reading it now costs a
+        # call to vv1_mask_get plus its validation, instead of one inline
+        # byte load. It is still the same assertion about the same branch.
+        picker_insns = list(md.disasm(image[target_rva:target_rva + 0x100], va))
         # The compiler is free to either compare the gender field directly
         # from memory (cmp dword ptr [reg + 0x350], 1) or load it into a
         # register first and compare the register (mov reg, dword ptr

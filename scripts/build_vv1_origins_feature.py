@@ -357,15 +357,57 @@ MASK_PENDING_FRAME_VA = MASK_OVERLAY_VA + 0x34  # facing column, record +0x34
 # allocated once for the process lifetime, so a one-frame-old cached copy is
 # still the right address -- only its contents change per frame.
 DEST_SURFACE_CACHE_VA = MASK_OVERLAY_VA + 0x38
-# DIAGNOSTIC (temporary): the render did not appear in the first real
-# playtest, and the stash slots all read zero -- which cannot distinguish
-# "the stash hook never runs", "it runs but every villager's mask byte is 0"
-# and "it runs and stashes but the draw fails". These three make that
-# distinction directly readable from outside the process.
-DEBUG_HOOK1_COUNT_VA = MASK_OVERLAY_VA + 0x3C   # stash-hook invocations
-DEBUG_LAST_RECORD_VA = MASK_OVERLAY_VA + 0x40   # last occupied villager record
-DEBUG_LAST_BYTE_VA = MASK_OVERLAY_VA + 0x44     # last +0x3D4 value seen (any)
+# The villager-array base (== the compositor's ESI, the same value the game
+# itself adds to idx*0x3D8 at 0x43779f to form a record pointer). Stashed by
+# the stash hook so the DLL's Change Appearance dialog can turn the record
+# pointer it holds back into a record INDEX -- the key the mask table uses.
+# Written every frame; the DLL only ever reads it, and treats 0 as "engine
+# not running yet", which is the fail-safe state (no mask write happens).
+MASK_MANAGER_VA = MASK_OVERLAY_VA + 0x3C
+# The hook code is emitted immediately after the cave's data blocks
+# (surfaces 20 + path 16 + pending 36 = 0x48 bytes), so this offset is not
+# free to choose -- it MUST equal that total. Setting it to 0x3C+4 while the
+# data still ran to 0x48 assembled the hook for a base 8 bytes below where it
+# was actually written, which silently skewed every absolute branch out of it
+# (the resume jmp landed mid-instruction at 0x4377c6 instead of 0x4377be).
 MASK_HOOK_VA = MASK_OVERLAY_VA + 0x48  # stash-only hook (occupied-check splice)
+
+# --- Where a villager's chosen mask actually lives ---------------------
+#
+# NOT in the villager record. Two separate record bytes were tried and both
+# turned out to be occupied by the engine, in ways that a static displacement
+# scan provably cannot detect:
+#
+#   +0x374 sat INSIDE the villager NAME buffer (name base +0x370). Nothing
+#          "referenced" it because names are written by bulk string copies,
+#          not by a displacement. It silently renamed villagers.
+#   +0x3D4 read as all-zero across a 40-villager sample, so it looked free.
+#          Across all 210 villagers of a real save, on a FRESH LOAD with no
+#          mask ever set, it read 0->196, 1->9, 3->1, 5->1, 8->1, 15->2 --
+#          the save-LOAD path writes it, again via a bulk read invisible to
+#          a displacement scan.
+#
+# A full scan of all 211 records then found 186 always-zero bytes but NO run
+# of >=4 consecutive, and every one of them is the high byte of a dword
+# holding a small value -- writing 1..5 into one would make the engine read
+# that dword as e.g. 0x03000000. VV1's 984-byte record is simply full.
+#
+# So the selection lives in memory THIS PATCH owns instead: 256 villagers,
+# one nibble each, 128 bytes. Unlike a record byte, "free" here is provable
+# from the build rather than inferred from a sample -- the accompanying test
+# asserts zero absolute references into this window and zero non-zero bytes
+# in every rendered population variant. The engine cannot touch it, so no
+# amount of save/load or villager churn can corrupt it, and a stale entry is
+# cosmetic-only by construction.
+#
+# Placed at the END of the 0x8B07E..0x8B180 gap so that both neighbours keep
+# their growth room: the preflight cave below keeps 130 bytes, and the
+# village-wide payload at 0x8B180 starts exactly where this table ends.
+MASK_TABLE_FILE_OFFSET = 0x8B100
+MASK_TABLE_VA = IMAGE_BASE + SHR_RVA + (
+    MASK_TABLE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+MASK_TABLE_SIZE = 128  # 256 villagers x 4 bits
 # Sheet geometry, and it is deliberately VV1's OWN head-atlas geometry:
 # male_heads.png/female_heads.png are 280x1300 = 7 columns x 20 rows of 40x65
 # (verified empirically -- the fully transparent separator columns land on
@@ -396,6 +438,10 @@ MASK_DRAW_Y_OFFSET = -46
 # the scroll offsets every native draw in sub_437790 subtracts.
 VILLAGE_OBJECT_OFFSET = 0x3E010
 VILLAGER_FACING_OFFSET = 0x34  # head-draw column (row is +0x360)
+# The compositor's villager-index array: record_index = [esi + slot*4 +
+# 0x3DBDC]. The engine reads it at 0x437798 (loop head) and again at
+# 0x4377e5, then forms the record as manager + index*0x3D8 (0x43779f).
+VILLAGER_INDEX_ARRAY_OFFSET = 0x3DBDC
 # MASK_BACKEDGE_HOOK_VA is NOT a fixed offset -- it's wherever
 # mask_hook_code actually ends, computed from its real assembled length
 # once main() assembles it. A hardcoded guess here bit us once already:
@@ -2090,10 +2136,26 @@ def main() -> None:
     mask_hook_code = assemble(
         f"""
             jnz {MASK_NATIVE_SKIP_TARGET_VA:#x}
-            inc dword ptr [{DEBUG_HOOK1_COUNT_VA:#x}]
-            mov dword ptr [{DEBUG_LAST_RECORD_VA:#x}], eax
-            movzx edx, byte ptr [eax + 0x3d4]
-            mov dword ptr [{DEBUG_LAST_BYTE_VA:#x}], edx
+            # ECX and EDX are both dead here -- the engine reloads them at
+            # 0x4377c7/0x4377ca before any read -- so this needs no push/pop.
+            # EAX (record), EBX (0xC7), EBP (4), ESI, EDI must all survive.
+            mov dword ptr [{MASK_MANAGER_VA:#x}], esi
+            # Record INDEX, formed exactly as the engine forms it two
+            # instructions before this splice (0x437798) and again at
+            # 0x4377e5. This is the mask table's key -- NOT the record.
+            mov ecx, dword ptr [esi + edi*4 + {VILLAGER_INDEX_ARRAY_OFFSET:#x}]
+            cmp ecx, {MASK_TABLE_SIZE * 2}
+            jae mask_resume
+            mov edx, ecx
+            shr edx, 1
+            movzx edx, byte ptr [edx + {MASK_TABLE_VA:#x}]
+            test cl, 1
+            jz mask_low_nibble
+            shr edx, 4
+            jmp mask_have_choice
+        mask_low_nibble:
+            and edx, 0xf
+        mask_have_choice:
             test edx, edx
             jz mask_resume
             cmp edx, 5
