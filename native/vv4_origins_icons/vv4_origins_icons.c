@@ -1,6 +1,15 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+/* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
+   follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
+   which is exactly where the live .ldw saves are, so declare just the one
+   shell32 entry point we need instead of pulling in <shlobj.h>. */
+#ifndef CSIDL_PERSONAL
+#define CSIDL_PERSONAL 0x0005
+#endif
+__declspec(dllimport) BOOL __stdcall SHGetSpecialFolderPathA(HWND, LPSTR, int, BOOL);
+
 /* Villager sex flag drives the male/female sprite atlas (render path
    0x45F5CF: cmp [record+0x1B90],0 / setne). Displayed age >= 1100 (55
    displayed years) uses the old-frame atlas page. */
@@ -108,9 +117,10 @@ static ULONG_PTR gdiplus_token = 0;
 #ifndef VV_BODY_COUNT
 #define VV_BODY_COUNT 29
 #endif
-/* Cosmetic Heathen-mask overlay. The 5 masks are appended to every head atlas
-   as rows 30..34; the render-hook cave draws the mask on top of the villager's
-   head when this villager's mask selection is non-zero.
+/* Cosmetic Heathen-mask overlay. Each villager's mask selection is held in the
+   DLL-owned side-table below (never in a villager record); the render caves
+   SDL_UpperBlit the chosen mask cell from Images/vvfp_mask_atlas.png on top of
+   the drawn head when the selection is non-zero.
    0 = none, 1..5 = Blue/Orange/Red/Purple/Tribal Chief. */
 #ifndef VV_MASK_COUNT
 #define VV_MASK_COUNT 6   /* (None) + 5 masks */
@@ -148,19 +158,23 @@ static unsigned char g_mask_by_index[VV_MAX_VILLAGERS];
    mutate during play and would false-invalidate a living villager's mask) that
    backstops the ~1-frame death-then-reuse race the sweep could miss. */
 static unsigned int g_mask_fp[VV_MAX_VILLAGERS];
+/* Per-slot "has ever held a live villager this session" latch. It lets the
+   sweep tell "slot freed by a death" (clear the mask) apart from "slot not
+   populated yet" (a village hasn't loaded, e.g. at the main menu) -- so a mask
+   restored from the sidecar before its villager exists is NOT wiped. */
+static unsigned char g_slot_seen_alive[VV_MAX_VILLAGERS];
 
 /* Clear masks whose slot has been freed/reused by the game. Read-only over the
    villager array; called once per frame from the present-path surface cache. */
 static void vv_mask_sweep(void) {
     int idx;
     for (idx = 0; idx < VV_MAX_VILLAGERS; idx++) {
-        const unsigned char *rec;
-        if (g_mask_by_index[idx] == 0) {
-            continue;
-        }
-        rec = (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
-        if (rec[VV_OCCUPIED_OFFSET] == 0) {          /* slot is free/dead */
-            g_mask_by_index[idx] = 0;
+        const unsigned char *rec =
+            (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
+        if (rec[VV_OCCUPIED_OFFSET] != 0) {
+            g_slot_seen_alive[idx] = 1;              /* slot currently holds a villager */
+        } else if (g_slot_seen_alive[idx] && g_mask_by_index[idx] != 0) {
+            g_mask_by_index[idx] = 0;                /* was alive, now freed -> drop mask */
             g_mask_fp[idx] = 0;
         }
     }
@@ -216,6 +230,106 @@ static void vv_set_mask(unsigned char *villager, int mask) {
         g_mask_by_index[idx] = 0;
         g_mask_fp[idx] = 0;
     }
+}
+
+/* --- Sidecar persistence ---------------------------------------------------
+   The mask side-table is snapshotted to a small file that lives NEXT TO the
+   game's own saves (never inside the .ldw, so a save can never be corrupted):
+   <Documents>\LDW\<exe-basename>\vvfp_masks.dat, where <Documents> comes from
+   SHGetSpecialFolderPathA(CSIDL_PERSONAL) so it follows OneDrive redirection to
+   wherever the live .ldw saves actually are. Written on chooser OK; read once,
+   lazily, on the first present frame. The stored fingerprints guard identity on
+   reload, and the sweep's seen-alive latch keeps a restored mask until its
+   villager appears. Format: "VVMK" + u32 version + u32 count(150) + 150 mask
+   bytes + 150 u32 fingerprints (magic/version added per VV3/VV5 advice so the
+   entry shape can evolve without silently misreading an old file). */
+#define VV_SIDECAR_VERSION 1u
+
+static int vv_build_sidecar_path(char *out) {
+    char exe[MAX_PATH];
+    char base[MAX_PATH];
+    DWORD n;
+    int i, start, end, j;
+    if (!SHGetSpecialFolderPathA(NULL, out, CSIDL_PERSONAL, TRUE)) {
+        return 0;
+    }
+    lstrcatA(out, "\\LDW");
+    CreateDirectoryA(out, NULL);                 /* harmless if it already exists */
+    n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    start = 0;
+    for (i = (int)n - 1; i >= 0; i--) {
+        if (exe[i] == '\\' || exe[i] == '/') { start = i + 1; break; }
+    }
+    end = (int)n;
+    for (i = (int)n - 1; i > start; i--) {
+        if (exe[i] == '.') { end = i; break; }    /* strip the extension */
+    }
+    j = 0;
+    for (i = start; i < end && j < MAX_PATH - 1; i++) {
+        base[j++] = exe[i];
+    }
+    base[j] = '\0';
+    lstrcatA(out, "\\");
+    lstrcatA(out, base);
+    CreateDirectoryA(out, NULL);
+    lstrcatA(out, "\\vvfp_masks.dat");
+    return 1;
+}
+
+static void vv_write_mask_sidecar(void) {
+    char path[MAX_PATH];
+    HANDLE h;
+    DWORD wr;
+    unsigned int header[2];
+    if (!vv_build_sidecar_path(path)) {
+        return;
+    }
+    h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    header[0] = VV_SIDECAR_VERSION;
+    header[1] = VV_MAX_VILLAGERS;
+    WriteFile(h, "VVMK", 4, &wr, NULL);
+    WriteFile(h, header, sizeof(header), &wr, NULL);
+    WriteFile(h, g_mask_by_index, VV_MAX_VILLAGERS, &wr, NULL);
+    WriteFile(h, g_mask_fp, VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int), &wr, NULL);
+    CloseHandle(h);
+}
+
+static void vv_read_mask_sidecar(void) {
+    char path[MAX_PATH];
+    HANDLE h;
+    DWORD rd;
+    char magic[4];
+    unsigned int header[2];
+    unsigned char masks[VV_MAX_VILLAGERS];
+    unsigned int fps[VV_MAX_VILLAGERS];
+    int i;
+    if (!vv_build_sidecar_path(path)) {
+        return;
+    }
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return;                                  /* no file yet -> stay all-unmasked */
+    }
+    if (ReadFile(h, magic, 4, &rd, NULL) && rd == 4 &&
+        magic[0] == 'V' && magic[1] == 'V' && magic[2] == 'M' && magic[3] == 'K' &&
+        ReadFile(h, header, sizeof(header), &rd, NULL) && rd == sizeof(header) &&
+        header[0] == VV_SIDECAR_VERSION && header[1] == VV_MAX_VILLAGERS &&
+        ReadFile(h, masks, VV_MAX_VILLAGERS, &rd, NULL) && rd == VV_MAX_VILLAGERS &&
+        ReadFile(h, fps, sizeof(fps), &rd, NULL) && rd == sizeof(fps)) {
+        for (i = 0; i < VV_MAX_VILLAGERS; i++) {
+            g_mask_by_index[i] = (masks[i] < VV_MASK_COUNT) ? masks[i] : 0;
+            g_mask_fp[i] = fps[i];
+        }
+    }
+    CloseHandle(h);
 }
 
 /* --- In-world / details mask render via SDL surface blit -------------------
@@ -299,7 +413,12 @@ static void vv4_mask_render_init(void) {
 /* Called from the present-path hook every frame with the live render-target
    surface ([screen_obj+0x30]); read at the real site, never a guessed global. */
 __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
+    static int g_sidecar_loaded = 0;
     g_dest_surface = surface;
+    if (!g_sidecar_loaded) {
+        g_sidecar_loaded = 1;   /* one-shot: restore persisted masks on first frame */
+        vv_read_mask_sidecar();
+    }
     vv_mask_sweep();            /* clear masks on slots the game freed/reused */
 }
 
@@ -876,7 +995,9 @@ static INT_PTR CALLBACK appearance_dialog(
                     return TRUE;
                 }
             }
-            /* Something changed and was confirmed: keep it; caller charges 5,000. */
+            /* Something changed and was confirmed: keep it; caller charges 5,000.
+               Persist the mask side-table so the choice survives save/reload. */
+            vv_write_mask_sidecar();
             EndDialog(window, 1);
             return TRUE;
         }

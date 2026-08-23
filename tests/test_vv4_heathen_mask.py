@@ -63,10 +63,30 @@ class DllStorageContractTests(unittest.TestCase):
         # the villager-creation routine FUN_00466270.
         self.assertIn("#define VV_OCCUPIED_OFFSET 0x1CC4", self.c)
         self.assertIn("static void vv_mask_sweep(void)", self.c)
-        self.assertIn("rec[VV_OCCUPIED_OFFSET] == 0", self.c)
+        self.assertIn("rec[VV_OCCUPIED_OFFSET] != 0", self.c)
+        # A "seen alive" latch distinguishes a death (clear the mask) from a
+        # not-yet-populated slot (menu / village not loaded) so a mask restored
+        # from the sidecar before its villager exists is not wiped.
+        self.assertIn("g_slot_seen_alive", self.c)
         # The sweep runs once per frame from the present-path surface cache.
-        cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("}", 1)[0]
+        cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
         self.assertIn("vv_mask_sweep();", cache)
+
+    def test_sidecar_persistence_is_save_safe_and_onedrive_aware(self) -> None:
+        # Persisted next to the saves via CSIDL_PERSONAL (follows OneDrive
+        # redirection), in a SEPARATE file -- never inside the .ldw.
+        self.assertIn("SHGetSpecialFolderPathA", self.c)
+        self.assertIn("CSIDL_PERSONAL", self.c)
+        self.assertIn("vvfp_masks.dat", self.c)
+        self.assertIn("\\\\LDW", self.c)               # Documents\LDW\<basename>\
+        # Written on chooser OK, read once lazily on the first present frame.
+        self.assertIn("vv_write_mask_sidecar();", self.c)
+        self.assertIn("vv_read_mask_sidecar();", self.c)
+        self.assertIn('WriteFile(h, "VVMK", 4', self.c)   # magic + versioned header
+        # Read validates magic + version + count before trusting the file.
+        read = self.c.split("vv_read_mask_sidecar(void)", 1)[1].split("\n}", 1)[0]
+        self.assertIn("VV_SIDECAR_VERSION", read)
+        self.assertIn("VV_MAX_VILLAGERS", read)
 
     def test_fingerprint_uses_stable_fields_only(self) -> None:
         fp = self.c.split("vv_fingerprint(", 1)[1].split("}", 1)[0]
