@@ -109,13 +109,9 @@ static ULONG_PTR gdiplus_token = 0;
 #define VV_BODY_COUNT 29
 #endif
 /* Cosmetic Heathen-mask overlay. The 5 masks are appended to every head atlas
-   as rows 30..34; the render-hook cave draws head-atlas row (29 + mask) on top
-   of the villager's head when this genuinely-unused per-villager byte is set.
-   0 = none, 1..5 = Blue/Orange/Red/Purple/Tribal Chief. Writing it changes no
-   game logic (the byte is unread by the engine) and rides the save. */
-#ifndef VV_MASK_OFFSET
-#define VV_MASK_OFFSET 0x1BC4
-#endif
+   as rows 30..34; the render-hook cave draws the mask on top of the villager's
+   head when this villager's mask selection is non-zero.
+   0 = none, 1..5 = Blue/Orange/Red/Purple/Tribal Chief. */
 #ifndef VV_MASK_COUNT
 #define VV_MASK_COUNT 6   /* (None) + 5 masks */
 #endif
@@ -124,24 +120,50 @@ static const char *const g_mask_names[VV_MASK_COUNT] = {
     "Tribal Chief Mask"
 };
 
-/* +0x1BC4 is unused by the game but NOT zero-initialised, so a raw read yields
-   garbage. Store the mask as a 32-bit magic-tagged value (high 3 bytes = tag,
-   low byte = mask 1..5) and treat an untagged/out-of-range slot as (None). The
-   render-hook cave applies the same check. */
-#define VV_MASK_MAGIC 0x4D534B00u
+/* SAFE STORAGE (never touches the villager record or the game save): the mask
+   selection lives in a DLL-owned side-table keyed by villager INDEX. The
+   villager record array is fixed at 0x5101EC with stride 0x2E3C (RE'd:
+   game-ctx global 0x50E568 + 0x1C84, iterator FUN_00467490), so
+   index = (record - 0x5101EC) / 0x2E3C, valid 0..149. A non-record pointer
+   yields a non-multiple offset -> index -1 -> treated as (None), never a write.
+   The table lives in the DLL's writable data (never an executable section, so
+   no W^X / self-modifying-code concern), and its address is published to the
+   render cave via a fixed .shr slot at init (see vv4_publish_mask_table).
+   Persistence rides a sidecar file next to the save (see the sidecar helpers). */
+#define VV_REC_ARRAY_BASE 0x5101ECu
+#define VV_REC_STRIDE     0x2E3Cu
+#define VV_MAX_VILLAGERS  150
+static unsigned char g_mask_by_index[VV_MAX_VILLAGERS];
+
+static int vv_villager_index(const unsigned char *villager) {
+    unsigned int off;
+    unsigned int idx;
+    if (villager == NULL) {
+        return -1;
+    }
+    off = (unsigned int)villager - VV_REC_ARRAY_BASE;
+    if (off % VV_REC_STRIDE != 0) {          /* not a real record slot */
+        return -1;
+    }
+    idx = off / VV_REC_STRIDE;
+    return idx < (unsigned int)VV_MAX_VILLAGERS ? (int)idx : -1;
+}
 static int vv_get_mask(const unsigned char *villager) {
-    unsigned int d = *(const unsigned int *)(villager + VV_MASK_OFFSET);
-    if ((d & 0xFFFFFF00u) != VV_MASK_MAGIC) {
+    int idx = vv_villager_index(villager);
+    unsigned char m;
+    if (idx < 0) {
         return 0;
     }
-    d &= 0xFFu;
-    return d < (unsigned int)VV_MASK_COUNT ? (int)d : 0;
+    m = g_mask_by_index[idx];
+    return m < VV_MASK_COUNT ? (int)m : 0;
 }
 static void vv_set_mask(unsigned char *villager, int mask) {
-    *(unsigned int *)(villager + VV_MASK_OFFSET) =
-        (mask > 0 && mask < VV_MASK_COUNT)
-            ? (VV_MASK_MAGIC | (unsigned int)mask)
-            : 0u;
+    int idx = vv_villager_index(villager);
+    if (idx < 0) {
+        return;
+    }
+    g_mask_by_index[idx] =
+        (mask > 0 && mask < VV_MASK_COUNT) ? (unsigned char)mask : 0;
 }
 
 static HINSTANCE module_instance;
