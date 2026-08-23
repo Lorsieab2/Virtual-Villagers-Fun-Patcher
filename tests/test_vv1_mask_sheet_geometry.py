@@ -161,7 +161,12 @@ class VV1MaskSheetGeometryTests(unittest.TestCase):
                             self.sheets.SHEET_CELL_H,
                         )
                     ).getbbox()
-                    self.assertLessEqual(abs(box[3] - chin), 2)
+                    # Chief frames are placed at the reference chin then lifted
+                    # uniformly by CHIEF_DY (playtest alignment), so their chin
+                    # sits CHIEF_DY pixels above the reference.
+                    self.assertLessEqual(
+                        abs(box[3] - (chin - self.sheets.CHIEF_DY)), 2
+                    )
                     self.assertLessEqual(abs((box[0] + box[2]) / 2 - centre), 2)
 
 
