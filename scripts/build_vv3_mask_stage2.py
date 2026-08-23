@@ -50,8 +50,12 @@ ATLAS_COLS, ATLAS_ROWS = 8, 5
 MASK_DY_MUL, MASK_DY_SHIFT = 54, 7        # lift = (headY * 54) >> 7  (~42*scale)
 
 CAVE_VA = 0x47B254                         # VA (RVA 0x7B254); free 0xDAC zero-run in stock .text
-MASK_ATLAS_PTR = CAVE_VA                   # dword, 0 until lazy-loaded
-FNAME_VA = CAVE_VA + 4
+# The loaded-atlas pointer lives in NORMAL writable .data (the page-round tail of
+# .data at 0x6C7518..0x6C8000 is mapped, zero-filled, writable, and unreferenced).
+# Keeping it out of .text means .text stays read-only+executable like a stock exe
+# -- no IMAGE_SCN_MEM_WRITE (self-modifying code is a strong AV heuristic).
+MASK_ATLAS_PTR = 0x6C7A00
+FNAME_VA = CAVE_VA                          # filename string in the .text cave (read-only, fine)
 FNAME = b"heathen_masks.png\x00"
 
 _ks = Ks(KS_ARCH_X86, KS_MODE_32)
@@ -176,8 +180,9 @@ def build(out_path: Path, force_row: int | None = None) -> None:
     # cave must be free zeros
     assert data[foff(CAVE_VA):foff(CAVE_VA) + total] == b"\0" * total, "cave not free"
 
-    # write cave: ptr(0) + filename + code
-    struct.pack_into("<I", data, foff(MASK_ATLAS_PTR), 0)
+    # write cave: filename string + code (read-only; the atlas ptr lives in .data
+    # at MASK_ATLAS_PTR, which is zero-filled by the loader -- nothing to write here,
+    # and .text stays read-only+executable, no MEM_WRITE).
     data[foff(FNAME_VA):foff(FNAME_VA) + len(FNAME)] = FNAME
     data[foff(code_va):foff(code_va) + len(stub_bytes)] = stub_bytes
 
@@ -186,18 +191,6 @@ def build(out_path: Path, force_row: int | None = None) -> None:
     hook = asm(f"jmp 0x{code_va:X}", CHILD_THUNK_VA)
     hook = hook + b"\x90" * (CHILD_THUNK_LEN - len(hook))
     data[foff(CHILD_THUNK_VA):foff(CHILD_THUNK_VA) + CHILD_THUNK_LEN] = hook
-
-    # .text needs MEM_WRITE (the stub stores the atlas ptr into the cave)
-    pe = struct.unpack_from("<I", data, 0x3C)[0]
-    ns = struct.unpack_from("<H", data, pe + 6)[0]
-    opt = struct.unpack_from("<H", data, pe + 20)[0]
-    sec = pe + 24 + opt
-    for i in range(ns):
-        o = sec + i * 40
-        nm = data[o:o + 8].rstrip(b"\0").decode("latin1")
-        if nm == ".text":
-            ch = struct.unpack_from("<I", data, o + 36)[0]
-            struct.pack_into("<I", data, o + 36, ch | 0x80000000)  # IMAGE_SCN_MEM_WRITE
 
     csum, off = _pe_checksum(data)
     struct.pack_into("<I", data, off, csum)
