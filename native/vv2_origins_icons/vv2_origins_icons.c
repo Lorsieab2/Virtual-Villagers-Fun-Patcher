@@ -1117,3 +1117,237 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     }
     return 0;
 }
+
+/* ---- Change Appearance for All (214): per-sex Head/Body/Mask + distribution
+   + village-wide single mask, applied across every villager record. ---- */
+
+#define IDD_VV2_APPEARANCE_ALL 214
+#define VV2_SEX_OFFSET   0x538   /* 1 = male, 2 = female */
+#define VV2_HEAD_OFFSET  0x548
+#define VV2_BODY_OFFSET  0x54C
+
+/* preview control ids: [sex][kind] kind 0=body,1=head,2=mask; sex 0=male,1=female */
+static const int caf_preview_id[2][3] = {
+    { 3201, 3202, 3203 }, { 3204, 3205, 3206 }
+};
+
+/* selector state; -1 = "No change" (default), so an untouched selector writes
+   nothing.  head/body: 0..29.  mask: 0=None..5=Chief. */
+static int caf_body[2], caf_head[2], caf_mask[2];
+static int caf_dist;      /* 0 Off, 1 VV5-style, 2 Random, 3 Equal */
+static int caf_village;   /* -1 Off, else 0=None..5=Chief (table value) */
+
+static unsigned int caf_rng;
+static unsigned int caf_rand(void) {
+    caf_rng ^= caf_rng << 13; caf_rng ^= caf_rng >> 17; caf_rng ^= caf_rng << 5;
+    return caf_rng;
+}
+
+/* Draw one selector preview: sex-appropriate strip, or "No change" when idx<0. */
+static void caf_draw(DRAWITEMSTRUCT *item, int sex, int kind, int idx) {
+    if (idx < 0) {
+        RECT rc = item->rcItem;
+        HBRUSH bg = CreateSolidBrush(RGB(236, 236, 236));
+        FillRect(item->hDC, &rc, bg);
+        DeleteObject(bg);
+        SetBkMode(item->hDC, TRANSPARENT);
+        DrawTextA(item->hDC, "No\r\nchange", -1, &rc,
+                  DT_CENTER | DT_VCENTER | DT_WORDBREAK);
+        return;
+    }
+    if (kind == 2) {
+        vv2_appearance_draw(item, IDB_MASK, idx);
+    } else if (kind == 1) {
+        vv2_appearance_draw(item, sex ? IDB_HEAD_F_YOUNG : IDB_HEAD_M_YOUNG, idx);
+    } else {
+        vv2_appearance_draw(item, sex ? IDB_BODY_F : IDB_BODY_M, idx);
+    }
+}
+
+/* cycle a selector value; -1 (No change) is one position before 0, count is the
+   number of real options (30 for head/body, 6 for mask). */
+static int caf_cycle(int value, int count, int delta) {
+    value += delta;
+    if (value < -1) value = count - 1;
+    if (value >= count) value = -1;
+    return value;
+}
+
+static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
+    (void)lp;
+    if (msg == WM_INITDIALOG) {
+        CheckRadioButton(w, 3230, 3233, 3230);   /* distribution Off */
+        CheckRadioButton(w, 3240, 3246, 3240);   /* village-wide Off */
+        vv2_surface_dialog(w);
+        return TRUE;
+    } else if (msg == WM_DRAWITEM) {
+        DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lp;
+        int s, k;
+        for (s = 0; s < 2; ++s) {
+            for (k = 0; k < 3; ++k) {
+                if ((int)item->CtlID == caf_preview_id[s][k]) {
+                    int v = k == 0 ? caf_body[s] : k == 1 ? caf_head[s] : caf_mask[s];
+                    caf_draw(item, s, k, v);
+                    return TRUE;
+                }
+            }
+        }
+    } else if (msg == WM_COMMAND) {
+        unsigned int cmd = LOWORD(wp);
+        if (cmd >= 3211 && cmd <= 3226) {
+            int prev = cmd <= 3216;                 /* 3211-3216 prev, 3221-3226 next */
+            int base = prev ? 3211 : 3221;
+            int s = (cmd - base) / 3;               /* 0 male, 1 female */
+            int k = (cmd - base) % 3;               /* 0 body,1 head,2 mask */
+            int count = (k == 2) ? VV2_MASK_COUNT : VV2_APPEARANCE_COUNT;
+            int *slot = k == 0 ? &caf_body[s] : k == 1 ? &caf_head[s] : &caf_mask[s];
+            *slot = caf_cycle(*slot, count, prev ? -1 : 1);
+            vv2_appearance_repaint(w, caf_preview_id[s][k]);
+            return TRUE;
+        }
+        if (cmd == IDOK) {
+            int r;
+            caf_dist = 0;
+            for (r = 0; r < 4; ++r)
+                if (IsDlgButtonChecked(w, 3230 + r)) caf_dist = r;
+            caf_village = -1;
+            for (r = 0; r < 7; ++r)     /* 3240 Off -> -1; 3241..3246 -> 0..5 */
+                if (IsDlgButtonChecked(w, 3240 + r)) caf_village = r - 1;
+            EndDialog(w, 1);
+            return TRUE;
+        }
+        if (cmd == IDCANCEL) { EndDialog(w, 0); return TRUE; }
+    } else if (msg == WM_CLOSE) {
+        EndDialog(w, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Fisher-Yates shuffle of an int array using caf_rand. */
+static void caf_shuffle(int *a, int n) {
+    int i, j, t;
+    for (i = n - 1; i > 0; --i) {
+        j = (int)(caf_rand() % (unsigned int)(i + 1));
+        t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+}
+
+/* Apply the current selectors to every active villager record.  Order: per-sex
+   Head/Body/Mask first, then a distribution preset (overrides masks), then a
+   village-wide single mask (final override) — so leaving the later groups Off
+   makes the per-sex selectors authoritative. */
+static void vv2_apply_caf(unsigned char *base) {
+    int idx[VV2_RECORD_COUNT];       /* active record indices */
+    int sexof[VV2_RECORD_COUNT];     /* 0 male, 1 female (parallel to idx) */
+    int n = 0, i;
+    unsigned char *rec = base;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, rec += VV2_RECORD_STRIDE) {
+        int s;
+        if (rec[VV2_ACTIVE_OFFSET] == 0) continue;
+        s = (*(int *)(rec + VV2_SEX_OFFSET) == 1) ? 0 : 1;
+        idx[n] = i; sexof[n] = s; ++n;
+        /* per-sex Head/Body/Mask */
+        if (caf_head[s] >= 0) *(int *)(rec + VV2_HEAD_OFFSET) = caf_head[s];
+        if (caf_body[s] >= 0) *(int *)(rec + VV2_BODY_OFFSET) = caf_body[s];
+        if (caf_mask[s] >= 0) VV2_MASK_TABLE[i] = (unsigned char)caf_mask[s];
+    }
+    if (caf_dist == 1) {                     /* VV5-style rarity */
+        int order[VV2_RECORD_COUNT], k;
+        static const int tier_mask[4] = { 5, 4, 3, 2 };   /* Chief,Purple,Red,Orange */
+        static const int tier_cap[4]  = { 1, 4, 7, 10 };
+        int t, cursor = 0;
+        for (k = 0; k < n; ++k) order[k] = idx[k];
+        caf_shuffle(order, n);
+        for (k = 0; k < n; ++k) VV2_MASK_TABLE[order[k]] = 1;   /* default Blue */
+        for (t = 0; t < 4 && cursor < n; ++t) {
+            int c;
+            for (c = 0; c < tier_cap[t] && cursor < n; ++c, ++cursor)
+                VV2_MASK_TABLE[order[cursor]] = (unsigned char)tier_mask[t];
+        }
+    } else if (caf_dist == 2) {              /* Random 0..5 */
+        for (i = 0; i < n; ++i)
+            VV2_MASK_TABLE[idx[i]] = (unsigned char)(caf_rand() % 6u);
+    } else if (caf_dist == 3) {              /* Equal, balanced M/F */
+        int order[VV2_RECORD_COUNT], males[VV2_RECORD_COUNT], females[VV2_RECORD_COUNT];
+        int nm = 0, nf = 0, k, o = 0;
+        for (k = 0; k < n; ++k) { if (sexof[k]) females[nf++] = idx[k]; else males[nm++] = idx[k]; }
+        caf_shuffle(males, nm); caf_shuffle(females, nf);
+        /* alternate M/F so each round-robin mask type gets a balanced sex mix */
+        { int a = 0, b = 0; while (a < nm || b < nf) {
+            if (a < nm) order[o++] = males[a++];
+            if (b < nf) order[o++] = females[b++]; } }
+        for (k = 0; k < n; ++k)
+            VV2_MASK_TABLE[order[k]] = (unsigned char)((k % 5) + 1);   /* Blue..Chief */
+    }
+    if (caf_village >= 0) {                  /* village-wide single mask override */
+        for (i = 0; i < n; ++i)
+            VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_village;
+    }
+}
+
+#define VV2_CAF_COST 450000
+
+/* base = certified record array (sub_44F4E0); tech = &tech-point balance.  Shows
+   the popup, and on OK (with a real change and enough points) charges 450k,
+   applies to all villagers, and persists the mask table to the sidecar.  All
+   record/table writes and the charge happen here so the exe dispatch stays a
+   minimal "call this export" — no exe-side handler growth. */
+__declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(
+    unsigned char *base,
+    int *tech
+) {
+    INT_PTR result;
+    int changed_head;
+    if (base == 0) return 0;
+    caf_body[0] = caf_head[0] = caf_mask[0] = -1;
+    caf_body[1] = caf_head[1] = caf_mask[1] = -1;
+    caf_dist = 0;
+    caf_village = -1;
+    caf_rng = GetTickCount() | 1u;
+    vv2_prep_fullscreen();
+
+    result = DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_VV2_APPEARANCE_ALL),
+                             GetForegroundWindow(), caf_dialog, 0);
+    if (result != 1) return 0;   /* caf_dialog captured the radios before closing */
+
+    /* nothing selected in any of the four groups -> no change, no charge */
+    if (caf_body[0] < 0 && caf_head[0] < 0 && caf_mask[0] < 0 &&
+        caf_body[1] < 0 && caf_head[1] < 0 && caf_mask[1] < 0 &&
+        caf_dist == 0 && caf_village < 0) {
+        MessageBoxA(GetForegroundWindow(),
+                    "No appearance options were selected. No tech points deducted.",
+                    "Change Appearance for All",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+
+    if (tech && *tech < VV2_CAF_COST) {
+        MessageBoxA(GetForegroundWindow(),
+                    "Not enough tech points. This upgrade costs 450,000.",
+                    "Change Appearance for All",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+
+    /* changing a head field rewrites hereditary genetics; warn once for all */
+    changed_head = (caf_head[0] >= 0 || caf_head[1] >= 0);
+    if (changed_head) {
+        if (MessageBoxA(GetForegroundWindow(),
+                "Warning: This will change the head genetics of every villager "
+                "of the selected sex, affecting their descendants.\r\n\r\nProceed?",
+                "Change Appearance for All",
+                MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
+            return 0;
+        }
+    }
+
+    if (tech) *tech -= VV2_CAF_COST;
+    vv2_apply_caf(base);
+    vv2_mask_sidecar_save();
+    MessageBoxA(GetForegroundWindow(),
+                "Change Appearance for All applied to every villager.",
+                "Change Appearance for All",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return 1;
+}

@@ -23,6 +23,8 @@
 #define SS_CENTER     0x00000001L
 #define SS_OWNERDRAW  0x0000000DL
 #define DS_CENTER     0x00000800L
+#define WS_GROUP      0x00020000L
+#define WS_TABSTOP    0x00010000L
 
 /* VV2 Tech-screen upgrades, laid out in TWO COLUMNS so the 14 rows fit on-screen
    (the single-column list ran off the bottom once "Change Appearance for All" was
@@ -182,4 +184,66 @@ BEGIN
     CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 16, 150, 332, 9
     DEFPUSHBUTTON "OK", 1, 128, 168, 50, 16
     PUSHBUTTON  "Cancel", 2, 196, 168, 50, 16
+END
+
+/* VV2 "Change Appearance for All" (214): per-sex Head/Body/Mask selectors (each
+   cycles a "No change" state + the stock options), plus a mutually-exclusive
+   mask Distribution preset and a mutually-exclusive Village-wide single mask.
+   Preview controls 3201-3206 (male body/head/mask, female body/head/mask);
+   cycler buttons 3211-3216 (prev) / 3221-3226 (next). */
+214 DIALOGEX 0, 0, 380, 334
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Appearance for All"
+FONT 9, "Segoe UI"
+BEGIN
+    /* ---- Male villagers ---- */
+    GROUPBOX    "Male Villagers", -1, 6, 2, 368, 104
+    CTEXT       "Body", -1, 28, 14, 50, 9
+    PUSHBUTTON  "<", 3211, 14, 48, 12, 20
+    CONTROL     "", 3201, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 24, 50, 74
+    PUSHBUTTON  ">", 3221, 80, 48, 12, 20
+    CTEXT       "Head", -1, 150, 14, 50, 9
+    PUSHBUTTON  "<", 3212, 136, 48, 12, 20
+    CONTROL     "", 3202, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 24, 50, 74
+    PUSHBUTTON  ">", 3222, 202, 48, 12, 20
+    CTEXT       "Mask", -1, 272, 14, 50, 9
+    PUSHBUTTON  "<", 3213, 258, 48, 12, 20
+    CONTROL     "", 3203, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 24, 50, 74
+    PUSHBUTTON  ">", 3223, 324, 48, 12, 20
+
+    /* ---- Female villagers ---- */
+    GROUPBOX    "Female Villagers", -1, 6, 110, 368, 104
+    CTEXT       "Body", -1, 28, 122, 50, 9
+    PUSHBUTTON  "<", 3214, 14, 156, 12, 20
+    CONTROL     "", 3204, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 132, 50, 74
+    PUSHBUTTON  ">", 3224, 80, 156, 12, 20
+    CTEXT       "Head", -1, 150, 122, 50, 9
+    PUSHBUTTON  "<", 3215, 136, 156, 12, 20
+    CONTROL     "", 3205, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 132, 50, 74
+    PUSHBUTTON  ">", 3225, 202, 156, 12, 20
+    CTEXT       "Mask", -1, 272, 122, 50, 9
+    PUSHBUTTON  "<", 3216, 258, 156, 12, 20
+    CONTROL     "", 3206, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 132, 50, 74
+    PUSHBUTTON  ">", 3226, 324, 156, 12, 20
+
+    /* ---- Mask distribution (whole village, mutually exclusive) ---- */
+    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 218, 182, 82
+    AUTORADIOBUTTON "Off (use selectors above)", 3230, 14, 232, 168, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "VV5-style (rare Chief/Purple)", 3231, 14, 246, 168, 10
+    AUTORADIOBUTTON "Random", 3232, 14, 260, 168, 10
+    AUTORADIOBUTTON "Equal (balanced M/F)", 3233, 14, 274, 168, 10
+
+    /* ---- Village-wide single mask (mutually exclusive) ---- */
+    GROUPBOX    "Village-wide single mask", -1, 192, 218, 182, 82
+    AUTORADIOBUTTON "Off", 3240, 200, 232, 80, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "None", 3241, 200, 246, 80, 10
+    AUTORADIOBUTTON "Blue", 3242, 200, 260, 80, 10
+    AUTORADIOBUTTON "Orange", 3243, 200, 274, 80, 10
+    AUTORADIOBUTTON "Red", 3244, 288, 246, 80, 10
+    AUTORADIOBUTTON "Purple", 3245, 288, 260, 80, 10
+    AUTORADIOBUTTON "Chief", 3246, 288, 274, 80, 10
+
+    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 304, 368, 9
+    DEFPUSHBUTTON "OK", 1, 132, 316, 50, 16
+    PUSHBUTTON  "Cancel", 2, 198, 316, 50, 16
 END
