@@ -2,7 +2,7 @@ LIBRARY "VVFP VV2 Origins Icons"
 EXPORTS
     ShowVV2UpgradeMenuState=_ShowVV2UpgradeMenuState@8
     ShowVV2AppearanceChooser=_ShowVV2AppearanceChooser@20
-    ShowVV2AppearanceForAll=_ShowVV2AppearanceForAll@8
+    ShowVV2AppearanceForAll=_ShowVV2AppearanceForAll@4 @100
     ShowVV2CureResult=_ShowVV2CureResult@8
     ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@20
     ApplyVV2RunningToAll=_ApplyVV2RunningToAll@4

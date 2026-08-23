@@ -600,6 +600,12 @@ def main() -> None:
         charge:
             cmp ebx, 6
             jb legacy_charge
+            # Change Appearance for All (row 13): the companion DLL runs the
+            # popup, does its OWN 450,000 charge (given the tech-balance pointer)
+            # and applies to every villager, so the Tech menu neither confirms
+            # nor charges here -- just hand off to the dispatch stub.
+            cmp ebx, 13
+            je caf_dispatch
             # ebx = 6 (Running), 7 (Full Mastery), 8 (Set All 18),
             # 9 (Complete Collections), 10 (Reset Collections): require the
             # 1,000,000, hand off to the DLL dispatch stub (it applies and shows
@@ -612,6 +618,9 @@ def main() -> None:
             test eax, eax
             jz menu_done
             sub dword ptr [edi + 0x2EADC], 1000000
+            jmp menu_done
+        caf_dispatch:
+            call 0x{DISPATCH_VA:X}
             jmp menu_done
         legacy_charge:
             cmp ebx, 5
@@ -1650,7 +1659,7 @@ def main() -> None:
     # with placeholder string VAs yields the final code length, which then fixes
     # the real string addresses for a second, identical-length assembly.
     def _dispatch_src(running_va: int, mastery_va: int, age_va: int,
-                      collections_va: int, division_va: int) -> str:
+                      collections_va: int, division_va: int, caf_ord: int) -> str:
         return f"""
             push ebp
             push esi
@@ -1661,6 +1670,8 @@ def main() -> None:
             test eax, eax
             je disp_done
             mov esi, eax
+            cmp ebp, 13
+            je disp_caf
             cmp ebp, 11
             jae disp_division
             cmp ebp, 9
@@ -1713,6 +1724,21 @@ def main() -> None:
             push ecx
             push eax
             call edi
+            jmp disp_done
+        disp_caf:
+            # Change Appearance for All.  EDI (from the caller) = Tech-menu player
+            # object.  Resolve ShowVV2AppearanceForAll BY ORDINAL (no name string,
+            # to fit the .shr slot) and call it with the player object; the DLL
+            # computes the tech balance (+0x2EADC) and record array itself, runs
+            # the popup, charges 450k and applies to every villager.
+            push {caf_ord}
+            push esi
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je disp_done
+            push edi
+            call eax
+            jmp disp_done
         disp_done:
             pop edi
             pop esi
@@ -1720,11 +1746,16 @@ def main() -> None:
             ret
         """
 
+    # ShowVV2AppearanceForAll is resolved by ORDINAL (pinned @100 in the .def),
+    # so the dispatch stub needs no name string for it -- keeps it inside the
+    # tight .shr slot ahead of the Barrel gate.
+    CAF_ORDINAL = 100
     _placeholder = DISPATCH_VA + 0x100
     dispatch_len = len(
         assemble(
             _dispatch_src(
-                _placeholder, _placeholder, _placeholder, _placeholder, _placeholder
+                _placeholder, _placeholder, _placeholder, _placeholder,
+                _placeholder, CAF_ORDINAL
             ),
             DISPATCH_VA,
         )
@@ -1742,7 +1773,7 @@ def main() -> None:
     dispatch_code = assemble(
         _dispatch_src(
             running_export_va, mastery_export_va, age_export_va,
-            collections_export_va, division_export_va
+            collections_export_va, division_export_va, CAF_ORDINAL
         ),
         DISPATCH_VA,
     )

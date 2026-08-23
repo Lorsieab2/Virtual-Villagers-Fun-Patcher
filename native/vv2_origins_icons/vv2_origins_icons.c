@@ -1287,18 +1287,24 @@ static void vv2_apply_caf(unsigned char *base) {
 }
 
 #define VV2_CAF_COST 450000
+#define VV2_TECH_BALANCE_OFFSET 0x2EADC   /* int tech-point balance in the player obj */
+#define VV2_RECORD_ARRAY_FN     0x0044F4E0 /* stock getter: returns certified record array */
 
-/* base = certified record array (sub_44F4E0); tech = &tech-point balance.  Shows
-   the popup, and on OK (with a real change and enough points) charges 450k,
-   applies to all villagers, and persists the mask table to the sidecar.  All
-   record/table writes and the charge happen here so the exe dispatch stays a
-   minimal "call this export" — no exe-side handler growth. */
-__declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(
-    unsigned char *base,
-    int *tech
-) {
+typedef unsigned char *(__stdcall *vv2_record_array_fn)(void);
+
+/* player = the Tech-menu player object (exe passes EDI).  Derives the tech-point
+   balance (+0x2EADC) and the certified record array (the stock getter the exe's
+   other apply paths use) itself, so the exe dispatch is a one-arg call with no
+   handler growth.  On OK — with a real change and enough points — charges 450k,
+   applies to all villagers, and persists the mask table to the sidecar. */
+__declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
     INT_PTR result;
     int changed_head;
+    unsigned char *base;
+    int *tech;
+    if (player == 0) return 0;
+    tech = (int *)((unsigned char *)player + VV2_TECH_BALANCE_OFFSET);
+    base = ((vv2_record_array_fn)VV2_RECORD_ARRAY_FN)();
     if (base == 0) return 0;
     caf_body[0] = caf_head[0] = caf_mask[0] = -1;
     caf_body[1] = caf_head[1] = caf_mask[1] = -1;
