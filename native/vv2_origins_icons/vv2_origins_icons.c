@@ -848,14 +848,26 @@ __declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
 #define IDC_BODY_NEXT    3104
 #define IDC_HEAD_PREV    3105
 #define IDC_HEAD_NEXT    3106
+#define IDB_MASK         3020     /* 6-cell strip: none + 5 masks (40x65) */
+#define IDC_MASK_PREVIEW 3107
+#define IDC_MASK_PREV    3108
+#define IDC_MASK_NEXT    3109
 #define VV2_APPEARANCE_COUNT 30
+#define VV2_MASK_COUNT   6        /* 0=none, 1..5 = Blue/Orange/Red/Purple/Chief */
 #define VV2_APPEARANCE_CELL_W 40
 #define VV2_APPEARANCE_CELL_H 65
+
+/* Patch-owned per-villager mask table appended to the exe (.mtab @ 0x004B3000),
+   indexed by record index; 0=none, 1..5=mask. The DLL runs in-process so it can
+   read/write it directly. The render stubs (in the exe's .vvmk section) read it. */
+#define VV2_MASK_TABLE       ((unsigned char *)0x004B3000)
+#define VV2_MASK_TABLE_BYTES 256
 
 static int vv2_appearance_sex;   /* 0 = male, 1 = female */
 static int vv2_appearance_old;   /* 0 = young head atlas, 1 = old head atlas */
 static int vv2_appearance_head;
 static int vv2_appearance_body;
+static int vv2_appearance_mask;  /* 0=none, 1..5 */
 
 static int vv2_appearance_head_bitmap(void) {
     if (vv2_appearance_sex) {
@@ -933,6 +945,10 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
             vv2_appearance_draw(item, vv2_appearance_head_bitmap(), vv2_appearance_head);
             return TRUE;
         }
+        if (item->CtlID == IDC_MASK_PREVIEW) {
+            vv2_appearance_draw(item, IDB_MASK, vv2_appearance_mask);
+            return TRUE;
+        }
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command == IDC_BODY_PREV) {
@@ -953,6 +969,16 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
         if (command == IDC_HEAD_NEXT) {
             vv2_appearance_head = (vv2_appearance_head + 1) % VV2_APPEARANCE_COUNT;
             vv2_appearance_repaint(window, IDC_HEAD_PREVIEW);
+            return TRUE;
+        }
+        if (command == IDC_MASK_PREV) {
+            vv2_appearance_mask = (vv2_appearance_mask + VV2_MASK_COUNT - 1) % VV2_MASK_COUNT;
+            vv2_appearance_repaint(window, IDC_MASK_PREVIEW);
+            return TRUE;
+        }
+        if (command == IDC_MASK_NEXT) {
+            vv2_appearance_mask = (vv2_appearance_mask + 1) % VV2_MASK_COUNT;
+            vv2_appearance_repaint(window, IDC_MASK_PREVIEW);
             return TRUE;
         }
         if (command == IDOK) {
@@ -977,18 +1003,21 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     int sex,
     int age,
     int *head,
-    int *body
+    int *body,
+    int *mask
 ) {
     INT_PTR result;
-    int orig_head, orig_body;
+    int orig_head, orig_body, orig_mask;
     /* VV2 stores sex as 1 (male) or 2 (female); the stock renderer branches on
        `sex == 1` (0x4456A3). Match it: sex 1 -> male atlas (0), else female (1). */
     vv2_appearance_sex = (sex == 1) ? 0 : 1;
     vv2_appearance_old = age >= 1100 ? 1 : 0;
     vv2_appearance_head = (head && *head >= 0 && *head < VV2_APPEARANCE_COUNT) ? *head : 0;
     vv2_appearance_body = (body && *body >= 0 && *body < VV2_APPEARANCE_COUNT) ? *body : 0;
+    vv2_appearance_mask = (mask && *mask >= 0 && *mask < VV2_MASK_COUNT) ? *mask : 0;
     orig_head = vv2_appearance_head;
     orig_body = vv2_appearance_body;
+    orig_mask = vv2_appearance_mask;
 
     result = DialogBoxParamA(
         module_instance,
@@ -1000,7 +1029,8 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     if (result == 1) {
         /* OK with nothing actually changed (opened and confirmed, or cycled the
            selectors back to where they started): write nothing, charge nothing. */
-        if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body) {
+        if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body
+                && vv2_appearance_mask == orig_mask) {
             ShowVV2UpgradeResult(
                 VV2_ACT_DETAIL_APPEARANCE, VV2_RES_NO_CHANGE, 0, 0, 0, 0
             );
@@ -1024,6 +1054,9 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
         }
         if (body) {
             *body = vv2_appearance_body;
+        }
+        if (mask) {
+            *mask = vv2_appearance_mask;
         }
         return 1;
     }

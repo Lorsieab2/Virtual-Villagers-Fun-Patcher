@@ -16,6 +16,7 @@
 3004 BITMAP "appearance/head_f_old.bmp"
 3011 BITMAP "appearance/body_m.bmp"
 3012 BITMAP "appearance/body_f.bmp"
+3020 BITMAP "appearance/mask_preview.bmp"   /* 6 cells: none + 5 masks, 40x65 each */
 
 #define WS_CHILD      0x40000000L
 #define WS_VISIBLE    0x10000000L
@@ -148,7 +149,7 @@ BEGIN
 END
 
 /* VV2 Change Appearance chooser: sprite previews cropped from the stock art. */
-213 DIALOGEX 0, 0, 250, 196
+213 DIALOGEX 0, 0, 364, 196
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
@@ -163,7 +164,12 @@ BEGIN
     PUSHBUTTON  "<", 3105, 130, 72, 16, 16
     PUSHBUTTON  ">", 3106, 224, 72, 16, 16
 
-    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 150, 222, 9
-    DEFPUSHBUTTON "OK", 1, 66, 168, 50, 16
-    PUSHBUTTON  "Cancel", 2, 134, 168, 50, 16
+    CTEXT       "Mask", -1, 270, 8, 70, 9
+    CONTROL     "", 3107, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 270, 20, 70, 118
+    PUSHBUTTON  "<", 3108, 250, 72, 16, 16
+    PUSHBUTTON  ">", 3109, 344, 72, 16, 16
+
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 16, 150, 332, 9
+    DEFPUSHBUTTON "OK", 1, 128, 168, 50, 16
+    PUSHBUTTON  "Cancel", 2, 196, 168, 50, 16
 END
