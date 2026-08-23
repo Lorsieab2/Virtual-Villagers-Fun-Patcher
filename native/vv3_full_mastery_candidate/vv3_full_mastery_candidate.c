@@ -77,12 +77,48 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
    the graphics subsystem is always up by the time this runs. */
 static void *g_mask_atlas;
 
+/* Self-deploy the embedded atlas (RCDATA 5000) into <game>\Images\heathen_masks.png
+   if it is missing, so the feature ships with ONLY the companion DLL -- no patcher
+   manifest asset step (companion_files is locked to the DLL, and relaxing it would
+   touch shared cross-game core).  Skips if the file already exists, so a user can
+   replace the art.  A failure just leaves the atlas unloadable -> no mask. */
+static void vv3_extract_mask_atlas(void) {
+    char exe[MAX_PATH], path[MAX_PATH];
+    char *base, *p;
+    HRSRC res;
+    HGLOBAL blob;
+    const void *data;
+    DWORD size, written;
+    HANDLE fh;
+    DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) return;
+    base = exe;
+    for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
+    *base = '\0';                                    /* game directory + trailing slash */
+    if (lstrlenA(exe) + 24 >= (int)sizeof(path)) return;
+    wsprintfA(path, "%sImages\\heathen_masks.png", exe);
+    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) return;  /* already present */
+    res = FindResourceA(module_instance, MAKEINTRESOURCEA(5000), RT_RCDATA);
+    if (res == NULL) return;
+    size = SizeofResource(module_instance, res);
+    blob = LoadResource(module_instance, res);
+    if (blob == NULL || size == 0) return;
+    data = LockResource(blob);
+    if (data == NULL) return;
+    fh = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                     FILE_ATTRIBUTE_NORMAL, NULL);
+    if (fh == INVALID_HANDLE_VALUE) return;
+    WriteFile(fh, data, size, &written, NULL);
+    CloseHandle(fh);
+}
+
 __declspec(dllexport) void *__stdcall VV3GetMaskAtlas(void) {
     static const char mask_atlas_name[] = "heathen_masks.png";
     void *atlas = NULL;
     if (g_mask_atlas != NULL) {
         return g_mask_atlas;
     }
+    vv3_extract_mask_atlas();          /* ensure Images/heathen_masks.png exists */
     __asm {
         push 0x34               /* atlas object size (matches the game's own) */
         mov  eax, 0x0046EC93

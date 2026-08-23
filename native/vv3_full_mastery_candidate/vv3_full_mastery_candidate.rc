@@ -17,6 +17,12 @@
 3012 BITMAP "appearance/body_f.bmp"
 3021 BITMAP "appearance/mask_strip.bmp"
 
+/* The Heathen-mask overlay atlas, embedded so the companion DLL can self-deploy
+   it into the game's Images/ folder at runtime -- no patcher manifest asset step
+   needed (companion_files is locked to the DLL, and relaxing it touches shared
+   cross-game core).  See vv3_extract_mask_atlas() in the .c. */
+5000 RCDATA "../../assets/vv3_heathen_masks/heathen_masks.png"
+
 #define DS_MODALFRAME 0x0080L
 #define DS_SETFONT 0x0040L
 #define WS_POPUP 0x80000000L
