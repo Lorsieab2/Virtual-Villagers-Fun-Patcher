@@ -54,33 +54,33 @@ VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 CHANGE_APPEARANCE_FILE_OFFSET = 0x7BD40
 CHANGE_APPEARANCE_VA = IMAGE_BASE + CHANGE_APPEARANCE_FILE_OFFSET
 
-# Heathen-mask render cave (SEPARATE-atlas method).  The .text/.rdata cave padding
-# is fully reserved by the composed fun-patches, so the cave lives INSIDE the
-# always-present Origins payload, in the free gap between detail_menu (ends +0xAD4)
-# and village_preflight (+0xB80) -- emitted with put(), whose occupied-check guards
-# against a payload-layout collision.  After the villager head draw the cave reads
-# the per-villager mask byte +0xED0 (0=none, 1..5) and, if set, draws a mask cell
-# ON TOP from a DEDICATED atlas (Images/heathen_masks.png, 8 cols x 5 rows) -- NOT
-# by appending rows to the head atlas (that desyncs the sprite-table row count and
-# garbles the head; see the VV2 method).  The mask atlas is loaded once by the
-# companion DLL export VV3GetMaskAtlas (keeping the load code out of the tiny cave)
-# and its pointer cached in MASK_ATLAS_PTR; a missing PNG / failed load degrades to
-# "no mask", never a crash.  The mask is drawn at the head's x/frame/scale with the
-# row swapped to (byte-1) and the y lifted so the tall masks seat on the head.
-# Writes NO villager state.
+# Heathen-mask render cave (DLL-draw method).  The .text/.rdata cave padding is
+# fully reserved by the composed fun-patches, so the cave lives INSIDE the always-
+# present Origins payload, in the free gap between detail_menu (ends +0xAD4) and
+# village_preflight (+0xB80) -- emitted with put(), whose occupied-check guards a
+# payload-layout collision.  The cave draws the villager head normally, then calls
+# the companion DLL's VV3DrawMaskOnHead(record, sprite_obj, &args) once.  The DLL
+# owns everything mask-related -- the fingerprint-guarded mask table (the record
+# byte +0xED0 could NOT be used: the sim zeroes it every frame), the dedicated
+# atlas Images/heathen_masks.png loaded via the game's own loader, the (mask-1)
+# row, and the tunable y-lift -- and draws the mask cell ON TOP via the game's draw
+# fn.  Keeping the draw in the DLL keeps this cave tiny (no atlas/lift asm) and all
+# the mask logic in readable, tunable C.  A missing DLL/export/atlas degrades to
+# "no mask", never a crash.  Writes NO villager state.  NOTE: this call site only
+# covers the villager head-draw paths that route through 0x456B24; if some
+# villagers don't render, switch the hook to the child draw thunk 0x409FB0.
 MASK_CAVE_VA = PAYLOAD_VA + 0xAD8
 MASK_HOOK_VA = 0x456B24
 MASK_HOOK_LEN = 0x456B2F - 0x456B24  # 11 bytes replaced (head-draw call site)
 MASK_DRAW_FN = 0x409FB0
 MASK_SPRITE_OBJ_OFF = 0x1F7C
-MASK_BYTE_OFF = 0xED0
-# Loaded mask-atlas pointer.  Lives in the mapped, zero-filled, writable, and
-# otherwise-unreferenced page tail of .data (VirtualSize ends 0x6C7518; the page
-# rounds up to 0x6C8000), so .text/.rdata stay read-only and nothing else uses it.
-MASK_ATLAS_PTR = 0x6C7A00
-# Draw-time vertical lift: y_mask = y - ((scaledY * MASK_LIFT_MUL) >> 7).  Tunable;
-# 54 (~42*scale) is the starting value pending live playtest calibration.
-MASK_LIFT_MUL = 54
+# Cached pointer to the companion DLL's VV3DrawMaskOnHead export.  Lives in the
+# mapped, zero-filled, writable, otherwise-unreferenced page tail of .data
+# (VirtualSize ends 0x6C7518; the page rounds up to 0x6C8000), so .text/.rdata
+# stay read-only and nothing else uses it.  The mask store, atlas load, and the
+# tunable lift all live in the DLL now, so the exe cave just draws the head and
+# calls this once -- keeping the cave tiny and the mask logic in readable C.
+MASK_DRAWFN_PTR = 0x6C7A00
 
 # Complete/Reset all Collections action caves live in a free executable-.rdata
 # padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
@@ -253,7 +253,7 @@ def main() -> None:
     extra_strings = bytearray()
     for name, value in (
         ("appearance_export", "ShowVV3AppearanceChooser"),
-        ("getatlas_export", "VV3GetMaskAtlas"),
+        ("drawmask_export", "VV3DrawMaskOnHead"),
         (
             "cure_message",
             "Cured sickness from %u %s.\n\n"
@@ -1469,18 +1469,22 @@ def main() -> None:
     # (+0xDF0) and body (+0xDF4).  Cancel / unchanged / declined-warning return 0
     # here: no charge, no write.  edx = the validated selected record on entry;
     # head/body are staged in two stack locals passed by pointer.
+    # The cosmetic MASK is NOT a record field (VV3's record +0xED0 is zeroed by
+    # the sim every frame).  The chooser is passed the record POINTER as arg5 and
+    # reads/commits the mask through the DLL-owned table (VV3_Get/SetMaskForRecord,
+    # keyed by slot index, fingerprint-guarded).  This cave never touches +0xED0 --
+    # the record and save are never written by the mask.  head(+0xDF0)/body(+0xDF4)
+    # are still written (paid appearance changes).
     change_appearance_code = assemble(
         f"""
             push ebx
             push esi
             mov esi, edx
-            sub esp, 0xC
+            sub esp, 8
             mov eax, dword ptr [esi + 0xDF0]
             mov dword ptr [esp], eax
             mov eax, dword ptr [esi + 0xDF4]
             mov dword ptr [esp + 4], eax
-            movzx eax, byte ptr [esi + 0xED0]
-            mov dword ptr [esp + 8], eax
             push 0x{s['icons_dll']:X}
             call dword ptr [0x47C124]
             test eax, eax
@@ -1491,8 +1495,7 @@ def main() -> None:
             test eax, eax
             je ca_done
             mov ebx, eax
-            lea eax, [esp + 8]
-            push eax
+            push esi
             lea eax, [esp + 8]
             push eax
             lea eax, [esp + 8]
@@ -1507,10 +1510,8 @@ def main() -> None:
             mov dword ptr [esi + 0xDF0], eax
             mov eax, dword ptr [esp + 4]
             mov dword ptr [esi + 0xDF4], eax
-            mov eax, dword ptr [esp + 8]
-            mov byte ptr [esi + 0xED0], al
         ca_done:
-            add esp, 0xC
+            add esp, 8
             pop esi
             pop ebx
             ret
@@ -1518,14 +1519,13 @@ def main() -> None:
         CHANGE_APPEARANCE_VA,
     )
 
-    # Heathen-mask render hook cave (SEPARATE-atlas method).  Draw the head (via
-    # copies of the 7 stack args, so the originals survive for the mask), then gate
-    # on the per-villager mask byte +0xED0 (0=none, 1..5); when nonzero, lazy-load
-    # the dedicated mask atlas via the companion DLL (VV3GetMaskAtlas, cached in
-    # MASK_ATLAS_PTR) and draw a mask cell ON TOP -- reusing the head's x/frame/
-    # scale, with param1 swapped to the mask atlas, param4 (row) = byte-1, and the
-    # y lifted by (scaledY*MASK_LIFT_MUL)>>7 so the tall masks seat on the head.
-    # A missing/failed atlas degrades to "no mask".  Writes NO villager state.
+    # Heathen-mask render hook cave (DLL-draw method).  Draw the head (via copies
+    # of the 7 stack args, so the originals survive), then call the DLL's
+    # VV3DrawMaskOnHead(record=esi, sprite_obj=[esi+0x1F7C], args=&originals) once.
+    # The DLL looks up the villager's mask (its own fingerprint-guarded table),
+    # loads the atlas, and draws the mask cell on top with the tunable lift.  The
+    # export pointer is resolved once (LoadLibrary/GetProcAddress) and cached in
+    # MASK_DRAWFN_PTR.  Any failure (no DLL/export/mask) draws nothing.  No state.
     put(
         MASK_CAVE_VA,
         f"""
@@ -1538,40 +1538,27 @@ def main() -> None:
             push dword ptr [esp + 0x18]
             mov ecx, dword ptr [esi + 0x{MASK_SPRITE_OBJ_OFF:X}]
             call 0x{MASK_DRAW_FN:X}
-            movzx eax, byte ptr [esi + 0x{MASK_BYTE_OFF:X}]
-            test eax, eax
-            je mask_skip
-            mov eax, dword ptr [0x{MASK_ATLAS_PTR:X}]
+            mov eax, dword ptr [0x{MASK_DRAWFN_PTR:X}]
             test eax, eax
             jnz mask_have
             push 0x{s['icons_dll']:X}
             call dword ptr [0x47C124]
             test eax, eax
-            je mask_skip
-            push 0x{s['getatlas_export']:X}
+            je mask_done
+            push 0x{s['drawmask_export']:X}
             push eax
             call dword ptr [0x47C128]
             test eax, eax
-            je mask_skip
-            call eax
-            mov dword ptr [0x{MASK_ATLAS_PTR:X}], eax
+            je mask_done
+            mov dword ptr [0x{MASK_DRAWFN_PTR:X}], eax
         mask_have:
-            test eax, eax
-            je mask_skip
-            mov dword ptr [esp], eax
-            movzx eax, byte ptr [esi + 0x{MASK_BYTE_OFF:X}]
-            dec eax
-            mov dword ptr [esp + 0xC], eax
-            mov eax, dword ptr [esp + 0x14]
-            imul eax, eax, 0x{MASK_LIFT_MUL:X}
-            sar eax, 7
-            sub dword ptr [esp + 8], eax
-            mov ecx, dword ptr [esi + 0x{MASK_SPRITE_OBJ_OFF:X}]
-            call 0x{MASK_DRAW_FN:X}
-            jmp mask_done
-        mask_skip:
-            add esp, 0x1C
+            mov edx, esp
+            push edx
+            push dword ptr [esi + 0x{MASK_SPRITE_OBJ_OFF:X}]
+            push esi
+            call eax
         mask_done:
+            add esp, 0x1C
             jmp 0x{0x456B2F:X}
         """,
     )

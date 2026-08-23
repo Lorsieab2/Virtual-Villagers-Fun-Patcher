@@ -354,6 +354,134 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 #define VV3_TECH_POINTS 0x00582644u  /* int: the tech-point pool the Buy charges */
 #define EDL_COST       1000000
 
+/* ---- Cosmetic Heathen-mask store (SAFE: DLL-owned, never the record/save) ----
+   The per-villager mask choice can NOT live in a record byte: VV3's record +0xED0
+   read 0 statically but the running sim ZEROES it every frame (the same trap that
+   killed VV2's +0x480), so a written mask vanishes within a frame.  So the choice
+   lives in DLL memory the patch owns -- a 256-entry table keyed by villager slot
+   index (index = (record - 0x59E124) / 0x1F8C, the id the game itself uses).  The
+   villager record and the save file are NEVER written.
+
+   A slot is reused when a villager dies and a newborn takes its place, so each
+   stored mask is guarded by an identity fingerprint over fields fixed at birth
+   (gender + 3 Likes + 3 Dislikes): on read we recompute it and only return the
+   mask when it still matches, so a reused slot reads as "no mask" and can never
+   inherit the previous villager's mask.  Persistence (a sidecar file next to the
+   save) is a later step -- for now the table is in-memory (masks reset on quit),
+   matching VV2's current state.  Render reads via VV3_GetMaskForRecord; the
+   Change Appearance chooser writes via VV3_SetMaskForRecord. */
+#define VV3_MASK_SLOTS 256
+#define VV3_MASK_MAX   5             /* 1..5 = Blue/Orange/Red/Purple/Chief; 0=none */
+
+static unsigned char g_vv3_mask[VV3_MASK_SLOTS];
+static unsigned int  g_vv3_mask_fp[VV3_MASK_SLOTS];
+
+/* FNV-1a/32 over the villager's immutable-at-birth genetics; 0 -> 1 (0 reserved). */
+static unsigned int vv3_mask_fingerprint(const unsigned char *rec) {
+    unsigned int h = 2166136261u;
+    const unsigned char *p;
+    int i, b;
+    h = (h ^ rec[VV3_GENDER]) * 16777619u;
+    for (i = 0; i < 3; ++i) {
+        p = rec + VV3_LIKES + i * 4;
+        for (b = 0; b < 4; ++b) h = (h ^ p[b]) * 16777619u;
+    }
+    for (i = 0; i < 3; ++i) {
+        p = rec + VV3_DISLIKES + i * 4;
+        for (b = 0; b < 4; ++b) h = (h ^ p[b]) * 16777619u;
+    }
+    return h ? h : 1u;
+}
+
+/* Slot index for a record pointer, or -1 if it is not a valid record base. */
+static int vv3_mask_index(const void *record) {
+    UINT_PTR base = (UINT_PTR)VV3_REC_BASE;
+    UINT_PTR p = (UINT_PTR)record;
+    UINT_PTR off, idx;
+    if (record == NULL || p < base) return -1;
+    off = p - base;
+    if (off % VV3_STRIDE) return -1;
+    idx = off / VV3_STRIDE;
+    if (idx >= VV3_MASK_SLOTS) return -1;
+    return (int)idx;
+}
+
+/* Render hook: mask (1..5) to draw over this villager's head, or 0 for none /
+   empty slot / a reused slot whose fingerprint no longer matches. */
+__declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
+    const unsigned char *rec = (const unsigned char *)record;
+    int idx = vv3_mask_index(record);
+    if (idx < 0) return 0;
+    if (g_vv3_mask[idx] == 0) return 0;
+    if (g_vv3_mask_fp[idx] != vv3_mask_fingerprint(rec)) return 0;
+    return g_vv3_mask[idx];
+}
+
+/* Chooser commit: store the chosen mask (0..5) for this villager.  Never writes
+   the record.  Returns 1 on a valid record. */
+__declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask) {
+    const unsigned char *rec = (const unsigned char *)record;
+    int idx = vv3_mask_index(record);
+    if (idx < 0) return 0;
+    if (mask < 0 || mask > VV3_MASK_MAX) mask = 0;
+    g_vv3_mask[idx] = (unsigned char)mask;
+    g_vv3_mask_fp[idx] = mask ? vv3_mask_fingerprint(rec) : 0u;
+    return 1;
+}
+
+/* ---- Mask draw (called from the exe Detail head-draw hook) ----
+   The exe cave draws the villager head normally, then calls this once with the
+   record, the sprite/draw object ([record+0x1F7C]), and a pointer to the 7 head-
+   draw args it just used.  We look up the villager's mask (fingerprint-guarded
+   DLL table), and if set, draw the mask cell ON TOP from the dedicated atlas via
+   the game's own draw routine 0x004093A0 -- reusing the head's x / frame / scale,
+   with the atlas swapped to the mask atlas, the row set to (mask-1), and the y
+   lifted so the tall masks seat on the head.  Doing the draw here keeps the exe
+   cave tiny (just "draw head, call this") and all the tunable mask logic in C.
+
+   Head-draw args (as the exe pushed them, param1..param7):
+     args[0]=head atlas  args[1]=x  args[2]=y  args[3]=head row
+     args[4]=frame/param5  args[5]=scaled-Y  args[6]=flag(1)
+   0x004093A0 is __thiscall (ecx = *(sprite_obj)), 7 stack args, callee-cleaned
+   (ret 0x1C).  A missing atlas / no-mask / bad record degrades to drawing nothing
+   -- never a crash.  Writes NO villager state. */
+#define VV3_MASK_LIFT_MUL 54          /* y_mask = y - ((scaledY*MUL)>>7); tunable */
+#define VV3_MASK_DRAW_FN  0x004093A0u
+
+__declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
+    void *record, void *sprite_obj, const int *args)
+{
+    int mask = VV3_GetMaskForRecord(record);
+    void *atlas, *draw_this;
+    int row, ymask, x, scaledY, frame, flag;
+    if (mask <= 0 || sprite_obj == NULL || args == NULL) {
+        return;
+    }
+    atlas = VV3GetMaskAtlas();
+    if (atlas == NULL) {
+        return;
+    }
+    x       = args[1];
+    frame   = args[4];
+    scaledY = args[5];
+    flag    = args[6];
+    row     = mask - 1;
+    ymask   = args[2] - ((scaledY * VV3_MASK_LIFT_MUL) >> 7);
+    draw_this = *(void **)sprite_obj;   /* the game's own "mov ecx,[ecx]" deref */
+    __asm {
+        push flag
+        push scaledY
+        push frame
+        push row
+        push ymask
+        push x
+        push atlas
+        mov  ecx, draw_this
+        mov  eax, VV3_MASK_DRAW_FN
+        call eax                        /* draws the mask cell; ret 0x1C */
+    }
+}
+
 #define VW_RUNNING 6
 #define VW_MASTERY 7
 #define VW_AGE     8
@@ -898,18 +1026,21 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     int age,
     int *head,
     int *body,
-    int *mask
+    void *record
 ) {
     INT_PTR result;
     HWND owner;
     int orig_head;
     int orig_body;
     int orig_mask;
+    int cur_mask;
     vv3_appearance_sex = sex ? 1 : 0;
     vv3_appearance_old = age >= 1100 ? 1 : 0;
     vv3_appearance_head = (head && *head >= 0 && *head < VV3_HEAD_COUNT) ? *head : 0;
     vv3_appearance_body = (body && *body >= 0 && *body < VV3_BODY_COUNT) ? *body : 0;
-    vv3_appearance_mask = (mask && *mask >= 0 && *mask < VV3_MASK_COUNT) ? *mask : 0;
+    /* The mask choice comes from the DLL-owned table (never a record byte). */
+    cur_mask = VV3_GetMaskForRecord(record);
+    vv3_appearance_mask = (cur_mask >= 0 && cur_mask < VV3_MASK_COUNT) ? cur_mask : 0;
     orig_head = vv3_appearance_head;
     orig_body = vv3_appearance_body;
     orig_mask = vv3_appearance_mask;
@@ -954,8 +1085,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     if (body) {
         *body = vv3_appearance_body;
     }
-    if (mask) {
-        *mask = vv3_appearance_mask;
-    }
+    /* Commit the mask to the DLL-owned table; the record/save are never written. */
+    VV3_SetMaskForRecord(record, vv3_appearance_mask);
     return 1;
 }
