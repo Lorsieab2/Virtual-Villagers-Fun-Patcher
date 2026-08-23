@@ -12,3 +12,4 @@ EXPORTS
     ShowOriginsEqualDivisionResult=_ShowOriginsEqualDivisionResult@20
     Vv1MaskRestore=_Vv1MaskRestore@0
     Vv1MaskApplyDistribution=_Vv1MaskApplyDistribution@8
+    ShowOriginsAppearanceForAll=_ShowOriginsAppearanceForAll@0

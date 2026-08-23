@@ -900,6 +900,143 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     return result;
 }
 
+/* ===================== Change Appearance for All ======================= */
+/* Whole-village chooser (dialog 204). Per-sex Head/Body/Mask selections plus a
+   whole-village mask override. On OK it applies the per-sex head/body/mask to
+   every occupied villager of that sex (head/body are normal record fields the
+   game itself edits; the mask goes only into the .data table), then, unless
+   "Use choices above" is selected, overrides ALL masks with the chosen
+   distribution / single colour via Vv1MaskApplyDistribution. Never touches the
+   .ldw save. The 450k charge stays the exe's job (same contract as the
+   per-villager picker). */
+#define IDD_ORIGINS_APPEARANCE_ALL 204
+/* override_mode: 0 = use the per-sex mask choices; 1 random, 2 vv5, 3 equal;
+   4..9 = single mask 0..5 (none/blue/orange/red/purple/chief). */
+static struct {
+    int male_head, male_body, male_mask;
+    int female_head, female_body, female_mask;
+    int override_mode;
+} forall_state;
+
+static int forall_cycle(int cur, int delta, int count) {
+    return ((cur + delta) % count + count) % count;
+}
+
+static void forall_apply(void) {
+    unsigned char *base = VV_MASK_MANAGER;
+    int i;
+    if (base == NULL) {
+        return;
+    }
+    for (i = 0; i < VV_MASK_SLOTS; i++) {
+        unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
+        int male;
+        if (rec[VV_OCCUPIED_OFFSET] != 1) {
+            continue;
+        }
+        male = (*(int *)(rec + VV_GENDER_OFFSET) == VV_GENDER_MALE);
+        *(int *)(rec + VV_HEAD_OFFSET) = male ? forall_state.male_head
+                                              : forall_state.female_head;
+        *(int *)(rec + VV_CLOTHING_OFFSET) = male ? forall_state.male_body
+                                                  : forall_state.female_body;
+        vv1_mask_set(rec, (unsigned char)(male ? forall_state.male_mask
+                                               : forall_state.female_mask));
+    }
+    if (forall_state.override_mode != 0) {
+        if (forall_state.override_mode <= 3) {
+            Vv1MaskApplyDistribution(forall_state.override_mode, 0);
+        } else {
+            Vv1MaskApplyDistribution(0, forall_state.override_mode - 4);
+        }
+        return;  /* Vv1MaskApplyDistribution already persisted the sidecar */
+    }
+    vv1_mask_sidecar_save();
+}
+
+static void forall_draw_item(DRAWITEMSTRUCT *item) {
+    switch (item->CtlID) {
+    case 2100: appearance_draw(item, IDB_HEAD_M, forall_state.male_head); break;
+    case 2110: appearance_draw(item, IDB_BODY_M, forall_state.male_body); break;
+    case 2120: appearance_draw(item, IDB_MASK,  forall_state.male_mask);  break;
+    case 2200: appearance_draw(item, IDB_HEAD_F, forall_state.female_head); break;
+    case 2210: appearance_draw(item, IDB_BODY_F, forall_state.female_body); break;
+    case 2220: appearance_draw(item, IDB_MASK,  forall_state.female_mask); break;
+    default: break;
+    }
+}
+
+static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
+                                      WPARAM wparam, LPARAM lparam) {
+    if (message == WM_INITDIALOG) {
+        forall_state.male_head = forall_state.male_body = forall_state.male_mask = 0;
+        forall_state.female_head = forall_state.female_body = forall_state.female_mask = 0;
+        forall_state.override_mode = 0;
+        vv1_prep_fullscreen();
+        CheckRadioButton(window, 2300, 2309, 2300);
+        SetDlgItemTextA(window, 2123, vv1_mask_name(0));
+        SetDlgItemTextA(window, 2223, vv1_mask_name(0));
+        return TRUE;
+    } else if (message == WM_DRAWITEM) {
+        forall_draw_item((DRAWITEMSTRUCT *)lparam);
+        return TRUE;
+    } else if (message == WM_COMMAND) {
+        int id = LOWORD(wparam);
+        switch (id) {
+        /* male */
+        case 2101: forall_state.male_head = forall_cycle(forall_state.male_head, -1, 19); appearance_repaint(window, 2100); return TRUE;
+        case 2102: forall_state.male_head = forall_cycle(forall_state.male_head, +1, 19); appearance_repaint(window, 2100); return TRUE;
+        case 2111: forall_state.male_body = forall_cycle(forall_state.male_body, -1, 19); appearance_repaint(window, 2110); return TRUE;
+        case 2112: forall_state.male_body = forall_cycle(forall_state.male_body, +1, 19); appearance_repaint(window, 2110); return TRUE;
+        case 2121: forall_state.male_mask = forall_cycle(forall_state.male_mask, -1, VV_MASK_COUNT);
+                   SetDlgItemTextA(window, 2123, vv1_mask_name(forall_state.male_mask)); appearance_repaint(window, 2120); return TRUE;
+        case 2122: forall_state.male_mask = forall_cycle(forall_state.male_mask, +1, VV_MASK_COUNT);
+                   SetDlgItemTextA(window, 2123, vv1_mask_name(forall_state.male_mask)); appearance_repaint(window, 2120); return TRUE;
+        /* female */
+        case 2201: forall_state.female_head = forall_cycle(forall_state.female_head, -1, 20); appearance_repaint(window, 2200); return TRUE;
+        case 2202: forall_state.female_head = forall_cycle(forall_state.female_head, +1, 20); appearance_repaint(window, 2200); return TRUE;
+        case 2211: forall_state.female_body = forall_cycle(forall_state.female_body, -1, 20); appearance_repaint(window, 2210); return TRUE;
+        case 2212: forall_state.female_body = forall_cycle(forall_state.female_body, +1, 20); appearance_repaint(window, 2210); return TRUE;
+        case 2221: forall_state.female_mask = forall_cycle(forall_state.female_mask, -1, VV_MASK_COUNT);
+                   SetDlgItemTextA(window, 2223, vv1_mask_name(forall_state.female_mask)); appearance_repaint(window, 2220); return TRUE;
+        case 2222: forall_state.female_mask = forall_cycle(forall_state.female_mask, +1, VV_MASK_COUNT);
+                   SetDlgItemTextA(window, 2223, vv1_mask_name(forall_state.female_mask)); appearance_repaint(window, 2220); return TRUE;
+        case IDOK:
+            forall_apply();
+            EndDialog(window, 1);
+            return TRUE;
+        case IDCANCEL:
+            EndDialog(window, 0);
+            return TRUE;
+        default:
+            if (id >= 2300 && id <= 2309) {
+                forall_state.override_mode = id - 2300;
+                return TRUE;
+            }
+            break;
+        }
+    } else if (message == WM_CLOSE) {
+        EndDialog(window, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Returns 1 if the player pressed OK (a change was applied), else 0 -- the exe
+   charges the 450,000 tech points on a 1. */
+__declspec(dllexport) int __stdcall ShowOriginsAppearanceForAll(void) {
+    HWND owner;
+    vv1_mask_sidecar_load();      /* start from the persisted table */
+    vv1_prep_fullscreen();
+    owner = GetForegroundWindow();
+    return (int)DialogBoxParamA(
+        module_instance,
+        MAKEINTRESOURCEA(IDD_ORIGINS_APPEARANCE_ALL),
+        owner,
+        forall_dialog,
+        0
+    );
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
     int villager_menu,
     int dialog_state
