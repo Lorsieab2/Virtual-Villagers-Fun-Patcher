@@ -22,11 +22,11 @@
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "6D8F2466E8832A89ABD54B51D15FBF63861EC769FE1EB029376746834CFFE269"
+      "source_text_sha256": "F1A1153F2AA298EA9C0BFBF62C505B36C5DC5143067DAB5C34FE17167AC8CF8F"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "E8EFE2BF54F0AB564BBF7A6E05C5CDE40FE2989CE74A89F3D0E1B5C80FAF6573"
+      "source_text_sha256": "65F6619032BAB163A45430CCC3F52A2527AE6FF355560A18AF9B21CAAA1574A3"
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
@@ -34,7 +34,7 @@
     },
     "companion_builder": {
       "path": "scripts/build_vv5_task9_origins_dll.ps1",
-      "source_text_sha256": "6ABF456B518089BB1D132987961FD5EDAA5E63F2ACE1F319433EA6B41E95F7BE"
+      "source_text_sha256": "DBBF79D5E6C4CDCC96F490C14622EC0D2A5E15C6782B823E5AA8ACDEB0E63383"
     },
     "individual_reference": {
       "path": "src/vv5_individual_transactions.py",
@@ -67,8 +67,8 @@
     "unchanged": true
   },
   "companion": {
-    "size": 1741824,
-    "sha256": "C866558CD1B01B697718CB678D375303A477CEC63D2E5755BF3AC4FB5F3D1689"
+    "size": 1742848,
+    "sha256": "59DE2CBFF3CFC0F601A501098ADBCA5534490A337C5BF9BE8F54EFEBA31558EA"
   },
   "payload": {
     "sha256": "4F84674C1DD8E749D7F9C927059DBBF3FF3A079498EDB72DAFAC2F307E227621",

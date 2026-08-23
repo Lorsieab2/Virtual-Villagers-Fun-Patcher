@@ -26,7 +26,7 @@ if ($LASTEXITCODE -ne 0) { throw "Resource compilation failed." }
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
     ("/OUT:" + (Join-Path $outputRoot "VVFP VV5 Task9 Origins Icons.dll")) `
-    user32.lib gdi32.lib
+    user32.lib gdi32.lib shell32.lib
 if ($LASTEXITCODE -ne 0) { throw "Native DLL compilation failed." }
 
 @(

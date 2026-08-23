@@ -1,5 +1,18 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <shlobj.h>   /* SHGetSpecialFolderPathA, CSIDL_PERSONAL */
+#include <string.h>   /* strrchr */
+
+/* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
+   150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20. The
+   safest way to persist it is OUTSIDE the game's save flow (VV5's autosave does
+   not re-run get_save_path, so an exe save-hook never fires). Instead the native
+   code writes it from the chooser (WriteMaskSidecar, on OK) and reads it back on
+   the first village frame (ReadMaskSidecar). Both build the path here in clean C,
+   next to the game's own save: Documents\LDW\<exe-basename>\vvfp_masks.dat. Keyed
+   by villager record index (positional + stable across reload). The sidecar is a
+   SEPARATE file from the .ldw, so it can never corrupt a save. */
+#define MASK_TABLE_BYTES 75
 
 static HINSTANCE module_instance;
 static HWND origins_owner;
@@ -58,6 +71,76 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         origins_owner = NULL;
     }
     return TRUE;
+}
+
+/* Build Documents\LDW\<exe-basename>\vvfp_masks.dat into out (>= MAX_PATH).
+   Ensures the folder exists. Returns 1 on success, 0 on failure. */
+static int build_mask_sidecar_path(char *out) {
+    char docs[MAX_PATH];
+    char exe[MAX_PATH];
+    char *base;
+    char *dot;
+    if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) {
+        return 0;
+    }
+    if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) {
+        return 0;
+    }
+    base = strrchr(exe, '\\');
+    base = base ? base + 1 : exe;   /* basename incl. ".exe" */
+    dot = strrchr(base, '.');
+    if (dot) {
+        *dot = '\0';                /* strip the extension */
+    }
+    /* ensure Documents\LDW and Documents\LDW\<base> exist (CreateDirectory is a
+       no-op / harmless if they already do) */
+    wsprintfA(out, "%s\\LDW", docs);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s", docs, base);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks.dat", docs, base);
+    return 1;
+}
+
+/* Persist the mask side-table (75 bytes at exe 0x7B1D20, passed in) to the
+   sidecar. Called from the chooser on OK. Never touches the .ldw. */
+__declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table) {
+    char path[MAX_PATH];
+    HANDLE h;
+    DWORD wrote = 0;
+    if (table == NULL || !build_mask_sidecar_path(path)) {
+        return;
+    }
+    h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    WriteFile(h, table, MASK_TABLE_BYTES, &wrote, NULL);
+    CloseHandle(h);
+}
+
+/* Restore the mask side-table from the sidecar into the 75-byte buffer at
+   exe 0x7B1D20 (passed in). Zeroes the table if the sidecar is absent (a save
+   with no recorded masks shows none). Called on the first village frame. */
+__declspec(dllexport) void __stdcall ReadMaskSidecar(unsigned char *table) {
+    char path[MAX_PATH];
+    HANDLE h;
+    DWORD got = 0;
+    if (table == NULL || !build_mask_sidecar_path(path)) {
+        return;
+    }
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        memset(table, 0, MASK_TABLE_BYTES);
+        return;
+    }
+    ReadFile(h, table, MASK_TABLE_BYTES, &got, NULL);
+    if (got < MASK_TABLE_BYTES) {
+        memset(table + got, 0, MASK_TABLE_BYTES - got);
+    }
+    CloseHandle(h);
 }
 
 /* ---------- VV5 Change Appearance chooser (VV2-style) ----------

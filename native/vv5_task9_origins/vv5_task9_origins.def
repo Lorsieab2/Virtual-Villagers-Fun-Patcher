@@ -9,3 +9,5 @@ EXPORTS
     ShowVV5Task9GeneticsWarning=_ShowVV5Task9GeneticsWarning@0
     ShowAppearanceChooser=_ShowAppearanceChooser@20
     ApplyVV5EqualDivision=_ApplyVV5EqualDivision@8
+    WriteMaskSidecar=_WriteMaskSidecar@4
+    ReadMaskSidecar=_ReadMaskSidecar@4
