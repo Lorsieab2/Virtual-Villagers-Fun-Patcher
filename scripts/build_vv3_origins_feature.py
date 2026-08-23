@@ -54,23 +54,33 @@ VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 CHANGE_APPEARANCE_FILE_OFFSET = 0x7BD40
 CHANGE_APPEARANCE_VA = IMAGE_BASE + CHANGE_APPEARANCE_FILE_OFFSET
 
-# Heathen-mask render cave.  The VV3 .text/.rdata code-cave padding is fully
-# reserved by the composed fun-patches (statistics alone reserves 512 bytes at
-# 0x7B464..0x7B664, village-wide 0x7B820..0x7BD40, etc.), so there is no free
-# standalone .text cave.  Instead the ~108-byte cave lives INSIDE the always-
-# present Origins payload, in the free gap between detail_menu (ends +0xAD4) and
-# village_preflight (+0xB80).  It is emitted with put(), whose occupied-check
-# guards against any payload-layout collision.  After the villager head draw the
-# cave reads the per-villager mask byte +0xED0 (0=none, 1..5) and redraws the
-# head atlas at row 29+byte (mask rows 30..34) on top.
+# Heathen-mask render cave (SEPARATE-atlas method).  The .text/.rdata cave padding
+# is fully reserved by the composed fun-patches, so the cave lives INSIDE the
+# always-present Origins payload, in the free gap between detail_menu (ends +0xAD4)
+# and village_preflight (+0xB80) -- emitted with put(), whose occupied-check guards
+# against a payload-layout collision.  After the villager head draw the cave reads
+# the per-villager mask byte +0xED0 (0=none, 1..5) and, if set, draws a mask cell
+# ON TOP from a DEDICATED atlas (Images/heathen_masks.png, 8 cols x 5 rows) -- NOT
+# by appending rows to the head atlas (that desyncs the sprite-table row count and
+# garbles the head; see the VV2 method).  The mask atlas is loaded once by the
+# companion DLL export VV3GetMaskAtlas (keeping the load code out of the tiny cave)
+# and its pointer cached in MASK_ATLAS_PTR; a missing PNG / failed load degrades to
+# "no mask", never a crash.  The mask is drawn at the head's x/frame/scale with the
+# row swapped to (byte-1) and the y lifted so the tall masks seat on the head.
+# Writes NO villager state.
 MASK_CAVE_VA = PAYLOAD_VA + 0xAD8
 MASK_HOOK_VA = 0x456B24
 MASK_HOOK_LEN = 0x456B2F - 0x456B24  # 11 bytes replaced (head-draw call site)
 MASK_DRAW_FN = 0x409FB0
 MASK_SPRITE_OBJ_OFF = 0x1F7C
 MASK_BYTE_OFF = 0xED0
-# Head-atlas sprite-table row-count fields (0x1E -> 0x23) so rows 30..34 exist.
-MASK_ROWCOUNT_FIELDS = (0xAAE6C, 0xAAE9C, 0xAAF2C, 0xAAF5C)
+# Loaded mask-atlas pointer.  Lives in the mapped, zero-filled, writable, and
+# otherwise-unreferenced page tail of .data (VirtualSize ends 0x6C7518; the page
+# rounds up to 0x6C8000), so .text/.rdata stay read-only and nothing else uses it.
+MASK_ATLAS_PTR = 0x6C7A00
+# Draw-time vertical lift: y_mask = y - ((scaledY * MASK_LIFT_MUL) >> 7).  Tunable;
+# 54 (~42*scale) is the starting value pending live playtest calibration.
+MASK_LIFT_MUL = 54
 
 # Complete/Reset all Collections action caves live in a free executable-.rdata
 # padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
@@ -243,6 +253,7 @@ def main() -> None:
     extra_strings = bytearray()
     for name, value in (
         ("appearance_export", "ShowVV3AppearanceChooser"),
+        ("getatlas_export", "VV3GetMaskAtlas"),
         (
             "cure_message",
             "Cured sickness from %u %s.\n\n"
@@ -1507,35 +1518,54 @@ def main() -> None:
         CHANGE_APPEARANCE_VA,
     )
 
-    # Heathen-mask render hook cave: always draw the head (copy of the 7 stack
-    # args), then gate on the per-villager mask byte +0xED0 (0=none, 1..5); when
-    # nonzero, redraw the same head atlas at row 29+byte (mask rows 30..34) on
-    # top at the identical position/facing.  Writes NO villager state.
+    # Heathen-mask render hook cave (SEPARATE-atlas method).  Draw the head (via
+    # copies of the 7 stack args, so the originals survive for the mask), then gate
+    # on the per-villager mask byte +0xED0 (0=none, 1..5); when nonzero, lazy-load
+    # the dedicated mask atlas via the companion DLL (VV3GetMaskAtlas, cached in
+    # MASK_ATLAS_PTR) and draw a mask cell ON TOP -- reusing the head's x/frame/
+    # scale, with param1 swapped to the mask atlas, param4 (row) = byte-1, and the
+    # y lifted by (scaledY*MASK_LIFT_MUL)>>7 so the tall masks seat on the head.
+    # A missing/failed atlas degrades to "no mask".  Writes NO villager state.
     put(
         MASK_CAVE_VA,
         f"""
-            sub esp, 0x1C
-            mov eax, dword ptr [esp + 0x1C]
-            mov dword ptr [esp], eax
-            mov eax, dword ptr [esp + 0x20]
-            mov dword ptr [esp + 4], eax
-            mov eax, dword ptr [esp + 0x24]
-            mov dword ptr [esp + 8], eax
-            mov eax, dword ptr [esp + 0x28]
-            mov dword ptr [esp + 0xC], eax
-            mov eax, dword ptr [esp + 0x2C]
-            mov dword ptr [esp + 0x10], eax
-            mov eax, dword ptr [esp + 0x30]
-            mov dword ptr [esp + 0x14], eax
-            mov eax, dword ptr [esp + 0x34]
-            mov dword ptr [esp + 0x18], eax
+            push dword ptr [esp + 0x18]
+            push dword ptr [esp + 0x18]
+            push dword ptr [esp + 0x18]
+            push dword ptr [esp + 0x18]
+            push dword ptr [esp + 0x18]
+            push dword ptr [esp + 0x18]
+            push dword ptr [esp + 0x18]
             mov ecx, dword ptr [esi + 0x{MASK_SPRITE_OBJ_OFF:X}]
             call 0x{MASK_DRAW_FN:X}
             movzx eax, byte ptr [esi + 0x{MASK_BYTE_OFF:X}]
             test eax, eax
             je mask_skip
-            add eax, 29
+            mov eax, dword ptr [0x{MASK_ATLAS_PTR:X}]
+            test eax, eax
+            jnz mask_have
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+            test eax, eax
+            je mask_skip
+            push 0x{s['getatlas_export']:X}
+            push eax
+            call dword ptr [0x47C128]
+            test eax, eax
+            je mask_skip
+            call eax
+            mov dword ptr [0x{MASK_ATLAS_PTR:X}], eax
+        mask_have:
+            test eax, eax
+            je mask_skip
+            mov dword ptr [esp], eax
+            movzx eax, byte ptr [esi + 0x{MASK_BYTE_OFF:X}]
+            dec eax
             mov dword ptr [esp + 0xC], eax
+            mov eax, dword ptr [esp + 0x14]
+            imul eax, eax, 0x{MASK_LIFT_MUL:X}
+            sar eax, 7
+            sub dword ptr [esp + 8], eax
             mov ecx, dword ptr [esi + 0x{MASK_SPRITE_OBJ_OFF:X}]
             call 0x{MASK_DRAW_FN:X}
             jmp mask_done
@@ -1742,13 +1772,8 @@ def main() -> None:
         mask_hook_code,
         "redirect the villager head-draw through the Heathen-mask cave",
     )
-    for _rc in MASK_ROWCOUNT_FIELDS:
-        patch(
-            _rc,
-            bytes.fromhex("1E000000"),
-            bytes.fromhex("23000000"),
-            "extend head-atlas row count to include the 5 mask rows (30..34)",
-        )
+    # (No head-atlas row-count bump: the separate-atlas method draws the mask from
+    # its own Images/heathen_masks.png, so the head atlases are left untouched.)
     patch(
         COLLECTIONS_COMPLETE_FILE_OFFSET,
         b"\0" * len(collections_complete_code),

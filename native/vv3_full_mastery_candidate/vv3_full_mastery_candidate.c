@@ -56,6 +56,50 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     return TRUE;
 }
 
+/* ---- Heathen-mask overlay atlas (Detail-screen render support) ----
+   The Detail head-draw hook draws the villager head, then (if the villager's
+   mask byte record+0xED0 is 1..5) draws a mask cell on top from a DEDICATED mask
+   atlas, Images/heathen_masks.png (8 directional cols x 5 mask rows).  Loading a
+   game sprite atlas requires the game's own allocator + loader (the atlas object
+   is a game-internal type), so this export builds it once through those exe
+   routines and caches the result -- keeping the ~90 bytes of one-time load code
+   (and the filename string) in the DLL so the exe render cave stays tiny.  It
+   never touches save data.  These absolute addresses are fixed: the game exe is
+   non-ASLR (image base 0x00400000) and loaded in this process.
+
+     0x0046EC93  game allocator(size) -> ptr (cdecl, caller-cleaned)
+     0x0040AF10  atlas loader(this=ecx, filename, cols, rows) -> atlas (ret 0xC)
+
+   Returns the loaded atlas object pointer (NULL if the load fails, e.g. the PNG
+   is missing -- the render cave then simply skips the mask, so a missing asset
+   degrades to "no mask", never a crash).  Called lazily from the render hook, so
+   the graphics subsystem is always up by the time this runs. */
+static void *g_mask_atlas;
+
+__declspec(dllexport) void *__stdcall VV3GetMaskAtlas(void) {
+    static const char mask_atlas_name[] = "heathen_masks.png";
+    void *atlas = NULL;
+    if (g_mask_atlas != NULL) {
+        return g_mask_atlas;
+    }
+    __asm {
+        push 0x34               /* atlas object size (matches the game's own) */
+        mov  eax, 0x0046EC93
+        call eax                /* eax = fresh atlas object                    */
+        add  esp, 4
+        mov  ecx, eax           /* this = the object                           */
+        push 5                  /* rows (5 masks)                              */
+        push 8                  /* cols (8 directional frames)                 */
+        lea  eax, mask_atlas_name
+        push eax                /* filename                                    */
+        mov  eax, 0x0040AF10
+        call eax                /* loader(this, name, 8, 5) -> eax = atlas     */
+        mov  atlas, eax
+    }
+    g_mask_atlas = atlas;
+    return atlas;
+}
+
 /* These old SDL2 games run "fullscreen" as a WS_EX_TOPMOST borderless window,
    so a normal owned dialog is painted *behind* the game and can't be reached.
    Lift the dialog above the game and center it on the game's monitor.  Called
