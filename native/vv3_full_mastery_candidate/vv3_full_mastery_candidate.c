@@ -445,7 +445,9 @@ __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask)
    0x004093A0 is __thiscall (ecx = *(sprite_obj)), 7 stack args, callee-cleaned
    (ret 0x1C).  A missing atlas / no-mask / bad record degrades to drawing nothing
    -- never a crash.  Writes NO villager state. */
-#define VV3_MASK_LIFT_MUL 54          /* y_mask = y - ((scaledY*MUL)>>7); tunable */
+#define VV3_MASK_LIFT_MUL 34          /* y_mask = y - ((scaledY*MUL)>>7); live-tuned
+                                         2026-08-23 (54 too high, 16 too low, 34 seats
+                                         the mask on the head) */
 #define VV3_MASK_DRAW_FN  0x004093A0u
 
 __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
