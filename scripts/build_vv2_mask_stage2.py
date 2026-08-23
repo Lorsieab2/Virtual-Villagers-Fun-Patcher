@@ -73,9 +73,10 @@ LOADER = 0x40A270                 # path atlas loader (thiscall; ret 0xc)
 ATLAS_COLS, ATLAS_ROWS = 8, 5     # 320/8=40 wide, 440/5=88 tall
 
 # --- cave layout -----------------------------------------------------------
-CAVE_VA = 0x473C40                # .text slack, 0x3C0 free
-MASK_ATLAS_PTR = CAVE_VA          # dword: loaded atlas obj ptr (0 until init)
-FNAME_VA = CAVE_VA + 4            # "heathen_masks.png\0"
+# Mask code + atlas-ptr + filename now live in an appended R/W/X section (.vvmk),
+# NOT the shared game .text cave (0x473C40) — that cave is occupied in the Origins
+# build. MASK_ATLAS_PTR / FNAME_VA are assigned per-build inside build() from the
+# appended section's VA.
 FNAME = b"heathen_masks.png\x00"
 
 # --- tunables (live-iterate) ----------------------------------------------
@@ -114,10 +115,15 @@ def _pe_checksum(buf: bytearray) -> tuple[int, int]:
     return ((total & 0xFFFF) + len(buf)) & 0xFFFFFFFF, csum_off
 
 
-def _append_section(data: bytearray, name: bytes, vsize: int) -> int:
-    """Append a zero-filled R/W section and return its absolute VA. Guaranteed
-    game-untouchable: no compiled code can reference a VA that did not exist at
-    build time. Holds the patch-owned per-villager mask table (no game data)."""
+def _append_section(data: bytearray, name: bytes, vsize: int,
+                    chars: int = 0xC0000040) -> tuple[int, int]:
+    """Append a zero-filled section and return (absolute VA, raw file offset).
+    Guaranteed game-untouchable: no compiled code can reference a VA that did not
+    exist at build time. `chars` = section flags (default init-data|R|W; pass
+    0xE0000020 for code|R|W|X). Used for the patch-owned mask table AND the mask
+    render code, so NOTHING lives in the shared game .text cave (which the Origins
+    build already occupies). NOTE: an appended section's file offset != its RVA,
+    so callers must use the returned raw offset (not VA-ImageBase) to write it."""
     pe = struct.unpack_from("<I", data, 0x3C)[0]
     num = struct.unpack_from("<H", data, pe + 6)[0]
     opt = pe + 24
@@ -157,15 +163,19 @@ def _append_section(data: bytearray, name: bytes, vsize: int) -> int:
     struct.pack_into("<I", hdr, 12, new_va)       # VirtualAddress (RVA)
     struct.pack_into("<I", hdr, 16, raw_size)     # SizeOfRawData
     struct.pack_into("<I", hdr, 20, new_raw)      # PointerToRawData
-    struct.pack_into("<I", hdr, 36, 0xC0000040)   # init data | READ | WRITE
+    struct.pack_into("<I", hdr, 36, chars)        # section characteristics
     data[new_hdr : new_hdr + 40] = hdr
     struct.pack_into("<H", data, pe + 6, num + 1)          # NumberOfSections
     struct.pack_into("<I", data, opt + 56, a(new_va + vsize, sec_align))  # SizeOfImage
-    return IMAGE_BASE + new_va
+    return IMAGE_BASE + new_va, new_raw
 
 
-def build(out_path: Path, force_row: int | None = None) -> None:
-    data = bytearray(STOCK.read_bytes())
+def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = None) -> None:
+    # Base exe: stock by default, but the mask hooks (thunks 0x4095B0/0x409600, init
+    # detour 0x44C5E6) are byte-identical in the Origins/Modded build, and the mask
+    # code/table now live in appended sections (not the occupied 0x473C40 cave), so
+    # this same builder applies to the Modded exe too — pass src_exe.
+    data = bytearray((src_exe or STOCK).read_bytes())
     ks = keystone.Ks(keystone.KS_ARCH_X86, keystone.KS_MODE_32)
 
     def asm(code: str, addr: int) -> bytes:
@@ -176,8 +186,17 @@ def build(out_path: Path, force_row: int | None = None) -> None:
     # so the mask CHOICE never touches villager records or ANY game data (the game
     # cannot reference a VA that did not exist at build time). Indexed by record
     # index 0..255; value 0=no mask, 1..5 = mask row+1. Zero at load = no masks.
-    MASK_TABLE_VA = _append_section(data, b".mtab", 0x1000)
+    MASK_TABLE_VA, _ = _append_section(data, b".mtab", 0x1000)
     SCRATCH_VA = MASK_TABLE_VA + 0xF00   # dword scratch: current mask row (for per-mask portrait offset)
+    # Mask RENDER CODE goes in its OWN appended R/W/X section — NOT the shared game
+    # .text cave at 0x473C40 (which the Origins build already occupies). Self-contained:
+    # atlas-obj pointer + "heathen_masks.png" filename + the adult/child/init stubs.
+    CODE_SEC_VA, CODE_RAW = _append_section(data, b".vvmk", 0x1000, 0xE0000020)
+    MASK_ATLAS_PTR = CODE_SEC_VA          # dword: loaded atlas obj ptr (0 until init)
+    FNAME_VA = CODE_SEC_VA + 4            # "heathen_masks.png\0"
+
+    def cfoff(va: int) -> int:            # file offset of a VA inside the appended code section
+        return CODE_RAW + (va - CODE_SEC_VA)
 
     # Gate/row fragments. Default = per-villager gate on the PATCH-OWNED mask table
     # indexed by record index (village: recIdx = [esi+edi*4+0xe57090]; portrait:
@@ -394,8 +413,8 @@ def build(out_path: Path, force_row: int | None = None) -> None:
     """
     init = asm(init_asm, init_va)
     end = init_va + len(init)
-    total = end - CAVE_VA
-    assert total <= 0x3C0, f"cave overflow: {total:#x}"
+    total = end - CODE_SEC_VA
+    assert total <= 0x1000, f".vvmk code section overflow: {total:#x}"
 
     # ---- hooks ----
     def patch_thunk(va: int, tlen: int, dst: int, label: str):
@@ -410,56 +429,29 @@ def build(out_path: Path, force_row: int | None = None) -> None:
     assert len(init_hook) == INIT_LEN
     assert data[INIT_VA - IMAGE_BASE:INIT_VA - IMAGE_BASE + 2] == b"\x89\x86", "init detour site moved!"
 
-    def foff(va: int) -> int:
+    def foff(va: int) -> int:            # .text hook sites map VA-ImageBase -> file offset
         return va - IMAGE_BASE
 
-    # cave region free?
-    assert data[foff(CAVE_VA):foff(CAVE_VA) + total] == b"\0" * total, "cave not free!"
+    # write the appended .vvmk section (already zero from append; it is R/W/X so the
+    # init stub's atlas-ptr store needs no .text-writable hack): ptr(0) + filename + stubs
+    struct.pack_into("<I", data, cfoff(MASK_ATLAS_PTR), 0)
+    data[cfoff(FNAME_VA):cfoff(FNAME_VA) + len(FNAME)] = FNAME
+    data[cfoff(code0):cfoff(code0) + len(adult)] = adult
+    data[cfoff(child_va):cfoff(child_va) + len(child)] = child
+    data[cfoff(init_va):cfoff(init_va) + len(init)] = init
 
-    # write cave: ptr(0) + filename + code
-    struct.pack_into("<I", data, foff(MASK_ATLAS_PTR), 0)
-    data[foff(FNAME_VA):foff(FNAME_VA) + len(FNAME)] = FNAME
-    data[foff(code0):foff(code0) + len(adult)] = adult
-    data[foff(child_va):foff(child_va) + len(child)] = child
-    data[foff(init_va):foff(init_va) + len(init)] = init
-
-    # write hooks
+    # write hooks (jmp from the fixed .text thunk/init sites into the .vvmk stubs)
     patch_thunk(THUNK_VA, THUNK_LEN, code0, "adult")
     patch_thunk(CHILD_THUNK_VA, CHILD_THUNK_LEN, child_va, "child")
     data[foff(INIT_VA):foff(INIT_VA) + INIT_LEN] = init_hook
-
-    # MASK_ATLAS_PTR lives in the cave (.text), which is read-only by default; the init
-    # stub STORES the loaded atlas pointer there at runtime -> set IMAGE_SCN_MEM_WRITE on
-    # the section that contains the cave so that store doesn't access-violate.
-    pe_off = struct.unpack_from("<I", data, 0x3C)[0]
-    num_sec = struct.unpack_from("<H", data, pe_off + 6)[0]
-    opt_size = struct.unpack_from("<H", data, pe_off + 20)[0]
-    sec_tbl = pe_off + 24 + opt_size
-    cave_rva = CAVE_VA - IMAGE_BASE
-    made_writable = None
-    for i in range(num_sec):
-        sh = sec_tbl + i * 40
-        rva = struct.unpack_from("<I", data, sh + 12)[0]
-        vsz = struct.unpack_from("<I", data, sh + 8)[0]
-        rawsz = struct.unpack_from("<I", data, sh + 16)[0]
-        # cave lives in .text's alignment padding (past VirtualSize) -> use max span
-        span = ((max(vsz, rawsz) + 0xFFF) & ~0xFFF)
-        if rva <= cave_rva < rva + span:
-            ch_off = sh + 36
-            ch = struct.unpack_from("<I", data, ch_off)[0]
-            struct.pack_into("<I", data, ch_off, ch | 0x80000000)  # MEM_WRITE
-            made_writable = data[sh:sh + 8].rstrip(b"\0").decode("latin1")
-            break
-    assert made_writable, "cave section not found!"
 
     csum, csum_off = _pe_checksum(data)
     struct.pack_into("<I", data, csum_off, csum)
     out_path.write_bytes(data)
 
-    print(f"cave total {total} B @ 0x{CAVE_VA:X} (limit 0x3C0)")
+    print(f".vvmk code section {total} B @ 0x{CODE_SEC_VA:X} (limit 0x1000); .mtab table @ 0x{MASK_TABLE_VA:X}")
     print(f"  ptr@0x{MASK_ATLAS_PTR:X} fname@0x{FNAME_VA:X} adult@0x{code0:X} child@0x{child_va:X} init@0x{init_va:X}")
     print(f"hooks: adult 0x{THUNK_VA:X}, child 0x{CHILD_THUNK_VA:X}, init 0x{INIT_VA:X}")
-    print(f"section '{made_writable}' set writable (for MASK_ATLAS_PTR store)")
     if force_row is None:
         print(f"gate = PATCH-OWNED table @0x{MASK_TABLE_VA:X} indexed by record index "
               f"(0=no mask); villager records untouched")
@@ -476,5 +468,10 @@ if __name__ == "__main__":
         i = args.index("--force-row")
         force_row = int(args[i + 1])
         del args[i:i + 2]
+    src_exe = None
+    if "--input" in args:
+        i = args.index("--input")
+        src_exe = Path(args[i + 1])
+        del args[i:i + 2]
     out = Path(args[0]) if args else ROOT / "scratchpad_vv2_mask_stage2.exe"
-    build(out, force_row=force_row)
+    build(out, force_row=force_row, src_exe=src_exe)
