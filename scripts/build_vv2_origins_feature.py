@@ -102,7 +102,13 @@ BARREL_CUE_FRAMES = 90
 # bytes hold the helper code; the export name string follows at +0x100.
 APPEARANCE_FILE_OFFSET = 0x9AD20
 APPEARANCE_VA = IMAGE_BASE + SHR_RVA + (APPEARANCE_FILE_OFFSET - SHR_FILE_OFFSET)
-APPEARANCE_STRING_VA = APPEARANCE_VA + 0x100
+# Appearance handler code region grown 0x100 -> 0x140 to fit the mask read/write +
+# the sidecar-save call; strings follow at APPEARANCE_STRING_VA.
+APPEARANCE_CODE_MAX = 0x140
+APPEARANCE_STRING_VA = APPEARANCE_VA + APPEARANCE_CODE_MAX
+# "Vv2MaskSaveSidecar\0" follows "ShowVV2AppearanceChooser\0" (25 bytes); the handler
+# GetProcAddress'es it to persist after committing .mtab.
+SAVESIDECAR_STRING_VA = APPEARANCE_STRING_VA + len(b"ShowVV2AppearanceChooser\0")
 
 # Whole-village Tech-screen upgrades (Running / Full Mastery / Age 18 for all
 # villagers). Placed after the Change Appearance helper in the .shr reserve.
@@ -1513,6 +1519,16 @@ def main() -> None:
             mov ecx, dword ptr [ebp - 0x10]
             mov al, byte ptr [ebp - 0xC]
             mov byte ptr [ecx + 0x{VV2_MASK_TABLE_VA:X}], al
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je appearance_done
+            push 0x{SAVESIDECAR_STRING_VA:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je appearance_done
+            call eax
             jmp appearance_done
         appearance_insufficient:
             mov eax, 0x{s['not_enough']:X}
@@ -1529,14 +1545,15 @@ def main() -> None:
         """,
         APPEARANCE_VA,
     )
-    if len(appearance_helper_code) > 0x100:
+    if len(appearance_helper_code) > APPEARANCE_CODE_MAX:
         raise RuntimeError(
             f"appearance helper is too large: {len(appearance_helper_code):#x}/0x100"
         )
     appearance_block = (
         appearance_helper_code
-        + b"\0" * (0x100 - len(appearance_helper_code))
+        + b"\0" * (APPEARANCE_CODE_MAX - len(appearance_helper_code))
         + b"ShowVV2AppearanceChooser\0"
+        + b"Vv2MaskSaveSidecar\0"
     )
     # Whole-village Tech upgrades applied directly (like Cure All): fetch the
     # record array through the certified manager (0x44F4E0 -> base-0x52C) and

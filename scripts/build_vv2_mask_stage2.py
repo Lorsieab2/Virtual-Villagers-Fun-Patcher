@@ -78,6 +78,14 @@ ATLAS_COLS, ATLAS_ROWS = 8, 5     # 320/8=40 wide, 440/5=88 tall
 # build. MASK_ATLAS_PTR / FNAME_VA are assigned per-build inside build() from the
 # appended section's VA.
 FNAME = b"heathen_masks.png\x00"
+# Startup mask-restore: the init detour LoadLibrary's the Origins DLL and calls its
+# Vv2MaskRestore export (loads the sidecar into .mtab), so saved masks reappear from
+# game launch. Fail-open: on the stock build (no DLL) LoadLibraryA returns 0 and we
+# skip. Uses the exe's own kernel32 IAT slots (present in stock + Origins builds).
+DLLNAME = b"VVFP VV2 Origins Icons.dll\x00"
+RESTORE_STR = b"Vv2MaskRestore\x00"
+LOADLIBRARYA_IAT = 0x474010
+GETPROCADDRESS_IAT = 0x4740D4
 
 # --- tunables (live-iterate) ----------------------------------------------
 MASK_ROW_TEST = 4                 # 0 Blue,1 Orange,2 Red,3 Purple,4 Chief (hardcoded for stage 2)
@@ -196,6 +204,8 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     CODE_SEC_VA, CODE_RAW = _append_section(data, b".vvmk", 0x1000, 0x60000020)
     MASK_ATLAS_PTR = MASK_TABLE_VA + 0xF08  # dword in .mtab (R/W): atlas obj ptr (0 until init)
     FNAME_VA = CODE_SEC_VA                   # "heathen_masks.png\0" (read-only in the R+X section)
+    DLLNAME_VA = FNAME_VA + len(FNAME)       # "VVFP VV2 Origins Icons.dll\0"
+    RESTORE_STR_VA = DLLNAME_VA + len(DLLNAME)  # "Vv2MaskRestore\0"
 
     def cfoff(va: int) -> int:            # file offset of a VA inside the appended code section
         return CODE_RAW + (va - CODE_SEC_VA)
@@ -242,7 +252,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         C_ROW = f"mov  eax, {force_row}"
 
     # code starts after the ptr dword + filename string (4-aligned)
-    code0 = (FNAME_VA + len(FNAME) + 3) & ~3
+    code0 = (RESTORE_STR_VA + len(RESTORE_STR) + 3) & ~3
 
     # ---- ADULT head stub: draw mask (row MASK_ROW_TEST) then original head ----
     # entry: jumped from `call 0x4095B0`; [esp]=ret,[+4]=atlas,[+8]=x,[+c]=y,[+10]=row,[+14]=frame
@@ -410,6 +420,19 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         push 0x{FNAME_VA:X}                   /* "heathen_masks.png" */
         call 0x{LOADER:X}                    /* -> eax = atlas obj (ret 0xc) */
         mov  [0x{MASK_ATLAS_PTR:X}], eax
+        /* restore saved masks: LoadLibrary the Origins DLL + call Vv2MaskRestore
+           (loads sidecar -> .mtab). Fail-open: no DLL (stock build) -> skip. */
+        push 0x{DLLNAME_VA:X}
+        call dword ptr [0x{LOADLIBRARYA_IAT:X}]
+        test eax, eax
+        jz   no_restore
+        push 0x{RESTORE_STR_VA:X}
+        push eax
+        call dword ptr [0x{GETPROCADDRESS_IAT:X}]
+        test eax, eax
+        jz   no_restore
+        call eax                             /* Vv2MaskRestore() */
+    no_restore:
         popad
         jmp  0x{INIT_RET:X}
     """
@@ -437,6 +460,8 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # write the appended .vvmk (R+X) section: filename + stubs. The atlas-ptr dword
     # lives in .mtab (R/W, zero-init) and is filled by the init stub at runtime.
     data[cfoff(FNAME_VA):cfoff(FNAME_VA) + len(FNAME)] = FNAME
+    data[cfoff(DLLNAME_VA):cfoff(DLLNAME_VA) + len(DLLNAME)] = DLLNAME
+    data[cfoff(RESTORE_STR_VA):cfoff(RESTORE_STR_VA) + len(RESTORE_STR)] = RESTORE_STR
     data[cfoff(code0):cfoff(code0) + len(adult)] = adult
     data[cfoff(child_va):cfoff(child_va) + len(child)] = child
     data[cfoff(init_va):cfoff(init_va) + len(init)] = init
