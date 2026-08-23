@@ -69,12 +69,13 @@ COLOURS = ["blue", "orange", "red", "purple", "chief"]
 # rest: locate each facing's head by its magenta hair, locate the mask over
 # it, subtract.
 PACKED = "packed-atlas"
+CHIEF_DY = 12  # px lift for the packed chief frames (playtest)
 
 MASK_OFFSETS = {
     "blue": (24, -52),  # playtest: up 20 more (multi-villager view)
-    "orange": (16, -34),  # playtest-confirmed alignment
-    "red": (18, -59),  # playtest-confirmed after blue; up 10 more
-    "purple": (4, -13),
+    "orange": (16, -49),  # playtest: up 15 (multi-villager)
+    "red": (18, -62),  # playtest: up 3 more
+    "purple": (4, -43),  # playtest: up 30 (multi-villager)
     # Chief is a PACKED ATLAS, not a strip. Its seven frames sit at irregular
     # x and in two vertical rows -- solving for a single cell origin is
     # infeasible (frame 0 requires ox <= -4 while frame 3 requires ox >= 4), so
@@ -261,7 +262,9 @@ def _sheet(colour: str) -> Image.Image:
             frame = art.crop(box)
             centre, chin = _reference_placement()[facing]
             x = int(round(CELL_W * facing + centre - frame.width / 2))
-            y = chin - frame.height
+            # CHIEF_DY lifts every packed chief frame uniformly (playtest: the
+            # chief sat 25px too low in the multi-villager village view).
+            y = chin - frame.height - CHIEF_DY
             if y < 0 or y + frame.height > SHEET_CELL_H:
                 raise ValueError(f"{colour} facing {facing} does not fit the cell")
             sheet.alpha_composite(frame, (x, y))
