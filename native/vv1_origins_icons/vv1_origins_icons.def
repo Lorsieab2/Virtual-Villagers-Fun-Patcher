@@ -11,3 +11,4 @@ EXPORTS
     ShowOriginsAgeResult=_ShowOriginsAgeResult@12
     ShowOriginsEqualDivisionResult=_ShowOriginsEqualDivisionResult@20
     Vv1MaskRestore=_Vv1MaskRestore@0
+    Vv1MaskApplyDistribution=_Vv1MaskApplyDistribution@8

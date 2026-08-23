@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <shlobj.h>   /* SHGetFolderPathA / CSIDL_PERSONAL (mask sidecar path) */
 #include <string.h>   /* strrchr / memcpy for the sidecar */
+#include "vv1_mask_distribute.h"  /* Change Appearance for All distribution modes */
 
 #ifndef VV_AGE_OFFSET
 #define VV_AGE_OFFSET 0x348
@@ -261,6 +262,88 @@ static void vv1_mask_sidecar_load(void) {
 /* Exe-callable, exported so the patch can restore masks once at startup
    (outside the loader lock). __stdcall/no args to match the exe's own
    GetProcAddress-and-call convention for the other Origins exports. */
+/* Change Appearance for All -- apply a whole-village mask distribution.
+ * mode: 0=single (use single_mask, 0..5), 1=random, 2=VV5-style, 3=equal.
+ * Reads the live occupied villagers off the render-hook-stashed array base,
+ * runs the pure distribution (vv1_mask_distribute.h), writes each result into
+ * the .data table by record index, and persists via the sidecar. Never touches
+ * a villager record or the save. Exported for the exe's upgrade handler to
+ * call after it charges the 450k tech points. Fail-safe when the engine isn't
+ * up (base 0) or the village is empty. */
+#define VV_GOLDEN_CHILD_PTR (*(unsigned char **)0x0048B614) /* current golden child record, 0=none */
+
+__declspec(dllexport) void __stdcall Vv1MaskApplyDistribution(int mode,
+                                                              int single_mask) {
+    unsigned char *base = VV_MASK_MANAGER;
+    int rec_index[VV_MASK_SLOTS];
+    unsigned char is_male[VV_MASK_SLOTS];
+    unsigned char out[VV_MASK_SLOTS];
+    int scratch[VV_MASK_SLOTS];
+    int count = 0, golden = -1, i;
+    unsigned int rng;
+    unsigned char *golden_rec;
+
+    if (base == NULL) {
+        return;
+    }
+    /* compact list of the currently occupied villagers */
+    for (i = 0; i < VV_MASK_SLOTS; i++) {
+        unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
+        if (rec[VV_OCCUPIED_OFFSET] != 1) {
+            continue;
+        }
+        rec_index[count] = i;
+        is_male[count] = (unsigned char)(
+            *(int *)(rec + VV_GENDER_OFFSET) == VV_GENDER_MALE);
+        count++;
+    }
+    if (count == 0) {
+        return;
+    }
+    /* map the golden child's record pointer to a position in the compact list */
+    golden_rec = VV_GOLDEN_CHILD_PTR;
+    if (golden_rec != NULL && golden_rec >= base) {
+        size_t delta = (size_t)(golden_rec - base);
+        if (delta % VV_RECORD_STRIDE == 0) {
+            int gidx = (int)(delta / VV_RECORD_STRIDE);
+            for (i = 0; i < count; i++) {
+                if (rec_index[i] == gidx) {
+                    golden = i;
+                    break;
+                }
+            }
+        }
+    }
+    rng = GetTickCount() ^ 0x9E3779B9u;   /* varies per apply; fine to be cheap */
+    switch (mode) {
+    case 1:
+        vv1_dist_random(count, &rng, out);
+        break;
+    case 2:
+        vv1_dist_vv5(count, golden, &rng, scratch, out);
+        break;
+    case 3:
+        vv1_dist_equal(count, is_male, &rng, scratch, out);
+        break;
+    default:
+        if (single_mask < 0 || single_mask > 5) {
+            single_mask = 0;
+        }
+        vv1_dist_single(count, (unsigned char)single_mask, out);
+        break;
+    }
+    /* write results into the mask table by record index, then persist */
+    for (i = 0; i < count; i++) {
+        int idx = rec_index[i];
+        unsigned char *slot = &VV_MASK_TABLE[idx >> 1];
+        unsigned char v = out[i];
+        *slot = (idx & 1)
+            ? (unsigned char)((*slot & 0x0F) | (v << 4))
+            : (unsigned char)((*slot & 0xF0) | v);
+    }
+    vv1_mask_sidecar_save();
+}
+
 __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
     vv1_mask_sidecar_load();
 }
