@@ -264,14 +264,18 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # matching purchase gate.
                         "0xCCB10", "0x14D50", "0x3FBE5", "0x4098C",
                         "0x14DCA", "0x14E0D", "0xCCB40", "0xCCB60", "0xCCC00",
-                        # Heathen-mask overlay: render-hook cave (0xCCD80), the
-                        # two head-draw call sites spliced onto it (0x5F702,
-                        # 0x5F9CA), and the two head-atlas row-count bumps
-                        # 30->35 (0xC3C24 male, 0xC3B94 female). Detail-portrait
-                        # (big) head: cave 0xCCE30, call site 0x3D040, bigheads
-                        # row-count bump 0xC3CB4.
-                        "0xCCD80", "0x5F702", "0x5F9CA", "0xC3C24", "0xC3B94",
-                        "0xCCE30", "0x3D040", "0xC3CB4",
+                        # Heathen-mask overlay (SDL blit via companion DLL).
+                        # Removed the old append-rows approach (cave 0xCCD80 and
+                        # the row-count bumps 0xC3C24/0xC3B94) and replaced it
+                        # with three .shr caves -- resolve 0xCCD90, present-
+                        # surface-cache 0xCCDE0, head-draw 0xCCE10 -- plus the
+                        # present-call splice (0x9458) and the two head-draw
+                        # twins re-pointed to the head cave (0x5F702, 0x5F9CA).
+                        # No row-count bumps, no atlas swaps; detail portrait
+                        # still unhooked.
+                        "0xCCD80", "0xC3C24", "0xC3B94",
+                        "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
+                        "0x5F702", "0x5F9CA",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

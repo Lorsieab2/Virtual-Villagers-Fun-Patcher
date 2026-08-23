@@ -1,278 +1,163 @@
-"""Static regression tests for the VV4 Heathen-mask overlay render side.
+"""Static regression tests for the VV4 Heathen-mask overlay (SDL-blit design).
 
 A render hook can only be *proven* in-game, but the pieces that feed it are
-statically checkable and easy to break silently:
+statically checkable and easy to break silently. The mask overlay is fully
+cosmetic and NON-INVASIVE:
 
-* ``build_vv4_mask_atlas`` must append the 5 masks as head-atlas rows 30..34
-  while leaving the original 30 head rows byte-for-byte intact (the user's
-  "don't crop / don't alter the head sprites" requirement).
-* ``build_vv4_mask_stage1_probe``'s render-hook cave must assemble for both the
-  shipping (+0x1BC4-gated) and the proof (forced-row) modes, fit its cave
-  budget, and keep its documented hook constants.
-* The companion DLL chooser and the render cave must agree on the ONE contract
-  that ties them together: the unused per-villager byte +0x1BC4, and the
-  "mask value N draws head-atlas row 29+N" mapping. If those drift apart the
-  picker writes a byte the renderer reads as a different row.
+* Storage/logic live in the companion DLL: an index-keyed side-table, a
+  per-frame clear-on-death sweep keyed on the game's own free-slot flag
+  (record+0x1CC4), and a gender+name fingerprint backstop. NO villager-record
+  bytes are written, and NO game atlas/row is altered.
+* The exe carries only three tiny caves in the free RWX .shr tail (resolve /
+  present-surface-cache / head-draw) plus the call-site redirects. It must not
+  touch any other upgrade, menu, or patch: no head-atlas row-count bumps, no
+  atlas swaps, and the detail-portrait draw is left unhooked for now.
+* The render atlas (Images/vvfp_mask_atlas.png) ships as an added file; stock
+  atlases are untouched.
 
 None of this needs the game executable.
 """
 from __future__ import annotations
 
-import importlib.util
+import hashlib
+import json
 import unittest
 from pathlib import Path
 
-from PIL import Image
-
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_SCRIPT = ROOT / "scripts" / "build_vv4_mask_atlas.py"
-PROBE_SCRIPT = ROOT / "scripts" / "build_vv4_mask_stage1_probe.py"
 DLL_SOURCE = ROOT / "native" / "vv4_origins_icons" / "vv4_origins_icons.c"
+DLL_DEF = ROOT / "native" / "vv4_origins_icons" / "vv4_origins_icons.def"
+IMAGE_BASE = 0x400000
+
+# Cave VAs (mirror scripts/build_vv4_origins_feature.py).
+MASK_RESOLVE_VA = 0x728D90
+MASK_PRESENT_VA = 0x728DE0
+MASK_HEAD_VA = 0x728E10
+MASK_PRESENT_SITE = 0x409458
+MASK_PRESENT_CALLEE = 0x4046F0
+MASK_DRAW_THUNK_VA = 0x409A70
+MASK_HEAD_CALL_SITES = (0x45F702, 0x45F9CA)
 
 
-def _load(name: str, path: Path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"could not load {path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+def _rel_target(after_hex: str, site_va: int) -> int:
+    b = bytes.fromhex(after_hex)
+    rel = int.from_bytes(b[1:5], "little", signed=True)
+    return site_va + 5 + rel
 
 
-atlas = _load("vvfp_vv4_mask_atlas", ATLAS_SCRIPT)
-probe = _load("vvfp_vv4_mask_probe", PROBE_SCRIPT)
-
-
-def _fake_head_atlas() -> Image.Image:
-    """A stock-geometry head atlas (320x1950, 8 frames x 30 rows of 40x65),
-    with a skin-coloured blob in each sampled face row so the real face-centroid
-    path (not just the fallback) runs."""
-    w, h = atlas.CELL_W * atlas.FRAMES, atlas.CELL_H * atlas.HEAD_ROWS
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    px = img.load()
-    skin = (210, 170, 120, 255)  # passes _is_skin
-    for f in range(atlas.FRAMES):
-        for row in atlas.FACE_SAMPLE_ROWS:
-            cx = f * atlas.CELL_W + atlas.CELL_W // 2
-            cy = row * atlas.CELL_H + atlas.CELL_H // 3
-            for dy in range(-4, 5):
-                for dx in range(-4, 5):
-                    px[cx + dx, cy + dy] = skin
-    return img
-
-
-def _fake_mask_sheet() -> Image.Image:
-    """An 8x5 grid of 65x145 cells, each with an opaque blob so getbbox() is
-    non-empty and the cell composites (a fully transparent cell would have no
-    bbox and could not be placed)."""
-    w = atlas.SRC_CELL_W * atlas.FRAMES
-    h = atlas.SRC_CELL_H * atlas.MASK_ROWS
-    sheet = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    px = sheet.load()
-    for r in range(atlas.MASK_ROWS):
-        for f in range(atlas.FRAMES):
-            x0 = f * atlas.SRC_CELL_W + 20
-            y0 = r * atlas.SRC_CELL_H + 40
-            for dy in range(45):
-                for dx in range(26):
-                    px[x0 + dx, y0 + dy] = (30 + r * 40, 60, 200, 255)
-    return sheet
-
-
-class AtlasBuilderTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.src = _fake_head_atlas()
-        # _native_mask_frames takes a path; slice the in-memory sheet the same way.
-        sheet = _fake_mask_sheet()
-        frames = []
-        for r in range(atlas.MASK_ROWS):
-            row = []
-            for f in range(atlas.FRAMES):
-                row.append(sheet.crop((
-                    f * atlas.SRC_CELL_W, r * atlas.SRC_CELL_H,
-                    f * atlas.SRC_CELL_W + atlas.SRC_CELL_W,
-                    r * atlas.SRC_CELL_H + atlas.SRC_CELL_H)))
-            frames.append(row)
-        cls.frames = frames
-        cls.out = atlas.build_atlas(cls.src, cls.frames)
-
-    def test_output_has_exactly_five_appended_rows(self) -> None:
-        self.assertEqual(
-            self.out.size,
-            (atlas.CELL_W * atlas.FRAMES,
-             atlas.CELL_H * (atlas.HEAD_ROWS + atlas.MASK_ROWS)),
-        )
-        self.assertEqual(atlas.HEAD_ROWS, 30)
-        self.assertEqual(atlas.MASK_ROWS, 5)
-
-    def test_original_head_rows_are_byte_identical(self) -> None:
-        """"Don't crop / don't alter the head sprites": the first 30 rows of the
-        output must equal the source exactly."""
-        w = self.src.size[0]
-        head_h = atlas.CELL_H * atlas.HEAD_ROWS
-        self.assertEqual(
-            self.out.crop((0, 0, w, head_h)).tobytes(),
-            self.src.tobytes(),
-        )
-
-    def test_masks_actually_land_in_the_appended_rows(self) -> None:
-        w = self.src.size[0]
-        head_h = atlas.CELL_H * atlas.HEAD_ROWS
-        appended = self.out.crop((0, head_h, w, self.out.size[1]))
-        # At least one opaque mask pixel per appended row band.
-        px = appended.load()
-        for r in range(atlas.MASK_ROWS):
-            band_opaque = any(
-                px[x, r * atlas.CELL_H + y][3] > 0
-                for y in range(atlas.CELL_H)
-                for x in range(w)
-            )
-            self.assertTrue(band_opaque, f"mask row {r} is empty")
-
-    def test_head_atlas_filenames_cover_both_sexes_and_ages(self) -> None:
-        self.assertEqual(
-            set(atlas.HEAD_ATLASES),
-            {"male_heads00.png", "male_heads10.png",
-             "female_heads00.png", "female_heads10.png"},
-        )
-
-
-class ProbeCaveTests(unittest.TestCase):
-    CAVE_BUDGET = 0x48A000 - 0x489019
-
-    def test_hook_constants_are_the_documented_ones(self) -> None:
-        # Both render twins (walking + selection-panel portraits).
-        self.assertEqual(probe.CALL_SITES, (0x45F702, 0x45F9CA))
-        self.assertEqual(probe.DRAW, 0x409A70)
-        self.assertEqual(probe.CAVE, 0x489019)
-        # Head-atlas row-count fields bumped 30 -> 35 (male + female sheets).
-        self.assertEqual(probe.ROW_FIELDS, {0xC3C24: (30, 35), 0xC3B94: (30, 35)})
-
-    def _assemble(self, force_row):
-        prologue = probe._cave_asm(0, force_row).split("post_head:")[0]
-        post_head = probe.CAVE + len(probe._assemble(prologue, probe.CAVE))
-        return probe._assemble(probe._cave_asm(post_head, force_row), probe.CAVE)
-
-    def test_gated_cave_assembles_and_fits(self) -> None:
-        cave = self._assemble(None)
-        self.assertGreater(len(cave), 0)
-        self.assertLessEqual(len(cave), self.CAVE_BUDGET)
-
-    def test_forced_proof_cave_assembles_and_fits(self) -> None:
-        cave = self._assemble(probe.MASK_ROW)  # 30 = Blue
-        self.assertGreater(len(cave), 0)
-        self.assertLessEqual(len(cave), self.CAVE_BUDGET)
-
-    def test_only_the_gated_mode_reads_the_mask_byte(self) -> None:
-        gated = probe._cave_asm(0, None)
-        forced = probe._cave_asm(0, probe.MASK_ROW)
-        self.assertIn("0x1BC4", gated)
-        self.assertIn("add eax, 29", gated)   # mask N -> atlas row 29+N
-        self.assertNotIn("0x1BC4", forced)
-
-    def test_scratch_slots_clear_the_barrel_region(self) -> None:
-        # The probe's scratch slots must sit past the barrel payload
-        # (0x728B00..0x728C04) and before Collections (0x728D00).
-        slots = (probe.S_ECX, probe.S_A0, probe.S_A1, probe.S_A2,
-                 probe.S_A4, probe.S_A5, probe.S_RET)
-        for s in slots:
-            self.assertGreaterEqual(s, 0x728C40)
-            self.assertLess(s, 0x728D00)
-
-
-class ChooserRendererContractTests(unittest.TestCase):
-    """The DLL picker writes +0x1BC4; the cave reads +0x1BC4. They must agree on
-    the offset and the value->row mapping, or the picker and the world disagree."""
+class DllStorageContractTests(unittest.TestCase):
+    """The DLL owns the mask state; it must key by index, sweep on the free-slot
+    flag, fingerprint on STABLE fields only, and never write a record byte."""
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.c = DLL_SOURCE.read_text(encoding="utf-8", errors="replace")
 
-    def test_dll_uses_the_same_mask_byte_as_the_cave(self) -> None:
-        self.assertIn("#define VV_MASK_OFFSET 0x1BC4", self.c)
-        # The probe cave gate reads the identical byte.
-        self.assertIn("0x1BC4", probe._cave_asm(0, None))
+    def test_side_table_is_index_keyed_with_the_confirmed_layout(self) -> None:
+        self.assertIn("#define VV_REC_ARRAY_BASE 0x5101ECu", self.c)
+        self.assertIn("#define VV_REC_STRIDE     0x2E3Cu", self.c)
+        self.assertIn("g_mask_by_index[VV_MAX_VILLAGERS]", self.c)
 
-    def test_dll_uses_the_same_29_plus_mask_row_mapping(self) -> None:
-        # Preview overlay draws atlas row (29 + mask), matching the cave's
-        # "add eax, 29" after loading the 1..5 mask byte.
-        self.assertIn("29 + mask", self.c)
+    def test_clear_on_death_sweep_uses_the_free_slot_flag(self) -> None:
+        # record+0x1CC4 is the game's own occupied flag (0 = free/dead), from
+        # the villager-creation routine FUN_00466270.
+        self.assertIn("#define VV_OCCUPIED_OFFSET 0x1CC4", self.c)
+        self.assertIn("static void vv_mask_sweep(void)", self.c)
+        self.assertIn("rec[VV_OCCUPIED_OFFSET] == 0", self.c)
+        # The sweep runs once per frame from the present-path surface cache.
+        cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("}", 1)[0]
+        self.assertIn("vv_mask_sweep();", cache)
+
+    def test_fingerprint_uses_stable_fields_only(self) -> None:
+        fp = self.c.split("vv_fingerprint(", 1)[1].split("}", 1)[0]
+        self.assertIn("VV_SEX_OFFSET", fp)     # gender (stable)
+        self.assertIn("VV_NAME_OFFSET", fp)    # name (stable)
+        # Mutable fields must NOT be in the fingerprint (they'd false-invalidate
+        # a living villager's mask when they change via upgrades/aging).
+        self.assertNotIn("LIKES", fp)
+        self.assertNotIn("DISLIKE", fp)
+        self.assertNotIn("HEAD_OFFSET", fp)
+        self.assertNotIn("BODY_OFFSET", fp)
+
+    def test_no_villager_record_byte_is_written_for_the_mask(self) -> None:
+        # The abandoned design stored the mask in the record at +0x1BC4 (which
+        # is actually name char #4). Ensure no such write survives.
+        self.assertNotIn("0x1BC4", self.c)
+        self.assertNotIn("VV_MASK_OFFSET", self.c)
 
     def test_mask_table_is_none_plus_five(self) -> None:
         self.assertIn("#define VV_MASK_COUNT 6", self.c)
         table = self.c.split("g_mask_names[VV_MASK_COUNT] = {", 1)[1].split("};", 1)[0]
-        # Six comma-separated string entries: (None) + 5 masks.
         self.assertEqual(table.count('"') // 2, 6)
         for label in ("(None)", "Blue Mask", "Orange Mask",
                       "Red Mask", "Purple Mask", "Tribal Chief Mask"):
             self.assertIn(label, table)
 
+    def test_render_exports_are_declared(self) -> None:
+        d = DLL_DEF.read_text(encoding="utf-8", errors="replace")
+        self.assertIn("Vv4MaskCacheSurface=_Vv4MaskCacheSurface@4 @110", d)
+        self.assertIn("Vv4MaskDrawRecord=_Vv4MaskDrawRecord@20 @112", d)
+
 
 class OriginsManifestIntegrationTests(unittest.TestCase):
-    """The mask render side must actually be wired into the shipped origins
-    feature: the render-hook cave, the two call-site redirects, the row-count
-    bumps, and the four head-atlas companion swaps."""
+    """The mask render side must be wired into the shipped origins feature via
+    the three .shr caves and the call-site redirects -- and NOTHING else."""
 
     @classmethod
     def setUpClass(cls) -> None:
-        import json
         cls.m = json.loads((ROOT / "data" / "vv4_origins_feature.json").read_text("utf-8"))
         cls.by_off = {int(p["offset"], 0): p for p in cls.m["patches"]}
 
-    def test_world_and_panel_sites_are_redirected_to_the_mask_cave(self) -> None:
-        # World + panel twins share one cave. (The detail portrait is NOT
-        # hooked -- its [ebp+0x2C] gate read a constant, so it is reverted.)
-        for site in (0x5F702, 0x5F9CA):
-            p = self.by_off[site]
-            self.assertTrue(p["before"].startswith("E8"))   # was a call
-            self.assertTrue(p["after"].startswith("E8"))     # still a call
-            rel = int.from_bytes(bytes.fromhex(p["after"])[1:5], "little", signed=True)
-            self.assertEqual((0x400000 + site) + 5 + rel, 0x728D80)
+    def test_present_site_is_redirected_to_the_surface_cache_cave(self) -> None:
+        p = self.by_off[MASK_PRESENT_SITE - IMAGE_BASE]
+        # was `call 0x4046f0`, still a call, now into the present cave.
+        self.assertEqual(_rel_target(p["before"], MASK_PRESENT_SITE), MASK_PRESENT_CALLEE)
+        self.assertTrue(p["after"].upper().startswith("E8"))
+        self.assertEqual(_rel_target(p["after"], MASK_PRESENT_SITE), MASK_PRESENT_VA)
 
-    def test_detail_portrait_is_not_hooked(self) -> None:
-        self.assertNotIn(0x3D040, self.by_off)   # detail head-draw call site
-        self.assertNotIn(0xC3CB4, self.by_off)   # bigheads row-count field
+    def test_both_head_twins_are_redirected_to_the_head_cave(self) -> None:
+        for site in MASK_HEAD_CALL_SITES:
+            p = self.by_off[site - IMAGE_BASE]
+            # was `call 0x409a70` (the head-draw thunk), still a call.
+            self.assertEqual(_rel_target(p["before"], site), MASK_DRAW_THUNK_VA)
+            self.assertTrue(p["after"].upper().startswith("E8"))
+            self.assertEqual(_rel_target(p["after"], site), MASK_HEAD_VA)
 
-    def test_row_counts_are_bumped_30_to_35(self) -> None:
-        for off in (0xC3C24, 0xC3B94):   # male, female heads (world/panel)
-            p = self.by_off[off]
-            self.assertEqual(p["before"], "1E")   # 30
-            self.assertEqual(p["after"], "23")     # 35
+    def test_three_caves_live_in_zeroed_shr_space(self) -> None:
+        for off in (0xCCD90, 0xCCDE0, 0xCCE10):   # resolve / present / head
+            cave = self.by_off[off]
+            self.assertEqual(set(cave["before"]), {"0"})   # was zero-filled .shr
+            self.assertGreater(len(bytes.fromhex(cave["after"])), 0)
 
-    def test_cave_is_present_in_zero_shr_region(self) -> None:
-        cave = self.by_off[0xCCD80]
-        self.assertEqual(set(cave["before"]), {"0"})    # was zero-filled .shr
-        self.assertGreater(len(bytes.fromhex(cave["after"])), 0)
+    def test_non_invasive_no_row_bumps_and_portrait_unhooked(self) -> None:
+        # No head-atlas row-count bumps (male/female/bigheads) -- the old
+        # append-rows approach is gone.
+        for off in (0xC3C24, 0xC3B94, 0xC3CB4):
+            self.assertNotIn(off, self.by_off, f"row-count field {off:#x} must not be patched")
+        # Detail-portrait head-draw call site stays unhooked (follow-up).
+        self.assertNotIn(0x3D040, self.by_off)
 
-    def test_head_atlases_ship_as_restorable_swaps(self) -> None:
+    def test_render_atlas_ships_as_an_added_file(self) -> None:
         cf = self.m["companion_files"]
         self.assertEqual(cf[0]["destination"], "VVFP VV4 Origins Icons.dll")
-        atlases = {e["destination"]: e for e in cf
-                   if e["destination"].startswith("Images/") and "heads" in e["destination"]}
+        atlas = next((e for e in cf if e["destination"] == "Images/vvfp_mask_atlas.png"), None)
+        self.assertIsNotNone(atlas, "render atlas companion missing")
         self.assertEqual(
-            set(atlases),
-            {f"Images/{n}" for n in
-             ("male_heads00.png", "male_heads10.png",
-              "female_heads00.png", "female_heads10.png")},
-        )
-        import hashlib
-        for name, e in atlases.items():
-            for key in ("sha256", "preimage_sha256", "restore_source", "restore_sha256"):
-                self.assertIn(key, e, f"{name} missing {key}")
-            masked_bytes = (ROOT / e["source"]).read_bytes()
-            base_bytes = (ROOT / e["restore_source"]).read_bytes()
-            self.assertEqual(hashlib.sha256(masked_bytes).hexdigest().upper(), e["sha256"])
-            self.assertEqual(hashlib.sha256(base_bytes).hexdigest().upper(), e["restore_sha256"])
-            self.assertEqual(e["preimage_sha256"], e["restore_sha256"])
-            self.assertEqual(Image.open(ROOT / e["source"]).size, (320, 2275))
-            self.assertEqual(Image.open(ROOT / e["restore_source"]).size, (320, 1950))
+            hashlib.sha256((ROOT / atlas["source"]).read_bytes()).hexdigest().upper(),
+            atlas["sha256"])
+        # Added file -> no atlas SWAP fields (we do not overwrite a stock atlas).
+        self.assertNotIn("restore_source", atlas)
+        self.assertNotIn("preimage_sha256", atlas)
+
+    def test_no_stock_head_atlas_is_swapped(self) -> None:
+        for e in self.m["companion_files"]:
+            self.assertNotIn("heads", e["destination"],
+                             f"must not swap a stock head atlas: {e['destination']}")
 
     def test_isolated_mask_sheet_ships_for_the_chooser_preview(self) -> None:
         cf = self.m["companion_files"]
         sheet = next((e for e in cf if e["destination"] == "Images/vvfp_masks.png"), None)
-        self.assertIsNotNone(sheet, "mask sheet companion missing")
-        import hashlib
+        self.assertIsNotNone(sheet, "chooser preview sheet missing")
         self.assertEqual(
             hashlib.sha256((ROOT / sheet["source"]).read_bytes()).hexdigest().upper(),
             sheet["sha256"])

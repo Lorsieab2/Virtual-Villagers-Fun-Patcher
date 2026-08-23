@@ -125,50 +125,53 @@ VV4_DETAIL_HANDLER_RELOC_OFFSET = 0x235
 VV4_RESULT_HELPER_OFFSET = 0x8F3
 VV4_RESULT_HELPER_VA = PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET
 
-# --- Heathen-mask cosmetic overlay (append-rows) -----------------------------
-# The 5 VV5 masks are appended to each head atlas as rows 30..34 (shipped as the
-# companion asset swap below); the head-atlas row-count fields are bumped 30->35
-# so the game can address those rows; and one render-hook cave re-draws head-
-# atlas row (29 + [esi+0x1BC4]) on top of the villager's head at BOTH render
-# twins, gated on the unused per-villager byte +0x1BC4 (0=none, 1..5=mask). esi
-# = villager record is callee-saved across the native draw, so it is still the
-# record after the head has been drawn. No villager fields are written; mask=0
-# is byte-for-byte the stock head draw. The cave lives in the free tail of the
-# .shr page the origins feature already expands to 0x1000 and marks RWX.
-MASK_DRAW_VA = 0x409A70                    # FUN_00409a70 (stdcall, ret 0x1c)
-MASK_CALL_SITES = (0x45F702, 0x45F9CA)     # walking-world twin + panel-portrait twin
-MASK_CAVE_VA = 0x728D80
-MASK_CAVE_FILE_OFFSET = 0xCCD80
-# 7 dword scratch slots: saved ecx, the 5 forwarded draw args, and the dynamic
-# return address (so the single cave serves every call site).
-(MASK_S_ECX, MASK_S_A0, MASK_S_A1, MASK_S_A2, MASK_S_A4, MASK_S_A5,
- MASK_S_RET) = (0x728D60, 0x728D64, 0x728D68, 0x728D6C, 0x728D70, 0x728D74,
-                0x728D78)
-MASK_BYTE_OFFSET = 0x1BC4
-# The mask is stored as a 32-bit magic-tagged value at +0x1BC4 (unused, but not
-# zero-initialised): high 24 bits = tag, low byte = mask 1..5 (0/absent = none).
-MASK_MAGIC = 0x4D534B00        # "MSK" tag in the high 3 bytes
-VV_MASK_COUNT = 6              # (None) + 5 masks; valid stored mask is 1..5
-MASK_ROW_FIELDS = {0xC3C24: (30, 35), 0xC3B94: (30, 35)}  # male / female heads
-MASK_HEAD_ATLASES = ("male_heads00.png", "male_heads10.png",
-                     "female_heads00.png", "female_heads10.png")
-
-# Detail-portrait (big) head draw -- FUN_0043cdf0 @0x43D040. There EBP =
-# record+0x1B98 (head field = [EBP+0x20], body = [EBP+0x24]), so the mask byte
-# record+0x1BC4 reads as [EBP+0x2C]. The draw ABI (FUN_00409a70, 7 args, arg3 =
-# atlas row) is identical to the twins, so a second cave -- same body, EBP gate
-# instead of ESI -- hooks it. Its head atlas is masked and row-count-bumped too
-# (rows 30..34, cell 60x100, mask scaled to match) so row 29+mask is valid
-# whichever head sheet the portrait pulls.
-BIGMASK_CALL_SITE = 0x43D040
-BIGMASK_CAVE_VA = 0x728E30
-BIGMASK_CAVE_FILE_OFFSET = 0xCCE30
-(BIG_S_ECX, BIG_S_A0, BIG_S_A1, BIG_S_A2, BIG_S_A4, BIG_S_A5,
- BIG_S_RET) = (0x728E10, 0x728E14, 0x728E18, 0x728E1C, 0x728E20, 0x728E24,
-               0x728E28)
-BIGMASK_EBP_OFFSET = 0x2C
-BIGHEAD_ROW_FIELD = (0xC3CB4, (30, 35))       # bigheads row count 30 -> 35
-BIGHEAD_ATLASES = ("BigHeads00.png", "BigHeads10.png")
+# --- Heathen-mask cosmetic overlay (SDL blit via companion DLL) --------------
+# VV4 is surface-based: villager heads are drawn with SDL_UpperBlit onto the
+# render-target SDL_Surface at [screen_obj+0x30] (real blit FUN_00404cb0), and
+# the frame is later uploaded to the GPU texture at the present call
+# (FUN_004046f0 @0x409458). The mask overlay does NOT touch the game's atlases,
+# rows, or any villager record: it is a straight SDL_UpperBlit of the mask atlas
+# (Images/vvfp_mask_atlas.png) onto that SAME surface, performed by the companion
+# DLL after each head is drawn. Three tiny caves live in the free tail of the
+# RWX .shr helper page (0x728D60..0x728E60, past collections_apply @0x728D00 and
+# the detail-record scratch @0x728D40; the old append-rows caves are gone):
+#   * MASK_RESOLVE  -- LoadLibraryA the DLL + GetProcAddress the two exports by
+#                      ORDINAL (like collections_apply), once, guarded by a flag.
+#   * MASK_PRESENT  -- spliced onto the present call; caches [screen_obj+0x30]
+#                      into the DLL (Vv4MaskCacheSurface, which also runs the
+#                      per-frame clear-on-death sweep) then tail-calls 0x4046f0.
+#   * MASK_HEAD     -- spliced onto BOTH head-draw twins; draws the head
+#                      normally then calls Vv4MaskDrawRecord(esi,x,y,frame,100)
+#                      (fingerprint-checked; mask=0 -> nothing drawn).
+# No villager fields written; no atlas/row changes; other features untouched.
+MASK_DLL_ORD_CACHE = 110               # Vv4MaskCacheSurface@4  (@110 in the .def)
+MASK_DLL_ORD_DRAW = 112                # Vv4MaskDrawRecord@20   (@112 in the .def)
+MASK_DRAW_THUNK_VA = 0x409A70          # native head-draw thunk (stdcall, ret 0x1c)
+MASK_HEAD_CALL_SITES = (0x45F702, 0x45F9CA)  # walking-world twin + panel-portrait twin
+MASK_PRESENT_SITE = 0x409458           # `call 0x4046f0` (E8 93B2FFFF); ecx=screen_obj
+MASK_PRESENT_CALLEE = 0x4046F0
+LOADLIBRARYA_THUNK = 0x48A1E0          # call dword ptr [..] (matches collections_apply)
+GETPROCADDRESS_THUNK = 0x48A1DC
+# .shr data slots (runtime-written; zero at load; page is RWX):
+MASK_SLOT_HMOD = 0x728D60              # HMODULE of the companion DLL
+MASK_SLOT_CACHE_PTR = 0x728D64         # resolved Vv4MaskCacheSurface
+MASK_SLOT_DRAW_PTR = 0x728D68          # resolved Vv4MaskDrawRecord
+MASK_SLOT_RESOLVED = 0x728D6C          # byte flag: 0 = not yet resolved
+# head-cave scratch (saved across the native head draw; single-threaded render,
+# non-reentrant, so one shared set serves both twins):
+MASK_S_ECX = 0x728D70
+MASK_S_ESI = 0x728D74
+MASK_S_X = 0x728D78
+MASK_S_Y = 0x728D7C
+MASK_S_FRAME = 0x728D80
+MASK_S_RET = 0x728D84
+# caves (VA / file offset; .shr maps file 0xCC000 -> VA 0x728000):
+MASK_RESOLVE_VA = 0x728D90            # ~0x48 bytes -> ends ~0x728DD8
+MASK_RESOLVE_FILE_OFFSET = 0xCCD90
+MASK_PRESENT_VA = 0x728DE0            # ~0x1B bytes -> ends ~0x728DFB
+MASK_PRESENT_FILE_OFFSET = 0xCCDE0
+MASK_HEAD_VA = 0x728E10              # ~0x6B bytes -> ends ~0x728E7B (< page end 0x729000)
+MASK_HEAD_FILE_OFFSET = 0xCCE10
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -198,80 +201,110 @@ def rel32_call(source_va: int, target_va: int) -> bytes:
     )
 
 
-def mask_cave_bytes(cave_va: int, scratch: tuple, gate: str) -> bytes:
-    """A Heathen-mask render-hook cave.
+def mask_resolve_cave(icons_dll_va: int) -> bytes:
+    """Load the companion DLL and resolve the two mask exports by ORDINAL, once.
+    Guarded by MASK_SLOT_RESOLVED so it is a cheap flag-check ret on every later
+    call. Preserves ebx (the only callee-saved reg it uses); clobbers eax/ecx/edx
+    and flags -- callers save what they need around the `call`. On LoadLibrary
+    failure it leaves the flag 0 and retries next frame."""
+    return assemble(
+        f"""
+            cmp byte ptr [{MASK_SLOT_RESOLVED}], 0
+            jne mr_done
+            push ebx
+            push 0x{icons_dll_va:X}
+            call dword ptr [{LOADLIBRARYA_THUNK}]
+            test eax, eax
+            jz mr_fail
+            mov dword ptr [{MASK_SLOT_HMOD}], eax
+            push {MASK_DLL_ORD_CACHE}
+            push eax
+            call dword ptr [{GETPROCADDRESS_THUNK}]
+            mov dword ptr [{MASK_SLOT_CACHE_PTR}], eax
+            push {MASK_DLL_ORD_DRAW}
+            push dword ptr [{MASK_SLOT_HMOD}]
+            call dword ptr [{GETPROCADDRESS_THUNK}]
+            mov dword ptr [{MASK_SLOT_DRAW_PTR}], eax
+            mov byte ptr [{MASK_SLOT_RESOLVED}], 1
+        mr_fail:
+            pop ebx
+        mr_done:
+            ret
+        """,
+        MASK_RESOLVE_VA,
+    )
 
-    It saves the head-draw call's ecx and its stdcall args, replaces the return
-    address with ``post_head`` and tail-jumps into the native draw so the head
-    is painted normally; on return ``gate`` loads the per-villager mask byte
-    into eax and jumps to ``mask_done`` when it is zero, otherwise the cave
-    re-draws head-atlas row ``29 + byte`` with the SAME position and facing, then
-    returns to the site's real caller via the saved address. Two call sites in
-    the same twin can share one cave (it returns via the saved address); the
-    detail portrait uses its own cave only because its mask byte lives at a
-    different register+offset (EBP vs ESI). The two-pass assemble resolves the
-    absolute ``post_head`` immediate (its length is value-independent, so the
-    prologue length is stable)."""
-    s_ecx, s_a0, s_a1, s_a2, s_a4, s_a5, s_ret = scratch
+
+def mask_present_cave() -> bytes:
+    """Spliced onto `call 0x4046f0` at MASK_PRESENT_SITE. Entry: ecx=screen_obj
+    (thiscall this), [esp]=return(0x40945d), [esp+4]=surface(=[screen_obj+0x30]).
+    Resolves the DLL, hands the live render-target surface to Vv4MaskCacheSurface
+    (which also runs the clear-on-death sweep), then tail-jumps into the real
+    present so ecx/stack are exactly what 0x4046f0 expects."""
+    return assemble(
+        f"""
+            push ecx
+            call 0x{MASK_RESOLVE_VA:X}
+            mov eax, dword ptr [{MASK_SLOT_CACHE_PTR}]
+            test eax, eax
+            jz mp_skip
+            push dword ptr [esp+8]
+            call eax
+        mp_skip:
+            pop ecx
+            jmp 0x{MASK_PRESENT_CALLEE:X}
+        """,
+        MASK_PRESENT_VA,
+    )
+
+
+def mask_head_cave() -> bytes:
+    """Spliced onto BOTH head-draw twins (`call 0x409a70`). Entry: ecx=this,
+    esi=villager record, [esp]=site return, [esp+4..]=stdcall draw args
+    (sprite,x,y,idx,frame,transform,0). It draws the head normally (swap the
+    return to post_head, tail into the native thunk which returns via ret 0x1c),
+    then, when the DLL is resolved, calls Vv4MaskDrawRecord(esi,x,y,frame,100)
+    which fingerprint-checks and draws the mask on top (mask=0 -> nothing).
+    Finally returns to the site's real caller. esi is callee-saved across the
+    native draw but is snapshotted too, for safety. Single-threaded, non-
+    reentrant render -> the shared scratch set is safe for both twins."""
 
     def src(post_head: int) -> str:
         return f"""
-            mov [{s_ecx}], ecx
-            mov eax, [esp+4]
-            mov [{s_a0}], eax
+            mov dword ptr [{MASK_S_ECX}], ecx
+            mov dword ptr [{MASK_S_ESI}], esi
             mov eax, [esp+8]
-            mov [{s_a1}], eax
+            mov dword ptr [{MASK_S_X}], eax
             mov eax, [esp+0xC]
-            mov [{s_a2}], eax
+            mov dword ptr [{MASK_S_Y}], eax
             mov eax, [esp+0x14]
-            mov [{s_a4}], eax
-            mov eax, [esp+0x18]
-            mov [{s_a5}], eax
+            mov dword ptr [{MASK_S_FRAME}], eax
             mov eax, [esp]
-            mov [{s_ret}], eax
+            mov dword ptr [{MASK_S_RET}], eax
             mov dword ptr [esp], {post_head}
-            jmp {MASK_DRAW_VA}
+            jmp 0x{MASK_DRAW_THUNK_VA:X}
         post_head:
-            {gate}
-            add eax, 29
-            push 0
-            push dword ptr [{s_a5}]
-            push dword ptr [{s_a4}]
-            push eax
-            push dword ptr [{s_a2}]
-            push dword ptr [{s_a1}]
-            push dword ptr [{s_a0}]
-            mov ecx, dword ptr [{s_ecx}]
-            call {MASK_DRAW_VA}
-        mask_done:
-            jmp dword ptr [{s_ret}]
+            call 0x{MASK_RESOLVE_VA:X}
+            mov eax, dword ptr [{MASK_SLOT_DRAW_PTR}]
+            test eax, eax
+            jz mh_done
+            push 100
+            push dword ptr [{MASK_S_FRAME}]
+            push dword ptr [{MASK_S_Y}]
+            push dword ptr [{MASK_S_X}]
+            push dword ptr [{MASK_S_ESI}]
+            call eax
+        mh_done:
+            jmp dword ptr [{MASK_S_RET}]
         """
     prologue = src(0).split("post_head:")[0]
-    post_head = cave_va + len(assemble(prologue, cave_va))
-    return assemble(src(post_head), cave_va)
+    post_head = MASK_HEAD_VA + len(assemble(prologue, MASK_HEAD_VA))
+    return assemble(src(post_head), MASK_HEAD_VA)
 
 
 def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str) -> None:
     labels[name] = STRINGS_VA + len(blob)
     blob.extend(value.encode("ascii") + b"\0")
-
-
-def mask_atlas_companion(name: str) -> dict[str, str]:
-    """Companion entry that swaps one head atlas for its masked (rows 30..34
-    appended) version in the copied game's Images folder, and can restore the
-    bundled stock atlas on removal. Hashes are read from the pinned repo assets
-    so the manifest stays in lockstep with the committed bytes."""
-    masked = ROOT / "assets/vv4_masks/atlases" / name
-    base = ROOT / "assets/vv4_masks/base" / name
-    base_sha = hashlib.sha256(base.read_bytes()).hexdigest().upper()
-    return {
-        "source": f"assets/vv4_masks/atlases/{name}",
-        "destination": f"Images/{name}",
-        "sha256": hashlib.sha256(masked.read_bytes()).hexdigest().upper(),
-        "preimage_sha256": base_sha,
-        "restore_source": f"assets/vv4_masks/base/{name}",
-        "restore_sha256": base_sha,
-    }
 
 
 def main() -> None:
@@ -1539,44 +1572,31 @@ def main() -> None:
           "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
     patch(VV4_DETAIL_RECORD_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
           "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)")
-    # +0x1BC4 is unused by the game (0 code refs) but is NOT zero-initialized,
-    # so a raw byte read there yields garbage -> random masks on villagers who
-    # never set one. Store the mask as a 32-bit magic-tagged value
-    # (0x4D534B00 | mask, "MSK" + mask) and gate on the tag, so uninitialized
-    # records read as "no mask". eax must hold the 1..5 mask when the gate falls
-    # through to `add eax, 29`.
-    mask_gate = f"""
-        mov eax, [esi + {MASK_BYTE_OFFSET}]
-        mov edx, eax
-        and edx, 0xFFFFFF00
-        cmp edx, {MASK_MAGIC:#x}
-        jne mask_done
-        movzx eax, al
-        test eax, eax
-        jz mask_done
-        cmp eax, {VV_MASK_COUNT}
-        jae mask_done
-    """
-    mask_cave = mask_cave_bytes(
-        MASK_CAVE_VA,
-        (MASK_S_ECX, MASK_S_A0, MASK_S_A1, MASK_S_A2, MASK_S_A4, MASK_S_A5, MASK_S_RET),
-        mask_gate)
-    patch(MASK_CAVE_FILE_OFFSET, b"\0" * len(mask_cave), mask_cave,
-          "Heathen mask: world/panel render-hook cave -- draw the head normally, then (when +0x1BC4 is 1..5) re-draw head-atlas row 29+byte on top; no villager fields written")
-    for site in MASK_CALL_SITES:
+    # Heathen-mask cosmetic overlay (SDL blit via companion DLL). Three tiny
+    # caves in the free RWX .shr tail; NO villager-record writes, NO atlas/row
+    # changes, so no existing upgrade/menu/patch is touched. The DLL owns the
+    # mask side-table, the clear-on-death sweep, and the SDL blit.
+    mask_resolve = mask_resolve_cave(s["icons_dll"])
+    patch(MASK_RESOLVE_FILE_OFFSET, b"\0" * len(mask_resolve), mask_resolve,
+          "Heathen mask: resolve cave -- LoadLibraryA the companion DLL and GetProcAddress Vv4MaskCacheSurface(@110)/Vv4MaskDrawRecord(@112) by ordinal, once (guarded)")
+    mask_present = mask_present_cave()
+    patch(MASK_PRESENT_FILE_OFFSET, b"\0" * len(mask_present), mask_present,
+          "Heathen mask: present cave -- cache the live render-target surface [screen_obj+0x30] into the DLL (also runs the clear-on-death sweep), then tail-call the real present")
+    mask_head = mask_head_cave()
+    patch(MASK_HEAD_FILE_OFFSET, b"\0" * len(mask_head), mask_head,
+          "Heathen mask: head cave -- draw the head normally then Vv4MaskDrawRecord(esi,x,y,frame,100) (fingerprint-checked; mask=0 draws nothing); no villager fields written")
+    patch(MASK_PRESENT_SITE - IMAGE_BASE,
+          rel32_call(MASK_PRESENT_SITE, MASK_PRESENT_CALLEE),
+          rel32_call(MASK_PRESENT_SITE, MASK_PRESENT_VA),
+          f"Heathen mask: route the present call at {MASK_PRESENT_SITE:#x} through the surface-cache cave")
+    for site in MASK_HEAD_CALL_SITES:
         patch(site - IMAGE_BASE,
-              rel32_call(site, MASK_DRAW_VA), rel32_call(site, MASK_CAVE_VA),
-              f"Heathen mask: route the head-draw call at {site:#x} through the mask cave")
-    for offset, (old, new) in MASK_ROW_FIELDS.items():
-        patch(offset, bytes([old]), bytes([new]),
-              f"Heathen mask: bump head-atlas row count {old}->{new} at {offset:#x} so rows 30..34 (the masks) are addressable")
-    # Detail-portrait (big) head draw: REVERTED. The [ebp+0x2C] gate read a
-    # constant (chief mask on every villager, even with no mask set) -- the
-    # detail render's record pointer (FUN_0045d650) is not record+0x1B98 as
-    # assumed, so +0x2C is not the mask byte. Left unhooked until the correct
-    # per-villager mask source at 0x43D040 is confirmed. The detail portrait
-    # pulls the regular (already-masked) head atlas, so no bigheads swap is
-    # needed either; BIGMASK_*/BIGHEAD_* constants are retained for reference.
+              rel32_call(site, MASK_DRAW_THUNK_VA), rel32_call(site, MASK_HEAD_VA),
+              f"Heathen mask: route the head-draw call at {site:#x} through the mask head cave")
+    # Detail-portrait (big) head draw (0x43D040) is deliberately NOT hooked yet:
+    # its record pointer reaches the record differently and needs live
+    # confirmation. The world + selection-panel twins are hooked here; the
+    # portrait is a follow-up once the twins are proven in a playtest.
     patch(0x3FBE5, bytes.fromhex("E81684FDFF"), rel32_call(0x43FBE5, BARREL_COUNTDOWN_VA),
           "route the real event-scheduler tick (0x43FBE5 -> 0x418000) through the Barrel cue so a purchased barrel is presented naturally after its delay")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
@@ -1634,16 +1654,20 @@ def main() -> None:
                     (ROOT / "assets/origins/VVFP VV4 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
             },
-            # Heathen-mask head atlases (rows 30..34 appended). The row-count
-            # bump to 35 above makes the modded exe REQUIRE the taller atlas, so
-            # these ship with the feature; rows 0..29 are byte-identical to
-            # stock, so mask=(None) villagers look exactly as before. The
-            # (bigheads pair not shipped: the detail-portrait hook is reverted,
-            # and the portrait pulls the regular masked head atlas anyway.)
-            *(mask_atlas_companion(name) for name in MASK_HEAD_ATLASES),
-            # Isolated mask sheet for the Change Appearance preview (the DLL
-            # shows the standalone mask, front-facing, like VV5). Added file, so
-            # no preimage/restore -- it is removed on unpatch.
+            # Heathen-mask RENDER atlas: the exact hand-aligned mask art, 8
+            # directional columns x 5 mask rows of 40x65 cells. The DLL loads it
+            # (Images/vvfp_mask_atlas.png) and SDL_UpperBlits the selected cell
+            # onto the render-target surface. Added file (no atlas swaps, no row
+            # bumps) -- removed on unpatch, and stock atlases are untouched.
+            {
+                "source": "assets/vv4_masks/vvfp_mask_atlas.png",
+                "destination": "Images/vvfp_mask_atlas.png",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets/vv4_masks/vvfp_mask_atlas.png").read_bytes()
+                ).hexdigest().upper(),
+            },
+            # Isolated mask sheet for the Change Appearance chooser preview.
+            # Added file, so no preimage/restore -- it is removed on unpatch.
             {
                 "source": "assets/vv4_masks/vv5_heathenheads_source.png",
                 "destination": "Images/vvfp_masks.png",

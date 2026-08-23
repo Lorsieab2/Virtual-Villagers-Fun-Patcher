@@ -389,16 +389,17 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x156F8", "0x15862", "0x1586F", "0x15A81",
                     "0x15B46", "0x15D8C", "0x16722", "0x16735",
                     "0x1520E",
-                    # Heathen-mask cosmetic overlay: the render-hook cave in
-                    # .shr's tail (0xCCD80), the two head-draw call sites it is
-                    # spliced onto (0x5F702 walking twin, 0x5F9CA panel twin),
-                    # and the two head-atlas row-count bumps 30->35 that make
-                    # rows 30..34 (the masks) addressable (0xC3C24 male heads,
-                    # 0xC3B94 female heads). Detail-portrait (big) head: its
-                    # own cave (0xCCE30), the call site 0x3D040, and the
-                    # bigheads row-count bump 0xC3CB4.
-                    "0xCCD80", "0x5F702", "0x5F9CA", "0xC3C24", "0xC3B94",
-                    "0xCCE30", "0x3D040", "0xC3CB4",
+                    # Heathen-mask cosmetic overlay (SDL blit via companion
+                    # DLL). Replaced the old append-rows approach (render cave
+                    # 0xCCD80 and row-count bumps 0xC3C24/0xC3B94) with three
+                    # .shr caves -- resolve 0xCCD90, present-surface-cache
+                    # 0xCCDE0, head-draw 0xCCE10 -- the present-call splice
+                    # (0x9458), and the two head-draw twins re-pointed to the
+                    # head cave (0x5F702 walking, 0x5F9CA panel). No row bumps,
+                    # no atlas swaps; the detail portrait stays unhooked.
+                    "0xCCD80", "0xC3C24", "0xC3B94",
+                    "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
+                    "0x5F702", "0x5F9CA",
                 },
                 # 0x1890F: the D37 barrel selector hook — its forced native
                 # event index is corrected from 30 (Chutes Without Ladders) to

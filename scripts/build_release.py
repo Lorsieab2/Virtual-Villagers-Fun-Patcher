@@ -98,18 +98,12 @@ FILES = [
     "data/vv4_text_changes.json",
     "assets/text-changes/vv4-sm.xml",
     "assets/text-changes/vv4-sm-base.xml",
-    # VV4 Heathen-mask head atlases (masked + stock-restore), pinned by
-    # data/vv4_origins_feature.json's companion_files. Both halves of every
-    # swap must ship or the origins patch can't apply/restore in the release.
-    "assets/vv4_masks/atlases/male_heads00.png",
-    "assets/vv4_masks/base/male_heads00.png",
-    "assets/vv4_masks/atlases/male_heads10.png",
-    "assets/vv4_masks/base/male_heads10.png",
-    "assets/vv4_masks/atlases/female_heads00.png",
-    "assets/vv4_masks/base/female_heads00.png",
-    "assets/vv4_masks/atlases/female_heads10.png",
-    "assets/vv4_masks/base/female_heads10.png",
-    # Isolated mask sheet for the Change Appearance preview.
+    # VV4 Heathen-mask assets, pinned by data/vv4_origins_feature.json's
+    # companion_files. The render atlas (exact hand-aligned mask art) is
+    # SDL-blitted by the DLL onto the render-target surface; the isolated sheet
+    # feeds the Change Appearance chooser preview. Both are ADDED files (no
+    # stock atlas is swapped), so no restore halves are needed.
+    "assets/vv4_masks/vvfp_mask_atlas.png",
     "assets/vv4_masks/vv5_heathenheads_source.png",
     "data/guardians_of_isola/new/Assets/sm.xml",
     "data/guardians_of_isola/base/Assets/sm.xml",
