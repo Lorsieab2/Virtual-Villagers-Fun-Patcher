@@ -101,13 +101,44 @@ def _pe_checksum(buf: bytearray) -> tuple[int, int]:
     return ((total & 0xFFFF) + len(buf)) & 0xFFFFFFFF, csum_off
 
 
-def build(out_path: Path) -> None:
+def build(out_path: Path, force_row: int | None = None) -> None:
     data = bytearray(STOCK.read_bytes())
     ks = keystone.Ks(keystone.KS_ARCH_X86, keystone.KS_MODE_32)
 
     def asm(code: str, addr: int) -> bytes:
         b, _ = ks.asm(code, addr=addr)
         return bytes(b)
+
+    # Gate/row fragments. Default = per-villager gate on the record byte (which
+    # nothing writes yet, so no masks show). force_row (playtest QA) bypasses the
+    # gate and paints a fixed mask on EVERY villager, WRITING NO RECORD BYTE — so
+    # +0x{MASK_BYTE_OFF:X} stays 0 for the live-verification IDA read.
+    if force_row is None:
+        A_GATE = (f"movzx edx, byte ptr [eax+0x{MASK_BYTE_OFF:X}]\n"
+                  "        test edx, edx\n        jz aorig")
+        A_ROW = (f"mov  eax, [esi+edi*4+0xe57090]\n"
+                 "        imul eax, eax, 0xe48c\n        add  eax, esi\n"
+                 f"        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]\n"
+                 "        dec  eax")
+        C_GATE = (f"cmp  dword ptr [esp+4], 0x{CALLER_LO:X}\n"
+                  "        jb   c_prt1\n"
+                  "        mov  eax, [esi+edi*4+0xe57090]\n"
+                  "        imul eax, eax, 0xe48c\n        add  eax, esi\n"
+                  "        jmp  c_rec1\n    c_prt1:\n        mov  eax, edi\n"
+                  f"    c_rec1:\n        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]\n"
+                  "        test eax, eax\n        jz   corig")
+        C_ROW = (f"cmp  dword ptr [esp], 0x{CALLER_LO:X}\n"
+                 "        jb   c_prt2\n"
+                 "        mov  eax, [esi+edi*4+0xe57090]\n"
+                 "        imul eax, eax, 0xe48c\n        add  eax, esi\n"
+                 "        jmp  c_rec2\n    c_prt2:\n        mov  eax, edi\n"
+                 f"    c_rec2:\n        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]\n"
+                 "        dec  eax")
+    else:
+        A_GATE = "/* force_row: no gate */"
+        A_ROW = f"mov  eax, {force_row}"
+        C_GATE = "/* force_row: no gate */"
+        C_ROW = f"mov  eax, {force_row}"
 
     # code starts after the ptr dword + filename string (4-aligned)
     code0 = (FNAME_VA + len(FNAME) + 3) & ~3
@@ -144,9 +175,7 @@ def build(out_path: Path) -> None:
         mov  ecx, [ecx]
         jmp  0x{REAL_DRAW:X}
     a_have:
-        movzx edx, byte ptr [eax+0x{MASK_BYTE_OFF:X}]   /* per-villager mask choice */
-        test edx, edx
-        jz   aorig                            /* 0 = no mask */
+        {A_GATE}
     amask:
         pop  eax                              /* [esp]=ret, [+4..+14]=atlas,x,y,row,frame */
         /* 1) original HEAD first (so the mask paints ON TOP) */
@@ -162,11 +191,7 @@ def build(out_path: Path) -> None:
         mov  eax, [0x{MASK_ATLAS_PTR:X}]
         test eax, eax
         jz   adone
-        mov  eax, [esi+edi*4+0xe57090]        /* recompute record (esi/edi preserved) */
-        imul eax, eax, 0xe48c
-        add  eax, esi
-        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]
-        dec  eax                              /* mask row = byte-1 */
+        {A_ROW}                               /* eax = mask row (byte-1, or forced) */
         push dword ptr [esp+0x14]             /* frame */
         push eax                              /* mask row */
         mov  edx, [esp+0x14]                  /* y */
@@ -210,18 +235,7 @@ def build(out_path: Path) -> None:
     c_have:
         /* record base: village (caller>=0x445b50) = esi+[esi+edi*4+0xe57090]*0xe48c with
            edi=villager index; portrait (caller<0x445b50) = edi (holds the record base). */
-        cmp  dword ptr [esp+4], 0x{CALLER_LO:X}
-        jb   c_prt1
-        mov  eax, [esi+edi*4+0xe57090]
-        imul eax, eax, 0xe48c
-        add  eax, esi
-        jmp  c_rec1
-    c_prt1:
-        mov  eax, edi
-    c_rec1:
-        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]
-        test eax, eax
-        jz   corig
+        {C_GATE}
     cmask:
         pop  eax                              /* [esp]=ret, [+4..+1c]=atlas,x,y,headIdx,3,scaledRow,1 */
         /* 1) original HEAD first (all 7 args unchanged) so mask paints on top */
@@ -239,18 +253,8 @@ def build(out_path: Path) -> None:
         mov  eax, [0x{MASK_ATLAS_PTR:X}]
         test eax, eax
         jz   cdone
-        /* mask row = [record+0x588]-1; record via caller branch ([esp]=ret here) */
-        cmp  dword ptr [esp], 0x{CALLER_LO:X}
-        jb   c_prt2
-        mov  eax, [esi+edi*4+0xe57090]
-        imul eax, eax, 0xe48c
-        add  eax, esi
-        jmp  c_rec2
-    c_prt2:
-        mov  eax, edi
-    c_rec2:
-        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]
-        dec  eax                              /* eax = mask row (survives the next 3 pushes) */
+        /* mask row = [record+gate]-1 (or forced); record via caller branch ([esp]=ret here) */
+        {C_ROW}                               /* eax = mask row (survives the next 3 pushes) */
         push dword ptr [esp+0x1c]             /* arg7 = 1 */
         push dword ptr [esp+0x1c]             /* arg6 = scaledRow (same scale) */
         push dword ptr [esp+0x1c]             /* arg5 = 3 */
@@ -362,11 +366,20 @@ def build(out_path: Path) -> None:
     print(f"  ptr@0x{MASK_ATLAS_PTR:X} fname@0x{FNAME_VA:X} adult@0x{code0:X} child@0x{child_va:X} init@0x{init_va:X}")
     print(f"hooks: adult 0x{THUNK_VA:X}, child 0x{CHILD_THUNK_VA:X}, init 0x{INIT_VA:X}")
     print(f"section '{made_writable}' set writable (for MASK_ATLAS_PTR store)")
-    print(f"mask row (hardcoded) = {MASK_ROW_TEST}; head-cell atlas, no pixel offset (engine-scaled)")
+    if force_row is None:
+        print(f"gate = per-villager byte [rec+0x{MASK_BYTE_OFF:X}] (0=no mask); nothing writes it yet")
+    else:
+        print(f"FORCE-ROW playtest: row {force_row} on EVERY villager; NO record byte written")
     print(f"PE checksum = 0x{csum:08X}")
     print(f"wrote {out_path}")
 
 
 if __name__ == "__main__":
-    out = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "scratchpad_vv2_mask_stage2.exe"
-    build(out)
+    args = sys.argv[1:]
+    force_row = None
+    if "--force-row" in args:
+        i = args.index("--force-row")
+        force_row = int(args[i + 1])
+        del args[i:i + 2]
+    out = Path(args[0]) if args else ROOT / "scratchpad_vv2_mask_stage2.exe"
+    build(out, force_row=force_row)
