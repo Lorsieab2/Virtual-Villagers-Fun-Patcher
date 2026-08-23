@@ -501,7 +501,7 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 - Native event safety: {'disabled_rows': ['Time Warp', 'Island Event', 'Barrel of Babies'], 'reason': 'VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.', 'evidence_status': 'STOP; no charge or native call is made for these rows'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
-- Mode-specific guarded edits: experimental_expanded_256=7, experimental_expanded_256_progression=7, collection_progression=5, immediate_fixed=5; these rows are selected only for the named population mode.
+- Mode-specific guarded edits: experimental_expanded_256=7, experimental_expanded_256_progression=7, collection_progression=4, immediate_fixed=4; these rows are selected only for the named population mode.
 
 #### Guardians of Isola Rewrite (`vv5_guardians_of_isola_rewrite`)
 

@@ -67,10 +67,6 @@ BOUND = 150
 # and of the stock globals that begin at 0x7B1D80, inside .data's virtual end
 # 0x7B1DA4. Keyed by villager record index = (record - 0x554190) / 0x2F44.
 MASK_TABLE = 0x7B1D20
-# 1-byte "table changed since last save" flag, in the same proven-free .data BSS
-# gap (0x7B1D6C, just past the 75-byte table, before stock globals at 0x7B1D80).
-# mask_set sets it; the save/load persistence hook uses it to decide write vs read.
-MASK_DIRTY = 0x7B1D6C
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -165,7 +161,6 @@ OFF = {
     "mask_restore": 0x6A00,
     "mask_get": 0x6C00,
     "mask_set": 0x6C80,
-    "mask_persist": 0x6D00,
     "strings": 0x7000,
 }
 
@@ -204,7 +199,6 @@ SIZES = {
     "mask_restore": 0x200,
     "mask_get": 0x80,
     "mask_set": 0x80,
-    "mask_persist": 0x200,
 }
 
 
@@ -3314,7 +3308,6 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
         jne ms_ret
         cmp eax, {BOUND}
         jae ms_ret
-        mov byte ptr [0x{MASK_DIRTY:X}], 1
         mov ecx, eax
         shr eax, 1
         movzx edx, byte ptr [eax + 0x{MASK_TABLE:X}]
@@ -3337,96 +3330,7 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
     ms_ret:
         ret
     """)
-    # mask_persist: detour of get_save_path's tail (0x40363F), where the full save
-    # path is in the global char buffer 0x4DACE8. get_save_path is SAVE-SPECIFIC
-    # (only ever builds "%s%d.ldw"), so this never fires during startup image loads
-    # (that was the earlier crash). Direction is chosen by the MASK_DIRTY flag:
-    #   dirty (a mask changed) -> WRITE MASK_TABLE to "<savepath>.msk", clear dirty
-    #   not dirty              -> READ  "<savepath>.msk" into MASK_TABLE (zero if absent)
-    # The sidecar is a SEPARATE file (never the .ldw). Builds the path on the stack;
-    # CreateFileA null-guarded. Replays the displaced `mov ecx,[esp+0x118]` and
-    # returns to 0x424646.
-    persist = put(page, page_va, "mask_persist", f"""
-        pushfd
-        pushad
-        sub esp, 0x120
-        mov edi, esp
-        mov esi, 0x4DACE8
-        xor ecx, ecx
-    mp_cp:
-        mov al, byte ptr [esi+ecx]
-        mov byte ptr [edi+ecx], al
-        test al, al
-        je mp_cpd
-        inc ecx
-        cmp ecx, 0x104
-        jb mp_cp
-    mp_cpd:
-        mov dword ptr [edi+ecx], 0x6B736D2E
-        mov byte ptr [edi+ecx+4], 0
-        cmp byte ptr [0x{MASK_DIRTY:X}], 0
-        je mp_read
-        push 0
-        push 0x80
-        push 2
-        push 0
-        push 0
-        push 0x40000000
-        push edi
-        call dword ptr [0x495140]
-        cmp eax, -1
-        je mp_end
-        mov ebx, eax
-        push 0
-        lea edx, [edi+0x110]
-        push edx
-        push 0x4B
-        push 0x{MASK_TABLE:X}
-        push ebx
-        call dword ptr [0x495160]
-        push ebx
-        call dword ptr [0x495144]
-        mov byte ptr [0x{MASK_DIRTY:X}], 0
-        jmp mp_end
-    mp_read:
-        push 0
-        push 0
-        push 3
-        push 0
-        push 1
-        push 0x80000000
-        push edi
-        call dword ptr [0x495140]
-        cmp eax, -1
-        je mp_absent
-        mov ebx, eax
-        push 0
-        lea edx, [edi+0x110]
-        push edx
-        push 0x4B
-        push 0x{MASK_TABLE:X}
-        push ebx
-        call dword ptr [0x495148]
-        push ebx
-        call dword ptr [0x495144]
-        jmp mp_end
-    mp_absent:
-        cld
-        mov edi, 0x{MASK_TABLE:X}
-        mov ecx, 0x4B
-        xor eax, eax
-        rep stosb
-    mp_end:
-        add esp, 0x120
-        popad
-        popfd
-        mov ecx, dword ptr [esp+0x118]
-        jmp 0x403646
-    """)
-    return {
-        "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
-        "mask_persist": persist,
-    }
+    return {"mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_}
 
 
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
@@ -3765,24 +3669,6 @@ def main() -> None:
                 "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
                 "purpose": "Heathen mask: at the render-fn epilogue, revert the transient faction+colour flip via the saved villager pointer, then run the displaced add esp,0xA8; ret 8",
             })
-    # Heathen-mask persistence (stock only): detour get_save_path's tail (0x40363F,
-    # where the full save path sits in global 0x4DACE8) to sync the mask side-table
-    # with a per-slot sidecar "<savepath>.msk". get_save_path is save-specific (only
-    # builds "%s%d.ldw"), so this never fires during startup file loads.
-    persist_site = 0x40363F
-    persist_preimage = "8B8C2418010000"        # mov ecx, [esp+0x118] (7 bytes)
-    if stock[persist_site - 0x400000 : persist_site - 0x400000 + 7].hex().upper() != persist_preimage:
-        raise RuntimeError("Heathen-mask persistence preimage drift at 0x40363F")
-    for mode in ("collection_progression", "immediate_fixed"):
-        page_va = LAYOUTS[mode]["page_va"]
-        overrides = result["patch_mode_overrides"].setdefault(mode, [])
-        rel = (page_va + OFF["mask_persist"]) - (persist_site + 5)
-        overrides.append({
-            "offset": f"0x{persist_site - 0x400000:X}",
-            "before": persist_preimage,
-            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "9090",
-            "purpose": "Heathen mask: at get_save_path's tail, read/write the per-slot sidecar <savepath>.msk (write if the table changed, else restore), then replay mov ecx,[esp+0x118]",
-        })
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
     map_record = {
