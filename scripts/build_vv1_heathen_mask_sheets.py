@@ -72,7 +72,7 @@ PACKED = "packed-atlas"
 
 MASK_OFFSETS = {
     "blue": (24, -32),  # playtest-confirmed alignment (was (20,-11), sat too low+left)
-    "orange": (18, -12),
+    "orange": (16, -34),  # playtest-confirmed alignment
     "red": (18, -29),
     "purple": (4, -13),
     # Chief is a PACKED ATLAS, not a strip. Its seven frames sit at irregular
