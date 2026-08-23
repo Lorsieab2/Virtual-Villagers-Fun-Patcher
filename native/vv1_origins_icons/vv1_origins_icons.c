@@ -1,5 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <shlobj.h>   /* SHGetFolderPathA / CSIDL_PERSONAL (mask sidecar path) */
+#include <string.h>   /* strrchr / memcpy for the sidecar */
 
 #ifndef VV_AGE_OFFSET
 #define VV_AGE_OFFSET 0x348
@@ -122,6 +124,111 @@ static void vv1_mask_set(unsigned char *villager, unsigned char value) {
     *slot = (index & 1)
         ? (unsigned char)((*slot & 0x0F) | (value << 4))
         : (unsigned char)((*slot & 0xF0) | value);
+}
+
+/* --- Mask sidecar persistence -------------------------------------------
+   The mask table (VV_MASK_TABLE, 128 bytes in .data) is patch-owned memory
+   and is NEVER written into the villager record or the game's .ldw save --
+   that is the safest option for a purely cosmetic overlay, because a bug in
+   the mask code can then never corrupt a real village. To survive quitting
+   the game, the table is mirrored to a small sidecar file that lives NEXT TO
+   the save, inside the game's own per-exe save folder:
+
+       <My Documents>\LDW\<exe basename>\vv1_masks.dat
+
+   Format (little-endian): 4-byte magic 'VM01' + the raw 128 table bytes.
+   Keyed by villager record INDEX, the same key the render hook and picker
+   use; a village's villagers load back into the same record slots, so the
+   index is stable across save/reload of that village. One file per save
+   FOLDER (not per numbered slot); a single village is the common case, and
+   multiple slots in one folder share the file (documented limitation).
+
+   Fail-open everywhere: any failure (no Documents folder, missing file,
+   short read, wrong magic, unmapped table) leaves the in-memory table
+   untouched, so the worst case is "masks not restored" -- never a crash and
+   never a damaged save. File I/O is deliberately NOT done from DllMain (that
+   runs under the loader lock, where SHGetFolderPath/CreateFile can deadlock);
+   it happens from Vv1MaskRestore (called by the exe at startup, outside the
+   lock) and from the picker's own open/commit handlers. */
+#define VV_MASK_SIDECAR_MAGIC 0x31304D56u  /* 'V' 'M' '0' '1' */
+#define VV_MASK_TABLE_BYTES (VV_MASK_SLOTS / 2)
+
+static int vv1_mask_sidecar_path(char *out, size_t n) {
+    char docs[MAX_PATH];
+    char exe[MAX_PATH];
+    char *base;
+    char *dot;
+    if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) {
+        return 0;
+    }
+    if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) {
+        return 0;
+    }
+    base = strrchr(exe, '\\');
+    base = base ? base + 1 : exe;
+    dot = strrchr(base, '.');
+    if (dot != NULL) {
+        *dot = '\0';  /* strip ".exe" -> the save-folder basename */
+    }
+    /* Make sure the folder chain exists (the game normally makes it already;
+       CreateDirectory is a harmless no-op when it does). wsprintfA (user32,
+       already linked) is used instead of the CRT's snprintf because this DLL
+       links without the CRT; wsprintfA caps output at 1024 bytes and our
+       paths are well under MAX_PATH. */
+    (void)n;
+    wsprintfA(out, "%s\\LDW", docs);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s", docs, base);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\vv1_masks.dat", docs, base);
+    return 1;
+}
+
+static void vv1_mask_sidecar_save(void) {
+    char path[MAX_PATH];
+    HANDLE file;
+    DWORD wrote;
+    unsigned int magic = VV_MASK_SIDECAR_MAGIC;
+    if (!vv1_mask_sidecar_path(path, sizeof(path))) {
+        return;
+    }
+    file = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    WriteFile(file, &magic, sizeof(magic), &wrote, NULL);
+    WriteFile(file, VV_MASK_TABLE, VV_MASK_TABLE_BYTES, &wrote, NULL);
+    CloseHandle(file);
+}
+
+static void vv1_mask_sidecar_load(void) {
+    char path[MAX_PATH];
+    HANDLE file;
+    DWORD got;
+    unsigned int magic = 0;
+    unsigned char buf[VV_MASK_TABLE_BYTES];
+    if (!vv1_mask_sidecar_path(path, sizeof(path))) {
+        return;
+    }
+    file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return;  /* no sidecar yet -> nothing to restore */
+    }
+    if (ReadFile(file, &magic, sizeof(magic), &got, NULL) && got == sizeof(magic)
+        && magic == VV_MASK_SIDECAR_MAGIC
+        && ReadFile(file, buf, sizeof(buf), &got, NULL) && got == sizeof(buf)) {
+        memcpy(VV_MASK_TABLE, buf, sizeof(buf));
+    }
+    CloseHandle(file);
+}
+
+/* Exe-callable, exported so the patch can restore masks once at startup
+   (outside the loader lock). __stdcall/no args to match the exe's own
+   GetProcAddress-and-call convention for the other Origins exports. */
+__declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
+    vv1_mask_sidecar_load();
 }
 
 static HINSTANCE module_instance;
@@ -618,10 +725,16 @@ static INT_PTR CALLBACK appearance_dialog(
             return TRUE;
         }
         if (command == IDOK) {
+            int mask_changed = (vv1_mask_get(appearance_state.villager)
+                    != (unsigned char)appearance_state.original_mask);
             int changed = (*head != appearance_state.original_head)
                 || (*body != appearance_state.original_body)
-                || (vv1_mask_get(appearance_state.villager)
-                    != (unsigned char)appearance_state.original_mask);
+                || mask_changed;
+            /* Persist the mask table the moment a mask edit is confirmed, so
+               the choice survives a quit even without the exe's own save. */
+            if (mask_changed) {
+                vv1_mask_sidecar_save();
+            }
             EndDialog(window, changed ? 1 : 2);
             return TRUE;
         }
@@ -647,6 +760,10 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     if (villager == NULL) {
         return 0;
     }
+    /* Refresh the table from the sidecar before showing the chooser, so the
+       previewed/edited mask reflects what was persisted (safe here -- we are
+       far outside the loader lock). */
+    vv1_mask_sidecar_load();
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);

@@ -10,3 +10,4 @@ EXPORTS
     ShowOriginsRowMessage=_ShowOriginsRowMessage@12
     ShowOriginsAgeResult=_ShowOriginsAgeResult@12
     ShowOriginsEqualDivisionResult=_ShowOriginsEqualDivisionResult@20
+    Vv1MaskRestore=_Vv1MaskRestore@0
