@@ -191,9 +191,11 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # Mask RENDER CODE goes in its OWN appended R/W/X section — NOT the shared game
     # .text cave at 0x473C40 (which the Origins build already occupies). Self-contained:
     # atlas-obj pointer + "heathen_masks.png" filename + the adult/child/init stubs.
-    CODE_SEC_VA, CODE_RAW = _append_section(data, b".vvmk", 0x1000, 0xE0000020)
-    MASK_ATLAS_PTR = CODE_SEC_VA          # dword: loaded atlas obj ptr (0 until init)
-    FNAME_VA = CODE_SEC_VA + 4            # "heathen_masks.png\0"
+    # .vvmk is R + X ONLY (no write) — W^X-clean so AV (Malwarebytes) won't quarantine
+    # a writable+executable section. The one runtime write (atlas ptr) goes to .mtab (R/W).
+    CODE_SEC_VA, CODE_RAW = _append_section(data, b".vvmk", 0x1000, 0x60000020)
+    MASK_ATLAS_PTR = MASK_TABLE_VA + 0xF08  # dword in .mtab (R/W): atlas obj ptr (0 until init)
+    FNAME_VA = CODE_SEC_VA                   # "heathen_masks.png\0" (read-only in the R+X section)
 
     def cfoff(va: int) -> int:            # file offset of a VA inside the appended code section
         return CODE_RAW + (va - CODE_SEC_VA)
@@ -432,9 +434,8 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     def foff(va: int) -> int:            # .text hook sites map VA-ImageBase -> file offset
         return va - IMAGE_BASE
 
-    # write the appended .vvmk section (already zero from append; it is R/W/X so the
-    # init stub's atlas-ptr store needs no .text-writable hack): ptr(0) + filename + stubs
-    struct.pack_into("<I", data, cfoff(MASK_ATLAS_PTR), 0)
+    # write the appended .vvmk (R+X) section: filename + stubs. The atlas-ptr dword
+    # lives in .mtab (R/W, zero-init) and is filled by the init stub at runtime.
     data[cfoff(FNAME_VA):cfoff(FNAME_VA) + len(FNAME)] = FNAME
     data[cfoff(code0):cfoff(code0) + len(adult)] = adult
     data[cfoff(child_va):cfoff(child_va) + len(child)] = child
