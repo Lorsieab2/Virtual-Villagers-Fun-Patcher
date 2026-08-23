@@ -1,5 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <shlobj.h>   /* SHGetSpecialFolderPathA for the mask-sidecar path */
 
 static HINSTANCE module_instance;
 
@@ -406,11 +407,78 @@ static int vv3_mask_index(const void *record) {
     return (int)idx;
 }
 
+/* ---- Sidecar persistence (a file next to the save; never the save itself) ----
+   The table is DLL memory, so without this masks would reset on quit.  The
+   sidecar is Documents\LDW\<exe-basename>\vvfp_masks.dat -- the same folder VV3
+   keeps its saves in -- holding the mask + fingerprint arrays.  Written on every
+   chooser commit (write-through) and read once on the first table access of the
+   session (so a loaded village restores its masks; the fingerprint guard keeps
+   them correct even if slot indices shifted).  All file I/O is in these normal
+   functions, never DllMain (loader-lock safe).  Keyed by record index; switching
+   saves mid-session shows the prior masks until re-set (no reset hook yet) --
+   matching VV5's model.  A missing/short file just leaves the table zeroed. */
+#define VV3_MASK_MAGIC 0x334B534Du   /* "MSK3" little-endian */
+static int g_vv3_mask_loaded;
+
+static int vv3_mask_sidecar_path(char *out, int cap) {
+    char docs[MAX_PATH], exe[MAX_PATH], dir[MAX_PATH];
+    char *base, *dot, *p;
+    DWORD n;
+    if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) return 0;
+    n = GetModuleFileNameA(NULL, exe, MAX_PATH);           /* the GAME exe */
+    if (n == 0 || n >= MAX_PATH) return 0;
+    base = exe;
+    for (p = exe; *p; ++p) if (*p == '\\' || *p == '/') base = p + 1;
+    dot = NULL;
+    for (p = base; *p; ++p) if (*p == '.') dot = p;
+    if (dot) *dot = '\0';                                  /* strip extension */
+    if (lstrlenA(docs) + lstrlenA(base) + 24 >= cap) return 0;
+    wsprintfA(dir, "%s\\LDW", docs);                       CreateDirectoryA(dir, NULL);
+    wsprintfA(dir, "%s\\LDW\\%s", docs, base);             CreateDirectoryA(dir, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks.dat", docs, base);
+    return 1;
+}
+
+static void vv3_mask_write_sidecar(void) {
+    char path[MAX_PATH];
+    HANDLE h;
+    DWORD w = 0;
+    unsigned int magic = VV3_MASK_MAGIC;
+    if (!vv3_mask_sidecar_path(path, sizeof(path))) return;
+    h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) return;
+    WriteFile(h, &magic, sizeof(magic), &w, NULL);
+    WriteFile(h, g_vv3_mask, sizeof(g_vv3_mask), &w, NULL);
+    WriteFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &w, NULL);
+    CloseHandle(h);
+}
+
+static void vv3_mask_read_sidecar(void) {
+    char path[MAX_PATH];
+    HANDLE h;
+    DWORD r = 0;
+    unsigned int magic = 0;
+    g_vv3_mask_loaded = 1;                                 /* one-shot; set first */
+    if (!vv3_mask_sidecar_path(path, sizeof(path))) return;
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) return;
+    if (ReadFile(h, &magic, sizeof(magic), &r, NULL) && r == sizeof(magic)
+        && magic == VV3_MASK_MAGIC) {
+        ReadFile(h, g_vv3_mask, sizeof(g_vv3_mask), &r, NULL);
+        ReadFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &r, NULL);
+    }
+    CloseHandle(h);
+}
+
 /* Render hook: mask (1..5) to draw over this villager's head, or 0 for none /
    empty slot / a reused slot whose fingerprint no longer matches. */
 __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
     const unsigned char *rec = (const unsigned char *)record;
-    int idx = vv3_mask_index(record);
+    int idx;
+    if (!g_vv3_mask_loaded) vv3_mask_read_sidecar();       /* restore on first use */
+    idx = vv3_mask_index(record);
     if (idx < 0) return 0;
     if (g_vv3_mask[idx] == 0) return 0;
     if (g_vv3_mask_fp[idx] != vv3_mask_fingerprint(rec)) return 0;
@@ -422,10 +490,12 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
 __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask) {
     const unsigned char *rec = (const unsigned char *)record;
     int idx = vv3_mask_index(record);
+    if (!g_vv3_mask_loaded) vv3_mask_read_sidecar();       /* don't clobber unread data */
     if (idx < 0) return 0;
     if (mask < 0 || mask > VV3_MASK_MAX) mask = 0;
     g_vv3_mask[idx] = (unsigned char)mask;
     g_vv3_mask_fp[idx] = mask ? vv3_mask_fingerprint(rec) : 0u;
+    vv3_mask_write_sidecar();                              /* persist next to the save */
     return 1;
 }
 
