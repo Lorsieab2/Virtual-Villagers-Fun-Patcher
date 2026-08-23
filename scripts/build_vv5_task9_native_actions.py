@@ -67,6 +67,12 @@ BOUND = 150
 # and of the stock globals that begin at 0x7B1D80, inside .data's virtual end
 # 0x7B1DA4. Keyed by villager record index = (record - 0x554190) / 0x2F44.
 MASK_TABLE = 0x7B1D20
+# One-shot "the side-table has been loaded from the sidecar this session" flag,
+# in the same proven-free R/W .data BSS (0x7B1D6C, just past the 75-byte table,
+# before stock globals at 0x7B1D80). Zero at launch (BSS); the render hook loads
+# the sidecar into MASK_TABLE on the first village frame, then sets this. All
+# runtime-written state stays in non-exec .data (W^X-clean; code stays R+X).
+MASK_LOADED = 0x7B1D6C
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -161,6 +167,7 @@ OFF = {
     "mask_restore": 0x6A00,
     "mask_get": 0x6C00,
     "mask_set": 0x6C80,
+    "mask_load_once": 0x6D00,
     "strings": 0x7000,
 }
 
@@ -199,6 +206,7 @@ SIZES = {
     "mask_restore": 0x200,
     "mask_get": 0x80,
     "mask_set": 0x80,
+    "mask_load_once": 0x80,
 }
 
 
@@ -267,6 +275,8 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
     time_warp_values = (
         ("appearance_export", b"ShowAppearanceChooser\0"),
         ("genetics_export", b"ShowVV5Task9GeneticsWarning\0"),
+        ("writemask_export", b"WriteMaskSidecar\0"),
+        ("readmask_export", b"ReadMaskSidecar\0"),
         ("division_export", b"ApplyVV5EqualDivision\0"),
         ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
         ("tw_get", b"GetOriginsOwner\0"),
@@ -2446,6 +2456,14 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov ebx, eax
         call 0x{page_va + OFF['mask_set']:X}
         pop ebx
+        push 0x{s['writemask_export']:X}
+        push ebx
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz ws_skip
+        push 0x{MASK_TABLE:X}
+        call eax
+    ws_skip:
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x28], eax
         push -5000
@@ -3174,7 +3192,7 @@ def build_division(
     """)
 
 
-def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
+def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, bytes]:
     """Heathen-mask cosmetic render (stock layouts only).
 
     Renders the mask chosen by the Change-Appearance picker (persistent choice in
@@ -3200,6 +3218,10 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
     flip = put(page, page_va, "mask_flip", f"""
         push eax
         push edx
+        cmp byte ptr [0x{MASK_LOADED:X}], 0
+        jne mf_loaded
+        call 0x{page_va + OFF['mask_load_once']:X}
+    mf_loaded:
         call 0x{page_va + OFF['mask_get']:X}
         test eax, eax
         je mf_done
@@ -3330,7 +3352,32 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
     ms_ret:
         ret
     """)
-    return {"mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_}
+    # mask_load_once: on the first village frame, restore the side-table from the
+    # sidecar via the companion DLL's ReadMaskSidecar(table). LoadLibraryA is
+    # idempotent (returns the already-loaded handle if the chooser opened it). The
+    # loaded flag is set FIRST so a failed load never retries every frame. All
+    # results null-guarded. esi (villager record) is preserved by the stdcall/DLL
+    # calls, so the caller (mask_flip) can proceed. No villager-record or save write.
+    load_once = put(page, page_va, "mask_load_once", f"""
+        mov byte ptr [0x{MASK_LOADED:X}], 1
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        je mlo_ret
+        push 0x{s['readmask_export']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        je mlo_ret
+        push 0x{MASK_TABLE:X}
+        call eax
+    mlo_ret:
+        ret
+    """)
+    return {
+        "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
+        "mask_load_once": load_once,
+    }
 
 
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
@@ -3369,7 +3416,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["division_no_parenting"] = build_division(
             page, page_va, "division_no_parenting", parenting=0, action=24
         )
-        routines.update(build_mask_render(page, page_va))
+        routines.update(build_mask_render(page, page_va, strings))
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},
