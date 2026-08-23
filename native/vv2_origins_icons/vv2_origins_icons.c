@@ -44,13 +44,14 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
 #define IDD_VV2_VILLAGER   212
 #define IDD_VV2_APPEARANCE 213
 
-/* VV2 tech screen now carries 13 rows: the 9 shared Origins upgrades, Complete
-   all Collections (1009), Reset all Collections (1010), and the two Equal
-   Division of Labor rows (1011 Includes Parenting, 1012 No Parenting).  The
-   shared ID_BUY_LAST (1008) only bounds the VV1 dialogs, so the VV2 proc uses
-   its own upper bound instead of editing the shared enum. */
-#define VV2_TECH_ROW_COUNT 13
-#define ID_VV2_BUY_LAST    1012
+/* VV2 tech screen now carries 14 rows (two-column layout): the 9 shared Origins
+   upgrades, Complete all Collections (1009), Reset all Collections (1010), the
+   two Equal Division of Labor rows (1011 Includes Parenting, 1012 No Parenting),
+   and Change Appearance for All (1013).  The shared ID_BUY_LAST (1008) only
+   bounds the VV1 dialogs, so the VV2 proc uses its own upper bound instead of
+   editing the shared enum. */
+#define VV2_TECH_ROW_COUNT 14
+#define ID_VV2_BUY_LAST    1013
 
 /* The game can run fullscreen as a topmost SDL window at a resolution smaller
    than the desktop.  Our modal dialogs use DS_CENTER so Windows centers them on

@@ -24,13 +24,17 @@
 #define SS_OWNERDRAW  0x0000000DL
 #define DS_CENTER     0x00000800L
 
-/* VV2 Tech-screen upgrades (six working rows; the three broken whole-village
-   rows are intentionally absent). */
-211 DIALOGEX 0, 0, 310, 394
+/* VV2 Tech-screen upgrades, laid out in TWO COLUMNS so the 14 rows fit on-screen
+   (the single-column list ran off the bottom once "Change Appearance for All" was
+   added).  Left column = rows 0-6, right column = rows 7-13 (X base +302).  Row
+   IDs are unchanged: Buy button = 1000+row, satisfied badge = ID_CHECK_FIRST+row
+   (rows 0-8 only).  vv2_upgrade_dialog / VV2_TECH_ROW_COUNT drive visibility. */
+211 DIALOGEX 0, 0, 612, 232
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
 BEGIN
+    /* ---- left column: rows 0-6 ---- */
     ICON        101, -1, 8,   6,  24, 24
     ICON        109, 1100, 22, 18, 12, 12
     LTEXT       "Time Warp - Advances 3 Villager Years", -1, 40, 8, 195, 10
@@ -73,40 +77,46 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 182, 170, 9
     PUSHBUTTON  "Buy", 1006, 240, 171, 55, 18
 
-    ICON        107, -1, 8, 195,  24, 24
-    ICON        109, 1107, 22, 207, 12, 12
-    LTEXT       "Grant Full Mastery to All Villagers", -1, 40, 197, 190, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 209, 170, 9
-    PUSHBUTTON  "Buy", 1007, 240, 198, 55, 18
+    /* ---- right column: rows 7-13 (X base +302) ---- */
+    ICON        107, -1, 310, 6,  24, 24
+    ICON        109, 1107, 324, 18, 12, 12
+    LTEXT       "Grant Full Mastery to All Villagers", -1, 342, 8, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 20, 170, 9
+    PUSHBUTTON  "Buy", 1007, 542, 9, 55, 18
 
-    ICON        106, -1, 8, 222,  24, 24
-    ICON        109, 1108, 22, 234, 12, 12
-    LTEXT       "All Villagers are Exactly 18", -1, 40, 224, 190, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 236, 170, 9
-    PUSHBUTTON  "Buy", 1008, 240, 225, 55, 18
+    ICON        106, -1, 310, 33,  24, 24
+    ICON        109, 1108, 324, 45, 12, 12
+    LTEXT       "All Villagers are Exactly 18", -1, 342, 35, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 47, 170, 9
+    PUSHBUTTON  "Buy", 1008, 542, 36, 55, 18
 
-    ICON        104, -1, 8, 249,  24, 24
-    LTEXT       "Complete All Collections", -1, 40, 251, 190, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 263, 170, 9
-    PUSHBUTTON  "Buy", 1009, 240, 252, 55, 18
+    ICON        104, -1, 310, 60,  24, 24
+    LTEXT       "Complete All Collections", -1, 342, 62, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 74, 170, 9
+    PUSHBUTTON  "Buy", 1009, 542, 63, 55, 18
 
-    ICON        105, -1, 8, 276,  24, 24
-    LTEXT       "Reset All Collections", -1, 40, 278, 190, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 290, 170, 9
-    PUSHBUTTON  "Buy", 1010, 240, 277, 55, 18
+    ICON        105, -1, 310, 87,  24, 24
+    LTEXT       "Reset All Collections", -1, 342, 89, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 101, 170, 9
+    PUSHBUTTON  "Buy", 1010, 542, 90, 55, 18
 
-    ICON        107, -1, 8, 303,  24, 24
-    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 40, 305, 195, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 317, 170, 9
-    PUSHBUTTON  "Buy", 1011, 240, 304, 55, 18
+    ICON        107, -1, 310, 114,  24, 24
+    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 342, 116, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 128, 170, 9
+    PUSHBUTTON  "Buy", 1011, 542, 117, 55, 18
 
-    ICON        108, -1, 8, 330,  24, 24
-    LTEXT       "Equal Division of Labor (No Parenting)", -1, 40, 332, 195, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 344, 170, 9
-    PUSHBUTTON  "Buy", 1012, 240, 331, 55, 18
+    ICON        108, -1, 310, 141,  24, 24
+    LTEXT       "Equal Division of Labor (No Parenting)", -1, 342, 143, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 155, 170, 9
+    PUSHBUTTON  "Buy", 1012, 542, 144, 55, 18
 
-    CTEXT       "Press ESC to exit this menu.", -1, 10, 357, 290, 9
-    DEFPUSHBUTTON "Cancel", 2, 120, 371, 70, 14
+    ICON        106, -1, 310, 168,  24, 24
+    LTEXT       "Change Appearance for All", -1, 342, 170, 195, 10
+    LTEXT       "450,000 tech points", -1, 342, 182, 170, 9
+    PUSHBUTTON  "Buy", 1013, 542, 171, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 200, 592, 9
+    DEFPUSHBUTTON "Cancel", 2, 271, 212, 70, 14
 END
 
 /* VV2 Villager Details upgrades (four per-villager rows + Change Appearance). */
