@@ -12,3 +12,6 @@ EXPORTS
     ApplyVV4ResetCollections=_ApplyVV4ResetCollections@0 @102
     ApplyVV4EqualDivisionParenting=_ApplyVV4EqualDivisionParenting@0 @103
     ApplyVV4EqualDivisionNoParenting=_ApplyVV4EqualDivisionNoParenting@0 @104
+    Vv4MaskCacheSurface=_Vv4MaskCacheSurface@4 @110
+    Vv4MaskDraw=_Vv4MaskDraw@20 @111
+    Vv4MaskDrawRecord=_Vv4MaskDrawRecord@20 @112

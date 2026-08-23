@@ -166,6 +166,141 @@ static void vv_set_mask(unsigned char *villager, int mask) {
         (mask > 0 && mask < VV_MASK_COUNT) ? (unsigned char)mask : 0;
 }
 
+/* --- In-world / details mask render via SDL surface blit -------------------
+   VV4 is surface-based: the game blits every sprite with SDL_UpperBlit onto the
+   render-target surface at [screen_obj+0x30]. We blit the chosen mask on top
+   the same way. The mask atlas is the head-aligned Images/vvfp_mask_atlas.png
+   (8 frames x 5 masks of 40x65). All SDL entry points are resolved via
+   GetProcAddress (SDL_BlitScaled / SDL_SetSurfaceBlendMode are not in the exe's
+   imports), and EVERY pointer is null-guarded so a missing DLL/PNG degrades to
+   no-mask instead of crashing (renamed/moved exe safe). All state lives here in
+   the DLL's writable data -- never an executable section (W^X clean). */
+#define VV_R_CELL_W 40
+#define VV_R_CELL_H 65
+/* Screen anchor of the mask relative to the head-draw x/y (tuned in playtest). */
+#ifndef VV_R_DX
+#define VV_R_DX 0
+#endif
+#ifndef VV_R_DY
+#define VV_R_DY 0
+#endif
+#define VV_SDL_BLENDMODE_BLEND 1
+
+typedef struct { int x, y, w, h; } VvSdlRect;
+typedef void *(__cdecl *vv_IMG_Load_t)(const char *);
+typedef int (__cdecl *vv_SDL_UpperBlit_t)(void *, const VvSdlRect *, void *, VvSdlRect *);
+typedef int (__cdecl *vv_SDL_BlitScaled_t)(void *, const VvSdlRect *, void *, VvSdlRect *);
+typedef int (__cdecl *vv_SDL_SetSurfaceBlendMode_t)(void *, int);
+
+static void *g_mask_surface;   /* the 40x65-cell mask atlas (SDL_Surface*) */
+static void *g_dest_surface;   /* cached render target [screen_obj+0x30]    */
+static vv_IMG_Load_t p_IMG_Load;
+static vv_SDL_UpperBlit_t p_SDL_UpperBlit;
+static vv_SDL_BlitScaled_t p_SDL_BlitScaled;
+static vv_SDL_SetSurfaceBlendMode_t p_SDL_SetSurfaceBlendMode;
+static int g_mask_render_init;
+
+/* SDL_Surface field offsets (SDL2): w=+0x08, h=+0x0C, pitch=+0x10. */
+#define VV_SURF_W(s)     (*(int *)((char *)(s) + 0x08))
+#define VV_SURF_PITCH(s) (*(int *)((char *)(s) + 0x10))
+
+static void vv4_mask_render_init(void) {
+    HMODULE sdl, img;
+    char path[MAX_PATH];
+    DWORD n;
+    int i;
+    if (g_mask_render_init) {
+        return;
+    }
+    g_mask_render_init = 1;                 /* attempt once, even on failure */
+    sdl = GetModuleHandleA("SDL2.dll");
+    img = GetModuleHandleA("SDL2_image.dll");
+    if (sdl == NULL || img == NULL) {
+        return;
+    }
+    p_IMG_Load = (vv_IMG_Load_t)GetProcAddress(img, "IMG_Load");
+    p_SDL_UpperBlit = (vv_SDL_UpperBlit_t)GetProcAddress(sdl, "SDL_UpperBlit");
+    p_SDL_BlitScaled = (vv_SDL_BlitScaled_t)GetProcAddress(sdl, "SDL_BlitScaled");
+    p_SDL_SetSurfaceBlendMode =
+        (vv_SDL_SetSurfaceBlendMode_t)GetProcAddress(sdl, "SDL_SetSurfaceBlendMode");
+    if (p_IMG_Load == NULL) {
+        return;
+    }
+    /* exe-dir absolute path: <exe folder>\Images\vvfp_mask_atlas.png */
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return;
+    }
+    for (i = (int)n - 1; i >= 0; i--) {
+        if (path[i] == '\\' || path[i] == '/') {
+            path[i + 1] = '\0';
+            break;
+        }
+    }
+    lstrcatA(path, "Images\\vvfp_mask_atlas.png");
+    g_mask_surface = p_IMG_Load(path);      /* NULL on failure -> no mask, no crash */
+    if (g_mask_surface != NULL && p_SDL_SetSurfaceBlendMode != NULL) {
+        p_SDL_SetSurfaceBlendMode(g_mask_surface, VV_SDL_BLENDMODE_BLEND);
+    }
+}
+
+/* Called from the present-path hook every frame with the live render-target
+   surface ([screen_obj+0x30]); read at the real site, never a guessed global. */
+__declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
+    g_dest_surface = surface;
+}
+
+/* Called from each head-draw hook with the villager index, the head's screen
+   x/y, its facing frame, and a scale percent (100 = in-world, ~150/200 =
+   Details). Blits the villager's mask cell on top of the just-drawn head. */
+__declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
+                                                 int frame, int scale_pct) {
+    int mask;
+    VvSdlRect src, dst;
+    vv4_mask_render_init();
+    if (g_dest_surface == NULL || g_mask_surface == NULL || p_SDL_UpperBlit == NULL) {
+        return;                              /* not ready -> no mask, no crash */
+    }
+    if (index < 0 || index >= VV_MAX_VILLAGERS) {
+        return;
+    }
+    mask = g_mask_by_index[index];
+    if (mask <= 0 || mask >= VV_MASK_COUNT) {
+        return;
+    }
+    if (VV_SURF_PITCH(g_dest_surface) != VV_SURF_W(g_dest_surface) * 4) {
+        return;                              /* dest not a 32bpp surface */
+    }
+    if (frame < 0 || frame > 7) {
+        frame = 5;                           /* front-facing default */
+    }
+    src.x = frame * VV_R_CELL_W;
+    src.y = (mask - 1) * VV_R_CELL_H;
+    src.w = VV_R_CELL_W;
+    src.h = VV_R_CELL_H;
+    if (scale_pct > 0 && scale_pct != 100 && p_SDL_BlitScaled != NULL) {
+        dst.x = x + VV_R_DX * scale_pct / 100;
+        dst.y = y + VV_R_DY * scale_pct / 100;
+        dst.w = VV_R_CELL_W * scale_pct / 100;
+        dst.h = VV_R_CELL_H * scale_pct / 100;
+        p_SDL_BlitScaled(g_mask_surface, &src, g_dest_surface, &dst);
+    } else {
+        dst.x = x + VV_R_DX;
+        dst.y = y + VV_R_DY;
+        dst.w = VV_R_CELL_W;
+        dst.h = VV_R_CELL_H;
+        p_SDL_UpperBlit(g_mask_surface, &src, g_dest_surface, &dst);
+    }
+}
+
+/* Convenience for the render cave: it holds the villager RECORD pointer (esi),
+   so let it pass that directly and we derive the index here. */
+__declspec(dllexport) void __stdcall Vv4MaskDrawRecord(unsigned char *villager,
+                                                       int x, int y, int frame,
+                                                       int scale_pct) {
+    Vv4MaskDraw(vv_villager_index(villager), x, y, frame, scale_pct);
+}
+
 static HINSTANCE module_instance;
 
 enum {
