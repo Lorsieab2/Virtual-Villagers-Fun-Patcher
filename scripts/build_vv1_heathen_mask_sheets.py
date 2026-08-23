@@ -71,7 +71,7 @@ COLOURS = ["blue", "orange", "red", "purple", "chief"]
 PACKED = "packed-atlas"
 
 MASK_OFFSETS = {
-    "blue": (20, -11),
+    "blue": (20, -20),  # nudged up 9px: user reported blue sat too low in-game
     "orange": (18, -12),
     "red": (18, -29),
     "purple": (4, -13),
