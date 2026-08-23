@@ -9,6 +9,7 @@
 #define VV_LIKE_SLOT_COUNT 62
 #define VV_ALREADY_LIKES_TEXT "Already 62 likes."
 #include "../vv1_origins_icons/vv1_origins_icons.c"
+#include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
 
 /* Task9-style prompt action / result codes and forward declarations, hoisted so
    the ApplyVV2* reporters below can route through the shared result renderer
@@ -996,9 +997,62 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
     return FALSE;
 }
 
-/* Reports the chosen head/body indices back to the caller; the native handler
-   owns eligibility, the 5,000-tech charge, and the record writes, so the DLL
-   never touches save data. */
+/* ---- Mask persistence: a sidecar file, NEVER the game save (adapted from VV1's
+   CRT-less design). Keyed to the STOCK basename so it co-locates with the save
+   folder (the crash-fix makes renamed builds save under the stock name) and
+   survives renames. Win32-only (wsprintfA/memcpy = intrinsics) to stay CRT-less.
+   NEVER call from DllMain (loader lock + SHGetFolderPath). Index-keyed: relies on
+   villagers reloading into the same record slots (positional VV2 save). ---- */
+#define VV2_MASK_SIDECAR_MAGIC 0x32304D56u  /* 'V','M','0','2' */
+
+static int vv2_mask_sidecar_path(char *out) {
+    char docs[MAX_PATH];
+    if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return 0;
+    wsprintfA(out, "%s\\LDW", docs);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\Virtual Villagers - The Lost Children", docs);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat", docs);
+    return 1;
+}
+
+static void vv2_mask_sidecar_save(void) {
+    char path[MAX_PATH];
+    HANDLE f;
+    DWORD w;
+    unsigned int m = VV2_MASK_SIDECAR_MAGIC;
+    if (!vv2_mask_sidecar_path(path)) return;
+    f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) return;
+    WriteFile(f, &m, 4, &w, NULL);
+    WriteFile(f, VV2_MASK_TABLE, VV2_MASK_TABLE_BYTES, &w, NULL);
+    CloseHandle(f);
+}
+
+static void vv2_mask_sidecar_load(void) {
+    char path[MAX_PATH];
+    HANDLE f;
+    DWORD g;
+    unsigned int m = 0;
+    unsigned char buf[VV2_MASK_TABLE_BYTES];
+    if (!vv2_mask_sidecar_path(path)) return;
+    f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) return;            /* no file yet -> keep table as-is */
+    if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
+        && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
+        memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
+    }
+    CloseHandle(f);
+}
+
+/* exe-callable so an early exe hook can restore at startup, OUTSIDE the loader lock */
+__declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_load(); }
+/* exe-callable so the appearance handler can persist right after committing .mtab */
+__declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
+
+/* Reports the chosen head/body/mask indices back to the caller; the native handler
+   owns eligibility, the 5,000-tech charge, and the record + .mtab writes. The DLL
+   never touches the GAME save (only its own sidecar file, above). */
 __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     int sex,
     int age,

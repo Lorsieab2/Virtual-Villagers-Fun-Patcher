@@ -12,3 +12,5 @@ EXPORTS
     ShowVV2UpgradeResult=_ShowVV2UpgradeResult@24
     GateVV2Barrel=_GateVV2Barrel@4
     ApplyVV2EqualDivision=_ApplyVV2EqualDivision@8
+    Vv2MaskRestore=_Vv2MaskRestore@0
+    Vv2MaskSaveSidecar=_Vv2MaskSaveSidecar@0
