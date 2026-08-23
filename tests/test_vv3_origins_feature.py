@@ -127,10 +127,10 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 0x7BD40,
                 0x7BDE0,
                 0xA3180,
-                0xAAE6C,
-                0xAAE9C,
-                0xAAF2C,
-                0xAAF5C,
+                # (The 4 head-atlas row-count patches 0xAAE6C/9C/F2C/F5C were
+                # removed: the separate-atlas mask render draws from its own
+                # Images/heathen_masks.png and no longer appends rows to the shared
+                # head atlases, so it leaves them byte-identical to stock.)
             },
         )
         section_patch = next(
@@ -356,7 +356,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "729DDBC1D3DB7847EFA93E204C902D085381BD86239C243323BA66DF7D6AF7C5",
+            "E2726DBF95121C59E9536850C206989E930D895B7D45637011D5AF35B3922573",
         )
         self.assertEqual(
             bytes.fromhex(
