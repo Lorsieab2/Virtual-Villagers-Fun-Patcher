@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "CDC642F648BAF9A8EF59121D3A8B9DED26BFF54FFBE45F488DBD293432F084BF"
+      "source_text_sha256": "154A79E79E95D8D784608E6EAE7D4F1F08F6656408521BB3629D3BD0D0A120F7"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -107,7 +107,7 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "2B87C41CC37ACB38846A4E9E2E9BC072A6807A64A7EF941CDB99B67029936909",
+      "page_sha256": "6D607DE0073FFF46079EBF963401245B4E246F33FD7CB5AD5F1ABD54B53E02FB",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -142,7 +142,8 @@
         "mask_flip": "2E13639B8D0559C42280819F9CFEA65716AD3CCD7A6DCA2901B2A7B5E9F11E7F",
         "mask_restore": "E787B82CC38087414729930E3FE5C863BD2E9A2EAAEA6AC6323BF62C446B4C03",
         "mask_get": "076C24237A3D9C32319DF0A4C5FB3B39EAD3D3481DF2E3D75993B42598A7E3AC",
-        "mask_set": "417A88470F523C80BFBDB2DD6A0FB59BF4A2C50A394F8B544F72549521ED18C3"
+        "mask_set": "B273AAB1F3CC273196D1B20EC2F3C5537E9BF0F195DFE16BC7064EC3531E0AB4",
+        "mask_persist": "EC945D206C282A730CF92396EC347B785BF601430591EB9272767765E710D967"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -178,7 +179,8 @@
         "mask_flip": 187,
         "mask_restore": 77,
         "mask_get": 56,
-        "mask_set": 88
+        "mask_set": 95,
+        "mask_persist": 224
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
@@ -237,7 +239,7 @@
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "2B87C41CC37ACB38846A4E9E2E9BC072A6807A64A7EF941CDB99B67029936909",
+      "page_sha256": "6D607DE0073FFF46079EBF963401245B4E246F33FD7CB5AD5F1ABD54B53E02FB",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -272,7 +274,8 @@
         "mask_flip": "2E13639B8D0559C42280819F9CFEA65716AD3CCD7A6DCA2901B2A7B5E9F11E7F",
         "mask_restore": "E787B82CC38087414729930E3FE5C863BD2E9A2EAAEA6AC6323BF62C446B4C03",
         "mask_get": "076C24237A3D9C32319DF0A4C5FB3B39EAD3D3481DF2E3D75993B42598A7E3AC",
-        "mask_set": "417A88470F523C80BFBDB2DD6A0FB59BF4A2C50A394F8B544F72549521ED18C3"
+        "mask_set": "B273AAB1F3CC273196D1B20EC2F3C5537E9BF0F195DFE16BC7064EC3531E0AB4",
+        "mask_persist": "EC945D206C282A730CF92396EC347B785BF601430591EB9272767765E710D967"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -308,7 +311,8 @@
         "mask_flip": 187,
         "mask_restore": 77,
         "mask_get": 56,
-        "mask_set": 88
+        "mask_set": 95,
+        "mask_persist": 224
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
