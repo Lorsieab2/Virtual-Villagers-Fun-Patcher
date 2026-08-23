@@ -134,12 +134,37 @@ static const char *const g_mask_names[VV_MASK_COUNT] = {
 #define VV_REC_STRIDE     0x2E3Cu
 #define VV_MAX_VILLAGERS  150
 #define VV_NAME_OFFSET    0x1BC0        /* 24-byte villager name string (stable) */
+/* Occupied/free flag (byte). The game's villager-creation routine
+   (FUN_00466270) scans slots 0..149 for the FIRST record whose +0x1CC4 byte is
+   0 and reuses it for a newborn, so a dead villager's index gets reallocated.
+   0 = free/dead, nonzero = occupied. Read-only; the sweep below uses it. */
+#define VV_OCCUPIED_OFFSET 0x1CC4
 static unsigned char g_mask_by_index[VV_MAX_VILLAGERS];
-/* Slot-reuse guard (VV3's idea): a fingerprint of STABLE per-villager fields
-   stored beside each mask. On read we recompute and compare; a mismatch means
-   the slot was reused by a different villager, so the mask does not carry over.
-   Uses gender + name (NOT likes/dislikes — those change via VV4 upgrades). */
+/* Slot-reuse guard. PRIMARY defence is the per-frame clear-on-death sweep
+   (vv_mask_sweep, run from Vv4MaskCacheSurface): the instant a masked slot goes
+   free (+0x1CC4 == 0) its mask is cleared, so a reused slot starts mask-less and
+   index-keying stays correct with no record writes. SECONDARY is a fingerprint
+   of STABLE fields (gender + name — NOT likes/dislikes/head/body/age, which all
+   mutate during play and would false-invalidate a living villager's mask) that
+   backstops the ~1-frame death-then-reuse race the sweep could miss. */
 static unsigned int g_mask_fp[VV_MAX_VILLAGERS];
+
+/* Clear masks whose slot has been freed/reused by the game. Read-only over the
+   villager array; called once per frame from the present-path surface cache. */
+static void vv_mask_sweep(void) {
+    int idx;
+    for (idx = 0; idx < VV_MAX_VILLAGERS; idx++) {
+        const unsigned char *rec;
+        if (g_mask_by_index[idx] == 0) {
+            continue;
+        }
+        rec = (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
+        if (rec[VV_OCCUPIED_OFFSET] == 0) {          /* slot is free/dead */
+            g_mask_by_index[idx] = 0;
+            g_mask_fp[idx] = 0;
+        }
+    }
+}
 
 static unsigned int vv_fingerprint(const unsigned char *villager) {
     unsigned int h = 2166136261u;               /* FNV-1a */
@@ -275,6 +300,7 @@ static void vv4_mask_render_init(void) {
    surface ([screen_obj+0x30]); read at the real site, never a guessed global. */
 __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
     g_dest_surface = surface;
+    vv_mask_sweep();            /* clear masks on slots the game freed/reused */
 }
 
 /* Blit one resolved mask (1..5) at the head's screen x/y. scale_pct: 100 =
