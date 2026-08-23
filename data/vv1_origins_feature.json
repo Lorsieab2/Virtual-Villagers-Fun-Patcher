@@ -37,12 +37,12 @@
     {
       "source": "assets/origins/m4.png",
       "destination": "Images/m4.png",
-      "sha256": "6B399D34B2C3F96F8049C813C4AECA89F2A631A3F34EE2EF3BA736C43F9B41F1"
+      "sha256": "BB9D5735AA61FC584C65DD4A1C32360E07CE97C1D2926EF7F5C4DE7C6824BE2C"
     },
     {
       "source": "assets/origins/m5.png",
       "destination": "Images/m5.png",
-      "sha256": "49D2BD6BE5BAB7B20D250F8F16A50A88E2A90B2852A556249ECA3A5740748F85"
+      "sha256": "242BBE1B3C03CC41C6058967F61900B4E09F463B5A57D5AA8F424952737A9954"
     }
   ],
   "doubler_evidence": {

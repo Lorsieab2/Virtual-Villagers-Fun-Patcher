@@ -145,8 +145,10 @@ class VV1MaskSheetGeometryTests(unittest.TestCase):
 
     def test_packed_atlas_matches_the_verified_colours(self) -> None:
         """A packed atlas carries no alignment of its own, so it is placed from
-        the colours whose mockups verify. It must actually land in their band."""
-        ref = self.sheets._reference_placement()
+        a FROZEN reference (CHIEF_REFERENCE, captured from the verified colours)
+        plus the playtest CHIEF_DX/CHIEF_DY nudges. It must land where that
+        anchor puts it."""
+        ref = self.sheets.CHIEF_REFERENCE
         for colour, value in self.sheets.MASK_OFFSETS.items():
             if value is not self.sheets.PACKED:
                 continue
@@ -161,13 +163,28 @@ class VV1MaskSheetGeometryTests(unittest.TestCase):
                             self.sheets.SHEET_CELL_H,
                         )
                     ).getbbox()
-                    # Chief frames are placed at the reference chin then lifted
-                    # uniformly by CHIEF_DY (playtest alignment), so their chin
-                    # sits CHIEF_DY pixels above the reference.
+                    # Chief frames sit at the frozen reference chin lifted by
+                    # CHIEF_DY, and centred at the reference centre nudged right
+                    # by CHIEF_DX.
                     self.assertLessEqual(
                         abs(box[3] - (chin - self.sheets.CHIEF_DY)), 2
                     )
-                    self.assertLessEqual(abs((box[0] + box[2]) / 2 - centre), 2)
+                    # The horizontal check only applies to frames that fit
+                    # WITHIN the cell. Several chief frames are wider than the
+                    # 40px cell and clip at its edges (box touches 0 or CELL_W),
+                    # which makes their bbox centre meaningless -- the vertical
+                    # (chin) check above still pins those. For unclipped frames,
+                    # the centre must sit at the frozen reference nudged right
+                    # by CHIEF_DX.
+                    clipped = box[0] == 0 or box[2] == self.sheets.CELL_W
+                    if not clipped:
+                        self.assertLessEqual(
+                            abs(
+                                (box[0] + box[2]) / 2
+                                - (centre + self.sheets.CHIEF_DX)
+                            ),
+                            2,
+                        )
 
 
 if __name__ == "__main__":

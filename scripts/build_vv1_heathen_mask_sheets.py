@@ -69,13 +69,30 @@ COLOURS = ["blue", "orange", "red", "purple", "chief"]
 # rest: locate each facing's head by its magenta hair, locate the mask over
 # it, subtract.
 PACKED = "packed-atlas"
-CHIEF_DY = 12  # px lift for the packed chief frames (playtest)
+CHIEF_DY = 10  # px lift for the packed chief frames (playtest: down 2 from 12)
+CHIEF_DX = 3   # px rightward nudge for the packed chief frames (playtest)
+# The chief is a packed atlas anchored to the OTHER colours' median mask
+# centre/chin. That coupling meant tuning a gridded colour (e.g. lifting
+# purple) silently moved the chief and could push its tall frames off the top
+# of the cell. So the anchor is FROZEN here (captured once, at a fitting
+# gridded state) -- the chief now tunes independently via CHIEF_DX/CHIEF_DY,
+# and gridded-colour tweaks no longer disturb it. Re-capture only if the head
+# geometry itself changes.
+CHIEF_REFERENCE = [
+    (25.25, 77),
+    (23.5, 77),
+    (14.75, 77),
+    (13.5, 79),
+    (23.75, 77),
+    (19.75, 77),
+    (18.5, 77),
+]
 
 MASK_OFFSETS = {
     "blue": (24, -52),  # playtest: up 20 more (multi-villager view)
     "orange": (16, -49),  # playtest: up 15 (multi-villager)
     "red": (18, -62),  # playtest: up 3 more
-    "purple": (4, -43),  # playtest: up 30 (multi-villager)
+    "purple": (4, -53),  # playtest: up 10 more
     # Chief is a PACKED ATLAS, not a strip. Its seven frames sit at irregular
     # x and in two vertical rows -- solving for a single cell origin is
     # infeasible (frame 0 requires ox <= -4 while frame 3 requires ox >= 4), so
@@ -260,8 +277,8 @@ def _sheet(colour: str) -> Image.Image:
             )
         for facing, box in enumerate(boxes):
             frame = art.crop(box)
-            centre, chin = _reference_placement()[facing]
-            x = int(round(CELL_W * facing + centre - frame.width / 2))
+            centre, chin = CHIEF_REFERENCE[facing]
+            x = int(round(CELL_W * facing + centre - frame.width / 2)) + CHIEF_DX
             # CHIEF_DY lifts every packed chief frame uniformly (playtest: the
             # chief sat 25px too low in the multi-villager village view).
             y = chin - frame.height - CHIEF_DY
