@@ -175,6 +175,10 @@ VV2_HEAD_FIELD = 0x548
 VV2_BODY_FIELD = 0x54C
 VV2_SEX_FIELD = 0x538
 VV2_APPEARANCE_COST = 5000
+# Patch-owned per-villager mask table appended to the exe (.mtab section), indexed
+# by record index (0=none, 1..5). The appearance handler reads/writes it alongside
+# head/body; the mask render stubs (in .vvmk) read it. NOT a villager-record byte.
+VV2_MASK_TABLE_VA = 0x004B3000
 
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
@@ -1452,7 +1456,7 @@ def main() -> None:
         f"""
             push ebp
             mov ebp, esp
-            sub esp, 8
+            sub esp, 0x10
             push ebx
             push esi
             push edi
@@ -1460,6 +1464,7 @@ def main() -> None:
             mov ecx, dword ptr [edi + 0x304F0]
             cmp ecx, 0x100
             jae appearance_done
+            mov dword ptr [ebp - 0x10], ecx
             imul ecx, ecx, 0xE48C
             mov ebx, dword ptr [esi + 0x10]
             add ebx, ecx
@@ -1471,6 +1476,9 @@ def main() -> None:
             mov dword ptr [ebp - 4], eax
             mov eax, dword ptr [ebx + 0x{VV2_BODY_FIELD:X}]
             mov dword ptr [ebp - 8], eax
+            mov eax, dword ptr [ebp - 0x10]
+            movzx eax, byte ptr [eax + 0x{VV2_MASK_TABLE_VA:X}]
+            mov dword ptr [ebp - 0xC], eax
             push 0x{s['icons_dll']:X}
             call dword ptr [0x474010]
             test eax, eax
@@ -1480,6 +1488,8 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je appearance_done
+            lea ecx, [ebp - 0xC]
+            push ecx
             lea ecx, [ebp - 8]
             push ecx
             lea ecx, [ebp - 4]
@@ -1500,6 +1510,9 @@ def main() -> None:
             mov dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}], eax
             mov eax, dword ptr [ebp - 8]
             mov dword ptr [ebx + 0x{VV2_BODY_FIELD:X}], eax
+            mov ecx, dword ptr [ebp - 0x10]
+            mov al, byte ptr [ebp - 0xC]
+            mov byte ptr [ecx + 0x{VV2_MASK_TABLE_VA:X}], al
             jmp appearance_done
         appearance_insufficient:
             mov eax, 0x{s['not_enough']:X}
