@@ -83,6 +83,9 @@
 #define VV_MASK_MANAGER (*(unsigned char **)0x0048CDB8) /* .data BSS, W^X-safe */
 #define VV_RECORD_STRIDE 0x3D8
 #define VV_MASK_SLOTS 256
+#define VV_OCCUPIED_OFFSET 0x28  /* record[+0x28] == 1 when the slot is a live
+                                    villager (the compositor's own occupied
+                                    check at 0x4377a5: cmp byte[+0x28],1). */
 
 static int vv1_mask_index(unsigned char *villager) {
     unsigned char *base = VV_MASK_MANAGER;
@@ -124,6 +127,33 @@ static void vv1_mask_set(unsigned char *villager, unsigned char value) {
     *slot = (index & 1)
         ? (unsigned char)((*slot & 0x0F) | (value << 4))
         : (unsigned char)((*slot & 0xF0) | value);
+}
+
+/* Slot-reuse guard. The mask table is keyed by record INDEX, so if a masked
+   villager dies and a NEW villager is later born into the same record slot,
+   the newcomer would inherit the dead villager's mask. Rather than a
+   collidable fingerprint (villagers can share names/ages/stats by luck, and
+   their skills/likes are mutated by upgrades), this deterministically clears
+   any table entry whose record slot is not currently occupied -- a freed slot
+   has no mask, full stop. Runs off the villager-array base the render hook
+   stashes each frame; fail-safe when the engine isn't running yet (base 0). */
+static void vv1_mask_sweep_dead(void) {
+    unsigned char *base = VV_MASK_MANAGER;
+    int index;
+    if (base == NULL) {
+        return;  /* engine not up yet -> the 256 records aren't mapped */
+    }
+    for (index = 0; index < VV_MASK_SLOTS; index++) {
+        unsigned char *rec = base + (size_t)index * VV_RECORD_STRIDE;
+        unsigned char *slot;
+        if (rec[VV_OCCUPIED_OFFSET] == 1) {
+            continue;  /* live villager -> keep its mask */
+        }
+        slot = &VV_MASK_TABLE[index >> 1];
+        *slot = (index & 1)
+            ? (unsigned char)(*slot & 0x0F)
+            : (unsigned char)(*slot & 0xF0);
+    }
 }
 
 /* --- Mask sidecar persistence -------------------------------------------
@@ -220,6 +250,10 @@ static void vv1_mask_sidecar_load(void) {
         && magic == VV_MASK_SIDECAR_MAGIC
         && ReadFile(file, buf, sizeof(buf), &got, NULL) && got == sizeof(buf)) {
         memcpy(VV_MASK_TABLE, buf, sizeof(buf));
+        /* Drop any restored mask whose slot isn't a live villager now -- this
+           clears entries left by villagers who died since the save, and (for a
+           different village loaded from the same folder) any freed slots. */
+        vv1_mask_sweep_dead();
     }
     CloseHandle(file);
 }
