@@ -52,11 +52,16 @@ CALLER_LO, CALLER_HI = 0x445B50, 0x4478DF
 CHILD_CALLER_LO, CHILD_CALLER_HI = 0x445540, 0x4478DF
 DRAWOBJ_PTR = 0xE574D0
 HEAD_ATLASES = (0xE574A0, 0xE574A8, 0xE574AC, 0xE574B0, 0xE574B4)
-MASK_BYTE_OFF = 0x680             # unused per-villager record byte = mask choice (0=none, 1..5)
-# NOTE: do NOT use 0x588 — it lies INSIDE the villager-name string buffer (+0x564, 66-byte cap
-# via the string-copy at 0x4682bd; default name "Biggles" @0x476774). A stored gate there would
-# be wiped by any rename/reload and could corrupt a >=36-char name. 0x680 sits deep in the
-# unreferenced 0x5f8..0x6e8 record gap, clear of every string buffer (verified: zero disp refs).
+MASK_BYTE_OFF = 0x480             # unused per-villager record byte = mask choice (0=none, 1..5)
+# VERIFIED FREE via LIVE process read (131 active villagers in varied states + 125 empty slots):
+# +0x480 reads 0 on EVERY slot and has no record-field disp refs; it sits mid-way in a 191-byte
+# all-zero record gap (0x43d..0x4fc). 4-aligned => low byte of its dword.
+# REJECTED earlier offsets — both fooled the static "zero disp refs" test:
+#   0x588: INSIDE the villager-name buffer (+0x564, 66-byte cap via 0x4682bd) — wiped on
+#          rename/reload, could corrupt a long name.
+#   0x680: static-clean but LIVE reads 0xFF on every active villager (enclosing dword
+#          0xFFFFFFFF, a -1 sentinel written by a bulk init invisible to displacement scans).
+# Lesson: a record byte MUST pass the live read, not just static no-refs.
 
 # --- init detour (asset-load tail) -----------------------------------------
 INIT_VA = 0x44C5E6                # `mov [esi+0xe574d8], eax` (6 bytes)
@@ -86,6 +91,14 @@ CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # in-world child: 42*s ~= (arg6*54)>>7
 # arg6 = 2*(age/7)+0xA0 = DOUBLE the in-world scaledRow, so the same multiplier double-lifts and
 # the mask flies above the head.  Give the portrait its own (smaller) multiplier; tune to taste.
 PORTRAIT_DY_MUL = 54
+# The mask atlas is baked/tuned for the 1x village view; the Details portrait draws the same
+# atlas larger, leaving masks a touch high+left there.  Nudge masks down+right on the portrait
+# path ONLY (caller < 0x445B50).  Tune to taste.
+import os as _os
+PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "6"))   # portrait: nudge mask right (all masks)
+PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "8"))   # portrait: nudge mask down (all masks)
+# Purple's tall feathers + short face make it sit especially high on the 2x portrait; extra drop.
+PURPLE_PORTRAIT_EXTRA = int(_os.environ.get("PPX", "6"))   # purple-only extra down on portrait
 
 
 def _pe_checksum(buf: bytearray) -> tuple[int, int]:
@@ -101,6 +114,56 @@ def _pe_checksum(buf: bytearray) -> tuple[int, int]:
     return ((total & 0xFFFF) + len(buf)) & 0xFFFFFFFF, csum_off
 
 
+def _append_section(data: bytearray, name: bytes, vsize: int) -> int:
+    """Append a zero-filled R/W section and return its absolute VA. Guaranteed
+    game-untouchable: no compiled code can reference a VA that did not exist at
+    build time. Holds the patch-owned per-villager mask table (no game data)."""
+    pe = struct.unpack_from("<I", data, 0x3C)[0]
+    num = struct.unpack_from("<H", data, pe + 6)[0]
+    opt = pe + 24
+    opt_size = struct.unpack_from("<H", data, pe + 20)[0]
+    sec_align = struct.unpack_from("<I", data, opt + 32)[0]
+    file_align = struct.unpack_from("<I", data, opt + 36)[0]
+    sec_tbl = opt + opt_size
+
+    def a(x, n):
+        return (x + n - 1) & ~(n - 1)
+
+    max_va = max_raw = 0
+    for i in range(num):
+        sh = sec_tbl + i * 40
+        va = struct.unpack_from("<I", data, sh + 12)[0]
+        vsz = struct.unpack_from("<I", data, sh + 8)[0]
+        praw = struct.unpack_from("<I", data, sh + 20)[0]
+        rsz = struct.unpack_from("<I", data, sh + 16)[0]
+        max_va = max(max_va, va + vsz)
+        max_raw = max(max_raw, praw + rsz)
+    new_va = a(max_va, sec_align)
+    new_raw = a(max_raw, file_align)
+    raw_size = a(vsize, file_align)
+    new_hdr = sec_tbl + num * 40
+    first_raw = min(
+        struct.unpack_from("<I", data, sec_tbl + i * 40 + 20)[0]
+        for i in range(num)
+        if struct.unpack_from("<I", data, sec_tbl + i * 40 + 20)[0] > 0
+    )
+    assert new_hdr + 40 <= first_raw, "no room in header for a new section"
+    if len(data) < new_raw:
+        data += b"\0" * (new_raw - len(data))
+    data += b"\0" * raw_size
+    hdr = bytearray(40)
+    hdr[0 : len(name)] = name
+    struct.pack_into("<I", hdr, 8, vsize)         # VirtualSize
+    struct.pack_into("<I", hdr, 12, new_va)       # VirtualAddress (RVA)
+    struct.pack_into("<I", hdr, 16, raw_size)     # SizeOfRawData
+    struct.pack_into("<I", hdr, 20, new_raw)      # PointerToRawData
+    struct.pack_into("<I", hdr, 36, 0xC0000040)   # init data | READ | WRITE
+    data[new_hdr : new_hdr + 40] = hdr
+    struct.pack_into("<H", data, pe + 6, num + 1)          # NumberOfSections
+    struct.pack_into("<I", data, opt + 56, a(new_va + vsize, sec_align))  # SizeOfImage
+    return IMAGE_BASE + new_va
+
+
 def build(out_path: Path, force_row: int | None = None) -> None:
     data = bytearray(STOCK.read_bytes())
     ks = keystone.Ks(keystone.KS_ARCH_X86, keystone.KS_MODE_32)
@@ -109,30 +172,47 @@ def build(out_path: Path, force_row: int | None = None) -> None:
         b, _ = ks.asm(code, addr=addr)
         return bytes(b)
 
-    # Gate/row fragments. Default = per-villager gate on the record byte (which
-    # nothing writes yet, so no masks show). force_row (playtest QA) bypasses the
-    # gate and paints a fixed mask on EVERY villager, WRITING NO RECORD BYTE — so
-    # +0x{MASK_BYTE_OFF:X} stays 0 for the live-verification IDA read.
+    # Patch-owned per-villager mask table (256 bytes) in a NEW appended PE section,
+    # so the mask CHOICE never touches villager records or ANY game data (the game
+    # cannot reference a VA that did not exist at build time). Indexed by record
+    # index 0..255; value 0=no mask, 1..5 = mask row+1. Zero at load = no masks.
+    MASK_TABLE_VA = _append_section(data, b".mtab", 0x1000)
+    SCRATCH_VA = MASK_TABLE_VA + 0xF00   # dword scratch: current mask row (for per-mask portrait offset)
+
+    # Gate/row fragments. Default = per-villager gate on the PATCH-OWNED mask table
+    # indexed by record index (village: recIdx = [esi+edi*4+0xe57090]; portrait:
+    # recIdx = (record_base edi - gameCtx esi)/0xe48c). No villager record byte is
+    # ever read or written. force_row (playtest QA) paints a fixed mask on everyone.
     if force_row is None:
-        A_GATE = (f"movzx edx, byte ptr [eax+0x{MASK_BYTE_OFF:X}]\n"
+        A_GATE = ("mov  edx, [esi+edi*4+0xe57090]\n"
+                  f"        movzx edx, byte ptr [edx+0x{MASK_TABLE_VA:X}]\n"
                   "        test edx, edx\n        jz aorig")
-        A_ROW = (f"mov  eax, [esi+edi*4+0xe57090]\n"
-                 "        imul eax, eax, 0xe48c\n        add  eax, esi\n"
-                 f"        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]\n"
+        A_ROW = ("mov  eax, [esi+edi*4+0xe57090]\n"
+                 f"        movzx eax, byte ptr [eax+0x{MASK_TABLE_VA:X}]\n"
                  "        dec  eax")
         C_GATE = (f"cmp  dword ptr [esp+4], 0x{CALLER_LO:X}\n"
-                  "        jb   c_prt1\n"
+                  "        jb   cg_prt\n"
                   "        mov  eax, [esi+edi*4+0xe57090]\n"
-                  "        imul eax, eax, 0xe48c\n        add  eax, esi\n"
-                  "        jmp  c_rec1\n    c_prt1:\n        mov  eax, edi\n"
-                  f"    c_rec1:\n        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]\n"
+                  "        jmp  cg_have\n"
+                  "    cg_prt:\n"
+                  "        mov  eax, edi\n        sub  eax, esi\n"
+                  "        push ecx\n        push edx\n"
+                  "        xor  edx, edx\n        mov  ecx, 0xe48c\n        div  ecx\n"
+                  "        pop  edx\n        pop  ecx\n"
+                  "    cg_have:\n"
+                  f"        movzx eax, byte ptr [eax+0x{MASK_TABLE_VA:X}]\n"
                   "        test eax, eax\n        jz   corig")
         C_ROW = (f"cmp  dword ptr [esp], 0x{CALLER_LO:X}\n"
-                 "        jb   c_prt2\n"
+                 "        jb   cr_prt\n"
                  "        mov  eax, [esi+edi*4+0xe57090]\n"
-                 "        imul eax, eax, 0xe48c\n        add  eax, esi\n"
-                 "        jmp  c_rec2\n    c_prt2:\n        mov  eax, edi\n"
-                 f"    c_rec2:\n        movzx eax, byte ptr [eax+0x{MASK_BYTE_OFF:X}]\n"
+                 "        jmp  cr_have\n"
+                 "    cr_prt:\n"
+                 "        mov  eax, edi\n        sub  eax, esi\n"
+                 "        push ecx\n"
+                 "        xor  edx, edx\n        mov  ecx, 0xe48c\n        div  ecx\n"
+                 "        pop  ecx\n"
+                 "    cr_have:\n"
+                 f"        movzx eax, byte ptr [eax+0x{MASK_TABLE_VA:X}]\n"
                  "        dec  eax")
     else:
         A_GATE = "/* force_row: no gate */"
@@ -255,6 +335,7 @@ def build(out_path: Path, force_row: int | None = None) -> None:
         jz   cdone
         /* mask row = [record+gate]-1 (or forced); record via caller branch ([esp]=ret here) */
         {C_ROW}                               /* eax = mask row (survives the next 3 pushes) */
+        mov  dword ptr [0x{SCRATCH_VA:X}], eax   /* stash row for per-mask portrait nudge */
         push dword ptr [esp+0x1c]             /* arg7 = 1 */
         push dword ptr [esp+0x1c]             /* arg6 = scaledRow (same scale) */
         push dword ptr [esp+0x1c]             /* arg5 = 3 */
@@ -269,9 +350,22 @@ def build(out_path: Path, force_row: int | None = None) -> None:
         imul eax, edx
         sar  eax, 0x{CHILD_DY_SHIFT:X}
         mov  edx, [esp+0x1c]                  /* y */
-        sub  edx, eax
-        push edx
-        push dword ptr [esp+0x1c]             /* arg2 = x */
+        sub  edx, eax                         /* y - lift */
+        cmp  dword ptr [esp+0x10], 0x{CALLER_LO:X}   /* portrait? (caller-ret @ +0x10) */
+        jae  y_ok
+        add  edx, 0x{PORTRAIT_MASK_DY:X}      /* portrait: nudge mask down (all masks) */
+        mov  ecx, [0x{SCRATCH_VA:X}]          /* mask row (ecx reloaded before the draw) */
+        cmp  ecx, 3                           /* purple? */
+        jne  y_ok
+        add  edx, 0x{PURPLE_PORTRAIT_EXTRA:X} /* purple sits high on portrait; extra down */
+    y_ok:
+        push edx                              /* arg3 = y */
+        mov  edx, [esp+0x1c]                  /* arg2 = x (caller-ret @ +0x14 now) */
+        cmp  dword ptr [esp+0x14], 0x{CALLER_LO:X}
+        jae  x_ok
+        add  edx, 0x{PORTRAIT_MASK_DX:X}      /* portrait: nudge mask right */
+    x_ok:
+        push edx                              /* arg2 = x */
         push dword ptr [0x{MASK_ATLAS_PTR:X}] /* arg1 = mask atlas */
         mov  ecx, [esi+0x{DRAWOBJ_PTR:X}]
         mov  ecx, [ecx]
@@ -367,9 +461,10 @@ def build(out_path: Path, force_row: int | None = None) -> None:
     print(f"hooks: adult 0x{THUNK_VA:X}, child 0x{CHILD_THUNK_VA:X}, init 0x{INIT_VA:X}")
     print(f"section '{made_writable}' set writable (for MASK_ATLAS_PTR store)")
     if force_row is None:
-        print(f"gate = per-villager byte [rec+0x{MASK_BYTE_OFF:X}] (0=no mask); nothing writes it yet")
+        print(f"gate = PATCH-OWNED table @0x{MASK_TABLE_VA:X} indexed by record index "
+              f"(0=no mask); villager records untouched")
     else:
-        print(f"FORCE-ROW playtest: row {force_row} on EVERY villager; NO record byte written")
+        print(f"FORCE-ROW playtest: row {force_row} on EVERY villager")
     print(f"PE checksum = 0x{csum:08X}")
     print(f"wrote {out_path}")
 

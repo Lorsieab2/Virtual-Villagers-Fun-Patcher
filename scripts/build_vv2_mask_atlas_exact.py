@@ -18,6 +18,10 @@ MASKS = ["blue", "orange", "red", "purple", "chief"]
 # per-mask size scale (1.0 = exact user art).  Chief shrunk a few px so its tall feathers
 # clip the play-area top edge less; scaled about the mask centre so the face stays aligned.
 MASK_SCALE = {}  # all masks at original size
+# Per-mask fine alignment (live-tuned in-game 2026-08-23). Down = +DY, right = +DX.
+# Non-chief masks bake a touch high; blue is shortest (needs least drop), chief already right.
+MASK_DX = {"blue": 4, "orange": 0, "red": 2, "purple": 2, "chief": -2}
+MASK_DY = {"blue": 11, "orange": 20, "red": 20, "purple": 19, "chief": 0}
 BAREHEAD_OTHER = "vv5 mask head alignment for other masks.png"
 BAREHEAD_CHIEF = "vv5 mask head alignment for chief.png"
 
@@ -72,8 +76,8 @@ def build():
                 mimg = mimg.resize((max(1, round(mimg.width * s)), max(1, round(mimg.height * s))), Image.LANCZOS)
             mw, mh = mimg.size
             # atlas: place mask center at (ghc_x + off_x, LIFT + ghc_y + off_y)
-            ax = ghc[f][0] + off[0]
-            ay = ADULT_LIFT + ghc[f][1] + off[1]
+            ax = ghc[f][0] + off[0] + MASK_DX.get(nm, 0)
+            ay = ADULT_LIFT + ghc[f][1] + off[1] + MASK_DY.get(nm, 0)
             px = int(round(ax - mw / 2.0)); py = int(round(ay - mh / 2.0))
             # composite into THIS cell only, clipping any overflow so it never bleeds into the
             # neighbouring frame's cell (the "extra pixels to the side").
@@ -87,8 +91,8 @@ def build():
             cell = Image.new("RGBA", (HW, HH + 30), (0, 0, 0, 0))
             cell.alpha_composite(g_img.crop((f * HW, 0, f * HW + HW, HH)), (0, 30))
             # mask center at head-center + off (screen), head drawn at +30
-            vmx = int(round(ghc[f][0] + off[0] - mw / 2.0))
-            vmy = int(round(30 + ghc[f][1] + off[1] - mh / 2.0))
+            vmx = int(round(ghc[f][0] + off[0] + MASK_DX.get(nm, 0) - mw / 2.0))
+            vmy = int(round(30 + ghc[f][1] + off[1] + MASK_DY.get(nm, 0) - mh / 2.0))
             cell.alpha_composite(mimg, (vmx, vmy))
             verify.alpha_composite(cell, (f * HW, vy))
     atlas.save(OUT_ATLAS)
