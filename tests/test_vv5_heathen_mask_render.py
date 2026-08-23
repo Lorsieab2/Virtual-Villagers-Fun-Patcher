@@ -48,7 +48,9 @@ def test_flip_routine_reads_choice_flips_faction_and_replays_displaced():
     page, rmap = t9.build_page(STOCK_PAGE_VA)
     ins = _routine(page, rmap, "mask_flip")
     text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
-    assert "movzx eax, byte ptr [esi + 0x1bc0]" in text     # persistent mask choice
+    # choice now comes from the side-table via mask_get, never from a record byte
+    assert f"call 0x{STOCK_PAGE_VA + t9.OFF['mask_get']:x}" in text
+    assert "0x1bc0" not in text                              # never touches the villager record
     assert "mov byte ptr [esi + 0x1cec], 1" in text          # transient heathen flip
     assert "mov byte ptr [esi + 0x1ced], 1" in text          # orange
     assert "mov byte ptr [esi + 0x1cee], 1" in text          # red
@@ -72,11 +74,36 @@ def test_restore_routine_reverts_via_saved_pointer_and_runs_epilogue():
     assert ins[-1].mnemonic == "ret"
 
 
-def test_scratch_is_in_data_not_shr_or_text_caves():
-    # 0x7B1D00.. is free .data BSS: below the Origins .shr payload (0x7B2000) and
-    # nowhere near the crowded .text cave region (0x494339..0x495000).
+def test_scratch_and_table_are_in_proven_free_data_bss():
+    # Scratch (0x7B1D00..) and the nibble-packed mask side-table (0x7B1D20..0x7B1D6B)
+    # live in free .data BSS: clear of the stock globals that begin at 0x7B1D80 and
+    # inside .data's virtual end 0x7B1DA4.
     for slot in (0x7B1D00, 0x7B1D04, 0x7B1D08, 0x7B1D0C, 0x7B1D10):
-        assert 0x7B1000 <= slot < 0x7B2000
+        assert 0x7B1D00 <= slot < 0x7B1D20              # scratch, before the table
+    table_lo, table_hi = t9.MASK_TABLE, t9.MASK_TABLE + (t9.BOUND + 1) // 2
+    assert 0x7B1D20 <= table_lo and table_hi <= 0x7B1D80   # clear of stock globals @0x7B1D80
+    assert table_hi <= 0x7B1DA4                            # inside .data virtual end
+
+
+def test_mask_get_set_use_indexed_side_table_not_the_record():
+    page, rmap = t9.build_page(STOCK_PAGE_VA)
+    for name in ("mask_get", "mask_set"):
+        text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in _routine(page, rmap, name))
+        assert "sub eax, 0x554190" in text                 # record -> offset from array base
+        assert "div ecx" in text and "0x2f44" in text      # / record stride = index
+        assert hex(t9.MASK_TABLE)[2:] in text.replace("0x", "")  # nibble in the side-table
+        assert "0x1bc0" not in text                        # never the villager record
+    # mask_set must actually store a byte into the table; mask_get must not store
+    set_text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in _routine(page, rmap, "mask_set"))
+    assert f"mov byte ptr [eax + 0x{t9.MASK_TABLE:x}], dl" in set_text
+
+
+def test_no_routine_writes_the_villager_record_mask_byte():
+    # Safety guarantee: nothing in the page stores into [reg+0x1BC0] (the live
+    # 24-byte string field the shipped build used to corrupt).
+    import struct
+    page, _ = t9.build_page(STOCK_PAGE_VA)
+    assert struct.pack("<i", 0x1BC0) not in bytes(page)
 
 
 def test_stock_modes_declare_the_three_render_detours():

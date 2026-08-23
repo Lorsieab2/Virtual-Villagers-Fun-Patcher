@@ -59,6 +59,14 @@ EXPANDED_PAYLOAD_VA = 0x8EB000
 PAGE_SIZE = 0x8000
 STRIDE = 0x2F44
 BOUND = 150
+# Heathen-mask side-table: the per-villager mask choice (0-5) is stored OUTSIDE
+# the villager record -- record byte +0x1BC0 turned out to be a live 24-byte
+# string field (stock cmp/strncpy at 0x44B7E3/0x4686B8), so writing it was
+# unsafe. It lives nibble-packed (4 bits x 150 villagers = 75 bytes) in
+# proven-free .data BSS at 0x7B1D20..0x7B1D6B -- clear of the 0x7B1D00 scratch
+# and of the stock globals that begin at 0x7B1D80, inside .data's virtual end
+# 0x7B1DA4. Keyed by villager record index = (record - 0x554190) / 0x2F44.
+MASK_TABLE = 0x7B1D20
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -151,6 +159,8 @@ OFF = {
     "apply_division": 0x6400,
     "mask_flip": 0x6800,
     "mask_restore": 0x6A00,
+    "mask_get": 0x6C00,
+    "mask_set": 0x6C80,
     "strings": 0x7000,
 }
 
@@ -187,6 +197,8 @@ SIZES = {
     "apply_division": 0x80,
     "mask_flip": 0x200,
     "mask_restore": 0x200,
+    "mask_get": 0x80,
+    "mask_set": 0x80,
 }
 
 
@@ -2372,7 +2384,7 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, dword ptr [esi+0x1BBC]
         mov dword ptr [ebp-0x20], eax
         mov dword ptr [ebp-0x30], eax
-        movzx eax, byte ptr [esi+0x1BC0]
+        call 0x{page_va + OFF['mask_get']:X}
         mov dword ptr [ebp-0x24], eax
         mov dword ptr [ebp-0x14], eax
         mov eax, dword ptr [0x51D5F8]
@@ -2430,7 +2442,10 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, dword ptr [ebp-0x20]
         mov dword ptr [esi+0x1BBC], eax
         mov eax, dword ptr [ebp-0x24]
-        mov byte ptr [esi+0x1BC0], al
+        push ebx
+        mov ebx, eax
+        call 0x{page_va + OFF['mask_set']:X}
+        pop ebx
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x28], eax
         push -5000
@@ -3162,10 +3177,12 @@ def build_division(
 def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
     """Heathen-mask cosmetic render (stock layouts only).
 
-    Renders the mask chosen by the Change-Appearance picker (persistent record
-    byte +0x1BC0, 0=none / 1-5 = Blue/Orange/Red/Purple/Chief) on a Believer, by
-    a transient faction flip bracketed to the head+mask draw of the per-villager
-    render fn 0x4720E0. Three stock-only .text detours drive it:
+    Renders the mask chosen by the Change-Appearance picker (persistent choice in
+    the nibble-packed side-table MASK_TABLE, keyed by villager record index,
+    0=none / 1-5 = Blue/Orange/Red/Purple/Chief) on a Believer, by a transient
+    faction flip bracketed to the head+mask draw of the per-villager render fn
+    0x4720E0. The choice is read via mask_get (never the villager record). Three
+    stock-only .text detours drive it:
 
       * mask_flip is entered from 0x472481 (just past the selection-ring block).
         For a Believer with a mask choice it saves the colour fields + villager
@@ -3180,10 +3197,10 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
     Scratch lives in free .data BSS 0x7B1D00 (guard / saved orange,red,colorfield
     / villager pointer), never in .text caves, so it never contends with the
     population, statistics, or other .text-cave features."""
-    flip = put(page, page_va, "mask_flip", """
+    flip = put(page, page_va, "mask_flip", f"""
         push eax
         push edx
-        movzx eax, byte ptr [esi+0x1BC0]
+        call 0x{page_va + OFF['mask_get']:X}
         test eax, eax
         je mf_done
         cmp eax, 5
@@ -3249,7 +3266,71 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
         add esp, 0xA8
         ret 8
     """)
-    return {"mask_flip": flip, "mask_restore": restore}
+    # mask_get: esi = villager record -> eax = mask choice (0-5), 0 if none or
+    # esi is not a valid record. Keyed by index = (esi-0x554190)/0x2F44, then a
+    # nibble read from MASK_TABLE. Clobbers eax/ecx/edx; preserves esi.
+    get = put(page, page_va, "mask_get", f"""
+        mov eax, esi
+        sub eax, 0x554190
+        jb mg_none
+        xor edx, edx
+        mov ecx, 0x{STRIDE:X}
+        div ecx
+        test edx, edx
+        jne mg_none
+        cmp eax, {BOUND}
+        jae mg_none
+        mov ecx, eax
+        shr eax, 1
+        movzx eax, byte ptr [eax + 0x{MASK_TABLE:X}]
+        test cl, 1
+        je mg_low
+        shr eax, 4
+        ret
+    mg_low:
+        and eax, 0x0F
+        ret
+    mg_none:
+        xor eax, eax
+        ret
+    """)
+    # mask_set: esi = villager record, bl = choice (0-5) -> writes the villager's
+    # nibble in MASK_TABLE. No-op if esi is not a valid record. Clobbers
+    # eax/ecx/edx; preserves ebx (choice source) and esi.
+    set_ = put(page, page_va, "mask_set", f"""
+        mov eax, esi
+        sub eax, 0x554190
+        jb ms_ret
+        xor edx, edx
+        mov ecx, 0x{STRIDE:X}
+        div ecx
+        test edx, edx
+        jne ms_ret
+        cmp eax, {BOUND}
+        jae ms_ret
+        mov ecx, eax
+        shr eax, 1
+        movzx edx, byte ptr [eax + 0x{MASK_TABLE:X}]
+        test cl, 1
+        je ms_low
+        and edx, 0x0F
+        movzx ecx, bl
+        and ecx, 0x0F
+        shl ecx, 4
+        or edx, ecx
+        mov byte ptr [eax + 0x{MASK_TABLE:X}], dl
+        ret
+    ms_low:
+        and edx, 0xF0
+        movzx ecx, bl
+        and ecx, 0x0F
+        or edx, ecx
+        mov byte ptr [eax + 0x{MASK_TABLE:X}], dl
+        ret
+    ms_ret:
+        ret
+    """)
+    return {"mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_}
 
 
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
