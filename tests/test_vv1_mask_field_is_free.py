@@ -61,7 +61,7 @@ DATA_GAP_LO = 0x48CD18  # first byte past stock .data's declared VirtualSize
 DATA_GAP_HI = 0x48CE00  # end of the committed .data extension (short of .shr 0x48D000)
 TABLE_VA = 0x48CD20  # 256 villagers x 4 bits = 128 bytes, in .data
 TABLE_SIZE = 128
-MANAGER_VA = 0x48CDD0  # villager-array base, stashed by the render hook, in .data
+MANAGER_VA = 0x48CDB8  # villager-array base, stashed by the render hook, in .data
 RECORD_STRIDE = 0x3D8
 # The mask cave now holds only code (the path strings moved to the .rdata
 # string cave), so the hook is at the very start of the cave.
@@ -180,13 +180,13 @@ class VV1MaskFieldIsFreeTests(unittest.TestCase):
         patch = PATCH_SOURCE.read_text(encoding="utf-8")
 
         self.assertIn("0x0048CD20", dll, "DLL lost the mask table address")
-        self.assertIn("0x0048CDD0", dll, "DLL lost the villager-array base slot")
+        self.assertIn("0x0048CDB8", dll, "DLL lost the villager-array base slot")
         self.assertIn("#define VV_RECORD_STRIDE 0x3D8", dll)
         self.assertIn("#define VV_MASK_SLOTS 256", dll)
 
         self.assertIn("DATA_SCRATCH_BASE_VA = 0x48CD20", patch)
         self.assertIn(f"MASK_TABLE_SIZE = {TABLE_SIZE}", patch)
-        self.assertIn("MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0xB0", patch)
+        self.assertIn("MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0x98", patch)
 
     def test_render_hook_reads_the_table_and_bounds_checks_the_index(self):
         """The hook must key off the record INDEX and reject out-of-range."""
@@ -246,17 +246,23 @@ class VV1MaskFieldIsFreeTests(unittest.TestCase):
         clobbering any of them would corrupt the engine's own draw loop.
         """
         clobbered = set()
+        saved = set()
         for line in _hook_disasm(_render("immediate_fixed")):
             mnemonic, _, operands = line.partition(" ")
-            if mnemonic in ("mov", "movzx", "shr", "and", "add", "sub"):
-                dest = operands.split(",")[0].strip()
+            dest = operands.split(",")[0].strip()
+            if mnemonic == "push" and re.fullmatch(r"e[abcds][xpi]", dest):
+                saved.add(dest)  # push/pop-balanced -> net preserved
+            if mnemonic in ("mov", "movzx", "shr", "shl", "and", "or",
+                            "add", "sub", "inc", "dec", "lea"):
                 if re.fullmatch(r"e[abcds][xpi]", dest):
                     clobbered.add(dest)
+        # ecx/edx are dead scratch; anything else the hook touches must be
+        # push/pop-balanced (the stash-list append borrows ebx and restores it).
         self.assertLessEqual(
-            clobbered,
+            clobbered - saved,
             {"ecx", "edx"},
-            f"hook clobbers registers the engine still needs: "
-            f"{sorted(clobbered - {'ecx', 'edx'})}",
+            f"hook clobbers registers the engine still needs, unsaved: "
+            f"{sorted(clobbered - saved - {'ecx', 'edx'})}",
         )
 
 

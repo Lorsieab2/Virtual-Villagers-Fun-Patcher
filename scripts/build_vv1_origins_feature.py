@@ -326,14 +326,26 @@ DATA_SCRATCH_BASE_VA = 0x48CD20  # 8-aligned start of .data's BSS tail gap
 MASK_TABLE_VA = DATA_SCRATCH_BASE_VA + 0x00  # 256 villagers x 4 bits = 128 bytes
 MASK_TABLE_SIZE = 128
 MASK_SURFACES_VA = DATA_SCRATCH_BASE_VA + 0x80  # 5 x SDL_Surface* cache
-MASK_PENDING_RECORD_VA = DATA_SCRATCH_BASE_VA + 0x98
-MASK_PENDING_CHOICE_VA = DATA_SCRATCH_BASE_VA + 0x9C
-MASK_PENDING_X_VA = DATA_SCRATCH_BASE_VA + 0xA0
-MASK_PENDING_Y_VA = DATA_SCRATCH_BASE_VA + 0xA4
-MASK_PENDING_FRAME_VA = DATA_SCRATCH_BASE_VA + 0xA8
-DEST_SURFACE_CACHE_VA = DATA_SCRATCH_BASE_VA + 0xAC
-MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0xB0
-MASK_DATA_SCRATCH_END_VA = DATA_SCRATCH_BASE_VA + 0xB4  # first free .data byte
+DEST_SURFACE_CACHE_VA = DATA_SCRATCH_BASE_VA + 0x94
+MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0x98
+# --- Per-frame stash LIST (fixes the one-mask-per-frame limit) ------------
+# The village compositor (sub_437790) runs the stash hook once per villager,
+# but the DRAW hook runs once per frame in the present path (0x424xxx), well
+# after the whole villager loop. A single pending slot therefore only ever
+# carried the LAST masked villager -> one mask drawn per frame. Instead the
+# stash hook APPENDS (x, y, packed frame|choice) to this list, and the draw
+# hook loops the list and blits every entry, then resets the count for the
+# next frame. VV1's draw thunks are shared across heads/bodies/clothing (not
+# head-specific like VV2's), so hooking the thunk isn't viable; this stash-
+# list is the correct VV1 adaptation (VV4 uses the same fallback).
+MASK_LIST_COUNT_VA = DATA_SCRATCH_BASE_VA + 0x9C  # dword: entries stashed this frame
+MASK_LIST_BASE_VA = DATA_SCRATCH_BASE_VA + 0xA0   # array of MASK_LIST_ENTRY-byte entries
+MASK_LIST_CAP = 40           # max masked villagers drawn per frame (extras skipped)
+MASK_LIST_ENTRY = 12         # [+0]=screen x, [+4]=screen y, [+8]=(frame<<16)|choice
+MASK_DATA_SCRATCH_END_VA = MASK_LIST_BASE_VA + MASK_LIST_CAP * MASK_LIST_ENTRY
+# = 0x48CDC0 + 0x1E0 = 0x48CFA0, which stays below .shr's base 0x48D000 (the
+# .data VirtualSize is extended to cover it, but NOT up to 0x48D000 -- see the
+# 0x248 patch: reaching the next section's base access-violates on launch).
 
 MASK_OVERLAY_FILE_OFFSET = 0x8BEA8
 MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
@@ -382,7 +394,7 @@ assert len(mask_paths_data) == 5 * MASK_PATH_STRIDE
 # computed at all: screen = record.xy - village.scroll_xy, exactly the
 # subtraction every native draw call in sub_437790 performs (confirmed at the
 # head-draw site 0x437d67/0x437d70, which does "sub edx,[ebx+0xc]" /
-# "sub ecx,[ebx+8]" against this same object). MASK_PENDING_* live in .data
+# "sub ecx,[ebx+8]" against this same object). The stash LIST lives in .data
 # (see the W^X split above), written by this hook each frame.
 #
 # DEST_SURFACE_CACHE_VA: ground truth refreshed every real frame. FUN_00409060
@@ -2188,30 +2200,38 @@ def main() -> None:
             jz mask_resume
             cmp edx, 5
             ja mask_resume
-            # Only ever SET the pending slot, never clear it here. This hook
-            # fires once per occupied villager per frame (up to 256 times), so
-            # clearing on every villager without a mask -- the original
-            # behaviour -- meant whichever villager was iterated LAST won,
-            # regardless of whether IT had a mask, and the draw hook (which
-            # runs once per frame, after the whole loop) almost always saw 0.
-            # Only a villager that DOES have a valid choice may touch the slot.
-            push ecx
+            # edx = mask choice (1..5). APPEND this villager to the per-frame
+            # stash list so every masked villager is drawn (not just the last
+            # one). ebx (0xC7) is borrowed as a scratch pointer and restored
+            # before mask_resume; ecx/edx are dead scratch; eax/ebp/esi/edi
+            # must survive for the native loop.
+            push ebx
+            mov ecx, dword ptr [{MASK_LIST_COUNT_VA:#x}]
+            cmp ecx, {MASK_LIST_CAP}
+            jae mask_append_done          # list full this frame -> skip extras
+            lea ebx, [ecx + ecx*2]        # ebx = count * 3
+            shl ebx, 2                    # ebx = count * 12  (MASK_LIST_ENTRY)
+            add ebx, {MASK_LIST_BASE_VA:#x}   # ebx = &list[count]
+            inc ecx
+            mov dword ptr [{MASK_LIST_COUNT_VA:#x}], ecx   # count++
+            # entry[+8] = (frame << 16) | choice
+            mov ecx, dword ptr [eax + {VILLAGER_FACING_OFFSET:#x}]
+            shl ecx, 16
+            or edx, ecx
+            mov dword ptr [ebx + 8], edx
+            # entry.xy = record.xy - village.scroll_xy (same subtraction the
+            # native head draw does at 0x438146/0x438126), plus the mask-cell
+            # alignment offset (MASK_DRAW_Y_OFFSET).
             mov ecx, dword ptr [esi + {VILLAGE_OBJECT_OFFSET:#x}]
-            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], eax
-            mov dword ptr [{MASK_PENDING_CHOICE_VA:#x}], edx
-            # screen = record.xy - village.scroll_xy, the same subtraction the
-            # native head draw performs at 0x438146/0x438126, plus the
-            # mask-cell alignment offset (see MASK_DRAW_Y_OFFSET).
             mov edx, dword ptr [eax + 4]
             sub edx, dword ptr [ecx + 8]
-            mov dword ptr [{MASK_PENDING_X_VA:#x}], edx
+            mov dword ptr [ebx], edx
             mov edx, dword ptr [eax + 8]
             sub edx, dword ptr [ecx + 0xc]
             add edx, {MASK_DRAW_Y_OFFSET}
-            mov dword ptr [{MASK_PENDING_Y_VA:#x}], edx
-            mov edx, dword ptr [eax + {VILLAGER_FACING_OFFSET:#x}]
-            mov dword ptr [{MASK_PENDING_FRAME_VA:#x}], edx
-            pop ecx
+            mov dword ptr [ebx + 4], edx
+        mask_append_done:
+            pop ebx
         mask_resume:
             jmp {MASK_RESUME_VA:#x}
         """,
@@ -2233,21 +2253,28 @@ def main() -> None:
         f"""
             mov ecx, dword ptr [esi + 8]
             push 0
-            cmp dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
+            cmp dword ptr [{MASK_LIST_COUNT_VA:#x}], 0
             je mask2_done
             pushad
-            mov ebx, dword ptr [{MASK_PENDING_CHOICE_VA:#x}]
+            # esi = loop index i; ebp = &list[i]; the SDL thunks are cdecl and
+            # preserve ebx/esi/edi/ebp (Win32 callee-saved), so those survive
+            # the blit call across iterations. count is re-read from .data each
+            # iteration so an appended-past-cap frame still terminates.
+            xor esi, esi
+        mask2_loop:
+            cmp esi, dword ptr [{MASK_LIST_COUNT_VA:#x}]
+            jae mask2_reset
+            lea ebp, [esi + esi*2]
+            shl ebp, 2
+            add ebp, {MASK_LIST_BASE_VA:#x}      # ebp = &list[i]
+            movzx ebx, word ptr [ebp + 8]        # ebx = choice (1..5)
             mov eax, dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4]
             test eax, eax
             jnz mask2_have_surface
-            # Lazy load, once per colour per process. IMG_Load returns NULL on
-            # a missing or broken file; that NULL stays in the cache and the
-            # draw below is skipped, so a missing companion sheet degrades to
-            # "no mask" instead of crashing.
-            # Select this colour's read-only path string by index instead of
-            # rewriting a shared string's digit in place -- an in-place write
-            # would be a write into executable .shr, the exact thing the W^X
-            # split exists to remove. addr = MASK_PATHS_VA + (choice-1)*0x10.
+            # Lazy load once per colour per process; NULL stays cached so a
+            # missing/broken PNG degrades to no-mask instead of crashing.
+            # Path string picked by index (choice-1)*0x10 -- no in-place write
+            # into executable memory (W^X).
             mov eax, ebx
             shl eax, 4
             add eax, {mask_paths_va - MASK_PATH_STRIDE:#x}
@@ -2257,23 +2284,23 @@ def main() -> None:
             mov dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4], eax
         mask2_have_surface:
             test eax, eax
-            jz mask2_skip
+            jz mask2_next
             mov edx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
             test edx, edx
-            jz mask2_skip
-            # src rect: this facing's cell in the sheet
-            mov ecx, dword ptr [{MASK_PENDING_FRAME_VA:#x}]
+            jz mask2_next
+            # src rect: this facing's cell in the sheet (frame = high word)
+            movzx ecx, word ptr [ebp + 0xa]
             imul ecx, ecx, {MASK_CELL_W}
             push {MASK_CELL_H}
             push {MASK_CELL_W}
             push 0
             push ecx
             mov edi, esp
-            # dst rect: the villager's own screen position
+            # dst rect: this villager's own screen position
             push {MASK_CELL_H}
             push {MASK_CELL_W}
-            push dword ptr [{MASK_PENDING_Y_VA:#x}]
-            push dword ptr [{MASK_PENDING_X_VA:#x}]
+            push dword ptr [ebp + 4]
+            push dword ptr [ebp]
             mov ecx, esp
             push ecx
             push edx
@@ -2281,8 +2308,11 @@ def main() -> None:
             push eax
             call {SDL_UPPERBLIT_THUNK_VA:#x}
             add esp, 48
-        mask2_skip:
-            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
+        mask2_next:
+            inc esi
+            jmp mask2_loop
+        mask2_reset:
+            mov dword ptr [{MASK_LIST_COUNT_VA:#x}], 0
             popad
         mask2_done:
             jmp {MASK_BACKEDGE_RESUME_VA:#x}
@@ -2419,16 +2449,17 @@ def main() -> None:
     patch(
         0x248,
         bytes.fromhex("186D0000"),
-        bytes.fromhex("006E0000"),
-        "extend .data VirtualSize from 0x6D18 to 0x6E00 so the loader commits "
-        "the BSS bytes (0x48CD18..0x48CE00) that now hold all writable mask "
-        "state -- keeping runtime writes out of the executable .shr section "
-        "(W^X); .data stays RW/non-executable. Deliberately 0x6E00, NOT 0x7000: "
-        "extending it all the way to .shr's own start (0x48D000) makes .data's "
-        "mapped virtual range meet the next section's base and access-violates "
-        "the process on launch (live-verified -- 0x7000 crashes, 0x6E00 runs); "
-        "0x6E00 leaves a 0x200 gap before .shr and still covers the mask block, "
-        "which ends at 0x48CDD4",
+        bytes.fromhex("A06F0000"),
+        "extend .data VirtualSize from 0x6D18 to 0x6FA0 so the loader commits "
+        "the BSS bytes (0x48CD18..0x48CFA0) that hold all writable mask state -- "
+        "the 128-byte table, surface cache, dest-surface cache, manager pointer, "
+        "and the per-frame stash LIST (40 x 12 bytes) -- keeping runtime writes "
+        "out of the executable .shr section (W^X); .data stays RW/non-executable. "
+        "Deliberately 0x6FA0, NOT 0x7000: extending all the way to .shr's own "
+        "start (0x48D000) makes .data's mapped range meet the next section's base "
+        "and access-violates the process on launch (live-verified -- 0x7000 "
+        "crashes, values below it run); 0x6FA0 leaves a 0x60 gap before .shr and "
+        "covers the whole mask scratch region, which ends at 0x48CFA0",
     )
     patch(
         0x270,
