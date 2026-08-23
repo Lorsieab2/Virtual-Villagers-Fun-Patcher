@@ -315,7 +315,7 @@ VV1_SKILL_FIELDS = (
 #
 # The fix is the W^X rule: code is executable-not-writable, data is
 # writable-not-executable. Every mask datum that is written at runtime moves
-# into the .data section's zero-filled BSS tail (0x48CD18..0x48D000, already
+# into the .data section's zero-filled BSS tail (0x48CD18..0x48CE00, already
 # mapped RW and NON-executable, extended below to own the whole page). Only
 # read-only constants (the companion-PNG path strings) stay in .shr, which
 # Stage 3 will mark read+execute. The mask CODE stays in .shr; it references
@@ -2419,11 +2419,16 @@ def main() -> None:
     patch(
         0x248,
         bytes.fromhex("186D0000"),
-        bytes.fromhex("00700000"),
-        "extend .data VirtualSize to 0x7000 so it formally owns the BSS page "
-        "(0x48CD18..0x48D000) that now holds all writable mask state -- keeping "
-        "runtime writes out of the executable .shr section (W^X); .data stays "
-        "RW/non-executable, so no write ever lands on an executable page",
+        bytes.fromhex("006E0000"),
+        "extend .data VirtualSize from 0x6D18 to 0x6E00 so the loader commits "
+        "the BSS bytes (0x48CD18..0x48CE00) that now hold all writable mask "
+        "state -- keeping runtime writes out of the executable .shr section "
+        "(W^X); .data stays RW/non-executable. Deliberately 0x6E00, NOT 0x7000: "
+        "extending it all the way to .shr's own start (0x48D000) makes .data's "
+        "mapped virtual range meet the next section's base and access-violates "
+        "the process on launch (live-verified -- 0x7000 crashes, 0x6E00 runs); "
+        "0x6E00 leaves a 0x200 gap before .shr and still covers the mask block, "
+        "which ends at 0x48CDD4",
     )
     patch(
         0x270,

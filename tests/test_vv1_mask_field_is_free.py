@@ -51,14 +51,14 @@ STOCK = ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe
 DLL_SOURCE = ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
 PATCH_SOURCE = ROOT / "scripts" / "build_vv1_origins_feature.py"
 
-# W^X: all writable mask state lives in .data's BSS tail (0x48CD18..0x48D000),
+# W^X: all writable mask state lives in .data's BSS tail (0x48CD18..0x48CE00),
 # a section that is writable but NOT executable. Nothing is written into the
 # executable .shr cave at runtime -- that is what made Malwarebytes quarantine
 # the process (a per-frame write into an executable page reads as self-
 # modifying code). The mask table and the villager-array-base pointer both
 # live here; the mask CODE stays in .shr and only reads them.
 DATA_GAP_LO = 0x48CD18  # first byte past stock .data's declared VirtualSize
-DATA_GAP_HI = 0x48D000  # .shr begins here
+DATA_GAP_HI = 0x48CE00  # end of the committed .data extension (short of .shr 0x48D000)
 TABLE_VA = 0x48CD20  # 256 villagers x 4 bits = 128 bytes, in .data
 TABLE_SIZE = 128
 MANAGER_VA = 0x48CDD0  # villager-array base, stashed by the render hook, in .data
@@ -117,7 +117,7 @@ class VV1MaskFieldIsFreeTests(unittest.TestCase):
         """Table and manager must sit in .data's BSS gap, not executable .shr.
 
         This is the W^X invariant. The whole table and the manager pointer
-        must fall inside 0x48CD18..0x48D000, which the build extends .data's
+        must fall inside 0x48CD18..0x48CE00, which the build extends .data's
         VirtualSize to own and which is RW/non-executable -- so no runtime
         write ever lands on an executable page (the Malwarebytes trigger).
         """

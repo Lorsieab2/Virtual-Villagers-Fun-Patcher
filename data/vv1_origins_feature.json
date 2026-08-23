@@ -233,8 +233,8 @@
     {
       "offset": "0x248",
       "before": "186D0000",
-      "after": "00700000",
-      "purpose": "extend .data VirtualSize to 0x7000 so it formally owns the BSS page (0x48CD18..0x48D000) that now holds all writable mask state -- keeping runtime writes out of the executable .shr section (W^X); .data stays RW/non-executable, so no write ever lands on an executable page"
+      "after": "006E0000",
+      "purpose": "extend .data VirtualSize from 0x6D18 to 0x6E00 so the loader commits the BSS bytes (0x48CD18..0x48CE00) that now hold all writable mask state -- keeping runtime writes out of the executable .shr section (W^X); .data stays RW/non-executable. Deliberately 0x6E00, NOT 0x7000: extending it all the way to .shr's own start (0x48D000) makes .data's mapped virtual range meet the next section's base and access-violates the process on launch (live-verified -- 0x7000 crashes, 0x6E00 runs); 0x6E00 leaves a 0x200 gap before .shr and still covers the mask block, which ends at 0x48CDD4"
     },
     {
       "offset": "0x270",
