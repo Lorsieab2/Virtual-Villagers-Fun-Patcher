@@ -133,7 +133,23 @@ static const char *const g_mask_names[VV_MASK_COUNT] = {
 #define VV_REC_ARRAY_BASE 0x5101ECu
 #define VV_REC_STRIDE     0x2E3Cu
 #define VV_MAX_VILLAGERS  150
+#define VV_NAME_OFFSET    0x1BC0        /* 24-byte villager name string (stable) */
 static unsigned char g_mask_by_index[VV_MAX_VILLAGERS];
+/* Slot-reuse guard (VV3's idea): a fingerprint of STABLE per-villager fields
+   stored beside each mask. On read we recompute and compare; a mismatch means
+   the slot was reused by a different villager, so the mask does not carry over.
+   Uses gender + name (NOT likes/dislikes — those change via VV4 upgrades). */
+static unsigned int g_mask_fp[VV_MAX_VILLAGERS];
+
+static unsigned int vv_fingerprint(const unsigned char *villager) {
+    unsigned int h = 2166136261u;               /* FNV-1a */
+    unsigned int sex = *(const unsigned int *)(villager + VV_SEX_OFFSET);
+    const unsigned char *name = villager + VV_NAME_OFFSET;
+    int i;
+    for (i = 0; i < 4; i++) { h = (h ^ ((unsigned char *)&sex)[i]) * 16777619u; }
+    for (i = 0; i < 24 && name[i]; i++) { h = (h ^ name[i]) * 16777619u; }
+    return h ? h : 1u;                           /* reserve 0 = "no fp stored" */
+}
 
 static int vv_villager_index(const unsigned char *villager) {
     unsigned int off;
@@ -155,15 +171,26 @@ static int vv_get_mask(const unsigned char *villager) {
         return 0;
     }
     m = g_mask_by_index[idx];
-    return m < VV_MASK_COUNT ? (int)m : 0;
+    if (m == 0 || m >= VV_MASK_COUNT) {
+        return 0;
+    }
+    if (g_mask_fp[idx] != vv_fingerprint(villager)) {
+        return 0;                    /* slot reused by a different villager */
+    }
+    return (int)m;
 }
 static void vv_set_mask(unsigned char *villager, int mask) {
     int idx = vv_villager_index(villager);
     if (idx < 0) {
         return;
     }
-    g_mask_by_index[idx] =
-        (mask > 0 && mask < VV_MASK_COUNT) ? (unsigned char)mask : 0;
+    if (mask > 0 && mask < VV_MASK_COUNT) {
+        g_mask_by_index[idx] = (unsigned char)mask;
+        g_mask_fp[idx] = vv_fingerprint(villager);
+    } else {
+        g_mask_by_index[idx] = 0;
+        g_mask_fp[idx] = 0;
+    }
 }
 
 /* --- In-world / details mask render via SDL surface blit -------------------
@@ -250,21 +277,14 @@ __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
     g_dest_surface = surface;
 }
 
-/* Called from each head-draw hook with the villager index, the head's screen
-   x/y, its facing frame, and a scale percent (100 = in-world, ~150/200 =
-   Details). Blits the villager's mask cell on top of the just-drawn head. */
-__declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
-                                                 int frame, int scale_pct) {
-    int mask;
+/* Blit one resolved mask (1..5) at the head's screen x/y. scale_pct: 100 =
+   in-world, ~150/200 = Details (scales the cell AND the anchor offset). */
+static void vv4_blit_mask(int mask, int x, int y, int frame, int scale_pct) {
     VvSdlRect src, dst;
     vv4_mask_render_init();
     if (g_dest_surface == NULL || g_mask_surface == NULL || p_SDL_UpperBlit == NULL) {
         return;                              /* not ready -> no mask, no crash */
     }
-    if (index < 0 || index >= VV_MAX_VILLAGERS) {
-        return;
-    }
-    mask = g_mask_by_index[index];
     if (mask <= 0 || mask >= VV_MASK_COUNT) {
         return;
     }
@@ -293,12 +313,22 @@ __declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
     }
 }
 
-/* Convenience for the render cave: it holds the villager RECORD pointer (esi),
-   so let it pass that directly and we derive the index here. */
+/* By raw index (no fingerprint check) -- for callers that only have the index
+   (e.g. the Details screen's selected villager). */
+__declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
+                                                 int frame, int scale_pct) {
+    if (index < 0 || index >= VV_MAX_VILLAGERS) {
+        return;
+    }
+    vv4_blit_mask((int)g_mask_by_index[index], x, y, frame, scale_pct);
+}
+
+/* Primary render entry: the head-draw hooks hold the villager RECORD (esi), so
+   this derives the index AND fingerprint-checks (slot-reuse safe). */
 __declspec(dllexport) void __stdcall Vv4MaskDrawRecord(unsigned char *villager,
                                                        int x, int y, int frame,
                                                        int scale_pct) {
-    Vv4MaskDraw(vv_villager_index(villager), x, y, frame, scale_pct);
+    vv4_blit_mask(vv_get_mask(villager), x, y, frame, scale_pct);
 }
 
 static HINSTANCE module_instance;
