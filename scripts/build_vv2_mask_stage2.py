@@ -105,7 +105,7 @@ PORTRAIT_DY_MUL = 54
 # path ONLY (caller < 0x445B50).  Tune to taste.
 import os as _os
 PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "6"))   # portrait: nudge mask right (all masks)
-PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "8"))   # portrait: nudge mask down (all masks)
+PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "2"))   # portrait: nudge mask down (all masks) — was 8, raised 6px per live tune
 # Purple's tall feathers + short face make it sit especially high on the 2x portrait; extra drop.
 PURPLE_PORTRAIT_EXTRA = int(_os.environ.get("PPX", "6"))   # purple-only extra down on portrait
 
