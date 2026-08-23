@@ -161,6 +161,8 @@ OFF = {
     "mask_restore": 0x6A00,
     "mask_get": 0x6C00,
     "mask_set": 0x6C80,
+    "mask_sidecar_load": 0x6D00,
+    "mask_sidecar_save": 0x6E00,
     "strings": 0x7000,
 }
 
@@ -199,6 +201,8 @@ SIZES = {
     "mask_restore": 0x200,
     "mask_get": 0x80,
     "mask_set": 0x80,
+    "mask_sidecar_load": 0x100,
+    "mask_sidecar_save": 0x100,
 }
 
 
@@ -3330,7 +3334,115 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
     ms_ret:
         ret
     """)
-    return {"mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_}
+    # mask_sidecar_load: detour of the save-game LOAD fopen (0x40378D, path in EDX).
+    # Reads the per-slot sidecar "<savepath>.msk" into MASK_TABLE (75 bytes); zeros
+    # the table if the sidecar is absent. Builds the path on the stack; touches only
+    # a SEPARATE file, never the .ldw. Preserves all regs/flags, replays the
+    # displaced `push 0x4957B8`, returns to 0x403792.
+    sidecar_load = put(page, page_va, "mask_sidecar_load", f"""
+        pushfd
+        pushad
+        mov esi, dword ptr [esp+0x14]        /* EDX slot = load path */
+        sub esp, 0x120
+        mov edi, esp
+        xor ecx, ecx
+    sl_cp:
+        mov al, byte ptr [esi+ecx]
+        mov byte ptr [edi+ecx], al
+        test al, al
+        je sl_cpd
+        inc ecx
+        cmp ecx, 0x104
+        jb sl_cp
+    sl_cpd:
+        mov dword ptr [edi+ecx], 0x6B736D2E  /* ".msk" */
+        mov byte ptr [edi+ecx+4], 0
+        push 0
+        push 0
+        push 3                               /* OPEN_EXISTING */
+        push 0
+        push 1                               /* FILE_SHARE_READ */
+        push 0x80000000                      /* GENERIC_READ */
+        push edi
+        call dword ptr [0x495140]            /* CreateFileA */
+        cmp eax, -1
+        je sl_absent
+        mov ebx, eax
+        push 0
+        lea edx, [edi+0x110]
+        push edx
+        push 0x4B                            /* 75 bytes */
+        push 0x{MASK_TABLE:X}
+        push ebx
+        call dword ptr [0x495148]            /* ReadFile */
+        push ebx
+        call dword ptr [0x495144]            /* CloseHandle */
+        jmp sl_done
+    sl_absent:
+        cld
+        mov edi, 0x{MASK_TABLE:X}
+        mov ecx, 0x4B
+        xor eax, eax
+        rep stosb
+    sl_done:
+        add esp, 0x120
+        popad
+        popfd
+        push 0x4957B8
+        jmp 0x403792
+    """)
+    # mask_sidecar_save: detour of the save-game SAVE fopen (0x4039AF, path in EDI).
+    # Writes MASK_TABLE (75 bytes) to "<savepath>.msk" (CREATE_ALWAYS). Same rules;
+    # replays the displaced `push 0x4957BC`, returns to 0x4039B4.
+    sidecar_save = put(page, page_va, "mask_sidecar_save", f"""
+        pushfd
+        pushad
+        mov esi, dword ptr [esp+0x00]        /* EDI slot = save path */
+        sub esp, 0x120
+        mov edi, esp
+        xor ecx, ecx
+    ss_cp:
+        mov al, byte ptr [esi+ecx]
+        mov byte ptr [edi+ecx], al
+        test al, al
+        je ss_cpd
+        inc ecx
+        cmp ecx, 0x104
+        jb ss_cp
+    ss_cpd:
+        mov dword ptr [edi+ecx], 0x6B736D2E  /* ".msk" */
+        mov byte ptr [edi+ecx+4], 0
+        push 0
+        push 0x80                            /* FILE_ATTRIBUTE_NORMAL */
+        push 2                               /* CREATE_ALWAYS */
+        push 0
+        push 0
+        push 0x40000000                      /* GENERIC_WRITE */
+        push edi
+        call dword ptr [0x495140]            /* CreateFileA */
+        cmp eax, -1
+        je ss_done
+        mov ebx, eax
+        push 0
+        lea edx, [edi+0x110]
+        push edx
+        push 0x4B
+        push 0x{MASK_TABLE:X}
+        push ebx
+        call dword ptr [0x495160]            /* WriteFile */
+        push ebx
+        call dword ptr [0x495144]            /* CloseHandle */
+    ss_done:
+        add esp, 0x120
+        popad
+        popfd
+        push 0x4957BC
+        jmp 0x4039B4
+    """)
+    return {
+        "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
+        "mask_sidecar_load": sidecar_load, "mask_sidecar_save": sidecar_save,
+    }
 
 
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
@@ -3669,6 +3781,35 @@ def main() -> None:
                 "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
                 "purpose": "Heathen mask: at the render-fn epilogue, revert the transient faction+colour flip via the saved villager pointer, then run the displaced add esp,0xA8; ret 8",
             })
+    # Heathen-mask persistence (stock only): detour the save-game LOAD/SAVE fopen
+    # sites (told apart by the "rb"/"wb" mode strings pushed just before) to read/
+    # write the mask side-table to a per-slot sidecar "<savepath>.msk". The sidecar
+    # is a SEPARATE file, so the .ldw is never touched.
+    sidecar_load_site = 0x40378D
+    sidecar_load_preimage = "68B8574900"       # push 0x4957B8 ("rb") -> LOAD
+    sidecar_save_site = 0x4039AF
+    sidecar_save_preimage = "68BC574900"       # push 0x4957BC ("wb") -> SAVE
+    if stock[sidecar_load_site - 0x400000 : sidecar_load_site - 0x400000 + 5].hex().upper() != sidecar_load_preimage:
+        raise RuntimeError("Heathen-mask sidecar LOAD preimage drift at 0x40378D")
+    if stock[sidecar_save_site - 0x400000 : sidecar_save_site - 0x400000 + 5].hex().upper() != sidecar_save_preimage:
+        raise RuntimeError("Heathen-mask sidecar SAVE preimage drift at 0x4039AF")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        overrides = result["patch_mode_overrides"].setdefault(mode, [])
+        rel = (page_va + OFF["mask_sidecar_load"]) - (sidecar_load_site + 5)
+        overrides.append({
+            "offset": f"0x{sidecar_load_site - 0x400000:X}",
+            "before": sidecar_load_preimage,
+            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
+            "purpose": "Heathen mask: on save-game load, read the per-slot sidecar <savepath>.msk into the mask side-table (zero it if absent), then replay push 0x4957B8",
+        })
+        rel = (page_va + OFF["mask_sidecar_save"]) - (sidecar_save_site + 5)
+        overrides.append({
+            "offset": f"0x{sidecar_save_site - 0x400000:X}",
+            "before": sidecar_save_preimage,
+            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
+            "purpose": "Heathen mask: on save-game save, write the mask side-table to the per-slot sidecar <savepath>.msk, then replay push 0x4957BC",
+        })
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
     map_record = {
