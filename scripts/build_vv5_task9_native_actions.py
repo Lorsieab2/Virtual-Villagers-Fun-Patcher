@@ -113,6 +113,10 @@ BH_LIFT = 0x2D       # base vertical lift  (mask Y = headY - LIFT)
 # column via this table (8 signed-byte entries, in the R+X page, live-tunable so
 # the left/right swap can be corrected without a rebuild).
 BH_COL_TABLE = [1, 1, 1, 0, 1, 2, 1, 1]   # head frame&7 -> mask column (front=1); frame3->col0, frame5->col2 (swapped)
+# Per-column (facing) horizontal nudge, added on top of the atlas alignment:
+# col0=right-facing +10px, col1=front +3px, col2=left-facing -10px. Signed bytes,
+# in the R+X page, live-tunable. Indexed by the resolved mask column (0/1/2).
+BH_COLDX_TABLE = [10, 3, -10]
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -3461,6 +3465,9 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         and ecx, 7
         movzx ecx, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets']:X}]
         mov dword ptr [0x{BH_SCOL:X}], ecx
+        movsx eax, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets'] + 8:X}]
+        add eax, dword ptr [0x{BH_SX:X}]
+        mov dword ptr [0x{BH_SX:X}], eax
         call 0x44FBB0
         mov ecx, eax
         push 0x{MASK_HANDLE:X}
@@ -3487,6 +3494,10 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         raise RuntimeError("bighead_offsets overlaps generated data")
     for i, col in enumerate(BH_COL_TABLE):
         page[tbl_off + i] = col & 0xFF
+    # per-column horizontal nudge table (3 signed bytes), just past the 8-byte
+    # frame->column table, indexed by the resolved column.
+    for i, dx in enumerate(BH_COLDX_TABLE):
+        page[tbl_off + 8 + i] = dx & 0xFF
     return {
         "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
         "mask_load_once": load_once, "bighead_mask": bighead,
