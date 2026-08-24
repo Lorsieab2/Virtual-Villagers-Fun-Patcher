@@ -67,7 +67,7 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 # code genuinely changes.
 CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x39C83"): "D3E8E252393FE028178409449C81F4C69C69B8E259387B249D71E4CEE6322AE6",
-    ("vv1_birth_control", "0x3DD03"): "864375F88D0E5E1ACC8045FE6E30A7F54CE3D3AC536A01ED880840D744C2B477",
+    ("vv1_birth_control", "0x3DD03"): "F4AF5EE81A11110F6F37F8AD2411C0D7F4DA616E3B8EB820C519C5E2734E8614",
     ("vv1_birth_control", "0x46E96"): "5C9F87C9FA92B6B7BCB38A902E9E81009F206F636B8A09A0BA7FA86040BF358F",
     ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
@@ -94,12 +94,16 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
 
 # (feature id, splice offset, stock re-entry target) -> why it is safe.
 REVIEWED: dict[tuple[str, str, int], str] = {
-    (
-        "vv1_birth_control",
-        "0x3DD03",
-        0x43DD5E,
-    ): "accept path. Derefs EBP (actor record), set once at 0x43DAE5 "
-    "(lea ebp,[ecx+esi]) and never reassigned in the function.",
+    # Accept path re-enters at 0x43DD0A, which is the natural resume point
+    # (splice 0x43DD03 + 7 patched bytes), so the audit auto-excludes it as a
+    # plain stock resume -- it is not a foreign re-entry and needs no review.
+    # This is deliberate: the cave does no net push/pop, so ESP at 0x43DD0A
+    # equals the splice-entry ESP, exactly matching stock, and stock's own
+    # `push 0x64; jne 0x43DD5E` at 0x43DD0A then supplies both the stack push
+    # and the branch. The earlier cave re-entered at 0x43DD5E instead, which
+    # stock only reaches AFTER that `push 0x64`; skipping the push while stock's
+    # `add esp,4` still ran left ESP 4 bytes high and FUN_0043DAD0 later `ret`ed
+    # into the villager-index arg -- the full-heap-dump crash to EIP=0x22.
     (
         "vv1_birth_control",
         "0x3DD03",
