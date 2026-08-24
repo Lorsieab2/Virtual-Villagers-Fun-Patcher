@@ -13,3 +13,4 @@ EXPORTS
     VV3_GetMaskForRecord=_VV3_GetMaskForRecord@4
     VV3_SetMaskForRecord=_VV3_SetMaskForRecord@8
     VV3DrawMaskOnHead=_VV3DrawMaskOnHead@12
+    ShowVV3AppearanceForAll=_ShowVV3AppearanceForAll@0

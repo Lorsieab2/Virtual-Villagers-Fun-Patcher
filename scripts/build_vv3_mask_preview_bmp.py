@@ -25,16 +25,14 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "native" / "vv3_full_mastery_candidate" / "appearance"
 BACKGROUND = (236, 236, 236)
-SRC_CELL_W, SRC_CELL_H = 65, 145      # VV5 uniform cell (520x725 / 8 / 5)
-FRONT_FRAME = 5                        # front-facing frame (matches head preview)
+SRC_CELL_W, SRC_CELL_H = 40, 128       # VV3 atlas cell (heathen_masks.png = 320x640)
+FRONT_FRAME = 5                        # 6th frame from the left (front-facing)
 MASK_ROWS = 5
-# Match the VV5 New Believers chooser exactly: the mask preview uses the same
-# 40x65 head/body cell, with each mask scaled to fit (preserving aspect) and
-# centred -- so the chooser sprites are the same size across all games.
+# The mask preview uses a 40x65 cell, each mask scaled to fit (preserving aspect)
+# and centred.  Source is VV3's OWN mask atlas so the picker art matches exactly
+# what renders in game.
 MASK_CELL_W, MASK_CELL_H = 40, 65
-DEFAULT_SRC = Path(
-    r"C:/Users/Owner/Downloads/Virtual Villagers - New Believers/Images/vv5_heathenheads.png"
-)
+DEFAULT_SRC = Path(__file__).resolve().parents[1] / "assets" / "vv3_heathen_masks" / "heathen_masks.png"
 
 
 def build(src_path: Path) -> Path:

@@ -590,6 +590,109 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
     }
 }
 
+/* ================= Change Appearance for All (village-wide) ================
+   Mirrors VV2's design: EVERYTHING is DLL-side, so the exe stays a thin one-call
+   bridge (low risk).  vv3_apply_for_all iterates the villager record array and
+   applies the dialog's choices: Head/Body are INDEPENDENT per-sex (a >=0 value
+   overwrites +0xDF0/+0xDF4 for that sex; -1 = leave alone), and the MASK is one
+   mutually-exclusive choice (mask_mode) written through VV3_SetMaskForRecord (the
+   fingerprint-guarded table + sidecar) -- never the record/save.
+     mask_mode: 0 = OFF (use the per-sex mask cyclers mask_m/mask_f)
+                1 = VV5-style   2 = Random   3 = Equal
+                4..9 = a single mask for everyone (4=None .. 9=Chief -> byte 0..5) */
+#define VV3_HEAD_OFF 0xDF0
+#define VV3_BODY_OFF 0xDF4
+
+static unsigned int caf_rng;                 /* xorshift32, seeded from GetTickCount */
+static unsigned int caf_rand(void) {
+    unsigned int x = caf_rng ? caf_rng : (caf_rng = GetTickCount() | 1u);
+    x ^= x << 13; x ^= x >> 17; x ^= x << 5;
+    caf_rng = x;
+    return x;
+}
+
+static void vv3_apply_for_all(int head_m, int body_m, int mask_m,
+                              int head_f, int body_f, int mask_f, int mask_mode) {
+    unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    int idx[256], sex[256], order[256];
+    unsigned char maskof[256];
+    int n = 0, chief = -1, i, s;
+    if (slots > 256) slots = 256;
+    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+        if (rec[VV3_ACTIVE] == 0) continue;
+        if (*(int *)(rec + VV3_HEALTH) <= 0) continue;
+        idx[n] = i;
+        sex[n] = rec[VV3_GENDER] != 0;           /* 1 = female */
+        if (rec[VV3_CHIEF] != 0) chief = n;       /* the robe-wearing Tribal Chief */
+        ++n;
+    }
+    /* Head/Body: independent per-sex, always applied when >= 0. */
+    for (i = 0; i < n; ++i) {
+        unsigned char *r = (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
+        int h = sex[i] ? head_f : head_m;
+        int b = sex[i] ? body_f : body_m;
+        if (h >= 0) *(int *)(r + VV3_HEAD_OFF) = h;
+        if (b >= 0) *(int *)(r + VV3_BODY_OFF) = b;
+    }
+    /* Mask: one exclusive behaviour. */
+    if (mask_mode == 0) {                         /* OFF: per-sex mask cyclers */
+        for (i = 0; i < n; ++i) {
+            int m = sex[i] ? mask_f : mask_m;
+            if (m >= 0)
+                VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE), m);
+        }
+        return;
+    }
+    if (mask_mode >= 4) {                          /* single mask for everyone */
+        int m = mask_mode - 4;                     /* 4=None(0) .. 9=Chief(5) */
+        for (i = 0; i < n; ++i)
+            VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE), m);
+        return;
+    }
+    if (mask_mode == 2) {                          /* Random (incl. None) */
+        for (i = 0; i < n; ++i)
+            VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
+                                 (int)(caf_rand() % 6u));
+        return;
+    }
+    if (mask_mode == 1) {                          /* VV5-style proportions */
+        static const int quota[3] = {4, 7, 10};    /* purple, red, orange caps    */
+        static const int mval[3]  = {4, 3, 2};     /* -> byte 4/3/2               */
+        int qi, got, p = 0;
+        for (i = 0; i < n; ++i) { order[i] = i; maskof[i] = 1; }   /* default Blue */
+        for (i = n - 1; i > 0; --i) {              /* Fisher-Yates shuffle */
+            int j = (int)(caf_rand() % (unsigned)(i + 1));
+            int t = order[i]; order[i] = order[j]; order[j] = t;
+        }
+        if (chief >= 0) maskof[chief] = 5;         /* Chief mask -> the robe-wearer */
+        for (qi = 0; qi < 3; ++qi) {
+            for (got = 0; got < quota[qi] && p < n; ) {
+                int a = order[p++];
+                if (a == chief) continue;
+                if (maskof[a] != 1) continue;
+                maskof[a] = (unsigned char)mval[qi];
+                ++got;
+            }
+        }
+        for (i = 0; i < n; ++i)
+            VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE), maskof[i]);
+        return;
+    }
+    if (mask_mode == 3) {                          /* Equal, balanced M/F */
+        int males[256], females[256], nm = 0, nf = 0, k = 0, mi = 0, fi = 0;
+        for (i = 0; i < n; ++i) { if (sex[i]) females[nf++] = i; else males[nm++] = i; }
+        for (i = nm - 1; i > 0; --i) { int j = (int)(caf_rand()%(unsigned)(i+1)); int t=males[i]; males[i]=males[j]; males[j]=t; }
+        for (i = nf - 1; i > 0; --i) { int j = (int)(caf_rand()%(unsigned)(i+1)); int t=females[i]; females[i]=females[j]; females[j]=t; }
+        while (mi < nm || fi < nf) {               /* interleave M,F,M,F -> balanced */
+            if (mi < nm) { VV3_SetMaskForRecord((void*)(UINT_PTR)(VV3_REC_BASE+idx[males[mi++]]*VV3_STRIDE), (k++%5)+1); }
+            if (fi < nf) { VV3_SetMaskForRecord((void*)(UINT_PTR)(VV3_REC_BASE+idx[females[fi++]]*VV3_STRIDE), (k++%5)+1); }
+        }
+        (void)s;
+        return;
+    }
+}
+
 #define VW_RUNNING 6
 #define VW_MASTERY 7
 #define VW_AGE     8
@@ -1195,5 +1298,185 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     }
     /* Commit the mask to the DLL-owned table; the record/save are never written. */
     VV3_SetMaskForRecord(record, vv3_appearance_mask);
+    return 1;
+}
+
+/* ================= Change Appearance for All dialog (214) =================
+   Two panels (Male / Female), each with Body/Head/Mask cyclers whose "-1" state
+   = "no change" (leave that field alone).  A single mutually-exclusive mask-mode
+   group (Off / VV5-style / Random / Equal / None / Blue / Orange / Red / Purple /
+   Chief) overrides the per-sex Mask cyclers for EVERYONE; when any mode but Off is
+   chosen, the per-sex Mask cyclers are greyed.  Head/Body stay independent per-sex.
+   All logic is DLL-side (vv3_apply_for_all); the exe just calls the export. */
+#define IDD_VV3_APPEARANCE_ALL 214
+#define IDC_CAF_M_BODY   3201
+#define IDC_CAF_M_BODY_P 3202
+#define IDC_CAF_M_BODY_N 3203
+#define IDC_CAF_M_HEAD   3204
+#define IDC_CAF_M_HEAD_P 3205
+#define IDC_CAF_M_HEAD_N 3206
+#define IDC_CAF_M_MASK   3207
+#define IDC_CAF_M_MASK_P 3208
+#define IDC_CAF_M_MASK_N 3209
+#define IDC_CAF_M_MASK_T 3210
+#define IDC_CAF_F_BODY   3221
+#define IDC_CAF_F_BODY_P 3222
+#define IDC_CAF_F_BODY_N 3223
+#define IDC_CAF_F_HEAD   3224
+#define IDC_CAF_F_HEAD_P 3225
+#define IDC_CAF_F_HEAD_N 3226
+#define IDC_CAF_F_MASK   3227
+#define IDC_CAF_F_MASK_P 3228
+#define IDC_CAF_F_MASK_N 3229
+#define IDC_CAF_F_MASK_T 3230
+#define IDC_CAF_MODE_FIRST 3301    /* 3301..3310 = Off,VV5,Random,Equal,None,Blue,Orange,Red,Purple,Chief */
+
+static int caf_m_head, caf_m_body, caf_m_mask;   /* -1 = no change */
+static int caf_f_head, caf_f_body, caf_f_mask;
+static int caf_mask_mode;                          /* 0..9 (radio id - 3301) */
+
+static const char *const caf_mode_names[10] = {
+    "Off (use per-sex)", "VV5-style", "Random", "Equal",
+    "None", "Blue", "Orange", "Red", "Purple", "Chief"
+};
+
+/* Cycle a selector through -1 (no change) then 0..count-1 and back to -1. */
+static int caf_cycle(int v, int count, int dir) {
+    v += dir;
+    if (v < -1) return count - 1;
+    if (v >= count) return -1;
+    return v;
+}
+
+static const char *caf_mask_text(int v) {
+    if (v < 0) return "No change";
+    return vv3_mask_names[v];
+}
+
+/* Draw a preview cell, or a blank "no change" panel when index < 0. */
+static void caf_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index,
+                     int cell_w, int cell_h) {
+    if (index < 0) {
+        HBRUSH bg = CreateSolidBrush(RGB(236, 236, 236));
+        FillRect(item->hDC, &item->rcItem, bg);
+        DeleteObject(bg);
+        DrawTextA(item->hDC, "(no change)", -1, &item->rcItem,
+                  DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        return;
+    }
+    vv3_appearance_draw(item, bitmap_id, index, cell_w, cell_h);
+}
+
+static void caf_set_mask_enable(HWND w) {
+    BOOL off = (caf_mask_mode == 0);
+    EnableWindow(GetDlgItem(w, IDC_CAF_M_MASK_P), off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_M_MASK_N), off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_F_MASK_P), off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_F_MASK_N), off);
+}
+
+static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
+    (void)lp;
+    if (msg == WM_INITDIALOG) {
+        int r;
+        center_topmost_on_owner(w);
+        for (r = 0; r < 10; ++r)
+            CheckDlgButton(w, IDC_CAF_MODE_FIRST + r, r == caf_mask_mode ? BST_CHECKED : BST_UNCHECKED);
+        SetDlgItemTextA(w, IDC_CAF_M_MASK_T, caf_mask_text(caf_m_mask));
+        SetDlgItemTextA(w, IDC_CAF_F_MASK_T, caf_mask_text(caf_f_mask));
+        caf_set_mask_enable(w);
+        return TRUE;
+    } else if (msg == WM_DRAWITEM) {
+        DRAWITEMSTRUCT *it = (DRAWITEMSTRUCT *)lp;
+        switch (it->CtlID) {
+        case IDC_CAF_M_BODY: caf_draw(it, IDB_BODY_M, caf_m_body, VV3_APPEARANCE_CELL_W, VV3_APPEARANCE_CELL_H); return TRUE;
+        case IDC_CAF_M_HEAD: caf_draw(it, IDB_HEAD_M_YOUNG, caf_m_head, VV3_APPEARANCE_CELL_W, VV3_APPEARANCE_CELL_H); return TRUE;
+        case IDC_CAF_M_MASK: caf_draw(it, IDB_MASK_STRIP, caf_m_mask, VV3_MASK_CELL_W, VV3_MASK_CELL_H); return TRUE;
+        case IDC_CAF_F_BODY: caf_draw(it, IDB_BODY_F, caf_f_body, VV3_APPEARANCE_CELL_W, VV3_APPEARANCE_CELL_H); return TRUE;
+        case IDC_CAF_F_HEAD: caf_draw(it, IDB_HEAD_F_YOUNG, caf_f_head, VV3_APPEARANCE_CELL_W, VV3_APPEARANCE_CELL_H); return TRUE;
+        case IDC_CAF_F_MASK: caf_draw(it, IDB_MASK_STRIP, caf_f_mask, VV3_MASK_CELL_W, VV3_MASK_CELL_H); return TRUE;
+        default: break;
+        }
+    } else if (msg == WM_COMMAND) {
+        unsigned int id = LOWORD(wp);
+        if (id >= IDC_CAF_MODE_FIRST && id <= IDC_CAF_MODE_FIRST + 9) {
+            int r;
+            caf_mask_mode = (int)(id - IDC_CAF_MODE_FIRST);
+            for (r = 0; r < 10; ++r)
+                CheckDlgButton(w, IDC_CAF_MODE_FIRST + r, r == caf_mask_mode ? BST_CHECKED : BST_UNCHECKED);
+            caf_set_mask_enable(w);
+            return TRUE;
+        }
+        switch (id) {
+        case IDC_CAF_M_BODY_P: caf_m_body = caf_cycle(caf_m_body, VV3_BODY_COUNT, -1); vv3_appearance_repaint(w, IDC_CAF_M_BODY); return TRUE;
+        case IDC_CAF_M_BODY_N: caf_m_body = caf_cycle(caf_m_body, VV3_BODY_COUNT,  1); vv3_appearance_repaint(w, IDC_CAF_M_BODY); return TRUE;
+        case IDC_CAF_M_HEAD_P: caf_m_head = caf_cycle(caf_m_head, VV3_HEAD_COUNT, -1); vv3_appearance_repaint(w, IDC_CAF_M_HEAD); return TRUE;
+        case IDC_CAF_M_HEAD_N: caf_m_head = caf_cycle(caf_m_head, VV3_HEAD_COUNT,  1); vv3_appearance_repaint(w, IDC_CAF_M_HEAD); return TRUE;
+        case IDC_CAF_M_MASK_P: caf_m_mask = caf_cycle(caf_m_mask, VV3_MASK_COUNT, -1); SetDlgItemTextA(w, IDC_CAF_M_MASK_T, caf_mask_text(caf_m_mask)); vv3_appearance_repaint(w, IDC_CAF_M_MASK); return TRUE;
+        case IDC_CAF_M_MASK_N: caf_m_mask = caf_cycle(caf_m_mask, VV3_MASK_COUNT,  1); SetDlgItemTextA(w, IDC_CAF_M_MASK_T, caf_mask_text(caf_m_mask)); vv3_appearance_repaint(w, IDC_CAF_M_MASK); return TRUE;
+        case IDC_CAF_F_BODY_P: caf_f_body = caf_cycle(caf_f_body, VV3_BODY_COUNT, -1); vv3_appearance_repaint(w, IDC_CAF_F_BODY); return TRUE;
+        case IDC_CAF_F_BODY_N: caf_f_body = caf_cycle(caf_f_body, VV3_BODY_COUNT,  1); vv3_appearance_repaint(w, IDC_CAF_F_BODY); return TRUE;
+        case IDC_CAF_F_HEAD_P: caf_f_head = caf_cycle(caf_f_head, VV3_HEAD_COUNT, -1); vv3_appearance_repaint(w, IDC_CAF_F_HEAD); return TRUE;
+        case IDC_CAF_F_HEAD_N: caf_f_head = caf_cycle(caf_f_head, VV3_HEAD_COUNT,  1); vv3_appearance_repaint(w, IDC_CAF_F_HEAD); return TRUE;
+        case IDC_CAF_F_MASK_P: caf_f_mask = caf_cycle(caf_f_mask, VV3_MASK_COUNT, -1); SetDlgItemTextA(w, IDC_CAF_F_MASK_T, caf_mask_text(caf_f_mask)); vv3_appearance_repaint(w, IDC_CAF_F_MASK); return TRUE;
+        case IDC_CAF_F_MASK_N: caf_f_mask = caf_cycle(caf_f_mask, VV3_MASK_COUNT,  1); SetDlgItemTextA(w, IDC_CAF_F_MASK_T, caf_mask_text(caf_f_mask)); vv3_appearance_repaint(w, IDC_CAF_F_MASK); return TRUE;
+        case IDOK: EndDialog(w, 1); return TRUE;
+        case IDCANCEL: EndDialog(w, 0); return TRUE;
+        default: break;
+        }
+    } else if (msg == WM_CLOSE) {
+        EndDialog(w, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Village-wide "Change Appearance for All" (Tech menu, 450,000).  Owns the whole
+   transaction DLL-side: show the dialog, and on OK-with-a-change deduct 450k from
+   the tech pool 0x00582644 and apply to every active villager.  Returns 1 when it
+   charged + applied, else 0 (cancel / nothing changed / insufficient funds). */
+#define VV3_CAF_COST 450000
+__declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
+    int *tech = (int *)(UINT_PTR)VV3_TECH_POINTS;
+    INT_PTR result;
+    int changed;
+    caf_m_head = caf_m_body = caf_m_mask = -1;
+    caf_f_head = caf_f_body = caf_f_mask = -1;
+    caf_mask_mode = 0;
+
+    begin_modal_over_game();
+    result = DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_VV3_APPEARANCE_ALL),
+                             GetForegroundWindow(), vv3_caf_dialog, 0);
+    if (result != 1) {
+        return 0;
+    }
+    changed = (caf_m_head >= 0 || caf_m_body >= 0 || caf_f_head >= 0 || caf_f_body >= 0
+               || caf_mask_mode != 0 || caf_m_mask >= 0 || caf_f_mask >= 0);
+    if (!changed) {
+        MessageBoxA(GetForegroundWindow(),
+            "Nothing was selected to change. No tech points have been deducted.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    if ((unsigned int)*tech < (unsigned int)VV3_CAF_COST) {
+        MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    /* Head is hereditary -> one genetics warning at village scale; Cancel = no charge. */
+    if (caf_m_head >= 0 || caf_f_head >= 0) {
+        if (MessageBoxA(GetForegroundWindow(),
+                "Warning: This will change the head genetics of every villager of the chosen sex.",
+                "Origins Upgrades", MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND)
+            != IDOK) {
+            return 0;
+        }
+    }
+    *tech -= VV3_CAF_COST;
+    vv3_apply_for_all(caf_m_head, caf_m_body, caf_m_mask,
+                      caf_f_head, caf_f_body, caf_f_mask, caf_mask_mode);
+    MessageBoxA(GetForegroundWindow(),
+        "Change Appearance for All applied.",
+        "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
 }
