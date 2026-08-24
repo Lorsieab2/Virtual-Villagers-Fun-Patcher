@@ -32,17 +32,23 @@ MASK_ROWS = 5
 # and centred.  Source is VV3's OWN mask atlas so the picker art matches exactly
 # what renders in game.
 MASK_CELL_W, MASK_CELL_H = 40, 65
+# Cross-game parity (VV2 canonical): autocrop the mask blob and fit it into a
+# (40-2*PAD) x (65-2*PAD) window centred in the 40x65 cell -- the mask fills ~90%
+# of the cell in every game, so it reads the same size once each game's identical
+# 40x65 source cell is scaled into the shared preview boxes.
+MASK_PAD = 2
 DEFAULT_SRC = Path(__file__).resolve().parents[1] / "assets" / "vv3_heathen_masks" / "heathen_masks.png"
 
 
 def build(src_path: Path) -> Path:
     sheet = Image.open(src_path).convert("RGBA")
     strip = Image.new("RGB", (MASK_CELL_W * (MASK_ROWS + 1), MASK_CELL_H), BACKGROUND)
+    fit_w, fit_h = MASK_CELL_W - 2 * MASK_PAD, MASK_CELL_H - 2 * MASK_PAD
     for r in range(MASK_ROWS):
         x = FRONT_FRAME * SRC_CELL_W
         cell = sheet.crop((x, r * SRC_CELL_H, x + SRC_CELL_W, r * SRC_CELL_H + SRC_CELL_H))
         content = cell.crop(cell.getbbox())          # tight native content
-        scale = min(MASK_CELL_W / content.width, MASK_CELL_H / content.height)
+        scale = min(fit_w / content.width, fit_h / content.height)
         nw, nh = max(1, int(round(content.width * scale))), max(1, int(round(content.height * scale)))
         content = content.resize((nw, nh), Image.LANCZOS)
         base = Image.new("RGBA", (MASK_CELL_W, MASK_CELL_H), BACKGROUND + (255,))
