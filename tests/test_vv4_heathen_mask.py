@@ -54,7 +54,9 @@ class DllStorageContractTests(unittest.TestCase):
         cls.c = DLL_SOURCE.read_text(encoding="utf-8", errors="replace")
 
     def test_side_table_is_index_keyed_with_the_confirmed_layout(self) -> None:
-        self.assertIn("#define VV_REC_ARRAY_BASE 0x5101ECu", self.c)
+        # Base is the game's own accessor result FUN_00466040(0x50E568)=0x50E5AC,
+        # NOT 0x5101EC (that older value mis-keyed every record -> no masks).
+        self.assertIn("#define VV_REC_ARRAY_BASE 0x50E5ACu", self.c)
         self.assertIn("#define VV_REC_STRIDE     0x2E3Cu", self.c)
         self.assertIn("g_mask_by_index[VV_MAX_VILLAGERS]", self.c)
 

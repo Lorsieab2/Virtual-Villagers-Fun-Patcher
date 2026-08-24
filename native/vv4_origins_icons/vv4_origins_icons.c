@@ -140,7 +140,13 @@ static const char *const g_mask_names[VV_MASK_COUNT] = {
    no W^X / self-modifying-code concern), and its address is published to the
    render cave via a fixed .shr slot at init (see vv4_publish_mask_table).
    Persistence rides a sidecar file next to the save (see the sidecar helpers). */
-#define VV_REC_ARRAY_BASE 0x5101ECu
+/* Villager record array base. The game's own accessors are authoritative:
+   the Details menu gets a record via FUN_00466040(this=0x50E568, idx) which
+   returns this + 0x44 + idx*0x2E3C = 0x50E5AC + idx*0x2E3C, and the Full
+   Mastery walker passes 0x50E5AC as the array base. (An earlier derivation
+   used 0x5101EC = ctx+0x1C84, which is wrong -- it left vv_villager_index
+   returning -1 for every real record, so masks never stored or rendered.) */
+#define VV_REC_ARRAY_BASE 0x50E5ACu
 #define VV_REC_STRIDE     0x2E3Cu
 #define VV_MAX_VILLAGERS  150
 #define VV_NAME_OFFSET    0x1BC0        /* 24-byte villager name string (stable) */
