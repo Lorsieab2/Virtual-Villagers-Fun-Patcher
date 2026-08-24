@@ -191,7 +191,7 @@ END
    mask Distribution preset and a mutually-exclusive Village-wide single mask.
    Preview controls 3201-3206 (male body/head/mask, female body/head/mask);
    cycler buttons 3211-3216 (prev) / 3221-3226 (next). */
-214 DIALOGEX 0, 0, 380, 388
+214 DIALOGEX 0, 0, 380, 492
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance for All"
 FONT 9, "Segoe UI"
@@ -226,27 +226,39 @@ BEGIN
     CONTROL     "", 3206, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 132, 50, 74
     PUSHBUTTON  ">", 3226, 324, 156, 12, 20
 
-    /* ---- All "mask for everyone" options are ONE mutually-exclusive choice:
-       Off = use the per-sex Mask selectors above; any other option overrides
-       them (and the handler disables the per-sex Mask cyclers).  Only the first
-       radio carries WS_GROUP and the note below closes the group; the handler
-       also enforces single-selection across the two visual boxes. ---- */
-    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 216, 368, 80
-    AUTORADIOBUTTON "Off (use selectors above)", 3230, 14, 230, 356, 10, WS_GROUP | WS_TABSTOP
-    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3231, 14, 244, 356, 10
-    AUTORADIOBUTTON "Random (All 5 + No Mask)", 3232, 14, 258, 356, 10
-    AUTORADIOBUTTON "Random (All 5)", 3234, 14, 272, 356, 10
-    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3233, 14, 286, 356, 10
+    /* Three independent "Off = use per-sex selectors / else override" groups —
+       Heads, Bodies, Masks.  Each first radio carries WS_GROUP; the handler
+       enforces single-select within each group and greys the matching per-sex
+       cyclers when an override is chosen. ---- */
+    GROUPBOX    "Village-wide Heads", -1, 6, 216, 186, 96
+    AUTORADIOBUTTON "Off (use Head selectors above)", 3250, 14, 230, 172, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Random (by gender)", 3251, 14, 244, 172, 10
+    AUTORADIOBUTTON "All Black", 3252, 14, 258, 172, 10
+    AUTORADIOBUTTON "All Brown", 3253, 14, 272, 172, 10
+    AUTORADIOBUTTON "All Red / Ginger", 3254, 14, 286, 172, 10
+    AUTORADIOBUTTON "All Blonde", 3255, 14, 300, 172, 10
+    AUTORADIOBUTTON "All Other", 3256, 14, 314, 172, 10
 
-    GROUPBOX    "Village-wide Single Mask Color", -1, 6, 300, 368, 46
-    AUTORADIOBUTTON "None (remove all masks)", 3241, 14, 314, 120, 10
-    AUTORADIOBUTTON "Blue", 3242, 140, 314, 56, 10
-    AUTORADIOBUTTON "Orange", 3243, 200, 314, 56, 10
-    AUTORADIOBUTTON "Red", 3244, 262, 314, 56, 10
-    AUTORADIOBUTTON "Purple", 3245, 14, 330, 56, 10
-    AUTORADIOBUTTON "Chief", 3246, 76, 330, 56, 10
+    GROUPBOX    "Village-wide Bodies", -1, 196, 216, 178, 44
+    AUTORADIOBUTTON "Off (use Body selectors above)", 3260, 204, 230, 160, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Random (by gender)", 3261, 204, 244, 160, 10
 
-    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 354, 368, 9, WS_GROUP
-    DEFPUSHBUTTON "OK", 1, 132, 366, 50, 16
-    PUSHBUTTON  "Cancel", 2, 198, 366, 50, 16
+    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 320, 368, 80
+    AUTORADIOBUTTON "Off (use Mask selectors above)", 3230, 14, 334, 356, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3231, 14, 348, 356, 10
+    AUTORADIOBUTTON "Random (All 5 + No Mask)", 3232, 14, 362, 356, 10
+    AUTORADIOBUTTON "Random (All 5)", 3234, 14, 376, 356, 10
+    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3233, 14, 390, 356, 10
+
+    GROUPBOX    "Village-wide Single Mask Color", -1, 6, 404, 368, 46
+    AUTORADIOBUTTON "None (remove all masks)", 3241, 14, 418, 120, 10
+    AUTORADIOBUTTON "Blue", 3242, 140, 418, 56, 10
+    AUTORADIOBUTTON "Orange", 3243, 200, 418, 56, 10
+    AUTORADIOBUTTON "Red", 3244, 262, 418, 56, 10
+    AUTORADIOBUTTON "Purple", 3245, 14, 434, 56, 10
+    AUTORADIOBUTTON "Chief", 3246, 76, 434, 56, 10
+
+    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 458, 368, 9, WS_GROUP
+    DEFPUSHBUTTON "OK", 1, 132, 470, 50, 16
+    PUSHBUTTON  "Cancel", 2, 198, 470, 50, 16
 END

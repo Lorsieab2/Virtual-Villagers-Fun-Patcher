@@ -1176,8 +1176,35 @@ static const int caf_preview_id[2][3] = {
 /* selector state; -1 = "No change" (default), so an untouched selector writes
    nothing.  head/body: 0..29.  mask: 0=None..5=Chief. */
 static int caf_body[2], caf_head[2], caf_mask[2];
-static int caf_dist;      /* 0 Off, 1 VV5-style, 2 Random, 3 Equal */
+static int caf_dist;      /* 0 Off, 1 VV5, 2 Random(all5+none), 3 Equal, 4 Random(all5) */
 static int caf_village;   /* -1 Off, else 0=None..5=Chief (table value) */
+static int caf_head_mode; /* 0 Off, 1 Random(by gender), 2..6 = All Black/Brown/Red/Blonde/Other */
+static int caf_body_mode; /* 0 Off, 1 Random(by gender) */
+
+/* Village-wide head hair-colour buckets: head INDICES per gender per colour.
+   [0]=male [1]=female; colours 0 Black,1 Brown,2 Red,3 Blonde,4 Other. Bucketed
+   from the head-atlas hair band; adjust an index if any head is miscategorised. */
+#define VV2_HAIR_MAX 7
+static const unsigned char caf_hair[2][5][VV2_HAIR_MAX] = {
+    { /* male */
+        { 0, 1, 2, 3, 4, 6, 8 },       /* Black  */
+        { 9, 11, 12, 13, 19, 20, 22 }, /* Brown  */
+        { 10, 15, 16, 17, 18, 0, 0 },  /* Red    */
+        { 14, 21, 23, 24, 25, 27, 28 },/* Blonde */
+        { 5, 7, 26, 29, 0, 0, 0 },     /* Other  */
+    },
+    { /* female */
+        { 0, 1, 2, 5, 6, 8, 9 },       /* Black  */
+        { 4, 11, 12, 14, 20, 21, 0 },  /* Brown  */
+        { 10, 16, 17, 18, 19, 0, 0 },  /* Red    */
+        { 22, 23, 24, 25, 26, 27, 28 },/* Blonde */
+        { 3, 7, 13, 15, 29, 0, 0 },    /* Other  */
+    }
+};
+static const unsigned char caf_hair_n[2][5] = {
+    { 7, 7, 5, 7, 4 },   /* male   counts */
+    { 7, 6, 5, 7, 5 }    /* female counts */
+};
 
 static unsigned int caf_rng;
 static unsigned int caf_rand(void) {
@@ -1216,33 +1243,52 @@ static int caf_cycle(int value, int count, int delta) {
 /* The 10 "mask for everyone" radios form ONE mutually-exclusive choice spread
    across two visual boxes: 3230 Off, 3231 VV5, 3232 Random, 3233 Equal, and
    3241..3246 = single mask None/Blue/Orange/Red/Purple/Chief. */
+/* The three override groups (Masks / Heads / Bodies).  Each is one mutually-
+   exclusive radio set; Off = use the per-sex cyclers, any other option overrides
+   them.  Mask spans two visual boxes (distribution + single colour). */
 static const int caf_mask_radio[11] = {
     3230, 3231, 3232, 3234, 3233, 3241, 3242, 3243, 3244, 3245, 3246
 };
+static const int caf_head_radio[7] = { 3250, 3251, 3252, 3253, 3254, 3255, 3256 };
+static const int caf_body_radio[2] = { 3260, 3261 };
+/* the four per-sex cycler buttons to grey when a group's override is active:
+   male <, male >, female <, female > */
+static const int caf_mask_cyc[4] = { 3213, 3223, 3216, 3226 };
+static const int caf_head_cyc[4] = { 3212, 3222, 3215, 3225 };
+static const int caf_body_cyc[4] = { 3211, 3221, 3214, 3224 };
 
-/* Enforce single selection across both boxes and disable the per-sex Mask
-   cyclers whenever an override (anything but Off) is chosen, so no two mask
-   sources can ever conflict. */
-static void caf_set_mask_mode(HWND w, int selected) {
-    int i, off = (selected == 3230);
-    for (i = 0; i < 11; ++i)
-        CheckDlgButton(w, caf_mask_radio[i],
-                       caf_mask_radio[i] == selected ? BST_CHECKED : BST_UNCHECKED);
-    EnableWindow(GetDlgItem(w, 3213), off);   /* male mask  < */
-    EnableWindow(GetDlgItem(w, 3223), off);   /* male mask  > */
-    EnableWindow(GetDlgItem(w, 3216), off);   /* female mask < */
-    EnableWindow(GetDlgItem(w, 3226), off);   /* female mask > */
-    if (!off) {                               /* override wins: clear per-sex mask */
-        caf_mask[0] = caf_mask[1] = -1;
-        vv2_appearance_repaint(w, caf_preview_id[0][2]);
-        vv2_appearance_repaint(w, caf_preview_id[1][2]);
+/* Enforce single-select across `radios`, and grey the four per-sex cyclers when
+   an override (anything but `off_id`) is chosen — so a per-sex selector and a
+   village-wide override for the same part can never both apply.  `preview_col`
+   (0 body / 1 head / 2 mask) + `slots` = the per-sex values to clear/repaint. */
+static void caf_set_group(HWND w, const int *radios, int n, int selected,
+                          int off_id, const int *cyc, int *slots, int preview_col) {
+    int i, off = (selected == off_id);
+    for (i = 0; i < n; ++i)
+        CheckDlgButton(w, radios[i], radios[i] == selected ? BST_CHECKED : BST_UNCHECKED);
+    for (i = 0; i < 4; ++i) EnableWindow(GetDlgItem(w, cyc[i]), off);
+    if (!off) {                               /* override wins: clear the per-sex pair */
+        slots[0] = slots[1] = -1;
+        vv2_appearance_repaint(w, caf_preview_id[0][preview_col]);
+        vv2_appearance_repaint(w, caf_preview_id[1][preview_col]);
     }
+}
+static void caf_set_mask_mode(HWND w, int sel) {
+    caf_set_group(w, caf_mask_radio, 11, sel, 3230, caf_mask_cyc, caf_mask, 2);
+}
+static void caf_set_head_mode(HWND w, int sel) {
+    caf_set_group(w, caf_head_radio, 7, sel, 3250, caf_head_cyc, caf_head, 1);
+}
+static void caf_set_body_mode(HWND w, int sel) {
+    caf_set_group(w, caf_body_radio, 2, sel, 3260, caf_body_cyc, caf_body, 0);
 }
 
 static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
     (void)lp;
     if (msg == WM_INITDIALOG) {
-        caf_set_mask_mode(w, 3230);   /* default: Off = use the per-sex selectors */
+        caf_set_head_mode(w, 3250);   /* defaults: all three groups Off */
+        caf_set_body_mode(w, 3260);
+        caf_set_mask_mode(w, 3230);
         vv2_surface_dialog(w);
         return TRUE;
     } else if (msg == WM_DRAWITEM) {
@@ -1274,6 +1320,8 @@ static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
             caf_set_mask_mode(w, (int)cmd);   /* one exclusive mask choice */
             return TRUE;
         }
+        if (cmd >= 3250 && cmd <= 3256) { caf_set_head_mode(w, (int)cmd); return TRUE; }
+        if (cmd >= 3260 && cmd <= 3261) { caf_set_body_mode(w, (int)cmd); return TRUE; }
         if (cmd == IDOK) {
             int r;
             caf_dist = 0;
@@ -1284,8 +1332,15 @@ static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
             else if (IsDlgButtonChecked(w, 3233)) caf_dist = 3;   /* Equal */
             else for (r = 0; r < 6; ++r)                          /* single mask 0..5 */
                 if (IsDlgButtonChecked(w, 3241 + r)) { caf_village = r; break; }
-            /* an override ignores the per-sex Mask cyclers (Off keeps them) */
-            if (caf_dist != 0 || caf_village >= 0) { caf_mask[0] = caf_mask[1] = -1; }
+            /* Heads: 3250 Off..3256 Other -> mode 0..6.  Bodies: Off/Random. */
+            caf_head_mode = 0;
+            for (r = 0; r < 7; ++r)
+                if (IsDlgButtonChecked(w, 3250 + r)) { caf_head_mode = r; break; }
+            caf_body_mode = IsDlgButtonChecked(w, 3261) ? 1 : 0;
+            /* an active override ignores the matching per-sex cyclers */
+            if (caf_dist != 0 || caf_village >= 0) caf_mask[0] = caf_mask[1] = -1;
+            if (caf_head_mode != 0) caf_head[0] = caf_head[1] = -1;
+            if (caf_body_mode != 0) caf_body[0] = caf_body[1] = -1;
             EndDialog(w, 1);
             return TRUE;
         }
@@ -1320,10 +1375,28 @@ static void vv2_apply_caf(unsigned char *base) {
         if (rec[VV2_ACTIVE_OFFSET] == 0) continue;
         s = (*(int *)(rec + VV2_SEX_OFFSET) == 1) ? 0 : 1;
         idx[n] = i; sexof[n] = s; ++n;
-        /* per-sex Head/Body/Mask */
+        /* per-sex Head/Body/Mask (skipped when the matching village-wide override
+           is active — those selectors were cleared/greyed, so these are -1) */
         if (caf_head[s] >= 0) *(int *)(rec + VV2_HEAD_OFFSET) = caf_head[s];
         if (caf_body[s] >= 0) *(int *)(rec + VV2_BODY_OFFSET) = caf_body[s];
         if (caf_mask[s] >= 0) VV2_MASK_TABLE[i] = (unsigned char)caf_mask[s];
+    }
+    if (caf_head_mode != 0) {                 /* village-wide Heads */
+        for (i = 0; i < n; ++i) {
+            int s = sexof[i], h;
+            if (caf_head_mode == 1) {         /* Random (by gender) */
+                h = (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
+            } else {                          /* All <colour>: random within bucket */
+                int c = caf_head_mode - 2;    /* 0 Black..4 Other */
+                h = caf_hair[s][c][caf_rand() % caf_hair_n[s][c]];
+            }
+            *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_HEAD_OFFSET) = h;
+        }
+    }
+    if (caf_body_mode == 1) {                 /* village-wide Bodies: Random */
+        for (i = 0; i < n; ++i)
+            *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_BODY_OFFSET) =
+                (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
     }
     if (caf_dist == 1) {                     /* VV5-style rarity */
         int order[VV2_RECORD_COUNT], k;
@@ -1386,6 +1459,8 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
     caf_body[1] = caf_head[1] = caf_mask[1] = -1;
     caf_dist = 0;
     caf_village = -1;
+    caf_head_mode = 0;
+    caf_body_mode = 0;
     caf_rng = GetTickCount() | 1u;
     vv2_prep_fullscreen();
 
@@ -1396,7 +1471,8 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
     /* nothing selected in any of the four groups -> no change, no charge */
     if (caf_body[0] < 0 && caf_head[0] < 0 && caf_mask[0] < 0 &&
         caf_body[1] < 0 && caf_head[1] < 0 && caf_mask[1] < 0 &&
-        caf_dist == 0 && caf_village < 0) {
+        caf_dist == 0 && caf_village < 0 &&
+        caf_head_mode == 0 && caf_body_mode == 0) {
         MessageBoxA(GetForegroundWindow(),
                     "No appearance options were selected. No tech points deducted.",
                     "Change Appearance for All",
@@ -1413,7 +1489,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
     }
 
     /* changing a head field rewrites hereditary genetics; warn once for all */
-    changed_head = (caf_head[0] >= 0 || caf_head[1] >= 0);
+    changed_head = (caf_head[0] >= 0 || caf_head[1] >= 0 || caf_head_mode != 0);
     if (changed_head) {
         if (MessageBoxA(GetForegroundWindow(),
                 "Warning: This will change the head genetics of every villager "
