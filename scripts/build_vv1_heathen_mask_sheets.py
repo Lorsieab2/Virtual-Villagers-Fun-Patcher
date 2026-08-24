@@ -324,17 +324,25 @@ def _sheet(colour: str) -> Image.Image:
             # CHIEF_DY lifts every packed chief frame uniformly (playtest: the
             # chief sat 25px too low in the multi-villager village view).
             y = chin - frame.height - CHIEF_DY
-            if y < 0 or y + frame.height > SHEET_CELL_H:
-                raise ValueError(f"{colour} facing {facing} does not fit the cell")
+            # Clamp the frame fully inside its own 40px cell so NOTHING is cut
+            # off at the cell edge in the village blit (the frames are <=33px
+            # wide, so this only nudges a 1px overhang inward -- no real move).
+            cell_lo = CELL_W * facing
+            x = max(cell_lo, min(x, cell_lo + CELL_W - frame.width))
+            y = max(0, min(y, SHEET_CELL_H - frame.height))
             # Clip each packed frame to its OWN 40px cell. Chief frames are
             # wider than the cell and centred, so without this they spill into
             # the neighbouring cells -- which is the in-village "horizontal
             # bleed" and the preview's intruding art (a neighbour frame's edge
             # showing up in this cell). The village blits exactly one 40px cell,
             # so clipping here loses nothing that was ever visible.
+            # Clip to the cell (removes any spill into neighbours) but keep ALL
+            # of THIS frame's own pixels -- the chief's feathers are several
+            # disconnected blobs, so we must NOT run _keep_main_blob here or the
+            # detached feather tips get dropped and the mask looks cut off.
             clipped = Image.new("RGBA", (CELL_W, SHEET_CELL_H), (0, 0, 0, 0))
             clipped.alpha_composite(frame, (x - CELL_W * facing, y))
-            sheet.alpha_composite(_keep_main_blob(clipped), (CELL_W * facing, 0))
+            sheet.alpha_composite(clipped, (CELL_W * facing, 0))
         return sheet
     for facing, (ox, oy) in enumerate(_frame_offsets(colour)):
         top = oy - CELL_TOP
@@ -365,15 +373,21 @@ def build_preview_strip(sheets: dict[str, Image.Image]) -> bytes:
     rows = 1 + len(COLOURS)
     strip = Image.new("RGB", (CELL_W, PREVIEW_CELL_H * rows), PREVIEW_BG)
     for index, colour in enumerate(COLOURS, start=1):
-        cell = sheets[colour].crop(
-            (
-                PREVIEW_FRAME * CELL_W,
-                0,
-                (PREVIEW_FRAME + 1) * CELL_W,
-                SHEET_CELL_H,
+        if MASK_OFFSETS[colour] is PACKED:
+            # Chief: use the FULL isolated front frame (all feathers, no cell
+            # clip and no blob-culling) so the ENTIRE mask renders in the picker.
+            src = Image.open(ART_DIR / f"{colour}.png").convert("RGBA")
+            cell = src.crop(_islands(src)[PREVIEW_FRAME])
+        else:
+            # Gridded: the sheet cell is already bleed-cleaned in _sheet().
+            cell = sheets[colour].crop(
+                (
+                    PREVIEW_FRAME * CELL_W,
+                    0,
+                    (PREVIEW_FRAME + 1) * CELL_W,
+                    SHEET_CELL_H,
+                )
             )
-        )
-        cell = _keep_main_blob(cell)  # drop neighbour-frame bleed before fitting
         bbox = cell.getbbox()
         art = cell.crop(bbox) if bbox else cell
         # Normalize to ~90% fill of the 40x65 cell (PAD inset on every side),
