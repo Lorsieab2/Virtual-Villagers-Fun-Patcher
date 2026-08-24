@@ -36,7 +36,9 @@ __declspec(dllimport) BOOL __stdcall SHGetSpecialFolderPathA(HWND, LPSTR, int, B
 #define VV_HEAD_FRAME_COL 5
 #endif
 #ifndef VV_BODY_FRAME_COL
-#define VV_BODY_FRAME_COL 8
+/* "frame 8" = the 8th frame from the left = 0-based column 7 (the user counts
+   1-based from the left, same as the mask's "6th frame" = col 5). */
+#define VV_BODY_FRAME_COL 7
 #endif
 #ifndef VV_BODY_ROWS_PER_PAGE
 #define VV_BODY_ROWS_PER_PAGE 10
@@ -439,9 +441,8 @@ static void vv4_blit_mask(int mask, int x, int y, int frame, int scale_pct) {
     if (mask <= 0 || mask >= VV_MASK_COUNT) {
         return;
     }
-    if (VV_SURF_PITCH(g_dest_surface) != VV_SURF_W(g_dest_surface) * 4) {
-        return;                              /* dest not a 32bpp surface */
-    }
+    /* SDL_UpperBlit format-converts as needed, so no dest-format guard here
+       (an earlier 32bpp pitch check silently skipped every in-world blit). */
     if (frame < 0 || frame > 7) {
         frame = 5;                           /* front-facing default */
     }
@@ -619,10 +620,13 @@ static void appearance_draw_cell(HDC hdc, RECT rc, int is_head, int value, int c
    sheet ships beside the head atlases as Images/vvfp_masks.png -- an 8x5 grid
    of 65x145 cells; the front-facing view is column 5, and mask value 1..5 maps
    to rows 0..4. (None) leaves the cell blank. */
-#define VV_MASK_SHEET L"Images\\vvfp_masks.png"
-#define VV_MASK_CELL_W 65
-#define VV_MASK_CELL_H 145
-#define VV_MASK_FRONT_COL 5
+/* Preview atlas: one column of 5 autocropped, centred 40x65 mask cells
+   (Blue/Orange/Red/Purple/Chief), ~90% fill -- the VV2-parity source size for
+   all 5 games. scale-to-fit the control preserving aspect, centred. */
+#define VV_MASK_SHEET L"Images\\vvfp_mask_preview.png"
+#define VV_MASK_CELL_W 40
+#define VV_MASK_CELL_H 65
+#define VV_MASK_FRONT_COL 0
 static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
     GpBitmap *bitmap = NULL;
     int dstw = rc.right - rc.left;
