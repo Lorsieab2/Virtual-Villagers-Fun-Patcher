@@ -196,6 +196,13 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # index 0..255; value 0=no mask, 1..5 = mask row+1. Zero at load = no masks.
     MASK_TABLE_VA, _ = _append_section(data, b".mtab", 0x1000)
     SCRATCH_VA = MASK_TABLE_VA + 0xF00   # dword scratch: current mask row (for per-mask portrait offset)
+    # 256-byte "seen-alive" latch (one byte per record index) in the R/W .mtab.
+    # The per-frame sweep sets it when a slot is observed active, and only clears
+    # a slot's mask once it has been seen active AND then goes free — so a reused
+    # dead slot can't leak its old mask onto a newborn, while masks are NOT wiped
+    # on load/menu frames (where every slot momentarily reads free before the
+    # village populates and before the sidecar restore runs).
+    SEEN_ALIVE_VA = MASK_TABLE_VA + 0x100
     # Mask RENDER CODE goes in its OWN appended R/W/X section — NOT the shared game
     # .text cave at 0x473C40 (which the Origins build already occupies). Self-contained:
     # atlas-obj pointer + "heathen_masks.png" filename + the adult/child/init stubs.
@@ -437,7 +444,43 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         jmp  0x{INIT_RET:X}
     """
     init = asm(init_asm, init_va)
-    end = init_va + len(init)
+    sweep_va = init_va + len(init)
+
+    # ---- SWEEP stub: per-frame free-slot guard (detoured from the village
+    # compositor entry 0x445B50, a thiscall with ECX = gameCtx = record[0] base;
+    # record[i] = ECX + i*0xE48C, active flag at +0x30). Read-only over records;
+    # the only writes are to the R/W .mtab (mask + seen-alive latch), so .vvmk
+    # stays R+X (W^X-clean). Replays the 5 displaced entry bytes, then resumes at
+    # 0x445B55. ----
+    COMPOSITOR_VA = 0x445B50
+    sweep_asm = f"""
+        pushad
+        mov  edx, ecx                        /* edx = record[0] base (gameCtx) */
+        xor  esi, esi                        /* esi = record index i */
+    sweep_loop:
+        cmp  byte ptr [edx+0x30], 0          /* active flag: 0 = free/dead */
+        jne  slot_alive
+        cmp  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 0
+        je   slot_next                       /* never seen alive -> leave (load frame) */
+        mov  byte ptr [esi+0x{MASK_TABLE_VA:X}], 0   /* died: clear its mask */
+        mov  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 0   /* reset latch for reuse */
+        jmp  slot_next
+    slot_alive:
+        mov  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 1   /* latch: seen active */
+    slot_next:
+        add  edx, 0xE48C
+        inc  esi
+        cmp  esi, 0x100
+        jb   sweep_loop
+        popad
+        push ebx                             /* displaced 0x445B50 prologue */
+        push ebp
+        push esi
+        mov  esi, ecx
+        jmp  0x{COMPOSITOR_VA + 5:X}
+    """
+    sweep = asm(sweep_asm, sweep_va)
+    end = sweep_va + len(sweep)
     total = end - CODE_SEC_VA
     assert total <= 0x1000, f".vvmk code section overflow: {total:#x}"
 
@@ -465,11 +508,22 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     data[cfoff(code0):cfoff(code0) + len(adult)] = adult
     data[cfoff(child_va):cfoff(child_va) + len(child)] = child
     data[cfoff(init_va):cfoff(init_va) + len(init)] = init
+    data[cfoff(sweep_va):cfoff(sweep_va) + len(sweep)] = sweep
 
     # write hooks (jmp from the fixed .text thunk/init sites into the .vvmk stubs)
     patch_thunk(THUNK_VA, THUNK_LEN, code0, "adult")
     patch_thunk(CHILD_THUNK_VA, CHILD_THUNK_LEN, child_va, "child")
     data[foff(INIT_VA):foff(INIT_VA) + INIT_LEN] = init_hook
+
+    # detour the village compositor entry (0x445B50) into the sweep stub. Its first
+    # 5 bytes are `push ebx; push ebp; push esi; mov esi,ecx` (53 55 56 8B F1),
+    # replayed at the end of the sweep stub before resuming at 0x445B55.
+    comp_off = COMPOSITOR_VA - IMAGE_BASE
+    assert bytes(data[comp_off:comp_off + 5]) == b"\x53\x55\x56\x8b\xf1", \
+        "compositor entry 0x445B50 moved!"
+    comp_hook = asm(f"jmp 0x{sweep_va:X}", addr=COMPOSITOR_VA)
+    assert len(comp_hook) == 5
+    data[comp_off:comp_off + 5] = comp_hook
 
     csum, csum_off = _pe_checksum(data)
     struct.pack_into("<I", data, csum_off, csum)
