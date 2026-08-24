@@ -1216,8 +1216,8 @@ static int caf_cycle(int value, int count, int delta) {
 /* The 10 "mask for everyone" radios form ONE mutually-exclusive choice spread
    across two visual boxes: 3230 Off, 3231 VV5, 3232 Random, 3233 Equal, and
    3241..3246 = single mask None/Blue/Orange/Red/Purple/Chief. */
-static const int caf_mask_radio[10] = {
-    3230, 3231, 3232, 3233, 3241, 3242, 3243, 3244, 3245, 3246
+static const int caf_mask_radio[11] = {
+    3230, 3231, 3232, 3234, 3233, 3241, 3242, 3243, 3244, 3245, 3246
 };
 
 /* Enforce single selection across both boxes and disable the per-sex Mask
@@ -1225,7 +1225,7 @@ static const int caf_mask_radio[10] = {
    sources can ever conflict. */
 static void caf_set_mask_mode(HWND w, int selected) {
     int i, off = (selected == 3230);
-    for (i = 0; i < 10; ++i)
+    for (i = 0; i < 11; ++i)
         CheckDlgButton(w, caf_mask_radio[i],
                        caf_mask_radio[i] == selected ? BST_CHECKED : BST_UNCHECKED);
     EnableWindow(GetDlgItem(w, 3213), off);   /* male mask  < */
@@ -1270,7 +1270,7 @@ static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
             vv2_appearance_repaint(w, caf_preview_id[s][k]);
             return TRUE;
         }
-        if ((cmd >= 3230 && cmd <= 3233) || (cmd >= 3241 && cmd <= 3246)) {
+        if ((cmd >= 3230 && cmd <= 3234) || (cmd >= 3241 && cmd <= 3246)) {
             caf_set_mask_mode(w, (int)cmd);   /* one exclusive mask choice */
             return TRUE;
         }
@@ -1279,7 +1279,8 @@ static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
             caf_dist = 0;
             caf_village = -1;
             if (IsDlgButtonChecked(w, 3231)) caf_dist = 1;        /* VV5-style */
-            else if (IsDlgButtonChecked(w, 3232)) caf_dist = 2;   /* Random */
+            else if (IsDlgButtonChecked(w, 3232)) caf_dist = 2;   /* Random (All 5 + No Mask) */
+            else if (IsDlgButtonChecked(w, 3234)) caf_dist = 4;   /* Random (All 5) */
             else if (IsDlgButtonChecked(w, 3233)) caf_dist = 3;   /* Equal */
             else for (r = 0; r < 6; ++r)                          /* single mask 0..5 */
                 if (IsDlgButtonChecked(w, 3241 + r)) { caf_village = r; break; }
@@ -1337,9 +1338,12 @@ static void vv2_apply_caf(unsigned char *base) {
             for (c = 0; c < tier_cap[t] && cursor < n; ++c, ++cursor)
                 VV2_MASK_TABLE[order[cursor]] = (unsigned char)tier_mask[t];
         }
-    } else if (caf_dist == 2) {              /* Random 0..5 */
+    } else if (caf_dist == 2) {              /* Random (All 5 + No Mask): 0..5 */
         for (i = 0; i < n; ++i)
             VV2_MASK_TABLE[idx[i]] = (unsigned char)(caf_rand() % 6u);
+    } else if (caf_dist == 4) {              /* Random (All 5): 1..5, never no-mask */
+        for (i = 0; i < n; ++i)
+            VV2_MASK_TABLE[idx[i]] = (unsigned char)(1u + caf_rand() % 5u);
     } else if (caf_dist == 3) {              /* Equal, balanced M/F */
         int order[VV2_RECORD_COUNT], males[VV2_RECORD_COUNT], females[VV2_RECORD_COUNT];
         int nm = 0, nf = 0, k, o = 0;

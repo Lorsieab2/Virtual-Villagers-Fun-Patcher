@@ -106,8 +106,15 @@ PORTRAIT_DY_MUL = 54
 import os as _os
 PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "6"))   # portrait: nudge mask right (all masks)
 PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "2"))   # portrait: nudge mask down (all masks) — was 8, raised 6px per live tune
-# Purple's tall feathers + short face make it sit especially high on the 2x portrait; extra drop.
-PURPLE_PORTRAIT_EXTRA = int(_os.environ.get("PPX", "6"))   # purple-only extra down on portrait
+# Per-mask portrait (Details) fine-alignment — masks drift a little differently on
+# the age-scaled portrait, so each colour gets its own extra nudge ON TOP of the
+# uniform PMDX/PMDY (village view unaffected — this is portrait-branch only).
+# Rows: 0 Blue, 1 Orange, 2 Red, 3 Purple, 4 Chief.  +down / +left (left = subtracted).
+PURPLE_PORTRAIT_EXTRA = int(_os.environ.get("PPX", "9"))    # purple extra down (was 6, +3 live)
+ORANGE_PORTRAIT_DY = int(_os.environ.get("ORDY", "2"))      # orange extra down
+RED_PORTRAIT_DY = int(_os.environ.get("REDY", "2"))         # red extra down
+RED_PORTRAIT_DX = int(_os.environ.get("REDX", "2"))         # red extra LEFT
+CHIEF_PORTRAIT_DX = int(_os.environ.get("CHDX", "2"))       # chief extra LEFT
 
 
 def _pe_checksum(buf: bytearray) -> tuple[int, int]:
@@ -392,16 +399,39 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         cmp  dword ptr [esp+0x10], 0x{CALLER_LO:X}   /* portrait? (caller-ret @ +0x10) */
         jae  y_ok
         add  edx, 0x{PORTRAIT_MASK_DY:X}      /* portrait: nudge mask down (all masks) */
-        mov  ecx, [0x{SCRATCH_VA:X}]          /* mask row (ecx reloaded before the draw) */
+        mov  ecx, [0x{SCRATCH_VA:X}]          /* mask row */
+        cmp  ecx, 1                           /* orange? */
+        je   y_orange
+        cmp  ecx, 2                           /* red? */
+        je   y_red
         cmp  ecx, 3                           /* purple? */
-        jne  y_ok
-        add  edx, 0x{PURPLE_PORTRAIT_EXTRA:X} /* purple sits high on portrait; extra down */
+        je   y_purple
+        jmp  y_ok                             /* blue/chief: no extra down */
+    y_orange:
+        add  edx, 0x{ORANGE_PORTRAIT_DY:X}
+        jmp  y_ok
+    y_red:
+        add  edx, 0x{RED_PORTRAIT_DY:X}
+        jmp  y_ok
+    y_purple:
+        add  edx, 0x{PURPLE_PORTRAIT_EXTRA:X}
     y_ok:
         push edx                              /* arg3 = y */
         mov  edx, [esp+0x1c]                  /* arg2 = x (caller-ret @ +0x14 now) */
         cmp  dword ptr [esp+0x14], 0x{CALLER_LO:X}
         jae  x_ok
-        add  edx, 0x{PORTRAIT_MASK_DX:X}      /* portrait: nudge mask right */
+        add  edx, 0x{PORTRAIT_MASK_DX:X}      /* portrait: nudge mask right (all masks) */
+        mov  ecx, [0x{SCRATCH_VA:X}]          /* mask row (reload) */
+        cmp  ecx, 2                           /* red? extra left */
+        je   x_red
+        cmp  ecx, 4                           /* chief? extra left */
+        je   x_chief
+        jmp  x_ok
+    x_red:
+        sub  edx, 0x{RED_PORTRAIT_DX:X}
+        jmp  x_ok
+    x_chief:
+        sub  edx, 0x{CHIEF_PORTRAIT_DX:X}
     x_ok:
         push edx                              /* arg2 = x */
         push dword ptr [0x{MASK_ATLAS_PTR:X}] /* arg1 = mask atlas */
