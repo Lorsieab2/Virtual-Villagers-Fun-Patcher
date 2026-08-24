@@ -87,9 +87,16 @@ BH_SROW = 0x7B1D74
 # cell 65x145). sub_44FA30(id) -> sub_44F870 lazily loads+caches and returns the
 # atlas object, so the portrait blit reuses the exact village mask art.
 MASK_HANDLE = 0x101
-# Pre-scale vertical lift (px) for the portrait mask so the 145-tall mask cell
-# sits over the 65-tall head. First estimate; tuned live against the portrait.
-BH_LIFT = 96
+# Portrait-mask tuning (all emitted as patchable immediates so they can be
+# dialed in live). BH_LIFT = pre-scale vertical lift (imm8, sub edx,LIFT).
+# BH_SCALE_MUL = integer multiple of the head's draw scale (the Details head is
+# drawn large, so the village-scale mask atlas needs boosting). BH_FRAME = fixed
+# mask atlas column: the Details portrait is front-facing and the 8-col heathen
+# atlas front frame is col 5 (the head atlas is 16-col, so its frame index maps
+# to the wrong mask column — use the known front column instead).
+BH_LIFT = 0x18
+BH_SCALE_MUL = 2
+BH_FRAME = 5
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -3435,13 +3442,15 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         call 0x44FA30
         mov edx, dword ptr [0x{BH_SY:X}]
         sub edx, 0x{BH_LIFT:X}
+        imul ecx, dword ptr [0x{BH_SS:X}], 0x{BH_SCALE_MUL:X}
         push 0
-        push dword ptr [0x{BH_SS:X}]
-        push dword ptr [0x{BH_SF:X}]
+        push ecx
+        push 0x{BH_FRAME:X}
         push dword ptr [0x{BH_SROW:X}]
         push edx
         push dword ptr [0x{BH_SX:X}]
         push eax
+        mov ecx, dword ptr [esi + 0x2F2C]
         call 0x409CA0
     bh_ret:
         ret 0x1C

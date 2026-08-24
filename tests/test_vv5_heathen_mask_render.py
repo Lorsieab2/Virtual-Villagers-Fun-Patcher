@@ -71,11 +71,17 @@ def test_bighead_routine_replays_head_then_blits_mask_atlas():
     # choice comes from the side-table via mask_get, never a villager record field
     assert f"call 0x{STOCK_PAGE_VA + t9.OFF['mask_get']:x}" in text
     assert "0x1bc0" not in text
-    # fetches the heathen mask atlas by sprite id 0x101 (village art reused)
+    # fetches the heathen mask atlas by sprite id 0x101 (village art reused); both
+    # the atlas getter and the draw thunk are thiscall thunks -> ecx must be primed
+    assert "call 0x44fbb0" in text and "mov ecx, eax" in text  # atlas mgr this
     assert "push 0x101" in text and "call 0x44fa30" in text
+    assert "mov ecx, dword ptr [esi + 0x2f2c]" in text         # drawlist this for the mask draw
+    # front-facing mask column (5), scale boost, and a vertical lift (values tunable)
+    assert "push 5" in text
+    assert "imul ecx" in text
+    assert "sub edx," in text
     # transient scratch stays in proven-free .data BSS, never a record write
     assert "mov dword ptr [0x7b1d14], eax" in text            # saved portrait X
-    assert "sub edx, 0x60" in text                             # pre-scale mask lift
     # cleans the caller's seven stdcall args exactly as the stock call would
     assert ins[-1].mnemonic == "ret" and ins[-1].op_str in ("0x1c", "0x1C")
 
