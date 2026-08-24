@@ -1001,7 +1001,9 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
         case 2222: forall_state.female_mask = forall_cycle(forall_state.female_mask, +1, VV_MASK_COUNT);
                    SetDlgItemTextA(window, 2223, vv1_mask_name(forall_state.female_mask)); appearance_repaint(window, 2220); return TRUE;
         case IDOK:
-            forall_apply();
+            /* Do NOT apply here -- the charge is checked/taken in
+               ShowOriginsAppearanceForAll first (VV2's DLL-side-charge model),
+               and forall_apply runs only if the player could afford it. */
             EndDialog(window, 1);
             return TRUE;
         case IDCANCEL:
@@ -1021,20 +1023,47 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
     return FALSE;
 }
 
-/* Returns 1 if the player pressed OK (a change was applied), else 0 -- the exe
-   charges the 450,000 tech points on a 1. */
-__declspec(dllexport) int __stdcall ShowOriginsAppearanceForAll(void) {
+/* Tech-points field on the game-context object (the exe menu code's own
+   [edi+0xA2FC] afford check). The exe passes that context pointer in. */
+#define VV_TECH_POINTS_OFFSET 0xA2FC
+#define VV_FORALL_COST 450000
+
+/* Whole-village chooser. Takes the game-context pointer (edi in the exe's Buy
+   dispatch). On OK it checks the balance and, only if the player can afford it,
+   deducts 450,000 tech points and applies the change to every villager --
+   VV2's DLL-side-charge model, so the exe side is a single one-arg call with
+   no charge logic to overrun a fixed handler box. Returns 1 if applied (the
+   exe need do nothing further), 0 if cancelled or unaffordable. */
+__declspec(dllexport) int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr) {
+    unsigned char *ctx = (unsigned char *)(UINT_PTR)(unsigned int)gamectx_ptr;
+    int *tech;
     HWND owner;
+    int result;
+    if (ctx == NULL) {
+        return 0;
+    }
+    tech = (int *)(ctx + VV_TECH_POINTS_OFFSET);
     vv1_mask_sidecar_load();      /* start from the persisted table */
     vv1_prep_fullscreen();
     owner = GetForegroundWindow();
-    return (int)DialogBoxParamA(
+    result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(IDD_ORIGINS_APPEARANCE_ALL),
         owner,
         forall_dialog,
         0
     );
+    if (result != 1) {
+        return 0;                 /* cancelled -> no charge, no change */
+    }
+    if (*tech < VV_FORALL_COST) {
+        MessageBoxA(owner, "Not enough tech points.",
+                    "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
+        return 0;
+    }
+    *tech -= VV_FORALL_COST;
+    forall_apply();
+    return 1;
 }
 
 __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
