@@ -50,10 +50,20 @@ static const char *const detail_costs[] = {
 static int s_villager_menu;
 static int s_dialog_state;
 
+__declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index);
+
+/* The village flush cave reads this fixed exe .data slot for the world-mask draw
+   fn, so the per-frame hot-loop cave needs no LoadLibrary/GetProcAddress -- we
+   publish our own export here on load.  The slot is in the same writable,
+   otherwise-unused .data page tail as MASK_DRAWFN_PTR (0x6C7A00); 0x6C7A04 is the
+   next dword. */
+#define VV3_WORLD_DRAWFN_PTR_SLOT 0x006C7A04u
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
         module_instance = instance;
+        *(void **)(UINT_PTR)VV3_WORLD_DRAWFN_PTR_SLOT = (void *)&VV3WorldMaskDraw;
     }
     return TRUE;
 }
@@ -588,6 +598,69 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
         mov  ecx, draw_this
         mov  eax, VV3_MASK_DRAW_FN
         call eax                        /* draws the mask cell; ret 0x1C */
+    }
+}
+
+/* ---- World / village mask draw (called from the flush's per-villager handler) --
+   VV3's village view is a DEFERRED renderer: the world loop enqueues each villager
+   and the flush sub_42E2A0 depth-sorts then draws each via the per-villager handler
+   sub_4605F0 (0x4605F0).  The exe WRAPS that handler: it runs the original (draws
+   the villager), then calls this with the villager record.  We look up the mask
+   (fingerprint-guarded table) and, if set, draw the mask cell ON TOP at the
+   villager's OWN world position -- obtained from the same helper the villager draw
+   uses (0x455EF0) -- via the world's immediate blit 0x42E510, which applies the
+   camera scroll/zoom itself, so the mask tracks the villager as the view pans.
+   Because the handler runs once per villager in depth-sorted order, drawing here
+   gives correct z-order with no stash list.  All tunables (lift, facing) are C so
+   they can be live-tuned by WPM like the Detail lift.  Writes NO villager state; a
+   missing atlas / no mask / bad record draws nothing (never a crash). */
+#define VV3_WORLD_MGR      0x0058F6F8u   /* the deferred-draw manager object       */
+#define VV3_WORLD_POS_FN   0x00455EF0u   /* __thiscall(record, &out{x,y}) -> &out  */
+#define VV3_WORLD_DRAW_FN  0x0042E510u   /* __thiscall(mgr, atlas, x, y, cell, sc)  */
+#define VV3_WORLD_ATLAS_COLS 8           /* mask atlas = 8 facings x 5 masks        */
+int g_vv3_world_lift   = 20;   /* px the mask sits above the villager body (tune)   */
+int g_vv3_world_facing = 5;    /* mask atlas column 0..7 (front frame); TEMP fixed  */
+int g_vv3_world_dx     = -2;   /* live-tuned X nudge: +right / -left (px)            */
+int g_vv3_world_dy     = 0;    /* live-tuned Y nudge: +down / -up (px)              */
+
+__declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
+{
+    void *record = (void *)(UINT_PTR)(VV3_REC_BASE + (unsigned)index * VV3_STRIDE);
+    int mask;
+    void *atlas;
+    int pos[2];
+    int x, y, cell;
+    if (index < 0 || index >= 150) {
+        return;
+    }
+    mask = VV3_GetMaskForRecord(record);
+    if (mask <= 0) {
+        return;
+    }
+    atlas = VV3GetMaskAtlas();
+    if (atlas == NULL) {
+        return;
+    }
+    /* villager world position (the same helper the villager draw uses) */
+    __asm {
+        lea  eax, pos
+        push eax
+        mov  ecx, record
+        mov  edx, VV3_WORLD_POS_FN
+        call edx                         /* sub_455EF0(record, &pos); ret 4 */
+    }
+    x    = pos[0] + g_vv3_world_dx;
+    y    = pos[1] - g_vv3_world_lift + g_vv3_world_dy;
+    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + (g_vv3_world_facing & 7);
+    __asm {
+        push 0x3F800000                  /* scale = 1.0f */
+        push cell
+        push y
+        push x
+        push atlas
+        mov  ecx, VV3_WORLD_MGR
+        mov  edx, VV3_WORLD_DRAW_FN
+        call edx                         /* sub_42E510(mgr, atlas, x, y, cell, 1.0f); ret 0x14 */
     }
 }
 

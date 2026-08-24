@@ -13,6 +13,9 @@ EXPORTS
     VV3_GetMaskForRecord=_VV3_GetMaskForRecord@4
     VV3_SetMaskForRecord=_VV3_SetMaskForRecord@8
     VV3DrawMaskOnHead=_VV3DrawMaskOnHead@12
+    VV3WorldMaskDraw=_VV3WorldMaskDraw@4 @101
+    ; Pinned to ordinal 101 so the world flush cave resolves it BY ORDINAL
+    ; (push 101) without a name string in the tiny hot-loop cave.
     ShowVV3AppearanceForAll=_ShowVV3AppearanceForAll@0 @100
     ; Pinned to ordinal 100 so the exe dispatch can resolve it BY ORDINAL
     ; (push 100) instead of the 24-byte name string, which overflowed the tiny

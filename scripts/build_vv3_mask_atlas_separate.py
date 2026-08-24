@@ -33,6 +33,7 @@ self-contained.
 """
 from __future__ import annotations
 
+import statistics
 from collections import deque
 from pathlib import Path
 
@@ -98,31 +99,40 @@ def _blue_targets():
     return [dict(cx=_faceband_cx(f), bottom=f["y1"]) for f in faces]
 
 
-def _chief_cell(fidx: int, face, carr: np.ndarray, targets) -> Image.Image:
-    """Place one detected chief face into cell fidx, anchored to blue facing fidx."""
+# Per-colour X/Y nudges (px) applied on top of the common anchor.  Blue/orange/red/
+# purple sit on the plain grid; the chief needed a small live-tuned horizontal shift.
+COLOR_NUDGE = {"blue": (0, 0), "orange": (0, 0), "red": (0, 0),
+               "purple": (0, 0), "chief": (CHIEF_DX, CHIEF_DY)}
+
+
+def _anchor_cell(fidx, face, arr, targets, common_bottom, dx, dy) -> Image.Image:
+    """Place one detected face into cell fidx: its face-band centre-x -> the per-facing
+    head x (so the mask centres on the head for that facing), and its chin-bottom ->
+    the COMMON baseline y (so EVERY frame of EVERY colour shares one y and the mask
+    never bobs vertically as the villager turns)."""
     cell = Image.new("RGBA", (CELL_W, CELL_H), (0, 0, 0, 0))
-    sub = carr[face["y0"]:face["y1"] + 1, face["x0"]:face["x1"] + 1].copy()
+    sub = arr[face["y0"]:face["y1"] + 1, face["x0"]:face["x1"] + 1].copy()
     m = np.zeros(sub.shape[:2], dtype=bool)
     m[face["ys"] - face["y0"], face["xs"] - face["x0"]] = True
     sub[~m] = 0
     fimg = Image.fromarray(sub, "RGBA")
     scx = _faceband_cx(face) - face["x0"]     # source anchor within the crop
     sby = face["y1"] - face["y0"]
-    t = targets[fidx]                          # target anchor within cell fidx
-    ax = t["cx"] - CANVAS_DX - fidx * CELL_W + CHIEF_DX
-    ay = t["bottom"] - CANVAS_DY + LIFT + CHIEF_DY
+    ax = targets[fidx]["cx"] - CANVAS_DX - fidx * CELL_W + dx
+    ay = common_bottom - CANVAS_DY + LIFT + dy      # COMMON baseline for ALL frames
     cell.alpha_composite(fimg, (int(round(ax - scx)), int(round(ay - sby))))
     return cell
 
 
-def _build_chief_row(atlas: Image.Image, ri: int):
-    targets = _blue_targets()
-    carr = np.array(Image.open(SRC / "mask_chief.png").convert("RGBA"))
-    faces = _label_faces(carr[:, :, 3] > ALPHA_THR)
-    # map each detected chief face to its nearest blue facing by face-band x
+def _build_anchored_row(atlas: Image.Image, ri: int, name: str, targets,
+                        common_bottom: int):
+    """Anchor all 8 facings of one mask colour to the per-facing head x + common y."""
+    dx, dy = COLOR_NUDGE.get(name, (0, 0))
+    arr = np.array(Image.open(SRC / f"mask_{name}.png").convert("RGBA"))
+    faces = _label_faces(arr[:, :, 3] > ALPHA_THR)
     bx = [t["cx"] for t in targets]
     by_facing, used = {}, set()
-    for f in faces:
+    for f in faces:                            # map each detected face to nearest facing
         cx = _faceband_cx(f)
         k = min((j for j in range(COLS) if j not in used),
                 key=lambda j: abs(bx[j] - cx))
@@ -130,33 +140,29 @@ def _build_chief_row(atlas: Image.Image, ri: int):
         used.add(k)
     for f in range(COLS):
         if f in by_facing:
-            cell = _chief_cell(f, by_facing[f], carr, targets)
-        else:                                  # missing facing -> mirror a present one
-            cell = _chief_cell(f, by_facing[CHIEF_MIRROR_SRC], carr,
-                               targets).transpose(Image.FLIP_LEFT_RIGHT)
+            cell = _anchor_cell(f, by_facing[f], arr, targets, common_bottom, dx, dy)
+        else:                                  # missing facing (chief 7) -> mirror
+            cell = _anchor_cell(f, by_facing[CHIEF_MIRROR_SRC], arr, targets,
+                                common_bottom, dx, dy).transpose(Image.FLIP_LEFT_RIGHT)
         atlas.paste(cell, (f * CELL_W, ri * CELL_H))
     return sorted(by_facing.keys())
 
 
 def build() -> Path:
     atlas = Image.new("RGBA", (CELL_W * COLS, CELL_H * ROWS), (0, 0, 0, 0))
+    targets = _blue_targets()
+    # ONE common baseline y for every colour + every frame (median of blue's frame
+    # chins), so masks share a fixed vertical seat and never bob as villagers turn.
+    common_bottom = int(round(statistics.median(t["bottom"] for t in targets)))
     for ri, name in enumerate(ORDER):
-        if name == "chief":
-            present = _build_chief_row(atlas, ri)
-            print(f"  chief row: per-frame anchored, facings present {present}, "
-                  f"facing {[f for f in range(COLS) if f not in present]} mirrored")
-            continue
-        port = Image.open(SRC / f"mask_{name}.png").convert("RGBA")
-        # translate canvas(CANVAS_DX,CANVAS_DY) -> cell top (0,0), then + LIFT in y
-        shifted = Image.new("RGBA", (CELL_W * COLS, CELL_H), (0, 0, 0, 0))
-        shifted.alpha_composite(port, (-CANVAS_DX, -CANVAS_DY + LIFT))
-        for c in range(COLS):              # per-cell clip (no bleed into neighbours)
-            cell = shifted.crop((c * CELL_W, 0, c * CELL_W + CELL_W, CELL_H))
-            atlas.paste(cell, (c * CELL_W, ri * CELL_H))
+        present = _build_anchored_row(atlas, ri, name, targets, common_bottom)
+        miss = [f for f in range(COLS) if f not in present]
+        print(f"  {name} row: per-frame anchored to common y (baseline {common_bottom})"
+              + (f", facing {miss} mirrored" if miss else ""))
     out = SRC / "heathen_masks.png"
     atlas.save(out)
-    print(f"heathen_masks.png: {atlas.size} (cell {CELL_W}x{CELL_H}, "
-          f"{COLS} cols x {ROWS} rows; chief row per-frame anchored)")
+    print(f"heathen_masks.png: {atlas.size} (all colours anchored to ONE common y "
+          f"baseline; equal y across every frame)")
     return out
 
 
