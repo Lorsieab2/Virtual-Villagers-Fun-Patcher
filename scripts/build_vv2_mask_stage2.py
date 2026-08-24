@@ -84,6 +84,7 @@ FNAME = b"heathen_masks.png\x00"
 # skip. Uses the exe's own kernel32 IAT slots (present in stock + Origins builds).
 DLLNAME = b"VVFP VV2 Origins Icons.dll\x00"
 RESTORE_STR = b"Vv2MaskRestore\x00"
+EXTRACT_STR = b"Vv2ExtractAtlas\x00"
 LOADLIBRARYA_IAT = 0x474010
 GETPROCADDRESS_IAT = 0x4740D4
 
@@ -220,6 +221,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     FNAME_VA = CODE_SEC_VA                   # "heathen_masks.png\0" (read-only in the R+X section)
     DLLNAME_VA = FNAME_VA + len(FNAME)       # "VVFP VV2 Origins Icons.dll\0"
     RESTORE_STR_VA = DLLNAME_VA + len(DLLNAME)  # "Vv2MaskRestore\0"
+    EXTRACT_STR_VA = RESTORE_STR_VA + len(RESTORE_STR)  # "Vv2ExtractAtlas\0"
 
     def cfoff(va: int) -> int:            # file offset of a VA inside the appended code section
         return CODE_RAW + (va - CODE_SEC_VA)
@@ -266,7 +268,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         C_ROW = f"mov  eax, {force_row}"
 
     # code starts after the ptr dword + filename string (4-aligned)
-    code0 = (RESTORE_STR_VA + len(RESTORE_STR) + 3) & ~3
+    code0 = (EXTRACT_STR_VA + len(EXTRACT_STR) + 3) & ~3
 
     # ---- ADULT head stub: draw mask (row MASK_ROW_TEST) then original head ----
     # entry: jumped from `call 0x4095B0`; [esp]=ret,[+4]=atlas,[+8]=x,[+c]=y,[+10]=row,[+14]=frame
@@ -444,10 +446,25 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     child = asm(child_asm, child_va)
     init_va = child_va + len(child)
 
-    # ---- INIT stub: displaced store + one-time mask atlas load ----
+    # ---- INIT stub: displaced store + self-extract atlas + atlas load + restore ----
     init_asm = f"""
         mov  dword ptr [esi+0x{LAST_ATLAS_GLOBAL:X}], eax   /* displaced original store */
         pushad
+        /* (1) self-extract the mask atlas to <game>\\Images if missing, so no manual
+           asset deploy is needed. LoadLibrary the DLL + call Vv2ExtractAtlas BEFORE
+           the atlas load below. Fail-open: no DLL (stock build) -> skip. */
+        push 0x{DLLNAME_VA:X}
+        call dword ptr [0x{LOADLIBRARYA_IAT:X}]
+        test eax, eax
+        jz   after_extract
+        push 0x{EXTRACT_STR_VA:X}
+        push eax
+        call dword ptr [0x{GETPROCADDRESS_IAT:X}]
+        test eax, eax
+        jz   after_extract
+        call eax                             /* Vv2ExtractAtlas() */
+    after_extract:
+        /* (2) load the atlas as a game sprite object */
         push 0x34
         call 0x{ALLOC:X}                      /* new(0x34) -> eax */
         add  esp, 4
@@ -457,8 +474,8 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         push 0x{FNAME_VA:X}                   /* "heathen_masks.png" */
         call 0x{LOADER:X}                    /* -> eax = atlas obj (ret 0xc) */
         mov  [0x{MASK_ATLAS_PTR:X}], eax
-        /* restore saved masks: LoadLibrary the Origins DLL + call Vv2MaskRestore
-           (loads sidecar -> .mtab). Fail-open: no DLL (stock build) -> skip. */
+        /* (3) restore saved masks: LoadLibrary again (cheap; refcounts) + Vv2MaskRestore
+           (loads sidecar -> .mtab). Fail-open: no DLL -> skip. */
         push 0x{DLLNAME_VA:X}
         call dword ptr [0x{LOADLIBRARYA_IAT:X}]
         test eax, eax
@@ -535,6 +552,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     data[cfoff(FNAME_VA):cfoff(FNAME_VA) + len(FNAME)] = FNAME
     data[cfoff(DLLNAME_VA):cfoff(DLLNAME_VA) + len(DLLNAME)] = DLLNAME
     data[cfoff(RESTORE_STR_VA):cfoff(RESTORE_STR_VA) + len(RESTORE_STR)] = RESTORE_STR
+    data[cfoff(EXTRACT_STR_VA):cfoff(EXTRACT_STR_VA) + len(EXTRACT_STR)] = EXTRACT_STR
     data[cfoff(code0):cfoff(code0) + len(adult)] = adult
     data[cfoff(child_va):cfoff(child_va) + len(child)] = child
     data[cfoff(init_va):cfoff(init_va) + len(init)] = init

@@ -15,3 +15,4 @@ EXPORTS
     ApplyVV2EqualDivision=_ApplyVV2EqualDivision@8
     Vv2MaskRestore=_Vv2MaskRestore@0
     Vv2MaskSaveSidecar=_Vv2MaskSaveSidecar@0
+    Vv2ExtractAtlas=_Vv2ExtractAtlas@0

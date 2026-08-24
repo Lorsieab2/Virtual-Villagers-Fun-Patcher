@@ -1076,6 +1076,41 @@ __declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_loa
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
 
+/* Self-extract the embedded mask render atlas (RCDATA 5000) to <exe dir>\Images\
+   heathen_masks.png if it is not already there, so a patched game gets the atlas
+   with no separate asset deploy.  Uses the EXE's own directory (not cwd), so it
+   works under any launch dir / renamed exe, and NEVER overwrites an existing file
+   (so replacement art is respected).  Called by the exe's init hook BEFORE it
+   loads the atlas — at startup, outside the loader lock.  CRT-less (Win32 only). */
+__declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
+    char path[MAX_PATH];
+    int i, last = -1;
+    HRSRC res;
+    HGLOBAL h;
+    void *p;
+    DWORD sz, w;
+    HANDLE f;
+    if (!GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH)) return;
+    for (i = 0; path[i]; ++i) if (path[i] == '\\') last = i;   /* last backslash */
+    if (last < 0) return;
+    path[last] = 0;                               /* path = exe directory */
+    lstrcatA(path, "\\Images");
+    CreateDirectoryA(path, NULL);
+    lstrcatA(path, "\\heathen_masks.png");
+    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) return;  /* already present */
+    res = FindResourceA(module_instance, MAKEINTRESOURCEA(5000), RT_RCDATA);
+    if (res == NULL) return;
+    h = LoadResource(module_instance, res);
+    if (h == NULL) return;
+    p = LockResource(h);
+    sz = SizeofResource(module_instance, res);
+    if (p == NULL || sz == 0) return;
+    f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) return;         /* lost a race / can't write -> skip */
+    WriteFile(f, p, sz, &w, NULL);
+    CloseHandle(f);
+}
+
 /* Record field offsets + the per-villager cost, hoisted so the chooser (which now
    owns the whole commit) can read/write the record and charge itself.
    (VV2_SEX_OFFSET is already defined above.) */

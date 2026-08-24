@@ -17,6 +17,9 @@
 3011 BITMAP "appearance/body_m.bmp"
 3012 BITMAP "appearance/body_f.bmp"
 3020 BITMAP "appearance/mask_preview.bmp"   /* 6 cells: none + 5 masks, 40x65 each */
+/* the mask render atlas, embedded so the DLL self-extracts it to <game>\Images\
+   heathen_masks.png at startup (only if missing) -- no manual asset copy. */
+5000 RCDATA "heathen_masks.png"
 
 #define WS_CHILD      0x40000000L
 #define WS_VISIBLE    0x10000000L
