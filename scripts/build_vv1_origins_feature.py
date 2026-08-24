@@ -340,9 +340,22 @@ MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0x98
 # list is the correct VV1 adaptation (VV4 uses the same fallback).
 MASK_LIST_COUNT_VA = DATA_SCRATCH_BASE_VA + 0x9C  # dword: entries stashed this frame
 MASK_LIST_BASE_VA = DATA_SCRATCH_BASE_VA + 0xA0   # array of MASK_LIST_ENTRY-byte entries
-MASK_LIST_CAP = 40           # max masked villagers drawn per frame (extras skipped)
+MASK_LIST_CAP = 39           # max masked villagers drawn per frame (extras skipped)
 MASK_LIST_ENTRY = 12         # [+0]=screen x, [+4]=screen y, [+8]=(frame<<16)|choice
-MASK_DATA_SCRATCH_END_VA = MASK_LIST_BASE_VA + MASK_LIST_CAP * MASK_LIST_ENTRY
+# One byte freed by dropping the cap 40->39 (39 masked villagers on screen at
+# once is far past any real village): a one-shot latch so the per-frame tick
+# fires the DLL's Vv1MaskRestore (sidecar -> table) exactly once at startup.
+MASK_RESTORE_DONE_VA = MASK_LIST_BASE_VA + MASK_LIST_CAP * MASK_LIST_ENTRY
+MASK_DATA_SCRATCH_END_VA = MASK_RESTORE_DONE_VA + 4
+# The restore stub is code, so it lives in an executable .shr gap (a genuinely
+# unused zero-run, verified against the fully-rendered exe), NOT in the tight
+# 344-byte mask cave that already overflows. Only ~6 bytes of glue land in the
+# hot tick hook (a jmp/call into here). pushad/popad inside keeps every native
+# register intact across LoadLibrary/GetProcAddress/call.
+MASK_RESTORE_STUB_FILE_OFFSET = 0x8BE32  # 78-byte free gap 0x8BE32..0x8BE80
+MASK_RESTORE_STUB_VA = IMAGE_BASE + SHR_RVA + (
+    MASK_RESTORE_STUB_FILE_OFFSET - SHR_FILE_OFFSET
+)
 # = 0x48CDC0 + 0x1E0 = 0x48CFA0, which stays below .shr's base 0x48D000 (the
 # .data VirtualSize is extended to cover it, but NOT up to 0x48D000 -- see the
 # 0x248 patch: reaching the next section's base access-violates on launch).
@@ -606,6 +619,7 @@ def main() -> None:
         "ShowOriginsUpgradeMenuState",
     )
     add_c_string(strings, s, "icons_dll", "VVFP VV1 Origins Icons.dll")
+    add_c_string(strings, s, "vv1_mask_restore", "Vv1MaskRestore")
     add_c_string(strings, s, "show_icon_dialog_legacy", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
     add_c_string(strings, s, "show_mastery_result_export", "ShowOriginsMasteryResult")
@@ -2341,6 +2355,10 @@ def main() -> None:
     mask_frame_cache_va = mask_backedge_hook_va + len(mask_backedge_hook_code)
     mask_frame_cache_code = assemble(
         f"""
+            cmp byte ptr [{MASK_RESTORE_DONE_VA:#x}], 0
+            jne mask_restore_skip
+            call {MASK_RESTORE_STUB_VA:#x}
+        mask_restore_skip:
             mov ecx, dword ptr [esi + 0x30]
             mov dword ptr [{DEST_SURFACE_CACHE_VA:#x}], ecx
             push ecx
@@ -2348,6 +2366,41 @@ def main() -> None:
             jmp {MASK_THIRD_RESUME_VA:#x}
         """,
         mask_frame_cache_va,
+    )
+    # The one-shot mask-restore stub, in a free executable .shr gap (see
+    # MASK_RESTORE_STUB_VA). Runs once (the flag gates the call above). Sets the
+    # flag, then pushad/popad brackets LoadLibraryA + GetProcAddress("Vv1Mask-
+    # Restore") + call so EVERY native register survives (the tick's resume does
+    # `mov [esi+0x78],eax`, so EAX must be preserved). Fail-open: a stock build
+    # with no DLL just skips. The DLL's seen-alive latch keeps the restored
+    # table from being swept on the still-empty startup frames.
+    mask_restore_stub_code = assemble(
+        f"""
+            mov byte ptr [{MASK_RESTORE_DONE_VA:#x}], 1
+            pushad
+            push {s['icons_dll']:#x}
+            call dword ptr [0x457010]
+            test eax, eax
+            je mask_restore_ret
+            push {s['vv1_mask_restore']:#x}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je mask_restore_ret
+            call eax
+        mask_restore_ret:
+            popad
+            ret
+        """,
+        MASK_RESTORE_STUB_VA,
+    )
+    patch(
+        MASK_RESTORE_STUB_FILE_OFFSET,
+        b"\0" * len(mask_restore_stub_code),
+        mask_restore_stub_code,
+        "one-shot startup mask-restore stub (in a free .shr gap): fires the "
+        "DLL's Vv1MaskRestore once to repopulate the .data mask table from the "
+        "sidecar, so masks appear on load without opening Change Appearance",
     )
     mask_overlay_blob = (
         mask_hook_code
