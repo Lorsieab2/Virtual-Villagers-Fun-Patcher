@@ -36,9 +36,7 @@ __declspec(dllimport) BOOL __stdcall SHGetSpecialFolderPathA(HWND, LPSTR, int, B
 #define VV_HEAD_FRAME_COL 5
 #endif
 #ifndef VV_BODY_FRAME_COL
-/* "frame 8" = the 8th frame from the left = 0-based column 7 (the user counts
-   1-based from the left, same as the mask's "6th frame" = col 5). */
-#define VV_BODY_FRAME_COL 7
+#define VV_BODY_FRAME_COL 8   /* "frame 8" (literal, 0-based column 8) */
 #endif
 #ifndef VV_BODY_ROWS_PER_PAGE
 #define VV_BODY_ROWS_PER_PAGE 10
