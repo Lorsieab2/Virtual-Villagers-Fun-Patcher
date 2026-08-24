@@ -30,6 +30,10 @@ COLS, ROWS = 8, 5
 LIFT = 42
 CANVAS_DX, CANVAS_DY = 106, 1149          # head-frame-0 origin in the port canvas
 STRAIGHT = ["blue", "orange", "red", "purple"]   # rows 0..3; chief (row 4) pending
+# chief is vertically STAGGERED per frame (the chief head sprite sits differently
+# than regular heads), so the uniform (CANVAS_DX,CANVAS_DY) composite misaligns it
+# -- needs the 8 chief frames re-stacked to a common origin like the other masks,
+# or per-frame alignment to the chief head positions.
 ORDER = ["blue", "orange", "red", "purple", "chief"]
 
 SRC = Path(__file__).resolve().parents[1] / "assets" / "vv3_heathen_masks"
