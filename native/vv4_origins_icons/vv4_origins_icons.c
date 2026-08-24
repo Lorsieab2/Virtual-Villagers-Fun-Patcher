@@ -36,7 +36,7 @@ __declspec(dllimport) BOOL __stdcall SHGetSpecialFolderPathA(HWND, LPSTR, int, B
 #define VV_HEAD_FRAME_COL 5
 #endif
 #ifndef VV_BODY_FRAME_COL
-#define VV_BODY_FRAME_COL 8   /* "frame 8" (literal, 0-based column 8) */
+#define VV_BODY_FRAME_COL 5   /* front-facing, matching the head (VV_HEAD_FRAME_COL) */
 #endif
 #ifndef VV_BODY_ROWS_PER_PAGE
 #define VV_BODY_ROWS_PER_PAGE 10
@@ -274,7 +274,10 @@ static int g_mask_atlas_tried = 0;
 
 static void vv_ensure_mask_atlas(void) {
     void *obj;
-    static const char atlas_name[] = "Images\\vvfp_mask_atlas.png";
+    /* BARE name -- the game names its own atlases bare ("male_heads"), fopen'd
+       relative to a working dir that resolves into Images\. A leading "Images\\"
+       would double to Images\Images\... and fail to load. */
+    static const char atlas_name[] = "vvfp_mask_atlas.png";
     const char *namep = atlas_name;
     if (g_mask_atlas_tried) {
         return;                        /* one-shot: never retry (no crash loop) */
@@ -294,6 +297,29 @@ static void vv_ensure_mask_atlas(void) {
         mov  ecx, obj
         mov  eax, VV_LDWGRID_LOAD
         call eax
+    }
+    /* Silent self-diagnostic: log the load outcome to <exe dir>\vvfp_mask_dbg.txt
+       so the atlas geometry can be verified without a popup. */
+    {
+        char exe[MAX_PATH], dbg[MAX_PATH], line[160];
+        char *base, *p;
+        DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH), written;
+        unsigned int *o = (unsigned int *)obj;
+        HANDLE fh;
+        if (n != 0 && n < MAX_PATH) {
+            base = exe;
+            for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
+            *base = '\0';
+            wsprintfA(dbg, "%svvfp_mask_dbg.txt", exe);
+            wsprintfA(line, "atlas obj=%p cellW[4]=%u cellH[5]=%u cols[2]=%u rows[3]=%u surf[1]=%p\r\n",
+                      obj, o[4], o[5], o[2], o[3], (void *)o[1]);
+            fh = CreateFileA(dbg, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (fh != INVALID_HANDLE_VALUE) {
+                WriteFile(fh, line, lstrlenA(line), &written, NULL);
+                CloseHandle(fh);
+            }
+        }
     }
     /* Reject a failed/empty load (cellW at obj[4] == 0) so the cave never draws
        a garbage cell. */
@@ -704,9 +730,8 @@ static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
     int dsth = rc.bottom - rc.top;
     FillRect(hdc, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
     if (mask <= 0 || mask >= VV_MASK_COUNT) {
-        /* (None): centred "(none)" text, matching VV2's blank cell 0. */
-        SetBkMode(hdc, TRANSPARENT);
-        DrawTextA(hdc, "(none)", -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        /* (None): leave the preview box blank -- the ID_MASK_LABEL (2020) below
+           already reads "(None)", so drawing "(none)" here too is a duplicate. */
         return;
     }
     vv4_ensure_gdiplus();
