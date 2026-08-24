@@ -46,6 +46,7 @@
 #define WS_GROUP 0x00020000L
 #define WS_TABSTOP 0x00010000L
 #define BS_AUTORADIOBUTTON 0x00000009L
+#define BS_RADIOBUTTON 0x00000004L
 #define BS_GROUPBOX 0x00000007L
 
 201 DIALOGEX 0, 0, 310, 396
@@ -212,56 +213,56 @@ END
    radios 230x. The handler applies the per-sex head/body/mask to every villager
    of that sex, then -- unless "Use choices above" is selected -- overrides ALL
    masks with the chosen distribution / single colour via Vv1MaskApplyDistribution. */
-204 DIALOGEX 0, 0, 420, 276
+204 DIALOGEX 0, 0, 336, 404
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance for All"
 FONT 9, "Segoe UI"
 BEGIN
-    CTEXT       "Male Villagers", -1, 8, 6, 132, 9
-    CTEXT       "Head", -1, 8, 20, 132, 8
-    CONTROL     "", 2100, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 48, 30, 50, 56
-    PUSHBUTTON  "<", 2101, 10, 50, 16, 16
-    PUSHBUTTON  ">", 2102, 120, 50, 16, 16
-    CTEXT       "Body", -1, 8, 92, 132, 8
-    CONTROL     "", 2110, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 48, 102, 50, 56
-    PUSHBUTTON  "<", 2111, 10, 122, 16, 16
-    PUSHBUTTON  ">", 2112, 120, 122, 16, 16
-    CTEXT       "Mask", -1, 8, 164, 132, 8
-    CONTROL     "", 2120, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 54, 174, 40, 50
-    PUSHBUTTON  "<", 2121, 10, 190, 16, 16
-    PUSHBUTTON  ">", 2122, 120, 190, 16, 16
-    CTEXT       "(None)", 2123, 8, 228, 132, 9
+    CONTROL     "Male Villagers", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 6, 2, 324, 116
+    CTEXT       "Body", -1, 40, 12, 60, 9
+    CONTROL     "", 2110, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 42, 24, 52, 74
+    PUSHBUTTON  "<", 2111, 8, 54, 16, 16
+    PUSHBUTTON  ">", 2112, 100, 54, 16, 16
+    CTEXT       "Head", -1, 148, 12, 60, 9
+    CONTROL     "", 2100, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 24, 52, 74
+    PUSHBUTTON  "<", 2101, 116, 54, 16, 16
+    PUSHBUTTON  ">", 2102, 208, 54, 16, 16
+    CTEXT       "Mask", -1, 256, 12, 60, 9
+    CONTROL     "", 2120, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 258, 24, 52, 74
+    PUSHBUTTON  "<", 2121, 224, 54, 16, 16
+    PUSHBUTTON  ">", 2122, 316, 54, 16, 16
 
-    CTEXT       "Female Villagers", -1, 146, 6, 132, 9
-    CTEXT       "Head", -1, 146, 20, 132, 8
-    CONTROL     "", 2200, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 186, 30, 50, 56
-    PUSHBUTTON  "<", 2201, 148, 50, 16, 16
-    PUSHBUTTON  ">", 2202, 258, 50, 16, 16
-    CTEXT       "Body", -1, 146, 92, 132, 8
-    CONTROL     "", 2210, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 186, 102, 50, 56
-    PUSHBUTTON  "<", 2211, 148, 122, 16, 16
-    PUSHBUTTON  ">", 2212, 258, 122, 16, 16
-    CTEXT       "Mask", -1, 146, 164, 132, 8
-    CONTROL     "", 2220, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 192, 174, 40, 50
-    PUSHBUTTON  "<", 2221, 148, 190, 16, 16
-    PUSHBUTTON  ">", 2222, 258, 190, 16, 16
-    CTEXT       "(None)", 2223, 146, 228, 132, 9
+    CONTROL     "Female Villagers", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 6, 122, 324, 116
+    CTEXT       "Body", -1, 40, 132, 60, 9
+    CONTROL     "", 2210, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 42, 144, 52, 74
+    PUSHBUTTON  "<", 2211, 8, 174, 16, 16
+    PUSHBUTTON  ">", 2212, 100, 174, 16, 16
+    CTEXT       "Head", -1, 148, 132, 60, 9
+    CONTROL     "", 2200, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 144, 52, 74
+    PUSHBUTTON  "<", 2201, 116, 174, 16, 16
+    PUSHBUTTON  ">", 2202, 208, 174, 16, 16
+    CTEXT       "Mask", -1, 256, 132, 60, 9
+    CONTROL     "", 2220, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 258, 144, 52, 74
+    PUSHBUTTON  "<", 2221, 224, 174, 16, 16
+    PUSHBUTTON  ">", 2222, 316, 174, 16, 16
 
-    CONTROL     "Whole-village masks", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 286, 4, 128, 210
-    CONTROL     "Use choices above", 2300, "BUTTON", BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP | WS_CHILD | WS_VISIBLE, 292, 18, 116, 10
-    CONTROL     "Random distribution", 2301, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 292, 32, 116, 10
-    CONTROL     "VV5-style distribution", 2302, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 292, 46, 116, 10
-    CONTROL     "Equal distribution", 2303, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 292, 60, 116, 10
-    CONTROL     "All villagers: No mask", 2304, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 292, 78, 116, 10
-    CONTROL     "All villagers: Blue", 2305, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 292, 92, 116, 10
-    CONTROL     "All villagers: Orange", 2306, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 292, 106, 116, 10
-    CONTROL     "All villagers: Red", 2307, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 292, 120, 116, 10
-    CONTROL     "All villagers: Purple", 2308, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 292, 134, 116, 10
-    CONTROL     "All villagers: Chief", 2309, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 292, 148, 116, 10
+    CONTROL     "Mask Distribution (all villagers)", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 6, 242, 324, 66
+    CONTROL     "Off - use the per-sex Mask selectors above", 2300, "BUTTON", BS_RADIOBUTTON | WS_GROUP | WS_TABSTOP | WS_CHILD | WS_VISIBLE, 14, 256, 310, 10
+    CONTROL     "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 2301, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 14, 270, 310, 10
+    CONTROL     "Random", 2302, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 14, 284, 310, 10
+    CONTROL     "Equal Colors (All 5 colors; balanced M/F)", 2303, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 14, 298, 310, 10
 
-    CTEXT       "OK applies to every villager and deducts 450,000 tech points. Cancel changes nothing.", -1, 8, 244, 406, 9
-    DEFPUSHBUTTON "OK",     1, 148, 256, 55, 16
-    PUSHBUTTON    "Cancel", 2, 217, 256, 55, 16
+    CONTROL     "Village-wide Single Mask Color", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 6, 312, 324, 42
+    CONTROL     "None (remove all masks)", 2304, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 14, 326, 150, 10
+    CONTROL     "Blue", 2305, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 168, 326, 44, 10
+    CONTROL     "Orange", 2306, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 216, 326, 52, 10
+    CONTROL     "Red", 2307, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 272, 326, 44, 10
+    CONTROL     "Purple", 2308, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 14, 340, 70, 10
+    CONTROL     "Chief", 2309, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 100, 340, 70, 10
+
+    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 8, 362, 320, 9
+    DEFPUSHBUTTON "OK",     1, 108, 376, 55, 16
+    PUSHBUTTON    "Cancel", 2, 176, 376, 55, 16
 END
 
 #endif

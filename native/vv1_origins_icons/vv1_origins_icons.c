@@ -918,49 +918,83 @@ static struct {
     int override_mode;
 } forall_state;
 
+/* Selections default to -1 = "No change": cycling steps -1 -> 0 -> ... ->
+   count-1 -> -1, and a field left at -1 is not written on apply. This is why
+   the upgrade doesn't force every villager to head/body/mask index 0. */
+#define FORALL_NO_CHANGE (-1)
+
 static int forall_cycle(int cur, int delta, int count) {
-    return ((cur + delta) % count + count) % count;
+    int v = cur + delta;
+    if (v < FORALL_NO_CHANGE) {
+        return count - 1;
+    }
+    if (v >= count) {
+        return FORALL_NO_CHANGE;
+    }
+    return v;
 }
 
 static void forall_apply(void) {
     unsigned char *base = VV_MASK_MANAGER;
+    int override = forall_state.override_mode;
     int i;
     if (base == NULL) {
         return;
     }
     for (i = 0; i < VV_MASK_SLOTS; i++) {
         unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
-        int male;
+        int male, head, body, mask;
         if (rec[VV_OCCUPIED_OFFSET] != 1) {
             continue;
         }
         male = (*(int *)(rec + VV_GENDER_OFFSET) == VV_GENDER_MALE);
-        *(int *)(rec + VV_HEAD_OFFSET) = male ? forall_state.male_head
-                                              : forall_state.female_head;
-        *(int *)(rec + VV_CLOTHING_OFFSET) = male ? forall_state.male_body
-                                                  : forall_state.female_body;
-        vv1_mask_set(rec, (unsigned char)(male ? forall_state.male_mask
-                                               : forall_state.female_mask));
+        head = male ? forall_state.male_head : forall_state.female_head;
+        body = male ? forall_state.male_body : forall_state.female_body;
+        mask = male ? forall_state.male_mask : forall_state.female_mask;
+        if (head != FORALL_NO_CHANGE) {
+            *(int *)(rec + VV_HEAD_OFFSET) = head;
+        }
+        if (body != FORALL_NO_CHANGE) {
+            *(int *)(rec + VV_CLOTHING_OFFSET) = body;
+        }
+        /* the per-sex mask only applies when no whole-village override is set */
+        if (override == 0 && mask != FORALL_NO_CHANGE) {
+            vv1_mask_set(rec, (unsigned char)mask);
+        }
     }
-    if (forall_state.override_mode != 0) {
-        if (forall_state.override_mode <= 3) {
-            Vv1MaskApplyDistribution(forall_state.override_mode, 0);
+    if (override != 0) {
+        if (override <= 3) {
+            Vv1MaskApplyDistribution(override, 0);      /* 1 random,2 vv5,3 equal */
         } else {
-            Vv1MaskApplyDistribution(0, forall_state.override_mode - 4);
+            Vv1MaskApplyDistribution(0, override - 4);   /* 4..9 -> single 0..5 */
         }
         return;  /* Vv1MaskApplyDistribution already persisted the sidecar */
     }
     vv1_mask_sidecar_save();
 }
 
+static void forall_draw_one(DRAWITEMSTRUCT *item, int bitmap, int sel) {
+    if (sel == FORALL_NO_CHANGE) {
+        RECT rc = item->rcItem;
+        HBRUSH bg = CreateSolidBrush(RGB(236, 236, 236));
+        FillRect(item->hDC, &rc, bg);
+        DeleteObject(bg);
+        SetBkMode(item->hDC, TRANSPARENT);
+        DrawTextA(item->hDC, "No change", -1, &rc,
+                  DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    } else {
+        appearance_draw(item, bitmap, sel);
+    }
+}
+
 static void forall_draw_item(DRAWITEMSTRUCT *item) {
     switch (item->CtlID) {
-    case 2100: appearance_draw(item, IDB_HEAD_M, forall_state.male_head); break;
-    case 2110: appearance_draw(item, IDB_BODY_M, forall_state.male_body); break;
-    case 2120: appearance_draw(item, IDB_MASK,  forall_state.male_mask);  break;
-    case 2200: appearance_draw(item, IDB_HEAD_F, forall_state.female_head); break;
-    case 2210: appearance_draw(item, IDB_BODY_F, forall_state.female_body); break;
-    case 2220: appearance_draw(item, IDB_MASK,  forall_state.female_mask); break;
+    case 2100: forall_draw_one(item, IDB_HEAD_M, forall_state.male_head); break;
+    case 2110: forall_draw_one(item, IDB_BODY_M, forall_state.male_body); break;
+    case 2120: forall_draw_one(item, IDB_MASK,  forall_state.male_mask);  break;
+    case 2200: forall_draw_one(item, IDB_HEAD_F, forall_state.female_head); break;
+    case 2210: forall_draw_one(item, IDB_BODY_F, forall_state.female_body); break;
+    case 2220: forall_draw_one(item, IDB_MASK,  forall_state.female_mask); break;
     default: break;
     }
 }
@@ -968,13 +1002,13 @@ static void forall_draw_item(DRAWITEMSTRUCT *item) {
 static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
                                       WPARAM wparam, LPARAM lparam) {
     if (message == WM_INITDIALOG) {
-        forall_state.male_head = forall_state.male_body = forall_state.male_mask = 0;
-        forall_state.female_head = forall_state.female_body = forall_state.female_mask = 0;
+        forall_state.male_head = forall_state.male_body = forall_state.male_mask = FORALL_NO_CHANGE;
+        forall_state.female_head = forall_state.female_body = forall_state.female_mask = FORALL_NO_CHANGE;
         forall_state.override_mode = 0;
         vv1_prep_fullscreen();
-        CheckRadioButton(window, 2300, 2309, 2300);
-        SetDlgItemTextA(window, 2123, vv1_mask_name(0));
-        SetDlgItemTextA(window, 2223, vv1_mask_name(0));
+        /* plain radios managed in code (they span two groupboxes -- don't rely
+           on WS_GROUP across boxes; VV2's lesson). Default: Off. */
+        CheckDlgButton(window, 2300, BST_CHECKED);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         forall_draw_item((DRAWITEMSTRUCT *)lparam);
@@ -987,19 +1021,15 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
         case 2102: forall_state.male_head = forall_cycle(forall_state.male_head, +1, 19); appearance_repaint(window, 2100); return TRUE;
         case 2111: forall_state.male_body = forall_cycle(forall_state.male_body, -1, 19); appearance_repaint(window, 2110); return TRUE;
         case 2112: forall_state.male_body = forall_cycle(forall_state.male_body, +1, 19); appearance_repaint(window, 2110); return TRUE;
-        case 2121: forall_state.male_mask = forall_cycle(forall_state.male_mask, -1, VV_MASK_COUNT);
-                   SetDlgItemTextA(window, 2123, vv1_mask_name(forall_state.male_mask)); appearance_repaint(window, 2120); return TRUE;
-        case 2122: forall_state.male_mask = forall_cycle(forall_state.male_mask, +1, VV_MASK_COUNT);
-                   SetDlgItemTextA(window, 2123, vv1_mask_name(forall_state.male_mask)); appearance_repaint(window, 2120); return TRUE;
+        case 2121: forall_state.male_mask = forall_cycle(forall_state.male_mask, -1, VV_MASK_COUNT); appearance_repaint(window, 2120); return TRUE;
+        case 2122: forall_state.male_mask = forall_cycle(forall_state.male_mask, +1, VV_MASK_COUNT); appearance_repaint(window, 2120); return TRUE;
         /* female */
         case 2201: forall_state.female_head = forall_cycle(forall_state.female_head, -1, 20); appearance_repaint(window, 2200); return TRUE;
         case 2202: forall_state.female_head = forall_cycle(forall_state.female_head, +1, 20); appearance_repaint(window, 2200); return TRUE;
         case 2211: forall_state.female_body = forall_cycle(forall_state.female_body, -1, 20); appearance_repaint(window, 2210); return TRUE;
         case 2212: forall_state.female_body = forall_cycle(forall_state.female_body, +1, 20); appearance_repaint(window, 2210); return TRUE;
-        case 2221: forall_state.female_mask = forall_cycle(forall_state.female_mask, -1, VV_MASK_COUNT);
-                   SetDlgItemTextA(window, 2223, vv1_mask_name(forall_state.female_mask)); appearance_repaint(window, 2220); return TRUE;
-        case 2222: forall_state.female_mask = forall_cycle(forall_state.female_mask, +1, VV_MASK_COUNT);
-                   SetDlgItemTextA(window, 2223, vv1_mask_name(forall_state.female_mask)); appearance_repaint(window, 2220); return TRUE;
+        case 2221: forall_state.female_mask = forall_cycle(forall_state.female_mask, -1, VV_MASK_COUNT); appearance_repaint(window, 2220); return TRUE;
+        case 2222: forall_state.female_mask = forall_cycle(forall_state.female_mask, +1, VV_MASK_COUNT); appearance_repaint(window, 2220); return TRUE;
         case IDOK:
             /* Do NOT apply here -- the charge is checked/taken in
                ShowOriginsAppearanceForAll first (VV2's DLL-side-charge model),
@@ -1011,7 +1041,23 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
             return TRUE;
         default:
             if (id >= 2300 && id <= 2309) {
+                /* One mutually-exclusive group. Enforce single-select in code
+                   (VV2: don't trust WS_GROUP across boxes) and, when a whole-
+                   village override is chosen, gray the per-sex Mask cyclers so
+                   the two can't visibly conflict. "Use choices above" (2300)
+                   re-enables them. */
+                int use_per_sex = (id == 2300);
+                int r;
                 forall_state.override_mode = id - 2300;
+                for (r = 2300; r <= 2309; r++) {
+                    CheckDlgButton(window, r, r == id ? BST_CHECKED : BST_UNCHECKED);
+                }
+                EnableWindow(GetDlgItem(window, 2120), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2121), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2122), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2220), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2221), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2222), use_per_sex);
                 return TRUE;
             }
             break;
