@@ -1114,12 +1114,12 @@ static INT_PTR CALLBACK appearance_dialog(
    mask -> the DLL side-table), charges 450k, and sidecar-saves. No new exe
    caves; dispatched by a one-call tech-menu row. */
 enum {                                   /* whole-village mask mode = radio - 3200 */
-    FA_MODE_OFF = 0, FA_MODE_VV5, FA_MODE_RANDOM, FA_MODE_EQUAL,
+    FA_MODE_OFF = 0, FA_MODE_VV5, FA_MODE_RANDOM, FA_MODE_RANDOM5, FA_MODE_EQUAL,
     FA_MODE_NONE, FA_MODE_BLUE, FA_MODE_ORANGE, FA_MODE_RED,
     FA_MODE_PURPLE, FA_MODE_CHIEF
 };
 #define FA_RADIO_FIRST 3200
-#define FA_RADIO_LAST  3209
+#define FA_RADIO_LAST  3210
 #define FA_NOCHANGE (-1)
 static struct {
     int male_head, male_body, male_mask;       /* -1 = No change */
@@ -1196,9 +1196,13 @@ static void vv4_apply_for_all(void) {
         for (i = 0; i < nact; i++) {
             vv_set_mask(fa_record(active[i]), solid);
         }
-    } else if (mode == FA_MODE_RANDOM) {
+    } else if (mode == FA_MODE_RANDOM) {            /* All 5 + No Mask (0..5) */
         for (i = 0; i < nact; i++) {
             vv_set_mask(fa_record(active[i]), (int)(fa_rand() % VV_MASK_COUNT));
+        }
+    } else if (mode == FA_MODE_RANDOM5) {           /* All 5 colours only (1..5) */
+        for (i = 0; i < nact; i++) {
+            vv_set_mask(fa_record(active[i]), (int)(fa_rand() % 5u) + 1);
         }
     } else if (mode == FA_MODE_VV5) {
         int order[VV_MAX_VILLAGERS];
@@ -1326,17 +1330,53 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
 /* Tech-menu row entry point: show the dialog, and on OK charge 450,000 and
    apply. Returns 1 when applied+charged, 0 otherwise. No arg needed -- VV4's
    tech points are the global at 0x4D6F88 and the record array is fixed. */
+static int fa_nothing_selected(void) {
+    return forall_state.tribe_mode == FA_MODE_OFF &&
+           forall_state.male_head == FA_NOCHANGE &&
+           forall_state.male_body == FA_NOCHANGE &&
+           forall_state.male_mask == FA_NOCHANGE &&
+           forall_state.female_head == FA_NOCHANGE &&
+           forall_state.female_body == FA_NOCHANGE &&
+           forall_state.female_mask == FA_NOCHANGE;
+}
+
 __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
     vv4_prep_fullscreen();
+    /* Buy-confirm before the dialog (parity wording across all 5 games). */
+    if (MessageBoxA(NULL,
+            "Do you want to buy Change Appearance for All for 450,000 tech "
+            "points?\r\nPress OK to confirm, or Cancel.",
+            "Change Appearance for All",
+            MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) != IDOK) {
+        return 0;
+    }
     if ((int)DialogBoxParamA(module_instance, MAKEINTRESOURCEA(214), NULL,
                              forall_dialog, 0) != 1) {
         return 0;                              /* cancelled -> no charge */
     }
+    if (fa_nothing_selected()) {
+        MessageBoxA(NULL,
+            "No appearance options were selected. No tech points deducted.",
+            "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
     if (*(volatile unsigned int *)(UINT_PTR)0x4D6F88u < 450000u) {
         MessageBoxA(NULL,
-            "Not enough tech points. No tech points have been deducted.",
-            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+            "Not enough tech points. This upgrade costs 450,000.",
+            "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
         return 0;
+    }
+    /* Head is hereditary: warn once before committing a head change en-masse. */
+    if (forall_state.male_head != FA_NOCHANGE ||
+        forall_state.female_head != FA_NOCHANGE) {
+        if (MessageBoxA(NULL,
+                "Warning: This will change the head genetics of every villager "
+                "of the selected sex, affecting their descendants.\r\n\r\n"
+                "Proceed?",
+                "Change Appearance for All",
+                MB_OKCANCEL | MB_ICONWARNING | VV_MB_FRONT) != IDOK) {
+            return 0;
+        }
     }
     vv4_apply_for_all();
     __asm {
@@ -1345,8 +1385,8 @@ __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
         mov  eax, 0x41E300
         call eax
     }
-    MessageBoxA(NULL, "Appearance updated for all villagers.",
-                "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    MessageBoxA(NULL, "Change Appearance for All applied to every villager.",
+                "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     return 1;
 }
 

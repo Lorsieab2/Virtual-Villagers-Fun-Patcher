@@ -205,8 +205,9 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
         for cap in ("Male Villagers", "Female Villagers",
                     "Mask Distribution (all villagers)",
                     "Village-wide Single Mask Color",
-                    "Off - use the per-sex Mask selectors above",
-                    "VV5-style", "Random", "Equal Colors",
+                    "Off (use Mask selectors above)",
+                    "VV5-style", "Random (All 5 + No Mask)", "Random (All 5)",
+                    "Equal Colors (All 5 colors; balanced M/F)",
                     "None (remove all masks)", "Blue", "Orange", "Red",
                     "Purple", "Chief",
                     "OK deducts 450,000 tech points"):
