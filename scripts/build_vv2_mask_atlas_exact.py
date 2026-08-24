@@ -81,17 +81,27 @@ def build():
     for mi, nm in enumerate(MASKS):
         bh = bh_chief if nm == "chief" else bh_other
         pm = _blobs(f"{FOLDER}/vv5 mask port {nm}.png")
+        # Per-frame horizontal offset (mask follows the head as it faces L/R), but
+        # the VERTICAL anchor is EQUALIZED across all 7 frames so the mask never
+        # bobs up/down between facing directions. Use the mean of the per-frame
+        # head-center-y + offset-y so the tuned MASK_DY placement is preserved.
+        offs = []
         for f in range(FRAMES):
             hc = _center(bh[f]); mc = _center(pm[f])          # canvas centers
-            off = (mc[0] - hc[0], mc[1] - hc[1])              # mask center vs head center
+            offs.append((mc[0] - hc[0], mc[1] - hc[1]))        # mask center vs head center
+        vy_mean = sum(ghc[f][1] + offs[f][1] for f in range(FRAMES)) / float(FRAMES)
+        ay_const = ADULT_LIFT + vy_mean + MASK_DY.get(nm, 0)   # constant screen-y, atlas
+        vy_const = 30 + vy_mean + MASK_DY.get(nm, 0)           # constant screen-y, verify
+        for f in range(FRAMES):
+            off = offs[f]
             mimg = pm[f][4]
             s = MASK_SCALE.get(nm, 1.0)
             if s != 1.0:
                 mimg = mimg.resize((max(1, round(mimg.width * s)), max(1, round(mimg.height * s))), Image.LANCZOS)
             mw, mh = mimg.size
-            # atlas: place mask center at (ghc_x + off_x, LIFT + ghc_y + off_y)
+            # atlas: place mask center at (ghc_x + off_x, ay_const) — Y equal for all frames
             ax = ghc[f][0] + off[0] + MASK_DX.get(nm, 0)
-            ay = ADULT_LIFT + ghc[f][1] + off[1] + MASK_DY.get(nm, 0)
+            ay = ay_const
             px = int(round(ax - mw / 2.0)); py = int(round(ay - mh / 2.0))
             # composite into THIS cell only, clipping any overflow so it never bleeds into the
             # neighbouring frame's cell (the "extra pixels to the side").
@@ -106,7 +116,7 @@ def build():
             cell.alpha_composite(g_img.crop((f * HW, 0, f * HW + HW, HH)), (0, 30))
             # mask center at head-center + off (screen), head drawn at +30
             vmx = int(round(ghc[f][0] + off[0] + MASK_DX.get(nm, 0) - mw / 2.0))
-            vmy = int(round(30 + ghc[f][1] + off[1] + MASK_DY.get(nm, 0) - mh / 2.0))
+            vmy = int(round(vy_const - mh / 2.0))
             cell.alpha_composite(mimg, (vmx, vmy))
             verify.alpha_composite(cell, (f * HW, vy))
     atlas.save(OUT_ATLAS)
