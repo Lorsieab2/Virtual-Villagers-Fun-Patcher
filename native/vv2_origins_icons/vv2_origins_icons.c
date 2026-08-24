@@ -1365,7 +1365,9 @@ static void caf_shuffle(int *a, int n) {
    Head/Body/Mask first, then a distribution preset (overrides masks), then a
    village-wide single mask (final override) — so leaving the later groups Off
    makes the per-sex selectors authoritative. */
-static void vv2_apply_caf(unsigned char *base) {
+/* Returns the number of active villagers processed (0 = nothing to change, so
+   the caller must not charge). */
+static int vv2_apply_caf(unsigned char *base) {
     int idx[VV2_RECORD_COUNT];       /* active record indices */
     int sexof[VV2_RECORD_COUNT];     /* 0 male, 1 female (parallel to idx) */
     int n = 0, i;
@@ -1433,6 +1435,7 @@ static void vv2_apply_caf(unsigned char *base) {
         for (i = 0; i < n; ++i)
             VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_village;
     }
+    return n;
 }
 
 #define VV2_CAF_COST 450000
@@ -1500,8 +1503,17 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
         }
     }
 
+    /* Apply first; charge only if there was at least one active villager to
+       change (no-op selections / an empty village must not deduct 450k). */
+    if (vv2_apply_caf(base) == 0) {
+        MessageBoxA(GetForegroundWindow(),
+                    "There are no villagers to change right now. "
+                    "No tech points were deducted.",
+                    "Change Appearance for All",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
     if (tech) *tech -= VV2_CAF_COST;
-    vv2_apply_caf(base);
     vv2_mask_sidecar_save();
     MessageBoxA(GetForegroundWindow(),
                 "Change Appearance for All applied to every villager.",
