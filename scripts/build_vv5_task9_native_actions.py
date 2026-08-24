@@ -3429,6 +3429,8 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         ja bh_ret
         dec eax
         mov dword ptr [0x{BH_SROW:X}], eax
+        call 0x44FBB0
+        mov ecx, eax
         push 0x{MASK_HANDLE:X}
         call 0x44FA30
         mov edx, dword ptr [0x{BH_SY:X}]
