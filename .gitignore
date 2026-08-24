@@ -8,3 +8,8 @@ patcher_local_settings.json
 
 # Local playtest stock-exe inputs (never commit game binaries)
 inputs/
+
+# build/staging artifacts (do not commit)
+handoff-staging/
+runtime-deps/
+scratchpad_*.exe
