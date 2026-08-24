@@ -1,7 +1,8 @@
 LIBRARY "VVFP VV2 Origins Icons"
 EXPORTS
     ShowVV2UpgradeMenuState=_ShowVV2UpgradeMenuState@8
-    ShowVV2AppearanceChooser=_ShowVV2AppearanceChooser@16
+    ShowVV2AppearanceChooser=_ShowVV2AppearanceChooser@12
+    ShowVV2AppearanceForAll=_ShowVV2AppearanceForAll@4 @100
     ShowVV2CureResult=_ShowVV2CureResult@8
     ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@20
     ApplyVV2RunningToAll=_ApplyVV2RunningToAll@4
@@ -12,3 +13,5 @@ EXPORTS
     ShowVV2UpgradeResult=_ShowVV2UpgradeResult@24
     GateVV2Barrel=_GateVV2Barrel@4
     ApplyVV2EqualDivision=_ApplyVV2EqualDivision@8
+    Vv2MaskRestore=_Vv2MaskRestore@0
+    Vv2MaskSaveSidecar=_Vv2MaskSaveSidecar@0

@@ -102,7 +102,12 @@ BARREL_CUE_FRAMES = 90
 # bytes hold the helper code; the export name string follows at +0x100.
 APPEARANCE_FILE_OFFSET = 0x9AD20
 APPEARANCE_VA = IMAGE_BASE + SHR_RVA + (APPEARANCE_FILE_OFFSET - SHR_FILE_OFFSET)
-APPEARANCE_STRING_VA = APPEARANCE_VA + 0x100
+# The appearance handler MUST stay within its 0x100 byte box — the next Origins
+# handler ("All 18") begins right after the string that follows this block, so
+# growing it corrupts that handler. The mask read/write fits; the sidecar SAVE is
+# done DLL-side (not here) to avoid growing this box.
+APPEARANCE_CODE_MAX = 0x100
+APPEARANCE_STRING_VA = APPEARANCE_VA + APPEARANCE_CODE_MAX
 
 # Whole-village Tech-screen upgrades (Running / Full Mastery / Age 18 for all
 # villagers). Placed after the Change Appearance helper in the .shr reserve.
@@ -175,6 +180,10 @@ VV2_HEAD_FIELD = 0x548
 VV2_BODY_FIELD = 0x54C
 VV2_SEX_FIELD = 0x538
 VV2_APPEARANCE_COST = 5000
+# Patch-owned per-villager mask table appended to the exe (.mtab section), indexed
+# by record index (0=none, 1..5). The appearance handler reads/writes it alongside
+# head/body; the mask render stubs (in .vvmk) read it. NOT a villager-record byte.
+VV2_MASK_TABLE_VA = 0x004B3000
 
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
@@ -591,6 +600,12 @@ def main() -> None:
         charge:
             cmp ebx, 6
             jb legacy_charge
+            # Change Appearance for All (row 13): the companion DLL runs the
+            # popup, does its OWN 450,000 charge (given the tech-balance pointer)
+            # and applies to every villager, so the Tech menu neither confirms
+            # nor charges here -- just hand off to the dispatch stub.
+            cmp ebx, 13
+            je caf_dispatch
             # ebx = 6 (Running), 7 (Full Mastery), 8 (Set All 18),
             # 9 (Complete Collections), 10 (Reset Collections): require the
             # 1,000,000, hand off to the DLL dispatch stub (it applies and shows
@@ -603,6 +618,9 @@ def main() -> None:
             test eax, eax
             jz menu_done
             sub dword ptr [edi + 0x2EADC], 1000000
+            jmp menu_done
+        caf_dispatch:
+            call 0x{DISPATCH_VA:X}
             jmp menu_done
         legacy_charge:
             cmp ebx, 5
@@ -1448,29 +1466,32 @@ def main() -> None:
         """,
         DETAIL_PREFLIGHT_VA,
     )
+    # The DLL now owns the ENTIRE per-villager Change Appearance commit (chooser
+    # dialog + 5,000 charge + record head/body & .mtab mask writes + sidecar
+    # SAVE), so this handler is a trivial one-call bridge: resolve the villager
+    # record + index and hand (player, record, idx) to ShowVV2AppearanceChooser.
+    # Keeping it tiny is what guarantees it can never overrun its fixed 0x100 box
+    # (a past version that did the sidecar save exe-side overran the neighbour).
     appearance_helper_code = assemble(
         f"""
             push ebp
             mov ebp, esp
-            sub esp, 8
+            sub esp, 4
             push ebx
             push esi
             push edi
-            mov edi, dword ptr [esi + 0x0C]
-            mov ecx, dword ptr [edi + 0x304F0]
-            cmp ecx, 0x100
+            mov edi, dword ptr [esi + 0x0C]      /* player object */
+            mov eax, dword ptr [edi + 0x304F0]   /* selected villager index */
+            cmp eax, 0x100
             jae appearance_done
-            imul ecx, ecx, 0xE48C
+            mov dword ptr [ebp - 4], eax         /* stash idx (edi/ebx survive the calls) */
+            imul eax, eax, 0xE48C
             mov ebx, dword ptr [esi + 0x10]
-            add ebx, ecx
+            add ebx, eax                         /* record base */
             cmp byte ptr [ebx + 0x30], 0
             je appearance_done
             cmp dword ptr [ebx + 0x52C], 0
             jle appearance_done
-            mov eax, dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}]
-            mov dword ptr [ebp - 4], eax
-            mov eax, dword ptr [ebx + 0x{VV2_BODY_FIELD:X}]
-            mov dword ptr [ebp - 8], eax
             push 0x{s['icons_dll']:X}
             call dword ptr [0x474010]
             test eax, eax
@@ -1480,32 +1501,10 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je appearance_done
-            lea ecx, [ebp - 8]
-            push ecx
-            lea ecx, [ebp - 4]
-            push ecx
-            push dword ptr [ebx + 0x530]
-            push dword ptr [ebx + 0x{VV2_SEX_FIELD:X}]
-            call eax
-            test eax, eax
-            je appearance_done
-            cmp byte ptr [ebx + 0x30], 0
-            je appearance_done
-            cmp dword ptr [ebx + 0x52C], 0
-            jle appearance_done
-            cmp dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
-            jb appearance_insufficient
-            sub dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
-            mov eax, dword ptr [ebp - 4]
-            mov dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}], eax
-            mov eax, dword ptr [ebp - 8]
-            mov dword ptr [ebx + 0x{VV2_BODY_FIELD:X}], eax
-            jmp appearance_done
-        appearance_insufficient:
-            mov eax, 0x{s['not_enough']:X}
-            push eax
-            push 0x{s['detail_title']:X}
-            call 0x{show_message:X}
+            push dword ptr [ebp - 4]             /* idx */
+            push ebx                             /* record */
+            push edi                             /* player */
+            call eax                             /* ShowVV2AppearanceChooser(player, record, idx) @12 */
         appearance_done:
             pop edi
             pop esi
@@ -1516,13 +1515,13 @@ def main() -> None:
         """,
         APPEARANCE_VA,
     )
-    if len(appearance_helper_code) > 0x100:
+    if len(appearance_helper_code) > APPEARANCE_CODE_MAX:
         raise RuntimeError(
             f"appearance helper is too large: {len(appearance_helper_code):#x}/0x100"
         )
     appearance_block = (
         appearance_helper_code
-        + b"\0" * (0x100 - len(appearance_helper_code))
+        + b"\0" * (APPEARANCE_CODE_MAX - len(appearance_helper_code))
         + b"ShowVV2AppearanceChooser\0"
     )
     # Whole-village Tech upgrades applied directly (like Cure All): fetch the
@@ -1632,7 +1631,7 @@ def main() -> None:
     # with placeholder string VAs yields the final code length, which then fixes
     # the real string addresses for a second, identical-length assembly.
     def _dispatch_src(running_va: int, mastery_va: int, age_va: int,
-                      collections_va: int, division_va: int) -> str:
+                      collections_va: int, division_va: int, caf_ord: int) -> str:
         return f"""
             push ebp
             push esi
@@ -1643,6 +1642,8 @@ def main() -> None:
             test eax, eax
             je disp_done
             mov esi, eax
+            cmp ebp, 13
+            je disp_caf
             cmp ebp, 11
             jae disp_division
             cmp ebp, 9
@@ -1695,6 +1696,21 @@ def main() -> None:
             push ecx
             push eax
             call edi
+            jmp disp_done
+        disp_caf:
+            # Change Appearance for All.  EDI (from the caller) = Tech-menu player
+            # object.  Resolve ShowVV2AppearanceForAll BY ORDINAL (no name string,
+            # to fit the .shr slot) and call it with the player object; the DLL
+            # computes the tech balance (+0x2EADC) and record array itself, runs
+            # the popup, charges 450k and applies to every villager.
+            push {caf_ord}
+            push esi
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je disp_done
+            push edi
+            call eax
+            jmp disp_done
         disp_done:
             pop edi
             pop esi
@@ -1702,11 +1718,16 @@ def main() -> None:
             ret
         """
 
+    # ShowVV2AppearanceForAll is resolved by ORDINAL (pinned @100 in the .def),
+    # so the dispatch stub needs no name string for it -- keeps it inside the
+    # tight .shr slot ahead of the Barrel gate.
+    CAF_ORDINAL = 100
     _placeholder = DISPATCH_VA + 0x100
     dispatch_len = len(
         assemble(
             _dispatch_src(
-                _placeholder, _placeholder, _placeholder, _placeholder, _placeholder
+                _placeholder, _placeholder, _placeholder, _placeholder,
+                _placeholder, CAF_ORDINAL
             ),
             DISPATCH_VA,
         )
@@ -1724,7 +1745,7 @@ def main() -> None:
     dispatch_code = assemble(
         _dispatch_src(
             running_export_va, mastery_export_va, age_export_va,
-            collections_export_va, division_export_va
+            collections_export_va, division_export_va, CAF_ORDINAL
         ),
         DISPATCH_VA,
     )

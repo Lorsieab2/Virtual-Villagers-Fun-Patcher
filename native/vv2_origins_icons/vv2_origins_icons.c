@@ -9,6 +9,7 @@
 #define VV_LIKE_SLOT_COUNT 62
 #define VV_ALREADY_LIKES_TEXT "Already 62 likes."
 #include "../vv1_origins_icons/vv1_origins_icons.c"
+#include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
 
 /* Task9-style prompt action / result codes and forward declarations, hoisted so
    the ApplyVV2* reporters below can route through the shared result renderer
@@ -19,6 +20,7 @@ enum {
     VV2_ACT_RUNNING_ALL = 6, VV2_ACT_MASTERY_ALL = 7, VV2_ACT_AGE_ALL = 8,
     VV2_ACT_COLLECT_COMPLETE = 9, VV2_ACT_COLLECT_RESET = 10,
     VV2_ACT_DIVIDE_PARENTING = 11, VV2_ACT_DIVIDE_NO_PARENTING = 12,
+    VV2_ACT_APPEARANCE_ALL = 13,
     VV2_ACT_DETAIL_YOUTH = 100, VV2_ACT_DETAIL_MASTERY = 101,
     VV2_ACT_DETAIL_RUNNING = 102, VV2_ACT_DETAIL_AGE18 = 103,
     VV2_ACT_DETAIL_APPEARANCE = 104
@@ -43,13 +45,14 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
 #define IDD_VV2_VILLAGER   212
 #define IDD_VV2_APPEARANCE 213
 
-/* VV2 tech screen now carries 13 rows: the 9 shared Origins upgrades, Complete
-   all Collections (1009), Reset all Collections (1010), and the two Equal
-   Division of Labor rows (1011 Includes Parenting, 1012 No Parenting).  The
-   shared ID_BUY_LAST (1008) only bounds the VV1 dialogs, so the VV2 proc uses
-   its own upper bound instead of editing the shared enum. */
-#define VV2_TECH_ROW_COUNT 13
-#define ID_VV2_BUY_LAST    1012
+/* VV2 tech screen now carries 14 rows (two-column layout): the 9 shared Origins
+   upgrades, Complete all Collections (1009), Reset all Collections (1010), the
+   two Equal Division of Labor rows (1011 Includes Parenting, 1012 No Parenting),
+   and Change Appearance for All (1013).  The shared ID_BUY_LAST (1008) only
+   bounds the VV1 dialogs, so the VV2 proc uses its own upper bound instead of
+   editing the shared enum. */
+#define VV2_TECH_ROW_COUNT 14
+#define ID_VV2_BUY_LAST    1013
 
 /* The game can run fullscreen as a topmost SDL window at a resolution smaller
    than the desktop.  Our modal dialogs use DS_CENTER so Windows centers them on
@@ -535,6 +538,7 @@ static const char *vv2_action_name(int action) {
         return "Equal Division of Labor (Includes Parenting)";
     case VV2_ACT_DIVIDE_NO_PARENTING:
         return "Equal Division of Labor (No Parenting)";
+    case VV2_ACT_APPEARANCE_ALL: return "Change Appearance for All";
     case VV2_ACT_DETAIL_YOUTH: return "Grant Youth";
     case VV2_ACT_DETAIL_MASTERY: return "Grant Full Mastery";
     case VV2_ACT_DETAIL_RUNNING: return "Grant Running";
@@ -567,6 +571,7 @@ static unsigned int vv2_action_price(int action) {
     case VV2_ACT_COLLECT_RESET: return 1000000;
     case VV2_ACT_DIVIDE_PARENTING: return 1000000;
     case VV2_ACT_DIVIDE_NO_PARENTING: return 1000000;
+    case VV2_ACT_APPEARANCE_ALL: return 450000;
     case VV2_ACT_DETAIL_YOUTH: return 50000;
     case VV2_ACT_DETAIL_MASTERY: return 100000;
     case VV2_ACT_DETAIL_RUNNING: return 40000;
@@ -848,14 +853,26 @@ __declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
 #define IDC_BODY_NEXT    3104
 #define IDC_HEAD_PREV    3105
 #define IDC_HEAD_NEXT    3106
+#define IDB_MASK         3020     /* 6-cell strip: none + 5 masks (40x65) */
+#define IDC_MASK_PREVIEW 3107
+#define IDC_MASK_PREV    3108
+#define IDC_MASK_NEXT    3109
 #define VV2_APPEARANCE_COUNT 30
+#define VV2_MASK_COUNT   6        /* 0=none, 1..5 = Blue/Orange/Red/Purple/Chief */
 #define VV2_APPEARANCE_CELL_W 40
 #define VV2_APPEARANCE_CELL_H 65
+
+/* Patch-owned per-villager mask table appended to the exe (.mtab @ 0x004B3000),
+   indexed by record index; 0=none, 1..5=mask. The DLL runs in-process so it can
+   read/write it directly. The render stubs (in the exe's .vvmk section) read it. */
+#define VV2_MASK_TABLE       ((unsigned char *)0x004B3000)
+#define VV2_MASK_TABLE_BYTES 256
 
 static int vv2_appearance_sex;   /* 0 = male, 1 = female */
 static int vv2_appearance_old;   /* 0 = young head atlas, 1 = old head atlas */
 static int vv2_appearance_head;
 static int vv2_appearance_body;
+static int vv2_appearance_mask;  /* 0=none, 1..5 */
 
 static int vv2_appearance_head_bitmap(void) {
     if (vv2_appearance_sex) {
@@ -913,6 +930,24 @@ static void vv2_appearance_repaint(HWND window, int control) {
     InvalidateRect(GetDlgItem(window, control), NULL, TRUE);
 }
 
+/* Draw a centered text label in a preview cell (used for the mask picker's
+   "(none)" / "No change" states instead of a sprite). */
+static void vv2_draw_label(DRAWITEMSTRUCT *item, const char *text) {
+    RECT rc = item->rcItem, calc = item->rcItem;
+    HBRUSH bg = CreateSolidBrush(RGB(236, 236, 236));
+    int th, top;
+    FillRect(item->hDC, &rc, bg);
+    DeleteObject(bg);
+    SetBkMode(item->hDC, TRANSPARENT);
+    /* DT_VCENTER only works with single-line text, so center manually: measure
+       the wrapped height, then offset the draw rect to the vertical middle. */
+    DrawTextA(item->hDC, text, -1, &calc, DT_CENTER | DT_WORDBREAK | DT_CALCRECT);
+    th = calc.bottom - calc.top;
+    top = rc.top + ((rc.bottom - rc.top) - th) / 2;
+    if (top > rc.top) rc.top = top;
+    DrawTextA(item->hDC, text, -1, &rc, DT_CENTER | DT_WORDBREAK);
+}
+
 static INT_PTR CALLBACK vv2_appearance_dialog(
     HWND window,
     UINT message,
@@ -931,6 +966,14 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
         }
         if (item->CtlID == IDC_HEAD_PREVIEW) {
             vv2_appearance_draw(item, vv2_appearance_head_bitmap(), vv2_appearance_head);
+            return TRUE;
+        }
+        if (item->CtlID == IDC_MASK_PREVIEW) {
+            if (vv2_appearance_mask == 0) {
+                vv2_draw_label(item, "(none)");
+            } else {
+                vv2_appearance_draw(item, IDB_MASK, vv2_appearance_mask);
+            }
             return TRUE;
         }
     } else if (message == WM_COMMAND) {
@@ -955,6 +998,16 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
             vv2_appearance_repaint(window, IDC_HEAD_PREVIEW);
             return TRUE;
         }
+        if (command == IDC_MASK_PREV) {
+            vv2_appearance_mask = (vv2_appearance_mask + VV2_MASK_COUNT - 1) % VV2_MASK_COUNT;
+            vv2_appearance_repaint(window, IDC_MASK_PREVIEW);
+            return TRUE;
+        }
+        if (command == IDC_MASK_NEXT) {
+            vv2_appearance_mask = (vv2_appearance_mask + 1) % VV2_MASK_COUNT;
+            vv2_appearance_repaint(window, IDC_MASK_PREVIEW);
+            return TRUE;
+        }
         if (command == IDOK) {
             EndDialog(window, 1);
             return TRUE;
@@ -970,25 +1023,102 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
     return FALSE;
 }
 
-/* Reports the chosen head/body indices back to the caller; the native handler
-   owns eligibility, the 5,000-tech charge, and the record writes, so the DLL
-   never touches save data. */
+/* ---- Mask persistence: a sidecar file, NEVER the game save (adapted from VV1's
+   CRT-less design). Keyed to the STOCK basename so it co-locates with the save
+   folder (the crash-fix makes renamed builds save under the stock name) and
+   survives renames. Win32-only (wsprintfA/memcpy = intrinsics) to stay CRT-less.
+   NEVER call from DllMain (loader lock + SHGetFolderPath). Index-keyed: relies on
+   villagers reloading into the same record slots (positional VV2 save). ---- */
+#define VV2_MASK_SIDECAR_MAGIC 0x32304D56u  /* 'V','M','0','2' */
+
+static int vv2_mask_sidecar_path(char *out) {
+    char docs[MAX_PATH];
+    if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return 0;
+    wsprintfA(out, "%s\\LDW", docs);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\Virtual Villagers - The Lost Children", docs);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat", docs);
+    return 1;
+}
+
+static void vv2_mask_sidecar_save(void) {
+    char path[MAX_PATH];
+    HANDLE f;
+    DWORD w;
+    unsigned int m = VV2_MASK_SIDECAR_MAGIC;
+    if (!vv2_mask_sidecar_path(path)) return;
+    f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) return;
+    WriteFile(f, &m, 4, &w, NULL);
+    WriteFile(f, VV2_MASK_TABLE, VV2_MASK_TABLE_BYTES, &w, NULL);
+    CloseHandle(f);
+}
+
+static void vv2_mask_sidecar_load(void) {
+    char path[MAX_PATH];
+    HANDLE f;
+    DWORD g;
+    unsigned int m = 0;
+    unsigned char buf[VV2_MASK_TABLE_BYTES];
+    if (!vv2_mask_sidecar_path(path)) return;
+    f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) return;            /* no file yet -> keep table as-is */
+    if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
+        && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
+        memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
+    }
+    CloseHandle(f);
+}
+
+/* exe-callable so an early exe hook can restore at startup, OUTSIDE the loader lock */
+__declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_load(); }
+/* exe-callable so the appearance handler can persist right after committing .mtab */
+__declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
+
+/* Record field offsets + the per-villager cost, hoisted so the chooser (which now
+   owns the whole commit) can read/write the record and charge itself.
+   (VV2_SEX_OFFSET is already defined above.) */
+#define VV2_HEAD_OFFSET         0x548
+#define VV2_BODY_OFFSET         0x54C
+#define VV2_TECH_BALANCE_OFFSET 0x2EADC
+#define VV2_APPEARANCE_COST_DLL 5000
+
+/* Per-villager Change Appearance: the DLL owns the ENTIRE flow — chooser dialog,
+   the 5,000-tech charge, the record head/body + .mtab mask writes, and the
+   sidecar SAVE — so the exe handler is a trivial one-call bridge that can never
+   overrun its fixed 0x100 box (an earlier version that did the save exe-side
+   overran the neighbouring handler and crashed).  player = the Detail/Tech player
+   object (tech balance at +0x2EADC); record = the villager record base; idx = its
+   record index (the .mtab entry).  Returns 1 if a change was applied.  The DLL
+   only ever writes its own sidecar file, never the GAME save. */
 __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
-    int sex,
-    int age,
-    int *head,
-    int *body
+    void *player,
+    unsigned char *record,
+    int idx
 ) {
     INT_PTR result;
-    int orig_head, orig_body;
+    int *tech;
+    int sex, age, h, b, m, orig_head, orig_body, orig_mask;
+    if (player == 0 || record == 0 || idx < 0 || idx >= VV2_MASK_TABLE_BYTES) {
+        return 0;
+    }
+    tech = (int *)((unsigned char *)player + VV2_TECH_BALANCE_OFFSET);
+    sex = *(int *)(record + VV2_SEX_OFFSET);
+    age = *(int *)(record + VV_AGE_OFFSET);
+    h = *(int *)(record + VV2_HEAD_OFFSET);
+    b = *(int *)(record + VV2_BODY_OFFSET);
+    m = VV2_MASK_TABLE[idx];
     /* VV2 stores sex as 1 (male) or 2 (female); the stock renderer branches on
        `sex == 1` (0x4456A3). Match it: sex 1 -> male atlas (0), else female (1). */
     vv2_appearance_sex = (sex == 1) ? 0 : 1;
     vv2_appearance_old = age >= 1100 ? 1 : 0;
-    vv2_appearance_head = (head && *head >= 0 && *head < VV2_APPEARANCE_COUNT) ? *head : 0;
-    vv2_appearance_body = (body && *body >= 0 && *body < VV2_APPEARANCE_COUNT) ? *body : 0;
+    vv2_appearance_head = (h >= 0 && h < VV2_APPEARANCE_COUNT) ? h : 0;
+    vv2_appearance_body = (b >= 0 && b < VV2_APPEARANCE_COUNT) ? b : 0;
+    vv2_appearance_mask = (m >= 0 && m < VV2_MASK_COUNT) ? m : 0;
     orig_head = vv2_appearance_head;
     orig_body = vv2_appearance_body;
+    orig_mask = vv2_appearance_mask;
 
     result = DialogBoxParamA(
         module_instance,
@@ -997,35 +1127,397 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
         vv2_appearance_dialog,
         0
     );
-    if (result == 1) {
-        /* OK with nothing actually changed (opened and confirmed, or cycled the
-           selectors back to where they started): write nothing, charge nothing. */
-        if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body) {
-            ShowVV2UpgradeResult(
-                VV2_ACT_DETAIL_APPEARANCE, VV2_RES_NO_CHANGE, 0, 0, 0, 0
-            );
+    if (result != 1) {
+        return 0;
+    }
+    /* OK with nothing actually changed: write nothing, charge nothing. */
+    if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body
+            && vv2_appearance_mask == orig_mask) {
+        ShowVV2UpgradeResult(VV2_ACT_DETAIL_APPEARANCE, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
+        return 0;
+    }
+    /* The head field is hereditary, so changing it affects descendants.  Warn and
+       let the player back out with no write and no charge. */
+    if (vv2_appearance_head != orig_head) {
+        if (MessageBoxA(
+                GetForegroundWindow(),
+                "Warning: This will change the villager's head genetics.",
+                "Change Appearance",
+                MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND
+            ) != IDOK) {
             return 0;
         }
-        /* The head field is hereditary (record +0x548), so changing it affects
-           this villager's descendants.  Warn explicitly before committing, and
-           let the player back out with no write and no charge. */
-        if (vv2_appearance_head != orig_head) {
-            if (MessageBoxA(
-                    GetForegroundWindow(),
-                    "Warning: This will change the villager's head genetics.",
-                    "Change Appearance",
-                    MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND
-                ) != IDOK) {
-                return 0;
+    }
+    if (*tech < VV2_APPEARANCE_COST_DLL) {
+        ShowVV2UpgradeResult(VV2_ACT_DETAIL_APPEARANCE, VV2_RES_INSUFFICIENT, 0, 0, 0, 0);
+        return 0;
+    }
+    *tech -= VV2_APPEARANCE_COST_DLL;
+    *(int *)(record + VV2_HEAD_OFFSET) = vv2_appearance_head;
+    *(int *)(record + VV2_BODY_OFFSET) = vv2_appearance_body;
+    VV2_MASK_TABLE[idx] = (unsigned char)vv2_appearance_mask;
+    vv2_mask_sidecar_save();   /* persist the mask table right after committing */
+    return 1;
+}
+
+/* ---- Change Appearance for All (214): per-sex Head/Body/Mask + distribution
+   + village-wide single mask, applied across every villager record. ---- */
+
+#define IDD_VV2_APPEARANCE_ALL 214
+#define VV2_SEX_OFFSET   0x538   /* 1 = male, 2 = female */
+#define VV2_HEAD_OFFSET  0x548
+#define VV2_BODY_OFFSET  0x54C
+
+/* preview control ids: [sex][kind] kind 0=body,1=head,2=mask; sex 0=male,1=female */
+static const int caf_preview_id[2][3] = {
+    { 3201, 3202, 3203 }, { 3204, 3205, 3206 }
+};
+
+/* selector state; -1 = "No change" (default), so an untouched selector writes
+   nothing.  head/body: 0..29.  mask: 0=None..5=Chief. */
+static int caf_body[2], caf_head[2], caf_mask[2];
+static int caf_dist;      /* 0 Off, 1 VV5, 2 Random(all5+none), 3 Equal, 4 Random(all5) */
+static int caf_village;   /* -1 Off, else 0=None..5=Chief (table value) */
+static int caf_head_mode; /* 0 Off, 1 Random(by gender), 2..6 = All Black/Brown/Red/Blonde/Other */
+static int caf_body_mode; /* 0 Off, 1 Random(by gender) */
+
+/* Village-wide head hair-colour buckets: head INDICES per gender per colour.
+   [0]=male [1]=female; colours 0 Black,1 Brown,2 Red,3 Blonde,4 Other. Bucketed
+   from the head-atlas hair band; adjust an index if any head is miscategorised. */
+#define VV2_HAIR_MAX 7
+static const unsigned char caf_hair[2][5][VV2_HAIR_MAX] = {
+    { /* male */
+        { 0, 1, 2, 3, 4, 6, 8 },       /* Black  */
+        { 9, 11, 12, 13, 19, 20, 22 }, /* Brown  */
+        { 10, 15, 16, 17, 18, 0, 0 },  /* Red    */
+        { 14, 21, 23, 24, 25, 27, 28 },/* Blonde */
+        { 5, 7, 26, 29, 0, 0, 0 },     /* Other  */
+    },
+    { /* female */
+        { 0, 1, 2, 5, 6, 8, 9 },       /* Black  */
+        { 4, 11, 12, 14, 20, 21, 0 },  /* Brown  */
+        { 10, 16, 17, 18, 19, 0, 0 },  /* Red    */
+        { 22, 23, 24, 25, 26, 27, 28 },/* Blonde */
+        { 3, 7, 13, 15, 29, 0, 0 },    /* Other  */
+    }
+};
+static const unsigned char caf_hair_n[2][5] = {
+    { 7, 7, 5, 7, 4 },   /* male   counts */
+    { 7, 6, 5, 7, 5 }    /* female counts */
+};
+
+static unsigned int caf_rng;
+static unsigned int caf_rand(void) {
+    caf_rng ^= caf_rng << 13; caf_rng ^= caf_rng >> 17; caf_rng ^= caf_rng << 5;
+    return caf_rng;
+}
+
+/* Draw one selector preview: sex-appropriate strip, or "No change" when idx<0. */
+static void caf_draw(DRAWITEMSTRUCT *item, int sex, int kind, int idx) {
+    if (idx < 0) {
+        vv2_draw_label(item, "No change");
+        return;
+    }
+    if (kind == 2) {
+        if (idx == 0) {
+            vv2_draw_label(item, "(none)");
+        } else {
+            vv2_appearance_draw(item, IDB_MASK, idx);
+        }
+    } else if (kind == 1) {
+        vv2_appearance_draw(item, sex ? IDB_HEAD_F_YOUNG : IDB_HEAD_M_YOUNG, idx);
+    } else {
+        vv2_appearance_draw(item, sex ? IDB_BODY_F : IDB_BODY_M, idx);
+    }
+}
+
+/* cycle a selector value; -1 (No change) is one position before 0, count is the
+   number of real options (30 for head/body, 6 for mask). */
+static int caf_cycle(int value, int count, int delta) {
+    value += delta;
+    if (value < -1) value = count - 1;
+    if (value >= count) value = -1;
+    return value;
+}
+
+/* The 10 "mask for everyone" radios form ONE mutually-exclusive choice spread
+   across two visual boxes: 3230 Off, 3231 VV5, 3232 Random, 3233 Equal, and
+   3241..3246 = single mask None/Blue/Orange/Red/Purple/Chief. */
+/* The three override groups (Masks / Heads / Bodies).  Each is one mutually-
+   exclusive radio set; Off = use the per-sex cyclers, any other option overrides
+   them.  Mask spans two visual boxes (distribution + single colour). */
+static const int caf_mask_radio[11] = {
+    3230, 3231, 3232, 3234, 3233, 3241, 3242, 3243, 3244, 3245, 3246
+};
+static const int caf_head_radio[7] = { 3250, 3251, 3252, 3253, 3254, 3255, 3256 };
+static const int caf_body_radio[2] = { 3260, 3261 };
+/* the four per-sex cycler buttons to grey when a group's override is active:
+   male <, male >, female <, female > */
+static const int caf_mask_cyc[4] = { 3213, 3223, 3216, 3226 };
+static const int caf_head_cyc[4] = { 3212, 3222, 3215, 3225 };
+static const int caf_body_cyc[4] = { 3211, 3221, 3214, 3224 };
+
+/* Enforce single-select across `radios`, and grey the four per-sex cyclers when
+   an override (anything but `off_id`) is chosen — so a per-sex selector and a
+   village-wide override for the same part can never both apply.  `preview_col`
+   (0 body / 1 head / 2 mask) + `slots` = the per-sex values to clear/repaint. */
+static void caf_set_group(HWND w, const int *radios, int n, int selected,
+                          int off_id, const int *cyc, int *slots, int preview_col) {
+    int i, off = (selected == off_id);
+    for (i = 0; i < n; ++i)
+        CheckDlgButton(w, radios[i], radios[i] == selected ? BST_CHECKED : BST_UNCHECKED);
+    for (i = 0; i < 4; ++i) EnableWindow(GetDlgItem(w, cyc[i]), off);
+    if (!off) {                               /* override wins: clear the per-sex pair */
+        slots[0] = slots[1] = -1;
+        vv2_appearance_repaint(w, caf_preview_id[0][preview_col]);
+        vv2_appearance_repaint(w, caf_preview_id[1][preview_col]);
+    }
+}
+static void caf_set_mask_mode(HWND w, int sel) {
+    caf_set_group(w, caf_mask_radio, 11, sel, 3230, caf_mask_cyc, caf_mask, 2);
+}
+static void caf_set_head_mode(HWND w, int sel) {
+    caf_set_group(w, caf_head_radio, 7, sel, 3250, caf_head_cyc, caf_head, 1);
+}
+static void caf_set_body_mode(HWND w, int sel) {
+    caf_set_group(w, caf_body_radio, 2, sel, 3260, caf_body_cyc, caf_body, 0);
+}
+
+static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
+    (void)lp;
+    if (msg == WM_INITDIALOG) {
+        caf_set_head_mode(w, 3250);   /* defaults: all three groups Off */
+        caf_set_body_mode(w, 3260);
+        caf_set_mask_mode(w, 3230);
+        vv2_surface_dialog(w);
+        return TRUE;
+    } else if (msg == WM_DRAWITEM) {
+        DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lp;
+        int s, k;
+        for (s = 0; s < 2; ++s) {
+            for (k = 0; k < 3; ++k) {
+                if ((int)item->CtlID == caf_preview_id[s][k]) {
+                    int v = k == 0 ? caf_body[s] : k == 1 ? caf_head[s] : caf_mask[s];
+                    caf_draw(item, s, k, v);
+                    return TRUE;
+                }
             }
         }
-        if (head) {
-            *head = vv2_appearance_head;
+    } else if (msg == WM_COMMAND) {
+        unsigned int cmd = LOWORD(wp);
+        if (cmd >= 3211 && cmd <= 3226) {
+            int prev = cmd <= 3216;                 /* 3211-3216 prev, 3221-3226 next */
+            int base = prev ? 3211 : 3221;
+            int s = (cmd - base) / 3;               /* 0 male, 1 female */
+            int k = (cmd - base) % 3;               /* 0 body,1 head,2 mask */
+            int count = (k == 2) ? VV2_MASK_COUNT : VV2_APPEARANCE_COUNT;
+            int *slot = k == 0 ? &caf_body[s] : k == 1 ? &caf_head[s] : &caf_mask[s];
+            *slot = caf_cycle(*slot, count, prev ? -1 : 1);
+            vv2_appearance_repaint(w, caf_preview_id[s][k]);
+            return TRUE;
         }
-        if (body) {
-            *body = vv2_appearance_body;
+        if ((cmd >= 3230 && cmd <= 3234) || (cmd >= 3241 && cmd <= 3246)) {
+            caf_set_mask_mode(w, (int)cmd);   /* one exclusive mask choice */
+            return TRUE;
         }
-        return 1;
+        if (cmd >= 3250 && cmd <= 3256) { caf_set_head_mode(w, (int)cmd); return TRUE; }
+        if (cmd >= 3260 && cmd <= 3261) { caf_set_body_mode(w, (int)cmd); return TRUE; }
+        if (cmd == IDOK) {
+            int r;
+            caf_dist = 0;
+            caf_village = -1;
+            if (IsDlgButtonChecked(w, 3231)) caf_dist = 1;        /* VV5-style */
+            else if (IsDlgButtonChecked(w, 3232)) caf_dist = 2;   /* Random (All 5 + No Mask) */
+            else if (IsDlgButtonChecked(w, 3234)) caf_dist = 4;   /* Random (All 5) */
+            else if (IsDlgButtonChecked(w, 3233)) caf_dist = 3;   /* Equal */
+            else for (r = 0; r < 6; ++r)                          /* single mask 0..5 */
+                if (IsDlgButtonChecked(w, 3241 + r)) { caf_village = r; break; }
+            /* Heads: 3250 Off..3256 Other -> mode 0..6.  Bodies: Off/Random. */
+            caf_head_mode = 0;
+            for (r = 0; r < 7; ++r)
+                if (IsDlgButtonChecked(w, 3250 + r)) { caf_head_mode = r; break; }
+            caf_body_mode = IsDlgButtonChecked(w, 3261) ? 1 : 0;
+            /* an active override ignores the matching per-sex cyclers */
+            if (caf_dist != 0 || caf_village >= 0) caf_mask[0] = caf_mask[1] = -1;
+            if (caf_head_mode != 0) caf_head[0] = caf_head[1] = -1;
+            if (caf_body_mode != 0) caf_body[0] = caf_body[1] = -1;
+            EndDialog(w, 1);
+            return TRUE;
+        }
+        if (cmd == IDCANCEL) { EndDialog(w, 0); return TRUE; }
+    } else if (msg == WM_CLOSE) {
+        EndDialog(w, 0);
+        return TRUE;
     }
-    return 0;
+    return FALSE;
+}
+
+/* Fisher-Yates shuffle of an int array using caf_rand. */
+static void caf_shuffle(int *a, int n) {
+    int i, j, t;
+    for (i = n - 1; i > 0; --i) {
+        j = (int)(caf_rand() % (unsigned int)(i + 1));
+        t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+}
+
+/* Apply the current selectors to every active villager record.  Order: per-sex
+   Head/Body/Mask first, then a distribution preset (overrides masks), then a
+   village-wide single mask (final override) — so leaving the later groups Off
+   makes the per-sex selectors authoritative. */
+/* Returns the number of active villagers processed (0 = nothing to change, so
+   the caller must not charge). */
+static int vv2_apply_caf(unsigned char *base) {
+    int idx[VV2_RECORD_COUNT];       /* active record indices */
+    int sexof[VV2_RECORD_COUNT];     /* 0 male, 1 female (parallel to idx) */
+    int n = 0, i;
+    unsigned char *rec = base;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, rec += VV2_RECORD_STRIDE) {
+        int s;
+        if (rec[VV2_ACTIVE_OFFSET] == 0) continue;
+        s = (*(int *)(rec + VV2_SEX_OFFSET) == 1) ? 0 : 1;
+        idx[n] = i; sexof[n] = s; ++n;
+        /* per-sex Head/Body/Mask (skipped when the matching village-wide override
+           is active — those selectors were cleared/greyed, so these are -1) */
+        if (caf_head[s] >= 0) *(int *)(rec + VV2_HEAD_OFFSET) = caf_head[s];
+        if (caf_body[s] >= 0) *(int *)(rec + VV2_BODY_OFFSET) = caf_body[s];
+        if (caf_mask[s] >= 0) VV2_MASK_TABLE[i] = (unsigned char)caf_mask[s];
+    }
+    if (caf_head_mode != 0) {                 /* village-wide Heads */
+        for (i = 0; i < n; ++i) {
+            int s = sexof[i], h;
+            if (caf_head_mode == 1) {         /* Random (by gender) */
+                h = (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
+            } else {                          /* All <colour>: random within bucket */
+                int c = caf_head_mode - 2;    /* 0 Black..4 Other */
+                h = caf_hair[s][c][caf_rand() % caf_hair_n[s][c]];
+            }
+            *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_HEAD_OFFSET) = h;
+        }
+    }
+    if (caf_body_mode == 1) {                 /* village-wide Bodies: Random */
+        for (i = 0; i < n; ++i)
+            *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_BODY_OFFSET) =
+                (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
+    }
+    if (caf_dist == 1) {                     /* VV5-style rarity */
+        int order[VV2_RECORD_COUNT], k;
+        static const int tier_mask[4] = { 5, 4, 3, 2 };   /* Chief,Purple,Red,Orange */
+        static const int tier_cap[4]  = { 1, 4, 7, 10 };
+        int t, cursor = 0;
+        for (k = 0; k < n; ++k) order[k] = idx[k];
+        caf_shuffle(order, n);
+        for (k = 0; k < n; ++k) VV2_MASK_TABLE[order[k]] = 1;   /* default Blue */
+        for (t = 0; t < 4 && cursor < n; ++t) {
+            int c;
+            for (c = 0; c < tier_cap[t] && cursor < n; ++c, ++cursor)
+                VV2_MASK_TABLE[order[cursor]] = (unsigned char)tier_mask[t];
+        }
+    } else if (caf_dist == 2) {              /* Random (All 5 + No Mask): 0..5 */
+        for (i = 0; i < n; ++i)
+            VV2_MASK_TABLE[idx[i]] = (unsigned char)(caf_rand() % 6u);
+    } else if (caf_dist == 4) {              /* Random (All 5): 1..5, never no-mask */
+        for (i = 0; i < n; ++i)
+            VV2_MASK_TABLE[idx[i]] = (unsigned char)(1u + caf_rand() % 5u);
+    } else if (caf_dist == 3) {              /* Equal, balanced M/F */
+        int order[VV2_RECORD_COUNT], males[VV2_RECORD_COUNT], females[VV2_RECORD_COUNT];
+        int nm = 0, nf = 0, k, o = 0;
+        for (k = 0; k < n; ++k) { if (sexof[k]) females[nf++] = idx[k]; else males[nm++] = idx[k]; }
+        caf_shuffle(males, nm); caf_shuffle(females, nf);
+        /* alternate M/F so each round-robin mask type gets a balanced sex mix */
+        { int a = 0, b = 0; while (a < nm || b < nf) {
+            if (a < nm) order[o++] = males[a++];
+            if (b < nf) order[o++] = females[b++]; } }
+        for (k = 0; k < n; ++k)
+            VV2_MASK_TABLE[order[k]] = (unsigned char)((k % 5) + 1);   /* Blue..Chief */
+    }
+    if (caf_village >= 0) {                  /* village-wide single mask override */
+        for (i = 0; i < n; ++i)
+            VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_village;
+    }
+    return n;
+}
+
+#define VV2_CAF_COST 450000
+#define VV2_TECH_BALANCE_OFFSET 0x2EADC   /* int tech-point balance in the player obj */
+#define VV2_RECORD_ARRAY_FN     0x0044F4E0 /* stock getter: returns certified record array */
+
+typedef unsigned char *(__stdcall *vv2_record_array_fn)(void);
+
+/* player = the Tech-menu player object (exe passes EDI).  Derives the tech-point
+   balance (+0x2EADC) and the certified record array (the stock getter the exe's
+   other apply paths use) itself, so the exe dispatch is a one-arg call with no
+   handler growth.  On OK — with a real change and enough points — charges 450k,
+   applies to all villagers, and persists the mask table to the sidecar. */
+__declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
+    INT_PTR result;
+    int changed_head;
+    unsigned char *base;
+    int *tech;
+    if (player == 0) return 0;
+    tech = (int *)((unsigned char *)player + VV2_TECH_BALANCE_OFFSET);
+    base = ((vv2_record_array_fn)VV2_RECORD_ARRAY_FN)();
+    if (base == 0) return 0;
+    caf_body[0] = caf_head[0] = caf_mask[0] = -1;
+    caf_body[1] = caf_head[1] = caf_mask[1] = -1;
+    caf_dist = 0;
+    caf_village = -1;
+    caf_head_mode = 0;
+    caf_body_mode = 0;
+    caf_rng = GetTickCount() | 1u;
+    vv2_prep_fullscreen();
+
+    result = DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_VV2_APPEARANCE_ALL),
+                             GetForegroundWindow(), caf_dialog, 0);
+    if (result != 1) return 0;   /* caf_dialog captured the radios before closing */
+
+    /* nothing selected in any of the four groups -> no change, no charge */
+    if (caf_body[0] < 0 && caf_head[0] < 0 && caf_mask[0] < 0 &&
+        caf_body[1] < 0 && caf_head[1] < 0 && caf_mask[1] < 0 &&
+        caf_dist == 0 && caf_village < 0 &&
+        caf_head_mode == 0 && caf_body_mode == 0) {
+        MessageBoxA(GetForegroundWindow(),
+                    "No appearance options were selected. No tech points deducted.",
+                    "Change Appearance for All",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+
+    if (tech && *tech < VV2_CAF_COST) {
+        MessageBoxA(GetForegroundWindow(),
+                    "Not enough tech points. This upgrade costs 450,000.",
+                    "Change Appearance for All",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+
+    /* changing a head field rewrites hereditary genetics; warn once for all */
+    changed_head = (caf_head[0] >= 0 || caf_head[1] >= 0 || caf_head_mode != 0);
+    if (changed_head) {
+        if (MessageBoxA(GetForegroundWindow(),
+                "Warning: This will change the head genetics of every villager "
+                "of the selected sex, affecting their descendants.\r\n\r\nProceed?",
+                "Change Appearance for All",
+                MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
+            return 0;
+        }
+    }
+
+    /* Apply first; charge only if there was at least one active villager to
+       change (no-op selections / an empty village must not deduct 450k). */
+    if (vv2_apply_caf(base) == 0) {
+        MessageBoxA(GetForegroundWindow(),
+                    "There are no villagers to change right now. "
+                    "No tech points were deducted.",
+                    "Change Appearance for All",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    if (tech) *tech -= VV2_CAF_COST;
+    vv2_mask_sidecar_save();
+    MessageBoxA(GetForegroundWindow(),
+                "Change Appearance for All applied to every villager.",
+                "Change Appearance for All",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return 1;
 }
