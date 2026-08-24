@@ -178,7 +178,7 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
 
     def test_isolated_mask_sheet_ships_for_the_chooser_preview(self) -> None:
         cf = self.m["companion_files"]
-        sheet = next((e for e in cf if e["destination"] == "Images/vvfp_masks.png"), None)
+        sheet = next((e for e in cf if e["destination"] == "Images/vvfp_mask_preview.png"), None)
         self.assertIsNotNone(sheet, "chooser preview sheet missing")
         self.assertEqual(
             hashlib.sha256((ROOT / sheet["source"]).read_bytes()).hexdigest().upper(),

@@ -1666,13 +1666,14 @@ def main() -> None:
                     (ROOT / "assets/vv4_masks/vvfp_mask_atlas.png").read_bytes()
                 ).hexdigest().upper(),
             },
-            # Isolated mask sheet for the Change Appearance chooser preview.
-            # Added file, so no preimage/restore -- it is removed on unpatch.
+            # Centered 40x65 mask preview atlas for the Change Appearance chooser
+            # (autocropped, ~90% fill; VV2-parity source size). Added file, so no
+            # preimage/restore -- it is removed on unpatch.
             {
-                "source": "assets/vv4_masks/vv5_heathenheads_source.png",
-                "destination": "Images/vvfp_masks.png",
+                "source": "assets/vv4_masks/vvfp_mask_preview.png",
+                "destination": "Images/vvfp_mask_preview.png",
                 "sha256": hashlib.sha256(
-                    (ROOT / "assets/vv4_masks/vv5_heathenheads_source.png").read_bytes()
+                    (ROOT / "assets/vv4_masks/vvfp_mask_preview.png").read_bytes()
                 ).hexdigest().upper(),
             },
         ],

@@ -160,30 +160,31 @@ BEGIN
     DEFPUSHBUTTON "Cancel", 2, 120, 186, 70, 14
 END
 
-203 DIALOGEX 0, 0, 300, 398
+203 DIALOGEX 0, 0, 366, 196
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
 BEGIN
-    LTEXT       "Body", -1, 34, 8, 88, 10, SS_CENTER
-    PUSHBUTTON  "<",       2011, 14,  80, 16, 24
-    CONTROL     "", 2013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 34, 20, 88, 150
-    PUSHBUTTON  ">",       2012, 126, 80, 16, 24
+    /* Body / Head / Mask in one row; preview box 70x118 (VV2 5-game parity). */
+    LTEXT       "Body", -1, 30, 8, 70, 9, SS_CENTER
+    PUSHBUTTON  "<", 2011, 10, 72, 16, 16
+    CONTROL     "", 2013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 70, 118
+    PUSHBUTTON  ">", 2012, 104, 72, 16, 16
 
-    LTEXT       "Head", -1, 178, 8, 88, 10, SS_CENTER
-    PUSHBUTTON  "<",       2001, 158, 80, 16, 24
-    CONTROL     "", 2003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 178, 20, 88, 150
-    PUSHBUTTON  ">",       2002, 270, 80, 16, 24
+    LTEXT       "Head", -1, 150, 8, 70, 9, SS_CENTER
+    PUSHBUTTON  "<", 2001, 130, 72, 16, 16
+    CONTROL     "", 2003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 70, 118
+    PUSHBUTTON  ">", 2002, 224, 72, 16, 16
 
-    LTEXT       "Mask", -1, 106, 180, 88, 10, SS_CENTER
-    PUSHBUTTON  "<",       2021, 86,  250, 16, 24
-    CONTROL     "", 2023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 106, 190, 88, 150
-    PUSHBUTTON  ">",       2022, 198, 250, 16, 24
-    LTEXT       "(None)", 2020, 75, 350, 150, 10, SS_CENTER
+    LTEXT       "Mask", -1, 270, 8, 70, 9, SS_CENTER
+    PUSHBUTTON  "<", 2021, 250, 72, 16, 16
+    CONTROL     "", 2023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 270, 20, 70, 118
+    PUSHBUTTON  ">", 2022, 344, 72, 16, 16
+    LTEXT       "(None)", 2020, 270, 140, 70, 9, SS_CENTER
 
-    LTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 25, 364, 250, 10, SS_CENTER
-    DEFPUSHBUTTON "OK",     1, 95, 380, 50, 14
-    PUSHBUTTON    "Cancel", 2, 155, 380, 50, 14
+    LTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 33, 158, 300, 10, SS_CENTER
+    DEFPUSHBUTTON "OK",     1, 143, 172, 50, 14
+    PUSHBUTTON    "Cancel", 2, 197, 172, 50, 14
 END
 
 /* Change Appearance for All (Tech-screen 450,000-point upgrade). Male + Female
@@ -194,54 +195,55 @@ END
    preview shows the 6th frame (col 5). Radios are one WS_GROUP run so they are
    natively mutually exclusive across both boxes; picking any non-Off option
    greys the per-sex Mask cyclers (enforced in code). */
-214 DIALOGEX 0, 0, 340, 466
+214 DIALOGEX 0, 0, 340, 372
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance for All"
 FONT 9, "Segoe UI"
 BEGIN
-    GROUPBOX    "Male Villagers", -1, 5, 3, 330, 148
-    LTEXT       "Body", -1, 10, 16, 100, 9, SS_CENTER
-    PUSHBUTTON  "<", 3011, 14, 84, 14, 24
-    CONTROL     "", 3013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 26, 66, 118
-    PUSHBUTTON  ">", 3012, 98, 84, 14, 24
-    LTEXT       "Head", -1, 117, 16, 100, 9, SS_CENTER
-    PUSHBUTTON  "<", 3001, 121, 84, 14, 24
-    CONTROL     "", 3003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 137, 26, 66, 118
-    PUSHBUTTON  ">", 3002, 205, 84, 14, 24
-    LTEXT       "Mask", -1, 224, 16, 100, 9, SS_CENTER
-    PUSHBUTTON  "<", 3021, 228, 84, 14, 24
-    CONTROL     "", 3023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 244, 26, 66, 118
-    PUSHBUTTON  ">", 3022, 312, 84, 14, 24
+    /* Preview box 50x74, columns Body 28 / Head 150 / Mask 272 (VV2 parity). */
+    GROUPBOX    "Male Villagers", -1, 5, 3, 330, 100
+    LTEXT       "Body", -1, 28, 14, 50, 9, SS_CENTER
+    PUSHBUTTON  "<", 3011, 14, 48, 12, 20
+    CONTROL     "", 3013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 24, 50, 74
+    PUSHBUTTON  ">", 3012, 80, 48, 12, 20
+    LTEXT       "Head", -1, 150, 14, 50, 9, SS_CENTER
+    PUSHBUTTON  "<", 3001, 136, 48, 12, 20
+    CONTROL     "", 3003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 24, 50, 74
+    PUSHBUTTON  ">", 3002, 202, 48, 12, 20
+    LTEXT       "Mask", -1, 272, 14, 50, 9, SS_CENTER
+    PUSHBUTTON  "<", 3021, 258, 48, 12, 20
+    CONTROL     "", 3023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 24, 50, 74
+    PUSHBUTTON  ">", 3022, 324, 48, 12, 20
 
-    GROUPBOX    "Female Villagers", -1, 5, 155, 330, 148
-    LTEXT       "Body", -1, 10, 168, 100, 9, SS_CENTER
-    PUSHBUTTON  "<", 3111, 14, 236, 14, 24
-    CONTROL     "", 3113, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 178, 66, 118
-    PUSHBUTTON  ">", 3112, 98, 236, 14, 24
-    LTEXT       "Head", -1, 117, 168, 100, 9, SS_CENTER
-    PUSHBUTTON  "<", 3101, 121, 236, 14, 24
-    CONTROL     "", 3103, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 137, 178, 66, 118
-    PUSHBUTTON  ">", 3102, 205, 236, 14, 24
-    LTEXT       "Mask", -1, 224, 168, 100, 9, SS_CENTER
-    PUSHBUTTON  "<", 3121, 228, 236, 14, 24
-    CONTROL     "", 3123, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 244, 178, 66, 118
-    PUSHBUTTON  ">", 3122, 312, 236, 14, 24
+    GROUPBOX    "Female Villagers", -1, 5, 106, 330, 100
+    LTEXT       "Body", -1, 28, 117, 50, 9, SS_CENTER
+    PUSHBUTTON  "<", 3111, 14, 151, 12, 20
+    CONTROL     "", 3113, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 127, 50, 74
+    PUSHBUTTON  ">", 3112, 80, 151, 12, 20
+    LTEXT       "Head", -1, 150, 117, 50, 9, SS_CENTER
+    PUSHBUTTON  "<", 3101, 136, 151, 12, 20
+    CONTROL     "", 3103, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 127, 50, 74
+    PUSHBUTTON  ">", 3102, 202, 151, 12, 20
+    LTEXT       "Mask", -1, 272, 117, 50, 9, SS_CENTER
+    PUSHBUTTON  "<", 3121, 258, 151, 12, 20
+    CONTROL     "", 3123, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 127, 50, 74
+    PUSHBUTTON  ">", 3122, 324, 151, 12, 20
 
-    GROUPBOX    "Mask Distribution (all villagers)", -1, 5, 307, 330, 66
-    GROUPBOX    "Village-wide Single Mask Color", -1, 5, 377, 330, 48
+    GROUPBOX    "Mask Distribution (all villagers)", -1, 5, 210, 330, 66
+    GROUPBOX    "Village-wide Single Mask Color", -1, 5, 280, 330, 48
 
-    AUTORADIOBUTTON "Off - use the per-sex Mask selectors above", 3200, 14, 320, 310, 11, WS_GROUP | WS_TABSTOP
-    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3201, 14, 333, 315, 11
-    AUTORADIOBUTTON "Random", 3202, 14, 346, 310, 11
-    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3203, 14, 359, 310, 11
-    AUTORADIOBUTTON "None (remove all masks)", 3204, 14, 390, 140, 11
-    AUTORADIOBUTTON "Blue", 3205, 160, 390, 50, 11
-    AUTORADIOBUTTON "Orange", 3206, 215, 390, 60, 11
-    AUTORADIOBUTTON "Red", 3207, 285, 390, 45, 11
-    AUTORADIOBUTTON "Purple", 3208, 14, 404, 70, 11
-    AUTORADIOBUTTON "Chief", 3209, 100, 404, 70, 11
+    AUTORADIOBUTTON "Off - use the per-sex Mask selectors above", 3200, 14, 223, 310, 11, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3201, 14, 236, 315, 11
+    AUTORADIOBUTTON "Random", 3202, 14, 249, 310, 11
+    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3203, 14, 262, 310, 11
+    AUTORADIOBUTTON "None (remove all masks)", 3204, 14, 293, 140, 11
+    AUTORADIOBUTTON "Blue", 3205, 160, 293, 50, 11
+    AUTORADIOBUTTON "Orange", 3206, 215, 293, 60, 11
+    AUTORADIOBUTTON "Red", 3207, 285, 293, 45, 11
+    AUTORADIOBUTTON "Purple", 3208, 14, 307, 70, 11
+    AUTORADIOBUTTON "Chief", 3209, 100, 307, 70, 11
 
-    LTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 20, 432, 300, 10, SS_CENTER | WS_GROUP
-    DEFPUSHBUTTON "OK",     1, 120, 446, 50, 14
-    PUSHBUTTON    "Cancel", 2, 180, 446, 50, 14
+    LTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 20, 335, 300, 10, SS_CENTER | WS_GROUP
+    DEFPUSHBUTTON "OK",     1, 120, 349, 50, 14
+    PUSHBUTTON    "Cancel", 2, 180, 349, 50, 14
 END
