@@ -342,6 +342,9 @@ __declspec(dllexport) void __stdcall Vv1MaskApplyDistribution(int mode,
     case 3:
         vv1_dist_equal(count, is_male, &rng, scratch, out);
         break;
+    case 4:
+        vv1_dist_random_with_none(count, &rng, out);
+        break;
     default:
         if (single_mask < 0 || single_mask > 5) {
             single_mask = 0;

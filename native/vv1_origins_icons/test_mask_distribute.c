@@ -31,12 +31,27 @@ int main(void) {
         for (i = 0; i < count; i++) CHECK(out[i] == VVM_NONE, "single none not uniform");
     }
 
-    /* --- random: everyone gets a real mask 1..5 --- */
+    /* --- random (All 5): everyone gets a real mask 1..5, never none --- */
     for (seed = 1; seed <= 5; seed++) {
         rng = (unsigned int)seed * 2654435761u;
         count = 227;
         vv1_dist_random(count, &rng, out);
         for (i = 0; i < count; i++) CHECK(out[i] >= VVM_BLUE && out[i] <= VVM_CHIEF, "random out of range");
+    }
+
+    /* --- random (All 5 + No Mask): 0..5, and some ARE none over enough draws --- */
+    {
+        int none_seen = 0;
+        for (seed = 1; seed <= 5; seed++) {
+            rng = (unsigned int)seed * 40503u + 7u;
+            count = 300;
+            vv1_dist_random_with_none(count, &rng, out);
+            for (i = 0; i < count; i++) {
+                CHECK(out[i] <= VVM_CHIEF, "random+none out of range");
+                if (out[i] == VVM_NONE) none_seen = 1;
+            }
+        }
+        CHECK(none_seen, "random+none never left anyone unmasked");
     }
 
     /* --- vv5: exactly one chief, caps respected, rest blue --- */

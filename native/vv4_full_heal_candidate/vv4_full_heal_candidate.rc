@@ -1,9 +1,0 @@
-/* Resource contract for the candidate-owned replacement companion.  The
- * production builder must structurally repack dialog leaves 201 and 203;
- * dialog 202 and every non-title item remain byte-identical. */
-#define ID_FULL_HEAL_CURE_ALL 1005
-
-STRINGTABLE
-BEGIN
-    ID_FULL_HEAL_CURE_ALL "Full Heal / Cure All"
-END

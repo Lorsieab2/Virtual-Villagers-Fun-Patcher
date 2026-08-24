@@ -1,4 +1,0 @@
-LIBRARY "VVFP VV1 Full Mastery Candidate"
-EXPORTS
-    ShowVV1FullMasteryMenu=_ShowVV1FullMasteryMenu@0
-    ShowVV1FullMasteryResult=_ShowVV1FullMasteryResult@8

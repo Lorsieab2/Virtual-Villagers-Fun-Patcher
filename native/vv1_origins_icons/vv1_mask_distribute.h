@@ -55,11 +55,22 @@ static void vv1_dist_single(int count, unsigned char mask, unsigned char *out) {
     }
 }
 
-/* Random: every villager gets one of the five masks, uniformly at random. */
+/* Random (All 5): every villager gets one of the five colours, uniformly at
+ * random. No villager is left unmasked. */
 static void vv1_dist_random(int count, unsigned int *rng, unsigned char *out) {
     int i;
     for (i = 0; i < count; i++) {
         out[i] = (unsigned char)(VVM_BLUE + vvm_rng_next(rng) % 5u);
+    }
+}
+
+/* Random (All 5 + No Mask): every villager gets one of the five colours OR no
+ * mask, uniformly at random over 0..5 -- so some villagers end up unmasked. */
+static void vv1_dist_random_with_none(int count, unsigned int *rng,
+                                      unsigned char *out) {
+    int i;
+    for (i = 0; i < count; i++) {
+        out[i] = (unsigned char)(vvm_rng_next(rng) % 6u);  /* 0..5 incl. none */
     }
 }
 
