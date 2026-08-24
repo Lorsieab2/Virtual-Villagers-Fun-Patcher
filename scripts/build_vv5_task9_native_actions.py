@@ -117,6 +117,10 @@ BH_COL_TABLE = [0, 1, 2, 0, 1, 2, 0, 1]   # head anim frame&7 -> mask column; pe
 # col0=right-facing +10px, col1=front +3px, col2=left-facing -10px. Signed bytes,
 # in the R+X page, live-tunable. Indexed by the resolved mask column (0/1/2).
 BH_COLDX_TABLE = [16, 3, -16]
+# Per-mask-color (row) vertical nudge, on top of the base lift. Rows are
+# Blue/Orange/Red/Purple/Chief = mask-1 (0..4). Some masks (e.g. Purple's tall
+# crown) sit lower and need individual raising. Signed bytes, page, live-tunable.
+BH_ROWDY_TABLE = [0, 2, 0, -3, 0]   # Orange(row1) down 2px, Purple(row3) up 3px
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -3468,6 +3472,10 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         movsx eax, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets'] + 8:X}]
         add eax, dword ptr [0x{BH_SX:X}]
         mov dword ptr [0x{BH_SX:X}], eax
+        mov ecx, dword ptr [0x{BH_SROW:X}]
+        movsx eax, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets'] + 11:X}]
+        add eax, dword ptr [0x{BH_SY:X}]
+        mov dword ptr [0x{BH_SY:X}], eax
         call 0x44FBB0
         mov ecx, eax
         push 0x{MASK_HANDLE:X}
@@ -3498,6 +3506,10 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # frame->column table, indexed by the resolved column.
     for i, dx in enumerate(BH_COLDX_TABLE):
         page[tbl_off + 8 + i] = dx & 0xFF
+    # per-mask-color (row) vertical nudge table (5 signed bytes), past the col-dx
+    # table, indexed by the mask row (mask-1).
+    for i, dy in enumerate(BH_ROWDY_TABLE):
+        page[tbl_off + 11 + i] = dy & 0xFF
     return {
         "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
         "mask_load_once": load_once, "bighead_mask": bighead,
