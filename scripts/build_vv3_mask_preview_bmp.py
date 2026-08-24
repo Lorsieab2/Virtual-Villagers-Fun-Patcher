@@ -20,7 +20,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
+
+from build_vv3_mask_atlas_separate import _label_faces
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "native" / "vv3_full_mastery_candidate" / "appearance"
@@ -47,7 +50,14 @@ def build(src_path: Path) -> Path:
     for r in range(MASK_ROWS):
         x = FRONT_FRAME * SRC_CELL_W
         cell = sheet.crop((x, r * SRC_CELL_H, x + SRC_CELL_W, r * SRC_CELL_H + SRC_CELL_H))
-        content = cell.crop(cell.getbbox())          # tight native content
+        # Crop to the LARGEST connected blob (not a raw getbbox): the atlas cell can
+        # carry a faint anti-aliased sliver bled from a neighbour frame at the cell
+        # edge, and a raw bbox would include it -- pushing the mask off-centre AND
+        # capping its scale so it draws small next to a taller mask.  The main blob
+        # ignores such slivers.
+        faces = _label_faces(np.array(cell)[:, :, 3] > 32)
+        blob = max(faces, key=lambda f: len(f["xs"]))
+        content = cell.crop((blob["x0"], blob["y0"], blob["x1"] + 1, blob["y1"] + 1))
         scale = min(fit_w / content.width, fit_h / content.height)
         nw, nh = max(1, int(round(content.width * scale))), max(1, int(round(content.height * scale)))
         content = content.resize((nw, nh), Image.LANCZOS)
