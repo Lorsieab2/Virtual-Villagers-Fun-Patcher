@@ -14,6 +14,7 @@ EXPORTS
     VV3_SetMaskForRecord=_VV3_SetMaskForRecord@8
     VV3DrawMaskOnHead=_VV3DrawMaskOnHead@12
     VV3WorldMaskDraw=_VV3WorldMaskDraw@4 @101
+    VV3WorldMaskDrawAt=_VV3WorldMaskDrawAt@8 @102
     ; Pinned to ordinal 101 so the world flush cave resolves it BY ORDINAL
     ; (push 101) without a name string in the tiny hot-loop cave.
     ShowVV3AppearanceForAll=_ShowVV3AppearanceForAll@0 @100

@@ -82,24 +82,22 @@ MASK_SPRITE_OBJ_OFF = 0x1F7C
 # calls this once -- keeping the cave tiny and the mask logic in readable C.
 MASK_DRAWFN_PTR = 0x6C7A00
 
-# ---- Village / world Heathen-mask hook (deferred-render aware) ----
-# VV3's village view is a DEFERRED command-queue renderer: the world loop enqueues
-# each villager (type 8) and the flush sub_42E2A0 depth-sorts, then draws each via
-# the per-villager handler sub_4605F0 (0x4605F0) -- which has exactly ONE caller
-# (the flush case-8 call at 0x42E3F5).  We REDIRECT that single call site to a tiny
-# cave that runs the original handler (draws the villager), then calls the DLL's
-# VV3WorldMaskDraw(index), which draws the mask ON TOP at the villager's own world
-# position via the world blit 0x42E510 (it camera-transforms world x/y, so the mask
-# tracks the villager while panning).  Because the handler runs once per villager in
-# depth-sorted order, this gives correct z-order with NO stash list.  The DLL
-# publishes its export ptr to WORLD_DRAWFN_PTR in DllMain, so the per-frame cave
-# needs no LoadLibrary.  At 0x42E3F5 ecx=0x59E110 (this) is already set and the
-# index is on the stack; the cave inherits both.  mask=0 / unloaded DLL / no atlas
-# all degrade to a plain villager (never a crash); writes NO villager state.
+# ---- Village / world Heathen-mask hook (INTERCEPT the head draw) ----
+# VV3's village view is a DEFERRED command-queue renderer; the per-villager handler
+# sub_4605F0 draws the head via `sub_42E570(mgr, headSprite, x, y, scale, flag)` at
+# the SOLE call site 0x460A60.  Rather than reconstruct the villager draw (fragile:
+# anchor/scale/facing all differ), we REDIRECT that head-draw call to a cave that
+# (1) re-issues the identical head draw, then (2) calls the DLL's
+# VV3WorldMaskDrawAt(record, &args), which draws the mask ON TOP through the SAME
+# manager 0x58F6F8 at the head's EXACT x/y/scale (so position + scale + alpha come
+# free).  At 0x460A60 esi = the villager record and the 5 head-draw args are on the
+# stack; the cave passes both.  DLL publishes its ptr to WORLD_DRAWFN_PTR in DllMain
+# (no per-frame LoadLibrary).  A null ptr / mask=0 / no atlas just draws the plain
+# head (never a crash); writes NO villager state.
 WORLD_MASK_CAVE_VA = PAYLOAD_VA + 0xB48   # free gap after MASK_CAVE, before preflight
-WORLD_MASK_CALLSITE_VA = 0x42E3F5         # the flush's sole `call sub_4605F0`
-WORLD_MASK_HANDLER_VA = 0x4605F0          # per-villager draw handler (left intact)
-WORLD_DRAWFN_PTR = 0x6C7A04               # DLL publishes VV3WorldMaskDraw here
+WORLD_MASK_CALLSITE_VA = 0x460A60         # sub_4605F0's sole `call sub_42E570` (head)
+WORLD_HEAD_DRAW_VA = 0x42E570             # the head draw we re-issue then overlay
+WORLD_DRAWFN_PTR = 0x6C7A04               # DLL publishes VV3WorldMaskDrawAt here
 
 # Complete/Reset all Collections action caves live in a free executable-.rdata
 # padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
@@ -1603,24 +1601,33 @@ def main() -> None:
         f"jmp 0x{MASK_CAVE_VA:X}", MASK_HOOK_VA
     ) + b"\x90" * (MASK_HOOK_LEN - 5)
 
-    # Village/world mask cave: run the original per-villager draw handler (ecx=this
-    # and the index arg are inherited from the redirected call site), then call the
-    # DLL's VV3WorldMaskDraw(index) to draw the mask on top.  DLL ptr is published to
-    # WORLD_DRAWFN_PTR by DllMain, so no LoadLibrary in this per-frame path; a null
-    # ptr (DLL not yet loaded) just draws the plain villager.
+    # Village/world mask cave: INTERCEPT the head draw.  At the redirected call site
+    # esi=record, ecx=mgr, and the 5 head-draw args are on the stack
+    # ([esp+4]=headSprite, +8=x, +0xC=y, +0x10=scale, +0x14=flag).  We (1) re-issue
+    # the identical head draw with a COPY of the 5 args (sub_42E570 is ret 0x14 so it
+    # cleans the copies, leaving the originals), then (2) hand the DLL the record + a
+    # pointer to those originals; it draws the mask through the SAME manager at the
+    # head's exact x/y/scale.  A null DLL ptr just leaves the plain head.  esi and the
+    # callee-saved regs survive both calls (thiscall/stdcall preserve them).
     put(
         WORLD_MASK_CAVE_VA,
         f"""
-            push dword ptr [esp + 4]
-            mov eax, 0x{WORLD_MASK_HANDLER_VA:X}
-            call eax
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            mov ecx, 0x58F6F8
+            call 0x{WORLD_HEAD_DRAW_VA:X}
             mov eax, dword ptr [0x{WORLD_DRAWFN_PTR:X}]
             test eax, eax
             je world_mask_done
-            push dword ptr [esp + 4]
+            lea edx, [esp + 4]
+            push edx
+            push esi
             call eax
         world_mask_done:
-            ret 4
+            ret 0x14
         """,
     )
     world_mask_redirect = assemble(
