@@ -162,7 +162,10 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
     def test_render_atlas_ships_as_an_added_file(self) -> None:
         cf = self.m["companion_files"]
         self.assertEqual(cf[0]["destination"], "VVFP VV4 Origins Icons.dll")
-        atlas = next((e for e in cf if e["destination"] == "Images/vvfp_mask_atlas00.png"), None)
+        # Ships as a single bare file: the DLL loads it via the game's single-file
+        # ldwImageGrid loader FUN_0040ab10, which fopen's the name verbatim (no
+        # "00" suffix, unlike the multi-file "%s%d%d%s" ctor).
+        atlas = next((e for e in cf if e["destination"] == "Images/vvfp_mask_atlas.png"), None)
         self.assertIsNotNone(atlas, "render atlas companion missing")
         self.assertEqual(
             hashlib.sha256((ROOT / atlas["source"]).read_bytes()).hexdigest().upper(),
