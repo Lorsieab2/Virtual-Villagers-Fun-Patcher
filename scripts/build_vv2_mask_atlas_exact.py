@@ -5,10 +5,24 @@ from PIL import Image
 import numpy as np
 from scipy import ndimage
 
-FOLDER = r"C:/Users/Owner/Downloads/VV2 mask mockups"
-GAME = r"C:/Users/Owner/Downloads/Virtual Villagers - The Lost Children/Images/male_heads.png"
-OUT_ATLAS = r"C:/Users/Owner/Downloads/Virtual Villagers - The Lost Children/Images/heathen_masks.png"
-SCR = r"C:/Users/Owner/AppData/Local/Temp/claude/C--Users-Owner--claude/0273893a-8270-4370-a19f-cd0f96b9c774/scratchpad"
+import os
+from pathlib import Path
+
+# No author-only absolute paths.  Source mask art lives in the repo; the stock
+# game's Images folder (has male_heads.png + receives heathen_masks.png) comes
+# from $VV2_IMAGES.  Scratch/verify output goes to $VV2_SCRATCH (repo .scratch).
+_ROOT = Path(__file__).resolve().parents[1]
+FOLDER = os.environ.get("VV2_MASK_SRC", str(_ROOT / "research" / "vv2-mask-source"))
+_IMAGES = os.environ.get("VV2_IMAGES", "")
+if not _IMAGES:
+    raise SystemExit(
+        "set VV2_IMAGES to the stock game's Images folder "
+        "(the one containing male_heads.png)"
+    )
+GAME = str(Path(_IMAGES) / "male_heads.png")
+OUT_ATLAS = str(Path(_IMAGES) / "heathen_masks.png")
+SCR = os.environ.get("VV2_SCRATCH", str(_ROOT / ".scratch"))
+os.makedirs(SCR, exist_ok=True)
 
 HW, HH = 40, 65
 CELL_W, CELL_H = 40, 88          # atlas cell
@@ -67,17 +81,27 @@ def build():
     for mi, nm in enumerate(MASKS):
         bh = bh_chief if nm == "chief" else bh_other
         pm = _blobs(f"{FOLDER}/vv5 mask port {nm}.png")
+        # Per-frame horizontal offset (mask follows the head as it faces L/R), but
+        # the VERTICAL anchor is EQUALIZED across all 7 frames so the mask never
+        # bobs up/down between facing directions. Use the mean of the per-frame
+        # head-center-y + offset-y so the tuned MASK_DY placement is preserved.
+        offs = []
         for f in range(FRAMES):
             hc = _center(bh[f]); mc = _center(pm[f])          # canvas centers
-            off = (mc[0] - hc[0], mc[1] - hc[1])              # mask center vs head center
+            offs.append((mc[0] - hc[0], mc[1] - hc[1]))        # mask center vs head center
+        vy_mean = sum(ghc[f][1] + offs[f][1] for f in range(FRAMES)) / float(FRAMES)
+        ay_const = ADULT_LIFT + vy_mean + MASK_DY.get(nm, 0)   # constant screen-y, atlas
+        vy_const = 30 + vy_mean + MASK_DY.get(nm, 0)           # constant screen-y, verify
+        for f in range(FRAMES):
+            off = offs[f]
             mimg = pm[f][4]
             s = MASK_SCALE.get(nm, 1.0)
             if s != 1.0:
                 mimg = mimg.resize((max(1, round(mimg.width * s)), max(1, round(mimg.height * s))), Image.LANCZOS)
             mw, mh = mimg.size
-            # atlas: place mask center at (ghc_x + off_x, LIFT + ghc_y + off_y)
+            # atlas: place mask center at (ghc_x + off_x, ay_const) — Y equal for all frames
             ax = ghc[f][0] + off[0] + MASK_DX.get(nm, 0)
-            ay = ADULT_LIFT + ghc[f][1] + off[1] + MASK_DY.get(nm, 0)
+            ay = ay_const
             px = int(round(ax - mw / 2.0)); py = int(round(ay - mh / 2.0))
             # composite into THIS cell only, clipping any overflow so it never bleeds into the
             # neighbouring frame's cell (the "extra pixels to the side").
@@ -92,7 +116,7 @@ def build():
             cell.alpha_composite(g_img.crop((f * HW, 0, f * HW + HW, HH)), (0, 30))
             # mask center at head-center + off (screen), head drawn at +30
             vmx = int(round(ghc[f][0] + off[0] + MASK_DX.get(nm, 0) - mw / 2.0))
-            vmy = int(round(30 + ghc[f][1] + off[1] + MASK_DY.get(nm, 0) - mh / 2.0))
+            vmy = int(round(vy_const - mh / 2.0))
             cell.alpha_composite(mimg, (vmx, vmy))
             verify.alpha_composite(cell, (f * HW, vy))
     atlas.save(OUT_ATLAS)

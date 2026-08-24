@@ -1076,6 +1076,56 @@ __declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_loa
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
 
+/* Self-extract the embedded mask render atlas (RCDATA 5000) to <exe dir>\Images\
+   heathen_masks.png if it is not already there, so a patched game gets the atlas
+   with no separate asset deploy.  Uses the EXE's own directory (not cwd), so it
+   works under any launch dir / renamed exe, and NEVER overwrites an existing file
+   (so replacement art is respected).  Called by the exe's init hook BEFORE it
+   loads the atlas — at startup, outside the loader lock.  CRT-less (Win32 only). */
+__declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
+    char path[MAX_PATH];
+    char tmp[MAX_PATH];
+    int i, last = -1, dirlen;
+    HRSRC res;
+    HGLOBAL h;
+    void *p;
+    DWORD sz, w, n;
+    HANDLE f;
+    BOOL ok;
+    n = GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) return;          /* empty or truncated exe path -> skip */
+    for (i = 0; path[i]; ++i) if (path[i] == '\\') last = i;   /* last backslash */
+    if (last < 0) return;
+    path[last] = 0;                               /* path = exe directory */
+    dirlen = lstrlenA(path);
+    /* Guard against MAX_PATH overflow: a short renamed exe near the path limit can
+       still fit GetModuleFileNameA yet overflow once we append the sub-path. Need
+       room for "\\Images\\heathen_masks.png" AND the ".tmp" staging suffix. */
+    if (dirlen + (int)sizeof("\\Images\\heathen_masks.png.tmp") >= MAX_PATH) return;
+    lstrcatA(path, "\\Images");
+    CreateDirectoryA(path, NULL);
+    lstrcatA(path, "\\heathen_masks.png");
+    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) return;  /* already present */
+    res = FindResourceA(module_instance, MAKEINTRESOURCEA(5000), RT_RCDATA);
+    if (res == NULL) return;
+    h = LoadResource(module_instance, res);
+    if (h == NULL) return;
+    p = LockResource(h);
+    sz = SizeofResource(module_instance, res);
+    if (p == NULL || sz == 0) return;
+    /* Write to a temp file, verify the FULL payload landed, then atomically publish
+       via MoveFileA. A disk-full / short WriteFile therefore never leaves a
+       zero-length or truncated heathen_masks.png that the loader would choke on. */
+    lstrcpyA(tmp, path);
+    lstrcatA(tmp, ".tmp");
+    f = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) return;         /* can't write -> skip */
+    ok = WriteFile(f, p, sz, &w, NULL);
+    CloseHandle(f);
+    if (!ok || w != sz) { DeleteFileA(tmp); return; }   /* incomplete write -> discard */
+    if (!MoveFileA(tmp, path)) DeleteFileA(tmp);        /* publish; lost a race -> clean up */
+}
+
 /* Record field offsets + the per-villager cost, hoisted so the chooser (which now
    owns the whole commit) can read/write the record and charge itself.
    (VV2_SEX_OFFSET is already defined above.) */
