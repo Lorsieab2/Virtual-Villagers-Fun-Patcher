@@ -227,11 +227,11 @@ BEGIN
     PUSHBUTTON  ">", 3226, 324, 156, 12, 20
 
     /* ---- Mask distribution (whole village, mutually exclusive) ---- */
-    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 218, 182, 82
-    AUTORADIOBUTTON "Off (use selectors above)", 3230, 14, 232, 168, 10, WS_GROUP | WS_TABSTOP
-    AUTORADIOBUTTON "VV5-style (rare Chief/Purple)", 3231, 14, 246, 168, 10
-    AUTORADIOBUTTON "Random", 3232, 14, 260, 168, 10
-    AUTORADIOBUTTON "Equal (balanced M/F)", 3233, 14, 274, 168, 10
+    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 216, 182, 84
+    AUTORADIOBUTTON "Off (use selectors above)", 3230, 14, 230, 170, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "VV5-style: 1 Chief, 4 Purple, rest mostly Blue", 3231, 14, 244, 170, 10
+    AUTORADIOBUTTON "Random (any mask, no weighting)", 3232, 14, 258, 170, 10
+    AUTORADIOBUTTON "Equal Colors + balanced M/F", 3233, 14, 272, 170, 10
 
     /* ---- Village-wide single mask (mutually exclusive) ---- */
     GROUPBOX    "Village-wide single mask", -1, 192, 218, 182, 82
