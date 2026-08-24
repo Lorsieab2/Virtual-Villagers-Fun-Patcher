@@ -3,6 +3,7 @@
 #include <shlobj.h>   /* SHGetFolderPathA / CSIDL_PERSONAL (mask sidecar path) */
 #include <string.h>   /* strrchr / memcpy for the sidecar */
 #include "vv1_mask_distribute.h"  /* Change Appearance for All distribution modes */
+#include "vv1_head_buckets.h"     /* head-index buckets by hair colour (Heads override) */
 
 #ifndef VV_AGE_OFFSET
 #define VV_AGE_OFFSET 0x348
@@ -930,12 +931,27 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
    .ldw save. The 450k charge stays the exe's job (same contract as the
    per-villager picker). */
 #define IDD_ORIGINS_APPEARANCE_ALL 204
-/* override_mode: 0 = use the per-sex mask choices; 1 random, 2 vv5, 3 equal;
-   4..9 = single mask 0..5 (none/blue/orange/red/purple/chief). */
+/* Per-gender head/body variant counts (same ranges the per-sex cyclers use). */
+#define VV_HEAD_COUNT_M 19
+#define VV_HEAD_COUNT_F 20
+#define VV_BODY_COUNT_M 19
+#define VV_BODY_COUNT_F 20
+
+/* Whole-village override selections (each has its own "Off"):
+   mask_override:   0 = use per-sex Mask cyclers; 1..4 = a Vv1MaskApplyDistribution
+                    distribution mode (1 Random-All-5, 2 VV5-style, 3 Equal,
+                    4 Random-All-5+No-Mask); 10..15 = single village-wide colour
+                    (10 None, 11 Blue, 12 Orange, 13 Red, 14 Purple, 15 Chief).
+   heads_override:  0 = per-sex Head cyclers; 1 = random by gender; 2..6 = all one
+                    hair colour (2 Black, 3 Brown, 4 Red/Ginger, 5 Blonde, 6 Other).
+   bodies_override: 0 = per-sex Body cyclers; 1 = random by gender. */
 static struct {
     int male_head, male_body, male_mask;
     int female_head, female_body, female_mask;
-    int override_mode;
+    int mask_override;
+    int heads_override;
+    int bodies_override;
+    unsigned int rng;
 } forall_state;
 
 /* Selections default to -1 = "No change": cycling steps -1 -> 0 -> ... ->
@@ -954,43 +970,70 @@ static int forall_cycle(int cur, int delta, int count) {
     return v;
 }
 
-static void forall_apply(void) {
+/* Apply every selected override to all occupied villagers. Returns the number
+   of "effects" applied so the caller can bill ONLY when something changed (an
+   all-Off / all-No-change OK must not deduct). Head/Body are ordinary record
+   fields; masks go to the .data table (never the .ldw save). */
+static int forall_apply(void) {
     unsigned char *base = VV_MASK_MANAGER;
-    int override = forall_state.override_mode;
-    int i;
+    int mo = forall_state.mask_override;
+    int ho = forall_state.heads_override;
+    int bo = forall_state.bodies_override;
+    int i, occ = 0, changed = 0;
     if (base == NULL) {
-        return;
+        return 0;
     }
+    forall_state.rng ^= GetTickCount() * 2654435761u;
     for (i = 0; i < VV_MASK_SLOTS; i++) {
         unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
-        int male, head, body, mask;
+        int male, hcount, bcount;
         if (rec[VV_OCCUPIED_OFFSET] != 1) {
             continue;
         }
+        occ++;
         male = (*(int *)(rec + VV_GENDER_OFFSET) == VV_GENDER_MALE);
-        head = male ? forall_state.male_head : forall_state.female_head;
-        body = male ? forall_state.male_body : forall_state.female_body;
-        mask = male ? forall_state.male_mask : forall_state.female_mask;
-        if (head != FORALL_NO_CHANGE) {
-            *(int *)(rec + VV_HEAD_OFFSET) = head;
-        }
-        if (body != FORALL_NO_CHANGE) {
-            *(int *)(rec + VV_CLOTHING_OFFSET) = body;
-        }
-        /* the per-sex mask only applies when no whole-village override is set */
-        if (override == 0 && mask != FORALL_NO_CHANGE) {
-            vv1_mask_set(rec, (unsigned char)mask);
-        }
-    }
-    if (override != 0) {
-        if (override <= 3) {
-            Vv1MaskApplyDistribution(override, 0);      /* 1 random,2 vv5,3 equal */
+        hcount = male ? VV_HEAD_COUNT_M : VV_HEAD_COUNT_F;
+        bcount = male ? VV_BODY_COUNT_M : VV_BODY_COUNT_F;
+        /* HEAD */
+        if (ho == 0) {
+            int h = male ? forall_state.male_head : forall_state.female_head;
+            if (h != FORALL_NO_CHANGE) { *(int *)(rec + VV_HEAD_OFFSET) = h; changed++; }
+        } else if (ho == 1) {
+            forall_state.rng = forall_state.rng * 1664525u + 1013904223u;
+            *(int *)(rec + VV_HEAD_OFFSET) = (int)((forall_state.rng >> 16) % (unsigned int)hcount);
+            changed++;
         } else {
-            Vv1MaskApplyDistribution(0, override - 4);   /* 4..9 -> single 0..5 */
+            int h = vv1_head_pick(male, ho - 2, &forall_state.rng);
+            if (h >= 0) { *(int *)(rec + VV_HEAD_OFFSET) = h; changed++; }
         }
-        return;  /* Vv1MaskApplyDistribution already persisted the sidecar */
+        /* BODY */
+        if (bo == 0) {
+            int b = male ? forall_state.male_body : forall_state.female_body;
+            if (b != FORALL_NO_CHANGE) { *(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++; }
+        } else {  /* bo == 1: random by gender */
+            forall_state.rng = forall_state.rng * 1664525u + 1013904223u;
+            *(int *)(rec + VV_CLOTHING_OFFSET) = (int)((forall_state.rng >> 16) % (unsigned int)bcount);
+            changed++;
+        }
+        /* MASK: per-sex only when there is no whole-village mask override */
+        if (mo == 0) {
+            int m = male ? forall_state.male_mask : forall_state.female_mask;
+            if (m != FORALL_NO_CHANGE) { vv1_mask_set(rec, (unsigned char)m); changed++; }
+        }
     }
-    vv1_mask_sidecar_save();
+    if (mo != 0 && occ > 0) {
+        if (mo >= 1 && mo <= 4) {
+            Vv1MaskApplyDistribution(mo, 0);           /* distribution mode */
+        } else {
+            Vv1MaskApplyDistribution(0, mo - 10);      /* 10..15 -> single 0..5 */
+        }
+        changed++;
+        return changed;  /* Vv1MaskApplyDistribution already persisted the sidecar */
+    }
+    if (changed) {
+        vv1_mask_sidecar_save();
+    }
+    return changed;
 }
 
 static void forall_draw_one(DRAWITEMSTRUCT *item, int bitmap, int sel) {
@@ -1024,11 +1067,16 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
     if (message == WM_INITDIALOG) {
         forall_state.male_head = forall_state.male_body = forall_state.male_mask = FORALL_NO_CHANGE;
         forall_state.female_head = forall_state.female_body = forall_state.female_mask = FORALL_NO_CHANGE;
-        forall_state.override_mode = 0;
+        forall_state.mask_override = 0;
+        forall_state.heads_override = 0;
+        forall_state.bodies_override = 0;
+        forall_state.rng = GetTickCount();
         vv1_prep_fullscreen();
-        /* plain radios managed in code (they span two groupboxes -- don't rely
-           on WS_GROUP across boxes; VV2's lesson). Default: Off. */
-        CheckDlgButton(window, 2300, BST_CHECKED);
+        /* radios managed in code (they span groupboxes -- don't rely on WS_GROUP
+           across boxes; VV2's lesson). Each override group starts on its Off. */
+        CheckDlgButton(window, 2300, BST_CHECKED);   /* Mask Distribution: Off */
+        CheckDlgButton(window, 2320, BST_CHECKED);   /* Village-wide Heads: Off */
+        CheckDlgButton(window, 2330, BST_CHECKED);   /* Village-wide Bodies: Off */
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         forall_draw_item((DRAWITEMSTRUCT *)lparam);
@@ -1060,24 +1108,58 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
             EndDialog(window, 0);
             return TRUE;
         default:
-            if (id >= 2300 && id <= 2309) {
-                /* One mutually-exclusive group. Enforce single-select in code
-                   (VV2: don't trust WS_GROUP across boxes) and, when a whole-
-                   village override is chosen, gray the per-sex Mask cyclers so
-                   the two can't visibly conflict. "Use choices above" (2300)
-                   re-enables them. */
-                int use_per_sex = (id == 2300);
-                int r;
-                forall_state.override_mode = id - 2300;
-                for (r = 2300; r <= 2309; r++) {
-                    CheckDlgButton(window, r, r == id ? BST_CHECKED : BST_UNCHECKED);
+            if ((id >= 2300 && id <= 2304) || (id >= 2310 && id <= 2315)) {
+                /* Mask override: the Distribution box (2300-2304) and the
+                   Single-Colour box (2310-2315) are alternative mask paths but
+                   ONE mutually-exclusive selection -- managed in code across the
+                   boxes (VV2: don't trust WS_GROUP across boxes). Off (2300)
+                   re-enables the per-sex Mask cyclers; any other grays them. */
+                int r, use_per_sex;
+                for (r = 2300; r <= 2304; r++) CheckDlgButton(window, r, r == id ? BST_CHECKED : BST_UNCHECKED);
+                for (r = 2310; r <= 2315; r++) CheckDlgButton(window, r, r == id ? BST_CHECKED : BST_UNCHECKED);
+                switch (id) {
+                case 2300: forall_state.mask_override = 0; break;    /* Off */
+                case 2301: forall_state.mask_override = 2; break;    /* VV5-style */
+                case 2302: forall_state.mask_override = 4; break;    /* Random (All 5 + No Mask) */
+                case 2303: forall_state.mask_override = 1; break;    /* Random (All 5) */
+                case 2304: forall_state.mask_override = 3; break;    /* Equal Colors */
+                default:   forall_state.mask_override = 10 + (id - 2310); break;  /* single 10..15 */
                 }
+                use_per_sex = (forall_state.mask_override == 0);
                 EnableWindow(GetDlgItem(window, 2120), use_per_sex);
                 EnableWindow(GetDlgItem(window, 2121), use_per_sex);
                 EnableWindow(GetDlgItem(window, 2122), use_per_sex);
                 EnableWindow(GetDlgItem(window, 2220), use_per_sex);
                 EnableWindow(GetDlgItem(window, 2221), use_per_sex);
                 EnableWindow(GetDlgItem(window, 2222), use_per_sex);
+                return TRUE;
+            }
+            if (id >= 2320 && id <= 2326) {
+                /* Village-wide Heads: Off re-enables the per-sex Head cyclers. */
+                int r, use_per_sex;
+                for (r = 2320; r <= 2326; r++) CheckDlgButton(window, r, r == id ? BST_CHECKED : BST_UNCHECKED);
+                forall_state.heads_override = id - 2320;
+                use_per_sex = (forall_state.heads_override == 0);
+                EnableWindow(GetDlgItem(window, 2100), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2101), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2102), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2200), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2201), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2202), use_per_sex);
+                return TRUE;
+            }
+            if (id >= 2330 && id <= 2331) {
+                /* Village-wide Bodies: Off re-enables the per-sex Body cyclers. */
+                int r, use_per_sex;
+                for (r = 2330; r <= 2331; r++) CheckDlgButton(window, r, r == id ? BST_CHECKED : BST_UNCHECKED);
+                forall_state.bodies_override = id - 2330;
+                use_per_sex = (forall_state.bodies_override == 0);
+                EnableWindow(GetDlgItem(window, 2110), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2111), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2112), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2210), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2211), use_per_sex);
+                EnableWindow(GetDlgItem(window, 2212), use_per_sex);
                 return TRUE;
             }
             break;
@@ -1122,13 +1204,48 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr)
     if (result != 1) {
         return 0;                 /* cancelled -> no charge, no change */
     }
+    /* Nothing chosen (every group on Off and every per-sex cycler on No change)
+       must NOT bill. */
+    {
+        int any = forall_state.mask_override || forall_state.heads_override
+                  || forall_state.bodies_override
+                  || forall_state.male_head != FORALL_NO_CHANGE
+                  || forall_state.female_head != FORALL_NO_CHANGE
+                  || forall_state.male_body != FORALL_NO_CHANGE
+                  || forall_state.female_body != FORALL_NO_CHANGE
+                  || forall_state.male_mask != FORALL_NO_CHANGE
+                  || forall_state.female_mask != FORALL_NO_CHANGE;
+        if (!any) {
+            MessageBoxA(owner,
+                        "No appearance options were selected. No tech points deducted.",
+                        "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
+            return 0;
+        }
+    }
     if (*tech < VV_FORALL_COST) {
-        MessageBoxA(owner, "Not enough tech points.",
+        MessageBoxA(owner, "Not enough tech points. This upgrade costs 450,000.",
                     "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
         return 0;
     }
+    /* Head is hereditary -- warn once before committing if any head will change
+       (a village-wide Heads override, or either per-sex Head cycler moved). */
+    if (forall_state.heads_override != 0
+        || forall_state.male_head != FORALL_NO_CHANGE
+        || forall_state.female_head != FORALL_NO_CHANGE) {
+        if (MessageBoxA(owner,
+                "Warning: This will change the head genetics of every villager "
+                "of the selected sex, affecting their descendants.\r\n\r\nProceed?",
+                "Change Appearance for All",
+                MB_OKCANCEL | MB_ICONWARNING) != IDOK) {
+            return 0;
+        }
+    }
+    if (forall_apply() <= 0) {
+        return 0;                 /* nothing actually applied -> no charge */
+    }
     *tech -= VV_FORALL_COST;
-    forall_apply();
+    MessageBoxA(owner, "Change Appearance for All applied to every villager.",
+                "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
     return 1;
 }
 
