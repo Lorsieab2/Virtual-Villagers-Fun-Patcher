@@ -71,13 +71,13 @@ def test_bighead_routine_replays_head_then_blits_mask_atlas():
     # choice comes from the side-table via mask_get, never a villager record field
     assert f"call 0x{STOCK_PAGE_VA + t9.OFF['mask_get']:x}" in text
     assert "0x1bc0" not in text
-    # fetches the heathen mask atlas by sprite id 0x101 (village art reused); both
-    # the atlas getter and the draw thunk are thiscall thunks -> ecx must be primed
+    # fetches the DEDICATED bighead mask atlas by its registered sprite id 0x155;
+    # both the atlas getter and the draw thunk are thiscall thunks -> ecx primed
     assert "call 0x44fbb0" in text and "mov ecx, eax" in text  # atlas mgr this
-    assert "push 0x101" in text and "call 0x44fa30" in text
+    assert "push 0x155" in text and "call 0x44fa30" in text
     assert "mov ecx, dword ptr [esi + 0x2f2c]" in text         # drawlist this for the mask draw
-    # front-facing mask column (5), scale boost, and a vertical lift (values tunable)
-    assert "push 5" in text
+    # scale boost + a vertical lift (values tunable); bigheads_masks.png is 1-column
+    # (front only), so the mask column index is 0
     assert "imul ecx" in text
     assert "sub edx," in text
     # transient scratch stays in proven-free .data BSS, never a record write

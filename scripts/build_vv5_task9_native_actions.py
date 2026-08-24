@@ -83,10 +83,16 @@ BH_SY = 0x7B1D18
 BH_SF = 0x7B1D1C
 BH_SS = 0x7B1D70
 BH_SROW = 0x7B1D74
-# Heathen mask sprite id (village atlas vv5_heathenheads.png, 8 facing x 5 masks,
-# cell 65x145). sub_44FA30(id) -> sub_44F870 lazily loads+caches and returns the
-# atlas object, so the portrait blit reuses the exact village mask art.
-MASK_HANDLE = 0x101
+# Bighead mask atlas sprite id. A DEDICATED front-facing bighead mask atlas
+# (bigheads_masks.png, 1 col x 5 mask rows, bottom-aligned) is registered at the
+# free sprite-table slot 0x155 (record patched into .data at 0x4D2FA8) so the
+# Details portrait uses purpose-built art rather than the tiny 8-way village
+# atlas. sub_44FA30(0x155) -> sub_44F870 lazily loads+caches bigheads_masks.png.
+MASK_HANDLE = 0x155
+BIGHEAD_ATLAS_ID = 0x155
+BIGHEAD_ATLAS_REC_VA = 0x4CEFB8 + BIGHEAD_ATLAS_ID * 0x30   # 0x4D2FA8 (free slot)
+BIGHEAD_ATLAS_COLS = 1
+BIGHEAD_ATLAS_ROWS = 5
 # Portrait-mask tuning (all emitted as patchable immediates so they can be
 # dialed in live). BH_LIFT = pre-scale vertical lift (imm8, sub edx,LIFT).
 # BH_SCALE_MUL = integer multiple of the head's draw scale (the Details head is
@@ -94,9 +100,11 @@ MASK_HANDLE = 0x101
 # mask atlas column: the Details portrait is front-facing and the 8-col heathen
 # atlas front frame is col 5 (the head atlas is 16-col, so its frame index maps
 # to the wrong mask column — use the known front column instead).
-BH_LIFT = 0x18
-BH_SCALE_MUL = 2
-BH_FRAME = 5
+BH_LIFT = 0x40
+BH_XOFF = 0x00
+BH_SCALE_MUL = 3
+BH_SCALE_SHIFT = 1   # scale = headScale * MUL >> SHIFT  (3>>1 = x1.5)
+BH_FRAME = 0         # bigheads_masks.png is 1-column (front only) -> frame 0
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -303,6 +311,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("genetics_export", b"ShowVV5Task9GeneticsWarning\0"),
         ("writemask_export", b"WriteMaskSidecar\0"),
         ("readmask_export", b"ReadMaskSidecar\0"),
+        ("bighead_atlas", b"bigheads_masks.png\0"),
         ("division_export", b"ApplyVV5EqualDivision\0"),
         ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
         ("tw_get", b"GetOriginsOwner\0"),
@@ -3422,6 +3431,7 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         push dword ptr [esp+0x1C]
         call 0x409CA0
         mov eax, [esp+0x08]
+        sub eax, 0x{BH_XOFF:X}
         mov dword ptr [0x{BH_SX:X}], eax
         mov eax, [esp+0x0C]
         mov dword ptr [0x{BH_SY:X}], eax
@@ -3443,6 +3453,7 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         mov edx, dword ptr [0x{BH_SY:X}]
         sub edx, 0x{BH_LIFT:X}
         imul ecx, dword ptr [0x{BH_SS:X}], 0x{BH_SCALE_MUL:X}
+        shr ecx, 0x{BH_SCALE_SHIFT:X}
         push 0
         push ecx
         push 0x{BH_FRAME:X}
@@ -3817,6 +3828,29 @@ def main() -> None:
             "before": bighead_preimage,
             "after": "E8" + rel.to_bytes(4, "little", signed=True).hex().upper(),
             "purpose": "Heathen mask: on the Details villager portrait, replay the head draw then blit the chosen mask atlas over it (the portrait compositor draws no mask natively)",
+        })
+    # Register the dedicated bighead mask atlas (bigheads_masks.png) as a new
+    # sprite-table record in the free slot 0x155 (0x4D2FA8 in .data). The stock
+    # slot is unused (all-zero); write {id, filename_ptr, cols=1, rows=5}. The
+    # filename string lives in the Task9 page, and bigheads_masks.png ships in the
+    # game Images/ folder; sub_44FA30(0x155) lazily loads it for the portrait blit.
+    atlas_rec_off = BIGHEAD_ATLAS_REC_VA - 0x400000
+    if any(stock[atlas_rec_off : atlas_rec_off + 0x30]):
+        raise RuntimeError(f"bighead atlas sprite slot 0x{BIGHEAD_ATLAS_ID:X} not free at 0x{BIGHEAD_ATLAS_REC_VA:X}")
+    for mode in ("collection_progression", "immediate_fixed"):
+        str_va = int(page_maps[mode]["string_virtual_addresses"]["bighead_atlas"], 16)
+        rec = (
+            BIGHEAD_ATLAS_ID.to_bytes(4, "little")
+            + str_va.to_bytes(4, "little")
+            + BIGHEAD_ATLAS_COLS.to_bytes(4, "little")
+            + BIGHEAD_ATLAS_ROWS.to_bytes(4, "little")
+            + b"\0" * 0x20
+        )
+        result["patch_mode_overrides"].setdefault(mode, []).append({
+            "offset": f"0x{atlas_rec_off:X}",
+            "before": "00" * 0x30,
+            "after": rec.hex().upper(),
+            "purpose": "Register bigheads_masks.png as sprite id 0x155 (free slot) so the Details portrait mask blit uses the dedicated bighead atlas",
         })
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
