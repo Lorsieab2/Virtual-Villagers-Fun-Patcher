@@ -13,3 +13,6 @@ inputs/
 handoff-staging/
 runtime-deps/
 scratchpad_*.exe
+
+# local build/test scratch outputs (never commit)
+scratchpad/
