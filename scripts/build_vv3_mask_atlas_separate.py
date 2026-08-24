@@ -48,7 +48,7 @@ ORDER = ["blue", "orange", "red", "purple", "chief"]  # chief = row 4 (per-frame
 ALPHA_THR = 24                            # opaque cutoff for face detection
 FACEBAND_FRAC = 0.40                      # lower 40% of a blob = face (ignore feathers)
 CHIEF_MIRROR_SRC = 1                      # facing 7 missing -> mirror facing 1
-CHIEF_DX = -2                             # live-tuned nudge (px): chief seats 2px left
+CHIEF_DX = -1                             # live-tuned nudge (px): chief seats 1px left
 CHIEF_DY = 0                              # live-tuned nudge (px): +down / -up
 
 SRC = Path(__file__).resolve().parents[1] / "assets" / "vv3_heathen_masks"
