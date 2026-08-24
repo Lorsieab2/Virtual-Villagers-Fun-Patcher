@@ -1,0 +1,12 @@
+Virtual Villagers Fun Patcher — source repository
+
+Repository:
+https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher.git
+
+Branch:
+codex/collectibles-native-routes
+
+Handoff source commit:
+31206b3ab3d44197b91b1074858f564c8980c73b
+
+The repository is private. If Git access is unavailable, use source/VVFP-source-31206b3.zip and copy the included inputs, runtime-deps, and .tools folders into the extracted project root.

@@ -1,0 +1,244 @@
+
+  bytes   pages size description
+--------- ----- ---- --------------------------------------------
+  2154496   263 8192 allocating memory for b-tree...
+  2285568   279 8192 allocating memory for virtual array...
+   262144    32 8192 allocating memory for name pointers...
+-----------------------------------------------------------------
+  4702208            total memory allocated
+
+Loading processor module C:\Program Files\IDA Professional 9.4\procs\pc.dll for metapc...OK
+Loading type libraries...
+Autoanalysis subsystem has been initialized.
+Database for file 'vv1.exe' has been loaded.
+Hex-Rays Decompiler plugin has been loaded (v9.4.0.260610)
+  License: 14-0000-FFFF-88  (1 user)
+  The hotkeys are F5: decompile, Ctrl-F5: decompile all.
+
+  Please check the Edit/Plugins menu for more information.
+Hex-rays version 9.4.0.260610 has been detected, gooMBA plugin ready to use
+Using type parser: legacy
+
+===== 00437230 sub_437230 =====
+437230: restored microcode from idb
+437230: restored pseudocode from idb
+int *__thiscall sub_437230(char *this, int a2, int a3, int a4)
+{
+  int *result; // eax
+  int v5; // edx
+
+  result = (int *)(a3 - 1);
+  switch ( a3 )
+  {
+    case 1:
+      result = (int *)(this + 984 * a2 + 964);
+      goto LABEL_7;
+    case 2:
+      result = (int *)(this + 984 * a2 + 956);
+      goto LABEL_7;
+    case 3:
+      result = (int *)(this + 984 * a2 + 972);
+      goto LABEL_7;
+    case 4:
+      result = (int *)(this + 984 * a2 + 960);
+      goto LABEL_7;
+    case 5:
+      result = (int *)(this + 984 * a2 + 968);
+LABEL_7:
+      v5 = a4 + *result;
+      *result = v5;
+      if ( v5 <= 100 )
+      {
+        if ( v5 < 0 )
+          *result = 0;
+      }
+      else
+      {
+        *result = 100;
+      }
+      break;
+    default:
+      return result;
+  }
+  return result;
+}
+
+
+===== 004410C0 sub_4410C0 =====
+4410C0: restored microcode from idb
+4410C0: restored pseudocode from idb
+int __thiscall sub_4410C0(int ***this, int a2)
+{
+  char *v2; // ebx
+  const char *v3; // eax
+  int v4; // eax
+  int v5; // eax
+  int v6; // eax
+  int v7; // eax
+  int v9; // [esp-10h] [ebp-1Ch]
+  int v10; // [esp-10h] [ebp-1Ch]
+  int v11; // [esp-Ch] [ebp-18h]
+
+  v2 = (char *)(this + 246 * a2 + 197);
+  *v2 = 0;
+  v3 = sub_433970(*(this + 63499), 0x258u);
+  sprintf(v2, v3);
+  v4 = sub_402F10(3);
+  if ( v4 == 0 )
+  {
+    v10 = sub_402F10(10) + 1310;
+    v7 = sub_402F10(10) + 72;
+    goto LABEL_7;
+  }
+  v5 = v4 - 1;
+  if ( v5 == 0 )
+  {
+    v10 = sub_402F10(20) + 507;
+    v7 = sub_402F10(10) + 264;
+LABEL_7:
+    sub_4399F0(a2, 3, v7, v10, 0, 0, 100);
+    v11 = sub_402F10(20) + 20;
+    sub_4399F0(a2, 2, 0, 0, v11, 0, 2);
+    return sub_43DEF0(a2);
+  }
+  if ( v5 == 1 )
+  {
+    v9 = sub_402F10(30) + 1508;
+    v6 = sub_402F10(30);
+    sub_4399F0(a2, 3, v6 + 1235, v9, 0, 0, 100);
+    sub_4399F0(a2, 2, 0, 0, 10, 0, 5);
+  }
+  return sub_43DEF0(a2);
+}
+
+
+===== 00444990 sub_444990 =====
+444990: restored microcode from idb
+444990: restored pseudocode from idb
+int __thiscall sub_444990(int ***this, int a2, char a3)
+{
+  char *v3; // ebx
+  const char *v4; // eax
+  int v5; // eax
+  int v6; // eax
+  int v7; // eax
+  int v8; // eax
+  int v10; // [esp-10h] [ebp-1Ch]
+  int v11; // [esp-10h] [ebp-1Ch]
+  int v12; // [esp-10h] [ebp-1Ch]
+
+  v3 = (char *)(this + 246 * a2 + 197);
+  *v3 = 0;
+  v4 = sub_433970(*(this + 63499), 0xC3u);
+  sprintf(v3, v4);
+  if ( a3 == 1 )
+  {
+    v10 = 3 * (sub_402F10(20) + 460);
+    v5 = sub_402F10(50);
+    sub_4399F0(a2, 3, 3 * (v5 + 140), v10, 0, 0, 100);
+  }
+  v11 = 3 * (sub_402F10(50) + 500);
+  v6 = sub_402F10(90);
+  sub_4399F0(a2, 3, 3 * (v6 + 10), v11, 0, 0, 150);
+  v7 = sub_402F10(10);
+  sub_4399F0(a2, 4, 0, 0, v7 + 5, 0, 0);
+  v12 = 3 * (sub_402F10(20) + 460);
+  v8 = sub_402F10(50);
+  sub_4399F0(a2, 3, 3 * (v8 + 140), v12, 0, 0, 100);
+  return sub_43DEF0(a2);
+}
+
+
+===== 004457D0 sub_4457D0 =====
+4457D0: restored microcode from idb
+4457D0: restored pseudocode from idb
+int __thiscall sub_4457D0(_DWORD *this, int a2)
+{
+  int v3; // esi
+  _DWORD *v4; // ebx
+  int result; // eax
+
+  sub_414590(*(this + 63493));
+  v3 = 0;
+  v4 = this + 213;
+  do
+  {
+    result = *(v4 - 4);
+    if ( result > 0 && *v4 == 0 )
+    {
+      result = sub_4372E0(v3, 1);
+      if ( (_BYTE)result == 0 )
+      {
+        sub_439470(v3);
+        result = sub_443FA0(v3, a2);
+      }
+    }
+    ++v3;
+    v4 += 246;
+  }
+  while ( v3 < 256 );
+  return result;
+}
+
+
+===== 0043B520 sub_43B520 =====
+43B520: restored microcode from idb
+43B520: restored pseudocode from idb
+int __thiscall sub_43B520(char *this, int a2, _DWORD *a3)
+{
+  char *v3; // ecx
+  int result; // eax
+  int v5; // edx
+  int v6; // ecx
+
+  v3 = this + 984 * a2;
+  result = *((_DWORD *)v3 + 239);
+  v5 = 2;
+  if ( *((_DWORD *)v3 + 240) > result )
+  {
+    result = *((_DWORD *)v3 + 240);
+    v5 = 4;
+  }
+  if ( *((_DWORD *)v3 + 242) > result )
+  {
+    result = *((_DWORD *)v3 + 242);
+    v5 = 5;
+  }
+  if ( *((_DWORD *)v3 + 241) > result )
+  {
+    result = *((_DWORD *)v3 + 241);
+    v5 = 1;
+  }
+  v6 = *((_DWORD *)v3 + 243);
+  if ( v6 > result )
+  {
+    result = v6;
+    v5 = 3;
+  }
+  if ( a3 != nullptr )
+    *a3 = result != 0 ? v5 : 0;
+  return result;
+}
+
+
+===== 0043A1A0 sub_43A1A0 =====
+43A1A0: restored microcode from idb
+43A1A0: restored pseudocode from idb
+char __thiscall sub_43A1A0(_DWORD *this)
+{
+  int v2; // eax
+
+  v2 = sub_41CF90(*(this + 63492));
+  if ( v2 >= 90 )
+    return 0;
+  if ( v2 >= 50 )
+    return *(_BYTE *)(*(this + 63492) + 40952) == 1;
+  if ( v2 >= 25 )
+    return *(_BYTE *)(*(this + 63492) + 40944) == 1;
+  if ( v2 < 15 )
+    return 1;
+  return *(_BYTE *)(*(this + 63492) + 40936) == 1;
+}
+
+Flushing buffers, please wait...ok
+Unloading IDP module C:\Program Files\IDA Professional 9.4\procs\pc.dll...

@@ -1,0 +1,2712 @@
+[
+  {
+    "address": "0x49adac",
+    "text": "gong2.ogg",
+    "xrefs": []
+  },
+  {
+    "address": "0x49adb8",
+    "text": "eSound_Gong2",
+    "xrefs": []
+  },
+  {
+    "address": "0x49b134",
+    "text": "gong1.ogg",
+    "xrefs": []
+  },
+  {
+    "address": "0x49b140",
+    "text": "eSound_Gong",
+    "xrefs": []
+  },
+  {
+    "address": "0x49c82c",
+    "text": "map_foodbin.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49c85c",
+    "text": "god_power_icons-techscreen_top.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49c880",
+    "text": "god_power_icons-techscreen_bckgrnd.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49c8a8",
+    "text": "god_power_icons-techscreen_off.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49c8cc",
+    "text": "god_power_icons-techscreen_on.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49c90c",
+    "text": "btn_tech_question.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49c924",
+    "text": "btn_tech_buy.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49c94c",
+    "text": "foodmastery_bar.jpg",
+    "xrefs": []
+  },
+  {
+    "address": "0x49c9ac",
+    "text": "Tech_UI_BG.jpg",
+    "xrefs": []
+  },
+  {
+    "address": "0x49cf6c",
+    "text": "btn_tech.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49d300",
+    "text": "Tech_colorcarving_slice6.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49d320",
+    "text": "Tech_colorcarving_slice5.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49d340",
+    "text": "Tech_colorcarving_slice4.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49d360",
+    "text": "Tech_colorcarving_slice3.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49d380",
+    "text": "Tech_colorcarving_slice2.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49d3a0",
+    "text": "Tech_colorcarving_slice1.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49d66c",
+    "text": "FoodTotemStrip.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49d6b0",
+    "text": "ResearchTotemStrip.png",
+    "xrefs": []
+  },
+  {
+    "address": "0x49d930",
+    "text": "\"Yes, I see that you are a good and wise people. I will teach you a secret.\" Biggles teaches {name} some advanced and arcane techniques in dendrology. When {name} turns to thank him, he is simply not there! Where could he have gone?",
+    "xrefs": []
+  },
+  {
+    "address": "0x49da1c",
+    "text": "eEventBigglesPaysAVisitResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49db24",
+    "text": "eEventBigglesPaysAVisitResultA1",
+    "xrefs": []
+  },
+  {
+    "address": "0x49db68",
+    "text": "eEventBigglesPaysAVisitChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49dbac",
+    "text": "eEventBigglesPaysAVisitChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49dbd0",
+    "text": "{name} discovers a mysterious figure lurking by the tree one night. Sensing {name}, the figure turns, smiles and says: \"Hello, my  child. My name is Biggles. Perhaps you have heard of me? I have been watching you. Your people have done well in returning the balance to Isola. I will tell you something: The island, like life, is a wheel. This tree you see here is its axle. To restore balance the axle must be true. Now, because your people are worthy, I will answer one question:\" ",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ddb4",
+    "text": "eEventBigglesPaysAVisitDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x49dde8",
+    "text": "eEventBigglesPaysAVisitTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x49df54",
+    "text": "eEventThePrettyShellResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e004",
+    "text": "eEventThePrettyShellResultA1",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e03c",
+    "text": "eEventThePrettyShellChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e06c",
+    "text": "eEventThePrettyShellChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e178",
+    "text": "eEventThePrettyShellDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e1a8",
+    "text": "eEventThePrettyShellTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e2d4",
+    "text": "eEventChildInTheTreeResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e420",
+    "text": "eEventChildInTheTreeResultA1",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e450",
+    "text": "eEventChildInTheTreeChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e47c",
+    "text": "eEventChildInTheTreeChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e5d0",
+    "text": "eEventChildInTheTreeDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e5fc",
+    "text": "eEventChildInTheTreeTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e618",
+    "text": "The mysterious stranger gazes across his audience and announces, \"Fear not! It is only me, Biggles! Perhaps you have heard of me? Yes? No? I have an important lesson for you clever children. You know, sometimes when people make a mistake, and they admit their mistake, they may learn from it, but those who fail to see their error are doomed to repeat it. You know, there are others on this island.Others who you have not yet met. Others who, for a very long time, have denied their past mistakes. They believe that only the way of magic is important and ignore the balance that is nature.They have grand designs and must not succeed. But there is still time! Be ever watchful my children! Be ever watchful!\" With these words the man vanishes leaving only a cloud of luminous smoke.",
+    "xrefs": []
+  },
+  {
+    "address": "0x49e928",
+    "text": "eEventMysteriousStorytellerResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ea78",
+    "text": "eEventMysteriousStorytellerResultA1",
+    "xrefs": []
+  },
+  {
+    "address": "0x49eab8",
+    "text": "eEventMysteriousStorytellerChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49eafc",
+    "text": "eEventMysteriousStorytellerChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49eb20",
+    "text": "One evening, {name} encounters a mysterious stranger. Ordinarily, {name} would just run away, but there is something familiar about this stranger... something from the stories of the older parts of the island. The stranger instructs {name} to gather the other children for an important lesson.",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ec48",
+    "text": "eEventMysteriousStorytellerDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ec68",
+    "text": "eEventMysteriousStorytellerTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ecf4",
+    "text": "eEventInnovationInFarmingResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ede4",
+    "text": "eEventInnovationInFarmingResultA2",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ef0c",
+    "text": "eEventInnovationInFarmingResultA1",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ef48",
+    "text": "eEventInnovationInFarmingChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ef84",
+    "text": "eEventInnovationInFarmingChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f088",
+    "text": "eEventInnovationInFarmingDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f0c0",
+    "text": "eEventInnovationInFarmingTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f198",
+    "text": "eEventTheInvisibleVialResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f388",
+    "text": "eEventTheInvisibleVialResultA1",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f3bc",
+    "text": "eEventTheInvisibleVialChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f3ec",
+    "text": "eEventTheInvisibleVialChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f560",
+    "text": "eEventTheInvisibleVialDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f590",
+    "text": "eEventTheInvisibleVialTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f60c",
+    "text": "eEventTheFloralVialResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f718",
+    "text": "eEventTheFloralVialResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f73c",
+    "text": "eEventTheFloralVialChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f758",
+    "text": "eEventTheFloralVialChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f7c4",
+    "text": "eEventTheFloralVialDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f7ec",
+    "text": "eEventTheFloralVialTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f888",
+    "text": "eEventTheSmellyVialResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49f8a8",
+    "text": "{name} swallows the strange liquid, gagging as it goes down. \"I probably should not have drunk that\" {he/she} thinks to {himself/herself}. A few hours later, {name} starts noticing all the subtle aromas of the world that {he/she} never really noticed before. {He/She} can even smell mushrooms from far away. {name} really loves mushrooms and begins putting {his/her} newly extra-sensitive nose to work finding every last mushroom hidden in this part of the island. Unfortunately, as a side effect, {name} is overly sensitive to strong odors and, therefore, has trouble with any kind of work other than farming. \nYour tribe gains food.",
+    "xrefs": []
+  },
+  {
+    "address": "0x49fb24",
+    "text": "eEventTheSmellyVialResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49fb54",
+    "text": "eEventTheSmellyVialChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49fb70",
+    "text": "eEventTheSmellyVialChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49fc14",
+    "text": "eEventTheSmellyVialDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x49fc3c",
+    "text": "eEventTheSmellyVialTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x49fd38",
+    "text": "eEventTheCrackedMaskResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49fec0",
+    "text": "eEventTheCrackedMaskResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x49fef8",
+    "text": "eEventTheCrackedMaskChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x49ff2c",
+    "text": "eEventTheCrackedMaskChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a00d4",
+    "text": "eEventTheCrackedMaskDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0104",
+    "text": "eEventTheCrackedMaskTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0120",
+    "text": "It's better to not mess with consuming random things without thorough research. The sample is brought back to the other researchers for further study, which yields encouraging results. \nYour tribe gains 2000 tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0200",
+    "text": "eEventTheStrangeNectarResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a02b4",
+    "text": "eEventTheStrangeNectarResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a02e8",
+    "text": "eEventTheStrangeNectarChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0314",
+    "text": "eEventTheStrangeNectarChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a03f4",
+    "text": "eEventTheStrangeNectarDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0424",
+    "text": "eEventTheStrangeNectarTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0550",
+    "text": "eEventTheStrawHatResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a06dc",
+    "text": "eEventTheStrawHatResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0718",
+    "text": "eEventTheStrawHatChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a073c",
+    "text": "eEventTheStrawHatChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a07e0",
+    "text": "eEventTheStrawHatDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0808",
+    "text": "eEventTheStrawHatTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a09b4",
+    "text": "eEventTheDefectorResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a09d0",
+    "text": "Alas, as it turns out, {name} was indeed a spy and has sabotaged the research area. (Heathens seem to possess a singular talent for ruining the lab, so this is not much of a surprise.) \nYour tribe loses 2000 tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0ab0",
+    "text": "eEventTheDefectorResultA2",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0b70",
+    "text": "eEventTheDefectorResultA1",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0b98",
+    "text": "eEventTheDefectorChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0bc8",
+    "text": "eEventTheDefectorChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0d8c",
+    "text": "eEventTheDefectorDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0db4",
+    "text": "eEventTheDefectorTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0e78",
+    "text": "eEventAphidsInTheHydrofarmResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0ea0",
+    "text": "After some study, the villagers figure out that there are small creatures that live in certain types of soil that will eat the aphid's eggs before they hatch. This process is not immediate, but it's effective and long lasting. \n{name} gains farming expertise. \nYour village gains tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0fc8",
+    "text": "eEventAphidsInTheHydrofarmResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a0fec",
+    "text": "Research potions that kill aphids",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1010",
+    "text": "eEventAphidsInTheHydrofarmChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1034",
+    "text": "Research bugs that eat aphids",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1054",
+    "text": "eEventAphidsInTheHydrofarmChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a112c",
+    "text": "eEventAphidsInTheHydrofarmDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1168",
+    "text": "eEventAphidsInTheHydrofarmTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1208",
+    "text": "eEventTheMigratingFruitBatsResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1230",
+    "text": "{name} decides to just sit and quietly observe the bats. After a while {he/she} realizes that plants and grasses are growing quite rapidly under the trees where they roost. Their droppings must be an excellent fertilizer. {name} realizes that this could be the key to raising sustainable crops! Unfortunately the bats have devoured all of the noni fruit in the process. \nYour tribe gains a level of farming tech.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a13d0",
+    "text": "eEventTheMigratingFruitBatsResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1400",
+    "text": "eEventTheMigratingFruitBatsChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1434",
+    "text": "eEventTheMigratingFruitBatsChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1458",
+    "text": "Fruit bats have come to inhabit the nearby trees as a stop in their migration. They could either be scared away, to prevent them from eating up the fruit, or observed to see if anything can be learned from them.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a152c",
+    "text": "eEventTheMigratingFruitBatsDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1568",
+    "text": "eEventTheMigratingFruitBatsTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1590",
+    "text": "{name} arranges a barter session with an envoy from the heathen camp. Finally, they agree to trade the scrolls for 100 food. The trade goes smoothly, and {name} gains some respect from the heathens for his honest business practices. Also, one of the heathens produces a piece that was missing from the scrolls that was apparently stuck to his foot! Good thing they mentioned it! \nYour tribe gains 3000 tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1730",
+    "text": "eEventTheSealedBoxResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1750",
+    "text": "{name} teaches the heathens a recipe well known to {his/her} tribe for producing foul-smelling smoke clouds, but convinces the heathens that it's a cure for baldness. When the smoke clouds erupt, {name} sneaks in and steals the scrolls. Of course, {name} will not be trusted by the heathens again, as not a one of them grew back any hair! Later, {name} discovers that there is a piece missing, and now {he/she} is in no position to negotiate for it. \nYour tribe gains 1500 tech points",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1938",
+    "text": "eEventTrickOrTradeResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1954",
+    "text": "Trade some food for the scrolls",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1974",
+    "text": "eEventTrickOrTradeChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a19a8",
+    "text": "eEventTrickOrTradeChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a19c8",
+    "text": "{name} has discovered that the heathens have some important scrolls in their dirty hovels. They don't seem to realize what they have, but {name} knows that these scrolls could be very helpful to their own research. {name} believes that {he/she} could either try to negotiate a trade or perhaps {he/she} could steal them, with the proper distraction.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1b28",
+    "text": "eEventTrickOrTradeDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1b50",
+    "text": "eEventTrickOrTradeTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1b68",
+    "text": "{name} decides that {he/she} will need the help of the other researchers to properly conduct {his/her} investigation into these mysterious objects. The research is difficult, but gradually the objects begin to give up their ancient secrets. ",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1c5c",
+    "text": "eEventTheAdvancedArtifactsResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1c80",
+    "text": "Unfortunately, the research is not well received. The villagers do not believe that the objects are genuine, nor do they believe that this field of endeavor is likely to lead to any practical results. {name} is very disappointed and decides that {he/she} may not be cut out to be a scientist after all.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1db0",
+    "text": "eEventTheAdvancedArtifactsResultB2",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1dd8",
+    "text": "{name} prepares a presentation based on {his/her} independent research. The findings are well received by the believers at large. Many believe that these findings will lead to whole new avenues of research. \nYour tribe gains a level in science.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1ed0",
+    "text": "eEventTheAdvancedArtifactsResultB1",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1f14",
+    "text": "eEventTheAdvancedArtifactsChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1f38",
+    "text": "Collaborate with the other researchers",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1f60",
+    "text": "eEventTheAdvancedArtifactsChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a1f88",
+    "text": "{name} has been investigating certain sites in this new part of the island and believes that one of these sites may have been an important center of the original inhabitants' civilization. Today, {he/she} has found some amazing artifacts to support {his/her} theory. ",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2094",
+    "text": "eEventTheAdvancedArtifactsDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a20cc",
+    "text": "eEventTheAdvancedArtifactsTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2120",
+    "text": "eEventOutreachResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a225c",
+    "text": "eEventOutreachResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2284",
+    "text": "eEventOutreachChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a22ac",
+    "text": "eEventOutreachChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a23ac",
+    "text": "eEventOutreachDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a23cc",
+    "text": "eEventOutreachTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2494",
+    "text": "eEventTheMissingKidsResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a25c0",
+    "text": "eEventTheMissingKidsResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a25f4",
+    "text": "eEventTheMissingKidsChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2620",
+    "text": "eEventTheMissingKidsChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2710",
+    "text": "eEventTheMissingKidsDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2740",
+    "text": "eEventTheMissingKidsTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a281c",
+    "text": "eEventYoureDoinItWrongResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a28b4",
+    "text": "eEventYoureDoinItWrongResultA2",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2954",
+    "text": "eEventYoureDoinItWrongResultA1",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a299c",
+    "text": "eEventYoureDoinItWrongChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a29e0",
+    "text": "eEventYoureDoinItWrongChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2a00",
+    "text": "{name} notices that in the process of trying to use the lab, the heathens are trashing it. {name} would like to try to prevent some of the damage. ",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2a94",
+    "text": "eEventYoureDoinItWrongDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2ac8",
+    "text": "eEventYoureDoinItWrongTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2ae8",
+    "text": "The heathen, as it turns out, is not hostile, but is understandably concerned about being spied on. After a fairly lengthy conversation, they reach an understanding, and the heathen brings the child back to {his/her} parents. The grateful parents offer food items in thanks. Furthermore, little {name} feels that {he/she} has learned something about the wants and needs of the strange, masked people. Perhaps this will be handy later.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2c9c",
+    "text": "eEventSpyingOnTheHeathensResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2d94",
+    "text": "eEventSpyingOnTheHeathensResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2dcc",
+    "text": "eEventSpyingOnTheHeathensChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2dfc",
+    "text": "eEventSpyingOnTheHeathensChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2ed8",
+    "text": "eEventSpyingOnTheHeathensDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2f10",
+    "text": "eEventSpyingOnTheHeathensTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a2f30",
+    "text": "Faith must come from within, and a doubter will not be convinced this way. Eventually, {name} overcomes {his/her} doubt, though. {He/She} becomes one of the more outspoken believers that someone is guiding events on the island.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3014",
+    "text": "eEventDoubtResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a30f8",
+    "text": "eEventDoubtResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3120",
+    "text": "eEventDoubtChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3140",
+    "text": "eEventDoubtChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a31f0",
+    "text": "eEventDoubtDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3208",
+    "text": "eEventDoubtTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a33d0",
+    "text": "eEventTheSpaResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a34c0",
+    "text": "eEventTheSpaResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a34e4",
+    "text": "eEventTheSpaChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a351c",
+    "text": "eEventTheSpaChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3568",
+    "text": "eEventTheSpaDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3584",
+    "text": "eEventTheSpaTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3598",
+    "text": "Using ordinary equipment from the lab, the man performs a number of miraculous procedures far beyond the villager's knowledge. He knows he's being watched, and, without turning around, he says, \"My name is Biggles. I am here to correct certain errors. You'll thank me later!\" He puts some glowing objects in his pockets and vanishes in a blinding light. He has left behind some of his amazing improvised devices. \n\nYour village gains {award} tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3760",
+    "text": "eEventTheReturnOfBigglesResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a38d0",
+    "text": "eEventTheReturnOfBigglesResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3900",
+    "text": "eEventTheReturnOfBigglesChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3930",
+    "text": "eEventTheReturnOfBigglesChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3998",
+    "text": "eEventTheReturnOfBigglesDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a39d0",
+    "text": "eEventTheReturnOfBigglesTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3ad0",
+    "text": "eEventBunjeeJumpingResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3b90",
+    "text": "eEventBunjeeJumpingResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3bb8",
+    "text": "eEventBunjeeJumpingChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3bdc",
+    "text": "eEventBunjeeJumpingChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3c74",
+    "text": "eEventBunjeeJumpingDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3ca0",
+    "text": "eEventBunjeeJumpingTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3e80",
+    "text": "eEventTheHeathenToyResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3ea0",
+    "text": "Though it probably wasn't the right thing to do, little {name} keeps the toy and is able to glean some insight into the ways of the heathens - at least the ways of heathen children. \n{name} gains research skill.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3f74",
+    "text": "eEventTheHeathenToyResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3fa8",
+    "text": "eEventTheHeathenToyChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a3fcc",
+    "text": "eEventTheHeathenToyChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4090",
+    "text": "eEventTheHeathenToyDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a40b8",
+    "text": "eEventTheHeathenToyTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a41a0",
+    "text": "eEventTheMaskResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4300",
+    "text": "eEventTheMaskResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4320",
+    "text": "eEventTheMaskChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4344",
+    "text": "eEventTheMaskChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4398",
+    "text": "eEventTheMaskDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a43b8",
+    "text": "eEventTheMaskTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4518",
+    "text": "eEventTheBedBugsResultB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4684",
+    "text": "eEventTheBedBugsResultA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a46a8",
+    "text": "eEventTheBedBugsChoiceB",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a46e0",
+    "text": "eEventTheBedBugsChoiceA",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4764",
+    "text": "eEventTheBedBugsDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a478c",
+    "text": "eEventTheBedBugsTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a48cc",
+    "text": "eEventAbandonedInfantsDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4900",
+    "text": "eEventAbandonedInfantsTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4920",
+    "text": "A tame bird is found with a note tied to its leg. It bears news from another village saying that there are signs that the balance is starting to be restored to the island through the combined efforts of the other tribes. Scientific evidence follows... \nYour tribe gains some tech from the document.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4a4c",
+    "text": "eEventNewsFromAnotherTribe2Desc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4a6c",
+    "text": "eEventNewsFromAnotherTribe2Title",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4b34",
+    "text": "eTheEventVillageAndTheTree_EuphoriaDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4b5c",
+    "text": "eTheEventVillageAndTheTree_EuphoriaTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4b88",
+    "text": "A respected master from another tribe has decided to join the expedition to this part of the island. {He/She} brings news that the fabled golden child from the south shore has gone missing. \nThe newcomer is welcomed to the tribe.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4c70",
+    "text": "eEventNewsFromAnotherTribe1Desc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4ca8",
+    "text": "eEventNewsFromAnotherTribe1Title",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4d7c",
+    "text": "eEventTheVillageAndTheTree_MallaiseDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4dbc",
+    "text": "eEventTheVillageAndTheTree_MallaiseTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a4fd0",
+    "text": "eEventChutesWithoutLaddersDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5008",
+    "text": "eEventChutesWithoutLaddersTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a51ec",
+    "text": "eEventDaredevilBarrelDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5228",
+    "text": "eEventDaredevilBarrelTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a52dc",
+    "text": "eEventBarrelOHeathenBabiesVDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a52fc",
+    "text": "eEventBarrelOHeathenBabiesVTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a53b8",
+    "text": "eEventBarrelOBabiesVDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a53e8",
+    "text": "eEventBarrelOBabiesVTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a54e0",
+    "text": "eEventTheTheBanyanFestivalDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a551c",
+    "text": "eEventTheTheBanyanFestivalTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5654",
+    "text": "eEventTheStingingWaspsDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5684",
+    "text": "eEventTheStingingWaspsTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5790",
+    "text": "eEventMushroomDayDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a57b8",
+    "text": "eEventMushroomDayTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a57d0",
+    "text": "An adorable but noisy lemur has taken an interest in the lab recently. The little animal loves attention and keeps chattering and squeaking at the researchers until they play with him. He's so cute that no one wants to chase him off, even though he is keeping them from working. They resign themselves to just accommodating him until he gets bored and moves on. Your villagers lose some tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5960",
+    "text": "eEventThePeskyCritterDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5990",
+    "text": "eEventThePeskyCritterTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5a74",
+    "text": "eEventTheClumbsyHeathenDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5aa4",
+    "text": "eEventTheClumbsyHeathenTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5b88",
+    "text": "eEventTheRiverBreaksItsBanksDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5bc8",
+    "text": "eEventTheRiverBreaksItsBanksTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5bf0",
+    "text": "One day, one of the villagers responsible for a lot of the cooking finds a small bottle full of red juice. It smells like herbs, so the villager puts it into the food. Everyone is shocked by the meal, which burns their mouths! Later on, everyone seems to need to relieve themselves at the same time!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5d1c",
+    "text": "eEventTheBottleOfHotsauceDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5d58",
+    "text": "eEventTheBottleOfHotsauceTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5d78",
+    "text": "The heathens have a poor grasp of research techniques, and explosions are a common result of their haphazard methods. However, this time one of them managed to create the most truly offensive, foul, and utterly eye-watering cloud of lingering gas to ever assault a nose! This cloud has spread throughout the village, and everyone has no choice but to hide until it clears.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5ef0",
+    "text": "eEventTheEspeciallyOffensiveCloudDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5f38",
+    "text": "eEventTheEspeciallyOffensiveCloudTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5f60",
+    "text": "Some very unusual green crystals have been found near a cave where lightning struck. The scientists can definitely use this. \nYour tribe gains tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a5ffc",
+    "text": "eEventTheStrangeCrystalsDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6034",
+    "text": "eEventTheStrangeCrystalsTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6058",
+    "text": "Aphids have infested the crops and rendered much of the food unusable. ",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a60a0",
+    "text": "eEventTheAphidsDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a60c8",
+    "text": "eEventTheAphidsTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6108",
+    "text": "eEventTheArmyAntsDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a612c",
+    "text": "eEventTheArmyAntsTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6220",
+    "text": "eEventTheSaltyAirDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6248",
+    "text": "eEventTheSaltyAirTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6300",
+    "text": "eEventTheColdSnapDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6328",
+    "text": "eEventTheColdSnapTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a63b4",
+    "text": "eEventTheRainySeasonDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a63e4",
+    "text": "eEventTheRainySeasonTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a64ec",
+    "text": "eEventACloserLookDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6514",
+    "text": "eEventACloserLookTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6530",
+    "text": "Today is the day that the villagers give thanks to those that guide their fate and for all the blessings they enjoy on the island of Isola. There will be dancing and ceremonies, followed by a sumptuous feast!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6604",
+    "text": "eEventBlessingsDayDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6638",
+    "text": "eEventBlessingsDayTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6650",
+    "text": "One morning the villagers notice that strange footprints have appeared on the ground overnight. They later discover that someone or something has stolen some important research tools.\n\nYour village has lost {award} tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6734",
+    "text": "eEventMysteriousFogTechPenaltyDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6758",
+    "text": "eEventMysteriousFogTechPenaltyTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6780",
+    "text": "One morning the villagers notice that strange footprints have appeared on the ground overnight. They later discover a number of very useful scientific instruments that seem to have come out of nowhere, as though they simply fell from the sky.\n\nYour village has gained {award} tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a68a4",
+    "text": "eEventMysteriousFogTechBonusDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a68c8",
+    "text": "eEventMysteriousFogTechBonusTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a68f0",
+    "text": "One morning the villagers notice that strange footprints have appeared on the ground overnight. They later discover that someone or something has stolen some food.\n\nYour village has lost {award} food.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a69bc",
+    "text": "eEventMysteriousFogFoodPenaltyDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a69e0",
+    "text": "eEventMysteriousFogFoodPenaltyTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6a08",
+    "text": "One morning the villagers notice that strange footprints have appeared on the ground overnight. They later discover that a wealth of honeycombs have appeared, seemingly out of nowhere.\n\nYour village gains {award} food.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6ae4",
+    "text": "eEventMysteriousFogFoodBonusDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6b24",
+    "text": "eEventMysteriousFogFoodBonusTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6c90",
+    "text": "eEventTheVisionDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6cb0",
+    "text": "eEventTheVisionTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6d24",
+    "text": "eEventCanoeFromOtherSideDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6d64",
+    "text": "eEventCanoeFromOtherSideTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6de0",
+    "text": "eEventDayOfHonorDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6e08",
+    "text": "eEventDayOfHonorTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6e20",
+    "text": "Today is the day that the villagers commemorate their arrival on the island of Isola with dancing, celebration and feasts!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6e9c",
+    "text": "eEventIsolaDayDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6ec8",
+    "text": "eEventIsolaDayTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6f50",
+    "text": "eEventAllergySeasonDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6f7c",
+    "text": "eEventAllergySeasonTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a6f98",
+    "text": "One morning, the villagers noticed that there was an aggressive and toxic mold spreading inside the food bin and ruining the contents. The frantic villagers do their best to save the food, but they can't save it all...",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7074",
+    "text": "eEventTheCreepingMoldDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a70a4",
+    "text": "eEventTheCreepingMoldTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7234",
+    "text": "eEventTsunamiDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7254",
+    "text": "eEventTsunamiTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7290",
+    "text": "eTechPathAlreadyChosen",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7308",
+    "text": "eTechConfirmPath",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a731c",
+    "text": "Your villagers have fully mastered \nthis technology!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7354",
+    "text": "eTechFullyResearched",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a736c",
+    "text": "Fully Researched",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a739c",
+    "text": "eTechNextLevel",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a73c8",
+    "text": "eTechLevel",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a73d8",
+    "text": "            Medicine Technology\n \nAdvancements in medicine reduce the \nfrequency of disease on the island and \nsignificantly increase longevity and \nfertility rates.\n\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7480",
+    "text": "eTechMedicineInfo",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a754c",
+    "text": "eTechSpiritualityInfo",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a75e0",
+    "text": "eTechRestorationInfo",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a76b0",
+    "text": "eTechLearningInfo",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a76c8",
+    "text": "           Science\n \nAdvancements in science enable your \nvillagers to accumulate tech points \nfaster.\n\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7734",
+    "text": "eTechScienceInfo",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7748",
+    "text": "           Food Mastery \n\nThis tech increases your villagers' \nunderstanding about preparing and storing \nall types of food.\nAt Level 1 your tribe has a basic understanding.\nAt Level 2 your tribe gets a 50 percent bonus.\nAt Level 3 all food gathered is doubled.\n\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7850",
+    "text": "eTechFoodMasteryInfo",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7b30",
+    "text": "eEulogyTextResearcher2",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7b5c",
+    "text": "eEulogyTextResearcher1",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7bf0",
+    "text": "eTechResearchedNoPrice",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7c0c",
+    "text": "eTechPts",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7c20",
+    "text": "eTechCost",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7c38",
+    "text": "eTechMedicineLabel",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7c5c",
+    "text": "eTechSpiritualityLabel",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7c84",
+    "text": "eTechRestorationLabel",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7ca8",
+    "text": "eTechLearningLabel",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7cc4",
+    "text": "eTechScienceLabel",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7cd8",
+    "text": "Food Mastery",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7ce8",
+    "text": "eTechFoodMasteryLabel",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7e2c",
+    "text": "You can zip around the island with your numeric keys.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a7fac",
+    "text": "Lab collectibles permanently improve research productivity.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a8110",
+    "text": "Fire assists researchers.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a81a4",
+    "text": "The 'Learning' tech makes villagers learn new things faster.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a8310",
+    "text": "Master scientists produce more tech points than others.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a8894",
+    "text": "Researching medicine reduces disease and extends longevity.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a89a0",
+    "text": "Relics increase your max energy. Lab gear increases tech points.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a8d20",
+    "text": "The Clothing Hut\n\nYour villagers can now spend extra tech \npoints to customize their outfits.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a8da0",
+    "text": "The Lake\n\nFish! The lake is full of life once again, and \nyour villagers have a regular source of food.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a9648",
+    "text": "eTipPuzzleResearchTotemComplete",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a98a0",
+    "text": "eTipPuzzleFoodTotemComplete",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a98c0",
+    "text": "The Prison Break\n\nYour villagers have torn down the flimsy \nbamboo fence and built a food bin from it. \nNow they have a place to store food.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a9b60",
+    "text": "Good job! Your villagers aren't worried about \nfood anymore. Now you can focus on research \nand increasing the population of the village.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a9bec",
+    "text": "eTipFoodOk",
+    "xrefs": []
+  },
+  {
+    "address": "0x4a9e88",
+    "text": "Alas, the fates were not kind to your village. \nThere is nobody left who believes in you. The island \nof Isola remains a myth and its mysteries \nunsolved.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aa220",
+    "text": "You converted a heathen! Any time you make new believers, \nthrough conversion or new babies, you increase your max energy, \nwhich can eventually unlock new powers!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aa480",
+    "text": "Nice try, but children don't work. They \nlove to play and won't do what you ask \nuntil they grow up. They can still help \nout though, as they sometimes find \ndelicious mushrooms or collectibles.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aa608",
+    "text": "Hmmm... This villager is confused. \nSometimes villagers need more skill \nor more advanced technology before \nthey understand what to do.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aa978",
+    "text": "How sad. One of your little villagers is dead. \nVillagers die of old age, but they can also die \nfrom disease and starvation. Buying medicine \ntechnology helps your villagers live longer \nand have fewer diseases.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aaca8",
+    "text": "Oh, well! The villager was unsuccessful \nat research. Drag the same villager to \nthe table again.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aad0c",
+    "text": "eTTipStandAloneResearchFail",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aad28",
+    "text": "Good! Let's give the villager a \nmoment to research. If they \nsucceed, you will earn tech points.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aad8c",
+    "text": "eTTipStandAloneResearchWait",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aae40",
+    "text": "Good! Let's wait while the villager gathers noni. \nIf they succeed, they will bring some to \nthe food bin near the center of the village. \n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ab3e0",
+    "text": "Welcome to the Puzzles and Milestones screen. \nThe island is full of puzzles and hidden secrets \nwaiting to be discovered. Your goal is to solve \nIsola's puzzles while helping your tribe \nsurvive and make more new believers.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ab6d0",
+    "text": "Welcome to the Collections screen. \nHere you can see which collectibles your \nvillage children have gathered. Each relic that \nyou collect permanently increases your maximum \ndivine energy. Each piece of lab gear permanently \nincreases tech point production! \nClick 'Done' to return to the main screen. \n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ab890",
+    "text": "Ooooh! The child found a relic! \nYour villagers can collect Isola's small and \nbeautiful treasures, but only when found by \na child. Repeat relics are converted into \ndivine energy, while repeat lab gear gets converted into tech points.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ab990",
+    "text": "Children can also contribute to village life. \nTheir keen eyes can spot mushrooms and small \ncollectibles that adults might overlook. \nDrag a child to this collectible before it disappears.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aba60",
+    "text": "Welcome to the Technologies screen. \nUse the tech points gained from research \nto upgrade a variety of different technologies. \nThe right side of the screen shows all the powers \nyou have unlocked, as well as those you have not yet unlocked. \nThey can be unlocked by increasing your divine energy. \nClick 'Done' to return to the main screen. \n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4abbc8",
+    "text": "Let's check out the Technologies screen...\nclick the 'Tech' button on the left side of \nthe screen.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4abc40",
+    "text": "Oh no! Your villager is being chased away by the heathens! \nThe heathens occupy many areas of the village \nand have erected totems as a symbol of their ownership. \nIn order to start research and gain tech points, you will need \nto gain control of each area by dismantling the totems. \nOnce you take over the research area, your tribe can start \ngenerating tech points.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4abdc8",
+    "text": "Let's teach one of your villagers to research...\nDrag an adult villager to the large \ntable at the center of the lab.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ac488",
+    "text": "Your villagers are using the green bamboo \nto build a bin to store much-needed food. \nKeep your villagers working on it. \n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ac818",
+    "text": "Good! This is how you move about \nthe island. Feel free to explore your\nlittle village.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4acda8",
+    "text": "We stopped believing in the island, in any guiding force.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4acfe4",
+    "text": "Long ago there was a war between two factions in the island.\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ad420",
+    "text": "There was once a mysterious island called Isola,\n",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ae1d4",
+    "text": "Depositing food",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ae1e4",
+    "text": "eSayDepositFood",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ae68c",
+    "text": "Looking for collectibles",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ae6a8",
+    "text": "eSayLookForCollectibles",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ae77c",
+    "text": "Inspecting the food",
+    "xrefs": []
+  },
+  {
+    "address": "0x4ae790",
+    "text": "eSayInspectingFood",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aeef8",
+    "text": "Research",
+    "xrefs": []
+  },
+  {
+    "address": "0x4aef04",
+    "text": "eSayResearch",
+    "xrefs": []
+  },
+  {
+    "address": "0x4afacc",
+    "text": "The tribe has too little food for that!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4afaf4",
+    "text": "eSayNoFood",
+    "xrefs": []
+  },
+  {
+    "address": "0x4afc44",
+    "text": "eSayNeedAdeptResearcher",
+    "xrefs": []
+  },
+  {
+    "address": "0x4afd1c",
+    "text": "Researching",
+    "xrefs": []
+  },
+  {
+    "address": "0x4afd28",
+    "text": "eSayResearching",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0334",
+    "text": "Technologies",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0344",
+    "text": "eSayTechnologies",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0358",
+    "text": "Tech Points:",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0368",
+    "text": "eSayTechPointsCln",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0618",
+    "text": "{name} sees the research table.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0638",
+    "text": "eSaySeesResearchTable",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0650",
+    "text": "{name} sees research equipment.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0670",
+    "text": "eSaySeesResearchEquipment",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b072c",
+    "text": "{name} sees the food bin is empty!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0750",
+    "text": "eSaySeesEmptyFoodbin",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0768",
+    "text": "{name} sees the food bin is packed with delicious food.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b07a0",
+    "text": "eSaySeesAbundantFoodbin",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b07b8",
+    "text": "{name} sees very little food in the food bin!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b07e8",
+    "text": "eSaySeesLowFoodbin",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b07fc",
+    "text": "{name} sees the food bin.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0818",
+    "text": "eSaySeesFoodbin",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0f90",
+    "text": " could try to work on research here.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b0fb8",
+    "text": "eSayCouldTryResearch",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b1198",
+    "text": "Not enough tech points to make new clothes!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b1540",
+    "text": "eSayHeathenMasterResearcher",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b184c",
+    "text": "eSayTech",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b1acc",
+    "text": "eSayNoFoodbin",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b1b5c",
+    "text": "Only children can see collectibles.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b1edc",
+    "text": "Tech Points Available:",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b1ef4",
+    "text": "eSayTechPointsAvail",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b1fe0",
+    "text": "You don't have enough tech points!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b2004",
+    "text": "eSayInsufficientTechPts",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b201c",
+    "text": "This is fully researched!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b2038",
+    "text": "eSayFullyResearched",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b23a0",
+    "text": "eSayConcernedFood",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b23b4",
+    "text": "Food available to villagers:",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b23d4",
+    "text": "eSayFoodLevel",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b2450",
+    "text": "More tech needed to improve statue further.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b247c",
+    "text": "eSayMoreTechToContinueStatue",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b249c",
+    "text": "Additional research may be necessary.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b24c4",
+    "text": "eSayConfusedTech",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b2680",
+    "text": "eSayFailedResearch",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b26d4",
+    "text": "This villager improved at research!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b26f8",
+    "text": "eSayBetterResearch",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b270c",
+    "text": "Attempting research.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b2724",
+    "text": "eSayTryingToResearch",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b2fac",
+    "text": "Installing the golden eye",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b3944",
+    "text": "eSayTechBonus",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b44ac",
+    "text": "Worried about food",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b44c0",
+    "text": "eWorriedFood",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4dc0",
+    "text": "You encountered 50 island events",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4e4c",
+    "text": "You encountered 10 island events",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4e70",
+    "text": "eString_AchievementEventfulIslandDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4e98",
+    "text": "An Eventful Island",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4eac",
+    "text": "eString_AchievementEventfulIslandTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4ed4",
+    "text": "You fully researched all 6 technologies",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4efc",
+    "text": "eString_AchievementFullResearchAllTechDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4f34",
+    "text": "eString_AchievementFullResearchAllTechTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4f60",
+    "text": "You fully researched Construction",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4f84",
+    "text": "eString_AchievementFullResearchConstructionDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4fc8",
+    "text": "eString_AchievementFullResearchConstructionTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b4ffc",
+    "text": "You fully researched Medicine",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b501c",
+    "text": "eString_AchievementFullResearchMedicineDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b5058",
+    "text": "eString_AchievementFullResearchMedicineTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b5088",
+    "text": "You fully researched Spirituality",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b50ac",
+    "text": "eString_AchievementFullResearchSpiritualityDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b50e8",
+    "text": "eString_AchievementFullResearchSpiritualityitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b5118",
+    "text": "You fully researched Food Mastery",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b513c",
+    "text": "eString_AchievementFullResearchFoodDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b5170",
+    "text": "eString_AchievementFullResearchFoodTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b519c",
+    "text": "You fully researched Science",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b51bc",
+    "text": "eString_AchievementFullResearchScienceDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b51e8",
+    "text": "High Tech",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b51f4",
+    "text": "eString_AchievementFullResearchScienceTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b5220",
+    "text": "You fully researched Learning",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b5240",
+    "text": "eString_AchievementFullResearchLearningDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b5278",
+    "text": "eString_AchievementFullResearchLearningTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b565c",
+    "text": "A villager has mastered research",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6270",
+    "text": "You produced 1,000,000 tech points",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6294",
+    "text": "eString_AchievementResearchDevDesc",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b62b8",
+    "text": "Research and Development",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b62d4",
+    "text": "eString_AchievementResearchDevTitle",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b62f8",
+    "text": "You produced 100,000 tech points",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6384",
+    "text": "You produced 10,000 tech points",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b640c",
+    "text": "You produced 1000 tech points",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b647c",
+    "text": "You harvested 1,000,000 food",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b64f8",
+    "text": "You harvested 100,000 food",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6568",
+    "text": "You harvested 10,000 food",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b65e0",
+    "text": "You harvested 1000 food",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b66d4",
+    "text": "Island Events Seen",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6784",
+    "text": "Food Gathered",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6794",
+    "text": "eFoodGathered",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6948",
+    "text": "Do you want to spend 5000 tech points to change this villager's clothes?",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6ce4",
+    "text": "eSayFood",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6cf0",
+    "text": "Tech Points",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6cfc",
+    "text": "eSayTechPointsTable",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6d10",
+    "text": "Tech Points ",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6d20",
+    "text": "eSayTechPoints",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6d48",
+    "text": "The next level of this tech is not available in the demo version!\nYou can purchase the full version from the main menu.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6dc0",
+    "text": "eTechNotAvailableInDemo",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6dd8",
+    "text": "Tech Points Available: %i",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b6df4",
+    "text": "eTechPointsAvailable",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b7b28",
+    "text": "Time Warp: accelerate time for one islander.",
+    "xrefs": []
+  },
+  {
+    "address": "0x4b7bcc",
+    "text": "Earthquake: shake the very island itself!",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c4732",
+    "text": "SDL_PollEvent",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c4742",
+    "text": "SDL_FlushEvent",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6058",
+    "text": ".?AVldwEventHandler@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6d9c",
+    "text": ".?AVCIslandEvent@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6db8",
+    "text": ".?AVCIslandEventChoiceAB@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6ddc",
+    "text": ".?AVCEventTheCreepingMold@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6e00",
+    "text": ".?AVCEventAllergySeason@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6e24",
+    "text": ".?AVCEventIsolaDay@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6e44",
+    "text": ".?AVCEventBlessingsDay@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6e68",
+    "text": ".?AVCEventTheVision@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6e88",
+    "text": ".?AVCEventMysteriousFogFoodBonus@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6eb4",
+    "text": ".?AVCEventMysteriousFogFoodPenalty@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6ee4",
+    "text": ".?AVCEventMysteriousFogTechBonus@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6f10",
+    "text": ".?AVCEventMysteriousFogTechPenalty@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6f40",
+    "text": ".?AVCEventDayOfHonor@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6f60",
+    "text": ".?AVCEventTheColdSnap@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6f80",
+    "text": ".?AVCEventTheArmyAnts@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6fa0",
+    "text": ".?AVCEventTheAphids@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6fc0",
+    "text": ".?AVCEventTheStrangeCrystals@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c6fe8",
+    "text": ".?AVCEventTheEspeciallyOffensiveCloud@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7018",
+    "text": ".?AVCEventTheBottleOfHotsauce@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7040",
+    "text": ".?AVCEventTheRiverBreaksItsBanks@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c706c",
+    "text": ".?AVCEventTheClumbsyHeathen@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7094",
+    "text": ".?AVCEventThePeskyCritter@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c70b8",
+    "text": ".?AVCEventMushroomDay@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c70d8",
+    "text": ".?AVCEventTheStingingWasps@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7100",
+    "text": ".?AVCEventBarrelOBabiesV@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7124",
+    "text": ".?AVCEventBarrelOHeathenBabiesV@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7150",
+    "text": ".?AVCEventTheSaltyAir@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7170",
+    "text": ".?AVCEventChutesWithoutLadders@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c719c",
+    "text": ".?AVCEventNewsFromAnotherTribe1@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c71c8",
+    "text": ".?AVCEventNewsFromAnotherTribe2@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c71f4",
+    "text": ".?AVCEventAbandonedInfants@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c721c",
+    "text": ".?AVCEventTheBedBugs@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c723c",
+    "text": ".?AVCEventTheMask@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7258",
+    "text": ".?AVCEventTheHeathenToy@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c727c",
+    "text": ".?AVCEventBunjeeJumping@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c72a0",
+    "text": ".?AVCEventTheReturnOfBiggles@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c72c8",
+    "text": ".?AVCEventTheSpa@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c72e4",
+    "text": ".?AVCEventDoubt@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7300",
+    "text": ".?AVCEventSpyingOnTheHeathens@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7328",
+    "text": ".?AVCEventYoureDoinItWrong@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7350",
+    "text": ".?AVCEventTheMissingKids@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7374",
+    "text": ".?AVCEventOutreach@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7394",
+    "text": ".?AVCEventTheAdvancedArtifacts@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c73c0",
+    "text": ".?AVCEventTrickOrTrade@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c73e4",
+    "text": ".?AVCEventTheMigratingFruitBats@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7410",
+    "text": ".?AVCEventAphidsInTheHydrofarm@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c743c",
+    "text": ".?AVCEventTheDefector@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c745c",
+    "text": ".?AVCEventTheStrawHat@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c747c",
+    "text": ".?AVCEventTheStrangeNectar@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c74a4",
+    "text": ".?AVCEventTheCrackedMask@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c74c8",
+    "text": ".?AVCEventTheSmellyVial@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c74ec",
+    "text": ".?AVCEventTheFloralVial@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7510",
+    "text": ".?AVCEventTheInvisibleVial@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7538",
+    "text": ".?AVCEventInnovationInFarming@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c7560",
+    "text": ".?AVCEventMysteriousStoryteller@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c758c",
+    "text": ".?AVCEventChildInTheTree@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c75b0",
+    "text": ".?AVCEventThePrettyShell@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c75d4",
+    "text": ".?AVCEventBigglesPaysAVisit@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4c75fc",
+    "text": ".?AVCIslandEventDialog@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4cc478",
+    "text": ".?AVCFoodTotemPuzzle@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4cc9b4",
+    "text": ".?AVCResearchTotemPuzzle@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4cd360",
+    "text": ".?AVCTechScene@@",
+    "xrefs": []
+  },
+  {
+    "address": "0x4d94b8",
+    "text": ".?AVITechObserver@@",
+    "xrefs": []
+  }
+]

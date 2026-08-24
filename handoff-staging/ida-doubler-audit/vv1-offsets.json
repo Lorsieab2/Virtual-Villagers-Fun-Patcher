@@ -1,0 +1,403 @@
+{
+  "input": "V:\\handoff-staging\\ida-doubler-audit\\inputs\\vv1.exe",
+  "imagebase": "0x400000",
+  "rows": [
+    {
+      "requested_file_offset": "0x1D120",
+      "ea": "0x41D120",
+      "rva": "0x1D120",
+      "segment": ".text",
+      "item_head": "0x41D120",
+      "item_end": "0x41D124",
+      "offset_in_item": 0,
+      "item": {
+        "ea": "0x41D120",
+        "file_offset": "0x1D120",
+        "size": 4,
+        "is_code": true,
+        "is_data": false,
+        "name": "sub_41D120",
+        "function": "0x41D120",
+        "function_name": "sub_41D120",
+        "line": "mov     eax, [esp+arg_0]",
+        "bytes": "8B442404"
+      },
+      "context": [
+        {
+          "ea": "0x41D108",
+          "file_offset": "0x1D108",
+          "size": 8,
+          "is_code": false,
+          "is_data": true,
+          "name": null,
+          "function": null,
+          "function_name": null,
+          "line": "align 10h",
+          "bytes": "9090909090909090"
+        },
+        {
+          "ea": "0x41D110",
+          "file_offset": "0x1D110",
+          "size": 2,
+          "is_code": true,
+          "is_data": false,
+          "name": "sub_41D110",
+          "function": "0x41D110",
+          "function_name": "sub_41D110",
+          "line": "xor     eax, eax",
+          "bytes": "33C0"
+        },
+        {
+          "ea": "0x41D112",
+          "file_offset": "0x1D112",
+          "size": 1,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D110",
+          "function_name": "sub_41D110",
+          "line": "retn",
+          "bytes": "C3"
+        },
+        {
+          "ea": "0x41D113",
+          "file_offset": "0x1D113",
+          "size": 13,
+          "is_code": false,
+          "is_data": true,
+          "name": null,
+          "function": null,
+          "function_name": null,
+          "line": "align 10h",
+          "bytes": "90909090909090909090909090"
+        },
+        {
+          "ea": "0x41D120",
+          "file_offset": "0x1D120",
+          "size": 4,
+          "is_code": true,
+          "is_data": false,
+          "name": "sub_41D120",
+          "function": "0x41D120",
+          "function_name": "sub_41D120",
+          "line": "mov     eax, [esp+arg_0]",
+          "bytes": "8B442404"
+        },
+        {
+          "ea": "0x41D124",
+          "file_offset": "0x1D124",
+          "size": 6,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D120",
+          "function_name": "sub_41D120",
+          "line": "add     [ecx+0A2FCh], eax",
+          "bytes": "0181FCA20000"
+        },
+        {
+          "ea": "0x41D12A",
+          "file_offset": "0x1D12A",
+          "size": 6,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D120",
+          "function_name": "sub_41D120",
+          "line": "add     [ecx+9E20h], eax",
+          "bytes": "0181209E0000"
+        },
+        {
+          "ea": "0x41D130",
+          "file_offset": "0x1D130",
+          "size": 3,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D120",
+          "function_name": "sub_41D120",
+          "line": "retn    4",
+          "bytes": "C20400"
+        },
+        {
+          "ea": "0x41D133",
+          "file_offset": "0x1D133",
+          "size": 13,
+          "is_code": false,
+          "is_data": true,
+          "name": null,
+          "function": null,
+          "function_name": null,
+          "line": "align 10h",
+          "bytes": "90909090909090909090909090"
+        }
+      ],
+      "xrefs_to": [
+        {
+          "from": "0x41A373",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42818F",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42BB13",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42BBF2",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42BCD1",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42BE4B",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42BFAB",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42C10B",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x43B313",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x43B32E",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x43B34B",
+          "type": 17,
+          "iscode": true
+        }
+      ],
+      "xrefs_from": [
+        {
+          "to": "0x41D124",
+          "type": 21,
+          "iscode": true
+        }
+      ],
+      "raw_window": "33C0C3909090909090909090909090908B4424040181FCA200000181209E0000C2040090"
+    },
+    {
+      "requested_file_offset": "0x1D140",
+      "ea": "0x41D140",
+      "rva": "0x1D140",
+      "segment": ".text",
+      "item_head": "0x41D140",
+      "item_end": "0x41D144",
+      "offset_in_item": 0,
+      "item": {
+        "ea": "0x41D140",
+        "file_offset": "0x1D140",
+        "size": 4,
+        "is_code": true,
+        "is_data": false,
+        "name": "sub_41D140",
+        "function": "0x41D140",
+        "function_name": "sub_41D140",
+        "line": "mov     eax, [esp+arg_0]",
+        "bytes": "8B442404"
+      },
+      "context": [
+        {
+          "ea": "0x41D124",
+          "file_offset": "0x1D124",
+          "size": 6,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D120",
+          "function_name": "sub_41D120",
+          "line": "add     [ecx+0A2FCh], eax",
+          "bytes": "0181FCA20000"
+        },
+        {
+          "ea": "0x41D12A",
+          "file_offset": "0x1D12A",
+          "size": 6,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D120",
+          "function_name": "sub_41D120",
+          "line": "add     [ecx+9E20h], eax",
+          "bytes": "0181209E0000"
+        },
+        {
+          "ea": "0x41D130",
+          "file_offset": "0x1D130",
+          "size": 3,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D120",
+          "function_name": "sub_41D120",
+          "line": "retn    4",
+          "bytes": "C20400"
+        },
+        {
+          "ea": "0x41D133",
+          "file_offset": "0x1D133",
+          "size": 13,
+          "is_code": false,
+          "is_data": true,
+          "name": null,
+          "function": null,
+          "function_name": null,
+          "line": "align 10h",
+          "bytes": "90909090909090909090909090"
+        },
+        {
+          "ea": "0x41D140",
+          "file_offset": "0x1D140",
+          "size": 4,
+          "is_code": true,
+          "is_data": false,
+          "name": "sub_41D140",
+          "function": "0x41D140",
+          "function_name": "sub_41D140",
+          "line": "mov     eax, [esp+arg_0]",
+          "bytes": "8B442404"
+        },
+        {
+          "ea": "0x41D144",
+          "file_offset": "0x1D144",
+          "size": 6,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D140",
+          "function_name": "sub_41D140",
+          "line": "add     [ecx+0A2ECh], eax",
+          "bytes": "0181ECA20000"
+        },
+        {
+          "ea": "0x41D14A",
+          "file_offset": "0x1D14A",
+          "size": 6,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D140",
+          "function_name": "sub_41D140",
+          "line": "add     [ecx+9E28h], eax",
+          "bytes": "0181289E0000"
+        },
+        {
+          "ea": "0x41D150",
+          "file_offset": "0x1D150",
+          "size": 3,
+          "is_code": true,
+          "is_data": false,
+          "name": null,
+          "function": "0x41D140",
+          "function_name": "sub_41D140",
+          "line": "retn    4",
+          "bytes": "C20400"
+        },
+        {
+          "ea": "0x41D153",
+          "file_offset": "0x1D153",
+          "size": 13,
+          "is_code": false,
+          "is_data": true,
+          "name": null,
+          "function": null,
+          "function_name": null,
+          "line": "align 10h",
+          "bytes": "90909090909090909090909090"
+        }
+      ],
+      "xrefs_to": [
+        {
+          "from": "0x419454",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x419F0F",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x4281D5",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42B865",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42B933",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x42BA01",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x43AD8C",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x43AECD",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x43AF3C",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x43AF8E",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x43AFF7",
+          "type": 17,
+          "iscode": true
+        },
+        {
+          "from": "0x43B09B",
+          "type": 17,
+          "iscode": true
+        }
+      ],
+      "xrefs_from": [
+        {
+          "to": "0x41D144",
+          "type": 21,
+          "iscode": true
+        }
+      ],
+      "raw_window": "C20400909090909090909090909090908B4424040181ECA200000181289E0000C2040090"
+    }
+  ]
+}

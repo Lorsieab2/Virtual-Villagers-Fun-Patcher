@@ -1,0 +1,28 @@
+IDA has found an unpacked version of database: C:\Users\Owner\Documents\Codex\Misc LDW Game Projects\Virtual-Villagers-Fun-Patcher\handoff-staging\ida-doubler-audit\vv2.i64
+on the disk.
+
+Should we proceed with the unpacked files?
+ -> Pro~c~eed with unpacked base
+
+  bytes   pages size description
+--------- ----- ---- --------------------------------------------
+  2891776   353 8192 allocating memory for b-tree...
+  2539520   310 8192 allocating memory for virtual array...
+   262144    32 8192 allocating memory for name pointers...
+-----------------------------------------------------------------
+  5693440            total memory allocated
+
+Loading processor module C:\Program Files\IDA Professional 9.4\procs\pc.dll for metapc...OK
+Loading type libraries...
+Autoanalysis subsystem has been initialized.
+Database for file 'vv2.exe' has been loaded.
+Hex-Rays Decompiler plugin has been loaded (v9.4.0.260610)
+  License: 14-0000-FFFF-88  (1 user)
+  The hotkeys are F5: decompile, Ctrl-F5: decompile all.
+
+  Please check the Edit/Plugins menu for more information.
+Hex-rays version 9.4.0.260610 has been detected, gooMBA plugin ready to use
+Using type parser: legacy
+C:\Users\Owner\Documents\Codex\Misc: C:\Users\Owner\Documents\Codex\Misc,1: Function declaration is expected -> OK
+Flushing buffers, please wait...ok
+Unloading IDP module C:\Program Files\IDA Professional 9.4\procs\pc.dll...

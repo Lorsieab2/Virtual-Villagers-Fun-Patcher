@@ -1,0 +1,68 @@
+.text {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	line-height: 12pt;
+	color: #333333;
+	font-weight: normal;
+}
+.nav {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #FFFFCC;
+	line-height: 7pt;
+	font-weight: bold;
+
+}
+.subhead {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+	color: #ffffcc;
+	font-weight: bold;
+}
+
+a:link{text-decoration: none;
+font-family: Arial, Helvetica, sans-serif;
+	color: #333333;
+	
+}
+
+a:active{text-decoration: none;
+ font-family: Arial, Helvetica, sans-serif;
+color: #333333;
+
+}
+ 
+a:visited {text-decoration: none;
+font-family: Arial, Helvetica, sans-serif;
+	color: #333333;
+
+}
+
+table { table-display:fixed;}
+.subhead2 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+	color: #333333;
+	font-weight: bold;
+	line-height: 9pt;
+}
+.newletter {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 7pt;
+	line-height: 10pt;
+	font-weight: normal;
+	color: 333333;
+}
+.copyright {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	line-height: 8pt;
+	color: 333333;
+}
+.manualblue {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	line-height: 14pt;
+	font-weight: bold;
+	color: #006699;
+}

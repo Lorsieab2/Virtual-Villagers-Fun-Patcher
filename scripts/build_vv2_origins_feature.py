@@ -552,11 +552,6 @@ def main() -> None:
             je menu_done
             mov ebx, eax
 
-            # Change Appearance for All (row 13) has no fixed price to confirm here:
-            # its own popup is the confirmation and the DLL does the 450k charge.
-            # Skip the generic "buy for N tech points?" prompt (which would read 0).
-            cmp ebx, 13
-            je tech_purchase_ready
             push ebx
             call 0x{confirm_dialog:X}
             test eax, eax

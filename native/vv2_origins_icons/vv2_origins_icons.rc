@@ -191,7 +191,7 @@ END
    mask Distribution preset and a mutually-exclusive Village-wide single mask.
    Preview controls 3201-3206 (male body/head/mask, female body/head/mask);
    cycler buttons 3211-3216 (prev) / 3221-3226 (next). */
-214 DIALOGEX 0, 0, 380, 334
+214 DIALOGEX 0, 0, 380, 378
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance for All"
 FONT 9, "Segoe UI"
@@ -226,24 +226,24 @@ BEGIN
     CONTROL     "", 3206, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 132, 50, 74
     PUSHBUTTON  ">", 3226, 324, 156, 12, 20
 
-    /* ---- Mask distribution (whole village, mutually exclusive) ---- */
-    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 216, 182, 84
-    AUTORADIOBUTTON "Off (use selectors above)", 3230, 14, 230, 170, 10, WS_GROUP | WS_TABSTOP
-    AUTORADIOBUTTON "VV5-style: 1 Chief, 4 Purple, rest mostly Blue", 3231, 14, 244, 170, 10
-    AUTORADIOBUTTON "Random (any mask, no weighting)", 3232, 14, 258, 170, 10
-    AUTORADIOBUTTON "Equal Colors + balanced M/F", 3233, 14, 272, 170, 10
+    /* ---- Mask distribution (whole village, mutually exclusive, full width) ---- */
+    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 216, 368, 70
+    AUTORADIOBUTTON "Off (use selectors above)", 3230, 14, 230, 356, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3231, 14, 244, 356, 10
+    AUTORADIOBUTTON "Random", 3232, 14, 258, 356, 10
+    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3233, 14, 272, 356, 10
 
-    /* ---- Village-wide single mask (mutually exclusive) ---- */
-    GROUPBOX    "Village-wide single mask", -1, 192, 218, 182, 82
-    AUTORADIOBUTTON "Off", 3240, 200, 232, 80, 10, WS_GROUP | WS_TABSTOP
-    AUTORADIOBUTTON "None", 3241, 200, 246, 80, 10
-    AUTORADIOBUTTON "Blue", 3242, 200, 260, 80, 10
-    AUTORADIOBUTTON "Orange", 3243, 200, 274, 80, 10
-    AUTORADIOBUTTON "Red", 3244, 288, 246, 80, 10
-    AUTORADIOBUTTON "Purple", 3245, 288, 260, 80, 10
-    AUTORADIOBUTTON "Chief", 3246, 288, 274, 80, 10
+    /* ---- Village-wide single mask (mutually exclusive, full width) ---- */
+    GROUPBOX    "Village-wide single mask", -1, 6, 290, 368, 46
+    AUTORADIOBUTTON "Off", 3240, 14, 304, 66, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "None", 3241, 84, 304, 66, 10
+    AUTORADIOBUTTON "Blue", 3242, 154, 304, 66, 10
+    AUTORADIOBUTTON "Orange", 3243, 224, 304, 66, 10
+    AUTORADIOBUTTON "Red", 3244, 294, 304, 66, 10
+    AUTORADIOBUTTON "Purple", 3245, 84, 320, 66, 10
+    AUTORADIOBUTTON "Chief", 3246, 154, 320, 66, 10
 
-    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 304, 368, 9
-    DEFPUSHBUTTON "OK", 1, 132, 316, 50, 16
-    PUSHBUTTON  "Cancel", 2, 198, 316, 50, 16
+    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 342, 368, 9
+    DEFPUSHBUTTON "OK", 1, 132, 354, 50, 16
+    PUSHBUTTON  "Cancel", 2, 198, 354, 50, 16
 END

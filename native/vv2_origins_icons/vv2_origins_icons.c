@@ -20,6 +20,7 @@ enum {
     VV2_ACT_RUNNING_ALL = 6, VV2_ACT_MASTERY_ALL = 7, VV2_ACT_AGE_ALL = 8,
     VV2_ACT_COLLECT_COMPLETE = 9, VV2_ACT_COLLECT_RESET = 10,
     VV2_ACT_DIVIDE_PARENTING = 11, VV2_ACT_DIVIDE_NO_PARENTING = 12,
+    VV2_ACT_APPEARANCE_ALL = 13,
     VV2_ACT_DETAIL_YOUTH = 100, VV2_ACT_DETAIL_MASTERY = 101,
     VV2_ACT_DETAIL_RUNNING = 102, VV2_ACT_DETAIL_AGE18 = 103,
     VV2_ACT_DETAIL_APPEARANCE = 104
@@ -537,6 +538,7 @@ static const char *vv2_action_name(int action) {
         return "Equal Division of Labor (Includes Parenting)";
     case VV2_ACT_DIVIDE_NO_PARENTING:
         return "Equal Division of Labor (No Parenting)";
+    case VV2_ACT_APPEARANCE_ALL: return "Change Appearance for All";
     case VV2_ACT_DETAIL_YOUTH: return "Grant Youth";
     case VV2_ACT_DETAIL_MASTERY: return "Grant Full Mastery";
     case VV2_ACT_DETAIL_RUNNING: return "Grant Running";
@@ -569,6 +571,7 @@ static unsigned int vv2_action_price(int action) {
     case VV2_ACT_COLLECT_RESET: return 1000000;
     case VV2_ACT_DIVIDE_PARENTING: return 1000000;
     case VV2_ACT_DIVIDE_NO_PARENTING: return 1000000;
+    case VV2_ACT_APPEARANCE_ALL: return 450000;
     case VV2_ACT_DETAIL_YOUTH: return 50000;
     case VV2_ACT_DETAIL_MASTERY: return 100000;
     case VV2_ACT_DETAIL_RUNNING: return 40000;
