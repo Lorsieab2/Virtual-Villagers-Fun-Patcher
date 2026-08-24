@@ -624,9 +624,13 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
 #define VV3_WORLD_HEAD_DX  34            /* head x-offset from base (per sub_4605F0) */
 #define VV3_WORLD_HEAD_DY  32            /* head y-offset from base (per sub_4605F0) */
 int g_vv3_world_lift   = 75;   /* scale-relative lift; 75 seats ADULTS perfectly     */
-int g_vv3_world_facing = 5;    /* mask atlas column 0..7 (front frame); TEMP fixed  */
+int g_vv3_world_facing = -1;   /* -1 = AUTO (read head atlas frame); >=0 = force col */
 int g_vv3_world_dx     = 15;   /* live-tuned X nudge: +right / -left (scaled px)     */
 int g_vv3_world_dy     = 0;    /* live-tuned Y nudge: +down / -up (scaled px)       */
+int g_vv3_world_liftfloor = 78;/* min scale%% used for the LIFT only, so small/child */
+                               /* villagers lift enough (else masks sit low on kids) */
+#define VV3_WORLD_CARRIED_OFF   0xF12 /* byte !=0 => carried/held (half-scale) -> skip */
+#define VV3_WORLD_HEADFRAME_OFF 0x30  /* head atlas obj current-frame field (obj[0xc]) */
 
 __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
 {
@@ -696,9 +700,14 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
     int mask = VV3_GetMaskForRecord(record);
     void *atlas;
-    float fscale;
-    int cell, mx, my, x, y, scaleBits;
+    float fscale, liftsc, floor;
+    int cell, mx, my, x, y, scaleBits, facing;
     if (mask <= 0) {
+        return;
+    }
+    /* skip masks on carried/held villagers (they draw half-scale at the carrier's
+       hand -- a stray tiny mask otherwise) */
+    if (*((unsigned char *)record + VV3_WORLD_CARRIED_OFF) != 0) {
         return;
     }
     atlas = VV3GetMaskAtlas();
@@ -709,11 +718,24 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     y = args[2];
     scaleBits = args[3];
     fscale = *(float *)&scaleBits;
-    /* facing: TEMP front (g_vv3_world_facing); next step reads the head sprite
-       args[0]'s current frame to pick the directional column. */
-    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + (g_vv3_world_facing & 7);
+    /* FACING: read the head atlas's current frame (args[0] = head sprite obj, a
+       fixed frame-indexed atlas whose frame is set per-villager before the head
+       draw) -> column = frame & 7.  g_vv3_world_facing >= 0 forces a column (debug). */
+    if (g_vv3_world_facing >= 0) {
+        facing = g_vv3_world_facing & 7;
+    } else {
+        facing = (*(int *)((unsigned char *)args[0] + VV3_WORLD_HEADFRAME_OFF)) & 7;
+    }
+    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
+    /* child lift boost: floor the scale used for the LIFT (not the draw) so small
+       villagers still lift the tall cell onto the head */
+    liftsc = fscale;
+    floor = g_vv3_world_liftfloor * 0.01f;
+    if (liftsc < floor) {
+        liftsc = floor;
+    }
     mx = x + (int)(g_vv3_world_dx * fscale);
-    my = y - (int)(g_vv3_world_lift * fscale) + (int)(g_vv3_world_dy * fscale);
+    my = y - (int)(g_vv3_world_lift * liftsc) + (int)(g_vv3_world_dy * fscale);
     __asm {
         mov  eax, scaleBits              /* a6 = same scale the head used */
         push eax
