@@ -5,10 +5,24 @@ from PIL import Image
 import numpy as np
 from scipy import ndimage
 
-FOLDER = r"C:/Users/Owner/Downloads/VV2 mask mockups"
-GAME = r"C:/Users/Owner/Downloads/Virtual Villagers - The Lost Children/Images/male_heads.png"
-OUT_ATLAS = r"C:/Users/Owner/Downloads/Virtual Villagers - The Lost Children/Images/heathen_masks.png"
-SCR = r"C:/Users/Owner/AppData/Local/Temp/claude/C--Users-Owner--claude/0273893a-8270-4370-a19f-cd0f96b9c774/scratchpad"
+import os
+from pathlib import Path
+
+# No author-only absolute paths.  Source mask art lives in the repo; the stock
+# game's Images folder (has male_heads.png + receives heathen_masks.png) comes
+# from $VV2_IMAGES.  Scratch/verify output goes to $VV2_SCRATCH (repo .scratch).
+_ROOT = Path(__file__).resolve().parents[1]
+FOLDER = os.environ.get("VV2_MASK_SRC", str(_ROOT / "research" / "vv2-mask-source"))
+_IMAGES = os.environ.get("VV2_IMAGES", "")
+if not _IMAGES:
+    raise SystemExit(
+        "set VV2_IMAGES to the stock game's Images folder "
+        "(the one containing male_heads.png)"
+    )
+GAME = str(Path(_IMAGES) / "male_heads.png")
+OUT_ATLAS = str(Path(_IMAGES) / "heathen_masks.png")
+SCR = os.environ.get("VV2_SCRATCH", str(_ROOT / ".scratch"))
+os.makedirs(SCR, exist_ok=True)
 
 HW, HH = 40, 65
 CELL_W, CELL_H = 40, 88          # atlas cell
