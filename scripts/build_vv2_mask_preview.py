@@ -1,13 +1,12 @@
 """Regenerate the VV2 Change-Appearance MASK preview strip (mask_preview.bmp).
 
-The chooser dialog (native/vv2_origins_icons) shows a Body / Head / Mask column;
-the DLL owner-draws each as a 40x65 cell stretched into the preview box.  The
-Head column uses the stock FRONT-facing head frame (male_heads.png column 5); the
-Mask column must match that pose, so this builder composites the FRONT mask frame
-(heathen_masks.png column 6) onto the SAME front head — otherwise the mask preview
-shows a side-facing "random" head that doesn't match the Head selector.
-
-6 cells: none, Blue, Orange, Red, Purple, Chief.
+The chooser dialogs (per-villager 213 and Change Appearance for All 214) show a
+Mask column whose cells the DLL owner-draws as 40x65, stretched into the preview
+box.  The mask picker shows the MASK ALONE (no head): compositing the mask onto a
+fixed head made it look like a "random head" and, in dialog 213, a different head
+than the Head selector.  Cell 0 = "None" (blank).  Cells 1-5 = Blue/Orange/Red/
+Purple/Chief, using the true FRONT frame of heathen_masks.png (column 5, the most
+left-right symmetric facing).
 
 Requires Pillow + the stock game's Images folder.  Example:
     python scripts/build_vv2_mask_preview.py \
@@ -27,27 +26,12 @@ OUT = ROOT / "native" / "vv2_origins_icons" / "appearance" / "mask_preview.bmp"
 BG = (236, 236, 236)          # dialog face background (matches head/body strips)
 CELL_W, CELL_H = 40, 65       # DLL preview cell (VV2_APPEARANCE_CELL_W/H)
 
-# Head atlas: 7 cols x 30 rows of 40x65.  Column 5 = the front pose the Head
-# selector uses (build_vv2_appearance_sheets.HEAD_FRAME).  Row 3 = a plain,
-# neutral short-hair head so the mask reads clearly.
-HEAD_CW, HEAD_CH = 40, 65
-HEAD_FRAME = 5
-HEAD_ROW = 3
-HEAD_FACE_CY = 24             # head face line within its 65-tall cell
-
-# Mask atlas: 8 cols x 5 rows of 40x88, face line baked at cell-y 56.  Column 6 =
-# the symmetric FRONT facing (see build_vv2_mask_atlas / heathen_masks.png).
+# Mask atlas: 8 cols x 5 rows of 40x88.  Column 5 = the true front facing (max
+# left-right alpha symmetry across the row; verified over blue+chief).
 MASK_CW, MASK_CH = 40, 88
-MASK_FRONT_COL = 6
+MASK_FRONT_COL = 5
 MASK_ROWS = 5                 # Blue, Orange, Red, Purple, Chief
-
-HEAD_TOP = 22                 # y where the head cell is placed in the 40x65 preview cell
-
-
-def _front_head(images: Path) -> Image.Image:
-    atlas = Image.open(images / "male_heads.png").convert("RGBA")
-    return atlas.crop((HEAD_FRAME * HEAD_CW, HEAD_ROW * HEAD_CH,
-                       HEAD_FRAME * HEAD_CW + HEAD_CW, HEAD_ROW * HEAD_CH + HEAD_CH))
+PAD = 2                       # breathing room inside the cell
 
 
 def _front_mask(masks: Image.Image, row: int) -> Image.Image:
@@ -55,22 +39,24 @@ def _front_mask(masks: Image.Image, row: int) -> Image.Image:
                        MASK_FRONT_COL * MASK_CW + MASK_CW, row * MASK_CH + MASK_CH))
 
 
-def _alpha_ymid(im: Image.Image) -> float:
-    """Vertical midpoint of an image's opaque region."""
+def _autocrop(im: Image.Image) -> Image.Image:
     a = np.array(im)[:, :, 3]
     ys = np.where(a.max(1) > 16)[0]
-    return (ys.min() + ys.max()) / 2.0 if len(ys) else im.size[1] / 2.0
+    xs = np.where(a.max(0) > 16)[0]
+    if not len(ys) or not len(xs):
+        return im
+    return im.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
 
 
-def _cell(head: Image.Image, head_ymid: float, mask: Image.Image | None) -> Image.Image:
-    """Head placed at a FIXED y (uniform head size across cells); the mask is then
-    slid vertically so its opaque midpoint lands on the head's, i.e. the mask face
-    sits over the head face with the feathers rising above."""
+def _cell(mask: Image.Image | None) -> Image.Image:
+    """The mask alone, trimmed and fit into the 40x65 cell (no head).  None = blank."""
     out = Image.new("RGBA", (CELL_W, CELL_H), BG + (255,))
-    out.alpha_composite(head, (0, HEAD_TOP))
     if mask is not None:
-        m = int(round(HEAD_TOP + head_ymid - _alpha_ymid(mask)))
-        out.alpha_composite(mask, (0, m))
+        m = _autocrop(mask)
+        scale = min((CELL_W - 2 * PAD) / m.size[0], (CELL_H - 2 * PAD) / m.size[1])
+        w, h = max(1, int(round(m.size[0] * scale))), max(1, int(round(m.size[1] * scale)))
+        m = m.resize((w, h), Image.LANCZOS)
+        out.alpha_composite(m, ((CELL_W - w) // 2, (CELL_H - h) // 2))
     return out.convert("RGB")
 
 
@@ -80,19 +66,17 @@ def main() -> None:
                     help="path to the stock game's Images folder")
     args = ap.parse_args()
 
-    head = _front_head(args.images)
-    head_ymid = _alpha_ymid(head)
     masks = Image.open(args.images / "heathen_masks.png").convert("RGBA")
 
     strip = Image.new("RGB", (CELL_W * (MASK_ROWS + 1), CELL_H), BG)
-    strip.paste(_cell(head, head_ymid, None), (0, 0))            # cell 0: no mask
+    strip.paste(_cell(None), (0, 0))                             # cell 0: None (blank)
     for r in range(MASK_ROWS):                                    # cells 1..5
-        strip.paste(_cell(head, head_ymid, _front_mask(masks, r)), ((r + 1) * CELL_W, 0))
+        strip.paste(_cell(_front_mask(masks, r)), ((r + 1) * CELL_W, 0))
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     strip.save(OUT)
     print(f"wrote {OUT}  ({strip.size[0]}x{strip.size[1]}, {MASK_ROWS + 1} cells, "
-          f"front head col {HEAD_FRAME} row {HEAD_ROW} + front mask col {MASK_FRONT_COL})")
+          f"mask-only, front frame col {MASK_FRONT_COL})")
 
 
 if __name__ == "__main__":
