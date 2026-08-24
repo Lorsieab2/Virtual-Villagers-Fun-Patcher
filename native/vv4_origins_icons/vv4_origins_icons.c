@@ -243,46 +243,62 @@ static void vv_set_mask(unsigned char *villager, int mask) {
    transform -> masks absent in-world / too tiny on the scaled portrait), the
    head-draw caves draw the mask THROUGH the game's own head-draw thunk
    (0x409A70) with the head's x/y/facing/transform. That needs the mask atlas as
-   a drawable game sprite object. Build one via the game's ldwImageGrid ctor
-   FUN_0040ABA0(this, name, ext, cols=1, rows=1, subcols=8, subrows=5): it loads
-   ONE file "<name>00<ext>" (so we ship Images\vvfp_mask_atlas00.png) and slices
-   it into an 8x5 grid (cellW=320/8=40, cellH=325/5=65). The object pointer is
-   published to a fixed .shr slot the head cave reads. All guarded: a failed
-   load leaves the slot 0 and the cave draws no mask (no crash). */
+   a drawable game sprite object.
+
+   Build it via the game's SINGLE-FILE ldwImageGrid loader FUN_0040ab10 -- the
+   sibling of the big multi-file "%s%d%d%s" ctor FUN_0040ABA0. The dispatcher
+   FUN_0044c9b0 picks FUN_0040ab10 when the sprite record's +0x14 multi-file flag
+   is 0. Its shape (verified in Ghidra, matches VV3's proven 0x0040AF10):
+
+     void* __thiscall FUN_0040ab10(this, char *name, int cols, int rows):  ret 0xC
+         FUN_0040a840(name);        // load ONE surface from `name` (fopen, .png)
+         this[2]=cols; this[3]=rows;
+         *this = ldwImageGrid::vftable;
+         this[4] = surface.width  / cols;   // cellW = 320/8 = 40
+         this[5] = surface.height / rows;   // cellH = 325/5 = 65
+
+   The big ctor mismeasured (it drove cellW/H off cols*subcols and returned a
+   96x100 fallback -> 12x20 cells -> invisible slivers). The simple loader
+   divides the REAL surface dims by our 8x5, so cells come out 40x65.
+
+   Object size is 0x34 (the dispatcher's new(0x34) before this call). We ship a
+   single file Images\vvfp_mask_atlas.png (no "00" suffix -- the simple loader
+   fopen's the name verbatim). The object ptr is published to a fixed .shr slot
+   the head cave reads. All guarded: a failed load leaves cellW 0 and the cave
+   draws no mask (no crash). */
 #define VV_ALLOC_FN      0x470C5Cu     /* game allocator: void*(unsigned size) */
-#define VV_LDWGRID_CTOR  0x40ABA0u     /* ldwImageGrid __thiscall ctor */
+#define VV_LDWGRID_LOAD  0x40AB10u     /* ldwImageGrid single-file __thiscall loader */
 #define VV_MASK_ATLAS_SLOT_VA 0x728D70u /* .shr slot: published atlas obj ptr */
 static void *g_mask_atlas_obj = NULL;
 static int g_mask_atlas_tried = 0;
 
 static void vv_ensure_mask_atlas(void) {
     void *obj;
-    static const char atlas_name[] = "Images\\vvfp_mask_atlas";
-    static const char atlas_ext[] = ".png";
+    static const char atlas_name[] = "Images\\vvfp_mask_atlas.png";
     const char *namep = atlas_name;
-    const char *extp = atlas_ext;
     if (g_mask_atlas_tried) {
         return;                        /* one-shot: never retry (no crash loop) */
     }
     g_mask_atlas_tried = 1;
-    obj = ((void *(__cdecl *)(unsigned int))(UINT_PTR)VV_ALLOC_FN)(0x40u);
+    obj = ((void *(__cdecl *)(unsigned int))(UINT_PTR)VV_ALLOC_FN)(0x34u);
     if (obj == NULL) {
         return;
     }
-    /* FUN_0040ABA0(this=obj, name, ext, cols=1, rows=1, subcols=8, subrows=5),
-       __thiscall (callee-cleans the 6 stack args). */
+    /* FUN_0040ab10(this=obj, name, cols=8, rows=5), __thiscall, callee-cleans
+       the 3 stack args (ret 0xC). */
     __asm {
         push 5
         push 8
-        push 1
-        push 1
-        mov  eax, extp
-        push eax
         mov  eax, namep
         push eax
         mov  ecx, obj
-        mov  eax, VV_LDWGRID_CTOR
+        mov  eax, VV_LDWGRID_LOAD
         call eax
+    }
+    /* Reject a failed/empty load (cellW at obj[4] == 0) so the cave never draws
+       a garbage cell. */
+    if (((unsigned int *)obj)[4] == 0) {
+        return;
     }
     g_mask_atlas_obj = obj;
     *(void **)(UINT_PTR)VV_MASK_ATLAS_SLOT_VA = obj;   /* publish to the head cave */

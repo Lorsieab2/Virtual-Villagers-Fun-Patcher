@@ -1666,13 +1666,14 @@ def main() -> None:
             },
             # Heathen-mask RENDER atlas: the exact hand-aligned mask art, 8
             # directional columns x 5 mask rows of 40x65 cells. The DLL builds a
-            # game ldwImageGrid sprite from it (FUN_0040ABA0 sprintf "%s%d%d%s"
-            # -> "<name>00.png"), so it ships as vvfp_mask_atlas00.png. Added
-            # file (no atlas swaps/row bumps) -- removed on unpatch, stock
-            # atlases untouched.
+            # game ldwImageGrid sprite from it via the SINGLE-FILE loader
+            # FUN_0040ab10(name, cols, rows), which fopen's the name verbatim, so
+            # it ships as vvfp_mask_atlas.png (no "00" suffix). Added file (no
+            # atlas swaps/row bumps) -- removed on unpatch, stock atlases
+            # untouched.
             {
                 "source": "assets/vv4_masks/vvfp_mask_atlas.png",
-                "destination": "Images/vvfp_mask_atlas00.png",
+                "destination": "Images/vvfp_mask_atlas.png",
                 "sha256": hashlib.sha256(
                     (ROOT / "assets/vv4_masks/vvfp_mask_atlas.png").read_bytes()
                 ).hexdigest().upper(),
