@@ -927,6 +927,17 @@ static void vv2_appearance_repaint(HWND window, int control) {
     InvalidateRect(GetDlgItem(window, control), NULL, TRUE);
 }
 
+/* Draw a centered text label in a preview cell (used for the mask picker's
+   "(none)" / "No change" states instead of a sprite). */
+static void vv2_draw_label(DRAWITEMSTRUCT *item, const char *text) {
+    RECT rc = item->rcItem;
+    HBRUSH bg = CreateSolidBrush(RGB(236, 236, 236));
+    FillRect(item->hDC, &rc, bg);
+    DeleteObject(bg);
+    SetBkMode(item->hDC, TRANSPARENT);
+    DrawTextA(item->hDC, text, -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK);
+}
+
 static INT_PTR CALLBACK vv2_appearance_dialog(
     HWND window,
     UINT message,
@@ -948,7 +959,11 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
             return TRUE;
         }
         if (item->CtlID == IDC_MASK_PREVIEW) {
-            vv2_appearance_draw(item, IDB_MASK, vv2_appearance_mask);
+            if (vv2_appearance_mask == 0) {
+                vv2_draw_label(item, "(none)");
+            } else {
+                vv2_appearance_draw(item, IDB_MASK, vv2_appearance_mask);
+            }
             return TRUE;
         }
     } else if (message == WM_COMMAND) {
@@ -1146,17 +1161,15 @@ static unsigned int caf_rand(void) {
 /* Draw one selector preview: sex-appropriate strip, or "No change" when idx<0. */
 static void caf_draw(DRAWITEMSTRUCT *item, int sex, int kind, int idx) {
     if (idx < 0) {
-        RECT rc = item->rcItem;
-        HBRUSH bg = CreateSolidBrush(RGB(236, 236, 236));
-        FillRect(item->hDC, &rc, bg);
-        DeleteObject(bg);
-        SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, "No\r\nchange", -1, &rc,
-                  DT_CENTER | DT_VCENTER | DT_WORDBREAK);
+        vv2_draw_label(item, "No change");
         return;
     }
     if (kind == 2) {
-        vv2_appearance_draw(item, IDB_MASK, idx);
+        if (idx == 0) {
+            vv2_draw_label(item, "(none)");
+        } else {
+            vv2_appearance_draw(item, IDB_MASK, idx);
+        }
     } else if (kind == 1) {
         vv2_appearance_draw(item, sex ? IDB_HEAD_F_YOUNG : IDB_HEAD_M_YOUNG, idx);
     } else {
