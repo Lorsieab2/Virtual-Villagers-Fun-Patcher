@@ -474,7 +474,7 @@ MASK_DRAW_Y_OFFSET = -46
 # draw (0x4379a7, 0x437611, 0x438970). The stash hook applies this extra
 # downward nudge to any villager below that age (playtest: 3-4px).
 CHILD_ADULT_AGE_THRESHOLD = 0x118
-CHILD_MASK_EXTRA_DY = 4
+CHILD_MASK_EXTRA_DY = 9  # playtest: 4 wasn't enough, down ~5 more
 # The village/camera object hanging off the villager manager. Its +8/+0xC are
 # the scroll offsets every native draw in sub_437790 subtracts.
 VILLAGE_OBJECT_OFFSET = 0x3E010
