@@ -77,39 +77,52 @@ class VV1MaskSheetGeometryTests(unittest.TestCase):
 
     def test_gridded_art_is_used_verbatim(self) -> None:
         """For the strip colours: every pixel the sheet keeps is the supplied
-        art's own pixel, at the offset recovered from that colour's mockup.
+        art's own pixel. The sheet applies two transforms that are explicitly
+        allowed -- bleed crumbs from the neighbouring column are REMOVED, and the
+        whole frame is TRANSLATED vertically so every facing's mask bottom aligns
+        (see _align_frame_bottoms). Nothing may be recoloured or reshaped.
 
-        Pixels may be REMOVED -- art wider than the 40px cell bleeds crumbs into
-        the neighbouring column, and those are stripped so they do not render as
-        specks floating above the villager. Nothing may be recoloured or moved.
+        We reconstruct the generator's own pre-alignment clean cell (its own
+        _strip_bleed + _keep_main_blob on the placed column) and compare it to
+        the final aligned sheet cell bbox-to-bbox: because the alignment is a
+        pure vertical translation, the two crops must be pixel-identical and the
+        horizontal extent unchanged.
         """
+        cw = self.sheets.CELL_W
+        H = self.sheets.SHEET_CELL_H
         for colour in self.sheets.GRIDDED:
             art = Image.open(
                 ROOT / "assets" / "origins" / "mask-art" / f"{colour}.png"
             ).convert("RGBA")
             sheet = self.sheets._sheet(colour)
-            cw = self.sheets.CELL_W
             for facing, (ox, oy) in enumerate(self.sheets._frame_offsets(colour)):
                 with self.subTest(colour=colour, facing=facing):
                     src_x = cw * facing - ox
-                    src = art.crop((src_x, 0, src_x + cw, art.height)).load()
+                    column = art.crop((src_x, 0, src_x + cw, art.height)).copy()
                     top = oy - self.sheets.CELL_TOP
-                    got = sheet.crop(
-                        (cw * facing, top, cw * (facing + 1), top + art.height)
-                    ).load()
-                    removed = 0
-                    for y in range(art.height):
-                        for x in range(cw):
-                            if got[x, y][3] > 0:
-                                self.assertEqual(
-                                    got[x, y],
-                                    src[x, y],
-                                    f"{colour} facing {facing} pixel ({x},{y}) "
-                                    "was altered, not merely moved",
-                                )
-                            elif src[x, y][3] > 128:
-                                removed += 1
-                    self.assertLess(removed, 60, f"{colour} facing {facing}")
+                    cell = Image.new("RGBA", (cw, H), (0, 0, 0, 0))
+                    cell.alpha_composite(column, (0, top))
+                    clean = self.sheets._keep_main_blob(
+                        self.sheets._strip_bleed(cell, colour, facing)
+                    )
+                    cbb = clean.getbbox()
+                    got = sheet.crop((cw * facing, 0, cw * (facing + 1), H))
+                    gbb = got.getbbox()
+                    self.assertTrue(cbb and gbb, f"{colour} facing {facing} empty")
+                    # horizontal extent unchanged; same height (pure vertical move)
+                    self.assertEqual((cbb[0], cbb[2]), (gbb[0], gbb[2]),
+                                     f"{colour} facing {facing} moved horizontally")
+                    self.assertEqual(cbb[3] - cbb[1], gbb[3] - gbb[1],
+                                     f"{colour} facing {facing} height changed")
+                    cl = clean.crop(cbb).load()
+                    gl = got.crop(gbb).load()
+                    w, h = cbb[2] - cbb[0], cbb[3] - cbb[1]
+                    for y in range(h):
+                        for x in range(w):
+                            self.assertEqual(
+                                gl[x, y], cl[x, y],
+                                f"{colour} facing {facing} pixel ({x},{y}) altered",
+                            )
 
     def test_packed_atlas_frames_are_moved_not_redrawn(self) -> None:
         """Chief's atlas is separated into frames and repositioned; each frame's

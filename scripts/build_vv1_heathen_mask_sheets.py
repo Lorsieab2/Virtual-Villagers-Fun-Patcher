@@ -300,6 +300,35 @@ def _keep_main_blob(cell: Image.Image) -> Image.Image:
     return out
 
 
+def _align_frame_bottoms(sheet: Image.Image) -> Image.Image:
+    """Shift each facing vertically so every frame's mask BOTTOM sits at the
+    same y as the front frame's (PREVIEW_FRAME). The mask covers the head, which
+    holds a constant height as the villager turns, so its bottom/chin should too
+    -- otherwise the mask bobs up and down between facings. Horizontal position
+    is untouched, and the front frame (the tuned/previewed one) never moves, so
+    the per-colour oy tuning still sets where the mask sits. Pure vertical
+    translation: no pixel is recoloured, only moved."""
+    bottoms = []
+    for f in range(FACINGS):
+        bb = sheet.crop((CELL_W * f, 0, CELL_W * (f + 1), SHEET_CELL_H)).getbbox()
+        bottoms.append(bb[3] if bb else None)
+    target = bottoms[PREVIEW_FRAME]
+    if target is None:
+        return sheet
+    out = Image.new("RGBA", sheet.size, (0, 0, 0, 0))
+    for f in range(FACINGS):
+        cell = sheet.crop((CELL_W * f, 0, CELL_W * (f + 1), SHEET_CELL_H))
+        bb = cell.getbbox()
+        if bb and bottoms[f] != target:
+            shift = target - bottoms[f]
+            shift = max(-bb[1], min(shift, SHEET_CELL_H - bb[3]))  # keep in cell
+            moved = Image.new("RGBA", cell.size, (0, 0, 0, 0))
+            moved.alpha_composite(cell, (0, shift))
+            cell = moved
+        out.alpha_composite(cell, (CELL_W * f, 0))
+    return out
+
+
 def _sheet(colour: str) -> Image.Image:
     """The colour's art placed on the 7x40 cell grid, used verbatim.
 
@@ -343,7 +372,7 @@ def _sheet(colour: str) -> Image.Image:
             clipped = Image.new("RGBA", (CELL_W, SHEET_CELL_H), (0, 0, 0, 0))
             clipped.alpha_composite(frame, (x - CELL_W * facing, y))
             sheet.alpha_composite(clipped, (CELL_W * facing, 0))
-        return sheet
+        return _align_frame_bottoms(sheet)
     for facing, (ox, oy) in enumerate(_frame_offsets(colour)):
         top = oy - CELL_TOP
         if top < 0 or top + art.height > SHEET_CELL_H:
@@ -363,7 +392,7 @@ def _sheet(colour: str) -> Image.Image:
         # a real part of the mask.
         cleaned = _keep_main_blob(_strip_bleed(cell, colour, facing))
         sheet.alpha_composite(cleaned, (CELL_W * facing, 0))
-    return sheet
+    return _align_frame_bottoms(sheet)
 
 
 def build_preview_strip(sheets: dict[str, Image.Image]) -> bytes:
