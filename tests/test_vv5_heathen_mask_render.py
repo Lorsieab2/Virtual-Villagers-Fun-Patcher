@@ -62,6 +62,24 @@ def test_flip_routine_reads_choice_flips_faction_and_replays_displaced():
     assert ins[-1].mnemonic == "jmp" and int(ins[-1].op_str, 16) == 0x472488
 
 
+def test_bighead_routine_replays_head_then_blits_mask_atlas():
+    page, rmap = t9.build_page(STOCK_PAGE_VA)
+    ins = _routine(page, rmap, "bighead_mask")
+    text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
+    # replays the real head draw AND blits the mask via the same draw thunk
+    assert text.count("call 0x409ca0") == 2
+    # choice comes from the side-table via mask_get, never a villager record field
+    assert f"call 0x{STOCK_PAGE_VA + t9.OFF['mask_get']:x}" in text
+    assert "0x1bc0" not in text
+    # fetches the heathen mask atlas by sprite id 0x101 (village art reused)
+    assert "push 0x101" in text and "call 0x44fa30" in text
+    # transient scratch stays in proven-free .data BSS, never a record write
+    assert "mov dword ptr [0x7b1d14], eax" in text            # saved portrait X
+    assert "sub edx, 0x60" in text                             # pre-scale mask lift
+    # cleans the caller's seven stdcall args exactly as the stock call would
+    assert ins[-1].mnemonic == "ret" and ins[-1].op_str in ("0x1c", "0x1C")
+
+
 def test_restore_routine_reverts_via_saved_pointer_and_runs_epilogue():
     page, rmap = t9.build_page(STOCK_PAGE_VA)
     ins = _routine(page, rmap, "mask_restore")
@@ -125,7 +143,13 @@ def test_stock_modes_declare_the_three_render_detours():
             assert r["before"] == "81C4A80000"
             rel = int.from_bytes(bytes.fromhex(r["after"])[1:5], "little", signed=True)
             assert 0x400000 + site + 5 + rel == page_va + t9.OFF["mask_restore"]
+        # Details-portrait head-draw detour at 0x466E05 -> bighead_mask
+        bighead = by_off[0x66E05]
+        assert bighead["before"] == "E8962EFAFF"             # call 0x409CA0
+        assert bighead["after"].startswith("E8")             # call rel32 (no nops)
+        rel = int.from_bytes(bytes.fromhex(bighead["after"])[1:5], "little", signed=True)
+        assert 0x400000 + 0x66E05 + 5 + rel == page_va + t9.OFF["bighead_mask"]
     # expanded (disabled) modes must NOT carry the render detours
     for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
         offs = {int(p["offset"], 0) for p in manifest["patch_mode_overrides"].get(mode, [])}
-        assert 0x72481 not in offs and 0x72B0F not in offs
+        assert 0x72481 not in offs and 0x72B0F not in offs and 0x66E05 not in offs

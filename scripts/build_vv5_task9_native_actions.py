@@ -73,6 +73,23 @@ MASK_TABLE = 0x7B1D20
 # the sidecar into MASK_TABLE on the first village frame, then sets this. All
 # runtime-written state stays in non-exec .data (W^X-clean; code stays R+X).
 MASK_LOADED = 0x7B1D6C
+# Bighead (Details-screen villager portrait) mask render scratch: five R/W .data
+# BSS dwords in the same proven-free window as the flip scratch -- 0x7B1D14..0x1F
+# (just past the flip scratch, before MASK_TABLE) and 0x7B1D70..0x77 (past the
+# loaded flag, before the stock globals at 0x7B1D80). BSS (zero at launch),
+# non-exec, so it stays W^X-clean and never contends with .text caves.
+BH_SX = 0x7B1D14
+BH_SY = 0x7B1D18
+BH_SF = 0x7B1D1C
+BH_SS = 0x7B1D70
+BH_SROW = 0x7B1D74
+# Heathen mask sprite id (village atlas vv5_heathenheads.png, 8 facing x 5 masks,
+# cell 65x145). sub_44FA30(id) -> sub_44F870 lazily loads+caches and returns the
+# atlas object, so the portrait blit reuses the exact village mask art.
+MASK_HANDLE = 0x101
+# Pre-scale vertical lift (px) for the portrait mask so the 145-tall mask cell
+# sits over the 65-tall head. First estimate; tuned live against the portrait.
+BH_LIFT = 96
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -168,6 +185,7 @@ OFF = {
     "mask_get": 0x6C00,
     "mask_set": 0x6C80,
     "mask_load_once": 0x6D00,
+    "bighead_mask": 0x6D80,
     "strings": 0x7000,
 }
 
@@ -207,6 +225,7 @@ SIZES = {
     "mask_get": 0x80,
     "mask_set": 0x80,
     "mask_load_once": 0x80,
+    "bighead_mask": 0x100,
 }
 
 
@@ -3374,9 +3393,60 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     mlo_ret:
         ret
     """)
+    # bighead_mask: detour for the Details-screen villager-portrait head draw
+    # (`call 0x409CA0` at 0x466E05 inside sub_466C40). The portrait compositor
+    # reads no faction/mask field, so it never draws the mask. This routine
+    # replays the real head draw with the caller's own seven stdcall arguments
+    # (re-pushed so 0x409CA0's `ret 0x1C` cleans the copies and the originals are
+    # left intact on the stack), then -- if the villager has a chosen mask --
+    # blits the heathen mask atlas (id 0x101) over the head at the SAME
+    # position/facing/scale, lifted, before returning through `ret 0x1C` (which
+    # cleans the caller's original seven arguments, exactly as the stock stdcall
+    # call would have). esi (villager record) is preserved across both draws, so
+    # mask_get keys the side-table correctly and the caller sees esi unchanged.
+    # All transient values live in non-exec .data BSS scratch (W^X-clean).
+    bighead = put(page, page_va, "bighead_mask", f"""
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        call 0x409CA0
+        mov eax, [esp+0x08]
+        mov dword ptr [0x{BH_SX:X}], eax
+        mov eax, [esp+0x0C]
+        mov dword ptr [0x{BH_SY:X}], eax
+        mov eax, [esp+0x14]
+        mov dword ptr [0x{BH_SF:X}], eax
+        mov eax, [esp+0x18]
+        mov dword ptr [0x{BH_SS:X}], eax
+        call 0x{page_va + OFF['mask_get']:X}
+        test eax, eax
+        je bh_ret
+        cmp eax, 5
+        ja bh_ret
+        dec eax
+        mov dword ptr [0x{BH_SROW:X}], eax
+        push 0x{MASK_HANDLE:X}
+        call 0x44FA30
+        mov edx, dword ptr [0x{BH_SY:X}]
+        sub edx, 0x{BH_LIFT:X}
+        push 0
+        push dword ptr [0x{BH_SS:X}]
+        push dword ptr [0x{BH_SF:X}]
+        push dword ptr [0x{BH_SROW:X}]
+        push edx
+        push dword ptr [0x{BH_SX:X}]
+        push eax
+        call 0x409CA0
+    bh_ret:
+        ret 0x1C
+    """)
     return {
         "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
-        "mask_load_once": load_once,
+        "mask_load_once": load_once, "bighead_mask": bighead,
     }
 
 
@@ -3716,6 +3786,27 @@ def main() -> None:
                 "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
                 "purpose": "Heathen mask: at the render-fn epilogue, revert the transient faction+colour flip via the saved villager pointer, then run the displaced add esp,0xA8; ret 8",
             })
+    # Heathen mask on the Details villager portrait (the "bigheads" render): the
+    # portrait compositor sub_466C40 draws the head via `call 0x409ca0` at
+    # 0x466E05 but never draws the mask (it reads no faction/mask field, unlike
+    # the village render's faction-flip path). Detour that head-draw call to the
+    # page's bighead_mask routine, which replays the head then blits the chosen
+    # mask atlas (id 0x101) over it. sub_466C40 is the shared portrait compositor,
+    # so the mask shows consistently on every villager-portrait screen.
+    bighead_site = 0x466E05
+    bighead_preimage = "E8962EFAFF"            # call 0x409CA0 (5 bytes)
+    if stock[bighead_site - 0x400000 : bighead_site - 0x400000 + 5].hex().upper() != bighead_preimage:
+        raise RuntimeError("Heathen-mask bighead head-draw preimage drift at 0x466E05")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        overrides = result["patch_mode_overrides"].setdefault(mode, [])
+        rel = (page_va + OFF["bighead_mask"]) - (bighead_site + 5)
+        overrides.append({
+            "offset": f"0x{bighead_site - 0x400000:X}",
+            "before": bighead_preimage,
+            "after": "E8" + rel.to_bytes(4, "little", signed=True).hex().upper(),
+            "purpose": "Heathen mask: on the Details villager portrait, replay the head draw then blit the chosen mask atlas over it (the portrait compositor draws no mask natively)",
+        })
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
     map_record = {
