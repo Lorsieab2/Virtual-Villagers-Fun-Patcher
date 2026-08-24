@@ -104,7 +104,7 @@ BIGHEAD_ATLAS_ROWS = 5
 BH_SCALE_MUL = 3
 BH_SCALE_SHIFT = 1   # scale = headScale * MUL >> SHIFT  (3>>1 = x1.5)
 BH_XOFF = 0x00       # base horizontal nudge (mask X = headX + XOFF; signed imm8)
-BH_LIFT = 0x30       # base vertical lift  (mask Y = headY - LIFT)
+BH_LIFT = 0x32       # base vertical lift  (mask Y = headY - LIFT)
 # bigheads_masks.png is 3 columns = 3 head FACINGS (owner: col0=RIGHT turn,
 # col1=front, col2=LEFT turn), each pre-aligned to its facing's face-within-the-
 # sprite. So follow-the-face = pick the atlas COLUMN from the head's facing frame
@@ -116,7 +116,7 @@ BH_COL_TABLE = [1, 1, 1, 0, 1, 2, 1, 1]   # head frame&7 -> mask column (front=1
 # Per-column (facing) horizontal nudge, added on top of the atlas alignment:
 # col0=right-facing +10px, col1=front +3px, col2=left-facing -10px. Signed bytes,
 # in the R+X page, live-tunable. Indexed by the resolved mask column (0/1/2).
-BH_COLDX_TABLE = [14, 3, -14]
+BH_COLDX_TABLE = [16, 3, -16]
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
