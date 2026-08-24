@@ -618,20 +618,23 @@ static void appearance_draw_cell(HDC hdc, RECT rc, int is_head, int value, int c
    sheet ships beside the head atlases as Images/vvfp_masks.png -- an 8x5 grid
    of 65x145 cells; the front-facing view is column 5, and mask value 1..5 maps
    to rows 0..4. (None) leaves the cell blank. */
-/* Preview atlas: one column of 5 autocropped, centred 40x65 mask cells
-   (Blue/Orange/Red/Purple/Chief), ~90% fill -- the VV2-parity source size for
-   all 5 games. scale-to-fit the control preserving aspect, centred. */
+/* Preview strip = VV2's shared mask_preview sprites (pixel-identical pickers
+   across all 5 games): 240x65 = SIX 40x65 cells, cell index == mask value
+   (0 = none/blank, 1..5 = Blue/Orange/Red/Purple/Chief), front frame, ~90% fill.
+   scale-to-fit the control preserving aspect, centred; cell 0 draws "(none)". */
 #define VV_MASK_SHEET L"Images\\vvfp_mask_preview.png"
 #define VV_MASK_CELL_W 40
 #define VV_MASK_CELL_H 65
-#define VV_MASK_FRONT_COL 0
 static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
     GpBitmap *bitmap = NULL;
     int dstw = rc.right - rc.left;
     int dsth = rc.bottom - rc.top;
     FillRect(hdc, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
     if (mask <= 0 || mask >= VV_MASK_COUNT) {
-        return;                       /* (None) -> blank cell */
+        /* (None): centred "(none)" text, matching VV2's blank cell 0. */
+        SetBkMode(hdc, TRANSPARENT);
+        DrawTextA(hdc, "(none)", -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        return;
     }
     vv4_ensure_gdiplus();
     if (GdipCreateBitmapFromFile(VV_MASK_SHEET, &bitmap) == 0 && bitmap != NULL) {
@@ -647,8 +650,7 @@ static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
             GdipDrawImageRectRectI(
                 graphics, bitmap,
                 draw_x, draw_y, draw_w, draw_h,
-                VV_MASK_FRONT_COL * VV_MASK_CELL_W, (mask - 1) * VV_MASK_CELL_H,
-                VV_MASK_CELL_W, VV_MASK_CELL_H,
+                mask * VV_MASK_CELL_W, 0, VV_MASK_CELL_W, VV_MASK_CELL_H,
                 2, NULL, NULL, NULL);
             GdipDeleteGraphics(graphics);
         }

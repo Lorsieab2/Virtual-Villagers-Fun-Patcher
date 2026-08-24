@@ -105,6 +105,7 @@ FILES = [
     # stock atlas is swapped), so no restore halves are needed.
     "assets/vv4_masks/vvfp_mask_atlas.png",
     "assets/vv4_masks/vvfp_mask_preview.png",
+    "assets/vv4_masks/vv2_mask_preview.bmp",
     "data/guardians_of_isola/new/Assets/sm.xml",
     "data/guardians_of_isola/base/Assets/sm.xml",
     "data/guardians_of_isola/new/Images/BlinkyEyes.png",

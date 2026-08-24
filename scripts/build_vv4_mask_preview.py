@@ -1,64 +1,35 @@
-"""Build the Change Appearance mask PREVIEW atlas from the bighead mask art.
+"""Build the Change Appearance mask PREVIEW atlas from VV2's shared strip.
 
-Source: assets/vv4_masks/vvfp_bighead_mask_src.png -- the owner's bighead masks,
-5 rows (Blue/Orange/Red/Purple/Chief) x 3 frames, on transparent bg with
-spacing. The owner wants the picker preview to use FRAME 2 (0-based column 2 =
-the rightmost frame). We detect the row bands by alpha projection, crop frame 2
-of each row, autocrop, and centre it at ~90% fill in a clean 40x65 cell (the
-VV2-parity source size). Output: assets/vv4_masks/vvfp_mask_preview.png =
-40 x (65*5), one column, row = mask 1..5 at index 0..4.
+For pixel-identical pickers across all 5 games the owner wants VV4 to use VV2's
+mask sprites. Source: assets/vv4_masks/vv2_mask_preview.bmp (pulled from VV2's
+branch codex/vv2-heathen-mask:native/vv2_origins_icons/appearance/mask_preview.bmp)
+-- a 240x65 strip of SIX 40x65 cells: cell 0 blank, cells 1..5 =
+Blue/Orange/Red/Purple/Chief, front frame, mask alone, ~90% fill, on a
+(236,236,236) button-face background. We color-key that gray to transparent and
+save a PNG (our GDI+ picker composites it over the dialog). Cell index == mask
+value (0 = none). Output: assets/vv4_masks/vvfp_mask_preview.png (240x65).
 """
 from pathlib import Path
-import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "assets/vv4_masks/vvfp_bighead_mask_src.png"
+SRC = ROOT / "assets/vv4_masks/vv2_mask_preview.bmp"
 OUT = ROOT / "assets/vv4_masks/vvfp_mask_preview.png"
-CW, CH = 40, 65
-PAD = 2
-FRAME2_X = (120, 163)          # frame-2 (rightmost) column band, with a little margin
-
-
-def row_bands(mask):
-    v = mask.sum(1)
-    bands, s = [], None
-    for i, x in enumerate(v):
-        if x > 0 and s is None:
-            s = i
-        elif x <= 0 and s is not None:
-            bands.append((s, i)); s = None
-    if s is not None:
-        bands.append((s, len(v)))
-    return bands
+KEY = (236, 236, 236)          # VV2's button-face background
+TOL = 6
 
 
 def main() -> None:
     im = Image.open(SRC).convert("RGBA")
-    a = np.array(im)
-    content = a[:, :, 3] > 16
-    # restrict to the frame-2 column, find the 5 row bands there
-    col = np.zeros_like(content)
-    col[:, FRAME2_X[0]:FRAME2_X[1]] = content[:, FRAME2_X[0]:FRAME2_X[1]]
-    bands = row_bands(col)
-    if len(bands) != 5:
-        raise RuntimeError(f"expected 5 mask rows in frame 2, got {len(bands)}: {bands}")
-    out = Image.new("RGBA", (CW, CH * 5), (0, 0, 0, 0))
-    for r, (y0, y1) in enumerate(bands):
-        cell = im.crop((FRAME2_X[0], y0, FRAME2_X[1], y1))
-        bbox = cell.getbbox()
-        if bbox is None:
-            continue
-        m = cell.crop(bbox)
-        maxw, maxh = CW - 2 * PAD, CH - 2 * PAD
-        scale = min(maxw / m.width, maxh / m.height)
-        w, h = max(1, round(m.width * scale)), max(1, round(m.height * scale))
-        m = m.resize((w, h), Image.LANCZOS)
-        dst = Image.new("RGBA", (CW, CH), (0, 0, 0, 0))
-        dst.alpha_composite(m, ((CW - w) // 2, (CH - h) // 2))
-        out.paste(dst, (0, r * CH))
-    out.save(OUT)
-    print("wrote", OUT, out.size, "from frame-2 rows", bands)
+    px = im.load()
+    w, h = im.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, _ = px[x, y]
+            if abs(r - KEY[0]) <= TOL and abs(g - KEY[1]) <= TOL and abs(b - KEY[2]) <= TOL:
+                px[x, y] = (0, 0, 0, 0)
+    im.save(OUT)
+    print("wrote", OUT, im.size)
 
 
 if __name__ == "__main__":
