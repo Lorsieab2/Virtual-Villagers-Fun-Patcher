@@ -183,5 +183,64 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
             sheet["sha256"])
 
 
+class ChangeAppearanceForAllTests(unittest.TestCase):
+    """The Tech-screen 'Change Appearance for All' (450k) upgrade: a self-
+    contained DLL dialog + apply engine + export, wired to a 14th menu row
+    entirely in the DLL (no payload/exe change)."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.c = DLL_SOURCE.read_text(encoding="utf-8", errors="replace")
+        cls.rc = (ROOT / "native" / "vv4_origins_icons" / "vv4_origins_icons.rc").read_text(
+            encoding="utf-8", errors="replace")
+        cls.d = DLL_DEF.read_text(encoding="utf-8", errors="replace")
+
+    def test_export_declared(self) -> None:
+        self.assertIn("ShowVv4AppearanceForAll=_ShowVv4AppearanceForAll@0 @113", self.d)
+
+    def test_dialog_214_matches_mockup(self) -> None:
+        self.assertIn("214 DIALOGEX", self.rc)
+        for cap in ("Male Villagers", "Female Villagers",
+                    "Mask Distribution (all villagers)",
+                    "Village-wide Single Mask Color",
+                    "Off - use the per-sex Mask selectors above",
+                    "VV5-style", "Random", "Equal Colors",
+                    "None (remove all masks)", "Blue", "Orange", "Red",
+                    "Purple", "Chief",
+                    "OK deducts 450,000 tech points"):
+            self.assertIn(cap, self.rc, cap)
+
+    def test_menu_row_13_is_wired_in_dll_only(self) -> None:
+        # 14th tech row present in dialog 201 (Buy id 1013) + name/cost tables.
+        self.assertIn('PUSHBUTTON  "Buy", 1013', self.rc)
+        self.assertIn('"Change Appearance for All"', self.c)
+        self.assertIn('"450,000"', self.c)
+        self.assertIn("ID_BUY_LAST = 1013", self.c)
+        # Row 13 handled inside the menu (self-contained), not via payload.
+        self.assertIn("ShowVv4AppearanceForAll();", self.c)
+        self.assertIn("#define ID_FORALL_ROW 13", self.c)
+
+    def test_apply_engine_covers_all_modes(self) -> None:
+        eng = self.c.split("vv4_apply_for_all(void)", 1)[1].split("\n}", 1)[0]
+        # per-sex head/body writes + mask via the safe side-table
+        self.assertIn("VV_HEAD_OFFSET", eng)
+        self.assertIn("VV_CLOTHING_OFFSET", eng)
+        self.assertIn("vv_set_mask", eng)
+        # distribution modes
+        self.assertIn("FA_MODE_OFF", eng)
+        self.assertIn("FA_MODE_VV5", eng)
+        self.assertIn("FA_MODE_RANDOM", eng)
+        self.assertIn("FA_MODE_EQUAL", eng)
+        # skips empty slots + persists
+        self.assertIn("VV_OCCUPIED_OFFSET", eng)
+        self.assertIn("vv_write_mask_sidecar", eng)
+
+    def test_charge_uses_confirmed_tech_abi(self) -> None:
+        # affordability check + charge via the same ABI the payload rows use.
+        self.assertIn("0x4D6F88", self.c)
+        self.assertIn("450000", self.c)
+        self.assertIn("0x41E300", self.c)
+
+
 if __name__ == "__main__":
     unittest.main()

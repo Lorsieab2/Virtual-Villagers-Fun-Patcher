@@ -482,8 +482,9 @@ enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_APPEARANCE = 203,
+    IDD_ORIGINS_FORALL = 214,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1012,
+    ID_BUY_LAST = 1013,          /* 14 tech rows (row 13 = Change Appearance for All) */
     ID_CHECK_FIRST = 1100,
     ID_HEAD_LABEL = 2000,
     ID_HEAD_PREV = 2001,
@@ -683,16 +684,17 @@ static void vv4_surface_dialog(HWND window) {
 
 /* OFFICIAL per-row purchase-confirm names + costs. Tech rows 6-8 (village-wide)
    use the payload's own OFFICIAL confirm and are skipped here. */
-static const char *const g_tech_names[13] = {
+static const char *const g_tech_names[14] = {
     "Time Warp", "Island Event", "Barrel of Babies",
     "Tech Point Doubler", "Food Point Doubler", "Full Heal / Cure All",
     "", "", "", "Complete All Collections", "Reset All Collections",
     "Equal Division of Labor (Includes Parenting)",
-    "Equal Division of Labor (No Parenting)"
+    "Equal Division of Labor (No Parenting)",
+    "Change Appearance for All"
 };
-static const char *const g_tech_costs[13] = {
+static const char *const g_tech_costs[14] = {
     "50,000", "30,000", "75,000", "500,000", "500,000", "30,000", "", "", "",
-    "1,000,000", "1,000,000", "1,000,000", "1,000,000"
+    "1,000,000", "1,000,000", "1,000,000", "1,000,000", "450,000"
 };
 static const char *const g_villager_names[5] = {
     "Grant Youth", "Grant Full Mastery", "Grant Running",
@@ -730,6 +732,13 @@ static void vv4_remove_detail_running_dislike(void) {
     }
 }
 
+/* Change Appearance for All (row 13 of the village-wide tech menu) is fully
+   self-contained -- it runs its own dialog, charge and apply -- so the menu
+   invokes it directly rather than returning a row for the payload to dispatch.
+   Defined further down; forward-declared here. */
+__declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void);
+#define ID_FORALL_ROW 13
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -741,19 +750,28 @@ static INT_PTR CALLBACK upgrade_dialog(
         g_villager_menu = villager_menu;
         g_villager_mask = (int)lparam;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
-        /* Village-wide tech menu carries 13 rows: the 6 base upgrades, the 3
+        /* Village-wide tech menu carries 14 rows: the 6 base upgrades, the 3
            village-wide grants (rows 6-8), Complete/Reset All Collections
-           (rows 9-10), and the two Equal Division of Labor rows (11-12). */
+           (rows 9-10), the two Equal Division of Labor rows (11-12), and
+           Change Appearance for All (row 13). */
         int row_count = villager_menu
             ? 5
             : ((lparam & STATE_RUNNING_ONLY) != 0
                 ? 7
-                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 13 : 6));
+                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 14 : 6));
         int row;
-        for (row = 0; row < 13; ++row) {
+        for (row = 0; row < 14; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
+            if (!villager_menu && row == ID_FORALL_ROW) {
+                /* Change Appearance for All: always purchasable in the tech
+                   menu; no availability bit and no checkmark. Its own dialog
+                   confirms and charges, so it never shows Remove/Unavailable. */
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
+                continue;
+            }
             if (villager_menu) {
                 /* Every villager row stays a clickable "Buy". A row that would
                    change nothing is not greyed out; it opens and reports the
@@ -792,6 +810,14 @@ static INT_PTR CALLBACK upgrade_dialog(
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             int row = (int)(command - ID_BUY_FIRST);
             char label[16];
+            if (!g_villager_menu && row == ID_FORALL_ROW) {
+                /* Change Appearance for All owns its own confirm/charge/apply
+                   dialog, so run it directly and close the menu -- the payload
+                   dispatch is bypassed (return -1 = no row bought here). */
+                ShowVv4AppearanceForAll();
+                EndDialog(window, -1);
+                return TRUE;
+            }
             label[0] = '\0';
             GetDlgItemTextA(window, command, label, (int)sizeof(label));
             /* A villager row that would change nothing reports the OFFICIAL
@@ -1012,6 +1038,249 @@ static INT_PTR CALLBACK appearance_dialog(
         return TRUE;
     }
     return FALSE;
+}
+
+/* --- Change Appearance for All (Tech-screen 450,000-point upgrade) ----------
+   Dialog 214: per-sex Body/Head/Mask cyclers (value -1 == "No change") plus ONE
+   mutually-exclusive whole-village mask mode. Reuses the per-villager picker's
+   draw helpers. Applies en-masse over the villager array (head/body -> record,
+   mask -> the DLL side-table), charges 450k, and sidecar-saves. No new exe
+   caves; dispatched by a one-call tech-menu row. */
+enum {                                   /* whole-village mask mode = radio - 3200 */
+    FA_MODE_OFF = 0, FA_MODE_VV5, FA_MODE_RANDOM, FA_MODE_EQUAL,
+    FA_MODE_NONE, FA_MODE_BLUE, FA_MODE_ORANGE, FA_MODE_RED,
+    FA_MODE_PURPLE, FA_MODE_CHIEF
+};
+#define FA_RADIO_FIRST 3200
+#define FA_RADIO_LAST  3209
+#define FA_NOCHANGE (-1)
+static struct {
+    int male_head, male_body, male_mask;       /* -1 = No change */
+    int female_head, female_body, female_mask; /* -1 = No change */
+    int tribe_mode;                            /* FA_MODE_* */
+} forall_state;
+
+static unsigned int fa_rng;
+static unsigned int fa_rand(void) {
+    fa_rng ^= fa_rng << 13; fa_rng ^= fa_rng >> 17; fa_rng ^= fa_rng << 5;
+    return fa_rng;
+}
+static void fa_shuffle(int *a, int n) {
+    int i, j, t;
+    for (i = n - 1; i > 0; i--) {
+        j = (int)(fa_rand() % (unsigned int)(i + 1));
+        t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+}
+/* Cycle one field through [No change, 0 .. count-1] in either direction. */
+static int fa_cycle(int v, int count, int dir) {
+    int s = v + 1;                             /* 0 = No change; 1..count = value */
+    s = (s + (dir > 0 ? 1 : count)) % (count + 1);
+    return s - 1;
+}
+static unsigned char *fa_record(int idx) {
+    return (unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
+}
+static int fa_is_male(const unsigned char *rec) {
+    return *(const int *)(rec + VV_SEX_OFFSET) == 0;   /* 0 = male */
+}
+
+/* Apply the chosen appearance to every active villager. */
+static void vv4_apply_for_all(void) {
+    int active[VV_MAX_VILLAGERS];
+    int actsex[VV_MAX_VILLAGERS];              /* 1 = male */
+    int nact = 0;
+    int i, idx, mode;
+
+    fa_rng = GetTickCount() | 1u;
+    for (idx = 0; idx < VV_MAX_VILLAGERS; idx++) {
+        unsigned char *rec = fa_record(idx);
+        int male;
+        if (rec[VV_OCCUPIED_OFFSET] == 0) {
+            continue;                          /* empty/dead slot */
+        }
+        male = fa_is_male(rec);
+        if (male) {
+            if (forall_state.male_head != FA_NOCHANGE)
+                *(int *)(rec + VV_HEAD_OFFSET) = forall_state.male_head;
+            if (forall_state.male_body != FA_NOCHANGE)
+                *(int *)(rec + VV_CLOTHING_OFFSET) = forall_state.male_body;
+        } else {
+            if (forall_state.female_head != FA_NOCHANGE)
+                *(int *)(rec + VV_HEAD_OFFSET) = forall_state.female_head;
+            if (forall_state.female_body != FA_NOCHANGE)
+                *(int *)(rec + VV_CLOTHING_OFFSET) = forall_state.female_body;
+        }
+        active[nact] = idx;
+        actsex[nact] = male;
+        nact++;
+    }
+
+    mode = forall_state.tribe_mode;
+    if (mode == FA_MODE_OFF) {                  /* per-sex mask cyclers */
+        for (i = 0; i < nact; i++) {
+            int m = actsex[i] ? forall_state.male_mask : forall_state.female_mask;
+            if (m != FA_NOCHANGE) {
+                vv_set_mask(fa_record(active[i]), m);
+            }
+        }
+    } else if (mode >= FA_MODE_NONE) {          /* one solid colour for everyone */
+        int solid = mode - FA_MODE_NONE;        /* 0=(None),1=Blue..5=Chief */
+        for (i = 0; i < nact; i++) {
+            vv_set_mask(fa_record(active[i]), solid);
+        }
+    } else if (mode == FA_MODE_RANDOM) {
+        for (i = 0; i < nact; i++) {
+            vv_set_mask(fa_record(active[i]), (int)(fa_rand() % VV_MASK_COUNT));
+        }
+    } else if (mode == FA_MODE_VV5) {
+        int order[VV_MAX_VILLAGERS];
+        int n, k;
+        for (i = 0; i < nact; i++) order[i] = active[i];
+        fa_shuffle(order, nact);
+        for (k = 0; k < nact; k++) {
+            int col;
+            if (k < 1) col = 5;                 /* 1 Chief */
+            else if (k < 1 + 4) col = 4;        /* 4 Purple */
+            else if (k < 1 + 4 + 7) col = 3;    /* up to 7 Red */
+            else if (k < 1 + 4 + 7 + 10) col = 2; /* up to 10 Orange */
+            else col = 1;                       /* rest Blue */
+            vv_set_mask(fa_record(order[k]), col);
+        }
+        (void)n;
+    } else if (mode == FA_MODE_EQUAL) {
+        int males[VV_MAX_VILLAGERS], females[VV_MAX_VILLAGERS];
+        int nm = 0, nf = 0, order[VV_MAX_VILLAGERS], no = 0, mi = 0, fi = 0, k;
+        for (i = 0; i < nact; i++) {
+            if (actsex[i]) males[nm++] = active[i]; else females[nf++] = active[i];
+        }
+        fa_shuffle(males, nm);
+        fa_shuffle(females, nf);
+        while (mi < nm || fi < nf) {            /* interleave M,F,M,F,... */
+            if (mi < nm) order[no++] = males[mi++];
+            if (fi < nf) order[no++] = females[fi++];
+        }
+        for (k = 0; k < no; k++) {
+            vv_set_mask(fa_record(order[k]), (k % 5) + 1);   /* 1..5 balanced per sex */
+        }
+    }
+    vv_write_mask_sidecar();
+}
+
+/* Draw one for-All preview cell (or "No change"). */
+static void fa_draw_cell(const DRAWITEMSTRUCT *dis, int value, int is_head,
+                         int is_mask, int sex_female) {
+    if (value == FA_NOCHANGE) {
+        FillRect(dis->hDC, &dis->rcItem, (HBRUSH)(COLOR_BTNFACE + 1));
+        DrawTextA(dis->hDC, "No change", -1, (RECT *)&dis->rcItem,
+                  DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        return;
+    }
+    if (is_mask) {
+        appearance_draw_mask_cell(dis->hDC, dis->rcItem, value);
+        return;
+    }
+    appearance_state.sex = sex_female;          /* draw helper reads this global */
+    appearance_state.is_old = 0;                /* young atlas for the preview */
+    appearance_draw_cell(dis->hDC, dis->rcItem, is_head, value, 1);
+}
+
+static void fa_sync_mask_enable(HWND window) {
+    /* Any non-Off whole-village mode overrides (greys) the per-sex mask cyclers. */
+    BOOL on = (IsDlgButtonChecked(window, FA_RADIO_FIRST) == BST_CHECKED);
+    int ids[6] = { 3021, 3022, 3023, 3121, 3122, 3123 };
+    int i;
+    for (i = 0; i < 6; i++) {
+        EnableWindow(GetDlgItem(window, ids[i]), on);
+    }
+}
+
+static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
+                                      WPARAM wparam, LPARAM lparam) {
+    (void)lparam;
+    if (message == WM_INITDIALOG) {
+        forall_state.male_head = forall_state.male_body = forall_state.male_mask =
+            FA_NOCHANGE;
+        forall_state.female_head = forall_state.female_body =
+            forall_state.female_mask = FA_NOCHANGE;
+        forall_state.tribe_mode = FA_MODE_OFF;
+        CheckDlgButton(window, FA_RADIO_FIRST, BST_CHECKED);
+        fa_sync_mask_enable(window);
+        vv4_surface_dialog(window);
+        return TRUE;
+    } else if (message == WM_DRAWITEM) {
+        const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
+        switch (dis->CtlID) {
+        case 3013: fa_draw_cell(dis, forall_state.male_body, 0, 0, 0); return TRUE;
+        case 3003: fa_draw_cell(dis, forall_state.male_head, 1, 0, 0); return TRUE;
+        case 3023: fa_draw_cell(dis, forall_state.male_mask, 0, 1, 0); return TRUE;
+        case 3113: fa_draw_cell(dis, forall_state.female_body, 0, 0, 1); return TRUE;
+        case 3103: fa_draw_cell(dis, forall_state.female_head, 1, 0, 1); return TRUE;
+        case 3123: fa_draw_cell(dis, forall_state.female_mask, 0, 1, 1); return TRUE;
+        default: return FALSE;
+        }
+    } else if (message == WM_COMMAND) {
+        int id = LOWORD(wparam);
+        int dir = 0, *field = NULL, count = 0, pic = 0;
+        switch (id) {
+        case 3011: field = &forall_state.male_body;   count = VV_BODY_COUNT; dir = -1; pic = 3013; break;
+        case 3012: field = &forall_state.male_body;   count = VV_BODY_COUNT; dir =  1; pic = 3013; break;
+        case 3001: field = &forall_state.male_head;   count = VV_HEAD_COUNT; dir = -1; pic = 3003; break;
+        case 3002: field = &forall_state.male_head;   count = VV_HEAD_COUNT; dir =  1; pic = 3003; break;
+        case 3021: field = &forall_state.male_mask;   count = VV_MASK_COUNT; dir = -1; pic = 3023; break;
+        case 3022: field = &forall_state.male_mask;   count = VV_MASK_COUNT; dir =  1; pic = 3023; break;
+        case 3111: field = &forall_state.female_body; count = VV_BODY_COUNT; dir = -1; pic = 3113; break;
+        case 3112: field = &forall_state.female_body; count = VV_BODY_COUNT; dir =  1; pic = 3113; break;
+        case 3101: field = &forall_state.female_head; count = VV_HEAD_COUNT; dir = -1; pic = 3103; break;
+        case 3102: field = &forall_state.female_head; count = VV_HEAD_COUNT; dir =  1; pic = 3103; break;
+        case 3121: field = &forall_state.female_mask; count = VV_MASK_COUNT; dir = -1; pic = 3123; break;
+        case 3122: field = &forall_state.female_mask; count = VV_MASK_COUNT; dir =  1; pic = 3123; break;
+        default: break;
+        }
+        if (field != NULL) {
+            *field = fa_cycle(*field, count, dir);
+            InvalidateRect(GetDlgItem(window, pic), NULL, TRUE);
+            return TRUE;
+        }
+        if (id >= FA_RADIO_FIRST && id <= FA_RADIO_LAST) {
+            forall_state.tribe_mode = id - FA_RADIO_FIRST;   /* auto-radio handles check */
+            fa_sync_mask_enable(window);
+            return TRUE;
+        }
+        if (id == IDOK) { EndDialog(window, 1); return TRUE; }
+        if (id == IDCANCEL) { EndDialog(window, 0); return TRUE; }
+    } else if (message == WM_CLOSE) {
+        EndDialog(window, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Tech-menu row entry point: show the dialog, and on OK charge 450,000 and
+   apply. Returns 1 when applied+charged, 0 otherwise. No arg needed -- VV4's
+   tech points are the global at 0x4D6F88 and the record array is fixed. */
+__declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
+    vv4_prep_fullscreen();
+    if ((int)DialogBoxParamA(module_instance, MAKEINTRESOURCEA(214), NULL,
+                             forall_dialog, 0) != 1) {
+        return 0;                              /* cancelled -> no charge */
+    }
+    if (*(volatile unsigned int *)(UINT_PTR)0x4D6F88u < 450000u) {
+        MessageBoxA(NULL,
+            "Not enough tech points. No tech points have been deducted.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
+    vv4_apply_for_all();
+    __asm {
+        push -450000
+        mov  ecx, 0x4D6F88
+        mov  eax, 0x41E300
+        call eax
+    }
+    MessageBoxA(NULL, "Appearance updated for all villagers.",
+                "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    return 1;
 }
 
 __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
