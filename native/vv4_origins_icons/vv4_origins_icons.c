@@ -238,6 +238,63 @@ static void vv_set_mask(unsigned char *villager, int mask) {
     }
 }
 
+/* --- Mask atlas as a game sprite (for the thunk-reuse render) ---------------
+   Instead of a raw SDL blit (which ignored the game's per-draw scroll/scale
+   transform -> masks absent in-world / too tiny on the scaled portrait), the
+   head-draw caves draw the mask THROUGH the game's own head-draw thunk
+   (0x409A70) with the head's x/y/facing/transform. That needs the mask atlas as
+   a drawable game sprite object. Build one via the game's ldwImageGrid ctor
+   FUN_0040ABA0(this, name, ext, cols=1, rows=1, subcols=8, subrows=5): it loads
+   ONE file "<name>00<ext>" (so we ship Images\vvfp_mask_atlas00.png) and slices
+   it into an 8x5 grid (cellW=320/8=40, cellH=325/5=65). The object pointer is
+   published to a fixed .shr slot the head cave reads. All guarded: a failed
+   load leaves the slot 0 and the cave draws no mask (no crash). */
+#define VV_ALLOC_FN      0x470C5Cu     /* game allocator: void*(unsigned size) */
+#define VV_LDWGRID_CTOR  0x40ABA0u     /* ldwImageGrid __thiscall ctor */
+#define VV_MASK_ATLAS_SLOT_VA 0x728D70u /* .shr slot: published atlas obj ptr */
+static void *g_mask_atlas_obj = NULL;
+static int g_mask_atlas_tried = 0;
+
+static void vv_ensure_mask_atlas(void) {
+    void *obj;
+    static const char atlas_name[] = "Images\\vvfp_mask_atlas";
+    static const char atlas_ext[] = ".png";
+    const char *namep = atlas_name;
+    const char *extp = atlas_ext;
+    if (g_mask_atlas_tried) {
+        return;                        /* one-shot: never retry (no crash loop) */
+    }
+    g_mask_atlas_tried = 1;
+    obj = ((void *(__cdecl *)(unsigned int))(UINT_PTR)VV_ALLOC_FN)(0x40u);
+    if (obj == NULL) {
+        return;
+    }
+    /* FUN_0040ABA0(this=obj, name, ext, cols=1, rows=1, subcols=8, subrows=5),
+       __thiscall (callee-cleans the 6 stack args). */
+    __asm {
+        push 5
+        push 8
+        push 1
+        push 1
+        mov  eax, extp
+        push eax
+        mov  eax, namep
+        push eax
+        mov  ecx, obj
+        mov  eax, VV_LDWGRID_CTOR
+        call eax
+    }
+    g_mask_atlas_obj = obj;
+    *(void **)(UINT_PTR)VV_MASK_ATLAS_SLOT_VA = obj;   /* publish to the head cave */
+}
+
+/* Head-draw caves call this: ensure the atlas is built + published, and return
+   the fingerprint-checked mask (0 = none) for the villager record. */
+__declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
+    vv_ensure_mask_atlas();
+    return vv_get_mask(villager);
+}
+
 /* --- Sidecar persistence ---------------------------------------------------
    The mask side-table is snapshotted to a small file that lives NEXT TO the
    game's own saves (never inside the .ldw, so a save can never be corrupted):

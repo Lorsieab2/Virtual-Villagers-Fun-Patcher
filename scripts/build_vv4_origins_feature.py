@@ -125,52 +125,46 @@ VV4_DETAIL_HANDLER_RELOC_OFFSET = 0x235
 VV4_RESULT_HELPER_OFFSET = 0x8F3
 VV4_RESULT_HELPER_VA = PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET
 
-# --- Heathen-mask cosmetic overlay (SDL blit via companion DLL) --------------
-# VV4 is surface-based: villager heads are drawn with SDL_UpperBlit onto the
-# render-target SDL_Surface at [screen_obj+0x30] (real blit FUN_00404cb0), and
-# the frame is later uploaded to the GPU texture at the present call
-# (FUN_004046f0 @0x409458). The mask overlay does NOT touch the game's atlases,
-# rows, or any villager record: it is a straight SDL_UpperBlit of the mask atlas
-# (Images/vvfp_mask_atlas.png) onto that SAME surface, performed by the companion
-# DLL after each head is drawn. Three tiny caves live in the free tail of the
-# RWX .shr helper page (0x728D60..0x728E60, past collections_apply @0x728D00 and
-# the detail-record scratch @0x728D40; the old append-rows caves are gone):
-#   * MASK_RESOLVE  -- LoadLibraryA the DLL + GetProcAddress the two exports by
-#                      ORDINAL (like collections_apply), once, guarded by a flag.
-#   * MASK_PRESENT  -- spliced onto the present call; caches [screen_obj+0x30]
-#                      into the DLL (Vv4MaskCacheSurface, which also runs the
-#                      per-frame clear-on-death sweep) then tail-calls 0x4046f0.
-#   * MASK_HEAD     -- spliced onto BOTH head-draw twins; draws the head
-#                      normally then calls Vv4MaskDrawRecord(esi,x,y,frame,100)
-#                      (fingerprint-checked; mask=0 -> nothing drawn).
-# No villager fields written; no atlas/row changes; other features untouched.
-MASK_DLL_ORD_CACHE = 110               # Vv4MaskCacheSurface@4  (@110 in the .def)
-MASK_DLL_ORD_DRAW = 112                # Vv4MaskDrawRecord@20   (@112 in the .def)
+# --- Heathen-mask cosmetic overlay (thunk-reuse render via companion DLL) ----
+# The mask is drawn THROUGH the game's own head-draw thunk (0x409A70) right after
+# each head, reusing the head's x/y/facing/TRANSFORM -> the mask inherits the
+# game's per-view scroll + scale for free (a raw SDL blit did not, so masks were
+# absent in the scrolled world and too small on the scaled portrait). The mask
+# atlas is built once as a game ldwImageGrid sprite object (DLL FUN_0040ABA0);
+# its object pointer is published to a .shr slot the head cave reads. No villager
+# fields written; no atlas/row changes; other features untouched. Caves live in
+# the free RWX .shr tail past collections_apply @0x728D00 / detail scratch 0x728D40.
+MASK_DLL_ORD_CACHE = 110               # Vv4MaskCacheSurface@4 (sweep + sidecar, per frame)
+MASK_DLL_ORD_GET = 114                 # Vv4MaskGetForRecord@4 (ensure atlas + return mask)
 MASK_DRAW_THUNK_VA = 0x409A70          # native head-draw thunk (stdcall, ret 0x1c)
 MASK_HEAD_CALL_SITES = (0x45F702, 0x45F9CA)  # walking-world twin + panel-portrait twin
 MASK_PRESENT_SITE = 0x409458           # `call 0x4046f0` (E8 93B2FFFF); ecx=screen_obj
 MASK_PRESENT_CALLEE = 0x4046F0
+MASK_LIFT = 0                          # y-lift for face align (atlas is pre-aligned; tune live)
 LOADLIBRARYA_THUNK = 0x48A1E0          # call dword ptr [..] (matches collections_apply)
 GETPROCADDRESS_THUNK = 0x48A1DC
-# .shr data slots (runtime-written; zero at load; page is RWX):
+# .shr data slots (runtime-written; zero at load; page is RWX). 12 dwords,
+# 0x728D60..0x728D90 (caves start at 0x728D90):
 MASK_SLOT_HMOD = 0x728D60              # HMODULE of the companion DLL
 MASK_SLOT_CACHE_PTR = 0x728D64         # resolved Vv4MaskCacheSurface
-MASK_SLOT_DRAW_PTR = 0x728D68          # resolved Vv4MaskDrawRecord
+MASK_SLOT_GET_PTR = 0x728D68           # resolved Vv4MaskGetForRecord
 MASK_SLOT_RESOLVED = 0x728D6C          # byte flag: 0 = not yet resolved
+MASK_SLOT_ATLAS = 0x728D70             # mask ldwImageGrid obj ptr (DLL publishes here)
 # head-cave scratch (saved across the native head draw; single-threaded render,
 # non-reentrant, so one shared set serves both twins):
-MASK_S_ECX = 0x728D70
-MASK_S_ESI = 0x728D74
-MASK_S_X = 0x728D78
-MASK_S_Y = 0x728D7C
-MASK_S_FRAME = 0x728D80
-MASK_S_RET = 0x728D84
+MASK_S_ECX = 0x728D74
+MASK_S_ESI = 0x728D78
+MASK_S_X = 0x728D7C
+MASK_S_Y = 0x728D80
+MASK_S_FRAME = 0x728D84                # head facing
+MASK_S_TRANSFORM = 0x728D88            # head transform (scroll + scale)
+MASK_S_RET = 0x728D8C
 # caves (VA / file offset; .shr maps file 0xCC000 -> VA 0x728000):
 MASK_RESOLVE_VA = 0x728D90            # ~0x48 bytes -> ends ~0x728DD8
 MASK_RESOLVE_FILE_OFFSET = 0xCCD90
 MASK_PRESENT_VA = 0x728DE0            # ~0x1B bytes -> ends ~0x728DFB
 MASK_PRESENT_FILE_OFFSET = 0xCCDE0
-MASK_HEAD_VA = 0x728E10              # ~0x6B bytes -> ends ~0x728E7B (< page end 0x729000)
+MASK_HEAD_VA = 0x728E10              # ~0x70 bytes -> ends ~0x728E80 (< page end 0x729000)
 MASK_HEAD_FILE_OFFSET = 0xCCE10
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
@@ -221,10 +215,10 @@ def mask_resolve_cave(icons_dll_va: int) -> bytes:
             push eax
             call dword ptr [{GETPROCADDRESS_THUNK}]
             mov dword ptr [{MASK_SLOT_CACHE_PTR}], eax
-            push {MASK_DLL_ORD_DRAW}
+            push {MASK_DLL_ORD_GET}
             push dword ptr [{MASK_SLOT_HMOD}]
             call dword ptr [{GETPROCADDRESS_THUNK}]
-            mov dword ptr [{MASK_SLOT_DRAW_PTR}], eax
+            mov dword ptr [{MASK_SLOT_GET_PTR}], eax
             mov byte ptr [{MASK_SLOT_RESOLVED}], 1
         mr_fail:
             pop ebx
@@ -259,17 +253,20 @@ def mask_present_cave() -> bytes:
 
 
 def mask_head_cave() -> bytes:
-    """Spliced onto BOTH head-draw twins (`call 0x409a70`). Entry: ecx=this,
-    esi=villager record, [esp]=site return, [esp+4..]=stdcall draw args
-    (sprite,x,y,idx,frame,transform,0). It draws the head normally (swap the
-    return to post_head, tail into the native thunk which returns via ret 0x1c),
-    then, when the DLL is resolved, calls Vv4MaskDrawRecord(esi,x,y,frame,100)
-    which fingerprint-checks and draws the mask on top (mask=0 -> nothing).
-    Finally returns to the site's real caller. esi is callee-saved across the
-    native draw but is snapshotted too, for safety. Single-threaded, non-
-    reentrant render -> the shared scratch set is safe for both twins."""
+    """Spliced onto BOTH head-draw twins (`call 0x409a70`). Entry: ecx=this
+    (sprite mgr), esi=villager record, [esp]=site return, [esp+4..]=stdcall draw
+    args (atlas, x, y, idx, frame=facing, transform, 0). It draws the head
+    normally (swap the return to post_head, tail into the native thunk which
+    returns via ret 0x1c), then draws the villager's mask THROUGH THE SAME THUNK
+    reusing the head's x/y/facing/transform (so scroll+scale are inherited),
+    swapping only atlas=mask obj, idx=mask_row, y-=lift. The mask value + atlas
+    object come from the DLL (Vv4MaskGetForRecord ensures the atlas is built and
+    published to MASK_SLOT_ATLAS). All guarded: no export / mask<=0 / atlas 0 ->
+    nothing drawn. Single-threaded, non-reentrant -> one shared scratch set."""
 
     def src(post_head: int) -> str:
+        y_expr = (f"push dword ptr [{MASK_S_Y}]" if MASK_LIFT == 0 else
+                  f"mov eax, dword ptr [{MASK_S_Y}]\n            sub eax, {MASK_LIFT}\n            push eax")
         return f"""
             mov dword ptr [{MASK_S_ECX}], ecx
             mov dword ptr [{MASK_S_ESI}], esi
@@ -279,21 +276,34 @@ def mask_head_cave() -> bytes:
             mov dword ptr [{MASK_S_Y}], eax
             mov eax, [esp+0x14]
             mov dword ptr [{MASK_S_FRAME}], eax
+            mov eax, [esp+0x18]
+            mov dword ptr [{MASK_S_TRANSFORM}], eax
             mov eax, [esp]
             mov dword ptr [{MASK_S_RET}], eax
             mov dword ptr [esp], {post_head}
             jmp 0x{MASK_DRAW_THUNK_VA:X}
         post_head:
             call 0x{MASK_RESOLVE_VA:X}
-            mov eax, dword ptr [{MASK_SLOT_DRAW_PTR}]
+            mov eax, dword ptr [{MASK_SLOT_GET_PTR}]
             test eax, eax
             jz mh_done
-            push 100
-            push dword ptr [{MASK_S_FRAME}]
-            push dword ptr [{MASK_S_Y}]
-            push dword ptr [{MASK_S_X}]
             push dword ptr [{MASK_S_ESI}]
             call eax
+            test eax, eax
+            jle mh_done
+            dec eax
+            mov edx, dword ptr [{MASK_SLOT_ATLAS}]
+            test edx, edx
+            jz mh_done
+            push 0
+            push dword ptr [{MASK_S_TRANSFORM}]
+            push dword ptr [{MASK_S_FRAME}]
+            push eax
+            {y_expr}
+            push dword ptr [{MASK_S_X}]
+            push edx
+            mov ecx, dword ptr [{MASK_S_ECX}]
+            call 0x{MASK_DRAW_THUNK_VA:X}
         mh_done:
             jmp dword ptr [{MASK_S_RET}]
         """
@@ -1655,13 +1665,14 @@ def main() -> None:
                 ).hexdigest().upper(),
             },
             # Heathen-mask RENDER atlas: the exact hand-aligned mask art, 8
-            # directional columns x 5 mask rows of 40x65 cells. The DLL loads it
-            # (Images/vvfp_mask_atlas.png) and SDL_UpperBlits the selected cell
-            # onto the render-target surface. Added file (no atlas swaps, no row
-            # bumps) -- removed on unpatch, and stock atlases are untouched.
+            # directional columns x 5 mask rows of 40x65 cells. The DLL builds a
+            # game ldwImageGrid sprite from it (FUN_0040ABA0 sprintf "%s%d%d%s"
+            # -> "<name>00.png"), so it ships as vvfp_mask_atlas00.png. Added
+            # file (no atlas swaps/row bumps) -- removed on unpatch, stock
+            # atlases untouched.
             {
                 "source": "assets/vv4_masks/vvfp_mask_atlas.png",
-                "destination": "Images/vvfp_mask_atlas.png",
+                "destination": "Images/vvfp_mask_atlas00.png",
                 "sha256": hashlib.sha256(
                     (ROOT / "assets/vv4_masks/vvfp_mask_atlas.png").read_bytes()
                 ).hexdigest().upper(),
