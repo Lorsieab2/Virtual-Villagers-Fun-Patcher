@@ -69,7 +69,7 @@ COLOURS = ["blue", "orange", "red", "purple", "chief"]
 # rest: locate each facing's head by its magenta hair, locate the mask over
 # it, subtract.
 PACKED = "packed-atlas"
-CHIEF_DY = 0   # px lift for the packed chief frames (playtest: down 10 more)
+CHIEF_DY = -5  # px lift for the packed chief frames (playtest: down 15 total)
 CHIEF_DX = 3   # px rightward nudge for the packed chief frames (playtest)
 # The chief is a packed atlas anchored to the OTHER colours' median mask
 # centre/chin. That coupling meant tuning a gridded colour (e.g. lifting
@@ -89,10 +89,10 @@ CHIEF_REFERENCE = [
 ]
 
 MASK_OFFSETS = {
-    "blue": (24, -42),  # playtest: down 10 (on-villager)
-    "orange": (16, -39),  # playtest: down 10 (on-villager)
-    "red": (18, -52),  # playtest: down 10 (on-villager)
-    "purple": (4, -43),  # playtest: down 10 (on-villager)
+    "blue": (24, -37),  # playtest: down 15 total (on-villager)
+    "orange": (16, -34),  # playtest: down 15 total (on-villager)
+    "red": (18, -47),  # playtest: down 15 total (on-villager)
+    "purple": (4, -38),  # playtest: down 15 total (on-villager)
     # Chief is a PACKED ATLAS, not a strip. Its seven frames sit at irregular
     # x and in two vertical rows -- solving for a single cell origin is
     # infeasible (frame 0 requires ox <= -4 while frame 3 requires ox >= 4), so
@@ -334,7 +334,12 @@ def build_preview_strip(sheets: dict[str, Image.Image]) -> bytes:
         new_w = max(1, round(art.width * scale))
         new_h = max(1, round(art.height * scale))
         if (new_w, new_h) != (art.width, art.height):
-            art = art.resize((new_w, new_h), Image.LANCZOS)
+            # NEAREST, not LANCZOS: the source is ~40px pixel art and the picker
+            # upscales it into a 70/50px box, so a smooth resample here blurs the
+            # mask (the owner's "looks terrible") while Body/Head -- which are NOT
+            # pre-scaled and just get StretchBlt COLORONCOLOR -- stay crisp.
+            # Nearest keeps hard pixel edges and matches that crispness.
+            art = art.resize((new_w, new_h), Image.NEAREST)
         flat = Image.new("RGB", (CELL_W, PREVIEW_CELL_H), PREVIEW_BG)
         flat.paste(
             art,
