@@ -70,7 +70,7 @@ COLOURS = ["blue", "orange", "red", "purple", "chief"]
 # it, subtract.
 PACKED = "packed-atlas"
 CHIEF_DY = -5  # px lift for the packed chief frames (playtest: down 15 total)
-CHIEF_DX = 3   # px rightward nudge for the packed chief frames (playtest)
+CHIEF_DX = 5   # px rightward nudge for the packed chief frames (playtest: +2)
 # The chief is a packed atlas anchored to the OTHER colours' median mask
 # centre/chin. That coupling meant tuning a gridded colour (e.g. lifting
 # purple) silently moved the chief and could push its tall frames off the top
@@ -90,8 +90,8 @@ CHIEF_REFERENCE = [
 
 MASK_OFFSETS = {
     "blue": (24, -37),  # playtest: down 15 total (on-villager)
-    "orange": (16, -34),  # playtest: down 15 total (on-villager)
-    "red": (18, -47),  # playtest: down 15 total (on-villager)
+    "orange": (21, -34),  # playtest: +5 right
+    "red": (21, -50),  # playtest: up 3, right 3
     "purple": (4, -38),  # playtest: down 15 total (on-villager)
     # Chief is a PACKED ATLAS, not a strip. Its seven frames sit at irregular
     # x and in two vertical rows -- solving for a single cell origin is
@@ -264,6 +264,42 @@ def _strip_bleed(cell: Image.Image, colour: str, facing: int) -> Image.Image:
     return cell
 
 
+def _keep_main_blob(cell: Image.Image) -> Image.Image:
+    """Return a copy of `cell` with only its largest connected blob kept; any
+    detached crumbs (neighbour-frame bleed) are cleared to transparent. Uses
+    alpha > 0 so even faint bleed the >128 bleed-stripper missed is removed.
+    Used for the picker preview, where a single clean mask is what matters."""
+    out = cell.copy()
+    px = out.load()
+    w, h = out.size
+    seen = [[False] * h for _ in range(w)]
+    groups: list[list[tuple[int, int]]] = []
+    for x in range(w):
+        for y in range(h):
+            if px[x, y][3] == 0 or seen[x][y]:
+                continue
+            stack = [(x, y)]
+            seen[x][y] = True
+            g = []
+            while stack:
+                cx, cy = stack.pop()
+                g.append((cx, cy))
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        nx, ny = cx + dx, cy + dy
+                        if 0 <= nx < w and 0 <= ny < h and not seen[nx][ny] and px[nx, ny][3] > 0:
+                            seen[nx][ny] = True
+                            stack.append((nx, ny))
+            groups.append(g)
+    if len(groups) <= 1:
+        return out
+    groups.sort(key=len, reverse=True)
+    for g in groups[1:]:
+        for x, y in g:
+            px[x, y] = (0, 0, 0, 0)
+    return out
+
+
 def _sheet(colour: str) -> Image.Image:
     """The colour's art placed on the 7x40 cell grid, used verbatim.
 
@@ -290,7 +326,15 @@ def _sheet(colour: str) -> Image.Image:
             y = chin - frame.height - CHIEF_DY
             if y < 0 or y + frame.height > SHEET_CELL_H:
                 raise ValueError(f"{colour} facing {facing} does not fit the cell")
-            sheet.alpha_composite(frame, (x, y))
+            # Clip each packed frame to its OWN 40px cell. Chief frames are
+            # wider than the cell and centred, so without this they spill into
+            # the neighbouring cells -- which is the in-village "horizontal
+            # bleed" and the preview's intruding art (a neighbour frame's edge
+            # showing up in this cell). The village blits exactly one 40px cell,
+            # so clipping here loses nothing that was ever visible.
+            clipped = Image.new("RGBA", (CELL_W, SHEET_CELL_H), (0, 0, 0, 0))
+            clipped.alpha_composite(frame, (x - CELL_W * facing, y))
+            sheet.alpha_composite(_keep_main_blob(clipped), (CELL_W * facing, 0))
         return sheet
     for facing, (ox, oy) in enumerate(_frame_offsets(colour)):
         top = oy - CELL_TOP
@@ -304,7 +348,13 @@ def _sheet(colour: str) -> Image.Image:
         column = art.crop((src_x, 0, src_x + CELL_W, art.height)).copy()
         cell = Image.new("RGBA", (CELL_W, SHEET_CELL_H), (0, 0, 0, 0))
         cell.alpha_composite(column, (0, top))
-        sheet.alpha_composite(_strip_bleed(cell, colour, facing), (CELL_W * facing, 0))
+        # _strip_bleed drops detached neighbour crumbs at alpha>128; follow with
+        # _keep_main_blob (alpha>0) to also clear faint sub-threshold bleed that
+        # otherwise shows as a thin horizontal smear beside the villager. The
+        # gridded-verbatim test caps how much may be removed, so this can't eat
+        # a real part of the mask.
+        cleaned = _keep_main_blob(_strip_bleed(cell, colour, facing))
+        sheet.alpha_composite(cleaned, (CELL_W * facing, 0))
     return sheet
 
 
@@ -323,6 +373,7 @@ def build_preview_strip(sheets: dict[str, Image.Image]) -> bytes:
                 SHEET_CELL_H,
             )
         )
+        cell = _keep_main_blob(cell)  # drop neighbour-frame bleed before fitting
         bbox = cell.getbbox()
         art = cell.crop(bbox) if bbox else cell
         # Normalize to ~90% fill of the 40x65 cell (PAD inset on every side),
