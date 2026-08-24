@@ -467,6 +467,14 @@ MASK_CELL_H = 160
 # Getting this wrong is not subtle: the first build stashed the raw y with no
 # offset at all, which would have drawn every mask 39px above its villager.
 MASK_DRAW_Y_OFFSET = -46
+# Children (and the golden child) draw a smaller head that sits lower than an
+# adult's, so the adult-tuned lift above puts the mask too high on them. The
+# game's OWN child/adult boundary is age ([record+0x348]) < 0x118 -- it compares
+# against exactly this constant throughout, including in the compositor/head
+# draw (0x4379a7, 0x437611, 0x438970). The stash hook applies this extra
+# downward nudge to any villager below that age (playtest: 3-4px).
+CHILD_ADULT_AGE_THRESHOLD = 0x118
+CHILD_MASK_EXTRA_DY = 4
 # The village/camera object hanging off the villager manager. Its +8/+0xC are
 # the scroll offsets every native draw in sub_437790 subtracts.
 VILLAGE_OBJECT_OFFSET = 0x3E010
@@ -2229,6 +2237,13 @@ def main() -> None:
             mov edx, dword ptr [eax + 8]
             sub edx, dword ptr [ecx + 0xc]
             add edx, {MASK_DRAW_Y_OFFSET}
+            # Child/golden-child extra down-nudge: the game's own age<0x118 test.
+            # eax is still the record base here; ecx/edx are the only scratch we
+            # own, and ecx is dead after the sub above, so no save needed.
+            cmp dword ptr [eax + 0x348], {CHILD_ADULT_AGE_THRESHOLD}
+            jge mask_adult_y
+            add edx, {CHILD_MASK_EXTRA_DY}
+        mask_adult_y:
             mov dword ptr [ebx + 4], edx
         mask_append_done:
             pop ebx
