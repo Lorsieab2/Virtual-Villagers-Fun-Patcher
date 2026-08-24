@@ -356,6 +356,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # splices the hook into sub_437790's per-villager
                     # render loop right after its own occupied-flag check.
                     "0x8BEA8", "0x377B8", "0x24103", "0x913C",
+                    # Change Appearance for All (Tech screen row 11): its
+                    # DLL-dispatch stub (resolve + call the whole-village
+                    # chooser export, which owns its own afford check,
+                    # conditional 450,000 charge and messaging) in the
+                    # confirmed-unused .shr gap after equal_division_core.
+                    # Row 11's confirm-price case and its dispatch edge reuse
+                    # the already-listed confirm helper (0x8BB00) and Equal
+                    # Division dispatch (0x8BD30); no other offset changes.
+                    "0x8B93F",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

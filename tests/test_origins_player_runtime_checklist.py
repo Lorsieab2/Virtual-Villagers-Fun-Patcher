@@ -241,6 +241,16 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # splicing that hook into sub_437790's per-villager
                         # render loop right after its own occupied check.
                         "0x8BEA8", "0x377B8", "0x24103", "0x913C",
+                        # Change Appearance for All (Tech screen row 11): its
+                        # DLL-dispatch stub in the confirmed-unused .shr gap
+                        # after equal_division_core; the row's confirm-price
+                        # case and dispatch edge reuse the already-listed
+                        # confirm helper (0x8BB00) and Equal Division dispatch
+                        # (0x8BD30). Adding one export string shifts every
+                        # later .rdata string pointer by 0x20, which is why
+                        # the string-referencing rows above (0x56900, 0x8BEA8)
+                        # also differ -- immediates only, no opcode change.
+                        "0x8B93F",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

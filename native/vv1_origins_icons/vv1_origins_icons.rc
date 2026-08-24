@@ -49,7 +49,7 @@
 #define BS_RADIOBUTTON 0x00000004L
 #define BS_GROUPBOX 0x00000007L
 
-201 DIALOGEX 0, 0, 310, 396
+201 DIALOGEX 0, 0, 310, 428
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -120,8 +120,12 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 342, 150, 9
     PUSHBUTTON  "Buy", 1010, 240, 331, 55, 18
 
-    CTEXT       "Press ESC to exit this menu.", -1, 20, 362, 270, 9
-    DEFPUSHBUTTON "Cancel", 2, 120, 375, 70, 14
+    LTEXT       "Change Appearance for All", -1, 40, 362, 195, 10
+    LTEXT       "450,000 tech points", -1, 40, 374, 150, 9
+    PUSHBUTTON  "Buy", 1011, 240, 363, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 20, 394, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 407, 70, 14
 END
 
 202 DIALOGEX 0, 0, 310, 204

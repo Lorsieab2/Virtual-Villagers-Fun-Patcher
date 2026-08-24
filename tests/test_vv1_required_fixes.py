@@ -852,7 +852,7 @@ class VV1RequiredFixTests(unittest.TestCase):
         # return its result untouched -- failing closed (returning 0/
         # Cancel) if either resolve step fails.
         confirm_off = menu_confirm_va - IMAGE_BASE - SHR_RVA + SHR_FILE_OFFSET
-        helper_insns = list(md.disasm(rendered[confirm_off:confirm_off + 0x60], menu_confirm_va))
+        helper_insns = list(md.disasm(rendered[confirm_off:confirm_off + 0x78], menu_confirm_va))
         mnemonics = [i.mnemonic for i in helper_insns]
         self.assertEqual(mnemonics[0], "mov", "must start by reading the row off the stack")
         cost_lookups = [

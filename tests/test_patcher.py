@@ -962,11 +962,12 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertIn("STATE_VILLAGE_WIDE = 0x20000", source)
         self.assertIn("((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6)", source)
-        # ID_BUY_LAST covers Equal Division of Labor's rows 9/10 too, not
-        # just the original village-wide rows 6-8 -- otherwise WM_COMMAND
-        # never sees their Buy clicks as in ID_BUY_FIRST..ID_BUY_LAST and
-        # EndDialog is never called for them.
-        self.assertIn("ID_BUY_LAST = 1010", source)
+        # ID_BUY_LAST covers Equal Division of Labor's rows 9/10 and the
+        # Change Appearance for All row 11 too, not just the original
+        # village-wide rows 6-8 -- otherwise WM_COMMAND never sees their
+        # Buy clicks as in ID_BUY_FIRST..ID_BUY_LAST and EndDialog is
+        # never called for them.
+        self.assertIn("ID_BUY_LAST = 1011", source)
         for label in (
             # Row labels match the OFFICIAL Origins Upgrade Prompts
             # spreadsheet's own naming for these two rows, not the shared

@@ -198,6 +198,13 @@ APPEARANCE_HELPER_FILE_OFFSET = 0x8BA80
 APPEARANCE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     APPEARANCE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Tech-menu row 11 (Change Appearance for All) -> ShowOriginsAppearanceForAll,
+# same DLL-side-charge model as the per-villager picker. Stub lives in a free
+# .shr gap; the menu just does "cmp ebx,11 / je / call this".
+FORALL_HELPER_FILE_OFFSET = 0x8B93F  # free 0x8B93F..0x8BA00 gap
+FORALL_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    FORALL_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
 DETAIL_MENU_VA = CODE_VA + 0x521
 DETAIL_LOOP_VA = DETAIL_MENU_VA + 5  # push ebx; push esi; push edi; mov esi, ecx
 # Shared "this makes a permanent change" Yes/No gate: every purchasable row
@@ -632,6 +639,7 @@ def main() -> None:
         "ShowOriginsEqualDivisionResult",
     )
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
+    add_c_string(strings, s, "show_appearance_for_all", "ShowOriginsAppearanceForAll")
     add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
     add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
     add_c_string(
@@ -1728,6 +1736,29 @@ def main() -> None:
         """,
         APPEARANCE_HELPER_VA,
     )
+    # Tech-menu row 11 (Change Appearance for All). Mirrors the per-villager
+    # picker helper but for the whole village: the DLL export owns the afford
+    # check, the conditional 450,000 charge and all messaging, so this stub
+    # only resolves and calls it, passing the menu's game context (edi). Any
+    # resolve failure is silent (same as a cancel), never crashes.
+    forall_helper_code = assemble(
+        f"""
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je forall_helper_done
+            push 0x{s['show_appearance_for_all']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je forall_helper_done
+            push edi
+            call eax
+        forall_helper_done:
+            ret
+        """,
+        FORALL_HELPER_VA,
+    )
     confirm_helper_code = assemble(
         f"""
             # Takes only (is_detail, row) from the caller -- [esp+4]/[esp+8]
@@ -1738,6 +1769,13 @@ def main() -> None:
             mov ecx, dword ptr [esp + 8]
             cmp dword ptr [esp + 4], 0
             jne confirm_detail_cost
+            # Row 11 = Change Appearance for All: fixed 450,000, distinct from
+            # the flat 1,000,000 that rows 6-10 share.
+            cmp ecx, 11
+            jne confirm_not_forall
+            mov edx, 450000
+            jmp confirm_cost_done
+        confirm_not_forall:
             cmp ecx, 6
             jb confirm_tech_cost
             mov edx, 1000000
@@ -2045,6 +2083,17 @@ def main() -> None:
     # instead of routing through VILLAGE_PREFLIGHT_VA/do_village_wide.
     equal_division_dispatch_code = assemble(
         f"""
+            # Row 11 (Change Appearance for All) also arrives here, because the
+            # menu's inline handler is full and its only spare dispatch edge is
+            # the shared "ebx >= 9" branch. It has nothing to do with Equal
+            # Division: hand it straight to its own helper (which owns the DLL
+            # call, afford check, conditional 450,000 charge and messaging) and
+            # return, before any of the Equal Division setup below.
+            cmp ebx, 11
+            jne equal_division_not_forall
+            call 0x{FORALL_HELPER_VA:X}
+            ret
+        equal_division_not_forall:
             push ebx
             push esi
             push ebp
@@ -2501,6 +2550,12 @@ def main() -> None:
         b"\0" * len(appearance_helper_code),
         appearance_helper_code,
         "resolve and invoke the icons DLL's Change Appearance picker export for the given villager",
+    )
+    patch(
+        FORALL_HELPER_FILE_OFFSET,
+        b"\0" * len(forall_helper_code),
+        forall_helper_code,
+        "resolve and invoke the icons DLL's Change Appearance for All export (tech-menu row 11), which owns its own afford check, conditional 450,000 charge and messaging",
     )
     patch(
         0x35ACA,

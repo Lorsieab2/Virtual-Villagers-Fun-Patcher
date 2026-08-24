@@ -503,7 +503,7 @@ enum {
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_APPEARANCE = 203,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1010,
+    ID_BUY_LAST = 1011,   /* row 11 = Change Appearance for All (always-Buy) */
     ID_CHECK_FIRST = 1100,
     /* IDC_HEAD_PREVIEW/IDC_BODY_PREVIEW: owner-draw STATIC controls that
        preview the real head/body sprite cropped from the stock game art
