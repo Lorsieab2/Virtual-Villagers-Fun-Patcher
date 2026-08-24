@@ -1084,16 +1084,24 @@ __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar
    loads the atlas — at startup, outside the loader lock.  CRT-less (Win32 only). */
 __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     char path[MAX_PATH];
-    int i, last = -1;
+    char tmp[MAX_PATH];
+    int i, last = -1, dirlen;
     HRSRC res;
     HGLOBAL h;
     void *p;
-    DWORD sz, w;
+    DWORD sz, w, n;
     HANDLE f;
-    if (!GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH)) return;
+    BOOL ok;
+    n = GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) return;          /* empty or truncated exe path -> skip */
     for (i = 0; path[i]; ++i) if (path[i] == '\\') last = i;   /* last backslash */
     if (last < 0) return;
     path[last] = 0;                               /* path = exe directory */
+    dirlen = lstrlenA(path);
+    /* Guard against MAX_PATH overflow: a short renamed exe near the path limit can
+       still fit GetModuleFileNameA yet overflow once we append the sub-path. Need
+       room for "\\Images\\heathen_masks.png" AND the ".tmp" staging suffix. */
+    if (dirlen + (int)sizeof("\\Images\\heathen_masks.png.tmp") >= MAX_PATH) return;
     lstrcatA(path, "\\Images");
     CreateDirectoryA(path, NULL);
     lstrcatA(path, "\\heathen_masks.png");
@@ -1105,10 +1113,17 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     p = LockResource(h);
     sz = SizeofResource(module_instance, res);
     if (p == NULL || sz == 0) return;
-    f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (f == INVALID_HANDLE_VALUE) return;         /* lost a race / can't write -> skip */
-    WriteFile(f, p, sz, &w, NULL);
+    /* Write to a temp file, verify the FULL payload landed, then atomically publish
+       via MoveFileA. A disk-full / short WriteFile therefore never leaves a
+       zero-length or truncated heathen_masks.png that the loader would choke on. */
+    lstrcpyA(tmp, path);
+    lstrcatA(tmp, ".tmp");
+    f = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) return;         /* can't write -> skip */
+    ok = WriteFile(f, p, sz, &w, NULL);
     CloseHandle(f);
+    if (!ok || w != sz) { DeleteFileA(tmp); return; }   /* incomplete write -> discard */
+    if (!MoveFileA(tmp, path)) DeleteFileA(tmp);        /* publish; lost a race -> clean up */
 }
 
 /* Record field offsets + the per-villager cost, hoisted so the chooser (which now
