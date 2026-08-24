@@ -104,7 +104,7 @@ BIGHEAD_ATLAS_ROWS = 5
 BH_SCALE_MUL = 3
 BH_SCALE_SHIFT = 1   # scale = headScale * MUL >> SHIFT  (3>>1 = x1.5)
 BH_XOFF = 0x00       # base horizontal nudge (mask X = headX + XOFF; signed imm8)
-BH_LIFT = 0x14       # base vertical lift  (mask Y = headY - LIFT)
+BH_LIFT = 0x1E       # base vertical lift  (mask Y = headY - LIFT)
 # bigheads_masks.png is 3 columns = 3 head FACINGS (owner: col0=RIGHT turn,
 # col1=front, col2=LEFT turn), each pre-aligned to its facing's face-within-the-
 # sprite. So follow-the-face = pick the atlas COLUMN from the head's facing frame
