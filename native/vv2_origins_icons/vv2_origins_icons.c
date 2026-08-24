@@ -933,12 +933,19 @@ static void vv2_appearance_repaint(HWND window, int control) {
 /* Draw a centered text label in a preview cell (used for the mask picker's
    "(none)" / "No change" states instead of a sprite). */
 static void vv2_draw_label(DRAWITEMSTRUCT *item, const char *text) {
-    RECT rc = item->rcItem;
+    RECT rc = item->rcItem, calc = item->rcItem;
     HBRUSH bg = CreateSolidBrush(RGB(236, 236, 236));
+    int th, top;
     FillRect(item->hDC, &rc, bg);
     DeleteObject(bg);
     SetBkMode(item->hDC, TRANSPARENT);
-    DrawTextA(item->hDC, text, -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK);
+    /* DT_VCENTER only works with single-line text, so center manually: measure
+       the wrapped height, then offset the draw rect to the vertical middle. */
+    DrawTextA(item->hDC, text, -1, &calc, DT_CENTER | DT_WORDBREAK | DT_CALCRECT);
+    th = calc.bottom - calc.top;
+    top = rc.top + ((rc.bottom - rc.top) - th) / 2;
+    if (top > rc.top) rc.top = top;
+    DrawTextA(item->hDC, text, -1, &rc, DT_CENTER | DT_WORDBREAK);
 }
 
 static INT_PTR CALLBACK vv2_appearance_dialog(
@@ -1189,11 +1196,36 @@ static int caf_cycle(int value, int count, int delta) {
     return value;
 }
 
+/* The 10 "mask for everyone" radios form ONE mutually-exclusive choice spread
+   across two visual boxes: 3230 Off, 3231 VV5, 3232 Random, 3233 Equal, and
+   3241..3246 = single mask None/Blue/Orange/Red/Purple/Chief. */
+static const int caf_mask_radio[10] = {
+    3230, 3231, 3232, 3233, 3241, 3242, 3243, 3244, 3245, 3246
+};
+
+/* Enforce single selection across both boxes and disable the per-sex Mask
+   cyclers whenever an override (anything but Off) is chosen, so no two mask
+   sources can ever conflict. */
+static void caf_set_mask_mode(HWND w, int selected) {
+    int i, off = (selected == 3230);
+    for (i = 0; i < 10; ++i)
+        CheckDlgButton(w, caf_mask_radio[i],
+                       caf_mask_radio[i] == selected ? BST_CHECKED : BST_UNCHECKED);
+    EnableWindow(GetDlgItem(w, 3213), off);   /* male mask  < */
+    EnableWindow(GetDlgItem(w, 3223), off);   /* male mask  > */
+    EnableWindow(GetDlgItem(w, 3216), off);   /* female mask < */
+    EnableWindow(GetDlgItem(w, 3226), off);   /* female mask > */
+    if (!off) {                               /* override wins: clear per-sex mask */
+        caf_mask[0] = caf_mask[1] = -1;
+        vv2_appearance_repaint(w, caf_preview_id[0][2]);
+        vv2_appearance_repaint(w, caf_preview_id[1][2]);
+    }
+}
+
 static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
     (void)lp;
     if (msg == WM_INITDIALOG) {
-        CheckRadioButton(w, 3230, 3233, 3230);   /* distribution Off */
-        CheckRadioButton(w, 3240, 3246, 3240);   /* village-wide Off */
+        caf_set_mask_mode(w, 3230);   /* default: Off = use the per-sex selectors */
         vv2_surface_dialog(w);
         return TRUE;
     } else if (msg == WM_DRAWITEM) {
@@ -1221,14 +1253,21 @@ static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
             vv2_appearance_repaint(w, caf_preview_id[s][k]);
             return TRUE;
         }
+        if ((cmd >= 3230 && cmd <= 3233) || (cmd >= 3241 && cmd <= 3246)) {
+            caf_set_mask_mode(w, (int)cmd);   /* one exclusive mask choice */
+            return TRUE;
+        }
         if (cmd == IDOK) {
             int r;
             caf_dist = 0;
-            for (r = 0; r < 4; ++r)
-                if (IsDlgButtonChecked(w, 3230 + r)) caf_dist = r;
             caf_village = -1;
-            for (r = 0; r < 7; ++r)     /* 3240 Off -> -1; 3241..3246 -> 0..5 */
-                if (IsDlgButtonChecked(w, 3240 + r)) caf_village = r - 1;
+            if (IsDlgButtonChecked(w, 3231)) caf_dist = 1;        /* VV5-style */
+            else if (IsDlgButtonChecked(w, 3232)) caf_dist = 2;   /* Random */
+            else if (IsDlgButtonChecked(w, 3233)) caf_dist = 3;   /* Equal */
+            else for (r = 0; r < 6; ++r)                          /* single mask 0..5 */
+                if (IsDlgButtonChecked(w, 3241 + r)) { caf_village = r; break; }
+            /* an override ignores the per-sex Mask cyclers (Off keeps them) */
+            if (caf_dist != 0 || caf_village >= 0) { caf_mask[0] = caf_mask[1] = -1; }
             EndDialog(w, 1);
             return TRUE;
         }
