@@ -101,10 +101,10 @@ class Task9ArtifactTests(unittest.TestCase):
         # paths and shifting the offsets/`done` target; the expanded-256 baseline
         # keeps the original seven paths.
         stock_offsets = [
-            0x11B, 0x1CC, 0x1D9, 0x1E6, 0x1F3, 0x200, 0x20D, 0x21A,
-            0x224, 0x22E, 0x238, 0x242, 0x24C, 0x25D, 0x26E, 0x27F, 0x290,
+            0x124, 0x1D5, 0x1E2, 0x1EF, 0x1FC, 0x209, 0x216, 0x223,
+            0x230, 0x23A, 0x244, 0x24E, 0x258, 0x262, 0x273, 0x284, 0x295, 0x2A6,
         ]
-        stock_done = 0xAD5
+        stock_done = 0xAEB
         expanded_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
         expanded_done = 0x9AB
         for mode, layout in builder.LAYOUTS.items():
@@ -359,15 +359,16 @@ class Task9ArtifactTests(unittest.TestCase):
             self.assertIn(name, stock_map["routine_length"])
             self.assertNotIn(name, expanded_map["routine_length"])
 
-    def test_dialog_resources_expose_exact_thirteen_plus_five_rows(self) -> None:
+    def test_dialog_resources_expose_exact_fourteen_plus_five_rows(self) -> None:
         resources = RC.read_text(encoding="utf-8")
         tech, detail = resources.split("202 DIALOGEX", 1)
-        # Thirteen tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
+        # Fourteen tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
         # Point Doubler, Food Point Doubler, Full Heal/Cure All, Grant Running to
         # All Villagers, Grant Full Mastery to All Villagers, Set all Villagers to
-        # 18, Complete all Collections, Reset all Collections, and the two Equal
-        # Division of Labor rows (Includes Parenting / No Parenting).
-        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 13)
+        # 18, Complete all Collections, Reset all Collections, the two Equal
+        # Division of Labor rows (Includes Parenting / No Parenting), and Change
+        # Appearance for All.
+        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 14)
         # Five villager rows: Youth, Mastery, Running, Age 18, Change Appearance.
         # The picker dialog 203 uses arrow/OK/Cancel, not "Buy".
         self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 5)
@@ -379,6 +380,7 @@ class Task9ArtifactTests(unittest.TestCase):
         self.assertIn("All Villagers are Exactly 18", tech)
         self.assertIn("Equal Division of Labor (Includes Parenting)", tech)
         self.assertIn("Equal Division of Labor (No Parenting)", tech)
+        self.assertIn("Change Appearance for All", tech)
         self.assertIn("Grant Running", detail)
         self.assertIn("Change Appearance", detail)
         # Both Upgrade menus advertise the ESC exit hint.

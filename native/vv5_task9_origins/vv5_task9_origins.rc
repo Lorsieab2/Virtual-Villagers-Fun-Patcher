@@ -26,8 +26,11 @@
 #define WS_VISIBLE 0x10000000L
 #define SS_CENTER 0x00000001L
 #define SS_OWNERDRAW 0x0000000DL
+#define DS_CENTER 0x00000800L
+#define WS_GROUP 0x00020000L
+#define WS_TABSTOP 0x00010000L
 
-201 DIALOGEX 0, 0, 310, 378
+201 DIALOGEX 0, 0, 310, 404
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -110,8 +113,14 @@ BEGIN
     LTEXT "1,000,000 tech points", -1, 40, 331, 150, 9
     PUSHBUTTON "Buy", 1012, 240, 320, 55, 16
 
-    CTEXT "Press ESC to exit this menu.", -1, 20, 346, 270, 9
-    DEFPUSHBUTTON "Cancel", 2, 120, 358, 70, 14
+    ICON 106, -1, 8, 344, 24, 24
+    ICON 109, 1113, 22, 352, 12, 12
+    LTEXT "Change Appearance for All", -1, 40, 345, 195, 10
+    LTEXT "450,000 tech points", -1, 40, 357, 150, 9
+    PUSHBUTTON "Buy", 1013, 240, 346, 55, 16
+
+    CTEXT "Press ESC to exit this menu.", -1, 20, 372, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 384, 70, 14
 END
 
 202 DIALOGEX 0, 0, 310, 208
@@ -177,4 +186,70 @@ BEGIN
     CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 252, 222, 9
     DEFPUSHBUTTON "OK", 1, 66, 264, 50, 16
     PUSHBUTTON  "Cancel", 2, 134, 264, 50, 16
+END
+
+214 DIALOGEX 0, 0, 620, 340
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Appearance for All"
+FONT 9, "Segoe UI"
+BEGIN
+    GROUPBOX    "Male Villagers", -1, 6, 2, 368, 104
+    CTEXT       "Body", -1, 28, 14, 50, 9
+    PUSHBUTTON  "<", 3211, 14, 48, 12, 20
+    CONTROL     "", 3201, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 24, 50, 74
+    PUSHBUTTON  ">", 3221, 80, 48, 12, 20
+    CTEXT       "Head", -1, 150, 14, 50, 9
+    PUSHBUTTON  "<", 3212, 136, 48, 12, 20
+    CONTROL     "", 3202, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 24, 50, 74
+    PUSHBUTTON  ">", 3222, 202, 48, 12, 20
+    CTEXT       "Mask", -1, 272, 14, 50, 9
+    PUSHBUTTON  "<", 3213, 258, 48, 12, 20
+    CONTROL     "", 3203, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 24, 50, 74
+    PUSHBUTTON  ">", 3223, 324, 48, 12, 20
+
+    GROUPBOX    "Female Villagers", -1, 6, 110, 368, 104
+    CTEXT       "Body", -1, 28, 122, 50, 9
+    PUSHBUTTON  "<", 3214, 14, 156, 12, 20
+    CONTROL     "", 3204, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 132, 50, 74
+    PUSHBUTTON  ">", 3224, 80, 156, 12, 20
+    CTEXT       "Head", -1, 150, 122, 50, 9
+    PUSHBUTTON  "<", 3215, 136, 156, 12, 20
+    CONTROL     "", 3205, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 132, 50, 74
+    PUSHBUTTON  ">", 3225, 202, 156, 12, 20
+    CTEXT       "Mask", -1, 272, 122, 50, 9
+    PUSHBUTTON  "<", 3216, 258, 156, 12, 20
+    CONTROL     "", 3206, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 132, 50, 74
+    PUSHBUTTON  ">", 3226, 324, 156, 12, 20
+
+    GROUPBOX        "Village-wide Heads", -1, 382, 2, 232, 104
+    AUTORADIOBUTTON "Off (use Head selectors above)", 3250, 390, 14, 216, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Random (by gender)", 3251, 390, 27, 216, 10
+    AUTORADIOBUTTON "All Black Hair", 3252, 390, 40, 216, 10
+    AUTORADIOBUTTON "All Brown Hair", 3253, 390, 53, 216, 10
+    AUTORADIOBUTTON "All Red / Ginger Hair", 3254, 390, 66, 216, 10
+    AUTORADIOBUTTON "All Blonde Hair", 3255, 390, 79, 216, 10
+    AUTORADIOBUTTON "All Other Hair / Styles", 3256, 390, 92, 216, 10
+
+    GROUPBOX        "Village-wide Bodies", -1, 382, 110, 232, 40
+    AUTORADIOBUTTON "Off (use Body selectors above)", 3260, 390, 122, 216, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Random (by gender)", 3261, 390, 135, 216, 10
+
+    GROUPBOX        "Village-wide Single Mask Color", -1, 382, 152, 232, 62
+    AUTORADIOBUTTON "None (remove all masks)", 3241, 390, 165, 116, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Blue", 3242, 390, 178, 116, 10
+    AUTORADIOBUTTON "Orange", 3243, 390, 191, 116, 10
+    AUTORADIOBUTTON "Red", 3244, 508, 165, 100, 10
+    AUTORADIOBUTTON "Purple", 3245, 508, 178, 100, 10
+    AUTORADIOBUTTON "Chief", 3246, 508, 191, 100, 10
+
+    GROUPBOX        "Mask Distribution (all villagers)", -1, 6, 218, 608, 80
+    AUTORADIOBUTTON "Off (use Mask selectors above)", 3230, 14, 231, 590, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3231, 14, 244, 590, 10
+    AUTORADIOBUTTON "Random (All 5 + No Mask)", 3232, 14, 257, 590, 10
+    AUTORADIOBUTTON "Random (All 5)", 3234, 14, 270, 590, 10
+    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3233, 14, 283, 590, 10
+
+    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 306, 608, 9
+    DEFPUSHBUTTON "OK", 1, 250, 318, 50, 16
+    PUSHBUTTON  "Cancel", 2, 316, 318, 50, 16
 END

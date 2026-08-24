@@ -211,6 +211,7 @@ OFF = {
     "division_parenting": 0x6000,
     "division_no_parenting": 0x6200,
     "apply_division": 0x6400,
+    "appearance_all": 0x6500,
     "mask_flip": 0x6800,
     "mask_restore": 0x6A00,
     "mask_get": 0x6C00,
@@ -252,6 +253,7 @@ SIZES = {
     "division_parenting": 0x200,
     "division_no_parenting": 0x200,
     "apply_division": 0x80,
+    "appearance_all": 0x100,
     "mask_flip": 0x200,
     "mask_restore": 0x200,
     "mask_get": 0x80,
@@ -326,6 +328,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
     # expanded-256 baseline string region stays byte-identical for its overlay.
     time_warp_values = (
         ("appearance_export", b"ShowAppearanceChooser\0"),
+        ("forall_export", b"ShowVV5AppearanceForAll\0"),
         ("genetics_export", b"ShowVV5Task9GeneticsWarning\0"),
         ("writemask_export", b"WriteMaskSidecar\0"),
         ("readmask_export", b"ReadMaskSidecar\0"),
@@ -626,7 +629,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     # Command upper bound: 0..12 in stock (Collections rows 9/10 plus the two
     # Equal Division of Labor rows 11/12), 0..5 in expanded (original), so the
     # expanded router bytes stay identical.
-    command_bound = 12 if native_stock else 5
+    command_bound = 13 if native_stock else 5
     collections_guard = (
         "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
     )
@@ -661,7 +664,8 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         "        cmp ebx, 9\n        je complete_collections_row\n"
         "        cmp ebx, 10\n        je reset_collections_row\n"
         "        cmp ebx, 11\n        je division_parenting_row\n"
-        "        cmp ebx, 12\n        je division_no_parenting_row\n        "
+        "        cmp ebx, 12\n        je division_no_parenting_row\n"
+        "        cmp ebx, 13\n        je appearance_all_row\n        "
         if native_stock
         else ""
     )
@@ -685,6 +689,8 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         f"    division_parenting_row:\n        call 0x{page_va + OFF['division_parenting']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n"
         f"    division_no_parenting_row:\n        call 0x{page_va + OFF['division_no_parenting']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    appearance_all_row:\n        call 0x{page_va + OFF['appearance_all']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n    "
         if native_stock
         else ""
@@ -2553,6 +2559,60 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """)
 
 
+def build_appearance_all(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
+    """Change Appearance for All (village-wide, tech screen, 450,000). A thin
+    bridge: load the companion DLL, resolve ShowVV5AppearanceForAll, pre-check
+    funds, show the shared 450,000 buy-confirm (action 25), and on OK call the
+    export. The DLL owns the whole commit -- it shows dialog 214, iterates the
+    record array, writes head/body + the mask side-table, charges 450,000 only if
+    at least one villager was touched, and saves the sidecar -- so this handler
+    never touches save data and stays a fixed-size box."""
+    return put(page, page_va, "appearance_all", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x20
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz invalid
+        mov ebx, eax
+        push 0x{s['forall_export']:X}
+        push ebx
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz invalid
+        mov dword ptr [ebp-0x10], eax
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, 450000
+        jb insufficient
+        push 0
+        push 0
+        push 25
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        call dword ptr [ebp-0x10]
+        jmp done
+    invalid:
+        {status_call(page_va, '25', 2)}
+        jmp done
+    insufficient:
+        {status_call(page_va, '25', 3)}
+        jmp done
+    cancelled:
+    done:
+        add esp, 0x20
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
 def build_barrel_close_arm(page: bytearray, page_va: int) -> bytes:
     """Barrel of Babies deferral (VV2 general approach). Installed only in stock
     layouts as a five-byte detour over the tech-screen close handler's
@@ -3540,6 +3600,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["island"] = build_island(page, page_va, strings)
         routines["barrel"] = build_barrel(page, page_va, strings)
         routines["appearance"] = build_appearance(page, page_va, strings)
+        routines["appearance_all"] = build_appearance_all(page, page_va, strings)
         routines["complete_collections"] = build_complete_collections(page, page_va)
         routines["reset_collections"] = build_reset_collections(page, page_va)
         routines["running_all"] = build_running_all(page, page_va)
