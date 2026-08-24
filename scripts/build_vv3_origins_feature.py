@@ -586,6 +586,8 @@ def main() -> None:
             je do_equal_division_incl
             cmp ebx, 12
             je do_equal_division_no
+            cmp ebx, 13
+            je do_change_appearance_for_all
 
             cmp ebx, 3
             jb preflight
@@ -809,6 +811,22 @@ def main() -> None:
             jmp menu_done
         do_equal_division_pop:
             add esp, 4
+            jmp menu_done
+        do_change_appearance_for_all:
+            # ebx==13: the DLL export ShowVV3AppearanceForAll owns the whole
+            # transaction -- the dialog, the 450,000 charge from the tech pool
+            # 0x582644, applying head/body/mask to every villager, and the sidecar.
+            # VV3's fixed record/tech addresses mean the export needs no argument.
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+            test eax, eax
+            je menu_done
+            push 100
+            push eax
+            call dword ptr [0x47C128]
+            test eax, eax
+            je menu_done
+            call eax
             jmp menu_done
         menu_done:
             pop ebp

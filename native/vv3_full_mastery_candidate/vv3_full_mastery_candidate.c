@@ -9,7 +9,7 @@ enum {
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_FULL_MASTERY = 203,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1012,
+    ID_BUY_LAST = 1013,
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
@@ -27,12 +27,13 @@ static const char *const tech_names[] = {
     "All Villagers are Exactly 18", "Complete All Collections",
     "Reset All Collections",
     "Equal Division of Labor (Includes Parenting)",
-    "Equal Division of Labor (No Parenting)"
+    "Equal Division of Labor (No Parenting)",
+    "Change Appearance for All"
 };
 static const char *const tech_costs[] = {
     "50,000", "30,000", "75,000", "500,000", "500,000", "30,000",
     "1,000,000", "1,000,000", "1,000,000", "1,000,000", "1,000,000",
-    "1,000,000", "1,000,000"
+    "1,000,000", "1,000,000", "450,000"
 };
 static const char *const detail_names[] = {
     "Grant Youth", "Grant Full Mastery", "Grant Running", "Set Age to 18",

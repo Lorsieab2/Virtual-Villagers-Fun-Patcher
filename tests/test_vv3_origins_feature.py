@@ -356,7 +356,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "E2726DBF95121C59E9536850C206989E930D895B7D45637011D5AF35B3922573",
+            "131F4C988974E89B58389C7891782B2BAA6BA5F3DD90570B556FE401C63D5661",
         )
         self.assertEqual(
             bytes.fromhex(
