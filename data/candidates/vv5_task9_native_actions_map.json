@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "AB9F6F1D9115D0383ECC4BCB37C033DB9148AB843500616B99DF8AC0E89BD520"
+      "source_text_sha256": "B398E2C6118E5A82E22CEE77D57E8CDE428975327D5C930AC0569497A749FFD9"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -107,7 +107,7 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "E35A0159D7AC3B0576F776E629C50C784C03A87F756F5120D2F23A934EE89B45",
+      "page_sha256": "85D9D14BBD8C18881983922C1376FD5B751CB289626D0036E2B5E1EF319DA78E",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -144,7 +144,7 @@
         "mask_get": "076C24237A3D9C32319DF0A4C5FB3B39EAD3D3481DF2E3D75993B42598A7E3AC",
         "mask_set": "417A88470F523C80BFBDB2DD6A0FB59BF4A2C50A394F8B544F72549521ED18C3",
         "mask_load_once": "1304268064B2D4AEEB16F212CC1F3878ECE88A9FE06B70E9A908E4AE2459B990",
-        "bighead_mask": "5CF60D775C3E561B6D307A161F9C743C695FB07C07CC064B5E8A18626A8A1C85"
+        "bighead_mask": "91D2221DE03FDB294E3BAB8449C1BA52211A3346B587A1E2BF85C54A4EBA0606"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -182,7 +182,7 @@
         "mask_get": 56,
         "mask_set": 88,
         "mask_load_once": 46,
-        "bighead_mask": 160
+        "bighead_mask": 185
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
@@ -244,7 +244,7 @@
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "E35A0159D7AC3B0576F776E629C50C784C03A87F756F5120D2F23A934EE89B45",
+      "page_sha256": "85D9D14BBD8C18881983922C1376FD5B751CB289626D0036E2B5E1EF319DA78E",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -281,7 +281,7 @@
         "mask_get": "076C24237A3D9C32319DF0A4C5FB3B39EAD3D3481DF2E3D75993B42598A7E3AC",
         "mask_set": "417A88470F523C80BFBDB2DD6A0FB59BF4A2C50A394F8B544F72549521ED18C3",
         "mask_load_once": "1304268064B2D4AEEB16F212CC1F3878ECE88A9FE06B70E9A908E4AE2459B990",
-        "bighead_mask": "5CF60D775C3E561B6D307A161F9C743C695FB07C07CC064B5E8A18626A8A1C85"
+        "bighead_mask": "91D2221DE03FDB294E3BAB8449C1BA52211A3346B587A1E2BF85C54A4EBA0606"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -319,7 +319,7 @@
         "mask_get": 56,
         "mask_set": 88,
         "mask_load_once": 46,
-        "bighead_mask": 160
+        "bighead_mask": 185
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",

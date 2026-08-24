@@ -83,6 +83,7 @@ BH_SY = 0x7B1D18
 BH_SF = 0x7B1D1C
 BH_SS = 0x7B1D70
 BH_SROW = 0x7B1D74
+BH_SCOL = 0x7B1D78   # resolved mask atlas column (facing) for the draw
 # Bighead mask atlas sprite id. A DEDICATED front-facing bighead mask atlas
 # (bigheads_masks.png, 1 col x 5 mask rows, bottom-aligned) is registered at the
 # free sprite-table slot 0x155 (record patched into .data at 0x4D2FA8) so the
@@ -91,7 +92,7 @@ BH_SROW = 0x7B1D74
 MASK_HANDLE = 0x155
 BIGHEAD_ATLAS_ID = 0x155
 BIGHEAD_ATLAS_REC_VA = 0x4CEFB8 + BIGHEAD_ATLAS_ID * 0x30   # 0x4D2FA8 (free slot)
-BIGHEAD_ATLAS_COLS = 1
+BIGHEAD_ATLAS_COLS = 3
 BIGHEAD_ATLAS_ROWS = 5
 # Portrait-mask tuning (all emitted as patchable immediates so they can be
 # dialed in live). BH_LIFT = pre-scale vertical lift (imm8, sub edx,LIFT).
@@ -100,11 +101,18 @@ BIGHEAD_ATLAS_ROWS = 5
 # mask atlas column: the Details portrait is front-facing and the 8-col heathen
 # atlas front frame is col 5 (the head atlas is 16-col, so its frame index maps
 # to the wrong mask column — use the known front column instead).
-BH_LIFT = 0x40
-BH_XOFF = 0x00
 BH_SCALE_MUL = 3
 BH_SCALE_SHIFT = 1   # scale = headScale * MUL >> SHIFT  (3>>1 = x1.5)
-BH_FRAME = 0         # bigheads_masks.png is 1-column (front only) -> frame 0
+BH_XOFF = 0x00       # base horizontal nudge (mask X = headX + XOFF; signed imm8)
+BH_LIFT = 0x14       # base vertical lift  (mask Y = headY - LIFT)
+# bigheads_masks.png is 3 columns = 3 head FACINGS (owner: col0=RIGHT turn,
+# col1=front, col2=LEFT turn), each pre-aligned to its facing's face-within-the-
+# sprite. So follow-the-face = pick the atlas COLUMN from the head's facing frame
+# (the mask then rotates AND tracks for free, VV2's atlas-baked method). The
+# Details idle head uses facings 3(turn)/4(front)/5(turn); map each frame&7 to a
+# column via this table (8 signed-byte entries, in the R+X page, live-tunable so
+# the left/right swap can be corrected without a rebuild).
+BH_COL_TABLE = [1, 1, 1, 2, 1, 0, 1, 1]   # head frame&7 -> mask column (front=1)
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -201,6 +209,7 @@ OFF = {
     "mask_set": 0x6C80,
     "mask_load_once": 0x6D00,
     "bighead_mask": 0x6D80,
+    "bighead_offsets": 0x6F00,
     "strings": 0x7000,
 }
 
@@ -241,6 +250,7 @@ SIZES = {
     "mask_set": 0x80,
     "mask_load_once": 0x80,
     "bighead_mask": 0x100,
+    "bighead_offsets": 0x10,
 }
 
 
@@ -3431,9 +3441,10 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         push dword ptr [esp+0x1C]
         call 0x409CA0
         mov eax, [esp+0x08]
-        sub eax, 0x{BH_XOFF:X}
+        add eax, 0x{BH_XOFF:X}
         mov dword ptr [0x{BH_SX:X}], eax
         mov eax, [esp+0x0C]
+        sub eax, 0x{BH_LIFT:X}
         mov dword ptr [0x{BH_SY:X}], eax
         mov eax, [esp+0x14]
         mov dword ptr [0x{BH_SF:X}], eax
@@ -3446,19 +3457,21 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         ja bh_ret
         dec eax
         mov dword ptr [0x{BH_SROW:X}], eax
+        mov ecx, dword ptr [0x{BH_SF:X}]
+        and ecx, 7
+        movzx ecx, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets']:X}]
+        mov dword ptr [0x{BH_SCOL:X}], ecx
         call 0x44FBB0
         mov ecx, eax
         push 0x{MASK_HANDLE:X}
         call 0x44FA30
-        mov edx, dword ptr [0x{BH_SY:X}]
-        sub edx, 0x{BH_LIFT:X}
         imul ecx, dword ptr [0x{BH_SS:X}], 0x{BH_SCALE_MUL:X}
         shr ecx, 0x{BH_SCALE_SHIFT:X}
         push 0
         push ecx
-        push 0x{BH_FRAME:X}
+        push dword ptr [0x{BH_SCOL:X}]
         push dword ptr [0x{BH_SROW:X}]
-        push edx
+        push dword ptr [0x{BH_SY:X}]
         push dword ptr [0x{BH_SX:X}]
         push eax
         mov ecx, dword ptr [esi + 0x2F2C]
@@ -3466,6 +3479,14 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     bh_ret:
         ret 0x1C
     """)
+    # Head-facing-frame -> mask-column table (8 bytes) in the R+X page, read-only
+    # and live-tunable. bigheads_masks.png is 3 facing columns; the head's own
+    # facing frame selects the aligned column so the mask rotates + tracks.
+    tbl_off = OFF["bighead_offsets"]
+    if any(page[tbl_off : tbl_off + SIZES["bighead_offsets"]]):
+        raise RuntimeError("bighead_offsets overlaps generated data")
+    for i, col in enumerate(BH_COL_TABLE):
+        page[tbl_off + i] = col & 0xFF
     return {
         "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
         "mask_load_once": load_once, "bighead_mask": bighead,

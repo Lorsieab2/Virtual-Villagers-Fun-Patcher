@@ -76,10 +76,12 @@ def test_bighead_routine_replays_head_then_blits_mask_atlas():
     assert "call 0x44fbb0" in text and "mov ecx, eax" in text  # atlas mgr this
     assert "push 0x155" in text and "call 0x44fa30" in text
     assert "mov ecx, dword ptr [esi + 0x2f2c]" in text         # drawlist this for the mask draw
-    # scale boost + a vertical lift (values tunable); bigheads_masks.png is 1-column
-    # (front only), so the mask column index is 0
+    # scale boost + a base vertical lift (values tunable)
     assert "imul ecx" in text
-    assert "sub edx," in text
+    assert "sub eax," in text
+    # bigheads_masks.png has 3 facing columns; the mask atlas COLUMN is selected
+    # from the head's facing frame (frame&7 -> column) so the mask rotates+tracks
+    assert "movzx ecx, byte ptr [ecx" in text                  # frame -> column table read
     # transient scratch stays in proven-free .data BSS, never a record write
     assert "mov dword ptr [0x7b1d14], eax" in text            # saved portrait X
     # cleans the caller's seven stdcall args exactly as the stock call would
