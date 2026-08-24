@@ -1466,33 +1466,32 @@ def main() -> None:
         """,
         DETAIL_PREFLIGHT_VA,
     )
+    # The DLL now owns the ENTIRE per-villager Change Appearance commit (chooser
+    # dialog + 5,000 charge + record head/body & .mtab mask writes + sidecar
+    # SAVE), so this handler is a trivial one-call bridge: resolve the villager
+    # record + index and hand (player, record, idx) to ShowVV2AppearanceChooser.
+    # Keeping it tiny is what guarantees it can never overrun its fixed 0x100 box
+    # (a past version that did the sidecar save exe-side overran the neighbour).
     appearance_helper_code = assemble(
         f"""
             push ebp
             mov ebp, esp
-            sub esp, 0x10
+            sub esp, 4
             push ebx
             push esi
             push edi
-            mov edi, dword ptr [esi + 0x0C]
-            mov ecx, dword ptr [edi + 0x304F0]
-            cmp ecx, 0x100
+            mov edi, dword ptr [esi + 0x0C]      /* player object */
+            mov eax, dword ptr [edi + 0x304F0]   /* selected villager index */
+            cmp eax, 0x100
             jae appearance_done
-            mov dword ptr [ebp - 0x10], ecx
-            imul ecx, ecx, 0xE48C
+            mov dword ptr [ebp - 4], eax         /* stash idx (edi/ebx survive the calls) */
+            imul eax, eax, 0xE48C
             mov ebx, dword ptr [esi + 0x10]
-            add ebx, ecx
+            add ebx, eax                         /* record base */
             cmp byte ptr [ebx + 0x30], 0
             je appearance_done
             cmp dword ptr [ebx + 0x52C], 0
             jle appearance_done
-            mov eax, dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}]
-            mov dword ptr [ebp - 4], eax
-            mov eax, dword ptr [ebx + 0x{VV2_BODY_FIELD:X}]
-            mov dword ptr [ebp - 8], eax
-            mov eax, dword ptr [ebp - 0x10]
-            movzx eax, byte ptr [eax + 0x{VV2_MASK_TABLE_VA:X}]
-            mov dword ptr [ebp - 0xC], eax
             push 0x{s['icons_dll']:X}
             call dword ptr [0x474010]
             test eax, eax
@@ -1502,37 +1501,10 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je appearance_done
-            lea ecx, [ebp - 0xC]
-            push ecx
-            lea ecx, [ebp - 8]
-            push ecx
-            lea ecx, [ebp - 4]
-            push ecx
-            push dword ptr [ebx + 0x530]
-            push dword ptr [ebx + 0x{VV2_SEX_FIELD:X}]
-            call eax
-            test eax, eax
-            je appearance_done
-            cmp byte ptr [ebx + 0x30], 0
-            je appearance_done
-            cmp dword ptr [ebx + 0x52C], 0
-            jle appearance_done
-            cmp dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
-            jb appearance_insufficient
-            sub dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
-            mov eax, dword ptr [ebp - 4]
-            mov dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}], eax
-            mov eax, dword ptr [ebp - 8]
-            mov dword ptr [ebx + 0x{VV2_BODY_FIELD:X}], eax
-            mov ecx, dword ptr [ebp - 0x10]
-            mov al, byte ptr [ebp - 0xC]
-            mov byte ptr [ecx + 0x{VV2_MASK_TABLE_VA:X}], al
-            jmp appearance_done
-        appearance_insufficient:
-            mov eax, 0x{s['not_enough']:X}
-            push eax
-            push 0x{s['detail_title']:X}
-            call 0x{show_message:X}
+            push dword ptr [ebp - 4]             /* idx */
+            push ebx                             /* record */
+            push edi                             /* player */
+            call eax                             /* ShowVV2AppearanceChooser(player, record, idx) @12 */
         appearance_done:
             pop edi
             pop esi

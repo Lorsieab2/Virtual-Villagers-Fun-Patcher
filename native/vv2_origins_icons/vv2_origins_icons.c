@@ -1076,25 +1076,46 @@ __declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_loa
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
 
-/* Reports the chosen head/body/mask indices back to the caller; the native handler
-   owns eligibility, the 5,000-tech charge, and the record + .mtab writes. The DLL
-   never touches the GAME save (only its own sidecar file, above). */
+/* Record field offsets + the per-villager cost, hoisted so the chooser (which now
+   owns the whole commit) can read/write the record and charge itself.
+   (VV2_SEX_OFFSET is already defined above.) */
+#define VV2_HEAD_OFFSET         0x548
+#define VV2_BODY_OFFSET         0x54C
+#define VV2_TECH_BALANCE_OFFSET 0x2EADC
+#define VV2_APPEARANCE_COST_DLL 5000
+
+/* Per-villager Change Appearance: the DLL owns the ENTIRE flow — chooser dialog,
+   the 5,000-tech charge, the record head/body + .mtab mask writes, and the
+   sidecar SAVE — so the exe handler is a trivial one-call bridge that can never
+   overrun its fixed 0x100 box (an earlier version that did the save exe-side
+   overran the neighbouring handler and crashed).  player = the Detail/Tech player
+   object (tech balance at +0x2EADC); record = the villager record base; idx = its
+   record index (the .mtab entry).  Returns 1 if a change was applied.  The DLL
+   only ever writes its own sidecar file, never the GAME save. */
 __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
-    int sex,
-    int age,
-    int *head,
-    int *body,
-    int *mask
+    void *player,
+    unsigned char *record,
+    int idx
 ) {
     INT_PTR result;
-    int orig_head, orig_body, orig_mask;
+    int *tech;
+    int sex, age, h, b, m, orig_head, orig_body, orig_mask;
+    if (player == 0 || record == 0 || idx < 0 || idx >= VV2_MASK_TABLE_BYTES) {
+        return 0;
+    }
+    tech = (int *)((unsigned char *)player + VV2_TECH_BALANCE_OFFSET);
+    sex = *(int *)(record + VV2_SEX_OFFSET);
+    age = *(int *)(record + VV_AGE_OFFSET);
+    h = *(int *)(record + VV2_HEAD_OFFSET);
+    b = *(int *)(record + VV2_BODY_OFFSET);
+    m = VV2_MASK_TABLE[idx];
     /* VV2 stores sex as 1 (male) or 2 (female); the stock renderer branches on
        `sex == 1` (0x4456A3). Match it: sex 1 -> male atlas (0), else female (1). */
     vv2_appearance_sex = (sex == 1) ? 0 : 1;
     vv2_appearance_old = age >= 1100 ? 1 : 0;
-    vv2_appearance_head = (head && *head >= 0 && *head < VV2_APPEARANCE_COUNT) ? *head : 0;
-    vv2_appearance_body = (body && *body >= 0 && *body < VV2_APPEARANCE_COUNT) ? *body : 0;
-    vv2_appearance_mask = (mask && *mask >= 0 && *mask < VV2_MASK_COUNT) ? *mask : 0;
+    vv2_appearance_head = (h >= 0 && h < VV2_APPEARANCE_COUNT) ? h : 0;
+    vv2_appearance_body = (b >= 0 && b < VV2_APPEARANCE_COUNT) ? b : 0;
+    vv2_appearance_mask = (m >= 0 && m < VV2_MASK_COUNT) ? m : 0;
     orig_head = vv2_appearance_head;
     orig_body = vv2_appearance_body;
     orig_mask = vv2_appearance_mask;
@@ -1106,41 +1127,37 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
         vv2_appearance_dialog,
         0
     );
-    if (result == 1) {
-        /* OK with nothing actually changed (opened and confirmed, or cycled the
-           selectors back to where they started): write nothing, charge nothing. */
-        if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body
-                && vv2_appearance_mask == orig_mask) {
-            ShowVV2UpgradeResult(
-                VV2_ACT_DETAIL_APPEARANCE, VV2_RES_NO_CHANGE, 0, 0, 0, 0
-            );
+    if (result != 1) {
+        return 0;
+    }
+    /* OK with nothing actually changed: write nothing, charge nothing. */
+    if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body
+            && vv2_appearance_mask == orig_mask) {
+        ShowVV2UpgradeResult(VV2_ACT_DETAIL_APPEARANCE, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
+        return 0;
+    }
+    /* The head field is hereditary, so changing it affects descendants.  Warn and
+       let the player back out with no write and no charge. */
+    if (vv2_appearance_head != orig_head) {
+        if (MessageBoxA(
+                GetForegroundWindow(),
+                "Warning: This will change the villager's head genetics.",
+                "Change Appearance",
+                MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND
+            ) != IDOK) {
             return 0;
         }
-        /* The head field is hereditary (record +0x548), so changing it affects
-           this villager's descendants.  Warn explicitly before committing, and
-           let the player back out with no write and no charge. */
-        if (vv2_appearance_head != orig_head) {
-            if (MessageBoxA(
-                    GetForegroundWindow(),
-                    "Warning: This will change the villager's head genetics.",
-                    "Change Appearance",
-                    MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND
-                ) != IDOK) {
-                return 0;
-            }
-        }
-        if (head) {
-            *head = vv2_appearance_head;
-        }
-        if (body) {
-            *body = vv2_appearance_body;
-        }
-        if (mask) {
-            *mask = vv2_appearance_mask;
-        }
-        return 1;
     }
-    return 0;
+    if (*tech < VV2_APPEARANCE_COST_DLL) {
+        ShowVV2UpgradeResult(VV2_ACT_DETAIL_APPEARANCE, VV2_RES_INSUFFICIENT, 0, 0, 0, 0);
+        return 0;
+    }
+    *tech -= VV2_APPEARANCE_COST_DLL;
+    *(int *)(record + VV2_HEAD_OFFSET) = vv2_appearance_head;
+    *(int *)(record + VV2_BODY_OFFSET) = vv2_appearance_body;
+    VV2_MASK_TABLE[idx] = (unsigned char)vv2_appearance_mask;
+    vv2_mask_sidecar_save();   /* persist the mask table right after committing */
+    return 1;
 }
 
 /* ---- Change Appearance for All (214): per-sex Head/Body/Mask + distribution
