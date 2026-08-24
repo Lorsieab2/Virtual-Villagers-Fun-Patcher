@@ -203,6 +203,12 @@ DRAW_Y_OFFSET = 0x27 + CELL_TOP  # native head draws at +0x27 (39); 39-85 = -46
 PREVIEW_FRAME = 5           # front-facing column, same as HEAD_FRAME in
 PREVIEW_BG = (236, 236, 236)  # build_vv1_appearance_bitmaps.py
 PREVIEW_CELL_H = HEAD_CELL_H
+# Cross-game mask-size parity (VV2 = canonical reference): every game autocrops
+# the front-frame mask blob and fits it into a (40 - 2*PAD) x (65 - 2*PAD) box
+# with PAD = 2 (~90% fill of the 40x65 source cell), scaling UP small blobs as
+# well as down. That keeps the on-screen mask footprint identical across all
+# five games' Change Appearance pickers regardless of each atlas's native size.
+PREVIEW_PAD = 2
 
 
 # A facing's cell must contain that facing's mask and nothing else. Art wider
@@ -319,12 +325,16 @@ def build_preview_strip(sheets: dict[str, Image.Image]) -> bytes:
         )
         bbox = cell.getbbox()
         art = cell.crop(bbox) if bbox else cell
-        scale = min(CELL_W / art.width, PREVIEW_CELL_H / art.height, 1.0)
-        if scale < 1.0:
-            art = art.resize(
-                (max(1, int(art.width * scale)), max(1, int(art.height * scale))),
-                Image.LANCZOS,
-            )
+        # Normalize to ~90% fill of the 40x65 cell (PAD inset on every side),
+        # scaling UP as well as down so a small blob matches the other games'
+        # footprint -- no 1.0 cap. See PREVIEW_PAD above.
+        avail_w = CELL_W - 2 * PREVIEW_PAD
+        avail_h = PREVIEW_CELL_H - 2 * PREVIEW_PAD
+        scale = min(avail_w / art.width, avail_h / art.height)
+        new_w = max(1, round(art.width * scale))
+        new_h = max(1, round(art.height * scale))
+        if (new_w, new_h) != (art.width, art.height):
+            art = art.resize((new_w, new_h), Image.LANCZOS)
         flat = Image.new("RGB", (CELL_W, PREVIEW_CELL_H), PREVIEW_BG)
         flat.paste(
             art,
