@@ -130,14 +130,27 @@ static void vv1_mask_set(unsigned char *villager, unsigned char value) {
         : (unsigned char)((*slot & 0xF0) | value);
 }
 
+/* Per-slot "has this slot ever been seen occupied" latch (DLL BSS, zeroed at
+   load). The sweep may only clear a slot that was seen ALIVE and is now free --
+   never a slot that has simply not loaded yet. */
+static unsigned char vv1_mask_seen_alive[VV_MASK_SLOTS];
+
 /* Slot-reuse guard. The mask table is keyed by record INDEX, so if a masked
    villager dies and a NEW villager is later born into the same record slot,
    the newcomer would inherit the dead villager's mask. Rather than a
    collidable fingerprint (villagers can share names/ages/stats by luck, and
-   their skills/likes are mutated by upgrades), this deterministically clears
-   any table entry whose record slot is not currently occupied -- a freed slot
-   has no mask, full stop. Runs off the villager-array base the render hook
-   stashes each frame; fail-safe when the engine isn't running yet (base 0). */
+   their skills/likes are mutated by upgrades), this clears a table entry whose
+   record slot has gone free.
+
+   CRITICAL (VV2 lesson): only clear a slot that was SEEN alive at least once
+   and is now free -- do NOT clear a slot that has never loaded yet. The sidecar
+   restore runs at startup, BEFORE the .ldw populates the villager array, so at
+   that point every record reads occupied!=1; the old unconditional sweep wiped
+   every just-restored mask right there, which is why masks vanished on reload
+   and only came back when Change Appearance reloaded the sidecar with the
+   village already live. Latching on seen-alive makes the startup sweep a no-op
+   (nothing has been seen alive yet) while still clearing genuinely dead slots
+   once the village is running. Fail-safe when the engine isn't up (base 0). */
 static void vv1_mask_sweep_dead(void) {
     unsigned char *base = VV_MASK_MANAGER;
     int index;
@@ -148,7 +161,11 @@ static void vv1_mask_sweep_dead(void) {
         unsigned char *rec = base + (size_t)index * VV_RECORD_STRIDE;
         unsigned char *slot;
         if (rec[VV_OCCUPIED_OFFSET] == 1) {
-            continue;  /* live villager -> keep its mask */
+            vv1_mask_seen_alive[index] = 1;  /* latch: this slot IS a real villager */
+            continue;                        /* live villager -> keep its mask */
+        }
+        if (!vv1_mask_seen_alive[index]) {
+            continue;  /* never loaded yet (e.g. startup restore) -> DON'T wipe */
         }
         slot = &VV_MASK_TABLE[index >> 1];
         *slot = (index & 1)

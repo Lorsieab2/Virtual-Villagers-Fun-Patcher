@@ -69,7 +69,7 @@ COLOURS = ["blue", "orange", "red", "purple", "chief"]
 # rest: locate each facing's head by its magenta hair, locate the mask over
 # it, subtract.
 PACKED = "packed-atlas"
-CHIEF_DY = -2  # px lift for the packed chief frames (playtest: up 3 from -5)
+CHIEF_DY = 1   # px lift for the packed chief frames (playtest: up 3 more)
 CHIEF_DX = 2   # px rightward nudge for the packed chief frames (playtest: left 3)
 # The chief is a packed atlas anchored to the OTHER colours' median mask
 # centre/chin. That coupling meant tuning a gridded colour (e.g. lifting
@@ -89,10 +89,10 @@ CHIEF_REFERENCE = [
 ]
 
 MASK_OFFSETS = {
-    "blue": (24, -47),  # playtest: up 10 (too low on adults)
-    "orange": (21, -44),  # playtest: up 10
-    "red": (21, -60),  # playtest: up 10
-    "purple": (4, -48),  # playtest: up 10
+    "blue": (22, -47),  # playtest: up 10, left 2
+    "orange": (21, -46),  # playtest: up 10, up 2 more
+    "red": (21, -62),  # playtest: up 10, up 2 more
+    "purple": (4, -50),  # playtest: up 10, up 2 more
     # Chief is a PACKED ATLAS, not a strip. Its seven frames sit at irregular
     # x and in two vertical rows -- solving for a single cell origin is
     # infeasible (frame 0 requires ox <= -4 while frame 3 requires ox >= 4), so
