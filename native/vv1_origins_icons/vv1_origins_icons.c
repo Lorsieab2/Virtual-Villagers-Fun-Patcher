@@ -305,6 +305,135 @@ static void vv1_mask_sidecar_load(void) {
     CloseHandle(file);
 }
 
+/* ---- Details-screen portrait ("bighead") mask overlay --------------------
+   The world mask hook draws masks in the village loop (sub_437790); the
+   Details portrait renders through a SEPARATE scaled compositor (sub_437340 ->
+   the shared scaled draw sub_409410). This overlays the mask on that portrait
+   by re-issuing the engine's OWN scaled draw with a mask sprite built through
+   the engine's OWN sprite-from-file constructor, so the engine scales the mask
+   to the age-scaled portrait exactly like it scaled the head -- for free, at
+   any size (VV2's method). Everything is done via engine calls; the DLL never
+   writes foreign memory (Malwarebytes-safe).
+
+   Atlas Images/mask_atlas.png = 7 facing-cols x 5 colour-rows, 40x160 cells
+   (same grid as the world sheets). The portrait is a fixed FRONT view, so the
+   cell is always colour_row*7 + FRONT_COL. The exe cave captures the head's own
+   scale arg off the stack and hands it in, so no scale math is needed here. */
+#define VV_RENDERER_OFFSET   0x3E00C   /* [gameobj+..] = scaled-draw "this" */
+#define VV_ANIMPARAM_OFFSET  0x3E030   /* [gameobj+..] = the head-draw arg4 */
+#define VV_PORTRAIT_X        0x78
+#define VV_PORTRAIT_Y        0x102
+#define VV_MASK_FRONT_COL    5         /* front-facing column (== the head's) */
+#define VV_MASK_ATLAS_COLS   7
+/* Tunables -- the portrait drifts differently than the world; adjust from a
+   screenshot. LIFT is added to the engine's own head scale arg. */
+#define VV_PORTRAIT_MASK_DX   0
+#define VV_PORTRAIT_MASK_DY   0
+#define VV_PORTRAIT_MASK_LIFT 0
+
+/* Engine functions are called directly by their fixed .text addresses (stable
+   -- patches live in .shr caves and never move .text). The two engine calls
+   here are __thiscall (this in ecx, callee cleans the stack); MSVC in C mode
+   won't take __thiscall on a function-pointer typedef, so they go through
+   inline asm, which also lets us match the exact push order + ret-size. The
+   plain operator-new is __cdecl and goes through a typedef. */
+typedef void * (__cdecl *vv_new_fn)(unsigned int size);
+#define VV_ADDR_OPERATOR_NEW  0x0044AF03u
+#define VV_ADDR_SPRITE_CTOR   0x0040A070u   /* thiscall(this,file,cols,rows) ret 0xC */
+#define VV_ADDR_SCALED_DRAW   0x00409410u   /* thiscall(this,atlas,x,a2,idx,a4,scale) ret 0x18 */
+
+static void *vv_portrait_mask_sprite = NULL;  /* 0 = untried, 1 = failed, else sprite */
+
+static void *vv1_portrait_mask_atlas(void) {
+    void *obj, *built;
+    const char *file = "mask_atlas.png";
+    int cols = VV_MASK_ATLAS_COLS, rows = 5;
+    if (vv_portrait_mask_sprite != NULL) {
+        return (vv_portrait_mask_sprite == (void *)1) ? NULL : vv_portrait_mask_sprite;
+    }
+    obj = ((vv_new_fn)VV_ADDR_OPERATOR_NEW)(0x34);   /* operator new(0x34) */
+    if (obj == NULL) {
+        vv_portrait_mask_sprite = (void *)1;          /* don't retry */
+        return NULL;
+    }
+    built = NULL;
+    __asm {
+        push rows
+        push cols
+        push file
+        mov  ecx, obj
+        mov  eax, VV_ADDR_SPRITE_CTOR
+        call eax                 /* thiscall; callee cleans the 3 args (ret 0xC) */
+        mov  built, eax
+    }
+    vv_portrait_mask_sprite = (built == NULL) ? (void *)1 : built;
+    return (vv_portrait_mask_sprite == (void *)1) ? NULL : built;
+}
+
+/* Called from the portrait head-draw splice AFTER the head is drawn.
+   gameobj (esi) and record (edi) come from sub_437340; head_scale is the exact
+   scale arg the head was just drawn with (captured off the stack by the cave).
+   Draws the villager's mask over the portrait head at the same place/scale. */
+__declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
+                                                        void *record,
+                                                        int head_scale) {
+    unsigned char *g = (unsigned char *)gameobj;
+    unsigned char *rec = (unsigned char *)record;
+    unsigned char packed, mask;
+    void *sprite, *renderer;
+    size_t delta;
+    int index, cell;
+    if (g == NULL || rec == NULL || rec < g) {
+        return 0;
+    }
+    /* villager index from THIS gameobj (record = gameobj + index*stride), not
+       the world hook's cached base -- so it's correct in the Details context. */
+    delta = (size_t)(rec - g);
+    if ((delta % VV_RECORD_STRIDE) != 0) {
+        return 0;
+    }
+    index = (int)(delta / VV_RECORD_STRIDE);
+    if (index < 0 || index >= VV_MASK_SLOTS) {
+        return 0;
+    }
+    packed = VV_MASK_TABLE[index >> 1];
+    mask = (index & 1) ? (unsigned char)(packed >> 4) : (unsigned char)(packed & 0x0F);
+    if (mask == 0 || mask > 5) {
+        return 0;                                  /* no mask -> nothing to draw */
+    }
+    sprite = vv1_portrait_mask_atlas();
+    if (sprite == NULL) {
+        return 0;
+    }
+    renderer = *(void **)(g + VV_RENDERER_OFFSET);
+    if (renderer == NULL) {
+        return 0;
+    }
+    cell = (mask - 1) * VV_MASK_ATLAS_COLS + VV_MASK_FRONT_COL;
+    {
+        int xx = VV_PORTRAIT_X + VV_PORTRAIT_MASK_DX;
+        int yy = VV_PORTRAIT_Y + VV_PORTRAIT_MASK_DY;
+        int a4 = *(int *)(g + VV_ANIMPARAM_OFFSET);
+        int sc = head_scale + VV_PORTRAIT_MASK_LIFT;
+        /* Re-issue the engine's own scaled draw with the mask atlas at the same
+           front cell + the head's own scale -- identical push order to
+           sub_437340's head draw (scale, a4, index, y, x, atlas; this=ecx),
+           thiscall so the callee cleans all 6 args (ret 0x18). */
+        __asm {
+            push sc
+            push a4
+            push cell
+            push yy
+            push xx
+            push sprite
+            mov  ecx, renderer
+            mov  eax, VV_ADDR_SCALED_DRAW
+            call eax
+        }
+    }
+    return 1;
+}
+
 /* Exe-callable, exported so the patch can restore masks once at startup
    (outside the loader lock). __stdcall/no args to match the exe's own
    GetProcAddress-and-call convention for the other Origins exports. */

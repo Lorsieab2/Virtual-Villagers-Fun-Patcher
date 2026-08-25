@@ -77,14 +77,21 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "63CB33A95A00E194547370F24644869943BE36AB894A6653134BC4CD8E8D1D88",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "089BDFB34B9F511E91C8AEE56BB9D6F621FB5F67277CC1261BD95113EF0CD8EC",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "E864559CCAEBBED919B968C6FAB4FC257707E2E16588963A4579DC450EDA4C1D",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
-    ("vv1_enable_origins_exclusive_features", "0x4A700"): "6E694BC407929D6DC65AC27472DB30C15511C57DE6842BE4C4B19E796E5738BF",
+    ("vv1_enable_origins_exclusive_features", "0x4A700"): "40F8B782E7FA6AE75CD1FE7BEB78F3B709E8B278C640453DA9DBA60C70905D48",
     ("vv1_enable_origins_exclusive_features", "0x8B004"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
-    ("vv1_enable_origins_exclusive_features", "0x24103"): "A48286DA0D0681086ABEEF63BBEF8A7F81AC65F5A45835B0509DCEBC343679E0",
+    ("vv1_enable_origins_exclusive_features", "0x24103"): "0B4C8F5AAFAE151BEA41084E5C7CEE4075A1646423A44D1E9E0E36A3C818E4D5",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "62DCC4DD0BBD934EC1215760BA817F5DB8E5F5CAB857E30A1D4B79DAD6875173",
     ("vv1_enable_origins_exclusive_features", "0x913C"): "1135C1CB91F00D2CA0B9283251E0D35FA2F92BB967288CA9D2454C3B9E5EA120",
+    # Details portrait mask overlay splice: replaces sub_437340's head-draw call
+    # with a jmp to the portrait cave, which reproduces the head draw, then
+    # resolves + calls the DLL's Vv1DrawPortraitMask before re-entering stock at
+    # the natural resume 0x437420 (auto-excluded). Touches only EAX/EBX/ECX/EDX
+    # (EBX = the captured head scale, restored by nothing since the tail just
+    # pops ESI/EDI and returns); ESI/EDI/EBP reach the resume unchanged.
+    ("vv1_enable_origins_exclusive_features", "0x3741B"): "6273A50BC9100E05DDDD0423B55E8B2E26AE9BFB3D2A13032D6AA667771D3086",
     ("vv1_f6_clothing_change_cheat", "0x1FF2E"): "A00945F8D66A35B8BDB078E933690DDE5B048C60287B716EED0276AC20A07F3E",
     ("vv1_magic_fruit_alters_mortality", "0x2EEAA"): "81719DCFD4BC20C6F136E88308A12EDFA14447AF58E3B8B6DC239BBF4053BF10",
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",

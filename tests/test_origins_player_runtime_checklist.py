@@ -265,6 +265,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # which grew the draw hook past the 0x8BEA8 cave, so it
                         # relocated to its own confirmed-zero .shr gap.
                         "0x8B080",
+                        # Details-screen portrait mask overlay: splice on
+                        # sub_437340's head-draw call (0x3741B) -> a cave in the
+                        # .shr tail (0x8BF3C) that reproduces the head draw then
+                        # calls the DLL's Vv1DrawPortraitMask. The new export
+                        # string reshuffles later .rdata string pointers.
+                        "0x3741B",
+                        "0x8BF3C",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],
