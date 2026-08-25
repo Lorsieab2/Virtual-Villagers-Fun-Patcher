@@ -448,17 +448,19 @@ static void caf_charge(int delta) {
 
 /* Hair-colour buckets (head-atlas rows) for the "All <colour> Hair" options.
    Seeded from the hair-band median RGB then hand-verified against a labelled
-   render; adjust an index here if any head is miscategorised. */
+   render (VV2 principle: RED = only clearly-ginger / high-saturation warm hair;
+   auburn/dark-gold reads as BROWN; dyed green/blue and grey elder hair -> OTHER).
+   adjust an index here if any head is miscategorised. */
 static const unsigned char CAF_M_BLACK[]  = {0,1,2,4,5,7,19};
-static const unsigned char CAF_M_BROWN[]  = {3};
-static const unsigned char CAF_M_RED[]    = {8,9,10,11,12,13,14,16,17,20,21,22};
-static const unsigned char CAF_M_BLONDE[] = {15,18,23,24,25,26,27,28,29};
-static const unsigned char CAF_M_OTHER[]  = {6};
-static const unsigned char CAF_F_BLACK[]  = {0,1,2,3,4,5,6};
-static const unsigned char CAF_F_BROWN[]  = {8,10,12,18,29};
-static const unsigned char CAF_F_RED[]    = {7,9,13,15,16,17,20,22,23};
-static const unsigned char CAF_F_BLONDE[] = {24,25,26,27,28};
-static const unsigned char CAF_F_OTHER[]  = {11,14,19,21};
+static const unsigned char CAF_M_BROWN[]  = {6,8,9,10,12,13,16};
+static const unsigned char CAF_M_RED[]    = {11,20,21,22};
+static const unsigned char CAF_M_BLONDE[] = {14,15,17,18,23,24,25,26,27,28,29};
+static const unsigned char CAF_M_OTHER[]  = {3};
+static const unsigned char CAF_F_BLACK[]  = {0,1,2,3,4,6};
+static const unsigned char CAF_F_BROWN[]  = {8,10,11,12,13,14,16,20,23};
+static const unsigned char CAF_F_RED[]    = {7,9,15,17,19,22};
+static const unsigned char CAF_F_BLONDE[] = {24,25,26,27,28,29};
+static const unsigned char CAF_F_OTHER[]  = {5,18,21};
 
 /* dialog state: per-sex cyclers ([0]=male,[1]=female); -1 = "No change". */
 static int caf_body[2];
