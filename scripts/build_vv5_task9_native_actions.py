@@ -227,6 +227,7 @@ OFF = {
     "bighead_mask": 0x6D80,
     "bighead_offsets": 0x6F00,
     "slot_capture": 0x6F20,
+    "mask_birth_clear": 0x6F60,
     "strings": 0x7000,
 }
 
@@ -270,6 +271,7 @@ SIZES = {
     "bighead_mask": 0x100,
     "bighead_offsets": 0x10,
     "slot_capture": 0x40,
+    "mask_birth_clear": 0x40,
 }
 
 
@@ -3596,10 +3598,39 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         sub esp, 0x104
         jmp 0x403606
     """)
+    # mask_birth_clear: detour target for the villager BIRTH function sub_4687F0
+    # (thiscall, ecx = the newborn record; it copies parent fields + sets active
+    # +0x1CD4=1). A newborn reuses a freed record slot, so without this it would
+    # inherit the dead prior occupant's mask nibble. Clear the newborn's nibble via
+    # mask_set(esi=record, bl=0) so every new villager starts maskless; masks set
+    # later by the appearance chooser are untouched, and LOADED villagers never go
+    # through birth so their persisted masks survive. Side-table only -- never
+    # touches the record or save. All registers preserved (ecx=this is restored),
+    # then the displaced 6-byte prologue is replayed and control returns to 0x4687F6.
+    birth_clear = put(page, page_va, "mask_birth_clear", f"""
+        push ecx
+        push esi
+        push ebx
+        push eax
+        push edx
+        mov esi, ecx
+        xor ebx, ebx
+        call 0x{page_va + OFF['mask_set']:X}
+        pop edx
+        pop eax
+        pop ebx
+        pop esi
+        pop ecx
+        push ebx
+        push esi
+        mov esi, ecx
+        xor ebx, ebx
+        jmp 0x4687F6
+    """)
     return {
         "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
         "mask_load_once": load_once, "bighead_mask": bighead,
-        "slot_capture": slot_capture,
+        "slot_capture": slot_capture, "mask_birth_clear": birth_clear,
     }
 
 
@@ -3980,6 +4011,26 @@ def main() -> None:
             "before": slot_preimage,
             "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "90",
             "purpose": "Per-slot mask sidecar: capture the current save slot from buildSavePath so the companion DLL keys vvfp_masks_<slot>.dat per village (fixes cross-slot mask bleed)",
+        })
+    # Slot-reuse guard: clear a newborn's mask nibble at birth. A dead villager
+    # frees its record slot; the next newborn reuses that index and would inherit
+    # the dead one's persisted mask. sub_4687F0 is the villager BIRTH ctor (thiscall,
+    # ecx = newborn record; copies parent fields, sets active +0x1CD4=1) and fires
+    # ONLY on real births -- loaded villagers never pass through it, so their masks
+    # survive. Detour its 6-byte entry prologue to mask_birth_clear, which zeroes the
+    # newborn's side-table nibble then replays the prologue. Side-table only.
+    birth_site = 0x4687F0
+    birth_preimage = "53568BF133DB"            # push ebx;push esi;mov esi,ecx;xor ebx,ebx (6 bytes)
+    if stock[birth_site - 0x400000 : birth_site - 0x400000 + 6].hex().upper() != birth_preimage:
+        raise RuntimeError("villager-birth prologue preimage drift at 0x4687F0")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        rel = (page_va + OFF["mask_birth_clear"]) - (birth_site + 5)
+        result["patch_mode_overrides"].setdefault(mode, []).append({
+            "offset": f"0x{birth_site - 0x400000:X}",
+            "before": birth_preimage,
+            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "90",
+            "purpose": "Heathen mask slot-reuse guard: clear a newborn villager's mask nibble at birth so it never inherits the dead prior slot occupant's mask",
         })
     # Register the dedicated bighead mask atlas (bigheads_masks.png) as a new
     # sprite-table record in the free slot 0x155 (0x4D2FA8 in .data). The stock

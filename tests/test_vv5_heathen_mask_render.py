@@ -181,6 +181,38 @@ def test_slot_capture_routine_records_current_save_slot():
     assert t9.BH_SCOL < t9.SLOT_SCRATCH < 0x7B1D80
 
 
+def test_birth_clear_zeroes_newborn_mask_and_replays_prologue():
+    page, rmap = t9.build_page(STOCK_PAGE_VA)
+    ins = _routine(page, rmap, "mask_birth_clear")
+    text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
+    # clears the newborn's nibble via mask_set(esi=record, bl=0)
+    assert "mov esi, ecx" in text                            # esi = newborn record
+    assert "xor ebx, ebx" in text                            # bl = 0 (clear)
+    assert f"call 0x{STOCK_PAGE_VA + t9.OFF['mask_set']:x}" in text
+    # preserves ecx (this) across the mask_set call
+    assert ins[0].mnemonic == "push" and ins[0].op_str == "ecx"
+    # replays the displaced 6-byte prologue and returns just past it
+    assert ins[-1].mnemonic == "jmp" and int(ins[-1].op_str, 16) == 0x4687F6
+
+
+def test_stock_modes_declare_the_birth_clear_detour():
+    import json
+    manifest = json.loads((ROOT / "data/vv5_task9_native_actions.json").read_text(encoding="utf-8"))
+    for mode in ("collection_progression", "immediate_fixed"):
+        by_off = {int(p["offset"], 0): p for p in manifest["patch_mode_overrides"][mode]}
+        page_va = t9.LAYOUTS[mode]["page_va"]
+        cap = by_off[0x687F0]
+        assert cap["before"] == "53568BF133DB"               # push ebx;push esi;mov esi,ecx;xor ebx,ebx
+        assert cap["after"].startswith("E9") and cap["after"].endswith("90")
+        assert len(bytes.fromhex(cap["after"])) == 6
+        rel = int.from_bytes(bytes.fromhex(cap["after"])[1:5], "little", signed=True)
+        assert 0x400000 + 0x687F0 + 5 + rel == page_va + t9.OFF["mask_birth_clear"]
+    # expanded (disabled) modes must NOT carry the birth-clear detour
+    for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
+        offs = {int(p["offset"], 0) for p in manifest["patch_mode_overrides"].get(mode, [])}
+        assert 0x687F0 not in offs
+
+
 def test_stock_modes_declare_the_slot_capture_detour():
     import json
     manifest = json.loads((ROOT / "data/vv5_task9_native_actions.json").read_text(encoding="utf-8"))
