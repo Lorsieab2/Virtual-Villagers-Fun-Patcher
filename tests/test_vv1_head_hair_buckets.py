@@ -43,8 +43,11 @@ class VV1HeadHairBucketTests(unittest.TestCase):
         )
 
     def test_every_head_bucketed_once_and_no_empty_bucket(self):
-        for fname in ("head_m.bmp", "head_f.bmp"):
-            buckets, _ = self.m._bucket_file(self.m.APPEARANCE / fname)
+        for fname, cap in (
+            ("head_m.bmp", self.m.HEAD_COUNT_M),
+            ("head_f.bmp", self.m.HEAD_COUNT_F),
+        ):
+            buckets, _ = self.m._bucket_file(self.m.APPEARANCE / fname, cap)
             with self.subTest(sheet=fname):
                 flat = [v for bucket in buckets for v in bucket]
                 # every variant appears exactly once across the five buckets

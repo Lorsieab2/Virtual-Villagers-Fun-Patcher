@@ -78,9 +78,20 @@ def _classify(rgb):
     return OTHER               # near-grey / off-spectrum / dyed
 
 
-def _bucket_file(path):
+# Valid head-variant domain per sex, mirroring the DLL's VV_HEAD_COUNT_M/F and
+# the per-sex Head cyclers (which run 0..18 for males, 0..19 for females). The
+# male sheet has a 20th cell (index 19) that the game reserves for the special
+# status-199 appearance -- it is NOT a normal male head, so it must never be
+# handed out by "All <colour> Hair". Bucket only the valid domain.
+HEAD_COUNT_M = 19  # males: indices 0..18 (19 is the reserved status-199 head)
+HEAD_COUNT_F = 20  # females: indices 0..19 all valid
+
+
+def _bucket_file(path, max_variants=None):
     im = Image.open(path).convert("RGB")
     variants = im.height // CELL_H
+    if max_variants is not None:
+        variants = min(variants, max_variants)
     buckets = [[] for _ in range(5)]
     detail = []
     for v in range(variants):
@@ -93,8 +104,8 @@ def _bucket_file(path):
 
 
 def build_header() -> str:
-    male, _ = _bucket_file(APPEARANCE / "head_m.bmp")
-    female, _ = _bucket_file(APPEARANCE / "head_f.bmp")
+    male, _ = _bucket_file(APPEARANCE / "head_m.bmp", HEAD_COUNT_M)
+    female, _ = _bucket_file(APPEARANCE / "head_f.bmp", HEAD_COUNT_F)
 
     def arr(name, buckets):
         rows = []

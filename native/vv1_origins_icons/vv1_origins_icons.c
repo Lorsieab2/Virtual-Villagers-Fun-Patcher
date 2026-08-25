@@ -290,19 +290,19 @@ static void vv1_mask_sidecar_load(void) {
  * up (base 0) or the village is empty. */
 #define VV_GOLDEN_CHILD_PTR (*(unsigned char **)0x0048B614) /* current golden child record, 0=none */
 
-__declspec(dllexport) void __stdcall Vv1MaskApplyDistribution(int mode,
-                                                              int single_mask) {
+__declspec(dllexport) int __stdcall Vv1MaskApplyDistribution(int mode,
+                                                             int single_mask) {
     unsigned char *base = VV_MASK_MANAGER;
     int rec_index[VV_MASK_SLOTS];
     unsigned char is_male[VV_MASK_SLOTS];
     unsigned char out[VV_MASK_SLOTS];
     int scratch[VV_MASK_SLOTS];
-    int count = 0, golden = -1, i;
+    int count = 0, golden = -1, i, nchanged = 0;
     unsigned int rng;
     unsigned char *golden_rec;
 
     if (base == NULL) {
-        return;
+        return 0;
     }
     /* compact list of the currently occupied villagers */
     for (i = 0; i < VV_MASK_SLOTS; i++) {
@@ -316,7 +316,7 @@ __declspec(dllexport) void __stdcall Vv1MaskApplyDistribution(int mode,
         count++;
     }
     if (count == 0) {
-        return;
+        return 0;
     }
     /* map the golden child's record pointer to a position in the compact list */
     golden_rec = VV_GOLDEN_CHILD_PTR;
@@ -353,16 +353,29 @@ __declspec(dllexport) void __stdcall Vv1MaskApplyDistribution(int mode,
         vv1_dist_single(count, (unsigned char)single_mask, out);
         break;
     }
-    /* write results into the mask table by record index, then persist */
+    /* write results into the mask table by record index, counting only slots
+       that actually change (so an apply that lands every villager on the mask
+       they already wear -- e.g. "None" over an already-unmasked village --
+       reports 0 changes and the caller charges nothing), then persist. */
     for (i = 0; i < count; i++) {
         int idx = rec_index[i];
         unsigned char *slot = &VV_MASK_TABLE[idx >> 1];
         unsigned char v = out[i];
+        unsigned char old = (idx & 1)
+            ? (unsigned char)(*slot >> 4)
+            : (unsigned char)(*slot & 0x0F);
+        if (old == v) {
+            continue;
+        }
         *slot = (idx & 1)
             ? (unsigned char)((*slot & 0x0F) | (v << 4))
             : (unsigned char)((*slot & 0xF0) | v);
+        nchanged++;
     }
-    vv1_mask_sidecar_save();
+    if (nchanged) {
+        vv1_mask_sidecar_save();
+    }
+    return nchanged;
 }
 
 __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
@@ -991,41 +1004,59 @@ static int forall_apply(void) {
         male = (*(int *)(rec + VV_GENDER_OFFSET) == VV_GENDER_MALE);
         hcount = male ? VV_HEAD_COUNT_M : VV_HEAD_COUNT_F;
         bcount = male ? VV_BODY_COUNT_M : VV_BODY_COUNT_F;
-        /* HEAD */
+        /* HEAD -- count a change only when the field actually differs, so an
+           apply that re-selects a value every villager already has bills
+           nothing (see the no-charge-if-nothing-changed contract). */
         if (ho == 0) {
             int h = male ? forall_state.male_head : forall_state.female_head;
-            if (h != FORALL_NO_CHANGE) { *(int *)(rec + VV_HEAD_OFFSET) = h; changed++; }
+            if (h != FORALL_NO_CHANGE && *(int *)(rec + VV_HEAD_OFFSET) != h) {
+                *(int *)(rec + VV_HEAD_OFFSET) = h; changed++;
+            }
         } else if (ho == 1) {
+            int h;
             forall_state.rng = forall_state.rng * 1664525u + 1013904223u;
-            *(int *)(rec + VV_HEAD_OFFSET) = (int)((forall_state.rng >> 16) % (unsigned int)hcount);
-            changed++;
+            h = (int)((forall_state.rng >> 16) % (unsigned int)hcount);
+            if (*(int *)(rec + VV_HEAD_OFFSET) != h) {
+                *(int *)(rec + VV_HEAD_OFFSET) = h; changed++;
+            }
         } else {
             int h = vv1_head_pick(male, ho - 2, &forall_state.rng);
-            if (h >= 0) { *(int *)(rec + VV_HEAD_OFFSET) = h; changed++; }
+            if (h >= 0 && *(int *)(rec + VV_HEAD_OFFSET) != h) {
+                *(int *)(rec + VV_HEAD_OFFSET) = h; changed++;
+            }
         }
         /* BODY */
         if (bo == 0) {
             int b = male ? forall_state.male_body : forall_state.female_body;
-            if (b != FORALL_NO_CHANGE) { *(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++; }
+            if (b != FORALL_NO_CHANGE && *(int *)(rec + VV_CLOTHING_OFFSET) != b) {
+                *(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++;
+            }
         } else {  /* bo == 1: random by gender */
+            int b;
             forall_state.rng = forall_state.rng * 1664525u + 1013904223u;
-            *(int *)(rec + VV_CLOTHING_OFFSET) = (int)((forall_state.rng >> 16) % (unsigned int)bcount);
-            changed++;
+            b = (int)((forall_state.rng >> 16) % (unsigned int)bcount);
+            if (*(int *)(rec + VV_CLOTHING_OFFSET) != b) {
+                *(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++;
+            }
         }
         /* MASK: per-sex only when there is no whole-village mask override */
         if (mo == 0) {
             int m = male ? forall_state.male_mask : forall_state.female_mask;
-            if (m != FORALL_NO_CHANGE) { vv1_mask_set(rec, (unsigned char)m); changed++; }
+            if (m != FORALL_NO_CHANGE && vv1_mask_get(rec) != (unsigned char)m) {
+                vv1_mask_set(rec, (unsigned char)m); changed++;
+            }
         }
     }
     if (mo != 0 && occ > 0) {
+        /* Whole-village mask override -- charge only for villagers whose mask
+           actually changed (Vv1MaskApplyDistribution returns that count and
+           persists the sidecar itself only when something changed). */
         if (mo >= 1 && mo <= 4) {
-            Vv1MaskApplyDistribution(mo, 0);           /* distribution mode */
+            changed += Vv1MaskApplyDistribution(mo, 0);      /* distribution mode */
         } else {
-            Vv1MaskApplyDistribution(0, mo - 10);      /* 10..15 -> single 0..5 */
+            changed += Vv1MaskApplyDistribution(0, mo - 10); /* 10..15 -> single 0..5 */
         }
-        changed++;
-        return changed;  /* Vv1MaskApplyDistribution already persisted the sidecar */
+        return changed;
     }
     if (changed) {
         vv1_mask_sidecar_save();

@@ -15,7 +15,7 @@ static const unsigned char vv1_head_bucket_m[VV_HAIR_COLOURS][20] = {
     { 0, 1, 2 },
     { 3, 5, 6, 10, 18 },
     { 7 },
-    { 4, 16, 19 },
+    { 4, 16 },
 };
 static const unsigned char vv1_head_bucket_f[VV_HAIR_COLOURS][20] = {
     { 1, 4, 7, 9, 13, 16 },
@@ -24,7 +24,7 @@ static const unsigned char vv1_head_bucket_f[VV_HAIR_COLOURS][20] = {
     { 2, 3, 12, 18 },
     { 0, 6, 11, 17, 19 },
 };
-static const int vv1_head_bucket_m_count[VV_HAIR_COLOURS] = { 8, 3, 5, 1, 3 };
+static const int vv1_head_bucket_m_count[VV_HAIR_COLOURS] = { 8, 3, 5, 1, 2 };
 static const int vv1_head_bucket_f_count[VV_HAIR_COLOURS] = { 6, 1, 4, 4, 5 };
 
 static int vv1_head_pick(int sex, int colour, unsigned int *rng) {
