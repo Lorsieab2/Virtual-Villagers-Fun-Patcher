@@ -61,18 +61,19 @@ __declspec(dllexport) void __stdcall VV3WorldMaskFlush(void);
    publish the INTERCEPT variant (called from the head-draw call site with the
    head's exact x/y/scale). */
 #define VV3_WORLD_DRAWFN_PTR_SLOT  0x006C7A04u
-/* The mask draw is now SPLIT into two hooks so it lands on TOP of the front-hair:
-   the head-draw call site STASHES the head's x/y/scale (VV3WorldMaskDrawAt), and the
-   post-hair convergence point DRAWS the stashed mask (VV3WorldMaskFlush).  The flush
-   cave reads this second fixed .data slot (next free dword after the draw slot). */
-#define VV3_WORLD_FLUSHFN_PTR_SLOT 0x006C7A08u
+/* Z-ORDER (final): the mask is drawn by the wrapper spliced at the per-villager handler's
+   CALL SITE (0x42E3F5) -- it runs the whole handler, then calls VV3WorldMaskDraw(index),
+   which the wrapper reads from this fixed .data slot.  Recomputed from the record, so it
+   catches EVERY villager (children included) and lands on top of all layers.  (The old
+   head-site stash path VV3WorldMaskDrawAt/Flush is retained but unused.) */
+#define VV3_WORLD_INDEXFN_PTR_SLOT 0x006C7A08u
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
         module_instance = instance;
         *(void **)(UINT_PTR)VV3_WORLD_DRAWFN_PTR_SLOT  = (void *)&VV3WorldMaskDrawAt;
-        *(void **)(UINT_PTR)VV3_WORLD_FLUSHFN_PTR_SLOT = (void *)&VV3WorldMaskFlush;
+        *(void **)(UINT_PTR)VV3_WORLD_INDEXFN_PTR_SLOT = (void *)&VV3WorldMaskDraw;
     }
     return TRUE;
 }
@@ -644,20 +645,32 @@ int g_vv3_world_facing_off = 0xF18; /* RECORD offset of the 0..7 facing COLUMN. 
 int g_vv3_world_facing_remap = 0;   /* +(mod 8) to rotate columns if head/mask order differ */
 #define VV3_WORLD_CARRIED_OFF   0xF12 /* byte !=0 => carried/held (half-scale) -> skip */
 
+/* Draw the world mask for one villager INDEX, on top of the fully-drawn villager.
+   Called from the wrapper spliced at the handler's SOLE call site (0x42E3F5): the whole
+   villager (head, hair, overlays, action, props) is drawn by sub_4605F0, THEN this runs
+   -> guaranteed last layer.  Everything is recomputed from the RECORD (not a stashed head
+   draw), so it works for EVERY villager regardless of which internal draw path they took
+   -- crucially CHILDREN, who branch past the 0x460A60 head draw (je/jl 0x460A92) and so
+   were never seen by the old head-site hook.  Position (sub_455EF0) and scale (sub_455E50,
+   age-derived) come straight from the record, so the mask tracks each villager's age/size
+   -- the child fix VV5 pointed to (mask shares the head's age scale). */
 __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
 {
     void *record = (void *)(UINT_PTR)(VV3_REC_BASE + (unsigned)index * VV3_STRIDE);
-    int mask;
+    int mask, x, y, cell, facing;
     void *atlas;
     int pos[2];
     double scale;
-    float fscale;
-    int x, y, cell;
+    float fscale, liftsc, floor;
     if (index < 0 || index >= 150) {
         return;
     }
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) {
+        return;
+    }
+    /* skip carried/held villagers (drawn half-scale at the carrier's hand) */
+    if (*((unsigned char *)record + VV3_WORLD_CARRIED_OFF) != 0) {
         return;
     }
     atlas = VV3GetMaskAtlas();
@@ -680,13 +693,29 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
         fstp scale
     }
     fscale = (float)scale;
+    /* FACING: villager 0..7 direction from record+0xF18 (VV5's direct head-column analog),
+       live-tunable offset+remap; g_vv3_world_facing >= 0 forces a column. */
+    if (g_vv3_world_facing >= 0) {
+        facing = g_vv3_world_facing & 7;
+    } else {
+        facing = ((*(int *)((unsigned char *)record + g_vv3_world_facing_off))
+                  + g_vv3_world_facing_remap) & 7;
+    }
+    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
+    /* child lift boost: floor the scale used for the LIFT (not the draw) so small
+       villagers still lift the tall cell onto the head */
+    liftsc = fscale;
+    floor = g_vv3_world_liftfloor * 0.01f;
+    if (liftsc < floor) {
+        liftsc = floor;
+    }
     /* Anchor on the villager's HEAD, matching sub_4605F0's head draw
        (head = base - scale*{HEAD_DX,HEAD_DY}); the extra lift raises the taller
-       mask cell so the face seats on the head.  All three are scale-relative so
-       the mask tracks the villager's age/perspective size. */
-    x    = pos[0] - (int)(scale * VV3_WORLD_HEAD_DX) + g_vv3_world_dx;
-    y    = pos[1] - (int)(scale * (VV3_WORLD_HEAD_DY + g_vv3_world_lift)) + g_vv3_world_dy;
-    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + (g_vv3_world_facing & 7);
+       mask cell so the face seats on the head.  All scale-relative so the mask
+       tracks the villager's age/perspective size (children included). */
+    x = pos[0] - (int)(scale * VV3_WORLD_HEAD_DX) + (int)(g_vv3_world_dx * fscale);
+    y = pos[1] - (int)(scale * VV3_WORLD_HEAD_DY)
+              - (int)(g_vv3_world_lift * liftsc) + (int)(g_vv3_world_dy * fscale);
     __asm {
         mov  eax, fscale                 /* a6 = villager scale (float bits) */
         push eax

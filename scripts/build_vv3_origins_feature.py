@@ -103,10 +103,21 @@ WORLD_DRAWFN_PTR = 0x6C7A04               # DLL publishes VV3WorldMaskDrawAt (st
 # record+0xF11 (has-hair): bald villagers `je 0x460A8E`, so detouring the hair call alone
 # would drop their masks.  0x460A8E is the CONVERGENCE both paths reach (post-hair for
 # haired, hair-skipped for bald) -> the one universal, per-villager last-layer spot.
-# The 0xE80 payload block is full, so the flush trampoline lives in the large zero
-# padding cave at the tail of .text (0x47B254, 0xDAC bytes of 0x00, R+X, non-ASLR).
-WORLD_MASK_FLUSH_CAVE_VA = 0x47B260       # .text padding cave (>=30 bytes of zeros)
-WORLD_MASK_CONVERGE_VA = 0x460A8E         # post-hair convergence in sub_4605F0
+# Z-ORDER (final): WRAP the per-villager handler's CALL SITE instead of hooking inside it.
+# sub_4605F0 (the case-8 villager handler) draws head->hair->overlays->action->props; any
+# in-function hook draws too early (covered by later layers) AND risks stealing a jump
+# target (0x460A8E stole 0x460A92, branched from 0x4609D8/0x4609E6 -> children/special
+# villagers corrupted).  Its SOLE call site 0x42E3F5 (`call 0x4605F0`, a 5-byte E8 that is
+# never a branch target -- verified 0 xrefs into its bytes) is the clean wrap point: run
+# the whole handler, THEN draw the mask = guaranteed LAST layer, correct inter-villager
+# z-order, no stolen bytes.  Handler is `ret 4` (1 arg = villager INDEX; record = base +
+# index*0x1F8C).  The head-site cave still STASHES the exact head x/y/scale during the
+# handler; the wrapper then flushes that stash on top.
+# The 0xE80 payload block is full, so the wrapper lives in the .text tail padding cave
+# (0x47B254, 0xDAC bytes of 0x00, R+X, non-ASLR).
+WORLD_MASK_WRAPPER_CAVE_VA = 0x47B260     # .text padding cave (>=32 bytes of zeros)
+WORLD_HANDLER_CALLSITE_VA = 0x0042E3F5    # sole `call 0x4605F0` in the flush dispatch
+WORLD_HANDLER_FN = 0x004605F0             # the per-villager handler we wrap (ret 4)
 WORLD_FLUSHFN_PTR = 0x6C7A08              # DLL publishes VV3WorldMaskFlush here
 
 # Complete/Reset all Collections action caves live in a free executable-.rdata
@@ -1611,64 +1622,36 @@ def main() -> None:
         f"jmp 0x{MASK_CAVE_VA:X}", MASK_HOOK_VA
     ) + b"\x90" * (MASK_HOOK_LEN - 5)
 
-    # Village/world mask cave: INTERCEPT the head draw.  At the redirected call site
-    # esi=record, ecx=mgr, and the 5 head-draw args are on the stack
-    # ([esp+4]=headSprite, +8=x, +0xC=y, +0x10=scale, +0x14=flag).  We (1) re-issue
-    # the identical head draw with a COPY of the 5 args (sub_42E570 is ret 0x14 so it
-    # cleans the copies, leaving the originals), then (2) hand the DLL the record + a
-    # pointer to those originals; it draws the mask through the SAME manager at the
-    # head's exact x/y/scale.  A null DLL ptr just leaves the plain head.  esi and the
-    # callee-saved regs survive both calls (thiscall/stdcall preserve them).
-    put(
-        WORLD_MASK_CAVE_VA,
+    # Village/world mask WRAPPER: replace the per-villager handler's SOLE call site
+    # (0x42E3F5: `call 0x4605F0`) with `call <wrapper>`.  The wrapper runs the ENTIRE
+    # handler (head, hair, all overlays, action, props), THEN draws the mask -> guaranteed
+    # LAST layer (fixes "behind the hair") with correct inter-villager z-order, and no
+    # stolen jump target (a call site is never a branch target).
+    #   Handler is `ret 4`, arg = villager INDEX (record = base + index*0x1F8C), ecx = base.
+    #   At entry: [esp]=return(0x42E3FA), [esp+4]=index, ecx=0x59E110.
+    #   We RE-PUSH the index for the inner call (its own extra return address would otherwise
+    #   shift the handler's [esp+0x48] arg read by one slot -> garbage record).  After the
+    #   handler returns (its ret 4 cleans the re-push), we call VV3WorldMaskDraw(index),
+    #   which recomputes pos/scale/facing from the record and blits the mask on top.  The
+    #   DLL fn is __stdcall @4 (cleans its own arg).  Finally ret 4 cleans the original
+    #   index -> identical net stack effect to the original `call 0x4605F0`.  ecx is left
+    #   untouched before the inner call so 0x59E110 reaches the handler as `this`.
+    world_mask_wrapper_cave = assemble(
         f"""
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            mov ecx, 0x58F6F8
-            call 0x{WORLD_HEAD_DRAW_VA:X}
-            mov eax, dword ptr [0x{WORLD_DRAWFN_PTR:X}]
-            test eax, eax
-            je world_mask_done
-            lea edx, [esp + 4]
-            push edx
-            push esi
-            call eax
-        world_mask_done:
-            ret 0x14
-        """,
-    )
-    world_mask_redirect = assemble(
-        f"call 0x{WORLD_MASK_CAVE_VA:X}", WORLD_MASK_CALLSITE_VA
-    )
-
-    # Post-hair convergence cave: draw the STASHED mask on TOP of the front-hair.  We
-    # steal the two instructions at 0x460A8E (mov edi,[esp+0x2C]; mov edx,[esi+0xF14] =
-    # 4+6 = 10 bytes), call the DLL flush (which draws from the stash the head site left),
-    # then REPLAY those two instructions and return.  pushad/pushfd wrap the insert so
-    # the game sees untouched regs+flags; a null flush ptr just skips (plain hair).  esp
-    # is restored by popad before the [esp+0x2C] replay, and esi (record) is preserved.
-    world_mask_flush_cave = assemble(
-        f"""
-            pushad
-            pushfd
+            push dword ptr [esp + 4]
+            call 0x{WORLD_HANDLER_FN:X}
             mov eax, dword ptr [0x{WORLD_FLUSHFN_PTR:X}]
             test eax, eax
-            je world_flush_done
+            je world_wrap_done
+            push dword ptr [esp + 4]
             call eax
-        world_flush_done:
-            popfd
-            popad
-            mov edi, dword ptr [esp + 0x2C]
-            mov edx, dword ptr [esi + 0xF14]
-            jmp 0x{WORLD_MASK_CONVERGE_VA + 10:X}
+        world_wrap_done:
+            ret 4
         """,
-        WORLD_MASK_FLUSH_CAVE_VA,
+        WORLD_MASK_WRAPPER_CAVE_VA,
     )
-    world_mask_flush_redirect = rel32_jump(
-        WORLD_MASK_CONVERGE_VA, WORLD_MASK_FLUSH_CAVE_VA, 10
+    world_mask_wrapper_redirect = assemble(
+        f"call 0x{WORLD_MASK_WRAPPER_CAVE_VA:X}", WORLD_HANDLER_CALLSITE_VA
     )
 
     # Complete all Collections: mark collectible ids 52..99 found in the native
@@ -1865,22 +1848,16 @@ def main() -> None:
         "redirect the villager head-draw through the Heathen-mask cave",
     )
     patch(
-        WORLD_MASK_CALLSITE_VA - IMAGE_BASE,
-        original[WORLD_MASK_CALLSITE_VA - IMAGE_BASE : WORLD_MASK_CALLSITE_VA - IMAGE_BASE + 5],
-        world_mask_redirect,
-        "redirect the village per-villager draw through the world Heathen-mask cave",
+        WORLD_MASK_WRAPPER_CAVE_VA - IMAGE_BASE,
+        original[WORLD_MASK_WRAPPER_CAVE_VA - IMAGE_BASE : WORLD_MASK_WRAPPER_CAVE_VA - IMAGE_BASE + len(world_mask_wrapper_cave)],
+        world_mask_wrapper_cave,
+        "world-mask wrapper cave: run the whole villager handler, then draw the mask on top",
     )
     patch(
-        WORLD_MASK_FLUSH_CAVE_VA - IMAGE_BASE,
-        original[WORLD_MASK_FLUSH_CAVE_VA - IMAGE_BASE : WORLD_MASK_FLUSH_CAVE_VA - IMAGE_BASE + len(world_mask_flush_cave)],
-        world_mask_flush_cave,
-        "post-hair convergence cave: flush the stashed world mask over the front-hair",
-    )
-    patch(
-        WORLD_MASK_CONVERGE_VA - IMAGE_BASE,
-        original[WORLD_MASK_CONVERGE_VA - IMAGE_BASE : WORLD_MASK_CONVERGE_VA - IMAGE_BASE + 10],
-        world_mask_flush_redirect,
-        "draw the stashed world mask on top of the front-hair (post-hair convergence)",
+        WORLD_HANDLER_CALLSITE_VA - IMAGE_BASE,
+        original[WORLD_HANDLER_CALLSITE_VA - IMAGE_BASE : WORLD_HANDLER_CALLSITE_VA - IMAGE_BASE + 5],
+        world_mask_wrapper_redirect,
+        "wrap the per-villager handler call so the mask draws as the last layer",
     )
     # (No head-atlas row-count bump: the separate-atlas method draws the mask from
     # its own Images/heathen_masks.png, so the head atlases are left untouched.)
