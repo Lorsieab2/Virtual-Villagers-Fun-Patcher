@@ -213,10 +213,16 @@ static int vv1_mask_sidecar_path(char *out, size_t n) {
     char exe[MAX_PATH];
     char *base;
     char *dot;
+    DWORD exelen;
     if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) {
         return 0;
     }
-    if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) {
+    /* Reject a truncated path: GetModuleFileNameA returns nSize when the real
+       path is >= the buffer, and on some Windows versions leaves it without a
+       NUL terminator, so `== 0` alone would let a truncated/unterminated `exe`
+       through. Fail open (masks just aren't persisted) rather than parse it. */
+    exelen = GetModuleFileNameA(NULL, exe, MAX_PATH);
+    if (exelen == 0 || exelen >= MAX_PATH) {
         return 0;
     }
     base = strrchr(exe, '\\');
