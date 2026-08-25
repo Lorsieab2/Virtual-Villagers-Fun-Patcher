@@ -27,6 +27,7 @@ FILES = [
     "assets/origins/m3.png",
     "assets/origins/m4.png",
     "assets/origins/m5.png",
+    "assets/origins/mask_atlas.png",
     "assets/statistics/VVFP Statistics Export.dll",
     "data/builds.json",
     "data/expanded_256.json",

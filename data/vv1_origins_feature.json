@@ -43,6 +43,11 @@
       "source": "assets/origins/m5.png",
       "destination": "Images/m5.png",
       "sha256": "936C5EF2D59E62F18204B5FE2C19E11D94A9BC09469E83697207B2AD2E0C5D75"
+    },
+    {
+      "source": "assets/origins/mask_atlas.png",
+      "destination": "Images/mask_atlas.png",
+      "sha256": "3E79BB89CBA9CE75F771FEF92BA7EDE4E0444F71EAABA2F6E6D3DCA190CB0897"
     }
   ],
   "doubler_evidence": {

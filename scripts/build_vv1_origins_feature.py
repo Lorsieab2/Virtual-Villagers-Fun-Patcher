@@ -2818,6 +2818,17 @@ def main() -> None:
                 ).hexdigest().upper(),
             }
             for n in range(1, 6)
+        ] + [
+            {
+                # Portrait ("bighead") mask atlas: the DLL's Vv1DrawPortraitMask
+                # builds an engine sprite from Images/mask_atlas.png, so it must
+                # ship alongside the per-colour world sheets (m1-m5).
+                "source": "assets/origins/mask_atlas.png",
+                "destination": "Images/mask_atlas.png",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets" / "origins" / "mask_atlas.png").read_bytes()
+                ).hexdigest().upper(),
+            }
         ],
         "doubler_evidence": {
             "positive_tech_writer": "0x41D120",
