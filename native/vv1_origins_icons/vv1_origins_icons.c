@@ -1376,6 +1376,7 @@ static const char *vv1_tech_row_name(int row) {
     case 8: return "All Villagers are Exactly 18";
     case 9: return "Equal Division of Labor (Includes Parenting)";
     case 10: return "Equal Division of Labor (No Parenting)";
+    case 11: return "Change Appearance for All";
     default: return "Origins upgrade";
     }
 }

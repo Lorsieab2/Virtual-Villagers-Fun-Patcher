@@ -2378,8 +2378,10 @@ def main() -> None:
             mov eax, dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4]
             test eax, eax
             jnz mask2_have_surface
-            # Lazy load once per colour per process; NULL stays cached so a
-            # missing/broken PNG degrades to no-mask instead of crashing.
+            # Lazy load once per colour per process. A successful load caches
+            # the surface; a FAILED load caches a non-NULL sentinel (1, never a
+            # real pointer) so a missing/broken PNG is not re-IMG_Load'd every
+            # frame -- it stays "no mask" cheaply. (0 stays "not tried yet".)
             # Path string picked by index (choice-1)*0x10 -- no in-place write
             # into executable memory (W^X).
             mov eax, ebx
@@ -2388,10 +2390,14 @@ def main() -> None:
             push eax
             call {IMG_LOAD_THUNK_VA:#x}
             add esp, 4
+            test eax, eax
+            jnz mask2_store_surface
+            mov eax, 1                    # failed-load sentinel
+        mask2_store_surface:
             mov dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4], eax
         mask2_have_surface:
-            test eax, eax
-            jz mask2_next
+            cmp eax, 1                    # sentinel -> tried & failed; skip, no reload
+            je mask2_next
             mov edx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
             test edx, edx
             jz mask2_next
