@@ -629,8 +629,11 @@ int g_vv3_world_dx     = 15;   /* live-tuned X nudge: +right / -left (scaled px)
 int g_vv3_world_dy     = 0;    /* live-tuned Y nudge: +down / -up (scaled px)       */
 int g_vv3_world_liftfloor = 78;/* min scale%% used for the LIFT only, so small/child */
                                /* villagers lift enough (else masks sit low on kids) */
+int g_vv3_world_facing_off = 0xF14; /* RECORD offset of the 0..7 facing (live-tuned:  */
+                               /* found by sampling -- record+0xF14 changes as villagers */
+                               /* turn + feeds sub_4605F0's head render; +0xF18 alt)    */
+int g_vv3_world_facing_remap = 0;   /* +(mod 8) to rotate columns if head/mask order differ */
 #define VV3_WORLD_CARRIED_OFF   0xF12 /* byte !=0 => carried/held (half-scale) -> skip */
-#define VV3_WORLD_HEADFRAME_OFF 0x30  /* head atlas obj current-frame field (obj[0xc]) */
 
 __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
 {
@@ -718,13 +721,15 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     y = args[2];
     scaleBits = args[3];
     fscale = *(float *)&scaleBits;
-    /* FACING: read the head atlas's current frame (args[0] = head sprite obj, a
-       fixed frame-indexed atlas whose frame is set per-villager before the head
-       draw) -> column = frame & 7.  g_vv3_world_facing >= 0 forces a column (debug). */
+    /* FACING: read the villager's 0..7 direction from the RECORD (record+0xF14, the
+       field sub_4605F0 uses to index the head render; changes as villagers turn).
+       Offset + remap are live-tunable so we can A/B +0xF14 vs +0xF18 and rotate the
+       column order to match the mask atlas.  g_vv3_world_facing >= 0 forces a column. */
     if (g_vv3_world_facing >= 0) {
         facing = g_vv3_world_facing & 7;
     } else {
-        facing = (*(int *)((unsigned char *)args[0] + VV3_WORLD_HEADFRAME_OFF)) & 7;
+        facing = ((*(int *)((unsigned char *)record + g_vv3_world_facing_off))
+                  + g_vv3_world_facing_remap) & 7;
     }
     cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
     /* child lift boost: floor the scale used for the LIFT (not the draw) so small
