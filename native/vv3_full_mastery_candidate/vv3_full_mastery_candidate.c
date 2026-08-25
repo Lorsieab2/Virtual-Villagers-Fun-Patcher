@@ -629,9 +629,11 @@ int g_vv3_world_dx     = 15;   /* live-tuned X nudge: +right / -left (scaled px)
 int g_vv3_world_dy     = 0;    /* live-tuned Y nudge: +down / -up (scaled px)       */
 int g_vv3_world_liftfloor = 78;/* min scale%% used for the LIFT only, so small/child */
                                /* villagers lift enough (else masks sit low on kids) */
-int g_vv3_world_facing_off = 0xF14; /* RECORD offset of the 0..7 facing (live-tuned:  */
-                               /* found by sampling -- record+0xF14 changes as villagers */
-                               /* turn + feeds sub_4605F0's head render; +0xF18 alt)    */
+int g_vv3_world_facing_off = 0xF18; /* RECORD offset of the 0..7 facing COLUMN.  VV5's */
+                               /* native mask render confirmed: +0xF14 is the x8 POSITION */
+                               /* term (VV5 +0x1D00); the direct atlas COLUMN the head    */
+                               /* (and mask) uses is the ADJACENT field +0xF18 (VV5       */
+                               /* +0x1D04), range 0..7 = 8 directions. K=0 (same column). */
 int g_vv3_world_facing_remap = 0;   /* +(mod 8) to rotate columns if head/mask order differ */
 #define VV3_WORLD_CARRIED_OFF   0xF12 /* byte !=0 => carried/held (half-scale) -> skip */
 
