@@ -299,11 +299,17 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("Farming", contract["food_mastery_status"])
         self.assertIn("Herb Mastery", contract["food_mastery_status"])
         runtime = {"patches": manifest["patches"]}
+        # Pins the exact runtime patch set. Re-pinned after PR #97 (b5deea9) added
+        # the Heathen-mask / Change-Appearance dispatch code, which edits only the
+        # non-doubler entries 0x9AD20, 0x9AE40, and the 0x296-0x48B region of 0x943A8.
+        # The doubler wrapper regions in 0x943A8 (tech 0x820:0x8A0, food 0x8A0:0x960)
+        # and the positive writers 0x26290/0x262B0 are byte-for-byte unchanged, as
+        # the inventory/wrapper/_call_target assertions above independently verify.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "A0287B207BB010AFA69C8EB70AA0BCE48266E496DE22C721F93DD730C611E70A",
+            "91B222CFADF05EF9AC5C5B33B578A8841CE421EB9E329CC45F996D04F5DE3553",
         )
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
