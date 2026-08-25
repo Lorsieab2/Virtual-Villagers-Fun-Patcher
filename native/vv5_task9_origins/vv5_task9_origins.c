@@ -9,10 +9,16 @@
    not re-run get_save_path, so an exe save-hook never fires). Instead the native
    code writes it from the chooser (WriteMaskSidecar, on OK) and reads it back on
    the first village frame (ReadMaskSidecar). Both build the path here in clean C,
-   next to the game's own save: Documents\LDW\<exe-basename>\vvfp_masks.dat. Keyed
-   by villager record index (positional + stable across reload). The sidecar is a
-   SEPARATE file from the .ldw, so it can never corrupt a save. */
+   next to the game's own save: Documents\LDW\<exe-basename>\vvfp_masks_<slot>.dat.
+   Keyed by villager record index (positional + stable across reload) AND by save
+   slot: the exe-side slot_capture detour on buildSavePath stashes the current
+   village slot at 0x7B1D7C, so each village keeps its own sidecar instead of one
+   shared file bleeding masks across slots. The sidecar is a SEPARATE file from the
+   .ldw, so it can never corrupt a save. */
 #define MASK_TABLE_BYTES 75
+/* Current save slot, written by the exe slot_capture detour (0 until the first
+   save/load; village slots are >=1, slot 0 is the meta file). */
+#define VV5_SLOT_SCRATCH 0x007B1D7Cu
 
 static HINSTANCE module_instance;
 static HWND origins_owner;
@@ -81,6 +87,7 @@ static int build_mask_sidecar_path(char *out) {
     char exe[MAX_PATH];
     char *base;
     char *dot;
+    int slot = *(volatile int *)VV5_SLOT_SCRATCH;
     if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) {
         return 0;
     }
@@ -99,7 +106,14 @@ static int build_mask_sidecar_path(char *out) {
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks.dat", docs, base);
+    /* Key per save slot when known (village slots are >=1). Before the first
+       save/load the scratch is 0; fall back to the legacy unsuffixed name so a
+       pre-load read never points at a slot-specific file that does not exist. */
+    if (slot > 0) {
+        wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
+    } else {
+        wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks.dat", docs, base);
+    }
     return 1;
 }
 

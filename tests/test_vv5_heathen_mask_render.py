@@ -161,3 +161,36 @@ def test_stock_modes_declare_the_three_render_detours():
     for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
         offs = {int(p["offset"], 0) for p in manifest["patch_mode_overrides"].get(mode, [])}
         assert 0x72481 not in offs and 0x72B0F not in offs and 0x66E05 not in offs
+        assert 0x3600 not in offs                              # no slot_capture detour either
+
+
+def test_slot_capture_routine_records_current_save_slot():
+    page, rmap = t9.build_page(STOCK_PAGE_VA)
+    ins = _routine(page, rmap, "slot_capture")
+    text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
+    # reads the slot arg (a2 at [esp+4], return addr at [esp]) on buildSavePath entry
+    assert "mov eax, dword ptr [esp + 4]" in text
+    # stores it only when non-zero, so the meta file's slot 0 never clobbers a village slot
+    assert "test eax, eax" in text
+    assert f"mov dword ptr [0x{t9.SLOT_SCRATCH:x}], eax" in text
+    # replays the displaced prologue and returns just past it
+    assert "sub esp, 0x104" in text
+    assert ins[-1].mnemonic == "jmp" and int(ins[-1].op_str, 16) == 0x403606
+    # the capture scratch is the last free .data BSS dword, before the stock globals
+    assert t9.SLOT_SCRATCH == 0x7B1D7C
+    assert t9.BH_SCOL < t9.SLOT_SCRATCH < 0x7B1D80
+
+
+def test_stock_modes_declare_the_slot_capture_detour():
+    import json
+    manifest = json.loads((ROOT / "data/vv5_task9_native_actions.json").read_text(encoding="utf-8"))
+    for mode in ("collection_progression", "immediate_fixed"):
+        by_off = {int(p["offset"], 0): p for p in manifest["patch_mode_overrides"][mode]}
+        page_va = t9.LAYOUTS[mode]["page_va"]
+        cap = by_off[0x3600]
+        assert cap["before"] == "81EC04010000"               # sub esp, 0x104 (6 bytes)
+        assert cap["after"].startswith("E9")                 # jmp rel32 ...
+        assert cap["after"].endswith("90")                   # ... + 1 nop = 6 bytes
+        assert len(bytes.fromhex(cap["after"])) == 6         # exactly overwrites the stolen 6 bytes
+        rel = int.from_bytes(bytes.fromhex(cap["after"])[1:5], "little", signed=True)
+        assert 0x400000 + 0x3600 + 5 + rel == page_va + t9.OFF["slot_capture"]

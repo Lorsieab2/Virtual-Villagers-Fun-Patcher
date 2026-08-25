@@ -84,6 +84,13 @@ BH_SF = 0x7B1D1C
 BH_SS = 0x7B1D70
 BH_SROW = 0x7B1D74
 BH_SCOL = 0x7B1D78   # resolved mask atlas column (facing) for the draw
+# Current save-slot capture (DWORD) in the last free .data BSS dword of the
+# proven-free window: 0x7B1D7C..0x7B1D7F (past BH_SCOL at 0x78, before the stock
+# globals that begin at 0x7B1D80). Zero at launch (BSS). The slot_capture detour
+# on buildSavePath (sub_403600) writes the game's current save slot here (only
+# when slot != 0, so the meta file's slot 0 never clobbers the village slot); the
+# companion DLL reads it to key the mask sidecar per slot (vvfp_masks_<slot>.dat).
+SLOT_SCRATCH = 0x7B1D7C
 # Bighead mask atlas sprite id. A DEDICATED front-facing bighead mask atlas
 # (bigheads_masks.png, 1 col x 5 mask rows, bottom-aligned) is registered at the
 # free sprite-table slot 0x155 (record patched into .data at 0x4D2FA8) so the
@@ -219,6 +226,7 @@ OFF = {
     "mask_load_once": 0x6D00,
     "bighead_mask": 0x6D80,
     "bighead_offsets": 0x6F00,
+    "slot_capture": 0x6F20,
     "strings": 0x7000,
 }
 
@@ -261,6 +269,7 @@ SIZES = {
     "mask_load_once": 0x80,
     "bighead_mask": 0x100,
     "bighead_offsets": 0x10,
+    "slot_capture": 0x40,
 }
 
 
@@ -3570,9 +3579,27 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # table, indexed by the mask row (mask-1).
     for i, dy in enumerate(BH_ROWDY_TABLE):
         page[tbl_off + 11 + i] = dy & 0xFF
+    # slot_capture: detour target for buildSavePath (sub_403600). On every save
+    # AND load the game builds "<base><slot>.ldw" through sub_403600(this, slot);
+    # this cave records the current slot so the DLL can key the mask sidecar per
+    # save slot (fixing cross-slot bleed). Read-only w.r.t. save logic: it stashes
+    # the slot only when non-zero (slot 0 = the meta file, never a village), then
+    # runs the displaced `sub esp,0x104` prologue and returns to 0x403606. Because
+    # eax is clobbered by the original next instruction (mov eax, security_cookie),
+    # the cave is free to use it without preserving.
+    slot_capture = put(page, page_va, "slot_capture", f"""
+        mov eax, dword ptr [esp + 4]
+        test eax, eax
+        jz sc_skip
+        mov dword ptr [0x{SLOT_SCRATCH:X}], eax
+    sc_skip:
+        sub esp, 0x104
+        jmp 0x403606
+    """)
     return {
         "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
         "mask_load_once": load_once, "bighead_mask": bighead,
+        "slot_capture": slot_capture,
     }
 
 
@@ -3933,6 +3960,26 @@ def main() -> None:
             "before": bighead_preimage,
             "after": "E8" + rel.to_bytes(4, "little", signed=True).hex().upper(),
             "purpose": "Heathen mask: on the Details villager portrait, replay the head draw then blit the chosen mask atlas over it (the portrait compositor draws no mask natively)",
+        })
+    # Per-slot mask sidecar: capture the game's current save slot so the companion
+    # DLL keys the mask sidecar file per slot (vvfp_masks_<slot>.dat) instead of one
+    # shared vvfp_masks.dat that bleeds one village's masks onto another. buildSavePath
+    # theGameState::sub_403600(this, slot) is the single choke point that formats
+    # "<base><slot>.ldw" on every save and load; detour its clean 6-byte prologue
+    # (`sub esp,0x104`) to the page's slot_capture cave, which stashes the slot (when
+    # non-zero) and replays the prologue. Read-only w.r.t. the save itself.
+    slot_site = 0x403600
+    slot_preimage = "81EC04010000"             # sub esp, 0x104 (6 bytes)
+    if stock[slot_site - 0x400000 : slot_site - 0x400000 + 6].hex().upper() != slot_preimage:
+        raise RuntimeError("buildSavePath prologue preimage drift at 0x403600")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        rel = (page_va + OFF["slot_capture"]) - (slot_site + 5)
+        result["patch_mode_overrides"].setdefault(mode, []).append({
+            "offset": f"0x{slot_site - 0x400000:X}",
+            "before": slot_preimage,
+            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "90",
+            "purpose": "Per-slot mask sidecar: capture the current save slot from buildSavePath so the companion DLL keys vvfp_masks_<slot>.dat per village (fixes cross-slot mask bleed)",
         })
     # Register the dedicated bighead mask atlas (bigheads_masks.png) as a new
     # sprite-table record in the free slot 0x155 (0x4D2FA8 in .data). The stock
