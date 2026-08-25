@@ -52,6 +52,7 @@ static int s_dialog_state;
 
 __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index);
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args);
+__declspec(dllexport) void __stdcall VV3WorldMaskFlush(void);
 
 /* The village head-draw cave reads this fixed exe .data slot for the world-mask
    draw fn, so the per-frame cave needs no LoadLibrary/GetProcAddress -- we publish
@@ -59,13 +60,19 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
    .data page tail as MASK_DRAWFN_PTR (0x6C7A00); 0x6C7A04 is the next dword.  We
    publish the INTERCEPT variant (called from the head-draw call site with the
    head's exact x/y/scale). */
-#define VV3_WORLD_DRAWFN_PTR_SLOT 0x006C7A04u
+#define VV3_WORLD_DRAWFN_PTR_SLOT  0x006C7A04u
+/* The mask draw is now SPLIT into two hooks so it lands on TOP of the front-hair:
+   the head-draw call site STASHES the head's x/y/scale (VV3WorldMaskDrawAt), and the
+   post-hair convergence point DRAWS the stashed mask (VV3WorldMaskFlush).  The flush
+   cave reads this second fixed .data slot (next free dword after the draw slot). */
+#define VV3_WORLD_FLUSHFN_PTR_SLOT 0x006C7A08u
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
         module_instance = instance;
-        *(void **)(UINT_PTR)VV3_WORLD_DRAWFN_PTR_SLOT = (void *)&VV3WorldMaskDrawAt;
+        *(void **)(UINT_PTR)VV3_WORLD_DRAWFN_PTR_SLOT  = (void *)&VV3WorldMaskDrawAt;
+        *(void **)(UINT_PTR)VV3_WORLD_FLUSHFN_PTR_SLOT = (void *)&VV3WorldMaskFlush;
     }
     return TRUE;
 }
@@ -699,14 +706,45 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
    scaleBits = the head's scale float-bits (age/perspective), record = esi at that site.
    Draws the mask cell through the SAME manager 0x58F6F8 so alpha/fade inherit.  Offsets
    are scale-relative (so the seat tracks the villager's size) and live-tunable. */
+/* Per-frame STASH: the head-draw call site (sub_4605F0 @0x460A60) hands us the head's
+   exact x/y/scale, but the front-hair (sub_42E4B0) draws RIGHT AFTER the head and would
+   paint over a mask drawn here.  So we do NOT draw at the head site -- we stash, and the
+   post-hair convergence hook (0x460A8E, reached by BOTH haired and bald villagers) calls
+   VV3WorldMaskFlush to draw the mask on TOP of the hair, still inside this villager's
+   depth slot (correct z-order vs other villagers).  The render loop is single-threaded,
+   so one global stash is safe -- it is set here and consumed once per villager. */
+static int   g_vv3_stash_valid  = 0;
+static void *g_vv3_stash_record = NULL;
+static int   g_vv3_stash_x = 0, g_vv3_stash_y = 0, g_vv3_stash_scale = 0;
+
 /* args points at the 5 head-draw args on the exe stack, in push order:
    args[0]=headSprite  args[1]=x  args[2]=y  args[3]=scale(float bits)  args[4]=flag. */
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
-    int mask = VV3_GetMaskForRecord(record);
-    void *atlas;
+    g_vv3_stash_record = record;
+    g_vv3_stash_x      = args[1];
+    g_vv3_stash_y      = args[2];
+    g_vv3_stash_scale  = args[3];
+    g_vv3_stash_valid  = 1;
+}
+
+/* Draw the stashed mask on top of the just-drawn head+hair.  Called from the post-hair
+   convergence cave with NO args (all state is in the stash).  Draws through the SAME
+   manager 0x58F6F8 so alpha/fade inherit; offsets are scale-relative + live-tunable. */
+__declspec(dllexport) void __stdcall VV3WorldMaskFlush(void)
+{
+    void *record, *atlas;
     float fscale, liftsc, floor;
-    int cell, mx, my, x, y, scaleBits, facing;
+    int mask, cell, mx, my, x, y, scaleBits, facing;
+    if (!g_vv3_stash_valid) {
+        return;
+    }
+    g_vv3_stash_valid = 0;               /* consume: one mask draw per villager */
+    record = g_vv3_stash_record;
+    if (record == NULL) {
+        return;
+    }
+    mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) {
         return;
     }
@@ -719,14 +757,13 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     if (atlas == NULL) {
         return;
     }
-    x = args[1];
-    y = args[2];
-    scaleBits = args[3];
+    x = g_vv3_stash_x;
+    y = g_vv3_stash_y;
+    scaleBits = g_vv3_stash_scale;
     fscale = *(float *)&scaleBits;
-    /* FACING: read the villager's 0..7 direction from the RECORD (record+0xF14, the
-       field sub_4605F0 uses to index the head render; changes as villagers turn).
-       Offset + remap are live-tunable so we can A/B +0xF14 vs +0xF18 and rotate the
-       column order to match the mask atlas.  g_vv3_world_facing >= 0 forces a column. */
+    /* FACING: read the villager's 0..7 direction from the RECORD (record+0xF18, VV5's
+       direct head-column analog; changes as villagers turn).  Offset + remap are
+       live-tunable.  g_vv3_world_facing >= 0 forces a column. */
     if (g_vv3_world_facing >= 0) {
         facing = g_vv3_world_facing & 7;
     } else {

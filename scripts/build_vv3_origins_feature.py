@@ -96,8 +96,18 @@ MASK_DRAWFN_PTR = 0x6C7A00
 # head (never a crash); writes NO villager state.
 WORLD_MASK_CAVE_VA = PAYLOAD_VA + 0xB48   # free gap after MASK_CAVE, before preflight
 WORLD_MASK_CALLSITE_VA = 0x460A60         # sub_4605F0's sole `call sub_42E570` (head)
-WORLD_HEAD_DRAW_VA = 0x42E570             # the head draw we re-issue then overlay
-WORLD_DRAWFN_PTR = 0x6C7A04               # DLL publishes VV3WorldMaskDrawAt here
+WORLD_HEAD_DRAW_VA = 0x42E570             # the head draw we re-issue then STASH
+WORLD_DRAWFN_PTR = 0x6C7A04               # DLL publishes VV3WorldMaskDrawAt (stash) here
+# Z-ORDER FIX: the mask must draw AFTER the front-hair (sub_42E4B0), else the hair paints
+# over it (owner's "behind the head/hair" symptom).  The hair call @0x460A89 is GUARDED by
+# record+0xF11 (has-hair): bald villagers `je 0x460A8E`, so detouring the hair call alone
+# would drop their masks.  0x460A8E is the CONVERGENCE both paths reach (post-hair for
+# haired, hair-skipped for bald) -> the one universal, per-villager last-layer spot.
+# The 0xE80 payload block is full, so the flush trampoline lives in the large zero
+# padding cave at the tail of .text (0x47B254, 0xDAC bytes of 0x00, R+X, non-ASLR).
+WORLD_MASK_FLUSH_CAVE_VA = 0x47B260       # .text padding cave (>=30 bytes of zeros)
+WORLD_MASK_CONVERGE_VA = 0x460A8E         # post-hair convergence in sub_4605F0
+WORLD_FLUSHFN_PTR = 0x6C7A08              # DLL publishes VV3WorldMaskFlush here
 
 # Complete/Reset all Collections action caves live in a free executable-.rdata
 # padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
@@ -1634,6 +1644,33 @@ def main() -> None:
         f"call 0x{WORLD_MASK_CAVE_VA:X}", WORLD_MASK_CALLSITE_VA
     )
 
+    # Post-hair convergence cave: draw the STASHED mask on TOP of the front-hair.  We
+    # steal the two instructions at 0x460A8E (mov edi,[esp+0x2C]; mov edx,[esi+0xF14] =
+    # 4+6 = 10 bytes), call the DLL flush (which draws from the stash the head site left),
+    # then REPLAY those two instructions and return.  pushad/pushfd wrap the insert so
+    # the game sees untouched regs+flags; a null flush ptr just skips (plain hair).  esp
+    # is restored by popad before the [esp+0x2C] replay, and esi (record) is preserved.
+    world_mask_flush_cave = assemble(
+        f"""
+            pushad
+            pushfd
+            mov eax, dword ptr [0x{WORLD_FLUSHFN_PTR:X}]
+            test eax, eax
+            je world_flush_done
+            call eax
+        world_flush_done:
+            popfd
+            popad
+            mov edi, dword ptr [esp + 0x2C]
+            mov edx, dword ptr [esi + 0xF14]
+            jmp 0x{WORLD_MASK_CONVERGE_VA + 10:X}
+        """,
+        WORLD_MASK_FLUSH_CAVE_VA,
+    )
+    world_mask_flush_redirect = rel32_jump(
+        WORLD_MASK_CONVERGE_VA, WORLD_MASK_FLUSH_CAVE_VA, 10
+    )
+
     # Complete all Collections: mark collectible ids 52..99 found in the native
     # count array [0x58F428 + 0x10 + id*4], then broadcast the collectible
     # refresh (0x293) and the four collection-complete goal events plus the
@@ -1832,6 +1869,18 @@ def main() -> None:
         original[WORLD_MASK_CALLSITE_VA - IMAGE_BASE : WORLD_MASK_CALLSITE_VA - IMAGE_BASE + 5],
         world_mask_redirect,
         "redirect the village per-villager draw through the world Heathen-mask cave",
+    )
+    patch(
+        WORLD_MASK_FLUSH_CAVE_VA - IMAGE_BASE,
+        original[WORLD_MASK_FLUSH_CAVE_VA - IMAGE_BASE : WORLD_MASK_FLUSH_CAVE_VA - IMAGE_BASE + len(world_mask_flush_cave)],
+        world_mask_flush_cave,
+        "post-hair convergence cave: flush the stashed world mask over the front-hair",
+    )
+    patch(
+        WORLD_MASK_CONVERGE_VA - IMAGE_BASE,
+        original[WORLD_MASK_CONVERGE_VA - IMAGE_BASE : WORLD_MASK_CONVERGE_VA - IMAGE_BASE + 10],
+        world_mask_flush_redirect,
+        "draw the stashed world mask on top of the front-hair (post-hair convergence)",
     )
     # (No head-atlas row-count bump: the separate-atlas method draws the mask from
     # its own Images/heathen_masks.png, so the head atlases are left untouched.)
