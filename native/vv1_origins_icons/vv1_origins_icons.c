@@ -152,15 +152,16 @@ static unsigned char vv1_mask_seen_alive[VV_MASK_SLOTS];
    village already live. Latching on seen-alive makes the startup sweep a no-op
    (nothing has been seen alive yet) while still clearing genuinely dead slots
    once the village is running. Fail-safe when the engine isn't up (base 0). */
-static void vv1_mask_sweep_dead(void) {
+static int vv1_mask_sweep_dead(void) {
     unsigned char *base = VV_MASK_MANAGER;
-    int index;
+    int index, cleared = 0;
     if (base == NULL) {
-        return;  /* engine not up yet -> the 256 records aren't mapped */
+        return 0;  /* engine not up yet -> the 256 records aren't mapped */
     }
     for (index = 0; index < VV_MASK_SLOTS; index++) {
         unsigned char *rec = base + (size_t)index * VV_RECORD_STRIDE;
         unsigned char *slot;
+        unsigned char before;
         if (rec[VV_OCCUPIED_OFFSET] == 1) {
             vv1_mask_seen_alive[index] = 1;  /* latch: this slot IS a real villager */
             continue;                        /* live villager -> keep its mask */
@@ -169,10 +170,15 @@ static void vv1_mask_sweep_dead(void) {
             continue;  /* never loaded yet (e.g. startup restore) -> DON'T wipe */
         }
         slot = &VV_MASK_TABLE[index >> 1];
+        before = *slot;
         *slot = (index & 1)
             ? (unsigned char)(*slot & 0x0F)
             : (unsigned char)(*slot & 0xF0);
+        if (*slot != before) {
+            cleared++;  /* this dead slot actually held a mask */
+        }
     }
+    return cleared;  /* caller persists so the cleared state survives a restart */
 }
 
 /* --- Mask sidecar persistence -------------------------------------------
@@ -268,11 +274,19 @@ static void vv1_mask_sidecar_load(void) {
     if (ReadFile(file, &magic, sizeof(magic), &got, NULL) && got == sizeof(magic)
         && magic == VV_MASK_SIDECAR_MAGIC
         && ReadFile(file, buf, sizeof(buf), &got, NULL) && got == sizeof(buf)) {
+        int swept;
         memcpy(VV_MASK_TABLE, buf, sizeof(buf));
         /* Drop any restored mask whose slot isn't a live villager now -- this
            clears entries left by villagers who died since the save, and (for a
            different village loaded from the same folder) any freed slots. */
-        vv1_mask_sweep_dead();
+        swept = vv1_mask_sweep_dead();
+        CloseHandle(file);
+        if (swept) {
+            /* Persist the clears so a later restart can't restore a dead
+               slot's mask onto whoever reuses that record slot. */
+            vv1_mask_sidecar_save();
+        }
+        return;
     }
     CloseHandle(file);
 }
