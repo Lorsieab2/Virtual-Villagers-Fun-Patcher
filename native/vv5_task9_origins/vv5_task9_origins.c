@@ -27,7 +27,7 @@ enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1012,
+    ID_BUY_LAST = 1013,   /* 14 tech-menu rows: rows 0..13 -> Buy 1000..1013 (row 13 = Change Appearance for All) */
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000
 };
