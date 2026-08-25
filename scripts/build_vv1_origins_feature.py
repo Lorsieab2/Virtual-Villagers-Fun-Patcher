@@ -373,7 +373,14 @@ MASK_RESTORE_DONE_VA = MASK_IDX_LIST_VA + MASK_LIST_CAP  # +0x1A8
 # exe portrait cave to its own .data -- the Malwarebytes-safe fixed-address
 # pattern, same as every other slot here.
 PORTRAIT_DLL_FN_VA = MASK_RESTORE_DONE_VA + 4            # +0x1AC (dword)
-MASK_DATA_SCRATCH_END_VA = PORTRAIT_DLL_FN_VA + 4         # +0x1B0
+# Scratch slot for the captured head scale: the cave must NOT hold it in a
+# callee-saved register (ebx/ebp) -- sub_437340 saves only esi/edi, so it (and
+# our cave inside it) must preserve ebx/ebp for its own caller -- and it can't
+# hold it in a volatile register (eax/ecx/edx) across the head draw. So it
+# lands the scale in .data (via volatile eax) before the draw and the DLL call
+# reads it back. Single-threaded Details render, so one slot is fine.
+PORTRAIT_SCALE_SAVE_VA = PORTRAIT_DLL_FN_VA + 4          # +0x1B0 (dword)
+MASK_DATA_SCRATCH_END_VA = PORTRAIT_SCALE_SAVE_VA + 4     # +0x1B4
 # The restore stub is code, so it lives in an executable .shr gap (a genuinely
 # unused zero-run, verified against the fully-rendered exe), NOT in the tight
 # 344-byte mask cave that already overflows. Only ~6 bytes of glue land in the
@@ -2543,11 +2550,13 @@ def main() -> None:
             # entry the head-draw's 6 args are pushed and ecx = the renderer
             # (set by sub_437340 just before its call). Capture the head's own
             # scale arg -- the deepest of the six pushed args, [esp+0x14] -- into
-            # ebx before the draw cleans them: sub_437340 doesn't preserve ebx
-            # for its caller and its tail after the resume only pops esi/edi and
-            # returns, so ebx is free; the scaled draw and the DLL call are both
-            # stdcall and preserve ebx/esi/edi.
-            mov ebx, dword ptr [esp + 0x14]
+            # a .data slot via volatile eax BEFORE the draw cleans the args. Only
+            # eax/ecx/edx (volatile) are touched here: sub_437340 preserves
+            # ebx/ebp for its own caller (it saves only esi/edi), so the cave
+            # must not clobber them; and the head draw would clobber a volatile
+            # reg, so the scale can't ride one across it -> .data it is.
+            mov eax, dword ptr [esp + 0x14]
+            mov dword ptr [0x{PORTRAIT_SCALE_SAVE_VA:X}], eax
             call 0x{PORTRAIT_SCALED_DRAW_VA:X}          # the original head draw
             # resolve the DLL export once, cached in .data
             mov eax, dword ptr [0x{PORTRAIT_DLL_FN_VA:X}]
@@ -2564,7 +2573,7 @@ def main() -> None:
             jz portrait_ret
             mov dword ptr [0x{PORTRAIT_DLL_FN_VA:X}], eax
         portrait_call:
-            push ebx                                    # head_scale
+            push dword ptr [0x{PORTRAIT_SCALE_SAVE_VA:X}]   # head_scale
             push edi                                    # record
             push esi                                    # gameobj
             call eax                                    # Vv1DrawPortraitMask (stdcall, cleans 12)

@@ -91,7 +91,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # the natural resume 0x437420 (auto-excluded). Touches only EAX/EBX/ECX/EDX
     # (EBX = the captured head scale, restored by nothing since the tail just
     # pops ESI/EDI and returns); ESI/EDI/EBP reach the resume unchanged.
-    ("vv1_enable_origins_exclusive_features", "0x3741B"): "6273A50BC9100E05DDDD0423B55E8B2E26AE9BFB3D2A13032D6AA667771D3086",
+    ("vv1_enable_origins_exclusive_features", "0x3741B"): "B100CC26B5E29FD77A0F9D03E4BB71837A66228C25DE0CF0035066F8D5236940",
     ("vv1_f6_clothing_change_cheat", "0x1FF2E"): "A00945F8D66A35B8BDB078E933690DDE5B048C60287B716EED0276AC20A07F3E",
     ("vv1_magic_fruit_alters_mortality", "0x2EEAA"): "81719DCFD4BC20C6F136E88308A12EDFA14447AF58E3B8B6DC239BBF4053BF10",
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",
