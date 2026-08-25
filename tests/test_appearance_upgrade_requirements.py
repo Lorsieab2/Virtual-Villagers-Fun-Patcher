@@ -365,6 +365,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # the already-listed confirm helper (0x8BB00) and Equal
                     # Division dispatch (0x8BD30); no other offset changes.
                     "0x8B93F",
+                    # Whole-village mask fix: the per-frame masked-villager
+                    # stash list moved out of .data (which held only 39 of a
+                    # possible 256 entries, so a full-village distribution
+                    # rendered most villagers bare) into a DLL-allocated
+                    # buffer indexed through a .data pointer. The two mask
+                    # render hooks (0x8BEA8) index through that pointer, and
+                    # the startup restore stub's done-flag (0x8BE32) moved
+                    # with the compacted scratch layout.
+                    "0x8BE32",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

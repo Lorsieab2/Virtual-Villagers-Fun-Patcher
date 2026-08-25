@@ -346,14 +346,25 @@ MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0x98
 # head-specific like VV2's), so hooking the thunk isn't viable; this stash-
 # list is the correct VV1 adaptation (VV4 uses the same fallback).
 MASK_LIST_COUNT_VA = DATA_SCRATCH_BASE_VA + 0x9C  # dword: entries stashed this frame
-MASK_LIST_BASE_VA = DATA_SCRATCH_BASE_VA + 0xA0   # array of MASK_LIST_ENTRY-byte entries
-MASK_LIST_CAP = 39           # max masked villagers drawn per frame (extras skipped)
+# The per-frame stash list itself no longer lives in this executable's .data:
+# .data has only ~0x280 bytes before .shr, exactly 39 12-byte entries, which is
+# fine for hand-masking a few villagers but far too small for a whole-village
+# "Change Appearance for All" distribution (a 167-villager village wants 167
+# entries -- everything past the 39th was silently dropped, so most villagers
+# rendered bare).  Instead the DLL VirtualAlloc's a MASK_LIST_CAP-entry buffer
+# at load and writes its base here; the two render hooks index through this
+# pointer.  Fail-safe: the pointer is 0 until the DLL is loaded, and the stash
+# hook skips appending (leaving count at 0) while it is, so a DLL-less run just
+# draws no masks instead of dereferencing garbage.
+MASK_LIST_PTR_VA = DATA_SCRATCH_BASE_VA + 0xA0    # dword: DLL-owned list base (0 = not ready)
+MASK_LIST_CAP = 256          # DLL buffer capacity; >= the 256-slot villager array
 MASK_LIST_ENTRY = 12         # [+0]=screen x, [+4]=screen y, [+8]=(frame<<16)|choice
-# One byte freed by dropping the cap 40->39 (39 masked villagers on screen at
-# once is far past any real village): a one-shot latch so the per-frame tick
-# fires the DLL's Vv1MaskRestore (sidecar -> table) exactly once at startup.
-MASK_RESTORE_DONE_VA = MASK_LIST_BASE_VA + MASK_LIST_CAP * MASK_LIST_ENTRY
-MASK_DATA_SCRATCH_END_VA = MASK_RESTORE_DONE_VA + 4
+# One-shot latch so the per-frame tick fires the DLL's Vv1MaskRestore (sidecar
+# -> table) exactly once at startup.  Now that the list array left .data, the
+# whole scratch region is tiny again (< 0xB0 bytes), well clear of the 0x280
+# budget before .shr.
+MASK_RESTORE_DONE_VA = DATA_SCRATCH_BASE_VA + 0xA4
+MASK_DATA_SCRATCH_END_VA = DATA_SCRATCH_BASE_VA + 0xA8
 # The restore stub is code, so it lives in an executable .shr gap (a genuinely
 # unused zero-run, verified against the fully-rendered exe), NOT in the tight
 # 344-byte mask cave that already overflows. Only ~6 bytes of glue land in the
@@ -2280,11 +2291,13 @@ def main() -> None:
             mov ecx, dword ptr [{MASK_LIST_COUNT_VA:#x}]
             cmp ecx, {MASK_LIST_CAP}
             jae mask_append_done          # list full this frame -> skip extras
-            lea ebx, [ecx + ecx*2]        # ebx = count * 3
-            shl ebx, 2                    # ebx = count * 12  (MASK_LIST_ENTRY)
-            add ebx, {MASK_LIST_BASE_VA:#x}   # ebx = &list[count]
-            inc ecx
-            mov dword ptr [{MASK_LIST_COUNT_VA:#x}], ecx   # count++
+            mov ebx, dword ptr [{MASK_LIST_PTR_VA:#x}]   # DLL-owned list base
+            test ebx, ebx
+            jz mask_append_done           # DLL not loaded yet -> skip (fail-safe)
+            lea ecx, [ecx + ecx*2]        # ecx = count * 3
+            shl ecx, 2                    # ecx = count * 12  (MASK_LIST_ENTRY)
+            add ebx, ecx                  # ebx = &list[count]  (ecx is reloaded below)
+            inc dword ptr [{MASK_LIST_COUNT_VA:#x}]   # count++ (in memory)
             # entry[+8] = (frame << 16) | choice
             mov ecx, dword ptr [eax + {VILLAGER_FACING_OFFSET:#x}]
             shl ecx, 16
@@ -2344,7 +2357,7 @@ def main() -> None:
             jae mask2_reset
             lea ebp, [esi + esi*2]
             shl ebp, 2
-            add ebp, {MASK_LIST_BASE_VA:#x}      # ebp = &list[i]
+            add ebp, dword ptr [{MASK_LIST_PTR_VA:#x}]   # ebp = &list[i] (DLL-owned base)
             movzx ebx, word ptr [ebp + 8]        # ebx = choice (1..5)
             mov eax, dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4]
             test eax, eax

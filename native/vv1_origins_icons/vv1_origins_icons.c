@@ -83,6 +83,13 @@
    validated; anything unexpected fails closed to "no mask", never a write. */
 #define VV_MASK_TABLE ((unsigned char *)0x0048CD20)   /* .data BSS, W^X-safe */
 #define VV_MASK_MANAGER (*(unsigned char **)0x0048CDB8) /* .data BSS, W^X-safe */
+/* Per-frame masked-villager stash list.  The exe's two render hooks fill and
+   draw this list every frame but keep only its base pointer in .data (0x48CDC0,
+   scratch_base+0xA0); the list body itself is too big for .data (a whole-
+   village distribution needs one entry per villager, up to VV_MASK_SLOTS), so
+   this DLL owns the buffer.  See build_vv1_origins_feature.py MASK_LIST_PTR_VA. */
+#define VV_MASK_LIST_PTR (*(void **)0x0048CDC0)
+#define VV_MASK_LIST_ENTRY 12   /* must match MASK_LIST_ENTRY in the exe patch */
 #define VV_RECORD_STRIDE 0x3D8
 #define VV_MASK_SLOTS 256
 #define VV_OCCUPIED_OFFSET 0x28  /* record[+0x28] == 1 when the slot is a live
@@ -585,6 +592,17 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
         module_instance = instance;
+        /* Publish the per-frame masked-villager stash buffer for the exe's
+           render hooks.  Allocated once, never freed (lives for the process).
+           If this fails the pointer stays NULL and the hooks fail safe (no
+           masks drawn) rather than writing through a bad base. */
+        if (VV_MASK_LIST_PTR == NULL) {
+            VV_MASK_LIST_PTR = VirtualAlloc(
+                NULL,
+                (SIZE_T)VV_MASK_SLOTS * VV_MASK_LIST_ENTRY,
+                MEM_COMMIT | MEM_RESERVE,
+                PAGE_READWRITE);
+        }
     }
     return TRUE;
 }

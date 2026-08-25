@@ -251,6 +251,14 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # the string-referencing rows above (0x56900, 0x8BEA8)
                         # also differ -- immediates only, no opcode change.
                         "0x8B93F",
+                        # Whole-village mask fix: the per-frame stash list moved
+                        # out of the size-capped .data (39-entry ceiling) into a
+                        # DLL-allocated buffer indexed via a .data pointer, so a
+                        # full-village distribution masks all villagers, not just
+                        # the first 39. The two mask render hooks (0x8BEA8) index
+                        # through that pointer; the restore stub's done-flag
+                        # (0x8BE32) moved with the compacted scratch layout.
+                        "0x8BE32",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],
