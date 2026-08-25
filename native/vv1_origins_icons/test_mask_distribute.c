@@ -91,6 +91,26 @@ int main(void) {
             }
             CHECK(tally[VVM_NONE] == 0, "equal left someone with no mask");
             CHECK(tally[VVM_BLUE]+tally[VVM_ORANGE]+tally[VVM_RED]+tally[VVM_PURPLE]+tally[VVM_CHIEF]==count, "equal total mismatch");
+            /* Sex balance WITHIN each mask: each sex is spread as evenly as
+               possible across the five mask buckets (the scarce sex isn't
+               piled onto a few masks), so no mask's per-sex count is off from
+               another mask's by more than 1. */
+            {
+                int mmale[6], mfem[6], k;
+                int fmin = count + 1, fmax = -1, mmin = count + 1, mmax = -1;
+                for (k = 0; k < 6; k++) { mmale[k] = 0; mfem[k] = 0; }
+                for (i = 0; i < count; i++) {
+                    if (is_male[i]) mmale[out[i]]++; else mfem[out[i]]++;
+                }
+                for (k = VVM_BLUE; k <= VVM_CHIEF; k++) {
+                    if (mfem[k] < fmin) fmin = mfem[k];
+                    if (mfem[k] > fmax) fmax = mfem[k];
+                    if (mmale[k] < mmin) mmin = mmale[k];
+                    if (mmale[k] > mmax) mmax = mmale[k];
+                }
+                CHECK(fmax - fmin <= 1, "equal: females not spread evenly across masks");
+                CHECK(mmax - mmin <= 1, "equal: males not spread evenly across masks");
+            }
         }
     }
 

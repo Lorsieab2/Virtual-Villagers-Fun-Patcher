@@ -148,8 +148,13 @@ static void vv1_dist_equal(int count, const unsigned char *is_male,
     int i, m = 0, f = 0;
     int *males, *females;
     int mi, fi, mask;
+    int male_of[5], female_of[5];   /* per-mask sex tally, mask index 0..4 */
     if (count <= 0) {
         return;
+    }
+    for (i = 0; i < 5; i++) {
+        male_of[i] = 0;
+        female_of[i] = 0;
     }
     /* Partition indices into the front (males) and back (females) of order[]. */
     males = order;
@@ -169,20 +174,23 @@ static void vv1_dist_equal(int count, const unsigned char *is_male,
     vvm_shuffle(females, f, rng);
 
     /* Deal round-robin over the 5 masks; for each assignment prefer whichever
-     * sex is currently ahead of its fair share for balance, alternating the
-     * starting sex per mask so remainders don't bias one mask/sex. */
+     * sex is currently UNDER-represented in THIS mask's bucket, so every mask
+     * colour ends up split as evenly as its own count allows between the sexes
+     * (not just the village overall). Ties fall back to the sex with more
+     * villagers left, then to mask parity so leftovers alternate. Availability
+     * guards keep either sex from being over-drawn. */
     mi = 0; fi = 0;
     for (i = 0; i < count; i++) {
         int take_male;
-        mask = VVM_BLUE + (i % 5);
-        /* which sex still has villagers, and which is "more owed" a slot */
+        int mk = i % 5;               /* mask bucket index 0..4 */
+        mask = VVM_BLUE + mk;
         if (mi >= m) {
-            take_male = 0;
+            take_male = 0;            /* no males left */
         } else if (fi >= f) {
-            take_male = 1;
+            take_male = 1;            /* no females left */
+        } else if (male_of[mk] != female_of[mk]) {
+            take_male = male_of[mk] < female_of[mk];   /* even out THIS mask */
         } else {
-            /* serve the sex with more remaining, tie broken by the mask index
-             * so alternate masks start with alternate sexes */
             int rem_m = m - mi, rem_f = f - fi;
             if (rem_m != rem_f) {
                 take_male = rem_m > rem_f;
@@ -192,8 +200,10 @@ static void vv1_dist_equal(int count, const unsigned char *is_male,
         }
         if (take_male) {
             out[males[mi++]] = (unsigned char)mask;
+            male_of[mk]++;
         } else {
             out[females[fi++]] = (unsigned char)mask;
+            female_of[mk]++;
         }
     }
 }
