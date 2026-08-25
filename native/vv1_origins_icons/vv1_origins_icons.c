@@ -228,9 +228,17 @@ static int vv1_mask_sidecar_path(char *out, size_t n) {
     /* Make sure the folder chain exists (the game normally makes it already;
        CreateDirectory is a harmless no-op when it does). wsprintfA (user32,
        already linked) is used instead of the CRT's snprintf because this DLL
-       links without the CRT; wsprintfA caps output at 1024 bytes and our
-       paths are well under MAX_PATH. */
-    (void)n;
+       links without the CRT -- but wsprintfA takes no destination-size bound
+       (it caps only at its own 1024-byte scratch), so a redirected Documents
+       folder or a long exe basename could make the longest of these formats
+       overrun the caller's `out` buffer. Bound it here against `n`: the final
+       "<docs>\LDW\<base>\vv1_masks.dat" is the longest string written, so if
+       that (plus NUL) doesn't fit, fail open (return 0 -> masks simply aren't
+       persisted, never a stack smash). The two shorter intermediates then fit
+       by construction. Lengths: "\LDW\" = 5, "\vv1_masks.dat" = 14. */
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + 14 + 1 > n) {
+        return 0;
+    }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
