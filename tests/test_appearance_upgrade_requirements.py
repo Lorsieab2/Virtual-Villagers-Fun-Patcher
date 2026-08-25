@@ -374,6 +374,13 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # the startup restore stub's done-flag (0x8BE32) moved
                     # with the compacted scratch layout.
                     "0x8BE32",
+                    # ...and the redesign that keeps all of that in the exe's
+                    # own .data (Malwarebytes flags the exe writing through a
+                    # pointer into non-exe memory): the stash now stores a
+                    # 1-byte record index and the draw hook recomputes screen
+                    # x/y from it, which grew the draw hook past the 0x8BEA8
+                    # cave, so it moved to its own confirmed-zero .shr gap.
+                    "0x8B080",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

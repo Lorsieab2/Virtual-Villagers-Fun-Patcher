@@ -346,25 +346,30 @@ MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0x98
 # head-specific like VV2's), so hooking the thunk isn't viable; this stash-
 # list is the correct VV1 adaptation (VV4 uses the same fallback).
 MASK_LIST_COUNT_VA = DATA_SCRATCH_BASE_VA + 0x9C  # dword: entries stashed this frame
-# The per-frame stash list itself no longer lives in this executable's .data:
-# .data has only ~0x280 bytes before .shr, exactly 39 12-byte entries, which is
-# fine for hand-masking a few villagers but far too small for a whole-village
-# "Change Appearance for All" distribution (a 167-villager village wants 167
-# entries -- everything past the 39th was silently dropped, so most villagers
-# rendered bare).  Instead the DLL VirtualAlloc's a MASK_LIST_CAP-entry buffer
-# at load and writes its base here; the two render hooks index through this
-# pointer.  Fail-safe: the pointer is 0 until the DLL is loaded, and the stash
-# hook skips appending (leaving count at 0) while it is, so a DLL-less run just
-# draws no masks instead of dereferencing garbage.
-MASK_LIST_PTR_VA = DATA_SCRATCH_BASE_VA + 0xA0    # dword: DLL-owned list base (0 = not ready)
-MASK_LIST_CAP = 256          # DLL buffer capacity; >= the 256-slot villager array
-MASK_LIST_ENTRY = 12         # [+0]=screen x, [+4]=screen y, [+8]=(frame<<16)|choice
+# The per-frame stash list stores just a 1-BYTE record index per masked
+# villager, not a 12-byte (x,y,frame,choice) entry.  Two reasons:
+#   1. Capacity.  .data has only ~0x280 bytes before .shr.  12-byte entries cap
+#      at 39 -- fine for hand-masking a few villagers, but a whole-village
+#      "Change Appearance for All" distribution masks every villager (a
+#      167-village wants 167), and everything past the 39th was silently
+#      dropped, so most villagers rendered bare.  At 1 byte/index all 256
+#      possible villagers fit (0x100 bytes) with room to spare.
+#   2. Malwarebytes.  Anything that made the exe write through a runtime pointer
+#      into memory outside its own image (a DLL-owned buffer) tripped a
+#      code-injection heuristic and got the exe quarantined on launch.  Keeping
+#      the whole list in the exe's own .data at fixed addresses -- exactly the
+#      write pattern the shipped build already used -- stays clean.
+# The draw hook recomputes each villager's screen x/y from its record and the
+# frame's scroll (saved below), so the stash no longer needs to store them.
+MASK_SCROLL_X_VA = DATA_SCRATCH_BASE_VA + 0xA0    # dword: village scroll x, saved each frame
+MASK_SCROLL_Y_VA = DATA_SCRATCH_BASE_VA + 0xA4    # dword: village scroll y, saved each frame
+MASK_IDX_LIST_VA = DATA_SCRATCH_BASE_VA + 0xA8     # 256 x 1-byte record index
+MASK_LIST_CAP = 256          # every villager can be masked at once
 # One-shot latch so the per-frame tick fires the DLL's Vv1MaskRestore (sidecar
-# -> table) exactly once at startup.  Now that the list array left .data, the
-# whole scratch region is tiny again (< 0xB0 bytes), well clear of the 0x280
-# budget before .shr.
-MASK_RESTORE_DONE_VA = DATA_SCRATCH_BASE_VA + 0xA4
-MASK_DATA_SCRATCH_END_VA = DATA_SCRATCH_BASE_VA + 0xA8
+# -> table) exactly once at startup.  Sits right after the index list; the whole
+# scratch region ends at +0x1AC, still well clear of the 0x280 budget.
+MASK_RESTORE_DONE_VA = MASK_IDX_LIST_VA + MASK_LIST_CAP  # +0x1A8
+MASK_DATA_SCRATCH_END_VA = MASK_RESTORE_DONE_VA + 4       # +0x1AC
 # The restore stub is code, so it lives in an executable .shr gap (a genuinely
 # unused zero-run, verified against the fully-rendered exe), NOT in the tight
 # 344-byte mask cave that already overflows. Only ~6 bytes of glue land in the
@@ -381,6 +386,16 @@ MASK_RESTORE_STUB_VA = IMAGE_BASE + SHR_RVA + (
 MASK_OVERLAY_FILE_OFFSET = 0x8BEA8
 MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
     MASK_OVERLAY_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# The draw hook grew when it moved from reading fat 12-byte stash entries to
+# recomputing each masked villager's screen position from a 1-byte record index
+# (the fix for the whole-village distribution + Malwarebytes constraints -- see
+# MASK_IDX_LIST_VA).  Stash (117) + draw (245) + frame-cache (31) = 393 bytes no
+# longer fits the 343-byte 0x8BEA8 cave, so the draw hook alone is relocated to
+# a separate confirmed-zero .shr gap; stash + frame-cache still share 0x8BEA8.
+MASK_DRAW_RELOC_FILE_OFFSET = 0x8B080  # free .shr gap (0x8B07E..0x8B180), holds the draw hook
+MASK_DRAW_RELOC_VA = IMAGE_BASE + SHR_RVA + (
+    MASK_DRAW_RELOC_FILE_OFFSET - SHR_FILE_OFFSET
 )
 # Read-only companion-PNG path strings. They are genuine read-only constants,
 # so they belong in .rdata, and they are added to the Origins string cave in
@@ -2282,45 +2297,28 @@ def main() -> None:
             jz mask_resume
             cmp edx, 5
             ja mask_resume
-            # edx = mask choice (1..5). APPEND this villager to the per-frame
-            # stash list so every masked villager is drawn (not just the last
-            # one). ebx (0xC7) is borrowed as a scratch pointer and restored
-            # before mask_resume; ecx/edx are dead scratch; eax/ebp/esi/edi
-            # must survive for the native loop.
+            # ecx = record index (unchanged since the load), edx = choice.
+            # APPEND the 1-byte index to the in-.data stash list -- the draw
+            # hook recomputes screen x/y, frame and choice from the index and
+            # this frame's scroll (saved below), so nothing bigger than an
+            # index is stored and all 256 possible villagers fit.  ebx (0xC7)
+            # is borrowed as scratch and restored before mask_resume; eax/ebp/
+            # esi/edi survive for the native loop.
             push ebx
-            mov ecx, dword ptr [{MASK_LIST_COUNT_VA:#x}]
-            cmp ecx, {MASK_LIST_CAP}
-            jae mask_append_done          # list full this frame -> skip extras
-            mov ebx, dword ptr [{MASK_LIST_PTR_VA:#x}]   # DLL-owned list base
-            test ebx, ebx
-            jz mask_append_done           # DLL not loaded yet -> skip (fail-safe)
-            lea ecx, [ecx + ecx*2]        # ecx = count * 3
-            shl ecx, 2                    # ecx = count * 12  (MASK_LIST_ENTRY)
-            add ebx, ecx                  # ebx = &list[count]  (ecx is reloaded below)
-            inc dword ptr [{MASK_LIST_COUNT_VA:#x}]   # count++ (in memory)
-            # entry[+8] = (frame << 16) | choice
-            mov ecx, dword ptr [eax + {VILLAGER_FACING_OFFSET:#x}]
-            shl ecx, 16
-            or edx, ecx
-            mov dword ptr [ebx + 8], edx
-            # entry.xy = record.xy - village.scroll_xy (same subtraction the
-            # native head draw does at 0x438146/0x438126), plus the mask-cell
-            # alignment offset (MASK_DRAW_Y_OFFSET).
-            mov ecx, dword ptr [esi + {VILLAGE_OBJECT_OFFSET:#x}]
-            mov edx, dword ptr [eax + 4]
-            sub edx, dword ptr [ecx + 8]
-            mov dword ptr [ebx], edx
-            mov edx, dword ptr [eax + 8]
-            sub edx, dword ptr [ecx + 0xc]
-            add edx, {MASK_DRAW_Y_OFFSET}
-            # Child/golden-child extra down-nudge: the game's own age<0x118 test.
-            # eax is still the record base here; ecx/edx are the only scratch we
-            # own, and ecx is dead after the sub above, so no save needed.
-            cmp dword ptr [eax + 0x348], {CHILD_ADULT_AGE_THRESHOLD}
-            jge mask_adult_y
-            add edx, {CHILD_MASK_EXTRA_DY}
-        mask_adult_y:
-            mov dword ptr [ebx + 4], edx
+            mov ebx, dword ptr [{MASK_LIST_COUNT_VA:#x}]
+            cmp ebx, {MASK_LIST_CAP}
+            jae mask_append_done          # every villager already stashed
+            mov byte ptr [ebx + {MASK_IDX_LIST_VA:#x}], cl   # list[count] = index
+            inc dword ptr [{MASK_LIST_COUNT_VA:#x}]          # count++
+            # Save this frame's village scroll (village object at
+            # [esi+VILLAGE_OBJECT]; scroll x at +8, y at +0xC) for the draw
+            # hook.  Constant across the frame, so re-saving each append is
+            # harmless.
+            mov ebx, dword ptr [esi + {VILLAGE_OBJECT_OFFSET:#x}]
+            mov ecx, dword ptr [ebx + 8]
+            mov dword ptr [{MASK_SCROLL_X_VA:#x}], ecx
+            mov ecx, dword ptr [ebx + 0xc]
+            mov dword ptr [{MASK_SCROLL_Y_VA:#x}], ecx
         mask_append_done:
             pop ebx
         mask_resume:
@@ -2328,9 +2326,10 @@ def main() -> None:
         """,
         MASK_HOOK_VA,
     )
-    # Computed from mask_hook_code's real assembled length -- see the comment
-    # on MASK_HOOK_VA's declaration for why this must never be hardcoded.
-    mask_backedge_hook_va = MASK_HOOK_VA + len(mask_hook_code)
+    # The draw hook lives in its own relocated gap (it no longer fits the
+    # 0x8BEA8 cave alongside stash + frame-cache); the frame-cache goes right
+    # after the stash hook in that cave instead.
+    mask_backedge_hook_va = MASK_DRAW_RELOC_VA
     # The draw. Runs once per frame, after sub_437790 has finished every
     # villager, so nothing native paints over it. Everything it needs was
     # stashed by the hook above; the destination surface comes from the
@@ -2355,10 +2354,27 @@ def main() -> None:
         mask2_loop:
             cmp esi, dword ptr [{MASK_LIST_COUNT_VA:#x}]
             jae mask2_reset
-            lea ebp, [esi + esi*2]
-            shl ebp, 2
-            add ebp, dword ptr [{MASK_LIST_PTR_VA:#x}]   # ebp = &list[i] (DLL-owned base)
-            movzx ebx, word ptr [ebp + 8]        # ebx = choice (1..5)
+            # list[i] is a 1-byte record index; recompute the record pointer
+            # (manager + index*0x3D8) and the mask choice (table nibble) from
+            # it.  ebp = record ptr for the rest of this iteration.
+            movzx ecx, byte ptr [{MASK_IDX_LIST_VA:#x} + esi]   # ecx = index
+            mov ebp, ecx
+            imul ebp, ebp, 0x3D8
+            add ebp, dword ptr [{MASK_MANAGER_VA:#x}]           # ebp = record
+            mov ebx, ecx
+            shr ebx, 1
+            movzx ebx, byte ptr [ebx + {MASK_TABLE_VA:#x}]      # packed nibble pair
+            test cl, 1
+            jz mask2_low_nibble
+            shr ebx, 4
+            jmp mask2_have_choice
+        mask2_low_nibble:
+            and ebx, 0xf
+        mask2_have_choice:
+            test ebx, ebx                # choice 0 -> unmasked (shouldn't happen)
+            jz mask2_next
+            cmp ebx, 5
+            ja mask2_next
             mov eax, dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4]
             test eax, eax
             jnz mask2_have_surface
@@ -2379,19 +2395,32 @@ def main() -> None:
             mov edx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
             test edx, edx
             jz mask2_next
-            # src rect: this facing's cell in the sheet (frame = high word)
-            movzx ecx, word ptr [ebp + 0xa]
+            # src rect: this facing's cell in the sheet.  frame = record's
+            # head-draw column at +VILLAGER_FACING_OFFSET.
+            mov ecx, dword ptr [ebp + {VILLAGER_FACING_OFFSET:#x}]
             imul ecx, ecx, {MASK_CELL_W}
             push {MASK_CELL_H}
             push {MASK_CELL_W}
             push 0
             push ecx
             mov edi, esp
-            # dst rect: this villager's own screen position
+            # dst rect: recompute this villager's screen position from its
+            # record and the saved frame scroll -- y first (with the mask-cell
+            # alignment offset and the child/golden-child age<0x118 down-nudge),
+            # then x, so x lands at the lowest address (SDL_Rect x/y/w/h).
             push {MASK_CELL_H}
             push {MASK_CELL_W}
-            push dword ptr [ebp + 4]
-            push dword ptr [ebp]
+            mov ecx, dword ptr [ebp + 8]
+            sub ecx, dword ptr [{MASK_SCROLL_Y_VA:#x}]
+            add ecx, {MASK_DRAW_Y_OFFSET}
+            cmp dword ptr [ebp + 0x348], {CHILD_ADULT_AGE_THRESHOLD}
+            jge mask2_adult_y
+            add ecx, {CHILD_MASK_EXTRA_DY}
+        mask2_adult_y:
+            push ecx                     # dst y
+            mov ecx, dword ptr [ebp + 4]
+            sub ecx, dword ptr [{MASK_SCROLL_X_VA:#x}]
+            push ecx                     # dst x
             mov ecx, esp
             push ecx
             push edx
@@ -2414,7 +2443,7 @@ def main() -> None:
     # FUN_00409060's own displaced "mov ecx,[esi+0x30] / push ecx /
     # mov ecx,esi" exactly, plus one extra store to cache that same value
     # for the draw hook to consume.
-    mask_frame_cache_va = mask_backedge_hook_va + len(mask_backedge_hook_code)
+    mask_frame_cache_va = MASK_HOOK_VA + len(mask_hook_code)
     mask_frame_cache_code = assemble(
         f"""
             cmp byte ptr [{MASK_RESTORE_DONE_VA:#x}], 0
@@ -2466,7 +2495,6 @@ def main() -> None:
     )
     mask_overlay_blob = (
         mask_hook_code
-        + mask_backedge_hook_code
         + mask_frame_cache_code
     )
     # The read-only path strings were already appended to the .rdata string
@@ -2475,7 +2503,13 @@ def main() -> None:
         MASK_OVERLAY_FILE_OFFSET,
         b"\0" * len(mask_overlay_blob),
         mask_overlay_blob,
-        "cosmetic head-mask overlay: the stash-only occupied-check hook, the draw hook that runs at the loop's back-edge, and the per-frame destination-surface cache hook -- lazy-IMG_Load's a mask PNG once per colour (cached in .data forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over. All writable state (surface cache, pending-draw slot, dest-surface cache, villager-array base, and the 128-byte mask table) lives in .data, NOT in this executable .shr blob, so nothing writes into an executable page at runtime (W^X). Never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field",
+        "cosmetic head-mask overlay: the stash-only occupied-check hook and the per-frame destination-surface cache hook (the draw hook itself is relocated -- see below) -- lazy-IMG_Load's a mask PNG once per colour (cached in .data forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over. All writable state (surface cache, pending-draw slot, dest-surface cache, villager-array base, and the 128-byte mask table) lives in .data, NOT in this executable .shr blob, so nothing writes into an executable page at runtime (W^X). Never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field",
+    )
+    patch(
+        MASK_DRAW_RELOC_FILE_OFFSET,
+        b"\0" * len(mask_backedge_hook_code),
+        mask_backedge_hook_code,
+        "cosmetic head-mask overlay draw hook, relocated to its own confirmed-zero .shr gap: it recomputes each masked villager's screen position, facing frame and colour from the 1-byte record index the stash hook left this frame plus the saved village scroll, then blits the matching mask cell; too big to sit in the 0x8BEA8 cave beside the stash and frame-cache hooks",
     )
     mask_detour_code = assemble(
         f"""

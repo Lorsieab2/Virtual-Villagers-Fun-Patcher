@@ -259,6 +259,12 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # through that pointer; the restore stub's done-flag
                         # (0x8BE32) moved with the compacted scratch layout.
                         "0x8BE32",
+                        # Malwarebytes-safe redesign: everything stays in the
+                        # exe's own .data (the stash stores a 1-byte record
+                        # index, the draw hook recomputes screen x/y from it),
+                        # which grew the draw hook past the 0x8BEA8 cave, so it
+                        # relocated to its own confirmed-zero .shr gap.
+                        "0x8B080",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],
