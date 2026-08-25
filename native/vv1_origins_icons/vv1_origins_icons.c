@@ -1121,7 +1121,15 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
         forall_state.heads_override = 0;
         forall_state.bodies_override = 0;
         forall_state.rng = GetTickCount();
-        vv1_prep_fullscreen();
+        /* Surface + center on the owner exactly like the per-villager picker
+           and the tech menu (WM_INITDIALOG handlers at appearance_dialog /
+           upgrade_dialog). vv1_prep_fullscreen() is the pre-DialogBox global
+           prep and was already called by ShowOriginsAppearanceForAll before
+           this dialog opened; calling it again here (instead of centering)
+           left the whole-village dialog pinned at (0,0) -- effectively
+           unreachable in fullscreen. */
+        center_dialog_on_owner(window);
+        vv1_surface_dialog(window);
         /* radios managed in code (they span groupboxes -- don't rely on WS_GROUP
            across boxes; VV2's lesson). Each override group starts on its Off. */
         CheckDlgButton(window, 2300, BST_CHECKED);   /* Mask Distribution: Off */
