@@ -645,54 +645,91 @@ int g_vv3_world_facing_off = 0xF18; /* RECORD offset of the 0..7 facing COLUMN. 
 int g_vv3_world_facing_remap = 0;   /* +(mod 8) to rotate columns if head/mask order differ */
 #define VV3_WORLD_CARRIED_OFF   0xF12 /* byte !=0 => carried/held (half-scale) -> skip */
 
+/* Per-frame stash of the EXACT head-draw position/scale, set by the head-site cave
+   (0x460A60 -> VV3WorldMaskDrawAt) DURING the handler.  Lets the mask reuse the head's
+   real ANIMATED position (walk/dance bob, and the +0x14 carry offset when a villager is
+   picked up) instead of a static recompute.  Single-threaded render loop => one global
+   stash is safe: set during the handler, consumed once by the wrapper's draw. */
+static int   g_vv3_stash_valid  = 0;
+static void *g_vv3_stash_record = NULL;
+static int   g_vv3_stash_x = 0, g_vv3_stash_y = 0, g_vv3_stash_scale = 0;
+/* Also stash the manager's per-villager render term [mgr+0x3010] AS IT WAS at the head
+   draw: my mask draws later (at the wrapper, after hair/overlays/action/props), by when
+   this shared field may have changed -> the mask would blend/scale differently from the
+   head (the "faded" mismatch).  Reusing the head-time value makes the mask inherit the
+   head's exact render state. */
+static int   g_vv3_stash_m3010 = 0;
+
 /* Draw the world mask for one villager INDEX, on top of the fully-drawn villager.
    Called from the wrapper spliced at the handler's SOLE call site (0x42E3F5): the whole
    villager (head, hair, overlays, action, props) is drawn by sub_4605F0, THEN this runs
-   -> guaranteed last layer.  Everything is recomputed from the RECORD (not a stashed head
-   draw), so it works for EVERY villager regardless of which internal draw path they took
-   -- crucially CHILDREN, who branch past the 0x460A60 head draw (je/jl 0x460A92) and so
-   were never seen by the old head-site hook.  Position (sub_455EF0) and scale (sub_455E50,
-   age-derived) come straight from the record, so the mask tracks each villager's age/size
-   -- the child fix VV5 pointed to (mask shares the head's age scale). */
+   -> guaranteed last layer.  POSITION: prefer the EXACT head-draw x/y/scale the head-site
+   cave stashed this pass (so the mask tracks the head's real animation bob AND follows a
+   picked-up/carried villager); fall back to a record recompute (sub_455EF0 pos +
+   sub_455E50 age-scale) for villagers drawn via a path that skips the 0x460A60 head draw.
+   Either way the age-derived scale makes the mask track each villager's size (children
+   included).  Skips HELD/carried villagers (VV5's behavior) and inherits the head's exact
+   [mgr+0x3010] render state so the mask isn't faded relative to the head. */
 __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
 {
     void *record = (void *)(UINT_PTR)(VV3_REC_BASE + (unsigned)index * VV3_STRIDE);
-    int mask, x, y, cell, facing;
+    int mask, x, y, cell, facing, scaleBits, used_stash = 0;
     void *atlas;
     int pos[2];
-    double scale;
+    double scale = 1.0;
     float fscale, liftsc, floor;
     if (index < 0 || index >= 150) {
+        g_vv3_stash_valid = 0;
         return;
     }
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) {
+        g_vv3_stash_valid = 0;
         return;
     }
-    /* skip carried/held villagers (drawn half-scale at the carrier's hand) */
+    /* HELD/CARRIED skip (VV5's approach): when a villager is picked up/dragged/carried, a
+       SEPARATE renderer (0x4342xx, floating array 0x5947B8) draws the moving copy at the
+       cursor, while the queue still draws a faded copy at the villager's old ground spot.
+       Drawing the mask on that ground copy = a faded, misaligned ghost.  So skip the mask
+       while held (record+0xF12 != 0) -- the mask cleanly disappears for the brief drag,
+       exactly as VV5's native mask does (it skips the whole head+mask block when held). */
     if (*((unsigned char *)record + VV3_WORLD_CARRIED_OFF) != 0) {
+        g_vv3_stash_valid = 0;
         return;
     }
     atlas = VV3GetMaskAtlas();
     if (atlas == NULL) {
+        g_vv3_stash_valid = 0;
         return;
     }
-    /* base world position (v10,v11) -- the same helper sub_4605F0 uses */
-    __asm {
-        lea  eax, pos
-        push eax
-        mov  ecx, record
-        mov  edx, VV3_WORLD_POS_FN
-        call edx                         /* sub_455EF0(record, &pos); ret 4 */
+    if (g_vv3_stash_valid && g_vv3_stash_record == record) {
+        /* EXACT head-draw position/scale from this pass (tracks animation + carry) */
+        x = g_vv3_stash_x;
+        y = g_vv3_stash_y;
+        scaleBits = g_vv3_stash_scale;
+        fscale = *(float *)&scaleBits;
+        used_stash = 1;
+    } else {
+        /* fallback: recompute the head anchor from the record.
+           base world position (v10,v11) -- the same helper sub_4605F0 uses */
+        __asm {
+            lea  eax, pos
+            push eax
+            mov  ecx, record
+            mov  edx, VV3_WORLD_POS_FN
+            call edx                         /* sub_455EF0(record, &pos); ret 4 */
+        }
+        __asm {
+            mov  ecx, record
+            mov  edx, VV3_WORLD_SCALE_FN
+            call edx                         /* sub_455E50(record) -> double */
+            fstp scale
+        }
+        fscale = (float)scale;
+        x = pos[0] - (int)(scale * VV3_WORLD_HEAD_DX);
+        y = pos[1] - (int)(scale * VV3_WORLD_HEAD_DY);
     }
-    /* villager render scale (age-based 0.5..1.0), double return in st(0) */
-    __asm {
-        mov  ecx, record
-        mov  edx, VV3_WORLD_SCALE_FN
-        call edx                         /* sub_455E50(record) -> double */
-        fstp scale
-    }
-    fscale = (float)scale;
+    g_vv3_stash_valid = 0;                    /* consume this pass's stash */
     /* FACING: villager 0..7 direction from record+0xF18 (VV5's direct head-column analog),
        live-tunable offset+remap; g_vv3_world_facing >= 0 forces a column. */
     if (g_vv3_world_facing >= 0) {
@@ -709,44 +746,43 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
     if (liftsc < floor) {
         liftsc = floor;
     }
-    /* Anchor on the villager's HEAD, matching sub_4605F0's head draw
-       (head = base - scale*{HEAD_DX,HEAD_DY}); the extra lift raises the taller
-       mask cell so the face seats on the head.  All scale-relative so the mask
-       tracks the villager's age/perspective size (children included). */
-    x = pos[0] - (int)(scale * VV3_WORLD_HEAD_DX) + (int)(g_vv3_world_dx * fscale);
-    y = pos[1] - (int)(scale * VV3_WORLD_HEAD_DY)
-              - (int)(g_vv3_world_lift * liftsc) + (int)(g_vv3_world_dy * fscale);
-    __asm {
-        mov  eax, fscale                 /* a6 = villager scale (float bits) */
-        push eax
-        push cell                        /* a5 = atlas cell (frame)          */
-        push y
-        push x
-        push atlas
-        mov  ecx, VV3_WORLD_MGR
-        mov  edx, VV3_WORLD_DRAW_FN
-        call edx                         /* sub_42E510(mgr, atlas, x, y, cell, scale); ret 0x14 */
+    /* The head anchor (x,y) above matches sub_4605F0's head draw; add the taller mask
+       cell's lift + live nudges, all scale-relative so the mask tracks age/perspective. */
+    x += (int)(g_vv3_world_dx * fscale);
+    y += - (int)(g_vv3_world_lift * liftsc) + (int)(g_vv3_world_dy * fscale);
+    {
+        /* Inherit the head's exact render state: temporarily restore [mgr+0x3010] to the
+           value it held AT THE HEAD DRAW (later handler layers may have changed it), so the
+           mask blends/scales like the head instead of faded.  Only when we used the stash
+           (the head actually drew this villager this pass); restore afterwards. */
+        int *p3010 = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
+        int  save3010 = *p3010;
+        if (used_stash) {
+            *p3010 = g_vv3_stash_m3010;
+        }
+        __asm {
+            mov  eax, fscale             /* a6 = villager scale (float bits) -> 42E510 arg5 */
+            push eax
+            push cell                    /* atlas cell (linear index) -> 42E510 arg4        */
+            push y
+            push x
+            push atlas
+            mov  ecx, VV3_WORLD_MGR
+            mov  edx, VV3_WORLD_DRAW_FN
+            call edx                     /* sub_42E510(mgr, atlas, x, y, cell, scale); ret 0x14 */
+        }
+        if (used_stash) {
+            *p3010 = save3010;
+        }
     }
 }
 
-/* World mask draw INTERCEPT variant -- called from the head-draw call site (0x460A60)
-   with the EXACT position/scale the game's own head draw uses, so no reconstruction:
-   x,y = the head's draw x/y (pre-camera; sub_42E510 applies the same camera transform),
-   scaleBits = the head's scale float-bits (age/perspective), record = esi at that site.
-   Draws the mask cell through the SAME manager 0x58F6F8 so alpha/fade inherit.  Offsets
-   are scale-relative (so the seat tracks the villager's size) and live-tunable. */
-/* Per-frame STASH: the head-draw call site (sub_4605F0 @0x460A60) hands us the head's
-   exact x/y/scale, but the front-hair (sub_42E4B0) draws RIGHT AFTER the head and would
-   paint over a mask drawn here.  So we do NOT draw at the head site -- we stash, and the
-   post-hair convergence hook (0x460A8E, reached by BOTH haired and bald villagers) calls
-   VV3WorldMaskFlush to draw the mask on TOP of the hair, still inside this villager's
-   depth slot (correct z-order vs other villagers).  The render loop is single-threaded,
-   so one global stash is safe -- it is set here and consumed once per villager. */
-static int   g_vv3_stash_valid  = 0;
-static void *g_vv3_stash_record = NULL;
-static int   g_vv3_stash_x = 0, g_vv3_stash_y = 0, g_vv3_stash_scale = 0;
-
-/* args points at the 5 head-draw args on the exe stack, in push order:
+/* Head-site STASH: spliced at 0x460A60 (the head draw) via a cave that re-issues the head
+   then calls this.  It records the head's EXACT animated x/y/scale so VV3WorldMaskDraw can
+   reuse the real head position (walk/dance bob, carry offset) instead of a static
+   recompute.  It does NOT draw -- drawing here would land under the front-hair; the wrapper
+   at the handler call site draws last, on top.  (g_vv3_stash_* declared above.)
+   args points at the 5 head-draw args on the exe stack, in push order:
    args[0]=headSprite  args[1]=x  args[2]=y  args[3]=scale(float bits)  args[4]=flag. */
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
@@ -754,6 +790,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     g_vv3_stash_x      = args[1];
     g_vv3_stash_y      = args[2];
     g_vv3_stash_scale  = args[3];
+    g_vv3_stash_m3010  = *(int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
     g_vv3_stash_valid  = 1;
 }
 

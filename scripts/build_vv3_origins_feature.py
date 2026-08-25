@@ -1622,6 +1622,39 @@ def main() -> None:
         f"jmp 0x{MASK_CAVE_VA:X}", MASK_HOOK_VA
     ) + b"\x90" * (MASK_HOOK_LEN - 5)
 
+    # Head-site STASH cave: at 0x460A60 the game does `call 0x42E570` (the head draw) with
+    # esi=record and the 5 head-draw args on the stack ([esp+4]=headSprite,+8=x,+0xC=y,
+    # +0x10=scale,+0x14=flag).  Redirect that call here: re-issue the identical head draw
+    # with a COPY of the 5 args (sub_42E570 is ret 0x14 so it cleans the copies, leaving the
+    # originals), then hand the DLL VV3WorldMaskDrawAt(record,&origArgs) to STASH the head's
+    # EXACT animated x/y/scale for this pass.  It draws NOTHING (drawing here lands under the
+    # front-hair); the wrapper draws last, on top, reusing this stash.  Null ptr -> plain
+    # head.  esi + callee-saved regs survive both calls.
+    put(
+        WORLD_MASK_CAVE_VA,
+        f"""
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            mov ecx, 0x58F6F8
+            call 0x{WORLD_HEAD_DRAW_VA:X}
+            mov eax, dword ptr [0x{WORLD_DRAWFN_PTR:X}]
+            test eax, eax
+            je world_stash_done
+            lea edx, [esp + 4]
+            push edx
+            push esi
+            call eax
+        world_stash_done:
+            ret 0x14
+        """,
+    )
+    world_mask_head_redirect = assemble(
+        f"call 0x{WORLD_MASK_CAVE_VA:X}", WORLD_MASK_CALLSITE_VA
+    )
+
     # Village/world mask WRAPPER: replace the per-villager handler's SOLE call site
     # (0x42E3F5: `call 0x4605F0`) with `call <wrapper>`.  The wrapper runs the ENTIRE
     # handler (head, hair, all overlays, action, props), THEN draws the mask -> guaranteed
@@ -1846,6 +1879,12 @@ def main() -> None:
         original[MASK_HOOK_VA - IMAGE_BASE : MASK_HOOK_VA - IMAGE_BASE + MASK_HOOK_LEN],
         mask_hook_code,
         "redirect the villager head-draw through the Heathen-mask cave",
+    )
+    patch(
+        WORLD_MASK_CALLSITE_VA - IMAGE_BASE,
+        original[WORLD_MASK_CALLSITE_VA - IMAGE_BASE : WORLD_MASK_CALLSITE_VA - IMAGE_BASE + 5],
+        world_mask_head_redirect,
+        "redirect the head draw through the stash cave (capture exact head x/y/scale)",
     )
     patch(
         WORLD_MASK_WRAPPER_CAVE_VA - IMAGE_BASE,
