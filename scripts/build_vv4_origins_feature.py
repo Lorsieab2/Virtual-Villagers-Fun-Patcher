@@ -136,7 +136,8 @@ VV4_RESULT_HELPER_VA = PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET
 # the free RWX .shr tail past collections_apply @0x728D00 / detail scratch 0x728D40.
 MASK_DLL_ORD_CACHE = 110               # Vv4MaskCacheSurface@4 (sweep + sidecar, per frame)
 MASK_DLL_ORD_GET = 114                 # Vv4MaskGetForRecord@4 (ensure atlas + return mask)
-MASK_DRAW_THUNK_VA = 0x409A70          # native head-draw thunk (stdcall, ret 0x1c)
+MASK_DRAW_THUNK_VA = 0x409A70          # native head-draw thunk (mov ecx,[ecx]; jmp 0x408c40)
+MASK_DRAW_REAL = 0x408C40              # the real draw (reads atlas geometry from ecx=this)
 MASK_HEAD_CALL_SITES = (0x45F702, 0x45F9CA)  # walking-world twin + panel-portrait twin
 MASK_PRESENT_SITE = 0x409458           # `call 0x4046f0` (E8 93B2FFFF); ecx=screen_obj
 MASK_PRESENT_CALLEE = 0x4046F0
@@ -257,12 +258,16 @@ def mask_head_cave() -> bytes:
     (sprite mgr), esi=villager record, [esp]=site return, [esp+4..]=stdcall draw
     args (atlas, x, y, idx, frame=facing, transform, 0). It draws the head
     normally (swap the return to post_head, tail into the native thunk which
-    returns via ret 0x1c), then draws the villager's mask THROUGH THE SAME THUNK
-    reusing the head's x/y/facing/transform (so scroll+scale are inherited),
-    swapping only atlas=mask obj, idx=mask_row, y-=lift. The mask value + atlas
-    object come from the DLL (Vv4MaskGetForRecord ensures the atlas is built and
-    published to MASK_SLOT_ATLAS). All guarded: no export / mask<=0 / atlas 0 ->
-    nothing drawn. Single-threaded, non-reentrant -> one shared scratch set."""
+    returns via ret 0x1c), then draws the villager's mask reusing the head's
+    x/y/facing/transform (so scroll+scale are inherited), with idx=mask_row,
+    y-=lift. CRITICAL: the mask is drawn by calling the REAL draw 0x408c40
+    DIRECTLY with ecx = the mask atlas object -- NOT through the thunk 0x409A70.
+    0x408c40 reads the atlas geometry+surface from `this` (ecx); the thunk's
+    `mov ecx,[ecx]` turns ecx into the HEAD atlas, so routing the mask through it
+    would just redraw the head. The mask value + atlas object come from the DLL
+    (Vv4MaskGetForRecord ensures the multi-file atlas is built and published to
+    MASK_SLOT_ATLAS). All guarded: no export / mask<=0 / atlas 0 -> nothing drawn.
+    Single-threaded, non-reentrant -> one shared scratch set."""
 
     def src(post_head: int) -> str:
         y_expr = (f"push dword ptr [{MASK_S_Y}]" if MASK_LIFT == 0 else
@@ -302,8 +307,8 @@ def mask_head_cave() -> bytes:
             {y_expr}
             push dword ptr [{MASK_S_X}]
             push edx
-            mov ecx, dword ptr [{MASK_S_ECX}]
-            call 0x{MASK_DRAW_THUNK_VA:X}
+            mov ecx, edx
+            call 0x{MASK_DRAW_REAL:X}
         mh_done:
             jmp dword ptr [{MASK_S_RET}]
         """
@@ -1666,14 +1671,16 @@ def main() -> None:
             },
             # Heathen-mask RENDER atlas: the exact hand-aligned mask art, 8
             # directional columns x 5 mask rows of 40x65 cells. The DLL builds a
-            # game ldwImageGrid sprite from it via the SINGLE-FILE loader
-            # FUN_0040ab10(name, cols, rows), which fopen's the name verbatim, so
-            # it ships as vvfp_mask_atlas.png (no "00" suffix). Added file (no
-            # atlas swaps/row bumps) -- removed on unpatch, stock atlases
-            # untouched.
+            # game ldwImageGrid sprite from it via the MULTI-FILE ctor
+            # FUN_0040ABA0(name,ext,1,1,8,5), which sprintf's "%s%d%d%s" ->
+            # "<name>00.png", so it ships as vvfp_mask_atlas00.png. The multi-file
+            # ctor is required: it populates the surface array at obj[0xc] where
+            # the draw path (FUN_0040a990) looks; the single-file loader leaves it
+            # 0 and nothing blits. Added file (no atlas swaps/row bumps) -- removed
+            # on unpatch, stock atlases untouched.
             {
                 "source": "assets/vv4_masks/vvfp_mask_atlas.png",
-                "destination": "Images/vvfp_mask_atlas.png",
+                "destination": "Images/vvfp_mask_atlas00.png",
                 "sha256": hashlib.sha256(
                     (ROOT / "assets/vv4_masks/vvfp_mask_atlas.png").read_bytes()
                 ).hexdigest().upper(),

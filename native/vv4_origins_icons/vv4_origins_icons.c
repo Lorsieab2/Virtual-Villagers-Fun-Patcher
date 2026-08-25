@@ -245,57 +245,74 @@ static void vv_set_mask(unsigned char *villager, int mask) {
    (0x409A70) with the head's x/y/facing/transform. That needs the mask atlas as
    a drawable game sprite object.
 
-   Build it via the game's SINGLE-FILE ldwImageGrid loader FUN_0040ab10 -- the
-   sibling of the big multi-file "%s%d%d%s" ctor FUN_0040ABA0. The dispatcher
-   FUN_0044c9b0 picks FUN_0040ab10 when the sprite record's +0x14 multi-file flag
-   is 0. Its shape (verified in Ghidra, matches VV3's proven 0x0040AF10):
+   Build it via the game's MULTI-FILE ldwImageGrid ctor FUN_0040ABA0 -- the SAME
+   ctor the head atlases use -- so the object layout is byte-identical to what the
+   draw path (FUN_00408c40 -> FUN_0040a990) reads. Critically, that draw resolves
+   the SURFACE from the surface-ARRAY at this[0xc]; the single-file loader leaves
+   this[0xc]=0 so the draw finds no surface and blits nothing. The multi-file ctor
+   populates this[0xc]. (Confirmed by the VV2 + VV5 chats; VV5 renders masks the
+   same way on this engine.)
 
-     void* __thiscall FUN_0040ab10(this, char *name, int cols, int rows):  ret 0xC
-         FUN_0040a840(name);        // load ONE surface from `name` (fopen, .png)
-         this[2]=cols; this[3]=rows;
-         *this = ldwImageGrid::vftable;
-         this[4] = surface.width  / cols;   // cellW = 320/8 = 40
-         this[5] = surface.height / rows;   // cellH = 325/5 = 65
+     void __thiscall FUN_0040ABA0(this, name, ext, cols, rows, subcols, subrows):
+         this[0xc] = surface array (cols*rows entries), loads "<name><c><r><ext>"
+         this[8]=cols this[9]=rows this[2]=subcols this[3]=subrows
+         this[4]=totalW/subcols (=cellW) this[5]=totalH/subrows (=cellH)
+         this[0xa]=fileW/cellW this[0xb]=fileH/cellH
 
-   The big ctor mismeasured (it drove cellW/H off cols*subcols and returned a
-   96x100 fallback -> 12x20 cells -> invisible slivers). The simple loader
-   divides the REAL surface dims by our 8x5, so cells come out 40x65.
+   With cols=1, rows=1, subcols=8, subrows=5 on one 320x325 file it yields
+   cellW=40, cellH=65, one surface at this[0xc][0], and FUN_0040a990 selects the
+   cell as (facing-col x mask-row). The ctor sprintf's "%s%d%d%s" -> "<name>00.png"
+   so we ship Images\vvfp_mask_atlas00.png; the name is passed BARE (no "Images\\"
+   -- the loader resolves relative to a working dir that already contains Images).
 
-   Object size is 0x34 (the dispatcher's new(0x34) before this call). We ship a
-   single file Images\vvfp_mask_atlas.png (no "00" suffix -- the simple loader
-   fopen's the name verbatim). The object ptr is published to a fixed .shr slot
-   the head cave reads. All guarded: a failed load leaves cellW 0 and the cave
-   draws no mask (no crash). */
+   Over-allocated to 0x70 and zeroed so the scaled-view clip path (FUN_00407f80
+   reads this+0x60..0x6c when transform!=100) sees sane zero bounds instead of
+   reading past a 0x34 object (the two hooked twins pass transform==100, which
+   skips that path, but the over-alloc is cheap insurance). The object ptr is
+   published to a fixed .shr slot the head cave reads; a failed load leaves
+   cellW 0 and the cave draws no mask (no crash). */
 #define VV_ALLOC_FN      0x470C5Cu     /* game allocator: void*(unsigned size) */
-#define VV_LDWGRID_LOAD  0x40AB10u     /* ldwImageGrid single-file __thiscall loader */
+#define VV_LDWGRID_CTOR  0x40ABA0u     /* ldwImageGrid multi-file __thiscall ctor */
 #define VV_MASK_ATLAS_SLOT_VA 0x728D70u /* .shr slot: published atlas obj ptr */
 static void *g_mask_atlas_obj = NULL;
 static int g_mask_atlas_tried = 0;
 
 static void vv_ensure_mask_atlas(void) {
     void *obj;
-    /* BARE name -- the game names its own atlases bare ("male_heads"), fopen'd
-       relative to a working dir that resolves into Images\. A leading "Images\\"
-       would double to Images\Images\... and fail to load. */
-    static const char atlas_name[] = "vvfp_mask_atlas.png";
+    /* BARE name -- the game names its own atlases bare ("male_heads"), and the
+       ctor sprintf's "%s%d%d%s" -> "vvfp_mask_atlas00.png", fopen'd relative to a
+       working dir that resolves into Images\. A leading "Images\\" would double
+       to Images\Images\... and fail to load. */
+    static const char atlas_name[] = "vvfp_mask_atlas";
+    static const char atlas_ext[] = ".png";
     const char *namep = atlas_name;
+    const char *extp = atlas_ext;
     if (g_mask_atlas_tried) {
         return;                        /* one-shot: never retry (no crash loop) */
     }
     g_mask_atlas_tried = 1;
-    obj = ((void *(__cdecl *)(unsigned int))(UINT_PTR)VV_ALLOC_FN)(0x34u);
+    obj = ((void *(__cdecl *)(unsigned int))(UINT_PTR)VV_ALLOC_FN)(0x70u);
     if (obj == NULL) {
         return;
     }
-    /* FUN_0040ab10(this=obj, name, cols=8, rows=5), __thiscall, callee-cleans
-       the 3 stack args (ret 0xC). */
+    {   /* zero the over-alloc so the clip path reads sane bounds */
+        unsigned int *z = (unsigned int *)obj;
+        int i;
+        for (i = 0; i < 0x70 / 4; i++) z[i] = 0;
+    }
+    /* FUN_0040ABA0(this=obj, name, ext, cols=1, rows=1, subcols=8, subrows=5),
+       __thiscall, callee-cleans the 6 stack args (ret 0x18). */
     __asm {
         push 5
         push 8
+        push 1
+        push 1
+        mov  eax, extp
+        push eax
         mov  eax, namep
         push eax
         mov  ecx, obj
-        mov  eax, VV_LDWGRID_LOAD
+        mov  eax, VV_LDWGRID_CTOR
         call eax
     }
     /* Silent self-diagnostic: log the load outcome to <exe dir>\vvfp_mask_dbg.txt
@@ -311,8 +328,8 @@ static void vv_ensure_mask_atlas(void) {
             for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
             *base = '\0';
             wsprintfA(dbg, "%svvfp_mask_dbg.txt", exe);
-            wsprintfA(line, "atlas obj=%p cellW[4]=%u cellH[5]=%u cols[2]=%u rows[3]=%u surf[1]=%p\r\n",
-                      obj, o[4], o[5], o[2], o[3], (void *)o[1]);
+            wsprintfA(line, "atlas obj=%p cellW[4]=%u cellH[5]=%u subc[2]=%u subr[3]=%u surfarr[0xc]=%p\r\n",
+                      obj, o[4], o[5], o[2], o[3], (void *)o[0xc]);
             fh = CreateFileA(dbg, GENERIC_WRITE, FILE_SHARE_READ, NULL,
                              CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
             if (fh != INVALID_HANDLE_VALUE) {
