@@ -1206,15 +1206,15 @@ static struct {
    band samples the accessory colour (those legitimately land in Other when the
    hair is accessory-hidden). VV4: 30 heads (0..29) per sex. */
 static const unsigned char fa_m_black[]  = {0,1,2,4,7,8};
-static const unsigned char fa_m_brown[]  = {3,9,13,15};
-static const unsigned char fa_m_red[]    = {6,10,11,12,14,16,20,21,22,28};
+static const unsigned char fa_m_brown[]  = {3,6,9,10,11,12,13,15};
+static const unsigned char fa_m_red[]    = {14,16,20,21,22};
 static const unsigned char fa_m_blonde[] = {18,23,24,25,26,27,29};
-static const unsigned char fa_m_other[]  = {5,17,19};
-static const unsigned char fa_f_black[]  = {0,1,2,4,5,6,8};
-static const unsigned char fa_f_brown[]  = {10,15,17};
-static const unsigned char fa_f_red[]    = {9,11,12,14,20,22};
-static const unsigned char fa_f_blonde[] = {3,23,27,28,29};
-static const unsigned char fa_f_other[]  = {7,13,16,18,19,21,24,25,26};
+static const unsigned char fa_m_other[]  = {5,17,19,28};
+static const unsigned char fa_f_black[]  = {0,1,2,4,5,6,7,8};
+static const unsigned char fa_f_brown[]  = {9,10,11,12,14,15,17,20};
+static const unsigned char fa_f_red[]    = {22,24};
+static const unsigned char fa_f_blonde[] = {3,23,26,27,28,29};
+static const unsigned char fa_f_other[]  = {13,16,18,19,21,25};
 struct fa_bucket { const unsigned char *rows; int n; };
 /* [female][bucket 0..4] */
 static const struct fa_bucket fa_buckets[2][5] = {
