@@ -606,17 +606,14 @@ static INT_PTR CALLBACK upgrade_dialog(
         int row;
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
-        /* Rows 9/10 (Equal Division of Labor) are outside row_count's own
-           tiered range below -- unlike rows 6-8, they aren't gated behind
-           the optional village-wide extension payload (STATE_VILLAGE_WIDE),
-           they're always present, and they never have an "owned" state to
-           report (no checkmark, no Remove/Unavailable text) -- so they
-           only need their checkmark hidden here and are otherwise left at
-           the .rc template's own default (Buy, enabled). Hidden up to 11,
-           not just row_count's own max of 9, so their checkmarks (IDs
-           1109/1110) don't default to visible like every other ICON
-           control in this dialog does when nothing hides it first. */
-        for (row = 0; row < 11; ++row) {
+        /* Only rows 0-8 carry a status-badge ICON (ID_CHECK_FIRST+row) in the
+           two-column .rc; the Equal Division rows (9/10) and Change Appearance
+           for All (11) have no badge at all (matching VV2's layout, where those
+           rows never report an "owned" state), so there is nothing to hide for
+           them -- their GetDlgItem is NULL and ShowWindow is a no-op even if
+           the bound reached them.  Hide all badges up front; the loop below
+           re-shows the ones whose owned bit is set. */
+        for (row = 0; row < 9; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
