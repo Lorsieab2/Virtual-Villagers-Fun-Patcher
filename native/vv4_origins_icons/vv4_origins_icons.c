@@ -1161,12 +1161,53 @@ enum {                                   /* whole-village mask mode = radio - 32
 };
 #define FA_RADIO_FIRST 3200
 #define FA_RADIO_LAST  3210
+/* Village-wide HEAD mode = radio - 3220 (Off / Random-by-gender / 5 hair buckets). */
+enum {
+    FA_HEAD_OFF = 0, FA_HEAD_RANDOM, FA_HEAD_BLACK, FA_HEAD_BROWN, FA_HEAD_RED,
+    FA_HEAD_BLONDE, FA_HEAD_OTHER
+};
+#define FA_HEAD_RADIO_FIRST 3220
+#define FA_HEAD_RADIO_LAST  3226
+/* Village-wide BODY mode = radio - 3240 (Off / Random-by-gender). */
+enum { FA_BODY_OFF = 0, FA_BODY_RANDOM };
+#define FA_BODY_RADIO_FIRST 3240
+#define FA_BODY_RADIO_LAST  3241
 #define FA_NOCHANGE (-1)
 static struct {
     int male_head, male_body, male_mask;       /* -1 = No change */
     int female_head, female_body, female_mask; /* -1 = No change */
-    int tribe_mode;                            /* FA_MODE_* */
+    int tribe_mode;                            /* FA_MODE_* (mask) */
+    int head_mode;                             /* FA_HEAD_* (village-wide head) */
+    int body_mode;                             /* FA_BODY_* (village-wide body) */
 } forall_state;
+
+/* Per-sex head-row -> hair-colour buckets (order: Black, Brown, Red/Ginger,
+   Blonde, Other). AUTO-DERIVED from the head-atlas hair band (VV2's method:
+   front-frame hair-band median RGB, high-chroma gate for Red so auburn falls to
+   Brown). REVIEW PENDING -- adjust an index if a head is miscategorised, esp.
+   (a) auburn heads over-labelled Red, and (b) hat/flower-topped heads whose top
+   band samples the accessory colour (those legitimately land in Other when the
+   hair is accessory-hidden). VV4: 30 heads (0..29) per sex. */
+static const unsigned char fa_m_black[]  = {0,1,2,4,7,8};
+static const unsigned char fa_m_brown[]  = {3,9,13,15};
+static const unsigned char fa_m_red[]    = {6,10,11,12,14,16,20,21,22,28};
+static const unsigned char fa_m_blonde[] = {18,23,24,25,26,27,29};
+static const unsigned char fa_m_other[]  = {5,17,19};
+static const unsigned char fa_f_black[]  = {0,1,2,4,5,6,8};
+static const unsigned char fa_f_brown[]  = {10,15,17};
+static const unsigned char fa_f_red[]    = {9,11,12,14,20,22};
+static const unsigned char fa_f_blonde[] = {3,23,27,28,29};
+static const unsigned char fa_f_other[]  = {7,13,16,18,19,21,24,25,26};
+struct fa_bucket { const unsigned char *rows; int n; };
+/* [female][bucket 0..4] */
+static const struct fa_bucket fa_buckets[2][5] = {
+    { {fa_m_black,  (int)(sizeof fa_m_black)},  {fa_m_brown,  (int)(sizeof fa_m_brown)},
+      {fa_m_red,    (int)(sizeof fa_m_red)},    {fa_m_blonde, (int)(sizeof fa_m_blonde)},
+      {fa_m_other,  (int)(sizeof fa_m_other)} },
+    { {fa_f_black,  (int)(sizeof fa_f_black)},  {fa_f_brown,  (int)(sizeof fa_f_brown)},
+      {fa_f_red,    (int)(sizeof fa_f_red)},    {fa_f_blonde, (int)(sizeof fa_f_blonde)},
+      {fa_f_other,  (int)(sizeof fa_f_other)} },
+};
 
 static unsigned int fa_rng;
 static unsigned int fa_rand(void) {
@@ -1193,6 +1234,22 @@ static int fa_is_male(const unsigned char *rec) {
     return *(const int *)(rec + VV_SEX_OFFSET) == 0;   /* 0 = male */
 }
 
+/* Pick a head row for the village-wide HEAD mode: FA_HEAD_RANDOM = any row of
+   the villager's sex; a bucket mode = a random row of that hair colour. Empty
+   buckets fall back to any row so the feature never no-ops silently. */
+static int fa_pick_head(int female, int head_mode) {
+    if (head_mode == FA_HEAD_RANDOM) {
+        return (int)(fa_rand() % (unsigned int)VV_HEAD_COUNT);
+    }
+    {
+        const struct fa_bucket *b = &fa_buckets[female ? 1 : 0][head_mode - FA_HEAD_BLACK];
+        if (b->n <= 0) {
+            return (int)(fa_rand() % (unsigned int)VV_HEAD_COUNT);
+        }
+        return b->rows[fa_rand() % (unsigned int)b->n];
+    }
+}
+
 /* Apply the chosen appearance to every active villager. */
 static void vv4_apply_for_all(void) {
     int active[VV_MAX_VILLAGERS];
@@ -1208,16 +1265,22 @@ static void vv4_apply_for_all(void) {
             continue;                          /* empty/dead slot */
         }
         male = fa_is_male(rec);
-        if (male) {
-            if (forall_state.male_head != FA_NOCHANGE)
-                *(int *)(rec + VV_HEAD_OFFSET) = forall_state.male_head;
-            if (forall_state.male_body != FA_NOCHANGE)
-                *(int *)(rec + VV_CLOTHING_OFFSET) = forall_state.male_body;
+        /* HEAD: a village-wide mode overrides the per-sex Head cycler. */
+        if (forall_state.head_mode != FA_HEAD_OFF) {
+            *(int *)(rec + VV_HEAD_OFFSET) = fa_pick_head(!male, forall_state.head_mode);
         } else {
-            if (forall_state.female_head != FA_NOCHANGE)
-                *(int *)(rec + VV_HEAD_OFFSET) = forall_state.female_head;
-            if (forall_state.female_body != FA_NOCHANGE)
-                *(int *)(rec + VV_CLOTHING_OFFSET) = forall_state.female_body;
+            int h = male ? forall_state.male_head : forall_state.female_head;
+            if (h != FA_NOCHANGE)
+                *(int *)(rec + VV_HEAD_OFFSET) = h;
+        }
+        /* BODY: a village-wide mode overrides the per-sex Body cycler. */
+        if (forall_state.body_mode != FA_BODY_OFF) {
+            *(int *)(rec + VV_CLOTHING_OFFSET) =
+                (int)(fa_rand() % (unsigned int)VV_BODY_COUNT);
+        } else {
+            int b = male ? forall_state.male_body : forall_state.female_body;
+            if (b != FA_NOCHANGE)
+                *(int *)(rec + VV_CLOTHING_OFFSET) = b;
         }
         active[nact] = idx;
         actsex[nact] = male;
@@ -1297,13 +1360,21 @@ static void fa_draw_cell(const DRAWITEMSTRUCT *dis, int value, int is_head,
     appearance_draw_cell(dis->hDC, dis->rcItem, is_head, value, 1);
 }
 
-static void fa_sync_mask_enable(HWND window) {
-    /* Any non-Off whole-village mode overrides (greys) the per-sex mask cyclers. */
-    BOOL on = (IsDlgButtonChecked(window, FA_RADIO_FIRST) == BST_CHECKED);
-    int ids[6] = { 3021, 3022, 3023, 3121, 3122, 3123 };
+static void fa_sync_enable(HWND window) {
+    /* A non-Off village-wide mode greys the matching per-sex cyclers (the
+       village-wide choice overrides them). Each group's "Off" radio is its
+       FIRST id (mask 3200, head 3220, body 3240). */
+    BOOL mask_off = (IsDlgButtonChecked(window, FA_RADIO_FIRST) == BST_CHECKED);
+    BOOL head_off = (IsDlgButtonChecked(window, FA_HEAD_RADIO_FIRST) == BST_CHECKED);
+    BOOL body_off = (IsDlgButtonChecked(window, FA_BODY_RADIO_FIRST) == BST_CHECKED);
+    int mask_ids[6] = { 3021, 3022, 3023, 3121, 3122, 3123 };
+    int head_ids[6] = { 3001, 3002, 3003, 3101, 3102, 3103 };
+    int body_ids[6] = { 3011, 3012, 3013, 3111, 3112, 3113 };
     int i;
     for (i = 0; i < 6; i++) {
-        EnableWindow(GetDlgItem(window, ids[i]), on);
+        EnableWindow(GetDlgItem(window, mask_ids[i]), mask_off);
+        EnableWindow(GetDlgItem(window, head_ids[i]), head_off);
+        EnableWindow(GetDlgItem(window, body_ids[i]), body_off);
     }
 }
 
@@ -1316,8 +1387,12 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
         forall_state.female_head = forall_state.female_body =
             forall_state.female_mask = FA_NOCHANGE;
         forall_state.tribe_mode = FA_MODE_OFF;
+        forall_state.head_mode = FA_HEAD_OFF;
+        forall_state.body_mode = FA_BODY_OFF;
         CheckDlgButton(window, FA_RADIO_FIRST, BST_CHECKED);
-        fa_sync_mask_enable(window);
+        CheckDlgButton(window, FA_HEAD_RADIO_FIRST, BST_CHECKED);
+        CheckDlgButton(window, FA_BODY_RADIO_FIRST, BST_CHECKED);
+        fa_sync_enable(window);
         vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
@@ -1356,7 +1431,17 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
         }
         if (id >= FA_RADIO_FIRST && id <= FA_RADIO_LAST) {
             forall_state.tribe_mode = id - FA_RADIO_FIRST;   /* auto-radio handles check */
-            fa_sync_mask_enable(window);
+            fa_sync_enable(window);
+            return TRUE;
+        }
+        if (id >= FA_HEAD_RADIO_FIRST && id <= FA_HEAD_RADIO_LAST) {
+            forall_state.head_mode = id - FA_HEAD_RADIO_FIRST;
+            fa_sync_enable(window);
+            return TRUE;
+        }
+        if (id >= FA_BODY_RADIO_FIRST && id <= FA_BODY_RADIO_LAST) {
+            forall_state.body_mode = id - FA_BODY_RADIO_FIRST;
+            fa_sync_enable(window);
             return TRUE;
         }
         if (id == IDOK) { EndDialog(window, 1); return TRUE; }
@@ -1373,6 +1458,8 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
    tech points are the global at 0x4D6F88 and the record array is fixed. */
 static int fa_nothing_selected(void) {
     return forall_state.tribe_mode == FA_MODE_OFF &&
+           forall_state.head_mode == FA_HEAD_OFF &&
+           forall_state.body_mode == FA_BODY_OFF &&
            forall_state.male_head == FA_NOCHANGE &&
            forall_state.male_body == FA_NOCHANGE &&
            forall_state.male_mask == FA_NOCHANGE &&
@@ -1409,7 +1496,8 @@ __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
     }
     /* Head is hereditary: warn once before committing a head change en-masse. */
     if (forall_state.male_head != FA_NOCHANGE ||
-        forall_state.female_head != FA_NOCHANGE) {
+        forall_state.female_head != FA_NOCHANGE ||
+        forall_state.head_mode != FA_HEAD_OFF) {
         if (MessageBoxA(NULL,
                 "Warning: This will change the head genetics of every villager "
                 "of the selected sex, affecting their descendants.\r\n\r\n"

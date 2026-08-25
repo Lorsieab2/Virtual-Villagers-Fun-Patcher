@@ -187,21 +187,27 @@ BEGIN
     PUSHBUTTON    "Cancel", 2, 197, 172, 50, 14
 END
 
-/* Change Appearance for All (Tech-screen 450,000-point upgrade). Male + Female
-   panels each with Body/Head/Mask cyclers defaulting to "No change"; ONE
-   mutually-exclusive whole-village mask radio group spanning the two lower
-   boxes (Off / VV5 / Random / Equal + None/Blue/Orange/Red/Purple/Chief).
-   Owner-draw previews reuse the per-villager picker's draw helpers; the mask
-   preview shows the 6th frame (col 5). Radios are one WS_GROUP run so they are
-   natively mutually exclusive across both boxes; picking any non-Off option
-   greys the per-sex Mask cyclers (enforced in code). */
-214 DIALOGEX 0, 0, 340, 384
+/* Change Appearance for All (Tech-screen 450,000-point upgrade). WIDE 620x340
+   layout (VV2 cross-game parity) so it clears the fullscreen-centering height
+   cap no matter how many village-wide radios are added: Male + Female panels on
+   the LEFT, four village-wide groups on the RIGHT column (x=382) + a full-width
+   Mask-Distribution row along the bottom.
+   Four INDEPENDENT exclusive radio sets, each begun by a WS_GROUP radio:
+     - Village-wide Heads  3220..3226 (Off / Random-by-gender / 5 hair buckets)
+     - Village-wide Bodies 3240..3241 (Off / Random-by-gender)
+     - Mask 3200..3210: ONE run (Off + 4 distributions in the bottom box; the 6
+       single colours in the right box) -- kept as a single tribe_mode set, so
+       exactly one mask strategy applies.
+   Owner-draw previews reuse the per-villager picker's draw helpers (mask front
+   frame col 5). Picking a non-Off village-wide option greys the matching per-sex
+   cyclers (enforced in code: fa_sync_enable). */
+214 DIALOGEX 0, 0, 620, 340
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance for All"
 FONT 9, "Segoe UI"
 BEGIN
-    /* Preview box 50x74, columns Body 28 / Head 150 / Mask 272 (VV2 parity). */
-    GROUPBOX    "Male Villagers", -1, 5, 3, 330, 100
+    /* Male panel (left). Preview box 50x74, columns Body 28 / Head 150 / Mask 272. */
+    GROUPBOX    "Male Villagers", -1, 6, 2, 368, 104
     LTEXT       "Body", -1, 28, 14, 50, 9, SS_CENTER
     PUSHBUTTON  "<", 3011, 14, 48, 12, 20
     CONTROL     "", 3013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 24, 50, 74
@@ -215,36 +221,54 @@ BEGIN
     CONTROL     "", 3023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 24, 50, 74
     PUSHBUTTON  ">", 3022, 324, 48, 12, 20
 
-    GROUPBOX    "Female Villagers", -1, 5, 106, 330, 100
-    LTEXT       "Body", -1, 28, 117, 50, 9, SS_CENTER
-    PUSHBUTTON  "<", 3111, 14, 151, 12, 20
-    CONTROL     "", 3113, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 127, 50, 74
-    PUSHBUTTON  ">", 3112, 80, 151, 12, 20
-    LTEXT       "Head", -1, 150, 117, 50, 9, SS_CENTER
-    PUSHBUTTON  "<", 3101, 136, 151, 12, 20
-    CONTROL     "", 3103, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 127, 50, 74
-    PUSHBUTTON  ">", 3102, 202, 151, 12, 20
-    LTEXT       "Mask", -1, 272, 117, 50, 9, SS_CENTER
-    PUSHBUTTON  "<", 3121, 258, 151, 12, 20
-    CONTROL     "", 3123, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 127, 50, 74
-    PUSHBUTTON  ">", 3122, 324, 151, 12, 20
+    /* Female panel (left). */
+    GROUPBOX    "Female Villagers", -1, 6, 110, 368, 104
+    LTEXT       "Body", -1, 28, 122, 50, 9, SS_CENTER
+    PUSHBUTTON  "<", 3111, 14, 156, 12, 20
+    CONTROL     "", 3113, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 132, 50, 74
+    PUSHBUTTON  ">", 3112, 80, 156, 12, 20
+    LTEXT       "Head", -1, 150, 122, 50, 9, SS_CENTER
+    PUSHBUTTON  "<", 3101, 136, 156, 12, 20
+    CONTROL     "", 3103, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 132, 50, 74
+    PUSHBUTTON  ">", 3102, 202, 156, 12, 20
+    LTEXT       "Mask", -1, 272, 122, 50, 9, SS_CENTER
+    PUSHBUTTON  "<", 3121, 258, 156, 12, 20
+    CONTROL     "", 3123, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 132, 50, 74
+    PUSHBUTTON  ">", 3122, 324, 156, 12, 20
 
-    GROUPBOX    "Mask Distribution (all villagers)", -1, 5, 210, 330, 80
-    GROUPBOX    "Village-wide Single Mask Color", -1, 5, 293, 330, 48
+    /* Village-wide Heads (right column) -- exclusive set 3220..3226. */
+    GROUPBOX    "Village-wide Heads", -1, 382, 2, 232, 104
+    AUTORADIOBUTTON "Off (use Head selectors above)", 3220, 390, 16, 216, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Random (by gender)", 3221, 390, 28, 216, 10
+    AUTORADIOBUTTON "All Black Hair", 3222, 390, 40, 216, 10
+    AUTORADIOBUTTON "All Brown Hair", 3223, 390, 52, 216, 10
+    AUTORADIOBUTTON "All Red / Ginger Hair", 3224, 390, 64, 216, 10
+    AUTORADIOBUTTON "All Blonde Hair", 3225, 390, 76, 216, 10
+    AUTORADIOBUTTON "All Other Hair / Styles", 3226, 390, 88, 216, 10
 
-    AUTORADIOBUTTON "Off (use Mask selectors above)", 3200, 14, 222, 310, 11, WS_GROUP | WS_TABSTOP
-    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3201, 14, 235, 315, 11
-    AUTORADIOBUTTON "Random (All 5 + No Mask)", 3202, 14, 248, 310, 11
-    AUTORADIOBUTTON "Random (All 5)", 3203, 14, 261, 310, 11
-    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3204, 14, 274, 310, 11
-    AUTORADIOBUTTON "None (remove all masks)", 3205, 14, 306, 140, 11
-    AUTORADIOBUTTON "Blue", 3206, 160, 306, 50, 11
-    AUTORADIOBUTTON "Orange", 3207, 215, 306, 60, 11
-    AUTORADIOBUTTON "Red", 3208, 285, 306, 45, 11
-    AUTORADIOBUTTON "Purple", 3209, 14, 320, 70, 11
-    AUTORADIOBUTTON "Chief", 3210, 100, 320, 70, 11
+    /* Village-wide Bodies (right column) -- exclusive set 3240..3241. */
+    GROUPBOX    "Village-wide Bodies", -1, 382, 110, 232, 40
+    AUTORADIOBUTTON "Off (use Body selectors above)", 3240, 390, 124, 216, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Random (by gender)", 3241, 390, 136, 216, 10
 
-    LTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 20, 348, 300, 10, SS_CENTER | WS_GROUP
-    DEFPUSHBUTTON "OK",     1, 120, 362, 50, 14
-    PUSHBUTTON    "Cancel", 2, 180, 362, 50, 14
+    /* Mask groupbox frames (right = single colours; bottom = distributions). The
+       mask radios below are ONE exclusive run 3200..3210 regardless of box. */
+    GROUPBOX    "Village-wide Single Mask Color", -1, 382, 152, 232, 62
+    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 218, 608, 80
+
+    AUTORADIOBUTTON "Off (use Mask selectors above)", 3200, 14, 232, 596, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3201, 14, 246, 596, 10
+    AUTORADIOBUTTON "Random (All 5 + No Mask)", 3202, 14, 260, 596, 10
+    AUTORADIOBUTTON "Random (All 5)", 3203, 14, 274, 596, 10
+    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3204, 14, 288, 596, 10
+    AUTORADIOBUTTON "None (remove all masks)", 3205, 390, 166, 110, 10
+    AUTORADIOBUTTON "Blue", 3206, 390, 180, 110, 10
+    AUTORADIOBUTTON "Orange", 3207, 390, 194, 110, 10
+    AUTORADIOBUTTON "Red", 3208, 504, 166, 100, 10
+    AUTORADIOBUTTON "Purple", 3209, 504, 180, 100, 10
+    AUTORADIOBUTTON "Chief", 3210, 504, 194, 100, 10
+
+    CTEXT "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 306, 608, 9, WS_GROUP
+    DEFPUSHBUTTON "OK",     1, 250, 318, 50, 16
+    PUSHBUTTON    "Cancel", 2, 316, 318, 50, 16
 END

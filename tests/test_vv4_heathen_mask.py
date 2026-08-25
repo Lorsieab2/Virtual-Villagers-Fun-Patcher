@@ -213,8 +213,30 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
                     "Equal Colors (All 5 colors; balanced M/F)",
                     "None (remove all masks)", "Blue", "Orange", "Red",
                     "Purple", "Chief",
+                    # Village-wide Heads + Bodies groups (VV2 parity wording).
+                    "Village-wide Heads", "Village-wide Bodies",
+                    "Off (use Head selectors above)",
+                    "Off (use Body selectors above)",
+                    "Random (by gender)",
+                    "All Black Hair", "All Brown Hair", "All Red / Ginger Hair",
+                    "All Blonde Hair", "All Other Hair / Styles",
                     "OK deducts 450,000 tech points"):
             self.assertIn(cap, self.rc, cap)
+
+    def test_dialog_214_is_wide_layout(self) -> None:
+        # Wide 620x340 (VV2 parity) clears the fullscreen-centering height cap.
+        self.assertIn("214 DIALOGEX 0, 0, 620, 340", self.rc)
+
+    def test_head_body_forall_wired(self) -> None:
+        # The two new village-wide groups drive fa_head_mode/fa_body_mode and
+        # override the per-sex cyclers at apply time; the hair buckets exist.
+        for token in ("FA_HEAD_RADIO_FIRST 3220", "FA_BODY_RADIO_FIRST 3240",
+                      "head_mode", "body_mode", "fa_pick_head",
+                      "fa_buckets", "fa_sync_enable"):
+            self.assertIn(token, self.c, token)
+        # Heads override writes the head field; Bodies override the body field.
+        self.assertIn("head_mode != FA_HEAD_OFF", self.c)
+        self.assertIn("body_mode != FA_BODY_OFF", self.c)
 
     def test_menu_row_13_is_wired_in_dll_only(self) -> None:
         # 14th tech row present in dialog 201 (Buy id 1013) + name/cost tables.
