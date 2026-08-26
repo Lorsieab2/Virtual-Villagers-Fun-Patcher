@@ -3351,6 +3351,8 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         je mf_done
         cmp eax, 5
         ja mf_done
+        cmp byte ptr [0x7B1D00], 0
+        jne mf_done
         cmp byte ptr [esi+0x1CEC], 0
         jne mf_done
         mov byte ptr [0x7B1D00], 1
@@ -3399,10 +3401,8 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         push edx
         mov eax, [0x7B1D10]
         mov byte ptr [eax+0x1CEC], 0
-        mov edx, [0x7B1D04]
-        mov byte ptr [eax+0x1CED], dl
-        mov edx, [0x7B1D08]
-        mov byte ptr [eax+0x1CEE], dl
+        mov byte ptr [eax+0x1CED], 0
+        mov byte ptr [eax+0x1CEE], 0
         mov edx, [0x7B1D0C]
         mov byte ptr [eax+0x1CFC], dl
         mov byte ptr [0x7B1D00], 0
