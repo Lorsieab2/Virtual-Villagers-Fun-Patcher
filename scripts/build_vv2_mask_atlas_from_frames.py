@@ -53,8 +53,7 @@ ATLAS = _NATIVE / "heathen_masks.png"
 # feathers extend past the head, and a head-sized cell clips them (chief lost 64px
 # of feather tip at 40 wide). PAD_X is the horizontal margin on EACH side, so the
 # exe draws the mask at (headX - PAD_X, headY - LIFT).
-CELL_W, CELL_H = 52, 90     # mask atlas cell (head cell is 40x65)
-PAD_X = 6                   # (CELL_W - 40) / 2
+CELL_W, CELL_H = 65, 145    # VV5-standard mask cell (VV2's head cell is 40x65)
 FRAMES = 7                  # VV2 head atlas columns; the 8th source frame is dropped
 MASKS = ["blue", "orange", "red", "purple", "chief"]
 _MIN_BLOB = 60              # ignore stray specks
@@ -142,7 +141,12 @@ def build(source: Path, out: Path) -> None:
             art_x, art_y = face_anchor(art)
             # Put the mask's face region on the head's face. +LIFT converts the
             # head-cell y into this taller atlas cell's coordinates.
-            px = int(round(PAD_X + face_x - art_x))
+            # Bake the per-facing registration into the ART: put each frame's face
+            # region at VV2's head-cell face point for that facing. VV5 needs none of
+            # this because its mask cell IS its head cell (65x145) so a cell-corner
+            # draw auto-aligns; VV2's head cell is 40x65, so the conversion has to
+            # live somewhere. Baking it here keeps the draw offset-free in x.
+            px = int(round(face_x - art_x))
             py = int(round(face_y + LIFT - art_y))
 
             h, w = art.shape[:2]

@@ -87,7 +87,12 @@ ATLAS_COLS, ATLAS_ROWS = 8, 5     # 520/8=65 wide, 725/5=145 tall
 # VV5-standard mask cell: 65x145, 8 facing columns x 5 colour rows, used as the
 # artist laid it out (no re-packing). The cell is much larger than the 40x65 head
 # cell, so the draw subtracts MASK_PAD_X/ADULT_MASK_DY to register it on the head.
-MASK_PAD_X = 0                    # VV5 standard: mask draws at the head's exact X
+# VV5's cell (65x145) is larger than VV2's head cell (40x65). VV5 can draw at the
+# head's raw x/y because their head cell IS that size; on VV2 the cell origins do
+# not coincide, so drawing at raw x/y puts the mask down-and-right of the head
+# (observed in-game). These constants re-register VV5's cell onto VV2's head cell;
+# they are the equivalent of VV5's "draw at the head anchor", not extra tuning.
+MASK_PAD_X = 0                    # X registration is baked per-facing into the atlas
 
 # --- cave layout -----------------------------------------------------------
 # Mask code + atlas-ptr + filename now live in an appended R/W/X section (.vvmk),
@@ -112,12 +117,14 @@ MASK_ROW_TEST = 4                 # 0 Blue,1 Orange,2 Red,3 Purple,4 Chief (hard
 # its face lands on the villager's face.  Adults draw unscaled -> fixed 32px.  Children draw
 # through the SCALED path (scale s = arg6*0.01), so the lift must scale too: 32*s ~= (arg6*41)>>7
 # (matches 32*s within a pixel across the whole child age range).
-ADULT_MASK_DY = 0x00              # VV5 standard: mask draws at the head's exact Y
-CHILD_DY_MUL, CHILD_DY_SHIFT = 0, 7    # VV5 standard: no lift; mask sits at the head's exact Y
+# Y needs headroom: a mask's face sits at the head's face, but headdresses extend
+# above it, so the art is placed LIFT lower in the cell and the draw lifts it back.
+ADULT_MASK_DY = 0x2A              # 42, matches LIFT in the atlas builder
+CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # 42px lift at full scale, scaled with the head
 # The Details/portrait draw (caller < 0x445B50) goes through the SAME scaled thunk but pushes
 # arg6 = 2*(age/7)+0xA0 = DOUBLE the in-world scaledRow, so the same multiplier double-lifts and
 # the mask flies above the head.  Give the portrait its own (smaller) multiplier; tune to taste.
-PORTRAIT_DY_MUL = 0    # VV5 standard: no lift on the portrait either
+PORTRAIT_DY_MUL = 54   # same lift on the portrait (arg6 carries its own scale)
 # The mask atlas is baked/tuned for the 1x village view; the Details portrait draws the same
 # atlas larger, leaving masks a touch high+left there.  Nudge masks down+right on the portrait
 # path ONLY (caller < 0x445B50).  Tune to taste.
