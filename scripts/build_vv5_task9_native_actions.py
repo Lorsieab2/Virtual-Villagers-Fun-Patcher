@@ -123,7 +123,7 @@ BH_FACE_TABLE = [0, 1, 2]   # Details portrait facing (record+0x2F3C mod 3) -> m
 # Per-column (facing) horizontal nudge, added on top of the atlas alignment:
 # col0=right-facing +10px, col1=front +3px, col2=left-facing -10px. Signed bytes,
 # in the R+X page, live-tunable. Indexed by the resolved mask column (0/1/2).
-BH_COLDX_TABLE = [16, 3, -16]
+BH_COLDX_TABLE = [19, 3, -16]   # per resolved column: right-facing col0 +19 (owner: +3 from 16), front col1 +3, left-facing col2 -16
 # Per-mask-color (row) vertical nudge, on top of the base lift. Rows are
 # Blue/Orange/Red/Purple/Chief = mask-1 (0..4). Some masks (e.g. Purple's tall
 # crown) sit lower and need individual raising. Signed bytes, page, live-tunable.

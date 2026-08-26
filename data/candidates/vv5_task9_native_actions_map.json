@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "88D4889934ECA42C5D1A5FAAA569F32152D85609BF05E4109F73B0CD50C32EAC"
+      "source_text_sha256": "159D5FF09CAD79385ADC00FE2921210D171CB8EDA97B5CC7D7CB4B16DC8933D3"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -30,7 +30,7 @@
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "FC8FC198644DAC6A2E1613CB1284E39AE5B104D52203A2776E846780964435C0"
+      "source_text_sha256": "FEAD481461930055136D84807C6D90BE303C7047AF02FA9E52F61599E87E3742"
     },
     "companion_builder": {
       "path": "scripts/build_vv5_task9_origins_dll.ps1",
@@ -67,8 +67,8 @@
     "unchanged": true
   },
   "companion": {
-    "size": 1752576,
-    "sha256": "AD5FF9F01CF57C7AA8E908AF97613D1C714A6EEB23A9FEB84391845BF423E90A"
+    "size": 1753088,
+    "sha256": "A7DB65E8F5389EE0A2EB31CD80BAB2022D31CE8962FF0257FE6B1C078C9EA9CB"
   },
   "payload": {
     "sha256": "4F84674C1DD8E749D7F9C927059DBBF3FF3A079498EDB72DAFAC2F307E227621",
@@ -107,7 +107,7 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "3930557621391BD2B6D5A364688FC1688BD6BAB64145B00060358187826428CF",
+      "page_sha256": "E56C847C44BDFCA6BCF59433E922C53A85C6862C0EE3BFE36B9644C9C99B6262",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -251,7 +251,7 @@
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "3930557621391BD2B6D5A364688FC1688BD6BAB64145B00060358187826428CF",
+      "page_sha256": "E56C847C44BDFCA6BCF59433E922C53A85C6862C0EE3BFE36B9644C9C99B6262",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",

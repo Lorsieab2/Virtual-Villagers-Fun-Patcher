@@ -79,34 +79,46 @@ BEGIN
     PUSHBUTTON "Buy", 1006, 240, 170, 55, 18
 
     /* RIGHT COLUMN: rows 7-13 (x = left + 302).  icon x=310, badge x=324,
-       text x=342, Buy x=542.  Per the canonical, only the first 8 rows overall
-       carry an icon+badge, so row 7 keeps its icon and rows 8-13 are text-only. */
+       text x=342, Buy x=542.  Icons+badges on every row (reusing the existing
+       icon resources), matching the owner's preference. */
     ICON 107, -1, 310, 6, 24, 24
     ICON 109, 1107, 324, 14, 12, 12
     LTEXT "Grant Full Mastery to All Villagers", -1, 342, 7, 195, 10
     LTEXT "1,000,000 tech points", -1, 342, 19, 195, 9
     PUSHBUTTON "Buy", 1007, 542, 8, 55, 18
 
+    ICON 106, -1, 310, 33, 24, 24
+    ICON 109, 1108, 324, 41, 12, 12
     LTEXT "All Villagers are Exactly 18", -1, 342, 34, 195, 10
     LTEXT "1,000,000 tech points", -1, 342, 46, 195, 9
     PUSHBUTTON "Buy", 1008, 542, 35, 55, 18
 
+    ICON 104, -1, 310, 60, 24, 24
+    ICON 109, 1109, 324, 68, 12, 12
     LTEXT "Complete All Collections", -1, 342, 61, 195, 10
     LTEXT "1,000,000 tech points", -1, 342, 73, 195, 9
     PUSHBUTTON "Buy", 1009, 542, 62, 55, 18
 
+    ICON 105, -1, 310, 87, 24, 24
+    ICON 109, 1110, 324, 95, 12, 12
     LTEXT "Reset All Collections", -1, 342, 88, 195, 10
     LTEXT "1,000,000 tech points", -1, 342, 100, 195, 9
     PUSHBUTTON "Buy", 1010, 542, 89, 55, 18
 
+    ICON 107, -1, 310, 114, 24, 24
+    ICON 109, 1111, 324, 122, 12, 12
     LTEXT "Equal Division of Labor (Includes Parenting)", -1, 342, 115, 195, 10
     LTEXT "1,000,000 tech points", -1, 342, 127, 195, 9
     PUSHBUTTON "Buy", 1011, 542, 116, 55, 18
 
+    ICON 106, -1, 310, 141, 24, 24
+    ICON 109, 1112, 324, 149, 12, 12
     LTEXT "Equal Division of Labor (No Parenting)", -1, 342, 142, 195, 10
     LTEXT "1,000,000 tech points", -1, 342, 154, 195, 9
     PUSHBUTTON "Buy", 1012, 542, 143, 55, 18
 
+    ICON 106, -1, 310, 168, 24, 24
+    ICON 109, 1113, 324, 176, 12, 12
     LTEXT "Change Appearance for All", -1, 342, 169, 195, 10
     LTEXT "450,000 tech points", -1, 342, 181, 195, 9
     PUSHBUTTON "Buy", 1013, 542, 170, 55, 18
