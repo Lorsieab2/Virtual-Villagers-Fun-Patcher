@@ -335,29 +335,6 @@ static void vv_ensure_mask_atlas(void) {
         o[0x1a] =  30000;      /* byte 0x68: right  */
         o[0x1b] =  30000;      /* byte 0x6c: bottom */
     }
-    /* Silent self-diagnostic: log the load outcome to <exe dir>\vvfp_mask_dbg.txt
-       so the atlas geometry can be verified without a popup. */
-    {
-        char exe[MAX_PATH], dbg[MAX_PATH], line[160];
-        char *base, *p;
-        DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH), written;
-        unsigned int *o = (unsigned int *)obj;
-        HANDLE fh;
-        if (n != 0 && n < MAX_PATH) {
-            base = exe;
-            for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
-            *base = '\0';
-            wsprintfA(dbg, "%svvfp_mask_dbg.txt", exe);
-            wsprintfA(line, "atlas obj=%p cellW[4]=%u cellH[5]=%u subc[2]=%u subr[3]=%u surfarr[0xc]=%p\r\n",
-                      obj, o[4], o[5], o[2], o[3], (void *)o[0xc]);
-            fh = CreateFileA(dbg, GENERIC_WRITE, FILE_SHARE_READ, NULL,
-                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-            if (fh != INVALID_HANDLE_VALUE) {
-                WriteFile(fh, line, lstrlenA(line), &written, NULL);
-                CloseHandle(fh);
-            }
-        }
-    }
     /* Reject a failed/empty load (cellW at obj[4] == 0) so the cave never draws
        a garbage cell. */
     if (((unsigned int *)obj)[4] == 0) {
@@ -382,43 +359,6 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
     if (mask > 0 && (villager[0x1CC7] != 0 ||
                      *(const int *)(villager + 0x1C40) <= 0)) {
         mask = 0;
-    }
-    /* One-shot draw-path diagnostic: the head cave saves the live draw args to
-       fixed .shr scratch slots BEFORE calling us, so we can log them here (which
-       twin via the return address, plus x/y/facing/transform) without touching
-       the asm cave. Logs the first N mask draws to <exe dir>\vvfp_mask_draw.txt. */
-    if (mask > 0) {
-        static int g_draw_logged = 0;
-        int didx = vv_villager_index(villager);
-        /* LUT DERIVATION: log the record facing (+0x1CD0) alongside the HEAD's OWN
-           column arg (world cave saved the head's arg5 at 0x728FB4). The head's
-           arg5 is the correct column (1:1 with the atlas by construction); the
-           map +0x1CD0 -> arg5 is the remap LUT. If they're always equal, no LUT
-           needed; where they differ is the mirror/order fix. */
-        if (didx >= 0 && g_draw_logged < 200) {
-            char exe[MAX_PATH], dbg[MAX_PATH], line[200];
-            char *base, *p;
-            DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH), written;
-            HANDLE fh;
-            int f1cd0 = *(volatile int *)(villager + 0x1CD0);
-            int harg5 = *(volatile int *)(UINT_PTR)0x728FB4u;   /* MASK_W_A5 */
-            if (n != 0 && n < MAX_PATH) {
-                base = exe;
-                for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
-                *base = '\0';
-                wsprintfA(dbg, "%svvfp_mask_draw.txt", exe);
-                wsprintfA(line, "+1CD0=%d(&7=%d)  headArg5=%d(&7=%d)\r\n",
-                          f1cd0, f1cd0 & 7, harg5, harg5 & 7);
-                fh = CreateFileA(dbg, FILE_APPEND_DATA, FILE_SHARE_READ, NULL,
-                                 OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-                if (fh != INVALID_HANDLE_VALUE) {
-                    SetFilePointer(fh, 0, NULL, FILE_END);
-                    WriteFile(fh, line, lstrlenA(line), &written, NULL);
-                    CloseHandle(fh);
-                    g_draw_logged++;
-                }
-            }
-        }
     }
     return mask;
 }
@@ -611,40 +551,6 @@ __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
         vv_read_mask_sidecar();
     }
     vv_mask_sweep();            /* clear masks on slots the game freed/reused */
-    {   /* DIAGNOSTIC: every ~120 frames, overwrite <exe dir>\vvfp_mask_state.txt
-           with the first occupied villagers' idx / occupied-byte / stored mask /
-           stored-fp vs current-fp, to see why for-All masks don't read back. */
-        static unsigned int g_state_tick = 0;
-        if ((g_state_tick++ % 120u) == 0u) {
-            char exe[MAX_PATH], dbg[MAX_PATH], line[160];
-            char *base, *p;
-            DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH), written;
-            HANDLE fh;
-            if (n != 0 && n < MAX_PATH) {
-                base = exe;
-                for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
-                *base = '\0';
-                wsprintfA(dbg, "%svvfp_mask_state.txt", exe);
-                fh = CreateFileA(dbg, GENERIC_WRITE, FILE_SHARE_READ, NULL,
-                                 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-                if (fh != INVALID_HANDLE_VALUE) {
-                    int idx, shown = 0;
-                    for (idx = 0; idx < VV_MAX_VILLAGERS && shown < 20; idx++) {
-                        unsigned char *rec = (unsigned char *)
-                            (VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
-                        if (rec[VV_OCCUPIED_OFFSET] == 0) continue;   /* only occupied */
-                        wsprintfA(line,
-                            "idx=%d occ=%u mask=%u stfp=%08X curfp=%08X seen=%u\r\n",
-                            idx, rec[VV_OCCUPIED_OFFSET], g_mask_by_index[idx],
-                            g_mask_fp[idx], vv_fingerprint(rec), g_slot_seen_alive[idx]);
-                        WriteFile(fh, line, lstrlenA(line), &written, NULL);
-                        shown++;
-                    }
-                    CloseHandle(fh);
-                }
-            }
-        }
-    }
 }
 
 /* Blit one resolved mask (1..5) at the head's screen x/y. scale_pct: 100 =
