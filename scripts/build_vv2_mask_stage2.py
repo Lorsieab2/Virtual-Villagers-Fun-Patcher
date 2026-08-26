@@ -49,7 +49,20 @@ CALLER_LO, CALLER_HI = 0x445B50, 0x4478DF
 # y=0xF2, head atlases 0xE574AC/0xE574A8).  It was excluded by the old 0x445B50 lower bound —
 # that is exactly why the mask never appeared on the Details screen.  The child stub gates only
 # on the atlas being a head atlas (no record deref), so it is safe across both functions.
-CHILD_CALLER_LO, CHILD_CALLER_HI = 0x445540, 0x4478DF
+#
+# UPPER BOUND raised 0x4478DF -> 0x449060 (2026-08-26).  A full audit of every call site of the
+# two head-draw thunks found 68 sites that push a HEAD atlas, spanning 0x44564B..0x449049 — but
+# the old 0x4478DF ceiling excluded 25 of them (0x447ADD..0x449049).  Those are the ALTERNATE
+# POSE renderers (swimming / sitting / lying down / bending), so a masked villager lost the mask
+# the moment they left the walking pose.  Owner PSA: "the masks should follow the head at all
+# times ... when villagers jump or bend down ... when swimming and any other edge cases."
+# Safety checked before widening: those functions use the SAME conventions as the already-gated
+# region — esi = gameCtx (they read [esi+0xE574A8] / [esi+0xE574D0]) and they reference the
+# villager index table 0xE57090 34 times — so the stub's `[esi+edi*4+0xE57090]` record lookup is
+# valid there too.  No non-head draw sites exist above the last head site, so nothing else is
+# swept in.  The ADULT gate is deliberately NOT widened: all 29 of its sites were already inside,
+# and its record deref is only valid where edi is the loop index.
+CHILD_CALLER_LO, CHILD_CALLER_HI = 0x445540, 0x449060
 DRAWOBJ_PTR = 0xE574D0
 HEAD_ATLASES = (0xE574A0, 0xE574A8, 0xE574AC, 0xE574B0, 0xE574B4)
 MASK_BYTE_OFF = 0x480             # unused per-villager record byte = mask choice (0=none, 1..5)
