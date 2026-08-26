@@ -397,12 +397,19 @@ VILLAGE_MASK_SPRITE_VA = VILLAGE_CUR_IDX_VA + 4         # +0x1B8 dword, cached m
 VILLAGE_MASK_DLL_FN_VA = VILLAGE_MASK_SPRITE_VA + 4     # +0x1BC dword, cached Vv1GetMaskSprite ptr (0 = unresolved)
 VILLAGE_SURFACE_SAVE_VA = VILLAGE_MASK_DLL_FN_VA + 4    # +0x1C0 dword, deref'd renderer surface across the two sub-draws
 VILLAGE_FILL_SAVE_VA = VILLAGE_SURFACE_SAVE_VA + 4      # +0x1C4 dword, caller's eax (draw fill arg) across the sub-draws
-VILLAGE_SCRATCH_END_VA = VILLAGE_FILL_SAVE_VA + 4       # +0x1C8 (still well clear of .shr at 0x48D000)
+VILLAGE_MASK_ROW_VA = VILLAGE_FILL_SAVE_VA + 4          # +0x1C8 dword, mask colour row (mask-1) for the mask sub-draw
+VILLAGE_DBG_CALLER_VA = VILLAGE_MASK_ROW_VA + 4         # +0x1CC dword, DIAGNOSTIC: caller of a head-atlas draw seen with an invalid stash (the swim/pose renderer we're missing)
+VILLAGE_MASKED_BITMAP_VA = VILLAGE_DBG_CALLER_VA + 4    # +0x1D0..+0x1F0, 256-bit per-frame "already masked this villager" guard (cleared once per frame by the draw hook) so villagers drawn by more than one render pass get exactly ONE mask
+VILLAGE_SCRATCH_END_VA = VILLAGE_MASK_ROW_VA + 4        # +0x1CC (still well clear of .shr at 0x48D000)
 # The village-mask caves (two per-loop stash writes + the shared-draw hook) live
 # in the free .shr tail run at 0x8B180 (0x8B17F..0x8B530, ~940 zero bytes in the
 # rendered exe), laid out contiguously like the portrait caves.
 VILLAGE_MASK_CAVE_FILE = 0x8B180
 VILLAGE_MASK_CAVE_VA = IMAGE_BASE + SHR_RVA + (VILLAGE_MASK_CAVE_FILE - SHR_FILE_OFFSET)
+# Vertical lift (screen px, subtracted from the head's own draw y) that seats the
+# mask atlas cell onto the head in the village. Tuned from a screenshot like the
+# Details DY; 0 = draw at the head's exact y to start.
+VILLAGE_MASK_LIFT = 58   # on-head lift (subtracted from head arg3)
 # The restore stub is code, so it lives in an executable .shr gap (a genuinely
 # unused zero-run, verified against the fully-rendered exe), NOT in the tight
 # 344-byte mask cave that already overflows. Only ~6 bytes of glue land in the
@@ -714,6 +721,7 @@ def main() -> None:
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
     add_c_string(strings, s, "show_appearance_for_all", "ShowOriginsAppearanceForAll")
     add_c_string(strings, s, "draw_portrait_mask", "Vv1DrawPortraitMask")
+    add_c_string(strings, s, "get_mask_sprite", "Vv1GetMaskSprite")
     add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
     add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
     add_c_string(
@@ -2387,108 +2395,18 @@ def main() -> None:
     # 16 bytes of arguments plus the two 16-byte SDL_Rects built on the stack.
     # An SDL_Rect is {{x, y, w, h}}, so the fields are pushed in reverse
     # (h, w, y, x) to leave x at the lowest address.
+    # OLD BLIT FULLY RETIRED: the shared-draw hook renders every village mask on
+    # the head now, so this per-frame SDL blit is gone entirely. All this stub
+    # does is reproduce FUN's displaced 'mov ecx,[esi+8]; push 0', clear the
+    # stash counter each frame (the stash hook still appends, so it must be
+    # reset or it overflows the 1-byte index list), and resume. Tiny, so it can
+    # never overflow the 0x8B080..0x8B180 draw-hook gap (the bloated loop did,
+    # corrupting the neighbouring stash cave's resume jmp -> the 0x48d184 crash).
     mask_backedge_hook_code = assemble(
         f"""
             mov ecx, dword ptr [esi + 8]
             push 0
-            cmp dword ptr [{MASK_LIST_COUNT_VA:#x}], 0
-            je mask2_done
-            pushad
-            # esi = loop index i; ebp = &list[i]; the SDL thunks are cdecl and
-            # preserve ebx/esi/edi/ebp (Win32 callee-saved), so those survive
-            # the blit call across iterations. count is re-read from .data each
-            # iteration so an appended-past-cap frame still terminates.
-            xor esi, esi
-        mask2_loop:
-            cmp esi, dword ptr [{MASK_LIST_COUNT_VA:#x}]
-            jae mask2_reset
-            # list[i] is a 1-byte record index; recompute the record pointer
-            # (manager + index*0x3D8) and the mask choice (table nibble) from
-            # it.  ebp = record ptr for the rest of this iteration.
-            movzx ecx, byte ptr [{MASK_IDX_LIST_VA:#x} + esi]   # ecx = index
-            mov ebp, ecx
-            imul ebp, ebp, 0x3D8
-            add ebp, dword ptr [{MASK_MANAGER_VA:#x}]           # ebp = record
-            mov ebx, ecx
-            shr ebx, 1
-            movzx ebx, byte ptr [ebx + {MASK_TABLE_VA:#x}]      # packed nibble pair
-            test cl, 1
-            jz mask2_low_nibble
-            shr ebx, 4
-            jmp mask2_have_choice
-        mask2_low_nibble:
-            and ebx, 0xf
-        mask2_have_choice:
-            test ebx, ebx                # choice 0 -> unmasked (shouldn't happen)
-            jz mask2_next
-            cmp ebx, 5
-            ja mask2_next
-            mov eax, dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4]
-            test eax, eax
-            jnz mask2_have_surface
-            # Lazy load once per colour per process. A successful load caches
-            # the surface; a FAILED load caches a non-NULL sentinel (1, never a
-            # real pointer) so a missing/broken PNG is not re-IMG_Load'd every
-            # frame -- it stays "no mask" cheaply. (0 stays "not tried yet".)
-            # Path string picked by index (choice-1)*0x10 -- no in-place write
-            # into executable memory (W^X).
-            mov eax, ebx
-            shl eax, 4
-            add eax, {mask_paths_va - MASK_PATH_STRIDE:#x}
-            push eax
-            call {IMG_LOAD_THUNK_VA:#x}
-            add esp, 4
-            test eax, eax
-            jnz mask2_store_surface
-            mov eax, 1                    # failed-load sentinel
-        mask2_store_surface:
-            mov dword ptr [{MASK_SURFACES_VA - 4:#x} + ebx*4], eax
-        mask2_have_surface:
-            cmp eax, 1                    # sentinel -> tried & failed; skip, no reload
-            je mask2_next
-            mov edx, dword ptr [{DEST_SURFACE_CACHE_VA:#x}]
-            test edx, edx
-            jz mask2_next
-            # src rect: this facing's cell in the sheet.  frame = record's
-            # head-draw column at +VILLAGER_FACING_OFFSET.
-            mov ecx, dword ptr [ebp + {VILLAGER_FACING_OFFSET:#x}]
-            imul ecx, ecx, {MASK_CELL_W}
-            push {MASK_CELL_H}
-            push {MASK_CELL_W}
-            push 0
-            push ecx
-            mov edi, esp
-            # dst rect: recompute this villager's screen position from its
-            # record and the saved frame scroll -- y first (with the mask-cell
-            # alignment offset and the child/golden-child age<0x118 down-nudge),
-            # then x, so x lands at the lowest address (SDL_Rect x/y/w/h).
-            push {MASK_CELL_H}
-            push {MASK_CELL_W}
-            mov ecx, dword ptr [ebp + 8]
-            sub ecx, dword ptr [{MASK_SCROLL_Y_VA:#x}]
-            add ecx, {MASK_DRAW_Y_OFFSET}
-            cmp dword ptr [ebp + 0x348], {CHILD_ADULT_AGE_THRESHOLD}
-            jge mask2_adult_y
-            add ecx, {CHILD_MASK_EXTRA_DY}
-        mask2_adult_y:
-            push ecx                     # dst y
-            mov ecx, dword ptr [ebp + 4]
-            sub ecx, dword ptr [{MASK_SCROLL_X_VA:#x}]
-            push ecx                     # dst x
-            mov ecx, esp
-            push ecx
-            push edx
-            push edi
-            push eax
-            call {SDL_UPPERBLIT_THUNK_VA:#x}
-            add esp, 48
-        mask2_next:
-            inc esi
-            jmp mask2_loop
-        mask2_reset:
             mov dword ptr [{MASK_LIST_COUNT_VA:#x}], 0
-            popad
-        mask2_done:
             jmp {MASK_BACKEDGE_RESUME_VA:#x}
         """,
         mask_backedge_hook_va,
@@ -2710,6 +2628,191 @@ def main() -> None:
     )
     _vfile += len(stash2); _vva += len(stash2)
 
+    # === Village all-pose mask, Stage 2: shared-draw hook ====================
+    # Replaces the 0x409410 thunk (mov ecx,[ecx]; jmp 0x408af0). Every villager
+    # head, in every pose, funnels through it. GATE: a valid per-villager stash
+    # (only the village loops write it -> Details/UI self-exclude) AND arg1 is a
+    # village head atlas ([gameobj+0x3dff8]/[0x3dff4]). When gated on a masked
+    # villager: draw the head, then re-issue the mask atlas through the same
+    # engine draw (0x408af0) with the head's OWN x/scale/facing (y lifted) -- so
+    # the mask rides the head through walk/swim/bend/sit/lie for free. Otherwise
+    # reproduce the stock thunk and pass through. Fail-open: any miss (bad stash,
+    # non-head sprite, no mask, atlas not built) -> plain head draw, never crash.
+    village_hook_va = _vva
+    village_hook = assemble(
+        f"""
+            push ecx                              # save renderer (undereferenced)
+            push eax                              # save fill arg
+            push edx                              # scratch
+            # [esp]=edx [+4]=fill [+8]=renderer [+0xc]=cret [+0x10]=arg1 ..[+0x28]=arg7
+            mov edx, dword ptr [0x{VILLAGE_CUR_IDX_VA:X}]
+            cmp edx, 0x100
+            jae vh_stash_invalid                  # invalid stash (incl -1)
+            mov eax, dword ptr [0x{MASK_MANAGER_VA:X}]
+            test eax, eax
+            jz vh_pass                            # no gameobj yet
+            mov edx, dword ptr [esp + 0x10]       # arg1 (sprite)
+            cmp edx, dword ptr [eax + 0x3dff8]     # head atlas (7-col, male)
+            je vh_head
+            cmp edx, dword ptr [eax + 0x3dff4]     # head atlas (7-col, female)
+            je vh_head
+            cmp edx, dword ptr [eax + 0x3dff0]     # 9-col sheet (swim/pose head?)
+            je vh_head
+            cmp edx, dword ptr [eax + 0x3dfec]     # 9-col sheet (swim/pose head?)
+            je vh_head
+            # DIAGNOSTIC: valid stash, sprite is NOT a gated head. Record arg1
+            # unless it's one of the two body atlases (the common noise) -> the
+            # remaining captures reveal the swim head's sprite object.
+            cmp edx, dword ptr [eax + 0x3dfe8]
+            je vh_pass
+            cmp edx, dword ptr [eax + 0x3dfe4]
+            je vh_pass
+            mov dword ptr [0x{VILLAGE_DBG_CALLER_VA:X}], edx
+            jmp vh_pass
+        vh_head:
+            mov edx, dword ptr [0x{VILLAGE_CUR_IDX_VA:X}]        # villager index
+            mov dword ptr [0x{VILLAGE_CUR_IDX_VA:X}], 0xFFFFFFFF # consume/clear
+            mov eax, edx
+            shr eax, 1
+            movzx eax, byte ptr [eax + 0x{MASK_TABLE_VA:X}]
+            test dl, 1
+            jz vh_lo
+            shr eax, 4
+            jmp vh_hm
+        vh_lo:
+            and eax, 0xf
+        vh_hm:
+            test eax, eax
+            jz vh_pass                            # no mask on this villager
+            cmp eax, 5
+            ja vh_pass
+            dec eax
+            mov dword ptr [0x{VILLAGE_MASK_ROW_VA:X}], eax      # mask colour row
+            mov eax, dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}]
+            cmp eax, 1
+            je vh_pass                            # atlas build previously failed
+            test eax, eax
+            jnz vh_draw
+            # --- JIT build the mask atlas once, guarded (sentinel 1 = failed) ---
+            mov eax, dword ptr [0x{VILLAGE_MASK_DLL_FN_VA:X}]
+            test eax, eax
+            jnz vh_callfn
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]             # LoadLibraryA
+            test eax, eax
+            jz vh_setfail
+            push 0x{s['get_mask_sprite']:X}
+            push eax
+            call dword ptr [0x4570D4]             # GetProcAddress
+            test eax, eax
+            jz vh_setfail
+            mov dword ptr [0x{VILLAGE_MASK_DLL_FN_VA:X}], eax
+        vh_callfn:
+            call eax                              # Vv1GetMaskSprite() -> sprite
+            test eax, eax
+            jz vh_setfail
+            mov dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}], eax
+            jmp vh_draw
+        vh_setfail:
+            mov dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}], 1
+            jmp vh_pass
+        vh_stash_invalid:
+            # DIAGNOSTIC: village frame but this villager wasn't stashed. If it's
+            # a head-atlas draw, record the caller -> the swim/pose renderer we
+            # aren't stashing. (Noisy from the clear-on-consume window, but a
+            # caller OUTSIDE 0x437790..0x4392CD is a genuinely un-stashed loop.)
+            mov eax, dword ptr [0x{MASK_MANAGER_VA:X}]
+            test eax, eax
+            jz vh_pass
+            mov edx, dword ptr [esp + 0x10]       # arg1
+            cmp edx, dword ptr [eax + 0x3dff8]
+            je vh_dbgcap
+            cmp edx, dword ptr [eax + 0x3dff4]
+            je vh_dbgcap
+            cmp edx, dword ptr [eax + 0x3dff0]
+            je vh_dbgcap
+            cmp edx, dword ptr [eax + 0x3dfec]
+            je vh_dbgcap
+            jmp vh_pass
+        vh_dbgcap:
+            mov eax, dword ptr [esp + 0xc]        # caller return address
+            mov dword ptr [0x{VILLAGE_DBG_CALLER_VA:X}], eax
+            jmp vh_pass
+        vh_pass:
+            pop edx
+            pop eax
+            pop ecx
+            mov ecx, dword ptr [ecx]              # stock thunk deref
+            jmp 0x408af0
+        vh_draw:
+            mov ecx, dword ptr [esp + 8]          # renderer
+            mov ecx, dword ptr [ecx]              # surface = [renderer]
+            mov dword ptr [0x{VILLAGE_SURFACE_SAVE_VA:X}], ecx
+            mov eax, dword ptr [esp + 4]          # fill arg
+            mov dword ptr [0x{VILLAGE_FILL_SAVE_VA:X}], eax
+            add esp, 0xc                          # drop the 3 saved regs
+            # [esp]=cret [+4]=arg1 ..[+0x1c]=arg7
+            # --- HEAD sub-draw: copy the 7 args, call the engine draw ---
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            mov ecx, dword ptr [0x{VILLAGE_SURFACE_SAVE_VA:X}]
+            mov eax, dword ptr [0x{VILLAGE_FILL_SAVE_VA:X}]
+            call 0x408af0
+            # --- MASK sub-draw: copy 7 args, swap sprite/row, lift y ---
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            push dword ptr [esp + 0x1c]
+            mov eax, dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}]
+            mov dword ptr [esp], eax              # arg1 = mask atlas
+            mov eax, dword ptr [0x{VILLAGE_MASK_ROW_VA:X}]
+            mov dword ptr [esp + 0xc], eax        # arg4 = mask colour row
+            # VV5 method = pass the head's own x/y/scale/facing straight through
+            # (confirmed 1:1 by VV5). BUT VV5's caveat: zero-offset only seats on
+            # VV5 because its head cell IS 65x145 = the mask cell. VV1's head cell
+            # is 40x65, so the 65x145 mask at VV1's head-cell corner drifts -- the
+            # mask must be RE-SEATED to VV1's head-face. Measured (male/female_
+            # heads.png 40x65 vs mask 65x145): VV1 head-face centre ~(21,12),
+            # mask face ~(32,60) in-cell -> lift ~48*s, shift left ~12*s. s =
+            # arg6*0.01, so lift=(arg6*15)>>5 (~0.47*scale), dx=arg6>>3 (0.125).
+            mov eax, dword ptr [esp + 0x14]       # arg6 = head scale
+            imul eax, eax, 15
+            sar eax, 5
+            sub dword ptr [esp + 8], eax          # arg3 = y - lift (re-seat to head-face)
+            mov eax, dword ptr [esp + 0x14]
+            sar eax, 3
+            sub dword ptr [esp + 4], eax          # arg2 = x - dx (centre on 40-wide head)
+            mov ecx, dword ptr [0x{VILLAGE_SURFACE_SAVE_VA:X}]
+            mov eax, dword ptr [0x{VILLAGE_FILL_SAVE_VA:X}]
+            call 0x408af0
+            ret 0x1c
+        """,
+        village_hook_va,
+    )
+    patch(
+        _vfile, b"\0" * len(village_hook), village_hook,
+        "Village all-pose mask Stage 2 hook (0x409410 thunk replacement): for a village head draw of a masked villager, draw the head then re-issue the mask atlas via the engine draw at the head's own x/scale/facing (y lifted) so the mask follows every pose; all other draws pass through unchanged (fail-open)",
+    )
+    _vfile += len(village_hook); _vva += len(village_hook)
+    # splice the shared thunk 0x409410 -> the village hook (replaces the first 5
+    # of its 7 bytes; the hook reproduces the mov ecx,[ecx] deref for pass-through)
+    patch(
+        0x9410, bytes.fromhex("8b09e9d9f6"),
+        assemble(f"jmp 0x{village_hook_va:X}", 0x409410),
+        "splice the shared scaled-draw thunk 0x409410 into the village all-pose mask hook",
+    )
+    assert _vfile <= VILLAGE_MASK_CAVE_FILE + 900, (
+        f"village mask caves overflow the 0x8B180 free run: end={_vfile:#x}"
+    )
+
     mask_detour_code = assemble(
         f"""
             jmp {MASK_HOOK_VA:#x}
@@ -2919,8 +3022,8 @@ def main() -> None:
         "game_id": "vv1",
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
-        "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+        "name": "Enable Origins-Exclusive Features (includes the Heathen Mask mod)",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
