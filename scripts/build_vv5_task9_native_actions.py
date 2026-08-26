@@ -119,7 +119,7 @@ BH_LIFT = 0x32       # base vertical lift  (mask Y = headY - LIFT)
 # Details idle head uses facings 3(turn)/4(front)/5(turn); map each frame&7 to a
 # column via this table (8 signed-byte entries, in the R+X page, live-tunable so
 # the left/right swap can be corrected without a rebuild).
-BH_COL_TABLE = [0, 1, 2, 0, 1, 2, 0, 1]   # head anim frame&7 -> mask column; per 3-frame idle-bob group = right(0)/front(1)/left(2), so the mask sweeps with the head bob
+BH_COL_TABLE = [2, 1, 0, 2, 1, 0, 2, 1]   # head anim frame&7 -> mask column; per 3-frame idle-bob group = LEFT(2)/front(1)/RIGHT(0). The head's right-turn frames map to atlas col0 (right-facing art) and left-turn frames to col2 (left-facing art); the earlier 0/2 order drew the mirror-facing mask on a turned head
 # Per-column (facing) horizontal nudge, added on top of the atlas alignment:
 # col0=right-facing +10px, col1=front +3px, col2=left-facing -10px. Signed bytes,
 # in the R+X page, live-tunable. Indexed by the resolved mask column (0/1/2).
