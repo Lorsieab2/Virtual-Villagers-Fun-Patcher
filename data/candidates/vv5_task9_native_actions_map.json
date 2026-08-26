@@ -30,7 +30,7 @@
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "469E72B047C290D2D4923AA5BE8FEAC66A473FE2B7367EF1B6E13C9A02D11DCA"
+      "source_text_sha256": "FC8FC198644DAC6A2E1613CB1284E39AE5B104D52203A2776E846780964435C0"
     },
     "companion_builder": {
       "path": "scripts/build_vv5_task9_origins_dll.ps1",
@@ -67,8 +67,8 @@
     "unchanged": true
   },
   "companion": {
-    "size": 1753088,
-    "sha256": "73BDB15E6CA9870E6967DE823CED8C21382A727AD0226B8E2AC6F938CEBB718E"
+    "size": 1752576,
+    "sha256": "AD5FF9F01CF57C7AA8E908AF97613D1C714A6EEB23A9FEB84391845BF423E90A"
   },
   "payload": {
     "sha256": "4F84674C1DD8E749D7F9C927059DBBF3FF3A079498EDB72DAFAC2F307E227621",
