@@ -19,6 +19,11 @@ ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe"
 ACTIVE = ROOT / "data/vv5_origins_feature.json"
 COMPANION = ROOT / "data/candidates/VVFP VV5 Task9 Origins Icons.dll"
+# The dedicated Details-portrait bighead mask atlas. The patched sprite table
+# (slot 0x155) tells the game to load Images/bigheads_masks.png at runtime, so the
+# patcher must SHIP it as a companion file into the install's Images/ folder --
+# otherwise a clean install has no bighead mask art.
+BIGHEAD_ATLAS_PNG = ROOT / "assets/vv5_bighead_masks/bigheads_masks.png"
 OUT = ROOT / "data/vv5_task9_native_actions.json"
 MAP_OUT = ROOT / "data/candidates/vv5_task9_native_actions_map.json"
 SOURCE_PATHS = {
@@ -59,6 +64,75 @@ EXPANDED_PAYLOAD_VA = 0x8EB000
 PAGE_SIZE = 0x8000
 STRIDE = 0x2F44
 BOUND = 150
+# Heathen-mask side-table: the per-villager mask choice (0-5) is stored OUTSIDE
+# the villager record -- record byte +0x1BC0 turned out to be a live 24-byte
+# string field (stock cmp/strncpy at 0x44B7E3/0x4686B8), so writing it was
+# unsafe. It lives nibble-packed (4 bits x 150 villagers = 75 bytes) in
+# proven-free .data BSS at 0x7B1D20..0x7B1D6B -- clear of the 0x7B1D00 scratch
+# and of the stock globals that begin at 0x7B1D80, inside .data's virtual end
+# 0x7B1DA4. Keyed by villager record index = (record - 0x554190) / 0x2F44.
+MASK_TABLE = 0x7B1D20
+# One-shot "the side-table has been loaded from the sidecar this session" flag,
+# in the same proven-free R/W .data BSS (0x7B1D6C, just past the 75-byte table,
+# before stock globals at 0x7B1D80). Zero at launch (BSS); the render hook loads
+# the sidecar into MASK_TABLE on the first village frame, then sets this. All
+# runtime-written state stays in non-exec .data (W^X-clean; code stays R+X).
+MASK_LOADED = 0x7B1D6C
+# Bighead (Details-screen villager portrait) mask render scratch: five R/W .data
+# BSS dwords in the same proven-free window as the flip scratch -- 0x7B1D14..0x1F
+# (just past the flip scratch, before MASK_TABLE) and 0x7B1D70..0x77 (past the
+# loaded flag, before the stock globals at 0x7B1D80). BSS (zero at launch),
+# non-exec, so it stays W^X-clean and never contends with .text caves.
+BH_SX = 0x7B1D14
+BH_SY = 0x7B1D18
+BH_SF = 0x7B1D1C
+BH_SS = 0x7B1D70
+BH_SROW = 0x7B1D74
+BH_SCOL = 0x7B1D78   # resolved mask atlas column (facing) for the draw
+# Current save-slot capture (DWORD) in the last free .data BSS dword of the
+# proven-free window: 0x7B1D7C..0x7B1D7F (past BH_SCOL at 0x78, before the stock
+# globals that begin at 0x7B1D80). Zero at launch (BSS). The slot_capture detour
+# on buildSavePath (sub_403600) writes the game's current save slot here (only
+# when slot != 0, so the meta file's slot 0 never clobbers the village slot); the
+# companion DLL reads it to key the mask sidecar per slot (vvfp_masks_<slot>.dat).
+SLOT_SCRATCH = 0x7B1D7C
+# Bighead mask atlas sprite id. A DEDICATED front-facing bighead mask atlas
+# (bigheads_masks.png, 1 col x 5 mask rows, bottom-aligned) is registered at the
+# free sprite-table slot 0x155 (record patched into .data at 0x4D2FA8) so the
+# Details portrait uses purpose-built art rather than the tiny 8-way village
+# atlas. sub_44FA30(0x155) -> sub_44F870 lazily loads+caches bigheads_masks.png.
+MASK_HANDLE = 0x155
+BIGHEAD_ATLAS_ID = 0x155
+BIGHEAD_ATLAS_REC_VA = 0x4CEFB8 + BIGHEAD_ATLAS_ID * 0x30   # 0x4D2FA8 (free slot)
+BIGHEAD_ATLAS_COLS = 3
+BIGHEAD_ATLAS_ROWS = 5
+# Portrait-mask tuning (all emitted as patchable immediates so they can be
+# dialed in live). BH_LIFT = pre-scale vertical lift (imm8, sub edx,LIFT).
+# BH_SCALE_MUL = integer multiple of the head's draw scale (the Details head is
+# drawn large, so the village-scale mask atlas needs boosting). BH_FRAME = fixed
+# mask atlas column: the Details portrait is front-facing and the 8-col heathen
+# atlas front frame is col 5 (the head atlas is 16-col, so its frame index maps
+# to the wrong mask column — use the known front column instead).
+BH_SCALE_MUL = 3
+BH_SCALE_SHIFT = 1   # scale = headScale * MUL >> SHIFT  (3>>1 = x1.5)
+BH_XOFF = 0x00       # base horizontal nudge (mask X = headX + XOFF; signed imm8)
+BH_LIFT = 0x32       # base vertical lift  (mask Y = headY - LIFT)
+# bigheads_masks.png is 3 columns = 3 head FACINGS (owner: col0=RIGHT turn,
+# col1=front, col2=LEFT turn), each pre-aligned to its facing's face-within-the-
+# sprite. So follow-the-face = pick the atlas COLUMN from the head's facing frame
+# (the mask then rotates AND tracks for free, VV2's atlas-baked method). The
+# Details idle head uses facings 3(turn)/4(front)/5(turn); map each frame&7 to a
+# column via this table (8 signed-byte entries, in the R+X page, live-tunable so
+# the left/right swap can be corrected without a rebuild).
+BH_FACE_TABLE = [0, 1, 2]   # Details portrait facing (record+0x2F3C mod 3) -> mask atlas column. The compositor draws the portrait head with facing (record+0x2F3C mod 3)+8, so the mask reuses that SAME clean facing index (age-independent, unlike the old frame&7 heuristic which broke for age>=1100 heads whose frame carries an age offset). Live-tunable L/F/R -> col; flip 0<->2 if left/right read mirrored.
+# Per-column (facing) horizontal nudge, added on top of the atlas alignment:
+# col0=right-facing +10px, col1=front +3px, col2=left-facing -10px. Signed bytes,
+# in the R+X page, live-tunable. Indexed by the resolved mask column (0/1/2).
+BH_COLDX_TABLE = [19, 3, -16]   # per resolved column: right-facing col0 +19 (owner: +3 from 16), front col1 +3, left-facing col2 -16
+# Per-mask-color (row) vertical nudge, on top of the base lift. Rows are
+# Blue/Orange/Red/Purple/Chief = mask-1 (0..4). Some masks (e.g. Purple's tall
+# crown) sit lower and need individual raising. Signed bytes, page, live-tunable.
+BH_ROWDY_TABLE = [0, 2, 0, -3, 0]   # Orange(row1) down 2px, Purple(row3) up 3px
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -149,8 +223,16 @@ OFF = {
     "division_parenting": 0x6000,
     "division_no_parenting": 0x6200,
     "apply_division": 0x6400,
+    "appearance_all": 0x6500,
     "mask_flip": 0x6800,
     "mask_restore": 0x6A00,
+    "mask_get": 0x6C00,
+    "mask_set": 0x6C80,
+    "mask_load_once": 0x6D00,
+    "bighead_mask": 0x6D80,
+    "bighead_offsets": 0x6F00,
+    "slot_capture": 0x6F20,
+    "mask_birth_clear": 0x6F60,
     "strings": 0x7000,
 }
 
@@ -185,8 +267,16 @@ SIZES = {
     "division_parenting": 0x200,
     "division_no_parenting": 0x200,
     "apply_division": 0x80,
+    "appearance_all": 0x100,
     "mask_flip": 0x200,
     "mask_restore": 0x200,
+    "mask_get": 0x80,
+    "mask_set": 0x80,
+    "mask_load_once": 0x80,
+    "bighead_mask": 0x140,
+    "bighead_offsets": 0x10,
+    "slot_capture": 0x40,
+    "mask_birth_clear": 0x40,
 }
 
 
@@ -254,7 +344,11 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
     # expanded-256 baseline string region stays byte-identical for its overlay.
     time_warp_values = (
         ("appearance_export", b"ShowAppearanceChooser\0"),
+        ("forall_export", b"ShowVV5AppearanceForAll\0"),
         ("genetics_export", b"ShowVV5Task9GeneticsWarning\0"),
+        ("writemask_export", b"WriteMaskSidecar\0"),
+        ("readmask_export", b"ReadMaskSidecar\0"),
+        ("bighead_atlas", b"bigheads_masks.png\0"),
         ("division_export", b"ApplyVV5EqualDivision\0"),
         ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
         ("tw_get", b"GetOriginsOwner\0"),
@@ -551,7 +645,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     # Command upper bound: 0..12 in stock (Collections rows 9/10 plus the two
     # Equal Division of Labor rows 11/12), 0..5 in expanded (original), so the
     # expanded router bytes stay identical.
-    command_bound = 12 if native_stock else 5
+    command_bound = 13 if native_stock else 5
     collections_guard = (
         "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
     )
@@ -586,7 +680,8 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         "        cmp ebx, 9\n        je complete_collections_row\n"
         "        cmp ebx, 10\n        je reset_collections_row\n"
         "        cmp ebx, 11\n        je division_parenting_row\n"
-        "        cmp ebx, 12\n        je division_no_parenting_row\n        "
+        "        cmp ebx, 12\n        je division_no_parenting_row\n"
+        "        cmp ebx, 13\n        je appearance_all_row\n        "
         if native_stock
         else ""
     )
@@ -610,6 +705,8 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         f"    division_parenting_row:\n        call 0x{page_va + OFF['division_parenting']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n"
         f"    division_no_parenting_row:\n        call 0x{page_va + OFF['division_no_parenting']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    appearance_all_row:\n        call 0x{page_va + OFF['appearance_all']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n    "
         if native_stock
         else ""
@@ -2372,7 +2469,7 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, dword ptr [esi+0x1BBC]
         mov dword ptr [ebp-0x20], eax
         mov dword ptr [ebp-0x30], eax
-        movzx eax, byte ptr [esi+0x1BC0]
+        call 0x{page_va + OFF['mask_get']:X}
         mov dword ptr [ebp-0x24], eax
         mov dword ptr [ebp-0x14], eax
         mov eax, dword ptr [0x51D5F8]
@@ -2430,7 +2527,18 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, dword ptr [ebp-0x20]
         mov dword ptr [esi+0x1BBC], eax
         mov eax, dword ptr [ebp-0x24]
-        mov byte ptr [esi+0x1BC0], al
+        push ebx
+        mov ebx, eax
+        call 0x{page_va + OFF['mask_set']:X}
+        pop ebx
+        push 0x{s['writemask_export']:X}
+        push ebx
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz ws_skip
+        push 0x{MASK_TABLE:X}
+        call eax
+    ws_skip:
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x28], eax
         push -5000
@@ -2459,6 +2567,60 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         {status_call(page_va, '5', 7)}
     done:
         add esp, 0x50
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
+def build_appearance_all(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
+    """Change Appearance for All (village-wide, tech screen, 450,000). A thin
+    bridge: load the companion DLL, resolve ShowVV5AppearanceForAll, pre-check
+    funds, show the shared 450,000 buy-confirm (action 25), and on OK call the
+    export. The DLL owns the whole commit -- it shows dialog 214, iterates the
+    record array, writes head/body + the mask side-table, charges 450,000 only if
+    at least one villager was touched, and saves the sidecar -- so this handler
+    never touches save data and stays a fixed-size box."""
+    return put(page, page_va, "appearance_all", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x20
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz invalid
+        mov ebx, eax
+        push 0x{s['forall_export']:X}
+        push ebx
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz invalid
+        mov dword ptr [ebp-0x10], eax
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, 450000
+        jb insufficient
+        push 0
+        push 0
+        push 25
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        call dword ptr [ebp-0x10]
+        jmp done
+    invalid:
+        {status_call(page_va, '25', 2)}
+        jmp done
+    insufficient:
+        {status_call(page_va, '25', 3)}
+        jmp done
+    cancelled:
+    done:
+        add esp, 0x20
         pop edi
         pop esi
         pop ebx
@@ -3159,13 +3321,15 @@ def build_division(
     """)
 
 
-def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
+def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, bytes]:
     """Heathen-mask cosmetic render (stock layouts only).
 
-    Renders the mask chosen by the Change-Appearance picker (persistent record
-    byte +0x1BC0, 0=none / 1-5 = Blue/Orange/Red/Purple/Chief) on a Believer, by
-    a transient faction flip bracketed to the head+mask draw of the per-villager
-    render fn 0x4720E0. Three stock-only .text detours drive it:
+    Renders the mask chosen by the Change-Appearance picker (persistent choice in
+    the nibble-packed side-table MASK_TABLE, keyed by villager record index,
+    0=none / 1-5 = Blue/Orange/Red/Purple/Chief) on a Believer, by a transient
+    faction flip bracketed to the head+mask draw of the per-villager render fn
+    0x4720E0. The choice is read via mask_get (never the villager record). Three
+    stock-only .text detours drive it:
 
       * mask_flip is entered from 0x472481 (just past the selection-ring block).
         For a Believer with a mask choice it saves the colour fields + villager
@@ -3180,14 +3344,20 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
     Scratch lives in free .data BSS 0x7B1D00 (guard / saved orange,red,colorfield
     / villager pointer), never in .text caves, so it never contends with the
     population, statistics, or other .text-cave features."""
-    flip = put(page, page_va, "mask_flip", """
+    flip = put(page, page_va, "mask_flip", f"""
         push eax
         push edx
-        movzx eax, byte ptr [esi+0x1BC0]
+        cmp byte ptr [0x{MASK_LOADED:X}], 0
+        jne mf_loaded
+        call 0x{page_va + OFF['mask_load_once']:X}
+    mf_loaded:
+        call 0x{page_va + OFF['mask_get']:X}
         test eax, eax
         je mf_done
         cmp eax, 5
         ja mf_done
+        cmp byte ptr [0x7B1D00], 0
+        jne mf_done
         cmp byte ptr [esi+0x1CEC], 0
         jne mf_done
         mov byte ptr [0x7B1D00], 1
@@ -3236,10 +3406,8 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
         push edx
         mov eax, [0x7B1D10]
         mov byte ptr [eax+0x1CEC], 0
-        mov edx, [0x7B1D04]
-        mov byte ptr [eax+0x1CED], dl
-        mov edx, [0x7B1D08]
-        mov byte ptr [eax+0x1CEE], dl
+        mov byte ptr [eax+0x1CED], 0
+        mov byte ptr [eax+0x1CEE], 0
         mov edx, [0x7B1D0C]
         mov byte ptr [eax+0x1CFC], dl
         mov byte ptr [0x7B1D00], 0
@@ -3249,7 +3417,254 @@ def build_mask_render(page: bytearray, page_va: int) -> dict[str, bytes]:
         add esp, 0xA8
         ret 8
     """)
-    return {"mask_flip": flip, "mask_restore": restore}
+    # mask_get: esi = villager record -> eax = mask choice (0-5), 0 if none or
+    # esi is not a valid record. Keyed by index = (esi-0x554190)/0x2F44, then a
+    # nibble read from MASK_TABLE. Clobbers eax/ecx/edx; preserves esi.
+    get = put(page, page_va, "mask_get", f"""
+        mov eax, esi
+        sub eax, 0x554190
+        jb mg_none
+        xor edx, edx
+        mov ecx, 0x{STRIDE:X}
+        div ecx
+        test edx, edx
+        jne mg_none
+        cmp eax, {BOUND}
+        jae mg_none
+        mov ecx, eax
+        shr eax, 1
+        movzx eax, byte ptr [eax + 0x{MASK_TABLE:X}]
+        test cl, 1
+        je mg_low
+        shr eax, 4
+        ret
+    mg_low:
+        and eax, 0x0F
+        ret
+    mg_none:
+        xor eax, eax
+        ret
+    """)
+    # mask_set: esi = villager record, bl = choice (0-5) -> writes the villager's
+    # nibble in MASK_TABLE. No-op if esi is not a valid record. Clobbers
+    # eax/ecx/edx; preserves ebx (choice source) and esi.
+    set_ = put(page, page_va, "mask_set", f"""
+        mov eax, esi
+        sub eax, 0x554190
+        jb ms_ret
+        xor edx, edx
+        mov ecx, 0x{STRIDE:X}
+        div ecx
+        test edx, edx
+        jne ms_ret
+        cmp eax, {BOUND}
+        jae ms_ret
+        mov ecx, eax
+        shr eax, 1
+        movzx edx, byte ptr [eax + 0x{MASK_TABLE:X}]
+        test cl, 1
+        je ms_low
+        and edx, 0x0F
+        movzx ecx, bl
+        and ecx, 0x0F
+        shl ecx, 4
+        or edx, ecx
+        mov byte ptr [eax + 0x{MASK_TABLE:X}], dl
+        ret
+    ms_low:
+        and edx, 0xF0
+        movzx ecx, bl
+        and ecx, 0x0F
+        or edx, ecx
+        mov byte ptr [eax + 0x{MASK_TABLE:X}], dl
+        ret
+    ms_ret:
+        ret
+    """)
+    # mask_load_once: on the first village frame, restore the side-table from the
+    # sidecar via the companion DLL's ReadMaskSidecar(table). LoadLibraryA is
+    # idempotent (returns the already-loaded handle if the chooser opened it). The
+    # loaded flag is set FIRST so a failed load never retries every frame. All
+    # results null-guarded. esi (villager record) is preserved by the stdcall/DLL
+    # calls, so the caller (mask_flip) can proceed. No villager-record or save write.
+    load_once = put(page, page_va, "mask_load_once", f"""
+        mov byte ptr [0x{MASK_LOADED:X}], 1
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        je mlo_ret
+        push 0x{s['readmask_export']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        je mlo_ret
+        push 0x{MASK_TABLE:X}
+        call eax
+    mlo_ret:
+        ret
+    """)
+    # bighead_mask: detour for the Details-screen villager-portrait head draw
+    # (`call 0x409CA0` at 0x466E05 inside sub_466C40). The portrait compositor
+    # reads no faction/mask field, so it never draws the mask. This routine
+    # replays the real head draw with the caller's own seven stdcall arguments
+    # (re-pushed so 0x409CA0's `ret 0x1C` cleans the copies and the originals are
+    # left intact on the stack), then -- if the villager has a chosen mask --
+    # blits the heathen mask atlas (id 0x101) over the head at the SAME
+    # position/facing/scale, lifted, before returning through `ret 0x1C` (which
+    # cleans the caller's original seven arguments, exactly as the stock stdcall
+    # call would have). esi (villager record) is preserved across both draws, so
+    # mask_get keys the side-table correctly and the caller sees esi unchanged.
+    # All transient values live in non-exec .data BSS scratch (W^X-clean).
+    bighead = put(page, page_va, "bighead_mask", f"""
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        push dword ptr [esp+0x1C]
+        call 0x409CA0
+        mov eax, [esp+0x08]
+        add eax, 0x{BH_XOFF:X}
+        mov dword ptr [0x{BH_SX:X}], eax
+        mov eax, [esp+0x0C]
+        sub eax, 0x{BH_LIFT:X}
+        mov dword ptr [0x{BH_SY:X}], eax
+        mov eax, [esp+0x14]
+        mov dword ptr [0x{BH_SF:X}], eax
+        mov eax, [esp+0x18]
+        mov dword ptr [0x{BH_SS:X}], eax
+        call 0x{page_va + OFF['mask_get']:X}
+        test eax, eax
+        je bh_ret
+        cmp eax, 5
+        ja bh_ret
+        dec eax
+        mov dword ptr [0x{BH_SROW:X}], eax
+        mov eax, dword ptr [esi + 0x2F3C]
+        cdq
+        mov ecx, 3
+        idiv ecx
+        movzx ecx, byte ptr [edx + 0x{page_va + OFF['bighead_offsets']:X}]
+        mov dword ptr [0x{BH_SCOL:X}], ecx
+        movsx eax, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets'] + 8:X}]
+        add eax, dword ptr [0x{BH_SX:X}]
+        mov dword ptr [0x{BH_SX:X}], eax
+        mov ecx, dword ptr [0x{BH_SROW:X}]
+        movsx eax, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets'] + 11:X}]
+        add eax, dword ptr [0x{BH_SY:X}]
+        mov dword ptr [0x{BH_SY:X}], eax
+        cmp dword ptr [esi + 0x1B8C], 0x118
+        jae bh_grown
+        mov ecx, dword ptr [0x{BH_SROW:X}]
+        cmp ecx, 1
+        je bh_child_off
+        cmp ecx, 3
+        je bh_child_off
+        cmp ecx, 4
+        jne bh_grown
+    bh_child_off:
+        sub dword ptr [0x{BH_SX:X}], 2
+        add dword ptr [0x{BH_SY:X}], 3
+    bh_grown:
+        call 0x44FBB0
+        mov ecx, eax
+        push 0x{MASK_HANDLE:X}
+        call 0x44FA30
+        imul ecx, dword ptr [0x{BH_SS:X}], 0x{BH_SCALE_MUL:X}
+        shr ecx, 0x{BH_SCALE_SHIFT:X}
+        push 0
+        push ecx
+        push dword ptr [0x{BH_SCOL:X}]
+        push dword ptr [0x{BH_SROW:X}]
+        push dword ptr [0x{BH_SY:X}]
+        push dword ptr [0x{BH_SX:X}]
+        push eax
+        mov ecx, dword ptr [esi + 0x2F2C]
+        call 0x409CA0
+    bh_ret:
+        ret 0x1C
+    """)
+    # Portrait-facing -> mask-column table (3 bytes) in the R+X page, read-only and
+    # live-tunable. bigheads_masks.png is 3 facing columns; the portrait head's own
+    # facing index (record+0x2F3C mod 3) selects the matching mask column so the
+    # mask rotates + tracks with the head, independent of the villager's age.
+    tbl_off = OFF["bighead_offsets"]
+    if any(page[tbl_off : tbl_off + SIZES["bighead_offsets"]]):
+        raise RuntimeError("bighead_offsets overlaps generated data")
+    for i, col in enumerate(BH_FACE_TABLE):
+        page[tbl_off + i] = col & 0xFF
+    # per-column horizontal nudge table (3 signed bytes), just past the 8-byte
+    # frame->column table, indexed by the resolved column.
+    for i, dx in enumerate(BH_COLDX_TABLE):
+        page[tbl_off + 8 + i] = dx & 0xFF
+    # per-mask-color (row) vertical nudge table (5 signed bytes), past the col-dx
+    # table, indexed by the mask row (mask-1).
+    for i, dy in enumerate(BH_ROWDY_TABLE):
+        page[tbl_off + 11 + i] = dy & 0xFF
+    # slot_capture: detour target for buildSavePath (sub_403600). On every save
+    # AND load the game builds "<base><slot>.ldw" through sub_403600(this, slot);
+    # this cave records the current slot so the DLL can key the mask sidecar per
+    # save slot (fixing cross-slot bleed). Read-only w.r.t. save logic: it stashes
+    # the slot only when non-zero (slot 0 = the meta file, never a village), then
+    # runs the displaced `sub esp,0x104` prologue and returns to 0x403606. Because
+    # eax is clobbered by the original next instruction (mov eax, security_cookie),
+    # the cave is free to use it without preserving.
+    #
+    # Slot-CHANGE re-arm: when the captured slot differs from the last one (the
+    # player returned to the menu and loaded a DIFFERENT village without restarting
+    # the process), clear MASK_LOADED so the next village frame re-runs
+    # mask_load_once and reloads the new slot's side-table. Without this the stale
+    # in-memory table bleeds the first village's mask choices into the second and a
+    # subsequent appearance purchase would cross-write the new slot's sidecar.
+    # Same-slot saves (slot unchanged) skip the reset, so a normal save never
+    # triggers a spurious reload.
+    slot_capture = put(page, page_va, "slot_capture", f"""
+        mov eax, dword ptr [esp + 4]
+        test eax, eax
+        jz sc_skip
+        cmp eax, dword ptr [0x{SLOT_SCRATCH:X}]
+        je sc_skip
+        mov dword ptr [0x{SLOT_SCRATCH:X}], eax
+        mov byte ptr [0x{MASK_LOADED:X}], 0
+    sc_skip:
+        sub esp, 0x104
+        jmp 0x403606
+    """)
+    # mask_birth_clear: detour target for the villager BIRTH function sub_4687F0
+    # (thiscall, ecx = the newborn record; it copies parent fields + sets active
+    # +0x1CD4=1). A newborn reuses a freed record slot, so without this it would
+    # inherit the dead prior occupant's mask nibble. Clear the newborn's nibble via
+    # mask_set(esi=record, bl=0) so every new villager starts maskless; masks set
+    # later by the appearance chooser are untouched, and LOADED villagers never go
+    # through birth so their persisted masks survive. Side-table only -- never
+    # touches the record or save. All registers preserved (ecx=this is restored),
+    # then the displaced 6-byte prologue is replayed and control returns to 0x4687F6.
+    birth_clear = put(page, page_va, "mask_birth_clear", f"""
+        push ecx
+        push esi
+        push ebx
+        push eax
+        push edx
+        mov esi, ecx
+        xor ebx, ebx
+        call 0x{page_va + OFF['mask_set']:X}
+        pop edx
+        pop eax
+        pop ebx
+        pop esi
+        pop ecx
+        push ebx
+        push esi
+        mov esi, ecx
+        xor ebx, ebx
+        jmp 0x4687F6
+    """)
+    return {
+        "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
+        "mask_load_once": load_once, "bighead_mask": bighead,
+        "slot_capture": slot_capture, "mask_birth_clear": birth_clear,
+    }
 
 
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
@@ -3276,6 +3691,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["island"] = build_island(page, page_va, strings)
         routines["barrel"] = build_barrel(page, page_va, strings)
         routines["appearance"] = build_appearance(page, page_va, strings)
+        routines["appearance_all"] = build_appearance_all(page, page_va, strings)
         routines["complete_collections"] = build_complete_collections(page, page_va)
         routines["reset_collections"] = build_reset_collections(page, page_va)
         routines["running_all"] = build_running_all(page, page_va)
@@ -3288,7 +3704,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["division_no_parenting"] = build_division(
             page, page_va, "division_no_parenting", parenting=0, action=24
         )
-        routines.update(build_mask_render(page, page_va))
+        routines.update(build_mask_render(page, page_va, strings))
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},
@@ -3428,6 +3844,7 @@ def main() -> None:
     if len(relocations) != C342_COUNT or canonical_sha(relocations) != C342_ROWS_SHA256:
         raise RuntimeError("frozen C342 66-row ledger drift")
     companion = COMPANION.read_bytes()
+    bighead_atlas_png = BIGHEAD_ATLAS_PNG.read_bytes()
     bindings = source_bindings()
     pages: dict[str, bytes] = {}
     page_maps: dict[str, object] = {}
@@ -3474,12 +3891,20 @@ def main() -> None:
                 "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
             },
         },
-        "companion_files": [{
-            "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
-            "destination": "VVFP Origins Icons.dll",
-            "sha256": sha(companion),
-            "size": len(companion),
-        }],
+        "companion_files": [
+            {
+                "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+                "destination": "VVFP Origins Icons.dll",
+                "sha256": sha(companion),
+                "size": len(companion),
+            },
+            {
+                "source": "assets/vv5_bighead_masks/bigheads_masks.png",
+                "destination": "Images\\bigheads_masks.png",
+                "sha256": sha(bighead_atlas_png),
+                "size": len(bighead_atlas_png),
+            },
+        ],
         "pe_append_transaction": {
             "section": ".vv5t9",
             "append_source": "generated:vv5_task9_native_actions_page",
@@ -3588,6 +4013,90 @@ def main() -> None:
                 "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
                 "purpose": "Heathen mask: at the render-fn epilogue, revert the transient faction+colour flip via the saved villager pointer, then run the displaced add esp,0xA8; ret 8",
             })
+    # Heathen mask on the Details villager portrait (the "bigheads" render): the
+    # portrait compositor sub_466C40 draws the head via `call 0x409ca0` at
+    # 0x466E05 but never draws the mask (it reads no faction/mask field, unlike
+    # the village render's faction-flip path). Detour that head-draw call to the
+    # page's bighead_mask routine, which replays the head then blits the chosen
+    # mask atlas (id 0x101) over it. sub_466C40 is the shared portrait compositor,
+    # so the mask shows consistently on every villager-portrait screen.
+    bighead_site = 0x466E05
+    bighead_preimage = "E8962EFAFF"            # call 0x409CA0 (5 bytes)
+    if stock[bighead_site - 0x400000 : bighead_site - 0x400000 + 5].hex().upper() != bighead_preimage:
+        raise RuntimeError("Heathen-mask bighead head-draw preimage drift at 0x466E05")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        overrides = result["patch_mode_overrides"].setdefault(mode, [])
+        rel = (page_va + OFF["bighead_mask"]) - (bighead_site + 5)
+        overrides.append({
+            "offset": f"0x{bighead_site - 0x400000:X}",
+            "before": bighead_preimage,
+            "after": "E8" + rel.to_bytes(4, "little", signed=True).hex().upper(),
+            "purpose": "Heathen mask: on the Details villager portrait, replay the head draw then blit the chosen mask atlas over it (the portrait compositor draws no mask natively)",
+        })
+    # Per-slot mask sidecar: capture the game's current save slot so the companion
+    # DLL keys the mask sidecar file per slot (vvfp_masks_<slot>.dat) instead of one
+    # shared vvfp_masks.dat that bleeds one village's masks onto another. buildSavePath
+    # theGameState::sub_403600(this, slot) is the single choke point that formats
+    # "<base><slot>.ldw" on every save and load; detour its clean 6-byte prologue
+    # (`sub esp,0x104`) to the page's slot_capture cave, which stashes the slot (when
+    # non-zero) and replays the prologue. Read-only w.r.t. the save itself.
+    slot_site = 0x403600
+    slot_preimage = "81EC04010000"             # sub esp, 0x104 (6 bytes)
+    if stock[slot_site - 0x400000 : slot_site - 0x400000 + 6].hex().upper() != slot_preimage:
+        raise RuntimeError("buildSavePath prologue preimage drift at 0x403600")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        rel = (page_va + OFF["slot_capture"]) - (slot_site + 5)
+        result["patch_mode_overrides"].setdefault(mode, []).append({
+            "offset": f"0x{slot_site - 0x400000:X}",
+            "before": slot_preimage,
+            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "90",
+            "purpose": "Per-slot mask sidecar: capture the current save slot from buildSavePath so the companion DLL keys vvfp_masks_<slot>.dat per village (fixes cross-slot mask bleed)",
+        })
+    # Slot-reuse guard: clear a newborn's mask nibble at birth. A dead villager
+    # frees its record slot; the next newborn reuses that index and would inherit
+    # the dead one's persisted mask. sub_4687F0 is the villager BIRTH ctor (thiscall,
+    # ecx = newborn record; copies parent fields, sets active +0x1CD4=1) and fires
+    # ONLY on real births -- loaded villagers never pass through it, so their masks
+    # survive. Detour its 6-byte entry prologue to mask_birth_clear, which zeroes the
+    # newborn's side-table nibble then replays the prologue. Side-table only.
+    birth_site = 0x4687F0
+    birth_preimage = "53568BF133DB"            # push ebx;push esi;mov esi,ecx;xor ebx,ebx (6 bytes)
+    if stock[birth_site - 0x400000 : birth_site - 0x400000 + 6].hex().upper() != birth_preimage:
+        raise RuntimeError("villager-birth prologue preimage drift at 0x4687F0")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        rel = (page_va + OFF["mask_birth_clear"]) - (birth_site + 5)
+        result["patch_mode_overrides"].setdefault(mode, []).append({
+            "offset": f"0x{birth_site - 0x400000:X}",
+            "before": birth_preimage,
+            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "90",
+            "purpose": "Heathen mask slot-reuse guard: clear a newborn villager's mask nibble at birth so it never inherits the dead prior slot occupant's mask",
+        })
+    # Register the dedicated bighead mask atlas (bigheads_masks.png) as a new
+    # sprite-table record in the free slot 0x155 (0x4D2FA8 in .data). The stock
+    # slot is unused (all-zero); write {id, filename_ptr, cols=1, rows=5}. The
+    # filename string lives in the Task9 page, and bigheads_masks.png ships in the
+    # game Images/ folder; sub_44FA30(0x155) lazily loads it for the portrait blit.
+    atlas_rec_off = BIGHEAD_ATLAS_REC_VA - 0x400000
+    if any(stock[atlas_rec_off : atlas_rec_off + 0x30]):
+        raise RuntimeError(f"bighead atlas sprite slot 0x{BIGHEAD_ATLAS_ID:X} not free at 0x{BIGHEAD_ATLAS_REC_VA:X}")
+    for mode in ("collection_progression", "immediate_fixed"):
+        str_va = int(page_maps[mode]["string_virtual_addresses"]["bighead_atlas"], 16)
+        rec = (
+            BIGHEAD_ATLAS_ID.to_bytes(4, "little")
+            + str_va.to_bytes(4, "little")
+            + BIGHEAD_ATLAS_COLS.to_bytes(4, "little")
+            + BIGHEAD_ATLAS_ROWS.to_bytes(4, "little")
+            + b"\0" * 0x20
+        )
+        result["patch_mode_overrides"].setdefault(mode, []).append({
+            "offset": f"0x{atlas_rec_off:X}",
+            "before": "00" * 0x30,
+            "after": rec.hex().upper(),
+            "purpose": "Register bigheads_masks.png as sprite id 0x155 (free slot) so the Details portrait mask blit uses the dedicated bighead atlas",
+        })
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
     map_record = {
