@@ -124,7 +124,7 @@ CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # 42px lift at full scale, scaled with th
 # The Details/portrait draw (caller < 0x445B50) goes through the SAME scaled thunk but pushes
 # arg6 = 2*(age/7)+0xA0 = DOUBLE the in-world scaledRow, so the same multiplier double-lifts and
 # the mask flies above the head.  Give the portrait its own (smaller) multiplier; tune to taste.
-PORTRAIT_DY_MUL = 54   # same lift on the portrait (arg6 carries its own scale)
+PORTRAIT_DY_MUL = 27   # HALF of CHILD_DY_MUL: the portrait's arg6 is double the village scaledRow
 # The mask atlas is baked/tuned for the 1x village view; the Details portrait draws the same
 # atlas larger, leaving masks a touch high+left there.  Nudge masks down+right on the portrait
 # path ONLY (caller < 0x445B50).  Tune to taste.
