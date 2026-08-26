@@ -7,8 +7,8 @@
     "table_file_offset": "0xA0CD8",
     "entry_name": "running"
   },
-  "name": "Enable Origins-Exclusive Features",
-  "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance.",
+  "name": "Enable Origins-Exclusive Features (with Heathen Mask mod)",
+  "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
   "output_tag": "Origins Exclusive Features",
   "ui_contract": {
     "tech_constructor": {
@@ -139,12 +139,12 @@
     {
       "source": "assets/origins/VVFP VV4 Origins Icons.dll",
       "destination": "VVFP VV4 Origins Icons.dll",
-      "sha256": "A84BBC50C66F67FAEEBBFEF32CE2506BA33B074576EDBE65377565C76F77BC95"
+      "sha256": "43071176E61E7C3841741A87DFA2C30D4139CE504A2411B6A004B3F659503266"
     },
     {
       "source": "assets/vv4_masks/vvfp_mask_atlas.png",
       "destination": "Images/vvfp_mask_atlas00.png",
-      "sha256": "06C1D04A283FC88F18D2AAE2A0FAFAA0DC79A0525AF101594107C9FC9EEFCC36"
+      "sha256": "3065737A8A887B5F19EA8E29B36FE5F45D78578454A2EC4ADC9C84F994DC51EC"
     },
     {
       "source": "assets/vv4_masks/vvfp_mask_preview.png",
@@ -451,9 +451,15 @@
     },
     {
       "offset": "0xCCEB0",
-      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "890D988F720089359C8F72008B0424A3A08F72008B442404A3A48F72008B442408A3A88F72008B44240CA3AC8F72008B442410A3B08F72008B442414A3B48F72008B442418A3B88F72008B44241CA3BC8F7200C704240F8F7200E98138D2FFE87CFEFFFFA1688D720085C07446FF359C8F7200FFD085C07E3A488B15708D720085D2742FFF35BC8F7200FF35B88F72008B0DB48F720083E1075150FF35AC8F7200FF35A88F7200528B0D988F7200E82D38D2FFFF25A08F7200",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "890D988F720089359C8F72008B0424A3A08F72008B442404A3A48F72008B442408A3A88F72008B44240CA3AC8F72008B442410A3B08F72008B442414A3B48F72008B442418A3B88F72008B44241CA3BC8F7200C704240F8F7200E98138D2FFE87CFEFFFFA1688D720085C07450FF359C8F7200FFD085C07E44488B15708D720085D27439FF35BC8F7200FF35B88F72008B0DB48F720083E10751508B0DAC8F72000FBE80C48F720029C151FF35A88F7200528B0D988F7200E82338D2FFFF25A08F7200",
       "purpose": "Heathen mask: WORLD cave -- wrap FUN_00467da0's post-head camera world-blit (0x44C790) and re-issue it with arg1=mask atlas + arg4=mask row + y-lift so the walking-village mask lands in the deferred composite"
+    },
+    {
+      "offset": "0xCCFC4",
+      "before": "0000000000",
+      "after": "0000000007",
+      "purpose": "Heathen mask: per-mask vertical nudge table (blue/orange/red/purple/chief; chief +7 up)"
     },
     {
       "offset": "0x68263",

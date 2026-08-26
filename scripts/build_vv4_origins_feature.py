@@ -208,6 +208,14 @@ MASK_W_A5 = 0x728FB4                 # arg5 = the resolved sprite frame (unused 
 MASK_W_A6 = 0x728FB8                 # arg6 = float (the head/blit SCALE; lift scales by it)
 MASK_W_A7 = 0x728FBC                 # arg7 = float
 MASK_W_SCRATCH = 0x728FC0            # fistp target for the scaled lift (< page end 0x729000)
+# Per-mask vertical nudge table (signed bytes, rows blue/orange/red/purple/chief =
+# mask value 1..5, indexed by mask-1). Added at draw time so a tall mask (chief)
+# whose face sits low in its uniform cell can be lifted without re-cutting the
+# atlas -- the whole-cell shift keeps feathers from clipping. Positive = UP.
+# Live-tunable: change the bytes + re-apply the patch, no atlas rebuild.
+# (Siblings VV1/VV2/VV3/VV5 all place final alignment in a draw-time nudge.)
+MASK_DY_TABLE = 0x728FC4             # 5 signed bytes at 0x728FC4..0x728FC8 (< 0x729000)
+MASK_DY_VALUES = (0, 0, 0, 0, 7)    # blue, orange, red, purple, chief (chief +7 up)
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -372,17 +380,13 @@ def mask_world_cave() -> bytes:
     drawn). Preserves esi/edi/ebp/ebx (only eax/ecx/edx touched, all caller-saved
     across the original call)."""
     def src(post_orig: int) -> str:
-        # y = worldY - lift*scale, scale = the head's own blit float (arg6) so the
-        # mask rises/shrinks with children + carried villagers (VV2/VV5). FPU use
-        # is balanced (fild push / fistp pop) so the game's FPU stack is preserved.
-        y3 = (f"push dword ptr [{MASK_W_A3}]" if MASK_WORLD_LIFT == 0 else
-              f"push {MASK_WORLD_LIFT}\n"
-              f"            fild dword ptr [esp]\n"
-              f"            add esp, 4\n"
-              f"            fmul dword ptr [{MASK_W_A6}]\n"
-              f"            fistp dword ptr [{MASK_W_SCRATCH}]\n"
-              f"            mov ecx, dword ptr [{MASK_W_A3}]\n"
-              f"            sub ecx, dword ptr [{MASK_W_SCRATCH}]\n"
+        # y = worldY - MASK_DY[mask-1]. eax still holds mask-1 here (already pushed
+        # as arg4), so it indexes the signed per-mask nudge table; positive = UP.
+        # Unscaled (small nudge, keeps the cave inside the tight .shr tail budget);
+        # tune the bytes in MASK_DY_VALUES if a mask needs more/less.
+        y3 = (f"mov ecx, dword ptr [{MASK_W_A3}]\n"
+              f"            movsx eax, byte ptr [eax + {MASK_DY_TABLE}]\n"
+              f"            sub ecx, eax\n"
               f"            push ecx")
         return f"""
             mov dword ptr [{MASK_W_MGR}], ecx
@@ -1734,6 +1738,15 @@ def main() -> None:
     mask_world = mask_world_cave()
     patch(MASK_WORLD_FILE_OFFSET, b"\0" * len(mask_world), mask_world,
           "Heathen mask: WORLD cave -- wrap FUN_00467da0's post-head camera world-blit (0x44C790) and re-issue it with arg1=mask atlas + arg4=mask row + y-lift so the walking-village mask lands in the deferred composite")
+    # Initialise the per-mask vertical-nudge table (chief +7 up). Lives just past
+    # the cave + scratch in the .shr tail; assert the cave never reaches it.
+    _shr_delta = MASK_WORLD_VA - MASK_WORLD_FILE_OFFSET
+    _dy_file = MASK_DY_TABLE - _shr_delta
+    assert MASK_WORLD_FILE_OFFSET + len(mask_world) <= _dy_file, \
+        "world cave grew into the per-mask DY table -- relocate the table/scratch"
+    patch(_dy_file, b"\0" * len(MASK_DY_VALUES),
+          bytes(v & 0xFF for v in MASK_DY_VALUES),
+          "Heathen mask: per-mask vertical nudge table (blue/orange/red/purple/chief; chief +7 up)")
     patch(MASK_WORLD_SITE - IMAGE_BASE,
           rel32_call(MASK_WORLD_SITE, MASK_WORLD_CALLEE),
           rel32_call(MASK_WORLD_SITE, MASK_WORLD_VA),
@@ -1779,8 +1792,8 @@ def main() -> None:
         "game_id": "vv4",
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xA0CD8", "entry_name": "running"},
-        "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance.",
+        "name": "Enable Origins-Exclusive Features (with Heathen Mask mod)",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
         "output_tag": "Origins Exclusive Features",
         "ui_contract": ui_metadata,
         "native_handlers": {
