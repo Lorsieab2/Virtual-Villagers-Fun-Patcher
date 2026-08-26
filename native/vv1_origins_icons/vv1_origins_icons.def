@@ -14,3 +14,4 @@ EXPORTS
     Vv1MaskApplyDistribution=_Vv1MaskApplyDistribution@8
     ShowOriginsAppearanceForAll=_ShowOriginsAppearanceForAll@4
     Vv1DrawPortraitMask=_Vv1DrawPortraitMask@8
+    Vv1GetMaskSprite=_Vv1GetMaskSprite@0

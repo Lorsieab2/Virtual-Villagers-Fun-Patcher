@@ -353,6 +353,9 @@ static void vv1_mask_sidecar_load(void) {
    blue,orange,red,purple,chief -> 1..5). */
 #define VV_MASK_RED           3
 #define VV_PORTRAIT_RED_EXTRA_DY (-3)
+/* purple (mask value 4) cell art sits a hair high -- nudge it back down. */
+#define VV_MASK_PURPLE        4
+#define VV_PORTRAIT_PURPLE_EXTRA_DY (2)
 
 /* Engine functions are called directly by their fixed .text addresses (stable
    -- patches live in .shr caves and never move .text). The two engine calls
@@ -391,6 +394,17 @@ static void *vv1_portrait_mask_atlas(void) {
     }
     vv_portrait_mask_sprite = (built == NULL) ? (void *)1 : built;
     return (vv_portrait_mask_sprite == (void *)1) ? NULL : built;
+}
+
+/* The exe-side village mask hook fetches the built mask-atlas engine sprite
+   through this export (resolved once, then cached in .data by the hook). The
+   sprite is built lazily through the engine ctor, which needs graphics up --
+   always true when a villager head is being drawn -- so building on first call
+   from the draw path is safe. Returns NULL on failure; the hook then skips the
+   mask (fail-open) rather than drawing garbage. Shares the single cached atlas
+   with the Details portrait, so both paths use the same sprite. */
+__declspec(dllexport) void *__stdcall Vv1GetMaskSprite(void) {
+    return vv1_portrait_mask_atlas();
 }
 
 /* Called from each of sub_437340's four portrait head-draw splices AFTER the
@@ -450,7 +464,8 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
         int yy = (age < VV_PORTRAIT_ADULT_AGE ? VV_PORTRAIT_Y_CHILD
                                               : VV_PORTRAIT_Y_ADULT)
                  + VV_PORTRAIT_MASK_DY
-                 + (mask == VV_MASK_RED ? VV_PORTRAIT_RED_EXTRA_DY : 0);
+                 + (mask == VV_MASK_RED ? VV_PORTRAIT_RED_EXTRA_DY : 0)
+                 + (mask == VV_MASK_PURPLE ? VV_PORTRAIT_PURPLE_EXTRA_DY : 0);
         int col = *(int *)(g + VV_ANIMPARAM_OFFSET);  /* head's live facing col */
         int sc = head_scale + VV_PORTRAIT_MASK_LIFT;
         /* Same 7-arg push order as sub_437340's head draw (deepest first):
