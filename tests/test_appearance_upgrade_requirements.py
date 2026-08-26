@@ -381,13 +381,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # x/y from it, which grew the draw hook past the 0x8BEA8
                     # cave, so it moved to its own confirmed-zero .shr gap.
                     "0x8B080",
-                    # Details-screen portrait mask overlay: splice on
-                    # sub_437340's head-draw call (0x3741B) -> a cave in the
-                    # confirmed-zero .shr tail (0x8BF3C) that reproduces the head
-                    # draw then calls the DLL's Vv1DrawPortraitMask. The new
-                    # export string reshuffles later .rdata string pointers.
-                    "0x3741B",
-                    "0x8BF3C",
+                    # Details-screen portrait mask overlay: sub_437340 draws the
+                    # portrait head at FOUR call sites (a 2x2 of age x head-atlas
+                    # flag). All four are spliced (0x3741B, 0x374A4, 0x37503,
+                    # 0x37556) into a shared resolve-and-call helper (0x8BF3C)
+                    # plus one capture cave each (0x8BF7A/0x8BF92/0x8BFAA/
+                    # 0x8BFC2) in the confirmed-zero .shr tail; each reproduces
+                    # the head draw then calls the DLL's Vv1DrawPortraitMask.
+                    "0x3741B", "0x374A4", "0x37503", "0x37556",
+                    "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

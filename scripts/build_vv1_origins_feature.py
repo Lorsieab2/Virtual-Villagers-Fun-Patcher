@@ -2544,59 +2544,97 @@ def main() -> None:
         "cosmetic head-mask overlay draw hook, relocated to its own confirmed-zero .shr gap: it recomputes each masked villager's screen position, facing frame and colour from the 1-byte record index the stash hook left this frame plus the saved village scroll, then blits the matching mask cell; too big to sit in the 0x8BEA8 cave beside the stash and frame-cache hooks",
     )
     # --- Details-screen portrait ("bighead") mask overlay ---
-    portrait_mask_cave = assemble(
+    # sub_437340 renders the Details portrait head at FOUR call sites -- a 2x2
+    # of age (child, [rec+0x348] < 0x118  /  adult) x head-atlas flag
+    # ([rec+0x350] == 1 or not) -- each an identical 'call 0x409410' with 7 args
+    # whose arg6 (deepest but one, [esp+0x14]) is the head's own scale. The
+    # earlier single splice at 0x43741B covered only ONE quadrant (child,
+    # flag==1), so only some villagers ever got a portrait mask (adults, the
+    # other flag, showed none). We now splice ALL FOUR head draws into per-site
+    # capture caves that share one resolve-and-call helper. esi=gameobj and
+    # edi=record hold across all four (edi set once at 0x43737D), so each cave
+    # just carries the head scale in ebx over the draw (0x408af0 preserves
+    # ebx/ebp, which sub_437340 relies on for its own caller) and hands the
+    # helper (gameobj, record, scale). The DLL derives the rest (renderer,
+    # facing col, and the age-split y -- child 0x102 / adult 0xe4).
+    PORTRAIT_HEAD_DRAW_SITES = [
+        (0x43741B, 0x437420),   # child, flag==1
+        (0x4374A4, 0x4374A9),   # child, flag!=1
+        (0x437503, 0x437508),   # adult, flag==1
+        (0x437556, 0x43755B),   # adult, flag!=1
+    ]
+    # Shared helper (at the head of the cave region): resolve Vv1DrawPortraitMask
+    # once (cached in .data), then call it (gameobj, record) @8. Incoming from a
+    # cave: [esp+4]=gameobj, [esp+8]=record. Touches only eax + the re-pushed
+    # args; LoadLibrary/GetProcAddress/the DLL all preserve ebx/ebp/esi/edi. The
+    # head scale is NOT an arg -- the cave stashes it in .data before the head
+    # draw and the DLL reads it back, so the cave never pushes anything ahead of
+    # the head-draw call (a push there shifts the arg frame 0x409410 reads).
+    portrait_helper_va = PORTRAIT_MASK_CAVE_VA
+    portrait_helper = assemble(
         f"""
-            # Replaces sub_437340's 'call 0x409410' (the portrait head draw). On
-            # entry the head-draw's 6 args are pushed and ecx = the renderer
-            # (set by sub_437340 just before its call). Capture the head's own
-            # scale arg -- the deepest of the six pushed args, [esp+0x14] -- into
-            # a .data slot via volatile eax BEFORE the draw cleans the args. Only
-            # eax/ecx/edx (volatile) are touched here: sub_437340 preserves
-            # ebx/ebp for its own caller (it saves only esi/edi), so the cave
-            # must not clobber them; and the head draw would clobber a volatile
-            # reg, so the scale can't ride one across it -> .data it is.
-            mov eax, dword ptr [esp + 0x14]
-            mov dword ptr [0x{PORTRAIT_SCALE_SAVE_VA:X}], eax
-            call 0x{PORTRAIT_SCALED_DRAW_VA:X}          # the original head draw
-            # resolve the DLL export once, cached in .data
             mov eax, dword ptr [0x{PORTRAIT_DLL_FN_VA:X}]
             test eax, eax
-            jnz portrait_call
+            jnz phelper_call
             push 0x{s['icons_dll']:X}
             call dword ptr [0x457010]                   # LoadLibraryA
             test eax, eax
-            jz portrait_ret
+            jz phelper_done
             push 0x{s['draw_portrait_mask']:X}
             push eax
             call dword ptr [0x4570D4]                   # GetProcAddress
             test eax, eax
-            jz portrait_ret
+            jz phelper_done
             mov dword ptr [0x{PORTRAIT_DLL_FN_VA:X}], eax
-        portrait_call:
-            push dword ptr [0x{PORTRAIT_SCALE_SAVE_VA:X}]   # head_scale
-            push edi                                    # record
-            push esi                                    # gameobj
-            call eax                                    # Vv1DrawPortraitMask (stdcall, cleans 12)
-        portrait_ret:
-            jmp 0x{PORTRAIT_HEAD_DRAW_RESUME_VA:X}
+        phelper_call:
+            push dword ptr [esp + 8]                    # record  (arg2)
+            push dword ptr [esp + 8]                    # gameobj (arg1)
+            call eax                                    # Vv1DrawPortraitMask @8
+        phelper_done:
+            ret 8
         """,
-        PORTRAIT_MASK_CAVE_VA,
+        portrait_helper_va,
     )
     patch(
         PORTRAIT_MASK_CAVE_FILE_OFFSET,
-        b"\0" * len(portrait_mask_cave),
-        portrait_mask_cave,
-        "Details-screen portrait mask overlay cave: replaces sub_437340's head-draw call -- reproduces the head draw, then resolves (once, cached in .data) and calls the DLL's Vv1DrawPortraitMask, which re-issues the engine's own scaled draw with a mask sprite so the mask scales onto the age-scaled portrait exactly like the head. Portrait-gated (this one call site only) so the village mask path is untouched",
+        b"\0" * len(portrait_helper),
+        portrait_helper,
+        "Details-screen portrait mask helper: resolves Vv1DrawPortraitMask once (cached in .data) and calls it (gameobj, record); shared by all four head-draw capture caves.",
     )
-    portrait_detour_code = assemble(
-        f"jmp 0x{PORTRAIT_MASK_CAVE_VA:X}",
-        IMAGE_BASE + PORTRAIT_HEAD_DRAW_SPLICE_FILE,
-    )
-    patch(
-        PORTRAIT_HEAD_DRAW_SPLICE_FILE,
-        bytes.fromhex("E8F01FFDFF"),   # original: call 0x409410 at 0x43741B
-        portrait_detour_code,
-        "splice sub_437340's portrait head-draw call into the portrait mask overlay cave (the cave reproduces the head draw before overlaying the mask)",
+    # Lay the four capture caves contiguously right after the helper.
+    _cave_file = PORTRAIT_MASK_CAVE_FILE_OFFSET + len(portrait_helper)
+    _cave_va = portrait_helper_va + len(portrait_helper)
+    for (splice_va, resume_va) in PORTRAIT_HEAD_DRAW_SITES:
+        cave = assemble(
+            f"""
+                mov eax, dword ptr [esp + 0x14]         # arg6 = head scale (stack-neutral read)
+                mov dword ptr [0x{PORTRAIT_SCALE_SAVE_VA:X}], eax
+                call 0x{PORTRAIT_SCALED_DRAW_VA:X}       # the original head draw (arg frame intact)
+                push edi                                # record
+                push esi                                # gameobj
+                call 0x{portrait_helper_va:X}
+                jmp 0x{resume_va:X}
+            """,
+            _cave_va,
+        )
+        patch(
+            _cave_file,
+            b"\0" * len(cave),
+            cave,
+            f"Details-screen portrait mask capture cave for the head draw at {splice_va:#x}: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at {resume_va:#x}.",
+        )
+        orig_call = assemble(f"call 0x{PORTRAIT_SCALED_DRAW_VA:X}", splice_va)
+        detour = assemble(f"jmp 0x{_cave_va:X}", splice_va)
+        patch(
+            splice_va - IMAGE_BASE,
+            orig_call,
+            detour,
+            f"splice sub_437340 portrait head-draw call at {splice_va:#x} into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)",
+        )
+        _cave_file += len(cave)
+        _cave_va += len(cave)
+    assert _cave_file <= PORTRAIT_MASK_CAVE_FILE_OFFSET + 196, (
+        f"portrait caves overflow the 0x8BF3C..0x8C000 gap: end={_cave_file:#x}"
     )
     mask_detour_code = assemble(
         f"""

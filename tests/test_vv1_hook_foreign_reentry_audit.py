@@ -85,13 +85,20 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x24103"): "0B4C8F5AAFAE151BEA41084E5C7CEE4075A1646423A44D1E9E0E36A3C818E4D5",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "62DCC4DD0BBD934EC1215760BA817F5DB8E5F5CAB857E30A1D4B79DAD6875173",
     ("vv1_enable_origins_exclusive_features", "0x913C"): "1135C1CB91F00D2CA0B9283251E0D35FA2F92BB967288CA9D2454C3B9E5EA120",
-    # Details portrait mask overlay splice: replaces sub_437340's head-draw call
-    # with a jmp to the portrait cave, which reproduces the head draw, then
-    # resolves + calls the DLL's Vv1DrawPortraitMask before re-entering stock at
-    # the natural resume 0x437420 (auto-excluded). Touches only EAX/EBX/ECX/EDX
-    # (EBX = the captured head scale, restored by nothing since the tail just
-    # pops ESI/EDI and returns); ESI/EDI/EBP reach the resume unchanged.
-    ("vv1_enable_origins_exclusive_features", "0x3741B"): "B100CC26B5E29FD77A0F9D03E4BB71837A66228C25DE0CF0035066F8D5236940",
+    # Details portrait mask overlay splices: sub_437340 draws the portrait head
+    # at FOUR call sites (a 2x2 of age x head-atlas flag). Each is replaced with
+    # a jmp to its own capture cave, which stashes the head's own scale arg into
+    # .data via EAX (a stack-neutral read -- NOTHING is pushed ahead of the
+    # head-draw call, or the arg frame 0x409410 reads would shift), reproduces
+    # the head draw, then pushes (record, gameobj) and calls a shared resolve-
+    # and-call helper (Vv1DrawPortraitMask @8), and re-enters stock at the
+    # natural resume (splice+5, auto-excluded). Net stack delta is zero and only
+    # EAX/ECX/EDX are clobbered across the resume, so ESI/EDI/EBX/EBP reach it
+    # unchanged -- the register contract sub_437340 needs for its own caller.
+    ("vv1_enable_origins_exclusive_features", "0x3741B"): "4BE9785CCE33995CFE508EF2F175AFB3BFBED12D4EB6FD807CB07F8DEEC77DD4",
+    ("vv1_enable_origins_exclusive_features", "0x374A4"): "CD1979EC7665FF4718DB573BAE81F07040A0DB96D02C24761B7A713E331A0DBF",
+    ("vv1_enable_origins_exclusive_features", "0x37503"): "5B2537BBC4515073649D50A14AD22CA058D40797E557AD0C7F229ED25C9FB649",
+    ("vv1_enable_origins_exclusive_features", "0x37556"): "2FBEA343865CBFF1A69000299D7522B2709C4CAEC9F8A82DBD7A14E4336680EA",
     ("vv1_f6_clothing_change_cheat", "0x1FF2E"): "A00945F8D66A35B8BDB078E933690DDE5B048C60287B716EED0276AC20A07F3E",
     ("vv1_magic_fruit_alters_mortality", "0x2EEAA"): "81719DCFD4BC20C6F136E88308A12EDFA14447AF58E3B8B6DC239BBF4053BF10",
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",

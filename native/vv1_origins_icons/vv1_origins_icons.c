@@ -316,20 +316,43 @@ static void vv1_mask_sidecar_load(void) {
    writes foreign memory (Malwarebytes-safe).
 
    Atlas Images/mask_atlas.png = 7 facing-cols x 5 colour-rows, 40x160 cells
-   (same grid as the world sheets). The portrait is a fixed FRONT view, so the
-   cell is always colour_row*7 + FRONT_COL. The exe cave captures the head's own
-   scale arg off the stack and hands it in, so no scale math is needed here. */
+   (same grid as the world sheets). The mask cell is colour_row (mask-1) x the
+   head's CURRENT facing column: sub_437340 sets [gameobj+0x3E030] = rand()%7
+   (0..6, re-rolled ~2% of frames -> the Detail villager occasionally turns) and
+   feeds it as the head's own column, so reading the same field makes the mask
+   turn WITH the head, exactly like the world sheets do. The exe cave captures
+   the head's own scale arg off the stack and hands it in, so no scale math is
+   needed here. */
 #define VV_RENDERER_OFFSET   0x3E00C   /* [gameobj+..] = scaled-draw "this" */
-#define VV_ANIMPARAM_OFFSET  0x3E030   /* [gameobj+..] = the head-draw arg4 */
+#define VV_ANIMPARAM_OFFSET  0x3E030   /* [gameobj+..] = head-draw facing col (rand()%7) */
 #define VV_PORTRAIT_X        0x78
-#define VV_PORTRAIT_Y        0x102
+/* sub_437340 draws the portrait head at TWO y positions by age: children
+   (age < VV_PORTRAIT_ADULT_AGE) sit lower at VV_PORTRAIT_Y_CHILD, adults higher
+   at VV_PORTRAIT_Y_ADULT. Same age split the engine uses (cmp age,0x118; jge
+   adult). The mask must follow the head, so we pick y off the record's age --
+   otherwise adults' masks land ~0x1E px too low. */
+#define VV_PORTRAIT_Y_CHILD  0x102
+#define VV_PORTRAIT_Y_ADULT  0xE4
+#define VV_PORTRAIT_ADULT_AGE 0x118
 #define VV_MASK_FRONT_COL    5         /* front-facing column (== the head's) */
 #define VV_MASK_ATLAS_COLS   7
+/* The portrait cave saves the head's own scale arg here (exe .data, fixed addr,
+   PORTRAIT_SCALE_SAVE_VA in the build script) BEFORE the head draw cleans the
+   arg frame, then calls us. We read it back so the mask scales exactly like the
+   head. Passing it as a call arg instead would force a push in the cave BEFORE
+   the head-draw call, which shifts the frame 0x409410 reads -> the freeze. */
+#define VV_PORTRAIT_SCALE_SAVE_ADDR 0x0048CED0u
 /* Tunables -- the portrait drifts differently than the world; adjust from a
-   screenshot. LIFT is added to the engine's own head scale arg. */
+   screenshot. DY is added to the head's y (negative = up). LIFT is added to the
+   engine's own head scale arg. */
 #define VV_PORTRAIT_MASK_DX   0
-#define VV_PORTRAIT_MASK_DY   0
+#define VV_PORTRAIT_MASK_DY   (-52)     /* lift the mask up onto the face (Details renders the tall 160px cell ~1.8x, so needs a big lift; village uses -46 at 1:1) */
 #define VV_PORTRAIT_MASK_LIFT 0
+/* The red mask cell's art sits a hair lower than the others, so give red alone a
+   small extra lift on the Detail portrait. mask value 3 == red (COLOURS =
+   blue,orange,red,purple,chief -> 1..5). */
+#define VV_MASK_RED           3
+#define VV_PORTRAIT_RED_EXTRA_DY (-3)
 
 /* Engine functions are called directly by their fixed .text addresses (stable
    -- patches live in .shr caves and never move .text). The two engine calls
@@ -370,19 +393,22 @@ static void *vv1_portrait_mask_atlas(void) {
     return (vv_portrait_mask_sprite == (void *)1) ? NULL : built;
 }
 
-/* Called from the portrait head-draw splice AFTER the head is drawn.
-   gameobj (esi) and record (edi) come from sub_437340; head_scale is the exact
-   scale arg the head was just drawn with (captured off the stack by the cave).
-   Draws the villager's mask over the portrait head at the same place/scale. */
+/* Called from each of sub_437340's four portrait head-draw splices AFTER the
+   head is drawn. gameobj (esi) and record (edi) come from sub_437340; the head's
+   own scale arg was saved to VV_PORTRAIT_SCALE_SAVE_ADDR by the cave (before the
+   draw cleaned the arg frame). Draws the villager's mask over the portrait head
+   at the same place/scale. @8 (two args) so the cave never has to push anything
+   ahead of the head-draw call -- pushing there is what shifted the frame and
+   froze the game. */
 __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
-                                                        void *record,
-                                                        int head_scale) {
+                                                        void *record) {
     unsigned char *g = (unsigned char *)gameobj;
     unsigned char *rec = (unsigned char *)record;
     unsigned char packed, mask;
     void *sprite, *renderer;
     size_t delta;
     int index, cell;
+    int head_scale = *(int *)VV_PORTRAIT_SCALE_SAVE_ADDR;
     if (g == NULL || rec == NULL || rec < g) {
         return 0;
     }
@@ -409,19 +435,33 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
     if (renderer == NULL) {
         return 0;
     }
-    cell = (mask - 1) * VV_MASK_ATLAS_COLS + VV_MASK_FRONT_COL;
+    /* The engine's scaled draw takes ROW and COLUMN as SEPARATE args (arg4=row,
+       arg5=col; the accessor 0x409f90 does srcRect.y = cellH*row, .x =
+       cellW*col, each clamped to rows/cols). So the mask cell is:
+         row = mask-1  (colour; table is 1-based, 0 = none)
+         col = the head's own facing column [gameobj+0x3E030] (rand()%7, 0..6),
+               so the mask turns with the head instead of being pinned front.
+       A linear (mask-1)*cols+col fed into the ROW arg (not COL) is what clamped
+       everything to the last row (chief) in the earlier broken build. */
+    cell = mask - 1;   /* ROW = colour (0-based) */
     {
+        int age = *(int *)(rec + VV_AGE_OFFSET);
         int xx = VV_PORTRAIT_X + VV_PORTRAIT_MASK_DX;
-        int yy = VV_PORTRAIT_Y + VV_PORTRAIT_MASK_DY;
-        int a4 = *(int *)(g + VV_ANIMPARAM_OFFSET);
+        int yy = (age < VV_PORTRAIT_ADULT_AGE ? VV_PORTRAIT_Y_CHILD
+                                              : VV_PORTRAIT_Y_ADULT)
+                 + VV_PORTRAIT_MASK_DY
+                 + (mask == VV_MASK_RED ? VV_PORTRAIT_RED_EXTRA_DY : 0);
+        int col = *(int *)(g + VV_ANIMPARAM_OFFSET);  /* head's live facing col */
         int sc = head_scale + VV_PORTRAIT_MASK_LIFT;
-        /* Re-issue the engine's own scaled draw with the mask atlas at the same
-           front cell + the head's own scale -- identical push order to
-           sub_437340's head draw (scale, a4, index, y, x, atlas; this=ecx),
-           thiscall so the callee cleans all 6 args (ret 0x18). */
+        /* Same 7-arg push order as sub_437340's head draw (deepest first):
+           arg7=1 (enable flag), arg6=scale, arg5=col, arg4=row, arg3=y, arg2=x,
+           arg1=atlas; this=ecx. stdcall, callee cleans all 7 (ret 0x1C). The
+           arg7=1 flag must be present or the engine reads a garbage stack slot
+           for it (was another source of intermittent rendering). */
         __asm {
+            push 1
             push sc
-            push a4
+            push col
             push cell
             push yy
             push xx

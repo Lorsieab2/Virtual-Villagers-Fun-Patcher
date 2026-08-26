@@ -17,7 +17,7 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "D22050C04AC03A837292946D8E9A4882055E0ED6B2B94C35C4C0E9A96DAE59B0"
+      "sha256": "8D5D49F47842711E049BCD22101D87A9DDA0BA99B741F4D015E985CFFA03502F"
     },
     {
       "source": "assets/origins/m1.png",
@@ -171,15 +171,57 @@
     },
     {
       "offset": "0x8BF3C",
-      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "8B442414A3D0CE4800E8C6B4F7FFA1CCCE480085C0752468CC5D4800FF151070450085C0741F68C55E480050FF15D470450085C0740FA3CCCE4800FF35D0CE48005756FFD0E99A94FAFF",
-      "purpose": "Details-screen portrait mask overlay cave: replaces sub_437340's head-draw call -- reproduces the head draw, then resolves (once, cached in .data) and calls the DLL's Vv1DrawPortraitMask, which re-issues the engine's own scaled draw with a mask sprite so the mask scales onto the age-scaled portrait exactly like the head. Portrait-gated (this one call site only) so the village mask path is untouched"
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "A1CCCE480085C0752468CC5D4800FF151070450085C0741F68C55E480050FF15D470450085C0740FA3CCCE4800FF742408FF742408FFD0C20800",
+      "purpose": "Details-screen portrait mask helper: resolves Vv1DrawPortraitMask once (cached in .data) and calls it (gameobj, record); shared by all four head-draw capture caves."
+    },
+    {
+      "offset": "0x8BF76",
+      "before": "0000000000000000000000000000000000000000000000000000",
+      "after": "8B442414A3D0CE4800E88CB4F7FF5756E8B1FFFFFFE99094FAFF",
+      "purpose": "Details-screen portrait mask capture cave for the head draw at 0x43741b: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at 0x437420."
     },
     {
       "offset": "0x3741B",
       "before": "E8F01FFDFF",
-      "after": "E91C6B0500",
-      "purpose": "splice sub_437340's portrait head-draw call into the portrait mask overlay cave (the cave reproduces the head draw before overlaying the mask)"
+      "after": "E9566B0500",
+      "purpose": "splice sub_437340 portrait head-draw call at 0x43741b into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)"
+    },
+    {
+      "offset": "0x8BF90",
+      "before": "0000000000000000000000000000000000000000000000000000",
+      "after": "8B442414A3D0CE4800E872B4F7FF5756E897FFFFFFE9FF94FAFF",
+      "purpose": "Details-screen portrait mask capture cave for the head draw at 0x4374a4: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at 0x4374a9."
+    },
+    {
+      "offset": "0x374A4",
+      "before": "E8671FFDFF",
+      "after": "E9E76A0500",
+      "purpose": "splice sub_437340 portrait head-draw call at 0x4374a4 into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)"
+    },
+    {
+      "offset": "0x8BFAA",
+      "before": "0000000000000000000000000000000000000000000000000000",
+      "after": "8B442414A3D0CE4800E858B4F7FF5756E87DFFFFFFE94495FAFF",
+      "purpose": "Details-screen portrait mask capture cave for the head draw at 0x437503: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at 0x437508."
+    },
+    {
+      "offset": "0x37503",
+      "before": "E8081FFDFF",
+      "after": "E9A26A0500",
+      "purpose": "splice sub_437340 portrait head-draw call at 0x437503 into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)"
+    },
+    {
+      "offset": "0x8BFC4",
+      "before": "0000000000000000000000000000000000000000000000000000",
+      "after": "8B442414A3D0CE4800E83EB4F7FF5756E863FFFFFFE97D95FAFF",
+      "purpose": "Details-screen portrait mask capture cave for the head draw at 0x437556: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at 0x43755b."
+    },
+    {
+      "offset": "0x37556",
+      "before": "E8B51EFDFF",
+      "after": "E9696A0500",
+      "purpose": "splice sub_437340 portrait head-draw call at 0x437556 into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)"
     },
     {
       "offset": "0x377B8",
