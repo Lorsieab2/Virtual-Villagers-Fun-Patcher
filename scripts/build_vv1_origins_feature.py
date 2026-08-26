@@ -381,6 +381,28 @@ PORTRAIT_DLL_FN_VA = MASK_RESTORE_DONE_VA + 4            # +0x1AC (dword)
 # reads it back. Single-threaded Details render, so one slot is fine.
 PORTRAIT_SCALE_SAVE_VA = PORTRAIT_DLL_FN_VA + 4          # +0x1B0 (dword)
 MASK_DATA_SCRATCH_END_VA = PORTRAIT_SCALE_SAVE_VA + 4     # +0x1B4
+# --- Village all-pose mask (shared-draw hook) scratch -----------------------
+# The village mask must ride ON the head through EVERY pose (walk/swim/bend/sit/
+# lie/idle-bob). The old blit reconstructed the villager's screen y from its
+# record + a fixed -46 lift, which structurally cannot follow non-standing poses
+# because each pose applies its own y offset INSIDE the head draw, not in the
+# record. The fix hooks the one shared scaled draw (0x409410) every head funnels
+# through and re-issues the mask from the head's own draw args (true per-pose
+# x/y/facing/scale). To look up the right villager's mask at that choke point we
+# stash the current villager RECORD INDEX at each village loop's per-villager
+# top; the hook trusts it only when it's valid AND the sprite being drawn is a
+# head atlas (stash-as-gate: Details/UI never write it, so they self-exclude).
+VILLAGE_CUR_IDX_VA = MASK_DATA_SCRATCH_END_VA           # +0x1B4 dword, villager record index (0xFFFFFFFF = none)
+VILLAGE_MASK_SPRITE_VA = VILLAGE_CUR_IDX_VA + 4         # +0x1B8 dword, cached mask-atlas engine sprite (0 = untried)
+VILLAGE_MASK_DLL_FN_VA = VILLAGE_MASK_SPRITE_VA + 4     # +0x1BC dword, cached Vv1GetMaskSprite ptr (0 = unresolved)
+VILLAGE_SURFACE_SAVE_VA = VILLAGE_MASK_DLL_FN_VA + 4    # +0x1C0 dword, deref'd renderer surface across the two sub-draws
+VILLAGE_FILL_SAVE_VA = VILLAGE_SURFACE_SAVE_VA + 4      # +0x1C4 dword, caller's eax (draw fill arg) across the sub-draws
+VILLAGE_SCRATCH_END_VA = VILLAGE_FILL_SAVE_VA + 4       # +0x1C8 (still well clear of .shr at 0x48D000)
+# The village-mask caves (two per-loop stash writes + the shared-draw hook) live
+# in the free .shr tail run at 0x8B180 (0x8B17F..0x8B530, ~940 zero bytes in the
+# rendered exe), laid out contiguously like the portrait caves.
+VILLAGE_MASK_CAVE_FILE = 0x8B180
+VILLAGE_MASK_CAVE_VA = IMAGE_BASE + SHR_RVA + (VILLAGE_MASK_CAVE_FILE - SHR_FILE_OFFSET)
 # The restore stub is code, so it lives in an executable .shr gap (a genuinely
 # unused zero-run, verified against the fully-rendered exe), NOT in the tight
 # 344-byte mask cave that already overflows. Only ~6 bytes of glue land in the
@@ -2636,6 +2658,58 @@ def main() -> None:
     assert _cave_file <= PORTRAIT_MASK_CAVE_FILE_OFFSET + 196, (
         f"portrait caves overflow the 0x8BF3C..0x8C000 gap: end={_cave_file:#x}"
     )
+
+    # === Village all-pose mask, Stage 1: per-villager identity stash =========
+    # Each of the two village villager-render loops has a per-villager top where
+    # the villager's record index is loaded into eax. Reproduce that load, stash
+    # the index to VILLAGE_CUR_IDX_VA, and re-enter stock at the NATURAL resume
+    # (splice + full replaced-instruction length) so the reentry audit treats it
+    # as a plain resume, not a foreign re-entry. Inert until the Stage-2 hook
+    # reads the slot; on its own it only writes patch-owned .data.
+    _vfile = VILLAGE_MASK_CAVE_FILE
+    _vva = VILLAGE_MASK_CAVE_VA
+    # loop 1: sub_437790 @0x437798 (esi=gameobj, edi=loop counter live). Replaces
+    # the 7-byte index load; resumes at the imul (0x43779F = splice+7).
+    stash1 = assemble(
+        f"""
+            mov eax, dword ptr [esi + edi*4 + 0x3dbdc]
+            mov dword ptr [0x{VILLAGE_CUR_IDX_VA:X}], eax
+            jmp 0x43779F
+        """,
+        _vva,
+    )
+    patch(
+        _vfile, b"\0" * len(stash1), stash1,
+        "Village all-pose mask identity stash (loop 1): capture the current villager record index at sub_437790's per-villager top for the shared-draw hook",
+    )
+    patch(
+        0x37798, bytes.fromhex("8b84bedcdb0300"),
+        assemble(f"jmp 0x{_vva:X}\n nop\n nop", IMAGE_BASE + 0x37798),
+        "splice sub_437790's per-villager top into the village-mask identity stash (loop 1)",
+    )
+    _vfile += len(stash1); _vva += len(stash1)
+    # loop 2: second render loop @0x438900 (ebp = &villager-index element).
+    # Replaces the 9-byte mov+imul; resumes after it (0x438909 = splice+9).
+    stash2 = assemble(
+        f"""
+            mov eax, dword ptr [ebp]
+            mov dword ptr [0x{VILLAGE_CUR_IDX_VA:X}], eax
+            imul eax, eax, 0x3d8
+            jmp 0x438909
+        """,
+        _vva,
+    )
+    patch(
+        _vfile, b"\0" * len(stash2), stash2,
+        "Village all-pose mask identity stash (loop 2): capture the current villager record index at the second render loop's per-villager top",
+    )
+    patch(
+        0x38900, bytes.fromhex("8b450069c0d8030000"),
+        assemble(f"jmp 0x{_vva:X}\n nop\n nop\n nop\n nop", IMAGE_BASE + 0x38900),
+        "splice the second village render loop's per-villager top into the village-mask identity stash (loop 2)",
+    )
+    _vfile += len(stash2); _vva += len(stash2)
+
     mask_detour_code = assemble(
         f"""
             jmp {MASK_HOOK_VA:#x}

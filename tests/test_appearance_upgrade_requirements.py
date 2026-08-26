@@ -389,6 +389,9 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # 0x8BFC2) in the confirmed-zero .shr tail; each reproduces
                     # the head draw then calls the DLL's Vv1DrawPortraitMask.
                     "0x3741B", "0x374A4", "0x37503", "0x37556",
+                    # Village all-pose mask identity stash (Stage 1): 2 loop-top
+                    # splices + their stash caves (inert; hook reads the slot later).
+                    "0x37798", "0x38900", "0x8B180", "0x8B191",
                     "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                 },
                 "data/vv2_origins_feature.json": {

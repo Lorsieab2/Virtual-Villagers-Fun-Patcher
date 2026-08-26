@@ -77,7 +77,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "63CB33A95A00E194547370F24644869943BE36AB894A6653134BC4CD8E8D1D88",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "E864559CCAEBBED919B968C6FAB4FC257707E2E16588963A4579DC450EDA4C1D",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "2C09263B8BD799A31220B1EA29126BDFCA2C8FB2599A81BCDB6CDD7616E4662C",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "40F8B782E7FA6AE75CD1FE7BEB78F3B709E8B278C640453DA9DBA60C70905D48",
@@ -99,6 +99,13 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x374A4"): "CD1979EC7665FF4718DB573BAE81F07040A0DB96D02C24761B7A713E331A0DBF",
     ("vv1_enable_origins_exclusive_features", "0x37503"): "5B2537BBC4515073649D50A14AD22CA058D40797E557AD0C7F229ED25C9FB649",
     ("vv1_enable_origins_exclusive_features", "0x37556"): "2FBEA343865CBFF1A69000299D7522B2709C4CAEC9F8A82DBD7A14E4336680EA",
+    # Village all-pose mask identity stash (Stage 1): two per-loop caves that
+    # reproduce the villager index load, stash it to .data, and re-enter stock
+    # at the NATURAL resume (0x43779F=splice+7, 0x438909=splice+9), so no
+    # foreign re-entry -- fingerprints pin the cave bytes only. Inert until the
+    # shared-draw hook reads the slot.
+    ("vv1_enable_origins_exclusive_features", "0x37798"): "AAA56CAFAEFA7AFD86F1EDD1D6C518990465508A113DF413D823A8E977718C2D",
+    ("vv1_enable_origins_exclusive_features", "0x38900"): "340B725876F14A318616998B5614B8C13925FDB0B31504D94BFDCEC0C022F23B",
     ("vv1_f6_clothing_change_cheat", "0x1FF2E"): "A00945F8D66A35B8BDB078E933690DDE5B048C60287B716EED0276AC20A07F3E",
     ("vv1_magic_fruit_alters_mortality", "0x2EEAA"): "81719DCFD4BC20C6F136E88308A12EDFA14447AF58E3B8B6DC239BBF4053BF10",
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",

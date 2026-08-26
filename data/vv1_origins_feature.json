@@ -224,6 +224,30 @@
       "purpose": "splice sub_437340 portrait head-draw call at 0x437556 into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)"
     },
     {
+      "offset": "0x8B180",
+      "before": "0000000000000000000000000000000000",
+      "after": "8B84BEDCDB0300A3D4CE4800E90EA6FAFF",
+      "purpose": "Village all-pose mask identity stash (loop 1): capture the current villager record index at sub_437790's per-villager top for the shared-draw hook"
+    },
+    {
+      "offset": "0x37798",
+      "before": "8B84BEDCDB0300",
+      "after": "E9E35905009090",
+      "purpose": "splice sub_437790's per-villager top into the village-mask identity stash (loop 1)"
+    },
+    {
+      "offset": "0x8B191",
+      "before": "00000000000000000000000000000000000000",
+      "after": "8B4500A3D4CE480069C0D8030000E965B7FAFF",
+      "purpose": "Village all-pose mask identity stash (loop 2): capture the current villager record index at the second render loop's per-villager top"
+    },
+    {
+      "offset": "0x38900",
+      "before": "8B450069C0D8030000",
+      "after": "E98C48050090909090",
+      "purpose": "splice the second village render loop's per-villager top into the village-mask identity stash (loop 2)"
+    },
+    {
       "offset": "0x377B8",
       "before": "0F8510110000",
       "after": "E9EB66050090",
