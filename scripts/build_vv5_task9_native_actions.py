@@ -119,7 +119,7 @@ BH_LIFT = 0x32       # base vertical lift  (mask Y = headY - LIFT)
 # Details idle head uses facings 3(turn)/4(front)/5(turn); map each frame&7 to a
 # column via this table (8 signed-byte entries, in the R+X page, live-tunable so
 # the left/right swap can be corrected without a rebuild).
-BH_COL_TABLE = [2, 1, 0, 2, 1, 0, 2, 1]   # head anim frame&7 -> mask column; per 3-frame idle-bob group = LEFT(2)/front(1)/RIGHT(0). The head's right-turn frames map to atlas col0 (right-facing art) and left-turn frames to col2 (left-facing art); the earlier 0/2 order drew the mirror-facing mask on a turned head
+BH_FACE_TABLE = [0, 1, 2]   # Details portrait facing (record+0x2F3C mod 3) -> mask atlas column. The compositor draws the portrait head with facing (record+0x2F3C mod 3)+8, so the mask reuses that SAME clean facing index (age-independent, unlike the old frame&7 heuristic which broke for age>=1100 heads whose frame carries an age offset). Live-tunable L/F/R -> col; flip 0<->2 if left/right read mirrored.
 # Per-column (facing) horizontal nudge, added on top of the atlas alignment:
 # col0=right-facing +10px, col1=front +3px, col2=left-facing -10px. Signed bytes,
 # in the R+X page, live-tunable. Indexed by the resolved mask column (0/1/2).
@@ -3536,9 +3536,11 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         ja bh_ret
         dec eax
         mov dword ptr [0x{BH_SROW:X}], eax
-        mov ecx, dword ptr [0x{BH_SF:X}]
-        and ecx, 7
-        movzx ecx, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets']:X}]
+        mov eax, dword ptr [esi + 0x2F3C]
+        cdq
+        mov ecx, 3
+        idiv ecx
+        movzx ecx, byte ptr [edx + 0x{page_va + OFF['bighead_offsets']:X}]
         mov dword ptr [0x{BH_SCOL:X}], ecx
         movsx eax, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets'] + 8:X}]
         add eax, dword ptr [0x{BH_SX:X}]
@@ -3565,13 +3567,14 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     bh_ret:
         ret 0x1C
     """)
-    # Head-facing-frame -> mask-column table (8 bytes) in the R+X page, read-only
-    # and live-tunable. bigheads_masks.png is 3 facing columns; the head's own
-    # facing frame selects the aligned column so the mask rotates + tracks.
+    # Portrait-facing -> mask-column table (3 bytes) in the R+X page, read-only and
+    # live-tunable. bigheads_masks.png is 3 facing columns; the portrait head's own
+    # facing index (record+0x2F3C mod 3) selects the matching mask column so the
+    # mask rotates + tracks with the head, independent of the villager's age.
     tbl_off = OFF["bighead_offsets"]
     if any(page[tbl_off : tbl_off + SIZES["bighead_offsets"]]):
         raise RuntimeError("bighead_offsets overlaps generated data")
-    for i, col in enumerate(BH_COL_TABLE):
+    for i, col in enumerate(BH_FACE_TABLE):
         page[tbl_off + i] = col & 0xFF
     # per-column horizontal nudge table (3 signed bytes), just past the 8-byte
     # frame->column table, indexed by the resolved column.
