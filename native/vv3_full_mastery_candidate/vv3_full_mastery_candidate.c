@@ -54,6 +54,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index);
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args);
 __declspec(dllexport) void __stdcall VV3WorldMaskFlush(void);
 __declspec(dllexport) void __stdcall VV3HeldMaskDraw(int x, int y, int scaleBits);
+__declspec(dllexport) void __stdcall VV3HeldMaskDraw2(int x, int y);
 
 /* The village head-draw cave reads this fixed exe .data slot for the world-mask
    draw fn, so the per-frame cave needs no LoadLibrary/GetProcAddress -- we publish
@@ -70,6 +71,11 @@ __declspec(dllexport) void __stdcall VV3HeldMaskDraw(int x, int y, int scaleBits
 #define VV3_WORLD_INDEXFN_PTR_SLOT 0x006C7A08u
 /* Held/picked-up villager mask draw fn, read by the cave wrapping the held head draw. */
 #define VV3_WORLD_HELDFN_PTR_SLOT  0x006C7A0Cu
+/* held phase-C (composited-sprite) mask fn + the diag/tuning block address. */
+#define VV3_WORLD_DIAG_PTR_SLOT    0x006C7A10u
+#define VV3_WORLD_HELD2FN_PTR_SLOT 0x006C7A14u
+
+extern int g_vv3_held_diag[4];
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -78,6 +84,8 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         *(void **)(UINT_PTR)VV3_WORLD_DRAWFN_PTR_SLOT  = (void *)&VV3WorldMaskDrawAt;
         *(void **)(UINT_PTR)VV3_WORLD_INDEXFN_PTR_SLOT = (void *)&VV3WorldMaskDraw;
         *(void **)(UINT_PTR)VV3_WORLD_HELDFN_PTR_SLOT  = (void *)&VV3HeldMaskDraw;
+        *(void **)(UINT_PTR)VV3_WORLD_DIAG_PTR_SLOT    = (void *)&g_vv3_held_diag[0];
+        *(void **)(UINT_PTR)VV3_WORLD_HELD2FN_PTR_SLOT = (void *)&VV3HeldMaskDraw2;
     }
     return TRUE;
 }
@@ -639,8 +647,8 @@ int g_vv3_world_lift   = 75;   /* scale-relative lift; 75 seats ADULTS perfectly
 int g_vv3_world_facing = -1;   /* -1 = AUTO (read head atlas frame); >=0 = force col */
 int g_vv3_world_dx     = 15;   /* live-tuned X nudge: +right / -left (scaled px)     */
 int g_vv3_world_dy     = 0;    /* live-tuned Y nudge: +down / -up (scaled px)       */
-int g_vv3_world_liftfloor = 78;/* min scale%% used for the LIFT only, so small/child */
-                               /* villagers lift enough (else masks sit low on kids) */
+int g_vv3_world_liftfloor = 0; /* 0 = LIFT scales fully with head height (owner: mask     */
+                               /* position must scale with head size); >0 floors it       */
 int g_vv3_world_facing_off = 0xF18; /* RECORD offset of the 0..7 facing COLUMN.  VV5's */
                                /* native mask render confirmed: +0xF14 is the x8 POSITION */
                                /* term (VV5 +0x1D00); the direct atlas COLUMN the head    */
@@ -648,6 +656,14 @@ int g_vv3_world_facing_off = 0xF18; /* RECORD offset of the 0..7 facing COLUMN. 
                                /* +0x1D04), range 0..7 = 8 directions. K=0 (same column). */
 int g_vv3_world_facing_remap = 0;   /* +(mod 8) to rotate columns if head/mask order differ */
 #define VV3_WORLD_CARRIED_OFF   0xF12 /* byte !=0 => carried/held (half-scale) -> skip */
+#define VV3_WORLD_ANIM_OFF      0xF20 /* int; !=-1 => action animation (sit/lie/swim/work) */
+
+/* HELD/picked-up villager tuning + diagnostics.  The held renderer draws the villager in
+   phases: a head-draw phase (0x434357, 42E570) and a settled composited-sprite phase
+   (0x4344B3, 42E510).  [0]=count of phase-B mask draws, [1]=phase-C, [2]=phase-C mask X
+   nudge, [3]=phase-C mask Y nudge from the sprite origin (head sits above it).  Array so
+   it stays one contiguous, WPM-findable block; &g_vv3_held_diag is published to 0x6C7A10. */
+int g_vv3_held_diag[4] = {0, 0, 0, -52};
 
 /* Per-frame stash of the EXACT head-draw position/scale, set by the head-site cave
    (0x460A60 -> VV3WorldMaskDrawAt) DURING the handler.  Lets the mask reuse the head's
@@ -701,38 +717,40 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
         g_vv3_stash_valid = 0;
         return;
     }
+    /* ACTION-ANIMATION skip: a villager in a special animation (sit/lie/swim/work/etc.)
+       has record+0xF20 != -1 -- the game still draws a BASE head at the normal site (so our
+       stash fires) but then the action overlay (sub_45F7E0) redraws the real animated pose
+       elsewhere, hiding that base head.  Our mask would sit on the hidden base head, floating
+       away from the visible pose (owner: "not aligned when they sit/lie down").  So skip the
+       mask during an action animation -- the mask cleanly hides instead of mispositioning.
+       Idle/walking villagers keep +0xF20 == -1, so their masks are unaffected. */
+    if (*(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF) != -1) {
+        g_vv3_stash_valid = 0;
+        return;
+    }
     atlas = VV3GetMaskAtlas();
     if (atlas == NULL) {
         g_vv3_stash_valid = 0;
         return;
     }
-    if (g_vv3_stash_valid && g_vv3_stash_record == record) {
-        /* EXACT head-draw position/scale from this pass (tracks animation + carry) */
-        x = g_vv3_stash_x;
-        y = g_vv3_stash_y;
-        scaleBits = g_vv3_stash_scale;
-        fscale = *(float *)&scaleBits;
-        used_stash = 1;
-    } else {
-        /* fallback: recompute the head anchor from the record.
-           base world position (v10,v11) -- the same helper sub_4605F0 uses */
-        __asm {
-            lea  eax, pos
-            push eax
-            mov  ecx, record
-            mov  edx, VV3_WORLD_POS_FN
-            call edx                         /* sub_455EF0(record, &pos); ret 4 */
-        }
-        __asm {
-            mov  ecx, record
-            mov  edx, VV3_WORLD_SCALE_FN
-            call edx                         /* sub_455E50(record) -> double */
-            fstp scale
-        }
-        fscale = (float)scale;
-        x = pos[0] - (int)(scale * VV3_WORLD_HEAD_DX);
-        y = pos[1] - (int)(scale * VV3_WORLD_HEAD_DY);
+    /* Use ONLY the head's EXACT draw position/scale that the head-site cave stashed THIS
+       pass.  We deliberately do NOT reconstruct from the record: a swimming / bending /
+       sitting / lying / jumping villager has its head at an ANIMATION-offset position that
+       lives only in the head draw's args, not in the record -- reconstructing there makes
+       the mask jump to the wrong spot (owner: "annoying").  If the head was NOT drawn at the
+       normal site this pass (those special states draw the head via the action renderer, so
+       the stash is stale), skip the mask entirely this frame rather than mispositioning it.
+       (void pos/scale kept for the declaration.) */
+    (void)pos; (void)scale;
+    if (!(g_vv3_stash_valid && g_vv3_stash_record == record)) {
+        g_vv3_stash_valid = 0;
+        return;
     }
+    x = g_vv3_stash_x;
+    y = g_vv3_stash_y;
+    scaleBits = g_vv3_stash_scale;
+    fscale = *(float *)&scaleBits;
+    used_stash = 1;
     g_vv3_stash_valid = 0;                    /* consume this pass's stash */
     /* FACING: villager 0..7 direction from record+0xF18 (VV5's direct head-column analog),
        live-tunable offset+remap; g_vv3_world_facing >= 0 forces a column. */
@@ -799,6 +817,7 @@ __declspec(dllexport) void __stdcall VV3HeldMaskDraw(int x, int y, int scaleBits
     void *held = NULL, *atlas;
     int i, mask, facing, cell, mx, my;
     float fscale, liftsc, floor;
+    g_vv3_held_diag[0]++;                 /* diag: phase-B (0x434357 head-draw) reached */
     if (slots > 256) slots = 256;
     for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
         if (rec[VV3_ACTIVE] == 0) continue;
@@ -841,6 +860,69 @@ __declspec(dllexport) void __stdcall VV3HeldMaskDraw(int x, int y, int scaleBits
             mov  ecx, VV3_WORLD_MGR
             mov  edx, VV3_WORLD_DRAW_FN
             call edx                     /* sub_42E510(mgr, atlas, mx, my, cell, 1.0f) */
+        }
+        *p3010 = save3010;
+    }
+}
+
+/* HELD phase-C mask: spliced at 0x4344B3, where the SETTLED held villager is drawn as a
+   single composited sprite via 42E510 (the head-draw wrap 0x434357 only covers the brief
+   lifting animation).  The composited sprite's origin (x,y) is handed in; the head sits
+   above it, so we draw the mask at (x,y) + a live-tunable, SCALE-RELATIVE offset
+   (g_vv3_held_diag[2]/[3]) using the held villager's age scale + record facing (+0xF18),
+   re-derived every frame -> follows the head's position AND direction.  Fade-safe. */
+__declspec(dllexport) void __stdcall VV3HeldMaskDraw2(int x, int y)
+{
+    unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    void *held = NULL, *atlas;
+    int i, mask, facing, cell, mx, my;
+    double scale = 1.0;
+    float fscale;
+    g_vv3_held_diag[1]++;                 /* diag: phase-C (0x4344B3 composited) reached */
+    if (slots > 256) slots = 256;
+    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+        if (rec[VV3_ACTIVE] == 0) continue;
+        if (*(int *)(rec + VV3_HEALTH) <= 0) continue;
+        if (rec[VV3_WORLD_CARRIED_OFF] != 0) { held = rec; break; }
+    }
+    if (held == NULL) return;
+    mask = VV3_GetMaskForRecord(held);
+    if (mask <= 0) return;
+    atlas = VV3GetMaskAtlas();
+    if (atlas == NULL) return;
+    __asm {
+        mov  ecx, held
+        mov  edx, VV3_WORLD_SCALE_FN
+        call edx                          /* sub_455E50(held) -> double age-scale */
+        fstp scale
+    }
+    fscale = (float)scale;
+    if (g_vv3_world_facing >= 0) {
+        facing = g_vv3_world_facing & 7;
+    } else {
+        facing = ((*(int *)((unsigned char *)held + g_vv3_world_facing_off))
+                  + g_vv3_world_facing_remap) & 7;
+    }
+    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
+    mx = x + (int)(g_vv3_held_diag[2] * fscale);
+    my = y + (int)(g_vv3_held_diag[3] * fscale);
+    {
+        int   *p3010    = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
+        int    save3010 = *p3010;
+        int    one      = 0x3F800000;
+        double sized    = (double)save3010 * (double)fscale;
+        *p3010 = (int)(sized >= 0.0 ? sized + 0.5 : sized - 0.5);
+        __asm {
+            mov  eax, one
+            push eax
+            push cell
+            push my
+            push mx
+            push atlas
+            mov  ecx, VV3_WORLD_MGR
+            mov  edx, VV3_WORLD_DRAW_FN
+            call edx                      /* sub_42E510(mgr, atlas, mx, my, cell, 1.0f) */
         }
         *p3010 = save3010;
     }

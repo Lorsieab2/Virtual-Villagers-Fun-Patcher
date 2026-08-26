@@ -128,6 +128,14 @@ WORLD_HELD_CALLSITE_VA = 0x00434357       # held villager's head draw (only othe
 WORLD_HELD_WRAP_CAVE_VA = 0x0047B2A0      # .text cave, after the village wrapper
 WORLD_HEAD_DRAW_FN = 0x0042E570           # the head draw both call sites use
 WORLD_HELDFN_PTR = 0x6C7A0C               # DLL publishes VV3HeldMaskDraw here
+# The SETTLED held villager (after the lift animation) is drawn as a single COMPOSITED
+# sprite via 42E510 at 0x4344B3 (a different phase of the same held renderer).  Wrap it too
+# so the mask follows the held villager once it settles in hand.  ret 0x14 (5 args:
+# sprite,x,y,frame,scale); verified 0 branches into 0x4344B3..0x4344B8.
+WORLD_HELD2_CALLSITE_VA = 0x004344B3      # settled held villager's composited-sprite blit
+WORLD_HELD2_WRAP_CAVE_VA = 0x0047B300     # .text cave, after the held-head wrap
+WORLD_BLIT_FN = 0x0042E510                # the cell blit both this + the village mask use
+WORLD_HELD2FN_PTR = 0x6C7A14              # DLL publishes VV3HeldMaskDraw2 here
 
 # Complete/Reset all Collections action caves live in a free executable-.rdata
 # padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
@@ -1726,6 +1734,34 @@ def main() -> None:
         f"call 0x{WORLD_HELD_WRAP_CAVE_VA:X}", WORLD_HELD_CALLSITE_VA
     )
 
+    # HELD phase-C wrapper: wrap the composited-sprite blit `call 0x42E510` at 0x4344B3.
+    # Re-push the 5 args (sprite,x,y,frame,scale), run the original blit, then call
+    # VV3HeldMaskDraw2(x, y) with the ORIGINAL x=[esp+8], y=[esp+0xC] so the mask lands on
+    # the settled held villager.  ret 0x14 cleans the original 5 args.
+    world_held2_wrap_cave = assemble(
+        f"""
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            mov ecx, 0x58F6F8
+            call 0x{WORLD_BLIT_FN:X}
+            mov eax, dword ptr [0x{WORLD_HELD2FN_PTR:X}]
+            test eax, eax
+            je held2_wrap_done
+            push dword ptr [esp + 0x0C]
+            push dword ptr [esp + 0x0C]
+            call eax
+        held2_wrap_done:
+            ret 0x14
+        """,
+        WORLD_HELD2_WRAP_CAVE_VA,
+    )
+    world_held2_wrap_redirect = assemble(
+        f"call 0x{WORLD_HELD2_WRAP_CAVE_VA:X}", WORLD_HELD2_CALLSITE_VA
+    )
+
     # Complete all Collections: mark collectible ids 52..99 found in the native
     # count array [0x58F428 + 0x10 + id*4], then broadcast the collectible
     # refresh (0x293) and the four collection-complete goal events plus the
@@ -1948,6 +1984,18 @@ def main() -> None:
         original[WORLD_HELD_CALLSITE_VA - IMAGE_BASE : WORLD_HELD_CALLSITE_VA - IMAGE_BASE + 5],
         world_held_wrap_redirect,
         "wrap the held/picked-up villager head draw so its mask follows the cursor",
+    )
+    patch(
+        WORLD_HELD2_WRAP_CAVE_VA - IMAGE_BASE,
+        original[WORLD_HELD2_WRAP_CAVE_VA - IMAGE_BASE : WORLD_HELD2_WRAP_CAVE_VA - IMAGE_BASE + len(world_held2_wrap_cave)],
+        world_held2_wrap_cave,
+        "held phase-C wrapper cave: draw the mask on the settled composited held villager",
+    )
+    patch(
+        WORLD_HELD2_CALLSITE_VA - IMAGE_BASE,
+        original[WORLD_HELD2_CALLSITE_VA - IMAGE_BASE : WORLD_HELD2_CALLSITE_VA - IMAGE_BASE + 5],
+        world_held2_wrap_redirect,
+        "wrap the settled held villager's composited draw so its mask follows the cursor",
     )
     # (No head-atlas row-count bump: the separate-atlas method draws the mask from
     # its own Images/heathen_masks.png, so the head atlases are left untouched.)
