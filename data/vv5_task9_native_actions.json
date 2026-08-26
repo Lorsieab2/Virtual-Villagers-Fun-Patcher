@@ -7,8 +7,8 @@
     "table_file_offset": "0xAEF60",
     "entry_name": "running"
   },
-  "name": "Enable Origins-Exclusive Features (Task9 native actions)",
-  "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years (speed-independent) for a single 50,000 tech-point charge. Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. Exact costs are shown in each confirmation.",
+  "name": "Enable Origins-Exclusive Features + Heathen Mask Cosmetics (Task9 native actions)",
+  "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years (speed-independent) for a single 50,000 tech-point charge. Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point \"Change Appearance for All\" Tech upgrade, with the chosen Heathen masks rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
@@ -1063,7 +1063,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "FAD8EFB782D7CCD666C2DA0FC13325E952CE30E4806DF1D85F90144F3E56849A"
+      "source_text_sha256": "3D5351598CDADC88A3C3BFA016BB8015E895C0A5E62B132A6A7175DF1DD6FD7F"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -1347,5 +1347,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "68A03C2C81B7E4111CD41853F7B057D6ED1F83B2070E1C98AE7C9E4437950D11"
+  "task9_map_canonical_sha256": "B55FB0D6D2ABE21F2E147916F6AB0A9D49A495113705101C65723B5D7C850FB4"
 }

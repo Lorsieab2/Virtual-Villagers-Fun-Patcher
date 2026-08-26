@@ -3857,8 +3857,8 @@ def main() -> None:
     result.update({
         "schema": "vvfp.vv5_task9_native_actions.v1",
         "id": "vv5_enable_origins_exclusive_features",
-        "name": "Enable Origins-Exclusive Features (Task9 native actions)",
-        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years (speed-independent) for a single 50,000 tech-point charge. Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. Exact costs are shown in each confirmation.",
+        "name": "Enable Origins-Exclusive Features + Heathen Mask Cosmetics (Task9 native actions)",
+        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years (speed-independent) for a single 50,000 tech-point charge. Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point \"Change Appearance for All\" Tech upgrade, with the chosen Heathen masks rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.",
         "enabled": True,
         "catalog_hidden": False,
         "catalog_enabled": True,
