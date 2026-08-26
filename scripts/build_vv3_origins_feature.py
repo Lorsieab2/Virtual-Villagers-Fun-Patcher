@@ -1750,8 +1750,9 @@ def main() -> None:
             mov eax, dword ptr [0x{WORLD_HELD2FN_PTR:X}]
             test eax, eax
             je held2_wrap_done
-            push dword ptr [esp + 0x0C]
-            push dword ptr [esp + 0x0C]
+            push esi
+            push dword ptr [esp + 0x10]
+            push dword ptr [esp + 0x10]
             call eax
         held2_wrap_done:
             ret 0x14
