@@ -1024,21 +1024,50 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
 }
 
 /* ---- Mask persistence: a sidecar file, NEVER the game save (adapted from VV1's
-   CRT-less design). Keyed to the STOCK basename so it co-locates with the save
-   folder (the crash-fix makes renamed builds save under the stock name) and
-   survives renames. Win32-only (wsprintfA/memcpy = intrinsics) to stay CRT-less.
+   CRT-less design). The sidecar MUST sit next to the LDW saves, so the folder is
+   derived from the EXE BASENAME exactly as the engine derives its save folder
+   (GetModuleFileNameA -> strip dir + ".exe"). An earlier version hardcoded the
+   canonical title, which put the sidecar in
+   "...\LDW\Virtual Villagers - The Lost Children\" while a "- Modded" exe writes
+   its .ldw saves to "...\LDW\Virtual Villagers - The Lost Children - Modded\" —
+   i.e. NOT beside the saves (caught by the VV1 chat, verified on disk 2026-08-26;
+   VV1/VV3/VV4 already derive from the basename and land correctly).
+   Win32-only (wsprintfA/memcpy = intrinsics) to stay CRT-less.
    NEVER call from DllMain (loader lock + SHGetFolderPath). Index-keyed: relies on
    villagers reloading into the same record slots (positional VV2 save). ---- */
 #define VV2_MASK_SIDECAR_MAGIC 0x32304D56u  /* 'V','M','0','2' */
 
 static int vv2_mask_sidecar_path(char *out) {
     char docs[MAX_PATH];
+    char exe[MAX_PATH];
+    char *base;
+    int i, last = -1, len;
+    DWORD n;
     if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return 0;
+    n = GetModuleFileNameA(GetModuleHandleA(NULL), exe, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) return 0;          /* empty or truncated -> skip */
+    for (i = 0; exe[i]; ++i) if (exe[i] == '\\' || exe[i] == '/') last = i;
+    base = exe + last + 1;                          /* "<name>.exe" */
+    len = lstrlenA(base);
+    if (len > 4) {                                  /* strip a trailing ".exe" */
+        char *ext = base + len - 4;
+        if (ext[0] == '.' &&
+            (ext[1] == 'e' || ext[1] == 'E') &&
+            (ext[2] == 'x' || ext[2] == 'X') &&
+            (ext[3] == 'e' || ext[3] == 'E')) {
+            *ext = 0;
+        }
+    }
+    if (base[0] == 0) return 0;                     /* no usable basename -> skip */
+    /* MAX_PATH budget: docs + "\LDW\" + basename + "\vv2_masks.dat" */
+    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\vv2_masks.dat") >= MAX_PATH) {
+        return 0;
+    }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\Virtual Villagers - The Lost Children", docs);
+    wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat", docs);
+    wsprintfA(out, "%s\\LDW\\%s\\vv2_masks.dat", docs, base);
     return 1;
 }
 
