@@ -241,7 +241,16 @@ class VV5OriginsFeatureTests(unittest.TestCase):
 
     def test_generated_vv5_transparency_section_matches_cure_truth(self) -> None:
         transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
-        marker = "#### Enable Origins-Exclusive Features (Task9 native actions) (`vv5_enable_origins_exclusive_features`)"
+        # Derive the section heading from the task9 manifest (name + id) rather than
+        # hardcoding the literal title. The heading is a GENERATED artifact; pinning
+        # its exact string here would make this test pass only while the doc is in
+        # sync AND silently desync on the next patch rename (which is exactly what
+        # happened when the patch gained "+ Heathen Mask Cosmetics"). Mirrors the
+        # derive-from-data pattern in tests/test_doubler_audit.py.
+        task9 = json.loads(
+            (ROOT / "data" / "vv5_task9_native_actions.json").read_text(encoding="utf-8")
+        )
+        marker = f"#### {task9['name']} (`{task9['id']}`)"
         section = transparency.split(marker, 1)[1].split("\n#### ", 1)[0].casefold()
         self.assertIn("full heal/cure all", section)
         self.assertIn("time warp", section)
