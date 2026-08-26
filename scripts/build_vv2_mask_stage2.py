@@ -83,7 +83,11 @@ INIT_RET = 0x44C5EC              # continue here after the detour
 LAST_ATLAS_GLOBAL = 0xE574D8      # the store we displaced (eax = last atlas ptr)
 ALLOC = 0x467F83                  # operator new (cdecl size)
 LOADER = 0x40A270                 # path atlas loader (thiscall; ret 0xc)
-ATLAS_COLS, ATLAS_ROWS = 8, 5     # 320/8=40 wide, 440/5=88 tall
+ATLAS_COLS, ATLAS_ROWS = 8, 5     # 520/8=65 wide, 725/5=145 tall
+# VV5-standard mask cell: 65x145, 8 facing columns x 5 colour rows, used as the
+# artist laid it out (no re-packing). The cell is much larger than the 40x65 head
+# cell, so the draw subtracts MASK_PAD_X/ADULT_MASK_DY to register it on the head.
+MASK_PAD_X = 14                   # draw at headX - 14
 
 # --- cave layout -----------------------------------------------------------
 # Mask code + atlas-ptr + filename now live in an appended R/W/X section (.vvmk),
@@ -108,7 +112,7 @@ MASK_ROW_TEST = 4                 # 0 Blue,1 Orange,2 Red,3 Purple,4 Chief (hard
 # its face lands on the villager's face.  Adults draw unscaled -> fixed 32px.  Children draw
 # through the SCALED path (scale s = arg6*0.01), so the lift must scale too: 32*s ~= (arg6*41)>>7
 # (matches 32*s within a pixel across the whole child age range).
-ADULT_MASK_DY = 0x2A              # 42 (raised from 32 — was landing on the chest)
+ADULT_MASK_DY = 0x1D              # 29: registers the 65x145 VV5-standard cell on the head
 CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # in-world child: 42*s ~= (arg6*54)>>7
 # The Details/portrait draw (caller < 0x445B50) goes through the SAME scaled thunk but pushes
 # arg6 = 2*(age/7)+0xA0 = DOUBLE the in-world scaledRow, so the same multiplier double-lifts and
@@ -337,7 +341,9 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         mov  edx, [esp+0x14]                  /* y */
         sub  edx, 0x{ADULT_MASK_DY:X}
         push edx
-        push dword ptr [esp+0x14]             /* x */
+        mov  edx, [esp+0x14]                  /* x */
+        sub  edx, 0x{MASK_PAD_X:X}            /* undo the wider mask cell's inset */
+        push edx
         push dword ptr [0x{MASK_ATLAS_PTR:X}] /* mask atlas */
         mov  ecx, [esi+0x{DRAWOBJ_PTR:X}]
         mov  ecx, [ecx]
@@ -448,6 +454,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     x_chief:
         sub  edx, 0x{CHIEF_PORTRAIT_DX:X}
     x_ok:
+        sub  edx, 0x{MASK_PAD_X:X}            /* undo the wider mask cell's inset */
         push edx                              /* arg2 = x */
         push dword ptr [0x{MASK_ATLAS_PTR:X}] /* arg1 = mask atlas */
         mov  ecx, [esi+0x{DRAWOBJ_PTR:X}]

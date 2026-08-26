@@ -49,7 +49,12 @@ _NATIVE = _ROOT / "native" / "vv2_origins_icons"
 SOURCE = _NATIVE / "heathen_mask_frames_8dir_source.png"
 ATLAS = _NATIVE / "heathen_masks.png"
 
-CELL_W, CELL_H = 40, 88     # atlas cell
+# The mask cell is deliberately LARGER than the 40x65 head cell: headdresses and
+# feathers extend past the head, and a head-sized cell clips them (chief lost 64px
+# of feather tip at 40 wide). PAD_X is the horizontal margin on EACH side, so the
+# exe draws the mask at (headX - PAD_X, headY - LIFT).
+CELL_W, CELL_H = 52, 90     # mask atlas cell (head cell is 40x65)
+PAD_X = 6                   # (CELL_W - 40) / 2
 FRAMES = 7                  # VV2 head atlas columns; the 8th source frame is dropped
 MASKS = ["blue", "orange", "red", "purple", "chief"]
 _MIN_BLOB = 60              # ignore stray specks
@@ -137,7 +142,7 @@ def build(source: Path, out: Path) -> None:
             art_x, art_y = face_anchor(art)
             # Put the mask's face region on the head's face. +LIFT converts the
             # head-cell y into this taller atlas cell's coordinates.
-            px = int(round(face_x - art_x))
+            px = int(round(PAD_X + face_x - art_x))
             py = int(round(face_y + LIFT - art_y))
 
             h, w = art.shape[:2]
