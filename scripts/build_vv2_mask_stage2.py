@@ -87,7 +87,7 @@ ATLAS_COLS, ATLAS_ROWS = 8, 5     # 520/8=65 wide, 725/5=145 tall
 # VV5-standard mask cell: 65x145, 8 facing columns x 5 colour rows, used as the
 # artist laid it out (no re-packing). The cell is much larger than the 40x65 head
 # cell, so the draw subtracts MASK_PAD_X/ADULT_MASK_DY to register it on the head.
-MASK_PAD_X = 14                   # draw at headX - 14
+MASK_PAD_X = 0                    # VV5 standard: mask draws at the head's exact X
 
 # --- cave layout -----------------------------------------------------------
 # Mask code + atlas-ptr + filename now live in an appended R/W/X section (.vvmk),
@@ -112,7 +112,7 @@ MASK_ROW_TEST = 4                 # 0 Blue,1 Orange,2 Red,3 Purple,4 Chief (hard
 # its face lands on the villager's face.  Adults draw unscaled -> fixed 32px.  Children draw
 # through the SCALED path (scale s = arg6*0.01), so the lift must scale too: 32*s ~= (arg6*41)>>7
 # (matches 32*s within a pixel across the whole child age range).
-ADULT_MASK_DY = 0x1D              # 29: registers the 65x145 VV5-standard cell on the head
+ADULT_MASK_DY = 0x00              # VV5 standard: mask draws at the head's exact Y
 CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # in-world child: 42*s ~= (arg6*54)>>7
 # The Details/portrait draw (caller < 0x445B50) goes through the SAME scaled thunk but pushes
 # arg6 = 2*(age/7)+0xA0 = DOUBLE the in-world scaledRow, so the same multiplier double-lifts and
@@ -122,17 +122,17 @@ PORTRAIT_DY_MUL = 54
 # atlas larger, leaving masks a touch high+left there.  Nudge masks down+right on the portrait
 # path ONLY (caller < 0x445B50).  Tune to taste.
 import os as _os
-PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "6"))   # portrait: nudge mask right (all masks)
-PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "2"))   # portrait: nudge mask down (all masks) — was 8, raised 6px per live tune
+PORTRAIT_MASK_DX = 0   # portrait: nudge mask right (all masks)
+PORTRAIT_MASK_DY = 0   # portrait: nudge mask down (all masks) — was 8, raised 6px per live tune
 # Per-mask portrait (Details) fine-alignment — masks drift a little differently on
 # the age-scaled portrait, so each colour gets its own extra nudge ON TOP of the
 # uniform PMDX/PMDY (village view unaffected — this is portrait-branch only).
 # Rows: 0 Blue, 1 Orange, 2 Red, 3 Purple, 4 Chief.  +down / +left (left = subtracted).
-PURPLE_PORTRAIT_EXTRA = int(_os.environ.get("PPX", "9"))    # purple extra down (was 6, +3 live)
-ORANGE_PORTRAIT_DY = int(_os.environ.get("ORDY", "2"))      # orange extra down
-RED_PORTRAIT_DY = int(_os.environ.get("REDY", "2"))         # red extra down
-RED_PORTRAIT_DX = int(_os.environ.get("REDX", "2"))         # red extra LEFT
-CHIEF_PORTRAIT_DX = int(_os.environ.get("CHDX", "2"))       # chief extra LEFT
+PURPLE_PORTRAIT_EXTRA = 0    # purple extra down (was 6, +3 live)
+ORANGE_PORTRAIT_DY = 0      # orange extra down
+RED_PORTRAIT_DY = 0         # red extra down
+RED_PORTRAIT_DX = 0         # red extra LEFT
+CHIEF_PORTRAIT_DX = 0       # chief extra LEFT
 
 
 def _pe_checksum(buf: bytearray) -> tuple[int, int]:
