@@ -257,7 +257,12 @@ class VV2BirthControlTests(unittest.TestCase):
         committed = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
         self.assertEqual(first, second)
         self.assertEqual(first, committed)
-        self.assertEqual(first.count("#### Birth Control (`vv2_birth_control`)"), 1)
+        # Derive the heading from the patch data rather than hardcoding the
+        # literal title: transparency-log.md is GENERATED, so a hardcoded
+        # marker silently pins a stale doc instead of the contract and only
+        # breaks when someone regenerates for an unrelated reason.
+        patch = next(p for p in load_fun_patches() if p.id == FEATURE_ID)
+        self.assertEqual(first.count(f"#### {patch.name} (`{patch.id}`)"), 1)
         for path in (
             ROOT / "README.md",
             ROOT / "How to Use.txt",

@@ -311,9 +311,13 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             ).hexdigest().upper(),
             "91B222CFADF05EF9AC5C5B33B578A8841CE421EB9E329CC45F996D04F5DE3553",
         )
+        # Re-pinned after the companion DLL was rebuilt in PR #104 to link
+        # shell32 and derive the mask sidecar path from the exe basename, so the
+        # sidecar lands beside the .ldw saves. data/vv2_origins_feature.json
+        # certifies this same digest; this assertion is the second pin on it.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "EEEE3EF70B973AE8097425141FF9CA75F55804B7FA8894FA7A71FFA214EE4DDE",
+            "704C8ED48FC8CF2512FD2FBE57284143AEB753DD8CE0D3AA34054D2E8215B1F3",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
