@@ -104,7 +104,7 @@ SLOT_SCRATCH = 0x7B1D7C
 MASK_HANDLE = 0x155
 BIGHEAD_ATLAS_ID = 0x155
 BIGHEAD_ATLAS_REC_VA = 0x4CEFB8 + BIGHEAD_ATLAS_ID * 0x30   # 0x4D2FA8 (free slot)
-BIGHEAD_ATLAS_COLS = 3
+BIGHEAD_ATLAS_COLS = 8
 BIGHEAD_ATLAS_ROWS = 5
 # Portrait-mask tuning (all emitted as patchable immediates so they can be
 # dialed in live). BH_LIFT = pre-scale vertical lift (imm8, sub edx,LIFT).
@@ -113,26 +113,20 @@ BIGHEAD_ATLAS_ROWS = 5
 # mask atlas column: the Details portrait is front-facing and the 8-col heathen
 # atlas front frame is col 5 (the head atlas is 16-col, so its frame index maps
 # to the wrong mask column — use the known front column instead).
-BH_SCALE_MUL = 3
-BH_SCALE_SHIFT = 1   # scale = headScale * MUL >> SHIFT  (3>>1 = x1.5)
-BH_XOFF = 0x00       # base horizontal nudge (mask X = headX + XOFF; signed imm8)
-BH_LIFT = 0x32       # base vertical lift  (mask Y = headY - LIFT)
-# bigheads_masks.png is 3 columns = 3 head FACINGS (owner: col0=RIGHT turn,
-# col1=front, col2=LEFT turn), each pre-aligned to its facing's face-within-the-
-# sprite. So follow-the-face = pick the atlas COLUMN from the head's facing frame
-# (the mask then rotates AND tracks for free, VV2's atlas-baked method). The
-# Details idle head uses facings 3(turn)/4(front)/5(turn); map each frame&7 to a
-# column via this table (8 signed-byte entries, in the R+X page, live-tunable so
-# the left/right swap can be corrected without a rebuild).
-BH_FACE_TABLE = [0, 1, 2]   # Details portrait facing (record+0x2F3C mod 3) -> mask atlas column. The compositor draws the portrait head with facing (record+0x2F3C mod 3)+8, so the mask reuses that SAME clean facing index (age-independent, unlike the old frame&7 heuristic which broke for age>=1100 heads whose frame carries an age offset). Live-tunable L/F/R -> col; flip 0<->2 if left/right read mirrored.
-# Per-column (facing) horizontal nudge, added on top of the atlas alignment:
-# col0=right-facing +10px, col1=front +3px, col2=left-facing -10px. Signed bytes,
-# in the R+X page, live-tunable. Indexed by the resolved mask column (0/1/2).
-BH_COLDX_TABLE = [19, 3, -16]   # per resolved column: right-facing col0 +19 (owner: +3 from 16), front col1 +3, left-facing col2 -16
-# Per-mask-color (row) vertical nudge, on top of the base lift. Rows are
-# Blue/Orange/Red/Purple/Chief = mask-1 (0..4). Some masks (e.g. Purple's tall
-# crown) sit lower and need individual raising. Signed bytes, page, live-tunable.
-BH_ROWDY_TABLE = [0, 2, 0, -3, 0]   # Orange(row1) down 2px, Purple(row3) up 3px
+# BASE-GAME METHOD: the mask atlas (bigheads_masks.png == the game's own
+# vv5_heathenheads.png, 8 facings x 5 colours, 65x145 cells) is artist-aligned to
+# VV5 head geometry -- each facing cell already places the mask on the face. So the
+# Details mask is drawn EXACTLY like the head: same position, same scale, column =
+# the head's facing, row = mask colour, and NO per-facing/per-colour offset tables
+# (the art carries the alignment; adding offsets re-introduces drift). The head is
+# drawn from the same-geometry head atlas at scale BH_SS, so the mask uses BH_SS
+# 1:1 (mask cell == head cell). MUL/SHIFT stay as live-tunable knobs at 1:1.
+BH_SCALE_MUL = 1
+BH_SCALE_SHIFT = 0   # scale = headScale * MUL >> SHIFT  (1>>0 = x1, matches head)
+# Details idle head shows 3 facings; the owner's mapping is native mask columns
+# 5=right, 6=front, 7=left. Index by (record+0x2F3C mod 3) -> {5,6,7}. Live-tunable
+# in the R+X page; flip the 5<->7 ends if left/right read mirrored.
+BH_FACE_TABLE = [5, 6, 7]   # (record+0x2F3C mod 3) -> native mask column 5(right)/6(front)/7(left)
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",
@@ -3525,13 +3519,9 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         push dword ptr [esp+0x1C]
         call 0x409CA0
         mov eax, [esp+0x08]
-        add eax, 0x{BH_XOFF:X}
         mov dword ptr [0x{BH_SX:X}], eax
         mov eax, [esp+0x0C]
-        sub eax, 0x{BH_LIFT:X}
         mov dword ptr [0x{BH_SY:X}], eax
-        mov eax, [esp+0x14]
-        mov dword ptr [0x{BH_SF:X}], eax
         mov eax, [esp+0x18]
         mov dword ptr [0x{BH_SS:X}], eax
         call 0x{page_va + OFF['mask_get']:X}
@@ -3547,26 +3537,6 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         idiv ecx
         movzx ecx, byte ptr [edx + 0x{page_va + OFF['bighead_offsets']:X}]
         mov dword ptr [0x{BH_SCOL:X}], ecx
-        movsx eax, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets'] + 8:X}]
-        add eax, dword ptr [0x{BH_SX:X}]
-        mov dword ptr [0x{BH_SX:X}], eax
-        mov ecx, dword ptr [0x{BH_SROW:X}]
-        movsx eax, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets'] + 11:X}]
-        add eax, dword ptr [0x{BH_SY:X}]
-        mov dword ptr [0x{BH_SY:X}], eax
-        cmp dword ptr [esi + 0x1B8C], 0x118
-        jae bh_grown
-        mov ecx, dword ptr [0x{BH_SROW:X}]
-        cmp ecx, 1
-        je bh_child_off
-        cmp ecx, 3
-        je bh_child_off
-        cmp ecx, 4
-        jne bh_grown
-    bh_child_off:
-        sub dword ptr [0x{BH_SX:X}], 2
-        add dword ptr [0x{BH_SY:X}], 3
-    bh_grown:
         call 0x44FBB0
         mov ecx, eax
         push 0x{MASK_HANDLE:X}
@@ -3585,23 +3555,16 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     bh_ret:
         ret 0x1C
     """)
-    # Portrait-facing -> mask-column table (3 bytes) in the R+X page, read-only and
-    # live-tunable. bigheads_masks.png is 3 facing columns; the portrait head's own
-    # facing index (record+0x2F3C mod 3) selects the matching mask column so the
-    # mask rotates + tracks with the head, independent of the villager's age.
+    # Portrait-facing -> native mask-column table (3 bytes) in the R+X page,
+    # read-only and live-tunable. bigheads_masks.png is the native 8-facing atlas;
+    # the portrait head's own facing index (record+0x2F3C mod 3) selects the
+    # matching native mask column {5,6,7} (right/front/left). No offset tables --
+    # the art is artist-aligned per facing, so the mask tracks the head for free.
     tbl_off = OFF["bighead_offsets"]
     if any(page[tbl_off : tbl_off + SIZES["bighead_offsets"]]):
         raise RuntimeError("bighead_offsets overlaps generated data")
     for i, col in enumerate(BH_FACE_TABLE):
         page[tbl_off + i] = col & 0xFF
-    # per-column horizontal nudge table (3 signed bytes), just past the 8-byte
-    # frame->column table, indexed by the resolved column.
-    for i, dx in enumerate(BH_COLDX_TABLE):
-        page[tbl_off + 8 + i] = dx & 0xFF
-    # per-mask-color (row) vertical nudge table (5 signed bytes), past the col-dx
-    # table, indexed by the mask row (mask-1).
-    for i, dy in enumerate(BH_ROWDY_TABLE):
-        page[tbl_off + 11 + i] = dy & 0xFF
     # slot_capture: detour target for buildSavePath (sub_403600). On every save
     # AND load the game builds "<base><slot>.ldw" through sub_403600(this, slot);
     # this cave records the current slot so the DLL can key the mask sidecar per
