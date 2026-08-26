@@ -427,9 +427,8 @@ __declspec(dllexport) HWND __stdcall GetOriginsOwner(void);
 #define VV5_OFF_AGE    0x1B8C      /* dword */
 #define VV5_OFF_HEAD   0x1BB8      /* dword head index 0..29 */
 #define VV5_OFF_BODY   0x1BBC      /* dword body index 0..28 */
-#define VV5_OFF_FACTION 0x1CEC     /* byte, 0 = believer, != 0 = heathen */
-#define VV5_OFF_RANK    0x1CFC     /* dword heathen rank; 0xC == Retired Chief */
-#define VV5_RANK_RETIRED_CHIEF 0x0C
+#define VV5_OFF_RANK    0x1CFC     /* dword chief-rank marker; 0xD on the Retired Chief, 0 on ordinary villagers */
+#define VV5_RANK_RETIRED_CHIEF 0x0D
 #define VV5_MASK_TABLE 0x007B1D20u /* nibble-packed side-table, 150 villagers */
 #define VV5_TECH       0x0051D5F8u /* int tech-point balance */
 #define VV5_CHARGE_FN  0x004237B0u /* __thiscall(void* balance_ptr, int delta) */
@@ -502,28 +501,22 @@ static int caf_bucket_head(int sex, int mode) {
     return b[caf_rand() % (unsigned)n];
 }
 
-/* Find the tribe chief for the VV5-style single Chief slot. The chief is the
-   villager the game titles "Retired Chief" -- exactly the test the game's own
-   title routine (sub_442F80) uses: heathen faction (+0x1CEC != 0) AND heathen
-   rank (+0x1CFC) == 0xC. (Ranks 0xD..0x11 are the other heathen titles: Heathen
-   Chief, Heathen Master Builder, etc.) The mask feature only flips these fields
-   transiently inside the render, so at apply time they hold native values.
-   Falls back to the oldest active villager if no Retired Chief is present, and
-   returns -1 only if the village is empty. */
+/* Find the Retired Chief for the VV5-style single Chief slot. The Retired Chief
+   is the one villager carrying the native chief-rank marker +0x1CFC == 0xD;
+   ordinary villagers read 0 there. Verified live: in a real village exactly one
+   villager (the Retired Chief) has this set, and it is his native value (his mask
+   in the side-table is unrelated). The mask feature only flips +0x1CFC transiently
+   inside the render, so at apply time it holds the native value. If no Retired
+   Chief exists in the village, a RANDOM active villager gets the Chief mask.
+   Returns -1 only if the village is empty. */
 static int caf_find_chief(const int *active, int na) {
-    int best = -1, i; unsigned int best_age = 0;
+    int i;
+    if (na <= 0) return -1;
     for (i = 0; i < na; ++i) {
-        unsigned char *r = caf_rec(active[i]);
-        if (r[VV5_OFF_FACTION] != 0 &&
-            *(unsigned int *)(r + VV5_OFF_RANK) == VV5_RANK_RETIRED_CHIEF) {
+        if (*(unsigned int *)(caf_rec(active[i]) + VV5_OFF_RANK) == VV5_RANK_RETIRED_CHIEF)
             return i;
-        }
     }
-    for (i = 0; i < na; ++i) {
-        unsigned int age = *(unsigned int *)(caf_rec(active[i]) + VV5_OFF_AGE);
-        if (best < 0 || age > best_age) { best = i; best_age = age; }
-    }
-    return best;
+    return (int)(caf_rand() % (unsigned)na);
 }
 
 static void caf_shuffle(int *a, int n) {
