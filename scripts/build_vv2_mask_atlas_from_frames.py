@@ -8,11 +8,24 @@ ordered left-to-right by centroid X.
 
 VV2's head atlas has SEVEN columns, so the eighth frame of each row is dropped.
 
-PLACEMENT: each frame is centred on a BAKED anchor rather than re-derived from
-scratch. Those anchors are the per-cell centroids of the atlas that was tuned and
-play-verified in-game, so an art swap changes only the art. They are constants
-here on purpose: anchoring to "the current atlas" is self-defeating, because the
-first swap overwrites the very reference the next rebuild would need.
+PLACEMENT: a mask must COVER THE FACE in every facing, so each frame is aligned
+by its own face-covering region onto the head's actual face for that frame.
+
+Both halves of that are measured, not guessed:
+  * FACE_ANCHOR below is the median skin centroid per head frame over all 60 head
+    variants (30 male + 30 female). Spread is only 0.6-2.4px, so one anchor per
+    frame serves every head.
+  * The mask's face region is the bottom FACE_FRAC of its sprite -- the part that
+    sits on the face. Anchoring by the FULL sprite instead lets a tall headdress
+    drag the mask off the face, which is exactly how the chief frames went wrong.
+
+An earlier version anchored to the centroids of the previous atlas. That looked
+fine but was wrong: it inherited a horizontal error of up to 7px on the turned
+frames, so masks did not track the face across facings.
+
+Chief frames 0/1/4/5 lose a few feather-tip pixels to the cell edge at this
+alignment. That is deliberate: covering the face outranks a feather tip, and
+clamping them inside the cell would push the mask 2-4px off the face.
 
 Usage:
     python -m scripts.build_vv2_mask_atlas_from_frames [--out PATH]
@@ -83,24 +96,30 @@ def extract_frames(source: Path) -> dict[str, list[np.ndarray]]:
     return out
 
 
-# Per-cell (x, y) centroids of the play-verified atlas, in cell-local pixels.
-# Recovered from the pre-swap atlas; see the PLACEMENT note above before editing.
-ANCHORS: dict[str, list[tuple[float, float]]] = {
-    "blue": [(25.0676, 62.6235), (26.5346, 63.3918), (14.9471, 63.1862), (13.7787, 62.4507),
-             (25.3579, 63.9178), (21.5034, 63.904), (16.3002, 62.9485)],
-    "orange": [(22.0771, 59.8314), (21.3472, 60.9793), (14.9322, 59.9024), (15.0628, 60.0109),
-               (21.5495, 60.768), (20.2237, 60.8553), (17.7926, 60.6659)],
-    "red": [(24.9966, 55.1837), (25.434, 55.7779), (16.7596, 55.6313), (14.504, 55.3403),
-            (24.3163, 56.2863), (22.0649, 56.0024), (17.7808, 56.0897)],
-    "purple": [(24.0526, 57.0226), (25.985, 55.8828), (16.8717, 57.6126), (14.9845, 58.1118),
-               (23.0944, 57.3815), (21.4154, 57.329), (18.6926, 57.5446)],
-    "chief": [(26.9353, 52.2666), (25.8468, 51.7996), (13.9846, 50.7947), (12.3549, 52.2024),
-              (25.5981, 50.7587), (20.7673, 50.6944), (17.4393, 51.7745)],
+# Head-cell (x, y) of the face per frame: median skin centroid across all 60 head
+# variants. Regenerate with scripts/measure_vv2_face_anchors.py if the head art
+# ever changes; do not hand-edit.
+FACE_ANCHOR: dict[int, tuple[float, float]] = {
+    0: (22.780, 23.230), 1: (21.980, 22.750), 2: (20.920, 22.990), 3: (20.010, 23.400),
+    4: (22.160, 22.580), 5: (21.830, 22.660), 6: (21.060, 22.970),
 }
+LIFT = 42          # exe draws the atlas cell at (x, y - LIFT) over the head cell
+FACE_FRAC = 0.55   # bottom fraction of a mask sprite treated as its face region
 
 
-def _centroid(mask: np.ndarray) -> tuple[float, float]:
-    ys, xs = np.where(mask)
+def face_anchor(art: np.ndarray) -> tuple[float, float]:
+    """Centroid of the mask's face-covering region (bottom FACE_FRAC of the sprite)."""
+    opaque = art[:, :, 3] > 30
+    rows = np.where(opaque.any(1))[0]
+    if len(rows) == 0:
+        return 0.0, 0.0
+    top, bottom = rows.min(), rows.max()
+    cut = int(bottom - (bottom - top) * FACE_FRAC)
+    region = opaque.copy()
+    region[:cut, :] = False
+    if region.sum() < 10:       # very short sprite: fall back to the whole thing
+        region = opaque
+    ys, xs = np.where(region)
     return float(xs.mean()), float(ys.mean())
 
 
@@ -113,12 +132,13 @@ def build(source: Path, out: Path) -> None:
         if len(available) < FRAMES:
             raise SystemExit(f"{name}: need {FRAMES} frames, found {len(available)}")
         for col in range(FRAMES):
-            ref_cx, ref_cy = ANCHORS[name][col]
-
+            face_x, face_y = FACE_ANCHOR[col]
             art = available[col]
-            art_cx, art_cy = _centroid(art[:, :, 3] > 30)
-            px = int(round(ref_cx - art_cx))
-            py = int(round(ref_cy - art_cy))
+            art_x, art_y = face_anchor(art)
+            # Put the mask's face region on the head's face. +LIFT converts the
+            # head-cell y into this taller atlas cell's coordinates.
+            px = int(round(face_x - art_x))
+            py = int(round(face_y + LIFT - art_y))
 
             h, w = art.shape[:2]
             sx0, sy0 = max(0, -px), max(0, -py)
