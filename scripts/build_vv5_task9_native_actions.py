@@ -268,7 +268,7 @@ SIZES = {
     "mask_get": 0x80,
     "mask_set": 0x80,
     "mask_load_once": 0x80,
-    "bighead_mask": 0x100,
+    "bighead_mask": 0x140,
     "bighead_offsets": 0x10,
     "slot_capture": 0x40,
     "mask_birth_clear": 0x40,
@@ -3549,6 +3549,19 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         movsx eax, byte ptr [ecx + 0x{page_va + OFF['bighead_offsets'] + 11:X}]
         add eax, dword ptr [0x{BH_SY:X}]
         mov dword ptr [0x{BH_SY:X}], eax
+        cmp dword ptr [esi + 0x1B8C], 0x118
+        jae bh_grown
+        mov ecx, dword ptr [0x{BH_SROW:X}]
+        cmp ecx, 1
+        je bh_child_off
+        cmp ecx, 3
+        je bh_child_off
+        cmp ecx, 4
+        jne bh_grown
+    bh_child_off:
+        sub dword ptr [0x{BH_SX:X}], 2
+        add dword ptr [0x{BH_SY:X}], 3
+    bh_grown:
         call 0x44FBB0
         mov ecx, eax
         push 0x{MASK_HANDLE:X}
