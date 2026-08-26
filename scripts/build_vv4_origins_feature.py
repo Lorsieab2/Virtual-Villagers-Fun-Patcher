@@ -167,6 +167,47 @@ MASK_PRESENT_VA = 0x728DE0            # ~0x1B bytes -> ends ~0x728DFB
 MASK_PRESENT_FILE_OFFSET = 0xCCDE0
 MASK_HEAD_VA = 0x728E10              # ~0x70 bytes -> ends ~0x728E80 (< page end 0x729000)
 MASK_HEAD_FILE_OFFSET = 0xCCE10
+# --- Walking-WORLD mask (the deferred compositor, separate from the twins) -----
+# The visible village villagers are NOT drawn by the FUN_0045f550 twins (that is an
+# immediate pass the world paints over) but by FUN_00467da0, run per-villager from
+# the queue flush FUN_0044c420 (case 6). Right after its head draw it issues a
+# camera-transforming world blit FUN_0044C790 (thiscall, ecx=world mgr 0x4DB9F8,
+# ret 0x1c) at the head's world position (EDI/EBP, anchor-adjusted). We WRAP that
+# call: run the original, then -- if the villager (esi=record) has a mask -- re-
+# issue the SAME blit with arg1=mask atlas and arg4=mask row, so the mask inherits
+# the camera scroll/zoom/z-order/clip for free and lands in the final composite.
+MASK_WORLD_SITE = 0x468263            # the LAST/topmost head world-blit in FUN_00467da0
+                                      # (ECX=[ESI+0x1BB8]=head, drawn at the head's own
+                                      # anchor pos EDI/EBP + head scale) -- wrapping THIS
+                                      # draws the mask AFTER the head (in front), at the
+                                      # head's exact position + scale (tracks head, scales
+                                      # with head height on children). 0x4681F9 was an
+                                      # earlier body layer the head then painted over.
+MASK_WORLD_CALLEE = 0x44C790          # camera world blit; thiscall(mgr; sprite,x,y,idx,frame,f,f)
+MASK_WORLD_LIFT = 0                   # head-hook: mask already at the head anchor; ~0 lift
+                                      # (mask art is head-aligned). Tune small if needed.
+                                      # (masks drew on the chest at 0). World units ->
+                                      # c790 scales by camera zoom, so this holds across
+                                      # zoom; tune on an adult, add scale-by-arg6 for kids
+MASK_WORLD_FACING = 5                 # atlas COLUMN pinned to the front frame: the
+                                      # layer's own arg5 is a WALK-ANIMATION frame (mask
+                                      # cycled per step); pin to front for a stable mask
+                                      # (per-facing LUT is a later refinement, like VV3)
+MASK_WORLD_VA = 0x728EB0             # cave in the free .shr tail (head cave ends 0x728EA6)
+MASK_WORLD_FILE_OFFSET = 0xCCEB0
+# world-cave scratch (mgr/rec/ret + the 7 blit args + fp scratch), past the
+# ~0xd4-byte cave (0x728EB0..0x728F84), at 0x728F88..0x728FB4 (< page end 0x729000):
+MASK_W_MGR = 0x728F98
+MASK_W_REC = 0x728F9C
+MASK_W_RET = 0x728FA0
+MASK_W_A1 = 0x728FA4                 # arg1 = sprite  (we swap to the mask atlas)
+MASK_W_A2 = 0x728FA8                 # arg2 = world x
+MASK_W_A3 = 0x728FAC                 # arg3 = world y (we subtract the lift)
+MASK_W_A4 = 0x728FB0                 # arg4 = ROW (we set to mask-1; 0-based)
+MASK_W_A5 = 0x728FB4                 # arg5 = the resolved sprite frame (unused for column now)
+MASK_W_A6 = 0x728FB8                 # arg6 = float (the head/blit SCALE; lift scales by it)
+MASK_W_A7 = 0x728FBC                 # arg7 = float
+MASK_W_SCRATCH = 0x728FC0            # fistp target for the scaled lift (< page end 0x729000)
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -307,14 +348,93 @@ def mask_head_cave() -> bytes:
             {y_expr}
             push dword ptr [{MASK_S_X}]
             push edx
-            mov ecx, edx
-            call 0x{MASK_DRAW_REAL:X}
+            mov ecx, dword ptr [{MASK_S_ECX}]
+            call 0x{MASK_DRAW_THUNK_VA:X}
         mh_done:
             jmp dword ptr [{MASK_S_RET}]
         """
     prologue = src(0).split("post_head:")[0]
     post_head = MASK_HEAD_VA + len(assemble(prologue, MASK_HEAD_VA))
     return assemble(src(post_head), MASK_HEAD_VA)
+
+
+def mask_world_cave() -> bytes:
+    """Spliced onto FUN_00467da0's LAST head world-blit `call 0x44C790` at
+    0x468263 (the topmost head layer, so the mask lands in front). Entry: ecx=world
+    mgr (0x4DB9F8), esi=villager record, [esp]=site return (0x468268),
+    [esp+4..+0x1c]=the 7 blit args
+    (sprite,x,y,idx,frame,f,f). It runs the ORIGINAL blit, then -- if the villager
+    has a mask and the atlas is built -- re-issues 0x44C790 with the SAME ecx/args
+    except arg1=mask atlas obj, arg4=mask row (mask-1), arg3=y-lift. So the mask
+    rides the exact camera-transformed world draw the head just used (scroll/zoom/
+    z/clip inherited), landing in the FINAL composite instead of an early pass the
+    world repaints. All guarded (no export / mask<=0 / atlas 0 -> nothing extra
+    drawn). Preserves esi/edi/ebp/ebx (only eax/ecx/edx touched, all caller-saved
+    across the original call)."""
+    def src(post_orig: int) -> str:
+        # y = worldY - lift*scale, scale = the head's own blit float (arg6) so the
+        # mask rises/shrinks with children + carried villagers (VV2/VV5). FPU use
+        # is balanced (fild push / fistp pop) so the game's FPU stack is preserved.
+        y3 = (f"push dword ptr [{MASK_W_A3}]" if MASK_WORLD_LIFT == 0 else
+              f"push {MASK_WORLD_LIFT}\n"
+              f"            fild dword ptr [esp]\n"
+              f"            add esp, 4\n"
+              f"            fmul dword ptr [{MASK_W_A6}]\n"
+              f"            fistp dword ptr [{MASK_W_SCRATCH}]\n"
+              f"            mov ecx, dword ptr [{MASK_W_A3}]\n"
+              f"            sub ecx, dword ptr [{MASK_W_SCRATCH}]\n"
+              f"            push ecx")
+        return f"""
+            mov dword ptr [{MASK_W_MGR}], ecx
+            mov dword ptr [{MASK_W_REC}], esi
+            mov eax, [esp]
+            mov dword ptr [{MASK_W_RET}], eax
+            mov eax, [esp+4]
+            mov dword ptr [{MASK_W_A1}], eax
+            mov eax, [esp+8]
+            mov dword ptr [{MASK_W_A2}], eax
+            mov eax, [esp+0xC]
+            mov dword ptr [{MASK_W_A3}], eax
+            mov eax, [esp+0x10]
+            mov dword ptr [{MASK_W_A4}], eax
+            mov eax, [esp+0x14]
+            mov dword ptr [{MASK_W_A5}], eax
+            mov eax, [esp+0x18]
+            mov dword ptr [{MASK_W_A6}], eax
+            mov eax, [esp+0x1C]
+            mov dword ptr [{MASK_W_A7}], eax
+            mov dword ptr [esp], {post_orig}
+            jmp 0x{MASK_WORLD_CALLEE:X}
+        post_orig:
+            call 0x{MASK_RESOLVE_VA:X}
+            mov eax, dword ptr [{MASK_SLOT_GET_PTR}]
+            test eax, eax
+            jz mw_done
+            push dword ptr [{MASK_W_REC}]
+            call eax
+            test eax, eax
+            jle mw_done
+            dec eax
+            mov edx, dword ptr [{MASK_SLOT_ATLAS}]
+            test edx, edx
+            jz mw_done
+            push dword ptr [{MASK_W_A7}]
+            push dword ptr [{MASK_W_A6}]
+            mov ecx, dword ptr [{MASK_W_A5}]
+            and ecx, 7
+            push ecx
+            push eax
+            {y3}
+            push dword ptr [{MASK_W_A2}]
+            push edx
+            mov ecx, dword ptr [{MASK_W_MGR}]
+            call 0x{MASK_WORLD_CALLEE:X}
+        mw_done:
+            jmp dword ptr [{MASK_W_RET}]
+        """
+    prologue = src(0).split("post_orig:")[0]
+    post_orig = MASK_WORLD_VA + len(assemble(prologue, MASK_WORLD_VA))
+    return assemble(src(post_orig), MASK_WORLD_VA)
 
 
 def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str) -> None:
@@ -1608,6 +1728,16 @@ def main() -> None:
         patch(site - IMAGE_BASE,
               rel32_call(site, MASK_DRAW_THUNK_VA), rel32_call(site, MASK_HEAD_VA),
               f"Heathen mask: route the head-draw call at {site:#x} through the mask head cave")
+    # Walking-WORLD mask: wrap the deferred compositor's post-head camera blit so
+    # the mask renders on the actual village villagers (the twins above are an
+    # early pass the world repaints over).
+    mask_world = mask_world_cave()
+    patch(MASK_WORLD_FILE_OFFSET, b"\0" * len(mask_world), mask_world,
+          "Heathen mask: WORLD cave -- wrap FUN_00467da0's post-head camera world-blit (0x44C790) and re-issue it with arg1=mask atlas + arg4=mask row + y-lift so the walking-village mask lands in the deferred composite")
+    patch(MASK_WORLD_SITE - IMAGE_BASE,
+          rel32_call(MASK_WORLD_SITE, MASK_WORLD_CALLEE),
+          rel32_call(MASK_WORLD_SITE, MASK_WORLD_VA),
+          f"Heathen mask: route the world compositor's post-head blit at {MASK_WORLD_SITE:#x} through the world mask cave")
     # Detail-portrait (big) head draw (0x43D040) is deliberately NOT hooked yet:
     # its record pointer reaches the record differently and needs live
     # confirmation. The world + selection-panel twins are hooked here; the

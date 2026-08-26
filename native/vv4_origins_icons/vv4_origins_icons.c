@@ -219,9 +219,15 @@ static int vv_get_mask(const unsigned char *villager) {
     if (m == 0 || m >= VV_MASK_COUNT) {
         return 0;
     }
-    if (g_mask_fp[idx] != vv_fingerprint(villager)) {
-        return 0;                    /* slot reused by a different villager */
-    }
+    /* Key PURELY by positional record index -- NO gender+name fingerprint. The
+       fingerprint desynced the bulk "Change Appearance for All" path: the name/
+       gender hashed at set-time didn't match render-time (name not finalized in
+       the bulk write), so vv_get_mask wrongly rejected every for-All mask while
+       an individually-set mask (set+render adjacent) worked. Position is stable
+       across the bulk set AND across save/reload (VV5's proven approach). Slot
+       reuse (a newborn taking a dead villager's index) is handled by the
+       clear-on-death sweep vv_mask_sweep, which zeroes the mask the moment the
+       slot goes free -- so a reused slot starts mask-less. */
     return (int)m;
 }
 static void vv_set_mask(unsigned char *villager, int mask) {
@@ -276,6 +282,7 @@ static void vv_set_mask(unsigned char *villager, int mask) {
 #define VV_MASK_ATLAS_SLOT_VA 0x728D70u /* .shr slot: published atlas obj ptr */
 static void *g_mask_atlas_obj = NULL;
 static int g_mask_atlas_tried = 0;
+static void *g_dest_surface;    /* fwd tentative def (real one below); diag use */
 
 static void vv_ensure_mask_atlas(void) {
     void *obj;
@@ -315,6 +322,19 @@ static void vv_ensure_mask_atlas(void) {
         mov  eax, VV_LDWGRID_CTOR
         call eax
     }
+    /* CLIP BOUNDS (this+0x60..0x6c = left/top/right/bottom). The draw's clip
+       stage FUN_00407f80 reads these whenever the transform != 100 (walking
+       villagers pass ~93, NOT 100), and rejects the sprite when they're 0 --
+       which is why masks never drew in the scrolled village while the details
+       path (which happened to pass) did. Set a viewport wider than any on-screen
+       coord so masks always pass the clip and draw at the head's own scale. */
+    {
+        int *o = (int *)obj;
+        o[0x18] = -30000;      /* byte 0x60: left   */
+        o[0x19] = -30000;      /* byte 0x64: top    */
+        o[0x1a] =  30000;      /* byte 0x68: right  */
+        o[0x1b] =  30000;      /* byte 0x6c: bottom */
+    }
     /* Silent self-diagnostic: log the load outcome to <exe dir>\vvfp_mask_dbg.txt
        so the atlas geometry can be verified without a popup. */
     {
@@ -350,8 +370,57 @@ static void vv_ensure_mask_atlas(void) {
 /* Head-draw caves call this: ensure the atlas is built + published, and return
    the fingerprint-checked mask (0 = none) for the villager record. */
 __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
+    int mask;
     vv_ensure_mask_atlas();
-    return vv_get_mask(villager);
+    mask = vv_get_mask(villager);
+    /* Skip the mask on non-living villagers: the mausoleum-collection bonus
+       spawns GHOSTS from dead villager records that still carry a mask in the
+       index-keyed side-table and render through the same world compositor. Gate
+       on the game's own liveness fields (matching vv_eligible): dead flag +0x1CC7
+       set, or health +0x1C40 <= 0. Render-only -- the stored mask is untouched,
+       so a revived villager gets it back. */
+    if (mask > 0 && (villager[0x1CC7] != 0 ||
+                     *(const int *)(villager + 0x1C40) <= 0)) {
+        mask = 0;
+    }
+    /* One-shot draw-path diagnostic: the head cave saves the live draw args to
+       fixed .shr scratch slots BEFORE calling us, so we can log them here (which
+       twin via the return address, plus x/y/facing/transform) without touching
+       the asm cave. Logs the first N mask draws to <exe dir>\vvfp_mask_draw.txt. */
+    if (mask > 0) {
+        static int g_draw_logged = 0;
+        int didx = vv_villager_index(villager);
+        /* LUT DERIVATION: log the record facing (+0x1CD0) alongside the HEAD's OWN
+           column arg (world cave saved the head's arg5 at 0x728FB4). The head's
+           arg5 is the correct column (1:1 with the atlas by construction); the
+           map +0x1CD0 -> arg5 is the remap LUT. If they're always equal, no LUT
+           needed; where they differ is the mirror/order fix. */
+        if (didx >= 0 && g_draw_logged < 200) {
+            char exe[MAX_PATH], dbg[MAX_PATH], line[200];
+            char *base, *p;
+            DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH), written;
+            HANDLE fh;
+            int f1cd0 = *(volatile int *)(villager + 0x1CD0);
+            int harg5 = *(volatile int *)(UINT_PTR)0x728FB4u;   /* MASK_W_A5 */
+            if (n != 0 && n < MAX_PATH) {
+                base = exe;
+                for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
+                *base = '\0';
+                wsprintfA(dbg, "%svvfp_mask_draw.txt", exe);
+                wsprintfA(line, "+1CD0=%d(&7=%d)  headArg5=%d(&7=%d)\r\n",
+                          f1cd0, f1cd0 & 7, harg5, harg5 & 7);
+                fh = CreateFileA(dbg, FILE_APPEND_DATA, FILE_SHARE_READ, NULL,
+                                 OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+                if (fh != INVALID_HANDLE_VALUE) {
+                    SetFilePointer(fh, 0, NULL, FILE_END);
+                    WriteFile(fh, line, lstrlenA(line), &written, NULL);
+                    CloseHandle(fh);
+                    g_draw_logged++;
+                }
+            }
+        }
+    }
+    return mask;
 }
 
 /* --- Sidecar persistence ---------------------------------------------------
@@ -542,6 +611,40 @@ __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
         vv_read_mask_sidecar();
     }
     vv_mask_sweep();            /* clear masks on slots the game freed/reused */
+    {   /* DIAGNOSTIC: every ~120 frames, overwrite <exe dir>\vvfp_mask_state.txt
+           with the first occupied villagers' idx / occupied-byte / stored mask /
+           stored-fp vs current-fp, to see why for-All masks don't read back. */
+        static unsigned int g_state_tick = 0;
+        if ((g_state_tick++ % 120u) == 0u) {
+            char exe[MAX_PATH], dbg[MAX_PATH], line[160];
+            char *base, *p;
+            DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH), written;
+            HANDLE fh;
+            if (n != 0 && n < MAX_PATH) {
+                base = exe;
+                for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
+                *base = '\0';
+                wsprintfA(dbg, "%svvfp_mask_state.txt", exe);
+                fh = CreateFileA(dbg, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+                                 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+                if (fh != INVALID_HANDLE_VALUE) {
+                    int idx, shown = 0;
+                    for (idx = 0; idx < VV_MAX_VILLAGERS && shown < 20; idx++) {
+                        unsigned char *rec = (unsigned char *)
+                            (VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
+                        if (rec[VV_OCCUPIED_OFFSET] == 0) continue;   /* only occupied */
+                        wsprintfA(line,
+                            "idx=%d occ=%u mask=%u stfp=%08X curfp=%08X seen=%u\r\n",
+                            idx, rec[VV_OCCUPIED_OFFSET], g_mask_by_index[idx],
+                            g_mask_fp[idx], vv_fingerprint(rec), g_slot_seen_alive[idx]);
+                        WriteFile(fh, line, lstrlenA(line), &written, NULL);
+                        shown++;
+                    }
+                    CloseHandle(fh);
+                }
+            }
+        }
+    }
 }
 
 /* Blit one resolved mask (1..5) at the head's screen x/y. scale_pct: 100 =
