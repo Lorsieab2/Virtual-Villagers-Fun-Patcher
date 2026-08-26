@@ -19,6 +19,11 @@ ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe"
 ACTIVE = ROOT / "data/vv5_origins_feature.json"
 COMPANION = ROOT / "data/candidates/VVFP VV5 Task9 Origins Icons.dll"
+# The dedicated Details-portrait bighead mask atlas. The patched sprite table
+# (slot 0x155) tells the game to load Images/bigheads_masks.png at runtime, so the
+# patcher must SHIP it as a companion file into the install's Images/ folder --
+# otherwise a clean install has no bighead mask art.
+BIGHEAD_ATLAS_PNG = ROOT / "assets/vv5_bighead_masks/bigheads_masks.png"
 OUT = ROOT / "data/vv5_task9_native_actions.json"
 MAP_OUT = ROOT / "data/candidates/vv5_task9_native_actions_map.json"
 SOURCE_PATHS = {
@@ -3605,11 +3610,23 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # runs the displaced `sub esp,0x104` prologue and returns to 0x403606. Because
     # eax is clobbered by the original next instruction (mov eax, security_cookie),
     # the cave is free to use it without preserving.
+    #
+    # Slot-CHANGE re-arm: when the captured slot differs from the last one (the
+    # player returned to the menu and loaded a DIFFERENT village without restarting
+    # the process), clear MASK_LOADED so the next village frame re-runs
+    # mask_load_once and reloads the new slot's side-table. Without this the stale
+    # in-memory table bleeds the first village's mask choices into the second and a
+    # subsequent appearance purchase would cross-write the new slot's sidecar.
+    # Same-slot saves (slot unchanged) skip the reset, so a normal save never
+    # triggers a spurious reload.
     slot_capture = put(page, page_va, "slot_capture", f"""
         mov eax, dword ptr [esp + 4]
         test eax, eax
         jz sc_skip
+        cmp eax, dword ptr [0x{SLOT_SCRATCH:X}]
+        je sc_skip
         mov dword ptr [0x{SLOT_SCRATCH:X}], eax
+        mov byte ptr [0x{MASK_LOADED:X}], 0
     sc_skip:
         sub esp, 0x104
         jmp 0x403606
@@ -3827,6 +3844,7 @@ def main() -> None:
     if len(relocations) != C342_COUNT or canonical_sha(relocations) != C342_ROWS_SHA256:
         raise RuntimeError("frozen C342 66-row ledger drift")
     companion = COMPANION.read_bytes()
+    bighead_atlas_png = BIGHEAD_ATLAS_PNG.read_bytes()
     bindings = source_bindings()
     pages: dict[str, bytes] = {}
     page_maps: dict[str, object] = {}
@@ -3873,12 +3891,20 @@ def main() -> None:
                 "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
             },
         },
-        "companion_files": [{
-            "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
-            "destination": "VVFP Origins Icons.dll",
-            "sha256": sha(companion),
-            "size": len(companion),
-        }],
+        "companion_files": [
+            {
+                "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+                "destination": "VVFP Origins Icons.dll",
+                "sha256": sha(companion),
+                "size": len(companion),
+            },
+            {
+                "source": "assets/vv5_bighead_masks/bigheads_masks.png",
+                "destination": "Images\\bigheads_masks.png",
+                "sha256": sha(bighead_atlas_png),
+                "size": len(bighead_atlas_png),
+            },
+        ],
         "pe_append_transaction": {
             "section": ".vv5t9",
             "append_source": "generated:vv5_task9_native_actions_page",

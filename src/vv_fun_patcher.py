@@ -693,13 +693,16 @@ VV5_TASK9_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "F8D98CB8E92CFD9AC53A2573AC810835944ED2B215C7D55B1241B120ECB4B2A9",
-    "map": "7C500F22D277B14902E01B5D3A5CBF70455D514CEE41395669F6E2877E7C1149",
+    "manifest": "CF6890EE639E134A7E8134B065E12FF342D29EA280E19CBA33E3B6FEBB982C4B",
+    "map": "EE60EA2FDFD49BE8CAB55F4DE712D22B599642C253FE62AAB6381847E1EAD0EC",
 }
 VV5_TASK9_DLL_SHA256 = "0FA1F65D1B475894014B1189CAF87ABB12D00AF46AD704537A31F765DD44FCFB"
+# Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
+VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8D087850B128AFA0D1E60731BBAB7556CB3292D4DC488EDCF3FE0D091CCD487A"
+VV5_TASK9_BIGHEAD_ATLAS_SIZE = 41650
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "7A37D3F4F4AB4FA73E23928AF3B907C8DCA3D1E5151CE8F44947F5DB40028F3A",
-    "immediate_fixed": "7A37D3F4F4AB4FA73E23928AF3B907C8DCA3D1E5151CE8F44947F5DB40028F3A",
+    "collection_progression": "2BD9C07DA3E5EB1D21BDFAD222F7E9F3CD750769876DD807540B788ED982CE8F",
+    "immediate_fixed": "2BD9C07DA3E5EB1D21BDFAD222F7E9F3CD750769876DD807540B788ED982CE8F",
     "experimental_expanded_256": "1DA673F628F98044196506FC0E386ADE07AA1BB2EB1FC0CC15F69518E80FA874",
     "experimental_expanded_256_progression": "1DA673F628F98044196506FC0E386ADE07AA1BB2EB1FC0CC15F69518E80FA874",
 }
@@ -2150,8 +2153,18 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "sha256": VV5_TASK9_DLL_SHA256,
         "size": 1753088,
     }
-    if record.get("companion_files") != [expected_companion]:
+    expected_bighead_atlas = {
+        "source": "assets/vv5_bighead_masks/bigheads_masks.png",
+        "destination": "Images\\bigheads_masks.png",
+        "sha256": VV5_TASK9_BIGHEAD_ATLAS_SHA256,
+        "size": VV5_TASK9_BIGHEAD_ATLAS_SIZE,
+    }
+    if record.get("companion_files") != [expected_companion, expected_bighead_atlas]:
         raise PatcherError("VV5 Task9 companion ownership metadata drifted.")
+    atlas_path = ROOT / expected_bighead_atlas["source"]
+    atlas_bytes = atlas_path.read_bytes()
+    if len(atlas_bytes) != expected_bighead_atlas["size"] or hashlib.sha256(atlas_bytes).hexdigest().upper() != VV5_TASK9_BIGHEAD_ATLAS_SHA256:
+        raise PatcherError("VV5 Task9 bighead mask atlas identity mismatch.")
     companion = VV5_TASK9_PATHS["dll"].read_bytes()
     if len(companion) != expected_companion["size"] or hashlib.sha256(companion).hexdigest().upper() != VV5_TASK9_DLL_SHA256:
         raise PatcherError("VV5 Task9 companion identity mismatch.")
