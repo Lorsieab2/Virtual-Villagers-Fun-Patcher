@@ -113,11 +113,11 @@ MASK_ROW_TEST = 4                 # 0 Blue,1 Orange,2 Red,3 Purple,4 Chief (hard
 # through the SCALED path (scale s = arg6*0.01), so the lift must scale too: 32*s ~= (arg6*41)>>7
 # (matches 32*s within a pixel across the whole child age range).
 ADULT_MASK_DY = 0x00              # VV5 standard: mask draws at the head's exact Y
-CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # in-world child: 42*s ~= (arg6*54)>>7
+CHILD_DY_MUL, CHILD_DY_SHIFT = 0, 7    # VV5 standard: no lift; mask sits at the head's exact Y
 # The Details/portrait draw (caller < 0x445B50) goes through the SAME scaled thunk but pushes
 # arg6 = 2*(age/7)+0xA0 = DOUBLE the in-world scaledRow, so the same multiplier double-lifts and
 # the mask flies above the head.  Give the portrait its own (smaller) multiplier; tune to taste.
-PORTRAIT_DY_MUL = 54
+PORTRAIT_DY_MUL = 0    # VV5 standard: no lift on the portrait either
 # The mask atlas is baked/tuned for the 1x village view; the Details portrait draws the same
 # atlas larger, leaving masks a touch high+left there.  Nudge masks down+right on the portrait
 # path ONLY (caller < 0x445B50).  Tune to taste.
