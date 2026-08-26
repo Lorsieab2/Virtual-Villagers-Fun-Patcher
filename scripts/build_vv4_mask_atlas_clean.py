@@ -100,7 +100,19 @@ def build() -> Image.Image:
                     best_iou, best_i, best_off = iou, i, off
             m = masks[best_i]
             dy, dx = best_off
-            atlas.alpha_composite(Image.fromarray(m), (c * CELL_W + dx, r * CELL_H + dy))
+            mh, mw = m.shape[:2]
+            # CLAMP each mask fully inside its own 40x65 cell, then composite into a
+            # cell-sized tile so it can NEVER bleed into a neighbour. A mask pushed
+            # past the cell edge shows up twice: cut off in its own cell AND bleeding
+            # into the next -- exactly the "pixel bleed + chief cutoff on certain
+            # frames" report. Masks fit the cell (<=~33 wide, <=65 tall); if one is
+            # larger than the cell, centre it for a minimal symmetric clip instead of
+            # a one-sided overflow.
+            dx = max(0, min(dx, CELL_W - mw)) if mw <= CELL_W else (CELL_W - mw) // 2
+            dy = max(0, min(dy, CELL_H - mh)) if mh <= CELL_H else (CELL_H - mh) // 2
+            tile = Image.new("RGBA", (CELL_W, CELL_H), (0, 0, 0, 0))
+            tile.alpha_composite(Image.fromarray(m), (dx, dy))
+            atlas.alpha_composite(tile, (c * CELL_W, r * CELL_H))
     return atlas
 
 
