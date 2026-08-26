@@ -217,6 +217,31 @@ MASK_W_SCRATCH = 0x728FC0            # fistp target for the scaled lift (< page 
 MASK_DY_TABLE = 0x728FC4             # 5 signed bytes at 0x728FC4..0x728FC8 (< 0x729000)
 MASK_DY_VALUES = (34, 34, 34, 34, 34)  # uniform SCALED vertical re-seat (VV5-measured dy): mask-face-y minus head-face-y, 65x145 cell (X re-seat baked in atlas)
 
+# --- DETAILS bighead mask (portrait FUN_0043cdf0) --------------------------
+# Hook the portrait HEAD draw (call 0x409A70 __thiscall, ecx=drawmgr 0x4E00E0) at
+# 0x43CFDE; reissue it with the mask atlas obj so the mask rides the bighead at
+# its own (large) scale (VV5: pass-through position/scale, same as the village).
+# Column = a Details-only facing (right/front/left) -> mask cols 5/6/7; row=color.
+# Cave in the big free .shr gap 0x7287A1..0x728B10 (879 bytes).
+VV4_DETAIL_MASK_SITE = 0x43CFDE       # `call 0x409A70` (head draw) in FUN_0043cdf0
+VV4_DETAIL_MASK_CALLEE = 0x409A70
+VV4_DETAIL_MASK_VA = 0x7287A1
+VV4_DETAIL_MASK_FILE_OFFSET = 0xCC7A1
+VV4_REC_ARRAY_BASE = 0x50E5AC         # villager record array base
+VV4_REC_STRIDE = 0x2E3C
+VV4_DETAIL_FACING_COL = 6             # STAGE 1: front (col 6); refine to per-facing 5/6/7
+# scratch (mgr/ret/6 args/index/mask), past the cave:
+D_MGR = 0x728A00
+D_RET = 0x728A04
+D_A1 = 0x728A08                       # atlas (head; we swap to mask)
+D_A2 = 0x728A0C                       # x
+D_A3 = 0x728A10                       # y
+D_A4 = 0x728A14                       # head field
+D_A5 = 0x728A18                       # frame
+D_A6 = 0x728A1C                       # scale
+D_IDX = 0x728A20                      # villager index (param_1 = [ebp+8])
+D_MASK = 0x728A24                     # mask-1 (row)
+
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
 # operands, not results of a raw byte sweep.
@@ -447,6 +472,70 @@ def mask_world_cave() -> bytes:
     prologue = src(0).split("post_orig:")[0]
     post_orig = MASK_WORLD_VA + len(assemble(prologue, MASK_WORLD_VA))
     return assemble(src(post_orig), MASK_WORLD_VA)
+
+
+def mask_detail_cave() -> bytes:
+    """Spliced onto the Details portrait HEAD draw `call 0x409A70` at 0x43CFDE
+    (__thiscall, ecx=drawmgr 0x4E00E0, callee-cleans 6 args). Entry: ecx=drawmgr,
+    [esp]=site return (0x43CFE3), [esp+4..+0x18]=6 head args (atlas,x,y,head,
+    frame,scale), [ebp+8]=param_1=villager index. Runs the original head draw,
+    then -- if the selected villager has a mask -- reissues 0x409A70 with arg1=
+    mask atlas obj, arg4=mask row, arg5=facing col, reusing the head's x/y/scale
+    so the mask rides the bighead at its own large portrait scale (VV5 method)."""
+    def src(post_orig: int) -> str:
+        return f"""
+            mov dword ptr [{D_MGR}], ecx
+            mov eax, [esp+4]
+            mov dword ptr [{D_A1}], eax
+            mov eax, [esp+8]
+            mov dword ptr [{D_A2}], eax
+            mov eax, [esp+0xC]
+            mov dword ptr [{D_A3}], eax
+            mov eax, [esp+0x10]
+            mov dword ptr [{D_A4}], eax
+            mov eax, [esp+0x14]
+            mov dword ptr [{D_A5}], eax
+            mov eax, [esp+0x18]
+            mov dword ptr [{D_A6}], eax
+            mov eax, [esp]
+            mov dword ptr [{D_RET}], eax
+            mov eax, [ebp+8]
+            mov dword ptr [{D_IDX}], eax
+            mov dword ptr [esp], {post_orig}
+            mov ecx, dword ptr [{D_MGR}]
+            jmp 0x{VV4_DETAIL_MASK_CALLEE:X}
+        post_orig:
+            call 0x{MASK_RESOLVE_VA:X}
+            mov eax, dword ptr [{MASK_SLOT_GET_PTR}]
+            test eax, eax
+            jz det_done
+            mov eax, dword ptr [{D_IDX}]
+            imul eax, eax, {VV4_REC_STRIDE}
+            add eax, {VV4_REC_ARRAY_BASE}
+            push eax
+            mov eax, dword ptr [{MASK_SLOT_GET_PTR}]
+            call eax
+            test eax, eax
+            jle det_done
+            dec eax
+            mov dword ptr [{D_MASK}], eax
+            mov edx, dword ptr [{MASK_SLOT_ATLAS}]
+            test edx, edx
+            jz det_done
+            push dword ptr [{D_A6}]
+            push {VV4_DETAIL_FACING_COL}
+            push dword ptr [{D_MASK}]
+            push dword ptr [{D_A3}]
+            push dword ptr [{D_A2}]
+            push edx
+            mov ecx, dword ptr [{D_MGR}]
+            call 0x{VV4_DETAIL_MASK_CALLEE:X}
+        det_done:
+            jmp dword ptr [{D_RET}]
+        """
+    prologue = src(0).split("post_orig:")[0]
+    post_orig = VV4_DETAIL_MASK_VA + len(assemble(prologue, VV4_DETAIL_MASK_VA))
+    return assemble(src(post_orig), VV4_DETAIL_MASK_VA)
 
 
 def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str) -> None:
@@ -1759,10 +1848,16 @@ def main() -> None:
           rel32_call(MASK_WORLD_SITE, MASK_WORLD_CALLEE),
           rel32_call(MASK_WORLD_SITE, MASK_WORLD_VA),
           f"Heathen mask: route the world compositor's post-head blit at {MASK_WORLD_SITE:#x} through the world mask cave")
-    # Detail-portrait (big) head draw (0x43D040) is deliberately NOT hooked yet:
-    # its record pointer reaches the record differently and needs live
-    # confirmation. The world + selection-panel twins are hooked here; the
-    # portrait is a follow-up once the twins are proven in a playtest.
+    # Detail-portrait (big) head draw: hook the head draw `call 0x409A70` at
+    # 0x43CFDE, run it, then reissue with the mask atlas so the mask rides the
+    # bighead at its own portrait scale (STAGE 1: front col 6; facing refine TODO).
+    mask_detail = mask_detail_cave()
+    patch(VV4_DETAIL_MASK_FILE_OFFSET, b"\0" * len(mask_detail), mask_detail,
+          "Heathen mask: DETAILS cave -- wrap the portrait head draw (0x409A70 @0x43CFDE) and reissue it with the mask atlas obj so the mask overlays the bighead at the head's own position/scale")
+    patch(VV4_DETAIL_MASK_SITE - IMAGE_BASE,
+          rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_CALLEE),
+          rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_VA),
+          f"Heathen mask: route the Details portrait head draw at {VV4_DETAIL_MASK_SITE:#x} through the Details mask cave")
     patch(0x3FBE5, bytes.fromhex("E81684FDFF"), rel32_call(0x43FBE5, BARREL_COUNTDOWN_VA),
           "route the real event-scheduler tick (0x43FBE5 -> 0x418000) through the Barrel cue so a purchased barrel is presented naturally after its delay")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),

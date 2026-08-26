@@ -271,11 +271,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # surface-cache 0xCCDE0, head-draw 0xCCE10 -- plus the
                         # present-call splice (0x9458) and the two head-draw
                         # twins re-pointed to the head cave (0x5F702, 0x5F9CA).
-                        # No row-count bumps, no atlas swaps; detail portrait
-                        # still unhooked.
+                        # No row-count bumps, no atlas swaps. The village world
+                        # cave (0xCCEB0, spliced at 0x68263) and the Details
+                        # portrait cave (0xCC7A1, spliced at 0x3CFDE) reissue the
+                        # head draw with the mask atlas so the mask rides the head
+                        # on every render path (village + bighead portrait).
                         "0xCCD80", "0xC3C24", "0xC3B94",
                         "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
                         "0x5F702", "0x5F9CA",
+                        "0xCCEB0", "0x68263", "0xCC7A1", "0x3CFDE", "0xCCFC4",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

@@ -98,22 +98,72 @@ def build() -> Image.Image:
                 if (cur[r * CELL_H:(r + 1) * CELL_H, c * CELL_W:(c + 1) * CELL_W, 3] > 32).sum() >= 8]
         cells = {c: cur[r * CELL_H:(r + 1) * CELL_H, c * CELL_W:(c + 1) * CELL_W, 3] > 32
                  for c in cols}
-        # DIRECT ordered mapping: clean port frame p[c] IS the mask for column c.
-        # The strips are laid out in the head's facing sweep (left-hemisphere first,
-        # then fronts), so port index == column index for the 7 face-visible
-        # directions (verified p0..p6 == dirty d0..d6). Column 7 (the away-turned
-        # 8th direction, no port) reuses the FRONT-most port (last index) -- a
-        # neutral front reads better there than a mis-picked profile.
-        # Correlation (_best_align) positions the chosen port on the dirty cell but
-        # NEVER chooses it: shape-matching mis-picks among near-identical facings
-        # (that smeared one orange front across cols 2-6 -> wrong-direction frames).
-        assign: dict[int, tuple[int, tuple[int, int]]] = {}
-        for c in cols:
-            i = c if c < len(masks) else len(masks) - 1
-            assign[c] = (i, _best_align(mask_alphas[i], cells[c])[1])
-        for c, (i, off) in assign.items():
-            m = masks[i]
-            dy, dx = off
+        cs = sorted(cols)
+        n = len(masks)
+        assign: dict[int, tuple[np.ndarray, tuple[int, int]]] = {}
+        # Chief's source frames sweep left->front but its front starts at p3 (vs the
+        # head's front at col 5) and it has NO right-facing source, so an explicit
+        # per-column (source_index, mirror) map -- owner-referenced -- centres the
+        # front on col 5 and builds the right directions (6,7) from mirrored lefts.
+        CHIEF_MAP = [(0, 0), (1, 0), (2, 0), (2, 0), (3, 0), (4, 0), (2, 1), (1, 1)]
+        if color == "chief" and set(cs) <= set(range(8)):
+            for c in cs:
+                si, mir = CHIEF_MAP[c]
+                si = min(si, n - 1)
+                src = masks[si][:, ::-1] if mir else masks[si]
+                assign[c] = (src, _best_align(src[:, :, 3] > 32, cells[c])[1])
+        elif color == "chief":
+            # Chief ONLY: its port frames aren't distributed 1:1 with the 8 head
+            # columns (fronts land at p3/p4, not p4-6 like the others), so
+            # index-for-index mapping mis-faces it. A DP that assigns each column
+            # its best-IoU port under a NON-DECREASING port-index constraint keeps
+            # the facing sweep ordered and self-corrects the distribution. (The
+            # other colours ARE 1:1 and use the proven direct mapping below --
+            # matching the sparse dirty columns with the DP regressed them.)
+            iou = {c: [_best_align(mask_alphas[i], cells[c])[0] for i in range(n)] for c in cs}
+            off = {c: [_best_align(mask_alphas[i], cells[c])[1] for i in range(n)] for c in cs}
+            NEG = -1e9
+            dp = [[NEG] * n for _ in cs]
+            par = [[-1] * n for _ in cs]
+            for i in range(n):
+                dp[0][i] = iou[cs[0]][i]
+            for k in range(1, len(cs)):
+                run, run_j = NEG, -1
+                for i in range(n):             # running max of dp[k-1][j], j<=i
+                    if dp[k - 1][i] > run:
+                        run, run_j = dp[k - 1][i], i
+                    dp[k][i] = iou[cs[k]][i] + run
+                    par[k][i] = run_j
+            i = int(np.argmax(dp[-1]))
+            for k in range(len(cs) - 1, -1, -1):
+                assign[cs[k]] = (masks[i], off[cs[k]][i])
+                if k > 0:
+                    i = par[k][i]
+        else:
+            # DIRECT ordered mapping: port frame p[c] IS the mask for column c
+            # (strips sweep the head's facings, verified p0..p6 == dirty d0..d6).
+            for c in cs:
+                if c < n:
+                    assign[c] = (masks[c], _best_align(mask_alphas[c], cells[c])[1])
+        # Last column = the head's turned-AWAY 8th direction; with left/front-only
+        # ports its best match is a horizontal MIRROR (a reused front points the
+        # wrong way -- the "wrong frame for the face frame" report). Chief already
+        # sets col 7 via CHIEF_MAP, so don't re-pick it here.
+        last = cs[-1]
+        if color != "chief":
+            best = None
+            for src in masks:
+                for cand in (src, src[:, ::-1]):
+                    v, o = _best_align(cand[:, :, 3] > 32, cells[last])
+                    if best is None or v > best[0]:
+                        best = (v, cand, o)
+            assign[last] = (best[1], best[2])
+        for c, (m, off_) in assign.items():
+            dy, dx = off_
+            # Chief's right-facing frames (cols 6-7) read 3px too far left on the
+            # head -- nudge them right (owner-tuned). Clamp below keeps it in-cell.
+            if color == "chief" and c in (6, 7):
+                dx += 3
             mh, mw = m.shape[:2]
             # CLAMP each mask fully inside its own 40x65 cell, then composite through
             # a cell-sized tile so it can NEVER bleed into a neighbour. A mask pushed

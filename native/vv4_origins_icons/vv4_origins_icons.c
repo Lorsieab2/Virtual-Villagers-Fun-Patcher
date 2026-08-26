@@ -365,39 +365,6 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
                      *(const int *)(villager + 0x1C40) <= 0)) {
         mask = 0;
     }
-    /* FACING CAPTURE: log candidate facing fields vs the head's own draw arg
-       (arg5 saved by the world cave at 0x728FB4) so we can derive the true
-       pose-independent visual facing. One line per masked draw, first 400. */
-    if (mask > 0) {
-        static int g_cap = 0;
-        if (g_cap < 400) {
-            char exe[MAX_PATH], dbg[MAX_PATH], line[200];
-            char *p, *base; DWORD written;
-            DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH);
-            int a5    = *(volatile int *)(UINT_PTR)0x728FB4u;       /* head arg5 */
-            int f1cd0 = *(volatile int *)(villager + 0x1CD0);       /* facing?   */
-            int f1cb0 = *(volatile int *)(villager + 0x1CB0);       /* anim      */
-            int f1cd4 = *(volatile int *)(villager + 0x1CD4);       /* arg5 base */
-            int f1cd8 = *(volatile int *)(villager + 0x1CD8);       /* pose/state */
-            HANDLE fh;
-            if (n != 0 && n < MAX_PATH) {
-                base = exe;
-                for (p = exe; *p; ++p) if (*p == '\\' || *p == '/') base = p + 1;
-                *base = '\0';
-                wsprintfA(dbg, "%svvfp_facing.txt", exe);
-                wsprintfA(line, "a5=%d(&7=%d) 1cd0=%d 1cb0=%d 1cd4=%d 1cd8=%d\r\n",
-                          a5, a5 & 7, f1cd0, f1cb0, f1cd4, f1cd8);
-                fh = CreateFileA(dbg, FILE_APPEND_DATA, FILE_SHARE_READ, NULL,
-                                 OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-                if (fh != INVALID_HANDLE_VALUE) {
-                    SetFilePointer(fh, 0, NULL, FILE_END);
-                    WriteFile(fh, line, lstrlenA(line), &written, NULL);
-                    CloseHandle(fh);
-                    g_cap++;
-                }
-            }
-        }
-    }
     return mask;
 }
 
