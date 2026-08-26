@@ -1092,7 +1092,24 @@ static void vv2_mask_sidecar_load(void) {
     unsigned char buf[VV2_MASK_TABLE_BYTES];
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (f == INVALID_HANDLE_VALUE) return;            /* no file yet -> keep table as-is */
+    if (f == INVALID_HANDLE_VALUE) {
+        /* MIGRATION (Codex P2): builds before the basename fix wrote the sidecar to a
+           HARDCODED canonical folder.  A user who picked masks with one of those builds
+           while running a renamed (e.g. "- Modded") exe would find the new basename path
+           empty and appear to lose every mask.  Fall back to reading the old canonical
+           location once; the next save writes to the correct basename path, so this
+           self-heals without ever deleting or moving the user's file. */
+        char legacy[MAX_PATH];
+        char docs[MAX_PATH];
+        if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return;
+        if (lstrlenA(docs) + (int)sizeof("\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat") >= MAX_PATH) {
+            return;
+        }
+        wsprintfA(legacy, "%s\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat", docs);
+        if (lstrcmpiA(legacy, path) == 0) return;     /* already the canonical exe -> nothing to migrate */
+        f = CreateFileA(legacy, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (f == INVALID_HANDLE_VALUE) return;        /* no legacy file either -> keep table as-is */
+    }
     if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
         && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
         memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
