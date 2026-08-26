@@ -42,17 +42,23 @@ def _strip_masks(color: str):
     a = im[:, :, 3] > 32
     lbl, n = ndimage.label(ndimage.binary_dilation(a, iterations=3))
     comps = []
-    for sl in ndimage.find_objects(lbl):
-        ys, xs = sl
-        piece = a[ys, xs]
-        if piece.sum() < 25:
+    for i, sl in enumerate(ndimage.find_objects(lbl)):
+        if sl is None:
             continue
-        yy, xx = np.where(piece)
-        x0, y0 = xs.start + xx.min(), ys.start + yy.min()
-        x1, y1 = xs.start + xx.max(), ys.start + yy.max()
+        label = i + 1
+        # THIS component's real pixels only: dilation unified a mask's feather bits
+        # into one label, but a neighbour mask can still fall inside this bbox --
+        # so keep only (this label AND opaque), which drops the grazing neighbour
+        # AND the dilation halo. Without this the crop carried stray specks that
+        # showed as loose pixels beside masks in-village.
+        own = (lbl == label) & a
+        if own.sum() < 25:
+            continue
+        ys, xs = np.where(own)
+        x0, y0, x1, y1 = xs.min(), ys.min(), xs.max(), ys.max()
         crop = im[y0:y1 + 1, x0:x1 + 1].copy()
-        # blank anything outside this component's own dilated blob so a
-        # neighbouring mask that grazed the bbox can't ride along
+        keep = own[y0:y1 + 1, x0:x1 + 1]
+        crop[~keep] = (0, 0, 0, 0)
         comps.append((crop, (x0 + x1) / 2.0, (y0 + y1) / 2.0))
     comps.sort(key=lambda c: (int(c[2] // 30), c[1]))   # row band, then x
     return [c[0] for c in comps]
@@ -88,26 +94,32 @@ def build() -> Image.Image:
     for r, color in enumerate(ORDER):
         masks = _strip_masks(color)
         mask_alphas = [m[:, :, 3] > 32 for m in masks]
-        for c in range(COLS):
-            cell = cur[r * CELL_H:(r + 1) * CELL_H, c * CELL_W:(c + 1) * CELL_W, 3] > 32
-            if cell.sum() < 8:
-                continue                       # this direction has no mask (blank)
-            # pick the clean mask + offset that best matches THIS dirty cell
-            best_i, best_iou, best_off = 0, -1.0, (0, 0)
-            for i, ma in enumerate(mask_alphas):
-                iou, off = _best_align(ma, cell)
-                if iou > best_iou:
-                    best_iou, best_i, best_off = iou, i, off
-            m = masks[best_i]
-            dy, dx = best_off
+        cols = [c for c in range(COLS)
+                if (cur[r * CELL_H:(r + 1) * CELL_H, c * CELL_W:(c + 1) * CELL_W, 3] > 32).sum() >= 8]
+        cells = {c: cur[r * CELL_H:(r + 1) * CELL_H, c * CELL_W:(c + 1) * CELL_W, 3] > 32
+                 for c in cols}
+        # DIRECT ordered mapping: clean port frame p[c] IS the mask for column c.
+        # The strips are laid out in the head's facing sweep (left-hemisphere first,
+        # then fronts), so port index == column index for the 7 face-visible
+        # directions (verified p0..p6 == dirty d0..d6). Column 7 (the away-turned
+        # 8th direction, no port) reuses the FRONT-most port (last index) -- a
+        # neutral front reads better there than a mis-picked profile.
+        # Correlation (_best_align) positions the chosen port on the dirty cell but
+        # NEVER chooses it: shape-matching mis-picks among near-identical facings
+        # (that smeared one orange front across cols 2-6 -> wrong-direction frames).
+        assign: dict[int, tuple[int, tuple[int, int]]] = {}
+        for c in cols:
+            i = c if c < len(masks) else len(masks) - 1
+            assign[c] = (i, _best_align(mask_alphas[i], cells[c])[1])
+        for c, (i, off) in assign.items():
+            m = masks[i]
+            dy, dx = off
             mh, mw = m.shape[:2]
-            # CLAMP each mask fully inside its own 40x65 cell, then composite into a
-            # cell-sized tile so it can NEVER bleed into a neighbour. A mask pushed
-            # past the cell edge shows up twice: cut off in its own cell AND bleeding
-            # into the next -- exactly the "pixel bleed + chief cutoff on certain
-            # frames" report. Masks fit the cell (<=~33 wide, <=65 tall); if one is
-            # larger than the cell, centre it for a minimal symmetric clip instead of
-            # a one-sided overflow.
+            # CLAMP each mask fully inside its own 40x65 cell, then composite through
+            # a cell-sized tile so it can NEVER bleed into a neighbour. A mask pushed
+            # past the cell edge shows twice: cut off in its own cell AND bleeding
+            # into the next (the "pixel bleed + chief cutoff" report). Masks fit the
+            # cell; if one is larger, centre it for a minimal symmetric clip.
             dx = max(0, min(dx, CELL_W - mw)) if mw <= CELL_W else (CELL_W - mw) // 2
             dy = max(0, min(dy, CELL_H - mh)) if mh <= CELL_H else (CELL_H - mh) // 2
             tile = Image.new("RGBA", (CELL_W, CELL_H), (0, 0, 0, 0))
