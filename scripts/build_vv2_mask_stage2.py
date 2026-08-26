@@ -124,13 +124,13 @@ CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # 42px lift at full scale, scaled with th
 # The Details/portrait draw (caller < 0x445B50) goes through the SAME scaled thunk but pushes
 # arg6 = 2*(age/7)+0xA0 = DOUBLE the in-world scaledRow, so the same multiplier double-lifts and
 # the mask flies above the head.  Give the portrait its own (smaller) multiplier; tune to taste.
-PORTRAIT_DY_MUL = 27   # HALF of CHILD_DY_MUL: the portrait's arg6 is double the village scaledRow
+PORTRAIT_DY_MUL = 54   # same geometric lift as the village (42px at full scale)
 # The mask atlas is baked/tuned for the 1x village view; the Details portrait draws the same
 # atlas larger, leaving masks a touch high+left there.  Nudge masks down+right on the portrait
 # path ONLY (caller < 0x445B50).  Tune to taste.
 import os as _os
-PORTRAIT_MASK_DX = 0   # portrait: nudge mask right (all masks)
-PORTRAIT_MASK_DY = 0   # portrait: nudge mask down (all masks) — was 8, raised 6px per live tune
+PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "17"))   # portrait: 65-wide mask cell vs 40-wide head cell
+PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "40"))   # portrait: 145-tall mask cell vs 65-tall head cell
 # Per-mask portrait (Details) fine-alignment — masks drift a little differently on
 # the age-scaled portrait, so each colour gets its own extra nudge ON TOP of the
 # uniform PMDX/PMDY (village view unaffected — this is portrait-branch only).
