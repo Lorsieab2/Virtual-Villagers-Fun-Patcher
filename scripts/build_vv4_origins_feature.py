@@ -215,7 +215,7 @@ MASK_W_SCRATCH = 0x728FC0            # fistp target for the scaled lift (< page 
 # Live-tunable: change the bytes + re-apply the patch, no atlas rebuild.
 # (Siblings VV1/VV2/VV3/VV5 all place final alignment in a draw-time nudge.)
 MASK_DY_TABLE = 0x728FC4             # 5 signed bytes at 0x728FC4..0x728FC8 (< 0x729000)
-MASK_DY_VALUES = (0, 0, 0, 0, 7)    # blue, orange, red, purple, chief (chief +7 up)
+MASK_DY_VALUES = (34, 34, 34, 34, 34)  # uniform SCALED vertical re-seat (VV5-measured dy): mask-face-y minus head-face-y, 65x145 cell (X re-seat baked in atlas)
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -380,13 +380,20 @@ def mask_world_cave() -> bytes:
     drawn). Preserves esi/edi/ebp/ebx (only eax/ecx/edx touched, all caller-saved
     across the original call)."""
     def src(post_orig: int) -> str:
-        # y = worldY - MASK_DY[mask-1]. eax still holds mask-1 here (already pushed
-        # as arg4), so it indexes the signed per-mask nudge table; positive = UP.
-        # Unscaled (small nudge, keeps the cave inside the tight .shr tail budget);
-        # tune the bytes in MASK_DY_VALUES if a mask needs more/less.
-        y3 = (f"mov ecx, dword ptr [{MASK_W_A3}]\n"
-              f"            movsx eax, byte ptr [eax + {MASK_DY_TABLE}]\n"
-              f"            sub ecx, eax\n"
+        # y = worldY - MASK_DY[mask-1]*scale. eax still holds mask-1 here (already
+        # pushed as arg4), so it indexes the signed per-mask lift table; positive =
+        # UP. SCALED by the head's own blit scale (arg6) so the lift seats the mask
+        # on the head at every villager size (children/carried). The mask uses its
+        # own tall 65x145 cell whose face sits ~68px down from the cell top, so this
+        # lift is large (~face-y minus head-face-y). FPU balanced (fild/fistp).
+        y3 = (f"movsx eax, byte ptr [eax + {MASK_DY_TABLE}]\n"
+              f"            push eax\n"
+              f"            fild dword ptr [esp]\n"
+              f"            add esp, 4\n"
+              f"            fmul dword ptr [{MASK_W_A6}]\n"
+              f"            fistp dword ptr [{MASK_W_SCRATCH}]\n"
+              f"            mov ecx, dword ptr [{MASK_W_A3}]\n"
+              f"            sub ecx, dword ptr [{MASK_W_SCRATCH}]\n"
               f"            push ecx")
         return f"""
             mov dword ptr [{MASK_W_MGR}], ecx
@@ -424,7 +431,8 @@ def mask_world_cave() -> bytes:
             jz mw_done
             push dword ptr [{MASK_W_A7}]
             push dword ptr [{MASK_W_A6}]
-            mov ecx, dword ptr [{MASK_W_A5}]
+            mov ecx, dword ptr [{MASK_W_REC}]
+            mov ecx, dword ptr [ecx + 0x1CD4]
             and ecx, 7
             push ecx
             push eax
