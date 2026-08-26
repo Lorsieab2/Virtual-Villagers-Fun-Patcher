@@ -20,8 +20,8 @@
     {
       "source": "assets/vv5_bighead_masks/bigheads_masks.png",
       "destination": "Images\\bigheads_masks.png",
-      "sha256": "8D087850B128AFA0D1E60731BBAB7556CB3292D4DC488EDCF3FE0D091CCD487A",
-      "size": 41650
+      "sha256": "C36ACCB31B8AA03F61DCCA469E6798C97BC94D8108873AB9E87B0CC19BEF25DB",
+      "size": 37653
     }
   ],
   "doubler_evidence": {
