@@ -119,6 +119,15 @@ WORLD_MASK_WRAPPER_CAVE_VA = 0x47B260     # .text padding cave (>=32 bytes of ze
 WORLD_HANDLER_CALLSITE_VA = 0x0042E3F5    # sole `call 0x4605F0` in the flush dispatch
 WORLD_HANDLER_FN = 0x004605F0             # the per-villager handler we wrap (ret 4)
 WORLD_FLUSHFN_PTR = 0x6C7A08              # DLL publishes VV3WorldMaskFlush here
+# HELD/picked-up villager: its head is drawn by the ONLY OTHER 42E570 caller, 0x434357 (a
+# separate renderer that draws it at the cursor; the village queue skips held villagers).
+# Wrap that call so the mask rides the held villager.  42E570 = ret 0x14 (5 args); at the
+# call site the 5 args (sprite,x,y,scale,flag) are already pushed and ecx=0x58F6F8.  Verified
+# 0 branches into 0x434357..0x43435C (safe to steal the 5-byte call).
+WORLD_HELD_CALLSITE_VA = 0x00434357       # held villager's head draw (only other 42E570 xref)
+WORLD_HELD_WRAP_CAVE_VA = 0x0047B2A0      # .text cave, after the village wrapper
+WORLD_HEAD_DRAW_FN = 0x0042E570           # the head draw both call sites use
+WORLD_HELDFN_PTR = 0x6C7A0C               # DLL publishes VV3HeldMaskDraw here
 
 # Complete/Reset all Collections action caves live in a free executable-.rdata
 # padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
@@ -1687,6 +1696,36 @@ def main() -> None:
         f"call 0x{WORLD_MASK_WRAPPER_CAVE_VA:X}", WORLD_HANDLER_CALLSITE_VA
     )
 
+    # HELD-villager wrapper: wrap the held head draw's `call 0x42E570` at 0x434357.  Re-push
+    # the 5 args (else the inner call's extra return address shifts them), run the original
+    # head draw, then call VV3HeldMaskDraw(x, y, scale) reading the ORIGINAL args (x=[esp+8],
+    # y=[esp+0xC], scale=[esp+0x10]) so the mask lands at the held cursor position.  Null ptr
+    # -> plain held head.  ret 0x14 cleans the original 5 args -> identical net stack effect.
+    world_held_wrap_cave = assemble(
+        f"""
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            mov ecx, 0x58F6F8
+            call 0x{WORLD_HEAD_DRAW_FN:X}
+            mov eax, dword ptr [0x{WORLD_HELDFN_PTR:X}]
+            test eax, eax
+            je held_wrap_done
+            push dword ptr [esp + 0x10]
+            push dword ptr [esp + 0x10]
+            push dword ptr [esp + 0x10]
+            call eax
+        held_wrap_done:
+            ret 0x14
+        """,
+        WORLD_HELD_WRAP_CAVE_VA,
+    )
+    world_held_wrap_redirect = assemble(
+        f"call 0x{WORLD_HELD_WRAP_CAVE_VA:X}", WORLD_HELD_CALLSITE_VA
+    )
+
     # Complete all Collections: mark collectible ids 52..99 found in the native
     # count array [0x58F428 + 0x10 + id*4], then broadcast the collectible
     # refresh (0x293) and the four collection-complete goal events plus the
@@ -1897,6 +1936,18 @@ def main() -> None:
         original[WORLD_HANDLER_CALLSITE_VA - IMAGE_BASE : WORLD_HANDLER_CALLSITE_VA - IMAGE_BASE + 5],
         world_mask_wrapper_redirect,
         "wrap the per-villager handler call so the mask draws as the last layer",
+    )
+    patch(
+        WORLD_HELD_WRAP_CAVE_VA - IMAGE_BASE,
+        original[WORLD_HELD_WRAP_CAVE_VA - IMAGE_BASE : WORLD_HELD_WRAP_CAVE_VA - IMAGE_BASE + len(world_held_wrap_cave)],
+        world_held_wrap_cave,
+        "held-villager wrapper cave: draw the mask on a picked-up villager at the cursor",
+    )
+    patch(
+        WORLD_HELD_CALLSITE_VA - IMAGE_BASE,
+        original[WORLD_HELD_CALLSITE_VA - IMAGE_BASE : WORLD_HELD_CALLSITE_VA - IMAGE_BASE + 5],
+        world_held_wrap_redirect,
+        "wrap the held/picked-up villager head draw so its mask follows the cursor",
     )
     # (No head-atlas row-count bump: the separate-atlas method draws the mask from
     # its own Images/heathen_masks.png, so the head atlases are left untouched.)

@@ -53,6 +53,7 @@ static int s_dialog_state;
 __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index);
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args);
 __declspec(dllexport) void __stdcall VV3WorldMaskFlush(void);
+__declspec(dllexport) void __stdcall VV3HeldMaskDraw(int x, int y, int scaleBits);
 
 /* The village head-draw cave reads this fixed exe .data slot for the world-mask
    draw fn, so the per-frame cave needs no LoadLibrary/GetProcAddress -- we publish
@@ -67,6 +68,8 @@ __declspec(dllexport) void __stdcall VV3WorldMaskFlush(void);
    catches EVERY villager (children included) and lands on top of all layers.  (The old
    head-site stash path VV3WorldMaskDrawAt/Flush is retained but unused.) */
 #define VV3_WORLD_INDEXFN_PTR_SLOT 0x006C7A08u
+/* Held/picked-up villager mask draw fn, read by the cave wrapping the held head draw. */
+#define VV3_WORLD_HELDFN_PTR_SLOT  0x006C7A0Cu
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -74,6 +77,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         module_instance = instance;
         *(void **)(UINT_PTR)VV3_WORLD_DRAWFN_PTR_SLOT  = (void *)&VV3WorldMaskDrawAt;
         *(void **)(UINT_PTR)VV3_WORLD_INDEXFN_PTR_SLOT = (void *)&VV3WorldMaskDraw;
+        *(void **)(UINT_PTR)VV3_WORLD_HELDFN_PTR_SLOT  = (void *)&VV3HeldMaskDraw;
     }
     return TRUE;
 }
@@ -778,6 +782,67 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
             call edx                     /* sub_42E510(mgr, atlas, x, y, cell, 1.0f); ret 0x14 */
         }
         *p3010 = save3010;               /* restore the shared manager field */
+    }
+}
+
+/* HELD-villager mask: spliced at the OTHER head-draw call site 0x434357 (the picked-up /
+   carried villager's head, drawn at the cursor by a separate renderer that the village
+   queue does NOT cover).  The wrap hands us the head's exact cursor-relative x/y + scale;
+   we find the held villager (record+0xF12 != 0) for its mask + facing and draw the mask on
+   top, so it rides along while dragged.  The village draw skips held villagers (+0xF12), so
+   this is the ONLY mask for a held villager -- no ground ghost.  Fade-safe (1.0f scale +
+   fold size into [mgr+0x3010]) exactly like the village draw. */
+__declspec(dllexport) void __stdcall VV3HeldMaskDraw(int x, int y, int scaleBits)
+{
+    unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    void *held = NULL, *atlas;
+    int i, mask, facing, cell, mx, my;
+    float fscale, liftsc, floor;
+    if (slots > 256) slots = 256;
+    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+        if (rec[VV3_ACTIVE] == 0) continue;
+        if (*(int *)(rec + VV3_HEALTH) <= 0) continue;
+        if (rec[VV3_WORLD_CARRIED_OFF] != 0) { held = rec; break; }   /* the held villager */
+    }
+    if (held == NULL) return;
+    mask = VV3_GetMaskForRecord(held);
+    if (mask <= 0) return;
+    atlas = VV3GetMaskAtlas();
+    if (atlas == NULL) return;
+    fscale = *(float *)&scaleBits;
+    if (g_vv3_world_facing >= 0) {
+        facing = g_vv3_world_facing & 7;
+    } else {
+        facing = ((*(int *)((unsigned char *)held + g_vv3_world_facing_off))
+                  + g_vv3_world_facing_remap) & 7;
+    }
+    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
+    liftsc = fscale;
+    floor = g_vv3_world_liftfloor * 0.01f;
+    if (liftsc < floor) {
+        liftsc = floor;
+    }
+    mx = x + (int)(g_vv3_world_dx * fscale);
+    my = y - (int)(g_vv3_world_lift * liftsc) + (int)(g_vv3_world_dy * fscale);
+    {
+        int   *p3010    = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
+        int    save3010 = *p3010;
+        int    one      = 0x3F800000;           /* float 1.0 -> fast, solid blit path */
+        double sized    = (double)save3010 * (double)fscale;
+        *p3010 = (int)(sized >= 0.0 ? sized + 0.5 : sized - 0.5);
+        __asm {
+            mov  eax, one
+            push eax
+            push cell
+            push my
+            push mx
+            push atlas
+            mov  ecx, VV3_WORLD_MGR
+            mov  edx, VV3_WORLD_DRAW_FN
+            call edx                     /* sub_42E510(mgr, atlas, mx, my, cell, 1.0f) */
+        }
+        *p3010 = save3010;
     }
 }
 
