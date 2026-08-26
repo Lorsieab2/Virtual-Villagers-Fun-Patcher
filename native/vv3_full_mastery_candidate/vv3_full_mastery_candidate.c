@@ -751,29 +751,33 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
     x += (int)(g_vv3_world_dx * fscale);
     y += - (int)(g_vv3_world_lift * liftsc) + (int)(g_vv3_world_dy * fscale);
     {
-        /* Inherit the head's exact render state: temporarily restore [mgr+0x3010] to the
-           value it held AT THE HEAD DRAW (later handler layers may have changed it), so the
-           mask blends/scales like the head instead of faded.  Only when we used the stash
-           (the head actually drew this villager this pass); restore afterwards. */
-        int *p3010 = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
-        int  save3010 = *p3010;
-        if (used_stash) {
-            *p3010 = g_vv3_stash_m3010;
-        }
+        /* FADE FIX (VV2 trace): both the head draw (42E570) and my cell draw (42E510)
+           converge on the same terminal blit 0x404620, which FAST-PATHS (solid) when the
+           two float scale args are 1.0 and otherwise takes a SOFTWARE-SCALED path that
+           couples ALPHA to scale (-> a small child's mask goes translucent).  The head
+           escapes this by passing 1.0 for the float scale and folding the size reduction
+           into the INTEGER term [mgr+0x3010] (fild [3010]; fmul scale; ftol).  So mirror
+           the head exactly: pass scale = 1.0f to 42E510 (fast path, solid alpha) and set
+           [mgr+0x3010] = round(base3010 * scale) for the size.  base3010 = the value the
+           head used (stashed) when available.  Restore [3010] afterwards. */
+        int   *p3010    = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
+        int    save3010 = *p3010;
+        int    base3010 = used_stash ? g_vv3_stash_m3010 : save3010;
+        int    one      = 0x3F800000;           /* float 1.0 -> fast, non-faded blit path */
+        double sized    = (double)base3010 * (double)fscale;
+        *p3010 = (int)(sized >= 0.0 ? sized + 0.5 : sized - 0.5);
         __asm {
-            mov  eax, fscale             /* a6 = villager scale (float bits) -> 42E510 arg5 */
+            mov  eax, one                /* arg5 = 1.0f -> 0x404620 fast path (solid alpha) */
             push eax
-            push cell                    /* atlas cell (linear index) -> 42E510 arg4        */
+            push cell                    /* atlas cell (linear index) -> 42E510 arg4         */
             push y
             push x
             push atlas
             mov  ecx, VV3_WORLD_MGR
             mov  edx, VV3_WORLD_DRAW_FN
-            call edx                     /* sub_42E510(mgr, atlas, x, y, cell, scale); ret 0x14 */
+            call edx                     /* sub_42E510(mgr, atlas, x, y, cell, 1.0f); ret 0x14 */
         }
-        if (used_stash) {
-            *p3010 = save3010;
-        }
+        *p3010 = save3010;               /* restore the shared manager field */
     }
 }
 
@@ -934,7 +938,10 @@ static void vv3_apply_for_all(int head_m, int body_m, int mask_m,
             int j = (int)(caf_rand() % (unsigned)(i + 1));
             int t = order[i]; order[i] = order[j]; order[j] = t;
         }
-        if (chief >= 0) maskof[chief] = 5;         /* Chief mask -> the robe-wearer */
+        /* Chief mask -> the robe-wearing Tribal Chief (+0xE80); if there is NO Tribal
+           Chief, give the Chief mask to a random villager instead (owner's spec). */
+        if (chief < 0 && n > 0) chief = (int)(caf_rand() % (unsigned)n);
+        if (chief >= 0) maskof[chief] = 5;
         for (qi = 0; qi < 3; ++qi) {
             for (got = 0; got < quota[qi] && p < n; ) {
                 int a = order[p++];
