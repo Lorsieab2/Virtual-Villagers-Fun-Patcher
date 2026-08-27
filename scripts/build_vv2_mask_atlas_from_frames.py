@@ -109,6 +109,16 @@ FACE_ANCHOR: dict[int, tuple[float, float]] = {
 }
 LIFT = 42          # exe draws the atlas cell at (x, y - LIFT) over the head cell
 FACE_FRAC = 0.55   # bottom fraction of a mask sprite treated as its face region
+ART_SCALE = 1.0    # source art used at full size
+# Seat the mask this many px ABOVE the measured face anchor. Baked into the art
+# rather than added to the draw: the adult path is the UNSCALED draw, so a
+# draw-time term would need a matching multiplier on the scaled child/portrait
+# path to stay consistent. Baked here it applies everywhere, and scales naturally
+# with the head on the scaled paths.
+# Per-mask, because the colours do not all sit the same on the face: purple's art
+# already rides higher (its chin sits ~7px above the others in the source sheet),
+# so it needs less lift than the rest.
+EXTRA_LIFT = {"blue": 6, "orange": 6, "red": 6, "purple": 3, "chief": 6}
 
 
 def face_anchor(art: np.ndarray) -> tuple[float, float]:
@@ -138,6 +148,11 @@ def build(source: Path, out: Path) -> None:
         for col in range(FRAMES):
             face_x, face_y = FACE_ANCHOR[col]
             art = available[col]
+            if ART_SCALE != 1.0:
+                h0, w0 = art.shape[:2]
+                art = np.array(Image.fromarray(art, "RGBA").resize(
+                    (max(1, round(w0 * ART_SCALE)), max(1, round(h0 * ART_SCALE))),
+                    Image.LANCZOS))
             art_x, art_y = face_anchor(art)
             # Put the mask's face region on the head's face. +LIFT converts the
             # head-cell y into this taller atlas cell's coordinates.
@@ -147,7 +162,7 @@ def build(source: Path, out: Path) -> None:
             # draw auto-aligns; VV2's head cell is 40x65, so the conversion has to
             # live somewhere. Baking it here keeps the draw offset-free in x.
             px = int(round(face_x - art_x))
-            py = int(round(face_y + LIFT - art_y))
+            py = int(round(face_y + LIFT - art_y - EXTRA_LIFT[name]))
 
             h, w = art.shape[:2]
             sx0, sy0 = max(0, -px), max(0, -py)
