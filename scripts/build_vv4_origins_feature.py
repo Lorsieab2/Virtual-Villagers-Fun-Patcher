@@ -241,6 +241,10 @@ D_A5 = 0x728A18                       # frame
 D_A6 = 0x728A1C                       # scale
 D_IDX = 0x728A20                      # villager index (param_1 = [ebp+8])
 D_MASK = 0x728A24                     # mask-1 (row)
+D_SCALE = 0x728A28                    # float scale multiplier (bighead face / mask face)
+D_A6S = 0x728A2C                      # scaled arg6 (D_A6 * D_SCALE) for the mask draw
+import struct as _struct
+D_SCALE_VALUE = _struct.pack("<f", 2.6)   # bighead ~60px face vs mask ~23px face
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -522,7 +526,10 @@ def mask_detail_cave() -> bytes:
             mov edx, dword ptr [{MASK_SLOT_ATLAS}]
             test edx, edx
             jz det_done
-            push dword ptr [{D_A6}]
+            fld dword ptr [{D_A6}]
+            fmul dword ptr [{D_SCALE}]
+            fstp dword ptr [{D_A6S}]
+            push dword ptr [{D_A6S}]
             push {VV4_DETAIL_FACING_COL}
             push dword ptr [{D_MASK}]
             push dword ptr [{D_A3}]
@@ -1854,6 +1861,11 @@ def main() -> None:
     mask_detail = mask_detail_cave()
     patch(VV4_DETAIL_MASK_FILE_OFFSET, b"\0" * len(mask_detail), mask_detail,
           "Heathen mask: DETAILS cave -- wrap the portrait head draw (0x409A70 @0x43CFDE) and reissue it with the mask atlas obj so the mask overlays the bighead at the head's own position/scale")
+    _d_scale_file = D_SCALE - (VV4_DETAIL_MASK_VA - VV4_DETAIL_MASK_FILE_OFFSET)
+    assert VV4_DETAIL_MASK_FILE_OFFSET + len(mask_detail) <= _d_scale_file, \
+        "Details cave grew into the D_SCALE constant"
+    patch(_d_scale_file, b"\0" * 4, D_SCALE_VALUE,
+          "Heathen mask: Details bighead scale multiplier (2.6x = bighead face / village mask face)")
     patch(VV4_DETAIL_MASK_SITE - IMAGE_BASE,
           rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_CALLEE),
           rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_VA),

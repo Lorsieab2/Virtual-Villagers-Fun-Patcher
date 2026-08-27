@@ -280,6 +280,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
                         "0x5F702", "0x5F9CA",
                         "0xCCEB0", "0x68263", "0xCC7A1", "0x3CFDE", "0xCCFC4",
+                        "0xCCA28",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],
