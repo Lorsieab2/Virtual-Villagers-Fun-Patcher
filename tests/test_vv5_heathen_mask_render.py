@@ -76,17 +76,16 @@ def test_bighead_routine_replays_head_then_blits_mask_atlas():
     assert "call 0x44fbb0" in text and "mov ecx, eax" in text  # atlas mgr this
     assert "push 0x155" in text and "call 0x44fa30" in text
     assert "mov ecx, dword ptr [esi + 0x2f2c]" in text         # drawlist this for the mask draw
-    # BASE-GAME METHOD: draw the mask at the head's OWN scale (imul by the tunable
-    # multiplier), with NO per-facing/per-colour offset tables and NO base lift --
-    # the native 65x145 art is artist-aligned per facing, so mask x/y == head x/y.
-    assert "imul ecx" in text                                   # scale = head scale x MUL
-    assert "sub eax," not in text                               # no base vertical lift
-    assert "add eax, dword ptr [0x" not in text                # no per-facing/per-colour offset add
-    # the mask atlas COLUMN is the portrait head's OWN facing (record+0x2F3C mod 3)
-    # mapped to the native mask columns {5,6,7}; tracks the head regardless of age.
+    # scale boost + a base vertical lift (values tunable)
+    assert "imul ecx" in text
+    assert "sub eax," in text
+    # bigheads_masks.png has 3 facing columns; the mask atlas COLUMN is selected
+    # from the portrait head's OWN facing index (record+0x2F3C mod 3) so the mask
+    # tracks the head regardless of age (the old frame&7 read broke for aged heads
+    # whose frame carries an age offset).
     assert "mov eax, dword ptr [esi + 0x2f3c]" in text          # read the portrait facing field
     assert "idiv" in text                                       # mod 3 -> facing index (0/1/2)
-    assert "movzx ecx, byte ptr [edx" in text                  # facing -> native column table read
+    assert "movzx ecx, byte ptr [edx" in text                  # facing -> column table read
     # transient scratch stays in proven-free .data BSS, never a record write
     assert "mov dword ptr [0x7b1d14], eax" in text            # saved portrait X
     # cleans the caller's seven stdcall args exactly as the stock call would
