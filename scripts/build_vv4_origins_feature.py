@@ -530,7 +530,9 @@ def mask_detail_cave() -> bytes:
             fmul dword ptr [{D_SCALE}]
             fstp dword ptr [{D_A6S}]
             push dword ptr [{D_A6S}]
-            push {VV4_DETAIL_FACING_COL}
+            mov ecx, dword ptr [{D_A5}]
+            and ecx, 7
+            push ecx
             push dword ptr [{D_MASK}]
             push dword ptr [{D_A3}]
             push dword ptr [{D_A2}]
