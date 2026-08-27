@@ -485,7 +485,17 @@ def mask_detail_cave() -> bytes:
     frame,scale), [ebp+8]=param_1=villager index. Runs the original head draw,
     then -- if the selected villager has a mask -- reissues 0x409A70 with arg1=
     mask atlas obj, arg4=mask row, arg5=facing col, reusing the head's x/y/scale
-    so the mask rides the bighead at its own large portrait scale (VV5 method)."""
+    so the mask rides the bighead at its own large portrait scale (VV5 method).
+
+    FACING = the head's OWN frame arg (D_A5) & 7 -- NOT a fixed constant. Per the
+    FUN_0043cdf0 decompile, the portrait head frame is the resolver FUN_0044e960's
+    output (called with fixed facing + sex + variant; no per-villager facing input,
+    so the portrait is effectively fixed-facing). `& 7` extracts the facing COLUMN
+    because VV4's head atlas is exactly 8 columns -- if that ever changes, this
+    breaks. The only non-facing term folded into the Details frame is the age
+    offset local_20 = (age<0x44c)-1 & 8, which is always a multiple of 8, so `& 7`
+    strips it and the facing survives age-independently. (No anim term is folded in
+    here, unlike the world path.)"""
     def src(post_orig: int) -> str:
         return f"""
             mov dword ptr [{D_MGR}], ecx
