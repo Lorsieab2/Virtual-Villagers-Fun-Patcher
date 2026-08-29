@@ -2807,9 +2807,9 @@ def main() -> None:
             imul eax, eax, 15
             sar eax, 5
             sub dword ptr [esp + 8], eax          # arg3 = y - lift (re-seat to head-face)
-            mov eax, dword ptr [esp + 0x14]
-            sar eax, 3
-            sub dword ptr [esp + 4], eax          # arg2 = x - dx (centre on 40-wide head)
+            # NO X term: per-facing X is now BAKED into mask_atlas.png (each facing
+            # column shifted so its mask-face-x == that facing's head-face-x), so the
+            # mask seats horizontally by construction at every facing and any scale.
             mov ecx, dword ptr [0x{VILLAGE_SURFACE_SAVE_VA:X}]
             mov eax, dword ptr [0x{VILLAGE_FILL_SAVE_VA:X}]
             call 0x408af0
@@ -2964,8 +2964,9 @@ def main() -> None:
             # equivalent: (12,48)*adultScale. Shifts only the mask; it still tracks the
             # head's live x/y (that's the head's own draw position), just seated on the
             # face. Magnitude dialed to the adult on-screen scale.
-            sub dword ptr [esp + 4], 12           # arg2=x: left 12 (= child scaled-lift dx at scale 1.0; owner-confirmed gold standard)
-            sub dword ptr [esp + 8], 48           # arg3=y: up 48 (= child scaled-lift at scale 1.0; owner in-game confirmed -- adults draw slightly larger than a full child so the raw cell delta *adultScale lands here). Per-color Y baked into the atlas, so one constant serves all colors.
+            # NO X term: per-facing X is baked into mask_atlas.png (see child path), so
+            # the mask seats horizontally at every facing with zero draw-time X.
+            sub dword ptr [esp + 8], 48           # arg3=y: up 48 (= child scaled-lift at scale 1.0; owner in-game confirmed). Per-color Y also baked into the atlas, so one constant serves all colors.
             # Frame selection differs by DRAW FN behaviour, not by thunk:
             #  * 0x408840 (adult) idiv-DECODES a packed frame into row,col, so we
             #    re-PACK: arg4 = maskrow*mask_cols(8) + facing. (Adult atlas is

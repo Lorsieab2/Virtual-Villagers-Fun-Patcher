@@ -353,14 +353,14 @@ static void vv1_mask_sidecar_load(void) {
 #define VV_PORTRAIT_MASK_DX   0
 #define VV_PORTRAIT_MASK_DY   (-47)     /* lift the mask up onto the face (Details renders the tall 160px cell ~1.8x, so needs a big lift; village uses -46 at 1:1). Was -52; user tuned +5 (down) 2026-08-27. */
 #define VV_PORTRAIT_MASK_LIFT 0
-/* The red mask cell's art sits a hair lower than the others, so give red alone a
-   small extra lift on the Detail portrait. mask value 3 == red (COLOURS =
-   blue,orange,red,purple,chief -> 1..5). */
+/* Per-colour Y registration is now BAKED into mask_atlas.png (every colour row
+   seated at the same in-cell face-y), so the Details portrait no longer needs its
+   own per-colour compensation -- it was a SECOND correction on an already-corrected
+   atlas (red/purple drifting on the bighead). Both zeroed. */
 #define VV_MASK_RED           3
-#define VV_PORTRAIT_RED_EXTRA_DY (-3)
-/* purple (mask value 4) cell art sits a hair high -- nudge it back down. */
+#define VV_PORTRAIT_RED_EXTRA_DY (0)
 #define VV_MASK_PURPLE        4
-#define VV_PORTRAIT_PURPLE_EXTRA_DY (2)
+#define VV_PORTRAIT_PURPLE_EXTRA_DY (0)
 
 /* Engine functions are called directly by their fixed .text addresses (stable
    -- patches live in .shr caves and never move .text). The two engine calls
