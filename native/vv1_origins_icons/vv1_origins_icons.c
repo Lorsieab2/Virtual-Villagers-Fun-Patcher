@@ -336,7 +336,7 @@ static void vv1_mask_sidecar_load(void) {
    at VV_PORTRAIT_Y_ADULT. Same age split the engine uses (cmp age,0x118; jge
    adult). The mask must follow the head, so we pick y off the record's age --
    otherwise adults' masks land ~0x1E px too low. */
-#define VV_PORTRAIT_Y_CHILD  0x102
+#define VV_PORTRAIT_Y_CHILD  0x107     /* 2026-08-29: +5 (down) — child portrait masks sat higher than adults' (kids render at a smaller scale, so the shared lift over-lifts them) */
 #define VV_PORTRAIT_Y_ADULT  0xE4
 #define VV_PORTRAIT_ADULT_AGE 0x118
 #define VV_MASK_FRONT_COL    5         /* front-facing column (== the head's) */
@@ -350,8 +350,8 @@ static void vv1_mask_sidecar_load(void) {
 /* Tunables -- the portrait drifts differently than the world; adjust from a
    screenshot. DY is added to the head's y (negative = up). LIFT is added to the
    engine's own head scale arg. */
-#define VV_PORTRAIT_MASK_DX   4         /* nudge right onto the face (2026-08-29 first pass: portrait sat slightly left after the atlas per-facing X re-bake) */
-#define VV_PORTRAIT_MASK_DY   (-32)     /* lift the mask up onto the face (Details renders the tall 160px cell ~1.8x, so needs a big lift; village uses -46 at 1:1). Was -52; user tuned +5 (down) 2026-08-27; 2026-08-29 down 15 more (-47->-32) — portrait mask sat too high on the child face. */
+#define VV_PORTRAIT_MASK_DX   6         /* nudge right onto the face (2026-08-29: 0->4->6; right-facing portraits had the face peeking bottom-right) */
+#define VV_PORTRAIT_MASK_DY   (-25)     /* lift the mask up onto the face (Details renders the tall 160px cell ~1.8x, so needs a big lift; village uses -46 at 1:1). Was -52; user tuned +5 (down) 2026-08-27; 2026-08-29 -47->-32->-25 — portrait mask sat too high; second pass down 7 more. */
 #define VV_PORTRAIT_MASK_LIFT 0
 /* Per-colour Y registration is now BAKED into mask_atlas.png (every colour row
    seated at the same in-cell face-y), so the Details portrait no longer needs its
