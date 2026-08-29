@@ -218,43 +218,15 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 - Record base `0x59E124`, stride `0x1F8C`.
 
 ### VV4 — "The Tree of Life" (NO native mask → from-scratch)
-- **Head via resolver `FUN_0044E960`.** Details compositor `FUN_0043CDF0`; head draw
-  `FUN_00409A70` (`ecx` = drawmgr `0x4E00E0`) at `0x43CFDE`, body at `0x43D040`.
-- **REAL Details bighead site: `0x45F965`** (`call 0x409A70`), right after the resolver
-  call at `0x45F917` that passes selector `0x30` — the resolver has 4 callers and TWO
-  pass `0x30` (this corrected VS5's earlier "all four non-portrait callers are village"
-  reading; `0x43CFDE` is a one-time static build that never re-fires). Args: arg1=atlas,
-  arg2=X(edi), arg3=Y(ebp), arg4/5=resolver out-slots, arg6=scale, arg7=0; the anchor is
-  SUBTRACTED at `0x45F949`/`0x45F95E`, so replaying edi/ebp verbatim inherits anchoring.
-  **Cannot swap arg1 only:** `0x408C40` decodes a LINEAR frame using the atlas's OWN cols
-  (`0x421570` = `mov eax,[ecx+8]`), so head frame 89 (12-col row 7 col 5) lands at the
-  wrong cell in a 3-col mask atlas — compute `maskFrame = colourRow*maskCols + facingCol`
-  (facing from `+0x1CD4 & 7`), replaying only X/Y/scale/mgr. (Credit VV2's disasm.)
-- **The Details PORTRAIT may reuse the VILLAGE render into a sub-viewport** — not a
-  separate portrait draw. Tell: a static portrait hook (`0x43CFDE`) never fires during the
-  idle-turn animation, yet a mask still appears (tiny, village-scaled, mis-placed) = your
-  **village** mask hook firing for the panel villager. Runtime caller-capture confirms it:
-  **no new caller** on Details-open, just the village callers. Fix: gate the village hook
-  by **drawmgr** (world `0x4DB9F8` vs the panel's mgr) and, for the panel villager, replay
-  the **panel head draw's own** arg6/arg2/arg3 (bighead scale) rather than village scale —
-  the "tiny + down-left + duplicate-on-pickup" all resolve. No separate Details cave needed.
-- **Facing field `+0x1CD4`.** **Portrait is FIXED-facing** (resolver output, no facing
-  input) → hardcode the front column; no per-facing needed on Details.
-- **Drawn head ≈ 27px** though the cell is 40×65 (mostly padding) → do **not** scale
-  VV5's 65px art down; it already matches the drawn size.
-- **Bighead scale arg is an INT**, not a float: `FUN_00409A70`'s scale (arg6) is an
-  integer percentage (twins draw at `scale=100`). Loading it with `fld` (float) gives a
-  garbage tiny scale — the classic "mask too small". Use `fild`/`fistp`.
-- **Bighead recipe (owner prefers the 8-COL village atlas, not a dedicated one):** front
-  = **col 5** (0-based = owner frame 6, 1-based) of `vv5_heathenheads` layout (65×145
-  cell); row = color−1. `mask_scale = round(head_arg6 × 1.2–1.3)` kept INT (the col-5
-  face is ~25px vs the ~30px portrait head face). Seat within the 65×145 cell:
-  face-center-x = **35**, chin-y = **~67** (per-color blue 68 / orange 67 / red 69 /
-  purple 62 / chief 71 — not bottom-aligned, 9px spread). Then (scale is a percentage):
-  `maskX = headFaceCenterX − (mask_scale/100)×35`, `maskY = headChinY −
-  (mask_scale/100)×chin_y`. (Its engine anchors near the head center, hence `−`.) An
-  earlier village-atlas attempt used col 5, `maskX = headX − 29×scale`, `×2.6`, `maskY =
-  headY − 110×scale` — superseded.
+- **Confirmed Details call chain:** `0x447D30` → `0x460BF0` → `0x45F550`; the body
+  draw is at `0x45F653` and the head draw is at `0x45F702`. The previously claimed
+  `0x45F965` site is disproven and must not be used as a hook target. Keep the exact
+  stock trace and player/runtime evidence together before wiring a mask detour.
+- **Do not copy older VV4 portrait theories from this document.** The former
+  `0x43CFDE`/`0x45F965`/fixed-facing/reuse-of-village guidance was not the exact Details
+  path and is intentionally removed. VV4 mask frame mapping, action/pickup coverage,
+  scale, and seating remain unclaimed here until they are re-established against the
+  exact stock build and accepted by the player.
 
 ### VV5 — "New Believers" (latest; HAS native heathen masks)
 - **Native mask atlas** `vv5_heathenheads.png` — sprite id **`0x101`, 8 cols × 5 rows**,
@@ -348,9 +320,10 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 
 ## Part 6 — THE STANDARD (acceptance criteria; credit VV2)
 
-A game's mask feature is done only when **all** of these pass — verified offscreen
-(disassembly, static audit, hash-checked deploy), not by launching and looking. VV2 and
-VV5 are the reference implementations.
+A game's mask feature is done only when **all** of these pass. Static evidence
+(disassembly, source audit, and hash-checked deploy) is necessary but does not replace
+launching the exact deployed build and obtaining player/runtime acceptance. VV2 and VV5
+are the reference implementations.
 
 1. **VILLAGE** — mask emitted *inside* the head's own draw, replaying its args with only
    atlas+frame swapped. Position, pose-bob, facing, scale inherited — never recomputed
