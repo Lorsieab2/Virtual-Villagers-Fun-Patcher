@@ -1381,8 +1381,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
                              int head_f, int body_f, int mask_f, int mask_mode) {
     unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
     int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
-    int idx[256], sex[256], order[256];
-    unsigned char maskof[256];
+    int idx[256], sex[256], order[256], desired_mask[256], mask_changed[256];
     int n = 0, chief = -1, affected = 0, i, s;
     int mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0);
     g_vv3_caf_mask_ambiguous = 0;
@@ -1419,86 +1418,114 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
             }
         }
     }
+    /* Build the exact mask result before counting.  Random, proportional, and
+       equal modes must be planned once and then reused by the apply pass;
+       otherwise a preflight comparison could charge for a different random
+       result than the one eventually written.  Planning only consumes DLL RNG
+       state and does not touch a villager, the mask table, or the sidecar. */
+    if (mask_requested) {
+        if (mask_mode == 0) {
+            for (i = 0; i < n; ++i)
+                desired_mask[i] = sex[i] ? mask_f : mask_m;
+        } else if (mask_mode >= 4) {
+            for (i = 0; i < n; ++i)
+                desired_mask[i] = mask_mode - 4;
+        } else if (mask_mode == 2) {                /* Random (incl. None) */
+            for (i = 0; i < n; ++i)
+                desired_mask[i] = (int)(caf_rand() % 6u);
+        } else if (mask_mode == 1) {                /* VV5-style proportions */
+            static const int quota[3] = {4, 7, 10};
+            static const int mval[3]  = {4, 3, 2};
+            int qi, got, p = 0;
+            for (i = 0; i < n; ++i) { order[i] = i; desired_mask[i] = 1; }
+            for (i = n - 1; i > 0; --i) {
+                int j = (int)(caf_rand() % (unsigned)(i + 1));
+                int t = order[i]; order[i] = order[j]; order[j] = t;
+            }
+            /* Chief mask -> the robe-wearing Tribal Chief (+0xE80); if there
+               is NO Tribal Chief, give the Chief mask to a random villager. */
+            if (chief < 0 && n > 0) chief = (int)(caf_rand() % (unsigned)n);
+            if (chief >= 0) desired_mask[chief] = 5;
+            for (qi = 0; qi < 3; ++qi) {
+                for (got = 0; got < quota[qi] && p < n; ) {
+                    int a = order[p++];
+                    if (a == chief) continue;
+                    if (desired_mask[a] != 1) continue;
+                    desired_mask[a] = mval[qi];
+                    ++got;
+                }
+            }
+        } else if (mask_mode == 3) {                /* Equal, balanced M/F */
+            int males[256], females[256], nm = 0, nf = 0, k = 0, mi = 0, fi = 0;
+            for (i = 0; i < n; ++i) {
+                desired_mask[i] = 0;
+                if (sex[i]) females[nf++] = i; else males[nm++] = i;
+            }
+            for (i = nm - 1; i > 0; --i) {
+                int j = (int)(caf_rand() % (unsigned)(i + 1));
+                int t = males[i]; males[i] = males[j]; males[j] = t;
+            }
+            for (i = nf - 1; i > 0; --i) {
+                int j = (int)(caf_rand() % (unsigned)(i + 1));
+                int t = females[i]; females[i] = females[j]; females[j] = t;
+            }
+            while (mi < nm || fi < nf) {
+                if (mi < nm) desired_mask[males[mi++]] = (k++ % 5) + 1;
+                if (fi < nf) desired_mask[females[fi++]] = (k++ % 5) + 1;
+            }
+        } else {
+            /* The dialog does not emit other modes; fail closed if one is
+               ever supplied so it cannot charge for an unapplied selection. */
+            for (i = 0; i < n; ++i) desired_mask[i] = 0;
+        }
+    }
     /* Count each eligible record once, and only when at least one selected
-       operation applies to that record's sex.  A selected female field in an
-       all-male village (or vice versa) is therefore a no-op, while any global
-       mask distribution applies to every eligible record. */
+       value would differ from the current value for that record.  A selected
+       female field in an all-male village (or vice versa) is therefore a
+       no-op, and an already-matching fixed mask is also a no-op. */
     for (i = 0; i < n; ++i) {
+        unsigned char *r =
+            (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
         int h = sex[i] ? head_f : head_m;
         int b = sex[i] ? body_f : body_m;
-        int m = sex[i] ? mask_f : mask_m;
-        if (h >= 0 || b >= 0 || mask_mode != 0 || m >= 0)
+        mask_changed[i] = 0;
+        if (mask_requested
+            && (mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0)) {
+            /* VV3_GetMaskForRecord deliberately returns 0 when a fingerprint
+               is ambiguous.  Explicit None is different: VV3_SetMaskForRecord
+               is allowed to clear the exact addressed side-table slot even in
+               that collision case, so inspect that slot directly for a real
+               clear.  Nonzero values retain the guarded render lookup. */
+            if (desired_mask[i] == 0)
+                mask_changed[i] = (g_vv3_mask[idx[i]] != 0
+                                   || g_vv3_mask_fp[idx[i]] != 0);
+            else
+                mask_changed[i] =
+                    desired_mask[i] != VV3_GetMaskForRecord(r);
+        }
+        if ((h >= 0 && *(int *)(r + VV3_HEAD_OFF) != h)
+            || (b >= 0 && *(int *)(r + VV3_BODY_OFF) != b)
+            || mask_changed[i])
             ++affected;
     }
     if (affected == 0)
         return 0;
-    /* Head/Body: independent per-sex, always applied when >= 0. */
+    /* Head/Body: independent per-sex, applied in the one mutation pass. */
     for (i = 0; i < n; ++i) {
         unsigned char *r = (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
         int h = sex[i] ? head_f : head_m;
         int b = sex[i] ? body_f : body_m;
-        if (h >= 0) *(int *)(r + VV3_HEAD_OFF) = h;
-        if (b >= 0) *(int *)(r + VV3_BODY_OFF) = b;
+        if (h >= 0 && *(int *)(r + VV3_HEAD_OFF) != h) *(int *)(r + VV3_HEAD_OFF) = h;
+        if (b >= 0 && *(int *)(r + VV3_BODY_OFF) != b) *(int *)(r + VV3_BODY_OFF) = b;
     }
-    /* Mask: one exclusive behaviour. */
-    if (mask_mode == 0) {                         /* OFF: per-sex mask cyclers */
-        for (i = 0; i < n; ++i) {
-            int m = sex[i] ? mask_f : mask_m;
-            if (m >= 0)
-                VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE), m);
-        }
-        return affected;
-    }
-    if (mask_mode >= 4) {                          /* single mask for everyone */
-        int m = mask_mode - 4;                     /* 4=None(0) .. 9=Chief(5) */
+    /* Mask: apply the precomputed exclusive result exactly once. */
+    if (mask_requested) {
         for (i = 0; i < n; ++i)
-            VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE), m);
-        return affected;
+            if (mask_changed[i])
+                VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
+                                     desired_mask[i]);
     }
-    if (mask_mode == 2) {                          /* Random (incl. None) */
-        for (i = 0; i < n; ++i)
-            VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
-                                 (int)(caf_rand() % 6u));
-        return affected;
-    }
-    if (mask_mode == 1) {                          /* VV5-style proportions */
-        static const int quota[3] = {4, 7, 10};    /* purple, red, orange caps    */
-        static const int mval[3]  = {4, 3, 2};     /* -> byte 4/3/2               */
-        int qi, got, p = 0;
-        for (i = 0; i < n; ++i) { order[i] = i; maskof[i] = 1; }   /* default Blue */
-        for (i = n - 1; i > 0; --i) {              /* Fisher-Yates shuffle */
-            int j = (int)(caf_rand() % (unsigned)(i + 1));
-            int t = order[i]; order[i] = order[j]; order[j] = t;
-        }
-        /* Chief mask -> the robe-wearing Tribal Chief (+0xE80); if there is NO Tribal
-           Chief, give the Chief mask to a random villager instead (owner's spec). */
-        if (chief < 0 && n > 0) chief = (int)(caf_rand() % (unsigned)n);
-        if (chief >= 0) maskof[chief] = 5;
-        for (qi = 0; qi < 3; ++qi) {
-            for (got = 0; got < quota[qi] && p < n; ) {
-                int a = order[p++];
-                if (a == chief) continue;
-                if (maskof[a] != 1) continue;
-                maskof[a] = (unsigned char)mval[qi];
-                ++got;
-            }
-        }
-        for (i = 0; i < n; ++i)
-            VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE), maskof[i]);
-        return affected;
-    }
-    if (mask_mode == 3) {                          /* Equal, balanced M/F */
-        int males[256], females[256], nm = 0, nf = 0, k = 0, mi = 0, fi = 0;
-        for (i = 0; i < n; ++i) { if (sex[i]) females[nf++] = i; else males[nm++] = i; }
-        for (i = nm - 1; i > 0; --i) { int j = (int)(caf_rand()%(unsigned)(i+1)); int t=males[i]; males[i]=males[j]; males[j]=t; }
-        for (i = nf - 1; i > 0; --i) { int j = (int)(caf_rand()%(unsigned)(i+1)); int t=females[i]; females[i]=females[j]; females[j]=t; }
-        while (mi < nm || fi < nf) {               /* interleave M,F,M,F -> balanced */
-            if (mi < nm) { VV3_SetMaskForRecord((void*)(UINT_PTR)(VV3_REC_BASE+idx[males[mi++]]*VV3_STRIDE), (k++%5)+1); }
-            if (fi < nf) { VV3_SetMaskForRecord((void*)(UINT_PTR)(VV3_REC_BASE+idx[females[fi++]]*VV3_STRIDE), (k++%5)+1); }
-        }
-        (void)s;
-        return affected;
-    }
+    (void)s;
     return affected;
 }
 

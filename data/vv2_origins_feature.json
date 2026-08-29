@@ -17,7 +17,7 @@
     {
       "source": "assets/origins/VVFP VV2 Origins Icons.dll",
       "destination": "VVFP VV2 Origins Icons.dll",
-      "sha256": "DEDE5D8102A9AE18823E58C3C351B9567A9C3A9405CF6AE7C0DB195FFA28D997"
+      "sha256": "DD365675ECA606DEF41CED71C5987BF2D577F6A0E2A49D1C802A6D160E40B643"
     }
   ],
   "pe_append_transaction": {

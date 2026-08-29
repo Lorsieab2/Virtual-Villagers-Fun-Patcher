@@ -581,6 +581,50 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
         self.assertIn("No occupied villagers matched", entry)
         self.assertIn("No tech points have been deducted", entry)
 
+    def test_apply_preflights_actual_final_values_before_mutation(self) -> None:
+        engine = self.c.split("static int vv4_apply_for_all(void)", 1)[1].split(
+            "\n}", 1
+        )[0]
+        # Dynamic modes are materialized into a plan, allowing coincidental
+        # random matches to be treated as a genuine no-op too.
+        for token in ("current_head", "current_body", "current_mask",
+                      "plan_head", "plan_body", "plan_mask",
+                      "head_selected", "body_selected", "mask_selected",
+                      "raw_mask", "raw_mask_fp", "fingerprint-checked lookup",
+                      "vv4_mask_plan_changes"):
+            self.assertIn(token, engine, token)
+        preflight = engine.index("Preflight compares the final planned values")
+        zero_gate = engine.index("if (affected == 0) return 0;", preflight)
+        mutation = engine.index("Exactly one mutation pass", zero_gate)
+        self.assertLess(preflight, zero_gate)
+        self.assertLess(zero_gate, mutation)
+        self.assertIn("plan_head[i] != current_head[i]", engine)
+        self.assertIn("plan_body[i] != current_body[i]", engine)
+        self.assertIn("plan_mask[i], current_mask[i], raw_mask[i], raw_mask_fp[i]", engine)
+        # A no-op must not persist the mask table; only a changed mask does.
+        self.assertIn("if (mask_changed) vv_write_mask_sidecar();", engine)
+
+    def test_explicit_none_clears_stale_or_malformed_mask_slot(self) -> None:
+        helper = self.c.split("static int vv4_mask_plan_changes", 1)[1].split(
+            "\n}", 1
+        )[0]
+        # vv_peek_mask maps stale/malformed state to logical None, so explicit
+        # None must additionally inspect the exact raw mask/fingerprint bytes.
+        self.assertIn("if (desired == 0)", helper)
+        self.assertIn("raw_mask != 0 || raw_fp != 0", helper)
+        self.assertIn("return desired != current", helper)
+        engine = self.c.split("static int vv4_apply_for_all(void)", 1)[1].split(
+            "\n}", 1
+        )[0]
+        self.assertIn("raw_mask[nact] = g_mask_by_index[idx]", engine)
+        self.assertIn("raw_mask_fp[nact] = g_mask_fp[idx]", engine)
+        self.assertIn("plan_mask[i], current_mask[i], raw_mask[i], raw_mask_fp[i]", engine)
+        # The same decision controls the actual setter and the persisted-save
+        # flag, preventing a stale slot from being reported as a no-op.
+        mutation = engine.index("Exactly one mutation pass")
+        self.assertIn("vv_set_mask(rec, plan_mask[i]);", engine[mutation:])
+        self.assertIn("mask_changed = 1;", engine[mutation:])
+
 
 if __name__ == "__main__":
     unittest.main()

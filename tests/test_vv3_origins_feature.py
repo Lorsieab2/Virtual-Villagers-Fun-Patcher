@@ -89,7 +89,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertIn("static int vv3_apply_for_all", dll)
         engine = dll.split("static int vv3_apply_for_all", 1)[1].split("\n}", 1)[0]
         self.assertIn("int n = 0, chief = -1, affected = 0", engine)
-        self.assertIn("mask_mode != 0 || m >= 0", engine)
+        self.assertIn("mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0)", engine)
         self.assertIn("if (affected == 0)", engine)
         self.assertIn("return affected;", engine)
 
@@ -101,6 +101,53 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertLess(guard_at, charge_at)
         self.assertIn("No eligible villagers matched", entry)
         self.assertIn("No tech points have been deducted", entry)
+
+    def test_change_appearance_for_all_counts_actual_value_differences(self) -> None:
+        """A selected value already present on every eligible record is free."""
+        dll = (
+            ROOT
+            / "native"
+            / "vv3_full_mastery_candidate"
+            / "vv3_full_mastery_candidate.c"
+        ).read_text(encoding="utf-8")
+        engine = dll.split("static int vv3_apply_for_all", 1)[1].split(
+            "#define VW_RUNNING", 1
+        )[0]
+        self.assertIn(
+            "int idx[256], sex[256], order[256], desired_mask[256], mask_changed[256]",
+            engine,
+        )
+        self.assertIn("desired_mask[i] != VV3_GetMaskForRecord(r)", engine)
+        self.assertIn("g_vv3_mask[idx[i]] != 0", engine)
+        self.assertIn("g_vv3_mask_fp[idx[i]] != 0", engine)
+        self.assertIn("if (mask_changed[i])", engine)
+        self.assertIn("*(int *)(r + VV3_HEAD_OFF) != h", engine)
+        self.assertIn("*(int *)(r + VV3_BODY_OFF) != b", engine)
+
+        plan = engine.index("Build the exact mask result before counting")
+        count = engine.index("Count each eligible record once")
+        zero_guard = engine.index("if (affected == 0)", count)
+        first_head_write = engine.index("*(int *)(r + VV3_HEAD_OFF) = h")
+        first_mask_write = engine.index("VV3_SetMaskForRecord", zero_guard)
+        self.assertLess(plan, count)
+        self.assertLess(count, zero_guard)
+        self.assertLess(zero_guard, first_head_write)
+        self.assertLess(zero_guard, first_mask_write)
+
+        # A per-sex selector of -1 must not turn an inapplicable mask into a
+        # synthetic difference for the other sex.
+        self.assertIn(
+            "(mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0)",
+            engine,
+        )
+        self.assertIn(
+            "VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),",
+            engine,
+        )
+        # Random/proportional/equal modes are generated once and applied from
+        # the same plan, preserving one mutation pass and no-op atomicity.
+        self.assertIn("desired_mask[i] = (int)(caf_rand() % 6u)", engine)
+        self.assertIn("if (mask_requested) {\n        for (i = 0; i < n; ++i)", engine)
 
     def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
         description = self.manifest["description"]

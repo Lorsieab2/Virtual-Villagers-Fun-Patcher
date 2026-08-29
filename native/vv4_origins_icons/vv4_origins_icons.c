@@ -326,6 +326,36 @@ static int vv_get_mask(const unsigned char *villager) {
     }
     return (int)m;
 }
+
+/* Read-only counterpart for bulk-operation preflight.  Unlike vv_get_mask,
+   this deliberately does not repair stale side-table entries or persist them:
+   a true no-op must not mutate or save anything before its zero-result gate.
+   The same slot, range, and fingerprint checks still prevent a reused record
+   from inheriting another villager's mask. */
+static int vv_peek_mask(const unsigned char *villager) {
+    int idx;
+    unsigned char m;
+    vv_prepare_mask_state();
+    idx = vv_villager_index(villager);
+    if (idx < 0) return 0;
+    m = g_mask_by_index[idx];
+    if (m == 0 || m >= VV_MASK_COUNT || g_mask_fp[idx] == 0) return 0;
+    if (g_mask_fp[idx] != vv_fingerprint(villager)) return 0;
+    return (int)m;
+}
+
+/* Compare a planned mask against both the logical, fingerprint-checked value
+   and the exact raw slot state.  A desired None must clear malformed/stale
+   bytes too; vv_peek_mask intentionally reports those as logical None. */
+static int vv4_mask_plan_changes(int desired, int current,
+                                 unsigned char raw_mask,
+                                 unsigned int raw_fp) {
+    if (desired == 0) {
+        return raw_mask != 0 || raw_fp != 0;
+    }
+    return desired != current;
+}
+
 static void vv_set_mask(unsigned char *villager, int mask) {
     int idx;
     vv_prepare_mask_state();
@@ -1443,12 +1473,26 @@ static int fa_pick_head(int female, int head_mode) {
 }
 
 /* Apply the chosen appearance to every occupied villager and return how many
-   distinct records had at least one applicable selected operation. */
+   distinct records had at least one applicable selected operation that actually
+   changes a value.  Dynamic choices are generated into the plan first, so a
+   random choice that happens to equal the current value is also a true no-op. */
 static int vv4_apply_for_all(void) {
     int active[VV_MAX_VILLAGERS];
     int actsex[VV_MAX_VILLAGERS];              /* 1 = male */
+    int current_head[VV_MAX_VILLAGERS];
+    int current_body[VV_MAX_VILLAGERS];
+    int current_mask[VV_MAX_VILLAGERS];
+    unsigned char raw_mask[VV_MAX_VILLAGERS];
+    unsigned int raw_mask_fp[VV_MAX_VILLAGERS];
+    int plan_head[VV_MAX_VILLAGERS];
+    int plan_body[VV_MAX_VILLAGERS];
+    int plan_mask[VV_MAX_VILLAGERS];
+    int head_selected[VV_MAX_VILLAGERS];
+    int body_selected[VV_MAX_VILLAGERS];
+    int mask_selected[VV_MAX_VILLAGERS];
     int nact = 0;
     int affected = 0;
+    int mask_changed = 0;
     int i, idx, mode;
 
     fa_rng = GetTickCount() | 1u;
@@ -1459,95 +1503,118 @@ static int vv4_apply_for_all(void) {
             continue;                          /* empty/dead slot */
         }
         male = fa_is_male(rec);
-        if (forall_state.head_mode != FA_HEAD_OFF ||
-            forall_state.body_mode != FA_BODY_OFF ||
-            forall_state.tribe_mode != FA_MODE_OFF ||
-            (male && (forall_state.male_head != FA_NOCHANGE ||
-                      forall_state.male_body != FA_NOCHANGE ||
-                      forall_state.male_mask != FA_NOCHANGE)) ||
-            (!male && (forall_state.female_head != FA_NOCHANGE ||
-                       forall_state.female_body != FA_NOCHANGE ||
-                       forall_state.female_mask != FA_NOCHANGE))) {
-            ++affected;
-        }
-        /* HEAD: a village-wide mode overrides the per-sex Head cycler. */
-        if (forall_state.head_mode != FA_HEAD_OFF) {
-            *(int *)(rec + VV_HEAD_OFFSET) = fa_pick_head(!male, forall_state.head_mode);
-        } else {
-            int h = male ? forall_state.male_head : forall_state.female_head;
-            if (h != FA_NOCHANGE)
-                *(int *)(rec + VV_HEAD_OFFSET) = h;
-        }
-        /* BODY: a village-wide mode overrides the per-sex Body cycler. */
-        if (forall_state.body_mode != FA_BODY_OFF) {
-            *(int *)(rec + VV_CLOTHING_OFFSET) =
-                (int)(fa_rand() % (unsigned int)VV_BODY_COUNT);
-        } else {
-            int b = male ? forall_state.male_body : forall_state.female_body;
-            if (b != FA_NOCHANGE)
-                *(int *)(rec + VV_CLOTHING_OFFSET) = b;
-        }
         active[nact] = idx;
         actsex[nact] = male;
+        current_head[nact] = *(int *)(rec + VV_HEAD_OFFSET);
+        current_body[nact] = *(int *)(rec + VV_CLOTHING_OFFSET);
+        current_mask[nact] = vv_peek_mask(rec); /* fingerprint-checked lookup */
+        raw_mask[nact] = g_mask_by_index[idx];
+        raw_mask_fp[nact] = g_mask_fp[idx];
+        plan_head[nact] = current_head[nact];
+        plan_body[nact] = current_body[nact];
+        plan_mask[nact] = current_mask[nact];
+        if (male) {
+            head_selected[nact] = forall_state.head_mode != FA_HEAD_OFF ||
+                forall_state.male_head != FA_NOCHANGE;
+            body_selected[nact] = forall_state.body_mode != FA_BODY_OFF ||
+                forall_state.male_body != FA_NOCHANGE;
+            mask_selected[nact] = forall_state.tribe_mode != FA_MODE_OFF ||
+                forall_state.male_mask != FA_NOCHANGE;
+        } else {
+            head_selected[nact] = forall_state.head_mode != FA_HEAD_OFF ||
+                forall_state.female_head != FA_NOCHANGE;
+            body_selected[nact] = forall_state.body_mode != FA_BODY_OFF ||
+                forall_state.female_body != FA_NOCHANGE;
+            mask_selected[nact] = forall_state.tribe_mode != FA_MODE_OFF ||
+                forall_state.female_mask != FA_NOCHANGE;
+        }
+        if (forall_state.head_mode == FA_HEAD_OFF) {
+            plan_head[nact] = male ? forall_state.male_head : forall_state.female_head;
+            if (plan_head[nact] == FA_NOCHANGE) plan_head[nact] = current_head[nact];
+        }
+        if (forall_state.body_mode == FA_BODY_OFF) {
+            plan_body[nact] = male ? forall_state.male_body : forall_state.female_body;
+            if (plan_body[nact] == FA_NOCHANGE) plan_body[nact] = current_body[nact];
+        }
+        if (forall_state.tribe_mode == FA_MODE_OFF) {
+            plan_mask[nact] = male ? forall_state.male_mask : forall_state.female_mask;
+            if (plan_mask[nact] == FA_NOCHANGE) plan_mask[nact] = current_mask[nact];
+        }
         nact++;
     }
-    if (affected == 0) {
-        return 0;
+
+    /* HEAD/BODY: materialize the exact values before the read-only preflight. */
+    for (i = 0; i < nact; i++) {
+        if (forall_state.head_mode != FA_HEAD_OFF)
+            plan_head[i] = fa_pick_head(!actsex[i], forall_state.head_mode);
+        if (forall_state.body_mode != FA_BODY_OFF)
+            plan_body[i] = (int)(fa_rand() % (unsigned int)VV_BODY_COUNT);
     }
 
+    /* MASK: materialize the exact distribution before counting changes. */
     mode = forall_state.tribe_mode;
-    if (mode == FA_MODE_OFF) {                  /* per-sex mask cyclers */
-        for (i = 0; i < nact; i++) {
-            int m = actsex[i] ? forall_state.male_mask : forall_state.female_mask;
-            if (m != FA_NOCHANGE) {
-                vv_set_mask(fa_record(active[i]), m);
-            }
-        }
-    } else if (mode >= FA_MODE_NONE) {          /* one solid colour for everyone */
-        int solid = mode - FA_MODE_NONE;        /* 0=(None),1=Blue..5=Chief */
-        for (i = 0; i < nact; i++) {
-            vv_set_mask(fa_record(active[i]), solid);
-        }
-    } else if (mode == FA_MODE_RANDOM) {            /* All 5 + No Mask (0..5) */
-        for (i = 0; i < nact; i++) {
-            vv_set_mask(fa_record(active[i]), (int)(fa_rand() % VV_MASK_COUNT));
-        }
-    } else if (mode == FA_MODE_RANDOM5) {           /* All 5 colours only (1..5) */
-        for (i = 0; i < nact; i++) {
-            vv_set_mask(fa_record(active[i]), (int)(fa_rand() % 5u) + 1);
-        }
-    } else if (mode == FA_MODE_VV5) {
+    if (mode == FA_MODE_VV5 || mode == FA_MODE_EQUAL) {
         int order[VV_MAX_VILLAGERS];
-        int n, k;
-        for (i = 0; i < nact; i++) order[i] = active[i];
-        fa_shuffle(order, nact);
-        for (k = 0; k < nact; k++) {
-            int col;
-            if (k < 1) col = 5;                 /* 1 Chief */
-            else if (k < 1 + 4) col = 4;        /* 4 Purple */
-            else if (k < 1 + 4 + 7) col = 3;    /* up to 7 Red */
-            else if (k < 1 + 4 + 7 + 10) col = 2; /* up to 10 Orange */
-            else col = 1;                       /* rest Blue */
-            vv_set_mask(fa_record(order[k]), col);
-        }
-        (void)n;
-    } else if (mode == FA_MODE_EQUAL) {
         int males[VV_MAX_VILLAGERS], females[VV_MAX_VILLAGERS];
-        int nm = 0, nf = 0, order[VV_MAX_VILLAGERS], no = 0, mi = 0, fi = 0, k;
-        for (i = 0; i < nact; i++) {
-            if (actsex[i]) males[nm++] = active[i]; else females[nf++] = active[i];
+        int nm = 0, nf = 0, no = 0, mi = 0, fi = 0, k;
+        for (i = 0; i < nact; i++) order[i] = i;
+        if (mode == FA_MODE_VV5) {
+            fa_shuffle(order, nact);
+            for (k = 0; k < nact; k++) {
+                int col;
+                if (k < 1) col = 5;
+                else if (k < 1 + 4) col = 4;
+                else if (k < 1 + 4 + 7) col = 3;
+                else if (k < 1 + 4 + 7 + 10) col = 2;
+                else col = 1;
+                plan_mask[order[k]] = col;
+            }
+        } else {
+            for (i = 0; i < nact; i++) {
+                if (actsex[i]) males[nm++] = i; else females[nf++] = i;
+            }
+            fa_shuffle(males, nm);
+            fa_shuffle(females, nf);
+            while (mi < nm || fi < nf) {
+                if (mi < nm) order[no++] = males[mi++];
+                if (fi < nf) order[no++] = females[fi++];
+            }
+            for (k = 0; k < no; k++) plan_mask[order[k]] = (k % 5) + 1;
         }
-        fa_shuffle(males, nm);
-        fa_shuffle(females, nf);
-        while (mi < nm || fi < nf) {            /* interleave M,F,M,F,... */
-            if (mi < nm) order[no++] = males[mi++];
-            if (fi < nf) order[no++] = females[fi++];
-        }
-        for (k = 0; k < no; k++) {
-            vv_set_mask(fa_record(order[k]), (k % 5) + 1);   /* 1..5 balanced per sex */
+    } else if (mode >= FA_MODE_NONE) {
+        for (i = 0; i < nact; i++) plan_mask[i] = mode - FA_MODE_NONE;
+    } else if (mode == FA_MODE_RANDOM) {
+        for (i = 0; i < nact; i++) plan_mask[i] = (int)(fa_rand() % VV_MASK_COUNT);
+    } else if (mode == FA_MODE_RANDOM5) {
+        for (i = 0; i < nact; i++) plan_mask[i] = (int)(fa_rand() % 5u) + 1;
+    }
+
+    /* Preflight compares the final planned values without mutating records or
+       the mask side-table.  Count each record once even when fields overlap. */
+    for (i = 0; i < nact; i++) {
+        if ((head_selected[i] && plan_head[i] != current_head[i]) ||
+            (body_selected[i] && plan_body[i] != current_body[i]) ||
+            (mask_selected[i] && vv4_mask_plan_changes(
+                plan_mask[i], current_mask[i], raw_mask[i], raw_mask_fp[i]))) {
+            ++affected;
         }
     }
-    vv_write_mask_sidecar();
+    if (affected == 0) return 0;
+
+    /* Exactly one mutation pass after the no-op gate. */
+    for (i = 0; i < nact; i++) {
+        unsigned char *rec = fa_record(active[i]);
+        if (head_selected[i] && plan_head[i] != current_head[i])
+            *(int *)(rec + VV_HEAD_OFFSET) = plan_head[i];
+        if (body_selected[i] && plan_body[i] != current_body[i])
+            *(int *)(rec + VV_CLOTHING_OFFSET) = plan_body[i];
+        if (mask_selected[i] && vv4_mask_plan_changes(
+                plan_mask[i], current_mask[i], raw_mask[i], raw_mask_fp[i])) {
+            vv_set_mask(rec, plan_mask[i]);
+            mask_changed = 1;
+        }
+    }
+    if (mask_changed) vv_write_mask_sidecar();
     return affected;
 }
 

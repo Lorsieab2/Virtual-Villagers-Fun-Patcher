@@ -1638,8 +1638,117 @@ static void caf_shuffle(int *a, int n) {
    Head/Body/Mask first, then a distribution preset (overrides masks), then a
    village-wide single mask (final override) — so leaving the later groups Off
    makes the per-sex selectors authoritative. */
+/* The random/distribution selectors must be planned before the no-op gate:
+   otherwise a one-villager village can randomly receive its current value and
+   still be charged.  The plan is also the only source used by the write pass,
+   so the exact values compared here are the exact values applied below. */
+static int caf_plan_head[VV2_RECORD_COUNT];
+static int caf_plan_body[VV2_RECORD_COUNT];
+static int caf_plan_mask[VV2_RECORD_COUNT];
+
+static void vv2_caf_build_plan(unsigned char *base, int mask_ok,
+                               int *idx, int *sexof, int *count) {
+    unsigned char *rec = base;
+    int n = 0, i;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        caf_plan_head[i] = -1;
+        caf_plan_body[i] = -1;
+        caf_plan_mask[i] = -1;
+    }
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, rec += VV2_RECORD_STRIDE) {
+        int s;
+        if (rec[VV2_ACTIVE_OFFSET] == 0) continue;
+        s = (*(int *)(rec + VV2_SEX_OFFSET) == 1) ? 0 : 1;
+        idx[n] = i;
+        sexof[n] = s;
+        ++n;
+        if (caf_head[s] >= 0) caf_plan_head[i] = caf_head[s];
+        if (caf_body[s] >= 0) caf_plan_body[i] = caf_body[s];
+        if (mask_ok && caf_mask[s] >= 0) caf_plan_mask[i] = caf_mask[s];
+    }
+    if (caf_head_mode != 0) {
+        for (i = 0; i < n; ++i) {
+            int s = sexof[i], h;
+            if (caf_head_mode == 1) {
+                h = (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
+            } else {
+                int c = caf_head_mode - 2;
+                h = caf_hair[s][c][caf_rand() % caf_hair_n[s][c]];
+            }
+            caf_plan_head[idx[i]] = h;
+        }
+    }
+    if (caf_body_mode == 1) {
+        for (i = 0; i < n; ++i)
+            caf_plan_body[idx[i]] =
+                (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
+    }
+    if (caf_dist == 1 && mask_ok) {
+        int order[VV2_RECORD_COUNT], k;
+        static const int tier_mask[4] = { 5, 4, 3, 2 };
+        static const int tier_cap[4]  = { 1, 4, 7, 10 };
+        int t, cursor = 0;
+        for (k = 0; k < n; ++k) order[k] = idx[k];
+        caf_shuffle(order, n);
+        for (k = 0; k < n; ++k) caf_plan_mask[order[k]] = 1;
+        for (t = 0; t < 4 && cursor < n; ++t) {
+            int c;
+            for (c = 0; c < tier_cap[t] && cursor < n; ++c, ++cursor)
+                caf_plan_mask[order[cursor]] = tier_mask[t];
+        }
+    } else if (caf_dist == 2 && mask_ok) {
+        for (i = 0; i < n; ++i)
+            caf_plan_mask[idx[i]] = (int)(caf_rand() % 6u);
+    } else if (caf_dist == 4 && mask_ok) {
+        for (i = 0; i < n; ++i)
+            caf_plan_mask[idx[i]] = (int)(1u + caf_rand() % 5u);
+    } else if (caf_dist == 3 && mask_ok) {
+        int order[VV2_RECORD_COUNT], males[VV2_RECORD_COUNT];
+        int females[VV2_RECORD_COUNT], nm = 0, nf = 0, k, o = 0;
+        for (k = 0; k < n; ++k) {
+            if (sexof[k]) females[nf++] = idx[k];
+            else males[nm++] = idx[k];
+        }
+        caf_shuffle(males, nm);
+        caf_shuffle(females, nf);
+        {
+            int a = 0, b = 0;
+            while (a < nm || b < nf) {
+                if (a < nm) order[o++] = males[a++];
+                if (b < nf) order[o++] = females[b++];
+            }
+        }
+        for (k = 0; k < n; ++k)
+            caf_plan_mask[order[k]] = (k % 5) + 1;
+    }
+    if (caf_village >= 0 && mask_ok) {
+        for (i = 0; i < n; ++i) caf_plan_mask[idx[i]] = caf_village;
+    }
+    *count = n;
+}
+
+/* Compare the materialized result, not merely selector presence. */
+static int vv2_caf_record_needs_change(const unsigned char *rec, int index,
+                                       int sex, int mask_ok) {
+    (void)sex;
+    if (caf_plan_head[index] >= 0 &&
+        *(const int *)(rec + VV2_HEAD_OFFSET) != caf_plan_head[index]) {
+        return 1;
+    }
+    if (caf_plan_body[index] >= 0 &&
+        *(const int *)(rec + VV2_BODY_OFFSET) != caf_plan_body[index]) {
+        return 1;
+    }
+    if (mask_ok && caf_plan_mask[index] >= 0 &&
+        VV2_MASK_TABLE[index] != (unsigned char)caf_plan_mask[index]) {
+        return 1;
+    }
+    return 0;
+}
+
 /* Returns the number of distinct active records for which at least one selected
-   operation can apply (0 = no mutation, so the caller must not charge). */
+   operation would change a value (0 = no mutation, so the caller must not
+   charge). */
 static int vv2_apply_caf(unsigned char *base) {
     int idx[VV2_RECORD_COUNT];       /* active record indices */
     int sexof[VV2_RECORD_COUNT];     /* 0 male, 1 female (parallel to idx) */
@@ -1651,86 +1760,26 @@ static int vv2_apply_caf(unsigned char *base) {
     mask_requested = (caf_mask[0] >= 0 || caf_mask[1] >= 0 ||
                       caf_dist != 0 || caf_village >= 0);
     mask_ok = mask_requested && vv2_mask_table_ok();
-    /* Preflight the exact records that can receive a write.  A selected field
-       only applies to its matching sex; global head/body modes apply to every
-       active record; mask modes count only when the patch-owned table exists.
-       Count each record once even when several fields are selected. */
-    for (i = 0; i < VV2_RECORD_COUNT; ++i, rec += VV2_RECORD_STRIDE) {
-        int s;
-        if (rec[VV2_ACTIVE_OFFSET] == 0) continue;
-        s = (*(int *)(rec + VV2_SEX_OFFSET) == 1) ? 0 : 1;
-        if (caf_head_mode != 0 || caf_body_mode != 0 ||
-            caf_head[s] >= 0 || caf_body[s] >= 0 ||
-            (mask_ok && (caf_mask[s] >= 0 || caf_dist != 0 || caf_village >= 0))) {
+    /* Materialize the final values once, then count only records whose stored
+       head/body/table value differs from that exact plan. */
+    vv2_caf_build_plan(base, mask_ok, idx, sexof, &n);
+    for (i = 0; i < n; ++i) {
+        rec = base + idx[i] * VV2_RECORD_STRIDE;
+        if (vv2_caf_record_needs_change(rec, idx[i], sexof[i], mask_ok))
             ++affected;
-        }
     }
     if (affected == 0) {
         return 0;
     }
-    rec = base;
-    for (i = 0; i < VV2_RECORD_COUNT; ++i, rec += VV2_RECORD_STRIDE) {
-        int s;
-        if (rec[VV2_ACTIVE_OFFSET] == 0) continue;
-        s = (*(int *)(rec + VV2_SEX_OFFSET) == 1) ? 0 : 1;
-        idx[n] = i; sexof[n] = s; ++n;
-        /* per-sex Head/Body/Mask (skipped when the matching village-wide override
-           is active — those selectors were cleared/greyed, so these are -1) */
-        if (caf_head[s] >= 0) *(int *)(rec + VV2_HEAD_OFFSET) = caf_head[s];
-        if (caf_body[s] >= 0) *(int *)(rec + VV2_BODY_OFFSET) = caf_body[s];
-        if (caf_mask[s] >= 0 && mask_ok) VV2_MASK_TABLE[i] = (unsigned char)caf_mask[s];
-    }
-    if (caf_head_mode != 0) {                 /* village-wide Heads */
-        for (i = 0; i < n; ++i) {
-            int s = sexof[i], h;
-            if (caf_head_mode == 1) {         /* Random (by gender) */
-                h = (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
-            } else {                          /* All <colour>: random within bucket */
-                int c = caf_head_mode - 2;    /* 0 Black..4 Other */
-                h = caf_hair[s][c][caf_rand() % caf_hair_n[s][c]];
-            }
-            *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_HEAD_OFFSET) = h;
-        }
-    }
-    if (caf_body_mode == 1) {                 /* village-wide Bodies: Random */
-        for (i = 0; i < n; ++i)
-            *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_BODY_OFFSET) =
-                (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
-    }
-    if (caf_dist == 1 && mask_ok) {   /* VV5-style rarity */
-        int order[VV2_RECORD_COUNT], k;
-        static const int tier_mask[4] = { 5, 4, 3, 2 };   /* Chief,Purple,Red,Orange */
-        static const int tier_cap[4]  = { 1, 4, 7, 10 };
-        int t, cursor = 0;
-        for (k = 0; k < n; ++k) order[k] = idx[k];
-        caf_shuffle(order, n);
-        for (k = 0; k < n; ++k) VV2_MASK_TABLE[order[k]] = 1;   /* default Blue */
-        for (t = 0; t < 4 && cursor < n; ++t) {
-            int c;
-            for (c = 0; c < tier_cap[t] && cursor < n; ++c, ++cursor)
-                VV2_MASK_TABLE[order[cursor]] = (unsigned char)tier_mask[t];
-        }
-    } else if (caf_dist == 2 && mask_ok) {  /* Random (All 5 + No Mask): 0..5 */
-        for (i = 0; i < n; ++i)
-            VV2_MASK_TABLE[idx[i]] = (unsigned char)(caf_rand() % 6u);
-    } else if (caf_dist == 4 && mask_ok) {  /* Random (All 5): 1..5, never no-mask */
-        for (i = 0; i < n; ++i)
-            VV2_MASK_TABLE[idx[i]] = (unsigned char)(1u + caf_rand() % 5u);
-    } else if (caf_dist == 3 && mask_ok) {  /* Equal, balanced M/F */
-        int order[VV2_RECORD_COUNT], males[VV2_RECORD_COUNT], females[VV2_RECORD_COUNT];
-        int nm = 0, nf = 0, k, o = 0;
-        for (k = 0; k < n; ++k) { if (sexof[k]) females[nf++] = idx[k]; else males[nm++] = idx[k]; }
-        caf_shuffle(males, nm); caf_shuffle(females, nf);
-        /* alternate M/F so each round-robin mask type gets a balanced sex mix */
-        { int a = 0, b = 0; while (a < nm || b < nf) {
-            if (a < nm) order[o++] = males[a++];
-            if (b < nf) order[o++] = females[b++]; } }
-        for (k = 0; k < n; ++k)
-            VV2_MASK_TABLE[order[k]] = (unsigned char)((k % 5) + 1);   /* Blue..Chief */
-    }
-    if (caf_village >= 0 && mask_ok) {  /* village-wide single mask override */
-        for (i = 0; i < n; ++i)
-            VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_village;
+    for (i = 0; i < n; ++i) {
+        rec = base + idx[i] * VV2_RECORD_STRIDE;
+        if (!vv2_caf_record_needs_change(rec, idx[i], sexof[i], mask_ok)) continue;
+        if (caf_plan_head[idx[i]] >= 0)
+            *(int *)(rec + VV2_HEAD_OFFSET) = caf_plan_head[idx[i]];
+        if (caf_plan_body[idx[i]] >= 0)
+            *(int *)(rec + VV2_BODY_OFFSET) = caf_plan_body[idx[i]];
+        if (mask_ok && caf_plan_mask[idx[i]] >= 0)
+            VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_plan_mask[idx[i]];
     }
     return affected;
 }

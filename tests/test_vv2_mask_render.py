@@ -127,6 +127,35 @@ def _vv2_caf_applicable(
     )
 
 
+def _vv2_caf_record_needs_change(
+    *,
+    sex: int,
+    current_head: tuple[int, int] = (0, 0),
+    current_body: tuple[int, int] = (0, 0),
+    current_mask: tuple[int, int] = (0, 0),
+    head: tuple[int, int] = (-1, -1),
+    body: tuple[int, int] = (-1, -1),
+    mask: tuple[int, int] = (-1, -1),
+    mask_dist: int = 0,
+    village_mask: int = -1,
+    head_mode: int = 0,
+    body_mode: int = 0,
+    mask_ok: bool = True,
+) -> bool:
+    """Reference one VV2 record's changed-value preflight decision."""
+    if head[sex] >= 0 and current_head[sex] != head[sex]:
+        return True
+    if body[sex] >= 0 and current_body[sex] != body[sex]:
+        return True
+    if mask_ok and mask[sex] >= 0 and current_mask[sex] != mask[sex]:
+        return True
+    return bool(
+        head_mode != 0
+        or body_mode != 0
+        or (mask_ok and (mask_dist != 0 or village_mask >= 0))
+    )
+
+
 def test_vv2_for_all_preflight_covers_absent_matching_and_global_cases() -> None:
     # VV2 uses active +0x30 as its established population predicate.  A
     # selector for an absent sex must be a no-op, while a matching selector and
@@ -138,16 +167,106 @@ def test_vv2_for_all_preflight_covers_absent_matching_and_global_cases() -> None
     assert _vv2_caf_applicable([], head=(7, -1)) == 0
     assert _vv2_caf_applicable([0], mask_dist=2, mask_ok=False) == 0
 
-    engine = DLL[DLL.index("static int vv2_apply_caf"):DLL.index("#define VV2_CAF_COST")]
+    engine = DLL[DLL.index("static int caf_plan_head"):DLL.index("#define VV2_CAF_COST")]
     assert "int n = 0, affected = 0, mask_ok, mask_requested, i;" in engine
     assert "mask_requested = (caf_mask[0] >= 0 || caf_mask[1] >= 0 ||" in engine
     assert "if (rec[VV2_ACTIVE_OFFSET] == 0) continue;" in engine
-    assert "caf_head[s] >= 0 || caf_body[s] >= 0" in engine
-    assert "(mask_ok && (caf_mask[s] >= 0 || caf_dist != 0 || caf_village >= 0))" in engine
+    assert "vv2_caf_record_needs_change(rec, idx[i], sexof[i], mask_ok)" in engine
+    assert "caf_head[s] >= 0" in engine
+    assert "caf_body[s] >= 0" in engine
+    assert "mask_ok && caf_mask[s] >= 0" in engine
     assert "if (affected == 0)" in engine
     assert engine.index("if (affected == 0)") < engine.index("*(int *)(rec + VV2_HEAD_OFFSET)")
     assert "return affected;" in engine
     assert "return n;" not in engine
+
+
+def test_vv2_for_all_preflight_counts_only_real_fixed_value_changes() -> None:
+    # A selected fixed head/body/mask that already matches is a true no-op.
+    assert not _vv2_caf_record_needs_change(
+        sex=0, current_head=(7, 0), head=(7, -1)
+    )
+    assert not _vv2_caf_record_needs_change(
+        sex=0, current_body=(12, 0), body=(12, -1)
+    )
+    assert not _vv2_caf_record_needs_change(
+        sex=0, current_mask=(3, 0), mask=(3, -1)
+    )
+    assert not _vv2_caf_record_needs_change(
+        sex=0,
+        current_head=(7, 0),
+        current_body=(12, 0),
+        current_mask=(3, 0),
+        head=(7, -1),
+        body=(12, -1),
+        mask=(3, -1),
+    )
+
+    # Each changed fixed field, and a mixed selection with one changed field,
+    # counts exactly once for that record.
+    assert _vv2_caf_record_needs_change(
+        sex=0, current_head=(6, 0), head=(7, -1)
+    )
+    assert _vv2_caf_record_needs_change(
+        sex=0, current_body=(11, 0), body=(12, -1)
+    )
+    assert _vv2_caf_record_needs_change(
+        sex=0, current_mask=(2, 0), mask=(3, -1)
+    )
+    assert _vv2_caf_record_needs_change(
+        sex=0,
+        current_head=(7, 0),
+        current_body=(11, 0),
+        current_mask=(3, 0),
+        head=(7, -1),
+        body=(12, -1),
+        mask=(3, -1),
+    )
+
+    # Sex selection remains record-local, while missing mask storage remains
+    # fail-closed and cannot turn a mask-only no-op into a charged action.
+    assert not _vv2_caf_record_needs_change(
+        sex=1, current_head=(7, 9), head=(7, -1)
+    )
+    assert not _vv2_caf_record_needs_change(
+        sex=0, current_mask=(3, 0), mask=(3, -1), mask_ok=False
+    )
+    assert _vv2_caf_record_needs_change(
+        sex=0, current_head=(7, 0), head=(7, -1), body_mode=1
+    )
+
+
+def test_vv2_for_all_dynamic_modes_compare_the_materialized_plan() -> None:
+    # Random selectors are planned before preflight.  A one-record village can
+    # therefore be a true no-op when the planned random output equals storage.
+    def planned_needs_change(
+        current: tuple[int, int, int],
+        planned: tuple[int, int, int],
+        *,
+        mask_ok: bool = True,
+    ) -> bool:
+        return (
+            current[0] != planned[0]
+            or current[1] != planned[1]
+            or (mask_ok and current[2] != planned[2])
+        )
+
+    assert not planned_needs_change((7, 12, 3), (7, 12, 3))
+    assert planned_needs_change((7, 12, 3), (8, 12, 3))
+    assert planned_needs_change((7, 12, 3), (7, 13, 3))
+    assert planned_needs_change((7, 12, 3), (7, 12, 4))
+    assert not planned_needs_change((7, 12, 3), (7, 12, 4), mask_ok=False)
+
+    engine = DLL[DLL.index("static int caf_plan_head"):DLL.index("#define VV2_CAF_COST")]
+    assert "static void vv2_caf_build_plan" in engine
+    assert "caf_plan_head[idx[i]] = h;" in engine
+    assert "caf_plan_body[idx[i]] =" in engine
+    assert "caf_plan_mask[idx[i]] = (int)(caf_rand() % 6u);" in engine
+    assert "caf_plan_mask[order[k]] = (k % 5) + 1;" in engine
+    assert "caf_plan_head[index]" in engine
+    assert "caf_plan_body[index]" in engine
+    assert "caf_plan_mask[index]" in engine
+    assert "vv2_caf_build_plan(base, mask_ok, idx, sexof, &n);" in engine
 
 
 def test_vv2_for_all_zero_count_precedes_charge_and_sidecar_save() -> None:

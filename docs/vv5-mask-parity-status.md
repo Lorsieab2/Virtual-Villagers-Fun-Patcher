@@ -140,6 +140,19 @@ fail-closed and identity-boundary gaps:
     bounded temp path, verifies both writes, flush, and close, and publishes only
     with atomic replace/write-through. The dirty retry remains set on failure,
     while the last valid final sidecar is no longer truncated first.
+24. VV2 now materializes the exact per-record head, body, and mask results for
+    fixed and random/distribution modes before its zero gate. It counts and
+    writes only records whose stored value differs from that same plan; a
+    coincidental random match, already-selected value, or unavailable mask table
+    cannot produce a mutation, sidecar save, or 450,000-point charge.
+25. VV3 likewise plans each mask result once and compares current head, body, and
+    mask values before mutation. Nonzero masks retain the unique-identity gates;
+    explicit None also inspects the exact raw slot so a collision-hidden entry is
+    still a real clear. Only changed mask plans call the setter.
+26. VV4 plans all fixed and dynamic appearance results before mutation, using a
+    fingerprint-safe logical mask read plus the raw exact-slot state for None.
+    The same change decision controls counting and the single apply pass, and the
+    sidecar is written only when a mask value actually changes.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be
