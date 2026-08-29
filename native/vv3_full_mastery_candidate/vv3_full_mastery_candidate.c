@@ -582,13 +582,30 @@ static void vv3_mask_read_sidecar(void) {
    empty slot / a reused slot whose fingerprint no longer matches. */
 __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
     const unsigned char *rec = (const unsigned char *)record;
-    int idx;
+    unsigned int fpv;
+    int idx, i;
+    if (record == NULL) return 0;
     if (!g_vv3_mask_loaded) vv3_mask_read_sidecar();       /* restore on first use */
+    fpv = vv3_mask_fingerprint(rec);
+    /* FAST PATH: villager still at its stored slot (the common case within a session). */
     idx = vv3_mask_index(record);
-    if (idx < 0) return 0;
-    if (g_vv3_mask[idx] == 0) return 0;
-    if (g_vv3_mask_fp[idx] != vv3_mask_fingerprint(rec)) return 0;
-    return g_vv3_mask[idx];
+    if (idx >= 0 && g_vv3_mask[idx] != 0 && g_vv3_mask_fp[idx] == fpv) {
+        return g_vv3_mask[idx];
+    }
+    /* SLOT-SHIFT RECOVERY: villager slot indices are NOT stable -- deaths, births and
+       save reloads renumber them, so the per-index table goes stale and the fast-path
+       fingerprint check fails for almost everyone (observed: ~97/100 villagers read as
+       no-mask after a reload).  The mask is stored WITH the villager's birth-fixed genetic
+       fingerprint, so recover it by SEARCHING the table for that fingerprint regardless of
+       the current slot -- the mask follows the VILLAGER, not the index.  This is what makes
+       saved masks reappear after a reload.  (Fingerprint = gender + 3 likes + 3 dislikes,
+       all fixed at birth, so it identifies the villager stably.) */
+    for (i = 0; i < VV3_MASK_SLOTS; ++i) {
+        if (g_vv3_mask[i] != 0 && g_vv3_mask_fp[i] == fpv) {
+            return g_vv3_mask[i];
+        }
+    }
+    return 0;
 }
 
 /* Chooser commit: store the chosen mask (0..5) for this villager.  Never writes
