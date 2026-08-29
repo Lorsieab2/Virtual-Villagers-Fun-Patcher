@@ -2952,7 +2952,14 @@ def main() -> None:
             push dword ptr [esp + 0x14]
             mov eax, dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}]
             mov dword ptr [esp], eax              # arg1 = mask atlas
-            sub dword ptr [esp + 8], 15           # arg3=y: lift adult village mask 15px up (user-tuned); head already drawn, so this shifts only the mask
+            # SAME re-seat the child path does (mask face sits low in its 145-tall cell
+            # ~(32,60); head face ~(20,12); delta (12,48) in-cell), but adults draw at a
+            # FIXED scale (0x408740 has no scale arg), so a fixed lift is the correct
+            # equivalent: (12,48)*adultScale. Shifts only the mask; it still tracks the
+            # head's live x/y (that's the head's own draw position), just seated on the
+            # face. Magnitude dialed to the adult on-screen scale.
+            sub dword ptr [esp + 4], 11           # arg2=x: left 11 (measured head/mask face-x delta, VV2-verified anchors, offscreen-checked)
+            sub dword ptr [esp + 8], 41           # arg3=y: up 41 (mask face-y 57 - head face-y ~16 in-cell; adults fixed full scale so fixed lift is exact). Per-color Y is baked into the atlas, so one constant serves all colors.
             # Frame selection differs by DRAW FN behaviour, not by thunk:
             #  * 0x408840 (adult) idiv-DECODES a packed frame into row,col, so we
             #    re-PACK: arg4 = maskrow*mask_cols(8) + facing. (Adult atlas is
