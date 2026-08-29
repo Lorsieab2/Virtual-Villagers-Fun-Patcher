@@ -10,13 +10,20 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from scripts.build_vv1_birth_control_page import build_page  # noqa: E402
-from vv_fun_patcher import PatcherError, load_fun_patches, resolve_fun_patch_ids  # noqa: E402
+from vv_fun_patcher import (  # noqa: E402
+    PatcherError,
+    load_builds,
+    load_fun_patches,
+    render_patched_bytes,
+    resolve_fun_patch_ids,
+)
 
 
 VV1_SHA256 = "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
 VV3_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV1_PAGE_SHA256 = "07944F005CF5048EAF744BC33564FE86FCFBC72DF30FD03AF60CDEFC2EE105BE"
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
+VV1_STOCK = ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe"
 
 
 def _patches(feature_id: str) -> list[dict[str, str]]:
@@ -144,6 +151,48 @@ class VV1VV3BirthControlTests(unittest.TestCase):
                 ["vv1_birth_control", "vv1_enable_origins_exclusive_features"],
                 game_id="vv1",
             )
+
+    def test_vv1_maximal_compatible_sets_render_and_keep_birth_control_independent(self) -> None:
+        """Exercise both complete VV1 selections split by the append owner.
+
+        Origins owns the two-page .vv1mc/.vv1md append and Birth Control owns
+        the one-page .vv1bc append.  The stock tail cannot host both layouts;
+        each maximal compatible set must nevertheless remain renderable in all
+        ordinary modes, with Birth Control covered as its own full selection.
+        """
+        builds = {build.id: build for build in load_builds()}
+        all_vv1 = [patch.id for patch in load_fun_patches() if patch.game_id == "vv1"]
+        maximal_sets = {
+            "origins-family": [patch_id for patch_id in all_vv1 if patch_id != "vv1_birth_control"],
+            "birth-control-family": [
+                patch_id
+                for patch_id in all_vv1
+                if patch_id
+                not in {
+                    "vv1_enable_origins_exclusive_features",
+                    "vv1_origins_village_wide_upgrades",
+                }
+            ],
+        }
+        for family, patch_ids in maximal_sets.items():
+            with self.subTest(family=family):
+                resolved = resolve_fun_patch_ids(patch_ids, game_id="vv1")
+                if family == "origins-family":
+                    self.assertIn("vv1_enable_origins_exclusive_features", resolved)
+                    self.assertNotIn("vv1_birth_control", resolved)
+                else:
+                    self.assertIn("vv1_birth_control", resolved)
+                    self.assertNotIn("vv1_enable_origins_exclusive_features", resolved)
+                for mode in ("stock", "collection_progression", "immediate_fixed"):
+                    with self.subTest(mode=mode):
+                        rendered, applied = render_patched_bytes(
+                            VV1_STOCK,
+                            builds["vv1"],
+                            mode,
+                            patch_ids,
+                        )
+                        self.assertGreater(len(applied), 0)
+                        self.assertNotEqual(rendered, VV1_STOCK.read_bytes())
 
 
 if __name__ == "__main__":
