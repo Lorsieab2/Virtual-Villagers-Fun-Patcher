@@ -215,6 +215,14 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 ### VV4 — "The Tree of Life" (NO native mask → from-scratch)
 - **Head via resolver `FUN_0044E960`.** Details compositor `FUN_0043CDF0`; head draw
   `FUN_00409A70` (`ecx` = drawmgr `0x4E00E0`) at `0x43CFDE`, body at `0x43D040`.
+- **The Details PORTRAIT may reuse the VILLAGE render into a sub-viewport** — not a
+  separate portrait draw. Tell: a static portrait hook (`0x43CFDE`) never fires during the
+  idle-turn animation, yet a mask still appears (tiny, village-scaled, mis-placed) = your
+  **village** mask hook firing for the panel villager. Runtime caller-capture confirms it:
+  **no new caller** on Details-open, just the village callers. Fix: gate the village hook
+  by **drawmgr** (world `0x4DB9F8` vs the panel's mgr) and, for the panel villager, replay
+  the **panel head draw's own** arg6/arg2/arg3 (bighead scale) rather than village scale —
+  the "tiny + down-left + duplicate-on-pickup" all resolve. No separate Details cave needed.
 - **Facing field `+0x1CD4`.** **Portrait is FIXED-facing** (resolver output, no facing
   input) → hardcode the front column; no per-facing needed on Details.
 - **Drawn head ≈ 27px** though the cell is 40×65 (mostly padding) → do **not** scale
@@ -385,6 +393,19 @@ any dialogs live in the companion DLL; the exe stub just calls in / reissues the
 - Mask choice → a **sidecar file** next to the `.ldw` (e.g. `vvfp_masks_<slot>.dat`).
   Never read/write the save, never patch save code. A record byte is allowed only if
   proven unused (4-part proof); a sidecar avoids the question.
+- **Key the sidecar PER SLOT, and reload on slot change — or a 2nd village bleeds the
+  1st's masks (and overwriting the sidecar destroys the 1st's choices).** Recipe (VS5's,
+  ports to any `"%s%d.ldw"` builder): hook the **save-path builder itself** (VS5
+  `sub_403600`; VV2 `0x474400`); capture the slot arg, stash **only when slot != 0** (0 =
+  meta, never a village). When the captured slot **differs** from the last, **clear a
+  `loaded` flag** — do NOT read the sidecar here: the path builder fires DURING load,
+  *before* the records are in memory. Do the actual `ReadMaskSidecar` at the **first
+  village render frame** (records present by then), gated by that flag. Never-seen slot →
+  the per-slot file is absent → **zero the table** (no masks beats wrong masks). Make the
+  restore fn **re-callable**, not once-from-init. A newborn reusing a dead masked slot:
+  clear its nibble at birth, or use a **seen-alive latch** (clear a slot's mask only after
+  it was observed ACTIVE and *then* went free — also avoids wiping restored masks on load
+  frames where slots momentarily read empty).
 - Atlas/art → **new companion files only**, never an edit to stock art. Prefer
   **RCDATA-embedded in the DLL, self-extracted to `Images/…` only if absent** (exe-dir
   absolute path, `CREATE_NEW`) so a clean install can't get a sprite pointer with no art
