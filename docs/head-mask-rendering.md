@@ -177,9 +177,19 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   input) → hardcode the front column; no per-facing needed on Details.
 - **Drawn head ≈ 27px** though the cell is 40×65 (mostly padding) → do **not** scale
   VV5's 65px art down; it already matches the drawn size.
-- **Verified bighead values** (owner-confirmed recipe): mask **column 5** (0-based,
-  front), `maskX = headX − 29×scale`, `scale = headScale × 2.6`, `maskY = headY −
-  110×scale`, row = color−1. (Its engine anchors near the head center, hence the `−`.)
+- **Bighead scale arg is an INT**, not a float: `FUN_00409A70`'s scale (arg6) is an
+  integer percentage (twins draw at `scale=100`). Loading it with `fld` (float) gives a
+  garbage tiny scale — the classic "mask too small". Use `fild`/`fistp`.
+- **Bighead recipe (owner prefers the 8-COL village atlas, not a dedicated one):** front
+  = **col 5** (0-based = owner frame 6, 1-based) of `vv5_heathenheads` layout (65×145
+  cell); row = color−1. `mask_scale = round(head_arg6 × 1.2–1.3)` kept INT (the col-5
+  face is ~25px vs the ~30px portrait head face). Seat within the 65×145 cell:
+  face-center-x = **35**, chin-y = **~67** (per-color blue 68 / orange 67 / red 69 /
+  purple 62 / chief 71 — not bottom-aligned, 9px spread). Then (scale is a percentage):
+  `maskX = headFaceCenterX − (mask_scale/100)×35`, `maskY = headChinY −
+  (mask_scale/100)×chin_y`. (Its engine anchors near the head center, hence `−`.) An
+  earlier village-atlas attempt used col 5, `maskX = headX − 29×scale`, `×2.6`, `maskY =
+  headY − 110×scale` — superseded.
 
 ### VV5 — "New Believers" (latest; HAS native heathen masks)
 - **Native mask atlas** `vv5_heathenheads.png` — sprite id **`0x101`, 8 cols × 5 rows**,
