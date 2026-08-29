@@ -408,8 +408,11 @@ static void vv_set_mask(unsigned char *villager, int mask) {
 #define VV_ALLOC_FN      0x470C5Cu     /* game allocator: void*(unsigned size) */
 #define VV_LDWGRID_CTOR  0x40ABA0u     /* ldwImageGrid multi-file __thiscall ctor */
 #define VV_MASK_ATLAS_SLOT_VA 0x728D70u /* .shr slot: published atlas obj ptr */
+#define VV_BIGHEAD_ATLAS_SLOT_VA 0x728A3Cu /* .shr: Details-only 3-facing atlas */
 static void *g_mask_atlas_obj = NULL;
 static int g_mask_atlas_tried = 0;
+static void *g_bighead_atlas_obj = NULL;
+static int g_bighead_atlas_tried = 0;
 static void *g_dest_surface;    /* fwd tentative def (real one below); diag use */
 
 static void vv_ensure_mask_atlas(void) {
@@ -472,12 +475,66 @@ static void vv_ensure_mask_atlas(void) {
     *(void **)(UINT_PTR)VV_MASK_ATLAS_SLOT_VA = obj;   /* publish to the head cave */
 }
 
+/* VV5 renders its Details portrait through a dedicated 3-facing x 5-mask
+   atlas instead of enlarging the eight-facing village sheet.  VV4's Details
+   compositor is instruction-for-instruction equivalent at the head draw, so
+   use the same atlas geometry here.  The deterministic VV4 asset is generated
+   from VV5's approved bighead atlas and ships as
+   Images\vvfp_bighead_mask_atlas00.png. */
+static void vv_ensure_bighead_atlas(void) {
+    void *obj;
+    static const char atlas_name[] = "vvfp_bighead_mask_atlas";
+    static const char atlas_ext[] = ".png";
+    const char *namep = atlas_name;
+    const char *extp = atlas_ext;
+    if (g_bighead_atlas_tried) {
+        return;
+    }
+    g_bighead_atlas_tried = 1;
+    obj = ((void *(__cdecl *)(unsigned int))(UINT_PTR)VV_ALLOC_FN)(0x70u);
+    if (obj == NULL) {
+        return;
+    }
+    {
+        unsigned int *z = (unsigned int *)obj;
+        int i;
+        for (i = 0; i < 0x70 / 4; i++) z[i] = 0;
+    }
+    /* FUN_0040ABA0(this, name, ext, cols=1, rows=1, subcols=3, subrows=5). */
+    __asm {
+        push 5
+        push 3
+        push 1
+        push 1
+        mov  eax, extp
+        push eax
+        mov  eax, namep
+        push eax
+        mov  ecx, obj
+        mov  eax, VV_LDWGRID_CTOR
+        call eax
+    }
+    {
+        int *o = (int *)obj;
+        o[0x18] = -30000;
+        o[0x19] = -30000;
+        o[0x1a] =  30000;
+        o[0x1b] =  30000;
+    }
+    if (((unsigned int *)obj)[4] == 0) {
+        return;
+    }
+    g_bighead_atlas_obj = obj;
+    *(void **)(UINT_PTR)VV_BIGHEAD_ATLAS_SLOT_VA = obj;
+}
+
 /* Head-draw caves call this: ensure the atlas is built + published, validate
    the live stable identity, and return its mask (0 = none). */
 __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
     int mask;
     vv_prepare_mask_state();
     vv_ensure_mask_atlas();
+    vv_ensure_bighead_atlas();
     mask = vv_get_mask(villager);
     /* Skip the mask on non-living villagers: the mausoleum-collection bonus
        spawns GHOSTS from dead villager records that still carry a mask in the

@@ -255,24 +255,27 @@ Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.ex
 - The mask patch's world/action/Details hooks use these proven families and owned `.vv3mc`
   (R-X) / `.vv3md` (R/W) sections.
 - **Sidecar/identity validation:** every loaded mask byte is sanitized to the supported
-  `0..5` range before it can enter the DLL table or reach a renderer. Before either the
-  same-slot fast path or slot-shift fallback returns a mask, the getter requires exactly
-  one active/living record and exactly one nonzero stored entry with that
-  gender+Likes+Dislikes fingerprint. Simultaneous live or stored duplicates fail closed;
-  unique reload/slot-shift recovery is retained. Grant Running likewise retags only a
-  fingerprint unique in immutable live and stored preimages. Nonzero setter commits
-  require that same unique live ownership and rebind an older shifted copy; a failed
-  individual chooser bind returns before staged writes or the native charge. The
-  whole-village path conservatively preflights all masks that can be nonzero and
-  aborts before any head/body or mask mutation and before its 450,000-point charge
-  on ambiguity. A later replacement/newborn with the exact same fingerprint after
+  `0..5` range before it can enter the DLL table or reach a renderer. An individual
+  getter/setter requires exactly one active/living record and one stored owner for its
+  gender+Likes+Dislikes fingerprint. The whole-village dialog has one narrower collision
+  exception: it first plans every active/living villager, gives every simultaneous owner
+  of one fingerprint the same mask, and stores exactly one identical copy per live owner.
+  Rendering accepts that group only while live-owner count, stored-copy count, and mask
+  value all still agree. Incomplete or mixed groups fail closed. Equal, Random, and
+  VV5-style proportions may therefore be adjusted at collision-group granularity instead
+  of preserving exact global counts. Individual chooser commits remain unique-only.
+  Grant Running likewise retags only a fingerprint unique in immutable live and stored
+  preimages. A later replacement/newborn with the exact same fingerprint after
   the old villager is gone remains indistinguishable:
   no stable name, identity, or allocation-generation field is proven in the current
   exact-build evidence.
 - **Transactional sidecar publication:** VV3 writes the unchanged `MSK3` payload to a
   separately bounded `<final>.tmp`, verifies all three writes and exact byte counts,
   flushes and closes it, and only then atomically replaces the final with write-through.
-  Any failure deletes only the temp path and preserves the prior final sidecar.
+  The village-wide path publishes its complete shadow sidecar before any head/body or
+  live mask-table mutation; any path/create/write/flush/close/replace failure returns with
+  no appearance change and no 450,000-point charge. Any failure deletes only the temp
+  path and preserves the prior final sidecar.
 - `0x4341A0..0x434758` is one three-style timed sprite/particle effect object. It iterates
   24-byte entries, compares elapsed time to `0x12C`/`0x7080`, and uses three fixed anchors
   `(110,160)`, `(114,212)`, `(75,176)` from `0x5947B8..0x5947CC`.
@@ -299,8 +302,13 @@ runtime-trace and player-acceptance boundary. Record base is `0x59E124`, stride 
   proof of held/cursor ownership.
 - **Current detour boundary:** the reviewed mask work targets the proven Details head
   boundary at `0x45F702` and the central live type-7 world head boundary at `0x468263`.
-  Static coverage still does not prove held/cursor ownership, cursor coordinates, Details
-  seating, or player-visible pickup behavior; those remain runtime/player acceptance gates.
+  The Details replay preserves the live seven-argument X/Y/scale tuple, derives its
+  three-way portrait column from `record+0x2E38 mod 3`, and uses a dedicated 3x5 atlas
+  byte-identical to VV5's approved bighead atlas at 1.5x native head scale. It also ports
+  VV5's per-facing X, per-row Y, base lift, and young-villager corrections; Purple includes
+  the current player-requested +5px adjustment. Static coverage still does not prove
+  held/cursor ownership, cursor coordinates, final player-visible Details seating, or
+  pickup behavior; those remain runtime/player acceptance gates.
   No older `0x43CFDE`/`0x45F965`/fixed-facing portrait theory substitutes for that evidence.
 - **Identity guard:** the companion side-table is keyed by record index but stores a
   stable gender+name fingerprint with each nonzero mask. `Vv4MaskGetForRecord` compares

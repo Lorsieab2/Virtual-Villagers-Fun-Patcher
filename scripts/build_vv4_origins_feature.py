@@ -150,13 +150,31 @@ MASK_SLOT_CACHE_PTR = 0x728D64         # resolved Vv4MaskCacheSurface
 MASK_SLOT_GET_PTR = 0x728D68           # resolved Vv4MaskGetForRecord
 MASK_SLOT_RESOLVED = 0x728D6C          # byte flag: 0 = not yet resolved
 MASK_SLOT_ATLAS = 0x728D70             # mask ldwImageGrid obj ptr (DLL publishes here)
+MASK_SLOT_BIGHEAD_ATLAS = 0x728A3C     # Details-only 3-facing atlas (DLL publishes here)
+# VV4 FUN_0045F550 and VV5 FUN_00466C40 are instruction-for-instruction
+# equivalents around the Details head draw.  VV4 record+0x2E38 corresponds to
+# VV5 record+0x2F3C: the compositor takes it modulo 3 for its portrait-only
+# right/front/left turn.  Keep the same approved VV5 column map and positioning
+# tables; only the record offset and draw thunk differ between games.
+MASK_DETAILS_FACING_OFFSET = 0x2E38
+MASK_DETAILS_OFFSETS = 0x728A40        # face map[3], pad[5], col-dx[3], row-dy[5]
+MASK_DETAILS_FACE_TABLE = (0, 1, 2)
+MASK_DETAILS_COLDX_TABLE = (19, 3, -16)
+# Keep Details row seating identical to the current VV5 table. Purple moved
+# from -3 to +2 in the same player-requested +5px adjustment as VV5.
+MASK_DETAILS_ROWDY_TABLE = (0, 2, 0, 2, 0)
+MASK_DETAILS_SCALE_MUL = 3
+MASK_DETAILS_SCALE_SHIFT = 1           # native head scale * 1.5, matching VV5
+MASK_DETAILS_LIFT = 0x32               # native tuple y - 50, matching VV5
+MASK_DETAILS_ROW = 0x728A50            # runtime scratch, after the 16-byte table
+MASK_DETAILS_COL = 0x728A54
 # head-cave scratch (saved across the native head draw; single-threaded render,
 # non-reentrant):
 MASK_S_ECX = 0x728D74
 MASK_S_ESI = 0x728D78
 MASK_S_X = 0x728D7C
 MASK_S_Y = 0x728D80
-MASK_S_FACING = 0x728D84               # clean record facing (record+0x1CD4 & 7)
+MASK_S_FACING = 0x728D84               # Details portrait column (right/front/left)
 MASK_S_TRANSFORM = 0x728D88            # head scale percent (native arg6)
 MASK_S_RET = 0x728D8C
 MASK_S_DY = 0x728FC0                    # shared lift result; caves are non-reentrant
@@ -350,31 +368,22 @@ def mask_head_cave() -> bytes:
     (sprite mgr), esi=villager record, [esp]=site return, [esp+4..]=stdcall draw
     args (atlas, x, y, idx, frame, transform, 0). It draws the head
     normally (swap the return to post_head, tail into the native thunk which
-    returns via ret 0x1c), then draws the villager's mask reusing the head's
-    x/facing/transform and applying the shared scale-aware DY table to y, with
-    idx=mask_row. The mask replay preserves the original draw-manager wrapper
-    in ECX and swaps only stack arg1 to the DLL-published mask atlas: 0x409A70
-    dereferences the wrapper, then 0x408C40 resolves geometry/surface from the
-    stack atlas. Passing the mask object as ECX would make the thunk dereference
-    atlas[0] and is unsafe. All guarded: no export / mask<=0 / atlas 0 ->
-    nothing drawn. Single-threaded, non-reentrant -> one shared scratch set."""
+    returns via ret 0x1c), then ports VV5's Details-mask replay exactly onto the
+    equivalent VV4 compositor:
+
+    * x/y come from the untouched native head tuple;
+    * portrait facing comes from record+0x2E38 modulo 3 (VV5 uses +0x2F3C),
+      never the age-offset head frame and never the active byte;
+    * row is mask-1 in the dedicated 3-column x 5-row Details atlas;
+    * scale is the native head scale x1.5; VV5's per-facing X, base Y lift,
+      per-row Y, and child corrections are retained.
+
+    The replay preserves the original draw-manager wrapper in ECX and swaps
+    only stack arg1 to the DLL-published Details atlas.  All guarded: no export,
+    invalid mask, or missing atlas draws nothing. Single-threaded,
+    non-reentrant -> one shared scratch set."""
 
     def src(post_head: int) -> str:
-        # The isolated mask sheet uses a tall cell.  The Details renderer passes
-        # arg6 as an integer scale percentage (0x408C40 filds it then divides
-        # by 100), so compute round(dy * percent / 100) without treating the
-        # integer as an IEEE float.  Positive native scales are expected here.
-        y_expr = (f"movsx eax, byte ptr [eax + {MASK_DY_TABLE}]\n"
-                  f"            imul eax, dword ptr [{MASK_S_TRANSFORM}]\n"
-                  f"            add eax, 50\n"
-                  f"            xor edx, edx\n"
-                  f"            mov ecx, 100\n"
-                  f"            idiv ecx\n"
-                  f"            mov dword ptr [{MASK_S_DY}], eax\n"
-                  f"            mov edx, dword ptr [{MASK_SLOT_ATLAS}]\n"
-                  f"            mov ecx, dword ptr [{MASK_S_Y}]\n"
-                  f"            sub ecx, dword ptr [{MASK_S_DY}]\n"
-                  f"            push ecx")
         return f"""
             mov dword ptr [{MASK_S_ECX}], ecx
             mov dword ptr [{MASK_S_ESI}], esi
@@ -382,12 +391,6 @@ def mask_head_cave() -> bytes:
             mov dword ptr [{MASK_S_X}], eax
             mov eax, [esp+0xC]
             mov dword ptr [{MASK_S_Y}], eax
-            # The native arg5 is an animation/age frame, not a clean facing:
-            # 0x45F6C4..0x45F6F3 adds an age-dependent atlas-column offset.
-            # Use the record's stable facing for the mask column instead.
-            mov eax, [esi+0x1CD4]
-            and eax, 7
-            mov dword ptr [{MASK_S_FACING}], eax
             mov eax, [esp+0x18]
             mov dword ptr [{MASK_S_TRANSFORM}], eax
             mov eax, [esp]
@@ -403,15 +406,67 @@ def mask_head_cave() -> bytes:
             call eax
             test eax, eax
             jle mh_done
+            cmp eax, 5
+            ja mh_done
             dec eax
-            mov edx, dword ptr [{MASK_SLOT_ATLAS}]
+            mov dword ptr [{MASK_DETAILS_ROW}], eax
+            mov edx, dword ptr [{MASK_SLOT_BIGHEAD_ATLAS}]
             test edx, edx
             jz mh_done
+
+            # VV4 +0x2E38 is the exact structural counterpart of VV5 +0x2F3C.
+            # Both native Details compositors divide it by three immediately
+            # before resolving the head.  Map that portrait turn to the
+            # dedicated mask atlas's right/front/left column.
+            mov eax, dword ptr [{MASK_S_ESI}]
+            mov eax, dword ptr [eax + {MASK_DETAILS_FACING_OFFSET}]
+            cdq
+            mov ecx, 3
+            idiv ecx
+            test edx, edx
+            jns mh_facing_nonnegative
+            add edx, 3
+        mh_facing_nonnegative:
+            movzx ecx, byte ptr [edx + {MASK_DETAILS_OFFSETS}]
+            mov dword ptr [{MASK_S_FACING}], ecx
+            mov dword ptr [{MASK_DETAILS_COL}], ecx
+
+            # Start from the live native x/y tuple, then apply the same
+            # Details-only seating used by VV5's approved portrait renderer.
+            movsx eax, byte ptr [ecx + {MASK_DETAILS_OFFSETS + 8}]
+            add eax, dword ptr [{MASK_S_X}]
+            mov dword ptr [{MASK_S_X}], eax
+            mov ecx, dword ptr [{MASK_DETAILS_ROW}]
+            movsx eax, byte ptr [ecx + {MASK_DETAILS_OFFSETS + 11}]
+            add eax, dword ptr [{MASK_S_Y}]
+            sub eax, {MASK_DETAILS_LIFT}
+            mov dword ptr [{MASK_S_Y}], eax
+
+            # VV5's young-villager correction applies only to Orange, Purple,
+            # and Chief.  The equivalent VV4 age field/threshold are identical.
+            mov edx, dword ptr [{MASK_S_ESI}]
+            cmp dword ptr [edx + 0x1B8C], 0x118
+            jae mh_grown
+            mov ecx, dword ptr [{MASK_DETAILS_ROW}]
+            cmp ecx, 1
+            je mh_child_offset
+            cmp ecx, 3
+            je mh_child_offset
+            cmp ecx, 4
+            jne mh_grown
+        mh_child_offset:
+            sub dword ptr [{MASK_S_X}], 2
+            add dword ptr [{MASK_S_Y}], 3
+        mh_grown:
+            mov ecx, dword ptr [{MASK_S_TRANSFORM}]
+            imul ecx, ecx, {MASK_DETAILS_SCALE_MUL}
+            shr ecx, {MASK_DETAILS_SCALE_SHIFT}
+            mov edx, dword ptr [{MASK_SLOT_BIGHEAD_ATLAS}]
             push 0
-            push dword ptr [{MASK_S_TRANSFORM}]
-            push dword ptr [{MASK_S_FACING}]
-            push eax
-            {y_expr}
+            push ecx
+            push dword ptr [{MASK_DETAILS_COL}]
+            push dword ptr [{MASK_DETAILS_ROW}]
+            push dword ptr [{MASK_S_Y}]
             push dword ptr [{MASK_S_X}]
             push edx
             # Keep the draw-manager wrapper in ECX.  The thunk dereferences it
@@ -1808,7 +1863,19 @@ def main() -> None:
           "Heathen mask: present cave -- cache the live render-target surface [screen_obj+0x30] into the DLL (also runs the clear-on-death sweep), then tail-call the real present")
     mask_head = mask_head_cave()
     patch(MASK_HEAD_FILE_OFFSET, b"\0" * len(mask_head), mask_head,
-          "Heathen mask: head cave -- draw the head normally then replay Vv4MaskGetForRecord with clean facing and scale-aware vertical seating (fingerprint-checked; mask=0 draws nothing); no villager fields written")
+          "Heathen mask: Details head cave -- replay the exact native x/y tuple, map record+0x2E38 modulo 3 to the dedicated VV5-style portrait atlas, apply x1.5 native scale plus VV5 seating/child corrections, and draw mask row color-1 (fingerprint-checked; mask=0 draws nothing)")
+    assert MASK_HEAD_VA + len(mask_head) <= MASK_SLOT_BIGHEAD_ATLAS, \
+        "Details head cave grew into the bighead-atlas runtime slot"
+    _shr_delta_details = MASK_HEAD_VA - MASK_HEAD_FILE_OFFSET
+    _details_table = bytes(
+        [v & 0xFF for v in MASK_DETAILS_FACE_TABLE]
+        + [0] * 5
+        + [v & 0xFF for v in MASK_DETAILS_COLDX_TABLE]
+        + [v & 0xFF for v in MASK_DETAILS_ROWDY_TABLE]
+    )
+    patch(MASK_DETAILS_OFFSETS - _shr_delta_details,
+          b"\0" * len(_details_table), _details_table,
+          "Heathen mask: VV5-approved Details facing map, per-facing X, and per-mask-row Y tables")
     patch(MASK_PRESENT_SITE - IMAGE_BASE,
           rel32_call(MASK_PRESENT_SITE, MASK_PRESENT_CALLEE),
           rel32_call(MASK_PRESENT_SITE, MASK_PRESENT_VA),
@@ -1907,6 +1974,17 @@ def main() -> None:
                 "destination": "Images/vvfp_mask_atlas00.png",
                 "sha256": hashlib.sha256(
                     (ROOT / "assets/vv4_masks/vvfp_mask_atlas.png").read_bytes()
+                ).hexdigest().upper(),
+            },
+            # VV5-style DETAILS atlas: the exact approved VV5 3-facing x
+            # 5-colour art/geometry, copied deterministically into the VV4 asset
+            # namespace.  The DLL loads it as a separate ldwImageGrid so the
+            # Details replay never reuses the tiny eight-facing village sheet.
+            {
+                "source": "assets/vv4_masks/vvfp_bighead_mask_atlas.png",
+                "destination": "Images/vvfp_bighead_mask_atlas00.png",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets/vv4_masks/vvfp_bighead_mask_atlas.png").read_bytes()
                 ).hexdigest().upper(),
             },
             # Centered 40x65 mask preview atlas for the Change Appearance chooser

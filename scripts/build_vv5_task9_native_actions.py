@@ -130,9 +130,11 @@ BH_FACE_TABLE = [0, 1, 2]   # Details portrait facing (record+0x2F3C mod 3) -> m
 # in the R+X page, live-tunable. Indexed by the resolved mask column (0/1/2).
 BH_COLDX_TABLE = [19, 3, -16]   # per resolved column: right-facing col0 +19 (owner: +3 from 16), front col1 +3, left-facing col2 -16
 # Per-mask-color (row) vertical nudge, on top of the base lift. Rows are
-# Blue/Orange/Red/Purple/Chief = mask-1 (0..4). Some masks (e.g. Purple's tall
-# crown) sit lower and need individual raising. Signed bytes, page, live-tunable.
-BH_ROWDY_TABLE = [0, 2, 0, -3, 0]   # Orange(row1) down 2px, Purple(row3) up 3px
+# Blue/Orange/Red/Purple/Chief = mask-1 (0..4). Signed bytes, page,
+# live-tunable. Purple was -3px (up); the player-requested Details-only change
+# moves it exactly 5px lower to +2px. Village/action/pickup paths do not use
+# this table.
+BH_ROWDY_TABLE = [0, 2, 0, 2, 0]   # Orange(row1) down 2px, Purple(row3) down 2px
 TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
     "before": "E90B0A3700909090",

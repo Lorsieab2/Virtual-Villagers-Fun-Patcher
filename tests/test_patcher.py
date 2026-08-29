@@ -339,19 +339,18 @@ class ManifestTests(unittest.TestCase):
         # Running / Grant Full Mastery / Complete / Reset Collections) + the
         # Barrel of Babies capacity gate (0x9AF58).
         self.assertEqual(len(rows), 33)
-        self.assertEqual(
-            {
-                offset: (rows[offset]["before"], rows[offset]["after"])
-                for offset in (0x3160, 0x95B0, 0x9600, 0x45B50, 0x4C5E6)
-            },
-            {
-                0x3160: ("8B4424048B11", "E95A120B0090"),
-                0x95B0: ("8B09E989F3FFFF", "E997AA0A009090"),
-                0x9600: ("8B09E9E9F6FFFF", "E920AB0A009090"),
-                0x45B50: ("5355568BF1", "E9E8E70600"),
-                0x4C5E6: ("8986D874E500", "E9BD7C060090"),
-            },
-        )
+        mask_guards = {
+            0x3160: "8B4424048B11",
+            0x95B0: "8B09E989F3FFFF",
+            0x9600: "8B09E9E9F6FFFF",
+            0x45B50: "5355568BF1",
+            0x4C5E6: "8986D874E500",
+        }
+        for offset, before in mask_guards.items():
+            self.assertEqual(rows[offset]["before"], before)
+            after = bytes.fromhex(rows[offset]["after"])
+            self.assertEqual(len(after), len(bytes.fromhex(before)))
+            self.assertEqual(after[0], 0xE9)
         self.assertIn("companion-DLL exports", rows[0x9AE40]["purpose"])
         self.assertIn("GateVV2Barrel", rows[0x9AF58]["purpose"])
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])

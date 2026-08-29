@@ -413,15 +413,14 @@ static void vv1_mask_sidecar_load(void) {
    (same grid as the world sheets). The exe wrapper preserves the complete
    seven-argument native head-draw tuple. This function reuses that tuple's
    exact x, y, facing, scale, enable flag, and draw-manager wrapper; it changes
-   only the atlas and colour row, plus the same scale-aware vertical art
-   registration used by the village head replay. That is the VV5 rule:
-   replay the head draw, never reconstruct it from screen constants or age. */
+   only the atlas, colour row, and the Details atlas' scale-aware vertical
+   registration. That is the VV5 rule: replay the live head tuple, never
+   reconstruct it from screen constants or age. */
 #define VV_MASK_ATLAS_COLS   7   /* mask_atlas.png: 7 facing cols x 5 colour rows, 40x160 cells, matching the generator and VV1 head atlas */
-/* The village wrapper seats this same atlas with lift=(scale*15)>>5. Reusing
-   the identical scale-aware registration here keeps child/adult/portrait scale
-   changes attached to the native head instead of reviving fixed age buckets. */
-#define VV_PORTRAIT_LIFT_MUL   15
-#define VV_PORTRAIT_LIFT_SHIFT 5
+/* Details uses a larger native scale than the village view.  One eighth of
+   that live scale restores the player-tuned 25px adult registration while
+   following the native 160..198 child scale (20..24px) instead of applying
+   the village lift, which raised an adult portrait by 93px. */
 
 /* Engine functions are called directly by their fixed .text addresses (stable
    -- patches live in .shr caves and never move .text). The two engine calls
@@ -432,7 +431,7 @@ static void vv1_mask_sidecar_load(void) {
 typedef void * (__cdecl *vv_new_fn)(unsigned int size);
 #define VV_ADDR_OPERATOR_NEW  0x0044AF03u
 #define VV_ADDR_SPRITE_CTOR   0x0040A070u   /* thiscall(this,file,cols,rows) ret 0xC */
-#define VV_ADDR_SCALED_DRAW   0x00409410u   /* thiscall(this,atlas,x,a2,idx,a4,scale) ret 0x18 */
+#define VV_ADDR_SCALED_DRAW   0x00409410u   /* thiscall(this,atlas,x,y,row,col,scale,enable) ret 0x1C */
 
 static void *vv_portrait_mask_sprite = NULL;  /* 0 = untried, 1 = failed, else sprite */
 
@@ -522,7 +521,7 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
     cell = mask - 1;   /* ROW = colour (0-based) */
     x = args[1];
     scale = args[5];
-    y = args[2] - ((scale * VV_PORTRAIT_LIFT_MUL) >> VV_PORTRAIT_LIFT_SHIFT);
+    y = args[2] - (scale >> 3);
     col = args[4];
     enable = args[6];
     /* Same 7-arg push order as the native head draw (deepest first). The

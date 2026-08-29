@@ -146,43 +146,34 @@ fail-closed and identity-boundary gaps:
     coincidental random match, already-selected value, or unavailable mask table
     cannot produce a mutation, sidecar save, or 450,000-point charge.
 25. VV3 likewise plans each mask result once and compares current head, body, and
-    mask values before mutation. Nonzero masks retain the unique-identity gates;
-    explicit None also inspects the exact raw slot so a collision-hidden entry is
-    still a real clear. Only changed mask plans call the setter.
+    mask values before mutation. The complete plan covers every active/living
+    record, canonicalizes simultaneous fingerprint owners to one group mask, and
+    allocates a complete shadow sidecar before it changes any live state.
 26. VV4 plans all fixed and dynamic appearance results before mutation, using a
     fingerprint-safe logical mask read plus the raw exact-slot state for None.
     The same change decision controls counting and the single apply pass, and the
     sidecar is written only when a mask value actually changes.
-27. VV3 explicit None now combines the guarded logical lookup with raw exact-slot
-    state. A unique mask recovered from an older shifted slot is therefore a real
-    clear, while an ambiguous fingerprint can still clear only its addressed raw
-    slot; individual and village-wide paths share the same prepared setter rules.
-28. VV3's village-wide action now performs all preflighted mask-table changes in
-    memory and publishes the transactional sidecar exactly once after the batch,
-    instead of writing and flushing the whole file once per changed villager.
-29. VV3 explicit village-wide None now treats a simultaneous duplicate live
-    fingerprint as one bounded clear group. Solid None and an explicit per-sex
-    None clear every nonzero shifted sidecar entry with that fingerprint, while
-    the individual setter remains outside this group-wide exception and
-    VV5-style, Random, and Equal modes retain the existing ambiguity fail-closed
-    gate. The batch still publishes exactly once after all in-memory clears.
-30. VV3 no longer treats a target's current record index as ownership of the raw
-    sidecar entry at that index. None clears the target's shifted fingerprint
-    entries while preserving a different fingerprint that still has a unique or
-    duplicate live owner. A real nonzero replacement over that foreign entry
-    aborts before fingerprint cleanup, head/body writes, sidecar publication, or
-    the native charge; a proven-stale raw entry remains writable.
-31. VV3 explicit None now also detects a unique live target with multiple shifted
-    stored copies. Although the guarded getter correctly returns None for that
-    stored ambiguity, the batch still recognizes the target fingerprint and
-    clears every matching copy without touching a foreign live-owned raw slot.
-32. VV3 batch preflight now separates identity from destination ownership. The
-    VV5-style, Random, and Equal modes retain an up-front unique-live identity
-    gate, while destination writability is checked only for an exact planned
-    nonzero value that would really change. An already-matching shifted mask can
-    therefore coexist with a foreign raw current slot while a legitimate
-    head/body change proceeds; any real destination conflict still aborts before
-    all mutation and charging.
+27. VV3's individual chooser remains unique-owner only. The whole-village dialog
+    has a narrower collision-group representation: a nonzero group is stored as
+    exactly one identical copy per simultaneous live owner, and rendering accepts
+    it only while live count, stored count, and mask value all agree.
+28. All ten VV3 whole-village mask choices use that group-safe plan: per-sex/Off,
+    VV5-style, Random, Equal, None, Blue, Orange, Red, Purple, and Chief. Equal,
+    Random, and VV5-style proportions may be adjusted at group granularity rather
+    than preserving exact global distribution counts.
+29. The shadow builder removes every selected fingerprint, preserves entries owned
+    by unselected live villagers, and rebuilds all selected nonzero groups without
+    treating a current record index as proof of ownership. Incomplete allocation
+    aborts before any appearance mutation.
+30. VV3 now durably publishes the complete shadow sidecar before head/body or live
+    mask-table mutation. A path, create, write, flush, close, or atomic-replace
+    failure reports no change and prevents the 450,000-point charge.
+31. Every VV3 record pointer used by the mask getter/setter is now bounded by the
+    current clamped population-slot count in addition to alignment and the physical
+    256-slot maximum; an allocated but out-of-range stale record cannot bind/render.
+32. The irreducible sequential-collision boundary remains: after the old villager
+    disappears, a replacement with the exact same gender+Likes+Dislikes fingerprint
+    cannot be distinguished without a newly proven stable identity field.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be

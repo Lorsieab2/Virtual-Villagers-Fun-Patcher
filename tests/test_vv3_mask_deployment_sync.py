@@ -38,9 +38,9 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         self.assertEqual(deployed, canonical)
         self.assertEqual(
             hashlib.sha256(deployed).hexdigest().upper(),
-            "D75CE7C74F94E348F2364001F56ADB36DD760E228E1E5142327541D5C8341479",
+            "C43F7A5C1144AC584B0C8608932BA0EE127159E97F388D83B1CD1D96998E03E5",
         )
-        self.assertEqual(len(deployed), 1_894_912)
+        self.assertEqual(len(deployed), 1_895_936)
 
     def test_manifest_hash_is_the_canonical_deployed_hash(self) -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))

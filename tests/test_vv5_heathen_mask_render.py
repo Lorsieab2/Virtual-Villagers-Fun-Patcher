@@ -93,6 +93,15 @@ def test_bighead_routine_replays_head_then_blits_mask_atlas():
     assert ins[-1].mnemonic == "ret" and ins[-1].op_str in ("0x1c", "0x1C")
 
 
+def test_purple_details_mask_is_exactly_five_pixels_lower_than_prior_registration():
+    # Purple is row 3. Its Details-only signed Y nudge moved from -3 (up 3)
+    # to +2 (down 2): exactly +5px. The village renderer never reads this table.
+    assert t9.BH_ROWDY_TABLE == [0, 2, 0, 2, 0]
+    page, _ = t9.build_page(STOCK_PAGE_VA)
+    start = t9.OFF["bighead_offsets"] + 11
+    assert list(page[start:start + 5]) == [0, 2, 0, 2, 0]
+
+
 def test_restore_routine_reverts_via_saved_pointer_and_runs_epilogue():
     page, rmap = t9.build_page(STOCK_PAGE_VA)
     ins = _routine(page, rmap, "mask_restore")
