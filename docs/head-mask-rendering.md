@@ -174,8 +174,16 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 - **Head atlas: sprite id `0x88`, 8 cols × 30 rows** (8 facings, `male_heads.png`).
 - **Pickup:** drag object `0x5947E0` — cursor coords `+0x10`(x)/`+0x14`(y); 8 sprite
   handles `+0x68..0x84`; **no direct villager index/record ptr in it** (it holds draw
-  specs, not identity). Held global `0x5947D0` reads **0xf on BOTH selection AND
-  pickup** — useless for distinguishing them; gate pickup on the drag object instead.
+  specs, not identity). `0x5947D0` is **NOT a state global — it's a one-time-init LATCH
+  bitfield** (4 bits, one per constant-table init block at `0x4341E3`/`0x43439E`/
+  `0x4344D6`/`0x434646`; each a test-skip-or-`or` idiom), permanently `0xF` after startup.
+  It carries zero selection/pickup information — never gate on it. (An `if (global&1)
+  return;` against a latch is true for every villager every frame forever → the guarded
+  path never runs; that's the mechanical cause of VV3's masks-drop-to-floor.) The 3-entry
+  table at `0x5947B8` it initialises is a constant anchor/style table
+  `(110,160)/(114,212)/(75,176)`, indexed `0..2` (not identity — 100 villagers don't fit;
+  not facing — 8 don't fit). So the drag path carries **no** villager identity;
+  grab-time capture (mouse-down, record + drag object both live) is the only route.
 - **Selection ≠ pickup:** the world loop *does* emit the dragged villager (record in
   ESI) but at the ground; a separate cursor renderer draws the visible copy at the
   cursor. Removing the skip puts the mask at the feet ("feet bug"). Fix: selection is a
@@ -246,8 +254,12 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   branch — `off` = age, threshold = full-grown (`0x118` in VV1 & VV5).
 - **Pickup discriminator:** live-diff candidate globals in two states — villager
   *selected & standing* vs *held at cursor*. The dword that **differs** is your pickup
-  signal; one identical in both (VV3's `0x5947D0=0xf`) is selection-level → use the
-  drag object.
+  signal; one identical in both is not it → use the drag object. **First, rule out a
+  LATCH:** if a candidate "state" global is only ever touched by `test`/`or` idioms and
+  is **never cleared**, it's a one-time-init latch (permanently set after startup), not a
+  state — VV3's `0x5947D0` is exactly this (`0xF` forever). Gating on a latch runs (or
+  skips) the path for *every* villager forever — a silent, total failure. Cheap to check,
+  and the failure mode looks like "the feature never works."
 - **Separate-index vs linear-frame draw fn:** if the draw fn `cdq/idiv`s an arg, it's a
   **linear packed frame** (`row*cols+col`); if two args go straight to the cell selector
   with no idiv, they're **separate row/col**. Detect per-fn and pack accordingly.
