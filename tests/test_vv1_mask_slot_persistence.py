@@ -1,9 +1,9 @@
 """Structural gates for VV1 mask slot capture and sidecar isolation.
 
-These tests deliberately stop at source/manifest/byte-layout evidence.  They
-do not claim that a running game restores a mask, or that its held-villager
-renderer passes through the existing shared head hook; those are player/runtime
-gates documented in ``docs/vv1-mask-pickup-static-audit.md``.
+These tests deliberately stop at source/manifest/byte-layout evidence. They
+do not claim that a running game restores a mask or that a held mask is
+player-visible; the exact stock pickup-to-central-render call chain and its
+player/runtime gates are documented in ``docs/vv1-mask-pickup-static-audit.md``.
 """
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ sys.path.insert(0, str(ROOT / "src"))
 SOURCE = ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
 GENERATOR = ROOT / "scripts" / "build_vv1_origins_feature.py"
 MANIFEST = ROOT / "data" / "vv1_origins_feature.json"
+AUDIT = ROOT / "docs" / "vv1-mask-pickup-static-audit.md"
 STOCK_CANDIDATES = (
     ROOT / "research" / "stock-executables" / "Virtual Villagers - A New Home.exe",
     ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe",
@@ -61,6 +62,30 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertIn("swept = vv1_mask_sweep_dead();", self.source)
         self.assertIn("if (swept) {", self.source)
         self.assertIn("vv1_mask_sidecar_save();", self.source)
+
+    def test_pickup_audit_records_central_render_boundary(self) -> None:
+        audit = AUDIT.read_text(encoding="utf-8")
+        for token in (
+            "0x4392D0",
+            "0x425226",
+            "0x439410",
+            "0x425937",
+            "0x423FD1",
+            "0x424090",
+            "0x437790",
+            "0x43741B",
+            "0x4374A4",
+            "0x437503",
+            "0x437556",
+            "No pickup hook\nwas added.",
+            "runtime/save results remain unverified",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, audit)
+        self.assertIn(
+            "static: held villagers update the ordinary record position",
+            self.manifest["mask_persistence"]["pickup_held_runtime_status"],
+        )
 
     def test_exact_save_builder_preimage_and_owned_append_are_manifest_bound(self) -> None:
         patches = {item["offset"]: item for item in self.manifest["patches"]}

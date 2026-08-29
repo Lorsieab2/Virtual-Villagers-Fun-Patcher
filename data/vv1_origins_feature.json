@@ -112,7 +112,7 @@
     "legacy_migration": false,
     "invalid_or_missing_sidecar": "clear in-memory table",
     "dead_entry_clears": "persisted back to the matching slot sidecar",
-    "pickup_held_runtime_status": "unknown; static audit does not prove a pickup renderer path"
+    "pickup_held_runtime_status": "static: held villagers update the ordinary record position and re-enter the central village render loops; player-visible held mask behavior remains runtime-unverified"
   },
   "pe_append_transaction": {
     "owner": "vv1_enable_origins_exclusive_features",
