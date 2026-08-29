@@ -21,6 +21,7 @@ OUT_EXE = OUT_DIR / "Virtual Villagers - The Secret City - Origins Research.exe"
 OUT_JSON = OUT_DIR / "vv3-origins-feature-patches.json"
 MANIFEST_JSON = ROOT / "data" / "vv3_origins_feature.json"
 COMPANION = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
+CANONICAL_COMPANION = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -291,6 +292,13 @@ def main() -> None:
         )
     if not COMPANION.is_file():
         raise RuntimeError(f"missing companion DLL: {COMPANION}")
+    if not CANONICAL_COMPANION.is_file():
+        raise RuntimeError(f"missing canonical companion DLL: {CANONICAL_COMPANION}")
+    if COMPANION.read_bytes() != CANONICAL_COMPANION.read_bytes():
+        raise RuntimeError(
+            "VV3 deployed companion is stale; rebuild the canonical Full Mastery "
+            "DLL before building Origins"
+        )
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     strings = bytearray()

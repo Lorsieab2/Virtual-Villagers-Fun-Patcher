@@ -40,6 +40,14 @@ if ($LASTEXITCODE -ne 0) {
     throw "Native DLL compilation failed."
 }
 
+# The Origins manifest deploys this same canonical build under the historical
+# Safe Upgrades filename.  Synchronize it immediately after every compile so
+# a new mask export or patch cannot be omitted from the public companion.
+& python (Join-Path $projectRoot "scripts\build_vv3_safe_upgrade_resources.py")
+if ($LASTEXITCODE -ne 0) {
+    throw "VV3 Safe Upgrades companion synchronization failed."
+}
+
 @(
     (Join-Path $outputRoot "vv3_full_mastery_candidate.res"),
     (Join-Path $projectRoot "vv3_full_mastery_candidate.obj"),
