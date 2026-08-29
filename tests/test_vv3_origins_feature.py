@@ -119,13 +119,37 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 0x18452,
                 0x263F0,
                 0x27130,
+                0x56B24,
                 0x6547D,
                 0x65640,
                 0x6DA2C,
                 0x6E530,
                 0x7BD40,
-                0x7BDC0,
+                0x7BDE0,
                 0xA3180,
+                # (The 4 head-atlas row-count patches 0xAAE6C/9C/F2C/F5C were
+                # removed: the separate-atlas mask render draws from its own
+                # Images/heathen_masks.png and no longer appends rows to the shared
+                # head atlases, so it leaves them byte-identical to stock.)
+                #
+                # Heathen-mask render hooks: 5-byte call-site redirects into the
+                # patch-owned .vv3mc section.  Each stolen 5-byte window was verified
+                # to contain no branch target.
+                0x2E3F5,   # sole `call sub_4605F0` -> village wrapper (mask last layer)
+                0x60A60,   # head draw -> stash cave (captures exact head x/y/scale)
+                0x60B48,   # `call sub_45F7E0` -> action-overlay wrapper (pose heads)
+                0x3290,    # save-builder slot capture -> .vv3mc/.vv3md sidecar selector
+                # (0x34357 / 0x344B3 are NOT patched: proven from the binary to be a
+                # timed UI/effect renderer, not a villager head draw -- the head-atlas
+                # holder [+0x127C1C] is read at exactly one site in the exe, 0x460A54.
+                # Those bytes are left stock rather than hooked.)
+                #
+                # PE header edits mapping the two appended, patch-owned sections.
+                # docs/head-mask-rendering.md Part 7: our code and data must live in
+                # sections we add, never in borrowed .text/.data slack.
+                0x10E,     # NumberOfSections 5 -> 7
+                0x158,     # SizeOfImage extended through .vv3md
+                0x2C8,     # the two 40-byte headers: .vv3mc R-X + .vv3md R/W
             },
         )
         section_patch = next(
@@ -134,6 +158,30 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             if int(item["offset"], 0) == 0x24C
         )
         self.assertEqual(section_patch["after"], "400000E0")
+
+    def test_appended_mask_sections_are_w_xor_x(self) -> None:
+        """The appended mask sections must be W^X separated.
+
+        A single R/W/X section reads as self-modifying code to AV (Malwarebytes
+        flags it) and is a quarantine risk, so code is executable-not-writable and
+        data is writable-not-executable.
+        """
+        header_patch = next(
+            item
+            for item in self.manifest["patches"]
+            if int(item["offset"], 0) == 0x2C8
+        )
+        blob = bytes.fromhex(header_patch["after"])
+        self.assertEqual(len(blob), 80, "expected exactly two 40-byte section headers")
+        code_hdr, data_hdr = blob[:40], blob[40:]
+        self.assertTrue(code_hdr.startswith(b".vv3mc"))
+        self.assertTrue(data_hdr.startswith(b".vv3md"))
+        code_chars = int.from_bytes(code_hdr[36:40], "little")
+        data_chars = int.from_bytes(data_hdr[36:40], "little")
+        self.assertTrue(code_chars & 0x20000000, "mask code section must be executable")
+        self.assertFalse(code_chars & 0x80000000, "mask code section must NOT be writable")
+        self.assertTrue(data_chars & 0x80000000, "mask data section must be writable")
+        self.assertFalse(data_chars & 0x20000000, "mask data section must NOT be executable")
 
     def test_running_code_only_edits_normal_trait_arrays(self) -> None:
         source = BUILDER.read_text(encoding="utf-8")
@@ -351,7 +399,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "212D56694DF24D199F9B8EB2967E2C50887265C32EF1115C98820B36F12BADFF",
+            "29BA93AED56F6A48D16FEB06BCBA748FA092E658C02792737E1F1C4DB3F6DACD",
         )
         self.assertEqual(
             bytes.fromhex(

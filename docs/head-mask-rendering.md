@@ -193,29 +193,31 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   (atomic `.tmp`→`MoveFile`), so a loose file can't go missing.
 
 ### VV3 — "The Secret City" (NO native mask → from-scratch)
-- **Head atlas: sprite id `0x88`, 8 cols × 30 rows** (8 facings, `male_heads.png`).
-- **Pickup:** drag object `0x5947E0` — cursor coords `+0x10`(x)/`+0x14`(y); 8 sprite
-  handles `+0x68..0x84`; **no direct villager index/record ptr in it** (it holds draw
-  specs, not identity). `0x5947D0` is **NOT a state global — it's a one-time-init LATCH
-  bitfield** (4 bits, one per constant-table init block at `0x4341E3`/`0x43439E`/
-  `0x4344D6`/`0x434646`; each a test-skip-or-`or` idiom), permanently `0xF` after startup.
-  It carries zero selection/pickup information — never gate on it. (An `if (global&1)
-  return;` against a latch is true for every villager every frame forever → the guarded
-  path never runs; that's the mechanical cause of VV3's masks-drop-to-floor.) The 3-entry
-  table at `0x5947B8` it initialises is a constant anchor/style table
-  `(110,160)/(114,212)/(75,176)`, indexed `0..2` (not identity — 100 villagers don't fit;
-  not facing — 8 don't fit). So the drag path carries **no** villager identity;
-  grab-time capture (mouse-down, record + drag object both live) is the only route.
-- **Selection ≠ pickup:** the world loop *does* emit the dragged villager (record in
-  ESI) but at the ground; a separate cursor renderer draws the visible copy at the
-  cursor. Removing the skip puts the mask at the feet ("feet bug"). Fix: selection is a
-  no-op (replay head-Y); redirect to cursor coords only when the drag object is active.
-- **Action-pose overlay `sub_45F7E0`** (wrap point `0x460B48`): VV3 bakes the head into
-  full-body pose sprites, so fishing/sit/swim heads sit at the hip until you hook the
-  action draw and reuse *its* x/y. Verified dx/dy: per-facing dx (head_cx − mask_cx)
-  `{-27,-21,-7,-4,-16,-14,-12,-15}`, head center-x `{17.5,19.2,23.8,25,20,21.2,22,18.5}`,
-  per-color chin dy vs head_chinY=32 `{blue38,orange36,red37,purple31,chief38}`.
-- Record base `0x59E124`, stride `0x1F8C`.
+Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.exe`, SHA-256
+`8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503`):
+
+- The normal villager handler is `sub_4605F0`; `0x42E3F5` is its sole direct caller.
+- The handler derives a villager record from its index using stride `0x1F8C` and issues the
+  stock head draw at `0x460A60` through `0x42E570`. The head atlas is sprite id `0x88`,
+  8 columns × 30 rows.
+- The action overlay is `sub_45F7E0`, reached at the proven action call site `0x460B48`.
+- The mask patch's world/action/Details hooks use these proven families and owned `.vv3mc`
+  (R-X) / `.vv3md` (R/W) sections.
+- `0x4341A0..0x434758` is one three-style timed sprite/particle effect object. It iterates
+  24-byte entries, compares elapsed time to `0x12C`/`0x7080`, and uses three fixed anchors
+  `(110,160)`, `(114,212)`, `(75,176)` from `0x5947B8..0x5947CC`.
+- `0x434357` calls the generic scaled-sprite draw `0x42E570` with a sprite selected from a
+  three-entry effect table. `0x4344B3` calls the generic cell blit `0x42E510` in the same
+  effect object. Neither call has a villager record or held identity.
+- The pickup drag object is `0x5947E0` (cursor coordinates `+0x10`/`+0x14`; sprite
+  handles `+0x68..0x84`), but it carries no direct villager index or record pointer.
+- `0x5947D0` is a four-bit initialization latch, not selection, pickup, or villager state.
+  It is written by test/skip/OR initialization idioms and must never gate mask rendering.
+
+Therefore `0x434357` and `0x4344B3` remain byte-identical to stock. No VV3 held/cursor hook
+is installed. Static analysis does not prove whether a grabbed villager remains in the
+normal handler or which callback owns the visible held copy; pickup behavior remains a
+runtime-trace and player-acceptance boundary. Record base is `0x59E124`, stride `0x1F8C`.
 
 ### VV4 — "The Tree of Life" (NO native mask → from-scratch)
 - **Confirmed Details call chain:** `0x447D30` → `0x460BF0` → `0x45F550`; the body

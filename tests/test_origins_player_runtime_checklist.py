@@ -290,8 +290,25 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                 elif path.name == "vv3_origins_feature.json":
                     corrected_offsets = {
                         "0x7B664", "0x7B7C0", "0x7B7D0",
+                        "0x3290",
                         "0x15EF1", "0x16983", "0x16BAB", "0x17A3A",
                         "0x15D44", "0x1673E", "0x18452", "0xA3180",
+                        # Heathen-mask sections move (docs/head-mask-rendering.md
+                        # Part 7).  The mask trampolines used to sit in the .text
+                        # tail slack (.text VirtualSize ends at 0x47B254, so
+                        # 0x47B260+ was a borrowed gap) and the DLL fn-pointer slots
+                        # in the .data slack past 0x6C7518.  Both are code caves,
+                        # which silently collide when two patches want one gap.
+                        # They now live in two appended, patch-owned sections --
+                        # .vv3mc (R-X, trampolines) and .vv3md (R/W, slots) -- which
+                        # is also W^X-clean.  Co-selection with the only other VV3
+                        # append (.vv3tw) is impossible: its layouts exist only for
+                        # the non-selectable experimental_expanded_256* modes, so
+                        # this append owns the stock EOF with no offset coupling.
+                        "0x7B260", "0x7B2A0", "0x7B300",  # vacated .text caves
+                        "0x10E", "0x158", "0x2C8",        # PE header: sections 5->7
+                        "0x2E3F5", "0x34357", "0x344B3",  # redirects retargeted
+                        "0x60B48",                        # action-overlay wrapper
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

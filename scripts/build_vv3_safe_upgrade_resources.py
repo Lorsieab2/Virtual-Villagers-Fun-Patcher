@@ -1,16 +1,10 @@
-"""Build the stock-only truthful VV3 Tech and Villager Upgrade resources.
+"""Synchronize the public VV3 companion with the canonical mask build.
 
-The public VV3 Origins base loads the command-7 Full Mastery companion.  This
-builder changes only its RT_DIALOG leaves:
-
-* Origins-only Tech dialog 201 retains commands 0..4.
-* Origins+village-FM Tech dialog 203 retains commands 0..4 plus 7.
-* The foundation Villager Detail dialog 202 retains its background and Cancel
-  control but no command rows.
-* The public selected-villager projection retains the background, command 1,
-  and Cancel while removing legacy commands 0, 2, and 3.
-
-Every other resource leaf and every non-resource byte stays byte-identical.
+The Origins manifest deploys the implementation compiled as
+``VVFP VV3 Full Mastery Candidate.dll`` under the historical ``Safe Upgrades``
+filename.  The synchronization path below is the active builder.  The older
+resource-only helpers remain below for historical artifact analysis, but are
+not used to produce the deployed companion.
 """
 from __future__ import annotations
 
@@ -25,14 +19,104 @@ OUTPUT = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 FOUNDATION_OUTPUT = (
     ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
 )
-SOURCE_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
-SOURCE_SIZE = 298_496
+SOURCE_SHA256 = "BA50132CC28E5D955175524904A29A79F5CE4EC85521D9B7EE959DD4B91B63CF"
+SOURCE_SIZE = 1_890_816
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
 
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
+
+
+REQUIRED_MASK_EXPORTS = frozenset(
+    {
+        "VV3ActionMaskDraw",
+        "VV3DrawMaskOnHead",
+        "VV3GetMaskAtlas",
+        "VV3WorldMaskDraw",
+        "VV3WorldMaskDrawAt",
+        "VV3_GetMaskForRecord",
+        "VV3_SetMaskForRecord",
+    }
+)
+
+
+def _rva_to_raw(data: bytes, rva: int) -> int:
+    """Translate a PE32 RVA to a raw file offset, failing closed."""
+    if data[:2] != b"MZ" or len(data) < 0x40:
+        raise RuntimeError("VV3 canonical companion is not a PE image")
+    pe = struct.unpack_from("<I", data, 0x3C)[0]
+    if pe < 0x40 or pe + 24 > len(data) or data[pe : pe + 4] != b"PE\0\0":
+        raise RuntimeError("VV3 canonical companion PE signature is invalid")
+    sections = struct.unpack_from("<H", data, pe + 6)[0]
+    optional_size = struct.unpack_from("<H", data, pe + 20)[0]
+    table = pe + 24 + optional_size
+    if table + sections * 40 > len(data):
+        raise RuntimeError("VV3 canonical companion section table is truncated")
+    for index in range(sections):
+        entry = table + index * 40
+        virtual_size, virtual_address, raw_size, raw_offset = struct.unpack_from(
+            "<IIII", data, entry + 8
+        )
+        span = max(virtual_size, raw_size)
+        if virtual_address <= rva < virtual_address + span:
+            raw = raw_offset + (rva - virtual_address)
+            if raw_offset <= raw < len(data):
+                return raw
+            break
+    raise RuntimeError(f"VV3 canonical companion RVA {rva:#x} is outside sections")
+
+
+def export_names(data: bytes) -> frozenset[str]:
+    """Read named PE exports without relying on a platform tool."""
+    if data[:2] != b"MZ" or len(data) < 0x40:
+        raise RuntimeError("VV3 canonical companion is not a PE image")
+    pe = struct.unpack_from("<I", data, 0x3C)[0]
+    if pe + 24 > len(data) or data[pe : pe + 4] != b"PE\0\0":
+        raise RuntimeError("VV3 canonical companion PE signature is invalid")
+    optional = pe + 24
+    if struct.unpack_from("<H", data, optional)[0] != 0x10B:
+        raise RuntimeError("VV3 canonical companion is not a PE32 DLL")
+    export_rva, export_size = struct.unpack_from("<II", data, optional + 96)
+    if not export_rva or export_size < 40:
+        raise RuntimeError("VV3 canonical companion has no export directory")
+    directory = _rva_to_raw(data, export_rva)
+    if directory + 40 > len(data):
+        raise RuntimeError("VV3 canonical companion export directory is truncated")
+    name_count = struct.unpack_from("<I", data, directory + 24)[0]
+    names_rva = struct.unpack_from("<I", data, directory + 32)[0]
+    names = _rva_to_raw(data, names_rva)
+    result: set[str] = set()
+    for index in range(name_count):
+        entry = names + index * 4
+        if entry + 4 > len(data):
+            raise RuntimeError("VV3 canonical companion export name table is truncated")
+        name_raw = _rva_to_raw(data, struct.unpack_from("<I", data, entry)[0])
+        end = data.find(b"\0", name_raw)
+        if end < 0:
+            raise RuntimeError("VV3 canonical companion export name is unterminated")
+        result.add(data[name_raw:end].decode("ascii"))
+    return frozenset(result)
+
+
+def synchronize() -> tuple[int, str, frozenset[str]]:
+    """Copy the checked canonical build to the deployed companion path."""
+    if not SOURCE.is_file():
+        raise RuntimeError(f"missing canonical VV3 companion: {SOURCE}")
+    canonical = SOURCE.read_bytes()
+    exports = export_names(canonical)
+    missing = REQUIRED_MASK_EXPORTS - exports
+    if missing:
+        raise RuntimeError(
+            "canonical VV3 companion is missing mask exports: "
+            + ", ".join(sorted(missing))
+        )
+    OUTPUT.write_bytes(canonical)
+    deployed = OUTPUT.read_bytes()
+    if deployed != canonical:
+        raise RuntimeError("VV3 deployed companion differs from canonical build")
+    return len(deployed), sha(deployed), exports
 
 
 def _resource_section(data: bytes) -> tuple[int, int, int, int]:
@@ -352,19 +436,10 @@ def build_resource_only_companion(
 
 
 def main() -> None:
-    source = SOURCE.read_bytes()
-    foundation = build_resource_only_companion(
-        source, include_individual_full_mastery=False
-    )
-    transformed = build_resource_only_companion(
-        source, include_individual_full_mastery=True
-    )
-    FOUNDATION_OUTPUT.write_bytes(foundation)
-    OUTPUT.write_bytes(transformed)
-    print(
-        f"{FOUNDATION_OUTPUT.relative_to(ROOT)} {len(foundation)} {sha(foundation)}"
-    )
-    print(f"{OUTPUT.relative_to(ROOT)} {len(transformed)} {sha(transformed)}")
+    size, digest, exports = synchronize()
+    print(f"{OUTPUT.relative_to(ROOT)} {size} {digest}")
+    print("mask exports: " + ", ".join(sorted(REQUIRED_MASK_EXPORTS)))
+    print(f"named exports: {len(exports)}")
 
 
 if __name__ == "__main__":

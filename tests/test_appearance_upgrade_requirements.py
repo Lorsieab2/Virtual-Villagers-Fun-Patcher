@@ -422,7 +422,21 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # inside the payload block (0x943A8).
                     "0x9A204", "0x9A218", "0x9A240", "0x9A380",
                 },
-                "data/vv3_origins_feature.json": {"0x7B664", "0xA3180"},
+                # Heathen-mask sections move (docs/head-mask-rendering.md Part 7):
+                # the mask trampolines left the .text tail slack (a borrowed gap --
+                # .text VirtualSize ends at 0x47B254, so 0x47B260+ was never ours)
+                # and the DLL fn-pointer slots left the .data slack past 0x6C7518.
+                # Both now live in appended, patch-owned sections .vv3mc (R-X) and
+                # .vv3md (R/W), which is also W^X-clean.  The vacated caves, the
+                # three PE header edits mapping the new sections, and the retargeted
+                # call-site redirects move with it; no upgrade behaviour changes.
+                "data/vv3_origins_feature.json": {
+                    "0x7B664", "0xA3180",
+                    "0x3290",
+                    "0x7B260", "0x7B2A0", "0x7B300",
+                    "0x10E", "0x158", "0x2C8",
+                    "0x2E3F5", "0x34357", "0x344B3", "0x60B48",
+                },
                 "data/vv4_origins_feature.json": {
                     "0x89373", "0xCC004", "0xCC180",
                     # D166 fix: .shr was never marked executable (0x278 is
