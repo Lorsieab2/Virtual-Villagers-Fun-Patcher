@@ -1215,7 +1215,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
        suppressed rather than risking a second mask at a pose anchor. */
     head_match = g_vv3_stash_valid && g_vv3_stash_record == record;
     action_match = g_vv3_action_seen && g_vv3_action_record == record;
-    held = *(int *)((unsigned char *)record + 0xF12) != 0;
+    held = *(unsigned char *)((unsigned char *)record + 0xF12) != 0;
     if (held) {
         if (!head_match) goto world_mask_cleanup;
         use_head = 1;
