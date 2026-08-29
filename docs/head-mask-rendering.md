@@ -220,6 +220,16 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 ### VV4 — "The Tree of Life" (NO native mask → from-scratch)
 - **Head via resolver `FUN_0044E960`.** Details compositor `FUN_0043CDF0`; head draw
   `FUN_00409A70` (`ecx` = drawmgr `0x4E00E0`) at `0x43CFDE`, body at `0x43D040`.
+- **REAL Details bighead site: `0x45F965`** (`call 0x409A70`), right after the resolver
+  call at `0x45F917` that passes selector `0x30` — the resolver has 4 callers and TWO
+  pass `0x30` (this corrected VS5's earlier "all four non-portrait callers are village"
+  reading; `0x43CFDE` is a one-time static build that never re-fires). Args: arg1=atlas,
+  arg2=X(edi), arg3=Y(ebp), arg4/5=resolver out-slots, arg6=scale, arg7=0; the anchor is
+  SUBTRACTED at `0x45F949`/`0x45F95E`, so replaying edi/ebp verbatim inherits anchoring.
+  **Cannot swap arg1 only:** `0x408C40` decodes a LINEAR frame using the atlas's OWN cols
+  (`0x421570` = `mov eax,[ecx+8]`), so head frame 89 (12-col row 7 col 5) lands at the
+  wrong cell in a 3-col mask atlas — compute `maskFrame = colourRow*maskCols + facingCol`
+  (facing from `+0x1CD4 & 7`), replaying only X/Y/scale/mgr. (Credit VV2's disasm.)
 - **The Details PORTRAIT may reuse the VILLAGE render into a sub-viewport** — not a
   separate portrait draw. Tell: a static portrait hook (`0x43CFDE`) never fires during the
   idle-turn animation, yet a mask still appears (tiny, village-scaled, mis-placed) = your
