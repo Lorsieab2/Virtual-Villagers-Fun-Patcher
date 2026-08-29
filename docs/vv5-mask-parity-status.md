@@ -45,7 +45,7 @@ It has not yet been accepted in a running game by the player.
 
 The GitHub review audit and its all-five follow-up found seven defects that were
 still present after the earlier integration work. They are now repaired and
-statically gated. A final adjacent-code audit then closed ten additional
+statically gated. A final adjacent-code audit then closed thirteen additional
 fail-closed and identity-boundary gaps:
 
 1. VV1's Details wrapper records a permanent fail-open sentinel when the
@@ -109,6 +109,23 @@ fail-closed and identity-boundary gaps:
     whole-village transaction conservatively preflights every requested mask that
     can be nonzero and aborts before any head/body or mask write when a target is
     ambiguous, so its 450,000-point charge also remains behind the safe-bind gate.
+18. VV3's mask code/data section headers were previously ordinary byte patches,
+    while the shipping patcher had no append transaction for the two owned pages.
+    A rendered install could therefore claim seven sections while ending at the
+    stock `0xCB000` EOF. The headers, `.vv3mc` code page, and `.vv3md` data page
+    now install/remove as one authenticated `0x2000` transaction; tampered-tail
+    removal fails without modifying its input.
+19. VV3's individual chooser previously called the mask setter even for a
+    head/body-only change. When an identity collision made the getter fail closed
+    to None, that unchanged zero could clear an existing stored mask. The chooser
+    now invokes the setter only when the final mask differs from its initial
+    value; a changed-mask bind still fails before head/body writes or charging.
+20. VV2's Change Appearance for All apply pass previously returned every active
+    record even when only the other sex was selected, so an all-male/all-female
+    village could be charged for zero writes. It now preflights each active
+    record once for a global mode or matching-sex field, and mask selections
+    count only when the patch-owned table is available; empty or unmatched
+    selections therefore make no mutation and deduct no 450,000 points.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be

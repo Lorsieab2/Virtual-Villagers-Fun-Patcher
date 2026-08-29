@@ -79,7 +79,10 @@ pose, facing, age/scale, and Details transition. No held/cursor draw is claimed.
 **Chooser.** `ShowVV3AppearanceChooser` (dialog 213, still `@20`) takes the record
 pointer and reads/commits via the table. The Change Appearance cave passes the
 record and no longer touches `+0xED0`. Head (`+0xDF0`) / body (`+0xDF4`) writes are
-unchanged (legitimate paid changes).
+unchanged (legitimate paid changes). A head/body-only edit does not call the mask
+setter: if identity ambiguity made the getter fail closed to None, that unchanged
+zero therefore cannot clear an existing stored mask. A changed mask still binds
+before the staged head/body writes and before the native charge.
 
 **Persistence.** Each positive active slot uses its own sidecar
 `<Documents>\LDW\<exe-basename>\vvfp_masks_<slot>.dat`

@@ -5,12 +5,21 @@ import json
 import unittest
 from pathlib import Path
 
+try:
+    import pefile
+    from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+except ImportError:  # pragma: no cover - optional binary inspection dependencies
+    pefile = None
+    CS_ARCH_X86 = CS_MODE_32 = Cs = None
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.c"
 BUILDER = ROOT / "scripts" / "build_vv3_origins_feature.py"
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 MANIFEST = ROOT / "data" / "vv3_origins_feature.json"
+DLL = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
+HAVE_BINARY_DEPS = pefile is not None and Cs is not None
 
 
 def _load_builder():
@@ -153,16 +162,75 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("if (mask == 0) return 1;", can_set)
         self.assertIn("vv3_mask_unique_live_index", can_set)
 
-    def test_individual_chooser_rejects_failed_mask_bind_before_staged_writes(self) -> None:
+    def test_individual_chooser_only_binds_changed_mask_before_staged_writes(self) -> None:
         chooser = self.source.split(
             "__declspec(dllexport) int __stdcall ShowVV3AppearanceChooser", 1
         )[1].split("/* ================= Change Appearance for All", 1)[0]
-        bind = chooser.index("if (!VV3_SetMaskForRecord(record, vv3_appearance_mask))")
+        changed_mask = chooser.index(
+            "if (vv3_appearance_mask != orig_mask &&"
+        )
+        bind = chooser.index(
+            "!VV3_SetMaskForRecord(record, vv3_appearance_mask)", changed_mask
+        )
         head_write = chooser.index("*head = vv3_appearance_head;")
         body_write = chooser.index("*body = vv3_appearance_body;")
+        self.assertLess(changed_mask, bind)
         self.assertLess(bind, head_write)
         self.assertLess(bind, body_write)
         self.assertIn("No tech points have been deducted.", chooser)
+
+    @unittest.skipUnless(
+        HAVE_BINARY_DEPS and DLL.is_file(),
+        "requires pefile/capstone and the emitted VV3 candidate DLL",
+    )
+    def test_emitted_chooser_skips_unchanged_mask_setter_and_keeps_fail_gate(self) -> None:
+        pe = pefile.PE(str(DLL))
+        exports = {
+            item.name.decode("ascii"): item.address
+            for item in pe.DIRECTORY_ENTRY_EXPORT.symbols
+            if item.name
+        }
+        chooser_va = pe.OPTIONAL_HEADER.ImageBase + exports["ShowVV3AppearanceChooser"]
+        setter_va = pe.OPTIONAL_HEADER.ImageBase + exports["VV3_SetMaskForRecord"]
+        chooser_raw = pe.get_offset_from_rva(exports["ShowVV3AppearanceChooser"])
+        code = pe.__data__[chooser_raw : chooser_raw + 0x200]
+        instructions = list(Cs(CS_ARCH_X86, CS_MODE_32).disasm(code, chooser_va))
+
+        call_index = next(
+            index
+            for index, instruction in enumerate(instructions)
+            if instruction.mnemonic == "call"
+            and instruction.op_str == f"0x{setter_va:x}"
+        )
+        self.assertGreaterEqual(call_index, 3)
+        # The changed-mask compare/branch is immediately before the setter
+        # call.  Its taken edge skips the call and reaches the staged writes.
+        self.assertEqual(instructions[call_index - 2].mnemonic, "push")
+        self.assertEqual(instructions[call_index - 1].mnemonic, "push")
+        # MSVC may use a short or near conditional branch; inspect the two
+        # instructions before the argument setup rather than hardcoding RVAs.
+        gate_index = next(
+            index
+            for index in range(call_index - 3, -1, -1)
+            if instructions[index].mnemonic == "je"
+        )
+        self.assertIn("cmp", instructions[gate_index - 1].mnemonic)
+        skip_target = int(instructions[gate_index].op_str, 16)
+        self.assertGreater(skip_target, instructions[call_index].address)
+
+        # A failed changed-mask bind tests EAX and branches to the failure
+        # message; only a successful bind reaches the head/body writes.
+        self.assertEqual(instructions[call_index + 1].mnemonic, "test")
+        self.assertEqual(instructions[call_index + 2].mnemonic, "jne")
+        write_addresses = {
+            instruction.address
+            for instruction in instructions[call_index + 2 :]
+            if instruction.mnemonic == "mov"
+            and instruction.op_str in ("dword ptr [edi], eax", "dword ptr [esi], eax")
+        }
+        self.assertTrue(write_addresses)
+        self.assertLessEqual(skip_target, min(write_addresses))
+        self.assertLess(instructions[call_index].address, min(write_addresses))
 
     def test_village_wide_mask_ambiguity_aborts_before_any_mutation_or_charge(self) -> None:
         engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(

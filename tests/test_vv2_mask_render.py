@@ -14,6 +14,7 @@ STAGE2 = (ROOT / "scripts" / "build_vv2_mask_stage2.py").read_text(encoding="utf
 ORIGINS_BUILDER = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(encoding="utf-8")
 DLL = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8"))
+STATUS = (ROOT / "docs" / "vv5-mask-parity-status.md").read_text(encoding="utf-8")
 
 REQUIRED_MASK_HOOKS = {
     "0x3160": ("8B4424048B11", "E95A120B0090"),
@@ -99,6 +100,70 @@ def test_render_consumers_fail_closed_on_invalid_table_rows() -> None:
     assert "jae  corig" in STAGE2
     assert "jae  adone" in STAGE2
     assert "jae  cdone" in STAGE2
+
+
+def _vv2_caf_applicable(
+    sexes: list[int],
+    *,
+    head: tuple[int, int] = (-1, -1),
+    body: tuple[int, int] = (-1, -1),
+    mask: tuple[int, int] = (-1, -1),
+    mask_dist: int = 0,
+    village_mask: int = -1,
+    head_mode: int = 0,
+    body_mode: int = 0,
+    mask_ok: bool = True,
+) -> int:
+    """Reference the VV2 preflight contract for focused no-charge cases."""
+    return sum(
+        int(
+            head_mode != 0
+            or body_mode != 0
+            or head[sex] >= 0
+            or body[sex] >= 0
+            or (mask_ok and (mask[sex] >= 0 or mask_dist != 0 or village_mask >= 0))
+        )
+        for sex in sexes
+    )
+
+
+def test_vv2_for_all_preflight_covers_absent_matching_and_global_cases() -> None:
+    # VV2 uses active +0x30 as its established population predicate.  A
+    # selector for an absent sex must be a no-op, while a matching selector and
+    # each global mode must count the affected record exactly once.
+    assert _vv2_caf_applicable([0], head=(-1, 7)) == 0
+    assert _vv2_caf_applicable([0], head=(7, -1)) == 1
+    assert _vv2_caf_applicable([0, 1], body_mode=1) == 2
+    assert _vv2_caf_applicable([0, 1], body=(-1, -1), mask_dist=3) == 2
+    assert _vv2_caf_applicable([], head=(7, -1)) == 0
+    assert _vv2_caf_applicable([0], mask_dist=2, mask_ok=False) == 0
+
+    engine = DLL[DLL.index("static int vv2_apply_caf"):DLL.index("#define VV2_CAF_COST")]
+    assert "int n = 0, affected = 0, mask_ok, mask_requested, i;" in engine
+    assert "mask_requested = (caf_mask[0] >= 0 || caf_mask[1] >= 0 ||" in engine
+    assert "if (rec[VV2_ACTIVE_OFFSET] == 0) continue;" in engine
+    assert "caf_head[s] >= 0 || caf_body[s] >= 0" in engine
+    assert "(mask_ok && (caf_mask[s] >= 0 || caf_dist != 0 || caf_village >= 0))" in engine
+    assert "if (affected == 0)" in engine
+    assert engine.index("if (affected == 0)") < engine.index("*(int *)(rec + VV2_HEAD_OFFSET)")
+    assert "return affected;" in engine
+    assert "return n;" not in engine
+
+
+def test_vv2_for_all_zero_count_precedes_charge_and_sidecar_save() -> None:
+    entry = DLL[DLL.index("ShowVV2AppearanceForAll(void *player)"):]
+    apply_at = entry.index("if (vv2_apply_caf(base) == 0)")
+    charge_at = entry.index("*tech -= VV2_CAF_COST", apply_at)
+    save_at = entry.index("vv2_mask_sidecar_save();", charge_at)
+    assert apply_at < charge_at < save_at
+    assert "No active villagers matched the selected appearance options." in entry[apply_at:charge_at]
+    assert "No tech points were deducted." in entry[apply_at:charge_at]
+
+
+def test_vv2_for_all_noop_defect_is_recorded_in_the_status_ledger() -> None:
+    assert "20. VV2's Change Appearance for All apply pass previously returned" in STATUS
+    assert "matching-sex field" in STATUS
+    assert "deduct no 450,000 points" in STATUS
 
 
 def test_origins_builder_composes_the_authoritative_mask_stage() -> None:

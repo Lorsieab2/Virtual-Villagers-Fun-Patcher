@@ -313,13 +313,13 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             ).hexdigest().upper(),
             "6F99A39DB5749193A7F8F5828319B3CCECC5733F3F205841C70115378601B2D4",
         )
-        # Re-pinned after the companion DLL was rebuilt in PR #104 to link
-        # shell32 and derive the mask sidecar path from the exe basename, so the
-        # sidecar lands beside the .ldw saves. data/vv2_origins_feature.json
-        # certifies this same digest; this assertion is the second pin on it.
+        # Re-pinned after the companion DLL's final Change Appearance for All
+        # preflight repair. The DLL still links shell32 and derives the mask
+        # sidecar path from the exe basename; data/vv2_origins_feature.json
+        # certifies this same digest, and this assertion is the second pin.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "E49B15588A907C0DA1088B47C151FFBB6295296C6D58534ED82D61DA6AF06BD9",
+            "DEDE5D8102A9AE18823E58C3C351B9567A9C3A9405CF6AE7C0DB195FFA28D997",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

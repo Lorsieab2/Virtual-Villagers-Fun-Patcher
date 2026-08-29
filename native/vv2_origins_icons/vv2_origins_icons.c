@@ -1638,13 +1638,37 @@ static void caf_shuffle(int *a, int n) {
    Head/Body/Mask first, then a distribution preset (overrides masks), then a
    village-wide single mask (final override) — so leaving the later groups Off
    makes the per-sex selectors authoritative. */
-/* Returns the number of active villagers processed (0 = nothing to change, so
-   the caller must not charge). */
+/* Returns the number of distinct active records for which at least one selected
+   operation can apply (0 = no mutation, so the caller must not charge). */
 static int vv2_apply_caf(unsigned char *base) {
     int idx[VV2_RECORD_COUNT];       /* active record indices */
     int sexof[VV2_RECORD_COUNT];     /* 0 male, 1 female (parallel to idx) */
-    int n = 0, i;
+    int n = 0, affected = 0, mask_ok, mask_requested, i;
     unsigned char *rec = base;
+    if (base == 0) {
+        return 0;
+    }
+    mask_requested = (caf_mask[0] >= 0 || caf_mask[1] >= 0 ||
+                      caf_dist != 0 || caf_village >= 0);
+    mask_ok = mask_requested && vv2_mask_table_ok();
+    /* Preflight the exact records that can receive a write.  A selected field
+       only applies to its matching sex; global head/body modes apply to every
+       active record; mask modes count only when the patch-owned table exists.
+       Count each record once even when several fields are selected. */
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, rec += VV2_RECORD_STRIDE) {
+        int s;
+        if (rec[VV2_ACTIVE_OFFSET] == 0) continue;
+        s = (*(int *)(rec + VV2_SEX_OFFSET) == 1) ? 0 : 1;
+        if (caf_head_mode != 0 || caf_body_mode != 0 ||
+            caf_head[s] >= 0 || caf_body[s] >= 0 ||
+            (mask_ok && (caf_mask[s] >= 0 || caf_dist != 0 || caf_village >= 0))) {
+            ++affected;
+        }
+    }
+    if (affected == 0) {
+        return 0;
+    }
+    rec = base;
     for (i = 0; i < VV2_RECORD_COUNT; ++i, rec += VV2_RECORD_STRIDE) {
         int s;
         if (rec[VV2_ACTIVE_OFFSET] == 0) continue;
@@ -1654,7 +1678,7 @@ static int vv2_apply_caf(unsigned char *base) {
            is active — those selectors were cleared/greyed, so these are -1) */
         if (caf_head[s] >= 0) *(int *)(rec + VV2_HEAD_OFFSET) = caf_head[s];
         if (caf_body[s] >= 0) *(int *)(rec + VV2_BODY_OFFSET) = caf_body[s];
-        if (caf_mask[s] >= 0 && vv2_mask_table_ok()) VV2_MASK_TABLE[i] = (unsigned char)caf_mask[s];
+        if (caf_mask[s] >= 0 && mask_ok) VV2_MASK_TABLE[i] = (unsigned char)caf_mask[s];
     }
     if (caf_head_mode != 0) {                 /* village-wide Heads */
         for (i = 0; i < n; ++i) {
@@ -1673,7 +1697,7 @@ static int vv2_apply_caf(unsigned char *base) {
             *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_BODY_OFFSET) =
                 (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
     }
-    if (caf_dist == 1 && vv2_mask_table_ok()) {   /* VV5-style rarity */
+    if (caf_dist == 1 && mask_ok) {   /* VV5-style rarity */
         int order[VV2_RECORD_COUNT], k;
         static const int tier_mask[4] = { 5, 4, 3, 2 };   /* Chief,Purple,Red,Orange */
         static const int tier_cap[4]  = { 1, 4, 7, 10 };
@@ -1686,13 +1710,13 @@ static int vv2_apply_caf(unsigned char *base) {
             for (c = 0; c < tier_cap[t] && cursor < n; ++c, ++cursor)
                 VV2_MASK_TABLE[order[cursor]] = (unsigned char)tier_mask[t];
         }
-    } else if (caf_dist == 2 && vv2_mask_table_ok()) {  /* Random (All 5 + No Mask): 0..5 */
+    } else if (caf_dist == 2 && mask_ok) {  /* Random (All 5 + No Mask): 0..5 */
         for (i = 0; i < n; ++i)
             VV2_MASK_TABLE[idx[i]] = (unsigned char)(caf_rand() % 6u);
-    } else if (caf_dist == 4 && vv2_mask_table_ok()) {  /* Random (All 5): 1..5, never no-mask */
+    } else if (caf_dist == 4 && mask_ok) {  /* Random (All 5): 1..5, never no-mask */
         for (i = 0; i < n; ++i)
             VV2_MASK_TABLE[idx[i]] = (unsigned char)(1u + caf_rand() % 5u);
-    } else if (caf_dist == 3 && vv2_mask_table_ok()) {  /* Equal, balanced M/F */
+    } else if (caf_dist == 3 && mask_ok) {  /* Equal, balanced M/F */
         int order[VV2_RECORD_COUNT], males[VV2_RECORD_COUNT], females[VV2_RECORD_COUNT];
         int nm = 0, nf = 0, k, o = 0;
         for (k = 0; k < n; ++k) { if (sexof[k]) females[nf++] = idx[k]; else males[nm++] = idx[k]; }
@@ -1704,11 +1728,11 @@ static int vv2_apply_caf(unsigned char *base) {
         for (k = 0; k < n; ++k)
             VV2_MASK_TABLE[order[k]] = (unsigned char)((k % 5) + 1);   /* Blue..Chief */
     }
-    if (caf_village >= 0 && vv2_mask_table_ok()) {  /* village-wide single mask override */
+    if (caf_village >= 0 && mask_ok) {  /* village-wide single mask override */
         for (i = 0; i < n; ++i)
             VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_village;
     }
-    return n;
+    return affected;
 }
 
 #define VV2_CAF_COST 450000
@@ -1780,7 +1804,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
        change (no-op selections / an empty village must not deduct 450k). */
     if (vv2_apply_caf(base) == 0) {
         MessageBoxA(GetForegroundWindow(),
-                    "There are no villagers to change right now. "
+                    "No active villagers matched the selected appearance options. "
                     "No tech points were deducted.",
                     "Change Appearance for All",
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);

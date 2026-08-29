@@ -2068,10 +2068,15 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
             return 0;
         }
     }
-    /* Commit the mask first.  If a nonzero mask cannot be bound to exactly one
-       live villager, abort before changing the staged head/body values; the exe
-       sees return 0 and therefore performs no writes and no 5,000-point charge. */
-    if (!VV3_SetMaskForRecord(record, vv3_appearance_mask)) {
+    /* Commit a changed mask first.  An unchanged mask must not be rebound:
+       the getter can fail closed to 0 during a simultaneous live/stored
+       ambiguity even when a stored mask exists, and rebinding that value
+       would incorrectly clear the stored mask.  If a changed mask cannot be
+       bound to exactly one live villager, abort before changing the staged
+       head/body values; the exe sees return 0 and therefore performs no
+       writes and no 5,000-point charge. */
+    if (vv3_appearance_mask != orig_mask &&
+        !VV3_SetMaskForRecord(record, vv3_appearance_mask)) {
         MessageBoxA(GetForegroundWindow(),
             "The appearance could not be safely matched to this villager. "
             "No tech points have been deducted.",
