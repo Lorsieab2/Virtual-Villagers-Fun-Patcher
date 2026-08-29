@@ -176,6 +176,13 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 - **Facings = 7 ⇒ drop the mask atlas's 8th column.**
 - **Linear-frame packing (adult path):** `maskArg4 = colorRow * MASK_COLS + facing`,
   where MASK_COLS = your mask sprite's *registered* column count.
+- **Pickup boundary (static):** the exact chain `0x4392D0 → 0x439410` has the
+  `0x4392D0` hit-test called at `0x425226`, and the `0x439410` drag updater called at
+  `0x425937`/`0x423FD1`. The frame path `0x424090` then calls compositor `0x437790`,
+  whose two record loops are `0x437790`/`0x4388E0`; the related Details head calls are
+  `0x43741B`, `0x4374A4`, `0x437503`, and `0x437556`. This proves where ordinary records
+  re-enter rendering, but held-mask visibility remains runtime-unverified and requires
+  player acceptance.
 
 ### VV2 — "The Lost Children" (NO native mask → from-scratch)
 - **7 facings** (drop the 8th mask column). Four head atlases incl. elder variants:
@@ -222,13 +229,16 @@ runtime-trace and player-acceptance boundary. Record base is `0x59E124`, stride 
 ### VV4 — "The Tree of Life" (NO native mask → from-scratch)
 - **Confirmed Details call chain:** `0x447D30` → `0x460BF0` → `0x45F550`; the body
   draw is at `0x45F653` and the head draw is at `0x45F702`. The previously claimed
-  `0x45F965` site is disproven and must not be used as a hook target. Keep the exact
-  stock trace and player/runtime evidence together before wiring a mask detour.
-- **Do not copy older VV4 portrait theories from this document.** The former
-  `0x43CFDE`/`0x45F965`/fixed-facing/reuse-of-village guidance was not the exact Details
-  path and is intentionally removed. VV4 mask frame mapping, action/pickup coverage,
-  scale, and seating remain unclaimed here until they are re-established against the
-  exact stock build and accepted by the player.
+  `0x45F965` site is disproven and must not be used as a hook target.
+- **Confirmed central live renderer:** type-7 world records reach `0x467DA0` and
+  issue the exact head call at `0x468263`; the dead branch returns without drawing.
+  These are confirmed static boundaries for ordinary village/action rendering, not
+  proof of held/cursor ownership.
+- **Current detour boundary:** the reviewed mask work targets the proven Details head
+  boundary at `0x45F702` and the central live type-7 world head boundary at `0x468263`.
+  Static coverage still does not prove held/cursor ownership, cursor coordinates, Details
+  seating, or player-visible pickup behavior; those remain runtime/player acceptance gates.
+  No older `0x43CFDE`/`0x45F965`/fixed-facing portrait theory substitutes for that evidence.
 
 ### VV5 — "New Believers" (latest; HAS native heathen masks)
 - **Native mask atlas** `vv5_heathenheads.png` — sprite id **`0x101`, 8 cols × 5 rows**,
