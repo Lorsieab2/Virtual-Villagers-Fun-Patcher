@@ -26,9 +26,9 @@ OUT = ROOT / "native" / "vv2_origins_icons" / "appearance" / "mask_preview.bmp"
 BG = (236, 236, 236)          # dialog face background (matches head/body strips)
 CELL_W, CELL_H = 40, 65       # DLL preview cell (VV2_APPEARANCE_CELL_W/H)
 
-# Mask atlas: 8 cols x 5 rows of 40x88.  Column 5 = the true front facing (max
+# Mask atlas: 8 cols x 5 rows of 65x145 (VV5-standard cell).  Column 5 = the true front facing (max
 # left-right alpha symmetry across the row; verified over blue+chief).
-MASK_CW, MASK_CH = 40, 88
+MASK_CW, MASK_CH = 65, 145
 MASK_FRONT_COL = 5
 MASK_ROWS = 5                 # Blue, Orange, Red, Purple, Chief
 PAD = 2                       # breathing room inside the cell

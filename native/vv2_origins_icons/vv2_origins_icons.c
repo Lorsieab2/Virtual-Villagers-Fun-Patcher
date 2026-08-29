@@ -10,6 +10,7 @@
 #define VV_ALREADY_LIKES_TEXT "Already 62 likes."
 #include "../vv1_origins_icons/vv1_origins_icons.c"
 #include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
+#include <wincrypt.h> /* exact SHA-256 identity for the legacy mask atlas (link advapi32) */
 
 /* Task9-style prompt action / result codes and forward declarations, hoisted so
    the ApplyVV2* reporters below can route through the shared result renderer
@@ -867,6 +868,33 @@ __declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
    read/write it directly. The render stubs (in the exe's .vvmk section) read it. */
 #define VV2_MASK_TABLE       ((unsigned char *)0x004B3000)
 #define VV2_MASK_TABLE_BYTES 256
+/* Published by the exe's save-path hook (0x403160, the only "%s%d.ldw" builder).
+   0 = no village loaded yet. The sidecar is keyed on this so village 2 cannot
+   display -- or overwrite -- village 1's masks. */
+#define VV2_MASK_SLOT        (*(int *)0x004B3F10)
+
+/* The .mtab section exists ONLY in a mask-patched exe. On a build produced by the
+   patcher without the mask exe-patch, 0x004B3000 is one byte past the end of the
+   stock image and is NOT mapped, so touching it would access-violate and take the
+   game down. Probe once with VirtualQuery and cache the answer; every access below
+   is gated on it, so the DLL degrades to "no masks" instead of crashing. */
+static int vv2_mask_table_state;   /* 0 = unprobed, 1 = usable, -1 = absent */
+
+static int vv2_mask_table_ok(void)
+{
+    MEMORY_BASIC_INFORMATION mbi;
+    if (vv2_mask_table_state == 0) {
+        vv2_mask_table_state = -1;
+        if (VirtualQuery((LPCVOID)VV2_MASK_TABLE, &mbi, sizeof(mbi)) == sizeof(mbi)
+            && mbi.State == MEM_COMMIT
+            && (mbi.Protect & (PAGE_READWRITE | PAGE_WRITECOPY
+                               | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY))
+            && mbi.RegionSize >= VV2_MASK_TABLE_BYTES) {
+            vv2_mask_table_state = 1;
+        }
+    }
+    return vv2_mask_table_state > 0;
+}
 
 static int vv2_appearance_sex;   /* 0 = male, 1 = female */
 static int vv2_appearance_old;   /* 0 = young head atlas, 1 = old head atlas */
@@ -1037,12 +1065,17 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
    villagers reloading into the same record slots (positional VV2 save). ---- */
 #define VV2_MASK_SIDECAR_MAGIC 0x32304D56u  /* 'V','M','0','2' */
 
-static int vv2_mask_sidecar_path(char *out) {
+static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     char docs[MAX_PATH];
     char exe[MAX_PATH];
     char *base;
     int i, last = -1, len;
     DWORD n;
+    /* Slot 0 is reserved for the legacy unsuffixed migration read.  The game
+       has five numbered village saves; reject any other value before the
+       decimal slot is formatted.  Besides keeping bogus sidecars out of the
+       namespace, this makes the fixed two-digit MAX_PATH budget below exact. */
+    if (slot < 0 || slot > 5) return 0;
     if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return 0;
     n = GetModuleFileNameA(GetModuleHandleA(NULL), exe, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) return 0;          /* empty or truncated -> skip */
@@ -1059,16 +1092,22 @@ static int vv2_mask_sidecar_path(char *out) {
         }
     }
     if (base[0] == 0) return 0;                     /* no usable basename -> skip */
-    /* MAX_PATH budget: docs + "\LDW\" + basename + "\vv2_masks.dat" */
-    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\vv2_masks.dat") >= MAX_PATH) {
+    /* MAX_PATH budget: docs + "\LDW\" + basename + "v2_masks_NN.dat" */
+    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\vv2_masks_00.dat") >= MAX_PATH) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vv2_masks.dat", docs, base);
+    if (slot > 0) wsprintfA(out, "%s\\LDW\\%s\\vv2_masks_%d.dat", docs, base, slot);
+    else          wsprintfA(out, "%s\\LDW\\%s\\vv2_masks.dat", docs, base);
     return 1;
+}
+
+/* the CURRENT village's sidecar; slot published by the exe save-path hook */
+static int vv2_mask_sidecar_path(char *out) {
+    return vv2_mask_sidecar_path_slot(out, VV2_MASK_SLOT);
 }
 
 static void vv2_mask_sidecar_save(void) {
@@ -1076,6 +1115,7 @@ static void vv2_mask_sidecar_save(void) {
     HANDLE f;
     DWORD w;
     unsigned int m = VV2_MASK_SIDECAR_MAGIC;
+    if (!vv2_mask_table_ok()) return;          /* no .mtab -> nothing to persist */
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) return;
@@ -1090,6 +1130,11 @@ static void vv2_mask_sidecar_load(void) {
     DWORD g;
     unsigned int m = 0;
     unsigned char buf[VV2_MASK_TABLE_BYTES];
+    int i;
+    /* A village with no sidecar must show NO masks -- never whatever the previously
+       loaded village left in the table. Clear first, then fill if a file exists. */
+    if (vv2_mask_table_ok())
+        for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {
@@ -1101,6 +1146,17 @@ static void vv2_mask_sidecar_load(void) {
            self-heals without ever deleting or moving the user's file. */
         char legacy[MAX_PATH];
         char docs[MAX_PATH];
+        /* MIGRATION (per-slot): builds before the sidecar was slot-keyed wrote ONE
+           vv2_masks.dat for every village. Read it for the FIRST village slot only,
+           so a returning user keeps their masks; later saves write the slot file.
+           Only slot 1 -- applying one shared file to every slot is the very
+           cross-contamination this change exists to stop. */
+        if (VV2_MASK_SLOT == 1 && vv2_mask_sidecar_path_slot(legacy, 0)
+            && lstrcmpiA(legacy, path) != 0) {
+            f = CreateFileA(legacy, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                            FILE_ATTRIBUTE_NORMAL, NULL);
+        }
+        if (f == INVALID_HANDLE_VALUE) {
         if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return;
         if (lstrlenA(docs) + (int)sizeof("\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat") >= MAX_PATH) {
             return;
@@ -1108,11 +1164,18 @@ static void vv2_mask_sidecar_load(void) {
         wsprintfA(legacy, "%s\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat", docs);
         if (lstrcmpiA(legacy, path) == 0) return;     /* already the canonical exe -> nothing to migrate */
         f = CreateFileA(legacy, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (f == INVALID_HANDLE_VALUE) return;        /* no legacy file either -> keep table as-is */
+        if (f == INVALID_HANDLE_VALUE) return;        /* no legacy file either -> table stays cleared */
+        }
     }
     if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
         && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
-        memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
+        /* Sidecars are user-writable and older builds did not constrain every
+           byte. Normalize before publishing anything to the render thunks:
+           only 0 (none) through 5 (the five atlas rows) are valid. */
+        for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) {
+            if (buf[i] >= VV2_MASK_COUNT) buf[i] = 0;
+        }
+        if (vv2_mask_table_ok()) memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
     }
     CloseHandle(f);
 }
@@ -1122,12 +1185,111 @@ __declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_loa
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
 
+/* Earlier VV2 mask builds bundled four distinct 320x440 atlases. Those exact
+   files are the only existing files this migration is allowed to replace.
+   Geometry alone is not
+   enough: a player may have supplied their own 320x440 art, so the file must
+   also match one of the exact repository-bundled SHA-256 identities. */
+#define VV2_LEGACY_ATLAS_WIDTH  320
+#define VV2_LEGACY_ATLAS_HEIGHT 440
+static const DWORD VV2_LEGACY_ATLAS_SIZES[] = {
+    64965, 64852, 78917, 79105
+};
+static const char *const VV2_LEGACY_ATLAS_SHA256[] = {
+    "CAE2F56C58D504EB26AD8AA9772A92F616D8CD26B546EE1091D889A19F616FB4",
+    "10819268622323D4B289CB27A35BFA4B1398AC149A55399AE627AA4CBB4EA57C",
+    "1D2CC1CB3230E59A66D847DAB2EF482075DA538357CCBCAF97A121705CC09E81",
+    "3CE015BA025BF847C65FB0389016658E7D624AFA2038A3AAD7C1530367FE8AC7"
+};
+
+static unsigned int vv2_hex_nibble(char value) {
+    if (value >= '0' && value <= '9') return (unsigned int)(value - '0');
+    if (value >= 'A' && value <= 'F') return (unsigned int)(value - 'A' + 10);
+    if (value >= 'a' && value <= 'f') return (unsigned int)(value - 'a' + 10);
+    return 0x100;
+}
+
+static int vv2_digest_matches(const BYTE *digest, const char *expected) {
+    unsigned int i, high, low;
+    for (i = 0; i < 32; ++i) {
+        high = vv2_hex_nibble(expected[i * 2]);
+        low = vv2_hex_nibble(expected[i * 2 + 1]);
+        if (high > 0xF || low > 0xF || digest[i] != (BYTE)((high << 4) | low)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static DWORD vv2_be32(const BYTE *value) {
+    return ((DWORD)value[0] << 24) | ((DWORD)value[1] << 16)
+        | ((DWORD)value[2] << 8) | (DWORD)value[3];
+}
+
+static int vv2_legacy_atlas_identity(const char *filename) {
+    static const BYTE png_signature[8] = {
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
+    };
+    HANDLE file = INVALID_HANDLE_VALUE;
+    LARGE_INTEGER file_size;
+    HCRYPTPROV provider = 0;
+    HCRYPTHASH hash = 0;
+    BYTE header[24];
+    BYTE buffer[4096];
+    BYTE digest[32];
+    DWORD got, digest_length;
+    unsigned int i;
+    int known_size = 0;
+    int legacy = 0;
+
+    file = CreateFileA(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                        FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) return 0;
+    if (!GetFileSizeEx(file, &file_size) || file_size.HighPart != 0) goto done;
+    for (i = 0; i < sizeof(VV2_LEGACY_ATLAS_SIZES) / sizeof(VV2_LEGACY_ATLAS_SIZES[0]); ++i) {
+        if (file_size.LowPart == VV2_LEGACY_ATLAS_SIZES[i]) {
+            known_size = 1;
+            break;
+        }
+    }
+    if (!known_size) goto done;
+    if (!ReadFile(file, header, sizeof(header), &got, NULL) || got != sizeof(header)) goto done;
+    if (memcmp(header, png_signature, sizeof(png_signature)) != 0
+        || memcmp(header + 12, "IHDR", 4) != 0
+        || vv2_be32(header + 16) != VV2_LEGACY_ATLAS_WIDTH
+        || vv2_be32(header + 20) != VV2_LEGACY_ATLAS_HEIGHT) {
+        goto done;
+    }
+    if (!CryptAcquireContextA(&provider, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) goto done;
+    if (!CryptCreateHash(provider, CALG_SHA_256, 0, 0, &hash)) goto done;
+    if (!CryptHashData(hash, header, sizeof(header), 0)) goto done;
+    for (;;) {
+        if (!ReadFile(file, buffer, sizeof(buffer), &got, NULL)) goto done;
+        if (got == 0) break;
+        if (!CryptHashData(hash, buffer, got, 0)) goto done;
+    }
+    digest_length = sizeof(digest);
+    if (!CryptGetHashParam(hash, HP_HASHVAL, digest, &digest_length, 0)
+        || digest_length != sizeof(digest)) goto done;
+    for (i = 0; i < sizeof(VV2_LEGACY_ATLAS_SHA256) / sizeof(VV2_LEGACY_ATLAS_SHA256[0]); ++i) {
+        if (vv2_digest_matches(digest, VV2_LEGACY_ATLAS_SHA256[i])) {
+            legacy = 1;
+            break;
+        }
+    }
+done:
+    if (hash != 0) CryptDestroyHash(hash);
+    if (provider != 0) CryptReleaseContext(provider, 0);
+    CloseHandle(file);
+    return legacy;
+}
+
 /* Self-extract the embedded mask render atlas (RCDATA 5000) to <exe dir>\Images\
-   heathen_masks.png if it is not already there, so a patched game gets the atlas
-   with no separate asset deploy.  Uses the EXE's own directory (not cwd), so it
-   works under any launch dir / renamed exe, and NEVER overwrites an existing file
-   (so replacement art is respected).  Called by the exe's init hook BEFORE it
-   loads the atlas — at startup, outside the loader lock.  CRT-less (Win32 only). */
+   heathen_masks.png if it is missing, or if the existing file is one of the
+   exact obsolete 320x440 bundled atlases above.  Current/custom art is left
+   untouched.  Uses the EXE's own directory (not cwd), so it works under any
+   launch dir / renamed exe.  Called by the exe's init hook BEFORE it loads the
+   atlas — at startup, outside the loader lock.  CRT-less (Win32 only). */
 __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     char path[MAX_PATH];
     char tmp[MAX_PATH];
@@ -1138,6 +1300,7 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     DWORD sz, w, n;
     HANDLE f;
     BOOL ok;
+    BOOL replace_legacy = FALSE;
     n = GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) return;          /* empty or truncated exe path -> skip */
     for (i = 0; path[i]; ++i) if (path[i] == '\\') last = i;   /* last backslash */
@@ -1151,7 +1314,10 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     lstrcatA(path, "\\Images");
     CreateDirectoryA(path, NULL);
     lstrcatA(path, "\\heathen_masks.png");
-    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) return;  /* already present */
+    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) {
+        if (!vv2_legacy_atlas_identity(path)) return;  /* preserve current/custom art */
+        replace_legacy = TRUE;
+    }
     res = FindResourceA(module_instance, MAKEINTRESOURCEA(5000), RT_RCDATA);
     if (res == NULL) return;
     h = LoadResource(module_instance, res);
@@ -1169,7 +1335,18 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     ok = WriteFile(f, p, sz, &w, NULL);
     CloseHandle(f);
     if (!ok || w != sz) { DeleteFileA(tmp); return; }   /* incomplete write -> discard */
-    if (!MoveFileA(tmp, path)) DeleteFileA(tmp);        /* publish; lost a race -> clean up */
+    /* Re-check before replacing: if the old file was edited while the resource
+       was being prepared, preserve the newly-customized art.  A new file that
+       appears during this call is never overwritten because replacement is
+       enabled only for the exact legacy identity seen above. */
+    if (replace_legacy && !vv2_legacy_atlas_identity(path)) {
+        DeleteFileA(tmp);
+        return;
+    }
+    if (!MoveFileExA(tmp, path,
+            (replace_legacy ? MOVEFILE_REPLACE_EXISTING : 0) | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(tmp);        /* publish failed or lost a race -> clean up */
+    }
 }
 
 /* Record field offsets + the per-villager cost, hoisted so the chooser (which now
@@ -1204,7 +1381,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     age = *(int *)(record + VV_AGE_OFFSET);
     h = *(int *)(record + VV2_HEAD_OFFSET);
     b = *(int *)(record + VV2_BODY_OFFSET);
-    m = VV2_MASK_TABLE[idx];
+    m = vv2_mask_table_ok() ? VV2_MASK_TABLE[idx] : 0;
     /* VV2 stores sex as 1 (male) or 2 (female); the stock renderer branches on
        `sex == 1` (0x4456A3). Match it: sex 1 -> male atlas (0), else female (1). */
     vv2_appearance_sex = (sex == 1) ? 0 : 1;
@@ -1251,7 +1428,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     *tech -= VV2_APPEARANCE_COST_DLL;
     *(int *)(record + VV2_HEAD_OFFSET) = vv2_appearance_head;
     *(int *)(record + VV2_BODY_OFFSET) = vv2_appearance_body;
-    VV2_MASK_TABLE[idx] = (unsigned char)vv2_appearance_mask;
+    if (vv2_mask_table_ok()) VV2_MASK_TABLE[idx] = (unsigned char)vv2_appearance_mask;
     vv2_mask_sidecar_save();   /* persist the mask table right after committing */
     return 1;
 }
@@ -1461,77 +1638,150 @@ static void caf_shuffle(int *a, int n) {
    Head/Body/Mask first, then a distribution preset (overrides masks), then a
    village-wide single mask (final override) — so leaving the later groups Off
    makes the per-sex selectors authoritative. */
-/* Returns the number of active villagers processed (0 = nothing to change, so
-   the caller must not charge). */
-static int vv2_apply_caf(unsigned char *base) {
-    int idx[VV2_RECORD_COUNT];       /* active record indices */
-    int sexof[VV2_RECORD_COUNT];     /* 0 male, 1 female (parallel to idx) */
-    int n = 0, i;
+/* The random/distribution selectors must be planned before the no-op gate:
+   otherwise a one-villager village can randomly receive its current value and
+   still be charged.  The plan is also the only source used by the write pass,
+   so the exact values compared here are the exact values applied below. */
+static int caf_plan_head[VV2_RECORD_COUNT];
+static int caf_plan_body[VV2_RECORD_COUNT];
+static int caf_plan_mask[VV2_RECORD_COUNT];
+
+static void vv2_caf_build_plan(unsigned char *base, int mask_ok,
+                               int *idx, int *sexof, int *count) {
     unsigned char *rec = base;
+    int n = 0, i;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        caf_plan_head[i] = -1;
+        caf_plan_body[i] = -1;
+        caf_plan_mask[i] = -1;
+    }
     for (i = 0; i < VV2_RECORD_COUNT; ++i, rec += VV2_RECORD_STRIDE) {
         int s;
         if (rec[VV2_ACTIVE_OFFSET] == 0) continue;
         s = (*(int *)(rec + VV2_SEX_OFFSET) == 1) ? 0 : 1;
-        idx[n] = i; sexof[n] = s; ++n;
-        /* per-sex Head/Body/Mask (skipped when the matching village-wide override
-           is active — those selectors were cleared/greyed, so these are -1) */
-        if (caf_head[s] >= 0) *(int *)(rec + VV2_HEAD_OFFSET) = caf_head[s];
-        if (caf_body[s] >= 0) *(int *)(rec + VV2_BODY_OFFSET) = caf_body[s];
-        if (caf_mask[s] >= 0) VV2_MASK_TABLE[i] = (unsigned char)caf_mask[s];
+        idx[n] = i;
+        sexof[n] = s;
+        ++n;
+        if (caf_head[s] >= 0) caf_plan_head[i] = caf_head[s];
+        if (caf_body[s] >= 0) caf_plan_body[i] = caf_body[s];
+        if (mask_ok && caf_mask[s] >= 0) caf_plan_mask[i] = caf_mask[s];
     }
-    if (caf_head_mode != 0) {                 /* village-wide Heads */
+    if (caf_head_mode != 0) {
         for (i = 0; i < n; ++i) {
             int s = sexof[i], h;
-            if (caf_head_mode == 1) {         /* Random (by gender) */
+            if (caf_head_mode == 1) {
                 h = (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
-            } else {                          /* All <colour>: random within bucket */
-                int c = caf_head_mode - 2;    /* 0 Black..4 Other */
+            } else {
+                int c = caf_head_mode - 2;
                 h = caf_hair[s][c][caf_rand() % caf_hair_n[s][c]];
             }
-            *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_HEAD_OFFSET) = h;
+            caf_plan_head[idx[i]] = h;
         }
     }
-    if (caf_body_mode == 1) {                 /* village-wide Bodies: Random */
+    if (caf_body_mode == 1) {
         for (i = 0; i < n; ++i)
-            *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_BODY_OFFSET) =
+            caf_plan_body[idx[i]] =
                 (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
     }
-    if (caf_dist == 1) {                     /* VV5-style rarity */
+    if (caf_dist == 1 && mask_ok) {
         int order[VV2_RECORD_COUNT], k;
-        static const int tier_mask[4] = { 5, 4, 3, 2 };   /* Chief,Purple,Red,Orange */
+        static const int tier_mask[4] = { 5, 4, 3, 2 };
         static const int tier_cap[4]  = { 1, 4, 7, 10 };
         int t, cursor = 0;
         for (k = 0; k < n; ++k) order[k] = idx[k];
         caf_shuffle(order, n);
-        for (k = 0; k < n; ++k) VV2_MASK_TABLE[order[k]] = 1;   /* default Blue */
+        for (k = 0; k < n; ++k) caf_plan_mask[order[k]] = 1;
         for (t = 0; t < 4 && cursor < n; ++t) {
             int c;
             for (c = 0; c < tier_cap[t] && cursor < n; ++c, ++cursor)
-                VV2_MASK_TABLE[order[cursor]] = (unsigned char)tier_mask[t];
+                caf_plan_mask[order[cursor]] = tier_mask[t];
         }
-    } else if (caf_dist == 2) {              /* Random (All 5 + No Mask): 0..5 */
+    } else if (caf_dist == 2 && mask_ok) {
         for (i = 0; i < n; ++i)
-            VV2_MASK_TABLE[idx[i]] = (unsigned char)(caf_rand() % 6u);
-    } else if (caf_dist == 4) {              /* Random (All 5): 1..5, never no-mask */
+            caf_plan_mask[idx[i]] = (int)(caf_rand() % 6u);
+    } else if (caf_dist == 4 && mask_ok) {
         for (i = 0; i < n; ++i)
-            VV2_MASK_TABLE[idx[i]] = (unsigned char)(1u + caf_rand() % 5u);
-    } else if (caf_dist == 3) {              /* Equal, balanced M/F */
-        int order[VV2_RECORD_COUNT], males[VV2_RECORD_COUNT], females[VV2_RECORD_COUNT];
-        int nm = 0, nf = 0, k, o = 0;
-        for (k = 0; k < n; ++k) { if (sexof[k]) females[nf++] = idx[k]; else males[nm++] = idx[k]; }
-        caf_shuffle(males, nm); caf_shuffle(females, nf);
-        /* alternate M/F so each round-robin mask type gets a balanced sex mix */
-        { int a = 0, b = 0; while (a < nm || b < nf) {
-            if (a < nm) order[o++] = males[a++];
-            if (b < nf) order[o++] = females[b++]; } }
+            caf_plan_mask[idx[i]] = (int)(1u + caf_rand() % 5u);
+    } else if (caf_dist == 3 && mask_ok) {
+        int order[VV2_RECORD_COUNT], males[VV2_RECORD_COUNT];
+        int females[VV2_RECORD_COUNT], nm = 0, nf = 0, k, o = 0;
+        for (k = 0; k < n; ++k) {
+            if (sexof[k]) females[nf++] = idx[k];
+            else males[nm++] = idx[k];
+        }
+        caf_shuffle(males, nm);
+        caf_shuffle(females, nf);
+        {
+            int a = 0, b = 0;
+            while (a < nm || b < nf) {
+                if (a < nm) order[o++] = males[a++];
+                if (b < nf) order[o++] = females[b++];
+            }
+        }
         for (k = 0; k < n; ++k)
-            VV2_MASK_TABLE[order[k]] = (unsigned char)((k % 5) + 1);   /* Blue..Chief */
+            caf_plan_mask[order[k]] = (k % 5) + 1;
     }
-    if (caf_village >= 0) {                  /* village-wide single mask override */
-        for (i = 0; i < n; ++i)
-            VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_village;
+    if (caf_village >= 0 && mask_ok) {
+        for (i = 0; i < n; ++i) caf_plan_mask[idx[i]] = caf_village;
     }
-    return n;
+    *count = n;
+}
+
+/* Compare the materialized result, not merely selector presence. */
+static int vv2_caf_record_needs_change(const unsigned char *rec, int index,
+                                       int sex, int mask_ok) {
+    (void)sex;
+    if (caf_plan_head[index] >= 0 &&
+        *(const int *)(rec + VV2_HEAD_OFFSET) != caf_plan_head[index]) {
+        return 1;
+    }
+    if (caf_plan_body[index] >= 0 &&
+        *(const int *)(rec + VV2_BODY_OFFSET) != caf_plan_body[index]) {
+        return 1;
+    }
+    if (mask_ok && caf_plan_mask[index] >= 0 &&
+        VV2_MASK_TABLE[index] != (unsigned char)caf_plan_mask[index]) {
+        return 1;
+    }
+    return 0;
+}
+
+/* Returns the number of distinct active records for which at least one selected
+   operation would change a value (0 = no mutation, so the caller must not
+   charge). */
+static int vv2_apply_caf(unsigned char *base) {
+    int idx[VV2_RECORD_COUNT];       /* active record indices */
+    int sexof[VV2_RECORD_COUNT];     /* 0 male, 1 female (parallel to idx) */
+    int n = 0, affected = 0, mask_ok, mask_requested, i;
+    unsigned char *rec = base;
+    if (base == 0) {
+        return 0;
+    }
+    mask_requested = (caf_mask[0] >= 0 || caf_mask[1] >= 0 ||
+                      caf_dist != 0 || caf_village >= 0);
+    mask_ok = mask_requested && vv2_mask_table_ok();
+    /* Materialize the final values once, then count only records whose stored
+       head/body/table value differs from that exact plan. */
+    vv2_caf_build_plan(base, mask_ok, idx, sexof, &n);
+    for (i = 0; i < n; ++i) {
+        rec = base + idx[i] * VV2_RECORD_STRIDE;
+        if (vv2_caf_record_needs_change(rec, idx[i], sexof[i], mask_ok))
+            ++affected;
+    }
+    if (affected == 0) {
+        return 0;
+    }
+    for (i = 0; i < n; ++i) {
+        rec = base + idx[i] * VV2_RECORD_STRIDE;
+        if (!vv2_caf_record_needs_change(rec, idx[i], sexof[i], mask_ok)) continue;
+        if (caf_plan_head[idx[i]] >= 0)
+            *(int *)(rec + VV2_HEAD_OFFSET) = caf_plan_head[idx[i]];
+        if (caf_plan_body[idx[i]] >= 0)
+            *(int *)(rec + VV2_BODY_OFFSET) = caf_plan_body[idx[i]];
+        if (mask_ok && caf_plan_mask[idx[i]] >= 0)
+            VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_plan_mask[idx[i]];
+    }
+    return affected;
 }
 
 #define VV2_CAF_COST 450000
@@ -1603,7 +1853,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceForAll(void *player) {
        change (no-op selections / an empty village must not deduct 450k). */
     if (vv2_apply_caf(base) == 0) {
         MessageBoxA(GetForegroundWindow(),
-                    "There are no villagers to change right now. "
+                    "No active villagers matched the selected appearance options. "
                     "No tech points were deducted.",
                     "Change Appearance for All",
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);

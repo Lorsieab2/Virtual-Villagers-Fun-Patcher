@@ -22,6 +22,12 @@ FILES = [
     "assets/origins/VVFP VV1 Origins Icons.dll",
     "assets/origins/VVFP VV2 Origins Icons.dll",
     "assets/origins/VVFP VV4 Origins Icons.dll",
+    "assets/origins/m1.png",
+    "assets/origins/m2.png",
+    "assets/origins/m3.png",
+    "assets/origins/m4.png",
+    "assets/origins/m5.png",
+    "assets/origins/mask_atlas.png",
     "assets/statistics/VVFP Statistics Export.dll",
     "data/builds.json",
     "data/expanded_256.json",
@@ -99,6 +105,15 @@ FILES = [
     "data/vv4_text_changes.json",
     "assets/text-changes/vv4-sm.xml",
     "assets/text-changes/vv4-sm-base.xml",
+    # VV4 Heathen-mask assets, pinned by data/vv4_origins_feature.json's
+    # companion_files. The render atlas (exact hand-aligned mask art) is
+    # SDL-blitted by the DLL onto the render-target surface; the isolated sheet
+    # feeds the Change Appearance chooser preview. Both are ADDED files (no
+    # stock atlas is swapped), so no restore halves are needed.
+    "assets/vv4_masks/vvfp_mask_atlas.png",
+    "assets/vv4_masks/vvfp_bighead_mask_atlas.png",
+    "assets/vv4_masks/vvfp_mask_preview.png",
+    "assets/vv4_masks/vv2_mask_preview.bmp",
     "data/guardians_of_isola/new/Assets/sm.xml",
     "data/guardians_of_isola/base/Assets/sm.xml",
     "data/guardians_of_isola/new/Images/BlinkyEyes.png",
@@ -136,7 +151,21 @@ FILES = [
     "data/vv1_visual_mods/base/Images/MapX2Y1.jpg",
 ]
 
+
+def _assert_no_executable_members(members: list[str]) -> None:
+    """Reject executable members before or after assembling the source ZIP."""
+    executable_members = [
+        member for member in members if member.casefold().endswith(".exe")
+    ]
+    if executable_members:
+        raise RuntimeError(
+            "source release archive cannot contain executable members: "
+            + ", ".join(executable_members)
+        )
+
+
 def main() -> int:
+    _assert_no_executable_members(FILES)
     OUTPUTS.mkdir(exist_ok=True)
     target = OUTPUTS / NAME
     temp = OUTPUTS / (NAME + ".tmp")
@@ -147,7 +176,9 @@ def main() -> int:
             archive.write(path, relative)
     temp.replace(target)
     with zipfile.ZipFile(target) as archive:
-        if sorted(archive.namelist()) != sorted(FILES):
+        members = archive.namelist()
+        _assert_no_executable_members(members)
+        if sorted(members) != sorted(FILES):
             raise RuntimeError("release archive manifest mismatch")
         bad = archive.testzip()
         if bad:

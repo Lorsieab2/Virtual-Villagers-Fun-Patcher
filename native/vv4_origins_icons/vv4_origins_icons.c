@@ -1,6 +1,15 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+/* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
+   follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
+   which is exactly where the live .ldw saves are, so declare just the one
+   shell32 entry point we need instead of pulling in <shlobj.h>. */
+#ifndef CSIDL_PERSONAL
+#define CSIDL_PERSONAL 0x0005
+#endif
+__declspec(dllimport) BOOL __stdcall SHGetSpecialFolderPathA(HWND, LPSTR, int, BOOL);
+
 /* Villager sex flag drives the male/female sprite atlas (render path
    0x45F5CF: cmp [record+0x1B90],0 / setne). Displayed age >= 1100 (55
    displayed years) uses the old-frame atlas page. */
@@ -27,6 +36,11 @@
 #define VV_HEAD_FRAME_COL 5
 #endif
 #ifndef VV_BODY_FRAME_COL
+/* Bodies use a 16-column atlas (vs the head's 8), and its column order differs
+   from the head's: col 5 faces the wrong way. The front-facing (camera-on)
+   frame is the 9th column counting from 1 at the left = 0-based col 8
+   (owner-selected; sits in the symmetric front hemisphere cols 8-14 per an
+   L-R silhouette-symmetry scan of the atlas). */
 #define VV_BODY_FRAME_COL 8
 #endif
 #ifndef VV_BODY_ROWS_PER_PAGE
@@ -108,6 +122,685 @@ static ULONG_PTR gdiplus_token = 0;
 #ifndef VV_BODY_COUNT
 #define VV_BODY_COUNT 29
 #endif
+/* Cosmetic Heathen-mask overlay. Each villager's mask selection is held in the
+   DLL-owned side-table below (never in a villager record); the render caves
+   SDL_UpperBlit the chosen mask cell from Images/vvfp_mask_atlas.png on top of
+   the drawn head when the selection is non-zero.
+   0 = none, 1..5 = Blue/Orange/Red/Purple/Tribal Chief. */
+#ifndef VV_MASK_COUNT
+#define VV_MASK_COUNT 6   /* (None) + 5 masks */
+#endif
+static const char *const g_mask_names[VV_MASK_COUNT] = {
+    "(None)", "Blue Mask", "Orange Mask", "Red Mask", "Purple Mask",
+    "Tribal Chief Mask"
+};
+
+/* SAFE STORAGE (never touches the villager record or the game save): the mask
+   selection lives in a DLL-owned side-table keyed by villager INDEX. The
+   villager record array is fixed at 0x5101EC with stride 0x2E3C (RE'd:
+   game-ctx global 0x50E568 + 0x1C84, iterator FUN_00467490), so
+   index = (record - 0x5101EC) / 0x2E3C, valid 0..149. A non-record pointer
+   yields a non-multiple offset -> index -1 -> treated as (None), never a write.
+   The table lives in the DLL's writable data (never an executable section, so
+   no W^X / self-modifying-code concern), and its address is published to the
+   render cave via a fixed .shr slot at init (see vv4_publish_mask_table).
+   Persistence rides a sidecar file next to the save (see the sidecar helpers). */
+/* Villager record array base. The game's own accessors are authoritative:
+   the Details menu gets a record via FUN_00466040(this=0x50E568, idx) which
+   returns this + 0x44 + idx*0x2E3C = 0x50E5AC + idx*0x2E3C, and the Full
+   Mastery walker passes 0x50E5AC as the array base. (An earlier derivation
+   used 0x5101EC = ctx+0x1C84, which is wrong -- it left vv_villager_index
+   returning -1 for every real record, so masks never stored or rendered.) */
+#define VV_REC_ARRAY_BASE 0x50E5ACu
+#define VV_REC_STRIDE     0x2E3Cu
+#define VV_MAX_VILLAGERS  150
+#define VV_NAME_OFFSET    0x1BC0        /* 24-byte villager name string (stable) */
+/* Occupied/free flag (byte). The game's villager-creation routine
+   (FUN_00466270) scans slots 0..149 for the FIRST record whose +0x1CC4 byte is
+   0 and reuses it for a newborn, so a dead villager's index gets reallocated.
+   0 = free/dead, nonzero = occupied. Read-only; the sweep below uses it. */
+#define VV_OCCUPIED_OFFSET 0x1CC4
+static unsigned char g_mask_by_index[VV_MAX_VILLAGERS];
+/* Slot-reuse guard. PRIMARY defence is the per-frame clear-on-death sweep
+   (vv_mask_sweep, run from Vv4MaskCacheSurface): the instant a masked slot goes
+   free (+0x1CC4 == 0) its mask is cleared, so a reused slot starts mask-less and
+   index-keying stays correct with no record writes. SECONDARY is a fingerprint
+   of STABLE fields (gender + name — NOT likes/dislikes/head/body/age, which all
+   mutate during play and would false-invalidate a living villager's mask) that
+   backstops the ~1-frame death-then-reuse race the sweep could miss. */
+static unsigned int g_mask_fp[VV_MAX_VILLAGERS];
+/* Per-slot "has ever held a live villager this session" latch. It lets the
+   sweep tell "slot freed by a death" (clear the mask) apart from "slot not
+   populated yet" (a village hasn't loaded, e.g. at the main menu) -- so a mask
+   restored from the sidecar before its villager exists is NOT wiped. */
+static unsigned char g_slot_seen_alive[VV_MAX_VILLAGERS];
+/* A separate generation gate for fingerprint invalidation.  The sweep may
+   discover an occupied record in the same callback that first exposes a
+   partially initialized load frame; only a later completed sweep may promote
+   that observation to identity-ready and authorize clearing/persisting a
+   fingerprint mismatch. */
+static unsigned char g_slot_identity_ready[VV_MAX_VILLAGERS];
+
+/* The save builder cave records the game's selected save number here. This is
+   patch-owned .shr storage, not a villager field or a save byte. The builder
+   passes the slot as its first stack argument and is entered for every save;
+   zero means that no usable save slot is selected. */
+#define VV4_MASK_SAVE_SLOT_VA 0x728FCCu
+static int g_current_slot = 0;
+static int g_sidecar_loaded = 0;
+
+static void vv_write_mask_sidecar(void);
+static void vv_read_mask_sidecar(void);
+
+static void vv_clear_mask_state(void) {
+    int i;
+    for (i = 0; i < VV_MAX_VILLAGERS; i++) {
+        g_mask_by_index[i] = 0;
+        g_mask_fp[i] = 0;
+        g_slot_seen_alive[i] = 0;
+        g_slot_identity_ready[i] = 0;
+    }
+}
+
+static int vv_captured_save_slot(void) {
+    int slot = *(volatile int *)(UINT_PTR)VV4_MASK_SAVE_SLOT_VA;
+    return (slot >= 1 && slot <= 5) ? slot : 0;
+}
+
+/* Switch the sidecar namespace before any render or UI path can consume the
+   table. Missing/invalid slot 0 is deliberately fail-closed. */
+static void vv_sync_save_slot(void) {
+    int slot = vv_captured_save_slot();
+    if (slot != g_current_slot) {
+        vv_clear_mask_state();
+        g_current_slot = slot;
+        g_sidecar_loaded = (slot == 0) ? 1 : 0;
+    }
+}
+
+/* Every mask table access goes through this gate, including the Details/raw
+   draw exports and UI writes. Present is normally the first caller, but it is
+   not a safe synchronization boundary when the game changes saves between two
+   draw calls. */
+static void vv_prepare_mask_state(void) {
+    vv_sync_save_slot();
+    if (g_current_slot > 0 && !g_sidecar_loaded) {
+        g_sidecar_loaded = 1;
+        vv_read_mask_sidecar();
+    }
+}
+
+/* Clear masks whose slot has been freed/reused by the game. Read-only over the
+   villager array; called once per frame from the present-path surface cache. */
+static int vv_mask_sweep(void) {
+    int idx;
+    int changed = 0;
+    for (idx = 0; idx < VV_MAX_VILLAGERS; idx++) {
+        const unsigned char *rec =
+            (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
+        if (rec[VV_OCCUPIED_OFFSET] != 0) {
+            if (g_slot_seen_alive[idx]) {
+                g_slot_identity_ready[idx] = 1;
+            }
+            g_slot_seen_alive[idx] = 1;              /* slot currently holds a villager */
+        } else if (g_slot_seen_alive[idx] && g_mask_by_index[idx] != 0) {
+            g_mask_by_index[idx] = 0;                /* was alive, now freed -> drop mask */
+            g_mask_fp[idx] = 0;
+            g_slot_identity_ready[idx] = 0;
+            changed = 1;
+        }
+    }
+    return changed;
+}
+
+static unsigned int vv_fingerprint(const unsigned char *villager) {
+    unsigned int h = 2166136261u;               /* FNV-1a */
+    unsigned int sex = *(const unsigned int *)(villager + VV_SEX_OFFSET);
+    const unsigned char *name = villager + VV_NAME_OFFSET;
+    int i;
+    for (i = 0; i < 4; i++) { h = (h ^ ((unsigned char *)&sex)[i]) * 16777619u; }
+    for (i = 0; i < 24 && name[i]; i++) { h = (h ^ name[i]) * 16777619u; }
+    return h ? h : 1u;                           /* reserve 0 = "no fp stored" */
+}
+
+static int vv_villager_index(const unsigned char *villager) {
+    unsigned int off;
+    unsigned int idx;
+    if (villager == NULL) {
+        return -1;
+    }
+    off = (unsigned int)villager - VV_REC_ARRAY_BASE;
+    if (off % VV_REC_STRIDE != 0) {          /* not a real record slot */
+        return -1;
+    }
+    idx = off / VV_REC_STRIDE;
+    return idx < (unsigned int)VV_MAX_VILLAGERS ? (int)idx : -1;
+}
+static int vv_get_mask(const unsigned char *villager) {
+    int idx;
+    unsigned char m;
+    unsigned int fp;
+    vv_prepare_mask_state();
+    idx = vv_villager_index(villager);
+    if (idx < 0) {
+        return 0;
+    }
+    m = g_mask_by_index[idx];
+    if (m == 0 || m >= VV_MASK_COUNT) {
+        return 0;
+    }
+    /* Position is stable across the bulk set and across save/reload (VV5's
+       proven approach), but it is not sufficient by itself: a newborn can
+       replace a masked villager between two present callbacks while the slot
+       remains occupied on both sweeps.  Validate the stable identity before
+       returning a restored/session mask.  During the first load frame the
+       sidecar may be available before the game's record/name initialization;
+       leave that entry alone until a completed sweep has observed the slot
+       alive and the following sweep has promoted that observation, so
+       load ordering cannot erase a valid restored mask.  On the next lookup a
+       real identity mismatch is stale state: clear it and write the current
+       save's sidecar immediately, preventing a later frame/process from
+       resurrecting the deceased villager's mask. */
+    if (g_mask_fp[idx] != 0) {
+        fp = vv_fingerprint(villager);
+        if (g_mask_fp[idx] != fp) {
+            if (g_slot_identity_ready[idx] || !g_sidecar_loaded ||
+                g_current_slot == 0) {
+                g_mask_by_index[idx] = 0;
+                g_mask_fp[idx] = 0;
+                if (g_current_slot > 0) {
+                    vv_write_mask_sidecar();
+                }
+            }
+            return 0;
+        }
+    } else {
+        /* A nonzero mask without an identity is malformed/incomplete sidecar
+           state.  Never expose it as an index-only mask. */
+        g_mask_by_index[idx] = 0;
+        g_mask_fp[idx] = 0;
+        if (g_current_slot > 0) {
+            vv_write_mask_sidecar();
+        }
+        return 0;
+    }
+    return (int)m;
+}
+
+/* Read-only counterpart for bulk-operation preflight.  Unlike vv_get_mask,
+   this deliberately does not repair stale side-table entries or persist them:
+   a true no-op must not mutate or save anything before its zero-result gate.
+   The same slot, range, and fingerprint checks still prevent a reused record
+   from inheriting another villager's mask. */
+static int vv_peek_mask(const unsigned char *villager) {
+    int idx;
+    unsigned char m;
+    vv_prepare_mask_state();
+    idx = vv_villager_index(villager);
+    if (idx < 0) return 0;
+    m = g_mask_by_index[idx];
+    if (m == 0 || m >= VV_MASK_COUNT || g_mask_fp[idx] == 0) return 0;
+    if (g_mask_fp[idx] != vv_fingerprint(villager)) return 0;
+    return (int)m;
+}
+
+/* Compare a planned mask against both the logical, fingerprint-checked value
+   and the exact raw slot state.  A desired None must clear malformed/stale
+   bytes too; vv_peek_mask intentionally reports those as logical None. */
+static int vv4_mask_plan_changes(int desired, int current,
+                                 unsigned char raw_mask,
+                                 unsigned int raw_fp) {
+    if (desired == 0) {
+        return raw_mask != 0 || raw_fp != 0;
+    }
+    return desired != current;
+}
+
+static void vv_set_mask(unsigned char *villager, int mask) {
+    int idx;
+    vv_prepare_mask_state();
+    idx = vv_villager_index(villager);
+    if (idx < 0) {
+        return;
+    }
+    if (mask > 0 && mask < VV_MASK_COUNT) {
+        g_mask_by_index[idx] = (unsigned char)mask;
+        g_mask_fp[idx] = vv_fingerprint(villager);
+    } else {
+        g_mask_by_index[idx] = 0;
+        g_mask_fp[idx] = 0;
+    }
+}
+
+/* --- Mask atlas as a game sprite (for the thunk-reuse render) ---------------
+   Instead of a raw SDL blit (which ignored the game's per-draw scroll/scale
+   transform -> masks absent in-world / too tiny on the scaled portrait), the
+   head-draw caves draw the mask THROUGH the game's own head-draw thunk
+   (0x409A70) with the head's x/y/facing/transform. That needs the mask atlas as
+   a drawable game sprite object.
+
+   Build it via the game's MULTI-FILE ldwImageGrid ctor FUN_0040ABA0 -- the SAME
+   ctor the head atlases use -- so the object layout is byte-identical to what the
+   draw path (FUN_00408c40 -> FUN_0040a990) reads. Critically, that draw resolves
+   the SURFACE from the surface-ARRAY at this[0xc]; the single-file loader leaves
+   this[0xc]=0 so the draw finds no surface and blits nothing. The multi-file ctor
+   populates this[0xc]. (Confirmed by the VV2 + VV5 chats; VV5 renders masks the
+   same way on this engine.)
+
+     void __thiscall FUN_0040ABA0(this, name, ext, cols, rows, subcols, subrows):
+         this[0xc] = surface array (cols*rows entries), loads "<name><c><r><ext>"
+         this[8]=cols this[9]=rows this[2]=subcols this[3]=subrows
+         this[4]=totalW/subcols (=cellW) this[5]=totalH/subrows (=cellH)
+         this[0xa]=fileW/cellW this[0xb]=fileH/cellH
+
+   With cols=1, rows=1, subcols=8, subrows=5 on one 320x325 file it yields
+   cellW=40, cellH=65, one surface at this[0xc][0], and FUN_0040a990 selects the
+   cell as (facing-col x mask-row). The ctor sprintf's "%s%d%d%s" -> "<name>00.png"
+   so we ship Images\vvfp_mask_atlas00.png; the name is passed BARE (no "Images\\"
+   -- the loader resolves relative to a working dir that already contains Images).
+
+   Over-allocated to 0x70 and zeroed so the scaled-view clip path (FUN_00407f80
+   reads this+0x60..0x6c when transform!=100) sees sane zero bounds instead of
+   reading past a 0x34 object (the two hooked twins pass transform==100, which
+   skips that path, but the over-alloc is cheap insurance). The object ptr is
+   published to a fixed .shr slot the head cave reads; a failed load leaves
+   cellW 0 and the cave draws no mask (no crash). */
+#define VV_ALLOC_FN      0x470C5Cu     /* game allocator: void*(unsigned size) */
+#define VV_LDWGRID_CTOR  0x40ABA0u     /* ldwImageGrid multi-file __thiscall ctor */
+#define VV_MASK_ATLAS_SLOT_VA 0x728D70u /* .shr slot: published atlas obj ptr */
+static void *g_mask_atlas_obj = NULL;
+static int g_mask_atlas_tried = 0;
+static void *g_dest_surface;    /* fwd tentative def (real one below); diag use */
+
+static void vv_ensure_mask_atlas(void) {
+    void *obj;
+    /* BARE name -- the game names its own atlases bare ("male_heads"), and the
+       ctor sprintf's "%s%d%d%s" -> "vvfp_mask_atlas00.png", fopen'd relative to a
+       working dir that resolves into Images\. A leading "Images\\" would double
+       to Images\Images\... and fail to load. */
+    static const char atlas_name[] = "vvfp_mask_atlas";
+    static const char atlas_ext[] = ".png";
+    const char *namep = atlas_name;
+    const char *extp = atlas_ext;
+    if (g_mask_atlas_tried) {
+        return;                        /* one-shot: never retry (no crash loop) */
+    }
+    g_mask_atlas_tried = 1;
+    obj = ((void *(__cdecl *)(unsigned int))(UINT_PTR)VV_ALLOC_FN)(0x70u);
+    if (obj == NULL) {
+        return;
+    }
+    {   /* zero the over-alloc so the clip path reads sane bounds */
+        unsigned int *z = (unsigned int *)obj;
+        int i;
+        for (i = 0; i < 0x70 / 4; i++) z[i] = 0;
+    }
+    /* FUN_0040ABA0(this=obj, name, ext, cols=1, rows=1, subcols=8, subrows=5),
+       __thiscall, callee-cleans the 6 stack args (ret 0x18). */
+    __asm {
+        push 5
+        push 8
+        push 1
+        push 1
+        mov  eax, extp
+        push eax
+        mov  eax, namep
+        push eax
+        mov  ecx, obj
+        mov  eax, VV_LDWGRID_CTOR
+        call eax
+    }
+    /* CLIP BOUNDS (this+0x60..0x6c = left/top/right/bottom). The draw's clip
+       stage FUN_00407f80 reads these whenever the transform != 100 (walking
+       villagers pass ~93, NOT 100), and rejects the sprite when they're 0 --
+       which is why masks never drew in the scrolled village while the details
+       path (which happened to pass) did. Set a viewport wider than any on-screen
+       coord so masks always pass the clip and draw at the head's own scale. */
+    {
+        int *o = (int *)obj;
+        o[0x18] = -30000;      /* byte 0x60: left   */
+        o[0x19] = -30000;      /* byte 0x64: top    */
+        o[0x1a] =  30000;      /* byte 0x68: right  */
+        o[0x1b] =  30000;      /* byte 0x6c: bottom */
+    }
+    /* Reject a failed/empty load (cellW at obj[4] == 0) so the cave never draws
+       a garbage cell. */
+    if (((unsigned int *)obj)[4] == 0) {
+        return;
+    }
+    g_mask_atlas_obj = obj;
+    *(void **)(UINT_PTR)VV_MASK_ATLAS_SLOT_VA = obj;   /* publish to the head cave */
+}
+
+/* Head-draw caves call this: ensure the atlas is built + published, validate
+   the live stable identity, and return its mask (0 = none). */
+__declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
+    int mask;
+    vv_prepare_mask_state();
+    vv_ensure_mask_atlas();
+    mask = vv_get_mask(villager);
+    /* Skip the mask on non-living villagers: the mausoleum-collection bonus
+       spawns GHOSTS from dead villager records that still carry a mask in the
+       index-keyed side-table and render through the same world compositor. Gate
+       on the game's own liveness fields (matching vv_eligible): dead flag +0x1CC7
+       set, or health +0x1C40 <= 0. Render-only -- the stored mask is untouched,
+       so a revived villager gets it back. */
+    if (mask > 0 && (villager[0x1CC7] != 0 ||
+                     *(const int *)(villager + 0x1C40) <= 0)) {
+        mask = 0;
+    }
+    return mask;
+}
+
+/* --- Sidecar persistence ---------------------------------------------------
+   The mask side-table is snapshotted to a small file that lives NEXT TO the
+   game's own saves (never inside the .ldw, so a save can never be corrupted):
+   <Documents>\LDW\<exe-basename>\vvfp_masks_<slot>.dat, where <Documents> comes from
+   SHGetSpecialFolderPathA(CSIDL_PERSONAL) so it follows OneDrive redirection to
+   wherever the live .ldw saves actually are. Written on chooser OK; read once,
+   lazily, on the first present frame for the captured save slot. The stored fingerprints guard identity on
+   reload, and the sweep's seen-alive latch keeps a restored mask until its
+   villager appears. Format: "VVMK" + u32 version + u32 count(150) + 150 mask
+   bytes + 150 u32 fingerprints (magic/version added per VV3/VV5 advice so the
+   entry shape can evolve without silently misreading an old file). There is no
+   legacy global sidecar migration: slot 0 and malformed/missing files remain
+   all-unmasked. */
+#define VV_SIDECAR_VERSION 1u
+
+static int vv_build_sidecar_path(char *out, int slot) {
+    char exe[MAX_PATH];
+    char base[MAX_PATH];
+    DWORD n;
+    int i, start, end, j;
+    if (slot < 1 || slot > 5 ||
+        !SHGetSpecialFolderPathA(NULL, out, CSIDL_PERSONAL, TRUE)) {
+        return 0;
+    }
+    n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    start = 0;
+    for (i = (int)n - 1; i >= 0; i--) {
+        if (exe[i] == '\\' || exe[i] == '/') { start = i + 1; break; }
+    }
+    end = (int)n;
+    for (i = (int)n - 1; i > start; i--) {
+        if (exe[i] == '.') { end = i; break; }    /* strip the extension */
+    }
+    j = 0;
+    for (i = start; i < end && j < MAX_PATH - 1; i++) {
+        base[j++] = exe[i];
+    }
+    base[j] = '\0';
+    /* lstrcatA has no destination bound. Validate the COMPLETE final path
+       before the first append so a redirected Documents folder plus a long
+       renamed executable fails open instead of overrunning path[MAX_PATH].
+       sizeof("\\vvfp_masks_0.dat") includes the final NUL; slots 1..5 retain
+       the exact existing one-digit filename namespace. */
+    if (lstrlenA(out) + (int)(sizeof("\\LDW\\") - 1) + lstrlenA(base) +
+        (int)sizeof("\\vvfp_masks_0.dat") > MAX_PATH) {
+        return 0;
+    }
+    lstrcatA(out, "\\LDW");
+    CreateDirectoryA(out, NULL);                 /* harmless if it already exists */
+    lstrcatA(out, "\\");
+    lstrcatA(out, base);
+    CreateDirectoryA(out, NULL);
+    lstrcatA(out, "\\vvfp_masks_");
+    i = lstrlenA(out);
+    out[i] = (char)('0' + slot);
+    out[i + 1] = '\0';
+    lstrcatA(out, ".dat");
+    return 1;
+}
+
+static void vv_write_mask_sidecar(void) {
+    char path[MAX_PATH];
+    char tmp[MAX_PATH];
+    HANDLE h;
+    DWORD wr;
+    unsigned int header[2];
+    BOOL ok = TRUE;
+    vv_prepare_mask_state();
+    if (!vv_build_sidecar_path(path, g_current_slot)) {
+        return;
+    }
+    /* Keep the existing final sidecar untouched until the complete payload is
+       durable.  The suffix check includes the terminating NUL and is separate
+       from the final-path check above: a valid near-MAX_PATH final can still
+       be read, while its temporary publication path fails closed. */
+    if (lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH) {
+        return;
+    }
+    lstrcpyA(tmp, path);
+    lstrcatA(tmp, ".tmp");
+    h = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    header[0] = VV_SIDECAR_VERSION;
+    header[1] = VV_MAX_VILLAGERS;
+    if (!WriteFile(h, "VVMK", 4, &wr, NULL) || wr != 4) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(h, header, sizeof(header), &wr, NULL) ||
+               wr != sizeof(header))) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(h, g_mask_by_index, VV_MAX_VILLAGERS, &wr, NULL) ||
+               wr != VV_MAX_VILLAGERS)) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(h, g_mask_fp,
+                          VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int),
+                          &wr, NULL) ||
+               wr != VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int))) {
+        ok = FALSE;
+    }
+    if (ok && !FlushFileBuffers(h)) {
+        ok = FALSE;
+    }
+    if (!CloseHandle(h)) {
+        ok = FALSE;
+    }
+    if (!ok) {
+        /* Only the exact temporary path is ever removed on a failed write;
+           the previously published final remains byte-for-byte untouched. */
+        DeleteFileA(tmp);
+        return;
+    }
+    /* The final name is published only after all four writes, flush, and close
+       succeed.  REPLACE_EXISTING also publishes correctly when final is absent. */
+    if (!MoveFileExA(tmp, path,
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(tmp);
+    }
+}
+
+static void vv_read_mask_sidecar(void) {
+    char path[MAX_PATH];
+    HANDLE h;
+    DWORD rd;
+    char magic[4];
+    unsigned int header[2];
+    unsigned char masks[VV_MAX_VILLAGERS];
+    unsigned int fps[VV_MAX_VILLAGERS];
+    int i;
+    if (!vv_build_sidecar_path(path, g_current_slot)) {
+        return;
+    }
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return;                                  /* no file yet -> stay all-unmasked */
+    }
+    if (ReadFile(h, magic, 4, &rd, NULL) && rd == 4 &&
+        magic[0] == 'V' && magic[1] == 'V' && magic[2] == 'M' && magic[3] == 'K' &&
+        ReadFile(h, header, sizeof(header), &rd, NULL) && rd == sizeof(header) &&
+        header[0] == VV_SIDECAR_VERSION && header[1] == VV_MAX_VILLAGERS &&
+        ReadFile(h, masks, VV_MAX_VILLAGERS, &rd, NULL) && rd == VV_MAX_VILLAGERS &&
+        ReadFile(h, fps, sizeof(fps), &rd, NULL) && rd == sizeof(fps)) {
+        for (i = 0; i < VV_MAX_VILLAGERS; i++) {
+            g_mask_by_index[i] = (masks[i] < VV_MASK_COUNT) ? masks[i] : 0;
+            g_mask_fp[i] = fps[i];
+        }
+    }
+    CloseHandle(h);
+}
+
+/* --- In-world / details mask render via SDL surface blit -------------------
+   VV4 is surface-based: the game blits every sprite with SDL_UpperBlit onto the
+   render-target surface at [screen_obj+0x30]. We blit the chosen mask on top
+   the same way. The mask atlas is the head-aligned Images/vvfp_mask_atlas.png
+   (8 frames x 5 masks of 40x65). All SDL entry points are resolved via
+   GetProcAddress (SDL_BlitScaled / SDL_SetSurfaceBlendMode are not in the exe's
+   imports), and EVERY pointer is null-guarded so a missing DLL/PNG degrades to
+   no-mask instead of crashing (renamed/moved exe safe). All state lives here in
+   the DLL's writable data -- never an executable section (W^X clean). */
+#define VV_R_CELL_W 40
+#define VV_R_CELL_H 65
+/* Screen anchor of the mask relative to the head-draw x/y (tuned in playtest). */
+#ifndef VV_R_DX
+#define VV_R_DX 0
+#endif
+#ifndef VV_R_DY
+#define VV_R_DY 0
+#endif
+#define VV_SDL_BLENDMODE_BLEND 1
+
+typedef struct { int x, y, w, h; } VvSdlRect;
+typedef void *(__cdecl *vv_IMG_Load_t)(const char *);
+typedef int (__cdecl *vv_SDL_UpperBlit_t)(void *, const VvSdlRect *, void *, VvSdlRect *);
+typedef int (__cdecl *vv_SDL_BlitScaled_t)(void *, const VvSdlRect *, void *, VvSdlRect *);
+typedef int (__cdecl *vv_SDL_SetSurfaceBlendMode_t)(void *, int);
+
+static void *g_mask_surface;   /* the 40x65-cell mask atlas (SDL_Surface*) */
+static void *g_dest_surface;   /* cached render target [screen_obj+0x30]    */
+static vv_IMG_Load_t p_IMG_Load;
+static vv_SDL_UpperBlit_t p_SDL_UpperBlit;
+static vv_SDL_BlitScaled_t p_SDL_BlitScaled;
+static vv_SDL_SetSurfaceBlendMode_t p_SDL_SetSurfaceBlendMode;
+static int g_mask_render_init;
+
+/* SDL_Surface field offsets (SDL2): w=+0x08, h=+0x0C, pitch=+0x10. */
+#define VV_SURF_W(s)     (*(int *)((char *)(s) + 0x08))
+#define VV_SURF_PITCH(s) (*(int *)((char *)(s) + 0x10))
+
+static void vv4_mask_render_init(void) {
+    HMODULE sdl, img;
+    char path[MAX_PATH];
+    DWORD n;
+    int i;
+    if (g_mask_render_init) {
+        return;
+    }
+    g_mask_render_init = 1;                 /* attempt once, even on failure */
+    sdl = GetModuleHandleA("SDL2.dll");
+    img = GetModuleHandleA("SDL2_image.dll");
+    if (sdl == NULL || img == NULL) {
+        return;
+    }
+    p_IMG_Load = (vv_IMG_Load_t)GetProcAddress(img, "IMG_Load");
+    p_SDL_UpperBlit = (vv_SDL_UpperBlit_t)GetProcAddress(sdl, "SDL_UpperBlit");
+    p_SDL_BlitScaled = (vv_SDL_BlitScaled_t)GetProcAddress(sdl, "SDL_BlitScaled");
+    p_SDL_SetSurfaceBlendMode =
+        (vv_SDL_SetSurfaceBlendMode_t)GetProcAddress(sdl, "SDL_SetSurfaceBlendMode");
+    if (p_IMG_Load == NULL) {
+        return;
+    }
+    /* exe-dir absolute path: <exe folder>\Images\vvfp_mask_atlas.png */
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return;
+    }
+    for (i = (int)n - 1; i >= 0; i--) {
+        if (path[i] == '\\' || path[i] == '/') {
+            path[i + 1] = '\0';
+            break;
+        }
+    }
+    /* lstrcatA has no destination bound. Include the complete relative atlas
+       path and its terminating NUL before appending it to the executable
+       directory; a redirected/renamed install that cannot fit fails open. */
+    if (lstrlenA(path) + (int)sizeof("Images\\vvfp_mask_atlas.png") > MAX_PATH) {
+        return;
+    }
+    lstrcatA(path, "Images\\vvfp_mask_atlas.png");
+    g_mask_surface = p_IMG_Load(path);      /* NULL on failure -> no mask, no crash */
+    if (g_mask_surface != NULL && p_SDL_SetSurfaceBlendMode != NULL) {
+        p_SDL_SetSurfaceBlendMode(g_mask_surface, VV_SDL_BLENDMODE_BLEND);
+    }
+}
+
+/* Called from the present-path hook every frame with the live render-target
+   surface ([screen_obj+0x30]); read at the real site, never a guessed global. */
+__declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
+    int cleared;
+    g_dest_surface = surface;
+    vv_prepare_mask_state();
+    cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */
+    if (cleared && g_current_slot > 0) {
+        /* A death/reuse clear is state, not merely a render decision. Keep the
+           exact slot's sidecar in sync so a later process cannot resurrect it. */
+        vv_write_mask_sidecar();
+    }
+}
+
+/* Blit one resolved mask (1..5) at the head's screen x/y. scale_pct: 100 =
+   in-world, ~150/200 = Details (scales the cell AND the anchor offset). */
+static void vv4_blit_mask(int mask, int x, int y, int frame, int scale_pct) {
+    VvSdlRect src, dst;
+    vv4_mask_render_init();
+    if (g_dest_surface == NULL || g_mask_surface == NULL || p_SDL_UpperBlit == NULL) {
+        return;                              /* not ready -> no mask, no crash */
+    }
+    if (mask <= 0 || mask >= VV_MASK_COUNT) {
+        return;
+    }
+    /* SDL_UpperBlit format-converts as needed, so no dest-format guard here
+       (an earlier 32bpp pitch check silently skipped every in-world blit). */
+    if (frame < 0 || frame > 7) {
+        frame = 5;                           /* front-facing default */
+    }
+    src.x = frame * VV_R_CELL_W;
+    src.y = (mask - 1) * VV_R_CELL_H;
+    src.w = VV_R_CELL_W;
+    src.h = VV_R_CELL_H;
+    if (scale_pct > 0 && scale_pct != 100 && p_SDL_BlitScaled != NULL) {
+        dst.x = x + VV_R_DX * scale_pct / 100;
+        dst.y = y + VV_R_DY * scale_pct / 100;
+        dst.w = VV_R_CELL_W * scale_pct / 100;
+        dst.h = VV_R_CELL_H * scale_pct / 100;
+        p_SDL_BlitScaled(g_mask_surface, &src, g_dest_surface, &dst);
+    } else {
+        dst.x = x + VV_R_DX;
+        dst.y = y + VV_R_DY;
+        dst.w = VV_R_CELL_W;
+        dst.h = VV_R_CELL_H;
+        p_SDL_UpperBlit(g_mask_surface, &src, g_dest_surface, &dst);
+    }
+}
+
+/* By raw index (no fingerprint check) -- for callers that only have the index
+   (e.g. the Details screen's selected villager). */
+__declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
+                                                 int frame, int scale_pct) {
+    vv_prepare_mask_state();
+    if (index < 0 || index >= VV_MAX_VILLAGERS) {
+        return;
+    }
+    vv4_blit_mask((int)g_mask_by_index[index], x, y, frame, scale_pct);
+}
+
+/* Primary render entry: the head-draw hooks hold the villager RECORD (esi), so
+   this derives the index AND fingerprint-checks (slot-reuse safe). */
+__declspec(dllexport) void __stdcall Vv4MaskDrawRecord(unsigned char *villager,
+                                                       int x, int y, int frame,
+                                                       int scale_pct) {
+    vv4_blit_mask(vv_get_mask(villager), x, y, frame, scale_pct);
+}
 
 static HINSTANCE module_instance;
 
@@ -115,8 +808,9 @@ enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_APPEARANCE = 203,
+    IDD_ORIGINS_FORALL = 214,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1012,
+    ID_BUY_LAST = 1013,          /* 14 tech rows (row 13 = Change Appearance for All) */
     ID_CHECK_FIRST = 1100,
     ID_HEAD_LABEL = 2000,
     ID_HEAD_PREV = 2001,
@@ -126,6 +820,10 @@ enum {
     ID_BODY_PREV = 2011,
     ID_BODY_NEXT = 2012,
     ID_BODY_PIC = 2013,
+    ID_MASK_LABEL = 2020,
+    ID_MASK_PREV = 2021,
+    ID_MASK_NEXT = 2022,
+    ID_MASK_PIC = 2023,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
     STATE_RUNNING_ONLY = 0x40000,
@@ -151,6 +849,7 @@ static struct {
     unsigned char *villager;
     int original_head;
     int original_body;
+    int original_mask;
     int head_count;
     int body_count;
     int sex;      /* 0 / non-zero -> female / male sprite atlas */
@@ -186,7 +885,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
    the body sheet + column (and its per-page split). The atlas PNGs live in
    the game's Images folder; the villager re-renders live behind this dialog
    regardless, so a failed load simply shows nothing here. */
-static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int value) {
+static void appearance_draw_cell(HDC hdc, RECT rc, int is_head, int value, int clear) {
     WCHAR path[MAX_PATH];
     /* LDW engine convention (matches the VV2 companion): a non-zero sex field
        is female, zero is male. */
@@ -194,11 +893,12 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
     int age = appearance_state.is_old ? 1 : 0;
     int col, row, page;
     GpBitmap *bitmap = NULL;
-    RECT rc = dis->rcItem;
     int dstw = rc.right - rc.left;
     int dsth = rc.bottom - rc.top;
 
-    FillRect(dis->hDC, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
+    if (clear) {
+        FillRect(hdc, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
+    }
     if (is_head) {
         col = VV_HEAD_FRAME_COL;
         row = value;
@@ -211,7 +911,7 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
     }
     if (GdipCreateBitmapFromFile(path, &bitmap) == 0 && bitmap != NULL) {
         GpGraphics *graphics = NULL;
-        if (GdipCreateFromHDC(dis->hDC, &graphics) == 0 && graphics != NULL) {
+        if (GdipCreateFromHDC(hdc, &graphics) == 0 && graphics != NULL) {
             /* Preserve the 40x65 cell aspect ratio: scale by the smaller of the
                two axis ratios and centre the result, so the sprite is never
                squashed to fill a differently-proportioned control. */
@@ -227,6 +927,50 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
                 graphics, bitmap,
                 draw_x, draw_y, draw_w, draw_h,
                 col * VV_CELL_W, row * VV_CELL_H, VV_CELL_W, VV_CELL_H,
+                2, NULL, NULL, NULL);
+            GdipDeleteGraphics(graphics);
+        }
+        GdipDisposeImage(bitmap);
+    }
+}
+
+/* Isolated Heathen-mask preview, matching VV5's Change Appearance: show the
+   selected mask on its own (not overlaid on the head), front-facing. The mask
+   sheet ships beside the head atlases as Images/vvfp_masks.png -- an 8x5 grid
+   of 65x145 cells; the front-facing view is column 5, and mask value 1..5 maps
+   to rows 0..4. (None) leaves the cell blank. */
+/* Preview strip = VV2's shared mask_preview sprites (pixel-identical pickers
+   across all 5 games): 240x65 = SIX 40x65 cells, cell index == mask value
+   (0 = none/blank, 1..5 = Blue/Orange/Red/Purple/Chief), front frame, ~90% fill.
+   scale-to-fit the control preserving aspect, centred; cell 0 draws "(none)". */
+#define VV_MASK_SHEET L"Images\\vvfp_mask_preview.png"
+#define VV_MASK_CELL_W 40
+#define VV_MASK_CELL_H 65
+static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
+    GpBitmap *bitmap = NULL;
+    int dstw = rc.right - rc.left;
+    int dsth = rc.bottom - rc.top;
+    FillRect(hdc, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
+    if (mask <= 0 || mask >= VV_MASK_COUNT) {
+        /* (None): leave the preview box blank -- the ID_MASK_LABEL (2020) below
+           already reads "(None)", so drawing "(none)" here too is a duplicate. */
+        return;
+    }
+    vv4_ensure_gdiplus();
+    if (GdipCreateBitmapFromFile(VV_MASK_SHEET, &bitmap) == 0 && bitmap != NULL) {
+        GpGraphics *graphics = NULL;
+        if (GdipCreateFromHDC(hdc, &graphics) == 0 && graphics != NULL) {
+            double scale_x = (double)dstw / VV_MASK_CELL_W;
+            double scale_y = (double)dsth / VV_MASK_CELL_H;
+            double scale = scale_x < scale_y ? scale_x : scale_y;
+            int draw_w = (int)(VV_MASK_CELL_W * scale);
+            int draw_h = (int)(VV_MASK_CELL_H * scale);
+            int draw_x = rc.left + (dstw - draw_w) / 2;
+            int draw_y = rc.top + (dsth - draw_h) / 2;
+            GdipDrawImageRectRectI(
+                graphics, bitmap,
+                draw_x, draw_y, draw_w, draw_h,
+                mask * VV_MASK_CELL_W, 0, VV_MASK_CELL_W, VV_MASK_CELL_H,
                 2, NULL, NULL, NULL);
             GdipDeleteGraphics(graphics);
         }
@@ -270,16 +1014,17 @@ static void vv4_surface_dialog(HWND window) {
 
 /* OFFICIAL per-row purchase-confirm names + costs. Tech rows 6-8 (village-wide)
    use the payload's own OFFICIAL confirm and are skipped here. */
-static const char *const g_tech_names[13] = {
+static const char *const g_tech_names[14] = {
     "Time Warp", "Island Event", "Barrel of Babies",
     "Tech Point Doubler", "Food Point Doubler", "Full Heal / Cure All",
     "", "", "", "Complete All Collections", "Reset All Collections",
     "Equal Division of Labor (Includes Parenting)",
-    "Equal Division of Labor (No Parenting)"
+    "Equal Division of Labor (No Parenting)",
+    "Change Appearance for All"
 };
-static const char *const g_tech_costs[13] = {
+static const char *const g_tech_costs[14] = {
     "50,000", "30,000", "75,000", "500,000", "500,000", "30,000", "", "", "",
-    "1,000,000", "1,000,000", "1,000,000", "1,000,000"
+    "1,000,000", "1,000,000", "1,000,000", "1,000,000", "450,000"
 };
 static const char *const g_villager_names[5] = {
     "Grant Youth", "Grant Full Mastery", "Grant Running",
@@ -317,6 +1062,13 @@ static void vv4_remove_detail_running_dislike(void) {
     }
 }
 
+/* Change Appearance for All (row 13 of the village-wide tech menu) is fully
+   self-contained -- it runs its own dialog, charge and apply -- so the menu
+   invokes it directly rather than returning a row for the payload to dispatch.
+   Defined further down; forward-declared here. */
+__declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void);
+#define ID_FORALL_ROW 13
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -328,19 +1080,28 @@ static INT_PTR CALLBACK upgrade_dialog(
         g_villager_menu = villager_menu;
         g_villager_mask = (int)lparam;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
-        /* Village-wide tech menu carries 13 rows: the 6 base upgrades, the 3
+        /* Village-wide tech menu carries 14 rows: the 6 base upgrades, the 3
            village-wide grants (rows 6-8), Complete/Reset All Collections
-           (rows 9-10), and the two Equal Division of Labor rows (11-12). */
+           (rows 9-10), the two Equal Division of Labor rows (11-12), and
+           Change Appearance for All (row 13). */
         int row_count = villager_menu
             ? 5
             : ((lparam & STATE_RUNNING_ONLY) != 0
                 ? 7
-                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 13 : 6));
+                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 14 : 6));
         int row;
-        for (row = 0; row < 13; ++row) {
+        for (row = 0; row < 14; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
+            if (!villager_menu && row == ID_FORALL_ROW) {
+                /* Change Appearance for All: always purchasable in the tech
+                   menu; no availability bit and no checkmark. Its own dialog
+                   confirms and charges, so it never shows Remove/Unavailable. */
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
+                continue;
+            }
             if (villager_menu) {
                 /* Every villager row stays a clickable "Buy". A row that would
                    change nothing is not greyed out; it opens and reports the
@@ -379,6 +1140,14 @@ static INT_PTR CALLBACK upgrade_dialog(
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             int row = (int)(command - ID_BUY_FIRST);
             char label[16];
+            if (!g_villager_menu && row == ID_FORALL_ROW) {
+                /* Change Appearance for All owns its own confirm/charge/apply
+                   dialog, so run it directly and close the menu -- the payload
+                   dispatch is bypassed (return -1 = no row bought here). */
+                ShowVv4AppearanceForAll();
+                EndDialog(window, -1);
+                return TRUE;
+            }
             label[0] = '\0';
             GetDlgItemTextA(window, command, label, (int)sizeof(label));
             /* A villager row that would change nothing reports the OFFICIAL
@@ -474,6 +1243,7 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
 static void appearance_revert(void) {
     *(int *)(appearance_state.villager + VV_HEAD_OFFSET) = appearance_state.original_head;
     *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET) = appearance_state.original_body;
+    vv_set_mask(appearance_state.villager, appearance_state.original_mask);
 }
 
 /* Writes each tentative value straight into the live villager record so
@@ -495,17 +1265,28 @@ static INT_PTR CALLBACK appearance_dialog(
     if (message == WM_INITDIALOG) {
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; the owner-drawn previews read the
-           live head/body fields directly, so nothing else is needed here. */
+           live head/body/mask fields directly. Show the current mask name. */
+        SetDlgItemTextA(window, ID_MASK_LABEL,
+                        g_mask_names[vv_get_mask(appearance_state.villager)]);
         vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
         if (dis->CtlID == ID_HEAD_PIC) {
-            appearance_draw_cell(dis, 1, *(int *)(appearance_state.villager + VV_HEAD_OFFSET));
+            appearance_draw_cell(dis->hDC, dis->rcItem, 1,
+                *(int *)(appearance_state.villager + VV_HEAD_OFFSET), 1);
             return TRUE;
         }
         if (dis->CtlID == ID_BODY_PIC) {
-            appearance_draw_cell(dis, 0, *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET));
+            appearance_draw_cell(dis->hDC, dis->rcItem, 0,
+                *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET), 1);
+            return TRUE;
+        }
+        if (dis->CtlID == ID_MASK_PIC) {
+            /* Preview = the isolated mask, front-facing (VV5 parity); (None)
+               shows a blank cell. */
+            appearance_draw_mask_cell(dis->hDC, dis->rcItem,
+                                      vv_get_mask(appearance_state.villager));
             return TRUE;
         }
         return FALSE;
@@ -515,6 +1296,14 @@ static INT_PTR CALLBACK appearance_dialog(
         int body_count = appearance_state.body_count;
         int *head = (int *)(appearance_state.villager + VV_HEAD_OFFSET);
         int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
+        if (command == ID_MASK_PREV || command == ID_MASK_NEXT) {
+            int delta = (command == ID_MASK_NEXT) ? 1 : (VV_MASK_COUNT - 1);
+            int m = (vv_get_mask(appearance_state.villager) + delta) % VV_MASK_COUNT;
+            vv_set_mask(appearance_state.villager, m);
+            SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[m]);
+            InvalidateRect(GetDlgItem(window, ID_MASK_PIC), NULL, TRUE);
+            return TRUE;
+        }
         if (command == ID_HEAD_PREV) {
             *head = (*head + head_count - 1) % head_count;
             InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
@@ -538,7 +1327,9 @@ static INT_PTR CALLBACK appearance_dialog(
         if (command == IDOK) {
             int head_changed = (*head != appearance_state.original_head);
             int body_changed = (*body != appearance_state.original_body);
-            if (!head_changed && !body_changed) {
+            int mask_changed = (vv_get_mask(appearance_state.villager)
+                                != appearance_state.original_mask);
+            if (!head_changed && !body_changed && !mask_changed) {
                 /* OK with nothing changed: no write, no charge (return 0). */
                 MessageBoxA(window,
                     "The appearance is unchanged. No tech points have been "
@@ -560,7 +1351,9 @@ static INT_PTR CALLBACK appearance_dialog(
                     return TRUE;
                 }
             }
-            /* Something changed and was confirmed: keep it; caller charges 5,000. */
+            /* Something changed and was confirmed: keep it; caller charges 5,000.
+               Persist the mask side-table so the choice survives save/reload. */
+            vv_write_mask_sidecar();
             EndDialog(window, 1);
             return TRUE;
         }
@@ -577,6 +1370,439 @@ static INT_PTR CALLBACK appearance_dialog(
     return FALSE;
 }
 
+/* --- Change Appearance for All (Tech-screen 450,000-point upgrade) ----------
+   Dialog 214: per-sex Body/Head/Mask cyclers (value -1 == "No change") plus ONE
+   mutually-exclusive whole-village mask mode. Reuses the per-villager picker's
+   draw helpers. Applies en-masse over the villager array (head/body -> record,
+   mask -> the DLL side-table), charges 450k, and sidecar-saves. No new exe
+   caves; dispatched by a one-call tech-menu row. */
+enum {                                   /* whole-village mask mode = radio - 3200 */
+    FA_MODE_OFF = 0, FA_MODE_VV5, FA_MODE_RANDOM, FA_MODE_RANDOM5, FA_MODE_EQUAL,
+    FA_MODE_NONE, FA_MODE_BLUE, FA_MODE_ORANGE, FA_MODE_RED,
+    FA_MODE_PURPLE, FA_MODE_CHIEF
+};
+#define FA_RADIO_FIRST 3200
+#define FA_RADIO_LAST  3210
+/* Village-wide HEAD mode = radio - 3220 (Off / Random-by-gender / 5 hair buckets). */
+enum {
+    FA_HEAD_OFF = 0, FA_HEAD_RANDOM, FA_HEAD_BLACK, FA_HEAD_BROWN, FA_HEAD_RED,
+    FA_HEAD_BLONDE, FA_HEAD_OTHER
+};
+#define FA_HEAD_RADIO_FIRST 3220
+#define FA_HEAD_RADIO_LAST  3226
+/* Village-wide BODY mode = radio - 3240 (Off / Random-by-gender). */
+enum { FA_BODY_OFF = 0, FA_BODY_RANDOM };
+#define FA_BODY_RADIO_FIRST 3240
+#define FA_BODY_RADIO_LAST  3241
+#define FA_NOCHANGE (-1)
+static struct {
+    int male_head, male_body, male_mask;       /* -1 = No change */
+    int female_head, female_body, female_mask; /* -1 = No change */
+    int tribe_mode;                            /* FA_MODE_* (mask) */
+    int head_mode;                             /* FA_HEAD_* (village-wide head) */
+    int body_mode;                             /* FA_BODY_* (village-wide body) */
+} forall_state;
+
+/* Per-sex head-row -> hair-colour buckets (order: Black, Brown, Red/Ginger,
+   Blonde, Other). AUTO-DERIVED from the head-atlas hair band (VV2's method:
+   front-frame hair-band median RGB, high-chroma gate for Red so auburn falls to
+   Brown). REVIEW PENDING -- adjust an index if a head is miscategorised, esp.
+   (a) auburn heads over-labelled Red, and (b) hat/flower-topped heads whose top
+   band samples the accessory colour (those legitimately land in Other when the
+   hair is accessory-hidden). VV4: 30 heads (0..29) per sex. */
+static const unsigned char fa_m_black[]  = {0,1,2,4,7,8};
+static const unsigned char fa_m_brown[]  = {3,6,9,10,11,12,13,15};
+static const unsigned char fa_m_red[]    = {14,16,20,21,22};
+static const unsigned char fa_m_blonde[] = {18,23,24,25,26,27,29};
+static const unsigned char fa_m_other[]  = {5,17,19,28};
+static const unsigned char fa_f_black[]  = {0,1,2,4,5,6,7,8};
+static const unsigned char fa_f_brown[]  = {9,10,11,12,14,15,17,20};
+static const unsigned char fa_f_red[]    = {22,24};
+static const unsigned char fa_f_blonde[] = {3,23,26,27,28,29};
+static const unsigned char fa_f_other[]  = {13,16,18,19,21,25};
+struct fa_bucket { const unsigned char *rows; int n; };
+/* [female][bucket 0..4] */
+static const struct fa_bucket fa_buckets[2][5] = {
+    { {fa_m_black,  (int)(sizeof fa_m_black)},  {fa_m_brown,  (int)(sizeof fa_m_brown)},
+      {fa_m_red,    (int)(sizeof fa_m_red)},    {fa_m_blonde, (int)(sizeof fa_m_blonde)},
+      {fa_m_other,  (int)(sizeof fa_m_other)} },
+    { {fa_f_black,  (int)(sizeof fa_f_black)},  {fa_f_brown,  (int)(sizeof fa_f_brown)},
+      {fa_f_red,    (int)(sizeof fa_f_red)},    {fa_f_blonde, (int)(sizeof fa_f_blonde)},
+      {fa_f_other,  (int)(sizeof fa_f_other)} },
+};
+
+static unsigned int fa_rng;
+static unsigned int fa_rand(void) {
+    fa_rng ^= fa_rng << 13; fa_rng ^= fa_rng >> 17; fa_rng ^= fa_rng << 5;
+    return fa_rng;
+}
+static void fa_shuffle(int *a, int n) {
+    int i, j, t;
+    for (i = n - 1; i > 0; i--) {
+        j = (int)(fa_rand() % (unsigned int)(i + 1));
+        t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+}
+/* Cycle one field through [No change, 0 .. count-1] in either direction. */
+static int fa_cycle(int v, int count, int dir) {
+    int s = v + 1;                             /* 0 = No change; 1..count = value */
+    s = (s + (dir > 0 ? 1 : count)) % (count + 1);
+    return s - 1;
+}
+static unsigned char *fa_record(int idx) {
+    return (unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
+}
+static int fa_is_male(const unsigned char *rec) {
+    return *(const int *)(rec + VV_SEX_OFFSET) == 0;   /* 0 = male */
+}
+
+/* Pick a head row for the village-wide HEAD mode: FA_HEAD_RANDOM = any row of
+   the villager's sex; a bucket mode = a random row of that hair colour. Empty
+   buckets fall back to any row so the feature never no-ops silently. */
+static int fa_pick_head(int female, int head_mode) {
+    if (head_mode == FA_HEAD_RANDOM) {
+        return (int)(fa_rand() % (unsigned int)VV_HEAD_COUNT);
+    }
+    {
+        const struct fa_bucket *b = &fa_buckets[female ? 1 : 0][head_mode - FA_HEAD_BLACK];
+        if (b->n <= 0) {
+            return (int)(fa_rand() % (unsigned int)VV_HEAD_COUNT);
+        }
+        return b->rows[fa_rand() % (unsigned int)b->n];
+    }
+}
+
+/* Apply the chosen appearance to every occupied villager and return how many
+   distinct records had at least one applicable selected operation that actually
+   changes a value.  Dynamic choices are generated into the plan first, so a
+   random choice that happens to equal the current value is also a true no-op. */
+static int vv4_apply_for_all(void) {
+    int active[VV_MAX_VILLAGERS];
+    int actsex[VV_MAX_VILLAGERS];              /* 1 = male */
+    int current_head[VV_MAX_VILLAGERS];
+    int current_body[VV_MAX_VILLAGERS];
+    int current_mask[VV_MAX_VILLAGERS];
+    unsigned char raw_mask[VV_MAX_VILLAGERS];
+    unsigned int raw_mask_fp[VV_MAX_VILLAGERS];
+    int plan_head[VV_MAX_VILLAGERS];
+    int plan_body[VV_MAX_VILLAGERS];
+    int plan_mask[VV_MAX_VILLAGERS];
+    int head_selected[VV_MAX_VILLAGERS];
+    int body_selected[VV_MAX_VILLAGERS];
+    int mask_selected[VV_MAX_VILLAGERS];
+    int nact = 0;
+    int affected = 0;
+    int mask_changed = 0;
+    int i, idx, mode;
+
+    fa_rng = GetTickCount() | 1u;
+    for (idx = 0; idx < VV_MAX_VILLAGERS; idx++) {
+        unsigned char *rec = fa_record(idx);
+        int male;
+        if (rec[VV_OCCUPIED_OFFSET] == 0) {
+            continue;                          /* empty/dead slot */
+        }
+        male = fa_is_male(rec);
+        active[nact] = idx;
+        actsex[nact] = male;
+        current_head[nact] = *(int *)(rec + VV_HEAD_OFFSET);
+        current_body[nact] = *(int *)(rec + VV_CLOTHING_OFFSET);
+        current_mask[nact] = vv_peek_mask(rec); /* fingerprint-checked lookup */
+        raw_mask[nact] = g_mask_by_index[idx];
+        raw_mask_fp[nact] = g_mask_fp[idx];
+        plan_head[nact] = current_head[nact];
+        plan_body[nact] = current_body[nact];
+        plan_mask[nact] = current_mask[nact];
+        if (male) {
+            head_selected[nact] = forall_state.head_mode != FA_HEAD_OFF ||
+                forall_state.male_head != FA_NOCHANGE;
+            body_selected[nact] = forall_state.body_mode != FA_BODY_OFF ||
+                forall_state.male_body != FA_NOCHANGE;
+            mask_selected[nact] = forall_state.tribe_mode != FA_MODE_OFF ||
+                forall_state.male_mask != FA_NOCHANGE;
+        } else {
+            head_selected[nact] = forall_state.head_mode != FA_HEAD_OFF ||
+                forall_state.female_head != FA_NOCHANGE;
+            body_selected[nact] = forall_state.body_mode != FA_BODY_OFF ||
+                forall_state.female_body != FA_NOCHANGE;
+            mask_selected[nact] = forall_state.tribe_mode != FA_MODE_OFF ||
+                forall_state.female_mask != FA_NOCHANGE;
+        }
+        if (forall_state.head_mode == FA_HEAD_OFF) {
+            plan_head[nact] = male ? forall_state.male_head : forall_state.female_head;
+            if (plan_head[nact] == FA_NOCHANGE) plan_head[nact] = current_head[nact];
+        }
+        if (forall_state.body_mode == FA_BODY_OFF) {
+            plan_body[nact] = male ? forall_state.male_body : forall_state.female_body;
+            if (plan_body[nact] == FA_NOCHANGE) plan_body[nact] = current_body[nact];
+        }
+        if (forall_state.tribe_mode == FA_MODE_OFF) {
+            plan_mask[nact] = male ? forall_state.male_mask : forall_state.female_mask;
+            if (plan_mask[nact] == FA_NOCHANGE) plan_mask[nact] = current_mask[nact];
+        }
+        nact++;
+    }
+
+    /* HEAD/BODY: materialize the exact values before the read-only preflight. */
+    for (i = 0; i < nact; i++) {
+        if (forall_state.head_mode != FA_HEAD_OFF)
+            plan_head[i] = fa_pick_head(!actsex[i], forall_state.head_mode);
+        if (forall_state.body_mode != FA_BODY_OFF)
+            plan_body[i] = (int)(fa_rand() % (unsigned int)VV_BODY_COUNT);
+    }
+
+    /* MASK: materialize the exact distribution before counting changes. */
+    mode = forall_state.tribe_mode;
+    if (mode == FA_MODE_VV5 || mode == FA_MODE_EQUAL) {
+        int order[VV_MAX_VILLAGERS];
+        int males[VV_MAX_VILLAGERS], females[VV_MAX_VILLAGERS];
+        int nm = 0, nf = 0, no = 0, mi = 0, fi = 0, k;
+        for (i = 0; i < nact; i++) order[i] = i;
+        if (mode == FA_MODE_VV5) {
+            fa_shuffle(order, nact);
+            for (k = 0; k < nact; k++) {
+                int col;
+                if (k < 1) col = 5;
+                else if (k < 1 + 4) col = 4;
+                else if (k < 1 + 4 + 7) col = 3;
+                else if (k < 1 + 4 + 7 + 10) col = 2;
+                else col = 1;
+                plan_mask[order[k]] = col;
+            }
+        } else {
+            for (i = 0; i < nact; i++) {
+                if (actsex[i]) males[nm++] = i; else females[nf++] = i;
+            }
+            fa_shuffle(males, nm);
+            fa_shuffle(females, nf);
+            while (mi < nm || fi < nf) {
+                if (mi < nm) order[no++] = males[mi++];
+                if (fi < nf) order[no++] = females[fi++];
+            }
+            for (k = 0; k < no; k++) plan_mask[order[k]] = (k % 5) + 1;
+        }
+    } else if (mode >= FA_MODE_NONE) {
+        for (i = 0; i < nact; i++) plan_mask[i] = mode - FA_MODE_NONE;
+    } else if (mode == FA_MODE_RANDOM) {
+        for (i = 0; i < nact; i++) plan_mask[i] = (int)(fa_rand() % VV_MASK_COUNT);
+    } else if (mode == FA_MODE_RANDOM5) {
+        for (i = 0; i < nact; i++) plan_mask[i] = (int)(fa_rand() % 5u) + 1;
+    }
+
+    /* Preflight compares the final planned values without mutating records or
+       the mask side-table.  Count each record once even when fields overlap. */
+    for (i = 0; i < nact; i++) {
+        if ((head_selected[i] && plan_head[i] != current_head[i]) ||
+            (body_selected[i] && plan_body[i] != current_body[i]) ||
+            (mask_selected[i] && vv4_mask_plan_changes(
+                plan_mask[i], current_mask[i], raw_mask[i], raw_mask_fp[i]))) {
+            ++affected;
+        }
+    }
+    if (affected == 0) return 0;
+
+    /* Exactly one mutation pass after the no-op gate. */
+    for (i = 0; i < nact; i++) {
+        unsigned char *rec = fa_record(active[i]);
+        if (head_selected[i] && plan_head[i] != current_head[i])
+            *(int *)(rec + VV_HEAD_OFFSET) = plan_head[i];
+        if (body_selected[i] && plan_body[i] != current_body[i])
+            *(int *)(rec + VV_CLOTHING_OFFSET) = plan_body[i];
+        if (mask_selected[i] && vv4_mask_plan_changes(
+                plan_mask[i], current_mask[i], raw_mask[i], raw_mask_fp[i])) {
+            vv_set_mask(rec, plan_mask[i]);
+            mask_changed = 1;
+        }
+    }
+    if (mask_changed) vv_write_mask_sidecar();
+    return affected;
+}
+
+/* Draw one for-All preview cell (or "No change"). */
+static void fa_draw_cell(const DRAWITEMSTRUCT *dis, int value, int is_head,
+                         int is_mask, int sex_female) {
+    if (value == FA_NOCHANGE) {
+        FillRect(dis->hDC, &dis->rcItem, (HBRUSH)(COLOR_BTNFACE + 1));
+        DrawTextA(dis->hDC, "No change", -1, (RECT *)&dis->rcItem,
+                  DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        return;
+    }
+    if (is_mask) {
+        appearance_draw_mask_cell(dis->hDC, dis->rcItem, value);
+        return;
+    }
+    appearance_state.sex = sex_female;          /* draw helper reads this global */
+    appearance_state.is_old = 0;                /* young atlas for the preview */
+    appearance_draw_cell(dis->hDC, dis->rcItem, is_head, value, 1);
+}
+
+static void fa_sync_enable(HWND window) {
+    /* A non-Off village-wide mode greys the matching per-sex cyclers (the
+       village-wide choice overrides them). Each group's "Off" radio is its
+       FIRST id (mask 3200, head 3220, body 3240). */
+    BOOL mask_off = (IsDlgButtonChecked(window, FA_RADIO_FIRST) == BST_CHECKED);
+    BOOL head_off = (IsDlgButtonChecked(window, FA_HEAD_RADIO_FIRST) == BST_CHECKED);
+    BOOL body_off = (IsDlgButtonChecked(window, FA_BODY_RADIO_FIRST) == BST_CHECKED);
+    int mask_ids[6] = { 3021, 3022, 3023, 3121, 3122, 3123 };
+    int head_ids[6] = { 3001, 3002, 3003, 3101, 3102, 3103 };
+    int body_ids[6] = { 3011, 3012, 3013, 3111, 3112, 3113 };
+    int i;
+    for (i = 0; i < 6; i++) {
+        EnableWindow(GetDlgItem(window, mask_ids[i]), mask_off);
+        EnableWindow(GetDlgItem(window, head_ids[i]), head_off);
+        EnableWindow(GetDlgItem(window, body_ids[i]), body_off);
+    }
+}
+
+static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
+                                      WPARAM wparam, LPARAM lparam) {
+    (void)lparam;
+    if (message == WM_INITDIALOG) {
+        forall_state.male_head = forall_state.male_body = forall_state.male_mask =
+            FA_NOCHANGE;
+        forall_state.female_head = forall_state.female_body =
+            forall_state.female_mask = FA_NOCHANGE;
+        forall_state.tribe_mode = FA_MODE_OFF;
+        forall_state.head_mode = FA_HEAD_OFF;
+        forall_state.body_mode = FA_BODY_OFF;
+        CheckDlgButton(window, FA_RADIO_FIRST, BST_CHECKED);
+        CheckDlgButton(window, FA_HEAD_RADIO_FIRST, BST_CHECKED);
+        CheckDlgButton(window, FA_BODY_RADIO_FIRST, BST_CHECKED);
+        fa_sync_enable(window);
+        vv4_surface_dialog(window);
+        return TRUE;
+    } else if (message == WM_DRAWITEM) {
+        const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
+        switch (dis->CtlID) {
+        case 3013: fa_draw_cell(dis, forall_state.male_body, 0, 0, 0); return TRUE;
+        case 3003: fa_draw_cell(dis, forall_state.male_head, 1, 0, 0); return TRUE;
+        case 3023: fa_draw_cell(dis, forall_state.male_mask, 0, 1, 0); return TRUE;
+        case 3113: fa_draw_cell(dis, forall_state.female_body, 0, 0, 1); return TRUE;
+        case 3103: fa_draw_cell(dis, forall_state.female_head, 1, 0, 1); return TRUE;
+        case 3123: fa_draw_cell(dis, forall_state.female_mask, 0, 1, 1); return TRUE;
+        default: return FALSE;
+        }
+    } else if (message == WM_COMMAND) {
+        int id = LOWORD(wparam);
+        int dir = 0, *field = NULL, count = 0, pic = 0;
+        switch (id) {
+        case 3011: field = &forall_state.male_body;   count = VV_BODY_COUNT; dir = -1; pic = 3013; break;
+        case 3012: field = &forall_state.male_body;   count = VV_BODY_COUNT; dir =  1; pic = 3013; break;
+        case 3001: field = &forall_state.male_head;   count = VV_HEAD_COUNT; dir = -1; pic = 3003; break;
+        case 3002: field = &forall_state.male_head;   count = VV_HEAD_COUNT; dir =  1; pic = 3003; break;
+        case 3021: field = &forall_state.male_mask;   count = VV_MASK_COUNT; dir = -1; pic = 3023; break;
+        case 3022: field = &forall_state.male_mask;   count = VV_MASK_COUNT; dir =  1; pic = 3023; break;
+        case 3111: field = &forall_state.female_body; count = VV_BODY_COUNT; dir = -1; pic = 3113; break;
+        case 3112: field = &forall_state.female_body; count = VV_BODY_COUNT; dir =  1; pic = 3113; break;
+        case 3101: field = &forall_state.female_head; count = VV_HEAD_COUNT; dir = -1; pic = 3103; break;
+        case 3102: field = &forall_state.female_head; count = VV_HEAD_COUNT; dir =  1; pic = 3103; break;
+        case 3121: field = &forall_state.female_mask; count = VV_MASK_COUNT; dir = -1; pic = 3123; break;
+        case 3122: field = &forall_state.female_mask; count = VV_MASK_COUNT; dir =  1; pic = 3123; break;
+        default: break;
+        }
+        if (field != NULL) {
+            *field = fa_cycle(*field, count, dir);
+            InvalidateRect(GetDlgItem(window, pic), NULL, TRUE);
+            return TRUE;
+        }
+        if (id >= FA_RADIO_FIRST && id <= FA_RADIO_LAST) {
+            forall_state.tribe_mode = id - FA_RADIO_FIRST;   /* auto-radio handles check */
+            fa_sync_enable(window);
+            return TRUE;
+        }
+        if (id >= FA_HEAD_RADIO_FIRST && id <= FA_HEAD_RADIO_LAST) {
+            forall_state.head_mode = id - FA_HEAD_RADIO_FIRST;
+            fa_sync_enable(window);
+            return TRUE;
+        }
+        if (id >= FA_BODY_RADIO_FIRST && id <= FA_BODY_RADIO_LAST) {
+            forall_state.body_mode = id - FA_BODY_RADIO_FIRST;
+            fa_sync_enable(window);
+            return TRUE;
+        }
+        if (id == IDOK) { EndDialog(window, 1); return TRUE; }
+        if (id == IDCANCEL) { EndDialog(window, 0); return TRUE; }
+    } else if (message == WM_CLOSE) {
+        EndDialog(window, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Tech-menu row entry point: show the dialog, and on OK charge 450,000 and
+   apply. Returns 1 when applied+charged, 0 otherwise. No arg needed -- VV4's
+   tech points are the global at 0x4D6F88 and the record array is fixed. */
+static int fa_nothing_selected(void) {
+    return forall_state.tribe_mode == FA_MODE_OFF &&
+           forall_state.head_mode == FA_HEAD_OFF &&
+           forall_state.body_mode == FA_BODY_OFF &&
+           forall_state.male_head == FA_NOCHANGE &&
+           forall_state.male_body == FA_NOCHANGE &&
+           forall_state.male_mask == FA_NOCHANGE &&
+           forall_state.female_head == FA_NOCHANGE &&
+           forall_state.female_body == FA_NOCHANGE &&
+           forall_state.female_mask == FA_NOCHANGE;
+}
+
+__declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
+    int affected;
+    vv4_prep_fullscreen();
+    /* Buy-confirm before the dialog (parity wording across all 5 games). */
+    if (MessageBoxA(NULL,
+            "Do you want to buy Change Appearance for All for 450,000 tech "
+            "points?\r\nPress OK to confirm, or Cancel.",
+            "Change Appearance for All",
+            MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) != IDOK) {
+        return 0;
+    }
+    if ((int)DialogBoxParamA(module_instance, MAKEINTRESOURCEA(214), NULL,
+                             forall_dialog, 0) != 1) {
+        return 0;                              /* cancelled -> no charge */
+    }
+    if (fa_nothing_selected()) {
+        MessageBoxA(NULL,
+            "No appearance options were selected. No tech points deducted.",
+            "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
+    if (*(volatile unsigned int *)(UINT_PTR)0x4D6F88u < 450000u) {
+        MessageBoxA(NULL,
+            "Not enough tech points. This upgrade costs 450,000.",
+            "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
+    /* Head is hereditary: warn once before committing a head change en-masse. */
+    if (forall_state.male_head != FA_NOCHANGE ||
+        forall_state.female_head != FA_NOCHANGE ||
+        forall_state.head_mode != FA_HEAD_OFF) {
+        if (MessageBoxA(NULL,
+                "Warning: This will change the head genetics of every villager "
+                "of the selected sex, affecting their descendants.\r\n\r\n"
+                "Proceed?",
+                "Change Appearance for All",
+                MB_OKCANCEL | MB_ICONWARNING | VV_MB_FRONT) != IDOK) {
+            return 0;
+        }
+    }
+    affected = vv4_apply_for_all();
+    if (affected == 0) {
+        MessageBoxA(NULL,
+            "No occupied villagers matched the selected appearance options. "
+            "No tech points have been deducted.",
+            "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
+    __asm {
+        push -450000
+        mov  ecx, 0x4D6F88
+        mov  eax, 0x41E300
+        call eax
+    }
+    MessageBoxA(NULL, "Change Appearance for All applied to every villager.",
+                "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    return 1;
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     int villager_ptr
 ) {
@@ -589,6 +1815,9 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
+    /* A magic-untagged (uninitialised) slot reads as (None); no write-back so an
+       unopened villager's garbage never counts as a change. */
+    appearance_state.original_mask = vv_get_mask(villager);
     appearance_state.head_count = VV_HEAD_COUNT;
     appearance_state.body_count = VV_BODY_COUNT;
     appearance_state.sex = *(int *)(villager + VV_SEX_OFFSET);

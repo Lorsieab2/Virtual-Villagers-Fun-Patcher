@@ -34,7 +34,9 @@ if ($LASTEXITCODE -ne 0) {
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
     ("/OUT:" + (Join-Path $outputRoot "VVFP VV4 Origins Icons.dll")) `
     user32.lib `
-    gdiplus.lib
+    gdiplus.lib `
+    shell32.lib `
+    gdi32.lib
 if ($LASTEXITCODE -ne 0) {
     throw "Native DLL compilation failed."
 }

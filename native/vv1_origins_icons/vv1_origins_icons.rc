@@ -31,6 +31,7 @@
 3002 BITMAP "appearance/head_f.bmp"
 3011 BITMAP "appearance/body_m.bmp"
 3012 BITMAP "appearance/body_f.bmp"
+3021 BITMAP "appearance/mask.bmp"
 #endif
 
 #define DS_MODALFRAME 0x0080L
@@ -42,80 +43,97 @@
 #define WS_VISIBLE 0x10000000L
 #define SS_CENTER 0x00000001L
 #define SS_OWNERDRAW 0x0000000DL
+#define WS_GROUP 0x00020000L
+#define WS_TABSTOP 0x00010000L
+#define BS_AUTORADIOBUTTON 0x00000009L
+#define BS_RADIOBUTTON 0x00000004L
+#define BS_GROUPBOX 0x00000007L
 
-201 DIALOGEX 0, 0, 310, 396
+/* Two-column "Origins Upgrades" tech menu, geometry matched to VV2's canonical
+   dialog 211 (612x232, 27px row pitch; left column icon x=8 / status-badge x=22
+   / text x=40 / Buy x=240, right column +302).  VV1 has no Complete/Reset
+   Collections rows, so its right column runs Grant Mastery / All 18 / Equal
+   Division x2 / Change Appearance for All.  Control ids are unchanged from the
+   old single-column layout (Buy = 1000+row, status badge icon 109 = 1100+row),
+   so the DLL's WM_INITDIALOG/WM_COMMAND logic is untouched by the reflow. */
+201 DIALOGEX 0, 0, 612, 232
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
 BEGIN
-    ICON        101, -1, 8,   8,  24, 24
-    ICON        109, 1100, 22, 20, 12, 12
-    LTEXT       "Time Warp - Advances 3 Villager Years", -1, 40, 10, 195, 10
-    LTEXT       "50,000 tech points", -1, 40, 22, 150, 9
-    PUSHBUTTON  "Buy", 1000, 240, 11, 55, 18
+    /* ---- LEFT COLUMN (rows 0-6) ---- */
+    ICON        101, -1, 8,   6,  24, 24
+    ICON        109, 1100, 22, 18, 12, 12
+    LTEXT       "Time Warp - Advances 3 Villager Years", -1, 40, 8, 195, 10
+    LTEXT       "50,000 tech points", -1, 40, 20, 150, 9
+    PUSHBUTTON  "Buy", 1000, 240, 9, 55, 18
 
-    ICON        102, -1, 8,  40,  24, 24
-    ICON        109, 1101, 22, 52, 12, 12
-    LTEXT       "Island Event", -1, 40, 42, 150, 10
-    LTEXT       "30,000 tech points", -1, 40, 54, 150, 9
-    PUSHBUTTON  "Buy", 1001, 240, 43, 55, 18
+    ICON        102, -1, 8,  33,  24, 24
+    ICON        109, 1101, 22, 45, 12, 12
+    LTEXT       "Island Event", -1, 40, 35, 150, 10
+    LTEXT       "30,000 tech points", -1, 40, 47, 150, 9
+    PUSHBUTTON  "Buy", 1001, 240, 36, 55, 18
 
-    ICON        103, -1, 8,  72,  24, 24
-    ICON        109, 1102, 22, 84, 12, 12
-    LTEXT       "Barrel of Babies", -1, 40, 74, 150, 10
-    LTEXT       "75,000 tech points", -1, 40, 86, 150, 9
-    PUSHBUTTON  "Buy", 1002, 240, 75, 55, 18
+    ICON        103, -1, 8,  60,  24, 24
+    ICON        109, 1102, 22, 72, 12, 12
+    LTEXT       "Barrel of Babies", -1, 40, 62, 150, 10
+    LTEXT       "75,000 tech points", -1, 40, 74, 150, 9
+    PUSHBUTTON  "Buy", 1002, 240, 63, 55, 18
 
-    ICON        104, -1, 8, 104,  24, 24
-    ICON        109, 1103, 22, 116, 12, 12
-    LTEXT       "Tech Point Doubler", -1, 40, 106, 150, 10
-    LTEXT       "500,000 tech points", -1, 40, 118, 150, 9
-    PUSHBUTTON  "Buy", 1003, 240, 107, 55, 18
+    ICON        104, -1, 8,  87,  24, 24
+    ICON        109, 1103, 22, 99, 12, 12
+    LTEXT       "Tech Point Doubler", -1, 40, 89, 150, 10
+    LTEXT       "500,000 tech points", -1, 40, 101, 150, 9
+    PUSHBUTTON  "Buy", 1003, 240, 90, 55, 18
 
-    ICON        105, -1, 8, 136,  24, 24
-    ICON        109, 1104, 22, 148, 12, 12
-    LTEXT       "Food Point Doubler", -1, 40, 138, 150, 10
-    LTEXT       "500,000 tech points", -1, 40, 150, 150, 9
-    PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
+    ICON        105, -1, 8, 114,  24, 24
+    ICON        109, 1104, 22, 126, 12, 12
+    LTEXT       "Food Point Doubler", -1, 40, 116, 150, 10
+    LTEXT       "500,000 tech points", -1, 40, 128, 150, 9
+    PUSHBUTTON  "Buy", 1004, 240, 117, 55, 18
 
-    ICON        110, -1, 8, 168,  24, 24
-    ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Full Heal / Cure All", -1, 40, 170, 190, 10
-    LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
-    PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
+    ICON        110, -1, 8, 141,  24, 24
+    ICON        109, 1105, 22, 153, 12, 12
+    LTEXT       "Full Heal / Cure All", -1, 40, 143, 190, 10
+    LTEXT       "30,000 tech points", -1, 40, 155, 150, 9
+    PUSHBUTTON  "Buy", 1005, 240, 144, 55, 18
 
-    ICON        108, -1, 8, 200,  24, 24
-    ICON        109, 1106, 22, 212, 12, 12
-    LTEXT       "Grant Running to All Villagers", -1, 40, 202, 190, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 214, 170, 9
-    PUSHBUTTON  "Buy", 1006, 240, 203, 55, 18
+    ICON        108, -1, 8, 168,  24, 24
+    ICON        109, 1106, 22, 180, 12, 12
+    LTEXT       "Grant Running to All Villagers", -1, 40, 170, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 182, 170, 9
+    PUSHBUTTON  "Buy", 1006, 240, 171, 55, 18
 
-    ICON        107, -1, 8, 232,  24, 24
-    ICON        109, 1107, 22, 244, 12, 12
-    LTEXT       "Grant Full Mastery to All Villagers", -1, 40, 234, 190, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 246, 170, 9
-    PUSHBUTTON  "Buy", 1007, 240, 235, 55, 18
+    /* ---- RIGHT COLUMN (rows 7-11), left column + 302 ---- */
+    ICON        107, -1, 310,  6,  24, 24
+    ICON        109, 1107, 324, 18, 12, 12
+    LTEXT       "Grant Full Mastery to All Villagers", -1, 342, 8, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 20, 170, 9
+    PUSHBUTTON  "Buy", 1007, 542, 9, 55, 18
 
-    ICON        106, -1, 8, 264,  24, 24
-    ICON        109, 1108, 22, 276, 12, 12
-    LTEXT       "All Villagers are Exactly 18", -1, 40, 266, 190, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
-    PUSHBUTTON  "Buy", 1008, 240, 267, 55, 18
+    ICON        106, -1, 310, 33,  24, 24
+    ICON        109, 1108, 324, 45, 12, 12
+    LTEXT       "All Villagers are Exactly 18", -1, 342, 35, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 47, 170, 9
+    PUSHBUTTON  "Buy", 1008, 542, 36, 55, 18
 
-    ICON        108, -1, 8, 296,  24, 24
-    ICON        109, 1109, 22, 308, 12, 12
-    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 40, 298, 195, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 310, 150, 9
-    PUSHBUTTON  "Buy", 1009, 240, 299, 55, 18
+    ICON        107, -1, 310, 60,  24, 24
+    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 342, 62, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 74, 170, 9
+    PUSHBUTTON  "Buy", 1009, 542, 63, 55, 18
 
-    ICON        106, -1, 8, 328,  24, 24
-    ICON        109, 1110, 22, 340, 12, 12
-    LTEXT       "Equal Division of Labor (No Parenting)", -1, 40, 330, 195, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 342, 150, 9
-    PUSHBUTTON  "Buy", 1010, 240, 331, 55, 18
+    ICON        108, -1, 310, 87,  24, 24
+    LTEXT       "Equal Division of Labor (No Parenting)", -1, 342, 89, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 101, 170, 9
+    PUSHBUTTON  "Buy", 1010, 542, 90, 55, 18
 
-    CTEXT       "Press ESC to exit this menu.", -1, 20, 362, 270, 9
-    DEFPUSHBUTTON "Cancel", 2, 120, 375, 70, 14
+    ICON        106, -1, 310, 114,  24, 24
+    LTEXT       "Change Appearance for All", -1, 342, 116, 195, 10
+    LTEXT       "450,000 tech points", -1, 342, 128, 170, 9
+    PUSHBUTTON  "Buy", 1011, 542, 117, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 200, 592, 9
+    DEFPUSHBUTTON "Cancel", 2, 271, 212, 70, 14
 END
 
 202 DIALOGEX 0, 0, 310, 204
@@ -165,7 +183,13 @@ END
    build from carrying this unused dialog and its (already-guarded)
    art. */
 #ifndef VVFP_VV2_BUILD
-203 DIALOGEX 0, 0, 250, 196
+/* Cross-game cycler parity (VV2 = canonical): all three previews share one
+   70 W x 118 H owner-draw box in a single row at column pitch 120 (Body 30,
+   Head 150, Mask 270), 16x16 arrows flanking each box 4px out. The mask is a
+   purely cosmetic overlay bundled into the same 5,000-point transaction as
+   head/body ("changed" + the charge stay the caller's job). Its name shows on
+   its own line under the Mask column; control IDs stay in VV1's 20xx block. */
+203 DIALOGEX 0, 0, 364, 196
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
@@ -180,8 +204,93 @@ BEGIN
     PUSHBUTTON  "<", 2001, 130, 72, 16, 16
     PUSHBUTTON  ">", 2002, 224, 72, 16, 16
 
-    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 150, 222, 9
-    DEFPUSHBUTTON "OK",     1, 66, 168, 50, 16
-    PUSHBUTTON    "Cancel", 2, 134, 168, 50, 16
+    CTEXT       "Mask", -1, 270, 8, 70, 9
+    CONTROL     "", 2023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 270, 20, 70, 118
+    PUSHBUTTON  "<", 2020, 250, 72, 16, 16
+    PUSHBUTTON  ">", 2022, 344, 72, 16, 16
+    CTEXT       "(None)", 2021, 270, 142, 70, 10
+
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 162, 336, 9
+    DEFPUSHBUTTON "OK",     1, 122, 174, 55, 16
+    PUSHBUTTON    "Cancel", 2, 187, 174, 55, 16
 END
+
+/* Change Appearance for All (Tech-screen upgrade, 450,000 tech points).
+   Two per-sex columns (Head/Body/Mask, mirroring dialog 203's controls) plus a
+   whole-village mask group. Control ids: male 21xx, female 22xx, whole-village
+   radios 230x. The handler applies the per-sex head/body/mask to every villager
+   of that sex, then -- unless "Use choices above" is selected -- overrides ALL
+   masks with the chosen distribution / single colour via Vv1MaskApplyDistribution. */
+/* Change Appearance for All -- wide multi-column layout (VV2 canonical parity):
+   Male + Female per-sex Body/Head/Mask selectors on the left; a right column of
+   Village-wide Heads / Bodies / Single-Mask-Color override groups; a full-width
+   Mask-Distribution row underneath. Each override group has its own "Off" and
+   is mutually exclusive; any non-Off override grays + overrides the matching
+   per-sex selectors. Per-sex boxes 50x74, arrows 12x20 (for-All canonical). */
+204 DIALOGEX 0, 0, 620, 340
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Appearance for All"
+FONT 9, "Segoe UI"
+BEGIN
+    CONTROL     "Male Villagers", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 6, 2, 368, 104
+    CTEXT       "Body", -1, 28, 14, 50, 9
+    CONTROL     "", 2110, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 24, 50, 74
+    PUSHBUTTON  "<", 2111, 14, 51, 12, 20
+    PUSHBUTTON  ">", 2112, 80, 51, 12, 20
+    CTEXT       "Head", -1, 150, 14, 50, 9
+    CONTROL     "", 2100, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 24, 50, 74
+    PUSHBUTTON  "<", 2101, 136, 51, 12, 20
+    PUSHBUTTON  ">", 2102, 202, 51, 12, 20
+    CTEXT       "Mask", -1, 272, 14, 50, 9
+    CONTROL     "", 2120, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 24, 50, 74
+    PUSHBUTTON  "<", 2121, 258, 51, 12, 20
+    PUSHBUTTON  ">", 2122, 324, 51, 12, 20
+
+    CONTROL     "Female Villagers", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 6, 110, 368, 104
+    CTEXT       "Body", -1, 28, 122, 50, 9
+    CONTROL     "", 2210, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 132, 50, 74
+    PUSHBUTTON  "<", 2211, 14, 159, 12, 20
+    PUSHBUTTON  ">", 2212, 80, 159, 12, 20
+    CTEXT       "Head", -1, 150, 122, 50, 9
+    CONTROL     "", 2200, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 132, 50, 74
+    PUSHBUTTON  "<", 2201, 136, 159, 12, 20
+    PUSHBUTTON  ">", 2202, 202, 159, 12, 20
+    CTEXT       "Mask", -1, 272, 122, 50, 9
+    CONTROL     "", 2220, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 132, 50, 74
+    PUSHBUTTON  "<", 2221, 258, 159, 12, 20
+    PUSHBUTTON  ">", 2222, 324, 159, 12, 20
+
+    CONTROL     "Village-wide Heads", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 382, 2, 232, 104
+    CONTROL     "Off (use Head selectors above)", 2320, "BUTTON", BS_RADIOBUTTON | WS_GROUP | WS_TABSTOP | WS_CHILD | WS_VISIBLE, 390, 16, 218, 10
+    CONTROL     "Random (by gender)", 2321, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 390, 28, 218, 10
+    CONTROL     "All Black Hair", 2322, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 390, 40, 218, 10
+    CONTROL     "All Brown Hair", 2323, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 390, 52, 218, 10
+    CONTROL     "All Red / Ginger Hair", 2324, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 390, 64, 218, 10
+    CONTROL     "All Blonde Hair", 2325, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 390, 76, 218, 10
+    CONTROL     "All Other Hair / Styles", 2326, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 390, 88, 218, 10
+
+    CONTROL     "Village-wide Bodies", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 382, 110, 232, 40
+    CONTROL     "Off (use Body selectors above)", 2330, "BUTTON", BS_RADIOBUTTON | WS_GROUP | WS_TABSTOP | WS_CHILD | WS_VISIBLE, 390, 124, 218, 10
+    CONTROL     "Random (by gender)", 2331, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 390, 136, 218, 10
+
+    CONTROL     "Village-wide Single Mask Color", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 382, 152, 232, 62
+    CONTROL     "None (remove all masks)", 2310, "BUTTON", BS_RADIOBUTTON | WS_GROUP | WS_TABSTOP | WS_CHILD | WS_VISIBLE, 390, 166, 110, 10
+    CONTROL     "Blue", 2311, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 504, 166, 100, 10
+    CONTROL     "Orange", 2312, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 390, 180, 110, 10
+    CONTROL     "Red", 2313, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 504, 180, 100, 10
+    CONTROL     "Purple", 2314, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 390, 194, 110, 10
+    CONTROL     "Chief", 2315, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 504, 194, 100, 10
+
+    CONTROL     "Mask Distribution (all villagers)", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 6, 218, 608, 80
+    CONTROL     "Off (use Mask selectors above)", 2300, "BUTTON", BS_RADIOBUTTON | WS_GROUP | WS_TABSTOP | WS_CHILD | WS_VISIBLE, 14, 232, 596, 10
+    CONTROL     "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 2301, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 14, 245, 596, 10
+    CONTROL     "Random (All 5 + No Mask)", 2302, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 14, 258, 596, 10
+    CONTROL     "Random (All 5)", 2303, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 14, 271, 596, 10
+    CONTROL     "Equal Colors (All 5 colors; balanced M/F)", 2304, "BUTTON", BS_RADIOBUTTON | WS_CHILD | WS_VISIBLE, 14, 284, 596, 10
+
+    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 304, 608, 9
+    DEFPUSHBUTTON "OK",     1, 250, 318, 55, 16
+    PUSHBUTTON    "Cancel", 2, 315, 318, 55, 16
+END
+
 #endif

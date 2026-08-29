@@ -153,6 +153,14 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # the VV2 feature tests; all other Origins rows remain
                     # byte-identical to the prior record.
                     repaired_offsets = {
+                        # VV2 mask-stage delivery owns these fixed-image
+                        # detours; their guards are asserted in the dedicated
+                        # VV2 mask contract tests below.
+                        "0x3160",
+                        "0x95B0",
+                        "0x9600",
+                        "0x45B50",
+                        "0x4C5E6",
                         "0x9A009",
                         "0x9A300",
                         "0x9A530",
@@ -174,6 +182,10 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     repaired_offsets = {
                         "0x270",
                         "0x28C",
+                        # .data VirtualSize extended to 0x7000 so it owns the
+                        # BSS page holding all writable mask state (W^X) --
+                        # keeping runtime writes off the executable .shr page.
+                        "0x248",
                         "0x28470",
                         "0x56900",
                         "0x85D30",
@@ -229,6 +241,60 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # check/charge/result, in the confirmed-unused gap
                         # after POPULATION_FINAL_TIER).
                         "0x8B790", "0x8B8A0", "0x8BD30",
+                        # Cosmetic head-mask overlay (Change Appearance's
+                        # Mask row): 5 cached SDL_Surface* + companion-PNG
+                        # filenames plus the additive per-frame draw hook,
+                        # in .shr's confirmed-unused tail right after the
+                        # Running Dislike-clear helper; and the detour
+                        # splicing that hook into sub_437790's per-villager
+                        # render loop right after its own occupied check.
+                        "0x8BEA8", "0x377B8", "0x24103", "0x913C",
+                        # Change Appearance for All (Tech screen row 11): its
+                        # DLL-dispatch stub in the confirmed-unused .shr gap
+                        # after equal_division_core; the row's confirm-price
+                        # case and dispatch edge reuse the already-listed
+                        # confirm helper (0x8BB00) and Equal Division dispatch
+                        # (0x8BD30). Adding one export string shifts every
+                        # later .rdata string pointer by 0x20, which is why
+                        # the string-referencing rows above (0x56900, 0x8BEA8)
+                        # also differ -- immediates only, no opcode change.
+                        "0x8B93F",
+                        # Whole-village mask fix: the per-frame stash list moved
+                        # out of the size-capped .data (39-entry ceiling) into a
+                        # DLL-allocated buffer indexed via a .data pointer, so a
+                        # full-village distribution masks all villagers, not just
+                        # the first 39. The two mask render hooks (0x8BEA8) index
+                        # through that pointer; the restore stub's done-flag
+                        # (0x8BE32) moved with the compacted scratch layout.
+                        "0x8BE32",
+                        # Malwarebytes-safe redesign: everything stays in the
+                        # exe's own .data (the stash stores a 1-byte record
+                        # index, the draw hook recomputes screen x/y from it),
+                        # which grew the draw hook past the 0x8BEA8 cave, so it
+                        # relocated to its own confirmed-zero .shr gap.
+                        "0x8B080",
+                        # Details-screen portrait mask overlay: sub_437340
+                        # draws the portrait head at FOUR call sites (a 2x2 of
+                        # age x head-atlas flag). All four now remain CALLs but
+                        # target one ABI-compatible wrapper at 0x8E720. It
+                        # duplicates/replays the exact seven native head args,
+                        # then passes the untouched x/y/facing/scale/flag tuple
+                        # and renderer wrapper to Vv1DrawPortraitMask. Keep the
+                        # retired per-site cave rows below in the exception set
+                        # because the baseline manifest still contains them.
+                        "0x3741B", "0x374A4", "0x37503", "0x37556",
+                        "0x8E720", "0x8E75A", "0x8E774", "0x8E78E", "0x8E7A8",
+                        # Per-frame dead-slot/reuse maintenance: changed frame
+                        # hook plus the owned export-name and resolver blocks.
+                        "0x8E400", "0x8E6C0", "0x8E8F0", "0x8E900",
+                        # Exact newborn/allocation reuse guard: the stock splice
+                        # and patch-owned cave clear the selected mask nibble
+                        # and mark the active sidecar dirty for Vv1MaskTick.
+                        "0x3C393", "0x8EA00",
+                        # Village all-pose mask identity stash (Stage 1): 2 loop-top
+                        # splices + their stash caves (inert; hook reads the slot later).
+                        "0x37798", "0x38900", "0x8B180", "0x8B191",
+                        "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],
@@ -238,8 +304,25 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                 elif path.name == "vv3_origins_feature.json":
                     corrected_offsets = {
                         "0x7B664", "0x7B7C0", "0x7B7D0",
+                        "0x3290",
                         "0x15EF1", "0x16983", "0x16BAB", "0x17A3A",
                         "0x15D44", "0x1673E", "0x18452", "0xA3180",
+                        # Heathen-mask sections move (docs/head-mask-rendering.md
+                        # Part 7).  The mask trampolines used to sit in the .text
+                        # tail slack (.text VirtualSize ends at 0x47B254, so
+                        # 0x47B260+ was a borrowed gap) and the DLL fn-pointer slots
+                        # in the .data slack past 0x6C7518.  Both are code caves,
+                        # which silently collide when two patches want one gap.
+                        # They now live in two appended, patch-owned sections --
+                        # .vv3mc (R-X, trampolines) and .vv3md (R/W, slots) -- which
+                        # is also W^X-clean.  Co-selection with the only other VV3
+                        # append (.vv3tw) is impossible: its layouts exist only for
+                        # the non-selectable experimental_expanded_256* modes, so
+                        # this append owns the stock EOF with no offset coupling.
+                        "0x7B260", "0x7B2A0", "0x7B300",  # vacated .text caves
+                        "0x10E", "0x158", "0x2C8",        # PE header: sections 5->7
+                        "0x2E3F5", "0x34357", "0x344B3",  # redirects retargeted
+                        "0x60B48",                        # action-overlay wrapper
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],
@@ -264,6 +347,24 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # matching purchase gate.
                         "0xCCB10", "0x14D50", "0x3FBE5", "0x4098C",
                         "0x14DCA", "0x14E0D", "0xCCB40", "0xCCB60", "0xCCC00",
+                        # Heathen-mask overlay (SDL blit via companion DLL).
+                        # Removed the old append-rows approach (cave 0xCCD80 and
+                        # the row-count bumps 0xC3C24/0xC3B94) and replaced it
+                        # with three .shr caves -- resolve 0xCCD90, present-
+                        # surface-cache 0xCCDE0, head-draw 0xCCE10 -- plus the
+                        # present-call splice (0x9458) and the two head-draw
+                        # twins re-pointed to the head cave (0x5F702, 0x5F9CA).
+                        # No row-count bumps, no atlas swaps. The village world
+                        # cave (0xCCEB0, spliced at 0x68263) and the Details
+                        # portrait cave (0xCC7A1, spliced at the REAL portrait
+                        # bighead draw 0x5F965) reissue the head draw with the mask
+                        # atlas so the mask rides the head on every render path
+                        # (village + bighead portrait). (0x3CFDE was a dead site.)
+                        "0xCCD80", "0xC3C24", "0xC3B94",
+                        "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
+                        "0x5F702", "0x5F9CA",
+                        "0xCCEB0", "0x68263", "0xCC7A1", "0x5F965", "0x3CFDE", "0xCCFC4",
+                        "0xCCA28", "0xCCA30", "0xCCA34",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

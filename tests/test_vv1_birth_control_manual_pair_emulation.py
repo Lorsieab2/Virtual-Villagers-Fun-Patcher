@@ -167,6 +167,14 @@ def _emulate(
     mu.reg_write(UC_X86_REG_EDI, 6)
     mu.reg_write(UC_X86_REG_ESP, STACK + 0x80000)
     wr32(STACK + 0x80000 + 0x20, actor_index)
+    # FUN_0043DAD0 saved record pointers in its stack frame earlier in the
+    # function; the carrier (category-2) accept block at 0x43DD0E reads one of
+    # them from [esp+0x1C] and dereferences [rec+0x36C]. Point it at a mapped
+    # record so the stock read resolves. (The old buggy control flow mis-routed
+    # carriers to the non-carrier block at 0x43DD5E -- which reads [ebp+0x36C]
+    # instead -- so this local was never exercised until the stack-balance fix
+    # restored the correct 0x43DD0E path.)
+    wr32(STACK + 0x80000 + 0x18, candidate)
 
     completed = True
     try:

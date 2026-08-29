@@ -9,8 +9,9 @@ PAGE_VA = 0x490000
 
 
 class _Assembler:
-    def __init__(self) -> None:
+    def __init__(self, page_va: int) -> None:
         self.data = bytearray(PAGE_SIZE)
+        self.page_va = page_va
         self.cursor = 0
         self.labels: dict[str, int] = {}
         self.fixups: list[tuple[int, int, int | str]] = []
@@ -50,10 +51,10 @@ class _Assembler:
             if isinstance(target, str):
                 if target not in self.labels:
                     raise ValueError(f"unresolved label: {target}")
-                target_va = PAGE_VA + self.labels[target]
+                target_va = self.page_va + self.labels[target]
             else:
                 target_va = target
-            instruction_end_va = PAGE_VA + instruction_end
+            instruction_end_va = self.page_va + instruction_end
             struct.pack_into(
                 "<i",
                 self.data,
@@ -63,8 +64,17 @@ class _Assembler:
         return bytes(self.data)
 
 
-def build_page() -> tuple[bytes, dict[str, object]]:
-    asm = _Assembler()
+def build_page(page_va: int = PAGE_VA) -> tuple[bytes, dict[str, object]]:
+    """Build the helper page for its declared runtime virtual base.
+
+    The normal standalone page remains byte-identical at ``PAGE_VA``.  The
+    Origins composition uses a reserved 0x400-aligned tail inside the
+    Origins-owned zero pages, so its rel32 branches must be regenerated for
+    that actual virtual base rather than byte-rewritten after emission.
+    """
+    if page_va < 0 or page_va > 0xFFFFFFFF:
+        raise ValueError("VV1 Birth Control page VA is outside 32-bit range")
+    asm = _Assembler(page_va)
 
     # VV1 manual pairing: only a category-2 carrier at internal age >=1000
     # is rejected.  The male participant keeps the stock no-upper-bound path.
@@ -94,14 +104,31 @@ def build_page() -> tuple[bytes, dict[str, object]]:
     asm.jcc(0x85, "manual_candidate")  # jne: actor is not category 2
     asm.emit(bytes.fromhex("81BD48030000E8030000"))
     asm.jcc(0x8D, "manual_reject")  # jge: actor/carrier is age 50+
-    asm.jmp(0x43DD0A)
+    asm.jmp("manual_accept")
     asm.label("manual_candidate")
     asm.emit(bytes.fromhex("8BC3"))  # mov eax, ebx (candidate index, still live)
     asm.emit(bytes.fromhex("69C0D8030000"))  # imul eax, eax, 0x3D8
     asm.emit(bytes.fromhex("03C6"))  # add eax, esi -> eax = candidate record
     asm.emit(bytes.fromhex("81B848030000E8030000"))  # cmp dword ptr [eax+0x348], 0x3E8
     asm.jcc(0x8D, "manual_reject")  # jge: candidate/carrier is age 50+
-    asm.jmp(0x43DD5E)
+    # fall through to the shared accept path
+    #
+    # STACK-BALANCE FIX (crash confirmed from a full-heap dump: FUN_0043DAD0
+    # `ret`ed into the villager-index arg 0x22). Stock code from 0x43DD03 is:
+    #     0x43DD03  cmp [ebp+0x350], 2
+    #     0x43DD0A  push 0x64            <- argument for the call at 0x43DD0E/0x43DD5E
+    #     0x43DD0C  jne  0x43DD5E
+    # Every stock path reaches 0x43DD5E only *after* that `push 0x64`, and the
+    # code there does `call 0x402F10; add esp,4`, cleaning it. The old cave's
+    # candidate accept path jumped straight to 0x43DD5E, so the `push 0x64` was
+    # skipped but the `add esp,4` still ran -> esp 4 bytes too high for the rest
+    # of FUN_0043DAD0 -> its later `ret` popped the wrong slot and jumped to the
+    # index arg (0x22). Both accept paths now re-run the stock compare and rejoin
+    # at 0x43DD0A, so the stock `push 0x64; jne 0x43DD5E` supplies both the flags
+    # (correct accept branch) and the stack push (balanced) exactly as stock.
+    asm.label("manual_accept")
+    asm.emit(bytes.fromhex("83BD5003000002"))  # cmp dword ptr [ebp+0x350], 2
+    asm.jmp(0x43DD0A)  # stock: push 0x64; jne 0x43DD5E
     asm.label("manual_reject")
     # SECOND HALF OF THE SAME BUG (crash at 0x43DDE1, confirmed from a live
     # Windows Application-log 0xC0000005 record with fault offset 0x3DDE1).
@@ -190,9 +217,28 @@ def build_page() -> tuple[bytes, dict[str, object]]:
     asm.jmp(0x439C9D)
 
     page = asm.finish()
+    # These are the five stock-site rel32 jumps that enter this page.  Keep
+    # their bytes generated from the same page VA as the internal branches;
+    # a composed page must never reuse the standalone 0x490000 displacements.
+    hook_sites = {
+        "0x3DD03": (0x43DD03, 0x000, 7, b"\x90\x90"),
+        "0x46E96": (0x446E96, 0x080, 6, b"\x90"),
+        "0x47084": (0x447084, 0x0C0, 6, b"\x90"),
+        "0x477FA": (0x4477FA, 0x100, 5, b""),
+        "0x39C83": (0x439C83, 0x140, 6, b"\x90"),
+    }
+    hook_after: dict[str, str] = {}
+    for raw, (source_va, page_offset, length, suffix) in hook_sites.items():
+        displacement = page_va + page_offset - (source_va + 5)
+        encoded = b"\xE9" + struct.pack("<i", displacement) + suffix
+        if len(encoded) != length:
+            raise AssertionError(f"hook encoding length drifted for {raw}")
+        hook_after[raw] = encoded.hex().upper()
+
     details = {
         "page_sha256": hashlib.sha256(page).hexdigest().upper(),
-        "page_virtual_address": hex(PAGE_VA),
+        "page_virtual_address": hex(page_va),
+        "hook_after": hook_after,
         "hooks": {
             "manual": {"raw": "0x3DD03", "page_offset": "0x0", "length": 7},
             "action_9_scan_1": {"raw": "0x46E96", "page_offset": "0x80", "length": 6},

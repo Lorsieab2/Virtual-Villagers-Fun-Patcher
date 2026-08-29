@@ -334,11 +334,24 @@ class ManifestTests(unittest.TestCase):
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
-        # Base transaction patches + Change Appearance (0x9AD20) + the shared
+        # Base transaction patches + the five exact mask-stage detours + Change Appearance (0x9AD20) + the shared
         # DLL-dispatch stub in the old whole-village slot (0x9AE40, routing Grant
         # Running / Grant Full Mastery / Complete / Reset Collections) + the
         # Barrel of Babies capacity gate (0x9AF58).
-        self.assertEqual(len(rows), 28)
+        self.assertEqual(len(rows), 33)
+        self.assertEqual(
+            {
+                offset: (rows[offset]["before"], rows[offset]["after"])
+                for offset in (0x3160, 0x95B0, 0x9600, 0x45B50, 0x4C5E6)
+            },
+            {
+                0x3160: ("8B4424048B11", "E95A120B0090"),
+                0x95B0: ("8B09E989F3FFFF", "E997AA0A009090"),
+                0x9600: ("8B09E9E9F6FFFF", "E920AB0A009090"),
+                0x45B50: ("5355568BF1", "E9E8E70600"),
+                0x4C5E6: ("8986D874E500", "E9BD7C060090"),
+            },
+        )
         self.assertIn("companion-DLL exports", rows[0x9AE40]["purpose"])
         self.assertIn("GateVV2Barrel", rows[0x9AF58]["purpose"])
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
@@ -962,11 +975,12 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertIn("STATE_VILLAGE_WIDE = 0x20000", source)
         self.assertIn("((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6)", source)
-        # ID_BUY_LAST covers Equal Division of Labor's rows 9/10 too, not
-        # just the original village-wide rows 6-8 -- otherwise WM_COMMAND
-        # never sees their Buy clicks as in ID_BUY_FIRST..ID_BUY_LAST and
-        # EndDialog is never called for them.
-        self.assertIn("ID_BUY_LAST = 1010", source)
+        # ID_BUY_LAST covers Equal Division of Labor's rows 9/10 and the
+        # Change Appearance for All row 11 too, not just the original
+        # village-wide rows 6-8 -- otherwise WM_COMMAND never sees their
+        # Buy clicks as in ID_BUY_FIRST..ID_BUY_LAST and EndDialog is
+        # never called for them.
+        self.assertIn("ID_BUY_LAST = 1011", source)
         for label in (
             # Row labels match the OFFICIAL Origins Upgrade Prompts
             # spreadsheet's own naming for these two rows, not the shared
@@ -1314,7 +1328,11 @@ class StockIntegrationTests(unittest.TestCase):
 
     def test_expanded_modes_render_with_all_game_patches_selected(self) -> None:
         patches_by_game = {
-            build.id: [patch.id for patch in load_fun_patches() if patch.game_id == build.id]
+            build.id: [
+                patch.id
+                for patch in load_fun_patches()
+                if patch.game_id == build.id
+            ]
             for build in load_builds()
         }
         for build in load_builds():

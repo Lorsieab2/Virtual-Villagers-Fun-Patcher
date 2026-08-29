@@ -19,6 +19,14 @@ def load_release_module():
 
 
 class ReleaseManifestTests(unittest.TestCase):
+    def test_release_manifest_rejects_executable_members(self) -> None:
+        release = load_release_module()
+        release._assert_no_executable_members(release.FILES)
+        for member in ("stock.exe", "STOCK.EXE", "nested/stock.ExE"):
+            with self.subTest(member=member):
+                with self.assertRaisesRegex(RuntimeError, "executable members"):
+                    release._assert_no_executable_members([member])
+
     def test_release_manifest_contains_every_active_origins_manifest(self) -> None:
         release = load_release_module()
         expected = {

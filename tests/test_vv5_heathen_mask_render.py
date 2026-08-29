@@ -23,6 +23,7 @@ SPEC = importlib.util.spec_from_file_location(
 assert SPEC and SPEC.loader
 t9 = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(t9)
+VV5_SOURCE = (ROOT / "native/vv5_task9_origins/vv5_task9_origins.c").read_text(encoding="utf-8")
 
 STOCK_PAGE_VA = 0x7C9000
 MD = Cs(CS_ARCH_X86, CS_MODE_32)
@@ -230,3 +231,13 @@ def test_stock_modes_declare_the_slot_capture_detour():
         assert len(bytes.fromhex(cap["after"])) == 6         # exactly overwrites the stolen 6 bytes
         rel = int.from_bytes(bytes.fromhex(cap["after"])[1:5], "little", signed=True)
         assert 0x400000 + 0x3600 + 5 + rel == page_va + t9.OFF["slot_capture"]
+
+
+def test_mask_sidecar_path_is_fail_closed_and_budgeted():
+    # Slot zero is the pre-load legacy namespace; numbered saves are exactly
+    # 1..5.  The complete longest output, including NUL, must fit before the
+    # first unbounded wsprintfA call.
+    assert "if (slot < 0 || slot > 5)" in VV5_SOURCE
+    assert "n == 0 || n >= MAX_PATH" in VV5_SOURCE
+    assert "sizeof(\"\\\\vvfp_masks_5.dat\")" in VV5_SOURCE
+    assert "docs_len + 5 + base_len" in VV5_SOURCE

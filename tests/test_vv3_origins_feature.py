@@ -12,8 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
+    _remove_feature_bytes,
     _pe_checksum_layout,
     PatcherError,
+    get_fun_patch,
     load_builds,
     load_patch_modes,
     load_fun_patches,
@@ -77,6 +79,76 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         ):
             self.assertIn(required.encode("utf-16le"), data)
 
+    def test_change_appearance_for_all_charges_only_after_an_applicable_record(self) -> None:
+        dll = (
+            ROOT
+            / "native"
+            / "vv3_full_mastery_candidate"
+            / "vv3_full_mastery_candidate.c"
+        ).read_text(encoding="utf-8")
+        self.assertIn("static int vv3_apply_for_all", dll)
+        engine = dll.split("static int vv3_apply_for_all", 1)[1].split("\n}", 1)[0]
+        self.assertIn("int n = 0, chief = -1, affected = 0", engine)
+        self.assertIn("mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0)", engine)
+        self.assertIn("if (affected == 0)", engine)
+        self.assertIn("return affected;", engine)
+
+        entry = dll.split("ShowVV3AppearanceForAll(void)", 1)[1].split("\n}", 1)[0]
+        apply_at = entry.index("affected = vv3_apply_for_all")
+        guard_at = entry.index("if (affected == 0)", apply_at)
+        charge_at = entry.index("*tech -= VV3_CAF_COST", guard_at)
+        self.assertLess(apply_at, guard_at)
+        self.assertLess(guard_at, charge_at)
+        self.assertIn("No eligible villagers matched", entry)
+        self.assertIn("No tech points have been deducted", entry)
+
+    def test_change_appearance_for_all_counts_actual_value_differences(self) -> None:
+        """A selected value already present on every eligible record is free."""
+        dll = (
+            ROOT
+            / "native"
+            / "vv3_full_mastery_candidate"
+            / "vv3_full_mastery_candidate.c"
+        ).read_text(encoding="utf-8")
+        engine = dll.split("static int vv3_apply_for_all", 1)[1].split(
+            "#define VW_RUNNING", 1
+        )[0]
+        self.assertIn(
+            "int idx[256], sex[256], order[256], desired_mask[256], mask_changed[256]",
+            engine,
+        )
+        self.assertIn("mask_changed[i] = desired_mask[i] != recovered_mask", engine)
+        self.assertIn("g_vv3_mask[idx[i]] != 0", engine)
+        self.assertIn("g_vv3_mask_fp[idx[i]] != 0", engine)
+        self.assertIn("if (mask_changed[i])", engine)
+        self.assertIn("*(int *)(r + VV3_HEAD_OFF) != h", engine)
+        self.assertIn("*(int *)(r + VV3_BODY_OFF) != b", engine)
+
+        plan = engine.index("Build the exact mask result before counting")
+        count = engine.index("Count each eligible record once")
+        zero_guard = engine.index("if (affected == 0)", count)
+        first_head_write = engine.index("*(int *)(r + VV3_HEAD_OFF) = h")
+        first_mask_write = engine.index("vv3_mask_apply_prepared", zero_guard)
+        self.assertLess(plan, count)
+        self.assertLess(count, zero_guard)
+        self.assertLess(zero_guard, first_head_write)
+        self.assertLess(zero_guard, first_mask_write)
+
+        # A per-sex selector of -1 must not turn an inapplicable mask into a
+        # synthetic difference for the other sex.
+        self.assertIn(
+            "(mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0)",
+            engine,
+        )
+        self.assertIn(
+            "vv3_mask_apply_prepared(\n                    (void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),",
+            engine,
+        )
+        # Random/proportional/equal modes are generated once and applied from
+        # the same plan, preserving one mutation pass and no-op atomicity.
+        self.assertIn("desired_mask[i] = (int)(caf_rand() % 6u)", engine)
+        self.assertIn("if (mask_requested) {\n        for (i = 0; i < n; ++i)", engine)
+
     def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
         description = self.manifest["description"]
         self.assertIn("Tech and Villager Details", description)
@@ -119,13 +191,31 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 0x18452,
                 0x263F0,
                 0x27130,
+                0x56B24,
                 0x6547D,
                 0x65640,
                 0x6DA2C,
                 0x6E530,
                 0x7BD40,
-                0x7BDC0,
+                0x7BDE0,
                 0xA3180,
+                # (The 4 head-atlas row-count patches 0xAAE6C/9C/F2C/F5C were
+                # removed: the separate-atlas mask render draws from its own
+                # Images/heathen_masks.png and no longer appends rows to the shared
+                # head atlases, so it leaves them byte-identical to stock.)
+                #
+                # Heathen-mask render hooks: 5-byte call-site redirects into the
+                # patch-owned .vv3mc section.  Each stolen 5-byte window was verified
+                # to contain no branch target.
+                0x2E3F5,   # sole `call sub_4605F0` -> village wrapper (mask last layer)
+                0x60A60,   # head draw -> stash cave (captures exact head x/y/scale)
+                0x60B48,   # `call sub_45F7E0` -> action-overlay wrapper (pose heads)
+                0x3290,    # save-builder slot capture -> .vv3mc/.vv3md sidecar selector
+                # (0x34357 / 0x344B3 are NOT patched: proven from the binary to be a
+                # timed UI/effect renderer, not a villager head draw -- the head-atlas
+                # holder [+0x127C1C] is read at exactly one site in the exe, 0x460A54.
+                # Those bytes are left stock rather than hooked.)
+                #
             },
         )
         section_patch = next(
@@ -134,6 +224,117 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             if int(item["offset"], 0) == 0x24C
         )
         self.assertEqual(section_patch["after"], "400000E0")
+
+    def test_manifest_patch_ranges_are_disjoint(self) -> None:
+        append_headers = self.manifest["pe_append_transaction"]["layouts"][
+            "collection_progression"
+        ]["header_patches"]
+        ranges = sorted(
+            (
+                int(item["offset"], 0),
+                int(item["offset"], 0) + len(bytes.fromhex(item["after"])),
+                item["purpose"],
+            )
+            for item in [*self.manifest["patches"], *append_headers]
+        )
+        for current, following in zip(ranges, ranges[1:]):
+            self.assertLessEqual(
+                current[1],
+                following[0],
+                f"VV3 Origins patches overlap: {current[2]} and {following[2]}",
+            )
+
+    def test_appended_mask_sections_are_w_xor_x(self) -> None:
+        """The appended mask sections must be W^X separated.
+
+        A single R/W/X section reads as self-modifying code to AV (Malwarebytes
+        flags it) and is a quarantine risk, so code is executable-not-writable and
+        data is writable-not-executable.
+        """
+        header_patch = next(
+            item
+            for item in self.manifest["pe_append_transaction"]["layouts"][
+                "collection_progression"
+            ]["header_patches"]
+            if int(item["offset"], 0) == 0x2C8
+        )
+        blob = bytes.fromhex(header_patch["after"])
+        self.assertEqual(len(blob), 80, "expected exactly two 40-byte section headers")
+        code_hdr, data_hdr = blob[:40], blob[40:]
+        self.assertTrue(code_hdr.startswith(b".vv3mc"))
+        self.assertTrue(data_hdr.startswith(b".vv3md"))
+        code_chars = int.from_bytes(code_hdr[36:40], "little")
+        data_chars = int.from_bytes(data_hdr[36:40], "little")
+        self.assertTrue(code_chars & 0x20000000, "mask code section must be executable")
+        self.assertFalse(code_chars & 0x80000000, "mask code section must NOT be writable")
+        self.assertTrue(data_chars & 0x80000000, "mask data section must be writable")
+        self.assertFalse(data_chars & 0x20000000, "mask data section must NOT be executable")
+
+    def test_shipping_render_maps_both_owned_pages_and_removal_truncates_them(self) -> None:
+        feature = get_fun_patch("vv3_enable_origins_exclusive_features")
+        transaction = self.manifest["pe_append_transaction"]
+        self.assertEqual(transaction["append_length"], 0x2000)
+        self.assertEqual(
+            set(transaction["layouts"]),
+            {"collection_progression", "immediate_fixed"},
+        )
+
+        for mode in ("collection_progression", "immediate_fixed"):
+            with self.subTest(mode=mode):
+                base, _ = render_patched_bytes(STOCK, self.build, mode, [])
+                rendered, applied = render_patched_bytes(
+                    STOCK,
+                    self.build,
+                    mode,
+                    [feature.id],
+                )
+                layout = transaction["layouts"][mode]
+                appended = bytes.fromhex(layout["append_bytes"])
+
+                self.assertEqual(len(base), 0xCB000)
+                self.assertEqual(len(rendered), 0xCD000)
+                self.assertEqual(rendered[0xCB000:0xCD000], appended)
+                self.assertEqual(
+                    hashlib.sha256(appended).hexdigest().upper(),
+                    layout["append_sha256"],
+                )
+                self.assertTrue(any(rendered[0xCB000:0xCC000]))
+                self.assertEqual(rendered[0xCC000:0xCD000], bytes(0x1000))
+                self.assertEqual(
+                    rendered[0xCB100:0xCB10B],
+                    bytes.fromhex("8B442404A344006E008B11"),
+                )
+                self.assertEqual(struct.unpack_from("<H", rendered, 0x10E)[0], 7)
+                self.assertEqual(struct.unpack_from("<I", rendered, 0x158)[0], 0x2E1000)
+
+                code_header = rendered[0x2C8:0x2F0]
+                data_header = rendered[0x2F0:0x318]
+                self.assertTrue(code_header.startswith(b".vv3mc"))
+                self.assertTrue(data_header.startswith(b".vv3md"))
+                self.assertEqual(struct.unpack_from("<I", code_header, 12)[0], 0x2DF000)
+                self.assertEqual(struct.unpack_from("<I", code_header, 20)[0], 0xCB000)
+                self.assertEqual(struct.unpack_from("<I", data_header, 12)[0], 0x2E0000)
+                self.assertEqual(struct.unpack_from("<I", data_header, 20)[0], 0xCC000)
+                self.assertTrue(
+                    any(
+                        item["owner"] == f"feature:{feature.id}"
+                        and item["offset"] == "0xCB000"
+                        for item in applied
+                    )
+                )
+
+                tampered = bytearray(rendered)
+                tampered[-1] ^= 1
+                tampered_before = bytes(tampered)
+                with self.assertRaisesRegex(PatcherError, "appended page guard differs"):
+                    _remove_feature_bytes(tampered, feature, mode)
+                self.assertEqual(tampered, tampered_before)
+
+                removed = _remove_feature_bytes(rendered, feature, mode)
+                self.assertTrue(
+                    any(item["purpose"].startswith("truncate owned append") for item in removed)
+                )
+                self.assertEqual(rendered, base)
 
     def test_running_code_only_edits_normal_trait_arrays(self) -> None:
         source = BUILDER.read_text(encoding="utf-8")
@@ -351,7 +552,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "212D56694DF24D199F9B8EB2967E2C50887265C32EF1115C98820B36F12BADFF",
+            "923C155460BFB8BECB2F07725FB2220E1987F2563764FB508D7CA36A3A125014",
         )
         self.assertEqual(
             bytes.fromhex(

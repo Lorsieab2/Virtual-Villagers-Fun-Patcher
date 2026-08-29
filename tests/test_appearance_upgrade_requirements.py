@@ -292,6 +292,12 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x270", "0x28C", "0x28470", "0x56900",
                     "0x85D30", "0x8B009", "0x8B530", "0x8B710",
                     "0x35ACA", "0x8B900",
+                    # .data VirtualSize extended to 0x7000 so it formally owns
+                    # the BSS page (0x48CD18..0x48D000) that now holds all
+                    # writable mask state -- keeping runtime writes out of the
+                    # executable .shr section (W^X), which is what stopped
+                    # Malwarebytes quarantining the running village.
+                    "0x248",
                     # Villager Details "Change Appearance" row: a dedicated
                     # dispatch router at 0x8BA00 (isolated from detail_menu's
                     # own shared, byte-constrained cave -- it only ever does
@@ -342,8 +348,65 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # table, and equal_division_dispatch (in the
                     # confirmed-unused gap after POPULATION_FINAL_TIER).
                     "0x8B790", "0x8B8A0", "0x8BD30",
+                    # Cosmetic head-mask overlay (Change Appearance's Mask
+                    # row): 5 cached SDL_Surface* + companion-PNG filenames
+                    # plus the additive per-frame draw hook itself, in
+                    # .shr's confirmed-unused tail right after the Running
+                    # Dislike-clear helper (0x8BE80); and the detour that
+                    # splices the hook into sub_437790's per-villager
+                    # render loop right after its own occupied-flag check.
+                    "0x8BEA8", "0x377B8", "0x24103", "0x913C",
+                    # Change Appearance for All (Tech screen row 11): its
+                    # DLL-dispatch stub (resolve + call the whole-village
+                    # chooser export, which owns its own afford check,
+                    # conditional 450,000 charge and messaging) in the
+                    # confirmed-unused .shr gap after equal_division_core.
+                    # Row 11's confirm-price case and its dispatch edge reuse
+                    # the already-listed confirm helper (0x8BB00) and Equal
+                    # Division dispatch (0x8BD30); no other offset changes.
+                    "0x8B93F",
+                    # Whole-village mask fix: the per-frame masked-villager
+                    # stash list moved out of .data (which held only 39 of a
+                    # possible 256 entries, so a full-village distribution
+                    # rendered most villagers bare) into a DLL-allocated
+                    # buffer indexed through a .data pointer. The two mask
+                    # render hooks (0x8BEA8) index through that pointer, and
+                    # the startup restore stub's done-flag (0x8BE32) moved
+                    # with the compacted scratch layout.
+                    "0x8BE32",
+                    # ...and the redesign that keeps all of that in the exe's
+                    # own .data (Malwarebytes flags the exe writing through a
+                    # pointer into non-exe memory): the stash now stores a
+                    # 1-byte record index and the draw hook recomputes screen
+                    # x/y from it, which grew the draw hook past the 0x8BEA8
+                    # cave, so it moved to its own confirmed-zero .shr gap.
+                    "0x8B080",
+                    # Details-screen portrait mask overlay: all four native
+                    # head sites remain CALLs but now target one ABI-compatible
+                    # wrapper at 0x8E720. It duplicates/replays the exact seven
+                    # head args, then passes the untouched tuple and renderer
+                    # wrapper to Vv1DrawPortraitMask. The retired per-site cave
+                    # rows remain listed because the parent manifest has them.
+                    "0x3741B", "0x374A4", "0x37503", "0x37556",
+                    "0x8E720", "0x8E75A", "0x8E774", "0x8E78E", "0x8E7A8",
+                    # Live mask maintenance: the existing per-frame cache
+                    # hook now calls the owned Vv1MaskTick resolver/caller;
+                    # its export name and resolver live in the .vv1mc tail.
+                    "0x8E400", "0x8E6C0", "0x8E8F0", "0x8E900",
+                    # Exact newborn/allocation reuse guard: the stock splice
+                    # and its patch-owned cave clear the selected mask nibble
+                    # and mark the active sidecar dirty for Vv1MaskTick.
+                    "0x3C393", "0x8EA00",
+                    # Village all-pose mask identity stash (Stage 1): 2 loop-top
+                    # splices + their stash caves (inert; hook reads the slot later).
+                    "0x37798", "0x38900", "0x8B180", "0x8B191",
+                    "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                 },
                 "data/vv2_origins_feature.json": {
+                    # The mask-stage delivery adds five guarded fixed-image
+                    # detours; their exact before/after bytes are checked by
+                    # tests/test_vv2_mask_render.py.
+                    "0x3160", "0x95B0", "0x9600", "0x45B50", "0x4C5E6",
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",
                     # Change Appearance: the new chooser helper lives at
                     # 0x9AD20 (just past the optional village-wide payload).
@@ -371,7 +434,21 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # inside the payload block (0x943A8).
                     "0x9A204", "0x9A218", "0x9A240", "0x9A380",
                 },
-                "data/vv3_origins_feature.json": {"0x7B664", "0xA3180"},
+                # Heathen-mask sections move (docs/head-mask-rendering.md Part 7):
+                # the mask trampolines left the .text tail slack (a borrowed gap --
+                # .text VirtualSize ends at 0x47B254, so 0x47B260+ was never ours)
+                # and the DLL fn-pointer slots left the .data slack past 0x6C7518.
+                # Both now live in appended, patch-owned sections .vv3mc (R-X) and
+                # .vv3md (R/W), which is also W^X-clean.  The vacated caves, the
+                # three PE header edits mapping the new sections, and the retargeted
+                # call-site redirects move with it; no upgrade behaviour changes.
+                "data/vv3_origins_feature.json": {
+                    "0x7B664", "0xA3180",
+                    "0x3290",
+                    "0x7B260", "0x7B2A0", "0x7B300",
+                    "0x10E", "0x158", "0x2C8",
+                    "0x2E3F5", "0x34357", "0x344B3", "0x60B48",
+                },
                 "data/vv4_origins_feature.json": {
                     "0x89373", "0xCC004", "0xCC180",
                     # D166 fix: .shr was never marked executable (0x278 is
@@ -389,6 +466,29 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x156F8", "0x15862", "0x1586F", "0x15A81",
                     "0x15B46", "0x15D8C", "0x16722", "0x16735",
                     "0x1520E",
+                    # Heathen-mask cosmetic overlay (SDL blit via companion
+                    # DLL). Replaced the old append-rows approach (render cave
+                    # 0xCCD80 and row-count bumps 0xC3C24/0xC3B94) with three
+                    # .shr caves -- resolve 0xCCD90, present-surface-cache
+                    # 0xCCDE0, head-draw 0xCC7A1 -- the present-call splice
+                    # (0x9458), and the confirmed Details head call (0x5F702).
+                    # The inherited Island Event call (0x5F9CA) is deliberately
+                    # removed and left stock. No row bumps, no atlas swaps. The
+                    # proven-wrong Details route (0x5F965) and former scratch
+                    # slots (0xCCA28/0xCCA30/0xCCA34) are removed; 0xCC7A1 is
+                    # reclaimed for the confirmed Details head cave.
+                    "0xCCD80", "0xC3C24", "0xC3B94",
+                    "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
+                    "0x5F702", "0x5F9CA", "0x5F965", "0xCC7A1",
+                    "0xCCA28", "0xCCA30", "0xCCA34",
+                    # The DY bytes remain the player-approved uniform 34s;
+                    # only the stale purpose text claiming a chief-only +7
+                    # adjustment is corrected by the authoritative generator.
+                    "0xCCFC4",
+                    # Save-slot sidecar namespace: capture the active slot in
+                    # owned .shr scratch before the exact 0x403670 save
+                    # builder continues its untouched body.
+                    "0xCCFCC", "0xCCFD0", "0x3670",
                 },
                 # 0x1890F: the D37 barrel selector hook — its forced native
                 # event index is corrected from 30 (Chutes Without Ladders) to

@@ -1500,7 +1500,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "5EB1DB10B67DDAB3BFF678015BC2FB0330F3D8637F6944D530CA2271677FC578",
+            "page_sha256": "07944F005CF5048EAF744BC33564FE86FCFBC72DF30FD03AF60CDEFC2EE105BE",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1529,7 +1529,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "5EB1DB10B67DDAB3BFF678015BC2FB0330F3D8637F6944D530CA2271677FC578",
+            "page_sha256": "07944F005CF5048EAF744BC33564FE86FCFBC72DF30FD03AF60CDEFC2EE105BE",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1558,7 +1558,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "5EB1DB10B67DDAB3BFF678015BC2FB0330F3D8637F6944D530CA2271677FC578",
+            "page_sha256": "07944F005CF5048EAF744BC33564FE86FCFBC72DF30FD03AF60CDEFC2EE105BE",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1580,6 +1580,23 @@
                 "purpose": "write the owned .vv1bc PE section header"
               }
             ]
+          }
+        },
+        "composition_overlays": {
+          "vv1_enable_origins_exclusive_features": {
+            "base_feature": "vv1_enable_origins_exclusive_features",
+            "overlay_offset": "0x8EC00",
+            "overlay_length": 1024,
+            "page_virtual_address": "0x490C00",
+            "append_source": "generated:vv1_birth_control_page",
+            "page_sha256": "FCADAAD8447CDD35F2B24BFFE4340F2A0E09F7F022EB8A602A62A1B84732AE34",
+            "hook_offsets": ["0x3DD03", "0x46E96", "0x47084", "0x477FA", "0x39C83"],
+            "overlay_preimage": {
+              "kind": "zero_fill",
+              "length": 1024,
+              "sha256": "5F70BF18A086007016E948B04AED3B82103A36BEA41755B6CDDFAF10ACE3C6EF"
+            },
+            "purpose": "overlay the generated relocated VV1 Birth Control helper into the exact zero tail of the Origins-owned .vv1mc raw page; no Origins nonzero byte is replaced"
           }
         }
       },

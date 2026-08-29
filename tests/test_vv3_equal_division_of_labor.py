@@ -76,7 +76,7 @@ class VV3EqualDivisionOfLaborTests(unittest.TestCase):
     def test_dialog_has_both_buy_rows(self) -> None:
         self.assertIn('PUSHBUTTON  "Buy", 1011', self.rc)
         self.assertIn('PUSHBUTTON  "Buy", 1012', self.rc)
-        self.assertIn("ID_BUY_LAST = 1012", self.c)
+        self.assertIn("ID_BUY_LAST = 1013", self.c)
 
     def test_payload_routes_the_two_buttons_to_the_dll(self) -> None:
         # dispatch: buttons 11/12 branch to the handlers.

@@ -10,13 +10,34 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from scripts.build_vv1_birth_control_page import build_page  # noqa: E402
-from vv_fun_patcher import load_fun_patches  # noqa: E402
+from vv_fun_patcher import (  # noqa: E402
+    PatcherError,
+    _apply_pe_append_transactions,
+    _remove_feature_bytes,
+    load_builds,
+    load_fun_patches,
+    render_patched_bytes,
+    resolve_fun_patch_ids,
+)
 
 
 VV1_SHA256 = "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
 VV3_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
-VV1_PAGE_SHA256 = "5EB1DB10B67DDAB3BFF678015BC2FB0330F3D8637F6944D530CA2271677FC578"
+VV1_PAGE_SHA256 = "07944F005CF5048EAF744BC33564FE86FCFBC72DF30FD03AF60CDEFC2EE105BE"
+VV1_STANDALONE_RENDER_SHA256 = {
+    "vv1_birth_control": {
+        "stock": "5B3D329D9B16E21DFD4C74F05B10A4A14E671C96AE481576E01914ED8FD8C4A5",
+        "collection_progression": "C02F431266FB9AC5C9C6FD62EE92D1AEEC6C3AF699F907CBE698FA4784664054",
+        "immediate_fixed": "C02F431266FB9AC5C9C6FD62EE92D1AEEC6C3AF699F907CBE698FA4784664054",
+    },
+    "vv1_enable_origins_exclusive_features": {
+        "stock": "4613F73EC1CC928470E6EB2FAD3350F71CFFE47D41CB80A3DEEF6859AE7937E5",
+        "collection_progression": "FD4D461A900F53FE0AA7A31CAF39E83B766D0BE25ADEF9A3F009AF3B400D9439",
+        "immediate_fixed": "FD4D461A900F53FE0AA7A31CAF39E83B766D0BE25ADEF9A3F009AF3B400D9439",
+    },
+}
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
+VV1_STOCK = ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe"
 
 
 def _patches(feature_id: str) -> list[dict[str, str]]:
@@ -129,29 +150,173 @@ class VV1VV3BirthControlTests(unittest.TestCase):
                 self.assertEqual(patch["after"], "9090909090909090")
         self.assertNotIn(0x4584B0, {int(p["offset"], 0) for p in patches})
 
-    def test_vv1_birth_control_does_not_overlap_vv1_origins_ranges(self) -> None:
+    def test_vv1_birth_control_origins_overlay_contract_is_bounded(self) -> None:
         catalog = load_fun_patches()
-        birth_control = next(item for item in catalog if item.id == "vv1_birth_control")
+        birth = next(item for item in catalog if item.id == "vv1_birth_control")
         origins = next(item for item in catalog if item.id == "vv1_enable_origins_exclusive_features")
 
-        def ranges(feature) -> list[range]:
-            edits = list(feature.raw.get("patches", []))
-            for mode_edits in feature.raw.get("patch_mode_overrides", {}).values():
-                edits.extend(mode_edits)
-            result = [
-                range(int(patch["offset"], 0), int(patch["offset"], 0) + len(bytes.fromhex(patch["after"])))
-                for patch in edits
-            ]
-            transaction = feature.raw.get("pe_append_transaction", {})
-            for patch in transaction.get("layouts", {}).get("stock", {}).get("header_patches", []):
-                result.append(range(int(patch["offset"], 0), int(patch["offset"], 0) + len(bytes.fromhex(patch["after"]))))
-            layout = transaction.get("layouts", {}).get("stock")
-            if layout:
-                start = int(layout["append_offset"], 0)
-                result.append(range(start, start + int(layout["append_length"])))
-            return result
+        self.assertNotIn("vv1_birth_control", origins.raw.get("conflicts", []))
+        transaction = birth.raw["pe_append_transaction"]
+        overlay = transaction["composition_overlays"][origins.id]
+        self.assertEqual(overlay["overlay_length"], 0x400)
+        self.assertEqual(overlay["page_virtual_address"], "0x490C00")
+        self.assertEqual(overlay["overlay_offset"], "0x8EC00")
+        self.assertEqual(overlay["overlay_preimage"]["kind"], "zero_fill")
+        self.assertEqual(overlay["overlay_preimage"]["length"], 0x400)
+        self.assertEqual(
+            overlay["hook_offsets"],
+            ["0x3DD03", "0x46E96", "0x47084", "0x477FA", "0x39C83"],
+        )
+        builds = {build.id: build for build in load_builds()}
+        origins_only, _ = render_patched_bytes(
+            VV1_STOCK,
+            builds["vv1"],
+            "stock",
+            [origins.id],
+        )
+        origins_code_page = origins_only[0x8E000:0x8F000]
+        self.assertEqual(
+            max(index for index, value in enumerate(origins_code_page) if value),
+            0xA48,
+        )
+        self.assertEqual(origins_code_page[0xA49:], b"\x00" * 0x5B7)
+        self.assertEqual(origins_only[0x8F000:0x90000], b"\x00" * 0x1000)
 
-        self.assertTrue(all(a.stop <= b.start or b.stop <= a.start for a in ranges(birth_control) for b in ranges(origins)))
+    def test_vv1_append_base_precedes_overlay_independent_of_catalog_order(self) -> None:
+        catalog = load_fun_patches()
+        birth = next(item for item in catalog if item.id == "vv1_birth_control")
+        origins = next(
+            item
+            for item in catalog
+            if item.id == "vv1_enable_origins_exclusive_features"
+        )
+        composed = bytearray(VV1_STOCK.read_bytes())
+        applied = _apply_pe_append_transactions(
+            composed,
+            [birth, origins],
+            "stock",
+        )
+        append_records = [
+            record
+            for record in applied
+            if record["offset"] in {"0x8E000", "0x8EC00"}
+        ]
+        self.assertEqual(
+            [record["offset"] for record in append_records],
+            ["0x8E000", "0x8EC00"],
+        )
+        self.assertEqual(
+            [record["owner"] for record in append_records],
+            [
+                "feature:vv1_enable_origins_exclusive_features",
+                "feature:vv1_birth_control",
+            ],
+        )
+        self.assertEqual(
+            composed[0x8EC00:0x8F000],
+            build_page(0x490C00)[0][:0x400],
+        )
+
+    def test_vv1_birth_control_and_origins_co_selection_is_allowed(self) -> None:
+        resolved = resolve_fun_patch_ids(
+            ["vv1_birth_control", "vv1_enable_origins_exclusive_features"],
+            game_id="vv1",
+        )
+        self.assertEqual(
+            set(resolved),
+            {"vv1_birth_control", "vv1_enable_origins_exclusive_features"},
+        )
+
+    def test_vv1_maximal_compatible_sets_render_and_keep_birth_control_independent(self) -> None:
+        """Exercise standalone and composed VV1 selections in every normal mode."""
+        builds = {build.id: build for build in load_builds()}
+        maximal_sets = {
+            "origins-family": ["vv1_enable_origins_exclusive_features"],
+            "birth-control-family": ["vv1_birth_control"],
+            "origins-plus-birth-control": [
+                "vv1_birth_control",
+                "vv1_enable_origins_exclusive_features",
+            ],
+            "all-current-vv1-features": [
+                item.id for item in load_fun_patches() if item.game_id == "vv1"
+            ],
+        }
+        for family, patch_ids in maximal_sets.items():
+            with self.subTest(family=family):
+                resolved = resolve_fun_patch_ids(patch_ids, game_id="vv1")
+                self.assertEqual(set(resolved), set(patch_ids))
+                for mode in ("stock", "collection_progression", "immediate_fixed"):
+                    with self.subTest(mode=mode):
+                        rendered, applied = render_patched_bytes(
+                            VV1_STOCK,
+                            builds["vv1"],
+                            mode,
+                            patch_ids,
+                        )
+                        self.assertGreater(len(applied), 0)
+                        self.assertNotEqual(rendered, VV1_STOCK.read_bytes())
+                        if family in {"origins-family", "birth-control-family"}:
+                            feature_id = patch_ids[0]
+                            self.assertEqual(
+                                hashlib.sha256(rendered).hexdigest().upper(),
+                                VV1_STANDALONE_RENDER_SHA256[feature_id][mode],
+                            )
+                        if family == "origins-plus-birth-control":
+                            self.assertEqual(len(rendered), 0x90000)
+                            self.assertEqual(
+                                rendered[0x8EC00:0x8F000],
+                                build_page(0x490C00)[0][:0x400],
+                            )
+                            self.assertEqual(
+                                rendered[0x8F000:0x90000],
+                                b"\x00" * 0x1000,
+                            )
+
+    def test_vv1_birth_control_hook_relocations_are_generated_for_overlay(self) -> None:
+        builds = {build.id: build for build in load_builds()}
+        rendered, _ = render_patched_bytes(
+            VV1_STOCK,
+            builds["vv1"],
+            "stock",
+            ["vv1_birth_control", "vv1_enable_origins_exclusive_features"],
+        )
+        self.assertEqual(rendered[0x3DD03:0x3DD03 + 7].hex().upper(), "E9F82E05009090")
+        self.assertEqual(rendered[0x46E96:0x46E96 + 6].hex().upper(), "E9E59D040090")
+        self.assertEqual(rendered[0x47084:0x47084 + 6].hex().upper(), "E9379C040090")
+        self.assertEqual(rendered[0x477FA:0x477FA + 5].hex().upper(), "E901950400")
+        self.assertEqual(rendered[0x39C83:0x39C83 + 6].hex().upper(), "E9B870050090")
+
+    def test_vv1_composed_removal_requires_birth_control_before_origins(self) -> None:
+        builds = {build.id: build for build in load_builds()}
+        rendered, _ = render_patched_bytes(
+            VV1_STOCK,
+            builds["vv1"],
+            "stock",
+            ["vv1_birth_control", "vv1_enable_origins_exclusive_features"],
+        )
+        birth = next(item for item in load_fun_patches() if item.id == "vv1_birth_control")
+        origins = next(
+            item
+            for item in load_fun_patches()
+            if item.id == "vv1_enable_origins_exclusive_features"
+        )
+        with self.assertRaisesRegex(PatcherError, "remove Birth Control first"):
+            _remove_feature_bytes(rendered, origins, "stock")
+        _remove_feature_bytes(rendered, birth, "stock")
+        expected_origins, _ = render_patched_bytes(
+            VV1_STOCK,
+            builds["vv1"],
+            "stock",
+            ["vv1_enable_origins_exclusive_features"],
+        )
+        self.assertEqual(rendered, expected_origins)
+        _remove_feature_bytes(rendered, origins, "stock")
+        checksum = 0x150  # exact VV1 PE checksum field offset (e_lfanew 0xF8 + 0x58)
+        restored = bytearray(rendered)
+        stock = bytearray(VV1_STOCK.read_bytes())
+        restored[checksum : checksum + 4] = b"\x00" * 4
+        stock[checksum : checksum + 4] = b"\x00" * 4
+        self.assertEqual(restored, stock)
 
 
 if __name__ == "__main__":

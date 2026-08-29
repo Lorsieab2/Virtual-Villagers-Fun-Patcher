@@ -34,9 +34,18 @@ if ($LASTEXITCODE -ne 0) {
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
     ("/OUT:" + (Join-Path $outputRoot "VVFP VV3 Full Mastery Candidate.dll")) `
     user32.lib `
-    gdi32.lib
+    gdi32.lib `
+    shell32.lib
 if ($LASTEXITCODE -ne 0) {
     throw "Native DLL compilation failed."
+}
+
+# The Origins manifest deploys this same canonical build under the historical
+# Safe Upgrades filename.  Synchronize it immediately after every compile so
+# a new mask export or patch cannot be omitted from the public companion.
+& python (Join-Path $projectRoot "scripts\build_vv3_safe_upgrade_resources.py")
+if ($LASTEXITCODE -ne 0) {
+    throw "VV3 Safe Upgrades companion synchronization failed."
 }
 
 @(
