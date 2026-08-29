@@ -10,3 +10,8 @@ EXPORTS
     ShowOriginsRowMessage=_ShowOriginsRowMessage@12
     ShowOriginsAgeResult=_ShowOriginsAgeResult@12
     ShowOriginsEqualDivisionResult=_ShowOriginsEqualDivisionResult@20
+    Vv1MaskRestore=_Vv1MaskRestore@0
+    Vv1MaskApplyDistribution=_Vv1MaskApplyDistribution@8
+    ShowOriginsAppearanceForAll=_ShowOriginsAppearanceForAll@4
+    Vv1DrawPortraitMask=_Vv1DrawPortraitMask@8
+    Vv1GetMaskSprite=_Vv1GetMaskSprite@0

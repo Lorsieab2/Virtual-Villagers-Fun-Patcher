@@ -67,7 +67,7 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 # code genuinely changes.
 CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x39C83"): "D3E8E252393FE028178409449C81F4C69C69B8E259387B249D71E4CEE6322AE6",
-    ("vv1_birth_control", "0x3DD03"): "864375F88D0E5E1ACC8045FE6E30A7F54CE3D3AC536A01ED880840D744C2B477",
+    ("vv1_birth_control", "0x3DD03"): "F4AF5EE81A11110F6F37F8AD2411C0D7F4DA616E3B8EB820C519C5E2734E8614",
     ("vv1_birth_control", "0x46E96"): "5C9F87C9FA92B6B7BCB38A902E9E81009F206F636B8A09A0BA7FA86040BF358F",
     ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
@@ -77,11 +77,35 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "63CB33A95A00E194547370F24644869943BE36AB894A6653134BC4CD8E8D1D88",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "AD0BD7E82BCF4B5512EEE787C8C52FE7D18CC2C09FB90A52FA289AE0FAD9DD72",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "2C09263B8BD799A31220B1EA29126BDFCA2C8FB2599A81BCDB6CDD7616E4662C",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
-    ("vv1_enable_origins_exclusive_features", "0x4A700"): "EB4AEC7FFDFB0B29E9CAFDC8D24F5287332FEB2CD18C057B8A78744531720352",
+    ("vv1_enable_origins_exclusive_features", "0x4A700"): "40F8B782E7FA6AE75CD1FE7BEB78F3B709E8B278C640453DA9DBA60C70905D48",
     ("vv1_enable_origins_exclusive_features", "0x8B004"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    ("vv1_enable_origins_exclusive_features", "0x24103"): "0B4C8F5AAFAE151BEA41084E5C7CEE4075A1646423A44D1E9E0E36A3C818E4D5",
+    ("vv1_enable_origins_exclusive_features", "0x377B8"): "62DCC4DD0BBD934EC1215760BA817F5DB8E5F5CAB857E30A1D4B79DAD6875173",
+    ("vv1_enable_origins_exclusive_features", "0x913C"): "1135C1CB91F00D2CA0B9283251E0D35FA2F92BB967288CA9D2454C3B9E5EA120",
+    # Details portrait mask overlay splices: sub_437340 draws the portrait head
+    # at FOUR call sites (a 2x2 of age x head-atlas flag). Each is replaced with
+    # a jmp to its own capture cave, which stashes the head's own scale arg into
+    # .data via EAX (a stack-neutral read -- NOTHING is pushed ahead of the
+    # head-draw call, or the arg frame 0x409410 reads would shift), reproduces
+    # the head draw, then pushes (record, gameobj) and calls a shared resolve-
+    # and-call helper (Vv1DrawPortraitMask @8), and re-enters stock at the
+    # natural resume (splice+5, auto-excluded). Net stack delta is zero and only
+    # EAX/ECX/EDX are clobbered across the resume, so ESI/EDI/EBX/EBP reach it
+    # unchanged -- the register contract sub_437340 needs for its own caller.
+    ("vv1_enable_origins_exclusive_features", "0x3741B"): "4BE9785CCE33995CFE508EF2F175AFB3BFBED12D4EB6FD807CB07F8DEEC77DD4",
+    ("vv1_enable_origins_exclusive_features", "0x374A4"): "CD1979EC7665FF4718DB573BAE81F07040A0DB96D02C24761B7A713E331A0DBF",
+    ("vv1_enable_origins_exclusive_features", "0x37503"): "5B2537BBC4515073649D50A14AD22CA058D40797E557AD0C7F229ED25C9FB649",
+    ("vv1_enable_origins_exclusive_features", "0x37556"): "2FBEA343865CBFF1A69000299D7522B2709C4CAEC9F8A82DBD7A14E4336680EA",
+    # Village all-pose mask identity stash (Stage 1): two per-loop caves that
+    # reproduce the villager index load, stash it to .data, and re-enter stock
+    # at the NATURAL resume (0x43779F=splice+7, 0x438909=splice+9), so no
+    # foreign re-entry -- fingerprints pin the cave bytes only. Inert until the
+    # shared-draw hook reads the slot.
+    ("vv1_enable_origins_exclusive_features", "0x37798"): "AAA56CAFAEFA7AFD86F1EDD1D6C518990465508A113DF413D823A8E977718C2D",
+    ("vv1_enable_origins_exclusive_features", "0x38900"): "340B725876F14A318616998B5614B8C13925FDB0B31504D94BFDCEC0C022F23B",
     ("vv1_f6_clothing_change_cheat", "0x1FF2E"): "A00945F8D66A35B8BDB078E933690DDE5B048C60287B716EED0276AC20A07F3E",
     ("vv1_magic_fruit_alters_mortality", "0x2EEAA"): "81719DCFD4BC20C6F136E88308A12EDFA14447AF58E3B8B6DC239BBF4053BF10",
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",
@@ -91,12 +115,16 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
 
 # (feature id, splice offset, stock re-entry target) -> why it is safe.
 REVIEWED: dict[tuple[str, str, int], str] = {
-    (
-        "vv1_birth_control",
-        "0x3DD03",
-        0x43DD5E,
-    ): "accept path. Derefs EBP (actor record), set once at 0x43DAE5 "
-    "(lea ebp,[ecx+esi]) and never reassigned in the function.",
+    # Accept path re-enters at 0x43DD0A, which is the natural resume point
+    # (splice 0x43DD03 + 7 patched bytes), so the audit auto-excludes it as a
+    # plain stock resume -- it is not a foreign re-entry and needs no review.
+    # This is deliberate: the cave does no net push/pop, so ESP at 0x43DD0A
+    # equals the splice-entry ESP, exactly matching stock, and stock's own
+    # `push 0x64; jne 0x43DD5E` at 0x43DD0A then supplies both the stack push
+    # and the branch. The earlier cave re-entered at 0x43DD5E instead, which
+    # stock only reaches AFTER that `push 0x64`; skipping the push while stock's
+    # `add esp,4` still ran left ESP 4 bytes high and FUN_0043DAD0 later `ret`ed
+    # into the villager-index arg -- the full-heap-dump crash to EIP=0x22.
     (
         "vv1_birth_control",
         "0x3DD03",
@@ -146,6 +174,16 @@ REVIEWED: dict[tuple[str, str, int], str] = {
     ): "Barrel close helper. Derefs ESI at 0x435DCD; the helper only reads "
     "ESI (never writes it) and the two calls it makes are callee-save, so "
     "ESI is the stock function's own value.",
+    (
+        "vv1_enable_origins_exclusive_features",
+        "0x377B8",
+        0x4388CE,
+    ): "Heathen-mask stash hook. This IS the displaced native branch: the "
+    "splice replaces sub_437790's own 'jnz 0x4388CE' (the not-occupied skip) "
+    "and the hook's first instruction reproduces it byte-for-byte with the "
+    "same flags and the same target, so this path is the stock control flow "
+    "unchanged. 0x4388CE is the loop back-edge (inc edi / cmp edi,0x100) and "
+    "dereferences nothing. The hook reaches it before touching any register.",
     (
         "vv1_f6_clothing_change_cheat",
         "0x1FF2E",

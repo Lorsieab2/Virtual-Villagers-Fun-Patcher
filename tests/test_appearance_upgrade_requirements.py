@@ -292,6 +292,12 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x270", "0x28C", "0x28470", "0x56900",
                     "0x85D30", "0x8B009", "0x8B530", "0x8B710",
                     "0x35ACA", "0x8B900",
+                    # .data VirtualSize extended to 0x7000 so it formally owns
+                    # the BSS page (0x48CD18..0x48D000) that now holds all
+                    # writable mask state -- keeping runtime writes out of the
+                    # executable .shr section (W^X), which is what stopped
+                    # Malwarebytes quarantining the running village.
+                    "0x248",
                     # Villager Details "Change Appearance" row: a dedicated
                     # dispatch router at 0x8BA00 (isolated from detail_menu's
                     # own shared, byte-constrained cave -- it only ever does
@@ -342,6 +348,51 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # table, and equal_division_dispatch (in the
                     # confirmed-unused gap after POPULATION_FINAL_TIER).
                     "0x8B790", "0x8B8A0", "0x8BD30",
+                    # Cosmetic head-mask overlay (Change Appearance's Mask
+                    # row): 5 cached SDL_Surface* + companion-PNG filenames
+                    # plus the additive per-frame draw hook itself, in
+                    # .shr's confirmed-unused tail right after the Running
+                    # Dislike-clear helper (0x8BE80); and the detour that
+                    # splices the hook into sub_437790's per-villager
+                    # render loop right after its own occupied-flag check.
+                    "0x8BEA8", "0x377B8", "0x24103", "0x913C",
+                    # Change Appearance for All (Tech screen row 11): its
+                    # DLL-dispatch stub (resolve + call the whole-village
+                    # chooser export, which owns its own afford check,
+                    # conditional 450,000 charge and messaging) in the
+                    # confirmed-unused .shr gap after equal_division_core.
+                    # Row 11's confirm-price case and its dispatch edge reuse
+                    # the already-listed confirm helper (0x8BB00) and Equal
+                    # Division dispatch (0x8BD30); no other offset changes.
+                    "0x8B93F",
+                    # Whole-village mask fix: the per-frame masked-villager
+                    # stash list moved out of .data (which held only 39 of a
+                    # possible 256 entries, so a full-village distribution
+                    # rendered most villagers bare) into a DLL-allocated
+                    # buffer indexed through a .data pointer. The two mask
+                    # render hooks (0x8BEA8) index through that pointer, and
+                    # the startup restore stub's done-flag (0x8BE32) moved
+                    # with the compacted scratch layout.
+                    "0x8BE32",
+                    # ...and the redesign that keeps all of that in the exe's
+                    # own .data (Malwarebytes flags the exe writing through a
+                    # pointer into non-exe memory): the stash now stores a
+                    # 1-byte record index and the draw hook recomputes screen
+                    # x/y from it, which grew the draw hook past the 0x8BEA8
+                    # cave, so it moved to its own confirmed-zero .shr gap.
+                    "0x8B080",
+                    # Details-screen portrait mask overlay: sub_437340 draws the
+                    # portrait head at FOUR call sites (a 2x2 of age x head-atlas
+                    # flag). All four are spliced (0x3741B, 0x374A4, 0x37503,
+                    # 0x37556) into a shared resolve-and-call helper (0x8BF3C)
+                    # plus one capture cave each (0x8BF7A/0x8BF92/0x8BFAA/
+                    # 0x8BFC2) in the confirmed-zero .shr tail; each reproduces
+                    # the head draw then calls the DLL's Vv1DrawPortraitMask.
+                    "0x3741B", "0x374A4", "0x37503", "0x37556",
+                    # Village all-pose mask identity stash (Stage 1): 2 loop-top
+                    # splices + their stash caves (inert; hook reads the slot later).
+                    "0x37798", "0x38900", "0x8B180", "0x8B191",
+                    "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

@@ -705,7 +705,14 @@ class VV1RequiredFixTests(unittest.TestCase):
         image_base = pe.OPTIONAL_HEADER.ImageBase
         va = image_base + target_rva
         image = pe.get_memory_mapped_image()
-        picker_insns = list(md.disasm(image[target_rva:target_rva + 0x60], va))
+        # This window has had to grow twice, both times because more work was
+        # added ABOVE the gender read at the top of this same function, not
+        # because the check itself changed: first the cosmetic mask field
+        # (0x60 -> 0x80), then again when the mask moved out of the villager
+        # record into the patch-owned nibble table -- reading it now costs a
+        # call to vv1_mask_get plus its validation, instead of one inline
+        # byte load. It is still the same assertion about the same branch.
+        picker_insns = list(md.disasm(image[target_rva:target_rva + 0x100], va))
         # The compiler is free to either compare the gender field directly
         # from memory (cmp dword ptr [reg + 0x350], 1) or load it into a
         # register first and compare the register (mov reg, dword ptr
@@ -845,7 +852,7 @@ class VV1RequiredFixTests(unittest.TestCase):
         # return its result untouched -- failing closed (returning 0/
         # Cancel) if either resolve step fails.
         confirm_off = menu_confirm_va - IMAGE_BASE - SHR_RVA + SHR_FILE_OFFSET
-        helper_insns = list(md.disasm(rendered[confirm_off:confirm_off + 0x60], menu_confirm_va))
+        helper_insns = list(md.disasm(rendered[confirm_off:confirm_off + 0x78], menu_confirm_va))
         mnemonics = [i.mnemonic for i in helper_insns]
         self.assertEqual(mnemonics[0], "mov", "must start by reading the row off the stack")
         cost_lookups = [

@@ -94,14 +94,31 @@ def build_page() -> tuple[bytes, dict[str, object]]:
     asm.jcc(0x85, "manual_candidate")  # jne: actor is not category 2
     asm.emit(bytes.fromhex("81BD48030000E8030000"))
     asm.jcc(0x8D, "manual_reject")  # jge: actor/carrier is age 50+
-    asm.jmp(0x43DD0A)
+    asm.jmp("manual_accept")
     asm.label("manual_candidate")
     asm.emit(bytes.fromhex("8BC3"))  # mov eax, ebx (candidate index, still live)
     asm.emit(bytes.fromhex("69C0D8030000"))  # imul eax, eax, 0x3D8
     asm.emit(bytes.fromhex("03C6"))  # add eax, esi -> eax = candidate record
     asm.emit(bytes.fromhex("81B848030000E8030000"))  # cmp dword ptr [eax+0x348], 0x3E8
     asm.jcc(0x8D, "manual_reject")  # jge: candidate/carrier is age 50+
-    asm.jmp(0x43DD5E)
+    # fall through to the shared accept path
+    #
+    # STACK-BALANCE FIX (crash confirmed from a full-heap dump: FUN_0043DAD0
+    # `ret`ed into the villager-index arg 0x22). Stock code from 0x43DD03 is:
+    #     0x43DD03  cmp [ebp+0x350], 2
+    #     0x43DD0A  push 0x64            <- argument for the call at 0x43DD0E/0x43DD5E
+    #     0x43DD0C  jne  0x43DD5E
+    # Every stock path reaches 0x43DD5E only *after* that `push 0x64`, and the
+    # code there does `call 0x402F10; add esp,4`, cleaning it. The old cave's
+    # candidate accept path jumped straight to 0x43DD5E, so the `push 0x64` was
+    # skipped but the `add esp,4` still ran -> esp 4 bytes too high for the rest
+    # of FUN_0043DAD0 -> its later `ret` popped the wrong slot and jumped to the
+    # index arg (0x22). Both accept paths now re-run the stock compare and rejoin
+    # at 0x43DD0A, so the stock `push 0x64; jne 0x43DD5E` supplies both the flags
+    # (correct accept branch) and the stack push (balanced) exactly as stock.
+    asm.label("manual_accept")
+    asm.emit(bytes.fromhex("83BD5003000002"))  # cmp dword ptr [ebp+0x350], 2
+    asm.jmp(0x43DD0A)  # stock: push 0x64; jne 0x43DD5E
     asm.label("manual_reject")
     # SECOND HALF OF THE SAME BUG (crash at 0x43DDE1, confirmed from a live
     # Windows Application-log 0xC0000005 record with fault offset 0x3DDE1).

@@ -174,6 +174,10 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     repaired_offsets = {
                         "0x270",
                         "0x28C",
+                        # .data VirtualSize extended to 0x7000 so it owns the
+                        # BSS page holding all writable mask state (W^X) --
+                        # keeping runtime writes off the executable .shr page.
+                        "0x248",
                         "0x28470",
                         "0x56900",
                         "0x85D30",
@@ -229,6 +233,54 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # check/charge/result, in the confirmed-unused gap
                         # after POPULATION_FINAL_TIER).
                         "0x8B790", "0x8B8A0", "0x8BD30",
+                        # Cosmetic head-mask overlay (Change Appearance's
+                        # Mask row): 5 cached SDL_Surface* + companion-PNG
+                        # filenames plus the additive per-frame draw hook,
+                        # in .shr's confirmed-unused tail right after the
+                        # Running Dislike-clear helper; and the detour
+                        # splicing that hook into sub_437790's per-villager
+                        # render loop right after its own occupied check.
+                        "0x8BEA8", "0x377B8", "0x24103", "0x913C",
+                        # Change Appearance for All (Tech screen row 11): its
+                        # DLL-dispatch stub in the confirmed-unused .shr gap
+                        # after equal_division_core; the row's confirm-price
+                        # case and dispatch edge reuse the already-listed
+                        # confirm helper (0x8BB00) and Equal Division dispatch
+                        # (0x8BD30). Adding one export string shifts every
+                        # later .rdata string pointer by 0x20, which is why
+                        # the string-referencing rows above (0x56900, 0x8BEA8)
+                        # also differ -- immediates only, no opcode change.
+                        "0x8B93F",
+                        # Whole-village mask fix: the per-frame stash list moved
+                        # out of the size-capped .data (39-entry ceiling) into a
+                        # DLL-allocated buffer indexed via a .data pointer, so a
+                        # full-village distribution masks all villagers, not just
+                        # the first 39. The two mask render hooks (0x8BEA8) index
+                        # through that pointer; the restore stub's done-flag
+                        # (0x8BE32) moved with the compacted scratch layout.
+                        "0x8BE32",
+                        # Malwarebytes-safe redesign: everything stays in the
+                        # exe's own .data (the stash stores a 1-byte record
+                        # index, the draw hook recomputes screen x/y from it),
+                        # which grew the draw hook past the 0x8BEA8 cave, so it
+                        # relocated to its own confirmed-zero .shr gap.
+                        "0x8B080",
+                        # Details-screen portrait mask overlay: sub_437340
+                        # draws the portrait head at FOUR call sites (a 2x2 of
+                        # age x head-atlas flag). Earlier builds spliced only
+                        # 0x3741B, so only one quadrant of villagers got a mask;
+                        # all four are now spliced (0x3741B, 0x374A4, 0x37503,
+                        # 0x37556) into a shared resolve-and-call helper plus one
+                        # capture cave each, laid out in the .shr tail (helper at
+                        # 0x8BF3C, caves at 0x8BF7A/0x8BF92/0x8BFAA/0x8BFC2). The
+                        # DLL's Vv1DrawPortraitMask reproduces the head's scale
+                        # (carried in ebx) and picks the head's y off the record
+                        # age so adults' masks aren't ~0x1E px too low.
+                        "0x3741B", "0x374A4", "0x37503", "0x37556",
+                        # Village all-pose mask identity stash (Stage 1): 2 loop-top
+                        # splices + their stash caves (inert; hook reads the slot later).
+                        "0x37798", "0x38900", "0x8B180", "0x8B191",
+                        "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],
