@@ -28,11 +28,14 @@ Slot evidence:
 - The Tree of Life: `0x468350`. Progression changes base 90 to 125 and preserves the 0-25 collection accumulator. Fixed sets it to 60 before stock +90.
 - New Believers: `0x472BD0`. Progression changes base 90 to 135 and preserves the 0-15 collection accumulator. Fixed sets it to 60 before stock +90.
 
-New Believers' stock `add esi, 0x5A` uses a sign-extended 8-bit immediate. A value above 127 cannot be substituted into that instruction: byte `0x87` means -121, not +135. The two population-increase modes therefore detour the complete add/compare/branch sequence at file offset `0x72C49` to guarded padding at `0x94500`. Progression performs `add esi, 0x00000087`, yielding 135, 140, 145, or 150 for collection bonuses 0, 5, 10, or 15. Fixed performs the stock `+90` after replacing the accumulator with 60, yielding 150.
+New Believers' stock `add esi, 0x5A` uses a sign-extended 8-bit immediate. A value above 127 cannot be substituted into that instruction: byte `0x87` means -121, not +135. The Collection Progression and Immediate Fixed cap modes therefore detour the complete add/compare/branch sequence at file offset `0x72C49` to guarded padding at `0x94500`; all three public modes still receive the separate physical-capacity safety rows. Progression performs `add esi, 0x00000087`, yielding 135, 140, 145, or 150 for collection bonuses 0, 5, 10, or 15. Fixed performs the stock `+90` after replacing the accumulator with 60, yielding 150.
 
-No Population Increase changes no executable bytes. Collection completion itself
-is never modified. The two population-increase modes are the only modes that
-install population-cap or multiple-birth safety edits.
+No Population Increase leaves the stock cap and collection completion behavior
+unchanged, but it still installs the game's automatic physical-capacity safety
+edits. Collection Progression and Immediate Fixed retain their documented cap
+and progression behavior and use the same safety layer. Across all three public
+modes, safety clamps physical allocation only; it does not change the selected
+mode's social cap or progression.
 
 ## New Believers faction conversion and shared slots
 
@@ -58,7 +61,14 @@ Therefore, stock logic evaluated at cap minus one yields cap for a singleton, ca
 
 This is unsafe when a patch moves the cap to the physical pool ceiling. A New Home's child materializer at `0x43C840` and The Lost Children's at `0x44CEC0` scan for the next unused record without a terminal pool check; their weaning paths call the materializer again for the second and third babies. The later games also have only 150 physical records, so an aggregate of 151 or 152 cannot map to unique villagers.
 
-The two population-increase modes therefore share guarded birth-selection detours. They implement `delivered_babies = min(rolled_babies, slots - current_slot_demand)` while the original cap predicate guarantees at least one remaining slot. For VV1 through VV4, slot demand is the ordinary population aggregate. VV5 uses the physical-demand helper described above. This preserves the original RNG and multiple-birth statistics whenever the rolled multiple fits. A triplet is reduced to twins only with two spaces, and any multiple is reduced to a singleton only with one space.
+All three public modes therefore share guarded birth-selection detours. They
+implement `delivered_babies = min(rolled_babies, slots - current_slot_demand)`
+while the selected mode's original cap predicate guarantees at least one
+remaining slot. For VV1 through VV4, slot demand is the ordinary population
+aggregate. VV5 uses the physical-demand helper described above. This preserves
+the original RNG and multiple-birth statistics whenever the rolled multiple
+fits. A triplet is reduced to twins only with two spaces, and any multiple is
+reduced to a singleton only with one space.
 
 The detours use verified zero-filled executable padding inside the existing `.text` section. Section layout and file size do not change.
 

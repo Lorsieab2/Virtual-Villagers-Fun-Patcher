@@ -53,7 +53,7 @@
     "vv2_easier_healing_mastery":["sick_target_present_absent","healer_and_healing_preference","plant_available_unavailable","ordinary_and_offline_queue"],
     "vv2_teaching_children_grants_skill":["zero_one_many_attendees","interrupted_lesson","rng_7_to_9","skill_cap","shared_callback_composition"],
     "vv2_hospital_recovery_heals":["health_99_100","interrupted_completed_recovery","callback_exactly_once","reload_during_queue","shared_callback_composition"],
-    "vv2_birth_control":["age_below_at_above_1000","autonomous_and_stew15","manual_pairing_unchanged","love_note_gong_mirror_events_unchanged","pending_delivery_unchanged"],
+    "vv2_birth_control":["age_below_at_above_1000","autonomous_and_stew15","manual_pairing_unchanged","love_note_gong_mirror_events_unchanged","pending_delivery_feature_boundary_automatic_capacity_safety"],
     "vv2_gong_of_wonder_coconuts_fix":["both_native_outcome_branches","coconuts_zero_positive_cap","statistics_unchanged","other_gong_outcomes_unchanged"],
     "vv2_full_mastery_all_stage_a_candidate":["cancel","insufficient_funds","no_eligible_change","success","partial_native_write_failure","postverify_failure","single_deduction","elder_and_50_totem_behavior","fullscreen_restore"],
     "vv2_write_village_statistics":["save_slots_1_to_5","primary_save_success_failure","export_write_failure","stale_file_replace","exact_text","native_save_return_preserved"]

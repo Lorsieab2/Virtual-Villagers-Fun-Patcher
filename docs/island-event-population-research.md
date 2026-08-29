@@ -8,6 +8,9 @@ All five games contain Island Event outcomes that can add villagers. Several sto
 
 The patcher now applies event-capacity safety automatically:
 
+- The same safety rows are applied in Stock, Collection Progression, and
+  Immediate Fixed; the selected mode changes gameplay cap/progression, not the
+  physical allocation invariant.
 - VV1 and VV2 guard each identified direct event allocation against 256 physical slots.
 - VV3, VV4, and VV5 recheck physical capacity before an outcome's formerly unconditional first arrival.
 - VV4 and VV5 clamp Abandoned Infants from six reservations to the physical slots remaining.

@@ -26,12 +26,12 @@ VV3_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV1_PAGE_SHA256 = "07944F005CF5048EAF744BC33564FE86FCFBC72DF30FD03AF60CDEFC2EE105BE"
 VV1_STANDALONE_RENDER_SHA256 = {
     "vv1_birth_control": {
-        "stock": "5B3D329D9B16E21DFD4C74F05B10A4A14E671C96AE481576E01914ED8FD8C4A5",
+        "stock": "588960E4C8F60E90C8CAD1A27D04BE8941C5EB11A3362B6DC5D3C60A0CEC6BAB",
         "collection_progression": "C02F431266FB9AC5C9C6FD62EE92D1AEEC6C3AF699F907CBE698FA4784664054",
         "immediate_fixed": "C02F431266FB9AC5C9C6FD62EE92D1AEEC6C3AF699F907CBE698FA4784664054",
     },
     "vv1_enable_origins_exclusive_features": {
-        "stock": "4613F73EC1CC928470E6EB2FAD3350F71CFFE47D41CB80A3DEEF6859AE7937E5",
+        "stock": "D1611611E208A08D508B3BEA5FEE8C0DE9152EEF54DB7FA5A9B38E4362D7D349",
         "collection_progression": "FD4D461A900F53FE0AA7A31CAF39E83B766D0BE25ADEF9A3F009AF3B400D9439",
         "immediate_fixed": "FD4D461A900F53FE0AA7A31CAF39E83B766D0BE25ADEF9A3F009AF3B400D9439",
     },
@@ -313,10 +313,16 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         _remove_feature_bytes(rendered, origins, "stock")
         checksum = 0x150  # exact VV1 PE checksum field offset (e_lfanew 0xF8 + 0x58)
         restored = bytearray(rendered)
+        expected_stock, _ = render_patched_bytes(
+            VV1_STOCK,
+            builds["vv1"],
+            "stock",
+            [],
+        )
         stock = bytearray(VV1_STOCK.read_bytes())
         restored[checksum : checksum + 4] = b"\x00" * 4
-        stock[checksum : checksum + 4] = b"\x00" * 4
-        self.assertEqual(restored, stock)
+        expected_stock[checksum : checksum + 4] = b"\x00" * 4
+        self.assertEqual(restored, expected_stock)
 
 
 if __name__ == "__main__":

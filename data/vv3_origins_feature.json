@@ -14,7 +14,7 @@
     {
       "source": "data/candidates/VVFP VV3 Safe Upgrades.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "67E89F47BB9956ACCBDA847103E8B00A4C0A50EA42F56984AFC51DD066C70ADC"
+      "sha256": "2032B87AC6E316319639A273FCF2438A15D9C869FCEEF071D248CBBCD1F863A7"
     }
   ],
   "doubler_evidence": {
@@ -151,7 +151,13 @@
       "offset": "0x60B48",
       "before": "E893ECFFFF",
       "after": "E873E52700",
-      "purpose": "wrap the action-overlay call so pose villagers get their mask on the pose head"
+      "purpose": "wrap the F14 0/3/4 action-overlay call; stash after stock draw"
+    },
+    {
+      "offset": "0x60D10",
+      "before": "E8CBEAFFFF",
+      "after": "E8ABE32700",
+      "purpose": "wrap the F14 1/2/5/6/7 action-overlay call; stash after stock draw"
     },
     {
       "offset": "0x9EEA0",

@@ -63,12 +63,14 @@ class VV3PickupTruthTests(unittest.TestCase):
             self.assertIn("0x434357", text)
             self.assertIn("0x4344B3", text)
             self.assertIn("timed", text.lower())
-        self.assertIn("no vv3 held/cursor hook", head.lower())
+        self.assertIn("held owner", head.lower())
+        self.assertIn("0x460d10", head.lower())
         self.assertIn("player trace", proof.lower())
-        self.assertIn("no hook", status.lower())
+        self.assertIn("held/action ownership", status.lower())
+        self.assertIn("unsupported action states fail closed", status.lower())
         self.assertIn("sub_4605F0", trace)
         self.assertIn("0x42E3F5", trace)
-        self.assertIn("Minimal player trace", trace)
+        self.assertIn("Player acceptance handoff", trace)
 
 
 if __name__ == "__main__":

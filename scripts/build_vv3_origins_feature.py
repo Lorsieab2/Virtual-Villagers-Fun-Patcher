@@ -185,7 +185,23 @@ WORLD_INDEXFN_PTR = SECTION_DATA_VA + 0x08              # DLL publishes VV3World
 # call VV3ActionMaskDraw(record, x, y) to seat the mask on the pose sprite's head.  sub_45F7E0
 # is `ret 0xc` (3 args), ecx=this (preserved from before the stolen call); the wrap's `ret 0xc`
 # keeps the net stack effect identical.
-WORLD_ACTION_CALLSITE_VA = 0x00460B48     # `call 0x45F7E0` in sub_4605F0 (action overlay)
+WORLD_ACTION_CALLSITE_VA = 0x00460B48     # F14 0/3/4: `call 0x45F7E0`
+WORLD_ACTION_CALLSITE_BEFORE = bytes.fromhex("E893ECFFFF")
+WORLD_ACTION_CALLSITE_SECOND_VA = 0x00460D10  # F14 1/2/5/6/7: same stock call
+WORLD_ACTION_CALLSITE_SECOND_BEFORE = bytes.fromhex("E8CBEAFFFF")
+# The renderer routes the F14 action selector through two stock call sites, but both calls
+# share the one ABI-identical wrapper in .vv3mc.  Keep this map explicit so a future builder
+# cannot silently wire only one branch.
+WORLD_ACTION_F14_ROUTING = {
+    0: WORLD_ACTION_CALLSITE_VA,
+    3: WORLD_ACTION_CALLSITE_VA,
+    4: WORLD_ACTION_CALLSITE_VA,
+    1: WORLD_ACTION_CALLSITE_SECOND_VA,
+    2: WORLD_ACTION_CALLSITE_SECOND_VA,
+    5: WORLD_ACTION_CALLSITE_SECOND_VA,
+    6: WORLD_ACTION_CALLSITE_SECOND_VA,
+    7: WORLD_ACTION_CALLSITE_SECOND_VA,
+}
 WORLD_ACTION_FN = 0x0045F7E0              # the action-overlay draw (ret 0xc; arg1=record)
 WORLD_ACTION_WRAP_CAVE_VA = SECTION_CODE_VA + 0x0C0 # appended R-X section
 WORLD_ACTIONFN_PTR = SECTION_DATA_VA + 0x30             # DLL publishes VV3ActionMaskDraw here
@@ -1848,8 +1864,24 @@ def main() -> None:
         """,
         WORLD_ACTION_WRAP_CAVE_VA,
     )
+    if len(world_action_wrap_cave) != 0x2B:
+        raise RuntimeError(
+            f"VV3 action wrapper ABI changed: expected 43 bytes, got {len(world_action_wrap_cave)}"
+        )
+    # The wrapper must remain wholly below the next fixed cave at 0x6DF100.  The two stock
+    # call sites use the same __thiscall(record,x,y) / ret 0x0C ABI, so no second wrapper is
+    # permitted (or needed).
+    if WORLD_ACTION_WRAP_CAVE_VA + len(world_action_wrap_cave) > SAVE_SLOT_CAPTURE_CAVE_VA:
+        raise RuntimeError(
+            f"VV3 action wrapper overlaps the next cave: "
+            f"0x{WORLD_ACTION_WRAP_CAVE_VA + len(world_action_wrap_cave):X} > "
+            f"0x{SAVE_SLOT_CAPTURE_CAVE_VA:X}"
+        )
     world_action_wrap_redirect = assemble(
         f"call 0x{WORLD_ACTION_WRAP_CAVE_VA:X}", WORLD_ACTION_CALLSITE_VA
+    )
+    world_action_wrap_redirect_second = assemble(
+        f"call 0x{WORLD_ACTION_WRAP_CAVE_VA:X}", WORLD_ACTION_CALLSITE_SECOND_VA
     )
 
     # Running-boundary helpers live in the patch-owned executable section so the
@@ -2166,9 +2198,15 @@ def main() -> None:
     put_cave(0x220, running_village_wrapper_cave, "wrap the native village-wide Running writer with the mask-fingerprint boundary")
     patch(
         WORLD_ACTION_CALLSITE_VA - IMAGE_BASE,
-        original[WORLD_ACTION_CALLSITE_VA - IMAGE_BASE : WORLD_ACTION_CALLSITE_VA - IMAGE_BASE + 5],
+        WORLD_ACTION_CALLSITE_BEFORE,
         world_action_wrap_redirect,
-        "wrap the action-overlay call so pose villagers get their mask on the pose head",
+        "wrap the F14 0/3/4 action-overlay call; stash after stock draw",
+    )
+    patch(
+        WORLD_ACTION_CALLSITE_SECOND_VA - IMAGE_BASE,
+        WORLD_ACTION_CALLSITE_SECOND_BEFORE,
+        world_action_wrap_redirect_second,
+        "wrap the F14 1/2/5/6/7 action-overlay call; stash after stock draw",
     )
     # (No head-atlas row-count bump: the separate-atlas method draws the mask from
     # its own Images/heathen_masks.png, so the head atlases are left untouched.)

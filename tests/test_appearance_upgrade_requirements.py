@@ -442,12 +442,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 # .vv3md (R/W), which is also W^X-clean.  The vacated caves, the
                 # three PE header edits mapping the new sections, and the retargeted
                 # call-site redirects move with it; no upgrade behaviour changes.
+                # The second proven action-overlay call site is independently
+                # guarded at 0x60D10 for F14 actions 1/2/5/6/7; it shares the
+                # same wrapper and stash-after-stock-draw contract as 0x60B48.
                 "data/vv3_origins_feature.json": {
                     "0x7B664", "0xA3180",
                     "0x3290",
                     "0x7B260", "0x7B2A0", "0x7B300",
                     "0x10E", "0x158", "0x2C8",
-                    "0x2E3F5", "0x34357", "0x344B3", "0x60B48",
+                    "0x2E3F5", "0x34357", "0x344B3", "0x60B48", "0x60D10",
                 },
                 "data/vv4_origins_feature.json": {
                     "0x89373", "0xCC004", "0xCC180",

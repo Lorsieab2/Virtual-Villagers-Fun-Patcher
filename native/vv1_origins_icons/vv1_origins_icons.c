@@ -417,10 +417,14 @@ static void vv1_mask_sidecar_load(void) {
    registration. That is the VV5 rule: replay the live head tuple, never
    reconstruct it from screen constants or age. */
 #define VV_MASK_ATLAS_COLS   7   /* mask_atlas.png: 7 facing cols x 5 colour rows, 40x160 cells, matching the generator and VV1 head atlas */
+#ifndef VV_DETAILS_MASK_Y_NUDGE_PX
+#define VV_DETAILS_MASK_Y_NUDGE_PX 10
+#endif
 /* Details uses a larger native scale than the village view.  One eighth of
-   that live scale restores the player-tuned 25px adult registration while
-   following the native 160..198 child scale (20..24px) instead of applying
-   the village lift, which raised an adult portrait by 93px. */
+   that live scale restores the player-tuned registration while following the
+   native 160..198 child scale (20..24px). VV1's Details mask is additionally
+   nudged upward by VV_DETAILS_MASK_Y_NUDGE_PX pixels; the VV2 wrapper includes
+   this source textually but overrides that macro to preserve VV2 rendering. */
 
 /* Engine functions are called directly by their fixed .text addresses (stable
    -- patches live in .shr caves and never move .text). The two engine calls
@@ -521,7 +525,7 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
     cell = mask - 1;   /* ROW = colour (0-based) */
     x = args[1];
     scale = args[5];
-    y = args[2] - (scale >> 3);
+    y = args[2] - (scale >> 3) - VV_DETAILS_MASK_Y_NUDGE_PX;
     col = args[4];
     enable = args[6];
     /* Same 7-arg push order as the native head draw (deepest first). The

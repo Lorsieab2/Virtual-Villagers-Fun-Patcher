@@ -236,11 +236,14 @@ bug from one un-reproduced observation.
 ## Birth Control and special-outcome isolation
 
 Birth Control, pregnancy, and Embracing tests apply only to the exact ordinary
-manual, autonomous, or catch-up paths named by that game's evidence. Island
-Event pregnancy, birth, and child outcomes must remain entirely native:
-unchanged age, sex, preference, eligibility, conception, pregnancy, delivery,
-capacity, RNG, messages, statistics, and state writes. VV2 Gong of Wonder
-outcomes have the same complete exclusion.
+manual, autonomous, or catch-up paths named by that game's evidence. Birth
+Control does not own Island Event pregnancy, birth, and child outcomes: their
+age, sex, preference, eligibility, conception, pregnancy, delivery, RNG,
+messages, statistics, and state writes remain outside the feature. Automatic
+physical-capacity safety is a separate layer applied in Stock, Collection
+Progression, and Immediate Fixed, so it may clamp an allocation without being
+Birth Control behavior. VV2 Gong of Wonder outcomes have the same feature
+exclusion.
 
 For `vv2_birth_control`, test ordinary autonomous/catch-up pairing and stew
 recipe 15 separately. Then verify that Love Note direct pregnancy, Gong life
@@ -258,7 +261,9 @@ For `vv1_birth_control`, test manual pairing with a category-2 carrier below
 and at/above displayed age 50, then test ordinary autonomous/catch-up pairing
 with scanned candidates below and at/above that boundary. Separately test an
 older initiating villager to confirm the patch does not add an initiator upper
-ceiling. Verify direct event-created births and pending delivery remain native.
+ceiling. Verify direct event-created births and pending delivery remain outside
+Birth Control ownership; separately verify automatic physical-capacity safety
+in all three public modes.
 
 For `vv3_birth_control`, test ordinary action-13 autonomous/catch-up pairing
 with scanned candidates below and at/above displayed age 50, including an

@@ -191,7 +191,10 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   `0x437503`, `0x437556`) remain five-byte CALLs and route through one
   ABI-compatible wrapper at `0x490720`. It duplicates and replays the untouched seven
   native arguments, then changes only atlas/color row and the scale-aware mask lift.
-  It does not reconstruct X/Y from age buckets or facing from a global.
+  VV1 applies `y = args[2] - (scale >> 3) - 10` for this Details-only overlay;
+  the village renderer keeps its existing registration, and VV2 overrides the
+  shared-source nudge to zero before inclusion. It does not reconstruct X/Y
+  from age buckets or facing from a global.
 - **Map/overview:** the village caller gate intentionally excludes UI/map clusters.
   No map compositor has yet been bound to a villager record and exact head tuple, so
   map coverage is unknown and must not be claimed from the village hook.
@@ -251,9 +254,16 @@ Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.ex
 - The handler derives a villager record from its index using stride `0x1F8C` and issues the
   stock head draw at `0x460A60` through `0x42E570`. The head atlas is sprite id `0x88`,
   8 columns × 30 rows.
-- The action overlay is `sub_45F7E0`, reached at the proven action call site `0x460B48`.
+- The action overlay is `sub_45F7E0`, reached at the proven action call sites
+  `0x460B48` and `0x460D10`; both use the same `.vv3mc` ABI wrapper.
 - The mask patch's world/action/Details hooks use these proven families and owned `.vv3mc`
   (R-X) / `.vv3md` (R/W) sections.
+- **World ownership:** the stock head tuple at `0x460A60` is stashed exactly. Held
+  `record+0xF12 != 0` owns that matching head tuple; otherwise post-stock action tuples
+  at both action call sites own supported `record+0xF20` frames `0..50`. Unsupported
+  action values fail closed without a head fallback, and each final wrapper exit clears
+  both stashes. Generic task-1 swimming on terrain 5 is head-owned; task-11 fishing
+  frames 8/9 are action-owned.
 - **Sidecar/identity validation:** every loaded mask byte is sanitized to the supported
   `0..5` range before it can enter the DLL table or reach a renderer. An individual
   getter/setter requires exactly one active/living record and one stored owner for its
@@ -287,10 +297,11 @@ Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.ex
 - `0x5947D0` is a four-bit initialization latch, not selection, pickup, or villager state.
   It is written by test/skip/OR initialization idioms and must never gate mask rendering.
 
-Therefore `0x434357` and `0x4344B3` remain byte-identical to stock. No VV3 held/cursor hook
-is installed. Static analysis does not prove whether a grabbed villager remains in the
-normal handler or which callback owns the visible held copy; pickup behavior remains a
-runtime-trace and player-acceptance boundary. Record base is `0x59E124`, stride `0x1F8C`.
+Therefore `0x434357` and `0x4344B3` remain byte-identical to stock; they are not pickup
+hooks. The proven normal-handler/head tuple is the held owner through `record+0xF12`, with
+release handled by the next final wrapper after that field clears. The ownership route is
+static/source proven, while the player's visual acceptance of held motion remains a runtime
+gate. Record base is `0x59E124`, stride `0x1F8C`.
 
 ### VV4 — "The Tree of Life" (NO native mask → from-scratch)
 - **Confirmed Details call chain:** `0x447D30` → `0x460BF0` → `0x45F550`; the body

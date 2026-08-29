@@ -67,7 +67,6 @@ EXCLUDED_STOCK_WINDOWS = (
     (0x217F9, bytes.fromhex("E8C2B60200")),  # Silver Mirror -> clone constructor
     # Shared pregnancy writer and pending-delivery operations.
     (0x4B980, bytes.fromhex("578BF9E888F9FFFF84C00F8449010000")),
-    (0x3BE8E, bytes.fromhex("E82D370100")),
     (0x3BF70, bytes.fromhex("898439400500")),
     (0x3BF85, bytes.fromhex("898439440500")),
     # Manual carrier checks remain completely stock.
@@ -79,6 +78,8 @@ EXCLUDED_STOCK_WINDOWS = (
         ),
     ),
 )
+
+DELIVERY_SAFETY_OFFSETS = {0x3BE8E, 0x73F20}
 
 PREGNANCY_WRITER_CALLS = (
     (0x22006, bytes.fromhex("E875990200")),
@@ -193,7 +194,7 @@ class VV2BirthControlTests(unittest.TestCase):
                 self.assertTrue(differences)
                 self.assertTrue(differences.issubset(allowed_with_checksum))
 
-    def test_special_outcomes_writer_and_delivery_paths_remain_exactly_stock(self) -> None:
+    def test_birth_control_owns_only_age_blocks_and_safety_owns_delivery(self) -> None:
         stock = STOCK.read_bytes()
         patched_intervals = [
             range(offset, offset + len(after))
@@ -212,7 +213,7 @@ class VV2BirthControlTests(unittest.TestCase):
 
         for mode in load_patch_modes():
             with self.subTest(mode=mode.id):
-                rendered, _ = render_patched_bytes(
+                rendered, applied = render_patched_bytes(
                     STOCK, self.build, mode.id, [FEATURE_ID]
                 )
                 for offset, expected in EXCLUDED_STOCK_WINDOWS + PREGNANCY_WRITER_CALLS:
@@ -221,6 +222,28 @@ class VV2BirthControlTests(unittest.TestCase):
                         expected,
                         f"{mode.id} changed excluded stock path at {offset:#x}",
                     )
+                feature_offsets = {
+                    int(edit["offset"], 0)
+                    for edit in applied
+                    if edit["owner"] == f"feature:{FEATURE_ID}"
+                }
+                self.assertEqual(feature_offsets, {block[0] for block in BLOCKS})
+                safety_offsets = {
+                    int(edit["offset"], 0)
+                    for edit in applied
+                    if edit["owner"] == "automatic:safety"
+                }
+                self.assertTrue(DELIVERY_SAFETY_OFFSETS.issubset(safety_offsets))
+                self.assertEqual(
+                    rendered[0x3BE8E:0x3BE93], bytes.fromhex("E98D800300")
+                )
+                self.assertEqual(
+                    rendered[0x73F20:0x73F42],
+                    bytes.fromhex(
+                        "608B0EE83819FBFF3D0001000061770AE88BB6FDFFE9597FFCFF"
+                        "83C42CE94A80FCFF"
+                    ),
+                )
 
     def test_composes_with_complete_vv2_catalog_in_every_mode_without_overlap(self) -> None:
         catalog = [

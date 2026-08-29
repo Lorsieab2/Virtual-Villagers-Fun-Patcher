@@ -61,9 +61,11 @@ now targets one shared ABI-compatible wrapper at `0x490720`. The wrapper
 duplicates the complete seven-argument tuple, performs the stock `0x409410`
 head draw, and then passes the untouched tuple plus the exact renderer wrapper
 to `Vv1DrawPortraitMask`. The overlay reuses native X, Y, facing, scale, and
-enable; it changes only the atlas/color row and applies the same scale-aware
-registration lift as the village mask. It no longer reconstructs portrait X/Y
-from fixed constants or age buckets. Because these callsites are below
+enable; it changes only the atlas/color row and applies the Details formula
+`y = args[2] - (scale >> 3) - 10`, moving every VV1 Details mask up exactly
+10 pixels while retaining the live scale registration. The village mask path
+is unchanged. It no longer reconstructs portrait X/Y from fixed constants or
+age buckets. Because these callsites are below
 `0x437790`, the village hook does not double-draw the Details portrait.
 Reopening Details remains a distinct runtime check.
 

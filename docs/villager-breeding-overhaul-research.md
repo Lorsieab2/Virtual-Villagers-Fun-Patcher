@@ -15,11 +15,15 @@ game-specific GO evidence. It must not intercept or reinterpret a special
 outcome merely because that outcome eventually reaches a shared pregnancy,
 birth, clone, child, or population writer.
 
-All Island Event pregnancy, birth, and child outcomes remain completely native.
-The patch must not add, remove, or replace any Island Event age, sex,
+Birth Control feature ownership stops at each game's named ordinary route.
+The feature must not add, remove, or replace any special-outcome age, sex,
 preference, eligibility, conception, pregnancy, delivery, capacity, RNG,
-message, statistic, or state-write behavior. In VV2, every Gong of Wonder
-outcome has the same complete exclusion. These are control-flow/provenance
+message, statistic, or state-write behavior. Automatic physical-capacity safety is a
+separate cross-game layer applied in Stock, Collection Progression, and
+Immediate Fixed; it may clamp a special outcome's physical allocation without
+becoming Birth Control behavior. Birth Control does not own Island Event
+pregnancy, birth, and child outcomes; in VV2, every Gong of Wonder outcome remains
+outside Birth Control for the same reason. These are control-flow/provenance
 exclusions, not amount- or result-based exceptions.
 
 Any future GO report for VV1 and VV3 must enumerate every applicable
@@ -82,8 +86,9 @@ absolute prerequisite: when category 1 is selected without that preference,
 the native chooser retains a 25% fallback roll. VV1 reproduces this tail in its
 owned helper page; VV2 and VV3 already contain the same native floor/fallback.
 The Birth Control patches do not replace this random branch with a stricter
-preference-only rule. They also do not alter Island Events, the Gong of Wonder,
-or any direct event-created nursing-baby writer.
+preference-only rule. They do not own Island Events, the Gong of Wonder, or any
+direct event-created nursing-baby writer; the separate automatic safety layer
+still protects physical allocation in every public mode.
 
 ### Why a woman over 50 can still appear after catch-up
 
@@ -154,19 +159,22 @@ bounds while preserving both stock `>=360` checks. The planner hook at
 initiator check. The chooser tail at `0x39C80`/`0x39C83` now uses the same
 score floor and non-preference fallback as the VV4/VV2/VV3 chooser while
 preserving VV1's native category/skill mapping. Catch-up reuses the
-chooser/action-9 route. Direct event-created births and pending delivery
-remain native. Static verification is complete; runtime/player confirmation
-remains pending.
+chooser/action-9 route. Direct event-created births and pending delivery remain
+outside Birth Control ownership; automatic physical-capacity safety is applied
+separately in every public mode. Static verification is complete; runtime/player
+confirmation remains pending.
 
 The former rejection evidence remains relevant as a negative boundary: the
 historical `0x3DBBE` food gate, live instruction interiors, and uncertified
 `0x56740` cave are not used by the implementation.
 
 VV2 retains its independent two-site implementation described below; its
-native chooser, conception formula, pregnancy writer, and delivery already
-match the VV4/VV5 reference contract. VV3's ordinary action-13 selector is
-covered by the implementation in the next section; its native chooser, manual,
-conception, pregnancy, delivery, and special routes remain unchanged.
+native chooser and conception formula already match the VV4/VV5 reference
+contract. Its pregnancy writer and delivery remain outside Birth Control
+ownership, while automatic physical-capacity safety applies separately in every
+public mode. VV3's ordinary action-13 selector is covered by the implementation
+in the next section; its native chooser, manual, conception, pregnancy, and
+special routes remain unchanged by Birth Control.
 
 ### VV3 exact-build implementation and special-outcome boundary
 
@@ -179,8 +187,9 @@ retains its category-1 carrier/female-only internal-age-1000 rejection for
 both participants. The selector is reached by the ordinary autonomous and
 catch-up action path; direct constructors, clone paths, saved pending delivery,
 Island Event pregnancy/birth/child outcomes, and every other special producer
-remain native. Static verification is complete; runtime/player confirmation
-remains pending.
+remain outside Birth Control ownership. Automatic physical-capacity safety may
+still clamp their allocations in every public mode. Static verification is
+complete; runtime/player confirmation remains pending.
 
 ### VV5 exact-build audit: native no-patch reference
 
@@ -195,8 +204,7 @@ female-only internal-age-1000 rejection and no male upper-age gate; candidate
 selectors reject only the scanned candidate, not the initiator. Offline
 delivery uses the native pending-plus-40 comparison and clears the pending
 marker/count. Direct event and puzzle births bypass these manual/autonomous
-gates and remain native. No VV5 Birth Control bytes are implemented or
-reserved.
+gates and remain outside Birth Control ownership. No VV5 Birth Control bytes are implemented or reserved. The automatic capacity layer remains separate.
 
 ## Implementation status
 
@@ -207,8 +215,10 @@ hashes. VV2 and VV3 already contain the literal VV4/VV5 chooser score floor and
 25% non-preference fallback natively; VV1 now matches that chooser tail without
 changing its game-specific skill/category mapping. All three retain native
 manual female/carrier gates, conception formulas, pregnancy writers, and
-pending-delivery behavior outside their named route edits. Runtime/player
-confirmation remains pending. VV4 and VV5 remain native no-patch references.
+pending-delivery behavior outside their named route edits. Automatic
+physical-capacity safety is separate and applies in every public mode.
+Runtime/player confirmation remains pending. VV4 and VV5 remain native
+no-patch references.
 
 ### VV2 exact-build implementation (`74778bd6a7d3a17dd990636cf6d4e769466800c6`)
 
@@ -230,8 +240,10 @@ The stock manual carrier/female-only age-less-than-1000 gate remains unchanged;
 there is no male upper-age gate. The native VV4/VV5-style chooser score floor
 and 25% non-preference fallback, token 43 exact string `work`, willingness token
 39 `learning`, planner logic, conception roll, pregnancy writer, delivery, save
-format, RNG, food, fertility, capacity, messages, statistics, Love Note, Gong
-grant, Silver Mirror clone, and direct/event births remain native.
+format, RNG, food, fertility, messages, statistics, Love Note, Gong grant,
+Silver Mirror clone, and direct/event births remain outside Birth Control
+ownership. Automatic physical-capacity safety remains a separate layer in all
+three public modes.
 
 The static exclusion boundary is exact:
 
@@ -243,12 +255,15 @@ The static exclusion boundary is exact:
   than the pregnancy writer;
 - the stock pregnancy writer begins at file `0x4B980`;
 - pending delivery calls its native helper at file `0x3BE8E`, then retains the
-  stock marker/count clears at `0x3BF70` and `0x3BF85`;
+  stock marker/count clears at `0x3BF70` and `0x3BF85`; automatic safety owns
+  only the delivery-capacity guard at `0x3BE8E`/`0x473F20` in every public mode;
 - the manual carrier gates at `0x4F7C8..0x4F7FE` remain byte-identical;
 - the six stock calls into the pregnancy writer remain at `0x22006`,
   `0x4EB3E`, `0x4F8F0`, `0x4F930`, `0x64A38`, and `0x64C4D`.
 
 Only the predicates immediately upstream of the final two ordinary
 writer-reaching calls are changed. Consequently no Island Event or Gong
-outcome gains a patched age, sex, preference, eligibility, conception,
-pregnancy, delivery, capacity, RNG, message, statistic, or state-write rule.
+outcome gains a Birth Control age, sex, preference, eligibility, conception,
+pregnancy, delivery, RNG, message, statistic, or state-write rule. The separate
+automatic physical-capacity layer may still clamp allocation in every public
+mode.

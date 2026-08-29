@@ -22,8 +22,9 @@ Expanded-256 population modes have been removed from the patcher.
 1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
 2. Choose one of the three population modes:
    - No Population Increase:
-     Preserve the stock population cap, progression behavior, and population
-     allocation behavior. No population-cap or saturation bytes are changed.
+     Preserve the stock population cap and progression behavior. Automatic
+     physical-capacity safety still clamps allocation paths at the real record
+     pool; it does not change the stock social cap.
    - Collection Progression Max Pop:
      Collections still raise the cap and are needed to reach the absolute
      maximum. The Secret City also retains its level-3 magic bonus.
@@ -137,7 +138,10 @@ all five folder paths. Vanilla and Modded links open their respective folders.
 SAFE MULTIPLE BIRTHS
 
 All five games normally check the cap before deciding singleton/twins/triplets.
-The two population-increase modes prevent overflow at the selected mode's slot ceiling. The No Population Increase mode preserves the stock behavior:
+All three public modes apply automatic physical-capacity safety at the selected
+mode's real slot ceiling. No Population Increase preserves the stock cap and
+progression; Collection Progression and Immediate Fixed retain their documented
+cap behavior. The safety layer only clamps physical allocation:
 - 3+ spaces: multiples work normally.
 - 2 spaces: a rolled triplet becomes twins.
 - 1 space: a rolled twin or triplet becomes a singleton.
@@ -212,7 +216,9 @@ internal age is 1000 or greater. The two exact guarded blocks are one optional
 feature and are never applied separately. The stock manual carrier/female-only
 gate remains unchanged, and no male upper-age gate is added. Direct/event
 births, pending delivery, saves, RNG, food, fertility, capacity, messages,
-statistics, Love Note, Gong grant, and Silver Mirror clone remain native.
+statistics, Love Note, Gong grant, and Silver Mirror clone are unchanged by
+Birth Control; automatic physical-capacity safety separately guards physical
+allocation for these paths in every public mode.
 
 VV2 GONG OF WONDER COCONUTS FIX
 
