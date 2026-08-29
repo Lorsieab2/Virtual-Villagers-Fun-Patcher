@@ -410,7 +410,7 @@ VILLAGE_MASK_DLL_FN_VA = VILLAGE_MASK_SPRITE_VA + 4     # +0x1BC dword, cached V
 VILLAGE_SURFACE_SAVE_VA = VILLAGE_MASK_DLL_FN_VA + 4    # +0x1C0 dword, deref'd renderer surface across the two sub-draws
 VILLAGE_FILL_SAVE_VA = VILLAGE_SURFACE_SAVE_VA + 4      # +0x1C4 dword, caller's eax (draw fill arg) across the sub-draws
 VILLAGE_MASK_ROW_VA = VILLAGE_FILL_SAVE_VA + 4          # +0x1C8 dword, mask colour row (mask-1) for the mask sub-draw
-VILLAGE_DBG_CALLER_VA = VILLAGE_MASK_ROW_VA + 4         # +0x1CC dword, DIAGNOSTIC: caller of a head-atlas draw seen with an invalid stash (the swim/pose renderer we're missing)
+VILLAGE_DBG_CALLER_VA = VILLAGE_MASK_ROW_VA + 4         # +0x1CC dword, DIAGNOSTIC: caller of a head-atlas draw seen with an invalid stash (requires runtime trace; not evidence of a separate renderer)
 VILLAGE_MASKED_BITMAP_VA = VILLAGE_DBG_CALLER_VA + 4    # +0x1D0..+0x1F0, 256-bit per-frame "already masked this villager" guard (cleared once per frame by the draw hook) so villagers drawn by more than one render pass get exactly ONE mask
 VILLAGE_DRAWFN_VA = VILLAGE_MASKED_BITMAP_VA + 0x20     # +0x1F0 dword, per-entry original draw fn (0x408840 adult / 0x408740 child-alt) so one shared 5-arg body serves both thunks
 VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (still well clear of .shr at 0x48D000)
@@ -3516,7 +3516,7 @@ def main() -> None:
             "legacy_migration": False,
             "invalid_or_missing_sidecar": "clear in-memory table",
             "dead_entry_clears": "persisted back to the matching slot sidecar",
-            "pickup_held_runtime_status": "unknown; static audit does not prove a pickup renderer path",
+            "pickup_held_runtime_status": "static: held villagers update the ordinary record position and re-enter the central village render loops; player-visible held mask behavior remains runtime-unverified",
         },
         "pe_append_transaction": {
             "owner": "vv1_enable_origins_exclusive_features",
