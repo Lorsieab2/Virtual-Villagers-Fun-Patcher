@@ -398,6 +398,30 @@ static void vv_ensure_bighead_atlas(void) {
         o[0x1a] =  30000;
         o[0x1b] =  30000;
     }
+    {   /* one-shot geometry diagnostic: confirm the bighead atlas loaded as
+           3 subcols x 5 subrows, cell 40x90, with a non-null surface array. */
+        char exe[MAX_PATH], dbg[MAX_PATH], line[192];
+        char *p, *base;
+        DWORD wr, n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+        unsigned int *o = (unsigned int *)obj;
+        HANDLE fh;
+        if (n != 0 && n < MAX_PATH) {
+            base = exe;
+            for (p = exe; *p; ++p) if (*p == '\\' || *p == '/') base = p + 1;
+            *base = '\0';
+            wsprintfA(dbg, "%svvfp_bighead_dbg.txt", exe);
+            wsprintfA(line, "bighead atlas obj=%p cellW[4]=%u cellH[5]=%u subc[2]=%u subr[3]=%u surf[0xc]=%p arg6@728A1C=%d scale@728A2C=%d\r\n",
+                      obj, o[4], o[5], o[2], o[3], (void *)o[0xc],
+                      *(volatile int *)(UINT_PTR)0x728A1Cu,
+                      *(volatile int *)(UINT_PTR)0x728A2Cu);
+            fh = CreateFileA(dbg, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (fh != INVALID_HANDLE_VALUE) {
+                WriteFile(fh, line, lstrlenA(line), &wr, NULL);
+                CloseHandle(fh);
+            }
+        }
+    }
     if (((unsigned int *)obj)[4] == 0) {
         return;
     }
@@ -421,6 +445,42 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
     if (mask > 0 && (villager[0x1CC7] != 0 ||
                      *(const int *)(villager + 0x1C40) <= 0)) {
         mask = 0;
+    }
+    {   /* DETAILS PROBE: the Details cave writes its captured args to the D_* .shr
+           slots BEFORE calling us; the world cave does not touch them (stays 0
+           until a Details open). Log the first few calls where arg6 (0x728A1C) is
+           non-zero -> that's a real Details draw. Reveals the ACTUAL scale, screen
+           x/y, and facing terms (arg4/arg5) so the seat/scale/frame stop being a
+           guess. */
+        static int g_dcap = 0;
+        int a6 = *(volatile int *)(UINT_PTR)0x728A1Cu;
+        if (a6 != 0 && g_dcap < 6) {
+            char exe[MAX_PATH], dbg[MAX_PATH], line[192];
+            char *p, *base;
+            DWORD wr, n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+            HANDLE fh;
+            int a2 = *(volatile int *)(UINT_PTR)0x728A0Cu;
+            int a3 = *(volatile int *)(UINT_PTR)0x728A10u;
+            int a4 = *(volatile int *)(UINT_PTR)0x728A14u;
+            int a5 = *(volatile int *)(UINT_PTR)0x728A18u;
+            int a6s = *(volatile int *)(UINT_PTR)0x728A2Cu;
+            if (n != 0 && n < MAX_PATH) {
+                base = exe;
+                for (p = exe; *p; ++p) if (*p == '\\' || *p == '/') base = p + 1;
+                *base = '\0';
+                wsprintfA(dbg, "%svvfp_detail_probe.txt", exe);
+                wsprintfA(line, "x(a2)=%d y(a3)=%d headfield(a4)=%d frame(a5)=%d scale_arg(a6)=%d mask_scale(a6s)=%d mask=%d\r\n",
+                          a2, a3, a4, a5, a6, a6s, mask);
+                fh = CreateFileA(dbg, FILE_APPEND_DATA, FILE_SHARE_READ, NULL,
+                                 OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+                if (fh != INVALID_HANDLE_VALUE) {
+                    SetFilePointer(fh, 0, NULL, FILE_END);
+                    WriteFile(fh, line, lstrlenA(line), &wr, NULL);
+                    CloseHandle(fh);
+                    g_dcap++;
+                }
+            }
+        }
     }
     return mask;
 }
@@ -613,6 +673,36 @@ __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
         vv_read_mask_sidecar();
     }
     vv_mask_sweep();            /* clear masks on slots the game freed/reused */
+    {   /* DIAGNOSTIC: dump the FUN_00409A70 caller-capture ring (.shr 0x728B00
+           count + 0x728B04 returns) to vvfp_callers.txt each frame, so the
+           animated-portrait head-draw caller can be identified. */
+        int count = *(volatile int *)(UINT_PTR)0x728100u;
+        if (count > 0) {
+            char exe[MAX_PATH], dbg[MAX_PATH], line[64];
+            char *p, *base;
+            DWORD wr, n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+            HANDLE fh;
+            if (n != 0 && n < MAX_PATH) {
+                int i;
+                base = exe;
+                for (p = exe; *p; ++p) if (*p == '\\' || *p == '/') base = p + 1;
+                *base = '\0';
+                wsprintfA(dbg, "%svvfp_callers.txt", exe);
+                fh = CreateFileA(dbg, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+                                 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+                if (fh != INVALID_HANDLE_VALUE) {
+                    if (count > 40) count = 40;
+                    for (i = 0; i < count; i++) {
+                        unsigned int ret = *(volatile unsigned int *)
+                            (UINT_PTR)(0x728104u + (unsigned int)i * 4u);
+                        wsprintfA(line, "caller ret=0x%08X\r\n", ret);
+                        WriteFile(fh, line, lstrlenA(line), &wr, NULL);
+                    }
+                    CloseHandle(fh);
+                }
+            }
+        }
+    }
 }
 
 /* Blit one resolved mask (1..5) at the head's screen x/y. scale_pct: 100 =

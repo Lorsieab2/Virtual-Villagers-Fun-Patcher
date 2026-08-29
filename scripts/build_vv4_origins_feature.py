@@ -229,7 +229,7 @@ VV4_DETAIL_MASK_VA = 0x7287A1
 VV4_DETAIL_MASK_FILE_OFFSET = 0xCC7A1
 VV4_REC_ARRAY_BASE = 0x50E5AC         # villager record array base
 VV4_REC_STRIDE = 0x2E3C
-VV4_DETAIL_FACING_COL = 1             # FIXED front col of the 3-col bighead atlas [right=0,front=1,left=2]; portrait never rotates
+VV4_DETAIL_FACING_COL = 1             # FRONT col of the dedicated 3-col bighead atlas (= 8-col frame 6, bighead-res); [right=0,front=1,left=2]
 MASK_SLOT_BIGHEAD_ATLAS = 0x728A3C    # dedicated bighead atlas obj ptr (DLL publishes here; free slot past D_TMP)
 # scratch (mgr/ret/6 args/index/mask), past the cave:
 D_MGR = 0x728A00
@@ -247,14 +247,33 @@ D_A6S = 0x728A2C                      # scaled arg6 (D_A6 * D_SCALE) for the mas
 D_LIFTX = 0x728A30                    # float: mask_x = D_A2 - LIFTX * headScale (seat X)
 D_LIFTY = 0x728A34                    # float: mask_y = D_A3 - LIFTY * headScale (seat Y)
 D_TMP = 0x728A38                      # fistp scratch for the scaled lifts
+# DIAGNOSTIC caller-capture: FUN_00409A70 is a thunk (mov ecx,[ecx]; jmp 0x408C40).
+# Splice its entry to a cave that dedups the caller's return address into a ring,
+# so the per-frame ANIMATED-portrait head-draw caller (which is NOT 0x43CFDE)
+# reveals itself. Free .shr gap 0x728A60..0x728D40.
+CALLER_CAPTURE_ENABLED = False        # diagnostic toggle (.shr too packed to fit 8 caves)
+# Ring + caves in the LOW .shr (0x728100..0x728800): the 0x728A00+ region is used by
+# the mask/scratch/record patches (a cave at 0x728BD8 collided), but the low .shr is
+# free. .shr maps file 0xCC000 -> VA 0x728000.
+CALLER_RING_COUNT = 0x728100          # dword: how many unique caller returns
+CALLER_RING = 0x728104                # up to 40 dword caller return addresses
+# The 8 sibling blit thunks (VS5's map); the bighead draws through one of them, so
+# splice ALL of them. Each cave logs the caller return (dedup) then replays
+# `mov ecx,[ecx]; jmp <target>`. Caves 0x40 apart from 0x728200.
+CALLER_THUNKS = [
+    (0x409960, 0x4086C0), (0x4099F0, 0x4088F0), (0x409A30, 0x408A30),
+    (0x409A70, 0x408C40), (0x409AD0, 0x408CF0), (0x409BD0, 0x409700),
+    (0x409F90, 0x409370), (0x409FA0, 0x409470),
+]
+CALLER_CAVES = [0x728200 + i * 0x40 for i in range(len(CALLER_THUNKS))]
 import struct as _struct
-D_SCALE_VALUE = _struct.pack("<f", 1.5)   # dedicated bighead-res atlas (~40px cell) drawn at head arg6 x1.5 (VV5 landed value)
+D_SCALE_VALUE = _struct.pack("<f", 1.5)   # dedicated bighead-res atlas at head arg6 * 1.5 (VV5 landed)
 # Seat the SCALED mask's face onto the bighead's face: offset = headFace_incell -
 # maskFace_incell * scale, times the head's own scale arg (so children auto-seat).
 # bighead face ~(30,28) in its 60px cell; mask face ~(35,53) in the 65px cell:
 # X = 35*2.6 - 30 = 61 ; Y = 53*2.6 - 28 = 110. Owner-tunable.
-D_LIFTX_VALUE = _struct.pack("<f", 0.14)  # int-scale units: maskX = x - LIFTX*arg6 (arg6 ~200 = 2x); ~27px left
-D_LIFTY_VALUE = _struct.pack("<f", 0.75)  # int-scale units: maskY = y - LIFTY*arg6; ~150px up to seat the face
+D_LIFTX_VALUE = _struct.pack("<f", 0.15)  # seat for 8-col col5 face (~35,53) @1.3x, int arg6; tune
+D_LIFTY_VALUE = _struct.pack("<f", 0.40)  # seat for 8-col col5 face @1.3x; tune
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -573,6 +592,41 @@ def mask_detail_cave() -> bytes:
     prologue = src(0).split("post_orig:")[0]
     post_orig = VV4_DETAIL_MASK_VA + len(assemble(prologue, VV4_DETAIL_MASK_VA))
     return assemble(src(post_orig), VV4_DETAIL_MASK_VA)
+
+
+def caller_capture_cave(cave_va: int, target_va: int) -> bytes:
+    """Diagnostic: spliced onto a blit-thunk entry. Dedups the caller's return
+    address ([esp] at entry, since we JMP in) into the shared ring at CALLER_RING,
+    then replays the thunk (mov ecx,[ecx]; jmp <target_va>). The DLL present hook
+    dumps the ring so the bighead's per-frame draw caller is identifiable across
+    all 8 sibling thunks."""
+    src = f"""
+            pushfd
+            pushad
+            mov ebx, dword ptr [esp+0x24]
+            mov esi, {CALLER_RING}
+            mov ecx, dword ptr [{CALLER_RING_COUNT}]
+            xor edi, edi
+            test ecx, ecx
+            jz cc_add
+        cc_scan:
+            cmp dword ptr [esi+edi*4], ebx
+            je cc_out
+            inc edi
+            cmp edi, ecx
+            jl cc_scan
+        cc_add:
+            cmp ecx, 40
+            jge cc_out
+            mov dword ptr [esi+ecx*4], ebx
+            inc dword ptr [{CALLER_RING_COUNT}]
+        cc_out:
+            popad
+            popfd
+            mov ecx, dword ptr [ecx]
+            jmp 0x{target_va:X}
+    """
+    return assemble(src, cave_va)
 
 
 def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str) -> None:
@@ -1905,6 +1959,19 @@ def main() -> None:
           rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_CALLEE),
           rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_VA),
           f"Heathen mask: route the Details portrait head draw at {VV4_DETAIL_MASK_SITE:#x} through the Details mask cave")
+    # DIAGNOSTIC caller-capture (temporary): splice the 8 sibling blit thunks so the
+    # bighead's per-frame portrait draw caller (through whichever thunk) is captured.
+    # Caves + ring live in the LOW .shr (0x728100..0x728800), verified free of other
+    # patches (the 0x728A00+ region is used by the mask/scratch/record patches).
+    if CALLER_CAPTURE_ENABLED:
+        _shr_va2file = MASK_WORLD_VA - MASK_WORLD_FILE_OFFSET
+        for (thunk, target), cave_va in zip(CALLER_THUNKS, CALLER_CAVES):
+            cc = caller_capture_cave(cave_va, target)
+            patch(cave_va - _shr_va2file, b"\0" * len(cc), cc,
+                  f"DIAGNOSTIC: caller-capture cave for blit thunk {thunk:#x}")
+            before5 = b"\x8b\x09\xe9" + _struct.pack("<i", target - (thunk + 7))[:2]
+            patch(thunk - IMAGE_BASE, before5, rel32_jump(thunk, cave_va),
+                  f"DIAGNOSTIC: splice blit thunk {thunk:#x} to its caller-capture cave")
     patch(0x3FBE5, bytes.fromhex("E81684FDFF"), rel32_call(0x43FBE5, BARREL_COUNTDOWN_VA),
           "route the real event-scheduler tick (0x43FBE5 -> 0x418000) through the Barrel cue so a purchased barrel is presented naturally after its delay")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),

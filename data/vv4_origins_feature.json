@@ -139,7 +139,7 @@
     {
       "source": "assets/origins/VVFP VV4 Origins Icons.dll",
       "destination": "VVFP VV4 Origins Icons.dll",
-      "sha256": "DD2ECA7363428516101BB845E0EB7C9BEAE8415AEC4407F49257C9A69027B805"
+      "sha256": "90BCA6162787C7AC9D87AB940B13FAC7FCC14E5D462DA5DC38E0C03CF2E1512F"
     },
     {
       "source": "assets/vv4_masks/vvfp_mask_atlas.png",
@@ -487,13 +487,13 @@
     {
       "offset": "0xCCA30",
       "before": "00000000",
-      "after": "295C0F3E",
+      "after": "9A99193E",
       "purpose": "Heathen mask: Details bighead X seat (mask_x = head_x - LIFTX*headScale)"
     },
     {
       "offset": "0xCCA34",
       "before": "00000000",
-      "after": "0000403F",
+      "after": "CDCCCC3E",
       "purpose": "Heathen mask: Details bighead Y seat (mask_y = head_y - LIFTY*headScale)"
     },
     {
