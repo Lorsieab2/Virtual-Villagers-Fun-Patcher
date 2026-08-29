@@ -19,8 +19,8 @@ OUTPUT = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 FOUNDATION_OUTPUT = (
     ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
 )
-SOURCE_SHA256 = "D75CE7C74F94E348F2364001F56ADB36DD760E228E1E5142327541D5C8341479"
-SOURCE_SIZE = 1_894_912
+SOURCE_SHA256 = "CACCC75F739D1AEC89475FC6D13FAABF6DAB8DD196BDEEF57DAC006DED987CAA"
+SOURCE_SIZE = 1_895_936
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
@@ -106,6 +106,8 @@ def synchronize() -> tuple[int, str, frozenset[str]]:
     if not SOURCE.is_file():
         raise RuntimeError(f"missing canonical VV3 companion: {SOURCE}")
     canonical = SOURCE.read_bytes()
+    if len(canonical) != SOURCE_SIZE or sha(canonical) != SOURCE_SHA256:
+        raise RuntimeError("VV3 canonical companion source fingerprint mismatch")
     exports = export_names(canonical)
     missing = REQUIRED_MASK_EXPORTS - exports
     if missing:

@@ -5258,8 +5258,6 @@ def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, s
 
 
 def _safety_patches(build: Build, patch_mode: str) -> list[dict[str, str]]:
-    if patch_mode == "stock":
-        return []
     if (
         patch_mode
         not in {
@@ -7521,10 +7519,10 @@ def _result(
     result_sha256 = hashlib.sha256(patched).hexdigest().upper()
     if patch_mode == "stock":
         multiple_birth_saturation = (
-            "stock multiple-birth behavior is preserved; no population-cap saturation guard is applied"
+            "stock multiple-birth behavior and progression are preserved; automatic physical-capacity safety reduces multiples only when required to fit the remaining villager slots"
         )
         island_event_capacity = (
-            "stock population-adding Island Event behavior is preserved; no population-cap guard is applied"
+            "stock population-adding Island Event behavior and progression are preserved; automatic physical-capacity safety blocks or reduces arrivals only as required to fit the remaining villager slots"
         )
     else:
         multiple_birth_saturation = (
@@ -7780,10 +7778,10 @@ def _log_data(
     absolute_maximum = variant.get("absolute_maximum", build.absolute_maximum)
     if patch_mode == "stock":
         multiple_birth_saturation = (
-            "stock multiple-birth behavior is preserved; no population-cap saturation guard is applied"
+            "stock multiple-birth behavior and progression are preserved; automatic physical-capacity safety reduces multiples only when required to fit the remaining villager slots"
         )
         island_event_capacity = (
-            "stock population-adding Island Event behavior is preserved; no population-cap guard is applied"
+            "stock population-adding Island Event behavior and progression are preserved; automatic physical-capacity safety blocks or reduces arrivals only as required to fit the remaining villager slots"
         )
     else:
         multiple_birth_saturation = (

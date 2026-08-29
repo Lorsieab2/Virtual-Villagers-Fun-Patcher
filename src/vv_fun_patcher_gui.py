@@ -641,7 +641,10 @@ class App(tk.Tk):
         mode = get_patch_mode(self._mode())
         prefix = f"{build.title}: " if build else ""
         if mode.id == "stock":
-            text = "the stock population cap and progression behavior are preserved."
+            text = (
+                "the stock population cap and progression behavior are preserved; "
+                "automatic physical-capacity safety still clamps allocation paths."
+            )
         elif mode.id == "collection_progression":
             text = "collection bonuses remain active and are needed for the absolute maximum."
         elif mode.id == "immediate_fixed":

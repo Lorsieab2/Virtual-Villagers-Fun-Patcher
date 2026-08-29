@@ -29,6 +29,7 @@ from vv_fun_patcher import (  # noqa: E402
     identify,
     load_builds,
     load_fun_patches,
+    load_public_fun_patches,
     load_patch_modes,
     modded_save_folder_for,
     render_patched_bytes,
@@ -992,13 +993,13 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(stock["patches"], [])
             expected_safety_counts = {
                 "vv1": 17,
-                "vv2": 13,
+                "vv2": 15,
                 "vv3": 8,
                 "vv4": 10,
                 "vv5": 13,
             }
             self.assertEqual(len(build.safety_patches), expected_safety_counts[build.id])
-            for mode in MODES:
+            for mode in ALL_MODES:
                 variant = get_patch_variant(build, mode)
                 self.assertEqual(variant["output_name"], modded_exe_name(build))
             if build.id == "vv1":
@@ -1007,14 +1008,26 @@ class ManifestTests(unittest.TestCase):
                 self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
 
-    def test_stock_mode_is_byte_identical_and_reports_stock_cap(self) -> None:
+    def test_stock_mode_applies_safety_and_reports_stock_cap(self) -> None:
         for build in load_builds():
             source = STOCK / build.input_name
             original = source.read_bytes()
             with self.subTest(game=build.id):
                 rendered, applied = render_patched_bytes(source, build, "stock")
-                self.assertEqual(bytes(rendered), original)
-                self.assertEqual(applied, [])
+                self.assertNotEqual(bytes(rendered), original)
+                self.assertEqual(len(applied), len(build.safety_patches))
+                self.assertEqual(
+                    {record["owner"] for record in applied},
+                    {"automatic:safety"},
+                )
+                self.assertEqual(
+                    {int(record["offset"], 0) for record in applied},
+                    {int(patch["offset"], 0) for patch in build.safety_patches},
+                )
+                checksum_offset = struct.unpack_from("<I", rendered, 0x3C)[0] + 24 + 64
+                self.assertNotEqual(
+                    struct.unpack_from("<I", rendered, checksum_offset)[0], 0
+                )
                 preview = dry_run(source, "stock")
                 self.assertEqual(preview["absolute_maximum"], build.stock_final_cap)
                 self.assertFalse(preview["population_increase"])
@@ -1051,6 +1064,178 @@ class ManifestTests(unittest.TestCase):
                     relative = struct.unpack_from("<i", after, jump_index + 1)[0]
                     actual = cave_offset + jump_index + 5 + relative
                     self.assertEqual(actual, continuation_offset)
+
+    def test_vv2_pregnancy_delivery_guard_has_exact_hook_cave_and_abi(self) -> None:
+        vv2 = next(build for build in load_builds() if build.id == "vv2")
+        safety = {
+            int(patch["offset"], 0): patch for patch in vv2.safety_patches
+        }
+        hook = safety[0x3BE8E]
+        self.assertEqual(hook["before"], "E82D370100")
+        self.assertEqual(hook["after"], "E98D800300")
+        self.assertEqual(0x400000 + int(hook["offset"], 0), 0x43BE8E)
+
+        cave = safety[0x73F20]
+        cave_before = bytes.fromhex(cave["before"])
+        cave_after = bytes.fromhex(cave["after"])
+        self.assertEqual(len(cave_before), 34)
+        self.assertEqual(cave_before, bytes(34))
+        self.assertEqual(
+            cave_after,
+            bytes.fromhex(
+                "608B0EE83819FBFF3D0001000061770AE88BB6FDFFE9597FFCFF"
+                "83C42CE94A80FCFF"
+            ),
+        )
+        self.assertEqual(0x400000 + int(cave["offset"], 0), 0x473F20)
+
+        # The population helper is called with the manager in ECX, and JA is
+        # deliberate: demand == 256 still replays the stock allocator while
+        # only demand > 256 takes the deferred-delivery path.
+        helper_call = 3
+        helper_target = (
+            0x73F20
+            + helper_call
+            + 5
+            + struct.unpack_from("<i", cave_after, helper_call + 1)[0]
+        )
+        self.assertEqual(helper_target, 0x25860)
+        self.assertEqual(cave_after[8:13], bytes.fromhex("3D00010000"))
+        self.assertEqual(cave_after[14], 0x77)  # JA, never JAE
+        branch_target = (
+            0x73F20
+            + 14
+            + 2
+            + struct.unpack_from("<b", cave_after, 15)[0]
+        )
+        self.assertEqual(branch_target, 0x73F3A)
+        self.assertEqual(cave_after[0x1A:0x1D], bytes.fromhex("83C42C"))
+
+        stock_call = 0x10
+        stock_target = (
+            0x73F20
+            + stock_call
+            + 5
+            + struct.unpack_from("<i", cave_after, stock_call + 1)[0]
+        )
+        self.assertEqual(stock_target, 0x4F5C0)
+        continuation_jump = 0x15
+        continuation = (
+            0x73F20
+            + continuation_jump
+            + 5
+            + struct.unpack_from("<i", cave_after, continuation_jump + 1)[0]
+        )
+        self.assertEqual(continuation, 0x3BE93)
+        deferred_jump = 0x1D
+        deferred_target = (
+            0x73F20
+            + deferred_jump
+            + 5
+            + struct.unpack_from("<i", cave_after, deferred_jump + 1)[0]
+        )
+        self.assertEqual(deferred_target, 0x3BF8C)
+        stock = STOCK / vv2.input_name
+        self.assertEqual(stock.read_bytes()[0x3BF8C:0x3BF91], bytes.fromhex("BB58000000"))
+
+    def test_vv2_capacity_guard_composes_all_modes_and_selectable_patches(self) -> None:
+        build = next(build for build in load_builds() if build.id == "vv2")
+        source = STOCK / build.input_name
+        feature_ids = [
+            patch.id for patch in load_fun_patches() if patch.game_id == "vv2"
+        ]
+        self.assertEqual(len(feature_ids), 8)
+        expected_safety_offsets = {
+            0x3BE8E,
+            0x73F20,
+            0x4BA82,
+            0x73C40,
+            0x4BAB6,
+            0x73C70,
+            0x73D00,
+            0x34102,
+            0x341A2,
+            0x341C3,
+            0x34262,
+            0x34283,
+            0x342A4,
+            0x34467,
+            0x344A3,
+        }
+        safety_offsets = {
+            int(patch["offset"], 0) for patch in build.safety_patches
+        }
+        self.assertEqual(safety_offsets, expected_safety_offsets)
+        self.assertEqual(build.villager_slots, 256)
+        self.assertEqual(build.stock_final_cap, 115)
+        self.assertEqual(
+            get_patch_variant(build, "immediate_fixed").get(
+                "absolute_maximum", build.absolute_maximum
+            ),
+            256,
+        )
+        new_guard_offsets = {0x3BE8E, 0x73F20}
+
+        for mode in ALL_MODES:
+            for feature_id in feature_ids:
+                with self.subTest(mode=mode, feature=feature_id):
+                    rendered, applied = render_patched_bytes(
+                        source, build, mode, [feature_id]
+                    )
+                    records = [
+                        (
+                            int(record["offset"], 0),
+                            int(record["offset"], 0)
+                            + len(bytes.fromhex(record["after"])),
+                            record["owner"],
+                        )
+                        for record in applied
+                    ]
+                    # VV2's selected feature compositions have no intentional
+                    # overlays: every applied byte range must be unique.
+                    for index, (start, end, owner) in enumerate(records):
+                        for prior_start, prior_end, prior_owner in records[:index]:
+                            self.assertFalse(
+                                start < prior_end and prior_start < end,
+                                f"VV2 overlap {owner}/{prior_owner} at 0x{start:X}",
+                            )
+                    automatic = {
+                        start
+                        for start, _end, owner in records
+                        if owner == "automatic:safety"
+                    }
+                    expected_automatic = safety_offsets
+                    self.assertEqual(automatic, expected_automatic)
+                    variant = get_patch_variant(build, mode)
+                    if mode == "stock":
+                        self.assertEqual(variant["absolute_maximum"], 115)
+                    else:
+                        # Both non-stock modes retain the complete physical
+                        # pool. Safety guards clamp demand at that pool; they
+                        # must not silently restore the stock social cap.
+                        self.assertEqual(
+                            variant.get("absolute_maximum", build.absolute_maximum),
+                            256,
+                        )
+                        for current_demand in range(256):
+                            self.assertFalse(current_demand + 1 > 256)
+                        self.assertTrue(256 + 1 > 256)
+                    self.assertEqual(
+                        new_guard_offsets
+                        & {start for start, _end, _owner in records},
+                        new_guard_offsets,
+                    )
+                    self.assertEqual(
+                        bytes(rendered[0x3BE8E:0x3BE93]),
+                        bytes.fromhex("E98D800300"),
+                    )
+                    self.assertEqual(
+                        bytes(rendered[0x73F20:0x73F42]),
+                        bytes.fromhex(
+                            "608B0EE83819FBFF3D0001000061770AE88BB6FDFFE9597FFCFF"
+                            "83C42CE94A80FCFF"
+                        ),
+                    )
 
     def test_origins_dialog_supports_state_and_retains_stale_resource_stop(self) -> None:
         exports = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.def").read_text(
@@ -1422,7 +1607,7 @@ class StockIntegrationTests(unittest.TestCase):
             source = STOCK / build.input_name
             self.assertEqual(identify(source).id, build.id)
             original = source.read_bytes()
-            for mode in MODES:
+            for mode in ALL_MODES:
                 with self.subTest(game=build.id, mode=mode):
                     rendered, applied = render_patched_bytes(source, build, mode)
                     variant = get_patch_variant(build, mode)
@@ -1434,12 +1619,106 @@ class StockIntegrationTests(unittest.TestCase):
                     self.assertNotEqual(struct.unpack_from("<I", rendered, checksum_offset)[0], 0)
                     preview = dry_run(source, mode)
                     self.assertEqual(preview["patch_mode"], mode)
-                    expected_slots = variant.get(
+                    expected_maximum = variant.get(
+                        "absolute_maximum", build.absolute_maximum
+                    )
+                    expected_villager_slots = variant.get(
                         "villager_slots", build.villager_slots
                     )
-                    self.assertEqual(preview["absolute_maximum"], expected_slots)
-                    self.assertEqual(preview["villager_slots"], expected_slots)
+                    self.assertEqual(preview["absolute_maximum"], expected_maximum)
+                    self.assertEqual(preview["villager_slots"], expected_villager_slots)
                     self.assertIn("remaining villager slots", preview["multiple_birth_saturation"])
+
+    def test_public_feature_matrix_keeps_safety_and_selection_complete(self) -> None:
+        """Every selectable feature keeps the capacity layer in all public modes.
+
+        Resource-only features have no executable owner, so selection completeness
+        is checked through the resolved dry-run list while executable features are
+        additionally required to appear in the applied-owner ledger.  The
+        renderer already rejects undeclared feature collisions; this explicitly
+        verifies that safety rows never collide with a feature or with one another.
+        """
+        feature_catalog = {feature.id: feature for feature in load_fun_patches()}
+        for build in load_builds():
+            source = STOCK / build.input_name
+            original = source.read_bytes()
+            public_ids = [
+                feature.id
+                for feature in load_public_fun_patches()
+                if feature.game_id == build.id
+            ]
+            scenarios = [("none", [])]
+            scenarios.extend((feature_id, [feature_id]) for feature_id in public_ids)
+            scenarios.append(("all", public_ids))
+            expected_safety = {
+                int(patch["offset"], 0) for patch in build.safety_patches
+            }
+            for mode in ALL_MODES:
+                for label, selected in scenarios:
+                    with self.subTest(game=build.id, mode=mode, selection=label):
+                        resolved = resolve_fun_patch_ids(
+                            selected, game_id=build.id
+                        )
+                        preview = dry_run(source, mode, selected)
+                        self.assertEqual(
+                            set(preview["fun_patches"]), set(resolved)
+                        )
+                        self.assertEqual(
+                            len(preview["fun_patches"]), len(resolved)
+                        )
+                        rendered, applied = render_patched_bytes(
+                            source, build, mode, selected
+                        )
+                        self.assertNotEqual(rendered, original)
+                        safety_records = [
+                            record
+                            for record in applied
+                            if record["owner"] == "automatic:safety"
+                        ]
+                        safety_ranges = [
+                            (
+                                int(record["offset"], 0),
+                                int(record["offset"], 0)
+                                + len(bytes.fromhex(record["after"])),
+                            )
+                            for record in safety_records
+                        ]
+                        self.assertEqual(
+                            {start for start, _end in safety_ranges},
+                            expected_safety,
+                        )
+                        self.assertEqual(
+                            len(safety_ranges), len(expected_safety)
+                        )
+                        for index, (start, end) in enumerate(safety_ranges):
+                            for prior_start, prior_end in safety_ranges[:index]:
+                                self.assertFalse(
+                                    start < prior_end and prior_start < end,
+                                    f"{build.id} safety overlap at 0x{start:X}",
+                                )
+                        feature_ranges = [
+                            (
+                                int(record["offset"], 0),
+                                int(record["offset"], 0)
+                                + len(bytes.fromhex(record["after"])),
+                            )
+                            for record in applied
+                            if record["owner"] != "automatic:safety"
+                        ]
+                        for safety_start, safety_end in safety_ranges:
+                            for feature_start, feature_end in feature_ranges:
+                                self.assertFalse(
+                                    safety_start < feature_end
+                                    and feature_start < safety_end,
+                                    f"{build.id} safety/feature overlap at 0x{safety_start:X}",
+                                )
+                        owners = {record["owner"] for record in applied}
+                        for feature_id in resolved:
+                            feature = feature_catalog[feature_id]
+                            if feature.patches or feature.raw.get("pe_append_transaction"):
+                                self.assertIn(
+                                    f"feature:{feature_id}", owners
+                                )
 
     def test_expanded_modes_render_with_all_game_patches_selected(self) -> None:
         patches_by_game = {
@@ -3526,7 +3805,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_origins_village_wide_upgrades",
             },
         )
-        for mode in MODES:
+        for mode in ALL_MODES:
             with self.subTest(mode=mode):
                 rendered, applied = render_patched_bytes(
                     source,

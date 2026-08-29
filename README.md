@@ -27,11 +27,14 @@ Choose the population mode in the patcher; the choice and all paths are remember
 
 | Mode | Collection/progression behavior | Output EXE |
 |---|---|---|
-| No Population Increase | The stock population cap, collection behavior, and progression gates are preserved. No population-cap or saturation bytes are changed. | `(Game name) - Modded.exe` |
+| No Population Increase | The stock population cap, collection behavior, and progression gates are preserved. Automatic physical-capacity safety still clamps allocation paths at the game's real record pool. | `(Game name) - Modded.exe` |
 | Collection Progression Max Pop | The original population bonuses remain active and are required to reach the slot maximum. The Secret City also retains its level-3 magic bonus. | `(Game name) - Modded.exe` |
 | Immediate Fixed Max Pop | The slot maximum is available immediately. Collections no longer change it; The Secret City's magic tech no longer changes it either. | `(Game name) - Modded.exe` |
 
-All three modes use the stable short `- Modded` name. The selected mode,
+All three modes apply the game's existing automatic physical-capacity safety;
+it only clamps allocations at the physical record limit and does not change
+the selected mode's social cap or collection/progression behavior. All three
+modes use the stable short `- Modded` name. The selected mode,
 optional patches, hashes, and applied edits remain identified in the adjacent
 `.patch-log.json`.
 
@@ -229,7 +232,9 @@ manual pairing rejects only an older category-2 carrier, ordinary autonomous
 and catch-up routes reject only scanned candidates at internal age 1000 or
 greater, and older male/initiating villagers have no added upper-age ceiling.
 The chooser uses the VV4/VV5 score floor and native 25% non-preference fallback;
-native conception, pregnancy, and delivery remain unchanged.
+Birth Control owns only its named ordinary-route checks. Native conception,
+pregnancy, and delivery remain outside that feature, while automatic
+physical-capacity safety applies separately in all three public modes.
 
 ## VV2: Birth Control
 
@@ -240,10 +245,12 @@ blocks are applied together. Candidate sex remains preserved in `EDX`, and the
 already-loaded candidate age in `EAX` is compared directly with 1000.
 
 The stock manual carrier/female-only age gate is unchanged, and no male
-upper-age gate is added. Chooser scoring, the exact `work` and `learning`
-tokens, planner, pregnancy and delivery, saves, RNG, food, fertility, capacity,
-messages, statistics, Love Note, Gong grant, Silver Mirror clone, and all
-direct/event births remain native. This exact-build implementation is based on
+upper-age gate is added. Birth Control owns only the two age blocks. Chooser
+scoring, the exact `work` and `learning` tokens, planner, pregnancy and
+delivery, saves, RNG, food, fertility, messages, statistics, Love Note, Gong
+grant, Silver Mirror clone, and all direct/event births remain outside that
+feature. Automatic physical-capacity safety is separate and applies in all
+three public modes. This exact-build implementation is based on
 disassembly commit `74778bd6a7d3a17dd990636cf6d4e769466800c6`.
 
 ## VV3: Birth Control
@@ -251,9 +258,11 @@ disassembly commit `74778bd6a7d3a17dd990636cf6d4e769466800c6`.
 Enable **Birth Control (The Secret City)** to match the literal VV4/VV5
 boundary on ordinary action-13 autonomous/catch-up pairing. The scanned
 candidate remains in the internal-age 360..999 range, while the initiating
-villager has no added upper-age ceiling. The native chooser score floor and 25%
-non-preference fallback, manual carrier gate, conception, pregnancy, and
-delivery remain unchanged.
+villager has no added upper-age ceiling. Birth Control owns only the five
+ordinary initiator checks. The native chooser score floor and 25% non-preference
+fallback, manual carrier gate, conception, pregnancy, and delivery remain
+outside that feature; automatic physical-capacity safety applies separately in
+all three public modes.
 
 ## VV2: Gong of Wonder Coconuts Fix
 
@@ -419,9 +428,10 @@ This means births can temporarily stop below 150 displayed believers while Heath
 
 All five stock games test the population limit once before choosing a singleton, twins, or triplets. Without an additional guard, a multiple birth at maximum minus one can report maximum plus one or maximum plus two, even though no corresponding villager records remain.
 
-The two population-increase modes add a slot-saturation guard at the selected
-mode's physical boundary. No Population Increase leaves the stock behavior
-untouched:
+All three public modes apply a slot-saturation guard at the game's physical
+boundary. No Population Increase leaves the stock cap, collection behavior,
+and progression untouched; Collection Progression and Immediate Fixed retain
+their documented cap behavior. The safety layer is allocation-only:
 
 - Three or more slots left: singleton, twin, and triplet rolls are unchanged.
 - Two slots left: a rolled triplet safely becomes twins.

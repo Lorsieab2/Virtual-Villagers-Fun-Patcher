@@ -322,7 +322,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x7B260", "0x7B2A0", "0x7B300",  # vacated .text caves
                         "0x10E", "0x158", "0x2C8",        # PE header: sections 5->7
                         "0x2E3F5", "0x34357", "0x344B3",  # redirects retargeted
-                        "0x60B48",                        # action-overlay wrapper
+                        "0x60B48", "0x60D10",              # both proven action-overlay wrappers
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

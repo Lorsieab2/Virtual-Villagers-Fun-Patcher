@@ -1026,9 +1026,11 @@ __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask)
    0x004093A0 is __thiscall (ecx = *(sprite_obj)), 7 stack args, callee-cleaned
    (ret 0x1C).  A missing atlas / no-mask / bad record degrades to drawing nothing
    -- never a crash.  Writes NO villager state. */
-#define VV3_MASK_LIFT_MUL 34          /* y_mask = y - ((scaledY*MUL)>>7); live-tuned
-                                         2026-08-23 (54 too high, 16 too low, 34 seats
-                                         the mask on the head) */
+#define VV3_MASK_LIFT_MUL 18          /* y_mask = y - ((scaledY*MUL)>>7).  With the
+                                         stock Details scaledY=0xC8 this candidate moves
+                                         the adult mask down 25px relative to multiplier
+                                         34 (200*18>>7 = 28; 200*34>>7 = 53).  Visual
+                                         placement remains pending player acceptance. */
 #define VV3_MASK_DRAW_FN  0x004093A0u
 
 __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
@@ -1075,8 +1077,8 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
    uses (0x455EF0) -- via the world's immediate blit 0x42E510, which applies the
    camera scroll/zoom itself, so the mask tracks the villager as the view pans.
    Because the handler runs once per villager in depth-sorted order, drawing here
-   gives correct z-order with no stash list.  All tunables (lift, facing) are C so
-   they can be live-tuned by WPM like the Detail lift.  Writes NO villager state; a
+   gives correct z-order with no stash list.  The mask replays the captured stock
+   head tuple; only the facing column remains selectable.  Writes NO villager state; a
    missing atlas / no mask / bad record draws nothing (never a crash). */
 #define VV3_WORLD_MGR      0x0058F6F8u   /* the deferred-draw manager object       */
 #define VV3_WORLD_POS_FN   0x00455EF0u   /* __thiscall(record, &out{x,y}) -> base   */
@@ -1085,40 +1087,15 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
 #define VV3_WORLD_ATLAS_COLS 8           /* mask atlas = 8 facings x 5 masks        */
 #define VV3_WORLD_HEAD_DX  34            /* head x-offset from base (per sub_4605F0) */
 #define VV3_WORLD_HEAD_DY  32            /* head y-offset from base (per sub_4605F0) */
-/* VV5 EXACT method (owner directive, VV5-confirmed): mask uses its OWN full 65x145 cell
-   (facing->col, color->row) drawn at the head's LIVE anchor every frame with ZERO offset --
-   mask_x = head_x, mask_y = head_y, no lift/dx/dy, scale = the head's own age-scale (children
-   shrink by the exact same factor as the head, no separate child math).  The 65x145 art
-   carries the per-facing alignment.  CAVEAT (VV5): X=0/Y=0 aligns because the art matches VV5
-   head geometry; if VV3 heads differ, the art must be re-seated per facing to VV3's face
-   anchor (handled in the atlas, not by a global offset here). */
-/* VERTICAL SEAT (empirically calibrated 2026-08-26 via live self-capture, owner-visible):
-   the head-draw (x,y) my cave stashes is the villager BASE, not the head-cell top, so the mask
-   needs a large scale-relative lift to reach the head -- measured 85 seats the full 65x145 cell
-   on the face for adults (children lift by the same age-scale automatically).  My earlier chin
-   arithmetic wrongly assumed the stash was the head-cell top and gave ~38 (masks dropped to the
-   waist/floor).  Live-tunable at dllbase+0x19020. */
-int g_vv3_world_lift   = 0;    /* global lift on TOP of the per-colour seat below */
-/* PER-COLOUR vertical seat = mask face-y (bottom-55% centroid of the mask cell, which excludes
-   the headdress whose top varies 23px by colour) MINUS the head's EYE-line y (16).  Measured
-   blue57/orange56/red53/purple51/chief48.5 -> 41/40/37/35/32.  Chief seats highest, exactly as
-   rule 7 predicts.  Indexed by (mask-1)=0..4.  Live-tunable (published 0x6E002C). */
+/* VV3's proven horizontal world correction is the exact x tuple captured from the stock head
+   call at 0x460A60.  No synthetic facing-X correction is applied.  The retained per-colour Y
+   seats are scale-relative, matching the stock head size for children as well as adults. */
 int g_vv3_color_dy[5]  = { 41, 40, 37, 35, 32 };
 int g_vv3_world_facing = -1;   /* -1 = AUTO (read head atlas frame); >=0 = force col */
-int g_vv3_world_dx     = 0;    /* global X nudge on TOP of the per-facing re-seat below */
-/* PER-FACING horizontal re-seat = head EYE-x minus mask face-x, per facing 0..7.
-   MEASUREMENT VALIDATION (three independent methods, per docs Part 5.6 strengthened):
-   skin-centroid, opaque-bbox centre and eye-median were compared per facing.  The
-   skin-centroid is ANTI-CORRELATED with the eyes on profile facings (f0: skin 25.5 vs eyes
-   17.5; f3: skin 17.0 vs eyes 25.0) because the back-of-head/neck skin sits opposite the
-   face -- so a skin-centroid anchor is wrong by up to 8px exactly where it matters.  The
-   EYES are the face, and a mask must cover the face, so the eye-line is the correct anchor.
-   head eye-x {17.5,17.5,25,25,19.5,21.5,23.5,16} - mask face-x {41,38,32,30,36,35,35,33}.
-   Live-tunable (published to 0x6E0028). */
-int g_vv3_facing_dx[8] = { -24, -20, -7, -5, -16, -14, -12, -17 };
-int g_vv3_world_dy     = 0;    /* live-tuned Y nudge: +down / -up (scaled px)       */
-int g_vv3_world_liftfloor = 0; /* 0 = LIFT scales fully with head height (owner: mask     */
-                               /* position must scale with head size); >0 floors it       */
+int g_vv3_facing_dx[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+int g_vv3_world_lift   = 0;    /* retained base lift; colour seats remain scale-relative */
+int g_vv3_world_dy     = 0;    /* retained live Y nudge, in scaled world pixels */
+int g_vv3_world_liftfloor = 0; /* optional minimum lift scale, default 0 */
 int g_vv3_world_facing_off = 0xF18; /* RECORD offset of the 0..7 facing COLUMN.  VV5's */
                                /* native mask render confirmed: +0xF14 is the x8 POSITION */
                                /* term (VV5 +0x1D00); the direct atlas COLUMN the head    */
@@ -1155,10 +1132,8 @@ int g_vv3_posehead_py[51] = {39,39,40,40,34,33,34,33,25,36,30,29,27,29,24,24,26,
 /* Mask-cell face centre-x per facing (median content centre over all 5 colour rows of the
    65x145 mask atlas) and per-colour chin-y; face-y = chin - bias (face centre sits ~14px
    above the chin at cell scale). */
-/* Unified with the offscreen-verified walker anchors: mask_face_x[f] = head_cx[f] -
-   facing_dx[f] (VV1 head centroids {23,22,21,19,22,22,21,21} minus facing_dx), and
-   mask_face_y[c] = head_cy(23) + color_dy[c].  The action path then lands the mask's face
-   on the measured pose head centre with the SAME registration the walker path uses. */
+/* The action path uses the atlas face-centre anchors below.  The world/head path does not
+   consume these X values: its horizontal position is the exact stock head tuple. */
 int g_vv3_maskface_cx[8] = {41,38,32,30,36,35,35,33};
 int g_vv3_maskface_cy[5] = {57,56,53,51,48};
 
@@ -1171,9 +1146,8 @@ int g_vv3_maskface_cy[5] = {57,56,53,51,48};
 int g_vv3_anim_hits[256]  = {0};
 int g_vv3_anim_stash[256] = {0};
 
-/* The retired held/cursor diagnostic is intentionally absent. */
-/* No held/cursor diagnostics are emitted: the static corpus does not identify a held
-   villager renderer or a live record at the effect call sites. */
+/* Held ownership is the stock +0xF12 field; action ownership is the post-stock stash.  The
+   timed effect calls remain untouched because they carry no villager record. */
 /* Dedicated action-draw diag. [0..7] = px,py,anim,facing,x,y,[mgr+0x3010],count.
    Published at 0x6E0038. */
 int g_vv3_actdbg[8] = {0};
@@ -1194,12 +1168,22 @@ int g_vv3_chiefdbg[8] = {0};
 static int   g_vv3_stash_valid  = 0;
 static void *g_vv3_stash_record = NULL;
 static int   g_vv3_stash_x = 0, g_vv3_stash_y = 0, g_vv3_stash_scale = 0;
-/* Also stash the manager's per-villager render term [mgr+0x3010] AS IT WAS at the head
-   draw: my mask draws later (at the wrapper, after hair/overlays/action/props), by when
-   this shared field may have changed -> the mask would blend/scale differently from the
-   head (the "faded" mismatch).  Reusing the head-time value makes the mask inherit the
-   head's exact render state. */
+/* The deferred world wrapper runs after the stock head/action calls.  Keep the manager's
+   head-time size term and the action tuple separately so the final wrapper can choose one
+   owner and issue exactly one mask draw. */
 static int   g_vv3_stash_m3010 = 0;
+static int   g_vv3_action_seen = 0;
+static void *g_vv3_action_record = NULL;
+static int   g_vv3_action_x = 0, g_vv3_action_y = 0, g_vv3_action_anim = -1;
+
+static void vv3_mask_clear_render_stashes(void)
+{
+    g_vv3_stash_valid = 0;
+    g_vv3_stash_record = NULL;
+    g_vv3_action_seen = 0;
+    g_vv3_action_record = NULL;
+    g_vv3_action_anim = -1;
+}
 
 /* Draw the world mask for one villager INDEX, on top of the fully-drawn villager.
    Called from the wrapper spliced at the handler's SOLE call site (0x42E3F5): the whole
@@ -1210,49 +1194,47 @@ static int   g_vv3_stash_m3010 = 0;
    function returns; it never guesses a cursor or held-villager position. */
 __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
 {
-    void *record = (void *)(UINT_PTR)(VV3_REC_BASE + (unsigned)index * VV3_STRIDE);
-    int mask, x, y, cell, facing, scaleBits, used_stash = 0;
+    void *record = NULL;
+    int mask, x, y, cell, facing, scaleBits, cidx;
+    int held, head_match, action_match, use_head = 0, use_action = 0;
+    int action_anim = -1;
+    int one = 0x3F800000;
     void *atlas;
-    float fscale, liftsc, floor;
+    float fscale = 1.0f, liftsc, floor;
     if (index < 0 || index >= 150) {
-        g_vv3_stash_valid = 0;
-        return;
+        goto world_mask_cleanup;
     }
+    record = (void *)(UINT_PTR)(VV3_REC_BASE + (unsigned)index * VV3_STRIDE);
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) {
-        g_vv3_stash_valid = 0;
-        return;
+        goto world_mask_cleanup;
     }
-    /* POSE HAND-OFF: if the villager is in an ACTION pose (record+0xF20 != -1), its visible head
-       is the full-body pose sprite, NOT the standing base head this path's stash captured.  Skip
-       here and let VV3ActionMaskDraw (wrapped on the action overlay sub_45F7E0) seat the mask on
-       the pose head.  This path owns ONLY walk/idle (anim == -1); the action path owns every pose.
-       Prevents the DOUBLE mask (base-head + pose-head) on fishing/sit/swim villagers. */
-    if (*(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF) != -1) {
-        g_vv3_stash_valid = 0;
-        return;
+
+    /* The stock drag path sets +0xF12 while the head call is cursor-relative.  A held villager
+       therefore owns the matching head tuple even when the action overlay also ran; action is
+       suppressed rather than risking a second mask at a pose anchor. */
+    head_match = g_vv3_stash_valid && g_vv3_stash_record == record;
+    action_match = g_vv3_action_seen && g_vv3_action_record == record;
+    held = *(int *)((unsigned char *)record + 0xF12) != 0;
+    if (held) {
+        if (!head_match) goto world_mask_cleanup;
+        use_head = 1;
+    } else if (action_match) {
+        /* Only the measured action atlas-A frames have a supported pose anchor.  Any other
+           action state fails closed, and must not fall back to the standing head tuple. */
+        action_anim = g_vv3_action_anim;
+        if (action_anim < 0 || action_anim > 50) goto world_mask_cleanup;
+        use_action = 1;
+    } else {
+        if (!head_match) goto world_mask_cleanup;
+        use_head = 1;
     }
-    /* No pickup claim is made here.  Static analysis proves this is the normal villager
-       handler, but does not prove whether a grabbed villager reaches it or whether its head
-       arguments are cursor-relative.  That boundary requires a player trace. */
+
     atlas = VV3GetMaskAtlas();
     if (atlas == NULL) {
-        g_vv3_stash_valid = 0;
-        return;
+        goto world_mask_cleanup;
     }
-    /* RIDE THE HEAD DRAW: only use the position/scale stashed from the stock head call.  A
-       missing stash means this handler did not issue the proven head draw, so fail closed;
-       never recompute from world coordinates and never guess a cursor/held position. */
-    if (!(g_vv3_stash_valid && g_vv3_stash_record == record)) {
-        g_vv3_stash_valid = 0;
-        return;
-    }
-    x = g_vv3_stash_x;
-    y = g_vv3_stash_y;
-    scaleBits = g_vv3_stash_scale;
-    fscale = *(float *)&scaleBits;
-    used_stash = 1;
-    g_vv3_stash_valid = 0;                    /* consume this pass's stash */
+
     /* FACING: villager 0..7 direction from record+0xF18 (VV5's direct head-column analog),
        live-tunable offset+remap; g_vv3_world_facing >= 0 forces a column. */
     if (g_vv3_world_facing >= 0) {
@@ -1262,32 +1244,35 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
                   + g_vv3_world_facing_remap) & 7;
     }
     cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
-    /* child lift boost: floor the scale used for the LIFT (not the draw) so small
-       villagers still lift the tall cell onto the head */
-    liftsc = fscale;
-    floor = g_vv3_world_liftfloor * 0.01f;
-    if (liftsc < floor) {
-        liftsc = floor;
-    }
-    /* The head anchor (x,y) above matches sub_4605F0's head draw; add the taller mask
-       cell's lift + live nudges, all scale-relative so the mask tracks age/perspective. */
-    x += (int)((g_vv3_world_dx + g_vv3_facing_dx[facing & 7]) * fscale);
-    {
-        int cidx = mask - 1; if (cidx < 0) cidx = 0; else if (cidx > 4) cidx = 4;
-        y += - (int)((g_vv3_world_lift + g_vv3_color_dy[cidx]) * liftsc)
+
+    if (use_action) {
+        int hx = g_vv3_posehead_px[action_anim];
+        int hy = g_vv3_posehead_py[action_anim];
+        x = g_vv3_action_x + hx - g_vv3_maskface_cx[facing & 7];
+        y = g_vv3_action_y + hy - g_vv3_maskface_cy[mask - 1];
+        if (action_anim >= 0 && action_anim < 256) {
+            x += g_vv3_pose_dx[action_anim];
+            y += g_vv3_pose_dy[action_anim];
+        }
+        scaleBits = one;              /* stock action layers draw at scale 1.0 */
+    } else {
+        /* The head tuple supplies the only proven horizontal anchor.  Retain the measured
+           per-colour vertical seats, scaled by the stock head size for children/held heads. */
+        x = g_vv3_stash_x;
+        y = g_vv3_stash_y;
+        scaleBits = g_vv3_stash_scale;
+        fscale = *(float *)&scaleBits;
+        liftsc = fscale;
+        floor = g_vv3_world_liftfloor * 0.01f;
+        if (liftsc < floor) liftsc = floor;
+        cidx = mask - 1;
+        if (cidx < 0) cidx = 0;
+        else if (cidx > 4) cidx = 4;
+        y += -(int)((g_vv3_world_lift + g_vv3_color_dy[cidx]) * liftsc)
              + (int)(g_vv3_world_dy * fscale);
     }
-    /* PER-POSE nudge: the base head is drawn at STANDING height even when the villager is in
-       an action animation (sit/lie/swim/...), so its mask floats above the crouched pose's
-       real head.  Drop it by the pose's tuned amount (0 for upright poses like carrying). */
-    {
-        int anim = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
-        if (anim >= 0 && anim < 256) {
-            g_vv3_anim_hits[anim]++;              /* DIAG: this pose reached the mask hook */
-            if (used_stash) g_vv3_anim_stash[anim]++;
-            y += (int)(g_vv3_pose_dy[anim] * fscale);
-        }
-    }
+
+    /* Diagnostics identify which ownership branch painted the one mask for this record. */
     g_vv3_worlddbg[0] = index;
     g_vv3_worlddbg[1] = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
     g_vv3_worlddbg[2] = facing;
@@ -1318,131 +1303,17 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
         g_vv3_chiefdbg[7]++;
     }
     {
-        /* FADE FIX (VV2 trace): both the head draw (42E570) and my cell draw (42E510)
-           converge on the same terminal blit 0x404620, which FAST-PATHS (solid) when the
-           two float scale args are 1.0 and otherwise takes a SOFTWARE-SCALED path that
-           couples ALPHA to scale (-> a small child's mask goes translucent).  The head
-           escapes this by passing 1.0 for the float scale and folding the size reduction
-           into the INTEGER term [mgr+0x3010] (fild [3010]; fmul scale; ftol).  So mirror
-           the head exactly: pass scale = 1.0f to 42E510 (fast path, solid alpha) and set
-           [mgr+0x3010] = round(base3010 * scale) for the size.  base3010 = the value the
-           head used (stashed) when available.  Restore [3010] afterwards. */
-        int   *p3010    = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
-        int    save3010 = *p3010;
-        int    base3010 = used_stash ? g_vv3_stash_m3010 : save3010;
-        int    one      = 0x3F800000;           /* float 1.0 -> fast, non-faded blit path */
-        double sized    = (double)base3010 * (double)fscale;
-        *p3010 = (int)(sized >= 0.0 ? sized + 0.5 : sized - 0.5);
+        /* 42E510's terminal blit takes the manager's integer size term and a float path flag.
+           Mirror the stock head: use the captured head-time [mgr+0x3010], round its size by
+           the captured head scale, pass 1.0 for the draw, and restore [mgr+0x3010] immediately. */
+        int *p3010 = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
+        int save3010 = *p3010;
+        if (use_head) {
+            double sized = (double)g_vv3_stash_m3010 * (double)fscale;
+            *p3010 = (int)(sized >= 0.0 ? sized + 0.5 : sized - 0.5);
+        }
         __asm {
-            mov  eax, one                /* arg5 = 1.0f -> 0x404620 fast path (solid alpha) */
-            push eax
-            push cell                    /* atlas cell (linear index) -> 42E510 arg4         */
-            push y
-            push x
-            push atlas
-            mov  ecx, VV3_WORLD_MGR
-            mov  edx, VV3_WORLD_DRAW_FN
-            call edx                     /* sub_42E510(mgr, atlas, x, y, cell, 1.0f); ret 0x14 */
-        }
-        *p3010 = save3010;               /* restore the shared manager field */
-    }
-}
-
-/* ACTION-POSE mask.  VV3 draws sit/lie/swim/fish/work poses as a FULL-BODY sprite (head baked
-   in) via the action overlay sub_45F7E0, so the base head-draw stash (walk/idle only) lands the
-   mask off the pose head (owner's "fishing villager's mask at the hip").  This is called from a
-   wrap on the overlay's call site (0x460B48) AFTER the pose sprite draws, with the SAME pose
-   position (px,py) the engine passed -> the mask rides the actual pose.  We seat it at the pose
-   sprite's head (px + dx, py - lift), sized by the villager age-scale, fade-safe (scale=1.0f +
-   fold size into [mgr+0x3010]).  Missing mask/atlas draws nothing (never a crash). */
-int g_vv3_action_lift = 90;   /* pose-sprite head lift (scale-relative); tune by rebuild */
-int g_vv3_action_dx   = 24;   /* pose-sprite head x nudge (scale-relative) -- pose sprite head is
-                                 centered + a touch right; NO per-facing dx (unlike walking cell) */
-
-__declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int py)
-{
-    int mask, facing, cell, x, y;
-    void *atlas;
-    double scale = 1.0;
-    float fscale;
-    if (record == NULL) {
-        return;
-    }
-    /* GATE exactly like the overlay itself: the wrap at 0x460B48 fires for EVERY villager,
-       including idle/walk (anim == -1) where sub_45F7E0 no-ops -- drawing here for those
-       produced a SECOND, misplaced mask at the action anchor beside idle villagers (diag
-       caught anim=-1 draws).  The world path owns anim == -1; this path owns real action
-       frames only (0..50 = the atlas-A range this table covers). */
-    {
-        int anim = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
-        if (anim < 0 || anim >= 51) {
-            return;
-        }
-    }
-    mask = VV3_GetMaskForRecord(record);
-    if (mask <= 0) {
-        return;
-    }
-    atlas = VV3GetMaskAtlas();
-    if (atlas == NULL) {
-        return;
-    }
-    (void)scale; (void)fscale;
-    if (g_vv3_world_facing >= 0) {
-        facing = g_vv3_world_facing & 7;
-    } else {
-        facing = ((*(int *)((unsigned char *)record + g_vv3_world_facing_off))
-                  + g_vv3_world_facing_remap) & 7;
-    }
-    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
-    /* VV2+VV5 diagnosis: the action overlay's 3 layers (sub_45F7E0 @0x45f829/855/87e) draw the
-       pose sprite via 42E510 at FIXED offsets from (px,py) and push scale 0x3F800000 (=1.0) --
-       NOT age-scaled -- and 42E510 multiplies (x,y) by the camera [mgr+0x300C] internally.  So
-       the mask must (a) offset in FIXED WORLD UNITS (no age-scale multiply -- that + camera was
-       displacing it far into the sand), and (b) draw at plain scale 1.0 like the layers (no
-       [mgr+0x3010] size fold).  px,py are pre-scale world coords; 42E510 applies the camera to
-       our (x,y) exactly as it does for the pose layers, so the mask tracks them at any zoom. */
-    /* ART-DERIVED pose-head anchor (the definitive fix for pose seating).  VV2 traced the
-       engine (0x460AEF..0x460B41): the action overlay's offset is one global float x fixed
-       constants -- IDENTICAL for every pose; no per-pose anchor table exists in the binary.
-       The per-pose head position lives ONLY in the ART: the action atlas is 17 cols x 30 rows
-       of 40x65 cells (confirmed live from the sprite object at [0x6C5D38]), so anim frame f ->
-       row f/17, col f%17, and frames 0..50 (the <0x34 atlas-A range) are rows 0..2.  Each pose
-       cell bakes a head into the sprite (no separate head draw exists for poses).  So we
-       MEASURED the baked head's centre in every one of the 51 frames (median skin-blob of the
-       top third, over all 10 outfits, female pages; male art matches within ~1px):
-       g_vv3_posehead_px/py[anim].  Layer 1 of sub_45F7E0 draws the pose cell's top-left at
-       exactly (px,py) [VV2's byte-trace: args pass through untransformed], so in the same
-       pre-camera space:  pose head centre = (px + posehead_px, py + posehead_py), and the
-       mask cell's top-left = head centre - mask face centre (per-facing cx from the atlas
-       art; per-colour face-y = chin[colour] - face bias).  pose_dx/dy remain as zero-default
-       residual fine-tune knobs. */
-    {
-        int anim = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
-        int hx = 20, hy = 24;                      /* fallback: walk-ish head */
-        if (anim >= 0 && anim < 51) {
-            hx = g_vv3_posehead_px[anim];
-            hy = g_vv3_posehead_py[anim];
-        }
-        x = px + hx - g_vv3_maskface_cx[facing & 7];
-        y = py + hy - g_vv3_maskface_cy[mask - 1];
-        if (anim >= 0 && anim < 256) {
-            x += g_vv3_pose_dx[anim];
-            y += g_vv3_pose_dy[anim];
-        }
-    }
-    /* DIAG: record this draw's exact numbers so a live reader can compare them against a
-       synchronized screenshot (actdbg[0..7] = px,py,anim,facing,x,y,[mgr+0x3010],count). */
-    g_vv3_actdbg[0] = px;  g_vv3_actdbg[1] = py;
-    g_vv3_actdbg[2] = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
-    g_vv3_actdbg[3] = facing;
-    g_vv3_actdbg[4] = x;   g_vv3_actdbg[5] = y;
-    g_vv3_actdbg[6] = *(int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
-    g_vv3_actdbg[7]++;
-    {
-        int one = 0x3F800000;
-        __asm {
-            mov  eax, one
+            mov  eax, one                /* arg5 = 1.0 -> solid/non-faded terminal path */
             push eax
             push cell
             push y
@@ -1450,9 +1321,41 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
             push atlas
             mov  ecx, VV3_WORLD_MGR
             mov  edx, VV3_WORLD_DRAW_FN
-            call edx                     /* sub_42E510(mgr, atlas, x, y, cell, 1.0f); ret 0x14 */
+            call edx                     /* sub_42E510(mgr, atlas, x, y, cell, 1.0f) */
         }
+        *p3010 = save3010;
     }
+
+world_mask_cleanup:
+    /* Every return path consumes both per-record stashes; no action/head tuple may leak into
+       the next villager or next frame. */
+    vv3_mask_clear_render_stashes();
+}
+
+/* ACTION-POSE stash.  VV3 draws sit/lie/swim/fish/work poses as a FULL-BODY sprite (head baked
+   in) via the action overlay sub_45F7E0.  This export is called AFTER the stock action draw at
+   both proven call sites (0x460B48 and 0x460D10).  It records only the matching record, the
+   stock x/y, and record+0xF20; the final world wrapper owns the single mask blit.  Keeping this
+   export stash-only prevents a second action mask and lets held head ownership take precedence. */
+int g_vv3_action_lift = 90;   /* pose-sprite head lift (scale-relative); tune by rebuild */
+int g_vv3_action_dx   = 24;   /* pose-sprite head x nudge (scale-relative) -- pose sprite head is
+                                 centered + a touch right; NO per-facing dx (unlike walking cell) */
+
+__declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int py)
+{
+    if (record == NULL) {
+        g_vv3_action_seen = 0;
+        g_vv3_action_record = NULL;
+        return;
+    }
+    /* A -1 action is the stock no-op path used by ordinary walking/swimming.  Clear any stale
+       tuple for this record; real and unsupported non-negative values are both recorded so the
+       final owner can fail closed instead of silently falling back to a standing head. */
+    g_vv3_action_record = record;
+    g_vv3_action_x = px;
+    g_vv3_action_y = py;
+    g_vv3_action_anim = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
+    g_vv3_action_seen = (g_vv3_action_anim == -1) ? 0 : 1;
 }
 
 /* Head-site STASH: spliced at 0x460A60 (the head draw) via a cave that re-issues the head
@@ -1462,6 +1365,12 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
    args[0]=headSprite  args[1]=x  args[2]=y  args[3]=scale(float bits)  args[4]=flag. */
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
+    if (record == NULL || args == NULL) {
+        /* A malformed head-site callback must consume both tuples.  Otherwise a later
+           world wrapper can reuse stale head/action state from the previous villager. */
+        vv3_mask_clear_render_stashes();
+        return;
+    }
     g_vv3_stash_record = record;
     g_vv3_stash_x      = args[1];
     g_vv3_stash_y      = args[2];
@@ -1469,11 +1378,13 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     g_vv3_stash_m3010  = *(int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
     g_vv3_stash_valid  = 1;
 
-    /* Emit only for the standing/walking base-head path. The action overlay owns action-pose
-       heads, so anim != -1 is excluded to avoid a duplicate. This hook does not assert or
-       infer pickup state; the player trace handoff identifies that separate boundary. */
-    if (*(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF) != -1) {
-        return;
+    /* A fresh stock head tuple starts a new ownership decision for this record.  Do not reject
+       action/water/held states here: stock drag and water exceptions still issue this head draw,
+       and the final wrapper decides between this tuple and the post-action stash. */
+    if (g_vv3_action_record == record) {
+        g_vv3_action_seen = 0;
+        g_vv3_action_record = NULL;
+        g_vv3_action_anim = -1;
     }
 }
 

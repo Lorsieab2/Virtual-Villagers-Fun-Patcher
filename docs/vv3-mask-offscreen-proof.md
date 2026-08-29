@@ -45,20 +45,18 @@ free at 1.0 — so the rule is satisfied regardless.
 
 ## 3. The actual cause of the detached ("floating in sand") masks
 
-Found with a per-draw diagnostic (`g_vv3_actdbg`, published at `0x6C7A38`).
+Found with a per-draw diagnostic (`g_vv3_actdbg`, published at `.vv3md+0x38`).
 
-The action-overlay wrap at `0x460B48` runs for **every** villager.
-`sub_45F7E0` itself no-ops when the villager has no action frame, but the DLL
-function did not — so for standing/walking villagers it drew a **second mask at
-the action/body anchor**, detached from the head.
+The action-overlay wrapper at both `0x460B48` and `0x460D10` runs for every
+matching stock branch. `sub_45F7E0` no-ops when the villager has no action
+frame, and the post-stock DLL export now only stashes the tuple; it never draws
+there. The final world wrapper therefore emits the one mask after ownership
+selection.
 
-Logged proof (one frame): `actdbg [px,py,anim,facing,x,y] =
-[1100, 971, -1, 0, 1076, 939]` — `anim == -1` is idle/walk, which must not
-reach this path.
-
-**Fix:** gate the action path to real action frames only (`anim` in `0..50`);
-the world path owns `anim == -1`. Plus the world path skips `anim != -1`, so
-exactly one path draws per villager, with no overlap.
+The final owner gates real action frames to `0..50`; `-1` is the stock no-action
+state and falls through to the matching head stash. Unsupported action values
+fail closed without a head fallback. Held `record+0xF12 != 0` always selects
+the matching head stash and suppresses action.
 
 ## 4. Arithmetic proof that the registration is correct
 
@@ -90,25 +88,21 @@ read and no table indexing. The per-pose head position exists only in the art.
 ## 5. Deployed-bytes verification
 
 ```
-0x460B48  call 0x47B360
-0x47B360  push [esp+0xc] ; push [esp+0xc] ; push [esp+0xc]
-          call 0x45F7E0                  ; original overlay
-          mov eax,[0x6C7A30] ; test eax,eax ; je +
-          push [esp+0xc] x3 ; call eax    ; DLL mask fn (null-guarded)
-          ret 0xC
+0x460B48  E8 73 E5 27 00                 ; call 0x6DF0C0
+0x460D10  E8 AB E3 27 00                 ; call 0x6DF0C0
+0x6DF0C0  one ABI-identical wrapper: stock sub_45F7E0, then stash-only export
+           ret 0xC; wrapper occupies [0x6DF0C0,0x6DF0EB), next cave 0x6DF100
 ```
 
 Matches intended asm; null pointer degrades to stock behaviour.
 
-## 6. Known remaining gaps (not claimed fixed)
+## 6. Remaining player gates (not claimed accepted)
 
-- The cave at `0x47B360` is `.text` tail padding — a **Part 7 violation**. Must
-  move to an appended R-X section (the patcher already supports this via
-  `pe_append_transaction`, used by `vv3_expanded_time_warp`).
-- **Pickup/held rendering**: no held-villager identity or true held-render boundary is proven
-  by the current static corpus. No pickup hook is emitted. A player trace is required before
-  implementing grab-time capture, clear-on-release, or a held mask overlay.
-- **Details portrait**: facing source not yet verified against rule 6.
+- **Pickup/held rendering:** stock `+0xF12` ownership, action precedence, and
+  release clearing are implemented from the proven record path. The player
+  must still accept held motion and on-screen placement.
+- **Details portrait:** multiplier `18` is the current candidate; visual
+  placement remains pending player acceptance.
 
 ## 7. `0x4341A0..0x434758` is a timed effect renderer, not held-villager state
 
@@ -151,10 +145,11 @@ no selection or pickup information. **Never gate a mask path on it.**
 
 `0x42E3F5` is the sole direct caller of `sub_4605F0`; its handler receives a villager index,
 derives the record with stride `0x1F8C`, reads the head atlas holder at `record-context+0x127C1C`,
-and calls `0x42E570` at `0x460A60`. That is the proven world/action render family. The current
-mask hooks remain on the world/action/details paths, but static analysis does not establish
-whether a grabbed villager reaches this handler or whether its replayed x/y arguments are
-cursor-relative.
+and calls `0x42E570` at `0x460A60`. That is the proven world/action render family. The mask
+hooks replay the exact head tuple, stash post-stock action tuples at both action call sites,
+and select one owner in the final wrapper. Generic task-1 swimming on terrain 5 remains
+head-owned; fishing task-11 frames 8/9 use the action tuple. F20=42 is only the stock water
+renderer exception, not a claim that generic swimming assigns action 42.
 
 ### Player trace handoff (minimal values)
 
@@ -169,6 +164,6 @@ Record:
    sprite pointer, cell/frame, x/y, facing, and scale;
 4. the release callback and the first frame where the held identity/coordinates clear.
 
-Only after those values identify a stable record and active/release lifetime should a
-grab-time capture/clear hook or held overlay be designed. Until then the VV3 patch is
-fail-closed: no hook at `0x434357` or `0x4344B3`.
+The trace validates the player-visible result and the release timing. The implementation
+remains fail-closed at the unrelated effect sites: no hook is installed at `0x434357` or
+`0x4344B3`.
