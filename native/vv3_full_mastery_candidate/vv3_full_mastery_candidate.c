@@ -121,7 +121,8 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
            So these hooks were painting masks onto a UI effect.  Credit VV2 for spotting it. */
         (void)&VV3HeldMaskDraw; (void)&VV3HeldMaskDraw2;
         *(void **)(UINT_PTR)VV3_WORLD_DIAG_PTR_SLOT    = (void *)&g_vv3_held_diag[0];
-        *(void **)(UINT_PTR)VV3_WORLD_HELD2FN_PTR_SLOT = (void *)&VV3HeldMaskDraw2;
+        /* HELD2 slot left NULL for the same reason as HELD above: 0x4344B3 is a second draw
+           in the SAME timed UI-effect renderer, not a held-villager head. */
         *(void **)(UINT_PTR)VV3_WORLD_POSEDY_PTR_SLOT  = (void *)&g_vv3_pose_dy[0];
         *(void **)(UINT_PTR)VV3_WORLD_ANIMHITS_PTR_SLOT  = (void *)&g_vv3_anim_hits[0];
         *(void **)(UINT_PTR)VV3_WORLD_ANIMSTASH_PTR_SLOT = (void *)&g_vv3_anim_stash[0];
@@ -785,13 +786,18 @@ int g_vv3_pose_dx[256] = {0};
 
 /* MEASURED baked-head centre per action frame (see VV3ActionMaskDraw comment): median
    skin-blob centre of the top third of each 40x65 pose cell, over all 10 outfit rows,
-   female action pages 00/01/02 (17 cols each; frame f -> page f/17, col f%17). */
-int g_vv3_posehead_px[51] = {24,21,20,21,22,22,22,22,21,14,18,22,22,21,20,18,22,
-                             24,23,22,22,22,22,22,22,20,11,17,22,22,23,19,21,22,
-                             23,22,22,22,22,21,22,22,21,12,21,24,22,21,21,20,22};
-int g_vv3_posehead_py[51] = {39,38,38,42,31,32,32,32,25,37,28,28,27,28,22,22,28,
-                             38,39,39,40,33,33,33,33,26,38,30,32,32,31,25,25,32,
-                             38,38,40,40,31,32,32,32,24,36,28,30,29,26,22,22,28};
+   the action atlas.  GRID CONFIRMED FROM THE RUNNING GAME (sprite object at [0x6C5D38],
+   cols at +0x08 / rows at +0x0C): 17 cols x 30 rows, cell 40x65 -- the three
+   *_actions00/01/02.png files stack into ONE 30-row atlas.  So frame f -> row f/17,
+   col f%17, which puts frames 0..50 in rows 0..2 of the *_actions00 file.  (An earlier
+   table wrongly read f/17 as a FILE index and medianed across rows that are really other
+   frames; corrected here.)  Median of male+female for each cell. */
+int g_vv3_posehead_px[51] = {20,19,19,18,22,22,22,22,19,20,20,20,20,24,21,20,20,
+                             22,20,18,20,22,22,22,22,21, 9,19,21,25,20,24,18,24,
+                             23,21,21,20,21,22,21,22,19,12,17,25,22,21,24,24,22};
+int g_vv3_posehead_py[51] = {39,39,40,40,34,33,34,33,25,36,30,29,27,29,24,24,26,
+                             38,38,38,39,30,30,30,30,22,36,28,27,26,28,18,17,26,
+                             37,38,41,42,32,31,31,31,24,38,30,28,26,29,20,19,30};
 /* Mask-cell face centre-x per facing (median content centre over all 5 colour rows of the
    65x145 mask atlas) and per-colour chin-y; face-y = chin - bias (face centre sits ~14px
    above the chin at cell scale). */
@@ -886,43 +892,31 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
         g_vv3_stash_valid = 0;
         return;
     }
-    /* Prefer the head's EXACT stashed draw position (tracks walk/idle animation bob); if the
-       head was NOT drawn at the normal site this pass (action states draw via the overlay),
-       fall back to a record recompute so the mask still SHOWS on the villager rather than
-       vanishing.  (An earlier build skipped-when-unstashed + skipped all +0xF20 actions,
-       which hid masks during carrying / entering huts / random -- worse than a slight float.
-       Reverted: show the mask everywhere; the sit/lie float is the lesser evil, and the real
-       fix is a future action-overlay wrap.) */
-    if (g_vv3_stash_valid && g_vv3_stash_record == record) {
-        x = g_vv3_stash_x;
-        y = g_vv3_stash_y;
-        scaleBits = g_vv3_stash_scale;
-        fscale = *(float *)&scaleBits;
-        used_stash = 1;
-    } else {
-        /* NOT drawn at the normal head site this frame -> recompute from the record.
-           (Removed a prior `if (0x5947D0 & 1) return` skip: 0x5947D0 is NOT a held/state
-           flag -- VV2/VV5 identified it as entry 3 of the drag position table at 0x5947B8
-           (0x5947B8 + 3*8), i.e. a COORDINATE, so testing its low bit gated the mask on a
-           position parity, which is nonsense and dropped masks unpredictably.  Pickup is
-           handled by the dedicated held-draw wrap, not by skipping here.) */
-        __asm {
-            lea  eax, pos
-            push eax
-            mov  ecx, record
-            mov  edx, VV3_WORLD_POS_FN
-            call edx                          /* sub_455EF0(record, &pos); ret 4 */
-        }
-        __asm {
-            mov  ecx, record
-            mov  edx, VV3_WORLD_SCALE_FN
-            call edx                          /* sub_455E50(record) -> double */
-            fstp scale
-        }
-        fscale = (float)scale;
-        x = pos[0] - (int)(scale * VV3_WORLD_HEAD_DX);
-        y = pos[1] - (int)(scale * VV3_WORLD_HEAD_DY);
+    /* RIDE THE HEAD DRAW, NEVER RECOMPUTE -- this is THE rule that makes VV2/VV5 correct and
+       is the fix for the long-standing "tiny mask at the villager's feet while the villager
+       hangs from the cursor" bug.
+         In every other VV game the mask is emitted INSIDE the head draw, so "no head drawn"
+       necessarily means "no mask drawn".  This path used to fall back to recomputing the
+       position from the record (sub_455EF0 + sub_455E50) whenever the head-site stash was
+       missing -- which let the mask paint with NO HEAD UNDERNEATH IT.  While a villager is
+       carried, the engine draws it at the CURSOR through its own renderer and never runs the
+       0x460A60 head draw, but the world loop still processes the record, so the fallback
+       painted a mask at the villager's abandoned GROUND anchor: exactly the feet mask.
+         The stash is set by the cave spliced at the head draw itself, so requiring it makes
+       this path structurally equivalent to emitting inside the head draw: mask position,
+       pose bob, facing and scale are all inherited, and no head means no mask.  A carried
+       villager therefore shows no mask, which is acceptable (the engine draws no head for it
+       either) and is strictly better than a detached one. */
+    if (!(g_vv3_stash_valid && g_vv3_stash_record == record)) {
+        g_vv3_stash_valid = 0;
+        return;
     }
+    x = g_vv3_stash_x;
+    y = g_vv3_stash_y;
+    scaleBits = g_vv3_stash_scale;
+    fscale = *(float *)&scaleBits;
+    used_stash = 1;
+    (void)pos; (void)scale;
     g_vv3_stash_valid = 0;                    /* consume this pass's stash */
     /* FACING: villager 0..7 direction from record+0xF18 (VV5's direct head-column analog),
        live-tunable offset+remap; g_vv3_world_facing >= 0 forces a column. */
@@ -1062,9 +1056,10 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
     /* ART-DERIVED pose-head anchor (the definitive fix for pose seating).  VV2 traced the
        engine (0x460AEF..0x460B41): the action overlay's offset is one global float x fixed
        constants -- IDENTICAL for every pose; no per-pose anchor table exists in the binary.
-       The per-pose head position lives ONLY in the ART: the action pages (17 cols x 10 outfit
-       rows of 40x65 cells; anim frame f -> page f/17, col f%17, frames 0..50 = the <0x34
-       atlas-A range) bake a BALD head into each pose sprite (hair drawn separately).  So we
+       The per-pose head position lives ONLY in the ART: the action atlas is 17 cols x 30 rows
+       of 40x65 cells (confirmed live from the sprite object at [0x6C5D38]), so anim frame f ->
+       row f/17, col f%17, and frames 0..50 (the <0x34 atlas-A range) are rows 0..2.  Each pose
+       cell bakes a head into the sprite (no separate head draw exists for poses).  So we
        MEASURED the baked head's centre in every one of the 51 frames (median skin-blob of the
        top third, over all 10 outfits, female pages; male art matches within ~1px):
        g_vv3_posehead_px/py[anim].  Layer 1 of sub_45F7E0 draws the pose cell's top-left at
