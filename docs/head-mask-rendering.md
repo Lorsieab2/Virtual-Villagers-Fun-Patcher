@@ -77,20 +77,29 @@ stored on the record; the head sprite frame may get an age/variant offset on top
    NOT the head-draw frame (which carries an **age offset** that breaks aged
    villagers). A fixed-facing portrait needs no facing at all — just the front column.
 
-7. **Anchor on the EYE-LINE, not a skin/opaque centroid — and not the sprite top.**
-   Headdress/feather tops vary wildly by color (VV5: 23px spread) so never anchor by the
-   top. And **do not anchor by a skin-pixel or opaque-bbox centroid** — VV3 proved (three
-   independent measurements per facing, pooled over all 30 variants × both sexes) that on
-   **profile facings** the skin centroid is *anti-correlated* with the face: the
-   back-of-head/neck skin sits opposite the face and drags the centroid the wrong way, off
-   by up to **8px**, worst exactly where it shows most. A mask covers the FACE, so anchor
-   on the **eye-line** (median eye position per facing). VV3's re-derived eye-aligned
-   numbers: per-facing head eye-x `{17.5,17.5,25,25,19.5,21.5,23.5,16}` → `facing_dx`
-   `{-24,-20,-7,-5,-16,-14,-12,-17}` vs mask face-x; per-color `color_dy` from mask face-y
-   minus head eye-y `{41,40,37,35,32}` (chief highest). VV5's chin-based numbers
-   (per-facing content center-x `[42,40,31,30,36,36,34,33]`, per-color chin
-   `blue70/orange68/red69/purple63/chief70`) work for VS5's fuller-face art but the
-   **eye-line is the robust anchor for profile-heavy facings**.
+7. **Anchor on the FACE, never the sprite top — and validate by RENDERING, never a proxy
+   metric.** Headdress/feather tops vary wildly by color (VV5: 23px spread), so never
+   anchor by the top. For the face anchor itself, **the right metric is art-dependent and
+   no proxy is universally safe:**
+   - A **skin/opaque centroid** is safe *only if the back of the head is hair* (then the
+     skin region is effectively the face). If skin is visible at the back — bald/shaved
+     variants, an exposed nape, a low ponytail — the centroid is dragged toward it and
+     diverges most on **profile** facings (VV3 measured up to 8px, anti-correlated).
+   - An **eye-line** detector fixes that case — but it can *itself* be fooled: on a profile
+     head, dark hair in the upper-face band reads as "eyes" on the side *opposite* the
+     face, producing the exact same anti-correlation (VV2 saw 6.3px this way). The tell
+     that a detector is lying: the face moves only ~3.5px across facings while the "eyes"
+     move ~9px the *other* way — real eyes move *with* the face.
+   - **So don't trust either proxy blind. The unambiguous check is to RENDER the actual
+     baked mask atlas over the actual head atlas, at every facing × color × a few head
+     variants, drawn exactly as the exe does (`cell at (x, y−LIFT×scale)`), and eyeball
+     whether the mask sits on the face.** Two games confirmed their seating this way and
+     it agreed with in-game; the proxy metric was the odd one out. This is an instance of
+     Part 5.6: *a proxy can fail the same way the thing it checks fails.*
+   Reference numbers (measure your own per art): VV5 chin-based per-facing content
+   center-x `[42,40,31,30,36,36,34,33]`, per-color chin `70/68/69/63/70`; VV3 eye-based
+   per-facing eye-x `{17.5,17.5,25,25,19.5,21.5,23.5,16}` (its heads expose nape skin, so
+   eye-line was right there); VV2 skin-centroid holds (its heads are hair-backed).
 
 8. **Scale + LIFT must scale together.** Draw at the head's own scale arg (× an
    art-size bump if you reuse the village atlas — VV5 bighead ×1.5, VV4 ×2.6). The lift
