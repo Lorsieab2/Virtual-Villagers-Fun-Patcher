@@ -77,12 +77,20 @@ stored on the record; the head sprite frame may get an age/variant offset on top
    NOT the head-draw frame (which carries an **age offset** that breaks aged
    villagers). A fixed-facing portrait needs no facing at all — just the front column.
 
-7. **Anchor by the CHIN, not the sprite top or centroid.** Headdress/feather tops vary
-   wildly by color (VV5: 23px spread across colors) while chins are stable (7px). Use a
-   per-facing X nudge + per-color Y nudge; a full-sprite centroid drifts per color and
-   the **chief breaks first**. VV5 reference numbers: per-facing content center-x
-   `[42,40,31,30,36,36,34,33]` (13px turn swing), per-color chin
-   `blue70/orange68/red69/purple63/chief70`.
+7. **Anchor on the EYE-LINE, not a skin/opaque centroid — and not the sprite top.**
+   Headdress/feather tops vary wildly by color (VV5: 23px spread) so never anchor by the
+   top. And **do not anchor by a skin-pixel or opaque-bbox centroid** — VV3 proved (three
+   independent measurements per facing, pooled over all 30 variants × both sexes) that on
+   **profile facings** the skin centroid is *anti-correlated* with the face: the
+   back-of-head/neck skin sits opposite the face and drags the centroid the wrong way, off
+   by up to **8px**, worst exactly where it shows most. A mask covers the FACE, so anchor
+   on the **eye-line** (median eye position per facing). VV3's re-derived eye-aligned
+   numbers: per-facing head eye-x `{17.5,17.5,25,25,19.5,21.5,23.5,16}` → `facing_dx`
+   `{-24,-20,-7,-5,-16,-14,-12,-17}` vs mask face-x; per-color `color_dy` from mask face-y
+   minus head eye-y `{41,40,37,35,32}` (chief highest). VV5's chin-based numbers
+   (per-facing content center-x `[42,40,31,30,36,36,34,33]`, per-color chin
+   `blue70/orange68/red69/purple63/chief70`) work for VS5's fuller-face art but the
+   **eye-line is the robust anchor for profile-heavy facings**.
 
 8. **Scale + LIFT must scale together.** Draw at the head's own scale arg (× an
    art-size bump if you reuse the village atlas — VV5 bighead ×1.5, VV4 ×2.6). The lift
@@ -277,6 +285,16 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 5. Confirm the **running process started AFTER the exe was written**.
 6. **Verify offscreen** (render the cell / dump final draw values), then have a peer
    sanity-check, **then** relaunch. Do not report fixed until seen in the running game.
+   **Validate the ANCHOR, not just the arithmetic (VV3).** A marked-composite eyeball
+   proves your formula matches your *measured* anchors — but if a measurement is wrong the
+   arithmetic is still self-consistent and you'd never know. So measure each anchor by
+   **≥2 independent features and require agreement** (e.g. eye-median vs opaque-bbox vs
+   skin-centroid). Specifically: a skin/opaque centroid is anti-correlated with the face on
+   profile facings — if your three measures disagree there, trust the **eye-line** (rule 7).
+   Note: there is usually **no** confirmed-from-code source for "where the face sits inside
+   the head cell" (the engine just blits the cell), so multi-feature art measurement is the
+   only ground truth for that quantity — and cross-checking it against the engine's
+   body→cell *anchor* table proves nothing (different quantity).
 
 ---
 
