@@ -107,6 +107,16 @@ stored on the record; the head sprite frame may get an age/variant offset on top
     the head *cell* size (VV4's 40×65 cell draws a ~27px head — do not scale VV5's 65px
     art down to the cell; match the drawn size).
 
+12. **Watch for DOUBLE-SCALING (the detached-mask trap).** Some draw functions
+    multiply their x/y *internally* by a manager scale field (VV3: both `42E510` and
+    `42E570` multiply x/y by `[mgr+0x300C]`). If you take those pre-scale world coords
+    and add your own *screen-pixel* offset before the call, the engine scales your
+    offset too → the mask flies off (detaches into open ground), independent of any
+    anchor tuning. Fix: add offsets in the SAME space the fn expects — either add them
+    *after* the internal scale (post-transform screen space) or divide your pixel offset
+    by the scale factor before adding to pre-scale coords. Credit: VV2 found this in
+    VV3's binary; it's the kind of thing only reading the draw fn reveals.
+
 ---
 
 ## Part 3 — Per-game appendix (comprehensive)
@@ -228,3 +238,32 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 5. Confirm the **running process started AFTER the exe was written**.
 6. **Verify offscreen** (render the cell / dump final draw values), then have a peer
    sanity-check, **then** relaunch. Do not report fixed until seen in the running game.
+
+---
+
+## Part 6 — THE STANDARD (acceptance criteria; credit VV2)
+
+A game's mask feature is done only when **all** of these pass — verified offscreen
+(disassembly, static audit, hash-checked deploy), not by launching and looking. VV2 and
+VV5 are the reference implementations.
+
+1. **VILLAGE** — mask emitted *inside* the head's own draw, replaying its args with only
+   atlas+frame swapped. Position, pose-bob, facing, scale inherited — never recomputed
+   from record world coords.
+2. **ACTIONS/POSES** (sit, bend, fish, swim) — every pose covered. Prove it with the
+   **call-site audit**: enumerate every `call` to your head-draw thunk(s) and confirm
+   each is inside your gate (VV2 is 100/100). A pose drawn from an ungated site is a
+   silent failure.
+3. **SELECTION** — clicking a villager does not move or drop the mask. Selection is
+   **not** pickup; never gate on a selection flag.
+4. **PICKUP** — the mask rides the head to the cursor. Gate on the **drag object being
+   active**. No skip-when-held.
+5. **DETAILS PORTRAIT** — correct facing source (portrait-only or fixed-facing, *not*
+   the head-draw frame with its age offset), and lift/offsets that **scale with the
+   portrait's own scale arg**, not fixed constants.
+6. **IMMEDIATE LOAD** — saved masks visible on the **first village frame**, no menu
+   opened. Test with **several different colours** (a single-colour test passes even
+   with a broken index mapping).
+7. **DEPLOY VERIFIED** — exe/DLL/atlas hash-matched repo↔deployed, and the process
+   started *after* the exe was written.
+8. **COMMITTED AND PUSHED** — the repo is the only memory that survives session restarts.
