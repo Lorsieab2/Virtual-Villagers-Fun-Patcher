@@ -69,14 +69,9 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 # Static review record for the integrated VV1 mask branch (commit 8217950,
 # fixture SHA-256 1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D):
 #
-#   0x3741B/0x374A4/0x37503/0x37556  confirmed.  Capstone decodes each capture
-#       cave as `mov eax,[esp+0x14]; mov [0x4911B0],eax; call 0x409410;
-#       push edi; push esi; call 0x490720; jmp splice+5`.  The stack-neutral
-#       scale read leaves the original seven-argument frame intact; 0x409410's
-#       pass path restores ECX/EAX/EDX and the engine draw returns `ret 0x1C`.
-#       The helper returns `ret 8`, balancing the two pushes.  At each natural
-#       resume the only consumers are `pop edi; pop esi; ret 4`, so ESP and
-#       ESI/EDI/EBX/EBP are preserved and no flags are consumed.
+#   The four Details portrait head sites are CALL detours, not JMP caves, so
+#       they are outside this foreign-reentry walker. Their complete seven-arg
+#       replay and ABI contract are pinned in test_vv1_mask_render_contract.py.
 #   0x37798                         confirmed.  Exact cave bytes decode to
 #       `mov eax,[esi+edi*4+0x3DBDC]; mov [0x4911B4],eax; jmp 0x43779F`.
 #       The resume first reuses EAX in `imul` and then consumes ESI/EDI; the
@@ -157,22 +152,6 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x93E0"): "737AA82521DC44FB571462B9B8C3BB432316C88DE977634C2D6C388ED44A1586",
     ("vv1_enable_origins_exclusive_features", "0x93C0"): "28E4B105A8C0D9E9ED8F0AA2973CB2B9919F342E9D87697A9DB9EB742324FBE9",
     ("vv1_enable_origins_exclusive_features", "0x2ED0"): "8091338A543C285EF1CBE52A81044E6587DDF392D8120D3FF422E53C156C0F71",
-    # Details portrait mask overlay splices: sub_437340 draws the portrait head
-    # at FOUR call sites (a 2x2 of age x head-atlas flag). Each is replaced with
-    # a jmp to its own capture cave. The exact generated cave prefix is:
-    #   mov eax,[esp+0x14]; mov [0x4911B0],eax; call 0x409410;
-    #   push edi; push esi; call 0x490720; jmp splice+5.
-    # The first read is stack-neutral -- NOTHING is pushed ahead of the
-    # head-draw call, or the arg frame 0x409410 reads would shift. The
-    # detoured 0x409410 pass path restores its saved volatile registers and
-    # replays `mov ecx,[ecx]`; the engine draw returns with `ret 0x1C`.
-    # The helper's `ret 8` balances the record/gameobj pushes. Thus each cave
-    # reaches the natural resume with ESP, ESI, EDI, EBX, and EBP unchanged;
-    # the resume starts with pop edi/pop esi/ret and consumes no flags.
-    ("vv1_enable_origins_exclusive_features", "0x3741B"): "5C7DE5887D6A8075F1B81E2C4B2CC78E4751102288F712F1EE35BF1C2A9D04A8",
-    ("vv1_enable_origins_exclusive_features", "0x374A4"): "62005EA750DF9AD9F7FAB4AC7738AF58AF814F13D5C7DED25BAD5F327414662D",
-    ("vv1_enable_origins_exclusive_features", "0x37503"): "8EBDCC074CFE374DAE8489B700AA5B92CA820240523B85B5CB4740D31842F38D",
-    ("vv1_enable_origins_exclusive_features", "0x37556"): "F302809F991DB7DDE76A72BB6335F4078C9B4A824A22FA3DA983D91A7A87AE06",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
     # reproduce the villager index load, stash it to .data, and re-enter stock
     # at the NATURAL resume (0x43779F=splice+7, 0x438909=splice+9), so no

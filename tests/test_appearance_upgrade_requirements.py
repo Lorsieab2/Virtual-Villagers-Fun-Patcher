@@ -381,14 +381,14 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # x/y from it, which grew the draw hook past the 0x8BEA8
                     # cave, so it moved to its own confirmed-zero .shr gap.
                     "0x8B080",
-                    # Details-screen portrait mask overlay: sub_437340 draws the
-                    # portrait head at FOUR call sites (a 2x2 of age x head-atlas
-                    # flag). All four are spliced (0x3741B, 0x374A4, 0x37503,
-                    # 0x37556) into a shared resolve-and-call helper (0x8BF3C)
-                    # plus one capture cave each (0x8BF7A/0x8BF92/0x8BFAA/
-                    # 0x8BFC2) in the confirmed-zero .shr tail; each reproduces
-                    # the head draw then calls the DLL's Vv1DrawPortraitMask.
+                    # Details-screen portrait mask overlay: all four native
+                    # head sites remain CALLs but now target one ABI-compatible
+                    # wrapper at 0x8E720. It duplicates/replays the exact seven
+                    # head args, then passes the untouched tuple and renderer
+                    # wrapper to Vv1DrawPortraitMask. The retired per-site cave
+                    # rows remain listed because the parent manifest has them.
                     "0x3741B", "0x374A4", "0x37503", "0x37556",
+                    "0x8E720", "0x8E75A", "0x8E774", "0x8E78E", "0x8E7A8",
                     # Village all-pose mask identity stash (Stage 1): 2 loop-top
                     # splices + their stash caves (inert; hook reads the slot later).
                     "0x37798", "0x38900", "0x8B180", "0x8B191",

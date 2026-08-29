@@ -23,7 +23,7 @@ acceptance. Follows `docs/head-mask-rendering.md` Parts 1–7.
 
 `42E570` (whole-head draw) is structurally identical. So both leaves take
 **pre-scale world coordinates** and apply `screen = scroll + world × camera`
-internally. `docs/head-mask-rendering.md` rule 12 is correct as written.
+internally. `docs/head-mask-rendering.md` rule 13 is correct as written.
 
 ## 2. The measured camera value — double-scale is a NO-OP in VV3
 

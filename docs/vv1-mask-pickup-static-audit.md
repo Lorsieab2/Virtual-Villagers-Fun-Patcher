@@ -56,11 +56,24 @@ tile/effect/UI objects rather than villager records and are outside the gate.
 
 `sub_437340` is a separate Details portrait compositor. Its four head draw
 calls are at `0x43741B`, `0x4374A4`, `0x437503`, and `0x437556`; the body draws
-are at `0x4373D1`, `0x43745A`, `0x4374D5`, and `0x437528`. The existing four
-portrait capture caves call the shared portrait helper after the original
-head draw. Because these callsites are below `0x437790`, the village hook does
-not double-draw the Details portrait. Reopening Details is a distinct runtime
-check, not a missing static callsite.
+are at `0x4373D1`, `0x43745A`, `0x4374D5`, and `0x437528`. Each stock head CALL
+now targets one shared ABI-compatible wrapper at `0x490720`. The wrapper
+duplicates the complete seven-argument tuple, performs the stock `0x409410`
+head draw, and then passes the untouched tuple plus the exact renderer wrapper
+to `Vv1DrawPortraitMask`. The overlay reuses native X, Y, facing, scale, and
+enable; it changes only the atlas/color row and applies the same scale-aware
+registration lift as the village mask. It no longer reconstructs portrait X/Y
+from fixed constants or age buckets. Because these callsites are below
+`0x437790`, the village hook does not double-draw the Details portrait.
+Reopening Details remains a distinct runtime check.
+
+## Map/overview boundary
+
+The village head-hook caller gate intentionally excludes the non-village
+UI/map clusters below `0x437790`. This audit has not identified a map/overview
+villager compositor with a record identity and exact head-draw tuple. Therefore
+map coverage is unknown. The village and Details hooks do not constitute static
+or runtime proof for that surface, and no speculative map hook was added.
 
 ## Pickup/held path
 
@@ -95,7 +108,9 @@ preimage, not a successful player save/reload cycle.
 
 The remaining minimum player trace is: select a masked adult and child; pick
 each up and carry them while changing facing and visible action/pose; verify
-the mask follows during the hold and after release; open/reopen Details; save,
-reload, and switch slots. Report a held-only failure separately from a normal
-village or Details failure. No game was launched for this audit, so those
-player-visible and runtime/save results remain unverified.
+the mask follows during the hold and after release; open/reopen Details; open
+the map/overview and report whether it shows villagers at all and, if so,
+whether their masks track; save, reload, and switch slots. Report a held-only,
+map-only, Details-only, or ordinary-village failure separately. No game was
+launched for this audit, so player-visible behavior is unverified and the
+runtime/save results remain unverified.

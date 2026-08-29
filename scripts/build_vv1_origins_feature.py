@@ -385,14 +385,11 @@ MASK_RESTORE_DONE_VA = MASK_IDX_LIST_VA + MASK_LIST_CAP  # +0x1A8
 # exe portrait cave to its own .data -- the Malwarebytes-safe fixed-address
 # pattern, same as every other slot here.
 PORTRAIT_DLL_FN_VA = MASK_RESTORE_DONE_VA + 4            # +0x1AC (dword)
-# Scratch slot for the captured head scale: the cave must NOT hold it in a
-# callee-saved register (ebx/ebp) -- sub_437340 saves only esi/edi, so it (and
-# our cave inside it) must preserve ebx/ebp for its own caller -- and it can't
-# hold it in a volatile register (eax/ecx/edx) across the head draw. So it
-# lands the scale in .data (via volatile eax) before the draw and the DLL call
-# reads it back. Single-threaded Details render, so one slot is fine.
-PORTRAIT_SCALE_SAVE_VA = PORTRAIT_DLL_FN_VA + 4          # +0x1B0 (dword)
-MASK_DATA_SCRATCH_END_VA = PORTRAIT_SCALE_SAVE_VA + 4     # +0x1B4
+# Keep the former portrait-scale dword reserved so the already-reviewed village
+# scratch addresses do not move. The exact-argument portrait wrapper no longer
+# writes it: it preserves the complete native tuple on the caller's own stack.
+PORTRAIT_RESERVED_VA = PORTRAIT_DLL_FN_VA + 4             # +0x1B0 (dword, intentionally unused)
+MASK_DATA_SCRATCH_END_VA = PORTRAIT_RESERVED_VA + 4       # +0x1B4
 # --- Village all-pose mask (shared-draw hook) scratch -----------------------
 # The village mask must ride ON the head through EVERY pose (walk/swim/bend/sit/
 # lie/idle-bob). The old blit reconstructed the villager's screen y from its
@@ -474,8 +471,6 @@ SAVE_SLOT_CAPTURE_VA = mask_code_va(SAVE_SLOT_CAPTURE_FILE_OFFSET)
 SAVE_SLOT_CAPTURE_SPLICE_FILE_OFFSET = 0x2ED0
 SAVE_SLOT_CAPTURE_SPLICE_VA = 0x402ED0
 SAVE_SLOT_CAPTURE_RESUME_VA = 0x402ED6
-PORTRAIT_HEAD_DRAW_SPLICE_FILE = 0x3741B  # 'call 0x409410' (the head draw) in sub_437340
-PORTRAIT_HEAD_DRAW_RESUME_VA = 0x437420   # instruction right after that call
 PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite draw
 # Read-only companion-PNG path strings. They are genuine read-only constants,
 # so they belong in .rdata, and they are added to the Origins string cave in
@@ -2567,97 +2562,87 @@ def main() -> None:
     )
     # --- Details-screen portrait ("bighead") mask overlay ---
     # sub_437340 renders the Details portrait head at FOUR call sites -- a 2x2
-    # of age (child, [rec+0x348] < 0x118  /  adult) x head-atlas flag
-    # ([rec+0x350] == 1 or not) -- each an identical 'call 0x409410' with 7 args
-    # whose arg6 (deepest but one, [esp+0x14]) is the head's own scale. The
-    # earlier single splice at 0x43741B covered only ONE quadrant (child,
-    # flag==1), so only some villagers ever got a portrait mask (adults, the
-    # other flag, showed none). We now splice ALL FOUR head draws into per-site
-    # capture caves that share one resolve-and-call helper. esi=gameobj and
-    # edi=record hold across all four (edi set once at 0x43737D), so each cave
-    # just carries the head scale in ebx over the draw (0x408af0 preserves
-    # ebx/ebp, which sub_437340 relies on for its own caller) and hands the
-    # helper (gameobj, record, scale). The DLL derives the rest (renderer,
-    # facing col, and the age-split y -- child 0x102 / adult 0xe4).
+    # of age (child, [rec+0x348] < 0x118 / adult) x head-atlas flag
+    # ([rec+0x350] == 1 or not). Every site is the same stdcall-style
+    # `call 0x409410` with seven draw arguments. The VV5 contract is to replay
+    # that complete native tuple, never reconstruct X/Y/facing from record or
+    # screen constants. Replace each call with a call to ONE ABI-compatible
+    # wrapper. The wrapper duplicates all seven arguments for the stock head
+    # draw (so the originals remain available), then gives the DLL the original
+    # renderer wrapper plus a pointer to the untouched tuple. Its `ret 0x1c`
+    # exactly matches 0x409410, so all four callers resume with stock ESP and
+    # callee-saved registers. esi=gameobj and edi=record are live at every site.
     PORTRAIT_HEAD_DRAW_SITES = [
-        (0x43741B, 0x437420),   # child, flag==1
-        (0x4374A4, 0x4374A9),   # child, flag!=1
-        (0x437503, 0x437508),   # adult, flag==1
-        (0x437556, 0x43755B),   # adult, flag!=1
+        0x43741B,   # child, flag==1
+        0x4374A4,   # child, flag!=1
+        0x437503,   # adult, flag==1
+        0x437556,   # adult, flag!=1
     ]
-    # Shared helper (at the head of the cave region): resolve Vv1DrawPortraitMask
-    # once (cached in .data), then call it (gameobj, record) @8. Incoming from a
-    # cave: [esp+4]=gameobj, [esp+8]=record. Touches only eax + the re-pushed
-    # args; LoadLibrary/GetProcAddress/the DLL all preserve ebx/ebp/esi/edi. The
-    # head scale is NOT an arg -- the cave stashes it in .data before the head
-    # draw and the DLL reads it back, so the cave never pushes anything ahead of
-    # the head-draw call (a push there shifts the arg frame 0x409410 reads).
-    portrait_helper_va = PORTRAIT_MASK_CAVE_VA
-    portrait_helper = assemble(
+    portrait_wrapper_va = PORTRAIT_MASK_CAVE_VA
+    portrait_wrapper = assemble(
         f"""
+            push ecx                                    # preserve the exact draw-manager wrapper
+            # Stack now: saved-ecx, caller-ret, original arg1..arg7. Repeatedly
+            # copying [esp+0x20] walks arg7..arg1 and leaves a correctly ordered
+            # seven-argument duplicate at the new top of stack.
+            push dword ptr [esp + 0x20]
+            push dword ptr [esp + 0x20]
+            push dword ptr [esp + 0x20]
+            push dword ptr [esp + 0x20]
+            push dword ptr [esp + 0x20]
+            push dword ptr [esp + 0x20]
+            push dword ptr [esp + 0x20]
+            mov ecx, dword ptr [esp + 0x1c]             # saved native renderer wrapper
+            call 0x{PORTRAIT_SCALED_DRAW_VA:X}          # stock head; cleans only duplicate args
             mov eax, dword ptr [0x{PORTRAIT_DLL_FN_VA:X}]
             test eax, eax
-            jnz phelper_call
+            jnz pwrap_call
             push 0x{s['icons_dll']:X}
             call dword ptr [0x457010]                   # LoadLibraryA
             test eax, eax
-            jz phelper_done
+            jz pwrap_done
             push 0x{s['draw_portrait_mask']:X}
             push eax
             call dword ptr [0x4570D4]                   # GetProcAddress
             test eax, eax
-            jz phelper_done
+            jz pwrap_done
             mov dword ptr [0x{PORTRAIT_DLL_FN_VA:X}], eax
-        phelper_call:
-            push dword ptr [esp + 8]                    # record  (arg2)
-            push dword ptr [esp + 8]                    # gameobj (arg1)
-            call eax                                    # Vv1DrawPortraitMask @8
-        phelper_done:
-            ret 8
+        pwrap_call:
+            lea edx, [esp + 8]                          # untouched original arg1..arg7
+            push edx                                    # arg4: tuple
+            push dword ptr [esp + 4]                    # arg3: exact renderer wrapper
+            push edi                                    # arg2: record
+            push esi                                    # arg1: gameobj
+            call eax                                    # Vv1DrawPortraitMask @16
+        pwrap_done:
+            add esp, 4                                  # discard saved renderer wrapper
+            ret 0x1c                                    # stock 0x409410 ABI
         """,
-        portrait_helper_va,
+        portrait_wrapper_va,
     )
+    if len(portrait_wrapper) > 0x100:
+        raise RuntimeError(
+            f"VV1 portrait exact-argument wrapper exceeds its .vv1mc reservation: "
+            f"{len(portrait_wrapper):#x} > 0x100"
+        )
     patch(
         PORTRAIT_MASK_CAVE_FILE_OFFSET,
-        b"\0" * len(portrait_helper),
-        portrait_helper,
-        "Details-screen portrait mask helper: resolves Vv1DrawPortraitMask once (cached in .data) and calls it (gameobj, record); shared by all four head-draw capture caves.",
+        b"\0" * len(portrait_wrapper),
+        portrait_wrapper,
+        "Details-screen portrait exact-argument wrapper: duplicate and replay the stock seven-argument head draw, then call Vv1DrawPortraitMask(gameobj, record, renderer, args) with the untouched native x/y/facing/scale/flag tuple; shared by all four portrait head calls.",
     )
-    # Lay the four capture caves contiguously right after the helper.
-    _cave_file = PORTRAIT_MASK_CAVE_FILE_OFFSET + len(portrait_helper)
-    _cave_va = portrait_helper_va + len(portrait_helper)
-    for (splice_va, resume_va) in PORTRAIT_HEAD_DRAW_SITES:
-        cave = assemble(
-            f"""
-                mov eax, dword ptr [esp + 0x14]         # arg6 = head scale (stack-neutral read)
-                mov dword ptr [0x{PORTRAIT_SCALE_SAVE_VA:X}], eax
-                call 0x{PORTRAIT_SCALED_DRAW_VA:X}       # the original head draw (arg frame intact)
-                push edi                                # record
-                push esi                                # gameobj
-                call 0x{portrait_helper_va:X}
-                jmp 0x{resume_va:X}
-            """,
-            _cave_va,
-        )
-        patch(
-            _cave_file,
-            b"\0" * len(cave),
-            cave,
-            f"Details-screen portrait mask capture cave for the head draw at {splice_va:#x}: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at {resume_va:#x}.",
-        )
+    # Keep all four stock call sites ABI-identical: each still performs a call
+    # and receives a callee-cleaned seven-argument return, only the destination
+    # changes from the raw engine thunk to the exact-argument wrapper above.
+    for splice_va in PORTRAIT_HEAD_DRAW_SITES:
         orig_call = assemble(f"call 0x{PORTRAIT_SCALED_DRAW_VA:X}", splice_va)
-        detour = assemble(f"jmp 0x{_cave_va:X}", splice_va)
+        detour = assemble(f"call 0x{portrait_wrapper_va:X}", splice_va)
         patch(
             splice_va - IMAGE_BASE,
             orig_call,
             detour,
-            f"splice sub_437340 portrait head-draw call at {splice_va:#x} into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)",
+            f"route sub_437340 portrait head-draw call at {splice_va:#x} through the shared exact-argument mask wrapper (one of the four age x atlas-flag quadrants)",
         )
-        _cave_file += len(cave)
-        _cave_va += len(cave)
-    assert _cave_file <= PORTRAIT_MASK_CAVE_FILE_OFFSET + 196, (
-        f"portrait caves overflow the 0x8BF3C..0x8C000 gap: end={_cave_file:#x}"
-    )
 
     # === Village all-pose mask, Stage 1: per-villager identity stash =========
     # Each of the two village villager-render loops has a per-villager top where

@@ -54,7 +54,10 @@ player-approved world hook `0x468263` is unchanged.
 The nearby `0x45F9CA` call is also left stock. Static caller tracing binds its
 sole direct caller (`0x416EF5`, method `0x416EC0`) to the Island Event dialog
 vtable (`0x48D2C8`, RTTI `CIslandEventDialog`), not the Details chain. It is
-therefore not part of this repair; pickup/held rendering remains unproved.
+therefore not part of this repair. The owner previously approved pickup through
+the unchanged world hook (`0x468263`); this isolated static caller trace neither
+proves nor overturns that player observation. Do not add a separate pickup hook
+unless a new player-visible failure and exact trace identify one.
 
 ### Historical false-route RE leads (verified addresses)
 - `0x45F965` lives in villager-draw fn **`0x45F7C0`**. Its only 2 DIRECT callers:
@@ -67,7 +70,8 @@ therefore not part of this repair; pickup/held rendering remains unproved.
   scale,0). The dereferenced ECX is the render target/context; stack arg1 is
   the atlas passed to cell-resolver `0x40A990`. For a plain atlas
   (`[atlas+0x30]==0`), arg4=ROW and arg5=COL are clamped to that atlas's own
-  `[atlas+8]=cols` / `[atlas+0xc]=rows`. VV2/VV5 follow the same contract:
+  `[atlas+8]=cols` / `[atlas+0xc]=rows`. This follows the VV5 contract (also
+  corroborated by VV2):
   preserve the draw context, pass the mask atlas as arg1, and replay the native
   draw. Do not put the atlas in ECX or pass a bighead's linear out-params to a
   different-width atlas.

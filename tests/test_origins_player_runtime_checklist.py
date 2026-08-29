@@ -275,16 +275,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x8B080",
                         # Details-screen portrait mask overlay: sub_437340
                         # draws the portrait head at FOUR call sites (a 2x2 of
-                        # age x head-atlas flag). Earlier builds spliced only
-                        # 0x3741B, so only one quadrant of villagers got a mask;
-                        # all four are now spliced (0x3741B, 0x374A4, 0x37503,
-                        # 0x37556) into a shared resolve-and-call helper plus one
-                        # capture cave each, laid out in the .shr tail (helper at
-                        # 0x8BF3C, caves at 0x8BF7A/0x8BF92/0x8BFAA/0x8BFC2). The
-                        # DLL's Vv1DrawPortraitMask reproduces the head's scale
-                        # (carried in ebx) and picks the head's y off the record
-                        # age so adults' masks aren't ~0x1E px too low.
+                        # age x head-atlas flag). All four now remain CALLs but
+                        # target one ABI-compatible wrapper at 0x8E720. It
+                        # duplicates/replays the exact seven native head args,
+                        # then passes the untouched x/y/facing/scale/flag tuple
+                        # and renderer wrapper to Vv1DrawPortraitMask. Keep the
+                        # retired per-site cave rows below in the exception set
+                        # because the baseline manifest still contains them.
                         "0x3741B", "0x374A4", "0x37503", "0x37556",
+                        "0x8E720", "0x8E75A", "0x8E774", "0x8E78E", "0x8E7A8",
                         # Village all-pose mask identity stash (Stage 1): 2 loop-top
                         # splices + their stash caves (inert; hook reads the slot later).
                         "0x37798", "0x38900", "0x8B180", "0x8B191",

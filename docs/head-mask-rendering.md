@@ -9,7 +9,11 @@ Engine age order (features accumulate forward; **evidence from a later game does
 transfer backward**): **VV1** A New Home → **VV2** The Lost Children → **VV3** The
 Secret City → **VV4** The Tree of Life → **VV5** New Believers. VV5 is the most
 sophisticated and the only one with a **native** heathen-mask system; VV1–VV4 build
-masks from scratch.
+masks from scratch. **VV5 is the sole behavioral reference for this project.** The
+other games must reproduce its mask positioning, render ordering, head tracking,
+screen-specific facing, action behavior, and pickup behavior while adapting the
+mechanism to each executable's own architecture. Earlier-game evidence is useful for
+mapping that architecture, but it does not redefine the target behavior.
 
 ---
 
@@ -57,8 +61,10 @@ stored on the record; the head sprite frame may get an age/variant offset on top
    scale + pickup for free. **Recomputing position from the record's raw world coords
    — dropping the per-pose anchor offset — is what puts the mask at the feet/hip.**
 
-2. **Mask atlas layout = FACING columns × COLOR rows.** VV5: 8 cols (facings) × 5 rows
-   (Blue/Orange/Red/Purple/Chief), cell 65×145. **Column = facing. Row = color.**
+2. **Mask atlas layout = FACING columns × COLOR rows.** VV5's native village atlas is
+   8 cols (facings) × 5 rows (Blue/Orange/Red/Purple/Chief), cell 65×145. Its active
+   custom Details atlas is separately registered as sprite `0x155`, 3 portrait-facing
+   cols × 5 color rows. **Column = the current screen's facing. Row = color.**
 
 3. **Select the mask column EXPLICITLY — never reuse the head's frame index.** The head
    atlas and mask atlas have *different* column layouts, so the head's frame maps to
@@ -113,18 +119,23 @@ stored on the record; the head sprite frame may get an age/variant offset on top
    on the **drag object being active**, NOT a selection flag — selection ≠ pickup, and
    keying on selection drops the mask to the floor when you merely click a villager.
 
-10. **Alpha is inherited, and that's correct.** A faded mask on a submerged/swimming
+10. **Map/overview is a separate surface until proven otherwise.** A village-render
+    hook does not establish map coverage. Identify the map/overview compositor and
+    replay its own head arguments, or prove that it reaches the already-covered head
+    path. If neither is shown, map status is **unknown**, not inherited.
+
+11. **Alpha is inherited, and that's correct.** A faded mask on a submerged/swimming
     villager is right — the head is faded too; don't force full alpha. If children come
     out translucent, your mask went through a different (unscaled) blit than the head —
     route it through the **same scaled path**.
 
-11. **Registration is engine-specific: convert, don't copy.** VV5's art encodes VV5's
+12. **Registration is engine-specific: convert, don't copy.** VV5's art encodes VV5's
     head proportions (cell coincidence → zero offset). Another game's heads differ, so
     it needs a scale/offset exactly where VV5 needs none. And the *drawn* head size ≠
     the head *cell* size (VV4's 40×65 cell draws a ~27px head — do not scale VV5's 65px
     art down to the cell; match the drawn size).
 
-12. **Watch for DOUBLE-SCALING (the detached-mask trap).** Some draw functions
+13. **Watch for DOUBLE-SCALING (the detached-mask trap).** Some draw functions
     multiply their x/y *internally* by a manager scale field (VV3: both `42E510` and
     `42E570` multiply x/y by `[mgr+0x300C]`). If you take those pre-scale world coords
     and add your own *screen-pixel* offset before the call, the engine scales your
@@ -138,9 +149,9 @@ stored on the record; the head sprite frame may get an age/variant offset on top
     doesn't zoom), so the double-scale was a NO-OP there and could NOT have detached the
     masks. Express offsets in world units anyway (correct at any camera, free at 1.0),
     but if masks detach at camera=1.0, the cause is a double-**DRAW**, not double-scale —
-    see rule 13.
+    see rule 14.
 
-13. **An UNGATED hook draws a phantom second mask (VV3's real detached-mask cause).** If
+14. **An UNGATED hook draws a phantom second mask (VV3's real detached-mask cause).** If
     your hook sits on a call that runs for EVERY villager but the underlying fn no-ops for
     some of them, your added draw does NOT no-op — you emit a mask where the game drew
     nothing. VV3's action-overlay wrap (`0x460B48`) fires for every villager; `sub_45F7E0`
@@ -176,6 +187,14 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 - **Facings = 7 ⇒ drop the mask atlas's 8th column.**
 - **Linear-frame packing (adult path):** `maskArg4 = colorRow * MASK_COLS + facing`,
   where MASK_COLS = your mask sprite's *registered* column count.
+- **Details exact-argument wrapper:** all four head calls (`0x43741B`, `0x4374A4`,
+  `0x437503`, `0x437556`) remain five-byte CALLs and route through one
+  ABI-compatible wrapper at `0x490720`. It duplicates and replays the untouched seven
+  native arguments, then changes only atlas/color row and the scale-aware mask lift.
+  It does not reconstruct X/Y from age buckets or facing from a global.
+- **Map/overview:** the village caller gate intentionally excludes UI/map clusters.
+  No map compositor has yet been bound to a villager record and exact head tuple, so
+  map coverage is unknown and must not be claimed from the village hook.
 - **Pickup boundary (static):** the exact chain `0x4392D0 → 0x439410` has the
   `0x4392D0` hit-test called at `0x425226`, and the `0x439410` drag updater called at
   `0x425937`/`0x423FD1`. The frame path `0x424090` then calls compositor `0x437790`,
@@ -257,10 +276,15 @@ runtime-trace and player-acceptance boundary. Record base is `0x59E124`, stride 
   mask colors `+0x1CED`(orange)/`+0x1CEE`(red)/`+0x1CFC`(rank: 12=purple,13=chief).
   Cosmetic-mask side-table `0x7B1D20` (nibble-packed by index). Save-slot builder
   `sub_403600`. Draw context `[esi+0x2F2C]`.
-- **Custom Details bighead** (separate atlas `bigheads_masks.png` = frames 5/6/7 of
-  `vv5_heathenheads.png` = owner-1-based, so 0-based cols 4/5/6): replay-then-reissue
-  the head draw with the mask sprite; scale ×1.5; live-tuned per-facing/per-color
-  offset tables + child offset (age<0x118).
+- **Custom Details bighead:** separate atlas `bigheads_masks.png`, registered as
+  sprite id **`0x155`, 3 cols × 5 rows**, using owner frames 5/6/7 of
+  `vv5_heathenheads.png` (owner-1-based, so source cols 4/5/6). The wrapper
+  replay-then-reissues the head draw with the mask sprite; scale ×1.5; live-tuned
+  per-facing/per-color offset tables + child offset (age<0x118).
+- **Current evidence boundary:** the Task9 source statically proves the village
+  bracket and Details wrapper. It does not yet map a distinct map/overview route or
+  prove active pickup/held/release ownership. Those surfaces remain unknown even in
+  the reference implementation until traced and accepted by the player.
 
 ---
 
@@ -330,33 +354,37 @@ runtime-trace and player-acceptance boundary. Record base is `0x59E124`, stride 
 
 ---
 
-## Part 6 — THE STANDARD (acceptance criteria; credit VV2)
+## Part 6 — THE VV5 STANDARD (acceptance criteria)
 
 A game's mask feature is done only when **all** of these pass. Static evidence
 (disassembly, source audit, and hash-checked deploy) is necessary but does not replace
-launching the exact deployed build and obtaining player/runtime acceptance. VV2 and VV5
-are the reference implementations.
+launching the exact deployed build and obtaining player/runtime acceptance. **VV5 is
+the sole behavioral reference.** VV2 can corroborate an architectural technique, but
+it cannot lower or alter the VV5 behavior required of any game.
 
 1. **VILLAGE** — mask emitted *inside* the head's own draw, replaying its args with only
    atlas+frame swapped. Position, pose-bob, facing, scale inherited — never recomputed
    from record world coords.
-2. **ACTIONS/POSES** (sit, bend, fish, swim) — every pose covered. Prove it with the
+2. **MAP/OVERVIEW** — every villager shown there has the same mask identity, facing,
+   scale, and head registration as that surface's own head. Prove whether the map uses
+   the village renderer or a separate compositor; do not infer it.
+3. **ACTIONS/POSES** (sit, bend, fish, swim) — every pose covered. Prove it with the
    **call-site audit**: enumerate every `call` to your head-draw thunk(s) and confirm
    each is inside your gate (VV2 is 100/100). A pose drawn from an ungated site is a
    silent failure.
-3. **SELECTION** — clicking a villager does not move or drop the mask. Selection is
+4. **SELECTION** — clicking a villager does not move or drop the mask. Selection is
    **not** pickup; never gate on a selection flag.
-4. **PICKUP** — the mask rides the head to the cursor. Gate on the **drag object being
+5. **PICKUP** — the mask rides the head to the cursor. Gate on the **drag object being
    active**. No skip-when-held.
-5. **DETAILS PORTRAIT** — correct facing source (portrait-only or fixed-facing, *not*
+6. **DETAILS PORTRAIT** — correct facing source (portrait-only or fixed-facing, *not*
    the head-draw frame with its age offset), and lift/offsets that **scale with the
    portrait's own scale arg**, not fixed constants.
-6. **IMMEDIATE LOAD** — saved masks visible on the **first village frame**, no menu
+7. **IMMEDIATE LOAD** — saved masks visible on the **first village frame**, no menu
    opened. Test with **several different colours** (a single-colour test passes even
    with a broken index mapping).
-7. **DEPLOY VERIFIED** — exe/DLL/atlas hash-matched repo↔deployed, and the process
+8. **DEPLOY VERIFIED** — exe/DLL/atlas hash-matched repo↔deployed, and the process
    started *after* the exe was written.
-8. **COMMITTED AND PUSHED** — the repo is the only memory that survives session restarts.
+9. **COMMITTED AND PUSHED** — the repo is the only memory that survives session restarts.
 
 ---
 
@@ -368,7 +396,7 @@ caves."* That is the mandate: no cave-squeezing, no save/stock-file edits, chang
 in DLLs or separate files.
 
 **Appending your own PE sections is the RATIFIED TECHNIQUE for meeting it — not the
-owner's wording.** It is the engineering approach both references use, ratified
+owner's wording.** It is the engineering approach the existing VV2/VV5 implementations use, ratified
 indirectly by the owner's ruling *"Make the safest changes for ALL patches and mods to
 work with ZERO RISK of corruption, collision or bugs."* If a game can satisfy the
 owner's actual requirement another zero-risk way, that is permissible; and **any fresh
@@ -390,7 +418,7 @@ and is a quarantine risk if anything writes there at runtime.
 - VV5: `.vv5t9` R-X (all mask render code) + tail of stock `.data` R/W (scratch, nibble
   side-table).
 
-Different arrangements, identical principle: **W^X separation**. Note both reference
+Different arrangements, identical principle: **W^X separation**. Note both existing
 implementations keep the per-draw **render stub as exe-side asm in the appended R-X
 section**, not in the DLL — that's the hot path (runs every head draw every frame), so a
 per-draw DLL round-trip is real cost for no gain. "Out of caves" is satisfied by the
