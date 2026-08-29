@@ -160,6 +160,12 @@ fail-closed and identity-boundary gaps:
 28. VV3's village-wide action now performs all preflighted mask-table changes in
     memory and publishes the transactional sidecar exactly once after the batch,
     instead of writing and flushing the whole file once per changed villager.
+29. VV3 explicit village-wide None now treats a simultaneous duplicate live
+    fingerprint as one bounded clear group. Solid None and an explicit per-sex
+    None clear every nonzero shifted sidecar entry with that fingerprint, while
+    the individual setter keeps exact-slot semantics and VV5-style, Random, and
+    Equal modes retain the existing ambiguity fail-closed gate. The batch still
+    publishes exactly once after all in-memory clears.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be

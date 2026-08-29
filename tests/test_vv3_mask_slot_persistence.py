@@ -193,6 +193,43 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         )
         self.assertIn("g_vv3_mask_fp[i] == fpv", helper)
 
+    def test_batch_none_clears_duplicate_fingerprint_group_only_for_explicit_none(self) -> None:
+        """A shifted duplicate group is clearable only by an explicit None choice."""
+        source = self.source
+        group_gate = source.split(
+            "static int vv3_mask_group_none_explicit", 1
+        )[1].split("static int vv3_apply_for_all", 1)[0]
+        self.assertIn("if (mask_mode == 4) return 1", group_gate)
+        self.assertIn(
+            "return mask_mode == 0 && (female ? mask_f : mask_m) == 0;",
+            group_gate,
+        )
+        # Random/distribution None is intentionally absent from the group gate;
+        # those modes retain the ordinary duplicate-identity preflight failure.
+        self.assertNotIn("mask_mode == 2", group_gate)
+        self.assertNotIn("mask_mode == 1", group_gate)
+        self.assertNotIn("mask_mode == 3", group_gate)
+
+        engine = source.split("static int vv3_apply_for_all", 1)[1].split(
+            "#define VW_RUNNING", 1
+        )[0]
+        self.assertIn("int mask_group_clear[256];", engine)
+        self.assertIn("mask_group_clear[i] = 0;", engine)
+        self.assertIn("vv3_mask_has_duplicate_live_fingerprint", engine)
+        self.assertIn("vv3_mask_has_stored_fingerprint", engine)
+        self.assertIn("mask_group_clear[i] = 1;", engine)
+        self.assertIn("if (mask_group_clear[i])", engine)
+        self.assertIn("vv3_mask_clear_group_prepared(", engine)
+        # The ordinary exact-slot clear still runs after the group clear, and
+        # the batch retains one post-apply sidecar publication.
+        apply = engine.split(
+            "/* Mask: apply the precomputed exclusive result in memory only.  The",
+            1,
+        )[1]
+        self.assertIn("vv3_mask_clear_group_prepared(", apply)
+        self.assertIn("desired_mask[i], 0);", apply)
+        self.assertEqual(apply.count("vv3_mask_write_sidecar();"), 1)
+
     def test_batch_applies_in_memory_then_publishes_sidecar_once(self) -> None:
         """Every planned mask uses the prepared path; the batch flushes once."""
         engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(

@@ -578,6 +578,36 @@ static int vv3_mask_unique_stored_index(unsigned int fp) {
     return found;
 }
 
+/* A duplicate live fingerprint is an explicitly bounded group only for the
+   village-wide None choices.  The ordinary getter/setter gates must continue
+   to fail closed for every other duplicate case. */
+static int vv3_mask_has_duplicate_live_fingerprint(unsigned int fp) {
+    const unsigned char *rec = (const unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int found = 0;
+    int i, slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    if (fp == 0) return 0;
+    if (slots < 0) slots = 0;
+    if (slots > VV3_MASK_SLOTS) slots = VV3_MASK_SLOTS;
+    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+        if (rec[VV3_ACTIVE] == 0 || *(const int *)(rec + VV3_HEALTH) <= 0)
+            continue;
+        if (vv3_mask_fingerprint(rec) != fp) continue;
+        if (++found >= 2) return 1;
+    }
+    return 0;
+}
+
+/* Only a nonzero stored mask is able to reappear through the guarded getter.
+   A zero mask/fingerprint pair is already empty and must not make an explicit
+   None batch look applicable. */
+static int vv3_mask_has_stored_fingerprint(unsigned int fp) {
+    int i;
+    if (fp == 0) return 0;
+    for (i = 0; i < VV3_MASK_SLOTS; ++i)
+        if (g_vv3_mask[i] != 0 && g_vv3_mask_fp[i] == fp) return 1;
+    return 0;
+}
+
 /* The caller must have prepared the active save slot.  Zero is an exact-slot
    clear and does not claim fingerprint ownership; a nonzero bind requires the
    addressed record to be the sole live owner. */
@@ -886,6 +916,30 @@ static int vv3_mask_apply_prepared(const void *record, int mask, int persist) {
     g_vv3_mask_fp[idx] = mask ? fpv : 0u;
     if (persist) vv3_mask_write_sidecar();                 /* persist next to the save */
     return 1;
+}
+
+/* Explicit village-wide None is the one safe exception to the duplicate
+   fingerprint rule: when at least two live records share the fingerprint, the
+   same sex/solid choice applies to every owner of that fingerprint.  Clear all
+   matching stored entries in memory, but leave publication to the batch's one
+   post-apply write.  Individual chooser calls never use this helper. */
+static int vv3_mask_clear_group_prepared(const void *record, int persist) {
+    const unsigned char *rec = (const unsigned char *)record;
+    unsigned int fpv;
+    int idx = vv3_mask_index(record);
+    int i, changed = 0;
+    if (!vv3_mask_prepare_slot()) return 0;
+    if (idx < 0) return 0;
+    fpv = vv3_mask_fingerprint(rec);
+    if (!vv3_mask_has_duplicate_live_fingerprint(fpv)) return 0;
+    for (i = 0; i < VV3_MASK_SLOTS; ++i) {
+        if (g_vv3_mask[i] == 0 || g_vv3_mask_fp[i] != fpv) continue;
+        g_vv3_mask[i] = 0;
+        g_vv3_mask_fp[i] = 0;
+        changed = 1;
+    }
+    if (changed && persist) vv3_mask_write_sidecar();
+    return changed;
 }
 
 /* Chooser commit: bind the chosen mask (0..5) to this villager.  A nonzero mask
@@ -1389,11 +1443,22 @@ static unsigned int caf_rand(void) {
     return x;
 }
 
+/* None is group-safe only when the dialog explicitly selected it for every
+   member of this fingerprint's sex group.  Random/distribution modes may
+   happen to draw zero for one villager, but that is not an identity-safe group
+   instruction and must retain the normal ambiguity gates. */
+static int vv3_mask_group_none_explicit(int mask_mode, int mask_m, int mask_f,
+                                        int female) {
+    if (mask_mode == 4) return 1;                         /* solid None */
+    return mask_mode == 0 && (female ? mask_f : mask_m) == 0;
+}
+
 static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
                              int head_f, int body_f, int mask_f, int mask_mode) {
     unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
     int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
     int idx[256], sex[256], order[256], desired_mask[256], mask_changed[256];
+    int mask_group_clear[256];
     int n = 0, chief = -1, affected = 0, mask_changed_any = 0, i, s;
     int mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0);
     g_vv3_caf_mask_ambiguous = 0;
@@ -1501,6 +1566,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         int h = sex[i] ? head_f : head_m;
         int b = sex[i] ? body_f : body_m;
         mask_changed[i] = 0;
+        mask_group_clear[i] = 0;
         if (mask_requested
             && (mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0)) {
             /* VV3_GetMaskForRecord is the guarded logical lookup: it recovers
@@ -1517,6 +1583,19 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
                          || g_vv3_mask_fp[idx[i]] != 0);
                 else
                     mask_changed[i] = desired_mask[i] != recovered_mask;
+                if (desired_mask[i] == 0
+                    && vv3_mask_group_none_explicit(
+                        mask_mode, mask_m, mask_f, sex[i])
+                    && vv3_mask_has_duplicate_live_fingerprint(
+                        vv3_mask_fingerprint(r))
+                    && vv3_mask_has_stored_fingerprint(
+                        vv3_mask_fingerprint(r))) {
+                    /* Getter=0 and an empty current slot are expected for an
+                       ambiguous group; the matching shifted entry still needs
+                       to make this batch applicable. */
+                    mask_changed[i] = 1;
+                    mask_group_clear[i] = 1;
+                }
             }
             if (mask_changed[i]) mask_changed_any = 1;
         }
@@ -1541,9 +1620,18 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
     if (mask_requested) {
         for (i = 0; i < n; ++i)
             if (mask_changed[i])
+            {
+                if (mask_group_clear[i])
+                    vv3_mask_clear_group_prepared(
+                        (void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
+                        0);
+                /* Also retain the ordinary exact-slot clear semantics.  This
+                   removes an unrelated stale value at the current index while
+                   the group helper removes every matching shifted copy. */
                 vv3_mask_apply_prepared(
                     (void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
                     desired_mask[i], 0);
+            }
         if (mask_changed_any) vv3_mask_write_sidecar();
     }
     (void)s;
