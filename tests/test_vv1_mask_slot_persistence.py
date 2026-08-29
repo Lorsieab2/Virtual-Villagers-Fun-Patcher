@@ -107,6 +107,44 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         )
         self.assertIn("persist the clear", self.manifest["mask_persistence"]["newborn_reuse_guard"])
 
+    def test_newborn_cave_final_jump_decodes_from_recorded_section_mapping(self) -> None:
+        """The emitted cave must return to the exact post-splice instruction.
+
+        ``append_bytes`` is intentionally zero-filled because the ordinary
+        patch list supplies the cave payload.  Decode the recorded ``.vv1mc``
+        section header (RVA + raw file pointer), map the emitted cave's raw
+        offset into its runtime VA, and then decode the final E9 from the
+        manifest payload.  Using the raw file offset as an RVA would produce
+        a plausible-looking but wrong target (the regression this gate is
+        meant to prevent).
+        """
+        tx = self.manifest["pe_append_transaction"]
+        layout = tx["layouts"]["collection_progression"]
+        section_patch = next(
+            item
+            for item in layout["header_patches"]
+            if item["offset"] == "0x2B8"
+        )
+        header = bytes.fromhex(section_patch["after"])
+        self.assertEqual(header[:8], b".vv1mc\0\0")
+        section_rva = struct.unpack_from("<I", header, 12)[0]
+        section_raw = struct.unpack_from("<I", header, 20)[0]
+        self.assertEqual(section_rva, 0x90000)
+        self.assertEqual(section_raw, 0x8E000)
+
+        cave_item = next(
+            item for item in self.manifest["patches"] if item["offset"] == "0x8EA00"
+        )
+        cave = bytes.fromhex(cave_item["after"])
+        cave_raw = int(cave_item["offset"], 0)
+        cave_va = 0x400000 + section_rva + (cave_raw - section_raw)
+        self.assertEqual(cave_va, 0x490A00)
+        self.assertGreaterEqual(len(cave), 5)
+        self.assertEqual(cave[-5], 0xE9)
+        displacement = struct.unpack_from("<i", cave, len(cave) - 4)[0]
+        final_target = cave_va + len(cave) + displacement
+        self.assertEqual(final_target, 0x43C39B)
+
     def test_live_frame_tick_sweeps_and_persists_only_actual_clears(self) -> None:
         self.assertIn("Vv1MaskTick=_Vv1MaskTick@0", self.exports)
         start = self.source.index(

@@ -45,7 +45,7 @@ It has not yet been accepted in a running game by the player.
 
 The GitHub review audit and its all-five follow-up found seven defects that were
 still present after the earlier integration work. They are now repaired and
-statically gated. A final adjacent-code audit then closed six additional
+statically gated. A final adjacent-code audit then closed eight additional
 fail-closed and identity-boundary gaps:
 
 1. VV1's Details wrapper records a permanent fail-open sentinel when the
@@ -88,6 +88,14 @@ fail-closed and identity-boundary gaps:
     destructively invalidating a valid restored entry.
 13. The VV4 identity-ready condition is reset on save-slot change, so the guarded
     invalidation rule is applied independently for each loaded village.
+14. VV3's Change Appearance for All apply pass now reports the number of active,
+    living records for which at least one selected global or matching-sex field
+    applies. A zero count returns the explicit no-deduction result before the
+    450,000-point charge; the mutation pass is not repeated.
+15. VV4's Change Appearance for All apply pass likewise counts each occupied
+    record only when a global mode or a field for that record's sex applies. An
+    absent selected sex or empty village now returns the explicit no-deduction
+    result before the native 450,000-point charge.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be

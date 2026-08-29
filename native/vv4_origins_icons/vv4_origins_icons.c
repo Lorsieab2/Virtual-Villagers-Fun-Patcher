@@ -1401,11 +1401,13 @@ static int fa_pick_head(int female, int head_mode) {
     }
 }
 
-/* Apply the chosen appearance to every active villager. */
-static void vv4_apply_for_all(void) {
+/* Apply the chosen appearance to every occupied villager and return how many
+   distinct records had at least one applicable selected operation. */
+static int vv4_apply_for_all(void) {
     int active[VV_MAX_VILLAGERS];
     int actsex[VV_MAX_VILLAGERS];              /* 1 = male */
     int nact = 0;
+    int affected = 0;
     int i, idx, mode;
 
     fa_rng = GetTickCount() | 1u;
@@ -1416,6 +1418,17 @@ static void vv4_apply_for_all(void) {
             continue;                          /* empty/dead slot */
         }
         male = fa_is_male(rec);
+        if (forall_state.head_mode != FA_HEAD_OFF ||
+            forall_state.body_mode != FA_BODY_OFF ||
+            forall_state.tribe_mode != FA_MODE_OFF ||
+            (male && (forall_state.male_head != FA_NOCHANGE ||
+                      forall_state.male_body != FA_NOCHANGE ||
+                      forall_state.male_mask != FA_NOCHANGE)) ||
+            (!male && (forall_state.female_head != FA_NOCHANGE ||
+                       forall_state.female_body != FA_NOCHANGE ||
+                       forall_state.female_mask != FA_NOCHANGE))) {
+            ++affected;
+        }
         /* HEAD: a village-wide mode overrides the per-sex Head cycler. */
         if (forall_state.head_mode != FA_HEAD_OFF) {
             *(int *)(rec + VV_HEAD_OFFSET) = fa_pick_head(!male, forall_state.head_mode);
@@ -1436,6 +1449,9 @@ static void vv4_apply_for_all(void) {
         active[nact] = idx;
         actsex[nact] = male;
         nact++;
+    }
+    if (affected == 0) {
+        return 0;
     }
 
     mode = forall_state.tribe_mode;
@@ -1491,6 +1507,7 @@ static void vv4_apply_for_all(void) {
         }
     }
     vv_write_mask_sidecar();
+    return affected;
 }
 
 /* Draw one for-All preview cell (or "No change"). */
@@ -1620,6 +1637,7 @@ static int fa_nothing_selected(void) {
 }
 
 __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
+    int affected;
     vv4_prep_fullscreen();
     /* Buy-confirm before the dialog (parity wording across all 5 games). */
     if (MessageBoxA(NULL,
@@ -1658,7 +1676,14 @@ __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
             return 0;
         }
     }
-    vv4_apply_for_all();
+    affected = vv4_apply_for_all();
+    if (affected == 0) {
+        MessageBoxA(NULL,
+            "No occupied villagers matched the selected appearance options. "
+            "No tech points have been deducted.",
+            "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
     __asm {
         push -450000
         mov  ecx, 0x4D6F88

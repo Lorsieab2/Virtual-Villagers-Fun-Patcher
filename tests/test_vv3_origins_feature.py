@@ -77,6 +77,29 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         ):
             self.assertIn(required.encode("utf-16le"), data)
 
+    def test_change_appearance_for_all_charges_only_after_an_applicable_record(self) -> None:
+        dll = (
+            ROOT
+            / "native"
+            / "vv3_full_mastery_candidate"
+            / "vv3_full_mastery_candidate.c"
+        ).read_text(encoding="utf-8")
+        self.assertIn("static int vv3_apply_for_all", dll)
+        engine = dll.split("static int vv3_apply_for_all", 1)[1].split("\n}", 1)[0]
+        self.assertIn("int n = 0, chief = -1, affected = 0", engine)
+        self.assertIn("mask_mode != 0 || m >= 0", engine)
+        self.assertIn("if (affected == 0)", engine)
+        self.assertIn("return affected;", engine)
+
+        entry = dll.split("ShowVV3AppearanceForAll(void)", 1)[1].split("\n}", 1)[0]
+        apply_at = entry.index("affected = vv3_apply_for_all")
+        guard_at = entry.index("if (affected == 0)", apply_at)
+        charge_at = entry.index("*tech -= VV3_CAF_COST", guard_at)
+        self.assertLess(apply_at, guard_at)
+        self.assertLess(guard_at, charge_at)
+        self.assertIn("No eligible villagers matched", entry)
+        self.assertIn("No tech points have been deducted", entry)
+
     def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
         description = self.manifest["description"]
         self.assertIn("Tech and Villager Details", description)

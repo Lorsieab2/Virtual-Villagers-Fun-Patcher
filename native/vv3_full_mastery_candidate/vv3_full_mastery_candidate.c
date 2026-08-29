@@ -1239,13 +1239,13 @@ static unsigned int caf_rand(void) {
     return x;
 }
 
-static void vv3_apply_for_all(int head_m, int body_m, int mask_m,
-                              int head_f, int body_f, int mask_f, int mask_mode) {
+static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
+                             int head_f, int body_f, int mask_f, int mask_mode) {
     unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
     int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
     int idx[256], sex[256], order[256];
     unsigned char maskof[256];
-    int n = 0, chief = -1, i, s;
+    int n = 0, chief = -1, affected = 0, i, s;
     if (slots > 256) slots = 256;
     for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
         if (rec[VV3_ACTIVE] == 0) continue;
@@ -1255,6 +1255,19 @@ static void vv3_apply_for_all(int head_m, int body_m, int mask_m,
         if (rec[VV3_CHIEF] != 0) chief = n;       /* the robe-wearing Tribal Chief */
         ++n;
     }
+    /* Count each eligible record once, and only when at least one selected
+       operation applies to that record's sex.  A selected female field in an
+       all-male village (or vice versa) is therefore a no-op, while any global
+       mask distribution applies to every eligible record. */
+    for (i = 0; i < n; ++i) {
+        int h = sex[i] ? head_f : head_m;
+        int b = sex[i] ? body_f : body_m;
+        int m = sex[i] ? mask_f : mask_m;
+        if (h >= 0 || b >= 0 || mask_mode != 0 || m >= 0)
+            ++affected;
+    }
+    if (affected == 0)
+        return 0;
     /* Head/Body: independent per-sex, always applied when >= 0. */
     for (i = 0; i < n; ++i) {
         unsigned char *r = (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
@@ -1270,19 +1283,19 @@ static void vv3_apply_for_all(int head_m, int body_m, int mask_m,
             if (m >= 0)
                 VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE), m);
         }
-        return;
+        return affected;
     }
     if (mask_mode >= 4) {                          /* single mask for everyone */
         int m = mask_mode - 4;                     /* 4=None(0) .. 9=Chief(5) */
         for (i = 0; i < n; ++i)
             VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE), m);
-        return;
+        return affected;
     }
     if (mask_mode == 2) {                          /* Random (incl. None) */
         for (i = 0; i < n; ++i)
             VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
                                  (int)(caf_rand() % 6u));
-        return;
+        return affected;
     }
     if (mask_mode == 1) {                          /* VV5-style proportions */
         static const int quota[3] = {4, 7, 10};    /* purple, red, orange caps    */
@@ -1308,7 +1321,7 @@ static void vv3_apply_for_all(int head_m, int body_m, int mask_m,
         }
         for (i = 0; i < n; ++i)
             VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE), maskof[i]);
-        return;
+        return affected;
     }
     if (mask_mode == 3) {                          /* Equal, balanced M/F */
         int males[256], females[256], nm = 0, nf = 0, k = 0, mi = 0, fi = 0;
@@ -1320,8 +1333,9 @@ static void vv3_apply_for_all(int head_m, int body_m, int mask_m,
             if (fi < nf) { VV3_SetMaskForRecord((void*)(UINT_PTR)(VV3_REC_BASE+idx[females[fi++]]*VV3_STRIDE), (k++%5)+1); }
         }
         (void)s;
-        return;
+        return affected;
     }
+    return affected;
 }
 
 #define VW_RUNNING 6
@@ -2070,7 +2084,7 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
 __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
     int *tech = (int *)(UINT_PTR)VV3_TECH_POINTS;
     INT_PTR result;
-    int changed;
+    int changed, affected;
     caf_m_head = caf_m_body = caf_m_mask = -1;
     caf_f_head = caf_f_body = caf_f_mask = -1;
     caf_mask_mode = 0;
@@ -2103,9 +2117,16 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
             return 0;
         }
     }
+    affected = vv3_apply_for_all(caf_m_head, caf_m_body, caf_m_mask,
+                                 caf_f_head, caf_f_body, caf_f_mask, caf_mask_mode);
+    if (affected == 0) {
+        MessageBoxA(GetForegroundWindow(),
+            "No eligible villagers matched the selected appearance options. "
+            "No tech points have been deducted.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
     *tech -= VV3_CAF_COST;
-    vv3_apply_for_all(caf_m_head, caf_m_body, caf_m_mask,
-                      caf_f_head, caf_f_body, caf_f_mask, caf_mask_mode);
     MessageBoxA(GetForegroundWindow(),
         "Change Appearance for All applied.",
         "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);

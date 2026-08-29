@@ -504,6 +504,26 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
         self.assertIn("450000", self.c)
         self.assertIn("0x41E300", self.c)
 
+    def test_charge_requires_an_applicable_occupied_record(self) -> None:
+        self.assertIn("static int vv4_apply_for_all(void)", self.c)
+        engine = self.c.split("static int vv4_apply_for_all(void)", 1)[1].split(
+            "\n}", 1
+        )[0]
+        self.assertIn("int affected = 0", engine)
+        self.assertIn("forall_state.male_mask != FA_NOCHANGE", engine)
+        self.assertIn("forall_state.female_mask != FA_NOCHANGE", engine)
+        self.assertIn("if (affected == 0)", engine)
+        self.assertIn("return affected;", engine)
+
+        entry = self.c.split("ShowVv4AppearanceForAll(void) {", 1)[1].split("\n}", 1)[0]
+        apply_at = entry.index("affected = vv4_apply_for_all()")
+        guard_at = entry.index("if (affected == 0)", apply_at)
+        charge_at = entry.index("push -450000", guard_at)
+        self.assertLess(apply_at, guard_at)
+        self.assertLess(guard_at, charge_at)
+        self.assertIn("No occupied villagers matched", entry)
+        self.assertIn("No tech points have been deducted", entry)
+
 
 if __name__ == "__main__":
     unittest.main()
