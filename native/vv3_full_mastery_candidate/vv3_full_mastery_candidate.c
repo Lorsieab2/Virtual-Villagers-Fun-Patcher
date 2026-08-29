@@ -962,13 +962,7 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
     if (atlas == NULL) {
         return;
     }
-    __asm {
-        mov  ecx, record
-        mov  edx, VV3_WORLD_SCALE_FN
-        call edx                          /* sub_455E50(record) -> double age-scale */
-        fstp scale
-    }
-    fscale = (float)scale;
+    (void)scale; (void)fscale;
     if (g_vv3_world_facing >= 0) {
         facing = g_vv3_world_facing & 7;
     } else {
@@ -976,14 +970,17 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
                   + g_vv3_world_facing_remap) & 7;
     }
     cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
-    x = px + (int)(g_vv3_action_dx * fscale);
-    y = py - (int)(g_vv3_action_lift * fscale);
+    /* VV2+VV5 diagnosis: the action overlay's 3 layers (sub_45F7E0 @0x45f829/855/87e) draw the
+       pose sprite via 42E510 at FIXED offsets from (px,py) and push scale 0x3F800000 (=1.0) --
+       NOT age-scaled -- and 42E510 multiplies (x,y) by the camera [mgr+0x300C] internally.  So
+       the mask must (a) offset in FIXED WORLD UNITS (no age-scale multiply -- that + camera was
+       displacing it far into the sand), and (b) draw at plain scale 1.0 like the layers (no
+       [mgr+0x3010] size fold).  px,py are pre-scale world coords; 42E510 applies the camera to
+       our (x,y) exactly as it does for the pose layers, so the mask tracks them at any zoom. */
+    x = px + g_vv3_action_dx;
+    y = py - g_vv3_action_lift;
     {
-        int   *p3010    = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
-        int    save3010 = *p3010;
-        int    one      = 0x3F800000;
-        double sized    = (double)save3010 * (double)fscale;
-        *p3010 = (int)(sized >= 0.0 ? sized + 0.5 : sized - 0.5);
+        int one = 0x3F800000;
         __asm {
             mov  eax, one
             push eax
@@ -995,7 +992,6 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
             mov  edx, VV3_WORLD_DRAW_FN
             call edx                     /* sub_42E510(mgr, atlas, x, y, cell, 1.0f); ret 0x14 */
         }
-        *p3010 = save3010;
     }
 }
 
