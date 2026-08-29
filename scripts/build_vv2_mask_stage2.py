@@ -4,9 +4,9 @@ Builds on the proven stage-1 dual render hook (adult 0x4095B0->0x408940 5-arg +
 child 0x409600->0x408CF0 7-arg, gated to head draws in FUN_00445b50).  Stage 2:
 
   1. INIT DETOUR at the asset-load tail (0x44c5e6): one-time load our dedicated
-     mask atlas `Images/heathen_masks.png` (320x440) via the engine's own path
-     loader 0x40a270("heathen_masks.png", cols=8, rows=5) -> cell 40x88; store the
-     returned atlas object pointer in a code-cave dword MASK_ATLAS_PTR.
+     mask atlas `Images/heathen_masks.png` (520x725) via the engine's own path
+     loader 0x40a270("heathen_masks.png", cols=8, rows=5) -> cell 65x145; store the
+     returned atlas object pointer in a patch-owned `.mtab` dword MASK_ATLAS_PTR.
   2. DRAW: in both head-draw stubs, instead of re-drawing the head, draw the mask
      atlas at the head anchor (same frame/facing + x, y lifted MASK_DY) so the mask
      sits on the villager's face; feathers rise above.  Head still draws under it.
@@ -95,10 +95,10 @@ ATLAS_COLS, ATLAS_ROWS = 8, 5     # 520/8=65 wide, 725/5=145 tall
 MASK_PAD_X = 0                    # X registration is baked per-facing into the atlas
 
 # --- cave layout -----------------------------------------------------------
-# Mask code + atlas-ptr + filename now live in an appended R/W/X section (.vvmk),
-# NOT the shared game .text cave (0x473C40) — that cave is occupied in the Origins
-# build. MASK_ATLAS_PTR / FNAME_VA are assigned per-build inside build() from the
-# appended section's VA.
+# Mask code + filename live in an appended R/X section (.vvmk), NOT the shared game
+# .text cave (0x473C40) — that cave is occupied in the Origins build. The atlas
+# pointer and sidecar state live in the appended R/W `.mtab` section. MASK_ATLAS_PTR
+# / FNAME_VA are assigned per-build inside build() from the appended section's VA.
 FNAME = b"heathen_masks.png\x00"
 # Startup mask-restore: the init detour LoadLibrary's the Origins DLL and calls its
 # Vv2MaskRestore export (loads the sidecar into .mtab), so saved masks reappear from
@@ -107,18 +107,16 @@ FNAME = b"heathen_masks.png\x00"
 DLLNAME = b"VVFP VV2 Origins Icons.dll\x00"
 RESTORE_STR = b"Vv2MaskRestore\x00"
 EXTRACT_STR = b"Vv2ExtractAtlas\x00"
+SAVE_STR = b"Vv2MaskSaveSidecar\x00"
 LOADLIBRARYA_IAT = 0x474010
 GETPROCADDRESS_IAT = 0x4740D4
 
 # --- tunables (live-iterate) ----------------------------------------------
 MASK_ROW_TEST = 4                 # 0 Blue,1 Orange,2 Red,3 Purple,4 Chief (hardcoded for stage 2)
-# The mask atlas cell is TALLER than the head cell (40x88) with each mask's face anchored at
-# cell-y 56; the head's face is at cell-y 24.  So the mask must be lifted by (56-24)=32px so
-# its face lands on the villager's face.  Adults draw unscaled -> fixed 32px.  Children draw
-# through the SCALED path (scale s = arg6*0.01), so the lift must scale too: 32*s ~= (arg6*41)>>7
-# (matches 32*s within a pixel across the whole child age range).
-# Y needs headroom: a mask's face sits at the head's face, but headdresses extend
-# above it, so the art is placed LIFT lower in the cell and the draw lifts it back.
+# The mask atlas cell is TALLER than the head cell (40x65). The atlas builder bakes
+# each frame's face anchor and per-colour art lift into the 65x145 cell. The draw
+# still lifts the whole cell by LIFT=42: adults use a fixed lift; children and
+# portraits scale it with the head so the face stays registered at every age.
 ADULT_MASK_DY = 0x2A              # 42, matches LIFT in the atlas builder
 CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # 42px lift at full scale, scaled with the head
 # The Details/portrait draw (caller < 0x445B50) goes through the SAME scaled thunk but pushes
@@ -254,10 +252,13 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     SLOT_VA     = MASK_TABLE_VA + 0xF10   # dword: current save slot (0 = none yet)
     LOADED_VA   = MASK_TABLE_VA + 0xF14   # byte: 1 = sidecar loaded for SLOT_VA
     RESTORE_FN  = MASK_TABLE_VA + 0xF18   # dword: cached Vv2MaskRestore address
+    SAVE_FN     = MASK_TABLE_VA + 0xF1C   # dword: cached Vv2MaskSaveSidecar address
+    SWEEP_CLEARED_VA = MASK_TABLE_VA + 0xF20  # byte: sweep cleared at least one mask
     FNAME_VA = CODE_SEC_VA                   # "heathen_masks.png\0" (read-only in the R+X section)
     DLLNAME_VA = FNAME_VA + len(FNAME)       # "VVFP VV2 Origins Icons.dll\0"
     RESTORE_STR_VA = DLLNAME_VA + len(DLLNAME)  # "Vv2MaskRestore\0"
     EXTRACT_STR_VA = RESTORE_STR_VA + len(RESTORE_STR)  # "Vv2ExtractAtlas\0"
+    SAVE_STR_VA = EXTRACT_STR_VA + len(EXTRACT_STR)  # "Vv2MaskSaveSidecar\0"
 
     def cfoff(va: int) -> int:            # file offset of a VA inside the appended code section
         return CODE_RAW + (va - CODE_SEC_VA)
@@ -525,6 +526,16 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         test eax, eax
         jz   no_restore
         mov  dword ptr [0x{RESTORE_FN:X}], eax   /* cache for the per-frame reload */
+        push 0x{DLLNAME_VA:X}
+        call dword ptr [0x{LOADLIBRARYA_IAT:X}]
+        test eax, eax
+        jz   no_restore
+        push 0x{SAVE_STR_VA:X}
+        push eax                             /* HMODULE for GetProcAddress */
+        call dword ptr [0x{GETPROCADDRESS_IAT:X}]
+        test eax, eax
+        jz   no_restore
+        mov  dword ptr [0x{SAVE_FN:X}], eax
     no_restore:
         popad
         jmp  0x{INIT_RET:X}
@@ -541,6 +552,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     COMPOSITOR_VA = 0x445B50
     sweep_asm = f"""
         pushad
+        mov  byte ptr [0x{SWEEP_CLEARED_VA:X}], 0
         /* Slot changed (or first village)? Reload the sidecar before masking.
            Done HERE, not at the save-path hook: that hook fires during load, before
            the villager records exist, so reading there would key against absent
@@ -562,6 +574,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         je   slot_next                       /* never seen alive -> leave (load frame) */
         mov  byte ptr [esi+0x{MASK_TABLE_VA:X}], 0   /* died: clear its mask */
         mov  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 0   /* reset latch for reuse */
+        mov  byte ptr [0x{SWEEP_CLEARED_VA:X}], 1
         jmp  slot_next
     slot_alive:
         mov  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 1   /* latch: seen active */
@@ -570,6 +583,16 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         inc  esi
         cmp  esi, 0x100
         jb   sweep_loop
+        /* A dead/reused record must not regain its old mask from the sidecar
+           on the next reload. Persist a single post-sweep snapshot only when
+           this pass actually cleared one or more masks. */
+        cmp  byte ptr [0x{SWEEP_CLEARED_VA:X}], 0
+        je   sweep_save_done
+        mov  eax, [0x{SAVE_FN:X}]
+        test eax, eax
+        jz   sweep_save_done
+        call eax                             /* Vv2MaskSaveSidecar() */
+    sweep_save_done:
         popad
         push ebx                             /* displaced 0x445B50 prologue */
         push ebp
@@ -631,6 +654,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     data[cfoff(DLLNAME_VA):cfoff(DLLNAME_VA) + len(DLLNAME)] = DLLNAME
     data[cfoff(RESTORE_STR_VA):cfoff(RESTORE_STR_VA) + len(RESTORE_STR)] = RESTORE_STR
     data[cfoff(EXTRACT_STR_VA):cfoff(EXTRACT_STR_VA) + len(EXTRACT_STR)] = EXTRACT_STR
+    data[cfoff(SAVE_STR_VA):cfoff(SAVE_STR_VA) + len(SAVE_STR)] = SAVE_STR
     data[cfoff(code0):cfoff(code0) + len(adult)] = adult
     data[cfoff(child_va):cfoff(child_va) + len(child)] = child
     data[cfoff(init_va):cfoff(init_va) + len(init)] = init
