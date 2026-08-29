@@ -238,6 +238,53 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
             self.manifest["mask_persistence"]["pickup_held_runtime_status"],
         )
 
+    def test_sidecar_write_is_transactional_and_preserves_final_format(self) -> None:
+        write = self.source.split("static int vv1_mask_sidecar_save(void) {", 1)[1].split(
+            "static void vv1_mask_sidecar_load(void) {", 1
+        )[0]
+        self.assertIn("char tmp[MAX_PATH];", write)
+        self.assertIn('lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)', write)
+        self.assertIn("lstrcpyA(tmp, path);", write)
+        self.assertIn('lstrcatA(tmp, ".tmp");', write)
+        self.assertIn(
+            "CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,", write
+        )
+        self.assertEqual(write.count("WriteFile("), 2)
+        self.assertIn("WriteFile(file, &magic, sizeof(magic), &wrote, NULL)", write)
+        self.assertIn("wrote != sizeof(magic)", write)
+        self.assertIn(
+            "WriteFile(file, VV_MASK_TABLE, VV_MASK_TABLE_BYTES, &wrote, NULL)",
+            write,
+        )
+        self.assertIn("wrote != VV_MASK_TABLE_BYTES", write)
+        self.assertIn("FlushFileBuffers(file)", write)
+        self.assertIn("if (!CloseHandle(file))", write)
+        self.assertEqual(write.count("DeleteFileA(tmp);"), 2)
+        self.assertNotIn("DeleteFileA(path);", write)
+        writes_done = write.rindex("WriteFile(file, VV_MASK_TABLE")
+        flush = write.index("FlushFileBuffers(file)")
+        close = write.index("if (!CloseHandle(file))")
+        publish = write.index("MoveFileExA(tmp, path,")
+        self.assertLess(writes_done, flush)
+        self.assertLess(flush, close)
+        self.assertLess(close, publish)
+        self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", write)
+
+    def test_rebuilt_dll_imports_transactional_sidecar_apis(self) -> None:
+        import pefile
+
+        pe = pefile.PE(str(ROOT / self.manifest["companion_files"][0]["source"]))
+        imports = {
+            item.name.decode(errors="replace")
+            for dll in pe.DIRECTORY_ENTRY_IMPORT
+            for item in dll.imports
+            if item.name is not None
+        }
+        self.assertTrue(
+            {"WriteFile", "FlushFileBuffers", "CloseHandle", "MoveFileExA"}
+            <= imports
+        )
+
     def test_exact_save_builder_preimage_and_owned_append_are_manifest_bound(self) -> None:
         patches = {item["offset"]: item for item in self.manifest["patches"]}
         splice = patches["0x2ED0"]

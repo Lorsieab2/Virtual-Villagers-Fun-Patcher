@@ -132,6 +132,14 @@ fail-closed and identity-boundary gaps:
     and write-through flags. Any write, flush, close, or publish failure deletes
     only that exact temporary path and leaves the previously published final
     sidecar untouched; the loader format and save/path guards are unchanged.
+22. VV3 now applies the same publication contract to its unchanged `MSK3`
+    payload: all three writes and byte counts, flush, and close must succeed
+    before atomic replace/write-through. Failure removes only the separately
+    bounded temp path and preserves the prior final sidecar.
+23. VV1 now stages its unchanged magic-plus-mask-table payload to a separately
+    bounded temp path, verifies both writes, flush, and close, and publishes only
+    with atomic replace/write-through. The dirty retry remains set on failure,
+    while the last valid final sidecar is no longer truncated first.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be

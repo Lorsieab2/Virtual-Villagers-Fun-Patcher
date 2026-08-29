@@ -307,26 +307,55 @@ static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
 
 static int vv1_mask_sidecar_save(void) {
     char path[MAX_PATH];
+    char tmp[MAX_PATH];
     HANDLE file;
     DWORD wrote;
     unsigned int magic = VV_MASK_SIDECAR_MAGIC;
+    BOOL ok = TRUE;
     int slot = vv1_mask_prepare_slot();
     if (!slot || !vv1_mask_sidecar_path(path, sizeof(path), slot)) {
         return 0;
     }
-    file = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+    /* Keep the published sidecar intact until the complete replacement has
+       been written, flushed, and closed.  The path builder's caller contract
+       is a MAX_PATH byte buffer; budget the additional temporary suffix
+       against this writer-owned buffer before copying or appending it. */
+    if (lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)) {
+        return 0;
+    }
+    lstrcpyA(tmp, path);
+    lstrcatA(tmp, ".tmp");
+    file = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                        FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {
         return 0;
     }
     if (!WriteFile(file, &magic, sizeof(magic), &wrote, NULL)
-        || wrote != sizeof(magic)
-        || !WriteFile(file, VV_MASK_TABLE, VV_MASK_TABLE_BYTES, &wrote, NULL)
-        || wrote != VV_MASK_TABLE_BYTES) {
-        CloseHandle(file);
+        || wrote != sizeof(magic)) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(file, VV_MASK_TABLE, VV_MASK_TABLE_BYTES, &wrote, NULL)
+               || wrote != VV_MASK_TABLE_BYTES)) {
+        ok = FALSE;
+    }
+    if (ok && !FlushFileBuffers(file)) {
+        ok = FALSE;
+    }
+    if (!CloseHandle(file)) {
+        ok = FALSE;
+    }
+    if (!ok) {
+        /* Delete only the exact temporary name; an existing final sidecar is
+           never truncated or removed when a write fails. */
+        DeleteFileA(tmp);
         return 0;
     }
-    CloseHandle(file);
+    /* Publish only after both payload writes, flush, and close succeed. */
+    if (!MoveFileExA(tmp, path,
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(tmp);
+        return 0;
+    }
     return 1;
 }
 

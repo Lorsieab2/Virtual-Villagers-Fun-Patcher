@@ -379,6 +379,52 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("fp_r != sizeof(g_vv3_mask_fp)", self.source)
         self.assertIn("vv3_mask_clear_tables();", self.source)
 
+    def test_sidecar_write_is_transactional_with_checked_publication(self) -> None:
+        write = self.source.split("static void vv3_mask_write_sidecar(void) {", 1)[1].split(
+            "static void vv3_mask_read_sidecar(int slot) {", 1
+        )[0]
+        self.assertIn("char tmp[MAX_PATH];", write)
+        self.assertIn('lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH', write)
+        self.assertIn("lstrcpyA(tmp, path);", write)
+        self.assertIn('lstrcatA(tmp, ".tmp");', write)
+        self.assertIn("CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,", write)
+        self.assertEqual(write.count("WriteFile("), 3)
+        for expected in (
+            "WriteFile(h, &magic, sizeof(magic), &w, NULL)",
+            "w != sizeof(magic)",
+            "WriteFile(h, g_vv3_mask, sizeof(g_vv3_mask), &w, NULL)",
+            "w != sizeof(g_vv3_mask)",
+            "WriteFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &w, NULL)",
+            "w != sizeof(g_vv3_mask_fp)",
+        ):
+            self.assertIn(expected, write)
+        self.assertIn("FlushFileBuffers(h)", write)
+        self.assertIn("if (!CloseHandle(h))", write)
+        self.assertEqual(write.count("DeleteFileA(tmp);"), 2)
+        self.assertNotIn("DeleteFileA(path);", write)
+        writes_done = write.rindex("WriteFile(h, g_vv3_mask_fp,")
+        flush = write.index("FlushFileBuffers(h)")
+        close = write.index("if (!CloseHandle(h))")
+        publish = write.index("MoveFileExA(tmp, path,")
+        self.assertLess(writes_done, flush)
+        self.assertLess(flush, close)
+        self.assertLess(close, publish)
+        self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", write)
+
+    @unittest.skipUnless(HAVE_BINARY_DEPS, "pefile is unavailable")
+    def test_rebuilt_dll_imports_transactional_sidecar_apis(self) -> None:
+        pe = pefile.PE(str(DLL))
+        imports = {
+            item.name.decode(errors="replace")
+            for dll in pe.DIRECTORY_ENTRY_IMPORT
+            for item in dll.imports
+            if item.name is not None
+        }
+        self.assertTrue(
+            {"WriteFile", "FlushFileBuffers", "CloseHandle", "MoveFileExA"}
+            <= imports
+        )
+
     def test_loaded_sidecar_masks_are_range_sanitized_before_render(self) -> None:
         """A corrupt MSK3 byte must become no-mask before atlas indexing."""
         self.assertIn("static void vv3_mask_sanitize_loaded_table(void)", self.source)

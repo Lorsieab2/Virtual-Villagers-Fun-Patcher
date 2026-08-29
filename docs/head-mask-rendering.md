@@ -208,6 +208,12 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   record reuse, marked dirty, and persisted through retryable sidecar writes; the dirty
   marker is cleared only after both writes succeed. This is static protection and does
   not constitute player/runtime acceptance.
+- **Transactional sidecar publication:** VV1 writes the unchanged magic-plus-table
+  payload to a separately bounded `<final>.tmp`, checks both writes and exact byte
+  counts, flushes and closes it, and only then publishes through
+  `MoveFileExA(REPLACE_EXISTING|WRITE_THROUGH)`. A write, flush, close, or publish
+  failure removes only that temp path, preserves the last valid final sidecar, and
+  leaves the existing dirty retry behavior intact.
 
 ### VV2 — "The Lost Children" (NO native mask → from-scratch)
 - **7 facings** (drop the 8th mask column). Four head atlases incl. elder variants:
@@ -263,6 +269,10 @@ Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.ex
   the old villager is gone remains indistinguishable:
   no stable name, identity, or allocation-generation field is proven in the current
   exact-build evidence.
+- **Transactional sidecar publication:** VV3 writes the unchanged `MSK3` payload to a
+  separately bounded `<final>.tmp`, verifies all three writes and exact byte counts,
+  flushes and closes it, and only then atomically replaces the final with write-through.
+  Any failure deletes only the temp path and preserves the prior final sidecar.
 - `0x4341A0..0x434758` is one three-style timed sprite/particle effect object. It iterates
   24-byte entries, compares elapsed time to `0x12C`/`0x7080`, and uses three fixed anchors
   `(110,160)`, `(114,212)`, `(75,176)` from `0x5947B8..0x5947CC`.

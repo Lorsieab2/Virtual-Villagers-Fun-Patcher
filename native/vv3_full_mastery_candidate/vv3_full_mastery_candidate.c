@@ -652,18 +652,49 @@ static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
 
 static void vv3_mask_write_sidecar(void) {
     char path[MAX_PATH];
+    char tmp[MAX_PATH];
     HANDLE h;
     DWORD w = 0;
     unsigned int magic = VV3_MASK_MAGIC;
+    BOOL ok = TRUE;
     if (g_vv3_mask_slot <= 0) return;
     if (!vv3_mask_sidecar_path(path, sizeof(path), g_vv3_mask_slot)) return;
-    h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+    /* Keep the published sidecar intact until the complete payload is durable.
+       The temporary suffix has its own MAX_PATH budget because the final path
+       may be valid while its publication path is not. */
+    if (lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH) return;
+    lstrcpyA(tmp, path);
+    lstrcatA(tmp, ".tmp");
+    h = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) return;
-    WriteFile(h, &magic, sizeof(magic), &w, NULL);
-    WriteFile(h, g_vv3_mask, sizeof(g_vv3_mask), &w, NULL);
-    WriteFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &w, NULL);
-    CloseHandle(h);
+    if (!WriteFile(h, &magic, sizeof(magic), &w, NULL) ||
+        w != sizeof(magic)) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(h, g_vv3_mask, sizeof(g_vv3_mask), &w, NULL) ||
+               w != sizeof(g_vv3_mask))) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &w, NULL) ||
+               w != sizeof(g_vv3_mask_fp))) {
+        ok = FALSE;
+    }
+    if (ok && !FlushFileBuffers(h)) {
+        ok = FALSE;
+    }
+    if (!CloseHandle(h)) {
+        ok = FALSE;
+    }
+    if (!ok) {
+        /* Only remove the exact temporary path; the previous final remains. */
+        DeleteFileA(tmp);
+        return;
+    }
+    if (!MoveFileExA(tmp, path,
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(tmp);
+    }
 }
 
 static void vv3_mask_read_sidecar(int slot) {
