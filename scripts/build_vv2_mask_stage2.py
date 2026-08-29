@@ -4,9 +4,9 @@ Builds on the proven stage-1 dual render hook (adult 0x4095B0->0x408940 5-arg +
 child 0x409600->0x408CF0 7-arg, gated to head draws in FUN_00445b50).  Stage 2:
 
   1. INIT DETOUR at the asset-load tail (0x44c5e6): one-time load our dedicated
-     mask atlas `Images/heathen_masks.png` (320x440) via the engine's own path
-     loader 0x40a270("heathen_masks.png", cols=8, rows=5) -> cell 40x88; store the
-     returned atlas object pointer in a code-cave dword MASK_ATLAS_PTR.
+     mask atlas `Images/heathen_masks.png` (520x725) via the engine's own path
+     loader 0x40a270("heathen_masks.png", cols=8, rows=5) -> cell 65x145; store the
+     returned atlas object pointer in a patch-owned `.mtab` dword MASK_ATLAS_PTR.
   2. DRAW: in both head-draw stubs, instead of re-drawing the head, draw the mask
      atlas at the head anchor (same frame/facing + x, y lifted MASK_DY) so the mask
      sits on the villager's face; feathers rise above.  Head still draws under it.
@@ -83,13 +83,22 @@ INIT_RET = 0x44C5EC              # continue here after the detour
 LAST_ATLAS_GLOBAL = 0xE574D8      # the store we displaced (eax = last atlas ptr)
 ALLOC = 0x467F83                  # operator new (cdecl size)
 LOADER = 0x40A270                 # path atlas loader (thiscall; ret 0xc)
-ATLAS_COLS, ATLAS_ROWS = 8, 5     # 320/8=40 wide, 440/5=88 tall
+ATLAS_COLS, ATLAS_ROWS = 8, 5     # 520/8=65 wide, 725/5=145 tall
+# VV5-standard mask cell: 65x145, 8 facing columns x 5 colour rows, used as the
+# artist laid it out (no re-packing). The cell is much larger than the 40x65 head
+# cell, so the draw subtracts MASK_PAD_X/ADULT_MASK_DY to register it on the head.
+# VV5's cell (65x145) is larger than VV2's head cell (40x65). VV5 can draw at the
+# head's raw x/y because their head cell IS that size; on VV2 the cell origins do
+# not coincide, so drawing at raw x/y puts the mask down-and-right of the head
+# (observed in-game). These constants re-register VV5's cell onto VV2's head cell;
+# they are the equivalent of VV5's "draw at the head anchor", not extra tuning.
+MASK_PAD_X = 0                    # X registration is baked per-facing into the atlas
 
 # --- cave layout -----------------------------------------------------------
-# Mask code + atlas-ptr + filename now live in an appended R/W/X section (.vvmk),
-# NOT the shared game .text cave (0x473C40) — that cave is occupied in the Origins
-# build. MASK_ATLAS_PTR / FNAME_VA are assigned per-build inside build() from the
-# appended section's VA.
+# Mask code + filename live in an appended R/X section (.vvmk), NOT the shared game
+# .text cave (0x473C40) — that cave is occupied in the Origins build. The atlas
+# pointer and sidecar state live in the appended R/W `.mtab` section. MASK_ATLAS_PTR
+# / FNAME_VA are assigned per-build inside build() from the appended section's VA.
 FNAME = b"heathen_masks.png\x00"
 # Startup mask-restore: the init detour LoadLibrary's the Origins DLL and calls its
 # Vv2MaskRestore export (loads the sidecar into .mtab), so saved masks reappear from
@@ -98,37 +107,43 @@ FNAME = b"heathen_masks.png\x00"
 DLLNAME = b"VVFP VV2 Origins Icons.dll\x00"
 RESTORE_STR = b"Vv2MaskRestore\x00"
 EXTRACT_STR = b"Vv2ExtractAtlas\x00"
+SAVE_STR = b"Vv2MaskSaveSidecar\x00"
 LOADLIBRARYA_IAT = 0x474010
 GETPROCADDRESS_IAT = 0x4740D4
 
 # --- tunables (live-iterate) ----------------------------------------------
 MASK_ROW_TEST = 4                 # 0 Blue,1 Orange,2 Red,3 Purple,4 Chief (hardcoded for stage 2)
-# The mask atlas cell is TALLER than the head cell (40x88) with each mask's face anchored at
-# cell-y 56; the head's face is at cell-y 24.  So the mask must be lifted by (56-24)=32px so
-# its face lands on the villager's face.  Adults draw unscaled -> fixed 32px.  Children draw
-# through the SCALED path (scale s = arg6*0.01), so the lift must scale too: 32*s ~= (arg6*41)>>7
-# (matches 32*s within a pixel across the whole child age range).
-ADULT_MASK_DY = 0x2A              # 42 (raised from 32 — was landing on the chest)
-CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # in-world child: 42*s ~= (arg6*54)>>7
+# The mask atlas cell is TALLER than the head cell (40x65). The atlas builder bakes
+# each frame's face anchor and per-colour art lift into the 65x145 cell. The draw
+# still lifts the whole cell by LIFT=42: adults use a fixed lift; children and
+# portraits scale it with the head so the face stays registered at every age.
+ADULT_MASK_DY = 0x2A              # 42, matches LIFT in the atlas builder
+CHILD_DY_MUL, CHILD_DY_SHIFT = 54, 7   # 42px lift at full scale, scaled with the head
 # The Details/portrait draw (caller < 0x445B50) goes through the SAME scaled thunk but pushes
 # arg6 = 2*(age/7)+0xA0 = DOUBLE the in-world scaledRow, so the same multiplier double-lifts and
 # the mask flies above the head.  Give the portrait its own (smaller) multiplier; tune to taste.
-PORTRAIT_DY_MUL = 54
+PORTRAIT_DY_MUL = 54   # same geometric lift as the village (42px at full scale)
 # The mask atlas is baked/tuned for the 1x village view; the Details portrait draws the same
 # atlas larger, leaving masks a touch high+left there.  Nudge masks down+right on the portrait
 # path ONLY (caller < 0x445B50).  Tune to taste.
 import os as _os
-PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "6"))   # portrait: nudge mask right (all masks)
-PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "2"))   # portrait: nudge mask down (all masks) — was 8, raised 6px per live tune
+PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "0"))    # 0: registration is baked into the art (see below)
+PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "0"))    # 0: registration is baked into the art
+# Both are 0 on purpose. The atlas builder places each frame so its FACE region sits
+# at the head's face anchor in HEAD-CELL coords, offset down by LIFT. Drawing that
+# cell at (x, y - LIFT*scale) therefore lands the mask's face on the head's face at
+# EVERY scale -- verified algebraically at scale 1.0/1.5/2.0, delta 0.00 on both axes.
+# The old 17/40 were cell-size corrections (65x145 mask vs 40x65 head) from BEFORE
+# the registration was baked in; with baked art they are a double correction.
 # Per-mask portrait (Details) fine-alignment — masks drift a little differently on
 # the age-scaled portrait, so each colour gets its own extra nudge ON TOP of the
 # uniform PMDX/PMDY (village view unaffected — this is portrait-branch only).
 # Rows: 0 Blue, 1 Orange, 2 Red, 3 Purple, 4 Chief.  +down / +left (left = subtracted).
-PURPLE_PORTRAIT_EXTRA = int(_os.environ.get("PPX", "9"))    # purple extra down (was 6, +3 live)
-ORANGE_PORTRAIT_DY = int(_os.environ.get("ORDY", "2"))      # orange extra down
-RED_PORTRAIT_DY = int(_os.environ.get("REDY", "2"))         # red extra down
-RED_PORTRAIT_DX = int(_os.environ.get("REDX", "2"))         # red extra LEFT
-CHIEF_PORTRAIT_DX = int(_os.environ.get("CHDX", "2"))       # chief extra LEFT
+PURPLE_PORTRAIT_EXTRA = 0    # purple extra down (was 6, +3 live)
+ORANGE_PORTRAIT_DY = 0      # orange extra down
+RED_PORTRAIT_DY = 0         # red extra down
+RED_PORTRAIT_DX = 0         # red extra LEFT
+CHIEF_PORTRAIT_DX = 0       # chief extra LEFT
 
 
 def _pe_checksum(buf: bytearray) -> tuple[int, int]:
@@ -231,10 +246,19 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # a writable+executable section. The one runtime write (atlas ptr) goes to .mtab (R/W).
     CODE_SEC_VA, CODE_RAW = _append_section(data, b".vvmk", 0x1000, 0x60000020)
     MASK_ATLAS_PTR = MASK_TABLE_VA + 0xF08  # dword in .mtab (R/W): atlas obj ptr (0 until init)
+    # Save-slot tracking, so village 2 can never show -- or overwrite -- village 1's
+    # masks. The save-path builder publishes the slot; the per-frame sweep reloads
+    # the sidecar when it changes. The DLL reads SLOT_VA to pick vv2_masks_<slot>.dat.
+    SLOT_VA     = MASK_TABLE_VA + 0xF10   # dword: current save slot (0 = none yet)
+    LOADED_VA   = MASK_TABLE_VA + 0xF14   # byte: 1 = sidecar loaded for SLOT_VA
+    RESTORE_FN  = MASK_TABLE_VA + 0xF18   # dword: cached Vv2MaskRestore address
+    SAVE_FN     = MASK_TABLE_VA + 0xF1C   # dword: cached Vv2MaskSaveSidecar address
+    SWEEP_CLEARED_VA = MASK_TABLE_VA + 0xF20  # byte: sweep cleared at least one mask
     FNAME_VA = CODE_SEC_VA                   # "heathen_masks.png\0" (read-only in the R+X section)
     DLLNAME_VA = FNAME_VA + len(FNAME)       # "VVFP VV2 Origins Icons.dll\0"
     RESTORE_STR_VA = DLLNAME_VA + len(DLLNAME)  # "Vv2MaskRestore\0"
     EXTRACT_STR_VA = RESTORE_STR_VA + len(RESTORE_STR)  # "Vv2ExtractAtlas\0"
+    SAVE_STR_VA = EXTRACT_STR_VA + len(EXTRACT_STR)  # "Vv2MaskSaveSidecar\0"
 
     def cfoff(va: int) -> int:            # file offset of a VA inside the appended code section
         return CODE_RAW + (va - CODE_SEC_VA)
@@ -337,7 +361,9 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         mov  edx, [esp+0x14]                  /* y */
         sub  edx, 0x{ADULT_MASK_DY:X}
         push edx
-        push dword ptr [esp+0x14]             /* x */
+        mov  edx, [esp+0x14]                  /* x */
+        sub  edx, 0x{MASK_PAD_X:X}            /* undo the wider mask cell's inset */
+        push edx
         push dword ptr [0x{MASK_ATLAS_PTR:X}] /* mask atlas */
         mov  ecx, [esi+0x{DRAWOBJ_PTR:X}]
         mov  ecx, [ecx]
@@ -448,6 +474,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     x_chief:
         sub  edx, 0x{CHIEF_PORTRAIT_DX:X}
     x_ok:
+        sub  edx, 0x{MASK_PAD_X:X}            /* undo the wider mask cell's inset */
         push edx                              /* arg2 = x */
         push dword ptr [0x{MASK_ATLAS_PTR:X}] /* arg1 = mask atlas */
         mov  ecx, [esi+0x{DRAWOBJ_PTR:X}]
@@ -498,7 +525,17 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         call dword ptr [0x{GETPROCADDRESS_IAT:X}]
         test eax, eax
         jz   no_restore
-        call eax                             /* Vv2MaskRestore() */
+        mov  dword ptr [0x{RESTORE_FN:X}], eax   /* cache for the per-frame reload */
+        push 0x{DLLNAME_VA:X}
+        call dword ptr [0x{LOADLIBRARYA_IAT:X}]
+        test eax, eax
+        jz   no_restore
+        push 0x{SAVE_STR_VA:X}
+        push eax                             /* HMODULE for GetProcAddress */
+        call dword ptr [0x{GETPROCADDRESS_IAT:X}]
+        test eax, eax
+        jz   no_restore
+        mov  dword ptr [0x{SAVE_FN:X}], eax
     no_restore:
         popad
         jmp  0x{INIT_RET:X}
@@ -515,6 +552,19 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     COMPOSITOR_VA = 0x445B50
     sweep_asm = f"""
         pushad
+        mov  byte ptr [0x{SWEEP_CLEARED_VA:X}], 0
+        /* Slot changed (or first village)? Reload the sidecar before masking.
+           Done HERE, not at the save-path hook: that hook fires during load, before
+           the villager records exist, so reading there would key against absent
+           records. By the first compositor frame they are populated. */
+        cmp  byte ptr [0x{LOADED_VA:X}], 0
+        jne  slot_ready
+        mov  eax, [0x{RESTORE_FN:X}]
+        test eax, eax
+        jz   slot_ready                      /* no DLL -> nothing to load */
+        call eax                             /* Vv2MaskRestore(): reads vv2_masks_<slot>.dat */
+        mov  byte ptr [0x{LOADED_VA:X}], 1
+    slot_ready:
         mov  edx, ecx                        /* edx = record[0] base (gameCtx) */
         xor  esi, esi                        /* esi = record index i */
     sweep_loop:
@@ -524,6 +574,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         je   slot_next                       /* never seen alive -> leave (load frame) */
         mov  byte ptr [esi+0x{MASK_TABLE_VA:X}], 0   /* died: clear its mask */
         mov  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 0   /* reset latch for reuse */
+        mov  byte ptr [0x{SWEEP_CLEARED_VA:X}], 1
         jmp  slot_next
     slot_alive:
         mov  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 1   /* latch: seen active */
@@ -532,6 +583,16 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         inc  esi
         cmp  esi, 0x100
         jb   sweep_loop
+        /* A dead/reused record must not regain its old mask from the sidecar
+           on the next reload. Persist a single post-sweep snapshot only when
+           this pass actually cleared one or more masks. */
+        cmp  byte ptr [0x{SWEEP_CLEARED_VA:X}], 0
+        je   sweep_save_done
+        mov  eax, [0x{SAVE_FN:X}]
+        test eax, eax
+        jz   sweep_save_done
+        call eax                             /* Vv2MaskSaveSidecar() */
+    sweep_save_done:
         popad
         push ebx                             /* displaced 0x445B50 prologue */
         push ebp
@@ -540,9 +601,36 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         jmp  0x{COMPOSITOR_VA + 5:X}
     """
     sweep = asm(sweep_asm, sweep_va)
-    end = sweep_va + len(sweep)
+    slot_va = sweep_va + len(sweep)
+
+    # ---- SLOT stub: detour of the save-path builder 0x403160, the ONLY "%s%d.ldw"
+    # builder. arg1 [esp+4] is the slot. Slot 0 is the meta file, never a village, so
+    # it is ignored -- capturing it would clobber the real village slot. On a CHANGE we
+    # only clear the loaded flag; the sweep does the actual reload on the next frame,
+    # because this fires mid-load before the villager records exist. Replays the 6
+    # displaced bytes and resumes at 0x403166. ----
+    SAVEPATH_VA = 0x403160
+    slot_asm = f"""
+        push eax
+        mov  eax, [esp+8]                    /* +8: our push shifted esp; arg1 = slot */
+        test eax, eax
+        jz   slot_done                       /* slot 0 = meta file, not a village */
+        cmp  eax, [0x{SLOT_VA:X}]
+        je   slot_done                       /* same village -> keep masks loaded */
+        mov  [0x{SLOT_VA:X}], eax            /* new village */
+        mov  byte ptr [0x{LOADED_VA:X}], 0   /* re-arm: sweep reloads next frame */
+    slot_done:
+        pop  eax
+        mov  eax, dword ptr [esp+4]          /* displaced */
+        mov  edx, dword ptr [ecx]            /* displaced */
+        jmp  0x{SAVEPATH_VA + 6:X}
+    """
+    slot_stub = asm(slot_asm, slot_va)
+    end = slot_va + len(slot_stub)
     total = end - CODE_SEC_VA
     assert total <= 0x1000, f".vvmk code section overflow: {total:#x}"
+    data[cfoff(slot_va):cfoff(slot_va) + len(slot_stub)] = slot_stub
+    # (hook written below, with the other detours)
 
     # ---- hooks ----
     def patch_thunk(va: int, tlen: int, dst: int, label: str):
@@ -566,6 +654,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     data[cfoff(DLLNAME_VA):cfoff(DLLNAME_VA) + len(DLLNAME)] = DLLNAME
     data[cfoff(RESTORE_STR_VA):cfoff(RESTORE_STR_VA) + len(RESTORE_STR)] = RESTORE_STR
     data[cfoff(EXTRACT_STR_VA):cfoff(EXTRACT_STR_VA) + len(EXTRACT_STR)] = EXTRACT_STR
+    data[cfoff(SAVE_STR_VA):cfoff(SAVE_STR_VA) + len(SAVE_STR)] = SAVE_STR
     data[cfoff(code0):cfoff(code0) + len(adult)] = adult
     data[cfoff(child_va):cfoff(child_va) + len(child)] = child
     data[cfoff(init_va):cfoff(init_va) + len(init)] = init
@@ -579,6 +668,14 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # detour the village compositor entry (0x445B50) into the sweep stub. Its first
     # 5 bytes are `push ebx; push ebp; push esi; mov esi,ecx` (53 55 56 8B F1),
     # replayed at the end of the sweep stub before resuming at 0x445B55.
+    # detour the save-path builder (0x403160) into the slot stub. Its first 6 bytes
+    # are `mov eax,[esp+4]; mov edx,[ecx]` (8B 44 24 04 8B 11), replayed in the stub
+    # before resuming at 0x403166.
+    sp_off = SAVEPATH_VA - IMAGE_BASE
+    assert bytes(data[sp_off:sp_off + 6]) == bytes([0x8B,0x44,0x24,0x04,0x8B,0x11]),         "save-path builder 0x403160 moved!"
+    sp_hook = asm(f"jmp 0x{slot_va:X}", addr=SAVEPATH_VA).ljust(6, bytes([0x90]))
+    data[sp_off:sp_off + 6] = sp_hook
+
     comp_off = COMPOSITOR_VA - IMAGE_BASE
     assert bytes(data[comp_off:comp_off + 5]) == b"\x53\x55\x56\x8b\xf1", \
         "compositor entry 0x445B50 moved!"

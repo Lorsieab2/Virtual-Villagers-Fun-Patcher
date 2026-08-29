@@ -334,11 +334,24 @@ class ManifestTests(unittest.TestCase):
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
-        # Base transaction patches + Change Appearance (0x9AD20) + the shared
+        # Base transaction patches + the five exact mask-stage detours + Change Appearance (0x9AD20) + the shared
         # DLL-dispatch stub in the old whole-village slot (0x9AE40, routing Grant
         # Running / Grant Full Mastery / Complete / Reset Collections) + the
         # Barrel of Babies capacity gate (0x9AF58).
-        self.assertEqual(len(rows), 28)
+        self.assertEqual(len(rows), 33)
+        self.assertEqual(
+            {
+                offset: (rows[offset]["before"], rows[offset]["after"])
+                for offset in (0x3160, 0x95B0, 0x9600, 0x45B50, 0x4C5E6)
+            },
+            {
+                0x3160: ("8B4424048B11", "E95A120B0090"),
+                0x95B0: ("8B09E989F3FFFF", "E997AA0A009090"),
+                0x9600: ("8B09E9E9F6FFFF", "E920AB0A009090"),
+                0x45B50: ("5355568BF1", "E9E8E70600"),
+                0x4C5E6: ("8986D874E500", "E9BD7C060090"),
+            },
+        )
         self.assertIn("companion-DLL exports", rows[0x9AE40]["purpose"])
         self.assertIn("GateVV2Barrel", rows[0x9AF58]["purpose"])
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])

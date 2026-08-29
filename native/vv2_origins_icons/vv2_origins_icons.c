@@ -867,6 +867,33 @@ __declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
    read/write it directly. The render stubs (in the exe's .vvmk section) read it. */
 #define VV2_MASK_TABLE       ((unsigned char *)0x004B3000)
 #define VV2_MASK_TABLE_BYTES 256
+/* Published by the exe's save-path hook (0x403160, the only "%s%d.ldw" builder).
+   0 = no village loaded yet. The sidecar is keyed on this so village 2 cannot
+   display -- or overwrite -- village 1's masks. */
+#define VV2_MASK_SLOT        (*(int *)0x004B3F10)
+
+/* The .mtab section exists ONLY in a mask-patched exe. On a build produced by the
+   patcher without the mask exe-patch, 0x004B3000 is one byte past the end of the
+   stock image and is NOT mapped, so touching it would access-violate and take the
+   game down. Probe once with VirtualQuery and cache the answer; every access below
+   is gated on it, so the DLL degrades to "no masks" instead of crashing. */
+static int vv2_mask_table_state;   /* 0 = unprobed, 1 = usable, -1 = absent */
+
+static int vv2_mask_table_ok(void)
+{
+    MEMORY_BASIC_INFORMATION mbi;
+    if (vv2_mask_table_state == 0) {
+        vv2_mask_table_state = -1;
+        if (VirtualQuery((LPCVOID)VV2_MASK_TABLE, &mbi, sizeof(mbi)) == sizeof(mbi)
+            && mbi.State == MEM_COMMIT
+            && (mbi.Protect & (PAGE_READWRITE | PAGE_WRITECOPY
+                               | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY))
+            && mbi.RegionSize >= VV2_MASK_TABLE_BYTES) {
+            vv2_mask_table_state = 1;
+        }
+    }
+    return vv2_mask_table_state > 0;
+}
 
 static int vv2_appearance_sex;   /* 0 = male, 1 = female */
 static int vv2_appearance_old;   /* 0 = young head atlas, 1 = old head atlas */
@@ -1037,7 +1064,7 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
    villagers reloading into the same record slots (positional VV2 save). ---- */
 #define VV2_MASK_SIDECAR_MAGIC 0x32304D56u  /* 'V','M','0','2' */
 
-static int vv2_mask_sidecar_path(char *out) {
+static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     char docs[MAX_PATH];
     char exe[MAX_PATH];
     char *base;
@@ -1059,16 +1086,22 @@ static int vv2_mask_sidecar_path(char *out) {
         }
     }
     if (base[0] == 0) return 0;                     /* no usable basename -> skip */
-    /* MAX_PATH budget: docs + "\LDW\" + basename + "\vv2_masks.dat" */
-    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\vv2_masks.dat") >= MAX_PATH) {
+    /* MAX_PATH budget: docs + "\LDW\" + basename + "v2_masks_NN.dat" */
+    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\vv2_masks_00.dat") >= MAX_PATH) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vv2_masks.dat", docs, base);
+    if (slot > 0) wsprintfA(out, "%s\\LDW\\%s\\vv2_masks_%d.dat", docs, base, slot);
+    else          wsprintfA(out, "%s\\LDW\\%s\\vv2_masks.dat", docs, base);
     return 1;
+}
+
+/* the CURRENT village's sidecar; slot published by the exe save-path hook */
+static int vv2_mask_sidecar_path(char *out) {
+    return vv2_mask_sidecar_path_slot(out, VV2_MASK_SLOT);
 }
 
 static void vv2_mask_sidecar_save(void) {
@@ -1076,6 +1109,7 @@ static void vv2_mask_sidecar_save(void) {
     HANDLE f;
     DWORD w;
     unsigned int m = VV2_MASK_SIDECAR_MAGIC;
+    if (!vv2_mask_table_ok()) return;          /* no .mtab -> nothing to persist */
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) return;
@@ -1090,6 +1124,11 @@ static void vv2_mask_sidecar_load(void) {
     DWORD g;
     unsigned int m = 0;
     unsigned char buf[VV2_MASK_TABLE_BYTES];
+    int i;
+    /* A village with no sidecar must show NO masks -- never whatever the previously
+       loaded village left in the table. Clear first, then fill if a file exists. */
+    if (vv2_mask_table_ok())
+        for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {
@@ -1101,6 +1140,17 @@ static void vv2_mask_sidecar_load(void) {
            self-heals without ever deleting or moving the user's file. */
         char legacy[MAX_PATH];
         char docs[MAX_PATH];
+        /* MIGRATION (per-slot): builds before the sidecar was slot-keyed wrote ONE
+           vv2_masks.dat for every village. Read it for the FIRST village slot only,
+           so a returning user keeps their masks; later saves write the slot file.
+           Only slot 1 -- applying one shared file to every slot is the very
+           cross-contamination this change exists to stop. */
+        if (VV2_MASK_SLOT == 1 && vv2_mask_sidecar_path_slot(legacy, 0)
+            && lstrcmpiA(legacy, path) != 0) {
+            f = CreateFileA(legacy, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                            FILE_ATTRIBUTE_NORMAL, NULL);
+        }
+        if (f == INVALID_HANDLE_VALUE) {
         if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return;
         if (lstrlenA(docs) + (int)sizeof("\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat") >= MAX_PATH) {
             return;
@@ -1108,11 +1158,12 @@ static void vv2_mask_sidecar_load(void) {
         wsprintfA(legacy, "%s\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat", docs);
         if (lstrcmpiA(legacy, path) == 0) return;     /* already the canonical exe -> nothing to migrate */
         f = CreateFileA(legacy, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (f == INVALID_HANDLE_VALUE) return;        /* no legacy file either -> keep table as-is */
+        if (f == INVALID_HANDLE_VALUE) return;        /* no legacy file either -> table stays cleared */
+        }
     }
     if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
         && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
-        memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
+        if (vv2_mask_table_ok()) memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
     }
     CloseHandle(f);
 }
@@ -1204,7 +1255,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     age = *(int *)(record + VV_AGE_OFFSET);
     h = *(int *)(record + VV2_HEAD_OFFSET);
     b = *(int *)(record + VV2_BODY_OFFSET);
-    m = VV2_MASK_TABLE[idx];
+    m = vv2_mask_table_ok() ? VV2_MASK_TABLE[idx] : 0;
     /* VV2 stores sex as 1 (male) or 2 (female); the stock renderer branches on
        `sex == 1` (0x4456A3). Match it: sex 1 -> male atlas (0), else female (1). */
     vv2_appearance_sex = (sex == 1) ? 0 : 1;
@@ -1251,7 +1302,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     *tech -= VV2_APPEARANCE_COST_DLL;
     *(int *)(record + VV2_HEAD_OFFSET) = vv2_appearance_head;
     *(int *)(record + VV2_BODY_OFFSET) = vv2_appearance_body;
-    VV2_MASK_TABLE[idx] = (unsigned char)vv2_appearance_mask;
+    if (vv2_mask_table_ok()) VV2_MASK_TABLE[idx] = (unsigned char)vv2_appearance_mask;
     vv2_mask_sidecar_save();   /* persist the mask table right after committing */
     return 1;
 }
@@ -1477,7 +1528,7 @@ static int vv2_apply_caf(unsigned char *base) {
            is active — those selectors were cleared/greyed, so these are -1) */
         if (caf_head[s] >= 0) *(int *)(rec + VV2_HEAD_OFFSET) = caf_head[s];
         if (caf_body[s] >= 0) *(int *)(rec + VV2_BODY_OFFSET) = caf_body[s];
-        if (caf_mask[s] >= 0) VV2_MASK_TABLE[i] = (unsigned char)caf_mask[s];
+        if (caf_mask[s] >= 0 && vv2_mask_table_ok()) VV2_MASK_TABLE[i] = (unsigned char)caf_mask[s];
     }
     if (caf_head_mode != 0) {                 /* village-wide Heads */
         for (i = 0; i < n; ++i) {
@@ -1496,7 +1547,7 @@ static int vv2_apply_caf(unsigned char *base) {
             *(int *)(base + idx[i] * VV2_RECORD_STRIDE + VV2_BODY_OFFSET) =
                 (int)(caf_rand() % (unsigned)VV2_APPEARANCE_COUNT);
     }
-    if (caf_dist == 1) {                     /* VV5-style rarity */
+    if (caf_dist == 1 && vv2_mask_table_ok()) {   /* VV5-style rarity */
         int order[VV2_RECORD_COUNT], k;
         static const int tier_mask[4] = { 5, 4, 3, 2 };   /* Chief,Purple,Red,Orange */
         static const int tier_cap[4]  = { 1, 4, 7, 10 };
@@ -1509,13 +1560,13 @@ static int vv2_apply_caf(unsigned char *base) {
             for (c = 0; c < tier_cap[t] && cursor < n; ++c, ++cursor)
                 VV2_MASK_TABLE[order[cursor]] = (unsigned char)tier_mask[t];
         }
-    } else if (caf_dist == 2) {              /* Random (All 5 + No Mask): 0..5 */
+    } else if (caf_dist == 2 && vv2_mask_table_ok()) {  /* Random (All 5 + No Mask): 0..5 */
         for (i = 0; i < n; ++i)
             VV2_MASK_TABLE[idx[i]] = (unsigned char)(caf_rand() % 6u);
-    } else if (caf_dist == 4) {              /* Random (All 5): 1..5, never no-mask */
+    } else if (caf_dist == 4 && vv2_mask_table_ok()) {  /* Random (All 5): 1..5, never no-mask */
         for (i = 0; i < n; ++i)
             VV2_MASK_TABLE[idx[i]] = (unsigned char)(1u + caf_rand() % 5u);
-    } else if (caf_dist == 3) {              /* Equal, balanced M/F */
+    } else if (caf_dist == 3 && vv2_mask_table_ok()) {  /* Equal, balanced M/F */
         int order[VV2_RECORD_COUNT], males[VV2_RECORD_COUNT], females[VV2_RECORD_COUNT];
         int nm = 0, nf = 0, k, o = 0;
         for (k = 0; k < n; ++k) { if (sexof[k]) females[nf++] = idx[k]; else males[nm++] = idx[k]; }
@@ -1527,7 +1578,7 @@ static int vv2_apply_caf(unsigned char *base) {
         for (k = 0; k < n; ++k)
             VV2_MASK_TABLE[order[k]] = (unsigned char)((k % 5) + 1);   /* Blue..Chief */
     }
-    if (caf_village >= 0) {                  /* village-wide single mask override */
+    if (caf_village >= 0 && vv2_mask_table_ok()) {  /* village-wide single mask override */
         for (i = 0; i < n; ++i)
             VV2_MASK_TABLE[idx[i]] = (unsigned char)caf_village;
     }

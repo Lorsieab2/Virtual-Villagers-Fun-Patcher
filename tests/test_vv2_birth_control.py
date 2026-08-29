@@ -237,7 +237,10 @@ class VV2BirthControlTests(unittest.TestCase):
                 rendered, applied = render_patched_bytes(
                     STOCK, self.build, mode.id, selected
                 )
-                self.assertEqual(len(rendered), self.build.size)
+                # VV2 Origins now owns two 0x1000 pages (.mtab/.vvmk) in the
+                # exact output, so the complete catalog's rendered image is
+                # the stock build plus that deterministic append transaction.
+                self.assertEqual(len(rendered), self.build.size + 0x2000)
                 owners = {edit["owner"] for edit in applied}
                 self.assertTrue(
                     {f"feature:{patch_id}" for patch_id in selected}.issubset(owners)
