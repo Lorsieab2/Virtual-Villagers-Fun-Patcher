@@ -1,7 +1,8 @@
-# VV3 mask positioning — offscreen proof (no launching)
+# VV3 mask positioning — static audit and player-trace handoff
 
-Verified by disassembly + ReadProcessMemory logging + arithmetic. Follows
-`docs/head-mask-rendering.md` Parts 1–7.
+The render arithmetic below is retained from the existing offscreen work. The pickup
+conclusion in this document is an exact-stock static result; it is not runtime or player
+acceptance. Follows `docs/head-mask-rendering.md` Parts 1–7.
 
 ## 1. The leaf draw functions — coordinate handling (disassembled)
 
@@ -104,32 +105,34 @@ Matches intended asm; null pointer degrades to stock behaviour.
 - The cave at `0x47B360` is `.text` tail padding — a **Part 7 violation**. Must
   move to an appended R-X section (the patcher already supports this via
   `pe_append_transaction`, used by `vv3_expanded_time_warp`).
-- **Pickup**: identity is genuinely unavailable at `0x434357` — see §7. Grab-time
-  capture is the only remaining route. Not yet implemented.
+- **Pickup/held rendering**: no held-villager identity or true held-render boundary is proven
+  by the current static corpus. No pickup hook is emitted. A player trace is required before
+  implementing grab-time capture, clear-on-release, or a held mask overlay.
 - **Details portrait**: facing source not yet verified against rule 6.
 
-## 7. `0x5947D0` is an INIT LATCH, not a state flag (and `[ebp+0x10]` is a 3-way selector)
+## 7. `0x4341A0..0x434758` is a timed effect renderer, not held-villager state
 
-Settled statically, no launching. Top of the drag renderer:
+Settled by disassembly of the exact stock VV3 executable (SHA-256
+`8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503`). The two formerly
+proposed patch points are calls inside one three-style timed sprite/particle object:
 
 ```
-4341e3  test byte [0x5947D0], 1     ; already initialised?
-4341ea  jne  0x43422f               ; yes -> skip
-4341ec  or   dword [0x5947D0], 1    ; no -> mark done
-4341f3  mov  [0x5947B8], 0x6e   ; 110    entry 0 (x)
-4341fd  mov  [0x5947BC], 0xa0   ; 160    entry 0 (y)
-434207  mov  [0x5947C0], 0x72   ; 114    entry 1 (x)
-434211  mov  [0x5947C4], 0xd4   ; 212    entry 1 (y)
-43421b  mov  [0x5947C8], 0x4b   ;  75    entry 2 (x)
-434225  mov  [0x5947CC], 0xb0   ; 176    entry 2 (y)
+ 434357  call 0x42E570             ; generic scaled-sprite draw
+ 4344B3  call 0x42E510             ; generic cell blit
 ```
 
-**The table has exactly 3 entries of constants** — it stops at `0x5947CC`
-because the next 8-byte slot *is* `0x5947D0`. Therefore the index used at
-`0x434312` (`mov ebp,[ebp+0x10]; shl ebp,3`) is **0..2**: a 3-way anchor/style
-selector. It is **not** villager identity (100 slots needed) and **not** facing
-(8 needed). Pickup identity is genuinely absent at `0x434357`; grab-time
-capture is the only route.
+At `0x434357`, the sprite argument comes from `[esi+ecx*4+0x7C]`, with `ecx` selected
+from `0..2`; this is a three-entry effect sprite table, not the villager head atlas. The
+same function iterates 24-byte effect entries and compares elapsed time with `0x12C` and
+`0x7080`. It uses fixed anchor constants at `0x5947B8..0x5947CC`:
+
+```
+(110,160), (114,212), (75,176)
+```
+
+There is no record-stride `0x1F8C` use in this object. Therefore `0x434357` and `0x4344B3`
+must remain byte-identical to stock. They do not identify the player-grab event, the held
+villager record, or a cursor head.
 
 All four references to `0x5947D0` are the same one-time-init idiom — test a
 bit, skip if set, else OR it in and initialise a constant block:
@@ -141,13 +144,31 @@ bit, skip if set, else OR it in and initialise a constant block:
 | `0x4344D4` | 4 |
 | `0x434644` | 8 |
 
-So `0x5947D0` is a **4-bit initialisation latch**, permanently `0xf` after
-startup, carrying no selection or pickup information. **Never gate on it.**
+So `0x5947D0` is a **4-bit initialization latch**, permanently `0xf` after startup, carrying
+no selection or pickup information. **Never gate a mask path on it.**
 
-This mechanically explains the historic "masks drop to the floor" symptom: a
-gate of the form `if (0x5947D0 & 1) return;` is true for *every villager on
-every frame forever*, so the position path was always skipped.
+### Proven normal villager path
 
-`docs/head-mask-rendering.md` Part 3's VV3 entry describes this global as a
-state that "reads 0xf on BOTH selection AND pickup" — that should be corrected;
-it is not a state at all.
+`0x42E3F5` is the sole direct caller of `sub_4605F0`; its handler receives a villager index,
+derives the record with stride `0x1F8C`, reads the head atlas holder at `record-context+0x127C1C`,
+and calls `0x42E570` at `0x460A60`. That is the proven world/action render family. The current
+mask hooks remain on the world/action/details paths, but static analysis does not establish
+whether a grabbed villager reaches this handler or whether its replayed x/y arguments are
+cursor-relative.
+
+### Player trace handoff (minimal values)
+
+Trace one mouse-down that successfully grabs a villager, several held frames, and release.
+Record:
+
+1. the earliest successful-grab callback, villager record pointer/index, and any drag-object
+   pointer;
+2. cursor x/y and record fields `+0xF1C`, `+0xF12`, `+0xF14`, `+0xF18`, `+0xF20` at grab,
+   held, and release;
+3. every `0x42E510`/`0x42E570` entry during held frames, including return address, atlas or
+   sprite pointer, cell/frame, x/y, facing, and scale;
+4. the release callback and the first frame where the held identity/coordinates clear.
+
+Only after those values identify a stable record and active/release lifetime should a
+grab-time capture/clear hook or held overlay be designed. Until then the VV3 patch is
+fail-closed: no hook at `0x434357` or `0x4344B3`.

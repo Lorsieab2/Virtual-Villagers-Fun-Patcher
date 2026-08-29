@@ -160,28 +160,16 @@ WORLD_DRAWFN_PTR = SECTION_DATA_VA + 0x04               # DLL publishes VV3World
 # the whole handler, THEN draw the mask = guaranteed LAST layer, correct inter-villager
 # z-order, no stolen bytes.  Handler is `ret 4` (1 arg = villager INDEX; record = base +
 # index*0x1F8C).  The head-site cave still STASHES the exact head x/y/scale during the
-# handler; the wrapper then flushes that stash on top.
+# handler; the wrapper then draws from that stash on top.
 WORLD_MASK_WRAPPER_CAVE_VA = SECTION_CODE_VA + 0x000   # appended R-X section
-WORLD_HANDLER_CALLSITE_VA = 0x0042E3F5    # sole `call 0x4605F0` in the flush dispatch
+WORLD_HANDLER_CALLSITE_VA = 0x0042E3F5    # sole `call 0x4605F0` in the world dispatch
 WORLD_HANDLER_FN = 0x004605F0             # the per-villager handler we wrap (ret 4)
-WORLD_FLUSHFN_PTR = SECTION_DATA_VA + 0x08              # DLL publishes VV3WorldMaskFlush here
-# HELD/picked-up villager: its head is drawn by the ONLY OTHER 42E570 caller, 0x434357 (a
-# separate renderer that draws it at the cursor; the village queue skips held villagers).
-# Wrap that call so the mask rides the held villager.  42E570 = ret 0x14 (5 args); at the
-# call site the 5 args (sprite,x,y,scale,flag) are already pushed and ecx=0x58F6F8.  Verified
-# 0 branches into 0x434357..0x43435C (safe to steal the 5-byte call).
-WORLD_HELD_CALLSITE_VA = 0x00434357       # held villager's head draw (only other 42E570 xref)
-WORLD_HELD_WRAP_CAVE_VA = SECTION_CODE_VA + 0x040   # appended R-X section
-WORLD_HEAD_DRAW_FN = 0x0042E570           # the head draw both call sites use
-WORLD_HELDFN_PTR = SECTION_DATA_VA + 0x0C               # DLL publishes VV3HeldMaskDraw here
-# The SETTLED held villager (after the lift animation) is drawn as a single COMPOSITED
-# sprite via 42E510 at 0x4344B3 (a different phase of the same held renderer).  Wrap it too
-# so the mask follows the held villager once it settles in hand.  ret 0x14 (5 args:
-# sprite,x,y,frame,scale); verified 0 branches into 0x4344B3..0x4344B8.
-WORLD_HELD2_CALLSITE_VA = 0x004344B3      # settled held villager's composited-sprite blit
-WORLD_HELD2_WRAP_CAVE_VA = SECTION_CODE_VA + 0x080  # appended R-X section
-WORLD_BLIT_FN = 0x0042E510                # the cell blit both this + the village mask use
-WORLD_HELD2FN_PTR = SECTION_DATA_VA + 0x14              # DLL publishes VV3HeldMaskDraw2 here
+WORLD_INDEXFN_PTR = SECTION_DATA_VA + 0x08              # DLL publishes VV3WorldMaskDraw here
+# The stock calls at 0x434357 and 0x4344B3 are deliberately not patch points.  Exact
+# disassembly identifies both as draws inside one three-style timed UI/effect object: the
+# selector is 0..2, entries are 24 bytes, and elapsed time is compared with 0x12C/0x7080.
+# No villager record or held/cursor identity reaches either call.  Keep the bytes stock until
+# a player trace proves the separate grab and held-render boundaries.
 # ACTION-POSE mask: VV3 draws sit/lie/swim/fish/work as a FULL-BODY sprite (head baked in) via
 # the action overlay sub_45F7E0, so the base head-draw stash misses the pose head (owner's
 # "fishing villager's mask at the hip").  Wrap the overlay's call site 0x460B48 (inside the
@@ -1778,7 +1766,7 @@ def main() -> None:
     #   We RE-PUSH the index for the inner call (its own extra return address would otherwise
     #   shift the handler's [esp+0x48] arg read by one slot -> garbage record).  After the
     #   handler returns (its ret 4 cleans the re-push), we call VV3WorldMaskDraw(index),
-    #   which recomputes pos/scale/facing from the record and blits the mask on top.  The
+    #   which consumes the head-site stash and blits the mask on top.  The
     #   DLL fn is __stdcall @4 (cleans its own arg).  Finally ret 4 cleans the original
     #   index -> identical net stack effect to the original `call 0x4605F0`.  ecx is left
     #   untouched before the inner call so 0x59E110 reaches the handler as `this`.
@@ -1786,7 +1774,7 @@ def main() -> None:
     # Upgrades menu (which is how the DLL used to get pulled in -> "nothing changed" if never
     # opened).  On the first call of this per-villager wrapper, LoadLibraryA the companion DLL
     # once (gated by the byte at 0x6C7A34, zero-init .data next to the published fn slots); its
-    # DllMain then publishes the fn pointers so the very same frame's flush draws masks, and the
+    # DllMain then publishes the fn pointers so the very same frame's wrapper draws masks, and the
     # sidecar restore happens lazily on the first VV3_GetMaskForRecord.  LoadLibrary from normal
     # game code (NOT DllMain) is safe; the load is synchronous so the pointer is live immediately.
     world_mask_wrapper_cave = assemble(
@@ -1799,7 +1787,7 @@ def main() -> None:
         world_wrap_loaded:
             push dword ptr [esp + 4]
             call 0x{WORLD_HANDLER_FN:X}
-            mov eax, dword ptr [0x{WORLD_FLUSHFN_PTR:X}]
+            mov eax, dword ptr [0x{WORLD_INDEXFN_PTR:X}]
             test eax, eax
             je world_wrap_done
             push dword ptr [esp + 4]
@@ -1813,65 +1801,9 @@ def main() -> None:
         f"call 0x{WORLD_MASK_WRAPPER_CAVE_VA:X}", WORLD_HANDLER_CALLSITE_VA
     )
 
-    # HELD-villager wrapper: wrap the held head draw's `call 0x42E570` at 0x434357.  Re-push
-    # the 5 args (else the inner call's extra return address shifts them), run the original
-    # head draw, then call VV3HeldMaskDraw(x, y, scale) reading the ORIGINAL args (x=[esp+8],
-    # y=[esp+0xC], scale=[esp+0x10]) so the mask lands at the held cursor position.  Null ptr
-    # -> plain held head.  ret 0x14 cleans the original 5 args -> identical net stack effect.
-    world_held_wrap_cave = assemble(
-        f"""
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            mov ecx, 0x58F6F8
-            call 0x{WORLD_HEAD_DRAW_FN:X}
-            mov eax, dword ptr [0x{WORLD_HELDFN_PTR:X}]
-            test eax, eax
-            je held_wrap_done
-            push dword ptr [esp + 0x10]
-            push dword ptr [esp + 0x10]
-            push dword ptr [esp + 0x10]
-            call eax
-        held_wrap_done:
-            ret 0x14
-        """,
-        WORLD_HELD_WRAP_CAVE_VA,
-    )
-    world_held_wrap_redirect = assemble(
-        f"call 0x{WORLD_HELD_WRAP_CAVE_VA:X}", WORLD_HELD_CALLSITE_VA
-    )
-
-    # HELD phase-C wrapper: wrap the composited-sprite blit `call 0x42E510` at 0x4344B3.
-    # Re-push the 5 args (sprite,x,y,frame,scale), run the original blit, then call
-    # VV3HeldMaskDraw2(x, y) with the ORIGINAL x=[esp+8], y=[esp+0xC] so the mask lands on
-    # the settled held villager.  ret 0x14 cleans the original 5 args.
-    world_held2_wrap_cave = assemble(
-        f"""
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            push dword ptr [esp + 0x14]
-            mov ecx, 0x58F6F8
-            call 0x{WORLD_BLIT_FN:X}
-            mov eax, dword ptr [0x{WORLD_HELD2FN_PTR:X}]
-            test eax, eax
-            je held2_wrap_done
-            push esi
-            push dword ptr [esp + 0x10]
-            push dword ptr [esp + 0x10]
-            call eax
-        held2_wrap_done:
-            ret 0x14
-        """,
-        WORLD_HELD2_WRAP_CAVE_VA,
-    )
-    world_held2_wrap_redirect = assemble(
-        f"call 0x{WORLD_HELD2_WRAP_CAVE_VA:X}", WORLD_HELD2_CALLSITE_VA
-    )
-
+    # No cursor/held wrapper is emitted here.  The stock calls at 0x434357 and 0x4344B3
+    # belong to the timed UI/effect object documented above, not to a villager renderer.
+    # No held/effect cave is assembled.
     # ACTION-POSE wrapper: wrap the action overlay's `call 0x45F7E0` at 0x460B48.  At entry the 3
     # args are on the stack ([esp+4]=record, [esp+8]=x, [esp+0xC]=y) and ecx=this.  Re-push them,
     # run the original overlay (its `ret 0xc` cleans the re-push), then call

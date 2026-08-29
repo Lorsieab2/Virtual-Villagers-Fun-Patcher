@@ -1,10 +1,11 @@
 # VV3 Heathen-Mask Cosmetic Overlay — Status & Handoff
 
-Branch: `codex/emergency-vv3-mask-deploy-sync` plus the local slot-persistence
-commit. Feature: an optional, per-villager cosmetic Heathen-mask overlay in VV3's
+Branch: the VV3 Origins mask candidate plus the local slot-persistence commit. Feature:
+an optional, per-villager cosmetic Heathen-mask overlay in VV3's
 **Change Appearance** window (options: (None), Blue, Orange, Red, Purple, Tribal
 Chief). Purely cosmetic; per-villager; the current candidate has separate Details,
-village, and action-pose render paths; player runtime acceptance remains open.
+village, and action-pose render paths; player runtime acceptance remains open. The held/
+cursor path is intentionally unimplemented pending an exact player trace.
 
 ## TL;DR — static candidate status (runtime acceptance open)
 
@@ -16,7 +17,8 @@ questions.
 | Piece | State |
 |---|---|
 | Detail render (Blue/Orange/Red/Purple) | ✅ exact hook/cave is built; player render proof pending |
-| Village/action-pose render paths | ✅ exact candidate hooks are built; player pose/pickup proof pending |
+| Village/action-pose render paths | ✅ exact candidate hooks are built; player pose proof pending |
+| Held/cursor path | ⛔ no hook; `0x434357`/`0x4344B3` are a timed effect renderer; player trace required |
 | Storage | ✅ DLL-owned table, immune to the sim (see below) |
 | Chooser (mask cycler in Change Appearance) | ✅ writes the table on OK-after-charge |
 | Persistence (survives quit/reload) | ✅ per-save sidecar selector built; player round-trip pending |
@@ -45,8 +47,10 @@ reads the table, gets the atlas (`VV3GetMaskAtlas` → game allocator `0x46EC93`
 + loader `0x40AF10`), and draws the mask cell on top via the game's own draw fn
 `0x4093A0` — row = mask-1, y lifted by `(scaledY * VV3_MASK_LIFT_MUL) >> 7` with
 `VV3_MASK_LIFT_MUL = 34`. Village and action-pose paths use the appended `.vv3mc`
-R-X caves and `.vv3md` R/W function-pointer slots; those paths still require
-player verification for every pose, facing, pickup, and Details transition.
+R-X caves and `.vv3md` R/W function-pointer slots. The world handler is `sub_4605F0`
+(`0x42E3F5` sole direct caller), and its stock head call is `0x460A60`; the action
+overlay is wrapped at `0x460B48`. These paths still require player verification for every
+pose, facing, age/scale, and Details transition. No held/cursor draw is claimed.
 
 **Chooser.** `ShowVV3AppearanceChooser` (dialog 213, still `@20`) takes the record
 pointer and reads/commits via the table. The Change Appearance cave passes the
@@ -93,7 +97,13 @@ green; player regression testing is still required.
 3. **Sidecar co-location (minor).** On OneDrive-redirected systems the sidecar
    lands in `OneDrive\Documents\LDW` while the game's `.ldw` saves are in plain
    `Documents\LDW`. Persistence is self-consistent so it works; matching the game's
-   exact save path would co-locate them.
+    exact save path would co-locate them.
+4. **Held/cursor render (blocked on evidence).** Static disassembly proves that
+   `0x434357` (`call 0x42E570`) and `0x4344B3` (`call 0x42E510`) are two draws in the
+   same three-style timed sprite/effect object. They have no villager record identity and
+   must remain stock. The true successful-grab boundary, held record lifetime, release
+   clear, and visible held draw caller/arguments remain unknown. Do not add a hook until a
+   player trace captures those values.
 
 ## Village / action-pose candidate path
 
@@ -102,7 +112,8 @@ uses a separate texture-index animation system (`0x42E440`, per-villager texture
 table `[edi+0x127C44]`, layer dispatcher `0x45F7E0` reading `record+0xF20`, animObj
 `record+0xDD0`). The current candidate wraps the proven village handler/head and
 action-overlay call sites in the appended `.vv3mc` section and resolves its DLL
-functions through `.vv3md`. The mask is intentionally not hooked into the two
-timed UI/effect draw sites `0x434357`/`0x4344B3`. Static coverage is not player
-proof: runtime must still verify every action pose, facing, age/scale, pickup, and
-Details transition against the VV2/VV5 reference behavior.
+functions through `.vv3md`. The handler record identity and head arguments are proven for
+the normal world path. The mask is intentionally not hooked into `0x434357`/`0x4344B3`:
+those are timed UI/effect calls, not held-villager draws. Static coverage is not player
+proof: runtime must still verify every action pose, facing, age/scale, and Details
+transition, and must trace pickup before any held implementation is attempted.

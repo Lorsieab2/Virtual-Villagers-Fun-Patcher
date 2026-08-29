@@ -38,9 +38,9 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         self.assertEqual(deployed, canonical)
         self.assertEqual(
             hashlib.sha256(deployed).hexdigest().upper(),
-            "E4C0421E693BB7A7EEC98F805272999CE95D0861165C0822ECE85E90355AE767",
+            "BA50132CC28E5D955175524904A29A79F5CE4EC85521D9B7EE959DD4B91B63CF",
         )
-        self.assertEqual(len(deployed), 1_892_864)
+        self.assertEqual(len(deployed), 1_890_816)
 
     def test_manifest_hash_is_the_canonical_deployed_hash(self) -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -54,7 +54,7 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
     def test_canonical_build_contains_every_mask_export(self) -> None:
         exports = self.builder.export_names(SOURCE.read_bytes())
         self.assertTrue(self.builder.REQUIRED_MASK_EXPORTS <= exports)
-        self.assertEqual(len(exports), 40)
+        self.assertEqual(len(exports), 34)
 
     def test_synchronize_repairs_a_stale_deployed_copy(self) -> None:
         with tempfile.TemporaryDirectory() as folder:

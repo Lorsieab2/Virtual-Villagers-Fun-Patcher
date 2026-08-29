@@ -19,8 +19,8 @@ OUTPUT = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 FOUNDATION_OUTPUT = (
     ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
 )
-SOURCE_SHA256 = "E4C0421E693BB7A7EEC98F805272999CE95D0861165C0822ECE85E90355AE767"
-SOURCE_SIZE = 1_892_864
+SOURCE_SHA256 = "BA50132CC28E5D955175524904A29A79F5CE4EC85521D9B7EE959DD4B91B63CF"
+SOURCE_SIZE = 1_890_816
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
@@ -34,11 +34,8 @@ REQUIRED_MASK_EXPORTS = frozenset(
         "VV3ActionMaskDraw",
         "VV3DrawMaskOnHead",
         "VV3GetMaskAtlas",
-        "VV3HeldMaskDraw",
-        "VV3HeldMaskDraw2",
         "VV3WorldMaskDraw",
         "VV3WorldMaskDrawAt",
-        "VV3WorldMaskFlush",
         "VV3_GetMaskForRecord",
         "VV3_SetMaskForRecord",
     }
