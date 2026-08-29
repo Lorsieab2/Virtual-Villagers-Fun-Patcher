@@ -105,6 +105,15 @@ FILES = [
     "data/vv4_text_changes.json",
     "assets/text-changes/vv4-sm.xml",
     "assets/text-changes/vv4-sm-base.xml",
+    # VV4 Heathen-mask assets, pinned by data/vv4_origins_feature.json's
+    # companion_files. The render atlas (exact hand-aligned mask art) is
+    # SDL-blitted by the DLL onto the render-target surface; the isolated sheet
+    # feeds the Change Appearance chooser preview. Both are ADDED files (no
+    # stock atlas is swapped), so no restore halves are needed.
+    "assets/vv4_masks/vvfp_mask_atlas.png",
+    "assets/vv4_masks/vvfp_bighead_mask_atlas.png",
+    "assets/vv4_masks/vvfp_mask_preview.png",
+    "assets/vv4_masks/vv2_mask_preview.bmp",
     "data/guardians_of_isola/new/Assets/sm.xml",
     "data/guardians_of_isola/base/Assets/sm.xml",
     "data/guardians_of_isola/new/Images/BlinkyEyes.png",

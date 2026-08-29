@@ -7,8 +7,8 @@
     "table_file_offset": "0xA0CD8",
     "entry_name": "running"
   },
-  "name": "Enable Origins-Exclusive Features",
-  "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance.",
+  "name": "Enable Origins-Exclusive Features (with Heathen Mask mod)",
+  "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
   "output_tag": "Origins Exclusive Features",
   "ui_contract": {
     "tech_constructor": {
@@ -139,7 +139,17 @@
     {
       "source": "assets/origins/VVFP VV4 Origins Icons.dll",
       "destination": "VVFP VV4 Origins Icons.dll",
-      "sha256": "A93547AFC27A405227D4A0B114A54F9DBA84F10240B0C9CC968A34D42B775F82"
+      "sha256": "2D7420A09A25B5408E689274763547149A936BFD98DF34C3629F8AFBF06CA90E"
+    },
+    {
+      "source": "assets/vv4_masks/vvfp_mask_atlas.png",
+      "destination": "Images/vvfp_mask_atlas00.png",
+      "sha256": "4FBA9ADA7731A2ECC022A3B775D7DAD134B6B8E0FF2813C47E8439871B4F867B"
+    },
+    {
+      "source": "assets/vv4_masks/vvfp_mask_preview.png",
+      "destination": "Images/vvfp_mask_preview.png",
+      "sha256": "9E3C8F929A327C29879B8988F69B3E63B5DA4D5E2E450DB76A8A108EE0DBCFDF"
     }
   ],
   "doubler_evidence": {
@@ -402,6 +412,72 @@
       "before": "00000000",
       "after": "00000000",
       "purpose": "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)"
+    },
+    {
+      "offset": "0xCCFCC",
+      "before": "00000000",
+      "after": "00000000",
+      "purpose": "Heathen mask: patch-owned active-save slot scratch (zero = fail closed)"
+    },
+    {
+      "offset": "0xCCFD0",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "81EC040100008B84240801000083F801720F83F805770AA3CC8F7200E985A6CDFFC705CC8F720000000000E976A6CDFF",
+      "purpose": "Heathen mask: capture save-builder slot 1..5 in owned .shr executable tail"
+    },
+    {
+      "offset": "0x3670",
+      "before": "81EC04010000",
+      "after": "E95B59320090",
+      "purpose": "Heathen mask: capture the selected save slot before the stock save builder"
+    },
+    {
+      "offset": "0xCCD90",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "803D6C8D720000753E53684E9E4800FF15E0A1480085C0742DA3608D72006A6E50FF15DCA14800A3648D72006A72FF35608D7200FF15DCA14800A3688D7200C6056C8D7200015BC3",
+      "purpose": "Heathen mask: resolve cave -- LoadLibraryA the companion DLL and GetProcAddress Vv4MaskCacheSurface(@110)/Vv4MaskDrawRecord(@112) by ordinal, once (guarded)"
+    },
+    {
+      "offset": "0xCCDE0",
+      "before": "000000000000000000000000000000000000000000000000000000",
+      "after": "51E8AAFFFFFFA1648D720085C07406FF742408FFD059E9F5B8CDFF",
+      "purpose": "Heathen mask: present cave -- cache the live render-target surface [screen_obj+0x30] into the DLL (also runs the clear-on-death sweep), then tail-call the real present"
+    },
+    {
+      "offset": "0xCC7A1",
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "890D748D72008935788D72008B442408A37C8D72008B44240CA3808D72008B86D41C000083E007A3848D72008B442418A3888D72008B0424A38C8D7200C70424EA877200E98612CEFFE8A1050000A1688D720085C0746AFF35788D7200FFD085C07E5E488B15708D720085D274536A00FF35888D7200FF35848D7200500FBE80C48F72000FAF05888D720083C03231D2B964000000F7F9A3C08F72008B15708D72008B0D808D72002B0DC08F720051FF357C8D7200528B0D748D7200E80E12CEFFFF258C8D7200",
+      "purpose": "Heathen mask: head cave -- draw the head normally then replay Vv4MaskGetForRecord with clean facing and scale-aware vertical seating (fingerprint-checked; mask=0 draws nothing); no villager fields written"
+    },
+    {
+      "offset": "0x9458",
+      "before": "E893B2FFFF",
+      "after": "E883F93100",
+      "purpose": "Heathen mask: route the present call at 0x409458 through the surface-cache cave"
+    },
+    {
+      "offset": "0x5F702",
+      "before": "E869A3FAFF",
+      "after": "E89A902C00",
+      "purpose": "Heathen mask: route the head-draw call at 0x45f702 through the mask head cave"
+    },
+    {
+      "offset": "0xCCEB0",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "890D988F720089359C8F72008B0424A3A08F72008B442404A3A48F72008B442408A3A88F72008B44240CA3AC8F72008B442410A3B08F72008B442414A3B48F72008B442418A3B88F72008B44241CA3BC8F7200C704240F8F7200E98138D2FFE87CFEFFFFA1688D720085C0746DFF359C8F7200FFD085C07E61488B15708D720085D27456FF35BC8F7200FF35B88F72008B0D9C8F72008B89D41C000083E10751500FBE80C48F720050DB042483C404D80DB88F7200DB1DC08F72008B0DAC8F72002B0DC08F720051FF35A88F7200528B0D988F7200E80638D2FFFF25A08F7200",
+      "purpose": "Heathen mask: WORLD cave -- wrap FUN_00467da0's post-head camera world-blit (0x44C790) and re-issue it with arg1=mask atlas + arg4=mask row + y-lift so the walking-village mask lands in the deferred composite"
+    },
+    {
+      "offset": "0xCCFC4",
+      "before": "0000000000",
+      "after": "2222222222",
+      "purpose": "Heathen mask: per-mask vertical nudge table (blue/orange/red/purple/chief)"
+    },
+    {
+      "offset": "0x68263",
+      "before": "E82845FEFF",
+      "after": "E8480C2C00",
+      "purpose": "Heathen mask: route the world compositor's post-head blit at 0x468263 through the world mask cave"
     },
     {
       "offset": "0x3FBE5",

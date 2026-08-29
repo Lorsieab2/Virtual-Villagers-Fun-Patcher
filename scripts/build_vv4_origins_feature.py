@@ -125,6 +125,111 @@ VV4_DETAIL_HANDLER_RELOC_OFFSET = 0x235
 VV4_RESULT_HELPER_OFFSET = 0x8F3
 VV4_RESULT_HELPER_VA = PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET
 
+# --- Heathen-mask cosmetic overlay (thunk-reuse render via companion DLL) ----
+# The mask is drawn THROUGH the game's own head-draw thunk (0x409A70) right after
+# each head, reusing the head's x/y/facing/TRANSFORM -> the mask inherits the
+# game's per-view scroll + scale for free (a raw SDL blit did not, so masks were
+# absent in the scrolled world and too small on the scaled portrait). The mask
+# atlas is built once as a game ldwImageGrid sprite object (DLL FUN_0040ABA0);
+# its object pointer is published to a .shr slot the head cave reads. No villager
+# fields written; no atlas/row changes; other features untouched. The head cave
+# occupies the reclaimed false-detail gap at 0x7287A1; resolve/present/world
+# caves remain in the free RWX .shr tail.
+MASK_DLL_ORD_CACHE = 110               # Vv4MaskCacheSurface@4 (sweep + sidecar, per frame)
+MASK_DLL_ORD_GET = 114                 # Vv4MaskGetForRecord@4 (ensure atlas + return mask)
+MASK_DRAW_THUNK_VA = 0x409A70          # native head-draw thunk (mov ecx,[ecx]; jmp 0x408c40)
+MASK_HEAD_CALL_SITES = (0x45F702,)          # confirmed Details full-body head draw
+MASK_PRESENT_SITE = 0x409458           # `call 0x4046f0` (E8 93B2FFFF); ecx=screen_obj
+MASK_PRESENT_CALLEE = 0x4046F0
+LOADLIBRARYA_THUNK = 0x48A1E0          # call dword ptr [..] (matches collections_apply)
+GETPROCADDRESS_THUNK = 0x48A1DC
+# .shr data slots (runtime-written; zero at load; page is RWX). 12 dwords,
+# 0x728D60..0x728D90 (caves start at 0x728D90):
+MASK_SLOT_HMOD = 0x728D60              # HMODULE of the companion DLL
+MASK_SLOT_CACHE_PTR = 0x728D64         # resolved Vv4MaskCacheSurface
+MASK_SLOT_GET_PTR = 0x728D68           # resolved Vv4MaskGetForRecord
+MASK_SLOT_RESOLVED = 0x728D6C          # byte flag: 0 = not yet resolved
+MASK_SLOT_ATLAS = 0x728D70             # mask ldwImageGrid obj ptr (DLL publishes here)
+# head-cave scratch (saved across the native head draw; single-threaded render,
+# non-reentrant):
+MASK_S_ECX = 0x728D74
+MASK_S_ESI = 0x728D78
+MASK_S_X = 0x728D7C
+MASK_S_Y = 0x728D80
+MASK_S_FACING = 0x728D84               # clean record facing (record+0x1CD4 & 7)
+MASK_S_TRANSFORM = 0x728D88            # head scale percent (native arg6)
+MASK_S_RET = 0x728D8C
+MASK_S_DY = 0x728FC0                    # shared lift result; caves are non-reentrant
+# caves (VA / file offset; .shr maps file 0xCC000 -> VA 0x728000):
+MASK_RESOLVE_VA = 0x728D90            # ~0x48 bytes -> ends ~0x728DD8
+MASK_RESOLVE_FILE_OFFSET = 0xCCD90
+MASK_PRESENT_VA = 0x728DE0            # ~0x1B bytes -> ends ~0x728DFB
+MASK_PRESENT_FILE_OFFSET = 0xCCDE0
+MASK_HEAD_VA = 0x7287A1              # relocated into the removed false-detail gap; leaves room for scaled seating
+MASK_HEAD_FILE_OFFSET = 0xCC7A1
+# --- Walking-WORLD mask (the deferred compositor, separate from Details) --------
+# The visible village villagers are NOT drawn by the FUN_0045f550 Details pass (that is an
+# immediate pass the world paints over) but by FUN_00467da0, run per-villager from
+# the queue flush FUN_0044c420 (case 6). Right after its head draw it issues a
+# camera-transforming world blit FUN_0044C790 (thiscall, ecx=world mgr 0x4DB9F8,
+# ret 0x1c) at the head's world position (EDI/EBP, anchor-adjusted). We WRAP that
+# call: run the original, then -- if the villager (esi=record) has a mask -- re-
+# issue the SAME blit with arg1=mask atlas and arg4=mask row, so the mask inherits
+# the camera scroll/zoom/z-order/clip for free and lands in the final composite.
+MASK_WORLD_SITE = 0x468263            # the LAST/topmost head world-blit in FUN_00467da0
+                                      # (ECX=[ESI+0x1BB8]=head, drawn at the head's own
+                                      # anchor pos EDI/EBP + head scale) -- wrapping THIS
+                                      # draws the mask AFTER the head (in front), at the
+                                      # head's exact position + scale (tracks head, scales
+                                      # with head height on children). 0x4681F9 was an
+                                      # earlier body layer the head then painted over.
+MASK_WORLD_CALLEE = 0x44C790          # camera world blit; thiscall(mgr; sprite,x,y,idx,frame,f,f)
+MASK_WORLD_LIFT = 0                   # head-hook: mask already at the head anchor; ~0 lift
+                                      # (mask art is head-aligned). Tune small if needed.
+                                      # (masks drew on the chest at 0). World units ->
+                                      # c790 scales by camera zoom, so this holds across
+                                      # zoom; tune on an adult, add scale-by-arg6 for kids
+MASK_WORLD_FACING = 5                 # atlas COLUMN pinned to the front frame: the
+                                      # layer's own arg5 is a WALK-ANIMATION frame (mask
+                                      # cycled per step); pin to front for a stable mask
+                                      # (per-facing LUT is a later refinement, like VV3)
+MASK_WORLD_VA = 0x728EB0             # separate cave in the free .shr tail
+MASK_WORLD_FILE_OFFSET = 0xCCEB0
+# world-cave scratch (mgr/rec/ret + the 7 blit args + fp scratch), past the
+# ~0xd4-byte cave (0x728EB0..0x728F84), at 0x728F88..0x728FB4 (< page end 0x729000):
+MASK_W_MGR = 0x728F98
+MASK_W_REC = 0x728F9C
+MASK_W_RET = 0x728FA0
+MASK_W_A1 = 0x728FA4                 # arg1 = sprite  (we swap to the mask atlas)
+MASK_W_A2 = 0x728FA8                 # arg2 = world x
+MASK_W_A3 = 0x728FAC                 # arg3 = world y (we subtract the lift)
+MASK_W_A4 = 0x728FB0                 # arg4 = ROW (we set to mask-1; 0-based)
+MASK_W_A5 = 0x728FB4                 # arg5 = the resolved sprite frame (unused for column now)
+MASK_W_A6 = 0x728FB8                 # arg6 = float (the head/blit SCALE; lift scales by it)
+MASK_W_A7 = 0x728FBC                 # arg7 = float
+MASK_W_SCRATCH = MASK_S_DY            # fistp target for the scaled lift (< page end 0x729000)
+# Per-mask vertical nudge table (signed bytes, rows blue/orange/red/purple/chief,
+# mask value 1..5, indexed by mask-1). Added at draw time so a tall mask (chief)
+# whose face sits low in its uniform cell can be lifted without re-cutting the
+# atlas -- the whole-cell shift keeps feathers from clipping. Positive = UP.
+# Live-tunable: change the bytes + re-apply the patch, no atlas rebuild.
+# (Siblings VV1/VV2/VV3/VV5 all place final alignment in a draw-time nudge.)
+MASK_DY_TABLE = 0x728FC4             # shared 5 signed bytes at 0x728FC4..0x728FC8 (< 0x729000)
+MASK_DY_VALUES = (34, 34, 34, 34, 34)  # uniform SCALED vertical re-seat (VV5-measured dy): mask-face-y minus head-face-y, 65x145 cell (X re-seat baked in atlas)
+MASK_HEAD_LIMIT_VA = 0x728B10        # next owned .shr allocation (Barrel countdown)
+# The exact save builder (0x403670) receives the selected save number as its
+# first argument. Capture it after replaying the stock stack allocation so the
+# companion can namespace its sidecar by the active save. The tail of the
+# already-owned .shr page is free: the current world cave ends at 0x728F90,
+# its scratch/delta table ends at 0x728FC8, and this cave starts at 0x728FD0.
+MASK_SAVE_SLOT_SITE = 0x403670
+MASK_SAVE_SLOT_VA = 0x728FCC
+MASK_SAVE_SLOT_CAVE_VA = 0x728FD0
+MASK_SAVE_SLOT_CAVE_FILE_OFFSET = 0xCCFD0
+MASK_SAVE_SLOT_FILE_OFFSET = 0xCCFCC
+MASK_SAVE_SLOT_LIMIT_VA = 0x729000
+
+
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
 # operands, not results of a raw byte sweep.
@@ -151,6 +256,260 @@ def rel32_call(source_va: int, target_va: int) -> bytes:
     return b"\xE8" + int(target_va - source_va - 5).to_bytes(
         4, "little", signed=True
     )
+
+
+def mask_resolve_cave(icons_dll_va: int) -> bytes:
+    """Load the companion DLL and resolve the two mask exports by ORDINAL, once.
+    Guarded by MASK_SLOT_RESOLVED so it is a cheap flag-check ret on every later
+    call. Preserves ebx (the only callee-saved reg it uses); clobbers eax/ecx/edx
+    and flags -- callers save what they need around the `call`. On LoadLibrary
+    failure it leaves the flag 0 and retries next frame."""
+    return assemble(
+        f"""
+            cmp byte ptr [{MASK_SLOT_RESOLVED}], 0
+            jne mr_done
+            push ebx
+            push 0x{icons_dll_va:X}
+            call dword ptr [{LOADLIBRARYA_THUNK}]
+            test eax, eax
+            jz mr_fail
+            mov dword ptr [{MASK_SLOT_HMOD}], eax
+            push {MASK_DLL_ORD_CACHE}
+            push eax
+            call dword ptr [{GETPROCADDRESS_THUNK}]
+            mov dword ptr [{MASK_SLOT_CACHE_PTR}], eax
+            push {MASK_DLL_ORD_GET}
+            push dword ptr [{MASK_SLOT_HMOD}]
+            call dword ptr [{GETPROCADDRESS_THUNK}]
+            mov dword ptr [{MASK_SLOT_GET_PTR}], eax
+            mov byte ptr [{MASK_SLOT_RESOLVED}], 1
+        mr_fail:
+            pop ebx
+        mr_done:
+            ret
+        """,
+        MASK_RESOLVE_VA,
+    )
+
+
+def mask_save_slot_cave() -> bytes:
+    """Capture the exact save-builder slot into owned .shr scratch.
+
+    The stock function starts with ``sub esp, 0x104`` and then reads its first
+    argument at ``[esp+0x108]``. Replaying that allocation in the cave keeps
+    every later stock instruction and stack offset byte-for-byte equivalent;
+    only the patch-owned slot dword is written. Invalid/zero slots fail closed
+    by writing zero and then continue into the untouched stock body.
+    """
+    cave = assemble(
+        f"""
+            sub esp, 0x104
+            mov eax, dword ptr [esp + 0x108]
+            cmp eax, 1
+            jb mss_invalid
+            cmp eax, 5
+            ja mss_invalid
+            mov dword ptr [{MASK_SAVE_SLOT_VA}], eax
+            jmp 0x{MASK_SAVE_SLOT_SITE + 6:X}
+        mss_invalid:
+            mov dword ptr [{MASK_SAVE_SLOT_VA}], 0
+            jmp 0x{MASK_SAVE_SLOT_SITE + 6:X}
+        """,
+        MASK_SAVE_SLOT_CAVE_VA,
+    )
+    if MASK_SAVE_SLOT_CAVE_VA + len(cave) > MASK_SAVE_SLOT_LIMIT_VA:
+        raise RuntimeError("VV4 save-slot cave exceeds the owned .shr tail")
+    return cave
+
+
+def mask_present_cave() -> bytes:
+    """Spliced onto `call 0x4046f0` at MASK_PRESENT_SITE. Entry: ecx=screen_obj
+    (thiscall this), [esp]=return(0x40945d), [esp+4]=surface(=[screen_obj+0x30]).
+    Resolves the DLL, hands the live render-target surface to Vv4MaskCacheSurface
+    (which also runs the clear-on-death sweep), then tail-jumps into the real
+    present so ecx/stack are exactly what 0x4046f0 expects."""
+    return assemble(
+        f"""
+            push ecx
+            call 0x{MASK_RESOLVE_VA:X}
+            mov eax, dword ptr [{MASK_SLOT_CACHE_PTR}]
+            test eax, eax
+            jz mp_skip
+            push dword ptr [esp+8]
+            call eax
+        mp_skip:
+            pop ecx
+            jmp 0x{MASK_PRESENT_CALLEE:X}
+        """,
+        MASK_PRESENT_VA,
+    )
+
+
+def mask_head_cave() -> bytes:
+    """Spliced onto the confirmed Details head draw (`call 0x409a70`). Entry: ecx=this
+    (sprite mgr), esi=villager record, [esp]=site return, [esp+4..]=stdcall draw
+    args (atlas, x, y, idx, frame, transform, 0). It draws the head
+    normally (swap the return to post_head, tail into the native thunk which
+    returns via ret 0x1c), then draws the villager's mask reusing the head's
+    x/facing/transform and applying the shared scale-aware DY table to y, with
+    idx=mask_row. The mask replay preserves the original draw-manager wrapper
+    in ECX and swaps only stack arg1 to the DLL-published mask atlas: 0x409A70
+    dereferences the wrapper, then 0x408C40 resolves geometry/surface from the
+    stack atlas. Passing the mask object as ECX would make the thunk dereference
+    atlas[0] and is unsafe. All guarded: no export / mask<=0 / atlas 0 ->
+    nothing drawn. Single-threaded, non-reentrant -> one shared scratch set."""
+
+    def src(post_head: int) -> str:
+        # The isolated mask sheet uses a tall cell.  The Details renderer passes
+        # arg6 as an integer scale percentage (0x408C40 filds it then divides
+        # by 100), so compute round(dy * percent / 100) without treating the
+        # integer as an IEEE float.  Positive native scales are expected here.
+        y_expr = (f"movsx eax, byte ptr [eax + {MASK_DY_TABLE}]\n"
+                  f"            imul eax, dword ptr [{MASK_S_TRANSFORM}]\n"
+                  f"            add eax, 50\n"
+                  f"            xor edx, edx\n"
+                  f"            mov ecx, 100\n"
+                  f"            idiv ecx\n"
+                  f"            mov dword ptr [{MASK_S_DY}], eax\n"
+                  f"            mov edx, dword ptr [{MASK_SLOT_ATLAS}]\n"
+                  f"            mov ecx, dword ptr [{MASK_S_Y}]\n"
+                  f"            sub ecx, dword ptr [{MASK_S_DY}]\n"
+                  f"            push ecx")
+        return f"""
+            mov dword ptr [{MASK_S_ECX}], ecx
+            mov dword ptr [{MASK_S_ESI}], esi
+            mov eax, [esp+8]
+            mov dword ptr [{MASK_S_X}], eax
+            mov eax, [esp+0xC]
+            mov dword ptr [{MASK_S_Y}], eax
+            # The native arg5 is an animation/age frame, not a clean facing:
+            # 0x45F6C4..0x45F6F3 adds an age-dependent atlas-column offset.
+            # Use the record's stable facing for the mask column instead.
+            mov eax, [esi+0x1CD4]
+            and eax, 7
+            mov dword ptr [{MASK_S_FACING}], eax
+            mov eax, [esp+0x18]
+            mov dword ptr [{MASK_S_TRANSFORM}], eax
+            mov eax, [esp]
+            mov dword ptr [{MASK_S_RET}], eax
+            mov dword ptr [esp], {post_head}
+            jmp 0x{MASK_DRAW_THUNK_VA:X}
+        post_head:
+            call 0x{MASK_RESOLVE_VA:X}
+            mov eax, dword ptr [{MASK_SLOT_GET_PTR}]
+            test eax, eax
+            jz mh_done
+            push dword ptr [{MASK_S_ESI}]
+            call eax
+            test eax, eax
+            jle mh_done
+            dec eax
+            mov edx, dword ptr [{MASK_SLOT_ATLAS}]
+            test edx, edx
+            jz mh_done
+            push 0
+            push dword ptr [{MASK_S_TRANSFORM}]
+            push dword ptr [{MASK_S_FACING}]
+            push eax
+            {y_expr}
+            push dword ptr [{MASK_S_X}]
+            push edx
+            # Keep the draw-manager wrapper in ECX.  The thunk dereferences it
+            # to the render target; 0x408C40 consumes the mask atlas from arg1.
+            mov ecx, dword ptr [{MASK_S_ECX}]
+            call 0x{MASK_DRAW_THUNK_VA:X}
+        mh_done:
+            jmp dword ptr [{MASK_S_RET}]
+        """
+    prologue = src(0).split("post_head:")[0]
+    post_head = MASK_HEAD_VA + len(assemble(prologue, MASK_HEAD_VA))
+    cave = assemble(src(post_head), MASK_HEAD_VA)
+    assert MASK_HEAD_VA + len(cave) <= MASK_HEAD_LIMIT_VA, \
+        "head cave grew into the next owned .shr allocation"
+    return cave
+
+
+def mask_world_cave() -> bytes:
+    """Spliced onto FUN_00467da0's LAST head world-blit `call 0x44C790` at
+    0x468263 (the topmost head layer, so the mask lands in front). Entry: ecx=world
+    mgr (0x4DB9F8), esi=villager record, [esp]=site return (0x468268),
+    [esp+4..+0x1c]=the 7 blit args
+    (sprite,x,y,idx,frame,f,f). It runs the ORIGINAL blit, then -- if the villager
+    has a mask and the atlas is built -- re-issues 0x44C790 with the SAME ecx/args
+    except arg1=mask atlas obj, arg4=mask row (mask-1), arg3=y-lift. So the mask
+    rides the exact camera-transformed world draw the head just used (scroll/zoom/
+    z/clip inherited), landing in the FINAL composite instead of an early pass the
+    world repaints. All guarded (no export / mask<=0 / atlas 0 -> nothing extra
+    drawn). Preserves esi/edi/ebp/ebx (only eax/ecx/edx touched, all caller-saved
+    across the original call)."""
+    def src(post_orig: int) -> str:
+        # y = worldY - MASK_DY[mask-1]*scale. eax still holds mask-1 here (already
+        # pushed as arg4), so it indexes the signed per-mask lift table; positive =
+        # UP. SCALED by the head's own blit scale (arg6) so the lift seats the mask
+        # on the head at every villager size (children/carried). The mask uses its
+        # own tall 65x145 cell whose face sits ~68px down from the cell top, so this
+        # lift is large (~face-y minus head-face-y). FPU balanced (fild/fistp).
+        y3 = (f"movsx eax, byte ptr [eax + {MASK_DY_TABLE}]\n"
+              f"            push eax\n"
+              f"            fild dword ptr [esp]\n"
+              f"            add esp, 4\n"
+              f"            fmul dword ptr [{MASK_W_A6}]\n"
+              f"            fistp dword ptr [{MASK_W_SCRATCH}]\n"
+              f"            mov ecx, dword ptr [{MASK_W_A3}]\n"
+              f"            sub ecx, dword ptr [{MASK_W_SCRATCH}]\n"
+              f"            push ecx")
+        return f"""
+            mov dword ptr [{MASK_W_MGR}], ecx
+            mov dword ptr [{MASK_W_REC}], esi
+            mov eax, [esp]
+            mov dword ptr [{MASK_W_RET}], eax
+            mov eax, [esp+4]
+            mov dword ptr [{MASK_W_A1}], eax
+            mov eax, [esp+8]
+            mov dword ptr [{MASK_W_A2}], eax
+            mov eax, [esp+0xC]
+            mov dword ptr [{MASK_W_A3}], eax
+            mov eax, [esp+0x10]
+            mov dword ptr [{MASK_W_A4}], eax
+            mov eax, [esp+0x14]
+            mov dword ptr [{MASK_W_A5}], eax
+            mov eax, [esp+0x18]
+            mov dword ptr [{MASK_W_A6}], eax
+            mov eax, [esp+0x1C]
+            mov dword ptr [{MASK_W_A7}], eax
+            mov dword ptr [esp], {post_orig}
+            jmp 0x{MASK_WORLD_CALLEE:X}
+        post_orig:
+            call 0x{MASK_RESOLVE_VA:X}
+            mov eax, dword ptr [{MASK_SLOT_GET_PTR}]
+            test eax, eax
+            jz mw_done
+            push dword ptr [{MASK_W_REC}]
+            call eax
+            test eax, eax
+            jle mw_done
+            dec eax
+            mov edx, dword ptr [{MASK_SLOT_ATLAS}]
+            test edx, edx
+            jz mw_done
+            push dword ptr [{MASK_W_A7}]
+            push dword ptr [{MASK_W_A6}]
+            mov ecx, dword ptr [{MASK_W_REC}]
+            mov ecx, dword ptr [ecx + 0x1CD4]
+            and ecx, 7
+            push ecx
+            push eax
+            {y3}
+            push dword ptr [{MASK_W_A2}]
+            push edx
+            mov ecx, dword ptr [{MASK_W_MGR}]
+            call 0x{MASK_WORLD_CALLEE:X}
+        mw_done:
+            jmp dword ptr [{MASK_W_RET}]
+        """
+    prologue = src(0).split("post_orig:")[0]
+    post_orig = MASK_WORLD_VA + len(assemble(prologue, MASK_WORLD_VA))
+    return assemble(src(post_orig), MASK_WORLD_VA)
 
 
 def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str) -> None:
@@ -1423,6 +1782,60 @@ def main() -> None:
           "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
     patch(VV4_DETAIL_RECORD_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
           "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)")
+    # Capture the active save number before the companion sidecar can be read or
+    # written. The save builder's first six stock bytes are only relocated to the
+    # owned .shr tail; the native save format and every later save instruction are
+    # unchanged.
+    mask_save_slot = mask_save_slot_cave()
+    patch(MASK_SAVE_SLOT_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
+          "Heathen mask: patch-owned active-save slot scratch (zero = fail closed)")
+    patch(MASK_SAVE_SLOT_CAVE_FILE_OFFSET, b"\0" * len(mask_save_slot), mask_save_slot,
+          "Heathen mask: capture save-builder slot 1..5 in owned .shr executable tail")
+    patch(MASK_SAVE_SLOT_SITE - IMAGE_BASE,
+          bytes.fromhex("81EC04010000"),
+          rel32_jump(MASK_SAVE_SLOT_SITE, MASK_SAVE_SLOT_CAVE_VA) + b"\x90",
+          "Heathen mask: capture the selected save slot before the stock save builder")
+    # Heathen-mask cosmetic overlay (SDL blit via companion DLL). The head cave
+    # is in the reclaimed false-detail gap; resolve/present/world are in the
+    # free RWX .shr tail. NO villager-record writes, NO atlas/row
+    # changes, so no existing upgrade/menu/patch is touched. The DLL owns the
+    # mask side-table, the clear-on-death sweep, and the SDL blit.
+    mask_resolve = mask_resolve_cave(s["icons_dll"])
+    patch(MASK_RESOLVE_FILE_OFFSET, b"\0" * len(mask_resolve), mask_resolve,
+          "Heathen mask: resolve cave -- LoadLibraryA the companion DLL and GetProcAddress Vv4MaskCacheSurface(@110)/Vv4MaskDrawRecord(@112) by ordinal, once (guarded)")
+    mask_present = mask_present_cave()
+    patch(MASK_PRESENT_FILE_OFFSET, b"\0" * len(mask_present), mask_present,
+          "Heathen mask: present cave -- cache the live render-target surface [screen_obj+0x30] into the DLL (also runs the clear-on-death sweep), then tail-call the real present")
+    mask_head = mask_head_cave()
+    patch(MASK_HEAD_FILE_OFFSET, b"\0" * len(mask_head), mask_head,
+          "Heathen mask: head cave -- draw the head normally then replay Vv4MaskGetForRecord with clean facing and scale-aware vertical seating (fingerprint-checked; mask=0 draws nothing); no villager fields written")
+    patch(MASK_PRESENT_SITE - IMAGE_BASE,
+          rel32_call(MASK_PRESENT_SITE, MASK_PRESENT_CALLEE),
+          rel32_call(MASK_PRESENT_SITE, MASK_PRESENT_VA),
+          f"Heathen mask: route the present call at {MASK_PRESENT_SITE:#x} through the surface-cache cave")
+    for site in MASK_HEAD_CALL_SITES:
+        patch(site - IMAGE_BASE,
+              rel32_call(site, MASK_DRAW_THUNK_VA), rel32_call(site, MASK_HEAD_VA),
+              f"Heathen mask: route the head-draw call at {site:#x} through the mask head cave")
+    # Walking-WORLD mask: wrap the deferred compositor's post-head camera blit so
+    # the mask renders on the actual village villagers (the Details pass above
+    # is an early pass the world repaints over).
+    mask_world = mask_world_cave()
+    patch(MASK_WORLD_FILE_OFFSET, b"\0" * len(mask_world), mask_world,
+          "Heathen mask: WORLD cave -- wrap FUN_00467da0's post-head camera world-blit (0x44C790) and re-issue it with arg1=mask atlas + arg4=mask row + y-lift so the walking-village mask lands in the deferred composite")
+    # Initialise the per-mask vertical-nudge table (chief +7 up). Lives just past
+    # the cave + scratch in the .shr tail; assert the cave never reaches it.
+    _shr_delta = MASK_WORLD_VA - MASK_WORLD_FILE_OFFSET
+    _dy_file = MASK_DY_TABLE - _shr_delta
+    assert MASK_WORLD_FILE_OFFSET + len(mask_world) <= _dy_file, \
+        "world cave grew into the per-mask DY table -- relocate the table/scratch"
+    patch(_dy_file, b"\0" * len(MASK_DY_VALUES),
+          bytes(v & 0xFF for v in MASK_DY_VALUES),
+          "Heathen mask: per-mask vertical nudge table (blue/orange/red/purple/chief)")
+    patch(MASK_WORLD_SITE - IMAGE_BASE,
+          rel32_call(MASK_WORLD_SITE, MASK_WORLD_CALLEE),
+          rel32_call(MASK_WORLD_SITE, MASK_WORLD_VA),
+          f"Heathen mask: route the world compositor's post-head blit at {MASK_WORLD_SITE:#x} through the world mask cave")
     patch(0x3FBE5, bytes.fromhex("E81684FDFF"), rel32_call(0x43FBE5, BARREL_COUNTDOWN_VA),
           "route the real event-scheduler tick (0x43FBE5 -> 0x418000) through the Barrel cue so a purchased barrel is presented naturally after its delay")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
@@ -1460,8 +1873,8 @@ def main() -> None:
         "game_id": "vv4",
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xA0CD8", "entry_name": "running"},
-        "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance.",
+        "name": "Enable Origins-Exclusive Features (with Heathen Mask mod)",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
         "output_tag": "Origins Exclusive Features",
         "ui_contract": ui_metadata,
         "native_handlers": {
@@ -1479,7 +1892,33 @@ def main() -> None:
                 "sha256": hashlib.sha256(
                     (ROOT / "assets/origins/VVFP VV4 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
-            }
+            },
+            # Heathen-mask RENDER atlas: the exact hand-aligned mask art, 8
+            # directional columns x 5 mask rows of 40x65 cells. The DLL builds a
+            # game ldwImageGrid sprite from it via the MULTI-FILE ctor
+            # FUN_0040ABA0(name,ext,1,1,8,5), which sprintf's "%s%d%d%s" ->
+            # "<name>00.png", so it ships as vvfp_mask_atlas00.png. The multi-file
+            # ctor is required: it populates the surface array at obj[0xc] where
+            # the draw path (FUN_0040a990) looks; the single-file loader leaves it
+            # 0 and nothing blits. Added file (no atlas swaps/row bumps) -- removed
+            # on unpatch, stock atlases untouched.
+            {
+                "source": "assets/vv4_masks/vvfp_mask_atlas.png",
+                "destination": "Images/vvfp_mask_atlas00.png",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets/vv4_masks/vvfp_mask_atlas.png").read_bytes()
+                ).hexdigest().upper(),
+            },
+            # Centered 40x65 mask preview atlas for the Change Appearance chooser
+            # (autocropped, ~90% fill; VV2-parity source size). Added file, so no
+            # preimage/restore -- it is removed on unpatch.
+            {
+                "source": "assets/vv4_masks/vvfp_mask_preview.png",
+                "destination": "Images/vvfp_mask_preview.png",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets/vv4_masks/vvfp_mask_preview.png").read_bytes()
+                ).hexdigest().upper(),
+            },
         ],
         "doubler_evidence": {
             "build": {

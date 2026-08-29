@@ -440,6 +440,29 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x156F8", "0x15862", "0x1586F", "0x15A81",
                     "0x15B46", "0x15D8C", "0x16722", "0x16735",
                     "0x1520E",
+                    # Heathen-mask cosmetic overlay (SDL blit via companion
+                    # DLL). Replaced the old append-rows approach (render cave
+                    # 0xCCD80 and row-count bumps 0xC3C24/0xC3B94) with three
+                    # .shr caves -- resolve 0xCCD90, present-surface-cache
+                    # 0xCCDE0, head-draw 0xCC7A1 -- the present-call splice
+                    # (0x9458), and the confirmed Details head call (0x5F702).
+                    # The inherited Island Event call (0x5F9CA) is deliberately
+                    # removed and left stock. No row bumps, no atlas swaps. The
+                    # proven-wrong Details route (0x5F965) and former scratch
+                    # slots (0xCCA28/0xCCA30/0xCCA34) are removed; 0xCC7A1 is
+                    # reclaimed for the confirmed Details head cave.
+                    "0xCCD80", "0xC3C24", "0xC3B94",
+                    "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
+                    "0x5F702", "0x5F9CA", "0x5F965", "0xCC7A1",
+                    "0xCCA28", "0xCCA30", "0xCCA34",
+                    # The DY bytes remain the player-approved uniform 34s;
+                    # only the stale purpose text claiming a chief-only +7
+                    # adjustment is corrected by the authoritative generator.
+                    "0xCCFC4",
+                    # Save-slot sidecar namespace: capture the active slot in
+                    # owned .shr scratch before the exact 0x403670 save
+                    # builder continues its untouched body.
+                    "0xCCFCC", "0xCCFD0", "0x3670",
                 },
                 # 0x1890F: the D37 barrel selector hook — its forced native
                 # event index is corrected from 30 (Chutes Without Ladders) to
