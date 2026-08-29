@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -187,6 +189,64 @@ VV2_MASK_TABLE_VA = 0x004B3000
 
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
+# The mask stage owns these five fixed-build detours.  Its two appended pages
+# are emitted into the normal Origins manifest below; these rows are the
+# corresponding guarded fixed-image writes applied by the generic patcher.
+VV2_MASK_STAGE2_PATCHES = (
+    {
+        "offset": "0x3160",
+        "before": "8B4424048B11",
+        "after": "E95A120B0090",
+        "purpose": "route the exact VV2 save-path builder through the mask sidecar slot publisher",
+    },
+    {
+        "offset": "0x95B0",
+        "before": "8B09E989F3FFFF",
+        "after": "E997AA0A009090",
+        "purpose": "route the exact VV2 adult head draw through the mask overlay",
+    },
+    {
+        "offset": "0x9600",
+        "before": "8B09E9E9F6FFFF",
+        "after": "E920AB0A009090",
+        "purpose": "route the exact VV2 child and portrait head draw through the mask overlay",
+    },
+    {
+        "offset": "0x45B50",
+        "before": "5355568BF1",
+        "after": "E9E8E70600",
+        "purpose": "run the mask table sweep at the exact VV2 village compositor entry",
+    },
+    {
+        "offset": "0x4C5E6",
+        "before": "8986D874E500",
+        "after": "E9BD7C060090",
+        "purpose": "load the embedded mask atlas and companion exports at the exact VV2 asset-load tail",
+    },
+)
+VV2_MASK_STAGE2_APPEND_SHA256 = (
+    "4250AA5170550896560818C797B4C60E8B8E19F9060C0E076220791593708AFF"
+)
+
+
+def build_vv2_mask_stage2_output(source_bytes: bytes) -> bytes:
+    """Run the authoritative mask-stage builder during manifest generation."""
+    builder_path = ROOT / "scripts" / "build_vv2_mask_stage2.py"
+    spec = importlib.util.spec_from_file_location(
+        "vv2_mask_stage2_manifest_builder", builder_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("VV2 mask stage-2 builder is unavailable")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    with tempfile.TemporaryDirectory(prefix="vv2-origins-mask-") as temp_dir:
+        temp_root = Path(temp_dir)
+        source = temp_root / "stock.exe"
+        output = temp_root / "stage2.exe"
+        source.write_bytes(source_bytes)
+        module.build(output, src_exe=source)
+        return output.read_bytes()
+
 # Exact caller-return addresses proven by the VV2 stock executable audit.  The
 # wrappers compare the immediate caller return address so Island Event, Gong,
 # and duplicate-collectible tech awards remain byte-for-byte native while
@@ -243,6 +303,14 @@ def main() -> None:
         raise RuntimeError(
             f"stock SHA-256 mismatch: expected {expected_sha256}, got {actual_sha256}"
         )
+    mask_stage2_output = build_vv2_mask_stage2_output(original)
+    mask_append = mask_stage2_output[len(original) :]
+    if (
+        len(mask_append) != 0x2000
+        or hashlib.sha256(mask_append).hexdigest().upper()
+        != VV2_MASK_STAGE2_APPEND_SHA256
+    ):
+        raise RuntimeError("VV2 mask stage-2 append identity mismatch")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     strings = bytearray()
@@ -1030,6 +1098,14 @@ def main() -> None:
                 "after": after.hex().upper(),
                 "purpose": purpose,
             }
+        )
+
+    for mask_patch in VV2_MASK_STAGE2_PATCHES:
+        patch(
+            int(mask_patch["offset"], 16),
+            bytes.fromhex(mask_patch["before"]),
+            bytes.fromhex(mask_patch["after"]),
+            mask_patch["purpose"],
         )
 
     cure_code = assemble(
@@ -2168,13 +2244,67 @@ def main() -> None:
         "install the VV2 Origins Tech and Villager upgrade menus and mechanics",
     )
 
-    rendered = bytearray(original)
+    # The research executable is deliberately composed from the same exact
+    # stock image as the patcher: the mask stage owns the appended sections and
+    # five detours, then the Origins payload is applied over that result.
+    rendered = bytearray(mask_stage2_output)
     for item in patches:
         offset = int(item["offset"], 16)
         replacement = bytes.fromhex(item["after"])
         rendered[offset : offset + len(replacement)] = replacement
     OUT_EXE.write_bytes(rendered)
     OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
+
+    mask_header_patches = [
+        {
+            "offset": "0xF6",
+            "before": "0500",
+            "after": "0700",
+            "purpose": "add the patch-owned .mtab and .vvmk sections",
+        },
+        {
+            "offset": "0x140",
+            "before": "00300B00",
+            "after": "00500B00",
+            "purpose": "extend SizeOfImage over the patch-owned sections",
+        },
+        {
+            "offset": "0x2B0",
+            "before": bytes(40).hex().upper(),
+            "after": mask_stage2_output[0x2B0 : 0x2B0 + 40].hex().upper(),
+            "purpose": "install the patch-owned writable .mtab section header",
+        },
+        {
+            "offset": "0x2D8",
+            "before": bytes(40).hex().upper(),
+            "after": mask_stage2_output[0x2D8 : 0x2D8 + 40].hex().upper(),
+            "purpose": "install the patch-owned executable .vvmk section header",
+        },
+    ]
+    mask_layout = {
+        "original_file_size": "0xB1000",
+        "append_offset": "0xB1000",
+        "append_length": len(mask_append),
+        "append_bytes": mask_append.hex().upper(),
+        "virtual_address": "0x4B3000",
+        "section_name": ".mtab/.vvmk",
+        "page_sha256": hashlib.sha256(mask_append).hexdigest().upper(),
+        "purpose": "append the patch-owned VV2 mask table and RX renderer sections",
+        "header_patches": mask_header_patches,
+    }
+    mask_append_transaction = {
+        "owner": "vv2_enable_origins_exclusive_features",
+        "section_name": ".mtab/.vvmk",
+        "append_length": len(mask_append),
+        "append_offset": "0xB1000",
+        "page_sha256": hashlib.sha256(mask_append).hexdigest().upper(),
+        "source_sha256": actual_sha256,
+        "removal_policy": "restore the five exact mask detours, guarded PE section headers, and truncate only the owned .mtab/.vvmk pages",
+        "layouts": {
+            "collection_progression": mask_layout,
+            "immediate_fixed": dict(mask_layout),
+        },
+    }
 
     manifest = {
         "id": "vv2_enable_origins_exclusive_features",
@@ -2184,8 +2314,8 @@ def main() -> None:
         "game_id": "vv2",
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},
-        "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager.",
+        "name": "Enable Origins-Exclusive Features and Heathen Masks",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -2196,6 +2326,7 @@ def main() -> None:
                 ).hexdigest().upper(),
             }
         ],
+        "pe_append_transaction": mask_append_transaction,
         "doubler_evidence": {
             "build": {
                 "filename": "Virtual Villagers - The Lost Children.exe",

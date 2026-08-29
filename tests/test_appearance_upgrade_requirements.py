@@ -344,6 +344,10 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x8B790", "0x8B8A0", "0x8BD30",
                 },
                 "data/vv2_origins_feature.json": {
+                    # The mask-stage delivery adds five guarded fixed-image
+                    # detours; their exact before/after bytes are checked by
+                    # tests/test_vv2_mask_render.py.
+                    "0x3160", "0x95B0", "0x9600", "0x45B50", "0x4C5E6",
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",
                     # Change Appearance: the new chooser helper lives at
                     # 0x9AD20 (just past the optional village-wide payload).

@@ -299,7 +299,9 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("Farming", contract["food_mastery_status"])
         self.assertIn("Herb Mastery", contract["food_mastery_status"])
         runtime = {"patches": manifest["patches"]}
-        # Pins the exact runtime patch set. Re-pinned after PR #97 (b5deea9) added
+        # Pins the exact runtime patch set. Re-pinned after the VV2 mask-stage
+        # delivery added its five fixed-build detours; the prior Origins rows
+        # remain byte-for-byte unchanged.
         # the Heathen-mask / Change-Appearance dispatch code, which edits only the
         # non-doubler entries 0x9AD20, 0x9AE40, and the 0x296-0x48B region of 0x943A8.
         # The doubler wrapper regions in 0x943A8 (tech 0x820:0x8A0, food 0x8A0:0x960)
@@ -309,7 +311,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "91B222CFADF05EF9AC5C5B33B578A8841CE421EB9E329CC45F996D04F5DE3553",
+            "6F99A39DB5749193A7F8F5828319B3CCECC5733F3F205841C70115378601B2D4",
         )
         # Re-pinned after the companion DLL was rebuilt in PR #104 to link
         # shell32 and derive the mask sidecar path from the exe basename, so the

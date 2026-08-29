@@ -153,6 +153,14 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # the VV2 feature tests; all other Origins rows remain
                     # byte-identical to the prior record.
                     repaired_offsets = {
+                        # VV2 mask-stage delivery owns these fixed-image
+                        # detours; their guards are asserted in the dedicated
+                        # VV2 mask contract tests below.
+                        "0x3160",
+                        "0x95B0",
+                        "0x9600",
+                        "0x45B50",
+                        "0x4C5E6",
                         "0x9A009",
                         "0x9A300",
                         "0x9A530",
