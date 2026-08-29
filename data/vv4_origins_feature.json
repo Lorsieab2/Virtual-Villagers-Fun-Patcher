@@ -139,7 +139,7 @@
     {
       "source": "assets/origins/VVFP VV4 Origins Icons.dll",
       "destination": "VVFP VV4 Origins Icons.dll",
-      "sha256": "90BCA6162787C7AC9D87AB940B13FAC7FCC14E5D462DA5DC38E0C03CF2E1512F"
+      "sha256": "43071176E61E7C3841741A87DFA2C30D4139CE504A2411B6A004B3F659503266"
     },
     {
       "source": "assets/vv4_masks/vvfp_mask_atlas.png",
@@ -150,11 +150,6 @@
       "source": "assets/vv4_masks/vvfp_mask_preview.png",
       "destination": "Images/vvfp_mask_preview.png",
       "sha256": "9E3C8F929A327C29879B8988F69B3E63B5DA4D5E2E450DB76A8A108EE0DBCFDF"
-    },
-    {
-      "source": "assets/vv4_masks/vvfp_bighead_mask_atlas.png",
-      "destination": "Images/vvfp_bighead_mask_atlas00.png",
-      "sha256": "578709C0A7A2C0064440D67B2A2C30DEBEB75C48C61A4C9449EDE6E1527C9074"
     }
   ],
   "doubler_evidence": {
@@ -431,10 +426,10 @@
       "purpose": "Heathen mask: present cave -- cache the live render-target surface [screen_obj+0x30] into the DLL (also runs the clear-on-death sweep), then tail-call the real present"
     },
     {
-      "offset": "0xCCE10",
-      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "890D748D72008935788D72008B442408A37C8D72008B44240CA3808D72008B442414A3848D72008B442418A3888D72008B0424A38C8D7200C70424548E7200E91C0CCEFFE837FFFFFFA1688D720085C0743EFF35788D7200FFD085C07E32488B15708D720085D274276A00FF35888D7200FF35848D720050FF35808D7200FF357C8D7200528B0D748D7200E8D00BCEFFFF258C8D7200",
-      "purpose": "Heathen mask: head cave -- draw the head normally then Vv4MaskDrawRecord(esi,x,y,frame,100) (fingerprint-checked; mask=0 draws nothing); no villager fields written"
+      "offset": "0xCC7A1",
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "890D748D72008935788D72008B442408A37C8D72008B44240CA3808D72008B86D41C000083E007A3848D72008B442418A3888D72008B0424A38C8D7200C70424EA877200E98612CEFFE8A1050000A1688D720085C0746AFF35788D7200FFD085C07E5E488B15708D720085D274536A00FF35888D7200FF35848D7200500FBE80C48F72000FAF05888D720083C03231D2B964000000F7F9A3C08F72008B15708D72008B0D808D72002B0DC08F720051FF357C8D7200528B0D748D7200E80E12CEFFFF258C8D7200",
+      "purpose": "Heathen mask: head cave -- draw the head normally then replay Vv4MaskGetForRecord with clean facing and scale-aware vertical seating (fingerprint-checked; mask=0 draws nothing); no villager fields written"
     },
     {
       "offset": "0x9458",
@@ -445,14 +440,8 @@
     {
       "offset": "0x5F702",
       "before": "E869A3FAFF",
-      "after": "E809972C00",
+      "after": "E89A902C00",
       "purpose": "Heathen mask: route the head-draw call at 0x45f702 through the mask head cave"
-    },
-    {
-      "offset": "0x5F9CA",
-      "before": "E8A1A0FAFF",
-      "after": "E841942C00",
-      "purpose": "Heathen mask: route the head-draw call at 0x45f9ca through the mask head cave"
     },
     {
       "offset": "0xCCEB0",
@@ -464,43 +453,13 @@
       "offset": "0xCCFC4",
       "before": "0000000000",
       "after": "2222222222",
-      "purpose": "Heathen mask: per-mask vertical nudge table (blue/orange/red/purple/chief; chief +7 up)"
+      "purpose": "Heathen mask: per-mask vertical nudge table (blue/orange/red/purple/chief)"
     },
     {
       "offset": "0x68263",
       "before": "E82845FEFF",
       "after": "E8480C2C00",
       "purpose": "Heathen mask: route the world compositor's post-head blit at 0x468263 through the world mask cave"
-    },
-    {
-      "offset": "0xCC7A1",
-      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "890D008A72008935208A72008B0424A3048A72008B442408A30C8A72008B44240CA3108A72008B442418A31C8A7200C70424E28772008B0D008A7200E98E12CEFFE8A9050000A1688D720085C07476FF35208A7200FFD085C07E6A48A3248A72008B153C8A720085D2745A6A00FF351C8A72006A01FF35248A7200DB051C8A7200D80D348A7200DB1D388A72008B0D108A72002B0D388A720051DB051C8A7200D80D308A7200DB1D388A72008B0D0C8A72002B0D388A720051528B0D008A7200E80A12CEFFFF25048A7200",
-      "purpose": "Heathen mask: DETAILS cave -- wrap the portrait bighead draw (0x409A70 @0x45F965) and reissue it with the bighead mask atlas so the mask overlays the portrait at its own replayed position/scale"
-    },
-    {
-      "offset": "0xCCA28",
-      "before": "00000000",
-      "after": "0000C03F",
-      "purpose": "Heathen mask: Details bighead scale multiplier (2.6x = bighead face / village mask face)"
-    },
-    {
-      "offset": "0xCCA30",
-      "before": "00000000",
-      "after": "00000000",
-      "purpose": "Heathen mask: Details bighead X seat (mask_x = head_x - LIFTX*headScale)"
-    },
-    {
-      "offset": "0xCCA34",
-      "before": "00000000",
-      "after": "00000000",
-      "purpose": "Heathen mask: Details bighead Y seat (mask_y = head_y - LIFTY*headScale)"
-    },
-    {
-      "offset": "0x5F965",
-      "before": "E806A1FAFF",
-      "after": "E8378E2C00",
-      "purpose": "Heathen mask: route the Details portrait head draw at 0x45f965 through the Details mask cave"
     },
     {
       "offset": "0x3FBE5",

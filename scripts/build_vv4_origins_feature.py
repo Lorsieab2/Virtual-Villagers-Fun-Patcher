@@ -132,16 +132,15 @@ VV4_RESULT_HELPER_VA = PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET
 # absent in the scrolled world and too small on the scaled portrait). The mask
 # atlas is built once as a game ldwImageGrid sprite object (DLL FUN_0040ABA0);
 # its object pointer is published to a .shr slot the head cave reads. No villager
-# fields written; no atlas/row changes; other features untouched. Caves live in
-# the free RWX .shr tail past collections_apply @0x728D00 / detail scratch 0x728D40.
+# fields written; no atlas/row changes; other features untouched. The head cave
+# occupies the reclaimed false-detail gap at 0x7287A1; resolve/present/world
+# caves remain in the free RWX .shr tail.
 MASK_DLL_ORD_CACHE = 110               # Vv4MaskCacheSurface@4 (sweep + sidecar, per frame)
 MASK_DLL_ORD_GET = 114                 # Vv4MaskGetForRecord@4 (ensure atlas + return mask)
 MASK_DRAW_THUNK_VA = 0x409A70          # native head-draw thunk (mov ecx,[ecx]; jmp 0x408c40)
-MASK_DRAW_REAL = 0x408C40              # the real draw (reads atlas geometry from ecx=this)
-MASK_HEAD_CALL_SITES = (0x45F702, 0x45F9CA)  # walking-world twin + panel-portrait twin
+MASK_HEAD_CALL_SITES = (0x45F702,)          # confirmed Details full-body head draw
 MASK_PRESENT_SITE = 0x409458           # `call 0x4046f0` (E8 93B2FFFF); ecx=screen_obj
 MASK_PRESENT_CALLEE = 0x4046F0
-MASK_LIFT = 0                          # y-lift for face align (atlas is pre-aligned; tune live)
 LOADLIBRARYA_THUNK = 0x48A1E0          # call dword ptr [..] (matches collections_apply)
 GETPROCADDRESS_THUNK = 0x48A1DC
 # .shr data slots (runtime-written; zero at load; page is RWX). 12 dwords,
@@ -152,23 +151,24 @@ MASK_SLOT_GET_PTR = 0x728D68           # resolved Vv4MaskGetForRecord
 MASK_SLOT_RESOLVED = 0x728D6C          # byte flag: 0 = not yet resolved
 MASK_SLOT_ATLAS = 0x728D70             # mask ldwImageGrid obj ptr (DLL publishes here)
 # head-cave scratch (saved across the native head draw; single-threaded render,
-# non-reentrant, so one shared set serves both twins):
+# non-reentrant):
 MASK_S_ECX = 0x728D74
 MASK_S_ESI = 0x728D78
 MASK_S_X = 0x728D7C
 MASK_S_Y = 0x728D80
-MASK_S_FRAME = 0x728D84                # head facing
-MASK_S_TRANSFORM = 0x728D88            # head transform (scroll + scale)
+MASK_S_FACING = 0x728D84               # clean record facing (record+0x1CD4 & 7)
+MASK_S_TRANSFORM = 0x728D88            # head scale percent (native arg6)
 MASK_S_RET = 0x728D8C
+MASK_S_DY = 0x728FC0                    # shared lift result; caves are non-reentrant
 # caves (VA / file offset; .shr maps file 0xCC000 -> VA 0x728000):
 MASK_RESOLVE_VA = 0x728D90            # ~0x48 bytes -> ends ~0x728DD8
 MASK_RESOLVE_FILE_OFFSET = 0xCCD90
 MASK_PRESENT_VA = 0x728DE0            # ~0x1B bytes -> ends ~0x728DFB
 MASK_PRESENT_FILE_OFFSET = 0xCCDE0
-MASK_HEAD_VA = 0x728E10              # ~0x70 bytes -> ends ~0x728E80 (< page end 0x729000)
-MASK_HEAD_FILE_OFFSET = 0xCCE10
-# --- Walking-WORLD mask (the deferred compositor, separate from the twins) -----
-# The visible village villagers are NOT drawn by the FUN_0045f550 twins (that is an
+MASK_HEAD_VA = 0x7287A1              # relocated into the removed false-detail gap; leaves room for scaled seating
+MASK_HEAD_FILE_OFFSET = 0xCC7A1
+# --- Walking-WORLD mask (the deferred compositor, separate from Details) --------
+# The visible village villagers are NOT drawn by the FUN_0045f550 Details pass (that is an
 # immediate pass the world paints over) but by FUN_00467da0, run per-villager from
 # the queue flush FUN_0044c420 (case 6). Right after its head draw it issues a
 # camera-transforming world blit FUN_0044C790 (thiscall, ecx=world mgr 0x4DB9F8,
@@ -193,7 +193,7 @@ MASK_WORLD_FACING = 5                 # atlas COLUMN pinned to the front frame: 
                                       # layer's own arg5 is a WALK-ANIMATION frame (mask
                                       # cycled per step); pin to front for a stable mask
                                       # (per-facing LUT is a later refinement, like VV3)
-MASK_WORLD_VA = 0x728EB0             # cave in the free .shr tail (head cave ends 0x728EA6)
+MASK_WORLD_VA = 0x728EB0             # separate cave in the free .shr tail
 MASK_WORLD_FILE_OFFSET = 0xCCEB0
 # world-cave scratch (mgr/rec/ret + the 7 blit args + fp scratch), past the
 # ~0xd4-byte cave (0x728EB0..0x728F84), at 0x728F88..0x728FB4 (< page end 0x729000):
@@ -207,73 +207,17 @@ MASK_W_A4 = 0x728FB0                 # arg4 = ROW (we set to mask-1; 0-based)
 MASK_W_A5 = 0x728FB4                 # arg5 = the resolved sprite frame (unused for column now)
 MASK_W_A6 = 0x728FB8                 # arg6 = float (the head/blit SCALE; lift scales by it)
 MASK_W_A7 = 0x728FBC                 # arg7 = float
-MASK_W_SCRATCH = 0x728FC0            # fistp target for the scaled lift (< page end 0x729000)
-# Per-mask vertical nudge table (signed bytes, rows blue/orange/red/purple/chief =
+MASK_W_SCRATCH = MASK_S_DY            # fistp target for the scaled lift (< page end 0x729000)
+# Per-mask vertical nudge table (signed bytes, rows blue/orange/red/purple/chief,
 # mask value 1..5, indexed by mask-1). Added at draw time so a tall mask (chief)
 # whose face sits low in its uniform cell can be lifted without re-cutting the
 # atlas -- the whole-cell shift keeps feathers from clipping. Positive = UP.
 # Live-tunable: change the bytes + re-apply the patch, no atlas rebuild.
 # (Siblings VV1/VV2/VV3/VV5 all place final alignment in a draw-time nudge.)
-MASK_DY_TABLE = 0x728FC4             # 5 signed bytes at 0x728FC4..0x728FC8 (< 0x729000)
+MASK_DY_TABLE = 0x728FC4             # shared 5 signed bytes at 0x728FC4..0x728FC8 (< 0x729000)
 MASK_DY_VALUES = (34, 34, 34, 34, 34)  # uniform SCALED vertical re-seat (VV5-measured dy): mask-face-y minus head-face-y, 65x145 cell (X re-seat baked in atlas)
+MASK_HEAD_LIMIT_VA = 0x728B10        # next owned .shr allocation (Barrel countdown)
 
-# --- DETAILS bighead mask (portrait FUN_0043cdf0) --------------------------
-# Hook the portrait HEAD draw (call 0x409A70 __thiscall, ecx=drawmgr 0x4E00E0) at
-# 0x43CFDE; reissue it with the mask atlas obj so the mask rides the bighead at
-# its own (large) scale (VV5: pass-through position/scale, same as the village).
-# Column = a Details-only facing (right/front/left) -> mask cols 5/6/7; row=color.
-# Cave in the big free .shr gap 0x7287A1..0x728B10 (879 bytes).
-VV4_DETAIL_MASK_SITE = 0x45F965       # REAL portrait bighead draw `call 0x409A70` (esi=record); 0x43CFDE was dead
-VV4_DETAIL_MASK_CALLEE = 0x409A70
-VV4_DETAIL_MASK_VA = 0x7287A1
-VV4_DETAIL_MASK_FILE_OFFSET = 0xCC7A1
-VV4_REC_ARRAY_BASE = 0x50E5AC         # villager record array base
-VV4_REC_STRIDE = 0x2E3C
-VV4_DETAIL_FACING_COL = 1             # FRONT col of the dedicated 3-col bighead atlas (= 8-col frame 6, bighead-res); [right=0,front=1,left=2]
-MASK_SLOT_BIGHEAD_ATLAS = 0x728A3C    # dedicated bighead atlas obj ptr (DLL publishes here; free slot past D_TMP)
-# scratch (mgr/ret/6 args/index/mask), past the cave:
-D_MGR = 0x728A00
-D_RET = 0x728A04
-D_A1 = 0x728A08                       # atlas (head; we swap to mask)
-D_A2 = 0x728A0C                       # x
-D_A3 = 0x728A10                       # y
-D_A4 = 0x728A14                       # head field
-D_A5 = 0x728A18                       # frame
-D_A6 = 0x728A1C                       # scale
-D_IDX = 0x728A20                      # villager index (param_1 = [ebp+8])
-D_MASK = 0x728A24                     # mask-1 (row)
-D_SCALE = 0x728A28                    # float scale multiplier (bighead face / mask face)
-D_A6S = 0x728A2C                      # scaled arg6 (D_A6 * D_SCALE) for the mask draw
-D_LIFTX = 0x728A30                    # float: mask_x = D_A2 - LIFTX * headScale (seat X)
-D_LIFTY = 0x728A34                    # float: mask_y = D_A3 - LIFTY * headScale (seat Y)
-D_TMP = 0x728A38                      # fistp scratch for the scaled lifts
-# DIAGNOSTIC caller-capture: FUN_00409A70 is a thunk (mov ecx,[ecx]; jmp 0x408C40).
-# Splice its entry to a cave that dedups the caller's return address into a ring,
-# so the per-frame ANIMATED-portrait head-draw caller (which is NOT 0x43CFDE)
-# reveals itself. Free .shr gap 0x728A60..0x728D40.
-CALLER_CAPTURE_ENABLED = False        # diagnostic toggle (.shr too packed to fit 8 caves)
-# Ring + caves in the LOW .shr (0x728100..0x728800): the 0x728A00+ region is used by
-# the mask/scratch/record patches (a cave at 0x728BD8 collided), but the low .shr is
-# free. .shr maps file 0xCC000 -> VA 0x728000.
-CALLER_RING_COUNT = 0x728100          # dword: how many unique caller returns
-CALLER_RING = 0x728104                # up to 40 dword caller return addresses
-# The 8 sibling blit thunks (VS5's map); the bighead draws through one of them, so
-# splice ALL of them. Each cave logs the caller return (dedup) then replays
-# `mov ecx,[ecx]; jmp <target>`. Caves 0x40 apart from 0x728200.
-CALLER_THUNKS = [
-    (0x409960, 0x4086C0), (0x4099F0, 0x4088F0), (0x409A30, 0x408A30),
-    (0x409A70, 0x408C40), (0x409AD0, 0x408CF0), (0x409BD0, 0x409700),
-    (0x409F90, 0x409370), (0x409FA0, 0x409470),
-]
-CALLER_CAVES = [0x728200 + i * 0x40 for i in range(len(CALLER_THUNKS))]
-import struct as _struct
-D_SCALE_VALUE = _struct.pack("<f", 1.5)   # dedicated bighead-res atlas at head arg6 * 1.5 (VV5 landed)
-# Seat the SCALED mask's face onto the bighead's face: offset = headFace_incell -
-# maskFace_incell * scale, times the head's own scale arg (so children auto-seat).
-# bighead face ~(30,28) in its 60px cell; mask face ~(35,53) in the 65px cell:
-# X = 35*2.6 - 30 = 61 ; Y = 53*2.6 - 28 = 110. Owner-tunable.
-D_LIFTX_VALUE = _struct.pack("<f", 0.0)   # PURE REPLAY of portrait X (arg2) first; tune from owner's baseline
-D_LIFTY_VALUE = _struct.pack("<f", 0.0)   # PURE REPLAY of portrait Y (arg3) first; tune from owner's baseline
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -361,24 +305,35 @@ def mask_present_cave() -> bytes:
 
 
 def mask_head_cave() -> bytes:
-    """Spliced onto BOTH head-draw twins (`call 0x409a70`). Entry: ecx=this
+    """Spliced onto the confirmed Details head draw (`call 0x409a70`). Entry: ecx=this
     (sprite mgr), esi=villager record, [esp]=site return, [esp+4..]=stdcall draw
-    args (atlas, x, y, idx, frame=facing, transform, 0). It draws the head
+    args (atlas, x, y, idx, frame, transform, 0). It draws the head
     normally (swap the return to post_head, tail into the native thunk which
     returns via ret 0x1c), then draws the villager's mask reusing the head's
-    x/y/facing/transform (so scroll+scale are inherited), with idx=mask_row,
-    y-=lift. CRITICAL: the mask is drawn by calling the REAL draw 0x408c40
-    DIRECTLY with ecx = the mask atlas object -- NOT through the thunk 0x409A70.
-    0x408c40 reads the atlas geometry+surface from `this` (ecx); the thunk's
-    `mov ecx,[ecx]` turns ecx into the HEAD atlas, so routing the mask through it
-    would just redraw the head. The mask value + atlas object come from the DLL
-    (Vv4MaskGetForRecord ensures the multi-file atlas is built and published to
-    MASK_SLOT_ATLAS). All guarded: no export / mask<=0 / atlas 0 -> nothing drawn.
-    Single-threaded, non-reentrant -> one shared scratch set."""
+    x/facing/transform and applying the shared scale-aware DY table to y, with
+    idx=mask_row. The mask replay preserves the original draw-manager wrapper
+    in ECX and swaps only stack arg1 to the DLL-published mask atlas: 0x409A70
+    dereferences the wrapper, then 0x408C40 resolves geometry/surface from the
+    stack atlas. Passing the mask object as ECX would make the thunk dereference
+    atlas[0] and is unsafe. All guarded: no export / mask<=0 / atlas 0 ->
+    nothing drawn. Single-threaded, non-reentrant -> one shared scratch set."""
 
     def src(post_head: int) -> str:
-        y_expr = (f"push dword ptr [{MASK_S_Y}]" if MASK_LIFT == 0 else
-                  f"mov eax, dword ptr [{MASK_S_Y}]\n            sub eax, {MASK_LIFT}\n            push eax")
+        # The isolated mask sheet uses a tall cell.  The Details renderer passes
+        # arg6 as an integer scale percentage (0x408C40 filds it then divides
+        # by 100), so compute round(dy * percent / 100) without treating the
+        # integer as an IEEE float.  Positive native scales are expected here.
+        y_expr = (f"movsx eax, byte ptr [eax + {MASK_DY_TABLE}]\n"
+                  f"            imul eax, dword ptr [{MASK_S_TRANSFORM}]\n"
+                  f"            add eax, 50\n"
+                  f"            xor edx, edx\n"
+                  f"            mov ecx, 100\n"
+                  f"            idiv ecx\n"
+                  f"            mov dword ptr [{MASK_S_DY}], eax\n"
+                  f"            mov edx, dword ptr [{MASK_SLOT_ATLAS}]\n"
+                  f"            mov ecx, dword ptr [{MASK_S_Y}]\n"
+                  f"            sub ecx, dword ptr [{MASK_S_DY}]\n"
+                  f"            push ecx")
         return f"""
             mov dword ptr [{MASK_S_ECX}], ecx
             mov dword ptr [{MASK_S_ESI}], esi
@@ -386,8 +341,12 @@ def mask_head_cave() -> bytes:
             mov dword ptr [{MASK_S_X}], eax
             mov eax, [esp+0xC]
             mov dword ptr [{MASK_S_Y}], eax
-            mov eax, [esp+0x14]
-            mov dword ptr [{MASK_S_FRAME}], eax
+            # The native arg5 is an animation/age frame, not a clean facing:
+            # 0x45F6C4..0x45F6F3 adds an age-dependent atlas-column offset.
+            # Use the record's stable facing for the mask column instead.
+            mov eax, [esi+0x1CD4]
+            and eax, 7
+            mov dword ptr [{MASK_S_FACING}], eax
             mov eax, [esp+0x18]
             mov dword ptr [{MASK_S_TRANSFORM}], eax
             mov eax, [esp]
@@ -409,11 +368,13 @@ def mask_head_cave() -> bytes:
             jz mh_done
             push 0
             push dword ptr [{MASK_S_TRANSFORM}]
-            push dword ptr [{MASK_S_FRAME}]
+            push dword ptr [{MASK_S_FACING}]
             push eax
             {y_expr}
             push dword ptr [{MASK_S_X}]
             push edx
+            # Keep the draw-manager wrapper in ECX.  The thunk dereferences it
+            # to the render target; 0x408C40 consumes the mask atlas from arg1.
             mov ecx, dword ptr [{MASK_S_ECX}]
             call 0x{MASK_DRAW_THUNK_VA:X}
         mh_done:
@@ -421,7 +382,10 @@ def mask_head_cave() -> bytes:
         """
     prologue = src(0).split("post_head:")[0]
     post_head = MASK_HEAD_VA + len(assemble(prologue, MASK_HEAD_VA))
-    return assemble(src(post_head), MASK_HEAD_VA)
+    cave = assemble(src(post_head), MASK_HEAD_VA)
+    assert MASK_HEAD_VA + len(cave) <= MASK_HEAD_LIMIT_VA, \
+        "head cave grew into the next owned .shr allocation"
+    return cave
 
 
 def mask_world_cave() -> bytes:
@@ -505,119 +469,6 @@ def mask_world_cave() -> bytes:
     prologue = src(0).split("post_orig:")[0]
     post_orig = MASK_WORLD_VA + len(assemble(prologue, MASK_WORLD_VA))
     return assemble(src(post_orig), MASK_WORLD_VA)
-
-
-def mask_detail_cave() -> bytes:
-    """Spliced onto the Details PORTRAIT bighead draw `call 0x409A70` at 0x45F965
-    (the REAL portrait head site -- verified by disassembly; the old 0x43CFDE hook
-    never fired). At the call: esi = VILLAGER RECORD (0x45F895+ read [esi+0x1bb8]
-    head, [esi+0x1bbc] body, [esi+0x1b90] sex, [esi+0x1b8c] age off it), ecx =
-    [esi+0x2e2c] = draw-mgr POINTER (the 0x409A70 thunk `mov ecx,[ecx]` derefs it).
-    Stack: [esp]=return(0x45F96A), [esp+4]=arg1 atlas, [esp+8]=arg2 X (edi, already
-    anchor-subtracted), [esp+0xC]=arg3 Y (ebp, anchor-subtracted), [esp+0x10]=arg4
-    and [esp+0x14]=arg5 = resolver OUT-params for the BIGHEAD atlas (IGNORED -- they
-    are a linear frame decoded with the bighead's own cols; see 0x408C40/0x40A990),
-    [esp+0x18]=arg6 scale (int), [esp+0x1C]=arg7 (0). Callee 0x408C40 is stdcall,
-    `ret 0x1c` (cleans all 7 args).
-
-    Runs the original bighead head draw, then -- if the villager has a mask --
-    reissues 0x409A70 with arg1 = the dedicated bighead mask atlas and its OWN
-    (row,col): 0x40A990 decodes arg4=ROW, arg5=COL against arg1's own geometry
-    ([atlas+8]=cols,[atlas+0xc]=rows), so we PASS row=colour-1, col=FRONT and X/Y/
-    scale are pure-replayed (arg2/arg3/arg6). The portrait bighead is FIXED
-    front-facing (the resolver FUN_0044e960 @0x45F917 gets sex/head/body/age but NO
-    +0x1cd4 facing), so col is the constant FRONT column of the 3-col atlas.
-    Preserves esi/edi/ebp/ebx (only eax/ecx/edx touched, all caller-saved across the
-    original call)."""
-    def src(post_orig: int) -> str:
-        return f"""
-            mov dword ptr [{D_MGR}], ecx
-            mov dword ptr [{D_IDX}], esi
-            mov eax, [esp]
-            mov dword ptr [{D_RET}], eax
-            mov eax, [esp+8]
-            mov dword ptr [{D_A2}], eax
-            mov eax, [esp+0xC]
-            mov dword ptr [{D_A3}], eax
-            mov eax, [esp+0x18]
-            mov dword ptr [{D_A6}], eax
-            mov dword ptr [esp], {post_orig}
-            mov ecx, dword ptr [{D_MGR}]
-            jmp 0x{VV4_DETAIL_MASK_CALLEE:X}
-        post_orig:
-            call 0x{MASK_RESOLVE_VA:X}
-            mov eax, dword ptr [{MASK_SLOT_GET_PTR}]
-            test eax, eax
-            jz det_done
-            push dword ptr [{D_IDX}]
-            call eax
-            test eax, eax
-            jle det_done
-            dec eax
-            mov dword ptr [{D_MASK}], eax
-            mov edx, dword ptr [{MASK_SLOT_BIGHEAD_ATLAS}]
-            test edx, edx
-            jz det_done
-            push 0
-            push dword ptr [{D_A6}]
-            push {VV4_DETAIL_FACING_COL}
-            push dword ptr [{D_MASK}]
-            fild dword ptr [{D_A6}]
-            fmul dword ptr [{D_LIFTY}]
-            fistp dword ptr [{D_TMP}]
-            mov ecx, dword ptr [{D_A3}]
-            sub ecx, dword ptr [{D_TMP}]
-            push ecx
-            fild dword ptr [{D_A6}]
-            fmul dword ptr [{D_LIFTX}]
-            fistp dword ptr [{D_TMP}]
-            mov ecx, dword ptr [{D_A2}]
-            sub ecx, dword ptr [{D_TMP}]
-            push ecx
-            push edx
-            mov ecx, dword ptr [{D_MGR}]
-            call 0x{VV4_DETAIL_MASK_CALLEE:X}
-        det_done:
-            jmp dword ptr [{D_RET}]
-        """
-    prologue = src(0).split("post_orig:")[0]
-    post_orig = VV4_DETAIL_MASK_VA + len(assemble(prologue, VV4_DETAIL_MASK_VA))
-    return assemble(src(post_orig), VV4_DETAIL_MASK_VA)
-
-
-def caller_capture_cave(cave_va: int, target_va: int) -> bytes:
-    """Diagnostic: spliced onto a blit-thunk entry. Dedups the caller's return
-    address ([esp] at entry, since we JMP in) into the shared ring at CALLER_RING,
-    then replays the thunk (mov ecx,[ecx]; jmp <target_va>). The DLL present hook
-    dumps the ring so the bighead's per-frame draw caller is identifiable across
-    all 8 sibling thunks."""
-    src = f"""
-            pushfd
-            pushad
-            mov ebx, dword ptr [esp+0x24]
-            mov esi, {CALLER_RING}
-            mov ecx, dword ptr [{CALLER_RING_COUNT}]
-            xor edi, edi
-            test ecx, ecx
-            jz cc_add
-        cc_scan:
-            cmp dword ptr [esi+edi*4], ebx
-            je cc_out
-            inc edi
-            cmp edi, ecx
-            jl cc_scan
-        cc_add:
-            cmp ecx, 40
-            jge cc_out
-            mov dword ptr [esi+ecx*4], ebx
-            inc dword ptr [{CALLER_RING_COUNT}]
-        cc_out:
-            popad
-            popfd
-            mov ecx, dword ptr [ecx]
-            jmp 0x{target_va:X}
-    """
-    return assemble(src, cave_va)
 
 
 def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str) -> None:
@@ -1890,8 +1741,9 @@ def main() -> None:
           "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
     patch(VV4_DETAIL_RECORD_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
           "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)")
-    # Heathen-mask cosmetic overlay (SDL blit via companion DLL). Three tiny
-    # caves in the free RWX .shr tail; NO villager-record writes, NO atlas/row
+    # Heathen-mask cosmetic overlay (SDL blit via companion DLL). The head cave
+    # is in the reclaimed false-detail gap; resolve/present/world are in the
+    # free RWX .shr tail. NO villager-record writes, NO atlas/row
     # changes, so no existing upgrade/menu/patch is touched. The DLL owns the
     # mask side-table, the clear-on-death sweep, and the SDL blit.
     mask_resolve = mask_resolve_cave(s["icons_dll"])
@@ -1902,7 +1754,7 @@ def main() -> None:
           "Heathen mask: present cave -- cache the live render-target surface [screen_obj+0x30] into the DLL (also runs the clear-on-death sweep), then tail-call the real present")
     mask_head = mask_head_cave()
     patch(MASK_HEAD_FILE_OFFSET, b"\0" * len(mask_head), mask_head,
-          "Heathen mask: head cave -- draw the head normally then Vv4MaskDrawRecord(esi,x,y,frame,100) (fingerprint-checked; mask=0 draws nothing); no villager fields written")
+          "Heathen mask: head cave -- draw the head normally then replay Vv4MaskGetForRecord with clean facing and scale-aware vertical seating (fingerprint-checked; mask=0 draws nothing); no villager fields written")
     patch(MASK_PRESENT_SITE - IMAGE_BASE,
           rel32_call(MASK_PRESENT_SITE, MASK_PRESENT_CALLEE),
           rel32_call(MASK_PRESENT_SITE, MASK_PRESENT_VA),
@@ -1912,8 +1764,8 @@ def main() -> None:
               rel32_call(site, MASK_DRAW_THUNK_VA), rel32_call(site, MASK_HEAD_VA),
               f"Heathen mask: route the head-draw call at {site:#x} through the mask head cave")
     # Walking-WORLD mask: wrap the deferred compositor's post-head camera blit so
-    # the mask renders on the actual village villagers (the twins above are an
-    # early pass the world repaints over).
+    # the mask renders on the actual village villagers (the Details pass above
+    # is an early pass the world repaints over).
     mask_world = mask_world_cave()
     patch(MASK_WORLD_FILE_OFFSET, b"\0" * len(mask_world), mask_world,
           "Heathen mask: WORLD cave -- wrap FUN_00467da0's post-head camera world-blit (0x44C790) and re-issue it with arg1=mask atlas + arg4=mask row + y-lift so the walking-village mask lands in the deferred composite")
@@ -1925,45 +1777,11 @@ def main() -> None:
         "world cave grew into the per-mask DY table -- relocate the table/scratch"
     patch(_dy_file, b"\0" * len(MASK_DY_VALUES),
           bytes(v & 0xFF for v in MASK_DY_VALUES),
-          "Heathen mask: per-mask vertical nudge table (blue/orange/red/purple/chief; chief +7 up)")
+          "Heathen mask: per-mask vertical nudge table (blue/orange/red/purple/chief)")
     patch(MASK_WORLD_SITE - IMAGE_BASE,
           rel32_call(MASK_WORLD_SITE, MASK_WORLD_CALLEE),
           rel32_call(MASK_WORLD_SITE, MASK_WORLD_VA),
           f"Heathen mask: route the world compositor's post-head blit at {MASK_WORLD_SITE:#x} through the world mask cave")
-    # Detail-portrait (big) head draw: hook the REAL portrait bighead draw
-    # `call 0x409A70` at 0x45F965 (esi=record), run it, then reissue with the
-    # dedicated bighead mask atlas (row=colour-1, col=FRONT) at the portrait's own
-    # replayed X/Y/scale. (The old 0x43CFDE hook was a dead site and never fired.)
-    mask_detail = mask_detail_cave()
-    patch(VV4_DETAIL_MASK_FILE_OFFSET, b"\0" * len(mask_detail), mask_detail,
-          "Heathen mask: DETAILS cave -- wrap the portrait bighead draw (0x409A70 @0x45F965) and reissue it with the bighead mask atlas so the mask overlays the portrait at its own replayed position/scale")
-    _d_scale_file = D_SCALE - (VV4_DETAIL_MASK_VA - VV4_DETAIL_MASK_FILE_OFFSET)
-    assert VV4_DETAIL_MASK_FILE_OFFSET + len(mask_detail) <= _d_scale_file, \
-        "Details cave grew into the D_SCALE constant"
-    patch(_d_scale_file, b"\0" * 4, D_SCALE_VALUE,
-          "Heathen mask: Details bighead scale multiplier (2.6x = bighead face / village mask face)")
-    _shr_delta_d = VV4_DETAIL_MASK_VA - VV4_DETAIL_MASK_FILE_OFFSET
-    patch(D_LIFTX - _shr_delta_d, b"\0" * 4, D_LIFTX_VALUE,
-          "Heathen mask: Details bighead X seat (mask_x = head_x - LIFTX*headScale)")
-    patch(D_LIFTY - _shr_delta_d, b"\0" * 4, D_LIFTY_VALUE,
-          "Heathen mask: Details bighead Y seat (mask_y = head_y - LIFTY*headScale)")
-    patch(VV4_DETAIL_MASK_SITE - IMAGE_BASE,
-          rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_CALLEE),
-          rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_VA),
-          f"Heathen mask: route the Details portrait head draw at {VV4_DETAIL_MASK_SITE:#x} through the Details mask cave")
-    # DIAGNOSTIC caller-capture (temporary): splice the 8 sibling blit thunks so the
-    # bighead's per-frame portrait draw caller (through whichever thunk) is captured.
-    # Caves + ring live in the LOW .shr (0x728100..0x728800), verified free of other
-    # patches (the 0x728A00+ region is used by the mask/scratch/record patches).
-    if CALLER_CAPTURE_ENABLED:
-        _shr_va2file = MASK_WORLD_VA - MASK_WORLD_FILE_OFFSET
-        for (thunk, target), cave_va in zip(CALLER_THUNKS, CALLER_CAVES):
-            cc = caller_capture_cave(cave_va, target)
-            patch(cave_va - _shr_va2file, b"\0" * len(cc), cc,
-                  f"DIAGNOSTIC: caller-capture cave for blit thunk {thunk:#x}")
-            before5 = b"\x8b\x09\xe9" + _struct.pack("<i", target - (thunk + 7))[:2]
-            patch(thunk - IMAGE_BASE, before5, rel32_jump(thunk, cave_va),
-                  f"DIAGNOSTIC: splice blit thunk {thunk:#x} to its caller-capture cave")
     patch(0x3FBE5, bytes.fromhex("E81684FDFF"), rel32_call(0x43FBE5, BARREL_COUNTDOWN_VA),
           "route the real event-scheduler tick (0x43FBE5 -> 0x418000) through the Barrel cue so a purchased barrel is presented naturally after its delay")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
@@ -2045,19 +1863,6 @@ def main() -> None:
                 "destination": "Images/vvfp_mask_preview.png",
                 "sha256": hashlib.sha256(
                     (ROOT / "assets/vv4_masks/vvfp_mask_preview.png").read_bytes()
-                ).hexdigest().upper(),
-            },
-            # DEDICATED bighead-resolution mask atlas for the Details PORTRAIT: 3
-            # facing-cols x 5 colour-rows, ~40x90 cells (same source art VV5 uses).
-            # The DLL builds it via FUN_0040ABA0(name,ext,1,1,3,5) -> ships as
-            # vvfp_bighead_mask_atlas00.png. Portrait draws its FRONT col (1) at the
-            # head's own scale x1.5 -- crisp, correctly sized (vs the old blurry
-            # village-atlas-x2.6 hack). Added file; stock art untouched.
-            {
-                "source": "assets/vv4_masks/vvfp_bighead_mask_atlas.png",
-                "destination": "Images/vvfp_bighead_mask_atlas00.png",
-                "sha256": hashlib.sha256(
-                    (ROOT / "assets/vv4_masks/vvfp_bighead_mask_atlas.png").read_bytes()
                 ).hexdigest().upper(),
             },
         ],

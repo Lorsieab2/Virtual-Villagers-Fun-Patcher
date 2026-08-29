@@ -8,10 +8,10 @@ cosmetic and NON-INVASIVE:
   per-frame clear-on-death sweep keyed on the game's own free-slot flag
   (record+0x1CC4), and a gender+name fingerprint backstop. NO villager-record
   bytes are written, and NO game atlas/row is altered.
-* The exe carries only three tiny caves in the free RWX .shr tail (resolve /
-  present-surface-cache / head-draw) plus the call-site redirects. It must not
-  touch any other upgrade, menu, or patch: no head-atlas row-count bumps, no
-  atlas swaps, and the detail-portrait draw is left unhooked for now.
+* The exe carries four tiny caves (the reclaimed Details head gap plus resolve /
+  present-surface-cache / world-draw caves) plus the call-site redirects. It
+  must not touch any other upgrade, menu, or patch: no head-atlas row-count
+  bumps, no atlas swaps, and the proven-wrong 0x45F965 route is absent.
 * The render atlas (Images/vvfp_mask_atlas.png) ships as an added file; stock
   atlases are untouched.
 
@@ -32,11 +32,15 @@ IMAGE_BASE = 0x400000
 # Cave VAs (mirror scripts/build_vv4_origins_feature.py).
 MASK_RESOLVE_VA = 0x728D90
 MASK_PRESENT_VA = 0x728DE0
-MASK_HEAD_VA = 0x728E10
+MASK_HEAD_VA = 0x7287A1
+MASK_HEAD_FILE_OFFSET = 0xCC7A1
 MASK_PRESENT_SITE = 0x409458
 MASK_PRESENT_CALLEE = 0x4046F0
 MASK_DRAW_THUNK_VA = 0x409A70
-MASK_HEAD_CALL_SITES = (0x45F702, 0x45F9CA)
+MASK_DRAW_REAL_VA = 0x408C40
+MASK_HEAD_CALL_SITES = (0x45F702,)
+DETAIL_FALSE_SITE = 0x45F965
+DETAIL_FALSE_OLD_SCRATCH_OFFSETS = (0xCCA28, 0xCCA30, 0xCCA34)
 
 
 def _rel_target(after_hex: str, site_va: int) -> int:
@@ -137,7 +141,7 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
         self.assertTrue(p["after"].upper().startswith("E8"))
         self.assertEqual(_rel_target(p["after"], MASK_PRESENT_SITE), MASK_PRESENT_VA)
 
-    def test_both_head_twins_are_redirected_to_the_head_cave(self) -> None:
+    def test_confirmed_details_head_is_redirected_to_the_head_cave(self) -> None:
         for site in MASK_HEAD_CALL_SITES:
             p = self.by_off[site - IMAGE_BASE]
             # was `call 0x409a70` (the head-draw thunk), still a call.
@@ -145,19 +149,91 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
             self.assertTrue(p["after"].upper().startswith("E8"))
             self.assertEqual(_rel_target(p["after"], site), MASK_HEAD_VA)
 
-    def test_three_caves_live_in_zeroed_shr_space(self) -> None:
-        for off in (0xCCD90, 0xCCDE0, 0xCCE10):   # resolve / present / head
+    def test_details_uses_confirmed_full_body_head_draw(self) -> None:
+        # Exact stock trace: Details vtable entry 6 (0x48EFFC) -> 0x447D30 ->
+        # 0x460BF0(record, 0) -> 0x45F550; its head draw is 0x45F702 using
+        # record+0x1BB8.  The 0x45F965 route belongs to another renderer and
+        # must never be emitted by this feature.
+        self.assertNotIn(DETAIL_FALSE_SITE - IMAGE_BASE, self.by_off)
+        self.assertIn(MASK_HEAD_FILE_OFFSET, self.by_off)
+        for off in DETAIL_FALSE_OLD_SCRATCH_OFFSETS:
+            self.assertNotIn(off, self.by_off)
+        self.assertEqual(
+            _rel_target(self.by_off[0x45F702 - IMAGE_BASE]["after"], 0x45F702),
+            MASK_HEAD_VA,
+        )
+        self.assertNotIn(0x45F9CA - IMAGE_BASE, self.by_off)
+
+    def test_head_replay_preserves_draw_context_and_uses_mask_arg1(self) -> None:
+        # VV2/VV5 parity: 0x409A70 is retained for the draw-manager wrapper
+        # (mov ecx,[ecx]); 0x408C40 is not called with the atlas as ECX. The
+        # mask replay uses a clean record facing, not the age-adjusted native
+        # animation frame passed as arg5 by the portrait renderer.
+        source = (ROOT / "scripts" / "build_vv4_origins_feature.py").read_text("utf-8")
+        head_source = source.split("def mask_head_cave", 1)[1].split(
+            "def mask_world_cave", 1)[0]
+        self.assertIn("mov ecx, dword ptr [{MASK_S_ECX}]", head_source)
+        self.assertIn("call 0x{MASK_DRAW_THUNK_VA:X}", head_source)
+        self.assertIn("mov eax, [esi+0x1CD4]", head_source)
+        self.assertIn("and eax, 7", head_source)
+        self.assertNotIn("mov eax, [esp+0x14]", head_source)
+        self.assertIn("movsx eax, byte ptr [eax + {MASK_DY_TABLE}]", head_source)
+        # Details arg6 is an integer percent, matching 0x408C40's fild / 100;
+        # the head replay must not reinterpret it as an IEEE float.  +50 gives
+        # nearest-integer seating for positive native scales.
+        self.assertIn("imul eax, dword ptr [{MASK_S_TRANSFORM}]", head_source)
+        self.assertIn("add eax, 50", head_source)
+        self.assertIn("idiv ecx", head_source)
+        self.assertNotIn("fmul dword ptr [{MASK_S_TRANSFORM}]", head_source)
+        self.assertIn("sub ecx, dword ptr [{MASK_S_DY}]", head_source)
+        self.assertEqual(
+            head_source.count("mov dword ptr [{MASK_S_FACING}], eax"), 1,
+            "clean facing must not be overwritten by lift arithmetic")
+        self.assertNotIn("fistp dword ptr [{MASK_S_FACING}]", head_source)
+        world_source = source.split("def mask_world_cave", 1)[1].split(
+            "def add_c_string", 1)[0]
+        self.assertIn("fild dword ptr [esp]", world_source)
+        self.assertIn("fmul dword ptr [{MASK_W_A6}]", world_source)
+        cave = bytes.fromhex(self.by_off[MASK_HEAD_FILE_OFFSET]["after"])
+        call_targets = []
+        for i, value in enumerate(cave[:-4]):
+            if value == 0xE8:
+                rel = int.from_bytes(cave[i + 1:i + 5], "little", signed=True)
+                call_targets.append(MASK_HEAD_VA + i + 5 + rel)
+        self.assertIn(MASK_DRAW_THUNK_VA, call_targets)
+        self.assertNotIn(MASK_DRAW_REAL_VA, call_targets)
+        # The generated bytes include mov eax,[esi+0x1CD4]; and eax,7 before
+        # storing the clean facing scratch used by the mask replay.
+        self.assertIn(bytes.fromhex("8B86D41C000083E007"), cave)
+        # Details arg6 is the native integer percent: imul dy*percent, round
+        # with +50, then idiv 100.  This guards against the old IEEE-float bug.
+        self.assertIn(
+            bytes.fromhex("0FAF05888D720083C03231D2B964000000F7F9"), cave)
+        # The separate world cave retains its 0x44C790 float-scale contract.
+        world_cave = bytes.fromhex(self.by_off[0xCCEB0]["after"])
+        self.assertIn(bytes.fromhex("DB0424"), world_cave)  # fild [esp]
+        self.assertIn(bytes.fromhex("D80DB88F7200"), world_cave)  # fmul scale
+        self.assertLessEqual(MASK_HEAD_VA + len(cave), 0x728B10)
+
+    def test_mask_caves_live_in_zeroed_shr_space(self) -> None:
+        for off in (0xCCD90, 0xCCDE0, MASK_HEAD_FILE_OFFSET, 0xCCEB0):
             cave = self.by_off[off]
             self.assertEqual(set(cave["before"]), {"0"})   # was zero-filled .shr
             self.assertGreater(len(bytes.fromhex(cave["after"])), 0)
+        self.assertNotIn(0xCCE10, self.by_off)  # old head cave was not reused
 
     def test_non_invasive_no_row_bumps_and_portrait_unhooked(self) -> None:
         # No head-atlas row-count bumps (male/female/bigheads) -- the old
         # append-rows approach is gone.
         for off in (0xC3C24, 0xC3B94, 0xC3CB4):
             self.assertNotIn(off, self.by_off, f"row-count field {off:#x} must not be patched")
-        # Detail-portrait head-draw call site stays unhooked (follow-up).
+        # The old dead site and the proven-wrong 0x45F965 Details route stay
+        # byte-identical; no obsolete portrait cave is emitted.
         self.assertNotIn(0x3D040, self.by_off)
+        self.assertNotIn(DETAIL_FALSE_SITE - IMAGE_BASE, self.by_off)
+        self.assertNotIn(0x45F9CA - IMAGE_BASE, self.by_off)
+        for off in DETAIL_FALSE_OLD_SCRATCH_OFFSETS:
+            self.assertNotIn(off, self.by_off)
 
     def test_render_atlas_ships_as_an_added_file(self) -> None:
         cf = self.m["companion_files"]
