@@ -414,6 +414,13 @@ VILLAGE_DBG_CALLER_VA = VILLAGE_MASK_ROW_VA + 4         # +0x1CC dword, DIAGNOST
 VILLAGE_MASKED_BITMAP_VA = VILLAGE_DBG_CALLER_VA + 4    # +0x1D0..+0x1F0, 256-bit per-frame "already masked this villager" guard (cleared once per frame by the draw hook) so villagers drawn by more than one render pass get exactly ONE mask
 VILLAGE_DRAWFN_VA = VILLAGE_MASKED_BITMAP_VA + 0x20     # +0x1F0 dword, per-entry original draw fn (0x408840 adult / 0x408740 child-alt) so one shared 5-arg body serves both thunks
 VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (still well clear of .shr at 0x48D000)
+# The exact-build save builder at 0x402ED0 receives the numbered save slot as
+# its first argument before formatting "%s%d.ldw".  Capture that argument in
+# patch-owned R/W scratch so the DLL can select a slot-specific sidecar.  Zero
+# is deliberately invalid/fail-closed; the game uses numbered slots 1..5.
+MASK_SAVE_SLOT_VA = DATA_SCRATCH_BASE_VA + 0x1F4
+MASK_SAVE_SLOT_FIRST = 1
+MASK_SAVE_SLOT_LAST = 5
 # The village-mask caves (two per-loop stash writes + the shared-draw hook) live
 # in the free .shr tail run at 0x8B180 (0x8B17F..0x8B530, ~940 zero bytes in the
 # rendered exe), laid out contiguously like the portrait caves.
@@ -460,6 +467,14 @@ THIRD_HOOK_VA = mask_code_va(THIRD_HOOK_FILE_OFFSET)
 # (PORTRAIT_DLL_FN_VA) so resolution happens once, not every frame.
 PORTRAIT_MASK_CAVE_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x720  # .vv1mc, 0x100 reserved (ends 0x820 < 0x1000)
 PORTRAIT_MASK_CAVE_VA = mask_code_va(PORTRAIT_MASK_CAVE_FILE_OFFSET)
+# Save-slot capture is isolated in the remaining .vv1mc tail.  It replaces
+# only the two first native instructions at 0x402ED0 and replays them before
+# the natural 0x402ED6 resume, preserving the save builder's ABI.
+SAVE_SLOT_CAPTURE_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x820
+SAVE_SLOT_CAPTURE_VA = mask_code_va(SAVE_SLOT_CAPTURE_FILE_OFFSET)
+SAVE_SLOT_CAPTURE_SPLICE_FILE_OFFSET = 0x2ED0
+SAVE_SLOT_CAPTURE_SPLICE_VA = 0x402ED0
+SAVE_SLOT_CAPTURE_RESUME_VA = 0x402ED6
 PORTRAIT_HEAD_DRAW_SPLICE_FILE = 0x3741B  # 'call 0x409410' (the head draw) in sub_437340
 PORTRAIT_HEAD_DRAW_RESUME_VA = 0x437420   # instruction right after that call
 PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite draw
@@ -2473,6 +2488,58 @@ def main() -> None:
         """,
         MASK_RESTORE_STUB_VA,
     )
+    # Capture the exact numbered save-slot argument before the native builder
+    # formats "%s%d.ldw".  The hook is intentionally a tiny ABI-preserving
+    # trampoline: it saves every register while it updates patch-owned state,
+    # then replays the displaced `mov eax,[esp+4]; mov edx,[ecx]` and resumes at
+    # 0x402ED6.  Invalid/slot-zero values store zero and clear all mask state;
+    # the DLL consequently has no sidecar to open for them.
+    save_slot_capture_code = assemble(
+        f"""
+            pushad
+            mov eax, dword ptr [esp + 0x24]       # original arg1: slot
+            cmp eax, {MASK_SAVE_SLOT_LAST}
+            jbe save_slot_range_high_ok
+            xor eax, eax                           # invalid -> fail closed
+            jmp save_slot_compare
+        save_slot_range_high_ok:
+            cmp eax, {MASK_SAVE_SLOT_FIRST}
+            jae save_slot_compare
+            xor eax, eax                           # slot zero -> fail closed
+        save_slot_compare:
+            cmp eax, dword ptr [{MASK_SAVE_SLOT_VA:#x}]
+            je save_slot_done
+            mov dword ptr [{MASK_SAVE_SLOT_VA:#x}], eax
+            # Reset the exe-side restore latch and all frame/table scratch.
+            # The DLL clears its own seen-alive latch when Vv1MaskRestore sees
+            # this new slot, before accepting the matching sidecar.
+            mov byte ptr [{MASK_RESTORE_DONE_VA:#x}], 0
+            mov dword ptr [{MASK_MANAGER_VA:#x}], 0
+            mov dword ptr [{MASK_LIST_COUNT_VA:#x}], 0
+            mov dword ptr [{VILLAGE_CUR_IDX_VA:#x}], 0xffffffff
+            mov dword ptr [{MASK_SCROLL_X_VA:#x}], 0
+            mov dword ptr [{MASK_SCROLL_Y_VA:#x}], 0
+            xor eax, eax
+            mov edi, {MASK_TABLE_VA:#x}
+            mov ecx, {MASK_TABLE_SIZE // 4}
+            rep stosd
+            mov edi, {VILLAGE_MASKED_BITMAP_VA:#x}
+            mov ecx, 8
+            rep stosd
+        save_slot_done:
+            popad
+            mov eax, dword ptr [esp + 4]
+            mov edx, dword ptr [ecx]
+            jmp {SAVE_SLOT_CAPTURE_RESUME_VA:#x}
+        """,
+        SAVE_SLOT_CAPTURE_VA,
+    )
+    patch(
+        SAVE_SLOT_CAPTURE_FILE_OFFSET,
+        b"\0" * len(save_slot_capture_code),
+        save_slot_capture_code,
+        "capture the exact VV1 save-slot argument at 0x402ED0 into .vv1md, reset the restore/frame/table state on a slot change, and fail closed for slot zero or invalid values",
+    )
     patch(
         MASK_RESTORE_STUB_FILE_OFFSET,
         b"\0" * len(mask_restore_stub_code),
@@ -3094,6 +3161,18 @@ def main() -> None:
         mask_frame_cache_detour_code,
         "splice into FUN_00409060 (the true main per-frame tick) immediately before its own call to FUN_00403830 (the function that does the real SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain) -- reproduces the displaced 'mov ecx,[esi+0x30] / push ecx / mov ecx,esi' trio exactly (native presentation is bit-for-bit unchanged) and additionally caches that same, definitively-correct destination-surface pointer into DEST_SURFACE_CACHE_VA for the mask draw hook (splice point 2) to consume",
     )
+    save_slot_capture_detour_code = assemble(
+        f"""
+            jmp {SAVE_SLOT_CAPTURE_VA:#x}
+        """,
+        SAVE_SLOT_CAPTURE_SPLICE_VA,
+    )
+    patch(
+        SAVE_SLOT_CAPTURE_SPLICE_FILE_OFFSET,
+        bytes.fromhex("8B4424048B11"),
+        save_slot_capture_detour_code + b"\x90",
+        "splice the exact VV1 save builder at 0x402ED0 so both original argument-load instructions are guarded while its numbered slot argument is captured before the native save path formats %s%d.ldw",
+    )
 
     patch(
         CURE_ENTRY_FILE_OFFSET,
@@ -3267,6 +3346,11 @@ def main() -> None:
     _sectbl_off = _opt_off + _sizeofopt
     _sizeofimage_off = _opt_off + 0x38  # PE32 OPTIONAL_HEADER.SizeOfImage
     _sizeofimage = _st.unpack_from("<I", rendered, _sizeofimage_off)[0]
+    _original_numsec_bytes = bytes(rendered[_numsec_off : _numsec_off + 2])
+    _original_sizeofimage_bytes = bytes(
+        rendered[_sizeofimage_off : _sizeofimage_off + 4]
+    )
+    _append_header_patches: list[dict[str, str]] = []
 
     def _append_section(name: bytes, va: int, chars: int) -> None:
         nonlocal _numsec, _sizeofimage
@@ -3287,13 +3371,40 @@ def main() -> None:
         )
         assert len(hdr) == 0x28
         ent_off = _sectbl_off + _numsec * 0x28
+        before = bytes(rendered[ent_off : ent_off + 0x28])
         rendered[ent_off : ent_off + 0x28] = hdr
+        _append_header_patches.append(
+            {
+                "offset": f"0x{ent_off:X}",
+                "before": before.hex().upper(),
+                "after": hdr.hex().upper(),
+                "purpose": f"install the guarded {name.rstrip(bytes([0])).decode('ascii')} section header",
+            }
+        )
         rendered.extend(b"\x00" * size)     # raw data (zero-filled)
         _numsec += 1
         _sizeofimage = rva + size           # image now ends at this section's end
 
     _append_section(b".vv1mc", MASK_CODE_SECTION_VA, 0x60000020)  # R-X, CODE
     _append_section(b".vv1md", MASK_DATA_SECTION_VA, 0xC0000040)  # R/W, INIT DATA
+    _append_header_patches.insert(
+        0,
+        {
+            "offset": f"0x{_numsec_off:X}",
+            "before": _original_numsec_bytes.hex().upper(),
+            "after": _st.pack("<H", _numsec).hex().upper(),
+            "purpose": "add the owned .vv1mc and .vv1md sections",
+        },
+    )
+    _append_header_patches.insert(
+        1,
+        {
+            "offset": f"0x{_sizeofimage_off:X}",
+            "before": _original_sizeofimage_bytes.hex().upper(),
+            "after": _st.pack("<I", _sizeofimage).hex().upper(),
+            "purpose": "extend SizeOfImage for the owned mask sections",
+        },
+    )
     _st.pack_into("<H", rendered, _numsec_off, _numsec)
     _st.pack_into("<I", rendered, _sizeofimage_off, _sizeofimage)
 
@@ -3306,6 +3417,15 @@ def main() -> None:
 
     OUT_EXE.write_bytes(rendered)
     rendered_json = json.dumps(patches, indent=2) + "\n"
+    append_layout = {
+        "original_file_size": f"0x{len(original):X}",
+        "append_offset": f"0x{len(original):X}",
+        "append_length": MASK_SECTION_SIZE * 2,
+        "append_bytes": (b"\x00" * (MASK_SECTION_SIZE * 2)).hex().upper(),
+        "virtual_address": f"0x{MASK_CODE_SECTION_VA:X}",
+        "purpose": "append the owned .vv1mc R-X mask code and .vv1md R/W mask data sections",
+        "header_patches": _append_header_patches,
+    }
     manifest = {
         "id": "vv1_enable_origins_exclusive_features",
         "enabled": True,
@@ -3385,6 +3505,28 @@ def main() -> None:
             "new_purchase": "available at 500,000 tech points for each doubler",
             "existing_owned": "removable at zero cost with zero refund",
             "repurchase": "available again at 500,000 tech points after removal",
+        },
+        "mask_persistence": {
+            "save_builder_entry": "0x402ED0",
+            "save_builder_preimage": "8B4424048B11",
+            "resume": "0x402ED6",
+            "slot_scratch": "0x4911F4",
+            "valid_slots": [1, 2, 3, 4, 5],
+            "sidecar_pattern": "vv1_masks_<slot>.dat",
+            "legacy_migration": False,
+            "invalid_or_missing_sidecar": "clear in-memory table",
+            "dead_entry_clears": "persisted back to the matching slot sidecar",
+            "pickup_held_runtime_status": "unknown; static audit does not prove a pickup renderer path",
+        },
+        "pe_append_transaction": {
+            "owner": "vv1_enable_origins_exclusive_features",
+            "section_name": ".vv1mc/.vv1md",
+            "append_length": MASK_SECTION_SIZE * 2,
+            "removal_policy": "restore guarded PE headers and truncate the exact two-page owned tail",
+            "layouts": {
+                "collection_progression": append_layout,
+                "immediate_fixed": append_layout,
+            },
         },
         "patches": patches,
     }

@@ -1,0 +1,159 @@
+"""Structural gates for VV1 mask slot capture and sidecar isolation.
+
+These tests deliberately stop at source/manifest/byte-layout evidence.  They
+do not claim that a running game restores a mask, or that its held-villager
+renderer passes through the existing shared head hook; those are player/runtime
+gates documented in ``docs/vv1-mask-pickup-static-audit.md``.
+"""
+from __future__ import annotations
+
+import json
+import struct
+import sys
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+SOURCE = ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
+GENERATOR = ROOT / "scripts" / "build_vv1_origins_feature.py"
+MANIFEST = ROOT / "data" / "vv1_origins_feature.json"
+STOCK_CANDIDATES = (
+    ROOT / "research" / "stock-executables" / "Virtual Villagers - A New Home.exe",
+    ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe",
+)
+
+
+def _stock() -> Path | None:
+    return next((path for path in STOCK_CANDIDATES if path.is_file()), None)
+
+
+class VV1MaskSlotSourceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.source = SOURCE.read_text(encoding="utf-8")
+        cls.generator = GENERATOR.read_text(encoding="utf-8")
+        cls.manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+
+    def test_slot_capture_constants_and_sidecar_path_are_exact(self) -> None:
+        self.assertIn(
+            "#define VV_MASK_SAVE_SLOT (*(unsigned int *)(VV_MASK_SCRATCH_BASE + 0x1F4))",
+            self.source,
+        )
+        self.assertIn("#define VV_MASK_FIRST_SAVE_SLOT 1", self.source)
+        self.assertIn("#define VV_MASK_LAST_SAVE_SLOT 5", self.source)
+        self.assertIn("vv1_masks_%u.dat", self.source)
+        self.assertNotIn("vv1_masks.dat", self.source)
+        self.assertNotIn("vv1_masks.dat", self.generator)
+        self.assertIn("MASK_SAVE_SLOT_VA = DATA_SCRATCH_BASE_VA + 0x1F4", self.generator)
+
+    def test_slot_change_clears_table_and_latches_before_loading(self) -> None:
+        self.assertIn("static int vv1_mask_loaded_slot = -1;", self.source)
+        self.assertIn("if (slot != vv1_mask_loaded_slot)", self.source)
+        self.assertIn("vv1_mask_clear_state();", self.source)
+        self.assertIn("memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);", self.source)
+        self.assertIn("memset(vv1_mask_seen_alive, 0, sizeof(vv1_mask_seen_alive));", self.source)
+        self.assertIn("if (!vv1_mask_prepare_slot())", self.source)
+        self.assertIn("if (!slot || !vv1_mask_sidecar_path(path, sizeof(path), slot))", self.source)
+
+    def test_dead_sweep_still_persists_clears(self) -> None:
+        self.assertIn("swept = vv1_mask_sweep_dead();", self.source)
+        self.assertIn("if (swept) {", self.source)
+        self.assertIn("vv1_mask_sidecar_save();", self.source)
+
+    def test_exact_save_builder_preimage_and_owned_append_are_manifest_bound(self) -> None:
+        patches = {item["offset"]: item for item in self.manifest["patches"]}
+        splice = patches["0x2ED0"]
+        self.assertEqual(splice["before"], "8B4424048B11")
+        self.assertEqual(len(bytes.fromhex(splice["after"])), 6)
+        self.assertTrue(splice["after"].endswith("90"))
+        cave = patches["0x8E820"]
+        self.assertEqual(len(bytes.fromhex(cave["after"])), 129)
+        self.assertEqual(bytes.fromhex(cave["after"])[0], 0x60)  # pushad
+        self.assertIn("capture the exact VV1 save-slot argument", cave["purpose"])
+
+        tx = self.manifest["pe_append_transaction"]
+        self.assertEqual(tx["section_name"], ".vv1mc/.vv1md")
+        self.assertEqual(tx["append_length"], 0x2000)
+        for mode in ("collection_progression", "immediate_fixed"):
+            with self.subTest(mode=mode):
+                layout = tx["layouts"][mode]
+                self.assertEqual(int(layout["original_file_size"], 0), 0x8E000)
+                self.assertEqual(int(layout["append_offset"], 0), 0x8E000)
+                self.assertEqual(layout["append_length"], 0x2000)
+                self.assertEqual(len(bytes.fromhex(layout["append_bytes"])), 0x2000)
+                self.assertEqual(
+                    [item["offset"] for item in layout["header_patches"]],
+                    ["0xFE", "0x148", "0x2B8", "0x2E0"],
+                )
+
+    @unittest.skipUnless(_stock() is not None, "needs the local ignored VV1 stock executable")
+    def test_normal_renderer_owns_and_applies_both_mask_sections(self) -> None:
+        import vv_fun_patcher as patcher
+
+        source = _stock()
+        assert source is not None
+        build = patcher.identify(source)
+        feature = next(
+            item
+            for item in patcher.load_fun_patches()
+            if item.id == "vv1_enable_origins_exclusive_features"
+        )
+        rendered, _ = patcher.render_patched_bytes(
+            source,
+            build,
+            "collection_progression",
+            [feature.id],
+        )
+        self.assertEqual(len(rendered), 0x90000)
+        immediate, _ = patcher.render_patched_bytes(
+            source,
+            build,
+            "immediate_fixed",
+            [feature.id],
+        )
+        self.assertEqual(len(immediate), 0x90000)
+        data = bytes(rendered)
+        lf = struct.unpack_from("<I", data, 0x3C)[0]
+        self.assertEqual(struct.unpack_from("<H", data, lf + 6)[0], 7)
+        opt = lf + 0x18
+        self.assertEqual(struct.unpack_from("<I", data, opt + 0x38)[0], 0x92000)
+        table = opt + struct.unpack_from("<H", data, lf + 0x14)[0]
+        sections = {
+            data[table + i * 0x28 : table + i * 0x28 + 8].rstrip(b"\0").decode():
+            data[table + i * 0x28 : table + (i + 1) * 0x28]
+            for i in range(7)
+        }
+        self.assertIn(".vv1mc", sections)
+        self.assertIn(".vv1md", sections)
+        self.assertEqual(struct.unpack_from("<I", sections[".vv1mc"], 12)[0], 0x90000)
+        self.assertEqual(struct.unpack_from("<I", sections[".vv1md"], 12)[0], 0x91000)
+        self.assertEqual(struct.unpack_from("<I", sections[".vv1mc"], 20)[0], 0x8E000)
+        self.assertEqual(struct.unpack_from("<I", sections[".vv1md"], 20)[0], 0x8F000)
+
+        # The splice is the two complete native loads, followed by a NOP to
+        # make the five-byte JMP overwrite length explicit.
+        self.assertEqual(data[0x2ED0], 0xE9)
+        self.assertEqual(data[0x2ED5], 0x90)
+        displacement = struct.unpack_from("<i", data, 0x2ED1)[0]
+        self.assertEqual(0x402ED0 + 5 + displacement, 0x490820)
+        self.assertEqual(data[0x8E820], 0x60)  # pushad in the owned cave
+        self.assertIn(b"\x8B\x44\x24\x24", data[0x8E820 : 0x8E820 + 129])
+        self.assertIn(b"\xA3\xF4\x11\x49\x00", data[0x8E820 : 0x8E820 + 129])
+
+        # Removal must unwind the ordinary feature bytes, truncate only the
+        # exact owned tail, and restore the mode-specific pre-feature parent.
+        for mode, installed in (
+            ("collection_progression", rendered),
+            ("immediate_fixed", immediate),
+        ):
+            with self.subTest(remove_mode=mode):
+                parent, _ = patcher.render_patched_bytes(source, build, mode, [])
+                removed = bytearray(installed)
+                patcher._remove_feature_bytes(removed, feature, mode)
+                self.assertEqual(bytes(removed), bytes(parent))
+
+
+if __name__ == "__main__":
+    unittest.main()

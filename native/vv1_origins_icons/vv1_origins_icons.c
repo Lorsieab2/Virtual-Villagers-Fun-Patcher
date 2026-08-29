@@ -88,8 +88,12 @@
 #define VV_MASK_SCRATCH_BASE 0x00491000u
 #define VV_MASK_TABLE ((unsigned char *)(VV_MASK_SCRATCH_BASE + 0x00))   /* .vv1md R/W */
 #define VV_MASK_MANAGER (*(unsigned char **)(VV_MASK_SCRATCH_BASE + 0x98)) /* .vv1md R/W */
+#define VV_MASK_SAVE_SLOT (*(unsigned int *)(VV_MASK_SCRATCH_BASE + 0x1F4)) /* .vv1md R/W; 1..5, 0 = fail closed */
 #define VV_RECORD_STRIDE 0x3D8
 #define VV_MASK_SLOTS 256
+#define VV_MASK_TABLE_BYTES (VV_MASK_SLOTS / 2)
+#define VV_MASK_FIRST_SAVE_SLOT 1
+#define VV_MASK_LAST_SAVE_SLOT 5
 #define VV_OCCUPIED_OFFSET 0x28  /* record[+0x28] == 1 when the slot is a live
                                     villager (the compositor's own occupied
                                     check at 0x4377a5: cmp byte[+0x28],1). */
@@ -112,10 +116,13 @@ static int vv1_mask_index(unsigned char *villager) {
     return (int)index;
 }
 
+static int vv1_mask_current_slot(void);
+static int vv1_mask_prepare_slot(void);
+
 static unsigned char vv1_mask_get(unsigned char *villager) {
     int index = vv1_mask_index(villager);
     unsigned char packed;
-    if (index < 0) {
+    if (!vv1_mask_prepare_slot() || index < 0) {
         return 0;
     }
     packed = VV_MASK_TABLE[index >> 1];
@@ -127,7 +134,7 @@ static unsigned char vv1_mask_get(unsigned char *villager) {
 static void vv1_mask_set(unsigned char *villager, unsigned char value) {
     int index = vv1_mask_index(villager);
     unsigned char *slot;
-    if (index < 0 || value >= VV_MASK_COUNT) {
+    if (!vv1_mask_prepare_slot() || index < 0 || value >= VV_MASK_COUNT) {
         return;
     }
     slot = &VV_MASK_TABLE[index >> 1];
@@ -140,6 +147,37 @@ static void vv1_mask_set(unsigned char *villager, unsigned char value) {
    load). The sweep may only clear a slot that was seen ALIVE and is now free --
    never a slot that has simply not loaded yet. */
 static unsigned char vv1_mask_seen_alive[VV_MASK_SLOTS];
+
+/* The sidecar is keyed by the game's numbered save slot.  This is deliberately
+   kept in the DLL rather than inferred from villager fingerprints: two save
+   slots can contain identical villagers, and a fingerprint is not a save
+   identity.  -1 means no slot has been loaded in this process yet. */
+static int vv1_mask_loaded_slot = -1;
+
+static int vv1_mask_current_slot(void) {
+    unsigned int slot = VV_MASK_SAVE_SLOT;
+    if (slot < VV_MASK_FIRST_SAVE_SLOT || slot > VV_MASK_LAST_SAVE_SLOT) {
+        return 0;  /* slot zero, invalid values, and a not-yet-captured slot */
+    }
+    return (int)slot;
+}
+
+static void vv1_mask_clear_state(void) {
+    memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);
+    memset(vv1_mask_seen_alive, 0, sizeof(vv1_mask_seen_alive));
+}
+
+/* Synchronize the DLL's latches with the executable-captured slot.  The exe
+   hook resets its restore latch and frame scratch whenever the slot changes;
+   this handles the DLL-owned table/latch half before sidecar bytes are used. */
+static int vv1_mask_prepare_slot(void) {
+    int slot = vv1_mask_current_slot();
+    if (slot != vv1_mask_loaded_slot) {
+        vv1_mask_clear_state();
+        vv1_mask_loaded_slot = slot;
+    }
+    return slot;
+}
 
 /* Slot-reuse guard. The mask table is keyed by record INDEX, so if a masked
    villager dies and a NEW villager is later born into the same record slot,
@@ -194,31 +232,30 @@ static int vv1_mask_sweep_dead(void) {
    the game, the table is mirrored to a small sidecar file that lives NEXT TO
    the save, inside the game's own per-exe save folder:
 
-       <My Documents>\LDW\<exe basename>\vv1_masks.dat
+       <My Documents>\LDW\<exe basename>\vv1_masks_<slot>.dat
 
    Format (little-endian): 4-byte magic 'VM01' + the raw 128 table bytes.
-   Keyed by villager record INDEX, the same key the render hook and picker
-   use; a village's villagers load back into the same record slots, so the
-   index is stable across save/reload of that village. One file per save
-   FOLDER (not per numbered slot); a single village is the common case, and
-   multiple slots in one folder share the file (documented limitation).
+   Keyed by save slot first, then villager record INDEX, the same key the
+   render hook and picker use.  Slot zero and every value outside the exact
+   five numbered game slots fail closed and never touch a sidecar.
 
-   Fail-open everywhere: any failure (no Documents folder, missing file,
-   short read, wrong magic, unmapped table) leaves the in-memory table
-   untouched, so the worst case is "masks not restored" -- never a crash and
+   Fail-closed for invalid persistence: any failure (no Documents folder,
+   missing file, short read, wrong magic, unmapped table) leaves the in-memory
+   table empty, so the worst case is "masks not restored" -- never a crash and
    never a damaged save. File I/O is deliberately NOT done from DllMain (that
    runs under the loader lock, where SHGetFolderPath/CreateFile can deadlock);
    it happens from Vv1MaskRestore (called by the exe at startup, outside the
    lock) and from the picker's own open/commit handlers. */
 #define VV_MASK_SIDECAR_MAGIC 0x31304D56u  /* 'V' 'M' '0' '1' */
-#define VV_MASK_TABLE_BYTES (VV_MASK_SLOTS / 2)
-
-static int vv1_mask_sidecar_path(char *out, size_t n) {
+static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
     char docs[MAX_PATH];
     char exe[MAX_PATH];
     char *base;
     char *dot;
     DWORD exelen;
+    if (slot < VV_MASK_FIRST_SAVE_SLOT || slot > VV_MASK_LAST_SAVE_SLOT) {
+        return 0;
+    }
     if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) {
         return 0;
     }
@@ -243,18 +280,19 @@ static int vv1_mask_sidecar_path(char *out, size_t n) {
        (it caps only at its own 1024-byte scratch), so a redirected Documents
        folder or a long exe basename could make the longest of these formats
        overrun the caller's `out` buffer. Bound it here against `n`: the final
-       "<docs>\LDW\<base>\vv1_masks.dat" is the longest string written, so if
+       "<docs>\LDW\<base>\vv1_masks_5.dat" is the longest string written, so if
        that (plus NUL) doesn't fit, fail open (return 0 -> masks simply aren't
-       persisted, never a stack smash). The two shorter intermediates then fit
-       by construction. Lengths: "\LDW\" = 5, "\vv1_masks.dat" = 14. */
-    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + 14 + 1 > n) {
+       persisted, never a stack smash). Reserve a conservative 32-byte suffix
+       budget for the slot and extension rather than hand-counting it. */
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + 32 + 1 > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vv1_masks.dat", docs, base);
+    wsprintfA(out, "%s\\LDW\\%s\\vv1_masks_%u.dat", docs, base,
+              (unsigned int)slot);
     return 1;
 }
 
@@ -263,7 +301,8 @@ static void vv1_mask_sidecar_save(void) {
     HANDLE file;
     DWORD wrote;
     unsigned int magic = VV_MASK_SIDECAR_MAGIC;
-    if (!vv1_mask_sidecar_path(path, sizeof(path))) {
+    int slot = vv1_mask_prepare_slot();
+    if (!slot || !vv1_mask_sidecar_path(path, sizeof(path), slot)) {
         return;
     }
     file = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
@@ -282,13 +321,19 @@ static void vv1_mask_sidecar_load(void) {
     DWORD got;
     unsigned int magic = 0;
     unsigned char buf[VV_MASK_TABLE_BYTES];
-    if (!vv1_mask_sidecar_path(path, sizeof(path))) {
+    int slot = vv1_mask_prepare_slot();
+    /* Missing, malformed, or unreadable sidecars must not leave a previous
+       slot's in-memory choices visible. Slot changes already clear this in
+       vv1_mask_prepare_slot; clearing here also makes a same-slot re-open
+       deterministic and fail closed. */
+    memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);
+    if (!slot || !vv1_mask_sidecar_path(path, sizeof(path), slot)) {
         return;
     }
     file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                        FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {
-        return;  /* no sidecar yet -> nothing to restore */
+        return;  /* no sidecar yet -> the table is already cleared */
     }
     if (ReadFile(file, &magic, sizeof(magic), &got, NULL) && got == sizeof(magic)
         && magic == VV_MASK_SIDECAR_MAGIC
@@ -518,6 +563,12 @@ __declspec(dllexport) int __stdcall Vv1MaskApplyDistribution(int mode,
     unsigned int rng;
     unsigned char *golden_rec;
 
+    /* A distribution is a write operation too: synchronize the captured
+       save slot first and fail closed for slot zero/unvalidated values. */
+    if (!vv1_mask_prepare_slot()) {
+        return 0;
+    }
+    base = VV_MASK_MANAGER;
     if (base == NULL) {
         return 0;
     }
