@@ -43,8 +43,9 @@ It has not yet been accepted in a running game by the player.
 
 ## Review-gated hardening before the rc2 playtest
 
-The GitHub review audit found three defects that were still present after the
-earlier integration work. They are now repaired and statically gated:
+The GitHub review audit and its all-five follow-up found seven defects that were
+still present after the earlier integration work. They are now repaired and
+statically gated:
 
 1. VV1's Details wrapper records a permanent fail-open sentinel when the
    companion DLL or `Vv1DrawPortraitMask` export cannot be resolved, instead of
@@ -57,6 +58,18 @@ earlier integration work. They are now repaired and statically gated:
    length, and SHA-256 match one of the four exact obsolete atlases previously
    bundled by this repository. Current art and arbitrary/custom 320x440 art are
    preserved; the replacement is published from a complete temporary file.
+4. VV2 rejects sidecar save-slot values outside legacy slot 0 and numbered slots
+   1..5 before formatting them, keeping the fixed `MAX_PATH` budget exact.
+5. VV3 brackets every owned Grant Running preference mutation. It snapshots live
+   fingerprints before the write and retags only matching masks afterward, so
+   Grant Running no longer makes a mask disappear while slot-reuse protection is
+   retained. The village-wide wrapper stays outside the crowded Origins payload,
+   and a manifest-wide range test guards the certified native tails from overlap.
+6. VV4 validates the complete sidecar and atlas paths, including the terminating
+   NUL, before the first unbounded Win32 append. Overlong redirected Documents or
+   executable-directory paths now fail open.
+7. VV5 rejects truncated module paths and sidecar slots outside 0..5, and budgets
+   the complete longest numbered sidecar path before any unbounded formatting.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be

@@ -452,6 +452,12 @@ any dialogs live in the companion DLL; the exe stub just calls in / reissues the
   clear its nibble at birth, or use a **seen-alive latch** (clear a slot's mask only after
   it was observed ACTIVE and *then* went free — also avoids wiping restored masks on load
   frames where slots momentarily read empty).
+- **Fail open on `MAX_PATH`:** before any unbounded Win32 string append, budget the
+  complete `<Documents>\\LDW\\<exe-basename>\\vvfp_masks_<slot>.dat` path including
+  its terminating NUL. If it cannot fit, skip sidecar persistence; never truncate the
+  basename, change the save-slot namespace, or risk overwriting the caller's stack.
+  Apply the same complete-path budget to the executable-directory atlas load;
+  an overlong install path must fail open before appending `Images\\vvfp_mask_atlas.png`.
 - Atlas/art → **new companion files only**, never an edit to stock art. Prefer
   **RCDATA-embedded in the DLL, self-extracted to `Images/…` only if absent** (exe-dir
   absolute path, `CREATE_NEW`) so a clean install can't get a sprite pointer with no art

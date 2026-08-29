@@ -12,6 +12,7 @@ EXPORTS
     VV3GetMaskAtlas=_VV3GetMaskAtlas@0
     VV3_GetMaskForRecord=_VV3_GetMaskForRecord@4
     VV3_SetMaskForRecord=_VV3_SetMaskForRecord@8
+    VV3RunningMaskBoundary=_VV3RunningMaskBoundary@4
     VV3DrawMaskOnHead=_VV3DrawMaskOnHead@12
     VV3WorldMaskDraw=_VV3WorldMaskDraw@4 @101
     VV3WorldMaskDrawAt=_VV3WorldMaskDrawAt@8 @102

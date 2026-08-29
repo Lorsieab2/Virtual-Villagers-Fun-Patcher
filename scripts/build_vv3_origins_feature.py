@@ -100,6 +100,14 @@ SAVE_SLOT_CAPTURE_CAVE_VA = SECTION_CODE_VA + 0x100
 SAVE_SLOT_CAPTURE_RETURN_VA = SAVE_SLOT_CAPTURE_FN + SAVE_SLOT_CAPTURE_LEN
 SAVE_SLOT_CAPTURE_BEFORE = bytes.fromhex("8B4424048B11")
 SAVE_SLOT_PTR = SECTION_DATA_VA + 0x44
+# The companion publishes this one-argument boundary function in .vv3md.  The
+# detail and village-wide Running writers call it before/after their exact
+# preference mutations so the existing raw-preference identity can be refreshed
+# without weakening slot-reuse or slot-shift protection.
+RUNNING_BOUNDARYFN_PTR = SECTION_DATA_VA + 0x48
+RUNNING_BOUNDARY_BEFORE_CAVE_VA = SECTION_CODE_VA + 0x180
+RUNNING_BOUNDARY_AFTER_CAVE_VA = SECTION_CODE_VA + 0x1C0
+RUNNING_VILLAGE_WRAPPER_CAVE_VA = SECTION_CODE_VA + 0x220
 
 
 # Heathen-mask render cave (DLL-draw method).  The .text/.rdata cave padding is
@@ -1057,7 +1065,12 @@ def main() -> None:
             mov eax, 22
             jmp show_detail_result
         running_full_removed:
+            # This is the free, full-Likes edge case: the owned route mutates
+            # only the Running Dislike, so it needs the same identity boundary
+            # as the charged Like insertion below.
+            call 0x{RUNNING_BOUNDARY_BEFORE_CAVE_VA:X}
             mov dword ptr [eax], -1
+            call 0x{RUNNING_BOUNDARY_AFTER_CAVE_VA:X}
             mov eax, 21
             jmp show_detail_result
 
@@ -1231,6 +1244,7 @@ def main() -> None:
             # a free Like slot exists.  Close the menu defensively.
             jmp detail_done
         running_store_like:
+            call 0x{RUNNING_BOUNDARY_BEFORE_CAVE_VA:X}
             mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
         running_remove_dislikes:
             lea ecx, [edx + 0xFC0]
@@ -1243,6 +1257,7 @@ def main() -> None:
             add ecx, 4
             dec eax
             jne running_dislike_loop
+            call 0x{RUNNING_BOUNDARY_AFTER_CAVE_VA:X}
             mov eax, 0x{s['detail_running_done']:X}
             jmp detail_status
         detail_insufficient:
@@ -1443,7 +1458,11 @@ def main() -> None:
             mov eax, ebx
             mov ecx, 0x59E124
             mov edx, dword ptr [0x42883A]
-            call 0x{VILLAGE_WIDE_ENTRY_VA:X}
+            # Keep this original five-byte call in the certified payload
+            # footprint.  The .vv3mc wrapper brackets only command 6 with the
+            # mask-fingerprint boundary, while commands 7/8 tail-jump directly
+            # into the untouched native entry.
+            call 0x{RUNNING_VILLAGE_WRAPPER_CAVE_VA:X}
         village_result:
             test ebp, ebp
             je village_wide_done
@@ -1833,6 +1852,64 @@ def main() -> None:
         f"call 0x{WORLD_ACTION_WRAP_CAVE_VA:X}", WORLD_ACTION_CALLSITE_VA
     )
 
+    # Running-boundary helpers live in the patch-owned executable section so the
+    # crowded Origins payload only needs four five-byte calls.  They preserve the
+    # caller's volatile registers and fail open when the companion has not yet
+    # published its fixed .vv3md function pointer.
+    running_boundary_before_cave = assemble(
+        f"""
+            push eax
+            push ecx
+            push edx
+            mov eax, dword ptr [0x{RUNNING_BOUNDARYFN_PTR:X}]
+            test eax, eax
+            je running_boundary_before_missing
+            push 0
+            call eax
+            jmp running_boundary_before_done
+        running_boundary_before_missing:
+        running_boundary_before_done:
+            pop edx
+            pop ecx
+            pop eax
+            ret
+        """,
+        RUNNING_BOUNDARY_BEFORE_CAVE_VA,
+    )
+    running_boundary_after_cave = assemble(
+        f"""
+            push eax
+            push ecx
+            push edx
+            mov eax, dword ptr [0x{RUNNING_BOUNDARYFN_PTR:X}]
+            test eax, eax
+            je running_boundary_after_missing
+            push 1
+            call eax
+            jmp running_boundary_after_done
+        running_boundary_after_missing:
+        running_boundary_after_done:
+            pop edx
+            pop ecx
+            pop eax
+            ret
+        """,
+        RUNNING_BOUNDARY_AFTER_CAVE_VA,
+    )
+    running_village_wrapper_cave = assemble(
+        f"""
+            cmp ebx, 6
+            jne running_village_native
+            call 0x{RUNNING_BOUNDARY_BEFORE_CAVE_VA:X}
+            call 0x{VILLAGE_WIDE_ENTRY_VA:X}
+            call 0x{RUNNING_BOUNDARY_AFTER_CAVE_VA:X}
+            ret
+        running_village_native:
+            jmp 0x{VILLAGE_WIDE_ENTRY_VA:X}
+        """,
+        RUNNING_VILLAGE_WRAPPER_CAVE_VA,
+    )
+
     # Save-slot capture: the stock save-builder entry begins with
     # `mov eax,[esp+4]; mov edx,[ecx]`.  Preserve those exact instructions,
     # publish the positive slot argument into .vv3md, and jump back to the
@@ -2084,6 +2161,9 @@ def main() -> None:
     # It is a timed UI/effect renderer.  Patching its call sites made the mask paint onto that
     # effect, so the correct fix is to leave those bytes STOCK.
     put_cave(0x0C0, world_action_wrap_cave, "action-overlay wrapper: run the pose overlay, then seat the mask on the pose head")
+    put_cave(0x180, running_boundary_before_cave, "snapshot VV3 Running mask fingerprints before owned preference writes")
+    put_cave(0x1C0, running_boundary_after_cave, "refresh VV3 Running mask fingerprints after owned preference writes")
+    put_cave(0x220, running_village_wrapper_cave, "wrap the native village-wide Running writer with the mask-fingerprint boundary")
     patch(
         WORLD_ACTION_CALLSITE_VA - IMAGE_BASE,
         original[WORLD_ACTION_CALLSITE_VA - IMAGE_BASE : WORLD_ACTION_CALLSITE_VA - IMAGE_BASE + 5],

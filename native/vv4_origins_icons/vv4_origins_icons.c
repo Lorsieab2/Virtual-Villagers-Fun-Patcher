@@ -448,8 +448,6 @@ static int vv_build_sidecar_path(char *out, int slot) {
         !SHGetSpecialFolderPathA(NULL, out, CSIDL_PERSONAL, TRUE)) {
         return 0;
     }
-    lstrcatA(out, "\\LDW");
-    CreateDirectoryA(out, NULL);                 /* harmless if it already exists */
     n = GetModuleFileNameA(NULL, exe, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) {
         return 0;
@@ -467,6 +465,17 @@ static int vv_build_sidecar_path(char *out, int slot) {
         base[j++] = exe[i];
     }
     base[j] = '\0';
+    /* lstrcatA has no destination bound. Validate the COMPLETE final path
+       before the first append so a redirected Documents folder plus a long
+       renamed executable fails open instead of overrunning path[MAX_PATH].
+       sizeof("\\vvfp_masks_0.dat") includes the final NUL; slots 1..5 retain
+       the exact existing one-digit filename namespace. */
+    if (lstrlenA(out) + (int)(sizeof("\\LDW\\") - 1) + lstrlenA(base) +
+        (int)sizeof("\\vvfp_masks_0.dat") > MAX_PATH) {
+        return 0;
+    }
+    lstrcatA(out, "\\LDW");
+    CreateDirectoryA(out, NULL);                 /* harmless if it already exists */
     lstrcatA(out, "\\");
     lstrcatA(out, base);
     CreateDirectoryA(out, NULL);
@@ -602,6 +611,12 @@ static void vv4_mask_render_init(void) {
             path[i + 1] = '\0';
             break;
         }
+    }
+    /* lstrcatA has no destination bound. Include the complete relative atlas
+       path and its terminating NUL before appending it to the executable
+       directory; a redirected/renamed install that cannot fit fails open. */
+    if (lstrlenA(path) + (int)sizeof("Images\\vvfp_mask_atlas.png") > MAX_PATH) {
+        return;
     }
     lstrcatA(path, "Images\\vvfp_mask_atlas.png");
     g_mask_surface = p_IMG_Load(path);      /* NULL on failure -> no mask, no crash */

@@ -53,6 +53,7 @@ static int s_dialog_state;
 __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index);
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args);
 __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int py);
+__declspec(dllexport) void __stdcall VV3RunningMaskBoundary(int after);
 
 /* The exe caves read these fixed slots for our draw fns, so a per-frame cave needs no
    LoadLibrary/GetProcAddress -- we publish our exports here on load.
@@ -65,7 +66,7 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
    +0x0C/+0x10/+0x14 reserved, +0x18 pose_dy, +0x1C anim_hits, +0x20 anim_stash,
    +0x24 reserved, +0x28 facing_dx, +0x2C color_dy,
    +0x30 action draw, +0x34 auto-load latch (exe-side), +0x38 actdbg, +0x44 active save
-   slot (captured by the exe save-builder trampoline). */
+   slot (captured by the exe save-builder trampoline), +0x48 Running-boundary fn. */
 #define VV3_WORLD_DRAWFN_PTR_SLOT  0x006E0004u
 /* The wrapper at the per-villager handler call site (0x42E3F5) reads this slot after the
    stock handler returns. VV3WorldMaskDraw consumes the exact head-call stash captured by
@@ -78,6 +79,7 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
 #define VV3_WORLD_FACINGDX_PTR_SLOT  0x006E0028u
 #define VV3_WORLD_COLORDY_PTR_SLOT   0x006E002Cu
 #define VV3_WORLD_ACTIONFN_PTR_SLOT  0x006E0030u
+#define VV3_RUNNING_BOUNDARY_PTR_SLOT 0x006E0048u
 
 extern int g_vv3_pose_dy[256];
 extern int g_vv3_anim_hits[256];
@@ -109,6 +111,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         *(void **)(UINT_PTR)0x006E0040u                  = (void *)&g_vv3_chiefdbg[0];
         *(void **)(UINT_PTR)VV3_WORLD_FACINGDX_PTR_SLOT  = (void *)&g_vv3_facing_dx[0];
         *(void **)(UINT_PTR)VV3_WORLD_COLORDY_PTR_SLOT   = (void *)&g_vv3_color_dy[0];
+        *(void **)(UINT_PTR)VV3_RUNNING_BOUNDARY_PTR_SLOT = (void *)&VV3RunningMaskBoundary;
     }
     return TRUE;
 }
@@ -471,10 +474,13 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
    villager record and the save file are NEVER written.
 
    A slot is reused when a villager dies and a newborn takes its place, so each
-   stored mask is guarded by an identity fingerprint over fields fixed at birth
-   (gender + 3 Likes + 3 Dislikes): on read we recompute it and only return the
-   mask when it still matches, so a reused slot reads as "no mask" and can never
-   inherit the previous villager's mask.  Persistence is kept in a sidecar next
+   stored mask is guarded by an identity fingerprint over gender + 3 Likes + 3
+   Dislikes: on read we recompute it and only return the mask when it still
+   matches, so a reused slot reads as "no mask" and can never inherit the
+   previous villager's mask.  The owned Grant Running writers bracket their
+   exact preference transforms and refresh matching fingerprints, so the mask
+   does not disappear when that upgrade changes Likes/Dislikes.  Persistence is
+   kept in a sidecar next
    to the active save.  The executable's save-builder hook publishes the active
    positive save number in the patch-owned .vv3md slot below; a change of that
    number clears the in-memory table before the matching sidecar is loaded.
@@ -485,6 +491,13 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 
 static unsigned char g_vv3_mask[VV3_MASK_SLOTS];
 static unsigned int  g_vv3_mask_fp[VV3_MASK_SLOTS];
+/* Grant Running changes the same preference arrays used by the slot-shift
+   fingerprint.  The boundary export snapshots the pre-write identity for every
+   live record, then refreshes only entries that matched that preimage.  A stale
+   reused-slot entry therefore cannot be retagged to a newborn merely because a
+   village-wide write happened. */
+static unsigned int g_vv3_running_before[VV3_MASK_SLOTS];
+static int g_vv3_running_capture;
 
 /* The Origins patch captures the save number at the exact stock save-builder
    entry (0x403290) into this .vv3md word.  Zero is deliberately invalid: no
@@ -492,7 +505,10 @@ static unsigned int  g_vv3_mask_fp[VV3_MASK_SLOTS];
    This is patch-owned memory, not a villager record or a save-file field. */
 #define VV3_MASK_SLOT_PTR 0x006E0044u
 
-/* FNV-1a/32 over the villager's immutable-at-birth genetics; 0 -> 1 (0 reserved). */
+/* FNV-1a/32 over the current identity fields; Grant Running's owned mutation
+   is bracketed by VV3RunningMaskBoundary, so this raw fingerprint can continue
+   to protect slot reuse and slot-shift recovery without assuming Likes/Dislikes
+   are immutable.  0 -> 1 (0 reserved). */
 static unsigned int vv3_mask_fingerprint(const unsigned char *rec) {
     unsigned int h = 2166136261u;
     const unsigned char *p;
@@ -537,18 +553,20 @@ static int g_vv3_mask_slot;
 static void vv3_mask_clear_tables(void) {
     ZeroMemory(g_vv3_mask, sizeof(g_vv3_mask));
     ZeroMemory(g_vv3_mask_fp, sizeof(g_vv3_mask_fp));
+    ZeroMemory(g_vv3_running_before, sizeof(g_vv3_running_before));
+    g_vv3_running_capture = 0;
 }
 
 static int vv3_mask_captured_slot(void) {
     int slot = *(int *)(UINT_PTR)VV3_MASK_SLOT_PTR;
-    return slot > 0 ? slot : 0;
+    return (slot >= 1 && slot <= 5) ? slot : 0;
 }
 
 static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
     char docs[MAX_PATH], exe[MAX_PATH], dir[MAX_PATH];
     char *base, *dot, *p;
     DWORD n;
-    if (slot <= 0) return 0;
+    if (slot < 1 || slot > 5) return 0;
     if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) return 0;
     n = GetModuleFileNameA(NULL, exe, MAX_PATH);           /* the GAME exe */
     if (n == 0 || n >= MAX_PATH) return 0;
@@ -626,6 +644,51 @@ static int vv3_mask_prepare_slot(void) {
     return 1;
 }
 
+/* Bracket every VV3 Grant Running preference write owned by this composition.
+   `after == 0` captures the current fingerprint of each active/living record;
+   `after != 0` retags only a stored mask whose old fingerprint matched one of
+   those preimages.  This preserves the existing slot-reuse guard and its
+   slot-shift recovery while allowing the exact owned -1 -> Running and
+   Running -> -1 transforms.  No unproved name/ID field is substituted, and no
+   villager record byte is touched by this refresh. */
+__declspec(dllexport) void __stdcall VV3RunningMaskBoundary(int after) {
+    unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int i, j, slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    if (slots < 0) slots = 0;
+    if (slots > VV3_MASK_SLOTS) slots = VV3_MASK_SLOTS;
+    if (!vv3_mask_prepare_slot()) {
+        g_vv3_running_capture = 0;
+        return;
+    }
+    if (!after) {
+        for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+            if (rec[VV3_ACTIVE] != 0 && *(int *)(rec + VV3_HEALTH) > 0)
+                g_vv3_running_before[i] = vv3_mask_fingerprint(rec);
+            else
+                g_vv3_running_before[i] = 0;
+        }
+        for (; i < VV3_MASK_SLOTS; ++i) g_vv3_running_before[i] = 0;
+        g_vv3_running_capture = 1;
+        return;
+    }
+    if (!g_vv3_running_capture) return;
+    for (i = 0; i < VV3_MASK_SLOTS; ++i) {
+        unsigned int old_fp = g_vv3_mask_fp[i];
+        if (g_vv3_mask[i] == 0 || old_fp == 0) continue;
+        rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
+        for (j = 0; j < slots; ++j, rec += VV3_STRIDE) {
+            if (g_vv3_running_before[j] == old_fp
+                && rec[VV3_ACTIVE] != 0
+                && *(int *)(rec + VV3_HEALTH) > 0) {
+                g_vv3_mask_fp[i] = vv3_mask_fingerprint(rec);
+                break;
+            }
+        }
+    }
+    g_vv3_running_capture = 0;
+    vv3_mask_write_sidecar();
+}
+
 /* Render hook: mask (1..5) to draw over this villager's head, or 0 for none /
    empty slot / a reused slot whose fingerprint no longer matches. */
 __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
@@ -646,8 +709,8 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
        no-mask after a reload).  The mask is stored WITH the villager's birth-fixed genetic
        fingerprint, so recover it by SEARCHING the table for that fingerprint regardless of
        the current slot -- the mask follows the VILLAGER, not the index.  This is what makes
-       saved masks reappear after a reload.  (Fingerprint = gender + 3 likes + 3 dislikes,
-       all fixed at birth, so it identifies the villager stably.) */
+       saved masks reappear after a reload.  (Fingerprint = gender + 3 Likes + 3 Dislikes;
+       the owned Grant Running mutation refreshes this identity at its exact write boundary.) */
     for (i = 0; i < VV3_MASK_SLOTS; ++i) {
         if (g_vv3_mask[i] != 0 && g_vv3_mask_fp[i] == fpv) {
             return g_vv3_mask[i];

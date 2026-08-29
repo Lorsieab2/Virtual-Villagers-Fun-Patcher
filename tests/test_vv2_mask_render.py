@@ -74,6 +74,13 @@ def test_dll_exports_the_sidecar_save_used_by_the_sweep() -> None:
     assert "vv2_mask_sidecar_save();" in DLL
 
 
+def test_sidecar_path_rejects_invalid_slots_before_formatting() -> None:
+    # Slot zero remains available only to the explicit legacy migration read;
+    # arbitrary save-path arguments must not reach the decimal formatter.
+    assert "if (slot < 0 || slot > 5) return 0;" in DLL
+    assert "sizeof(\"\\\\vv2_masks_00.dat\")" in DLL
+
+
 def test_origins_builder_composes_the_authoritative_mask_stage() -> None:
     assert "build_vv2_mask_stage2_output(original)" in ORIGINS_BUILDER
     assert "mask_append.hex().upper()" in ORIGINS_BUILDER

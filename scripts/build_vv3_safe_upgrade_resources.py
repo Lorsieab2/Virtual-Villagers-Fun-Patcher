@@ -19,8 +19,8 @@ OUTPUT = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 FOUNDATION_OUTPUT = (
     ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
 )
-SOURCE_SHA256 = "BA50132CC28E5D955175524904A29A79F5CE4EC85521D9B7EE959DD4B91B63CF"
-SOURCE_SIZE = 1_890_816
+SOURCE_SHA256 = "3F596E5BC66F4583CB48346D93789C16BA2BAD206F479D0BCA8E2C62DD98075F"
+SOURCE_SIZE = 1_892_864
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
@@ -40,6 +40,7 @@ REQUIRED_MASK_EXPORTS = frozenset(
         "VV3_SetMaskForRecord",
     }
 )
+REQUIRED_RUNNING_EXPORTS = frozenset({"VV3RunningMaskBoundary"})
 
 
 def _rva_to_raw(data: bytes, rva: int) -> int:
@@ -111,6 +112,12 @@ def synchronize() -> tuple[int, str, frozenset[str]]:
         raise RuntimeError(
             "canonical VV3 companion is missing mask exports: "
             + ", ".join(sorted(missing))
+        )
+    missing_running = REQUIRED_RUNNING_EXPORTS - exports
+    if missing_running:
+        raise RuntimeError(
+            "canonical VV3 companion is missing Running-boundary exports: "
+            + ", ".join(sorted(missing_running))
         )
     OUTPUT.write_bytes(canonical)
     deployed = OUTPUT.read_bytes()

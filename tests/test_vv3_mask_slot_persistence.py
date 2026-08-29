@@ -70,13 +70,115 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
     def test_slot_specific_path_and_fail_closed_slot_switch_are_source_guarded(self) -> None:
         self.assertIn('vvfp_masks_%d.dat', self.source)
         self.assertNotIn('vvfp_masks.dat', self.source)
-        self.assertIn("if (slot <= 0) return 0;", self.source)
+        self.assertIn("return (slot >= 1 && slot <= 5) ? slot : 0;", self.source)
+        self.assertIn("if (slot < 1 || slot > 5) return 0;", self.source)
         self.assertIn("if (g_vv3_mask_slot != slot)", self.source)
         self.assertIn("vv3_mask_clear_tables();", self.source)
         self.assertIn("g_vv3_mask_slot = slot;", self.source)
         self.assertIn("g_vv3_mask_loaded = 0;", self.source)
         self.assertIn("vv3_mask_read_sidecar(slot)", self.source)
         self.assertGreaterEqual(self.source.count("if (!vv3_mask_prepare_slot()) return 0;"), 2)
+
+    def test_running_boundary_refreshes_only_matching_live_preimages(self) -> None:
+        self.assertIn("#define VV3_RUNNING_BOUNDARY_PTR_SLOT 0x006E0048u", self.source)
+        self.assertIn("g_vv3_running_before[VV3_MASK_SLOTS]", self.source)
+        self.assertIn("g_vv3_running_capture = 0", self.source)
+        boundary = self.source.split(
+            "__declspec(dllexport) void __stdcall VV3RunningMaskBoundary", 1
+        )[1].split("/* Render hook:", 1)[0]
+        self.assertIn("if (!after)", boundary)
+        self.assertIn("g_vv3_running_before[i] = vv3_mask_fingerprint(rec)", boundary)
+        self.assertIn("g_vv3_running_before[j] == old_fp", boundary)
+        self.assertIn("g_vv3_mask_fp[i] = vv3_mask_fingerprint(rec)", boundary)
+        self.assertIn("rec[VV3_ACTIVE] != 0", boundary)
+        self.assertIn("*(int *)(rec + VV3_HEALTH) > 0", boundary)
+        self.assertIn("for (j = 0; j < slots;", boundary)
+
+    def test_running_writers_are_bracketed_in_detail_and_village_wide_paths(self) -> None:
+        builder = (ROOT / "scripts" / "build_vv3_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        detail = builder.split("        detail_running:", 1)[1].split(
+            "        detail_insufficient:", 1
+        )[0]
+        self.assertIn("RUNNING_BOUNDARY_BEFORE_CAVE_VA", detail)
+        self.assertIn("RUNNING_BOUNDARY_AFTER_CAVE_VA", detail)
+        self.assertLess(
+            detail.index("RUNNING_BOUNDARY_BEFORE_CAVE_VA"),
+            detail.index("mov dword ptr [ecx]"),
+        )
+        self.assertLess(
+            detail.index("mov dword ptr [ecx]"),
+            detail.index("RUNNING_BOUNDARY_AFTER_CAVE_VA"),
+        )
+        village = builder.split("        village_apply:", 1)[1].split(
+            "        village_result:", 1
+        )[0]
+        # Keep the certified payload's original setup and one five-byte call;
+        # the command-6-only boundary now lives in the appended .vv3mc wrapper.
+        self.assertIn("RUNNING_VILLAGE_WRAPPER_CAVE_VA", village)
+        wrapper = builder.split(
+            "    running_village_wrapper_cave = assemble(", 1
+        )[1].split("    # Save-slot capture", 1)[0]
+        self.assertIn("cmp ebx, 6", wrapper)
+        self.assertIn("RUNNING_BOUNDARY_BEFORE_CAVE_VA", wrapper)
+        self.assertIn("RUNNING_BOUNDARY_AFTER_CAVE_VA", wrapper)
+        self.assertIn("VILLAGE_WIDE_ENTRY_VA", wrapper)
+        self.assertIn("put_cave(0x220, running_village_wrapper_cave", builder)
+
+        full_dislike = builder.split("        running_full_removed:", 1)[1].split(
+            "        running_already:", 1
+        )[0]
+        self.assertLess(
+            full_dislike.index("RUNNING_BOUNDARY_BEFORE_CAVE_VA"),
+            full_dislike.index("mov dword ptr [eax], -1"),
+        )
+        self.assertLess(
+            full_dislike.index("mov dword ptr [eax], -1"),
+            full_dislike.index("RUNNING_BOUNDARY_AFTER_CAVE_VA"),
+        )
+
+    def test_boundary_stubs_preserve_registers_and_have_disjoint_slots(self) -> None:
+        builder = (ROOT / "scripts" / "build_vv3_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        before = builder.split("running_boundary_before_cave = assemble(", 1)[1].split(
+            "    running_boundary_after_cave = assemble(", 1
+        )[0]
+        after = builder.split("running_boundary_after_cave = assemble(", 1)[1].split(
+            "    # Save-slot capture", 1
+        )[0]
+        for stub in (before, after):
+            for instruction in (
+                "push eax", "push ecx", "push edx",
+                "pop edx", "pop ecx", "pop eax", "ret",
+                "RUNNING_BOUNDARYFN_PTR",
+            ):
+                self.assertIn(instruction, stub)
+        self.assertIn("put_cave(0x180, running_boundary_before_cave", builder)
+        self.assertIn("put_cave(0x1C0, running_boundary_after_cave", builder)
+        self.assertLess(0x180, 0x1C0)
+        self.assertLess(0x1C0, 0x1000)
+
+    def test_boundary_pointer_export_and_slot_count_contract_are_pinned(self) -> None:
+        source = self.source
+        self.assertIn(
+            "*(void **)(UINT_PTR)VV3_RUNNING_BOUNDARY_PTR_SLOT = "
+            "(void *)&VV3RunningMaskBoundary;",
+            source,
+        )
+        exports = (ROOT / "native" / "vv3_full_mastery_candidate"
+                   / "vv3_full_mastery_candidate.def").read_text(encoding="utf-8")
+        self.assertIn("VV3RunningMaskBoundary=_VV3RunningMaskBoundary@4", exports)
+        boundary = source.split(
+            "__declspec(dllexport) void __stdcall VV3RunningMaskBoundary", 1
+        )[1].split("/* Render hook:", 1)[0]
+        self.assertIn("if (slots < 0) slots = 0;", boundary)
+        self.assertIn("if (slots > VV3_MASK_SLOTS) slots = VV3_MASK_SLOTS;", boundary)
+        clear = source.split("static void vv3_mask_clear_tables(void) {", 1)[1].split(
+            "static int vv3_mask_captured_slot", 1
+        )[0]
+        self.assertIn("g_vv3_running_capture = 0;", clear)
 
     def test_sidecar_write_and_short_read_fail_closed(self) -> None:
         self.assertIn("WriteFile(h, g_vv3_mask, sizeof(g_vv3_mask)", self.source)

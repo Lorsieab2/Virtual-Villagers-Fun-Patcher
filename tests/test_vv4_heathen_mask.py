@@ -114,6 +114,33 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("slot < 1 || slot > 5", self.c)
         self.assertIn("out[i] = (char)('0' + slot);", self.c)
 
+    def test_sidecar_path_checks_the_complete_max_path_budget_before_appending(self) -> None:
+        builder = self.c.split("static int vv_build_sidecar_path(char *out, int slot)", 1)[1].split(
+            "\n}", 1
+        )[0]
+        guard = 'lstrlenA(out) + (int)(sizeof("\\\\LDW\\\\") - 1) + lstrlenA(base) +'
+        suffix = '(int)sizeof("\\\\vvfp_masks_0.dat") > MAX_PATH'
+        self.assertIn(guard, builder)
+        self.assertIn(suffix, builder)
+        # sizeof(suffix) includes the NUL. The guard must precede every
+        # unbounded append, including the otherwise-vulnerable first "\\LDW".
+        self.assertLess(builder.index(guard), builder.index('lstrcatA(out, "\\\\LDW");'))
+        # The length repair must not broaden or rename the existing slot files.
+        self.assertIn("slot < 1 || slot > 5", builder)
+        self.assertIn("out[i] = (char)('0' + slot);", builder)
+        self.assertIn('lstrcatA(out, ".dat");', builder)
+
+    def test_render_atlas_path_checks_complete_max_path_budget_before_appending(self) -> None:
+        renderer = self.c.split("static void vv4_mask_render_init(void)", 1)[1].split(
+            "\n}", 1
+        )[0]
+        guard = 'lstrlenA(path) + (int)sizeof("Images\\\\vvfp_mask_atlas.png") > MAX_PATH'
+        self.assertIn(guard, renderer)
+        self.assertLess(
+            renderer.index(guard),
+            renderer.index('lstrcatA(path, "Images\\\\vvfp_mask_atlas.png");'),
+        )
+
     def test_sweep_persists_confirmed_free_slot_clears(self) -> None:
         cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
         self.assertIn("cleared = vv_mask_sweep();", cache)

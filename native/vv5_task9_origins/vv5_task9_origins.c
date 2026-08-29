@@ -81,17 +81,26 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
 }
 
 /* Build Documents\LDW\<exe-basename>\vvfp_masks.dat into out (>= MAX_PATH).
-   Ensures the folder exists. Returns 1 on success, 0 on failure. */
+   Ensures the folder exists. Returns 1 on success, 0 on failure. Slot 0 is
+   retained for the pre-load legacy sidecar read; numbered village saves are
+   exactly 1..5. Fail open on a truncated module path or a final path that
+   cannot fit, before any unbounded wsprintfA writes. */
 static int build_mask_sidecar_path(char *out) {
     char docs[MAX_PATH];
     char exe[MAX_PATH];
     char *base;
     char *dot;
     int slot = *(volatile int *)VV5_SLOT_SCRATCH;
+    DWORD n;
+    int docs_len, base_len;
+    if (slot < 0 || slot > 5) {
+        return 0;
+    }
     if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) {
         return 0;
     }
-    if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) {
+    n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
         return 0;
     }
     base = strrchr(exe, '\\');
@@ -99,6 +108,14 @@ static int build_mask_sidecar_path(char *out) {
     dot = strrchr(base, '.');
     if (dot) {
         *dot = '\0';                /* strip the extension */
+    }
+    /* The longest valid output is the numbered form with slot 5.  Include
+       the terminating NUL: the helper's callers provide char path[MAX_PATH],
+       and wsprintfA/lstrcatA do not perform destination-size checks. */
+    docs_len = lstrlenA(docs);
+    base_len = lstrlenA(base);
+    if (docs_len + 5 + base_len + (int)sizeof("\\vvfp_masks_5.dat") > MAX_PATH) {
+        return 0;
     }
     /* ensure Documents\LDW and Documents\LDW\<base> exist (CreateDirectory is a
        no-op / harmless if they already do) */

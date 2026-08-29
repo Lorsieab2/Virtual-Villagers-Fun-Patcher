@@ -11,8 +11,8 @@ cursor path is intentionally unimplemented pending an exact player trace.
 
 The implementation, deployment artifact, and per-save sidecar selector are built
 and statically tested. No runtime or player acceptance is claimed here. The
-**Chief** atlas row and an optional reuse-guard upgrade remain separate art/sweep
-questions.
+**Chief** atlas row and unowned native preference changes remain separate
+art/runtime questions.
 
 | Piece | State |
 |---|---|
@@ -38,8 +38,13 @@ not just read 0.* So the mask lives in the companion DLL: `g_vv3_mask[256]` +
 `VV3_Get/SetMaskForRecord`. The villager record and the save file are **never**
 written. Slot-reuse is guarded by an FNV fingerprint over gender (`+0xDC8`) + 3
 Likes (`+0xFB4`) + 3 Dislikes (`+0xFC0`) so a newborn reusing a dead villager's
-slot can't inherit the mask. The active save number is captured from the stock
-save-builder argument at `0x403290` into `.vv3md+0x44`; slot 0 fails closed.
+slot can't inherit the mask. The owned Grant Running detail and village-wide
+writers bracket their exact preference stores through `VV3RunningMaskBoundary`;
+it snapshots the live preimage and retags only matching stored masks after the
+`-1`/`38` transforms. This keeps the raw preference fingerprint for slot-reuse
+and slot-shift recovery without assuming Likes/Dislikes are immutable. The active
+save number is captured from the stock save-builder argument at `0x403290` into
+`.vv3md+0x44`; slots outside 1..5 fail closed.
 
 **Render — DLL-side draw, separated exe caves.** The Detail head-draw call site
 `0x456B24` calls `VV3DrawMaskOnHead(record, [record+0x1F7C], &args)`. The DLL
@@ -89,11 +94,11 @@ green; player regression testing is still required.
    masks (all 8 frames aligned to the head), then add `"chief"` to `STRAIGHT` in
    the atlas builder. VV4 tip: subtract the known head from a head+mask mockup for
    pixel-exact isolation.
-2. **Reuse-guard upgrade (optional).** The chats converged on clear-on-birth /
-   VV4's free-slot sweep (clear `table[idx]` when the active flag `record+0xF10`
-   says the slot is dead) as cleaner than the fingerprint. VV3 has no per-frame DLL
-   entry during the village sim, so it needs a new village-loop hook (`0x45F670`
-   iterates 150 records) — deferred; the fingerprint works.
+2. **Unowned preference changes remain outside this fix.** The exact detail and
+   village-wide Grant Running writers owned by this composition are bracketed by
+   `VV3RunningMaskBoundary`; other native preference mutations are not wrapped and
+   remain outside the current mask identity guarantee. No unproved name or record
+   ID field is substituted for the existing slot-reuse/slot-shift fingerprint.
 3. **Sidecar co-location (minor).** On OneDrive-redirected systems the sidecar
    lands in `OneDrive\Documents\LDW` while the game's `.ldw` saves are in plain
    `Documents\LDW`. Persistence is self-consistent so it works; matching the game's

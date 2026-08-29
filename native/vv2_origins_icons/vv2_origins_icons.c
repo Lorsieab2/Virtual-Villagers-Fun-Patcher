@@ -1071,6 +1071,11 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     char *base;
     int i, last = -1, len;
     DWORD n;
+    /* Slot 0 is reserved for the legacy unsuffixed migration read.  The game
+       has five numbered village saves; reject any other value before the
+       decimal slot is formatted.  Besides keeping bogus sidecars out of the
+       namespace, this makes the fixed two-digit MAX_PATH budget below exact. */
+    if (slot < 0 || slot > 5) return 0;
     if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return 0;
     n = GetModuleFileNameA(GetModuleHandleA(NULL), exe, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) return 0;          /* empty or truncated -> skip */

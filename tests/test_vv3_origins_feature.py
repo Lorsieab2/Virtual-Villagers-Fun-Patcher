@@ -159,6 +159,22 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(section_patch["after"], "400000E0")
 
+    def test_manifest_patch_ranges_are_disjoint(self) -> None:
+        ranges = sorted(
+            (
+                int(item["offset"], 0),
+                int(item["offset"], 0) + len(bytes.fromhex(item["after"])),
+                item["purpose"],
+            )
+            for item in self.manifest["patches"]
+        )
+        for current, following in zip(ranges, ranges[1:]):
+            self.assertLessEqual(
+                current[1],
+                following[0],
+                f"VV3 Origins patches overlap: {current[2]} and {following[2]}",
+            )
+
     def test_appended_mask_sections_are_w_xor_x(self) -> None:
         """The appended mask sections must be W^X separated.
 
@@ -399,7 +415,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "29BA93AED56F6A48D16FEB06BCBA748FA092E658C02792737E1F1C4DB3F6DACD",
+            "923C155460BFB8BECB2F07725FB2220E1987F2563764FB508D7CA36A3A125014",
         )
         self.assertEqual(
             bytes.fromhex(
