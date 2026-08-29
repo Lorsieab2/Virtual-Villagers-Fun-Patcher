@@ -1328,7 +1328,12 @@ class StockIntegrationTests(unittest.TestCase):
 
     def test_expanded_modes_render_with_all_game_patches_selected(self) -> None:
         patches_by_game = {
-            build.id: [patch.id for patch in load_fun_patches() if patch.game_id == build.id]
+            build.id: [
+                patch.id
+                for patch in load_fun_patches()
+                if patch.game_id == build.id
+                and not (build.id == "vv1" and patch.id == "vv1_birth_control")
+            ]
             for build in load_builds()
         }
         for build in load_builds():

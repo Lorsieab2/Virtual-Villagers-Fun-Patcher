@@ -134,11 +134,11 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 - Evidence status: static exact-build payload and field-map verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Enable Origins-Exclusive Features (`vv1_enable_origins_exclusive_features`)
+#### Enable Origins-Exclusive Features (includes the Heathen Mask mod) (`vv1_enable_origins_exclusive_features`)
 
-Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-- Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
+- Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x7B260.
@@ -146,7 +146,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler composition contract: {'stacking': ['positive earned tech deltas only', 'positive food-source deltas only'], 'exclusions': ['Golden Child tech-point gain', 'Island Event tech-point gain', 'Duplicate Collectibles tech-point gain', 'Story/puzzle discovery tech-point and food-point gain (Whale, berries, mushroom, device-discovery choices)', 'One-time milestone dialog tech-point and food-point gain'], 'food_mastery_status': 'confirmed absent for this fingerprint; no Food Mastery-like food transform', 'status': 'GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event returns remain native; runtime/player confirmation pending'}
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 41; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 60; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Magic Fruit of Life Alters Mortality (`vv1_magic_fruit_alters_mortality`)
 
@@ -332,7 +332,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler composition contract: {'stacking': ['positive earned tech deltas only', 'positive food-source deltas only'], 'exclusions': ['Island Event tech-point gain', 'Duplicate Collectibles tech-point gain'], 'food_mastery_status': 'confirmed absent in the exact-build writer, strings, and bounded caller corpus', 'status': 'GO: positive writer wrappers double eligible positive deltas once; duplicate collectibles and audited Island Event calls remain native; runtime/player confirmation pending'}
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 25; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 33; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
 
@@ -426,7 +426,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler composition contract: {'stacking': ['positive earned tech deltas only', 'positive food-source deltas only'], 'exclusions': ['Island Event tech-point gain', 'Duplicate Collectibles tech-point gain'], 'food_mastery_status': 'confirmed in exact-build disassembly; native transform documented in doubler evidence', 'status': 'GO: positive writer wrappers double eligible positive deltas once after native adjustments; duplicate collectibles and audited Island Event paths remain native; runtime/player confirmation pending'}
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 43; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 46; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Optional Text changes (`vv4_optional_text_changes`)
 

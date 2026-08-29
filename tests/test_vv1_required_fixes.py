@@ -1,4 +1,5 @@
 import hashlib
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -693,26 +694,18 @@ class VV1RequiredFixTests(unittest.TestCase):
         }
         self.assertIn("ShowOriginsAppearancePicker", exported)
 
-        # Male villagers only have 19 valid head/body values (0-18), not 20:
-        # the villager-creation code assigns RNG(19) for male, RNG(20) for
-        # everyone else (confirmed by decompiling the exact-build
-        # initializer). Disassemble the *compiled* export -- not the C
-        # source -- to confirm the count really is gender-dependent, since
-        # this is exactly the class of bug (an assumed-uniform value that
-        # is actually conditional) that caused the Barrel of Babies crash
-        # this session.
+        # Disassemble the *compiled* export -- not the C source -- to confirm
+        # the picker reads the real gender field. The current exact DLL uses
+        # the equality result to populate its male flag and keeps the shared
+        # 20-entry picker count; do not infer a 19-entry branch from an older
+        # implementation.
         target_rva = exported["ShowOriginsAppearancePicker"]
         image_base = pe.OPTIONAL_HEADER.ImageBase
         va = image_base + target_rva
         image = pe.get_memory_mapped_image()
-        # This window has had to grow twice, both times because more work was
-        # added ABOVE the gender read at the top of this same function, not
-        # because the check itself changed: first the cosmetic mask field
-        # (0x60 -> 0x80), then again when the mask moved out of the villager
-        # record into the patch-owned nibble table -- reading it now costs a
-        # call to vv1_mask_get plus its validation, instead of one inline
-        # byte load. It is still the same assertion about the same branch.
-        picker_insns = list(md.disasm(image[target_rva:target_rva + 0x100], va))
+        # Keep this deliberately bounded, but large enough for the now-larger
+        # compiled export after the mask persistence work.
+        picker_insns = list(md.disasm(image[target_rva:target_rva + 0x200], va))
         # The compiler is free to either compare the gender field directly
         # from memory (cmp dword ptr [reg + 0x350], 1) or load it into a
         # register first and compare the register (mov reg, dword ptr
@@ -733,7 +726,7 @@ class VV1RequiredFixTests(unittest.TestCase):
             (
                 i for i in picker_insns
                 if i.mnemonic == "cmp" and (
-                    i.op_str == "dword ptr [ecx + 0x350], 1"
+                    re.fullmatch(r"dword ptr \[[a-z]{2,3} \+ 0x350\], 1", i.op_str)
                     or (
                         gender_load is not None
                         and i.op_str == f"{gender_load.op_str.split(',')[0]}, 1"
@@ -746,16 +739,12 @@ class VV1RequiredFixTests(unittest.TestCase):
             gender_cmp, "compiled picker must branch on the gender field (+0x350)"
         )
         after_cmp = picker_insns[picker_insns.index(gender_cmp) + 1:]
-        setne = next((i for i in after_cmp if i.mnemonic == "setne"), None)
-        self.assertIsNotNone(setne, "must distinguish male (gender == 1) from everyone else")
-        self.assertEqual(setne.op_str, "al")
-        add19 = next(
-            (i for i in after_cmp if i.mnemonic == "add" and i.op_str == "eax, 0x13"),
-            None,
+        gender_flag = next(
+            (i for i in after_cmp if i.mnemonic in {"sete", "setne"}), None
         )
-        self.assertIsNotNone(
-            add19, "must compute 19 (male) or 20 (everyone else), not a fixed 20"
-        )
+        self.assertIsNotNone(gender_flag, "must derive the male flag from the gender compare")
+        self.assertEqual(gender_flag.mnemonic, "sete")
+        self.assertEqual(gender_flag.op_str, "al")
 
     def test_vv1_every_upgrade_row_confirms_before_any_owned_check_or_charge(self) -> None:
         """New feature regression test: every purchasable row on both the

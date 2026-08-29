@@ -51,31 +51,34 @@ STOCK = ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe
 DLL_SOURCE = ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
 PATCH_SOURCE = ROOT / "scripts" / "build_vv1_origins_feature.py"
 
-# W^X: all writable mask state lives in .data's BSS tail (0x48CD18..0x48CE00),
-# a section that is writable but NOT executable. Nothing is written into the
-# executable .shr cave at runtime -- that is what made Malwarebytes quarantine
-# the process (a per-frame write into an executable page reads as self-
-# modifying code). The mask table and the villager-array-base pointer both
-# live here; the mask CODE stays in .shr and only reads them.
-DATA_GAP_LO = 0x48CD18  # first byte past stock .data's declared VirtualSize
-DATA_GAP_HI = 0x48CE00  # end of the committed .data extension (short of .shr 0x48D000)
-TABLE_VA = 0x48CD20  # 256 villagers x 4 bits = 128 bytes, in .data
+# W^X: all writable mask state lives in the patch-owned .vv1md section
+# (0x491000..0x492000), which is writable but NOT executable. Nothing is
+# written into the executable .vv1mc code page at runtime.
+DATA_GAP_LO = 0x491000
+DATA_GAP_HI = 0x492000
+TABLE_VA = 0x491000  # 256 villagers x 4 bits = 128 bytes, in .vv1md
 TABLE_SIZE = 128
-MANAGER_VA = 0x48CDB8  # villager-array base, stashed by the render hook, in .data
+MANAGER_VA = 0x491098  # villager-array base, stashed by the render hook, in .vv1md
 RECORD_STRIDE = 0x3D8
-# The mask cave now holds only code (the path strings moved to the .rdata
-# string cave), so the hook is at the very start of the cave.
-HOOK_FILE_OFFSET = 0x8BEA8
-HOOK_VA = 0x48DEA8
-SHR_LO = 0x48D000
-SHR_HI = 0x48E000
+# The mask code is at the very start of the appended .vv1mc section.
+HOOK_FILE_OFFSET = 0x8E000
+HOOK_VA = 0x490000
+SHR_LO = 0x490000
+SHR_HI = 0x491000
 
 
 def _render(mode: str) -> bytes:
     import vv_fun_patcher as p
 
     builds = {b.id: b for b in p.load_builds()}
-    ids = [x.id for x in p.load_fun_patches() if x.game_id == "vv1"]
+    # Birth Control owns the same exact stock append tail as Origins; the
+    # catalog deliberately rejects that unsafe composition.  This helper is
+    # exercising the Origins mask output, so select the compatible features.
+    ids = [
+        x.id
+        for x in p.load_fun_patches()
+        if x.game_id == "vv1" and x.id != "vv1_birth_control"
+    ]
     data, _ = p.render_patched_bytes(STOCK, builds["vv1"], mode, ids)
     return bytes(data)
 
@@ -114,20 +117,19 @@ class VV1MaskFieldIsFreeTests(unittest.TestCase):
             )
 
     def test_all_mask_state_lives_in_writable_nonexecutable_data(self):
-        """Table and manager must sit in .data's BSS gap, not executable .shr.
+        """Table and manager must sit in .vv1md, not executable .vv1mc.
 
         This is the W^X invariant. The whole table and the manager pointer
-        must fall inside 0x48CD18..0x48CE00, which the build extends .data's
-        VirtualSize to own and which is RW/non-executable -- so no runtime
-        write ever lands on an executable page (the Malwarebytes trigger).
+        must fall inside the patch-owned .vv1md page, which is RW/non-executable
+        so no runtime write ever lands on an executable page.
         """
         self.assertTrue(
             DATA_GAP_LO <= TABLE_VA and TABLE_VA + TABLE_SIZE <= DATA_GAP_HI,
-            "mask table is not inside .data's writable non-executable gap",
+            "mask table is not inside .vv1md's writable non-executable section",
         )
         self.assertTrue(
             DATA_GAP_LO <= MANAGER_VA < DATA_GAP_HI,
-            "villager-array-base pointer is not inside the .data gap",
+            "villager-array-base pointer is not inside the .vv1md section",
         )
         data = _render("immediate_fixed")
         pe = pefile.PE(data=data, fast_load=True)
@@ -137,31 +139,30 @@ class VV1MaskFieldIsFreeTests(unittest.TestCase):
             hi = lo + s.Misc_VirtualSize
             if lo <= TABLE_VA < hi:
                 name = s.Name.rstrip(b"\x00").decode()
-                self.assertEqual(name, ".data", "mask table escaped .data")
+                self.assertEqual(name, ".vv1md", "mask table escaped .vv1md")
                 self.assertFalse(
                     s.Characteristics & 0x20000000,
-                    ".data section is executable -- W^X violated",
+                    ".vv1md section is executable -- W^X violated",
                 )
                 self.assertTrue(
-                    s.Characteristics & 0x80000000, ".data is not writable"
+                    s.Characteristics & 0x80000000, ".vv1md is not writable"
                 )
                 break
         else:
-            self.fail("no section owns the mask table VA -- .data not extended")
+            self.fail("no section owns the mask table VA -- .vv1md not present")
 
-    def test_no_mask_write_targets_the_executable_shr_section(self):
-        """The mask cave code must never write into executable .shr.
+    def test_no_mask_write_targets_the_executable_code_section(self):
+        """The mask code must never write into executable .vv1mc.
 
-        A write into .shr from the mask hooks is exactly the self-modifying-
-        code pattern that got the build quarantined. Every mask write must
-        land in .data instead.
+        A write into .vv1mc from the mask hooks is self-modifying code. Every
+        mask write must land in .vv1md instead.
         """
         data = _render("immediate_fixed")
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
         offenders = []
-        off = 0x8BEA8
-        cave = data[off:0x8C000]
-        for insn in md.disasm(cave, 0x48DEA8):
+        off = HOOK_FILE_OFFSET
+        cave = data[off:off + 0x1000]
+        for insn in md.disasm(cave, HOOK_VA):
             dest = insn.op_str.split(",")[0]
             for m in re.findall(r"\[0x([0-9a-f]+)\]", dest):
                 if (
@@ -171,7 +172,7 @@ class VV1MaskFieldIsFreeTests(unittest.TestCase):
                 ):
                     offenders.append(f"{insn.address:#x}: {insn.mnemonic} {insn.op_str}")
         self.assertEqual(
-            offenders, [], f"mask code writes into executable .shr: {offenders}"
+            offenders, [], f"mask code writes into executable .vv1mc: {offenders}"
         )
 
     def test_dll_and_patch_agree_on_the_table_addresses(self):
@@ -179,38 +180,47 @@ class VV1MaskFieldIsFreeTests(unittest.TestCase):
         dll = DLL_SOURCE.read_text(encoding="utf-8")
         patch = PATCH_SOURCE.read_text(encoding="utf-8")
 
-        self.assertIn("0x0048CD20", dll, "DLL lost the mask table address")
-        self.assertIn("0x0048CDB8", dll, "DLL lost the villager-array base slot")
+        self.assertIn("0x00491000", dll, "DLL lost the mask table address")
+        self.assertIn(
+            "#define VV_MASK_MANAGER (*(unsigned char **)(VV_MASK_SCRATCH_BASE + 0x98))",
+            dll,
+            "DLL lost the villager-array base slot",
+        )
         self.assertIn("#define VV_RECORD_STRIDE 0x3D8", dll)
         self.assertIn("#define VV_MASK_SLOTS 256", dll)
 
-        self.assertIn("DATA_SCRATCH_BASE_VA = 0x48CD20", patch)
+        self.assertIn("MASK_DATA_SECTION_VA = 0x491000", patch)
         self.assertIn(f"MASK_TABLE_SIZE = {TABLE_SIZE}", patch)
         self.assertIn("MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0x98", patch)
 
     def test_render_hook_reads_the_table_and_bounds_checks_the_index(self):
-        """The hook must key off the record INDEX and reject out-of-range."""
-        joined = "\n".join(_hook_disasm(_render("immediate_fixed")))
+        """The shared village draw hook keys off the stashed record index."""
+        data = _render("immediate_fixed")
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        joined = "\n".join(
+            f"{insn.mnemonic} {insn.op_str}"
+            for insn in md.disasm(data[HOOK_FILE_OFFSET:HOOK_FILE_OFFSET + 0x344], HOOK_VA)
+        )
 
         self.assertIn(
-            "mov ecx, dword ptr [esi + edi*4 + 0x3dbdc]",
+            "mov eax, dword ptr [esi + edi*4 + 0x3dbdc]",
             joined,
             "hook must form the record index exactly as the engine does",
         )
         self.assertIn(
-            f"cmp ecx, {TABLE_SIZE * 2:#x}",
+            f"cmp edx, {TABLE_SIZE * 2:#x}",
             joined,
             "hook must bounds-check the index against the table's slot count",
         )
         self.assertIn(
-            f"movzx edx, byte ptr [edx + {TABLE_VA:#x}]",
+            f"movzx eax, byte ptr [eax + {TABLE_VA:#x}]",
             joined,
             "hook must read the packed nibble from the patch-owned table",
         )
         self.assertIn(
-            f"mov dword ptr [{MANAGER_VA:#x}], esi",
+            f"mov eax, dword ptr [{MANAGER_VA:#x}]",
             joined,
-            "hook must stash the villager-array base for the picker",
+            "hook must read the stashed villager-array base",
         )
         for dead in ("0x3d4", "0x374"):
             self.assertNotIn(
@@ -218,51 +228,29 @@ class VV1MaskFieldIsFreeTests(unittest.TestCase):
             )
 
     def test_hook_lands_on_the_engine_instruction_boundaries_it_claims(self):
-        """A skewed assembly base silently redirects every absolute branch.
-
-        This happened: the hook was assembled for a base 8 bytes below where
-        it was written, so the resume jmp pointed at 0x4377c6 -- the MIDDLE of
-        the instruction at 0x4377c7 -- which would have executed garbage.
-        Both targets are real instruction starts in stock, so pin them.
-        """
+        """The stage-1 stash resumes at the next stock instruction boundary."""
         joined = _hook_disasm(_render("immediate_fixed"))
         self.assertEqual(
             joined[0],
-            "jne 0x4388ce",
-            "hook must preserve the engine's own not-occupied branch target",
+            "mov eax, dword ptr [esi + edi*4 + 0x3dbdc]",
+            "stash must begin with the stock index load",
         )
         self.assertEqual(
             joined[-1],
-            "jmp 0x4377be",
-            "hook must resume at the instruction after the splice",
+            "jmp 0x43779f",
+            "stash must resume at the instruction after the splice",
         )
 
     def test_hook_preserves_every_register_the_engine_still_needs(self):
-        """ECX/EDX are the only registers the engine reloads after the splice.
-
-        Verified against stock: 0x4377c7 writes ECX and 0x4377ca writes EDX
-        before either is read, so both are dead scratch. EAX (record), EBX
-        (0xC7), EBP (4), ESI (manager) and EDI (slot) are all still live, and
-        clobbering any of them would corrupt the engine's own draw loop.
-        """
-        clobbered = set()
-        saved = set()
-        for line in _hook_disasm(_render("immediate_fixed")):
-            mnemonic, _, operands = line.partition(" ")
-            dest = operands.split(",")[0].strip()
-            if mnemonic == "push" and re.fullmatch(r"e[abcds][xpi]", dest):
-                saved.add(dest)  # push/pop-balanced -> net preserved
-            if mnemonic in ("mov", "movzx", "shr", "shl", "and", "or",
-                            "add", "sub", "inc", "dec", "lea"):
-                if re.fullmatch(r"e[abcds][xpi]", dest):
-                    clobbered.add(dest)
-        # ecx/edx are dead scratch; anything else the hook touches must be
-        # push/pop-balanced (the stash-list append borrows ebx and restores it).
-        self.assertLessEqual(
-            clobbered - saved,
-            {"ecx", "edx"},
-            f"hook clobbers registers the engine still needs, unsaved: "
-            f"{sorted(clobbered - saved - {'ecx', 'edx'})}",
+        """The identity stash leaves the engine's loop registers untouched."""
+        joined = _hook_disasm(_render("immediate_fixed"))
+        self.assertEqual(
+            joined,
+            [
+                "mov eax, dword ptr [esi + edi*4 + 0x3dbdc]",
+                "mov dword ptr [0x4911b4], eax",
+                "jmp 0x43779f",
+            ],
         )
 
 

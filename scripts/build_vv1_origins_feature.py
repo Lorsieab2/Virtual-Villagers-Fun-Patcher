@@ -413,7 +413,7 @@ VILLAGE_MASK_ROW_VA = VILLAGE_FILL_SAVE_VA + 4          # +0x1C8 dword, mask col
 VILLAGE_DBG_CALLER_VA = VILLAGE_MASK_ROW_VA + 4         # +0x1CC dword, DIAGNOSTIC: caller of a head-atlas draw seen with an invalid stash (requires runtime trace; not evidence of a separate renderer)
 VILLAGE_MASKED_BITMAP_VA = VILLAGE_DBG_CALLER_VA + 4    # +0x1D0..+0x1F0, 256-bit per-frame "already masked this villager" guard (cleared once per frame by the draw hook) so villagers drawn by more than one render pass get exactly ONE mask
 VILLAGE_DRAWFN_VA = VILLAGE_MASKED_BITMAP_VA + 0x20     # +0x1F0 dword, per-entry original draw fn (0x408840 adult / 0x408740 child-alt) so one shared 5-arg body serves both thunks
-VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (still well clear of .shr at 0x48D000)
+VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (inside patch-owned .vv1md R/W scratch)
 # The exact-build save builder at 0x402ED0 receives the numbered save slot as
 # its first argument before formatting "%s%d.ldw".  Capture that argument in
 # patch-owned R/W scratch so the DLL can select a slot-specific sidecar.  Zero
@@ -421,20 +421,19 @@ VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (still well cle
 MASK_SAVE_SLOT_VA = DATA_SCRATCH_BASE_VA + 0x1F4
 MASK_SAVE_SLOT_FIRST = 1
 MASK_SAVE_SLOT_LAST = 5
-# The village-mask caves (two per-loop stash writes + the shared-draw hook) live
-# in the free .shr tail run at 0x8B180 (0x8B17F..0x8B530, ~940 zero bytes in the
-# rendered exe), laid out contiguously like the portrait caves.
+# The village-mask code (two per-loop stash writes + the shared-draw hook) lives
+# in the patch-owned .vv1mc R-X section, laid out contiguously with the other
+# VV1 mask helpers and kept separate from the stock shared .shr section.
 VILLAGE_MASK_CAVE_FILE = MASK_CODE_FILE_BASE + 0x000   # .vv1mc, 0x400 reserved
 VILLAGE_MASK_CAVE_VA = mask_code_va(VILLAGE_MASK_CAVE_FILE)
 # Vertical lift (screen px, subtracted from the head's own draw y) that seats the
 # mask atlas cell onto the head in the village. Tuned from a screenshot like the
 # Details DY; 0 = draw at the head's exact y to start.
 VILLAGE_MASK_LIFT = 58   # on-head lift (subtracted from head arg3)
-# The restore stub is code, so it lives in an executable .shr gap (a genuinely
-# unused zero-run, verified against the fully-rendered exe), NOT in the tight
-# 344-byte mask cave that already overflows. Only ~6 bytes of glue land in the
-# hot tick hook (a jmp/call into here). pushad/popad inside keeps every native
-# register intact across LoadLibrary/GetProcAddress/call.
+# The restore stub is code, so it lives in the patch-owned .vv1mc R-X section,
+# NOT in the tight 344-byte village-mask cave that already overflows. Only ~6
+# bytes of glue land in the hot tick hook (a jmp/call into here). pushad/popad
+# inside keeps every native register intact across LoadLibrary/GetProcAddress/call.
 MASK_RESTORE_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x6C0  # .vv1mc, 0x60 reserved
 MASK_RESTORE_STUB_VA = mask_code_va(MASK_RESTORE_STUB_FILE_OFFSET)
 # = 0x48CDC0 + 0x1E0 = 0x48CFA0, which stays below .shr's base 0x48D000 (the
@@ -448,14 +447,14 @@ MASK_OVERLAY_VA = mask_code_va(MASK_OVERLAY_FILE_OFFSET)
 # (the fix for the whole-village distribution + Malwarebytes constraints -- see
 # MASK_IDX_LIST_VA).  Stash (117) + draw (245) + frame-cache (31) = 393 bytes no
 # longer fits the 343-byte 0x8BEA8 cave, so the draw hook alone is relocated to
-# a separate confirmed-zero .shr gap; stash + frame-cache still share 0x8BEA8.
+# a separate region in patch-owned .vv1mc; stash + frame-cache remain earlier
+# in the same patch-owned code section.
 MASK_DRAW_RELOC_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x580  # .vv1mc, 0x40 reserved
 MASK_DRAW_RELOC_VA = mask_code_va(MASK_DRAW_RELOC_FILE_OFFSET)
 # The village mask THIRD hook (alternate child render path 0x4093c0 -> 0x408740)
-# does NOT fit in the sequential VILLAGE_MASK_CAVE region (that ends at the
-# CURE_ENTRY cave 0x8B530). It lives in the tail of the draw-hook gap instead:
-# the draw-hook stub above is only ~20 bytes, so 0x8B0A0..0x8B180 (224 bytes) is
-# free and confirmed-zero right after it.
+# does NOT fit in the sequential VILLAGE_MASK_CAVE region. It lives in the
+# remaining patch-owned .vv1mc tail after the draw-hook stub; the reserved
+# offsets below keep the three hook families from overlapping.
 THIRD_HOOK_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x5C0  # .vv1mc, 0x100 reserved
 THIRD_HOOK_VA = mask_code_va(THIRD_HOOK_FILE_OFFSET)
 # Details-screen portrait ("bighead") mask overlay: the Details portrait renders
@@ -3432,6 +3431,7 @@ def main() -> None:
         "catalog_enabled": True,
         "catalog_hidden": False,
         "game_id": "vv1",
+        "conflicts": ["vv1_birth_control"],
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features (includes the Heathen Mask mod)",

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from scripts.build_vv1_birth_control_page import build_page  # noqa: E402
-from vv_fun_patcher import load_fun_patches  # noqa: E402
+from vv_fun_patcher import PatcherError, load_fun_patches, resolve_fun_patch_ids  # noqa: E402
 
 
 VV1_SHA256 = "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
@@ -129,29 +129,21 @@ class VV1VV3BirthControlTests(unittest.TestCase):
                 self.assertEqual(patch["after"], "9090909090909090")
         self.assertNotIn(0x4584B0, {int(p["offset"], 0) for p in patches})
 
-    def test_vv1_birth_control_does_not_overlap_vv1_origins_ranges(self) -> None:
+    def test_vv1_birth_control_overlap_is_fail_closed(self) -> None:
         catalog = load_fun_patches()
-        birth_control = next(item for item in catalog if item.id == "vv1_birth_control")
         origins = next(item for item in catalog if item.id == "vv1_enable_origins_exclusive_features")
 
-        def ranges(feature) -> list[range]:
-            edits = list(feature.raw.get("patches", []))
-            for mode_edits in feature.raw.get("patch_mode_overrides", {}).values():
-                edits.extend(mode_edits)
-            result = [
-                range(int(patch["offset"], 0), int(patch["offset"], 0) + len(bytes.fromhex(patch["after"])))
-                for patch in edits
-            ]
-            transaction = feature.raw.get("pe_append_transaction", {})
-            for patch in transaction.get("layouts", {}).get("stock", {}).get("header_patches", []):
-                result.append(range(int(patch["offset"], 0), int(patch["offset"], 0) + len(bytes.fromhex(patch["after"]))))
-            layout = transaction.get("layouts", {}).get("stock")
-            if layout:
-                start = int(layout["append_offset"], 0)
-                result.append(range(start, start + int(layout["append_length"])))
-            return result
+        # Both independent features use the exact stock tail at 0x8E000.  They
+        # remain independently selectable, but composition is explicitly
+        # rejected so the generic append path can never corrupt either owner.
+        self.assertIn("vv1_birth_control", origins.raw.get("conflicts", []))
 
-        self.assertTrue(all(a.stop <= b.start or b.stop <= a.start for a in ranges(birth_control) for b in ranges(origins)))
+    def test_vv1_birth_control_and_origins_co_selection_is_rejected(self) -> None:
+        with self.assertRaisesRegex(PatcherError, "conflicts"):
+            resolve_fun_patch_ids(
+                ["vv1_birth_control", "vv1_enable_origins_exclusive_features"],
+                game_id="vv1",
+            )
 
 
 if __name__ == "__main__":
