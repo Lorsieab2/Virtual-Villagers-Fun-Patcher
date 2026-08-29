@@ -305,6 +305,12 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 
 1. **Hash** every deployed artifact (exe page, loose atlas, DLL) against its repo source
    — hashes, not timestamps.
+0. **Check that the patcher APPLY actually SUCCEEDED.** A cave/section collision between
+   two patches makes the apply FAIL, so the exe is never rewritten — and every subsequent
+   "fix" silently changes nothing in the running game. VV4 lost a WEEK to this: diagnostic
+   caves collided in `.shr` (overlap at 0xCC220 with another feature), the apply failed
+   every time, and all week's observations were of a stale exe. Verify the apply result
+   itself, then the hashes. (This is Part 7's cave-collision warning happening for real.)
 2. If multi-stage, confirm the **final stage's input** was regenerated after your last
    source change (stale intermediate is the #1 cause of "I fixed it, nothing changed").
 3. Verify the **shipped exe contains your change** (marker byte at the patched address).
