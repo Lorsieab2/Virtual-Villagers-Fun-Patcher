@@ -45,7 +45,7 @@ It has not yet been accepted in a running game by the player.
 
 The GitHub review audit and its all-five follow-up found seven defects that were
 still present after the earlier integration work. They are now repaired and
-statically gated. A final adjacent-code audit then closed eight additional
+statically gated. A final adjacent-code audit then closed ten additional
 fail-closed and identity-boundary gaps:
 
 1. VV1's Details wrapper records a permanent fail-open sentinel when the
@@ -96,6 +96,19 @@ fail-closed and identity-boundary gaps:
     record only when a global mode or a field for that record's sex applies. An
     absent selected sex or empty village now returns the explicit no-deduction
     result before the native 450,000-point charge.
+16. VV3 now admits a fingerprint lookup only when exactly one active/living
+    record and exactly one nonzero stored mask own it. Those gates run before the
+    same-slot fast path as well as slot-shift recovery. Grant Running also retags
+    only fingerprints unique in immutable live and stored preimages, so a
+    simultaneous collision fails closed instead of duplicating or crossing masks.
+17. VV3 rejects a nonzero setter commit unless the addressed record is the sole
+    active/living fingerprint owner, preventing stale or inactive pointers from
+    seeding a later fallback match. A valid commit clears older shifted copies
+    before rebinding the current slot; the individual chooser returns no-change
+    before staged writes and the native charge when that bind is ambiguous. The
+    whole-village transaction conservatively preflights every requested mask that
+    can be nonzero and aborts before any head/body or mask write when a target is
+    ambiguous, so its 450,000-point charge also remains behind the safe-bind gate.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be
@@ -117,11 +130,13 @@ runtime acceptance.
    known allocation routine (`sub_44C600`) has no reviewed proof that it is
    birth-only, and no stable VV2 identity field has been established, so no guessed
    birth detour is installed.
-5. VV3's gender+Likes+Dislikes fingerprint can collide between villagers (including
-   a replacement/newborn). No proven stable name, identity, or allocation-generation
-   field exists in the current exact-build evidence. Removing the existing fallback
-   would regress observed reload/slot-shift recovery, so this boundary requires a
-   player trace or new native evidence rather than an invented offset.
+5. VV3's simultaneous live/stored fingerprint collisions now fail closed while
+   unique-fingerprint reload/slot-shift recovery remains. The irreducible boundary is
+   sequential replacement: after one villager is gone, a later newborn/replacement
+   with the exact same gender+Likes+Dislikes fingerprint cannot be distinguished.
+   No proven stable name, identity, or allocation-generation field exists in the
+   current exact-build evidence; that boundary requires a player trace or new native
+   evidence rather than an invented offset.
 6. VV2 and VV5 still need exhaustive action/pickup ownership audits; a central hook
    is not automatically a complete call graph.
 7. Details positioning in VV1/VV3/VV4 and every unapproved surface still requires

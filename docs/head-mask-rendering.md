@@ -248,12 +248,21 @@ Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.ex
 - The action overlay is `sub_45F7E0`, reached at the proven action call site `0x460B48`.
 - The mask patch's world/action/Details hooks use these proven families and owned `.vv3mc`
   (R-X) / `.vv3md` (R/W) sections.
-- **Sidecar validation:** every loaded mask byte is sanitized to the supported `0..5`
-  range before it can enter the DLL table or reach a renderer. This is fail-closed for
-  malformed or hand-edited sidecars. The stored gender+Likes+Dislikes fingerprint can
-  collide between villagers, and no stable name, identity, or allocation-generation
-  field is proven in the current exact-build evidence; the existing fallback is retained
-  because removing it regresses observed reload/slot-shift recovery.
+- **Sidecar/identity validation:** every loaded mask byte is sanitized to the supported
+  `0..5` range before it can enter the DLL table or reach a renderer. Before either the
+  same-slot fast path or slot-shift fallback returns a mask, the getter requires exactly
+  one active/living record and exactly one nonzero stored entry with that
+  gender+Likes+Dislikes fingerprint. Simultaneous live or stored duplicates fail closed;
+  unique reload/slot-shift recovery is retained. Grant Running likewise retags only a
+  fingerprint unique in immutable live and stored preimages. Nonzero setter commits
+  require that same unique live ownership and rebind an older shifted copy; a failed
+  individual chooser bind returns before staged writes or the native charge. The
+  whole-village path conservatively preflights all masks that can be nonzero and
+  aborts before any head/body or mask mutation and before its 450,000-point charge
+  on ambiguity. A later replacement/newborn with the exact same fingerprint after
+  the old villager is gone remains indistinguishable:
+  no stable name, identity, or allocation-generation field is proven in the current
+  exact-build evidence.
 - `0x4341A0..0x434758` is one three-style timed sprite/particle effect object. It iterates
   24-byte entries, compares elapsed time to `0x12C`/`0x7080`, and uses three fixed anchors
   `(110,160)`, `(114,212)`, `(75,176)` from `0x5947B8..0x5947CC`.

@@ -12,8 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
+    _remove_feature_bytes,
     _pe_checksum_layout,
     PatcherError,
+    get_fun_patch,
     load_builds,
     load_patch_modes,
     load_fun_patches,
@@ -167,12 +169,6 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 # holder [+0x127C1C] is read at exactly one site in the exe, 0x460A54.
                 # Those bytes are left stock rather than hooked.)
                 #
-                # PE header edits mapping the two appended, patch-owned sections.
-                # docs/head-mask-rendering.md Part 7: our code and data must live in
-                # sections we add, never in borrowed .text/.data slack.
-                0x10E,     # NumberOfSections 5 -> 7
-                0x158,     # SizeOfImage extended through .vv3md
-                0x2C8,     # the two 40-byte headers: .vv3mc R-X + .vv3md R/W
             },
         )
         section_patch = next(
@@ -183,13 +179,16 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(section_patch["after"], "400000E0")
 
     def test_manifest_patch_ranges_are_disjoint(self) -> None:
+        append_headers = self.manifest["pe_append_transaction"]["layouts"][
+            "collection_progression"
+        ]["header_patches"]
         ranges = sorted(
             (
                 int(item["offset"], 0),
                 int(item["offset"], 0) + len(bytes.fromhex(item["after"])),
                 item["purpose"],
             )
-            for item in self.manifest["patches"]
+            for item in [*self.manifest["patches"], *append_headers]
         )
         for current, following in zip(ranges, ranges[1:]):
             self.assertLessEqual(
@@ -207,7 +206,9 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         """
         header_patch = next(
             item
-            for item in self.manifest["patches"]
+            for item in self.manifest["pe_append_transaction"]["layouts"][
+                "collection_progression"
+            ]["header_patches"]
             if int(item["offset"], 0) == 0x2C8
         )
         blob = bytes.fromhex(header_patch["after"])
@@ -221,6 +222,72 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertFalse(code_chars & 0x80000000, "mask code section must NOT be writable")
         self.assertTrue(data_chars & 0x80000000, "mask data section must be writable")
         self.assertFalse(data_chars & 0x20000000, "mask data section must NOT be executable")
+
+    def test_shipping_render_maps_both_owned_pages_and_removal_truncates_them(self) -> None:
+        feature = get_fun_patch("vv3_enable_origins_exclusive_features")
+        transaction = self.manifest["pe_append_transaction"]
+        self.assertEqual(transaction["append_length"], 0x2000)
+        self.assertEqual(
+            set(transaction["layouts"]),
+            {"collection_progression", "immediate_fixed"},
+        )
+
+        for mode in ("collection_progression", "immediate_fixed"):
+            with self.subTest(mode=mode):
+                base, _ = render_patched_bytes(STOCK, self.build, mode, [])
+                rendered, applied = render_patched_bytes(
+                    STOCK,
+                    self.build,
+                    mode,
+                    [feature.id],
+                )
+                layout = transaction["layouts"][mode]
+                appended = bytes.fromhex(layout["append_bytes"])
+
+                self.assertEqual(len(base), 0xCB000)
+                self.assertEqual(len(rendered), 0xCD000)
+                self.assertEqual(rendered[0xCB000:0xCD000], appended)
+                self.assertEqual(
+                    hashlib.sha256(appended).hexdigest().upper(),
+                    layout["append_sha256"],
+                )
+                self.assertTrue(any(rendered[0xCB000:0xCC000]))
+                self.assertEqual(rendered[0xCC000:0xCD000], bytes(0x1000))
+                self.assertEqual(
+                    rendered[0xCB100:0xCB10B],
+                    bytes.fromhex("8B442404A344006E008B11"),
+                )
+                self.assertEqual(struct.unpack_from("<H", rendered, 0x10E)[0], 7)
+                self.assertEqual(struct.unpack_from("<I", rendered, 0x158)[0], 0x2E1000)
+
+                code_header = rendered[0x2C8:0x2F0]
+                data_header = rendered[0x2F0:0x318]
+                self.assertTrue(code_header.startswith(b".vv3mc"))
+                self.assertTrue(data_header.startswith(b".vv3md"))
+                self.assertEqual(struct.unpack_from("<I", code_header, 12)[0], 0x2DF000)
+                self.assertEqual(struct.unpack_from("<I", code_header, 20)[0], 0xCB000)
+                self.assertEqual(struct.unpack_from("<I", data_header, 12)[0], 0x2E0000)
+                self.assertEqual(struct.unpack_from("<I", data_header, 20)[0], 0xCC000)
+                self.assertTrue(
+                    any(
+                        item["owner"] == f"feature:{feature.id}"
+                        and item["offset"] == "0xCB000"
+                        for item in applied
+                    )
+                )
+
+                tampered = bytearray(rendered)
+                tampered[-1] ^= 1
+                tampered_before = bytes(tampered)
+                with self.assertRaisesRegex(PatcherError, "appended page guard differs"):
+                    _remove_feature_bytes(tampered, feature, mode)
+                self.assertEqual(tampered, tampered_before)
+
+                removed = _remove_feature_bytes(rendered, feature, mode)
+                self.assertTrue(
+                    any(item["purpose"].startswith("truncate owned append") for item in removed)
+                )
+                self.assertEqual(rendered, base)
 
     def test_running_code_only_edits_normal_trait_arrays(self) -> None:
         source = BUILDER.read_text(encoding="utf-8")

@@ -39,17 +39,29 @@ not just read 0.* So the mask lives in the companion DLL: `g_vv3_mask[256]` +
 written. Every loaded sidecar mask value is sanitized to the supported `0..5`
 range before it enters the table, so malformed or hand-edited bytes fail closed.
 Slot-reuse is guarded by an FNV fingerprint over gender (`+0xDC8`) + 3 Likes
-(`+0xFB4`) + 3 Dislikes (`+0xFC0`) so a normal newborn reusing a dead villager's
-slot can't inherit the mask. This fingerprint is not a unique identity: two
-villagers, or a replacement/newborn, can collide on gender+Likes+Dislikes, and no
-proven stable name, identity, or allocation-generation field has been established
-in the current exact-build evidence. The existing fallback is retained because
-removing it regresses observed reload/slot-shift recovery; a complete collision
-fix needs a player trace or new native evidence, not an invented record offset.
-The owned Grant Running detail and village-wide writers bracket their exact preference stores through `VV3RunningMaskBoundary`;
-it snapshots the live preimage and retags only matching stored masks after the
-`-1`/`38` transforms. This keeps the raw preference fingerprint for slot-reuse
-and slot-shift recovery without assuming Likes/Dislikes are immutable. The active
+(`+0xFB4`) + 3 Dislikes (`+0xFC0`). Before either the same-slot fast path or the
+slot-shift fallback may return a mask, the getter requires exactly one active,
+living record and exactly one nonzero stored entry with that fingerprint. Two
+simultaneous live matches or two stored matches therefore fail closed to no mask;
+unique-fingerprint reload/slot-shift recovery remains available. A nonzero setter
+commit also requires that unique live owner; it clears any older shifted stored copy
+before rebinding the current slot, while an explicit None may still clear an exact
+stale slot. The individual chooser aborts before its staged writes and native charge
+if that nonzero bind is ambiguous. The whole-village transaction preflights every
+requested mask that can be nonzero before any head/body or mask mutation; an
+ambiguous target aborts the whole batch with no 450,000-point deduction. Random is
+checked conservatively because it can select a nonzero mask. This fingerprint
+is still not a stable identity: if one villager disappears and a replacement/newborn
+with the exact same fingerprint occupies the population later, there is no overlap
+from which uniqueness can distinguish them. No proven stable name, identity, or
+allocation-generation field has been established in the current exact-build
+evidence, so that sequential replacement boundary needs a player trace or new
+native evidence, not an invented record offset. The owned Grant Running detail and
+village-wide writers bracket their exact preference stores through
+`VV3RunningMaskBoundary`; it snapshots both live and stored preimages and retags
+only a fingerprint with one owner in each snapshot after the `-1`/`38` transforms.
+This keeps unique slot-reuse and slot-shift recovery without cross-tagging an
+ambiguous preimage or assuming Likes/Dislikes are immutable. The active
 save number is captured from the stock save-builder argument at `0x403290` into
 `.vv3md+0x44`; slots outside 1..5 fail closed.
 
@@ -101,13 +113,19 @@ green; player regression testing is still required.
    masks (all 8 frames aligned to the head), then add `"chief"` to `STRAIGHT` in
    the atlas builder. VV4 tip: subtract the known head from a head+mask mockup for
    pixel-exact isolation.
-2. **Fingerprint collision / unowned preference changes remain outside this fix.**
-   The gender+Likes+Dislikes fingerprint can collide, and no proven stable identity
-   or allocation-generation field is available to replace it. The exact detail and
-   village-wide Grant Running writers owned by this composition are bracketed by
-   `VV3RunningMaskBoundary`; other native preference mutations are not wrapped and
-   remain outside the current mask identity guarantee. No unproved name or record
-   ID field is substituted for the existing slot-reuse/slot-shift fingerprint.
+2. **Sequential same-fingerprint replacement / unowned preference changes remain
+   outside this fix.** Simultaneous duplicate live or stored fingerprints now fail
+   closed, including the same-slot fast path, and Grant Running retags only unique
+   live/stored preimages. Nonzero setter commits likewise require one live owner and
+   cannot be seeded through an inactive/stale record. Whole-village mask batches
+   preflight that condition before any mutation or charge. A deceased/removed
+   villager followed later by a newborn or replacement with the exact same
+   gender+Likes+Dislikes fingerprint cannot be
+   distinguished without a proven stable identity or allocation-generation field.
+   The exact detail and village-wide Grant Running writers owned by this composition
+   are bracketed by `VV3RunningMaskBoundary`; other native preference mutations are
+   not wrapped and remain outside the current mask identity guarantee. No unproved
+   name or record ID field is substituted.
 3. **Sidecar co-location (minor).** On OneDrive-redirected systems the sidecar
    lands in `OneDrive\Documents\LDW` while the game's `.ldw` saves are in plain
    `Documents\LDW`. Persistence is self-consistent so it works; matching the game's

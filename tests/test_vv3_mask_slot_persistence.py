@@ -62,7 +62,13 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertEqual(cave[4:9], bytes.fromhex("A344006E00"))
         self.assertEqual(cave[9:11], bytes.fromhex("8B11"))
         self.assertIn("0x6E0044", self.source.replace("0x006E0044", "0x6E0044"))
-        section_patch = next(item for item in self.manifest["patches"] if item["offset"] == "0x2C8")
+        section_patch = next(
+            item
+            for item in self.manifest["pe_append_transaction"]["layouts"][
+                "collection_progression"
+            ]["header_patches"]
+            if item["offset"] == "0x2C8"
+        )
         section_bytes = bytes.fromhex(section_patch["after"])
         self.assertIn(b".vv3mc", section_bytes)
         self.assertIn(b".vv3md", section_bytes)
@@ -88,11 +94,129 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         )[1].split("/* Render hook:", 1)[0]
         self.assertIn("if (!after)", boundary)
         self.assertIn("g_vv3_running_before[i] = vv3_mask_fingerprint(rec)", boundary)
-        self.assertIn("g_vv3_running_before[j] == old_fp", boundary)
+        self.assertIn("g_vv3_running_mask_before[i]", boundary)
+        self.assertIn("vv3_running_unique_stored_preimage_index(old_fp) != i", boundary)
+        self.assertIn("vv3_running_unique_live_preimage_index(old_fp, slots)", boundary)
         self.assertIn("g_vv3_mask_fp[i] = vv3_mask_fingerprint(rec)", boundary)
         self.assertIn("rec[VV3_ACTIVE] != 0", boundary)
         self.assertIn("*(int *)(rec + VV3_HEALTH) > 0", boundary)
-        self.assertIn("for (j = 0; j < slots;", boundary)
+        self.assertIn("j = vv3_running_unique_live_preimage_index(old_fp, slots)", boundary)
+
+    def test_collision_ambiguous_lookup_fails_before_same_slot_fast_path(self) -> None:
+        """Neither a live nor stored duplicate may reach either return path."""
+        live = self.source.split(
+            "static int vv3_mask_unique_live_index(unsigned int fp) {", 1
+        )[1].split("static int vv3_mask_unique_stored_index", 1)[0]
+        self.assertIn("rec[VV3_ACTIVE] == 0", live)
+        self.assertIn("*(const int *)(rec + VV3_HEALTH) <= 0", live)
+        self.assertIn("if (found >= 0) return -1;", live)
+
+        stored = self.source.split(
+            "static int vv3_mask_unique_stored_index(unsigned int fp) {", 1
+        )[1].split("/* ---- Sidecar persistence", 1)[0]
+        self.assertIn("g_vv3_mask[i] == 0", stored)
+        self.assertIn("g_vv3_mask_fp[i] != fp", stored)
+        self.assertIn("if (found >= 0) return -1;", stored)
+
+        getter = self.source.split(
+            "__declspec(dllexport) int __stdcall VV3_GetMaskForRecord", 1
+        )[1].split("/* Chooser commit:", 1)[0]
+        live_gate = getter.index("vv3_mask_unique_live_index(fpv) != idx")
+        stored_gate = getter.index("stored_idx = vv3_mask_unique_stored_index(fpv)")
+        fast_path = getter.index("if (stored_idx == idx)")
+        shifted_return = getter.index("return g_vv3_mask[stored_idx];")
+        self.assertLess(live_gate, stored_gate)
+        self.assertLess(stored_gate, fast_path)
+        self.assertLess(fast_path, shifted_return)
+
+    def test_nonzero_set_requires_unique_live_owner_and_rebinds_shifted_copy(self) -> None:
+        """A stale setter pointer cannot seed a future fallback match."""
+        setter = self.source.split(
+            "__declspec(dllexport) int __stdcall VV3_SetMaskForRecord", 1
+        )[1].split("/* ---- Mask draw", 1)[0]
+        clamp = setter.index("if (mask < 0 || mask > VV3_MASK_MAX) mask = 0;")
+        gate = setter.index("if (!vv3_mask_can_set_prepared(record, mask)) return 0;")
+        owner = setter.index("live_idx = vv3_mask_unique_live_index(fpv);")
+        rebind = setter.index("if (live_idx == idx)")
+        write = setter.index("g_vv3_mask[idx] = (unsigned char)mask;")
+        self.assertLess(clamp, gate)
+        self.assertLess(gate, owner)
+        self.assertLess(owner, rebind)
+        self.assertLess(rebind, write)
+        self.assertIn("i != idx", setter)
+        self.assertIn("g_vv3_mask_fp[i] == fpv", setter)
+        # The gate is nonzero-only: an explicit None may still clear an exact
+        # stale slot even though it cannot claim a live fingerprint identity.
+        can_set = self.source.split(
+            "static int vv3_mask_can_set_prepared", 1
+        )[1].split("/* ---- Sidecar persistence", 1)[0]
+        self.assertIn("if (mask == 0) return 1;", can_set)
+        self.assertIn("vv3_mask_unique_live_index", can_set)
+
+    def test_individual_chooser_rejects_failed_mask_bind_before_staged_writes(self) -> None:
+        chooser = self.source.split(
+            "__declspec(dllexport) int __stdcall ShowVV3AppearanceChooser", 1
+        )[1].split("/* ================= Change Appearance for All", 1)[0]
+        bind = chooser.index("if (!VV3_SetMaskForRecord(record, vv3_appearance_mask))")
+        head_write = chooser.index("*head = vv3_appearance_head;")
+        body_write = chooser.index("*body = vv3_appearance_body;")
+        self.assertLess(bind, head_write)
+        self.assertLess(bind, body_write)
+        self.assertIn("No tech points have been deducted.", chooser)
+
+    def test_village_wide_mask_ambiguity_aborts_before_any_mutation_or_charge(self) -> None:
+        engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
+            "#define VW_RUNNING", 1
+        )[0]
+        preflight = engine.index("if (mask_requested)")
+        ambiguity = engine.index("!vv3_mask_can_set_prepared(r, probe)")
+        head_body = engine.index("/* Head/Body: independent per-sex")
+        first_record_write = engine.index("*(int *)(r + VV3_HEAD_OFF)")
+        first_mask_write = engine.index("VV3_SetMaskForRecord")
+        self.assertLess(preflight, ambiguity)
+        self.assertLess(ambiguity, head_body)
+        self.assertLess(ambiguity, first_record_write)
+        self.assertLess(ambiguity, first_mask_write)
+        self.assertIn("else if (mask_mode == 4) probe = 0;", engine)
+        self.assertIn("else probe = 1;", engine)
+
+        entry = self.source.split("ShowVV3AppearanceForAll(void)", 1)[1].split(
+            "\n}", 1
+        )[0]
+        apply_at = entry.index("affected = vv3_apply_for_all")
+        zero_guard = entry.index("if (affected == 0)", apply_at)
+        ambiguity_message = entry.index(
+            "The selected masks could not be safely matched", zero_guard
+        )
+        charge = entry.index("*tech -= VV3_CAF_COST", ambiguity_message)
+        self.assertLess(apply_at, zero_guard)
+        self.assertLess(zero_guard, ambiguity_message)
+        self.assertLess(ambiguity_message, charge)
+
+    def test_running_retag_uses_immutable_unique_live_and_stored_preimages(self) -> None:
+        """Retagging must not cross two villagers that share the raw hash."""
+        boundary = self.source.split(
+            "__declspec(dllexport) void __stdcall VV3RunningMaskBoundary", 1
+        )[1].split("/* Render hook:", 1)[0]
+        snapshot = boundary.index("g_vv3_running_mask_before[i] =")
+        capture = boundary.index("g_vv3_running_capture = 1;")
+        stored_gate = boundary.index(
+            "vv3_running_unique_stored_preimage_index(old_fp) != i"
+        )
+        live_gate = boundary.index(
+            "vv3_running_unique_live_preimage_index(old_fp, slots)"
+        )
+        retag = boundary.index("g_vv3_mask_fp[i] = vv3_mask_fingerprint(rec)")
+        self.assertLess(snapshot, capture)
+        self.assertLess(capture, stored_gate)
+        self.assertLess(stored_gate, live_gate)
+        self.assertLess(live_gate, retag)
+        self.assertIn(
+            "g_vv3_running_mask_before[i] != fp",
+            self.source.split(
+                "static int vv3_running_unique_stored_preimage_index", 1
+            )[1].split("/* Bracket every VV3 Grant Running", 1)[0],
+        )
 
     def test_running_writers_are_bracketed_in_detail_and_village_wide_paths(self) -> None:
         builder = (ROOT / "scripts" / "build_vv3_origins_feature.py").read_text(
@@ -212,7 +336,7 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
             "__declspec(dllexport) int __stdcall VV3_GetMaskForRecord", 1
         )[1].split("/* Chooser commit:", 1)[0]
         self.assertIn("return g_vv3_mask[idx];", getter)
-        self.assertIn("return g_vv3_mask[i];", getter)
+        self.assertIn("return g_vv3_mask[stored_idx];", getter)
         self.assertIn("/* Render hook: mask (1..5)", self.source)
 
 

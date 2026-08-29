@@ -2276,32 +2276,54 @@ def main() -> None:
     )
 
     # ---- Header patches that map the two appended sections (Part 7) ----
-    # Emitted last so they sit after every in-file edit.  Each is an ordinary guarded
-    # offset/before/after patch, so the shipping patcher applies them like any other.
-    patch(
-        PE_NUMSECTIONS_OFF,
-        original[PE_NUMSECTIONS_OFF : PE_NUMSECTIONS_OFF + 2],
-        struct.pack("<H", 7),
-        "NumberOfSections 5 -> 7 (add the .vv3mc R-X and .vv3md R/W mask sections)",
+    # These guards belong to the same append transaction as the two pages.  Keeping
+    # them out of the ordinary patch list makes install/removal atomic: the shipping
+    # patcher validates all three headers, applies them, appends both pages, and on
+    # removal authenticates/truncates the exact tail before restoring the headers.
+    header_specs = (
+        (
+            PE_NUMSECTIONS_OFF,
+            original[PE_NUMSECTIONS_OFF : PE_NUMSECTIONS_OFF + 2],
+            struct.pack("<H", 7),
+            "NumberOfSections 5 -> 7 (add the .vv3mc R-X and .vv3md R/W mask sections)",
+        ),
+        (
+            PE_SIZEOFIMAGE_OFF,
+            original[PE_SIZEOFIMAGE_OFF : PE_SIZEOFIMAGE_OFF + 4],
+            struct.pack("<I", NEW_SIZE_OF_IMAGE),
+            "extend SizeOfImage through the appended mask sections",
+        ),
+        (
+            PE_NEW_SECHDR_OFF,
+            original[PE_NEW_SECHDR_OFF : PE_NEW_SECHDR_OFF + 80],
+            section_header(SECTION_CODE_NAME, SECTION_CODE_SIZE, SECTION_CODE_VA,
+                           SECTION_CODE_SIZE, SECTION_CODE_RAW, SECTION_CODE_CHARS)
+            + section_header(SECTION_DATA_NAME, SECTION_DATA_SIZE, SECTION_DATA_VA,
+                             SECTION_DATA_SIZE, SECTION_DATA_RAW, SECTION_DATA_CHARS),
+            "install the .vv3mc (R-X, mask trampolines) and .vv3md (R/W, DLL fn-ptr/active-save slots) headers",
+        ),
     )
-    patch(
-        PE_SIZEOFIMAGE_OFF,
-        original[PE_SIZEOFIMAGE_OFF : PE_SIZEOFIMAGE_OFF + 4],
-        struct.pack("<I", NEW_SIZE_OF_IMAGE),
-        "extend SizeOfImage through the appended mask sections",
-    )
-    patch(
-        PE_NEW_SECHDR_OFF,
-        original[PE_NEW_SECHDR_OFF : PE_NEW_SECHDR_OFF + 80],
-        section_header(SECTION_CODE_NAME, SECTION_CODE_SIZE, SECTION_CODE_VA,
-                       SECTION_CODE_SIZE, SECTION_CODE_RAW, SECTION_CODE_CHARS)
-        + section_header(SECTION_DATA_NAME, SECTION_DATA_SIZE, SECTION_DATA_VA,
-                         SECTION_DATA_SIZE, SECTION_DATA_RAW, SECTION_DATA_CHARS),
-        "install the .vv3mc (R-X, mask trampolines) and .vv3md (R/W, DLL fn-ptr/active-save slots) headers",
-    )
+    header_patches: list[dict[str, str]] = []
+    for offset, before, after, purpose in header_specs:
+        actual = original[offset : offset + len(before)]
+        if actual != before:
+            raise RuntimeError(
+                f"header guard mismatch at {offset:#x}: expected {before.hex()}, "
+                f"got {actual.hex()}"
+            )
+        if len(before) != len(after):
+            raise RuntimeError(f"header length mismatch at {offset:#x}")
+        header_patches.append(
+            {
+                "offset": f"0x{offset:X}",
+                "before": before.hex().upper(),
+                "after": after.hex().upper(),
+                "purpose": purpose,
+            }
+        )
 
     rendered = bytearray(original)
-    for item in patches:
+    for item in [*patches, *header_patches]:
         offset = int(item["offset"], 16)
         replacement = bytes.fromhex(item["after"])
         rendered[offset : offset + len(replacement)] = replacement
@@ -2316,7 +2338,10 @@ def main() -> None:
         raise RuntimeError("data page append offset mismatch")
     rendered += append_data
     OUT_EXE.write_bytes(rendered)
-    OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
+    OUT_JSON.write_text(
+        json.dumps([*patches, *header_patches], indent=2) + "\n",
+        encoding="utf-8",
+    )
 
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper()
     manifest = {
@@ -2381,6 +2406,28 @@ def main() -> None:
             "repurchase": "available again at 500,000 tech points after removal",
         },
         "patches": patches,
+        "pe_append_transaction": {
+            "owner": "vv3_enable_origins_exclusive_features",
+            "section_name": ".vv3mc/.vv3md",
+            "append_length": SECTION_CODE_SIZE + SECTION_DATA_SIZE,
+            "removal_policy": "restore guarded PE headers and truncate the exact two-page owned tail",
+            "layouts": {
+                mode: {
+                    "original_file_size": f"0x{SECTION_CODE_RAW:X}",
+                    "append_offset": f"0x{SECTION_CODE_RAW:X}",
+                    "append_length": SECTION_CODE_SIZE + SECTION_DATA_SIZE,
+                    "append_bytes": bytes(append_code + append_data).hex().upper(),
+                    "virtual_address": f"0x{SECTION_CODE_VA:X}",
+                    "section_name": ".vv3mc/.vv3md",
+                    "append_sha256": hashlib.sha256(
+                        bytes(append_code + append_data)
+                    ).hexdigest().upper(),
+                    "purpose": "append the owned .vv3mc R-X mask code and .vv3md R/W mask data sections",
+                    "header_patches": header_patches,
+                }
+                for mode in ("collection_progression", "immediate_fixed")
+            },
+        },
     }
     MANIFEST_JSON.write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
