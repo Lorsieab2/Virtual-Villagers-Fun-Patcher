@@ -229,7 +229,8 @@ VV4_DETAIL_MASK_VA = 0x7287A1
 VV4_DETAIL_MASK_FILE_OFFSET = 0xCC7A1
 VV4_REC_ARRAY_BASE = 0x50E5AC         # villager record array base
 VV4_REC_STRIDE = 0x2E3C
-VV4_DETAIL_FACING_COL = 5             # FIXED front frame (col 5 = frame 6 in 1-based); portrait never rotates
+VV4_DETAIL_FACING_COL = 1             # FIXED front col of the 3-col bighead atlas [right=0,front=1,left=2]; portrait never rotates
+MASK_SLOT_BIGHEAD_ATLAS = 0x728A3C    # dedicated bighead atlas obj ptr (DLL publishes here; free slot past D_TMP)
 # scratch (mgr/ret/6 args/index/mask), past the cave:
 D_MGR = 0x728A00
 D_RET = 0x728A04
@@ -247,13 +248,13 @@ D_LIFTX = 0x728A30                    # float: mask_x = D_A2 - LIFTX * headScale
 D_LIFTY = 0x728A34                    # float: mask_y = D_A3 - LIFTY * headScale (seat Y)
 D_TMP = 0x728A38                      # fistp scratch for the scaled lifts
 import struct as _struct
-D_SCALE_VALUE = _struct.pack("<f", 2.6)   # bighead ~60px face vs mask ~23px face
+D_SCALE_VALUE = _struct.pack("<f", 1.5)   # dedicated bighead-res atlas (~40px cell) drawn at head arg6 x1.5 (VV5 landed value)
 # Seat the SCALED mask's face onto the bighead's face: offset = headFace_incell -
 # maskFace_incell * scale, times the head's own scale arg (so children auto-seat).
 # bighead face ~(30,28) in its 60px cell; mask face ~(35,53) in the 65px cell:
 # X = 35*2.6 - 30 = 61 ; Y = 53*2.6 - 28 = 110. Owner-tunable.
-D_LIFTX_VALUE = _struct.pack("<f", 29.0)   # reduced from 61: mask was ~half-width too far LEFT (VV5)
-D_LIFTY_VALUE = _struct.pack("<f", 110.0)
+D_LIFTX_VALUE = _struct.pack("<f", -34.0)  # reseat: new atlas face x19 @1.5 vs village landing -> shift right
+D_LIFTY_VALUE = _struct.pack("<f", 77.0)   # reseat: new atlas face y70 @1.5 -> face onto head face
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -542,7 +543,7 @@ def mask_detail_cave() -> bytes:
             jle det_done
             dec eax
             mov dword ptr [{D_MASK}], eax
-            mov edx, dword ptr [{MASK_SLOT_ATLAS}]
+            mov edx, dword ptr [{MASK_SLOT_BIGHEAD_ATLAS}]
             test edx, edx
             jz det_done
             fld dword ptr [{D_A6}]
@@ -1985,6 +1986,19 @@ def main() -> None:
                 "destination": "Images/vvfp_mask_preview.png",
                 "sha256": hashlib.sha256(
                     (ROOT / "assets/vv4_masks/vvfp_mask_preview.png").read_bytes()
+                ).hexdigest().upper(),
+            },
+            # DEDICATED bighead-resolution mask atlas for the Details PORTRAIT: 3
+            # facing-cols x 5 colour-rows, ~40x90 cells (same source art VV5 uses).
+            # The DLL builds it via FUN_0040ABA0(name,ext,1,1,3,5) -> ships as
+            # vvfp_bighead_mask_atlas00.png. Portrait draws its FRONT col (1) at the
+            # head's own scale x1.5 -- crisp, correctly sized (vs the old blurry
+            # village-atlas-x2.6 hack). Added file; stock art untouched.
+            {
+                "source": "assets/vv4_masks/vvfp_bighead_mask_atlas.png",
+                "destination": "Images/vvfp_bighead_mask_atlas00.png",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets/vv4_masks/vvfp_bighead_mask_atlas.png").read_bytes()
                 ).hexdigest().upper(),
             },
         ],

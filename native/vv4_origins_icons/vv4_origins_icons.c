@@ -349,11 +349,68 @@ static void vv_ensure_mask_atlas(void) {
     *(void **)(UINT_PTR)VV_MASK_ATLAS_SLOT_VA = obj;   /* publish to the head cave */
 }
 
+/* The Details PORTRAIT (bighead) uses a DEDICATED bighead-resolution mask atlas
+   (Images/vvfp_bighead_mask_atlas.png, 3 facing-cols x 5 colour-rows, ~40x90
+   cells) -- NOT the 65x145 village atlas scaled up (that rendered blurry + tiny).
+   Same source art VV5 uses. Built the same way, published to its own slot; the
+   Details cave draws its FRONT column (col 1 of 3) at the head's own scale x1.5. */
+#define VV_BIGHEAD_ATLAS_SLOT_VA 0x728A3Cu   /* free .shr slot past the Details scratch */
+static void *g_bighead_atlas_obj = NULL;
+static int g_bighead_atlas_tried = 0;
+
+static void vv_ensure_bighead_atlas(void) {
+    void *obj;
+    static const char atlas_name[] = "vvfp_bighead_mask_atlas";
+    static const char atlas_ext[] = ".png";
+    const char *namep = atlas_name;
+    const char *extp = atlas_ext;
+    if (g_bighead_atlas_tried) {
+        return;
+    }
+    g_bighead_atlas_tried = 1;
+    obj = ((void *(__cdecl *)(unsigned int))(UINT_PTR)VV_ALLOC_FN)(0x70u);
+    if (obj == NULL) {
+        return;
+    }
+    {
+        unsigned int *z = (unsigned int *)obj;
+        int i;
+        for (i = 0; i < 0x70 / 4; i++) z[i] = 0;
+    }
+    /* FUN_0040ABA0(this, name, ext, cols=1, rows=1, subcols=3, subrows=5) */
+    __asm {
+        push 5
+        push 3
+        push 1
+        push 1
+        mov  eax, extp
+        push eax
+        mov  eax, namep
+        push eax
+        mov  ecx, obj
+        mov  eax, VV_LDWGRID_CTOR
+        call eax
+    }
+    {
+        int *o = (int *)obj;
+        o[0x18] = -30000;
+        o[0x19] = -30000;
+        o[0x1a] =  30000;
+        o[0x1b] =  30000;
+    }
+    if (((unsigned int *)obj)[4] == 0) {
+        return;
+    }
+    g_bighead_atlas_obj = obj;
+    *(void **)(UINT_PTR)VV_BIGHEAD_ATLAS_SLOT_VA = obj;   /* publish to the Details cave */
+}
+
 /* Head-draw caves call this: ensure the atlas is built + published, and return
    the fingerprint-checked mask (0 = none) for the villager record. */
 __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
     int mask;
     vv_ensure_mask_atlas();
+    vv_ensure_bighead_atlas();   /* Details portrait's dedicated bighead atlas */
     mask = vv_get_mask(villager);
     /* Skip the mask on non-living villagers: the mausoleum-collection bonus
        spawns GHOSTS from dead villager records that still carry a mask in the

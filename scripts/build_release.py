@@ -104,6 +104,7 @@ FILES = [
     # feeds the Change Appearance chooser preview. Both are ADDED files (no
     # stock atlas is swapped), so no restore halves are needed.
     "assets/vv4_masks/vvfp_mask_atlas.png",
+    "assets/vv4_masks/vvfp_bighead_mask_atlas.png",
     "assets/vv4_masks/vvfp_mask_preview.png",
     "assets/vv4_masks/vv2_mask_preview.bmp",
     "data/guardians_of_isola/new/Assets/sm.xml",
