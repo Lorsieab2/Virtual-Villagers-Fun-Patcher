@@ -175,10 +175,59 @@ static unsigned int g_mask_fp[VV_MAX_VILLAGERS];
    restored from the sidecar before its villager exists is NOT wiped. */
 static unsigned char g_slot_seen_alive[VV_MAX_VILLAGERS];
 
+/* The save builder cave records the game's selected save number here. This is
+   patch-owned .shr storage, not a villager field or a save byte. The builder
+   passes the slot as its first stack argument and is entered for every save;
+   zero means that no usable save slot is selected. */
+#define VV4_MASK_SAVE_SLOT_VA 0x728FCCu
+static int g_current_slot = 0;
+static int g_sidecar_loaded = 0;
+
+static void vv_write_mask_sidecar(void);
+static void vv_read_mask_sidecar(void);
+
+static void vv_clear_mask_state(void) {
+    int i;
+    for (i = 0; i < VV_MAX_VILLAGERS; i++) {
+        g_mask_by_index[i] = 0;
+        g_mask_fp[i] = 0;
+        g_slot_seen_alive[i] = 0;
+    }
+}
+
+static int vv_captured_save_slot(void) {
+    int slot = *(volatile int *)(UINT_PTR)VV4_MASK_SAVE_SLOT_VA;
+    return (slot >= 1 && slot <= 5) ? slot : 0;
+}
+
+/* Switch the sidecar namespace before any render or UI path can consume the
+   table. Missing/invalid slot 0 is deliberately fail-closed. */
+static void vv_sync_save_slot(void) {
+    int slot = vv_captured_save_slot();
+    if (slot != g_current_slot) {
+        vv_clear_mask_state();
+        g_current_slot = slot;
+        g_sidecar_loaded = (slot == 0) ? 1 : 0;
+    }
+}
+
+/* Every mask table access goes through this gate, including the Details/raw
+   draw exports and UI writes. Present is normally the first caller, but it is
+   not a safe synchronization boundary when the game changes saves between two
+   draw calls. */
+static void vv_prepare_mask_state(void) {
+    vv_sync_save_slot();
+    if (g_current_slot > 0 && !g_sidecar_loaded) {
+        g_sidecar_loaded = 1;
+        vv_read_mask_sidecar();
+    }
+}
+
 /* Clear masks whose slot has been freed/reused by the game. Read-only over the
    villager array; called once per frame from the present-path surface cache. */
-static void vv_mask_sweep(void) {
+static int vv_mask_sweep(void) {
     int idx;
+    int changed = 0;
     for (idx = 0; idx < VV_MAX_VILLAGERS; idx++) {
         const unsigned char *rec =
             (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
@@ -187,8 +236,10 @@ static void vv_mask_sweep(void) {
         } else if (g_slot_seen_alive[idx] && g_mask_by_index[idx] != 0) {
             g_mask_by_index[idx] = 0;                /* was alive, now freed -> drop mask */
             g_mask_fp[idx] = 0;
+            changed = 1;
         }
     }
+    return changed;
 }
 
 static unsigned int vv_fingerprint(const unsigned char *villager) {
@@ -215,8 +266,10 @@ static int vv_villager_index(const unsigned char *villager) {
     return idx < (unsigned int)VV_MAX_VILLAGERS ? (int)idx : -1;
 }
 static int vv_get_mask(const unsigned char *villager) {
-    int idx = vv_villager_index(villager);
+    int idx;
     unsigned char m;
+    vv_prepare_mask_state();
+    idx = vv_villager_index(villager);
     if (idx < 0) {
         return 0;
     }
@@ -236,7 +289,9 @@ static int vv_get_mask(const unsigned char *villager) {
     return (int)m;
 }
 static void vv_set_mask(unsigned char *villager, int mask) {
-    int idx = vv_villager_index(villager);
+    int idx;
+    vv_prepare_mask_state();
+    idx = vv_villager_index(villager);
     if (idx < 0) {
         return;
     }
@@ -353,6 +408,7 @@ static void vv_ensure_mask_atlas(void) {
    the fingerprint-checked mask (0 = none) for the villager record. */
 __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
     int mask;
+    vv_prepare_mask_state();
     vv_ensure_mask_atlas();
     mask = vv_get_mask(villager);
     /* Skip the mask on non-living villagers: the mausoleum-collection bonus
@@ -371,22 +427,25 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
 /* --- Sidecar persistence ---------------------------------------------------
    The mask side-table is snapshotted to a small file that lives NEXT TO the
    game's own saves (never inside the .ldw, so a save can never be corrupted):
-   <Documents>\LDW\<exe-basename>\vvfp_masks.dat, where <Documents> comes from
+   <Documents>\LDW\<exe-basename>\vvfp_masks_<slot>.dat, where <Documents> comes from
    SHGetSpecialFolderPathA(CSIDL_PERSONAL) so it follows OneDrive redirection to
    wherever the live .ldw saves actually are. Written on chooser OK; read once,
-   lazily, on the first present frame. The stored fingerprints guard identity on
+   lazily, on the first present frame for the captured save slot. The stored fingerprints guard identity on
    reload, and the sweep's seen-alive latch keeps a restored mask until its
    villager appears. Format: "VVMK" + u32 version + u32 count(150) + 150 mask
    bytes + 150 u32 fingerprints (magic/version added per VV3/VV5 advice so the
-   entry shape can evolve without silently misreading an old file). */
+   entry shape can evolve without silently misreading an old file). There is no
+   legacy global sidecar migration: slot 0 and malformed/missing files remain
+   all-unmasked. */
 #define VV_SIDECAR_VERSION 1u
 
-static int vv_build_sidecar_path(char *out) {
+static int vv_build_sidecar_path(char *out, int slot) {
     char exe[MAX_PATH];
     char base[MAX_PATH];
     DWORD n;
     int i, start, end, j;
-    if (!SHGetSpecialFolderPathA(NULL, out, CSIDL_PERSONAL, TRUE)) {
+    if (slot < 1 || slot > 5 ||
+        !SHGetSpecialFolderPathA(NULL, out, CSIDL_PERSONAL, TRUE)) {
         return 0;
     }
     lstrcatA(out, "\\LDW");
@@ -411,7 +470,11 @@ static int vv_build_sidecar_path(char *out) {
     lstrcatA(out, "\\");
     lstrcatA(out, base);
     CreateDirectoryA(out, NULL);
-    lstrcatA(out, "\\vvfp_masks.dat");
+    lstrcatA(out, "\\vvfp_masks_");
+    i = lstrlenA(out);
+    out[i] = (char)('0' + slot);
+    out[i + 1] = '\0';
+    lstrcatA(out, ".dat");
     return 1;
 }
 
@@ -420,7 +483,8 @@ static void vv_write_mask_sidecar(void) {
     HANDLE h;
     DWORD wr;
     unsigned int header[2];
-    if (!vv_build_sidecar_path(path)) {
+    vv_prepare_mask_state();
+    if (!vv_build_sidecar_path(path, g_current_slot)) {
         return;
     }
     h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
@@ -446,7 +510,7 @@ static void vv_read_mask_sidecar(void) {
     unsigned char masks[VV_MAX_VILLAGERS];
     unsigned int fps[VV_MAX_VILLAGERS];
     int i;
-    if (!vv_build_sidecar_path(path)) {
+    if (!vv_build_sidecar_path(path, g_current_slot)) {
         return;
     }
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
@@ -549,13 +613,15 @@ static void vv4_mask_render_init(void) {
 /* Called from the present-path hook every frame with the live render-target
    surface ([screen_obj+0x30]); read at the real site, never a guessed global. */
 __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
-    static int g_sidecar_loaded = 0;
+    int cleared;
     g_dest_surface = surface;
-    if (!g_sidecar_loaded) {
-        g_sidecar_loaded = 1;   /* one-shot: restore persisted masks on first frame */
-        vv_read_mask_sidecar();
+    vv_prepare_mask_state();
+    cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */
+    if (cleared && g_current_slot > 0) {
+        /* A death/reuse clear is state, not merely a render decision. Keep the
+           exact slot's sidecar in sync so a later process cannot resurrect it. */
+        vv_write_mask_sidecar();
     }
-    vv_mask_sweep();            /* clear masks on slots the game freed/reused */
 }
 
 /* Blit one resolved mask (1..5) at the head's screen x/y. scale_pct: 100 =
@@ -597,6 +663,7 @@ static void vv4_blit_mask(int mask, int x, int y, int frame, int scale_pct) {
    (e.g. the Details screen's selected villager). */
 __declspec(dllexport) void __stdcall Vv4MaskDraw(int index, int x, int y,
                                                  int frame, int scale_pct) {
+    vv_prepare_mask_state();
     if (index < 0 || index >= VV_MAX_VILLAGERS) {
         return;
     }

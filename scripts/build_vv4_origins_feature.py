@@ -217,6 +217,17 @@ MASK_W_SCRATCH = MASK_S_DY            # fistp target for the scaled lift (< page
 MASK_DY_TABLE = 0x728FC4             # shared 5 signed bytes at 0x728FC4..0x728FC8 (< 0x729000)
 MASK_DY_VALUES = (34, 34, 34, 34, 34)  # uniform SCALED vertical re-seat (VV5-measured dy): mask-face-y minus head-face-y, 65x145 cell (X re-seat baked in atlas)
 MASK_HEAD_LIMIT_VA = 0x728B10        # next owned .shr allocation (Barrel countdown)
+# The exact save builder (0x403670) receives the selected save number as its
+# first argument. Capture it after replaying the stock stack allocation so the
+# companion can namespace its sidecar by the active save. The tail of the
+# already-owned .shr page is free: the current world cave ends at 0x728F90,
+# its scratch/delta table ends at 0x728FC8, and this cave starts at 0x728FD0.
+MASK_SAVE_SLOT_SITE = 0x403670
+MASK_SAVE_SLOT_VA = 0x728FCC
+MASK_SAVE_SLOT_CAVE_VA = 0x728FD0
+MASK_SAVE_SLOT_CAVE_FILE_OFFSET = 0xCCFD0
+MASK_SAVE_SLOT_FILE_OFFSET = 0xCCFCC
+MASK_SAVE_SLOT_LIMIT_VA = 0x729000
 
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
@@ -279,6 +290,36 @@ def mask_resolve_cave(icons_dll_va: int) -> bytes:
         """,
         MASK_RESOLVE_VA,
     )
+
+
+def mask_save_slot_cave() -> bytes:
+    """Capture the exact save-builder slot into owned .shr scratch.
+
+    The stock function starts with ``sub esp, 0x104`` and then reads its first
+    argument at ``[esp+0x108]``. Replaying that allocation in the cave keeps
+    every later stock instruction and stack offset byte-for-byte equivalent;
+    only the patch-owned slot dword is written. Invalid/zero slots fail closed
+    by writing zero and then continue into the untouched stock body.
+    """
+    cave = assemble(
+        f"""
+            sub esp, 0x104
+            mov eax, dword ptr [esp + 0x108]
+            cmp eax, 1
+            jb mss_invalid
+            cmp eax, 5
+            ja mss_invalid
+            mov dword ptr [{MASK_SAVE_SLOT_VA}], eax
+            jmp 0x{MASK_SAVE_SLOT_SITE + 6:X}
+        mss_invalid:
+            mov dword ptr [{MASK_SAVE_SLOT_VA}], 0
+            jmp 0x{MASK_SAVE_SLOT_SITE + 6:X}
+        """,
+        MASK_SAVE_SLOT_CAVE_VA,
+    )
+    if MASK_SAVE_SLOT_CAVE_VA + len(cave) > MASK_SAVE_SLOT_LIMIT_VA:
+        raise RuntimeError("VV4 save-slot cave exceeds the owned .shr tail")
+    return cave
 
 
 def mask_present_cave() -> bytes:
@@ -1741,6 +1782,19 @@ def main() -> None:
           "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
     patch(VV4_DETAIL_RECORD_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
           "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)")
+    # Capture the active save number before the companion sidecar can be read or
+    # written. The save builder's first six stock bytes are only relocated to the
+    # owned .shr tail; the native save format and every later save instruction are
+    # unchanged.
+    mask_save_slot = mask_save_slot_cave()
+    patch(MASK_SAVE_SLOT_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
+          "Heathen mask: patch-owned active-save slot scratch (zero = fail closed)")
+    patch(MASK_SAVE_SLOT_CAVE_FILE_OFFSET, b"\0" * len(mask_save_slot), mask_save_slot,
+          "Heathen mask: capture save-builder slot 1..5 in owned .shr executable tail")
+    patch(MASK_SAVE_SLOT_SITE - IMAGE_BASE,
+          bytes.fromhex("81EC04010000"),
+          rel32_jump(MASK_SAVE_SLOT_SITE, MASK_SAVE_SLOT_CAVE_VA) + b"\x90",
+          "Heathen mask: capture the selected save slot before the stock save builder")
     # Heathen-mask cosmetic overlay (SDL blit via companion DLL). The head cave
     # is in the reclaimed false-detail gap; resolve/present/world are in the
     # free RWX .shr tail. NO villager-record writes, NO atlas/row

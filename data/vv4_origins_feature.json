@@ -139,7 +139,7 @@
     {
       "source": "assets/origins/VVFP VV4 Origins Icons.dll",
       "destination": "VVFP VV4 Origins Icons.dll",
-      "sha256": "43071176E61E7C3841741A87DFA2C30D4139CE504A2411B6A004B3F659503266"
+      "sha256": "2D7420A09A25B5408E689274763547149A936BFD98DF34C3629F8AFBF06CA90E"
     },
     {
       "source": "assets/vv4_masks/vvfp_mask_atlas.png",
@@ -412,6 +412,24 @@
       "before": "00000000",
       "after": "00000000",
       "purpose": "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)"
+    },
+    {
+      "offset": "0xCCFCC",
+      "before": "00000000",
+      "after": "00000000",
+      "purpose": "Heathen mask: patch-owned active-save slot scratch (zero = fail closed)"
+    },
+    {
+      "offset": "0xCCFD0",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "81EC040100008B84240801000083F801720F83F805770AA3CC8F7200E985A6CDFFC705CC8F720000000000E976A6CDFF",
+      "purpose": "Heathen mask: capture save-builder slot 1..5 in owned .shr executable tail"
+    },
+    {
+      "offset": "0x3670",
+      "before": "81EC04010000",
+      "after": "E95B59320090",
+      "purpose": "Heathen mask: capture the selected save slot before the stock save builder"
     },
     {
       "offset": "0xCCD90",

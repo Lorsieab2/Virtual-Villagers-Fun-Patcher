@@ -39,6 +39,13 @@ MASK_PRESENT_CALLEE = 0x4046F0
 MASK_DRAW_THUNK_VA = 0x409A70
 MASK_DRAW_REAL_VA = 0x408C40
 MASK_HEAD_CALL_SITES = (0x45F702,)
+MASK_SAVE_SLOT_SITE = 0x403670
+MASK_SAVE_SLOT_FILE_OFFSET = 0x3670
+MASK_SAVE_SLOT_SCRATCH = 0xCCFCC
+MASK_SAVE_SLOT_CAVE = 0xCCFD0
+MASK_WORLD_SITE = 0x468263
+MASK_WORLD_CAVE_FILE_OFFSET = 0xCCEB0
+MASK_DY_FILE_OFFSET = 0xCCFC4
 DETAIL_FALSE_SITE = 0x45F965
 DETAIL_FALSE_OLD_SCRATCH_OFFSETS = (0xCCA28, 0xCCA30, 0xCCA34)
 
@@ -68,7 +75,7 @@ class DllStorageContractTests(unittest.TestCase):
         # record+0x1CC4 is the game's own occupied flag (0 = free/dead), from
         # the villager-creation routine FUN_00466270.
         self.assertIn("#define VV_OCCUPIED_OFFSET 0x1CC4", self.c)
-        self.assertIn("static void vv_mask_sweep(void)", self.c)
+        self.assertIn("static int vv_mask_sweep(void)", self.c)
         self.assertIn("rec[VV_OCCUPIED_OFFSET] != 0", self.c)
         # A "seen alive" latch distinguishes a death (clear the mask) from a
         # not-yet-populated slot (menu / village not loaded) so a mask restored
@@ -83,16 +90,55 @@ class DllStorageContractTests(unittest.TestCase):
         # redirection), in a SEPARATE file -- never inside the .ldw.
         self.assertIn("SHGetSpecialFolderPathA", self.c)
         self.assertIn("CSIDL_PERSONAL", self.c)
-        self.assertIn("vvfp_masks.dat", self.c)
+        self.assertIn("vvfp_masks_", self.c)
+        self.assertIn(".dat", self.c)
+        self.assertNotIn('"\\\\vvfp_masks.dat"', self.c)
         self.assertIn("\\\\LDW", self.c)               # Documents\LDW\<basename>\
         # Written on chooser OK, read once lazily on the first present frame.
         self.assertIn("vv_write_mask_sidecar();", self.c)
         self.assertIn("vv_read_mask_sidecar();", self.c)
         self.assertIn('WriteFile(h, "VVMK", 4', self.c)   # magic + versioned header
         # Read validates magic + version + count before trusting the file.
-        read = self.c.split("vv_read_mask_sidecar(void)", 1)[1].split("\n}", 1)[0]
+        read = self.c.split("static void vv_read_mask_sidecar(void) {", 1)[1].split("\n}", 1)[0]
         self.assertIn("VV_SIDECAR_VERSION", read)
         self.assertIn("VV_MAX_VILLAGERS", read)
+
+    def test_save_slot_namespaces_and_resets_sidecar_state(self) -> None:
+        self.assertIn("#define VV4_MASK_SAVE_SLOT_VA 0x728FCCu", self.c)
+        self.assertIn("g_current_slot", self.c)
+        self.assertIn("g_sidecar_loaded", self.c)
+        self.assertIn("vv_sync_save_slot();", self.c)
+        sync = self.c.split("static void vv_sync_save_slot(void)", 1)[1].split("\n}", 1)[0]
+        self.assertIn("vv_clear_mask_state();", sync)
+        self.assertIn("g_sidecar_loaded = (slot == 0) ? 1 : 0;", sync)
+        self.assertIn("slot < 1 || slot > 5", self.c)
+        self.assertIn("out[i] = (char)('0' + slot);", self.c)
+
+    def test_sweep_persists_confirmed_free_slot_clears(self) -> None:
+        cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
+        self.assertIn("cleared = vv_mask_sweep();", cache)
+        self.assertIn("if (cleared && g_current_slot > 0)", cache)
+        self.assertIn("vv_write_mask_sidecar();", cache)
+
+    def test_every_mask_entrypoint_prepares_before_table_access(self) -> None:
+        for signature, table_token in (
+            ("static int vv_get_mask(", "g_mask_by_index[idx]"),
+            ("static void vv_set_mask(", "g_mask_by_index[idx]"),
+            ("Vv4MaskDraw(int index", "g_mask_by_index[index]"),
+        ):
+            body = self.c.split(signature, 1)[1].split("\n}", 1)[0]
+            self.assertIn("vv_prepare_mask_state();", body, signature)
+            self.assertLess(
+                body.index("vv_prepare_mask_state();"),
+                body.index(table_token),
+                signature,
+            )
+        cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
+        self.assertIn("vv_prepare_mask_state();", cache)
+        self.assertLess(cache.index("vv_prepare_mask_state();"), cache.index("vv_mask_sweep();"))
+        write = self.c.split("static void vv_write_mask_sidecar(void) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("vv_prepare_mask_state();", write)
+        self.assertIn("vv_build_sidecar_path(path, g_current_slot)", write)
 
     def test_fingerprint_uses_stable_fields_only(self) -> None:
         fp = self.c.split("vv_fingerprint(", 1)[1].split("}", 1)[0]
@@ -140,6 +186,54 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
         self.assertEqual(_rel_target(p["before"], MASK_PRESENT_SITE), MASK_PRESENT_CALLEE)
         self.assertTrue(p["after"].upper().startswith("E8"))
         self.assertEqual(_rel_target(p["after"], MASK_PRESENT_SITE), MASK_PRESENT_VA)
+
+    def test_save_builder_slot_capture_uses_exact_preimage_and_owned_cave(self) -> None:
+        p = self.by_off[MASK_SAVE_SLOT_FILE_OFFSET]
+        self.assertEqual(p["before"], "81EC04010000")
+        self.assertTrue(p["after"].upper().startswith("E9"))
+        target = _rel_target(p["after"], MASK_SAVE_SLOT_SITE)
+        self.assertEqual(target, 0x728FD0)
+        scratch = self.by_off[MASK_SAVE_SLOT_SCRATCH]
+        self.assertEqual(scratch["before"], "00000000")
+        self.assertEqual(scratch["after"], "00000000")
+        cave = self.by_off[MASK_SAVE_SLOT_CAVE]
+        self.assertEqual(set(cave["before"]), {"0"})
+        self.assertIn("capture save-builder slot", cave["purpose"])
+        cave_bytes = bytes.fromhex(cave["after"])
+        self.assertIn(bytes.fromhex("83F801"), cave_bytes)
+        self.assertIn(bytes.fromhex("83F805"), cave_bytes)
+        self.assertIn(bytes.fromhex("A3CC8F7200"), cave_bytes)
+
+    def test_save_slot_capture_is_before_untouched_stock_body(self) -> None:
+        p = self.by_off[MASK_SAVE_SLOT_FILE_OFFSET]
+        self.assertEqual(len(bytes.fromhex(p["before"])), 6)
+        self.assertEqual(len(bytes.fromhex(p["after"])), 6)
+        self.assertEqual(p["before"], "81EC04010000")
+        # The cave returns to VA 0x403676, immediately after the six-byte
+        # prologue; no later save-builder bytes are replaced.
+        cave = bytes.fromhex(self.by_off[MASK_SAVE_SLOT_CAVE]["after"])
+        targets = []
+        for i, value in enumerate(cave[:-4]):
+            if value == 0xE9:
+                rel = int.from_bytes(cave[i + 1:i + 5], "little", signed=True)
+                targets.append(0x728FD0 + i + 5 + rel)
+        self.assertIn(0x403676, targets)
+
+    def test_approved_render_hook_and_cave_bytes_are_unchanged(self) -> None:
+        # These are the player-approved VV4 world/render bytes from the Details
+        # repair. Slot scoping must not silently retune geometry or routes.
+        world = self.by_off[MASK_WORLD_SITE - IMAGE_BASE]
+        self.assertEqual(world["before"], "E82845FEFF")
+        self.assertEqual(world["after"], "E8480C2C00")
+        self.assertEqual(
+            hashlib.sha256(bytes.fromhex(self.by_off[MASK_WORLD_CAVE_FILE_OFFSET]["after"])).hexdigest().upper(),
+            "E15812FD6F264E329F1B174B00945F7D602435DD604A78DA79329BDD0DB46F62",
+        )
+        self.assertEqual(self.by_off[MASK_DY_FILE_OFFSET]["after"], "2222222222")
+        self.assertEqual(
+            hashlib.sha256(bytes.fromhex(self.by_off[MASK_HEAD_FILE_OFFSET]["after"])).hexdigest().upper(),
+            "29CF62BED8C8A162AFF87BCA1BBE99058012BF091A1513DA272B713A398A2BA0",
+        )
 
     def test_confirmed_details_head_is_redirected_to_the_head_cave(self) -> None:
         for site in MASK_HEAD_CALL_SITES:

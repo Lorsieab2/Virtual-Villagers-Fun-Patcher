@@ -408,6 +408,10 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # only the stale purpose text claiming a chief-only +7
                     # adjustment is corrected by the authoritative generator.
                     "0xCCFC4",
+                    # Save-slot sidecar namespace: capture the active slot in
+                    # owned .shr scratch before the exact 0x403670 save
+                    # builder continues its untouched body.
+                    "0xCCFCC", "0xCCFD0", "0x3670",
                 },
                 # 0x1890F: the D37 barrel selector hook — its forced native
                 # event index is corrected from 30 (Chutes Without Ladders) to
