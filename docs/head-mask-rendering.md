@@ -267,3 +267,55 @@ VV5 are the reference implementations.
 7. **DEPLOY VERIFIED** — exe/DLL/atlas hash-matched repo↔deployed, and the process
    started *after* the exe was written.
 8. **COMMITTED AND PUSHED** — the repo is the only memory that survives session restarts.
+
+---
+
+## Part 7 — Where patch code and data must live (credit VV2)
+
+**Rule: append your own PE sections. Never borrow existing gaps.** Code or data placed
+in `.text` padding, alignment gaps, or an unused payload region is a *code cave*. Caves
+collide — two patches wanting the same region silently corrupt each other, and "the
+payload block was full" is that collision already happening. Do **not** touch the `.ldw`
+saves or the save-read/write code, and do **not** edit stock game files in place.
+
+**The self-audit (one line):** dump your patched exe's section table. **If your code or
+data is not in a section you added, you are in a cave and must move it.**
+
+**Shape:** one **R-X** section for code, one **R/W** section for data. Never R/W/X — a
+writable+executable section reads as self-modifying code to AV (Malwarebytes flags it)
+and is a quarantine risk if anything writes there at runtime.
+- VV2: `.vvmk` R-X (render stubs) + `.mtab` R/W (mask table, seen-alive latch, atlas ptr).
+- VV5: `.vv5t9` R-X (all mask render code) + tail of stock `.data` R/W (scratch, nibble
+  side-table).
+
+Different arrangements, identical principle: **W^X separation**. Note both reference
+implementations keep the per-draw **render stub as exe-side asm in the appended R-X
+section**, not in the DLL — that's the hot path (runs every head draw every frame), so a
+per-draw DLL round-trip is real cost for no gain. "Out of caves" is satisfied by the
+appended section; moving render logic *into* the DLL is a separate, explicit choice.
+
+**Appending, mechanically:** extend the section table; set VirtualAddress to the next
+aligned VA past the last section; set characteristics (`0x60000020` = R-X for code; R/W
+for data); append the raw bytes; fix `SizeOfImage`; recompute the PE checksum. **Size
+generously** (0x1000 even for small use) — growing a section later means relocating
+everything after it. **NEVER** extend an existing section's VirtualSize to reach the next
+section's base — that crashes at launch. The `.text` edits stay minimal: detours
+(jmp/call) into your appended section, nothing more.
+
+**DLL owns the higher-level logic:** init, atlas registration, sidecar persistence, and
+any dialogs live in the companion DLL; the exe stub just calls in / reissues the draw.
+
+**Persistence & assets:**
+- Mask choice → a **sidecar file** next to the `.ldw` (e.g. `vvfp_masks_<slot>.dat`).
+  Never read/write the save, never patch save code. A record byte is allowed only if
+  proven unused (4-part proof); a sidecar avoids the question.
+- Atlas/art → **new companion files only**, never an edit to stock art. Prefer
+  **RCDATA-embedded in the DLL, self-extracted to `Images/…` only if absent** (exe-dir
+  absolute path, `CREATE_NEW`) so a clean install can't get a sprite pointer with no art
+  and replacement art is respected.
+
+**Known inherited issue:** VV2 and VV5 both carry a small **RWX `.shr`** section from the
+base VVFP patch stack (NOT the mask feature — each game's mask is a clean R-X code + R/W
+data split). It appears independently in two games, confirming it's inherited from the
+shared patcher, not a per-game mistake. Flagged as a shared-patcher tidy-up; **do not
+"fix" it locally and diverge.**
