@@ -229,7 +229,7 @@ VV4_DETAIL_MASK_VA = 0x7287A1
 VV4_DETAIL_MASK_FILE_OFFSET = 0xCC7A1
 VV4_REC_ARRAY_BASE = 0x50E5AC         # villager record array base
 VV4_REC_STRIDE = 0x2E3C
-VV4_DETAIL_FACING_COL = 6             # STAGE 1: front (col 6); refine to per-facing 5/6/7
+VV4_DETAIL_FACING_COL = 5             # FIXED front frame (col 5 = frame 6 in 1-based); portrait never rotates
 # scratch (mgr/ret/6 args/index/mask), past the cave:
 D_MGR = 0x728A00
 D_RET = 0x728A04
@@ -243,8 +243,17 @@ D_IDX = 0x728A20                      # villager index (param_1 = [ebp+8])
 D_MASK = 0x728A24                     # mask-1 (row)
 D_SCALE = 0x728A28                    # float scale multiplier (bighead face / mask face)
 D_A6S = 0x728A2C                      # scaled arg6 (D_A6 * D_SCALE) for the mask draw
+D_LIFTX = 0x728A30                    # float: mask_x = D_A2 - LIFTX * headScale (seat X)
+D_LIFTY = 0x728A34                    # float: mask_y = D_A3 - LIFTY * headScale (seat Y)
+D_TMP = 0x728A38                      # fistp scratch for the scaled lifts
 import struct as _struct
 D_SCALE_VALUE = _struct.pack("<f", 2.6)   # bighead ~60px face vs mask ~23px face
+# Seat the SCALED mask's face onto the bighead's face: offset = headFace_incell -
+# maskFace_incell * scale, times the head's own scale arg (so children auto-seat).
+# bighead face ~(30,28) in its 60px cell; mask face ~(35,53) in the 65px cell:
+# X = 35*2.6 - 30 = 61 ; Y = 53*2.6 - 28 = 110. Owner-tunable.
+D_LIFTX_VALUE = _struct.pack("<f", 29.0)   # reduced from 61: mask was ~half-width too far LEFT (VV5)
+D_LIFTY_VALUE = _struct.pack("<f", 110.0)
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -540,12 +549,20 @@ def mask_detail_cave() -> bytes:
             fmul dword ptr [{D_SCALE}]
             fstp dword ptr [{D_A6S}]
             push dword ptr [{D_A6S}]
-            mov ecx, dword ptr [{D_A5}]
-            and ecx, 7
-            push ecx
+            push {VV4_DETAIL_FACING_COL}
             push dword ptr [{D_MASK}]
-            push dword ptr [{D_A3}]
-            push dword ptr [{D_A2}]
+            fld dword ptr [{D_A6}]
+            fmul dword ptr [{D_LIFTY}]
+            fistp dword ptr [{D_TMP}]
+            mov ecx, dword ptr [{D_A3}]
+            sub ecx, dword ptr [{D_TMP}]
+            push ecx
+            fld dword ptr [{D_A6}]
+            fmul dword ptr [{D_LIFTX}]
+            fistp dword ptr [{D_TMP}]
+            mov ecx, dword ptr [{D_A2}]
+            sub ecx, dword ptr [{D_TMP}]
+            push ecx
             push edx
             mov ecx, dword ptr [{D_MGR}]
             call 0x{VV4_DETAIL_MASK_CALLEE:X}
@@ -1878,6 +1895,11 @@ def main() -> None:
         "Details cave grew into the D_SCALE constant"
     patch(_d_scale_file, b"\0" * 4, D_SCALE_VALUE,
           "Heathen mask: Details bighead scale multiplier (2.6x = bighead face / village mask face)")
+    _shr_delta_d = VV4_DETAIL_MASK_VA - VV4_DETAIL_MASK_FILE_OFFSET
+    patch(D_LIFTX - _shr_delta_d, b"\0" * 4, D_LIFTX_VALUE,
+          "Heathen mask: Details bighead X seat (mask_x = head_x - LIFTX*headScale)")
+    patch(D_LIFTY - _shr_delta_d, b"\0" * 4, D_LIFTY_VALUE,
+          "Heathen mask: Details bighead Y seat (mask_y = head_y - LIFTY*headScale)")
     patch(VV4_DETAIL_MASK_SITE - IMAGE_BASE,
           rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_CALLEE),
           rel32_call(VV4_DETAIL_MASK_SITE, VV4_DETAIL_MASK_VA),
