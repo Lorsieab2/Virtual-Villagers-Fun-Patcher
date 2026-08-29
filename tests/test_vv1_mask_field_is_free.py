@@ -71,14 +71,7 @@ def _render(mode: str) -> bytes:
     import vv_fun_patcher as p
 
     builds = {b.id: b for b in p.load_builds()}
-    # Birth Control owns the same exact stock append tail as Origins; the
-    # catalog deliberately rejects that unsafe composition.  This helper is
-    # exercising the Origins mask output, so select the compatible features.
-    ids = [
-        x.id
-        for x in p.load_fun_patches()
-        if x.game_id == "vv1" and x.id != "vv1_birth_control"
-    ]
+    ids = [x.id for x in p.load_fun_patches() if x.game_id == "vv1"]
     data, _ = p.render_patched_bytes(STOCK, builds["vv1"], mode, ids)
     return bytes(data)
 

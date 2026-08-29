@@ -1332,7 +1332,6 @@ class StockIntegrationTests(unittest.TestCase):
                 patch.id
                 for patch in load_fun_patches()
                 if patch.game_id == build.id
-                and not (build.id == "vv1" and patch.id == "vv1_birth_control")
             ]
             for build in load_builds()
         }

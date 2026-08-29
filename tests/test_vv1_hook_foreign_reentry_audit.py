@@ -187,6 +187,19 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_school_lessons_grant_skill", "0x44B28"): "E695CAD15B97EF9EC985AC6A3EB1C2045C0BE465D922AD6F57F3FAC975EF43E9",
 }
 
+# The co-selected Origins composition relocates the Birth Control page to the
+# reserved .vv1mc tail. Its reachable cave bytes have different rel32
+# displacements even though the register/stack review is the same, so keep a
+# separate fingerprint namespace rather than silently accepting standalone
+# bytes for the combined output.
+COMPOSED_CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
+    ("vv1_birth_control+origins", "0x39C83"): "6A12741A0766E134FF174B1F38A2D60AE54DFDC3419E225DE63C099B8C8A00E3",
+    ("vv1_birth_control+origins", "0x3DD03"): "B14149577146F1A2C72E7A79B65F5BAA32AEEF8B3EC10D429FD71223C3EF2B04",
+    ("vv1_birth_control+origins", "0x46E96"): "BC63138974420681617BB3D5652C236C19879C83218C73E8AEB79339AF389ACC",
+    ("vv1_birth_control+origins", "0x47084"): "926796ACA098A27162CE31B86F9A1DD23EC740CA7E0FDA70C70177BE34B10703",
+    ("vv1_birth_control+origins", "0x477FA"): "95D1ABBD9B240B08828F67C39DEBCA8099F3C9CD96DD4861D3B2988904E8F58E",
+}
+
 # (feature id, splice offset, stock re-entry target) -> why it is safe.
 REVIEWED: dict[tuple[str, str, int], str] = {
     # Accept path re-enters at 0x43DD0A, which is the natural resume point
@@ -390,37 +403,58 @@ def _collect():
         ]
         if not jmp_edits:
             continue
-        try:
-            rendered, _ = patcher.render_patched_bytes(
-                STOCK, builds["vv1"], "stock", [feature.id]
-            )
-        except Exception as exc:  # noqa: BLE001 - recorded, then asserted on
-            skipped[feature.id] = f"{type(exc).__name__}: {exc}"
-            continue
-
-        pe = pefile.PE(data=bytes(rendered), fast_load=True)
-        pe.parse_data_directories()
-        base = pe.OPTIONAL_HEADER.ImageBase
-        img = pe.get_memory_mapped_image()
-        text = next(s for s in pe.sections if s.Name.rstrip(b"\x00") == b".text")
-        lo = base + text.VirtualAddress
-        hi = lo + text.Misc_VirtualSize
-
-        for edit in jmp_edits:
-            after = bytes.fromhex(edit["after"])
-            s_va = base + int(edit["offset"], 0)
-            resume = s_va + len(after)
-            cave = s_va + 5 + int.from_bytes(after[1:5], "little", signed=True)
-            if not (0 <= cave - base < len(img)):
-                continue
-            targets, fingerprint = _walk_cave(md, img, base, cave, lo, hi)
-            fingerprints[(feature.id, edit["offset"])] = fingerprint
-            for dst in sorted(targets):
-                if dst == resume:
-                    continue
-                reentries[(feature.id, edit["offset"], dst)] = _derefs(
-                    md, img, base, dst
+        audit_variants = [(feature.id, [feature.id])]
+        if feature.id == "vv1_birth_control":
+            audit_variants.append(
+                (
+                    "vv1_birth_control+origins",
+                    [
+                        "vv1_birth_control",
+                        "vv1_enable_origins_exclusive_features",
+                    ],
                 )
+            )
+        for fingerprint_feature_id, audit_ids in audit_variants:
+            try:
+                rendered, _ = patcher.render_patched_bytes(
+                    STOCK, builds["vv1"], "stock", audit_ids
+                )
+            except Exception as exc:  # noqa: BLE001 - recorded, then asserted on
+                skipped[f"{feature.id}:{fingerprint_feature_id}"] = (
+                    f"{type(exc).__name__}: {exc}"
+                )
+                continue
+
+            pe = pefile.PE(data=bytes(rendered), fast_load=True)
+            pe.parse_data_directories()
+            base = pe.OPTIONAL_HEADER.ImageBase
+            img = pe.get_memory_mapped_image()
+            text = next(s for s in pe.sections if s.Name.rstrip(b"\x00") == b".text")
+            lo = base + text.VirtualAddress
+            hi = lo + text.Misc_VirtualSize
+
+            for edit in jmp_edits:
+                # Use the rendered bytes, because the composed Birth Control
+                # page's hook displacements are generated for 0x490C00.
+                after_len = len(bytes.fromhex(edit["after"]))
+                after = bytes(
+                    rendered[
+                        int(edit["offset"], 0) : int(edit["offset"], 0) + after_len
+                    ]
+                )
+                s_va = base + int(edit["offset"], 0)
+                resume = s_va + len(after)
+                cave = s_va + 5 + int.from_bytes(after[1:5], "little", signed=True)
+                if not (0 <= cave - base < len(img)):
+                    continue
+                targets, fingerprint = _walk_cave(md, img, base, cave, lo, hi)
+                fingerprints[(fingerprint_feature_id, edit["offset"])] = fingerprint
+                for dst in sorted(targets):
+                    if dst == resume:
+                        continue
+                    reentries[(fingerprint_feature_id, edit["offset"], dst)] = _derefs(
+                        md, img, base, dst
+                    )
     return reentries, fingerprints, skipped
 
 
@@ -448,7 +482,15 @@ class VV1HookForeignReentryAuditTests(unittest.TestCase):
         )
 
     def test_every_foreign_reentry_is_reviewed(self) -> None:
-        unreviewed = {k: v for k, v in self.reentries.items() if k not in REVIEWED}
+        def review_key(key):
+            feature_id, splice, target = key
+            if feature_id == "vv1_birth_control+origins":
+                feature_id = "vv1_birth_control"
+            return feature_id, splice, target
+
+        unreviewed = {
+            k: v for k, v in self.reentries.items() if review_key(k) not in REVIEWED
+        }
         self.assertEqual(
             unreviewed,
             {},
@@ -463,7 +505,15 @@ class VV1HookForeignReentryAuditTests(unittest.TestCase):
         missing = sorted(
             f"{a}@{b}->{hex(c)}"
             for (a, b, c) in REVIEWED
-            if (a, b, c) not in self.reentries
+            if not any(
+                (a, b, c)
+                == (
+                    "vv1_birth_control" if fid == "vv1_birth_control+origins" else fid,
+                    splice,
+                    target,
+                )
+                for fid, splice, target in self.reentries
+            )
         )
         self.assertEqual(
             missing,
@@ -479,11 +529,18 @@ class VV1HookForeignReentryAuditTests(unittest.TestCase):
         # target stayed identical.
         drifted = {
             f"{fid}@{splice}": {
-                "recorded": CAVE_FINGERPRINTS.get((fid, splice)),
+                "recorded": COMPOSED_CAVE_FINGERPRINTS.get(
+                    (fid, splice), CAVE_FINGERPRINTS.get((fid, splice))
+                ),
                 "actual": actual,
             }
             for (fid, splice), actual in self.fingerprints.items()
-            if CAVE_FINGERPRINTS.get((fid, splice)) != actual
+            if (
+                COMPOSED_CAVE_FINGERPRINTS.get(
+                    (fid, splice), CAVE_FINGERPRINTS.get((fid, splice))
+                )
+                != actual
+            )
         }
         self.assertEqual(
             drifted,
@@ -492,6 +549,19 @@ class VV1HookForeignReentryAuditTests(unittest.TestCase):
             "REVIEWED for these hooks, then update CAVE_FINGERPRINTS: "
             f"{drifted}",
         )
+
+    def test_composed_birth_control_reentries_match_standalone_contract(self) -> None:
+        standalone = {
+            (splice, target): derefs
+            for (feature_id, splice, target), derefs in self.reentries.items()
+            if feature_id == "vv1_birth_control"
+        }
+        composed = {
+            (splice, target): derefs
+            for (feature_id, splice, target), derefs in self.reentries.items()
+            if feature_id == "vv1_birth_control+origins"
+        }
+        self.assertEqual(composed, standalone)
 
 
 if __name__ == "__main__":

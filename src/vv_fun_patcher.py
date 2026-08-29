@@ -2893,6 +2893,43 @@ def validate_fun_patch_catalog(
                         raise PatcherError(
                             f"{patch.name} ({patch.id}) has an invalid append header guard."
                         )
+            compositions = transaction.get("composition_overlays", {})
+            if not isinstance(compositions, dict):
+                raise PatcherError(
+                    f"{patch.name} ({patch.id}) has malformed composition overlays."
+                )
+            for base_id, overlay in compositions.items():
+                if patch.id != VV1_BIRTH_CONTROL_ID or base_id != VV1_ORIGINS_FEATURE_ID:
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) declares an unsupported composition overlay."
+                    )
+                if not isinstance(overlay, dict) or overlay.get("base_feature") != base_id:
+                    raise PatcherError("VV1 composition overlay base-feature contract is malformed.")
+                try:
+                    overlay_offset = int(overlay["overlay_offset"], 0)
+                    overlay_length = int(overlay["overlay_length"])
+                    page_va = int(overlay["page_virtual_address"], 0)
+                    preimage = overlay["overlay_preimage"]
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise PatcherError("VV1 composition overlay geometry is malformed.") from exc
+                if (
+                    overlay_offset != 0x8EC00
+                    or overlay_length != 0x400
+                    or overlay_offset + overlay_length != 0x8F000
+                    or page_va != 0x490C00
+                    or overlay.get("append_source") != "generated:vv1_birth_control_page"
+                    or overlay.get("page_sha256") != "FCADAAD8447CDD35F2B24BFFE4340F2A0E09F7F022EB8A602A62A1B84732AE34"
+                    or overlay.get("hook_offsets") != ["0x3DD03", "0x46E96", "0x47084", "0x477FA", "0x39C83"]
+                ):
+                    raise PatcherError("VV1 composition overlay geometry/source contract drifted.")
+                if (
+                    not isinstance(preimage, dict)
+                    or preimage.get("kind") != "zero_fill"
+                    or preimage.get("length") != overlay_length
+                    or preimage.get("sha256")
+                    != "5F70BF18A086007016E948B04AED3B82103A36BEA41755B6CDDFAF10ACE3C6EF"
+                ):
+                    raise PatcherError("VV1 composition overlay zero preimage contract drifted.")
         overrides = patch.raw.get("patch_mode_overrides", {})
         if not isinstance(overrides, dict):
             raise PatcherError(
@@ -3624,7 +3661,15 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal cave contains an unresolved branch relocation.")
 
 
-def _append_layout(feature: FunPatch, patch_mode: str) -> dict[str, Any] | None:
+VV1_ORIGINS_FEATURE_ID = "vv1_enable_origins_exclusive_features"
+VV1_BIRTH_CONTROL_ID = "vv1_birth_control"
+
+
+def _append_layout(
+    feature: FunPatch,
+    patch_mode: str,
+    selected_feature_ids: set[str] | None = None,
+) -> dict[str, Any] | None:
     transaction = feature.raw.get("pe_append_transaction")
     if transaction is None:
         return None
@@ -3648,7 +3693,87 @@ def _append_layout(feature: FunPatch, patch_mode: str) -> dict[str, Any] | None:
         raise PatcherError(
             f"{feature.name} ({feature.id}) has no append layout for {patch_mode}."
         )
+    # VV1 Origins already owns two zero-filled pages at the stock EOF.  The
+    # Birth Control helper is short enough to live in a reserved zero tail of
+    # those pages, but only when the actual co-selection is known here.  The
+    # alternate contract carries its own generated page VA and exact zero
+    # preimage; standalone Birth Control continues to use the untouched EOF
+    # append layout above.
+    if (
+        selected_feature_ids
+        and feature.id == VV1_BIRTH_CONTROL_ID
+        and VV1_ORIGINS_FEATURE_ID in selected_feature_ids
+    ):
+        overlays = transaction.get("composition_overlays", {})
+        overlay = overlays.get(VV1_ORIGINS_FEATURE_ID) if isinstance(overlays, dict) else None
+        if not isinstance(overlay, dict):
+            raise PatcherError(
+                "VV1 Birth Control + Origins requires its declared composition overlay."
+            )
+        return {**overlay, "_composition_overlay": True}
     return layout
+
+
+def _resolve_overlay_preimage(layout: dict[str, Any]) -> bytes:
+    """Resolve and authenticate a composition overlay's declared preimage."""
+    spec = layout.get("overlay_preimage")
+    if not isinstance(spec, dict) or spec.get("kind") != "zero_fill":
+        raise PatcherError("VV1 composition overlay must declare a zero-fill preimage.")
+    try:
+        length = int(spec["length"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise PatcherError("VV1 composition overlay preimage length is malformed.") from exc
+    try:
+        overlay_length = int(layout["overlay_length"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise PatcherError("VV1 composition overlay length is malformed.") from exc
+    preimage = b"\x00" * length
+    digest = hashlib.sha256(preimage).hexdigest().upper()
+    if length != overlay_length or digest != str(spec.get("sha256", "")).upper():
+        raise PatcherError("VV1 composition overlay zero-fill preimage identity mismatch.")
+    return preimage
+
+
+def _apply_composition_overlay(
+    data: bytearray,
+    feature: FunPatch,
+    layout: dict[str, Any],
+) -> dict[str, str]:
+    """Apply one generated page over an authenticated reserved zero range."""
+    try:
+        offset = int(layout["overlay_offset"], 0)
+        length = int(layout["overlay_length"])
+        page_va = int(layout["page_virtual_address"], 0)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise PatcherError(
+            f"{feature.name} ({feature.id}) has a malformed composition overlay."
+        ) from exc
+    if offset < 0 or length <= 0 or offset % 0x400:
+        raise PatcherError("VV1 composition overlay must use a positive 0x400-aligned range.")
+    preimage = _resolve_overlay_preimage(layout)
+    if len(preimage) != length or offset + length > len(data):
+        raise PatcherError(
+            f"{feature.name} composition overlay range is outside the composed parent."
+        )
+    actual = bytes(data[offset : offset + length])
+    if actual != preimage:
+        raise PatcherError(
+            f"{feature.name} composition overlay preimage guard failed at 0x{offset:X}."
+        )
+    append_bytes = _resolve_append_bytes(feature, layout)
+    if len(append_bytes) != 0x1000 or any(append_bytes[length:]):
+        raise PatcherError(
+            "VV1 composition overlay generated page must be 0x1000 bytes with a zero tail."
+        )
+    data[offset : offset + length] = append_bytes[:length]
+    return {
+        "offset": f"0x{offset:X}",
+        "before": preimage.hex().upper(),
+        "after": append_bytes[:length].hex().upper(),
+        "purpose": layout["purpose"],
+        "owner": f"feature:{feature.id}",
+        "virtual_address": f"0x{page_va:X}",
+    }
 
 
 def _apply_pe_append_transactions(
@@ -3659,9 +3784,27 @@ def _apply_pe_append_transactions(
     """Apply exact guarded PE appends before ordinary feature byte patches."""
     work = bytearray(data)
     applied: list[dict[str, str]] = []
-    for feature in fun_patches:
-        layout = _append_layout(feature, patch_mode)
+    selected_feature_ids = {feature.id for feature in fun_patches}
+    # Resolve append ownership independently of catalog/name order.  The
+    # Birth Control record sorts before Origins, but its declared overlay is
+    # valid only after Origins has appended the parent pages.
+    append_layouts = {
+        feature.id: _append_layout(feature, patch_mode, selected_feature_ids)
+        for feature in fun_patches
+    }
+    append_features = sorted(
+        fun_patches,
+        key=lambda feature: bool(
+            append_layouts[feature.id]
+            and append_layouts[feature.id].get("_composition_overlay") is True
+        ),
+    )
+    for feature in append_features:
+        layout = append_layouts[feature.id]
         if layout is None:
+            continue
+        if layout.get("_composition_overlay") is True:
+            applied.append(_apply_composition_overlay(work, feature, layout))
             continue
         try:
             original_size = int(layout["original_file_size"], 0)
@@ -3751,7 +3894,8 @@ def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
             raise PatcherError("VV1 Birth Control page builder is unavailable.")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        append_bytes, details = module.build_page()
+        page_va = int(layout.get("page_virtual_address", hex(module.PAGE_VA)), 0)
+        append_bytes, details = module.build_page(page_va)
         expected = str(layout.get("page_sha256", "")).upper()
         actual = hashlib.sha256(append_bytes).hexdigest().upper()
         if (
@@ -3854,6 +3998,60 @@ def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
             f"Generated VV4 Full Heal page identity mismatch: expected {expected}, got {actual}."
         )
     return bytes(append_bytes)
+
+
+def _relocate_vv1_birth_control_hooks(
+    fun_bytes: list[dict[str, Any]],
+    fun_patches: list[FunPatch],
+    patch_mode: str,
+    selected_feature_ids: set[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Use builder-emitted rel32 hook bytes for the VV1 Origins overlay."""
+    selected_ids = (
+        {feature.id for feature in fun_patches}
+        if selected_feature_ids is None
+        else set(selected_feature_ids)
+    )
+    if VV1_ORIGINS_FEATURE_ID not in selected_ids:
+        return fun_bytes
+    feature = next(
+        (item for item in fun_patches if item.id == VV1_BIRTH_CONTROL_ID),
+        None,
+    )
+    if feature is None:
+        return fun_bytes
+    layout = _append_layout(feature, patch_mode, selected_ids)
+    if not layout or layout.get("_composition_overlay") is not True:
+        raise PatcherError("VV1 Birth Control Origins composition did not select its overlay.")
+    page_va = int(layout["page_virtual_address"], 0)
+    import importlib.util
+
+    builder_path = ROOT / "scripts" / "build_vv1_birth_control_page.py"
+    spec = importlib.util.spec_from_file_location(
+        "vv1_birth_control_builder_hooks_runtime", builder_path
+    )
+    if spec is None or spec.loader is None:
+        raise PatcherError("VV1 Birth Control page builder is unavailable.")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _, details = module.build_page(page_va)
+    hook_after = details.get("hook_after")
+    expected_offsets = layout.get("hook_offsets")
+    if not isinstance(hook_after, dict) or expected_offsets != list(hook_after):
+        raise PatcherError("VV1 Birth Control generated hook relocation contract is malformed.")
+    relocated: list[dict[str, Any]] = []
+    for patch in fun_bytes:
+        if patch.get("_owner") != f"feature:{VV1_BIRTH_CONTROL_ID}":
+            relocated.append(patch)
+            continue
+        replacement = hook_after.get(str(patch.get("offset", "")))
+        if replacement is None:
+            relocated.append(patch)
+            continue
+        updated = dict(patch)
+        updated["after"] = replacement
+        relocated.append(updated)
+    return relocated
 
 
 def _prepare_vv3_expanded_origins_automatic_removal(
@@ -4113,8 +4311,47 @@ def _remove_feature_bytes(
             work, feature, patch_mode
         )
     )
+    composition_overlay: tuple[dict[str, Any], bytes] | None = None
+    if feature.id == VV1_ORIGINS_FEATURE_ID and len(work) == 0x90000:
+        # Origins cannot be truncated while the Birth Control overlay still
+        # occupies its reserved .vv1mc tail.  Refuse before touching any
+        # Origins bytes; remove Birth Control first, or rerender from stock.
+        birth_control = get_fun_patch(VV1_BIRTH_CONTROL_ID)
+        overlay = _append_layout(
+            birth_control,
+            patch_mode,
+            {VV1_ORIGINS_FEATURE_ID, VV1_BIRTH_CONTROL_ID},
+        )
+        if overlay and overlay.get("_composition_overlay") is True:
+            page = _resolve_append_bytes(birth_control, overlay)
+            start = int(overlay["overlay_offset"], 0)
+            length = int(overlay["overlay_length"])
+            if bytes(work[start : start + length]) == page[:length]:
+                raise PatcherError(
+                    "Cannot remove VV1 Origins while its Birth Control composition overlay remains; "
+                    "remove Birth Control first or rerender the requested selection."
+                )
+    if feature.id == VV1_BIRTH_CONTROL_ID and len(work) == 0x90000:
+        overlay = _append_layout(
+            feature,
+            patch_mode,
+            {VV1_ORIGINS_FEATURE_ID, VV1_BIRTH_CONTROL_ID},
+        )
+        if overlay and overlay.get("_composition_overlay") is True:
+            page = _resolve_append_bytes(feature, overlay)
+            start = int(overlay["overlay_offset"], 0)
+            length = int(overlay["overlay_length"])
+            if bytes(work[start : start + length]) == page[:length]:
+                composition_overlay = (overlay, page)
     patches = list(feature.patches)
     patches.extend(feature.raw.get("patch_mode_overrides", {}).get(patch_mode, []))
+    if composition_overlay is not None:
+        patches = _relocate_vv1_birth_control_hooks(
+            [dict(patch, _owner=f"feature:{feature.id}") for patch in patches],
+            [feature],
+            patch_mode,
+            {VV1_ORIGINS_FEATURE_ID, VV1_BIRTH_CONTROL_ID},
+        )
     for patch in reversed(patches):
         offset = int(patch["offset"], 0)
         before = _patch_bytes(patch, "before")
@@ -4141,7 +4378,26 @@ def _remove_feature_bytes(
                 "owner": f"feature:{feature.id}",
             }
         )
-    layout = _append_layout(feature, patch_mode)
+    layout = None if composition_overlay is not None else _append_layout(feature, patch_mode)
+    if composition_overlay is not None:
+        overlay, page = composition_overlay
+        start = int(overlay["overlay_offset"], 0)
+        length = int(overlay["overlay_length"])
+        preimage = _resolve_overlay_preimage(overlay)
+        if bytes(work[start : start + length]) != page[:length]:
+            raise PatcherError(
+                f"{feature.name} composition overlay removal guard failed at 0x{start:X}."
+            )
+        work[start : start + length] = preimage
+        removed.append(
+            {
+                "offset": f"0x{start:X}",
+                "before": page[:length].hex().upper(),
+                "after": preimage.hex().upper(),
+                "purpose": f"restore reserved zero range after removing {feature.id} composition overlay",
+                "owner": f"feature:{feature.id}",
+            }
+        )
     if layout is not None:
         append_offset = int(layout["append_offset"], 0)
         append_bytes = _resolve_append_bytes(feature, layout)
@@ -6766,6 +7022,9 @@ def render_patched_bytes(
         if overrides:
             for patch in overrides.get(patch_mode, []):
                 fun_bytes.append(dict(patch, _owner=f"feature:{feature.id}"))
+    fun_bytes = _relocate_vv1_birth_control_hooks(
+        fun_bytes, fun_patches, patch_mode
+    )
     fun_bytes = _compose_expanded_statistics_after_atomic(
         original_data, build, patch_mode, fun_bytes
     )

@@ -3431,7 +3431,6 @@ def main() -> None:
         "catalog_enabled": True,
         "catalog_hidden": False,
         "game_id": "vv1",
-        "conflicts": ["vv1_birth_control"],
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features (includes the Heathen Mask mod)",

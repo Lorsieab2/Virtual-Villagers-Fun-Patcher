@@ -79,6 +79,8 @@ VV1_FUN_PATCH_IDS = (
     "vv1_magic_fruit_alters_mortality",
     "vv1_builder_action_fixes",
     "vv1_birth_control",
+    "vv1_enable_origins_exclusive_features",
+    "vv1_origins_village_wide_upgrades",
     "vv1_write_village_statistics",
 )
 

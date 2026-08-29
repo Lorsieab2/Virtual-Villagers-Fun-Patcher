@@ -4,9 +4,6 @@
   "catalog_enabled": true,
   "catalog_hidden": false,
   "game_id": "vv1",
-  "conflicts": [
-    "vv1_birth_control"
-  ],
   "running_preference_id": 38,
   "running_preference_evidence": {
     "source": "exact stock executable embedded preference table",
