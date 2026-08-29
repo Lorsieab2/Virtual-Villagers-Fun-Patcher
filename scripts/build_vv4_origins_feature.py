@@ -253,8 +253,8 @@ D_SCALE_VALUE = _struct.pack("<f", 1.5)   # dedicated bighead-res atlas (~40px c
 # maskFace_incell * scale, times the head's own scale arg (so children auto-seat).
 # bighead face ~(30,28) in its 60px cell; mask face ~(35,53) in the 65px cell:
 # X = 35*2.6 - 30 = 61 ; Y = 53*2.6 - 28 = 110. Owner-tunable.
-D_LIFTX_VALUE = _struct.pack("<f", -34.0)  # reseat: new atlas face x19 @1.5 vs village landing -> shift right
-D_LIFTY_VALUE = _struct.pack("<f", 77.0)   # reseat: new atlas face y70 @1.5 -> face onto head face
+D_LIFTX_VALUE = _struct.pack("<f", 0.14)  # int-scale units: maskX = x - LIFTX*arg6 (arg6 ~200 = 2x); ~27px left
+D_LIFTY_VALUE = _struct.pack("<f", 0.75)  # int-scale units: maskY = y - LIFTY*arg6; ~150px up to seat the face
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -546,19 +546,19 @@ def mask_detail_cave() -> bytes:
             mov edx, dword ptr [{MASK_SLOT_BIGHEAD_ATLAS}]
             test edx, edx
             jz det_done
-            fld dword ptr [{D_A6}]
+            fild dword ptr [{D_A6}]
             fmul dword ptr [{D_SCALE}]
-            fstp dword ptr [{D_A6S}]
+            fistp dword ptr [{D_A6S}]
             push dword ptr [{D_A6S}]
             push {VV4_DETAIL_FACING_COL}
             push dword ptr [{D_MASK}]
-            fld dword ptr [{D_A6}]
+            fild dword ptr [{D_A6}]
             fmul dword ptr [{D_LIFTY}]
             fistp dword ptr [{D_TMP}]
             mov ecx, dword ptr [{D_A3}]
             sub ecx, dword ptr [{D_TMP}]
             push ecx
-            fld dword ptr [{D_A6}]
+            fild dword ptr [{D_A6}]
             fmul dword ptr [{D_LIFTX}]
             fistp dword ptr [{D_TMP}]
             mov ecx, dword ptr [{D_A2}]
