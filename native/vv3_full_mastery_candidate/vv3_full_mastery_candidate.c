@@ -89,8 +89,10 @@ extern int g_vv3_pose_dy[256];
 extern int g_vv3_anim_hits[256];
 extern int g_vv3_anim_stash[256];
 extern int g_vv3_helddbg[8];
+extern int g_vv3_actdbg[8];
 extern int g_vv3_facing_dx[8];
 extern int g_vv3_color_dy[5];
+extern int g_vv3_pose_dx[256];
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -106,6 +108,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         *(void **)(UINT_PTR)VV3_WORLD_ANIMSTASH_PTR_SLOT = (void *)&g_vv3_anim_stash[0];
         *(void **)(UINT_PTR)VV3_WORLD_ACTIONFN_PTR_SLOT  = (void *)&VV3ActionMaskDraw;
         *(void **)(UINT_PTR)VV3_WORLD_HELDDBG_PTR_SLOT   = (void *)&g_vv3_helddbg[0];
+        *(void **)(UINT_PTR)0x006C7A38u                  = (void *)&g_vv3_actdbg[0];
         *(void **)(UINT_PTR)VV3_WORLD_FACINGDX_PTR_SLOT  = (void *)&g_vv3_facing_dx[0];
         *(void **)(UINT_PTR)VV3_WORLD_COLORDY_PTR_SLOT   = (void *)&g_vv3_color_dy[0];
     }
@@ -710,17 +713,19 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
    on the face for adults (children lift by the same age-scale automatically).  My earlier chin
    arithmetic wrongly assumed the stash was the head-cell top and gave ~38 (masks dropped to the
    waist/floor).  Live-tunable at dllbase+0x19020. */
-int g_vv3_world_lift   = 30;   /* scale-relative lift seating the full cell on the face (baked; iterate on the BAKED value via screenshots, never live-tune) */
-/* PER-COLOR vertical trim (0 = uniform; purple/shorter masks can seat a few px higher). Kept for
-   fine-tuning; uniform 0 verified good in the owner's village view.  Indexed by (mask-1)=0..4. */
-int g_vv3_color_dy[5]  = { 0, 0, 0, 0, 0 };
+int g_vv3_world_lift   = 0;    /* global lift on TOP of the per-colour seat below (VV1-measured) */
+/* PER-COLOUR vertical seat (VV1's cross-measured numbers, methodology: mask face anchor =
+   centroid of the BOTTOM 55% of the mask sprite -- excludes the headdress whose top varies
+   wildly by colour -- minus VV3 head skin-centroid y (~23).  blue/orange/red/purple/chief;
+   chief seats highest.  Indexed by (mask-1)=0..4.  Live-tunable (published 0x6C7A2C). */
+int g_vv3_color_dy[5]  = { 34, 33, 30, 28, 26 };
 int g_vv3_world_facing = -1;   /* -1 = AUTO (read head atlas frame); >=0 = force col */
 int g_vv3_world_dx     = 0;    /* global X nudge on TOP of the per-facing re-seat below */
-/* PER-FACING horizontal re-seat (VV5's required step for a game whose heads differ): the
-   65x145 VV5 art's face center-x per facing (col 0..7) minus VV3's own head face center-x,
-   measured from female_heads.png vs the atlas.  Applied scale-relative so the mask seats on
-   VV3's head at every facing.  Live-tunable (published to 0x6C7A28). */
-int g_vv3_facing_dx[8] = { -27, -21, -7, -4, -16, -14, -12, -15 };
+/* PER-FACING horizontal re-seat (VV1's cross-measured numbers, same anchor methodology:
+   head skin-centroid x minus mask bottom-55% centroid x, per facing col 0..7).  X swings
+   7.6px across facings so a single constant cannot serve; applied scale-relative.
+   Live-tunable (published to 0x6C7A28). */
+int g_vv3_facing_dx[8] = { -18, -16, -11, -11, -14, -13, -14, -12 };
 int g_vv3_world_dy     = 0;    /* live-tuned Y nudge: +down / -up (scaled px)       */
 int g_vv3_world_liftfloor = 0; /* 0 = LIFT scales fully with head height (owner: mask     */
                                /* position must scale with head size); >0 floors it       */
@@ -750,6 +755,28 @@ int g_vv3_held_diag[8] = {0, 0, 0, -52, 0, 0, -1, 0};
    already sit right.  Live-tunable (address published to 0x6C7A18); populated by observing
    each pose.  A separate flag so the sweep never touches it. */
 int g_vv3_pose_dy[256] = {0};
+/* Horizontal partner to pose_dy (world units, +right).  Zero-default residual fine-tune on
+   top of the art-derived pose-head anchor below. */
+int g_vv3_pose_dx[256] = {0};
+
+/* MEASURED baked-head centre per action frame (see VV3ActionMaskDraw comment): median
+   skin-blob centre of the top third of each 40x65 pose cell, over all 10 outfit rows,
+   female action pages 00/01/02 (17 cols each; frame f -> page f/17, col f%17). */
+int g_vv3_posehead_px[51] = {19,16,12,12,22,21,22,22,23,12,22,25,25,16,22,21,19,
+                             20,17,12,11,22,22,22,22,24,12,20,24,24,16,21,18,22,
+                             22,18,14,13,22,21,22,22,23,12,21,24,24,16,21,20,19};
+int g_vv3_posehead_py[51] = {33,33,35,37,26,26,26,26,22,31,20,26,25,21,16,17,24,
+                             31,30,33,36,26,25,25,26,21,31,20,25,24,22,17,17,22,
+                             32,32,36,37,26,26,26,26,22,30,21,28,26,22,16,16,25};
+/* Mask-cell face centre-x per facing (median content centre over all 5 colour rows of the
+   65x145 mask atlas) and per-colour chin-y; face-y = chin - bias (face centre sits ~14px
+   above the chin at cell scale). */
+/* Unified with the offscreen-verified walker anchors: mask_face_x[f] = head_cx[f] -
+   facing_dx[f] (VV1 head centroids {23,22,21,19,22,22,21,21} minus facing_dx), and
+   mask_face_y[c] = head_cy(23) + color_dy[c].  The action path then lands the mask's face
+   on the measured pose head centre with the SAME registration the walker path uses. */
+int g_vv3_maskface_cx[8] = {41,38,32,30,36,35,35,33};
+int g_vv3_maskface_cy[5] = {57,56,53,51,49};
 
 /* DIAGNOSTIC (temporary): per-anim counters so a live reader can prove whether the mask
    hook actually FIRES for each pose.  g_vv3_anim_hits[a] increments every time the world
@@ -766,6 +793,9 @@ int g_vv3_anim_stash[256] = {0};
    "mask drops to feet on pickup" source: [0]=index [1]=used_stash [2]=x [3]=y(max) [4]=m3010
    at draw [5]=mask [6]=stash_m3010 [7]=count of held-state draws.  Published to 0x6C7A24. */
 int g_vv3_helddbg[8] = {0};
+/* Dedicated action-draw diag (helddbg is written by the held hook too -- shared use garbled
+   both).  [0..7] = px,py,anim,facing,x,y,[mgr+0x3010],count.  Published at 0x6C7A38. */
+int g_vv3_actdbg[8] = {0};
 
 /* Per-frame stash of the EXACT head-draw position/scale, set by the head-site cave
    (0x460A60 -> VV3WorldMaskDrawAt) DURING the handler.  Lets the mask reuse the head's
@@ -971,6 +1001,17 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
     if (record == NULL) {
         return;
     }
+    /* GATE exactly like the overlay itself: the wrap at 0x460B48 fires for EVERY villager,
+       including idle/walk (anim == -1) where sub_45F7E0 no-ops -- drawing here for those
+       produced a SECOND, misplaced mask at the action anchor beside idle villagers (diag
+       caught anim=-1 draws).  The world path owns anim == -1; this path owns real action
+       frames only (0..50 = the atlas-A range this table covers). */
+    {
+        int anim = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
+        if (anim < 0 || anim >= 51) {
+            return;
+        }
+    }
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) {
         return;
@@ -994,8 +1035,42 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
        displacing it far into the sand), and (b) draw at plain scale 1.0 like the layers (no
        [mgr+0x3010] size fold).  px,py are pre-scale world coords; 42E510 applies the camera to
        our (x,y) exactly as it does for the pose layers, so the mask tracks them at any zoom. */
-    x = px + g_vv3_action_dx;
-    y = py - g_vv3_action_lift;
+    /* ART-DERIVED pose-head anchor (the definitive fix for pose seating).  VV2 traced the
+       engine (0x460AEF..0x460B41): the action overlay's offset is one global float x fixed
+       constants -- IDENTICAL for every pose; no per-pose anchor table exists in the binary.
+       The per-pose head position lives ONLY in the ART: the action pages (17 cols x 10 outfit
+       rows of 40x65 cells; anim frame f -> page f/17, col f%17, frames 0..50 = the <0x34
+       atlas-A range) bake a BALD head into each pose sprite (hair drawn separately).  So we
+       MEASURED the baked head's centre in every one of the 51 frames (median skin-blob of the
+       top third, over all 10 outfits, female pages; male art matches within ~1px):
+       g_vv3_posehead_px/py[anim].  Layer 1 of sub_45F7E0 draws the pose cell's top-left at
+       exactly (px,py) [VV2's byte-trace: args pass through untransformed], so in the same
+       pre-camera space:  pose head centre = (px + posehead_px, py + posehead_py), and the
+       mask cell's top-left = head centre - mask face centre (per-facing cx from the atlas
+       art; per-colour face-y = chin[colour] - face bias).  pose_dx/dy remain as zero-default
+       residual fine-tune knobs. */
+    {
+        int anim = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
+        int hx = 20, hy = 24;                      /* fallback: walk-ish head */
+        if (anim >= 0 && anim < 51) {
+            hx = g_vv3_posehead_px[anim];
+            hy = g_vv3_posehead_py[anim];
+        }
+        x = px + hx - g_vv3_maskface_cx[facing & 7];
+        y = py + hy - g_vv3_maskface_cy[mask - 1];
+        if (anim >= 0 && anim < 256) {
+            x += g_vv3_pose_dx[anim];
+            y += g_vv3_pose_dy[anim];
+        }
+    }
+    /* DIAG: record this draw's exact numbers so a live reader can compare them against a
+       synchronized screenshot (actdbg[0..7] = px,py,anim,facing,x,y,[mgr+0x3010],count). */
+    g_vv3_actdbg[0] = px;  g_vv3_actdbg[1] = py;
+    g_vv3_actdbg[2] = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
+    g_vv3_actdbg[3] = facing;
+    g_vv3_actdbg[4] = x;   g_vv3_actdbg[5] = y;
+    g_vv3_actdbg[6] = *(int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
+    g_vv3_actdbg[7]++;
     {
         int one = 0x3F800000;
         __asm {
