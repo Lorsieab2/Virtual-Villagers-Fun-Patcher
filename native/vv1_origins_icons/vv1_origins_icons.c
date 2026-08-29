@@ -340,7 +340,7 @@ static void vv1_mask_sidecar_load(void) {
 #define VV_PORTRAIT_Y_ADULT  0xE4
 #define VV_PORTRAIT_ADULT_AGE 0x118
 #define VV_MASK_FRONT_COL    5         /* front-facing column (== the head's) */
-#define VV_MASK_ATLAS_COLS   8   /* new atlas vv5_heathenheads: 8 facing cols x 5 colour rows, 65x145 cells; villager head is 7-col so facing 0..6 index cols 0..6, the 8th mask frame is never used */
+#define VV_MASK_ATLAS_COLS   7   /* mask_atlas.png: 7 facing cols x 5 colour rows, 40x160 cells, matching the generator and VV1 head atlas */
 /* The portrait cave saves the head's own scale arg here (exe .data, fixed addr,
    PORTRAIT_SCALE_SAVE_VA in the build script) BEFORE the head draw cleans the
    arg frame, then calls us. We read it back so the mask scales exactly like the

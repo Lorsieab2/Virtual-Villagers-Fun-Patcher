@@ -13,6 +13,7 @@ produces from the committed art.
 from __future__ import annotations
 
 import importlib.util
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -53,6 +54,14 @@ class VV1MaskSheetGeometryTests(unittest.TestCase):
 
     def test_generator_and_patch_agree_on_the_draw_offset(self) -> None:
         self.assertEqual(self.sheets.DRAW_Y_OFFSET, self.patch.MASK_DRAW_Y_OFFSET)
+
+    def test_native_loader_uses_generator_facing_count(self) -> None:
+        source = (
+            ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
+        ).read_text(encoding="utf-8")
+        match = re.search(r"#define\s+VV_MASK_ATLAS_COLS\s+(\d+)", source)
+        self.assertIsNotNone(match, "native mask atlas column count is missing")
+        self.assertEqual(int(match.group(1)), self.sheets.FACINGS)
 
     def test_committed_sheets_match_the_generator(self) -> None:
         stale = [
