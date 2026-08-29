@@ -81,8 +81,13 @@
    only holds a record POINTER, so it converts back using the villager-array
    base the render hook stashes every frame. Every conversion is fully
    validated; anything unexpected fails closed to "no mask", never a write. */
-#define VV_MASK_TABLE ((unsigned char *)0x0048CD20)   /* .data BSS, W^X-safe */
-#define VV_MASK_MANAGER (*(unsigned char **)0x0048CDB8) /* .data BSS, W^X-safe */
+/* Mask scratch now lives in the exe's dedicated appended R/W section .vv1md
+   (base 0x00491000), NOT the borrowed .data BSS tail (owner: no shared caves).
+   These MUST match DATA_SCRATCH_BASE_VA + the same offsets in the build script:
+   TABLE = base+0x00, MANAGER = base+0x98, PORTRAIT_SCALE = base+0x1B0. */
+#define VV_MASK_SCRATCH_BASE 0x00491000u
+#define VV_MASK_TABLE ((unsigned char *)(VV_MASK_SCRATCH_BASE + 0x00))   /* .vv1md R/W */
+#define VV_MASK_MANAGER (*(unsigned char **)(VV_MASK_SCRATCH_BASE + 0x98)) /* .vv1md R/W */
 #define VV_RECORD_STRIDE 0x3D8
 #define VV_MASK_SLOTS 256
 #define VV_OCCUPIED_OFFSET 0x28  /* record[+0x28] == 1 when the slot is a live
@@ -341,7 +346,7 @@ static void vv1_mask_sidecar_load(void) {
    arg frame, then calls us. We read it back so the mask scales exactly like the
    head. Passing it as a call arg instead would force a push in the cave BEFORE
    the head-draw call, which shifts the frame 0x409410 reads -> the freeze. */
-#define VV_PORTRAIT_SCALE_SAVE_ADDR 0x0048CED0u
+#define VV_PORTRAIT_SCALE_SAVE_ADDR (VV_MASK_SCRATCH_BASE + 0x1B0u)  /* .vv1md R/W (was 0x48CED0 = old base+0x1B0) */
 /* Tunables -- the portrait drifts differently than the world; adjust from a
    screenshot. DY is added to the head's y (negative = up). LIFT is added to the
    engine's own head scale arg. */

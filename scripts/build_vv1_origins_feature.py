@@ -31,6 +31,12 @@ STRINGS_FILE_OFFSET = 0x85D30
 STRINGS_VA = IMAGE_BASE + STRINGS_FILE_OFFSET
 SHR_FILE_OFFSET = 0x8B000
 SHR_RVA = 0x8D000
+# Two dedicated appended PE sections for the Heathen-mask feature (owner: no
+# shared caves). Stock SizeOfImage = 0x90000 (image ends at VA 0x490000), file
+# and section alignment both 0x1000, so these tack cleanly onto the end.
+MASK_SECTION_SIZE = 0x1000
+MASK_CODE_SECTION_VA = 0x490000   # .vv1mc  R-X : all mask hook/stub code
+MASK_DATA_SECTION_VA = 0x491000   # .vv1md  R/W : all mask writable scratch
 HEAL_CAVE_FILE_OFFSET = 0x8B004
 HEAL_CAVE_STUB_VA = IMAGE_BASE + SHR_RVA + (
     HEAL_CAVE_FILE_OFFSET - SHR_FILE_OFFSET
@@ -328,7 +334,7 @@ VV1_SKILL_FIELDS = (
 # Stage 3 will mark read+execute. The mask CODE stays in .shr; it references
 # these VAs, so repointing the constants moves the writes with zero assembly
 # edits.
-DATA_SCRATCH_BASE_VA = 0x48CD20  # 8-aligned start of .data's BSS tail gap
+DATA_SCRATCH_BASE_VA = MASK_DATA_SECTION_VA  # 0x491000: dedicated appended R/W section (.vv1md), NOT the borrowed .data BSS tail (owner: no shared caves). All derived mask-scratch VAs recompute from here; the DLL's 3 hardcoded copies (VV_MASK_TABLE/MANAGER/PORTRAIT_SCALE) must match.
 # Mask writable state, laid out in .data (all zero-initialised by the loader):
 MASK_TABLE_VA = DATA_SCRATCH_BASE_VA + 0x00  # 256 villagers x 4 bits = 128 bytes
 MASK_TABLE_SIZE = 128
@@ -3248,6 +3254,52 @@ def main() -> None:
         offset = int(item["offset"], 16)
         payload = bytes.fromhex(item["after"])
         rendered[offset : offset + len(payload)] = payload
+
+    # ---- Append dedicated PE sections for the Heathen-mask feature -------------
+    # Owner directive: mask code/data must NOT live in shared caves (the .shr
+    # section is shared by Barrel/Cure/Equal-Division/Appearance -- squeezing the
+    # mask into its gaps is what collided with CURE_ENTRY). Give the mask its own
+    # two appended sections instead, W^X-clean (R-X code, R/W data, never RWX).
+    # File+section alignment are both 0x1000 here, so this is straightforward.
+    import struct as _st
+    _lf = _st.unpack_from("<I", rendered, 0x3C)[0]
+    _numsec_off = _lf + 6
+    _numsec = _st.unpack_from("<H", rendered, _numsec_off)[0]
+    _opt_off = _lf + 0x18
+    _sizeofopt = _st.unpack_from("<H", rendered, _lf + 0x14)[0]
+    _sectbl_off = _opt_off + _sizeofopt
+    _sizeofimage_off = _opt_off + 0x38  # PE32 OPTIONAL_HEADER.SizeOfImage
+    _sizeofimage = _st.unpack_from("<I", rendered, _sizeofimage_off)[0]
+
+    def _append_section(name: bytes, va: int, chars: int) -> None:
+        nonlocal _numsec, _sizeofimage
+        rva = va - IMAGE_BASE
+        raw_ptr = len(rendered)
+        size = MASK_SECTION_SIZE
+        hdr = (
+            name.ljust(8, b"\x00")
+            + _st.pack("<I", size)          # VirtualSize
+            + _st.pack("<I", rva)           # VirtualAddress
+            + _st.pack("<I", size)          # SizeOfRawData
+            + _st.pack("<I", raw_ptr)       # PointerToRawData
+            + _st.pack("<I", 0)             # PointerToRelocations
+            + _st.pack("<I", 0)             # PointerToLinenumbers
+            + _st.pack("<H", 0)             # NumberOfRelocations
+            + _st.pack("<H", 0)             # NumberOfLinenumbers
+            + _st.pack("<I", chars)         # Characteristics
+        )
+        assert len(hdr) == 0x28
+        ent_off = _sectbl_off + _numsec * 0x28
+        rendered[ent_off : ent_off + 0x28] = hdr
+        rendered.extend(b"\x00" * size)     # raw data (zero-filled)
+        _numsec += 1
+        _sizeofimage = rva + size           # image now ends at this section's end
+
+    _append_section(b".vv1mc", MASK_CODE_SECTION_VA, 0x60000020)  # R-X, CODE
+    _append_section(b".vv1md", MASK_DATA_SECTION_VA, 0xC0000040)  # R/W, INIT DATA
+    _st.pack_into("<H", rendered, _numsec_off, _numsec)
+    _st.pack_into("<I", rendered, _sizeofimage_off, _sizeofimage)
+
     OUT_EXE.write_bytes(rendered)
     rendered_json = json.dumps(patches, indent=2) + "\n"
     manifest = {
