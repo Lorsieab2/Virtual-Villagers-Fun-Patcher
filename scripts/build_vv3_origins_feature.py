@@ -136,6 +136,17 @@ WORLD_HELD2_CALLSITE_VA = 0x004344B3      # settled held villager's composited-s
 WORLD_HELD2_WRAP_CAVE_VA = 0x0047B300     # .text cave, after the held-head wrap
 WORLD_BLIT_FN = 0x0042E510                # the cell blit both this + the village mask use
 WORLD_HELD2FN_PTR = 0x6C7A14              # DLL publishes VV3HeldMaskDraw2 here
+# ACTION-POSE mask: VV3 draws sit/lie/swim/fish/work as a FULL-BODY sprite (head baked in) via
+# the action overlay sub_45F7E0, so the base head-draw stash misses the pose head (owner's
+# "fishing villager's mask at the hip").  Wrap the overlay's call site 0x460B48 (inside the
+# per-villager handler): re-push its 3 args (record=esi, x, y), run the original overlay, then
+# call VV3ActionMaskDraw(record, x, y) to seat the mask on the pose sprite's head.  sub_45F7E0
+# is `ret 0xc` (3 args), ecx=this (preserved from before the stolen call); the wrap's `ret 0xc`
+# keeps the net stack effect identical.
+WORLD_ACTION_CALLSITE_VA = 0x00460B48     # `call 0x45F7E0` in sub_4605F0 (action overlay)
+WORLD_ACTION_FN = 0x0045F7E0              # the action-overlay draw (ret 0xc; arg1=record)
+WORLD_ACTION_WRAP_CAVE_VA = 0x0047B360    # .text cave, after the held2 wrap
+WORLD_ACTIONFN_PTR = 0x6C7A30             # DLL publishes VV3ActionMaskDraw here
 
 # Complete/Reset all Collections action caves live in a free executable-.rdata
 # padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
@@ -1686,8 +1697,21 @@ def main() -> None:
     #   DLL fn is __stdcall @4 (cleans its own arg).  Finally ret 4 cleans the original
     #   index -> identical net stack effect to the original `call 0x4605F0`.  ecx is left
     #   untouched before the inner call so 0x59E110 reaches the handler as `this`.
+    # AUTO-LOAD: masks must appear on the first village frame, WITHOUT the player opening the
+    # Upgrades menu (which is how the DLL used to get pulled in -> "nothing changed" if never
+    # opened).  On the first call of this per-villager wrapper, LoadLibraryA the companion DLL
+    # once (gated by the byte at 0x6C7A34, zero-init .data next to the published fn slots); its
+    # DllMain then publishes the fn pointers so the very same frame's flush draws masks, and the
+    # sidecar restore happens lazily on the first VV3_GetMaskForRecord.  LoadLibrary from normal
+    # game code (NOT DllMain) is safe; the load is synchronous so the pointer is live immediately.
     world_mask_wrapper_cave = assemble(
         f"""
+            cmp byte ptr [0x6C7A34], 0
+            jne world_wrap_loaded
+            mov byte ptr [0x6C7A34], 1
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+        world_wrap_loaded:
             push dword ptr [esp + 4]
             call 0x{WORLD_HANDLER_FN:X}
             mov eax, dword ptr [0x{WORLD_FLUSHFN_PTR:X}]
@@ -1761,6 +1785,35 @@ def main() -> None:
     )
     world_held2_wrap_redirect = assemble(
         f"call 0x{WORLD_HELD2_WRAP_CAVE_VA:X}", WORLD_HELD2_CALLSITE_VA
+    )
+
+    # ACTION-POSE wrapper: wrap the action overlay's `call 0x45F7E0` at 0x460B48.  At entry the 3
+    # args are on the stack ([esp+4]=record, [esp+8]=x, [esp+0xC]=y) and ecx=this.  Re-push them,
+    # run the original overlay (its `ret 0xc` cleans the re-push), then call
+    # VV3ActionMaskDraw(record, x, y) reading the ORIGINAL args so the mask seats on the pose
+    # sprite's head.  Null ptr -> plain pose.  `ret 0xc` cleans the original 3 args -> identical
+    # net stack effect to the original `call 0x45F7E0`.  ecx is not clobbered before the inner
+    # call, so `this` reaches the overlay.
+    world_action_wrap_cave = assemble(
+        f"""
+            push dword ptr [esp + 0xC]
+            push dword ptr [esp + 0xC]
+            push dword ptr [esp + 0xC]
+            call 0x{WORLD_ACTION_FN:X}
+            mov eax, dword ptr [0x{WORLD_ACTIONFN_PTR:X}]
+            test eax, eax
+            je action_wrap_done
+            push dword ptr [esp + 0xC]
+            push dword ptr [esp + 0xC]
+            push dword ptr [esp + 0xC]
+            call eax
+        action_wrap_done:
+            ret 0xC
+        """,
+        WORLD_ACTION_WRAP_CAVE_VA,
+    )
+    world_action_wrap_redirect = assemble(
+        f"call 0x{WORLD_ACTION_WRAP_CAVE_VA:X}", WORLD_ACTION_CALLSITE_VA
     )
 
     # Complete all Collections: mark collectible ids 52..99 found in the native
@@ -1997,6 +2050,18 @@ def main() -> None:
         original[WORLD_HELD2_CALLSITE_VA - IMAGE_BASE : WORLD_HELD2_CALLSITE_VA - IMAGE_BASE + 5],
         world_held2_wrap_redirect,
         "wrap the settled held villager's composited draw so its mask follows the cursor",
+    )
+    patch(
+        WORLD_ACTION_WRAP_CAVE_VA - IMAGE_BASE,
+        original[WORLD_ACTION_WRAP_CAVE_VA - IMAGE_BASE : WORLD_ACTION_WRAP_CAVE_VA - IMAGE_BASE + len(world_action_wrap_cave)],
+        world_action_wrap_cave,
+        "action-overlay wrapper cave: draw the mask on the pose sprite's head",
+    )
+    patch(
+        WORLD_ACTION_CALLSITE_VA - IMAGE_BASE,
+        original[WORLD_ACTION_CALLSITE_VA - IMAGE_BASE : WORLD_ACTION_CALLSITE_VA - IMAGE_BASE + 5],
+        world_action_wrap_redirect,
+        "wrap the action-overlay call so pose villagers get their mask on the pose head",
     )
     # (No head-atlas row-count bump: the separate-atlas method draws the mask from
     # its own Images/heathen_masks.png, so the head atlases are left untouched.)

@@ -53,6 +53,7 @@ static int s_dialog_state;
 __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index);
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args);
 __declspec(dllexport) void __stdcall VV3WorldMaskFlush(void);
+__declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int py);
 __declspec(dllexport) void __stdcall VV3HeldMaskDraw(int x, int y, int scaleBits);
 __declspec(dllexport) void __stdcall VV3HeldMaskDraw2(int x, int y, void *dragobj);
 
@@ -81,6 +82,7 @@ __declspec(dllexport) void __stdcall VV3HeldMaskDraw2(int x, int y, void *dragob
 #define VV3_WORLD_HELDDBG_PTR_SLOT   0x006C7A24u
 #define VV3_WORLD_FACINGDX_PTR_SLOT  0x006C7A28u
 #define VV3_WORLD_COLORDY_PTR_SLOT   0x006C7A2Cu
+#define VV3_WORLD_ACTIONFN_PTR_SLOT  0x006C7A30u
 
 extern int g_vv3_held_diag[8];
 extern int g_vv3_pose_dy[256];
@@ -102,6 +104,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         *(void **)(UINT_PTR)VV3_WORLD_POSEDY_PTR_SLOT  = (void *)&g_vv3_pose_dy[0];
         *(void **)(UINT_PTR)VV3_WORLD_ANIMHITS_PTR_SLOT  = (void *)&g_vv3_anim_hits[0];
         *(void **)(UINT_PTR)VV3_WORLD_ANIMSTASH_PTR_SLOT = (void *)&g_vv3_anim_stash[0];
+        *(void **)(UINT_PTR)VV3_WORLD_ACTIONFN_PTR_SLOT  = (void *)&VV3ActionMaskDraw;
         *(void **)(UINT_PTR)VV3_WORLD_HELDDBG_PTR_SLOT   = (void *)&g_vv3_helddbg[0];
         *(void **)(UINT_PTR)VV3_WORLD_FACINGDX_PTR_SLOT  = (void *)&g_vv3_facing_dx[0];
         *(void **)(UINT_PTR)VV3_WORLD_COLORDY_PTR_SLOT   = (void *)&g_vv3_color_dy[0];
@@ -684,13 +687,16 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
    carries the per-facing alignment.  CAVEAT (VV5): X=0/Y=0 aligns because the art matches VV5
    head geometry; if VV3 heads differ, the art must be re-seated per facing to VV3's face
    anchor (handled in the atlas, not by a global offset here). */
-int g_vv3_world_lift   = 0;    /* global vertical nudge ON TOP of the per-color chin lift below */
-/* PER-COLOR vertical seat (VV5's rule: anchor by the CHIN, never top/centroid -- the headdress
-   height varies ~23px by color and skews the centroid, so chin is the stable cross-color point).
-   lift[color] = mask chin-Y (content bottom in the 145 cell) - VV3 head chin-Y(32): measured
-   {blue70,orange68,red69,purple63,chief70} - 32.  Purple seats 7px higher (shorter mask), exactly
-   as VV5 measured.  Indexed by (mask-1) = 0..4.  Live-tunable (published to 0x6C7A2C). */
-int g_vv3_color_dy[5]  = { 38, 36, 37, 31, 38 };
+/* VERTICAL SEAT (empirically calibrated 2026-08-26 via live self-capture, owner-visible):
+   the head-draw (x,y) my cave stashes is the villager BASE, not the head-cell top, so the mask
+   needs a large scale-relative lift to reach the head -- measured 85 seats the full 65x145 cell
+   on the face for adults (children lift by the same age-scale automatically).  My earlier chin
+   arithmetic wrongly assumed the stash was the head-cell top and gave ~38 (masks dropped to the
+   waist/floor).  Live-tunable at dllbase+0x19020. */
+int g_vv3_world_lift   = 30;   /* scale-relative lift seating the full cell on the face (baked; iterate on the BAKED value via screenshots, never live-tune) */
+/* PER-COLOR vertical trim (0 = uniform; purple/shorter masks can seat a few px higher). Kept for
+   fine-tuning; uniform 0 verified good in the owner's village view.  Indexed by (mask-1)=0..4. */
+int g_vv3_color_dy[5]  = { 0, 0, 0, 0, 0 };
 int g_vv3_world_facing = -1;   /* -1 = AUTO (read head atlas frame); >=0 = force col */
 int g_vv3_world_dx     = 0;    /* global X nudge on TOP of the per-facing re-seat below */
 /* PER-FACING horizontal re-seat (VV5's required step for a game whose heads differ): the
@@ -786,6 +792,15 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
         g_vv3_stash_valid = 0;
         return;
     }
+    /* POSE HAND-OFF: if the villager is in an ACTION pose (record+0xF20 != -1), its visible head
+       is the full-body pose sprite, NOT the standing base head this path's stash captured.  Skip
+       here and let VV3ActionMaskDraw (wrapped on the action overlay sub_45F7E0) seat the mask on
+       the pose head.  This path owns ONLY walk/idle (anim == -1); the action path owns every pose.
+       Prevents the DOUBLE mask (base-head + pose-head) on fishing/sit/swim villagers. */
+    if (*(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF) != -1) {
+        g_vv3_stash_valid = 0;
+        return;
+    }
     /* DRAW-ALWAYS (VV1 + VV5 both code-verified + owner-live-verified 2026-08-26): neither
        sibling skips the mask when a villager is held/carried; both draw unconditionally and
        the engine redraws the dragged villager through the normal head path, so the mask rides
@@ -814,20 +829,12 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
         fscale = *(float *)&scaleBits;
         used_stash = 1;
     } else {
-        /* NOT drawn at the normal head site this frame.  If a villager is being
-           PLAYER-CARRIED right now (global held-state 0x5947D0 bit0), this unstashed
-           villager is the picked-up one, whose head is drawn by the separate cursor
-           renderer -- a record recompute below would put the mask at its GROUND/world
-           position, i.e. dropped to the villager's FEET while the body is at the cursor
-           (the owner's "mask drops to the feet on pickup").  We cannot recover the held
-           villager's identity at the cursor renderer, so the correct behavior is to hide
-           the mask cleanly while carried rather than draw it at the feet.  Guarded by the
-           held-state so idle/walk villagers (nothing held) still recompute normally, and
-           it only ever affects the one villager in hand. */
-        if ((*(volatile int *)(UINT_PTR)0x005947D0u) & 1) {
-            g_vv3_stash_valid = 0;
-            return;
-        }
+        /* NOT drawn at the normal head site this frame -> recompute from the record.
+           (Removed a prior `if (0x5947D0 & 1) return` skip: 0x5947D0 is NOT a held/state
+           flag -- VV2/VV5 identified it as entry 3 of the drag position table at 0x5947B8
+           (0x5947B8 + 3*8), i.e. a COORDINATE, so testing its low bit gated the mask on a
+           position parity, which is nonsense and dropped masks unpredictably.  Pickup is
+           handled by the dedicated held-draw wrap, not by skipping here.) */
         __asm {
             lea  eax, pos
             push eax
@@ -924,6 +931,71 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
             call edx                     /* sub_42E510(mgr, atlas, x, y, cell, 1.0f); ret 0x14 */
         }
         *p3010 = save3010;               /* restore the shared manager field */
+    }
+}
+
+/* ACTION-POSE mask.  VV3 draws sit/lie/swim/fish/work poses as a FULL-BODY sprite (head baked
+   in) via the action overlay sub_45F7E0, so the base head-draw stash (walk/idle only) lands the
+   mask off the pose head (owner's "fishing villager's mask at the hip").  This is called from a
+   wrap on the overlay's call site (0x460B48) AFTER the pose sprite draws, with the SAME pose
+   position (px,py) the engine passed -> the mask rides the actual pose.  We seat it at the pose
+   sprite's head (px + dx, py - lift), sized by the villager age-scale, fade-safe (scale=1.0f +
+   fold size into [mgr+0x3010]).  Missing mask/atlas draws nothing (never a crash). */
+int g_vv3_action_lift = 90;   /* pose-sprite head lift (scale-relative); tune by rebuild */
+int g_vv3_action_dx   = 24;   /* pose-sprite head x nudge (scale-relative) -- pose sprite head is
+                                 centered + a touch right; NO per-facing dx (unlike walking cell) */
+
+__declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int py)
+{
+    int mask, facing, cell, x, y;
+    void *atlas;
+    double scale = 1.0;
+    float fscale;
+    if (record == NULL) {
+        return;
+    }
+    mask = VV3_GetMaskForRecord(record);
+    if (mask <= 0) {
+        return;
+    }
+    atlas = VV3GetMaskAtlas();
+    if (atlas == NULL) {
+        return;
+    }
+    __asm {
+        mov  ecx, record
+        mov  edx, VV3_WORLD_SCALE_FN
+        call edx                          /* sub_455E50(record) -> double age-scale */
+        fstp scale
+    }
+    fscale = (float)scale;
+    if (g_vv3_world_facing >= 0) {
+        facing = g_vv3_world_facing & 7;
+    } else {
+        facing = ((*(int *)((unsigned char *)record + g_vv3_world_facing_off))
+                  + g_vv3_world_facing_remap) & 7;
+    }
+    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
+    x = px + (int)(g_vv3_action_dx * fscale);
+    y = py - (int)(g_vv3_action_lift * fscale);
+    {
+        int   *p3010    = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
+        int    save3010 = *p3010;
+        int    one      = 0x3F800000;
+        double sized    = (double)save3010 * (double)fscale;
+        *p3010 = (int)(sized >= 0.0 ? sized + 0.5 : sized - 0.5);
+        __asm {
+            mov  eax, one
+            push eax
+            push cell
+            push y
+            push x
+            push atlas
+            mov  ecx, VV3_WORLD_MGR
+            mov  edx, VV3_WORLD_DRAW_FN
+            call edx                     /* sub_42E510(mgr, atlas, x, y, cell, 1.0f); ret 0x14 */
+        }
+        *p3010 = save3010;
     }
 }
 
@@ -1108,6 +1180,15 @@ __declspec(dllexport) void __stdcall VV3WorldMaskFlush(void)
     }
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) {
+        return;
+    }
+    /* POSE HAND-OFF: if the villager is in an ACTION pose (record+0xF20 != -1), its visible
+       head is the full-body pose sprite (the base head this stash captured is the wrong,
+       standing head) -> skip here and let VV3ActionMaskDraw (wrapped on the action overlay
+       sub_45F7E0) seat the mask on the pose sprite's head.  This path owns ONLY walk/idle
+       (anim == -1); the action path owns every pose.  Prevents the double-mask + the
+       misplaced base-head mask on fishing/sit/swim villagers. */
+    if (*(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF) != -1) {
         return;
     }
     /* skip masks on carried/held villagers (they draw half-scale at the carrier's
