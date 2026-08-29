@@ -269,6 +269,88 @@ class Task9ArtifactTests(unittest.TestCase):
         self.assertGreaterEqual(bound, 0)
         self.assertEqual(unsigned_above, bound + 3)
 
+    def test_stock_full_support_and_expanded_limited_capability_are_distinct(self) -> None:
+        native = NATIVE.read_text(encoding="utf-8")
+        self.assertIn("STATE_LIMITED_CAPABILITY = 0x400000", native)
+        self.assertIn("int first_unsupported_row = villager_menu ? 4 : 6;", native)
+        self.assertIn(
+            "if (limited_capability && row >= first_unsupported_row)", native
+        )
+        self.assertIn('SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable")', native)
+
+        stock, _ = builder.build_page(0x7C9000)
+        expanded, _ = builder.build_page(0x904000)
+        stock_tech = stock[builder.OFF["tech_menu"] : builder.OFF["tech_menu"] + builder.SIZES["tech_menu"]]
+        expanded_tech = expanded[builder.OFF["tech_menu"] : builder.OFF["tech_menu"] + builder.SIZES["tech_menu"]]
+        stock_detail = stock[builder.OFF["detail_menu"] : builder.OFF["detail_menu"] + builder.SIZES["detail_menu"]]
+        expanded_detail = expanded[builder.OFF["detail_menu"] : builder.OFF["detail_menu"] + builder.SIZES["detail_menu"]]
+        expanded_show = expanded[builder.OFF["show_menu"] : builder.OFF["show_menu"] + builder.SIZES["show_menu"]]
+
+        # Stock carries no architecture flag and accepts all fourteen Tech
+        # rows plus all five Details rows.
+        self.assertIn(bytes.fromhex("B800000000"), stock_tech)
+        stock_tech_bound = stock_tech.find(bytes.fromhex("83FB0D"))
+        stock_detail_bound = stock_detail.find(bytes.fromhex("83FB04"))
+        self.assertGreaterEqual(stock_tech_bound, 0)
+        self.assertGreaterEqual(stock_detail_bound, 0)
+        # The stock Tech routine is larger, so Keystone uses a near unsigned
+        # jump there; both forms are an immediate fail-closed bound.
+        self.assertIn(stock_tech[stock_tech_bound + 3], (0x77, 0x0F))
+        if stock_tech[stock_tech_bound + 3] == 0x0F:
+            self.assertEqual(stock_tech[stock_tech_bound + 4], 0x87)  # ja done
+        self.assertEqual(stock_detail[stock_detail_bound + 3], 0x77)  # ja done
+
+        # Expanded carries the dedicated flag, and its unsigned bounds reject
+        # the first unsupported Tech/Details rows before any action dispatch.
+        self.assertIn(
+            (
+                bytes([0xB8])
+                + (0x700).to_bytes(4, "little")
+            ),
+            expanded_tech,
+        )
+        self.assertIn(
+            (bytes([0x0D]) + builder.STATE_LIMITED_CAPABILITY.to_bytes(4, "little")),
+            expanded_show,
+        )
+        self.assertIn(
+            bytes.fromhex("89C38B450C0D0000400050FF7508FFD3"), expanded_show
+        )
+        # The separate Expanded Time Warp overlay still sees its exact Task9
+        # Tech-menu preimages; capability state is injected in show_menu.
+        self.assertEqual(
+            expanded_tech[0x6:0x10], bytes.fromhex("B800070000F70588D351")
+        )
+        self.assertEqual(
+            expanded_tech[0x6B:0x74], bytes.fromhex("83FB030F82B3000000")
+        )
+        expanded_tech_bound = expanded_tech.find(bytes.fromhex("83FB05"))
+        expanded_detail_bound = expanded_detail.find(bytes.fromhex("83FB03"))
+        self.assertGreaterEqual(expanded_tech_bound, 0)
+        self.assertGreaterEqual(expanded_detail_bound, 0)
+        self.assertIn(expanded_tech[expanded_tech_bound + 3], (0x77, 0x0F))  # row 6+ -> done
+        if expanded_tech[expanded_tech_bound + 3] == 0x0F:
+            self.assertEqual(expanded_tech[expanded_tech_bound + 4], 0x87)
+        self.assertEqual(expanded_detail[expanded_detail_bound + 3], 0x77)  # row 4+ -> done
+
+    def test_limited_capability_state_is_disjoint_from_dialog_state_bits(self) -> None:
+        # The companion interprets bits 0..13 as row-state bits and bits 8..21
+        # as unavailable-row bits. STATE_VILLAGER is bit 16; include it
+        # explicitly even though it lies inside the existing unavailable range
+        # so this test protects the named ABI contract as well.
+        row_state_bits = sum(1 << row for row in range(14))
+        unavailable_bits = sum(1 << (8 + row) for row in range(14))
+        state_villager = 0x10000
+        used_dialog_bits = row_state_bits | unavailable_bits | state_villager
+        flag = builder.STATE_LIMITED_CAPABILITY
+
+        self.assertEqual(row_state_bits, 0x3FFF)
+        self.assertEqual(unavailable_bits, 0x3FFF00)
+        self.assertEqual(used_dialog_bits, 0x3FFFFF)
+        self.assertEqual(flag, 1 << used_dialog_bits.bit_length())
+        self.assertGreater(flag, used_dialog_bits)
+        self.assertEqual(flag & used_dialog_bits, 0)
+
     def test_exact_native_writer_and_single_charge_call_sites(self) -> None:
         layout = builder.LAYOUTS["collection_progression"]
         page = bytes.fromhex(self.manifest["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"])

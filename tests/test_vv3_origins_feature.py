@@ -65,17 +65,18 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             "data/candidates/VVFP VV3 Safe Upgrades.dll",
         )
         data = COMPANION.read_bytes()
-        # The public projection now exposes every Tech upgrade row so the
-        # village-wide menu shows Full Heal/Cure, All Villagers Like Running,
-        # Grant Full Mastery to All, All Villagers are 18, and the Complete/Reset
-        # all Collections rows as live Buy controls (previously stripped down to
-        # Full Mastery only).
+        # Dormant dialog 203 keeps its original inventory and routing, while
+        # using the same canonical labels as active dialog 201 for shared rows.
         for required in (
-            "Full Heal/Cure All Villagers",
-            "All Villagers Like Running",
-            "All Villagers are Exactly 18",
-            "Complete all Collections",
-            "Reset all Collections",
+            "Time Warp - Advances 3 Villager Years",
+            "Island Event",
+            "Barrel of Babies",
+            "Tech Point Doubler",
+            "Food Point Doubler",
+            "Full Heal / Cure All",
+            "Grant Full Mastery to All Villagers",
+            "Complete All Collections",
+            "Reset All Collections",
         ):
             self.assertIn(required.encode("utf-16le"), data)
 

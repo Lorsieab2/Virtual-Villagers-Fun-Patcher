@@ -29,7 +29,11 @@ enum {
     ID_BUY_FIRST = 1000,
     ID_BUY_LAST = 1013,   /* 14 tech-menu rows: rows 0..13 -> Buy 1000..1013 (row 13 = Change Appearance for All) */
     ID_CHECK_FIRST = 1100,
-    STATE_VILLAGER = 0x10000
+    STATE_VILLAGER = 0x10000,
+    /* Architecture-aware state, above every dialog row/unavailable bit
+       (0..21) and separate from STATE_VILLAGER. Expanded VV5 binds only the
+       original Tech rows 0..5 and Details rows 0..3. */
+    STATE_LIMITED_CAPABILITY = 0x400000
 };
 
 enum {
@@ -819,11 +823,16 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
+        int limited_capability = (lparam & STATE_LIMITED_CAPABILITY) != 0;
+        int first_unsupported_row = villager_menu ? 4 : 6;
         int row_count = villager_menu ? 5 : 14;
         int row;
         for (row = 0; row < row_count; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
-            if ((lparam & (1 << row)) != 0) {
+            if (limited_capability && row >= first_unsupported_row) {
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+            } else if ((lparam & (1 << row)) != 0) {
                 ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
                 if (villager_menu) {
                     EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);

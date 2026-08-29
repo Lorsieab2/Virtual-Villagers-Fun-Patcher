@@ -1803,27 +1803,28 @@ static int fa_nothing_selected(void) {
 
 __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
     int affected;
+    HWND owner = GetForegroundWindow();
     vv4_prep_fullscreen();
     /* Buy-confirm before the dialog (parity wording across all 5 games). */
-    if (MessageBoxA(NULL,
+    if (MessageBoxA(owner,
             "Do you want to buy Change Appearance for All for 450,000 tech "
             "points?\r\nPress OK to confirm, or Cancel.",
             "Change Appearance for All",
             MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) != IDOK) {
         return 0;
     }
-    if ((int)DialogBoxParamA(module_instance, MAKEINTRESOURCEA(214), NULL,
+    if ((int)DialogBoxParamA(module_instance, MAKEINTRESOURCEA(214), owner,
                              forall_dialog, 0) != 1) {
         return 0;                              /* cancelled -> no charge */
     }
     if (fa_nothing_selected()) {
-        MessageBoxA(NULL,
+        MessageBoxA(owner,
             "No appearance options were selected. No tech points deducted.",
             "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
         return 0;
     }
     if (*(volatile unsigned int *)(UINT_PTR)0x4D6F88u < 450000u) {
-        MessageBoxA(NULL,
+        MessageBoxA(owner,
             "Not enough tech points. This upgrade costs 450,000.",
             "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
         return 0;
@@ -1832,7 +1833,7 @@ __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
     if (forall_state.male_head != FA_NOCHANGE ||
         forall_state.female_head != FA_NOCHANGE ||
         forall_state.head_mode != FA_HEAD_OFF) {
-        if (MessageBoxA(NULL,
+        if (MessageBoxA(owner,
                 "Warning: This will change the head genetics of every villager "
                 "of the selected sex, affecting their descendants.\r\n\r\n"
                 "Proceed?",
@@ -1843,7 +1844,7 @@ __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
     }
     affected = vv4_apply_for_all();
     if (affected == 0) {
-        MessageBoxA(NULL,
+        MessageBoxA(owner,
             "No occupied villagers matched the selected appearance options. "
             "No tech points have been deducted.",
             "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
@@ -1855,7 +1856,7 @@ __declspec(dllexport) int __stdcall ShowVv4AppearanceForAll(void) {
         mov  eax, 0x41E300
         call eax
     }
-    MessageBoxA(NULL, "Change Appearance for All applied to every villager.",
+    MessageBoxA(owner, "Change Appearance for All applied to every villager.",
                 "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     return 1;
 }
@@ -1954,7 +1955,7 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
             "Everyone is at full health already. No villagers are sick. "
             "No tech points have been deducted.",
             "Origins Upgrades",
-            MB_OK | VV_MB_FRONT
+            MB_OK | MB_ICONINFORMATION | VV_MB_FRONT
         );
         return 0;
     }
@@ -1965,7 +1966,8 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
         sickness_cleared,
         health_restored
     );
-    MessageBoxA(GetForegroundWindow(), text, "Origins Upgrades", MB_OK);
+    MessageBoxA(GetForegroundWindow(), text, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     return 1;
 }
 

@@ -319,26 +319,22 @@ static INT_PTR CALLBACK upgrade_dialog(
             int row = (int)(command - ID_BUY_FIRST);
             const char *name = s_villager_menu ? detail_names[row] : tech_names[row];
             const char *cost = s_villager_menu ? detail_costs[row] : tech_costs[row];
-            /* Owned Tech/Food Doublers (rows 3/4) show a "Remove" button; a
-               removal costs and refunds nothing, so confirm it as a removal
-               rather than a 500,000-tech purchase. */
+            /* Owned Tech/Food Doublers (rows 3/4) show an explicit "Remove"
+               button. Removal is not a purchase and therefore has no
+               confirmation prompt; the caller reports the no-refund result
+               after the action-specific removal path completes. */
             int is_remove = !s_villager_menu && (row == 3 || row == 4)
                 && (s_dialog_state & (1 << row)) != 0;
             char prompt[256];
             if (is_remove) {
-                wsprintfA(
-                    prompt,
-                    "Do you want to remove %s?\r\n"
-                    "It will be removed with no refund.\r\n"
-                    "Press OK to confirm, or Cancel.",
-                    name);
-            } else {
-                wsprintfA(
-                    prompt,
-                    "Do you want to buy %s for %s tech points?\r\n"
-                    "Press OK to confirm, or Cancel.",
-                    name, cost);
+                EndDialog(window, (INT_PTR)row);
+                return TRUE;
             }
+            wsprintfA(
+                prompt,
+                "Do you want to buy %s for %s tech points?\r\n"
+                "Press OK to confirm, or Cancel.",
+                name, cost);
             if (MessageBoxA(
                     window,
                     prompt,
@@ -2570,8 +2566,11 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
     /* Head is hereditary -> one genetics warning at village scale; Cancel = no charge. */
     if (caf_m_head >= 0 || caf_f_head >= 0) {
         if (MessageBoxA(GetForegroundWindow(),
-                "Warning: This will change the head genetics of every villager of the chosen sex.",
-                "Origins Upgrades", MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND)
+                "Warning: This will change the head genetics of every villager "
+                "of the selected sex, affecting their descendants.\r\n\r\n"
+                "Proceed?",
+                "Change Appearance for All",
+                MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND)
             != IDOK) {
             return 0;
         }

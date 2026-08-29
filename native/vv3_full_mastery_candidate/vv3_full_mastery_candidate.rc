@@ -71,13 +71,13 @@ BEGIN
 
     ICON        110, -1, 8, 168,  24, 24
     ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Full Heal/Cure All Villagers", -1, 40, 170, 178, 10
+    LTEXT       "Full Heal / Cure All", -1, 40, 170, 178, 10
     LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
     PUSHBUTTON  "Buy", 1005, 220, 171, 52, 18
 
     ICON        108, -1, 8, 200,  24, 24
     ICON        109, 1106, 22, 212, 12, 12
-    LTEXT       "All Villagers Like Running", -1, 40, 202, 178, 10
+    LTEXT       "Grant Running to All Villagers", -1, 40, 202, 178, 10
     LTEXT       "1,000,000 tech points", -1, 40, 214, 150, 9
     PUSHBUTTON  "Buy", 1006, 220, 203, 52, 18
 
@@ -95,17 +95,17 @@ BEGIN
     PUSHBUTTON  "Buy", 1008, 506, 43, 52, 18
 
     ICON        104, -1, 292,  72,  24, 24
-    LTEXT       "Complete all Collections", -1, 324, 74, 180, 10
+    LTEXT       "Complete All Collections", -1, 324, 74, 180, 10
     LTEXT       "1,000,000 tech points", -1, 324, 86, 150, 9
     PUSHBUTTON  "Buy", 1009, 506, 75, 52, 18
 
     ICON        105, -1, 292, 104,  24, 24
-    LTEXT       "Reset all Collections", -1, 324, 106, 180, 10
+    LTEXT       "Reset All Collections", -1, 324, 106, 180, 10
     LTEXT       "1,000,000 tech points", -1, 324, 118, 150, 9
     PUSHBUTTON  "Buy", 1010, 506, 107, 52, 18
 
     ICON        108, -1, 292, 136,  24, 24
-    LTEXT       "Equal Division of Labor (Incl. Parenting)", -1, 324, 138, 180, 10
+    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 324, 138, 180, 10
     LTEXT       "1,000,000 tech points", -1, 324, 150, 150, 9
     PUSHBUTTON  "Buy", 1011, 506, 139, 52, 18
 
@@ -199,7 +199,7 @@ BEGIN
 
     ICON        110, -1, 8, 168,  24, 24
     ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Full Heal/Cure All Villagers", -1, 40, 170, 190, 10
+    LTEXT       "Full Heal / Cure All", -1, 40, 170, 190, 10
     LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
     PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
 
@@ -210,12 +210,12 @@ BEGIN
     PUSHBUTTON  "Buy", 1007, 240, 203, 55, 18
 
     ICON        104, -1, 8, 232,  24, 24
-    LTEXT       "Complete all Collections", -1, 40, 234, 190, 10
+    LTEXT       "Complete All Collections", -1, 40, 234, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 246, 170, 9
     PUSHBUTTON  "Buy", 1009, 240, 235, 55, 18
 
     ICON        105, -1, 8, 264,  24, 24
-    LTEXT       "Reset all Collections", -1, 40, 266, 190, 10
+    LTEXT       "Reset All Collections", -1, 40, 266, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
     PUSHBUTTON  "Buy", 1010, 240, 267, 55, 18
 

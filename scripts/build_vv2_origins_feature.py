@@ -620,6 +620,37 @@ def main() -> None:
             je menu_done
             mov ebx, eax
 
+            # An owned Tech/Food Doubler is an explicit Remove action.  Verify
+            # ownership at click time and go straight to the existing removal
+            # path; only an unowned row reaches the purchase confirmation.
+            mov edi, dword ptr [esi + 0x0C]
+            cmp ebx, 3
+            je maybe_remove_tech
+            cmp ebx, 4
+            jne cure_preflight_before_confirm
+            test dword ptr [edi + 0x2EAE8], 2
+            jz cure_preflight_before_confirm
+            jmp tech_purchase_ready
+        maybe_remove_tech:
+            test dword ptr [edi + 0x2EAE8], 1
+            jz cure_preflight_before_confirm
+            jmp tech_purchase_ready
+
+            # Cure All is the only legacy row whose apply helper mutates a
+            # 256-record village.  Dry-scan it before asking for confirmation:
+            # no-change and invalid villages get the status-based Origins
+            # result immediately, with no prompt and no charge.
+        cure_preflight_before_confirm:
+            cmp ebx, 5
+            jne confirm_purchase
+            call 0x{CURE_PREFLIGHT_VA:X}
+            cmp eax, 0
+            je confirm_purchase
+            push eax
+            push ebx
+            call 0x{RESULT_HELPER_VA:X}
+            jmp menu_done
+        confirm_purchase:
             push ebx
             call 0x{confirm_dialog:X}
             test eax, eax
@@ -1184,10 +1215,23 @@ def main() -> None:
             push edi
             xor ebx, ebx
             xor ebp, ebp
+            # The helper's dry scan returns the existing result status model:
+            # 0 = a real change is available, 1 = no change, 3 = invalid.
+            # It performs no health, sickness, or statistics writes.
+            call 0x{CURE_PREFLIGHT_VA:X}
+            test eax, eax
+            jnz cure_status_result
+
+            # Reacquire the record base, then perform the balance gate
+            # immediately before the first health/sickness/statistics write.
+            # The final charge remains below the apply loop, so an unexpected
+            # no-change race is not charged.
             call 0x44F4E0
             test eax, eax
-            je cure_report
+            je cure_invalid_after_recheck
             mov edx, eax
+            cmp dword ptr [edi + 0x2EADC], 30000
+            jb cure_insufficient
             mov ecx, 256
         cure_loop:
             cmp byte ptr [edx + 0x30], 0
@@ -1212,10 +1256,22 @@ def main() -> None:
             jne cure_loop
             mov eax, ebx
             or eax, ebp
-            jz cure_report
-            cmp dword ptr [edi + 0x2EADC], 30000
-            jb cure_report
+            jz cure_no_change_after_recheck
             sub dword ptr [edi + 0x2EADC], 30000
+            jmp cure_report
+        cure_insufficient:
+            mov eax, 2
+            jmp cure_status_result
+        cure_invalid_after_recheck:
+            mov eax, 3
+            jmp cure_status_result
+        cure_no_change_after_recheck:
+            mov eax, 1
+        cure_status_result:
+            push eax
+            push 5
+            call 0x{RESULT_HELPER_VA:X}
+            jmp cure_ret
         cure_report:
             push 0x{s['icons_dll']:X}
             call dword ptr [0x474010]
@@ -1395,11 +1451,15 @@ def main() -> None:
     )
     cure_preflight_code = assemble(
         """
+            # Return the existing ShowVV2UpgradeResult status values directly:
+            # 0 = real change, 1 = no change, 3 = no valid living villager.
+            push ebx
             push ecx
             push edx
+            xor ebx, ebx
             call 0x44F4E0
             test eax, eax
-            je cure_preflight_no_change
+            je cure_preflight_invalid
             mov edx, eax
             mov ecx, 256
         cure_preflight_record:
@@ -1409,6 +1469,7 @@ def main() -> None:
             jle cure_preflight_next
             cmp byte ptr [edx + 0x558], 0
             jne cure_preflight_next
+            mov ebx, 1
             cmp dword ptr [edx + 0x52C], 100
             jl cure_preflight_change
             cmp dword ptr [edx + 0x53C], 0
@@ -1417,15 +1478,25 @@ def main() -> None:
             add edx, 0xE48C
             dec ecx
             jne cure_preflight_record
+            test ebx, ebx
+            jz cure_preflight_invalid
         cure_preflight_no_change:
             pop edx
             pop ecx
-            xor eax, eax
+            pop ebx
+            mov eax, 1
             ret
         cure_preflight_change:
             pop edx
             pop ecx
-            mov eax, 1
+            pop ebx
+            xor eax, eax
+            ret
+        cure_preflight_invalid:
+            pop edx
+            pop ecx
+            pop ebx
+            mov eax, 3
             ret
         """,
         CURE_PREFLIGHT_VA,
@@ -2086,7 +2157,7 @@ def main() -> None:
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_block),
         cure_block,
-        "restore active living VV2 villagers below 100 health to 100, clear sickness, charge 30,000 only when something changed, and report the two counts through ShowVV2CureResult",
+        "recheck the active Cure preflight and 30,000-tech balance before any health, sickness, or statistics write; apply only a real change, charge once, and report through the VV2 Origins result/status model",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,
@@ -2098,7 +2169,7 @@ def main() -> None:
         CURE_PREFLIGHT_FILE_OFFSET,
         b"\0" * len(cure_preflight_code),
         cure_preflight_code,
-        "dry-scan all 256 active living records for low health or sickness before any Cure charge",
+        "active Cure-row dry-scan of all 256 records before confirmation; return VV2 no-change/invalid status before prompting and gate the final apply on funds",
     )
     patch(
         BARREL_PENDING_FILE_OFFSET,
