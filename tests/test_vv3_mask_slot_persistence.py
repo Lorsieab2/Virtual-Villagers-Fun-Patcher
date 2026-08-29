@@ -141,12 +141,12 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
     def test_nonzero_set_requires_unique_live_owner_and_rebinds_shifted_copy(self) -> None:
         """A stale setter pointer cannot seed a future fallback match."""
         setter = self.source.split(
-            "__declspec(dllexport) int __stdcall VV3_SetMaskForRecord", 1
-        )[1].split("/* ---- Mask draw", 1)[0]
+            "static int vv3_mask_apply_prepared", 1
+        )[1].split("/* Chooser commit:", 1)[0]
         clamp = setter.index("if (mask < 0 || mask > VV3_MASK_MAX) mask = 0;")
         gate = setter.index("if (!vv3_mask_can_set_prepared(record, mask)) return 0;")
         owner = setter.index("live_idx = vv3_mask_unique_live_index(fpv);")
-        rebind = setter.index("if (live_idx == idx)")
+        rebind = setter.index("if (live_idx == idx")
         write = setter.index("g_vv3_mask[idx] = (unsigned char)mask;")
         self.assertLess(clamp, gate)
         self.assertLess(gate, owner)
@@ -161,6 +161,54 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         )[1].split("/* ---- Sidecar persistence", 1)[0]
         self.assertIn("if (mask == 0) return 1;", can_set)
         self.assertIn("vv3_mask_unique_live_index", can_set)
+
+        exported = self.source.split(
+            "__declspec(dllexport) int __stdcall VV3_SetMaskForRecord", 1
+        )[1].split("/* ---- Mask draw", 1)[0]
+        self.assertIn("return vv3_mask_apply_prepared(record, mask, 1);", exported)
+
+    def test_batch_none_detects_recovered_and_raw_current_slot_masks(self) -> None:
+        """None must see both a shifted unique mask and an ambiguous exact slot."""
+        engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
+            "#define VW_RUNNING", 1
+        )[0]
+        compare = engine.split("/* Count each eligible record once", 1)[1].split(
+            "if ((h >= 0", 1
+        )[0]
+        recovered = compare.index("int recovered_mask = VV3_GetMaskForRecord(r);")
+        none = compare.index("if (desired_mask[i] == 0)", recovered)
+        raw_mask = compare.index("g_vv3_mask[idx[i]] != 0", none)
+        raw_fp = compare.index("g_vv3_mask_fp[idx[i]] != 0", raw_mask)
+        self.assertLess(recovered, none)
+        self.assertLess(none, raw_mask)
+        self.assertLess(raw_mask, raw_fp)
+        self.assertIn("recovered_mask != 0", compare)
+
+        helper = self.source.split("static int vv3_mask_apply_prepared", 1)[1].split(
+            "/* Chooser commit:", 1
+        )[0]
+        self.assertIn(
+            "if (live_idx == idx)",
+            helper,
+        )
+        self.assertIn("g_vv3_mask_fp[i] == fpv", helper)
+
+    def test_batch_applies_in_memory_then_publishes_sidecar_once(self) -> None:
+        """Every planned mask uses the prepared path; the batch flushes once."""
+        engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
+            "#define VW_RUNNING", 1
+        )[0]
+        apply = engine.split(
+            "/* Mask: apply the precomputed exclusive result in memory only.  The",
+            1,
+        )[1]
+        self.assertNotIn("VV3_SetMaskForRecord(", apply)
+        self.assertIn("desired_mask[i], 0);", apply)
+        self.assertEqual(apply.count("vv3_mask_write_sidecar();"), 1)
+        self.assertLess(
+            apply.index("vv3_mask_apply_prepared("),
+            apply.index("if (mask_changed_any) vv3_mask_write_sidecar();"),
+        )
 
     def test_individual_chooser_only_binds_changed_mask_before_staged_writes(self) -> None:
         chooser = self.source.split(
@@ -196,11 +244,29 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         code = pe.__data__[chooser_raw : chooser_raw + 0x200]
         instructions = list(Cs(CS_ARCH_X86, CS_MODE_32).disasm(code, chooser_va))
 
+        # The compiler routes both the exported setter and the chooser through
+        # the shared prepared helper.  Derive that private call target from the
+        # stable exported wrapper instead of assuming the wrapper remains the
+        # immediate call site.
+        setter_raw = pe.get_offset_from_rva(exports["VV3_SetMaskForRecord"])
+        setter_instructions = list(
+            Cs(CS_ARCH_X86, CS_MODE_32).disasm(
+                pe.__data__[setter_raw : setter_raw + 0x30],
+                pe.OPTIONAL_HEADER.ImageBase + exports["VV3_SetMaskForRecord"],
+            )
+        )
+        helper_va = next(
+            int(instruction.op_str, 16)
+            for instruction in setter_instructions
+            if instruction.mnemonic == "call"
+            and instruction.op_str.startswith("0x")
+        )
+
         call_index = next(
             index
             for index, instruction in enumerate(instructions)
             if instruction.mnemonic == "call"
-            and instruction.op_str == f"0x{setter_va:x}"
+            and instruction.op_str == f"0x{helper_va:x}"
         )
         self.assertGreaterEqual(call_index, 3)
         # The changed-mask compare/branch is immediately before the setter
@@ -219,18 +285,25 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertGreater(skip_target, instructions[call_index].address)
 
         # A failed changed-mask bind tests EAX and branches to the failure
-        # message; only a successful bind reaches the head/body writes.
-        self.assertEqual(instructions[call_index + 1].mnemonic, "test")
-        self.assertEqual(instructions[call_index + 2].mnemonic, "jne")
+        # message; only a successful bind reaches the head/body writes.  The
+        # shared helper has four stack arguments, so MSVC may clean them before
+        # testing EAX.
+        result_index = next(
+            index
+            for index in range(call_index + 1, len(instructions))
+            if instructions[index].mnemonic == "test"
+            and instructions[index].op_str == "eax, eax"
+        )
+        self.assertEqual(instructions[result_index + 1].mnemonic, "jne")
         write_addresses = {
             instruction.address
-            for instruction in instructions[call_index + 2 :]
+            for instruction in instructions[result_index + 1 :]
             if instruction.mnemonic == "mov"
             and instruction.op_str in ("dword ptr [edi], eax", "dword ptr [esi], eax")
         }
         self.assertTrue(write_addresses)
         self.assertLessEqual(skip_target, min(write_addresses))
-        self.assertLess(instructions[call_index].address, min(write_addresses))
+        self.assertLess(instructions[result_index].address, min(write_addresses))
 
     def test_village_wide_mask_ambiguity_aborts_before_any_mutation_or_charge(self) -> None:
         engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
@@ -240,7 +313,7 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         ambiguity = engine.index("!vv3_mask_can_set_prepared(r, probe)")
         head_body = engine.index("/* Head/Body: independent per-sex")
         first_record_write = engine.index("*(int *)(r + VV3_HEAD_OFF)")
-        first_mask_write = engine.index("VV3_SetMaskForRecord")
+        first_mask_write = engine.index("vv3_mask_apply_prepared(")
         self.assertLess(preflight, ambiguity)
         self.assertLess(ambiguity, head_body)
         self.assertLess(ambiguity, first_record_write)

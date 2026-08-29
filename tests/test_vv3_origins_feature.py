@@ -117,7 +117,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             "int idx[256], sex[256], order[256], desired_mask[256], mask_changed[256]",
             engine,
         )
-        self.assertIn("desired_mask[i] != VV3_GetMaskForRecord(r)", engine)
+        self.assertIn("mask_changed[i] = desired_mask[i] != recovered_mask", engine)
         self.assertIn("g_vv3_mask[idx[i]] != 0", engine)
         self.assertIn("g_vv3_mask_fp[idx[i]] != 0", engine)
         self.assertIn("if (mask_changed[i])", engine)
@@ -128,7 +128,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         count = engine.index("Count each eligible record once")
         zero_guard = engine.index("if (affected == 0)", count)
         first_head_write = engine.index("*(int *)(r + VV3_HEAD_OFF) = h")
-        first_mask_write = engine.index("VV3_SetMaskForRecord", zero_guard)
+        first_mask_write = engine.index("vv3_mask_apply_prepared", zero_guard)
         self.assertLess(plan, count)
         self.assertLess(count, zero_guard)
         self.assertLess(zero_guard, first_head_write)
@@ -141,7 +141,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             engine,
         )
         self.assertIn(
-            "VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),",
+            "vv3_mask_apply_prepared(\n                    (void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),",
             engine,
         )
         # Random/proportional/equal modes are generated once and applied from

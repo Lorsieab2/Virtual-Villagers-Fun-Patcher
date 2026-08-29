@@ -153,6 +153,13 @@ fail-closed and identity-boundary gaps:
     fingerprint-safe logical mask read plus the raw exact-slot state for None.
     The same change decision controls counting and the single apply pass, and the
     sidecar is written only when a mask value actually changes.
+27. VV3 explicit None now combines the guarded logical lookup with raw exact-slot
+    state. A unique mask recovered from an older shifted slot is therefore a real
+    clear, while an ambiguous fingerprint can still clear only its addressed raw
+    slot; individual and village-wide paths share the same prepared setter rules.
+28. VV3's village-wide action now performs all preflighted mask-table changes in
+    memory and publishes the transactional sidecar exactly once after the batch,
+    instead of writing and flushing the whole file once per changed villager.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be

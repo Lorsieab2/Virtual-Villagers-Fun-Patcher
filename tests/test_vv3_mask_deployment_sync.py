@@ -38,7 +38,7 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         self.assertEqual(deployed, canonical)
         self.assertEqual(
             hashlib.sha256(deployed).hexdigest().upper(),
-            "99659DF4BD703FDB999F4784777553E4AC7FC9C43242AAD36E427C02CFDD4D47",
+            "ADD27E4B687A200E13B869BE852E0BDF28C34555DAE08D80B9D259F9B48EC9CA",
         )
         self.assertEqual(len(deployed), 1_894_400)
 

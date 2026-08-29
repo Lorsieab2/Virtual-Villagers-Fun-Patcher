@@ -855,15 +855,15 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
     return g_vv3_mask[stored_idx];
 }
 
-/* Chooser commit: bind the chosen mask (0..5) to this villager.  A nonzero mask
-   requires the supplied record to be the one unique active/living owner of its
-   fingerprint; an inactive/stale pointer therefore cannot seed a mask that a
-   different live villager later recovers.  An explicit zero remains allowed to
-   clear the addressed stale slot.  When the live owner is unique, clear every
-   older shifted copy of its fingerprint before writing the current slot, so an
-   explicit chooser commit also resolves stored-table duplication.  Never writes
-   the record.  Returns 1 only when the requested table commit is accepted. */
-__declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask) {
+/* Apply a prepared mask-table change without touching a villager record.  The
+   caller must have completed the batch preflight; this helper repeats the
+   prepared-slot/identity gates so the exported individual path and the batch
+   path share exactly the same binding and shifted-copy rules.  `persist` is
+   zero for a batch (the caller publishes once after all in-memory changes) and
+   nonzero for the individual chooser.  None clears a unique recovered shifted
+   copy in both paths, while an ambiguous fingerprint can clear only the exact
+   addressed slot. */
+static int vv3_mask_apply_prepared(const void *record, int mask, int persist) {
     const unsigned char *rec = (const unsigned char *)record;
     unsigned int fpv;
     int idx = vv3_mask_index(record);
@@ -884,8 +884,20 @@ __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask)
     }
     g_vv3_mask[idx] = (unsigned char)mask;
     g_vv3_mask_fp[idx] = mask ? fpv : 0u;
-    vv3_mask_write_sidecar();                              /* persist next to the save */
+    if (persist) vv3_mask_write_sidecar();                 /* persist next to the save */
     return 1;
+}
+
+/* Chooser commit: bind the chosen mask (0..5) to this villager.  A nonzero mask
+   requires the supplied record to be the one unique active/living owner of its
+   fingerprint; an inactive/stale pointer therefore cannot seed a mask that a
+   different live villager later recovers.  An explicit zero remains allowed to
+   clear the addressed stale slot.  When the live owner is unique, clear every
+   older shifted copy of its fingerprint before writing the current slot, so an
+   explicit chooser commit also resolves stored-table duplication.  Never writes
+   the record.  Returns 1 only when the requested table commit is accepted. */
+__declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask) {
+    return vv3_mask_apply_prepared(record, mask, 1);
 }
 
 /* ---- Mask draw (called from the exe Detail head-draw hook) ----
@@ -1382,7 +1394,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
     unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
     int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
     int idx[256], sex[256], order[256], desired_mask[256], mask_changed[256];
-    int n = 0, chief = -1, affected = 0, i, s;
+    int n = 0, chief = -1, affected = 0, mask_changed_any = 0, i, s;
     int mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0);
     g_vv3_caf_mask_ambiguous = 0;
     if (slots > 256) slots = 256;
@@ -1491,17 +1503,22 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         mask_changed[i] = 0;
         if (mask_requested
             && (mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0)) {
-            /* VV3_GetMaskForRecord deliberately returns 0 when a fingerprint
-               is ambiguous.  Explicit None is different: VV3_SetMaskForRecord
-               is allowed to clear the exact addressed side-table slot even in
-               that collision case, so inspect that slot directly for a real
-               clear.  Nonzero values retain the guarded render lookup. */
-            if (desired_mask[i] == 0)
-                mask_changed[i] = (g_vv3_mask[idx[i]] != 0
-                                   || g_vv3_mask_fp[idx[i]] != 0);
-            else
-                mask_changed[i] =
-                    desired_mask[i] != VV3_GetMaskForRecord(r);
+            /* VV3_GetMaskForRecord is the guarded logical lookup: it recovers
+               a unique mask whose sidecar entry shifted slots after reload.
+               Explicit None must also clear a raw current-slot entry when the
+               logical lookup is ambiguous, so combine both views before the
+               batch is counted. */
+            {
+                int recovered_mask = VV3_GetMaskForRecord(r);
+                if (desired_mask[i] == 0)
+                    mask_changed[i] =
+                        (recovered_mask != 0
+                         || g_vv3_mask[idx[i]] != 0
+                         || g_vv3_mask_fp[idx[i]] != 0);
+                else
+                    mask_changed[i] = desired_mask[i] != recovered_mask;
+            }
+            if (mask_changed[i]) mask_changed_any = 1;
         }
         if ((h >= 0 && *(int *)(r + VV3_HEAD_OFF) != h)
             || (b >= 0 && *(int *)(r + VV3_BODY_OFF) != b)
@@ -1518,12 +1535,16 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         if (h >= 0 && *(int *)(r + VV3_HEAD_OFF) != h) *(int *)(r + VV3_HEAD_OFF) = h;
         if (b >= 0 && *(int *)(r + VV3_BODY_OFF) != b) *(int *)(r + VV3_BODY_OFF) = b;
     }
-    /* Mask: apply the precomputed exclusive result exactly once. */
+    /* Mask: apply the precomputed exclusive result in memory only.  The
+       prepared helper intentionally does not publish per record; this batch
+       emits one complete sidecar publication after every planned change. */
     if (mask_requested) {
         for (i = 0; i < n; ++i)
             if (mask_changed[i])
-                VV3_SetMaskForRecord((void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
-                                     desired_mask[i]);
+                vv3_mask_apply_prepared(
+                    (void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
+                    desired_mask[i], 0);
+        if (mask_changed_any) vv3_mask_write_sidecar();
     }
     (void)s;
     return affected;
