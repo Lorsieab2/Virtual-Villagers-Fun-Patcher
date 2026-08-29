@@ -264,6 +264,16 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   global; the `push`es before the ctor are `cols(facings) × rows(variants)`. Then
   enumerate **every** caller of the shared head-draw thunk that pushes a head atlas —
   walk / adult / swim / action are often separate callers with different arg layouts.
+- **Data-driven atlas loaders (the push-imm32 recipe FAILS here — VV3/VV4).** If the
+  filename strings have ZERO `.text` references, the atlases are loaded by a **table walk**
+  (a filename table iterated in a loop), so there's no `push imm32` to anchor on. Fallbacks:
+  (a) find the READ site of the atlas holder instead — a `mov edx,[reg+disp]` feeding a
+  head-draw push (VV3's head holder `+0x127C1C` is read at exactly one site, `0x460A60`);
+  (b) **runtime caller-capture** — probe the low-level blit's entry, log the return address
+  + atlas pointer, and capture what fires *per frame* on the screen you care about. The
+  caller that repeats while (e.g.) a Details portrait head is animating is your hook. Static
+  search can't find an animated/portrait draw that a data-driven loader hides; the runtime
+  probe finds it in one capture.
 - **Facing field:** the record dword read to pick the head column at the draw site. It's
   a small int; the **portrait** facing is usually a *different* field than the world
   facing (one animates the idle turn; the other reads 0 on that screen).
@@ -380,8 +390,18 @@ any dialogs live in the companion DLL; the exe stub just calls in / reissues the
   absolute path, `CREATE_NEW`) so a clean install can't get a sprite pointer with no art
   and replacement art is respected.
 
-**Known inherited issue:** VV2 and VV5 both carry a small **RWX `.shr`** section from the
-base VVFP patch stack (NOT the mask feature — each game's mask is a clean R-X code + R/W
-data split). It appears independently in two games, confirming it's inherited from the
-shared patcher, not a per-game mistake. Flagged as a shared-patcher tidy-up; **do not
-"fix" it locally and diverge.**
+**Known inherited issues (shared Origins patch stack, NOT the mask feature — flag, don't
+diverge locally):** (1) a small **RWX `.shr`** section (VV2 + VV5). (2) **RWX `.rdata`**
+(`0xE0000040`) — the Origins build marks `.rdata` executable to host caves there (VV3
+found it deployed; same class). Both are W^X violations in the shipped artifact owned by
+the shared patcher; a future tidy-up, not a per-game fix.
+
+**Crash exposure — absolute address in a patch-added section touched from the DLL (VV2).**
+If your DLL reads/writes an absolute address that lives in a section the *mask patch* adds
+(`.mtab`/`.vvmk`/appended page), a **patcher build that ships the DLL + UI without that
+section applied** hits an unmapped access on the first mask op = crash. VV2 hit this at
+`0x004B3000` (one byte past the stock image). Fix: `VirtualQuery`-probe the address once,
+cache it, and gate every path (no section → masks read as none, writes drop, sidecar
+skipped). **Any game whose DLL touches a patch-section absolute address has this shape —
+check it.** (VS5: its side-table sits in stock `.data`, always mapped — verify yours does
+too, or add the probe.)
