@@ -37,6 +37,12 @@ SHR_RVA = 0x8D000
 MASK_SECTION_SIZE = 0x1000
 MASK_CODE_SECTION_VA = 0x490000   # .vv1mc  R-X : all mask hook/stub code
 MASK_DATA_SECTION_VA = 0x491000   # .vv1md  R/W : all mask writable scratch
+# .vv1mc raw data begins at file offset 0x8E000 (== stock EOF; the append tacks it
+# on). Mask code caves are laid out here instead of the shared .shr gaps. VA maps
+# file 0x8E000 -> 0x490000 one-to-one (both 0x1000-aligned).
+MASK_CODE_FILE_BASE = 0x8E000
+def mask_code_va(off: int) -> int:
+    return MASK_CODE_SECTION_VA + (off - MASK_CODE_FILE_BASE)
 HEAL_CAVE_FILE_OFFSET = 0x8B004
 HEAL_CAVE_STUB_VA = IMAGE_BASE + SHR_RVA + (
     HEAL_CAVE_FILE_OFFSET - SHR_FILE_OFFSET
@@ -411,8 +417,8 @@ VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (still well cle
 # The village-mask caves (two per-loop stash writes + the shared-draw hook) live
 # in the free .shr tail run at 0x8B180 (0x8B17F..0x8B530, ~940 zero bytes in the
 # rendered exe), laid out contiguously like the portrait caves.
-VILLAGE_MASK_CAVE_FILE = 0x8B180
-VILLAGE_MASK_CAVE_VA = IMAGE_BASE + SHR_RVA + (VILLAGE_MASK_CAVE_FILE - SHR_FILE_OFFSET)
+VILLAGE_MASK_CAVE_FILE = MASK_CODE_FILE_BASE + 0x000   # .vv1mc, 0x400 reserved
+VILLAGE_MASK_CAVE_VA = mask_code_va(VILLAGE_MASK_CAVE_FILE)
 # Vertical lift (screen px, subtracted from the head's own draw y) that seats the
 # mask atlas cell onto the head in the village. Tuned from a screenshot like the
 # Details DY; 0 = draw at the head's exact y to start.
@@ -422,37 +428,29 @@ VILLAGE_MASK_LIFT = 58   # on-head lift (subtracted from head arg3)
 # 344-byte mask cave that already overflows. Only ~6 bytes of glue land in the
 # hot tick hook (a jmp/call into here). pushad/popad inside keeps every native
 # register intact across LoadLibrary/GetProcAddress/call.
-MASK_RESTORE_STUB_FILE_OFFSET = 0x8BE32  # 78-byte free gap 0x8BE32..0x8BE80
-MASK_RESTORE_STUB_VA = IMAGE_BASE + SHR_RVA + (
-    MASK_RESTORE_STUB_FILE_OFFSET - SHR_FILE_OFFSET
-)
+MASK_RESTORE_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x6C0  # .vv1mc, 0x60 reserved
+MASK_RESTORE_STUB_VA = mask_code_va(MASK_RESTORE_STUB_FILE_OFFSET)
 # = 0x48CDC0 + 0x1E0 = 0x48CFA0, which stays below .shr's base 0x48D000 (the
 # .data VirtualSize is extended to cover it, but NOT up to 0x48D000 -- see the
 # 0x248 patch: reaching the next section's base access-violates on launch).
 
-MASK_OVERLAY_FILE_OFFSET = 0x8BEA8
-MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
-    MASK_OVERLAY_FILE_OFFSET - SHR_FILE_OFFSET
-)
+MASK_OVERLAY_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x400  # .vv1mc, 0x180 reserved
+MASK_OVERLAY_VA = mask_code_va(MASK_OVERLAY_FILE_OFFSET)
 # The draw hook grew when it moved from reading fat 12-byte stash entries to
 # recomputing each masked villager's screen position from a 1-byte record index
 # (the fix for the whole-village distribution + Malwarebytes constraints -- see
 # MASK_IDX_LIST_VA).  Stash (117) + draw (245) + frame-cache (31) = 393 bytes no
 # longer fits the 343-byte 0x8BEA8 cave, so the draw hook alone is relocated to
 # a separate confirmed-zero .shr gap; stash + frame-cache still share 0x8BEA8.
-MASK_DRAW_RELOC_FILE_OFFSET = 0x8B080  # free .shr gap (0x8B07E..0x8B180), holds the draw hook
-MASK_DRAW_RELOC_VA = IMAGE_BASE + SHR_RVA + (
-    MASK_DRAW_RELOC_FILE_OFFSET - SHR_FILE_OFFSET
-)
+MASK_DRAW_RELOC_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x580  # .vv1mc, 0x40 reserved
+MASK_DRAW_RELOC_VA = mask_code_va(MASK_DRAW_RELOC_FILE_OFFSET)
 # The village mask THIRD hook (alternate child render path 0x4093c0 -> 0x408740)
 # does NOT fit in the sequential VILLAGE_MASK_CAVE region (that ends at the
 # CURE_ENTRY cave 0x8B530). It lives in the tail of the draw-hook gap instead:
 # the draw-hook stub above is only ~20 bytes, so 0x8B0A0..0x8B180 (224 bytes) is
 # free and confirmed-zero right after it.
-THIRD_HOOK_FILE_OFFSET = 0x8B0A0
-THIRD_HOOK_VA = IMAGE_BASE + SHR_RVA + (
-    THIRD_HOOK_FILE_OFFSET - SHR_FILE_OFFSET
-)
+THIRD_HOOK_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x5C0  # .vv1mc, 0x100 reserved
+THIRD_HOOK_VA = mask_code_va(THIRD_HOOK_FILE_OFFSET)
 # Details-screen portrait ("bighead") mask overlay: the Details portrait renders
 # through sub_437340, whose head draw at 0x43741B is the shared scaled draw
 # (0x409410). This tiny cave replaces that call: it does the original head draw,
@@ -460,10 +458,8 @@ THIRD_HOOK_VA = IMAGE_BASE + SHR_RVA + (
 # draw with a mask sprite built through the engine's own constructor, so the mask
 # scales to the age-scaled portrait for free). The DLL fn ptr is cached in .data
 # (PORTRAIT_DLL_FN_VA) so resolution happens once, not every frame.
-PORTRAIT_MASK_CAVE_FILE_OFFSET = 0x8BF3C  # free .shr tail (0x8BF3C..0x8C000, 196 bytes)
-PORTRAIT_MASK_CAVE_VA = IMAGE_BASE + SHR_RVA + (
-    PORTRAIT_MASK_CAVE_FILE_OFFSET - SHR_FILE_OFFSET
-)
+PORTRAIT_MASK_CAVE_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x720  # .vv1mc, 0x100 reserved (ends 0x820 < 0x1000)
+PORTRAIT_MASK_CAVE_VA = mask_code_va(PORTRAIT_MASK_CAVE_FILE_OFFSET)
 PORTRAIT_HEAD_DRAW_SPLICE_FILE = 0x3741B  # 'call 0x409410' (the head draw) in sub_437340
 PORTRAIT_HEAD_DRAW_RESUME_VA = 0x437420   # instruction right after that call
 PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite draw
@@ -1420,11 +1416,15 @@ def main() -> None:
     patches: list[dict[str, str]] = []
 
     def patch(offset: int, before: bytes, after: bytes, purpose: str) -> None:
-        actual = original[offset : offset + len(before)]
-        if actual != before:
-            raise RuntimeError(
-                f"guard mismatch at {offset:#x}: expected {before.hex()}, got {actual.hex()}"
-            )
+        # Offsets at/beyond the stock file size land in the appended mask sections
+        # (.vv1mc/.vv1md), which are zero-filled at build time -- the stock file has
+        # no bytes there to guard against, so the guard applies only to in-place edits.
+        if offset < len(original):
+            actual = original[offset : offset + len(before)]
+            if actual != before:
+                raise RuntimeError(
+                    f"guard mismatch at {offset:#x}: expected {before.hex()}, got {actual.hex()}"
+                )
         if len(before) != len(after):
             raise RuntimeError(f"length mismatch at {offset:#x}")
         patches.append(
@@ -2964,8 +2964,8 @@ def main() -> None:
             # equivalent: (12,48)*adultScale. Shifts only the mask; it still tracks the
             # head's live x/y (that's the head's own draw position), just seated on the
             # face. Magnitude dialed to the adult on-screen scale.
-            sub dword ptr [esp + 4], 11           # arg2=x: left 11 (measured head/mask face-x delta, VV2-verified anchors, offscreen-checked)
-            sub dword ptr [esp + 8], 41           # arg3=y: up 41 (mask face-y 57 - head face-y ~16 in-cell; adults fixed full scale so fixed lift is exact). Per-color Y is baked into the atlas, so one constant serves all colors.
+            sub dword ptr [esp + 4], 12           # arg2=x: left 12 (= child scaled-lift dx at scale 1.0; owner-confirmed gold standard)
+            sub dword ptr [esp + 8], 48           # arg3=y: up 48 (= child scaled-lift at scale 1.0; owner in-game confirmed -- adults draw slightly larger than a full child so the raw cell delta *adultScale lands here). Per-color Y baked into the atlas, so one constant serves all colors.
             # Frame selection differs by DRAW FN behaviour, not by thunk:
             #  * 0x408840 (adult) idiv-DECODES a packed frame into row,col, so we
             #    re-PACK: arg4 = maskrow*mask_cols(8) + facing. (Adult atlas is
@@ -3031,9 +3031,9 @@ def main() -> None:
         child_entry_va,
     )
     entry_blob = adult_entry + child_entry
-    assert THIRD_HOOK_FILE_OFFSET + len(entry_blob) <= 0x8B180, (
-        f"mask entry stubs ({len(entry_blob)} bytes) overflow the draw-hook gap "
-        f"(0x{THIRD_HOOK_FILE_OFFSET:X}..0x8B180 = {0x8B180 - THIRD_HOOK_FILE_OFFSET} bytes)"
+    assert THIRD_HOOK_FILE_OFFSET + len(entry_blob) <= MASK_RESTORE_STUB_FILE_OFFSET, (
+        f"mask entry stubs ({len(entry_blob)} bytes) overflow their .vv1mc slot "
+        f"(0x{THIRD_HOOK_FILE_OFFSET:X}..0x{MASK_RESTORE_STUB_FILE_OFFSET:X})"
     )
     patch(
         THIRD_HOOK_FILE_OFFSET, b"\0" * len(entry_blob), entry_blob,
@@ -3050,9 +3050,9 @@ def main() -> None:
         "splice the alternate child/swim scaled-draw thunk 0x4093c0 into its mask entry stub (-> shared 5-arg body, draw fn 0x408740)",
     )
 
-    assert _vfile <= CURE_ENTRY_FILE_OFFSET, (
-        f"village mask caves (0x8B180 run) overflow into the CURE_ENTRY cave "
-        f"at 0x{CURE_ENTRY_FILE_OFFSET:X}: end={_vfile:#x}"
+    assert _vfile <= MASK_OVERLAY_FILE_OFFSET, (
+        f"village mask caves overflow their .vv1mc slot (end={_vfile:#x} > "
+        f"MASK_OVERLAY 0x{MASK_OVERLAY_FILE_OFFSET:X})"
     )
 
     mask_detour_code = assemble(
@@ -3250,10 +3250,6 @@ def main() -> None:
     )
 
     rendered = bytearray(original)
-    for item in patches:
-        offset = int(item["offset"], 16)
-        payload = bytes.fromhex(item["after"])
-        rendered[offset : offset + len(payload)] = payload
 
     # ---- Append dedicated PE sections for the Heathen-mask feature -------------
     # Owner directive: mask code/data must NOT live in shared caves (the .shr
@@ -3299,6 +3295,13 @@ def main() -> None:
     _append_section(b".vv1md", MASK_DATA_SECTION_VA, 0xC0000040)  # R/W, INIT DATA
     _st.pack_into("<H", rendered, _numsec_off, _numsec)
     _st.pack_into("<I", rendered, _sizeofimage_off, _sizeofimage)
+
+    # Apply all patches AFTER the append so mask-code patches (offsets in the
+    # zero-filled .vv1mc raw range) land in the new section, not past EOF.
+    for item in patches:
+        offset = int(item["offset"], 16)
+        payload = bytes.fromhex(item["after"])
+        rendered[offset : offset + len(payload)] = payload
 
     OUT_EXE.write_bytes(rendered)
     rendered_json = json.dumps(patches, indent=2) + "\n"

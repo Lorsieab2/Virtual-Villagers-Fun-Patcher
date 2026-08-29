@@ -152,153 +152,153 @@
       "purpose": "Details Grant Running: when all 4 Like slots are full, clear any Running Dislike for free (OFFICIAL spreadsheet edge case) and report whether one was actually cleared; tail-jumped into from DETAIL_PREFLIGHT_VA's own exhausted Like-slot scan"
     },
     {
-      "offset": "0x8BE32",
+      "offset": "0x8E6C0",
       "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "C605A8114900016068CC5D4800FF151070450085C0741268E75D480050FF15D470450085C07402FFD061C3",
       "purpose": "one-shot startup mask-restore stub (in a free .shr gap): fires the DLL's Vv1MaskRestore once to repopulate the .data mask table from the sidecar, so masks appear on load without opening Change Appearance"
     },
     {
-      "offset": "0x8BEA8",
+      "offset": "0x8E400",
       "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "0F8520AAFAFF8935981049008B8CBEDCDB030081F900010000735589CAD1EA0FB69200104900F6C1017405C1EA04EB0383E20F85D2743983FA057734538B1D9C10490081FB000100007324888BA8104900FF059C1049008B9E10E003008B4B08890DA01049008B4B0C890DA41049005BE9A198FAFF803DA8114900007505E807FFFFFF8B4E30890D941049005189F1E906B2F7FF",
+      "after": "0F85C884FAFF8935981049008B8CBEDCDB030081F900010000735589CAD1EA0FB69200104900F6C1017405C1EA04EB0383E20F85D2743983FA057734538B1D9C10490081FB000100007324888BA8104900FF059C1049008B9E10E003008B4B08890DA01049008B4B0C890DA41049005BE94973FAFF803DA8114900007505E83D0200008B4E30890D941049005189F1E9AE8CF7FF",
       "purpose": "cosmetic head-mask overlay: the stash-only occupied-check hook and the per-frame destination-surface cache hook (the draw hook itself is relocated -- see below) -- lazy-IMG_Load's a mask PNG once per colour (cached in .data forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over. All writable state (surface cache, pending-draw slot, dest-surface cache, villager-array base, and the 128-byte mask table) lives in .data, NOT in this executable .shr blob, so nothing writes into an executable page at runtime (W^X). Never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field"
     },
     {
-      "offset": "0x8B080",
+      "offset": "0x8E580",
       "before": "0000000000000000000000000000000000000000",
-      "after": "8B4E086A00C7059C10490000000000E97470F9FF",
+      "after": "8B4E086A00C7059C10490000000000E9743BF9FF",
       "purpose": "cosmetic head-mask overlay draw hook, relocated to its own confirmed-zero .shr gap: it recomputes each masked villager's screen position, facing frame and colour from the 1-byte record index the stash hook left this frame plus the saved village scroll, then blits the matching mask cell; too big to sit in the 0x8BEA8 cave beside the stash and frame-cache hooks"
     },
     {
-      "offset": "0x8BF3C",
+      "offset": "0x8E720",
       "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "A1AC11490085C0752468CC5D4800FF151070450085C0741F68C55E480050FF15D470450085C0740FA3AC114900FF742408FF742408FFD0C20800",
       "purpose": "Details-screen portrait mask helper: resolves Vv1DrawPortraitMask once (cached in .data) and calls it (gameobj, record); shared by all four head-draw capture caves."
     },
     {
-      "offset": "0x8BF76",
+      "offset": "0x8E75A",
       "before": "0000000000000000000000000000000000000000000000000000",
-      "after": "8B442414A3B0114900E88CB4F7FF5756E8B1FFFFFFE99094FAFF",
+      "after": "8B442414A3B0114900E8A88CF7FF5756E8B1FFFFFFE9AC6CFAFF",
       "purpose": "Details-screen portrait mask capture cave for the head draw at 0x43741b: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at 0x437420."
     },
     {
       "offset": "0x3741B",
       "before": "E8F01FFDFF",
-      "after": "E9566B0500",
+      "after": "E93A930500",
       "purpose": "splice sub_437340 portrait head-draw call at 0x43741b into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)"
     },
     {
-      "offset": "0x8BF90",
+      "offset": "0x8E774",
       "before": "0000000000000000000000000000000000000000000000000000",
-      "after": "8B442414A3B0114900E872B4F7FF5756E897FFFFFFE9FF94FAFF",
+      "after": "8B442414A3B0114900E88E8CF7FF5756E897FFFFFFE91B6DFAFF",
       "purpose": "Details-screen portrait mask capture cave for the head draw at 0x4374a4: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at 0x4374a9."
     },
     {
       "offset": "0x374A4",
       "before": "E8671FFDFF",
-      "after": "E9E76A0500",
+      "after": "E9CB920500",
       "purpose": "splice sub_437340 portrait head-draw call at 0x4374a4 into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)"
     },
     {
-      "offset": "0x8BFAA",
+      "offset": "0x8E78E",
       "before": "0000000000000000000000000000000000000000000000000000",
-      "after": "8B442414A3B0114900E858B4F7FF5756E87DFFFFFFE94495FAFF",
+      "after": "8B442414A3B0114900E8748CF7FF5756E87DFFFFFFE9606DFAFF",
       "purpose": "Details-screen portrait mask capture cave for the head draw at 0x437503: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at 0x437508."
     },
     {
       "offset": "0x37503",
       "before": "E8081FFDFF",
-      "after": "E9A26A0500",
+      "after": "E986920500",
       "purpose": "splice sub_437340 portrait head-draw call at 0x437503 into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)"
     },
     {
-      "offset": "0x8BFC4",
+      "offset": "0x8E7A8",
       "before": "0000000000000000000000000000000000000000000000000000",
-      "after": "8B442414A3B0114900E83EB4F7FF5756E863FFFFFFE97D95FAFF",
+      "after": "8B442414A3B0114900E85A8CF7FF5756E863FFFFFFE9996DFAFF",
       "purpose": "Details-screen portrait mask capture cave for the head draw at 0x437556: carries the head's scale in ebx across the engine draw, then calls the shared helper; resumes at 0x43755b."
     },
     {
       "offset": "0x37556",
       "before": "E8B51EFDFF",
-      "after": "E9696A0500",
+      "after": "E94D920500",
       "purpose": "splice sub_437340 portrait head-draw call at 0x437556 into its capture cave (one of the four age x atlas-flag quadrants; earlier builds spliced only 0x43741B)"
     },
     {
-      "offset": "0x8B180",
+      "offset": "0x8E000",
       "before": "0000000000000000000000000000000000",
-      "after": "8B84BEDCDB0300A3B4114900E90EA6FAFF",
+      "after": "8B84BEDCDB0300A3B4114900E98E77FAFF",
       "purpose": "Village all-pose mask identity stash (loop 1): capture the current villager record index at sub_437790's per-villager top for the shared-draw hook"
     },
     {
       "offset": "0x37798",
       "before": "8B84BEDCDB0300",
-      "after": "E9E35905009090",
+      "after": "E9638805009090",
       "purpose": "splice sub_437790's per-villager top into the village-mask identity stash (loop 1)"
     },
     {
-      "offset": "0x8B191",
+      "offset": "0x8E011",
       "before": "00000000000000000000000000000000000000",
-      "after": "8B4500A3B411490069C0D8030000E965B7FAFF",
+      "after": "8B4500A3B411490069C0D8030000E9E588FAFF",
       "purpose": "Village all-pose mask identity stash (loop 2): capture the current villager record index at the second render loop's per-villager top"
     },
     {
       "offset": "0x38900",
       "before": "8B450069C0D8030000",
-      "after": "E98C48050090909090",
+      "after": "E90C77050090909090",
       "purpose": "splice the second village render loop's per-villager top into the village-mask identity stash (loop 2)"
     },
     {
-      "offset": "0x8B1A4",
+      "offset": "0x8E024",
       "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "5150528B54240C81FA907743000F82E100000081FAD09243000F87D50000008B15B411490081FA000100000F83C3000000A19810490085C00F84B60000008B5424103B90F8DF0300740C3B90F4DF03000F859E0000008B15B41149005051A19810490069CAD803000001C181B948030000180100005958737B89D0D1E80FB68000104900F6C2017405C1E804EB0383E00F85C0745F83F805775A48A3C8114900A1B811490083F801744A85C07550A1BC11490085C0752468CC5D4800FF151070450085C0742268D95E480050FF15D470450085C07412A3BC114900FFD085C07407A3B8114900EB16C705B811490001000000EB005A58598B09E94EB8F7FF8B4C24088B09890DC01149008B442404A3C411490083C40CFF74241CFF74241CFF74241CFF74241CFF74241CFF74241CFF74241C8B0DC0114900A1C4114900E80AB8F7FFFF74241CFF74241CFF74241CFF74241CFF74241CFF74241CFF74241CA1B8114900890424A1C81149008944240C8B4424146BC00FC1F805294424088B442414C1F803294424048B0DC0114900A1C4114900E8B4B7F7FFC21C00",
+      "after": "5150528B54240C81FA907743000F82E100000081FAD09243000F87D50000008B15B411490081FA000100000F83C3000000A19810490085C00F84B60000008B5424103B90F8DF0300740C3B90F4DF03000F859E0000008B15B41149005051A19810490069CAD803000001C181B948030000180100005958737B89D0D1E80FB68000104900F6C2017405C1E804EB0383E00F85C0745F83F805775A48A3C8114900A1B811490083F801744A85C07550A1BC11490085C0752468CC5D4800FF151070450085C0742268D95E480050FF15D470450085C07412A3BC114900FFD085C07407A3B8114900EB16C705B811490001000000EB005A58598B09E9CE89F7FF8B4C24088B09890DC01149008B442404A3C411490083C40CFF74241CFF74241CFF74241CFF74241CFF74241CFF74241CFF74241C8B0DC0114900A1C4114900E88A89F7FFFF74241CFF74241CFF74241CFF74241CFF74241CFF74241CFF74241CA1B8114900890424A1C81149008944240C8B4424146BC00FC1F805294424088B442414C1F803294424048B0DC0114900A1C4114900E83489F7FFC21C00",
       "purpose": "Village all-pose mask Stage 2 hook (0x409410 thunk replacement): for a village head draw of a masked villager, draw the head then re-issue the mask atlas via the engine draw at the head's own x/scale/facing (y lifted) so the mask follows every pose; all other draws pass through unchanged (fail-open)"
     },
     {
       "offset": "0x9410",
       "before": "8B09E9D9F6",
-      "after": "E98F3D0800",
+      "after": "E90F6C0800",
       "purpose": "splice the shared scaled-draw thunk 0x409410 into the village all-pose mask hook"
     },
     {
-      "offset": "0x8B33F",
+      "offset": "0x8E1BF",
       "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "5150528B54240C81FA907743000F82D800000081FAD09243000F87CC00000081FA8F8043000F84C00000008B15B411490081FA000100000F83AE000000A19810490085C00F84A10000008B5424103B9008E0030074143B90F8DF0300740C3B90F4DF03000F85810000008B15B411490089D0D1E80FB68000104900F6C2017405C1E804EB0383E00F85C0745F83F805775A48A3C8114900A1B811490083F801744A85C07551A1BC11490085C0752468CC5D4800FF151070450085C0742268D95E480050FF15D470450085C07412A3BC114900FFD085C07407A3B8114900EB17C705B811490001000000EB005A58598B09FF25F01149008B4C24088B09890DC01149008B442404A3C411490083C40CFF742414FF742414FF742414FF742414FF7424148B0DC0114900A1C4114900FF15F0114900FF742414FF742414FF742414FF742414FF742414A1B8114900890424836C24040B836C2408298B0DF011490081F9408740007412A1C8114900C1E0030344240C8944240CEB09A1C81149008944240C8B0DC0114900A1C4114900FF15F0114900C21400",
+      "after": "5150528B54240C81FA907743000F82D800000081FAD09243000F87CC00000081FA8F8043000F84C00000008B15B411490081FA000100000F83AE000000A19810490085C00F84A10000008B5424103B9008E0030074143B90F8DF0300740C3B90F4DF03000F85810000008B15B411490089D0D1E80FB68000104900F6C2017405C1E804EB0383E00F85C0745F83F805775A48A3C8114900A1B811490083F801744A85C07551A1BC11490085C0752468CC5D4800FF151070450085C0742268D95E480050FF15D470450085C07412A3BC114900FFD085C07407A3B8114900EB17C705B811490001000000EB005A58598B09FF25F01149008B4C24088B09890DC01149008B442404A3C411490083C40CFF742414FF742414FF742414FF742414FF7424148B0DC0114900A1C4114900FF15F0114900FF742414FF742414FF742414FF742414FF742414A1B8114900890424836C24040C836C2408308B0DF011490081F9408740007412A1C8114900C1E0030344240C8944240CEB09A1C81149008944240C8B0DC0114900A1C4114900FF15F0114900C21400",
       "purpose": "Village all-pose mask SHARED 5-arg hook body (serves both the adult thunk 0x4093e0->0x408840 and the alternate child/swim thunk 0x4093c0->0x408740): adults (age>=0x118, atlas 0x3e008) and children in the alternate 5-arg pose (swim/sit, atlases 0x3dff8/f4/f0/ec) both render head-without-mask otherwise. Reissues the mask through the per-thunk original draw fn (VILLAGE_DRAWFN_VA) with arg1=mask sprite and arg4=maskrow*8+facing at the head's own x/y/scale."
     },
     {
-      "offset": "0x8B0A0",
+      "offset": "0x8E5C0",
       "before": "000000000000000000000000000000000000000000000000000000000000",
-      "after": "C705F011490040884000E990020000C705F011490040874000E981020000",
+      "after": "C705F011490040884000E9F0FBFFFFC705F011490040874000E9E1FBFFFF",
       "purpose": "Village all-pose mask per-thunk entry stubs (draw-hook gap tail 0x8B0A0): stub A stores the adult draw fn 0x408840, stub B the child-alt draw fn 0x408740, then both jmp the shared 5-arg mask body. Lets one body serve both thunks; the sequential village-cave region has no room for a second 346-byte copy."
     },
     {
       "offset": "0x93E0",
       "before": "8B09E959F4",
-      "after": "E9BB3C0800",
+      "after": "E9DB710800",
       "purpose": "splice the adult scaled-draw thunk 0x4093e0 into its mask entry stub (-> shared 5-arg body, draw fn 0x408840)"
     },
     {
       "offset": "0x93C0",
       "before": "8B09E979F3",
-      "after": "E9EA3C0800",
+      "after": "E90A720800",
       "purpose": "splice the alternate child/swim scaled-draw thunk 0x4093c0 into its mask entry stub (-> shared 5-arg body, draw fn 0x408740)"
     },
     {
       "offset": "0x377B8",
       "before": "0F8510110000",
-      "after": "E9EB66050090",
+      "after": "E9438C050090",
       "purpose": "splice the mask-overlay stash hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, neither is modified by this hook"
     },
     {
       "offset": "0x24103",
       "before": "8B4E086A00",
-      "after": "E9788F0600",
+      "after": "E978C40600",
       "purpose": "splice the mask-overlay draw hook into FUN_00423390 right after its own 'call sub_437790' returns. Reproduces the displaced 'mov ecx,[esi+8] / push 0' pair exactly before resuming the native call that follows; the draw itself now targets DEST_SURFACE_CACHE_VA (see MASK_THIRD_DETOUR below) rather than this function's own esi+0x30, which direct ReadProcessMemory inspection proved reads a stable but invalid surface here (0x0BAD0D60, w=904 h=0 pitch=0 pixels=0x5D9, 10/10 samples)"
     },
     {
       "offset": "0x913C",
       "before": "8B4E30518BCE",
-      "after": "E9DC4D080090",
+      "after": "E93473080090",
       "purpose": "splice into FUN_00409060 (the true main per-frame tick) immediately before its own call to FUN_00403830 (the function that does the real SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain) -- reproduces the displaced 'mov ecx,[esi+0x30] / push ecx / mov ecx,esi' trio exactly (native presentation is bit-for-bit unchanged) and additionally caches that same, definitively-correct destination-surface pointer into DEST_SURFACE_CACHE_VA for the mask draw hook (splice point 2) to consume"
     },
     {
