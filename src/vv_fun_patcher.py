@@ -693,18 +693,18 @@ VV5_TASK9_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "4252193D4BDE080EDA0BD6EAA56DA34C6E7CD8595AB42262FF0A659ABB36B026",
-    "map": "1D97A8775E555ABD6F0EF8243DC4666962A22DF85CF1AB2A93F267DCADB31749",
+    "manifest": "A2097897EA7A66A406B65F6E07C6A1544522B65211534AD9A6E959D2BA11ED0D",
+    "map": "E2A19C41047A85005BE8E55B4D1D6A7D067550C798EB573AA572ED3B1F90D234",
 }
-VV5_TASK9_DLL_SHA256 = "FBC26DA95A70AAE7716B7E687CB0C7102973EDC28DF0BCD43E8555F2834EB1B2"
+VV5_TASK9_DLL_SHA256 = "08C068D7F0E98BA1AE85AE0046709877B703B2A3EA3B9E1C76BC5CDAAFDDEC8C"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 VV5_TASK9_PAGE_SHA256 = {
     "collection_progression": "1783D690F2BA4743708265BF4DA15AA17C36672F826BBB13679163300AB44DAD",
     "immediate_fixed": "1783D690F2BA4743708265BF4DA15AA17C36672F826BBB13679163300AB44DAD",
-    "experimental_expanded_256": "1DA673F628F98044196506FC0E386ADE07AA1BB2EB1FC0CC15F69518E80FA874",
-    "experimental_expanded_256_progression": "1DA673F628F98044196506FC0E386ADE07AA1BB2EB1FC0CC15F69518E80FA874",
+    "experimental_expanded_256": "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457",
+    "experimental_expanded_256_progression": "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457",
 }
 VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "E08F9284B21B4855CCF94663C7C7054898DBFE73BB14DC06311B498A3B6779B3"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -728,9 +728,14 @@ EXPANDED_TIME_WARP_PATHS = {
     },
 }
 EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
-    "vv3_builder": "AE9E65F074C3B46A9279B9FE8DD6ED0DE70C83853BE1C94EF3AF39BB86F472C9",
-    "builder": "416341493853811F8294DF1818FCF53D06C1C7831998B48CD5C1E0EC70FC0FCB",
-    "task9_builder": "3EFF3350151B4EA63F1ECA272550BC2CE7D516CBB6850985053765ABA2ECC26F",
+    # VV3's generated Expanded-256 record is frozen archival evidence.  Its
+    # builder binding is the exact historical artifact binding recorded by the
+    # metadata-only refresh, not a claim about the source identity that produced
+    # the deeper frozen artifacts; the removed experimental patch modes prevent
+    # end-to-end regeneration in the current tree.
+    "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
+    "builder": "2DCA03D970C1D495478CB7E1EAFD7F4EF7AD6C02A0AB6579D324794542E73CBB",
+    "task9_builder": "A1A62BE077D898A404DA69F75CA4FD62845AF97D27C40AD68F91A180882275F8",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -739,8 +744,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
         "core": "5AA28CEAAFBC6F4278FF01C41F67E0394227C272123EAC9433BD6D011A4087CE",
     },
     "vv5": {
-        "manifest": "D9C0AA8E25C9547D7CC8675E19E5B3B041260788D176DD3C696716E913A8FAE0",
-        "map": "7C04F032FF53E296F844BB50016104572AE4ECC861585ABEEA255E1530170CBE",
+        "manifest": "5F3BEB760C566F586FACAAD31988FB453499E10F9661F828E9DD8ACE5C2881CF",
+        "map": "99EF6D5EE6DBAF36B59D0E939548900D9202A9AAAF156FE0B05DBB7F4951B5D7",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -2474,7 +2479,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 297472,
+        "size": 1753088,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -2549,6 +2554,27 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
                 raise PatcherError(
                     f"Certified {game_id.upper()} Expanded Time Warp {name} binding is malformed."
                 )
+            if (
+                game_id == "vv3"
+                and name == "builder"
+                and binding.get("source_text_sha256")
+                != EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256["vv3_builder"]
+            ):
+                raise PatcherError(
+                    "Certified VV3 Expanded Time Warp archival builder binding drifted."
+                )
+            # The VV3 Expanded-256 composition path was removed from the
+            # current patch-mode catalog.  Keep its manifest/map/core and
+            # companion identity as authenticated archival evidence instead
+            # of pretending that mutable current sources can reproduce the
+            # frozen output.  The independent static/atomic inputs remain
+            # live-checked because their bytes are still consumed by the
+            # current repair path.
+            if game_id == "vv3" and name not in {
+                "static_candidate",
+                "atomic_generator",
+            }:
+                continue
             try:
                 actual = source_text_sha256((ROOT / expected_path).read_bytes())
             except OSError as exc:
@@ -2576,6 +2602,12 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
                 f"Certified {game_id.upper()} Expanded Time Warp mode bytes diverged."
             )
         if game_id == "vv3":
+            archival_companion = {
+                "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+                "destination": "VVFP Origins Icons.dll",
+                "sha256": "DA624FAB76A1100A9EFDCB655C6341404AF60F87FF613DBDA861161317E97006",
+                "size": 1692672,
+            }
             try:
                 core_bytes = VV3_EXPANDED_TIME_WARP_CORE_PATH.read_bytes()
                 core_record = json.loads(core_bytes.decode("utf-8-sig"))
@@ -2588,7 +2620,8 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
                 != EXPANDED_TIME_WARP_ARTIFACT_SHA256["vv3"]["core"]
                 or core_record.get("source_bindings") != bindings
                 or artifact.get("core") != core_record
-                or record.get("companion_files") != [expected_companion]
+                or record.get("companion_files") != [archival_companion]
+                or artifact.get("companion") != archival_companion
                 or record.get("dependencies") not in (None, [])
                 or record.get("conflicts") != [
                     "vv3_enable_origins_exclusive_features_running_candidate",
@@ -2638,7 +2671,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
                 or record.get("companion_contract") != expected_companion
                 or len(first) != 4
                 or [item.get("offset") for item in first]
-                != ["0xF4846", "0xF48AB", "0xF5040", "0xFB09A"]
+                != ["0xF4846", "0xF48AB", "0xF5040", "0xFB0C9"]
                 or first[0].get("before") != "B800070000F70588D351"
                 or first[0].get("after") != "B8001E0000E93F000000"
                 or first[1].get("before") != "83FB030F82B3000000"

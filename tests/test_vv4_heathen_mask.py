@@ -610,6 +610,31 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
         self.assertIn("No occupied villagers matched", entry)
         self.assertIn("No tech points have been deducted", entry)
 
+    def test_for_all_dialog_and_messages_reuse_captured_game_owner(self) -> None:
+        entry = self.c.split(
+            "ShowVv4AppearanceForAll(void) {", 1
+        )[1].split("\n}", 1)[0]
+        owner_capture = "HWND owner = GetForegroundWindow();"
+        self.assertIn(owner_capture, entry)
+        self.assertLess(entry.index(owner_capture), entry.index("vv4_prep_fullscreen();"))
+        self.assertIn(
+            "DialogBoxParamA(module_instance, MAKEINTRESOURCEA(214), owner,",
+            entry,
+        )
+        self.assertNotIn("MessageBoxA(NULL", entry)
+        self.assertEqual(entry.count("MessageBoxA(owner"), 6)
+
+    def test_successful_cure_result_is_foreground_information_popup(self) -> None:
+        cure = self.c.split(
+            "ShowOriginsCureResult(", 1
+        )[1].split("/* ---- Complete / Reset All Collections", 1)[0]
+        self.assertIn(
+            'MessageBoxA(GetForegroundWindow(), text, "Origins Upgrades",\n'
+            "                MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);",
+            cure,
+        )
+        self.assertEqual(cure.count("MB_OK | MB_ICONINFORMATION | VV_MB_FRONT"), 2)
+
     def test_apply_preflights_actual_final_values_before_mutation(self) -> None:
         engine = self.c.split("static int vv4_apply_for_all(void)", 1)[1].split(
             "\n}", 1

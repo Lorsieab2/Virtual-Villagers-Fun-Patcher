@@ -288,6 +288,122 @@ class ManifestTests(unittest.TestCase):
         clear_dislikes = running_apply.index("running_remove_dislikes:")
         self.assertLess(store_like, clear_dislikes)
 
+    def test_vv2_cure_preflight_confirm_funds_and_apply_order(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        tech = source[
+            source.index("        menu_loop:") : source.index(
+                "    put(\n        detail_menu,"
+            )
+        ]
+        preflight = tech.index("call 0x{CURE_PREFLIGHT_VA:X}")
+        confirm = tech.index("        confirm_purchase:")
+        self.assertLess(preflight, confirm)
+        self.assertIn(
+            "push eax\n            push ebx\n            call 0x{RESULT_HELPER_VA:X}",
+            tech[:confirm],
+        )
+
+        cure = source[
+            source.index("    cure_code = assemble(") : source.index("    if len(cure_code)")
+        ]
+        final_preflight = cure.index("call 0x{CURE_PREFLIGHT_VA:X}")
+        funds = cure.index("cmp dword ptr [edi + 0x2EADC], 30000")
+        first_write = min(
+            cure.index("mov dword ptr [edx + 0x52C], 100"),
+            cure.index("mov dword ptr [edx + 0x53C], 0"),
+            cure.index("inc dword ptr [edi + 0x2E508]"),
+        )
+        deduction = cure.index("sub dword ptr [edi + 0x2EADC], 30000")
+        self.assertLess(final_preflight, funds)
+        self.assertLess(funds, first_write)
+        self.assertLess(first_write, deduction)
+        self.assertEqual(cure.count("sub dword ptr [edi + 0x2EADC], 30000"), 1)
+        self.assertIn("mov eax, 2\n            jmp cure_status_result", cure)
+        self.assertIn("push eax\n            push 5\n            call 0x{RESULT_HELPER_VA:X}", cure)
+
+        cure_preflight = source[
+            source.index("    cure_preflight_code = assemble(") : source.index(
+                "    detail_preflight_code = assemble("
+            )
+        ]
+        self.assertIn("mov eax, 1\n            ret", cure_preflight)
+        self.assertIn("mov eax, 3\n            ret", cure_preflight)
+        self.assertIn(
+            "active Cure-row dry-scan of all 256 records before confirmation",
+            source,
+        )
+
+    def test_vv2_purchase_confirmation_uses_comma_formatted_static_costs(self) -> None:
+        source = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("static const char *const vv2_tech_action_costs[]", source)
+        self.assertIn('"30,000"', source)
+        self.assertIn('"500,000"', source)
+        self.assertIn('"1,000,000"', source)
+        self.assertIn(
+            '"Do you want to buy %s for %s tech points?',
+            source,
+        )
+        self.assertNotIn(
+            '"Do you want to buy %s for %u tech points?',
+            source,
+        )
+
+    def test_vv2_owned_doublers_remove_without_purchase_prompt(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        tech = source[
+            source.index("        menu_loop:") : source.index(
+                "    put(\n        detail_menu,"
+            )
+        ]
+        ownership = tech[: tech.index("        cure_preflight_before_confirm:")]
+        self.assertIn("mov edi, dword ptr [esi + 0x0C]", ownership)
+        self.assertIn(
+            "test dword ptr [edi + 0x2EAE8], 1\n            jz cure_preflight_before_confirm",
+            ownership,
+        )
+        self.assertIn(
+            "test dword ptr [edi + 0x2EAE8], 2\n            jz cure_preflight_before_confirm",
+            ownership,
+        )
+        self.assertIn("jmp tech_purchase_ready", ownership)
+        self.assertLess(
+            ownership.index("jmp tech_purchase_ready"),
+            tech.index("        confirm_purchase:"),
+        )
+
+        native = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(
+            encoding="utf-8"
+        )
+        removed = native[native.index("} else if (status == VV2_RES_REMOVED)") :]
+        self.assertIn("%s was removed. No refund was issued.", removed)
+
+    def test_vv2_warning_and_cure_nochange_use_canonical_origins_wording(self) -> None:
+        native = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(
+            encoding="utf-8"
+        )
+        warning = native[native.index("Warning: This will change") :]
+        warning = warning[: warning.index("!= IDOK")]
+        self.assertIn('"Villager Upgrades"', warning)
+        self.assertNotIn('"Change Appearance"', warning)
+
+        no_change = native[
+            native.index("} else if (status == VV2_RES_NO_CHANGE)") : native.index(
+                "} else if (status == VV2_RES_INSUFFICIENT)"
+            )
+        ]
+        self.assertIn("case VV2_ACT_CURE:", no_change)
+        self.assertIn(
+            "Everyone is at full health already. No villagers are sick.",
+            no_change,
+        )
+        self.assertIn("No tech points have been deducted.", no_change)
+
     def test_vv2_detail_actions_recheck_and_noop_before_charge(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
@@ -353,7 +469,7 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(after[0], 0xE9)
         self.assertIn("companion-DLL exports", rows[0x9AE40]["purpose"])
         self.assertIn("GateVV2Barrel", rows[0x9AF58]["purpose"])
-        self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
+        self.assertIn("dry-scan of all 256", rows[0x9A300]["purpose"])
         self.assertIn("Detail-row purchase would change", rows[0x9A380]["purpose"])
         self.assertIn("Task9-style OK/Cancel", rows[0x9A204]["purpose"])
         self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])

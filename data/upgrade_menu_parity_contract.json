@@ -1,0 +1,176 @@
+{
+  "id": "upgrade_menu_parity",
+  "version": "1.0.0",
+  "status": "current_production_contract",
+  "purpose": "Define the visible Tech and Villager Details menu shell, prompts, and architecture boundaries for the five desktop Virtual Villagers routes.",
+  "source_boundary": {
+    "shell_reference": "Stock VV5 is the observable shell and prompt reference: names, row order, captions, Cancel/ESC affordances, and owner-safe modal behavior are the visual target.",
+    "transaction_order_reference": "Stock VV5 is not a universal transaction-order reference. Commit strategies remain action-specific and must follow each action's proven native ABI, revalidation, mutation, readback, and charge contract.",
+    "historical_evidence": "This contract describes the current production shell only; it does not enable, rewrite, or reinterpret historical STOP, candidate, forensic, or player-pending evidence contracts.",
+    "runtime_boundary": "Static source/resource agreement is not player/runtime proof. A player must still confirm the live menu, prompt, ownership, and action behavior on each exact build."
+  },
+  "dialogs": {
+    "captions": {
+      "tech": "Origins Upgrades",
+      "details": "Villager Upgrades"
+    },
+    "cancel": {
+      "text": "Cancel",
+      "control_id": 2,
+      "result": "no_action"
+    },
+    "escape_hint": {
+      "text": "Press ESC to exit this menu.",
+      "required_once_per_active_dialog": true
+    },
+    "purchase_prompt": {
+      "format": "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.",
+      "accepted_result": "IDOK",
+      "all_other_results": "cancel_no_mutation_no_charge"
+    },
+    "remove_action": {
+      "button_text": "Remove",
+      "confirmation": "none",
+      "purchase_prompt": "not_used",
+      "result_after_confirm": "%s was removed. No refund was issued.",
+      "cancel_policy": "no_mutation_no_charge"
+    },
+    "remove_result": {
+      "format": "%s was removed. No refund was issued.",
+      "grammar": "name_first_then_was_removed_then_no_refund_was_issued"
+    },
+    "genetics_warnings": {
+      "per_villager": {
+        "format": "Warning: This will change the villager's head genetics.",
+        "scope": "selected_villager_head_change",
+        "accepted_result": "IDOK",
+        "cancel_policy": "no_write_no_charge"
+      },
+      "village_wide": {
+        "format": "Warning: This will change the head genetics of every villager of the selected sex, affecting their descendants.\r\n\r\nProceed?",
+        "scope": "selected_sex_head_change",
+        "accepted_result": "IDOK",
+        "cancel_policy": "no_write_no_charge"
+      }
+    }
+  },
+  "actions": {
+    "tech": [
+      {"row": 0, "control_id": 1000, "action_id": "time_warp", "label": "Time Warp - Advances 3 Villager Years", "cost": 50000, "cost_text": "50,000 tech points"},
+      {"row": 1, "control_id": 1001, "action_id": "island_event", "label": "Island Event", "cost": 30000, "cost_text": "30,000 tech points"},
+      {"row": 2, "control_id": 1002, "action_id": "barrel_of_babies", "label": "Barrel of Babies", "cost": 75000, "cost_text": "75,000 tech points"},
+      {"row": 3, "control_id": 1003, "action_id": "tech_point_doubler", "label": "Tech Point Doubler", "cost": 500000, "cost_text": "500,000 tech points"},
+      {"row": 4, "control_id": 1004, "action_id": "food_point_doubler", "label": "Food Point Doubler", "cost": 500000, "cost_text": "500,000 tech points"},
+      {"row": 5, "control_id": 1005, "action_id": "full_heal_cure_all", "label": "Full Heal / Cure All", "cost": 30000, "cost_text": "30,000 tech points"},
+      {"row": 6, "control_id": 1006, "action_id": "grant_running_all", "label": "Grant Running to All Villagers", "cost": 1000000, "cost_text": "1,000,000 tech points"},
+      {"row": 7, "control_id": 1007, "action_id": "grant_full_mastery_all", "label": "Grant Full Mastery to All Villagers", "cost": 1000000, "cost_text": "1,000,000 tech points"},
+      {"row": 8, "control_id": 1008, "action_id": "set_age_18_all", "label": "All Villagers are Exactly 18", "cost": 1000000, "cost_text": "1,000,000 tech points"},
+      {"row": 9, "control_id": 1009, "action_id": "complete_all_collections", "label": "Complete All Collections", "cost": 1000000, "cost_text": "1,000,000 tech points"},
+      {"row": 10, "control_id": 1010, "action_id": "reset_all_collections", "label": "Reset All Collections", "cost": 1000000, "cost_text": "1,000,000 tech points"},
+      {"row": 11, "control_id": 1011, "action_id": "equal_division_parenting", "label": "Equal Division of Labor (Includes Parenting)", "cost": 1000000, "cost_text": "1,000,000 tech points"},
+      {"row": 12, "control_id": 1012, "action_id": "equal_division_no_parenting", "label": "Equal Division of Labor (No Parenting)", "cost": 1000000, "cost_text": "1,000,000 tech points"},
+      {"row": 13, "control_id": 1013, "action_id": "change_appearance_all", "label": "Change Appearance for All", "cost": 450000, "cost_text": "450,000 tech points"}
+    ],
+    "details": [
+      {"row": 0, "control_id": 1000, "action_id": "grant_youth", "label": "Grant Youth (-35 years, min age 5)", "cost": 50000, "cost_text": "50,000 tech points"},
+      {"row": 1, "control_id": 1001, "action_id": "grant_full_mastery", "label": "Grant Full Mastery", "cost": 100000, "cost_text": "100,000 tech points"},
+      {"row": 2, "control_id": 1002, "action_id": "grant_running", "label": "Grant Running", "cost": 40000, "cost_text": "40,000 tech points"},
+      {"row": 3, "control_id": 1003, "action_id": "set_age_18", "label": "Set Age to 18", "cost": 50000, "cost_text": "50,000 tech points"},
+      {"row": 4, "control_id": 1004, "action_id": "change_appearance", "label": "Change Appearance", "cost": 5000, "cost_text": "5,000 tech points"}
+    ]
+  },
+  "games": {
+    "vv1": {
+      "resource": "native/vv1_origins_icons/vv1_origins_icons.rc",
+      "native_source": "native/vv1_origins_icons/vv1_origins_icons.c",
+      "active_dialogs": {"tech": 201, "details": 202},
+      "native_dialog_symbols": {"tech": "IDD_ORIGINS_TECH", "details": "IDD_ORIGINS_VILLAGER"},
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
+      "control_id_overrides": {"equal_division_parenting": 1009, "equal_division_no_parenting": 1010, "change_appearance_all": 1011},
+      "collections": "omitted_not_applicable",
+      "owner_strategy": "vv1_prep_fullscreen_then_GetForegroundWindow_modal_owner",
+      "visibility_strategy": {
+        "tech": "state_gated_rows; owned doubler rows use Remove without a purchase prompt; unavailable rows are disabled; no Collections rows are part of VV1",
+        "details": "Done is the terminal control; satisfied rows are disabled and unavailable rows remain disabled"
+      }
+    },
+    "vv2": {
+      "resource": "native/vv2_origins_icons/vv2_origins_icons.rc",
+      "native_source": "native/vv2_origins_icons/vv2_origins_icons.c",
+      "active_dialogs": {"tech": 211, "details": 212},
+      "native_dialog_symbols": {"tech": "IDD_VV2_TECH", "details": "IDD_VV2_VILLAGER"},
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
+      "collections": "included",
+      "owner_strategy": "vv2_prep_fullscreen_then_GetForegroundWindow_modal_owner",
+      "visibility_strategy": {
+        "tech": "all active rows are visible and clickable; checkmarks are informational; owned rows use explicit Remove without a purchase prompt",
+        "details": "all five rows remain visible and clickable; checkmarks are informational and no-op outcomes remain action-specific"
+      }
+    },
+    "vv3": {
+      "resource": "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.rc",
+      "native_source": "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
+      "active_dialogs": {"tech": 201, "details": 202},
+      "native_dialog_symbols": {"tech": "IDD_ORIGINS_TECH", "details": "IDD_ORIGINS_VILLAGER"},
+      "dormant_dialogs": {"tech_legacy_full_mastery_only": 203, "public_route": false},
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
+      "collections": "included",
+      "owner_strategy": "begin_modal_over_game_then_GetForegroundWindow_modal_owner",
+      "visibility_strategy": {
+        "tech": "public combined route marks STATE_VILLAGE_WIDE and selects dialog 201; state flags gate row visibility; owned rows use explicit Remove without a purchase prompt; dialog 203 remains dormant historical routing",
+        "details": "satisfied rows are disabled; unavailable rows remain disabled"
+      }
+    },
+    "vv4": {
+      "resource": "native/vv4_origins_icons/vv4_origins_icons.rc",
+      "native_source": "native/vv4_origins_icons/vv4_origins_icons.c",
+      "active_dialogs": {"tech": 201, "details": 202},
+      "native_dialog_symbols": {"tech": "IDD_ORIGINS_TECH", "details": "IDD_ORIGINS_VILLAGER"},
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
+      "collections": "included",
+      "owner_strategy": "vv4_capture_GetForegroundWindow_then_prep_fullscreen_modal_owner",
+      "visibility_strategy": {
+        "tech": "state-gated rows; village-wide state exposes all 14 Tech rows; owned rows use explicit Remove without a purchase prompt and unavailable rows are disabled",
+        "details": "all five rows remain visible and clickable; checkmarks are informational and no-op outcomes remain action-specific"
+      }
+    },
+    "vv5": {
+      "resource": "native/vv5_task9_origins/vv5_task9_origins.rc",
+      "native_source": "native/vv5_task9_origins/vv5_task9_origins.c",
+      "active_dialogs": {"tech": 201, "details": 202},
+      "native_dialog_symbols": {"tech": "IDD_ORIGINS_TECH", "details": "IDD_ORIGINS_VILLAGER"},
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
+      "collections": "included",
+      "owner_strategy": "BeginOriginsOwner_capture_then_GetOriginsOwner_same_process_HWND; EndOriginsOwner_after_modal_lifecycle",
+      "visibility_strategy": {
+        "tech": "stock exposes all 14 Tech rows; owned rows use explicit Remove without a purchase prompt; unavailable rows are disabled",
+        "details": "stock exposes all 5 Details rows; satisfied rows are disabled and unavailable rows are disabled"
+      },
+      "expanded_limited_capability": {
+        "state_symbol": "STATE_LIMITED_CAPABILITY",
+        "state_value": "0x400000",
+        "policy": "unavailable_disabled",
+        "must_not_be": "enabled_no_op",
+        "tech_first_unsupported_row": 6,
+        "tech_rows_unavailable": [6, 7, 8, 9, 10, 11, 12, 13],
+        "details_first_unsupported_row": 4,
+        "details_rows_unavailable": [4],
+        "button_text": "Unavailable",
+        "button_enabled": false
+      }
+    }
+  },
+  "runtime_checklist": [
+    {"id": "open_windowed", "status": "needs_player_confirmation", "check": "Open Tech and Villager Details menus on each exact build in windowed mode; verify the active dialog ID, caption, row order, labels, and costs."},
+    {"id": "open_fullscreen", "status": "needs_player_confirmation", "check": "Repeat in fullscreen; verify the game stays visible behind the modal and the documented owner strategy keeps prompts above the game."},
+    {"id": "cancel_escape_close", "status": "needs_player_confirmation", "check": "Press Cancel, ESC, and the window close control in both active dialogs; verify no action, mutation, or charge occurs."},
+    {"id": "prompt_warnings", "status": "needs_player_confirmation", "check": "Buy one representative row, an owned doubler removal, and each genetics path; verify exact OK/Cancel wording, no-refund grammar, and warning cancellation behavior."},
+    {"id": "expanded_capability", "status": "needs_player_confirmation", "check": "On VV5 Expanded, verify rows beyond the native binding boundary visibly say Unavailable and are disabled, never enabled no-op actions."},
+    {"id": "save_reload", "status": "needs_player_confirmation", "check": "After any confirmed action, save, reload, and verify the action-specific native persistence and charge result; this checklist does not claim success from static evidence."}
+  ]
+}

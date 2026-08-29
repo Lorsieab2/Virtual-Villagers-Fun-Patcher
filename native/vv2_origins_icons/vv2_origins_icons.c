@@ -557,29 +557,24 @@ static const char *vv2_result_title(int action) {
     return action >= 100 ? "Villager Upgrades" : "Origins Upgrades";
 }
 
-static unsigned int vv2_action_price(int action) {
-    switch (action) {
-    case VV2_ACT_TIME_WARP: return 50000;
-    case VV2_ACT_ISLAND: return 30000;
-    case VV2_ACT_BARREL: return 75000;
-    case VV2_ACT_TECH_DOUBLER: return 500000;
-    case VV2_ACT_FOOD_DOUBLER: return 500000;
-    case VV2_ACT_CURE: return 30000;
-    case VV2_ACT_RUNNING_ALL: return 1000000;
-    case VV2_ACT_MASTERY_ALL: return 1000000;
-    case VV2_ACT_AGE_ALL: return 1000000;
-    case VV2_ACT_COLLECT_COMPLETE: return 1000000;
-    case VV2_ACT_COLLECT_RESET: return 1000000;
-    case VV2_ACT_DIVIDE_PARENTING: return 1000000;
-    case VV2_ACT_DIVIDE_NO_PARENTING: return 1000000;
-    case VV2_ACT_APPEARANCE_ALL: return 450000;
-    case VV2_ACT_DETAIL_YOUTH: return 50000;
-    case VV2_ACT_DETAIL_MASTERY: return 100000;
-    case VV2_ACT_DETAIL_RUNNING: return 40000;
-    case VV2_ACT_DETAIL_AGE18: return 50000;
-    case VV2_ACT_DETAIL_APPEARANCE: return 5000;
-    default: return 0;
+static const char *const vv2_tech_action_costs[] = {
+    "50,000", "30,000", "75,000", "500,000", "500,000", "30,000",
+    "1,000,000", "1,000,000", "1,000,000", "1,000,000", "1,000,000",
+    "1,000,000", "1,000,000", "450,000"
+};
+
+static const char *const vv2_detail_action_costs[] = {
+    "50,000", "100,000", "40,000", "50,000", "5,000"
+};
+
+static const char *vv2_action_cost(int action) {
+    if (action >= 0 && action <= VV2_ACT_APPEARANCE_ALL) {
+        return vv2_tech_action_costs[action];
     }
+    if (action >= VV2_ACT_DETAIL_YOUTH && action <= VV2_ACT_DETAIL_APPEARANCE) {
+        return vv2_detail_action_costs[action - VV2_ACT_DETAIL_YOUTH];
+    }
+    return "0";
 }
 
 /* Task9-style purchase confirmation: an OK/Cancel box naming the action and its
@@ -589,9 +584,9 @@ __declspec(dllexport) int __stdcall ConfirmVV2Upgrade(int action) {
     char message[256];
     wsprintfA(
         message,
-        "Do you want to buy %s for %u tech points?\r\nPress OK to confirm, "
+        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, "
         "or Cancel.",
-        vv2_action_name(action), vv2_action_price(action)
+        vv2_action_name(action), vv2_action_cost(action)
     );
     return MessageBoxA(
         GetForegroundWindow(), message, vv2_result_title(action),
@@ -668,6 +663,11 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
         }
     } else if (status == VV2_RES_NO_CHANGE) {
         switch (action) {
+        case VV2_ACT_CURE:
+            lstrcpyA(message,
+                     "Everyone is at full health already. No villagers are sick. "
+                     "No tech points have been deducted.");
+            break;
         case VV2_ACT_RUNNING_ALL:
             lstrcpyA(message,
                      "Everyone already likes running, or has full Likes slots. "
@@ -1415,7 +1415,7 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
         if (MessageBoxA(
                 GetForegroundWindow(),
                 "Warning: This will change the villager's head genetics.",
-                "Change Appearance",
+                "Villager Upgrades",
                 MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND
             ) != IDOK) {
             return 0;

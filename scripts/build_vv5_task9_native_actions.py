@@ -51,6 +51,12 @@ ACTIVE_SOURCE_TEXT_SHA256 = "E08F9284B21B4855CCF94663C7C7054898DBFE73BB14DC06311
 C342_COUNT = 66
 C342_ROWS_SHA256 = "7A95D8CCC6477777E9A3AA4C3EFEB30D8AF0D50434C910C1ADE9A645C7DBDDCA"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
+# Dialog state uses bits 0..13 for Tech rows and bits 8..21 for unavailable
+# rows; STATE_VILLAGER is bit 16. Keep this capability marker at the first
+# clearly disjoint bit above that complete dialog-state range. It is carried
+# only by expanded layouts, whose native bindings stop at Tech row 5 and
+# Details row 3.
+STATE_LIMITED_CAPABILITY = 0x400000
 
 sys.path.insert(0, str(ROOT / ".tools/keystone-runtime"))
 sys.path.insert(1, str(ROOT / ".tools/keystone"))
@@ -593,8 +599,8 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
     ]
     # apply_division forwards to the companion DLL's ApplyVV5EqualDivision(base,
     # parenting); its export string lives only in the stock string table, so the
-    # helper is emitted only there (the expanded-256 baseline page stays byte-
-    # identical for its overlay).
+    # helper is emitted only there (the expanded-256 overlay-owned menu
+    # preimages remain unchanged).
     if page_va == 0x7C9000:
         helper_specs.append(("apply_division", "division_export", 2))
     for name, export, argc in helper_specs:
@@ -602,6 +608,20 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
             f"push dword ptr [ebp+{8 + index * 4:#x}]"
             for index in range(argc - 1, -1, -1)
         )
+        invoke_register = "eax"
+        # Keep the expanded Tech-menu entry preimage intact for the separate
+        # Time Warp overlay. The state flag is added in this common bridge,
+        # including when that overlay replaces the menu's initial state with
+        # its fixed 0x1E00 state.
+        if name == "show_menu" and page_va != 0x7C9000:
+            pushes = (
+                "mov ebx, eax\n"
+                "mov eax, dword ptr [ebp+0xc]\n"
+                f"        or eax, 0x{STATE_LIMITED_CAPABILITY:X}\n"
+                "        push eax\n"
+                "        push dword ptr [ebp+0x8]"
+            )
+            invoke_register = "ebx"
         result[name] = put(page, page_va, name, f"""
             push ebp
             mov ebp, esp
@@ -616,7 +636,7 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
             test eax, eax
             jz unavailable
             {pushes}
-            call eax
+            call {invoke_register}
             jmp done
         unavailable:
             mov eax, -1
@@ -634,26 +654,26 @@ def status_call(page_va: int, action: str, status: int, a: str = "0", b: str = "
 
 def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     # Time Warp (row 0), Island Event (row 1), and Barrel of Babies (row 2) are
-    # enabled only in the stock page layout (0x7C9000). The expanded-256 baseline
-    # (0x904000) is left byte-identical so the separate vv5_expanded_256_time_warp
-    # overlay continues to own Time Warp there.
+    # enabled only in the stock page layout (0x7C9000). The expanded-256 page
+    # keeps the overlay-owned Tech-menu preimages intact so the separate
+    # vv5_expanded_256_time_warp overlay continues to own Time Warp there.
     native_stock = page_va == 0x7C9000
-    # The expanded-256 baseline page is kept byte-identical to its pre-Collections
-    # form so the separate vv5_expanded_256_time_warp overlay (which surgically
-    # patches fixed offsets in this tech_menu) keeps working. Every Collections /
-    # doubler-confirm addition below is therefore gated to the stock layout; in
-    # expanded the two Collections rows render but are bounded out as no-ops.
+    # The separate vv5_expanded_256_time_warp overlay surgically patches fixed
+    # offsets in this tech_menu; those preimages remain unchanged. Every Collections /
+    # doubler-confirm addition below is therefore gated to the stock layout.
+    # Expanded carries an explicit architecture state so the companion dialog
+    # disables visible rows beyond its native bindings instead of leaving them
+    # enabled and allowing a close/no-op result.
     menu_state = 0x000 if native_stock else 0x700
     # Command upper bound: 0..12 in stock (Collections rows 9/10 plus the two
-    # Equal Division of Labor rows 11/12), 0..5 in expanded (original), so the
-    # expanded router bytes stay identical.
+    # Equal Division of Labor rows 11/12), 0..5 in expanded (original).
     command_bound = 13 if native_stock else 5
     collections_guard = (
         "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
     )
     # Name the point doublers correctly in their result (action 18/19) in stock;
-    # the expanded baseline keeps the original ebx form so its page stays
-    # byte-identical for the vv5_expanded_256_time_warp overlay.
+    # the expanded baseline keeps the original ebx form so the overlay-owned
+    # Tech-menu preimages remain unchanged.
     doubler_action = "lea eax, [edi+17]\n        " if native_stock else ""
     doubler_reg = "eax" if native_stock else "ebx"
     doubler_confirm = (
@@ -714,9 +734,9 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         else ""
     )
     # Change Appearance is a per-villager (detail) row. The companion DLL shows
-    # its row in every layout, but the router is gated to the stock layout so
-    # the expanded-256 baseline page stays byte-identical for its overlay; in
-    # expanded modes the row is a harmless no-op.
+    # its row in every layout; expanded carries the limited-capability state so
+    # that unsupported row is disabled, and the router remains bounded at
+    # Details row 3.
     detail_max = 4 if native_stock else 3
     appearance_dispatch = "cmp ebx, 4\n        je appearance_row\n        " if native_stock else ""
     appearance_row = (
@@ -3966,8 +3986,8 @@ def main() -> None:
     # detour over the Technologies screen close handler (command 0) at 0x441617,
     # routing to the stock Task9 page's barrel_close_arm routine. The Barrel row,
     # its purchase token, and this routine all live only in the stock layouts, so
-    # the hook is added only to the stock modes; the Expanded-256 baseline page
-    # stays byte-identical for the separate vv5_expanded_256_time_warp overlay.
+    # the hook is added only to the stock modes; overlay-owned Expanded-256
+    # preimages remain unchanged for the separate vv5_expanded_256_time_warp overlay.
     barrel_close_site = 0x441617
     barrel_close_preimage = "B940F45100"
     if stock[barrel_close_site - 0x400000 : barrel_close_site - 0x400000 + 5].hex().upper() != barrel_close_preimage:
