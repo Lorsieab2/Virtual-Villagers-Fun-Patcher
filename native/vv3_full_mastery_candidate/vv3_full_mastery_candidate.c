@@ -608,15 +608,40 @@ static int vv3_mask_has_stored_fingerprint(unsigned int fp) {
     return 0;
 }
 
-/* The caller must have prepared the active save slot.  Zero is an exact-slot
-   clear and does not claim fingerprint ownership; a nonzero bind requires the
-   addressed record to be the sole live owner. */
+/* A nonempty current slot may be reused only when it is already owned by the
+   target fingerprint or when its fingerprint has no active/living owner.  A
+   unique or duplicate live owner is foreign state and must be preserved. */
+static int vv3_mask_current_slot_writable(int idx, unsigned int target_fp) {
+    unsigned int current_fp;
+    if (idx < 0 || idx >= VV3_MASK_SLOTS) return 0;
+    if (g_vv3_mask[idx] == 0) return 1;
+    current_fp = g_vv3_mask_fp[idx];
+    if (current_fp == 0 || current_fp == target_fp) return 1;
+    if (vv3_mask_unique_live_index(current_fp) >= 0) return 0;
+    if (vv3_mask_has_duplicate_live_fingerprint(current_fp)) return 0;
+    return 1;
+}
+
+static int vv3_mask_current_slot_foreign_live(int idx, unsigned int target_fp) {
+    if (idx < 0 || idx >= VV3_MASK_SLOTS || g_vv3_mask[idx] == 0)
+        return 0;
+    return !vv3_mask_current_slot_writable(idx, target_fp)
+        && g_vv3_mask_fp[idx] != target_fp;
+}
+
+/* The caller must have prepared the active save slot.  Zero does not claim
+   fingerprint ownership and may clear stale/current target state; the apply
+   helper preserves a foreign live-owned current slot.  A nonzero bind requires
+   the addressed record to be the sole live owner. */
 static int vv3_mask_can_set_prepared(const void *record, int mask) {
     const unsigned char *rec = (const unsigned char *)record;
+    unsigned int fpv;
     int idx = vv3_mask_index(record);
     if (idx < 0) return 0;
     if (mask == 0) return 1;
-    return vv3_mask_unique_live_index(vv3_mask_fingerprint(rec)) == idx;
+    fpv = vv3_mask_fingerprint(rec);
+    if (vv3_mask_unique_live_index(fpv) != idx) return 0;
+    return vv3_mask_current_slot_writable(idx, fpv);
 }
 
 /* ---- Sidecar persistence (a file next to the save; never the save itself) ----
@@ -890,19 +915,20 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
    prepared-slot/identity gates so the exported individual path and the batch
    path share exactly the same binding and shifted-copy rules.  `persist` is
    zero for a batch (the caller publishes once after all in-memory changes) and
-   nonzero for the individual chooser.  None clears a unique recovered shifted
-   copy in both paths, while an ambiguous fingerprint can clear only the exact
-   addressed slot. */
+   nonzero for the individual chooser.  None clears unique recovered shifted
+   copies in both paths, while a foreign live-owned current slot is preserved. */
 static int vv3_mask_apply_prepared(const void *record, int mask, int persist) {
     const unsigned char *rec = (const unsigned char *)record;
     unsigned int fpv;
     int idx = vv3_mask_index(record);
-    int i, live_idx;
+    int i, live_idx, current_foreign_live;
     if (!vv3_mask_prepare_slot()) return 0;
     if (idx < 0) return 0;
     if (mask < 0 || mask > VV3_MASK_MAX) mask = 0;
-    if (!vv3_mask_can_set_prepared(record, mask)) return 0;
     fpv = vv3_mask_fingerprint(rec);
+    current_foreign_live = vv3_mask_current_slot_foreign_live(idx, fpv);
+    if (mask != 0 && current_foreign_live) return 0;
+    if (!vv3_mask_can_set_prepared(record, mask)) return 0;
     live_idx = vv3_mask_unique_live_index(fpv);
     if (live_idx == idx) {
         for (i = 0; i < VV3_MASK_SLOTS; ++i) {
@@ -912,8 +938,10 @@ static int vv3_mask_apply_prepared(const void *record, int mask, int persist) {
             }
         }
     }
-    g_vv3_mask[idx] = (unsigned char)mask;
-    g_vv3_mask_fp[idx] = mask ? fpv : 0u;
+    if (!(mask == 0 && current_foreign_live)) {
+        g_vv3_mask[idx] = (unsigned char)mask;
+        g_vv3_mask_fp[idx] = mask ? fpv : 0u;
+    }
     if (persist) vv3_mask_write_sidecar();                 /* persist next to the save */
     return 1;
 }
@@ -1471,27 +1499,25 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         if (rec[VV3_CHIEF] != 0) chief = n;       /* the robe-wearing Tribal Chief */
         ++n;
     }
-    /* Fail the whole batch before ANY head/body or mask write when a requested
-       mask cannot be bound safely.  Modes 1/2/3 can all produce nonzero masks;
-       Random is therefore checked conservatively even though a particular draw
-       might have selected None.  Explicit None (mode 4 or per-sex value 0) is
-       an exact-slot clear and remains valid for duplicate fingerprints. */
+    /* Prepare the sidecar before planning.  Dynamic modes must prove every
+       selected record is the sole live owner of its fingerprint up front;
+       this identity-only gate deliberately does not inspect the destination
+       slot, so a coincidental planned zero remains safe while duplicate live
+       fingerprints still fail closed.  Destination writability is checked
+       below only for a real planned nonzero change. */
     if (mask_requested) {
         if (!vv3_mask_prepare_slot()) {
             g_vv3_caf_mask_ambiguous = 1;
             return 0;
         }
-        for (i = 0; i < n; ++i) {
-            unsigned char *r =
-                (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
-            int m = sex[i] ? mask_f : mask_m;
-            int probe = -1;
-            if (mask_mode == 0) probe = m;
-            else if (mask_mode == 4) probe = 0;
-            else probe = 1;
-            if (probe >= 0 && !vv3_mask_can_set_prepared(r, probe)) {
-                g_vv3_caf_mask_ambiguous = 1;
-                return 0;
+        if (mask_mode >= 1 && mask_mode <= 3) {
+            for (i = 0; i < n; ++i) {
+                unsigned char *r =
+                    (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
+                if (vv3_mask_unique_live_index(vv3_mask_fingerprint(r)) != idx[i]) {
+                    g_vv3_caf_mask_ambiguous = 1;
+                    return 0;
+                }
             }
         }
     }
@@ -1579,8 +1605,14 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
                 if (desired_mask[i] == 0)
                     mask_changed[i] =
                         (recovered_mask != 0
-                         || g_vv3_mask[idx[i]] != 0
-                         || g_vv3_mask_fp[idx[i]] != 0);
+                         || (vv3_mask_unique_live_index(
+                                vv3_mask_fingerprint(r)) == idx[i]
+                             && vv3_mask_has_stored_fingerprint(
+                                vv3_mask_fingerprint(r)))
+                         || (!vv3_mask_current_slot_foreign_live(
+                                idx[i], vv3_mask_fingerprint(r))
+                             && (g_vv3_mask[idx[i]] != 0
+                                 || g_vv3_mask_fp[idx[i]] != 0)));
                 else
                     mask_changed[i] = desired_mask[i] != recovered_mask;
                 if (desired_mask[i] == 0
@@ -1606,6 +1638,21 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
     }
     if (affected == 0)
         return 0;
+    /* Recheck destination ownership only for nonzero mask entries that will
+       actually be written.  A fixed/planned mask that already matches the
+       logical target may coexist with a foreign current raw slot, while an
+       actual nonzero replacement must abort before any head/body mutation. */
+    if (mask_requested) {
+        for (i = 0; i < n; ++i) {
+            unsigned char *r =
+                (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
+            if (mask_changed[i] && desired_mask[i] > 0
+                && !vv3_mask_can_set_prepared(r, desired_mask[i])) {
+                g_vv3_caf_mask_ambiguous = 1;
+                return 0;
+            }
+        }
+    }
     /* Head/Body: independent per-sex, applied in the one mutation pass. */
     for (i = 0; i < n; ++i) {
         unsigned char *r = (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
@@ -1625,9 +1672,10 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
                     vv3_mask_clear_group_prepared(
                         (void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
                         0);
-                /* Also retain the ordinary exact-slot clear semantics.  This
-                   removes an unrelated stale value at the current index while
-                   the group helper removes every matching shifted copy. */
+                /* Also retain the ordinary exact-slot clear semantics.  The
+                   prepared helper removes stale current state while preserving
+                   a foreign live-owned entry; the group helper removes every
+                   matching target-fingerprint copy. */
                 vv3_mask_apply_prepared(
                     (void *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE),
                     desired_mask[i], 0);

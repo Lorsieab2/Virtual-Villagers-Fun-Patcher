@@ -163,9 +163,26 @@ fail-closed and identity-boundary gaps:
 29. VV3 explicit village-wide None now treats a simultaneous duplicate live
     fingerprint as one bounded clear group. Solid None and an explicit per-sex
     None clear every nonzero shifted sidecar entry with that fingerprint, while
-    the individual setter keeps exact-slot semantics and VV5-style, Random, and
-    Equal modes retain the existing ambiguity fail-closed gate. The batch still
-    publishes exactly once after all in-memory clears.
+    the individual setter remains outside this group-wide exception and
+    VV5-style, Random, and Equal modes retain the existing ambiguity fail-closed
+    gate. The batch still publishes exactly once after all in-memory clears.
+30. VV3 no longer treats a target's current record index as ownership of the raw
+    sidecar entry at that index. None clears the target's shifted fingerprint
+    entries while preserving a different fingerprint that still has a unique or
+    duplicate live owner. A real nonzero replacement over that foreign entry
+    aborts before fingerprint cleanup, head/body writes, sidecar publication, or
+    the native charge; a proven-stale raw entry remains writable.
+31. VV3 explicit None now also detects a unique live target with multiple shifted
+    stored copies. Although the guarded getter correctly returns None for that
+    stored ambiguity, the batch still recognizes the target fingerprint and
+    clears every matching copy without touching a foreign live-owned raw slot.
+32. VV3 batch preflight now separates identity from destination ownership. The
+    VV5-style, Random, and Equal modes retain an up-front unique-live identity
+    gate, while destination writability is checked only for an exact planned
+    nonzero value that would really change. An already-matching shifted mask can
+    therefore coexist with a foreign raw current slot while a legitimate
+    head/body change proceeds; any real destination conflict still aborts before
+    all mutation and charging.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be
