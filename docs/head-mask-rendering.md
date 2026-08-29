@@ -362,11 +362,23 @@ VV5 are the reference implementations.
 
 ## Part 7 — Where patch code and data must live (credit VV2)
 
-**Rule: append your own PE sections. Never borrow existing gaps.** Code or data placed
-in `.text` padding, alignment gaps, or an unused payload region is a *code cave*. Caves
-collide — two patches wanting the same region silently corrupt each other, and "the
-payload block was full" is that collision already happening. Do **not** touch the `.ldw`
-saves or the save-read/write code, and do **not** edit stock game files in place.
+**The OWNER'S requirement (verbatim in substance):** *"Do not touch the actual saves or
+game files. Put all changes in DLLs or separate files. Don't squeeze stuff in code
+caves."* That is the mandate: no cave-squeezing, no save/stock-file edits, changes live
+in DLLs or separate files.
+
+**Appending your own PE sections is the RATIFIED TECHNIQUE for meeting it — not the
+owner's wording.** It is the engineering approach both references use, ratified
+indirectly by the owner's ruling *"Make the safest changes for ALL patches and mods to
+work with ZERO RISK of corruption, collision or bugs."* If a game can satisfy the
+owner's actual requirement another zero-risk way, that is permissible; and **any fresh
+interpretation from the player outranks anything any chat inferred** (credit: the FPT
+chat for the attribution catch).
+
+Why caves are banned: code or data placed in `.text` padding, alignment gaps, or an
+unused payload region *collides* — two patches wanting the same region silently corrupt
+each other ("the payload block was full" is that collision already happening, and a
+collision made VV4's patcher apply fail for a week).
 
 **The self-audit (one line):** dump your patched exe's section table. **If your code or
 data is not in a section you added, you are in a cave and must move it.**
