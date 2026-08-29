@@ -490,9 +490,10 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     init_asm = f"""
         mov  dword ptr [esi+0x{LAST_ATLAS_GLOBAL:X}], eax   /* displaced original store */
         pushad
-        /* (1) self-extract the mask atlas to <game>\\Images if missing, so no manual
-           asset deploy is needed. LoadLibrary the DLL + call Vv2ExtractAtlas BEFORE
-           the atlas load below. Fail-open: no DLL (stock build) -> skip. */
+        /* (1) self-extract the mask atlas to <game>\\Images if missing, or migrate
+           one exact obsolete 320x440 bundled atlas. Current/custom art is preserved;
+           no manual asset deploy is needed. LoadLibrary the DLL + call Vv2ExtractAtlas
+           BEFORE the atlas load below. Fail-open: no DLL (stock build) -> skip. */
         push 0x{DLLNAME_VA:X}
         call dword ptr [0x{LOADLIBRARYA_IAT:X}]
         test eax, eax

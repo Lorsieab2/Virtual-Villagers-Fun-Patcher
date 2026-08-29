@@ -106,10 +106,11 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       then jumps 0x424108.  The resume immediately calls native code and
 #       later consumes ESI; ECX/ESP are exactly defined and no flags are changed.
 #   0x913C                          confirmed.  The cave optionally calls the
-#       pushad/popad restore stub, then reproduces `mov ecx,[esi+0x30]; push
-#       ecx; mov ecx,esi` and jumps 0x409142.  The resume stores EAX through
-#       ESI; ESI/EAX/ESP are preserved by the stub and the first resume mov
-#       does not consume flags.
+#       pushad/popad restore stub, then calls the pushad/popad Vv1MaskTick
+#       resolver/caller before reproducing `mov ecx,[esi+0x30]; push ecx; mov
+#       ecx,esi` and jumping 0x409142. Both calls preserve every GP register
+#       and ESP. The resume stores EAX through ESI, and its first mov does not
+#       consume flags.
 #   0x2ED0                          confirmed.  `pushad` brackets all scratch
 #       writes, `popad` restores every GP register and ESP, then the cave
 #       replays `mov eax,[esp+4]; mov edx,[ecx]` and jumps 0x402ED6.  The
@@ -143,7 +144,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x8B004"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
     ("vv1_enable_origins_exclusive_features", "0x24103"): "003BBF1143C6AC2F7AD6DD0D0A70346447E500F851CD3ABD7EDE134A87AEC848",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "3EC4BE5669CAA10DB6414592D5C6FDE19C02942709AA65B8EE3A849F488DE5C0",
-    ("vv1_enable_origins_exclusive_features", "0x913C"): "28CCC7FE6E9CDFA425273E853079D566FAF7C578E4AB7E27EB043CBCB6362153",
+    ("vv1_enable_origins_exclusive_features", "0x913C"): "7809AB50B236818750AC418BD5080C6053BE2B5852AAFA37AD58DFCCC5102824",
     # The three newer detours below are part of the same integrated mask
     # branch. Their cave contracts are pinned separately in the review notes:
     # 0x9410 restores the original thunk pass path; 0x93E0/0x93C0 select the

@@ -13,6 +13,13 @@ import sys
 import unittest
 from pathlib import Path
 
+try:
+    from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+
+    HAVE_CAPSTONE = True
+except ImportError:  # pragma: no cover - environment dependent
+    HAVE_CAPSTONE = False
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -20,6 +27,7 @@ SOURCE = ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
 GENERATOR = ROOT / "scripts" / "build_vv1_origins_feature.py"
 MANIFEST = ROOT / "data" / "vv1_origins_feature.json"
 AUDIT = ROOT / "docs" / "vv1-mask-pickup-static-audit.md"
+EXPORTS = ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.def"
 STOCK_CANDIDATES = (
     ROOT / "research" / "stock-executables" / "Virtual Villagers - A New Home.exe",
     ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe",
@@ -36,6 +44,11 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         cls.source = SOURCE.read_text(encoding="utf-8")
         cls.generator = GENERATOR.read_text(encoding="utf-8")
         cls.manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        cls.patches = {
+            int(item["offset"], 0): item for item in cls.manifest["patches"]
+        }
+        cls.exports = EXPORTS.read_text(encoding="utf-8")
+        cls.audit = AUDIT.read_text(encoding="utf-8")
 
     def test_slot_capture_constants_and_sidecar_path_are_exact(self) -> None:
         self.assertIn(
@@ -63,8 +76,77 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertIn("if (swept) {", self.source)
         self.assertIn("vv1_mask_sidecar_save();", self.source)
 
+    def test_live_frame_tick_sweeps_and_persists_only_actual_clears(self) -> None:
+        self.assertIn("Vv1MaskTick=_Vv1MaskTick@0", self.exports)
+        start = self.source.index(
+            "__declspec(dllexport) void __stdcall Vv1MaskTick(void)"
+        )
+        end = self.source.index("static HINSTANCE module_instance;", start)
+        tick = self.source[start:end]
+        for token in (
+            "if (!vv1_mask_prepare_slot())",
+            "swept = vv1_mask_sweep_dead();",
+            "if (swept)",
+            "vv1_mask_sidecar_save();",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, tick)
+        self.assertIn("call {MASK_TICK_STUB_VA:#x}", self.generator)
+        self.assertIn("MASK_TICK_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x1F8", self.generator)
+
+    @unittest.skipUnless(HAVE_CAPSTONE, "requires Capstone")
+    def test_manifest_calls_cached_tick_from_the_live_frame_hook(self) -> None:
+        name = bytes.fromhex(self.patches[0x8E8F0]["after"])
+        self.assertEqual(name, b"Vv1MaskTick\0")
+
+        tick = bytes.fromhex(self.patches[0x8E900]["after"])
+        tick_ins = list(Cs(CS_ARCH_X86, CS_MODE_32).disasm(tick, 0x490900))
+        tick_shape = [(item.mnemonic, item.op_str) for item in tick_ins]
+        self.assertEqual(tick_shape[0], ("pushal", ""))
+        self.assertIn(("cmp", "eax, 1"), tick_shape)
+        sentinel_check = tick_shape.index(("cmp", "eax, 1"))
+        self.assertEqual(tick_shape[sentinel_check + 1][0], "je")
+        self.assertIn(("call", "eax"), tick_shape)
+        self.assertIn(("mov", "dword ptr [0x4911f8], 1"), tick_shape)
+        self.assertEqual(tick_shape[-2:], [("popal", ""), ("ret", "")])
+
+        frame = bytes.fromhex(self.patches[0x8E400]["after"])
+        frame_ins = list(Cs(CS_ARCH_X86, CS_MODE_32).disasm(frame, 0x490400))
+        calls = {
+            int(item.op_str, 16)
+            for item in frame_ins
+            if item.mnemonic == "call" and item.op_str.startswith("0x")
+        }
+        self.assertIn(0x490900, calls)
+        restore_index = next(
+            index
+            for index, item in enumerate(frame_ins)
+            if item.mnemonic == "call" and item.op_str == "0x4906c0"
+        )
+        tick_index = next(
+            index
+            for index, item in enumerate(frame_ins)
+            if item.mnemonic == "call" and item.op_str == "0x490900"
+        )
+        self.assertLess(restore_index, tick_index)
+        self.assertEqual(frame_ins[restore_index - 1].mnemonic, "jne")
+        self.assertEqual(
+            int(frame_ins[restore_index - 1].op_str, 16),
+            frame_ins[tick_index].address,
+        )
+
+    def test_occupied_dead_forall_policy_is_an_explicit_evidence_boundary(self) -> None:
+        for token in (
+            "record+0x28 == 1",
+            "dead-but-not-yet-freed record",
+            "deliberately unchanged",
+            "parity/evidence boundary",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, self.audit)
+
     def test_pickup_audit_records_central_render_boundary(self) -> None:
-        audit = AUDIT.read_text(encoding="utf-8")
+        audit = self.audit
         for token in (
             "0x4392D0",
             "0x425226",

@@ -41,6 +41,29 @@ renderer was not changed.
 This repair is statically gated by `tests/test_vv1_mask_render_contract.py`.
 It has not yet been accepted in a running game by the player.
 
+## Review-gated hardening before the rc2 playtest
+
+The GitHub review audit found three defects that were still present after the
+earlier integration work. They are now repaired and statically gated:
+
+1. VV1's Details wrapper records a permanent fail-open sentinel when the
+   companion DLL or `Vv1DrawPortraitMask` export cannot be resolved, instead of
+   retrying module/export resolution on every portrait head draw.
+2. VV1's village-frame hook calls `Vv1MaskTick` after the one-shot restore. The
+   DLL observes occupied slots, clears a non-zero mask only after a previously
+   seen slot becomes free, and persists only an actual clear. This closes the
+   load/picker-only record-reuse window in the generated path.
+3. VV2 replaces an installed 320x440 mask atlas only when its dimensions, byte
+   length, and SHA-256 match one of the four exact obsolete atlases previously
+   bundled by this repository. Current art and arbitrary/custom 320x440 art are
+   preserved; the replacement is published from a complete temporary file.
+
+The VV1 whole-village command still uses the compositor's verified
+`record+0x28 == 1` occupied predicate. Whether an occupied corpse must be
+excluded for exact VV5 behavior is not proven by current VV5 evidence, so that
+policy is deliberately unchanged. None of these static repairs is player-visible
+runtime acceptance.
+
 ## Remaining blockers to a truthful all-five completion claim
 
 1. Map/overview ownership is unmapped in all five games. VV1 explicitly excludes

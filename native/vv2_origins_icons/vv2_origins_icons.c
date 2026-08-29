@@ -10,6 +10,7 @@
 #define VV_ALREADY_LIKES_TEXT "Already 62 likes."
 #include "../vv1_origins_icons/vv1_origins_icons.c"
 #include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
+#include <wincrypt.h> /* exact SHA-256 identity for the legacy mask atlas (link advapi32) */
 
 /* Task9-style prompt action / result codes and forward declarations, hoisted so
    the ApplyVV2* reporters below can route through the shared result renderer
@@ -1173,12 +1174,111 @@ __declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_loa
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
 
+/* Earlier VV2 mask builds bundled four distinct 320x440 atlases. Those exact
+   files are the only existing files this migration is allowed to replace.
+   Geometry alone is not
+   enough: a player may have supplied their own 320x440 art, so the file must
+   also match one of the exact repository-bundled SHA-256 identities. */
+#define VV2_LEGACY_ATLAS_WIDTH  320
+#define VV2_LEGACY_ATLAS_HEIGHT 440
+static const DWORD VV2_LEGACY_ATLAS_SIZES[] = {
+    64965, 64852, 78917, 79105
+};
+static const char *const VV2_LEGACY_ATLAS_SHA256[] = {
+    "CAE2F56C58D504EB26AD8AA9772A92F616D8CD26B546EE1091D889A19F616FB4",
+    "10819268622323D4B289CB27A35BFA4B1398AC149A55399AE627AA4CBB4EA57C",
+    "1D2CC1CB3230E59A66D847DAB2EF482075DA538357CCBCAF97A121705CC09E81",
+    "3CE015BA025BF847C65FB0389016658E7D624AFA2038A3AAD7C1530367FE8AC7"
+};
+
+static unsigned int vv2_hex_nibble(char value) {
+    if (value >= '0' && value <= '9') return (unsigned int)(value - '0');
+    if (value >= 'A' && value <= 'F') return (unsigned int)(value - 'A' + 10);
+    if (value >= 'a' && value <= 'f') return (unsigned int)(value - 'a' + 10);
+    return 0x100;
+}
+
+static int vv2_digest_matches(const BYTE *digest, const char *expected) {
+    unsigned int i, high, low;
+    for (i = 0; i < 32; ++i) {
+        high = vv2_hex_nibble(expected[i * 2]);
+        low = vv2_hex_nibble(expected[i * 2 + 1]);
+        if (high > 0xF || low > 0xF || digest[i] != (BYTE)((high << 4) | low)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static DWORD vv2_be32(const BYTE *value) {
+    return ((DWORD)value[0] << 24) | ((DWORD)value[1] << 16)
+        | ((DWORD)value[2] << 8) | (DWORD)value[3];
+}
+
+static int vv2_legacy_atlas_identity(const char *filename) {
+    static const BYTE png_signature[8] = {
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
+    };
+    HANDLE file = INVALID_HANDLE_VALUE;
+    LARGE_INTEGER file_size;
+    HCRYPTPROV provider = 0;
+    HCRYPTHASH hash = 0;
+    BYTE header[24];
+    BYTE buffer[4096];
+    BYTE digest[32];
+    DWORD got, digest_length;
+    unsigned int i;
+    int known_size = 0;
+    int legacy = 0;
+
+    file = CreateFileA(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                        FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) return 0;
+    if (!GetFileSizeEx(file, &file_size) || file_size.HighPart != 0) goto done;
+    for (i = 0; i < sizeof(VV2_LEGACY_ATLAS_SIZES) / sizeof(VV2_LEGACY_ATLAS_SIZES[0]); ++i) {
+        if (file_size.LowPart == VV2_LEGACY_ATLAS_SIZES[i]) {
+            known_size = 1;
+            break;
+        }
+    }
+    if (!known_size) goto done;
+    if (!ReadFile(file, header, sizeof(header), &got, NULL) || got != sizeof(header)) goto done;
+    if (memcmp(header, png_signature, sizeof(png_signature)) != 0
+        || memcmp(header + 12, "IHDR", 4) != 0
+        || vv2_be32(header + 16) != VV2_LEGACY_ATLAS_WIDTH
+        || vv2_be32(header + 20) != VV2_LEGACY_ATLAS_HEIGHT) {
+        goto done;
+    }
+    if (!CryptAcquireContextA(&provider, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) goto done;
+    if (!CryptCreateHash(provider, CALG_SHA_256, 0, 0, &hash)) goto done;
+    if (!CryptHashData(hash, header, sizeof(header), 0)) goto done;
+    for (;;) {
+        if (!ReadFile(file, buffer, sizeof(buffer), &got, NULL)) goto done;
+        if (got == 0) break;
+        if (!CryptHashData(hash, buffer, got, 0)) goto done;
+    }
+    digest_length = sizeof(digest);
+    if (!CryptGetHashParam(hash, HP_HASHVAL, digest, &digest_length, 0)
+        || digest_length != sizeof(digest)) goto done;
+    for (i = 0; i < sizeof(VV2_LEGACY_ATLAS_SHA256) / sizeof(VV2_LEGACY_ATLAS_SHA256[0]); ++i) {
+        if (vv2_digest_matches(digest, VV2_LEGACY_ATLAS_SHA256[i])) {
+            legacy = 1;
+            break;
+        }
+    }
+done:
+    if (hash != 0) CryptDestroyHash(hash);
+    if (provider != 0) CryptReleaseContext(provider, 0);
+    CloseHandle(file);
+    return legacy;
+}
+
 /* Self-extract the embedded mask render atlas (RCDATA 5000) to <exe dir>\Images\
-   heathen_masks.png if it is not already there, so a patched game gets the atlas
-   with no separate asset deploy.  Uses the EXE's own directory (not cwd), so it
-   works under any launch dir / renamed exe, and NEVER overwrites an existing file
-   (so replacement art is respected).  Called by the exe's init hook BEFORE it
-   loads the atlas — at startup, outside the loader lock.  CRT-less (Win32 only). */
+   heathen_masks.png if it is missing, or if the existing file is one of the
+   exact obsolete 320x440 bundled atlases above.  Current/custom art is left
+   untouched.  Uses the EXE's own directory (not cwd), so it works under any
+   launch dir / renamed exe.  Called by the exe's init hook BEFORE it loads the
+   atlas — at startup, outside the loader lock.  CRT-less (Win32 only). */
 __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     char path[MAX_PATH];
     char tmp[MAX_PATH];
@@ -1189,6 +1289,7 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     DWORD sz, w, n;
     HANDLE f;
     BOOL ok;
+    BOOL replace_legacy = FALSE;
     n = GetModuleFileNameA(GetModuleHandleA(NULL), path, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) return;          /* empty or truncated exe path -> skip */
     for (i = 0; path[i]; ++i) if (path[i] == '\\') last = i;   /* last backslash */
@@ -1202,7 +1303,10 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     lstrcatA(path, "\\Images");
     CreateDirectoryA(path, NULL);
     lstrcatA(path, "\\heathen_masks.png");
-    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) return;  /* already present */
+    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) {
+        if (!vv2_legacy_atlas_identity(path)) return;  /* preserve current/custom art */
+        replace_legacy = TRUE;
+    }
     res = FindResourceA(module_instance, MAKEINTRESOURCEA(5000), RT_RCDATA);
     if (res == NULL) return;
     h = LoadResource(module_instance, res);
@@ -1220,7 +1324,18 @@ __declspec(dllexport) void __stdcall Vv2ExtractAtlas(void) {
     ok = WriteFile(f, p, sz, &w, NULL);
     CloseHandle(f);
     if (!ok || w != sz) { DeleteFileA(tmp); return; }   /* incomplete write -> discard */
-    if (!MoveFileA(tmp, path)) DeleteFileA(tmp);        /* publish; lost a race -> clean up */
+    /* Re-check before replacing: if the old file was edited while the resource
+       was being prepared, preserve the newly-customized art.  A new file that
+       appears during this call is never overwritten because replacement is
+       enabled only for the exact legacy identity seen above. */
+    if (replace_legacy && !vv2_legacy_atlas_identity(path)) {
+        DeleteFileA(tmp);
+        return;
+    }
+    if (!MoveFileExA(tmp, path,
+            (replace_legacy ? MOVEFILE_REPLACE_EXISTING : 0) | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(tmp);        /* publish failed or lost a race -> clean up */
+    }
 }
 
 /* Record field offsets + the per-villager cost, hoisted so the chooser (which now

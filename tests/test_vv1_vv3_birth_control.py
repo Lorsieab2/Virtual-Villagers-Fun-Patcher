@@ -31,9 +31,9 @@ VV1_STANDALONE_RENDER_SHA256 = {
         "immediate_fixed": "C02F431266FB9AC5C9C6FD62EE92D1AEEC6C3AF699F907CBE698FA4784664054",
     },
     "vv1_enable_origins_exclusive_features": {
-        "stock": "2A26FB1BA90D6DE470CC9B480EBAC2C3322BEBB03DEE32D8AF76438C04DD994D",
-        "collection_progression": "8A14B1853ABDA17638B081AFA54C9727985FD21B3F31186A6D11010EC4C57663",
-        "immediate_fixed": "8A14B1853ABDA17638B081AFA54C9727985FD21B3F31186A6D11010EC4C57663",
+        "stock": "8D7C5F1C92DB53ADCE9225153AF09460C8B7A1B26522B469F301E85FED7B203A",
+        "collection_progression": "768E475558802F4D0B31FC75F630613906C0461EF9218E0069D8E9417B78F80B",
+        "immediate_fixed": "768E475558802F4D0B31FC75F630613906C0461EF9218E0069D8E9417B78F80B",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
@@ -177,9 +177,9 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         origins_code_page = origins_only[0x8E000:0x8F000]
         self.assertEqual(
             max(index for index, value in enumerate(origins_code_page) if value),
-            0x8A0,
+            0x942,
         )
-        self.assertEqual(origins_code_page[0x8A1:], b"\x00" * 0x75F)
+        self.assertEqual(origins_code_page[0x943:], b"\x00" * 0x6BD)
         self.assertEqual(origins_only[0x8F000:0x90000], b"\x00" * 0x1000)
 
     def test_vv1_append_base_precedes_overlay_independent_of_catalog_order(self) -> None:

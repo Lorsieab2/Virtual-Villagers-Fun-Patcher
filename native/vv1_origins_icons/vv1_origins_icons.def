@@ -11,6 +11,7 @@ EXPORTS
     ShowOriginsAgeResult=_ShowOriginsAgeResult@12
     ShowOriginsEqualDivisionResult=_ShowOriginsEqualDivisionResult@20
     Vv1MaskRestore=_Vv1MaskRestore@0
+    Vv1MaskTick=_Vv1MaskTick@0
     Vv1MaskApplyDistribution=_Vv1MaskApplyDistribution@8
     ShowOriginsAppearanceForAll=_ShowOriginsAppearanceForAll@4
     Vv1DrawPortraitMask=_Vv1DrawPortraitMask@16

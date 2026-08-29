@@ -29,6 +29,7 @@ IMAGE_BASE = 0x400000
 STOCK_SCALED_DRAW = 0x409410
 PORTRAIT_WRAPPER = 0x490720
 PORTRAIT_WRAPPER_FILE_OFFSET = 0x8E720
+PORTRAIT_DLL_FN = 0x4911AC
 PORTRAIT_SITES = (0x43741B, 0x4374A4, 0x437503, 0x437556)
 
 
@@ -115,6 +116,24 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
         ):
             with self.subTest(obsolete=obsolete):
                 self.assertNotIn(obsolete, self.source + self.generator)
+
+    @unittest.skipUnless(HAVE_CAPSTONE, "requires Capstone")
+    def test_missing_portrait_export_is_cached_as_fail_open(self) -> None:
+        wrapper = bytes.fromhex(self.patches[PORTRAIT_WRAPPER_FILE_OFFSET]["after"])
+        ins = list(Cs(CS_ARCH_X86, CS_MODE_32).disasm(wrapper, PORTRAIT_WRAPPER))
+        shape = [(item.mnemonic, item.op_str) for item in ins]
+        self.assertIn(("cmp", "eax, 1"), shape)
+        sentinel_check = shape.index(("cmp", "eax, 1"))
+        self.assertEqual(shape[sentinel_check + 1][0], "je")
+        self.assertIn(
+            ("mov", f"dword ptr [{PORTRAIT_DLL_FN:#x}], 1"),
+            shape,
+        )
+        self.assertLess(
+            sentinel_check,
+            shape.index(("call", "dword ptr [0x457010]")),
+        )
+        self.assertIn("permanent fail-open sentinel", self.generator)
 
     def test_native_export_uses_the_four_argument_stdcall_contract(self) -> None:
         self.assertIn("Vv1DrawPortraitMask=_Vv1DrawPortraitMask@16", self.exports)

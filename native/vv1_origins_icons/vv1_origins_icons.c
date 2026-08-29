@@ -71,7 +71,8 @@
    A scan of all 211 records found no run of >=4 always-zero bytes, and every
    always-zero byte is the high byte of a dword holding a small value.
 
-   So the selection lives in a table the PATCH owns, in its .shr cave: 256
+   So the selection lives in a table the PATCH owns, in its appended .vv1md
+   R/W section: 256
    villagers, one nibble each. The engine cannot touch it, so no amount of
    save/load or villager churn can corrupt game state through it, and the
    worst possible failure is a cosmetic stale entry.
@@ -84,7 +85,7 @@
 /* Mask scratch now lives in the exe's dedicated appended R/W section .vv1md
    (base 0x00491000), NOT the borrowed .data BSS tail (owner: no shared caves).
    These MUST match DATA_SCRATCH_BASE_VA + the same offsets in the build script:
-   TABLE = base+0x00, MANAGER = base+0x98, PORTRAIT_SCALE = base+0x1B0. */
+   TABLE = base+0x00, MANAGER = base+0x98, SAVE_SLOT = base+0x1F4. */
 #define VV_MASK_SCRATCH_BASE 0x00491000u
 #define VV_MASK_TABLE ((unsigned char *)(VV_MASK_SCRATCH_BASE + 0x00))   /* .vv1md R/W */
 #define VV_MASK_MANAGER (*(unsigned char **)(VV_MASK_SCRATCH_BASE + 0x98)) /* .vv1md R/W */
@@ -608,6 +609,24 @@ __declspec(dllexport) int __stdcall Vv1MaskApplyDistribution(int mode,
 
 __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
     vv1_mask_sidecar_load();
+}
+
+/* Called once from the main village render tick on every frame, after the
+   one-shot restore gate. This is deliberately separate from Details and from
+   any selection/pickup flag: it observes the authoritative occupied byte for
+   every record, clears only slots that were previously seen alive and are now
+   free, and writes the sidecar only when a non-zero mask was actually removed.
+   Static wiring proves cadence/guards; runtime reuse behavior remains a player
+   acceptance gate. */
+__declspec(dllexport) void __stdcall Vv1MaskTick(void) {
+    int swept;
+    if (!vv1_mask_prepare_slot()) {
+        return;  /* slot not captured yet -> no table or sidecar mutation */
+    }
+    swept = vv1_mask_sweep_dead();
+    if (swept) {
+        vv1_mask_sidecar_save();
+    }
 }
 
 static HINSTANCE module_instance;

@@ -418,6 +418,11 @@ VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (inside patch-o
 MASK_SAVE_SLOT_VA = DATA_SCRATCH_BASE_VA + 0x1F4
 MASK_SAVE_SLOT_FIRST = 1
 MASK_SAVE_SLOT_LAST = 5
+# Cached Vv1MaskTick pointer for the live village-frame service. 0 means not
+# resolved, 1 is the permanent fail-open sentinel, and any other value is the
+# validated export address. It is independent of save-slot state, so slot
+# changes deliberately do not clear it.
+MASK_TICK_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x1F8
 # The village-mask code (two per-loop stash writes + the shared-draw hook) lives
 # in the patch-owned .vv1mc R-X section, laid out contiguously with the other
 # VV1 mask helpers and kept separate from the stock shared .shr section.
@@ -471,6 +476,14 @@ SAVE_SLOT_CAPTURE_VA = mask_code_va(SAVE_SLOT_CAPTURE_FILE_OFFSET)
 SAVE_SLOT_CAPTURE_SPLICE_FILE_OFFSET = 0x2ED0
 SAVE_SLOT_CAPTURE_SPLICE_VA = 0x402ED0
 SAVE_SLOT_CAPTURE_RESUME_VA = 0x402ED6
+# Read-only export name plus the per-frame mask-service resolver/caller. These
+# occupy the otherwise-unused tail of the owned .vv1mc section, after the
+# save-slot capture stub and before the section boundary.
+MASK_TICK_NAME = b"Vv1MaskTick\0"
+MASK_TICK_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x8F0
+MASK_TICK_NAME_VA = mask_code_va(MASK_TICK_NAME_FILE_OFFSET)
+MASK_TICK_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x900
+MASK_TICK_STUB_VA = mask_code_va(MASK_TICK_STUB_FILE_OFFSET)
 PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite draw
 # Read-only companion-PNG path strings. They are genuine read-only constants,
 # so they belong in .rdata, and they are added to the Origins string cave in
@@ -2447,6 +2460,7 @@ def main() -> None:
             jne mask_restore_skip
             call {MASK_RESTORE_STUB_VA:#x}
         mask_restore_skip:
+            call {MASK_TICK_STUB_VA:#x}                 # live dead-slot/reuse sweep every village frame
             mov ecx, dword ptr [esi + 0x30]
             mov dword ptr [{DEST_SURFACE_CACHE_VA:#x}], ecx
             push ecx
@@ -2455,7 +2469,7 @@ def main() -> None:
         """,
         mask_frame_cache_va,
     )
-    # The one-shot mask-restore stub, in a free executable .shr gap (see
+    # The one-shot mask-restore stub, in the owned R-X .vv1mc section (see
     # MASK_RESTORE_STUB_VA). Runs once (the flag gates the call above). Sets the
     # flag, then pushad/popad brackets LoadLibraryA + GetProcAddress("Vv1Mask-
     # Restore") + call so EVERY native register survives (the tick's resume does
@@ -2482,6 +2496,44 @@ def main() -> None:
         """,
         MASK_RESTORE_STUB_VA,
     )
+    # Resolve Vv1MaskTick once and call it on every live village frame. A
+    # missing DLL/export is cached as sentinel 1, so fail-open does not become
+    # repeated loader work in the render loop. The DLL persists only when a
+    # seen-alive slot actually transitions free with a non-zero mask.
+    mask_tick_stub_code = assemble(
+        f"""
+            pushad
+            mov eax, dword ptr [{MASK_TICK_DLL_FN_VA:#x}]
+            cmp eax, 1
+            je mask_tick_ret
+            test eax, eax
+            jnz mask_tick_call
+            push {s['icons_dll']:#x}
+            call dword ptr [0x457010]                   # LoadLibraryA
+            test eax, eax
+            jz mask_tick_missing
+            push {MASK_TICK_NAME_VA:#x}
+            push eax
+            call dword ptr [0x4570D4]                   # GetProcAddress
+            test eax, eax
+            jz mask_tick_missing
+            mov dword ptr [{MASK_TICK_DLL_FN_VA:#x}], eax
+        mask_tick_call:
+            call eax                                    # Vv1MaskTick @0
+            jmp mask_tick_ret
+        mask_tick_missing:
+            mov dword ptr [{MASK_TICK_DLL_FN_VA:#x}], 1 # permanent fail-open sentinel
+        mask_tick_ret:
+            popad
+            ret
+        """,
+        MASK_TICK_STUB_VA,
+    )
+    if len(mask_tick_stub_code) > 0x100:
+        raise RuntimeError(
+            f"VV1 mask tick stub exceeds its .vv1mc reservation: "
+            f"{len(mask_tick_stub_code):#x} > 0x100"
+        )
     # Capture the exact numbered save-slot argument before the native builder
     # formats "%s%d.ldw".  The hook is intentionally a tiny ABI-preserving
     # trampoline: it saves every register while it updates patch-owned state,
@@ -2534,13 +2586,27 @@ def main() -> None:
         save_slot_capture_code,
         "capture the exact VV1 save-slot argument at 0x402ED0 into .vv1md, reset the restore/frame/table state on a slot change, and fail closed for slot zero or invalid values",
     )
+    if SAVE_SLOT_CAPTURE_FILE_OFFSET + len(save_slot_capture_code) > MASK_TICK_NAME_FILE_OFFSET:
+        raise RuntimeError("VV1 save-slot capture overlaps the mask tick export name")
     patch(
         MASK_RESTORE_STUB_FILE_OFFSET,
         b"\0" * len(mask_restore_stub_code),
         mask_restore_stub_code,
-        "one-shot startup mask-restore stub (in a free .shr gap): fires the "
+        "one-shot startup mask-restore stub (in owned R-X .vv1mc): fires the "
         "DLL's Vv1MaskRestore once to repopulate the .data mask table from the "
         "sidecar, so masks appear on load without opening Change Appearance",
+    )
+    patch(
+        MASK_TICK_NAME_FILE_OFFSET,
+        b"\0" * len(MASK_TICK_NAME),
+        MASK_TICK_NAME,
+        "read-only Vv1MaskTick export name for the live village-frame mask service",
+    )
+    patch(
+        MASK_TICK_STUB_FILE_OFFSET,
+        b"\0" * len(mask_tick_stub_code),
+        mask_tick_stub_code,
+        "live village-frame mask service: resolve Vv1MaskTick once, cache missing DLL/export as a fail-open sentinel, and sweep/persist dead mask slots every rendered frame",
     )
     mask_overlay_blob = (
         mask_hook_code
@@ -2595,17 +2661,19 @@ def main() -> None:
             mov ecx, dword ptr [esp + 0x1c]             # saved native renderer wrapper
             call 0x{PORTRAIT_SCALED_DRAW_VA:X}          # stock head; cleans only duplicate args
             mov eax, dword ptr [0x{PORTRAIT_DLL_FN_VA:X}]
+            cmp eax, 1                                  # cached missing DLL/export sentinel
+            je pwrap_done
             test eax, eax
             jnz pwrap_call
             push 0x{s['icons_dll']:X}
             call dword ptr [0x457010]                   # LoadLibraryA
             test eax, eax
-            jz pwrap_done
+            jz pwrap_missing
             push 0x{s['draw_portrait_mask']:X}
             push eax
             call dword ptr [0x4570D4]                   # GetProcAddress
             test eax, eax
-            jz pwrap_done
+            jz pwrap_missing
             mov dword ptr [0x{PORTRAIT_DLL_FN_VA:X}], eax
         pwrap_call:
             lea edx, [esp + 8]                          # untouched original arg1..arg7
@@ -2614,6 +2682,9 @@ def main() -> None:
             push edi                                    # arg2: record
             push esi                                    # arg1: gameobj
             call eax                                    # Vv1DrawPortraitMask @16
+            jmp pwrap_done
+        pwrap_missing:
+            mov dword ptr [0x{PORTRAIT_DLL_FN_VA:X}], 1 # permanent fail-open sentinel
         pwrap_done:
             add esp, 4                                  # discard saved renderer wrapper
             ret 0x1c                                    # stock 0x409410 ABI

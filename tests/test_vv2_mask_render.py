@@ -30,6 +30,27 @@ def test_stage2_uses_the_current_atlas_geometry_in_its_contract() -> None:
     assert "ATLAS_COLS, ATLAS_ROWS = 8, 5" in STAGE2
 
 
+def test_vv2_atlas_migration_replaces_only_exact_bundled_legacy_art() -> None:
+    """The startup migration must not treat arbitrary 320x440 art as legacy."""
+    assert "#define VV2_LEGACY_ATLAS_WIDTH  320" in DLL
+    assert "#define VV2_LEGACY_ATLAS_HEIGHT 440" in DLL
+    for size in ("64965", "64852", "78917", "79105"):
+        assert size in DLL
+    assert "GetFileSizeEx(file, &file_size)" in DLL
+    assert "CryptHashData(hash, header, sizeof(header), 0)" in DLL
+    for digest in (
+        "CAE2F56C58D504EB26AD8AA9772A92F616D8CD26B546EE1091D889A19F616FB4",
+        "10819268622323D4B289CB27A35BFA4B1398AC149A55399AE627AA4CBB4EA57C",
+        "1D2CC1CB3230E59A66D847DAB2EF482075DA538357CCBCAF97A121705CC09E81",
+        "3CE015BA025BF847C65FB0389016658E7D624AFA2038A3AAD7C1530367FE8AC7",
+    ):
+        assert digest in DLL
+    assert "if (!vv2_legacy_atlas_identity(path)) return;  /* preserve current/custom art */" in DLL
+    assert "if (replace_legacy && !vv2_legacy_atlas_identity(path))" in DLL
+    assert "MOVEFILE_REPLACE_EXISTING" in DLL
+    assert "if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) return;" not in DLL
+
+
 def test_dead_slot_clears_are_persisted_once_after_the_sweep() -> None:
     assert 'SAVE_STR = b"Vv2MaskSaveSidecar\\x00"' in STAGE2
     assert "SAVE_FN     = MASK_TABLE_VA + 0xF1C" in STAGE2
