@@ -129,8 +129,14 @@ PORTRAIT_DY_MUL = 54   # same geometric lift as the village (42px at full scale)
 # atlas larger, leaving masks a touch high+left there.  Nudge masks down+right on the portrait
 # path ONLY (caller < 0x445B50).  Tune to taste.
 import os as _os
-PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "17"))   # portrait: 65-wide mask cell vs 40-wide head cell
-PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "40"))   # portrait: 145-tall mask cell vs 65-tall head cell
+PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "0"))    # 0: registration is baked into the art (see below)
+PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "0"))    # 0: registration is baked into the art
+# Both are 0 on purpose. The atlas builder places each frame so its FACE region sits
+# at the head's face anchor in HEAD-CELL coords, offset down by LIFT. Drawing that
+# cell at (x, y - LIFT*scale) therefore lands the mask's face on the head's face at
+# EVERY scale -- verified algebraically at scale 1.0/1.5/2.0, delta 0.00 on both axes.
+# The old 17/40 were cell-size corrections (65x145 mask vs 40x65 head) from BEFORE
+# the registration was baked in; with baked art they are a double correction.
 # Per-mask portrait (Details) fine-alignment — masks drift a little differently on
 # the age-scaled portrait, so each colour gets its own extra nudge ON TOP of the
 # uniform PMDX/PMDY (village view unaffected — this is portrait-branch only).
