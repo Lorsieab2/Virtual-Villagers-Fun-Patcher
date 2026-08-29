@@ -57,32 +57,37 @@ __declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int
 __declspec(dllexport) void __stdcall VV3HeldMaskDraw(int x, int y, int scaleBits);
 __declspec(dllexport) void __stdcall VV3HeldMaskDraw2(int x, int y, void *dragobj);
 
-/* The village head-draw cave reads this fixed exe .data slot for the world-mask
-   draw fn, so the per-frame cave needs no LoadLibrary/GetProcAddress -- we publish
-   our own export here on load.  The slot is in the same writable, otherwise-unused
-   .data page tail as MASK_DRAWFN_PTR (0x6C7A00); 0x6C7A04 is the next dword.  We
-   publish the INTERCEPT variant (called from the head-draw call site with the
-   head's exact x/y/scale). */
-#define VV3_WORLD_DRAWFN_PTR_SLOT  0x006C7A04u
+/* The exe caves read these fixed slots for our draw fns, so a per-frame cave needs no
+   LoadLibrary/GetProcAddress -- we publish our exports here on load.
+   ALL SLOTS LIVE IN THE PATCH-OWNED APPENDED SECTION .vv3md (R/W, VA 0x6E0000, 0x1000
+   bytes), NOT in a borrowed gap.  They previously sat at 0x6C7A00+, which is past .data's
+   VirtualSize (0x6C7518) -- i.e. in the slack between .data's vsize and the next section.
+   That is a code cave and violates docs/head-mask-rendering.md Part 7, so the build now
+   appends .vv3mc (R-X, trampolines) + .vv3md (R/W, these slots) and everything moved.
+   Layout: +0x00 MASK_DRAWFN (Detail cave), +0x04 world DrawAt, +0x08 world index draw,
+   +0x0C held (left NULL), +0x10 diag, +0x14 held2 (left NULL), +0x18 pose_dy,
+   +0x1C anim_hits, +0x20 anim_stash, +0x24 helddbg, +0x28 facing_dx, +0x2C color_dy,
+   +0x30 action draw, +0x34 auto-load latch (exe-side), +0x38 actdbg. */
+#define VV3_WORLD_DRAWFN_PTR_SLOT  0x006E0004u
 /* Z-ORDER (final): the mask is drawn by the wrapper spliced at the per-villager handler's
    CALL SITE (0x42E3F5) -- it runs the whole handler, then calls VV3WorldMaskDraw(index),
    which the wrapper reads from this fixed .data slot.  Recomputed from the record, so it
    catches EVERY villager (children included) and lands on top of all layers.  (The old
    head-site stash path VV3WorldMaskDrawAt/Flush is retained but unused.) */
-#define VV3_WORLD_INDEXFN_PTR_SLOT 0x006C7A08u
+#define VV3_WORLD_INDEXFN_PTR_SLOT 0x006E0008u
 /* Held/picked-up villager mask draw fn, read by the cave wrapping the held head draw. */
-#define VV3_WORLD_HELDFN_PTR_SLOT  0x006C7A0Cu
+#define VV3_WORLD_HELDFN_PTR_SLOT  0x006E000Cu
 /* held phase-C (composited-sprite) mask fn + the diag/tuning block address. */
-#define VV3_WORLD_DIAG_PTR_SLOT    0x006C7A10u
-#define VV3_WORLD_HELD2FN_PTR_SLOT 0x006C7A14u
-#define VV3_WORLD_POSEDY_PTR_SLOT  0x006C7A18u
+#define VV3_WORLD_DIAG_PTR_SLOT    0x006E0010u
+#define VV3_WORLD_HELD2FN_PTR_SLOT 0x006E0014u
+#define VV3_WORLD_POSEDY_PTR_SLOT  0x006E0018u
 /* DIAG counters (temporary): per-anim hook-fire + stash-used counts. */
-#define VV3_WORLD_ANIMHITS_PTR_SLOT  0x006C7A1Cu
-#define VV3_WORLD_ANIMSTASH_PTR_SLOT 0x006C7A20u
-#define VV3_WORLD_HELDDBG_PTR_SLOT   0x006C7A24u
-#define VV3_WORLD_FACINGDX_PTR_SLOT  0x006C7A28u
-#define VV3_WORLD_COLORDY_PTR_SLOT   0x006C7A2Cu
-#define VV3_WORLD_ACTIONFN_PTR_SLOT  0x006C7A30u
+#define VV3_WORLD_ANIMHITS_PTR_SLOT  0x006E001Cu
+#define VV3_WORLD_ANIMSTASH_PTR_SLOT 0x006E0020u
+#define VV3_WORLD_HELDDBG_PTR_SLOT   0x006E0024u
+#define VV3_WORLD_FACINGDX_PTR_SLOT  0x006E0028u
+#define VV3_WORLD_COLORDY_PTR_SLOT   0x006E002Cu
+#define VV3_WORLD_ACTIONFN_PTR_SLOT  0x006E0030u
 
 extern int g_vv3_held_diag[8];
 extern int g_vv3_pose_dy[256];
@@ -100,7 +105,21 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         module_instance = instance;
         *(void **)(UINT_PTR)VV3_WORLD_DRAWFN_PTR_SLOT  = (void *)&VV3WorldMaskDrawAt;
         *(void **)(UINT_PTR)VV3_WORLD_INDEXFN_PTR_SLOT = (void *)&VV3WorldMaskDraw;
-        *(void **)(UINT_PTR)VV3_WORLD_HELDFN_PTR_SLOT  = (void *)&VV3HeldMaskDraw;
+        /* HELD HOOKS DELIBERATELY NOT PUBLISHED (both exe caves null-check the slot and fall
+           through to stock behaviour, so leaving them NULL disables them with no exe change).
+           0x434357 / 0x4344B3 are NOT a held-villager head draw.  Proven statically:
+             (a) the head-atlas holder [+0x127C1C] is read at EXACTLY ONE site in the whole
+                 binary -- 0x460A54, feeding the draw at 0x460A60.  There is only one head
+                 draw in VV3, and my village hook already covers it.
+             (b) 0x42E570 is a GENERIC scaled-sprite draw (its sprite is an argument), not a
+                 head draw; at 0x434357 that argument comes from [esi+ecx*4+0x7C] with
+                 ecx in 0..2 -- a 3-entry sprite table, not the head atlas.
+             (c) the function containing 0x434357 never references the record stride 0x1F8C.
+             (d) it iterates 24-byte array entries and compares elapsed time against 0x12C and
+                 0x7080, and its anchors are 3 fixed screen positions (110,160)/(114,212)/
+                 (75,176) -- i.e. a timed UI/effect renderer.
+           So these hooks were painting masks onto a UI effect.  Credit VV2 for spotting it. */
+        (void)&VV3HeldMaskDraw; (void)&VV3HeldMaskDraw2;
         *(void **)(UINT_PTR)VV3_WORLD_DIAG_PTR_SLOT    = (void *)&g_vv3_held_diag[0];
         *(void **)(UINT_PTR)VV3_WORLD_HELD2FN_PTR_SLOT = (void *)&VV3HeldMaskDraw2;
         *(void **)(UINT_PTR)VV3_WORLD_POSEDY_PTR_SLOT  = (void *)&g_vv3_pose_dy[0];
@@ -108,7 +127,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         *(void **)(UINT_PTR)VV3_WORLD_ANIMSTASH_PTR_SLOT = (void *)&g_vv3_anim_stash[0];
         *(void **)(UINT_PTR)VV3_WORLD_ACTIONFN_PTR_SLOT  = (void *)&VV3ActionMaskDraw;
         *(void **)(UINT_PTR)VV3_WORLD_HELDDBG_PTR_SLOT   = (void *)&g_vv3_helddbg[0];
-        *(void **)(UINT_PTR)0x006C7A38u                  = (void *)&g_vv3_actdbg[0];
+        *(void **)(UINT_PTR)0x006E0038u                  = (void *)&g_vv3_actdbg[0];
         *(void **)(UINT_PTR)VV3_WORLD_FACINGDX_PTR_SLOT  = (void *)&g_vv3_facing_dx[0];
         *(void **)(UINT_PTR)VV3_WORLD_COLORDY_PTR_SLOT   = (void *)&g_vv3_color_dy[0];
     }
@@ -717,7 +736,7 @@ int g_vv3_world_lift   = 0;    /* global lift on TOP of the per-colour seat belo
 /* PER-COLOUR vertical seat = mask face-y (bottom-55% centroid of the mask cell, which excludes
    the headdress whose top varies 23px by colour) MINUS the head's EYE-line y (16).  Measured
    blue57/orange56/red53/purple51/chief48.5 -> 41/40/37/35/32.  Chief seats highest, exactly as
-   rule 7 predicts.  Indexed by (mask-1)=0..4.  Live-tunable (published 0x6C7A2C). */
+   rule 7 predicts.  Indexed by (mask-1)=0..4.  Live-tunable (published 0x6E002C). */
 int g_vv3_color_dy[5]  = { 41, 40, 37, 35, 32 };
 int g_vv3_world_facing = -1;   /* -1 = AUTO (read head atlas frame); >=0 = force col */
 int g_vv3_world_dx     = 0;    /* global X nudge on TOP of the per-facing re-seat below */
@@ -729,7 +748,7 @@ int g_vv3_world_dx     = 0;    /* global X nudge on TOP of the per-facing re-sea
    face -- so a skin-centroid anchor is wrong by up to 8px exactly where it matters.  The
    EYES are the face, and a mask must cover the face, so the eye-line is the correct anchor.
    head eye-x {17.5,17.5,25,25,19.5,21.5,23.5,16} - mask face-x {41,38,32,30,36,35,35,33}.
-   Live-tunable (published to 0x6C7A28). */
+   Live-tunable (published to 0x6E0028). */
 int g_vv3_facing_dx[8] = { -24, -20, -7, -5, -16, -14, -12, -17 };
 int g_vv3_world_dy     = 0;    /* live-tuned Y nudge: +down / -up (scaled px)       */
 int g_vv3_world_liftfloor = 0; /* 0 = LIFT scales fully with head height (owner: mask     */
@@ -747,7 +766,7 @@ int g_vv3_world_facing_remap = 0;   /* +(mod 8) to rotate columns if head/mask o
    phases: a head-draw phase (0x434357, 42E570) and a settled composited-sprite phase
    (0x4344B3, 42E510).  [0]=count of phase-B mask draws, [1]=phase-C, [2]=phase-C mask X
    nudge, [3]=phase-C mask Y nudge from the sprite origin (head sits above it).  Array so
-   it stays one contiguous, WPM-findable block; &g_vv3_held_diag is published to 0x6C7A10. */
+   it stays one contiguous, WPM-findable block; &g_vv3_held_diag is published to 0x6E0010. */
 /* [0]=phaseB count [1]=phaseC count [2]=phaseC dx [3]=phaseC dy
    [4]=last esi (drag compositor 'this') [5]=record ptr found inside esi (or 0)
    [6]=byte offset in esi where that record ptr sat [7]=held-active flag 0x5947D0 */
@@ -757,7 +776,7 @@ int g_vv3_held_diag[8] = {0, 0, 0, -52, 0, 0, -1, 0};
    (0..255; idle/-1 uses none).  The base head is drawn at STANDING height even while the
    villager sits/lies/swims, so its mask floats above the crouched pose's real head; this
    table drops the mask onto each pose's head.  Default 0 = upright poses (carry/work) that
-   already sit right.  Live-tunable (address published to 0x6C7A18); populated by observing
+   already sit right.  Live-tunable (address published to 0x6E0018); populated by observing
    each pose.  A separate flag so the sweep never touches it. */
 int g_vv3_pose_dy[256] = {0};
 /* Horizontal partner to pose_dy (world units, +right).  Zero-default residual fine-tune on
@@ -789,17 +808,17 @@ int g_vv3_maskface_cy[5] = {57,56,53,51,48};
    how many of those reused the head-site stash (head's real animated pos) vs the recompute
    fallback (standing pos).  If a sitting/swimming villager's anim never increments here, the
    pose is drawn by a renderer OUTSIDE my hooked path (VV1/VV5's warning) and a pose_dy nudge
-   would apply to nothing.  Addresses published to 0x6C7A1C / 0x6C7A24. */
+   would apply to nothing.  Addresses published to 0x6E001C / 0x6E0024. */
 int g_vv3_anim_hits[256]  = {0};
 int g_vv3_anim_stash[256] = {0};
 
 /* DIAG (temporary): capture the LARGEST-y (lowest on screen = feet) mask draw seen while a
    villager is player-grabbed (0x5947D0 bit0), plus a per-frame-ish count, to pin down the
    "mask drops to feet on pickup" source: [0]=index [1]=used_stash [2]=x [3]=y(max) [4]=m3010
-   at draw [5]=mask [6]=stash_m3010 [7]=count of held-state draws.  Published to 0x6C7A24. */
+   at draw [5]=mask [6]=stash_m3010 [7]=count of held-state draws.  Published to 0x6E0024. */
 int g_vv3_helddbg[8] = {0};
 /* Dedicated action-draw diag (helddbg is written by the held hook too -- shared use garbled
-   both).  [0..7] = px,py,anim,facing,x,y,[mgr+0x3010],count.  Published at 0x6C7A38. */
+   both).  [0..7] = px,py,anim,facing,x,y,[mgr+0x3010],count.  Published at 0x6E0038. */
 int g_vv3_actdbg[8] = {0};
 
 /* Per-frame stash of the EXACT head-draw position/scale, set by the head-site cave

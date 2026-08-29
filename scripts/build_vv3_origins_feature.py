@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import struct
 import sys
 from pathlib import Path
 
@@ -54,6 +55,40 @@ VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 CHANGE_APPEARANCE_FILE_OFFSET = 0x7BD40
 CHANGE_APPEARANCE_VA = IMAGE_BASE + CHANGE_APPEARANCE_FILE_OFFSET
 
+# ---- Appended PE sections for the mask feature (docs/head-mask-rendering.md Part 7) ----
+# The mask trampolines and the DLL fn-pointer slots used to live in BORROWED GAPS: the
+# trampolines in the .text tail slack (.text VirtualSize ends at 0x47B254, so 0x47B260+ sat in
+# the unmapped-by-vsize remainder of the raw section) and the slots in the .data slack (.data
+# VirtualSize ends at 0x6C7518, so 0x6C7A00+ sat past it).  Both are code caves: two patches
+# wanting the same gap silently corrupt each other.  Part 7 requires appending our OWN sections
+# instead, W^X-separated -- one R-X for code, one R/W for data, never R/W/X.
+#
+# Geometry (stock VV3, verified): file size 0xCB000, SectionAlignment/FileAlignment 0x1000,
+# 5 sections ending at VA 0x6DED40 / raw 0xCB000, SizeOfImage 0x2DF000.  The section table
+# starts at 0x200 with the next free 40-byte header slot at 0x2C8, and the first raw data is at
+# 0x1000, so there is room for two more headers.  Appending at the stock EOF also satisfies the
+# patcher's pe_append_transaction rule that append_offset == original_file_size.
+#
+# Co-selection is impossible with the only other VV3 append (.vv3tw, expanded Time Warp): its
+# layouts exist only for the experimental_expanded_256* modes, and builds.json's selectable
+# patch_mode ids are exactly stock / collection_progression / immediate_fixed.  So this append
+# can own the stock EOF with no offset coupling.
+SECTION_CODE_NAME = b".vv3mc"             # R-X: mask trampolines
+SECTION_CODE_VA = 0x006DF000
+SECTION_CODE_RAW = 0x000CB000             # == stock file size
+SECTION_CODE_SIZE = 0x1000
+SECTION_CODE_CHARS = 0x60000020           # CODE | EXECUTE | READ   (no WRITE: W^X)
+SECTION_DATA_NAME = b".vv3md"             # R/W: DLL fn-pointer slots + flags
+SECTION_DATA_VA = 0x006E0000
+SECTION_DATA_RAW = 0x000CC000
+SECTION_DATA_SIZE = 0x1000
+SECTION_DATA_CHARS = 0xC0000040           # INITIALIZED_DATA | READ | WRITE (no EXECUTE)
+PE_NUMSECTIONS_OFF = 0x10E                # e_lfanew(0x108) + 6
+PE_SIZEOFIMAGE_OFF = 0x158                # e_lfanew + 24 + 56
+PE_NEW_SECHDR_OFF = 0x2C8                 # first free section-header slot
+NEW_SIZE_OF_IMAGE = 0x2E1000              # through both appended sections
+
+
 # Heathen-mask render cave (DLL-draw method).  The .text/.rdata cave padding is
 # fully reserved by the composed fun-patches, so the cave lives INSIDE the always-
 # present Origins payload, in the free gap between detail_menu (ends +0xAD4) and
@@ -80,7 +115,7 @@ MASK_SPRITE_OBJ_OFF = 0x1F7C
 # stay read-only and nothing else uses it.  The mask store, atlas load, and the
 # tunable lift all live in the DLL now, so the exe cave just draws the head and
 # calls this once -- keeping the cave tiny and the mask logic in readable C.
-MASK_DRAWFN_PTR = 0x6C7A00
+MASK_DRAWFN_PTR = SECTION_DATA_VA + 0x00
 
 # ---- Village / world Heathen-mask hook (INTERCEPT the head draw) ----
 # VV3's village view is a DEFERRED command-queue renderer; the per-villager handler
@@ -97,7 +132,7 @@ MASK_DRAWFN_PTR = 0x6C7A00
 WORLD_MASK_CAVE_VA = PAYLOAD_VA + 0xB48   # free gap after MASK_CAVE, before preflight
 WORLD_MASK_CALLSITE_VA = 0x460A60         # sub_4605F0's sole `call sub_42E570` (head)
 WORLD_HEAD_DRAW_VA = 0x42E570             # the head draw we re-issue then STASH
-WORLD_DRAWFN_PTR = 0x6C7A04               # DLL publishes VV3WorldMaskDrawAt (stash) here
+WORLD_DRAWFN_PTR = SECTION_DATA_VA + 0x04               # DLL publishes VV3WorldMaskDrawAt (stash) here
 # Z-ORDER FIX: the mask must draw AFTER the front-hair (sub_42E4B0), else the hair paints
 # over it (owner's "behind the head/hair" symptom).  The hair call @0x460A89 is GUARDED by
 # record+0xF11 (has-hair): bald villagers `je 0x460A8E`, so detouring the hair call alone
@@ -113,29 +148,27 @@ WORLD_DRAWFN_PTR = 0x6C7A04               # DLL publishes VV3WorldMaskDrawAt (st
 # z-order, no stolen bytes.  Handler is `ret 4` (1 arg = villager INDEX; record = base +
 # index*0x1F8C).  The head-site cave still STASHES the exact head x/y/scale during the
 # handler; the wrapper then flushes that stash on top.
-# The 0xE80 payload block is full, so the wrapper lives in the .text tail padding cave
-# (0x47B254, 0xDAC bytes of 0x00, R+X, non-ASLR).
-WORLD_MASK_WRAPPER_CAVE_VA = 0x47B260     # .text padding cave (>=32 bytes of zeros)
+WORLD_MASK_WRAPPER_CAVE_VA = SECTION_CODE_VA + 0x000   # appended R-X section
 WORLD_HANDLER_CALLSITE_VA = 0x0042E3F5    # sole `call 0x4605F0` in the flush dispatch
 WORLD_HANDLER_FN = 0x004605F0             # the per-villager handler we wrap (ret 4)
-WORLD_FLUSHFN_PTR = 0x6C7A08              # DLL publishes VV3WorldMaskFlush here
+WORLD_FLUSHFN_PTR = SECTION_DATA_VA + 0x08              # DLL publishes VV3WorldMaskFlush here
 # HELD/picked-up villager: its head is drawn by the ONLY OTHER 42E570 caller, 0x434357 (a
 # separate renderer that draws it at the cursor; the village queue skips held villagers).
 # Wrap that call so the mask rides the held villager.  42E570 = ret 0x14 (5 args); at the
 # call site the 5 args (sprite,x,y,scale,flag) are already pushed and ecx=0x58F6F8.  Verified
 # 0 branches into 0x434357..0x43435C (safe to steal the 5-byte call).
 WORLD_HELD_CALLSITE_VA = 0x00434357       # held villager's head draw (only other 42E570 xref)
-WORLD_HELD_WRAP_CAVE_VA = 0x0047B2A0      # .text cave, after the village wrapper
+WORLD_HELD_WRAP_CAVE_VA = SECTION_CODE_VA + 0x040   # appended R-X section
 WORLD_HEAD_DRAW_FN = 0x0042E570           # the head draw both call sites use
-WORLD_HELDFN_PTR = 0x6C7A0C               # DLL publishes VV3HeldMaskDraw here
+WORLD_HELDFN_PTR = SECTION_DATA_VA + 0x0C               # DLL publishes VV3HeldMaskDraw here
 # The SETTLED held villager (after the lift animation) is drawn as a single COMPOSITED
 # sprite via 42E510 at 0x4344B3 (a different phase of the same held renderer).  Wrap it too
 # so the mask follows the held villager once it settles in hand.  ret 0x14 (5 args:
 # sprite,x,y,frame,scale); verified 0 branches into 0x4344B3..0x4344B8.
 WORLD_HELD2_CALLSITE_VA = 0x004344B3      # settled held villager's composited-sprite blit
-WORLD_HELD2_WRAP_CAVE_VA = 0x0047B300     # .text cave, after the held-head wrap
+WORLD_HELD2_WRAP_CAVE_VA = SECTION_CODE_VA + 0x080  # appended R-X section
 WORLD_BLIT_FN = 0x0042E510                # the cell blit both this + the village mask use
-WORLD_HELD2FN_PTR = 0x6C7A14              # DLL publishes VV3HeldMaskDraw2 here
+WORLD_HELD2FN_PTR = SECTION_DATA_VA + 0x14              # DLL publishes VV3HeldMaskDraw2 here
 # ACTION-POSE mask: VV3 draws sit/lie/swim/fish/work as a FULL-BODY sprite (head baked in) via
 # the action overlay sub_45F7E0, so the base head-draw stash misses the pose head (owner's
 # "fishing villager's mask at the hip").  Wrap the overlay's call site 0x460B48 (inside the
@@ -145,8 +178,8 @@ WORLD_HELD2FN_PTR = 0x6C7A14              # DLL publishes VV3HeldMaskDraw2 here
 # keeps the net stack effect identical.
 WORLD_ACTION_CALLSITE_VA = 0x00460B48     # `call 0x45F7E0` in sub_4605F0 (action overlay)
 WORLD_ACTION_FN = 0x0045F7E0              # the action-overlay draw (ret 0xc; arg1=record)
-WORLD_ACTION_WRAP_CAVE_VA = 0x0047B360    # .text cave, after the held2 wrap
-WORLD_ACTIONFN_PTR = 0x6C7A30             # DLL publishes VV3ActionMaskDraw here
+WORLD_ACTION_WRAP_CAVE_VA = SECTION_CODE_VA + 0x0C0 # appended R-X section
+WORLD_ACTIONFN_PTR = SECTION_DATA_VA + 0x30             # DLL publishes VV3ActionMaskDraw here
 
 # Complete/Reset all Collections action caves live in a free executable-.rdata
 # padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
@@ -1329,6 +1362,38 @@ def main() -> None:
             }
         )
 
+    # ---- Appended-section pages (docs/head-mask-rendering.md Part 7) ----
+    # The mask trampolines live in an appended R-X section rather than a borrowed gap, so
+    # nothing of ours sits in the .text tail slack.  These pages are concatenated onto the stock
+    # EOF; the section headers mapping them are emitted as ordinary header patches below.
+    append_code = bytearray(SECTION_CODE_SIZE)     # .vv3mc  R-X
+    append_data = bytearray(SECTION_DATA_SIZE)     # .vv3md  R/W (zero-init; DllMain fills it)
+    cave_slots: list[tuple[int, int, str]] = []
+
+    def put_cave(page_off: int, code: bytes, purpose: str) -> None:
+        """Place a trampoline in the appended R-X page at a fixed 0x40-byte slot."""
+        if page_off + len(code) > SECTION_CODE_SIZE:
+            raise RuntimeError("appended code page overflow")
+        for prev_off, prev_len, prev_purpose in cave_slots:
+            if page_off < prev_off + prev_len and prev_off < page_off + len(code):
+                raise RuntimeError(
+                    f"cave overlap at +0x{page_off:X} ({purpose}) "
+                    f"with +0x{prev_off:X} ({prev_purpose})"
+                )
+        append_code[page_off : page_off + len(code)] = code
+        cave_slots.append((page_off, len(code), purpose))
+
+    def section_header(name: bytes, vsize: int, va: int, raw_size: int,
+                       raw_ptr: int, chars: int) -> bytes:
+        hdr = bytearray(40)
+        hdr[0 : len(name)] = name
+        struct.pack_into("<I", hdr, 8, vsize)
+        struct.pack_into("<I", hdr, 12, va - IMAGE_BASE)   # VirtualAddress is an RVA
+        struct.pack_into("<I", hdr, 16, raw_size)
+        struct.pack_into("<I", hdr, 20, raw_ptr)
+        struct.pack_into("<I", hdr, 36, chars)
+        return bytes(hdr)
+
     cure_code = assemble(
         f"""
             cmp ebx, 5
@@ -1706,9 +1771,9 @@ def main() -> None:
     # game code (NOT DllMain) is safe; the load is synchronous so the pointer is live immediately.
     world_mask_wrapper_cave = assemble(
         f"""
-            cmp byte ptr [0x6C7A34], 0
+            cmp byte ptr [0x{SECTION_DATA_VA + 0x34:X}], 0
             jne world_wrap_loaded
-            mov byte ptr [0x6C7A34], 1
+            mov byte ptr [0x{SECTION_DATA_VA + 0x34:X}], 1
             push 0x{s['icons_dll']:X}
             call dword ptr [0x47C124]
         world_wrap_loaded:
@@ -2015,48 +2080,28 @@ def main() -> None:
         world_mask_head_redirect,
         "redirect the head draw through the stash cave (capture exact head x/y/scale)",
     )
-    patch(
-        WORLD_MASK_WRAPPER_CAVE_VA - IMAGE_BASE,
-        original[WORLD_MASK_WRAPPER_CAVE_VA - IMAGE_BASE : WORLD_MASK_WRAPPER_CAVE_VA - IMAGE_BASE + len(world_mask_wrapper_cave)],
-        world_mask_wrapper_cave,
-        "world-mask wrapper cave: run the whole villager handler, then draw the mask on top",
-    )
+    put_cave(0x000, world_mask_wrapper_cave, "world-mask wrapper: run the whole villager handler, then draw the mask on top")
     patch(
         WORLD_HANDLER_CALLSITE_VA - IMAGE_BASE,
         original[WORLD_HANDLER_CALLSITE_VA - IMAGE_BASE : WORLD_HANDLER_CALLSITE_VA - IMAGE_BASE + 5],
         world_mask_wrapper_redirect,
         "wrap the per-villager handler call so the mask draws as the last layer",
     )
-    patch(
-        WORLD_HELD_WRAP_CAVE_VA - IMAGE_BASE,
-        original[WORLD_HELD_WRAP_CAVE_VA - IMAGE_BASE : WORLD_HELD_WRAP_CAVE_VA - IMAGE_BASE + len(world_held_wrap_cave)],
-        world_held_wrap_cave,
-        "held-villager wrapper cave: draw the mask on a picked-up villager at the cursor",
-    )
+    put_cave(0x040, world_held_wrap_cave, "held-villager wrapper (currently unused: DLL leaves its fn-ptr slot NULL)")
     patch(
         WORLD_HELD_CALLSITE_VA - IMAGE_BASE,
         original[WORLD_HELD_CALLSITE_VA - IMAGE_BASE : WORLD_HELD_CALLSITE_VA - IMAGE_BASE + 5],
         world_held_wrap_redirect,
         "wrap the held/picked-up villager head draw so its mask follows the cursor",
     )
-    patch(
-        WORLD_HELD2_WRAP_CAVE_VA - IMAGE_BASE,
-        original[WORLD_HELD2_WRAP_CAVE_VA - IMAGE_BASE : WORLD_HELD2_WRAP_CAVE_VA - IMAGE_BASE + len(world_held2_wrap_cave)],
-        world_held2_wrap_cave,
-        "held phase-C wrapper cave: draw the mask on the settled composited held villager",
-    )
+    put_cave(0x080, world_held2_wrap_cave, "held phase-C wrapper (currently unused: DLL leaves its fn-ptr slot NULL)")
     patch(
         WORLD_HELD2_CALLSITE_VA - IMAGE_BASE,
         original[WORLD_HELD2_CALLSITE_VA - IMAGE_BASE : WORLD_HELD2_CALLSITE_VA - IMAGE_BASE + 5],
         world_held2_wrap_redirect,
         "wrap the settled held villager's composited draw so its mask follows the cursor",
     )
-    patch(
-        WORLD_ACTION_WRAP_CAVE_VA - IMAGE_BASE,
-        original[WORLD_ACTION_WRAP_CAVE_VA - IMAGE_BASE : WORLD_ACTION_WRAP_CAVE_VA - IMAGE_BASE + len(world_action_wrap_cave)],
-        world_action_wrap_cave,
-        "action-overlay wrapper cave: draw the mask on the pose sprite's head",
-    )
+    put_cave(0x0C0, world_action_wrap_cave, "action-overlay wrapper: run the pose overlay, then seat the mask on the pose head")
     patch(
         WORLD_ACTION_CALLSITE_VA - IMAGE_BASE,
         original[WORLD_ACTION_CALLSITE_VA - IMAGE_BASE : WORLD_ACTION_CALLSITE_VA - IMAGE_BASE + 5],
@@ -2168,11 +2213,46 @@ def main() -> None:
         "install the VV3 Origins Tech and Villager upgrade menus and mechanics",
     )
 
+    # ---- Header patches that map the two appended sections (Part 7) ----
+    # Emitted last so they sit after every in-file edit.  Each is an ordinary guarded
+    # offset/before/after patch, so the shipping patcher applies them like any other.
+    patch(
+        PE_NUMSECTIONS_OFF,
+        original[PE_NUMSECTIONS_OFF : PE_NUMSECTIONS_OFF + 2],
+        struct.pack("<H", 7),
+        "NumberOfSections 5 -> 7 (add the .vv3mc R-X and .vv3md R/W mask sections)",
+    )
+    patch(
+        PE_SIZEOFIMAGE_OFF,
+        original[PE_SIZEOFIMAGE_OFF : PE_SIZEOFIMAGE_OFF + 4],
+        struct.pack("<I", NEW_SIZE_OF_IMAGE),
+        "extend SizeOfImage through the appended mask sections",
+    )
+    patch(
+        PE_NEW_SECHDR_OFF,
+        original[PE_NEW_SECHDR_OFF : PE_NEW_SECHDR_OFF + 80],
+        section_header(SECTION_CODE_NAME, SECTION_CODE_SIZE, SECTION_CODE_VA,
+                       SECTION_CODE_SIZE, SECTION_CODE_RAW, SECTION_CODE_CHARS)
+        + section_header(SECTION_DATA_NAME, SECTION_DATA_SIZE, SECTION_DATA_VA,
+                         SECTION_DATA_SIZE, SECTION_DATA_RAW, SECTION_DATA_CHARS),
+        "install the .vv3mc (R-X, mask trampolines) and .vv3md (R/W, DLL fn-ptr slots) headers",
+    )
+
     rendered = bytearray(original)
     for item in patches:
         offset = int(item["offset"], 16)
         replacement = bytes.fromhex(item["after"])
         rendered[offset : offset + len(replacement)] = replacement
+    # Append the two mapped pages at the stock EOF (pe_append_transaction requires
+    # append_offset == original_file_size, which SECTION_CODE_RAW equals by construction).
+    if len(rendered) != SECTION_CODE_RAW:
+        raise RuntimeError(
+            f"append offset mismatch: file is {len(rendered):#x}, expected {SECTION_CODE_RAW:#x}"
+        )
+    rendered += append_code
+    if len(rendered) != SECTION_DATA_RAW:
+        raise RuntimeError("data page append offset mismatch")
+    rendered += append_data
     OUT_EXE.write_bytes(rendered)
     OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
 
