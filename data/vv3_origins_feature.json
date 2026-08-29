@@ -14,7 +14,7 @@
     {
       "source": "data/candidates/VVFP VV3 Safe Upgrades.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "33281658E19B13179EB5B8F48C6E1BDEE38D9B84F7F0735B354373FE64E607ED"
+      "sha256": "E4C0421E693BB7A7EEC98F805272999CE95D0861165C0822ECE85E90355AE767"
     }
   ],
   "doubler_evidence": {
@@ -140,6 +140,12 @@
       "before": "E8F6210300",
       "after": "E8060C2B00",
       "purpose": "wrap the per-villager handler call so the mask draws as the last layer"
+    },
+    {
+      "offset": "0x3290",
+      "before": "8B4424048B11",
+      "after": "E96BBE2D0090",
+      "purpose": "capture save-builder [esp+4] into the patch-owned VV3 mask slot word"
     },
     {
       "offset": "0x60B48",
@@ -289,7 +295,7 @@
       "offset": "0x2C8",
       "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "2E7676336D6300000010000000F02D000010000000B00C00000000000000000000000000200000602E7676336D6400000010000000002E000010000000C00C00000000000000000000000000400000C0",
-      "purpose": "install the .vv3mc (R-X, mask trampolines) and .vv3md (R/W, DLL fn-ptr slots) headers"
+      "purpose": "install the .vv3mc (R-X, mask trampolines) and .vv3md (R/W, DLL fn-ptr/active-save slots) headers"
     }
   ]
 }

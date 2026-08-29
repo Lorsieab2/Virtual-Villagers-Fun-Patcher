@@ -1,26 +1,29 @@
 # VV3 Heathen-Mask Cosmetic Overlay — Status & Handoff
 
-Branch: `claude/vv3-heathen-mask-patch`. Feature: an optional, per-villager cosmetic
-Heathen-mask overlay in VV3's **Change Appearance** window (options: (None), Blue,
-Orange, Red, Purple, Tribal Chief). Purely cosmetic; per-villager; renders on the
-**Details/portrait** screen; persists across save/reload.
+Branch: `codex/emergency-vv3-mask-deploy-sync` plus the local slot-persistence
+commit. Feature: an optional, per-villager cosmetic Heathen-mask overlay in VV3's
+**Change Appearance** window (options: (None), Blue, Orange, Red, Purple, Tribal
+Chief). Purely cosmetic; per-villager; the current candidate has separate Details,
+village, and action-pose render paths; player runtime acceptance remains open.
 
-## TL;DR — DONE and playtest-verified end-to-end (2026-08-23)
+## TL;DR — static candidate status (runtime acceptance open)
 
-Render, storage, persistence, atlas self-deploy, and no-interference are all
-built and live-tested. Only the **Chief** atlas row and an optional reuse-guard
-upgrade remain.
+The implementation, deployment artifact, and per-save sidecar selector are built
+and statically tested. No runtime or player acceptance is claimed here. The
+**Chief** atlas row and an optional reuse-guard upgrade remain separate art/sweep
+questions.
 
 | Piece | State |
 |---|---|
-| Detail render (Blue/Orange/Red/Purple) | ✅ renders on every villager, seated on the head |
+| Detail render (Blue/Orange/Red/Purple) | ✅ exact hook/cave is built; player render proof pending |
+| Village/action-pose render paths | ✅ exact candidate hooks are built; player pose/pickup proof pending |
 | Storage | ✅ DLL-owned table, immune to the sim (see below) |
 | Chooser (mask cycler in Change Appearance) | ✅ writes the table on OK-after-charge |
-| Persistence (survives quit/reload) | ✅ sidecar, live round-trip proven |
+| Persistence (survives quit/reload) | ✅ per-save sidecar selector built; player round-trip pending |
 | Atlas ships without a manifest step | ✅ embedded in the DLL, self-extracts |
-| No interference with other features | ✅ manifest diff + full suite green |
+| No interference with other features | ✅ guarded manifest/test composition; player regression pending |
 | **Chief** atlas row | ⛔ art staggered — needs re-stacking (below) |
-| Village-view masks | ⛔ separate pipeline (below) — Details-only by design |
+| Village-view masks | ✅ separate candidate path is emitted; player positioning proof pending |
 
 ## Architecture
 
@@ -33,28 +36,31 @@ not just read 0.* So the mask lives in the companion DLL: `g_vv3_mask[256]` +
 `VV3_Get/SetMaskForRecord`. The villager record and the save file are **never**
 written. Slot-reuse is guarded by an FNV fingerprint over gender (`+0xDC8`) + 3
 Likes (`+0xFB4`) + 3 Dislikes (`+0xFC0`) so a newborn reusing a dead villager's
-slot can't inherit the mask.
+slot can't inherit the mask. The active save number is captured from the stock
+save-builder argument at `0x403290` into `.vv3md+0x44`; slot 0 fails closed.
 
-**Render — DLL-side draw, tiny exe cave.** The exe hooks the Detail head-draw call
-site `0x456B24` (covers *every* villager once storage is stable). The cave draws
-the head, then calls `VV3DrawMaskOnHead(record, [record+0x1F7C], &args)` once. The
-DLL reads the table, gets the atlas (`VV3GetMaskAtlas` → game allocator `0x46EC93`
+**Render — DLL-side draw, separated exe caves.** The Detail head-draw call site
+`0x456B24` calls `VV3DrawMaskOnHead(record, [record+0x1F7C], &args)`. The DLL
+reads the table, gets the atlas (`VV3GetMaskAtlas` → game allocator `0x46EC93`
 + loader `0x40AF10`), and draws the mask cell on top via the game's own draw fn
 `0x4093A0` — row = mask-1, y lifted by `(scaledY * VV3_MASK_LIFT_MUL) >> 7` with
-`VV3_MASK_LIFT_MUL = 34` (live-tuned: 54 too high, 16 too low). Keeping the draw in
-the DLL keeps the exe cave ~110 B (fits the Origins payload gap `PAYLOAD_VA+0xAD8`)
-— **no appended PE section needed**. Cached DLL fn ptr in `.data 0x6C7A00`.
+`VV3_MASK_LIFT_MUL = 34`. Village and action-pose paths use the appended `.vv3mc`
+R-X caves and `.vv3md` R/W function-pointer slots; those paths still require
+player verification for every pose, facing, pickup, and Details transition.
 
 **Chooser.** `ShowVV3AppearanceChooser` (dialog 213, still `@20`) takes the record
 pointer and reads/commits via the table. The Change Appearance cave passes the
 record and no longer touches `+0xED0`. Head (`+0xDF0`) / body (`+0xDF4`) writes are
 unchanged (legitimate paid changes).
 
-**Persistence.** Sidecar `<Documents>\LDW\<exe-basename>\vvfp_masks.dat`
+**Persistence.** Each positive active slot uses its own sidecar
+`<Documents>\LDW\<exe-basename>\vvfp_masks_<slot>.dat`
 (`SHGetSpecialFolderPathA(CSIDL_PERSONAL)` — follows OneDrive redirection).
-Write-through in `VV3_SetMaskForRecord`, read-once on the first table access.
-Magic `MSK3` + the two arrays. All file I/O in normal functions (never `DllMain`).
-Live-tested: set Red on a villager → sidecar written → relaunch → mask restored.
+`VV3_SetMaskForRecord` writes through to the selected file; a slot change clears
+the table and loads only the new file. Magic `MSK3` + the two arrays. A missing or
+short file clears the table, and there is no legacy unsuffixed-file migration.
+All file I/O is in normal functions (never `DllMain`). Static round-trip structure
+is tested; live save-switch and relaunch behavior remain player gates.
 
 **Atlas self-deploy.** `Images/heathen_masks.png` is embedded in the DLL as RCDATA
 5000; `VV3GetMaskAtlas` extracts it to `<game>\Images\` if missing (respects an
@@ -62,12 +68,12 @@ existing file). Ships with only the DLL — `companion_files` stays `[the DLL]`,
 shared cross-game patcher core touched. Atlas: 8 cols × 5 rows, cell 40×128, built
 by `scripts/build_vv3_mask_atlas_separate.py` from the user's port canvases.
 
-**No interference (verified).** The composed-build manifest differs from the pinned
-baseline by exactly one thing: the **removal** of the 4 head-atlas row-count
-patches (`0xAAE6C/9C/F2C/F5C`) — the abandoned append-rows artifact. Nothing added;
-every other feature hook (doublers, EDL, barrel, collections, village-wide,
-appearance) is byte-identical. The mod no longer modifies the shared head atlases
-at all. Golden pins updated; VV3 suite green.
+**No interference (static status).** The composed-build manifest removes the 4
+head-atlas row-count patches (`0xAAE6C/9C/F2C/F5C`) from the abandoned append-rows
+artifact, adds the separated `.vv3mc`/`.vv3md` mask sections, and adds only the
+exact save-builder slot-capture patch at `0x403290` for sidecar selection.
+Other audited feature hooks remain guarded by the manifest and the VV3 suite is
+green; player regression testing is still required.
 
 ## Remaining
 
@@ -89,11 +95,14 @@ at all. Golden pins updated; VV3 suite green.
    `Documents\LDW`. Persistence is self-consistent so it works; matching the game's
    exact save path would co-locate them.
 
-## Not built: map / village-view masks
+## Village / action-pose candidate path
 
 VV3's village compositor does **not** route through the Detail head-draw thunk — it
 uses a separate texture-index animation system (`0x42E440`, per-villager texture
 table `[edi+0x127C44]`, layer dispatcher `0x45F7E0` reading `record+0xF20`, animObj
-`record+0xDD0`). So masks are Details-only for now; a village overlay is a separate,
-larger effort (per-frame render code in a 150-iteration hot loop — do it with live
-iteration, not blind).
+`record+0xDD0`). The current candidate wraps the proven village handler/head and
+action-overlay call sites in the appended `.vv3mc` section and resolves its DLL
+functions through `.vv3md`. The mask is intentionally not hooked into the two
+timed UI/effect draw sites `0x434357`/`0x4344B3`. Static coverage is not player
+proof: runtime must still verify every action pose, facing, age/scale, pickup, and
+Details transition against the VV2/VV5 reference behavior.

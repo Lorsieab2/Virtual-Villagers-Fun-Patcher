@@ -79,7 +79,7 @@ SECTION_CODE_VA = 0x006DF000
 SECTION_CODE_RAW = 0x000CB000             # == stock file size
 SECTION_CODE_SIZE = 0x1000
 SECTION_CODE_CHARS = 0x60000020           # CODE | EXECUTE | READ   (no WRITE: W^X)
-SECTION_DATA_NAME = b".vv3md"             # R/W: DLL fn-pointer slots + flags
+SECTION_DATA_NAME = b".vv3md"             # R/W: DLL fn-pointer slots + flags + active save
 SECTION_DATA_VA = 0x006E0000
 SECTION_DATA_RAW = 0x000CC000
 SECTION_DATA_SIZE = 0x1000
@@ -88,6 +88,18 @@ PE_NUMSECTIONS_OFF = 0x10E                # e_lfanew(0x108) + 6
 PE_SIZEOFIMAGE_OFF = 0x158                # e_lfanew + 24 + 56
 PE_NEW_SECHDR_OFF = 0x2C8                 # first free section-header slot
 NEW_SIZE_OF_IMAGE = 0x2E1000              # through both appended sections
+
+# The stock save-builder starts with these two instructions.  The mask sidecar
+# must follow the save currently being written, not one process-global file, so
+# the exact entry is detoured to a small .vv3mc trampoline.  The trampoline
+# preserves both stock instructions and records [esp+4] in the patch-owned
+# .vv3md word consumed by the companion DLL.
+SAVE_SLOT_CAPTURE_FN = 0x00403290
+SAVE_SLOT_CAPTURE_LEN = 6
+SAVE_SLOT_CAPTURE_CAVE_VA = SECTION_CODE_VA + 0x100
+SAVE_SLOT_CAPTURE_RETURN_VA = SAVE_SLOT_CAPTURE_FN + SAVE_SLOT_CAPTURE_LEN
+SAVE_SLOT_CAPTURE_BEFORE = bytes.fromhex("8B4424048B11")
+SAVE_SLOT_PTR = SECTION_DATA_VA + 0x44
 
 
 # Heathen-mask render cave (DLL-draw method).  The .text/.rdata cave padding is
@@ -1889,6 +1901,26 @@ def main() -> None:
         f"call 0x{WORLD_ACTION_WRAP_CAVE_VA:X}", WORLD_ACTION_CALLSITE_VA
     )
 
+    # Save-slot capture: the stock save-builder entry begins with
+    # `mov eax,[esp+4]; mov edx,[ecx]`.  Preserve those exact instructions,
+    # publish the positive slot argument into .vv3md, and jump back to the
+    # untouched prologue.  The companion owns the slot switch/sidecar policy;
+    # this trampoline only observes the stock save-builder argument.
+    save_slot_capture_cave = assemble(
+        f"""
+            mov eax, dword ptr [esp + 4]
+            mov dword ptr [0x{SAVE_SLOT_PTR:X}], eax
+            mov edx, dword ptr [ecx]
+            jmp 0x{SAVE_SLOT_CAPTURE_RETURN_VA:X}
+        """,
+        SAVE_SLOT_CAPTURE_CAVE_VA,
+    )
+    save_slot_capture_redirect = rel32_jump(
+        SAVE_SLOT_CAPTURE_FN,
+        SAVE_SLOT_CAPTURE_CAVE_VA,
+        SAVE_SLOT_CAPTURE_LEN,
+    )
+
     # Complete all Collections: mark collectible ids 52..99 found in the native
     # count array [0x58F428 + 0x10 + id*4], then broadcast the collectible
     # refresh (0x293) and the four collection-complete goal events plus the
@@ -2095,6 +2127,17 @@ def main() -> None:
         world_mask_wrapper_redirect,
         "wrap the per-villager handler call so the mask draws as the last layer",
     )
+    put_cave(
+        0x100,
+        save_slot_capture_cave,
+        "capture the exact positive save slot for per-save mask sidecars",
+    )
+    patch(
+        SAVE_SLOT_CAPTURE_FN - IMAGE_BASE,
+        SAVE_SLOT_CAPTURE_BEFORE,
+        save_slot_capture_redirect,
+        "capture save-builder [esp+4] into the patch-owned VV3 mask slot word",
+    )
     # 0x434357 / 0x4344B3 ARE NOT VILLAGER DRAWS -- these two hooks are REMOVED, not disabled.
     # Proven from the binary, not assumed:
     #   * the head-atlas holder [+0x127C1C] is read at EXACTLY ONE site in the whole exe
@@ -2242,7 +2285,7 @@ def main() -> None:
                        SECTION_CODE_SIZE, SECTION_CODE_RAW, SECTION_CODE_CHARS)
         + section_header(SECTION_DATA_NAME, SECTION_DATA_SIZE, SECTION_DATA_VA,
                          SECTION_DATA_SIZE, SECTION_DATA_RAW, SECTION_DATA_CHARS),
-        "install the .vv3mc (R-X, mask trampolines) and .vv3md (R/W, DLL fn-ptr slots) headers",
+        "install the .vv3mc (R-X, mask trampolines) and .vv3md (R/W, DLL fn-ptr/active-save slots) headers",
     )
 
     rendered = bytearray(original)

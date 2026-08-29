@@ -67,7 +67,8 @@ __declspec(dllexport) void __stdcall VV3HeldMaskDraw2(int x, int y, void *dragob
    Layout: +0x00 MASK_DRAWFN (Detail cave), +0x04 world DrawAt, +0x08 world index draw,
    +0x0C held (left NULL), +0x10 diag, +0x14 held2 (left NULL), +0x18 pose_dy,
    +0x1C anim_hits, +0x20 anim_stash, +0x24 helddbg, +0x28 facing_dx, +0x2C color_dy,
-   +0x30 action draw, +0x34 auto-load latch (exe-side), +0x38 actdbg. */
+   +0x30 action draw, +0x34 auto-load latch (exe-side), +0x38 actdbg, +0x44 active save
+   slot (captured by the exe save-builder trampoline). */
 #define VV3_WORLD_DRAWFN_PTR_SLOT  0x006E0004u
 /* Z-ORDER (final): the mask is drawn by the wrapper spliced at the per-villager handler's
    CALL SITE (0x42E3F5) -- it runs the whole handler, then calls VV3WorldMaskDraw(index),
@@ -500,15 +501,23 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
    stored mask is guarded by an identity fingerprint over fields fixed at birth
    (gender + 3 Likes + 3 Dislikes): on read we recompute it and only return the
    mask when it still matches, so a reused slot reads as "no mask" and can never
-   inherit the previous villager's mask.  Persistence (a sidecar file next to the
-   save) is a later step -- for now the table is in-memory (masks reset on quit),
-   matching VV2's current state.  Render reads via VV3_GetMaskForRecord; the
-   Change Appearance chooser writes via VV3_SetMaskForRecord. */
+   inherit the previous villager's mask.  Persistence is kept in a sidecar next
+   to the active save.  The executable's save-builder hook publishes the active
+   positive save number in the patch-owned .vv3md slot below; a change of that
+   number clears the in-memory table before the matching sidecar is loaded.
+   Render reads via VV3_GetMaskForRecord; the Change Appearance chooser writes
+   via VV3_SetMaskForRecord. */
 #define VV3_MASK_SLOTS 256
 #define VV3_MASK_MAX   5             /* 1..5 = Blue/Orange/Red/Purple/Chief; 0=none */
 
 static unsigned char g_vv3_mask[VV3_MASK_SLOTS];
 static unsigned int  g_vv3_mask_fp[VV3_MASK_SLOTS];
+
+/* The Origins patch captures the save number at the exact stock save-builder
+   entry (0x403290) into this .vv3md word.  Zero is deliberately invalid: no
+   mask data is read or written until the game has identified a positive save.
+   This is patch-owned memory, not a villager record or a save-file field. */
+#define VV3_MASK_SLOT_PTR 0x006E0044u
 
 /* FNV-1a/32 over the villager's immutable-at-birth genetics; 0 -> 1 (0 reserved). */
 static unsigned int vv3_mask_fingerprint(const unsigned char *rec) {
@@ -541,22 +550,32 @@ static int vv3_mask_index(const void *record) {
 }
 
 /* ---- Sidecar persistence (a file next to the save; never the save itself) ----
-   The table is DLL memory, so without this masks would reset on quit.  The
-   sidecar is Documents\LDW\<exe-basename>\vvfp_masks.dat -- the same folder VV3
-   keeps its saves in -- holding the mask + fingerprint arrays.  Written on every
-   chooser commit (write-through) and read once on the first table access of the
-   session (so a loaded village restores its masks; the fingerprint guard keeps
-   them correct even if slot indices shifted).  All file I/O is in these normal
-   functions, never DllMain (loader-lock safe).  Keyed by record index; switching
-   saves mid-session shows the prior masks until re-set (no reset hook yet) --
-   matching VV5's model.  A missing/short file just leaves the table zeroed. */
+   The table is DLL memory, so without this masks would reset on quit.  Each
+   active save owns its own sidecar, Documents\LDW\<exe-basename>\
+   vvfp_masks_<slot>.dat, holding the mask + fingerprint arrays.  Written on
+   every chooser commit (write-through) and read once after the executable
+   publishes that save's slot.  All file I/O is in these normal functions,
+   never DllMain (loader-lock safe).  A missing/short file leaves the table
+   zeroed.  There is intentionally no legacy unsuffixed-file migration. */
 #define VV3_MASK_MAGIC 0x334B534Du   /* "MSK3" little-endian */
 static int g_vv3_mask_loaded;
+static int g_vv3_mask_slot;
 
-static int vv3_mask_sidecar_path(char *out, int cap) {
+static void vv3_mask_clear_tables(void) {
+    ZeroMemory(g_vv3_mask, sizeof(g_vv3_mask));
+    ZeroMemory(g_vv3_mask_fp, sizeof(g_vv3_mask_fp));
+}
+
+static int vv3_mask_captured_slot(void) {
+    int slot = *(int *)(UINT_PTR)VV3_MASK_SLOT_PTR;
+    return slot > 0 ? slot : 0;
+}
+
+static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
     char docs[MAX_PATH], exe[MAX_PATH], dir[MAX_PATH];
     char *base, *dot, *p;
     DWORD n;
+    if (slot <= 0) return 0;
     if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) return 0;
     n = GetModuleFileNameA(NULL, exe, MAX_PATH);           /* the GAME exe */
     if (n == 0 || n >= MAX_PATH) return 0;
@@ -565,10 +584,10 @@ static int vv3_mask_sidecar_path(char *out, int cap) {
     dot = NULL;
     for (p = base; *p; ++p) if (*p == '.') dot = p;
     if (dot) *dot = '\0';                                  /* strip extension */
-    if (lstrlenA(docs) + lstrlenA(base) + 24 >= cap) return 0;
+    if (lstrlenA(docs) + lstrlenA(base) + 40 >= cap) return 0;
     wsprintfA(dir, "%s\\LDW", docs);                       CreateDirectoryA(dir, NULL);
     wsprintfA(dir, "%s\\LDW\\%s", docs, base);             CreateDirectoryA(dir, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks.dat", docs, base);
+    wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
     return 1;
 }
 
@@ -577,7 +596,8 @@ static void vv3_mask_write_sidecar(void) {
     HANDLE h;
     DWORD w = 0;
     unsigned int magic = VV3_MASK_MAGIC;
-    if (!vv3_mask_sidecar_path(path, sizeof(path))) return;
+    if (g_vv3_mask_slot <= 0) return;
+    if (!vv3_mask_sidecar_path(path, sizeof(path), g_vv3_mask_slot)) return;
     h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) return;
@@ -587,22 +607,50 @@ static void vv3_mask_write_sidecar(void) {
     CloseHandle(h);
 }
 
-static void vv3_mask_read_sidecar(void) {
+static void vv3_mask_read_sidecar(int slot) {
     char path[MAX_PATH];
     HANDLE h;
-    DWORD r = 0;
+    DWORD r = 0, mask_r = 0, fp_r = 0;
     unsigned int magic = 0;
     g_vv3_mask_loaded = 1;                                 /* one-shot; set first */
-    if (!vv3_mask_sidecar_path(path, sizeof(path))) return;
+    vv3_mask_clear_tables();
+    if (!vv3_mask_sidecar_path(path, sizeof(path), slot)) return;
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) return;
     if (ReadFile(h, &magic, sizeof(magic), &r, NULL) && r == sizeof(magic)
         && magic == VV3_MASK_MAGIC) {
-        ReadFile(h, g_vv3_mask, sizeof(g_vv3_mask), &r, NULL);
-        ReadFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &r, NULL);
+        if (!ReadFile(h, g_vv3_mask, sizeof(g_vv3_mask), &mask_r, NULL)
+            || mask_r != sizeof(g_vv3_mask)
+            || !ReadFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &fp_r, NULL)
+            || fp_r != sizeof(g_vv3_mask_fp)) {
+            vv3_mask_clear_tables();
+        }
     }
     CloseHandle(h);
+}
+
+/* Observe the active save number before every read/write.  On a save switch,
+   discard the previous table and reload only the new save's sidecar.  Save 0
+   (including the interval before the stock builder first captures a slot) is
+   fail-closed and cannot expose or persist stale mask data. */
+static int vv3_mask_prepare_slot(void) {
+    int slot = vv3_mask_captured_slot();
+    if (slot <= 0) {
+        if (g_vv3_mask_slot != 0) {
+            vv3_mask_clear_tables();
+            g_vv3_mask_slot = 0;
+        }
+        g_vv3_mask_loaded = 1;
+        return 0;
+    }
+    if (g_vv3_mask_slot != slot) {
+        vv3_mask_clear_tables();
+        g_vv3_mask_slot = slot;
+        g_vv3_mask_loaded = 0;
+    }
+    if (!g_vv3_mask_loaded) vv3_mask_read_sidecar(slot);
+    return 1;
 }
 
 /* Render hook: mask (1..5) to draw over this villager's head, or 0 for none /
@@ -612,7 +660,7 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
     unsigned int fpv;
     int idx, i;
     if (record == NULL) return 0;
-    if (!g_vv3_mask_loaded) vv3_mask_read_sidecar();       /* restore on first use */
+    if (!vv3_mask_prepare_slot()) return 0;
     fpv = vv3_mask_fingerprint(rec);
     /* FAST PATH: villager still at its stored slot (the common case within a session). */
     idx = vv3_mask_index(record);
@@ -640,7 +688,7 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
 __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask) {
     const unsigned char *rec = (const unsigned char *)record;
     int idx = vv3_mask_index(record);
-    if (!g_vv3_mask_loaded) vv3_mask_read_sidecar();       /* don't clobber unread data */
+    if (!vv3_mask_prepare_slot()) return 0;
     if (idx < 0) return 0;
     if (mask < 0 || mask > VV3_MASK_MAX) mask = 0;
     g_vv3_mask[idx] = (unsigned char)mask;

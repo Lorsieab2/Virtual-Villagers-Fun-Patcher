@@ -238,6 +238,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                 elif path.name == "vv3_origins_feature.json":
                     corrected_offsets = {
                         "0x7B664", "0x7B7C0", "0x7B7D0",
+                        "0x3290",
                         "0x15EF1", "0x16983", "0x16BAB", "0x17A3A",
                         "0x15D44", "0x1673E", "0x18452", "0xA3180",
                         # Heathen-mask sections move (docs/head-mask-rendering.md

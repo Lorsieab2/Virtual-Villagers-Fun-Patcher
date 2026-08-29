@@ -381,6 +381,7 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 # call-site redirects move with it; no upgrade behaviour changes.
                 "data/vv3_origins_feature.json": {
                     "0x7B664", "0xA3180",
+                    "0x3290",
                     "0x7B260", "0x7B2A0", "0x7B300",
                     "0x10E", "0x158", "0x2C8",
                     "0x2E3F5", "0x34357", "0x344B3", "0x60B48",

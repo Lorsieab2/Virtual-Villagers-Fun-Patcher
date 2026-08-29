@@ -138,6 +138,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 0x2E3F5,   # sole `call sub_4605F0` -> village wrapper (mask last layer)
                 0x60A60,   # head draw -> stash cave (captures exact head x/y/scale)
                 0x60B48,   # `call sub_45F7E0` -> action-overlay wrapper (pose heads)
+                0x3290,    # save-builder slot capture -> .vv3mc/.vv3md sidecar selector
                 # (0x34357 / 0x344B3 are NOT patched: proven from the binary to be a
                 # timed UI/effect renderer, not a villager head draw -- the head-atlas
                 # holder [+0x127C1C] is read at exactly one site in the exe, 0x460A54.
