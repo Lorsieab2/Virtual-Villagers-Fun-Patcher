@@ -85,11 +85,13 @@
 /* Mask scratch now lives in the exe's dedicated appended R/W section .vv1md
    (base 0x00491000), NOT the borrowed .data BSS tail (owner: no shared caves).
    These MUST match DATA_SCRATCH_BASE_VA + the same offsets in the build script:
-   TABLE = base+0x00, MANAGER = base+0x98, SAVE_SLOT = base+0x1F4. */
+   TABLE = base+0x00, MANAGER = base+0x98, SAVE_SLOT = base+0x1F4,
+   BIRTH_DIRTY = base+0x1FC. */
 #define VV_MASK_SCRATCH_BASE 0x00491000u
 #define VV_MASK_TABLE ((unsigned char *)(VV_MASK_SCRATCH_BASE + 0x00))   /* .vv1md R/W */
 #define VV_MASK_MANAGER (*(unsigned char **)(VV_MASK_SCRATCH_BASE + 0x98)) /* .vv1md R/W */
 #define VV_MASK_SAVE_SLOT (*(unsigned int *)(VV_MASK_SCRATCH_BASE + 0x1F4)) /* .vv1md R/W; 1..5, 0 = fail closed */
+#define VV_MASK_BIRTH_DIRTY (*(unsigned char *)(VV_MASK_SCRATCH_BASE + 0x1FC)) /* .vv1md R/W; newborn clear needs sidecar retry */
 #define VV_RECORD_STRIDE 0x3D8
 #define VV_MASK_SLOTS 256
 #define VV_MASK_TABLE_BYTES (VV_MASK_SLOTS / 2)
@@ -123,13 +125,18 @@ static int vv1_mask_prepare_slot(void);
 static unsigned char vv1_mask_get(unsigned char *villager) {
     int index = vv1_mask_index(villager);
     unsigned char packed;
+    unsigned char value;
     if (!vv1_mask_prepare_slot() || index < 0) {
         return 0;
     }
     packed = VV_MASK_TABLE[index >> 1];
-    return (index & 1)
+    value = (index & 1)
         ? (unsigned char)(packed >> 4)
         : (unsigned char)(packed & 0x0F);
+    /* Sidecars are external, user-writable input.  A corrupt high nibble
+       must never become an atlas row or picker choice; treat it as None at
+       the single accessor boundary shared by Details and Change Appearance. */
+    return (value < VV_MASK_COUNT) ? value : 0;
 }
 
 static void vv1_mask_set(unsigned char *villager, unsigned char value) {
@@ -166,6 +173,7 @@ static int vv1_mask_current_slot(void) {
 static void vv1_mask_clear_state(void) {
     memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);
     memset(vv1_mask_seen_alive, 0, sizeof(vv1_mask_seen_alive));
+    VV_MASK_BIRTH_DIRTY = 0;
 }
 
 /* Synchronize the DLL's latches with the executable-captured slot.  The exe
@@ -297,23 +305,29 @@ static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
     return 1;
 }
 
-static void vv1_mask_sidecar_save(void) {
+static int vv1_mask_sidecar_save(void) {
     char path[MAX_PATH];
     HANDLE file;
     DWORD wrote;
     unsigned int magic = VV_MASK_SIDECAR_MAGIC;
     int slot = vv1_mask_prepare_slot();
     if (!slot || !vv1_mask_sidecar_path(path, sizeof(path), slot)) {
-        return;
+        return 0;
     }
     file = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                        FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {
-        return;
+        return 0;
     }
-    WriteFile(file, &magic, sizeof(magic), &wrote, NULL);
-    WriteFile(file, VV_MASK_TABLE, VV_MASK_TABLE_BYTES, &wrote, NULL);
+    if (!WriteFile(file, &magic, sizeof(magic), &wrote, NULL)
+        || wrote != sizeof(magic)
+        || !WriteFile(file, VV_MASK_TABLE, VV_MASK_TABLE_BYTES, &wrote, NULL)
+        || wrote != VV_MASK_TABLE_BYTES) {
+        CloseHandle(file);
+        return 0;
+    }
     CloseHandle(file);
+    return 1;
 }
 
 static void vv1_mask_sidecar_load(void) {
@@ -615,17 +629,25 @@ __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
    one-shot restore gate. This is deliberately separate from Details and from
    any selection/pickup flag: it observes the authoritative occupied byte for
    every record, clears only slots that were previously seen alive and are now
-   free, and writes the sidecar only when a non-zero mask was actually removed.
+   free, and writes the sidecar only when a non-zero mask was actually removed
+   or an exact newborn boundary marked a reused mask dirty.
    Static wiring proves cadence/guards; runtime reuse behavior remains a player
    acceptance gate. */
 __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     int swept;
+    int birth_dirty;
     if (!vv1_mask_prepare_slot()) {
         return;  /* slot not captured yet -> no table or sidecar mutation */
     }
+    birth_dirty = VV_MASK_BIRTH_DIRTY != 0;
     swept = vv1_mask_sweep_dead();
-    if (swept) {
-        vv1_mask_sidecar_save();
+    if (swept || birth_dirty) {
+        /* Keep the dirty flag set when the sidecar cannot be written; a later
+           frame retries instead of allowing the old sidecar entry to return
+           after reload. */
+        if (vv1_mask_sidecar_save()) {
+            VV_MASK_BIRTH_DIRTY = 0;
+        }
     }
 }
 

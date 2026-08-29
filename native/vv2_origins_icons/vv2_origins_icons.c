@@ -1169,6 +1169,12 @@ static void vv2_mask_sidecar_load(void) {
     }
     if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
         && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
+        /* Sidecars are user-writable and older builds did not constrain every
+           byte. Normalize before publishing anything to the render thunks:
+           only 0 (none) through 5 (the five atlas rows) are valid. */
+        for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) {
+            if (buf[i] >= VV2_MASK_COUNT) buf[i] = 0;
+        }
         if (vv2_mask_table_ok()) memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
     }
     CloseHandle(f);

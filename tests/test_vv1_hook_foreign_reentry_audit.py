@@ -123,8 +123,15 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       instruction (`jne` after the saved compare / `xor bl,bl`) redefines
 #       flags.  The handled paths use balanced `ret 8`; helper calls preserve
 #       nonvolatiles.
-#   No entry in this review was unsafe or unknown; no generator change was
-#   required.  The hashes below are the post-review generated cave bytes.
+#   0x3C393                         confirmed.  Exact stock sub_43C350 selects
+#       the first free record, sets its occupied/faction bytes at this
+#       boundary, and keeps the selected record index in [esp+0x10]. The cave
+#       replays those two stores, pushad/popad-brackets a bounds-checked clear
+#       of the patch-owned mask nibble for that exact index, and resumes at
+#       0x43C39B. No villager-record bytes or incoming flags are consumed by
+#       the clear path.
+#   No entry in this review was unsafe or unknown. The hashes below are the
+#   post-review generated cave bytes.
 CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x39C83"): "D3E8E252393FE028178409449C81F4C69C69B8E259387B249D71E4CEE6322AE6",
     ("vv1_birth_control", "0x3DD03"): "F4AF5EE81A11110F6F37F8AD2411C0D7F4DA616E3B8EB820C519C5E2734E8614",
@@ -153,6 +160,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x93E0"): "737AA82521DC44FB571462B9B8C3BB432316C88DE977634C2D6C388ED44A1586",
     ("vv1_enable_origins_exclusive_features", "0x93C0"): "28E4B105A8C0D9E9ED8F0AA2973CB2B9919F342E9D87697A9DB9EB742324FBE9",
     ("vv1_enable_origins_exclusive_features", "0x2ED0"): "8091338A543C285EF1CBE52A81044E6587DDF392D8120D3FF422E53C156C0F71",
+    ("vv1_enable_origins_exclusive_features", "0x3C393"): "323F30C734F89D8ABAF15C4C864AC78A0320AE634B5D4D99EA826801C35F8044",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
     # reproduce the villager index load, stash it to .data, and re-enter stock
     # at the NATURAL resume (0x43779F=splice+7, 0x438909=splice+9), so no

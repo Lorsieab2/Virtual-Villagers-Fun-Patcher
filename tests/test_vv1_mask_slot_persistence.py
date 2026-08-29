@@ -76,6 +76,37 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertIn("if (swept) {", self.source)
         self.assertIn("vv1_mask_sidecar_save();", self.source)
 
+    def test_corrupt_sidecar_nibbles_fail_closed_at_shared_mask_accessor(self) -> None:
+        start = self.source.index("static unsigned char vv1_mask_get(")
+        end = self.source.index("static void vv1_mask_set(", start)
+        getter = self.source[start:end]
+        self.assertIn("value = (index & 1)", getter)
+        self.assertIn("return (value < VV_MASK_COUNT) ? value : 0;", getter)
+        self.assertIn(
+            "Sidecars are external, user-writable input.  A corrupt high nibble",
+            getter,
+        )
+
+    def test_newborn_reuse_clears_at_exact_allocator_boundary(self) -> None:
+        patches = {int(item["offset"], 0): item for item in self.manifest["patches"]}
+        splice = patches[0x3C393]
+        self.assertEqual(splice["before"], "C6462801C6462900")
+        self.assertEqual(len(bytes.fromhex(splice["after"])), 8)
+        cave = patches[0x8EA00]
+        self.assertIn("sub_43C350", cave["purpose"])
+        self.assertIn("newborn", cave["purpose"])
+        self.assertIn("MASK_NEWBORN_CLEAR_FILE_OFFSET", self.generator)
+        self.assertIn("MASK_BIRTH_DIRTY_VA = DATA_SCRATCH_BASE_VA + 0x1FC", self.generator)
+        self.assertIn("mov byte ptr [0x{MASK_BIRTH_DIRTY_VA:X}], 1", self.generator)
+        self.assertIn("C605FC11490001", cave["after"])
+        self.assertIn("mov ecx, dword ptr [esp + 0x30]", self.generator)
+        self.assertIn("MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B", self.generator)
+        self.assertIn(
+            "exact sub_43C350 allocation boundary at 0x43C393",
+            self.manifest["mask_persistence"]["newborn_reuse_guard"],
+        )
+        self.assertIn("persist the clear", self.manifest["mask_persistence"]["newborn_reuse_guard"])
+
     def test_live_frame_tick_sweeps_and_persists_only_actual_clears(self) -> None:
         self.assertIn("Vv1MaskTick=_Vv1MaskTick@0", self.exports)
         start = self.source.index(
@@ -86,8 +117,8 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         for token in (
             "if (!vv1_mask_prepare_slot())",
             "swept = vv1_mask_sweep_dead();",
-            "if (swept)",
-            "vv1_mask_sidecar_save();",
+            "if (swept || birth_dirty)",
+            "if (vv1_mask_sidecar_save())",
         ):
             with self.subTest(token=token):
                 self.assertIn(token, tick)

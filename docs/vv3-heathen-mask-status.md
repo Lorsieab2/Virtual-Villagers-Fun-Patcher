@@ -36,10 +36,17 @@ free-byte proof MUST write a value and confirm it PERSISTS with the sim running,
 not just read 0.* So the mask lives in the companion DLL: `g_vv3_mask[256]` +
 `g_vv3_mask_fp[256]`, keyed by slot index `(record-0x59E124)/0x1F8C`. Exports
 `VV3_Get/SetMaskForRecord`. The villager record and the save file are **never**
-written. Slot-reuse is guarded by an FNV fingerprint over gender (`+0xDC8`) + 3
-Likes (`+0xFB4`) + 3 Dislikes (`+0xFC0`) so a newborn reusing a dead villager's
-slot can't inherit the mask. The owned Grant Running detail and village-wide
-writers bracket their exact preference stores through `VV3RunningMaskBoundary`;
+written. Every loaded sidecar mask value is sanitized to the supported `0..5`
+range before it enters the table, so malformed or hand-edited bytes fail closed.
+Slot-reuse is guarded by an FNV fingerprint over gender (`+0xDC8`) + 3 Likes
+(`+0xFB4`) + 3 Dislikes (`+0xFC0`) so a normal newborn reusing a dead villager's
+slot can't inherit the mask. This fingerprint is not a unique identity: two
+villagers, or a replacement/newborn, can collide on gender+Likes+Dislikes, and no
+proven stable name, identity, or allocation-generation field has been established
+in the current exact-build evidence. The existing fallback is retained because
+removing it regresses observed reload/slot-shift recovery; a complete collision
+fix needs a player trace or new native evidence, not an invented record offset.
+The owned Grant Running detail and village-wide writers bracket their exact preference stores through `VV3RunningMaskBoundary`;
 it snapshots the live preimage and retags only matching stored masks after the
 `-1`/`38` transforms. This keeps the raw preference fingerprint for slot-reuse
 and slot-shift recovery without assuming Likes/Dislikes are immutable. The active
@@ -94,7 +101,9 @@ green; player regression testing is still required.
    masks (all 8 frames aligned to the head), then add `"chief"` to `STRAIGHT` in
    the atlas builder. VV4 tip: subtract the known head from a head+mask mockup for
    pixel-exact isolation.
-2. **Unowned preference changes remain outside this fix.** The exact detail and
+2. **Fingerprint collision / unowned preference changes remain outside this fix.**
+   The gender+Likes+Dislikes fingerprint can collide, and no proven stable identity
+   or allocation-generation field is available to replace it. The exact detail and
    village-wide Grant Running writers owned by this composition are bracketed by
    `VV3RunningMaskBoundary`; other native preference mutations are not wrapped and
    remain outside the current mask identity guarantee. No unproved name or record

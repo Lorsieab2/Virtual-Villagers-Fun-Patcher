@@ -84,6 +84,7 @@ LAST_ATLAS_GLOBAL = 0xE574D8      # the store we displaced (eax = last atlas ptr
 ALLOC = 0x467F83                  # operator new (cdecl size)
 LOADER = 0x40A270                 # path atlas loader (thiscall; ret 0xc)
 ATLAS_COLS, ATLAS_ROWS = 8, 5     # 520/8=65 wide, 725/5=145 tall
+MASK_ROW_COUNT = ATLAS_ROWS + 1  # table byte: 0=none, 1..5=atlas rows
 # VV5-standard mask cell: 65x145, 8 facing columns x 5 colour rows, used as the
 # artist laid it out (no re-packing). The cell is much larger than the 40x65 head
 # cell, so the draw subtracts MASK_PAD_X/ADULT_MASK_DY to register it on the head.
@@ -270,9 +271,13 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     if force_row is None:
         A_GATE = ("mov  edx, [esi+edi*4+0xe57090]\n"
                   f"        movzx edx, byte ptr [edx+0x{MASK_TABLE_VA:X}]\n"
+                  f"        cmp  edx, {MASK_ROW_COUNT}\n"
+                  "        jae  aorig\n"
                   "        test edx, edx\n        jz aorig")
         A_ROW = ("mov  eax, [esi+edi*4+0xe57090]\n"
                  f"        movzx eax, byte ptr [eax+0x{MASK_TABLE_VA:X}]\n"
+                 f"        cmp  eax, {MASK_ROW_COUNT}\n"
+                 "        jae  adone\n"
                  "        dec  eax")
         C_GATE = (f"cmp  dword ptr [esp+4], 0x{CALLER_LO:X}\n"
                   "        jb   cg_prt\n"
@@ -285,6 +290,8 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
                   "        pop  edx\n        pop  ecx\n"
                   "    cg_have:\n"
                   f"        movzx eax, byte ptr [eax+0x{MASK_TABLE_VA:X}]\n"
+                  f"        cmp  eax, {MASK_ROW_COUNT}\n"
+                  "        jae  corig\n"
                   "        test eax, eax\n        jz   corig")
         C_ROW = (f"cmp  dword ptr [esp], 0x{CALLER_LO:X}\n"
                  "        jb   cr_prt\n"
@@ -297,6 +304,8 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
                  "        pop  ecx\n"
                  "    cr_have:\n"
                  f"        movzx eax, byte ptr [eax+0x{MASK_TABLE_VA:X}]\n"
+                 f"        cmp  eax, {MASK_ROW_COUNT}\n"
+                 "        jae  cdone\n"
                  "        dec  eax")
     else:
         A_GATE = "/* force_row: no gate */"

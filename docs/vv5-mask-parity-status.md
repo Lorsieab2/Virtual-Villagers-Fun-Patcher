@@ -45,7 +45,8 @@ It has not yet been accepted in a running game by the player.
 
 The GitHub review audit and its all-five follow-up found seven defects that were
 still present after the earlier integration work. They are now repaired and
-statically gated:
+statically gated. A final adjacent-code audit then closed six additional
+fail-closed and identity-boundary gaps:
 
 1. VV1's Details wrapper records a permanent fail-open sentinel when the
    companion DLL or `Vv1DrawPortraitMask` export cannot be resolved, instead of
@@ -70,6 +71,23 @@ statically gated:
    executable-directory paths now fail open.
 7. VV5 rejects truncated module paths and sidecar slots outside 0..5, and budgets
    the complete longest numbered sidecar path before any unbounded formatting.
+8. VV1's shared mask getter rejects corrupt sidecar nibbles above the supported
+   `0..5` range before a row can reach any renderer.
+9. VV1 clears the patch-owned mask nibble at the exact stock newborn/allocation
+   boundary (`0x43C393`) before record reuse. The clear is marked dirty and its
+   sidecar write is retried until both persistence writes succeed, so a transient
+   I/O failure cannot leave the in-memory slot silently divergent.
+10. VV2 sanitizes every loaded sidecar byte to `0..5`; its adult/world and scaled
+    child/Details consumers independently reject out-of-range values before atlas
+    row subtraction.
+11. VV3 sanitizes every loaded sidecar mask value to `0..5` before any table entry
+    can reach a renderer.
+12. VV4 validates the stored gender+name fingerprint before returning a mask. A
+    prior completed present-path sweep must first make the slot identity-ready;
+    this prevents the first load frame, before a name is initialized, from
+    destructively invalidating a valid restored entry.
+13. The VV4 identity-ready condition is reset on save-slot change, so the guarded
+    invalidation rule is applied independently for each loaded village.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be
@@ -87,9 +105,18 @@ runtime acceptance.
    central renderer.
 3. VV3's action path has a hard `0..50` selector boundary. “Every action” cannot be
    claimed until the complete selector inventory is captured and classified.
-4. VV2 and VV5 still need exhaustive action/pickup ownership audits; a central hook
+4. VV2's exact same-frame free-to-newborn reuse path remains evidence-blocked. The
+   known allocation routine (`sub_44C600`) has no reviewed proof that it is
+   birth-only, and no stable VV2 identity field has been established, so no guessed
+   birth detour is installed.
+5. VV3's gender+Likes+Dislikes fingerprint can collide between villagers (including
+   a replacement/newborn). No proven stable name, identity, or allocation-generation
+   field exists in the current exact-build evidence. Removing the existing fallback
+   would regress observed reload/slot-shift recovery, so this boundary requires a
+   player trace or new native evidence rather than an invented offset.
+6. VV2 and VV5 still need exhaustive action/pickup ownership audits; a central hook
    is not automatically a complete call graph.
-5. Details positioning in VV1/VV3/VV4 and every unapproved surface still requires
+7. Details positioning in VV1/VV3/VV4 and every unapproved surface still requires
    player-visible runtime acceptance. Hashes, disassembly, generated manifests, and
    passing tests are not substitutes.
 

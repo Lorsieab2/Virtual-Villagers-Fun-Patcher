@@ -174,6 +174,12 @@ static unsigned int g_mask_fp[VV_MAX_VILLAGERS];
    populated yet" (a village hasn't loaded, e.g. at the main menu) -- so a mask
    restored from the sidecar before its villager exists is NOT wiped. */
 static unsigned char g_slot_seen_alive[VV_MAX_VILLAGERS];
+/* A separate generation gate for fingerprint invalidation.  The sweep may
+   discover an occupied record in the same callback that first exposes a
+   partially initialized load frame; only a later completed sweep may promote
+   that observation to identity-ready and authorize clearing/persisting a
+   fingerprint mismatch. */
+static unsigned char g_slot_identity_ready[VV_MAX_VILLAGERS];
 
 /* The save builder cave records the game's selected save number here. This is
    patch-owned .shr storage, not a villager field or a save byte. The builder
@@ -192,6 +198,7 @@ static void vv_clear_mask_state(void) {
         g_mask_by_index[i] = 0;
         g_mask_fp[i] = 0;
         g_slot_seen_alive[i] = 0;
+        g_slot_identity_ready[i] = 0;
     }
 }
 
@@ -232,10 +239,14 @@ static int vv_mask_sweep(void) {
         const unsigned char *rec =
             (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)idx * VV_REC_STRIDE);
         if (rec[VV_OCCUPIED_OFFSET] != 0) {
+            if (g_slot_seen_alive[idx]) {
+                g_slot_identity_ready[idx] = 1;
+            }
             g_slot_seen_alive[idx] = 1;              /* slot currently holds a villager */
         } else if (g_slot_seen_alive[idx] && g_mask_by_index[idx] != 0) {
             g_mask_by_index[idx] = 0;                /* was alive, now freed -> drop mask */
             g_mask_fp[idx] = 0;
+            g_slot_identity_ready[idx] = 0;
             changed = 1;
         }
     }
@@ -268,6 +279,7 @@ static int vv_villager_index(const unsigned char *villager) {
 static int vv_get_mask(const unsigned char *villager) {
     int idx;
     unsigned char m;
+    unsigned int fp;
     vv_prepare_mask_state();
     idx = vv_villager_index(villager);
     if (idx < 0) {
@@ -277,15 +289,41 @@ static int vv_get_mask(const unsigned char *villager) {
     if (m == 0 || m >= VV_MASK_COUNT) {
         return 0;
     }
-    /* Key PURELY by positional record index -- NO gender+name fingerprint. The
-       fingerprint desynced the bulk "Change Appearance for All" path: the name/
-       gender hashed at set-time didn't match render-time (name not finalized in
-       the bulk write), so vv_get_mask wrongly rejected every for-All mask while
-       an individually-set mask (set+render adjacent) worked. Position is stable
-       across the bulk set AND across save/reload (VV5's proven approach). Slot
-       reuse (a newborn taking a dead villager's index) is handled by the
-       clear-on-death sweep vv_mask_sweep, which zeroes the mask the moment the
-       slot goes free -- so a reused slot starts mask-less. */
+    /* Position is stable across the bulk set and across save/reload (VV5's
+       proven approach), but it is not sufficient by itself: a newborn can
+       replace a masked villager between two present callbacks while the slot
+       remains occupied on both sweeps.  Validate the stable identity before
+       returning a restored/session mask.  During the first load frame the
+       sidecar may be available before the game's record/name initialization;
+       leave that entry alone until a completed sweep has observed the slot
+       alive and the following sweep has promoted that observation, so
+       load ordering cannot erase a valid restored mask.  On the next lookup a
+       real identity mismatch is stale state: clear it and write the current
+       save's sidecar immediately, preventing a later frame/process from
+       resurrecting the deceased villager's mask. */
+    if (g_mask_fp[idx] != 0) {
+        fp = vv_fingerprint(villager);
+        if (g_mask_fp[idx] != fp) {
+            if (g_slot_identity_ready[idx] || !g_sidecar_loaded ||
+                g_current_slot == 0) {
+                g_mask_by_index[idx] = 0;
+                g_mask_fp[idx] = 0;
+                if (g_current_slot > 0) {
+                    vv_write_mask_sidecar();
+                }
+            }
+            return 0;
+        }
+    } else {
+        /* A nonzero mask without an identity is malformed/incomplete sidecar
+           state.  Never expose it as an index-only mask. */
+        g_mask_by_index[idx] = 0;
+        g_mask_fp[idx] = 0;
+        if (g_current_slot > 0) {
+            vv_write_mask_sidecar();
+        }
+        return 0;
+    }
     return (int)m;
 }
 static void vv_set_mask(unsigned char *villager, int mask) {
@@ -404,8 +442,8 @@ static void vv_ensure_mask_atlas(void) {
     *(void **)(UINT_PTR)VV_MASK_ATLAS_SLOT_VA = obj;   /* publish to the head cave */
 }
 
-/* Head-draw caves call this: ensure the atlas is built + published, and return
-   the fingerprint-checked mask (0 = none) for the villager record. */
+/* Head-draw caves call this: ensure the atlas is built + published, validate
+   the live stable identity, and return its mask (0 = none). */
 __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager) {
     int mask;
     vv_prepare_mask_state();

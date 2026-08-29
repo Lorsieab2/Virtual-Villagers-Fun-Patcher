@@ -17,7 +17,7 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "044C57C8C796CA19FFFBA128DD42066EC11A42D69766E9124195B3B52065BAF7"
+      "sha256": "8538EBCA8949A8551E1000759FEE73D8493073C16D20FBD2D762305139AE11C9"
     },
     {
       "source": "assets/origins/m1.png",
@@ -112,6 +112,7 @@
     "legacy_migration": false,
     "invalid_or_missing_sidecar": "clear in-memory table",
     "dead_entry_clears": "persisted back to the matching slot sidecar",
+    "newborn_reuse_guard": "exact sub_43C350 allocation boundary at 0x43C393 clears the selected record-index nibble before normal/event newborn initialization continues; a patch-owned dirty flag makes Vv1MaskTick persist the clear to the active sidecar and retry on write failure",
     "pickup_held_runtime_status": "static: held villagers update the ordinary record position and re-enter the central village render loops; player-visible held mask behavior remains runtime-unverified"
   },
   "pe_append_transaction": {
@@ -244,6 +245,18 @@
       "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "8D82A8030000B904000000833826740C83C0044975F5B802000000C3C700FFFFFFFFB805000000C3",
       "purpose": "Details Grant Running: when all 4 Like slots are full, clear any Running Dislike for free (OFFICIAL spreadsheet edge case) and report whether one was actually cleared; tail-jumped into from DETAIL_PREFLIGHT_VA's own exhausted Like-slot scan"
+    },
+    {
+      "offset": "0x8EA00",
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "C6462801C6462900608B4C243081F900010000732E89C8D1E88A9000104900F6C101740AF6C2F0741A80E20FEB08F6C20F741080E2F0889000104900C605FC1149000161E952B9FAFF",
+      "purpose": "clear the patch-owned VV1 mask nibble at the exact sub_43C350 newborn/allocation boundary before a free record can be reused; preserves the native occupied/faction stores, all registers, and every villager-record field"
+    },
+    {
+      "offset": "0x3C393",
+      "before": "C6462801C6462900",
+      "after": "E968460500909090",
+      "purpose": "splice sub_43C350 immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],0 before clearing the corresponding patch-owned mask nibble"
     },
     {
       "offset": "0x8E820",

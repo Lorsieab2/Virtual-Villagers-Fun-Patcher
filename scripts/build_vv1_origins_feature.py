@@ -418,6 +418,10 @@ VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (inside patch-o
 MASK_SAVE_SLOT_VA = DATA_SCRATCH_BASE_VA + 0x1F4
 MASK_SAVE_SLOT_FIRST = 1
 MASK_SAVE_SLOT_LAST = 5
+# Set by the exact newborn/allocation hook when it clears a non-zero mask;
+# Vv1MaskTick consumes it and persists the active sidecar (retrying on I/O
+# failure). This remains in the patch-owned R/W section, never the game record.
+MASK_BIRTH_DIRTY_VA = DATA_SCRATCH_BASE_VA + 0x1FC
 # Cached Vv1MaskTick pointer for the live village-frame service. 0 means not
 # resolved, 1 is the permanent fail-open sentinel, and any other value is the
 # validated export address. It is independent of save-slot state, so slot
@@ -484,6 +488,17 @@ MASK_TICK_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x8F0
 MASK_TICK_NAME_VA = mask_code_va(MASK_TICK_NAME_FILE_OFFSET)
 MASK_TICK_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x900
 MASK_TICK_STUB_VA = mask_code_va(MASK_TICK_STUB_FILE_OFFSET)
+# Exact stock newborn/allocation boundary.  sub_43C350 selects the first free
+# record, stores the live occupied byte at 0x43C393, and returns that record's
+# index to every normal/event caller.  The mask hook is placed immediately
+# after the two initial occupied/faction stores, while ESI is the selected
+# record and the original local index remains at [esp+0x10].
+MASK_NEWBORN_CLEAR_FILE_OFFSET = MASK_CODE_FILE_BASE + 0xA00
+MASK_NEWBORN_CLEAR_VA = mask_code_va(MASK_NEWBORN_CLEAR_FILE_OFFSET)
+MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET = 0x3C393
+MASK_NEWBORN_CLEAR_SPLICE_VA = IMAGE_BASE + MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET
+MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B
+MASK_NEWBORN_CLEAR_ORIGINAL_BYTES = bytes.fromhex("C6462801C6462900")
 PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite draw
 # Read-only companion-PNG path strings. They are genuine read-only constants,
 # so they belong in .rdata, and they are added to the Origins string cave in
@@ -2534,6 +2549,70 @@ def main() -> None:
             f"VV1 mask tick stub exceeds its .vv1mc reservation: "
             f"{len(mask_tick_stub_code):#x} > 0x100"
         )
+    # Clear a reused record at the game's own newborn/allocation boundary.
+    # sub_43C350 selects the first free record and its exact initialization
+    # starts at 0x43C393; at this point ESI is that record and the original
+    # selected index is still in the function's [esp+0x10] local.  This is
+    # stronger than a periodic free-slot sweep: death and birth can happen
+    # between two rendered frames, so no free state is necessarily observed.
+    # pushad keeps every native register and stack local intact.  The helper
+    # only clears the patch-owned nibble and never writes the villager record.
+    newborn_clear_code = assemble(
+        f"""
+            mov byte ptr [esi + 0x28], 1
+            mov byte ptr [esi + 0x29], 0
+            pushad
+            mov ecx, dword ptr [esp + 0x30]       # sub_43C350 local index
+            cmp ecx, {MASK_LIST_CAP}
+            jae newborn_clear_done
+            mov eax, ecx
+            shr eax, 1
+            mov dl, byte ptr [eax + 0x{MASK_TABLE_VA:X}]
+            test cl, 1
+            jz newborn_clear_low
+            test dl, 0xf0
+            jz newborn_clear_done
+            and dl, 0x0f
+            jmp newborn_clear_store
+        newborn_clear_low:
+            test dl, 0x0f
+            jz newborn_clear_done
+            and dl, 0xf0
+        newborn_clear_store:
+            mov byte ptr [eax + 0x{MASK_TABLE_VA:X}], dl
+            mov byte ptr [0x{MASK_BIRTH_DIRTY_VA:X}], 1
+        newborn_clear_done:
+            popad
+            jmp 0x{MASK_NEWBORN_CLEAR_RESUME_VA:X}
+        """,
+        MASK_NEWBORN_CLEAR_VA,
+    )
+    if len(newborn_clear_code) > 0x100:
+        raise RuntimeError(
+            f"VV1 newborn mask-clear hook exceeds its .vv1mc reservation: "
+            f"{len(newborn_clear_code):#x} > 0x100"
+        )
+    patch(
+        MASK_NEWBORN_CLEAR_FILE_OFFSET,
+        b"\0" * len(newborn_clear_code),
+        newborn_clear_code,
+        "clear the patch-owned VV1 mask nibble at the exact sub_43C350 newborn/allocation boundary before a free record can be reused; preserves the native occupied/faction stores, all registers, and every villager-record field",
+    )
+    newborn_clear_detour_code = assemble(
+        f"""
+            jmp 0x{MASK_NEWBORN_CLEAR_VA:X}
+            nop
+            nop
+            nop
+        """,
+        MASK_NEWBORN_CLEAR_SPLICE_VA,
+    )
+    patch(
+        MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET,
+        MASK_NEWBORN_CLEAR_ORIGINAL_BYTES,
+        newborn_clear_detour_code,
+        "splice sub_43C350 immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],0 before clearing the corresponding patch-owned mask nibble",
+    )
     # Capture the exact numbered save-slot argument before the native builder
     # formats "%s%d.ldw".  The hook is intentionally a tiny ABI-preserving
     # trampoline: it saves every register while it updates patch-owned state,
@@ -3571,6 +3650,7 @@ def main() -> None:
             "legacy_migration": False,
             "invalid_or_missing_sidecar": "clear in-memory table",
             "dead_entry_clears": "persisted back to the matching slot sidecar",
+            "newborn_reuse_guard": "exact sub_43C350 allocation boundary at 0x43C393 clears the selected record-index nibble before normal/event newborn initialization continues; a patch-owned dirty flag makes Vv1MaskTick persist the clear to the active sidecar and retry on write failure",
             "pickup_held_runtime_status": "static: held villagers update the ordinary record position and re-enter the central village render loops; player-visible held mask behavior remains runtime-unverified",
         },
         "pe_append_transaction": {

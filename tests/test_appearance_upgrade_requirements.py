@@ -393,6 +393,10 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # hook now calls the owned Vv1MaskTick resolver/caller;
                     # its export name and resolver live in the .vv1mc tail.
                     "0x8E400", "0x8E6C0", "0x8E8F0", "0x8E900",
+                    # Exact newborn/allocation reuse guard: the stock splice
+                    # and its patch-owned cave clear the selected mask nibble
+                    # and mark the active sidecar dirty for Vv1MaskTick.
+                    "0x3C393", "0x8EA00",
                     # Village all-pose mask identity stash (Stage 1): 2 loop-top
                     # splices + their stash caves (inert; hook reads the slot later).
                     "0x37798", "0x38900", "0x8B180", "0x8B191",

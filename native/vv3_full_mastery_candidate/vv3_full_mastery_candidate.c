@@ -557,6 +557,22 @@ static void vv3_mask_clear_tables(void) {
     g_vv3_running_capture = 0;
 }
 
+/* Sidecars are user-writable files, so never publish an unchecked byte as an
+   atlas row.  The current MSK3 format is magic + mask[256] + fingerprint[256]
+   (the historical unslotted and current per-save files use the same payload),
+   and the fingerprint is only meaningful when its paired mask is 1..5.  Drop
+   both fields for every invalid mask so reads fail closed to "no mask" and a
+   bogus value can never reach (mask - 1) * 8 atlas indexing. */
+static void vv3_mask_sanitize_loaded_table(void) {
+    int i;
+    for (i = 0; i < VV3_MASK_SLOTS; ++i) {
+        if (g_vv3_mask[i] > VV3_MASK_MAX) {
+            g_vv3_mask[i] = 0;
+            g_vv3_mask_fp[i] = 0;
+        }
+    }
+}
+
 static int vv3_mask_captured_slot(void) {
     int slot = *(int *)(UINT_PTR)VV3_MASK_SLOT_PTR;
     return (slot >= 1 && slot <= 5) ? slot : 0;
@@ -616,6 +632,8 @@ static void vv3_mask_read_sidecar(int slot) {
             || !ReadFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &fp_r, NULL)
             || fp_r != sizeof(g_vv3_mask_fp)) {
             vv3_mask_clear_tables();
+        } else {
+            vv3_mask_sanitize_loaded_table();
         }
     }
     CloseHandle(h);

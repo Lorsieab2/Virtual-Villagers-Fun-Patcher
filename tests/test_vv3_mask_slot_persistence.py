@@ -187,6 +187,34 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("fp_r != sizeof(g_vv3_mask_fp)", self.source)
         self.assertIn("vv3_mask_clear_tables();", self.source)
 
+    def test_loaded_sidecar_masks_are_range_sanitized_before_render(self) -> None:
+        """A corrupt MSK3 byte must become no-mask before atlas indexing."""
+        self.assertIn("static void vv3_mask_sanitize_loaded_table(void)", self.source)
+        sanitizer = self.source.split(
+            "static void vv3_mask_sanitize_loaded_table(void) {", 1
+        )[1].split("static int vv3_mask_captured_slot", 1)[0]
+        self.assertIn("if (g_vv3_mask[i] > VV3_MASK_MAX)", sanitizer)
+        self.assertIn("g_vv3_mask[i] = 0;", sanitizer)
+        self.assertIn("g_vv3_mask_fp[i] = 0;", sanitizer)
+
+        reader = self.source.split(
+            "static void vv3_mask_read_sidecar(int slot) {", 1
+        )[1].split("static int vv3_mask_prepare_slot", 1)[0]
+        self.assertIn("vv3_mask_sanitize_loaded_table();", reader)
+        self.assertLess(
+            reader.index("vv3_mask_sanitize_loaded_table();"),
+            reader.index("CloseHandle(h);"),
+        )
+
+        # The two native atlas paths both derive their row from the returned
+        # value; the getter must therefore retain its 0..5 contract.
+        getter = self.source.split(
+            "__declspec(dllexport) int __stdcall VV3_GetMaskForRecord", 1
+        )[1].split("/* Chooser commit:", 1)[0]
+        self.assertIn("return g_vv3_mask[idx];", getter)
+        self.assertIn("return g_vv3_mask[i];", getter)
+        self.assertIn("/* Render hook: mask (1..5)", self.source)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,7 +8,12 @@ Status as of 2026-08-29. Honest, verified facts only — no interpretation.
   `FUN_00467da0` reissues the head blit `FUN_0044C790` with the mask atlas,
   replaying the head's own x/y/scale; facing from record `+0x1CD4 & 7`.
 - The mask machinery is sound: `Vv4MaskGetForRecord` (DLL export @ordinal 114),
-  `vv_get_mask`, and the shared render atlas load. The separate chooser preview
+  `vv_get_mask`, and the shared render atlas load. The lookup now validates the
+  current stable gender+name fingerprint before returning a stored mask; after
+  a prior completed present sweep has promoted a slot to identity-ready, a mismatch
+  clears and persists the stale entry. The first load frame still returns no mask for
+  a mismatch but cannot erase the sidecar before record/name initialization finishes.
+  The separate chooser preview
   sheet ships as data. Confirmed in the LIVE patched process:
   village mask atlas slot `0x728D70`=nonzero and `GET_PTR` `0x728D68`
   resolved. The obsolete dedicated bighead atlas is no longer shipped or

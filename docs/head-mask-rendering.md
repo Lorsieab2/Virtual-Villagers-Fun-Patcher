@@ -202,6 +202,12 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   `0x43741B`, `0x4374A4`, `0x437503`, and `0x437556`. This proves where ordinary records
   re-enter rendering, but held-mask visibility remains runtime-unverified and requires
   player acceptance.
+- **Sidecar/slot-reuse hardening:** the shared getter rejects corrupt mask nibbles
+  above the supported `0..5` range before atlas-row use. At the exact stock
+  newborn/allocation boundary `0x43C393`, the patch-owned nibble is cleared before
+  record reuse, marked dirty, and persisted through retryable sidecar writes; the dirty
+  marker is cleared only after both writes succeed. This is static protection and does
+  not constitute player/runtime acceptance.
 
 ### VV2 — "The Lost Children" (NO native mask → from-scratch)
 - **7 facings** (drop the 8th mask column). Four head atlases incl. elder variants:
@@ -217,6 +223,19 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   `edi` is the loop index).
 - **Packaging:** atlas embedded as **RCDATA in the DLL** + self-extracted at startup
   (atomic `.tmp`→`MoveFile`), so a loose file can't go missing.
+- **Sidecar validation:** restore sanitizes every table byte to the closed range
+  `0..5` before copying it into the render table, and both adult and scaled
+  consumers repeat that range check before subtracting one for the atlas row.
+  This is fail-closed for malformed or hand-edited sidecars.
+- **Slot reuse boundary:** the compositor sweep clears a masked slot only after
+  observing it active and then free. The exact VV2 birth/allocation routine is
+  known as `sub_44C600`, but this checkout has no reviewed call-boundary proof
+  that it is exclusive to newborn creation rather than load/initialization, and
+  VV2 has no established stable identity field. Therefore the narrower
+  free→newborn transition that occurs entirely between two sweeps remains
+  runtime/evidence blocked; no guessed birth detour or invented record offset is
+  installed. A player trace or reviewed exact-build birth boundary is required
+  before adding that final guard.
 
 ### VV3 — "The Secret City" (NO native mask → from-scratch)
 Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.exe`, SHA-256
@@ -229,6 +248,12 @@ Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.ex
 - The action overlay is `sub_45F7E0`, reached at the proven action call site `0x460B48`.
 - The mask patch's world/action/Details hooks use these proven families and owned `.vv3mc`
   (R-X) / `.vv3md` (R/W) sections.
+- **Sidecar validation:** every loaded mask byte is sanitized to the supported `0..5`
+  range before it can enter the DLL table or reach a renderer. This is fail-closed for
+  malformed or hand-edited sidecars. The stored gender+Likes+Dislikes fingerprint can
+  collide between villagers, and no stable name, identity, or allocation-generation
+  field is proven in the current exact-build evidence; the existing fallback is retained
+  because removing it regresses observed reload/slot-shift recovery.
 - `0x4341A0..0x434758` is one three-style timed sprite/particle effect object. It iterates
   24-byte entries, compares elapsed time to `0x12C`/`0x7080`, and uses three fixed anchors
   `(110,160)`, `(114,212)`, `(75,176)` from `0x5947B8..0x5947CC`.
@@ -258,6 +283,15 @@ runtime-trace and player-acceptance boundary. Record base is `0x59E124`, stride 
   Static coverage still does not prove held/cursor ownership, cursor coordinates, Details
   seating, or player-visible pickup behavior; those remain runtime/player acceptance gates.
   No older `0x43CFDE`/`0x45F965`/fixed-facing portrait theory substitutes for that evidence.
+- **Identity guard:** the companion side-table is keyed by record index but stores a
+  stable gender+name fingerprint with each nonzero mask. `Vv4MaskGetForRecord` compares
+  that fingerprint against the current live record before returning a mask, so a newborn
+  reusing an occupied slot cannot inherit the deceased villager's mask. If the first load
+  frame exposes a record before its name is initialized, the lookup still returns no mask
+  for a mismatch but defers destructive invalidation until a prior completed present-path
+  sweep has promoted that slot to identity-ready; a confirmed mismatch then clears the
+  entry and persists the current save's sidecar. No villager-record bytes are written, and
+  mutable head/body/preferences are deliberately excluded from the identity.
 
 ### VV5 — "New Believers" (latest; HAS native heathen masks)
 - **Native mask atlas** `vv5_heathenheads.png` — sprite id **`0x101`, 8 cols × 5 rows**,

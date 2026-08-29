@@ -81,6 +81,7 @@ class DllStorageContractTests(unittest.TestCase):
         # not-yet-populated slot (menu / village not loaded) so a mask restored
         # from the sidecar before its villager exists is not wiped.
         self.assertIn("g_slot_seen_alive", self.c)
+        self.assertIn("g_slot_identity_ready", self.c)
         # The sweep runs once per frame from the present-path surface cache.
         cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
         self.assertIn("vv_mask_sweep();", cache)
@@ -177,6 +178,42 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertNotIn("DISLIKE", fp)
         self.assertNotIn("HEAD_OFFSET", fp)
         self.assertNotIn("BODY_OFFSET", fp)
+
+    def test_lookup_rejects_and_persists_reused_slot_identity_mismatch(self) -> None:
+        lookup = self.c.split("static int vv_get_mask(", 1)[1].split(
+            "static void vv_set_mask(", 1
+        )[0]
+        # The present sweep can see an old and replacement villager as occupied
+        # on adjacent callbacks.  The lookup must therefore validate the live
+        # stable fingerprint before returning an index-keyed mask.
+        self.assertIn("fp = vv_fingerprint(villager);", lookup)
+        self.assertIn("if (g_mask_fp[idx] != fp)", lookup)
+        self.assertIn("g_mask_by_index[idx] = 0;", lookup)
+        self.assertIn("g_mask_fp[idx] = 0;", lookup)
+        self.assertIn("vv_write_mask_sidecar();", lookup)
+        self.assertIn("g_slot_identity_ready[idx]", lookup)
+        self.assertIn("g_current_slot == 0", lookup)
+        sweep = self.c.split("static int vv_mask_sweep(void)", 1)[1].split(
+            "static unsigned int vv_fingerprint", 1
+        )[0]
+        # The first sweep only records that the slot is occupied.  A later
+        # completed sweep promotes it to identity-ready, preventing a
+        # partially initialized first-load name from being persisted as stale.
+        self.assertLess(
+            sweep.index("if (g_slot_seen_alive[idx])"),
+            sweep.index("g_slot_identity_ready[idx] = 1;"),
+        )
+        self.assertLess(
+            sweep.index("g_slot_identity_ready[idx] = 1;"),
+            sweep.index("g_slot_seen_alive[idx] = 1;"),
+        )
+        self.assertIn("if (g_slot_identity_ready[idx] || !g_sidecar_loaded ||", lookup)
+        # A mismatch must be decided before the successful value is returned;
+        # the load-frame exception only defers invalidation until a prior
+        # completed sweep has promoted the slot and cannot publish the stale
+        # value.
+        self.assertLess(lookup.index("if (g_mask_fp[idx] != fp)"), lookup.rindex("return 0;"))
+        self.assertLess(lookup.index("g_mask_by_index[idx] = 0;"), lookup.index("return (int)m;"))
 
     def test_no_villager_record_byte_is_written_for_the_mask(self) -> None:
         # The abandoned design stored the mask in the record at +0x1BC4 (which

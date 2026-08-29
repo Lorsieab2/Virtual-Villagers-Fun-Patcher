@@ -81,6 +81,26 @@ def test_sidecar_path_rejects_invalid_slots_before_formatting() -> None:
     assert "sizeof(\"\\\\vv2_masks_00.dat\")" in DLL
 
 
+def test_sidecar_load_normalizes_every_mask_byte_before_publish() -> None:
+    # Sidecars are external/user-writable. Invalid rows must never reach the
+    # native atlas draw, even if the file has the right magic and length.
+    assert "if (buf[i] >= VV2_MASK_COUNT) buf[i] = 0;" in DLL
+    assert DLL.index("if (buf[i] >= VV2_MASK_COUNT) buf[i] = 0;") < DLL.index(
+        "memcpy(VV2_MASK_TABLE, buf, sizeof(buf));"
+    )
+
+
+def test_render_consumers_fail_closed_on_invalid_table_rows() -> None:
+    # Both the in-world adult and scaled (child/details) consumers re-check
+    # the byte before subtracting one for an atlas row.
+    assert "cmp  edx, {MASK_ROW_COUNT}" in STAGE2
+    assert "cmp  eax, {MASK_ROW_COUNT}" in STAGE2
+    assert "jae  aorig" in STAGE2
+    assert "jae  corig" in STAGE2
+    assert "jae  adone" in STAGE2
+    assert "jae  cdone" in STAGE2
+
+
 def test_origins_builder_composes_the_authoritative_mask_stage() -> None:
     assert "build_vv2_mask_stage2_output(original)" in ORIGINS_BUILDER
     assert "mask_append.hex().upper()" in ORIGINS_BUILDER
