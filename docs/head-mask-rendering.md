@@ -149,7 +149,12 @@ stored on the record; the head sprite frame may get an age/variant offset on top
     masks floating in open sand. Fix: gate your added draw to the same condition the game
     uses (VV3: real action frames `anim 0..50`; the world head path owns `anim == -1`).
     Prove it with a per-draw log of `[anim]` at your hook — a mask emitted at `anim==-1`
-    is the phantom.
+    is the phantom. **Corollary — never give the mask a RECOMPUTE FALLBACK (VV3's
+    feet-mask cause):** a fallback that computes the mask position when the head-draw
+    stash is missing paints a mask with NO head under it — a carried villager's head draw
+    never runs, but the world loop still walks the record, so the fallback painted at the
+    abandoned ground anchor. Fix = require the stash (mask draws ONLY where a head was
+    actually drawn this frame). No head ⇒ no mask, by construction — not by a state gate.
 
 ---
 
