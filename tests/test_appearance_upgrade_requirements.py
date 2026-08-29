@@ -481,6 +481,9 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
                     "0x5F702", "0x5F9CA", "0x5F965", "0xCC7A1",
                     "0xCCA28", "0xCCA30", "0xCCA34",
+                    # VV5-style Details portrait facing/X/Y tables used by
+                    # the repaired 0x45F702 head replay.
+                    "0xCCA40",
                     # The DY bytes remain the player-approved uniform 34s;
                     # only the stale purpose text claiming a chief-only +7
                     # adjustment is corrected by the authoritative generator.

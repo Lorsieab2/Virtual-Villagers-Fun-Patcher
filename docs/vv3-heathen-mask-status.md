@@ -39,18 +39,18 @@ not just read 0.* So the mask lives in the companion DLL: `g_vv3_mask[256]` +
 written. Every loaded sidecar mask value is sanitized to the supported `0..5`
 range before it enters the table, so malformed or hand-edited bytes fail closed.
 Slot-reuse is guarded by an FNV fingerprint over gender (`+0xDC8`) + 3 Likes
-(`+0xFB4`) + 3 Dislikes (`+0xFC0`). Before either the same-slot fast path or the
-slot-shift fallback may return a mask, the getter requires exactly one active,
-living record and exactly one nonzero stored entry with that fingerprint. Two
-simultaneous live matches or two stored matches therefore fail closed to no mask;
-unique-fingerprint reload/slot-shift recovery remains available. A nonzero setter
-commit also requires that unique live owner; it clears any older shifted stored copy
-before rebinding the current slot, while an explicit None may still clear an exact
-stale slot. The individual chooser aborts before its staged writes and native charge
-if that nonzero bind is ambiguous. The whole-village transaction preflights every
-requested mask that can be nonzero before any head/body or mask mutation; an
-ambiguous target aborts the whole batch with no 450,000-point deduction. Random is
-checked conservatively because it can select a nonzero mask. This fingerprint
+(`+0xFB4`) + 3 Dislikes (`+0xFC0`). The individual getter/setter requires exactly
+one active, living record and one stored owner with that fingerprint; the chooser
+aborts before staged writes or charge when that bind is ambiguous. Change Appearance
+for All instead plans every active/living record as one transaction. Every simultaneous
+owner of a duplicate fingerprint receives one coherent mask, and a nonzero group is
+encoded as exactly one identical stored copy per live owner. Rendering accepts that
+group only while its live count, stored count, and mask values all agree. Incomplete or
+mixed groups fail closed. All ten menu choices use this plan; Equal, Random, and
+VV5-style proportions may be adjusted at collision-group granularity rather than
+preserving exact global counts. The complete shadow sidecar must be durably published
+before any head/body or live mask-table mutation, so a save failure returns with no
+appearance change and no 450,000-point deduction. This fingerprint
 is still not a stable identity: if one villager disappears and a replacement/newborn
 with the exact same fingerprint occupies the population later, there is no overlap
 from which uniqueness can distinguish them. No proven stable name, identity, or

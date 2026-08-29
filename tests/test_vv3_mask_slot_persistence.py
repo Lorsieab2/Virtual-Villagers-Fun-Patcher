@@ -111,8 +111,8 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("*(int *)(rec + VV3_HEALTH) > 0", boundary)
         self.assertIn("j = vv3_running_unique_live_preimage_index(old_fp, slots)", boundary)
 
-    def test_collision_ambiguous_lookup_fails_before_same_slot_fast_path(self) -> None:
-        """Neither a live nor stored duplicate may reach either return path."""
+    def test_lookup_accepts_only_unique_owners_or_a_complete_uniform_group(self) -> None:
+        """A collision group needs count parity and one shared stored value."""
         live = self.source.split(
             "static int vv3_mask_unique_live_index(unsigned int fp) {", 1
         )[1].split("static int vv3_mask_unique_stored_index", 1)[0]
@@ -127,13 +127,26 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("g_vv3_mask_fp[i] != fp", stored)
         self.assertIn("if (found >= 0) return -1;", stored)
 
+        group = self.source.split(
+            "static int vv3_mask_stored_group_value", 1
+        )[1].split("static int vv3_mask_current_slot_writable", 1)[0]
+        self.assertIn("live_count = vv3_mask_live_fingerprint_count(fp);", group)
+        self.assertIn("if (live_count < 2) return 0;", group)
+        self.assertIn("else if (value != g_vv3_mask[i])", group)
+        self.assertIn("return stored_count == live_count ? value : 0;", group)
+
         getter = self.source.split(
             "__declspec(dllexport) int __stdcall VV3_GetMaskForRecord", 1
         )[1].split("/* Chooser commit:", 1)[0]
-        live_gate = getter.index("vv3_mask_unique_live_index(fpv) != idx")
+        active_gate = getter.index("rec[VV3_ACTIVE] == 0")
+        live_gate = getter.index("live_idx = vv3_mask_unique_live_index(fpv)")
+        group_gate = getter.index("group_value = vv3_mask_stored_group_value(fpv)")
         stored_gate = getter.index("stored_idx = vv3_mask_unique_stored_index(fpv)")
         fast_path = getter.index("if (stored_idx == idx)")
         shifted_return = getter.index("return g_vv3_mask[stored_idx];")
+        self.assertLess(active_gate, live_gate)
+        self.assertLess(live_gate, group_gate)
+        self.assertLess(group_gate, stored_gate)
         self.assertLess(live_gate, stored_gate)
         self.assertLess(stored_gate, fast_path)
         self.assertLess(fast_path, shifted_return)
@@ -147,19 +160,26 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         gate = setter.index("if (!vv3_mask_can_set_prepared(record, mask)) return 0;")
         owner = setter.index("live_idx = vv3_mask_unique_live_index(fpv);")
         rebind = setter.index("if (live_idx == idx")
-        write = setter.index("g_vv3_mask[idx] = (unsigned char)mask;")
+        write = setter.index("shadow_mask[idx] = (unsigned char)mask;")
+        persist = setter.index(
+            "!vv3_mask_write_sidecar_tables(shadow_mask, shadow_fp)"
+        )
+        publish = setter.index("CopyMemory(g_vv3_mask, shadow_mask")
         self.assertLess(clamp, gate)
         self.assertLess(gate, owner)
         self.assertLess(owner, rebind)
         self.assertLess(rebind, write)
+        self.assertLess(write, persist)
+        self.assertLess(persist, publish)
         self.assertIn("i != idx", setter)
-        self.assertIn("g_vv3_mask_fp[i] == fpv", setter)
-        # The gate is nonzero-only: an explicit None may still clear an exact
-        # stale slot even though it cannot claim a live fingerprint identity.
+        self.assertIn("shadow_fp[i] == fpv", setter)
+        # The exported individual path cannot target one member of a collision
+        # group, including a None clear.  Only the full batch owns that path.
         can_set = self.source.split(
             "static int vv3_mask_can_set_prepared", 1
         )[1].split("/* ---- Sidecar persistence", 1)[0]
-        self.assertIn("if (mask == 0) return 1;", can_set)
+        self.assertIn("if (mask == 0)", can_set)
+        self.assertIn("return !vv3_mask_has_duplicate_live_fingerprint(fpv);", can_set)
         self.assertIn("vv3_mask_unique_live_index", can_set)
 
         exported = self.source.split(
@@ -191,13 +211,19 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         can_set = helper.index("if (!vv3_mask_can_set_prepared(record, mask)) return 0;")
         cleanup = helper.index("if (live_idx == idx)")
         preserve = helper.index("if (!(mask == 0 && current_foreign_live))")
-        write = helper.index("g_vv3_mask[idx] = (unsigned char)mask;")
+        write = helper.index("shadow_mask[idx] = (unsigned char)mask;")
+        persist = helper.index(
+            "!vv3_mask_write_sidecar_tables(shadow_mask, shadow_fp)"
+        )
+        publish = helper.index("CopyMemory(g_vv3_mask, shadow_mask")
         self.assertLess(ownership, conflict)
         self.assertLess(conflict, can_set)
         self.assertLess(ownership, cleanup)
         self.assertLess(cleanup, preserve)
         self.assertLess(preserve, write)
-        self.assertLess(write, helper.index("if (persist) vv3_mask_write_sidecar();"))
+        self.assertLess(write, persist)
+        self.assertLess(persist, publish)
+        self.assertIn("g_vv3_mask_last_persist_failed = 1;", helper)
 
         setter = self.source.split(
             "static int vv3_mask_can_set_prepared", 1
@@ -205,94 +231,42 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("if (vv3_mask_unique_live_index(fpv) != idx) return 0;", setter)
         self.assertIn("return vv3_mask_current_slot_writable(idx, fpv);", setter)
 
-    def test_batch_none_ignores_foreign_raw_entry_but_keeps_recovered_and_group_targets(self) -> None:
+    def test_batch_shadow_preserves_unselected_live_owners_and_clears_targets(self) -> None:
+        shadow = self.source.split(
+            "static int vv3_mask_build_batch_shadow", 1
+        )[1].split("static int vv3_apply_for_all", 1)[0]
+        self.assertIn("CopyMemory(out_mask, g_vv3_mask", shadow)
+        self.assertIn("vv3_mask_plan_has_selected_fp", shadow)
+        self.assertIn("out_mask[pos] = 0;", shadow)
+        self.assertIn("vv3_mask_shadow_slot_available", shadow)
+        self.assertIn("needed = vv3_mask_live_fingerprint_count(plan_fp[i]);", shadow)
+        self.assertIn("out_mask[pos] = (unsigned char)desired[i];", shadow)
+        self.assertIn("out_fp[pos] = plan_fp[i];", shadow)
+        self.assertIn("if (placed != needed) return 0;", shadow)
+
+    def test_all_ten_mask_options_feed_the_group_coherent_plan(self) -> None:
         engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
             "#define VW_RUNNING", 1
         )[0]
-        compare = engine.split("/* Count each eligible record once", 1)[1].split(
-            "if ((h >= 0", 1
-        )[0]
-        self.assertIn("recovered_mask != 0", compare)
-        self.assertIn("vv3_mask_current_slot_foreign_live(", compare)
-        self.assertIn("!vv3_mask_current_slot_foreign_live(", compare)
-        self.assertIn("g_vv3_mask[idx[i]] != 0", compare)
-        self.assertIn("g_vv3_mask_fp[idx[i]] != 0", compare)
+        self.assertIn("if (mask_mode == 0)", engine)       # per-sex / Off
+        self.assertIn("mask_mode == 1", engine)           # VV5-style
+        self.assertIn("mask_mode == 2", engine)           # Random
+        self.assertIn("mask_mode == 3", engine)           # Equal
+        self.assertIn("mask_mode >= 4", engine)           # None + five fixed masks
+        self.assertIn("vv3_mask_make_plan_group_coherent", engine)
+        self.assertIn("vv3_mask_build_batch_shadow", engine)
 
-        apply = engine.split(
-            "/* Mask: apply the precomputed exclusive result in memory only.  The",
-            1,
-        )[1]
-        self.assertIn("vv3_mask_clear_group_prepared(", apply)
-        self.assertIn("vv3_mask_apply_prepared(", apply)
-        self.assertIn("desired_mask[i], 0);", apply)
-        self.assertEqual(apply.count("vv3_mask_write_sidecar();"), 1)
+        coherent = self.source.split(
+            "static int vv3_mask_make_plan_group_coherent", 1
+        )[1].split("static int vv3_mask_shadow_slot_available", 1)[0]
+        self.assertIn("selected[j] != selected[i]", coherent)
+        self.assertIn("desired[j] != canonical", coherent)
+        self.assertIn("mask_mode >= 1 && mask_mode <= 3", coherent)
+        self.assertIn("mask_mode == 1 && desired[j] == VV3_MASK_MAX", coherent)
+        self.assertIn("desired[j] = canonical", coherent)
+        self.assertIn("count != vv3_mask_live_fingerprint_count(plan_fp[i])", coherent)
 
-    def test_batch_none_detects_multiple_shifted_copies_for_unique_target(self) -> None:
-        engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
-            "#define VW_RUNNING", 1
-        )[0]
-        compare = engine.split("/* Count each eligible record once", 1)[1].split(
-            "if ((h >= 0", 1
-        )[0]
-        reason = (
-            "vv3_mask_unique_live_index(\n"
-            "                                vv3_mask_fingerprint(r)) == idx[i]"
-        )
-        self.assertIn(reason, compare)
-        self.assertIn("&& vv3_mask_has_stored_fingerprint(", compare)
-        self.assertIn("vv3_mask_current_slot_foreign_live(", compare)
-        # Getter=0 is not sufficient when duplicate stored copies make the
-        # guarded lookup ambiguous; the unique live target still owns cleanup.
-        self.assertIn("recovered_mask != 0", compare)
-
-    def test_batch_preflight_separates_dynamic_identity_from_real_nonzero_destination(self) -> None:
-        engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
-            "#define VW_RUNNING", 1
-        )[0]
-        prepared = engine.index("if (!vv3_mask_prepare_slot())")
-        dynamic = engine.index("if (mask_mode >= 1 && mask_mode <= 3)", prepared)
-        identity = engine.index(
-            "vv3_mask_unique_live_index(vv3_mask_fingerprint(r)) != idx[i]",
-            dynamic,
-        )
-        plan = engine.index("Build the exact mask result before counting")
-        count = engine.index("Count each eligible record once")
-        destination = engine.index(
-            "if (mask_changed[i] && desired_mask[i] > 0"
-        )
-        destination_gate = engine.index(
-            "!vv3_mask_can_set_prepared(r, desired_mask[i])", destination
-        )
-        head_body = engine.index("/* Head/Body: independent per-sex")
-        self.assertLess(prepared, dynamic)
-        self.assertLess(dynamic, identity)
-        self.assertLess(identity, plan)
-        self.assertLess(plan, count)
-        self.assertLess(count, destination)
-        self.assertLess(destination, destination_gate)
-        self.assertLess(destination_gate, head_body)
-        self.assertIn("coincidental planned zero remains safe", engine)
-        self.assertIn("already matches", engine)
-        self.assertIn("logical target", engine)
-        self.assertIn("foreign current raw", engine)
-
-    def test_batch_same_logical_mask_with_foreign_current_can_still_change_head_body(self) -> None:
-        engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
-            "#define VW_RUNNING", 1
-        )[0]
-        compare = engine.split("/* Count each eligible record once", 1)[1].split(
-            "if ((h >= 0", 1
-        )[0]
-        self.assertIn("mask_changed[i] = desired_mask[i] != recovered_mask;", compare)
-        destination = engine.index(
-            "if (mask_changed[i] && desired_mask[i] > 0"
-        )
-        head_body = engine.index("/* Head/Body: independent per-sex")
-        self.assertLess(destination, head_body)
-        self.assertIn("foreign current raw slot", engine)
-
-    def test_batch_none_detects_recovered_and_raw_current_slot_masks(self) -> None:
-        """None must see both a shifted unique mask and an ambiguous exact slot."""
+    def test_batch_none_counts_any_stored_copy_and_shadow_clears_the_group(self) -> None:
         engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
             "#define VW_RUNNING", 1
         )[0]
@@ -301,75 +275,81 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         )[0]
         recovered = compare.index("int recovered_mask = VV3_GetMaskForRecord(r);")
         none = compare.index("if (desired_mask[i] == 0)", recovered)
-        raw_mask = compare.index("g_vv3_mask[idx[i]] != 0", none)
-        raw_fp = compare.index("g_vv3_mask_fp[idx[i]] != 0", raw_mask)
+        stored = compare.index("vv3_mask_has_stored_fingerprint(plan_fp[i])", none)
         self.assertLess(recovered, none)
-        self.assertLess(none, raw_mask)
-        self.assertLess(raw_mask, raw_fp)
-        self.assertIn("recovered_mask != 0", compare)
+        self.assertLess(none, stored)
 
-        helper = self.source.split("static int vv3_mask_apply_prepared", 1)[1].split(
-            "/* Chooser commit:", 1
-        )[0]
-        self.assertIn(
-            "if (live_idx == idx)",
-            helper,
-        )
-        self.assertIn("g_vv3_mask_fp[i] == fpv", helper)
-
-    def test_batch_none_clears_duplicate_fingerprint_group_only_for_explicit_none(self) -> None:
-        """A shifted duplicate group is clearable only by an explicit None choice."""
-        source = self.source
-        group_gate = source.split(
-            "static int vv3_mask_group_none_explicit", 1
+        shadow = self.source.split(
+            "static int vv3_mask_build_batch_shadow", 1
         )[1].split("static int vv3_apply_for_all", 1)[0]
-        self.assertIn("if (mask_mode == 4) return 1", group_gate)
-        self.assertIn(
-            "return mask_mode == 0 && (female ? mask_f : mask_m) == 0;",
-            group_gate,
-        )
-        # Random/distribution None is intentionally absent from the group gate;
-        # those modes retain the ordinary duplicate-identity preflight failure.
-        self.assertNotIn("mask_mode == 2", group_gate)
-        self.assertNotIn("mask_mode == 1", group_gate)
-        self.assertNotIn("mask_mode == 3", group_gate)
+        clear = shadow.index("vv3_mask_plan_has_selected_fp")
+        allocate = shadow.index("if (seen || desired[i] == 0) continue;")
+        self.assertLess(clear, allocate)
 
-        engine = source.split("static int vv3_apply_for_all", 1)[1].split(
-            "#define VW_RUNNING", 1
-        )[0]
-        self.assertIn("int mask_group_clear[256];", engine)
-        self.assertIn("mask_group_clear[i] = 0;", engine)
-        self.assertIn("vv3_mask_has_duplicate_live_fingerprint", engine)
-        self.assertIn("vv3_mask_has_stored_fingerprint", engine)
-        self.assertIn("mask_group_clear[i] = 1;", engine)
-        self.assertIn("if (mask_group_clear[i])", engine)
-        self.assertIn("vv3_mask_clear_group_prepared(", engine)
-        # The ordinary exact-slot clear still runs after the group clear, and
-        # the batch retains one post-apply sidecar publication.
-        apply = engine.split(
-            "/* Mask: apply the precomputed exclusive result in memory only.  The",
-            1,
-        )[1]
-        self.assertIn("vv3_mask_clear_group_prepared(", apply)
-        self.assertIn("desired_mask[i], 0);", apply)
-        self.assertEqual(apply.count("vv3_mask_write_sidecar();"), 1)
-
-    def test_batch_applies_in_memory_then_publishes_sidecar_once(self) -> None:
-        """Every planned mask uses the prepared path; the batch flushes once."""
+    def test_batch_preflight_finishes_before_count_or_mutation(self) -> None:
         engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
             "#define VW_RUNNING", 1
         )[0]
-        apply = engine.split(
-            "/* Mask: apply the precomputed exclusive result in memory only.  The",
-            1,
-        )[1]
-        self.assertNotIn("VV3_SetMaskForRecord(", apply)
-        self.assertIn("desired_mask[i], 0);", apply)
-        self.assertEqual(apply.count("vv3_mask_write_sidecar();"), 1)
-        self.assertLess(
-            apply.index("vv3_mask_apply_prepared("),
-            apply.index("if (mask_changed_any) vv3_mask_write_sidecar();"),
+        prepared = engine.index("if (!vv3_mask_prepare_slot())")
+        plan = engine.index("Build the exact mask result before counting")
+        coherent = engine.index("vv3_mask_make_plan_group_coherent")
+        shadow = engine.index("vv3_mask_build_batch_shadow", coherent)
+        count = engine.index("Count each eligible record once")
+        head_body = engine.index("/* Head/Body: independent per-sex")
+        first_record_write = engine.index("*(int *)(r + VV3_HEAD_OFF) = h")
+        first_table_write = engine.index("CopyMemory(g_vv3_mask, shadow_mask")
+        self.assertLess(prepared, plan)
+        self.assertLess(plan, coherent)
+        self.assertLess(coherent, shadow)
+        self.assertLess(shadow, count)
+        self.assertLess(count, head_body)
+        self.assertLess(head_body, first_record_write)
+        self.assertLess(shadow, first_table_write)
+
+    def test_batch_publishes_the_proven_shadow_once_without_individual_setters(self) -> None:
+        engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
+            "#define VW_RUNNING", 1
+        )[0]
+        persistence = engine.split("/* Durably publish the already-proven mask result", 1)[1].split(
+            "/* Head/Body: independent per-sex", 1
+        )[0]
+        apply = engine.split("/* Publish the already-proven, already-persisted", 1)[1]
+        self.assertNotIn("VV3_SetMaskForRecord(", engine)
+        self.assertNotIn("vv3_mask_apply_prepared(", engine)
+        self.assertIn(
+            "!vv3_mask_write_sidecar_tables(shadow_mask, shadow_fp)", persistence
         )
+        self.assertIn("g_vv3_caf_mask_persist_failed = 1;", persistence)
+        self.assertIn("CopyMemory(g_vv3_mask, shadow_mask", apply)
+        self.assertIn("CopyMemory(g_vv3_mask_fp, shadow_fp", apply)
+        self.assertNotIn("vv3_mask_write_sidecar", apply)
+        self.assertIn("if (mask_requested && mask_changed_any)", apply)
+
+    def test_batch_sidecar_failure_precedes_every_appearance_mutation_and_charge(self) -> None:
+        engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
+            "#define VW_RUNNING", 1
+        )[0]
+        persist = engine.index(
+            "!vv3_mask_write_sidecar_tables(shadow_mask, shadow_fp)"
+        )
+        head_write = engine.index("*(int *)(r + VV3_HEAD_OFF) = h")
+        table_write = engine.index("CopyMemory(g_vv3_mask, shadow_mask")
+        self.assertLess(persist, head_write)
+        self.assertLess(persist, table_write)
+        ui = self.source.split(
+            "__declspec(dllexport) int __stdcall ShowVV3AppearanceForAll", 1
+        )[1]
+        self.assertIn("g_vv3_caf_mask_persist_failed", ui)
+        self.assertLess(ui.index("affected = vv3_apply_for_all"), ui.index("*tech -= VV3_CAF_COST;"))
+
+    def test_record_index_is_bounded_by_the_current_population_slots(self) -> None:
+        indexer = self.source.split("static int vv3_mask_index", 1)[1].split(
+            "/* A raw preference fingerprint", 1
+        )[0]
+        self.assertIn("slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;", indexer)
+        self.assertIn("if (slots < 0) return -1;", indexer)
+        self.assertIn("if (slots > VV3_MASK_SLOTS) slots = VV3_MASK_SLOTS;", indexer)
+        self.assertIn("if (idx >= (UINT_PTR)slots) return -1;", indexer)
 
     def test_individual_chooser_only_binds_changed_mask_before_staged_writes(self) -> None:
         chooser = self.source.split(
@@ -471,26 +451,22 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
             "#define VW_RUNNING", 1
         )[0]
         preflight = engine.index("if (mask_requested)")
-        identity_gate = engine.index(
-            "vv3_mask_unique_live_index(vv3_mask_fingerprint(r)) != idx[i]",
-            preflight,
-        )
-        ambiguity = engine.index(
-            "!vv3_mask_can_set_prepared(r, desired_mask[i])"
-        )
         plan = engine.index("Build the exact mask result before counting")
+        group_gate = engine.index("!vv3_mask_make_plan_group_coherent", plan)
+        shadow_gate = engine.index("!vv3_mask_build_batch_shadow", group_gate)
+        ambiguity = engine.index("g_vv3_caf_mask_ambiguous = 1;", shadow_gate)
         count = engine.index("Count each eligible record once")
         head_body = engine.index("/* Head/Body: independent per-sex")
         first_record_write = engine.index("*(int *)(r + VV3_HEAD_OFF) = h")
-        first_mask_write = engine.index("vv3_mask_apply_prepared(")
-        self.assertLess(preflight, identity_gate)
-        self.assertLess(identity_gate, plan)
-        self.assertLess(plan, count)
-        self.assertLess(count, ambiguity)
+        first_mask_write = engine.index("CopyMemory(g_vv3_mask, shadow_mask")
+        self.assertLess(preflight, plan)
+        self.assertLess(plan, group_gate)
+        self.assertLess(group_gate, shadow_gate)
+        self.assertLess(shadow_gate, ambiguity)
+        self.assertLess(ambiguity, count)
         self.assertLess(ambiguity, head_body)
         self.assertLess(ambiguity, first_record_write)
         self.assertLess(ambiguity, first_mask_write)
-        self.assertIn("mask_changed[i] && desired_mask[i] > 0", engine)
 
         entry = self.source.split("ShowVV3AppearanceForAll(void)", 1)[1].split(
             "\n}", 1
@@ -617,15 +593,15 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("g_vv3_running_capture = 0;", clear)
 
     def test_sidecar_write_and_short_read_fail_closed(self) -> None:
-        self.assertIn("WriteFile(h, g_vv3_mask, sizeof(g_vv3_mask)", self.source)
-        self.assertIn("WriteFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp)", self.source)
+        self.assertIn("WriteFile(h, mask_table, sizeof(g_vv3_mask)", self.source)
+        self.assertIn("WriteFile(h, fp_table, sizeof(g_vv3_mask_fp)", self.source)
         self.assertIn("mask_r != sizeof(g_vv3_mask)", self.source)
         self.assertIn("fp_r != sizeof(g_vv3_mask_fp)", self.source)
         self.assertIn("vv3_mask_clear_tables();", self.source)
 
     def test_sidecar_write_is_transactional_with_checked_publication(self) -> None:
-        write = self.source.split("static void vv3_mask_write_sidecar(void) {", 1)[1].split(
-            "static void vv3_mask_read_sidecar(int slot) {", 1
+        write = self.source.split("static int vv3_mask_write_sidecar_tables", 1)[1].split(
+            "static int vv3_mask_write_sidecar(void) {", 1
         )[0]
         self.assertIn("char tmp[MAX_PATH];", write)
         self.assertIn('lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH', write)
@@ -636,9 +612,9 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         for expected in (
             "WriteFile(h, &magic, sizeof(magic), &w, NULL)",
             "w != sizeof(magic)",
-            "WriteFile(h, g_vv3_mask, sizeof(g_vv3_mask), &w, NULL)",
+            "WriteFile(h, mask_table, sizeof(g_vv3_mask), &w, NULL)",
             "w != sizeof(g_vv3_mask)",
-            "WriteFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &w, NULL)",
+            "WriteFile(h, fp_table, sizeof(g_vv3_mask_fp), &w, NULL)",
             "w != sizeof(g_vv3_mask_fp)",
         ):
             self.assertIn(expected, write)
@@ -646,7 +622,7 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("if (!CloseHandle(h))", write)
         self.assertEqual(write.count("DeleteFileA(tmp);"), 2)
         self.assertNotIn("DeleteFileA(path);", write)
-        writes_done = write.rindex("WriteFile(h, g_vv3_mask_fp,")
+        writes_done = write.rindex("WriteFile(h, fp_table,")
         flush = write.index("FlushFileBuffers(h)")
         close = write.index("if (!CloseHandle(h))")
         publish = write.index("MoveFileExA(tmp, path,")
@@ -654,6 +630,8 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertLess(flush, close)
         self.assertLess(close, publish)
         self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", write)
+        self.assertIn("return 0;", write)
+        self.assertIn("return 1;", write)
 
     @unittest.skipUnless(HAVE_BINARY_DEPS, "pefile is unavailable")
     def test_rebuilt_dll_imports_transactional_sidecar_apis(self) -> None:

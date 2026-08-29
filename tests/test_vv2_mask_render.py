@@ -4,12 +4,16 @@ import hashlib
 import importlib.util
 import json
 import struct
+import sys
 import zipfile
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from source_text_hash import source_text_sha256, source_text_sha256_bytes  # noqa: E402
+
 STAGE2 = (ROOT / "scripts" / "build_vv2_mask_stage2.py").read_text(encoding="utf-8")
 ORIGINS_BUILDER = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(encoding="utf-8")
 DLL = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(encoding="utf-8")
@@ -17,12 +21,30 @@ MANIFEST = json.loads((ROOT / "data" / "vv2_origins_feature.json").read_text(enc
 STATUS = (ROOT / "docs" / "vv5-mask-parity-status.md").read_text(encoding="utf-8")
 
 REQUIRED_MASK_HOOKS = {
-    "0x3160": ("8B4424048B11", "E95A120B0090"),
-    "0x95B0": ("8B09E989F3FFFF", "E997AA0A009090"),
-    "0x9600": ("8B09E9E9F6FFFF", "E920AB0A009090"),
-    "0x45B50": ("5355568BF1", "E9E8E70600"),
-    "0x4C5E6": ("8986D874E500", "E9BD7C060090"),
+    0x3160: "8B4424048B11",
+    0x95B0: "8B09E989F3FFFF",
+    0x9600: "8B09E9E9F6FFFF",
+    0x45B50: "5355568BF1",
+    0x4C5E6: "8986D874E500",
 }
+
+# Semantic entry signatures for the five authoritative stage-2 routines.  The
+# detour destinations may move when a preceding routine grows; these probes
+# prove each published JMP still lands at the intended instruction boundary.
+MASK_HOOK_ENTRY_PREFIXES = {
+    0x3160: "508B442408",
+    0x95B0: "508B4424043D505B4400",
+    0x9600: "508B4424043D40554400",
+    0x45B50: "60C605",
+    0x4C5E6: "8986D874E50060",
+}
+
+
+def _rel32_jump_target(file_offset: int, encoded: bytes) -> int:
+    assert len(encoded) >= 5 and encoded[0] == 0xE9
+    return 0x400000 + file_offset + 5 + int.from_bytes(
+        encoded[1:5], "little", signed=True
+    )
 
 
 def test_stage2_uses_the_current_atlas_geometry_in_its_contract() -> None:
@@ -287,25 +309,43 @@ def test_vv2_for_all_noop_defect_is_recorded_in_the_status_ledger() -> None:
 
 def test_origins_builder_composes_the_authoritative_mask_stage() -> None:
     assert "build_vv2_mask_stage2_output(original)" in ORIGINS_BUILDER
+    assert "VV2_MASK_STAGE2_PATCH_SPECS" in ORIGINS_BUILDER
+    assert "mask_stage2_output[offset : offset + len(before)]" in ORIGINS_BUILDER
     assert "mask_append.hex().upper()" in ORIGINS_BUILDER
     assert "append_bytes" in MANIFEST["pe_append_transaction"]["layouts"]["collection_progression"]
 
 
 def test_manifest_publishes_all_mask_hooks_and_exact_append_pages() -> None:
     patches = {item["offset"]: item for item in MANIFEST["patches"]}
-    for offset, (before, after) in REQUIRED_MASK_HOOKS.items():
-        assert patches[offset]["before"] == before
-        assert patches[offset]["after"] == after
+    layout = MANIFEST["pe_append_transaction"]["layouts"]["collection_progression"]
+    append_bytes = bytes.fromhex(layout["append_bytes"])
+    append_va = int(layout["virtual_address"], 0)
+    for offset, before in REQUIRED_MASK_HOOKS.items():
+        patch = patches[f"0x{offset:X}"]
+        assert patch["before"] == before
+        after = bytes.fromhex(patch["after"])
+        assert len(after) == len(bytes.fromhex(before))
+        target = _rel32_jump_target(offset, after)
+        target_offset = target - append_va
+        prefix = bytes.fromhex(MASK_HOOK_ENTRY_PREFIXES[offset])
+        assert 0 <= target_offset <= len(append_bytes) - len(prefix)
+        assert append_bytes[target_offset : target_offset + len(prefix)] == prefix
 
     tx = MANIFEST["pe_append_transaction"]
+    builder_path = ROOT / "scripts" / "build_vv2_mask_stage2.py"
+    assert tx["builder_sha256"] == source_text_sha256(builder_path)
+    builder_lf = builder_path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    assert tx["builder_sha256"] == source_text_sha256_bytes(
+        builder_lf.replace(b"\n", b"\r\n")
+    )
     assert tx["append_length"] == 0x2000
     assert "append_source" not in tx
     assert tx["source_sha256"] == "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"
     for mode in ("collection_progression", "immediate_fixed"):
         layout = tx["layouts"][mode]
-        append_bytes = bytes.fromhex(layout["append_bytes"])
-        assert len(append_bytes) == layout["append_length"] == 0x2000
-        assert hashlib.sha256(append_bytes).hexdigest().upper() == layout["page_sha256"]
+        mode_append = bytes.fromhex(layout["append_bytes"])
+        assert len(mode_append) == layout["append_length"] == 0x2000
+        assert hashlib.sha256(mode_append).hexdigest().upper() == layout["page_sha256"]
         assert layout["page_sha256"] == tx["page_sha256"]
         for header in layout["header_patches"]:
             before = bytes.fromhex(header["before"])

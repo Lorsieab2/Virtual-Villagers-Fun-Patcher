@@ -100,7 +100,7 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
         for token in (
             "x = args[1];",
             "scale = args[5];",
-            "y = args[2] - ((scale * VV_PORTRAIT_LIFT_MUL) >> VV_PORTRAIT_LIFT_SHIFT);",
+            "y = args[2] - (scale >> 3);",
             "col = args[4];",
             "enable = args[6];",
             "mov  ecx, draw_wrapper",
@@ -116,6 +116,12 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
         ):
             with self.subTest(obsolete=obsolete):
                 self.assertNotIn(obsolete, self.source + self.generator)
+
+        # The registration remains tied to the live portrait scale: children
+        # move by 20..24px and adults by the prior player-tuned 25px.  It is not
+        # a fixed child/adult coordinate reconstruction.
+        self.assertEqual([scale >> 3 for scale in (160, 198, 200)], [20, 24, 25])
+        self.assertNotIn("VV_PORTRAIT_LIFT_MUL", self.source)
 
     @unittest.skipUnless(HAVE_CAPSTONE, "requires Capstone")
     def test_missing_portrait_export_is_cached_as_fail_open(self) -> None:

@@ -347,24 +347,26 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # matching purchase gate.
                         "0xCCB10", "0x14D50", "0x3FBE5", "0x4098C",
                         "0x14DCA", "0x14E0D", "0xCCB40", "0xCCB60", "0xCCC00",
-                        # Heathen-mask overlay (SDL blit via companion DLL).
-                        # Removed the old append-rows approach (cave 0xCCD80 and
-                        # the row-count bumps 0xC3C24/0xC3B94) and replaced it
-                        # with three .shr caves -- resolve 0xCCD90, present-
-                        # surface-cache 0xCCDE0, head-draw 0xCCE10 -- plus the
-                        # present-call splice (0x9458) and the two head-draw
-                        # twins re-pointed to the head cave (0x5F702, 0x5F9CA).
-                        # No row-count bumps, no atlas swaps. The village world
-                        # cave (0xCCEB0, spliced at 0x68263) and the Details
-                        # portrait cave (0xCC7A1, spliced at the REAL portrait
-                        # bighead draw 0x5F965) reissue the head draw with the mask
-                        # atlas so the mask rides the head on every render path
-                        # (village + bighead portrait). (0x3CFDE was a dead site.)
+                        # Heathen-mask overlay. Current code uses resolve
+                        # 0xCCD90, present/surface-cache 0xCCDE0, the confirmed
+                        # Details cave 0xCC7A1 spliced at 0x5F702 (VA 0x45F702),
+                        # and world cave 0xCCEB0 spliced at 0x68263. The Details
+                        # cave reads portrait turn +0x2E38 mod 3 and uses the
+                        # dedicated 3x5 VV5-style atlas; 0xCCA40 owns its facing
+                        # and X/Y tables. Historical append-row/false-route
+                        # offsets stay in this snapshot exception set only so
+                        # removed bytes can be compared against the prior ledger:
+                        # 0xCCD80, 0xCCE10, 0x5F9CA, 0x5F965, 0x3CFDE, and old
+                        # scratch 0xCCA28/30/34. No stock atlas is swapped.
                         "0xCCD80", "0xC3C24", "0xC3B94",
                         "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
                         "0x5F702", "0x5F9CA",
                         "0xCCEB0", "0x68263", "0xCC7A1", "0x5F965", "0x3CFDE", "0xCCFC4",
                         "0xCCA28", "0xCCA30", "0xCCA34",
+                        # VV5-style Details portrait facing/X/Y tables used by
+                        # the repaired 0x45F702 head replay (including the
+                        # current Purple +5px seating adjustment).
+                        "0xCCA40",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

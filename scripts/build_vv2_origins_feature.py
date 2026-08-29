@@ -11,6 +11,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from source_text_hash import source_text_sha256  # noqa: E402
+
 STOCK = (
     ROOT
     / "research"
@@ -189,38 +192,35 @@ VV2_MASK_TABLE_VA = 0x004B3000
 
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
-# The mask stage owns these five fixed-build detours.  Its two appended pages
-# are emitted into the normal Origins manifest below; these rows are the
-# corresponding guarded fixed-image writes applied by the generic patcher.
-VV2_MASK_STAGE2_PATCHES = (
+# The mask stage owns these five fixed-build detours.  Store only their stock
+# guards and purposes here: each replacement is sliced from the authoritative
+# stage-2 builder output below.  Freezing replacement JMP literals here caused
+# four hooks to drift when the adult/child stubs grew while the append page was
+# regenerated, including a compositor jump into the middle of init code.
+VV2_MASK_STAGE2_PATCH_SPECS = (
     {
         "offset": "0x3160",
         "before": "8B4424048B11",
-        "after": "E95A120B0090",
         "purpose": "route the exact VV2 save-path builder through the mask sidecar slot publisher",
     },
     {
         "offset": "0x95B0",
         "before": "8B09E989F3FFFF",
-        "after": "E997AA0A009090",
         "purpose": "route the exact VV2 adult head draw through the mask overlay",
     },
     {
         "offset": "0x9600",
         "before": "8B09E9E9F6FFFF",
-        "after": "E920AB0A009090",
         "purpose": "route the exact VV2 child and portrait head draw through the mask overlay",
     },
     {
         "offset": "0x45B50",
         "before": "5355568BF1",
-        "after": "E9E8E70600",
         "purpose": "run the mask table sweep at the exact VV2 village compositor entry",
     },
     {
         "offset": "0x4C5E6",
         "before": "8986D874E500",
-        "after": "E9BD7C060090",
         "purpose": "load the embedded mask atlas and companion exports at the exact VV2 asset-load tail",
     },
 )
@@ -1100,11 +1100,13 @@ def main() -> None:
             }
         )
 
-    for mask_patch in VV2_MASK_STAGE2_PATCHES:
+    for mask_patch in VV2_MASK_STAGE2_PATCH_SPECS:
+        offset = int(mask_patch["offset"], 16)
+        before = bytes.fromhex(mask_patch["before"])
         patch(
-            int(mask_patch["offset"], 16),
-            bytes.fromhex(mask_patch["before"]),
-            bytes.fromhex(mask_patch["after"]),
+            offset,
+            before,
+            mask_stage2_output[offset : offset + len(before)],
             mask_patch["purpose"],
         )
 
@@ -2294,6 +2296,9 @@ def main() -> None:
     }
     mask_append_transaction = {
         "owner": "vv2_enable_origins_exclusive_features",
+        "builder_sha256": source_text_sha256(
+            ROOT / "scripts" / "build_vv2_mask_stage2.py"
+        ),
         "section_name": ".mtab/.vvmk",
         "append_length": len(mask_append),
         "append_offset": "0xB1000",

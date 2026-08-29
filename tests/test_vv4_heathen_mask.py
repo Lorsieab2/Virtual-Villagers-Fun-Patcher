@@ -12,8 +12,8 @@ cosmetic and NON-INVASIVE:
   present-surface-cache / world-draw caves) plus the call-site redirects. It
   must not touch any other upgrade, menu, or patch: no head-atlas row-count
   bumps, no atlas swaps, and the proven-wrong 0x45F965 route is absent.
-* The render atlas (Images/vvfp_mask_atlas.png) ships as an added file; stock
-  atlases are untouched.
+* Separate village (8-facing) and VV5-identical Details (3-facing) mask atlases
+  ship as added files; stock atlases are untouched.
 
 None of this needs the game executable.
 """
@@ -46,6 +46,7 @@ MASK_SAVE_SLOT_CAVE = 0xCCFD0
 MASK_WORLD_SITE = 0x468263
 MASK_WORLD_CAVE_FILE_OFFSET = 0xCCEB0
 MASK_DY_FILE_OFFSET = 0xCCFC4
+MASK_DETAILS_TABLE_FILE_OFFSET = 0xCCA40
 DETAIL_FALSE_SITE = 0x45F965
 DETAIL_FALSE_OLD_SCRATCH_OFFSETS = (0xCCA28, 0xCCA30, 0xCCA34)
 
@@ -182,6 +183,19 @@ class DllStorageContractTests(unittest.TestCase):
             renderer.index(guard),
             renderer.index('lstrcatA(path, "Images\\\\vvfp_mask_atlas.png");'),
         )
+
+    def test_details_has_a_dedicated_vv5_style_three_facing_atlas(self) -> None:
+        loader = self.c.split("static void vv_ensure_bighead_atlas(void)", 1)[1].split(
+            "/* Head-draw caves call this", 1
+        )[0]
+        self.assertIn('atlas_name[] = "vvfp_bighead_mask_atlas"', loader)
+        self.assertIn("push 5", loader)  # five mask-colour rows
+        self.assertIn("push 3", loader)  # right/front/left columns
+        self.assertIn("VV_BIGHEAD_ATLAS_SLOT_VA", loader)
+        getter = self.c.split("Vv4MaskGetForRecord(unsigned char *villager)", 1)[1].split(
+            "\n}", 1
+        )[0]
+        self.assertIn("vv_ensure_bighead_atlas();", getter)
 
     def test_sweep_persists_confirmed_free_slot_clears(self) -> None:
         cache = self.c.split("Vv4MaskCacheSurface(void *surface)", 1)[1].split("\n}", 1)[0]
@@ -337,7 +351,7 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
         self.assertEqual(self.by_off[MASK_DY_FILE_OFFSET]["after"], "2222222222")
         self.assertEqual(
             hashlib.sha256(bytes.fromhex(self.by_off[MASK_HEAD_FILE_OFFSET]["after"])).hexdigest().upper(),
-            "29CF62BED8C8A162AFF87BCA1BBE99058012BF091A1513DA272B713A398A2BA0",
+            "1DE3116F95E410366A44109FF914C43AB6FC60E9C964B09189EAB5C1D33FBF73",
         )
 
     def test_confirmed_details_head_is_redirected_to_the_head_cave(self) -> None:
@@ -363,32 +377,30 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
         )
         self.assertNotIn(0x45F9CA - IMAGE_BASE, self.by_off)
 
-    def test_head_replay_preserves_draw_context_and_uses_mask_arg1(self) -> None:
-        # VV2/VV5 parity: 0x409A70 is retained for the draw-manager wrapper
-        # (mov ecx,[ecx]); 0x408C40 is not called with the atlas as ECX. The
-        # mask replay uses a clean record facing, not the age-adjusted native
-        # animation frame passed as arg5 by the portrait renderer.
+    def test_head_replay_ports_the_vv5_details_tuple_contract(self) -> None:
+        # VV4 0x45F550 is the structural counterpart of VV5 0x466C40. Keep the
+        # exact native x/y tuple, use the portrait-only turn field (+0x2E38 mod
+        # 3), and draw through the native wrapper with a dedicated atlas.
         source = (ROOT / "scripts" / "build_vv4_origins_feature.py").read_text("utf-8")
         head_source = source.split("def mask_head_cave", 1)[1].split(
             "def mask_world_cave", 1)[0]
         self.assertIn("mov ecx, dword ptr [{MASK_S_ECX}]", head_source)
         self.assertIn("call 0x{MASK_DRAW_THUNK_VA:X}", head_source)
-        self.assertIn("mov eax, [esi+0x1CD4]", head_source)
-        self.assertIn("and eax, 7", head_source)
-        self.assertNotIn("mov eax, [esp+0x14]", head_source)
-        self.assertIn("movsx eax, byte ptr [eax + {MASK_DY_TABLE}]", head_source)
-        # Details arg6 is an integer percent, matching 0x408C40's fild / 100;
-        # the head replay must not reinterpret it as an IEEE float.  +50 gives
-        # nearest-integer seating for positive native scales.
-        self.assertIn("imul eax, dword ptr [{MASK_S_TRANSFORM}]", head_source)
-        self.assertIn("add eax, 50", head_source)
+        self.assertIn("mov eax, dword ptr [eax + {MASK_DETAILS_FACING_OFFSET}]", head_source)
+        self.assertIn("mov ecx, 3", head_source)
         self.assertIn("idiv ecx", head_source)
+        self.assertIn("movzx ecx, byte ptr [edx + {MASK_DETAILS_OFFSETS}]", head_source)
+        self.assertNotIn("[esi+0x1CD4]", head_source)  # +0x1CD4 is active, not facing
+        self.assertNotIn("mov eax, [esp+0x14]", head_source)
+        self.assertIn("mov edx, dword ptr [{MASK_SLOT_BIGHEAD_ATLAS}]", head_source)
+        self.assertIn("imul ecx, ecx, {MASK_DETAILS_SCALE_MUL}", head_source)
+        self.assertIn("shr ecx, {MASK_DETAILS_SCALE_SHIFT}", head_source)
+        self.assertIn("sub eax, {MASK_DETAILS_LIFT}", head_source)
         self.assertNotIn("fmul dword ptr [{MASK_S_TRANSFORM}]", head_source)
-        self.assertIn("sub ecx, dword ptr [{MASK_S_DY}]", head_source)
-        self.assertEqual(
-            head_source.count("mov dword ptr [{MASK_S_FACING}], eax"), 1,
-            "clean facing must not be overwritten by lift arithmetic")
-        self.assertNotIn("fistp dword ptr [{MASK_S_FACING}]", head_source)
+        for row in (1, 3, 4):
+            self.assertIn(f"cmp ecx, {row}", head_source)
+        self.assertIn("sub dword ptr [{MASK_S_X}], 2", head_source)
+        self.assertIn("add dword ptr [{MASK_S_Y}], 3", head_source)
         world_source = source.split("def mask_world_cave", 1)[1].split(
             "def add_c_string", 1)[0]
         self.assertIn("fild dword ptr [esp]", world_source)
@@ -401,18 +413,19 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
                 call_targets.append(MASK_HEAD_VA + i + 5 + rel)
         self.assertIn(MASK_DRAW_THUNK_VA, call_targets)
         self.assertNotIn(MASK_DRAW_REAL_VA, call_targets)
-        # The generated bytes include mov eax,[esi+0x1CD4]; and eax,7 before
-        # storing the clean facing scratch used by the mask replay.
-        self.assertIn(bytes.fromhex("8B86D41C000083E007"), cave)
-        # Details arg6 is the native integer percent: imul dy*percent, round
-        # with +50, then idiv 100.  This guards against the old IEEE-float bug.
-        self.assertIn(
-            bytes.fromhex("0FAF05888D720083C03231D2B964000000F7F9"), cave)
+        # Generated bytes pin the VV4 portrait field, modulo-3 operation, exact
+        # x1.5 integer scale, and the dedicated atlas slot.
+        self.assertIn(bytes.fromhex("8B80382E000099B903000000F7F9"), cave)
+        self.assertIn(bytes.fromhex("8B0D888D72006BC903D1E9"), cave)
+        self.assertGreaterEqual(cave.count(bytes.fromhex("8B153C8A7200")), 2)
+        table = self.by_off[MASK_DETAILS_TABLE_FILE_OFFSET]
+        self.assertEqual(table["before"], "00" * 16)
+        self.assertEqual(table["after"], "00010200000000001303F00002000200")
         # The separate world cave retains its 0x44C790 float-scale contract.
         world_cave = bytes.fromhex(self.by_off[0xCCEB0]["after"])
         self.assertIn(bytes.fromhex("DB0424"), world_cave)  # fild [esp]
         self.assertIn(bytes.fromhex("D80DB88F7200"), world_cave)  # fmul scale
-        self.assertLessEqual(MASK_HEAD_VA + len(cave), 0x728B10)
+        self.assertLessEqual(MASK_HEAD_VA + len(cave), 0x728A3C)
 
     def test_mask_caves_live_in_zeroed_shr_space(self) -> None:
         for off in (0xCCD90, 0xCCDE0, MASK_HEAD_FILE_OFFSET, 0xCCEB0):
@@ -453,6 +466,22 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
         # Added file -> no atlas SWAP fields (we do not overwrite a stock atlas).
         self.assertNotIn("restore_source", atlas)
         self.assertNotIn("preimage_sha256", atlas)
+
+        details = next(
+            (e for e in cf
+             if e["destination"] == "Images/vvfp_bighead_mask_atlas00.png"),
+            None,
+        )
+        self.assertIsNotNone(details, "VV5-style Details atlas companion missing")
+        details_bytes = (ROOT / details["source"]).read_bytes()
+        self.assertEqual(hashlib.sha256(details_bytes).hexdigest().upper(), details["sha256"])
+        self.assertEqual(
+            details_bytes,
+            (ROOT / "assets/vv5_bighead_masks/bigheads_masks.png").read_bytes(),
+            "VV4 Details must retain VV5's approved frames and geometry exactly",
+        )
+        self.assertNotIn("restore_source", details)
+        self.assertNotIn("preimage_sha256", details)
 
     def test_rebuilt_dll_imports_transactional_sidecar_apis(self) -> None:
         import pefile
