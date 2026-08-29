@@ -248,6 +248,12 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # a writable+executable section. The one runtime write (atlas ptr) goes to .mtab (R/W).
     CODE_SEC_VA, CODE_RAW = _append_section(data, b".vvmk", 0x1000, 0x60000020)
     MASK_ATLAS_PTR = MASK_TABLE_VA + 0xF08  # dword in .mtab (R/W): atlas obj ptr (0 until init)
+    # Save-slot tracking, so village 2 can never show -- or overwrite -- village 1's
+    # masks. The save-path builder publishes the slot; the per-frame sweep reloads
+    # the sidecar when it changes. The DLL reads SLOT_VA to pick vv2_masks_<slot>.dat.
+    SLOT_VA     = MASK_TABLE_VA + 0xF10   # dword: current save slot (0 = none yet)
+    LOADED_VA   = MASK_TABLE_VA + 0xF14   # byte: 1 = sidecar loaded for SLOT_VA
+    RESTORE_FN  = MASK_TABLE_VA + 0xF18   # dword: cached Vv2MaskRestore address
     FNAME_VA = CODE_SEC_VA                   # "heathen_masks.png\0" (read-only in the R+X section)
     DLLNAME_VA = FNAME_VA + len(FNAME)       # "VVFP VV2 Origins Icons.dll\0"
     RESTORE_STR_VA = DLLNAME_VA + len(DLLNAME)  # "Vv2MaskRestore\0"
@@ -518,7 +524,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         call dword ptr [0x{GETPROCADDRESS_IAT:X}]
         test eax, eax
         jz   no_restore
-        call eax                             /* Vv2MaskRestore() */
+        mov  dword ptr [0x{RESTORE_FN:X}], eax   /* cache for the per-frame reload */
     no_restore:
         popad
         jmp  0x{INIT_RET:X}
@@ -535,6 +541,18 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     COMPOSITOR_VA = 0x445B50
     sweep_asm = f"""
         pushad
+        /* Slot changed (or first village)? Reload the sidecar before masking.
+           Done HERE, not at the save-path hook: that hook fires during load, before
+           the villager records exist, so reading there would key against absent
+           records. By the first compositor frame they are populated. */
+        cmp  byte ptr [0x{LOADED_VA:X}], 0
+        jne  slot_ready
+        mov  eax, [0x{RESTORE_FN:X}]
+        test eax, eax
+        jz   slot_ready                      /* no DLL -> nothing to load */
+        call eax                             /* Vv2MaskRestore(): reads vv2_masks_<slot>.dat */
+        mov  byte ptr [0x{LOADED_VA:X}], 1
+    slot_ready:
         mov  edx, ecx                        /* edx = record[0] base (gameCtx) */
         xor  esi, esi                        /* esi = record index i */
     sweep_loop:
@@ -560,9 +578,36 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         jmp  0x{COMPOSITOR_VA + 5:X}
     """
     sweep = asm(sweep_asm, sweep_va)
-    end = sweep_va + len(sweep)
+    slot_va = sweep_va + len(sweep)
+
+    # ---- SLOT stub: detour of the save-path builder 0x403160, the ONLY "%s%d.ldw"
+    # builder. arg1 [esp+4] is the slot. Slot 0 is the meta file, never a village, so
+    # it is ignored -- capturing it would clobber the real village slot. On a CHANGE we
+    # only clear the loaded flag; the sweep does the actual reload on the next frame,
+    # because this fires mid-load before the villager records exist. Replays the 6
+    # displaced bytes and resumes at 0x403166. ----
+    SAVEPATH_VA = 0x403160
+    slot_asm = f"""
+        push eax
+        mov  eax, [esp+8]                    /* +8: our push shifted esp; arg1 = slot */
+        test eax, eax
+        jz   slot_done                       /* slot 0 = meta file, not a village */
+        cmp  eax, [0x{SLOT_VA:X}]
+        je   slot_done                       /* same village -> keep masks loaded */
+        mov  [0x{SLOT_VA:X}], eax            /* new village */
+        mov  byte ptr [0x{LOADED_VA:X}], 0   /* re-arm: sweep reloads next frame */
+    slot_done:
+        pop  eax
+        mov  eax, dword ptr [esp+4]          /* displaced */
+        mov  edx, dword ptr [ecx]            /* displaced */
+        jmp  0x{SAVEPATH_VA + 6:X}
+    """
+    slot_stub = asm(slot_asm, slot_va)
+    end = slot_va + len(slot_stub)
     total = end - CODE_SEC_VA
     assert total <= 0x1000, f".vvmk code section overflow: {total:#x}"
+    data[cfoff(slot_va):cfoff(slot_va) + len(slot_stub)] = slot_stub
+    # (hook written below, with the other detours)
 
     # ---- hooks ----
     def patch_thunk(va: int, tlen: int, dst: int, label: str):
@@ -599,6 +644,14 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # detour the village compositor entry (0x445B50) into the sweep stub. Its first
     # 5 bytes are `push ebx; push ebp; push esi; mov esi,ecx` (53 55 56 8B F1),
     # replayed at the end of the sweep stub before resuming at 0x445B55.
+    # detour the save-path builder (0x403160) into the slot stub. Its first 6 bytes
+    # are `mov eax,[esp+4]; mov edx,[ecx]` (8B 44 24 04 8B 11), replayed in the stub
+    # before resuming at 0x403166.
+    sp_off = SAVEPATH_VA - IMAGE_BASE
+    assert bytes(data[sp_off:sp_off + 6]) == bytes([0x8B,0x44,0x24,0x04,0x8B,0x11]),         "save-path builder 0x403160 moved!"
+    sp_hook = asm(f"jmp 0x{slot_va:X}", addr=SAVEPATH_VA).ljust(6, bytes([0x90]))
+    data[sp_off:sp_off + 6] = sp_hook
+
     comp_off = COMPOSITOR_VA - IMAGE_BASE
     assert bytes(data[comp_off:comp_off + 5]) == b"\x53\x55\x56\x8b\xf1", \
         "compositor entry 0x445B50 moved!"

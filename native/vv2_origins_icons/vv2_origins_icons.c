@@ -867,6 +867,10 @@ __declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
    read/write it directly. The render stubs (in the exe's .vvmk section) read it. */
 #define VV2_MASK_TABLE       ((unsigned char *)0x004B3000)
 #define VV2_MASK_TABLE_BYTES 256
+/* Published by the exe's save-path hook (0x403160, the only "%s%d.ldw" builder).
+   0 = no village loaded yet. The sidecar is keyed on this so village 2 cannot
+   display -- or overwrite -- village 1's masks. */
+#define VV2_MASK_SLOT        (*(int *)0x004B3F10)
 
 /* The .mtab section exists ONLY in a mask-patched exe. On a build produced by the
    patcher without the mask exe-patch, 0x004B3000 is one byte past the end of the
@@ -1060,7 +1064,7 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
    villagers reloading into the same record slots (positional VV2 save). ---- */
 #define VV2_MASK_SIDECAR_MAGIC 0x32304D56u  /* 'V','M','0','2' */
 
-static int vv2_mask_sidecar_path(char *out) {
+static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     char docs[MAX_PATH];
     char exe[MAX_PATH];
     char *base;
@@ -1082,16 +1086,22 @@ static int vv2_mask_sidecar_path(char *out) {
         }
     }
     if (base[0] == 0) return 0;                     /* no usable basename -> skip */
-    /* MAX_PATH budget: docs + "\LDW\" + basename + "\vv2_masks.dat" */
-    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\vv2_masks.dat") >= MAX_PATH) {
+    /* MAX_PATH budget: docs + "\LDW\" + basename + "v2_masks_NN.dat" */
+    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\vv2_masks_00.dat") >= MAX_PATH) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vv2_masks.dat", docs, base);
+    if (slot > 0) wsprintfA(out, "%s\\LDW\\%s\\vv2_masks_%d.dat", docs, base, slot);
+    else          wsprintfA(out, "%s\\LDW\\%s\\vv2_masks.dat", docs, base);
     return 1;
+}
+
+/* the CURRENT village's sidecar; slot published by the exe save-path hook */
+static int vv2_mask_sidecar_path(char *out) {
+    return vv2_mask_sidecar_path_slot(out, VV2_MASK_SLOT);
 }
 
 static void vv2_mask_sidecar_save(void) {
@@ -1114,6 +1124,11 @@ static void vv2_mask_sidecar_load(void) {
     DWORD g;
     unsigned int m = 0;
     unsigned char buf[VV2_MASK_TABLE_BYTES];
+    int i;
+    /* A village with no sidecar must show NO masks -- never whatever the previously
+       loaded village left in the table. Clear first, then fill if a file exists. */
+    if (vv2_mask_table_ok())
+        for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {
@@ -1125,6 +1140,17 @@ static void vv2_mask_sidecar_load(void) {
            self-heals without ever deleting or moving the user's file. */
         char legacy[MAX_PATH];
         char docs[MAX_PATH];
+        /* MIGRATION (per-slot): builds before the sidecar was slot-keyed wrote ONE
+           vv2_masks.dat for every village. Read it for the FIRST village slot only,
+           so a returning user keeps their masks; later saves write the slot file.
+           Only slot 1 -- applying one shared file to every slot is the very
+           cross-contamination this change exists to stop. */
+        if (VV2_MASK_SLOT == 1 && vv2_mask_sidecar_path_slot(legacy, 0)
+            && lstrcmpiA(legacy, path) != 0) {
+            f = CreateFileA(legacy, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                            FILE_ATTRIBUTE_NORMAL, NULL);
+        }
+        if (f == INVALID_HANDLE_VALUE) {
         if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return;
         if (lstrlenA(docs) + (int)sizeof("\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat") >= MAX_PATH) {
             return;
@@ -1132,7 +1158,8 @@ static void vv2_mask_sidecar_load(void) {
         wsprintfA(legacy, "%s\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat", docs);
         if (lstrcmpiA(legacy, path) == 0) return;     /* already the canonical exe -> nothing to migrate */
         f = CreateFileA(legacy, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (f == INVALID_HANDLE_VALUE) return;        /* no legacy file either -> keep table as-is */
+        if (f == INVALID_HANDLE_VALUE) return;        /* no legacy file either -> table stays cleared */
+        }
     }
     if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
         && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
