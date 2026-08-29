@@ -142,18 +142,6 @@
       "purpose": "wrap the per-villager handler call so the mask draws as the last layer"
     },
     {
-      "offset": "0x34357",
-      "before": "E814A2FFFF",
-      "after": "E8E4AC2A00",
-      "purpose": "wrap the held/picked-up villager head draw so its mask follows the cursor"
-    },
-    {
-      "offset": "0x344B3",
-      "before": "E858A0FFFF",
-      "after": "E8C8AB2A00",
-      "purpose": "wrap the settled held villager's composited draw so its mask follows the cursor"
-    },
-    {
       "offset": "0x60B48",
       "before": "E893ECFFFF",
       "after": "E873E52700",

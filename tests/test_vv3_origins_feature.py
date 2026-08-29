@@ -138,8 +138,10 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 0x2E3F5,   # sole `call sub_4605F0` -> village wrapper (mask last layer)
                 0x60A60,   # head draw -> stash cave (captures exact head x/y/scale)
                 0x60B48,   # `call sub_45F7E0` -> action-overlay wrapper (pose heads)
-                0x34357,   # legacy held-head wrap; DLL leaves its fn-ptr slot NULL
-                0x344B3,   # legacy held phase-C wrap; DLL leaves its fn-ptr slot NULL
+                # (0x34357 / 0x344B3 are NOT patched: proven from the binary to be a
+                # timed UI/effect renderer, not a villager head draw -- the head-atlas
+                # holder [+0x127C1C] is read at exactly one site in the exe, 0x460A54.
+                # Those bytes are left stock rather than hooked.)
                 #
                 # PE header edits mapping the two appended, patch-owned sections.
                 # docs/head-mask-rendering.md Part 7: our code and data must live in

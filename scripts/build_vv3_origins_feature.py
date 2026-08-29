@@ -2087,20 +2087,19 @@ def main() -> None:
         world_mask_wrapper_redirect,
         "wrap the per-villager handler call so the mask draws as the last layer",
     )
-    put_cave(0x040, world_held_wrap_cave, "held-villager wrapper (currently unused: DLL leaves its fn-ptr slot NULL)")
-    patch(
-        WORLD_HELD_CALLSITE_VA - IMAGE_BASE,
-        original[WORLD_HELD_CALLSITE_VA - IMAGE_BASE : WORLD_HELD_CALLSITE_VA - IMAGE_BASE + 5],
-        world_held_wrap_redirect,
-        "wrap the held/picked-up villager head draw so its mask follows the cursor",
-    )
-    put_cave(0x080, world_held2_wrap_cave, "held phase-C wrapper (currently unused: DLL leaves its fn-ptr slot NULL)")
-    patch(
-        WORLD_HELD2_CALLSITE_VA - IMAGE_BASE,
-        original[WORLD_HELD2_CALLSITE_VA - IMAGE_BASE : WORLD_HELD2_CALLSITE_VA - IMAGE_BASE + 5],
-        world_held2_wrap_redirect,
-        "wrap the settled held villager's composited draw so its mask follows the cursor",
-    )
+    # 0x434357 / 0x4344B3 ARE NOT VILLAGER DRAWS -- these two hooks are REMOVED, not disabled.
+    # Proven from the binary, not assumed:
+    #   * the head-atlas holder [+0x127C1C] is read at EXACTLY ONE site in the whole exe
+    #     (0x460A54, feeding the head draw at 0x460A60);
+    #   * 0x42E570 is a GENERIC scaled-sprite draw whose sprite is an ARGUMENT -- at 0x434357
+    #     that argument comes from [esi+ecx*4+0x7C] with ecx from [ebp+0x10] in 0..2, a
+    #     3-entry sprite table, never a head atlas;
+    #   * the function containing both sites never references the record stride 0x1F8C;
+    #   * it iterates 24-byte array entries, compares elapsed time against 0x12C and 0x7080,
+    #     and its 3 anchors are the fixed screen positions (110,160)/(114,212)/(75,176)
+    #     written once behind an init latch at 0x5947D0.
+    # It is a timed UI/effect renderer.  Patching its call sites made the mask paint onto that
+    # effect, so the correct fix is to leave those bytes STOCK.
     put_cave(0x0C0, world_action_wrap_cave, "action-overlay wrapper: run the pose overlay, then seat the mask on the pose head")
     patch(
         WORLD_ACTION_CALLSITE_VA - IMAGE_BASE,
