@@ -713,19 +713,24 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
    on the face for adults (children lift by the same age-scale automatically).  My earlier chin
    arithmetic wrongly assumed the stash was the head-cell top and gave ~38 (masks dropped to the
    waist/floor).  Live-tunable at dllbase+0x19020. */
-int g_vv3_world_lift   = 0;    /* global lift on TOP of the per-colour seat below (VV1-measured) */
-/* PER-COLOUR vertical seat (VV1's cross-measured numbers, methodology: mask face anchor =
-   centroid of the BOTTOM 55% of the mask sprite -- excludes the headdress whose top varies
-   wildly by colour -- minus VV3 head skin-centroid y (~23).  blue/orange/red/purple/chief;
-   chief seats highest.  Indexed by (mask-1)=0..4.  Live-tunable (published 0x6C7A2C). */
-int g_vv3_color_dy[5]  = { 34, 33, 30, 28, 26 };
+int g_vv3_world_lift   = 0;    /* global lift on TOP of the per-colour seat below */
+/* PER-COLOUR vertical seat = mask face-y (bottom-55% centroid of the mask cell, which excludes
+   the headdress whose top varies 23px by colour) MINUS the head's EYE-line y (16).  Measured
+   blue57/orange56/red53/purple51/chief48.5 -> 41/40/37/35/32.  Chief seats highest, exactly as
+   rule 7 predicts.  Indexed by (mask-1)=0..4.  Live-tunable (published 0x6C7A2C). */
+int g_vv3_color_dy[5]  = { 41, 40, 37, 35, 32 };
 int g_vv3_world_facing = -1;   /* -1 = AUTO (read head atlas frame); >=0 = force col */
 int g_vv3_world_dx     = 0;    /* global X nudge on TOP of the per-facing re-seat below */
-/* PER-FACING horizontal re-seat (VV1's cross-measured numbers, same anchor methodology:
-   head skin-centroid x minus mask bottom-55% centroid x, per facing col 0..7).  X swings
-   7.6px across facings so a single constant cannot serve; applied scale-relative.
+/* PER-FACING horizontal re-seat = head EYE-x minus mask face-x, per facing 0..7.
+   MEASUREMENT VALIDATION (three independent methods, per docs Part 5.6 strengthened):
+   skin-centroid, opaque-bbox centre and eye-median were compared per facing.  The
+   skin-centroid is ANTI-CORRELATED with the eyes on profile facings (f0: skin 25.5 vs eyes
+   17.5; f3: skin 17.0 vs eyes 25.0) because the back-of-head/neck skin sits opposite the
+   face -- so a skin-centroid anchor is wrong by up to 8px exactly where it matters.  The
+   EYES are the face, and a mask must cover the face, so the eye-line is the correct anchor.
+   head eye-x {17.5,17.5,25,25,19.5,21.5,23.5,16} - mask face-x {41,38,32,30,36,35,35,33}.
    Live-tunable (published to 0x6C7A28). */
-int g_vv3_facing_dx[8] = { -18, -16, -11, -11, -14, -13, -14, -12 };
+int g_vv3_facing_dx[8] = { -24, -20, -7, -5, -16, -14, -12, -17 };
 int g_vv3_world_dy     = 0;    /* live-tuned Y nudge: +down / -up (scaled px)       */
 int g_vv3_world_liftfloor = 0; /* 0 = LIFT scales fully with head height (owner: mask     */
                                /* position must scale with head size); >0 floors it       */
@@ -762,12 +767,12 @@ int g_vv3_pose_dx[256] = {0};
 /* MEASURED baked-head centre per action frame (see VV3ActionMaskDraw comment): median
    skin-blob centre of the top third of each 40x65 pose cell, over all 10 outfit rows,
    female action pages 00/01/02 (17 cols each; frame f -> page f/17, col f%17). */
-int g_vv3_posehead_px[51] = {19,16,12,12,22,21,22,22,23,12,22,25,25,16,22,21,19,
-                             20,17,12,11,22,22,22,22,24,12,20,24,24,16,21,18,22,
-                             22,18,14,13,22,21,22,22,23,12,21,24,24,16,21,20,19};
-int g_vv3_posehead_py[51] = {33,33,35,37,26,26,26,26,22,31,20,26,25,21,16,17,24,
-                             31,30,33,36,26,25,25,26,21,31,20,25,24,22,17,17,22,
-                             32,32,36,37,26,26,26,26,22,30,21,28,26,22,16,16,25};
+int g_vv3_posehead_px[51] = {24,21,20,21,22,22,22,22,21,14,18,22,22,21,20,18,22,
+                             24,23,22,22,22,22,22,22,20,11,17,22,22,23,19,21,22,
+                             23,22,22,22,22,21,22,22,21,12,21,24,22,21,21,20,22};
+int g_vv3_posehead_py[51] = {39,38,38,42,31,32,32,32,25,37,28,28,27,28,22,22,28,
+                             38,39,39,40,33,33,33,33,26,38,30,32,32,31,25,25,32,
+                             38,38,40,40,31,32,32,32,24,36,28,30,29,26,22,22,28};
 /* Mask-cell face centre-x per facing (median content centre over all 5 colour rows of the
    65x145 mask atlas) and per-colour chin-y; face-y = chin - bias (face centre sits ~14px
    above the chin at cell scale). */
@@ -776,7 +781,7 @@ int g_vv3_posehead_py[51] = {33,33,35,37,26,26,26,26,22,31,20,26,25,21,16,17,24,
    mask_face_y[c] = head_cy(23) + color_dy[c].  The action path then lands the mask's face
    on the measured pose head centre with the SAME registration the walker path uses. */
 int g_vv3_maskface_cx[8] = {41,38,32,30,36,35,35,33};
-int g_vv3_maskface_cy[5] = {57,56,53,51,49};
+int g_vv3_maskface_cy[5] = {57,56,53,51,48};
 
 /* DIAGNOSTIC (temporary): per-anim counters so a live reader can prove whether the mask
    hook actually FIRES for each pose.  g_vv3_anim_hits[a] increments every time the world
