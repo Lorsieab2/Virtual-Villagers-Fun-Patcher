@@ -116,6 +116,23 @@ stored on the record; the head sprite frame may get an age/variant offset on top
     *after* the internal scale (post-transform screen space) or divide your pixel offset
     by the scale factor before adding to pre-scale coords. Credit: VV2 found this in
     VV3's binary; it's the kind of thing only reading the draw fn reveals.
+    **CAVEAT — measure the camera before blaming it.** The multiply only matters if the
+    camera actually zooms. VV3 measured `[mgr+0x300C] = 1.0` at runtime (its village
+    doesn't zoom), so the double-scale was a NO-OP there and could NOT have detached the
+    masks. Express offsets in world units anyway (correct at any camera, free at 1.0),
+    but if masks detach at camera=1.0, the cause is a double-**DRAW**, not double-scale —
+    see rule 13.
+
+13. **An UNGATED hook draws a phantom second mask (VV3's real detached-mask cause).** If
+    your hook sits on a call that runs for EVERY villager but the underlying fn no-ops for
+    some of them, your added draw does NOT no-op — you emit a mask where the game drew
+    nothing. VV3's action-overlay wrap (`0x460B48`) fires for every villager; `sub_45F7E0`
+    itself no-ops when there's no action frame (`anim == -1`, idle/walk), but the DLL fn
+    didn't, so it stamped a second mask at the action/body anchor for standing villagers =
+    masks floating in open sand. Fix: gate your added draw to the same condition the game
+    uses (VV3: real action frames `anim 0..50`; the world head path owns `anim == -1`).
+    Prove it with a per-draw log of `[anim]` at your hook — a mask emitted at `anim==-1`
+    is the phantom.
 
 ---
 
