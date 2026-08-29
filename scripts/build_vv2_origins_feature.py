@@ -11,6 +11,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from source_text_hash import source_text_sha256  # noqa: E402
+
 STOCK = (
     ROOT
     / "research"
@@ -2293,9 +2296,9 @@ def main() -> None:
     }
     mask_append_transaction = {
         "owner": "vv2_enable_origins_exclusive_features",
-        "builder_sha256": hashlib.sha256(
-            (ROOT / "scripts" / "build_vv2_mask_stage2.py").read_bytes()
-        ).hexdigest().upper(),
+        "builder_sha256": source_text_sha256(
+            ROOT / "scripts" / "build_vv2_mask_stage2.py"
+        ),
         "section_name": ".mtab/.vvmk",
         "append_length": len(mask_append),
         "append_offset": "0xB1000",

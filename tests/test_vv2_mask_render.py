@@ -4,12 +4,16 @@ import hashlib
 import importlib.util
 import json
 import struct
+import sys
 import zipfile
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from source_text_hash import source_text_sha256, source_text_sha256_bytes  # noqa: E402
+
 STAGE2 = (ROOT / "scripts" / "build_vv2_mask_stage2.py").read_text(encoding="utf-8")
 ORIGINS_BUILDER = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(encoding="utf-8")
 DLL = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(encoding="utf-8")
@@ -328,9 +332,12 @@ def test_manifest_publishes_all_mask_hooks_and_exact_append_pages() -> None:
         assert append_bytes[target_offset : target_offset + len(prefix)] == prefix
 
     tx = MANIFEST["pe_append_transaction"]
-    assert tx["builder_sha256"] == hashlib.sha256(
-        (ROOT / "scripts" / "build_vv2_mask_stage2.py").read_bytes()
-    ).hexdigest().upper()
+    builder_path = ROOT / "scripts" / "build_vv2_mask_stage2.py"
+    assert tx["builder_sha256"] == source_text_sha256(builder_path)
+    builder_lf = builder_path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    assert tx["builder_sha256"] == source_text_sha256_bytes(
+        builder_lf.replace(b"\n", b"\r\n")
+    )
     assert tx["append_length"] == 0x2000
     assert "append_source" not in tx
     assert tx["source_sha256"] == "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"

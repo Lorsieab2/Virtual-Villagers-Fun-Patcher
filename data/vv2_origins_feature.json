@@ -22,7 +22,7 @@
   ],
   "pe_append_transaction": {
     "owner": "vv2_enable_origins_exclusive_features",
-    "builder_sha256": "E28CA34855D98D0DB51480D92443563440F3C3589D7583CF686BC64040878FCB",
+    "builder_sha256": "90CBFF74B50F47E6D2A3954ECE7D6FEAB13E9C27EC19ECB3084C7D9EE76FB9FA",
     "section_name": ".mtab/.vvmk",
     "append_length": 8192,
     "append_offset": "0xB1000",
