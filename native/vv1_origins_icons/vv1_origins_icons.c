@@ -346,7 +346,7 @@ static void vv1_mask_sidecar_load(void) {
    screenshot. DY is added to the head's y (negative = up). LIFT is added to the
    engine's own head scale arg. */
 #define VV_PORTRAIT_MASK_DX   0
-#define VV_PORTRAIT_MASK_DY   (-52)     /* lift the mask up onto the face (Details renders the tall 160px cell ~1.8x, so needs a big lift; village uses -46 at 1:1) */
+#define VV_PORTRAIT_MASK_DY   (-47)     /* lift the mask up onto the face (Details renders the tall 160px cell ~1.8x, so needs a big lift; village uses -46 at 1:1). Was -52; user tuned +5 (down) 2026-08-27. */
 #define VV_PORTRAIT_MASK_LIFT 0
 /* The red mask cell's art sits a hair lower than the others, so give red alone a
    small extra lift on the Detail portrait. mask value 3 == red (COLOURS =
@@ -1129,7 +1129,15 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
     appearance_state.original_mask = vv1_mask_get(villager);
     appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
-    appearance_state.valid_count = appearance_state.male ? 19 : 20;
+    /* 20 for both sexes: the head/body sheets are 20 rows and index 19 is the
+       GOLDEN CHILD's head (pale, hairless) and body (gold) -- the last frame of
+       male_heads/bodies (user-confirmed). Villager-creation RNG only rolls
+       0..18 for males so a normal male never gets index 19, which is why the
+       picker used to cap males at 19 -- but the sprite exists and renders fine,
+       and excluding it left a golden child whose appearance was changed with no
+       way to cycle back to gold. Including 19 lets the golden look be restored
+       (and set) from the picker. Female row 19 is a normal head, not golden. */
+    appearance_state.valid_count = 20;
     appearance_state.head_warned = 0;
     vv1_prep_fullscreen();
     owner = GetForegroundWindow();

@@ -400,7 +400,8 @@ VILLAGE_FILL_SAVE_VA = VILLAGE_SURFACE_SAVE_VA + 4      # +0x1C4 dword, caller's
 VILLAGE_MASK_ROW_VA = VILLAGE_FILL_SAVE_VA + 4          # +0x1C8 dword, mask colour row (mask-1) for the mask sub-draw
 VILLAGE_DBG_CALLER_VA = VILLAGE_MASK_ROW_VA + 4         # +0x1CC dword, DIAGNOSTIC: caller of a head-atlas draw seen with an invalid stash (the swim/pose renderer we're missing)
 VILLAGE_MASKED_BITMAP_VA = VILLAGE_DBG_CALLER_VA + 4    # +0x1D0..+0x1F0, 256-bit per-frame "already masked this villager" guard (cleared once per frame by the draw hook) so villagers drawn by more than one render pass get exactly ONE mask
-VILLAGE_SCRATCH_END_VA = VILLAGE_MASK_ROW_VA + 4        # +0x1CC (still well clear of .shr at 0x48D000)
+VILLAGE_DRAWFN_VA = VILLAGE_MASKED_BITMAP_VA + 0x20     # +0x1F0 dword, per-entry original draw fn (0x408840 adult / 0x408740 child-alt) so one shared 5-arg body serves both thunks
+VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (still well clear of .shr at 0x48D000)
 # The village-mask caves (two per-loop stash writes + the shared-draw hook) live
 # in the free .shr tail run at 0x8B180 (0x8B17F..0x8B530, ~940 zero bytes in the
 # rendered exe), laid out contiguously like the portrait caves.
@@ -436,6 +437,15 @@ MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
 MASK_DRAW_RELOC_FILE_OFFSET = 0x8B080  # free .shr gap (0x8B07E..0x8B180), holds the draw hook
 MASK_DRAW_RELOC_VA = IMAGE_BASE + SHR_RVA + (
     MASK_DRAW_RELOC_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# The village mask THIRD hook (alternate child render path 0x4093c0 -> 0x408740)
+# does NOT fit in the sequential VILLAGE_MASK_CAVE region (that ends at the
+# CURE_ENTRY cave 0x8B530). It lives in the tail of the draw-hook gap instead:
+# the draw-hook stub above is only ~20 bytes, so 0x8B0A0..0x8B180 (224 bytes) is
+# free and confirmed-zero right after it.
+THIRD_HOOK_FILE_OFFSET = 0x8B0A0
+THIRD_HOOK_VA = IMAGE_BASE + SHR_RVA + (
+    THIRD_HOOK_FILE_OFFSET - SHR_FILE_OFFSET
 )
 # Details-screen portrait ("bighead") mask overlay: the Details portrait renders
 # through sub_437340, whose head draw at 0x43741B is the shared scaled draw
@@ -2645,33 +2655,59 @@ def main() -> None:
             push eax                              # save fill arg
             push edx                              # scratch
             # [esp]=edx [+4]=fill [+8]=renderer [+0xc]=cret [+0x10]=arg1 ..[+0x28]=arg7
+            # CALLER-ADDRESS GATE: only mask head draws issued by the VILLAGE render
+            # code (sub_437790 .. loop-2 end ~0x4392CD). The Details portrait draw
+            # (0x43741B, in sub_437340) and all UI/map head draws sit BELOW 0x437790,
+            # so they're excluded -- otherwise the village hook also masked the
+            # Details bighead (a small duplicate mask floating above the portrait)
+            # and stray non-village heads (the "faded/duplicate mask" reports).
+            mov edx, dword ptr [esp + 0xc]        # caller return address
+            cmp edx, 0x437790
+            jb vh_pass
+            cmp edx, 0x4392D0
+            ja vh_pass
             mov edx, dword ptr [0x{VILLAGE_CUR_IDX_VA:X}]
             cmp edx, 0x100
-            jae vh_stash_invalid                  # invalid stash (incl -1)
+            jae vh_pass                           # invalid stash (incl -1)
             mov eax, dword ptr [0x{MASK_MANAGER_VA:X}]
             test eax, eax
             jz vh_pass                            # no gameobj yet
             mov edx, dword ptr [esp + 0x10]       # arg1 (sprite)
-            cmp edx, dword ptr [eax + 0x3dff8]     # head atlas (7-col, male)
+            cmp edx, dword ptr [eax + 0x3dff8]     # child head atlas (male_heads.png)
             je vh_head
-            cmp edx, dword ptr [eax + 0x3dff4]     # head atlas (7-col, female)
-            je vh_head
-            cmp edx, dword ptr [eax + 0x3dff0]     # 9-col sheet (swim/pose head?)
-            je vh_head
-            cmp edx, dword ptr [eax + 0x3dfec]     # 9-col sheet (swim/pose head?)
-            je vh_head
-            # DIAGNOSTIC: valid stash, sprite is NOT a gated head. Record arg1
-            # unless it's one of the two body atlases (the common noise) -> the
-            # remaining captures reveal the swim head's sprite object.
-            cmp edx, dword ptr [eax + 0x3dfe8]
-            je vh_pass
-            cmp edx, dword ptr [eax + 0x3dfe4]
-            je vh_pass
-            mov dword ptr [0x{VILLAGE_DBG_CALLER_VA:X}], edx
-            jmp vh_pass
+            cmp edx, dword ptr [eax + 0x3dff4]     # child head atlas (female_heads.png)
+            jne vh_pass
+            # NOTE: 0x3dff0 and 0x3dfec are the male/female ACTION sheets (male_actions
+            # /female_actions), NOT heads -- gating on them stamped masks onto action
+            # sprites, which draw at body/ground level => the "mask flat on the floor,
+            # only while performing an action (e.g. Exercising)" bug. Only 0x3dff8
+            # (male_heads) and 0x3dff4 (female_heads) are real child heads. Bodies are
+            # 0x3dfe8/0x3dfe4; adult head is gated separately in the shared body.
         vh_head:
-            mov edx, dword ptr [0x{VILLAGE_CUR_IDX_VA:X}]        # villager index
-            mov dword ptr [0x{VILLAGE_CUR_IDX_VA:X}], 0xFFFFFFFF # consume/clear
+            # NO clear-on-consume: the stash stays valid for the WHOLE villager
+            # iteration (it's overwritten at the next loop top by stash1/stash2).
+            # Clearing it after the first head draw meant a villager drawn a SECOND
+            # time in the same iteration (e.g. SWIMMERS, whose head draws via the
+            # 0x4093c0 site at 0x438150 AFTER an earlier 0x409410 head draw already
+            # consumed the stash) saw an invalid stash and went unmasked. Each head
+            # draw independently resolves the same villager's mask now.
+            mov edx, dword ptr [0x{VILLAGE_CUR_IDX_VA:X}]        # villager index (kept valid)
+            # AGE GATE: this is the CHILD render path (0x409410). Children (age<0x118)
+            # mask here. Adults (age>=0x118) render+mask through the ADULT path
+            # (0x4093c0) instead -- but a swimming adult ALSO gets a spurious child-path
+            # draw here (the in-water reflection), which is the FADED DUPLICATE mask.
+            # Skip adults so only their single adult-path mask remains. (Confirmed by
+            # in-game capture: the 6 duplicated villagers were all adults drawn by both
+            # paths; every child is single-path, every non-swim adult is adult-path only.)
+            push eax
+            push ecx
+            mov eax, dword ptr [0x{MASK_MANAGER_VA:X}]           # gameobj (records base)
+            imul ecx, edx, 0x3d8
+            add ecx, eax
+            cmp dword ptr [ecx + 0x348], 0x118                   # age
+            pop ecx
+            pop eax
+            jae vh_pass                                          # adult -> the faded child-path dup, skip
             mov eax, edx
             shr eax, 1
             movzx eax, byte ptr [eax + 0x{MASK_TABLE_VA:X}]
@@ -2715,28 +2751,6 @@ def main() -> None:
             jmp vh_draw
         vh_setfail:
             mov dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}], 1
-            jmp vh_pass
-        vh_stash_invalid:
-            # DIAGNOSTIC: village frame but this villager wasn't stashed. If it's
-            # a head-atlas draw, record the caller -> the swim/pose renderer we
-            # aren't stashing. (Noisy from the clear-on-consume window, but a
-            # caller OUTSIDE 0x437790..0x4392CD is a genuinely un-stashed loop.)
-            mov eax, dword ptr [0x{MASK_MANAGER_VA:X}]
-            test eax, eax
-            jz vh_pass
-            mov edx, dword ptr [esp + 0x10]       # arg1
-            cmp edx, dword ptr [eax + 0x3dff8]
-            je vh_dbgcap
-            cmp edx, dword ptr [eax + 0x3dff4]
-            je vh_dbgcap
-            cmp edx, dword ptr [eax + 0x3dff0]
-            je vh_dbgcap
-            cmp edx, dword ptr [eax + 0x3dfec]
-            je vh_dbgcap
-            jmp vh_pass
-        vh_dbgcap:
-            mov eax, dword ptr [esp + 0xc]        # caller return address
-            mov dword ptr [0x{VILLAGE_DBG_CALLER_VA:X}], eax
             jmp vh_pass
         vh_pass:
             pop edx
@@ -2809,8 +2823,223 @@ def main() -> None:
         assemble(f"jmp 0x{village_hook_va:X}", 0x409410),
         "splice the shared scaled-draw thunk 0x409410 into the village all-pose mask hook",
     )
-    assert _vfile <= VILLAGE_MASK_CAVE_FILE + 900, (
-        f"village mask caves overflow the 0x8B180 free run: end={_vfile:#x}"
+
+    # === ADULT hook: the SECOND villager render path ========================
+    # VV1 renders by age (cmp [rec+0x348],0x118): CHILDREN (age<0x118) go through
+    # 0x409410->0x408af0 (handled above); ADULTS (age>=0x118) go through a SEPARATE
+    # thunk 0x4093e0 -> 0x408840 with head atlas [gameobj+0x3e008] (4 cols x 1 row,
+    # 65x65). The child hook can't see them, so adults render head-without-mask
+    # ("ghosts"). This mirror hook covers the adult thunk. 0x408840 takes 5 args
+    # (ret 0x14): arg1=sprite, arg2=x, arg3=y, arg4=facing(linear frame, idiv'd
+    # to row/col inside), arg5=scale(0.4f). For the mask we set arg1=mask sprite
+    # and arg4 = maskrow*mask_cols(8) + facing (row-major pack the engine decodes),
+    # leaving x/y/scale identical so the mask rides the adult head. Shared stash +
+    # mask table + cached sprite with the child hook. (VV5-decoded, confirmed 1:1.)
+    adult_hook_va = _vva
+    adult_hook = assemble(
+        f"""
+            push ecx
+            push eax
+            push edx
+            # [esp]=edx [+4]=fill [+8]=renderer [+0xc]=cret [+0x10]=arg1 [+0x14]=arg2 [+0x18]=arg3 [+0x1c]=arg4 [+0x20]=arg5
+            # CALLER-ADDRESS GATE (see village_hook): only mask VILLAGE-render head
+            # draws. The adult thunk 0x4093e0 has 47 call sites in 4 clusters; only
+            # the one at ~0x43808A is the village adult draw -- the 0x40C/0x41A/0x433B
+            # clusters are UI/map/portrait and must NOT be masked. Range excludes them
+            # and the Details bighead too.
+            mov edx, dword ptr [esp + 0xc]        # caller return address
+            cmp edx, 0x437790
+            jb ah_pass
+            cmp edx, 0x4392D0
+            ja ah_pass
+            # Exclude the FADED duplicate: 8 swimming adults are drawn twice -- the opaque
+            # mask via 0x438150 (0x4093c0) and a faded second draw via the adult thunk
+            # 0x4093e0 at 0x43808A (return 0x43808F). In-game capture proved 0x43808A is
+            # used by ONLY those 8 (their faded draw); excluding it kills the faded mask
+            # while the 0x438150 opaque mask remains. (Confirmed: excluding 0x438150
+            # instead left only the faded one -- so 0x43808A is the faded draw.)
+            cmp edx, 0x43808F
+            je ah_pass
+            mov edx, dword ptr [0x{VILLAGE_CUR_IDX_VA:X}]
+            cmp edx, 0x100
+            jae ah_pass
+            mov eax, dword ptr [0x{MASK_MANAGER_VA:X}]
+            test eax, eax
+            jz ah_pass
+            mov edx, dword ptr [esp + 0x10]       # arg1 (sprite)
+            cmp edx, dword ptr [eax + 0x3e008]    # adult head atlas (via 0x4093e0)
+            je ah_head
+            cmp edx, dword ptr [eax + 0x3dff8]    # child head atlas male_heads (via 0x4093c0)
+            je ah_head
+            cmp edx, dword ptr [eax + 0x3dff4]    # child head atlas female_heads
+            jne ah_pass
+            # 0x3dff0/0x3dfec are the male/female ACTION sheets, NOT heads -- excluded
+            # (see village_hook note): masking them stamped masks onto ground-level
+            # action sprites (the "mask on the floor while Exercising" bug).
+        ah_head:
+            # NO clear-on-consume (see village_hook): keep the stash valid for the
+            # whole iteration so swimmers (2nd head draw via 0x4093c0/0x408740) mask.
+            mov edx, dword ptr [0x{VILLAGE_CUR_IDX_VA:X}]
+            mov eax, edx
+            shr eax, 1
+            movzx eax, byte ptr [eax + 0x{MASK_TABLE_VA:X}]
+            test dl, 1
+            jz ah_lo
+            shr eax, 4
+            jmp ah_hm
+        ah_lo:
+            and eax, 0xf
+        ah_hm:
+            test eax, eax
+            jz ah_pass
+            cmp eax, 5
+            ja ah_pass
+            dec eax
+            mov dword ptr [0x{VILLAGE_MASK_ROW_VA:X}], eax
+            mov eax, dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}]
+            cmp eax, 1
+            je ah_pass
+            test eax, eax
+            jnz ah_draw
+            mov eax, dword ptr [0x{VILLAGE_MASK_DLL_FN_VA:X}]
+            test eax, eax
+            jnz ah_callfn
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            jz ah_setfail
+            push 0x{s['get_mask_sprite']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            jz ah_setfail
+            mov dword ptr [0x{VILLAGE_MASK_DLL_FN_VA:X}], eax
+        ah_callfn:
+            call eax
+            test eax, eax
+            jz ah_setfail
+            mov dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}], eax
+            jmp ah_draw
+        ah_setfail:
+            mov dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}], 1
+            jmp ah_pass
+        ah_pass:
+            pop edx
+            pop eax
+            pop ecx
+            mov ecx, dword ptr [ecx]
+            jmp dword ptr [0x{VILLAGE_DRAWFN_VA:X}]
+        ah_draw:
+            mov ecx, dword ptr [esp + 8]
+            mov ecx, dword ptr [ecx]
+            mov dword ptr [0x{VILLAGE_SURFACE_SAVE_VA:X}], ecx
+            mov eax, dword ptr [esp + 4]
+            mov dword ptr [0x{VILLAGE_FILL_SAVE_VA:X}], eax
+            add esp, 0xc
+            # [esp]=cret [+4]=arg1 [+8]=arg2 [+0xc]=arg3 [+0x10]=arg4 [+0x14]=arg5
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            mov ecx, dword ptr [0x{VILLAGE_SURFACE_SAVE_VA:X}]
+            mov eax, dword ptr [0x{VILLAGE_FILL_SAVE_VA:X}]
+            call dword ptr [0x{VILLAGE_DRAWFN_VA:X}]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x14]
+            mov eax, dword ptr [0x{VILLAGE_MASK_SPRITE_VA:X}]
+            mov dword ptr [esp], eax              # arg1 = mask atlas
+            sub dword ptr [esp + 8], 15           # arg3=y: lift adult village mask 15px up (user-tuned); head already drawn, so this shifts only the mask
+            # Frame selection differs by DRAW FN behaviour, not by thunk:
+            #  * 0x408840 (adult) idiv-DECODES a packed frame into row,col, so we
+            #    re-PACK: arg4 = maskrow*mask_cols(8) + facing. (Adult atlas is
+            #    4col x 1row so its arg4 is already the bare facing 0..3, hence no
+            #    %HEAD_COLS needed here -- confirmed working.)
+            #  * 0x408740 (swim/alt child) takes arg4,arg5 as SEPARATE row,col
+            #    indices (no idiv -- it hands them straight to 0x409f90 against the
+            #    sprite's own cols/rows). So we override ONLY the row (arg4:=mask
+            #    colour) and leave arg5 (the head's real facing column) verbatim.
+            #    Re-packing it -- what the merged body used to do to both -- shoved
+            #    maskrow*8+arg4 into a raw row index and marched the mask through
+            #    unrelated cells (the "changes sprite independently" misalignment).
+            mov ecx, dword ptr [0x{VILLAGE_DRAWFN_VA:X}]
+            cmp ecx, 0x408740
+            je msk_sep
+            mov eax, dword ptr [0x{VILLAGE_MASK_ROW_VA:X}]
+            shl eax, 3                            # maskrow * mask_cols(8)
+            add eax, dword ptr [esp + 0xc]        # + facing (original packed arg4)
+            mov dword ptr [esp + 0xc], eax        # arg4 = row*8 + facing
+            jmp msk_go
+        msk_sep:
+            mov eax, dword ptr [0x{VILLAGE_MASK_ROW_VA:X}]
+            mov dword ptr [esp + 0xc], eax        # arg4 = mask colour ROW; arg5 (facing col) left verbatim
+        msk_go:
+            mov ecx, dword ptr [0x{VILLAGE_SURFACE_SAVE_VA:X}]
+            mov eax, dword ptr [0x{VILLAGE_FILL_SAVE_VA:X}]
+            call dword ptr [0x{VILLAGE_DRAWFN_VA:X}]
+            ret 0x14
+        """,
+        adult_hook_va,
+    )
+    # This body is SHARED by BOTH 5-arg thunks (0x4093e0 adult, 0x4093c0 child-
+    # alt/swim). They differ only in the original draw fn (0x408840 vs 0x408740)
+    # and which head atlas matches -- and the atlas correlates with the thunk, so
+    # gating on all five (adult 0x3e008 + child 0x3dff8/f4/f0/ec) is safe. The
+    # draw fn is chosen per-thunk by a 15-byte entry stub that stores it into
+    # VILLAGE_DRAWFN_VA before jumping here; the body then draws head + mask via
+    # `call [DRAWFN]` and passes through via `jmp [DRAWFN]`. One 346-byte body
+    # instead of two -- the duplicate 0x408740 mirror didn't fit anywhere.
+    shared_body_va = adult_hook_va
+    patch(
+        _vfile, b"\0" * len(adult_hook), adult_hook,
+        "Village all-pose mask SHARED 5-arg hook body (serves both the adult thunk 0x4093e0->0x408840 and the alternate child/swim thunk 0x4093c0->0x408740): adults (age>=0x118, atlas 0x3e008) and children in the alternate 5-arg pose (swim/sit, atlases 0x3dff8/f4/f0/ec) both render head-without-mask otherwise. Reissues the mask through the per-thunk original draw fn (VILLAGE_DRAWFN_VA) with arg1=mask sprite and arg4=maskrow*8+facing at the head's own x/y/scale.",
+    )
+    _vfile += len(adult_hook); _vva += len(adult_hook)
+
+    # Two tiny per-thunk entry stubs in the draw-hook gap tail (0x8B0A0): each
+    # records its thunk's original draw fn, then jumps the shared body.
+    adult_entry_va = THIRD_HOOK_VA
+    adult_entry = assemble(
+        f"""
+            mov dword ptr [0x{VILLAGE_DRAWFN_VA:X}], 0x408840
+            jmp 0x{shared_body_va:X}
+        """,
+        adult_entry_va,
+    )
+    child_entry_va = THIRD_HOOK_VA + len(adult_entry)
+    child_entry = assemble(
+        f"""
+            mov dword ptr [0x{VILLAGE_DRAWFN_VA:X}], 0x408740
+            jmp 0x{shared_body_va:X}
+        """,
+        child_entry_va,
+    )
+    entry_blob = adult_entry + child_entry
+    assert THIRD_HOOK_FILE_OFFSET + len(entry_blob) <= 0x8B180, (
+        f"mask entry stubs ({len(entry_blob)} bytes) overflow the draw-hook gap "
+        f"(0x{THIRD_HOOK_FILE_OFFSET:X}..0x8B180 = {0x8B180 - THIRD_HOOK_FILE_OFFSET} bytes)"
+    )
+    patch(
+        THIRD_HOOK_FILE_OFFSET, b"\0" * len(entry_blob), entry_blob,
+        "Village all-pose mask per-thunk entry stubs (draw-hook gap tail 0x8B0A0): stub A stores the adult draw fn 0x408840, stub B the child-alt draw fn 0x408740, then both jmp the shared 5-arg mask body. Lets one body serve both thunks; the sequential village-cave region has no room for a second 346-byte copy.",
+    )
+    patch(
+        0x93E0, assemble("mov ecx, dword ptr [ecx]\n jmp 0x408840", 0x4093E0)[:5],
+        assemble(f"jmp 0x{adult_entry_va:X}", 0x4093E0),
+        "splice the adult scaled-draw thunk 0x4093e0 into its mask entry stub (-> shared 5-arg body, draw fn 0x408840)",
+    )
+    patch(
+        0x93C0, assemble("mov ecx, dword ptr [ecx]\n jmp 0x408740", 0x4093C0)[:5],
+        assemble(f"jmp 0x{child_entry_va:X}", 0x4093C0),
+        "splice the alternate child/swim scaled-draw thunk 0x4093c0 into its mask entry stub (-> shared 5-arg body, draw fn 0x408740)",
+    )
+
+    assert _vfile <= CURE_ENTRY_FILE_OFFSET, (
+        f"village mask caves (0x8B180 run) overflow into the CURE_ENTRY cave "
+        f"at 0x{CURE_ENTRY_FILE_OFFSET:X}: end={_vfile:#x}"
     )
 
     mask_detour_code = assemble(
