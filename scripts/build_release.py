@@ -151,7 +151,21 @@ FILES = [
     "data/vv1_visual_mods/base/Images/MapX2Y1.jpg",
 ]
 
+
+def _assert_no_executable_members(members: list[str]) -> None:
+    """Reject executable members before or after assembling the source ZIP."""
+    executable_members = [
+        member for member in members if member.casefold().endswith(".exe")
+    ]
+    if executable_members:
+        raise RuntimeError(
+            "source release archive cannot contain executable members: "
+            + ", ".join(executable_members)
+        )
+
+
 def main() -> int:
+    _assert_no_executable_members(FILES)
     OUTPUTS.mkdir(exist_ok=True)
     target = OUTPUTS / NAME
     temp = OUTPUTS / (NAME + ".tmp")
@@ -162,7 +176,9 @@ def main() -> int:
             archive.write(path, relative)
     temp.replace(target)
     with zipfile.ZipFile(target) as archive:
-        if sorted(archive.namelist()) != sorted(FILES):
+        members = archive.namelist()
+        _assert_no_executable_members(members)
+        if sorted(members) != sorted(FILES):
             raise RuntimeError("release archive manifest mismatch")
         bad = archive.testzip()
         if bad:
