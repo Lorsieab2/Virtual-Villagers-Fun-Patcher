@@ -273,13 +273,14 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # twins re-pointed to the head cave (0x5F702, 0x5F9CA).
                         # No row-count bumps, no atlas swaps. The village world
                         # cave (0xCCEB0, spliced at 0x68263) and the Details
-                        # portrait cave (0xCC7A1, spliced at 0x3CFDE) reissue the
-                        # head draw with the mask atlas so the mask rides the head
-                        # on every render path (village + bighead portrait).
+                        # portrait cave (0xCC7A1, spliced at the REAL portrait
+                        # bighead draw 0x5F965) reissue the head draw with the mask
+                        # atlas so the mask rides the head on every render path
+                        # (village + bighead portrait). (0x3CFDE was a dead site.)
                         "0xCCD80", "0xC3C24", "0xC3B94",
                         "0x9458", "0xCCD90", "0xCCDE0", "0xCCE10",
                         "0x5F702", "0x5F9CA",
-                        "0xCCEB0", "0x68263", "0xCC7A1", "0x3CFDE", "0xCCFC4",
+                        "0xCCEB0", "0x68263", "0xCC7A1", "0x5F965", "0x3CFDE", "0xCCFC4",
                         "0xCCA28", "0xCCA30", "0xCCA34",
                     }
                     self.assertEqual(
