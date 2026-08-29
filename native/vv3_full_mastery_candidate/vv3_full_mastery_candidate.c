@@ -95,6 +95,8 @@ extern int g_vv3_anim_hits[256];
 extern int g_vv3_anim_stash[256];
 extern int g_vv3_helddbg[8];
 extern int g_vv3_actdbg[8];
+extern int g_vv3_worlddbg[8];
+extern int g_vv3_chiefdbg[8];
 extern int g_vv3_facing_dx[8];
 extern int g_vv3_color_dy[5];
 extern int g_vv3_pose_dx[256];
@@ -129,6 +131,8 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         *(void **)(UINT_PTR)VV3_WORLD_ACTIONFN_PTR_SLOT  = (void *)&VV3ActionMaskDraw;
         *(void **)(UINT_PTR)VV3_WORLD_HELDDBG_PTR_SLOT   = (void *)&g_vv3_helddbg[0];
         *(void **)(UINT_PTR)0x006E0038u                  = (void *)&g_vv3_actdbg[0];
+        *(void **)(UINT_PTR)0x006E003Cu                  = (void *)&g_vv3_worlddbg[0];
+        *(void **)(UINT_PTR)0x006E0040u                  = (void *)&g_vv3_chiefdbg[0];
         *(void **)(UINT_PTR)VV3_WORLD_FACINGDX_PTR_SLOT  = (void *)&g_vv3_facing_dx[0];
         *(void **)(UINT_PTR)VV3_WORLD_COLORDY_PTR_SLOT   = (void *)&g_vv3_color_dy[0];
     }
@@ -826,6 +830,15 @@ int g_vv3_helddbg[8] = {0};
 /* Dedicated action-draw diag (helddbg is written by the held hook too -- shared use garbled
    both).  [0..7] = px,py,anim,facing,x,y,[mgr+0x3010],count.  Published at 0x6E0038. */
 int g_vv3_actdbg[8] = {0};
+/* WORLD-path draw log, so the running game can say WHICH hook paints a given mask instead of
+   me inferring it.  [0]=villager index [1]=anim [2]=facing [3]=x [4]=y [5]=scale bits
+   [6]=mask colour [7]=draw count.  Published at 0x6E003C. */
+int g_vv3_worlddbg[8] = {0};
+/* Targeted log of the CHIEF-colour (mask==5) world draw -- the exact mask the owner
+   photographed sitting at ground level inside the selection ring during a pickup.
+   [0]=index [1]=anim [2]=facing [3]=x [4]=y [5]=record state +0xF1C [6]=villager world x
+   [7]=count.  Published at 0x6E0040. */
+int g_vv3_chiefdbg[8] = {0};
 
 /* Per-frame stash of the EXACT head-draw position/scale, set by the head-site cave
    (0x460A60 -> VV3WorldMaskDrawAt) DURING the handler.  Lets the mask reuse the head's
@@ -967,6 +980,36 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
             g_vv3_helddbg[5] = mask;
             g_vv3_helddbg[6] = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
         }
+    }
+    g_vv3_worlddbg[0] = index;
+    g_vv3_worlddbg[1] = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
+    g_vv3_worlddbg[2] = facing;
+    g_vv3_worlddbg[3] = x;
+    g_vv3_worlddbg[4] = y;
+    g_vv3_worlddbg[5] = scaleBits;
+    /* [6] packs the mask colour with the villager's state field +0xF1C, which the engine's
+       own villager render branches on (cmp [esi+0xF1C],6 at 0x4609D1).  One of its values is
+       the carried/held state; logging it next to a mask draw identifies that value from a
+       real pickup instead of guessing. */
+    g_vv3_worlddbg[6] = mask | (*(int *)((unsigned char *)record + 0xF1C) << 8);
+    g_vv3_worlddbg[7]++;
+    if (mask == 5) {                     /* the chief mask from the owner's screenshot */
+        int wp[2];
+        __asm {
+            lea  eax, wp
+            push eax
+            mov  ecx, record
+            mov  edx, VV3_WORLD_POS_FN
+            call edx                     /* sub_455EF0(record,&wp) -> villager world pos */
+        }
+        g_vv3_chiefdbg[0] = index;
+        g_vv3_chiefdbg[1] = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
+        g_vv3_chiefdbg[2] = facing;
+        g_vv3_chiefdbg[3] = x;
+        g_vv3_chiefdbg[4] = y;
+        g_vv3_chiefdbg[5] = *(int *)((unsigned char *)record + 0xF1C);
+        g_vv3_chiefdbg[6] = wp[0];
+        g_vv3_chiefdbg[7]++;
     }
     {
         /* FADE FIX (VV2 trace): both the head draw (42E570) and my cell draw (42E510)
@@ -1261,12 +1304,32 @@ __declspec(dllexport) void __stdcall VV3HeldMaskDraw2(int x, int y, void *dragob
    args[0]=headSprite  args[1]=x  args[2]=y  args[3]=scale(float bits)  args[4]=flag. */
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
+    int idx;
     g_vv3_stash_record = record;
     g_vv3_stash_x      = args[1];
     g_vv3_stash_y      = args[2];
     g_vv3_stash_scale  = args[3];
     g_vv3_stash_m3010  = *(int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
     g_vv3_stash_valid  = 1;
+
+    /* DRAW HERE -- immediately after the head, NOT at the end of the villager handler.
+       This is the rule VV2 and VV5 both follow ("emit the mask inside the head draw") and
+       the deviation from it is what produced the mask left standing on the ground when a
+       villager is picked up.
+         The handler-tail draw was introduced to win z-order against hair.  But drawing last
+       also means the mask survives anything that covers the head LATER in the same frame.
+       When a villager is lifted to the cursor the engine still runs its village handler and
+       still draws its head at the old ground spot -- that ground head is then covered up,
+       while a mask emitted at the tail was not, leaving a mask floating on bare ground inside
+       the selection ring.  Emitting at the head site puts the mask under exactly the same
+       later layers as the head, so it is hidden precisely when the head is hidden.
+         Poses are excluded here (anim != -1): their visible head is baked into the action
+       sprite, so VV3ActionMaskDraw owns them and would otherwise double-draw. */
+    if (*(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF) != -1) {
+        return;
+    }
+    idx = (int)(((UINT_PTR)record - (UINT_PTR)VV3_REC_BASE) / VV3_STRIDE);
+    VV3WorldMaskDraw(idx);
 }
 
 /* Draw the stashed mask on top of the just-drawn head+hair.  Called from the post-hair
