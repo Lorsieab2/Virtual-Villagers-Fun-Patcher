@@ -65,6 +65,70 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 # (feature id, splice offset) -> sha256 of the reachable cave block.
 # Regenerate deliberately (and re-review the reasons below) whenever a cave's
 # code genuinely changes.
+#
+# Static review record for the integrated VV1 mask branch (commit 8217950,
+# fixture SHA-256 1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D):
+#
+#   0x3741B/0x374A4/0x37503/0x37556  confirmed.  Capstone decodes each capture
+#       cave as `mov eax,[esp+0x14]; mov [0x4911B0],eax; call 0x409410;
+#       push edi; push esi; call 0x490720; jmp splice+5`.  The stack-neutral
+#       scale read leaves the original seven-argument frame intact; 0x409410's
+#       pass path restores ECX/EAX/EDX and the engine draw returns `ret 0x1C`.
+#       The helper returns `ret 8`, balancing the two pushes.  At each natural
+#       resume the only consumers are `pop edi; pop esi; ret 4`, so ESP and
+#       ESI/EDI/EBX/EBP are preserved and no flags are consumed.
+#   0x37798                         confirmed.  Exact cave bytes decode to
+#       `mov eax,[esi+edi*4+0x3DBDC]; mov [0x4911B4],eax; jmp 0x43779F`.
+#       The resume first reuses EAX in `imul` and then consumes ESI/EDI; the
+#       cave defines EAX identically, leaves ESI/EDI and ESP unchanged, and
+#       neither displaced mov nor the added store changes flags.
+#   0x38900                         confirmed.  Exact cave bytes decode to
+#       `mov eax,[ebp]; mov [0x4911B4],eax; imul eax,eax,0x3D8; jmp 0x438909`.
+#       The resume consumes EAX/ESI/EBX; the cave defines EAX and preserves
+#       ESI/EBX/EBP/ESP.  Its final imul reproduces the displaced flag result.
+#   0x377B8 -> 0x4388CE             confirmed.  The cave begins with the exact
+#       displaced `jne 0x4388CE` (`0F85C884FAFF`), before any register write.
+#       The foreign target is `inc edi; cmp edi,0x100; jl ...`, which consumes
+#       only EDI and flags.  The taken path therefore has the stock EDI and
+#       flags; the fall-through path saves/restores EBX and resumes at
+#       0x4377BE, whose first cmp redefines flags and whose next instructions
+#       reload ECX/EDX from the EAX record.
+#   0x9410 -> 0x408AF0               confirmed.  The pass block pops the saved
+#       EDX/EAX/ECX, exactly replays stock `8B09`, and jumps with the original
+#       ESP and seven arguments.  0x408AF0 starts `sub esp,0x10` (redefines
+#       flags), reads its argument frame, and consumes the restored renderer
+#       via `mov esi,ecx`; no incoming flag is live.  The masked path builds
+#       two complete seven-argument calls and ends `ret 0x1C`, also returning
+#       with the original ESP and callee-saved registers.
+#   0x93E0/0x93C0                    confirmed.  The exact entry bytes store
+#       0x408840/0x408740 in the draw-function slot, then jump to the shared
+#       body.  The pass block restores ECX/EAX/EDX and stack, replays `8B09`,
+#       and indirect-jumps to the selected stock five-argument draw.  Those
+#       targets begin with `sub esp,0x10`; the shared masked path's calls end
+#       `ret 0x14`, so stack and callee-saved state match the native thunks.
+#   0x24103                         confirmed.  The cave decodes to the exact
+#       displaced `mov ecx,[esi+8]; push 0`, plus a data-only counter reset,
+#       then jumps 0x424108.  The resume immediately calls native code and
+#       later consumes ESI; ECX/ESP are exactly defined and no flags are changed.
+#   0x913C                          confirmed.  The cave optionally calls the
+#       pushad/popad restore stub, then reproduces `mov ecx,[esi+0x30]; push
+#       ecx; mov ecx,esi` and jumps 0x409142.  The resume stores EAX through
+#       ESI; ESI/EAX/ESP are preserved by the stub and the first resume mov
+#       does not consume flags.
+#   0x2ED0                          confirmed.  `pushad` brackets all scratch
+#       writes, `popad` restores every GP register and ESP, then the cave
+#       replays `mov eax,[esp+4]; mov edx,[ecx]` and jumps 0x402ED6.  The
+#       resume starts with `sub esp,0x100`, redefining flags; no flag contract
+#       crosses the detour.
+#   0x35AB0/0x4A700                  confirmed.  The 0x35AB0 fall-through
+#       repeats the displaced `cmp [esp+4],8` immediately before 0x435AB5;
+#       the 0x4A700 fall-through repeats `mov eax,[esp+4]; push ebx`
+#       immediately before 0x44A705.  Each resume's first flag-setting
+#       instruction (`jne` after the saved compare / `xor bl,bl`) redefines
+#       flags.  The handled paths use balanced `ret 8`; helper calls preserve
+#       nonvolatiles.
+#   No entry in this review was unsafe or unknown; no generator change was
+#   required.  The hashes below are the post-review generated cave bytes.
 CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x39C83"): "D3E8E252393FE028178409449C81F4C69C69B8E259387B249D71E4CEE6322AE6",
     ("vv1_birth_control", "0x3DD03"): "F4AF5EE81A11110F6F37F8AD2411C0D7F4DA616E3B8EB820C519C5E2734E8614",
@@ -77,35 +141,45 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "63CB33A95A00E194547370F24644869943BE36AB894A6653134BC4CD8E8D1D88",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "2C09263B8BD799A31220B1EA29126BDFCA2C8FB2599A81BCDB6CDD7616E4662C",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "A7AF5605A89BA5B022A68106E16D86BABAC8A4EB209C55532A48E9985DF4863C",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
-    ("vv1_enable_origins_exclusive_features", "0x4A700"): "40F8B782E7FA6AE75CD1FE7BEB78F3B709E8B278C640453DA9DBA60C70905D48",
+    ("vv1_enable_origins_exclusive_features", "0x4A700"): "7BEEF2CB03944B6556253B41D90584B95F51DB8A177FAB1DFA8D3540490B1CD3",
     ("vv1_enable_origins_exclusive_features", "0x8B004"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
-    ("vv1_enable_origins_exclusive_features", "0x24103"): "0B4C8F5AAFAE151BEA41084E5C7CEE4075A1646423A44D1E9E0E36A3C818E4D5",
-    ("vv1_enable_origins_exclusive_features", "0x377B8"): "62DCC4DD0BBD934EC1215760BA817F5DB8E5F5CAB857E30A1D4B79DAD6875173",
-    ("vv1_enable_origins_exclusive_features", "0x913C"): "1135C1CB91F00D2CA0B9283251E0D35FA2F92BB967288CA9D2454C3B9E5EA120",
+    ("vv1_enable_origins_exclusive_features", "0x24103"): "003BBF1143C6AC2F7AD6DD0D0A70346447E500F851CD3ABD7EDE134A87AEC848",
+    ("vv1_enable_origins_exclusive_features", "0x377B8"): "3EC4BE5669CAA10DB6414592D5C6FDE19C02942709AA65B8EE3A849F488DE5C0",
+    ("vv1_enable_origins_exclusive_features", "0x913C"): "28CCC7FE6E9CDFA425273E853079D566FAF7C578E4AB7E27EB043CBCB6362153",
+    # The three newer detours below are part of the same integrated mask
+    # branch. Their cave contracts are pinned separately in the review notes:
+    # 0x9410 restores the original thunk pass path; 0x93E0/0x93C0 select the
+    # original 5-argument draw function before entering the shared body.
+    ("vv1_enable_origins_exclusive_features", "0x9410"): "12B2B1E9D3FB03A3613D36E8C38AE1AAD724B7AB9ED92D188E7573F204E9BDCD",
+    ("vv1_enable_origins_exclusive_features", "0x93E0"): "737AA82521DC44FB571462B9B8C3BB432316C88DE977634C2D6C388ED44A1586",
+    ("vv1_enable_origins_exclusive_features", "0x93C0"): "28E4B105A8C0D9E9ED8F0AA2973CB2B9919F342E9D87697A9DB9EB742324FBE9",
+    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "8091338A543C285EF1CBE52A81044E6587DDF392D8120D3FF422E53C156C0F71",
     # Details portrait mask overlay splices: sub_437340 draws the portrait head
     # at FOUR call sites (a 2x2 of age x head-atlas flag). Each is replaced with
-    # a jmp to its own capture cave, which stashes the head's own scale arg into
-    # .data via EAX (a stack-neutral read -- NOTHING is pushed ahead of the
-    # head-draw call, or the arg frame 0x409410 reads would shift), reproduces
-    # the head draw, then pushes (record, gameobj) and calls a shared resolve-
-    # and-call helper (Vv1DrawPortraitMask @8), and re-enters stock at the
-    # natural resume (splice+5, auto-excluded). Net stack delta is zero and only
-    # EAX/ECX/EDX are clobbered across the resume, so ESI/EDI/EBX/EBP reach it
-    # unchanged -- the register contract sub_437340 needs for its own caller.
-    ("vv1_enable_origins_exclusive_features", "0x3741B"): "4BE9785CCE33995CFE508EF2F175AFB3BFBED12D4EB6FD807CB07F8DEEC77DD4",
-    ("vv1_enable_origins_exclusive_features", "0x374A4"): "CD1979EC7665FF4718DB573BAE81F07040A0DB96D02C24761B7A713E331A0DBF",
-    ("vv1_enable_origins_exclusive_features", "0x37503"): "5B2537BBC4515073649D50A14AD22CA058D40797E557AD0C7F229ED25C9FB649",
-    ("vv1_enable_origins_exclusive_features", "0x37556"): "2FBEA343865CBFF1A69000299D7522B2709C4CAEC9F8A82DBD7A14E4336680EA",
+    # a jmp to its own capture cave. The exact generated cave prefix is:
+    #   mov eax,[esp+0x14]; mov [0x4911B0],eax; call 0x409410;
+    #   push edi; push esi; call 0x490720; jmp splice+5.
+    # The first read is stack-neutral -- NOTHING is pushed ahead of the
+    # head-draw call, or the arg frame 0x409410 reads would shift. The
+    # detoured 0x409410 pass path restores its saved volatile registers and
+    # replays `mov ecx,[ecx]`; the engine draw returns with `ret 0x1C`.
+    # The helper's `ret 8` balances the record/gameobj pushes. Thus each cave
+    # reaches the natural resume with ESP, ESI, EDI, EBX, and EBP unchanged;
+    # the resume starts with pop edi/pop esi/ret and consumes no flags.
+    ("vv1_enable_origins_exclusive_features", "0x3741B"): "5C7DE5887D6A8075F1B81E2C4B2CC78E4751102288F712F1EE35BF1C2A9D04A8",
+    ("vv1_enable_origins_exclusive_features", "0x374A4"): "62005EA750DF9AD9F7FAB4AC7738AF58AF814F13D5C7DED25BAD5F327414662D",
+    ("vv1_enable_origins_exclusive_features", "0x37503"): "8EBDCC074CFE374DAE8489B700AA5B92CA820240523B85B5CB4740D31842F38D",
+    ("vv1_enable_origins_exclusive_features", "0x37556"): "F302809F991DB7DDE76A72BB6335F4078C9B4A824A22FA3DA983D91A7A87AE06",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
     # reproduce the villager index load, stash it to .data, and re-enter stock
     # at the NATURAL resume (0x43779F=splice+7, 0x438909=splice+9), so no
     # foreign re-entry -- fingerprints pin the cave bytes only. Inert until the
     # shared-draw hook reads the slot.
-    ("vv1_enable_origins_exclusive_features", "0x37798"): "AAA56CAFAEFA7AFD86F1EDD1D6C518990465508A113DF413D823A8E977718C2D",
-    ("vv1_enable_origins_exclusive_features", "0x38900"): "340B725876F14A318616998B5614B8C13925FDB0B31504D94BFDCEC0C022F23B",
+    ("vv1_enable_origins_exclusive_features", "0x37798"): "6D0E444DACFA185CA3D13C076829A25DAF3B84696BFC31153416B622D836650D",
+    ("vv1_enable_origins_exclusive_features", "0x38900"): "E8D8456C4E183D69B796D6D26005EA39B1E96E01266DACAA859A569C5499EC21",
     ("vv1_f6_clothing_change_cheat", "0x1FF2E"): "A00945F8D66A35B8BDB078E933690DDE5B048C60287B716EED0276AC20A07F3E",
     ("vv1_magic_fruit_alters_mortality", "0x2EEAA"): "81719DCFD4BC20C6F136E88308A12EDFA14447AF58E3B8B6DC239BBF4053BF10",
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",
@@ -184,6 +258,19 @@ REVIEWED: dict[tuple[str, str, int], str] = {
     "same flags and the same target, so this path is the stock control flow "
     "unchanged. 0x4388CE is the loop back-edge (inc edi / cmp edi,0x100) and "
     "dereferences nothing. The hook reaches it before touching any register.",
+    (
+        "vv1_enable_origins_exclusive_features",
+        "0x9410",
+        0x408AF0,
+    ): "shared scaled-draw pass path. The cave first pushes ECX/EAX/EDX, "
+    "then the pass block pops them in reverse order, restoring the original "
+    "ESP and all three volatile values, reproduces stock `mov ecx,[ecx]`, "
+    "and jumps to 0x408AF0. The original thunk bytes are exactly "
+    "8B09 E9D9F6FFFF. At 0x408AF0, `sub esp,0x10` is the first instruction "
+    "and overwrites flags; its argument reads use the untouched 7-argument "
+    "frame, while `mov esi,ecx` consumes the restored renderer. Therefore "
+    "the foreign entry has the stock ECX/ESP/argument contract and no "
+    "incoming-flag dependency.",
     (
         "vv1_f6_clothing_change_cheat",
         "0x1FF2E",
