@@ -301,6 +301,12 @@ runtime-trace and player-acceptance boundary. Record base is `0x59E124`, stride 
   sweep has promoted that slot to identity-ready; a confirmed mismatch then clears the
   entry and persists the current save's sidecar. No villager-record bytes are written, and
   mutable head/body/preferences are deliberately excluded from the identity.
+- **Transactional sidecar publication:** VV4 writes the unchanged `VVMK` payload to a
+  separately bounded `<final>.tmp`, checks all four `WriteFile` calls and exact byte
+  counts, flushes and closes it, and only then atomically publishes with
+  `MoveFileExA(REPLACE_EXISTING|WRITE_THROUGH)`. Any failure removes only that exact
+  temporary path, preserving an existing final sidecar; a missing final is published
+  normally after the same complete-success gate.
 
 ### VV5 — "New Believers" (latest; HAS native heathen masks)
 - **Native mask atlas** `vv5_heathenheads.png` — sprite id **`0x101`, 8 cols × 5 rows**,

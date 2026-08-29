@@ -45,7 +45,7 @@ It has not yet been accepted in a running game by the player.
 
 The GitHub review audit and its all-five follow-up found seven defects that were
 still present after the earlier integration work. They are now repaired and
-statically gated. A final adjacent-code audit then closed thirteen additional
+statically gated. A final adjacent-code audit then closed fourteen additional
 fail-closed and identity-boundary gaps:
 
 1. VV1's Details wrapper records a permanent fail-open sentinel when the
@@ -126,6 +126,12 @@ fail-closed and identity-boundary gaps:
     record once for a global mode or matching-sex field, and mask selections
     count only when the patch-owned table is available; empty or unmatched
     selections therefore make no mutation and deduct no 450,000 points.
+21. VV4's sidecar writer now publishes through a separately bounded `.tmp`
+    path. It checks all four payload `WriteFile` results and exact byte counts,
+    flushes and closes the temporary file, then uses `MoveFileExA` with replace
+    and write-through flags. Any write, flush, close, or publish failure deletes
+    only that exact temporary path and leaves the previously published final
+    sidecar untouched; the loader format and save/path guards are unchanged.
 
 The VV1 whole-village command still uses the compositor's verified
 `record+0x28 == 1` occupied predicate. Whether an occupied corpse must be

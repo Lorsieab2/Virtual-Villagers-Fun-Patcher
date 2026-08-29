@@ -115,6 +115,47 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("slot < 1 || slot > 5", self.c)
         self.assertIn("out[i] = (char)('0' + slot);", self.c)
 
+    def test_sidecar_write_is_transactional_with_exact_four_writes(self) -> None:
+        write = self.c.split("static void vv_write_mask_sidecar(void) {", 1)[1].split(
+            "static void vv_read_mask_sidecar(void) {", 1
+        )[0]
+        # A near-limit final path remains usable for reads, but publication gets
+        # its own bounded path budget for the fixed temporary suffix.
+        self.assertIn("char tmp[MAX_PATH];", write)
+        self.assertIn('lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH', write)
+        self.assertIn("lstrcpyA(tmp, path);", write)
+        self.assertIn('lstrcatA(tmp, ".tmp");', write)
+        self.assertIn(
+            "CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,", write
+        )
+        # The format remains magic, header, mask table, fingerprint table: four
+        # complete writes, each checked for both API success and byte count.
+        self.assertEqual(write.count("WriteFile("), 4)
+        for expected in (
+            'WriteFile(h, "VVMK", 4, &wr, NULL) || wr != 4',
+            "WriteFile(h, header, sizeof(header), &wr, NULL) ||",
+            "wr != sizeof(header)",
+            "WriteFile(h, g_mask_by_index, VV_MAX_VILLAGERS, &wr, NULL) ||",
+            "wr != VV_MAX_VILLAGERS)",
+            "WriteFile(h, g_mask_fp,",
+            "wr != VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int)",
+        ):
+            self.assertIn(expected, write)
+        self.assertIn("FlushFileBuffers(h)", write)
+        self.assertIn("if (!CloseHandle(h))", write)
+        self.assertEqual(write.count("DeleteFileA(tmp);"), 2)
+        self.assertNotIn("DeleteFileA(path);", write)
+
+        # No final-name publication can occur before all writes, flush, and close.
+        writes_done = write.rindex("WriteFile(h, g_mask_fp,")
+        flush = write.index("FlushFileBuffers(h)")
+        close = write.index("if (!CloseHandle(h))")
+        publish = write.index("MoveFileExA(tmp, path,")
+        self.assertLess(writes_done, flush)
+        self.assertLess(flush, close)
+        self.assertLess(close, publish)
+        self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", write)
+
     def test_sidecar_path_checks_the_complete_max_path_budget_before_appending(self) -> None:
         builder = self.c.split("static int vv_build_sidecar_path(char *out, int slot)", 1)[1].split(
             "\n}", 1
@@ -396,6 +437,10 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
     def test_render_atlas_ships_as_an_added_file(self) -> None:
         cf = self.m["companion_files"]
         self.assertEqual(cf[0]["destination"], "VVFP VV4 Origins Icons.dll")
+        self.assertEqual(
+            hashlib.sha256((ROOT / cf[0]["source"]).read_bytes()).hexdigest().upper(),
+            cf[0]["sha256"],
+        )
         # Ships as vvfp_mask_atlas00.png: the DLL builds the atlas via the game's
         # MULTI-FILE ldwImageGrid ctor FUN_0040ABA0, whose sprintf "%s%d%d%s"
         # yields "<name>00.png". The multi-file ctor is required so the surface
@@ -408,6 +453,18 @@ class OriginsManifestIntegrationTests(unittest.TestCase):
         # Added file -> no atlas SWAP fields (we do not overwrite a stock atlas).
         self.assertNotIn("restore_source", atlas)
         self.assertNotIn("preimage_sha256", atlas)
+
+    def test_rebuilt_dll_imports_transactional_sidecar_apis(self) -> None:
+        import pefile
+
+        pe = pefile.PE(str(ROOT / self.m["companion_files"][0]["source"]))
+        imports = {
+            item.name.decode(errors="replace")
+            for dll in pe.DIRECTORY_ENTRY_IMPORT
+            for item in dll.imports
+            if item.name is not None
+        }
+        self.assertTrue({"WriteFile", "FlushFileBuffers", "CloseHandle", "MoveFileExA"} <= imports)
 
     def test_no_stock_head_atlas_is_swapped(self) -> None:
         for e in self.m["companion_files"]:

@@ -527,25 +527,66 @@ static int vv_build_sidecar_path(char *out, int slot) {
 
 static void vv_write_mask_sidecar(void) {
     char path[MAX_PATH];
+    char tmp[MAX_PATH];
     HANDLE h;
     DWORD wr;
     unsigned int header[2];
+    BOOL ok = TRUE;
     vv_prepare_mask_state();
     if (!vv_build_sidecar_path(path, g_current_slot)) {
         return;
     }
-    h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+    /* Keep the existing final sidecar untouched until the complete payload is
+       durable.  The suffix check includes the terminating NUL and is separate
+       from the final-path check above: a valid near-MAX_PATH final can still
+       be read, while its temporary publication path fails closed. */
+    if (lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH) {
+        return;
+    }
+    lstrcpyA(tmp, path);
+    lstrcatA(tmp, ".tmp");
+    h = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
         return;
     }
     header[0] = VV_SIDECAR_VERSION;
     header[1] = VV_MAX_VILLAGERS;
-    WriteFile(h, "VVMK", 4, &wr, NULL);
-    WriteFile(h, header, sizeof(header), &wr, NULL);
-    WriteFile(h, g_mask_by_index, VV_MAX_VILLAGERS, &wr, NULL);
-    WriteFile(h, g_mask_fp, VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int), &wr, NULL);
-    CloseHandle(h);
+    if (!WriteFile(h, "VVMK", 4, &wr, NULL) || wr != 4) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(h, header, sizeof(header), &wr, NULL) ||
+               wr != sizeof(header))) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(h, g_mask_by_index, VV_MAX_VILLAGERS, &wr, NULL) ||
+               wr != VV_MAX_VILLAGERS)) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(h, g_mask_fp,
+                          VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int),
+                          &wr, NULL) ||
+               wr != VV_MAX_VILLAGERS * (DWORD)sizeof(unsigned int))) {
+        ok = FALSE;
+    }
+    if (ok && !FlushFileBuffers(h)) {
+        ok = FALSE;
+    }
+    if (!CloseHandle(h)) {
+        ok = FALSE;
+    }
+    if (!ok) {
+        /* Only the exact temporary path is ever removed on a failed write;
+           the previously published final remains byte-for-byte untouched. */
+        DeleteFileA(tmp);
+        return;
+    }
+    /* The final name is published only after all four writes, flush, and close
+       succeed.  REPLACE_EXISTING also publishes correctly when final is absent. */
+    if (!MoveFileExA(tmp, path,
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(tmp);
+    }
 }
 
 static void vv_read_mask_sidecar(void) {
