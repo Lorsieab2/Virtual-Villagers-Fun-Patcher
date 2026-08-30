@@ -26,102 +26,102 @@
 #define BS_LEFTTEXT 0x00000020L
 #define SS_LEFT 0x00000000L
 
-201 DIALOGEX 0, 0, 634, 268
+201 DIALOGEX 0, 0, 612, 232
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
 BEGIN
     /* Left column (rows 0-6) */
-    ICON        101, -1, 8,   8, 24, 24
-    ICON        109, 1100, 22, 20, 12, 12
-    LTEXT       "Time Warp - Advances 3 Villager Years", -1, 40, 10, 200, 10
-    LTEXT       "50,000 tech points", -1, 40, 22, 200, 9
-    PUSHBUTTON  "Buy", 1000, 250, 11, 55, 18
+    ICON        101, -1, 8,   6, 24, 24
+    ICON        109, 1100, 22, 18, 12, 12
+    LTEXT       "Time Warp - Advances 3 Villager Years", -1, 40, 8, 195, 10
+    LTEXT       "50,000 tech points", -1, 40, 20, 170, 9
+    PUSHBUTTON  "Buy", 1000, 240, 9, 55, 18
 
-    ICON        102, -1, 8,  40, 24, 24
-    ICON        109, 1101, 22, 52, 12, 12
-    LTEXT       "Island Event", -1, 40, 42, 200, 10
-    LTEXT       "30,000 tech points", -1, 40, 54, 200, 9
-    PUSHBUTTON  "Buy", 1001, 250, 43, 55, 18
+    ICON        102, -1, 8,  33, 24, 24
+    ICON        109, 1101, 22, 45, 12, 12
+    LTEXT       "Island Event", -1, 40, 35, 195, 10
+    LTEXT       "30,000 tech points", -1, 40, 47, 170, 9
+    PUSHBUTTON  "Buy", 1001, 240, 36, 55, 18
 
-    ICON        103, -1, 8,  72, 24, 24
-    ICON        109, 1102, 22, 84, 12, 12
-    LTEXT       "Barrel of Babies", -1, 40, 74, 200, 10
-    LTEXT       "75,000 tech points", -1, 40, 86, 200, 9
-    PUSHBUTTON  "Buy", 1002, 250, 75, 55, 18
+    ICON        103, -1, 8,  60, 24, 24
+    ICON        109, 1102, 22, 72, 12, 12
+    LTEXT       "Barrel of Babies", -1, 40, 62, 195, 10
+    LTEXT       "75,000 tech points", -1, 40, 74, 170, 9
+    PUSHBUTTON  "Buy", 1002, 240, 63, 55, 18
 
-    ICON        104, -1, 8, 104, 24, 24
-    ICON        109, 1103, 22, 116, 12, 12
-    LTEXT       "Tech Point Doubler", -1, 40, 106, 200, 10
-    LTEXT       "500,000 tech points", -1, 40, 118, 200, 9
-    PUSHBUTTON  "Buy", 1003, 250, 107, 55, 18
+    ICON        104, -1, 8, 87, 24, 24
+    ICON        109, 1103, 22, 99, 12, 12
+    LTEXT       "Tech Point Doubler", -1, 40, 89, 195, 10
+    LTEXT       "500,000 tech points", -1, 40, 101, 170, 9
+    PUSHBUTTON  "Buy", 1003, 240, 90, 55, 18
 
-    ICON        105, -1, 8, 136, 24, 24
-    ICON        109, 1104, 22, 148, 12, 12
-    LTEXT       "Food Point Doubler", -1, 40, 138, 200, 10
-    LTEXT       "500,000 tech points", -1, 40, 150, 200, 9
-    PUSHBUTTON  "Buy", 1004, 250, 139, 55, 18
+    ICON        105, -1, 8, 114, 24, 24
+    ICON        109, 1104, 22, 126, 12, 12
+    LTEXT       "Food Point Doubler", -1, 40, 116, 195, 10
+    LTEXT       "500,000 tech points", -1, 40, 128, 170, 9
+    PUSHBUTTON  "Buy", 1004, 240, 117, 55, 18
 
-    ICON        110, -1, 8, 168, 24, 24
-    ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Full Heal / Cure All", -1, 40, 170, 200, 10
-    LTEXT       "30,000 tech points", -1, 40, 182, 200, 9
-    PUSHBUTTON  "Buy", 1005, 250, 171, 55, 18
+    ICON        110, -1, 8, 141, 24, 24
+    ICON        109, 1105, 22, 153, 12, 12
+    LTEXT       "Full Heal / Cure All", -1, 40, 143, 195, 10
+    LTEXT       "30,000 tech points", -1, 40, 155, 170, 9
+    PUSHBUTTON  "Buy", 1005, 240, 144, 55, 18
 
-    ICON        108, -1, 8, 200, 24, 24
-    ICON        109, 1106, 22, 212, 12, 12
-    LTEXT       "Grant Running to All Villagers", -1, 40, 202, 200, 10
-    LTEXT       "1,000,000 tech points", -1, 40, 214, 200, 9
-    PUSHBUTTON  "Buy", 1006, 250, 203, 55, 18
+    ICON        108, -1, 8, 168, 24, 24
+    ICON        109, 1106, 22, 180, 12, 12
+    LTEXT       "Grant Running to All Villagers", -1, 40, 170, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 182, 170, 9
+    PUSHBUTTON  "Buy", 1006, 240, 171, 55, 18
 
     /* Right column (rows 7-13) */
-    ICON        107, -1, 328,   8, 24, 24
-    ICON        109, 1107, 342, 20, 12, 12
-    LTEXT       "Grant Full Mastery to All Villagers", -1, 360, 10, 200, 10
-    LTEXT       "1,000,000 tech points", -1, 360, 22, 200, 9
-    PUSHBUTTON  "Buy", 1007, 570, 11, 55, 18
+    ICON        107, -1, 310,   6, 24, 24
+    ICON        109, 1107, 324, 18, 12, 12
+    LTEXT       "Grant Full Mastery to All Villagers", -1, 342, 8, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 20, 170, 9
+    PUSHBUTTON  "Buy", 1007, 542, 9, 55, 18
 
-    ICON        106, -1, 328,  40, 24, 24
-    ICON        109, 1108, 342, 52, 12, 12
-    LTEXT       "All Villagers are Exactly 18", -1, 360, 42, 200, 10
-    LTEXT       "1,000,000 tech points", -1, 360, 54, 200, 9
-    PUSHBUTTON  "Buy", 1008, 570, 43, 55, 18
+    ICON        106, -1, 310,  33, 24, 24
+    ICON        109, 1108, 324, 45, 12, 12
+    LTEXT       "All Villagers are Exactly 18", -1, 342, 35, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 47, 170, 9
+    PUSHBUTTON  "Buy", 1008, 542, 36, 55, 18
 
-    ICON        110, -1, 328,  72, 24, 24
-    ICON        109, 1109, 342, 84, 12, 12
-    LTEXT       "Complete All Collections", -1, 360, 74, 200, 10
-    LTEXT       "1,000,000 tech points", -1, 360, 86, 200, 9
-    PUSHBUTTON  "Buy", 1009, 570, 75, 55, 18
+    ICON        110, -1, 310,  60, 24, 24
+    ICON        109, 1109, 324, 72, 12, 12
+    LTEXT       "Complete All Collections", -1, 342, 62, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 74, 170, 9
+    PUSHBUTTON  "Buy", 1009, 542, 63, 55, 18
 
-    ICON        108, -1, 328, 104, 24, 24
-    ICON        109, 1110, 342, 116, 12, 12
-    LTEXT       "Reset All Collections", -1, 360, 106, 200, 10
-    LTEXT       "1,000,000 tech points", -1, 360, 118, 200, 9
-    PUSHBUTTON  "Buy", 1010, 570, 107, 55, 18
+    ICON        108, -1, 310,  87, 24, 24
+    ICON        109, 1110, 324, 99, 12, 12
+    LTEXT       "Reset All Collections", -1, 342, 89, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 101, 170, 9
+    PUSHBUTTON  "Buy", 1010, 542, 90, 55, 18
 
-    ICON        107, -1, 328, 136, 24, 24
-    ICON        109, 1111, 342, 148, 12, 12
-    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 360, 138, 200, 10
-    LTEXT       "1,000,000 tech points", -1, 360, 150, 200, 9
-    PUSHBUTTON  "Buy", 1011, 570, 139, 55, 18
+    ICON        107, -1, 310, 114, 24, 24
+    ICON        109, 1111, 324, 126, 12, 12
+    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 342, 116, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 128, 170, 9
+    PUSHBUTTON  "Buy", 1011, 542, 117, 55, 18
 
-    ICON        106, -1, 328, 168, 24, 24
-    ICON        109, 1112, 342, 180, 12, 12
-    LTEXT       "Equal Division of Labor (No Parenting)", -1, 360, 170, 200, 10
-    LTEXT       "1,000,000 tech points", -1, 360, 182, 200, 9
-    PUSHBUTTON  "Buy", 1012, 570, 171, 55, 18
+    ICON        106, -1, 310, 141, 24, 24
+    ICON        109, 1112, 324, 153, 12, 12
+    LTEXT       "Equal Division of Labor (No Parenting)", -1, 342, 143, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 155, 170, 9
+    PUSHBUTTON  "Buy", 1012, 542, 144, 55, 18
 
-    ICON        106, -1, 328, 200, 24, 24
-    ICON        109, 1113, 342, 212, 12, 12
-    LTEXT       "Change Appearance for All", -1, 360, 202, 200, 10
-    LTEXT       "450,000 tech points", -1, 360, 214, 200, 9
-    PUSHBUTTON  "Buy", 1013, 570, 203, 55, 18
+    ICON        106, -1, 310, 168, 24, 24
+    ICON        109, 1113, 324, 180, 12, 12
+    LTEXT       "Change Appearance for All", -1, 342, 170, 195, 10
+    LTEXT       "450,000 tech points", -1, 342, 182, 170, 9
+    PUSHBUTTON  "Buy", 1013, 542, 171, 55, 18
 
-    LTEXT       "Press ESC to exit this menu.", -1, 40, 234, 554, 9, SS_CENTER
-    DEFPUSHBUTTON "Cancel", 2, 282, 248, 70, 14
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 200, 592, 9
+    DEFPUSHBUTTON "Cancel", 2, 271, 212, 70, 14
 END
 
-202 DIALOGEX 0, 0, 310, 206
+202 DIALOGEX 0, 0, 310, 204
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
@@ -156,8 +156,8 @@ BEGIN
     LTEXT       "5,000 tech points", -1, 40, 150, 150, 9
     PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
 
-    LTEXT       "Press ESC to exit this menu.", -1, 20, 172, 270, 9, SS_CENTER
-    DEFPUSHBUTTON "Cancel", 2, 120, 186, 70, 14
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 190, 290, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 170, 70, 14
 END
 
 203 DIALOGEX 0, 0, 366, 196
