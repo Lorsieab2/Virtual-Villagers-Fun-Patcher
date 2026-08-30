@@ -7449,10 +7449,11 @@ def render_patched_bytes(
         feature.id == "vv3_enable_origins_exclusive_features"
         for feature in fun_patches
     ):
-        vv3_manifest = next(
-            feature.raw for feature in fun_patches
+        vv3_feature = next(
+            feature for feature in fun_patches
             if feature.id == "vv3_enable_origins_exclusive_features"
         )
+        vv3_manifest = vv3_feature.raw
         hook = next(
             patch for patch in vv3_manifest.get("patches", [])
             if patch.get("offset") == "0x60C7F"
@@ -7463,7 +7464,14 @@ def render_patched_bytes(
             raise PatcherError(
                 "VV3 Origins output is missing the authoritative village mask hook."
             )
-        layout = vv3_manifest["pe_append_transaction"]["layouts"][patch_mode]
+        # Resolve through the same helper that performed the append: stock mode
+        # aliases to the collection_progression layout, so indexing layouts by
+        # patch_mode here would raise KeyError('stock') on that route.
+        layout = _append_layout(vv3_feature, patch_mode)
+        if layout is None:
+            raise PatcherError(
+                "VV3 Origins output has no certified village mask append layout."
+            )
         append_offset = int(layout["append_offset"], 0)
         append_length = int(layout["append_length"])
         if len(data) != append_offset + append_length:
