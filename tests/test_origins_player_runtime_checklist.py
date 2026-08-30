@@ -341,6 +341,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     )
                 elif path.name == "vv4_origins_feature.json":
                     corrected_offsets = {
+                        # VV4 save-slot capture repair: the invalid path used to
+                        # store a literal 0 into the slot variable, so the META
+                        # file -- which the same stock builder formats with slot
+                        # 0 -- overwrote the live village slot.  It now leaves
+                        # the previous capture intact.  Certified by
+                        # scripts/audit_save_path_integrity.py.
+                        "0xCCFD0",
                         "0xCC004", "0xCC160", "0xCC170",
                         "0x156F8", "0x15862", "0x1586F", "0x15A81",
                         "0x15B46", "0x15D8C", "0x16722", "0x16735",
