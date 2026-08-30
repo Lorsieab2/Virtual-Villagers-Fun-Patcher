@@ -22,22 +22,22 @@ MODES = (
 )
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 EXPANDED_PROTOTYPE = ROOT / "research" / "vv3-expanded-prototype.exe"
-PAYLOAD_SHA256 = "0E9B56C94BAB762CD8690668CD2C96F36D5E7F4D9C3545C0EBD7A3C3726EE84E"
+PAYLOAD_SHA256 = "95C62B33A52196912CD06FEAB8FCEE6EF070FE1D18EE68B11FFD33F9F44B51BC"
 ZERO_CAVE_SHA256 = "22B94C6893BFC091BE2A9F454A045184DF6C0398CFFA2B4E90C0065DD6EEB1B0"
 ISOLATED_RESULTS = {
     "stock": (
-        "7C9C9198FFF3681316080CBAB3D54424E6887747DA97C8B26388E9F48C96FA2F",
-        "4FC00C00",
+        "EE913C424D91A941BE79C2261BE66859793EDBA92D9F843D649E8551F6EC7717",
+        "C6730D00",
     ),
 }
 RENDERED_RESULTS = {
     "collection_progression": (
-        "C75EACEDBFDAD6D846AFD01D8F227291F5B6E2013B07E2C8A59AA111B2BBD8C0",
-        "C2620D00",
+        "D3CF2EB240B15EF4C1B4CCAA47A1B244E8D45D642B7A3DC0DA6033A528D2F9CB",
+        "3A160D00",
     ),
     "immediate_fixed": (
-        "D79888259910E818742F2EB5889BB15A3E75781E6A4F43BEB3906D86A02B58B1",
-        "C0A40D00",
+        "737DAC2B17520D63446DB8B57BAF1A4B652D432C0F98BE0FA50AE6BD1295A758",
+        "38580D00",
     ),
 }
 BASE_RESULTS = {
@@ -56,12 +56,12 @@ EXPANDED_COMPOSITION_RESULTS = {
 }
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-        "1B00B9EEFA66A8F30352D9F2A308448EC9E8380190353012A788DED3FD1AA762",
-        "1E9E0D00",
+        "D342C0221EAE7821EEAD51411A2BF69668AF57A3702CE3E1900D761449ED01A6",
+        "96510D00",
     ),
     "immediate_fixed": (
-        "B42BA1615D9785D57DFCC7C397F23944392BF75807AEB699958AFC2E74347F12",
-        "1DE00C00",
+        "917073C6F12EB4B360D028379FFFD83FF227572FB616F454878B9A0595862E7A",
+        "94930D00",
     ),
 }
 
@@ -125,41 +125,100 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
             expected = "00117A00" if mode.startswith("experimental_") else "00816C00"
             self.assertEqual(rows[0]["after"], expected)
 
-    def test_original_callback_gate_and_native_callback_fanout(self) -> None:
-        # The wrapper first calls the unchanged stock callback and requires AL=1,
-        # then requires its initiator to be active, living, non-nursing, and in
-        # action 120 or 121. Every other eligible record is sent through that
-        # same native callback, so stock success/failure and Chief selection stay
-        # authoritative for every villager.
-        original_call = bytes.fromhex("56B860194200FFD083C40488C384C0747B")
-        initiator_gate = bytes.fromhex(
-            "83BE100F0000007472"
-            "83BE780E0000007E69"
-            "83BE8C0E0000007560"
-            "8B86240F000083F878740583F8797550"
-        )
-        self.assertEqual(self.payload.index(original_call), 12)
-        self.assertEqual(self.payload.index(initiator_gate), 29)
-        self.assertLess(self.payload.index(initiator_gate), self.payload.index(bytes.fromhex("BF24E15900")))
+    def test_initiator_uses_stock_callback_and_fanout_assigns_the_robe_action(self) -> None:
+        """The initiator keeps the complete stock drop path; everyone else is
+        interrupted into the robe action through the stock dispatcher.
+
+        The wrapper used to broadcast by calling the stock drop handler
+        ``0x421960`` once per villager.  That function is gated on the
+        robe-candidate flag ``[record+0xE80]`` and returns ``xor al,al`` without
+        assigning anything when it is clear, so for every non-candidate the
+        broadcast was a silent no-op: they kept their current action and never
+        walked to the amphitheatre.
+
+        The fanout now calls ``0x455570(record, 0x39, ptr)`` instead, which is
+        the same action dispatcher the stock success path uses -- it writes the
+        villager's action field ``+0xF24`` and dispatches through the global
+        table at ``0x596970``, i.e. interrupts whatever they were doing and
+        starts the robe action.
+        """
+        stock_call = bytes.fromhex("B860194200FFD0")   # mov eax,0x421960 ; call eax
+        dispatch = bytes.fromhex("B870554500FFD0")     # mov eax,0x455570 ; call eax
+
+        # Exactly one stock drop call remains: the dropped initiator.
+        self.assertEqual(self.payload.count(stock_call), 1)
+        # ...and it is the first thing the wrapper does, with AL preserved.
+        self.assertLess(self.payload.index(stock_call), self.payload.index(dispatch))
+        self.assertIn(bytes.fromhex("88C384C0"), self.payload)  # mov bl,al ; test al,al
+
+        # The fanout assigns the robe action through the stock dispatcher.
+        self.assertEqual(self.payload.count(dispatch), 1)
+        self.assertIn(bytes.fromhex("6A39"), self.payload)      # push 0x39 (action id)
+        self.assertIn(bytes.fromhex("89F9"), self.payload)      # mov ecx,edi (thiscall)
+        # The loop counter and record cursor are preserved across game code.
+        self.assertIn(bytes.fromhex("5157"), self.payload)      # push ecx ; push edi
+        self.assertIn(bytes.fromhex("5F59"), self.payload)      # pop edi ; pop ecx
+
+        # The initiator gate is unchanged: active, living, non-nursing, and
+        # left by the stock handler in one of the two robe actions.
+        for label, encoding in (
+            ("initiator active +0xF10", "83BE100F000000"),
+            ("initiator living +0xE78", "83BE780E000000"),
+            ("initiator non-nursing +0xE8C", "83BE8C0E000000"),
+            ("initiator action +0xF24", "8B86240F000083F87874"),
+        ):
+            with self.subTest(gate=label):
+                self.assertIn(bytes.fromhex(encoding), self.payload)
+
+        # Only the two exact stock runtime bounds are accepted, and the scan
+        # walks the record array by its exact stride.
+        self.assertIn(bytes.fromhex("81F996000000"), self.payload)   # cmp ecx,150
+        self.assertIn(bytes.fromhex("81F900010000"), self.payload)   # cmp ecx,256
+        self.assertIn(bytes.fromhex("BF24E15900"), self.payload)     # mov edi,record base
+        self.assertIn(bytes.fromhex("81C78C1F0000"), self.payload)   # add edi,0x1F8C
+
+        # Each fanned-out record repeats the same eligibility gate.
+        for label, encoding in (
+            ("follower active +0xF10", "83BF100F000000"),
+            ("follower living +0xE78", "83BF780E000000"),
+            ("follower non-nursing +0xE8C", "83BF8C0E000000"),
+        ):
+            with self.subTest(gate=label):
+                self.assertIn(bytes.fromhex(encoding), self.payload)
+
+        # The native chief selector is untouched: the candidate-selection
+        # fields +0xE80 and +0xE88 are never read or written, and no other
+        # game routine is called.
         self.assertNotIn(bytes.fromhex("800E0000"), self.payload)
         self.assertNotIn(bytes.fromhex("880E0000"), self.payload)
-
-        self.assertIn(bytes.fromhex("81F996000000740881F900010000753A"), self.payload)
-        self.assertIn(bytes.fromhex("BF24E15900"), self.payload)
-        self.assertIn(bytes.fromhex("81C78C1F0000"), self.payload)
-        self.assertIn(bytes.fromhex("83BF100F000000741F"), self.payload)
-        self.assertIn(bytes.fromhex("83BF780E0000007E16"), self.payload)
-        self.assertIn(bytes.fromhex("83BF8C0E000000750D"), self.payload)
-
-        self.assertEqual(self.payload.count(bytes.fromhex("B860194200FFD0")), 2)
-        self.assertNotIn(bytes.fromhex("6A79"), self.payload)
-        self.assertNotIn(bytes.fromhex("6A78"), self.payload)
         self.assertNotIn(bytes.fromhex("B8B0114600FFD0"), self.payload)
-        self.assertNotIn(bytes.fromhex("B870554500FFD0"), self.payload)
         self.assertNotIn(bytes.fromhex("B8301C4500FFD0"), self.payload)
         self.assertNotIn(bytes.fromhex("6A006A646A05"), self.payload)
-        self.assertIn(bytes.fromhex("5157B860194200FFD083C40459"), self.payload)
+        # The old candidate-gated broadcast sequence must be gone.
+        self.assertNotIn(bytes.fromhex("5157B860194200FFD083C40459"), self.payload)
+
         self.assertIn(bytes.fromhex("88D88D65F45F5E5B5DC3"), self.payload)
+
+    def test_payload_matches_its_generator(self) -> None:
+        """The cave is generated, not hand-written hex.
+
+        This patch had no builder for its entire life: the 235-byte wrapper
+        lived only as a literal in data/builds.json, which is why a broadcast
+        that assigned nothing to most villagers went unnoticed.
+        """
+        import importlib.util
+
+        builder_path = ROOT / "scripts" / "build_vv3_everyone_tries_on_robe.py"
+        self.assertTrue(builder_path.is_file(), "the robe cave builder is missing")
+        spec = importlib.util.spec_from_file_location("vv3_robe_builder", builder_path)
+        module = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(module)
+        except Exception as exc:  # pragma: no cover - keystone is optional
+            self.skipTest(f"robe builder unavailable: {exc}")
+        self.assertEqual(module.build_wrapper(), self.payload)
+        self.assertEqual(module.PAYLOAD_LEN, len(self.payload))
+        self.assertEqual(module.PAYLOAD_FILE_OFFSET, 0xB4100)
 
     def test_authenticated_stock_preimages_and_native_action_registrations(self) -> None:
         source = STOCK.read_bytes()
