@@ -418,13 +418,15 @@ static void vv1_mask_sidecar_load(void) {
    reconstruct it from screen constants or age. */
 #define VV_MASK_ATLAS_COLS   7   /* mask_atlas.png: 7 facing cols x 5 colour rows, 40x160 cells, matching the generator and VV1 head atlas */
 #ifndef VV_DETAILS_MASK_Y_NUDGE_PX
-#define VV_DETAILS_MASK_Y_NUDGE_PX 0
+#define VV_DETAILS_MASK_Y_NUDGE_PX (-10)
 #endif
 /* Details uses a larger native scale than the village view.  One eighth of
    that live scale restores the player-tuned registration while following the
-   native 160..198 child scale (20..24px). VV1's Details mask is additionally
-   nudged upward by VV_DETAILS_MASK_Y_NUDGE_PX pixels; the VV2 wrapper includes
-   this source textually but overrides that macro to preserve VV2 rendering. */
+   native 160..198 child scale (20..24px). VV_DETAILS_MASK_Y_NUDGE_PX is then
+   added to that registration in screen coordinates, where y grows DOWNWARD, so
+   a negative value seats the mask higher on the portrait; VV1 uses -10 (up 10
+   px). The VV2 wrapper includes this source textually but overrides the macro
+   to 0 to preserve VV2's already-aligned rendering. */
 
 /* Engine functions are called directly by their fixed .text addresses (stable
    -- patches live in .shr caves and never move .text). The two engine calls

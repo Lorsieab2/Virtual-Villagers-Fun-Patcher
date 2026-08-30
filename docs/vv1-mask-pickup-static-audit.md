@@ -62,9 +62,9 @@ duplicates the complete seven-argument tuple, performs the stock `0x409410`
 head draw, and then passes the untouched tuple plus the exact renderer wrapper
 to `Vv1DrawPortraitMask`. The overlay reuses native X, Y, facing, scale, and
 enable; it changes only the atlas/color row and applies the Details formula
-`y = args[2] - (scale >> 3) + 10`, moving every VV1 Details mask down exactly
-17 pixels (the prior 10-pixel registration plus 7 additional pixels) while
-retaining the live scale registration. The village mask path
+`y = args[2] - (scale >> 3) - 10`. Screen Y grows downward, so the trailing
+term seats every VV1 Details mask 10 pixels above the scale-aware
+registration while retaining that live scale registration. The village mask path
 is unchanged. It no longer reconstructs portrait X/Y from fixed constants or
 age buckets. Because these callsites are below
 `0x437790`, the village hook does not double-draw the Details portrait.
