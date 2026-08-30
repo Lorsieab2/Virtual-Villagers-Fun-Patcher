@@ -81,10 +81,13 @@ class NameCrashWrapperTests(unittest.TestCase):
         self.assertIn(("mov", "edi, dword ptr [esp + 0x18]"), text)
         self.assertIn(("mov", "ecx, dword ptr [esp + 0x1c]"), text)
 
-        # nSize == 0, scan reaching the nSize boundary, and replacement
-        # truncation all branch to the same original-return restore.
+        # API failure, API-reported truncation, nSize == 0, a scan reaching the
+        # nSize boundary, and replacement truncation all branch to the same
+        # original-return restore.
         expected_branches = (
+            ("test", "eax, eax", "je"),
             ("test", "ecx, ecx", "je"),
+            ("cmp", "eax, ecx", "jae"),
             ("cmp", "edi, ebp", "jae"),
             ("cmp", "eax, ebp", "ja"),
         )
@@ -127,6 +130,17 @@ class NameCrashWrapperTests(unittest.TestCase):
             self.assertEqual(row["purpose"], "wrong-exe-name crash immunity")
             self.assertEqual(row["owner"], "automatic:name_crash_immunity")
         self.assertEqual(len(result["call_sites"]), 2)
+        name_to_code = result["wrapper_va"] - result["name_va"]
+        wrapper_length = len(
+            patcher._nci_wrapper(
+                result["iat_va"], result["name_va"], len(EXPECTED_BASENAME) + 1
+            )
+        )
+        self.assertEqual(
+            len(result["writes"][1]["after"]) // 2,
+            wrapper_length,
+        )
+        self.assertGreaterEqual(name_to_code, len(EXPECTED_BASENAME) + 1)
 
     def test_finalizer_rejects_unapplied_immunity(self) -> None:
         for reason in ("not a PE32 image", "no GetModuleFileNameA import", "no code cave"):

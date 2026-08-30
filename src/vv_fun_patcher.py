@@ -9026,9 +9026,16 @@ def _nci_wrapper(iat_va: int, name_va: int, name_len: int) -> bytes:
     emit(b"\xff\x74\x24\x0c" * 3)
     emit(b"\xff\x15" + iat_va.to_bytes(4, "little"))
     emit(b"\x50\x56\x57\x55")
+    # GetModuleFileNameA returns zero on failure and nSize on truncation.  Do
+    # not inspect or rewrite the caller's buffer in either case; preserve the
+    # original API result through the common failure exit below.
+    emit(b"\x85\xc0")
+    jump(0x74, "fail")  # original API call failed
     emit(b"\x8b\x7c\x24\x18\x8b\x4c\x24\x1c")  # edi=lp, ecx=nSize
     emit(b"\x85\xc9")
     jump(0x74, "fail")  # nSize == 0
+    emit(b"\x39\xc8")
+    jump(0x73, "fail")  # original return >= nSize -> truncated path
     emit(b"\x89\xfd\x01\xcd\x89\xfa")  # ebp=end, edx=basename start
     mark("scan")
     emit(b"\x39\xef")
@@ -9090,7 +9097,13 @@ def _apply_name_crash_immunity(
     sites = _nci_find_call_sites(bytes(data), info, iat_va)
     if not sites:
         return {"status": "skipped", "reason": "no GetModuleFileNameA call sites"}
-    name_va = _nci_find_cave(bytes(data), info, len(name_bytes) + 96)
+    # Size the cave from the emitted wrapper itself.  Its length changes when
+    # failure guards are strengthened; a stale fixed allowance can select a
+    # zero run that ends before the complete wrapper.
+    wrapper_len = len(_nci_wrapper(iat_va, 0, len(name_bytes)))
+    name_va = _nci_find_cave(
+        bytes(data), info, len(name_bytes) + 3 + wrapper_len
+    )
     if name_va is None:
         return {"status": "skipped", "reason": "no code cave"}
     code_va = (name_va + len(name_bytes) + 3) & ~3
