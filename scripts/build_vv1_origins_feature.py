@@ -500,6 +500,11 @@ MASK_NEWBORN_CLEAR_SPLICE_VA = IMAGE_BASE + MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSE
 MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B
 MASK_NEWBORN_CLEAR_ORIGINAL_BYTES = bytes.fromhex("C6462801C6462900")
 PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite draw
+# VV1's Details portrait mask registration is the live head Y minus the
+# scale-aware cell lift and this fixed additional upward nudge.  Keep this
+# generator contract in lockstep with vv1_origins_icons.c; VV2 overrides the
+# shared C source to zero because its portrait registration is already aligned.
+DETAILS_MASK_Y_NUDGE_PX = 17
 # Read-only companion-PNG path strings. They are genuine read-only constants,
 # so they belong in .rdata, and they are added to the Origins string cave in
 # main() (MASK_PATHS_VA is assigned there, right after the base strings) --
@@ -3641,6 +3646,7 @@ def main() -> None:
             "repurchase": "available again at 500,000 tech points after removal",
         },
         "mask_persistence": {
+            "details_mask_y_nudge_px": DETAILS_MASK_Y_NUDGE_PX,
             "save_builder_entry": "0x402ED0",
             "save_builder_preimage": "8B4424048B11",
             "resume": "0x402ED6",

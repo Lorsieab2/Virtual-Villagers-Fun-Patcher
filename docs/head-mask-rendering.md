@@ -151,21 +151,14 @@ stored on the record; the head sprite frame may get an age/variant offset on top
     but if masks detach at camera=1.0, the cause is a double-**DRAW**, not double-scale —
     see rule 14.
 
-14. **An UNGATED hook draws a phantom second mask (VV3's real detached-mask cause).** If
-    your hook sits on a call that runs for EVERY villager but the underlying fn no-ops for
-    some of them, your added draw does NOT no-op — you emit a mask where the game drew
-    nothing. VV3's action-overlay wrap (`0x460B48`) fires for every villager; `sub_45F7E0`
-    itself no-ops when there's no action frame (`anim == -1`, idle/walk), but the DLL fn
-    didn't, so it stamped a second mask at the action/body anchor for standing villagers =
-    masks floating in open sand. Fix: gate your added draw to the same condition the game
-    uses (VV3: real action frames `anim 0..50`; the world head path owns `anim == -1`).
-    Prove it with a per-draw log of `[anim]` at your hook — a mask emitted at `anim==-1`
-    is the phantom. **Corollary — never give the mask a RECOMPUTE FALLBACK (VV3's
-    feet-mask cause):** a fallback that computes the mask position when the head-draw
-    stash is missing paints a mask with NO head under it — a carried villager's head draw
-    never runs, but the world loop still walks the record, so the fallback painted at the
-    abandoned ground anchor. Fix = require the stash (mask draws ONLY where a head was
-    actually drawn this frame). No head ⇒ no mask, by construction — not by a state gate.
+14. **An UNGATED hook draws a phantom second mask.** If your hook sits on a call that runs
+    for every villager while the underlying painter no-ops for some of them, your added draw
+    must use the same ownership condition. VV3's repaired world hook is the real appearance
+    head call (`0x460C7F -> 0x42E5E0`), so the mask is emitted inline only after a stock head
+    draw and later full-body action rendering can cover it. The former action wrappers and
+    deferred handler-tail draw are removed. **Corollary — never give the mask a RECOMPUTE
+    FALLBACK (VV3's feet-mask cause):** when a carried villager has no proven cursor-leaf
+    tuple, the candidate fails closed instead of painting at an abandoned ground anchor.
 
 ---
 
@@ -191,7 +184,8 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   `0x437503`, `0x437556`) remain five-byte CALLs and route through one
   ABI-compatible wrapper at `0x490720`. It duplicates and replays the untouched seven
   native arguments, then changes only atlas/color row and the scale-aware mask lift.
-  VV1 applies `y = args[2] - (scale >> 3) - 10` for this Details-only overlay;
+  VV1 applies `y = args[2] - (scale >> 3) - 17` for this Details-only overlay
+  (seven pixels farther upward than the prior 10-pixel registration);
   the village renderer keeps its existing registration, and VV2 overrides the
   shared-source nudge to zero before inclusion. It does not reconstruct X/Y
   from age buckets or facing from a global.
@@ -245,25 +239,35 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   runtime/evidence blocked; no guessed birth detour or invented record offset is
   installed. A player trace or reviewed exact-build birth boundary is required
   before adding that final guard.
+- **First-frame receiver preservation:** the sweep enters through `0x445B50`
+  with the compositor receiver in `ECX`, then may call the companion's
+  `Vv2MaskRestore`. That stdcall may clobber volatile `ECX`. The shipped sweep
+  incorrectly reused the live register and the 2026-08-29 Windows crash record
+  landed on its first `record+0x30` read at generated RVA `0xB437C`. The sweep
+  now reloads the entry receiver saved by `pushad` at `[esp+0x18]` before the
+  scan. Generated-byte tests pin that reload before the first record read;
+  player confirmation that startup now completes remains pending.
 
 ### VV3 — "The Secret City" (NO native mask → from-scratch)
 Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.exe`, SHA-256
 `8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503`):
 
 - The normal villager handler is `sub_4605F0`; `0x42E3F5` is its sole direct caller.
-- The handler derives a villager record from its index using stride `0x1F8C` and issues the
-  stock head draw at `0x460A60` through `0x42E570`. The head atlas is sprite id `0x88`,
-  8 columns × 30 rows.
+- The handler derives a villager record from its index using stride `0x1F8C`. The old
+  `0x460A60 -> 0x42E570` hook is a generic fixed-resource draw and is not an appearance
+  tuple. The authoritative stock head draw is `0x460C7F -> 0x42E5E0`; stock loads
+  record `+0xDF0`/`+0xF18` and supplies `(atlas,x,y,head-row,facing,scale)`.
 - The action overlay is `sub_45F7E0`, reached at the proven action call sites
-  `0x460B48` and `0x460D10`; both use the same `.vv3mc` ABI wrapper.
-- The mask patch's world/action/Details hooks use these proven families and owned `.vv3mc`
-  (R-X) / `.vv3md` (R/W) sections.
-- **World ownership:** the stock head tuple at `0x460A60` is stashed exactly. Held
-  `record+0xF12 != 0` owns that matching head tuple; otherwise post-stock action tuples
-  at both action call sites own supported `record+0xF20` frames `0..50`. Unsupported
-  action values fail closed without a head fallback, and each final wrapper exit clears
-  both stashes. Generic task-1 swimming on terrain 5 is head-owned; task-11 fishing
-  frames 8/9 are action-owned.
+  `0x460B48` and `0x460D10`; both remain byte-identical to stock.
+- The mask patch's Details and inline world-head hooks use the owned `.vv3mc` (R-X) /
+  `.vv3md` (R/W) sections. No action wrapper or handler-tail mask draw is installed.
+- **World ownership:** the cave at `0x460C7F` replays all six stock head arguments, then
+  synchronously calls `0x42E5E0` with only mask atlas and row replaced. The stock held
+  `record+0xF12 != 0` branch rejoins this same body/head sequence, so held masks reuse
+  the authoritative tuple; cursor coordinate ownership and visual follow remain runtime
+  acceptance gates. Stock action poses remain their own full-body renderer; no guessed
+  mask seating is emitted. Generic task-1 swimming and task-11 fishing remain runtime
+  acceptance gates.
 - **Sidecar/identity validation:** every loaded mask byte is sanitized to the supported
   `0..5` range before it can enter the DLL table or reach a renderer. An individual
   getter/setter requires exactly one active/living record and one stored owner for its
@@ -298,10 +302,9 @@ Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.ex
   It is written by test/skip/OR initialization idioms and must never gate mask rendering.
 
 Therefore `0x434357` and `0x4344B3` remain byte-identical to stock; they are not pickup
-hooks. The proven normal-handler/head tuple is the held owner through `record+0xF12`, with
-release handled by the next final wrapper after that field clears. The ownership route is
-static/source proven, while the player's visual acceptance of held motion remains a runtime
-gate. Record base is `0x59E124`, stride `0x1F8C`.
+hooks. The known normal-handler/head tuple is also reached while `record+0xF12` is set,
+so the candidate reuses it for held rendering. Cursor coordinate ownership and final
+visual follow still require a player trace. Record base is `0x59E124`, stride `0x1F8C`.
 
 ### VV4 — "The Tree of Life" (NO native mask → from-scratch)
 - **Confirmed Details call chain:** `0x447D30` → `0x460BF0` → `0x45F550`; the body
@@ -377,7 +380,8 @@ gate. Record base is `0x59E124`, stride `0x1F8C`.
   filename strings have ZERO `.text` references, the atlases are loaded by a **table walk**
   (a filename table iterated in a loop), so there's no `push imm32` to anchor on. Fallbacks:
   (a) find the READ site of the atlas holder instead — a `mov edx,[reg+disp]` feeding a
-  head-draw push (VV3's head holder `+0x127C1C` is read at exactly one site, `0x460A60`);
+  head-draw push (VV3's authoritative appearance tuple is read at `0x460C7F`; the
+  older `0x460A60` generic draw is not a head-appearance boundary);
   (b) **runtime caller-capture** — probe the low-level blit's entry, log the return address
   + atlas pointer, and capture what fires *per frame* on the screen you care about. The
   caller that repeats while (e.g.) a Details portrait head is animating is your hook. Static

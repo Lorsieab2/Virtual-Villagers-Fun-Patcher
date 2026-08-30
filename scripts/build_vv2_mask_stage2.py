@@ -575,7 +575,11 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         call eax                             /* Vv2MaskRestore(): reads vv2_masks_<slot>.dat */
         mov  byte ptr [0x{LOADED_VA:X}], 1
     slot_ready:
-        mov  edx, ecx                        /* edx = record[0] base (gameCtx) */
+        /* Vv2MaskRestore is stdcall and may clobber volatile ECX.  Reload the
+           compositor receiver saved by pushad (+0x18 in its stack frame)
+           before touching record[0].  The old `mov edx, ecx` caused the
+           observed first-frame AV at RVA 0xB437C after restore returned. */
+        mov  edx, [esp+0x18]                 /* edx = original record[0] base */
         xor  esi, esi                        /* esi = record index i */
     sweep_loop:
         cmp  byte ptr [edx+0x30], 0          /* active flag: 0 = free/dead */

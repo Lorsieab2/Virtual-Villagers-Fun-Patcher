@@ -2977,14 +2977,25 @@ class StockIntegrationTests(unittest.TestCase):
             feature = next(
                 patch for patch in load_fun_patches() if patch.id == feature_id
             )
+            name_guard_rows = [
+                row
+                for row in log["patches"]
+                if row["owner"] == "automatic:name_crash_immunity"
+            ]
+            checksum_rows = [
+                row
+                for row in log["patches"]
+                if row["owner"] == "automatic:pe_checksum"
+            ]
+            self.assertEqual(len(name_guard_rows), 7)
+            self.assertEqual(len(checksum_rows), 1)
             self.assertEqual(
                 len(log["patches"]),
                 len(build.safety_patches)
                 + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
                 + len(feature.patches)
-                + 1,
-                # The patcher records its verified PE checksum rewrite as one
-                # additional automatic edit.
+                + len(name_guard_rows)
+                + len(checksum_rows),
             )
 
     def test_vv2_teaching_children_grants_skill_is_guarded_and_additive(self) -> None:

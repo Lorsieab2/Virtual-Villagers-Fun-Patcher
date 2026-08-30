@@ -205,13 +205,9 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 # Images/heathen_masks.png and no longer appends rows to the shared
                 # head atlases, so it leaves them byte-identical to stock.)
                 #
-                # Heathen-mask render hooks: 5-byte call-site redirects into the
-                # patch-owned .vv3mc section.  Each stolen 5-byte window was verified
-                # to contain no branch target.
-                0x2E3F5,   # sole `call sub_4605F0` -> village wrapper (mask last layer)
-                0x60A60,   # head draw -> stash cave (captures exact head x/y/scale)
-                0x60B48,   # `call sub_45F7E0` -> action-overlay wrapper (pose heads)
-                0x60D10,   # second F14 action-overlay call -> the same wrapper
+                # Heathen-mask render: the true stock appearance head call is redirected
+                # into an appended .vv3mc cave; the handler and action call sites remain stock.
+                0x60C7F,   # authoritative 0x42E5E0 tuple -> inline mask cave
                 0x3290,    # save-builder slot capture -> .vv3mc/.vv3md sidecar selector
                 # (0x34357 / 0x344B3 are NOT patched: proven from the binary to be a
                 # timed UI/effect renderer, not a villager head draw -- the head-atlas
@@ -554,7 +550,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "923C155460BFB8BECB2F07725FB2220E1987F2563764FB508D7CA36A3A125014",
+            "6476EE4E577AC35591AA0D756E783DE2C4E8DFBE33DAE82CF6B9EC87BB7F242F",
         )
         self.assertEqual(
             bytes.fromhex(

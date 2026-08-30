@@ -14,9 +14,7 @@ EXPORTS
     VV3_SetMaskForRecord=_VV3_SetMaskForRecord@8
     VV3RunningMaskBoundary=_VV3RunningMaskBoundary@4
     VV3DrawMaskOnHead=_VV3DrawMaskOnHead@12
-    VV3WorldMaskDraw=_VV3WorldMaskDraw@4 @101
     VV3WorldMaskDrawAt=_VV3WorldMaskDrawAt@8 @102
-    VV3ActionMaskDraw=_VV3ActionMaskDraw@12 @106
     ; Pinned to ordinal 101 for tooling and diagnostics; the world wrapper uses the
     ; function pointer published in the patch-owned .vv3md slot.
     ShowVV3AppearanceForAll=_ShowVV3AppearanceForAll@0 @100

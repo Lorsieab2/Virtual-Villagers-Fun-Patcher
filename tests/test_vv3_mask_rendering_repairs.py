@@ -35,18 +35,19 @@ class VV3MaskRenderingRepairTests(unittest.TestCase):
         cls.audit = AUDIT.read_text(encoding="utf-8")
         cls.sync_builder = _load_sync_builder()
 
-    def test_invalid_head_callback_clears_both_render_stashes(self) -> None:
-        clear = self.native.split("static void vv3_mask_clear_render_stashes", 1)[1]
-        clear = clear.split("/* Draw the world mask", 1)[0]
-        self.assertIn("g_vv3_stash_valid = 0;", clear)
-        self.assertIn("g_vv3_action_seen = 0;", clear)
-        callback = self.native.rsplit(
+    def test_inline_head_callback_reuses_only_the_authoritative_tuple(self) -> None:
+        callback = self.native.split(
             "__declspec(dllexport) void __stdcall VV3WorldMaskDrawAt", 1
-        )[1]
-        callback = callback.split("/* ================= Change Appearance", 1)[0]
-        invalid = callback[callback.index("if (record == NULL || args == NULL) {") :]
-        invalid = invalid[: invalid.index("return;")]
-        self.assertIn("vv3_mask_clear_render_stashes();", invalid)
+        )[1].split("/* ================= Change Appearance", 1)[0]
+        self.assertIn("for (i = 0; i < 6; ++i) mask_args[i] = args[i];", callback)
+        self.assertIn("mask_args[0] = (int)(UINT_PTR)atlas;", callback)
+        self.assertIn("mask_args[3] = mask - 1;", callback)
+        self.assertIn("held (`+0xF12`) branch rejoins", callback)
+        self.assertNotIn("F12) != 0) return", callback)
+        self.assertIn("VV3_WORLD_HEAD_DRAW_FN", callback)
+        self.assertNotIn("g_vv3_stash", self.native)
+        self.assertNotIn("VV3ActionMaskDraw", self.native)
+        self.assertNotIn("VV3WorldMaskDraw(int index)", self.native)
 
     def test_active_synchronizer_rejects_unpinned_source_before_copy(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
@@ -71,66 +72,72 @@ class VV3MaskRenderingRepairTests(unittest.TestCase):
         )
         self.assertIn("200*18>>7 == 28", self.audit)
 
-    def test_world_path_replays_exact_head_tuple_with_retained_colour_seats(self) -> None:
-        world = self.native.split("__declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)", 1)[1]
-        self.assertIn("x = g_vv3_stash_x;", world)
-        self.assertIn("y = g_vv3_stash_y;", world)
-        self.assertIn("g_vv3_color_dy[cidx]", world)
-        self.assertIn("liftsc", world)
-        self.assertIn("g_vv3_stash_m3010", world)
-        self.assertIn("mov  eax, one", world)
-        self.assertNotIn("g_vv3_facing_dx[facing & 7]", world)
-        self.assertNotIn("mov  eax, scaleBits", world)
-        self.assertIn("*p3010 = save3010;", world)
-        self.assertRegex(
-            self.native,
-            r"int g_vv3_facing_dx\[8\]\s*=\s*\{\s*0, 0, 0, 0, 0, 0, 0, 0\s*\};",
-        )
-        self.assertRegex(
-            self.native,
-            r"int g_vv3_color_dy\[5\]\s*=\s*\{\s*41, 40, 37, 35, 32\s*\};",
-        )
+    def test_world_path_uses_the_true_head_callsite_and_six_arguments(self) -> None:
+        self.assertIn("WORLD_MASK_CALLSITE_VA = 0x460C7F", self.builder)
+        self.assertIn("WORLD_HEAD_DRAW_VA = 0x42E5E0", self.builder)
+        self.assertIn("WORLD_MASK_CAVE_VA = SECTION_CODE_VA + 0x000", self.builder)
+        cave = self.builder.split("world_mask_cave = assemble", 1)[1].split(
+            "world_mask_head_redirect", 1
+        )[0]
+        self.assertEqual(cave.count("push dword ptr [esp + 0x18]"), 6)
+        self.assertIn("call 0x{WORLD_HEAD_DRAW_VA:X}", cave)
+        self.assertIn("lea edx, [esp + 4]", cave)
+        self.assertIn("ret 0x18", cave)
+        self.assertNotIn("WORLD_MASK_CALLSITE_VA = 0x460A60", self.builder)
+        self.assertNotIn("0x460A60", self.native)
 
-    def test_action_is_stash_only_and_final_owner_is_fail_closed(self) -> None:
-        action_start = self.native.index(
-            "__declspec(dllexport) void __stdcall VV3ActionMaskDraw",
-            self.native.index("/* ACTION-POSE stash"),
-        )
-        action = self.native[action_start:]
-        action = action.split("/* Head-site STASH", 1)[0]
-        world = self.native.split("__declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)", 1)[1]
-        world = world.split("/* ACTION-POSE stash", 1)[0]
-        self.assertIn("g_vv3_action_seen", action)
-        self.assertIn("g_vv3_action_anim = *(int *)", action)
-        self.assertIn("g_vv3_action_seen = (g_vv3_action_anim == -1) ? 0 : 1", action)
-        self.assertNotIn("VV3_GetMaskForRecord", action)
-        self.assertNotIn("VV3_WORLD_DRAW_FN", action)
-        self.assertIn("if (held)", world)
-        self.assertIn("} else if (action_match)", world)
-        self.assertIn("action_anim < 0 || action_anim > 50", world)
-        self.assertIn("goto world_mask_cleanup", world)
-        self.assertIn("vv3_mask_clear_render_stashes();", self.native)
+    def test_details_jmp_cave_replays_the_original_seven_argument_stack(self) -> None:
+        cave = self.builder.split("        MASK_CAVE_VA,", 1)[1].split(
+            "    mask_hook_code =", 1
+        )[0]
+        # The detour is a JMP from after the seven stock pushes, so the cave
+        # has no synthetic return address and [esp+0x18] is the seventh arg.
+        self.assertEqual(cave.count("push dword ptr [esp + 0x18]"), 7)
+        self.assertIn("mov edx, esp", cave)
+        self.assertIn("add esp, 0x1C", cave)
+        self.assertNotIn("lea edx, [esp + 4]", cave)
 
-    def test_both_stock_action_call_sites_target_the_one_wrapper(self) -> None:
-        self.assertIn("WORLD_ACTION_CALLSITE_VA = 0x00460B48", self.builder)
-        self.assertIn('WORLD_ACTION_CALLSITE_BEFORE = bytes.fromhex("E893ECFFFF")', self.builder)
-        self.assertIn("WORLD_ACTION_CALLSITE_SECOND_VA = 0x00460D10", self.builder)
-        self.assertIn('WORLD_ACTION_CALLSITE_SECOND_BEFORE = bytes.fromhex("E8CBEAFFFF")', self.builder)
-        self.assertIn("world_action_wrap_redirect_second", self.builder)
-        self.assertIn("WORLD_ACTION_WRAP_CAVE_VA = SECTION_CODE_VA + 0x0C0", self.builder)
-        self.assertIn("if WORLD_ACTION_WRAP_CAVE_VA + len(world_action_wrap_cave)", self.builder)
-        self.assertIn("F14_ROUTING", self.builder)
-        self.assertIn("WORLD_ACTION_CALLSITE_VA = 0x00460B48", self.builder)
-        self.assertIn("WORLD_HANDLER_CALLSITE_VA = 0x0042E3F5", self.builder)
+    def test_dllmain_publishes_vv3md_slots_only_after_writable_page_probe(self) -> None:
+        self.assertIn("static BOOL vv3_mask_data_page_writable(void)", self.native)
+        self.assertIn("VirtualQuery", self.native)
+        self.assertIn("info.State != MEM_COMMIT", self.native)
+        self.assertIn("info.RegionSize", self.native)
+        self.assertIn("PAGE_READWRITE", self.native)
+        dllmain = self.native.split("BOOL WINAPI DllMain", 1)[1].split(
+            "/* ---- Heathen-mask overlay atlas", 1
+        )[0]
+        self.assertIn("if (!vv3_mask_data_page_writable()) return TRUE;", dllmain)
+        publication = dllmain.split(
+            "if (!vv3_mask_data_page_writable()) return TRUE;", 1
+        )[1]
+        self.assertIn("VV3_WORLD_DRAWFN_PTR_SLOT", publication)
+
+    def test_action_paths_remain_stock_and_no_reconstruction_hook_is_emitted(self) -> None:
+        self.assertNotIn("WORLD_ACTION", self.builder)
+        self.assertNotIn("VV3ActionMaskDraw", self.native)
+        self.assertNotIn("VV3ActionMaskDraw", (ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.def").read_text(encoding="utf-8"))
+        self.assertNotIn("0x460B48", self.builder)
+        self.assertNotIn("0x460D10", self.builder)
+
+    def test_handler_and_action_call_sites_are_not_mask_hooks(self) -> None:
+        self.assertNotIn("WORLD_HANDLER_CALLSITE_VA", self.builder)
+        self.assertNotIn("WORLD_ACTION_CALLSITE_VA", self.builder)
         self.assertNotIn("put(0x434357", self.builder)
         self.assertNotIn("put(0x4344B3", self.builder)
+        manifest = __import__("json").loads(
+            (ROOT / "data" / "vv3_origins_feature.json").read_text(encoding="utf-8")
+        )
+        offsets = {int(item["offset"], 0) for item in manifest["patches"]}
+        self.assertNotIn(0x2E3F5, offsets)
+        self.assertNotIn(0x60B48, offsets)
+        self.assertNotIn(0x60D10, offsets)
 
     def test_audit_records_exact_stock_identity_and_proven_ownership(self) -> None:
         self.assertIn("8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503", self.audit)
         self.assertIn("0x434357", self.audit)
         self.assertIn("0x4344B3", self.audit)
-        self.assertIn("Generic task-1 swimming on terrain 5 remains head-owned", self.audit)
-        self.assertIn("Fishing\ntask 11 frames `8` and `9`", self.audit)
+        self.assertIn("Generic task-1 swimming on terrain 5", self.audit)
+        self.assertIn("task-11 fishing\nframes `8`/`9` remain stock action/head ownership", self.audit)
         self.assertIn("Visual placement remains pending player acceptance", self.audit)
 
     def test_canonical_atlas_geometry_and_resource_are_pinned(self) -> None:

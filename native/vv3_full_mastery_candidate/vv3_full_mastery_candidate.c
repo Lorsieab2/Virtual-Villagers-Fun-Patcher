@@ -1,6 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shlobj.h>   /* SHGetSpecialFolderPathA for the mask-sidecar path */
+#include <string.h>
 
 static HINSTANCE module_instance;
 
@@ -50,9 +51,7 @@ static const char *const detail_costs[] = {
 static int s_villager_menu;
 static int s_dialog_state;
 
-__declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index);
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args);
-__declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int py);
 __declspec(dllexport) void __stdcall VV3RunningMaskBoundary(int after);
 
 /* The exe caves read these fixed slots for our draw fns, so a per-frame cave needs no
@@ -62,55 +61,59 @@ __declspec(dllexport) void __stdcall VV3RunningMaskBoundary(int after);
    VirtualSize (0x6C7518) -- i.e. in the slack between .data's vsize and the next section.
    That is a code cave and violates docs/head-mask-rendering.md Part 7, so the build now
    appends .vv3mc (R-X, trampolines) + .vv3md (R/W, these slots) and everything moved.
-   Layout: +0x00 MASK_DRAWFN (Detail cave), +0x04 world DrawAt, +0x08 world index draw,
-   +0x0C/+0x10/+0x14 reserved, +0x18 pose_dy, +0x1C anim_hits, +0x20 anim_stash,
-   +0x24 reserved, +0x28 facing_dx, +0x2C color_dy,
-   +0x30 action draw, +0x34 auto-load latch (exe-side), +0x38 actdbg, +0x44 active save
+   Layout: +0x00 MASK_DRAWFN (Detail cave), +0x04 world DrawAt, +0x08..+0x34 reserved,
+   +0x34 auto-load latch (exe-side), +0x3C worlddbg, +0x40 chiefdbg, +0x44 active save
    slot (captured by the exe save-builder trampoline), +0x48 Running-boundary fn. */
 #define VV3_WORLD_DRAWFN_PTR_SLOT  0x006E0004u
-/* The wrapper at the per-villager handler call site (0x42E3F5) reads this slot after the
-   stock handler returns. VV3WorldMaskDraw consumes the exact head-call stash captured by
-   VV3WorldMaskDrawAt at 0x460A60; it fails closed if the record does not match. */
-#define VV3_WORLD_INDEXFN_PTR_SLOT 0x006E0008u
-#define VV3_WORLD_POSEDY_PTR_SLOT  0x006E0018u
-/* DIAG counters (temporary): per-anim hook-fire + stash-used counts. */
-#define VV3_WORLD_ANIMHITS_PTR_SLOT  0x006E001Cu
-#define VV3_WORLD_ANIMSTASH_PTR_SLOT 0x006E0020u
-#define VV3_WORLD_FACINGDX_PTR_SLOT  0x006E0028u
-#define VV3_WORLD_COLORDY_PTR_SLOT   0x006E002Cu
-#define VV3_WORLD_ACTIONFN_PTR_SLOT  0x006E0030u
 #define VV3_RUNNING_BOUNDARY_PTR_SLOT 0x006E0048u
 
-extern int g_vv3_pose_dy[256];
-extern int g_vv3_anim_hits[256];
-extern int g_vv3_anim_stash[256];
-extern int g_vv3_actdbg[8];
 extern int g_vv3_worlddbg[8];
 extern int g_vv3_chiefdbg[8];
-extern int g_vv3_facing_dx[8];
-extern int g_vv3_color_dy[5];
-extern int g_vv3_pose_dx[256];
+
+/* The companion can be loaded by an unpatched executable (or inspected by a
+   tool) before the patch-owned .vv3md section exists.  Do not let DllMain
+   write the fixed slots in that case.  Require one committed writable region
+   covering the complete 0x1000-byte data page before publishing any pointer. */
+static BOOL vv3_mask_data_page_writable(void) {
+    MEMORY_BASIC_INFORMATION info;
+    UINT_PTR begin = (UINT_PTR)0x006E0000u;
+    UINT_PTR end = begin + 0x1000u;
+    UINT_PTR region_begin;
+    UINT_PTR region_end;
+    DWORD protection;
+    SIZE_T queried = VirtualQuery(
+        (LPCVOID)begin, &info, sizeof(info)
+    );
+    if (queried != sizeof(info) || info.State != MEM_COMMIT) return FALSE;
+    region_begin = (UINT_PTR)info.BaseAddress;
+    region_end = region_begin + info.RegionSize;
+    if (region_begin > begin || region_end < end) return FALSE;
+    protection = info.Protect;
+    if ((protection & (PAGE_GUARD | PAGE_NOACCESS)) != 0) return FALSE;
+    switch (protection & 0xFFu) {
+    case PAGE_READWRITE:
+    case PAGE_WRITECOPY:
+    case PAGE_EXECUTE_READWRITE:
+    case PAGE_EXECUTE_WRITECOPY:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
         module_instance = instance;
+        if (!vv3_mask_data_page_writable()) return TRUE;
         *(void **)(UINT_PTR)VV3_WORLD_DRAWFN_PTR_SLOT  = (void *)&VV3WorldMaskDrawAt;
-        *(void **)(UINT_PTR)VV3_WORLD_INDEXFN_PTR_SLOT = (void *)&VV3WorldMaskDraw;
         /* No cursor/held function pointer is published.  The stock calls at 0x434357 and
            0x4344B3 are both inside the same three-style timed UI/effect renderer: its
            selector is 0..2, entries are 24 bytes, elapsed time is compared with 0x12C and
            0x7080, and no villager record reaches either call.  Their bytes remain stock until
            a player trace proves the real grab and held-render boundaries. */
-        *(void **)(UINT_PTR)VV3_WORLD_POSEDY_PTR_SLOT  = (void *)&g_vv3_pose_dy[0];
-        *(void **)(UINT_PTR)VV3_WORLD_ANIMHITS_PTR_SLOT  = (void *)&g_vv3_anim_hits[0];
-        *(void **)(UINT_PTR)VV3_WORLD_ANIMSTASH_PTR_SLOT = (void *)&g_vv3_anim_stash[0];
-        *(void **)(UINT_PTR)VV3_WORLD_ACTIONFN_PTR_SLOT  = (void *)&VV3ActionMaskDraw;
-        *(void **)(UINT_PTR)0x006E0038u                  = (void *)&g_vv3_actdbg[0];
         *(void **)(UINT_PTR)0x006E003Cu                  = (void *)&g_vv3_worlddbg[0];
         *(void **)(UINT_PTR)0x006E0040u                  = (void *)&g_vv3_chiefdbg[0];
-        *(void **)(UINT_PTR)VV3_WORLD_FACINGDX_PTR_SLOT  = (void *)&g_vv3_facing_dx[0];
-        *(void **)(UINT_PTR)VV3_WORLD_COLORDY_PTR_SLOT   = (void *)&g_vv3_color_dy[0];
         *(void **)(UINT_PTR)VV3_RUNNING_BOUNDARY_PTR_SLOT = (void *)&VV3RunningMaskBoundary;
     }
     return TRUE;
@@ -136,13 +139,43 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
    the graphics subsystem is always up by the time this runs. */
 static void *g_mask_atlas;
 
-/* Self-deploy the embedded atlas (RCDATA 5000) into <game>\Images\heathen_masks.png
-   if it is missing, so the feature ships with ONLY the companion DLL -- no patcher
-   manifest asset step (companion_files is locked to the DLL, and relaxing it would
-   touch shared cross-game core).  Skips if the file already exists, so a user can
-   replace the art.  A failure just leaves the atlas unloadable -> no mask. */
-static void vv3_extract_mask_atlas(void) {
-    char exe[MAX_PATH], path[MAX_PATH], tmp[MAX_PATH];
+/* Compare an installed file with the exact embedded RCDATA.  A merely present PNG
+   is not enough: the stock loader assumes the canonical 520x725 atlas and can
+   dereference an incomplete/stale image while constructing its object. */
+static BOOL vv3_file_matches_blob(const char *path, const void *data, DWORD size) {
+    HANDLE fh;
+    LARGE_INTEGER length;
+    unsigned char buffer[4096];
+    DWORD offset = 0, want, got;
+    BOOL same = TRUE;
+    fh = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                     FILE_ATTRIBUTE_NORMAL, NULL);
+    if (fh == INVALID_HANDLE_VALUE) return FALSE;
+    if (!GetFileSizeEx(fh, &length) || length.QuadPart != (LONGLONG)size) {
+        CloseHandle(fh);
+        return FALSE;
+    }
+    while (offset < size) {
+        want = size - offset;
+        if (want > (DWORD)sizeof(buffer)) want = (DWORD)sizeof(buffer);
+        if (!ReadFile(fh, buffer, want, &got, NULL) || got != want
+            || memcmp(buffer, (const unsigned char *)data + offset, got) != 0) {
+            same = FALSE;
+            break;
+        }
+        offset += got;
+    }
+    CloseHandle(fh);
+    return same;
+}
+
+/* Self-deploy the canonical embedded atlas (RCDATA 5000) into
+   <game>\Images\heathen_masks.png.  Existing non-canonical/stale art is replaced
+   through a sibling temp file and an atomic MoveFileExA publish.  The return value
+   is deliberately part of the loader gate: no valid canonical file means the
+   unsafe game atlas constructor is never called. */
+static BOOL vv3_extract_mask_atlas(void) {
+    char exe[MAX_PATH], images[MAX_PATH], path[MAX_PATH], tmp[MAX_PATH];
     char *base, *p;
     HRSRC res;
     HGLOBAL blob;
@@ -151,64 +184,102 @@ static void vv3_extract_mask_atlas(void) {
     HANDLE fh;
     BOOL ok;
     DWORD n = GetModuleFileNameA(NULL, exe, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) return;
+    if (n == 0 || n >= MAX_PATH) return FALSE;
     base = exe;
     for (p = exe; *p != '\0'; ++p) if (*p == '\\' || *p == '/') base = p + 1;
     *base = '\0';                                    /* game directory + trailing slash */
     /* Budget both the final path and the ".tmp" staging name (longest suffix). */
-    if (lstrlenA(exe) + 28 >= (int)sizeof(path)) return;
+    if (lstrlenA(exe) + (int)sizeof("Images\\heathen_masks.png.tmp") >= (int)sizeof(path)) return FALSE;
+    wsprintfA(images, "%sImages", exe);
+    if (!CreateDirectoryA(images, NULL)
+        && GetLastError() != ERROR_ALREADY_EXISTS) return FALSE;
     wsprintfA(path, "%sImages\\heathen_masks.png", exe);
-    if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) return;  /* already present */
     res = FindResourceA(module_instance, MAKEINTRESOURCEA(5000), RT_RCDATA);
-    if (res == NULL) return;
+    if (res == NULL) return FALSE;
     size = SizeofResource(module_instance, res);
     blob = LoadResource(module_instance, res);
-    if (blob == NULL || size == 0) return;
+    if (blob == NULL || size == 0) return FALSE;
     data = LockResource(blob);
-    if (data == NULL) return;
+    if (data == NULL) return FALSE;
+    if (vv3_file_matches_blob(path, data, size)) return TRUE;
     /* Write to a sibling ".tmp" first, verify the FULL payload landed, then publish
-       with MoveFileA.  A short/interrupted write can never leave a truncated
-       heathen_masks.png that the GetFileAttributes short-circuit would lock in
-       forever with no art. */
+       with MoveFileExA.  A short/interrupted write can never leave a truncated
+       heathen_masks.png that the loader could consume. */
     wsprintfA(tmp, "%sImages\\heathen_masks.tmp", exe);
     fh = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                      FILE_ATTRIBUTE_NORMAL, NULL);
-    if (fh == INVALID_HANDLE_VALUE) return;
+    if (fh == INVALID_HANDLE_VALUE) return FALSE;
     written = 0;
     ok = WriteFile(fh, data, size, &written, NULL);
     CloseHandle(fh);
     if (!ok || written != size) {                    /* short write -> discard staging */
         DeleteFileA(tmp);
-        return;
+        return FALSE;
     }
-    if (!MoveFileA(tmp, path)) {                      /* atomic publish (dest is absent) */
+    if (!MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
         DeleteFileA(tmp);
+        return FALSE;
     }
+    return vv3_file_matches_blob(path, data, size);
+}
+
+static int g_mask_atlas_tried;
+
+/* The VV3 atlas object shape is known from the stock loader contract.  Guard the
+   object read and all required dimensions before caching it; a malformed loader
+   result therefore degrades to no mask instead of reaching 0x42E5E0. */
+static BOOL vv3_mask_atlas_shape_valid(void *atlas) {
+    BOOL valid = FALSE;
+    if (atlas == NULL) return FALSE;
+    __try {
+        valid = (*(void **)((unsigned char *)atlas + 0x04) != NULL
+            && *(int *)((unsigned char *)atlas + 0x08) == 8
+            && *(int *)((unsigned char *)atlas + 0x0C) == 5
+            && *(int *)((unsigned char *)atlas + 0x10) == 65
+            && *(int *)((unsigned char *)atlas + 0x14) == 145);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        valid = FALSE;
+    }
+    return valid;
 }
 
 __declspec(dllexport) void *__stdcall VV3GetMaskAtlas(void) {
     static const char mask_atlas_name[] = "heathen_masks.png";
-    void *atlas = NULL;
-    if (g_mask_atlas != NULL) {
-        return g_mask_atlas;
+    void *atlas = NULL, *atlas_object = NULL;
+    if (g_mask_atlas != NULL) return g_mask_atlas;
+    if (g_mask_atlas_tried) return NULL;
+    g_mask_atlas_tried = 1;
+    if (!vv3_extract_mask_atlas()) return NULL;
+    __try {
+        __asm {
+            push 0x34               /* atlas object size (matches the game's own) */
+            mov  eax, 0x0046EC93
+            call eax                /* eax = fresh atlas object                    */
+            add  esp, 4
+            mov  atlas_object, eax
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        atlas_object = NULL;
     }
-    vv3_extract_mask_atlas();          /* ensure Images/heathen_masks.png exists */
-    __asm {
-        push 0x34               /* atlas object size (matches the game's own) */
-        mov  eax, 0x0046EC93
-        call eax                /* eax = fresh atlas object                    */
-        add  esp, 4
-        mov  ecx, eax           /* this = the object                           */
-        push 5                  /* rows (5 masks)                              */
-        push 8                  /* cols (8 directional frames)                 */
-        lea  eax, mask_atlas_name
-        push eax                /* filename                                    */
-        mov  eax, 0x0040AF10
-        call eax                /* loader(this, name, 8, 5) -> eax = atlas     */
-        mov  atlas, eax
+    /* Never call the image loader with a null/invalid allocator result. */
+    if (atlas_object == NULL) return NULL;
+    __try {
+        __asm {
+            mov  ecx, atlas_object    /* this = the object                         */
+            push 5                    /* rows (5 masks)                            */
+            push 8                    /* cols (8 directional frames)               */
+            lea  eax, mask_atlas_name
+            push eax                  /* filename                                  */
+            mov  eax, 0x0040AF10
+            call eax                  /* loader(this, name, 8, 5) -> eax = atlas   */
+            mov  atlas, eax
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        atlas = NULL;
     }
+    if (!vv3_mask_atlas_shape_valid(atlas)) return NULL;
     g_mask_atlas = atlas;
-    return atlas;
+    return g_mask_atlas;
 }
 
 /* These old SDL2 games run "fullscreen" as a WS_EX_TOPMOST borderless window,
@@ -1067,90 +1138,18 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
     }
 }
 
-/* ---- World / village mask draw (called from the per-villager handler) ------------
-   VV3's village view is a DEFERRED renderer: the world loop enqueues each villager
-   and the stock world dispatch at sub_42E2A0 depth-sorts then draws each via the per-villager handler
-   sub_4605F0 (0x4605F0).  The exe WRAPS that handler: it runs the original (draws
-   the villager), then calls this with the villager record.  We look up the mask
-   (fingerprint-guarded table) and, if set, draw the mask cell ON TOP at the
-   villager's OWN world position -- obtained from the same helper the villager draw
-   uses (0x455EF0) -- via the world's immediate blit 0x42E510, which applies the
-   camera scroll/zoom itself, so the mask tracks the villager as the view pans.
-   Because the handler runs once per villager in depth-sorted order, drawing here
-   gives correct z-order with no stash list.  The mask replays the captured stock
-   head tuple; only the facing column remains selectable.  Writes NO villager state; a
-   missing atlas / no mask / bad record draws nothing (never a crash). */
-#define VV3_WORLD_MGR      0x0058F6F8u   /* the deferred-draw manager object       */
+/* ---- World / village mask draw (inline at the stock head painter) ---------------
+   The stock appearance head call at 0x460C7F supplies six authoritative arguments
+   to 0x42E5E0: atlas, x, y, head row, facing, scale.  The patched cave replays that
+   call unchanged, then invokes VV3WorldMaskDrawAt while the original arguments are
+   still present.  This callback changes only atlas and row and calls 0x42E5E0 again,
+   so camera, coordinates, facing, scale, and alpha remain stock.  No post-handler
+   draw or action reconstruction is used.  The stock held (`+0xF12`) branch rejoins this same
+   body/head sequence, so held masks inherit the true tuple; cursor ownership and
+   visual follow remain player-trace gates. */
+#define VV3_WORLD_MGR      0x0058F6F8u   /* the world appearance manager object   */
 #define VV3_WORLD_POS_FN   0x00455EF0u   /* __thiscall(record, &out{x,y}) -> base   */
-#define VV3_WORLD_SCALE_FN 0x00455E50u   /* __thiscall(record) -> double age-scale  */
-#define VV3_WORLD_DRAW_FN  0x0042E510u   /* __thiscall(mgr, atlas, x, y, cell, sc)  */
-#define VV3_WORLD_ATLAS_COLS 8           /* mask atlas = 8 facings x 5 masks        */
-#define VV3_WORLD_HEAD_DX  34            /* head x-offset from base (per sub_4605F0) */
-#define VV3_WORLD_HEAD_DY  32            /* head y-offset from base (per sub_4605F0) */
-/* VV3's proven horizontal world correction is the exact x tuple captured from the stock head
-   call at 0x460A60.  No synthetic facing-X correction is applied.  The retained per-colour Y
-   seats are scale-relative, matching the stock head size for children as well as adults. */
-int g_vv3_color_dy[5]  = { 41, 40, 37, 35, 32 };
-int g_vv3_world_facing = -1;   /* -1 = AUTO (read head atlas frame); >=0 = force col */
-int g_vv3_facing_dx[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-int g_vv3_world_lift   = 0;    /* retained base lift; colour seats remain scale-relative */
-int g_vv3_world_dy     = 0;    /* retained live Y nudge, in scaled world pixels */
-int g_vv3_world_liftfloor = 0; /* optional minimum lift scale, default 0 */
-int g_vv3_world_facing_off = 0xF18; /* RECORD offset of the 0..7 facing COLUMN.  VV5's */
-                               /* native mask render confirmed: +0xF14 is the x8 POSITION */
-                               /* term (VV5 +0x1D00); the direct atlas COLUMN the head    */
-                               /* (and mask) uses is the ADJACENT field +0xF18 (VV5       */
-                               /* +0x1D04), range 0..7 = 8 directions. K=0 (same column). */
-int g_vv3_world_facing_remap = 0;   /* +(mod 8) to rotate columns if head/mask order differ */
-#define VV3_WORLD_ANIM_OFF      0xF20 /* int; !=-1 => action animation (sit/lie/swim/work) */
-
-/* Per-POSE vertical mask nudge (scaled px), indexed by the action-animation id record+0xF20
-   (0..255; idle/-1 uses none).  The base head is drawn at STANDING height even while the
-   villager sits/lies/swims, so its mask floats above the crouched pose's real head; this
-   table drops the mask onto each pose's head.  Default 0 = upright poses (carry/work) that
-   already sit right.  Live-tunable (address published to 0x6E0018); populated by observing
-   each pose.  A separate flag so the sweep never touches it. */
-int g_vv3_pose_dy[256] = {0};
-/* Horizontal partner to pose_dy (world units, +right).  Zero-default residual fine-tune on
-   top of the art-derived pose-head anchor below. */
-int g_vv3_pose_dx[256] = {0};
-
-/* MEASURED baked-head centre per action frame (see VV3ActionMaskDraw comment): median
-   skin-blob centre of the top third of each 40x65 pose cell, over all 10 outfit rows,
-   the action atlas.  GRID CONFIRMED FROM THE RUNNING GAME (sprite object at [0x6C5D38],
-   cols at +0x08 / rows at +0x0C): 17 cols x 30 rows, cell 40x65 -- the three
-   *_actions00/01/02.png files stack into ONE 30-row atlas.  So frame f -> row f/17,
-   col f%17, which puts frames 0..50 in rows 0..2 of the *_actions00 file.  (An earlier
-   table wrongly read f/17 as a FILE index and medianed across rows that are really other
-   frames; corrected here.)  Median of male+female for each cell. */
-int g_vv3_posehead_px[51] = {20,19,19,18,22,22,22,22,19,20,20,20,20,24,21,20,20,
-                             22,20,18,20,22,22,22,22,21, 9,19,21,25,20,24,18,24,
-                             23,21,21,20,21,22,21,22,19,12,17,25,22,21,24,24,22};
-int g_vv3_posehead_py[51] = {39,39,40,40,34,33,34,33,25,36,30,29,27,29,24,24,26,
-                             38,38,38,39,30,30,30,30,22,36,28,27,26,28,18,17,26,
-                             37,38,41,42,32,31,31,31,24,38,30,28,26,29,20,19,30};
-/* Mask-cell face centre-x per facing (median content centre over all 5 colour rows of the
-   65x145 mask atlas) and per-colour chin-y; face-y = chin - bias (face centre sits ~14px
-   above the chin at cell scale). */
-/* The action path uses the atlas face-centre anchors below.  The world/head path does not
-   consume these X values: its horizontal position is the exact stock head tuple. */
-int g_vv3_maskface_cx[8] = {41,38,32,30,36,35,35,33};
-int g_vv3_maskface_cy[5] = {57,56,53,51,48};
-
-/* DIAGNOSTIC (temporary): per-anim counters so a live reader can prove whether the mask
-   hook actually FIRES for each pose. g_vv3_anim_hits[a] increments when the world mask
-   path draws a villager whose anim selector (record+0xF20) == a; g_vv3_anim_stash[a] counts
-   how many of those draws consumed the head-site stash. If a sitting/swimming villager's
-   anim never increments here, its pose is drawn outside this hooked path. Addresses are
-   published to 0x6E001C / 0x6E0020. */
-int g_vv3_anim_hits[256]  = {0};
-int g_vv3_anim_stash[256] = {0};
-
-/* Held ownership is the stock +0xF12 field; action ownership is the post-stock stash.  The
-   timed effect calls remain untouched because they carry no villager record. */
-/* Dedicated action-draw diag. [0..7] = px,py,anim,facing,x,y,[mgr+0x3010],count.
-   Published at 0x6E0038. */
-int g_vv3_actdbg[8] = {0};
+#define VV3_WORLD_HEAD_DRAW_FN 0x0042E5E0u /* __thiscall(mgr, atlas, x, y, row, facing, scale) */
 /* WORLD-path draw log, so the running game can say WHICH hook paints a given mask instead of
    me inferring it.  [0]=villager index [1]=anim [2]=facing [3]=x [4]=y [5]=scale bits
    [6]=mask colour [7]=draw count.  Published at 0x6E003C. */
@@ -1161,230 +1160,71 @@ int g_vv3_worlddbg[8] = {0};
    Published at 0x6E0040. */
 int g_vv3_chiefdbg[8] = {0};
 
-/* Per-frame stash of the EXACT head-draw position/scale, set by the head-site cave
-   (0x460A60 -> VV3WorldMaskDrawAt) during the normal villager handler. It lets the mask
-   reuse the stock head's animated position instead of recomputing from world coordinates.
-   The single-threaded render loop makes one global stash safe. */
-static int   g_vv3_stash_valid  = 0;
-static void *g_vv3_stash_record = NULL;
-static int   g_vv3_stash_x = 0, g_vv3_stash_y = 0, g_vv3_stash_scale = 0;
-/* The deferred world wrapper runs after the stock head/action calls.  Keep the manager's
-   head-time size term and the action tuple separately so the final wrapper can choose one
-   owner and issue exactly one mask draw. */
-static int   g_vv3_stash_m3010 = 0;
-static int   g_vv3_action_seen = 0;
-static void *g_vv3_action_record = NULL;
-static int   g_vv3_action_x = 0, g_vv3_action_y = 0, g_vv3_action_anim = -1;
-
-static void vv3_mask_clear_render_stashes(void)
+static int vv3_world_record_index(void *record)
 {
-    g_vv3_stash_valid = 0;
-    g_vv3_stash_record = NULL;
-    g_vv3_action_seen = 0;
-    g_vv3_action_record = NULL;
-    g_vv3_action_anim = -1;
+    UINT_PTR p = (UINT_PTR)record;
+    UINT_PTR base = (UINT_PTR)VV3_REC_BASE;
+    UINT_PTR delta;
+    if (p < base) return -1;
+    delta = p - base;
+    if ((delta % VV3_STRIDE) != 0 || (delta / VV3_STRIDE) >= 150) return -1;
+    return (int)(delta / VV3_STRIDE);
 }
 
-/* Draw the world mask for one villager INDEX, on top of the fully-drawn villager.
-   Called from the wrapper spliced at the handler's SOLE call site (0x42E3F5): the whole
-   villager (head, hair, overlays, action, props) is drawn by sub_4605F0, THEN this runs
-   -> guaranteed last layer.  POSITION uses the EXACT head-draw x/y/scale stashed by the
-   0x460A60 call-site cave for this pass, so walking/turning animation and age scale are
-   inherited from the stock head draw.  If the stash does not belong to this record, this
-   function returns; it never guesses a cursor or held-villager position. */
-__declspec(dllexport) void __stdcall VV3WorldMaskDraw(int index)
+/* Inline world/head mask draw.  This callback is invoked immediately after the
+   stock 0x42E5E0 call at 0x460C7F, while its untouched six arguments remain on
+   the stack.  The mask reuses those exact x/y/facing/scale values and changes
+   only the atlas and row.  No post-handler reconstruction or action hook exists. */
+__declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
-    void *record = NULL;
-    int mask, x, y, cell, facing, scaleBits, cidx;
-    int held, head_match, action_match, use_head = 0, use_action = 0;
-    int action_anim = -1;
-    int one = 0x3F800000;
     void *atlas;
-    float fscale = 1.0f, liftsc, floor;
-    if (index < 0 || index >= 150) {
-        goto world_mask_cleanup;
-    }
-    record = (void *)(UINT_PTR)(VV3_REC_BASE + (unsigned)index * VV3_STRIDE);
+    int mask, index, facing, mask_args[6], i;
+    int wp[2];
+    if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
-    if (mask <= 0) {
-        goto world_mask_cleanup;
-    }
-
-    /* The stock drag path sets +0xF12 while the head call is cursor-relative.  A held villager
-       therefore owns the matching head tuple even when the action overlay also ran; action is
-       suppressed rather than risking a second mask at a pose anchor. */
-    head_match = g_vv3_stash_valid && g_vv3_stash_record == record;
-    action_match = g_vv3_action_seen && g_vv3_action_record == record;
-    held = *(unsigned char *)((unsigned char *)record + 0xF12) != 0;
-    if (held) {
-        if (!head_match) goto world_mask_cleanup;
-        use_head = 1;
-    } else if (action_match) {
-        /* Only the measured action atlas-A frames have a supported pose anchor.  Any other
-           action state fails closed, and must not fall back to the standing head tuple. */
-        action_anim = g_vv3_action_anim;
-        if (action_anim < 0 || action_anim > 50) goto world_mask_cleanup;
-        use_action = 1;
-    } else {
-        if (!head_match) goto world_mask_cleanup;
-        use_head = 1;
-    }
-
+    if (mask <= 0) return;
     atlas = VV3GetMaskAtlas();
-    if (atlas == NULL) {
-        goto world_mask_cleanup;
-    }
-
-    /* FACING: villager 0..7 direction from record+0xF18 (VV5's direct head-column analog),
-       live-tunable offset+remap; g_vv3_world_facing >= 0 forces a column. */
-    if (g_vv3_world_facing >= 0) {
-        facing = g_vv3_world_facing & 7;
-    } else {
-        facing = ((*(int *)((unsigned char *)record + g_vv3_world_facing_off))
-                  + g_vv3_world_facing_remap) & 7;
-    }
-    cell = (mask - 1) * VV3_WORLD_ATLAS_COLS + facing;
-
-    if (use_action) {
-        int hx = g_vv3_posehead_px[action_anim];
-        int hy = g_vv3_posehead_py[action_anim];
-        x = g_vv3_action_x + hx - g_vv3_maskface_cx[facing & 7];
-        y = g_vv3_action_y + hy - g_vv3_maskface_cy[mask - 1];
-        if (action_anim >= 0 && action_anim < 256) {
-            x += g_vv3_pose_dx[action_anim];
-            y += g_vv3_pose_dy[action_anim];
-        }
-        scaleBits = one;              /* stock action layers draw at scale 1.0 */
-    } else {
-        /* The head tuple supplies the only proven horizontal anchor.  Retain the measured
-           per-colour vertical seats, scaled by the stock head size for children/held heads. */
-        x = g_vv3_stash_x;
-        y = g_vv3_stash_y;
-        scaleBits = g_vv3_stash_scale;
-        fscale = *(float *)&scaleBits;
-        liftsc = fscale;
-        floor = g_vv3_world_liftfloor * 0.01f;
-        if (liftsc < floor) liftsc = floor;
-        cidx = mask - 1;
-        if (cidx < 0) cidx = 0;
-        else if (cidx > 4) cidx = 4;
-        y += -(int)((g_vv3_world_lift + g_vv3_color_dy[cidx]) * liftsc)
-             + (int)(g_vv3_world_dy * fscale);
-    }
-
-    /* Diagnostics identify which ownership branch painted the one mask for this record. */
+    if (atlas == NULL) return;
+    for (i = 0; i < 6; ++i) mask_args[i] = args[i];
+    mask_args[0] = (int)(UINT_PTR)atlas;
+    mask_args[3] = mask - 1;
+    facing = mask_args[4] & 7;
+    index = vv3_world_record_index(record);
     g_vv3_worlddbg[0] = index;
-    g_vv3_worlddbg[1] = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
+    g_vv3_worlddbg[1] = *(int *)((unsigned char *)record + 0xF20);
     g_vv3_worlddbg[2] = facing;
-    g_vv3_worlddbg[3] = x;
-    g_vv3_worlddbg[4] = y;
-    g_vv3_worlddbg[5] = scaleBits;
-    /* [6] packs the mask colour with the record state field +0xF1C. The render branch at
-       0x4609D1 is confirmed, but the meaning of value 6 and its relationship to pickup are
-       not established by static evidence. */
+    g_vv3_worlddbg[3] = mask_args[1];
+    g_vv3_worlddbg[4] = mask_args[2];
+    g_vv3_worlddbg[5] = mask_args[5];
     g_vv3_worlddbg[6] = mask | (*(int *)((unsigned char *)record + 0xF1C) << 8);
     g_vv3_worlddbg[7]++;
-    if (mask == 5) {                     /* the chief mask from the owner's screenshot */
-        int wp[2];
+    if (mask == 5) {
         __asm {
             lea  eax, wp
             push eax
             mov  ecx, record
             mov  edx, VV3_WORLD_POS_FN
-            call edx                     /* sub_455EF0(record,&wp) -> villager world pos */
+            call edx
         }
         g_vv3_chiefdbg[0] = index;
-        g_vv3_chiefdbg[1] = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
+        g_vv3_chiefdbg[1] = *(int *)((unsigned char *)record + 0xF20);
         g_vv3_chiefdbg[2] = facing;
-        g_vv3_chiefdbg[3] = x;
-        g_vv3_chiefdbg[4] = y;
+        g_vv3_chiefdbg[3] = mask_args[1];
+        g_vv3_chiefdbg[4] = mask_args[2];
         g_vv3_chiefdbg[5] = *(int *)((unsigned char *)record + 0xF1C);
         g_vv3_chiefdbg[6] = wp[0];
         g_vv3_chiefdbg[7]++;
     }
-    {
-        /* 42E510's terminal blit takes the manager's integer size term and a float path flag.
-           Mirror the stock head: use the captured head-time [mgr+0x3010], round its size by
-           the captured head scale, pass 1.0 for the draw, and restore [mgr+0x3010] immediately. */
-        int *p3010 = (int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
-        int save3010 = *p3010;
-        if (use_head) {
-            double sized = (double)g_vv3_stash_m3010 * (double)fscale;
-            *p3010 = (int)(sized >= 0.0 ? sized + 0.5 : sized - 0.5);
-        }
-        __asm {
-            mov  eax, one                /* arg5 = 1.0 -> solid/non-faded terminal path */
-            push eax
-            push cell
-            push y
-            push x
-            push atlas
-            mov  ecx, VV3_WORLD_MGR
-            mov  edx, VV3_WORLD_DRAW_FN
-            call edx                     /* sub_42E510(mgr, atlas, x, y, cell, 1.0f) */
-        }
-        *p3010 = save3010;
-    }
-
-world_mask_cleanup:
-    /* Every return path consumes both per-record stashes; no action/head tuple may leak into
-       the next villager or next frame. */
-    vv3_mask_clear_render_stashes();
-}
-
-/* ACTION-POSE stash.  VV3 draws sit/lie/swim/fish/work poses as a FULL-BODY sprite (head baked
-   in) via the action overlay sub_45F7E0.  This export is called AFTER the stock action draw at
-   both proven call sites (0x460B48 and 0x460D10).  It records only the matching record, the
-   stock x/y, and record+0xF20; the final world wrapper owns the single mask blit.  Keeping this
-   export stash-only prevents a second action mask and lets held head ownership take precedence. */
-int g_vv3_action_lift = 90;   /* pose-sprite head lift (scale-relative); tune by rebuild */
-int g_vv3_action_dx   = 24;   /* pose-sprite head x nudge (scale-relative) -- pose sprite head is
-                                 centered + a touch right; NO per-facing dx (unlike walking cell) */
-
-__declspec(dllexport) void __stdcall VV3ActionMaskDraw(void *record, int px, int py)
-{
-    if (record == NULL) {
-        g_vv3_action_seen = 0;
-        g_vv3_action_record = NULL;
-        return;
-    }
-    /* A -1 action is the stock no-op path used by ordinary walking/swimming.  Clear any stale
-       tuple for this record; real and unsupported non-negative values are both recorded so the
-       final owner can fail closed instead of silently falling back to a standing head. */
-    g_vv3_action_record = record;
-    g_vv3_action_x = px;
-    g_vv3_action_y = py;
-    g_vv3_action_anim = *(int *)((unsigned char *)record + VV3_WORLD_ANIM_OFF);
-    g_vv3_action_seen = (g_vv3_action_anim == -1) ? 0 : 1;
-}
-
-/* Head-site STASH: spliced at 0x460A60 (the head draw) via a cave that re-issues the head
-   then calls this. It records the exact stock x/y/scale arguments for the world mask.
-   Pickup/held identity is not inferred here. (g_vv3_stash_* declared above.)
-   args points at the 5 head-draw args on the exe stack, in push order:
-   args[0]=headSprite  args[1]=x  args[2]=y  args[3]=scale(float bits)  args[4]=flag. */
-__declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
-{
-    if (record == NULL || args == NULL) {
-        /* A malformed head-site callback must consume both tuples.  Otherwise a later
-           world wrapper can reuse stale head/action state from the previous villager. */
-        vv3_mask_clear_render_stashes();
-        return;
-    }
-    g_vv3_stash_record = record;
-    g_vv3_stash_x      = args[1];
-    g_vv3_stash_y      = args[2];
-    g_vv3_stash_scale  = args[3];
-    g_vv3_stash_m3010  = *(int *)(UINT_PTR)(VV3_WORLD_MGR + 0x3010);
-    g_vv3_stash_valid  = 1;
-
-    /* A fresh stock head tuple starts a new ownership decision for this record.  Do not reject
-       action/water/held states here: stock drag and water exceptions still issue this head draw,
-       and the final wrapper decides between this tuple and the post-action stash. */
-    if (g_vv3_action_record == record) {
-        g_vv3_action_seen = 0;
-        g_vv3_action_record = NULL;
-        g_vv3_action_anim = -1;
+    __asm {
+        push mask_args[5]
+        push mask_args[4]
+        push mask_args[3]
+        push mask_args[2]
+        push mask_args[1]
+        push mask_args[0]
+        mov  ecx, VV3_WORLD_MGR
+        mov  edx, VV3_WORLD_HEAD_DRAW_FN
+        call edx                     /* 0x42E5E0 -> 0x409FB0, exact tuple */
     }
 }
 

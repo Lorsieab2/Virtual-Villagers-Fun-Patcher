@@ -7720,6 +7720,7 @@ def dry_run(
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
         playtest_output_root=playtest_output_root,
     )
+    _require_name_crash_immunity(patched, build.input_name, applied)
     return _result(
         build,
         source,
@@ -7749,6 +7750,7 @@ def dry_run_all(
         ]
         fun_patches = _selected_fun_patches(build, selected_ids)
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
+        _require_name_crash_immunity(patched, build.input_name, applied)
         results.append(
             _result(
                 build,
@@ -8857,6 +8859,380 @@ def _remove_companion_files(
     return removed
 
 
+# ---------------------------------------------------------------------------
+# Wrong-exe-name access-violation immunity (applied to EVERY published build).
+#
+# Root cause (see scripts/fix_exe_name_crash.py, memory vv-exe-name-crash-fix):
+# the games read GetModuleFileNameA and gate the save folder (Documents\LDW\
+# <basename>\) plus a name-gated init path on the exe BASENAME.  The patcher
+# publishes each build under a renamed exe ("<Title> - Modded.exe", etc.), so
+# the basename no longer matches the stock name -> init diverges, engine
+# subsystems stay NULL, and later code AVs (0xC0000005).  This finalizer wraps
+# GetModuleFileNameA so it always reports the EXPECTED stock basename while
+# keeping the real directory: assets still resolve from the real folder, and
+# the save folder + name-gated init behave exactly as under the stock name,
+# under ANY actual filename.  Applied post-render (write path) so it never
+# perturbs the certified render identities.  Publication callers fail closed
+# if the guard cannot be applied, so an unsafe renamed build is never emitted.
+#
+# Pure stdlib (no keystone/pefile): the ~70-byte stdcall wrapper is emitted as
+# a fixed byte template (verified byte-for-byte against keystone) with two
+# absolute fields patched in (the GetModuleFileNameA IAT slot and the fixed
+# basename VA).  The IAT slot and every `call [IAT]` site are auto-discovered
+# from the PE, so the same routine covers all five games with no per-game data.
+
+
+def _nci_pe_info(data: bytes) -> dict[str, Any]:
+    e_lfanew = struct.unpack_from("<I", data, 0x3C)[0]
+    if data[e_lfanew : e_lfanew + 4] != b"PE\0\0":
+        raise ValueError("not a PE")
+    coff = e_lfanew + 4
+    num_sections = struct.unpack_from("<H", data, coff + 2)[0]
+    opt = coff + 20
+    if struct.unpack_from("<H", data, opt)[0] != 0x10B:
+        raise ValueError("not PE32")
+    image_base = struct.unpack_from("<I", data, opt + 28)[0]
+    num_dirs = struct.unpack_from("<I", data, opt + 92)[0]
+    dirs_off = opt + 96
+    dirs = [
+        struct.unpack_from("<II", data, dirs_off + i * 8) for i in range(num_dirs)
+    ]
+    sec_off = opt + struct.unpack_from("<H", data, coff + 16)[0]
+    sections = []
+    for i in range(num_sections):
+        so = sec_off + i * 40
+        sections.append(
+            {
+                "name": data[so : so + 8].rstrip(b"\0"),
+                "vsize": struct.unpack_from("<I", data, so + 8)[0],
+                "vaddr": struct.unpack_from("<I", data, so + 12)[0],
+                "rsize": struct.unpack_from("<I", data, so + 16)[0],
+                "raw": struct.unpack_from("<I", data, so + 20)[0],
+                "chars": struct.unpack_from("<I", data, so + 36)[0],
+            }
+        )
+    return {"image_base": image_base, "dirs": dirs, "sections": sections}
+
+
+def _nci_rva_to_off(info: dict[str, Any], rva: int) -> int | None:
+    for s in info["sections"]:
+        if s["vaddr"] <= rva < s["vaddr"] + max(s["vsize"], s["rsize"]):
+            return s["raw"] + (rva - s["vaddr"])
+    return None
+
+
+def _nci_exec_sections(info: dict[str, Any]) -> list[dict[str, Any]]:
+    return [s for s in info["sections"] if s["chars"] & 0x20000000]
+
+
+# The five supported PE32 builds have stable import-call instruction maps.
+# These are exact stock-build facts, and the public feature compositions leave
+# the GetModuleFileNameA call sites unchanged.  Keeping the map here makes the
+# discovery proof independent of code/data interleaving in the .text sections.
+_NCI_CALL_SITE_RVAS: dict[int, tuple[int, ...]] = {
+    0x5711C: (0x27DD, 0x2944, 0x50967, 0x50ED5, 0x52C57),
+    0x49512C - 0x400000: (0x2D3D, 0x2FFA, 0x2C35F, 0x2F2BA, 0x2F5E5, 0x81E0A, 0x89E93),
+    0x7411C: (0x2A6D, 0x2BD4, 0x6D9E7, 0x6DF55, 0x6FCD7),
+    0x7C130: (0x2AAD, 0x2D04, 0x3C46F, 0x3CE1A, 0x3EC89, 0x7550C, 0x75A7A, 0x7737D),
+    0x8A12C: (0x2DAD, 0x306A, 0x266EF, 0x2964A, 0x29975, 0x76D6A, 0x7EDF3),
+}
+
+
+def _nci_find_gmfn_iat(data: bytes, info: dict[str, Any]) -> int | None:
+    if len(info["dirs"]) < 2:
+        return None
+    imp_rva, _ = info["dirs"][1]
+    if not imp_rva:
+        return None
+    base = info["image_base"]
+    i = _nci_rva_to_off(info, imp_rva)
+    if i is None:
+        return None
+    while True:
+        oft = struct.unpack_from("<I", data, i)[0]
+        name_rva = struct.unpack_from("<I", data, i + 12)[0]
+        ft = struct.unpack_from("<I", data, i + 16)[0]
+        if oft == 0 and ft == 0 and name_rva == 0:
+            break
+        int_rva = oft or ft
+        if int_rva and ft:
+            t = _nci_rva_to_off(info, int_rva)
+            if t is not None:
+                k = 0
+                while True:
+                    thunk = struct.unpack_from("<I", data, t + k * 4)[0]
+                    if thunk == 0:
+                        break
+                    if not (thunk & 0x80000000):
+                        hn = _nci_rva_to_off(info, thunk)
+                        if hn is not None:
+                            end = data.find(b"\0", hn + 2)
+                            if data[hn + 2 : end] == b"GetModuleFileNameA":
+                                return base + ft + k * 4
+                    k += 1
+        i += 20
+    return None
+
+
+def _nci_find_call_sites(data: bytes, info: dict[str, Any], iat_va: int) -> list[int]:
+    """Find real ``call [GetModuleFileNameA@IAT]`` instruction heads.
+
+    A raw byte search is not sufficient for x86: ``FF 15 <iat>`` can occur in
+    the immediate bytes of an unrelated instruction (for example
+    ``B8 FF 15 <iat>``).  The supported images are exact PE32 x86 builds with
+    a reviewed call-site map above.  Require the complete raw match set to be
+    exactly that map and require every mapped site to still contain the full
+    import-call bytes.  Any extra/missing match, unknown build, or malformed
+    section returns no sites, so callers fail closed instead of redirecting a
+    possibly partial set.
+    """
+    pattern = b"\xff\x15" + iat_va.to_bytes(4, "little")
+    base = int(info["image_base"])
+    expected_rvas = _NCI_CALL_SITE_RVAS.get(iat_va - base)
+    if expected_rvas is None:
+        return []
+    raw_sites: list[int] = []
+    for s in _nci_exec_sections(info):
+        raw = int(s["raw"])
+        end = raw + int(s["rsize"])
+        if raw < 0 or end > len(data):
+            return []
+        seg = data[raw:end]
+        start = 0
+        while True:
+            offset = seg.find(pattern, start)
+            if offset < 0:
+                break
+            raw_sites.append(base + int(s["vaddr"]) + offset)
+            start = offset + 1
+    expected_sites = [base + rva for rva in expected_rvas]
+    if sorted(raw_sites) != sorted(expected_sites):
+        return []
+    for va in expected_sites:
+        rva = va - base
+        section = next(
+            (
+                s
+                for s in _nci_exec_sections(info)
+                if int(s["vaddr"]) <= rva < int(s["vaddr"]) + int(s["rsize"])
+            ),
+            None,
+        )
+        if section is None:
+            return []
+        offset = int(section["raw"]) + rva - int(section["vaddr"])
+        if offset < 0 or offset + len(pattern) > len(data) or data[offset : offset + len(pattern)] != pattern:
+            return []
+    return expected_sites
+
+
+def _nci_find_cave(data: bytes, info: dict[str, Any], need: int) -> int | None:
+    for s in _nci_exec_sections(info):
+        raw = int(s["raw"])
+        end = raw + int(s["rsize"])
+        if raw < 0 or end > len(data):
+            continue
+        seg = data[raw:end]
+        i = 0
+        while i < len(seg):
+            if seg[i] == 0:
+                j = i
+                while j < len(seg) and seg[j] == 0:
+                    j += 1
+                if j - i >= need + 4:
+                    return info["image_base"] + s["vaddr"] + i + 2
+                i = j
+            else:
+                i += 1
+    return None
+
+
+def _nci_wrapper(iat_va: int, name_va: int, name_len: int) -> bytes:
+    """Emit a bounded stdcall GetModuleFileNameA basename wrapper.
+
+    The old template scanned until an unterminated buffer and copied the fixed
+    basename without consulting ``nSize``.  This emitter keeps the original
+    return value for every failure/truncation case, bounds the scan by nSize,
+    and requires the complete replacement (including NUL) to fit before any
+    write occurs.
+    """
+    code = bytearray()
+    labels: dict[str, int] = {}
+    fixups: list[tuple[int, str]] = []
+
+    def emit(raw: bytes) -> None:
+        code.extend(raw)
+
+    def mark(label: str) -> None:
+        labels[label] = len(code)
+
+    def jump(opcode: int, label: str) -> None:
+        code.append(opcode)
+        fixups.append((len(code), label))
+        code.append(0)
+
+    # Forward the three original arguments, then save the API return value and
+    # callee-saved registers.  With this layout: saved eax=[esp+0c], lp=[esp+18],
+    # nSize=[esp+1c].  Four pushes move the saved return value to +0x0c (not
+    # +0x10, which is the wrapper's original return address).
+    emit(b"\xff\x74\x24\x0c" * 3)
+    emit(b"\xff\x15" + iat_va.to_bytes(4, "little"))
+    emit(b"\x50\x56\x57\x55")
+    # GetModuleFileNameA returns zero on failure and nSize on truncation.  Do
+    # not inspect or rewrite the caller's buffer in either case; preserve the
+    # original API result through the common failure exit below.
+    emit(b"\x85\xc0")
+    jump(0x74, "fail")  # original API call failed
+    emit(b"\x8b\x7c\x24\x18\x8b\x4c\x24\x1c")  # edi=lp, ecx=nSize
+    emit(b"\x85\xc9")
+    jump(0x74, "fail")  # nSize == 0
+    emit(b"\x39\xc8")
+    jump(0x73, "fail")  # original return >= nSize -> truncated path
+    emit(b"\x89\xfd\x01\xcd\x89\xfa")  # ebp=end, edx=basename start
+    mark("scan")
+    emit(b"\x39\xef")
+    jump(0x73, "fail")  # edi >= end
+    emit(b"\x8a\x07\x84\xc0")
+    jump(0x74, "found")  # NUL found
+    emit(b"\x3c\x5c")
+    jump(0x75, "noslash")
+    emit(b"\x8d\x57\x01")  # edx = byte after most recent slash
+    mark("noslash")
+    emit(b"\x47")
+    jump(0xEB, "scan")
+    mark("found")
+    emit(b"\x89\xd0\x05" + name_len.to_bytes(4, "little"))  # end of replacement
+    emit(b"\x39\xe8")
+    jump(0x77, "fail")  # replacement end > buffer end
+    emit(b"\xbe" + name_va.to_bytes(4, "little"))
+    emit(b"\xb9" + name_len.to_bytes(4, "little"))
+    mark("copy")
+    emit(b"\x8a\x06\x88\x02\x46\x42\x49")
+    jump(0x75, "copy")
+    emit(b"\x89\xd0\x2b\x44\x24\x18\x48")  # new length excluding NUL
+    jump(0xEB, "done")
+    mark("fail")
+    emit(b"\x8b\x44\x24\x0c")  # original API return value
+    mark("done")
+    emit(b"\x5d\x5f\x5e\x83\xc4\x04\xc2\x0c\x00")
+    for pos, label in fixups:
+        if label not in labels:
+            raise ValueError(f"unresolved wrapper label: {label}")
+        delta = labels[label] - (pos + 1)
+        if not -128 <= delta <= 127:
+            raise ValueError(f"wrapper jump out of range: {label}")
+        code[pos] = delta & 0xFF
+    return bytes(code)
+
+
+def _apply_name_crash_immunity(
+    data: bytearray, expected_basename: str,
+    applied: list[dict[str, str]] | None = None,
+) -> dict[str, Any] | None:
+    """Make ``data`` boot correctly under any filename by wrapping
+    GetModuleFileNameA to report ``expected_basename``.  In place; recomputes the
+    PE checksum.  This low-level helper returns a status dict and never raises;
+    publication callers use ``_require_name_crash_immunity`` to fail closed.
+    """
+    try:
+        info = _nci_pe_info(bytes(data))
+    except ValueError:
+        return {"status": "skipped", "reason": "not a PE32 image"}
+    base = info["image_base"]
+    name_bytes = expected_basename.encode("ascii", "ignore") + b"\0"
+    for s in _nci_exec_sections(info):
+        if name_bytes in data[s["raw"] : s["raw"] + s["rsize"]]:
+            return {"status": "skipped", "reason": "already immune"}
+    iat_va = _nci_find_gmfn_iat(bytes(data), info)
+    if iat_va is None:
+        return {"status": "skipped", "reason": "no GetModuleFileNameA import"}
+    sites = _nci_find_call_sites(bytes(data), info, iat_va)
+    if not sites:
+        return {"status": "skipped", "reason": "no GetModuleFileNameA call sites"}
+    # Size the cave from the emitted wrapper itself.  Its length changes when
+    # failure guards are strengthened; a stale fixed allowance can select a
+    # zero run that ends before the complete wrapper.
+    wrapper_len = len(_nci_wrapper(iat_va, 0, len(name_bytes)))
+    name_va = _nci_find_cave(
+        bytes(data), info, len(name_bytes) + 3 + wrapper_len
+    )
+    if name_va is None:
+        return {"status": "skipped", "reason": "no code cave"}
+    code_va = (name_va + len(name_bytes) + 3) & ~3
+    name_off = _nci_rva_to_off(info, name_va - base)
+    code_off = _nci_rva_to_off(info, code_va - base)
+    if name_off is None or code_off is None:
+        return {"status": "skipped", "reason": "cave not mappable"}
+    stub = _nci_wrapper(iat_va, name_va, len(name_bytes))
+    total = (code_va - name_va) + len(stub)
+    if bytes(data[name_off : name_off + total]) != b"\0" * total:
+        return {"status": "skipped", "reason": "cave not free"}
+    writes: list[dict[str, str]] = []
+    writes.append({"offset": hex(name_off), "before": bytes(data[name_off : name_off + len(name_bytes)]).hex().upper(), "after": name_bytes.hex().upper()})
+    writes.append({"offset": hex(code_off), "before": bytes(data[code_off : code_off + len(stub)]).hex().upper(), "after": stub.hex().upper()})
+    data[name_off : name_off + len(name_bytes)] = name_bytes
+    data[code_off : code_off + len(stub)] = stub
+    for site in sites:
+        so = _nci_rva_to_off(info, site - base)
+        if so is None or bytes(data[so : so + 2]) != b"\xff\x15":
+            continue
+        rel = code_va - (site + 5)
+        replacement = b"\xe8" + struct.pack("<i", rel) + b"\x90"
+        writes.append({"offset": hex(so), "before": bytes(data[so : so + 6]).hex().upper(), "after": replacement.hex().upper()})
+        data[so : so + 6] = replacement
+    checksum_offset, _ = _pe_checksum_layout(data)
+    struct.pack_into("<I", data, checksum_offset, 0)
+    struct.pack_into("<I", data, checksum_offset, pe_checksum(data))
+    if applied is not None:
+        applied.extend(
+            {
+                **write,
+                "purpose": "wrong-exe-name crash immunity",
+                "owner": "automatic:name_crash_immunity",
+            }
+            for write in writes
+        )
+    return {
+        "status": "applied",
+        "expected_basename": expected_basename,
+        "iat_va": iat_va,
+        "call_sites": sites,
+        "wrapper_va": code_va,
+        "name_va": name_va,
+        "writes": writes,
+    }
+
+
+def _require_name_crash_immunity(
+    data: bytearray,
+    expected_basename: str,
+    applied: list[dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    """Require the renamed-build crash guard before a result is published.
+
+    The normal patch output is deliberately renamed, so a missing import, call
+    site, or executable cave is not a harmless omission: it leaves the exact
+    crash class this finalizer is responsible for in the build.  The only
+    accepted non-application result is an already-immune image, which keeps
+    the helper idempotent without permitting an unguarded renamed output.
+    """
+    result = _apply_name_crash_immunity(data, expected_basename, applied)
+    if result is None:
+        raise PatcherError(
+            "Cannot publish renamed build: executable-name crash immunity "
+            "returned no status."
+        )
+    if result.get("status") == "applied":
+        return result
+    if result.get("status") == "skipped" and result.get("reason") == "already immune":
+        return result
+    reason = result.get("reason", "unknown reason")
+    raise PatcherError(
+        "Cannot publish renamed build: executable-name crash immunity "
+        f"could not be applied ({reason})."
+    )
+
+
 def apply_patch(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
@@ -8925,6 +9301,11 @@ def apply_patch(
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
         playtest_output_root=playtest_output_root,
     )
+    # Every published build is renamed off the stock exe name, which by itself
+    # crashes the game (basename-gated init/save folder).  Immunise the output
+    # so it boots under any filename.  Post-render, in place, checksum-safe; the
+    # source-vs-output transparency diff records the exact bytes it changed.
+    _require_name_crash_immunity(patched, build.input_name, applied)
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
