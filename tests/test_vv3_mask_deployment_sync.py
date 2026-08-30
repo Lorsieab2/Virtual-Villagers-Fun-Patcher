@@ -36,11 +36,14 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         canonical = SOURCE.read_bytes()
         deployed = DEPLOYED.read_bytes()
         self.assertEqual(deployed, canonical)
+        # Assert against the synchronizer's own reviewed pin rather than a second
+        # copy of the digest.  A duplicated literal here silently goes stale on
+        # every legitimate DLL rebuild, which is exactly how it drifted before.
         self.assertEqual(
             hashlib.sha256(deployed).hexdigest().upper(),
-            "9DAFDB3B38D02BB642A243C2FDDB68CE0B7DEBA3A013F6A5F9A3FAEA116E3031",
+            self.builder.SOURCE_SHA256,
         )
-        self.assertEqual(len(deployed), 1_895_936)
+        self.assertEqual(len(deployed), self.builder.SOURCE_SIZE)
 
     def test_manifest_hash_is_the_canonical_deployed_hash(self) -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
