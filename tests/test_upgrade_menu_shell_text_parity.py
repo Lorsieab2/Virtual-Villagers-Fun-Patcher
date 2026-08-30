@@ -10,7 +10,6 @@ scripts/audit_upgrade_menu_parity.py produces the comparison; this pins it.
 from __future__ import annotations
 
 import importlib.util
-import re
 import sys
 import unittest
 from pathlib import Path
@@ -92,32 +91,21 @@ class UpgradeMenuShellTextParityTests(unittest.TestCase):
         """
         self.assertEqual(self.audit.SATISFIED_BITS_SET_BY_EXE, {3, 4})
 
-        generators = {
-            "vv1": ROOT / "scripts/build_vv1_origins_feature.py",
-            "vv2": ROOT / "scripts/build_vv2_origins_feature.py",
-            "vv3": ROOT / "scripts/build_vv3_origins_feature.py",
-            "vv4": ROOT / "scripts/build_vv4_origins_feature.py",
-            "vv5": ROOT / "scripts/build_vv5_origins_feature.py",
-        }
-        register = re.compile(r"or\s+e(?:ax|bx|cx|dx|si|di|bp),\s*(8|16)\b")
-        for game, path in generators.items():
+        # Scoped to the Tech state builder, NOT the whole generator: the
+        # Details menu builds its own state word and also contains
+        # `or edi, 8`, so a file-wide search would report Tech behaviour as
+        # intact even after the Tech path stopped setting that bit.
+        for game, path in self.audit.GENERATORS.items():
             if not path.is_file():
                 continue
-            source = path.read_text(encoding="utf-8")
-            found = {m.group(1) for m in register.finditer(source)}
             with self.subTest(game=game):
+                bits = self.audit.tech_state_bits(path)
                 self.assertEqual(
-                    found,
-                    {"8", "16"},
-                    f"{game} does not set exactly the two doubler bits",
+                    bits,
+                    {8, 16},
+                    f"{game}'s Tech state builder sets {sorted(bits)}, not just "
+                    f"the two doubler bits",
                 )
-                # No satisfied bit above row 4 may be set for the Tech menu.
-                for higher in (" 32", " 64", " 128", " 256"):
-                    self.assertNotIn(
-                        f"or eax,{higher}",
-                        source,
-                        f"{game} sets a Tech satisfied bit above row 4",
-                    )
 
         coverage = self.audit.badge_coverage()
         for (game, screen), (rows, badges) in coverage.items():
