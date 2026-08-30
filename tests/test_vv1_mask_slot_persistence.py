@@ -292,9 +292,12 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertEqual(len(bytes.fromhex(splice["after"])), 6)
         self.assertTrue(splice["after"].endswith("90"))
         cave = patches["0x8E820"]
-        self.assertEqual(len(bytes.fromhex(cave["after"])), 129)
-        self.assertEqual(bytes.fromhex(cave["after"])[0], 0x60)  # pushad
-        self.assertIn("capture the exact VV1 save-slot argument", cave["purpose"])
+        self.assertEqual(len(bytes.fromhex(cave["after"])), 125)
+        # pushfd then pushad: the capture now preserves the flags as well as
+        # every GP register, because its range check clobbers them.
+        self.assertEqual(bytes.fromhex(cave["after"])[0], 0x9C)  # pushfd
+        self.assertEqual(bytes.fromhex(cave["after"])[1], 0x60)  # pushad
+        self.assertIn("capture the exact VV1 numbered village save-slot argument", cave["purpose"])
 
         tx = self.manifest["pe_append_transaction"]
         self.assertEqual(tx["section_name"], ".vv1mc/.vv1md")
@@ -361,9 +364,17 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertEqual(data[0x2ED5], 0x90)
         displacement = struct.unpack_from("<i", data, 0x2ED1)[0]
         self.assertEqual(0x402ED0 + 5 + displacement, 0x490820)
-        self.assertEqual(data[0x8E820], 0x60)  # pushad in the owned cave
-        self.assertIn(b"\x8B\x44\x24\x24", data[0x8E820 : 0x8E820 + 129])
+        self.assertEqual(data[0x8E820], 0x9C)  # pushfd in the owned cave
+        self.assertEqual(data[0x8E821], 0x60)  # pushad in the owned cave
+        # [esp+0x28], not [esp+0x24]: pushfd shifts the stock argument by four.
+        self.assertIn(b"\x8B\x44\x24\x28", data[0x8E820 : 0x8E820 + 129])
         self.assertIn(b"\xA3\xF4\x11\x49\x00", data[0x8E820 : 0x8E820 + 129])
+        # Only numbered village slots 1..5 are published: slot 0 (the meta
+        # file) must leave the live capture and the mask tables untouched.
+        self.assertIn(b"\x83\xF8\x05\x77", data[0x8E820 : 0x8E820 + 129])  # cmp 5 / ja
+        self.assertIn(b"\x83\xF8\x01\x72", data[0x8E820 : 0x8E820 + 129])  # cmp 1 / jb
+        # The old normalize-invalid-to-zero form must be gone.
+        self.assertNotIn(b"\x31\xC0\xEB", data[0x8E820 : 0x8E820 + 129])
 
         # Removal must unwind the ordinary feature bytes, truncate only the
         # exact owned tail, and restore the mode-specific pre-feature parent.

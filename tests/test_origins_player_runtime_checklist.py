@@ -180,6 +180,16 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # dialog strings, preflight/Cure helpers, deferred Barrel
                     # helper, and the already-repaired section metadata rows.
                     repaired_offsets = {
+                        # VV1 save-slot capture repair: the trampoline used to
+                        # normalize the META file's slot 0 to zero and STORE it,
+                        # overwriting the live village slot and running the table
+                        # reset -- wiping a running game's masks after any meta
+                        # write.  It now publishes only slots 1..5 and preserves
+                        # the flags its range check clobbers.  Both rows are
+                        # asserted directly in test_vv1_mask_slot_persistence.py
+                        # and certified by scripts/audit_save_path_integrity.py.
+                        "0x2ED0",
+                        "0x8E820",
                         "0x270",
                         "0x28C",
                         # .data VirtualSize extended to 0x7000 so it owns the
