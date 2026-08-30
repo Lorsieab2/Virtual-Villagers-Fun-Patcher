@@ -70,7 +70,14 @@ SATISFIED_BITS_SET_BY_EXE = {3, 4}   # Tech Point Doubler, Food Point Doubler
 TECH_DIALOG_CALL = re.compile(
     r"push\s+(?P<reg>eax|edi)\s*\n\s*push\s+0\s*\n\s*call", re.MULTILINE
 )
-OR_BIT = re.compile(r"or\s+e(?:ax|bx|cx|dx|si|di|bp),\s*(?P<value>\d+)\b")
+# Accepts hex as well as decimal: these blocks use both, and a decimal-only
+# pattern would silently skip a flag added as `or eax, 0x20`.
+OR_BIT = re.compile(
+    r"or\s+e(?:ax|bx|cx|dx|si|di|bp),\s*(?P<value>0[xX][0-9a-fA-F]+|\d+)\b"
+)
+# `1 << (8 + row)` markers meaning "this row is unavailable", not satisfied
+# bits.  They sit in the same block, so they are excluded explicitly.
+UNAVAILABLE_MASK_VALUES = {0x800, 0x1000, 0x1800}
 
 GENERATORS = {
     game: ROOT / f"scripts/build_{game}_origins_feature.py"
@@ -97,6 +104,37 @@ def parse_dialogs(path: Path) -> dict[int, dict]:
     return out
 
 
+COST_RE = re.compile(r"^[\d,]+ tech points$")
+CHROME = {"Cancel", "Press ESC to exit this menu."}
+
+
+def rows_of(dialog: dict) -> list[dict]:
+    """Group a dialog's strings into one record per upgrade row.
+
+    A row is a label, then its cost, then its button.  Grouping matters because
+    a set of all strings hides deletions: removing one `Buy` leaves the set
+    unchanged, and removing a cost line produces no new text either.  Comparing
+    row by row makes a missing control visible.
+    """
+    rows: list[dict] = []
+    current: dict | None = None
+    for kind, text in dialog["strings"]:
+        if text in CHROME:
+            continue
+        if kind == "LTEXT" and COST_RE.match(text):
+            if current is not None:
+                current["cost"] = text
+            continue
+        if kind in ("PUSHBUTTON", "DEFPUSHBUTTON"):
+            if current is not None:
+                current["button"] = text
+            continue
+        if kind == "LTEXT":
+            current = {"label": text, "cost": None, "button": None}
+            rows.append(current)
+    return rows
+
+
 def shell_of(dialog: dict) -> dict:
     texts = [text for _, text in dialog["strings"]]
     return {
@@ -107,6 +145,8 @@ def shell_of(dialog: dict) -> dict:
         # The row text itself, so the standalone report catches a reworded
         # label, cost string or button -- not only the surrounding chrome.
         "texts": set(texts),
+        # ...and the per-row grouping, so it also catches a MISSING one.
+        "rows": rows_of(dialog),
     }
 
 
@@ -175,7 +215,9 @@ def tech_state_bits(generator: Path) -> set[int]:
             f"{generator.name}: the Tech state accumulator is never cleared"
         )
     block = text[starts[-1] : call.end()]
-    return {int(m.group("value")) for m in OR_BIT.finditer(block)}
+    values = {int(m.group("value"), 0) for m in OR_BIT.finditer(block)}
+    # Drop the unavailable markers so only satisfied bits are reported.
+    return values - UNAVAILABLE_MASK_VALUES
 
 
 def audit_badges(verbose: bool = True) -> list[str]:
@@ -269,6 +311,22 @@ def audit(verbose: bool = True) -> list[str]:
                 problems.append(
                     f"{game}/{screen}: shows wording {REFERENCE} does not: {text!r}"
                 )
+            # Every row this game DOES show must carry the same cost text and
+            # button as VV2's row of the same name.  A plain set difference
+            # cannot see a deleted cost line or a deleted Buy button, because
+            # removing one repeated string leaves the set unchanged.
+            expected_rows = {row["label"]: row for row in reference["rows"]}
+            for row in actual["rows"]:
+                expected = expected_rows.get(row["label"])
+                if expected is None:
+                    continue  # already reported above as unknown wording
+                for field in ("cost", "button"):
+                    if row[field] != expected[field]:
+                        problems.append(
+                            f"{game}/{screen}: row {row['label']!r} has "
+                            f"{field}={row[field]!r}, {REFERENCE} has "
+                            f"{expected[field]!r}"
+                        )
     return problems
 
 
