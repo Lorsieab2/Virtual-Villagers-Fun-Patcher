@@ -454,7 +454,9 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         plan = engine.index("Build the exact mask result before counting")
         group_gate = engine.index("!vv3_mask_make_plan_group_coherent", plan)
         shadow_gate = engine.index("!vv3_mask_build_batch_shadow", group_gate)
-        ambiguity = engine.index("g_vv3_caf_mask_ambiguous = 1;", shadow_gate)
+        ambiguity = engine.index(
+            "g_vv3_caf_mask_fail = VV3_CAF_MASK_NO_ROOM;", shadow_gate
+        )
         count = engine.index("Count each eligible record once")
         head_body = engine.index("/* Head/Body: independent per-sex")
         first_record_write = engine.index("*(int *)(r + VV3_HEAD_OFF) = h")
@@ -474,12 +476,43 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         apply_at = entry.index("affected = vv3_apply_for_all")
         zero_guard = entry.index("if (affected == 0)", apply_at)
         ambiguity_message = entry.index(
-            "The selected masks could not be safely matched", zero_guard
+            "g_vv3_caf_mask_fail == VV3_CAF_MASK_AMBIGUOUS", zero_guard
         )
         charge = entry.index("*tech -= VV3_CAF_COST", ambiguity_message)
         self.assertLess(apply_at, zero_guard)
         self.assertLess(zero_guard, ambiguity_message)
         self.assertLess(ambiguity_message, charge)
+
+        # Each refusal must name its own cause.  These four conditions used to
+        # share one "could not be safely matched to unique villagers" message,
+        # so a village that had simply never been saved reported a fingerprint
+        # problem it did not have and the real cause was unactionable.
+        causes = (
+            "VV3_CAF_MASK_NO_SLOT",
+            "VV3_CAF_MASK_BAD_MODE",
+            "VV3_CAF_MASK_AMBIGUOUS",
+            "VV3_CAF_MASK_NO_ROOM",
+        )
+        reported = entry[zero_guard:charge]
+        for cause in causes:
+            with self.subTest(cause=cause):
+                self.assertIn(cause, reported)
+        for opening in (
+            "Masks cannot be changed until this village has been saved",
+            "That mask option was not recognized",
+            "Some villagers cannot be told apart",
+            "There was no room to record the selected masks",
+            "No eligible villagers matched the selected appearance options.",
+        ):
+            with self.subTest(message=opening):
+                self.assertIn(opening, reported)
+        # Every distinct cause is set exactly once in the engine, so no two
+        # failures can collapse back onto a single reason.
+        for cause in causes:
+            with self.subTest(assignment=cause):
+                self.assertEqual(
+                    self.source.count(f"g_vv3_caf_mask_fail = {cause};"), 1
+                )
 
     def test_running_retag_uses_immutable_unique_live_and_stored_preimages(self) -> None:
         """Retagging must not cross two villagers that share the raw hash."""
