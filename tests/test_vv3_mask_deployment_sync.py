@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 import importlib.util
 import json
 import tempfile
@@ -75,14 +76,19 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         self.assertIn("VV3RunningMaskBoundary", exports)
         self.assertEqual(len(exports), 32)
 
-    def test_deployed_companion_carries_the_source_result_messages(self) -> None:
-        """The shipped DLL must contain the strings the C source defines.
+    def test_deployed_companion_carries_every_complete_result_message(self) -> None:
+        """Every COMPLETE refusal message in the C source must be in the DLL.
 
-        Editing a user-facing string in the C source without rebuilding leaves
-        the source-only assertions passing while the game keeps showing the old
-        text.  That happened with the mask-refusal message: the source said
-        "No active save slot is available yet" while the released companion
-        still said "until this village has been saved at least once".
+        Editing a user-facing string without rebuilding leaves the source-only
+        assertions passing while the game keeps showing the old text.  That
+        happened once already: the source said "No active save slot is
+        available yet" while the released companion still said "until this
+        village has been saved at least once".
+
+        This compares whole concatenated messages, not opening substrings, and
+        it discovers them from the source rather than listing them here -- so a
+        reworded tail, a changed deduction suffix, or a newly added branch is
+        caught too, and the guard cannot silently fall behind the code.
         """
         source = (
             ROOT
@@ -90,23 +96,48 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
             / "vv3_full_mastery_candidate"
             / "vv3_full_mastery_candidate.c"
         ).read_text(encoding="utf-8")
+
+        block = source.split("if (affected == 0) {", 1)[1].split(
+            "MessageBoxA(GetForegroundWindow(), why,", 1
+        )[0]
+        # Each branch is `why = "literal" "literal" ...;` across several lines,
+        # so collect every assignment and concatenate its adjacent literals.
+        literal = r'"((?:[^"\\]|\\.)*)"'
+        assignment_pattern = r"why\s*=\s*((?:\s*" + literal + r")+)\s*;"
+        messages = []
+        for match in re.finditer(assignment_pattern, block):
+            parts = re.findall(literal, match.group(1))
+            messages.append("".join(parts))
+
+        # persist-failed, the four VV3_CAF_MASK_* causes, and the default.
+        self.assertEqual(
+            len(messages),
+            6,
+            f"expected 6 refusal messages, found {len(messages)}: {messages}",
+        )
+        self.assertEqual(len(set(messages)), 6, "refusal messages are not distinct")
+
         deployed = DEPLOYED.read_bytes()
-        # Each distinct Change Appearance for All refusal reason.
-        for phrase in (
-            "No active save slot is available yet",
-            "That mask option was not recognized",
-            "Some villagers cannot be told apart",
-            "There was no room to record the selected masks",
-            "No eligible villagers matched the selected appearance options.",
-        ):
-            with self.subTest(message=phrase):
-                self.assertIn(phrase, source, "phrase is missing from the C source")
+        for message in messages:
+            with self.subTest(message=message[:48]):
                 self.assertIn(
-                    phrase.encode("ascii"),
+                    message.encode("ascii"),
                     deployed,
                     "the deployed companion predates this source string; "
                     "rebuild the canonical DLL and re-pin it",
                 )
+
+        # Every distinct cause must actually be reachable in that chain.
+        for cause in (
+            "g_vv3_caf_mask_persist_failed",
+            "VV3_CAF_MASK_NO_SLOT",
+            "VV3_CAF_MASK_BAD_MODE",
+            "VV3_CAF_MASK_AMBIGUOUS",
+            "VV3_CAF_MASK_NO_ROOM",
+        ):
+            with self.subTest(cause=cause):
+                self.assertIn(cause, block)
+
         # And the superseded wording must not still be shipping.
         self.assertNotIn(
             b"until this village has been saved at least once",
