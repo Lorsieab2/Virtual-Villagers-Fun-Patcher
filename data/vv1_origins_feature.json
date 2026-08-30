@@ -97,7 +97,7 @@
     "repurchase": "available again at 500,000 tech points after removal"
   },
   "mask_persistence": {
-    "details_mask_y_nudge_px": 17,
+    "details_mask_y_nudge_px": 10,
     "save_builder_entry": "0x402ED0",
     "save_builder_preimage": "8B4424048B11",
     "resume": "0x402ED6",
