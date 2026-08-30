@@ -418,7 +418,7 @@ static void vv1_mask_sidecar_load(void) {
    reconstruct it from screen constants or age. */
 #define VV_MASK_ATLAS_COLS   7   /* mask_atlas.png: 7 facing cols x 5 colour rows, 40x160 cells, matching the generator and VV1 head atlas */
 #ifndef VV_DETAILS_MASK_Y_NUDGE_PX
-#define VV_DETAILS_MASK_Y_NUDGE_PX 10
+#define VV_DETAILS_MASK_Y_NUDGE_PX 0
 #endif
 /* Details uses a larger native scale than the village view.  One eighth of
    that live scale restores the player-tuned registration while following the
