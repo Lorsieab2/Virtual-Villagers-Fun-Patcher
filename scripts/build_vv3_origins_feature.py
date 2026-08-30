@@ -772,22 +772,27 @@ def main() -> None:
             jmp menu_done
 
         do_time_warp:
-            # Advance a constant three displayed villager years regardless of
-            # the running game speed.  The village applies the injected clock
-            # shift at a rate proportional to the current speed, so a constant
-            # villager-time advance needs an elapsed-clock shift of
-            # 129600 / speed seconds (two real hours per displayed year at
-            # normal speed; 43,200s at half speed 3, 21,600s at normal 6,
-            # 12,960s at double 10).  The former `imul speed, 3600` was
-            # proportional -- correct only at normal speed, under-advancing at
-            # half speed and over-advancing at double speed.  The pause guard
-            # above already refused speed 999 before charging, and VV3 only
-            # ever assigns speed codes 3/6/10, so the idiv cannot divide by
-            # zero or overflow.
-            mov ecx, dword ptr [edi + ebp + 0x12F20]
-            mov eax, 129600
-            cdq
-            idiv ecx
+            # Scale the elapsed-clock shift with the running game speed, the
+            # same way VV1, VV2 and VV4 do (delta = speed * 3600), so all five
+            # games advance Time Warp identically.
+            #
+            # The speed code is normalized to the three values VV3 actually
+            # assigns -- 3 (half), 6 (normal), 10 (double) -- before scaling.
+            # The previous 129600/speed form ran idiv on the RAW field with no
+            # normalization, so any speed outside 3/6/10 produced an arbitrary
+            # advance (reported in play as advancing only ~2 years), and a zero
+            # would have faulted outright.  Normalizing first means an
+            # unexpected value now advances by the normal-speed delta instead,
+            # and removing the idiv removes the divide-by-zero entirely.
+            # The pause guard above already refused speed 999 before charging.
+            mov eax, dword ptr [edi + ebp + 0x12F20]
+            cmp eax, 3
+            je tw_scale
+            cmp eax, 10
+            je tw_scale
+            mov eax, 6
+        tw_scale:
+            imul eax, eax, 3600
             sub dword ptr [0x4A4210], eax
             mov eax, 0x{s['time_warp_done']:X}
             jmp show_status
