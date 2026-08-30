@@ -36,7 +36,9 @@ class VV3PickupTruthTests(unittest.TestCase):
             self.assertNotIn(forbidden, source)
         self.assertNotIn(0x34357, offsets)
         self.assertNotIn(0x344B3, offsets)
-        self.assertIn("WORLD_INDEXFN_PTR", source)
+        self.assertNotIn("WORLD_INDEXFN_PTR", source)
+        self.assertNotIn("WORLD_HANDLER_CALLSITE_VA", source)
+        self.assertIn("WORLD_MASK_CALLSITE_VA = 0x460C7F", source)
 
     def test_native_companion_has_no_false_held_exports_or_state_probe(self) -> None:
         native = NATIVE.read_text(encoding="utf-8")
@@ -51,8 +53,15 @@ class VV3PickupTruthTests(unittest.TestCase):
         self.assertIn("0x434357", native)
         self.assertIn("0x4344B3", native)
         self.assertIn("timed UI/effect renderer", native)
-        self.assertIn("g_vv3_stash_valid  = 1", native)
-        self.assertNotIn("VV3WorldMaskDraw(idx)", native)
+        self.assertNotIn("g_vv3_stash", native)
+        self.assertNotIn("VV3WorldMaskDraw(int index)", native)
+        self.assertIn("0xF12", native)
+        self.assertNotIn(
+            "if (*(unsigned char *)((unsigned char *)record + 0xF12) != 0) return;",
+            native,
+        )
+        self.assertIn("MoveFileExA", native)
+        self.assertIn("EXCEPTION_EXECUTE_HANDLER", native)
 
     def test_docs_record_static_boundary_and_trace_handoff(self) -> None:
         head = HEAD_DOC.read_text(encoding="utf-8")
@@ -63,13 +72,13 @@ class VV3PickupTruthTests(unittest.TestCase):
             self.assertIn("0x434357", text)
             self.assertIn("0x4344B3", text)
             self.assertIn("timed", text.lower())
-        self.assertIn("held owner", head.lower())
+        self.assertIn("held/cursor ownership", head.lower())
         self.assertIn("0x460d10", head.lower())
         self.assertIn("player trace", proof.lower())
-        self.assertIn("held/action ownership", status.lower())
-        self.assertIn("unsupported action states fail closed", status.lower())
+        self.assertIn("held/cursor ownership", status.lower())
+        self.assertIn("stock action call sites", status.lower())
         self.assertIn("sub_4605F0", trace)
-        self.assertIn("0x42E3F5", trace)
+        self.assertIn("0x460C7F", trace)
         self.assertIn("Player acceptance handoff", trace)
 
 

@@ -19,7 +19,7 @@ OUTPUT = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 FOUNDATION_OUTPUT = (
     ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
 )
-SOURCE_SHA256 = "2032B87AC6E316319639A273FCF2438A15D9C869FCEEF071D248CBBCD1F863A7"
+SOURCE_SHA256 = "FC7ADB6DAE7ACA35735EE9B87480F1AEA8A02E436E28E9C446C92A5618494C30"
 SOURCE_SIZE = 1_895_936
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
@@ -31,10 +31,8 @@ def sha(data: bytes) -> str:
 
 REQUIRED_MASK_EXPORTS = frozenset(
     {
-        "VV3ActionMaskDraw",
         "VV3DrawMaskOnHead",
         "VV3GetMaskAtlas",
-        "VV3WorldMaskDraw",
         "VV3WorldMaskDrawAt",
         "VV3_GetMaskForRecord",
         "VV3_SetMaskForRecord",

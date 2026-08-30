@@ -3,10 +3,10 @@
 Branch: the VV3 Origins mask candidate plus the local slot-persistence commit. Feature:
 an optional, per-villager cosmetic Heathen-mask overlay in VV3's
 **Change Appearance** window (options: (None), Blue, Orange, Red, Purple, Tribal
-Chief). Purely cosmetic; per-villager; the current candidate has separate Details,
-village, and action-pose render paths; player runtime acceptance remains open. Held/
-cursor ownership is implemented from the proven stock record fields; player visual
-acceptance remains open.
+Chief). Purely cosmetic; per-villager; the current candidate has separate Details
+and inline stock-head render paths; stock action poses remain untouched and player
+runtime acceptance remains open. Held rendering reuses the authoritative stock head
+tuple; cursor coordinate ownership and final visual follow remain unproven.
 
 ## TL;DR — static candidate status (runtime acceptance open)
 
@@ -18,8 +18,9 @@ art/runtime questions.
 | Piece | State |
 |---|---|
 | Detail render (Blue/Orange/Red/Purple) | ✅ exact hook/cave is built; player render proof pending |
-| Village/action-pose render paths | ✅ exact candidate hooks are built; player pose proof pending |
-| Held/action ownership | ✅ stock `+0xF12` selects the matching head tuple; unsupported action states fail closed; player visual proof pending |
+| Village stock-head path | ✅ exact six-argument head tuple at `0x460C7F -> 0x42E5E0`; player proof pending |
+| Action-pose render paths | ✅ stock call sites untouched; no unproved mask reconstruction; player pose proof pending |
+| Held/cursor ownership | ⚠️ `+0xF12` reaches the authoritative head tuple; cursor ownership and visual proof pending |
 | Storage | ✅ DLL-owned table, immune to the sim (see below) |
 | Chooser (mask cycler in Change Appearance) | ✅ writes the table on OK-after-charge |
 | Persistence (survives quit/reload) | ✅ per-save sidecar selector built; player round-trip pending |
@@ -73,14 +74,15 @@ reads the table, gets the atlas (`VV3GetMaskAtlas` → game allocator `0x46EC93`
 `0x4093A0` — row = mask-1, y lifted by `(scaledY * VV3_MASK_LIFT_MUL) >> 7` with
 `VV3_MASK_LIFT_MUL = 18`. For stock Details `scaledY=200`, this is 25px lower
 than the prior candidate 34; visual placement remains pending player acceptance.
-Village and action-pose paths use the appended `.vv3mc` R-X caves and `.vv3md` R/W
-function-pointer slots. The world handler is `sub_4605F0` (`0x42E3F5` sole direct
-caller), and its stock head call is `0x460A60`. The action overlay is wrapped at
-both `0x460B48` and `0x460D10` through the same `.vv3mc` wrapper. Stock drag
-`+0xF12 != 0` owns the matching head tuple; task-1 swimming on terrain 5 is
-head-owned, while task-11 fishing frames 8/9 are action-owned. Player visual
-acceptance remains required for every pose, facing, age/scale, and Details
-transition.
+The village head cave uses the appended `.vv3mc` R-X page and `.vv3md` callback
+slot. At `0x460C7F`, stock passes `(atlas, x, y, head-row, facing, scale)` to
+`0x42E5E0`; the callback immediately reuses that tuple, changing only atlas and
+row. The old `0x460A60 -> 0x42E570` hook, handler-tail draw, and both action
+wrappers are removed. Stock action call sites at `0x460B48`/`0x460D10` remain the
+owner for sit/lie/swim/fish/work poses. Stock drag `+0xF12 != 0` rejoins the
+authoritative head sequence, so held masks reuse that exact tuple. Cursor-relative
+ownership and player visual acceptance remain required for every pose, facing,
+age/scale, held motion, and Details transition.
 
 **Chooser.** `ShowVV3AppearanceChooser` (dialog 213, still `@20`) takes the record
 pointer and reads/commits via the table. The Change Appearance cave passes the
@@ -100,18 +102,20 @@ All file I/O is in normal functions (never `DllMain`). Static round-trip structu
 is tested; live save-switch and relaunch behavior remain player gates.
 
 **Atlas self-deploy.** `Images/heathen_masks.png` is embedded in the DLL as RCDATA
-5000; `VV3GetMaskAtlas` extracts it to `<game>\Images\` if missing (respects an
-existing file). Ships with only the DLL — `companion_files` stays `[the DLL]`, no
-shared cross-game patcher core touched. Atlas: 8 cols × 5 rows, cell 65×145 in the
-currently embedded asset; the runtime loader still receives the proven 8-column,
-5-row registration.
+5000; `VV3GetMaskAtlas` verifies the installed bytes against the embedded canonical
+resource and atomically replaces stale/non-canonical art before calling the game
+loader. A missing/corrupt file, null allocator result, loader exception, or object
+shape mismatch (`+0x04` non-null, `+0x08=8`, `+0x0C=5`, `+0x10=65`, `+0x14=145`)
+fails closed to no mask. Ships with only the DLL — `companion_files` stays `[the
+DLL]`, no shared cross-game patcher core touched.
 
 **No interference (static status).** The composed-build manifest removes the 4
 head-atlas row-count patches (`0xAAE6C/9C/F2C/F5C`) from the abandoned append-rows
-artifact, adds the separated `.vv3mc`/`.vv3md` mask sections, and adds only the
-exact save-builder slot-capture patch at `0x403290` for sidecar selection.
-Other audited feature hooks remain guarded by the manifest and the VV3 suite is
-green; player regression testing is still required.
+artifact, adds the separated `.vv3mc`/`.vv3md` mask sections, redirects only the
+authoritative head call at `0x460C7F`, and adds the exact save-builder slot-capture
+patch at `0x403290` for sidecar selection. Other audited feature hooks remain
+guarded by the manifest and the VV3 suite is green; player regression testing is
+still required.
 
 ## Remaining
 
@@ -142,13 +146,12 @@ green; player regression testing is still required.
     exact save path would co-locate them.
 ## Village / action-pose candidate path
 
-VV3's village compositor does **not** route through the Detail head-draw thunk — it
-uses a separate texture-index animation system (`0x42E440`, per-villager texture
-table `[edi+0x127C44]`, layer dispatcher `0x45F7E0` reading `record+0xF20`, animObj
-`record+0xDD0`). The current candidate wraps the proven village handler/head and both
-action-overlay call sites (`0x460B48` and `0x460D10`) in the appended `.vv3mc` section and
-resolves its DLL functions through `.vv3md`. Generic task-1 swimming on terrain 5 remains
-head-owned; task-11 fishing frames 8/9 use the post-stock action tuple. The timed calls at
-`0x434357`/`0x4344B3` remain stock. Static/source ownership is complete; runtime must
-still verify every action pose, facing, age/scale, and Details transition, and the player
-makes the final visual acceptance decision.
+VV3's village compositor uses a separate texture-index animation system (`0x42E440`,
+per-villager texture table `[edi+0x127C44]`, layer dispatcher `0x45F7E0` reading
+`record+0xF20`, animObj `record+0xDD0`). The candidate hooks only the authoritative
+stock appearance head call at `0x460C7F -> 0x42E5E0`, replaying its six arguments
+inline. The handler and both action-overlay call sites (`0x460B48` and `0x460D10`)
+remain stock; no action mask seating or cursor-held leaf is claimed. The timed calls
+at `0x434357`/`0x4344B3` remain stock. Runtime must still verify ordinary world
+placement and all player-visible states, and the player makes the final visual
+acceptance decision.

@@ -12,11 +12,17 @@ class VV3HeldFlagWidthTests(unittest.TestCase):
     def test_native_held_owner_reads_only_the_byte_at_f12(self) -> None:
         source = NATIVE.read_text(encoding="utf-8")
 
-        self.assertIn(
-            "held = *(unsigned char *)((unsigned char *)record + 0xF12) != 0;",
+        # The stock held branch rejoins the authoritative head tuple, so the
+        # inline callback must not suppress it or widen the byte into a dword.
+        self.assertIn("held (`+0xF12`) branch rejoins", source)
+        self.assertNotIn(
+            "if (*(unsigned char *)((unsigned char *)record + 0xF12) != 0) return;",
             source,
         )
-        self.assertNotIn("held = *(int *)((unsigned char *)record + 0xF12)", source)
+        self.assertNotIn(
+            "*(int *)((unsigned char *)record + 0xF12)",
+            source,
+        )
 
     def test_exact_stock_set_and_clear_instructions_are_byte_stores(self) -> None:
         stock = STOCK.read_bytes()

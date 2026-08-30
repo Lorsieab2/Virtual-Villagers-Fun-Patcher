@@ -38,7 +38,7 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         self.assertEqual(deployed, canonical)
         self.assertEqual(
             hashlib.sha256(deployed).hexdigest().upper(),
-            "2032B87AC6E316319639A273FCF2438A15D9C869FCEEF071D248CBBCD1F863A7",
+            "FC7ADB6DAE7ACA35735EE9B87480F1AEA8A02E436E28E9C446C92A5618494C30",
         )
         self.assertEqual(len(deployed), 1_895_936)
 
@@ -56,7 +56,7 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         self.assertTrue(self.builder.REQUIRED_MASK_EXPORTS <= exports)
         self.assertTrue(self.builder.REQUIRED_RUNNING_EXPORTS <= exports)
         self.assertIn("VV3RunningMaskBoundary", exports)
-        self.assertEqual(len(exports), 36)
+        self.assertEqual(len(exports), 32)
 
     def test_synchronize_repairs_a_stale_deployed_copy(self) -> None:
         with tempfile.TemporaryDirectory() as folder:

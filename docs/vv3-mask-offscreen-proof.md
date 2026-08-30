@@ -45,62 +45,41 @@ free at 1.0 — so the rule is satisfied regardless.
 
 ## 3. The actual cause of the detached ("floating in sand") masks
 
-Found with a per-draw diagnostic (`g_vv3_actdbg`, published at `.vv3md+0x38`).
+This section records the exact-stock static boundary; it is not runtime or player acceptance.
 
-The action-overlay wrapper at both `0x460B48` and `0x460D10` runs for every
-matching stock branch. `sub_45F7E0` no-ops when the villager has no action
-frame, and the post-stock DLL export now only stashes the tuple; it never draws
-there. The final world wrapper therefore emits the one mask after ownership
-selection.
+The old candidate detoured `0x460A60 -> 0x42E570`. That is a generic fixed-resource
+draw and, on the held path, uses a half-scale ground tuple. It does not consume the
+record's authoritative appearance fields, so it can leave a tiny mask at the feet or
+selection ring. The first stock appearance boundary is instead `0x460C7F -> 0x42E5E0`.
 
-The final owner gates real action frames to `0..50`; `-1` is the stock no-action
-state and falls through to the matching head stash. Unsupported action values
-fail closed without a head fallback. Held `record+0xF12 != 0` always selects
-the matching head stash and suppresses action.
+The repaired cave replays the six untouched stock arguments inline, then calls the
+same draw with only atlas and head-row replaced. It does not stash a tuple, defer a
+draw through the handler tail, or reconstruct an action pose. The stock action calls
+at `0x460B48` and `0x460D10` remain byte-identical and naturally render after the
+inline head layer. The stock held branch (`record+0xF12 != 0`) rejoins this same
+body/head sequence, so the mask reuses its exact tuple while held. Cursor coordinate
+ownership and final visual follow remain player-trace gates.
 
-## 4. Arithmetic proof that the registration is correct
+## 4. What is and is not proven
 
-Same logged frame, camera = 1.0:
-
-```
-pose cell top-left  screen = (-850+1100, -500+971) = (250, 471)
-mask cell top-left  screen = (-850+1076, -500+939) = (226, 439)
-head centre within pose cell (measured from art) = (20, 24) -> (270, 495)
-mask face within mask cell                       = (44, 56) -> (270, 495)
-```
-
-The head centre and the mask face **coincide exactly**. The draw formula
-
-```
-x = px + posehead_px[anim] - maskface_cx[facing]
-y = py + posehead_py[anim] - maskface_cy[colour]
-```
-
-lands the mask's face on the pose head's face by construction.
-
-`posehead_px/py[51]` were measured from the action art itself (median skin-blob
-centre of the top third of each 40×65 pose cell, across all 10 outfit rows of
-`female_actions00/01/02.png`), because VV3 has **no engine pose-anchor table**:
-VV2's byte-trace of `0x460AEF..0x460B41` shows the overlay offset is one global
-float × fixed constants, identical for every pose, with no `[record+0xF20]`
-read and no table indexing. The per-pose head position exists only in the art.
+The inline tuple reuse is an ABI/path proof: stock supplies atlas, x, y, head-row,
+facing, and scale to `0x42E5E0`, and the callback changes only atlas and row. It is
+not a player-visible placement proof. Action seating, swimming/fishing alignment,
+the held/cursor leaf, release timing, and Details placement still require a live
+player trace and acceptance. No art-measured action offset is installed.
 
 ## 5. Deployed-bytes verification
 
-```
-0x460B48  E8 73 E5 27 00                 ; call 0x6DF0C0
-0x460D10  E8 AB E3 27 00                 ; call 0x6DF0C0
-0x6DF0C0  one ABI-identical wrapper: stock sub_45F7E0, then stash-only export
-           ret 0xC; wrapper occupies [0x6DF0C0,0x6DF0EB), next cave 0x6DF100
-```
-
-Matches intended asm; null pointer degrades to stock behaviour.
+The checked-in manifest redirects only the authoritative head call at `0x60C7F`
+(VA `0x460C7F`) into the owned `.vv3mc` code section. The action call sites remain
+stock; no handler-tail, action, timed-effect, or old `0x460A60` mask hook is emitted.
+Missing DLL/exports or a failed atlas load degrades to the stock head with no mask.
 
 ## 6. Remaining player gates (not claimed accepted)
 
-- **Pickup/held rendering:** stock `+0xF12` ownership, action precedence, and
-  release clearing are implemented from the proven record path. The player
-  must still accept held motion and on-screen placement.
+- **Pickup/held rendering:** the stock `+0xF12` branch reaches the authoritative
+  head tuple, so the mask is emitted from that same tuple. Cursor-relative ownership
+  and on-screen follow remain unproved; the player must provide the trace.
 - **Details portrait:** multiplier `18` is the current candidate; visual
   placement remains pending player acceptance.
 
@@ -143,13 +122,13 @@ no selection or pickup information. **Never gate a mask path on it.**
 
 ### Proven normal villager path
 
-`0x42E3F5` is the sole direct caller of `sub_4605F0`; its handler receives a villager index,
-derives the record with stride `0x1F8C`, reads the head atlas holder at `record-context+0x127C1C`,
-and calls `0x42E570` at `0x460A60`. That is the proven world/action render family. The mask
-hooks replay the exact head tuple, stash post-stock action tuples at both action call sites,
-and select one owner in the final wrapper. Generic task-1 swimming on terrain 5 remains
-head-owned; fishing task-11 frames 8/9 use the action tuple. F20=42 is only the stock water
-renderer exception, not a claim that generic swimming assigns action 42.
+`0x42E3F5` is the sole direct caller of `sub_4605F0`; its handler derives the record with
+stride `0x1F8C`. The authoritative appearance sequence loads `record+0xDF0` and
+`record+0xF18`, then calls `0x42E5E0` at `0x460C7F` with the six-argument tuple. The
+mask callback reuses that tuple synchronously. Generic task-1 swimming on terrain 5
+remains head-owned; fishing task-11 frames 8/9 remain stock action-owned. `F20=42` is
+only the stock water-renderer exception, not a claim that generic swimming assigns action
+42.
 
 ### Player trace handoff (minimal values)
 
