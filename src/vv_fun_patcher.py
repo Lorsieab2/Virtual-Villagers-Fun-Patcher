@@ -7720,6 +7720,7 @@ def dry_run(
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
         playtest_output_root=playtest_output_root,
     )
+    _apply_name_crash_immunity(patched, build.input_name, applied)
     return _result(
         build,
         source,
@@ -7749,6 +7750,7 @@ def dry_run_all(
         ]
         fun_patches = _selected_fun_patches(build, selected_ids)
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
+        _apply_name_crash_immunity(patched, build.input_name, applied)
         results.append(
             _result(
                 build,
@@ -8992,25 +8994,79 @@ def _nci_find_cave(data: bytes, info: dict[str, Any], need: int) -> int | None:
     return None
 
 
-def _nci_wrapper(iat_va: int, name_va: int) -> bytes:
-    # stdcall GetModuleFileNameA(hModule,lpFilename,nSize) wrapper that rewrites
-    # the basename after the last '\\' to the fixed name and returns new length.
-    # Byte template verified identical to the keystone assembly of the source.
-    return (
-        b"\xff\x74\x24\x0c" * 3                       # push [esp+0xc] x3 (fwd args)
-        + b"\xff\x15" + iat_va.to_bytes(4, "little")   # call [GetModuleFileNameA]
-        + b"\x56\x57\x8b\x7c\x24\x10\x89\xfa"          # push esi/edi; edi=lpFile; edx=edi
-        + b"\x8a\x0f\x84\xc9\x74\x0b"                   # scan: cl=[edi]; test; je done
-        + b"\x80\xf9\x5c\x75\x03\x8d\x57\x01"          # cmp cl,'\\'; jne +; edx=edi+1
-        + b"\x47\xeb\xef"                               # inc edi; jmp scan
-        + b"\xbe" + name_va.to_bytes(4, "little")       # done: esi=fixed name
-        + b"\x8a\x0e\x88\x0a\x46\x42\x84\xc9\x75\xf6"  # cpy: [edx]=[esi]; ++; loop
-        + b"\x89\xd0\x2b\x44\x24\x10\x48\x5f\x5e\xc2\x0c\x00"  # eax=len; pop; ret 0xc
-    )
+def _nci_wrapper(iat_va: int, name_va: int, name_len: int) -> bytes:
+    """Emit a bounded stdcall GetModuleFileNameA basename wrapper.
+
+    The old template scanned until an unterminated buffer and copied the fixed
+    basename without consulting ``nSize``.  This emitter keeps the original
+    return value for every failure/truncation case, bounds the scan by nSize,
+    and requires the complete replacement (including NUL) to fit before any
+    write occurs.
+    """
+    code = bytearray()
+    labels: dict[str, int] = {}
+    fixups: list[tuple[int, str]] = []
+
+    def emit(raw: bytes) -> None:
+        code.extend(raw)
+
+    def mark(label: str) -> None:
+        labels[label] = len(code)
+
+    def jump(opcode: int, label: str) -> None:
+        code.append(opcode)
+        fixups.append((len(code), label))
+        code.append(0)
+
+    # Forward the three original arguments, then save the API return value and
+    # callee-saved registers.  With this layout: saved eax=[esp+10], lp=[esp+18],
+    # nSize=[esp+1c].
+    emit(b"\xff\x74\x24\x0c" * 3)
+    emit(b"\xff\x15" + iat_va.to_bytes(4, "little"))
+    emit(b"\x50\x56\x57\x55")
+    emit(b"\x8b\x7c\x24\x18\x8b\x4c\x24\x1c")  # edi=lp, ecx=nSize
+    emit(b"\x85\xc9")
+    jump(0x74, "fail")  # nSize == 0
+    emit(b"\x89\xfd\x01\xcd\x89\xfa")  # ebp=end, edx=basename start
+    mark("scan")
+    emit(b"\x39\xef")
+    jump(0x73, "fail")  # edi >= end
+    emit(b"\x8a\x07\x84\xc0")
+    jump(0x74, "found")  # NUL found
+    emit(b"\x3c\x5c")
+    jump(0x75, "noslash")
+    emit(b"\x8d\x57\x01")  # edx = byte after most recent slash
+    mark("noslash")
+    emit(b"\x47")
+    jump(0xEB, "scan")
+    mark("found")
+    emit(b"\x89\xd0\x05" + name_len.to_bytes(4, "little"))  # end of replacement
+    emit(b"\x39\xe8")
+    jump(0x77, "fail")  # replacement end > buffer end
+    emit(b"\xbe" + name_va.to_bytes(4, "little"))
+    emit(b"\xb9" + name_len.to_bytes(4, "little"))
+    mark("copy")
+    emit(b"\x8a\x06\x88\x02\x46\x42\x49")
+    jump(0x75, "copy")
+    emit(b"\x89\xd0\x2b\x44\x24\x18\x48")  # new length excluding NUL
+    jump(0xEB, "done")
+    mark("fail")
+    emit(b"\x8b\x44\x24\x10")  # original API return value
+    mark("done")
+    emit(b"\x5d\x5f\x5e\x83\xc4\x04\xc2\x0c\x00")
+    for pos, label in fixups:
+        if label not in labels:
+            raise ValueError(f"unresolved wrapper label: {label}")
+        delta = labels[label] - (pos + 1)
+        if not -128 <= delta <= 127:
+            raise ValueError(f"wrapper jump out of range: {label}")
+        code[pos] = delta & 0xFF
+    return bytes(code)
 
 
 def _apply_name_crash_immunity(
-    data: bytearray, expected_basename: str
+    data: bytearray, expected_basename: str,
+    applied: list[dict[str, str]] | None = None,
 ) -> dict[str, Any] | None:
     """Make ``data`` boot correctly under any filename by wrapping
     GetModuleFileNameA to report ``expected_basename``.  In place; recomputes the
@@ -9039,10 +9095,13 @@ def _apply_name_crash_immunity(
     code_off = _nci_rva_to_off(info, code_va - base)
     if name_off is None or code_off is None:
         return {"status": "skipped", "reason": "cave not mappable"}
-    stub = _nci_wrapper(iat_va, name_va)
+    stub = _nci_wrapper(iat_va, name_va, len(name_bytes))
     total = (code_va - name_va) + len(stub)
     if bytes(data[name_off : name_off + total]) != b"\0" * total:
         return {"status": "skipped", "reason": "cave not free"}
+    writes: list[dict[str, str]] = []
+    writes.append({"offset": hex(name_off), "before": bytes(data[name_off : name_off + len(name_bytes)]).hex().upper(), "after": name_bytes.hex().upper()})
+    writes.append({"offset": hex(code_off), "before": bytes(data[code_off : code_off + len(stub)]).hex().upper(), "after": stub.hex().upper()})
     data[name_off : name_off + len(name_bytes)] = name_bytes
     data[code_off : code_off + len(stub)] = stub
     for site in sites:
@@ -9050,10 +9109,21 @@ def _apply_name_crash_immunity(
         if so is None or bytes(data[so : so + 2]) != b"\xff\x15":
             continue
         rel = code_va - (site + 5)
-        data[so : so + 6] = b"\xe8" + struct.pack("<i", rel) + b"\x90"
+        replacement = b"\xe8" + struct.pack("<i", rel) + b"\x90"
+        writes.append({"offset": hex(so), "before": bytes(data[so : so + 6]).hex().upper(), "after": replacement.hex().upper()})
+        data[so : so + 6] = replacement
     checksum_offset, _ = _pe_checksum_layout(data)
     struct.pack_into("<I", data, checksum_offset, 0)
     struct.pack_into("<I", data, checksum_offset, pe_checksum(data))
+    if applied is not None:
+        applied.extend(
+            {
+                **write,
+                "purpose": "wrong-exe-name crash immunity",
+                "owner": "automatic:name_crash_immunity",
+            }
+            for write in writes
+        )
     return {
         "status": "applied",
         "expected_basename": expected_basename,
@@ -9061,6 +9131,7 @@ def _apply_name_crash_immunity(
         "call_sites": sites,
         "wrapper_va": code_va,
         "name_va": name_va,
+        "writes": writes,
     }
 
 
@@ -9136,7 +9207,7 @@ def apply_patch(
     # crashes the game (basename-gated init/save folder).  Immunise the output
     # so it boots under any filename.  Post-render, in place, checksum-safe; the
     # source-vs-output transparency diff records the exact bytes it changed.
-    _apply_name_crash_immunity(patched, build.input_name)
+    _apply_name_crash_immunity(patched, build.input_name, applied)
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
