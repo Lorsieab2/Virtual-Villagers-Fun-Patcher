@@ -2621,23 +2621,28 @@ def main() -> None:
     )
     # Capture the exact numbered save-slot argument before the native builder
     # formats "%s%d.ldw".  The hook is intentionally a tiny ABI-preserving
-    # trampoline: it saves every register while it updates patch-owned state,
-    # then replays the displaced `mov eax,[esp+4]; mov edx,[ecx]` and resumes at
-    # 0x402ED6.  Invalid/slot-zero values store zero and clear all mask state;
-    # the DLL consequently has no sidecar to open for them.
+    # trampoline: it saves every register and the flags while it updates
+    # patch-owned state, then replays the displaced
+    # `mov eax,[esp+4]; mov edx,[ecx]` and resumes at 0x402ED6.
+    #
+    # ONLY numbered village slots 1..5 are published.  The same stock builder
+    # also formats the META file with slot 0, and this used to normalize that to
+    # zero and then store it -- which overwrote the live village slot AND ran
+    # the reset below, wiping the whole in-memory mask table.  A meta write
+    # therefore made every mask vanish from a running game.  Slot 0 and any
+    # out-of-range value now leave the capture and the tables untouched.
+    #
+    # The reset still runs for a genuine village-slot change (1..5 -> a
+    # different 1..5), so masks cannot leak between saves.
     save_slot_capture_code = assemble(
         f"""
+            pushfd
             pushad
-            mov eax, dword ptr [esp + 0x24]       # original arg1: slot
+            mov eax, dword ptr [esp + 0x28]       # original arg1: slot
             cmp eax, {MASK_SAVE_SLOT_LAST}
-            jbe save_slot_range_high_ok
-            xor eax, eax                           # invalid -> fail closed
-            jmp save_slot_compare
-        save_slot_range_high_ok:
+            ja save_slot_done                      # >5 -> keep the live capture
             cmp eax, {MASK_SAVE_SLOT_FIRST}
-            jae save_slot_compare
-            xor eax, eax                           # slot zero -> fail closed
-        save_slot_compare:
+            jb save_slot_done                      # 0 (meta file) -> keep it too
             cmp eax, dword ptr [{MASK_SAVE_SLOT_VA:#x}]
             je save_slot_done
             mov dword ptr [{MASK_SAVE_SLOT_VA:#x}], eax
@@ -2659,6 +2664,7 @@ def main() -> None:
             rep stosd
         save_slot_done:
             popad
+            popfd
             mov eax, dword ptr [esp + 4]
             mov edx, dword ptr [ecx]
             jmp {SAVE_SLOT_CAPTURE_RESUME_VA:#x}
@@ -2669,7 +2675,7 @@ def main() -> None:
         SAVE_SLOT_CAPTURE_FILE_OFFSET,
         b"\0" * len(save_slot_capture_code),
         save_slot_capture_code,
-        "capture the exact VV1 save-slot argument at 0x402ED0 into .vv1md, reset the restore/frame/table state on a slot change, and fail closed for slot zero or invalid values",
+        "capture the exact VV1 numbered village save-slot argument at 0x402ED0 into .vv1md and reset the restore/frame/table state on a real slot change; slot zero (the meta file) and out-of-range values leave the live capture and mask tables untouched",
     )
     if SAVE_SLOT_CAPTURE_FILE_OFFSET + len(save_slot_capture_code) > MASK_TICK_NAME_FILE_OFFSET:
         raise RuntimeError("VV1 save-slot capture overlaps the mask tick export name")

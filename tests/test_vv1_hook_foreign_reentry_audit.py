@@ -111,11 +111,16 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       ecx,esi` and jumping 0x409142. Both calls preserve every GP register
 #       and ESP. The resume stores EAX through ESI, and its first mov does not
 #       consume flags.
-#   0x2ED0                          confirmed.  `pushad` brackets all scratch
-#       writes, `popad` restores every GP register and ESP, then the cave
-#       replays `mov eax,[esp+4]; mov edx,[ecx]` and jumps 0x402ED6.  The
-#       resume starts with `sub esp,0x100`, redefining flags; no flag contract
-#       crosses the detour.
+#   0x2ED0                          re-confirmed after the save-slot fix.
+#       `pushfd`+`pushad` now bracket all scratch writes and `popad`+`popfd`
+#       restore every GP register, ESP, AND the flags, so the contract is
+#       strictly stronger than the previous pushad-only form (the resume still
+#       starts with `sub esp,0x100`, which redefines flags anyway).  The
+#       argument is read at [esp+0x28] to account for the pushed flags, and the
+#       cave still replays `mov eax,[esp+4]; mov edx,[ecx]` and jumps 0x402ED6.
+#       Only numbered village slots 1..5 are published: slot 0 (the meta file)
+#       and out-of-range values now branch straight to the popad/popfd tail
+#       without touching the capture or the mask tables.
 #   0x35AB0/0x4A700                  confirmed.  The 0x35AB0 fall-through
 #       repeats the displaced `cmp [esp+4],8` immediately before 0x435AB5;
 #       the 0x4A700 fall-through repeats `mov eax,[esp+4]; push ebx`
@@ -159,7 +164,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x9410"): "12B2B1E9D3FB03A3613D36E8C38AE1AAD724B7AB9ED92D188E7573F204E9BDCD",
     ("vv1_enable_origins_exclusive_features", "0x93E0"): "737AA82521DC44FB571462B9B8C3BB432316C88DE977634C2D6C388ED44A1586",
     ("vv1_enable_origins_exclusive_features", "0x93C0"): "28E4B105A8C0D9E9ED8F0AA2973CB2B9919F342E9D87697A9DB9EB742324FBE9",
-    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "8091338A543C285EF1CBE52A81044E6587DDF392D8120D3FF422E53C156C0F71",
+    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "05441D52DA5CA09EE2A426FE393B21D074C929A990A190E5E0CF1CFBD73FA8ED",
     ("vv1_enable_origins_exclusive_features", "0x3C393"): "323F30C734F89D8ABAF15C4C864AC78A0320AE634B5D4D99EA826801C35F8044",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
     # reproduce the villager index load, stash it to .data, and re-enter stock

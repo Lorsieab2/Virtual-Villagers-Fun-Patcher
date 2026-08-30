@@ -289,6 +289,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 continue
             repaired_offsets = {
                 "data/vv1_origins_feature.json": {
+                    # VV1 save-slot capture repair: the trampoline used to
+                    # normalize the META file's slot 0 to zero and STORE it,
+                    # overwriting the live village slot and running the table
+                    # reset -- wiping a running game's masks after any meta
+                    # write.  It now publishes only slots 1..5 and preserves the
+                    # flags its range check clobbers.  Both rows are asserted
+                    # directly in test_vv1_mask_slot_persistence.py and
+                    # certified by scripts/audit_save_path_integrity.py.
+                    "0x2ED0", "0x8E820",
                     "0x270", "0x28C", "0x28470", "0x56900",
                     "0x85D30", "0x8B009", "0x8B530", "0x8B710",
                     "0x35ACA", "0x8B900",
