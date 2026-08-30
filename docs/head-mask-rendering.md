@@ -246,6 +246,14 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   runtime/evidence blocked; no guessed birth detour or invented record offset is
   installed. A player trace or reviewed exact-build birth boundary is required
   before adding that final guard.
+- **First-frame receiver preservation:** the sweep enters through `0x445B50`
+  with the compositor receiver in `ECX`, then may call the companion's
+  `Vv2MaskRestore`. That stdcall may clobber volatile `ECX`. The shipped sweep
+  incorrectly reused the live register and the 2026-08-29 Windows crash record
+  landed on its first `record+0x30` read at generated RVA `0xB437C`. The sweep
+  now reloads the entry receiver saved by `pushad` at `[esp+0x18]` before the
+  scan. Generated-byte tests pin that reload before the first record read;
+  player confirmation that startup now completes remains pending.
 
 ### VV3 — "The Secret City" (NO native mask → from-scratch)
 Confirmed in the exact stock executable (`Virtual Villagers - The Secret City.exe`, SHA-256

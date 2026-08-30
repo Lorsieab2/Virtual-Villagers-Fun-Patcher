@@ -89,6 +89,21 @@ def test_dead_slot_clears_are_persisted_once_after_the_sweep() -> None:
     assert reset < loop < clear < mark < save_check < save_call
 
 
+def test_first_frame_sweep_reloads_the_saved_compositor_receiver() -> None:
+    """The sidecar restore is allowed to clobber volatile ECX.
+
+    The sweep must therefore recover the entry receiver saved by ``pushad``
+    before its first record dereference.  This is the exact contract for the
+    observed VV2 startup AV at generated RVA 0xB437C.
+    """
+    sweep = STAGE2[STAGE2.index("sweep_asm = f\"\"\""):]
+    restore = sweep.index("call eax                             /* Vv2MaskRestore()")
+    reload_receiver = sweep.index("mov  edx, [esp+0x18]", restore)
+    first_record_read = sweep.index("cmp  byte ptr [edx+0x30], 0", reload_receiver)
+    assert restore < reload_receiver < first_record_read
+    assert "mov  edx, ecx                        /* edx = record[0] base" not in sweep
+
+
 def test_dll_exports_the_sidecar_save_used_by_the_sweep() -> None:
     assert "Vv2MaskSaveSidecar=_Vv2MaskSaveSidecar@0" in (
         ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.def"
@@ -347,6 +362,11 @@ def test_manifest_publishes_all_mask_hooks_and_exact_append_pages() -> None:
         assert len(mode_append) == layout["append_length"] == 0x2000
         assert hashlib.sha256(mode_append).hexdigest().upper() == layout["page_sha256"]
         assert layout["page_sha256"] == tx["page_sha256"]
+        # pushad saves entry ECX at [esp+0x18].  The generated lifecycle sweep
+        # must reload it after Vv2MaskRestore and before reading record+0x30;
+        # using live ECX here caused the observed startup AV at RVA 0xB437C.
+        assert bytes.fromhex("8B54241831F6807A3000") in mode_append
+        assert bytes.fromhex("89CA31F6807A3000") not in mode_append
         for header in layout["header_patches"]:
             before = bytes.fromhex(header["before"])
             after = bytes.fromhex(header["after"])
