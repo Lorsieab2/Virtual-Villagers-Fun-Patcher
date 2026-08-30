@@ -75,6 +75,45 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         self.assertIn("VV3RunningMaskBoundary", exports)
         self.assertEqual(len(exports), 32)
 
+    def test_deployed_companion_carries_the_source_result_messages(self) -> None:
+        """The shipped DLL must contain the strings the C source defines.
+
+        Editing a user-facing string in the C source without rebuilding leaves
+        the source-only assertions passing while the game keeps showing the old
+        text.  That happened with the mask-refusal message: the source said
+        "No active save slot is available yet" while the released companion
+        still said "until this village has been saved at least once".
+        """
+        source = (
+            ROOT
+            / "native"
+            / "vv3_full_mastery_candidate"
+            / "vv3_full_mastery_candidate.c"
+        ).read_text(encoding="utf-8")
+        deployed = DEPLOYED.read_bytes()
+        # Each distinct Change Appearance for All refusal reason.
+        for phrase in (
+            "No active save slot is available yet",
+            "That mask option was not recognized",
+            "Some villagers cannot be told apart",
+            "There was no room to record the selected masks",
+            "No eligible villagers matched the selected appearance options.",
+        ):
+            with self.subTest(message=phrase):
+                self.assertIn(phrase, source, "phrase is missing from the C source")
+                self.assertIn(
+                    phrase.encode("ascii"),
+                    deployed,
+                    "the deployed companion predates this source string; "
+                    "rebuild the canonical DLL and re-pin it",
+                )
+        # And the superseded wording must not still be shipping.
+        self.assertNotIn(
+            b"until this village has been saved at least once",
+            deployed,
+            "the deployed companion still carries the replaced message",
+        )
+
     def test_synchronize_repairs_a_stale_deployed_copy(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             target = Path(folder) / DEPLOYED.name
