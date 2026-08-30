@@ -129,7 +129,7 @@ PORTRAIT_DY_MUL = 54   # same geometric lift as the village (42px at full scale)
 # path ONLY (caller < 0x445B50).  Tune to taste.
 import os as _os
 PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "4"))    # Details mask: move right to center on the face
-PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "10"))   # Details mask: move down to center on the face
+PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "20"))   # Details mask: move down to center on the face
 # The atlas builder places each frame so its FACE region sits at the head's face
 # anchor in HEAD-CELL coords, offset down by LIFT. Drawing that
 # cell at (x, y - LIFT*scale) therefore lands the mask's face on the head's face at
