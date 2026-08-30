@@ -103,16 +103,27 @@ class SavePathIntegrityTests(unittest.TestCase):
             "the shipped VV1 capture should be accepted",
         )
 
+        displaced = self.audit.OBSERVED_BUILDERS["vv1"][1]
+        self.assertIsNone(
+            self.audit.cave_replays_and_resumes(
+                bytes(rendered), entry, entry_va, displaced
+            ),
+            "the shipped VV1 cave should replay and resume correctly",
+        )
+
         assembler = Ks(KS_ARCH_X86, KS_MODE_32)
+        replay = "popad\n mov eax, dword ptr [esp + 4]\n mov edx, dword ptr [ecx]"
         rejected = {
-            "unguarded store": """
+            # Every one of these was a real shape, or a real hole in an earlier
+            # version of this audit.
+            "unguarded store": f"""
                 pushad
                 mov eax, dword ptr [esp + 0x24]
                 mov dword ptr [0x4911f4], eax
-                popad
+                {replay}
                 jmp 0x402ed6
             """,
-            "normalize invalid to zero, then store": """
+            "normalize invalid to zero, then store (old VV1)": f"""
                 pushad
                 mov eax, dword ptr [esp + 0x24]
                 cmp eax, 5
@@ -124,12 +135,48 @@ class SavePathIntegrityTests(unittest.TestCase):
                 jae publish
                 xor eax, eax
             publish:
-                cmp eax, dword ptr [0x4911f4]
-                je done
                 mov dword ptr [0x4911f4], eax
-            done:
+                {replay}
+                jmp 0x402ed6
+            """,
+            "store a literal 0 on the invalid path (old VV4)": f"""
+                pushad
+                mov eax, dword ptr [esp + 0x24]
+                cmp eax, 1
+                jb invalid
+                cmp eax, 5
+                ja invalid
+                mov dword ptr [0x4911f4], eax
+                jmp finish
+            invalid:
+                mov dword ptr [0x4911f4], 0
+            finish:
+                {replay}
+                jmp 0x402ed6
+            """,
+            "cave never replays the displaced prologue": """
+                pushad
+                mov eax, dword ptr [esp + 0x24]
+                cmp eax, 1
+                jb finish
+                cmp eax, 5
+                ja finish
+                mov dword ptr [0x4911f4], eax
+            finish:
                 popad
                 jmp 0x402ed6
+            """,
+            "cave resumes at the wrong stock instruction": f"""
+                pushad
+                mov eax, dword ptr [esp + 0x24]
+                cmp eax, 1
+                jb finish
+                cmp eax, 5
+                ja finish
+                mov dword ptr [0x4911f4], eax
+            finish:
+                {replay}
+                jmp 0x402f00
             """,
         }
         for label, source in rejected.items():
@@ -137,13 +184,15 @@ class SavePathIntegrityTests(unittest.TestCase):
                 mutated = bytearray(rendered)
                 code = bytes(assembler.asm(source, cave_va)[0])
                 mutated[cave_offset : cave_offset + len(code)] = code
-                mutated[cave_offset + len(code) : cave_offset + 0x80] = b"\x90" * (
-                    0x80 - len(code)
+                mutated[cave_offset + len(code) : cave_offset + 0x100] = b"\x90" * (
+                    0x100 - len(code)
                 )
-                self.assertIsNotNone(
-                    self.audit.capture_is_guarded(bytes(mutated), entry, entry_va),
-                    f"the guard must reject: {label}",
+                problem = self.audit.capture_is_guarded(
+                    bytes(mutated), entry, entry_va
+                ) or self.audit.cave_replays_and_resumes(
+                    bytes(mutated), entry, entry_va, displaced
                 )
+                self.assertIsNotNone(problem, f"the audit must reject: {label}")
 
 
 if __name__ == "__main__":

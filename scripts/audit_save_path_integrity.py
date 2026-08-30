@@ -140,20 +140,51 @@ def _offset_to_va(data: bytes, offset: int) -> int:
     raise RuntimeError(f"offset 0x{offset:X} is outside every section")
 
 
+def _walk_cave(rendered: bytes, target_va: int, offset: int):
+    """Disassemble one trampoline cave and stop at its real end.
+
+    A fixed byte window overruns the cave and reads whatever follows as if it
+    were part of it, which produced a phantom second exit target.  Instead this
+    follows the standard end-of-block rule: keep going while a forward branch
+    inside the cave still points past the current instruction, and stop at the
+    first unconditional exit once nothing is pending.
+    """
+    from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+
+    md = Cs(CS_ARCH_X86, CS_MODE_32)
+    body = rendered[offset : offset + 0x200]
+    instructions = []
+    furthest_pending = target_va
+    for instruction in md.disasm(body, target_va):
+        instructions.append(instruction)
+        mnemonic = instruction.mnemonic
+        if mnemonic.startswith("j"):
+            try:
+                destination = int(instruction.op_str, 16)
+            except ValueError:
+                destination = None
+            if destination is not None and target_va <= destination < target_va + len(body):
+                furthest_pending = max(furthest_pending, destination)
+        if mnemonic in ("jmp", "ret") and instruction.address >= furthest_pending:
+            break
+    return instructions
+
+
 def capture_is_guarded(rendered: bytes, entry: int, entry_va: int) -> str | None:
-    """Return a problem string if a capture publishes its argument unguarded.
+    """Return a problem string if a capture can publish a meta/invalid slot.
 
     The same stock builder formats BOTH the meta file (slot 0) and the numbered
-    village saves, so a trampoline that stores its argument unconditionally
-    overwrites the live village slot on every meta write.  In VV1 that also ran
-    a table reset, wiping the in-memory masks of a running game.
+    village saves, so a trampoline that writes the slot variable on the invalid
+    path overwrites the live village slot on every meta write.  VV1 did that and
+    also ran a table reset, wiping a running game's masks; VV4 did it by storing
+    a literal 0.
 
-    A capture must therefore branch on the argument before publishing it.  This
-    follows the entry jump into the cave and requires at least one conditional
-    branch ahead of the first store to a fixed address.
+    Only stores to the SLOT variable matter -- the address the valid path
+    publishes the argument to.  Other fixed-address writes in these caves are
+    the deliberate reset of patch-owned scratch on a real slot change.
     """
     try:
-        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        import capstone  # noqa: F401
     except ImportError:  # pragma: no cover - environment dependent
         return None
     if rendered[entry] != 0xE9:
@@ -164,45 +195,120 @@ def capture_is_guarded(rendered: bytes, entry: int, entry_va: int) -> str | None
     if offset is None:
         return f"capture cave VA 0x{target_va:X} is outside every section"
 
-    md = Cs(CS_ARCH_X86, CS_MODE_32)
+    instructions = _walk_cave(rendered, target_va, offset)
+
+    def fixed_store(instruction):
+        if instruction.mnemonic != "mov":
+            return None
+        destination, _, source = instruction.op_str.partition(", ")
+        if not destination.startswith("dword ptr ["):
+            return None
+        if "0x" not in destination or "esp" in destination or "ebp" in destination:
+            return None
+        return destination, source
+
+    # The slot variable is whatever the argument register is published to.
+    slot_destination = None
+    for instruction in instructions:
+        parsed = fixed_store(instruction)
+        if parsed and parsed[1] == "eax":
+            slot_destination = parsed[0]
+            break
+    if slot_destination is None:
+        return "capture never publishes the save-builder argument"
+
     saw_conditional = False
     zeroed_at = None
-    for instruction in md.disasm(rendered[offset : offset + 0x80], target_va):
+    for instruction in instructions:
         mnemonic, operands = instruction.mnemonic, instruction.op_str
         if mnemonic.startswith("j") and mnemonic != "jmp":
             saw_conditional = True
-        # Normalizing an out-of-range slot to zero and then storing it is NOT a
-        # guard: it is precisely how VV1 overwrote the live village slot on
-        # every meta write and then wiped the mask table.  A branch alone does
-        # not prove safety, so the published value must be the argument itself.
         if (
-            (mnemonic == "xor" and operands in ("eax, eax",))
-            or (mnemonic == "sub" and operands in ("eax, eax",))
-            or (mnemonic == "mov" and operands in ("eax, 0",))
+            (mnemonic in ("xor", "sub") and operands == "eax, eax")
+            or (mnemonic == "mov" and operands == "eax, 0")
         ):
             zeroed_at = instruction.address
-        if mnemonic == "mov" and operands.startswith("dword ptr ["):
-            destination, _, source = operands.partition(", ")
-            if "0x" in destination and "esp" not in destination and "ebp" not in destination:
-                if not saw_conditional:
-                    return (
-                        f"capture publishes its argument unguarded at "
-                        f"0x{instruction.address:X} ({mnemonic} {operands}); "
-                        f"slot 0 (the meta file) would overwrite the live "
-                        f"village slot"
-                    )
-                if source == "eax" and zeroed_at is not None:
-                    return (
-                        f"capture zeroes EAX at 0x{zeroed_at:X} and then stores "
-                        f"it at 0x{instruction.address:X}; an out-of-range or "
-                        f"meta slot would still overwrite the live village slot"
-                    )
-                return None
-        # Deliberately NOT stopping at the first `jmp`: these caves branch
-        # internally, and stopping there hid the normalize-to-zero store that
-        # sits after an intra-cave jump.
-        if mnemonic == "ret":
-            break
+        parsed = fixed_store(instruction)
+        if not parsed or parsed[0] != slot_destination:
+            continue
+        destination, source = parsed
+        if not saw_conditional:
+            return (
+                f"capture publishes its argument unguarded at "
+                f"0x{instruction.address:X} ({mnemonic} {operands}); slot 0 "
+                f"(the meta file) would overwrite the live village slot"
+            )
+        if source == "eax" and zeroed_at is not None:
+            return (
+                f"capture zeroes EAX at 0x{zeroed_at:X} and then stores it at "
+                f"0x{instruction.address:X}; an out-of-range or meta slot would "
+                f"still overwrite the live village slot"
+            )
+        if source != "eax":
+            return (
+                f"capture writes {source} to the slot variable at "
+                f"0x{instruction.address:X} ({mnemonic} {operands}); an "
+                f"out-of-range or meta slot would overwrite the live village "
+                f"slot instead of leaving it intact"
+            )
+    return None
+
+
+def cave_replays_and_resumes(
+    rendered: bytes, entry: int, entry_va: int, displaced: bytes
+) -> str | None:
+    """Return a problem string unless the cave replays and resumes exactly.
+
+    The audit's whole claim is that the builder still runs the base game's
+    code.  That only holds if the cave re-executes the exact instructions the
+    trampoline displaced and then re-enters the stock body at the instruction
+    right after them, so both are checked rather than assumed.
+    """
+    try:
+        import capstone  # noqa: F401
+    except ImportError:  # pragma: no cover - environment dependent
+        return None
+    if rendered[entry] != 0xE9:
+        return None
+    displacement = int.from_bytes(rendered[entry + 1 : entry + 5], "little", signed=True)
+    target_va = entry_va + 5 + displacement
+    offset = _va_to_offset(rendered, target_va)
+    if offset is None:
+        return f"capture cave VA 0x{target_va:X} is outside every section"
+
+    instructions = _walk_cave(rendered, target_va, offset)
+    if not instructions:
+        return f"cave at 0x{target_va:X} did not disassemble"
+    span = instructions[-1].address + instructions[-1].size - target_va
+    body = rendered[offset : offset + span]
+    if displaced not in body:
+        return (
+            f"cave at 0x{target_va:X} never replays the displaced prologue "
+            f"{displaced.hex().upper()}"
+        )
+
+    resume_va = entry_va + len(displaced)
+    exits = set()
+    for instruction in instructions:
+        if instruction.mnemonic != "jmp":
+            continue
+        try:
+            destination = int(instruction.op_str, 16)
+        except ValueError:
+            return (
+                f"cave at 0x{target_va:X} exits through an indirect jump "
+                f"({instruction.op_str}); the resume cannot be verified"
+            )
+        if not (target_va <= destination < target_va + span):
+            exits.add(destination)
+    if not exits:
+        return f"cave at 0x{target_va:X} has no jump back into the stock body"
+    if exits != {resume_va}:
+        listed = ", ".join(f"0x{value:X}" for value in sorted(exits))
+        return (
+            f"cave at 0x{target_va:X} resumes at {listed}, not the stock "
+            f"instruction after the trampoline (0x{resume_va:X})"
+        )
     return None
 
 
@@ -281,9 +387,12 @@ def audit_game(game_id: str, verbose: bool = True) -> list[str]:
                 )
             if hook[0] == 0xE9:
                 entry_va = _offset_to_va(stock, entry)
-                guard = capture_is_guarded(rendered, entry, entry_va)
-                if guard:
-                    problems.append(f"{game_id}/{mode_id}: {guard}")
+                for check in (
+                    capture_is_guarded(rendered, entry, entry_va),
+                    cave_replays_and_resumes(rendered, entry, entry_va, displaced),
+                ):
+                    if check:
+                        problems.append(f"{game_id}/{mode_id}: {check}")
         # 3. The code that BUILDS the path must be identical to stock around
         #    every site that references the format string.  This is the actual
         #    builder body, not just the string constant.

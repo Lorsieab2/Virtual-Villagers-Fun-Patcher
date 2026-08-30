@@ -316,21 +316,25 @@ def mask_save_slot_cave() -> bytes:
     The stock function starts with ``sub esp, 0x104`` and then reads its first
     argument at ``[esp+0x108]``. Replaying that allocation in the cave keeps
     every later stock instruction and stack offset byte-for-byte equivalent;
-    only the patch-owned slot dword is written. Invalid/zero slots fail closed
-    by writing zero and then continue into the untouched stock body.
+    only the patch-owned slot dword is written.
+
+    ONLY numbered village slots 1..5 are published.  The same stock builder
+    also formats the META file with slot 0, and the invalid path used to write
+    zero -- which overwrote the live village slot on every meta write and left
+    the companion fail-closed as if no village had been saved.  Slot 0 and any
+    out-of-range value now leave the previous capture untouched and continue
+    into the untouched stock body.
     """
     cave = assemble(
         f"""
             sub esp, 0x104
             mov eax, dword ptr [esp + 0x108]
             cmp eax, 1
-            jb mss_invalid
+            jb mss_keep_previous
             cmp eax, 5
-            ja mss_invalid
+            ja mss_keep_previous
             mov dword ptr [{MASK_SAVE_SLOT_VA}], eax
-            jmp 0x{MASK_SAVE_SLOT_SITE + 6:X}
-        mss_invalid:
-            mov dword ptr [{MASK_SAVE_SLOT_VA}], 0
+        mss_keep_previous:
             jmp 0x{MASK_SAVE_SLOT_SITE + 6:X}
         """,
         MASK_SAVE_SLOT_CAVE_VA,
