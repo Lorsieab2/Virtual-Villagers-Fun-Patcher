@@ -64,10 +64,12 @@ success path passes a pointer whose byte value is incidental.
 
 ## Owned transaction
 
-An actual render owns exactly four non-checksum ranges. Three are common to
-every mode and the fourth is the mode-specific callback hook, which
-`test_current_renderer_modes_and_exact_uninstall_roundtrip` confirms with
-`len(owner) == 4`:
+An actual render owns exactly four non-checksum ranges in every supported
+mode. Three are common and the fourth is the mode-specific callback hook,
+which is now declared for all three supported modes -- `stock`,
+`collection_progression`, and `immediate_fixed`. Without the `stock` entry the
+wrapper was installed but never hooked, so the feature silently did nothing in
+No Population Increase:
 
 | Raw range | Current renderer result | Purpose |
 |---|---|---|
