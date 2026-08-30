@@ -365,21 +365,37 @@ and **no tech points are deducted**.
 
 **Tech Point Doubler** and **Food Point Doubler** are the only two upgrades you
 own rather than perform. Once bought, their button changes from **Buy** to
-**Remove** and a small green checkmark appears beside them. Removing one takes
-effect immediately and issues no refund.
+**Remove**, and removing one takes effect immediately and issues no refund.
 
-That checkmark is only ever shown for those two rows. It marks "you already own
-this", which is why it appears next to the two Doublers and nowhere else --
-every other upgrade is an action you can repeat rather than something owned.
+A small green checkmark marks a row whose condition is already satisfied. On
+the **Tech screen** those two Doublers are the only rows it can ever appear on,
+because ownership is the only satisfied state the game reports there -- which is
+also why they are the only two rows whose button becomes **Remove**. On the
+**Villager Details screen** the checkmark is purely informational and can appear
+on repeatable action rows too; it tells you the action would currently do
+nothing for that villager, not that you own anything. Either way it never means
+a row is unavailable: every visible row stays clickable, and a row that would
+change nothing says so and deducts no tech points.
 
 Both menus close with **Cancel** or the Esc key, and each shows
 `Press ESC to exit this menu.` once.
 
-### The Secret City: Magic level and research points
+### Which games can actually buy the Doublers
 
-The Secret City's Tech Point Doubler is held under the exact-build **STOP**
-gate: it stays visible but cannot be newly purchased or repurchased, and an
-existing one can still be removed for zero cost with no refund.
+The Doubler rows are visible everywhere, but buying them is gated per build:
+
+| Game | Buying a Doubler |
+|---|---|
+| A New Home | Unavailable -- purchase and repurchase are both held |
+| The Lost Children | See the crash warning below |
+| The Secret City | Unavailable -- purchase and repurchase are both held |
+| The Tree of Life | Unavailable -- purchase and repurchase are both held |
+| New Believers | Available: purchase, zero-cost Remove with no refund, and full-price repurchase |
+
+Where purchase is held, an already-owned Doubler can still be removed for zero
+cost with no refund.
+
+### The Secret City: Magic level and research points
 
 The audit behind that decision also established what Magic actually does to
 research. Magic level 1 or higher adds a deterministic flat `+1` tech point to
@@ -388,14 +404,29 @@ the base award, the RNG, or Research-skill gain. Native research adds the base
 award, the optional quarter-base bonus, the Magic `+1`, a timed `+1`, and an
 independent RNG `+1`, in that order.
 
+### The Lost Children: known crash
+
+**A player reported that both Time Warp and Food Point Doubler crash The Lost
+Children immediately after the purchased/success dialog is displayed.** That
+records the observed trigger only; it does not establish whether the charge or
+the action persisted.
+
+The VV2 Origins patch and its dependent village-wide upgrade are still
+selectable for targeted static and playtest work, but they remain runtime and
+player validation pending. The crash audit also found `.shr` raw-offset versus
+virtual-address confusion in the VV2 builder that displaces helper and header
+references by `0x2000`; that is a hard re-enable blocker and not yet a complete
+explanation of the crash. Every unrelated VV2 patch remains available and is
+unaffected.
+
 ### Status
 
 These menus are verified by build-level tests -- exact bytes, dialog wording,
 and the purchased/success dialog paths -- and the patcher refuses to write an
 executable whose bytes it cannot account for. They have had far less **playtest**
 coverage than the ordinary patches, so **runtime** confirmation in a real village
-is still the last step for some rows. If a patched game ever behaves oddly or
-you see a **crash**, the unmodified original EXE and folder are always left
+is still the last step for many rows, and the VV2 **crash** above is unresolved.
+Whatever happens, the unmodified original EXE and folder are always left
 untouched beside the modded copy.
 
 ## Population safety
