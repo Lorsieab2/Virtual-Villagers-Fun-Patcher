@@ -64,13 +64,17 @@ success path passes a pointer whose byte value is incidental.
 
 ## Owned transaction
 
-The patch owns exactly three non-checksum ranges:
+An actual render owns exactly four non-checksum ranges. Three are common to
+every mode and the fourth is the mode-specific callback hook, which
+`test_current_renderer_modes_and_exact_uninstall_roundtrip` confirms with
+`len(owner) == 4`:
 
 | Raw range | Current renderer result | Purpose |
 |---|---|---|
 | `0x280..0x283` | `00 10 00 00` | Widen the existing `.shr` virtual size to one mapped page. |
 | `0x29C..0x29F` | `60 00 00 F0` | Add the section's missing execute permission bit. |
 | `0xB4100..0xB41EA` | 235-byte wrapper | Use the reviewed zero-filled portion of `.shr`. |
+| `0x22B2A..0x22B2D` | `00 81 6C 00` | Mode-specific: repoint the stock robe callback at the wrapper (VA `0x6C8100`). |
 
 The payload SHA-256 is
 `95C62B33A52196912CD06FEAB8FCEE6EF070FE1D18EE68B11FFD33F9F44B51BC`.

@@ -336,9 +336,9 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 
 #### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
 
-Dropping an active, living, non-nursing villager on the robe sends every other active, living, non-nursing villager through the unchanged stock robe callback too. Each villager receives the complete base-game success or failed-fit result, and the base game decides who becomes Tribal Chief.
+Dropping an active, living, non-nursing villager on the robe interrupts every other active, living, non-nursing villager and sends them to try on the robe too. Each villager receives the complete base-game success or failed-fit result, and the base game alone decides who becomes Tribal Chief.
 
-- Behavior changes: After the stock callback handles the dropped villager, every other active, living, non-nursing VV3 villager is sent through that same unchanged stock robe callback. The runtime loop accepts only the authenticated stock bound 150.
+- Behavior changes: After the stock callback handles the dropped villager, every other active, living, non-nursing VV3 villager is interrupted into the robe action through the game's own action dispatcher, so they stop their current task and walk to the amphitheatre. The runtime loop accepts only the authenticated stock bounds 150 and 256.
 - Explicit non-changes/exclusions: Dead, inactive, and nursing villagers are skipped. The unchanged stock callback remains responsible for success/failure, Chief clothing, Chief state, puzzle mutation, and candidate selection for every villager. The wrapper does not read or write candidate fields +0xE80/+0xE88 or change pregnancy/nursing state, health, age, skills, preferences, or saved record layout.
 - Dependencies: none
 - Evidence status: independently reviewed exact-build static implementation; install/uninstall and current-mode composition are automated, while player runtime confirmation remains pending
