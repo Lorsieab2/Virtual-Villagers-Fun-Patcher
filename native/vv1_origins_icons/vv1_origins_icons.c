@@ -418,7 +418,7 @@ static void vv1_mask_sidecar_load(void) {
    reconstruct it from screen constants or age. */
 #define VV_MASK_ATLAS_COLS   7   /* mask_atlas.png: 7 facing cols x 5 colour rows, 40x160 cells, matching the generator and VV1 head atlas */
 #ifndef VV_DETAILS_MASK_Y_NUDGE_PX
-#define VV_DETAILS_MASK_Y_NUDGE_PX 17
+#define VV_DETAILS_MASK_Y_NUDGE_PX 10
 #endif
 /* Details uses a larger native scale than the village view.  One eighth of
    that live scale restores the player-tuned registration while following the
@@ -523,9 +523,11 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
        A linear (mask-1)*cols+col fed into the ROW arg (not COL) is what clamped
        everything to the last row (chief) in the earlier broken build. */
     cell = mask - 1;   /* ROW = colour (0-based) */
-    x = args[1];
+    /* Match VV2's portrait registration: keep the live tuple and apply only
+       the shared face-centering nudge. */
+    x = args[1] + 4;
     scale = args[5];
-    y = args[2] - (scale >> 3) - VV_DETAILS_MASK_Y_NUDGE_PX;
+    y = args[2] - (scale >> 3) + VV_DETAILS_MASK_Y_NUDGE_PX;
     col = args[4];
     enable = args[6];
     /* Same 7-arg push order as the native head draw (deepest first). The

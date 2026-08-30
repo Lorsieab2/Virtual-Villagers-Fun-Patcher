@@ -98,10 +98,10 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
 
     def test_native_overlay_uses_exact_tuple_not_fixed_portrait_reconstruction(self) -> None:
         for token in (
-            "#define VV_DETAILS_MASK_Y_NUDGE_PX 17",
-            "x = args[1];",
+            "#define VV_DETAILS_MASK_Y_NUDGE_PX 10",
+            "x = args[1] + 4;",
             "scale = args[5];",
-            "y = args[2] - (scale >> 3) - VV_DETAILS_MASK_Y_NUDGE_PX;",
+            "y = args[2] - (scale >> 3) + VV_DETAILS_MASK_Y_NUDGE_PX;",
             "col = args[4];",
             "enable = args[6];",
             "mov  ecx, draw_wrapper",
@@ -119,19 +119,19 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
                 self.assertNotIn(obsolete, self.source + self.generator)
 
         # The registration remains tied to the live portrait scale, with the
-        # requested fixed 17px VV1 Details nudge applied after it. It is not a
+        # shared VV2-compatible 10px Details nudge applied after it. It is not a
         # fixed child/adult coordinate reconstruction.
-        self.assertEqual([(scale >> 3) + 17 for scale in (160, 198, 200)], [37, 41, 42])
-        self.assertIn("DETAILS_MASK_Y_NUDGE_PX = 17", self.generator)
-        self.assertIn("args[2] - (scale >> 3) - 17", (ROOT / "docs" / "vv1-mask-pickup-static-audit.md").read_text(encoding="utf-8"))
+        self.assertEqual([-(scale >> 3) + 10 for scale in (160, 198, 200)], [ -10, -14, -15])
+        self.assertIn("DETAILS_MASK_Y_NUDGE_PX = 10", self.generator)
+        self.assertIn("args[2] - (scale >> 3) + 10", (ROOT / "docs" / "vv1-mask-pickup-static-audit.md").read_text(encoding="utf-8"))
         self.assertNotIn("VV_PORTRAIT_LIFT_MUL", self.source)
 
-    def test_vv1_details_nudge_is_seventeen_pixels_and_vv2_override_is_zero(self) -> None:
+    def test_vv1_details_nudge_matches_vv2_and_vv2_override_is_zero(self) -> None:
         vv2 = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(
             encoding="utf-8"
         )
-        self.assertIn("#define VV_DETAILS_MASK_Y_NUDGE_PX 17", self.source)
-        self.assertEqual(self.manifest["mask_persistence"]["details_mask_y_nudge_px"], 17)
+        self.assertIn("#define VV_DETAILS_MASK_Y_NUDGE_PX 10", self.source)
+        self.assertEqual(self.manifest["mask_persistence"]["details_mask_y_nudge_px"], 10)
         self.assertIn(
             "#define VV_DETAILS_MASK_Y_NUDGE_PX 0\n#include \"../vv1_origins_icons/vv1_origins_icons.c\"",
             vv2,
