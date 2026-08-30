@@ -1246,7 +1246,17 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 #define VV3_BODY_OFF 0xDF4
 
 static unsigned int caf_rng;                 /* xorshift32, seeded from GetTickCount */
-static int g_vv3_caf_mask_ambiguous;
+/* Why a mask batch refused to apply.  Four unrelated conditions used to share
+   one "could not be safely matched to unique villagers" message, which made a
+   failure impossible to act on: a village with no captured save slot reported a
+   fingerprint problem it did not have.  Each cause now names itself.  Zero is
+   "no mask failure"; the values are only ever read by the result message. */
+#define VV3_CAF_MASK_OK          0
+#define VV3_CAF_MASK_NO_SLOT     1   /* no active numbered save slot captured */
+#define VV3_CAF_MASK_BAD_MODE    2   /* selector emitted an unsupported mode */
+#define VV3_CAF_MASK_AMBIGUOUS   3   /* villagers share a fingerprint group */
+#define VV3_CAF_MASK_NO_ROOM     4   /* sidecar shadow could not seat the plan */
+static int g_vv3_caf_mask_fail;
 static int g_vv3_caf_mask_persist_failed;
 static unsigned int caf_rand(void) {
     unsigned int x = caf_rng ? caf_rng : (caf_rng = GetTickCount() | 1u);
@@ -1373,7 +1383,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
     unsigned char shadow_mask[256];
     int n = 0, chief = -1, affected = 0, mask_changed_any = 0, i, s;
     int mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0);
-    g_vv3_caf_mask_ambiguous = 0;
+    g_vv3_caf_mask_fail = VV3_CAF_MASK_OK;
     g_vv3_caf_mask_persist_failed = 0;
     if (slots < 0) slots = 0;
     if (slots > 256) slots = 256;
@@ -1389,11 +1399,11 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
     /* Prepare the sidecar before planning; this may load but never writes it. */
     if (mask_requested) {
         if (!vv3_mask_prepare_slot()) {
-            g_vv3_caf_mask_ambiguous = 1;
+            g_vv3_caf_mask_fail = VV3_CAF_MASK_NO_SLOT;
             return 0;
         }
         if (mask_mode < 0 || mask_mode > 9) {
-            g_vv3_caf_mask_ambiguous = 1;
+            g_vv3_caf_mask_fail = VV3_CAF_MASK_BAD_MODE;
             return 0;
         }
         for (i = 0; i < n; ++i)
@@ -1463,11 +1473,14 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         /* Only the completed, one-shot plan may authorize a collision group.
            Build the exact shadow sidecar before any villager or mask mutation. */
         if (!vv3_mask_make_plan_group_coherent(
-                plan_fp, mask_selected, desired_mask, n, mask_mode)
-            || !vv3_mask_build_batch_shadow(
+                plan_fp, mask_selected, desired_mask, n, mask_mode)) {
+            g_vv3_caf_mask_fail = VV3_CAF_MASK_AMBIGUOUS;
+            return 0;
+        }
+        if (!vv3_mask_build_batch_shadow(
                 idx, plan_fp, mask_selected, desired_mask, n,
                 shadow_mask, shadow_fp)) {
-            g_vv3_caf_mask_ambiguous = 1;
+            g_vv3_caf_mask_fail = VV3_CAF_MASK_NO_ROOM;
             return 0;
         }
     }
@@ -2333,15 +2346,31 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
     affected = vv3_apply_for_all(caf_m_head, caf_m_body, caf_m_mask,
                                  caf_f_head, caf_f_body, caf_f_mask, caf_mask_mode);
     if (affected == 0) {
-        MessageBoxA(GetForegroundWindow(),
-            g_vv3_caf_mask_persist_failed
-                ? "The selected masks could not be saved beside the active save. "
-                  "No appearance was changed and no tech points have been deducted."
-                : g_vv3_caf_mask_ambiguous
-                ? "The selected masks could not be safely matched to unique villagers. "
-                  "No tech points have been deducted."
-                : "No eligible villagers matched the selected appearance options. "
-                  "No tech points have been deducted.",
+        const char *why;
+        if (g_vv3_caf_mask_persist_failed) {
+            why = "The selected masks could not be saved beside the active save. "
+                  "No appearance was changed and no tech points have been deducted.";
+        } else if (g_vv3_caf_mask_fail == VV3_CAF_MASK_NO_SLOT) {
+            why = "Masks cannot be changed until this village has been saved at "
+                  "least once, because they are stored beside the save file. "
+                  "Save the village, then try again. "
+                  "No tech points have been deducted.";
+        } else if (g_vv3_caf_mask_fail == VV3_CAF_MASK_BAD_MODE) {
+            why = "That mask option was not recognized, so nothing was changed. "
+                  "No tech points have been deducted.";
+        } else if (g_vv3_caf_mask_fail == VV3_CAF_MASK_AMBIGUOUS) {
+            why = "Some villagers cannot be told apart, so their masks could not "
+                  "be assigned individually. "
+                  "No tech points have been deducted.";
+        } else if (g_vv3_caf_mask_fail == VV3_CAF_MASK_NO_ROOM) {
+            why = "There was no room to record the selected masks for every "
+                  "villager. "
+                  "No tech points have been deducted.";
+        } else {
+            why = "No eligible villagers matched the selected appearance options. "
+                  "No tech points have been deducted.";
+        }
+        MessageBoxA(GetForegroundWindow(), why,
             "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
