@@ -8,7 +8,7 @@
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "6CFAA0FA486B368CF9DCB9D4452A102ECBCB5C6975FE7933A098A52D5746B474"
+      "source_text_sha256": "7F5662942DEC877F4D568EE9D5C5BA318760DAF196B94AE55BADEFE703F6A4F0"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -34,7 +34,7 @@
   "page_rva": "0x504000",
   "page_va": "0x904000",
   "layout": {
-    "stock_page_sha256": "1007D13D184DC321B01FB306D68C12736B2839C2C7D53E7354E1444EF7B5C1A9",
+    "stock_page_sha256": "5F20EDA8D649BF46910DC9C62CA21C86DBADFCA694EF33A80B8464E72AE6EB88",
     "expanded_baseline_page_sha256": "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457",
     "expanded_time_warp_page_sha256": "8FAF7129D9A1F687D2039E9A2567667E1559EF4CFABCBDFA428763959D73C8EC",
     "age_length": 652,
