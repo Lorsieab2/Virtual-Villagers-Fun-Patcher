@@ -184,6 +184,28 @@ class NameCrashWrapperTests(unittest.TestCase):
                     result,
                 )
 
+    def test_partial_call_site_failure_is_fail_closed(self) -> None:
+        data = _synthetic_pe()
+        original = bytes(data)
+        with patch.object(
+            patcher,
+            "_nci_find_call_sites",
+            return_value=[IMAGE_BASE + 0x27DD, IMAGE_BASE + 0x2944],
+        ):
+            original_mapper = patcher._nci_rva_to_off
+            with patch.object(
+                patcher,
+                "_nci_rva_to_off",
+                side_effect=lambda info, rva: None
+                if rva == 0x2944
+                else original_mapper(info, rva),
+            ):
+                result = patcher._apply_name_crash_immunity(
+                    data, EXPECTED_BASENAME, []
+                )
+        self.assertEqual(result, {"status": "skipped", "reason": "call site not writable"})
+        self.assertEqual(bytes(data), original)
+
 
 if __name__ == "__main__":
     unittest.main()

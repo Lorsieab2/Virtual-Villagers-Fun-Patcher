@@ -1117,7 +1117,10 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
     if (atlas == NULL) {
         return;
     }
-    x       = args[1];
+    /* The VV2 portrait registration is face-centered; VV3's mask atlas has a
+       five-pixel rightward art registration at this scaled head tuple.  Keep
+       the authoritative head x and apply only this visual correction. */
+    x       = args[1] - 5;
     frame   = args[4];
     scaledY = args[5];
     flag    = args[6];
