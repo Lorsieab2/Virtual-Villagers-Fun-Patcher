@@ -127,9 +127,14 @@ PORTRAIT_DY_MUL = 54   # same geometric lift as the village (42px at full scale)
 # The mask atlas is baked/tuned for the 1x village view; the Details portrait draws the same
 # atlas larger, leaving masks a touch high+left there.  Nudge masks down+right on the portrait
 # path ONLY (caller < 0x445B50).  Tune to taste.
-import os as _os
-PORTRAIT_MASK_DX = int(_os.environ.get("PMDX", "4"))    # Details mask: move right to center on the face
-PORTRAIT_MASK_DY = int(_os.environ.get("PMDY", "20"))   # Details mask: move down to center on the face
+# These are build inputs, not runtime knobs.  They were previously read from
+# PMDX/PMDY environment variables, which the manifest's builder_sha256 cannot
+# detect: that pin covers this file's source text only, so a build run with a
+# different PMDX/PMDY produced different append bytes while still matching the
+# pinned identity.  Keeping them literal makes the generated page reproducible
+# from the checked-in source alone.
+PORTRAIT_MASK_DX = 8    # Details mask: move right to center on the face
+PORTRAIT_MASK_DY = 30   # Details mask: move down to center on the face
 # The atlas builder places each frame so its FACE region sits at the head's face
 # anchor in HEAD-CELL coords, offset down by LIFT. Drawing that
 # cell at (x, y - LIFT*scale) therefore lands the mask's face on the head's face at
