@@ -2017,9 +2017,21 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
     """)
 
 def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
-    """Village-clock Time Warp: subtract a speed-scaled three-year delta
-    (normalized speed * 3600) for one verified 50,000 tech-point charge,
-    matching VV1-VV4 so all five games advance identically. Self-contained
+    """Village-clock Time Warp: advance exactly three displayed villager years
+    at any speed for one verified 50,000 tech-point charge.
+
+    VV5's offline catch-up MULTIPLIES the injected elapsed-clock shift by the
+    speed code, so a constant three-year advance needs the inverse
+    129600 / speed.  This is the opposite of VV1-VV4, whose catch-up DIVIDES
+    by speed and therefore needs speed * 3600 (see
+    tests/test_vv4_origins_feature.py).  The two forms are not an
+    inconsistency between games -- they are the same three-year result
+    expressed for two different engine conventions, and swapping them makes
+    the paid warp advance ~0.75 years at half speed and ~8.3 at double.
+
+    The speed code is normalized to the three values the game assigns (3, 6,
+    10) before dividing, so an unexpected value takes the normal-speed delta
+    instead of an arbitrary one.  Self-contained
     (inline MessageBoxA via the page's existing import thunks); no companion
     DLL change. Ported from the statically-reviewed dispatcher in
     build_expanded_time_warp.py as a ret-terminated subroutine so tech_menu can
@@ -2107,14 +2119,16 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [ebp-0x2C], eax
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        mov eax, dword ptr [ebp-0x1C]
-        cmp eax, 3
+        mov ecx, dword ptr [ebp-0x1C]
+        cmp ecx, 3
         je tw_speed_ok
-        cmp eax, 10
+        cmp ecx, 10
         je tw_speed_ok
-        mov eax, 6
+        mov ecx, 6
     tw_speed_ok:
-        imul eax, eax, 3600
+        mov eax, 129600
+        xor edx, edx
+        div ecx
         mov dword ptr [ebp-0x30], eax
         mov ecx, dword ptr [ebp-0x24]
         mov edx, dword ptr [ebp-0x28]

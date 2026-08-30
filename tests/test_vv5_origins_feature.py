@@ -219,6 +219,61 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertIn("Time Warp", self.feature["description"])
         self.assertNotIn("displayed villager years", self.feature["description"])
 
+    def test_active_task9_time_warp_keeps_the_vv5_inverse_speed_clock_shift(self) -> None:
+        """Regression test guarding against applying VV1-VV4's proportional
+        Time Warp formula to VV5.
+
+        VV5's offline catch-up MULTIPLIES the injected elapsed-clock shift by
+        the game-speed code, so a constant three-displayed-year advance needs
+        the inverse ``129600 / speed``.  VV1 through VV4 divide by speed and
+        therefore need ``speed * 3600`` (pinned by
+        tests/test_vv4_origins_feature.py).  The two forms are not an
+        inconsistency between games -- they are the same three-year result
+        expressed for two different engine conventions.
+
+        Swapping VV5 onto the proportional form looks correct at normal speed
+        (both give 21,600) but makes the paid 50,000-point warp advance about
+        0.75 displayed years at half speed and about 8.3 at double speed.
+
+        The equivalent VV4 test already existed; VV5 had none, which is how a
+        proportional VV5 build shipped in v1.34.18.  This pins the ACTIVE
+        Task9 page, which is what the public modes actually render -- not the
+        superseded base builder that the older source-text check covers.
+        """
+        task9 = json.loads(
+            (ROOT / "data/vv5_task9_native_actions.json").read_text(encoding="utf-8")
+        )
+        blobs = [
+            bytes.fromhex(item["after"])
+            for item in task9.get("patches", [])
+            if item.get("after")
+        ]
+        transaction = task9.get("pe_append_transaction") or {}
+        for layout in (transaction.get("layouts") or {}).values():
+            if layout.get("append_bytes"):
+                blobs.append(bytes.fromhex(layout["append_bytes"]))
+        page = b"".join(blobs)
+        self.assertTrue(page, "no VV5 Task9 payload bytes were found")
+
+        # mov eax, 129600 ; xor edx, edx ; div ecx
+        self.assertIn(bytes.fromhex("B840FA0100"), page)
+        self.assertIn(bytes.fromhex("F7F1"), page)
+        # The speed code is normalized to 3 / 6 / 10 before dividing, so an
+        # unexpected value cannot produce an arbitrary advance or a div fault.
+        for label, encoding in (
+            ("cmp ecx, 3", "83F903"),
+            ("cmp ecx, 10", "83F90A"),
+            ("mov ecx, 6", "B906000000"),
+        ):
+            with self.subTest(check=label):
+                self.assertIn(bytes.fromhex(encoding), page)
+        # VV1-VV4's proportional form must never appear in the VV5 page.
+        self.assertNotIn(
+            bytes.fromhex("69C0100E0000"),
+            page,
+            "VV5 Time Warp must not use VV1-VV4's proportional speed * 3600 shift",
+        )
+
     def test_unsafe_native_time_and_event_rows_are_disabled_for_heathen_safety(self) -> None:
         self.assertEqual(
             self.feature["native_event_safety"]["disabled_rows"],
