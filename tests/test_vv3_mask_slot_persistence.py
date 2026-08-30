@@ -58,18 +58,37 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertEqual(self.builder.SAVE_SLOT_CAPTURE_CAVE_VA, 0x6DF100)
         self.assertEqual(self.builder.SAVE_SLOT_PTR, 0x6E0044)
         self.assertEqual(self.builder.SAVE_SLOT_CAPTURE_RETURN_VA, 0x403296)
-        cave = self.builder.assemble(
-            f"""
-                mov eax, dword ptr [esp + 4]
-                mov dword ptr [0x{self.builder.SAVE_SLOT_PTR:X}], eax
-                mov edx, dword ptr [ecx]
-                jmp 0x{self.builder.SAVE_SLOT_CAPTURE_RETURN_VA:X}
-            """,
-            self.builder.SAVE_SLOT_CAPTURE_CAVE_VA,
+        # Assert the bytes the manifest actually publishes.  This used to
+        # re-assemble its own copy of the cave source and check that, which
+        # could not fail no matter what the builder emitted.
+        appended = b"".join(
+            bytes.fromhex(layout["append_bytes"])
+            for layout in self.manifest["pe_append_transaction"]["layouts"].values()
+            if layout.get("append_bytes")
         )
-        self.assertEqual(cave[:4], bytes.fromhex("8B442404"))
-        self.assertEqual(cave[4:9], bytes.fromhex("A344006E00"))
-        self.assertEqual(cave[9:11], bytes.fromhex("8B11"))
+        self.assertTrue(appended, "no VV3 append bytes were published")
+        # Only numbered VILLAGE slots 1..5 may be published.  The same stock
+        # builder also formats the meta file with slot 0; storing that
+        # unconditionally overwrote a live village slot and made the companion
+        # fail closed as if the village had never been saved.
+        for label, encoding in (
+            ("pushfd", "9C"),
+            ("cmp eax, 1", "83F801"),
+            ("cmp eax, 5", "83F805"),
+            ("mov [SAVE_SLOT_PTR], eax", "A344006E00"),
+            ("popfd", "9D"),
+            ("replayed mov eax, [esp+4]", "8B442404"),
+            ("replayed mov edx, [ecx]", "8B11"),
+        ):
+            with self.subTest(check=label):
+                self.assertIn(bytes.fromhex(encoding), appended)
+        # The unguarded store (load argument, publish it immediately) must be
+        # gone, or slot 0 would clobber the captured village slot again.
+        self.assertNotIn(
+            bytes.fromhex("8B442404A344006E00"),
+            appended,
+            "VV3 save-slot capture must not publish the raw builder argument",
+        )
         self.assertIn("0x6E0044", self.source.replace("0x006E0044", "0x6E0044"))
         section_patch = next(
             item
@@ -498,7 +517,7 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
             with self.subTest(cause=cause):
                 self.assertIn(cause, reported)
         for opening in (
-            "Masks cannot be changed until this village has been saved",
+            "No active save slot is available yet",
             "That mask option was not recognized",
             "Some villagers cannot be told apart",
             "There was no room to record the selected masks",
