@@ -32,6 +32,12 @@ PORTRAIT_WRAPPER_FILE_OFFSET = 0x8E720
 PORTRAIT_DLL_FN = 0x4911AC
 PORTRAIT_SITES = (0x43741B, 0x4374A4, 0x437503, 0x437556)
 
+# The reviewed VV1 Details-portrait nudge, in screen pixels, added after the
+# scale-aware cell lift. Screen Y grows downward, so a negative value seats the
+# mask higher on the portrait. The C source, the generator contract, the
+# manifest, and the audit docs must all agree with this one number.
+DETAILS_MASK_Y_NUDGE_PX = -10
+
 
 def _call_target(site: int, encoded: bytes) -> int:
     if len(encoded) != 5 or encoded[0] != 0xE8:
@@ -98,7 +104,7 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
 
     def test_native_overlay_uses_exact_tuple_not_fixed_portrait_reconstruction(self) -> None:
         for token in (
-            "#define VV_DETAILS_MASK_Y_NUDGE_PX 0",
+            f"#define VV_DETAILS_MASK_Y_NUDGE_PX ({DETAILS_MASK_Y_NUDGE_PX})",
             "x = args[1] + 4;",
             "scale = args[5];",
             "y = args[2] - (scale >> 3) + VV_DETAILS_MASK_Y_NUDGE_PX;",
@@ -118,20 +124,37 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
             with self.subTest(obsolete=obsolete):
                 self.assertNotIn(obsolete, self.source + self.generator)
 
-        # The registration remains tied to the live portrait scale, with the
-        # shared VV2-compatible 10px Details nudge applied after it. It is not a
-        # fixed child/adult coordinate reconstruction.
-        self.assertEqual([-(scale >> 3) + 10 for scale in (160, 198, 200)], [ -10, -14, -15])
-        self.assertIn("DETAILS_MASK_Y_NUDGE_PX = 0", self.generator)
-        self.assertIn("args[2] - (scale >> 3) + 10", (ROOT / "docs" / "vv1-mask-pickup-static-audit.md").read_text(encoding="utf-8"))
+        # The registration stays tied to the live portrait scale, so the mask
+        # tracks the native 160..198 child scale instead of reconstructing a
+        # fixed child/adult coordinate.
         self.assertNotIn("VV_PORTRAIT_LIFT_MUL", self.source)
 
-    def test_vv1_details_nudge_matches_vv2_and_vv2_override_is_zero(self) -> None:
+    def test_details_nudge_agrees_across_source_generator_manifest_and_docs(self) -> None:
+        nudge = DETAILS_MASK_Y_NUDGE_PX
+        self.assertIn(
+            f"#define VV_DETAILS_MASK_Y_NUDGE_PX ({nudge})", self.source
+        )
+        self.assertIn(f"DETAILS_MASK_Y_NUDGE_PX = {nudge}", self.generator)
+        self.assertEqual(
+            self.manifest["mask_persistence"]["details_mask_y_nudge_px"], nudge
+        )
+        # Both audit docs must quote the same effective formula the source
+        # compiles, so a retune cannot silently leave the docs describing the
+        # previous registration.
+        sign = "+" if nudge >= 0 else "-"
+        formula = f"y = args[2] - (scale >> 3) {sign} {abs(nudge)}"
+        for doc in ("vv1-mask-pickup-static-audit.md", "head-mask-rendering.md"):
+            with self.subTest(doc=doc):
+                self.assertIn(
+                    formula, (ROOT / "docs" / doc).read_text(encoding="utf-8")
+                )
+
+    def test_vv2_overrides_the_shared_nudge_to_zero(self) -> None:
         vv2 = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(
             encoding="utf-8"
         )
-        self.assertIn("#define VV_DETAILS_MASK_Y_NUDGE_PX 0", self.source)
-        self.assertEqual(self.manifest["mask_persistence"]["details_mask_y_nudge_px"], 0)
+        # VV2 includes the VV1 source textually and defines the macro first, so
+        # VV1 retuning its own default cannot move VV2's aligned portrait.
         self.assertIn(
             "#define VV_DETAILS_MASK_Y_NUDGE_PX 0\n#include \"../vv1_origins_icons/vv1_origins_icons.c\"",
             vv2,
