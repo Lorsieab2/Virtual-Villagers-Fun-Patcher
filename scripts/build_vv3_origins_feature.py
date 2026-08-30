@@ -1833,13 +1833,35 @@ def main() -> None:
 
     # Save-slot capture: the stock save-builder entry begins with
     # `mov eax,[esp+4]; mov edx,[ecx]`.  Preserve those exact instructions,
-    # publish the positive slot argument into .vv3md, and jump back to the
+    # publish the numbered VILLAGE slot into .vv3md, and jump back to the
     # untouched prologue.  The companion owns the slot switch/sidecar policy;
     # this trampoline only observes the stock save-builder argument.
+    #
+    # Only slots 1..5 are published.  The same stock builder also formats the
+    # meta file with slot 0, and it previously stored that unconditionally --
+    # so any meta build overwrote a live village slot with 0 and the companion
+    # then fail-closed as if no village had ever been saved.  That is what made
+    # Change Appearance for All refuse every mask selection after a meta write.
+    # Out-of-range values (including 0 and, via the unsigned compares, any
+    # negative) now leave the previous capture intact.
+    #
+    # The range check clobbers flags, and the displaced instructions are a
+    # function prologue whose caller could in principle leave flags live, so
+    # the observation is bracketed by pushfd/popfd.  While the flags are
+    # pushed, the stock argument sits at [esp+8]; the original [esp+4] load is
+    # then replayed unchanged after popfd, so the stock ABI is untouched.
     save_slot_capture_cave = assemble(
         f"""
-            mov eax, dword ptr [esp + 4]
+            pushfd
+            mov eax, dword ptr [esp + 8]
+            cmp eax, 1
+            jb save_slot_keep_previous
+            cmp eax, 5
+            ja save_slot_keep_previous
             mov dword ptr [0x{SAVE_SLOT_PTR:X}], eax
+        save_slot_keep_previous:
+            popfd
+            mov eax, dword ptr [esp + 4]
             mov edx, dword ptr [ecx]
             jmp 0x{SAVE_SLOT_CAPTURE_RETURN_VA:X}
         """,

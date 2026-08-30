@@ -1252,7 +1252,7 @@ static unsigned int caf_rng;                 /* xorshift32, seeded from GetTickC
    fingerprint problem it did not have.  Each cause now names itself.  Zero is
    "no mask failure"; the values are only ever read by the result message. */
 #define VV3_CAF_MASK_OK          0
-#define VV3_CAF_MASK_NO_SLOT     1   /* no active numbered save slot captured */
+#define VV3_CAF_MASK_NO_SLOT     1   /* no active numbered save slot available */
 #define VV3_CAF_MASK_BAD_MODE    2   /* selector emitted an unsupported mode */
 #define VV3_CAF_MASK_AMBIGUOUS   3   /* villagers share a fingerprint group */
 #define VV3_CAF_MASK_NO_ROOM     4   /* sidecar shadow could not seat the plan */
@@ -2351,9 +2351,9 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
             why = "The selected masks could not be saved beside the active save. "
                   "No appearance was changed and no tech points have been deducted.";
         } else if (g_vv3_caf_mask_fail == VV3_CAF_MASK_NO_SLOT) {
-            why = "Masks cannot be changed until this village has been saved at "
-                  "least once, because they are stored beside the save file. "
-                  "Save the village, then try again. "
+            why = "No active save slot is available yet, so masks cannot be "
+                  "stored beside the save file. Load or save this village, "
+                  "then try again. "
                   "No tech points have been deducted.";
         } else if (g_vv3_caf_mask_fail == VV3_CAF_MASK_BAD_MODE) {
             why = "That mask option was not recognized, so nothing was changed. "

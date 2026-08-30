@@ -298,10 +298,24 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 )
                 self.assertTrue(any(rendered[0xCB000:0xCC000]))
                 self.assertEqual(rendered[0xCC000:0xCD000], bytes(0x1000))
+                # The save-slot trampoline publishes only numbered village
+                # slots 1..5; slot 0 (the meta file) must leave the previous
+                # capture intact, so the raw unconditional store is gone.
                 self.assertEqual(
-                    rendered[0xCB100:0xCB10B],
-                    bytes.fromhex("8B442404A344006E008B11"),
+                    rendered[0xCB100:0xCB105],
+                    bytes.fromhex("9C8B442408"),
                 )
+                cave = rendered[0xCB100:0xCB130]
+                for label, encoding in (
+                    ("cmp eax, 1", "83F801"),
+                    ("cmp eax, 5", "83F805"),
+                    ("mov [SAVE_SLOT_PTR], eax", "A344006E00"),
+                    ("popfd", "9D"),
+                    ("replayed prologue", "8B4424048B11"),
+                ):
+                    with self.subTest(cave=label):
+                        self.assertIn(bytes.fromhex(encoding), cave)
+                self.assertNotIn(bytes.fromhex("8B442404A344006E00"), cave)
                 self.assertEqual(struct.unpack_from("<H", rendered, 0x10E)[0], 7)
                 self.assertEqual(struct.unpack_from("<I", rendered, 0x158)[0], 0x2E1000)
 
