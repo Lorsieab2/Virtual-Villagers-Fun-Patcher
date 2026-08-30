@@ -9163,6 +9163,17 @@ def _apply_name_crash_immunity(
     code_off = _nci_rva_to_off(info, code_va - base)
     if name_off is None or code_off is None:
         return {"status": "skipped", "reason": "cave not mappable"}
+    site_offsets: list[int] = []
+    for site in sites:
+        site_off = _nci_rva_to_off(info, site - base)
+        if (
+            site_off is None
+            or site_off < 0
+            or site_off + 6 > len(data)
+            or bytes(data[site_off : site_off + 2]) != b"\xff\x15"
+        ):
+            return {"status": "skipped", "reason": "call site not writable"}
+        site_offsets.append(site_off)
     stub = _nci_wrapper(iat_va, name_va, len(name_bytes))
     total = (code_va - name_va) + len(stub)
     if bytes(data[name_off : name_off + total]) != b"\0" * total:
@@ -9172,10 +9183,7 @@ def _apply_name_crash_immunity(
     writes.append({"offset": hex(code_off), "before": bytes(data[code_off : code_off + len(stub)]).hex().upper(), "after": stub.hex().upper()})
     data[name_off : name_off + len(name_bytes)] = name_bytes
     data[code_off : code_off + len(stub)] = stub
-    for site in sites:
-        so = _nci_rva_to_off(info, site - base)
-        if so is None or bytes(data[so : so + 2]) != b"\xff\x15":
-            continue
+    for site, so in zip(sites, site_offsets):
         rel = code_va - (site + 5)
         replacement = b"\xe8" + struct.pack("<i", rel) + b"\x90"
         writes.append({"offset": hex(so), "before": bytes(data[so : so + 6]).hex().upper(), "after": replacement.hex().upper()})
