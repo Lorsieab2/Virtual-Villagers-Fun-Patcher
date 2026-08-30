@@ -199,6 +199,40 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
 
         self.assertIn(bytes.fromhex("88D88D65F45F5E5B5DC3"), self.payload)
 
+    def test_every_supported_mode_actually_hooks_the_wrapper(self) -> None:
+        """Installing the wrapper is useless unless the callback is repointed.
+
+        patch_mode_overrides declared the 0x22B2A hook only for
+        collection_progression and immediate_fixed, while supported_modes also
+        advertises stock.  In stock mode the renderer therefore applied the
+        three common ranges, left the callback pointing at the stock handler
+        0x421960, and the feature silently did nothing -- the catalog offered a
+        patch that could not fire.  The existing mode tests missed it because
+        their MODES tuple excludes stock.
+        """
+        overrides = self.feature.raw["patch_mode_overrides"]
+        supported = tuple(self.feature.raw["supported_modes"])
+        for mode in supported:
+            with self.subTest(mode=mode):
+                self.assertIn(
+                    mode, overrides, "supported mode has no callback hook"
+                )
+
+        if not STOCK.is_file():
+            self.skipTest("stock VV3 executable fixture is unavailable")
+        for mode in supported:
+            with self.subTest(rendered=mode):
+                rendered, _ = patcher.render_patched_bytes(
+                    STOCK, self.build, mode, [FEATURE_ID]
+                )
+                target = int.from_bytes(rendered[0x22B2A:0x22B2E], "little")
+                self.assertEqual(
+                    target,
+                    0x6C8100,
+                    f"{mode} does not repoint the robe callback at the wrapper",
+                )
+                self.assertNotEqual(target, 0x421960)
+
     def test_payload_matches_its_generator(self) -> None:
         """The cave is generated, not hand-written hex.
 

@@ -388,10 +388,11 @@ static verification complete and runtime/player confirmation pending.
 ## VV3: Everyone Tries On the Robe
 
 Enable **Everyone Tries On the Robe (The Secret City)** to make one handled
-robe drop call the unchanged stock robe callback for the whole eligible
-village. Every active, living, non-nursing villager receives the base game's
-complete native success or failed-fit result, and the base game decides who
-becomes Tribal Chief.
+robe drop send the whole eligible village to try the robe on. Every active,
+living, non-nursing villager is interrupted out of whatever they were doing
+and walks to the amphitheatre, then receives the base game's complete native
+success or failed-fit result. The base game alone decides who becomes Tribal
+Chief.
 
 Dead, inactive, and nursing villagers are skipped. The patch does not force
 either robe action, assign Chief clothing or state, or change the Chief puzzle,

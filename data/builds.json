@@ -1408,6 +1408,14 @@
         }
       ],
       "patch_mode_overrides": {
+        "stock": [
+          {
+            "offset": "0x22B2A",
+            "before": "60194200",
+            "after": "00816C00",
+            "purpose": "replace the stock robe callback pointer with the wrapper at stock .shr VA 0x6C8100"
+          }
+        ],
         "collection_progression": [
           {
             "offset": "0x22B2A",

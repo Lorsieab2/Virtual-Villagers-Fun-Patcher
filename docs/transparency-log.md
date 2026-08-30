@@ -343,7 +343,7 @@ Dropping an active, living, non-nursing villager on the robe interrupts every ot
 - Dependencies: none
 - Evidence status: independently reviewed exact-build static implementation; install/uninstall and current-mode composition are automated, while player runtime confirmation remains pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
-- Mode-specific guarded edits: collection_progression=1, immediate_fixed=1; these rows are selected only for the named population mode.
+- Mode-specific guarded edits: stock=1, collection_progression=1, immediate_fixed=1; these rows are selected only for the named population mode.
 
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
 
