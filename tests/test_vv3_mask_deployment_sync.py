@@ -51,6 +51,20 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
             hashlib.sha256(SOURCE.read_bytes()).hexdigest().upper(),
         )
 
+    def test_patcher_output_contains_the_village_mask_hook_and_append(self) -> None:
+        stock = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
+        if not stock.is_file():
+            self.skipTest("stock VV3 executable fixture is unavailable")
+        import sys
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_fun_patcher
+        build = next(item for item in vv_fun_patcher.load_builds() if item.id == "vv3")
+        rendered, _ = vv_fun_patcher.render_patched_bytes(
+            stock, build, "collection_progression", ["vv3_enable_origins_exclusive_features"]
+        )
+        self.assertEqual(rendered[0x60C7F:0x60C84], bytes.fromhex("E87CE32700"))
+        self.assertEqual(len(rendered), 0xCB000 + 0x2000)
+
     def test_canonical_build_contains_every_mask_export(self) -> None:
         exports = self.builder.export_names(SOURCE.read_bytes())
         self.assertTrue(self.builder.REQUIRED_MASK_EXPORTS <= exports)

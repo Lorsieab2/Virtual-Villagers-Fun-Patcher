@@ -7445,6 +7445,35 @@ def render_patched_bytes(
             raise PatcherError("VV3 Full Heal checksum preimage is not certified.")
         if bytes(data[0x160:0x164]).hex().upper() != expected_transition["after"]:
             raise PatcherError("VV3 Full Heal checksum transition is not certified.")
+    if build.id == "vv3" and any(
+        feature.id == "vv3_enable_origins_exclusive_features"
+        for feature in fun_patches
+    ):
+        vv3_manifest = next(
+            feature.raw for feature in fun_patches
+            if feature.id == "vv3_enable_origins_exclusive_features"
+        )
+        hook = next(
+            patch for patch in vv3_manifest.get("patches", [])
+            if patch.get("offset") == "0x60C7F"
+        )
+        hook_offset = int(hook["offset"], 0)
+        expected_hook = bytes.fromhex(hook["after"])
+        if bytes(data[hook_offset:hook_offset + len(expected_hook)]) != expected_hook:
+            raise PatcherError(
+                "VV3 Origins output is missing the authoritative village mask hook."
+            )
+        layout = vv3_manifest["pe_append_transaction"]["layouts"][patch_mode]
+        append_offset = int(layout["append_offset"], 0)
+        append_length = int(layout["append_length"])
+        if len(data) != append_offset + append_length:
+            raise PatcherError(
+                "VV3 Origins output does not contain its complete village mask append."
+            )
+        if hashlib.sha256(data[append_offset:]).hexdigest().upper() != layout["append_sha256"]:
+            raise PatcherError(
+                "VV3 Origins output village mask append fingerprint is not certified."
+            )
     return data, applied
 
 
