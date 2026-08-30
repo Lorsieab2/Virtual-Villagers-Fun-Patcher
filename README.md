@@ -19,7 +19,6 @@ clears its dependents. The saved settings and patch logs record the resolved,
 dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
-Its max-population modes use every verified built-in villager slot: 256 slots in A New Home and The Lost Children, and 150 slots in The Secret City, The Tree of Life, and New Believers.
 
 ## Three population modes
 
@@ -31,431 +30,33 @@ Choose the population mode in the patcher; the choice and all paths are remember
 | Collection Progression Max Pop | The original population bonuses remain active and are required to reach the slot maximum. The Secret City also retains its level-3 magic bonus. | `(Game name) - Modded.exe` |
 | Immediate Fixed Max Pop | The slot maximum is available immediately. Collections no longer change it; The Secret City's magic tech no longer changes it either. | `(Game name) - Modded.exe` |
 
-All three modes apply the game's existing automatic physical-capacity safety;
-it only clamps allocations at the physical record limit and does not change
-the selected mode's social cap or collection/progression behavior. All three
-modes use the stable short `- Modded` name. The selected mode,
-optional patches, hashes, and applied edits remain identified in the adjacent
-`.patch-log.json`.
-
-## VV2: Easier Healing Mastery
-
-Enable the optional **Easier Healing Mastery (The Lost Children)** checkbox to change the Healing job fallback in The Lost Children. When a healer or a villager who prefers Healing has no sick villager to treat, the stock job scheduler now enters its existing persistent plant-study state instead of returning "no work." The same stock state is processed during ordinary play and time catch-up.
-
-The patch does not change healing gains, illness, food, skill thresholds, plant availability, or manual plant study. Its selection is recorded in the verification log without lengthening the short Modded EXE name.
-
-## VV1: School Lessons Grant Skill
-
-Enable **School Lessons Grant Skill (A New Home)** to reward a child only after the unlocked stock Going to school action reaches its end. The child gains 7, 8, or 9 points in one equally random skill: Farming, Building, Research, Healing, or Parenting. Skills remain capped at 100.
-
-That award matches VV3's code-confirmed Tribal Chief lesson: one random skill and `RNG(3)+7` points per child at the completion callback. The patch does not unlock the school, change attendance selection, or reward an interrupted lesson that never reaches the callback.
-
-## VV1: Continue Research at Max Technologies
-
-Enable **Continue Research at Max Technologies (A New Home)** so researchers remain eligible for the stock research action after all six technologies reach level 3. They continue using the original research queue, Research skill, Science-technology multiplier, and tech-point award routine.
-
-## VV1: Reenable F6 Clothing Change Cheat
-
-Enable **Reenable F6 Clothing Change Cheat (A New Home)** so pressing F6 advances the selected active villager to the next stock outfit. Each successful outfit change costs exactly 5,000 tech points. With fewer than 5,000 tech points, F6 does nothing and charges nothing. The cycle covers the game's ordinary clothing indices 0 through 19 and wraps from 19 back to 0. Pressing F6 without a valid active selection changes nothing.
-
-The patch does not alter heads, sex, age, skills, health, jobs, movement, actions, or clothing assets. F7, F8, and all non-F6 keys retain their original behavior.
-
-## VV1: Magic Fruit of Life Alters Mortality
-
-Enable **Magic Fruit of Life Alters Mortality (A New Home)** to give the completed Magic Fruit puzzle a tribe-wide longevity effect. Once the puzzle's saved completion flag is set, the stock mortality routine moves every ordinary villager's complete mortality curve seven displayed years later. The same routine handles ordinary play and offline time catch-up. Medicine technology still contributes its original threshold first, and the Golden Child retains the stock exemption.
-
-Finishing **Enjoying magic fruit** also clears that villager's sickness and restores health to 100. The cure occurs only when the final fruit-action cleanup runs, so an interrupted action awards nothing. It is reusable, does not stack another mortality bonus, and stores no state in villager names, likes, dislikes, or other record fields.
-
-## VV1: Builder Action Fixes
-
-Enable **Builder Action Fixes (A New Home)** so a villager whose selected job
-is Building tries the game's normal construction dispatcher before general idle
-activities regardless of the village's food amount. Stock VV1 skips the
-preferred-job attempt when food is at least 400, which makes assigned Builders
-much less likely to work on a visible scaffold or repair an eligible structure
-while the village is well fed.
-
-The patch removes that food-dependent suppression only for the Building job.
-The original construction dispatcher still chooses the eligible hut, repair,
-or other building task and retains all project requirements, progress awards,
-Building skill gains, and completion behavior. Villagers assigned to other
-jobs retain their stock high-food scheduling. The shared scheduler covers both
-ordinary play and elapsed-time catch-up.
-
-## VV1: Visual Mods
-
-Enable **Visual Mods (A New Home)** for a purely cosmetic scene refresh. The
-patch swaps four images in the game's `Images` folder: `lagoon_restored.jpg`,
-`garden_restored.png`, `MapX1Y2.jpg`, and `MapX2Y1.jpg`. That adds decorative
-flowers to the lagoon and love hut, clothes to the extra hut near the farm, and
-colorful flowers to the restored garden. Credit to the original mod creators.
-
-No executable bytes are patched, and no gameplay, stats, collectibles, or save
-data are affected. Only those four files are replaced, and each is restored to
-the exact base-game file when the patch is not selected.
-
-## VV1 Origins playtest package
-
-The requested playtest package exposes the combined **Enable Origins Tech,
-Details, and Village-Wide Upgrades (A New Home)** route; it resolves the
-internal Origins-Exclusive Features prerequisite automatically
-in the GUI, CLI, dependency resolution, Select All, and generated
-transparency output. This is static/source-verified package exposure only;
-reported runtime crashes and complete player transaction validation remain
-pending. The rows documented below are the historical menu contract:
-
-- **Time Warp** — 50,000 tech points; advances the village by exactly 3
-  displayed villager years. The elapsed-clock shift scales with game speed;
-  at Normal speed, six real-time hours equal those three villager years.
-- **Island Event** — 30,000 tech points; queues the stock desktop Island Event.
-- **Barrel of Babies** — 75,000 tech points; matches the APK's forced event
-  and adds exactly three young children. If the current housing-dependent
-  population limit has fewer than three spaces available, it charges nothing
-  and reports **The village population is already at maximum capacity.**
-- **Grant Youth** — 50,000 tech points; makes the selected living villager 35
-  displayed years younger, with a minimum displayed age of 5.
-- **Grant Full Mastery** — 100,000 tech points; sets all five skills of the
-  selected living villager to the APK's mastery value of 90. It preserves the
-  selected job, or chooses Farming when none is selected, so VV1 does not show
-  the incomplete title **Master**.
-- **Grant Running** — 40,000 tech points; permanently gives the selected
-  living villager the Running like when a Like slot is available and removes
-  Running from that villager's Dislikes. It refuses without charging when all
-  three Like slots are occupied and Running is not already a Like. This
-  upgrade does not write movement speed, movement initialization, or a custom
-  Running flag, and it does not alter any stock movement predicate. All
-  per-villager speed values and vanilla speed decisions remain untouched.
-- **Set Age to 18** — 50,000 tech points; sets the selected living villager's
-  age to 18.
-- **Tech Point Doubler** — displayed at 500,000 tech points but temporarily
-  unavailable for new purchase pending exact-build provenance verification.
-  Existing ownership can be removed for zero cost with no refund; repurchase is
-  temporarily disabled for this build.
-- **Food Point Doubler** — displayed at 500,000 tech points with the same
-  temporary safety gate. Existing ownership can be removed for zero cost with
-  no refund; repurchase is temporarily disabled for this build.
-
-The legacy Cure, Running, Time Warp, doubler, and selected-villager Origins
-paths remain **STOP**. Re-enablement requires rebuilding the resource with the
-exact label **Time Warp - Advances 3 Villager Years**, removing or replacing
-stale Cure resources, and proving confirmation, selected/world identity and
-funds reacquisition, native mutation and postverification, one deduction only
-after success, and truthful no-change/no-charge and partial-failure reporting.
-This containment changes no Golden Child or Island Event outcome.
-
-The separate `vv1_full_mastery_all_stage_a_candidate` remains an isolated,
-command-7-only, catalog-visible static candidate for stock Collection
-Progression and Immediate Fixed. It is not the disabled Origins record;
-runtime/player confirmation remains pending.
-
-## VV2 Origins playtest package
-
-**Playtest warning:** VV2 Origins is exposed in this requested package after a
-player reported that both Time Warp and Food Point Doubler crash immediately
-after their purchased/success dialog is displayed. This records the trigger
-only; it does not infer whether the charge or action persisted. Both
-`vv2_enable_origins_exclusive_features` and its dependent village-wide upgrade
-are selectable for targeted static/playtest work, but remain runtime/player
-validation pending. Unrelated VV2 patches remain available.
-
-The rows provided by **Enable Origins-Exclusive Features (The Lost Children)**
-remain the historical diagnostic menu contract:
-
-- **Time Warp**, **Island Event**, and the literal stock **Barrel of Babies**
-  event;
-- removable **Tech Point Doubler** and **Food Point Doubler** purchases stored
-  only in the current saved village;
-- **Grant Youth**, **Grant Full Mastery**, **Grant Running**, and **Set Age to
-  18** for the selected villager.
-
-The package does not claim that these legacy Cure, Running, Time Warp, doubler,
-or selected-villager paths are runtime-safe. Re-enablement of runtime/player
-behavior requires the crash root cause, the exact Time Warp resource rebuild,
-legacy Cure replacement, and the complete
-confirmation/reacquisition/postverification/one-deduction transaction gates.
-This package changes no Gong of Wonder or Island Event outcome.
-
-The separate `vv2_full_mastery_all_stage_a_candidate` remains an isolated,
-command-7-only, catalog-visible static candidate for stock Collection
-Progression and Immediate Fixed. It excludes commands 6/8, Gong, Island Event,
-and withdrawn Origins; runtime/player confirmation remains pending.
-
-## VV3: Enable Origins-Exclusive Features
-
-Enable **Enable Origins-Exclusive Features (The Secret City)** to add the
-Origins **Upgrades** menus to VV3. The Tech Point and Food Point Doublers are
-displayed but temporarily unavailable for new purchase and repurchase under the
-exact-build **STOP** gate; existing ownership can be removed for zero cost with
-no refund. The audit records 33 food writer rows (29 calls, 4 E9 tails) and 16
-tech rows (13 calls, 3 E9 tails), with tail sites documented in the technical
-research. Food Mastery-like award transforms are confirmed absent in this
-build. Exact-build audit `4c588ffd36765d750533fe9694f8fda5c8e82736`
-also confirms that Magic level 1 or higher adds a deterministic flat `+1`
-tech point to each completed research callback. It does not change research
-speed, duration, base award, RNG, or Research-skill gain. Native research adds
-the base award, optional quarter-base bonus, Magic `+1`, timed `+1`, and
-independent RNG `+1` in that order. Any future Tech Doubler must double the
-complete positive native research sum once, after those additions, while
-leaving collection duplicates and Island Events native. Collection dispatcher
-awards are recorded, but IDA has no resolved
-caller to `sub_42DEB0`, and Island Event mixed-source writers have no source
-tag or proved final-delta boundary. No safe doubler hook, transient marker, or
-certified cave/new section is available. The remaining Origins and
-selected-villager rows retain their current-save scope and exact-build guards;
-runtime/player confirmation remains pending.
-
-## All games: Write Village Statistics to Text File
-
-Enable **Write Village Statistics to Text File** for any game to refresh
-`Village Statistics - Save N.txt` in that modified game folder after a
-successful save of slot 1 through 5. Each slot receives its own text file.
-Failure to write the text file never changes a successful game-save result.
-
-VV1 and VV2 export their reachable stock lifetime counters. VV3, VV4, and VV5
-also retain the inherited per-save lifetime block even though their local
-Statistics screen is absent or unreachable. The later-game patch reads those
-uncapped saved counters directly and restores the stock bookkeeping omissions:
-VV3's Villagers Buried total, and VV4/VV5's Food Gathered and Villagers Buried
-totals. The restored routes cover normal play and time catch-up where the stock
-lifecycle does.
-
-Existing later-game saves preserve every total stock already recorded; fields
-that stock never updated begin at zero when this patch is first used. Fresh
-saves track all exported totals from their normal initialization.
-
-## VV2: Teaching Children Grants Skill
-
-Enable **Teaching Children Grants Skill (The Lost Children)** to reward every attending child once after that child's full stock lesson queue finishes. Each attendee gains 7, 8, or 9 points in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and skills remain capped at 100.
-
-That award matches VV3's code-confirmed Tribal Chief lesson. The patch does not create extra lessons, change who attends, alter the teacher requirement, reward children who are not enrolled by the stock lesson routine, or reward an interrupted lesson that never reaches the callback.
-
-## VV2: Hospital Recovery Heals
-
-Enable **Hospital Recovery Heals (The Lost Children)** so a villager who
-finishes **Recovering at the hospital** gains exactly 1 health point, capped at
-100. The stock action builds its movement and recovery queue but does not
-change health. The award runs only from a new final completion callback, so an
-interrupted recovery gives no health.
-
-## VV1: Birth Control
-
-Enable **Birth Control (A New Home)** to match the literal VV4/VV5 boundary:
-manual pairing rejects only an older category-2 carrier, ordinary autonomous
-and catch-up routes reject only scanned candidates at internal age 1000 or
-greater, and older male/initiating villagers have no added upper-age ceiling.
-The chooser uses the VV4/VV5 score floor and native 25% non-preference fallback;
-Birth Control owns only its named ordinary-route checks. Native conception,
-pregnancy, and delivery remain outside that feature, while automatic
-physical-capacity safety applies separately in all three public modes.
-
-## VV2: Birth Control
-
-Enable **Birth Control (The Lost Children)** to match the literal VV4/VV5
-boundary on the two writer-reaching opcode-12 candidate scans used by ordinary
-autonomous/catch-up pairing and stew recipe 15. Both exact 40-byte guarded
-blocks are applied together. Candidate sex remains preserved in `EDX`, and the
-already-loaded candidate age in `EAX` is compared directly with 1000.
-
-The stock manual carrier/female-only age gate is unchanged, and no male
-upper-age gate is added. Birth Control owns only the two age blocks. Chooser
-scoring, the exact `work` and `learning` tokens, planner, pregnancy and
-delivery, saves, RNG, food, fertility, messages, statistics, Love Note, Gong
-grant, Silver Mirror clone, and all direct/event births remain outside that
-feature. Automatic physical-capacity safety is separate and applies in all
-three public modes. This exact-build implementation is based on
-disassembly commit `74778bd6a7d3a17dd990636cf6d4e769466800c6`.
-
-## VV3: Birth Control
-
-Enable **Birth Control (The Secret City)** to match the literal VV4/VV5
-boundary on ordinary action-13 autonomous/catch-up pairing. The scanned
-candidate remains in the internal-age 360..999 range, while the initiating
-villager has no added upper-age ceiling. Birth Control owns only the five
-ordinary initiator checks. The native chooser score floor and 25% non-preference
-fallback, manual carrier gate, conception, pregnancy, and delivery remain
-outside that feature; automatic physical-capacity safety applies separately in
-all three public modes.
-
-## VV2: Gong of Wonder Coconuts Fix
-
-Enable **Gong of Wonder Coconuts Fix (The Lost Children)** so the coconut outcome adds 30 to the trees' existing amount. Stock VV2 assigns the coconut resource to 30, which can erase a larger existing supply. The patch corrects both stock outcome paths and changes no other Gong result.
-
-## VV5: Clickable Tips
-
-Enable **Clickable Tips (New Believers)** to make the curled vine beneath the
-on-screen Puzzles button clickable. Each click shows a random in-game tip in the
-gray message bar, using the engine's own auto-hide timer, and plays the `hou.ogg`
-chime. The tip is picked at random on every click and no state is stored.
-
-The patch changes no gameplay, villager, economy, or save data. It uses unused
-`.text` code padding plus a single hooked click-dispatch site; no other engine
-code or data is altered, and no persistent or scratch memory is written. Tip text
-and the chime are confirmed in playtest.
-
-## VV5: Guardians of Isola Rewrite
-
-Enable **Guardians of Isola Rewrite (New Believers)** to overhaul the New
-Believers story presentation. It replaces the in-game text (`Assets/sm.xml`) and
-twelve story/UI images -- the five totem strips, the idol states, the
-blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola
-rewrite.
-
-The rewrite is purely presentational: no gameplay, executable, or save bytes
-change, and every replaced file is restored to its exact base-game version when
-the patch is not selected.
-
-## VV5: Heathen Mommy Puzzle Restoration
-
-Enable **Heathen Mommy Puzzle Restoration (New Believers)** to restore the natural-build Heathen Mommy to newly created villages and restore the hidden 17th Heathen Parent graphic to the Puzzles screen. Its full visible tile rolls over to **This milestone has not been completed!** while locked and **The Heathen Parent** when completed. The supplied natural build creates a 29th Heathen with tag 17, initializes her, and assigns one forced nursing baby. The supported modern initializer creates only 28 Heathens and omits that sequence.
-
-The patch reproduces the natural build's exact mother arguments and nursing-baby call, then restores the retained locked/solved puzzle graphic using puzzle 17's actual completion state. The mother and baby require two physical population slots. This new-game initialization does not retroactively add a mother to an existing save.
-
-## VV5: Enable Origins-Exclusive Features
-
-The independently certified **VV5 Origins Full Mastery Extension Base**
-(`vv5_origins_full_mastery_base_candidate`) and **Grant Full Mastery to All
-Villagers** (`vv5_full_mastery_all_stage_a_candidate`) are enabled only for
-the exact stock Collection Progression and Immediate Fixed builds. Their
-acceptance is bound to the C99 rendered hashes, the authoritative Origins DLL,
-the native `btn_trophies` resource, the certified confirmation routines and
-strings, and the recorded hook/map guards.
-
-The VV5 Upgrades UI and native village-wide Full Mastery route are preserved;
-the individual route targets the selected current living Believer and performs
-the certified exact-100 transaction. The withdrawn Cure row/command 5 is
-unavailable, bypassed, and unreachable in this candidate; no Cure purchase or
-30,000-point Cure behavior is present. Other Origins actions and unrelated
-VV5 features remain native and unchanged.
-
-## VV4: Complete Fish Scales = Golden Fish in Nets
-
-Enable **Complete Fish Scales = Golden Fish in Nets (The Tree of Life)** to delay Golden Fish eligibility until all 12 Fish Scales have been collected. Stock VV4 allows Golden Fish after only one scale and uses the chance `2 × collected scales + 1%`.
-
-The patch changes only the eligibility threshold from 1 to 12. At full completion, the stock formula still gives a 25% Golden Fish chance. Normal fish, fishing animations, food awards, scale collection, and all other fishing outcomes remain unchanged.
-
-## VV4: Optional Text Changes
-
-Enable **Optional Text changes (The Tree of Life)** to replace some in-game text
-with wording consistent with the other Virtual Villagers games. The "Scholar"
-villager title becomes **Esteemed Elder**, and a few labels and event lines are
-capitalized and punctuated to match. The patch swaps `Assets/sm.xml` for the
-edited copy; deselecting it leaves the base-game text untouched and restores the
-exact base-game file.
-
-No executable bytes are changed, and no gameplay, stats, collectibles, or save
-data are affected.
-
-## VV4: Enable Origins-Exclusive Features
-
-Enable **Enable Origins-Exclusive Features (The Tree of Life)** to add the
-icon-based Origins **Upgrades** menus to VV4. It includes the displayed-but-
-currently-unavailable current-save Tech Point and Food Point Doublers, Time
-Warp, Island Event, native Barrel of Babies purchase, and selected-villager
-upgrades used by the other Origins ports. Existing doubler ownership can be
-removed for zero cost with no refund; repurchase remains disabled pending the
-exact post-Food-Mastery provenance gate. The final contract stacks after native
-collectible and Food Mastery adjustments and excludes Island Event outcomes.
-Grant Running only uses a free normal Like
-slot, removes Running from Dislikes, and never changes movement speed. The
-feature is exact-build guarded, but its native dialog and upgrade UI still need
-player runtime validation.
-
-## VV3: Grant Running to Selected Villager
-
-`vv3_individual_grant_running_candidate` is disabled, catalog-hidden, and absent
-from GUI, CLI, and Select All. The withdrawn village-wide command-6 Running row
-is also absent. Its retained evidence is not publication authority.
-
-## VV3: Full Heal / Cure All
-
-`vv3_full_heal_cure_all_candidate` is absent because its required selected-
-villager Running dependency is disabled and hidden. It must not appear in GUI,
-CLI, or Select All. Its retained evidence is not publication authority.
-
-## VV4 breeding reference
-
-VV4 remains the untouched vanilla Breeding and Embracing reference, including
-its older-mother behavior, native chooser fallback, and no male upper-age gate.
-The historical VV4 Birth Control candidate is rejected/superseded and is not
-offered or applied; VV1, VV2, and VV3 have separate exact-build Birth Control
-records matching that literal reference boundary.
-
-The exact-build VV4/VV5 audit confirms that both games already provide the
-requested Birth Control/Breeding behavior natively. They are therefore no-patch
-references. VV1, VV2, and VV3 now expose separate exact-build records with
-static verification complete and runtime/player confirmation pending.
-
-## VV3: Everyone Tries On the Robe
-
-Enable **Everyone Tries On the Robe (The Secret City)** to make one handled
-robe drop send the whole eligible village to try the robe on. Every active,
-living, non-nursing villager is interrupted out of whatever they were doing
-and walks to the amphitheatre, then receives the base game's complete native
-success or failed-fit result. The base game alone decides who becomes Tribal
-Chief.
-
-Dead, inactive, and nursing villagers are skipped. The patch does not force
-either robe action, assign Chief clothing or state, or change the Chief puzzle,
-pregnancy or nursing state, health, age, skills, preferences, or save records.
-Fanout requires the original callback to report a handled drop.
-
-This checkbox is optional and starts unchecked. It supports the two
-population-increase modes. The implementation is exact-
-build guarded and statically verified; player runtime confirmation remains
-pending. The robe feature itself never reads or writes candidate fields
-`+0xE80` or `+0xE88`; the unchanged stock callback remains responsible for
-candidate selection and all robe outcomes.
-
-## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
-
-Enable **Nature Level 1 Actually Replenishes Food Sources Faster (The Secret City)** to make the technology description literal. At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours 15 minutes instead of 3 hours, and honey becomes refill-eligible after 45 minutes instead of 1 hour.
-
-The stock Nature fruit quantity is preserved at the shorter interval: approximately 126 fruit instead of 111 for the same stock refill group. Honey also receives the exact `42/37` proportional quantity bonus, normalized to its new 45-minute interval. Nature level 0 retains stock timing and amounts. The 3,000-unit honey cap remains unchanged.
-
-## VV3: Nature Level 3 Actually Alters Mortality
-
-Enable **Nature Level 3 Actually Alters Mortality (The Secret City)** to make
-the otherwise-unused Nature read in VV3's aging loop affect longevity. At
-Nature level 3, every ordinary villager's complete mortality curve moves seven
-displayed years later. Medicine's stock threshold is calculated first, so the
-benefits stack. Nature levels 0 through 2 are unchanged.
-
-The same aging loop processes ordinary play and elapsed-time catch-up, so the
-seven-year shift applies in both. The patch does not change displayed age,
-health, sickness, resurrection, or the existing Medicine progression.
-
-## VV3: Pointing Out a Rare Collectible Always Works
-
-Enable **Pointing Out a Rare Collectible Always Works (The Secret City)** so
-the Tribal Chief's completed action rerolls an ineligible rare collectible
-choice instead of silently spending the full cooldown without placing
-anything. Stock VV3 chooses the rare item only after the action and cooldown
-have already committed, then rejects the choice when another villager is
-targeting that exact item or when a particular rare category has already been
-collected.
-
-The patch retries only those stock rejection paths. It preserves the original
-four rare categories, item IDs, random selection, collection restrictions,
-spawn regions, Chief requirement, Leadership requirement, action duration, and
-cooldown.
-
-## VV5: Easier Devotee Training
-
-Enable **Easier Devotee Training (New Believers)** so any villager with positive Devotion skill can spontaneously choose the game's original **Honoring** action. The stock autonomous opportunity is confined to the Retired Chief job state; other devotees normally have to be dropped on the upgradeable statue to begin Honoring. This patch checks actual Devotion skill instead.
-
-The normal idle scheduler and its existing timing chance remain unchanged. The patch reuses the stock Honoring action queue and skill-gain behavior, does not grant Devotion directly, and does not alter conversion, statue upgrades, manual statue assignment, or Devotion thresholds. **Spreading the Word remains a Retired Chief activity and is not assigned to ordinary devotees.**
-
-## VV5: Statue Drops — Normal Action or Honoring
-
-Enable **Statue Drops: Normal Action or Honoring (New Believers)** for state-aware statue drops. Every applicable drop chooses with equal 50/50 odds between **Honoring** and the normal action for that state: **Building a statue** during construction, **Confused** when an upgrade lacks the necessary technology, or **Polishing the Statue** for eligible upgradeable and completed statues.
-
-This provides a manual Devotion-training route in every statue state while preserving all three original alternatives. It does not change autonomous work, Devotion gains, statue upgrades, or Retired Chief activities.
-
-## VV5: VV4 Nursery School Divisor Parity
-
-Enable **VV4 Nursery School Divisor Parity (New Believers)** to change only the Nursery School's spread-lesson divisor from five to six. VV4 divides one lesson into five shares and writes those shares to five skills. VV5 writes shares to six skills, including Devotion, but retains VV4's divisor of five and therefore distributes six-fifths of a lesson when all six skills qualify.
-
-For parity with Virtual Villagers 4, this optional patch gives each of VV5's six skills one-sixth of the spread lesson. It does not change focused strongest-skill lessons, teacher qualification, teacher selection, teacher skill totals, the under-14 eligibility rule, the approximately-50 skill ceiling, or offline catch-up. The arithmetic inconsistency is code-confirmed; whether it was intentional cannot be determined from the executable alone.
+### What each mode does
+
+**No Population Increase** keeps every game's stock population cap, collection
+behavior, and progression gates exactly as shipped: 90 in A New Home, 115 in
+The Lost Children, 125 in The Secret City, 115 in The Tree of Life, and 105 in
+New Believers. Only the automatic physical-capacity safety is applied, and that
+never changes the gameplay cap -- it just stops allocations from overrunning the
+game's real villager record pool.
+
+**Collection Progression Max Pop** keeps collections meaningful: they continue
+to raise the cap, so the maximum is earned rather than granted. A New Home
+reaches 256. The Lost Children starts at 231 and adds 0-25 collection points.
+The Secret City starts at 115 and adds 0-25 collection points plus 10 more from
+Magic level 3. The Tree of Life starts at 125 and adds 0-25 collection points.
+New Believers starts at 135 and adds 0-15 collection points.
+
+**Immediate Fixed Max Pop** grants the absolute slot maximum straight away:
+256 in A New Home and The Lost Children, 150 in The Secret City, The Tree of
+Life, and New Believers. Collection bonuses no longer change the maximum, and
+The Secret City's Magic level no longer changes it either.
+
+The two increased modes use every verified built-in villager slot: 256 in A New
+Home and The Lost Children, and 150 in The Secret City, The Tree of Life, and
+New Believers. Those are hard limits of each game's own record array, not
+chosen numbers.
+
+### Resulting maximums
 
 | Game | Stock final maximum | No Population Increase | Collection Progression maximum | Immediate Fixed maximum |
 |---|---:|---:|---:|---:|
@@ -466,6 +67,338 @@ For parity with Virtual Villagers 4, this optional patch gives each of VV5's six
 | New Believers | 105 | 105 | 135 to 150 | 150 |
 
 Housing gates remain in place.
+
+All three modes apply the game's existing automatic physical-capacity safety;
+it only clamps allocations at the physical record limit and does not change
+the selected mode's social cap or collection/progression behavior. All three
+modes use the stable short `- Modded` name. The selected mode,
+optional patches, hashes, and applied edits remain identified in the adjacent
+`.patch-log.json`.
+
+## Optional patches by game
+
+Every patch below is optional and off by default. The patcher lists them
+under these same game headers, sorted by name. Selecting a patch that has a
+prerequisite selects the prerequisite automatically.
+
+### Virtual Villagers - A New Home
+
+**Birth Control**
+
+Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
+
+- Patch ID: `vv1_birth_control`
+
+**Builder Action Fixes**
+
+Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
+
+- Patch ID: `vv1_builder_action_fixes`
+
+**Continue Research at Max Technologies**
+
+Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.
+
+- Patch ID: `vv1_continue_research_at_max_technologies`
+
+**Enable Origins Tech, Details, and Village-Wide Upgrades**
+
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded.
+
+- Requires: vv1_enable_origins_exclusive_features
+- Patch ID: `vv1_origins_village_wide_upgrades`
+
+**Magic Fruit of Life Alters Mortality**
+
+Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
+
+- Patch ID: `vv1_magic_fruit_alters_mortality`
+
+**Reenable F6 Clothing Change Cheat**
+
+The clothing shortcut cycles the selected active villager through the stock outfits: pressing F6 spends 5,000 tech points to advance to the next outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.
+
+- Patch ID: `vv1_f6_clothing_change_cheat`
+
+**School Lessons Grant Skill**
+
+Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+
+- Patch ID: `vv1_school_lessons_grant_skill`
+
+**Visual Mods**
+
+Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.
+
+- Patch ID: `vv1_visual_mods`
+
+**Write Village Statistics to Text File**
+
+After a successful save, writes the village's lifetime statistics to a Village Statistics text file.
+
+- Patch ID: `vv1_write_village_statistics`
+
+
+### Virtual Villagers - The Lost Children
+
+**Birth Control**
+
+Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor and 25% non-preference fallback remain in force, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.
+
+- Patch ID: `vv2_birth_control`
+
+**Easier Healing Mastery**
+
+Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.
+
+- Patch ID: `vv2_easier_healing_mastery`
+
+**Enable Origins Tech, Details, and Village-Wide Upgrades**
+
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded.
+
+- Requires: vv2_enable_origins_exclusive_features
+- Patch ID: `vv2_origins_village_wide_upgrades`
+
+**Gong of Wonder Coconuts Fix**
+
+When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
+
+- Patch ID: `vv2_gong_of_wonder_coconuts_fix`
+
+**Hospital Recovery Heals**
+
+A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.
+
+- Patch ID: `vv2_hospital_recovery_heals`
+
+**Teaching Children Grants Skill**
+
+Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+
+- Patch ID: `vv2_teaching_children_grants_skill`
+
+**Write Village Statistics to Text File**
+
+After a successful save, writes the village's lifetime statistics to a Village Statistics text file.
+
+- Patch ID: `vv2_write_village_statistics`
+
+
+### Virtual Villagers - The Secret City
+
+**Birth Control**
+
+Matches the VV4/VV5 Birth Control boundary on the exact VV3 ordinary action-13 route: the native chooser's score floor and 25% non-preference fallback remain in force, the scanned candidate stays in the stock internal-age 360..999 range, and the initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.
+
+- Patch ID: `vv3_birth_control`
+
+**Enable Origins Tech, Details, and Village-Wide Upgrades**
+
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. Island Events and Duplicate Collectibles are excluded.
+
+- Requires: vv3_enable_origins_exclusive_features
+- Patch ID: `vv3_origins_village_wide_upgrades`
+
+**Everyone Tries On the Robe**
+
+Dropping an active, living, non-nursing villager on the robe interrupts every other active, living, non-nursing villager and sends them to try on the robe too. Each villager receives the complete base-game success or failed-fit result, and the base game alone decides who becomes Tribal Chief.
+
+- Population modes: stock, collection_progression, immediate_fixed
+- Patch ID: `vv3_everyone_tries_on_robe`
+
+**Nature Level 1 Actually Replenishes Food Sources Faster**
+
+Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.
+
+- Patch ID: `vv3_nature_honey_refill`
+
+**Nature Level 3 Actually Alters Mortality**
+
+Nature level 3 shifts every ordinary villager's complete mortality curve seven displayed years later. The stock Medicine threshold is calculated first, so the benefits stack, and the shared aging loop applies the change during ordinary play and time catch-up.
+
+- Patch ID: `vv3_nature_level_three_alters_mortality`
+
+**Pointing Out a Rare Collectible Always Works**
+
+When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.
+
+- Patch ID: `vv3_rare_collectible_retry`
+
+**Write Village Statistics to Text File**
+
+After a successful save, writes the village's lifetime statistics to a Village Statistics text file.
+
+- Patch ID: `vv3_write_village_statistics`
+
+
+### Virtual Villagers - The Tree of Life
+
+**Complete Fish Scales = Golden Fish in Nets**
+
+Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
+
+- Patch ID: `vv4_complete_scales_golden_fish`
+
+**Enable Origins Tech, Details, and Village-Wide Upgrades**
+
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers, Full Heal/Cure All, All Villagers are Exactly 18, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting, and the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. Island Events and Duplicate Collectibles are excluded.
+
+- Requires: vv4_enable_origins_exclusive_features
+- Patch ID: `vv4_origins_village_wide_upgrades`
+
+**Optional Text changes**
+
+Replaces some in-game text with wording consistent with the other Virtual Villagers games (for example, the "Scholar" title becomes "Esteemed Elder", and a few labels and event lines are capitalized and punctuated to match). When active, the game's Assets/sm.xml is swapped for the edited version; when the patch is not selected, the base-game text is left untouched. No executable bytes are changed.
+
+- Patch ID: `vv4_optional_text_changes`
+
+**Write Village Statistics to Text File**
+
+After a successful save, writes the village's lifetime statistics to a Village Statistics text file.
+
+- Patch ID: `vv4_write_village_statistics`
+
+
+### Virtual Villagers - New Believers
+
+**Clickable Tips**
+
+Clicking the curled vine beneath the on-screen Puzzles button shows a random in-game tip in the gray message bar (with the engine's own auto-hide timer) and plays the hou.ogg chime.
+
+- Patch ID: `vv5_clickable_tips`
+
+**Easier Devotee Training**
+
+Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.
+
+- Patch ID: `vv5_easier_devotee_training`
+
+**Enable Origins Tech, Details, and Village-Wide Upgrades**
+
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped.
+
+- Requires: vv5_enable_origins_exclusive_features
+- Patch ID: `vv5_origins_village_wide_upgrades`
+
+**Guardians of Isola Rewrite**
+
+Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.
+
+- Patch ID: `vv5_guardians_of_isola_rewrite`
+
+**Heathen Mommy Puzzle Restoration**
+
+Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic and full-tile rollover messages to the Puzzles screen. Existing saves are not retroactively given a new mother.
+
+- Patch ID: `vv5_heathen_mommy_puzzle`
+
+**Statue Drops: Normal Action or Honoring**
+
+Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.
+
+- Patch ID: `vv5_statue_polishing_or_honoring`
+
+**VV4 Nursery School Divisor Parity**
+
+For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divisor from five to six. VV5 normally distributes one-fifth of a lesson to each of six skills, an arithmetic inconsistency that awards six-fifths in total; this patch distributes exactly one-sixth to each skill without claiming whether the original inconsistency was intentional.
+
+- Patch ID: `vv5_vv4_nursery_divisor_parity`
+
+**Write Village Statistics to Text File**
+
+After a successful save, writes the village's lifetime statistics to a Village Statistics text file, including current puzzle totals.
+
+- Patch ID: `vv5_write_village_statistics`
+
+
+That is 35 optional patches across the five games.
+
+Three patches change files rather than executable bytes: **VV1 Visual
+Mods**, **VV4 Optional Text changes**, and the **VV5 Guardians of Isola
+Rewrite** swap images and text inside the copied game folder only, and
+restore the exact base-game files when the patch is not selected.
+
+## The Origins upgrades menus
+
+Each game's **Enable Origins Tech, Details, and Village-Wide Upgrades** patch
+adds two menus reached from an **Upgrades** button. Every game uses the same
+wording and the same shell, so the menus read identically across all five.
+
+### Tech screen — `Origins Upgrades`
+
+| Upgrade | Cost |
+|---|---:|
+| Time Warp - Advances 3 Villager Years | 50,000 |
+| Island Event | 30,000 |
+| Barrel of Babies | 75,000 |
+| Tech Point Doubler | 500,000 |
+| Food Point Doubler | 500,000 |
+| Full Heal / Cure All | 30,000 |
+| Grant Running to All Villagers | 1,000,000 |
+| Grant Full Mastery to All Villagers | 1,000,000 |
+| All Villagers are Exactly 18 | 1,000,000 |
+| Complete All Collections | 1,000,000 |
+| Reset All Collections | 1,000,000 |
+| Equal Division of Labor (Includes Parenting) | 1,000,000 |
+| Equal Division of Labor (No Parenting) | 1,000,000 |
+| Change Appearance for All | 450,000 |
+
+A New Home has no Collections rows, because it has no collections to complete
+or reset. Every other row it shows uses the same wording as the rest.
+
+### Villager Details screen — `Villager Upgrades`
+
+| Upgrade | Cost |
+|---|---:|
+| Grant Youth (-35 years, min age 5) | 50,000 |
+| Grant Full Mastery | 100,000 |
+| Grant Running | 40,000 |
+| Set Age to 18 | 50,000 |
+| Change Appearance | 5,000 |
+
+### Buying, removing, and the green checkmarks
+
+Choosing a row asks `Do you want to buy ... for ... tech points?` and applies
+nothing unless you confirm. If an upgrade would change nothing, the game says so
+and **no tech points are deducted**.
+
+**Tech Point Doubler** and **Food Point Doubler** are the only two upgrades you
+own rather than perform. Once bought, their button changes from **Buy** to
+**Remove** and a small green checkmark appears beside them. Removing one takes
+effect immediately and issues no refund.
+
+That checkmark is only ever shown for those two rows. It marks "you already own
+this", which is why it appears next to the two Doublers and nowhere else --
+every other upgrade is an action you can repeat rather than something owned.
+
+Both menus close with **Cancel** or the Esc key, and each shows
+`Press ESC to exit this menu.` once.
+
+### The Secret City: Magic level and research points
+
+The Secret City's Tech Point Doubler is held under the exact-build **STOP**
+gate: it stays visible but cannot be newly purchased or repurchased, and an
+existing one can still be removed for zero cost with no refund.
+
+The audit behind that decision also established what Magic actually does to
+research. Magic level 1 or higher adds a deterministic flat `+1` tech point to
+each completed research callback. It does not change research speed, duration,
+the base award, the RNG, or Research-skill gain. Native research adds the base
+award, the optional quarter-base bonus, the Magic `+1`, a timed `+1`, and an
+independent RNG `+1`, in that order.
+
+### Status
+
+These menus are verified by build-level tests -- exact bytes, dialog wording,
+and the purchased/success dialog paths -- and the patcher refuses to write an
+executable whose bytes it cannot account for. They have had far less **playtest**
+coverage than the ordinary patches, so **runtime** confirmation in a real village
+is still the last step for some rows. If a patched game ever behaves oddly or
+you see a **crash**, the unmodified original EXE and folder are always left
+untouched beside the modded copy.
+
+## Population safety
 
 ### New Believers: Heathens and physical slots
 
