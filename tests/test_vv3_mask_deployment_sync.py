@@ -20,33 +20,40 @@ ORIGINS_BUILDER = ROOT / "scripts" / "build_vv3_origins_feature.py"
 
 
 _C_SIMPLE_ESCAPES = {
-    "a": "\a",
-    "b": "\b",
-    "f": "\f",
-    "n": "\n",
-    "r": "\r",
-    "t": "\t",
-    "v": "\v",
-    "\\": "\\",
-    "'": "'",
-    '"': '"',
-    "?": "?",
+    "a": 0x07,
+    "b": 0x08,
+    "f": 0x0C,
+    "n": 0x0A,
+    "r": 0x0D,
+    "t": 0x09,
+    "v": 0x0B,
+    "\\": 0x5C,
+    "'": 0x27,
+    '"': 0x22,
+    "?": 0x3F,
 }
 
 
-def _decode_c_string(literal: str) -> str:
-    """Decode a C string-literal body the way the compiler stores it.
+def _decode_c_string(literal: str) -> bytes:
+    """Decode a C string-literal body into the BYTES the compiler stores.
 
-    The compiled DLL holds the DECODED byte for an escape such as ``\\"`` or
+    The compiled DLL holds the decoded byte for an escape such as ``\\"`` or
     ``\\n``, so comparing the raw source spelling would fail a companion that
-    was in fact rebuilt correctly.  Hex and octal escapes are decoded too.
+    was in fact rebuilt correctly.
+
+    This returns bytes rather than str on purpose.  A numeric escape may name a
+    non-ASCII byte -- ``\\xE9`` or ``\\351`` -- and MSVC stores that byte
+    verbatim.  Decoding to a Unicode character instead would make the later
+    ASCII encode raise, rejecting a correctly rebuilt DLL for part of the very
+    syntax this claims to support.
     """
-    out: list[str] = []
+    out = bytearray()
     index = 0
     while index < len(literal):
         char = literal[index]
         if char != "\\":
-            out.append(char)
+            encoded = char.encode("utf-8")
+            out.extend(encoded)
             index += 1
             continue
         index += 1
@@ -61,20 +68,26 @@ def _decode_c_string(literal: str) -> str:
                 index += 1
             if not digits:
                 raise AssertionError(f"empty hex escape in C literal: {literal!r}")
-            out.append(chr(int(digits, 16)))
+            value = int(digits, 16)
+            if value > 0xFF:
+                raise AssertionError(f"hex escape exceeds one byte: {literal!r}")
+            out.append(value)
             continue
         if escape in "01234567":
             digits = ""
             while index < len(literal) and len(digits) < 3 and literal[index] in "01234567":
                 digits += literal[index]
                 index += 1
-            out.append(chr(int(digits, 8)))
+            value = int(digits, 8)
+            if value > 0xFF:
+                raise AssertionError(f"octal escape exceeds one byte: {literal!r}")
+            out.append(value)
             continue
         if escape not in _C_SIMPLE_ESCAPES:
             raise AssertionError(f"unsupported C escape in {literal!r}")
         out.append(_C_SIMPLE_ESCAPES[escape])
         index += 1
-    return "".join(out)
+    return bytes(out)
 
 
 def _load_builder():
@@ -168,7 +181,7 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         messages = []
         for match in re.finditer(assignment_pattern, block):
             parts = re.findall(literal, match.group(1))
-            messages.append("".join(_decode_c_string(part) for part in parts))
+            messages.append(b"".join(_decode_c_string(part) for part in parts))
 
         # persist-failed, the four VV3_CAF_MASK_* causes, and the default.
         self.assertEqual(
@@ -180,9 +193,9 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
 
         deployed = DEPLOYED.read_bytes()
         for message in messages:
-            with self.subTest(message=message[:48]):
+            with self.subTest(message=message[:48].decode("ascii", "replace")):
                 self.assertIn(
-                    message.encode("ascii"),
+                    message,
                     deployed,
                     "the deployed companion predates this source string; "
                     "rebuild the canonical DLL and re-pin it",
@@ -212,16 +225,25 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         Without it, a message containing a valid C escape would be compared
         against its raw source spelling and fail a companion that had in fact
         been rebuilt correctly.
+
+        The result is BYTES.  A numeric escape may name a non-ASCII byte, which
+        MSVC stores verbatim; decoding that to a Unicode character instead made
+        the comparison raise on encode, rejecting a correctly rebuilt DLL for
+        part of the very syntax this supports.
         """
         for literal, expected in (
-            ("plain text", "plain text"),
-            (r"a\"b", 'a"b'),
-            (r"a\\b", "a\\b"),
-            (r"l1\nl2", "l1\nl2"),
-            (r"tab\there", "tab\there"),
-            (r"hex\x41", "hexA"),
-            (r"oct\101", "octA"),
-            (r"\r\n", "\r\n"),
+            ("plain text", b"plain text"),
+            (r"a\"b", b'a"b'),
+            (r"a\\b", b"a\\b"),
+            (r"l1\nl2", b"l1\nl2"),
+            (r"tab\there", b"tab\there"),
+            (r"hex\x41", b"hexA"),
+            (r"oct\101", b"octA"),
+            (r"\r\n", b"\r\n"),
+            # Non-ASCII numeric escapes must survive as raw bytes.
+            (r"hi\xE9", b"hi\xe9"),
+            (r"hi\351", b"hi\xe9"),
+            (r"\xff", b"\xff"),
         ):
             with self.subTest(literal=literal):
                 self.assertEqual(_decode_c_string(literal), expected)
