@@ -19,6 +19,64 @@ COMPILE_SCRIPT = ROOT / "scripts" / "build_vv3_full_mastery_candidate_dll.ps1"
 ORIGINS_BUILDER = ROOT / "scripts" / "build_vv3_origins_feature.py"
 
 
+_C_SIMPLE_ESCAPES = {
+    "a": "\a",
+    "b": "\b",
+    "f": "\f",
+    "n": "\n",
+    "r": "\r",
+    "t": "\t",
+    "v": "\v",
+    "\\": "\\",
+    "'": "'",
+    '"': '"',
+    "?": "?",
+}
+
+
+def _decode_c_string(literal: str) -> str:
+    """Decode a C string-literal body the way the compiler stores it.
+
+    The compiled DLL holds the DECODED byte for an escape such as ``\\"`` or
+    ``\\n``, so comparing the raw source spelling would fail a companion that
+    was in fact rebuilt correctly.  Hex and octal escapes are decoded too.
+    """
+    out: list[str] = []
+    index = 0
+    while index < len(literal):
+        char = literal[index]
+        if char != "\\":
+            out.append(char)
+            index += 1
+            continue
+        index += 1
+        if index >= len(literal):
+            raise AssertionError(f"dangling escape in C literal: {literal!r}")
+        escape = literal[index]
+        if escape == "x":
+            index += 1
+            digits = ""
+            while index < len(literal) and literal[index] in "0123456789abcdefABCDEF":
+                digits += literal[index]
+                index += 1
+            if not digits:
+                raise AssertionError(f"empty hex escape in C literal: {literal!r}")
+            out.append(chr(int(digits, 16)))
+            continue
+        if escape in "01234567":
+            digits = ""
+            while index < len(literal) and len(digits) < 3 and literal[index] in "01234567":
+                digits += literal[index]
+                index += 1
+            out.append(chr(int(digits, 8)))
+            continue
+        if escape not in _C_SIMPLE_ESCAPES:
+            raise AssertionError(f"unsupported C escape in {literal!r}")
+        out.append(_C_SIMPLE_ESCAPES[escape])
+        index += 1
+    return "".join(out)
+
+
 def _load_builder():
     spec = importlib.util.spec_from_file_location("vv3_safe_upgrade_sync", BUILDER)
     if spec is None or spec.loader is None:
@@ -102,12 +160,15 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         )[0]
         # Each branch is `why = "literal" "literal" ...;` across several lines,
         # so collect every assignment and concatenate its adjacent literals.
+        # The literals are decoded first: the compiler stores the DECODED byte
+        # for an escape such as \" or \n, so comparing the raw source spelling
+        # would fail a correctly rebuilt companion.
         literal = r'"((?:[^"\\]|\\.)*)"'
         assignment_pattern = r"why\s*=\s*((?:\s*" + literal + r")+)\s*;"
         messages = []
         for match in re.finditer(assignment_pattern, block):
             parts = re.findall(literal, match.group(1))
-            messages.append("".join(parts))
+            messages.append("".join(_decode_c_string(part) for part in parts))
 
         # persist-failed, the four VV3_CAF_MASK_* causes, and the default.
         self.assertEqual(
@@ -144,6 +205,30 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
             deployed,
             "the deployed companion still carries the replaced message",
         )
+
+    def test_c_string_decoder_matches_compiler_storage(self) -> None:
+        """The decoder must produce what the compiler actually stores.
+
+        Without it, a message containing a valid C escape would be compared
+        against its raw source spelling and fail a companion that had in fact
+        been rebuilt correctly.
+        """
+        for literal, expected in (
+            ("plain text", "plain text"),
+            (r"a\"b", 'a"b'),
+            (r"a\\b", "a\\b"),
+            (r"l1\nl2", "l1\nl2"),
+            (r"tab\there", "tab\there"),
+            (r"hex\x41", "hexA"),
+            (r"oct\101", "octA"),
+            (r"\r\n", "\r\n"),
+        ):
+            with self.subTest(literal=literal):
+                self.assertEqual(_decode_c_string(literal), expected)
+        for bad in ("dangling\\", r"empty\xZZ"):
+            with self.subTest(invalid=bad):
+                with self.assertRaises(AssertionError):
+                    _decode_c_string(bad)
 
     def test_synchronize_repairs_a_stale_deployed_copy(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
