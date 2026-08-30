@@ -7720,7 +7720,7 @@ def dry_run(
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
         playtest_output_root=playtest_output_root,
     )
-    _apply_name_crash_immunity(patched, build.input_name, applied)
+    _require_name_crash_immunity(patched, build.input_name, applied)
     return _result(
         build,
         source,
@@ -7750,7 +7750,7 @@ def dry_run_all(
         ]
         fun_patches = _selected_fun_patches(build, selected_ids)
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
-        _apply_name_crash_immunity(patched, build.input_name, applied)
+        _require_name_crash_immunity(patched, build.input_name, applied)
         results.append(
             _result(
                 build,
@@ -8872,7 +8872,8 @@ def _remove_companion_files(
 # keeping the real directory: assets still resolve from the real folder, and
 # the save folder + name-gated init behave exactly as under the stock name,
 # under ANY actual filename.  Applied post-render (write path) so it never
-# perturbs the certified render identities; idempotent and fail-open.
+# perturbs the certified render identities.  Publication callers fail closed
+# if the guard cannot be applied, so an unsafe renamed build is never emitted.
 #
 # Pure stdlib (no keystone/pefile): the ~70-byte stdcall wrapper is emitted as
 # a fixed byte template (verified byte-for-byte against keystone) with two
@@ -9019,8 +9020,9 @@ def _nci_wrapper(iat_va: int, name_va: int, name_len: int) -> bytes:
         code.append(0)
 
     # Forward the three original arguments, then save the API return value and
-    # callee-saved registers.  With this layout: saved eax=[esp+10], lp=[esp+18],
-    # nSize=[esp+1c].
+    # callee-saved registers.  With this layout: saved eax=[esp+0c], lp=[esp+18],
+    # nSize=[esp+1c].  Four pushes move the saved return value to +0x0c (not
+    # +0x10, which is the wrapper's original return address).
     emit(b"\xff\x74\x24\x0c" * 3)
     emit(b"\xff\x15" + iat_va.to_bytes(4, "little"))
     emit(b"\x50\x56\x57\x55")
@@ -9051,7 +9053,7 @@ def _nci_wrapper(iat_va: int, name_va: int, name_len: int) -> bytes:
     emit(b"\x89\xd0\x2b\x44\x24\x18\x48")  # new length excluding NUL
     jump(0xEB, "done")
     mark("fail")
-    emit(b"\x8b\x44\x24\x10")  # original API return value
+    emit(b"\x8b\x44\x24\x0c")  # original API return value
     mark("done")
     emit(b"\x5d\x5f\x5e\x83\xc4\x04\xc2\x0c\x00")
     for pos, label in fixups:
@@ -9070,7 +9072,8 @@ def _apply_name_crash_immunity(
 ) -> dict[str, Any] | None:
     """Make ``data`` boot correctly under any filename by wrapping
     GetModuleFileNameA to report ``expected_basename``.  In place; recomputes the
-    PE checksum.  Idempotent and fail-open (returns a status dict; never raises).
+    PE checksum.  This low-level helper returns a status dict and never raises;
+    publication callers use ``_require_name_crash_immunity`` to fail closed.
     """
     try:
         info = _nci_pe_info(bytes(data))
@@ -9133,6 +9136,36 @@ def _apply_name_crash_immunity(
         "name_va": name_va,
         "writes": writes,
     }
+
+
+def _require_name_crash_immunity(
+    data: bytearray,
+    expected_basename: str,
+    applied: list[dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    """Require the renamed-build crash guard before a result is published.
+
+    The normal patch output is deliberately renamed, so a missing import, call
+    site, or executable cave is not a harmless omission: it leaves the exact
+    crash class this finalizer is responsible for in the build.  The only
+    accepted non-application result is an already-immune image, which keeps
+    the helper idempotent without permitting an unguarded renamed output.
+    """
+    result = _apply_name_crash_immunity(data, expected_basename, applied)
+    if result is None:
+        raise PatcherError(
+            "Cannot publish renamed build: executable-name crash immunity "
+            "returned no status."
+        )
+    if result.get("status") == "applied":
+        return result
+    if result.get("status") == "skipped" and result.get("reason") == "already immune":
+        return result
+    reason = result.get("reason", "unknown reason")
+    raise PatcherError(
+        "Cannot publish renamed build: executable-name crash immunity "
+        f"could not be applied ({reason})."
+    )
 
 
 def apply_patch(
@@ -9207,7 +9240,7 @@ def apply_patch(
     # crashes the game (basename-gated init/save folder).  Immunise the output
     # so it boots under any filename.  Post-render, in place, checksum-safe; the
     # source-vs-output transparency diff records the exact bytes it changed.
-    _apply_name_crash_immunity(patched, build.input_name, applied)
+    _require_name_crash_immunity(patched, build.input_name, applied)
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
