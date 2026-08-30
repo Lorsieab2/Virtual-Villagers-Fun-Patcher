@@ -2017,8 +2017,9 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
     """)
 
 def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
-    """Village-clock Time Warp: advance exactly three displayed villager years
-    at any speed for one verified 50,000 tech-point charge. Self-contained
+    """Village-clock Time Warp: subtract a speed-scaled three-year delta
+    (normalized speed * 3600) for one verified 50,000 tech-point charge,
+    matching VV1-VV4 so all five games advance identically. Self-contained
     (inline MessageBoxA via the page's existing import thunks); no companion
     DLL change. Ported from the statically-reviewed dispatcher in
     build_expanded_time_warp.py as a ret-terminated subroutine so tech_menu can
@@ -2106,9 +2107,14 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [ebp-0x2C], eax
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        mov eax, 129600
-        xor edx, edx
-        div dword ptr [ebp-0x1C]
+        mov eax, dword ptr [ebp-0x1C]
+        cmp eax, 3
+        je tw_speed_ok
+        cmp eax, 10
+        je tw_speed_ok
+        mov eax, 6
+    tw_speed_ok:
+        imul eax, eax, 3600
         mov dword ptr [ebp-0x30], eax
         mov ecx, dword ptr [ebp-0x24]
         mov edx, dword ptr [ebp-0x28]
