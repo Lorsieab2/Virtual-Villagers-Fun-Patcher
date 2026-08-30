@@ -23,9 +23,9 @@ IMAGE_BASE = 0x400000
 EXPECTED_BASENAME = "Virtual Villagers - The Secret City.exe"
 
 
-def _synthetic_pe() -> bytearray:
-    """Build a tiny PE containing one import and two executable API calls."""
-    data = bytearray(0x5000)
+def _synthetic_pe(*, include_immediate_match: bool = False) -> bytearray:
+    """Build a compact PE containing the supported VV1 call-site map."""
+    data = bytearray(0x90000)
     data[:2] = b"MZ"
     struct.pack_into("<I", data, 0x3C, 0x80)
     data[0x80:0x84] = b"PE\0\0"
@@ -40,9 +40,9 @@ def _synthetic_pe() -> bytearray:
 
     section = optional + 0xE0
     data[section : section + 8] = b".text\0\0\0"
-    struct.pack_into("<I", data, section + 8, 0x4000)  # virtual size
+    struct.pack_into("<I", data, section + 8, 0x80000)  # virtual size
     struct.pack_into("<I", data, section + 12, 0x1000)  # RVA
-    struct.pack_into("<I", data, section + 16, 0x4000)  # raw size
+    struct.pack_into("<I", data, section + 16, 0x80000)  # raw size
     struct.pack_into("<I", data, section + 20, 0x400)  # raw offset
     struct.pack_into("<I", data, section + 36, 0x60000020)  # executable/readable
 
@@ -50,14 +50,20 @@ def _synthetic_pe() -> bytearray:
         return 0x400 + (rva - 0x1000)
 
     # IMAGE_IMPORT_DESCRIPTOR -> INT, module name, IAT.
-    struct.pack_into("<IIIII", data, raw(0x1800), 0x1900, 0, 0, 0x1C00, 0x1A00)
+    struct.pack_into("<IIIII", data, raw(0x1800), 0x1900, 0, 0, 0x1C00, 0x5711C)
     struct.pack_into("<II", data, raw(0x1900), 0x1C00, 0)
     data[raw(0x1C00) + 2 : raw(0x1C00) + 2 + len(b"GetModuleFileNameA\0")] = b"GetModuleFileNameA\0"
 
-    iat_va = IMAGE_BASE + 0x1A00
-    for rva in (0x2000, 0x2010):
+    iat_va = IMAGE_BASE + 0x5711C
+    for rva in (0x27DD, 0x2944, 0x50967, 0x50ED5, 0x52C57):
         data[raw(rva) : raw(rva) + 2] = b"\xFF\x15"
         struct.pack_into("<I", data, raw(rva) + 2, iat_va)
+
+    if include_immediate_match:
+        # This is deliberately not a call-site: the FF 15 <IAT> bytes begin at
+        # byte 1 of MOV EAX, imm32.  A raw byte search would incorrectly redirect
+        # this interior match.
+        data[raw(0x2A20) : raw(0x2A27)] = b"\xB8\xFF\x15\x1C\x71\x45\x00"
     return data
 
 
@@ -129,7 +135,7 @@ class NameCrashWrapperTests(unittest.TestCase):
         for row in applied:
             self.assertEqual(row["purpose"], "wrong-exe-name crash immunity")
             self.assertEqual(row["owner"], "automatic:name_crash_immunity")
-        self.assertEqual(len(result["call_sites"]), 2)
+        self.assertEqual(len(result["call_sites"]), 5)
         name_to_code = result["wrapper_va"] - result["name_va"]
         wrapper_length = len(
             patcher._nci_wrapper(
@@ -141,6 +147,14 @@ class NameCrashWrapperTests(unittest.TestCase):
             wrapper_length,
         )
         self.assertGreaterEqual(name_to_code, len(EXPECTED_BASENAME) + 1)
+
+    def test_import_pattern_inside_immediate_is_not_a_call_site(self) -> None:
+        data = bytes(_synthetic_pe(include_immediate_match=True))
+        info = patcher._nci_pe_info(data)
+        self.assertEqual(
+            patcher._nci_find_call_sites(data, info, IMAGE_BASE + 0x5711C),
+            [],
+        )
 
     def test_finalizer_rejects_unapplied_immunity(self) -> None:
         for reason in ("not a PE32 image", "no GetModuleFileNameA import", "no code cave"):

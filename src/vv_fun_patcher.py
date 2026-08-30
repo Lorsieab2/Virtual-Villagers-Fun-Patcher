@@ -8925,6 +8925,19 @@ def _nci_exec_sections(info: dict[str, Any]) -> list[dict[str, Any]]:
     return [s for s in info["sections"] if s["chars"] & 0x20000000]
 
 
+# The five supported PE32 builds have stable import-call instruction maps.
+# These are exact stock-build facts, and the public feature compositions leave
+# the GetModuleFileNameA call sites unchanged.  Keeping the map here makes the
+# discovery proof independent of code/data interleaving in the .text sections.
+_NCI_CALL_SITE_RVAS: dict[int, tuple[int, ...]] = {
+    0x5711C: (0x27DD, 0x2944, 0x50967, 0x50ED5, 0x52C57),
+    0x49512C - 0x400000: (0x2D3D, 0x2FFA, 0x2C35F, 0x2F2BA, 0x2F5E5, 0x81E0A, 0x89E93),
+    0x7411C: (0x2A6D, 0x2BD4, 0x6D9E7, 0x6DF55, 0x6FCD7),
+    0x7C130: (0x2AAD, 0x2D04, 0x3C46F, 0x3CE1A, 0x3EC89, 0x7550C, 0x75A7A, 0x7737D),
+    0x8A12C: (0x2DAD, 0x306A, 0x266EF, 0x2964A, 0x29975, 0x76D6A, 0x7EDF3),
+}
+
+
 def _nci_find_gmfn_iat(data: bytes, info: dict[str, Any]) -> int | None:
     if len(info["dirs"]) < 2:
         return None
@@ -8962,25 +8975,64 @@ def _nci_find_gmfn_iat(data: bytes, info: dict[str, Any]) -> int | None:
 
 
 def _nci_find_call_sites(data: bytes, info: dict[str, Any], iat_va: int) -> list[int]:
+    """Find real ``call [GetModuleFileNameA@IAT]`` instruction heads.
+
+    A raw byte search is not sufficient for x86: ``FF 15 <iat>`` can occur in
+    the immediate bytes of an unrelated instruction (for example
+    ``B8 FF 15 <iat>``).  The supported images are exact PE32 x86 builds with
+    a reviewed call-site map above.  Require the complete raw match set to be
+    exactly that map and require every mapped site to still contain the full
+    import-call bytes.  Any extra/missing match, unknown build, or malformed
+    section returns no sites, so callers fail closed instead of redirecting a
+    possibly partial set.
+    """
     pattern = b"\xff\x15" + iat_va.to_bytes(4, "little")
-    sites: list[int] = []
+    base = int(info["image_base"])
+    expected_rvas = _NCI_CALL_SITE_RVAS.get(iat_va - base)
+    if expected_rvas is None:
+        return []
+    raw_sites: list[int] = []
     for s in _nci_exec_sections(info):
-        seg = data[s["raw"] : s["raw"] + s["rsize"]]
+        raw = int(s["raw"])
+        end = raw + int(s["rsize"])
+        if raw < 0 or end > len(data):
+            return []
+        seg = data[raw:end]
         start = 0
         while True:
-            j = seg.find(pattern, start)
-            if j < 0:
+            offset = seg.find(pattern, start)
+            if offset < 0:
                 break
-            sites.append(info["image_base"] + s["vaddr"] + j)
-            start = j + 1
-    return sites
+            raw_sites.append(base + int(s["vaddr"]) + offset)
+            start = offset + 1
+    expected_sites = [base + rva for rva in expected_rvas]
+    if sorted(raw_sites) != sorted(expected_sites):
+        return []
+    for va in expected_sites:
+        rva = va - base
+        section = next(
+            (
+                s
+                for s in _nci_exec_sections(info)
+                if int(s["vaddr"]) <= rva < int(s["vaddr"]) + int(s["rsize"])
+            ),
+            None,
+        )
+        if section is None:
+            return []
+        offset = int(section["raw"]) + rva - int(section["vaddr"])
+        if offset < 0 or offset + len(pattern) > len(data) or data[offset : offset + len(pattern)] != pattern:
+            return []
+    return expected_sites
 
 
 def _nci_find_cave(data: bytes, info: dict[str, Any], need: int) -> int | None:
     for s in _nci_exec_sections(info):
-        if s["name"] != b".text":
+        raw = int(s["raw"])
+        end = raw + int(s["rsize"])
+        if raw < 0 or end > len(data):
             continue
-        seg = data[s["raw"] : s["raw"] + s["rsize"]]
+        seg = data[raw:end]
         i = 0
         while i < len(seg):
             if seg[i] == 0:
