@@ -71,14 +71,22 @@ ACTION_DISPATCH = 0x455570        # set +0xF24 and dispatch via table 0x596970
 #          EACH selected villager calls 0x455570(record, 0x38, scratch)
 #   0x455570(initiator, 0x39, ptr)
 #
-# So 0x38 is the CROWD action every other villager receives, and 0x39 belongs to
-# the one villager the player dropped.  The fan-out used to assign 0x39 to
-# everybody, i.e. it gave the whole village the initiator's action -- and it ran
-# AFTER the stock selector, so it overwrote the 0x38 the game had just assigned.
-# That is why one villager robed and everyone else performed a different action.
+# So 0x38 is the CROWD action every other villager receives, and 0x39 is the
+# robe attempt the dropped villager gets.  Confirmed in the stock image: at
+# 0x421984 the selector is invoked with 0x38, and at 0x421995 the initiator is
+# dispatched 0x39; scanning every stock call site of 0x455570 shows 0x39 passed
+# as an immediate and 0x38 never passed directly at all.
 #
-# The fan-out now assigns the crowd action, which is what "use the native
-# behaviour" means here; the initiator keeps its stock 0x39 untouched.
+# The fan-out must therefore assign 0x39 -- the robe attempt -- to everybody.
+# The requested behaviour is that ALL villagers try the robe on and the native
+# selector decides who is accepted, with the rest rejected natively; giving the
+# village 0x38 instead is precisely the reported bug, where one villager robes
+# and everyone else performs the spectator action.
+#
+# This ran AFTER the stock selector, which is what makes the fan-out effective:
+# it overwrites the 0x38 the selector just handed the crowd.  A previous change
+# here (PR #153) inverted that reasoning and fanned out 0x38, which re-applied
+# the spectator action to everyone -- reverted.
 CROWD_ACTION_ID = 0x38            # assigned per villager by the stock selector
 INITIATOR_ACTION_ID = 0x39        # assigned only to the dropped villager
 
@@ -154,7 +162,7 @@ def build_wrapper() -> bytes:
         mov dword ptr [esp], 0
         mov eax, esp
         push eax
-        push 0x{CROWD_ACTION_ID:X}
+        push 0x{INITIATOR_ACTION_ID:X}
         mov ecx, edi
         mov eax, 0x{ACTION_DISPATCH:X}
         call eax
