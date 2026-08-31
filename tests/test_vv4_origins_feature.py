@@ -24,7 +24,6 @@ STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree 
 MANIFEST = ROOT / "data" / "vv4_origins_feature.json"
 BUILDER = ROOT / "scripts" / "build_vv4_origins_feature.py"
 COMPANION = ROOT / "assets" / "origins" / "VVFP VV4 Origins Icons.dll"
-EXPANDED = ROOT / "data" / "expanded_256.json"
 FEATURE_ID = "vv4_enable_origins_exclusive_features"
 RUNNING_PREFERENCE_ID = 38
 MODES = (
@@ -71,11 +70,9 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(section_patch["before"], "40000040")
         self.assertEqual(section_patch["after"], "40000060")
-        expanded = json.loads(EXPANDED.read_text(encoding="utf-8"))
-        for item in expanded["games"]["vv4"]["patches"]:
-            start = int(item["offset"], 0)
-            end = start + len(bytes.fromhex(item["before"]))
-            self.assertTrue(end <= 0x89373 or start >= 0x89373 + len(payload))
+        # The expanded-256 overlap check is gone with the data: those rows
+        # only ever applied to modes that are not selectable, and the file
+        # they lived in has been removed.
 
     def test_builder_uses_corrected_pe_and_details_guards(self) -> None:
         self.assertIn('patch(0x244, bytes.fromhex("40000040")', self.builder)

@@ -34,7 +34,6 @@ def canonical_source_text_bytes(payload: bytes) -> bytes:
 def source_text_sha256(payload: bytes) -> str:
     return hashlib.sha256(canonical_source_text_bytes(payload)).hexdigest().upper()
 MANIFEST_PATH = ROOT / "data" / "builds.json"
-EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 EXPANDED_STATIC_REPAIR_INTEGRATION_PATH = (
     ROOT / "data" / "expanded_256_static_repair_integration.json"
 )
@@ -5247,17 +5246,25 @@ def _validate_expanded_manifest_identity(
 
 
 def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, str]]:
-    if not variant.get("expanded_records", False):
-        return []
-    payload = json.loads(EXPANDED_MANIFEST_PATH.read_text(encoding="utf-8"))
-    try:
-        game = payload["games"][build.id]
-    except KeyError as exc:
+    """No expanded-256 rows exist any more.
+
+    This used to load data/expanded_256.json, ~900 KB of VV3/VV4/VV5 rows that
+    rewrote live code for the expanded-256 population modes.  Those modes crash
+    the games and are unreachable: they are not declared patch modes, no game
+    offers them as a variant, and every shipping variant sets
+    `expanded_records` False -- which already made the body below dead.  The
+    data is removed, so the function returns nothing and cannot fail.
+
+    The `expanded_records` check is kept rather than dropped: it is the flag a
+    revival would have to set, and it should keep meaning "no rows" until real
+    rows exist again.
+    """
+    if variant.get("expanded_records", False):
         raise PatcherError(
-            f"Experimental 256 data is missing for {build.title}."
-        ) from exc
-    _validate_expanded_manifest_identity(build, game)
-    return game["patches"]
+            f"{build.title} requests expanded-256 records, but the "
+            f"expanded-256 data has been removed as unreachable and unsafe."
+        )
+    return []
 
 
 def _safety_patches(build: Build, patch_mode: str) -> list[dict[str, str]]:

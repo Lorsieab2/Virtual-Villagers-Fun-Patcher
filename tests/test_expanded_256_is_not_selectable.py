@@ -96,10 +96,10 @@ class ExpandedModeIsNotSelectableTests(unittest.TestCase):
         """The stronger guarantee: not merely unlisted, but never applied.
 
         `_expanded_patches` returns nothing unless a variant sets
-        `expanded_records`, and data/expanded_256.json rewrites live code --
+        `expanded_records`, and the data it used to load rewrote live code --
         including VV5's 0x4713F0, which appears in crash dumps, and the
-        `mov ebx, 0x96` record-loop bound inside it.  If any shipping variant
-        ever set this flag, that dead rewrite would reach players.
+        `mov ebx, 0x96` record-loop bound inside it.  That data is now removed
+        entirely; this keeps the flag itself pinned off.
         """
         for game in self.data["games"]:
             variants = game.get("patch_variants") or game.get("variants") or {}
@@ -114,6 +114,25 @@ class ExpandedModeIsNotSelectableTests(unittest.TestCase):
                         f"{game['id']}/{mode} would apply the dead "
                         f"expanded-256 patch set",
                     )
+
+    def test_the_expanded_patch_data_is_gone(self) -> None:
+        """900 KB of VV3/VV4/VV5 rows that rewrote live code for a dead mode.
+
+        Nothing selectable could apply them, and they included the rewrite of
+        VV5's 0x4713F0 -- the function in both crash dumps. Removed outright.
+        """
+        self.assertFalse(
+            (ROOT / "data" / "expanded_256.json").exists(),
+            "the expanded-256 patch data is back; it rewrites live code for "
+            "modes that crash the games and cannot be selected",
+        )
+
+    def test_requesting_expanded_records_now_fails_closed(self) -> None:
+        """A revival must fail loudly rather than silently patch nothing."""
+        build = next(b for b in patcher.load_builds() if b.id == "vv5")
+        with self.assertRaises(patcher.PatcherError):
+            patcher._expanded_patches(build, {"expanded_records": True})
+        self.assertEqual(patcher._expanded_patches(build, {}), [])
 
     def test_expanded_modes_are_disjoint_from_the_declared_modes(self) -> None:
         declared = {

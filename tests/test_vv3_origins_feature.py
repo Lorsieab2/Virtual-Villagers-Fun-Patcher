@@ -407,16 +407,9 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         payload_size = len(bytes.fromhex(payload_patch["after"]))
         self.assertLessEqual(payload_size, 0xE80)
         self.assertEqual(stock[0xA3180 : 0xA3180 + payload_size], b"\0" * payload_size)
-        expanded = json.loads((ROOT / "data" / "expanded_256.json").read_text())
-        for patch in expanded["games"]["vv3"]["patches"]:
-            start = int(patch["offset"], 0)
-            before = bytes.fromhex(patch["before"])
-            end = start + len(before)
-            self.assertTrue(
-                end <= 0xA3180 or start >= 0xA3180 + payload_size,
-                f"expanded patch overlaps Origins payload at {start:#x}",
-            )
-
+        # The expanded-256 overlap check is gone with the data: those rows
+        # only ever applied to modes that are not selectable, and the file
+        # they lived in has been removed.
     def test_expanded_256_modes_are_removed(self) -> None:
         self.assertNotIn("experimental_expanded_256", {mode.id for mode in load_patch_modes()})
         self.assertNotIn(
@@ -424,18 +417,17 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             {mode.id for mode in load_patch_modes()},
         )
 
-    def test_dynamic_capacity_detector_is_expanded_loop_immediate(self) -> None:
+    def test_dynamic_capacity_detector_reads_the_stock_slot_bound(self) -> None:
+        """The slot bound the patches read is the stock 150 immediate.
+
+        This used to also assert that expanded-256 rewrote it to 256. That
+        data is removed -- the modes are unreachable -- but the stock half
+        still matters: it is the `mov edi, 150` whose immediate at 0x2883A is
+        what VV3 patches read as the runtime villager-slot bound.
+        """
         stock = STOCK.read_bytes()
         self.assertEqual(stock[0x28839], 0xBF)
         self.assertEqual(struct.unpack_from("<I", stock, 0x2883A)[0], 150)
-        expanded = json.loads((ROOT / "data" / "expanded_256.json").read_text())
-        marker = next(
-            patch
-            for patch in expanded["games"]["vv3"]["patches"]
-            if int(patch["offset"], 0) == 0x2883A
-        )
-        self.assertEqual(marker["before"], "96000000")
-        self.assertEqual(marker["after"], "00010000")
 
     def test_native_barrel_event_and_reserved_population_preflight(self) -> None:
         source = BUILDER.read_text(encoding="utf-8")

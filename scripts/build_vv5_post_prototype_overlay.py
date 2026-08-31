@@ -161,11 +161,9 @@ def build() -> dict[str, object]:
 
 
 def _validate_repo_bindings(root: Path) -> None:
-    expanded = json.loads((root / "data" / "expanded_256.json").read_text(encoding="utf-8"))["games"]["vv5"]
-    rows = expanded["patches"]
-    require(expanded["prototype_sha256"] == PROTOTYPE_SHA256, "prototype binding")
-    require(expanded["patch_count"] == 1951 and len(rows) == 1951, "manifest row count")
-    require(rows_sha256(rows) == MANIFEST_ROWS_SHA256, "manifest row digest")
+    # data/expanded_256.json is removed: its rows only ever applied to the
+    # expanded-256 modes, which are not selectable and which no variant
+    # applies. There is no manifest left to bind against.
 
     origins_path = root / "data" / "vv5_origins_feature.json"
     origins = json.loads(origins_path.read_text(encoding="utf-8"))

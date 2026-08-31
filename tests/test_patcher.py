@@ -51,7 +51,6 @@ EXPANDED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
-EXPANDED = json.loads((ROOT / "data" / "expanded_256.json").read_text())
 
 
 def digest(path: Path) -> str:
