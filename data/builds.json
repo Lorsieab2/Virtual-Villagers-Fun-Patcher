@@ -451,7 +451,7 @@
         {
           "offset": "0x89020",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "813DE86D4D00930000000F8FA358FDFFC786501C000003000000E98B58FDFF",
+          "after": "E8CB0000003D930000000F8FA358FDFFC786501C000003000000E98B58FDFF",
           "purpose": "keep triplets only when three villager slots remain"
         },
         {
@@ -463,7 +463,7 @@
         {
           "offset": "0x89040",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "813DE86D4D00940000000F8F9458FDFFC786501C000002000000E97E58FDFF",
+          "after": "E8AB0000003D940000000F8F9458FDFFC786501C000002000000E97E58FDFF",
           "purpose": "keep twins only when two villager slots remain"
         },
         {
@@ -475,8 +475,8 @@
         {
           "offset": "0x89060",
           "before": "000000000000000000000000000000000000000000000000",
-          "after": "813DE86D4D00960000007D0B566858020000E93FB8F8FFC3",
-          "purpose": "skip the event newcomer at physical capacity or resume the complete stock outcome below capacity"
+          "after": "E88B0000003D960000007D0B566858020000E93FB8F8FFC3",
+          "purpose": "skip the event newcomer at physical capacity or resume the complete stock outcome below"
         },
         {
           "offset": "0x14D90",
@@ -487,8 +487,8 @@
         {
           "offset": "0x89080",
           "before": "0000000000000000000000000000000000000000000000",
-          "after": "813DE86D4D00960000007D0A68C8000000E9FFBCF8FFC3",
-          "purpose": "skip the first barrel child at physical capacity while retaining the stock later-child cap checks"
+          "after": "E86B0000003D960000007D0A68C8000000E9FFBCF8FFC3",
+          "purpose": "skip the first barrel child at physical capacity while retaining the stock later-child cap"
         },
         {
           "offset": "0x14FC0",
@@ -498,9 +498,15 @@
         },
         {
           "offset": "0x890C0",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "B8960000002B05E86D4D007E1F83F8067E05B8060000006A006A006AFF6A01506AFFB968E55000E814EAFDFFC3",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E82B000000F7D805960000007E1F83F8067E05B8060000006A006A006AFF6A01506AFFB968E55000E813EAFDFFC3",
           "purpose": "reserve no more than the lesser of six abandoned infants or VV4's remaining physical slots"
+        },
+        {
+          "offset": "0x890F0",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "515231C0BAACE55000B99600000080BAC41C000000740383C00181C23C2E000083E90175E95A59C3",
+          "purpose": "count occupied VV4 villager record slots for the 150-slot saturation guards"
         }
       ]
     },

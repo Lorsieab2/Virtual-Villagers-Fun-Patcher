@@ -995,7 +995,7 @@ class ManifestTests(unittest.TestCase):
                 "vv1": 17,
                 "vv2": 15,
                 "vv3": 8,
-                "vv4": 10,
+                "vv4": 11,
                 "vv5": 13,
             }
             self.assertEqual(len(build.safety_patches), expected_safety_counts[build.id])
@@ -1896,8 +1896,10 @@ class StockIntegrationTests(unittest.TestCase):
             "vv4": {
                 0x148B0: "E9AB47070090",
                 0x14D90: "E9EB420700",
-                0x89060: "813DE86D4D0096000000",
-                0x89080: "813DE86D4D0096000000",
+                # VV4 now counts live records like VV5 does. It used to
+                # compare a static 0x4D6DE8 that nothing ever wrote.
+                0x89060: "E88B0000003D96000000",
+                0x89080: "E86B0000003D96000000",
             },
             "vv5": {
                 0x151D0: "E98BF30700",
@@ -1983,8 +1985,8 @@ class StockIntegrationTests(unittest.TestCase):
                 0x14FC0,
                 "E9FB400700",
                 0x890C0,
-                "B8960000002B05E86D4D007E1F83F8067E05B806000000"
-                "6A006A006AFF6A01506AFFB968E55000E814EAFDFFC3",
+                "E82B000000F7D805960000007E1F83F8067E05B806000000"
+                "6A006A006AFF6A01506AFFB968E55000E813EAFDFFC3",
             ),
             "vv5": (
                 0x155E0,
