@@ -286,10 +286,12 @@ modes reject before output. If a native write succeeds but later
 postverification fails, partial skill changes may remain because rollback is
 not proved safe, but no Technology Points are deducted.
 
-VV1, VV3, and VV4 doubler new purchases and repurchases remain unavailable
-until their exact-build provenance gates are cleared. VV5 stock-layout Tech and
-Food Doublers support purchase, zero-cost/no-refund Remove, and full-price
-repurchase. In VV5 expanded-256 modes, both writer hooks are restored to native
+VV1, VV3, and VV4 doubler new purchases and repurchases are available at
+500,000 tech points each. Their exact-build provenance gates were cleared and
+the `or eax, 0x1800` hold that set those rows "Unavailable" was removed in
+v1.34.14; the shipped manifests state availability accordingly. VV5
+stock-layout Tech and Food Doublers support purchase, zero-cost/no-refund
+Remove, and full-price repurchase. In VV5 expanded-256 modes, both writer hooks are restored to native
 bytes and new doubler purchases remain unavailable; owned Remove remains
 available. Expanded composition is ON HOLD. The cited static current-feature
 ledger is complete at 66 rows: 23 payload-internal absolute, 36 cross-section
@@ -307,9 +309,11 @@ native order is base, optional quarter-base, Magic `+1`, timed `+1`, then an
 independent RNG `+1`; ordinary and special/catch-up paths converge before
 Magic. Collection duplicates and Island Events are explicit Tech Doubler
 exclusions. The Tech Doubler must change only an eligible positive earned-tech
-source delta, not a post-sum aggregate. VV3 Tech Doubler purchase remains
-unavailable because case 26 emits separate writer calls and no provenance-safe
-source boundary is certified.
+source delta, not a post-sum aggregate. VV3 Tech Doubler purchase is available:
+because case 26 emits its components separately, the doubler stays at the
+positive-writer boundary and uses the audited source exclusions as its
+provenance-safe boundary, which is the GO recorded in
+`docs/doubler-composition-audit.md`.
 provenance-safe source boundary remains the governing requirement.
 
 The matrix is intentionally catalog-driven rather than a hard-coded feature

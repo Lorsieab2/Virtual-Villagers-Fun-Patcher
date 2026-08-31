@@ -291,8 +291,8 @@ runtime/player-confirmation pending.
 | Time Warp | 50,000 tech points historically; VV1/VV2 Origins expose the row in this playtest package, but runtime/player validation remains pending. Other games retain their own gates. |
 | Island Event | 30,000 tech points historically; VV1/VV2 Origins expose the menu, while native Island Event outcomes remain unchanged. |
 | Barrel of Babies | 75,000 tech points historically; VV1/VV2 Origins expose the menu, while native event outcomes remain unchanged. |
-| Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
-| Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
+| Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase are available (the v1.34.14 hold was lifted). VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
+| Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase are available (the v1.34.14 hold was lifted). VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Cure all Villagers | Historical sickness-only row; VV1/VV2 runtime/player validation remains pending. Other games retain their own separately documented gates. |
 | Village-wide rows | The requested package exposes all five legacy three-row payloads at 1,000,000 tech points per row for static/targeted playtesting. Runtime/player confirmation remains pending. VV3Run2 remains hard-withdrawn pending runtime fault capture. |
 
