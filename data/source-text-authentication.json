@@ -58,19 +58,19 @@
     },
     {
       "path": "data/candidates/vv4_full_heal_cure_all_candidate.json",
-      "sha256": "02B4F62D2CDE2388E1D7CF159575A5868A754E11E77BFBBE96D49C4EC2E6663D"
+      "sha256": "4AED93EA7FEA4941A0C2B16CE6150E25C936DE48F372AE065EC8C455BB8047B0"
     },
     {
       "path": "data/candidates/vv4_full_heal_cure_all_candidate_map.json",
-      "sha256": "8F5C1D529792C3926A40DCF69167CF0F483DBF06C45C1AC0C1F91A32EE8253FC"
+      "sha256": "7F9ABBE3939C801F3F2F91F67E7C60A015866E05F5E8765E7760C42B89A166B4"
     },
     {
       "path": "data/candidates/vv5_individual_running_candidate.json",
-      "sha256": "7869A3364F598B882E8C29F3A1957C5AF13A4654CF45EE0464DAA34545CB128B"
+      "sha256": "A2AC2AD4C1FE1C6BE8E2DD28B34CDC67FB575396D16986F8BF7271E7A308D405"
     },
     {
       "path": "data/candidates/vv5_individual_running_candidate_map.json",
-      "sha256": "3FB4B979A98CC3C5FE76D7BD2D3851E5F918A8436141D4DF8A9C1969B6B11FAF"
+      "sha256": "3149BCAFADEC63C9CECD39BA1A5CE5C2EFA7E6435237C14AC80D74E4F6A754A7"
     },
     {
       "path": "data/candidates/vv3_full_heal_cure_all_candidate.json",

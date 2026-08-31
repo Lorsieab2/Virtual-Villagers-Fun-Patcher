@@ -19,13 +19,13 @@
     "collection_progression": "0E26D7B6FEF660194297BA017419D6E9F4D70F01A80265830C8461341B9334E9",
     "immediate_fixed": "043DA03EDEE4CDA82269F0584178E84D90D7DAC54ABD80873A3F59E3B4957388"
   },
-  "companion_dll_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
+  "companion_dll_sha256": "1D789FB698C41642C61AAF7E2ED6D44CCBFCC8A07DB794D183FBDF6CE6FB2BC3",
   "companion_install": {
     "required": false,
     "reason": "fullscreen-only wrapper; certified companion/resource bytes are not replaced",
     "input": "data\\candidates\\VVFP VV4 Full Mastery Candidate.dll",
     "size": 282624,
-    "sha256_if_present": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
+    "sha256_if_present": "1D789FB698C41642C61AAF7E2ED6D44CCBFCC8A07DB794D183FBDF6CE6FB2BC3"
   },
   "fullscreen_contract": {
     "stock": "research\\stock-executables\\Virtual Villagers - The Tree of Life.exe",
