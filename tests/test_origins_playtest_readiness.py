@@ -91,7 +91,9 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
         )
         self.assertIn("VV5\nstock-layout Tech and Food Doublers support purchase", text)
         self.assertIn("expanded-256 modes, both writer hooks are restored to native", text)
-        self.assertIn("66 rows: 23 payload-internal absolute, 36 cross-section", text)
+        # The 66-row expanded-256 ledger is removed; the doc records why.
+        self.assertIn("relocation ledger has been REMOVED", text)
+        self.assertNotIn("66 rows: 23 payload-internal absolute", text)
         self.assertIn("all 43 previously omitted\ncurrent-feature references", text)
         self.assertIn("This is not runtime, save, catch-up,\nor player evidence", text)
         self.assertIn("8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb", text)

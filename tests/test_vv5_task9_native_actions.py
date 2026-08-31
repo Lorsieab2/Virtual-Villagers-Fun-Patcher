@@ -77,7 +77,11 @@ class Task9ArtifactTests(unittest.TestCase):
         active_rows = self.active["expanded_shr_relocations"]["patches"]
         task9_rows = self.manifest["expanded_shr_relocations"]["patches"]
         self.assertEqual(task9_rows, active_rows)
-        self.assertEqual(len(task9_rows), 66)
+        # The 66-row expanded-256 relocation ledger is removed: it only ever
+        # served a mode that is not selectable and that no variant applies,
+        # while its hand-recorded byte snapshots blocked every payload edit.
+        # The guard now asserts it stays gone rather than staying frozen.
+        self.assertEqual(len(task9_rows), 0)
         self.assertEqual(canonical(task9_rows), builder.C342_ROWS_SHA256)
         self.assertEqual(self.map["nonoverlap"]["c342_new_row_count"], 0)
 
@@ -207,11 +211,20 @@ class Task9ArtifactTests(unittest.TestCase):
         self.assertEqual(payload[0x271:0x276], bytes.fromhex("E8DA36C7FF"))
         self.assertEqual(payload[0x276], 0x68)
         self.assertEqual(payload[0x27B], 0xC3)
-        for raw in (0xDB272, 0xDB283, 0xDB292):
-            active_row = next(row for row in self.active["expanded_shr_relocations"]["patches"] if int(row["offset"], 0) == raw)
+        # These three rel32 operands must not move when the resolver guard is
+        # added. They used to be cross-checked against the expanded-256
+        # relocation ledger; with that ledger removed the expected bytes are
+        # pinned directly, which is what the check always actually meant.
+        for raw, expected_hex in (
+            (0xDB272, "DA36C7FF"),
+            (0xDB283, "B9F5CBFF"),
+            (0xDB292, "BAD6CBFF"),
+        ):
             relative = raw - builder.PAYLOAD_OFFSET
-            expected = bytes.fromhex(active_row["before"])
-            self.assertEqual(payload[relative : relative + 4], expected)
+            self.assertEqual(
+                payload[relative : relative + 4], bytes.fromhex(expected_hex),
+                f"payload rel32 operand at {raw:#x} moved",
+            )
         for mode, layout in builder.LAYOUTS.items():
             page = bytes.fromhex(self.manifest["pe_append_transaction"]["layouts"][mode]["append_bytes"])
             helper = page[builder.OFF["resolve_manager"] : builder.OFF["resolve_manager"] + builder.SIZES["resolve_manager"]]

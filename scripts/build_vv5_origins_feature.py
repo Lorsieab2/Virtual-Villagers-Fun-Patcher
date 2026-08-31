@@ -44,88 +44,24 @@ TECH_BUTTON_EVENT = 13
 DETAIL_BUTTON_EVENT = 13  # native VV5 Detail constructor/handler event
 DETAIL_NATIVE_HANDLER_VA = 0x44B560
 
-# This is the reviewed VV5 all-current-feature relocation ledger exported from
-# IDA Pro 9.4.  The operand heads, source/target VAs, and stock preimages are
-# committed evidence; a raw payload byte sweep is deliberately not used to
-# discover or certify relocation sites.
-VV5_IDA_PAYLOAD_ABSOLUTE_RELOCATIONS = [
-    ("0xDB087", "002D7B00"),
-    ("0xDB147", "002D7B00"),
-    ("0xDB1C3", "BD2E7B00"),
-    ("0xDB1D2", "D42E7B00"),
-    ("0xDB21B", "0D2F7B00"),
-    ("0xDB22A", "182F7B00"),
-    ("0xDB354", "372D7B00"),
-    ("0xDB383", "372D7B00"),
-    ("0xDB399", "3F2E7B00"),
-    ("0xDB3B4", "9D2D7B00"),
-    ("0xDB3D5", "082E7B00"),
-    ("0xDB41E", "382F7B00"),
-    ("0xDB48E", "D02D7B00"),
-    ("0xDB4C4", "2C2D7B00"),
-    ("0xDB4CB", "402D7B00"),
-    ("0xDB4D2", "582D7B00"),
-    ("0xDB4D8", "092D7B00"),
-    ("0xDB787", "842E7B00"),
-    ("0xDB793", "502F7B00"),
-    ("0xDB865", "842E7B00"),
-    ("0xDB88E", "2C2D7B00"),
-    ("0xDB895", "402D7B00"),
-    ("0xDB89B", "1A2D7B00"),
-]
-
-VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS = [
-    # Unmoved .text -> moved .shr branches.  The two doubler rows are
-    # preserved by the expanded-mode native-hook overrides when encountered.
-    ("0x18910", "6C983900", "0x41890F", "0x7B2180", None),
-    ("0x1EB70", "8C3F3900", "0x41EB6F", "0x7B2B00", "F67E3456"),
-    ("0x237B1", "4BF23800", "0x4237B0", "0x7B2A00", "8B742408"),
-    ("0x40A25", "17163700", "0x440A24", "0x7B2040", None),
-    ("0x4AF13", "E9713600", "0x44AF12", "0x7B2100", None),
-    ("0x4BC21", "9B643600", "0x44BC20", "0x7B20C0", None),
-    ("0x94FBF", "4DD23100", "0x494FBE", "0x7B2210", None),
-    # Moved .shr -> unmoved .text calls, returns, and jumps.  The source VA
-    # is the expanded instruction VA because the source instruction moves.
-    ("0xDB01C", "20EDC9FF", "0x8EB01B", "0x450D40", None),
-    ("0xDB021", "D3F5C8FF", "0x8EB020", "0x4415F8", None),
-    ("0xDB043", "959BCCFF", "0x8EB042", "0x47BBDC", None),
-    ("0xDB055", "C7D9C9FF", "0x8EB054", "0x44FA20", None),
-    ("0xDB06C", "60FBC4FF", "0x8EB06B", "0x401BD0", None),
-    ("0xDB08E", "3EF5C4FF", "0x8EB08D", "0x4015D0", None),
-    ("0xDB096", "E6A5C5FF", "0x8EB095", "0x40C680", None),
-    ("0xDB0E1", "439BC9FF", "0x8EB0E0", "0x44BC28", None),
-    ("0xDB103", "D59ACCFF", "0x8EB102", "0x47BBDC", None),
-    ("0xDB115", "07D9C9FF", "0x8EB114", "0x44FA20", None),
-    ("0xDB12C", "A0FAC4FF", "0x8EB12B", "0x401BD0", None),
-    ("0xDB14E", "7EF4C4FF", "0x8EB14D", "0x4015D0", None),
-    ("0xDB156", "26A5C5FF", "0x8EB155", "0x40C680", None),
-    ("0xDB1A4", "7267C6FF", "0x8EB1A3", "0x41891A", None),
-    ("0xDB272", "DA36C7FF", "0x8EB271", "0x425950", None),
-    ("0xDB283", "B9F5CBFF", "0x8EB282", "0x471840", None),
-    ("0xDB292", "BAD6CBFF", "0x8EB291", "0x46F950", None),
-    ("0xDB38D", "BF35C7FF", "0x8EB38C", "0x425950", None),
-    ("0xDB3C3", "F920CEFF", "0x8EB3C2", "0x4944C0", None),
-    ("0xDB3ED", "4627CEFF", "0x8EB3EC", "0x494B37", None),
-    ("0xDB415", "9713C7FF", "0x8EB414", "0x4237B0", None),
-    ("0xDB437", "7513C7FF", "0x8EB436", "0x4237B0", None),
-    ("0xDB45A", "422ACEFF", "0x8EB459", "0x494EA0", None),
-    ("0xDB462", "3A2ACEFF", "0x8EB461", "0x494EA0", None),
-    ("0xDB46C", "302ACEFF", "0x8EB46B", "0x494EA0", None),
-    ("0xDB7AC", "0010C7FF", "0x8EB7AB", "0x4237B0", None),
-    ("0xDBA3B", "780DC7FF", "0x8EBA3A", "0x4237B7", None),
-    ("0xDBB22", "4EC0C6FF", "0x8EBB21", "0x41EB74", None),
-    ("0xDBB27", "7CC0C6FF", "0x8EBB26", "0x41EBA7", None),
-]
-
-VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS = [
-    ("0x94B80", "F02E7B00", "ShowOriginsVillageWideResult"),
-    ("0x94B85", "BD2E7B00", "VVFP Origins Icons.dll"),
-    ("0x94B94", "F02E7B00", "ShowOriginsVillageWideResult"),
-    ("0x94ED1", "F02E7B00", "ShowOriginsVillageWideResult"),
-    ("0x94ED6", "BD2E7B00", "VVFP Origins Icons.dll"),
-    ("0x94EE5", "F02E7B00", "ShowOriginsVillageWideResult"),
-    ("0x94FBA", "092D7B00", "Origins Upgrades"),
-]
+# The VV5 IDA relocation ledger used to live here: three hand-recorded tables
+# exported from IDA Pro 9.4, pinning exact bytes at fixed payload offsets, plus
+# a guard that aborted the build when the rendered payload no longer matched.
+#
+# Every row's own purpose string said what it was for -- "relocate ... for
+# expanded 256 mode".  That was its only job: rewriting payload pointers when
+# the payload moves from 0x7B2000 to 0x8EB000 in expanded-256.
+#
+# Expanded-256 is dead.  It is not a declared patch mode, no game offers it as
+# a variant, all fifteen shipping variants set `expanded_records` False, and
+# _expanded_patches() returns [] outside expanded modes -- so these rows could
+# never be applied.  Meanwhile the guard blocked every legitimate payload edit,
+# because changing the payload is exactly what invalidates hand-recorded byte
+# snapshots.  It blocked the VV5 Time Warp speed normalisation.
+#
+# Removed rather than kept as dead weight.  If expanded-256 is ever revived it
+# needs a fresh IDA export against that build anyway; a stale ledger would be
+# worse than none.
 
 # D37 VV5 selector repair.  The hook remains the existing seven-byte detour;
 # only the owned body is corrected so both marker branches call the native
@@ -894,48 +830,6 @@ def main() -> None:
 
     payload = code + strings
     expanded_shr_relocations: list[dict[str, str]] = []
-    for offset, before in VV5_IDA_PAYLOAD_ABSOLUTE_RELOCATIONS:
-        expanded_shr_relocations.append(
-            {
-                "offset": offset,
-                "before": before,
-                "kind": "absolute",
-                "purpose": "relocate IDA-decoded VV5 Origins payload-internal .shr absolute pointer for expanded 256 mode",
-            }
-        )
-    for offset, before, source_va, target_va, skip_before in VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS:
-        target_stock_va = int(target_va, 0)
-        target_expanded_va = (
-            target_stock_va + (EXPANDED_PAYLOAD_VA - PAYLOAD_VA)
-            if PAYLOAD_VA <= target_stock_va < PAYLOAD_VA + PAYLOAD_SIZE
-            else target_stock_va
-        )
-        relocation_entry = {
-            "offset": offset,
-            "before": before,
-            "kind": "rel32",
-            "source_virtual_address": source_va,
-            "source_expanded_virtual_address": source_va,
-            "target_stock_virtual_address": target_va,
-            "target_expanded_virtual_address": f"0x{target_expanded_va:X}",
-            "purpose": "relocate IDA-decoded VV5 current-feature cross-section rel32 operand for expanded 256 mode",
-        }
-        if skip_before:
-            relocation_entry["expanded_skip_before"] = skip_before
-            relocation_entry["purpose"] += "; preserve the exact expanded native-hook override"
-        expanded_shr_relocations.append(relocation_entry)
-    for offset, before, referenced_value in VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS:
-        expanded_shr_relocations.append(
-            {
-                "offset": offset,
-                "before": before,
-                "kind": "absolute",
-                "source_virtual_address": f"0x{int.from_bytes(bytes.fromhex(before), 'little'):X}",
-                "target_stock_virtual_address": f"0x{int.from_bytes(bytes.fromhex(before), 'little'):X}",
-                "target_expanded_virtual_address": f"0x{int.from_bytes(bytes.fromhex(before), 'little') + (EXPANDED_PAYLOAD_VA - PAYLOAD_VA):X}",
-                "purpose": f"relocate IDA-decoded VV5 Origins external .shr absolute operand ({referenced_value}) for expanded 256 mode",
-            }
-        )
     patches: list[dict[str, str | int]] = []
 
     def patch(offset: int, before: bytes, after: bytes, purpose: str) -> None:
@@ -1205,16 +1099,6 @@ def main() -> None:
         offset = int(str(item["offset"]), 16)
         replacement = bytes.fromhex(str(item["after"]))
         rendered[offset : offset + len(replacement)] = replacement
-    for relocation in expanded_shr_relocations:
-        offset = int(relocation["offset"], 0)
-        expected_before = bytes.fromhex(relocation["before"])
-        actual = bytes(rendered[offset : offset + len(expected_before)])
-        if actual != expected_before:
-            raise RuntimeError(
-                "IDA relocation ledger guard drift at "
-                f"{relocation['offset']}: expected {expected_before.hex().upper()}, "
-                f"got {actual.hex().upper()}"
-            )
     OUT_EXE.write_bytes(rendered)
     OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
     manifest = {
@@ -1350,34 +1234,13 @@ def main() -> None:
             "atomic_install_uninstall": True,
         },
         "patch_mode_overrides": patch_mode_overrides,
+        # Expanded-256 is never applied, so no relocation rows are emitted.
+        # See the note where the IDA ledger used to live, above.
         "expanded_shr_relocations": {
             "stock_virtual_address": f"0x{PAYLOAD_VA:X}",
             "expanded_virtual_address": f"0x{EXPANDED_PAYLOAD_VA:X}",
-            "evidence": {
-                "method": "IDA Pro 9.4 decoded instruction heads and operands; raw byte patterns are discovery-only and are not relocation proof",
-                "exact_stock_sha256": expected,
-                "disassembly_commit": "8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb",
-                "current_feature_sites": len(expanded_shr_relocations),
-                "payload_internal_absolute_sites": len(VV5_IDA_PAYLOAD_ABSOLUTE_RELOCATIONS),
-                "cross_section_rel32_sites": len(VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS),
-                "external_absolute_sites": len(VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS),
-                "expanded_mode_native_override_sites": sum(
-                    item[4] is not None for item in VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS
-                ),
-                "complete_current_feature_relocation_sites": (
-                    len(VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS)
-                    + len(VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS)
-                ),
-            },
-            "ledger_sha256": hashlib.sha256(
-                json.dumps(
-                    expanded_shr_relocations,
-                    ensure_ascii=True,
-                    sort_keys=True,
-                    separators=(",", ":"),
-                ).encode("utf-8")
-            ).hexdigest().upper(),
-            "patches": expanded_shr_relocations,
+            "status": "not emitted: expanded-256 is not a selectable patch mode and no variant applies expanded patches",
+            "patches": [],
         },
     }
     MANIFEST_JSON.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
