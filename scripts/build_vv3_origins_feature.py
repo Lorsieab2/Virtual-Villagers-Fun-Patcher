@@ -711,10 +711,12 @@ def main() -> None:
         manager_offset_ready:
             cmp ebx, 0
             jne maybe_barrel
-            cmp dword ptr [edi + ebp + 0x12F20], 999
-            jne charge
-            mov eax, 0x{s['paused']:X}
-            jmp show_status
+            # Paused is no longer refused: the village must advance three
+            # villager years at EVERY speed option, paused included. The
+            # speed normalisation below maps the paused sentinel 999 to the
+            # normal-speed code, so a paused Time Warp advances exactly the
+            # normal-speed amount.
+            jmp charge
         maybe_barrel:
             cmp ebx, 2
             jne charge

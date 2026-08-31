@@ -994,12 +994,11 @@ def main() -> None:
             # sentinel 999 while paused -- confirmed by disassembling every
             # site in the stock exe that reads or writes this field, not
             # assumed from another game's own offset for the same concept.
-            cmp ebx, 0
-            jne skip_pause_check
-            cmp dword ptr [edi + 0xA318], 999
-            jne skip_pause_check
-            mov eax, 0x{s['paused']:X}
-            jmp show_string_and_done
+            # Paused is no longer refused: the village must advance three
+            # villager years at EVERY speed option, paused included. The
+            # speed normalisation below maps the paused sentinel 999 to the
+            # normal-speed code, so a paused Time Warp advances exactly the
+            # normal-speed amount.
         skip_pause_check:
             # Confirm here, not at the row pick: this is the Buy path only
             # (Remove never reaches charge: at all -- see remove_doubler).
