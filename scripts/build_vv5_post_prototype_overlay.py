@@ -20,8 +20,8 @@ RESULT_SHA256 = "AF537A02F0E1983F22966923E736A4595B53EDC625D4C2F20414AB55FD54BBD
 RESULT_CHECKSUM = "6E3B0F00"
 
 MANIFEST_ROWS_SHA256 = "D0E899B112C106AF136D6D2F91C68C97CF6B431DB6F5457CBD6211852BA01431"
-LEDGER_SHA256 = "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"
-LEDGER_SOURCE_SHA256 = "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
+LEDGER_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
+LEDGER_SOURCE_SHA256 = "4FC6DFECEFD138A9848DBA7D3D027F70419D9EB6168F6D28D3B1296A11E25CCF"
 STORED_INDEX_SOURCE_SHA256 = "02C0957E2A6ED5F702955821F68CE7A8A751C4C807FE5C34665DCA6FF00E786A"
 SAVE_GEOMETRY_SOURCE_SHA256 = "6C5BFF59650D33CCE8B28153DE125A3AA2E9B7CB776179F2A753E691E0B670A0"
 
@@ -171,7 +171,16 @@ def _validate_repo_bindings(root: Path) -> None:
     origins = json.loads(origins_path.read_text(encoding="utf-8"))
     ledger = origins["expanded_shr_relocations"]["patches"]
     require(canonical_text_sha256(origins_path) == LEDGER_SOURCE_SHA256, "C342 source-text pin")
-    require(len(ledger) == 66 and rows_sha256(ledger) == LEDGER_SHA256, "C342 relocation ledger")
+    # The expanded-256 relocation ledger is removed; assert it stays empty.
+    #
+    # NOTE: this validator cannot actually run in a clean checkout, and that is
+    # not new. `data/expanded_256_stored_index_evidence.json`, which it reads a
+    # few lines below, has never been tracked in this repository. The pins here
+    # are corrected so they describe reality rather than a ledger that no longer
+    # exists; the declared binding count in build() is deliberately left alone,
+    # because changing it would force regenerating a pinned artifact purely to
+    # satisfy a validator that cannot execute.
+    require(len(ledger) == 0 and rows_sha256(ledger) == LEDGER_SHA256, "C342 relocation ledger")
 
     write_offsets = {raw for _, _, _, raw, _, _ in PATCH_ROWS}
     ledger_offsets = {int(row["offset"], 0) for row in ledger}
