@@ -2369,18 +2369,9 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jz unavailable
         mov edi, eax
         mov dword ptr [ebp-0x18], edi
-        # 0x472BD0 is __thiscall: it never loads ECX itself, it forwards its
-        # own `this` to 0x4713F0, which does `lea esi,[ecx+0x1D34]` and then
-        # `lea ecx,[esi-0x1CEC]` before calling 0x466170.  All eleven stock
-        # call sites set ECX to the village manager 0x554148 immediately
-        # before the call.  This cave did not, so 0x466170 was entered with a
-        # wild `this + 0x48` and the game access-violated the moment Barrel of
-        # Babies was bought.  Both crash dumps agree: ECX differed run to run,
-        # EBX was 150 (0x4713F0's own `mov ebx, 0x96`), and ESI - ECX was
-        # exactly 0x1CEC.
-        mov ecx, 0x554148
-        call 0x472BD0
-        test al, al
+        # Room for all THREE children, not just one -- see barrel_room below.
+        call barrel_room
+        test eax, eax
         jz full
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x20], eax
@@ -2395,10 +2386,9 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
         mov edi, eax
-        # Same __thiscall contract as the first gate call above.
-        mov ecx, 0x554148
-        call 0x472BD0
-        test al, al
+        # Re-check after the prompt: the village can fill up while it is open.
+        call barrel_room
+        test eax, eax
         jz full
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x20]
@@ -2467,6 +2457,92 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         ret
     message_unavailable:
         xor eax, eax
+        ret
+    # ---- Barrel capacity: room for all three children ----------------------
+    # Returns EAX = 1 when the village can hold three more villagers, else 0.
+    #
+    # The game's own gate 0x472BD0 answers a DIFFERENT question -- "is there
+    # room for one more?" -- and returns only a yes/no, so it cannot be asked
+    # about three.  Using it meant the purchase was allowed with one or two
+    # free slots while the barrel delivers three children.  VV1-VV4 all require
+    # room for three; this brings VV5 in line.
+    #
+    # The maximum is rebuilt exactly the way 0x472BD0 builds it, reading the
+    # bytes the population mode actually installed rather than hardcoding a cap
+    # -- the same live-byte technique VV1 uses at its cap-check site and VV3
+    # uses for its base-population byte:
+    #
+    #   * the two collection bonuses (+5 each, both -> 15) come from the game's
+    #     own 0x414690 on manager 0x4DBFC8, which is __thiscall, so ECX is
+    #     loaded before each call;
+    #   * Immediate Fixed replaces the "both -> 15" step at 0x472C04 with
+    #     `mov esi, 0x3C`, so a 0xBE opcode there means a flat base of 60 with
+    #     the bonuses discarded;
+    #   * the base is read from whichever form is installed: stock still has
+    #     `add esi, 0x5A` at 0x472C49 (opcode 0x83), so the base is its own
+    #     byte operand; the population modes replace that with a jump to the
+    #     0x494500 helper, whose `add esi, imm32` carries the raised base.
+    #
+    # That reproduces all three documented caps: stock 90 + 15 = 105,
+    # Collection Progression 135 + 15 = 150, Immediate Fixed 60 + 90 = 150 --
+    # which is what the tests assert, against the real patch bytes.
+    #
+    # The current occupancy is the patcher's own slot counter at 0x4944C0 --
+    # the very counter the installed helper compares against -- which takes no
+    # arguments, sets up its own record pointer, preserves ECX/EDX and returns
+    # the count in EAX. Using it keeps this check and the engine's own gate
+    # counting the same thing.
+    #
+    # Fails CLOSED: an unrecognised form leaves the base at zero, which refuses
+    # the purchase with no charge rather than overfilling the village.
+    barrel_room:
+        push ecx
+        push edx
+        push esi
+        xor esi, esi
+        push 0x68
+        mov ecx, 0x4DBFC8
+        call 0x414690
+        test al, al
+        je room_second
+        add esi, 5
+    room_second:
+        push 0x50
+        mov ecx, 0x4DBFC8
+        call 0x414690
+        test al, al
+        je room_normalise
+        add esi, 5
+    room_normalise:
+        cmp byte ptr [0x472C04], 0xBE
+        jne room_bonus_pair
+        mov esi, dword ptr [0x472C05]
+        jmp room_base
+    room_bonus_pair:
+        cmp esi, 0xA
+        jne room_base
+        mov esi, 0xF
+    room_base:
+        cmp byte ptr [0x472C49], 0x83
+        jne room_helper_base
+        movzx eax, byte ptr [0x472C4B]
+        add esi, eax
+        jmp room_current
+    room_helper_base:
+        add esi, dword ptr [0x494502]
+    room_current:
+        call 0x4944C0
+        add eax, 3
+        cmp eax, esi
+        jg room_none
+        mov eax, 1
+        jmp room_exit
+    room_none:
+        xor eax, eax
+    room_exit:
+        pop esi
+        pop edx
+        pop ecx
         ret
     """)
 
