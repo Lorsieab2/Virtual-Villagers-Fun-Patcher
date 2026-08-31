@@ -80,8 +80,8 @@ definition establishing every offset. Summary:
 | VV1 | `0x28` | -- | `0x348` | `0x350` | `0x360` | `0x364` | `0x3BC` | -- | `0x398` | `0x3A8` | -- | -- | Golden Child (ptr `0x48B614`) |
 | VV2 | `0x30` | `0x52C` | `0x530` | -- | `0x548` | `0x54C` | `0x7E4` | `0x7F8` | `0x5F0` | `0x6E8` | -- | `0x564` | -- |
 | VV3 | `0xF10` | `0xE78` | `0xDC4` | `0xDC8` | `0xDF0` | `0xDF4` | `0xEAC` | `0xEC0` | `0xFB4` | `0xFC0` | `0xE8C` | -- | Tribal Chief (`0xE80`) |
-| VV4 | `0x1CC4` | `0x1C40` | `0x1B8C` | `0x1B90` | `0x1BB8` | `0x1BBC` | `0x1C5C` | `0x1C70` | `0x1E60` | `0x1E6C` | -- | `0x1BC0` | -- |
-| VV5 | `0x1CD4` | -- | `0x1B8C` | `0x1B90` | `0x1BB8` | `0x1BBC` | -- | -- | -- | -- | -- | -- | Retired Chief (`0x1CFC` == 13) |
+| VV4 | `0x1CC4` | `0x1C40` | `0x1B8C` | `0x1B90` | `0x1BB8` | `0x1BBC` | `0x1C5C` (x5, f32) | `0x1C70` | `0x1E60` | `0x1E6C` | -- | `0x1BC0` | -- |
+| VV5 | `0x1CD4` | `0x1C40` | `0x1B8C` | `0x1B90` | `0x1BB8` | `0x1BBC` | `0x1C5C` (x6, f32) | `0x1C74` | -- | -- | -- | -- | Retired Chief (`0x1CFC` == 13) |
 
 A dash means **no proven offset for that build**, not "zero" and not "same as
 the game next to it".
@@ -90,11 +90,11 @@ the game next to it".
 
 | Game | Enabled | Why |
 |---|---|---|
-| VV1 | No | No proven health, preferred-skill or name offset |
+| VV1 | No | No proven health or preferred-skill offset, and the name buffer's start and length are unestablished (`+0x374` is only proven to lie *inside* it) |
 | VV2 | No | Fields are well evidenced, but this build carries the unresolved Origins crash; nothing new runs on it until that is settled |
 | VV3 | Yes | Richest proven set, including nursing and the Tribal Chief |
 | VV4 | Yes | Rich proven set including the name buffer |
-| VV5 | No | Only appearance and status fields are proven -- no skills, likes, dislikes, preferred skill, name or health |
+| VV5 | Yes | Health, six Float32 skills and the preferred skill are now established, alongside the Retired Chief |
 
 Disabled means the safeguard does not run for that game at all and the native
 planner is used unchanged.
@@ -118,14 +118,38 @@ require new per-build evidence for a mother/father record reference.
 
 ### Fields deliberately not adopted
 
-VV4's source carries `VV_AGE_OFFSET 0x348`, `VV_SKILL_*_OFFSET 0x3BC..0x3CC`,
-`VV_LIKES_OFFSET 0x398` and `VV_DISLIKES_OFFSET 0x3A8` -- **VV1's values**,
-inherited because the VV4 companion textually includes the VV1 source. They are
-recorded in the table's `rejected_fields` and are not used; VV4's real offsets
-are the ones listed above.
+VV4's companion carries `VV_AGE_OFFSET 0x348`, `VV_SKILL_*_OFFSET
+0x3BC..0x3CC`, `VV_LIKES_OFFSET 0x398` and `VV_DISLIKES_OFFSET 0x3A8` --
+**VV1's values**, in a file that is a copy of the VV1 source with only some
+offsets corrected.
 
-There is also no elderly flag in any build. Every game exposes an age value,
-which the adapters capture as `age` and never relabel.
+These are **not** unused definitions. `ShowOriginsUpgradeMenu` in
+`native/vv4_origins_icons/vv4_origins_icons.c` (lines ~2143-2169) reads them
+against VV4's layout, and compares the skills against int `100` rather than
+float `100.0` besides. They are, however, **not reachable through the shipped
+VV4 patch**: it resolves `ShowOriginsUpgradeMenuState`, a different export that
+takes the dialog state from its caller and reads no villager fields.
+
+So this is a latent trap in that companion rather than a live player-facing
+fault -- but nothing here treats those values as proven, and they are recorded
+in the table's `rejected_fields` with that explanation.
+
+### Floats
+
+VV4 and VV5 store skills as Float32. Those fields are declared `VV_FIELD_I32`
+so the raw four bytes go into the fingerprint -- a bit-exact comparison, with no
+float arithmetic in a module that has to stay freestanding. The evidence table
+records them as type `f32` so the layout stays truthful.
+
+VV5 has **six** skills where VV1-VV4 have five, which is exactly why its
+preferred-skill DWORD sits at `+0x1C74` and VV4's at `+0x1C70`. A test pins that
+relationship in both games.
+
+### Elderly
+
+No build defines a separately proven elderly flag. Elderly/old rendering is
+*derived from age thresholds* -- VV4 and VV5 pick the old frame by age. The
+adapters capture the proven age value as `age` and never relabel it.
 
 ## Testing
 

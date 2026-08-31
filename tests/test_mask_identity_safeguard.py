@@ -924,6 +924,40 @@ class AdapterEvidenceTableTests(unittest.TestCase):
                         f"{game}.{name} has an offset but no evidence",
                     )
 
+    def test_field_types_come_from_a_known_vocabulary(self) -> None:
+        """`f32` is recorded where a build stores a float, so the table stays
+        truthful even though the reader hashes those bytes bit-exactly."""
+        allowed = {"u8", "i32", "f32", "str"}
+        for game, entry in self.games.items():
+            for name, field in entry.get("fields", {}).items():
+                with self.subTest(game=game, field=name):
+                    self.assertIn(field.get("type"), allowed)
+
+    def test_float_skill_fields_are_declared_where_the_build_stores_floats(self) -> None:
+        """VV4 and VV5 skills are Float32; mislabelling them i32 would hide that
+        the game never stores an integer there."""
+        for game in ("vv4", "vv5"):
+            with self.subTest(game=game):
+                self.assertEqual(self.games[game]["fields"]["skills"]["type"], "f32")
+
+    def test_vv5_carries_a_sixth_skill(self) -> None:
+        """VV5 has six skills where VV1-VV4 have five, which is exactly why its
+        preferred-skill DWORD sits one slot later than VV4's."""
+        vv5 = self.games["vv5"]["fields"]
+        self.assertEqual(vv5["skills"]["count"], 6)
+        self.assertEqual(
+            int(vv5["preferred_skill"]["offset"], 16),
+            int(vv5["skills"]["offset"], 16) + 6 * 4,
+            "VV5's preferred skill does not sit immediately after six skills",
+        )
+        vv4 = self.games["vv4"]["fields"]
+        self.assertEqual(vv4["skills"]["count"], 5)
+        self.assertEqual(
+            int(vv4["preferred_skill"]["offset"], 16),
+            int(vv4["skills"]["offset"], 16) + 5 * 4,
+            "VV4's preferred skill does not sit immediately after five skills",
+        )
+
     def test_special_villagers_carry_evidence(self) -> None:
         for game, entry in self.games.items():
             for name, special in entry.get("special_villagers", {}).items():

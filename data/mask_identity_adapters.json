@@ -9,7 +9,7 @@
   },
   "unproven_fields_global": {
     "parentage": "Requested for VV2-VV5, defined as the NAME, HEAD and BODY of the villager's mother and father, expected to be stored inline in each villager's own record. An independent RE audit of all four exact builds found NO such fields. Per build, the inheritance path that writes a child's own head/body was identified -- VV2 sub_44C600 -> record+0x548/+0x54C; VV3 sub_456120 -> record+0xDF0/+0xDF4; VV4 sub_45EF10 -> record+0x1BB8/+0x1BBC; VV5 constructor/inheritance/pregnancy/delivery/clone/save-load -> record+0x1BB8/+0x1BBC -- but no instruction was found that stores a mother_name, father_name, mother_head, father_head, mother_body or father_body into the child record. Inheritance computes the child's OWN head; it does not retain the parents' values. Parentage is therefore captured by NO adapter and must not be added without new per-build instruction-level evidence.",
-    "elderly_state": "No build defines a distinct elderly flag. VV1/VV2/VV3/VV4/VV5 expose an AGE value, which the adapters capture instead where proven; age is recorded as `age` and never relabelled as an elderly flag."
+    "elderly_state": "No build defines a separately proven elderly flag. Elderly/old rendering is DERIVED from age thresholds -- VV4 and VV5 select the old frame by age. The adapters therefore capture the proven AGE value as `age` and never relabel it as an elderly flag; treat elderly as derived from age unless new instruction evidence appears."
   },
   "games": {
     "vv1": {
@@ -69,7 +69,7 @@
       "absent_fields": {
         "health": "no VV1 health offset is defined or documented",
         "preferred_skill": "no VV1 preferred-skill offset is defined or documented",
-        "name": "no VV1 name-buffer offset is defined or documented",
+        "name": "start and length not established. record[+0x374] is proven to lie INSIDE the name buffer, but neither its beginning nor its full length was established, so no name field can be read safely",
         "nursing": "record[+0x29] is cleared by the newborn allocator hook but its meaning is not established as nursing"
       },
       "special_villagers": {
@@ -146,7 +146,7 @@
         }
       },
       "absent_fields": {
-        "nursing": "record[+0x558] is defined as VV2_SPECIAL_OFFSET, a special flag; its meaning is not established as nursing",
+        "nursing": "REFUTED as nursing. record[+0x558] is a generic special/memorial flag used for exclusion, not nursing state; and VA 0x44B980 writes processed-age data at record[+0x540], which is likewise not a nursing flag. VV2 has no established nursing offset",
         "parentage": "no VV2 parentage offset is defined or documented"
       },
       "special_villagers": {}
@@ -288,9 +288,9 @@
         },
         "skills": {
           "offset": "0x1C5C",
-          "type": "i32",
+          "type": "f32",
           "count": 5,
-          "evidence": "vv4_origins_icons.c VV_SKILL0_OFFSET / VV_SKILL_COUNT"
+          "evidence": "vv4_origins_icons.c VV_SKILL0_OFFSET / VV_SKILL_COUNT; stored as Float32 -- build_vv4_full_mastery_candidate.py records skill_writer 0x46AD80 taking a Float32 delta with ECX=record+0x1C5C, and the companion's own VV_MASTER_VALUE is 0x42C80000 (float 100.0)"
         },
         "preferred_skill": {
           "offset": "0x1C70",
@@ -311,18 +311,21 @@
         }
       },
       "absent_fields": {
-        "nursing": "no VV4 nursing offset is defined or documented",
+        "nursing": "record[+0x1C4C] is documented only as a nursing/pregnancy companion field; no reviewed VA proves boolean nursing semantics, so it is not captured",
         "parentage": "no VV4 parentage offset is defined or documented"
       },
       "rejected_fields": {
-        "VV_AGE_OFFSET_0x348": "vv4_origins_icons.c also defines VV_AGE_OFFSET 0x348, VV_SKILL_*_OFFSET 0x3BC..0x3CC, VV_LIKES_OFFSET 0x398 and VV_DISLIKES_OFFSET 0x3A8. Those are the VIRTUAL VILLAGERS 1 values; VV4's record stride is 0x2E3C and its verified fields live at 0x1B8C..0x1E6C. No VV4 evidence supports the 0x3xx values, so this adapter uses the VV4-specific block only."
+        "VV_AGE_OFFSET_0x348": "VV1's age offset. VV4's verified display age is +0x1B8C.",
+        "VV_SKILL_OFFSETS_0x3BC_0x3CC": "VV1's skill offsets. VV4's verified skills are Float32 at +0x1C5C.",
+        "VV_LIKES_OFFSET_0x398": "VV1's likes offset. VV4's verified likes are at +0x1E60.",
+        "VV_DISLIKES_OFFSET_0x3A8": "VV1's dislikes offset. VV4's verified dislikes are at +0x1E6C."
       },
-      "special_villagers": {}
+      "special_villagers": {},
+      "rejected_fields_note": "These are NOT unused leftovers: native/vv4_origins_icons/vv4_origins_icons.c reads them inside ShowOriginsUpgradeMenu (lines ~2143-2169), against VV4's layout, and additionally compares the skills as int 100 rather than float 100.0. They are not reachable through the shipped VV4 patch, which resolves ShowOriginsUpgradeMenuState -- a different export that takes the dialog state from its caller and reads no villager fields. Tracked as a latent trap in that companion, not as a source of proven offsets here."
     },
     "vv5": {
       "title": "Virtual Villagers - New Believers",
-      "enabled": false,
-      "disabled_reason": "Only appearance and status fields are proven for this build. No skill, likes, dislikes, preferred-skill, name, or health offset is established, so two same-appearance believers cannot be separated by captured fields. The native planner remains the path taken.",
+      "enabled": true,
       "record": {
         "base": "0x00554190",
         "stride": "0x2F44",
@@ -354,15 +357,28 @@
           "offset": "0x1BBC",
           "type": "i32",
           "evidence": "docs/head-mask-rendering.md VV5 record field list (body +0x1BBC); docs/appearance-upgrades-requirements.md confirms record+0x1BBC over 0..28"
+        },
+        "health": {
+          "offset": "0x1C40",
+          "type": "i32",
+          "evidence": "exact-build audit: signed health checks read [record+0x1C40]"
+        },
+        "skills": {
+          "offset": "0x1C5C",
+          "type": "f32",
+          "count": 6,
+          "evidence": "exact-build audit: six contiguous single-precision skill fields at +0x1C5C..+0x1C70; the sixth is read by the Details renderer. VV5 has SIX skills where VV1-VV4 have five, which is why the preferred-skill DWORD sits at +0x1C74 here and at +0x1C70 in VV4"
+        },
+        "preferred_skill": {
+          "offset": "0x1C74",
+          "type": "i32",
+          "evidence": "exact-build audit: native preference stores and the VV5 source both use this DWORD"
         }
       },
       "absent_fields": {
-        "skills": "no VV5 skill-block offset is defined or documented",
-        "likes": "no VV5 likes offset is defined or documented",
-        "dislikes": "no VV5 dislikes offset is defined or documented",
-        "preferred_skill": "no VV5 preferred-skill offset is defined or documented",
+        "likes": "no exact VV5 source/destination instruction pair is established for a likes array",
+        "dislikes": "no exact VV5 source/destination instruction pair is established for a dislikes array",
         "name": "no VV5 name-buffer offset is established; an independent RE audit of build 929467... could not establish one",
-        "health": "no VV5 health offset is defined or documented",
         "nursing": "no VV5 nursing offset is defined or documented",
         "parentage": "no VV5 parentage offset is defined or documented"
       },

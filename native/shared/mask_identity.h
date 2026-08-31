@@ -54,10 +54,16 @@ typedef enum {
 } vv_identity_status;
 
 /* How to read a record field.  Needed because the same struct describes a
- * status byte, a 32-bit counter, an array of counters and a name buffer. */
+ * status byte, a 32-bit counter, an array of counters and a name buffer.
+ *
+ * There is deliberately no float kind.  VV4 and VV5 store skills as Float32,
+ * and those fields are declared VV_FIELD_I32 so the raw four bytes go into the
+ * fingerprint.  That is what identity wants: a bit-exact comparison, with no
+ * float arithmetic in a module that must stay freestanding.  The evidence
+ * table records such fields as type "f32" so the layout stays truthful. */
 typedef enum {
     VV_FIELD_U8 = 0,
-    VV_FIELD_I32,
+    VV_FIELD_I32,                     /* also carries Float32 fields, bit-exact */
     VV_FIELD_STR                      /* NUL-terminated, hashed up to `count` */
 } vv_field_kind;
 
