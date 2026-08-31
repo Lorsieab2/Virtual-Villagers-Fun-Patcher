@@ -1212,6 +1212,16 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     mask_args[0] = (int)(UINT_PTR)atlas;
     mask_args[3] = mask - 1;
     facing = mask_args[4] & 7;
+    /* Select the mask COLUMN explicitly, never reuse the head's frame index --
+       docs/head-mask-rendering.md Part 6 rule 3.  VV1 may replay args[4]
+       directly because its mask atlas shares its head atlas' column layout;
+       VV3's does not.  heathen_masks.png is 520x725 = 8 facing columns x 5
+       colour rows of 65x145, so the column is the villager's 8-way facing,
+       while the head's args[4] is a composite whose facing is only the low
+       three bits -- which is exactly why `facing` is masked out below.
+       Passing the raw composite indexed past column 7 and drew the wrong
+       cell.  When args[4] already holds a bare facing this is a no-op. */
+    mask_args[4] = facing;
     index = vv3_world_record_index(record);
     g_vv3_worlddbg[0] = index;
     g_vv3_worlddbg[1] = *(int *)((unsigned char *)record + 0xF20);
