@@ -1202,6 +1202,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
     void *atlas;
     int mask, index, facing, mask_args[6], i;
+    int arg0, arg1, arg2, arg3, arg4, arg5;
     int wp[2];
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
@@ -1248,13 +1249,28 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
         g_vv3_chiefdbg[6] = wp[0];
         g_vv3_chiefdbg[7]++;
     }
+    /* MSVC inline assembly treats `arr[N]` as a BYTE displacement, not an
+       element index.  `push mask_args[4]` therefore pushed base+4 -- element 1,
+       the x coordinate -- and four of the six pushes were UNALIGNED reads
+       straddling two elements, so the renderer received garbage for x, y, row,
+       column and scale (only element 0, the atlas, was right by coincidence).
+       The shipped DLL showed it plainly: the six pushes came out at
+       [ebp-0x24]..[ebp-0x1f], one byte apart instead of four.
+       Copying the tuple into scalars first removes the ambiguity entirely --
+       do NOT fold these back into indexed pushes. */
+    arg0 = mask_args[0];
+    arg1 = mask_args[1];
+    arg2 = mask_args[2];
+    arg3 = mask_args[3];
+    arg4 = mask_args[4];
+    arg5 = mask_args[5];
     __asm {
-        push mask_args[5]
-        push mask_args[4]
-        push mask_args[3]
-        push mask_args[2]
-        push mask_args[1]
-        push mask_args[0]
+        push arg5
+        push arg4
+        push arg3
+        push arg2
+        push arg1
+        push arg0
         mov  ecx, VV3_WORLD_MGR
         mov  edx, VV3_WORLD_HEAD_DRAW_FN
         call edx                     /* 0x42E5E0 -> 0x409FB0, exact tuple */
