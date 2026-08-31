@@ -610,8 +610,8 @@
         },
         {
           "offset": "0x94560",
-          "before": "000000000000000000000000000000000000000000000000000000",
-          "after": "E85BFFFFFF3D960000007D0A68C8000000E95F0CF8FFE98A0CF8FF",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "E85BFFFFFF3D960000007D0A68C8000000E95F0CF8FFC3",
           "purpose": "skip the first believer child at 150 physical slots and otherwise resume the stock event"
         },
         {
@@ -622,8 +622,8 @@
         },
         {
           "offset": "0x94580",
-          "before": "00000000000000000000000000000000000000000000000000000000",
-          "after": "E83BFFFFFF3D960000007D0B6AC96A006A00E91F0DF8FFE9510DF8FF",
+          "before": "000000000000000000000000000000000000000000000000",
+          "after": "E83BFFFFFF3D960000007D0B6AC96A006A00E91F0DF8FFC3",
           "purpose": "skip the first Heathen child at 150 physical slots and otherwise resume the stock event"
         },
         {
@@ -634,8 +634,8 @@
         },
         {
           "offset": "0x945A0",
-          "before": "000000000000000000000000000000000000000000000000000000",
-          "after": "E81BFFFFFF3D960000007D0A68C8000000E95F0EF8FFE98A0EF8FF",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "E81BFFFFFF3D960000007D0A68C8000000E95F0EF8FFC3",
           "purpose": "skip the first Chutes child at 150 physical slots and otherwise resume the stock event"
         },
         {
