@@ -26,7 +26,20 @@ HEADER = ROOT / "native" / "shared" / "mask_identity.h"
 ADAPTERS = ROOT / "data" / "mask_identity_adapters.json"
 BUILDER = ROOT / "scripts" / "build_mask_identity_harness.py"
 
-MAX_SLOTS = 256
+def _header_define(name: str) -> int:
+    """Read a #define from the header so these cannot drift out of step."""
+    match = re.search(
+        r"^#define\s+" + re.escape(name) + r"\s+(\d+)",
+        HEADER.read_text(encoding="utf-8"), re.M,
+    )
+    if match is None:
+        raise RuntimeError(f"{name} not found in {HEADER}")
+    return int(match.group(1))
+
+
+MAX_SLOTS = _header_define("VV_IDENTITY_MAX_SLOTS")
+VV_MAX_ARRAY = _header_define("VV_IDENTITY_MAX_ARRAY")
+VV_MAX_NAME = _header_define("VV_IDENTITY_MAX_NAME")
 
 
 def _load_builder():
@@ -415,6 +428,36 @@ class SnapshotTests(SafeguardTestCase):
         self.assertEqual(snap.live_count, 2)
         self.assertFalse(snap.entries[1].live)
 
+    def test_non_positive_health_is_not_a_living_villager(self) -> None:
+        """Mirrors the games' own predicates: VV3 skips health <= 0 and VV4's
+        vv_eligible() requires health > 0."""
+        for health in (0, -1, -500):
+            with self.subTest(health=health):
+                v = self._village(3)
+                v.set_i32(1, "health", health)
+                _, snap = self.snapshot(v)
+                self.assertFalse(snap.entries[1].live)
+                self.assertEqual(snap.live_count, 2)
+                self.assertEqual(snap.candidate_count, 2)
+                status, resolved, _ = self.preflight(v, snap, [(1, 5)])
+                self.assertEqual(status, PLAN_TARGETS_DEAD)
+                self.assertEqual(resolved, [-99])
+
+    def test_positive_health_stays_alive(self) -> None:
+        v = self._village(3)
+        v.set_i32(1, "health", 1)
+        _, snap = self.snapshot(v)
+        self.assertTrue(snap.entries[1].live)
+        self.assertEqual(snap.live_count, 3)
+
+    def test_health_is_ignored_for_liveness_when_unproven(self) -> None:
+        """VV1 has no proven health offset; its villagers must still count."""
+        v = self._village(3)
+        v.set_i32(1, "health", -5)
+        v.adapter.health = Field(0, OFF["health"], F_I32, 1)
+        _, snap = self.snapshot(v)
+        self.assertEqual(snap.live_count, 3)
+
     def test_signature_moves_when_a_villager_is_added(self) -> None:
         v = self._village(3)
         _, before = self.snapshot(v)
@@ -668,6 +711,49 @@ class ResolutionTests(SafeguardTestCase):
             "the diagnostic did not name both colliding records",
         )
 
+    def test_a_surviving_twin_never_inherits_a_departed_twin_s_mask(self) -> None:
+        """A lone match proves movement only if the fingerprint was unique when
+        the plan was made.
+
+        Twins at slots 1 and 2; the plan targets slot 1; slot 1's villager then
+        dies.  Slot 2 is now the only fingerprint match, but it is equally
+        consistent with "slot 1 moved to 2" and "slot 1 died and 2 is its
+        twin".  Resolving to 2 would put the departed villager's mask on a
+        different villager.
+        """
+        v = self._twins()
+        _, snap = self.snapshot(v)
+        v.clear(1)
+        status, resolved, collision = self.preflight(v, snap, [(1, 5)])
+        self.assertEqual(
+            status, AMBIGUOUS,
+            "the mask was handed to the surviving twin instead of being refused",
+        )
+        self.assertEqual(resolved, [-99])
+        self.assertEqual(sorted(collision), [1, 2])
+
+    def test_a_twin_still_in_its_own_slot_resolves_when_the_other_departs(self) -> None:
+        """The mirror case: the record key still settles it."""
+        v = self._twins()
+        _, snap = self.snapshot(v)
+        v.clear(2)                       # the OTHER twin leaves
+        status, resolved, _ = self.preflight(v, snap, [(1, 5)])
+        self.assertEqual(status, OK)
+        self.assertEqual(resolved, [1])
+
+    def test_a_unique_villager_that_moved_still_resolves_after_a_death(self) -> None:
+        """Guards against over-correcting: uniqueness at plan time is what
+        matters, not merely that the population shrank."""
+        v = Village()
+        for i in range(4):
+            v.populate(i, name=f"V{i}", head=i, body=i)
+        _, snap = self.snapshot(v)
+        v.clear(3)                       # an unrelated villager dies
+        v.move_villager(2, 6)
+        status, resolved, _ = self.preflight(v, snap, [(2, 5)])
+        self.assertEqual(status, OK)
+        self.assertEqual(resolved, [6])
+
     def test_a_departed_villager_is_reported_as_stale(self) -> None:
         v = Village()
         for i in range(4):
@@ -874,6 +960,88 @@ class DisabledAdapterTests(SafeguardTestCase):
             with self.subTest(case=label):
                 v = Village()
                 mutate(v.adapter)
+                status, _ = self.snapshot(v)
+                self.assertEqual(status, BAD_ARGUMENT)
+
+    def test_fields_that_do_not_fit_a_record_are_refused(self) -> None:
+        """A mistyped offset or count must be caught before anything is read,
+        not allowed to hash memory past the end of the record."""
+        cases = (
+            ("offset past the record", Field(1, STRIDE, F_I32, 1)),
+            ("last element overruns", Field(1, STRIDE - 2, F_I32, 1)),
+            ("array overruns", Field(1, STRIDE - 8, F_I32, 4)),
+            ("string overruns", Field(1, STRIDE - 4, F_STR, 16)),
+            ("byte past the record", Field(1, STRIDE, F_U8, 1)),
+            ("negative count", Field(1, 0, F_I32, -1)),
+            ("unknown field kind", Field(1, 0, 99, 1)),
+            ("offset wraps", Field(1, 0xFFFFFFF0, F_I32, 4)),
+        )
+        for label, bad in cases:
+            with self.subTest(case=label):
+                v = Village()
+                v.adapter.age = bad
+                status, _ = self.snapshot(v)
+                self.assertEqual(
+                    status, BAD_ARGUMENT,
+                    f"an adapter with {label} was accepted",
+                )
+
+    def test_absurd_counts_are_refused_even_inside_a_huge_record(self) -> None:
+        """The per-field caps are not redundant with the record-size check.
+
+        VV2's record stride is 0xE48C, so a badly mistyped count can still fit
+        inside one record and would otherwise silently fold tens of kilobytes
+        of unrelated record bytes into a villager's identity.
+        """
+        big_stride = 0x1000
+        cases = (
+            ("array count over the cap",
+             Field(1, 0, F_I32, VV_MAX_ARRAY + 1)),
+            ("name count over the cap",
+             Field(1, 0, F_STR, VV_MAX_NAME + 1)),
+        )
+        for label, bad in cases:
+            with self.subTest(case=label):
+                v = Village()
+                # A real buffer this large, so that if the guard ever failed
+                # the read would still land inside our own memory.
+                v.buffer = (ctypes.c_ubyte * big_stride)()
+                v.adapter.base = ctypes.cast(
+                    v.buffer, ctypes.POINTER(ctypes.c_ubyte)
+                )
+                v.adapter.stride = big_stride
+                v.adapter.count = 1
+                v.adapter.age = bad
+                self.assertLess(
+                    bad.offset + bad.count * (4 if bad.kind == F_I32 else 1),
+                    big_stride,
+                    "this case must fit the record, or it proves nothing",
+                )
+                status, _ = self.snapshot(v)
+                self.assertEqual(
+                    status, BAD_ARGUMENT, f"an adapter with {label} was accepted"
+                )
+
+    def test_an_absent_field_is_not_bounds_checked(self) -> None:
+        """Absent fields are never read, so a stale offset left behind on one
+        must not block an otherwise sound adapter."""
+        v = Village()
+        for i in range(4):
+            v.populate(i, name=f"V{i}", head=i, body=i)
+        v.adapter.age = Field(0, 0xFFFF0000, F_I32, 999)
+        status, snap = self.snapshot(v)
+        self.assertEqual(status, OK)
+        self.assertEqual(snap.live_count, 4)
+
+    def test_special_villager_offsets_are_bounds_checked(self) -> None:
+        for label, special in (
+            ("flag past the record", Special(SPECIAL_FLAG, STRIDE, 0, None)),
+            ("rank overruns", Special(SPECIAL_RANK, STRIDE - 2, 13, None)),
+            ("unknown special kind", Special(99, 0, 0, None)),
+        ):
+            with self.subTest(case=label):
+                v = Village()
+                v.adapter.special = special
                 status, _ = self.snapshot(v)
                 self.assertEqual(status, BAD_ARGUMENT)
 

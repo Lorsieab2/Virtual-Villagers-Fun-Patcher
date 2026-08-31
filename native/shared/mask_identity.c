@@ -75,10 +75,9 @@ static unsigned int vv_hash_field(unsigned int h,
 
     count = f->count > 0 ? f->count : 1;
 
+    /* No clamping here: vv_check_adapter has already rejected any field whose
+     * offset, width and count do not fit inside one record. */
     if (f->kind == VV_FIELD_STR) {
-        if (count > VV_IDENTITY_MAX_NAME) {
-            count = VV_IDENTITY_MAX_NAME;
-        }
         /* No separate length is mixed in: the next thing hashed is always the
          * following field's tag, so a short name cannot run into its
          * neighbour.  Bytes past the terminator are ignored, which is what the
@@ -94,19 +93,13 @@ static unsigned int vv_hash_field(unsigned int h,
     }
 
     if (f->kind == VV_FIELD_U8) {
-        if (count > VV_IDENTITY_MAX_ARRAY) {
-            count = VV_IDENTITY_MAX_ARRAY;
-        }
         for (i = 0; i < count; ++i) {
             h = vv_hash_byte(h, vv_read_u8(rec, f->offset + (unsigned int)i));
         }
         return h;
     }
 
-    /* VV_FIELD_I32 */
-    if (count > VV_IDENTITY_MAX_ARRAY) {
-        count = VV_IDENTITY_MAX_ARRAY;
-    }
+    /* VV_FIELD_I32 (also carries Float32 fields, hashed by their raw bits) */
     for (i = 0; i < count; ++i) {
         h = vv_hash_u32(h,
                         (unsigned int)vv_read_i32(rec,
@@ -129,6 +122,14 @@ static int vv_slot_is_live(const vv_identity_adapter *a, const unsigned char *re
         return 0;
     }
     if (a->dead.present && vv_read_u8(rec, a->dead.offset) != 0) {
+        return 0;
+    }
+    /* Health gates liveness wherever a build proves the field.  This mirrors
+     * the games' own shipped predicates rather than inventing a rule:
+     * vv3_full_mastery_candidate.c skips a record when
+     * `*(int *)(rec + VV3_HEALTH) <= 0`, and vv4_origins_icons.c's
+     * vv_eligible() requires `*(int *)(r + VV_HEALTH_OFFSET) > 0`. */
+    if (a->health.present && vv_read_i32(rec, a->health.offset) <= 0) {
         return 0;
     }
     return 1;
@@ -173,8 +174,77 @@ static unsigned int vv_fingerprint(const vv_identity_adapter *a,
     return h;
 }
 
+static unsigned int vv_field_width(vv_field_kind kind)
+{
+    return kind == VV_FIELD_I32 ? 4u : 1u;   /* U8 and STR are byte-wide */
+}
+
+/* Every present field must fit wholly inside one record.  A future per-game
+ * wiring mistake -- a mistyped offset, an over-long count, an unknown kind --
+ * is then refused up front instead of reading past the record, or past the
+ * record array, and hashing unrelated process memory. */
+static vv_identity_status vv_check_field(const vv_identity_field *f,
+                                         unsigned int stride)
+{
+    unsigned int count;
+    unsigned int end;
+
+    if (!f->present) {
+        return VV_IDENTITY_OK;
+    }
+    if (f->kind != VV_FIELD_U8 && f->kind != VV_FIELD_I32
+        && f->kind != VV_FIELD_STR) {
+        return VV_IDENTITY_BAD_ARGUMENT;
+    }
+    if (f->count < 0) {
+        return VV_IDENTITY_BAD_ARGUMENT;
+    }
+    count = f->count > 0 ? (unsigned int)f->count : 1u;
+    if (f->kind == VV_FIELD_STR) {
+        if (count > VV_IDENTITY_MAX_NAME) {
+            return VV_IDENTITY_BAD_ARGUMENT;
+        }
+    } else if (count > VV_IDENTITY_MAX_ARRAY) {
+        return VV_IDENTITY_BAD_ARGUMENT;
+    }
+
+    end = f->offset + count * vv_field_width(f->kind);
+    if (end < f->offset || end > stride) {   /* `<` catches the wrap */
+        return VV_IDENTITY_BAD_ARGUMENT;
+    }
+    return VV_IDENTITY_OK;
+}
+
+static vv_identity_status vv_check_special(const vv_identity_special *s,
+                                           unsigned int stride)
+{
+    unsigned int end;
+
+    switch (s->kind) {
+    case VV_SPECIAL_NONE:
+    case VV_SPECIAL_RECORD_POINTER:      /* compares addresses, reads nothing */
+        return VV_IDENTITY_OK;
+    case VV_SPECIAL_RECORD_FLAG:
+        end = s->offset + 1u;
+        break;
+    case VV_SPECIAL_RECORD_RANK:
+        end = s->offset + 4u;
+        break;
+    default:
+        return VV_IDENTITY_BAD_ARGUMENT;
+    }
+    if (end < s->offset || end > stride) {
+        return VV_IDENTITY_BAD_ARGUMENT;
+    }
+    return VV_IDENTITY_OK;
+}
+
 static vv_identity_status vv_check_adapter(const vv_identity_adapter *a)
 {
+    const vv_identity_field *fields[13];
+    vv_identity_status status;
+    int i;
+
     if (a == 0) {
         return VV_IDENTITY_BAD_ARGUMENT;
     }
@@ -187,7 +257,27 @@ static vv_identity_status vv_check_adapter(const vv_identity_adapter *a)
     if (a->count > VV_IDENTITY_MAX_SLOTS) {
         return VV_IDENTITY_TOO_MANY_SLOTS;
     }
-    return VV_IDENTITY_OK;
+
+    fields[0]  = &a->active;
+    fields[1]  = &a->dead;
+    fields[2]  = &a->name;
+    fields[3]  = &a->health;
+    fields[4]  = &a->age;
+    fields[5]  = &a->gender;
+    fields[6]  = &a->head;
+    fields[7]  = &a->body;
+    fields[8]  = &a->nursing;
+    fields[9]  = &a->skills;
+    fields[10] = &a->preferred_skill;
+    fields[11] = &a->likes;
+    fields[12] = &a->dislikes;
+    for (i = 0; i < 13; ++i) {
+        status = vv_check_field(fields[i], a->stride);
+        if (status != VV_IDENTITY_OK) {
+            return status;
+        }
+    }
+    return vv_check_special(&a->special, a->stride);
 }
 
 /* --------------------------------------------------------------- public API */
@@ -292,9 +382,24 @@ int vv_identity_is_candidate(const vv_identity_snapshot *snapshot, int slot)
  *   -1  not present any more            -> VV_IDENTITY_STALE_SNAPSHOT
  *   -2  two candidates cannot be told apart -> VV_IDENTITY_AMBIGUOUS
  * On -2 the two offending slots are written to *a_out / *b_out. */
+/* How many live villagers in `s` carry this fingerprint. */
+static int vv_count_matches(const vv_identity_snapshot *s, unsigned int fingerprint)
+{
+    int matches = 0;
+    int slot;
+
+    for (slot = 0; slot < s->count; ++slot) {
+        if (s->entries[slot].live && s->entries[slot].fingerprint == fingerprint) {
+            matches += 1;
+        }
+    }
+    return matches;
+}
+
 static int vv_resolve_slot(const vv_identity_snapshot *now,
                            unsigned int fingerprint,
                            int original_slot,
+                           int unique_when_planned,
                            int *a_out,
                            int *b_out)
 {
@@ -320,7 +425,22 @@ static int vv_resolve_slot(const vv_identity_snapshot *now,
         return -1;
     }
     if (matches == 1) {
-        return first;
+        /* A lone match proves the villager merely MOVED only when nobody else
+         * shared its fingerprint at plan time.  If it had a twin back then,
+         * this single survivor is equally consistent with "the planned
+         * villager moved here" and "the planned villager died and this is its
+         * twin" -- assigning the mask would then hand it to the wrong record.
+         * Only the record key can settle that. */
+        if (unique_when_planned || first == original_slot) {
+            return first;
+        }
+        if (a_out != 0) {
+            *a_out = first;
+        }
+        if (b_out != 0) {
+            *b_out = original_slot;
+        }
+        return -2;
     }
 
     /* Several villagers share every captured field.  The stable record key is
@@ -416,6 +536,8 @@ vv_identity_status vv_identity_preflight(const vv_identity_adapter *adapter,
         }
 
         resolved = vv_resolve_slot(&now, was->fingerprint, planned,
+                                   vv_count_matches(snapshot,
+                                                    was->fingerprint) == 1,
                                    collision_a, collision_b);
         if (resolved == -1) {
             return VV_IDENTITY_STALE_SNAPSHOT;

@@ -96,10 +96,12 @@ typedef struct {
     unsigned int stride;
     int count;                        /* slots to scan */
 
-    /* Liveness.  A slot holds a villager when `active` is non-zero and `dead`
-     * (when the build proves one) is zero.  Health is deliberately NOT a
-     * liveness test: no build establishes which health value means "dead", so
-     * health is treated purely as an identity contributor below. */
+    /* Liveness.  A slot holds a villager when `active` is non-zero, `dead`
+     * (when the build proves one) is zero, and `health` (when the build proves
+     * one) is positive.  The health rule mirrors the games' own shipped
+     * predicates -- VV3 skips a record whose health is <= 0, and VV4's
+     * vv_eligible() requires health > 0 -- rather than inventing a threshold.
+     * Health is an identity contributor as well as a liveness gate. */
     vv_identity_field active;
     vv_identity_field dead;
 
