@@ -2369,6 +2369,16 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jz unavailable
         mov edi, eax
         mov dword ptr [ebp-0x18], edi
+        # 0x472BD0 is __thiscall: it never loads ECX itself, it forwards its
+        # own `this` to 0x4713F0, which does `lea esi,[ecx+0x1D34]` and then
+        # `lea ecx,[esi-0x1CEC]` before calling 0x466170.  All eleven stock
+        # call sites set ECX to the village manager 0x554148 immediately
+        # before the call.  This cave did not, so 0x466170 was entered with a
+        # wild `this + 0x48` and the game access-violated the moment Barrel of
+        # Babies was bought.  Both crash dumps agree: ECX differed run to run,
+        # EBX was 150 (0x4713F0's own `mov ebx, 0x96`), and ESI - ECX was
+        # exactly 0x1CEC.
+        mov ecx, 0x554148
         call 0x472BD0
         test al, al
         jz full
@@ -2385,6 +2395,8 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
         mov edi, eax
+        # Same __thiscall contract as the first gate call above.
+        mov ecx, 0x554148
         call 0x472BD0
         test al, al
         jz full
