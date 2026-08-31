@@ -4,6 +4,8 @@ import json
 import os
 import subprocess
 import sys
+import threading
+import time
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
@@ -68,6 +70,69 @@ def group_fun_patches(builds, patches):
     return headers
 
 
+WAIT_POLL_SECONDS = 0.03
+
+
+class WaitWindow:
+    """A small "Please wait..." window shown over blocking work.
+
+    The patcher copies whole game folders and renders patched bytes on the Tk
+    main thread, so the main window stops repainting and Windows relabels it
+    "(Not Responding)".  Nothing is wrong when that happens, but it reads as a
+    crash.  This gives the wait a face that says so.
+    """
+
+    def __init__(self, parent, title: str, message: str, modal: bool = True) -> None:
+        self._parent = parent
+        self._modal = modal
+        window = tk.Toplevel(parent)
+        self._window = window
+        window.title(title)
+        window.resizable(False, False)
+        # The work cannot be cancelled partway without leaving a half-copied
+        # game folder behind, so the close button does nothing.
+        window.protocol("WM_DELETE_WINDOW", lambda: None)
+        frame = ttk.Frame(window, padding=28)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text=message, justify="center").pack()
+        self._bar = ttk.Progressbar(frame, mode="indeterminate", length=300)
+        self._bar.pack(pady=(18, 0))
+        self._bar.start(12)
+        if modal:
+            window.transient(parent)
+        self._center()
+        if modal:
+            # Blocks a second click on Apply while the first one is running.
+            try:
+                window.grab_set()
+            except tk.TclError:
+                pass
+        window.update()
+
+    def _center(self) -> None:
+        window = self._window
+        window.update_idletasks()
+        width = window.winfo_width()
+        height = window.winfo_height()
+        parent = self._parent
+        if parent is not None and parent.winfo_viewable():
+            x = parent.winfo_rootx() + (parent.winfo_width() - width) // 2
+            y = parent.winfo_rooty() + (parent.winfo_height() - height) // 2
+        else:
+            x = (window.winfo_screenwidth() - width) // 2
+            y = (window.winfo_screenheight() - height) // 2
+        window.geometry(f"+{max(0, x)}+{max(0, y)}")
+
+    def close(self) -> None:
+        try:
+            self._bar.stop()
+            if self._modal:
+                self._window.grab_release()
+            self._window.destroy()
+        except tk.TclError:
+            pass
+
+
 class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
@@ -82,25 +147,73 @@ class App(tk.Tk):
             max(1, round(self.island_source.width() / 32))
         )
         self.iconphoto(True, self.island_titlebar)
-        self.builds = load_builds()
-        self.patch_modes = load_patch_modes()
-        self.fun_patches = load_public_fun_patches()
-        self.fun_patch_vars = {
-            patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
-        }
-        self._last_fun_selection: set[str] = set()
-        self.exe_var = tk.StringVar()
-        self.patch_mode_var = tk.StringVar(value=DEFAULT_PATCH_MODE)
-        self.output_root_var = tk.StringVar()
-        self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
-        self.status_var = tk.StringVar(value="Choose a population mode and one game or all five.")
-        self.game_var = tk.StringVar(value="No game identified yet")
-        self.last_output_dir: Path | None = None
-        self.last_modified_paths: dict[str, Path] = {}
-        self._load_settings()
-        self._build_ui()
-        self._mode_changed(save=False)
+        # Hide the empty shell and put a splash up first: loading the patches
+        # and building the chooser both happen before anything is drawn.
+        self.withdraw()
+        splash = WaitWindow(
+            self,
+            "Virtual Villagers Fun Patcher",
+            "Please wait\u2026\n\nLoading the patches.",
+            modal=False,
+        )
+        try:
+            self.builds = load_builds()
+            self.patch_modes = load_patch_modes()
+            self.fun_patches = load_public_fun_patches()
+            self.fun_patch_vars = {
+                patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
+            }
+            self._last_fun_selection: set[str] = set()
+            self.exe_var = tk.StringVar()
+            self.patch_mode_var = tk.StringVar(value=DEFAULT_PATCH_MODE)
+            self.output_root_var = tk.StringVar()
+            self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
+            self.status_var = tk.StringVar(
+                value="Choose a population mode and one game or all five."
+            )
+            self.game_var = tk.StringVar(value="No game identified yet")
+            self.last_output_dir: Path | None = None
+            self.last_modified_paths: dict[str, Path] = {}
+            self._load_settings()
+            self._build_ui()
+            self._mode_changed(save=False)
+        finally:
+            splash.close()
+            self.deiconify()
         self.protocol("WM_DELETE_WINDOW", self._close)
+
+    def _run_with_wait(self, message: str, work):
+        """Run ``work`` off the main thread while a wait window stays alive.
+
+        ``work`` must not touch Tk.  Every caller therefore reads its Tk
+        variables on the main thread and closes over plain values, because
+        reading a Tk variable from another thread is not safe.
+
+        Pumping the event loop here is what keeps the window painting and the
+        progress bar moving, which is the whole point: the same call made
+        directly would leave the patcher looking hung for its whole duration.
+        """
+        wait = WaitWindow(self, "Please wait", message)
+        outcome: dict = {}
+
+        def run() -> None:
+            try:
+                outcome["value"] = work()
+            except BaseException as exc:  # re-raised on the main thread below
+                outcome["error"] = exc
+
+        worker = threading.Thread(target=run, daemon=True)
+        worker.start()
+        try:
+            while worker.is_alive():
+                self.update()
+                time.sleep(WAIT_POLL_SECONDS)
+            worker.join()
+        finally:
+            wait.close()
+        if "error" in outcome:
+            raise outcome["error"]
+        return outcome["value"]
 
     def _build_ui(self) -> None:
         viewport = ttk.Frame(self)
@@ -741,11 +854,13 @@ class App(tk.Tk):
             _validate_public_patch_mode(self._mode())
             source = self._source()
             build = identify(source)
-            preview = dry_run(
-                source,
-                self._mode(),
-                self._selected_fun_patch_ids(build.id),
-                output_root=self._output_root(),
+            # Read every Tk variable here; the worker thread must not.
+            mode = self._mode()
+            fun_patch_ids = self._selected_fun_patch_ids(build.id)
+            output_root = self._output_root()
+            preview = self._run_with_wait(
+                f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
+                lambda: dry_run(source, mode, fun_patch_ids, output_root=output_root),
             )
             output_folder = Path(preview["output_folder"])
             overwrite = False
@@ -756,12 +871,16 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
-            output, log = apply_patch(
-                source,
-                self._mode(),
-                overwrite=overwrite,
-                fun_patch_ids=self._selected_fun_patch_ids(build.id),
-                output_root=self._output_root(),
+            output, log = self._run_with_wait(
+                f"Please wait\u2026\n\nCopying and patching {build.title}.\n\n"
+                "Copying the whole game folder can take a while.",
+                lambda: apply_patch(
+                    source,
+                    mode,
+                    overwrite=overwrite,
+                    fun_patch_ids=fun_patch_ids,
+                    output_root=output_root,
+                ),
             )
             self.last_output_dir = output.parent
             self.last_modified_paths[build.id] = output
@@ -782,12 +901,17 @@ class App(tk.Tk):
         try:
             _validate_public_patch_mode(self._mode())
             sources = self._all_sources()
-            validated = validate_all_sources(sources)
-            previews = dry_run_all(
-                sources,
-                self._mode(),
-                self._selected_fun_patch_ids(),
-                output_root=self._output_root(),
+            # Read every Tk variable here; the worker thread must not.
+            mode = self._mode()
+            fun_patch_ids = self._selected_fun_patch_ids()
+            output_root = self._output_root()
+            validated = self._run_with_wait(
+                "Please wait\u2026\n\nChecking all five original games.",
+                lambda: validate_all_sources(sources),
+            )
+            previews = self._run_with_wait(
+                "Please wait\u2026\n\nPreparing the patches for all five games.",
+                lambda: dry_run_all(sources, mode, fun_patch_ids, output_root=output_root),
             )
             existing = []
             for (build, source), preview in zip(validated, previews, strict=True):
@@ -804,12 +928,16 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
-            results = apply_all(
-                sources,
-                self._mode(),
-                overwrite=overwrite,
-                fun_patch_ids=self._selected_fun_patch_ids(),
-                output_root=self._output_root(),
+            results = self._run_with_wait(
+                "Please wait\u2026\n\nCopying and patching all five games.\n\n"
+                "Copying five whole game folders can take several minutes.",
+                lambda: apply_all(
+                    sources,
+                    mode,
+                    overwrite=overwrite,
+                    fun_patch_ids=fun_patch_ids,
+                    output_root=output_root,
+                ),
             )
             self.last_output_dir = results[0][0].parent
             self.last_modified_paths = {
