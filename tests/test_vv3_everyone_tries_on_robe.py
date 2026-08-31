@@ -22,22 +22,22 @@ MODES = (
 )
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 EXPANDED_PROTOTYPE = ROOT / "research" / "vv3-expanded-prototype.exe"
-PAYLOAD_SHA256 = "95C62B33A52196912CD06FEAB8FCEE6EF070FE1D18EE68B11FFD33F9F44B51BC"
+PAYLOAD_SHA256 = "5ECEECEC8AEE8765F461CCAE69835D397F8F2FFFA6F5341C5D400CC06CE9324B"
 ZERO_CAVE_SHA256 = "22B94C6893BFC091BE2A9F454A045184DF6C0398CFFA2B4E90C0065DD6EEB1B0"
 ISOLATED_RESULTS = {
     "stock": (
-        "EE913C424D91A941BE79C2261BE66859793EDBA92D9F843D649E8551F6EC7717",
-        "C6730D00",
+        "4E3D3DBE7DFA2AFF0C67C0AE622E54BE378FBB54948018793115D394A261E0A1",
+        "C5730D00",
     ),
 }
 RENDERED_RESULTS = {
     "collection_progression": (
-        "D3CF2EB240B15EF4C1B4CCAA47A1B244E8D45D642B7A3DC0DA6033A528D2F9CB",
-        "3A160D00",
+        "62B29C60AA056CE90BDC86D3286BD0D7CDD7F5916B345DDCBE68E142E0A31C9D",
+        "39160D00",
     ),
     "immediate_fixed": (
-        "737DAC2B17520D63446DB8B57BAF1A4B652D432C0F98BE0FA50AE6BD1295A758",
-        "38580D00",
+        "2F2774BFD8F06232573906917435267EC99096B4C13144A4135B27F2B4C9A312",
+        "37580D00",
     ),
 }
 BASE_RESULTS = {
@@ -56,12 +56,12 @@ EXPANDED_COMPOSITION_RESULTS = {
 }
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-        "177F6BC3D4A120DFC59C7ABDD5393752E693686ABB5A8380EB7EA71FE3B063A4",
-        "350B0D00",
+        "73F1B6F602595261961E1236A2217E30E1AA9175C62D128457FDEFA30AC1F92D",
+        "340B0D00",
     ),
     "immediate_fixed": (
-        "C6F0B5BC635D95A5C4A6274E505C7CC4888B33F27A1B80711243C6E1BE5F6DC3",
-        "334D0D00",
+        "54C003D78A5A078C90E15969860A5BE1E5A267EE2428B441498A1015467B421C",
+        "324D0D00",
     ),
 }
 
@@ -136,11 +136,25 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
         broadcast was a silent no-op: they kept their current action and never
         walked to the amphitheatre.
 
-        The fanout now calls ``0x455570(record, 0x39, ptr)`` instead, which is
-        the same action dispatcher the stock success path uses -- it writes the
-        villager's action field ``+0xF24`` and dispatches through the global
-        table at ``0x596970``, i.e. interrupts whatever they were doing and
-        starts the robe action.
+        The fanout calls ``0x455570(record, 0x38, ptr)``: the same action
+        dispatcher the stock success path uses, writing the villager's action
+        field ``+0xF24`` and dispatching through the global table at
+        ``0x596970``.
+
+        The action id is ``0x38``, not ``0x39``.  An instruction-level trace of
+        the stock success path shows it assigns TWO different ids:
+
+            0x45E0C0(0x38, 7, -1, 0) on the manager 0x59E110
+                -> 0x45DDE0 sweeps 150 slots, filters, and calls
+                   0x455570(record, 0x38, scratch) for EACH selected villager
+            0x455570(initiator, 0x39, ptr)
+
+        So ``0x38`` is the crowd action every other villager receives and
+        ``0x39`` belongs to the one the player dropped.  The fanout previously
+        assigned ``0x39`` to everybody -- the initiator's action -- and ran
+        after the stock selector, overwriting the ``0x38`` the game had just
+        assigned.  That is why one villager robed and the rest performed a
+        different action.
         """
         stock_call = bytes.fromhex("B860194200FFD0")   # mov eax,0x421960 ; call eax
         dispatch = bytes.fromhex("B870554500FFD0")     # mov eax,0x455570 ; call eax
@@ -153,7 +167,11 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
 
         # The fanout assigns the robe action through the stock dispatcher.
         self.assertEqual(self.payload.count(dispatch), 1)
-        self.assertIn(bytes.fromhex("6A39"), self.payload)      # push 0x39 (action id)
+        self.assertIn(bytes.fromhex("6A38"), self.payload)      # push 0x38 (crowd action)
+        self.assertNotIn(
+            bytes.fromhex("6A39"), self.payload,
+            "the fanout must not hand other villagers the initiator's action",
+        )
         self.assertIn(bytes.fromhex("89F9"), self.payload)      # mov ecx,edi (thiscall)
         # The loop counter and record cursor are preserved across game code.
         self.assertIn(bytes.fromhex("5157"), self.payload)      # push ecx ; push edi

@@ -63,7 +63,24 @@ PAYLOAD_LEN = 235                 # the reviewed owned range, kept byte-for-byte
 
 STOCK_ROBE_CALLBACK = 0x421960    # stock drop handler (gated on +0xE80)
 ACTION_DISPATCH = 0x455570        # set +0xF24 and dispatch via table 0x596970
-ROBE_ACTION_ID = 0x39             # the action id the stock success path assigns
+# The stock success path at 0x421960 assigns TWO different action ids, and the
+# distinction is the whole bug.  In order it does:
+#
+#   0x45E0C0(0x38, 7, -1, 0) on the manager 0x59E110
+#       -> 0x45DDE0 sweeps 150 slots, filters on activity/health/state, and for
+#          EACH selected villager calls 0x455570(record, 0x38, scratch)
+#   0x455570(initiator, 0x39, ptr)
+#
+# So 0x38 is the CROWD action every other villager receives, and 0x39 belongs to
+# the one villager the player dropped.  The fan-out used to assign 0x39 to
+# everybody, i.e. it gave the whole village the initiator's action -- and it ran
+# AFTER the stock selector, so it overwrote the 0x38 the game had just assigned.
+# That is why one villager robed and everyone else performed a different action.
+#
+# The fan-out now assigns the crowd action, which is what "use the native
+# behaviour" means here; the initiator keeps its stock 0x39 untouched.
+CROWD_ACTION_ID = 0x38            # assigned per villager by the stock selector
+INITIATOR_ACTION_ID = 0x39        # assigned only to the dropped villager
 
 RECORD_BASE = 0x59E124
 RECORD_STRIDE = 0x1F8C
@@ -137,7 +154,7 @@ def build_wrapper() -> bytes:
         mov dword ptr [esp], 0
         mov eax, esp
         push eax
-        push 0x{ROBE_ACTION_ID:X}
+        push 0x{CROWD_ACTION_ID:X}
         mov ecx, edi
         mov eax, 0x{ACTION_DISPATCH:X}
         call eax
