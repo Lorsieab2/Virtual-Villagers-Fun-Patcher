@@ -16,15 +16,13 @@ player confirmation remain required. The candidate also requires the exact
 `data/candidates/VVFP VV5 Task9 Origins Icons.dll` companion copied as
 `VVFP Origins Icons.dll`.
 
-Build:
+Build: **no longer reproducible.** The builder that produced this candidate,
+`scripts/build_vv4_time_warp_only_candidate.py`, has been removed along with the
+expanded-256 tooling it depended on, and nothing in the tree renders it today.
+This document is retained as a record of what was built and verified, not as a
+recipe. Reviving it would need a fresh builder written against the current
+expanded-256 state, which is itself no longer a selectable patch mode.
 
-```powershell
-$env:PYTHONPATH = "src;scripts"
-python the VV4 Time Warp-only candidate builder (removed; the candidate's bytes are the checked-in manifest) `
-  outputs/expanded-256-audit/vv4-renders/vv4-experimental_expanded_256_progression-base.exe `
-  outputs/vv4-time-warp-only-candidate/VV4-Expanded-256-Time-Warp-Only.exe
-```
-
-Expected executable SHA-256:
+The expected executable SHA-256 below still identifies the historical artifact:
 
 `3AD22192212E3D82455EF771AB7B37E841082EE08F3FF10AEB826F2EE5D0AE0F`
