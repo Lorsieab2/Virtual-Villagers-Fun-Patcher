@@ -164,6 +164,38 @@ class AppearanceOptionCountTests(unittest.TestCase):
                 )
         self.assertGreaterEqual(checked, 5, "expected all five installs")
 
+    def test_the_whole_village_cyclers_use_the_same_counts(self) -> None:
+        """Change Appearance for All must offer what Change Appearance offers.
+
+        Both halves of this were real: VV1's per-sex cyclers hardcoded 19 and 20
+        as literals, so raising the macros left the male controls wrapping after
+        18; and VV5's Tech-screen implementation kept its OWN body count, so
+        body 29 was reachable only from the individual chooser.
+        """
+        vv1 = (ROOT / DECLARED["vv1"]["source"]).read_text(encoding="utf-8")
+        cyclers = re.findall(
+            r"forall_cycle\(forall_state\.(male|female)_(head|body), [-+]1, ([^)]+)\)",
+            vv1,
+        )
+        self.assertGreaterEqual(len(cyclers), 8, "expected both axes for both sexes")
+        for sex, kind, count in cyclers:
+            with self.subTest(sex=sex, kind=kind):
+                self.assertFalse(
+                    count.strip().isdigit(),
+                    f"VV1's {sex} {kind} cycler uses the literal {count.strip()}; "
+                    f"it must read the macro or the two choosers drift apart",
+                )
+
+        vv5 = (ROOT / DECLARED["vv5"]["source"]).read_text(encoding="utf-8")
+        for shared, individual in (("VV5_HEAD_COUNT", "APPEARANCE_HEAD_COUNT"),
+                                   ("VV5_BODY_COUNT", "APPEARANCE_BODY_COUNT")):
+            with self.subTest(macro=shared):
+                self.assertIn(
+                    f"#define {shared} {individual}", vv5,
+                    f"VV5's whole-village {shared} must track {individual} "
+                    f"rather than carrying its own number",
+                )
+
     def test_creation_rng_is_not_used_as_the_criterion(self) -> None:
         """The specific regression this file exists to prevent.
 

@@ -466,8 +466,11 @@ static void caf_charge(int delta) {
         call eax
     }
 }
-#define VV5_HEAD_COUNT 30
-#define VV5_BODY_COUNT 29
+/* The whole-village chooser must offer exactly what the individual one
+   does, so these track APPEARANCE_*_COUNT rather than carrying their own
+   numbers -- a separate 29 here left body 29 reachable only per villager. */
+#define VV5_HEAD_COUNT APPEARANCE_HEAD_COUNT
+#define VV5_BODY_COUNT APPEARANCE_BODY_COUNT
 
 /* Hair-colour buckets (head-atlas rows) for the "All <colour> Hair" options.
    Seeded from the hair-band median RGB then hand-verified against a labelled

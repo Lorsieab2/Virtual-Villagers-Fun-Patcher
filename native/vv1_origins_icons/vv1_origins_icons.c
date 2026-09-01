@@ -1469,17 +1469,17 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
         int id = LOWORD(wparam);
         switch (id) {
         /* male */
-        case 2101: forall_state.male_head = forall_cycle(forall_state.male_head, -1, 19); appearance_repaint(window, 2100); return TRUE;
-        case 2102: forall_state.male_head = forall_cycle(forall_state.male_head, +1, 19); appearance_repaint(window, 2100); return TRUE;
-        case 2111: forall_state.male_body = forall_cycle(forall_state.male_body, -1, 19); appearance_repaint(window, 2110); return TRUE;
-        case 2112: forall_state.male_body = forall_cycle(forall_state.male_body, +1, 19); appearance_repaint(window, 2110); return TRUE;
+        case 2101: forall_state.male_head = forall_cycle(forall_state.male_head, -1, VV_HEAD_COUNT_M); appearance_repaint(window, 2100); return TRUE;
+        case 2102: forall_state.male_head = forall_cycle(forall_state.male_head, +1, VV_HEAD_COUNT_M); appearance_repaint(window, 2100); return TRUE;
+        case 2111: forall_state.male_body = forall_cycle(forall_state.male_body, -1, VV_BODY_COUNT_M); appearance_repaint(window, 2110); return TRUE;
+        case 2112: forall_state.male_body = forall_cycle(forall_state.male_body, +1, VV_BODY_COUNT_M); appearance_repaint(window, 2110); return TRUE;
         case 2121: forall_state.male_mask = forall_cycle(forall_state.male_mask, -1, VV_MASK_COUNT); appearance_repaint(window, 2120); return TRUE;
         case 2122: forall_state.male_mask = forall_cycle(forall_state.male_mask, +1, VV_MASK_COUNT); appearance_repaint(window, 2120); return TRUE;
         /* female */
-        case 2201: forall_state.female_head = forall_cycle(forall_state.female_head, -1, 20); appearance_repaint(window, 2200); return TRUE;
-        case 2202: forall_state.female_head = forall_cycle(forall_state.female_head, +1, 20); appearance_repaint(window, 2200); return TRUE;
-        case 2211: forall_state.female_body = forall_cycle(forall_state.female_body, -1, 20); appearance_repaint(window, 2210); return TRUE;
-        case 2212: forall_state.female_body = forall_cycle(forall_state.female_body, +1, 20); appearance_repaint(window, 2210); return TRUE;
+        case 2201: forall_state.female_head = forall_cycle(forall_state.female_head, -1, VV_HEAD_COUNT_F); appearance_repaint(window, 2200); return TRUE;
+        case 2202: forall_state.female_head = forall_cycle(forall_state.female_head, +1, VV_HEAD_COUNT_F); appearance_repaint(window, 2200); return TRUE;
+        case 2211: forall_state.female_body = forall_cycle(forall_state.female_body, -1, VV_BODY_COUNT_F); appearance_repaint(window, 2210); return TRUE;
+        case 2212: forall_state.female_body = forall_cycle(forall_state.female_body, +1, VV_BODY_COUNT_F); appearance_repaint(window, 2210); return TRUE;
         case 2221: forall_state.female_mask = forall_cycle(forall_state.female_mask, -1, VV_MASK_COUNT); appearance_repaint(window, 2220); return TRUE;
         case 2222: forall_state.female_mask = forall_cycle(forall_state.female_mask, +1, VV_MASK_COUNT); appearance_repaint(window, 2220); return TRUE;
         case IDOK:
