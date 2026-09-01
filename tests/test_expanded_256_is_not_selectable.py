@@ -92,6 +92,29 @@ class ExpandedModeIsNotSelectableTests(unittest.TestCase):
                         f"{build.id} exposes {mode}",
                     )
 
+    def test_no_selectable_variant_applies_the_expanded_patches(self) -> None:
+        """The stronger guarantee: not merely unlisted, but never applied.
+
+        `_expanded_patches` returns nothing unless a variant sets
+        `expanded_records`, and data/expanded_256.json rewrites live code --
+        including VV5's 0x4713F0, which appears in crash dumps, and the
+        `mov ebx, 0x96` record-loop bound inside it.  If any shipping variant
+        ever set this flag, that dead rewrite would reach players.
+        """
+        for game in self.data["games"]:
+            variants = game.get("patch_variants") or game.get("variants") or {}
+            if not isinstance(variants, dict):
+                continue
+            for mode, variant in variants.items():
+                if not isinstance(variant, dict):
+                    continue
+                with self.subTest(game=game["id"], mode=mode):
+                    self.assertFalse(
+                        variant.get("expanded_records", False),
+                        f"{game['id']}/{mode} would apply the dead "
+                        f"expanded-256 patch set",
+                    )
+
     def test_expanded_modes_are_disjoint_from_the_declared_modes(self) -> None:
         declared = {
             entry.get("id") if isinstance(entry, dict) else entry

@@ -598,7 +598,10 @@ def main() -> None:
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
         ("paused", "Time Warp is unavailable while the game is paused."),
-        ("capacity", "The village population is already at maximum capacity."),
+        # VV2 is the wording reference for every menu and prompt.  Its barrel
+        # refusal reads "close to its max" and says explicitly that nothing was
+        # charged; "already at maximum capacity" said neither.
+        ("capacity", "The village population is already close to its max."),
         ("running_unavailable", "Running cannot be added."),
         ("icons_dll", "VVFP VV4 Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
