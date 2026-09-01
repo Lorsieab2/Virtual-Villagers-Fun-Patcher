@@ -994,7 +994,7 @@ class ManifestTests(unittest.TestCase):
             expected_safety_counts = {
                 "vv1": 17,
                 "vv2": 15,
-                "vv3": 8,
+                "vv3": 9,
                 "vv4": 11,
                 "vv5": 13,
             }
@@ -1890,8 +1890,10 @@ class StockIntegrationTests(unittest.TestCase):
             "vv3": {
                 0x14D90: "E94B65060090",
                 0x15320: "E9DB5F0600",
-                0x7B2E0: "813DA824580096000000",
-                0x7B300: "813DA824580096000000",
+                # VV3 now counts live records too. It used to compare a
+                # statistic tally that only ever accumulates.
+                0x7B2E0: "E8330000003D96000000",
+                0x7B300: "E8130000003D96000000",
             },
             "vv4": {
                 0x148B0: "E9AB47070090",

@@ -10,14 +10,18 @@ its `.data` initial value is 0.  Whatever that address happened to hold at
 runtime decided whether children were allowed to spawn, which is why the
 Barrel of Babies presented its event and then delivered nobody.
 
-VV3's equivalent address is real -- `add dword ptr [0x5824A8], ecx` at
-`0x455BF3` maintains it -- and VV5 calls a helper that sweeps the villager
-records.  Both are fine.  VV4 was the odd one out.
+VV3 looked fine at first because its address IS written -- `add dword ptr
+[0x5824A8], ecx` at `0x455BF3`.  But nothing in stock ever READS it, and it only
+ever accumulates: each birth adds 2 or 3.  Once that running tally passes the
+threshold, VV3's guards fire forever and quietly suppress twins, triplets and
+event children for the rest of the save.  So "written somewhere" was too weak a
+rule -- it passed VV3.
 
-This test pins the rule rather than the incident: every absolute address a
-guard reads to decide capacity must be written somewhere in the stock
-executable.  A guard that reads an address nothing maintains is comparing
-against garbage.
+Only VV5 was right: it CALLS a helper that sweeps the villager records.
+
+The rule these tests now pin is the strong one: a slot guard must count live
+records.  No guard may decide capacity from an absolute data address at all,
+whether or not something writes it.
 """
 from __future__ import annotations
 
@@ -75,81 +79,80 @@ def _guard_data_reads(blob: bytes, va: int) -> set[int]:
 
 class SlotGuardPopulationSourceTests(unittest.TestCase):
     @unittest.skipUnless(HAVE_TOOLS, "requires Capstone and pefile")
-    def test_every_guard_data_read_is_written_somewhere_in_the_stock_image(self) -> None:
-        checked = 0
-        for game, exe_name in EXES.items():
-            exe = STOCK / exe_name
-            if not exe.is_file():
-                continue
-            image = pefile.PE(str(exe)).get_memory_mapped_image(ImageBase=IMAGE_BASE)
-            md = Cs(CS_ARCH_X86, CS_MODE_32)
-            md.detail = True
+    def test_no_guard_decides_capacity_from_an_absolute_address(self) -> None:
+        """The strong rule: guards count, they never read a static.
 
-            reads: set[int] = set()
+        This cannot pass vacuously -- the companion test below proves each
+        game still has guards and a counter, so an empty result here means
+        "they all count", not "there is nothing to check".
+        """
+        for game in EXES:
             for row in _safety_patches(game):
                 offset = int(row["offset"], 16)
-                reads |= _guard_data_reads(
+                reads = _guard_data_reads(
                     bytes.fromhex(row["after"]), IMAGE_BASE + offset
                 )
-
-            for address in sorted(reads):
-                checked += 1
-                needle = address.to_bytes(4, "little")
-                written = False
-                for position in range(0x1000, len(image) - 4):
-                    if image[position:position + 4] != needle:
-                        continue
-                    # Decode a short window ending at this operand and check
-                    # whether the instruction covering it stores to memory.
-                    start = max(0x1000, position - 12)
-                    for insn in md.disasm(image[start:position + 8],
-                                          IMAGE_BASE + start):
-                        if not (insn.address <= IMAGE_BASE + position
-                                < insn.address + insn.size):
-                            continue
-                        if insn.mnemonic in WRITERS and insn.operands \
-                                and insn.operands[0].type == X86_OP_MEM \
-                                and insn.operands[0].mem.base == 0 \
-                                and insn.operands[0].mem.index == 0 \
-                                and (insn.operands[0].mem.disp & 0xFFFFFFFF) == address:
-                            written = True
-                        break
-                    if written:
-                        break
-
-                with self.subTest(game=game, address=hex(address)):
-                    self.assertTrue(
-                        written,
-                        f"{game}: a slot guard decides capacity from "
-                        f"{address:#x}, but no instruction in the stock "
-                        f"executable ever writes it. The guard is comparing "
-                        f"against whatever happens to be there -- this is the "
-                        f"VV4 Barrel of Babies bug, where the event presented "
-                        f"and no children spawned.",
+                with self.subTest(game=game, guard=hex(IMAGE_BASE + offset)):
+                    self.assertEqual(
+                        sorted(hex(r) for r in reads), [],
+                        f"{game} guard at {IMAGE_BASE + offset:#x} decides "
+                        f"capacity from an absolute address. VV4's was never "
+                        f"written; VV3's was a running tally nothing reads. "
+                        f"Count live records instead.",
                     )
 
-        self.assertTrue(
-            checked or not any((STOCK / name).is_file() for name in EXES.values()),
-            "no guard data reads were examined; this test would pass vacuously",
-        )
+    # Both VV3 and VV4 turned out to decide capacity from a static address that
+    # is not a live population count.  VV4's 0x4D6DE8 is never written at all.
+    # VV3's 0x5824A8 IS written -- `add [0x5824A8], ecx` at 0x455BF3 -- but
+    # nothing in stock ever READS it, and it only accumulates: each birth adds
+    # 2 or 3, so once the tally passes the threshold the guards fire forever.
+    # "Written somewhere" is therefore too weak a rule.  A guard must COUNT.
+    COUNTING_GAMES = {
+        "vv3": {"counter": 0x7B318,
+                "guards": (0x7B260, 0x7B280, 0x7B2E0, 0x7B300),
+                "stale": "A824580 0".replace(" ", "")},
+        "vv4": {"counter": 0x890F0,
+                "guards": (0x89020, 0x89040, 0x89060, 0x89080, 0x890C0),
+                "stale": "E86D4D00"},
+    }
 
-    def test_vv4_counts_records_rather_than_reading_a_static(self) -> None:
-        """VV4's guards must call the counter, like VV5's do."""
-        rows = {int(r["offset"], 16): r["after"].upper()
-                for r in _safety_patches("vv4")}
-        self.assertTrue(rows, "VV4 has no safety patches")
-        self.assertIn(0x890F0, rows, "the VV4 record counter is not written")
-        for offset in (0x89020, 0x89040, 0x89060, 0x89080, 0x890C0):
-            with self.subTest(guard=hex(IMAGE_BASE + offset)):
-                self.assertIn(offset, rows)
-                self.assertNotIn(
-                    "E86D4D00", rows[offset],
-                    "guard still reads the unwritten 0x4D6DE8",
-                )
-                self.assertTrue(
-                    rows[offset].startswith("E8"),
-                    "guard must begin by calling the record counter",
-                )
+    def test_guards_count_records_rather_than_reading_a_static(self) -> None:
+        """Every guard must begin by CALLING a record counter."""
+        for game, spec in self.COUNTING_GAMES.items():
+            rows = {int(r["offset"], 16): r["after"].upper()
+                    for r in _safety_patches(game)}
+            self.assertTrue(rows, f"{game} has no safety patches")
+            self.assertIn(
+                spec["counter"], rows,
+                f"{game}'s record counter is not written",
+            )
+            for offset in spec["guards"]:
+                with self.subTest(game=game, guard=hex(IMAGE_BASE + offset)):
+                    self.assertIn(offset, rows)
+                    self.assertNotIn(
+                        spec["stale"], rows[offset],
+                        f"{game} guard still reads its stale static address",
+                    )
+                    self.assertTrue(
+                        rows[offset].startswith("E8"),
+                        "guard must begin by calling the record counter",
+                    )
+
+    def test_each_counter_sweeps_that_game_s_record_array(self) -> None:
+        """The counter must walk records, not read a variable."""
+        geometry = {
+            "vv3": (0x7B318, "24E15900", "8C1F0000", "100F0000"),
+            "vv4": (0x890F0, "ACE55000", "3C2E0000", "C41C0000"),
+        }
+        for game, (offset, base, stride, active) in geometry.items():
+            with self.subTest(game=game):
+                blob = {int(r["offset"], 16): r["after"].upper()
+                        for r in _safety_patches(game)}[offset]
+                for label, needle in (("record base", base),
+                                      ("record stride", stride),
+                                      ("active offset", active)):
+                    self.assertIn(needle, blob, f"{game} counter lacks its {label}")
+                self.assertTrue(blob.endswith("C3"), "counter must return")
 
 
 if __name__ == "__main__":
