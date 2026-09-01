@@ -73,8 +73,13 @@ BARREL_SELECTOR_BODY_VA = PAYLOAD_VA + 0x180
 BARREL_SELECTOR_HOOK_STOCK = bytes.fromhex("8B7484146A64E8")
 BARREL_SELECTOR_HOOK_REPAIRED = bytes.fromhex("E96C9839009090")
 BARREL_SELECTOR_BODY_STOCK = b"\0" * 0x28
+# BE1A000000 is `mov esi, 26` -- the believer barrel in the EVENT OBJECT table
+# at 0x4DC850, verified by RTTI on the constructed object. It was BE19000000
+# (`mov esi, 25`), which is CEventTheStingingWasps: the player bought the barrel
+# and got a wasp swarm and no children. See tests/test_vv5_barrel_event_index.py,
+# which re-derives the id from the stock binary rather than trusting this byte.
 BARREL_SELECTOR_BODY_REPAIRED = bytes.fromhex(
-    "8B748414F70588D3510004000000740C832588D35100FBBE19000000"
+    "8B748414F70588D3510004000000740C832588D35100FBBE1A000000"
     "6A64E8BD14C5FFE97267C6FF"
 )
 BARREL_SELECTOR_BODY_SHA256 = hashlib.sha256(BARREL_SELECTOR_BODY_REPAIRED).hexdigest().upper()
@@ -316,7 +321,27 @@ def main() -> None:
             test dword ptr [0x51D388], 4
             jz done
             and dword ptr [0x51D388], 0xFFFFFFFB
-            mov esi, 25
+            # 26, not 25.  The scheduler indexes the EVENT OBJECT table at
+            # 0x4DC850, which is NOT the string table at 0x4D7B24 -- the string
+            # table has an entry for the Banyan Festival that the object table
+            # does not, so every id after it is shifted by one.  RTTI on the
+            # constructed objects (0x00417B3C..0x00417B82 store their vtables)
+            # settles it with no guessing:
+            #   25 -> 0x497AF4 .?AVCEventTheStingingWasps@@
+            #   26 -> 0x497B3C .?AVCEventBarrelOBabiesV@@        <-- believers
+            #   27 -> 0x497B84 .?AVCEventBarrelOHeathenBabiesV@@
+            # Forcing 25 presented "The Stinging Wasps" -- exactly what the
+            # player saw -- and of course spawned nothing.  Forcing 27 would
+            # present the HEATHEN barrel, which is the wrong flavour for a
+            # believer village, so the off-by-one must not be "fixed" by
+            # matching the string-table index.
+            # Object 26 is the right one on both halves of its vtable:
+            #   slot[1] (the eligibility the scheduler calls at 0x004188D0) is
+            #     0x004151C0 = the population cap gate 0x472BD0, and
+            #   slot[12] (the effect) is 0x004151D0, which spawns three
+            #     children -- one unconditional 0x471E20, then two more each
+            #     gated on 0x472BD0.
+            mov esi, 26
         done:
             push 100
             call 0x403660
