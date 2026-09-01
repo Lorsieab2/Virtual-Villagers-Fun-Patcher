@@ -2072,8 +2072,10 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, dword ptr [edi+0x17D7C]
         test eax, eax
         jle unavailable
-        cmp eax, 999
-        je paused
+        # Paused is no longer refused. The village must advance three villager
+        # years at EVERY speed option, paused included; the tw_speed_ok
+        # normalisation below maps the paused sentinel 999 onto the normal-speed
+        # code, so a paused Time Warp advances exactly the normal-speed amount.
         mov dword ptr [ebp-0x1C], eax
         mov dword ptr [ebp-0x18], edi
         mov eax, dword ptr [0x51D5F8]
@@ -2096,8 +2098,8 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, dword ptr [edi+0x17D7C]
         test eax, eax
         jle recheck
-        cmp eax, 999
-        je recheck
+        # No 999 refusal here either; the speed-unchanged compare that follows
+        # already rejects a speed that moved while the prompt was open.
         cmp eax, dword ptr [ebp-0x1C]
         jne recheck
         mov eax, dword ptr [0x51D5F8]
@@ -2146,9 +2148,6 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov edx, 0x40
         call show_message
         jmp done
-    paused:
-        mov eax, 0x{s['tw_paused']:X}
-        jmp warning_status
     insufficient:
         mov eax, 0x{s['tw_insufficient']:X}
         jmp warning_status

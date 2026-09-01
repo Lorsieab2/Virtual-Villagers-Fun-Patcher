@@ -96,17 +96,29 @@ class SlotGuardPopulationSourceTests(unittest.TestCase):
                     self.assertEqual(
                         sorted(hex(r) for r in reads), [],
                         f"{game} guard at {IMAGE_BASE + offset:#x} decides "
-                        f"capacity from an absolute address. VV4's was never "
-                        f"written; VV3's was a running tally nothing reads. "
+                        f"capacity from an absolute address. Both games' "
+                        f"aggregates are lifetime totals that only ever grow, "
+                        f"so a guard reading one eventually fires forever. "
                         f"Count live records instead.",
                     )
 
-    # Both VV3 and VV4 turned out to decide capacity from a static address that
-    # is not a live population count.  VV4's 0x4D6DE8 is never written at all.
-    # VV3's 0x5824A8 IS written -- `add [0x5824A8], ecx` at 0x455BF3 -- but
-    # nothing in stock ever READS it, and it only accumulates: each birth adds
-    # 2 or 3, so once the tally passes the threshold the guards fire forever.
-    # "Written somewhere" is therefore too weak a rule.  A guard must COUNT.
+    # Both VV3 and VV4 decided capacity from a static address that is not a live
+    # population count, but for the SAME reason -- and an earlier version of this
+    # file recorded the wrong one for VV4.
+    #
+    #   VV4's 0x4D6DE8 IS written: `add dword ptr [0x4D6DE8], ecx` at 0x45E91C,
+    #   where ecx = [record+0x1C50], the number of babies a confirmed pregnancy
+    #   still owes.  The claim that nothing wrote it came from decoding at an
+    #   arbitrary byte position: starting one byte late turns `01 0D E8 6D 4D 00`
+    #   into `0D E8 6D 4D 00` -- `or eax, 0x4D6DE8` -- and the writer disappears.
+    #   Always decode from a boundary reached by disassembling forward.
+    #
+    #   VV3's 0x5824A8 is written the same way by `add [0x5824A8], ecx`.
+    #
+    # Neither is ever DECREMENTED -- each address appears exactly once in its
+    # image -- so both are lifetime totals of babies ever conceived, not live
+    # demand.  Read either and the guards eventually fire forever.  That, not
+    # "nothing writes it", is why a guard must COUNT.
     COUNTING_GAMES = {
         "vv3": {"counter": 0x7B318,
                 "guards": (0x7B260, 0x7B280, 0x7B2E0, 0x7B300),

@@ -510,9 +510,9 @@
         },
         {
           "offset": "0x890F0",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "515231C0BAACE55000B99600000080BAC41C000000740383C00181C23C2E000083E90175E95A59C3",
-          "purpose": "count occupied VV4 villager record slots for the 150-slot saturation guards"
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "515231C0BAACE55000B99600000080BAC41C000000741283C00183BA4C1C00000074060382501C000081C23C2E000083E90175DA5A59C3",
+          "purpose": "count VV4 physical villager demand for the 150-slot saturation guards: every occupied record plus the babies each pregnant mother still owes a record, mirroring the VV5 counter"
         }
       ]
     },
