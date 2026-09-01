@@ -1071,17 +1071,19 @@ def main() -> None:
 
 
         do_time_warp:
-            mov eax, 21600
-            mov ecx, dword ptr [edi + 0xA318]
-            cmp ecx, 3
-            jne time_not_three
-            mov eax, 10800
-        time_not_three:
-            cmp ecx, 10
-            jne time_apply
-            mov eax, 36000
-        time_apply:
-            sub dword ptr [0x4860F0], eax
+            # Speed-INDEPENDENT: no speed read, no scaling.
+            #
+            # Calibrated from play, not from a model of the engine. On
+            # v1.34.23 VV1 at NORMAL speed subtracted 6 * 3600 = 21600 and the
+            # village advanced exactly THREE years -- the wanted result. At
+            # half speed it subtracted 3 * 3600 = 10800 and advanced only TWO.
+            # The years therefore track the amount alone, so every speed now
+            # subtracts the amount that was measured to give three years.
+            #
+            # Scaling by the speed code is what made the result vary in the
+            # first place, and it is gone: paused included, every speed gets
+            # the same advance.
+            sub dword ptr [0x4860F0], 21600
             jmp success
 
         do_island_event:

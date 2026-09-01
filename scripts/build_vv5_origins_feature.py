@@ -561,23 +561,18 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp done
         time_warp:
-            # Normalise the speed code to the three values VV5 actually
-            # assigns -- 3 (half), 6 (normal), 10 (double) -- before scaling,
-            # exactly as VV1-VV4 do.  Without it the idiv ran on the RAW
-            # field, so the paused sentinel 999 produced 129600/999 = 129
-            # seconds instead of a real advance, and any unexpected value
-            # produced an arbitrary one.  It also removes the divide-by-zero.
-            mov ecx, dword ptr [edi + 0x17D7C]
-            cmp ecx, 3
-            je tw_scale
-            cmp ecx, 10
-            je tw_scale
-            mov ecx, 6
-        tw_scale:
-            mov eax, 129600
-            cdq
-            idiv ecx
-            sub dword ptr [0x4C6250], eax
+            # Speed-INDEPENDENT: no speed read, no idiv.
+            #
+            # VV5's clock runs on its own scale, so it keeps its own measured
+            # amount rather than VV1's. Its shipped 129600/speed form
+            # subtracted 43200 at half speed and advanced ONE year, so three
+            # years is 129600 -- now applied at every speed, paused included.
+            # The old form gave half a year at normal speed and less at
+            # double, because it divided by the speed.
+            #
+            # Dropping the idiv also removes the divide-by-zero and the paused
+            # sentinel 999 yielding 129600/999 = 129 seconds.
+            sub dword ptr [0x4C6250], 129600
             sbb dword ptr [0x4C6254], 0
             mov eax, 0x{s['time_done']:X}
             jmp status

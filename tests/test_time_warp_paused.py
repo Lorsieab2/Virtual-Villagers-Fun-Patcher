@@ -4,24 +4,22 @@ All five games used to refuse Time Warp outright while the game was paused,
 showing "Time Warp is unavailable while the game is paused."  None of them
 refuses now.
 
-Each game reads a speed field holding 3 (half), 6 (normal), 10 (double), or the
-sentinel 999 while paused.  Every game normalises anything that is not 3 or 10
-to 6 before scaling, so the paused sentinel lands on the normal-speed delta.
+No game scales its advance any more, so no game can be thrown off by the
+paused sentinel either.
 
-The two families scale in OPPOSITE directions, and that distinction is the
-point of this file:
+The two families used to scale in OPPOSITE directions -- VV1-VV4 multiplied by
+the speed code, VV5 divided by it -- so at most one could ever have been right,
+and neither delivered a constant result. Play settled it: on v1.34.23 VV1 at
+NORMAL speed subtracted 21600 and advanced exactly three villager years, while
+HALF speed subtracted 10800 and advanced two. The years track the amount alone.
 
-  * VV1-VV4 multiply -- `speed * 3600`.
-  * VV5 divides -- `129600 / speed`.
+Each game now subtracts one constant -- 21600 in VV1-VV4, 129600 in VV5, whose
+clock runs on a different scale -- so the advance is identical at half, normal,
+double and paused. Removing VV5's divide also removes the case where the paused
+sentinel 999 gave 129600/999 = 129 seconds, a no-op the player still paid for.
 
-Copying VV1-VV4's multiply into VV5 is not "making it work like VV1-VV4"; it is
-the regression shipped in v1.34.18.  Matching the BEHAVIOUR means normalising
-the same way and then scaling in each engine's own direction.
-
-VV5 previously had no normalisation at all and divided by the raw field, so the
-paused sentinel gave 129600/999 = 129 seconds -- a no-op the player still paid
-for, which is why it used to refuse.  Adding the normalisation needed the
-payload to grow, which the removed expanded-256 IDA relocation ledger forbade.
+The speed field each game used to read is still named below, because these
+tests assert it is NOT read.
 """
 from __future__ import annotations
 
@@ -32,6 +30,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 PAUSE_SENTINEL = "999"
+
+# The amounts measured in play to advance exactly three villager years.
+VV1_FAMILY_ADVANCE = 21600
+VV5_ADVANCE = 129600
 
 # Every game, with the speed field exactly as it appears in its generator.
 ALL_GAMES = {
@@ -57,6 +59,36 @@ def _source(name: str) -> str:
     return (ROOT / "scripts" / name).read_text(encoding="utf-8")
 
 
+def _time_warp_branch(text: str) -> str:
+    """The Time Warp routine only.
+
+    A generator mentions its speed field in unrelated places -- the pause
+    guard, the menu row state -- so checking the whole file would fail for
+    reasons that have nothing to do with Time Warp.
+    """
+    for label in ("do_time_warp:", "time_warp:", "def build_time_warp("):
+        index = text.find(label)
+        if index < 0:
+            continue
+        window = text[index : index + 4000]
+        for terminator in ("jmp success", "jmp show_status", "jmp status",
+                           "show_message"):
+            cut = window.find(terminator)
+            if cut > 0:
+                return _strip_comments(window[: cut + len(terminator)])
+        return _strip_comments(window)
+    return ""
+
+
+def _strip_comments(block: str) -> str:
+    """Drop comment lines, so prose explaining a removed value cannot fail a
+    check that the value is gone from the instructions."""
+    return chr(10).join(
+        line for line in block.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    )
+
+
 class TimeWarpPausedTests(unittest.TestCase):
     def test_no_game_refuses_while_paused(self) -> None:
         for game, (generator, field) in ALL_GAMES.items():
@@ -70,60 +102,59 @@ class TimeWarpPausedTests(unittest.TestCase):
                     f"option must advance three villager years",
                 )
 
-    def test_every_game_normalises_unexpected_speeds_to_normal(self) -> None:
-        """The paused sentinel must land on the normal-speed delta.
+    def test_no_game_reads_its_speed_field_for_time_warp(self) -> None:
+        """Nothing to normalise once nothing is read.
 
-        VV1 defaults EAX to the normal delta and overrides only for 3 and 10;
-        the rest force the speed code to 6.  Either shape maps 999 onto normal.
+        Every game used to normalise anything that was not 3 or 10 to 6 so the
+        paused sentinel 999 landed on the normal-speed delta. With a single
+        constant there is no speed-dependent path left to get wrong.
         """
-        for game, (generator, _field) in ALL_GAMES.items():
+        for game, (generator, field) in ALL_GAMES.items():
             with self.subTest(game=game):
                 text = _source(generator)
-                self.assertTrue(
-                    "mov eax, 21600" in text or "mov ecx, 6" in text
-                    or "mov eax, 6" in text,
-                    f"{game} has no normalisation, so the paused sentinel 999 "
-                    f"would scale into a nonsense delta",
-                )
+                warp = _time_warp_branch(text)
+                # The field may still be READ as a liveness guard -- VV5's
+                # Task9 page uses it to reject a bad manager pointer before
+                # charging. What must be gone is any BRANCH on a speed value.
+                for speed in ("3", "6", "10", PAUSE_SENTINEL):
+                    for register in ("eax", "ecx", "edx", "ebx"):
+                        self.assertNotIn(
+                            "cmp " + register + ", " + speed + chr(10),
+                            warp,
+                            f"{game} still branches on speed code {speed}",
+                        )
 
-    def test_the_multiply_games_still_multiply(self) -> None:
-        for game in MULTIPLY_GAMES:
+    def test_no_game_scales_its_advance(self) -> None:
+        """The multiply VV1-VV4 used and the divide VV5 used are both gone."""
+        for game, (generator, _field) in ALL_GAMES.items():
             with self.subTest(game=game):
-                text = _source(ALL_GAMES[game][0])
-                self.assertTrue(
-                    "imul eax, eax, 3600" in text or "mov eax, 21600" in text,
-                    f"{game} no longer scales the clock shift by game speed",
-                )
+                warp = _time_warp_branch(_source(generator))
+                self.assertTrue(warp, f"{game} Time Warp branch not found")
+                for forbidden in ("imul eax, eax, 3600", "idiv ecx", "div ecx"):
+                    self.assertNotIn(
+                        forbidden, warp,
+                        f"{game} still scales the Time Warp advance ({forbidden})",
+                    )
 
-    def test_the_divide_games_still_divide(self) -> None:
-        """VV5 matches VV1-VV4's behaviour without copying their formula.
-
-        Its engine scales the opposite way.  Writing `speed * 3600` here would
-        reintroduce the v1.34.18 regression.
-        """
-        for game in DIVIDE_GAMES:
+    def test_every_game_subtracts_its_measured_three_year_amount(self) -> None:
+        for game, (generator, _field) in ALL_GAMES.items():
             with self.subTest(game=game):
-                text = _source(ALL_GAMES[game][0])
-                self.assertRegex(
-                    text, "div ecx",
-                    f"{game} must divide (the Task9 page uses unsigned `div`, "
-                    f"the base generator `idiv`)",
-                )
-                self.assertNotIn(
-                    "imul eax, eax, 3600", text,
-                    f"{game} must not copy the multiply-family formula; its "
-                    f"engine scales the other way and that swap shipped as a "
-                    f"regression once already",
+                warp = _time_warp_branch(_source(generator))
+                amount = VV5_ADVANCE if game.startswith("vv5") else VV1_FAMILY_ADVANCE
+                self.assertIn(
+                    str(amount), warp,
+                    f"{game} no longer carries its three-year amount {amount}",
                 )
 
-    def test_the_two_families_are_disjoint(self) -> None:
-        """Guards the split above against quietly collapsing into one rule."""
-        self.assertEqual(
-            set(MULTIPLY_GAMES) & set(DIVIDE_GAMES), set()
-        )
-        self.assertEqual(
-            set(MULTIPLY_GAMES) | set(DIVIDE_GAMES), set(ALL_GAMES)
-        )
+    def test_vv5_keeps_its_own_amount(self) -> None:
+        """VV5's clock runs on a different scale; unifying the two is a bug."""
+        self.assertNotEqual(VV5_ADVANCE, VV1_FAMILY_ADVANCE)
+        for game in ("vv5", "vv5_base"):
+            with self.subTest(game=game):
+                self.assertIn(
+                    str(VV5_ADVANCE), _time_warp_branch(_source(ALL_GAMES[game][0])),
+                    f"{game} must keep VV5's own measured amount",
+                )
 
     def test_no_game_still_emits_the_paused_refusal(self) -> None:
         needle = "mov eax, 0x{s['paused']"

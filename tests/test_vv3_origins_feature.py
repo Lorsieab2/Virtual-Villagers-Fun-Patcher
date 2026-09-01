@@ -556,7 +556,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "58F6E183E2CC8E321E056FFC9AD9DF9680DF9E601D052EC63BA1F7ABCE34195A",
+            "5E08BCE5A10A575F5A54F34584B73BE09DD3FAE455358907792EAFC39586C381",
         )
         self.assertEqual(
             bytes.fromhex(
@@ -569,17 +569,15 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             bytes.fromhex("E93BDB0300909090"),
         )
 
-    def test_time_warp_scales_with_normalized_game_speed(self) -> None:
-        """VV3 Time Warp scales its elapsed-clock shift with the running game
-        speed (delta = speed * 3600), matching VV1, VV2 and VV4 so all five
-        games advance Time Warp identically.
+    def test_time_warp_is_speed_independent(self) -> None:
+        """One constant, no speed read, no scaling.
 
-        The speed code is normalized to the three values VV3 actually assigns
-        -- 3 (half), 6 (normal), 10 (double) -- before scaling.  The previous
-        129600/speed form ran idiv on the RAW speed field with no
-        normalization, so any value outside 3/6/10 produced an arbitrary
-        advance (seen in play as advancing only about two years) and a zero
-        would have faulted outright.
+        Measured in play on v1.34.23: VV1 at NORMAL speed subtracted 21600 and
+        advanced exactly three villager years, while HALF speed subtracted
+        10800 and advanced only two. The years track the amount alone, so
+        VV3 now subtracts the measured three-year amount at every speed.
+        tests/test_time_warp_speed_independent.py pins the same invariant
+        across all five games.
         """
         try:
             import capstone
@@ -593,45 +591,22 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 if int(item["offset"], 0) == 0xA3180
             )["after"]
         )
-        # Locate the 32-bit elapsed-clock write: sub dword ptr [0x4A4210], eax
-        marker = bytes.fromhex("290510424A00")
+        # The whole instruction, immediate included, so this pins the
+        # three-year amount as well as the absence of any scaling.
+        marker = bytes.fromhex("812D10424A0060540000")
         index = payload.find(marker)
         self.assertNotEqual(index, -1, "Time Warp clock write not found in payload")
 
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-        window_start = index - 0x1C
-        window = payload[window_start:index]
-        mnemonics = [
-            insn.mnemonic
-            for insn in md.disasm(window, 0x4A3180 + window_start)
-        ]
-
-        self.assertIn(
-            "imul", mnemonics, "Time Warp no longer scales with game speed"
-        )
-        self.assertNotIn(
-            "idiv",
-            mnemonics,
-            "Time Warp still divides by the raw game-speed field",
-        )
-        for label, encoding in (
-            ("imul eax, eax, 3600", "69C0100E0000"),
-            ("cmp eax, 3 (half speed)", "83F803"),
-            ("cmp eax, 10 (double speed)", "83F80A"),
-            ("mov eax, 6 (normal-speed default)", "B806000000"),
-        ):
-            with self.subTest(check=label):
-                self.assertIn(
-                    bytes.fromhex(encoding),
-                    window,
-                    f"Time Warp is missing {label}",
-                )
-        self.assertNotIn(
-            bytes.fromhex("B840FA0100"),
-            window,
-            "Time Warp still loads the old constant 129600 dividend",
-        )
-
+        start = index - 0x18
+        block = list(md.disasm(payload[start:index], 0x4A3180 + start))
+        mnemonics = [insn.mnemonic for insn in block]
+        for forbidden in ("imul", "idiv", "cdq"):
+            self.assertNotIn(
+                forbidden,
+                mnemonics,
+                "VV3 Time Warp must not scale its clock shift",
+            )
 
 if __name__ == "__main__":
     unittest.main()

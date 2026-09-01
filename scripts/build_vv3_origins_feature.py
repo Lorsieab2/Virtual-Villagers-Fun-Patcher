@@ -774,28 +774,22 @@ def main() -> None:
             jmp menu_done
 
         do_time_warp:
-            # Scale the elapsed-clock shift with the running game speed, the
-            # same way VV1, VV2 and VV4 do (delta = speed * 3600), so all five
-            # games advance Time Warp identically.
+            # Speed-INDEPENDENT: no speed read, no scaling.
             #
-            # The speed code is normalized to the three values VV3 actually
-            # assigns -- 3 (half), 6 (normal), 10 (double) -- before scaling.
-            # The previous 129600/speed form ran idiv on the RAW field with no
-            # normalization, so any speed outside 3/6/10 produced an arbitrary
-            # advance (reported in play as advancing only ~2 years), and a zero
-            # would have faulted outright.  Normalizing first means an
-            # unexpected value now advances by the normal-speed delta instead,
-            # and removing the idiv removes the divide-by-zero entirely.
-            # The pause guard above already refused speed 999 before charging.
-            mov eax, dword ptr [edi + ebp + 0x12F20]
-            cmp eax, 3
-            je tw_scale
-            cmp eax, 10
-            je tw_scale
-            mov eax, 6
-        tw_scale:
-            imul eax, eax, 3600
-            sub dword ptr [0x4A4210], eax
+            # Calibrated from play, not from a model of the engine. On
+            # v1.34.23 VV1 at NORMAL speed subtracted 6 * 3600 = 21600 and the
+            # village advanced exactly THREE years -- the wanted result. At
+            # half speed it subtracted 3 * 3600 = 10800 and advanced only TWO.
+            # The years therefore track the amount alone, so every speed now
+            # subtracts the amount that was measured to give three years.
+            #
+            # Scaling by the speed code is what made the result vary in the
+            # first place, and it is gone: paused included, every speed gets
+            # the same advance.
+            # VV2-VV4 share VV1's clock, its 3/6/10 speed codes and the exact
+            # same shipped speed*3600 form, so they take VV1's measured
+            # three-year amount.
+            sub dword ptr [0x4A4210], 21600
             mov eax, 0x{s['time_warp_done']:X}
             jmp show_status
 

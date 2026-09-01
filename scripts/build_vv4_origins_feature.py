@@ -961,16 +961,22 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
         do_time_warp:
-            call 0x41FE70
-            mov eax, dword ptr [eax + 0x17110]
-            cmp eax, 3
-            je time_apply
-            cmp eax, 10
-            je time_apply
-            mov eax, 6
-        time_apply:
-            imul eax, eax, 3600
-            sub dword ptr [0x4B8230], eax
+            # Speed-INDEPENDENT: no speed read, no scaling.
+            #
+            # Calibrated from play, not from a model of the engine. On
+            # v1.34.23 VV1 at NORMAL speed subtracted 6 * 3600 = 21600 and the
+            # village advanced exactly THREE years -- the wanted result. At
+            # half speed it subtracted 3 * 3600 = 10800 and advanced only TWO.
+            # The years therefore track the amount alone, so every speed now
+            # subtracts the amount that was measured to give three years.
+            #
+            # Scaling by the speed code is what made the result vary in the
+            # first place, and it is gone: paused included, every speed gets
+            # the same advance.
+            # VV2-VV4 share VV1's clock, its 3/6/10 speed codes and the exact
+            # same shipped speed*3600 form, so they take VV1's measured
+            # three-year amount.
+            sub dword ptr [0x4B8230], 21600
             sbb dword ptr [0x4B8234], 0
             jmp success
         do_island_event:
