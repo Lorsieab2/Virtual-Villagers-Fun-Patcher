@@ -22,22 +22,22 @@ MODES = (
 )
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 EXPANDED_PROTOTYPE = ROOT / "research" / "vv3-expanded-prototype.exe"
-PAYLOAD_SHA256 = "95C62B33A52196912CD06FEAB8FCEE6EF070FE1D18EE68B11FFD33F9F44B51BC"
+PAYLOAD_SHA256 = "4810476C53CDBC4108100E10DF7404F7FBB0476CFF850110CEF4E761C9ADE9B8"
 ZERO_CAVE_SHA256 = "22B94C6893BFC091BE2A9F454A045184DF6C0398CFFA2B4E90C0065DD6EEB1B0"
 ISOLATED_RESULTS = {
     "stock": (
-        "EE913C424D91A941BE79C2261BE66859793EDBA92D9F843D649E8551F6EC7717",
-        "C6730D00",
+        "4A7A2BB6D4C5D564EC6ABD6A929842D800C6E784C2B77B21DD657C87F77E60E2",
+        "A8EC0C00",
     ),
 }
 RENDERED_RESULTS = {
     "collection_progression": (
-        "15A21CFFE20204A8CC48D6454CF2450D404968C58A3BF795418A60469201E005",
-        "C04D0D00",
+        "5B5988A2D493C4867F9C4356A46613A782FD35812232A76F8D1C26C8568E9ADE",
+        "A2C60C00",
     ),
     "immediate_fixed": (
-        "C4C2B83AC4B6EA3C5C8EDB2F2451EB28CEFB693349394A99C0826550503012BF",
-        "BE8F0D00",
+        "9A4E6DF88BD51BBBE2E33CA1118EA518817B0C1E161977D83DB609012E920B51",
+        "A0080D00",
     ),
 }
 BASE_RESULTS = {
@@ -56,12 +56,12 @@ EXPANDED_COMPOSITION_RESULTS = {
 }
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-        "C33F5A9D30500478508F91F31973F935C58C0280275EE5CCB3B8D64F1E70B3F6",
-        "BB420D00",
+        "B848EE8D1DAE9BADF56FDCB71401C69ADAA4C357AE1368F421632D38FA90C83F",
+        "9CBB0D00",
     ),
     "immediate_fixed": (
-        "DF8BD94E21962991C2BFD0987367AD8D09D404245041703EC932C07273B71B60",
-        "B9840D00",
+        "15D9492D24B7E4D7BB5838175D3506570D072B4D7E719BF6EBBC741F25C7E188",
+        "9BFD0C00",
     ),
 }
 
@@ -182,13 +182,23 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("5157"), self.payload)      # push ecx ; push edi
         self.assertIn(bytes.fromhex("5F59"), self.payload)      # pop edi ; pop ecx
 
-        # The initiator gate is unchanged: active, living, non-nursing, and
-        # left by the stock handler in one of the two robe actions.
+        # The initiator gate: active, living, non-nursing, and left by the stock
+        # handler in a robe action.
+        #
+        # 0x39 MUST be among the accepted ids. The stock callback's success path
+        # ends with 0x455570(initiator, 0x39, ptr), whose first instruction is
+        # `mov [ecx+0xF24], eax` with eax = 0x39 -- so that is the value sitting
+        # in the field the moment the callback returns. Accepting only 0x78/0x79
+        # made this gate unsatisfiable, the fanout never ran, and the village
+        # kept stock behaviour: one villager robed and the stock crowd call
+        # 0x45E0C0(0x38, 7, -1, 0) sent seven others to lecture.
         for label, encoding in (
             ("initiator active +0xF10", "83BE100F000000"),
             ("initiator living +0xE78", "83BE780E000000"),
             ("initiator non-nursing +0xE8C", "83BE8C0E000000"),
-            ("initiator action +0xF24", "8B86240F000083F87874"),
+            ("initiator action +0xF24 accepts 0x39", "8B86240F000083F839"),
+            ("initiator action +0xF24 accepts 0x78", "83F878"),
+            ("initiator action +0xF24 accepts 0x79", "83F879"),
         ):
             with self.subTest(gate=label):
                 self.assertIn(bytes.fromhex(encoding), self.payload)
