@@ -191,9 +191,9 @@ __declspec(dllexport) void __stdcall ShowVV2CureResult(int sick, int health) {
     }
     wsprintfA(
         message,
-        "Cured sickness from %d villagers.\r\n\r\n"
-        "Restored %d villagers to full health.",
-        sick, health
+        "Cured sickness from %d %s.\r\n\r\n"
+        "Restored %d %s to full health.",
+        sick, vv_villagers_word(sick), health, vv_villagers_word(health)
     );
     MessageBoxA(
         GetForegroundWindow(), message, "Origins Upgrades",
