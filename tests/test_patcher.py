@@ -990,9 +990,11 @@ class ManifestTests(unittest.TestCase):
             self.assertFalse(stock["population_increase"])
             self.assertTrue(stock["bonuses_affect_maximum"])
             self.assertEqual(stock["patches"], [])
+            # vv2 +6 for the unbounded slot-scan guards: each site costs a
+            # trampoline plus a cave. See tests/test_slot_scan_saturation_guard.py.
             expected_safety_counts = {
                 "vv1": 17,
-                "vv2": 15,
+                "vv2": 21,
                 "vv3": 9,
                 "vv4": 11,
                 "vv5": 13,
@@ -1145,6 +1147,10 @@ class ManifestTests(unittest.TestCase):
         ]
         self.assertEqual(len(feature_ids), 8)
         expected_safety_offsets = {
+            # Unbounded slot-scan guards: trampoline + cave per site.
+            0x4C82E, 0x73D30,   # scan at 0x44C823
+            0x4CEEC, 0x73D48,   # scan at 0x44CEE0
+            0x4D23B, 0x73D60,   # scan at 0x44D230
             0x3BE8E,
             0x73F20,
             0x4BA82,
