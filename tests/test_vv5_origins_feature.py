@@ -154,62 +154,69 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertNotIn("evidence", relocation)
 
     def test_time_warp_is_exactly_three_displayed_years(self) -> None:
-        self.assertIn("mov eax, 129600", self.source)
-        self.assertIn("idiv ecx", self.source)
-        self.assertIn("sub dword ptr [0x4C6250], eax", self.source)
+        """Speed-independent now: one constant, no speed read, no divide.
+
+        The old 129600/speed form was measured in play at half speed -- it
+        subtracted 43200 and advanced ONE year, so three years is 129600, and
+        that is applied at every speed. tests/test_time_warp_speed_independent
+        pins the same invariant across all five games.
+        """
+        self.assertIn("sub dword ptr [0x4C6250], 129600", self.source)
         self.assertIn("sbb dword ptr [0x4C6254], 0", self.source)
+        self.assertNotIn("idiv ecx", self.source)
         self.assertIn("Time Warp", self.feature["description"])
         self.assertNotIn("displayed villager years", self.feature["description"])
 
-    def test_active_task9_time_warp_keeps_the_vv5_inverse_speed_clock_shift(self) -> None:
-        """Regression test guarding against applying VV1-VV4's proportional
-        Time Warp formula to VV5.
+    def test_active_task9_time_warp_is_speed_independent(self) -> None:
+        """The SHIPPING VV5 Time Warp: one constant, no speed scaling.
 
-        VV5's offline catch-up MULTIPLIES the injected elapsed-clock shift by
-        the game-speed code, so a constant three-displayed-year advance needs
-        the inverse ``129600 / speed``.  VV1 through VV4 divide by speed and
-        therefore need ``speed * 3600`` (pinned by
-        tests/test_vv4_origins_feature.py).  The two forms are not an
-        inconsistency between games -- they are the same three-year result
-        expressed for two different engine conventions.
+        This pins the ACTIVE Task9 page, which is what the public modes
+        actually render -- not the base builder. A fix applied only to
+        build_vv5_origins_feature.py never reaches a player, which is how a
+        wrong VV5 build shipped once already.
 
-        Swapping VV5 onto the proportional form looks correct at normal speed
-        (both give 21,600) but makes the paid 50,000-point warp advance about
-        0.75 displayed years at half speed and about 8.3 at double speed.
-
-        The equivalent VV4 test already existed; VV5 had none, which is how a
-        proportional VV5 build shipped in v1.34.18.  This pins the ACTIVE
-        Task9 page, which is what the public modes actually render -- not the
-        superseded base builder that the older source-text check covers.
+        The old form divided 129600 by the speed code. Measured in play at
+        half speed it subtracted 43200 and advanced ONE year, so three years
+        is 129600 -- now subtracted at every speed. Dividing also gave half a
+        year at normal speed, and the paused sentinel 999 gave
+        129600/999 = 129 seconds for a full 50,000-point charge.
         """
         task9 = json.loads(
             (ROOT / "data/vv5_task9_native_actions.json").read_text(encoding="utf-8")
         )
-        blobs = [
-            bytes.fromhex(item["after"])
-            for item in task9.get("patches", [])
-            if item.get("after")
-        ]
         transaction = task9.get("pe_append_transaction") or {}
-        for layout in (transaction.get("layouts") or {}).values():
-            if layout.get("append_bytes"):
-                blobs.append(bytes.fromhex(layout["append_bytes"]))
-        page = b"".join(blobs)
+        pages = [
+            bytes.fromhex(layout["append_bytes"])
+            for layout in (transaction.get("layouts") or {}).values()
+            if layout.get("append_bytes")
+        ]
+        self.assertTrue(pages, "no VV5 Task9 appended page was found")
+
+        # Only the Time Warp routine's own window. Checking the whole 0x8000
+        # page for absent byte patterns is meaningless -- "F7F1" and "83F903"
+        # occur by chance inside unrelated routines and data.
+        TIME_WARP_OFFSET, TIME_WARP_LENGTH = 0x1040, 0x500
+        page = b"".join(
+            blob[TIME_WARP_OFFSET : TIME_WARP_OFFSET + TIME_WARP_LENGTH]
+            for blob in pages
+        )
         self.assertTrue(page, "no VV5 Task9 payload bytes were found")
 
-        # mov eax, 129600 ; xor edx, edx ; div ecx
+        # mov eax, 129600 -- the measured three-year amount, still loaded.
         self.assertIn(bytes.fromhex("B840FA0100"), page)
-        self.assertIn(bytes.fromhex("F7F1"), page)
-        # The speed code is normalized to 3 / 6 / 10 before dividing, so an
-        # unexpected value cannot produce an arbitrary advance or a div fault.
+        # ...but no longer divided by anything: div ecx / idiv ecx are gone.
+        for label, encoding in (("div ecx", "F7F1"), ("idiv ecx", "F7F9")):
+            with self.subTest(check=label):
+                self.assertNotIn(bytes.fromhex(encoding), page)
+        # And nothing normalises a speed code, because none is read.
         for label, encoding in (
             ("cmp ecx, 3", "83F903"),
             ("cmp ecx, 10", "83F90A"),
             ("mov ecx, 6", "B906000000"),
         ):
             with self.subTest(check=label):
-                self.assertIn(bytes.fromhex(encoding), page)
-        # VV1-VV4's proportional form must never appear in the VV5 page.
+                self.assertNotIn(bytes.fromhex(encoding), page)
+        # VV1-VV4's proportional form must never appear in the VV5 page either.
         self.assertNotIn(
             bytes.fromhex("69C0100E0000"),
             page,
@@ -558,7 +565,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "CDD9D25ADD4C084E8B2D6DD101C21121DC4A62B47118299902CD77738C5D3E59",
+            "F042F6CF2D0B7C691B116840319C84A683E40984EEFCA58A4436904B4DE92973",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],

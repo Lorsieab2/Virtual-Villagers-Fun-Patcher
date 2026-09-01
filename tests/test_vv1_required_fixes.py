@@ -904,14 +904,18 @@ class VV1RequiredFixTests(unittest.TestCase):
         # fullscreen game window instead of painting behind it.
         self.assertIn("0x50021", pushes, "must be an OK/Cancel + question-icon, topmost+foreground prompt, not Yes/No")
 
-    def test_vv1_time_warp_double_speed_uses_a_reachable_game_speed_code(self) -> None:
-        """Regression test: VV1's own stock executable only ever assigns
-        3, 6, or 10 to the game-speed field Time Warp reads (verified with
-        IDA against the real stock binary -- 6 distinct assignment sites,
-        zero occurrences of 12 anywhere in the executable). The Origins
-        Time Warp patch used to check for 12, a value the game can never
-        actually produce, so double speed silently fell through to the
-        6-hour "normal speed" adjustment instead of its own value.
+    def test_vv1_time_warp_does_not_depend_on_the_game_speed(self) -> None:
+        """Superseded the "reachable speed code" check: there is no code left.
+
+        VV1's stock executable only ever assigns 3, 6 or 10 to the game-speed
+        field, and the patch used to pick a different clock shift for each.
+        That is what made the advance vary with the speed setting: measured on
+        v1.34.23, NORMAL speed subtracted 21600 and advanced exactly three
+        villager years, while HALF speed subtracted 10800 and advanced two.
+
+        The branch now subtracts the measured three-year amount unconditionally,
+        so it reads no speed field at all and there is no unreachable value to
+        guard against.
         """
         capstone = pytest.importorskip("capstone")
         source = STOCK / "Virtual Villagers - A New Home.exe"
@@ -925,31 +929,29 @@ class VV1RequiredFixTests(unittest.TestCase):
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 
         code = rendered[0x56900 : 0x56900 + 0x700]
-        tail = next(
+        write = next(
             insn
             for insn in md.disasm(code, 0x456900)
             if insn.mnemonic == "sub" and "0x4860f0" in insn.op_str
         )
-        window = rendered[tail.address - 0x400000 - 0x20 : tail.address - 0x400000]
-        block = list(md.disasm(window, tail.address - 0x20))
+        # The whole instruction, immediate included: one constant, no register.
+        self.assertEqual(write.op_str, "dword ptr [0x4860f0], 0x5460")
+        self.assertEqual(0x5460, 21600)
 
-        double_speed_cmp = next(
-            i for i in block if i.mnemonic == "cmp" and i.op_str.startswith("ecx, 0x")
-            and int(i.op_str.split(", ")[1], 16) in (10, 12)
-        )
-        self.assertEqual(
-            int(double_speed_cmp.op_str.split(", ")[1], 16),
-            10,
-            "double-speed check still uses a game-speed code VV1 never assigns",
-        )
-        double_speed_mov = block[block.index(double_speed_cmp) + 2]
-        self.assertEqual(double_speed_mov.mnemonic, "mov")
-        self.assertEqual(
-            int(double_speed_mov.op_str.split(", ")[1], 16),
-            36000,
-            "double-speed adjustment is not the expected 10 hours",
-        )
-
+        window = rendered[write.address - 0x400000 - 0x20 : write.address - 0x400000]
+        block = list(md.disasm(window, write.address - 0x20))
+        for insn in block:
+            self.assertNotIn(
+                insn.mnemonic, ("imul", "idiv", "cdq"),
+                "VV1 Time Warp must not scale its clock shift",
+            )
+            # The speed FIELD itself must not be read. A bare `cmp reg, 3`
+            # cannot be used as the signal here -- the surrounding menu code
+            # compares the clicked row index against small integers too.
+            self.assertNotIn(
+                "0xa318", insn.op_str,
+                f"VV1 Time Warp still reads the game-speed field: {insn.op_str}",
+            )
 
 if __name__ == "__main__":
     unittest.main()

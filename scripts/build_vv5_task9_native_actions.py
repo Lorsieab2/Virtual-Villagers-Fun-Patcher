@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "2A3D63893DEB7CC3F3E05F492AB569E910614EACF4CDC83CE00D9A5385D925E5"
-ACTIVE_SOURCE_TEXT_SHA256 = "4FC6DFECEFD138A9848DBA7D3D027F70419D9EB6168F6D28D3B1296A11E25CCF"
+ACTIVE_SHA256 = "51BDA02AAACC0D76B3085DC8F599E6BFA69CBF08F75974B60E7128D184F10154"
+ACTIVE_SOURCE_TEXT_SHA256 = "434456E8A255201F19F819101B0B5261CB3584FC29F7FAE651AEE68439D15D4E"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -2122,16 +2122,19 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [ebp-0x2C], eax
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        mov ecx, dword ptr [ebp-0x1C]
-        cmp ecx, 3
-        je tw_speed_ok
-        cmp ecx, 10
-        je tw_speed_ok
-        mov ecx, 6
-    tw_speed_ok:
+        # Speed-INDEPENDENT: no speed read, no divide.
+        #
+        # This is the SHIPPING VV5 Time Warp -- the loader replaces the VV5
+        # Origins base record with this Task9 page, so a fix applied only to
+        # build_vv5_origins_feature.py would never reach a player.
+        #
+        # The old 129600/speed form was measured in play at half speed: it
+        # subtracted 43200 and advanced ONE year. Three years is therefore
+        # 129600, applied at every speed. Dividing by the speed also gave half
+        # a year at normal and less at double, and the paused sentinel 999
+        # produced 129600/999 = 129 seconds -- a no-op the player still paid
+        # for. Removing the divide removes all of that, and the divide-by-zero.
         mov eax, 129600
-        xor edx, edx
-        div ecx
         mov dword ptr [ebp-0x30], eax
         mov ecx, dword ptr [ebp-0x24]
         mov edx, dword ptr [ebp-0x28]
