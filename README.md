@@ -347,6 +347,18 @@ wording and the same shell, so the menus read identically across all five.
 A New Home has no Collections rows, because it has no collections to complete
 or reset. Every other row it shows uses the same wording as the rest.
 
+**Time Warp** advances the village by three villager years at **every** game
+speed, including while the game is paused. It is never refused for being paused.
+
+**Barrel of Babies** delivers three children, so it is only sold when the
+village has room for all three -- that is, when the population is at or below
+its current maximum minus three. Above that it refuses and deducts nothing, and
+buying it again while one is already on its way is refused too rather than
+charged twice.
+
+Results that count villagers name the number and the reason, and read correctly
+at one: *"Skipped over 1 villager. Reason: already likes running."*
+
 ### Villager Details screen — `Villager Upgrades`
 
 | Upgrade | Cost |
@@ -356,6 +368,11 @@ or reset. Every other row it shows uses the same wording as the rest.
 | Grant Running | 40,000 |
 | Set Age to 18 | 50,000 |
 | Change Appearance | 5,000 |
+
+**Change Appearance** and **Change Appearance for All** offer every head and
+body the game ships, for both sexes: **20 each in A New Home** and **30 each in
+the other four**. Both choosers offer the same range, so anything you can set on
+one villager you can set for the whole village.
 
 ### Buying, removing, and the green checkmarks
 
@@ -367,15 +384,14 @@ and **no tech points are deducted**.
 own rather than perform. Once bought, their button changes from **Buy** to
 **Remove**, and removing one takes effect immediately and issues no refund.
 
-A small green checkmark marks a row whose condition is already satisfied. On
-the **Tech screen** those two Doublers are the only rows it can ever appear on,
-because ownership is the only satisfied state the game reports there -- which is
-also why they are the only two rows whose button becomes **Remove**. On the
-**Villager Details screen** the checkmark is purely informational and can appear
-on repeatable action rows too; it tells you the action would currently do
-nothing for that villager, not that you own anything. Either way it never means
-a row is unavailable: every visible row stays clickable, and a row that would
-change nothing says so and deducts no tech points.
+A small green checkmark appears on **exactly two rows and nowhere else**:
+**Tech Point Doubler** and **Food Point Doubler**, and only while that doubler
+is owned in the current save. Nothing else is ever marked -- the Villager
+Details screen shows no checkmarks at all, and a row that would currently do
+nothing tells you so in its result instead.
+
+The checkmark never means a row is unavailable. Every visible row stays
+clickable, and a row that changes nothing says so and deducts no tech points.
 
 Both menus close with **Cancel** or the Esc key, and each shows
 `Press ESC to exit this menu.` once.
@@ -490,6 +506,11 @@ keep playing the original.
    will receive each generated `(Game name) - Modded` folder. Leave it blank to
    keep the original sibling-folder behavior.
 7. Validate, dry run, or create the copied-and-modified game folder set.
+
+While the patcher is working -- loading its patches at startup, validating, dry
+running, or copying and patching a game folder -- it shows a **Please wait**
+window with a progress bar. Copying a whole game folder takes a moment; the
+window means it is working, not stuck.
 
 **Find All 5 in Parent Folder...** can fill the five folder fields when the original EXEs are in the chosen folder or one folder below it.
 

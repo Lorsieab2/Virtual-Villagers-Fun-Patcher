@@ -384,6 +384,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("bb_cancelled", b"Barrel of Babies was canceled.\r\nNo tech points have been deducted.\0"),
         ("bb_recheck", b"The village population or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
         ("bb_unavailable", b"Barrel of Babies is unavailable.\r\nNo tech points have been deducted.\0"),
+        ("bb_pending", b"A Barrel of Babies is already on its way.\r\nNo tech points have been deducted.\0"),
         ("bb_success", b"Barrel of Babies completed.\0"),
         ("bb_charge_unknown", b"The final tech-point balance did not match the exact 75,000-point deduction. The charge outcome is unknown; no barrel was queued.\0"),
         ("bb_queue_unknown", b"The 75,000-point deduction was verified, but the barrel could not be queued.\0"),
@@ -2368,6 +2369,17 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jz unavailable
         mov edi, eax
         mov dword ptr [ebp-0x18], edi
+        # One barrel at a time, across the WHOLE delivery window.
+        #
+        # Bit 3 (8) is the pending token set at purchase; bit 2 (4) is the
+        # forced-event marker barrel_close_arm sets when the Technologies screen
+        # closes -- and it CLEARS bit 3 as it does so. Testing bit 3 alone
+        # therefore leaves a gap: close the screen, reopen it before the selector
+        # has run, and the barrel is armed but no longer pending, so a second
+        # 75,000-point charge went through and still produced one barrel.
+        # Masking both (0xC) covers purchase through delivery.
+        test dword ptr [0x51D388], 0xC
+        jnz pending
         # Room for all THREE children, not just one -- see barrel_room below.
         call barrel_room
         test eax, eax
@@ -2410,6 +2422,9 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jmp done
     full:
         mov eax, 0x{s['bb_full']:X}
+        jmp warning_status
+    pending:
+        mov eax, 0x{s['bb_pending']:X}
         jmp warning_status
     insufficient:
         mov eax, 0x{s['tw_insufficient']:X}

@@ -1603,22 +1603,19 @@ def main() -> None:
         """,
         APPEARANCE_HELPER_VA,
     )
-    # Deferred-Barrel countdown, spliced into the per-tick event loop in front of
-    # the natural presenter (0x4182B0). ECX (event manager) and the stack arg it
-    # was called with are untouched, so the tail jmp reaches 0x4182B0 with the
-    # exact frame it expects (0x4182B0 ends `ret 4`, returning to 0x440991). Each
-    # tick it drains the purchase token; on the tick it reaches 0 it arms the
-    # barrel for that single loop pass, so the loop presents exactly one barrel in
-    # the real world context. Otherwise the barrel stays disarmed.
-    # Spliced onto the game's real event-scheduler tick in place of `call 0x418000`
-    # (at 0x43FBE5, ECX = event manager). Each pass it drains the purchase token;
-    # when the token reaches zero it arms the barrel (if the village still has room)
-    # so the barrel's eligibility hook reports eligible and the scheduler -- which
-    # this helper tail-jumps into -- presents the native barrel event. The scheduler
-    # picks randomly among eligible events, so the barrel stays armed across passes
-    # until it is actually presented, detected by the per-event cooldown byte the
-    # scheduler sets on the event it fired; then it disarms so exactly one barrel
-    # fires. ECX must survive for the tail jmp to 0x418000.
+    # Spliced onto the game's real event-scheduler tick, replacing `call 0x418000`
+    # at 0x43FBE5 (ECX = event manager, and it must survive for the tail jmp).
+    #
+    # There is NO countdown and no token to drain: do_barrel arms the barrel
+    # outright at purchase. When the armed byte is set this helper does NOT fall
+    # through to the scheduler's random pick -- it calls 0x418190(event, 25)
+    # directly, so the barrel is the event that fires, then disarms immediately.
+    # Exactly one barrel fires and it does not wait for the dice. When the byte
+    # is clear the helper tail-jumps straight into the stock scheduler.
+    #
+    # The per-event cooldown byte plays no part here either: nothing reads it
+    # back, and 0x418190 never sets it -- only the scheduler's own pick path
+    # does, which this bypasses when armed.
     barrel_cue = assemble(
         f"""
             cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
