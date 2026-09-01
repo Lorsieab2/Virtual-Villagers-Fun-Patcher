@@ -1989,8 +1989,14 @@ static const char *const vv3_mask_names[VV3_MASK_COUNT] = {
 };
 #define VV3_APPEARANCE_CELL_W 40
 #define VV3_APPEARANCE_CELL_H 65
+/* Both counts are the ranges VV3 itself uses, not a copy of another game's.
+   Heads: the male_heads/female_heads atlases are 320x1950, i.e. 30 rows of 65.
+   Bodies: villager creation assigns `rand(30)` at 0x41751D and 0x417536, so the
+   game hands out body indices 0..29 and every one of them has art. VV4 and VV5
+   really are 29 -- their creation uses `rand(29)` -- so this count must not be
+   made "consistent" with theirs. */
 #define VV3_HEAD_COUNT 30
-#define VV3_BODY_COUNT 29
+#define VV3_BODY_COUNT 30
 /* The mask preview uses the same 40x65 head/body cell (each mask scaled to fit
    + centred), matching the VV5 New Believers chooser so the chooser sprites are
    the same size across games. */
