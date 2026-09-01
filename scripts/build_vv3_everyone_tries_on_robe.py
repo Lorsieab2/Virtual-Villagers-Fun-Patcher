@@ -98,6 +98,20 @@ OFF_ACTIVE = 0xF10
 OFF_HEALTH = 0xE78
 OFF_NURSING = 0xE8C
 OFF_ACTION = 0xF24
+# The value the stock callback actually leaves in +0xF24, and the reason the
+# fanout never ran.  0x421960's success path ends with
+# 0x455570(initiator, 0x39, ptr), and 0x455570's FIRST action is
+# `mov [ecx+0xF24], eax` with eax = 0x39.  So immediately after the callback
+# returns true, the initiator's action field holds 0x39 -- never 0x78 or 0x79.
+# The gate below accepted only 0x78/0x79, so it always fell through to `done`
+# and the village kept its stock behaviour exactly: the dropped villager tried
+# the robe, and the crowd 0x45E0C0(0x38, 7, -1, 0) sent seven others to the
+# lecture. That is precisely the reported bug -- one villager robes, everyone
+# else lectures.
+# 0x78/0x79 are kept as accepted values: they are later robe sub-states, and a
+# handler that has already advanced past 0x39 by the time we look must still
+# fan out rather than silently do nothing.
+ACTION_ROBE_ASSIGNED = 0x39
 ACTION_ROBE_A = 0x78
 ACTION_ROBE_B = 0x79
 
@@ -132,6 +146,8 @@ def build_wrapper() -> bytes:
         cmp dword ptr [esi + 0x{OFF_NURSING:X}], 0
         jne done
         mov eax, dword ptr [esi + 0x{OFF_ACTION:X}]
+        cmp eax, 0x{ACTION_ROBE_ASSIGNED:X}
+        je bound_check
         cmp eax, 0x{ACTION_ROBE_A:X}
         je bound_check
         cmp eax, 0x{ACTION_ROBE_B:X}
