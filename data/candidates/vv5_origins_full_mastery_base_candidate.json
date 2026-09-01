@@ -16,9 +16,9 @@
       "destination": "VVFP Origins Icons.dll",
       "sha256": "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8",
       "size": 298496,
-      "preimage_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+      "preimage_sha256": "0ED243FCDF3CC9FCC8FA023D58491C61B14F0938E17473705ECE0E37879BA127",
       "restore_source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
-      "restore_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+      "restore_sha256": "0ED243FCDF3CC9FCC8FA023D58491C61B14F0938E17473705ECE0E37879BA127",
       "parent": "data/candidates/VVFP VV5 Full Mastery Candidate.dll"
     }
   ],
@@ -359,10 +359,10 @@
       "menu_loop": "0x7B22C0"
     },
     "resource_transform": "structurally remove the five-item legacy Cure row from RT_DIALOG 201 and 203; 202 byte-identical",
-    "parent_dll_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "parent_dll_sha256": "0ED243FCDF3CC9FCC8FA023D58491C61B14F0938E17473705ECE0E37879BA127",
     "candidate_companion_sha256": "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8",
     "restore_source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
-    "restore_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "restore_sha256": "0ED243FCDF3CC9FCC8FA023D58491C61B14F0938E17473705ECE0E37879BA127",
     "atomic_install_remove": true,
     "asset_policy": {
       "destination": "Images\\btn_trophies.png",

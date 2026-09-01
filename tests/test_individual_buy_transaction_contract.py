@@ -233,8 +233,8 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         manifest_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate.json"
         map_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate_map.json"
         from vv_fun_patcher import source_text_sha256
-        self.assertEqual(source_text_sha256(manifest_path.read_bytes()), "7869A3364F598B882E8C29F3A1957C5AF13A4654CF45EE0464DAA34545CB128B")
-        self.assertEqual(source_text_sha256(map_path.read_bytes()), "3FB4B979A98CC3C5FE76D7BD2D3851E5F918A8436141D4DF8A9C1969B6B11FAF")
+        self.assertEqual(source_text_sha256(manifest_path.read_bytes()), "A2AC2AD4C1FE1C6BE8E2DD28B34CDC67FB575396D16986F8BF7271E7A308D405")
+        self.assertEqual(source_text_sha256(map_path.read_bytes()), "3149BCAFADEC63C9CECD39BA1A5CE5C2EFA7E6435237C14AC80D74E4F6A754A7")
         raw = json.loads(map_path.read_text(encoding="utf-8"))
         blob = bytes.fromhex(raw["slot"]["running_strings_blob"])
         self.assertEqual(hashlib.sha256(blob).hexdigest().upper(), "0BE4E54A34DA91228F4E333C6DCC8E18FB3BE4292004766B97649A8EE124DCE2")

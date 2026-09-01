@@ -105,7 +105,18 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
         int row_count = villager_menu ? 5 : VV2_TECH_ROW_COUNT;
         int row;
-        for (row = 0; row < 9; ++row) {
+        /* Hide EVERY badge the dialog can carry, not just the first nine.
+           The tech menu runs to 14 rows (6 base + 3 village-wide grants +
+           Complete/Reset Collections + two Equal Division rows + Change
+           Appearance for All).  The resource creates those badges VISIBLE, so
+           stopping at 9 left rows 9-13 showing a green checkmark permanently,
+           whatever the player owned.  The show loop below re-shows only the
+           rows whose owned bit is set, and the exe sets only bits 3 and 4 --
+           the Tech and Food Point Doublers -- so those two rows are the only
+           ones that can ever display a checkmark, and only while owned in the
+           current save.  GetDlgItem returns NULL for a row this game does not
+           declare and ShowWindow(NULL, ...) is a harmless no-op. */
+        for (row = 0; row < 14; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
