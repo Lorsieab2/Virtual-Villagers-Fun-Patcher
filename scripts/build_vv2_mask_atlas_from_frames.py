@@ -101,7 +101,7 @@ def extract_frames(source: Path) -> dict[str, list[np.ndarray]]:
 
 
 # Head-cell (x, y) of the face per frame: median skin centroid across all 60 head
-# variants. Regenerate with scripts/measure_vv2_face_anchors.py if the head art
+# variants. Regenerate with the face-anchor measuring helper (removed; the anchors it produced are baked into this script) if the head art
 # ever changes; do not hand-edit.
 FACE_ANCHOR: dict[int, tuple[float, float]] = {
     0: (22.780, 23.230), 1: (21.980, 22.750), 2: (20.920, 22.990), 3: (20.010, 23.400),

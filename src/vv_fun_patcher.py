@@ -8909,7 +8909,9 @@ def _remove_companion_files(
 # ---------------------------------------------------------------------------
 # Wrong-exe-name access-violation immunity (applied to EVERY published build).
 #
-# Root cause (see scripts/fix_exe_name_crash.py, memory vv-exe-name-crash-fix):
+# Root cause (the standalone scripts/fix_exe_name_crash.py that first proved
+# this has been removed; the fix lives here now and is applied to every
+# published build, enforced by _require_name_crash_immunity):
 # the games read GetModuleFileNameA and gate the save folder (Documents\LDW\
 # <basename>\) plus a name-gated init path on the exe BASENAME.  The patcher
 # publishes each build under a renamed exe ("<Title> - Modded.exe", etc.), so
