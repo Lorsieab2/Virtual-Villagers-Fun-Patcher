@@ -280,8 +280,13 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(hook["after"], "E96C9839009090")
         self.assertEqual(hook["uninstall_after"], hook["before"])
         body = selector["body"]
+        # BE1A000000 is `mov esi, 26`, the believer barrel in the event OBJECT
+        # table at 0x4DC850. It was BE19000000 (`mov esi, 25`), which is
+        # CEventTheStingingWasps -- the wrong event, and no children.
+        # tests/test_vv5_barrel_event_index.py re-derives the id from the stock
+        # binary's RTTI so this literal cannot drift back unnoticed.
         expected_body = bytes.fromhex(
-            "8B748414F70588D3510004000000740C832588D35100FBBE19000000"
+            "8B748414F70588D3510004000000740C832588D35100FBBE1A000000"
             "6A64E8BD14C5FFE97267C6FF"
         )
         self.assertEqual(body["file_offset"], "0xDB180")
@@ -558,7 +563,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "CDD9D25ADD4C084E8B2D6DD101C21121DC4A62B47118299902CD77738C5D3E59",
+            "0BFBF656E716EC7DBD160FAD1229ADB61EC83B3025372CFF6ABB2D6552D21482",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
