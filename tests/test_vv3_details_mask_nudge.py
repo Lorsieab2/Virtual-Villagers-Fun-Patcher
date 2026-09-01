@@ -21,8 +21,9 @@ SOURCE = (
 
 # Screen X grows rightward and screen Y grows downward, so both being negative
 # seats the mask further left and higher on the portrait.
+# Y moved from -5 to -1 -- a reviewed 4 px downward move on the portrait only.
 DETAILS_MASK_X_NUDGE_PX = -11
-DETAILS_MASK_Y_NUDGE_PX = -5
+DETAILS_MASK_Y_NUDGE_PX = -1
 
 
 class VV3DetailsMaskNudgeTests(unittest.TestCase):
@@ -68,12 +69,31 @@ class VV3DetailsMaskNudgeTests(unittest.TestCase):
     def test_the_mask_draw_still_writes_no_villager_state(self) -> None:
         """The overlay stays cosmetic: it may read a record but never write one."""
         start = self.source.index("void __stdcall VV3DrawMaskOnHead")
-        end = self.source.index("__declspec", start + 1)
-        body = self.source[start:end]
+        body = self.source[
+            start : self.source.index(chr(10) + "}" + chr(10), start)
+        ]
         self.assertNotIn("VV3_SetMaskForRecord", body)
         for forbidden in ("*(int *)(record", "*(char *)(record", "*(unsigned"):
             with self.subTest(pattern=forbidden):
                 self.assertNotIn(forbidden + " ", body)
+
+    def test_the_details_nudges_are_independent_of_the_village_view(self) -> None:
+        """The two screens draw through different engine functions.
+
+        Details goes through 0x004093A0 with an integer scaled-Y; the village
+        goes through 0x0042E5E0 with a float scale.  Sharing one macro between
+        them would make every retune of one screen silently move the other, so
+        the village pair must exist separately and the Details draw must not
+        reference it.
+        """
+        self.assertIn("#define VV3_WORLD_MASK_X_NUDGE_PX", self.source)
+        self.assertIn("#define VV3_WORLD_MASK_Y_NUDGE_PX", self.source)
+        start = self.source.index("void __stdcall VV3DrawMaskOnHead")
+        body = self.source[
+            start : self.source.index(chr(10) + "}" + chr(10), start)
+        ]
+        self.assertNotIn("VV3_WORLD_MASK_", body)
+
 
 
 if __name__ == "__main__":

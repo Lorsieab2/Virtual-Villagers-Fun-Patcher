@@ -45,6 +45,36 @@ VV5 (`sub_466240`): `if age([rec+0x1B8C]) < 0x118: scale = (age/DIV + BASE) * [r
 else full size. Children draw smaller because their age yields a smaller factor.
 `0x118` (280) is the full-grown threshold. The head sprite is drawn at this scale.
 
+**The scale argument is a FLOAT, and reading it as an integer is a silent
+disaster.** VV3's village head painter `0x0042E5E0` loads the two coordinates
+with `fild` (integer to float) but consumes its sixth argument with a bare
+`fmul [esp+arg5]` -- so that slot holds an IEEE-754 bit pattern, not a number.
+Its caller pins the range exactly: at `0x00460913` it compares the age at
+`+0xDC4` against `0x118` and then either stores `0x3F800000` (literally `1.0f`)
+for an adult, or computes `(age * 1/14 + 80) * 0.01` for a child, which runs
+0.80 at birth up to 1.00 at adulthood. Reinterpret it (`memcpy` into a float);
+never cast. `0x3F800000` read as an int is 1,065,353,216, and any offset
+multiplied by that leaves the screen.
+
+**Registration offsets must be multiplied by that live scale.** A flat "up 15
+px" that seats correctly on an adult overshoots a toddler, because the whole
+villager -- head included -- is drawn at 0.80. Express the nudge for a
+full-size adult and scale it: a newborn then moves 12 px, not 15. Round half
+away from zero so a small offset cannot truncate to nothing.
+
+**Check whether the coordinates are pixels before trusting a pixel nudge.**
+`0x0042E5E0` multiplies x and y by the camera zoom at `[cam+0x300c]`. In VV3
+that is always `1.0` in the village -- every caller of the camera setter
+`0x0042E250` (`0x0042E49C`, `0x00464BF1`, `0x0046A1DA`, `0x0046A843`) pushes
+`0x3F800000` -- so one argument unit is one screen pixel and a nudge means what
+it says. Confirm this per game rather than assuming it.
+
+**The village and the Details portrait are different coordinate spaces.** They
+go through different engine functions (VV3: `0x0042E5E0` with a float scale
+versus `0x004093A0` with an integer scaled-Y). Keep a separate tuned pair of
+numbers per screen; sharing one macro makes every retune of one silently move
+the other.
+
 ### 1c. ORIENTATION (facing)
 A single facing index does two jobs: (a) selects the directional **column** of the
 head atlas (which way the face points); (b) indexes the per-facing anchor above
