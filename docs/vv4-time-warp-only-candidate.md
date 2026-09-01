@@ -1,6 +1,6 @@
 # VV4 Time-Warp-only Expanded-256 candidate
 
-`scripts/build_vv4_time_warp_only_candidate.py` consumes the authenticated
+the VV4 Time Warp-only candidate builder (removed; the candidate's bytes are the checked-in manifest) consumes the authenticated
 clean Expanded-256 progression base and applies only
 `vv4_expanded_256_time_warp`. It deliberately does not use the all-current
 Origins render, which contains additional Origins menu rows.
@@ -20,7 +20,7 @@ Build:
 
 ```powershell
 $env:PYTHONPATH = "src;scripts"
-python scripts/build_vv4_time_warp_only_candidate.py `
+python the VV4 Time Warp-only candidate builder (removed; the candidate's bytes are the checked-in manifest) `
   outputs/expanded-256-audit/vv4-renders/vv4-experimental_expanded_256_progression-base.exe `
   outputs/vv4-time-warp-only-candidate/VV4-Expanded-256-Time-Warp-Only.exe
 ```
