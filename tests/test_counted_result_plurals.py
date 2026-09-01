@@ -17,10 +17,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 NATIVE = ROOT / "native"
 
-# "%d villagers" / "%u villagers" -- a count immediately followed by the noun.
-HARDCODED = re.compile(r"%[0-9]*[du]\s+villagers?\b")
+# "%d villagers" / "%u Villagers" -- a count immediately followed by the noun.
+# CASE-INSENSITIVE: a case-sensitive version missed the Equal Division
+# results, which capitalise the word ("Set %u Villagers' Job Preferences."),
+# so those still read "1 Villagers" while this guard passed.
+HARDCODED = re.compile(r"%[0-9]*[du]\s+villagers?\b", re.IGNORECASE)
 # A counted villager result of any shape, used only for anti-vacuity.
-COUNTED = re.compile(r"%[0-9]*[du]\s+(?:%s|villagers?)\b")
+COUNTED = re.compile(r"%[0-9]*[du]\s+(?:%s|villagers?)\b", re.IGNORECASE)
 
 
 # The companions the patcher actually deploys. The optional Full Mastery and
@@ -89,6 +92,10 @@ class CountedResultPluralTests(unittest.TestCase):
             "vv4_origins_icons": "vv_villagers_word",
             "vv5_task9_origins": "vpl_lc",
         }
+        possessive = {
+            "vv2_origins_icons": "vv_villagers_possessive",
+            "vv5_task9_origins": "vpl_pos",
+        }
         for directory, helper in choosers.items():
             source = NATIVE / directory / f"{directory}.c"
             with self.subTest(game=directory):
@@ -98,11 +105,18 @@ class CountedResultPluralTests(unittest.TestCase):
                     helper, text,
                     f"{directory} has no way to choose the singular form",
                 )
+                if directory in possessive:
+                    # "Villager's" against "Villagers'" moves the apostrophe,
+                    # so the possessive cannot reuse the plain noun chooser.
+                    self.assertIn(possessive[directory], text)
 
     def test_the_pattern_matches_the_shape_that_shipped(self) -> None:
         """Positive control, so a clean run means the regex still works."""
         self.assertTrue(HARDCODED.search('"Cured sickness from %d villagers."'))
         self.assertTrue(HARDCODED.search('"Fully mastered %u villagers."'))
+        # The capitalised shapes the case-sensitive version let through.
+        self.assertTrue(HARDCODED.search("Set %u Villagers' Job Preferences."))
+        self.assertTrue(HARDCODED.search('"%s: %u Villagers (%u Male, %u Female)."'))
         self.assertIsNone(HARDCODED.search('"Cured sickness from %d %s."'))
 
 

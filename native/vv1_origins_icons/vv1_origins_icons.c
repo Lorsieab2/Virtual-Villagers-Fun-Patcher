@@ -1791,6 +1791,12 @@ __declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(
    "Cured sickness from 1 villagers." */
 static const char *vv_villagers_word(int n) { return n == 1 ? "villager" : "villagers"; }
 
+/* Capitalised forms for the Equal Division results. The possessive moves the
+   apostrophe rather than just adding an "s", so it needs its own helper. */
+static const char *vv_villagers_word_uc(int n) { return n == 1 ? "Villager" : "Villagers"; }
+static const char *vv_villagers_possessive(int n) { return n == 1 ? "Villager's" : "Villagers'"; }
+
+
 __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     int sick_cured,
     int healed_restored

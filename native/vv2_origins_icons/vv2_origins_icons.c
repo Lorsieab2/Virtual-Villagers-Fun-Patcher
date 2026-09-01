@@ -518,11 +518,13 @@ __declspec(dllexport) int __stdcall ApplyVV2EqualDivision(
         );
         return 0;
     }
-    wsprintfA(message, "Set %u Villagers' Job Preferences.", (unsigned int)total);
+    wsprintfA(message, "Set %u %s Job Preferences.", (unsigned int)total,
+              vv_villagers_possessive((int)total));
     for (p = 0; p < professions; ++p) {
-        wsprintfA(line, "\r\n\r\n%s: %u Villagers (%u Male, %u Female).",
+        wsprintfA(line, "\r\n\r\n%s: %u %s (%u Male, %u Female).",
                   profession_name[p],
                   (unsigned int)(male_count[p] + female_count[p]),
+                  vv_villagers_word_uc(male_count[p] + female_count[p]),
                   (unsigned int)male_count[p], (unsigned int)female_count[p]);
         lstrcatA(message, line);
     }
