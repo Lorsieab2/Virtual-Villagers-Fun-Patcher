@@ -301,6 +301,42 @@
           "before": "E8D8B00100",
           "after": "E858F80300",
           "purpose": "guard the second two-newcomer event allocation"
+        },
+        {
+          "offset": "0x4C82E",
+          "before": "4184D275F0",
+          "after": "E9FD740200",
+          "purpose": "route the unbounded free-slot scan through the 256-slot bound"
+        },
+        {
+          "offset": "0x73D30",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "4184D2740D81F9FF0000007305E9E18AFDFFE9EC8AFDFF",
+          "purpose": "stop the free-slot scan at the last valid slot instead of walking off the end of the 256-slot array"
+        },
+        {
+          "offset": "0x4CEEC",
+          "before": "403AD375EF",
+          "after": "E9576E0200",
+          "purpose": "route the unbounded slot scan at 0x44CEE0 through the 256-slot bound"
+        },
+        {
+          "offset": "0x73D48",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "403AD3740D81F8FF0000007305E98691FDFFE99291FDFF",
+          "purpose": "stop the slot scan at 0x44CEE0 on the last valid slot instead of walking off the end of the 256-slot array"
+        },
+        {
+          "offset": "0x4D23B",
+          "before": "473ACB75F0",
+          "after": "E9206B0200",
+          "purpose": "route the unbounded slot scan at 0x44D230 through the 256-slot bound"
+        },
+        {
+          "offset": "0x73D60",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "473ACB740D81FFFF0000007305E9BE94FDFFE9C994FDFF",
+          "purpose": "stop the slot scan at 0x44D230 on the last valid slot instead of walking off the end of the 256-slot array"
         }
       ]
     },
