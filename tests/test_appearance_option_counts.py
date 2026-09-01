@@ -128,9 +128,14 @@ class AppearanceOptionCountTests(unittest.TestCase):
                 )
 
     def test_each_chooser_offers_its_own_game_s_full_body_range(self) -> None:
-        for game, (exe_name, _off, source, macro) in GAMES.items():
-            if not (STOCK / exe_name).is_file():
-                self.skipTest(f"{exe_name} is not present")
+        """Reads only committed sources, so it runs in a clean checkout.
+
+        This used to skip on the first absent stock executable, which aborted
+        the whole method and left the advertised cross-game guard checking
+        nothing wherever those untracked fixtures are missing. The binaries are
+        needed to VERIFY the expected ranges, which is a separate test.
+        """
+        for game, (_exe_name, _off, source, macro) in GAMES.items():
             with self.subTest(game=game):
                 self.assertEqual(
                     self._declared(source, macro),
