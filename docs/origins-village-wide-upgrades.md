@@ -378,9 +378,11 @@ writer `0x4237B0`, dispatches command 8, and reports `Purchased.`. It performs
 no changed-record preflight, charges zero-change/already-18 cases, returns zero
 result counts, and has no tied recheck or rollback.
 
-VV5 age 18 remains ON HOLD. the expanded-256 relocation ledger has been REMOVED: its 66 rows existed only to relocate the payload for expanded-256, which is not a selectable patch mode and which no variant applies, while its hand-recorded byte snapshots blocked every legitimate payload edit.shr` pointers, including the 43
-previously omitted current-feature references. No helper availability, runtime,
-save, catch-up, or player safety is claimed from this diagnostic loop.
+VV5 age 18 remains ON HOLD.
+
+The expanded-256 relocation ledger has been REMOVED: its 66 rows existed only to relocate the payload for expanded-256, which is not a selectable patch mode and which no variant applies, while its hand-recorded byte snapshots blocked every legitimate payload edit. The `.shr` pointers it used to carry, including the 43 current-feature
+references, are historical only. No helper availability, runtime, save,
+catch-up, or player safety is claimed from this diagnostic loop.
 
 ### VV4 All Villagers are 18 exact-build boundary
 

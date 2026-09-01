@@ -28,10 +28,15 @@ acceptance, save behavior, or a successful pickup/fishing trace.
 
 ## Implemented, bounded repairs
 
-1. Details now uses `18` in `y - ((scaledY * multiplier) >> 7)`. For the stock
-   Details `scaledY=200`, this candidate is 25px lower than multiplier `34`
-   (`200*18>>7 == 28`; `200*34>>7 == 53`). No atlas identity is assigned to
-   the prior `34` candidate. Visual placement remains pending player acceptance.
+1. Details now uses `18` in `y - ((scaledY * multiplier) >> 7)`, plus a
+   `VV3_DETAILS_MASK_Y_NUDGE_PX` of `-5`. For the stock Details `scaledY=200`
+   the scale-aware term alone is `200*18>>7 == 28`, so the EFFECTIVE lift is
+   `28 + 5 == 33` -- which puts this candidate 20px lower than multiplier `34`
+   (`200*34>>7 == 53`), not the 25px that the multiplier comparison alone
+   suggests. The pinned test covers only `200*18>>7 == 28`, so it does not
+   catch a stale figure here; the nudge has to be counted by hand. No atlas
+   identity is assigned to the prior `34` candidate.
+   Visual placement remains pending player acceptance.
 2. The world cave at `0x460C7F` replays the exact six stock arguments through
    `0x42E5E0`, then calls `VV3WorldMaskDrawAt` synchronously while those original
    arguments are untouched. The callback changes only the atlas and head-row,

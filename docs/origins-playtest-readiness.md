@@ -293,8 +293,11 @@ v1.34.14; the shipped manifests state availability accordingly. VV5
 stock-layout Tech and Food Doublers support purchase, zero-cost/no-refund
 Remove, and full-price repurchase. In VV5 expanded-256 modes, both writer hooks are restored to native
 bytes and new doubler purchases remain unavailable; owned Remove remains
-available. Expanded composition is ON HOLD. the expanded-256 relocation ledger has been REMOVED: its 66 rows existed only to relocate the payload for expanded-256, which is not a selectable patch mode and which no variant applies, while its hand-recorded byte snapshots blocked every legitimate payload edit.shr` rows, including all 43 previously omitted
-current-feature references, per disassembly commit
+available. Expanded composition is ON HOLD.
+
+The expanded-256 relocation ledger has been REMOVED: its 66 rows existed only to relocate the payload for expanded-256, which is not a selectable patch mode and which no variant applies, while its hand-recorded byte snapshots blocked every legitimate payload edit. Nothing is relocated in its place, because there is no selectable mode
+that would need it. The former ledger and the 43 current-feature references it
+once recorded are historical only, per disassembly commit
 `8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb`. This is not runtime, save, catch-up,
 or player evidence. VV5 native Time Warp, Island Event, and Barrel rows remain
 unavailable because their Heathen-safe target paths are not yet proven.

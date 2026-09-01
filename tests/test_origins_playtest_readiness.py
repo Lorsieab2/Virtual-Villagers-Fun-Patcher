@@ -94,7 +94,14 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
         # The 66-row expanded-256 ledger is removed; the doc records why.
         self.assertIn("relocation ledger has been REMOVED", text)
         self.assertNotIn("66 rows: 23 payload-internal absolute", text)
-        self.assertIn("all 43 previously omitted\ncurrent-feature references", text)
+        # Folded text: pinning an exact line wrap made this fail the moment
+        # the sentence was rewrapped, which says nothing about whether the
+        # document still records the fact.
+        self.assertIn(
+            "the 43 current-feature references it once recorded are "
+            "historical only",
+            folded,
+        )
         self.assertIn("This is not runtime, save, catch-up,\nor player evidence", text)
         self.assertIn("8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb", text)
         self.assertIn("VV5 native Time Warp, Island Event, and Barrel rows remain unavailable", folded)
