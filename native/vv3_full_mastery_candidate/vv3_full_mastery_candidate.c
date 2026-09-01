@@ -1126,9 +1126,13 @@ __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask)
    rightward and screen Y grows downward, so a negative value seats the mask
    further left and higher on the portrait.  The X value carries the earlier
    art-registration correction (-8) plus a further 3 px left; the Y nudge is
-   applied on top of the scale-aware lift so the lift stays scale-correct. */
+   applied on top of the scale-aware lift so the lift stays scale-correct.
+   The Y value was -5 and is now -1: a reviewed 4 px DOWNWARD move, requested
+   after looking at the portrait.  This is INDEPENDENT of the village-view
+   registration below -- the two screens draw through different engine
+   functions in different coordinate spaces and must be tuned separately. */
 #define VV3_DETAILS_MASK_X_NUDGE_PX (-11)
-#define VV3_DETAILS_MASK_Y_NUDGE_PX (-5)
+#define VV3_DETAILS_MASK_Y_NUDGE_PX (-1)
 
 __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
     void *record, void *sprite_obj, const int *args)
@@ -1201,6 +1205,58 @@ static int vv3_world_record_index(void *record)
     return (int)(delta / VV3_STRIDE);
 }
 
+/* ---- Village-view mask registration --------------------------------------
+   Screen X grows rightward and screen Y grows downward, so both negatives seat
+   the mask further left and higher on the villager.  Tuned from a village
+   screenshot in which the masks floated low and to the right of the faces.
+
+   These are deliberately SEPARATE numbers from VV3_DETAILS_MASK_*_NUDGE_PX.
+   The Details portrait draws through 0x004093A0 with an INTEGER scaled-Y; the
+   village draws through 0x0042E5E0, whose sixth argument is an IEEE-754 FLOAT.
+   Different function, different coordinate space -- retuning one screen must
+   never move the other. */
+#define VV3_WORLD_MASK_X_NUDGE_PX (-5)
+#define VV3_WORLD_MASK_Y_NUDGE_PX (-15)
+
+/* The sixth village head-draw argument is a float, not an int.  0x0042E5E0
+   does `fild [arg]; fmul [cam+0x300c]` for the two coordinates but
+   `fild [cam+0x3010]; fmul [esp+arg5]` for the size -- arg5 is consumed as a
+   float directly, so it must be reinterpreted, never used as an integer.
+
+   The stock caller pins its range exactly.  At 0x00460913 the renderer
+   compares the villager's age (+0xDC4) with 0x118 and then either stores
+   0x3F800000 -- literally 1.0f -- for an adult (0x0046093A), or computes
+   (age * 1/14 + 80) * 0.01 for a child (0x0046091E..0x00460934), which runs
+   from 0.80 at birth up to 1.00 at adulthood.
+
+   So the nudges above are written for a full-size adult and multiplied by this
+   live scale.  That is what "scale with height / child size" means here: a
+   newborn at 0.80 moves 12 px up and 4 px left, not 15 and 5.
+
+   The coordinates themselves are plain screen pixels.  Every village caller of
+   the camera setter 0x0042E250 (0x0042E49C, 0x00464BF1, 0x0046A1DA,
+   0x0046A843) pushes 0x3F800000 for the zoom stored at +0x300c, so the
+   coordinate fmul is by 1.0 and one unit of args[1]/args[2] is one pixel. */
+static float vv3_world_scale(int raw)
+{
+    float scale;
+    memcpy(&scale, &raw, sizeof(scale));
+    /* Written as negated comparisons so a NaN -- which fails every ordered
+       test -- also lands on the fallback.  A garbage scale must degrade to the
+       stock adult 1.0, never fling the mask off the villager. */
+    if (!(scale > 0.05f) || !(scale < 8.0f)) {
+        return 1.0f;
+    }
+    return scale;
+}
+
+/* Round half away from zero, so a nudge never collapses to 0 by truncation. */
+static int vv3_scaled_nudge(int px, float scale)
+{
+    float value = (float)px * scale;
+    return (int)(value >= 0.0f ? value + 0.5f : value - 0.5f);
+}
+
 /* Inline world/head mask draw.  This callback is invoked immediately after the
    stock 0x42E5E0 call at 0x460C7F, while its untouched six arguments remain on
    the stack.  The mask reuses those exact x/y/facing/scale values and changes
@@ -1210,6 +1266,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     void *atlas;
     int mask, index, facing, mask_args[6], i;
     int arg0, arg1, arg2, arg3, arg4, arg5;
+    float scale;
     int wp[2];
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
@@ -1230,6 +1287,12 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
        Passing the raw composite indexed past column 7 and drew the wrong
        cell.  When args[4] already holds a bare facing this is a no-op. */
     mask_args[4] = facing;
+    /* Seat the mask on the face.  Applied BEFORE the debug capture below so
+       g_vv3_worlddbg reports the coordinates actually drawn, and before the
+       arg0..arg5 copy so the renderer receives them. */
+    scale = vv3_world_scale(mask_args[5]);
+    mask_args[1] += vv3_scaled_nudge(VV3_WORLD_MASK_X_NUDGE_PX, scale);
+    mask_args[2] += vv3_scaled_nudge(VV3_WORLD_MASK_Y_NUDGE_PX, scale);
     index = vv3_world_record_index(record);
     g_vv3_worlddbg[0] = index;
     g_vv3_worlddbg[1] = *(int *)((unsigned char *)record + 0xF20);

@@ -16,3 +16,10 @@ scratchpad_*.exe
 
 # local build/test scratch outputs (never commit)
 scratchpad/
+
+# MSVC intermediates from the native companion builds (scripts/build_*_dll.ps1).
+# The shipped product is the DLL under data/candidates/; these are byproducts.
+*.obj
+*.exp
+*.lib
+*.res
