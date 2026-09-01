@@ -458,6 +458,27 @@ This lets reproduction fill the final slot without permitting the population to 
 
 All five games also contain Island Events that add villagers. The patcher guards every identified direct population-adding outcome: repeated allocations stop when the selected physical pool fills, and VV4/VV5 Abandoned Infants is reduced from six babies when fewer than six physical slots remain. VV3-VV5 use their verified 150-record boundary. Events that remove villagers are unchanged. VV5 conversions and The Defector are unchanged because they reclassify existing records instead of allocating new ones.
 
+## Requirements
+
+The patcher runs from source through the bundled launcher. It needs nothing
+beyond a normal Python install.
+
+| Requirement | Detail |
+| --- | --- |
+| Windows | The five games are 32-bit Windows executables and the patcher writes Windows PE files. `Launch Virtual Villagers Fun Patcher.bat` is a Windows batch file. |
+| Python 3.10 or newer | Download from [python.org](https://www.python.org/downloads/). During setup keep **tcl/tk and IDLE** ticked, which is the default: the patcher's window is built with `tkinter`. |
+| No extra packages | The patcher uses only the Python standard library. There is nothing to `pip install`, and no internet connection is needed to patch. |
+| An original game | The free downloads from [ldw.com](https://ldw.com), installed normally. Only those builds are supported. |
+| Free disk space | The patcher copies each game whole rather than editing your original, so each modded copy needs about as much space as the game folder itself: roughly 25-85 MB per game, or about 300 MB for all five. |
+
+The launcher tries `py -3` first and falls back to `python`, so either the
+Python launcher or `python` on your `PATH` will do. If a console window opens
+and reports that Python was not found, install Python and try again.
+
+Your original game is never modified. Every patch is written into a separate
+`(Game name) - Modded` folder, so you can delete that folder at any time and
+keep playing the original.
+
 ## Use
 
 1. Extract the latest release ZIP.
