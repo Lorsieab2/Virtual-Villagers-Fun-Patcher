@@ -378,9 +378,7 @@ writer `0x4237B0`, dispatches command 8, and reports `Purchased.`. It performs
 no changed-record preflight, charges zero-change/already-18 cases, returns zero
 result counts, and has no tied recheck or rollback.
 
-VV5 age 18 remains ON HOLD. The shared expanded transport has a complete static
-current-feature ledger of 66 rows: 23 payload-internal absolute, 36 cross-section
-`rel32`, and seven external absolute `.shr` pointers, including the 43
+VV5 age 18 remains ON HOLD. the expanded-256 relocation ledger has been REMOVED: its 66 rows existed only to relocate the payload for expanded-256, which is not a selectable patch mode and which no variant applies, while its hand-recorded byte snapshots blocked every legitimate payload edit.shr` pointers, including the 43
 previously omitted current-feature references. No helper availability, runtime,
 save, catch-up, or player safety is claimed from this diagnostic loop.
 

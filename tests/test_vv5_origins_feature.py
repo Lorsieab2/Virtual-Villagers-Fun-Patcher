@@ -109,53 +109,37 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             end = start + len(bytes.fromhex(item["before"]))
             self.assertTrue(end <= 0xDB000 or start >= 0xDC000)
 
-    def test_relocation_ledger_is_explicit_ida_evidence_not_a_raw_sweep(self) -> None:
-        relocation = self.feature["expanded_shr_relocations"]
-        evidence = relocation["evidence"]
-        self.assertIn("IDA Pro 9.4 decoded instruction heads and operands", evidence["method"])
-        self.assertIn("raw byte patterns are discovery-only", evidence["method"])
-        self.assertNotIn("for payload_offset in range(len(payload) - 3)", self.source)
-        self.assertEqual(evidence["payload_internal_absolute_sites"], 23)
-        self.assertEqual(evidence["cross_section_rel32_sites"], 36)
-        self.assertEqual(evidence["external_absolute_sites"], 7)
-        self.assertEqual(evidence["complete_current_feature_relocation_sites"], 43)
-        self.assertEqual(len(relocation["patches"]), 66)
-        self.assertEqual(
-            sum(item.get("kind", "absolute") == "rel32" for item in relocation["patches"]),
-            36,
-        )
-        self.assertEqual(
-            sum(
-                item.get("kind", "absolute") == "absolute"
-                and "external" in item.get("purpose", "")
-                for item in relocation["patches"]
-            ),
-            7,
-        )
+    def test_no_expanded_relocation_ledger_is_emitted(self) -> None:
+        """The 66-row IDA ledger is removed.
 
-    def test_stock_mode_is_noop_and_expanded_native_overrides_are_guarded(self) -> None:
+        Every row existed to relocate the payload for expanded-256, which is
+        not a selectable patch mode and which no variant applies, so the rows
+        could never run -- while their hand-recorded byte snapshots aborted the
+        build on any legitimate payload edit.
+
+        The "discovery-only" rule it enforced still holds and is kept: sites
+        must never be found by sweeping raw payload bytes.
+        """
         relocation = self.feature["expanded_shr_relocations"]
+        self.assertEqual(relocation["patches"], [])
+        self.assertIn("not emitted", relocation["status"])
+        self.assertNotIn("for payload_offset in range(len(payload) - 3)", self.source)
+        for gone in ("VV5_IDA_PAYLOAD_ABSOLUTE_RELOCATIONS",
+                     "VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS",
+                     "VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS"):
+            with self.subTest(symbol=gone):
+                self.assertNotIn(gone, self.source)
+    def test_expanded_modes_stay_unpublished_and_overrides_remain_declared(self) -> None:
+        """The expanded-mode guards that still mean something.
+
+        The relocation-row half of this check went with the ledger; the native
+        hook overrides are declared in patch_mode_overrides and still are.
+        """
         self.assertEqual(set(EXPANDED_PATCH_MODES), {
             "experimental_expanded_256",
             "experimental_expanded_256_progression",
         })
         self.assertFalse(EXPANDED_256_PUBLICATION_ENABLED)
-        self.assertEqual(
-            {
-                item["offset"]: item["before"]
-                for item in relocation["patches"]
-                if int(item["offset"], 0) in {0x1EB70, 0x237B1}
-            },
-            {"0x1EB70": "8C3F3900", "0x237B1": "4BF23800"},
-        )
-        self.assertEqual(
-            {
-                item["offset"]: item["expanded_skip_before"]
-                for item in relocation["patches"]
-                if item.get("expanded_skip_before")
-            },
-            {"0x1EB70": "F67E3456", "0x237B1": "8B742408"},
-        )
         for mode in EXPANDED_PATCH_MODES:
             self.assertIn(mode, self.feature["patch_mode_overrides"])
             self.assertEqual(
@@ -166,50 +150,11 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 {"0x237B0": "568B742408", "0x1EB6F": "85F67E3456"},
             )
 
-    def test_exact_vv5_cross_section_and_external_site_sets_are_frozen(self) -> None:
+    def test_the_removed_ledger_leaves_no_frozen_site_sets(self) -> None:
+        """The frozen rel32/external site sets went with the ledger."""
         relocation = self.feature["expanded_shr_relocations"]
-        delta = int(relocation["expanded_virtual_address"], 0) - int(
-            relocation["stock_virtual_address"], 0
-        )
-        rel32 = {
-            item["offset"]
-            for item in relocation["patches"]
-            if item.get("kind", "absolute") == "rel32"
-        }
-        expected_rel32 = {
-            "0x18910", "0x1EB70", "0x237B1", "0x40A25", "0x4AF13", "0x4BC21", "0x94FBF",
-            "0xDB01C", "0xDB021", "0xDB043", "0xDB055", "0xDB06C", "0xDB08E", "0xDB096",
-            "0xDB0E1", "0xDB103", "0xDB115", "0xDB12C", "0xDB14E", "0xDB156", "0xDB1A4",
-            "0xDB272", "0xDB283", "0xDB292", "0xDB38D", "0xDB3C3", "0xDB3ED", "0xDB415",
-            "0xDB437", "0xDB45A", "0xDB462", "0xDB46C", "0xDB7AC", "0xDBA3B", "0xDBB22", "0xDBB27",
-        }
-        self.assertEqual(rel32, expected_rel32)
-        self.assertIn(
-            "if PAYLOAD_VA <= target_stock_va < PAYLOAD_VA + PAYLOAD_SIZE",
-            self.source,
-        )
-        external_absolute = {
-            item["offset"]
-            for item in relocation["patches"]
-            if item.get("kind", "absolute") == "absolute"
-            and 0x94000 <= int(item["offset"], 0) < 0x95000
-        }
-        self.assertEqual(
-            external_absolute,
-            {"0x94B80", "0x94B85", "0x94B94", "0x94ED1", "0x94ED6", "0x94EE5", "0x94FBA"},
-        )
-        for item in relocation["patches"]:
-            self.assertEqual(len(bytes.fromhex(item["before"])), 4)
-            if item.get("kind", "absolute") == "rel32":
-                source = int(item["source_expanded_virtual_address"], 0)
-                target = int(item["target_expanded_virtual_address"], 0)
-                expected = (target - (source + 5)).to_bytes(4, "little", signed=True)
-                self.assertNotEqual(expected.hex().upper(), item["before"])
-            else:
-                old = int.from_bytes(bytes.fromhex(item["before"]), "little")
-                declared = item.get("target_expanded_virtual_address")
-                new = int(declared, 0) if declared is not None else old + delta
-                self.assertNotEqual(old, new)
+        self.assertEqual(relocation["patches"], [])
+        self.assertNotIn("evidence", relocation)
 
     def test_time_warp_is_exactly_three_displayed_years(self) -> None:
         self.assertIn("mov eax, 129600", self.source)
@@ -615,7 +560,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "B805995D1BA904EBDA6CCFFCDD2FCA4487FB13E7288AFB6DA42F3B84553C846C",
+            "7CDCB311373592A13563E88624F3549EFFDEFE7BB867FD80306D273354D9E325",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
