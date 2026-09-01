@@ -483,7 +483,7 @@ beyond a normal Python install.
 | --- | --- |
 | Windows | The five games are 32-bit Windows executables and the patcher writes Windows PE files. `Launch Virtual Villagers Fun Patcher.bat` is a Windows batch file. |
 | Python 3.10 or newer | Download from [python.org](https://www.python.org/downloads/). During setup keep **tcl/tk and IDLE** ticked, which is the default: the patcher's window is built with `tkinter`. |
-| No extra packages | The patcher uses only the Python standard library. There is nothing to `pip install`, and no internet connection is needed to patch. |
+| No extra packages | The patcher uses only the Python standard library. There is nothing to `pip install`, and no internet connection is needed to patch. The **Check for Updates** link is the one feature that reaches the internet, and it is entirely optional: if you are offline it says so and everything else still works. |
 | An original game | The free downloads from [ldw.com](https://ldw.com), installed normally. Only those builds are supported. |
 | Free disk space | The patcher copies each game whole rather than editing your original, so each modded copy needs about as much space as the game folder itself: roughly 25-85 MB per game, or about 300 MB for all five. |
 
@@ -494,6 +494,12 @@ and reports that Python was not found, install Python and try again.
 Your original game is never modified. Every patch is written into a separate
 `(Game name) - Modded` folder, so you can delete that folder at any time and
 keep playing the original.
+
+The bottom of the window shows which build you are running, next to a **Check
+for Updates** link. Clicking it asks GitHub for the newest published release
+and tells you whether you are up to date, offering to open the releases page
+if there is something newer. Prereleases are ahead of the newest published
+release, so a testing build reports that it is newer rather than out of date.
 
 ## Use
 
