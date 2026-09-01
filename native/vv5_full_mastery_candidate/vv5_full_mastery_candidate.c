@@ -56,7 +56,14 @@ static INT_PTR CALLBACK upgrade_dialog(
         }
         for (row = 0; row < row_count; ++row) {
             if ((lparam & (1 << row)) != 0) {
-                ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
+                /* Only the two Doublers may ever show a green check, and only
+                   while they are owned in the current save. Every other row --
+                   including the Details menu's already-satisfied rows, whose
+                   state bits 0-3 the callers deliberately set -- keeps its
+                   badge hidden and conveys state through the button instead. */
+                if (!villager_menu && (row == 3 || row == 4)) {
+                    ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
+                }
                 if (villager_menu) {
                     EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
                 } else if (row == 3 || row == 4) {

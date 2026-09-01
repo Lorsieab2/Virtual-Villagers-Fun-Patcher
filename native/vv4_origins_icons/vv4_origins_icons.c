@@ -1174,14 +1174,28 @@ static INT_PTR CALLBACK upgrade_dialog(
                    The check-mark still flags an already-satisfied row. */
                 if ((lparam & (1 << row)) != 0
                     || (lparam & (1 << (8 + row))) != 0) {
-                    ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
+                    /* Only the two Doublers may ever show a green check, and only
+                   while they are owned in the current save. Every other row --
+                   including the Details menu's already-satisfied rows, whose
+                   state bits 0-3 the callers deliberately set -- keeps its
+                   badge hidden and conveys state through the button instead. */
+                    if (!villager_menu && (row == 3 || row == 4)) {
+                        ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
+                    }
                 }
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
             if ((lparam & (1 << row)) != 0) {
-                ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
+                /* Only the two Doublers may ever show a green check, and only
+                   while they are owned in the current save. Every other row --
+                   including the Details menu's already-satisfied rows, whose
+                   state bits 0-3 the callers deliberately set -- keeps its
+                   badge hidden and conveys state through the button instead. */
+                if (!villager_menu && (row == 3 || row == 4)) {
+                    ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
+                }
                 if (village_wide_buy && row >= 6) {
                     SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
                     EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
