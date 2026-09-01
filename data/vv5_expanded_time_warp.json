@@ -101,7 +101,7 @@
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "7A020016687D496D68430906BAF4CEA9E9EC006AA43A7BD822B3AA2DF0AF76C6"
+      "source_text_sha256": "2E4F1389BD2AD044BB5E223841C010D683104D22C47036282F6A6D82B159A096"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
