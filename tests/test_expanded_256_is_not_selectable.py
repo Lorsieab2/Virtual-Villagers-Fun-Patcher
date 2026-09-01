@@ -1,0 +1,108 @@
+"""Expanded-256 must never be a patch mode a player can pick.
+
+The expanded-256 population modes for VV3, VV4 and VV5 are dead: they crash and
+break the game.  They are already unreachable -- `data/builds.json` declares only
+`stock`, `collection_progression` and `immediate_fixed` -- and this locks that
+in so no future change can re-expose them.
+
+The constants still exist in the patcher because live features
+(`collection_progression` and `immediate_fixed`) share guard scaffolding with
+them, so deleting the constants outright is not safe today.  What matters for a
+player is that no expanded mode is ever offered, which is what this file proves:
+
+  - the declared patch-mode list contains no expanded mode;
+  - every game's per-mode variants offer no expanded mode;
+  - nothing a player selects resolves to one.
+
+See docs/expanded-256-is-not-selectable.md for why the remaining internal
+scaffolding is left in place.
+"""
+from __future__ import annotations
+
+import json
+import sys
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))
+
+import vv_fun_patcher as patcher  # noqa: E402
+
+BUILDS = ROOT / "data" / "builds.json"
+EXPANDED_MARKERS = ("expanded_256", "expanded-256")
+
+
+def _is_expanded(name: str) -> bool:
+    lowered = str(name).lower()
+    return any(marker in lowered for marker in EXPANDED_MARKERS)
+
+
+class ExpandedModeIsNotSelectableTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.data = json.loads(BUILDS.read_text(encoding="utf-8"))
+
+    def test_the_constant_still_names_the_dead_modes(self) -> None:
+        """Guards the rest of this file against passing vacuously.
+
+        If the expanded constants are ever genuinely removed, these tests would
+        otherwise start proving nothing.
+        """
+        expanded = getattr(patcher, "EXPANDED_PATCH_MODES", None)
+        self.assertTrue(
+            expanded,
+            "EXPANDED_PATCH_MODES is gone; if the scaffolding was removed for "
+            "real, delete this file rather than letting it pass vacuously",
+        )
+        for mode in expanded:
+            self.assertTrue(_is_expanded(mode))
+
+    def test_no_expanded_mode_is_declared_as_a_patch_mode(self) -> None:
+        declared = []
+        for entry in self.data.get("patch_modes", []):
+            declared.append(entry.get("id") if isinstance(entry, dict) else entry)
+        self.assertTrue(declared, "no patch modes are declared at all")
+        for mode in declared:
+            with self.subTest(mode=mode):
+                self.assertFalse(
+                    _is_expanded(mode),
+                    f"{mode} is selectable; the expanded-256 modes crash VV3, "
+                    f"VV4 and VV5 and must never be offered",
+                )
+
+    def test_the_declared_modes_are_exactly_the_three_safe_ones(self) -> None:
+        declared = [
+            entry.get("id") if isinstance(entry, dict) else entry
+            for entry in self.data.get("patch_modes", [])
+        ]
+        self.assertEqual(
+            sorted(declared),
+            ["collection_progression", "immediate_fixed", "stock"],
+        )
+
+    def test_no_game_offers_an_expanded_variant(self) -> None:
+        for build in patcher.load_builds():
+            variants = getattr(build, "patch_variants", None) or {}
+            for mode in variants:
+                with self.subTest(game=build.id, mode=mode):
+                    self.assertFalse(
+                        _is_expanded(mode),
+                        f"{build.id} exposes {mode}",
+                    )
+
+    def test_expanded_modes_are_disjoint_from_the_declared_modes(self) -> None:
+        declared = {
+            entry.get("id") if isinstance(entry, dict) else entry
+            for entry in self.data.get("patch_modes", [])
+        }
+        self.assertEqual(
+            declared & set(patcher.EXPANDED_PATCH_MODES),
+            set(),
+            "a dead expanded mode has been declared as a real patch mode",
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
