@@ -876,13 +876,17 @@ enum {
    Villager Upgrades row already charges through), not here: this dialog
    only ever previews and either keeps or reverts the head/body fields.
 
-   valid_count is not a fixed 20 for both fields: the villager-creation
-   code assigns head and body their random starting value from RNG(19)
-   for male villagers and RNG(20) for everyone else (confirmed by
-   decompiling the exact-build initializer), so male villagers only have
-   19 valid values (0-18) for both fields, not 20 -- cycling through 19
-   for a male villager would write a value the stock renderer was never
-   given a sprite for. */
+   valid_count is a fixed 20 for both fields and both sexes, because that is
+   how many options the ART holds: VV1's head atlases are 280x1300, twenty 65px
+   rows, and each sex has four 640x650 body sheets -- 400 cells of 64x65 at 20
+   animation frames, so twenty bodies.
+
+   Villager creation rolls RNG(19) for males and RNG(20) for everyone else, so
+   the engine never ASSIGNS male index 19. That is a property of creation, not
+   of the art: index 19 exists and the stock renderer draws it. Sizing the
+   picker to the RNG range is what used to cap males at 19, and it left a
+   golden child whose appearance had been changed with no way to cycle back to
+   gold. Do not reintroduce that cap. */
 static struct {
     unsigned char *villager;
     int original_head;
@@ -1281,9 +1285,14 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
    per-villager picker). */
 #define IDD_ORIGINS_APPEARANCE_ALL 204
 /* Per-gender head/body variant counts (same ranges the per-sex cyclers use). */
-#define VV_HEAD_COUNT_M 19
+/* Per-sex option counts, taken from the ART rather than from creation's RNG.
+   VV1's head atlases are 280x1300 -- twenty 65px rows -- and each sex has four
+   640x650 body sheets, 400 cells of 64x65 at 20 frames each, so twenty bodies.
+   Creation rolls only 19 for males, but head/body 19 exists and the chooser
+   must be able to reach it. */
+#define VV_HEAD_COUNT_M 20
 #define VV_HEAD_COUNT_F 20
-#define VV_BODY_COUNT_M 19
+#define VV_BODY_COUNT_M 20
 #define VV_BODY_COUNT_F 20
 
 /* Whole-village override selections (each has its own "Off"):
@@ -1460,17 +1469,17 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
         int id = LOWORD(wparam);
         switch (id) {
         /* male */
-        case 2101: forall_state.male_head = forall_cycle(forall_state.male_head, -1, 19); appearance_repaint(window, 2100); return TRUE;
-        case 2102: forall_state.male_head = forall_cycle(forall_state.male_head, +1, 19); appearance_repaint(window, 2100); return TRUE;
-        case 2111: forall_state.male_body = forall_cycle(forall_state.male_body, -1, 19); appearance_repaint(window, 2110); return TRUE;
-        case 2112: forall_state.male_body = forall_cycle(forall_state.male_body, +1, 19); appearance_repaint(window, 2110); return TRUE;
+        case 2101: forall_state.male_head = forall_cycle(forall_state.male_head, -1, VV_HEAD_COUNT_M); appearance_repaint(window, 2100); return TRUE;
+        case 2102: forall_state.male_head = forall_cycle(forall_state.male_head, +1, VV_HEAD_COUNT_M); appearance_repaint(window, 2100); return TRUE;
+        case 2111: forall_state.male_body = forall_cycle(forall_state.male_body, -1, VV_BODY_COUNT_M); appearance_repaint(window, 2110); return TRUE;
+        case 2112: forall_state.male_body = forall_cycle(forall_state.male_body, +1, VV_BODY_COUNT_M); appearance_repaint(window, 2110); return TRUE;
         case 2121: forall_state.male_mask = forall_cycle(forall_state.male_mask, -1, VV_MASK_COUNT); appearance_repaint(window, 2120); return TRUE;
         case 2122: forall_state.male_mask = forall_cycle(forall_state.male_mask, +1, VV_MASK_COUNT); appearance_repaint(window, 2120); return TRUE;
         /* female */
-        case 2201: forall_state.female_head = forall_cycle(forall_state.female_head, -1, 20); appearance_repaint(window, 2200); return TRUE;
-        case 2202: forall_state.female_head = forall_cycle(forall_state.female_head, +1, 20); appearance_repaint(window, 2200); return TRUE;
-        case 2211: forall_state.female_body = forall_cycle(forall_state.female_body, -1, 20); appearance_repaint(window, 2210); return TRUE;
-        case 2212: forall_state.female_body = forall_cycle(forall_state.female_body, +1, 20); appearance_repaint(window, 2210); return TRUE;
+        case 2201: forall_state.female_head = forall_cycle(forall_state.female_head, -1, VV_HEAD_COUNT_F); appearance_repaint(window, 2200); return TRUE;
+        case 2202: forall_state.female_head = forall_cycle(forall_state.female_head, +1, VV_HEAD_COUNT_F); appearance_repaint(window, 2200); return TRUE;
+        case 2211: forall_state.female_body = forall_cycle(forall_state.female_body, -1, VV_BODY_COUNT_F); appearance_repaint(window, 2210); return TRUE;
+        case 2212: forall_state.female_body = forall_cycle(forall_state.female_body, +1, VV_BODY_COUNT_F); appearance_repaint(window, 2210); return TRUE;
         case 2221: forall_state.female_mask = forall_cycle(forall_state.female_mask, -1, VV_MASK_COUNT); appearance_repaint(window, 2220); return TRUE;
         case 2222: forall_state.female_mask = forall_cycle(forall_state.female_mask, +1, VV_MASK_COUNT); appearance_repaint(window, 2220); return TRUE;
         case IDOK:

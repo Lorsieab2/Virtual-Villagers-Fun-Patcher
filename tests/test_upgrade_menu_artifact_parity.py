@@ -376,7 +376,7 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         self.assertEqual(vv5_companion["size"], 1753088)
         self.assertEqual(
             vv5_companion["sha256"],
-            "786C254B509878D516DE9DD9AD4EDAF63EB83F90AC2AD7E6D90EA830E99C8006",
+            "31EF5F8C1B3BA3D7018600B5ABFC308412EF7274A95C5DF064CE72035143AAA5",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:
