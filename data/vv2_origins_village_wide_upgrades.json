@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Tech, Details, and Village-Wide Upgrades",
-  "description": "Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded.",
+  "description": "Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded. KNOWN CRASH: a player reported that Time Warp and Food Point Doubler crash The Lost Children immediately after their success dialog. Both rows are unresolved -- avoid them until this is fixed. Every other row and every unrelated VV2 patch is unaffected.",
   "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
   "dependencies": [
     "vv2_enable_origins_exclusive_features"
