@@ -194,6 +194,13 @@ class App(tk.Tk):
         directly would leave the patcher looking hung for its whole duration.
         """
         wait = WaitWindow(self, "Please wait", message)
+        # The wait window's own close is disabled, but that does nothing for the
+        # ROOT window: while this pumps the event loop, closing the app from its
+        # title bar or the taskbar would run App._close, destroy every widget,
+        # and leave the worker running against a dead UI. Suppress the root's
+        # close handler for the duration and restore it afterwards.
+        previous_close = self.protocol("WM_DELETE_WINDOW")
+        self.protocol("WM_DELETE_WINDOW", lambda: None)
         outcome: dict = {}
 
         def run() -> None:
@@ -211,6 +218,7 @@ class App(tk.Tk):
             worker.join()
         finally:
             wait.close()
+            self.protocol("WM_DELETE_WINDOW", self._close)
         if "error" in outcome:
             raise outcome["error"]
         return outcome["value"]
@@ -790,7 +798,11 @@ class App(tk.Tk):
 
     def _validate_all(self) -> None:
         try:
-            validated = validate_all_sources(self._all_sources())
+            sources = self._all_sources()   # Tk read stays on the main thread
+            validated = self._run_with_wait(
+                "Please wait\u2026\n\nChecking all five original games.",
+                lambda: validate_all_sources(sources),
+            )
             self.status_var.set(
                 "All five exact stock builds validated. "
                 + self._selection_text()
@@ -807,11 +819,13 @@ class App(tk.Tk):
         try:
             source = self._source()
             build = identify(source)
-            result = dry_run(
-                source,
-                self._mode(),
-                self._selected_fun_patch_ids(build.id),
-                output_root=self._output_root(),
+            # Tk reads on the main thread; the worker gets plain values.
+            mode = self._mode()
+            fun_patch_ids = self._selected_fun_patch_ids(build.id)
+            output_root = self._output_root()
+            result = self._run_with_wait(
+                f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
+                lambda: dry_run(source, mode, fun_patch_ids, output_root=output_root),
             )
             self.status_var.set(
                 "Dry run passed. No files were written. Planned copied game folder:\n"
@@ -831,11 +845,13 @@ class App(tk.Tk):
 
     def _dry_run_all(self) -> None:
         try:
-            results = dry_run_all(
-                self._all_sources(),
-                self._mode(),
-                self._selected_fun_patch_ids(),
-                output_root=self._output_root(),
+            sources = self._all_sources()
+            mode = self._mode()
+            fun_patch_ids = self._selected_fun_patch_ids()
+            output_root = self._output_root()
+            results = self._run_with_wait(
+                "Please wait\u2026\n\nPreparing the patches for all five games.",
+                lambda: dry_run_all(sources, mode, fun_patch_ids, output_root=output_root),
             )
             self.status_var.set(
                 "All-five dry run passed. No files were written. "

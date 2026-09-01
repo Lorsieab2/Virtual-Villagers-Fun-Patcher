@@ -67,6 +67,12 @@ APP = next(
 )
 
 
+# Every App handler that makes a blocking call. Covering only the two Apply
+# handlers left Validate and Dry Run synchronous, so those buttons still froze
+# the window -- they call the same blocking functions.
+HANDLERS = ("_apply", "_apply_all", "_dry_run", "_dry_run_all", "_validate_all")
+
+
 def _method(name: str) -> ast.FunctionDef:
     for node in APP.body:
         if isinstance(node, ast.FunctionDef) and node.name == name:
@@ -92,17 +98,23 @@ def _wait_lambdas(scope: ast.AST) -> list[ast.Lambda]:
 
 
 def _handler_body(name: str) -> str:
-    """Return the source of one App method, up to the next method."""
-    match = re.search(rf"\n    def {name}\(self\)[^\n]*:\n(.*?)(?=\n    def )", GUI_SOURCE, re.S)
-    assert match, f"{name} not found in the GUI source"
-    return match.group(1)
+    """Source of one App method.
+
+    Scoped to the App class through the AST: a regex over the whole file picked
+    up WaitWindow.__init__ instead of App.__init__ once the pattern was relaxed
+    to allow parameters, and silently tested the wrong function.
+    """
+    node = _method(name)
+    segment = ast.get_source_segment(GUI_SOURCE, node)
+    assert segment, f"App.{name} source not recoverable"
+    return segment
 
 
 class PleaseWaitSourceTests(unittest.TestCase):
     """These read source because the guarantee is structural, not runtime."""
 
     def test_the_blocking_calls_go_through_the_wait_window(self) -> None:
-        for handler in ("_apply", "_apply_all"):
+        for handler in HANDLERS:
             method = _method(handler)
             off_thread = {
                 id(node)
@@ -131,7 +143,7 @@ class PleaseWaitSourceTests(unittest.TestCase):
     def test_tk_variables_are_not_read_from_the_worker_thread(self) -> None:
         """The lambdas handed to _run_with_wait run off the main thread."""
         checked = 0
-        for handler in ("_apply", "_apply_all"):
+        for handler in HANDLERS:
             lambdas = _wait_lambdas(_method(handler))
             self.assertTrue(lambdas, f"{handler} runs nothing off the main thread")
             for lam in lambdas:
@@ -154,6 +166,26 @@ class PleaseWaitSourceTests(unittest.TestCase):
                             f"the resulting corruption is intermittent",
                         )
         self.assertGreaterEqual(checked, 4, "expected both handlers to defer several calls")
+
+    def test_the_root_close_is_suppressed_while_a_worker_runs(self) -> None:
+        """Disabling only the wait window's close is not enough.
+
+        While _run_with_wait pumps the event loop, closing the ROOT window from
+        its title bar or the taskbar would run App._close, destroy every widget,
+        and leave the worker running against a dead UI -- the completion path
+        would then update destroyed widgets instead of reporting the result.
+        """
+        body = _handler_body("_run_with_wait")
+        self.assertIn('self.protocol("WM_DELETE_WINDOW", lambda: None)', body)
+        self.assertIn('self.protocol("WM_DELETE_WINDOW", self._close)', body)
+        # The restore must be in the finally, so a raising worker cannot leave
+        # the application permanently unclosable.
+        finally_at = body.index("finally:")
+        self.assertGreater(
+            body.index('self.protocol("WM_DELETE_WINDOW", self._close)'),
+            finally_at,
+            "the close handler must be restored in the finally block",
+        )
 
     def test_the_startup_load_is_covered_too(self) -> None:
         """The window is invisible until _build_ui finishes, so cover that too."""
