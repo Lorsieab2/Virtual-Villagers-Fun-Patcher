@@ -39,6 +39,11 @@ PORTRAIT_SITES = (0x43741B, 0x4374A4, 0x437503, 0x437556)
 # and the audit docs must all agree with these two numbers.
 DETAILS_MASK_Y_NUDGE_PX = -15
 DETAILS_MASK_X_NUDGE_PX = 1
+# VV2 tunes its own portrait and pins BOTH axes before including the VV1
+# source: +3 seats its masks 3 px lower, and +4 is the horizontal registration
+# it was tuned to.
+VV2_DETAILS_MASK_Y_NUDGE_PX = 3
+VV2_DETAILS_MASK_X_NUDGE_PX = 4
 
 
 def _call_target(site: int, encoded: bytes) -> int:
@@ -169,10 +174,17 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
         # VV2 includes the VV1 source textually, so it must pin BOTH axes
         # before the include; otherwise VV1 retuning its own defaults silently
         # moves VV2's separately tuned portrait.
-        self.assertEqual(vv2.count("#define VV_DETAILS_MASK_Y_NUDGE_PX 0"), 1)
-        self.assertEqual(vv2.count("#define VV_DETAILS_MASK_X_NUDGE_PX 4"), 1)
+        self.assertEqual(
+            vv2.count(f"#define VV_DETAILS_MASK_Y_NUDGE_PX {VV2_DETAILS_MASK_Y_NUDGE_PX}"), 1
+        )
+        self.assertEqual(
+            vv2.count(f"#define VV_DETAILS_MASK_X_NUDGE_PX {VV2_DETAILS_MASK_X_NUDGE_PX}"), 1
+        )
         include = vv2.index('#include "../vv1_origins_icons/vv1_origins_icons.c"')
-        for macro in ("VV_DETAILS_MASK_Y_NUDGE_PX 0", "VV_DETAILS_MASK_X_NUDGE_PX 4"):
+        for macro in (
+            f"VV_DETAILS_MASK_Y_NUDGE_PX {VV2_DETAILS_MASK_Y_NUDGE_PX}",
+            f"VV_DETAILS_MASK_X_NUDGE_PX {VV2_DETAILS_MASK_X_NUDGE_PX}",
+        ):
             with self.subTest(macro=macro):
                 self.assertLess(
                     vv2.index(f"#define {macro}"), include,

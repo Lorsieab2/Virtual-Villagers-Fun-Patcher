@@ -65,11 +65,15 @@ class VV3MaskRenderingRepairTests(unittest.TestCase):
             self.assertEqual(target.read_bytes(), b"keep existing deployed copy")
 
     def test_details_uses_current_full_cell_lift(self) -> None:
+        # The scale-aware lift must survive; the player-tuned nudge is applied
+        # ON TOP of it rather than replacing it, so child/adult registration
+        # still tracks the live portrait scale.
         self.assertIn("#define VV3_MASK_LIFT_MUL 18", self.native)
         self.assertIn(
-            "ymask   = args[2] - ((scaledY * VV3_MASK_LIFT_MUL) >> 7);",
+            "ymask   = args[2] - ((scaledY * VV3_MASK_LIFT_MUL) >> 7)",
             self.native,
         )
+        self.assertIn("+ VV3_DETAILS_MASK_Y_NUDGE_PX;", self.native)
         self.assertIn("200*18>>7 == 28", self.audit)
 
     def test_world_path_uses_the_true_head_callsite_and_six_arguments(self) -> None:

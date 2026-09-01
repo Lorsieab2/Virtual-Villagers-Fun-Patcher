@@ -1114,6 +1114,14 @@ __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask)
                                          34 (200*18>>7 = 28; 200*34>>7 = 53).  Visual
                                          placement remains pending player acceptance. */
 #define VV3_MASK_DRAW_FN  0x004093A0u
+/* Player-tuned Details registration, on the same pattern VV1 and VV2 use, so
+   all three games expose one reviewable number per axis.  Screen X grows
+   rightward and screen Y grows downward, so a negative value seats the mask
+   further left and higher on the portrait.  The X value carries the earlier
+   art-registration correction (-8) plus a further 3 px left; the Y nudge is
+   applied on top of the scale-aware lift so the lift stays scale-correct. */
+#define VV3_DETAILS_MASK_X_NUDGE_PX (-11)
+#define VV3_DETAILS_MASK_Y_NUDGE_PX (-5)
 
 __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
     void *record, void *sprite_obj, const int *args)
@@ -1128,16 +1136,16 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
     if (atlas == NULL) {
         return;
     }
-    /* The VV2 portrait registration is face-centered; VV3's mask atlas has an
-       eight-pixel rightward art registration at this scaled head tuple.  Keep
-       the authoritative head x and apply only this visual correction.  (Was 5;
-       the mask still sat right of the face, so it moves a further 3 px left.) */
-    x       = args[1] - 8;
+    /* The VV2 portrait registration is face-centered; VV3's mask atlas has a
+       rightward art registration at this scaled head tuple.  Keep the
+       authoritative head x and apply only the reviewed visual correction. */
+    x       = args[1] + VV3_DETAILS_MASK_X_NUDGE_PX;
     frame   = args[4];
     scaledY = args[5];
     flag    = args[6];
     row     = mask - 1;
-    ymask   = args[2] - ((scaledY * VV3_MASK_LIFT_MUL) >> 7);
+    ymask   = args[2] - ((scaledY * VV3_MASK_LIFT_MUL) >> 7)
+              + VV3_DETAILS_MASK_Y_NUDGE_PX;
     draw_this = *(void **)sprite_obj;   /* the game's own "mov ecx,[ecx]" deref */
     __asm {
         push flag
