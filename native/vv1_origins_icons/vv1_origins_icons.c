@@ -1786,6 +1786,17 @@ __declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(
    has already charged for it), so this never needs its own "nothing
    happened" branch -- that message is a plain string shown directly by
    the helper without ever resolving this export. */
+/* Counted results must read correctly at one. VV3 and VV5 already do this;
+   these three hardcoded the plural, so a single cured villager produced
+   "Cured sickness from 1 villagers." */
+static const char *vv_villagers_word(int n) { return n == 1 ? "villager" : "villagers"; }
+
+/* Capitalised forms for the Equal Division results. The possessive moves the
+   apostrophe rather than just adding an "s", so it needs its own helper. */
+static const char *vv_villagers_word_uc(int n) { return n == 1 ? "Villager" : "Villagers"; }
+static const char *vv_villagers_possessive(int n) { return n == 1 ? "Villager's" : "Villagers'"; }
+
+
 __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     int sick_cured,
     int healed_restored
@@ -1793,9 +1804,11 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     char message[128];
     wsprintfA(
         message,
-        "Cured sickness from %d villagers.\r\n\r\nRestored %d villagers to full health.",
+        "Cured sickness from %d %s.\r\n\r\nRestored %d %s to full health.",
         sick_cured,
-        healed_restored
+        vv_villagers_word(sick_cured),
+        healed_restored,
+        vv_villagers_word(healed_restored)
     );
     MessageBoxA(
         GetForegroundWindow(),

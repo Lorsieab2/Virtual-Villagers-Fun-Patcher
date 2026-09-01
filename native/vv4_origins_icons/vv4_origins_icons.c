@@ -1965,6 +1965,12 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
    restored to full health. Shows the exact two-line result, or -- when both
    are zero -- the all-healthy notice, and returns 1 when anything was done /
    0 when nothing was so the caller can refund the charge. */
+/* Counted results must read correctly at one. VV3 and VV5 already do this;
+   VV4 hardcoded the plural, so a single cured villager produced
+   "Cured sickness from 1 villagers." This file does not include the VV1
+   source, so it carries its own copy. */
+static const char *vv_villagers_word(int n) { return n == 1 ? "villager" : "villagers"; }
+
 __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     int sickness_cleared,
     int health_restored
@@ -1982,10 +1988,12 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     }
     wsprintfA(
         text,
-        "Cured sickness from %d villagers.\r\n\r\n"
-        "Restored %d villagers to full health.",
+        "Cured sickness from %d %s.\r\n\r\n"
+        "Restored %d %s to full health.",
         sickness_cleared,
-        health_restored
+        vv_villagers_word(sickness_cleared),
+        health_restored,
+        vv_villagers_word(health_restored)
     );
     MessageBoxA(GetForegroundWindow(), text, "Origins Upgrades",
                 MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
@@ -2540,23 +2548,27 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult20(
     if (command != 6) {
         return 0;
     }
-    wsprintfA(message, "Granted Running to %u villagers", granted);
+    wsprintfA(message, "Granted Running to %u %s", granted,
+              vv_villagers_word(granted));
     wsprintfA(
         line,
-        "\r\nSkipped over %u villagers. Reason: already likes running",
-        already_like
+        "\r\nSkipped over %u %s. Reason: already likes running",
+        already_like,
+        vv_villagers_word(already_like)
     );
     lstrcatA(message, line);
     wsprintfA(
         line,
-        "\r\nSkipped over %u villagers. Reason: all like slots are occupied",
-        full_like
+        "\r\nSkipped over %u %s. Reason: all like slots are occupied",
+        full_like,
+        vv_villagers_word(full_like)
     );
     lstrcatA(message, line);
     wsprintfA(
         line,
-        "\r\nRemoved running dislike from %u villagers",
-        removed_dislike
+        "\r\nRemoved running dislike from %u %s",
+        removed_dislike,
+        vv_villagers_word(removed_dislike)
     );
     lstrcatA(message, line);
     MessageBoxA(

@@ -1946,7 +1946,7 @@ __declspec(dllexport) int __stdcall ShowOriginsFullMasteryResult(
             "No tech points have been deducted."
         );
     } else {
-        wsprintfA(message, "Fully mastered %u villagers.", changed);
+        wsprintfA(message, "Fully mastered %u %s.", changed, villagers_word(changed));
     }
     MessageBoxA(
         GetForegroundWindow(),

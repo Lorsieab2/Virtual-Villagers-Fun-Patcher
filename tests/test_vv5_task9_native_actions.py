@@ -445,7 +445,11 @@ class Task9ArtifactTests(unittest.TestCase):
         # GetForegroundWindow() fullscreen-drop fallback.
         self.assertIn("HWND owner = GetOriginsOwner();", native)
         self.assertNotIn("GetForegroundWindow(), message", native)
-        self.assertIn("Set %u Villagers' Job Preferences.", native)
+        # The count is now pluralised, so the noun is a %s the helper fills
+        # in ("Set 1 Villager's ..." against "Set 4 Villagers' ..."). Pin the
+        # invariant part plus the chooser rather than the old fixed literal.
+        self.assertIn("Set %u %s Job Preferences.", native)
+        self.assertIn("vpl_pos", native)
         # The two native routines and the DLL-call helper exist only in the stock
         # layout; the expanded-256 baseline page stays byte-identical.
         _, stock_map = builder.build_page(0x7C9000)

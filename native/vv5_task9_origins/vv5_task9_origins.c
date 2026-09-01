@@ -934,6 +934,12 @@ static const char *action_cost(unsigned int action) {
 static const char *vpl(unsigned int n) { return n == 1 ? "Villager" : "Villagers"; }
 static const char *vpl_lc(unsigned int n) { return n == 1 ? "villager" : "villagers"; }
 
+/* Capitalised forms for the Equal Division results. The possessive moves the
+   apostrophe rather than just adding an "s", so it needs its own helper. */
+static const char *vpl_uc(unsigned int n) { return n == 1 ? "Villager" : "Villagers"; }
+static const char *vpl_pos(unsigned int n) { return n == 1 ? "Villager's" : "Villagers'"; }
+
+
 /* ---- Equal Division of Labor (VV5) -------------------------------------------
    Split every eligible Believer's job-preference checkmark round-robin so the
    population is spread evenly across the professions. Record fields (base +
@@ -1022,11 +1028,13 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
         );
         return 0;
     }
-    wsprintfA(message, "Set %u Villagers' Job Preferences.", (unsigned int)total);
+    wsprintfA(message, "Set %u %s Job Preferences.", (unsigned int)total,
+              vpl_pos((unsigned int)total));
     for (p = 0; p < professions; ++p) {
-        wsprintfA(line, "\r\n\r\n%s: %u Villagers (%u Male, %u Female).",
+        wsprintfA(line, "\r\n\r\n%s: %u %s (%u Male, %u Female).",
                   pro_name[p],
                   (unsigned int)(male_count[p] + female_count[p]),
+                  vpl_uc((unsigned int)(male_count[p] + female_count[p])),
                   (unsigned int)male_count[p], (unsigned int)female_count[p]);
         lstrcatA(message, line);
     }
