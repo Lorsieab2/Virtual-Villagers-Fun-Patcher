@@ -1,161 +1,188 @@
-"""Every game's appearance chooser must offer all the options that game has.
+"""Every appearance chooser must offer all the options that game's ART holds.
 
-The counts are not a shared constant and must not be "harmonised": each game
-hands out its own range at villager creation, and the choosers have to match
-whichever range their game actually uses.
+The authoritative counts, per sex:
 
-  * VV2 creates bodies with `rand(30)` -> 30 options
-  * VV3 creates bodies with `rand(30)` -> 30 options
-  * VV4 creates bodies with `rand(29)` -> 29 options
-  * VV5 creates bodies with `rand(29)` -> 29 options
+    game   heads   bodies
+    VV1      20      20
+    VV2      30      30
+    VV3      30      30
+    VV4      30      30
+    VV5      30      30
 
-VV3 shipped 29 and so could never reach body 29, an index its own creation code
-assigns. It was tempting to read VV4/VV5's 29 as the "right" number and leave
-VV3 alone; the stock binaries say otherwise, which is why this test derives the
-range from each executable instead of restating a number here.
+CREATION RNG IS NOT THE CRITERION, and an earlier version of this file used it,
+which is exactly how options stayed hidden. The engine only ever hands out a
+SUBSET of the art it ships:
 
-Head counts come from the atlases -- `male_heads`/`female_heads` are 1950px tall
-in 65px rows, i.e. 30 -- and VV1 is the exception on both axes, using per-sex
-RNG ranges of 19 (male) and 20 (female).
+  * VV4 and VV5 roll `rand(29)` into the body field, so body 29 is never
+    assigned at creation -- but the art holds thirty bodies and the chooser has
+    to reach all of them.
+  * VV1 rolls 19 for males and 20 for females, so male index 19 is never
+    assigned -- but it exists.
+
+Sizing a chooser to the RNG range therefore *looks* well-sourced and silently
+drops the last option. Size it to the art.
+
+The art is unambiguous. Head atlases are 65px rows: VV1's are 280x1300 (20 rows)
+and the rest are 1950px tall (30). Body sheets are 640x650 grids of 64x65, i.e.
+100 cells each, at 20 animation frames per body: VV1 ships four sheets per sex
+(400 cells -> 20 bodies) and the rest ship six (600 -> 30).
 """
 from __future__ import annotations
 
+import os
 import re
-import struct
 import unittest
 from pathlib import Path
 
-from capstone import Cs, CS_ARCH_X86, CS_MODE_32
-
 ROOT = Path(__file__).resolve().parents[1]
-STOCK = ROOT / "research" / "stock-executables"
 
-# game -> (exe, body record offset, source file, count macro)
-GAMES = {
-    "vv2": (
-        "Virtual Villagers - The Lost Children.exe", 0x54C,
-        "native/vv2_origins_icons/vv2_origins_icons.c", "VV2_APPEARANCE_COUNT",
-    ),
-    "vv3": (
-        "Virtual Villagers - The Secret City.exe", 0xDF4,
-        "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c", "VV3_BODY_COUNT",
-    ),
-    "vv4": (
-        "Virtual Villagers - The Tree of Life.exe", 0x1BBC,
-        "native/vv4_origins_icons/vv4_origins_icons.c", "VV_BODY_COUNT",
-    ),
-    "vv5": (
-        "Virtual Villagers - New Believers.exe", 0x1BBC,
-        "native/vv5_task9_origins/vv5_task9_origins.c", "APPEARANCE_BODY_COUNT",
-    ),
+# Optional: the read-only vanilla installs, used to re-derive the table below.
+VANILLA = Path(
+    os.environ.get(
+        "VVFP_VANILLA_GAMES",
+        r"C:\Users\Owner\Downloads\Read-Only Vanilla LDW Games",
+    )
+)
+INSTALL_NAME = {
+    "vv1": "Virtual Villagers - A New Home",
+    "vv2": "Virtual Villagers - The Lost Children",
+    "vv3": "Virtual Villagers - The Secret City",
+    "vv4": "Virtual Villagers - The Tree of Life",
+    "vv5": "Virtual Villagers - New Believers",
 }
 
-# What each game's creation code actually rolls. Asserted against the binary
-# below, so a wrong entry here fails rather than silently defining the answer.
-EXPECTED_CREATION_RANGE = {"vv2": 30, "vv3": 30, "vv4": 29, "vv5": 29}
+HEAD_ROW_PX = 65
+BODY_CELLS_PER_SHEET = (640 // 64) * (650 // 65)   # 100
+BODY_ANIMATION_FRAMES = 20
+
+EXPECTED = {
+    "vv1": {"heads": 20, "bodies": 20},
+    "vv2": {"heads": 30, "bodies": 30},
+    "vv3": {"heads": 30, "bodies": 30},
+    "vv4": {"heads": 30, "bodies": 30},
+    "vv5": {"heads": 30, "bodies": 30},
+}
+
+# Where each game declares its counts. VV1 is per sex; VV2 uses one macro for
+# heads and bodies alike.
+DECLARED = {
+    "vv1": {
+        "source": "native/vv1_origins_icons/vv1_origins_icons.c",
+        "heads": ("VV_HEAD_COUNT_M", "VV_HEAD_COUNT_F"),
+        "bodies": ("VV_BODY_COUNT_M", "VV_BODY_COUNT_F"),
+    },
+    "vv2": {
+        "source": "native/vv2_origins_icons/vv2_origins_icons.c",
+        "heads": ("VV2_APPEARANCE_COUNT",),
+        "bodies": ("VV2_APPEARANCE_COUNT",),
+    },
+    "vv3": {
+        "source": "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
+        "heads": ("VV3_HEAD_COUNT",),
+        "bodies": ("VV3_BODY_COUNT",),
+    },
+    "vv4": {
+        "source": "native/vv4_origins_icons/vv4_origins_icons.c",
+        "heads": ("VV_HEAD_COUNT",),
+        "bodies": ("VV_BODY_COUNT",),
+    },
+    "vv5": {
+        "source": "native/vv5_task9_origins/vv5_task9_origins.c",
+        "heads": ("APPEARANCE_HEAD_COUNT",),
+        "bodies": ("APPEARANCE_BODY_COUNT",),
+    },
+}
 
 
-def _text(image: bytes):
-    pe = struct.unpack_from("<I", image, 0x3C)[0]
-    count = struct.unpack_from("<H", image, pe + 6)[0]
-    opt = struct.unpack_from("<H", image, pe + 20)[0]
-    base = struct.unpack_from("<I", image, pe + 24 + 28)[0]
-    for i in range(count):
-        off = pe + 24 + opt + i * 40
-        if image[off : off + 8].rstrip(b"\0") == b".text":
-            vsize, va, rsize, ptr = struct.unpack_from("<IIII", image, off + 8)
-            return base + va, ptr, rsize
-    raise AssertionError("no .text")
-
-
-def _creation_ranges(image: bytes, body_offset: int) -> set[int]:
-    """Immediates pushed to the RNG just before a store into the body field."""
-    text_va, ptr, size = _text(image)
-    md = Cs(CS_ARCH_X86, CS_MODE_32)
-    needle = struct.pack("<I", body_offset)
-    found: set[int] = set()
-    position = ptr - 1
-    while True:
-        position = image.find(needle, position + 1, ptr + size)
-        if position < 0:
-            return found
-        # Walk back to a real instruction boundary for the store itself.
-        for back in range(2, 9):
-            start = position - back
-            decoded = list(md.disasm(image[start : start + 12], text_va + (start - ptr)))
-            if not decoded:
-                continue
-            first = decoded[0]
-            if f"0x{body_offset:x}]" not in first.op_str or first.size < back + 4:
-                continue
-            if not (first.mnemonic == "mov" and first.op_str.endswith(", eax")):
-                break  # a read, not the creation store
-            # The RNG bound is the last `push imm8` in the preceding window.
-            window_start = max(ptr, start - 48)
-            pushes = [
-                ins for ins in md.disasm(
-                    image[window_start:start], text_va + (window_start - ptr))
-                if ins.mnemonic == "push" and ins.op_str.startswith("0x")
-            ]
-            if pushes:
-                try:
-                    found.add(int(pushes[-1].op_str, 16))
-                except ValueError:
-                    pass
-            break
+def _macro(source: str, name: str) -> int | None:
+    text = (ROOT / source).read_text(encoding="utf-8")
+    match = re.search(rf"^#define {re.escape(name)} (\d+)$", text, re.M)
+    return int(match.group(1)) if match else None
 
 
 class AppearanceOptionCountTests(unittest.TestCase):
-    def _declared(self, source: str, macro: str) -> int:
-        text = (ROOT / source).read_text(encoding="utf-8")
-        match = re.search(rf"^#define {re.escape(macro)} (\d+)$", text, re.M)
-        self.assertIsNotNone(match, f"{macro} not found in {source}")
-        return int(match.group(1))
+    """Reads committed sources, so it runs in a clean checkout."""
 
-    def test_the_binaries_roll_the_ranges_this_file_claims(self) -> None:
-        """Anti-vacuity: the expected table is checked against the exes."""
-        for game, (exe_name, body_offset, _src, _macro) in GAMES.items():
-            exe = STOCK / exe_name
-            if not exe.is_file():
-                self.skipTest(f"{exe_name} is not present")
-            with self.subTest(game=game):
-                ranges = _creation_ranges(exe.read_bytes(), body_offset)
-                self.assertIn(
-                    EXPECTED_CREATION_RANGE[game], ranges,
-                    f"{game} creation does not roll "
-                    f"rand({EXPECTED_CREATION_RANGE[game]}) into its body field; "
-                    f"observed pushes: {sorted(ranges)}",
-                )
+    def test_every_chooser_offers_every_option_the_art_holds(self) -> None:
+        for game, wanted in EXPECTED.items():
+            spec = DECLARED[game]
+            for kind in ("heads", "bodies"):
+                for macro in spec[kind]:
+                    with self.subTest(game=game, kind=kind, macro=macro):
+                        value = _macro(spec["source"], macro)
+                        self.assertIsNotNone(
+                            value, f"{macro} not found in {spec['source']}"
+                        )
+                        self.assertEqual(
+                            value, wanted[kind],
+                            f"{game} offers {value} {kind}; the art holds "
+                            f"{wanted[kind]}, so a player cannot reach every "
+                            f"appearance the game ships",
+                        )
 
-    def test_each_chooser_offers_its_own_game_s_full_body_range(self) -> None:
-        """Reads only committed sources, so it runs in a clean checkout.
-
-        This used to skip on the first absent stock executable, which aborted
-        the whole method and left the advertised cross-game guard checking
-        nothing wherever those untracked fixtures are missing. The binaries are
-        needed to VERIFY the expected ranges, which is a separate test.
-        """
-        for game, (_exe_name, _off, source, macro) in GAMES.items():
-            with self.subTest(game=game):
+    def test_both_sexes_get_the_same_number_of_options(self) -> None:
+        """VV1 is the only per-sex declaration, and both sexes are 20."""
+        spec = DECLARED["vv1"]
+        for kind in ("heads", "bodies"):
+            male, female = (_macro(spec["source"], m) for m in spec[kind])
+            with self.subTest(kind=kind):
                 self.assertEqual(
-                    self._declared(source, macro),
-                    EXPECTED_CREATION_RANGE[game],
-                    f"{game}'s chooser offers a different number of bodies than "
-                    f"the game itself assigns, so some villagers wear an "
-                    f"appearance the player cannot select",
+                    (male, female), (20, 20),
+                    "VV1's male count was 19 because creation rolls rand(19) "
+                    "for males; the art holds twenty and both sexes must be "
+                    "able to reach all of them",
                 )
 
-    def test_vv3_is_not_harmonised_with_vv4_and_vv5(self) -> None:
-        """The specific mistake this guards: making the three 'consistent'."""
-        vv3 = self._declared(*GAMES["vv3"][2:])
-        vv4 = self._declared(*GAMES["vv4"][2:])
-        self.assertEqual(vv3, 30)
-        self.assertEqual(vv4, 29)
-        self.assertNotEqual(
-            vv3, vv4,
-            "VV3 and VV4 genuinely differ -- rand(30) against rand(29) -- so "
-            "equalising them breaks one of the two",
-        )
+    @unittest.skipUnless(VANILLA.is_dir(), "vanilla game installs are not present")
+    def test_the_expected_table_is_re_derived_from_the_art(self) -> None:
+        """Anti-vacuity: the table above is checked against the real files."""
+        from PIL import Image
+
+        checked = 0
+        for game, wanted in EXPECTED.items():
+            images = VANILLA / INSTALL_NAME[game] / "Images"
+            if not images.is_dir():
+                continue
+            heads = sorted(images.glob("male_heads*.png"))
+            bodies = sorted(images.glob("male_bodies*.png"))
+            if not heads or not bodies:
+                continue
+            checked += 1
+            with self.subTest(game=game):
+                rows = Image.open(heads[0]).size[1] // HEAD_ROW_PX
+                self.assertEqual(
+                    rows, wanted["heads"],
+                    f"{game}: head atlas holds {rows} rows, table says "
+                    f"{wanted['heads']}",
+                )
+                cells = len(bodies) * BODY_CELLS_PER_SHEET
+                self.assertEqual(
+                    cells // BODY_ANIMATION_FRAMES, wanted["bodies"],
+                    f"{game}: {len(bodies)} body sheets give "
+                    f"{cells // BODY_ANIMATION_FRAMES} bodies, table says "
+                    f"{wanted['bodies']}",
+                )
+        self.assertGreaterEqual(checked, 5, "expected all five installs")
+
+    def test_creation_rng_is_not_used_as_the_criterion(self) -> None:
+        """The specific regression this file exists to prevent.
+
+        Each of these is a value some game's creation RNG rolls. If a chooser is
+        ever resized to one, the last option disappears again -- silently,
+        because the number looks well-sourced.
+        """
+        rng_subsets = {"vv1": 19, "vv4": 29, "vv5": 29}
+        for game, subset in rng_subsets.items():
+            spec = DECLARED[game]
+            for kind in ("heads", "bodies"):
+                for macro in spec[kind]:
+                    value = _macro(spec["source"], macro)
+                    with self.subTest(game=game, macro=macro):
+                        self.assertNotEqual(
+                            value, subset,
+                            f"{game}'s {macro} is {subset}, the creation RNG "
+                            f"range -- not the number of options in the art",
+                        )
 
 
 if __name__ == "__main__":

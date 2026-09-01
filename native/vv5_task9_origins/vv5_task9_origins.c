@@ -203,7 +203,7 @@ __declspec(dllexport) void __stdcall ReadMaskSidecar(unsigned char *table) {
 #define IDC_HEAD_PREV    3105
 #define IDC_HEAD_NEXT    3106
 #define APPEARANCE_HEAD_COUNT 30
-#define APPEARANCE_BODY_COUNT 29
+#define APPEARANCE_BODY_COUNT 30
 #define APPEARANCE_CELL_W 40
 #define APPEARANCE_CELL_H 65
 /* Cosmetic Heathen-mask overlay: a purely visual per-villager choice stored by

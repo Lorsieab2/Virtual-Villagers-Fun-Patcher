@@ -120,7 +120,7 @@ static ULONG_PTR gdiplus_token = 0;
 #define VV_HEAD_COUNT 30
 #endif
 #ifndef VV_BODY_COUNT
-#define VV_BODY_COUNT 29
+#define VV_BODY_COUNT 30
 #endif
 /* Cosmetic Heathen-mask overlay. Each villager's mask selection is held in the
    DLL-owned side-table below (never in a villager record); the render caves
