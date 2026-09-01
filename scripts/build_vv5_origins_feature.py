@@ -472,10 +472,10 @@ def main() -> None:
         native_safe_row:
             cmp ebx, 0
             jne barrel_check
-            cmp dword ptr [edi + 0x17D7C], 999
-            jne charge
-            mov eax, 0x{s['paused']:X}
-            jmp status
+            # Paused is no longer refused.  Every speed option must advance
+            # three villager years, and the normalisation above maps the
+            # paused sentinel 999 onto the normal-speed code.
+            jmp charge
         barrel_check:
             cmp ebx, 2
             jne charge
@@ -536,7 +536,19 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp done
         time_warp:
+            # Normalise the speed code to the three values VV5 actually
+            # assigns -- 3 (half), 6 (normal), 10 (double) -- before scaling,
+            # exactly as VV1-VV4 do.  Without it the idiv ran on the RAW
+            # field, so the paused sentinel 999 produced 129600/999 = 129
+            # seconds instead of a real advance, and any unexpected value
+            # produced an arbitrary one.  It also removes the divide-by-zero.
             mov ecx, dword ptr [edi + 0x17D7C]
+            cmp ecx, 3
+            je tw_scale
+            cmp ecx, 10
+            je tw_scale
+            mov ecx, 6
+        tw_scale:
             mov eax, 129600
             cdq
             idiv ecx
