@@ -956,6 +956,13 @@ static void appearance_draw_cell(HDC hdc, RECT rc, int is_head, int value, int c
     if (clear) {
         FillRect(hdc, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
     }
+    /* Every GDI+ user must start GDI+ itself.  ShowOriginsAppearancePicker
+       does it on entry, but "Change Appearance for All" is a separate dialog
+       that never goes through that path, so opening it first left
+       GdiplusStartup uncalled, every GdipCreateBitmapFromFile failing, and all
+       the Head and Body cells blank.  It is idempotent: it returns immediately
+       once the token exists. */
+    vv4_ensure_gdiplus();
     if (is_head) {
         col = VV_HEAD_FRAME_COL;
         row = value;
