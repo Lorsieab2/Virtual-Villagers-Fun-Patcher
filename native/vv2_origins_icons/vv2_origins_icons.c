@@ -9,6 +9,9 @@
 #define VV_LIKE_SLOT_COUNT 62
 #define VV_ALREADY_LIKES_TEXT "Already 62 likes."
 #define VV_DETAILS_MASK_Y_NUDGE_PX 0
+/* VV2 keeps the +4 horizontal registration it was tuned to.  VV1's default
+   moved to +1 and must not drag VV2's masks left with it. */
+#define VV_DETAILS_MASK_X_NUDGE_PX 4
 #include "../vv1_origins_icons/vv1_origins_icons.c"
 #include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
 #include <wincrypt.h> /* exact SHA-256 identity for the legacy mask atlas (link advapi32) */

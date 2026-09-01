@@ -184,10 +184,11 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   `0x437503`, `0x437556`) remain five-byte CALLs and route through one
   ABI-compatible wrapper at `0x490720`. It duplicates and replays the untouched seven
   native arguments, then changes only atlas/color row and the scale-aware mask lift.
-  VV1 applies `y = args[2] - (scale >> 3) - 10` for this Details-only overlay
-  (screen Y grows downward, so the trailing term lifts the mask 10 pixels);
-  the village renderer keeps its existing registration, and VV2 overrides the
-  shared-source nudge to zero before inclusion. It does not reconstruct X/Y
+  VV1 applies `y = args[2] - (scale >> 3) - 15` and `x = args[1] + 1` for this Details-only overlay
+  (screen Y grows downward, so the trailing term lifts the mask 15 pixels, and
+  the X term moves it one pixel right); the village renderer keeps its existing
+  registration. VV2 overrides BOTH nudges before inclusion -- Y to `0`, so its
+  Details masks are not lifted at all, and X to `+4`. It does not reconstruct X/Y
   from age buckets or facing from a global.
 - **Map/overview:** the village caller gate intentionally excludes UI/map clusters.
   No map compositor has yet been bound to a villager record and exact head tuple, so

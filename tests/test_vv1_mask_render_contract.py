@@ -32,11 +32,13 @@ PORTRAIT_WRAPPER_FILE_OFFSET = 0x8E720
 PORTRAIT_DLL_FN = 0x4911AC
 PORTRAIT_SITES = (0x43741B, 0x4374A4, 0x437503, 0x437556)
 
-# The reviewed VV1 Details-portrait nudge, in screen pixels, added after the
-# scale-aware cell lift. Screen Y grows downward, so a negative value seats the
-# mask higher on the portrait. The C source, the generator contract, the
-# manifest, and the audit docs must all agree with this one number.
-DETAILS_MASK_Y_NUDGE_PX = -10
+# The reviewed VV1 Details-portrait nudges, in screen pixels, applied to the
+# replayed head tuple. Screen Y grows downward, so a negative value seats the
+# mask higher on the portrait; screen X grows rightward, so a smaller value
+# seats it further left. The C source, the generator contract, the manifest,
+# and the audit docs must all agree with these two numbers.
+DETAILS_MASK_Y_NUDGE_PX = -15
+DETAILS_MASK_X_NUDGE_PX = 1
 
 
 def _call_target(site: int, encoded: bytes) -> int:
@@ -105,7 +107,7 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
     def test_native_overlay_uses_exact_tuple_not_fixed_portrait_reconstruction(self) -> None:
         for token in (
             f"#define VV_DETAILS_MASK_Y_NUDGE_PX ({DETAILS_MASK_Y_NUDGE_PX})",
-            "x = args[1] + 4;",
+            "x = args[1] + VV_DETAILS_MASK_X_NUDGE_PX;",
             "scale = args[5];",
             "y = args[2] - (scale >> 3) + VV_DETAILS_MASK_Y_NUDGE_PX;",
             "col = args[4];",
@@ -138,29 +140,47 @@ class VV1DetailsMaskRenderContractTests(unittest.TestCase):
         self.assertEqual(
             self.manifest["mask_persistence"]["details_mask_y_nudge_px"], nudge
         )
+
+        x_nudge = DETAILS_MASK_X_NUDGE_PX
+        self.assertIn(
+            f"#define VV_DETAILS_MASK_X_NUDGE_PX ({x_nudge})", self.source
+        )
+        self.assertIn(f"DETAILS_MASK_X_NUDGE_PX = {x_nudge}", self.generator)
+        self.assertEqual(
+            self.manifest["mask_persistence"]["details_mask_x_nudge_px"], x_nudge
+        )
         # Both audit docs must quote the same effective formula the source
         # compiles, so a retune cannot silently leave the docs describing the
         # previous registration.
         sign = "+" if nudge >= 0 else "-"
         formula = f"y = args[2] - (scale >> 3) {sign} {abs(nudge)}"
+        x_sign = "+" if x_nudge >= 0 else "-"
+        x_formula = f"x = args[1] {x_sign} {abs(x_nudge)}"
         for doc in ("vv1-mask-pickup-static-audit.md", "head-mask-rendering.md"):
             with self.subTest(doc=doc):
-                self.assertIn(
-                    formula, (ROOT / "docs" / doc).read_text(encoding="utf-8")
-                )
+                text = (ROOT / "docs" / doc).read_text(encoding="utf-8")
+                self.assertIn(formula, text)
+                self.assertIn(x_formula, text)
 
-    def test_vv2_overrides_the_shared_nudge_to_zero(self) -> None:
+    def test_vv2_overrides_both_shared_nudges(self) -> None:
         vv2 = (ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c").read_text(
             encoding="utf-8"
         )
-        # VV2 includes the VV1 source textually and defines the macro first, so
-        # VV1 retuning its own default cannot move VV2's aligned portrait.
-        self.assertIn(
-            "#define VV_DETAILS_MASK_Y_NUDGE_PX 0\n#include \"../vv1_origins_icons/vv1_origins_icons.c\"",
-            vv2,
-        )
-        self.assertEqual(self.source.count("VV_DETAILS_MASK_Y_NUDGE_PX"), 4)
+        # VV2 includes the VV1 source textually, so it must pin BOTH axes
+        # before the include; otherwise VV1 retuning its own defaults silently
+        # moves VV2's separately tuned portrait.
         self.assertEqual(vv2.count("#define VV_DETAILS_MASK_Y_NUDGE_PX 0"), 1)
+        self.assertEqual(vv2.count("#define VV_DETAILS_MASK_X_NUDGE_PX 4"), 1)
+        include = vv2.index('#include "../vv1_origins_icons/vv1_origins_icons.c"')
+        for macro in ("VV_DETAILS_MASK_Y_NUDGE_PX 0", "VV_DETAILS_MASK_X_NUDGE_PX 4"):
+            with self.subTest(macro=macro):
+                self.assertLess(
+                    vv2.index(f"#define {macro}"), include,
+                    f"{macro} must be defined before the include or VV1's "
+                    f"default wins",
+                )
+        self.assertEqual(self.source.count("VV_DETAILS_MASK_Y_NUDGE_PX"), 4)
+        self.assertEqual(self.source.count("VV_DETAILS_MASK_X_NUDGE_PX"), 4)
 
     @unittest.skipUnless(HAVE_CAPSTONE, "requires Capstone")
     def test_missing_portrait_export_is_cached_as_fail_open(self) -> None:

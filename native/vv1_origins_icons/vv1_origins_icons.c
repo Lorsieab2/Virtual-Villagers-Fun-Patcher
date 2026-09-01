@@ -418,15 +418,23 @@ static void vv1_mask_sidecar_load(void) {
    reconstruct it from screen constants or age. */
 #define VV_MASK_ATLAS_COLS   7   /* mask_atlas.png: 7 facing cols x 5 colour rows, 40x160 cells, matching the generator and VV1 head atlas */
 #ifndef VV_DETAILS_MASK_Y_NUDGE_PX
-#define VV_DETAILS_MASK_Y_NUDGE_PX (-10)
+#define VV_DETAILS_MASK_Y_NUDGE_PX (-15)
+#endif
+#ifndef VV_DETAILS_MASK_X_NUDGE_PX
+#define VV_DETAILS_MASK_X_NUDGE_PX (1)
 #endif
 /* Details uses a larger native scale than the village view.  One eighth of
    that live scale restores the player-tuned registration while following the
    native 160..198 child scale (20..24px). VV_DETAILS_MASK_Y_NUDGE_PX is then
    added to that registration in screen coordinates, where y grows DOWNWARD, so
-   a negative value seats the mask higher on the portrait; VV1 uses -10 (up 10
-   px). The VV2 wrapper includes this source textually but overrides the macro
-   to 0 to preserve VV2's already-aligned rendering. */
+   a negative value seats the mask higher on the portrait; VV1 uses -15 (up 15
+   px).  VV_DETAILS_MASK_X_NUDGE_PX shifts it horizontally, where x grows
+   RIGHTWARD, so a smaller value seats the mask further left; VV1 uses +1.
+
+   Both are per-game because the two games' portraits are registered
+   differently.  The VV2 wrapper includes this source textually and overrides
+   the pair to 0 and +4 to preserve VV2's already-tuned rendering -- changing a
+   default here must never silently move VV2's masks. */
 
 /* Engine functions are called directly by their fixed .text addresses (stable
    -- patches live in .shr caves and never move .text). The two engine calls
@@ -527,7 +535,7 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
     cell = mask - 1;   /* ROW = colour (0-based) */
     /* Match VV2's portrait registration: keep the live tuple and apply only
        the shared face-centering nudge. */
-    x = args[1] + 4;
+    x = args[1] + VV_DETAILS_MASK_X_NUDGE_PX;
     scale = args[5];
     y = args[2] - (scale >> 3) + VV_DETAILS_MASK_Y_NUDGE_PX;
     col = args[4];
