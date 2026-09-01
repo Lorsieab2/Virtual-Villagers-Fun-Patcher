@@ -23,6 +23,25 @@ VV2_EXE = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Los
 VV2_MANIFEST = ROOT / "data" / "vv2_origins_feature.json"
 ORIGINS_MANIFESTS = tuple(ROOT / "data" / f"vv{game}_origins_feature.json" for game in range(1, 6))
 
+
+def assert_purchasable(case: unittest.TestCase, label: str, text: str) -> None:
+    """A doubler purchase state must actually say available.
+
+    `assertIn("available", text)` is NOT enough: "temporarily unavailable"
+    contains "available", so the obvious check passes on the very regression it
+    is meant to catch -- the `or eax, 0x1800` hold that once blocked VV1/VV3/VV4
+    purchases and left this wording behind in the manifests.
+    """
+    lowered = text.lower()
+    for blocker in ("unavailable", "disabled", "temporarily", "on hold", "blocked"):
+        case.assertNotIn(
+            blocker, lowered,
+            f"{label} reads as held ({text!r}); if purchases really are gated, "
+            f"the README and docs must say so too rather than this quietly passing",
+        )
+    case.assertIn("available", lowered, f"{label} does not state availability: {text!r}")
+
+
 VV2_TECH_CALLS = (
     (0x4205A7, 0x4205AC), (0x43434C, 0x434351), (0x4385E1, 0x4385E6),
     (0x438741, 0x438746), (0x4388A1, 0x4388A6), (0x438A9B, 0x438AA0),
@@ -170,8 +189,14 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             self.assertIn(tier, evidence)
             self.assertIn(tier, contract)
             purchase = manifest["doubler_purchase_status"]
-            self.assertIn("available", purchase["new_purchase"])
-            self.assertIn("available", purchase["repurchase"])
+            if game == "5":
+                # VV5 states stock availability and the expanded-256 gate in
+                # one sentence; expanded-256 is not a public patcher mode.
+                self.assertIn("available in stock layout", purchase["new_purchase"])
+                self.assertIn("full-price repurchase", purchase["repurchase"])
+            else:
+                assert_purchasable(self, f"vv{game} new_purchase", purchase["new_purchase"])
+                assert_purchasable(self, f"vv{game} repurchase", purchase["repurchase"])
 
     def test_vv1_f6_documentation_matches_exact_manifest_behavior(self) -> None:
         patch = next(
@@ -207,8 +232,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         contract = manifest["doubler_composition_contract"]
         self.assertIn("confirmed absent", contract["food_mastery_status"])
         self.assertIn("GO", contract["status"])
-        self.assertIn("available", manifest["doubler_purchase_status"]["new_purchase"])
-        self.assertIn("available", manifest["doubler_purchase_status"]["repurchase"])
+        assert_purchasable(
+            self, "vv3 new_purchase", manifest["doubler_purchase_status"]["new_purchase"]
+        )
+        assert_purchasable(
+            self, "vv3 repurchase", manifest["doubler_purchase_status"]["repurchase"]
+        )
 
     def test_vv3_magic_level_one_composition_is_exact_and_still_on_hold(self) -> None:
         audit = AUDIT.read_text(encoding="utf-8")

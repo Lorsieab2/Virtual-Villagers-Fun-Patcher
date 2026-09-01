@@ -80,8 +80,16 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
         self.assertIn("static composition/readiness only", text)
         self.assertIn("does not prove player-visible\nruntime behavior", text)
         self.assertIn("never launches a game", text)
-        self.assertIn("VV1, VV3, and VV4 doubler new purchases and repurchases remain unavailable", text)
-        self.assertIn("VV5 stock-layout Tech and\nFood Doublers support purchase", text)
+        # The v1.34.14 hold was lifted; pin the corrected wording, and make
+        # sure the stale "unavailable" claim cannot come back.
+        self.assertIn(
+            "VV1, VV3, and VV4 doubler new purchases and repurchases are available",
+            text,
+        )
+        self.assertNotIn(
+            "doubler new purchases and repurchases remain unavailable", text
+        )
+        self.assertIn("VV5\nstock-layout Tech and Food Doublers support purchase", text)
         self.assertIn("expanded-256 modes, both writer hooks are restored to native", text)
         self.assertIn("66 rows: 23 payload-internal absolute, 36 cross-section", text)
         self.assertIn("all 43 previously omitted\ncurrent-feature references", text)

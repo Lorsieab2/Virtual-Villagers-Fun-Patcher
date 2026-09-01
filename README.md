@@ -380,20 +380,16 @@ change nothing says so and deducts no tech points.
 Both menus close with **Cancel** or the Esc key, and each shows
 `Press ESC to exit this menu.` once.
 
-### Which games can actually buy the Doublers
+### Buying the Doublers
 
-The Doubler rows are visible everywhere, but buying them is gated per build:
+Both Doublers are buyable in **all five games** at 500,000 tech points each. An
+owned one can be removed for zero cost with no refund, and bought again
+afterwards at full price.
 
-| Game | Buying a Doubler |
-|---|---|
-| A New Home | Unavailable -- purchase and repurchase are both held |
-| The Lost Children | See the crash warning below |
-| The Secret City | Unavailable -- purchase and repurchase are both held |
-| The Tree of Life | Unavailable -- purchase and repurchase are both held |
-| New Believers | Available: purchase, zero-cost Remove with no refund, and full-price repurchase |
-
-Where purchase is held, an already-owned Doubler can still be removed for zero
-cost with no refund.
+An earlier release briefly held new purchases in A New Home, The Secret City and
+The Tree of Life while their exact-build provenance was being checked. That hold
+was lifted in v1.34.14 -- the gate that set the rows "Unavailable" is gone, and
+those three games buy, remove and repurchase like the rest.
 
 ### The Secret City: Magic level and research points
 
@@ -411,13 +407,18 @@ Children immediately after the purchased/success dialog is displayed.** That
 records the observed trigger only; it does not establish whether the charge or
 the action persisted.
 
-The VV2 Origins patch and its dependent village-wide upgrade are still
-selectable for targeted static and playtest work, but they remain runtime and
-player validation pending. The crash audit also found `.shr` raw-offset versus
-virtual-address confusion in the VV2 builder that displaces helper and header
-references by `0x2000`; that is a hard re-enable blocker and not yet a complete
-explanation of the crash. Every unrelated VV2 patch remains available and is
-unaffected.
+Nothing is disabled because of it: the VV2 Origins patch and its dependent
+village-wide upgrade are selectable, and its Doublers buy, remove and
+repurchase like every other game's. What is still outstanding is **runtime
+confirmation** -- the report has not been reproduced or cleared in a playtest.
+
+The crash audit did find `.shr` raw-offset versus virtual-address confusion in
+the VV2 builder, displacing some helper and header references by `0x2000`. The
+isolated VV2 builder now corrects those runtime VAs, extends the `.shr` virtual
+size and execute flags, and maps the payload's `.rdata` tail as executable.
+Static render and regression checks pass. That is not yet proof the reported
+crash is gone -- only a playtest can establish that. Every unrelated VV2 patch
+is unaffected.
 
 ### Status
 
