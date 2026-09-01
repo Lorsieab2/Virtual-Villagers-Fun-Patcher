@@ -463,9 +463,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
             for mode, rows in feature.raw.get("patch_mode_overrides", {}).items():
                 for row in rows:
                     add(row, f"{feature.id}:{mode}")
-        expanded = json.loads((ROOT / "data" / "expanded_256.json").read_text(encoding="utf-8"))
-        for row in expanded["games"]["vv3"]["patches"]:
-            add(row, "automatic:expanded")
+        # expanded-256 rows are removed; nothing to collide with.
         for row in (
             patcher.VV3_EXPANDED_HEALER_ENDPOINT_REPAIR,
             *patcher.VV3_EXPANDED_CAPACITY_CORRECTIONS,

@@ -23,7 +23,6 @@ from vv_fun_patcher import (
 STOCK = ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe"
 MANIFEST = ROOT / "data/vv5_origins_feature.json"
 BUILDER = ROOT / "scripts/build_vv5_origins_feature.py"
-EXPANDED = ROOT / "data/expanded_256.json"
 COMPANION = ROOT / "assets/origins/VVFP Origins Icons.dll"
 FEATURE_ID = "vv5_enable_origins_exclusive_features"
 
@@ -103,11 +102,9 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(section_patch["before"], "400000D0")
         self.assertEqual(section_patch["after"], "400000F0")
-        expanded = json.loads(EXPANDED.read_text(encoding="utf-8"))
-        for item in expanded["games"]["vv5"]["patches"]:
-            start = int(item["offset"], 0)
-            end = start + len(bytes.fromhex(item["before"]))
-            self.assertTrue(end <= 0xDB000 or start >= 0xDC000)
+        # The expanded-256 overlap check is gone with the data: those rows
+        # only ever applied to modes that are not selectable, and the file
+        # they lived in has been removed.
 
     def test_no_expanded_relocation_ledger_is_emitted(self) -> None:
         """The 66-row IDA ledger is removed.
@@ -264,14 +261,15 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertIn("or dword ptr [0x51D388], 4", self.source)
         self.assertIn("mov esi, 25", self.source)
         self.assertIn("and dword ptr [0x51D388], 0xFFFFFFFB", self.source)
-        expanded = json.loads(EXPANDED.read_text(encoding="utf-8"))
-        bound = next(
-            item
-            for item in expanded["games"]["vv5"]["patches"]
-            if int(item["offset"], 0) == 0x1F1E6
+        # This used to also assert that expanded-256 rewrote the slot-bound
+        # immediate at 0x1F1E6 from 150 to 256. That data is removed. The stock
+        # half is asserted directly instead: 0x41F1E6 is the immediate of a
+        # `cmp ... 0x96`, which is what the barrel gate reads as the bound.
+        stock = STOCK.read_bytes()
+        self.assertEqual(
+            int.from_bytes(stock[0x1F1E6:0x1F1EA], "little"), 150,
+            "the VV5 slot-bound immediate the barrel gate reads is not 150",
         )
-        self.assertEqual(bound["before"], "96000000")
-        self.assertEqual(bound["after"], "00010000")
 
     def test_d37_selector_repair_exact_body_hook_and_guards(self) -> None:
         selector = self.feature["selector_repair"]
