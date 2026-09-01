@@ -352,9 +352,9 @@ speed, including while the game is paused. It is never refused for being paused.
 
 **Barrel of Babies** delivers three children, so it is only sold when the
 village has room for all three -- that is, when the population is at or below
-its current maximum minus three. Below that it refuses and deducts nothing, and
-buying it a second time while one is already on its way is refused too rather
-than charged twice.
+its current maximum minus three. Above that it refuses and deducts nothing, and
+buying it again while one is already on its way is refused too rather than
+charged twice.
 
 Results that count villagers name the number and the reason, and read correctly
 at one: *"Skipped over 1 villager. Reason: already likes running."*

@@ -2369,11 +2369,16 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jz unavailable
         mov edi, eax
         mov dword ptr [ebp-0x18], edi
-        # One barrel at a time. The pending marker is an idempotent `or` on
-        # bit 3, and the close hook consumes it exactly once, so a second
-        # purchase in the same Technologies session would charge another 75,000
-        # points and still produce a single barrel. Refuse before any charge.
-        test dword ptr [0x51D388], 8
+        # One barrel at a time, across the WHOLE delivery window.
+        #
+        # Bit 3 (8) is the pending token set at purchase; bit 2 (4) is the
+        # forced-event marker barrel_close_arm sets when the Technologies screen
+        # closes -- and it CLEARS bit 3 as it does so. Testing bit 3 alone
+        # therefore leaves a gap: close the screen, reopen it before the selector
+        # has run, and the barrel is armed but no longer pending, so a second
+        # 75,000-point charge went through and still produced one barrel.
+        # Masking both (0xC) covers purchase through delivery.
+        test dword ptr [0x51D388], 0xC
         jnz pending
         # Room for all THREE children, not just one -- see barrel_room below.
         call barrel_room
