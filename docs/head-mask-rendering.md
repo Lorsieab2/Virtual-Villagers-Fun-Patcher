@@ -187,8 +187,9 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   VV1 applies `y = args[2] - (scale >> 3) - 15` and `x = args[1] + 1` for this Details-only overlay
   (screen Y grows downward, so the trailing term lifts the mask 15 pixels, and
   the X term moves it one pixel right); the village renderer keeps its existing
-  registration. VV2 overrides BOTH nudges before inclusion -- Y to `0`, so its
-  Details masks are not lifted at all, and X to `+4`. It does not reconstruct X/Y
+  registration. VV2 overrides BOTH nudges before inclusion -- Y to `+3`, which
+  seats its Details masks three pixels LOWER rather than lifting them, and X to
+  `+4`, the horizontal registration it was tuned to. It does not reconstruct X/Y
   from age buckets or facing from a global.
 - **Map/overview:** the village caller gate intentionally excludes UI/map clusters.
   No map compositor has yet been bound to a villager record and exact head tuple, so

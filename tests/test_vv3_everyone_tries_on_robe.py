@@ -22,22 +22,22 @@ MODES = (
 )
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 EXPANDED_PROTOTYPE = ROOT / "research" / "vv3-expanded-prototype.exe"
-PAYLOAD_SHA256 = "5ECEECEC8AEE8765F461CCAE69835D397F8F2FFFA6F5341C5D400CC06CE9324B"
+PAYLOAD_SHA256 = "95C62B33A52196912CD06FEAB8FCEE6EF070FE1D18EE68B11FFD33F9F44B51BC"
 ZERO_CAVE_SHA256 = "22B94C6893BFC091BE2A9F454A045184DF6C0398CFFA2B4E90C0065DD6EEB1B0"
 ISOLATED_RESULTS = {
     "stock": (
-        "4E3D3DBE7DFA2AFF0C67C0AE622E54BE378FBB54948018793115D394A261E0A1",
-        "C5730D00",
+        "EE913C424D91A941BE79C2261BE66859793EDBA92D9F843D649E8551F6EC7717",
+        "C6730D00",
     ),
 }
 RENDERED_RESULTS = {
     "collection_progression": (
-        "D4359C612D1418F3D0FA0511FBD93F13516A10E6FEB003114EB8A1F09607F4C8",
-        "BF4D0D00",
+        "15A21CFFE20204A8CC48D6454CF2450D404968C58A3BF795418A60469201E005",
+        "C04D0D00",
     ),
     "immediate_fixed": (
-        "DBBB8D0AC81CA0172F16895E554D5E2C7F4443177FD5DC31B3CE58857F90E811",
-        "BD8F0D00",
+        "C4C2B83AC4B6EA3C5C8EDB2F2451EB28CEFB693349394A99C0826550503012BF",
+        "BE8F0D00",
     ),
 }
 BASE_RESULTS = {
@@ -56,12 +56,12 @@ EXPANDED_COMPOSITION_RESULTS = {
 }
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-        "0267ED84DBEAFE9E0168B069143DC099AE591A3DD4296F0A0DFDDAD012F0BFAB",
-        "BA420D00",
+        "C33F5A9D30500478508F91F31973F935C58C0280275EE5CCB3B8D64F1E70B3F6",
+        "BB420D00",
     ),
     "immediate_fixed": (
-        "E5566B80659D6F1D2EB4A657AB970DC953FBB3859EF2FC9775C94EC3BCED8BC0",
-        "B8840D00",
+        "DF8BD94E21962991C2BFD0987367AD8D09D404245041703EC932C07273B71B60",
+        "B9840D00",
     ),
 }
 
@@ -167,10 +167,15 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
 
         # The fanout assigns the robe action through the stock dispatcher.
         self.assertEqual(self.payload.count(dispatch), 1)
-        self.assertIn(bytes.fromhex("6A38"), self.payload)      # push 0x38 (crowd action)
+        # 0x39 IS the robe attempt: the stock success path dispatches it to the
+        # dropped villager at 0x421995, and no stock site passes 0x38 to this
+        # dispatcher at all. Fanning out 0x38 instead re-applies the spectator
+        # action to the whole village, which is the reported bug.
+        self.assertIn(bytes.fromhex("6A39"), self.payload)      # push 0x39
         self.assertNotIn(
-            bytes.fromhex("6A39"), self.payload,
-            "the fanout must not hand other villagers the initiator's action",
+            bytes.fromhex("6A38"), self.payload,
+            "fanning out the crowd action makes everyone spectate instead of "
+            "trying the robe on",
         )
         self.assertIn(bytes.fromhex("89F9"), self.payload)      # mov ecx,edi (thiscall)
         # The loop counter and record cursor are preserved across game code.

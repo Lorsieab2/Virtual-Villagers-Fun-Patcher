@@ -39,12 +39,18 @@ ALL_GAMES = {
     "vv2": ("build_vv2_origins_feature.py", "[edi + 0x2EB08]"),
     "vv3": ("build_vv3_origins_feature.py", "[edi + ebp + 0x12F20]"),
     "vv4": ("build_vv4_origins_feature.py", "[eax + 0x17110]"),
-    "vv5": ("build_vv5_origins_feature.py", "[edi + 0x17D7C]"),
+    # VV5's SHIPPING Time Warp is the Task9 page, not the Origins base: the
+    # loader replaces the VV5 base record with data/vv5_task9_native_actions.json.
+    # Testing only the base generator passed while public VV5 modes still showed
+    # the paused refusal, so the production path is the one covered here.
+    "vv5": ("build_vv5_task9_native_actions.py", "[edi+0x17D7C]"),
+    # The inactive base generator must not regress either.
+    "vv5_base": ("build_vv5_origins_feature.py", "[edi + 0x17D7C]"),
 }
 
 # The games whose engine divides the injected shift by speed.
 MULTIPLY_GAMES = ("vv1", "vv2", "vv3", "vv4")
-DIVIDE_GAMES = ("vv5",)
+DIVIDE_GAMES = ("vv5", "vv5_base")
 
 
 def _source(name: str) -> str:
@@ -98,7 +104,11 @@ class TimeWarpPausedTests(unittest.TestCase):
         for game in DIVIDE_GAMES:
             with self.subTest(game=game):
                 text = _source(ALL_GAMES[game][0])
-                self.assertIn("idiv ecx", text, f"{game} must divide")
+                self.assertRegex(
+                    text, "div ecx",
+                    f"{game} must divide (the Task9 page uses unsigned `div`, "
+                    f"the base generator `idiv`)",
+                )
                 self.assertNotIn(
                     "imul eax, eax, 3600", text,
                     f"{game} must not copy the multiply-family formula; its "

@@ -83,14 +83,26 @@ class ExpandedModeIsNotSelectableTests(unittest.TestCase):
         )
 
     def test_no_game_offers_an_expanded_variant(self) -> None:
+        """Reads `variants`, the attribute Build actually has.
+
+        This looked at `patch_variants`, which does not exist, so every game's
+        variant map defaulted to {} and the loop body never ran once -- the
+        guard passed on exactly the mutation it advertises.
+        """
+        examined = 0
         for build in patcher.load_builds():
-            variants = getattr(build, "patch_variants", None) or {}
+            variants = getattr(build, "variants", None) or {}
+            self.assertTrue(variants, f"{build.id} exposes no variants at all")
             for mode in variants:
+                examined += 1
                 with self.subTest(game=build.id, mode=mode):
                     self.assertFalse(
                         _is_expanded(mode),
                         f"{build.id} exposes {mode}",
                     )
+        self.assertGreaterEqual(
+            examined, 15, "expected three modes for each of the five games"
+        )
 
     def test_no_selectable_variant_applies_the_expanded_patches(self) -> None:
         """The stronger guarantee: not merely unlisted, but never applied.

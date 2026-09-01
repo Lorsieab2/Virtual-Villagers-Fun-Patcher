@@ -17,7 +17,7 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "C01B552235653A8A7CFE4B3FA4E7485B1EF8F3DF2B813F702C2ED1A6D7CDF0C7"
+      "sha256": "711CEF4B20F49C8B93C4E0AE80F9B30D2710094A98197C4E6C0269900B8A1B52"
     },
     {
       "source": "assets/origins/m1.png",
@@ -97,7 +97,8 @@
     "repurchase": "available again at 500,000 tech points after removal"
   },
   "mask_persistence": {
-    "details_mask_y_nudge_px": -10,
+    "details_mask_y_nudge_px": -15,
+    "details_mask_x_nudge_px": 1,
     "save_builder_entry": "0x402ED0",
     "save_builder_preimage": "8B4424048B11",
     "resume": "0x402ED6",

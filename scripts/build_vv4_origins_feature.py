@@ -54,34 +54,56 @@ VILLAGE_PREFLIGHT_VA = 0x728180
 # well past the village-wide payload which ends near 0xCC740 / 0x728740.
 APPEARANCE_HELPER_FILE_OFFSET = 0xCC760
 APPEARANCE_HELPER_VA = 0x728760
-# Deferred Barrel of Babies. A purchased barrel is CUED after a short delay and
-# then presented as the game's own native barrel event (the pop-up/animation),
-# whose native multi-tick lifecycle delivers the 3 children -- exactly like a
-# random barrel, just triggered on demand. do_barrel sets a countdown token in the
-# free .shr tail; the barrel_cue helper is spliced onto the game's REAL event
-# scheduler tick (0x43FBE5 -> 0x418000) and drains the token each pass. When it
-# reaches zero it ARMS the barrel (BARREL_ARMED_VA) so the barrel's eligibility
-# check (hooked at 0x414D50) reports eligible; the scheduler then collects, picks,
-# presents (0x417790) and activates (0x401D40) the barrel through its own code, so
-# the full native event + 3-child spawn (0x414D90) runs in the correct context.
-# The scheduler picks randomly among eligible events, so the barrel stays armed
-# until it is actually presented -- detected by the per-index cooldown byte the
-# scheduler sets on the event it fired (BARREL_COOLDOWN_VA) -- then disarms, so
-# exactly one barrel fires. Room is re-checked (mode-aware capacity gate) before
-# arming so a full village silently drops the pending barrel instead of overflowing.
+# Barrel of Babies. Purchasing it presents the game's own native barrel event, so
+# the native lifecycle delivers the 3 children exactly as a random barrel would.
+#
+# HOW IT ACTUALLY WORKS (these notes described a countdown-token design that no
+# longer exists, which cost real debugging time -- keep them matching the code):
+#
+#   * do_barrel arms the barrel (BARREL_ARMED_VA), sets the purchased-barrel flag
+#     so the spawn always delivers 3, and makes the next island event due by
+#     writing [world+0x170E0] = 0 -- the same thing the Island Event upgrade does,
+#     which is what "cued as soon as the Tech screen closes" means here.
+#   * barrel_cue replaces `call 0x418000` at 0x43FBE5, the tick that really drives
+#     event scheduling. When armed it does NOT fall through to the scheduler's
+#     random pick: it calls 0x418190(event_object, 25) directly, so the barrel is
+#     the event that fires, then disarms immediately. Exactly one barrel fires.
+#   * 0x418190 looks the event up in the pointer array at 0x4CCA28 (the barrel is
+#     index 25 -- its object is stored at 0x4CCA8C, and 0x4CCA8C-0x4CCA28 = 25*4;
+#     note the constructors do NOT run in slot order, so counting them misleads),
+#     calls the event's eligibility through vtable+4 (0x414D50, hooked to report
+#     eligible while armed), presents it via 0x417790, and only THEN activates it
+#     via 0x401D40 -- which is the call that reaches the 3-child spawn 0x414D90.
+#
+# OPEN: that last step is conditional. 0x418190 activates only when the presenter
+# object's +0x48 byte is non-zero (`cmp byte [esp+0x58], 0` / `je` at 0x418206,
+# presenter at esp+0x10). Nothing in the 0x417790 constructor writes +0x48, so it
+# is set somewhere in presentation. If it stays zero on this path the event still
+# appears and no children are ever created -- which matches the reported symptom
+# of the barrel cueing correctly while the population never changes. Confirming
+# that needs a runtime trace, not more static reading.
+#
+# Ruled out by inspection, so do not re-derive: the first child is NOT gated by
+# the two flag-gated room-checks (they sit before children 2 and 3); the
+# automatic:safety detour on the spawn entry only skips at >= 150 occupied slots;
+# the event index really is 25; and no cave in any of the five games calls a stock
+# __thiscall function without loading ECX (see test_cave_thiscall_ecx.py).
 #
 # NOTE the earlier splice targeted 0x44098C -> 0x4182B0, which is NOT the tick that
-# actually drives event scheduling during play (the token never drained there); the
-# real driver is 0x43FBE5 -> 0x418000 (0x418000's only caller).
+# actually drives event scheduling during play; the real driver is
+# 0x43FBE5 -> 0x418000 (0x418000's only caller).
 # byte: set by do_barrel so the PURCHASED barrel's spawn always delivers 3 (see
 # the 0x414D90 detour below); natural barrels leave it 0 and are unchanged.
 BARREL_UPGRADE_FLAG_VA = 0x728B00
 BARREL_ARMED_VA = 0x728B04            # byte: barrel is armed-eligible until presented
 # Per-event cooldown byte the scheduler sets on the event it presents
 # (`mov byte [esi+0x4CC9F4],1`, esi=event index); barrel index 25 -> 0x4CC9F4+0x19.
+# do_barrel clears it so a previously-fired barrel is not held off. Nothing reads
+# it back: 0x418136 is its only reference in the whole image, and that sits in the
+# scheduler's own pick path, which barrel_cue bypasses when armed.
 BARREL_COOLDOWN_VA = 0x4CCA0D
-BARREL_COUNTDOWN_FILE_OFFSET = 0xCCB10
-BARREL_COUNTDOWN_VA = 0x728B10
+BARREL_CUE_FILE_OFFSET = 0xCCB10
+BARREL_CUE_VA = 0x728B10
 # The purchased barrel must ALWAYS deliver 3, so it bypasses the game's tiered
 # population gate (0x468350, which caps growth by owned population upgrades). The
 # stock barrel spawn (0x414D90) calls 0x468350 before child 2 and before child 3;
@@ -1621,7 +1643,7 @@ def main() -> None:
         cue_scheduler:
             jmp 0x418000
         """,
-        BARREL_COUNTDOWN_VA,
+        BARREL_CUE_VA,
     )
     # Mode-aware Barrel capacity gate, called from the purchase preflight. Returns
     # eax=1 when the village can accommodate 3 more, eax=0 otherwise. The cap and
@@ -1830,7 +1852,7 @@ def main() -> None:
           "mark the mapped VV4 .shr helper page executable while retaining its stock data permissions")
     patch(0x14D50, bytes.fromhex("B968E55000"), rel32_jump(0x414D50, barrel_eligibility),
           "admit the Barrel of Babies event while the purchased-barrel token is armed")
-    patch(BARREL_COUNTDOWN_FILE_OFFSET, b"\0" * len(barrel_cue), barrel_cue,
+    patch(BARREL_CUE_FILE_OFFSET, b"\0" * len(barrel_cue), barrel_cue,
           "Barrel cue (spliced on the event scheduler): when armed, present the native barrel event (index 25) directly so its pop-up shows and its lifecycle runs the spawn")
     patch(BARREL_CAPACITY_FILE_OFFSET, b"\0" * len(barrel_capacity), barrel_capacity,
           "Barrel purchase gate: refuse (no charge) only when population (0x467610) + 3 would exceed the 150-slot record array")
@@ -1912,7 +1934,7 @@ def main() -> None:
           rel32_call(MASK_WORLD_SITE, MASK_WORLD_CALLEE),
           rel32_call(MASK_WORLD_SITE, MASK_WORLD_VA),
           f"Heathen mask: route the world compositor's post-head blit at {MASK_WORLD_SITE:#x} through the world mask cave")
-    patch(0x3FBE5, bytes.fromhex("E81684FDFF"), rel32_call(0x43FBE5, BARREL_COUNTDOWN_VA),
+    patch(0x3FBE5, bytes.fromhex("E81684FDFF"), rel32_call(0x43FBE5, BARREL_CUE_VA),
           "route the real event-scheduler tick (0x43FBE5 -> 0x418000) through the Barrel cue so a purchased barrel is presented naturally after its delay")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
           "double eligible positive food-source deltas")

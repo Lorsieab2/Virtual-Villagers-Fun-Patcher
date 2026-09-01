@@ -16,11 +16,7 @@ new PE checksum through the normal patch pipeline.
 
 ## Current shipping gate
 
-The doubler audit is **STOP** for this exact build. New purchase and
-repurchase are unavailable; existing owned doublers remain removable for zero
-cost and zero refund, and ownership is never cleared automatically. Candidate
-return sites and ranges below are historical implementation evidence, not
-exhaustive provenance proof. The exact fingerprint has no Food Mastery-like
+The doubler audit's PROVENANCE remains incomplete for this exact build: the candidate return sites and ranges below are historical implementation evidence, not exhaustive provenance proof. Availability is not gated on it. Both doublers are purchasable while unowned; an owned doubler's row reads **Remove**, and removing it costs nothing and refunds nothing, with ownership never cleared automatically. The `or eax, 0x1800` hold that forced rows 3 and 4 to **Unavailable** was lifted in v1.34.14. The exact fingerprint has no Food Mastery-like
 food transform and no collection tech multiplier; ordinary Science still
 modifies research amounts before any future eligible doubler hook.
 

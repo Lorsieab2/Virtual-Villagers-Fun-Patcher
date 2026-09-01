@@ -29,8 +29,7 @@ evidence only and are not catalog or release entries.
 
 ## Current shipping gate
 
-The doubler audit is **STOP** for this exact build. New purchase and repurchase
-are unavailable; existing owned doublers remain removable for zero cost and
+The doubler audit's PROVENANCE remains incomplete for this exact build. Availability is not gated on it: both doublers are purchasable while unowned, and the `or eax, 0x1800` hold that forced rows 3 and 4 to **Unavailable** was lifted in v1.34.14; existing owned doublers remain removable for zero cost and
 zero refund, and ownership is never cleared automatically. The listed return
 addresses are historical candidates and are invalid for classifying E9 tail
 jumps; incomplete dynamic/computed Island Event provenance and the lack of a

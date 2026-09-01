@@ -124,7 +124,9 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
         }
         for (row = 0; row < row_count; ++row) {
             int satisfied = (lparam & (1 << row)) != 0;
-            if (satisfied) {
+            /* Only the two Doublers may ever show a green check, and only
+               while they are owned in the current save. */
+            if (satisfied && !villager_menu && (row == 3 || row == 4)) {
                 ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
             }
             if (!villager_menu && satisfied && !(village_wide_buy && row >= 6)) {
