@@ -356,13 +356,20 @@ static void end_modal_over_game(HWND owner) {
    The other four games have their executable compute this and hand it over in
    the menu's state word. VV3's payload has no cave space left for that, which
    is exactly what this DLL is for: it runs inside the game's own process, so
-   it can call the game's parameterless world-manager getter and read the two
-   values itself. Nothing is asked of the executable.
+   it can reach the world manager and read the two values itself. Nothing is
+   asked of the executable.
+
+   It reads the manager's singleton POINTER (0x4B309C) rather than calling the
+   getter at 0x428B60 that the executable's own purchase path uses. That getter
+   is a lazy constructor: when the pointer is null it allocates 0x12FD4 bytes
+   and constructs the manager. Building the menu must not have that side
+   effect, and a null pointer already answers the question -- with no manager
+   there is nothing pending.
 
    The manager layout differs between the stock and expanded builds. The
    executable picks between them by testing whether the immediate at 0x42883A
    is 256, and this uses that same probe so both builds read the right field. */
-#define VV3_MANAGER_GETTER        0x428B60
+#define VV3_MANAGER_SINGLETON     0x4B309C
 #define VV3_ARCH_PROBE            0x42883A
 #define VV3_ARCH_EXPANDED_VALUE   0x100
 #define VV3_ARCH_EXPANDED_OFFSET  0x7598
@@ -373,8 +380,6 @@ enum {
     VV3_PENDING_ROW_ISLAND = 1,
     VV3_PENDING_ROW_BARREL = 2
 };
-
-typedef unsigned char *(__cdecl *vv3_manager_fn)(void);
 
 /* Is this Tech-menu row blocked by an identical purchase already pending?
    Villager-menu rows are never affected. */
@@ -391,7 +396,7 @@ static int vv3_row_purchase_pending(int villager_menu, int row) {
     if (row != VV3_PENDING_ROW_ISLAND) {
         return 0;
     }
-    manager = ((vv3_manager_fn)(UINT_PTR)VV3_MANAGER_GETTER)();
+    manager = *(unsigned char *volatile *)(UINT_PTR)VV3_MANAGER_SINGLETON;
     if (manager == NULL) {
         return 0;                 /* no manager yet -> claim nothing */
     }
