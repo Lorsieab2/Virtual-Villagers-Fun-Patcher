@@ -181,9 +181,13 @@ def build_wrapper() -> bytes:
         jne done
 
     bound_check:
+        # Both accepted bounds must fall through to the guards below.
+        # This used to `je scan` for 0x96, which jumped straight to the fanout
+        # and skipped the chief and one-shot scans entirely -- and 150 is the
+        # bound every shipping mode uses, so in practice neither guard ran.
         mov ecx, dword ptr [0x{SLOT_BOUND_PTR:X}]
         cmp ecx, 0x96
-        je scan
+        je chief_check
         cmp ecx, 0x100
         jne done
 
@@ -219,6 +223,10 @@ def build_wrapper() -> bytes:
     # the initiator gate -- and the native chief selection loops instead of
     # running once.
     oneshot_check:
+        # Reload the bound: the chief scan above exits with ecx == 0, so
+        # reusing it here underflows to 0xFFFFFFFF on the first `dec` and the
+        # loop walks far past the villager array.
+        mov ecx, dword ptr [0x{SLOT_BOUND_PTR:X}]
         mov edi, 0x{RECORD_BASE:X}
     oneshot_next:
         cmp edi, esi
