@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -49,13 +50,26 @@ UPDATE_CHECK_TIMEOUT_SECONDS = 10
 
 
 def parse_version(tag: str) -> tuple[int, ...]:
-    """Turn a tag like "v1.34.23" into (1, 34, 23) for ordering.
+    """Turn a tag like "v1.34.23" into ordered numbers.
+
+    A PRERELEASE sorts BELOW the final release of the same numbers. Dropping
+    the suffix would make "v1.34.15-rc6" and "v1.34.15" compare equal, so a
+    tester sitting on the release candidate would be told they are up to date
+    after the real v1.34.15 shipped. A trailing 1 is appended for a final
+    release and a 0 plus the suffix's own numbers for a prerelease, which
+    orders rc6 < rc7 < final without special-casing the label.
 
     Anything unparseable sorts as (), which compares less than every real
     version, so a malformed tag can never be announced as an upgrade.
     """
+    text = tag.strip().lstrip("vV")
+    suffix = ""
+    for separator in ("-", "+"):
+        if separator in text:
+            text, _, suffix = text.partition(separator)
+            break
     digits = []
-    for part in tag.strip().lstrip("vV").split("."):
+    for part in text.split("."):
         chunk = ""
         for character in part:
             if not character.isdigit():
@@ -64,7 +78,12 @@ def parse_version(tag: str) -> tuple[int, ...]:
         if not chunk:
             return ()
         digits.append(int(chunk))
-    return tuple(digits)
+    if not digits:
+        return ()
+    if not suffix:
+        return tuple(digits) + (1,)
+    trailing = [int(run) for run in re.findall(r"\d+", suffix)]
+    return tuple(digits) + (0,) + tuple(trailing)
 
 
 def fetch_latest_release_tag() -> str:
@@ -83,7 +102,18 @@ def fetch_latest_release_tag() -> str:
     with urllib.request.urlopen(
         request, timeout=UPDATE_CHECK_TIMEOUT_SECONDS
     ) as response:
-        payload = json.loads(response.read().decode("utf-8"))
+        raw = response.read()
+    # A proxy, a captive portal or a bad gateway can return something that is
+    # not the JSON object we asked for.  Decoding and parsing both raise
+    # exceptions that are NOT OSError, so they would escape the caller's one
+    # handler and take the window down with them.  Fold them in here so every
+    # failure of this function reaches the same place.
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise OSError(f"GitHub returned a response we could not read: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise OSError("GitHub did not return a release object.")
     tag = payload.get("tag_name")
     if not isinstance(tag, str) or not tag.strip():
         raise OSError("GitHub did not return a release tag.")

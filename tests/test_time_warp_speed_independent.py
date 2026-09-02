@@ -71,7 +71,12 @@ def instructions(path: str, label: str) -> str:
 
 class TimeWarpSpeedIndependenceTests(unittest.TestCase):
     def test_every_game_subtracts_its_measured_three_year_amount(self) -> None:
+        # VV3 is excluded on purpose: its catch-up divides elapsed
+        # time by the speed, so only a speed-proportional delta gives a
+        # constant advance. See tests/test_time_warp_paused.py.
         for game, (path, label, anchor, advance) in GAMES.items():
+            if game.startswith("vv3"):
+                continue
             with self.subTest(game=game):
                 self.assertIn(
                     f"sub dword ptr [{anchor}], {advance}",
@@ -81,7 +86,12 @@ class TimeWarpSpeedIndependenceTests(unittest.TestCase):
 
     def test_no_game_reads_a_speed_code_in_the_time_warp_branch(self) -> None:
         """The whole point: the advance cannot vary with the speed setting."""
+        # VV3 is excluded on purpose: its catch-up divides elapsed
+        # time by the speed, so only a speed-proportional delta gives a
+        # constant advance. See tests/test_time_warp_paused.py.
         for game, (path, label, _anchor, _advance) in GAMES.items():
+            if game.startswith("vv3"):
+                continue
             with self.subTest(game=game):
                 code = instructions(path, label)
                 for speed in SPEED_CODES + (PAUSED_SENTINEL,):

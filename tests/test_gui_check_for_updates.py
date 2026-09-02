@@ -44,8 +44,22 @@ from vv_fun_patcher_gui import (  # noqa: E402
 
 class VersionParsingTests(unittest.TestCase):
     def test_a_normal_tag_becomes_ordered_numbers(self) -> None:
-        self.assertEqual(parse_version("v1.34.23"), (1, 34, 23))
-        self.assertEqual(parse_version("1.34.23"), (1, 34, 23))
+        """A final release carries a trailing 1; see the prerelease test."""
+        self.assertEqual(parse_version("v1.34.23"), (1, 34, 23, 1))
+        self.assertEqual(parse_version("1.34.23"), (1, 34, 23, 1))
+
+    def test_a_prerelease_sorts_below_its_final_release(self) -> None:
+        """Otherwise a tester on the release candidate is told they are current.
+
+        Discarding the suffix made "v1.34.15-rc6" and "v1.34.15" compare
+        equal, so once the real v1.34.15 shipped, anyone still running rc6 was
+        told they were up to date. Prereleases are exactly what gets handed
+        out for testing here, so this is the common case, not an edge case.
+        """
+        self.assertLess(parse_version("v1.34.15-rc6"), parse_version("v1.34.15"))
+        self.assertLess(parse_version("v1.34.15-rc6"), parse_version("v1.34.15-rc7"))
+        self.assertLess(parse_version("v1.34.15"), parse_version("v1.34.16-rc1"))
+        self.assertLess(parse_version("v1.34.15-rc2"), parse_version("v1.34.15-rc10"))
 
     def test_ordering_is_numeric_not_alphabetical(self) -> None:
         """The trap: "v1.34.9" sorts after "v1.34.10" as a string."""
@@ -105,6 +119,28 @@ class FetchTests(unittest.TestCase):
     def test_a_payload_with_no_tag_is_a_failure_not_a_silent_pass(self) -> None:
         for payload in (b"{}", json.dumps({"tag_name": "   "}).encode()):
             with self.subTest(payload=payload):
+                with mock.patch(
+                    "urllib.request.urlopen", return_value=self._response(payload)
+                ):
+                    with self.assertRaises(OSError):
+                        fetch_latest_release_tag()
+
+
+    def test_a_response_that_is_not_a_json_object_is_a_failure(self) -> None:
+        """A proxy or captive portal can return anything at all.
+
+        json.JSONDecodeError and UnicodeDecodeError are not OSError, so
+        without folding them in they would escape the caller's single handler
+        and take the window down instead of reporting a failed check.
+        """
+        for payload in (
+            b"<html>not json</html>",
+            bytes([0xFF, 0xFE, 0x41]),   # invalid UTF-8
+            b"[1, 2, 3]",
+            b'"just a string"',
+            b"null",
+        ):
+            with self.subTest(payload=payload[:16]):
                 with mock.patch(
                     "urllib.request.urlopen", return_value=self._response(payload)
                 ):

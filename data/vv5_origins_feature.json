@@ -171,7 +171,7 @@
       "offset": "0x1890F",
       "before": "8B7484146A64E8",
       "after": "E96C9839009090",
-      "purpose": "consume the one-shot purchase marker and force native event index 25"
+      "purpose": "consume the one-shot purchase marker and force native event index 26"
     },
     {
       "offset": "0x1EB6F",

@@ -570,7 +570,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "63225EC565FD320B1E54E9ED360042B09990C14812EB7B6656CF86DF9648A907",
+            "B6EB95D4E1E87E741E73B509E15223BFCA2A357BE83E9066947D02758BB4D2C0",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],

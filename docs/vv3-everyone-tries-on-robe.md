@@ -17,8 +17,13 @@ fans out to nobody.
 
 Fanout occurs only when that callback reports handled (`AL = 1`), the villager
 is active (`+0xF10 != 0`), living (signed health `+0xE78 > 0`), non-nursing
-(`+0xE8C == 0`), and the original callback leaves action `120` or `121` in
-`+0xF24`.
+(`+0xE8C == 0`), and the original callback leaves an accepted initiator action
+in `+0xF24`.
+
+The accepted set is `0x39` (57, the robe action itself), `0x78` (120) and
+`0x79` (121). `0x39` matters: it is what the stock callback assigns on its own
+success path, so gating on `120`/`121` alone made the condition unsatisfiable
+in the case that actually occurs and nothing ever fanned out.
 
 The wrapper then scans the exact stock runtime bound of 150 (or 256) records.
 Every other active, living, non-nursing record is **interrupted into the robe
@@ -92,8 +97,8 @@ owned range, so the owned window is unchanged from the previous revision.
 
 The initiator's original return value is preserved. Unknown runtime bounds,
 original callbacks that do not report a handled drop, ineligible initiators,
-and initiators outside actions 120/121 return without assigning any follower
-action.
+and initiators outside the accepted set `0x39`/`120`/`121` return without
+assigning any follower action.
 
 Static install, removal, exact-byte, checksum, collision, generator-parity, and
 current-mode composition tests are automated. Player runtime confirmation

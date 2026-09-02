@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "AC4252DB413A3756C1CC06B5914E0CEAA556711039CD797EBAAADC07AA40D925"
-ACTIVE_SOURCE_TEXT_SHA256 = "43C8A24513901D2F702703630434BE0A059875D0375F53050DAEE19136554AC0"
+ACTIVE_SHA256 = "6C40F9E422A6330C39C30200FB1B9547BF39D83A59B2C46C6ADF1B9A5C4E18E6"
+ACTIVE_SOURCE_TEXT_SHA256 = "11792D92931C9A263420565554E56F8D9F3897C1EF260EB531BE57B3CB31A8D1"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -2021,18 +2021,24 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """Village-clock Time Warp: advance exactly three displayed villager years
     at any speed for one verified 50,000 tech-point charge.
 
-    VV5's offline catch-up MULTIPLIES the injected elapsed-clock shift by the
-    speed code, so a constant three-year advance needs the inverse
-    129600 / speed.  This is the opposite of VV1-VV4, whose catch-up DIVIDES
-    by speed and therefore needs speed * 3600 (see
-    tests/test_vv4_origins_feature.py).  The two forms are not an
-    inconsistency between games -- they are the same three-year result
-    expressed for two different engine conventions, and swapping them makes
-    the paid warp advance ~0.75 years at half speed and ~8.3 at double.
+    VV5 subtracts a FLAT 129600, measured in play rather than derived from a
+    model of the engine: at half speed the old 129600 / speed form subtracted
+    43200 and advanced exactly ONE year, so three years is 129600 at every
+    speed.  The divide also made the paused sentinel 999 yield 129600/999 =
+    129 seconds, a no-op the player still paid 75,000 points for, and removing
+    it removes the divide-by-zero as well.
 
-    The speed code is normalized to the three values the game assigns (3, 6,
-    10) before dividing, so an unexpected value takes the normal-speed delta
-    instead of an arbitrary one.  Self-contained
+    This is NOT the shape every game wants, and the difference is not
+    cosmetic.  VV3's catch-up divides elapsed time by the current speed -- the
+    paused test at 0x431C01 followed by the `fdivr` at 0x431C17 -- so VV3 must
+    keep delta = speed * 3600 for the division to cancel and the advance to
+    come out constant.  Giving VV3 a flat amount made it advance 6 years at
+    half speed and 1.8 at double while charging the same 50,000 points.
+
+    VV1 was likewise measured, not modelled: a flat 21600 advanced three years
+    where the old speed * 3600 gave only two at half speed.  VV2 and VV4 follow
+    VV1 by analogy because they share its clock and its 3/6/10 speed codes;
+    that analogy is NOT a measurement and is the weakest link in this set.  Self-contained
     (inline MessageBoxA via the page's existing import thunks); no companion
     DLL change. Ported from the statically-reviewed dispatcher in
     build_expanded_time_warp.py as a ret-terminated subroutine so tech_menu can
