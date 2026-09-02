@@ -20,23 +20,45 @@ is active (`+0xF10 != 0`), living (signed health `+0xE78 > 0`), non-nursing
 (`+0xE8C == 0`), and the original callback leaves an accepted initiator action
 in `+0xF24`.
 
-The accepted set is `0x39` (57, the robe action itself), `0x78` (120) and
-`0x79` (121). `0x39` matters: it is what the stock callback assigns on its own
-success path, so gating on `120`/`121` alone made the condition unsatisfiable
-in the case that actually occurs and nothing ever fanned out.
+The accepted set is `0x78` (120) and `0x79` (121) — the two robe actions.
+`0x39` is deliberately NOT accepted: it is the lecture action, and it is what
+dropping the **chief** produces, which stock answers by having the chief
+lecture. While `0x39` was accepted, dropping the chief fanned the robe out
+across the village and minted a second chief.
 
 The wrapper then scans the exact stock runtime bound of 150 (or 256) records.
-Every other active, living, non-nursing record is **interrupted into the robe
-action** through the stock action dispatcher:
+Every other active, living, non-nursing record is put through the same three
+stock calls the game itself performs for a villager dropped on the robe:
 
 ```
-0x455570(record, 0x39, ptr)
+0x460F70(record)                            ; stop the villager's current work
+0x4611B0(609 + rand(5), 488 + rand(5), 0x64, 0)  ; amphitheatre destination
+0x455570(record, 0x78 or 0x79, scratch)     ; assign the robe action
 ```
 
-which writes the villager's action field `+0xF24` and dispatches through the
-global action table at `0x596970`. That is the same assignment the stock
-callback performs on its own success path, so every eligible villager drops
-what they were doing and walks to the amphitheatre.
+**Order matters.** `0x460F70` zeroes the villager's task array and the walk
+path lives in it, so setting the destination first erases the path and the
+villager performs the robe action standing where it was.
+
+**The action is `0x78`/`0x79`, not `0x39`.** A live read of the running game
+during a ceremony found 147 villagers holding `0x39` and exactly one holding
+`0x79`, matching the reported "one villager tries the robe on and everyone
+else lectures" — `0x39` is the LECTURE action. It preempts a working villager
+only because its own handler calls `0x460F70` first; the robe handlers do not,
+because in stock they only ever run on a villager the player has just picked
+up and who is therefore already detached. Which of the two robe actions a
+villager receives is decided by the stock `+0xE88` test, so the native routine
+still chooses the chief.
+
+Two guards bound the behaviour:
+
+* The ceremony runs only while the village has **no chief**. `+0xE80` is the
+  chief flag: with two chiefs present it was set on exactly those two
+  villagers and clear on the other 147. It is read, never written.
+* A **one-shot** scan stops the fanout re-running. After the first pass every
+  villager holds a robe action and would pass the initiator gate again, which
+  made the native chief selection loop. The guard counts live state rather
+  than latching, so it cannot drift out of sync with the game.
 
 ## Why the fanout does not reuse `0x421960`
 
@@ -97,8 +119,8 @@ owned range, so the owned window is unchanged from the previous revision.
 
 The initiator's original return value is preserved. Unknown runtime bounds,
 original callbacks that do not report a handled drop, ineligible initiators,
-and initiators outside the accepted set `0x39`/`120`/`121` return without
-assigning any follower action.
+and initiators outside the accepted set `120`/`121` return without assigning
+any follower action.
 
 Static install, removal, exact-byte, checksum, collision, generator-parity, and
 current-mode composition tests are automated. Player runtime confirmation

@@ -2021,12 +2021,20 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """Village-clock Time Warp: advance exactly three displayed villager years
     at any speed for one verified 50,000 tech-point charge.
 
-    VV5 subtracts a FLAT 129600, measured in play rather than derived from a
-    model of the engine: at half speed the old 129600 / speed form subtracted
-    43200 and advanced exactly ONE year, so three years is 129600 at every
-    speed.  The divide also made the paused sentinel 999 yield 129600/999 =
-    129 seconds, a no-op the player still paid 75,000 points for, and removing
-    it removes the divide-by-zero as well.
+    VV5 subtracts 194400 / speed, measured in play rather than derived from a
+    model of the engine. With a flat 129600 the village advanced 6-7 years at
+    slow, 12 at normal and 24 at fast: fast is exactly twice normal and normal
+    twice slow, so the advance tracks delta * speed and only a division holds
+    it constant. Calibrated at normal, where 129600 gave 12 years, so three
+    years is 32400 and 32400 * 6 = 194400.
+
+    Dividing also sidesteps VV5's speed codes, which are never written as
+    immediates and so cannot be read out of the binary; 24/12 = 2 rules out a
+    fast code of 10 in any case.
+
+    Paused is refused before the charge rather than given a delta, because the
+    village does not advance at all while paused and every game charged for
+    that no-op.
 
     This is NOT the shape every game wants, and the difference is not
     cosmetic.  VV3's catch-up divides elapsed time by the current speed -- the
@@ -4057,7 +4065,7 @@ def main() -> None:
                 "running": {"price": 40000, "preference_id": 38, "likes": ["0x1F5C", "0x1F60", "0x1F64"], "dislikes": ["0x1F68", "0x1F6C", "0x1F70"], "native": {"membership": "0x464F90", "insertion": "0x464AD0", "first_removal": "0x4649E0"}},
                 "barrel_of_babies": {"price": 75000, "scope": "village event scheduler (presents the native Barrel event, index 26, after the Tech screen closes)", "room_check": "both capacity checks call the game's own per-villager cap gate 0x472bd0, which every population mode patches (0x72C49 -> 0x94500 helper) to its live cap (stock 105, collection_progression 150, immediate_fixed 150, expanded-256 256); the barrel is refused with no deduction when the village is at its current mode's cap", "mechanism": "VV2 general approach: charge -75000 via 0x4237B0, set one-shot pending token (or [0x51D388],8) only; the origins-base Tech handler routes stock command 0 (screen close) to barrel_close_arm, which consumes the token, sets the forced-Barrel marker (or [0x51D388],4), and makes the next event due ([manager+0x17D3C]=0); the selector detour at 0x41890F forces the next chosen index to 26 (CEventBarrelOBabiesV in the 0x4DC850 event-object table -- NOT the 0x4D7B24 string-table index, which is one higher) and clears the marker so the native three-child Barrel presents with the main-village owner after the menu closes", "children": 3, "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "island_event": {"price": 30000, "scope": "village next-event scheduler (not a per-record write)", "mechanism": "resolve manager 0x425950, verify snapshot, charge -30000 via 0x4237B0, set next-event timer [manager+0x17D3C]=0 so the native scheduler (0x442850 -> sub_418870) runs a random eligible island event", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
-                "time_warp": {"price": 50000, "scope": "village clock (not a per-record write; faction-blind like normal time passing)", "speed": "[manager+0x17D7C] signed positive and not 999 (paused)", "delta": "129600 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254", "effect": "advances exactly three displayed villager years regardless of listed game speed", "writer": "inline: verify snapshot, charge -50000 via 0x4237B0, div 129600 by speed, sub/sbb into clock, postverify", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
+                "time_warp": {"price": 50000, "scope": "village clock (not a per-record write; faction-blind like normal time passing)", "speed": "[manager+0x17D7C] signed positive and not 999 (paused)", "delta": "194400 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254", "effect": "advances exactly three displayed villager years regardless of listed game speed", "writer": "inline: verify snapshot, refuse if paused, charge -50000 via 0x4237B0, div 194400 by speed, sub/sbb into clock, postverify", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
             },
         },

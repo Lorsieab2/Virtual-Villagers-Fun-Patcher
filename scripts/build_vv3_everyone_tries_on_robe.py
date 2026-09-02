@@ -59,7 +59,13 @@ from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 IMAGE_BASE = 0x400000
 PAYLOAD_FILE_OFFSET = 0xB4100
 PAYLOAD_VA = 0x6C8100
-PAYLOAD_LEN = 235                 # the reviewed owned range, kept byte-for-byte
+PAYLOAD_LEN = 512                 # reviewed owned range
+# Extended from 235 to 512. The fanout now reproduces the stock robe branch in
+# full -- it sets the walk destination as well as the action -- and that does
+# not fit in 235 bytes. The extra bytes are taken from the 400 zero bytes
+# lying immediately after the original range in the stock image, so nothing
+# stock is displaced; the patcher's own overlap check confirms no other patch
+# claims them.
 
 STOCK_ROBE_CALLBACK = 0x421960    # stock drop handler (gated on +0xE80)
 ACTION_DISPATCH = 0x455570        # set +0xF24 and dispatch via table 0x596970
@@ -89,6 +95,21 @@ ACTION_DISPATCH = 0x455570        # set +0xF24 and dispatch via table 0x596970
 # the spectator action to everyone -- reverted.
 CROWD_ACTION_ID = 0x38            # assigned per villager by the stock selector
 INITIATOR_ACTION_ID = 0x39        # assigned only to the dropped villager
+# The robe branch of the stock handler, read out of 0x4219A8..0x421A1E.
+RAND_FN = 0x004032D0              # rand(n)
+SET_DESTINATION = 0x004611B0      # (x, y, 0x64, 0) thiscall; walks the villager
+STOP_CURRENT_ACTIVITY = 0x00460F70  # the game's own detach; ecx=villager,
+                                  # one arg, ret 4. The 0x39 handler calls it
+                                  # first, which is why 0x39 preempted work.
+ROBE_SPOT_X = 0x261               # 609 + rand(5)
+ROBE_SPOT_Y = 0x1E8               # 488 + rand(5)
+OFF_CHIEF = 0xE80                 # non-zero = this villager IS the chief.
+                                  # Verified live: with two chiefs present it was
+                                  # set on exactly those two and clear on the rest.
+OFF_ROBE_VARIANT = 0xE88          # selects which of the two robe actions
+ROBE_ACTION_A = 0x78              # 120, taken when +0xE88 is set
+ROBE_ACTION_B = 0x79              # 121, taken when +0xE88 is clear -- the one
+                                  # observed on the manually dropped villager
 
 RECORD_BASE = 0x59E124
 RECORD_STRIDE = 0x1F8C
@@ -145,22 +166,87 @@ def build_wrapper() -> bytes:
         jle done
         cmp dword ptr [esi + 0x{OFF_NURSING:X}], 0
         jne done
+        # Only a ROBE action counts as an initiator -- 0x39 must NOT.
+        #
+        # 0x39 is the lecture action, and dropping the CHIEF on the hotspot is
+        # what assigns it: stock answers that drop with the chief lecturing.
+        # While 0x39 was accepted here, dropping the chief fanned the robe out
+        # to the whole village instead, replacing the native chief-lectures
+        # routine. A drop that produces 0x39 is not a robe ceremony and must
+        # fall through untouched.
         mov eax, dword ptr [esi + 0x{OFF_ACTION:X}]
-        cmp eax, 0x{ACTION_ROBE_ASSIGNED:X}
-        je bound_check
         cmp eax, 0x{ACTION_ROBE_A:X}
         je bound_check
         cmp eax, 0x{ACTION_ROBE_B:X}
         jne done
 
     bound_check:
+        # Both accepted bounds must fall through to the guards below.
+        # This used to `je scan` for 0x96, which jumped straight to the fanout
+        # and skipped the chief and one-shot scans entirely -- and 150 is the
+        # bound every shipping mode uses, so in practice neither guard ran.
         mov ecx, dword ptr [0x{SLOT_BOUND_PTR:X}]
         cmp ecx, 0x96
-        je scan
+        je chief_check
         cmp ecx, 0x100
         jne done
 
+    # Only run while the village has NO chief.
+    #
+    # +0xE80 is the chief flag, read out of the running game: with two chiefs
+    # present it was set on exactly those two villagers and clear on the other
+    # 147. It is also what the stock handler branches on -- chief drops take
+    # the 0x39 lecture path (the chief lectures), everyone else takes the robe
+    # path -- which is why dropping the chief used to fan the robe out and mint
+    # a second chief.
+    #
+    # With a chief in place the ceremony is not supposed to happen at all, so
+    # bail and leave the base game to it.
+    chief_check:
+        mov ecx, dword ptr [0x{SLOT_BOUND_PTR:X}]
+        mov edi, 0x{RECORD_BASE:X}
+    chief_next:
+        cmp dword ptr [edi + 0x{OFF_ACTIVE:X}], 0
+        je chief_advance
+        cmp dword ptr [edi + 0x{OFF_HEALTH:X}], 0
+        jle chief_advance
+        cmp byte ptr [edi + 0x{OFF_CHIEF:X}], 0
+        jne done
+    chief_advance:
+        add edi, 0x{RECORD_STRIDE:X}
+        dec ecx
+        jne chief_next
+
+    # One-shot guard: if any OTHER living villager is already wearing a robe
+    # action, this ceremony has been fanned out already. Without this the
+    # fanout re-runs on every subsequent callback -- every villager now passes
+    # the initiator gate -- and the native chief selection loops instead of
+    # running once.
+    oneshot_check:
+        # Reload the bound: the chief scan above exits with ecx == 0, so
+        # reusing it here underflows to 0xFFFFFFFF on the first `dec` and the
+        # loop walks far past the villager array.
+        mov ecx, dword ptr [0x{SLOT_BOUND_PTR:X}]
+        mov edi, 0x{RECORD_BASE:X}
+    oneshot_next:
+        cmp edi, esi
+        je oneshot_advance
+        cmp dword ptr [edi + 0x{OFF_ACTIVE:X}], 0
+        je oneshot_advance
+        cmp dword ptr [edi + 0x{OFF_HEALTH:X}], 0
+        jle oneshot_advance
+        mov eax, dword ptr [edi + 0x{OFF_ACTION:X}]
+        cmp eax, 0x{ROBE_ACTION_A:X}
+        je done
+        cmp eax, 0x{ROBE_ACTION_B:X}
+        je done
+    oneshot_advance:
+        add edi, 0x{RECORD_STRIDE:X}
+        dec ecx
+        jne oneshot_next
+
     scan:
+        mov ecx, dword ptr [0x{SLOT_BOUND_PTR:X}]
         mov edi, 0x{RECORD_BASE:X}
     next:
         cmp edi, esi
@@ -174,15 +260,108 @@ def build_wrapper() -> bytes:
 
         push ecx
         push edi
+
+        # ORDER MATTERS: detach BEFORE setting the destination.
+        #
+        # 0x460F70 zeroes the villager's task array, and the walk path lives
+        # in it. Setting the destination first and detaching second wiped the
+        # path, so every villager performed the robe action standing where it
+        # was rather than walking to the amphitheatre.
+        # Detach this villager from whatever they are doing FIRST.
+        #
+        # 0x460F70 is the game's own "stop what you are doing" routine. The
+        # 0x39 handler calls it before doing anything else, which is the only
+        # reason dispatching 0x39 preempted a working villager; the 0x78/0x79
+        # handlers do not call it, because in stock they only ever run on a
+        # villager the player has just picked up. That is why the action
+        # landed as a label on busy villagers and only the idle ones walked
+        # over.
+        #
+        # It zeroes a strided task array across the villager's first 0xDC0
+        # bytes -- the +0x0258 and +0x038C..+0x0418 callback fields the live
+        # diff showed on the real robe-trier -- then clears +0xF13 and +0xF1C
+        # and runs two teardown calls. It takes ecx = the villager and one
+        # stack argument, and cleans that argument itself (ret 4).
+        #
+        # It does NOT touch the ceremony bit at byte +0xF11, so setting that
+        # afterwards is safe.
+        push edi
+        mov ecx, edi
+        mov eax, 0x{STOP_CURRENT_ACTIVITY:X}
+        call eax
+
+
+        # Send this villager to the amphitheatre, exactly the way the stock
+        # robe branch does.  Assigning the action without a destination is
+        # what made everyone stand around lecturing: the action had nowhere
+        # to carry them.
+        push 0
+        push 0x64
+        push 5
+        mov eax, 0x{RAND_FN:X}
+        call eax
+        add esp, 4
+        add eax, 0x{ROBE_SPOT_X:X}
+        push eax
+        push 5
+        mov eax, 0x{RAND_FN:X}
+        call eax
+        add esp, 4
+        add eax, 0x{ROBE_SPOT_Y:X}
+        push eax
+        mov ecx, edi
+        mov eax, 0x{SET_DESTINATION:X}
+        call eax
+
+        # Then the action itself, and it is always 0x79.
+        #
+        # Mirroring the stock +0xE88 test looked more faithful but is wrong
+        # here: it hands most villagers 0x78, and only 0x79 is the action the
+        # villager the player DROPPED was observed holding while actually
+        # trying the robe on. With 0x78 they take the label but do not drop
+        # what they are doing.
+        #
+        # The dispatch itself is the interrupt -- the earlier version of this
+        # patch proved that by making the whole village stop and lecture the
+        # instant it assigned 0x39 -- so assigning 0x79 preempts their current
+        # job exactly the same way.
+        # No ceremony bit is set here, deliberately.
+        #
+        # A live diff showed the real robe-trier carrying bit 8 of +0xF10, and
+        # setting it looked like the missing cause. It is not: with it set for
+        # everyone, NOBODY became chief. The bit is something the ceremony
+        # produces, and pre-setting it makes the arrival handler treat each
+        # villager as already processed, so the native chief selection has
+        # nobody left to choose from.
+        #
+        # What remains is exactly what the player's drop does to a villager --
+        # detach, walk to the amphitheatre, perform the robe action -- and the
+        # base game then picks the chief from whoever turns up.
+        # Let the game pick which robe action this villager gets.
+        #
+        # Stock selects between TWO robe actions on +0xE88: 0x78 when it is
+        # set, 0x79 when it is clear. Forcing 0x79 on everyone gave every
+        # villager the same outcome and nobody became chief, which is what you
+        # would expect if 0x78 is the variant that can. Mirroring the stock
+        # test hands each villager exactly the action the base game would have
+        # handed it, so the native selection still decides the chief instead
+        # of this patch deciding it.
         sub esp, 4
         mov dword ptr [esp], 0
         mov eax, esp
         push eax
-        push 0x{INITIATOR_ACTION_ID:X}
+        cmp byte ptr [edi + 0x{OFF_ROBE_VARIANT:X}], 0
+        je robe_variant_b
+        push 0x{ROBE_ACTION_A:X}
+        jmp robe_dispatch
+    robe_variant_b:
+        push 0x{ROBE_ACTION_B:X}
+    robe_dispatch:
         mov ecx, edi
         mov eax, 0x{ACTION_DISPATCH:X}
         call eax
         add esp, 4
+
         pop edi
         pop ecx
 

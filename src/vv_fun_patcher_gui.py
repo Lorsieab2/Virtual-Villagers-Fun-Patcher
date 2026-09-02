@@ -2,14 +2,11 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import subprocess
 import sys
 import threading
 import time
 import tkinter as tk
-import urllib.error
-import urllib.request
 import webbrowser
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
@@ -37,87 +34,9 @@ from vv_fun_patcher import (
 ROOT = Path(__file__).resolve().parents[1]
 SETTINGS = ROOT / "patcher_local_settings.json"
 
-# Update check.  The releases page is what a player actually wants to land on;
-# the API endpoint is only used to read the newest tag.  Both are plain HTTPS
-# GETs through urllib -- no third-party package, matching what the README
-# promises the patcher needs to run.
+# The releases page is what a player actually wants to land on, so the link
+# goes straight there rather than querying an API and reporting a comparison.
 RELEASES_PAGE = "https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases"
-LATEST_RELEASE_API = (
-    "https://api.github.com/repos/Lorsieab2/"
-    "Virtual-Villagers-Fun-Patcher/releases/latest"
-)
-UPDATE_CHECK_TIMEOUT_SECONDS = 10
-
-
-def parse_version(tag: str) -> tuple[int, ...]:
-    """Turn a tag like "v1.34.23" into ordered numbers.
-
-    A PRERELEASE sorts BELOW the final release of the same numbers. Dropping
-    the suffix would make "v1.34.15-rc6" and "v1.34.15" compare equal, so a
-    tester sitting on the release candidate would be told they are up to date
-    after the real v1.34.15 shipped. A trailing 1 is appended for a final
-    release and a 0 plus the suffix's own numbers for a prerelease, which
-    orders rc6 < rc7 < final without special-casing the label.
-
-    Anything unparseable sorts as (), which compares less than every real
-    version, so a malformed tag can never be announced as an upgrade.
-    """
-    text = tag.strip().lstrip("vV")
-    suffix = ""
-    for separator in ("-", "+"):
-        if separator in text:
-            text, _, suffix = text.partition(separator)
-            break
-    digits = []
-    for part in text.split("."):
-        chunk = ""
-        for character in part:
-            if not character.isdigit():
-                break
-            chunk += character
-        if not chunk:
-            return ()
-        digits.append(int(chunk))
-    if not digits:
-        return ()
-    if not suffix:
-        return tuple(digits) + (1,)
-    trailing = [int(run) for run in re.findall(r"\d+", suffix)]
-    return tuple(digits) + (0,) + tuple(trailing)
-
-
-def fetch_latest_release_tag() -> str:
-    """Read the newest published tag from GitHub.
-
-    Raises OSError (which urllib errors subclass) on any network or parse
-    problem, so every failure reaches one handler and the window stays up.
-    """
-    request = urllib.request.Request(
-        LATEST_RELEASE_API,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "User-Agent": f"VVFP-Patcher/{PATCHER_VERSION}",
-        },
-    )
-    with urllib.request.urlopen(
-        request, timeout=UPDATE_CHECK_TIMEOUT_SECONDS
-    ) as response:
-        raw = response.read()
-    # A proxy, a captive portal or a bad gateway can return something that is
-    # not the JSON object we asked for.  Decoding and parsing both raise
-    # exceptions that are NOT OSError, so they would escape the caller's one
-    # handler and take the window down with them.  Fold them in here so every
-    # failure of this function reaches the same place.
-    try:
-        payload = json.loads(raw.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise OSError(f"GitHub returned a response we could not read: {exc}") from exc
-    if not isinstance(payload, dict):
-        raise OSError("GitHub did not return a release object.")
-    tag = payload.get("tag_name")
-    if not isinstance(tag, str) or not tag.strip():
-        raise OSError("GitHub did not return a release tag.")
-    return tag.strip()
 
 
 def group_fun_patches(builds, patches):
@@ -369,10 +288,23 @@ class App(tk.Tk):
             proofread_row,
             text="Proofread by Claude AI",
         ).pack(side="left")
+        blurb_row = ttk.Frame(outer)
+        blurb_row.pack(fill="x", pady=(0, 10))
+        # The link is packed FIRST so it keeps its full width and the
+        # description takes whatever is left; packing it second would let a
+        # long description squeeze it off the edge on a narrow window.
+        update_box = ttk.Frame(blurb_row)
+        update_box.pack(side="right", anchor="ne", padx=(12, 0))
+        self._folder_link(
+            update_box, "Check for Updates", self._open_releases_page
+        ).pack(anchor="e")
+        ttk.Label(update_box, text=PATCHER_VERSION).pack(anchor="e")
         ttk.Label(
-            outer,
+            blurb_row,
             text="Creates a verified complete copy of each game folder and adds the modified EXE there. Originals are never replaced.",
-        ).pack(anchor="w", pady=(0, 10))
+            wraplength=700,
+            justify="left",
+        ).pack(side="left", anchor="nw")
         ttk.Label(
             outer,
             text=(
@@ -508,62 +440,18 @@ class App(tk.Tk):
         )
         self.open_button.pack(anchor="e", pady=(8, 0))
 
-        footer = ttk.Frame(outer)
-        footer.pack(fill="x", pady=(10, 0))
-        ttk.Label(
-            footer,
-            text=f"Virtual Villagers Fun Patcher {PATCHER_VERSION}",
-        ).pack(side="left")
-        self._folder_link(
-            footer, "Check for Updates", self._check_for_updates
-        ).pack(side="right")
+    def _open_releases_page(self) -> None:
+        """Open the releases page. No version check, by design.
 
-    def _check_for_updates(self) -> None:
-        """Compare this build against the newest published release.
-
-        The request runs off the main thread through the same wait window the
-        long operations use, so a slow or unreachable GitHub cannot freeze the
-        patcher into "(Not Responding)".  Every failure is reported as a
-        message with the releases page offered as the manual fallback -- the
-        patcher never needs the network to do its actual job, so a failed
-        check must never look like a failed patch.
+        This used to ask GitHub for the newest tag and compare it against the
+        build, which meant version parsing, prerelease ordering, a request
+        timeout and a failure path for every way a network call can fail. The
+        releases page already shows what is newest, and the build version is
+        printed directly under this link, so the comparison is the player's to
+        make and nothing here can hang or fail.
         """
-        try:
-            latest = self._run_with_wait(
-                "Checking for updates...", fetch_latest_release_tag
-            )
-        except OSError as exc:
-            self.status_var.set(f"Could not check for updates: {exc}")
-            if messagebox.askyesno(
-                "Could not check for updates",
-                f"{self.status_var.get()}\n\n"
-                "Open the releases page in your browser instead?",
-            ):
-                webbrowser.open(RELEASES_PAGE)
-            return
-
-        current_version = parse_version(PATCHER_VERSION)
-        latest_version = parse_version(latest)
-        if latest_version > current_version:
-            self.status_var.set(
-                f"Update available: {latest} (this is {PATCHER_VERSION})."
-            )
-            if messagebox.askyesno(
-                "Update available",
-                f"{self.status_var.get()}\n\nOpen the releases page?",
-            ):
-                webbrowser.open(RELEASES_PAGE)
-            return
-        if latest_version < current_version:
-            # A prerelease is newer than the newest *published* release, so
-            # say so plainly rather than claiming it is out of date.
-            self.status_var.set(
-                f"This build ({PATCHER_VERSION}) is newer than the latest "
-                f"published release ({latest})."
-            )
-        else:
-            self.status_var.set(f"Up to date. {PATCHER_VERSION} is the latest release.")
-        messagebox.showinfo("Check for Updates", self.status_var.get())
+        self.status_var.set(f"Opening {RELEASES_PAGE}")
+        webbrowser.open(RELEASES_PAGE)
 
     def _content_resized(self, _event: tk.Event) -> None:
         self.content_canvas.configure(scrollregion=self.content_canvas.bbox("all"))

@@ -23,7 +23,7 @@ VV4_MAP_OUT = ROOT / "data/candidates/vv4_expanded_time_warp_map.json"
 VV5_OUT = ROOT / "data/vv5_expanded_time_warp.json"
 VV5_MAP_OUT = ROOT / "data/candidates/vv5_expanded_time_warp_map.json"
 
-COMPANION_SHA256 = "31EF5F8C1B3BA3D7018600B5ABFC308412EF7274A95C5DF064CE72035143AAA5"
+COMPANION_SHA256 = "2554BA0F596E67A41702DB38B44A04093AE7B7022767D73E812EC95E6D1D191B"
 COMPANION_SIZE = 1753088
 EXPANDED_MODES = (
     "experimental_expanded_256",
@@ -361,8 +361,26 @@ def build_vv4_payload(
             sub eax, 50000
             cmp dword ptr [0x4D6F88], eax
             jne charge_unknown
+            # Measured, not modelled. VV4 advanced 2 / 3 / 6 years at
+            # slow / normal / fast under a flat 21600, so each speed takes
+            # the delta that scales that to three: 32400 / 21600 / 10800.
+            # Kept in step with build_vv4_origins_feature.py, which is the
+            # handler that ships; this expanded variant used to keep the old
+            # speed * 3600 form and would have advanced a different amount
+            # from the shipping one for the same purchase.
             mov eax, dword ptr [ebp-0x1C]
-            imul eax, eax, 3600
+            cmp eax, 3
+            je xtw_slow
+            cmp eax, 10
+            je xtw_fast
+            mov eax, 21600
+            jmp xtw_apply
+        xtw_slow:
+            mov eax, 32400
+            jmp xtw_apply
+        xtw_fast:
+            mov eax, 10800
+        xtw_apply:
             mov dword ptr [ebp-0x2C], eax
             mov ecx, dword ptr [ebp-0x24]
             mov edx, dword ptr [ebp-0x28]
@@ -842,7 +860,7 @@ def main() -> None:
                 "manager": "0x41FE70",
                 "speed": "Expanded modes read [manager+0x1DCB8]; paused=999; 3 and 10 accepted, all other values normalize to 6",
                 "stock_speed_reference": "[manager+0x17110] remains stock-only; stock modes are byte-frozen and rejected by this feature",
-                "delta": "normalized speed * 3600",
+                "delta": "32400 / 21600 / 10800 for slow / normal / fast, measured",
                 "clock": "0x4B8230/0x4B8234 sub/sbb and exact readback",
                 "funds": "0x4D6F88; one -50000 call to 0x41E300 and exact readback before clock mutation",
             },

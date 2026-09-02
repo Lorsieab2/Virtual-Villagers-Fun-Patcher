@@ -14,7 +14,7 @@
     {
       "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "31EF5F8C1B3BA3D7018600B5ABFC308412EF7274A95C5DF064CE72035143AAA5",
+      "sha256": "2554BA0F596E67A41702DB38B44A04093AE7B7022767D73E812EC95E6D1D191B",
       "size": 1753088
     },
     {
@@ -488,11 +488,11 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "26ED987E52E0DCA08461C2CAF4BCB259FE7E5DD882F47180519BEB1AD2FC7C0E"
+      "source_text_sha256": "F5F7BC66F39B1FA13DD3443466EE251A7B8067F3681074A8C60BC9797F4D6771"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "D3897FE83997DB6F4B3FDA4403B0249C627C8BF06F6C2D452599BE37499D7840"
+      "source_text_sha256": "139C84CBF4D5860EA121EBC56D04FF4CE53D2AA4EC27907AE9BC9C4B8BA218BE"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -611,9 +611,9 @@
         "price": 50000,
         "scope": "village clock (not a per-record write; faction-blind like normal time passing)",
         "speed": "[manager+0x17D7C] signed positive and not 999 (paused)",
-        "delta": "129600 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254",
+        "delta": "194400 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254",
         "effect": "advances exactly three displayed villager years regardless of listed game speed",
-        "writer": "inline: verify snapshot, charge -50000 via 0x4237B0, div 129600 by speed, sub/sbb into clock, postverify",
+        "writer": "inline: verify snapshot, refuse if paused, charge -50000 via 0x4237B0, div 194400 by speed, sub/sbb into clock, postverify",
         "dialog": "self-contained MessageBoxA (no companion DLL change)"
       },
       "full_heal": {
@@ -772,5 +772,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "2A7A0EB50DFEC667DCE5329D80F8A598259D7B3F5DF1BBABDA98534C73269FBB"
+  "task9_map_canonical_sha256": "17A6A25A27455F335FE1070C058BDEE65FA25F11853CB9829FBF23137DEF219A"
 }

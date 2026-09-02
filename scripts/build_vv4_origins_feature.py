@@ -932,6 +932,7 @@ def main() -> None:
         legacy_charge:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [0x4D6F88], eax
+            jb insufficient
             # Time Warp advances NOTHING while the game is paused
             # (measured: 0 years in every game, and VV1 charged for
             # it anyway). Refuse here, BEFORE the deduction below --
@@ -948,7 +949,6 @@ def main() -> None:
             mov eax, 0x{s['paused']:X}
             jmp status
         tw_charge_ok:
-            jb insufficient
             neg eax
             push eax
             mov ecx, 0x4D6F88

@@ -35,8 +35,8 @@ SOURCE = (
     ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.c"
 )
 
-WORLD_MASK_X_NUDGE_PX = -5
-WORLD_MASK_Y_NUDGE_PX = -15
+WORLD_MASK_X_NUDGE_PX = -10
+WORLD_MASK_Y_NUDGE_PX = -25
 
 # The stock child-scale curve at 0x0046091E..0x00460934.
 CHILD_SLOPE = struct.unpack("<f", struct.pack("<I", 0x3D924925))[0]   # 1/14
@@ -120,15 +120,27 @@ class VV3WorldMaskNudgeTests(unittest.TestCase):
     def test_an_adult_gets_the_full_reviewed_offset(self) -> None:
         scale = stock_scale(ADULT_AGE)
         self.assertEqual(scale, 1.0)
-        self.assertEqual(scaled_nudge(WORLD_MASK_X_NUDGE_PX, scale), -5)
-        self.assertEqual(scaled_nudge(WORLD_MASK_Y_NUDGE_PX, scale), -15)
+        self.assertEqual(scaled_nudge(WORLD_MASK_X_NUDGE_PX, scale), -10)
+        self.assertEqual(scaled_nudge(WORLD_MASK_Y_NUDGE_PX, scale), -25)
 
     def test_a_child_gets_a_proportionally_smaller_offset(self) -> None:
-        """A newborn is drawn at 0.80, so it must move 4 px and 12 px, not 5 and 15."""
+        """A newborn is drawn at 0.80, so it moves 80% of the adult offset.
+
+        Derived from the constants rather than written out, so retuning the
+        registration does not require hand-editing an expected pixel count
+        here -- the property under test is the proportionality, not the
+        particular numbers.
+        """
         newborn = stock_scale(0)
         self.assertAlmostEqual(newborn, 0.80, places=4)
-        self.assertEqual(scaled_nudge(WORLD_MASK_X_NUDGE_PX, newborn), -4)
-        self.assertEqual(scaled_nudge(WORLD_MASK_Y_NUDGE_PX, newborn), -12)
+        self.assertEqual(
+            scaled_nudge(WORLD_MASK_X_NUDGE_PX, newborn),
+            int(WORLD_MASK_X_NUDGE_PX * 0.80),
+        )
+        self.assertEqual(
+            scaled_nudge(WORLD_MASK_Y_NUDGE_PX, newborn),
+            int(WORLD_MASK_Y_NUDGE_PX * 0.80),
+        )
 
     def test_the_offset_grows_monotonically_with_age_up_to_the_adult_value(self) -> None:
         previous = 0
@@ -140,15 +152,19 @@ class VV3WorldMaskNudgeTests(unittest.TestCase):
         self.assertEqual(previous, -WORLD_MASK_Y_NUDGE_PX)
 
     def test_the_nudge_never_rounds_a_real_offset_away(self) -> None:
-        """Truncation would drop a child's 5 * 0.8 = 4.0 to 3."""
+        """Truncation must not swallow a whole pixel of a child's offset.
+
+        The smallest villager is drawn at 0.80, so every offset lands between
+        80% of the adult value and the adult value itself. Bounds are derived
+        from the constant so this keeps holding after a retune.
+        """
+        full = abs(WORLD_MASK_X_NUDGE_PX)
+        smallest = int(full * 0.80)
         for age in (0, 40, 100, 200, 279, ADULT_AGE):
             with self.subTest(age=age):
-                self.assertLessEqual(
-                    abs(scaled_nudge(WORLD_MASK_X_NUDGE_PX, stock_scale(age))), 5
-                )
-                self.assertGreaterEqual(
-                    abs(scaled_nudge(WORLD_MASK_X_NUDGE_PX, stock_scale(age))), 4
-                )
+                offset = abs(scaled_nudge(WORLD_MASK_X_NUDGE_PX, stock_scale(age)))
+                self.assertLessEqual(offset, full)
+                self.assertGreaterEqual(offset, smallest)
 
     def test_the_world_draw_still_writes_no_villager_state(self) -> None:
         """The overlay stays cosmetic: the registration must not change that."""

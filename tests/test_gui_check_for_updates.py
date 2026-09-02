@@ -1,315 +1,130 @@
-"""The patcher tells you which build you have and whether a newer one exists.
+"""The "Check for Updates" link sits at the top and opens the releases page.
 
-Three things matter here and each is easy to get subtly wrong.
+This replaces a much larger file that tested a version-comparison machine: the
+patcher used to query GitHub's API for the newest tag, parse both versions,
+order prereleases below their final release, and handle every way a network
+call can fail. The owner asked for the link to go straight to the releases
+page instead, which deletes all of that -- the page already shows what is
+newest, and the build version is printed under the link so the comparison is
+the player's to make.
 
-1. The comparison is by VERSION, not by string. "v1.34.9" is newer than
-   "v1.34.10" alphabetically and older numerically, and the patcher has been
-   past .9 for a while, so a string compare would announce the wrong answer.
+What still matters, and is checked here:
 
-2. A PRERELEASE is newer than the newest *published* release. The check must
-   say so rather than claiming the build is out of date, because prereleases
-   are exactly what the owner hands out for testing.
-
-3. The check must never be able to break patching. It is a network call in a
-   tool whose actual job needs no network at all, so it runs off the main
-   thread and every failure -- offline, timeout, rate limit, garbage payload --
-   has to land on one handler that leaves the window alive.
+  * The link is at the TOP, beside the description, not in a footer.
+  * It opens the real releases page for this repository.
+  * The build version is visible next to it, or the link tells the player
+    nothing actionable.
+  * Nothing in the module reaches the network any more, so the patcher cannot
+    hang or fail on a check it no longer performs.
 """
 from __future__ import annotations
 
 import ast
-import json
+import sys
 import unittest
-import urllib.error
-from io import BytesIO
 from pathlib import Path
-from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 GUI = ROOT / "src" / "vv_fun_patcher_gui.py"
 
-import sys
-
 sys.path.insert(0, str(ROOT / "src"))
 
 from transparency import PATCHER_VERSION  # noqa: E402
-from vv_fun_patcher_gui import (  # noqa: E402
-    LATEST_RELEASE_API,
-    RELEASES_PAGE,
-    UPDATE_CHECK_TIMEOUT_SECONDS,
-    fetch_latest_release_tag,
-    parse_version,
+from vv_fun_patcher_gui import RELEASES_PAGE  # noqa: E402
+
+EXPECTED_RELEASES_PAGE = (
+    "https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases"
 )
 
 
-class VersionParsingTests(unittest.TestCase):
-    def test_a_normal_tag_becomes_ordered_numbers(self) -> None:
-        """A final release carries a trailing 1; see the prerelease test."""
-        self.assertEqual(parse_version("v1.34.23"), (1, 34, 23, 1))
-        self.assertEqual(parse_version("1.34.23"), (1, 34, 23, 1))
-
-    def test_a_prerelease_sorts_below_its_final_release(self) -> None:
-        """Otherwise a tester on the release candidate is told they are current.
-
-        Discarding the suffix made "v1.34.15-rc6" and "v1.34.15" compare
-        equal, so once the real v1.34.15 shipped, anyone still running rc6 was
-        told they were up to date. Prereleases are exactly what gets handed
-        out for testing here, so this is the common case, not an edge case.
-        """
-        self.assertLess(parse_version("v1.34.15-rc6"), parse_version("v1.34.15"))
-        self.assertLess(parse_version("v1.34.15-rc6"), parse_version("v1.34.15-rc7"))
-        self.assertLess(parse_version("v1.34.15"), parse_version("v1.34.16-rc1"))
-        self.assertLess(parse_version("v1.34.15-rc2"), parse_version("v1.34.15-rc10"))
-
-    def test_ordering_is_numeric_not_alphabetical(self) -> None:
-        """The trap: "v1.34.9" sorts after "v1.34.10" as a string."""
-        self.assertGreater(parse_version("v1.34.10"), parse_version("v1.34.9"))
-        self.assertGreater(parse_version("v1.35.0"), parse_version("v1.34.99"))
-        self.assertGreater(parse_version("v2.0.0"), parse_version("v1.99.99"))
-
-    def test_an_unparseable_tag_can_never_look_like_an_upgrade(self) -> None:
-        """() compares less than every real version, so it is never "newer"."""
-        for junk in ("", "latest", "v", "nightly-build", "v1.x.3"):
-            with self.subTest(tag=junk):
-                self.assertEqual(parse_version(junk), ())
-                self.assertLess(parse_version(junk), parse_version(PATCHER_VERSION))
-
-    def test_the_shipped_version_parses(self) -> None:
-        """Guards the whole file: an unparseable own version breaks every path."""
-        self.assertNotEqual(parse_version(PATCHER_VERSION), ())
-
-
-class FetchTests(unittest.TestCase):
-    @staticmethod
-    def _response(payload: bytes):
-        handle = BytesIO(payload)
-        handle.__enter__ = lambda self=handle: self
-        handle.__exit__ = lambda *args: False
-        return handle
-
-    def test_it_reads_the_tag_from_the_api(self) -> None:
-        body = json.dumps({"tag_name": "v9.9.9", "name": "ignored"}).encode()
-        with mock.patch("urllib.request.urlopen", return_value=self._response(body)):
-            self.assertEqual(fetch_latest_release_tag(), "v9.9.9")
-
-    def test_it_asks_the_release_api_with_a_timeout(self) -> None:
-        """A hung request must not sit forever behind the wait window."""
-        body = json.dumps({"tag_name": "v1.0.0"}).encode()
-        with mock.patch(
-            "urllib.request.urlopen", return_value=self._response(body)
-        ) as opened:
-            fetch_latest_release_tag()
-        request, = opened.call_args.args
-        self.assertEqual(request.full_url, LATEST_RELEASE_API)
-        self.assertEqual(opened.call_args.kwargs["timeout"], UPDATE_CHECK_TIMEOUT_SECONDS)
-
-    def test_every_failure_raises_one_catchable_type(self) -> None:
-        """urllib's errors subclass OSError; the missing-tag case must too."""
-        failures = [
-            urllib.error.URLError("offline"),
-            urllib.error.HTTPError(LATEST_RELEASE_API, 403, "rate limited", {}, None),
-            TimeoutError("timed out"),
-        ]
-        for failure in failures:
-            with self.subTest(failure=type(failure).__name__):
-                with mock.patch("urllib.request.urlopen", side_effect=failure):
-                    with self.assertRaises(OSError):
-                        fetch_latest_release_tag()
-
-    def test_a_payload_with_no_tag_is_a_failure_not_a_silent_pass(self) -> None:
-        for payload in (b"{}", json.dumps({"tag_name": "   "}).encode()):
-            with self.subTest(payload=payload):
-                with mock.patch(
-                    "urllib.request.urlopen", return_value=self._response(payload)
-                ):
-                    with self.assertRaises(OSError):
-                        fetch_latest_release_tag()
-
-
-    def test_a_response_that_is_not_a_json_object_is_a_failure(self) -> None:
-        """A proxy or captive portal can return anything at all.
-
-        json.JSONDecodeError and UnicodeDecodeError are not OSError, so
-        without folding them in they would escape the caller's single handler
-        and take the window down instead of reporting a failed check.
-        """
-        for payload in (
-            b"<html>not json</html>",
-            bytes([0xFF, 0xFE, 0x41]),   # invalid UTF-8
-            b"[1, 2, 3]",
-            b'"just a string"',
-            b"null",
-        ):
-            with self.subTest(payload=payload[:16]):
-                with mock.patch(
-                    "urllib.request.urlopen", return_value=self._response(payload)
-                ):
-                    with self.assertRaises(OSError):
-                        fetch_latest_release_tag()
-
-
-class UpdateCheckWiringTests(unittest.TestCase):
-    """Source-level checks for the parts a headless test cannot click."""
-
+class ReleasesLinkTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.source = GUI.read_text(encoding="utf-8")
         cls.tree = ast.parse(cls.source)
-        cls.handler = next(
+
+    def _imported(self) -> set[str]:
+        names: set[str] = set()
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Import):
+                names.update(alias.name.split(".")[0] for alias in node.names)
+            elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+                names.add(node.module.split(".")[0])
+        return names
+
+    def test_it_points_at_the_releases_page_exactly(self) -> None:
+        """The owner supplied this URL directly; a near-miss is not good enough."""
+        self.assertEqual(RELEASES_PAGE, EXPECTED_RELEASES_PAGE)
+
+    def test_the_link_exists_and_opens_that_page(self) -> None:
+        self.assertIn('"Check for Updates", self._open_releases_page', self.source)
+        handler = next(
             node
-            for node in ast.walk(cls.tree)
-            if isinstance(node, ast.FunctionDef) and node.name == "_check_for_updates"
+            for node in ast.walk(self.tree)
+            if isinstance(node, ast.FunctionDef)
+            and node.name == "_open_releases_page"
         )
-
-    def test_the_link_exists_and_is_wired_to_the_handler(self) -> None:
-        self.assertIn('"Check for Updates", self._check_for_updates', self.source)
-
-    def test_the_version_is_shown_next_to_it(self) -> None:
-        self.assertIn(
-            'text=f"Virtual Villagers Fun Patcher {PATCHER_VERSION}"', self.source
-        )
-
-    def test_the_request_runs_off_the_main_thread(self) -> None:
-        """Reusing _run_with_wait is what keeps the window painting."""
-        calls = [
-            node
-            for node in ast.walk(self.handler)
-            if isinstance(node, ast.Call)
-            and isinstance(node.func, ast.Attribute)
-            and node.func.attr == "_run_with_wait"
-        ]
-        self.assertEqual(len(calls), 1, "the update check must use the wait window")
-
-    def test_the_failure_path_is_handled_in_the_handler(self) -> None:
-        """Not left to crash the callback and take the window with it."""
-        handlers = [
-            node for node in ast.walk(self.handler) if isinstance(node, ast.ExceptHandler)
-        ]
-        self.assertTrue(handlers, "the update check has no failure handling")
-        caught = {
-            name.id
-            for handler in handlers
-            if isinstance(handler.type, ast.Name)
-            for name in [handler.type]
-        }
-        self.assertIn("OSError", caught)
-
-    def test_a_browser_is_only_opened_after_the_player_agrees(self) -> None:
-        """Every webbrowser.open sits inside an askyesno branch."""
         opens = [
             node
-            for node in ast.walk(self.handler)
+            for node in ast.walk(handler)
             if isinstance(node, ast.Call)
             and isinstance(node.func, ast.Attribute)
             and node.func.attr == "open"
             and isinstance(node.func.value, ast.Name)
             and node.func.value.id == "webbrowser"
         ]
-        self.assertTrue(opens, "the update check never offers the releases page")
-        guarded = []
-        for branch in ast.walk(self.handler):
-            if not isinstance(branch, ast.If):
-                continue
-            asks = [
-                node
-                for node in ast.walk(branch.test)
-                if isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Attribute)
-                and node.func.attr == "askyesno"
-            ]
-            if asks:
-                guarded.extend(
-                    node
-                    for statement in branch.body
-                    for node in ast.walk(statement)
-                    if node in opens
-                )
-        self.assertEqual(
-            len(guarded), len(opens), "a browser is opened without asking first"
+        self.assertEqual(len(opens), 1, "the link must open exactly one page")
+        self.assertIsInstance(opens[0].args[0], ast.Name)
+        self.assertEqual(opens[0].args[0].id, "RELEASES_PAGE")
+
+    def test_the_link_is_at_the_top_beside_the_description(self) -> None:
+        """Not in a footer under the status box, which is where it started."""
+        blurb = self.source.find("blurb_row = ttk.Frame(outer)")
+        self.assertNotEqual(blurb, -1, "the description row is gone")
+        link = self.source.find('"Check for Updates"')
+        self.assertNotEqual(link, -1, "the link is gone")
+        status = self.source.find("status_box = ttk.LabelFrame(")
+        self.assertNotEqual(status, -1, "the status box is gone")
+        self.assertLess(
+            link, status,
+            "the link must be built before the status box, i.e. at the top",
+        )
+        self.assertLess(
+            abs(link - blurb), 900,
+            "the link must sit with the description, not elsewhere",
         )
 
-    def test_the_comparison_goes_through_parse_version(self) -> None:
-        """Otherwise the tags are compared as strings.
+    def test_the_link_is_packed_to_the_right(self) -> None:
+        self.assertIn('update_box.pack(side="right"', self.source)
 
-        parse_version being correct in isolation proves nothing if the handler
-        never calls it: "v1.34.9" > "v1.34.10" as a string, so a build past .9
-        would announce the wrong answer while every unit test still passed.
+    def test_the_build_version_is_shown_next_to_the_link(self) -> None:
+        """Without it the link cannot tell the player anything useful."""
+        self.assertIn("ttk.Label(update_box, text=PATCHER_VERSION)", self.source)
+        self.assertNotEqual(PATCHER_VERSION.strip(), "")
+
+    def test_the_old_footer_is_gone(self) -> None:
+        self.assertNotIn("footer = ttk.Frame(outer)", self.source)
+
+    def test_nothing_reaches_the_network_any_more(self) -> None:
+        """A link cannot hang; a version check could.
+
+        The point of going direct is that there is no request left to time
+        out, be rate limited, or return malformed JSON.
         """
-        parsed = {
-            node.targets[0].id
-            for node in ast.walk(self.handler)
-            if isinstance(node, ast.Assign)
-            and len(node.targets) == 1
-            and isinstance(node.targets[0], ast.Name)
-            and isinstance(node.value, ast.Call)
-            and isinstance(node.value.func, ast.Name)
-            and node.value.func.id == "parse_version"
-        }
-        self.assertEqual(
-            parsed,
-            {"current_version", "latest_version"},
-            "both sides of the version comparison must go through parse_version",
-        )
-        compared = set()
-        for node in ast.walk(self.handler):
-            if isinstance(node, ast.Compare):
-                operands = [node.left, *node.comparators]
-                names = {n.id for n in operands if isinstance(n, ast.Name)}
-                if names & parsed:
-                    compared |= names
-        self.assertEqual(
-            compared,
-            parsed,
-            "the handler compares something other than the parsed versions",
-        )
-
-    def test_it_points_at_this_repository(self) -> None:
-        for url in (RELEASES_PAGE, LATEST_RELEASE_API):
-            with self.subTest(url=url):
-                self.assertIn("Lorsieab2/Virtual-Villagers-Fun-Patcher", url)
-                self.assertTrue(url.startswith("https://"))
-
-    def test_a_newer_local_build_is_not_called_out_of_date(self) -> None:
-        """Prereleases are handed out for testing; they are ahead, not behind.
-
-        Checked on the syntax tree, not by grepping for the wording: the
-        message survives in the file even if the branch that reaches it is
-        disabled, so a text search would pass over a dead code path.
-        """
-        directions = set()
-        for node in ast.walk(self.handler):
-            if not isinstance(node, ast.If) or not isinstance(node.test, ast.Compare):
-                continue
-            names = {node.test.left.id} if isinstance(node.test.left, ast.Name) else set()
-            names |= {
-                operand.id
-                for operand in node.test.comparators
-                if isinstance(operand, ast.Name)
-            }
-            if names != {"current_version", "latest_version"}:
-                continue
-            for operator in node.test.ops:
-                directions.add(type(operator).__name__)
-        self.assertEqual(
-            directions,
-            {"Gt", "Lt"},
-            "the handler must branch on BOTH a newer release and a newer local build",
-        )
-        self.assertIn("is newer than the latest", self.source)
+        self.assertNotIn("urllib", self._imported())
+        for gone in (
+            "LATEST_RELEASE_API",
+            "fetch_latest_release_tag",
+            "parse_version",
+            "UPDATE_CHECK_TIMEOUT_SECONDS",
+        ):
+            with self.subTest(symbol=gone):
+                self.assertNotIn(gone, self.source)
 
     def test_no_third_party_package_is_imported(self) -> None:
         """The README promises the patcher needs no third-party packages."""
-        imported = set()
-        for node in ast.walk(self.tree):
-            if isinstance(node, ast.Import):
-                imported.update(alias.name.split(".")[0] for alias in node.names)
-            elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-                imported.add(node.module.split(".")[0])
-        allowed = set(sys.stdlib_module_names) | {
-            "vv_fun_patcher",
-            "transparency",
-        }
-        self.assertEqual(imported - allowed, set())
+        allowed = set(sys.stdlib_module_names) | {"vv_fun_patcher", "transparency"}
+        self.assertEqual(self._imported() - allowed, set())
 
 
 if __name__ == "__main__":
