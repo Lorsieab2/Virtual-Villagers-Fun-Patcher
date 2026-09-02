@@ -33,13 +33,23 @@ Writing ``+0xF24`` through that dispatcher is exactly "interrupt whatever this
 villager is doing and start the robe action", so every eligible villager now
 actually walks to the amphitheatre.
 
-WHAT IS DELIBERATELY NOT TOUCHED.  The candidate/selector state ``+0xE80`` and
-``+0xE88`` is never read, written, repaired or invented, and the stock arrival
-handler still decides who is rejected and who becomes Tribal Chief.  The
-natural stock ending is preserved; only the "everyone goes and tries" part is
-added.  The dropped initiator still goes through the complete unchanged
-``0x421960`` (which also fires its one-shot effect), and a drop the stock
-handler refuses still fans out to nobody.
+WHAT IS READ, AND WHAT IS DELIBERATELY NOT TOUCHED.  Both candidate/selector
+fields are now READ, and only read:
+
+* ``+0xE80`` (chief flag) gates the whole feature.  The ceremony is for
+  choosing a chief, so the fan-out runs only while the village has none;
+  dropping the existing chief on the robe falls through to the stock
+  "chief lectures" routine untouched.
+* ``+0xE88`` (robe variant) selects which of the two robe actions each
+  villager is given, ``0x78`` or ``0x79`` -- the same choice the stock
+  handler makes for the villager it accepts.
+
+Neither field is written, repaired or invented, and the stock arrival handler
+still decides who is rejected and who becomes Tribal Chief.  The natural stock
+ending is preserved; only the "everyone goes and tries" part is added.  The
+dropped initiator still goes through the complete unchanged ``0x421960`` (which
+also fires its one-shot effect), and a drop the stock handler refuses still
+fans out to nobody.
 """
 from __future__ import annotations
 
