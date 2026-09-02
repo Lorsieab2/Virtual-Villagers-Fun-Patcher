@@ -1,0 +1,105 @@
+{
+  "id": "vv4_expanded_256_time_warp",
+  "status": "independent static Disassembler GO; runtime/player pending",
+  "source_bindings": {
+    "builder": {
+      "path": "scripts/build_expanded_time_warp.py",
+      "source_text_sha256": "26D17198B719B58AE612A904D3DDF3D89C0C06AF9F30E74AFB5D2F84411F45E0"
+    },
+    "task9_builder": {
+      "path": "scripts/build_vv5_task9_native_actions.py",
+      "source_text_sha256": "26ED987E52E0DCA08461C2CAF4BCB259FE7E5DD882F47180519BEB1AD2FC7C0E"
+    },
+    "task9_companion_c": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.c",
+      "source_text_sha256": "D3897FE83997DB6F4B3FDA4403B0249C627C8BF06F6C2D452599BE37499D7840"
+    },
+    "task9_companion_def": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.def",
+      "source_text_sha256": "C325D8249E5A29CCFD6E1AED71DEC1BAF64BAFB2AF654B6FAC4E8C225ACBAC69"
+    },
+    "task9_companion_rc": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
+      "source_text_sha256": "8893FD473DC5E63689CAEE19876834BEB7D437DF3B75676F65DFE09737F0DB08"
+    }
+  },
+  "companion": {
+    "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+    "destination": "VVFP Origins Icons.dll",
+    "sha256": "31EF5F8C1B3BA3D7018600B5ABFC308412EF7274A95C5DF064CE72035143AAA5",
+    "size": 1753088
+  },
+  "payload_file_offset": "0x89373",
+  "payload_va": "0x489373",
+  "payload_size": 3213,
+  "payload_sha256": "AE2CF0EFF570C6492C00B4C9C1E4399D40B4BBD670265681035990436999C062",
+  "payload_sha256_by_mode": {
+    "experimental_expanded_256": "AE2CF0EFF570C6492C00B4C9C1E4399D40B4BBD670265681035990436999C062",
+    "experimental_expanded_256_progression": "AE2CF0EFF570C6492C00B4C9C1E4399D40B4BBD670265681035990436999C062"
+  },
+  "speed_offset_by_mode": {
+    "experimental_expanded_256": "0x1DCB8",
+    "experimental_expanded_256_progression": "0x1DCB8"
+  },
+  "layout": {
+    "handler_length": 37,
+    "constructor_length": 65,
+    "show_menu_length": 53,
+    "show_message_length": 96,
+    "transaction_length": 566,
+    "handler_sha256": "31803CD2E3E3952CDA1B8146132DC5360933385BB6E8F4CCA0323E8F06FC1A7A",
+    "constructor_sha256": "E7B4B5D67902C73D8E185172D2DD654FD9D90221E01BB477F17C19966D8357F1",
+    "show_menu_sha256": "A323460132FCC229A3BB0C2404AD80106B006D9170F533D8C349B357B969F50D",
+    "show_message_sha256": "4AA00C7037A171BA72F8D55D594E8BE8AA5ADDA0EA514548179AD2FD4217BC67",
+    "transaction_sha256": "86874FE2539C439AE7E214D0E1B1BDB72406C32970EF6D3CD41D3AA662E9460C",
+    "strings_used": 614,
+    "strings": {
+      "button": "0x489D73",
+      "dll": "0x489D7C",
+      "begin": "0x489D93",
+      "get": "0x489DA5",
+      "end": "0x489DB5",
+      "menu": "0x489DC5",
+      "user32": "0x489DE1",
+      "messagebox": "0x489DEC",
+      "title": "0x489DF8",
+      "warning": "0x489E09",
+      "paused": "0x489E62",
+      "insufficient": "0x489EB9",
+      "stopped": "0x489EF5",
+      "success": "0x489F2C",
+      "charge_unknown": "0x489F41",
+      "clock_unknown": "0x489F8D"
+    }
+  },
+  "hooks": [
+    {
+      "offset": "0x3E165",
+      "before": "8BC68B4C244C",
+      "after": "E949B2040090",
+      "purpose": "route the Tech-screen constructor through the standalone Time Warp constructor"
+    },
+    {
+      "offset": "0x3E9F0",
+      "before": "578BF9E828F00000",
+      "after": "E97EA90400909090",
+      "purpose": "route Tech command 13 through the standalone Time Warp handler"
+    }
+  ],
+  "forbidden_mutations": [
+    "PE sections",
+    "imports",
+    ".shr",
+    "13-row ledger",
+    "stock modes",
+    "VV3"
+  ],
+  "stock_no_mutation_sha256": {
+    "collection_progression": "132516F4A5F7D2E9B539B14300207AEA5872FDCC0D34F13768435D9F4B6F76D4",
+    "immediate_fixed": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB"
+  },
+  "expanded_rendered_sha256": {
+    "experimental_expanded_256": "13109DFD12B9458CCBFB92F9D5122A29C2A9CE63DEE256AFB9C0355CE8AA7B7C",
+    "experimental_expanded_256_progression": "91889DCD1D94EB0E4FCE5988FFECCF464FCF989F286CA50343E70ABB07DC1DDD"
+  }
+}

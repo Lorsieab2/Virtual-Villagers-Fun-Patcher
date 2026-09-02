@@ -556,7 +556,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "58F6E183E2CC8E321E056FFC9AD9DF9680DF9E601D052EC63BA1F7ABCE34195A",
+            "E4123BE63A2E8C4F1CC51F714A588D6F57131C0A9D5648DF6BBD90C69D8E1FBA",
         )
         self.assertEqual(
             bytes.fromhex(
@@ -569,27 +569,20 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             bytes.fromhex("E93BDB0300909090"),
         )
 
-    def test_time_warp_advance_is_speed_proportional(self) -> None:
-        """VV3 must scale by the speed, because its catch-up divides by it.
+    def test_time_warp_uses_its_measured_per_speed_deltas(self) -> None:
+        """VV3 selects a delta per speed, from measurement not from theory.
 
-        This is the opposite of the other four games and the distinction is
-        not cosmetic. VV3's catch-up divides elapsed time by the current speed
-        -- the paused sentinel test at 0x431C01 followed by the `fdivr` at
-        0x431C17, written up in
-        docs/vv3-origins-exclusive-features-research.md. With
-        delta = speed * 3600 the division cancels and every active speed
-        advances exactly 60 internal age units, which is three displayed
-        villager years at 20 units per year.
+        An earlier version of this test asserted delta = speed * 3600, on the
+        reasoning that VV3's catch-up divides by the speed so the division
+        would cancel. Playtesting with exactly that form measured 2 years at
+        slow, 3 at normal and 3 at fast -- normal and fast right, slow short.
 
-        Substituting VV1's flat 21600 here made the advance vary with the
-        speed setting -- 6 displayed years at half speed, 1.8 at double, 3
-        only at normal -- while charging 50,000 points every time. VV1's
-        amount was measured on VV1's clock and does not transfer.
+        So the table is the measurements scaled to three years: 16200 at slow
+        (10800 * 3/2), and normal and fast unchanged at 21600 and 36000. See
+        tests/test_time_warp_measured.py for the full set.
 
-        The paused sentinel 999 is handled by the same normalisation: it is
-        neither 3 nor 10, so it falls through to the normal-speed code and a
-        paused Time Warp advances the same three years rather than being
-        refused.
+        Paused (999) is neither 3 nor 10, and is refused before the charge
+        rather than falling through to a delta.
         """
         try:
             import capstone
@@ -609,17 +602,14 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             for insn in md.disasm(payload, 0x4A3180)
         )
 
-        # The speed is read, normalised to 3 / 6 / 10, and multiplied.
-        self.assertIn("imul eax, eax, 0xe10", text,
-                      "VV3 Time Warp must scale the clock shift by the speed")
-        for expected in ("cmp eax, 3", "cmp eax, 0xa", "mov eax, 6"):
-            self.assertIn(expected, text,
-                          f"VV3 Time Warp must normalise the speed ({expected})")
+        self.assertIn("mov eax, dword ptr [edi + ebp + 0x12f20]", text)
+        for delta in ("0x3f48", "0x5460", "0x8ca0"):   # 16200, 21600, 36000
+            self.assertIn(f"mov eax, {delta}", text)
+        self.assertIn("sub dword ptr [0x4a4210], eax", text)
+        self.assertNotIn("imul eax, eax, 0xe10", text)
 
-        # And it must NOT have been replaced by a flat subtraction.
-        self.assertNotIn("sub dword ptr [0x4a4210], 0x5460", text,
-                         "VV3 must not use VV1's flat 21600 amount")
-
+        # Paused refused before the deduction.
+        self.assertIn("cmp ecx, 0x3e7", text)
 
 if __name__ == "__main__":
     unittest.main()

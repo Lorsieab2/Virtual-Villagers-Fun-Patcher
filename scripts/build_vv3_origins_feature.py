@@ -296,7 +296,9 @@ def main() -> None:
         ("detail_title", "Villager Upgrades"),
         ("mastery_failed", "Full Mastery could not be completed."),
         ("not_enough", "Not enough tech points."),
-        ("paused", "Time Warp is unavailable while the game is paused."),
+        ("paused", "Time Warp is unavailable while the game is paused."
+         "\r\n"
+         "No tech points have been deducted."),
         (
             "time_warp_done",
             "Time Warp completed.",
@@ -748,6 +750,19 @@ def main() -> None:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [0x582644], eax
             jb insufficient
+            # Time Warp while the game is paused advances nothing at all
+            # (measured: 0 years in every game), so refuse it here, BEFORE the
+            # deduction below.  Checking after the `sub` would still cost the
+            # player 50,000 points for a no-op, which is exactly the bug being
+            # fixed.  Only row 0 is affected; every other row charges normally.
+            cmp ebx, 0
+            jne tw_charge_ok
+            mov ecx, dword ptr [edi + ebp + 0x12F20]
+            cmp ecx, 0x3E7
+            jl tw_charge_ok
+            mov eax, 0x{s['paused']:X}
+            jmp show_status
+        tw_charge_ok:
             sub dword ptr [0x582644], eax
             cmp ebx, 0
             je do_time_warp
@@ -774,38 +789,31 @@ def main() -> None:
             jmp menu_done
 
         do_time_warp:
-            # VV3's catch-up DIVIDES elapsed time by the current speed, so the
-            # delta has to stay proportional to the speed for the displayed
-            # advance to come out constant.  Subtracting a flat amount here
-            # made the result vary with the speed setting instead: 21600
-            # seconds gives 6 displayed years at half speed and 1.8 at double,
-            # and only 3 at normal, while charging 50,000 points every time.
+            # Measured, not modelled.  With delta = speed * 3600 (10800 /
+            # 21600 / 36000) VV3 advanced 2 / 3 / 3 years at slow / normal /
+            # fast.  Normal and fast are already right, so only slow moves:
+            # scaling its delta by 3/2 gives 16200.  Two previous attempts to
+            # derive these numbers from a model of the clock were wrong in
+            # different directions, so the table below is the measurements and
+            # nothing else.  Re-measure after touching it.
             #
-            # The division is visible in the stock binary at 0x431C01 -- the
-            # paused sentinel test `cmp [manager+0x12F20], 0x3E7` followed by
-            # the `fdivr` at 0x431C17 that normalises by the active speed --
-            # and is written up in docs/vv3-origins-exclusive-features-research.md.
-            # With delta = speed * 3600 the division cancels and every active
-            # speed advances exactly 60 internal age units, which is three
-            # displayed villager years at 20 units per year.
-            #
-            # Do NOT copy VV1's flat amount here.  VV1 was calibrated from
-            # play and VV3 is a different clock; assuming they shared one is
-            # what introduced this regression.
-            #
-            # The speed code is normalised to the three values VV3 actually
-            # assigns -- 3 (half), 6 (normal), 10 (double).  Anything else,
-            # INCLUDING the paused sentinel 999, falls through to normal
-            # speed, so a paused Time Warp advances the same three years
-            # rather than being refused.
+            # Speed codes are 3 / 6 / 10, read from the constants the game
+            # itself stores into the speed field at manager +0x12F20.  Any
+            # unexpected value takes the normal-speed delta; paused was
+            # already refused before charging.
             mov eax, dword ptr [edi + ebp + 0x12F20]
             cmp eax, 3
-            je tw_scale
+            je tw_slow
             cmp eax, 10
-            je tw_scale
-            mov eax, 6
-        tw_scale:
-            imul eax, eax, 3600
+            je tw_fast
+            mov eax, 21600
+            jmp tw_apply
+        tw_slow:
+            mov eax, 16200
+            jmp tw_apply
+        tw_fast:
+            mov eax, 36000
+        tw_apply:
             sub dword ptr [0x4A4210], eax
             mov eax, 0x{s['time_warp_done']:X}
             jmp show_status

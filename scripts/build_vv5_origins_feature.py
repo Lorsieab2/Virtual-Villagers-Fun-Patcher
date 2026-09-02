@@ -530,6 +530,16 @@ def main() -> None:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [0x51D5F8], eax
             jb insufficient
+            # Time Warp while paused advances NOTHING (measured: 0 years), so
+            # refuse it BEFORE the charge below. Checking afterwards would
+            # still cost 50,000 points for a no-op, which is the reported bug.
+            cmp ebx, 0
+            jne tw_charge_ok
+            cmp dword ptr [edi + 0x17D7C], 0x3E7
+            jl tw_charge_ok
+            mov eax, 0x{s['paused']:X}
+            jmp status
+        tw_charge_ok:
             neg eax
             push eax
             mov ecx, 0x51D5F8
@@ -561,18 +571,31 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp done
         time_warp:
-            # Speed-INDEPENDENT: no speed read, no idiv.
+            # Speed independent by construction: delta * speed is constant.
             #
-            # VV5's clock runs on its own scale, so it keeps its own measured
-            # amount rather than VV1's. Its shipped 129600/speed form
-            # subtracted 43200 at half speed and advanced ONE year, so three
-            # years is 129600 -- now applied at every speed, paused included.
-            # The old form gave half a year at normal speed and less at
-            # double, because it divided by the speed.
+            # Measured with the flat 129600 this replaced: 6-7 years at slow,
+            # 12 at normal, 24 at fast. Fast is exactly twice normal and
+            # normal twice slow, so the advance tracks delta * speed.
             #
-            # Dropping the idiv also removes the divide-by-zero and the paused
-            # sentinel 999 yielding 129600/999 = 129 seconds.
-            sub dword ptr [0x4C6250], 129600
+            # 24/12 = 2 also rules out a fast speed code of 10 (10/6 = 1.67),
+            # and VV5 never writes its speed codes as immediates, so they
+            # cannot be read out of the binary the way VV1's and VV3's can.
+            # Dividing sidesteps the question: 194400 / speed keeps
+            # delta * speed fixed, which is three years whatever the codes
+            # are. Calibrated at normal, where 129600 gave 12 years, so three
+            # years is 32400 and 32400 * 6 = 194400.
+            #
+            # The divide is safe: paused (>= 999) was refused before the
+            # charge, and a zero or negative speed takes the guard below.
+            mov ecx, dword ptr [edi + 0x17D7C]
+            test ecx, ecx
+            jg tw_divide
+            mov ecx, 6
+        tw_divide:
+            mov eax, 194400
+            xor edx, edx
+            div ecx
+            sub dword ptr [0x4C6250], eax
             sbb dword ptr [0x4C6254], 0
             mov eax, 0x{s['time_done']:X}
             jmp status
