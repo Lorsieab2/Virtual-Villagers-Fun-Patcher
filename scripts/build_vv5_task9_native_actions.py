@@ -2037,16 +2037,23 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     that no-op.
 
     This is NOT the shape every game wants, and the difference is not
-    cosmetic.  VV3's catch-up divides elapsed time by the current speed -- the
-    paused test at 0x431C01 followed by the `fdivr` at 0x431C17 -- so VV3 must
-    keep delta = speed * 3600 for the division to cancel and the advance to
-    come out constant.  Giving VV3 a flat amount made it advance 6 years at
-    half speed and 1.8 at double while charging the same 50,000 points.
+    cosmetic.  Each game's table is its own measurement:
 
-    VV1 was likewise measured, not modelled: a flat 21600 advanced three years
-    where the old speed * 3600 gave only two at half speed.  VV2 and VV4 follow
-    VV1 by analogy because they share its clock and its 3/6/10 speed codes;
-    that analogy is NOT a measurement and is the weakest link in this set.  Self-contained
+    * VV3 uses 16200 / 21600 / 36000.  Its earlier speed * 3600 form measured
+      2 / 3 / 3, so only the slow entry moved (10800 scaled by 3/2).
+    * VV1 uses 32400 / 21600 / 21600, from a flat 21600 measuring 2 / 3 / 3.
+    * VV2 and VV4 carry 32400 / 21600 / 10800, from a flat 21600 measuring
+      2 / 3 / 6.
+
+    The VV2/VV4 entries are the weakest link, and for a reason worth recording:
+    those tables select on the speed field the same way this one does, and a
+    scan of both binaries finds only the constant 6 ever stored into that field
+    as an immediate.  If nothing writes it from a register at runtime, their
+    `cmp eax, 3` and `cmp eax, 10` never match, every speed silently takes the
+    normal delta, and the slow/fast entries above are dead -- which is exactly
+    what 2 / 3 / 6 under a flat delta looks like.  VV5 has the same exposure;
+    dividing sidesteps the comparison but not the question of what the field
+    holds.  Re-measure per speed before trusting any of these three.  Self-contained
     (inline MessageBoxA via the page's existing import thunks); no companion
     DLL change. Ported from the statically-reviewed dispatcher in
     build_expanded_time_warp.py as a ret-terminated subroutine so tech_menu can
