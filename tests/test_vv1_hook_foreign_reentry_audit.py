@@ -121,6 +121,16 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       Only numbered village slots 1..5 are published: slot 0 (the meta file)
 #       and out-of-range values now branch straight to the popad/popfd tail
 #       without touching the capture or the mask tables.
+#   0x35AB0                         re-confirmed after the duplicate-purchase
+#       guard.  The Tech menu it reaches now calls a small .shr helper while
+#       building its state word, so this block's bytes change.  The helper
+#       runs in the menu's own frame on purpose: it reads the game context
+#       from [esi+0x0C] and ORs the Island-Event/Barrel pending bits straight
+#       into EDI, the accumulator the menu is building.  It brackets its own
+#       scratch use with push/pop EAX and ends in a balanced `ret`, so ESP and
+#       every register except the intended EDI are preserved.  It leaves flags
+#       undefined, which is safe here: the next instruction is `push edi`.
+#       Reaching it is a `call`, not a jmp, so it adds no stock re-entry.
 #   0x35AB0/0x4A700                  confirmed.  The 0x35AB0 fall-through
 #       repeats the displaced `cmp [esp+4],8` immediately before 0x435AB5;
 #       the 0x4A700 fall-through repeats `mov eax,[esp+4]; push ebx`
@@ -149,7 +159,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "63CB33A95A00E194547370F24644869943BE36AB894A6653134BC4CD8E8D1D88",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "A3E5EBA7D52AE27F9BB67FE40861696C403B3855F4961288B9692C14DAF5767E",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "047EE3DF74AEAF2FE1256EFC85C1A5204837964FAF15C65A0440546498DA3167",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "7BEEF2CB03944B6556253B41D90584B95F51DB8A177FAB1DFA8D3540490B1CD3",

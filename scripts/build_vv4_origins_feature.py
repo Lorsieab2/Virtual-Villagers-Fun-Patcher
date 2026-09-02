@@ -129,6 +129,13 @@ BARREL_CHILDREN = 3                     # the barrel delivers 3 children
 # ApplyVV4ResetCollections @102, which also show the OFFICIAL result box); this
 # .shr stub loads the DLL and calls the requested export by ORDINAL (EAX), so no
 # new payload strings are needed.
+# Pending-purchase row states for the Tech menu. Placed where the region is
+# zero in the stock image AND unclaimed by every VV4 manifest. Padding that
+# merely looks free in one built image is not enough: 0xCC300 passed that
+# test and still overlapped the optional Village-Wide Upgrades patch, which
+# owns 0xCC220 for 1312 bytes.
+PENDING_ROWS_FILE_OFFSET = 0xCCC20
+PENDING_ROWS_VA = IMAGE_BASE + PENDING_ROWS_FILE_OFFSET
 COLLECTIONS_APPLY_FILE_OFFSET = 0xCCD00
 COLLECTIONS_APPLY_VA = 0x728D00
 COLLECTIONS_COMPLETE_ORDINAL = 101
@@ -847,6 +854,13 @@ def main() -> None:
             jz food_not_owned
             or eax, 16
         food_not_owned:
+            # A pending Island Event or Barrel of Babies must not be sold
+            # again: both are queued by writing a value that is already
+            # there, so a second purchase changes nothing and charges full
+            # price anyway. This marks those rows so the companion DLL
+            # draws them as disabled "Unavailable" buttons -- the row
+            # cannot be clicked, so the charge path is never entered.
+            call 0x{PENDING_ROWS_VA:X}
             # Tech/Food Doublers must be purchasable when unowned: show the
             # default "Buy" control (owned rows still resolve to "Remove" via
             # the eax bit-3/bit-4 owned flags set above).  The former
@@ -1894,6 +1908,36 @@ def main() -> None:
           "route the stock barrel spawn's first internal room-check through the purchased-barrel gate")
     patch(0x14E0D, bytes.fromhex("E83E350500"), rel32_call(0x414E0D, BARREL_CHECK2_VA),
           "route the stock barrel spawn's second internal room-check through the purchased-barrel gate")
+    # Takes the tech menu's state word in eax and returns it with the two
+    # pending bits merged in. Unlike the other games, VV4's Barrel of Babies
+    # shares the Island Event's trigger -- do_barrel arms its own flag and
+    # then zeroes the very same [world+0x170E0] countdown -- so a pending
+    # event blocks BOTH rows, and an armed barrel additionally blocks its
+    # own. The world pointer comes from the same 0x41FE70 getter both
+    # purchase paths use.
+    pending_rows_code = assemble(
+        f"""
+            push edx
+            mov edx, eax
+            call 0x41FE70
+            cmp dword ptr [eax + 0x170E0], 0
+            jne pending_rows_barrel
+            or edx, 0x800000
+            or edx, 0x1000000
+            jmp pending_rows_done
+        pending_rows_barrel:
+            cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            je pending_rows_done
+            or edx, 0x1000000
+        pending_rows_done:
+            mov eax, edx
+            pop edx
+            ret
+        """,
+        PENDING_ROWS_VA,
+    )
+    patch(PENDING_ROWS_FILE_OFFSET, b"\0" * len(pending_rows_code), pending_rows_code,
+          "mark the Tech menu's Island Event and Barrel of Babies rows Unavailable while one is already pending, so a second purchase cannot be clicked and cannot be charged for")
     patch(COLLECTIONS_APPLY_FILE_OFFSET, b"\0" * len(collections_apply), collections_apply,
           "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
     patch(VV4_DETAIL_RECORD_FILE_OFFSET, b"\0" * 4, b"\0" * 4,

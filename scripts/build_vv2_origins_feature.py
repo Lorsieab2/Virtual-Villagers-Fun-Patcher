@@ -105,6 +105,16 @@ BARREL_CUE_FRAMES = 90
 # Change Appearance helper: placed after the optional village-wide payload in
 # the .shr reserve (village-wide occupies 0x9A800..0x9AD20). The first 0x100
 # bytes hold the helper code; the export name string follows at +0x100.
+# Pending-purchase row states for the Tech menu. tech_menu's own cave has no
+# room to inline the two checks, so it just calls this, which ORs the
+# "Unavailable" bits straight into the state word it is building.
+#
+# Placed where the region is zero in the stock image AND unclaimed by every
+# VV2 manifest. Padding that merely looks free in one built image is not
+# enough: 0x9A900 passed that test and still overlapped the optional
+# Village-Wide Upgrades patch, which owns 0x9A800 for 1312 bytes.
+PENDING_ROWS_FILE_OFFSET = 0x9A4A0
+PENDING_ROWS_VA = IMAGE_BASE + SHR_RVA + (PENDING_ROWS_FILE_OFFSET - SHR_FILE_OFFSET)
 APPEARANCE_FILE_OFFSET = 0x9AD20
 APPEARANCE_VA = IMAGE_BASE + SHR_RVA + (APPEARANCE_FILE_OFFSET - SHR_FILE_OFFSET)
 # The appearance handler MUST stay within its 0x100 byte box — the next Origins
@@ -613,6 +623,16 @@ def main() -> None:
             jz food_not_owned
             or eax, 16
         food_not_owned:
+            # A pending Island Event or Barrel of Babies must not be sold
+            # again: both are queued by writing a value that is already
+            # there, so a second purchase changes nothing and charges full
+            # price anyway. Marking the rows here means they render as
+            # disabled "Unavailable" buttons and can never be clicked,
+            # which costs no message string -- the exe has 4 spare bytes.
+            # Runs in tech_menu's frame: reads the player object from edi
+            # and ORs the two pending bits (0x800000 Island Event,
+            # 0x1000000 Barrel of Babies) into eax.
+            call 0x{PENDING_ROWS_VA:X}
             push eax
             push 0
             call 0x{show_dialog:X}
@@ -2256,6 +2276,26 @@ def main() -> None:
         b"\0" * len(dispatch_block),
         dispatch_block,
         "route Grant Running, Grant Full Mastery, Complete/Reset Collections, and the two Equal Division of Labor rows to their companion-DLL exports (the DLL counts, applies, and reports; Collections also fires or re-arms the group goals; Equal Division cyclically assigns balanced job preferences)",
+    )
+    pending_rows_code = assemble(
+        f"""
+            cmp dword ptr [edi + 0x2EAE0], 0
+            jne pending_rows_barrel
+            or eax, 0x800000
+        pending_rows_barrel:
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
+            je pending_rows_done
+            or eax, 0x1000000
+        pending_rows_done:
+            ret
+        """,
+        PENDING_ROWS_VA,
+    )
+    patch(
+        PENDING_ROWS_FILE_OFFSET,
+        b"\0" * len(pending_rows_code),
+        pending_rows_code,
+        "mark the Tech menu's Island Event and Barrel of Babies rows Unavailable while one of each is already pending, so a second purchase cannot be clicked and cannot be charged for",
     )
     patch(
         BARREL_GATE_FILE_OFFSET,

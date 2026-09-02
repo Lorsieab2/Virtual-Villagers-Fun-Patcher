@@ -129,6 +129,11 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
             if (satisfied && !villager_menu && (row == 3 || row == 4)) {
                 ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
             }
+            if (row_purchase_pending(villager_menu, row, (long)lparam)) {
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+                continue;
+            }
             if (!villager_menu && satisfied && !(village_wide_buy && row >= 6)) {
                 /* Owned Tech/Food Doubler: offer the removal toggle. */
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Remove");

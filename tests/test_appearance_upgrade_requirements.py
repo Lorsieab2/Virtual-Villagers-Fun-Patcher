@@ -289,6 +289,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 continue
             repaired_offsets = {
                 "data/vv1_origins_feature.json": {
+                    # Duplicate-purchase guards. An Island Event is queued
+                    # by zeroing a countdown and a Barrel of Babies by setting
+                    # a flag, so buying a second one while the first is
+                    # pending changes nothing and charges in full. The menu's
+                    # state builder now marks those rows so the companion DLL
+                    # draws them disabled, which needs a small cave to compute
+                    # the state in plus the payload block that calls it.
+                    "0x8BF00", "0x56900",
+
                     # VV1 save-slot capture repair: the trampoline used to
                     # normalize the META file's slot 0 to zero and STORE it,
                     # overwriting the live village slot and running the table
@@ -412,6 +421,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                 },
                 "data/vv2_origins_feature.json": {
+                    # Duplicate-purchase guards. An Island Event is queued
+                    # by zeroing a countdown and a Barrel of Babies by setting
+                    # a flag, so buying a second one while the first is
+                    # pending changes nothing and charges in full. The menu's
+                    # state builder now marks those rows so the companion DLL
+                    # draws them disabled, which needs a small cave to compute
+                    # the state in plus the payload block that calls it.
+                    "0x9A4A0", "0x943A8",
+
                     # The mask-stage delivery adds five guarded fixed-image
                     # detours; their exact before/after bytes are checked by
                     # tests/test_vv2_mask_render.py.
@@ -455,6 +473,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 # guarded at 0x60D10 for F14 actions 1/2/5/6/7; it shares the
                 # same wrapper and stash-after-stock-draw contract as 0x60B48.
                 "data/vv3_origins_feature.json": {
+                    # Duplicate-purchase guard: buying a second Barrel of
+                    # Babies while one is pending re-set an already-set flag
+                    # and charged in full, so the purchase path now refuses it
+                    # the same way its Island Event already does. The guard
+                    # pushed tech_menu past its slot, so detail_menu and
+                    # tech_increment each moved 0x10 later inside the payload
+                    # -- which is why the rel32 at 0x27130, a jump into
+                    # tech_increment, shifts by exactly 0x10.
+                    "0x27130",
                     "0x7B664", "0xA3180",
                     "0x3290",
                     "0x7B260", "0x7B2A0", "0x7B300",
@@ -462,6 +489,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x2E3F5", "0x34357", "0x344B3", "0x60B48", "0x60D10",
                 },
                 "data/vv4_origins_feature.json": {
+                    # Duplicate-purchase guards. An Island Event is queued
+                    # by zeroing a countdown and a Barrel of Babies by setting
+                    # a flag, so buying a second one while the first is
+                    # pending changes nothing and charges in full. The menu's
+                    # state builder now marks those rows so the companion DLL
+                    # draws them disabled, which needs a small cave to compute
+                    # the state in plus the payload block that calls it.
+                    "0xCCC20", "0x89373",
+
                     "0x89373", "0xCC004", "0xCC180",
                     # D166 fix: .shr was never marked executable (0x278 is
                     # its VirtualSize field, 0x294 its Characteristics
