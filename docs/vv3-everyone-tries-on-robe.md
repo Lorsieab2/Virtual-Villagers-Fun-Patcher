@@ -77,12 +77,22 @@ nothing at all: their action line could change but they never went to the
 amphitheatre, and only the handful with the flag already set actually tried on
 the robe.
 
-## What is deliberately not touched
+## What is read, and what is deliberately not touched
 
-The candidate-selection fields `+0xE80` and `+0xE88` are never read, written,
-repaired, or invented. The stock arrival handler remains the sole authority for
-each villager's robe result and the Chief decision, so being rejected or
-becoming the new Tribal Chief is the unchanged base-game ending.
+Both candidate-selection fields are read, and only read:
+
+* `+0xE80` (chief flag) gates the feature. The ceremony exists to choose a
+  chief, so the fan-out runs only while the village has none — dropping the
+  existing chief on the robe falls through to the stock "chief lectures"
+  routine untouched.
+* `+0xE88` (robe variant) picks which of the two robe actions each villager
+  receives, `0x78` or `0x79`, matching the choice the stock handler makes for
+  the villager it accepts.
+
+Neither is written, repaired, or invented. The stock arrival handler remains
+the sole authority for each villager's robe result and the Chief decision, so
+being rejected or becoming the new Tribal Chief is the unchanged base-game
+ending.
 
 `ECX` (loop counter) and `EDI` (record cursor) are preserved across the
 dispatch because the invoked handler is game code with an unknown clobber set.

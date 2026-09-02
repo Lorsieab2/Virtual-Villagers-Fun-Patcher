@@ -347,6 +347,68 @@ static void end_modal_over_game(HWND owner) {
 }
 
 
+/* Duplicate-purchase state for the Tech menu's Island Event and Barrel of
+   Babies rows.
+
+   Both are queued by writing a value that may already be there -- the Island
+   countdown zeroed, the Barrel flag set -- so buying a second one while the
+   first is still pending changes nothing and charges full price anyway.
+
+   The other four games have their executable compute this and hand it over in
+   the menu's state word. VV3's payload has no cave space left for that, which
+   is exactly what this DLL is for: it runs inside the game's own process, so
+   it can reach the world manager and read the two values itself. Nothing is
+   asked of the executable.
+
+   It reads the manager's singleton POINTER (0x4B309C) rather than calling the
+   getter at 0x428B60 that the executable's own purchase path uses. That getter
+   is a lazy constructor: when the pointer is null it allocates 0x12FD4 bytes
+   and constructs the manager. Building the menu must not have that side
+   effect, and a null pointer already answers the question -- with no manager
+   there is nothing pending.
+
+   The manager layout differs between the stock and expanded builds. The
+   executable picks between them by testing whether the immediate at 0x42883A
+   is 256, and this uses that same probe so both builds read the right field. */
+#define VV3_MANAGER_SINGLETON     0x4B309C
+#define VV3_ARCH_PROBE            0x42883A
+#define VV3_ARCH_EXPANDED_VALUE   0x100
+#define VV3_ARCH_EXPANDED_OFFSET  0x7598
+#define VV3_ISLAND_COUNTDOWN_OFF  0x12EF4
+#define VV3_BARREL_PENDING_FLAG   0x4B3C75
+
+enum {
+    VV3_PENDING_ROW_ISLAND = 1,
+    VV3_PENDING_ROW_BARREL = 2
+};
+
+/* Is this Tech-menu row blocked by an identical purchase already pending?
+   Villager-menu rows are never affected. */
+static int vv3_row_purchase_pending(int villager_menu, int row) {
+    unsigned char *manager;
+    int extra;
+
+    if (villager_menu) {
+        return 0;
+    }
+    if (row == VV3_PENDING_ROW_BARREL) {
+        return *(volatile unsigned char *)(UINT_PTR)VV3_BARREL_PENDING_FLAG != 0;
+    }
+    if (row != VV3_PENDING_ROW_ISLAND) {
+        return 0;
+    }
+    manager = *(unsigned char *volatile *)(UINT_PTR)VV3_MANAGER_SINGLETON;
+    if (manager == NULL) {
+        return 0;                 /* no manager yet -> claim nothing */
+    }
+    extra = (*(volatile unsigned int *)(UINT_PTR)VV3_ARCH_PROBE
+             == (unsigned int)VV3_ARCH_EXPANDED_VALUE)
+        ? VV3_ARCH_EXPANDED_OFFSET
+        : 0;
+    return *(volatile int *)(manager + extra + VV3_ISLAND_COUNTDOWN_OFF) == 0;
+}
+
+
 /* Barrel of Babies is the one row whose result the village's current state can
    quietly reduce, so its confirmation says so before the player pays.
 
@@ -357,11 +419,11 @@ static void end_modal_over_game(HWND owner) {
    and the capacity gate that uses them passed. The reduction happens further
    in, where the spawn places each child, so an unburied body still costs a
    slot. */
-#define BARREL_ROW 2
 #define BARREL_CAPACITY_NOTE \
     "\r\n\r\nNote: unburied villagers still take up room in the village, " \
     "so lying skeletons can reduce how many babies arrive. Bury them first " \
     "for the full three."
+
 
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
@@ -396,6 +458,11 @@ static INT_PTR CALLBACK upgrade_dialog(
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
+            if (vv3_row_purchase_pending(villager_menu, row)) {
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+                continue;
+            }
             if ((lparam & (1 << row)) != 0) {
                 /* Only the two Doublers may ever show a green check, and only
                    while they are owned in the current save. Every other row --
@@ -441,7 +508,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                 "Do you want to buy %s for %s tech points?\r\n"
                 "Press OK to confirm, or Cancel.%s",
                 name, cost,
-                (!s_villager_menu && row == BARREL_ROW)
+                (!s_villager_menu && row == VV3_PENDING_ROW_BARREL)
                     ? BARREL_CAPACITY_NOTE : "");
             if (MessageBoxA(
                     window,
@@ -1841,13 +1908,6 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeResult(int code) {
            player pays twice for one event.  The refusal lives here rather than
            as an executable string because the exe's string block is full. */
         message = "An Island Event is already on its way. "
-                  "No tech points have been deducted.";
-        break;
-    case 11:
-        /* Same defect, same treatment, for the Barrel of Babies: it is armed
-           by setting a flag that may already be set, so a second purchase
-           delivers no extra barrel while charging in full. */
-        message = "A Barrel of Babies is already on its way. "
                   "No tech points have been deducted.";
         break;
     /* Details-screen (Villager Upgrades) Grant Running no-change cases. */

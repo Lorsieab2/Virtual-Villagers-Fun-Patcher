@@ -331,14 +331,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     )
                 elif path.name == "vv3_origins_feature.json":
                     corrected_offsets = {
-                        # Duplicate-purchase guard: buying a second Barrel of
-                        # Babies while one was pending re-set an already-set
-                        # flag and charged in full, so the purchase path now
-                        # refuses it the way its Island Event already does.
-                        # The guard pushed tech_menu past its slot, so
-                        # detail_menu and tech_increment each moved 0x10 later
-                        # inside the payload -- which is the whole of the
-                        # change at 0x27130, a rel32 jump into tech_increment.
+                        # The duplicate-purchase guard for VV3 moved out of the
+                        # executable and into the companion DLL, so tech_menu fits
+                        # its original slot again and detail_menu/tech_increment
+                        # move back 0x10. The rel32 at 0x27130 is a jump into
+                        # tech_increment, so it tracks that move -- it shifted when
+                        # the guard went in (shipped in v1.34.29) and shifts back
+                        # now that the guard no longer lives in the payload.
                         "0x27130",
                         "0x7B664", "0x7B7C0", "0x7B7D0",
                         "0x3290",
