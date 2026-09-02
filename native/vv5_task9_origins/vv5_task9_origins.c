@@ -883,12 +883,17 @@ static INT_PTR CALLBACK upgrade_dialog(
         int row_count = villager_menu ? 5 : 14;
         int row;
         for (row = 0; row < row_count; ++row) {
+            /* Unlike the other games, VV5 hides the badge inside this loop
+               rather than in a separate pass beforehand, so the hide has to
+               happen before any `continue` -- the dialog resource creates the
+               badges VISIBLE, and skipping it would leave a stale green
+               checkmark on the row. */
+            ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
             if (row_purchase_pending(villager_menu, row, (long)lparam)) {
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
                 continue;
             }
-            ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
             if (limited_capability && row >= first_unsupported_row) {
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
