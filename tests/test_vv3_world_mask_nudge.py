@@ -36,7 +36,7 @@ SOURCE = (
 )
 
 WORLD_MASK_X_NUDGE_PX = -10
-WORLD_MASK_Y_NUDGE_PX = -25
+WORLD_MASK_Y_NUDGE_PX = -29
 
 # The stock child-scale curve at 0x0046091E..0x00460934.
 CHILD_SLOPE = struct.unpack("<f", struct.pack("<I", 0x3D924925))[0]   # 1/14
@@ -83,8 +83,12 @@ class VV3WorldMaskNudgeTests(unittest.TestCase):
         self.assertEqual(self._macro("VV3_WORLD_MASK_Y_NUDGE_PX"), WORLD_MASK_Y_NUDGE_PX)
 
     def test_the_draw_applies_both_axes_through_the_scale(self) -> None:
+        # X carries a per-facing term on top of the shared nudge: the
+        # right-facing mask art sits further into its cell than the
+        # left-facing art, so one shared X value cannot centre both.
+        self.assertIn("mask_args[1] += vv3_scaled_nudge(", self.body)
         self.assertIn(
-            "mask_args[1] += vv3_scaled_nudge(VV3_WORLD_MASK_X_NUDGE_PX, scale);",
+            "VV3_WORLD_MASK_X_NUDGE_PX + VV3_WORLD_MASK_X_NUDGE_BY_FACING[facing & 7]",
             self.body,
         )
         self.assertIn(
@@ -92,6 +96,23 @@ class VV3WorldMaskNudgeTests(unittest.TestCase):
             self.body,
         )
         self.assertIn("scale = vv3_world_scale(mask_args[5]);", self.body)
+
+    def test_the_per_facing_x_table_covers_all_eight_facings(self) -> None:
+        """One entry per facing, and the facing is masked before indexing.
+
+        Indexing this table with the head's raw fifth argument would read past
+        its end -- that argument is a composite whose facing is only the low
+        three bits, the same trap that once made the mask sample the wrong
+        atlas column.
+        """
+        table = re.search(
+            r"VV3_WORLD_MASK_X_NUDGE_BY_FACING\[8\]\s*=\s*\{([^}]*)\}",
+            self.source,
+        )
+        self.assertIsNotNone(table, "the per-facing X table is gone")
+        entries = [e.strip() for e in table.group(1).split(",") if e.strip()]
+        self.assertEqual(len(entries), 8)
+        self.assertIn("[facing & 7]", self.body)
 
     def test_the_scale_argument_is_reinterpreted_as_a_float(self) -> None:
         """It must be bit-copied, never converted.
@@ -121,7 +142,7 @@ class VV3WorldMaskNudgeTests(unittest.TestCase):
         scale = stock_scale(ADULT_AGE)
         self.assertEqual(scale, 1.0)
         self.assertEqual(scaled_nudge(WORLD_MASK_X_NUDGE_PX, scale), -10)
-        self.assertEqual(scaled_nudge(WORLD_MASK_Y_NUDGE_PX, scale), -25)
+        self.assertEqual(scaled_nudge(WORLD_MASK_Y_NUDGE_PX, scale), -29)
 
     def test_a_child_gets_a_proportionally_smaller_offset(self) -> None:
         """A newborn is drawn at 0.80, so it moves 80% of the adult offset.

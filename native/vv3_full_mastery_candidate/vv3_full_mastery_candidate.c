@@ -1302,7 +1302,25 @@ static int vv3_world_record_index(void *record)
    Different function, different coordinate space -- retuning one screen must
    never move the other. */
 #define VV3_WORLD_MASK_X_NUDGE_PX (-10)
-#define VV3_WORLD_MASK_Y_NUDGE_PX (-25)
+#define VV3_WORLD_MASK_Y_NUDGE_PX (-29)
+
+/* An extra horizontal nudge for the right-facing frames only, on top of the
+   nudge above that every frame gets.  The right-facing mask art sits further
+   into its cell than the left-facing art does, so one shared X nudge cannot
+   centre both.
+
+   Indexed by the villager's 8-way facing -- the low three bits of the head
+   draw's fifth argument, which is also the column the mask atlas is sampled
+   from.  Columns 4-6 are the front-facing poses (a full symmetric face) and
+   0-3 are mirrored profiles; of those, 0 and 1 are the pair whose art is
+   biased toward the right of its 65px cell, which makes them the right-facing
+   ones.  Facing 7 is very nearly centred and is left alone.
+
+   A table rather than a condition so that retuning any single direction is a
+   one-number change and cannot disturb the others. */
+static const int VV3_WORLD_MASK_X_NUDGE_BY_FACING[8] = {
+    -4, -4, 0, 0, 0, 0, 0, 0
+};
 
 /* The sixth village head-draw argument is a float, not an int.  0x0042E5E0
    does `fild [arg]; fmul [cam+0x300c]` for the two coordinates but
@@ -1377,7 +1395,9 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
        g_vv3_worlddbg reports the coordinates actually drawn, and before the
        arg0..arg5 copy so the renderer receives them. */
     scale = vv3_world_scale(mask_args[5]);
-    mask_args[1] += vv3_scaled_nudge(VV3_WORLD_MASK_X_NUDGE_PX, scale);
+    mask_args[1] += vv3_scaled_nudge(
+        VV3_WORLD_MASK_X_NUDGE_PX + VV3_WORLD_MASK_X_NUDGE_BY_FACING[facing & 7],
+        scale);
     mask_args[2] += vv3_scaled_nudge(VV3_WORLD_MASK_Y_NUDGE_PX, scale);
     index = vv3_world_record_index(record);
     g_vv3_worlddbg[0] = index;
