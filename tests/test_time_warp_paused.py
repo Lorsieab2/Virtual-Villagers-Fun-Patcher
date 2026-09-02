@@ -103,13 +103,23 @@ class TimeWarpPausedTests(unittest.TestCase):
                 )
 
     def test_no_game_reads_its_speed_field_for_time_warp(self) -> None:
-        """Nothing to normalise once nothing is read.
+        """Nothing to normalise once nothing is read -- except in VV3.
 
-        Every game used to normalise anything that was not 3 or 10 to 6 so the
-        paused sentinel 999 landed on the normal-speed delta. With a single
-        constant there is no speed-dependent path left to get wrong.
+        Four of the games subtract a flat amount, so there is no
+        speed-dependent path left to get wrong. VV3 is deliberately different:
+        its catch-up DIVIDES elapsed time by the current speed (the paused test
+        at 0x431C01 and the `fdivr` at 0x431C17), so it must keep reading the
+        speed and scaling by it, or the division does not cancel and the
+        displayed advance varies -- 6 years at half speed, 1.8 at double, for
+        the same 50,000 points.
+
+        VV3 still has to reach the normal-speed delta when paused, which it
+        does by normalising anything that is not 3 or 10 -- the sentinel 999
+        included -- to 6.
         """
         for game, (generator, field) in ALL_GAMES.items():
+            if game.startswith("vv3"):
+                continue
             with self.subTest(game=game):
                 text = _source(generator)
                 warp = _time_warp_branch(text)
@@ -125,8 +135,14 @@ class TimeWarpPausedTests(unittest.TestCase):
                         )
 
     def test_no_game_scales_its_advance(self) -> None:
-        """The multiply VV1-VV4 used and the divide VV5 used are both gone."""
+        """The multiply VV1/VV2/VV4 used and the divide VV5 used are gone.
+
+        VV3 keeps its multiply on purpose; see the note above. Removing it is
+        what made VV3 advance a different number of years at every speed.
+        """
         for game, (generator, _field) in ALL_GAMES.items():
+            if game.startswith("vv3"):
+                continue
             with self.subTest(game=game):
                 warp = _time_warp_branch(_source(generator))
                 self.assertTrue(warp, f"{game} Time Warp branch not found")
@@ -136,8 +152,22 @@ class TimeWarpPausedTests(unittest.TestCase):
                         f"{game} still scales the Time Warp advance ({forbidden})",
                     )
 
+    def test_vv3_keeps_its_speed_proportional_delta(self) -> None:
+        """VV3's division only cancels against speed * 3600."""
+        for game, (generator, _field) in ALL_GAMES.items():
+            if not game.startswith("vv3"):
+                continue
+            with self.subTest(game=game):
+                warp = _time_warp_branch(_source(generator))
+                self.assertIn("imul eax, eax, 3600", warp)
+                self.assertIn("cmp eax, 3", warp)
+                self.assertIn("cmp eax, 10", warp)
+                self.assertIn("mov eax, 6", warp)
+
     def test_every_game_subtracts_its_measured_three_year_amount(self) -> None:
         for game, (generator, _field) in ALL_GAMES.items():
+            if game.startswith("vv3"):
+                continue
             with self.subTest(game=game):
                 warp = _time_warp_branch(_source(generator))
                 amount = VV5_ADVANCE if game.startswith("vv5") else VV1_FAMILY_ADVANCE

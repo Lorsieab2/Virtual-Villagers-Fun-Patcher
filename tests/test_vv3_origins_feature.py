@@ -556,7 +556,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "5E08BCE5A10A575F5A54F34584B73BE09DD3FAE455358907792EAFC39586C381",
+            "58F6E183E2CC8E321E056FFC9AD9DF9680DF9E601D052EC63BA1F7ABCE34195A",
         )
         self.assertEqual(
             bytes.fromhex(
@@ -569,15 +569,27 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             bytes.fromhex("E93BDB0300909090"),
         )
 
-    def test_time_warp_is_speed_independent(self) -> None:
-        """One constant, no speed read, no scaling.
+    def test_time_warp_advance_is_speed_proportional(self) -> None:
+        """VV3 must scale by the speed, because its catch-up divides by it.
 
-        Measured in play on v1.34.23: VV1 at NORMAL speed subtracted 21600 and
-        advanced exactly three villager years, while HALF speed subtracted
-        10800 and advanced only two. The years track the amount alone, so
-        VV3 now subtracts the measured three-year amount at every speed.
-        tests/test_time_warp_speed_independent.py pins the same invariant
-        across all five games.
+        This is the opposite of the other four games and the distinction is
+        not cosmetic. VV3's catch-up divides elapsed time by the current speed
+        -- the paused sentinel test at 0x431C01 followed by the `fdivr` at
+        0x431C17, written up in
+        docs/vv3-origins-exclusive-features-research.md. With
+        delta = speed * 3600 the division cancels and every active speed
+        advances exactly 60 internal age units, which is three displayed
+        villager years at 20 units per year.
+
+        Substituting VV1's flat 21600 here made the advance vary with the
+        speed setting -- 6 displayed years at half speed, 1.8 at double, 3
+        only at normal -- while charging 50,000 points every time. VV1's
+        amount was measured on VV1's clock and does not transfer.
+
+        The paused sentinel 999 is handled by the same normalisation: it is
+        neither 3 nor 10, so it falls through to the normal-speed code and a
+        paused Time Warp advances the same three years rather than being
+        refused.
         """
         try:
             import capstone
@@ -591,22 +603,23 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 if int(item["offset"], 0) == 0xA3180
             )["after"]
         )
-        # The whole instruction, immediate included, so this pins the
-        # three-year amount as well as the absence of any scaling.
-        marker = bytes.fromhex("812D10424A0060540000")
-        index = payload.find(marker)
-        self.assertNotEqual(index, -1, "Time Warp clock write not found in payload")
-
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-        start = index - 0x18
-        block = list(md.disasm(payload[start:index], 0x4A3180 + start))
-        mnemonics = [insn.mnemonic for insn in block]
-        for forbidden in ("imul", "idiv", "cdq"):
-            self.assertNotIn(
-                forbidden,
-                mnemonics,
-                "VV3 Time Warp must not scale its clock shift",
-            )
+        text = chr(10).join(
+            f"{insn.mnemonic} {insn.op_str}"
+            for insn in md.disasm(payload, 0x4A3180)
+        )
+
+        # The speed is read, normalised to 3 / 6 / 10, and multiplied.
+        self.assertIn("imul eax, eax, 0xe10", text,
+                      "VV3 Time Warp must scale the clock shift by the speed")
+        for expected in ("cmp eax, 3", "cmp eax, 0xa", "mov eax, 6"):
+            self.assertIn(expected, text,
+                          f"VV3 Time Warp must normalise the speed ({expected})")
+
+        # And it must NOT have been replaced by a flat subtraction.
+        self.assertNotIn("sub dword ptr [0x4a4210], 0x5460", text,
+                         "VV3 must not use VV1's flat 21600 amount")
+
 
 if __name__ == "__main__":
     unittest.main()

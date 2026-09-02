@@ -774,22 +774,39 @@ def main() -> None:
             jmp menu_done
 
         do_time_warp:
-            # Speed-INDEPENDENT: no speed read, no scaling.
+            # VV3's catch-up DIVIDES elapsed time by the current speed, so the
+            # delta has to stay proportional to the speed for the displayed
+            # advance to come out constant.  Subtracting a flat amount here
+            # made the result vary with the speed setting instead: 21600
+            # seconds gives 6 displayed years at half speed and 1.8 at double,
+            # and only 3 at normal, while charging 50,000 points every time.
             #
-            # Calibrated from play, not from a model of the engine. On
-            # v1.34.23 VV1 at NORMAL speed subtracted 6 * 3600 = 21600 and the
-            # village advanced exactly THREE years -- the wanted result. At
-            # half speed it subtracted 3 * 3600 = 10800 and advanced only TWO.
-            # The years therefore track the amount alone, so every speed now
-            # subtracts the amount that was measured to give three years.
+            # The division is visible in the stock binary at 0x431C01 -- the
+            # paused sentinel test `cmp [manager+0x12F20], 0x3E7` followed by
+            # the `fdivr` at 0x431C17 that normalises by the active speed --
+            # and is written up in docs/vv3-origins-exclusive-features-research.md.
+            # With delta = speed * 3600 the division cancels and every active
+            # speed advances exactly 60 internal age units, which is three
+            # displayed villager years at 20 units per year.
             #
-            # Scaling by the speed code is what made the result vary in the
-            # first place, and it is gone: paused included, every speed gets
-            # the same advance.
-            # VV2-VV4 share VV1's clock, its 3/6/10 speed codes and the exact
-            # same shipped speed*3600 form, so they take VV1's measured
-            # three-year amount.
-            sub dword ptr [0x4A4210], 21600
+            # Do NOT copy VV1's flat amount here.  VV1 was calibrated from
+            # play and VV3 is a different clock; assuming they shared one is
+            # what introduced this regression.
+            #
+            # The speed code is normalised to the three values VV3 actually
+            # assigns -- 3 (half), 6 (normal), 10 (double).  Anything else,
+            # INCLUDING the paused sentinel 999, falls through to normal
+            # speed, so a paused Time Warp advances the same three years
+            # rather than being refused.
+            mov eax, dword ptr [edi + ebp + 0x12F20]
+            cmp eax, 3
+            je tw_scale
+            cmp eax, 10
+            je tw_scale
+            mov eax, 6
+        tw_scale:
+            imul eax, eax, 3600
+            sub dword ptr [0x4A4210], eax
             mov eax, 0x{s['time_warp_done']:X}
             jmp show_status
 

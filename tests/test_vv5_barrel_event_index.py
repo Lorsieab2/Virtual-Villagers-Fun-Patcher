@@ -28,8 +28,17 @@ import struct
 import unittest
 from pathlib import Path
 
-import pefile
-from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+try:
+    import pefile
+    from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+except ImportError:  # pragma: no cover - environment without the analysis extras
+    # pefile and capstone are optional. Importing them at module scope raises
+    # ModuleNotFoundError during COLLECTION, before any @skipUnless decorator
+    # can run, so a machine without them fails the whole suite instead of
+    # skipping this file. Degrade to a skip the same way the missing-stock-exe
+    # case already does.
+    pefile = None
+    CS_ARCH_X86 = CS_MODE_32 = Cs = None
 
 ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
@@ -118,7 +127,7 @@ def _walk_constructor(image: VV5Image):
     return slots, vtables
 
 
-@unittest.skipUnless(STOCK.is_file(), "stock VV5 executable is not checked in")
+@unittest.skipUnless(STOCK.is_file() and pefile is not None, "stock VV5 executable is not checked in")
 class VV5BarrelEventIndexTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
