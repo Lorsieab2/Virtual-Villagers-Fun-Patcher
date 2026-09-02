@@ -346,6 +346,23 @@ static void end_modal_over_game(HWND owner) {
     (void)owner;
 }
 
+
+/* Barrel of Babies is the one row whose result the village's current state can
+   quietly reduce, so its confirmation says so before the player pays.
+
+   Measured in play: with skeletons lying unburied the barrel delivered two
+   children; once villagers had buried some, the same purchase delivered three.
+   This is NOT the living-population count -- the games' own counters skip any
+   record whose health field is <= 0, so the dead are already excluded there
+   and the capacity gate that uses them passed. The reduction happens further
+   in, where the spawn places each child, so an unburied body still costs a
+   slot. */
+#define BARREL_ROW 2
+#define BARREL_CAPACITY_NOTE \
+    "\r\n\r\nNote: unburied villagers still take up room in the village, " \
+    "so lying skeletons can reduce how many babies arrive. Bury them first " \
+    "for the full three."
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -414,7 +431,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                after the action-specific removal path completes. */
             int is_remove = !s_villager_menu && (row == 3 || row == 4)
                 && (s_dialog_state & (1 << row)) != 0;
-            char prompt[256];
+            char prompt[512];
             if (is_remove) {
                 EndDialog(window, (INT_PTR)row);
                 return TRUE;
@@ -422,8 +439,10 @@ static INT_PTR CALLBACK upgrade_dialog(
             wsprintfA(
                 prompt,
                 "Do you want to buy %s for %s tech points?\r\n"
-                "Press OK to confirm, or Cancel.",
-                name, cost);
+                "Press OK to confirm, or Cancel.%s",
+                name, cost,
+                (!s_villager_menu && row == BARREL_ROW)
+                    ? BARREL_CAPACITY_NOTE : "");
             if (MessageBoxA(
                     window,
                     prompt,

@@ -1177,6 +1177,23 @@ static int row_purchase_pending(int villager_menu, int row, long state) {
     return row == PENDING_ROW_BARREL && (state & STATE_BARREL_PENDING) != 0;
 }
 
+
+/* Barrel of Babies is the one row whose result the village's current state can
+   quietly reduce, so its confirmation says so before the player pays.
+
+   Measured in play: with skeletons lying unburied the barrel delivered two
+   children; once villagers had buried some, the same purchase delivered three.
+   This is NOT the living-population count -- the games' own counters skip any
+   record whose health field is <= 0, so the dead are already excluded there
+   and the capacity gate that uses them passed. The reduction happens further
+   in, where the spawn places each child, so an unburied body still costs a
+   slot. */
+#define BARREL_ROW 2
+#define BARREL_CAPACITY_NOTE \
+    "\r\n\r\nNote: unburied villagers still take up room in the village, " \
+    "so lying skeletons can reduce how many babies arrive. Bury them first " \
+    "for the full three."
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -1326,10 +1343,12 @@ static INT_PTR CALLBACK upgrade_dialog(
                                                    : g_tech_names[row];
                 const char *cost = g_villager_menu ? g_villager_costs[row]
                                                    : g_tech_costs[row];
-                char msg[256];
+                char msg[512];
                 wsprintfA(msg,
                     "Do you want to buy %s for %s tech points?\r\n"
-                    "Press OK to confirm, or Cancel.", name, cost);
+                    "Press OK to confirm, or Cancel.%s", name, cost,
+                    (!g_villager_menu && row == BARREL_ROW)
+                        ? BARREL_CAPACITY_NOTE : "");
                 if (MessageBoxA(window, msg,
                         g_villager_menu ? "Villager Upgrades" : "Origins Upgrades",
                         MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) != IDOK) {

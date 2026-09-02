@@ -889,8 +889,12 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertIn("ShowOriginsPermanentChangeConfirm", exported)
         target_rva = exported["ShowOriginsPermanentChangeConfirm"]
         image = pe.get_memory_mapped_image()
+        # 0x200, not 0x100: the Barrel of Babies capacity note added a
+        # conditional argument to the wsprintfA call, which pushed the
+        # MessageBoxA flags past a 256-byte window and made this read as a
+        # missing prompt rather than a longer function.
         confirm_insns = list(
-            md.disasm(image[target_rva:target_rva + 0x100], pe.OPTIONAL_HEADER.ImageBase + target_rva)
+            md.disasm(image[target_rva:target_rva + 0x200], pe.OPTIONAL_HEADER.ImageBase + target_rva)
         )
         pushes = [i.op_str for i in confirm_insns if i.mnemonic == "push"]
         # MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
