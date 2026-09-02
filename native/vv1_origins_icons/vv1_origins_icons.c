@@ -919,6 +919,44 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     return TRUE;
 }
 
+/* A pending Island Event or Barrel of Babies must not be sold again: both
+   are queued by writing a value that may already be there -- the countdown
+   zeroed, the barrel flag set -- so the second purchase changes nothing
+   while still charging full price. That is the reported bug.
+
+   The executable sets these bits while it builds the menu's state word, and
+   the row is then drawn as a disabled "Unavailable" button. Refusing the
+   click outright, rather than after it, is what makes this free: a refusal
+   message would need a string, and these executables' string blocks are
+   full (VV2's has 4 spare bytes).
+
+   Dedicated bits, deliberately above every row bit (0-13), every (8 + row)
+   unavailable bit (8-21) and every STATE_* flag (16-22). Reusing the
+   (8 + row) scheme is not safe for these two rows: in a 14-row tech menu
+   bit 9 means both "row 9 satisfied" and "row 1 unavailable". */
+enum {
+    STATE_ISLAND_PENDING = 0x800000,
+    STATE_BARREL_PENDING = 0x1000000
+};
+
+enum {
+    PENDING_ROW_ISLAND = 1,   /* Island Event */
+    PENDING_ROW_BARREL = 2    /* Barrel of Babies */
+};
+
+/* Is this tech-menu row blocked by an identical purchase already pending?
+   Villager-menu rows are never affected. Shared by every game's dialog
+   (VV2 includes this file; the others carry their own copy). */
+static int row_purchase_pending(int villager_menu, int row, long state) {
+    if (villager_menu) {
+        return 0;
+    }
+    if (row == PENDING_ROW_ISLAND && (state & STATE_ISLAND_PENDING) != 0) {
+        return 1;
+    }
+    return row == PENDING_ROW_BARREL && (state & STATE_BARREL_PENDING) != 0;
+}
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -958,6 +996,11 @@ static INT_PTR CALLBACK upgrade_dialog(
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
+            if (row_purchase_pending(villager_menu, row, (long)lparam)) {
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+                continue;
+            }
             if ((lparam & (1 << row)) != 0) {
                 /* Only the two Doublers may ever show a green check, and only
                    while they are owned in the current save. Every other row --

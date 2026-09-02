@@ -1,85 +1,89 @@
 # Duplicate purchase guards
 
-Buying Time Warp, Island Event or Barrel of Babies more than once charges for
-each purchase while only the first takes effect. This records what the cause
-is, where the guard has landed, and why it has not landed everywhere — so the
-next attempt starts from measurements rather than rediscovering them.
+Buying Time Warp, Island Event or Barrel of Babies more than once charged for
+each purchase while only the first took effect. This records the cause, how
+each game now refuses the duplicate, and the constraints that shaped it.
 
 ## The cause
 
-Every game queues an Island Event by **zeroing a countdown field**:
+Every game queues these purchases by **writing a value that may already be
+there**, so the write is a no-op the player still pays for.
 
-| Game | Countdown |
-| --- | --- |
-| VV1 | `player + 0xA300` |
-| VV2 | `player + 0x2EAE0` |
-| VV3 | `manager + 0x12EF4` |
-| VV4 | `manager + 0x170E0` (via the getter at `0x41FE70`) |
-| VV5 | `manager + 0x17D3C` |
+| Game | Island Event | Barrel of Babies |
+| --- | --- | --- |
+| VV1 | countdown `player + 0xA300` zeroed | flag byte in `.shr` set |
+| VV2 | countdown `player + 0x2EAE0` zeroed | flag byte in `.shr` set |
+| VV3 | countdown `manager + 0x12EF4` zeroed | flag byte `0x4B3C75` set |
+| VV4 | countdown `world + 0x170E0` zeroed (getter `0x41FE70`) | armed flag `0x728B04`, **and the same countdown** |
+| VV5 | countdown `manager + 0x17D3C` zeroed | flag bit 4 of `0x51D388`, **and the same countdown** |
 
-Zeroing an already-zero field does nothing, so a second purchase while one is
-pending is a no-op the player still pays for. The guard is therefore: if the
-countdown is already zero, refuse and charge nothing.
+In VV4 and VV5 the Barrel rides the Island Event's own trigger, so a pending
+event of either kind blocks both rows.
 
-The guard must sit **after** `jb insufficient`. Its compares overwrite the
-flags that branch reads — the same mistake the paused Time Warp guard made,
-which was caught as a P1 on three games.
+Time Warp needs no guard: it subtracts from the clock, so a second purchase
+does advance the village again.
 
-## Where it has landed
+## How each game refuses
 
-**VV3 only.** The refusal message is DLL result code 10 rather than an
-executable string, because VV3's string block is full and the companion DLL
-has no such limit. It costs the executable nothing.
+**VV1, VV2, VV4, VV5 — the row is never clickable.** The Tech menu's state
+word gains two bits, and the companion DLL draws those rows as disabled
+"Unavailable" buttons. Because the click cannot happen, the charge path is
+never entered, and no refusal message is needed — which is what makes this
+affordable, since the executables' string blocks are effectively full.
 
-## Why not the other four
+```
+STATE_ISLAND_PENDING  0x800000
+STATE_BARREL_PENDING  0x1000000
+```
 
-Each was written and backed out. The blockers are measured, not assumed:
+These are **dedicated bits**, not the existing `1 << (8 + row)` "unavailable"
+encoding. In a 14-row Tech menu that encoding is ambiguous: bit 9 means both
+"row 9 satisfied" and "row 1 unavailable". VV4's dialog already worked around
+this with an `(8 + row) >= row_count` bound. The dedicated bits sit above every
+row bit (0-13), every `(8 + row)` marker (8-21) and every `STATE_*` flag
+(16-22).
 
-| Game | Blocker |
-| --- | --- |
-| VV1 | string block 764 bytes over budget; then code overlap at `0x456C04` (payload `0x5B` bytes) |
-| VV2 | string block `0x29C` against a `0x278` budget; then code overlap at `0x4948A8` (`0x2AE`) |
-| VV4 | overruns the native UI factory cave |
-| VV5 | assembles, but shifts payload offsets that a fail-closed validator pins by exact byte position (`payload[0x4E:0x59]`, `[0x10E:0x119]`, `[0x55:0x59]`, `[0x115:0x119]`) |
+Computing them costs the constrained menu payload only a 5-byte `call`; the
+checks live in a small cave. VV1's helper runs in the menu's own frame, reading
+`[esi+0x0C]` and OR-ing straight into EDI, so the call site needs no argument
+setup at all — its cave had two spare bytes.
 
-Growing the payload blocks is not available either. Free zero bytes
-immediately after each block in the stock image:
+**VV3 refuses at the click instead**, showing "An Island Event is already on
+its way." (DLL result code 10) or "A Barrel of Babies is already on its way."
+(code 11), charging nothing. Its Island Event already worked this way. The
+Barrel joins it rather than getting the nicer disabled-row treatment because
+VV3 has no code cave to compute the state in: every window in its `.text`
+padding is claimed (see below), and the guard fits inline only because the
+Barrel flag is a plain global needing no manager lookup.
 
-| Game | Free bytes after the payload |
-| --- | ---: |
-| VV2 | 4 |
-| VV4 | 0 |
-| VV5 | 8 |
+Both refusals sit **after `jb insufficient`** and **before the deduction**.
+After the branch because their compares overwrite the flags it reads — the
+same mistake the paused Time Warp guard made, caught as a P1 on three games.
+Before the deduction because refusing afterwards still costs the player the
+points, which is the reported bug.
 
-They butt against other content, so the VV3 robe trick — extending the owned
-range into following zeros — does not apply.
+## Finding space, and how not to
 
-## The zero-cost idea, and why it does not work
+Three cave placements were chosen and each collided, because each analysis was
+missing a different source of claims. A candidate window must be free against
+**all** of these:
 
-The companion DLL owns the Tech dialog and returns the clicked row; the
-executable simply returns whatever the DLL hands back. So the DLL could refuse
-the click itself, and the executable would need **no new bytes at all**.
+1. the stock image (non-zero bytes are real game data);
+2. every optional feature manifest — a patch absent from one composition still
+   owns its range when selected (VV3's Village-Wide Upgrades owns `0x7B820`);
+3. spans declared as `length` beside an `after_base64` payload, not just hex
+   `after` fields (the Village Statistics writer owns 512 bytes at `0x7B464`);
+4. the automatic safety patches, which are generated in `data/builds.json`
+   rather than declared in any feature manifest (`0x7B260-0x7B33C` for VV3);
+5. fun patches also declared in `builds.json` (`vv3_nature_honey_refill`).
 
-It cannot, because it has no way to read the countdown:
+Checking only "zero in the stock exe and in one built exe" passes all three
+bad candidates. The patcher's own overlap detector is the authority, and it is
+fail-closed, so a bad placement fails the suite rather than shipping.
 
-* `ShowVV2UpgradeMenuState(villager_menu, dialog_state)` is never passed the
-  player object.
-* There is no global to fetch it from. The record array *is* reachable that
-  way — `0x44F4E0` dereferences a singleton at `0x499F24` — but a scan for a
-  global feeding the tech-balance/countdown accesses found none.
-* VV1's DLL does cache a pointer at its scratch page `+0x98`, which looked
-  promising. It is the **villager-records container, not the player object**:
-  read live with a village loaded, its `+0xA2FC` (tech points), `+0xA300`
-  (countdown) and `+0xA318` (game speed) all read 0, while the first twelve
-  `0x3D8` strides from it are populated records.
-
-Passing the pointer in from the executable is the remaining option, and the
-cheapest hook still costs roughly 20 bytes plus an export name — against the
-budgets above.
-
-## What would unblock it
-
-Reclaiming space inside the payload blocks: auditing what is in each string
-and code region and evicting anything dead. That is surgery on pinned layouts
-and deserves its own branch and review, rather than being folded into an
-unrelated change.
+Final placements: VV1 `0x8BF00`, VV2 `0x9A4A0`, VV4 `0xCCC20`. VV5 inlines its
+checks in `tech_menu`, which had 257 spare bytes, so no payload byte position
+outside that routine moves — its validator pins several by exact position.
+VV3's guard pushed `tech_menu` 13 bytes past its slot, so `detail_menu` and
+`tech_increment` each moved `0x10` later; both had room, and nothing outside
+the generator pins those offsets.

@@ -453,8 +453,10 @@ class ManifestTests(unittest.TestCase):
         # Base transaction patches + the five exact mask-stage detours + Change Appearance (0x9AD20) + the shared
         # DLL-dispatch stub in the old whole-village slot (0x9AE40, routing Grant
         # Running / Grant Full Mastery / Complete / Reset Collections) + the
-        # Barrel of Babies capacity gate (0x9AF58).
-        self.assertEqual(len(rows), 33)
+        # Barrel of Babies capacity gate (0x9AF58) + the pending-purchase row
+        # states (0x9A4A0), which mark the Island Event and Barrel rows
+        # unbuyable while one of each is already on its way.
+        self.assertEqual(len(rows), 34)
         mask_guards = {
             0x3160: "8B4424048B11",
             0x95B0: "8B09E989F3FFFF",

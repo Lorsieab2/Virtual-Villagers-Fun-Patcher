@@ -311,7 +311,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "739461BA5FAFFE24EAD37B230283048AB756899BB7104CACCF937AD66AD88163",
+            "3861AA1B39C69D9E8C041EB00B9E9A3AB3CD7FD83BF08FA40348A5824A7BB768",
         )
         # Re-pinned after the companion DLL's final Change Appearance for All
         # preflight repair. The DLL still links shell32 and derives the mask
@@ -319,7 +319,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # certifies this same digest, and this assertion is the second pin.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "8C381FB0273E40811F46628301E6757F83BBD107D9F6C361FBD83A0BB032A478",
+            "B7BB75593BB64D8B6ACEDDAFF7E46FBC2043AD4401D8B2A9F296FBAF0BB1EB41",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

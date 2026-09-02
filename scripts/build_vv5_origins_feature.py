@@ -456,6 +456,37 @@ def main() -> None:
         food_owned:
             or eax, 16
         food_clear:
+            # A pending Island Event or Barrel of Babies must not be sold
+            # again: both are queued by zeroing the same [manager+0x17D3C]
+            # countdown, so a second purchase changes nothing while still
+            # charging full price. Setting these bits makes the companion
+            # DLL draw those rows as disabled "Unavailable" buttons, so the
+            # row cannot be clicked and the charge path is never entered --
+            # no refusal string needed, which matters because this block is
+            # nearly full.
+            #
+            # A pending event blocks BOTH rows, since the barrel rides the
+            # very same countdown; an already-armed barrel (flag bit 4 in
+            # 0x51D388) additionally blocks its own row. The manager comes
+            # from 0x425950, the same getter preflight uses.
+            #
+            # Inlined rather than given its own cave: it sits inside
+            # tech_menu's own slot, which has room, so no payload byte
+            # position outside this routine moves.
+            push eax
+            call 0x425950
+            mov ecx, eax
+            pop eax
+            cmp dword ptr [ecx + 0x17D3C], 0
+            jne pending_barrel
+            or eax, 0x800000
+            or eax, 0x1000000
+            jmp pending_done
+        pending_barrel:
+            test dword ptr [0x51D388], 4
+            jz pending_done
+            or eax, 0x1000000
+        pending_done:
             push eax
             push 0
             call 0x{entry['show_dialog']:X}

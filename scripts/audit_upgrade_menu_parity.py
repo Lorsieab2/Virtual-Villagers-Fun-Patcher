@@ -77,7 +77,16 @@ OR_BIT = re.compile(
 )
 # `1 << (8 + row)` markers meaning "this row is unavailable", not satisfied
 # bits.  They sit in the same block, so they are excluded explicitly.
-UNAVAILABLE_MASK_VALUES = {0x800, 0x1000, 0x1800}
+# Values a Tech state builder ORs in that mark a row UNBUYABLE rather than
+# satisfied, so they must not be mistaken for checkmark bits.
+#   0x800 / 0x1000  the two doublers' own `1 << (8 + row)` unavailable markers
+#   0x800000        an Island Event is already pending
+#   0x1000000       a Barrel of Babies is already pending
+# The last two are dedicated bits rather than `1 << (8 + row)` ones, because in
+# a 14-row menu bit 9 would mean both "row 9 satisfied" and "row 1
+# unavailable". Only VV5 shows up here: the other four games compute these in
+# a helper the builder calls, so the OR is not in the builder's own text.
+UNAVAILABLE_MASK_VALUES = {0x800, 0x1000, 0x1800, 0x800000, 0x1000000}
 
 GENERATORS = {
     game: ROOT / f"scripts/build_{game}_origins_feature.py"

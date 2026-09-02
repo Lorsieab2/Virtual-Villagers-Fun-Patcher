@@ -6,8 +6,8 @@
   },
   "active_base": {
     "size": 28772,
-    "file_sha256": "6E8A537C741CA01582E3ABF34791DEA1A7DF2F46C7DA3053F65329E5E03C8726",
-    "source_text_sha256": "9F38AC1343C0DB10068F8BDCA5C272B3DAAFBC3E5F9805C473CE64C349EE3F67"
+    "file_sha256": "16A16C107A172CD11207B988CECA93D4A6176063CAEC3856EC5A321B6D49221F",
+    "source_text_sha256": "327112AE2915E232891BCFC9C370F5DE39E3CA883A607007EE77276E1C478E1F"
   },
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
@@ -18,11 +18,11 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "F5F7BC66F39B1FA13DD3443466EE251A7B8067F3681074A8C60BC9797F4D6771"
+      "source_text_sha256": "7173473ACB3290F966978C61FFDFE200F29769248856D44C7599BF34FE4FF4BE"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "139C84CBF4D5860EA121EBC56D04FF4CE53D2AA4EC27907AE9BC9C4B8BA218BE"
+      "source_text_sha256": "8BC6C6FE42E0A806CF5DD0D11828C13E1DF96F32E5898830B11234E28BD7B08A"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -46,7 +46,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "9F38AC1343C0DB10068F8BDCA5C272B3DAAFBC3E5F9805C473CE64C349EE3F67"
+      "source_text_sha256": "327112AE2915E232891BCFC9C370F5DE39E3CA883A607007EE77276E1C478E1F"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -68,10 +68,10 @@
   },
   "companion": {
     "size": 1753088,
-    "sha256": "2554BA0F596E67A41702DB38B44A04093AE7B7022767D73E812EC95E6D1D191B"
+    "sha256": "9B15579AB0622A0C5E2480130B61A0A6C5A812FA6627A9E2E4132715C1BE3265"
   },
   "payload": {
-    "sha256": "749121607CAE3B85D4D35ED367A2388713BF9185F1BF804DC3929F3465A8BC96",
+    "sha256": "94B6C880A8660283EFDB404795D0D4A749EF41F2007F04AA8313FD33F08D181B",
     "geometry": {
       "tech": {
         "allocation_bridge_bytes": "97E8EC6F0100E8C7D9C9FF",

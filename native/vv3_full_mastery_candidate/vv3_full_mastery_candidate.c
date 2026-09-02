@@ -1824,6 +1824,13 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeResult(int code) {
         message = "An Island Event is already on its way. "
                   "No tech points have been deducted.";
         break;
+    case 11:
+        /* Same defect, same treatment, for the Barrel of Babies: it is armed
+           by setting a flag that may already be set, so a second purchase
+           delivers no extra barrel while charging in full. */
+        message = "A Barrel of Babies is already on its way. "
+                  "No tech points have been deducted.";
+        break;
     /* Details-screen (Villager Upgrades) Grant Running no-change cases. */
     case 20:
         title = "Villager Upgrades";

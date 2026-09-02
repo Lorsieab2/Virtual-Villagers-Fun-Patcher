@@ -288,6 +288,14 @@ EQUAL_DIVISION_DISPATCH_VA = IMAGE_BASE + SHR_RVA + (
 # spreadsheet-exact wording per row. .shr's raw section is 0x1000 bytes
 # (0x8B000-0x8BFFF); the last other helper (POPULATION_FINAL_TIER) is well
 # under 0x100 bytes long, so 0x100 of spacing after it is generous.
+# Pending-purchase row states for the Tech menu. menu's own cave is full
+# (inlining these two checks overran show_dialog at 0x456c04), so it just
+# does "mov ecx, [esi+0x0C] / call this / or edi, eax" and this returns the
+# "Unavailable" bits to merge into the menu's own state word.
+PENDING_ROWS_FILE_OFFSET = 0x8BF00
+PENDING_ROWS_VA = IMAGE_BASE + SHR_RVA + (
+    PENDING_ROWS_FILE_OFFSET - SHR_FILE_OFFSET
+)
 ROW_MESSAGE_HELPER_FILE_OFFSET = 0x8BE00
 ROW_MESSAGE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     ROW_MESSAGE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
@@ -927,11 +935,24 @@ def main() -> None:
             je tech_not_owned_for_menu
             or edi, 8
         tech_not_owned_for_menu:
-            mov eax, dword ptr [esi + 0x0C]
+            # eax still holds [esi+0x0C] from the check above -- `or edi, 8`
+            # does not touch it, and this cave has no bytes to spare.
             cmp dword ptr [eax + 0xAD4C], 0
             je food_not_owned_for_menu
             or edi, 16
         food_not_owned_for_menu:
+            # A pending Island Event or Barrel of Babies must not be sold
+            # again. Both are queued by writing a value that is already
+            # there -- the countdown zeroed, the barrel flag set -- so a
+            # second purchase changes nothing while still charging full
+            # price. That is the reported bug.
+            #
+            # The refusal costs the executable no string and no dialog
+            # code: the companion DLL renders the Island Event and Barrel
+            # of Babies rows as disabled "Unavailable" buttons when these
+            # bits are set, so the row cannot be clicked and the charge
+            # path is never entered.
+            call 0x{PENDING_ROWS_VA:X}
             push edi
             push 0
             call 0x{show_dialog:X}
@@ -2351,6 +2372,45 @@ def main() -> None:
             ret 0x0C
         """,
         ROW_MESSAGE_HELPER_VA,
+    )
+    # Both the Island Event and the Barrel of Babies are queued by writing a
+    # value that may already be there -- the Island countdown zeroed, the
+    # barrel flag set -- so buying a second one while the first is still
+    # pending changes nothing and charges full price anyway.
+    #
+    # Rather than refuse after the click (which needs a message string the
+    # exe has no room for), this marks the rows so they cannot be clicked:
+    # the icons DLL draws these two rows as disabled "Unavailable" buttons
+    # disabled "Unavailable" button. Row 1 is the Island Event, row 2 the
+    # Barrel of Babies, hence bits 9 (0x200) and 10 (0x400).
+    #
+    # Called from menu with no setup: it runs in menu's own frame, so it
+    # reads the game context from [esi+0x0C] and ORs the bits straight into
+    # edi, the state word menu is building. That keeps the call site to the
+    # 5 bytes of the call itself -- menu's cave is full, and inlining the
+    # checks (or even passing an argument) overran show_dialog.
+    pending_rows_code = assemble(
+        f"""
+            push eax
+            mov eax, dword ptr [esi + 0x0C]
+            cmp dword ptr [eax + 0xA300], 0
+            jne pending_rows_barrel
+            or edi, 0x800000
+        pending_rows_barrel:
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
+            je pending_rows_done
+            or edi, 0x1000000
+        pending_rows_done:
+            pop eax
+            ret
+        """,
+        PENDING_ROWS_VA,
+    )
+    patch(
+        PENDING_ROWS_FILE_OFFSET,
+        b"\0" * len(pending_rows_code),
+        pending_rows_code,
+        "mark the Tech menu's Island Event and Barrel of Babies rows Unavailable while one of each is already pending, so a second purchase cannot be clicked and cannot be charged for",
     )
     patch(
         ROW_MESSAGE_HELPER_FILE_OFFSET,

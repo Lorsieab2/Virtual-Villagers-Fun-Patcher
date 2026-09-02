@@ -165,6 +165,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x9A300",
                         "0x9A530",
                         "0x943A8",
+                        # Duplicate-purchase guard: an Island Event is
+                        # queued by zeroing a countdown and a Barrel of Babies
+                        # by setting a flag, so a second purchase while one is
+                        # pending changed nothing and charged in full. The
+                        # menu's state builder now marks those rows so the
+                        # companion DLL draws them disabled, which adds a small
+                        # cave for the state and touches the payload that calls
+                        # it.
+                        "0x9A4A0",
                         "0x218",
                         "0x234",
                         "0x268",
@@ -198,6 +207,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x248",
                         "0x28470",
                         "0x56900",
+                        # Duplicate-purchase guard: an Island Event is
+                        # queued by zeroing a countdown and a Barrel of Babies
+                        # by setting a flag, so a second purchase while one is
+                        # pending changed nothing and charged in full. The
+                        # menu's state builder now marks those rows so the
+                        # companion DLL draws them disabled, which adds a small
+                        # cave for the state and touches the payload that calls
+                        # it.
+                        "0x8BF00",
                         "0x85D30",
                         "0x8B009",
                         "0x8B530",
@@ -313,6 +331,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     )
                 elif path.name == "vv3_origins_feature.json":
                     corrected_offsets = {
+                        # Duplicate-purchase guard: buying a second Barrel of
+                        # Babies while one was pending re-set an already-set
+                        # flag and charged in full, so the purchase path now
+                        # refuses it the way its Island Event already does.
+                        # The guard pushed tech_menu past its slot, so
+                        # detail_menu and tech_increment each moved 0x10 later
+                        # inside the payload -- which is the whole of the
+                        # change at 0x27130, a rel32 jump into tech_increment.
+                        "0x27130",
                         "0x7B664", "0x7B7C0", "0x7B7D0",
                         "0x3290",
                         "0x15EF1", "0x16983", "0x16BAB", "0x17A3A",
@@ -341,6 +368,14 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     )
                 elif path.name == "vv4_origins_feature.json":
                     corrected_offsets = {
+                        # Duplicate-purchase guard: VV4 queues both the Island
+                        # Event and the Barrel of Babies by zeroing the same
+                        # [world+0x170E0] countdown, so a second purchase while
+                        # one is pending changed nothing and charged in full.
+                        # The menu's state builder now marks those rows so the
+                        # companion DLL draws them disabled, which adds a cave
+                        # for the state and touches the payload calling it.
+                        "0xCCC20", "0x89373",
                         # VV4 save-slot capture repair: the invalid path used to
                         # store a literal 0 into the slot variable, so the META
                         # file -- which the same stock builder formats with slot
