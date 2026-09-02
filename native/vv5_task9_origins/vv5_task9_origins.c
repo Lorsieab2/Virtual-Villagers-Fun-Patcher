@@ -1110,13 +1110,29 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
     return 1;
 }
 
+
+/* Barrel of Babies is the one row whose result the village's current state can
+   quietly reduce, so its confirmation says so before the player pays.
+
+   Measured in play: with skeletons lying unburied the barrel delivered two
+   children; once villagers had buried some, the same purchase delivered three.
+   This is NOT the living-population count -- the games' own counters skip any
+   record whose health field is <= 0, so the dead are already excluded there
+   and the capacity gate that uses them passed. The reduction happens further
+   in, where the spawn places each child, so an unburied body still costs a
+   slot. */
+#define BARREL_CAPACITY_NOTE \
+    "\r\n\r\nNote: unburied villagers still take up room in the village, " \
+    "so lying skeletons can reduce how many babies arrive. Bury them first " \
+    "for the full three."
+
 __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     unsigned int action,
     unsigned int amount_a,
     unsigned int amount_b
 ) {
     HWND owner = GetOriginsOwner();
-    char message[256];
+    char message[512];
     const char *title = (action == ACTION_HEAL || action >= ACTION_TECH_BASE)
         ? "Origins Upgrades"
         : "Villager Upgrades";
@@ -1128,9 +1144,11 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     /* One OK/Cancel purchase box naming the upgrade and its cost. */
     wsprintfA(
         message,
-        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.",
+        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.%s",
         action_name(action),
-        action_cost(action)
+        action_cost(action),
+        (action == ACTION_TECH_BASE + PENDING_ROW_BARREL)
+            ? BARREL_CAPACITY_NOTE : ""
     );
     return MessageBoxA(owner, message, title, MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
 }

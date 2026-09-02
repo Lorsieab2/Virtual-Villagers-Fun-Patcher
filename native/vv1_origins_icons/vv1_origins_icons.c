@@ -1815,6 +1815,23 @@ static const char *vv1_detail_row_name(int row) {
     }
 }
 
+
+/* Barrel of Babies is the one row whose result the village's current state can
+   quietly reduce, so its confirmation says so before the player pays.
+
+   Measured in play: with skeletons lying unburied the barrel delivered two
+   children; once villagers had buried some, the same purchase delivered three.
+   This is NOT the living-population count -- both games' own counters
+   (VV1 0x41CF90, VV2 0x425860) skip any record whose health field is <= 0, so
+   the dead are already excluded there and the capacity gate that uses them
+   passed. The reduction happens further in, where the spawn places each child,
+   so an unburied body still costs a slot. */
+#define BARREL_ROW 2
+#define BARREL_CAPACITY_NOTE \
+    "\r\n\r\nNote: unburied villagers still take up room in the village, " \
+    "so lying skeletons can reduce how many babies arrive. Bury them first " \
+    "for the full three."
+
 /* Shared confirmation prompt: every purchasable row on both the Tech
    screen (including its Village-Wide rows) and the Villager Details
    screen routes through this before any charge or change happens.
@@ -1830,15 +1847,16 @@ __declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(
     int row,
     int cost
 ) {
-    char message[192];
+    char message[448];
     char cost_text[16];
     const char *name = is_detail ? vv1_detail_row_name(row) : vv1_tech_row_name(row);
     vv1_format_cost(cost, cost_text);
     wsprintfA(
         message,
-        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.",
+        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.%s",
         name,
-        cost_text
+        cost_text,
+        (!is_detail && row == BARREL_ROW) ? BARREL_CAPACITY_NOTE : ""
     );
     return MessageBoxA(
         GetForegroundWindow(),

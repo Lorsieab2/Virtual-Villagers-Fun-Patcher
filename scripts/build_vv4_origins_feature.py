@@ -135,7 +135,14 @@ BARREL_CHILDREN = 3                     # the barrel delivers 3 children
 # test and still overlapped the optional Village-Wide Upgrades patch, which
 # owns 0xCC220 for 1312 bytes.
 PENDING_ROWS_FILE_OFFSET = 0xCCC20
-PENDING_ROWS_VA = IMAGE_BASE + PENDING_ROWS_FILE_OFFSET
+# .shr is NOT identity-mapped in VV4: its raw file offset 0xCC000 maps to VA
+# 0x728000, so a cave's VA is SHR_STOCK_VA + (offset - 0xCC000), never
+# IMAGE_BASE + offset. Getting that wrong assembles the helper correctly but
+# makes the menu CALL an address the code is not at, and the game dies
+# executing whatever is there -- a shipped v1.34.29 crash whose dump faulted
+# at 0x004CCC21, exactly IMAGE_BASE + this offset. The same mistake was made
+# once before, on the 0xCC160/0xCC170 tail helpers.
+PENDING_ROWS_VA = SHR_STOCK_VA + (PENDING_ROWS_FILE_OFFSET - 0xCC000)
 COLLECTIONS_APPLY_FILE_OFFSET = 0xCCD00
 COLLECTIONS_APPLY_VA = 0x728D00
 COLLECTIONS_COMPLETE_ORDINAL = 101
@@ -1912,14 +1919,21 @@ def main() -> None:
     # pending bits merged in. Unlike the other games, VV4's Barrel of Babies
     # shares the Island Event's trigger -- do_barrel arms its own flag and
     # then zeroes the very same [world+0x170E0] countdown -- so a pending
-    # event blocks BOTH rows, and an armed barrel additionally blocks its
-    # own. The world pointer comes from the same 0x41FE70 getter both
-    # purchase paths use.
+    # event blocks BOTH rows, and an armed barrel additionally blocks its own.
+    #
+    # The world pointer is READ from its singleton at 0x4CB51C rather than
+    # obtained by calling 0x41FE70, which the purchase paths use. That getter
+    # is a lazy constructor: with a null pointer it allocates 0x171C8 bytes and
+    # builds the world behind an SEH frame. Building the menu must not do that,
+    # and a null pointer already answers the question -- no world, nothing
+    # pending. It is also shorter, which this cave cares about.
     pending_rows_code = assemble(
         f"""
             push edx
             mov edx, eax
-            call 0x41FE70
+            mov eax, dword ptr [0x4CB51C]
+            test eax, eax
+            jz pending_rows_done
             cmp dword ptr [eax + 0x170E0], 0
             jne pending_rows_barrel
             or edx, 0x800000
