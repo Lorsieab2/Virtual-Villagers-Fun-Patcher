@@ -1816,6 +1816,14 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeResult(int code) {
         message = "The collections are already cleared. "
                   "No tech points have been deducted.";
         break;
+    case 10:
+        /* An Island Event is queued by zeroing its countdown, so buying a
+           second one while the first is still pending changes nothing and the
+           player pays twice for one event.  The refusal lives here rather than
+           as an executable string because the exe's string block is full. */
+        message = "An Island Event is already on its way. "
+                  "No tech points have been deducted.";
+        break;
     /* Details-screen (Villager Upgrades) Grant Running no-change cases. */
     case 20:
         title = "Villager Upgrades";
