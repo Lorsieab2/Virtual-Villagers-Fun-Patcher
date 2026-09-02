@@ -57,7 +57,7 @@ class ReleasesLinkTests(unittest.TestCase):
         self.assertEqual(RELEASES_PAGE, EXPECTED_RELEASES_PAGE)
 
     def test_the_link_exists_and_opens_that_page(self) -> None:
-        self.assertIn('"Check for Updates", self._open_releases_page', self.source)
+        self.assertIn('"Check for updates", self._open_releases_page', self.source)
         handler = next(
             node
             for node in ast.walk(self.tree)
@@ -81,7 +81,7 @@ class ReleasesLinkTests(unittest.TestCase):
         """Not in a footer under the status box, which is where it started."""
         blurb = self.source.find("blurb_row = ttk.Frame(outer)")
         self.assertNotEqual(blurb, -1, "the description row is gone")
-        link = self.source.find('"Check for Updates"')
+        link = self.source.find('"Check for updates"')
         self.assertNotEqual(link, -1, "the link is gone")
         status = self.source.find("status_box = ttk.LabelFrame(")
         self.assertNotEqual(status, -1, "the status box is gone")
@@ -92,6 +92,31 @@ class ReleasesLinkTests(unittest.TestCase):
         self.assertLess(
             abs(link - blurb), 900,
             "the link must sit with the description, not elsewhere",
+        )
+
+    def test_the_link_is_underlined_at_the_users_own_font_size(self) -> None:
+        """Adopted from the VF2 patcher, which hit both of these.
+
+        Without the underline the link reads as static text beside the version
+        number and gets reported as missing while it is on screen and working.
+        And a hardcoded point size shrinks it on any setup where TkDefaultFont
+        has been enlarged for readability, while every label around it stays
+        large -- the opposite of making it noticeable. So the font must be a
+        copy of TkDefaultFont with underline turned on.
+        """
+        start = self.source.find("def _folder_link(")
+        self.assertNotEqual(start, -1, "the link helper is gone")
+        end = self.source.find("\n    def ", start + 1)
+        helper = self.source[start:end]
+        self.assertIn('tkfont.nametofont("TkDefaultFont").copy()', helper)
+        self.assertIn("link_font.configure(underline=True)", helper)
+        # Scoped to the link helper on purpose: headings elsewhere pick a
+        # deliberate size, and that is a separate question from links, which
+        # must track whatever size the user reads at.
+        self.assertNotRegex(
+            helper,
+            r"font=\(\s*[\"']",
+            "the link must not hardcode a font family or point size",
         )
 
     def test_the_link_is_packed_to_the_right(self) -> None:
