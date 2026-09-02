@@ -914,9 +914,12 @@ class VV1RequiredFixTests(unittest.TestCase):
         This replaces an assertion that VV1 subtracts one flat amount and
         never reads the speed field. Playtesting disproved it: with a flat
         21600 the village advanced 2 years at slow, 3 at normal and 3 at fast,
+        and the per-speed table that produced measured 1 / 3 / 11 on v1.34.29.
+        The targets are now 3 / 6 / 12, so each delta is its v1.34.29 value
+        scaled by target / observed.
         and a paused purchase advanced nothing while still charging 50,000.
 
-        The branch now selects a delta per speed -- 32400 / 21600 / 21600,
+        The branch now selects a delta per speed -- 97200 / 43200 / 23564,
         each the old amount scaled by 3/measured -- and refuses while paused
         before any points are deducted. See tests/test_time_warp_measured.py
         for the full table and the arithmetic.
@@ -940,7 +943,7 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertIn("sub dword ptr [0x4860f0], eax", text)
 
         # All three measured deltas are present and selected by speed code.
-        for delta in (0x7E90, 0x5460):        # 32400 and 21600
+        for delta in (0x17BB0, 0xA8C0, 0x5C0C):  # 97200, 43200 and 23564
             self.assertIn(f"mov eax, {hex(delta)}", text)
         self.assertIn("cmp eax, 3", text)
         self.assertIn("cmp eax, 0xa", text)

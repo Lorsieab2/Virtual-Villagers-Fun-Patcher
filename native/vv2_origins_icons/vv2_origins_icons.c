@@ -608,12 +608,13 @@ static const char *vv2_action_cost(int action) {
    cost.  Returns 1 on OK, 0 on Cancel.  The payload passes only the action id;
    the price table above mirrors the payload's tech_costs / detail_costs. */
 __declspec(dllexport) int __stdcall ConfirmVV2Upgrade(int action) {
-    char message[256];
+    char message[448];
     wsprintfA(
         message,
         "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, "
-        "or Cancel.",
-        vv2_action_name(action), vv2_action_cost(action)
+        "or Cancel.%s",
+        vv2_action_name(action), vv2_action_cost(action),
+        (action == VV2_ACT_BARREL) ? BARREL_CAPACITY_NOTE : ""
     );
     return MessageBoxA(
         GetForegroundWindow(), message, vv2_result_title(action),

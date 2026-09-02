@@ -556,7 +556,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "1922BC709EF8D986BC4100E4D3432E4F22567E84B663867ECB3C418301AE967A",
+            "DE96A1B51EE61A5240270DDC417EAB8D733982168442E13B14277A52C155FC19",
         )
         self.assertEqual(
             bytes.fromhex(
@@ -603,7 +603,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
 
         self.assertIn("mov eax, dword ptr [edi + ebp + 0x12f20]", text)
-        for delta in ("0x3f48", "0x5460", "0x8ca0"):   # 16200, 21600, 36000
+        for delta in ("0x3f48", "0xa8c0", "0x17700"):  # 16200, 43200, 96000
             self.assertIn(f"mov eax, {delta}", text)
         self.assertIn("sub dword ptr [0x4a4210], eax", text)
         self.assertNotIn("imul eax, eax, 0xe10", text)

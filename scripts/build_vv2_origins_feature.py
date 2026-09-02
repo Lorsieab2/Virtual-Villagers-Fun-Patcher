@@ -843,13 +843,13 @@ def main() -> None:
             je tw_slow
             cmp eax, 10
             je tw_fast
-            mov eax, 21600
+            mov eax, 43200
             jmp tw_apply
         tw_slow:
-            mov eax, 32400
+            mov eax, 97200
             jmp tw_apply
         tw_fast:
-            mov eax, 10800
+            mov eax, 14400
         tw_apply:
             sub dword ptr [0x4950F0], eax
             jmp success

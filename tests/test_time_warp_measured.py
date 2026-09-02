@@ -8,24 +8,29 @@ while VV5 multiplies" -- and each was wrong for at least one game. What follows
 is the owner's measurements and the arithmetic that turns them into deltas,
 with no engine model in between.
 
-Measured across every speed setting:
+Measured on v1.34.29, which was already running a per-speed table:
 
-    game  slow  normal  fast   paused
-    VV1     2      3      3      0  (and it still charged)
-    VV2     2      3      6      0
-    VV3     2      3      3      0   (with delta = speed * 3600)
-    VV4     2      3      6      0
-    VV5   6-7     12     24      0   (with a flat 129600)
+    game   slow      normal     fast        paused
+    VV1    1 @32400  3 @21600   11 @21600   0
+    VV2    1 @32400  3 @21600    9 @10800   0
+    VV3    3 @16200  3 @21600  4-5 @36000   0
+    VV4    -- its Tech screen crashed before it could be measured --
+    VV5    1 @32400  5 @32400    8 @32400   0  (all three ran the same amount)
 
-Assuming only that the advance is LINEAR in the delta at a fixed speed, the
-delta that yields three years is the old delta scaled by 3/measured. That one
-assumption is the thing to re-check if a re-measure disagrees.
+The goal is no longer three years at every speed. That target needed the delta
+to cancel the engine's own scaling, and three separate theories of how to do
+that were each wrong for at least one game. The target is now 3 at slow, 6 at
+normal and 12 at fast -- a doubling per step, which is roughly what the engine
+already does -- so each delta only has to be scaled by target / observed.
 
-VV5 is handled differently on purpose. Its readings double from slow to normal
-and again from normal to fast, so the advance tracks delta * speed; dividing
-(194400 / speed) holds that product constant at three years WITHOUT needing to
-know the speed codes -- which matters because 24/12 = 2 rules out a fast code
-of 10, and VV5 never writes its codes as immediates for us to read.
+Assuming only that the advance is LINEAR in the delta at a fixed speed. That
+one assumption is the thing to re-check if a re-measure disagrees.
+
+VV5's three speeds all ran the same 32400 and still produced 1 / 5 / 8, so its
+spread comes from the engine rather than from the delta. It still divides
+(194400 / speed) rather than branching, which is why it ran one amount at every
+setting; retuning it to the new targets needs its speed field confirmed first,
+since the division cannot distinguish speeds the field does not distinguish.
 """
 from __future__ import annotations
 
@@ -37,11 +42,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # game -> (generator, slow, normal, fast) for the four table-driven games
 TABLE_GAMES = {
-    "vv1": ("scripts/build_vv1_origins_feature.py", 32400, 21600, 21600),
-    "vv2": ("scripts/build_vv2_origins_feature.py", 32400, 21600, 10800),
-    "vv3": ("scripts/build_vv3_origins_feature.py", 16200, 21600, 36000),
+    "vv1": ("scripts/build_vv1_origins_feature.py", 97200, 43200, 23564),
+    "vv2": ("scripts/build_vv2_origins_feature.py", 97200, 43200, 14400),
+    "vv3": ("scripts/build_vv3_origins_feature.py", 16200, 43200, 96000),
+    # VV4 still carries its v1.34.29 table: its Tech screen crashed before it
+    # could be measured, so there is nothing yet to scale from.
     "vv4": ("scripts/build_vv4_origins_feature.py", 32400, 21600, 10800),
 }
+
+# What v1.34.29 actually ran, and the years each speed produced in play.
+V1_34_29 = {
+    "vv1": ((32400, 21600, 21600), (1, 3, 11)),
+    "vv2": ((32400, 21600, 10800), (1, 3, 9)),
+    "vv3": ((16200, 21600, 36000), (3, 3, 4.5)),   # fast reported as 4-5
+}
+# The target is no longer three years everywhere. The owner asked for 3 at
+# slow, 6 at normal and 12 at fast, which goes WITH the engine's own scaling
+# rather than trying to cancel it.
+TARGET_YEARS = (3, 6, 12)
 # VV5 divides instead of branching; 32400 * 6 = 194400.
 VV5_GENERATOR = "scripts/build_vv5_origins_feature.py"
 VV5_CONSTANT = 194400
@@ -185,26 +203,43 @@ class MeasurementProvenanceTests(unittest.TestCase):
                     f"{gid} Time Warp no longer says where its numbers came from",
                 )
 
-    def test_the_deltas_are_the_measurements_scaled_to_three_years(self) -> None:
-        """Re-derives every table number from the recorded observations."""
-        observed = {
-            "vv1": (2, 3, 3),
-            "vv2": (2, 3, 6),
-            "vv4": (2, 3, 6),
-        }
-        for gid, (slow_years, normal_years, fast_years) in observed.items():
-            _generator, slow, normal, fast = TABLE_GAMES[gid]
-            with self.subTest(game=gid):
-                self.assertEqual(slow, round(21600 * 3 / slow_years))
-                self.assertEqual(normal, round(21600 * 3 / normal_years))
-                self.assertEqual(fast, round(21600 * 3 / fast_years))
+    def test_the_deltas_are_the_measurements_scaled_to_the_targets(self) -> None:
+        """Re-derives every table number from what v1.34.29 actually did.
 
-    def test_vv3_scales_from_its_own_speed_proportional_deltas(self) -> None:
-        """VV3 was measured with speed * 3600, not with a flat amount."""
-        _generator, slow, normal, fast = TABLE_GAMES["vv3"]
-        self.assertEqual(slow, round(3 * 3600 * 3 / 2))
-        self.assertEqual(normal, round(6 * 3600 * 3 / 3))
-        self.assertEqual(fast, round(10 * 3600 * 3 / 3))
+        Each game's own delta is scaled per speed, not one shared constant:
+        the three games were running different amounts, so scaling from a
+        single number would only be right for whichever game happened to
+        match it.
+        """
+        for gid, (ran, observed) in V1_34_29.items():
+            _generator, *current = TABLE_GAMES[gid]
+            with self.subTest(game=gid):
+                expected = [
+                    round(delta * target / years)
+                    for delta, years, target in zip(ran, observed, TARGET_YEARS)
+                ]
+                self.assertEqual(current, expected)
+
+    def test_every_target_is_a_doubling_of_the_one_below(self) -> None:
+        """3 / 6 / 12 -- the shape the engine already produces.
+
+        Earlier attempts tried to make one number of years hold across every
+        speed and had to fight the clock to do it. Each of the three theories
+        that produced was wrong for at least one game.
+        """
+        slow, normal, fast = TARGET_YEARS
+        self.assertEqual(normal, slow * 2)
+        self.assertEqual(fast, normal * 2)
+
+    def test_vv4_is_still_awaiting_its_measurement(self) -> None:
+        """Recorded rather than silently left behind.
+
+        VV4's Tech screen crashed in v1.34.29 (a cave declared at
+        IMAGE_BASE + file offset in a section that is not identity-mapped), so
+        it could not be measured. Its table is unchanged until it is.
+        """
+        self.assertNotIn("vv4", V1_34_29)
+        self.assertEqual(TABLE_GAMES["vv4"][1:], (32400, 21600, 10800))
 
 
 if __name__ == "__main__":

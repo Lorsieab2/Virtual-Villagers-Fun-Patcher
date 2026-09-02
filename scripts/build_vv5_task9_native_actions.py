@@ -379,7 +379,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("iv_success", b"Island Event completed.\0"),
         ("iv_charge_unknown", b"The final tech-point balance did not match the exact 30,000-point deduction. The charge outcome is unknown; no event was queued.\0"),
         ("iv_queue_unknown", b"The 30,000-point deduction was verified, but the event could not be queued.\0"),
-        ("bb_warning", b"Do you want to buy Barrel of Babies for 75,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
+        ("bb_warning", b"Do you want to buy Barrel of Babies for 75,000 tech points?\r\nUnburied villagers still take up room, so skeletons can reduce how many babies arrive.\r\nPress OK to confirm, or Cancel.\0"),
         ("bb_full", b"Village population is close to its maximum. The Barrel of Babies needs room for 3 children. No tech points have been deducted.\0"),
         ("bb_cancelled", b"Barrel of Babies was canceled.\r\nNo tech points have been deducted.\0"),
         ("bb_recheck", b"The village population or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),

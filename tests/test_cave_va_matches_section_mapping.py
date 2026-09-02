@@ -15,6 +15,7 @@ table out of each generated executable and checks every
 
 from __future__ import annotations
 
+import ast
 import re
 import unittest
 from pathlib import Path
@@ -29,11 +30,10 @@ GAMES = {
     "vv5": ROOT / "research/vv5-origins/Virtual Villagers - New Believers - Origins Research.exe",
 }
 
-# Any module-level integer constant, so a VA expression may reference whatever
-# it likes.  Collecting only the _FILE_OFFSET/_VA names silently skipped every
-# VA written as `IMAGE_BASE + ...` -- which is exactly the broken form, so the
-# check passed straight over the one case it exists to catch.
-ASSIGNMENT = re.compile(r"^(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?P<expr>[^\n#]+)", re.M)
+# Deliberate `NAME_VA = OTHER_VA` aliases, which say nothing about where
+# NAME_FILE_OFFSET maps.  The Cure/village-wide stubs use this: the offset is a
+# five-byte jump slot and the VA names the helper it redirects TO.
+ALIAS = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*_VA$")
 
 
 def sections(data: bytes):
@@ -62,30 +62,55 @@ def va_for(secs, offset: int):
 
 
 def constants(source: str) -> tuple[dict[str, int], dict[str, str]]:
+    """Every module-level integer constant, with the text it was written as.
+
+    Parsed with `ast` rather than matched line by line.  A line-based regex
+    stops at the first newline, so a parenthesized multiline declaration --
+    which is exactly how VV1 and VV2 write theirs:
+
+        PENDING_ROWS_VA = IMAGE_BASE + SHR_RVA + (
+            PENDING_ROWS_FILE_OFFSET - SHR_FILE_OFFSET
+        )
+
+    -- failed to evaluate and was dropped without a word.  That silently
+    excluded 31 VV1 and 11 VV2 pairs while the aggregate count still passed on
+    the other games, so the check protected far less than it claimed to.
+    """
     found: dict[str, int] = {}
     exprs: dict[str, str] = {}
-    for match in ASSIGNMENT.finditer(source):
-        expr = match.group("expr").strip()
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return found, exprs
+    for node in tree.body:
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        if not isinstance(target, ast.Name):
+            continue
         try:
-            value = eval(expr, {"__builtins__": {}}, dict(found))
+            value = eval(                                   # noqa: S307
+                compile(ast.Expression(node.value), "<const>", "eval"),
+                {"__builtins__": {}},
+                dict(found),
+            )
         except Exception:
             continue
         if isinstance(value, int) and not isinstance(value, bool):
-            found[match.group("name")] = value
-            exprs[match.group("name")] = expr
+            found[target.id] = value
+            exprs[target.id] = ast.unparse(node.value).strip()
     return found, exprs
-
-
-# `NAME_VA = OTHER_VA` is an alias, not a claim about where NAME_FILE_OFFSET
-# maps.  The Cure/village-wide stubs do this deliberately: HEAL_CAVE_FILE_OFFSET
-# is a five-byte jump slot whose HEAL_CAVE_VA names the certified helper it
-# redirects TO.  Pairing them by name would report three healthy builds as
-# broken.
-ALIAS = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*_VA$")
 
 
 class CaveVaMatchesSectionMappingTests(unittest.TestCase):
     def test_declared_cave_vas_match_the_pe_section_mapping(self) -> None:
+        # research/ is not committed, so on a clean checkout none of these
+        # executables exist. Skip like the other fixture-dependent tests rather
+        # than failing the whole suite on a machine that simply does not have
+        # the private builds.
+        available = [g for g, p in GAMES.items() if p.is_file()]
+        if not available:
+            self.skipTest("no generated executables present (research/ is not committed)")
         checked = 0
         pairs_seen: set[str] = set()
         for game, exe_path in GAMES.items():
@@ -114,9 +139,19 @@ class CaveVaMatchesSectionMappingTests(unittest.TestCase):
                     )
                 checked += 1
         self.assertGreater(checked, 10, "no cave VA pairs were checked")
+        # Per game, not just in aggregate: a parsing regression that dropped
+        # every VV1 pair would otherwise still pass on the strength of the
+        # other four, which is how the multiline declarations went unchecked.
+        for game in available:
+            with self.subTest(game=game):
+                self.assertTrue(
+                    any(k.startswith(f"{game}:") for k in pairs_seen),
+                    f"{game} contributed no cave VA pairs at all",
+                )
         # Named explicitly so a parsing regression cannot quietly drop the very
         # pair that shipped a crash.
-        self.assertIn("vv4:PENDING_ROWS_FILE_OFFSET", pairs_seen)
+        if "vv4" in available:
+            self.assertIn("vv4:PENDING_ROWS_FILE_OFFSET", pairs_seen)
 
 
 if __name__ == "__main__":

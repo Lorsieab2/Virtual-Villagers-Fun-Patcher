@@ -820,13 +820,13 @@ def main() -> None:
             je tw_slow
             cmp eax, 10
             je tw_fast
-            mov eax, 21600
+            mov eax, 43200
             jmp tw_apply
         tw_slow:
             mov eax, 16200
             jmp tw_apply
         tw_fast:
-            mov eax, 36000
+            mov eax, 96000
         tw_apply:
             sub dword ptr [0x4A4210], eax
             mov eax, 0x{s['time_warp_done']:X}
