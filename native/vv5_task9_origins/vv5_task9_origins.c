@@ -242,6 +242,21 @@ static int appearance_body_bitmap(void) {
 }
 
 static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+    /* The None entry has no artwork, so blitting its cell leaves an
+       empty grey box next to Body and Head, which print words. Name
+       it instead: a blank cell reads as a broken preview rather than
+       a deliberate choice. */
+    if (bitmap_id == IDB_MASK_PREVIEW && index == 0) {
+        RECT none_rc = item->rcItem;
+        HBRUSH none_bg = CreateSolidBrush(RGB(236, 236, 236));
+        FillRect(item->hDC, &none_rc, none_bg);
+        DeleteObject(none_bg);
+        SetBkMode(item->hDC, TRANSPARENT);
+        DrawTextA(item->hDC, "(None)", -1, &none_rc,
+                  DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        return;
+    }
+
     RECT rc = item->rcItem;
     int width = rc.right - rc.left;
     int height = rc.bottom - rc.top;

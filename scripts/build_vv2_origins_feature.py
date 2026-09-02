@@ -731,6 +731,7 @@ def main() -> None:
             cmp ebx, 2
             je barrel_capacity_preflight
             cmp dword ptr [edi + 0x2EADC], eax
+            jb insufficient
             # Time Warp advances NOTHING while the game is paused
             # (measured: 0 years in every game, and VV1 charged for
             # it anyway). Refuse here, BEFORE the deduction below --
@@ -744,7 +745,6 @@ def main() -> None:
             mov eax, 0x{s['paused']:X}
             jmp show_status
         tw_charge_ok:
-            jb insufficient
             sub dword ptr [edi + 0x2EADC], eax
             cmp ebx, 0
             je do_time_warp

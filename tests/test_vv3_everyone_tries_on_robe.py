@@ -22,22 +22,22 @@ MODES = (
 )
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 EXPANDED_PROTOTYPE = ROOT / "research" / "vv3-expanded-prototype.exe"
-PAYLOAD_SHA256 = "4810476C53CDBC4108100E10DF7404F7FBB0476CFF850110CEF4E761C9ADE9B8"
-ZERO_CAVE_SHA256 = "22B94C6893BFC091BE2A9F454A045184DF6C0398CFFA2B4E90C0065DD6EEB1B0"
+PAYLOAD_SHA256 = "33465BC83DE786B8C9C9C607BF3C302766699E5E8EEA7BB9AE1FA1F9DEC6C72E"
+ZERO_CAVE_SHA256 = "076A27C79E5ACE2A3D47F9DD2E83E4FF6EA8872B3C2218F66C92B89B55F36560"
 ISOLATED_RESULTS = {
     "stock": (
-        "4A7A2BB6D4C5D564EC6ABD6A929842D800C6E784C2B77B21DD657C87F77E60E2",
-        "A8EC0C00",
+        "5797E59898126FE2FBFED83C2BCD1272E4FABF480A88620E5657A24A330DC744",
+        "AB640D00",
     ),
 }
 RENDERED_RESULTS = {
     "collection_progression": (
-        "5B5988A2D493C4867F9C4356A46613A782FD35812232A76F8D1C26C8568E9ADE",
-        "A2C60C00",
+        "B08881561090C0744E6278FE0C3012BA0CA8882855C5F65505377FAF72F1B09E",
+        "A53E0D00",
     ),
     "immediate_fixed": (
-        "9A4E6DF88BD51BBBE2E33CA1118EA518817B0C1E161977D83DB609012E920B51",
-        "A0080D00",
+        "75595627C7FF51DD78E831AFC710861D32E842D6CBFDEFECA07FD55F95EC59C8",
+        "A3800D00",
     ),
 }
 BASE_RESULTS = {
@@ -56,12 +56,12 @@ EXPANDED_COMPOSITION_RESULTS = {
 }
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-        "B4F9D0048ADC1C4445C1E3890CC491FF8288715096D638671364F10F9CB0957A",
-        "2A880D00",
+        "17294184A2C918B2DD4D1978CCAA1E806BA103DC95C47EF34B218313B6907000",
+        "2E000D00",
     ),
     "immediate_fixed": (
-        "A5B2623E2F59733B2D087E5B1A225B07B50E3C127FD1CB6071DA7A81D27D0223",
-        "28CA0D00",
+        "99C49BDEE46E40F9042667A6573C16BFD11AB0CDBD9553FA13B928AAD935C528",
+        "2C420D00",
     ),
 }
 
@@ -98,11 +98,12 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
         )
 
     def test_exact_reviewed_payload_and_three_owned_ranges(self) -> None:
-        self.assertEqual(len(self.payload), 235)
+        self.assertEqual(len(self.payload), 512)
         self.assertEqual(digest(self.payload), PAYLOAD_SHA256)
-        self.assertEqual(self.payload[0xCD], 0x90)
+        # The wrapper is followed by NOP padding out to the owned length.
+        self.assertEqual(set(self.payload[-16:]), {0x90})
         zero_cave = bytes.fromhex(self.payload_row["before"])
-        self.assertEqual(len(zero_cave), 235)
+        self.assertEqual(len(zero_cave), 512)
         self.assertEqual(digest(zero_cave), ZERO_CAVE_SHA256)
 
         common = {row["offset"]: row for row in self.feature.patches}
@@ -141,20 +142,36 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
         field ``+0xF24`` and dispatching through the global table at
         ``0x596970``.
 
-        The action id is ``0x38``, not ``0x39``.  An instruction-level trace of
-        the stock success path shows it assigns TWO different ids:
+        The action id is ``0x79``, and that was established by reading the
+        RUNNING GAME rather than the disassembly. Two earlier versions of this
+        patch argued the id from static reading and both were wrong.
 
-            0x45E0C0(0x38, 7, -1, 0) on the manager 0x59E110
-                -> 0x45DDE0 sweeps 150 slots, filters, and calls
-                   0x455570(record, 0x38, scratch) for EACH selected villager
-            0x455570(initiator, 0x39, ptr)
+        During the event, a live dump of every villager's ``+0xF24`` showed:
 
-        So ``0x38`` is the crowd action every other villager receives and
-        ``0x39`` belongs to the one the player dropped.  The fanout previously
-        assigned ``0x39`` to everybody -- the initiator's action -- and ran
-        after the stock selector, overwriting the ``0x38`` the game had just
-        assigned.  That is why one villager robed and the rest performed a
-        different action.
+            147 villagers holding 0x39
+              1 villager  holding 0x79
+
+        which is precisely the reported "one person tries on the robe and
+        everyone else does lecturing". So ``0x39`` is the LECTURE action and
+        ``0x79`` is the robe action.
+
+        The stock robe branch at 0x4219A8 does TWO things, and the fanout used
+        to do only the second::
+
+            push 0 / push 0x64
+            push 5 / rand / add eax,0x261 / push eax     ; x = 609 + rand(5)
+            push 5 / rand / add eax,0x1E8 / push eax     ; y = 488 + rand(5)
+            0x4611B0(x, y, 0x64, 0)                      ; the WALK DESTINATION
+            0x455570(record, 0x78 or 0x79, scratch)      ; the action
+
+        Without the destination there is nowhere for the action to carry the
+        villager. ``+0xE88`` selects between the two robe actions in stock, so
+        the fanout mirrors that test instead of hard-coding one -- which is
+        what "the same action the player's drop uses" means.
+
+        The ``+0xE80`` flag the old code gated on is never written anywhere in
+        .text, so the branch that reads it can never be taken; that is why the
+        broadcast assigned nothing.
         """
         stock_call = bytes.fromhex("B860194200FFD0")   # mov eax,0x421960 ; call eax
         dispatch = bytes.fromhex("B870554500FFD0")     # mov eax,0x455570 ; call eax
@@ -167,16 +184,22 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
 
         # The fanout assigns the robe action through the stock dispatcher.
         self.assertEqual(self.payload.count(dispatch), 1)
-        # 0x39 IS the robe attempt: the stock success path dispatches it to the
-        # dropped villager at 0x421995, and no stock site passes 0x38 to this
-        # dispatcher at all. Fanning out 0x38 instead re-applies the spectator
-        # action to the whole village, which is the reported bug.
-        self.assertIn(bytes.fromhex("6A39"), self.payload)      # push 0x39
+        # Both robe actions are present, selected by +0xE88 exactly as stock
+        # does. 0x79 is the one the live trace saw on the dropped villager.
+        self.assertIn(bytes.fromhex("6A79"), self.payload)      # push 0x79
+        self.assertIn(bytes.fromhex("6A78"), self.payload)      # push 0x78
         self.assertNotIn(
-            bytes.fromhex("6A38"), self.payload,
-            "fanning out the crowd action makes everyone spectate instead of "
-            "trying the robe on",
+            bytes.fromhex("6A39"), self.payload,
+            "0x39 is the LECTURE action -- fanning it out is the reported bug: "
+            "everyone stands around lecturing while one villager robes",
         )
+        # The walk destination must be set, or the action carries them nowhere.
+        self.assertIn(
+            bytes.fromhex("B8B0114600FFD0"), self.payload,   # mov eax,0x4611B0 ; call
+            "the fanout must send each villager to the amphitheatre",
+        )
+        self.assertIn(bytes.fromhex("0561020000"), self.payload)   # add eax, 0x261
+        self.assertIn(bytes.fromhex("05E8010000"), self.payload)   # add eax, 0x1E8
         self.assertIn(bytes.fromhex("89F9"), self.payload)      # mov ecx,edi (thiscall)
         # The loop counter and record cursor are preserved across game code.
         self.assertIn(bytes.fromhex("5157"), self.payload)      # push ecx ; push edi
@@ -196,8 +219,11 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
             ("initiator active +0xF10", "83BE100F000000"),
             ("initiator living +0xE78", "83BE780E000000"),
             ("initiator non-nursing +0xE8C", "83BE8C0E000000"),
-            ("initiator action +0xF24 accepts 0x39", "8B86240F000083F839"),
             ("initiator action +0xF24 accepts 0x78", "83F878"),
+            # 0x39 is deliberately NOT accepted: it is the action the
+            # CHIEF's drop produces, and stock answers that with the chief
+            # lecturing. Accepting it fanned the robe out and minted a
+            # second chief.
             ("initiator action +0xF24 accepts 0x79", "83F879"),
         ):
             with self.subTest(gate=label):
@@ -219,14 +245,32 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
             with self.subTest(gate=label):
                 self.assertIn(bytes.fromhex(encoding), self.payload)
 
-        # The native chief selector is untouched: the candidate-selection
-        # fields +0xE80 and +0xE88 are never read or written, and no other
-        # game routine is called.
-        self.assertNotIn(bytes.fromhex("800E0000"), self.payload)
-        self.assertNotIn(bytes.fromhex("880E0000"), self.payload)
-        self.assertNotIn(bytes.fromhex("B8B0114600FFD0"), self.payload)
+        # +0xE80 is the CHIEF flag, and the patch reads it to stay out of the
+        # way. Verified live: with two chiefs present it was set on exactly
+        # those two villagers and clear on the other 147. The guard bails when
+        # any living villager has it, so a village that already has a chief
+        # gets base-game behaviour untouched.
+        #
+        # Reading it is required; WRITING it would be inventing chief state,
+        # and nothing here does that.
+        self.assertIn(bytes.fromhex("80BF800E000000"), self.payload)   # cmp byte [edi+0xE80], 0
+        self.assertNotIn(bytes.fromhex("C787800E0000"), self.payload)  # mov dword [edi+0xE80], imm
+        self.assertNotIn(bytes.fromhex("C687800E0000"), self.payload)  # mov byte  [edi+0xE80], imm
+
+        # +0xE88 IS read, and deliberately so. Stock uses it to pick between
+        # the two robe actions, so reading it is how each villager gets the
+        # same action the player's drop would have given it. Writing it would
+        # be inventing candidate state; reading it is not.
+        self.assertIn(bytes.fromhex("880E0000"), self.payload)
+        self.assertIn(bytes.fromhex("80BF880E000000"), self.payload)  # cmp byte [edi+0xE88], 0
+
+        # The walk-destination call and its argument block are now expected --
+        # they are the half of the stock robe branch that was missing.
+        self.assertIn(bytes.fromhex("B8B0114600FFD0"), self.payload)
+        self.assertIn(bytes.fromhex("6A006A646A05"), self.payload)
+
+        # Still no unrelated game routine.
         self.assertNotIn(bytes.fromhex("B8301C4500FFD0"), self.payload)
-        self.assertNotIn(bytes.fromhex("6A006A646A05"), self.payload)
         # The old candidate-gated broadcast sequence must be gone.
         self.assertNotIn(bytes.fromhex("5157B860194200FFD083C40459"), self.payload)
 
@@ -308,7 +352,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
             bytes.fromhex("68301C45006A79E8B2CEFEFF"),
         )
         self.assertEqual(digest(source[0xB4000:0xB5000]), "AD7FACB2586FC6E966C004D7D1D16B024F5805FF7CB47C7A85DABD8B48892CA7")
-        self.assertEqual(digest(source[0xB4100:0xB41EB]), ZERO_CAVE_SHA256)
+        self.assertEqual(digest(source[0xB4100:0xB4300]), ZERO_CAVE_SHA256)
 
     def test_isolated_authenticated_stock_and_expanded_prototype_results(self) -> None:
         cases = (
@@ -354,7 +398,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                 )
                 self.assertTrue(all(left[1] <= right[0] for left, right in zip(intervals, intervals[1:])))
                 self.assertEqual(rendered[0x280:0x284], bytes.fromhex("00100000"))
-                self.assertEqual(digest(rendered[0xB4100:0xB41EB]), PAYLOAD_SHA256)
+                self.assertEqual(digest(rendered[0xB4100:0xB4300]), PAYLOAD_SHA256)
                 # D166 fix: .shr is now actually marked executable (bit
                 # 0x20000000 added), not just declared bigger.
                 self.assertEqual(rendered[0x29C:0x2A0], bytes.fromhex("600000F0"))
@@ -450,7 +494,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                 self.assertEqual(removed, parent)
 
     def test_owned_ranges_do_not_collide_with_existing_manifests_or_repairs(self) -> None:
-        owned = ((0x280, 0x284), (0x22B2A, 0x22B2E), (0xB4100, 0xB41EB))
+        owned = ((0x280, 0x284), (0x22B2A, 0x22B2E), (0xB4100, 0xB4300))
         ranges: list[tuple[int, int, str]] = []
 
         def add(row: dict, owner: str) -> None:

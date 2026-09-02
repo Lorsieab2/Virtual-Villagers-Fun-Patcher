@@ -1215,8 +1215,8 @@ static int vv3_world_record_index(void *record)
    village draws through 0x0042E5E0, whose sixth argument is an IEEE-754 FLOAT.
    Different function, different coordinate space -- retuning one screen must
    never move the other. */
-#define VV3_WORLD_MASK_X_NUDGE_PX (-5)
-#define VV3_WORLD_MASK_Y_NUDGE_PX (-15)
+#define VV3_WORLD_MASK_X_NUDGE_PX (-10)
+#define VV3_WORLD_MASK_Y_NUDGE_PX (-25)
 
 /* The sixth village head-draw argument is a float, not an int.  0x0042E5E0
    does `fild [arg]; fmul [cam+0x300c]` for the two coordinates but
@@ -2085,6 +2085,20 @@ static int vv3_appearance_body_bitmap(void) {
 
 static void vv3_appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index,
                                 int cell_w, int cell_h) {
+    /* The None entry has no artwork, so blitting its cell leaves an empty
+       grey box beside Body and Head, which print words. Name it: a blank
+       cell reads as a broken preview rather than a deliberate choice. */
+    if (bitmap_id == IDB_MASK_STRIP && index == 0) {
+        RECT none_rc = item->rcItem;
+        HBRUSH none_bg = CreateSolidBrush(RGB(236, 236, 236));
+        FillRect(item->hDC, &none_rc, none_bg);
+        DeleteObject(none_bg);
+        SetBkMode(item->hDC, TRANSPARENT);
+        DrawTextA(item->hDC, "(None)", -1, &none_rc,
+                  DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        return;
+    }
+
     RECT rc = item->rcItem;
     int width = rc.right - rc.left;
     int height = rc.bottom - rc.top;
@@ -2345,6 +2359,20 @@ static const char *caf_mask_text(int v) {
 /* Draw a preview cell, or a blank "no change" panel when index < 0. */
 static void caf_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index,
                      int cell_w, int cell_h) {
+    /* The None entry has no artwork, so blitting its cell leaves an empty
+       grey box beside Body and Head, which print words. Name it: a blank
+       cell reads as a broken preview rather than a deliberate choice. */
+    if (bitmap_id == IDB_MASK_STRIP && index == 0) {
+        RECT none_rc = item->rcItem;
+        HBRUSH none_bg = CreateSolidBrush(RGB(236, 236, 236));
+        FillRect(item->hDC, &none_rc, none_bg);
+        DeleteObject(none_bg);
+        SetBkMode(item->hDC, TRANSPARENT);
+        DrawTextA(item->hDC, "(None)", -1, &none_rc,
+                  DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        return;
+    }
+
     if (index < 0) {
         HBRUSH bg = CreateSolidBrush(RGB(236, 236, 236));
         FillRect(item->hDC, &item->rcItem, bg);

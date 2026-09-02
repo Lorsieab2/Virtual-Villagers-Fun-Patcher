@@ -4,15 +4,15 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "26D17198B719B58AE612A904D3DDF3D89C0C06AF9F30E74AFB5D2F84411F45E0"
+      "source_text_sha256": "A56A0B4CB26E087704CD0A6D8A571DAA09E38969ABEE9F973DAE28058BCD3E77"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "26ED987E52E0DCA08461C2CAF4BCB259FE7E5DD882F47180519BEB1AD2FC7C0E"
+      "source_text_sha256": "F5F7BC66F39B1FA13DD3443466EE251A7B8067F3681074A8C60BC9797F4D6771"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "D3897FE83997DB6F4B3FDA4403B0249C627C8BF06F6C2D452599BE37499D7840"
+      "source_text_sha256": "139C84CBF4D5860EA121EBC56D04FF4CE53D2AA4EC27907AE9BC9C4B8BA218BE"
     },
     "task9_companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -32,10 +32,10 @@
   "payload_file_offset": "0x89373",
   "payload_va": "0x489373",
   "payload_size": 3213,
-  "payload_sha256": "AE2CF0EFF570C6492C00B4C9C1E4399D40B4BBD670265681035990436999C062",
+  "payload_sha256": "6A8B588563E2DA440555E1B4D79265403BD83493B7C303CDB8A93BC0C1317622",
   "payload_sha256_by_mode": {
-    "experimental_expanded_256": "AE2CF0EFF570C6492C00B4C9C1E4399D40B4BBD670265681035990436999C062",
-    "experimental_expanded_256_progression": "AE2CF0EFF570C6492C00B4C9C1E4399D40B4BBD670265681035990436999C062"
+    "experimental_expanded_256": "6A8B588563E2DA440555E1B4D79265403BD83493B7C303CDB8A93BC0C1317622",
+    "experimental_expanded_256_progression": "6A8B588563E2DA440555E1B4D79265403BD83493B7C303CDB8A93BC0C1317622"
   },
   "speed_offset_by_mode": {
     "experimental_expanded_256": "0x1DCB8",
@@ -46,12 +46,12 @@
     "constructor_length": 65,
     "show_menu_length": 53,
     "show_message_length": 96,
-    "transaction_length": 566,
+    "transaction_length": 589,
     "handler_sha256": "31803CD2E3E3952CDA1B8146132DC5360933385BB6E8F4CCA0323E8F06FC1A7A",
     "constructor_sha256": "E7B4B5D67902C73D8E185172D2DD654FD9D90221E01BB477F17C19966D8357F1",
     "show_menu_sha256": "A323460132FCC229A3BB0C2404AD80106B006D9170F533D8C349B357B969F50D",
     "show_message_sha256": "4AA00C7037A171BA72F8D55D594E8BE8AA5ADDA0EA514548179AD2FD4217BC67",
-    "transaction_sha256": "86874FE2539C439AE7E214D0E1B1BDB72406C32970EF6D3CD41D3AA662E9460C",
+    "transaction_sha256": "978483763EF37A6D7E043214289C36EE77C86ECF27E0E9CF2B4C89B4DA17F137",
     "strings_used": 614,
     "strings": {
       "button": "0x489D73",

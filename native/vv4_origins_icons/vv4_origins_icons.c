@@ -1016,8 +1016,15 @@ static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
     int dsth = rc.bottom - rc.top;
     FillRect(hdc, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
     if (mask <= 0 || mask >= VV_MASK_COUNT) {
-        /* (None): leave the preview box blank -- the ID_MASK_LABEL (2020) below
-           already reads "(None)", so drawing "(none)" here too is a duplicate. */
+        /* (None) has no artwork. The box used to be left blank on the grounds
+           that ID_MASK_LABEL underneath already says "(None)", but in the
+           Change Appearance for All dialog the mask cell sits beside Body and
+           Head, which print "No change" inside the cell itself -- so an empty
+           box there reads as a broken preview rather than a choice. Name it
+           in the cell too. */
+        SetBkMode(hdc, TRANSPARENT);
+        DrawTextA(hdc, "(None)", -1, &rc,
+                  DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
     vv4_ensure_gdiplus();
