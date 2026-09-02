@@ -396,13 +396,8 @@ def main() -> None:
     show_message = PAYLOAD_VA + 0x280
     get_detail_record = PAYLOAD_VA + 0x2E0
     tech_menu = PAYLOAD_VA + 0x340
-    # detail_menu and tech_increment each sit 0x10 later than they used to.
-    # tech_menu's duplicate-Barrel guard pushed it to 0x31D against a 0x310
-    # budget; both of the slots below had spare room (detail_menu 0x3C4 in
-    # 0x3D0, tech_increment 0x3E in 0x80), so the boundaries move rather than
-    # the guard being squeezed. Nothing outside this file pins these offsets.
-    detail_menu = PAYLOAD_VA + 0x660
-    tech_increment = PAYLOAD_VA + 0xA30
+    detail_menu = PAYLOAD_VA + 0x650
+    tech_increment = PAYLOAD_VA + 0xA20
     food_increment = PAYLOAD_VA + 0xAA0
 
     code = bytearray(b"\0" * STRINGS_OFFSET)
@@ -782,23 +777,6 @@ def main() -> None:
             mov eax, 10
             jmp show_result
         ie_charge_ok:
-            # Row 2 is the Barrel of Babies, armed by setting a flag byte that
-            # may already be set -- so a second purchase while one is pending
-            # is the same no-op-but-still-charged bug, and gets the same
-            # treatment. No manager lookup is needed here, unlike the Island
-            # Event above, because the flag is a plain global.
-            #
-            # The other four games mark these rows "Unavailable" in the menu
-            # instead, which is nicer but needs a cave to compute the state in.
-            # VV3's .text padding has no free window big enough, so it refuses
-            # at the click like its Island Event already does.
-            cmp ebx, 2
-            jne barrel_charge_ok
-            cmp byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
-            je barrel_charge_ok
-            mov eax, 11
-            jmp show_result
-        barrel_charge_ok:
             sub dword ptr [0x582644], eax
             cmp ebx, 0
             je do_time_warp
