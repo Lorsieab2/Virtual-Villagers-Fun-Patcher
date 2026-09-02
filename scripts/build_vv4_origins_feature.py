@@ -1919,14 +1919,19 @@ def main() -> None:
     # pending bits merged in. Unlike the other games, VV4's Barrel of Babies
     # shares the Island Event's trigger -- do_barrel arms its own flag and
     # then zeroes the very same [world+0x170E0] countdown -- so a pending
-    # event blocks BOTH rows, and an armed barrel additionally blocks its
-    # own. The world pointer comes from the same 0x41FE70 getter both
-    # purchase paths use.
+    # event blocks BOTH rows, and an armed barrel additionally blocks its own.
+    #
+    # The world pointer is READ from its singleton at 0x4CB51C rather than
+    # obtained by calling 0x41FE70, which the purchase paths use. That getter
+    # is a lazy constructor: with a null pointer it allocates 0x171C8 bytes and
+    # builds the world behind an SEH frame. Building the menu must not do that,
+    # and a null pointer already answers the question -- no world, nothing
+    # pending. It is also shorter, which this cave cares about.
     pending_rows_code = assemble(
         f"""
             push edx
             mov edx, eax
-            call 0x41FE70
+            mov eax, dword ptr [0x4CB51C]
             test eax, eax
             jz pending_rows_done
             cmp dword ptr [eax + 0x170E0], 0
