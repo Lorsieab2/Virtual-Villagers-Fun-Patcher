@@ -763,6 +763,20 @@ def main() -> None:
             mov eax, 0x{s['paused']:X}
             jmp show_status
         tw_charge_ok:
+            # Row 1 is the Island Event, which is queued by zeroing its
+            # countdown. A second purchase while one is pending zeroes an
+            # already-zero field: no extra event, full charge. Refuse instead.
+            #
+            # This sits after `jb insufficient` so it cannot disturb the flags
+            # that branch reads, and the message is a DLL result code rather
+            # than an executable string because the string block is full.
+            cmp ebx, 1
+            jne ie_charge_ok
+            cmp dword ptr [edi + ebp + 0x12EF4], 0
+            jne ie_charge_ok
+            mov eax, 10
+            jmp show_result
+        ie_charge_ok:
             sub dword ptr [0x582644], eax
             cmp ebx, 0
             je do_time_warp
