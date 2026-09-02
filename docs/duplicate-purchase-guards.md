@@ -48,19 +48,30 @@ checks live in a small cave. VV1's helper runs in the menu's own frame, reading
 `[esi+0x0C]` and OR-ing straight into EDI, so the call site needs no argument
 setup at all — its cave had two spare bytes.
 
-**VV3 refuses at the click instead**, showing "An Island Event is already on
-its way." (DLL result code 10) or "A Barrel of Babies is already on its way."
-(code 11), charging nothing. Its Island Event already worked this way. The
-Barrel joins it rather than getting the nicer disabled-row treatment because
-VV3 has no code cave to compute the state in: every window in its `.text`
-padding is claimed (see below), and the guard fits inline only because the
-Barrel flag is a plain global needing no manager lookup.
+**VV3 does the same, but computes it in the DLL.** Its payload has no cave
+space left to work out the state, which is exactly what the companion DLL is
+for: the DLL runs inside the game's own process, so it calls VV3's own
+parameterless world-manager getter at `0x428B60`, reads the countdown and the
+Barrel flag itself, and disables the rows. Nothing is asked of the executable,
+and VV3's payload is byte-identical to what it was before this feature.
 
-Both refusals sit **after `jb insufficient`** and **before the deduction**.
-After the branch because their compares overwrite the flags it reads — the
-same mistake the paused Time Warp guard made, caught as a P1 on three games.
-Before the deduction because refusing afterwards still costs the player the
-points, which is the reported bug.
+It uses the same probe the executable uses to tell the stock and expanded
+builds apart (whether the immediate at `0x42883A` is 256), so it reads the
+right field in both.
+
+VV1 and VV2 keep a small executable-side helper for a different reason, not a
+space one: their player object is reachable only as `[menu_object + 0x0C]`, and
+a scan of the running process found no global holding it, so the DLL has no way
+to obtain it on its own. VV3's manager has a getter; theirs does not.
+
+VV3's older Island Event refusal message (DLL result code 10) stays as a
+backstop behind the disabled row.
+
+The executable-side guards sit **after `jb insufficient`** and **before the
+deduction**. After the branch because their compares overwrite the flags it
+reads — the same mistake the paused Time Warp guard made, caught as a P1 on
+three games. Before the deduction because refusing afterwards still costs the
+player the points, which is the reported bug.
 
 ## Finding space, and how not to
 
@@ -84,6 +95,10 @@ fail-closed, so a bad placement fails the suite rather than shipping.
 Final placements: VV1 `0x8BF00`, VV2 `0x9A4A0`, VV4 `0xCCC20`. VV5 inlines its
 checks in `tech_menu`, which had 257 spare bytes, so no payload byte position
 outside that routine moves — its validator pins several by exact position.
-VV3's guard pushed `tech_menu` 13 bytes past its slot, so `detail_menu` and
-`tech_increment` each moved `0x10` later; both had room, and nothing outside
-the generator pins those offsets.
+VV3 needs no cave at all now that its checks live in the DLL.
+
+That is the general answer when a game runs out of room: move the logic into
+the companion DLL, not into a reduced version of the feature. An earlier
+attempt gave VV3 a refuse-after-the-click message on the grounds that it had no
+cave space, which is the wrong trade — the space constraint decides where code
+lives, never what the player gets.
