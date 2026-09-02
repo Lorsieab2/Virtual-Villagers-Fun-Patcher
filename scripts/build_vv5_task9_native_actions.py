@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "6C40F9E422A6330C39C30200FB1B9547BF39D83A59B2C46C6ADF1B9A5C4E18E6"
-ACTIVE_SOURCE_TEXT_SHA256 = "11792D92931C9A263420565554E56F8D9F3897C1EF260EB531BE57B3CB31A8D1"
+ACTIVE_SHA256 = "6E8A537C741CA01582E3ABF34791DEA1A7DF2F46C7DA3053F65329E5E03C8726"
+ACTIVE_SOURCE_TEXT_SHA256 = "9F38AC1343C0DB10068F8BDCA5C272B3DAAFBC3E5F9805C473CE64C349EE3F67"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -2079,10 +2079,13 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, dword ptr [edi+0x17D7C]
         test eax, eax
         jle unavailable
-        # Paused is no longer refused. The village must advance three villager
-        # years at EVERY speed option, paused included; the tw_speed_ok
-        # normalisation below maps the paused sentinel 999 onto the normal-speed
-        # code, so a paused Time Warp advances exactly the normal-speed amount.
+        # Paused advances NOTHING -- measured at 0 years -- so refuse it here,
+        # before the charge below, and say so. Advancing three years while
+        # paused was the previous intent; the measurement showed the village
+        # simply does not move, so charging 50,000 for it was a no-op the
+        # player paid for.
+        cmp eax, 0x3E7
+        jge tw_paused_refused
         mov dword ptr [ebp-0x1C], eax
         mov dword ptr [ebp-0x18], edi
         mov eax, dword ptr [0x51D5F8]
@@ -2128,19 +2131,30 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [ebp-0x2C], eax
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        # Speed-INDEPENDENT: no speed read, no divide.
+        # Speed independent by construction: delta * speed is constant.
         #
         # This is the SHIPPING VV5 Time Warp -- the loader replaces the VV5
         # Origins base record with this Task9 page, so a fix applied only to
         # build_vv5_origins_feature.py would never reach a player.
         #
-        # The old 129600/speed form was measured in play at half speed: it
-        # subtracted 43200 and advanced ONE year. Three years is therefore
-        # 129600, applied at every speed. Dividing by the speed also gave half
-        # a year at normal and less at double, and the paused sentinel 999
-        # produced 129600/999 = 129 seconds -- a no-op the player still paid
-        # for. Removing the divide removes all of that, and the divide-by-zero.
-        mov eax, 129600
+        # Measured with a flat 129600: 6-7 years at slow, 12 at normal, 24 at
+        # fast. Fast is exactly twice normal and normal twice slow, so the
+        # advance tracks delta * speed. That also rules out a fast code of 10
+        # (24/12 = 2, but 10/6 = 1.67), and VV5 never writes its speed codes
+        # as immediates, so they cannot be read out of the binary the way
+        # VV1's and VV3's can.
+        #
+        # Dividing sidesteps the question entirely: 194400 / speed keeps
+        # delta * speed fixed at 194400, which is three years whatever the
+        # codes are. Calibrated at normal, where 129600 gave 12 years, so
+        # three years is 32400 and 32400 * 6 = 194400.
+        #
+        # The divide is safe: `test eax, eax / jle unavailable` above rejects
+        # zero and negative speeds, and paused is refused before this point.
+        mov eax, 194400
+        xor edx, edx
+        mov ecx, dword ptr [ebp-0x1C]
+        div ecx
         mov dword ptr [ebp-0x30], eax
         mov ecx, dword ptr [ebp-0x24]
         mov edx, dword ptr [ebp-0x28]
@@ -2169,6 +2183,9 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jmp warning_status
     unavailable:
         mov eax, 0x{s['tw_unavailable']:X}
+        jmp warning_status
+    tw_paused_refused:
+        mov eax, 0x{s['tw_paused']:X}
         jmp warning_status
     charge_unknown:
         mov eax, 0x{s['tw_charge_unknown']:X}

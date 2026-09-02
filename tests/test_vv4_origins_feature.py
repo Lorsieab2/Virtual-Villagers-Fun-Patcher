@@ -142,44 +142,49 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertIn("call 0x45D2D0", self.builder)
         self.assertIn("call 0x45D1C0", self.builder)
 
-    def test_time_warp_is_speed_independent(self) -> None:
-        """One constant, no speed read, no scaling.
+    def test_time_warp_uses_its_measured_per_speed_deltas(self) -> None:
+        """VV4's advance scales with speed, so its delta has to as well.
 
-        Measured in play on v1.34.23: VV1 at NORMAL speed subtracted 21600 and
-        advanced exactly three villager years, while HALF speed subtracted
-        10800 and advanced only two. The years track the amount alone, so
-        VV4 now subtracts the measured three-year amount at every speed.
-        tests/test_time_warp_speed_independent.py pins the same invariant
-        across all five games.
+        This replaces an assertion that VV4 subtracts one flat 21600 and never
+        reads the speed field. Measured in play, that flat amount advanced 2
+        years at slow, 3 at normal and 6 at fast, and a paused purchase
+        advanced nothing while still charging.
+
+        The branch now selects 32400 / 21600 / 10800 -- the old amount scaled
+        by 3/measured at each speed -- and refuses while paused before any
+        points are deducted.
         """
         try:
             import capstone
         except ImportError:
             self.skipTest("capstone not available")
 
-        payload = bytes.fromhex(
-            next(
-                item
-                for item in self.manifest["patches"]
-                if int(item["offset"], 0) == 0x89373
-            )["after"]
-        )
-        # The whole instruction, immediate included, so this pins the
-        # three-year amount as well as the absence of any scaling.
-        marker = bytes.fromhex("812D30824B0060540000")
-        index = payload.find(marker)
-        self.assertNotEqual(index, -1, "Time Warp clock write not found in payload")
-
-        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-        start = index - 0x18
-        block = list(md.disasm(payload[start:index], 0x489373 + start))
-        mnemonics = [insn.mnemonic for insn in block]
-        for forbidden in ("imul", "idiv", "cdq"):
-            self.assertNotIn(
-                forbidden,
-                mnemonics,
-                "VV4 Time Warp must not scale its clock shift",
+        # Pick the payload that carries the clock write, not merely the
+        # first large one -- the manifest has several big patches.
+        # sub dword ptr [0x4B8230], eax  ->  29 05 30 82 4B 00
+        clock_write = bytes.fromhex("290530824B00")
+        payload = next(
+            blob
+            for blob in (
+                bytes.fromhex(item["after"]) for item in self.manifest["patches"]
             )
+            if clock_write in blob
+        )
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        text = chr(10).join(
+            f"{insn.mnemonic} {insn.op_str}"
+            for insn in md.disasm(payload, 0x400000)
+        )
+
+        # The clock write takes its amount from a register now.
+        self.assertIn("sub dword ptr [0x4b8230], eax", text)
+        for delta in ("0x7e90", "0x5460", "0x2a30"):   # 32400, 21600, 10800
+            self.assertIn(f"mov eax, {delta}", text)
+        self.assertIn("cmp eax, 3", text)
+        self.assertIn("cmp eax, 0xa", text)
+        # Paused is refused before charging.
+        self.assertIn("0x3e7", text)
+
 
     def test_composes_with_current_vv4_features_in_all_modes(self) -> None:
         patch_ids = [patch.id for patch in load_fun_patches() if patch.game_id == "vv4"]

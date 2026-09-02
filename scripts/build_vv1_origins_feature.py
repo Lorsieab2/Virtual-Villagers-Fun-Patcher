@@ -1052,6 +1052,19 @@ def main() -> None:
         legacy_charge:
             mov eax, dword ptr [0x{s['tech_cost_table']:X} + ebx*4]
             cmp dword ptr [edi + 0xA2FC], eax
+            # Time Warp advances NOTHING while the game is paused
+            # (measured: 0 years in every game, and VV1 charged for
+            # it anyway). Refuse here, BEFORE the deduction below --
+            # checking afterwards still costs the player the points
+            # for a no-op, which is the reported bug. Only row 0 is
+            # affected; every other row charges normally.
+            cmp ebx, 0
+            jne tw_charge_ok
+            cmp dword ptr [edi + 0xA318], 0x3E7
+            jl tw_charge_ok
+            mov eax, 0x{s['paused']:X}
+            jmp show_string_and_done
+        tw_charge_ok:
             jb insufficient
             sub dword ptr [edi + 0xA2FC], eax
 
@@ -1071,19 +1084,32 @@ def main() -> None:
 
 
         do_time_warp:
-            # Speed-INDEPENDENT: no speed read, no scaling.
-            #
-            # Calibrated from play, not from a model of the engine. On
-            # v1.34.23 VV1 at NORMAL speed subtracted 6 * 3600 = 21600 and the
-            # village advanced exactly THREE years -- the wanted result. At
-            # half speed it subtracted 3 * 3600 = 10800 and advanced only TWO.
-            # The years therefore track the amount alone, so every speed now
-            # subtracts the amount that was measured to give three years.
-            #
-            # Scaling by the speed code is what made the result vary in the
-            # first place, and it is gone: paused included, every speed gets
-            # the same advance.
-            sub dword ptr [0x4860F0], 21600
+            # Measured, not modelled. A flat 21600 advanced
+            # 2 / 3 / 3 years at slow / normal / fast, so each
+            # speed now takes the delta that scales that to three:
+            #   slow 32400, normal 21600, fast 21600
+            # Two earlier attempts to derive these from a model of
+            # the clock were wrong in opposite directions, so this
+            # table is the measurements and nothing else. Re-measure
+            # after touching it.
+            # Speed codes are 3 / 6 / 10, read from the constants the
+            # game itself stores into its speed field. Anything
+            # unexpected takes the normal delta; paused was already
+            # refused before charging.
+            mov eax, dword ptr [edi + 0xA318]
+            cmp eax, 3
+            je tw_slow
+            cmp eax, 10
+            je tw_fast
+            mov eax, 21600
+            jmp tw_apply
+        tw_slow:
+            mov eax, 32400
+            jmp tw_apply
+        tw_fast:
+            mov eax, 21600
+        tw_apply:
+            sub dword ptr [0x4860F0], eax
             jmp success
 
         do_island_event:

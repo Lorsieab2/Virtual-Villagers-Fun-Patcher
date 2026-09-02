@@ -23,7 +23,7 @@ VV4_MAP_OUT = ROOT / "data/candidates/vv4_expanded_time_warp_map.json"
 VV5_OUT = ROOT / "data/vv5_expanded_time_warp.json"
 VV5_MAP_OUT = ROOT / "data/candidates/vv5_expanded_time_warp_map.json"
 
-COMPANION_SHA256 = "08C068D7F0E98BA1AE85AE0046709877B703B2A3EA3B9E1C76BC5CDAAFDDEC8C"
+COMPANION_SHA256 = "31EF5F8C1B3BA3D7018600B5ABFC308412EF7274A95C5DF064CE72035143AAA5"
 COMPANION_SIZE = 1753088
 EXPANDED_MODES = (
     "experimental_expanded_256",
@@ -464,7 +464,7 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
     if sha(base_page) != "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457":
         raise RuntimeError("Task9 Expanded baseline page drift")
     stock_page, stock_map = task9.build_page(0x7C9000)
-    if sha(stock_page) != "1783D690F2BA4743708265BF4DA15AA17C36672F826BBB13679163300AB44DAD":
+    if sha(stock_page) != "751D183C7E54D48147CA886359BA5DDA80C4AAF330B95D65C1C1036E746BD501":
         raise RuntimeError("Task9 stock page drift")
 
     strings_start = task9.OFF["strings"]
@@ -599,7 +599,12 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
             mov dword ptr [ebp-0x2C], eax
             cmp dword ptr [0x51D5F8], eax
             jne charge_unknown
-            mov eax, 129600
+            # 194400, not 129600: the advance tracks delta * speed, and
+            # the normal-speed measurement (129600 -> 12 years) puts three
+            # years at 32400, so the constant that holds delta * speed fixed
+            # is 32400 * 6 = 194400. Kept in step with
+            # build_vv5_origins_feature.py, which is the emitter that ships.
+            mov eax, 194400
             xor edx, edx
             div dword ptr [ebp-0x1C]
             mov dword ptr [ebp-0x30], eax

@@ -904,18 +904,18 @@ class VV1RequiredFixTests(unittest.TestCase):
         # fullscreen game window instead of painting behind it.
         self.assertIn("0x50021", pushes, "must be an OK/Cancel + question-icon, topmost+foreground prompt, not Yes/No")
 
-    def test_vv1_time_warp_does_not_depend_on_the_game_speed(self) -> None:
-        """Superseded the "reachable speed code" check: there is no code left.
+    def test_vv1_time_warp_uses_its_measured_per_speed_deltas(self) -> None:
+        """VV1's advance DOES depend on the speed, so the delta must too.
 
-        VV1's stock executable only ever assigns 3, 6 or 10 to the game-speed
-        field, and the patch used to pick a different clock shift for each.
-        That is what made the advance vary with the speed setting: measured on
-        v1.34.23, NORMAL speed subtracted 21600 and advanced exactly three
-        villager years, while HALF speed subtracted 10800 and advanced two.
+        This replaces an assertion that VV1 subtracts one flat amount and
+        never reads the speed field. Playtesting disproved it: with a flat
+        21600 the village advanced 2 years at slow, 3 at normal and 3 at fast,
+        and a paused purchase advanced nothing while still charging 50,000.
 
-        The branch now subtracts the measured three-year amount unconditionally,
-        so it reads no speed field at all and there is no unreachable value to
-        guard against.
+        The branch now selects a delta per speed -- 32400 / 21600 / 21600,
+        each the old amount scaled by 3/measured -- and refuses while paused
+        before any points are deducted. See tests/test_time_warp_measured.py
+        for the full table and the arithmetic.
         """
         capstone = pytest.importorskip("capstone")
         source = STOCK / "Virtual Villagers - A New Home.exe"
@@ -929,29 +929,23 @@ class VV1RequiredFixTests(unittest.TestCase):
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 
         code = rendered[0x56900 : 0x56900 + 0x700]
-        write = next(
-            insn
-            for insn in md.disasm(code, 0x456900)
-            if insn.mnemonic == "sub" and "0x4860f0" in insn.op_str
-        )
-        # The whole instruction, immediate included: one constant, no register.
-        self.assertEqual(write.op_str, "dword ptr [0x4860f0], 0x5460")
-        self.assertEqual(0x5460, 21600)
+        listing = list(md.disasm(code, 0x456900))
+        text = "\n".join(f"{insn.mnemonic} {insn.op_str}" for insn in listing)
 
-        window = rendered[write.address - 0x400000 - 0x20 : write.address - 0x400000]
-        block = list(md.disasm(window, write.address - 0x20))
-        for insn in block:
-            self.assertNotIn(
-                insn.mnemonic, ("imul", "idiv", "cdq"),
-                "VV1 Time Warp must not scale its clock shift",
-            )
-            # The speed FIELD itself must not be read. A bare `cmp reg, 3`
-            # cannot be used as the signal here -- the surrounding menu code
-            # compares the clicked row index against small integers too.
-            self.assertNotIn(
-                "0xa318", insn.op_str,
-                f"VV1 Time Warp still reads the game-speed field: {insn.op_str}",
-            )
+        # The clock write now takes its amount from a register.
+        self.assertIn("sub dword ptr [0x4860f0], eax", text)
+
+        # All three measured deltas are present and selected by speed code.
+        for delta in (0x7E90, 0x5460):        # 32400 and 21600
+            self.assertIn(f"mov eax, {hex(delta)}", text)
+        self.assertIn("cmp eax, 3", text)
+        self.assertIn("cmp eax, 0xa", text)
+
+        # The speed field IS read now -- that is the fix, not a regression.
+        self.assertIn("0xa318", text)
+
+        # And paused is refused: the sentinel is compared before the charge.
+        self.assertIn("0x3e7", text)
 
 if __name__ == "__main__":
     unittest.main()

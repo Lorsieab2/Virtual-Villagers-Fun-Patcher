@@ -161,7 +161,12 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         that is applied at every speed. tests/test_time_warp_speed_independent
         pins the same invariant across all five games.
         """
-        self.assertIn("sub dword ptr [0x4C6250], 129600", self.source)
+        # 194400 / speed, not a flat amount: VV5 measured 6-7 / 12 / 24 years
+        # at slow / normal / fast with the old flat 129600, so the advance
+        # tracks delta * speed and dividing holds it constant at three.
+        self.assertIn("mov eax, 194400", self.source)
+        self.assertIn("div ecx", self.source)
+        self.assertNotIn("sub dword ptr [0x4C6250], 129600", self.source)
         self.assertIn("sbb dword ptr [0x4C6254], 0", self.source)
         self.assertNotIn("idiv ecx", self.source)
         self.assertIn("Time Warp", self.feature["description"])
@@ -202,12 +207,15 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         )
         self.assertTrue(page, "no VV5 Task9 payload bytes were found")
 
-        # mov eax, 129600 -- the measured three-year amount, still loaded.
-        self.assertIn(bytes.fromhex("B840FA0100"), page)
-        # ...but no longer divided by anything: div ecx / idiv ecx are gone.
-        for label, encoding in (("div ecx", "F7F1"), ("idiv ecx", "F7F9")):
-            with self.subTest(check=label):
-                self.assertNotIn(bytes.fromhex(encoding), page)
+        # mov eax, 194400, then divided by the live speed.
+        #
+        # This replaces an assertion that the amount is a flat 129600 and that
+        # no division survives. Measured in play, the flat form advanced 6-7
+        # years at slow, 12 at normal and 24 at fast, so the advance tracks
+        # delta * speed and only a division holds it constant at three.
+        self.assertIn(bytes.fromhex("B860F70200"), page)
+        self.assertNotIn(bytes.fromhex("B840FA0100"), page)
+        self.assertIn(bytes.fromhex("F7F1"), page)   # div ecx
         # And nothing normalises a speed code, because none is read.
         for label, encoding in (
             ("cmp ecx, 3", "83F903"),
@@ -570,7 +578,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "B6EB95D4E1E87E741E73B509E15223BFCA2A357BE83E9066947D02758BB4D2C0",
+            "7D922FFC216AFE51FE10732144884980F6C30A86E7AE799ED7C89D5A88035C38",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
