@@ -123,6 +123,17 @@ BARREL_DELAY_COUNTER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_DELAY_COUNTER_FILE_OFFSET - SHR_FILE_OFFSET
 )
 BARREL_DELAY_TICKS = 180
+# The purchased Island Event is queued a few real seconds out instead of
+# being made due on the very next scheduler tick.  Zeroing the due stamp
+# fired it in whatever tick the handler next ran -- which is also the tick
+# a NATURAL island event can be due in, so the two presented back to back.
+# 0x402F70 is the scheduler's own clock: it converts
+# GetSystemTimeAsFileTime through 0x989680 (10,000,000), so it returns Unix
+# epoch SECONDS -- the same units [world+0xA300] already holds and
+# the same units Time Warp subtracts in.  The barrel already had a cue delay
+# of its own; this gives the Island Event the matching treatment.
+ISLAND_QUEUE_CLOCK_VA = 0x402F70
+ISLAND_QUEUE_DELAY_SECONDS = 5
 BARREL_MAIN_HELPER_FILE_OFFSET = 0x8B710
 BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
@@ -1123,7 +1134,16 @@ def main() -> None:
 
 
         do_island_event:
-            mov dword ptr [edi + 0xA300], 0
+            # Queue it, do not make it due immediately (see
+            # ISLAND_QUEUE_CLOCK_VA above).  edi is the world here, and the
+            # clock leaves ebp/ebx/esi/edi alone, but edi is preserved by
+            # hand so this cannot depend on that.
+            push edi
+            mov ecx, edi
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            pop edi
+            add eax, {ISLAND_QUEUE_DELAY_SECONDS}
+            mov dword ptr [edi + 0xA300], eax
             jmp success
 
         do_barrel:

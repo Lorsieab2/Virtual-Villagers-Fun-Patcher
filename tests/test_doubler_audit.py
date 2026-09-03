@@ -307,11 +307,16 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # The doubler wrapper regions in 0x943A8 (tech 0x820:0x8A0, food 0x8A0:0x960)
         # and the positive writers 0x26290/0x262B0 are byte-for-byte unchanged, as
         # the inventory/wrapper/_call_target assertions above independently verify.
+        # The Island Event queue delay also edits 0x943A8 and nothing else: its
+        # branch sits at patch offset 0x47C (do_island_event now calls the
+        # scheduler clock 0x403200 and stores now+delay into the world's due
+        # stamp instead of storing a constant zero), which is outside both
+        # doubler windows above.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "3E97BE6C583E0AE0187158E65C804B59F5629D483D8AAC74952D56453BD92E42",
+            "488F12DA78091C4AB6D15E9B730F79FBC701A967029834B39C741DF82BC82429",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
