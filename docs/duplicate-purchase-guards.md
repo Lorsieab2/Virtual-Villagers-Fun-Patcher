@@ -152,3 +152,26 @@ drop points), which are the two remaining candidates and want opposite fixes.
 Until then the row is deliberately NOT blocked on a guessed threshold: a guard
 that does not fire in the reported case would be worse than none, because it
 would look like the bug was fixed.
+
+## Known gap: capacity is checked at purchase, not at delivery
+
+The Barrel row is refused unless three villager slots are free, and the
+purchased barrel's child count is forced to three. Both decisions are made when
+the player buys. The event itself is deliberately deferred -- VV1 waits 180
+update ticks, VV2 90 -- so the village can change in between: a pregnancy
+completing, or another event taking a record, can leave fewer than three slots
+by the time the children are actually placed. The stock per-child allocation
+then stops early, and the purchase has already been charged.
+
+The arming window is now as small as it can be: the three-child override is
+raised immediately before the deferred dispatch rather than at purchase, so a
+natural barrel firing during the delay can no longer consume it.
+
+Re-validating capacity at delivery is NOT implemented, and the reason is
+specific rather than an oversight. The count-roll site holds only the event
+object in ESI; it has no route to the villager pool. VV1's records are reached
+as `[player + 0xADE8]`, and a scan of the running process found no global
+holding that player pointer -- which is the same reason VV1's menu helper has
+to read it from `[esi + 0x0C]` instead. Closing this properly means plumbing a
+context pointer into the deferred dispatch, which is a real change to that
+path rather than an addition beside it.

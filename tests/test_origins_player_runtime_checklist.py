@@ -171,6 +171,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # cave and its call site replace that one roll;
                         # natural barrels are untouched.
                         "0x9A4F0", "0x37ADC",
+                        # The three-child override is now armed inside the
+                        # deferred barrel dispatcher rather than at purchase,
+                        # so a natural barrel firing during the delay can no
+                        # longer consume the one-shot. That moves the dispatch
+                        # helper's bytes (VV1 0x8B710, VV2 0x9A780) as well as
+                        # the payload that no longer raises the flag.
+                        "0x9A780",
                         # Duplicate-purchase guard: an Island Event is
                         # queued by zeroing a countdown and a Barrel of Babies
                         # by setting a flag, so a second purchase while one is
@@ -219,6 +226,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # cave and its call site replace that one roll;
                         # natural barrels are untouched.
                         "0x8B962", "0x2B00C",
+                        # The three-child override is now armed inside the
+                        # deferred barrel dispatcher rather than at purchase,
+                        # so a natural barrel firing during the delay can no
+                        # longer consume the one-shot. That moves the dispatch
+                        # helper's bytes (VV1 0x8B710, VV2 0x9A780) as well as
+                        # the payload that no longer raises the flag.
+                        "0x8B710",
                         # Duplicate-purchase guard: an Island Event is
                         # queued by zeroing a countdown and a Barrel of Babies
                         # by setting a flag, so a second purchase while one is

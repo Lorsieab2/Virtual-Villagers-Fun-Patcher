@@ -825,7 +825,6 @@ def main() -> None:
             cmp dword ptr [edi + 0x2EADC], eax
             jb barrel_insufficient
             sub dword ptr [edi + 0x2EADC], eax
-            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 1
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
             push 0
             push ebx
@@ -2188,6 +2187,12 @@ def main() -> None:
             dec dword ptr [0x{BARREL_CUE_COUNTER_VA:X}]
             jnz barrel_resume
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
+            # Arm the three-child override HERE, immediately before the
+            # purchased barrel is dispatched -- not back at purchase time.
+            # Raising it at purchase left it set across the whole cue delay,
+            # so a NATURAL barrel firing in that window would consume the
+            # one-shot and the paid barrel would fall back to a random count.
+            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 1
             sub esp, 0x50D8
             push 0x7F4B1A2C
             push 2

@@ -311,7 +311,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "EFEC9196EB1FC8F7FC1CE4EB4D58B574FBCDAE10EC47DB20FB38B48B6EB783C6",
+            "089CA76E8A9B720A2F320D35D408F52FB33E28A9AB4BC4D91287DC2842BBF2D2",
         )
         # Re-pinned after the companion DLL's final Change Appearance for All
         # preflight repair. The DLL still links shell32 and derives the mask
