@@ -17,3 +17,4 @@ EXPORTS
     Vv4MaskDrawRecord=_Vv4MaskDrawRecord@20 @112
     ShowVv4AppearanceForAll=_ShowVv4AppearanceForAll@0 @113
     Vv4MaskGetForRecord=_Vv4MaskGetForRecord@4 @114
+    ShowVv4TimeWarp=_ShowVv4TimeWarp@4 @115

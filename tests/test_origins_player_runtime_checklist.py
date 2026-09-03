@@ -436,6 +436,16 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     )
                 elif path.name == "vv4_origins_feature.json":
                     corrected_offsets = {
+                        # Time Warp moved wholesale into the companion DLL, which
+                        # now owns its speed-aware confirmation, the paused refusal
+                        # and an advance that does not trip the engine's per-speed
+                        # aging clamp. The charge stays in the executable, because
+                        # VV4 pays through its own native tech-point routine. No new
+                        # cave: the resolve replaces the flat advance in the payload
+                        # row 0 already used, and the retired "paused" string moves
+                        # every later string address, which is why the DLL-resolving
+                        # caves change by an immediate only.
+                        "0x89373", "0xCC004", "0xCC180", "0xCC760", "0xCCD00", "0xCCD90",
                         # Duplicate-purchase guard: VV4 queues both the Island
                         # Event and the Barrel of Babies by zeroing the same
                         # [world+0x170E0] countdown, so a second purchase while

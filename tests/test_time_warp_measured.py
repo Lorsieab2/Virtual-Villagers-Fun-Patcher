@@ -59,7 +59,7 @@ GENERATORS = {
 
 # Games whose Time Warp has moved into the companion DLL. Grows one game per
 # pull request; the flat-delta assertions below cover the remainder.
-MIGRATED = {"vv1", "vv2", "vv3"}
+MIGRATED = {"vv1", "vv2", "vv3", "vv4"}
 
 # Each game's Time Warp constants are scoped with its own prefix:
 # vv2_origins_icons.c #includes vv1_origins_icons.c after pre-defining the
@@ -69,6 +69,7 @@ COMPANIONS = {
     "vv1": "native/vv1_origins_icons/vv1_origins_icons.c",
     "vv2": "native/vv2_origins_icons/vv2_origins_icons.c",
     "vv3": "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
+    "vv4": "native/vv4_origins_icons/vv4_origins_icons.c",
 }
 
 # The engine's own speed divisors, and the years each must buy.
@@ -228,8 +229,18 @@ class MigratedGamesTests(unittest.TestCase):
                 self.assertRegex(dll, r"#define VV\d_TW_SPEED_PAUSED\s+999")
                 self.assertIn("unavailable while the game is paused", dll)
                 refusal = dll.find("unavailable while the game is paused")
+                # The refusal has to come before anything is paid for. Most
+                # companions charge themselves; VV4's does not, because that
+                # game pays through its own native tech-point routine and the
+                # call already sits in the menu -- there the refusal must
+                # instead precede the "applied" return the menu charges on.
                 charge = dll.find("*tech -= cost;")
-                self.assertNotEqual(charge, -1, f"{gid} companion never charges")
+                if charge == -1:
+                    charge = dll.find("_TW_APPLIED;", refusal)
+                self.assertNotEqual(
+                    charge, -1,
+                    f"{gid} companion neither charges nor reports an apply",
+                )
                 self.assertLess(
                     refusal, charge,
                     f"{gid} refuses only after charging, which is the reported bug",

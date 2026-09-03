@@ -633,13 +633,15 @@ def main() -> None:
         ("purchased", "Purchased."),
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
-        ("paused", "Time Warp is unavailable while the game is paused."),
+        # Time Warp's paused refusal is the companion DLL's now, shown
+        # from there alongside the prompt that names the speed.
         # VV2 is the wording reference for every menu and prompt.  Its barrel
         # refusal reads "close to its max" and says explicitly that nothing was
         # charged; "already at maximum capacity" said neither.
         ("capacity", "The village population is already close to its max."),
         ("running_unavailable", "Running cannot be added."),
         ("icons_dll", "VVFP VV4 Origins Icons.dll"),
+        ("time_warp_export", "ShowVv4TimeWarp"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("message_export", "ShowOriginsUpgradeMessage"),
@@ -960,22 +962,54 @@ def main() -> None:
             # checking afterwards still costs the player the points
             # for a no-op, which is the reported bug. Only row 0 is
             # affected; every other row charges normally.
+            # Time Warp (row 0) is owned by the companion DLL: what it
+            # advances, what its prompt must say, and whether it may run at
+            # all all depend on the game speed at this instant. The DLL
+            # confirms and applies; the charge stays here, because VV4 pays
+            # through the game's own tech-point routine and that call is
+            # already in this handler.
+            #
+            # EAX holds the cost and has just cleared the afford check. Keep a
+            # copy across the call: LoadLibraryA and GetProcAddress are both
+            # stdcall and clean their own arguments, and ShowVv4TimeWarp@4
+            # consumes the one that is pushed for it.
             cmp ebx, 0
             jne tw_charge_ok
             push eax
-            call 0x41FE70
-            cmp dword ptr [eax + 0x17110], 0x3E7
-            pop eax
-            jl tw_charge_ok
-            mov eax, 0x{s['paused']:X}
-            jmp status
+            push eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x48A1E0]
+            test eax, eax
+            je time_warp_unavailable
+            push 0x{s['time_warp_export']:X}
+            push eax
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            je time_warp_unavailable
+            call eax
+            pop ecx
+            # 0 = the player cancelled: say nothing and reopen the menu,
+            # the same as Cancel on every other row. 2 = refused with the
+            # reason already shown, so close without charging. 1 = applied,
+            # so charge.
+            test eax, eax
+            jz menu_loop
+            cmp eax, 1
+            jne menu_done
+            mov eax, ecx
+            neg eax
+            push eax
+            mov ecx, 0x4D6F88
+            call 0x41E300
+            jmp menu_done
+        time_warp_unavailable:
+            add esp, 8
+            jmp menu_done
         tw_charge_ok:
             neg eax
             push eax
             mov ecx, 0x4D6F88
             call 0x41E300
-            cmp ebx, 0
-            je do_time_warp
             cmp ebx, 1
             je do_island_event
             cmp ebx, 2
@@ -997,29 +1031,6 @@ def main() -> None:
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
-        do_time_warp:
-            # EXACT, not calibrated. The owner states the game's own time
-            # base: one villager year is 4 real hours at slow, 2 at normal and
-            # 1 at fast. The delta is in real seconds, so the years a given
-            # delta buys are delta / (hours * 3600):
-            #
-            #     slow    43200 / 14400 =  3 years
-            #     normal  43200 /  7200 =  6 years
-            #     fast    43200 /  3600 = 12 years
-            #
-            # The targets 3 / 6 / 12 are exactly inverse to the hours-per-year
-            # 4 / 2 / 1, so ONE flat amount hits all three on the nose and no
-            # per-speed table is needed. That also removes this feature's
-            # dependence on reading the speed field correctly, which is what
-            # the previous scaled tables were guessing around.
-            #
-            # Paused is still refused before the charge, which does read the
-            # speed field -- that guard is unaffected.
-            mov eax, 43200
-        tw_apply:
-            sub dword ptr [0x4B8230], eax
-            sbb dword ptr [0x4B8234], 0
-            jmp success
         do_island_event:
             call 0x41FE70
             mov dword ptr [eax + 0x170E0], 0
