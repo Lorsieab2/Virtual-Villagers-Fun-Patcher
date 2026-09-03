@@ -979,3 +979,24 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertIn("VV1_TW_LAST_SEEN_OFFSET", dll)
         self.assertIn("*(int *)(rec + VV1_TW_LAST_SEEN_OFFSET) += delta;", dll)
         self.assertIn("*(int *)(rec + VV1_TW_AGE_OFFSET) += units;", dll)
+
+        # The Golden Child is hardcoded to stay a child, so it is excluded
+        # from the age credit -- but NOT from the last-seen marker. Leaving
+        # its marker alone would not keep it a child: its own tick would then
+        # put the jump through the clamp and age it by 2.55 / 4.3 / 8.6 years.
+        body = dll[dll.index("static int vv1_time_warp_apply"):]
+        body = body[: body.index(chr(10) + "}")]
+        self.assertIn("golden = VV_GOLDEN_CHILD_PTR;", body)
+        marker = body.index("VV1_TW_LAST_SEEN_OFFSET) += delta;")
+        skip = body.index("if (rec == golden) {", marker)
+        credit = body.index("VV1_TW_AGE_OFFSET) += units;", marker)
+        self.assertLess(marker, skip, "the Golden Child must still get the marker")
+        self.assertLess(skip, credit, "the Golden Child must not get the years")
+
+        # An empty village must not move the world clock for free: the caller
+        # reads a zero return as "nothing happened" and charges nothing.
+        self.assertLess(
+            body.index("if (credited == 0) {"),
+            body.index("VV1_TW_TIME_EPOCH_VA -= delta;"),
+            "the epoch moves before the village is known to be non-empty",
+        )

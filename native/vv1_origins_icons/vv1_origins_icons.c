@@ -2233,11 +2233,12 @@ static const char *vv1_speed_name(int speed) {
     }
 }
 
-/* Applies the warp.  Returns the number of villagers credited, which is 0
-   only when the record pool is not up yet -- the caller treats that as
-   "nothing happened" and does not charge. */
+/* Applies the warp.  Returns the number of villagers whose age was credited,
+   which is 0 when the record pool is not up yet or the village holds nobody to
+   age -- the caller treats that as "nothing happened" and does not charge. */
 static int vv1_time_warp_apply(int speed, int years) {
     unsigned char *base = VV_MASK_MANAGER;
+    unsigned char *golden;
     int units = years * VV1_TW_UNITS_PER_YEAR;
     int delta = units * 60 * speed;   /* the real seconds those units cost */
     int i, credited = 0;
@@ -2245,6 +2246,22 @@ static int vv1_time_warp_apply(int speed, int years) {
     if (base == NULL) {
         return 0;
     }
+    golden = VV_GOLDEN_CHILD_PTR;     /* 0 when the village has none */
+
+    /* Count BEFORE touching anything.  A village with no one to age must not
+       move the world clock: the caller reads a zero return as "nothing
+       happened" and charges nothing, so advancing global time here would give
+       the jump away for free. */
+    for (i = 0; i < VV_MASK_SLOTS; i++) {
+        unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
+        if (rec[VV_OCCUPIED_OFFSET] == 1 && rec != golden) {
+            credited++;
+        }
+    }
+    if (credited == 0) {
+        return 0;
+    }
+
     /* Half one: the world clock.  Moving the epoch backwards is how the game
        itself expresses "more time has passed"; sub_402F70 subtracts it. */
     *(int *)(UINT_PTR)VV1_TW_TIME_EPOCH_VA -= delta;
@@ -2255,9 +2272,18 @@ static int vv1_time_warp_apply(int speed, int years) {
         if (rec[VV_OCCUPIED_OFFSET] != 1) {
             continue;
         }
+        /* The marker moves for EVERY occupied record, the Golden Child's
+           included.  It is what stops that villager's own tick from putting
+           this jump through the engine's clamp -- so leaving the Golden
+           Child's marker alone would not keep it a child, it would age it by
+           the clamped 2.55 / 4.3 / 8.6 years instead of not at all. */
         *(int *)(rec + VV1_TW_LAST_SEEN_OFFSET) += delta;
+        if (rec == golden) {
+            /* Hardcoded to remain a child, the same categorical exclusion
+               Set Age to 18 already makes (VV1_ROWMSG_IS_GOLDEN_CHILD). */
+            continue;
+        }
         *(int *)(rec + VV1_TW_AGE_OFFSET) += units;
-        credited++;
     }
     return credited;
 }
