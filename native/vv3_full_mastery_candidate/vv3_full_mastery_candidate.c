@@ -1635,11 +1635,22 @@ static int vv3_mask_build_batch_shadow(const int *idx,
     return 1;
 }
 
+/* Head/body variant counts and the generated hair-colour buckets, declared
+   here rather than beside the Change Appearance cyclers further down
+   because vv3_apply_for_all plans the village-wide overrides and needs
+   both before that point. */
+#define VV3_HEAD_COUNT 30
+#define VV3_BODY_COUNT 30
+#include "vv3_head_buckets.h"
+
 static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
-                             int head_f, int body_f, int mask_f, int mask_mode) {
+                             int head_f, int body_f, int mask_f, int mask_mode,
+                             int head_mode, int body_mode) {
     unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
     int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
     int idx[256], sex[256], order[256], desired_mask[256], mask_changed[256];
+    int plan_head[256], plan_body[256];
+    unsigned int head_rng = GetTickCount() ^ 0x5BD1E995u;
     int mask_selected[256];
     unsigned int plan_fp[256], shadow_fp[256];
     unsigned char shadow_mask[256];
@@ -1671,6 +1682,28 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         for (i = 0; i < n; ++i)
             mask_selected[i] =
                 (mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0);
+    }
+    /* Plan the village-wide Head/Body result BEFORE counting, for exactly the
+       reason the mask plan below exists: Random and the hair buckets must be
+       decided once and then reused by the apply pass, or the preflight could
+       count a different random draw than the one written, and charge for it.
+       Mode 0 keeps the per-sex selector, so the planned value is just it. */
+    for (i = 0; i < n; ++i) {
+        if (head_mode <= 0) {
+            plan_head[i] = sex[i] ? head_f : head_m;
+        } else if (head_mode == 1) {
+            head_rng = (head_rng * 1103515245u) + 12345u;
+            plan_head[i] = (int)((head_rng >> 16) % (unsigned int)VV3_HEAD_COUNT);
+        } else {
+            /* vv3_head_pick takes 1 = male; sex[] here is 1 = female. */
+            plan_head[i] = vv3_head_pick(!sex[i], head_mode - 2, &head_rng);
+        }
+        if (body_mode <= 0) {
+            plan_body[i] = sex[i] ? body_f : body_m;
+        } else {
+            head_rng = (head_rng * 1103515245u) + 12345u;
+            plan_body[i] = (int)((head_rng >> 16) % (unsigned int)VV3_BODY_COUNT);
+        }
     }
     /* Build the exact mask result before counting.  Random, proportional, and
        equal modes must be planned once and then reused by the apply pass;
@@ -1753,8 +1786,8 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
     for (i = 0; i < n; ++i) {
         unsigned char *r =
             (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
-        int h = sex[i] ? head_f : head_m;
-        int b = sex[i] ? body_f : body_m;
+        int h = plan_head[i];
+        int b = plan_body[i];
         mask_changed[i] = 0;
         if (mask_requested && mask_selected[i]) {
             /* VV3_GetMaskForRecord is the guarded logical lookup: it recovers
@@ -1791,8 +1824,8 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
     /* Head/Body: independent per-sex, applied in the one mutation pass. */
     for (i = 0; i < n; ++i) {
         unsigned char *r = (unsigned char *)(UINT_PTR)(VV3_REC_BASE + idx[i] * VV3_STRIDE);
-        int h = sex[i] ? head_f : head_m;
-        int b = sex[i] ? body_f : body_m;
+        int h = plan_head[i];
+        int b = plan_body[i];
         if (h >= 0 && *(int *)(r + VV3_HEAD_OFF) != h) *(int *)(r + VV3_HEAD_OFF) = h;
         if (b >= 0 && *(int *)(r + VV3_BODY_OFF) != b) *(int *)(r + VV3_BODY_OFF) = b;
     }
@@ -2213,8 +2246,6 @@ static const char *const vv3_mask_names[VV3_MASK_COUNT] = {
    game hands out body indices 0..29 and every one of them has art. VV4 and VV5
    really are 29 -- their creation uses `rand(29)` -- so this count must not be
    made "consistent" with theirs. */
-#define VV3_HEAD_COUNT 30
-#define VV3_BODY_COUNT 30
 /* The mask preview uses the same 40x65 head/body cell (each mask scaled to fit
    + centred), matching the VV5 New Believers chooser so the chooser sprites are
    the same size across games. */
@@ -2732,6 +2763,15 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
 static int caf_m_head, caf_m_body, caf_m_mask;   /* -1 = no change */
 static int caf_f_head, caf_f_body, caf_f_mask;
 static int caf_mask_mode;                          /* 0..9 (radio id - 3301) */
+/* Village-wide Head/Body overrides.  The other four games number these
+   3220..3226 / 3240..3241, which VV3 cannot reuse because 3220..3229 is
+   already its FEMALE panel -- hence the 3400 block. */
+#define IDC_CAF_HEAD_FIRST 3400
+#define IDC_CAF_HEAD_LAST  3406
+#define IDC_CAF_BODY_FIRST 3410
+#define IDC_CAF_BODY_LAST  3411
+static int caf_head_mode;   /* 0 = off, 1 = random, 2..6 = hair colour + 2 */
+static int caf_body_mode;   /* 0 = off, 1 = random */
 
 static const char *const caf_mode_names[10] = {
     "Off (use per-sex)", "VV5-style", "Random", "Equal",
@@ -2787,6 +2827,21 @@ static void caf_set_mask_enable(HWND w) {
     EnableWindow(GetDlgItem(w, IDC_CAF_F_MASK_N), off);
 }
 
+/* A village-wide Head/Body choice supersedes the matching per-sex cyclers, so
+   grey them rather than leaving two controls that disagree about the result. */
+static void caf_set_head_body_enable(HWND w) {
+    BOOL head_off = (caf_head_mode == 0);
+    BOOL body_off = (caf_body_mode == 0);
+    EnableWindow(GetDlgItem(w, IDC_CAF_M_HEAD_P), head_off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_M_HEAD_N), head_off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_F_HEAD_P), head_off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_F_HEAD_N), head_off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_M_BODY_P), body_off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_M_BODY_N), body_off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_F_BODY_P), body_off);
+    EnableWindow(GetDlgItem(w, IDC_CAF_F_BODY_N), body_off);
+}
+
 static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
     (void)lp;
     if (msg == WM_INITDIALOG) {
@@ -2796,7 +2851,14 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
             CheckDlgButton(w, IDC_CAF_MODE_FIRST + r, r == caf_mask_mode ? BST_CHECKED : BST_UNCHECKED);
         SetDlgItemTextA(w, IDC_CAF_M_MASK_T, caf_mask_text(caf_m_mask));
         SetDlgItemTextA(w, IDC_CAF_F_MASK_T, caf_mask_text(caf_f_mask));
+        for (r = IDC_CAF_HEAD_FIRST; r <= IDC_CAF_HEAD_LAST; ++r)
+            CheckDlgButton(w, r, (r - IDC_CAF_HEAD_FIRST) == caf_head_mode
+                                 ? BST_CHECKED : BST_UNCHECKED);
+        for (r = IDC_CAF_BODY_FIRST; r <= IDC_CAF_BODY_LAST; ++r)
+            CheckDlgButton(w, r, (r - IDC_CAF_BODY_FIRST) == caf_body_mode
+                                 ? BST_CHECKED : BST_UNCHECKED);
         caf_set_mask_enable(w);
+        caf_set_head_body_enable(w);
         return TRUE;
     } else if (msg == WM_DRAWITEM) {
         DRAWITEMSTRUCT *it = (DRAWITEMSTRUCT *)lp;
@@ -2811,6 +2873,20 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
         }
     } else if (msg == WM_COMMAND) {
         unsigned int id = LOWORD(wp);
+        /* These two run BEFORE the mask branch, not inside it.  3400..3411 can
+           never satisfy the 3301..3310 test, so nesting them there left both
+           modes stuck at zero: the radio looked selected through the control's
+           own behaviour while OK saw no override at all. */
+        if (id >= IDC_CAF_HEAD_FIRST && id <= IDC_CAF_HEAD_LAST) {
+            caf_head_mode = (int)(id - IDC_CAF_HEAD_FIRST);
+            caf_set_head_body_enable(w);
+            return TRUE;
+        }
+        if (id >= IDC_CAF_BODY_FIRST && id <= IDC_CAF_BODY_LAST) {
+            caf_body_mode = (int)(id - IDC_CAF_BODY_FIRST);
+            caf_set_head_body_enable(w);
+            return TRUE;
+        }
         if (id >= IDC_CAF_MODE_FIRST && id <= IDC_CAF_MODE_FIRST + 9) {
             int r;
             caf_mask_mode = (int)(id - IDC_CAF_MODE_FIRST);
@@ -2855,6 +2931,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
     caf_m_head = caf_m_body = caf_m_mask = -1;
     caf_f_head = caf_f_body = caf_f_mask = -1;
     caf_mask_mode = 0;
+    caf_head_mode = caf_body_mode = 0;
 
     begin_modal_over_game();
     result = DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_VV3_APPEARANCE_ALL),
@@ -2863,7 +2940,8 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
         return 0;
     }
     changed = (caf_m_head >= 0 || caf_m_body >= 0 || caf_f_head >= 0 || caf_f_body >= 0
-               || caf_mask_mode != 0 || caf_m_mask >= 0 || caf_f_mask >= 0);
+               || caf_mask_mode != 0 || caf_m_mask >= 0 || caf_f_mask >= 0
+               || caf_head_mode != 0 || caf_body_mode != 0);
     if (!changed) {
         MessageBoxA(GetForegroundWindow(),
             "Nothing was selected to change. No tech points have been deducted.",
@@ -2876,7 +2954,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
         return 0;
     }
     /* Head is hereditary -> one genetics warning at village scale; Cancel = no charge. */
-    if (caf_m_head >= 0 || caf_f_head >= 0) {
+    if (caf_m_head >= 0 || caf_f_head >= 0 || caf_head_mode != 0) {
         if (MessageBoxA(GetForegroundWindow(),
                 "Warning: This will change the head genetics of every villager "
                 "of the selected sex, affecting their descendants.\r\n\r\n"
@@ -2888,7 +2966,8 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
         }
     }
     affected = vv3_apply_for_all(caf_m_head, caf_m_body, caf_m_mask,
-                                 caf_f_head, caf_f_body, caf_f_mask, caf_mask_mode);
+                                 caf_f_head, caf_f_body, caf_f_mask, caf_mask_mode,
+                                 caf_head_mode, caf_body_mode);
     if (affected == 0) {
         const char *why;
         if (g_vv3_caf_mask_persist_failed) {

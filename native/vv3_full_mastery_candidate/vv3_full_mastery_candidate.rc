@@ -255,54 +255,78 @@ BEGIN
     PUSHBUTTON  "Cancel", 2, 188, 178, 50, 16
 END
 
-214 DIALOGEX 0, 0, 380, 384
-STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+214 DIALOGEX 0, 0, 620, 340
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance for All"
 FONT 9, "Segoe UI"
 BEGIN
-    GROUPBOX    "Male Villagers", -1, 6, 2, 368, 110
-    CTEXT       "Body", -1, 28, 14, 50, 9
-    PUSHBUTTON  "<", 3202, 14, 48, 12, 20
-    CONTROL     "", 3201, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 24, 50, 74
-    PUSHBUTTON  ">", 3203, 80, 48, 12, 20
-    CTEXT       "Head", -1, 150, 14, 50, 9
-    PUSHBUTTON  "<", 3205, 136, 48, 12, 20
-    CONTROL     "", 3204, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 24, 50, 74
-    PUSHBUTTON  ">", 3206, 202, 48, 12, 20
-    CTEXT       "Mask", -1, 272, 14, 50, 9
-    PUSHBUTTON  "<", 3208, 258, 48, 12, 20
-    CONTROL     "", 3207, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 24, 50, 74
-    PUSHBUTTON  ">", 3209, 324, 48, 12, 20
+    GROUPBOX    "Male Villagers", -1, 6, 2, 368, 104
+    CTEXT       "Body", -1, 28, 12, 50, 9
+    PUSHBUTTON  "<", 3202, 14, 44, 12, 20
+    CONTROL     "", 3201, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 20, 50, 74
+    PUSHBUTTON  ">", 3203, 80, 44, 12, 20
+    CTEXT       "Head", -1, 150, 12, 50, 9
+    PUSHBUTTON  "<", 3205, 136, 44, 12, 20
+    CONTROL     "", 3204, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 50, 74
+    PUSHBUTTON  ">", 3206, 202, 44, 12, 20
+    CTEXT       "Mask", -1, 272, 12, 50, 9
+    CTEXT       "", 3210, 258, 95, 78, 9
+    PUSHBUTTON  "<", 3208, 258, 44, 12, 20
+    CONTROL     "", 3207, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 20, 50, 74
+    PUSHBUTTON  ">", 3209, 324, 44, 12, 20
 
-    GROUPBOX    "Female Villagers", -1, 6, 116, 368, 110
-    CTEXT       "Body", -1, 28, 122, 50, 9
-    PUSHBUTTON  "<", 3222, 14, 156, 12, 20
-    CONTROL     "", 3221, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 132, 50, 74
-    PUSHBUTTON  ">", 3223, 80, 156, 12, 20
-    CTEXT       "Head", -1, 150, 122, 50, 9
-    PUSHBUTTON  "<", 3225, 136, 156, 12, 20
-    CONTROL     "", 3224, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 132, 50, 74
-    PUSHBUTTON  ">", 3226, 202, 156, 12, 20
-    CTEXT       "Mask", -1, 272, 122, 50, 9
-    PUSHBUTTON  "<", 3228, 258, 156, 12, 20
-    CONTROL     "", 3227, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 132, 50, 74
-    PUSHBUTTON  ">", 3229, 324, 156, 12, 20
+    GROUPBOX    "Female Villagers", -1, 6, 110, 368, 104
+    CTEXT       "Body", -1, 28, 120, 50, 9
+    PUSHBUTTON  "<", 3222, 14, 152, 12, 20
+    CONTROL     "", 3221, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 128, 50, 74
+    PUSHBUTTON  ">", 3223, 80, 152, 12, 20
+    CTEXT       "Head", -1, 150, 120, 50, 9
+    PUSHBUTTON  "<", 3225, 136, 152, 12, 20
+    CONTROL     "", 3224, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 128, 50, 74
+    PUSHBUTTON  ">", 3226, 202, 152, 12, 20
+    CTEXT       "Mask", -1, 272, 120, 50, 9
+    CTEXT       "", 3230, 258, 203, 78, 9
+    PUSHBUTTON  "<", 3228, 258, 152, 12, 20
+    CONTROL     "", 3227, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 128, 50, 74
+    PUSHBUTTON  ">", 3229, 324, 152, 12, 20
 
-    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 242, 368, 62
-    AUTORADIOBUTTON "Off - use the per-sex Mask selectors above", 3301, 14, 254, 300, 10, WS_GROUP
-    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3302, 14, 266, 306, 10
-    AUTORADIOBUTTON "Random", 3303, 14, 278, 120, 10
-    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3304, 14, 290, 300, 10
+    /* Village-wide Heads (right column) -- exclusive set 3400..3406.  VV1/VV2/
+       VV4/VV5 put this set at 3220..3226, which VV3 cannot reuse: 3220..3229 is
+       already its FEMALE panel.  Hence the 3400 block. */
+    GROUPBOX    "Village-wide Heads", -1, 382, 2, 232, 104
+    AUTORADIOBUTTON "Off (use Head selectors above)", 3400, 390, 16, 216, 10, WS_GROUP
+    AUTORADIOBUTTON "Random (by gender)", 3401, 390, 28, 216, 10
+    AUTORADIOBUTTON "All Black Hair", 3402, 390, 40, 216, 10
+    AUTORADIOBUTTON "All Brown Hair", 3403, 390, 52, 216, 10
+    AUTORADIOBUTTON "All Red / Ginger Hair", 3404, 390, 64, 216, 10
+    AUTORADIOBUTTON "All Blonde Hair", 3405, 390, 76, 216, 10
+    AUTORADIOBUTTON "All Other Hair / Styles", 3406, 390, 88, 216, 10
 
-    GROUPBOX    "Village-wide Single Mask Color", -1, 6, 308, 368, 40
-    AUTORADIOBUTTON "None (remove all masks)", 3305, 14, 320, 130, 10
-    AUTORADIOBUTTON "Blue", 3306, 150, 320, 45, 10
-    AUTORADIOBUTTON "Orange", 3307, 205, 320, 50, 10
-    AUTORADIOBUTTON "Red", 3308, 270, 320, 45, 10
-    AUTORADIOBUTTON "Purple", 3309, 14, 334, 60, 10
-    AUTORADIOBUTTON "Chief", 3310, 150, 334, 60, 10
+    /* Village-wide Bodies (right column) -- exclusive set 3410..3411. */
+    GROUPBOX    "Village-wide Bodies", -1, 382, 110, 232, 40
+    AUTORADIOBUTTON "Off (use Body selectors above)", 3410, 390, 124, 216, 10, WS_GROUP
+    AUTORADIOBUTTON "Random (by gender)", 3411, 390, 136, 216, 10
 
-    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 65, 354, 250, 9
-    DEFPUSHBUTTON "OK", 1, 125, 366, 55, 16
-    PUSHBUTTON  "Cancel", 2, 200, 366, 55, 16
+    /* Mask groupbox frames (right = single colours; bottom = distributions).
+       The mask radios below are ONE exclusive run 3301..3310 regardless of which
+       box they sit in, so a single colour and a distribution cannot both be
+       chosen.  The Heads/Bodies sets above each open their own run with
+       WS_GROUP, which is what keeps them independent of this one. */
+    GROUPBOX    "Village-wide Single Mask Color", -1, 382, 152, 232, 62
+    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 218, 608, 80
+
+    AUTORADIOBUTTON "Off - use the per-sex Mask selectors above", 3301, 14, 232, 596, 10, WS_GROUP
+    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3302, 14, 246, 596, 10
+    AUTORADIOBUTTON "Random", 3303, 14, 260, 596, 10
+    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3304, 14, 274, 596, 10
+    AUTORADIOBUTTON "None (remove all masks)", 3305, 390, 166, 110, 10
+    AUTORADIOBUTTON "Blue", 3306, 390, 180, 110, 10
+    AUTORADIOBUTTON "Orange", 3307, 390, 194, 110, 10
+    AUTORADIOBUTTON "Red", 3308, 504, 166, 100, 10
+    AUTORADIOBUTTON "Purple", 3309, 504, 180, 100, 10
+    AUTORADIOBUTTON "Chief", 3310, 504, 194, 100, 10
+
+    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 306, 608, 9, WS_GROUP
+    DEFPUSHBUTTON "OK",     1, 250, 318, 50, 16
+    PUSHBUTTON  "Cancel", 2, 316, 318, 50, 16
 END

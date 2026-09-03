@@ -1,0 +1,206 @@
+"""Bucket the VV3 head variants by hair colour for the "Village-wide Heads"
+override in Change Appearance for All.
+
+VV3's preview sheets are laid out HORIZONTALLY -- native/vv3_full_mastery_candidate/
+appearance/head_{m,f}_young.bmp are 1200x65 = thirty 40x65 variant cells, where
+VV1's are 40x1300 (twenty cells stacked vertically). Same cell size, transposed
+sheet, so the crop is the only thing that differs from the VV1 script this is
+adapted from; the sampling and classification are deliberately identical so the
+five buckets mean the same thing in both games.
+
+The YOUNG sheets are sampled on purpose. VV3 also ships head_{m,f}_old.bmp, but
+those are the aged appearances whose hair has greyed -- bucketing them would put
+most of the roster in "Other" and say nothing about the villager's actual hair
+colour, which is what the override is choosing by.
+
+For each variant we sample the hair band (the top of the head), drop the flat
+background and the villager's skin tone, take the dominant remaining colour, and
+classify it into one of five buckets:
+
+    0 Black   1 Brown   2 Red/Ginger   3 Blonde   4 Other (grey/white/dyed/bald)
+
+The result is written as native/vv3_full_mastery_candidate/vv3_head_buckets.h,
+which the DLL includes; "All <colour> Hair" then picks a random index from that
+gender's bucket. Heuristic, but the buckets only need to look right, and Other
+is the catch-all. Run with --check to verify the committed header is current.
+"""
+from __future__ import annotations
+
+import argparse
+import sys
+from collections import Counter
+from pathlib import Path
+
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parents[1]
+APPEARANCE = ROOT / "native" / "vv3_full_mastery_candidate" / "appearance"
+HEADER = ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_head_buckets.h"
+
+CELL_W, CELL_H = 40, 65
+HAIR_BAND_H = 24          # top strip of the cell that holds the hair
+BG = (236, 236, 236)      # flat preview background
+COLOUR_NAMES = ["Black", "Brown", "Red/Ginger", "Blonde", "Other"]
+BLACK, BROWN, RED, BLONDE, OTHER = range(5)
+
+# Both VV3 sheets carry the full roster; the DLL's VV3_HEAD_COUNT is 30 for both
+# sexes, with no reserved cell of the kind VV1's male sheet has at index 19.
+HEAD_COUNT_M = 30
+HEAD_COUNT_F = 30
+
+
+def _is_bg(p):
+    return abs(p[0] - BG[0]) < 12 and abs(p[1] - BG[1]) < 12 and abs(p[2] - BG[2]) < 12
+
+
+def _is_skin(r, g, b):
+    """VV villager skin is a light warm tan: bright, r>g>b, moderate spread."""
+    return r > 165 and g > 120 and b > 90 and r >= g >= b and 25 < (r - b) < 135
+
+
+def _dominant_hair(cell):
+    """Most common non-bg, non-skin colour in the hair band (quantised)."""
+    band = cell.crop((0, 0, CELL_W, HAIR_BAND_H))
+    counts = Counter()
+    for (r, g, b) in band.getdata():
+        if _is_bg((r, g, b)) or _is_skin(r, g, b):
+            continue
+        counts[(r // 16 * 16, g // 16 * 16, b // 16 * 16)] += 1
+    if not counts:
+        return None
+    return counts.most_common(1)[0][0]
+
+
+def _classify(rgb):
+    if rgb is None:
+        return OTHER            # essentially no hair sampled -> bald/other
+    r, g, b = rgb
+    mx = max(r, g, b)
+    if mx < 64:
+        return BLACK
+    # near-grey (white / grey / silver / dyed-flat) -> Other, before the warm
+    # buckets, so a light grey isn't mistaken for brown.
+    if mx - min(r, g, b) < 40:
+        return OTHER
+    if r >= 176 and g >= 144 and b < g - 24:
+        return BLONDE
+    if r >= 112 and g < 168 and r > 2 * g - 24 and b < g + 24:
+        return RED
+    if r >= g >= b and r >= 64:
+        return BROWN
+    return OTHER
+
+
+def _bucket_file(path, max_variants=None):
+    """Cells run left-to-right across the sheet, unlike VV1's vertical strip."""
+    im = Image.open(path).convert("RGB")
+    variants = im.width // CELL_W
+    if max_variants is not None:
+        variants = min(variants, max_variants)
+    buckets = [[] for _ in range(5)]
+    detail = []
+    for v in range(variants):
+        cell = im.crop((v * CELL_W, 0, (v + 1) * CELL_W, CELL_H))
+        dom = _dominant_hair(cell)
+        c = _classify(dom)
+        buckets[c].append(v)
+        detail.append((v, dom, COLOUR_NAMES[c]))
+    return buckets, detail
+
+
+def build_header() -> str:
+    male, _ = _bucket_file(APPEARANCE / "head_m_young.bmp", HEAD_COUNT_M)
+    female, _ = _bucket_file(APPEARANCE / "head_f_young.bmp", HEAD_COUNT_F)
+
+    def arr(name, buckets):
+        rows = []
+        for c in range(5):
+            vals = ", ".join(str(v) for v in buckets[c]) or "0"
+            rows.append("    { " + vals + " },")
+        return (
+            "static const unsigned char " + name
+            + "[VV3_HAIR_COLOURS][VV3_HEAD_COUNT_MAX] = {\n"
+            + "\n".join(rows) + "\n};"
+        )
+
+    def counts(name, buckets):
+        vals = ", ".join(str(len(buckets[c])) for c in range(5))
+        return "static const int " + name + "[VV3_HAIR_COLOURS] = { " + vals + " };"
+
+    lines = [
+        "/* Head-index buckets by hair colour, per gender -- GENERATED by",
+        " * scripts/build_vv3_head_hair_buckets.py. Do not edit by hand.",
+        " *",
+        " * Colour index: 0=Black, 1=Brown, 2=Red/Ginger, 3=Blonde, 4=Other.",
+        " * vv3_head_pick(sex, colour, rng) returns a random head index from that",
+        " * gender+colour bucket, or -1 if empty. sex: 1=male, 0=female.",
+        " *",
+        " * Sampled from the YOUNG sheets: the old sheets are greyed by age and",
+        " * would say nothing about the villager's hair colour.",
+        " */",
+        "#ifndef VV3_HEAD_BUCKETS_H",
+        "#define VV3_HEAD_BUCKETS_H",
+        "",
+        "#define VV3_HAIR_COLOURS 5",
+        "#define VV3_HEAD_COUNT_MAX 30",
+        "",
+        arr("vv3_head_bucket_m", male),
+        arr("vv3_head_bucket_f", female),
+        counts("vv3_head_bucket_m_count", male),
+        counts("vv3_head_bucket_f_count", female),
+        "",
+        "static int vv3_head_pick(int sex, int colour, unsigned int *rng) {",
+        "    const unsigned char *bucket;",
+        "    int n;",
+        "    if (colour < 0 || colour >= VV3_HAIR_COLOURS) {",
+        "        return -1;",
+        "    }",
+        "    bucket = sex ? vv3_head_bucket_m[colour] : vv3_head_bucket_f[colour];",
+        "    n = sex ? vv3_head_bucket_m_count[colour] : vv3_head_bucket_f_count[colour];",
+        "    if (n <= 0) {",
+        "        return -1;",
+        "    }",
+        "    *rng = (*rng * 1103515245u) + 12345u;",
+        "    return (int)bucket[(*rng >> 16) % (unsigned int)n];",
+        "}",
+        "",
+        "#endif /* VV3_HEAD_BUCKETS_H */",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--check", action="store_true",
+                    help="verify the committed header matches the sheets")
+    ap.add_argument("--report", action="store_true",
+                    help="print the per-variant classification")
+    args = ap.parse_args()
+
+    if args.report:
+        for sex, name in ((1, "head_m_young.bmp"), (0, "head_f_young.bmp")):
+            _, detail = _bucket_file(APPEARANCE / name,
+                                     HEAD_COUNT_M if sex else HEAD_COUNT_F)
+            print(name)
+            for v, dom, label in detail:
+                print(f"  {v:2d}  {str(dom):<18} {label}")
+        return 0
+
+    text = build_header()
+    if args.check:
+        if not HEADER.is_file():
+            print("missing:", HEADER)
+            return 1
+        if HEADER.read_text(encoding="utf-8") != text:
+            print("stale:", HEADER)
+            return 1
+        print("up to date:", HEADER)
+        return 0
+    HEADER.write_text(text, encoding="utf-8")
+    print("wrote", HEADER)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
