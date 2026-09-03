@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features + Heathen Mask Cosmetics (Task9 native actions)",
-  "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years (speed-independent) for a single 50,000 tech-point charge. Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point \"Change Appearance for All\" Tech upgrade, with the chosen Heathen masks rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.",
+  "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years on slow, six on normal and twelve on fast for a single 50,000 tech-point charge, and is refused with no charge while the game is paused; the confirmation names the current speed and the exact number of years before you buy. Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point \"Change Appearance for All\" Tech upgrade, with the chosen Heathen masks rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
@@ -488,7 +488,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "721E94C374126980D0DA2F58F66FB31902FB5560D88A91D39AF66E138F3E1BD9"
+      "source_text_sha256": "34A43950CFA08DBFF692D0E10C00BE770A0F97FA886EC7090D8C87A8C439CA49"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -609,12 +609,12 @@
       },
       "time_warp": {
         "price": 50000,
-        "scope": "village clock (not a per-record write; faction-blind like normal time passing)",
-        "speed": "[manager+0x17D7C] signed positive and not 999 (paused)",
-        "delta": "194400 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254",
-        "effect": "advances exactly three displayed villager years regardless of listed game speed",
-        "writer": "inline: verify snapshot, refuse if paused, charge -50000 via 0x4237B0, div 194400 by speed, sub/sbb into clock, postverify",
-        "dialog": "self-contained MessageBoxA (no companion DLL change)"
+        "scope": "village clock AND a per-villager age credit; the clock alone cannot deliver the advance",
+        "speed": "[manager+0x17D7C] read by the companion; 10 slow / 6 normal / 3 fast, 999 paused",
+        "delta": "years * 20 * 60 * speed_code subtracted from the 64-bit village clock 0x4C6250/0x4C6254 -- 36000 slow, 43200 normal, 43200 fast",
+        "effect": "advances 3 displayed villager years on slow, 6 on normal and 12 on fast; the engine clamps any pending slice over 23800/31000/38200 down to 31000 (0x0046FFCB), so a clock-only advance can never reach these targets and a larger delta yields a SMALLER warp",
+        "writer": "companion ShowVv5TimeWarp: confirms naming the speed and years, refuses while paused before any charge, moves the clock by the true delta, then credits each villager exactly years*20 age units scaled by its own aging rate (+0x1CC8, doubled above 1) and gated on the faction byte (+0x1CEC), advancing its last-seen marker (+0x1C38) so its own tick cannot re-process and clamp the same jump; the executable charges -50000 via 0x4237B0 only when the companion reports it applied",
+        "dialog": "companion MessageBoxA (names the current game speed and the years)"
       },
       "full_heal": {
         "price": 30000,
@@ -772,5 +772,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "46737C9AB81CBA075E411E62EA3152EC8EC36D7C710CC344D0736B811EE4B330"
+  "task9_map_canonical_sha256": "2591BB7CFBF721DF5CBF863EA38DBBF46770A7A34AF150857DF35B52D6C87731"
 }
