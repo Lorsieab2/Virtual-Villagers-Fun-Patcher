@@ -105,6 +105,8 @@ SAVE_SLOT_PTR = SECTION_DATA_VA + 0x44
 # preference mutations so the existing raw-preference identity can be refreshed
 # without weakening slot-reuse or slot-shift protection.
 RUNNING_BOUNDARYFN_PTR = SECTION_DATA_VA + 0x48
+# Barrel queue: the epoch second at which the pending barrel becomes due.
+BARREL_DUE_VA = SECTION_DATA_VA + 0x4C
 RUNNING_BOUNDARY_BEFORE_CAVE_VA = SECTION_CODE_VA + 0x180
 RUNNING_BOUNDARY_AFTER_CAVE_VA = SECTION_CODE_VA + 0x1C0
 RUNNING_VILLAGE_WRAPPER_CAVE_VA = SECTION_CODE_VA + 0x220
@@ -201,6 +203,23 @@ BARREL_HANDLER_SPLICE_VA = 0x468727
 # the native pair, then restore the array (the popup keeps a direct pointer to
 # the barrel singleton, which we never move).
 BARREL_PRESENT_FILE_OFFSET = 0x7B3E0
+# The arming helpers live in the appended, patch-owned R-X page rather than the
+# .text tail: the tail slots first tried (0x7B4A0/0x7B4D0) fall inside the range
+# vv3_write_village_statistics claims, and co-selecting the two patches is
+# normal. The appended page is ours alone and put_cave() checks its own
+# overlaps, so this cannot silently collide with another patch again.
+QUEUE_ARM_BARREL_CAVE_OFF = 0x300
+QUEUE_ARM_ISLAND_CAVE_OFF = 0x340
+QUEUE_ARM_BARREL_VA = SECTION_CODE_VA + QUEUE_ARM_BARREL_CAVE_OFF
+QUEUE_ARM_ISLAND_VA = SECTION_CODE_VA + QUEUE_ARM_ISLAND_CAVE_OFF
+# Both queued upgrades wait this many real seconds before they fire, so a
+# natural island event that happens to be due in the same tick cannot collide
+# with the purchased one.  0x403330 is the scheduler's own clock: it converts
+# GetSystemTimeAsFileTime through 0x989680 (10,000,000), so it returns Unix
+# epoch SECONDS -- the same units [world+0x12EF4] already holds and the same
+# units Time Warp subtracts in.
+QUEUE_DELAY_SECONDS = 5
+QUEUE_CLOCK_VA = 0x403330
 BARREL_PRESENT_VA = IMAGE_BASE + BARREL_PRESENT_FILE_OFFSET
 BARREL_EVENT_ARRAY_VA = 0x4B3C78          # &event_objects[0]
 BARREL_EVENT_SLOT1_VA = BARREL_EVENT_ARRAY_VA + 4   # &event_objects[1]
@@ -827,19 +846,38 @@ def main() -> None:
             jmp show_status
 
         do_island_event:
-            mov dword ptr [edi + ebp + 0x12EF4], 0
+            # Queue the event a few seconds out instead of making it due on the
+            # very next tick.  Zeroing the due stamp fired it in whatever tick
+            # the handler next ran, which is also the tick a NATURAL event
+            # could be due in -- the two then present back to back.  The arming
+            # helper lives in the .text tail because this payload block has
+            # only tens of bytes spare.
+            push edi
+            push ebp
+            lea ecx, [edi + ebp]
+            call 0x{QUEUE_ARM_ISLAND_VA:X}
+            pop ebp
+            pop edi
             mov eax, 1
             jmp show_result
 
         do_barrel:
             # Defer the "Another One of Those Barrels" island event.  Firing it
             # from this paused, modal menu flashes the popup and never spawns, so
-            # just mark it pending; the island-event handler hook spliced at
-            # 0x{BARREL_HANDLER_SPLICE_VA:X} fires the full event next frame once
-            # the menu closes, so it reads and behaves like a real island event.
-            # Confirm the purchase now with the "Barrel of Babies completed."
-            # result box (the cued event itself follows a moment into gameplay).
-            mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 1
+            # arm a queue instead: the helper stamps a due time a few seconds out
+            # and marks the event pending, and the island-handler hook spliced at
+            # 0x{BARREL_HANDLER_SPLICE_VA:X} presents it once that moment passes,
+            # so it reads and behaves like a real island event.  The delay keeps
+            # the purchased barrel clear of a NATURAL island event that happens
+            # to be due in the same tick, which would otherwise present back to
+            # back with it.  Confirm the purchase now with the "Barrel of Babies
+            # completed." result box (the cued event follows a moment later).
+            push edi
+            push ebp
+            lea ecx, [edi + ebp]
+            call 0x{QUEUE_ARM_BARREL_VA:X}
+            pop ebp
+            pop edi
             mov eax, 7
             jmp show_result
 
@@ -2003,7 +2041,6 @@ def main() -> None:
         f"""
             cmp byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
             je bh_original
-            mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
             call 0x{BARREL_PRESENT_VA:X}
         bh_original:
             mov ecx, dword ptr [esi + 0x10]
@@ -2037,6 +2074,10 @@ def main() -> None:
         f"""
             pushad
             mov ebp, esi
+            call 0x{QUEUE_CLOCK_VA:X}
+            cmp eax, dword ptr [0x{BARREL_DUE_VA:X}]
+            jb bp_done
+            mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
             call 0x{BARREL_SELECT_MANAGER_VA:X}
             mov ebx, eax
             mov esi, 0x{BARREL_EVENT_OBJECT_VA:X}
@@ -2058,10 +2099,44 @@ def main() -> None:
             pop eax
             stosd
             loop bp_restore
+        bp_done:
             popad
             ret
         """,
         BARREL_PRESENT_VA,
+    )
+    # Arming helpers.  0x403330 IGNORES ecx (its `push ecx` only reserves a
+    # local), so the world pointer must be preserved across the call by hand.
+    queue_arm_barrel_code = assemble(
+        f"""
+            call 0x{QUEUE_CLOCK_VA:X}
+            add eax, {QUEUE_DELAY_SECONDS}
+            mov dword ptr [0x{BARREL_DUE_VA:X}], eax
+            mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 1
+            ret
+        """,
+        QUEUE_ARM_BARREL_VA,
+    )
+    queue_arm_island_code = assemble(
+        f"""
+            push ecx
+            call 0x{QUEUE_CLOCK_VA:X}
+            pop ecx
+            add eax, {QUEUE_DELAY_SECONDS}
+            mov dword ptr [ecx + 0x12EF4], eax
+            ret
+        """,
+        QUEUE_ARM_ISLAND_VA,
+    )
+    put_cave(
+        QUEUE_ARM_BARREL_CAVE_OFF,
+        queue_arm_barrel_code,
+        "arm the Barrel of Babies queue a few seconds out",
+    )
+    put_cave(
+        QUEUE_ARM_ISLAND_CAVE_OFF,
+        queue_arm_island_code,
+        "arm the purchased Island Event a few seconds out",
     )
     barrel_splice_before = assemble(
         "mov ecx, dword ptr [esi + 0x10]\n call 0x403330",

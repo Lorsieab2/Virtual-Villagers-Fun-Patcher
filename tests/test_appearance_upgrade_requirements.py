@@ -528,6 +528,13 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # purchased barrel AND every natural island event for the
                     # rest of the session. Only this cave's own bytes change.
                     "0x7B3E0",
+                    # Queue delay: the barrel hook no longer clears the
+                    # pending flag itself -- the present cave does, after it
+                    # checks the queued due time -- and both queued upgrades are
+                    # armed a few seconds out so a NATURAL island event due in
+                    # the same tick cannot present back to back with the
+                    # purchased one.
+                    "0x7B3B1",
                     "0x10E", "0x158", "0x2C8",
                     "0x2E3F5", "0x34357", "0x344B3", "0x60B48", "0x60D10",
                 },

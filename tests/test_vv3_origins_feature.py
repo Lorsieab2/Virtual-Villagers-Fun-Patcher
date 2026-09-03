@@ -457,13 +457,29 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                / "vv3_full_mastery_candidate.c").read_text(encoding="utf-8")
         self.assertIn("PrepareBarrelBabies", dll)
         self.assertIn("0x45FEE3", dll)
-        # do_barrel marks the event pending (the real event is deferred to the
+        # do_barrel arms the queue (the real event is deferred to the
         # island-handler hook) and confirms the purchase with the
-        # "Barrel of Babies completed." result box.
+        # "Barrel of Babies completed." result box.  The arming helper, not
+        # do_barrel itself, stamps the due time and raises the pending flag --
+        # the payload block has only tens of bytes spare, so that work lives in
+        # the .text tail.
         barrel = source.split("        do_barrel:", 1)[1].split(
             "        do_complete_collections:", 1
         )[0]
-        self.assertIn("BARREL_PENDING_FLAG_VA", barrel)
+        self.assertIn("QUEUE_ARM_BARREL_VA", barrel)
+        arm = source.split("queue_arm_barrel_code = assemble(", 1)[1].split(
+            "queue_arm_island_code", 1
+        )[0]
+        self.assertIn("BARREL_PENDING_FLAG_VA", arm)
+        self.assertIn("BARREL_DUE_VA", arm)
+        self.assertIn("QUEUE_DELAY_SECONDS", arm)
+        # The purchased Island Event is queued the same way, rather than being
+        # made due on the very next tick by zeroing the stamp.
+        island = source.split("        do_island_event:", 1)[1].split(
+            "        do_barrel:", 1
+        )[0]
+        self.assertIn("QUEUE_ARM_ISLAND_VA", island)
+        self.assertNotIn("0x12EF4], 0", island)
         self.assertIn("mov eax, 7", barrel)  # -> "Barrel of Babies completed."
         self.assertIn("jmp show_result", barrel)
         # Tech one-shot / guard result wording lives in the DLL result export.
@@ -556,7 +572,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "602982028C2BBCC04024D2505D182B166EE8AF31F03F11FA6594E10AFC2378C5",
+            "A586B7D0AD21493556E2053B9135D900ADD2147135CDF43C41B3C96AAF2392BD",
         )
         self.assertEqual(
             bytes.fromhex(
