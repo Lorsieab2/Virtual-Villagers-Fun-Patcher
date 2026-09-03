@@ -1265,11 +1265,11 @@ class ManifestTests(unittest.TestCase):
         # one wording sub-requirement, not the readiness doc's broader
         # historical/STOP status (unrelated native-mutation/postverification
         # gates from that older candidate era remain unverified here).
-        self.assertIn("Time Warp - Advances 3 Villager Years", resource)
+        self.assertIn("Time Warp - Advances the Village Clock", resource)
         readiness = (ROOT / "docs" / "origins-playtest-readiness.md").read_text(
             encoding="utf-8"
         )
-        self.assertIn("Time Warp - Advances 3 Villager Years", readiness)
+        self.assertIn("Time Warp - Advances the Village Clock", readiness)
         self.assertIn("resource", readiness)
         self.assertIn("STOP", readiness)
 

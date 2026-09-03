@@ -56,7 +56,7 @@
   },
   "actions": {
     "tech": [
-      {"row": 0, "control_id": 1000, "action_id": "time_warp", "label": "Time Warp - Advances 3 Villager Years", "cost": 50000, "cost_text": "50,000 tech points"},
+      {"row": 0, "control_id": 1000, "action_id": "time_warp", "label": "Time Warp - Advances the Village Clock", "cost": 50000, "cost_text": "50,000 tech points"},
       {"row": 1, "control_id": 1001, "action_id": "island_event", "label": "Island Event", "cost": 30000, "cost_text": "30,000 tech points"},
       {"row": 2, "control_id": 1002, "action_id": "barrel_of_babies", "label": "Barrel of Babies", "cost": 75000, "cost_text": "75,000 tech points"},
       {"row": 3, "control_id": 1003, "action_id": "tech_point_doubler", "label": "Tech Point Doubler", "cost": 500000, "cost_text": "500,000 tech points"},

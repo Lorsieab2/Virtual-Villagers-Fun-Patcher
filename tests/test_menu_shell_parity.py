@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 COMMON_TECH_ROWS = (
-    ("Time Warp - Advances 3 Villager Years", "50,000 tech points"),
+    ("Time Warp - Advances the Village Clock", "50,000 tech points"),
     ("Island Event", "30,000 tech points"),
     ("Barrel of Babies", "75,000 tech points"),
     ("Tech Point Doubler", "500,000 tech points"),

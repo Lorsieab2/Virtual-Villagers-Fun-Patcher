@@ -135,7 +135,14 @@ BARREL_CHILDREN = 3                     # the barrel delivers 3 children
 # test and still overlapped the optional Village-Wide Upgrades patch, which
 # owns 0xCC220 for 1312 bytes.
 PENDING_ROWS_FILE_OFFSET = 0xCCC20
-PENDING_ROWS_VA = IMAGE_BASE + PENDING_ROWS_FILE_OFFSET
+# .shr is NOT identity-mapped in VV4: its raw file offset 0xCC000 maps to VA
+# 0x728000, so a cave's VA is SHR_STOCK_VA + (offset - 0xCC000), never
+# IMAGE_BASE + offset. Getting that wrong assembles the helper correctly but
+# makes the menu CALL an address the code is not at, and the game dies
+# executing whatever is there -- a shipped v1.34.29 crash whose dump faulted
+# at 0x004CCC21, exactly IMAGE_BASE + this offset. The same mistake was made
+# once before, on the 0xCC160/0xCC170 tail helpers.
+PENDING_ROWS_VA = SHR_STOCK_VA + (PENDING_ROWS_FILE_OFFSET - 0xCC000)
 COLLECTIONS_APPLY_FILE_OFFSET = 0xCCD00
 COLLECTIONS_APPLY_VA = 0x728D00
 COLLECTIONS_COMPLETE_ORDINAL = 101
@@ -991,31 +998,24 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
         do_time_warp:
-            # Measured, not modelled. A flat 21600 advanced
-            # 2 / 3 / 6 years at slow / normal / fast, so each
-            # speed now takes the delta that scales that to three:
-            #   slow 32400, normal 21600, fast 10800
-            # Two earlier attempts to derive these from a model of
-            # the clock were wrong in opposite directions, so this
-            # table is the measurements and nothing else. Re-measure
-            # after touching it.
-            # Speed codes are 3 / 6 / 10, read from the constants the
-            # game itself stores into its speed field. Anything
-            # unexpected takes the normal delta; paused was already
-            # refused before charging.
-            call 0x41FE70
-            mov eax, dword ptr [eax + 0x17110]
-            cmp eax, 3
-            je tw_slow
-            cmp eax, 10
-            je tw_fast
-            mov eax, 21600
-            jmp tw_apply
-        tw_slow:
-            mov eax, 32400
-            jmp tw_apply
-        tw_fast:
-            mov eax, 10800
+            # EXACT, not calibrated. The owner states the game's own time
+            # base: one villager year is 4 real hours at slow, 2 at normal and
+            # 1 at fast. The delta is in real seconds, so the years a given
+            # delta buys are delta / (hours * 3600):
+            #
+            #     slow    43200 / 14400 =  3 years
+            #     normal  43200 /  7200 =  6 years
+            #     fast    43200 /  3600 = 12 years
+            #
+            # The targets 3 / 6 / 12 are exactly inverse to the hours-per-year
+            # 4 / 2 / 1, so ONE flat amount hits all three on the nose and no
+            # per-speed table is needed. That also removes this feature's
+            # dependence on reading the speed field correctly, which is what
+            # the previous scaled tables were guessing around.
+            #
+            # Paused is still refused before the charge, which does read the
+            # speed field -- that guard is unaffected.
+            mov eax, 43200
         tw_apply:
             sub dword ptr [0x4B8230], eax
             sbb dword ptr [0x4B8234], 0
@@ -1912,14 +1912,21 @@ def main() -> None:
     # pending bits merged in. Unlike the other games, VV4's Barrel of Babies
     # shares the Island Event's trigger -- do_barrel arms its own flag and
     # then zeroes the very same [world+0x170E0] countdown -- so a pending
-    # event blocks BOTH rows, and an armed barrel additionally blocks its
-    # own. The world pointer comes from the same 0x41FE70 getter both
-    # purchase paths use.
+    # event blocks BOTH rows, and an armed barrel additionally blocks its own.
+    #
+    # The world pointer is READ from its singleton at 0x4CB51C rather than
+    # obtained by calling 0x41FE70, which the purchase paths use. That getter
+    # is a lazy constructor: with a null pointer it allocates 0x171C8 bytes and
+    # builds the world behind an SEH frame. Building the menu must not do that,
+    # and a null pointer already answers the question -- no world, nothing
+    # pending. It is also shorter, which this cave cares about.
     pending_rows_code = assemble(
         f"""
             push edx
             mov edx, eax
-            call 0x41FE70
+            mov eax, dword ptr [0x4CB51C]
+            test eax, eax
+            jz pending_rows_done
             cmp dword ptr [eax + 0x170E0], 0
             jne pending_rows_barrel
             or edx, 0x800000

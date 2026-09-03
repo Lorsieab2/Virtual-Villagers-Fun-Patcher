@@ -38,7 +38,7 @@ BEGIN
     /* LEFT COLUMN: rows 0-6.  icon x=8, badge x=22, text x=40, Buy x=240. */
     ICON 101, -1, 8, 6, 24, 24
     ICON 109, 1100, 22, 14, 12, 12
-    LTEXT "Time Warp - Advances 3 Villager Years", -1, 40, 7, 195, 10
+    LTEXT "Time Warp - Advances the Village Clock", -1, 40, 7, 195, 10
     LTEXT "50,000 tech points", -1, 40, 19, 195, 9
     PUSHBUTTON "Buy", 1000, 240, 8, 55, 18
 

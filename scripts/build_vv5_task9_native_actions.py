@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "16A16C107A172CD11207B988CECA93D4A6176063CAEC3856EC5A321B6D49221F"
-ACTIVE_SOURCE_TEXT_SHA256 = "327112AE2915E232891BCFC9C370F5DE39E3CA883A607007EE77276E1C478E1F"
+ACTIVE_SHA256 = "9C9F181D0B72A06AAB4B7C84F29E9308D93F74782F197A82C333E15DE617D0E5"
+ACTIVE_SOURCE_TEXT_SHA256 = "32B8B46A3E3285505676CA5663C14B9E707A53241B65EBAB9BB7A0896966282E"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -379,7 +379,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("iv_success", b"Island Event completed.\0"),
         ("iv_charge_unknown", b"The final tech-point balance did not match the exact 30,000-point deduction. The charge outcome is unknown; no event was queued.\0"),
         ("iv_queue_unknown", b"The 30,000-point deduction was verified, but the event could not be queued.\0"),
-        ("bb_warning", b"Do you want to buy Barrel of Babies for 75,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
+        ("bb_warning", b"Do you want to buy Barrel of Babies for 75,000 tech points?\r\nUnburied villagers still take up room, so skeletons can reduce how many babies arrive.\r\nPress OK to confirm, or Cancel.\0"),
         ("bb_full", b"Village population is close to its maximum. The Barrel of Babies needs room for 3 children. No tech points have been deducted.\0"),
         ("bb_cancelled", b"Barrel of Babies was canceled.\r\nNo tech points have been deducted.\0"),
         ("bb_recheck", b"The village population or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),

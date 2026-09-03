@@ -602,30 +602,24 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp done
         time_warp:
-            # Speed independent by construction: delta * speed is constant.
+            # EXACT, not calibrated. The owner states the game's own time
+            # base: one villager year is 4 real hours at slow, 2 at normal and
+            # 1 at fast. The delta is in real seconds, so the years a given
+            # delta buys are delta / (hours * 3600):
             #
-            # Measured with the flat 129600 this replaced: 6-7 years at slow,
-            # 12 at normal, 24 at fast. Fast is exactly twice normal and
-            # normal twice slow, so the advance tracks delta * speed.
+            #     slow    43200 / 14400 =  3 years
+            #     normal  43200 /  7200 =  6 years
+            #     fast    43200 /  3600 = 12 years
             #
-            # 24/12 = 2 also rules out a fast speed code of 10 (10/6 = 1.67),
-            # and VV5 never writes its speed codes as immediates, so they
-            # cannot be read out of the binary the way VV1's and VV3's can.
-            # Dividing sidesteps the question: 194400 / speed keeps
-            # delta * speed fixed, which is three years whatever the codes
-            # are. Calibrated at normal, where 129600 gave 12 years, so three
-            # years is 32400 and 32400 * 6 = 194400.
+            # The targets 3 / 6 / 12 are exactly inverse to the hours-per-year
+            # 4 / 2 / 1, so ONE flat amount hits all three on the nose and no
+            # per-speed table is needed. That also removes this feature's
+            # dependence on reading the speed field correctly, which is what
+            # the previous scaled tables were guessing around.
             #
-            # The divide is safe: paused (>= 999) was refused before the
-            # charge, and a zero or negative speed takes the guard below.
-            mov ecx, dword ptr [edi + 0x17D7C]
-            test ecx, ecx
-            jg tw_divide
-            mov ecx, 6
-        tw_divide:
-            mov eax, 194400
-            xor edx, edx
-            div ecx
+            # Paused is still refused before the charge, which does read the
+            # speed field -- that guard is unaffected.
+            mov eax, 43200
             sub dword ptr [0x4C6250], eax
             sbb dword ptr [0x4C6254], 0
             mov eax, 0x{s['time_done']:X}

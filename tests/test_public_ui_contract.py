@@ -17,7 +17,7 @@ import vv_fun_patcher as patcher
 class PublicUiContractTests(unittest.TestCase):
     def test_authoritative_status_is_fail_closed(self):
         status = json.loads((ROOT / "data/public-ui-status.json").read_text(encoding="utf-8"))
-        self.assertEqual(status["policy"]["time_warp_caption"], "Time Warp - Advances 3 Villager Years")
+        self.assertEqual(status["policy"]["time_warp_caption"], "Time Warp - Advances the Village Clock")
         self.assertEqual(status["policy"]["remove_allowed_only_for"], ["Food Doubler", "Tech Doubler"])
         self.assertEqual(status["games"]["vv3"]["running"], "disabled_hidden")
         self.assertNotEqual(status["games"]["vv3"]["full_heal"], "public")
@@ -46,7 +46,7 @@ class PublicUiContractTests(unittest.TestCase):
 
     def test_vv3_vv4_composed_sources_use_only_exact_time_warp_caption(self):
         old = "Time Warp - 3 villager years"
-        exact = "Time Warp - Advances 3 Villager Years"
+        exact = "Time Warp - Advances the Village Clock"
         for game in ("vv3", "vv4"):
             resource = (ROOT / f"native/{game}_full_mastery_candidate/{game}_full_mastery_candidate.rc").read_text(encoding="utf-8")
             self.assertNotIn(old, resource)

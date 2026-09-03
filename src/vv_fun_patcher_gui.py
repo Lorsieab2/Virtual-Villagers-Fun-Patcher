@@ -7,11 +7,16 @@ import sys
 import threading
 import time
 import tkinter as tk
+import tkinter.font as tkfont
 import webbrowser
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from transparency import PATCHER_VERSION
+
+# Link colours: the resting blue and the hover red.
+LINK_COLOR = "#0645ad"
+LINK_HOVER_COLOR = "#c5350b"
 
 from vv_fun_patcher import (
     DEFAULT_PATCH_MODE,
@@ -295,10 +300,10 @@ class App(tk.Tk):
         # long description squeeze it off the edge on a narrow window.
         update_box = ttk.Frame(blurb_row)
         update_box.pack(side="right", anchor="ne", padx=(12, 0))
-        self._folder_link(
-            update_box, "Check for Updates", self._open_releases_page
-        ).pack(anchor="e")
         ttk.Label(update_box, text=PATCHER_VERSION).pack(anchor="e")
+        self._folder_link(
+            update_box, "Check for updates", self._open_releases_page
+        ).pack(anchor="e", pady=(2, 0))
         ttk.Label(
             blurb_row,
             text="Creates a verified complete copy of each game folder and adds the modified EXE there. Originals are never replaced.",
@@ -451,7 +456,10 @@ class App(tk.Tk):
         make and nothing here can hang or fail.
         """
         self.status_var.set(f"Opening {RELEASES_PAGE}")
-        webbrowser.open(RELEASES_PAGE)
+        try:
+            webbrowser.open(RELEASES_PAGE)
+        except Exception as exc:                      # noqa: BLE001
+            self.status_var.set(f"Could not open update link: {exc}")
 
     def _content_resized(self, _event: tk.Event) -> None:
         self.content_canvas.configure(scrollregion=self.content_canvas.bbox("all"))
@@ -1135,14 +1143,29 @@ class App(tk.Tk):
         self._open_folder(self.last_output_dir)
 
     def _folder_link(self, parent, text: str, command):
+        """A clickable, underlined link label.
+
+        The font is a COPY of TkDefaultFont with underline turned on, never a
+        hardcoded family and size. Naming a point size here shrinks every link
+        on any setup where TkDefaultFont has been enlarged for readability,
+        while the labels around it stay large -- the opposite of making a link
+        easy to see. The underline is what makes it read as a link at all:
+        without it this is just differently coloured text sitting next to its
+        neighbours, and gets reported as missing even while it is on screen and
+        working.
+        """
+        link_font = tkfont.nametofont("TkDefaultFont").copy()
+        link_font.configure(underline=True)
         link = tk.Label(
             parent,
             text=text,
-            foreground="#0563C1",
+            foreground=LINK_COLOR,
             cursor="hand2",
-            font=("Segoe UI", 9, "underline"),
+            font=link_font,
         )
         link.bind("<Button-1>", lambda _event: command())
+        link.bind("<Enter>", lambda _event: link.configure(foreground=LINK_HOVER_COLOR))
+        link.bind("<Leave>", lambda _event: link.configure(foreground=LINK_COLOR))
         return link
 
     def _open_folder(self, path: Path) -> None:

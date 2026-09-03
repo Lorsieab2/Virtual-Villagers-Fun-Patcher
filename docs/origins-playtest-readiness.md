@@ -33,7 +33,7 @@ verified only and must not be interpreted as player validation. VV2 retains
 the reported Time Warp and Food Point Doubler crash warning.
 
 VV1 re-enablement requires rebuilding the companion resource with the exact
-label `Time Warp - Advances 3 Villager Years`, removing or replacing stale Cure
+label `Time Warp - Advances the Village Clock`, removing or replacing stale Cure
 resources, and proving confirmation, selected/world identity and funds
 reacquisition, native mutation and postverification, one deduction only after
 success, and truthful no-change/no-charge and partial-failure reporting. VV2

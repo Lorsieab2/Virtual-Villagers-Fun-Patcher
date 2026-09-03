@@ -889,8 +889,12 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertIn("ShowOriginsPermanentChangeConfirm", exported)
         target_rva = exported["ShowOriginsPermanentChangeConfirm"]
         image = pe.get_memory_mapped_image()
+        # 0x200, not 0x100: the Barrel of Babies capacity note added a
+        # conditional argument to the wsprintfA call, which pushed the
+        # MessageBoxA flags past a 256-byte window and made this read as a
+        # missing prompt rather than a longer function.
         confirm_insns = list(
-            md.disasm(image[target_rva:target_rva + 0x100], pe.OPTIONAL_HEADER.ImageBase + target_rva)
+            md.disasm(image[target_rva:target_rva + 0x200], pe.OPTIONAL_HEADER.ImageBase + target_rva)
         )
         pushes = [i.op_str for i in confirm_insns if i.mnemonic == "push"]
         # MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
@@ -904,48 +908,15 @@ class VV1RequiredFixTests(unittest.TestCase):
         # fullscreen game window instead of painting behind it.
         self.assertIn("0x50021", pushes, "must be an OK/Cancel + question-icon, topmost+foreground prompt, not Yes/No")
 
-    def test_vv1_time_warp_uses_its_measured_per_speed_deltas(self) -> None:
-        """VV1's advance DOES depend on the speed, so the delta must too.
+    def test_time_warp_advances_an_exact_number_of_years(self) -> None:
+        """One flat delta, exact at every speed.
 
-        This replaces an assertion that VV1 subtracts one flat amount and
-        never reads the speed field. Playtesting disproved it: with a flat
-        21600 the village advanced 2 years at slow, 3 at normal and 3 at fast,
-        and a paused purchase advanced nothing while still charging 50,000.
-
-        The branch now selects a delta per speed -- 32400 / 21600 / 21600,
-        each the old amount scaled by 3/measured -- and refuses while paused
-        before any points are deducted. See tests/test_time_warp_measured.py
-        for the full table and the arithmetic.
+        A villager year is 4 real hours at slow, 2 at normal and 1 at fast, and
+        the delta is in real seconds, so 43200 buys exactly 3 / 6 / 12 years.
+        The per-speed table this replaces was calibrated by scaling whole years
+        read off a screen, which could only ever approximate.
         """
-        capstone = pytest.importorskip("capstone")
-        source = STOCK / "Virtual Villagers - A New Home.exe"
-        if not source.is_file():
-            self.skipTest(f"stock executable not available: {source}")
-        build = identify(source)
-        rendered, _ = render_patched_bytes(
-            source, build, "collection_progression",
-            ["vv1_enable_origins_exclusive_features"],
-        )
-        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-
-        code = rendered[0x56900 : 0x56900 + 0x700]
-        listing = list(md.disasm(code, 0x456900))
-        text = "\n".join(f"{insn.mnemonic} {insn.op_str}" for insn in listing)
-
-        # The clock write now takes its amount from a register.
-        self.assertIn("sub dword ptr [0x4860f0], eax", text)
-
-        # All three measured deltas are present and selected by speed code.
-        for delta in (0x7E90, 0x5460):        # 32400 and 21600
-            self.assertIn(f"mov eax, {hex(delta)}", text)
-        self.assertIn("cmp eax, 3", text)
-        self.assertIn("cmp eax, 0xa", text)
-
-        # The speed field IS read now -- that is the fix, not a regression.
-        self.assertIn("0xa318", text)
-
-        # And paused is refused: the sentinel is compared before the charge.
-        self.assertIn("0x3e7", text)
-
-if __name__ == "__main__":
-    unittest.main()
+        text = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(encoding="utf-8")
+        self.assertIn("mov eax, 43200", text)
+        self.assertNotIn("tw_slow:", text)
+        self.assertNotIn("tw_fast:", text)

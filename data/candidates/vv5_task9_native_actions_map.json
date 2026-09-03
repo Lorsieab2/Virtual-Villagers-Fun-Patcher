@@ -6,8 +6,8 @@
   },
   "active_base": {
     "size": 28772,
-    "file_sha256": "16A16C107A172CD11207B988CECA93D4A6176063CAEC3856EC5A321B6D49221F",
-    "source_text_sha256": "327112AE2915E232891BCFC9C370F5DE39E3CA883A607007EE77276E1C478E1F"
+    "file_sha256": "9C9F181D0B72A06AAB4B7C84F29E9308D93F74782F197A82C333E15DE617D0E5",
+    "source_text_sha256": "32B8B46A3E3285505676CA5663C14B9E707A53241B65EBAB9BB7A0896966282E"
   },
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
@@ -18,11 +18,11 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "885108725BC7112E328E9C3DD7D45B324908CCBE2069CD41F5AFEA10AF5379B7"
+      "source_text_sha256": "BECF2CB88E05E3CE06C6F5B16FEC7C4451837D5864B7499BB7C33B0CA22F8BF4"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "8BC6C6FE42E0A806CF5DD0D11828C13E1DF96F32E5898830B11234E28BD7B08A"
+      "source_text_sha256": "AF07ABE59C6DF93D777839995555D070EA2CBC0D76FB2D034B892ECDD4D53EA0"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -30,7 +30,7 @@
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "8893FD473DC5E63689CAEE19876834BEB7D437DF3B75676F65DFE09737F0DB08"
+      "source_text_sha256": "C92504B925E9B0F98225085BA5954363AA809A9EE3DD71C679C3A55FEBAD800B"
     },
     "companion_builder": {
       "path": "scripts/build_vv5_task9_origins_dll.ps1",
@@ -46,7 +46,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "327112AE2915E232891BCFC9C370F5DE39E3CA883A607007EE77276E1C478E1F"
+      "source_text_sha256": "32B8B46A3E3285505676CA5663C14B9E707A53241B65EBAB9BB7A0896966282E"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -68,10 +68,10 @@
   },
   "companion": {
     "size": 1753088,
-    "sha256": "9B15579AB0622A0C5E2480130B61A0A6C5A812FA6627A9E2E4132715C1BE3265"
+    "sha256": "CD57C95C60EFF3213BF8665809903C821F1333D159B5B8D70C0F5D6E9324F554"
   },
   "payload": {
-    "sha256": "94B6C880A8660283EFDB404795D0D4A749EF41F2007F04AA8313FD33F08D181B",
+    "sha256": "95B2F7F0BB059CB47903DF179EF459AFA438753C00FFC4A4AB1CF9F0CC026D26",
     "geometry": {
       "tech": {
         "allocation_bridge_bytes": "97E8EC6F0100E8C7D9C9FF",
@@ -107,7 +107,7 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "751D183C7E54D48147CA886359BA5DDA80C4AAF330B95D65C1C1036E746BD501",
+      "page_sha256": "4B6F6528CC9AD284B674F56955EAFB92A3543B374EF4CC7A6A31EB8D1CAF95BF",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -129,7 +129,7 @@
         "heal": "851BB7D2705358D282CB41BBDD033CC440551EA07DF214E93FA49DC1D9D11C79",
         "time_warp": "7023EA4C488BB551D48D4CC8E16DF51E1230625CADA940049FB6A9870B0E5F6B",
         "island": "64C97E161D8A3FBD7FCB98856BA0C159ECDEBCFE0493A2038DC89B9B391FC42E",
-        "barrel": "E1CF2B697290462AFCFF4094411CDC38CB1A67B280E82BF682A505B449DBCC25",
+        "barrel": "3C98731119C0A31D7EA6DA692611AAEEC6D93C1828FDC92120B1A22C32784830",
         "appearance": "F37427A5B97424713638454C634D80AD6079D62CE2D35F6ACDA59B0B8B90A5D7",
         "appearance_all": "50F7F8A40919E5C88D1A9BEC243D762F5FB6377C24C0BA7A3D69BC8B3F9B81C7",
         "complete_collections": "C984E3C966240CFEC89E6B5ED94FF7D1CAD32842BF318BBE350704C55169A5C5",
@@ -239,20 +239,20 @@
         "iv_charge_unknown": "0x7D05F9",
         "iv_queue_unknown": "0x7D067A",
         "bb_warning": "0x7D06C6",
-        "bb_full": "0x7D0723",
-        "bb_cancelled": "0x7D07A2",
-        "bb_recheck": "0x7D07E5",
-        "bb_unavailable": "0x7D0853",
-        "bb_pending": "0x7D0898",
-        "bb_success": "0x7D08E6",
-        "bb_charge_unknown": "0x7D0902",
-        "bb_queue_unknown": "0x7D0984"
+        "bb_full": "0x7D077B",
+        "bb_cancelled": "0x7D07FA",
+        "bb_recheck": "0x7D083D",
+        "bb_unavailable": "0x7D08AB",
+        "bb_pending": "0x7D08F0",
+        "bb_success": "0x7D093E",
+        "bb_charge_unknown": "0x7D095A",
+        "bb_queue_unknown": "0x7D09DC"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "751D183C7E54D48147CA886359BA5DDA80C4AAF330B95D65C1C1036E746BD501",
+      "page_sha256": "4B6F6528CC9AD284B674F56955EAFB92A3543B374EF4CC7A6A31EB8D1CAF95BF",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -274,7 +274,7 @@
         "heal": "851BB7D2705358D282CB41BBDD033CC440551EA07DF214E93FA49DC1D9D11C79",
         "time_warp": "7023EA4C488BB551D48D4CC8E16DF51E1230625CADA940049FB6A9870B0E5F6B",
         "island": "64C97E161D8A3FBD7FCB98856BA0C159ECDEBCFE0493A2038DC89B9B391FC42E",
-        "barrel": "E1CF2B697290462AFCFF4094411CDC38CB1A67B280E82BF682A505B449DBCC25",
+        "barrel": "3C98731119C0A31D7EA6DA692611AAEEC6D93C1828FDC92120B1A22C32784830",
         "appearance": "F37427A5B97424713638454C634D80AD6079D62CE2D35F6ACDA59B0B8B90A5D7",
         "appearance_all": "50F7F8A40919E5C88D1A9BEC243D762F5FB6377C24C0BA7A3D69BC8B3F9B81C7",
         "complete_collections": "C984E3C966240CFEC89E6B5ED94FF7D1CAD32842BF318BBE350704C55169A5C5",
@@ -384,14 +384,14 @@
         "iv_charge_unknown": "0x7D05F9",
         "iv_queue_unknown": "0x7D067A",
         "bb_warning": "0x7D06C6",
-        "bb_full": "0x7D0723",
-        "bb_cancelled": "0x7D07A2",
-        "bb_recheck": "0x7D07E5",
-        "bb_unavailable": "0x7D0853",
-        "bb_pending": "0x7D0898",
-        "bb_success": "0x7D08E6",
-        "bb_charge_unknown": "0x7D0902",
-        "bb_queue_unknown": "0x7D0984"
+        "bb_full": "0x7D077B",
+        "bb_cancelled": "0x7D07FA",
+        "bb_recheck": "0x7D083D",
+        "bb_unavailable": "0x7D08AB",
+        "bb_pending": "0x7D08F0",
+        "bb_success": "0x7D093E",
+        "bb_charge_unknown": "0x7D095A",
+        "bb_queue_unknown": "0x7D09DC"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"

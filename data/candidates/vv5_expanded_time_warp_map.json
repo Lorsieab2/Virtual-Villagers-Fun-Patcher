@@ -4,15 +4,15 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "4EE28325BF6BBBE56937BD559E6182E1D5FD2E9083C08FE6535704196DE5CE50"
+      "source_text_sha256": "F250E10F0979D50E83C1FE4BFF734A543EEDCB6C6ADA2548EBCFE81A52462C8C"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "885108725BC7112E328E9C3DD7D45B324908CCBE2069CD41F5AFEA10AF5379B7"
+      "source_text_sha256": "BECF2CB88E05E3CE06C6F5B16FEC7C4451837D5864B7499BB7C33B0CA22F8BF4"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "8BC6C6FE42E0A806CF5DD0D11828C13E1DF96F32E5898830B11234E28BD7B08A"
+      "source_text_sha256": "AF07ABE59C6DF93D777839995555D070EA2CBC0D76FB2D034B892ECDD4D53EA0"
     },
     "task9_companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -20,13 +20,13 @@
     },
     "task9_companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "8893FD473DC5E63689CAEE19876834BEB7D437DF3B75676F65DFE09737F0DB08"
+      "source_text_sha256": "C92504B925E9B0F98225085BA5954363AA809A9EE3DD71C679C3A55FEBAD800B"
     }
   },
   "companion": {
     "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "destination": "VVFP Origins Icons.dll",
-    "sha256": "9B15579AB0622A0C5E2480130B61A0A6C5A812FA6627A9E2E4132715C1BE3265",
+    "sha256": "CD57C95C60EFF3213BF8665809903C821F1333D159B5B8D70C0F5D6E9324F554",
     "size": 1753088
   },
   "dependency": "vv5_enable_origins_exclusive_features",
@@ -34,7 +34,7 @@
   "page_rva": "0x504000",
   "page_va": "0x904000",
   "layout": {
-    "stock_page_sha256": "751D183C7E54D48147CA886359BA5DDA80C4AAF330B95D65C1C1036E746BD501",
+    "stock_page_sha256": "4B6F6528CC9AD284B674F56955EAFB92A3543B374EF4CC7A6A31EB8D1CAF95BF",
     "expanded_baseline_page_sha256": "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457",
     "expanded_time_warp_page_sha256": "1321431553BAF8D4F5BDBA951C1D44E3F7AB877FB7F202C36F251CC540AFDC14",
     "age_length": 652,

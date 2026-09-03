@@ -346,6 +346,7 @@ static void end_modal_over_game(HWND owner) {
     (void)owner;
 }
 
+
 /* Duplicate-purchase state for the Tech menu's Island Event and Barrel of
    Babies rows.
 
@@ -406,6 +407,23 @@ static int vv3_row_purchase_pending(int villager_menu, int row) {
         : 0;
     return *(volatile int *)(manager + extra + VV3_ISLAND_COUNTDOWN_OFF) == 0;
 }
+
+
+/* Barrel of Babies is the one row whose result the village's current state can
+   quietly reduce, so its confirmation says so before the player pays.
+
+   Measured in play: with skeletons lying unburied the barrel delivered two
+   children; once villagers had buried some, the same purchase delivered three.
+   This is NOT the living-population count -- the games' own counters skip any
+   record whose health field is <= 0, so the dead are already excluded there
+   and the capacity gate that uses them passed. The reduction happens further
+   in, where the spawn places each child, so an unburied body still costs a
+   slot. */
+#define BARREL_CAPACITY_NOTE \
+    "\r\n\r\nNote: unburied villagers still take up room in the village, " \
+    "so lying skeletons can reduce how many babies arrive. Bury them first " \
+    "for the full three."
+
 
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
@@ -480,7 +498,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                after the action-specific removal path completes. */
             int is_remove = !s_villager_menu && (row == 3 || row == 4)
                 && (s_dialog_state & (1 << row)) != 0;
-            char prompt[256];
+            char prompt[512];
             if (is_remove) {
                 EndDialog(window, (INT_PTR)row);
                 return TRUE;
@@ -488,8 +506,10 @@ static INT_PTR CALLBACK upgrade_dialog(
             wsprintfA(
                 prompt,
                 "Do you want to buy %s for %s tech points?\r\n"
-                "Press OK to confirm, or Cancel.",
-                name, cost);
+                "Press OK to confirm, or Cancel.%s",
+                name, cost,
+                (!s_villager_menu && row == VV3_PENDING_ROW_BARREL)
+                    ? BARREL_CAPACITY_NOTE : "");
             if (MessageBoxA(
                     window,
                     prompt,
@@ -1282,7 +1302,25 @@ static int vv3_world_record_index(void *record)
    Different function, different coordinate space -- retuning one screen must
    never move the other. */
 #define VV3_WORLD_MASK_X_NUDGE_PX (-10)
-#define VV3_WORLD_MASK_Y_NUDGE_PX (-25)
+#define VV3_WORLD_MASK_Y_NUDGE_PX (-29)
+
+/* An extra horizontal nudge for the right-facing frames only, on top of the
+   nudge above that every frame gets.  The right-facing mask art sits further
+   into its cell than the left-facing art does, so one shared X nudge cannot
+   centre both.
+
+   Indexed by the villager's 8-way facing -- the low three bits of the head
+   draw's fifth argument, which is also the column the mask atlas is sampled
+   from.  Columns 4-6 are the front-facing poses (a full symmetric face) and
+   0-3 are mirrored profiles; of those, 0 and 1 are the pair whose art is
+   biased toward the right of its 65px cell, which makes them the right-facing
+   ones.  Facing 7 is very nearly centred and is left alone.
+
+   A table rather than a condition so that retuning any single direction is a
+   one-number change and cannot disturb the others. */
+static const int VV3_WORLD_MASK_X_NUDGE_BY_FACING[8] = {
+    -4, -4, 0, 0, 0, 0, 0, 0
+};
 
 /* The sixth village head-draw argument is a float, not an int.  0x0042E5E0
    does `fild [arg]; fmul [cam+0x300c]` for the two coordinates but
@@ -1357,7 +1395,9 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
        g_vv3_worlddbg reports the coordinates actually drawn, and before the
        arg0..arg5 copy so the renderer receives them. */
     scale = vv3_world_scale(mask_args[5]);
-    mask_args[1] += vv3_scaled_nudge(VV3_WORLD_MASK_X_NUDGE_PX, scale);
+    mask_args[1] += vv3_scaled_nudge(
+        VV3_WORLD_MASK_X_NUDGE_PX + VV3_WORLD_MASK_X_NUDGE_BY_FACING[facing & 7],
+        scale);
     mask_args[2] += vv3_scaled_nudge(VV3_WORLD_MASK_Y_NUDGE_PX, scale);
     index = vv3_world_record_index(record);
     g_vv3_worlddbg[0] = index;

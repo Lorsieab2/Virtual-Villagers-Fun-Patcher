@@ -153,25 +153,18 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(relocation["patches"], [])
         self.assertNotIn("evidence", relocation)
 
-    def test_time_warp_is_exactly_three_displayed_years(self) -> None:
-        """Speed-independent now: one constant, no speed read, no divide.
+    def test_time_warp_advances_an_exact_number_of_years(self) -> None:
+        """One flat delta, exact at every speed.
 
-        The old 129600/speed form was measured in play at half speed -- it
-        subtracted 43200 and advanced ONE year, so three years is 129600, and
-        that is applied at every speed. tests/test_time_warp_speed_independent
-        pins the same invariant across all five games.
+        A villager year is 4 real hours at slow, 2 at normal and 1 at fast, and
+        the delta is in real seconds, so 43200 buys exactly 3 / 6 / 12 years.
+        The per-speed table this replaces was calibrated by scaling whole years
+        read off a screen, which could only ever approximate.
         """
-        # 194400 / speed, not a flat amount: VV5 measured 6-7 / 12 / 24 years
-        # at slow / normal / fast with the old flat 129600, so the advance
-        # tracks delta * speed and dividing holds it constant at three.
-        self.assertIn("mov eax, 194400", self.source)
-        self.assertIn("div ecx", self.source)
-        self.assertNotIn("sub dword ptr [0x4C6250], 129600", self.source)
-        self.assertIn("sbb dword ptr [0x4C6254], 0", self.source)
-        self.assertNotIn("idiv ecx", self.source)
-        self.assertIn("Time Warp", self.feature["description"])
-        self.assertNotIn("displayed villager years", self.feature["description"])
-
+        text = self.source
+        self.assertIn("mov eax, 43200", text)
+        self.assertNotIn("tw_slow:", text)
+        self.assertNotIn("tw_fast:", text)
     def test_active_task9_time_warp_is_speed_independent(self) -> None:
         """The SHIPPING VV5 Time Warp: one constant, no speed scaling.
 
@@ -578,7 +571,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "5AA28ACBC28B61C2FFA09E29375B9DAAB2027D4553FE14E26E1F0B060F1D341A",
+            "DE4D46F08409127705A12C0622080CCFBA2B9777469BD4C899AD4C13C2C2449A",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],

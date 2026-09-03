@@ -1110,13 +1110,15 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
     return 1;
 }
 
+
+
 __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     unsigned int action,
     unsigned int amount_a,
     unsigned int amount_b
 ) {
     HWND owner = GetOriginsOwner();
-    char message[256];
+    char message[512];
     const char *title = (action == ACTION_HEAL || action >= ACTION_TECH_BASE)
         ? "Origins Upgrades"
         : "Villager Upgrades";

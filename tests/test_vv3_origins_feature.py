@@ -68,7 +68,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         # Dormant dialog 203 keeps its original inventory and routing, while
         # using the same canonical labels as active dialog 201 for shared rows.
         for required in (
-            "Time Warp - Advances 3 Villager Years",
+            "Time Warp - Advances the Village Clock",
             "Island Event",
             "Barrel of Babies",
             "Tech Point Doubler",
@@ -556,7 +556,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "1922BC709EF8D986BC4100E4D3432E4F22567E84B663867ECB3C418301AE967A",
+            "602982028C2BBCC04024D2505D182B166EE8AF31F03F11FA6594E10AFC2378C5",
         )
         self.assertEqual(
             bytes.fromhex(
@@ -569,47 +569,15 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             bytes.fromhex("E93BDB0300909090"),
         )
 
-    def test_time_warp_uses_its_measured_per_speed_deltas(self) -> None:
-        """VV3 selects a delta per speed, from measurement not from theory.
+    def test_time_warp_advances_an_exact_number_of_years(self) -> None:
+        """One flat delta, exact at every speed.
 
-        An earlier version of this test asserted delta = speed * 3600, on the
-        reasoning that VV3's catch-up divides by the speed so the division
-        would cancel. Playtesting with exactly that form measured 2 years at
-        slow, 3 at normal and 3 at fast -- normal and fast right, slow short.
-
-        So the table is the measurements scaled to three years: 16200 at slow
-        (10800 * 3/2), and normal and fast unchanged at 21600 and 36000. See
-        tests/test_time_warp_measured.py for the full set.
-
-        Paused (999) is neither 3 nor 10, and is refused before the charge
-        rather than falling through to a delta.
+        A villager year is 4 real hours at slow, 2 at normal and 1 at fast, and
+        the delta is in real seconds, so 43200 buys exactly 3 / 6 / 12 years.
+        The per-speed table this replaces was calibrated by scaling whole years
+        read off a screen, which could only ever approximate.
         """
-        try:
-            import capstone
-        except ImportError:
-            self.skipTest("capstone not available")
-
-        payload = bytes.fromhex(
-            next(
-                item
-                for item in self.manifest["patches"]
-                if int(item["offset"], 0) == 0xA3180
-            )["after"]
-        )
-        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-        text = chr(10).join(
-            f"{insn.mnemonic} {insn.op_str}"
-            for insn in md.disasm(payload, 0x4A3180)
-        )
-
-        self.assertIn("mov eax, dword ptr [edi + ebp + 0x12f20]", text)
-        for delta in ("0x3f48", "0x5460", "0x8ca0"):   # 16200, 21600, 36000
-            self.assertIn(f"mov eax, {delta}", text)
-        self.assertIn("sub dword ptr [0x4a4210], eax", text)
-        self.assertNotIn("imul eax, eax, 0xe10", text)
-
-        # Paused refused before the deduction.
-        self.assertIn("cmp ecx, 0x3e7", text)
-
-if __name__ == "__main__":
-    unittest.main()
+        text = (ROOT / "scripts" / "build_vv3_origins_feature.py").read_text(encoding="utf-8")
+        self.assertIn("mov eax, 43200", text)
+        self.assertNotIn("tw_slow:", text)
+        self.assertNotIn("tw_fast:", text)

@@ -826,30 +826,24 @@ def main() -> None:
             jmp menu_done
 
         do_time_warp:
-            # Measured, not modelled. A flat 21600 advanced
-            # 2 / 3 / 6 years at slow / normal / fast, so each
-            # speed now takes the delta that scales that to three:
-            #   slow 32400, normal 21600, fast 10800
-            # Two earlier attempts to derive these from a model of
-            # the clock were wrong in opposite directions, so this
-            # table is the measurements and nothing else. Re-measure
-            # after touching it.
-            # Speed codes are 3 / 6 / 10, read from the constants the
-            # game itself stores into its speed field. Anything
-            # unexpected takes the normal delta; paused was already
-            # refused before charging.
-            mov eax, dword ptr [edi + 0x2EB08]
-            cmp eax, 3
-            je tw_slow
-            cmp eax, 10
-            je tw_fast
-            mov eax, 21600
-            jmp tw_apply
-        tw_slow:
-            mov eax, 32400
-            jmp tw_apply
-        tw_fast:
-            mov eax, 10800
+            # EXACT, not calibrated. The owner states the game's own time
+            # base: one villager year is 4 real hours at slow, 2 at normal and
+            # 1 at fast. The delta is in real seconds, so the years a given
+            # delta buys are delta / (hours * 3600):
+            #
+            #     slow    43200 / 14400 =  3 years
+            #     normal  43200 /  7200 =  6 years
+            #     fast    43200 /  3600 = 12 years
+            #
+            # The targets 3 / 6 / 12 are exactly inverse to the hours-per-year
+            # 4 / 2 / 1, so ONE flat amount hits all three on the nose and no
+            # per-speed table is needed. That also removes this feature's
+            # dependence on reading the speed field correctly, which is what
+            # the previous scaled tables were guessing around.
+            #
+            # Paused is still refused before the charge, which does read the
+            # speed field -- that guard is unaffected.
+            mov eax, 43200
         tw_apply:
             sub dword ptr [0x4950F0], eax
             jmp success
