@@ -296,6 +296,26 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # are untouched.
                     "0x8B962", "0x2B00C",
 
+                    # Time Warp moved wholesale into the companion DLL, which
+                    # now owns its confirmation (it names the current game
+                    # speed and the years), the paused refusal, the charge and
+                    # a per-villager advance that does not trip the engine's
+                    # own per-speed aging clamp. New .shr stub at 0x8BF80;
+                    # menu dispatch and the deleted flat advance are both in
+                    # the payload at 0x56900.
+                    #
+                    # The exe-side "paused" string is dead weight now and was
+                    # removed to make room for the export name in a string
+                    # block already at its 0x2D0 limit. That shortens the
+                    # block by 30 bytes, so every LATER string sits 30 lower
+                    # and every stub that pushes one of those addresses has
+                    # exactly one immediate byte changed -- verified: the only
+                    # differing bytes in each of these are the low bytes of
+                    # their push imm32 operands. No behaviour of theirs moves.
+                    "0x8BF80", "0x85D30",
+                    "0x8B009", "0x8B530", "0x8B93F", "0x8BA80",
+                    "0x8BB00", "0x8BD30", "0x8BE00",
+                    "0x8E024", "0x8E1B4", "0x8E6C0", "0x8E720", "0x8E900",
                     # Duplicate-purchase guards. An Island Event is queued
                     # by zeroing a countdown and a Barrel of Babies by setting
                     # a flag, so buying a second one while the first is

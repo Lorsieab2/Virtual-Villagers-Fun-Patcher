@@ -159,21 +159,21 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "C67676FB9A3DB9F16865330909235B94E521DC7C6117C30768BFE454732BC0F8",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "2099F26C10D21457DF4AFBBBF5BBE7F77D7C03F4CF857942CEEDC14496884640",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "4AE8807352DD229E9E5A98DD83BC075A73710AFE88F631001094C09DF5F8AB59",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
-    ("vv1_enable_origins_exclusive_features", "0x4A700"): "7BEEF2CB03944B6556253B41D90584B95F51DB8A177FAB1DFA8D3540490B1CD3",
+    ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",
     ("vv1_enable_origins_exclusive_features", "0x8B004"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
     ("vv1_enable_origins_exclusive_features", "0x24103"): "003BBF1143C6AC2F7AD6DD0D0A70346447E500F851CD3ABD7EDE134A87AEC848",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "3EC4BE5669CAA10DB6414592D5C6FDE19C02942709AA65B8EE3A849F488DE5C0",
-    ("vv1_enable_origins_exclusive_features", "0x913C"): "7809AB50B236818750AC418BD5080C6053BE2B5852AAFA37AD58DFCCC5102824",
+    ("vv1_enable_origins_exclusive_features", "0x913C"): "4A5BA4B685535D7823C84E6F0DEF23E7EC59FD81D3A141055A6D271178BC5E37",
     # The three newer detours below are part of the same integrated mask
     # branch. Their cave contracts are pinned separately in the review notes:
     # 0x9410 restores the original thunk pass path; 0x93E0/0x93C0 select the
     # original 5-argument draw function before entering the shared body.
-    ("vv1_enable_origins_exclusive_features", "0x9410"): "12B2B1E9D3FB03A3613D36E8C38AE1AAD724B7AB9ED92D188E7573F204E9BDCD",
-    ("vv1_enable_origins_exclusive_features", "0x93E0"): "737AA82521DC44FB571462B9B8C3BB432316C88DE977634C2D6C388ED44A1586",
-    ("vv1_enable_origins_exclusive_features", "0x93C0"): "28E4B105A8C0D9E9ED8F0AA2973CB2B9919F342E9D87697A9DB9EB742324FBE9",
+    ("vv1_enable_origins_exclusive_features", "0x9410"): "7982B49692070B5D5F0D7E6CD6DA207196D56F6F20AD25F3F3DC996712D2E303",
+    ("vv1_enable_origins_exclusive_features", "0x93E0"): "1C0DD220A551A2824C06CA9B84800EA4848EBEC44D2DF5A95D1512C0601AA1BF",
+    ("vv1_enable_origins_exclusive_features", "0x93C0"): "EE4841DFEC23F672852234656E80B117C2D70CABC3CA5031D45C2C1C08CFAAA3",
     ("vv1_enable_origins_exclusive_features", "0x2ED0"): "05441D52DA5CA09EE2A426FE393B21D074C929A990A190E5E0CF1CFBD73FA8ED",
     ("vv1_enable_origins_exclusive_features", "0x3C393"): "323F30C734F89D8ABAF15C4C864AC78A0320AE634B5D4D99EA826801C35F8044",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that

@@ -2159,6 +2159,188 @@ enum {
    no_change/event_queued/running_unavailable) plus the now-removed
    ShowOriginsAgeResult export -- moving the text here costs the tight
    .shr string cave nothing and only a few bytes of code per call site. */
+/* ------------------------------------------------------------------ *
+ *  Time Warp                                                          *
+ * ------------------------------------------------------------------ *
+ *
+ * The whole feature lives here rather than in the exe because the correct
+ * behaviour needs the game speed, a per-villager pass and two sentences of
+ * generated text, none of which fit in the menu's fixed handler box.
+ *
+ * How the engine ages a villager (stock, read off this exact build):
+ *
+ *   [0x004860F0] is a time_t epoch.  sub_402F70 returns "real seconds since
+ *   that epoch".  Each villager keeps the slice it has not yet converted at
+ *   +0x33C and the elapsed value it last saw at +0x340.  Its tick adds the
+ *   difference into +0x33C and then, at 0x0042EA7C, CLAMPS it:
+ *
+ *       > 86400                                   -> forced to 86400
+ *       > 23800 slow / 31000 normal / 38200 fast  -> forced to 31000
+ *
+ *   before converting with  units += (pending / 60) / speed_code  into the
+ *   age at +0x348, where 20 units is one villager year.
+ *
+ * That clamp is why simply moving the epoch cannot work.  The advance the
+ * targets need -- 36000 s at slow, 43200 s at normal and fast -- is over the
+ * threshold at every speed, so all three collapse to 31000 and yield
+ * 2.55 / 4.3 / 8.6 years instead of 3 / 6 / 12.  Pushing a LARGER number in
+ * makes the warp smaller, which is exactly the reported bug.
+ *
+ * So the advance is applied in two halves:
+ *
+ *   1. the epoch moves by the true delta, so every other time-based system
+ *      (research, events, growth) sees a real jump of the right size; and
+ *   2. each living villager is credited the exact age units directly, and has
+ *      its "last seen" marker moved by the same delta so its own tick does
+ *      not process -- and clamp -- the same jump a second time.
+ *
+ * The result is exact at every speed and does not depend on the clamp.
+ */
+#define VV_SPEED_OFFSET      0xA318   /* game speed; 999 while paused        */
+#define VV_SPEED_PAUSED      999
+#define VV_TIME_EPOCH_VA     0x004860F0u
+#define VV_LAST_SEEN_OFFSET  0x340    /* elapsed value this record last saw  */
+#define VV_UNITS_PER_YEAR    20       /* confirmed at 0x0042EB12             */
+
+/* Speed codes are the engine's own divisors, written by the speed menu at
+   0x004294C4 / 0x0042950A / 0x0042954D.  A year is 20 * 60 * code seconds:
+   2 hours at normal and 1 at fast exactly, and 3h20m at slow -- slow is NOT
+   the 4 hours it is often quoted as, which is why the years are targeted
+   directly here instead of being derived from an hours-per-year figure. */
+#define VV_SPEED_SLOW        10
+#define VV_SPEED_NORMAL      6
+#define VV_SPEED_FAST        3
+
+static int vv1_time_warp_years(int speed) {
+    switch (speed) {
+    case VV_SPEED_SLOW:   return 3;
+    case VV_SPEED_NORMAL: return 6;
+    case VV_SPEED_FAST:   return 12;
+    default:              return 0;   /* paused, or a code we do not know */
+    }
+}
+
+static const char *vv1_speed_name(int speed) {
+    switch (speed) {
+    case VV_SPEED_SLOW:   return "slow";
+    case VV_SPEED_NORMAL: return "normal";
+    case VV_SPEED_FAST:   return "fast";
+    default:              return "unknown";
+    }
+}
+
+/* Applies the warp.  Returns the number of villagers credited, which is 0
+   only when the record pool is not up yet -- the caller treats that as
+   "nothing happened" and does not charge. */
+static int vv1_time_warp_apply(int speed, int years) {
+    unsigned char *base = VV_MASK_MANAGER;
+    int units = years * VV_UNITS_PER_YEAR;
+    int delta = units * 60 * speed;   /* the real seconds those units cost */
+    int i, credited = 0;
+
+    if (base == NULL) {
+        return 0;
+    }
+    /* Half one: the world clock.  Moving the epoch backwards is how the game
+       itself expresses "more time has passed"; sub_402F70 subtracts it. */
+    *(int *)(UINT_PTR)VV_TIME_EPOCH_VA -= delta;
+
+    /* Half two: exact ages, past the clamp. */
+    for (i = 0; i < VV_MASK_SLOTS; i++) {
+        unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
+        if (rec[VV_OCCUPIED_OFFSET] != 1) {
+            continue;
+        }
+        *(int *)(rec + VV_LAST_SEEN_OFFSET) += delta;
+        *(int *)(rec + VV_AGE_OFFSET) += units;
+        credited++;
+    }
+    return credited;
+}
+
+/* Tech-menu row 0.  Owns its own confirmation, afford check, charge and
+   result, the same way Cure and Change Appearance for All already do, because
+   what it advances and what it says both depend on the speed at the moment of
+   purchase.  Returns 1 if the player was charged. */
+__declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
+    int gamectx_ptr,
+    int cost
+) {
+    unsigned char *ctx = (unsigned char *)(UINT_PTR)(unsigned int)gamectx_ptr;
+    char message[320];
+    char cost_text[16];
+    HWND owner = GetForegroundWindow();
+    int *tech;
+    int speed, years;
+
+    if (ctx == NULL) {
+        return 0;
+    }
+    speed = *(int *)(ctx + VV_SPEED_OFFSET);
+    years = vv1_time_warp_years(speed);
+    if (years <= 0) {
+        /* Paused advances nothing at all, so it must refuse BEFORE any
+           charge rather than bill for a no-op. */
+        MessageBoxA(
+            owner,
+            speed >= VV_SPEED_PAUSED
+                ? "Time Warp is unavailable while the game is paused."
+                : "Time Warp could not read the game speed. No tech points "
+                  "have been deducted.",
+            "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+        );
+        return 0;
+    }
+    vv1_format_cost(cost, cost_text);
+    wsprintfA(
+        message,
+        "Do you want to buy Time Warp for %s tech points?\r\n"
+        "On %s game speed, this will advance %d villager years.\r\n"
+        "Press OK to confirm, or Cancel.",
+        cost_text,
+        vv1_speed_name(speed),
+        years
+    );
+    if (MessageBoxA(
+            owner,
+            message,
+            "Origins Upgrades",
+            MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
+        ) != IDOK) {
+        return 0;
+    }
+    tech = (int *)(ctx + VV_TECH_POINTS_OFFSET);
+    if (*tech < cost) {
+        MessageBoxA(
+            owner,
+            "Not enough tech points.",
+            "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+        );
+        return 0;
+    }
+    if (vv1_time_warp_apply(speed, years) <= 0) {
+        MessageBoxA(
+            owner,
+            "Time Warp could not reach the village records. No tech points "
+            "have been deducted.",
+            "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+        );
+        return 0;
+    }
+    *tech -= cost;
+    wsprintfA(message, "Advanced %d years.", years);
+    MessageBoxA(
+        owner,
+        message,
+        "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+    );
+    return 1;
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsRowMessage(
     int is_detail,
     int row,

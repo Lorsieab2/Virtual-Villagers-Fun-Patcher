@@ -909,14 +909,73 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertIn("0x50021", pushes, "must be an OK/Cancel + question-icon, topmost+foreground prompt, not Yes/No")
 
     def test_time_warp_advances_an_exact_number_of_years(self) -> None:
-        """One flat delta, exact at every speed.
+        """Exact at every speed, credited past the engine's own aging clamp.
 
-        A villager year is 4 real hours at slow, 2 at normal and 1 at fast, and
-        the delta is in real seconds, so 43200 buys exactly 3 / 6 / 12 years.
-        The per-speed table this replaces was calibrated by scaling whole years
-        read off a screen, which could only ever approximate.
+        A villager ages by ``units += (pending / 60) / speed_code`` at 20 units
+        per year, where speed_code is 10 slow / 6 normal / 3 fast.  So the
+        target 3 / 6 / 12 years costs ``years * 20 * 60 * code`` real seconds:
+        36000 at slow, 43200 at normal and at fast.
+
+        But before that conversion the engine CLAMPS the pending seconds
+        (0x0042EA7C): anything over 23800 slow / 31000 normal / 38200 fast is
+        forced down to 31000.  Every delta above is over its own threshold, so
+        an advance made only by moving the world clock collapses to 31000 at
+        all three speeds and lands 2.55 / 4.3 / 8.6 years -- which is what the
+        flat ``mov eax, 43200`` this replaces actually did.
+
+        The companion DLL therefore credits each villager's age units directly
+        and moves its last-seen marker by the same delta so the villager's own
+        tick cannot process, and clamp, the same jump a second time.  This test
+        pins the arithmetic and the reason a flat advance cannot come back.
         """
-        text = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(encoding="utf-8")
-        self.assertIn("mov eax, 43200", text)
-        self.assertNotIn("tw_slow:", text)
-        self.assertNotIn("tw_fast:", text)
+        exe_side = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn("mov eax, 43200", exe_side)
+        self.assertNotIn("do_time_warp:", exe_side)
+        self.assertNotIn("tw_slow:", exe_side)
+        self.assertNotIn("tw_fast:", exe_side)
+        self.assertIn("TIME_WARP_HELPER_VA", exe_side)
+
+        dll = (
+            ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
+        ).read_text(encoding="utf-8")
+
+        codes = {
+            name: int(value)
+            for name, value in re.findall(
+                r"#define VV_SPEED_(SLOW|NORMAL|FAST)\s+(\d+)", dll
+            )
+        }
+        self.assertEqual(codes, {"SLOW": 10, "NORMAL": 6, "FAST": 3})
+
+        years = {
+            name: int(value)
+            for name, value in re.findall(
+                r"case VV_SPEED_(SLOW|NORMAL|FAST):\s+return (\d+);", dll
+            )
+        }
+        self.assertEqual(years, {"SLOW": 3, "NORMAL": 6, "FAST": 12})
+
+        units_per_year = int(
+            re.search(r"#define VV_UNITS_PER_YEAR\s+(\d+)", dll).group(1)
+        )
+        self.assertEqual(units_per_year, 20)
+
+        # The delta the DLL computes, and the clamp that rules the world-clock
+        # route out at every single speed.
+        thresholds = {"SLOW": 23800, "NORMAL": 31000, "FAST": 38200}
+        for name, code in codes.items():
+            delta = years[name] * units_per_year * 60 * code
+            # Round-trips exactly through the engine's own conversion.
+            self.assertEqual((delta // 60) // code // units_per_year, years[name])
+            self.assertGreater(
+                delta,
+                thresholds[name],
+                f"{name}: a flat world-clock advance would be clamped, not exact",
+            )
+
+        # The two halves that make it exact.
+        self.assertIn("VV_LAST_SEEN_OFFSET", dll)
+        self.assertIn("*(int *)(rec + VV_LAST_SEEN_OFFSET) += delta;", dll)
+        self.assertIn("*(int *)(rec + VV_AGE_OFFSET) += units;", dll)
