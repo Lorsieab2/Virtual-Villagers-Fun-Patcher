@@ -2196,35 +2196,39 @@ enum {
  *
  * The result is exact at every speed and does not depend on the clamp.
  */
-#define VV_SPEED_OFFSET      0xA318   /* game speed; 999 while paused        */
-#define VV_SPEED_PAUSED      999
-#define VV_TIME_EPOCH_VA     0x004860F0u
-#define VV_LAST_SEEN_OFFSET  0x340    /* elapsed value this record last saw  */
-#define VV_UNITS_PER_YEAR    20       /* confirmed at 0x0042EB12             */
+#define VV1_TW_SPEED_OFFSET      0xA318   /* game speed; 999 while paused        */
+#define VV1_TW_SPEED_PAUSED      999
+#define VV1_TW_TIME_EPOCH_VA     0x004860F0u
+#define VV1_TW_LAST_SEEN_OFFSET  0x340    /* elapsed value this record last saw  */
+#define VV1_TW_UNITS_PER_YEAR    20       /* confirmed at 0x0042EB12             */
+/* Pinned rather than reusing VV_AGE_OFFSET: vv2_origins_icons.c compiles this
+   file with its own VV_AGE_OFFSET (0x530), which would silently retarget this
+   VV1-only code. Every VV1 Time Warp constant is game-scoped for that reason. */
+#define VV1_TW_AGE_OFFSET        0x348
 
 /* Speed codes are the engine's own divisors, written by the speed menu at
    0x004294C4 / 0x0042950A / 0x0042954D.  A year is 20 * 60 * code seconds:
    2 hours at normal and 1 at fast exactly, and 3h20m at slow -- slow is NOT
    the 4 hours it is often quoted as, which is why the years are targeted
    directly here instead of being derived from an hours-per-year figure. */
-#define VV_SPEED_SLOW        10
-#define VV_SPEED_NORMAL      6
-#define VV_SPEED_FAST        3
+#define VV1_TW_SPEED_SLOW        10
+#define VV1_TW_SPEED_NORMAL      6
+#define VV1_TW_SPEED_FAST        3
 
 static int vv1_time_warp_years(int speed) {
     switch (speed) {
-    case VV_SPEED_SLOW:   return 3;
-    case VV_SPEED_NORMAL: return 6;
-    case VV_SPEED_FAST:   return 12;
+    case VV1_TW_SPEED_SLOW:   return 3;
+    case VV1_TW_SPEED_NORMAL: return 6;
+    case VV1_TW_SPEED_FAST:   return 12;
     default:              return 0;   /* paused, or a code we do not know */
     }
 }
 
 static const char *vv1_speed_name(int speed) {
     switch (speed) {
-    case VV_SPEED_SLOW:   return "slow";
-    case VV_SPEED_NORMAL: return "normal";
-    case VV_SPEED_FAST:   return "fast";
+    case VV1_TW_SPEED_SLOW:   return "slow";
+    case VV1_TW_SPEED_NORMAL: return "normal";
+    case VV1_TW_SPEED_FAST:   return "fast";
     default:              return "unknown";
     }
 }
@@ -2234,7 +2238,7 @@ static const char *vv1_speed_name(int speed) {
    "nothing happened" and does not charge. */
 static int vv1_time_warp_apply(int speed, int years) {
     unsigned char *base = VV_MASK_MANAGER;
-    int units = years * VV_UNITS_PER_YEAR;
+    int units = years * VV1_TW_UNITS_PER_YEAR;
     int delta = units * 60 * speed;   /* the real seconds those units cost */
     int i, credited = 0;
 
@@ -2243,7 +2247,7 @@ static int vv1_time_warp_apply(int speed, int years) {
     }
     /* Half one: the world clock.  Moving the epoch backwards is how the game
        itself expresses "more time has passed"; sub_402F70 subtracts it. */
-    *(int *)(UINT_PTR)VV_TIME_EPOCH_VA -= delta;
+    *(int *)(UINT_PTR)VV1_TW_TIME_EPOCH_VA -= delta;
 
     /* Half two: exact ages, past the clamp. */
     for (i = 0; i < VV_MASK_SLOTS; i++) {
@@ -2251,8 +2255,8 @@ static int vv1_time_warp_apply(int speed, int years) {
         if (rec[VV_OCCUPIED_OFFSET] != 1) {
             continue;
         }
-        *(int *)(rec + VV_LAST_SEEN_OFFSET) += delta;
-        *(int *)(rec + VV_AGE_OFFSET) += units;
+        *(int *)(rec + VV1_TW_LAST_SEEN_OFFSET) += delta;
+        *(int *)(rec + VV1_TW_AGE_OFFSET) += units;
         credited++;
     }
     return credited;
@@ -2276,14 +2280,14 @@ __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
     if (ctx == NULL) {
         return 0;
     }
-    speed = *(int *)(ctx + VV_SPEED_OFFSET);
+    speed = *(int *)(ctx + VV1_TW_SPEED_OFFSET);
     years = vv1_time_warp_years(speed);
     if (years <= 0) {
         /* Paused advances nothing at all, so it must refuse BEFORE any
            charge rather than bill for a no-op. */
         MessageBoxA(
             owner,
-            speed >= VV_SPEED_PAUSED
+            speed >= VV1_TW_SPEED_PAUSED
                 ? "Time Warp is unavailable while the game is paused."
                 : "Time Warp could not read the game speed. No tech points "
                   "have been deducted.",

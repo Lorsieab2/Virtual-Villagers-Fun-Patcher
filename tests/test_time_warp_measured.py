@@ -61,6 +61,10 @@ GENERATORS = {
 # pull request; the flat-delta assertions below cover the remainder.
 MIGRATED = {"vv1"}
 
+# Each game's Time Warp constants are scoped with its own prefix:
+# vv2_origins_icons.c #includes vv1_origins_icons.c after pre-defining the
+# shared VV_* offsets to VV2's values, so an unprefixed constant in one
+# game's Time Warp code would be silently retargeted in the other's build.
 COMPANIONS = {
     "vv1": "native/vv1_origins_icons/vv1_origins_icons.c",
 }
@@ -173,26 +177,26 @@ class MigratedGamesTests(unittest.TestCase):
                 codes = {
                     name.lower(): int(value)
                     for name, value in re.findall(
-                        r"#define VV_SPEED_(SLOW|NORMAL|FAST)\s+(\d+)", dll
+                        r"#define VV\d_TW_SPEED_(SLOW|NORMAL|FAST)\s+(\d+)", dll
                     )
                 }
                 self.assertEqual(codes, SPEED_CODES)
                 years = {
                     name.lower(): int(value)
                     for name, value in re.findall(
-                        r"case VV_SPEED_(SLOW|NORMAL|FAST):\s+return (\d+);", dll
+                        r"case VV\d_TW_SPEED_(SLOW|NORMAL|FAST):\s+return (\d+);", dll
                     )
                 }
                 self.assertEqual(years, TARGET_YEARS)
-                self.assertIn(f"#define VV_UNITS_PER_YEAR    {UNITS_PER_YEAR}", dll)
+                self.assertRegex(dll, rf"#define VV\d_TW_UNITS_PER_YEAR\s+{UNITS_PER_YEAR}\b")
 
     def test_the_companion_applies_both_halves(self) -> None:
         """Ages credited directly, and the tick prevented from double-counting."""
         for gid in sorted(MIGRATED):
             with self.subTest(game=gid):
                 dll = source(COMPANIONS[gid])
-                self.assertIn("VV_TIME_EPOCH_VA", dll)
-                self.assertIn("VV_LAST_SEEN_OFFSET", dll)
+                self.assertRegex(dll, r"VV\d_TW_TIME_EPOCH_VA")
+                self.assertRegex(dll, r"VV\d_TW_LAST_SEEN_OFFSET")
                 self.assertIn("+= delta;", dll)
                 self.assertIn("+= units;", dll)
 
@@ -201,7 +205,7 @@ class MigratedGamesTests(unittest.TestCase):
         for gid in sorted(MIGRATED):
             with self.subTest(game=gid):
                 dll = source(COMPANIONS[gid])
-                self.assertRegex(dll, r"#define VV_SPEED_PAUSED\s+999")
+                self.assertRegex(dll, r"#define VV\d_TW_SPEED_PAUSED\s+999")
                 self.assertIn("unavailable while the game is paused", dll)
                 refusal = dll.find("unavailable while the game is paused")
                 charge = dll.find("*tech -= cost;")

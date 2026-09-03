@@ -944,7 +944,7 @@ class VV1RequiredFixTests(unittest.TestCase):
         codes = {
             name: int(value)
             for name, value in re.findall(
-                r"#define VV_SPEED_(SLOW|NORMAL|FAST)\s+(\d+)", dll
+                r"#define VV1_TW_SPEED_(SLOW|NORMAL|FAST)\s+(\d+)", dll
             )
         }
         self.assertEqual(codes, {"SLOW": 10, "NORMAL": 6, "FAST": 3})
@@ -952,13 +952,13 @@ class VV1RequiredFixTests(unittest.TestCase):
         years = {
             name: int(value)
             for name, value in re.findall(
-                r"case VV_SPEED_(SLOW|NORMAL|FAST):\s+return (\d+);", dll
+                r"case VV1_TW_SPEED_(SLOW|NORMAL|FAST):\s+return (\d+);", dll
             )
         }
         self.assertEqual(years, {"SLOW": 3, "NORMAL": 6, "FAST": 12})
 
         units_per_year = int(
-            re.search(r"#define VV_UNITS_PER_YEAR\s+(\d+)", dll).group(1)
+            re.search(r"#define VV1_TW_UNITS_PER_YEAR\s+(\d+)", dll).group(1)
         )
         self.assertEqual(units_per_year, 20)
 
@@ -976,6 +976,6 @@ class VV1RequiredFixTests(unittest.TestCase):
             )
 
         # The two halves that make it exact.
-        self.assertIn("VV_LAST_SEEN_OFFSET", dll)
-        self.assertIn("*(int *)(rec + VV_LAST_SEEN_OFFSET) += delta;", dll)
-        self.assertIn("*(int *)(rec + VV_AGE_OFFSET) += units;", dll)
+        self.assertIn("VV1_TW_LAST_SEEN_OFFSET", dll)
+        self.assertIn("*(int *)(rec + VV1_TW_LAST_SEEN_OFFSET) += delta;", dll)
+        self.assertIn("*(int *)(rec + VV1_TW_AGE_OFFSET) += units;", dll)
