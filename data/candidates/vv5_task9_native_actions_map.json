@@ -5,9 +5,9 @@
     "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
   },
   "active_base": {
-    "size": 28772,
-    "file_sha256": "9C9F181D0B72A06AAB4B7C84F29E9308D93F74782F197A82C333E15DE617D0E5",
-    "source_text_sha256": "32B8B46A3E3285505676CA5663C14B9E707A53241B65EBAB9BB7A0896966282E"
+    "size": 28628,
+    "file_sha256": "1983C284BE6394509DC57022C84A93DE80676C8AD58ED893D3E7C30074769E16",
+    "source_text_sha256": "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
   },
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
@@ -18,15 +18,15 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "BECF2CB88E05E3CE06C6F5B16FEC7C4451837D5864B7499BB7C33B0CA22F8BF4"
+      "source_text_sha256": "721E94C374126980D0DA2F58F66FB31902FB5560D88A91D39AF66E138F3E1BD9"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "267EC8A7BF46DFCA8D04A4C7547E04ABC7E1840D11E1BE8C5FE3C5C0A2693EA7"
+      "source_text_sha256": "85F551F9B49FCDB4A047A9D3AB14C0228AE71F4EB3F8A5C8931DFD88D36BE4EE"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "C325D8249E5A29CCFD6E1AED71DEC1BAF64BAFB2AF654B6FAC4E8C225ACBAC69"
+      "source_text_sha256": "3830BFE7A70A4CED5DBD542BBF7C0E6E24A6902DB55237A75099AF7E99CFB091"
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
@@ -46,7 +46,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "32B8B46A3E3285505676CA5663C14B9E707A53241B65EBAB9BB7A0896966282E"
+      "source_text_sha256": "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -67,11 +67,11 @@
     "unchanged": true
   },
   "companion": {
-    "size": 1753088,
-    "sha256": "3C3407F33DF925A48BA47B510C75D202A3B82DA88E5E08A9F9C75C9D23AEC0C0"
+    "size": 1754624,
+    "sha256": "E5744FDF333AE0E4F3965D39F866B8558BCAAB9DD149E842821D9879BD22970F"
   },
   "payload": {
-    "sha256": "95B2F7F0BB059CB47903DF179EF459AFA438753C00FFC4A4AB1CF9F0CC026D26",
+    "sha256": "6841261759F7D16B632AD8F19B7D770329DB94EBBDB46FC8EFB2C7C182B240DE",
     "geometry": {
       "tech": {
         "allocation_bridge_bytes": "97E8EC6F0100E8C7D9C9FF",

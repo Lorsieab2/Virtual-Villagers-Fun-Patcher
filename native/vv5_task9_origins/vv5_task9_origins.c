@@ -848,6 +848,213 @@ static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
    tech and at least one villager is touched, applies to all and charges 450,000
    via the game's own tech-adjust routine, then saves the mask sidecar. Returns
    1 if applied+charged, 0 otherwise. All commit logic is here (exe is a bridge). */
+/* ------------------------------------------------------------------ *
+ *  Time Warp                                                          *
+ * ------------------------------------------------------------------ *
+ *
+ * The clamp is the same as the other four -- 0x0046FFCB: over 86400 becomes
+ * 86400, otherwise anything over 23800 slow / 31000 normal / 38200 fast is
+ * forced to 31000 -- so the shipped flat 43200 collapses at every speed and
+ * lands 2.55 / 4.3 / 8.6 years instead of 3 / 6 / 12.
+ *
+ * But VV5's conversion is NOT the same as the others, and this is the only
+ * game where it differs.  Its loop at 0x00470040 reads a per-villager aging
+ * RATE from +0x1CC8 and folds it in:
+ *
+ *     edi = [rec+0x1CC8];  if (edi > 1) edi += edi;      // 0x00470046
+ *     units = ((pending / 60) * edi) / speed_code;       // 0x0047006C
+ *
+ * so a villager whose rate is 2 ages at four times the base, not twice.  And
+ * the credit is gated on the faction byte at +0x1CEC being zero
+ * (0x00470077) -- villagers outside it do not age at all.
+ *
+ * Crediting a flat years*20 to everyone would therefore be wrong in both
+ * directions: it would under-age the fast agers and over-age the gated ones.
+ * The rate is reproduced here instead, so a warp advances exactly what the
+ * same elapsed time would have.
+ *
+ *   pending slice   record + 0x1C34
+ *   last-seen mark  record + 0x1C38
+ *   age units       record + 0x1B8C, 20 units == 1 villager year
+ *
+ * VV5's adder at 0x0046F7F0 is a plain `add dword ptr [ecx], eax; ret 4` with
+ * no side effects, so the field is written directly.  (VV3's is not -- its
+ * adder fires the 80-year notification -- which is why only VV3 calls the
+ * game's routine.)
+ *
+ * The epoch is 64-bit: the executable's own advance did `sub` then `sbb`, so
+ * the borrow into the high dword has to be reproduced.
+ */
+#define VV5_TW_SPEED_OFFSET     0x17D7C  /* on the world object; 999 = paused */
+#define VV5_TW_SPEED_PAUSED     999
+#define VV5_TW_WORLD_GETTER     0x00425950u
+#define VV5_TW_TIME_EPOCH_VA    0x004C6250u   /* 64-bit, low dword           */
+#define VV5_TW_PENDING_OFFSET   0x1C34
+#define VV5_TW_LAST_SEEN_OFFSET 0x1C38
+#define VV5_TW_AGE_OFFSET       0x1B8C
+#define VV5_TW_RATE_OFFSET      0x1CC8   /* per-villager aging rate          */
+#define VV5_TW_FACTION_OFFSET   0x1CEC   /* byte; only 0 ages                */
+#define VV5_TW_UNITS_PER_YEAR   20
+
+/* Speed codes are the engine's own divisors.  A year is 20 * 60 * code
+   seconds: 2 hours at normal and 1 at fast exactly, and 3h20m at slow -- slow
+   is NOT the 4 hours it is often quoted as, which is why the years are
+   targeted directly here instead of derived from an hours-per-year figure. */
+#define VV5_TW_SPEED_SLOW       10
+#define VV5_TW_SPEED_NORMAL     6
+#define VV5_TW_SPEED_FAST       3
+
+#define VV5_TW_CANCELLED 0
+#define VV5_TW_APPLIED   1
+#define VV5_TW_REFUSED   2
+
+typedef unsigned char *(__cdecl *vv5_world_getter_fn)(void);
+
+static int vv5_time_warp_years(int speed) {
+    switch (speed) {
+    case VV5_TW_SPEED_SLOW:   return 3;
+    case VV5_TW_SPEED_NORMAL: return 6;
+    case VV5_TW_SPEED_FAST:   return 12;
+    default:                  return 0;   /* paused, or a code we don't know */
+    }
+}
+
+static const char *vv5_speed_name(int speed) {
+    switch (speed) {
+    case VV5_TW_SPEED_SLOW:   return "slow";
+    case VV5_TW_SPEED_NORMAL: return "normal";
+    case VV5_TW_SPEED_FAST:   return "fast";
+    default:                  return "unknown";
+    }
+}
+
+/* The engine's own rate fold, reproduced exactly (0x00470046). */
+static int vv5_aging_rate(const unsigned char *rec) {
+    int rate = *(const int *)(rec + VV5_TW_RATE_OFFSET);
+    return rate > 1 ? rate + rate : rate;
+}
+
+/* Returns how many occupied records were carried, 0 when the village is
+   empty -- the caller treats that as "nothing happened" and charges nothing. */
+static int vv5_time_warp_apply(int speed, int years) {
+    unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
+    int units = years * VV5_TW_UNITS_PER_YEAR;   /* the base-rate credit */
+    int delta = units * 60 * speed;              /* the real seconds it costs */
+    int i, occupied = 0;
+
+    /* Count BEFORE touching anything: an empty village must not move the world
+       clock, because the caller charges nothing when this returns zero. Any
+       occupied record counts, whether or not the age credit will reach it. */
+    for (i = 0; i < VV5_REC_COUNT; ++i) {
+        if (base[(size_t)i * VV5_REC_STRIDE + VV5_OFF_ACTIVE] != 0) {
+            ++occupied;
+        }
+    }
+    if (occupied == 0) {
+        return 0;
+    }
+
+    /* Half one: the world clock.  64-bit, so the borrow has to be carried --
+       the executable's own advance was `sub` followed by `sbb`. */
+    {
+        unsigned int *epoch = (unsigned int *)(UINT_PTR)VV5_TW_TIME_EPOCH_VA;
+        unsigned int low = epoch[0];
+        epoch[0] = low - (unsigned int)delta;
+        if (low < (unsigned int)delta) {
+            epoch[1] -= 1;
+        }
+    }
+
+    /* Half two: exact ages, past the clamp. */
+    for (i = 0; i < VV5_REC_COUNT; ++i) {
+        unsigned char *rec = base + (size_t)i * VV5_REC_STRIDE;
+        int rate;
+        if (rec[VV5_OFF_ACTIVE] == 0) {
+            continue;
+        }
+        /* The marker moves for EVERY occupied record, including ones the age
+           credit skips.  It is what stops that villager's own tick from
+           putting this jump through the clamp -- skipping it would not hold
+           the record's age, it would advance it by the clamped amount. */
+        *(int *)(rec + VV5_TW_LAST_SEEN_OFFSET) += delta;
+        /* Only the faction the engine ages gets the credit (0x00470077). */
+        if (rec[VV5_TW_FACTION_OFFSET] != 0) {
+            continue;
+        }
+        rate = vv5_aging_rate(rec);
+        if (rate <= 0) {
+            continue;               /* rate 0 -> this villager does not age */
+        }
+        *(int *)(rec + VV5_TW_AGE_OFFSET) += units * rate;
+    }
+    return occupied;
+}
+
+/* Tech-menu row 0.  Confirms (naming the speed and the years it will buy) and
+   applies; the executable keeps the charge, because VV5 charges through the
+   game's own tech-point routine at 0x004237B0 and that call already sits in
+   the menu.  So this must NOT deduct anything.
+
+   Return value, which the caller branches on:
+     0  the player pressed Cancel -- nothing was said and nothing was done, so
+        the Tech menu reopens, exactly as Cancel does on every other row;
+     1  applied -- the caller charges;
+     2  refused, with the reason already shown; the caller charges nothing and
+        closes the menu, which is what every other refusal here does. */
+__declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
+    static const char *const TITLE = "Origins Upgrades";
+    char message[448];
+    /* GetOriginsOwner, not GetForegroundWindow: this file deliberately has
+       no owner fallback -- the owner is captured once by BeginOriginsOwner
+       and validated as belonging to this process. */
+    HWND owner = GetOriginsOwner();
+    vv5_world_getter_fn get_world = (vv5_world_getter_fn)(UINT_PTR)VV5_TW_WORLD_GETTER;
+    unsigned char *world = get_world();
+    int speed, years;
+
+    if (world == 0) {
+        MessageBoxA(owner,
+                    "Time Warp could not reach the village. No tech points "
+                    "have been deducted.",
+                    TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return VV5_TW_REFUSED;
+    }
+    speed = *(int *)(world + VV5_TW_SPEED_OFFSET);
+    years = vv5_time_warp_years(speed);
+    if (years <= 0) {
+        /* Paused advances nothing at all, so it must refuse BEFORE the caller
+           charges rather than bill for a no-op. */
+        MessageBoxA(owner,
+                    speed >= VV5_TW_SPEED_PAUSED
+                        ? "Time Warp is unavailable while the game is paused."
+                        : "Time Warp could not read the game speed. No tech "
+                          "points have been deducted.",
+                    TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return VV5_TW_REFUSED;
+    }
+    wsprintfA(message,
+              "Do you want to buy Time Warp for %d tech points?\r\n"
+              "On %s game speed, this will advance %d villager years.\r\n"
+              "Press OK to confirm, or Cancel.",
+              cost, vv5_speed_name(speed), years);
+    if (MessageBoxA(owner, message, TITLE,
+                    MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND)
+        != IDOK) {
+        return VV5_TW_CANCELLED;
+    }
+    if (vv5_time_warp_apply(speed, years) <= 0) {
+        MessageBoxA(owner,
+                    "Time Warp could not reach the village records. No tech "
+                    "points have been deducted.",
+                    TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return VV5_TW_REFUSED;
+    }
+    wsprintfA(message, "Advanced %d years.", years);
+    MessageBoxA(owner, message, TITLE,
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return VV5_TW_APPLIED;
+}
+
 __declspec(dllexport) int __stdcall ShowVV5AppearanceForAll(void) {
     INT_PTR ok;
     HWND owner;

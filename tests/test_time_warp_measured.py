@@ -59,7 +59,7 @@ GENERATORS = {
 
 # Games whose Time Warp has moved into the companion DLL. Grows one game per
 # pull request; the flat-delta assertions below cover the remainder.
-MIGRATED = {"vv1", "vv2", "vv3", "vv4"}
+MIGRATED = {"vv1", "vv2", "vv3", "vv4", "vv5"}
 
 # Each game's Time Warp constants are scoped with its own prefix:
 # vv2_origins_icons.c #includes vv1_origins_icons.c after pre-defining the
@@ -70,6 +70,7 @@ COMPANIONS = {
     "vv2": "native/vv2_origins_icons/vv2_origins_icons.c",
     "vv3": "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
     "vv4": "native/vv4_origins_icons/vv4_origins_icons.c",
+    "vv5": "native/vv5_task9_origins/vv5_task9_origins.c",
 }
 
 # The engine's own speed divisors, and the years each must buy.
@@ -217,7 +218,9 @@ class MigratedGamesTests(unittest.TestCase):
                 # does: it fires the 80-year notification at 1600 units, so
                 # writing the field there would silently skip it.
                 self.assertTrue(
-                    "+= units;" in dll or "add_age(" in dll,
+                    "+= units;" in dll
+                    or "add_age(" in dll
+                    or "+= units * rate;" in dll,
                     f"{gid} credits the age by something other than units",
                 )
 
@@ -266,8 +269,10 @@ class MigratedGamesTests(unittest.TestCase):
                 # carries, rather than on a particular cave name.
                 after = exe[exe.index("the player cancelled"):][:600]
                 self.assertIn("test eax, eax", after)
-                self.assertIn(
-                    "jz menu_loop", after,
+                # Generators name the top of the row loop differently -- VV1,
+                # VV2 and VV4 call it menu_loop, VV3 and VV5 just menu.
+                self.assertRegex(
+                    after, r"jz menu(_loop)?\b",
                     f"{gid} does not reopen the menu when Time Warp is cancelled",
                 )
 
@@ -296,10 +301,21 @@ class MigratedGamesTests(unittest.TestCase):
 
 
 class PendingGamesTests(unittest.TestCase):
-    """Games still on the flat delta, named rather than skipped silently."""
+    """Games still on the flat delta, named rather than skipped silently.
+
+    All five are migrated now, so the cases below have nothing to iterate.
+    The first test states that explicitly rather than letting an empty loop
+    pass for a green check.
+    """
 
     def pending(self) -> list[str]:
         return sorted(set(GENERATORS) - MIGRATED)
+
+    def test_every_game_has_been_migrated(self) -> None:
+        self.assertEqual(
+            self.pending(), [],
+            "these games still ship the clamped flat delta",
+        )
 
     def test_every_pending_game_still_carries_the_flat_delta(self) -> None:
         for gid in self.pending():

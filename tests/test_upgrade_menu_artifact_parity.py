@@ -373,10 +373,12 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         vv5_companion = vv5_manifest["companion_contract"]
         self.assertEqual(vv5_companion["sha256"], _sha256(current_companion))
         self.assertEqual(vv5_companion["size"], current_companion.stat().st_size)
-        self.assertEqual(vv5_companion["size"], 1753088)
+        # Grew when the companion gained ShowVv5TimeWarp, which owns Time
+        # Warp's speed-aware prompt, paused refusal and advance.
+        self.assertEqual(vv5_companion["size"], 1754624)
         self.assertEqual(
             vv5_companion["sha256"],
-            "3C3407F33DF925A48BA47B510C75D202A3B82DA88E5E08A9F9C75C9D23AEC0C0",
+            "E5744FDF333AE0E4F3965D39F866B8558BCAAB9DD149E842821D9879BD22970F",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:
