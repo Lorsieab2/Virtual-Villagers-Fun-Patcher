@@ -131,18 +131,6 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       every register except the intended EDI are preserved.  It leaves flags
 #       undefined, which is safe here: the next instruction is `push edi`.
 #       Reaching it is a `call`, not a jmp, so it adds no stock re-entry.
-#   0x35AB0                         re-confirmed again after the Island Event
-#       queue delay.  do_island_event no longer stores a constant zero into the
-#       world's island-event due stamp; it now calls the scheduler's own clock
-#       (0x402F70), adds the delay and stores the result, so this block's bytes
-#       change.  Register contract re-checked rather than assumed: the clock
-#       writes none of EBP/EBX/ESI/EDI and returns with a balanced stack, EDI is
-#       additionally preserved by hand across the call, and although EAX and ECX
-#       are clobbered, the `success` tail this branch jumps to reads neither --
-#       it pushes constants plus EBX (the row index, untouched here) and calls
-#       the result helper.  `add eax, N` leaves flags defined but `success`
-#       begins with `push 0`, which does not consume them.  Reaching the clock
-#       is a `call`, not a jmp, so it adds no stock re-entry.
 #   0x35AB0/0x4A700                  confirmed.  The 0x35AB0 fall-through
 #       repeats the displaced `cmp [esp+4],8` immediately before 0x435AB5;
 #       the 0x4A700 fall-through repeats `mov eax,[esp+4]; push ebx`
@@ -171,7 +159,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "C67676FB9A3DB9F16865330909235B94E521DC7C6117C30768BFE454732BC0F8",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "CD3070FE845FB60169B2F48F419619D413B3B825931FCC2C0BE242E910B4EE80",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "E35F1EF19A0CA5256BDBB96157C20753306694CB812FF3C34DED5D64C35B1B38",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",
