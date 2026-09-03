@@ -716,6 +716,12 @@ def main() -> None:
             mov edi, dword ptr [esi + 0x0C]
             push edi
             call 0x{TIME_WARP_HELPER_VA:X}
+            # 0 = the player cancelled: say nothing and reopen the menu, the
+            # same as Cancel on every other row. 1 (applied) and 2 (refused
+            # with the reason already shown) both close it, matching what
+            # every other charge and refusal here does.
+            test eax, eax
+            jz menu_loop
             jmp menu_done
         confirm_not_time_warp:
             push ebx

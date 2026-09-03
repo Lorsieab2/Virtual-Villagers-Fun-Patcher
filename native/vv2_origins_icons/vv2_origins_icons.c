@@ -941,7 +941,7 @@ static int vv2_time_warp_apply(unsigned char *base, int speed, int years) {
        the jump away for free. */
     record = base;
     for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
-        if (vv2_record_eligible(record)) {
+        if (record[VV2_ACTIVE_OFFSET] != 0) {
             ++credited;
         }
     }
@@ -979,7 +979,17 @@ static int vv2_time_warp_apply(unsigned char *base, int speed, int years) {
 /* Tech-menu row 0.  Owns its own confirmation, afford check, charge and
    result, because what it advances and what it says both depend on the game
    speed at the moment of purchase and the shared ConfirmVV2Upgrade box cannot
-   vary its wording.  Returns 1 if the player was charged. */
+   vary its wording.
+
+   Return value, which the caller branches on:
+     0  the player pressed Cancel -- nothing was said and nothing was done, so
+        the Tech menu reopens, exactly as Cancel does on every other row;
+     1  applied and charged;
+     2  refused, with the reason already shown -- the menu closes afterwards,
+        which is what every other refusal in this menu does. */
+#define VV2_TW_CANCELLED 0
+#define VV2_TW_APPLIED   1
+#define VV2_TW_REFUSED   2
 __declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
     unsigned char *ctx = (unsigned char *)(UINT_PTR)(unsigned int)gamectx_ptr;
     const char *title = vv2_result_title(VV2_ACT_TIME_WARP);
@@ -990,7 +1000,7 @@ __declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
     int speed, years;
 
     if (ctx == 0) {
-        return 0;
+        return VV2_TW_REFUSED;
     }
     speed = *(int *)(ctx + VV2_TW_SPEED_OFFSET);
     years = vv2_time_warp_years(speed);
@@ -1006,7 +1016,7 @@ __declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
             title,
             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
         );
-        return 0;
+        return VV2_TW_REFUSED;
     }
     wsprintfA(
         message,
@@ -1021,7 +1031,7 @@ __declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
             owner, message, title,
             MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
         ) != IDOK) {
-        return 0;
+        return VV2_TW_CANCELLED;
     }
     tech = (int *)(ctx + VV2_TW_TECH_POINTS_OFFSET);
     if (*tech < cost) {
@@ -1029,7 +1039,7 @@ __declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
             owner, "Not enough tech points.", title,
             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
         );
-        return 0;
+        return VV2_TW_REFUSED;
     }
     base = *(unsigned char **)(ctx + VV2_TW_RECORD_POOL_OFFSET);
     if (vv2_time_warp_apply(base, speed, years) <= 0) {
@@ -1040,7 +1050,7 @@ __declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
             title,
             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
         );
-        return 0;
+        return VV2_TW_REFUSED;
     }
     *tech -= cost;
     wsprintfA(message, "Advanced %d years.", years);
@@ -1048,7 +1058,7 @@ __declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
         owner, message, title,
         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
-    return 1;
+    return VV2_TW_APPLIED;
 }
 
 __declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
