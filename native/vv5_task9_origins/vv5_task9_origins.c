@@ -1300,6 +1300,11 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
     int male_count[6] = { 0, 0, 0, 0, 0, 0 };
     int female_count[6] = { 0, 0, 0, 0, 0, 0 };
     int total = 0;
+    /* Counted separately from `total`: the caller charges 1,000,000 only when
+       this reports a REAL change, so re-buying the same variant with an
+       unchanged roster must report none. `total` still drives the per-seat
+       summary, which describes the resulting division either way. */
+    int changed = 0;
     int i, p;
     char message[512];
     char line[128];
@@ -1331,13 +1336,26 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
             ++female_seat;
             ++female_count[seat];
         }
-        *(int *)(record + VV5_ED_PREFERENCE) = pro_index[seat];
+        if (*(int *)(record + VV5_ED_PREFERENCE) != pro_index[seat]) {
+            *(int *)(record + VV5_ED_PREFERENCE) = pro_index[seat];
+            ++changed;
+        }
         ++total;
     }
     if (total == 0) {
         MessageBoxA(
             owner,
             "No villagers were eligible. No tech points have been deducted.",
+            "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION
+        );
+        return 0;
+    }
+    if (changed == 0) {
+        MessageBoxA(
+            owner,
+            "Every villager already has this division of labor. "
+            "No tech points have been deducted.",
             "Origins Upgrades",
             MB_OK | MB_ICONINFORMATION
         );
