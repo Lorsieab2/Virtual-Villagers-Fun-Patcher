@@ -518,6 +518,16 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x7B664", "0xA3180",
                     "0x3290",
                     "0x7B260", "0x7B2A0", "0x7B300",
+                    # Barrel of Babies event-table ordering fix.
+                    # barrel_present_code now calls the lazy island-event
+                    # manager getter (0x419AC0) BEFORE snapshotting the object
+                    # array, because the manager constructor 0x418630 is what
+                    # allocates those objects. Snapshotting first captured 57
+                    # nulls, and the restore loop wrote them back over the
+                    # table the constructor had just built -- killing the
+                    # purchased barrel AND every natural island event for the
+                    # rest of the session. Only this cave's own bytes change.
+                    "0x7B3E0",
                     "0x10E", "0x158", "0x2C8",
                     "0x2E3F5", "0x34357", "0x344B3", "0x60B48", "0x60D10",
                 },
