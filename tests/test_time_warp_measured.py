@@ -59,7 +59,7 @@ GENERATORS = {
 
 # Games whose Time Warp has moved into the companion DLL. Grows one game per
 # pull request; the flat-delta assertions below cover the remainder.
-MIGRATED = {"vv1"}
+MIGRATED = {"vv1", "vv2"}
 
 # Each game's Time Warp constants are scoped with its own prefix:
 # vv2_origins_icons.c #includes vv1_origins_icons.c after pre-defining the
@@ -67,6 +67,7 @@ MIGRATED = {"vv1"}
 # game's Time Warp code would be silently retargeted in the other's build.
 COMPANIONS = {
     "vv1": "native/vv1_origins_icons/vv1_origins_icons.c",
+    "vv2": "native/vv2_origins_icons/vv2_origins_icons.c",
 }
 
 # The engine's own speed divisors, and the years each must buy.
@@ -214,6 +215,41 @@ class MigratedGamesTests(unittest.TestCase):
                     refusal, charge,
                     f"{gid} refuses only after charging, which is the reported bug",
                 )
+
+    def test_cancel_is_distinguishable_from_a_refusal(self) -> None:
+        """Cancel reopens the Tech menu; a refusal closes it after its message.
+
+        Before the row moved into the DLL it went through the shared
+        confirmation, whose zero result jumps back to menu_loop. A single
+        return value for both cancel and refusal would close the whole menu on
+        Cancel, which no other row does.
+        """
+        for gid in sorted(MIGRATED):
+            with self.subTest(game=gid):
+                dll = source(COMPANIONS[gid])
+                self.assertRegex(dll, r"#define VV\d_TW_CANCELLED 0")
+                self.assertRegex(dll, r"#define VV\d_TW_APPLIED   1")
+                self.assertRegex(dll, r"#define VV\d_TW_REFUSED   2")
+                self.assertRegex(dll, r"return VV\d_TW_CANCELLED;")
+                exe = source(GENERATORS[gid])
+                after = exe[exe.index("call 0x{TIME_WARP_HELPER_VA:X}"):]
+                after = after[:400]
+                self.assertIn("test eax, eax", after)
+                self.assertIn("jz menu_loop", after)
+
+    def test_the_nonempty_preflight_counts_any_occupied_record(self) -> None:
+        """A village of records the age credit skips is still a village.
+
+        Its clock, and those records' markers, must still move -- otherwise the
+        row reports it could not reach the village and nothing advances.
+        """
+        for gid in sorted(MIGRATED):
+            with self.subTest(game=gid):
+                dll = source(COMPANIONS[gid])
+                fn = dll[dll.index("_time_warp_apply("):]
+                pre = fn[fn.index("Count BEFORE"): fn.index("if (credited == 0) {")]
+                self.assertNotIn("eligible", pre)
+                self.assertNotIn("golden", pre)
 
     def test_the_confirmation_names_the_speed_and_the_years(self) -> None:
         for gid in sorted(MIGRATED):

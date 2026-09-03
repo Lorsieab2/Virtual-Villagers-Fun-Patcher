@@ -127,6 +127,15 @@ BARREL_CUE_FRAMES = 90
 # VV2 manifest. Padding that merely looks free in one built image is not
 # enough: 0x9A900 passed that test and still overlapped the optional
 # Village-Wide Upgrades patch, which owns 0x9A800 for 1312 bytes.
+# Time Warp (Tech row 0) is resolved in the companion DLL, which owns its
+# confirmation, afford check, charge, per-villager advance and result --
+# see ShowVV2TimeWarp there for why the advance cannot be a constant. This
+# stub is only the loader/dispatch pair, in the free run at the end of .shr
+# (the section ends at 0x9B000 and the last existing row ends at 0x9AF97).
+TIME_WARP_HELPER_FILE_OFFSET = 0x9AFA0
+TIME_WARP_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    TIME_WARP_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
 PENDING_ROWS_FILE_OFFSET = 0x9A4A0
 PENDING_ROWS_VA = IMAGE_BASE + SHR_RVA + (PENDING_ROWS_FILE_OFFSET - SHR_FILE_OFFSET)
 APPEARANCE_FILE_OFFSET = 0x9AD20
@@ -165,6 +174,12 @@ CONFIRM_EXPORT_VA = IMAGE_BASE + SHR_RVA + (
     CONFIRM_EXPORT_FILE_OFFSET - SHR_FILE_OFFSET
 )
 CONFIRM_EXPORT_BYTES = b"ConfirmVV2Upgrade\0"
+TIME_WARP_EXPORT_BYTES = b"ShowVV2TimeWarp\0"
+TIME_WARP_CODE_MAX = 0x40
+TIME_WARP_EXPORT_VA = (
+    IMAGE_BASE + SHR_RVA
+    + (TIME_WARP_HELPER_FILE_OFFSET + TIME_WARP_CODE_MAX - SHR_FILE_OFFSET)
+)
 # Result-string export + a tiny .shr trampoline so the payload's simple success
 # and doubler paths can render Task9 result text ("<Action> completed.", etc.)
 # from the DLL instead of the old flat "Purchased." string.
@@ -353,7 +368,6 @@ def main() -> None:
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
         ("mastery_failed", "Full Mastery could not be completed."),
-        ("paused", "Time Warp is unavailable while the game is paused."),
         (
             "population_capacity",
             "The village population is already close to its max. No tech points have been deducted.",
@@ -691,6 +705,25 @@ def main() -> None:
             call 0x{RESULT_HELPER_VA:X}
             jmp menu_done
         confirm_purchase:
+            # Time Warp (row 0) is handled end to end by the companion DLL:
+            # what it advances, what its prompt has to say, and whether it may
+            # run at all all depend on the game speed at this instant, which
+            # the shared confirmation box below cannot express. Reacquire the
+            # village object from [ESI+0x0C] first, exactly as every other
+            # path here does before touching it.
+            cmp ebx, 0
+            jne confirm_not_time_warp
+            mov edi, dword ptr [esi + 0x0C]
+            push edi
+            call 0x{TIME_WARP_HELPER_VA:X}
+            # 0 = the player cancelled: say nothing and reopen the menu, the
+            # same as Cancel on every other row. 1 (applied) and 2 (refused
+            # with the reason already shown) both close it, matching what
+            # every other charge and refusal here does.
+            test eax, eax
+            jz menu_loop
+            jmp menu_done
+        confirm_not_time_warp:
             push ebx
             call 0x{confirm_dialog:X}
             test eax, eax
@@ -725,15 +758,9 @@ def main() -> None:
             jmp menu_done
 
         preflight:
-            cmp ebx, 0
-            jne maybe_barrel
-            # Paused is no longer refused: the village must advance three
-            # villager years at EVERY speed option, paused included. The
-            # speed normalisation below maps the paused sentinel 999 to the
-            # normal-speed code, so a paused Time Warp advances exactly the
-            # normal-speed amount.
-            jmp charge
-        maybe_barrel:
+            # Row 0 (Time Warp) never arrives here -- confirm_purchase hands it
+            # to the companion DLL, which owns its own paused refusal, charge
+            # and result.
             cmp ebx, 2
             jne charge
             jmp barrel_capacity_preflight
@@ -772,22 +799,10 @@ def main() -> None:
             je barrel_capacity_preflight
             cmp dword ptr [edi + 0x2EADC], eax
             jb insufficient
-            # Time Warp advances NOTHING while the game is paused
-            # (measured: 0 years in every game, and VV1 charged for
-            # it anyway). Refuse here, BEFORE the deduction below --
-            # checking afterwards still costs the player the points
-            # for a no-op, which is the reported bug. Only row 0 is
-            # affected; every other row charges normally.
-            cmp ebx, 0
-            jne tw_charge_ok
-            cmp dword ptr [edi + 0x2EB08], 0x3E7
-            jl tw_charge_ok
-            mov eax, 0x{s['paused']:X}
-            jmp show_status
-        tw_charge_ok:
+            # Row 0 (Time Warp) never reaches here -- it is dispatched to
+            # the companion DLL, which owns its own paused refusal and its
+            # own charge. Every other row charges normally.
             sub dword ptr [edi + 0x2EADC], eax
-            cmp ebx, 0
-            je do_time_warp
             cmp ebx, 1
             je do_island_event
             cmp ebx, 2
@@ -844,29 +859,6 @@ def main() -> None:
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
-
-        do_time_warp:
-            # EXACT, not calibrated. The owner states the game's own time
-            # base: one villager year is 4 real hours at slow, 2 at normal and
-            # 1 at fast. The delta is in real seconds, so the years a given
-            # delta buys are delta / (hours * 3600):
-            #
-            #     slow    43200 / 14400 =  3 years
-            #     normal  43200 /  7200 =  6 years
-            #     fast    43200 /  3600 = 12 years
-            #
-            # The targets 3 / 6 / 12 are exactly inverse to the hours-per-year
-            # 4 / 2 / 1, so ONE flat amount hits all three on the nose and no
-            # per-speed table is needed. That also removes this feature's
-            # dependence on reading the speed field correctly, which is what
-            # the previous scaled tables were guessing around.
-            #
-            # Paused is still refused before the charge, which does read the
-            # speed field -- that guard is unaffected.
-            mov eax, 43200
-        tw_apply:
-            sub dword ptr [0x4950F0], eax
-            jmp success
 
         do_island_event:
             mov dword ptr [edi + 0x2EAE0], 0
@@ -2266,6 +2258,49 @@ def main() -> None:
         b"\0" * len(appearance_block),
         appearance_block,
         "open the Change Appearance chooser for the selected active living villager and, on OK, charge 5,000 tech and write only the proven head and body fields",
+    )
+    # Time Warp's DLL entry takes (gamectx, cost). The cost is read here
+    # rather than passed in by the caller so the call site stays a single
+    # push+call: the Tech menu's own box has no room to spare, and .shr does.
+    time_warp_helper_code = assemble(
+        f"""
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je time_warp_fail
+            push 0x{TIME_WARP_EXPORT_VA:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je time_warp_fail
+            # Row 0's entry in the tech cost table, pushed as the second
+            # __stdcall argument; the game context arrives at [esp+4] and is
+            # still there once the cost is on the stack, at [esp+8].
+            mov ecx, dword ptr [0x{s['tech_costs']:X}]
+            push ecx
+            push dword ptr [esp + 8]
+            call eax
+            ret 4
+        time_warp_fail:
+            ret 4
+        """,
+        TIME_WARP_HELPER_VA,
+    )
+    if len(time_warp_helper_code) > TIME_WARP_CODE_MAX:
+        raise RuntimeError(
+            f"time warp helper is too large: {len(time_warp_helper_code):#x}"
+            f"/{TIME_WARP_CODE_MAX:#x}"
+        )
+    time_warp_block = (
+        time_warp_helper_code
+        + b"\0" * (TIME_WARP_CODE_MAX - len(time_warp_helper_code))
+        + TIME_WARP_EXPORT_BYTES
+    )
+    patch(
+        TIME_WARP_HELPER_FILE_OFFSET,
+        b"\0" * len(time_warp_block),
+        time_warp_block,
+        "resolve and invoke the icons DLL's ShowVV2TimeWarp export, passing the game context and Time Warp's own tech cost -- the DLL owns the confirmation that names the current game speed and the years it will advance, the paused refusal, the charge, the per-villager advance, and the result",
     )
     patch(
         CONFIRM_EXPORT_FILE_OFFSET,

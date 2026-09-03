@@ -849,6 +849,218 @@ static int vv2_population_cap(vv2_collection_done_t collection_done,
     return (base_site[0] == 0xEB ? 231 : 90) + bonus;
 }
 
+/* ------------------------------------------------------------------ *
+ *  Time Warp                                                          *
+ * ------------------------------------------------------------------ *
+ *
+ * Same mechanism, same numbers as VV1 -- the aging code is identical in all
+ * five games, only the addresses differ.
+ *
+ * How the engine ages a villager (stock, read off this exact build):
+ *
+ *   [0x004950F0] is a time_t epoch.  sub_403200 returns "real seconds since
+ *   that epoch".  Each villager keeps the slice it has not yet converted at
+ *   +0x524 and the elapsed value it last saw at +0x528.  Its tick adds the
+ *   difference into +0x524 and then, at 0x0043B86A, CLAMPS it:
+ *
+ *       > 86400                                   -> forced to 86400
+ *       > 23800 slow / 31000 normal / 38200 fast  -> forced to 31000
+ *
+ *   before converting with  units += (pending / 60) / speed_code  into the
+ *   age at +0x530, where 20 units is one villager year.
+ *
+ * That clamp is why simply moving the epoch cannot work.  The advance the
+ * targets need -- 36000 s at slow, 43200 s at normal and fast -- is over the
+ * threshold at every speed, so all three collapse to 31000 and yield
+ * 2.55 / 4.3 / 8.6 years instead of 3 / 6 / 12.  Pushing a LARGER number in
+ * makes the warp smaller, which is exactly the reported bug.
+ *
+ * So the advance is applied in two halves:
+ *
+ *   1. the epoch moves by the true delta, so every other time-based system
+ *      (research, events, growth) sees a real jump of the right size; and
+ *   2. each living villager is credited the exact age units directly, and has
+ *      its "last seen" marker moved by the same delta so its own tick does
+ *      not process -- and clamp -- the same jump a second time.
+ *
+ * The result is exact at every speed and does not depend on the clamp.
+ */
+#define VV2_TW_SPEED_OFFSET      0x2EB08  /* game speed; 999 while paused        */
+#define VV2_TW_SPEED_PAUSED      999
+#define VV2_TW_TECH_POINTS_OFFSET 0x2EADC /* the payload's own afford check      */
+#define VV2_TW_RECORD_POOL_OFFSET 0x305A4 /* villager record pool, off the ctx   */
+#define VV2_TW_TIME_EPOCH_VA     0x004950F0u
+#define VV2_TW_LAST_SEEN_OFFSET  0x528    /* elapsed value this record last saw  */
+#define VV2_TW_UNITS_PER_YEAR    20       /* confirmed at 0x0043B915             */
+/* Pinned rather than reusing VV_AGE_OFFSET, which this file defines for the
+   included VV1 sources: every Time Warp constant is game-scoped so neither
+   game's block can be silently retargeted by the other's build. */
+#define VV2_AGE_OFFSET           0x530
+
+/* Speed codes are the engine's own divisors.  A year is 20 * 60 * code
+   seconds: 2 hours at normal and 1 at fast exactly, and 3h20m at slow -- slow
+   is NOT the 4 hours it is often quoted as, which is why the years are
+   targeted directly here instead of derived from an hours-per-year figure. */
+#define VV2_TW_SPEED_SLOW        10
+#define VV2_TW_SPEED_NORMAL      6
+#define VV2_TW_SPEED_FAST        3
+
+static int vv2_time_warp_years(int speed) {
+    switch (speed) {
+    case VV2_TW_SPEED_SLOW:   return 3;
+    case VV2_TW_SPEED_NORMAL: return 6;
+    case VV2_TW_SPEED_FAST:   return 12;
+    default:              return 0;   /* paused, or a code we do not know */
+    }
+}
+
+static const char *vv2_speed_name(int speed) {
+    switch (speed) {
+    case VV2_TW_SPEED_SLOW:   return "slow";
+    case VV2_TW_SPEED_NORMAL: return "normal";
+    case VV2_TW_SPEED_FAST:   return "fast";
+    default:              return "unknown";
+    }
+}
+
+/* Applies the warp.  Returns the number of villagers whose age was credited,
+   which is 0 when the record pool is not up yet or the village holds nobody to
+   age -- the caller treats that as "nothing happened" and does not charge. */
+static int vv2_time_warp_apply(unsigned char *base, int speed, int years) {
+    int units = years * VV2_TW_UNITS_PER_YEAR;
+    int delta = units * 60 * speed;   /* the real seconds those units cost */
+    int i, credited = 0;
+    unsigned char *record;
+
+    if (base == 0) {
+        return 0;
+    }
+    /* Count BEFORE touching anything.  A village with no one to age must not
+       move the world clock: the caller reads a zero return as "nothing
+       happened" and charges nothing, so advancing global time here would give
+       the jump away for free. */
+    record = base;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
+        if (record[VV2_ACTIVE_OFFSET] != 0) {
+            ++credited;
+        }
+    }
+    if (credited == 0) {
+        return 0;
+    }
+
+    /* Half one: the world clock.  Moving the epoch backwards is how the game
+       itself expresses "more time has passed"; sub_403200 subtracts it. */
+    *(int *)(UINT_PTR)VV2_TW_TIME_EPOCH_VA -= delta;
+
+    /* Half two: exact ages, past the clamp. */
+    record = base;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
+        if (record[VV2_ACTIVE_OFFSET] == 0) {
+            continue;
+        }
+        /* The marker moves for EVERY occupied record, including the ones the
+           age credit skips (dead, or engine-special).  It is what stops that
+           villager's own tick from putting this jump through the clamp -- so
+           leaving a skipped record's marker alone would not hold its age, it
+           would advance it by the clamped 2.55 / 4.3 / 8.6 years instead of
+           by nothing.  VV2 has no Golden Child, so the eligibility rule below
+           is the same active/living/non-special one every other VV2
+           village-wide upgrade uses. */
+        *(int *)(record + VV2_TW_LAST_SEEN_OFFSET) += delta;
+        if (!vv2_record_eligible(record)) {
+            continue;
+        }
+        *(int *)(record + VV2_AGE_OFFSET) += units;
+    }
+    return credited;
+}
+
+/* Tech-menu row 0.  Owns its own confirmation, afford check, charge and
+   result, because what it advances and what it says both depend on the game
+   speed at the moment of purchase and the shared ConfirmVV2Upgrade box cannot
+   vary its wording.
+
+   Return value, which the caller branches on:
+     0  the player pressed Cancel -- nothing was said and nothing was done, so
+        the Tech menu reopens, exactly as Cancel does on every other row;
+     1  applied and charged;
+     2  refused, with the reason already shown -- the menu closes afterwards,
+        which is what every other refusal in this menu does. */
+#define VV2_TW_CANCELLED 0
+#define VV2_TW_APPLIED   1
+#define VV2_TW_REFUSED   2
+__declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
+    unsigned char *ctx = (unsigned char *)(UINT_PTR)(unsigned int)gamectx_ptr;
+    const char *title = vv2_result_title(VV2_ACT_TIME_WARP);
+    char message[448];
+    HWND owner = GetForegroundWindow();
+    unsigned char *base;
+    int *tech;
+    int speed, years;
+
+    if (ctx == 0) {
+        return VV2_TW_REFUSED;
+    }
+    speed = *(int *)(ctx + VV2_TW_SPEED_OFFSET);
+    years = vv2_time_warp_years(speed);
+    if (years <= 0) {
+        /* Paused advances nothing at all, so it must refuse BEFORE any
+           charge rather than bill for a no-op. */
+        MessageBoxA(
+            owner,
+            speed >= VV2_TW_SPEED_PAUSED
+                ? "Time Warp is unavailable while the game is paused."
+                : "Time Warp could not read the game speed. No tech points "
+                  "have been deducted.",
+            title,
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+        );
+        return VV2_TW_REFUSED;
+    }
+    wsprintfA(
+        message,
+        "Do you want to buy Time Warp for %s tech points?\r\n"
+        "On %s game speed, this will advance %d villager years.\r\n"
+        "Press OK to confirm, or Cancel.",
+        vv2_action_cost(VV2_ACT_TIME_WARP),
+        vv2_speed_name(speed),
+        years
+    );
+    if (MessageBoxA(
+            owner, message, title,
+            MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
+        ) != IDOK) {
+        return VV2_TW_CANCELLED;
+    }
+    tech = (int *)(ctx + VV2_TW_TECH_POINTS_OFFSET);
+    if (*tech < cost) {
+        MessageBoxA(
+            owner, "Not enough tech points.", title,
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+        );
+        return VV2_TW_REFUSED;
+    }
+    base = *(unsigned char **)(ctx + VV2_TW_RECORD_POOL_OFFSET);
+    if (vv2_time_warp_apply(base, speed, years) <= 0) {
+        MessageBoxA(
+            owner,
+            "Time Warp could not reach the village records. No tech points "
+            "have been deducted.",
+            title,
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+        );
+        return VV2_TW_REFUSED;
+    }
+    *tech -= cost;
+    wsprintfA(message, "Advanced %d years.", years);
+    MessageBoxA(
+        owner, message, title,
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+    );
+    return VV2_TW_APPLIED;
+}
+
 __declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
     vv2_pop_demand_t population_demand =
         (vv2_pop_demand_t)(UINT_PTR)0x00425860;
