@@ -1152,7 +1152,6 @@ def main() -> None:
             jmp success
 
         do_barrel:
-            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 1
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
             mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
             jmp success
@@ -1834,6 +1833,12 @@ def main() -> None:
             inc dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}]
             cmp dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], {BARREL_DELAY_TICKS}
             jb barrel_main_done
+            # Arm the three-child override HERE, immediately before the
+            # purchased barrel is dispatched -- not back at purchase time.
+            # Raising it at purchase left it set for the whole deferred delay,
+            # so a NATURAL barrel firing in that window would consume the
+            # one-shot and the paid barrel would fall back to a random count.
+            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 1
             pushad
             mov esi, dword ptr [esp + 4]
             push 0x50F0

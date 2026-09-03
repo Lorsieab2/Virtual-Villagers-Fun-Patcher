@@ -33,7 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 import sys
 
 sys.path.insert(0, str(ROOT / "tests"))
-from test_cave_va_matches_section_mapping import constants  # noqa: E402
+from test_cave_va_matches_section_mapping import ALIAS, constants  # noqa: E402
 
 GAMES = {
     "vv1": (
@@ -72,6 +72,47 @@ RENDERED = {
     "vv4": ROOT / "research/vv4-origins/Virtual Villagers - The Tree of Life - Origins Research.exe",
     "vv5": ROOT / "research/vv5-origins/Virtual Villagers - New Believers - Origins Research.exe",
 }
+
+
+def sections(data: bytes):
+    """(name, va, raw, raw_size) for each section."""
+    pe = int.from_bytes(data[0x3C:0x40], "little")
+    count = int.from_bytes(data[pe + 6 : pe + 8], "little")
+    opt = int.from_bytes(data[pe + 20 : pe + 22], "little")
+    base = int.from_bytes(data[pe + 24 + 28 : pe + 24 + 32], "little")
+    table = pe + 24 + opt
+    out = []
+    for index in range(count):
+        entry = table + index * 40
+        out.append((
+            data[entry : entry + 8].rstrip(b"\0").decode("ascii", "replace"),
+            base + int.from_bytes(data[entry + 12 : entry + 16], "little"),
+            int.from_bytes(data[entry + 20 : entry + 24], "little"),
+            int.from_bytes(data[entry + 16 : entry + 20], "little"),
+        ))
+    return out
+
+
+def va_of(secs, offset: int):
+    """VA a raw file offset maps to, or None when it is outside every section.
+
+    Assuming `IMAGE_BASE + offset` is exactly the mistake this file exists to
+    catch: in a non-identity-mapped section the two differ. VV2's raw 0x9A004
+    maps to 0x49C004, not 0x49A004, so computing a branch target from the wrong
+    source silently checked the wrong address -- and could pass a broken branch.
+    """
+    for _name, va, raw, raw_size in secs:
+        if raw <= offset < raw + raw_size:
+            return va + (offset - raw)
+    return None
+
+
+def section_of(secs, va: int):
+    """Name of the section a VA falls in, or None."""
+    for name, start, _raw, raw_size in secs:
+        if start <= va < start + max(raw_size, 1):
+            return name
+    return None
 
 
 def image_extent(path: Path) -> int:
@@ -125,6 +166,9 @@ class InstalledBranchesReachDeclaredCavesTests(unittest.TestCase):
     def test_every_installed_branch_lands_somewhere_real(self) -> None:
         import json
 
+        available = [g for g, p in RENDERED.items() if p.is_file()]
+        if not available:
+            self.skipTest("no generated executables present (research/ is not committed)")
         checked = 0
         for game, (manifest_path, script) in GAMES.items():
             if not manifest_path.is_file() or not script.is_file():
@@ -133,6 +177,7 @@ class InstalledBranchesReachDeclaredCavesTests(unittest.TestCase):
             if rendered is None or not rendered.is_file():
                 continue
             limit = image_extent(rendered)
+            secs = sections(rendered.read_bytes())
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             values, _exprs = constants(script)
             declared = {
@@ -141,7 +186,10 @@ class InstalledBranchesReachDeclaredCavesTests(unittest.TestCase):
                 if name.endswith("_VA") and value > IMAGE_BASE
             }
             for off, opcode, rel in installed_branches(manifest):
-                target = IMAGE_BASE + off + 5 + rel
+                source = va_of(secs, off)
+                if source is None:
+                    continue          # outside every raw section
+                target = source + 5 + rel
                 with self.subTest(game=game, offset=hex(off)):
                     self.assertTrue(
                         target in declared or IMAGE_BASE <= target < limit,
@@ -152,6 +200,40 @@ class InstalledBranchesReachDeclaredCavesTests(unittest.TestCase):
                     )
                 checked += 1
         self.assertGreater(checked, 20, "no installed branches were checked")
+
+    def test_the_source_translation_matches_the_generators_own_vas(self) -> None:
+        """Guards the translation this audit depends on.
+
+        Every branch target is computed from where its patch offset MAPS. If
+        that mapping were assumed identity, VV2's .shr sources would come out
+        0x2000 low and every target with them -- and because the wrong targets
+        still land inside the image, the audit itself would not notice. So the
+        mapping is checked against the generators' own declared pairs, which
+        are independent of it.
+        """
+        available = [g for g, p in RENDERED.items() if p.is_file()]
+        if not available:
+            self.skipTest("no generated executables present (research/ is not committed)")
+        checked = 0
+        for game in available:
+            script = GAMES[game][1]
+            if not script.is_file():
+                continue
+            values, exprs = constants(script)
+            secs = sections(RENDERED[game].read_bytes())
+            for name, offset in values.items():
+                if not name.endswith("_FILE_OFFSET"):
+                    continue
+                va = values.get(name[: -len("_FILE_OFFSET")] + "_VA")
+                if va is None or ALIAS.match(exprs.get(name[: -len("_FILE_OFFSET")] + "_VA", "")):
+                    continue
+                mapped = va_of(secs, offset)
+                if mapped is None:
+                    continue
+                with self.subTest(game=game, cave=name):
+                    self.assertEqual(mapped, va)
+                checked += 1
+        self.assertGreater(checked, 10, "no cave mappings were checked")
 
 
 if __name__ == "__main__":
