@@ -102,3 +102,53 @@ the companion DLL, not into a reduced version of the feature. An earlier
 attempt gave VV3 a refuse-after-the-click message on the grounds that it had no
 cave space, which is the wrong trade — the space constraint decides where code
 lives, never what the player gets.
+
+## The Barrel of Babies short-spawn, and what it is NOT
+
+Reported in play: the Barrel delivers fewer than three children -- sometimes
+zero -- while skeletons lie unburied, and delivers three again once villagers
+have buried some. **It charges in full either way**, in all five games. That
+last part is the actual defect: paying 75,000 tech points for zero children.
+
+Two candidate mechanisms are ruled out by evidence, and both are ruled out for
+the same reason, so neither should be tried again:
+
+**It is not the living-population count.** Both games' own counters skip any
+record whose health field is `<= 0` -- VV1's at `0x41CF90`
+(`cmp dword [ecx], 0 / jle` before the increment) and VV2's at `0x425860`
+(`mov edx, [ecx+0x4fc] / test / jle`). The dead are already excluded there, so
+unburied bodies do not inflate it.
+
+**It is not the population cap.** VV2's cap is a stock base of 90 plus a 0-25
+collection bonus. The reproduction had **31 living villagers**, so the existing
+`demand + 3 > cap` gate passed with enormous room to spare -- as it should
+have. A guard written against this cap would not fire in the reported scenario
+at all.
+
+So the limit lives further in, where the spawn places each individual child.
+
+**What is known about the record pool** (VV2, from `0x425860`):
+
+| Thing | Value |
+| --- | --- |
+| Pool pointer | `[gamectx + 0x305A4]` |
+| First record | pool + `0x30` |
+| Record stride | `0xE48C` |
+| Occupied byte | record + `0` |
+| Health | record + `0x4FC` |
+| Slot count | 256 (four records unrolled x 64 iterations) |
+
+With 31 living plus a handful of skeletons against 256 slots, a plain
+free-slot search should not run out either -- which is why the mechanism is
+still open rather than guessed at. 83 separate call sites walk this pool by
+that stride, so narrowing it by static reading alone is not practical.
+
+**What would settle it:** one reproduction with the pool read live -- occupied
+count versus living count at the moment the Barrel short-spawns, and which
+slots the children that DO arrive land in. That distinguishes a slot-allocation
+limit from a world-space placement limit (skeletons physically blocking the
+drop points), which are the two remaining candidates and want opposite fixes.
+
+Until then the row is deliberately NOT blocked on a guessed threshold: a guard
+that does not fire in the reported case would be worse than none, because it
+would look like the bug was fixed.
