@@ -2386,15 +2386,40 @@ def main() -> None:
     pending_rows_code = assemble(
         f"""
             push eax
+            push ecx
+            push edx
+            push ebx
             mov eax, dword ptr [esi + 0x0C]
             cmp dword ptr [eax + 0xA300], 0
             jne pending_rows_barrel
             or edi, 0x800000
         pending_rows_barrel:
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
-            je pending_rows_done
+            je pending_rows_slots
+            or edi, 0x1000000
+        pending_rows_slots:
+            # Three villager slots must actually be free, counting unburied
+            # skeletons and pregnancies as occupants -- they hold a record even
+            # though the living-population counter skips them.
+            mov ecx, dword ptr [eax + 0xADE8]
+            add ecx, 0x28
+            xor edx, edx
+            mov ebx, 0x5A
+        pending_rows_count:
+            cmp byte ptr [ecx], 0
+            je pending_rows_next
+            inc edx
+        pending_rows_next:
+            add ecx, 0x3D8
+            dec ebx
+            jnz pending_rows_count
+            cmp edx, 0x57
+            jbe pending_rows_done
             or edi, 0x1000000
         pending_rows_done:
+            pop ebx
+            pop edx
+            pop ecx
             pop eax
             ret
         """,

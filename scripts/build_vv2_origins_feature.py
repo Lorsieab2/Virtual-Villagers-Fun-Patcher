@@ -2278,8 +2278,41 @@ def main() -> None:
             or eax, 0x800000
         pending_rows_barrel:
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
-            je pending_rows_done
+            je pending_rows_slots
             or eax, 0x1000000
+        pending_rows_slots:
+            # Three villager slots must actually be free, counting unburied
+            # skeletons and pregnancies as occupants. The living-population
+            # counter at 0x425860 skips any record whose health is <= 0, so a
+            # village full of skeletons reads as small while its slots are
+            # nearly all taken -- which is how the barrel delivers fewer than
+            # three, or none, while the capacity gate still sees room.
+            #
+            # Layout from that same counter: pool at [player+0x305A4], first
+            # record's occupied byte at +0x30, stride 0xE48C. The bound is the
+            # game's own population base of 90.
+            push ecx
+            push edx
+            push ebx
+            mov ecx, dword ptr [edi + 0x305A4]
+            add ecx, 0x30
+            xor edx, edx
+            mov ebx, 0x5A
+        pending_rows_count:
+            cmp byte ptr [ecx], 0
+            je pending_rows_next
+            inc edx
+        pending_rows_next:
+            add ecx, 0xE48C
+            dec ebx
+            jnz pending_rows_count
+            cmp edx, 0x57
+            jbe pending_rows_slots_ok
+            or eax, 0x1000000
+        pending_rows_slots_ok:
+            pop ebx
+            pop edx
+            pop ecx
         pending_rows_done:
             ret
         """,
