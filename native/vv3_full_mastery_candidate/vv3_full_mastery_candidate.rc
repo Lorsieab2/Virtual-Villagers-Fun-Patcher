@@ -255,46 +255,46 @@ BEGIN
     PUSHBUTTON  "Cancel", 2, 188, 178, 50, 16
 END
 
-214 DIALOGEX 0, 0, 330, 384
+214 DIALOGEX 0, 0, 380, 384
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance for All"
 FONT 9, "Segoe UI"
 BEGIN
-    GROUPBOX    "Male Villagers", -1, 4, 2, 322, 116
-    CTEXT       "Body", -1, 34, 14, 55, 9
-    PUSHBUTTON  "<", 3202, 16, 46, 14, 40
-    CONTROL     "", 3201, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 34, 26, 50, 74
-    PUSHBUTTON  ">", 3203, 93, 46, 14, 40
-    CTEXT       "Head", -1, 148, 14, 55, 9
-    PUSHBUTTON  "<", 3205, 130, 46, 14, 40
-    CONTROL     "", 3204, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 148, 26, 50, 74
-    PUSHBUTTON  ">", 3206, 207, 46, 14, 40
-    CTEXT       "Mask", -1, 262, 14, 55, 9
-    PUSHBUTTON  "<", 3208, 244, 46, 14, 40
-    CONTROL     "", 3207, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 262, 26, 50, 74
-    PUSHBUTTON  ">", 3209, 306, 46, 14, 40
+    GROUPBOX    "Male Villagers", -1, 6, 2, 368, 110
+    CTEXT       "Body", -1, 28, 14, 50, 9
+    PUSHBUTTON  "<", 3202, 14, 48, 12, 20
+    CONTROL     "", 3201, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 24, 50, 74
+    PUSHBUTTON  ">", 3203, 80, 48, 12, 20
+    CTEXT       "Head", -1, 150, 14, 50, 9
+    PUSHBUTTON  "<", 3205, 136, 48, 12, 20
+    CONTROL     "", 3204, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 24, 50, 74
+    PUSHBUTTON  ">", 3206, 202, 48, 12, 20
+    CTEXT       "Mask", -1, 272, 14, 50, 9
+    PUSHBUTTON  "<", 3208, 258, 48, 12, 20
+    CONTROL     "", 3207, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 24, 50, 74
+    PUSHBUTTON  ">", 3209, 324, 48, 12, 20
 
-    GROUPBOX    "Female Villagers", -1, 4, 122, 322, 116
-    CTEXT       "Body", -1, 34, 134, 55, 9
-    PUSHBUTTON  "<", 3222, 16, 166, 14, 40
-    CONTROL     "", 3221, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 34, 146, 50, 74
-    PUSHBUTTON  ">", 3223, 93, 166, 14, 40
-    CTEXT       "Head", -1, 148, 134, 55, 9
-    PUSHBUTTON  "<", 3225, 130, 166, 14, 40
-    CONTROL     "", 3224, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 148, 146, 50, 74
-    PUSHBUTTON  ">", 3226, 207, 166, 14, 40
-    CTEXT       "Mask", -1, 262, 134, 55, 9
-    PUSHBUTTON  "<", 3228, 244, 166, 14, 40
-    CONTROL     "", 3227, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 262, 146, 50, 74
-    PUSHBUTTON  ">", 3229, 306, 166, 14, 40
+    GROUPBOX    "Female Villagers", -1, 6, 116, 368, 110
+    CTEXT       "Body", -1, 28, 122, 50, 9
+    PUSHBUTTON  "<", 3222, 14, 156, 12, 20
+    CONTROL     "", 3221, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 28, 132, 50, 74
+    PUSHBUTTON  ">", 3223, 80, 156, 12, 20
+    CTEXT       "Head", -1, 150, 122, 50, 9
+    PUSHBUTTON  "<", 3225, 136, 156, 12, 20
+    CONTROL     "", 3224, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 132, 50, 74
+    PUSHBUTTON  ">", 3226, 202, 156, 12, 20
+    CTEXT       "Mask", -1, 272, 122, 50, 9
+    PUSHBUTTON  "<", 3228, 258, 156, 12, 20
+    CONTROL     "", 3227, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 272, 132, 50, 74
+    PUSHBUTTON  ">", 3229, 324, 156, 12, 20
 
-    GROUPBOX    "Mask Distribution (all villagers)", -1, 4, 242, 322, 62
+    GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 242, 368, 62
     AUTORADIOBUTTON "Off - use the per-sex Mask selectors above", 3301, 14, 254, 300, 10, WS_GROUP
     AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3302, 14, 266, 306, 10
     AUTORADIOBUTTON "Random", 3303, 14, 278, 120, 10
     AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3304, 14, 290, 300, 10
 
-    GROUPBOX    "Village-wide Single Mask Color", -1, 4, 308, 322, 40
+    GROUPBOX    "Village-wide Single Mask Color", -1, 6, 308, 368, 40
     AUTORADIOBUTTON "None (remove all masks)", 3305, 14, 320, 130, 10
     AUTORADIOBUTTON "Blue", 3306, 150, 320, 45, 10
     AUTORADIOBUTTON "Orange", 3307, 205, 320, 50, 10
@@ -302,7 +302,7 @@ BEGIN
     AUTORADIOBUTTON "Purple", 3309, 14, 334, 60, 10
     AUTORADIOBUTTON "Chief", 3310, 150, 334, 60, 10
 
-    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 40, 354, 250, 9
-    DEFPUSHBUTTON "OK", 1, 100, 366, 55, 16
-    PUSHBUTTON  "Cancel", 2, 175, 366, 55, 16
+    CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 65, 354, 250, 9
+    DEFPUSHBUTTON "OK", 1, 125, 366, 55, 16
+    PUSHBUTTON  "Cancel", 2, 200, 366, 55, 16
 END

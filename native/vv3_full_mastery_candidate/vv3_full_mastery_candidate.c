@@ -347,6 +347,44 @@ static void end_modal_over_game(HWND owner) {
 }
 
 
+/* Villager record array. Base and stride are fixed in the image, so this needs
+   nothing from the executable -- the DLL can answer the question on its own.
+   The slot bound is read from the same 0x42883A immediate the robe fan-out
+   uses, because expanded builds raise it from 150 to 256.
+
+   A slot counts as OCCUPIED whenever its active field is set, whether or not
+   the villager in it is alive. That is the whole point: an unburied skeleton
+   still holds its record, and the game's own population counter skips it
+   (health <= 0), so a village full of bodies reads as small while its slots
+   are nearly all taken. The barrel then spawns fewer children than it charged
+   for -- sometimes none. */
+#define VV3_RECORD_BASE      0x59E124
+#define VV3_RECORD_STRIDE    0x1F8C
+#define VV3_SLOT_BOUND_PTR   0x42883A
+#define VV3_OFF_ACTIVE       0xF10
+#define VV3_BARREL_CHILDREN  3
+
+static int vv3_has_free_villager_slots(int wanted) {
+    unsigned int bound = *(volatile unsigned int *)(UINT_PTR)VV3_SLOT_BOUND_PTR;
+    const unsigned char *record = (const unsigned char *)(UINT_PTR)VV3_RECORD_BASE;
+    unsigned int index;
+    int free_slots = 0;
+
+    if (bound == 0 || bound > 256) {
+        return 1;               /* unrecognised bound -> do not block */
+    }
+    for (index = 0; index < bound; ++index) {
+        if (*(volatile int *)(record + VV3_OFF_ACTIVE) == 0) {
+            ++free_slots;
+            if (free_slots >= wanted) {
+                return 1;
+            }
+        }
+        record += VV3_RECORD_STRIDE;
+    }
+    return 0;
+}
+
 /* Duplicate-purchase state for the Tech menu's Island Event and Barrel of
    Babies rows.
 
@@ -392,7 +430,10 @@ static int vv3_row_purchase_pending(int villager_menu, int row) {
         return 0;
     }
     if (row == VV3_PENDING_ROW_BARREL) {
-        return *(volatile unsigned char *)(UINT_PTR)VV3_BARREL_PENDING_FLAG != 0;
+        if (*(volatile unsigned char *)(UINT_PTR)VV3_BARREL_PENDING_FLAG != 0) {
+            return 1;
+        }
+        return !vv3_has_free_villager_slots(VV3_BARREL_CHILDREN);
     }
     if (row != VV3_PENDING_ROW_ISLAND) {
         return 0;
@@ -1302,7 +1343,7 @@ static int vv3_world_record_index(void *record)
    Different function, different coordinate space -- retuning one screen must
    never move the other. */
 #define VV3_WORLD_MASK_X_NUDGE_PX (-10)
-#define VV3_WORLD_MASK_Y_NUDGE_PX (-29)
+#define VV3_WORLD_MASK_Y_NUDGE_PX (-33)
 
 /* An extra horizontal nudge for the right-facing frames only, on top of the
    nudge above that every frame gets.  The right-facing mask art sits further

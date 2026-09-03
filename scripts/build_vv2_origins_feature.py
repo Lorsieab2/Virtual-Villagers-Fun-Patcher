@@ -2299,7 +2299,12 @@ def main() -> None:
             jz pending_rows_slots_ok
             add ecx, 0x30
             xor edx, edx
-            mov ebx, 0x5A
+            # Scan the WHOLE 256-slot array, not just the first 90:
+            # occupied records are not packed to the front, so a
+            # 90-iteration scan would miss skeletons living above
+            # that index. The 90 is the population clamp and belongs
+            # in the comparison below, not in the loop bound.
+            mov ebx, 0x100
         pending_rows_count:
             cmp byte ptr [ecx], 0
             je pending_rows_next

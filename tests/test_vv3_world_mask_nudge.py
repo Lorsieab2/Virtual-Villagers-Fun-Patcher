@@ -36,7 +36,7 @@ SOURCE = (
 )
 
 WORLD_MASK_X_NUDGE_PX = -10
-WORLD_MASK_Y_NUDGE_PX = -29
+WORLD_MASK_Y_NUDGE_PX = -33
 
 # The stock child-scale curve at 0x0046091E..0x00460934.
 CHILD_SLOPE = struct.unpack("<f", struct.pack("<I", 0x3D924925))[0]   # 1/14
@@ -142,7 +142,7 @@ class VV3WorldMaskNudgeTests(unittest.TestCase):
         scale = stock_scale(ADULT_AGE)
         self.assertEqual(scale, 1.0)
         self.assertEqual(scaled_nudge(WORLD_MASK_X_NUDGE_PX, scale), -10)
-        self.assertEqual(scaled_nudge(WORLD_MASK_Y_NUDGE_PX, scale), -29)
+        self.assertEqual(scaled_nudge(WORLD_MASK_Y_NUDGE_PX, scale), -33)
 
     def test_a_child_gets_a_proportionally_smaller_offset(self) -> None:
         """A newborn is drawn at 0.80, so it moves 80% of the adult offset.

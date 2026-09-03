@@ -328,6 +328,43 @@ enum {
 
 /* Is this tech-menu row blocked by an identical purchase already pending?
    Villager-menu rows are never affected. */
+/* Villager record array. Base and stride are fixed in the image, so the DLL
+   can answer this without anything from the executable. The slot bound comes
+   from the same 0x41F1E6 immediate the Cure sweep reads, because expanded
+   builds raise it.
+
+   A slot counts as OCCUPIED whenever its active byte is set, alive or not.
+   That is the point: an unburied skeleton still holds its record, and the
+   game's own population counter skips it, so a village full of bodies reads as
+   small while its slots are nearly all taken -- and the barrel then spawns
+   fewer children than it charged for, sometimes none. */
+#define VV5_RECORD_BASE      0x554190
+#define VV5_RECORD_STRIDE    0x2F44
+#define VV5_SLOT_BOUND_PTR   0x41F1E6
+#define VV5_OFF_ACTIVE       0x1CD4
+#define VV5_BARREL_CHILDREN  3
+
+static int vv5_has_free_villager_slots(int wanted) {
+    unsigned int bound = *(volatile unsigned int *)(UINT_PTR)VV5_SLOT_BOUND_PTR;
+    const unsigned char *record = (const unsigned char *)(UINT_PTR)VV5_RECORD_BASE;
+    unsigned int index;
+    int free_slots = 0;
+
+    if (bound == 0 || bound > 256) {
+        return 1;               /* unrecognised bound -> do not block */
+    }
+    for (index = 0; index < bound; ++index) {
+        if (*(volatile unsigned char *)(record + VV5_OFF_ACTIVE) == 0) {
+            ++free_slots;
+            if (free_slots >= wanted) {
+                return 1;
+            }
+        }
+        record += VV5_RECORD_STRIDE;
+    }
+    return 0;
+}
+
 static int row_purchase_pending(int villager_menu, int row, long state) {
     if (villager_menu) {
         return 0;
@@ -335,7 +372,13 @@ static int row_purchase_pending(int villager_menu, int row, long state) {
     if (row == PENDING_ROW_ISLAND && (state & STATE_ISLAND_PENDING) != 0) {
         return 1;
     }
-    return row == PENDING_ROW_BARREL && (state & STATE_BARREL_PENDING) != 0;
+    if (row != PENDING_ROW_BARREL) {
+        return 0;
+    }
+    if ((state & STATE_BARREL_PENDING) != 0) {
+        return 1;
+    }
+    return !vv5_has_free_villager_slots(VV5_BARREL_CHILDREN);
 }
 
 static INT_PTR CALLBACK appearance_dialog(
