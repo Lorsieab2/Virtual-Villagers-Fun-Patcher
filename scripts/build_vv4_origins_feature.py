@@ -1934,8 +1934,42 @@ def main() -> None:
             jmp pending_rows_done
         pending_rows_barrel:
             cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
-            je pending_rows_done
+            je pending_rows_slots
             or edx, 0x1000000
+        pending_rows_slots:
+            # Three villager slots must actually be free, counting unburied
+            # skeletons as occupants. The population counter at 0x467610 skips
+            # any record whose health is <= 0, so a village full of bodies
+            # reads as small while its slots are nearly all taken -- and the
+            # spawn's own per-child room check then stops partway.
+            #
+            # Layout from that counter: records at manager+0x1D08, stride
+            # 0x2E3C, 150 slots, occupied byte at +0. eax already holds the
+            # world singleton, and it was null-checked above.
+            push ecx
+            push ebx
+            push esi
+            mov ecx, dword ptr [0x4CB51C]
+            test ecx, ecx
+            jz pending_rows_slots_ok
+            add ecx, 0x1D08
+            xor esi, esi
+            mov ebx, 0x96
+        pending_rows_count:
+            cmp byte ptr [ecx], 0
+            jne pending_rows_next
+            inc esi
+            cmp esi, 3
+            jge pending_rows_slots_ok
+        pending_rows_next:
+            add ecx, 0x2E3C
+            dec ebx
+            jnz pending_rows_count
+            or edx, 0x1000000
+        pending_rows_slots_ok:
+            pop esi
+            pop ebx
+            pop ecx
         pending_rows_done:
             mov eax, edx
             pop edx
