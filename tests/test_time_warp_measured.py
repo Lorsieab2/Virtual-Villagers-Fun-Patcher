@@ -59,7 +59,7 @@ GENERATORS = {
 
 # Games whose Time Warp has moved into the companion DLL. Grows one game per
 # pull request; the flat-delta assertions below cover the remainder.
-MIGRATED = {"vv1", "vv2"}
+MIGRATED = {"vv1", "vv2", "vv3"}
 
 # Each game's Time Warp constants are scoped with its own prefix:
 # vv2_origins_icons.c #includes vv1_origins_icons.c after pre-defining the
@@ -68,6 +68,7 @@ MIGRATED = {"vv1", "vv2"}
 COMPANIONS = {
     "vv1": "native/vv1_origins_icons/vv1_origins_icons.c",
     "vv2": "native/vv2_origins_icons/vv2_origins_icons.c",
+    "vv3": "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
 }
 
 # The engine's own speed divisors, and the years each must buy.
@@ -167,9 +168,19 @@ class MigratedGamesTests(unittest.TestCase):
                 self.assertNotIn("tw_fast:", text)
 
     def test_the_row_is_dispatched_to_the_companion(self) -> None:
+        """However it is wired, row 0 must resolve the DLL's Time Warp export.
+
+        VV1 and VV2 resolve it from a dedicated .shr loader stub; VV3 has no
+        cave to spare and inlines the same resolve in the payload the row
+        already occupied. The export name is what both have in common.
+        """
         for gid in sorted(MIGRATED):
             with self.subTest(game=gid):
-                self.assertIn("TIME_WARP_HELPER_VA", source(GENERATORS[gid]))
+                # VV2 names its constant TIME_WARP_EXPORT_BYTES; VV1 and
+                # VV3 use a lowercase string-table key. Either counts.
+                self.assertIn(
+                    "time_warp_export", source(GENERATORS[gid]).lower()
+                )
 
     def test_the_companion_knows_the_speed_codes_and_targets(self) -> None:
         for gid in sorted(MIGRATED):
@@ -199,7 +210,15 @@ class MigratedGamesTests(unittest.TestCase):
                 self.assertRegex(dll, r"VV\d_TW_TIME_EPOCH_VA")
                 self.assertRegex(dll, r"VV\d_TW_LAST_SEEN_OFFSET")
                 self.assertIn("+= delta;", dll)
-                self.assertIn("+= units;", dll)
+                # The age is credited by exactly `units` -- written directly
+                # where the engine itself just adds (VV1, VV2), or through the
+                # engine's own adder where that call has side effects VV3's
+                # does: it fires the 80-year notification at 1600 units, so
+                # writing the field there would silently skip it.
+                self.assertTrue(
+                    "+= units;" in dll or "add_age(" in dll,
+                    f"{gid} credits the age by something other than units",
+                )
 
     def test_the_companion_refuses_while_paused_without_charging(self) -> None:
         """The refusal must precede the deduction, not follow it."""
@@ -232,10 +251,14 @@ class MigratedGamesTests(unittest.TestCase):
                 self.assertRegex(dll, r"#define VV\d_TW_REFUSED   2")
                 self.assertRegex(dll, r"return VV\d_TW_CANCELLED;")
                 exe = source(GENERATORS[gid])
-                after = exe[exe.index("call 0x{TIME_WARP_HELPER_VA:X}"):]
-                after = after[:400]
+                # Anchored on the dispatch's own comment, which every game
+                # carries, rather than on a particular cave name.
+                after = exe[exe.index("the player cancelled"):][:600]
                 self.assertIn("test eax, eax", after)
-                self.assertIn("jz menu_loop", after)
+                self.assertIn(
+                    "jz menu_loop", after,
+                    f"{gid} does not reopen the menu when Time Warp is cancelled",
+                )
 
     def test_the_nonempty_preflight_counts_any_occupied_record(self) -> None:
         """A village of records the age credit skips is still a village.
@@ -247,9 +270,11 @@ class MigratedGamesTests(unittest.TestCase):
             with self.subTest(game=gid):
                 dll = source(COMPANIONS[gid])
                 fn = dll[dll.index("_time_warp_apply("):]
-                pre = fn[fn.index("Count BEFORE"): fn.index("if (credited == 0) {")]
+                start = fn.index("Count BEFORE")
+                pre = fn[start: fn.index("return 0;", start)]
                 self.assertNotIn("eligible", pre)
                 self.assertNotIn("golden", pre)
+                self.assertNotIn("health", pre.lower())
 
     def test_the_confirmation_names_the_speed_and_the_years(self) -> None:
         for gid in sorted(MIGRATED):

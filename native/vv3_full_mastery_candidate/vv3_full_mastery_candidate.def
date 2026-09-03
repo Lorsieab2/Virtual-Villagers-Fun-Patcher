@@ -9,6 +9,7 @@ EXPORTS
     EqualDivisionOfLabor=_EqualDivisionOfLabor@4
     ShowOriginsFullMasteryResult=_ShowOriginsFullMasteryResult@8
     ShowVV3AppearanceChooser=_ShowVV3AppearanceChooser@20
+    ShowVV3TimeWarp=_ShowVV3TimeWarp@4
     VV3GetMaskAtlas=_VV3GetMaskAtlas@0
     VV3_GetMaskForRecord=_VV3_GetMaskForRecord@4
     VV3_SetMaskForRecord=_VV3_SetMaskForRecord@8

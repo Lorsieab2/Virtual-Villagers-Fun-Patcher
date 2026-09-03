@@ -315,13 +315,10 @@ def main() -> None:
         ("detail_title", "Villager Upgrades"),
         ("mastery_failed", "Full Mastery could not be completed."),
         ("not_enough", "Not enough tech points."),
-        ("paused", "Time Warp is unavailable while the game is paused."
-         "\r\n"
-         "No tech points have been deducted."),
-        (
-            "time_warp_done",
-            "Time Warp completed.",
-        ),
+        # Time Warp's own strings live in the companion DLL now: its
+        # prompt names the current game speed and the years it will buy,
+        # and its paused refusal and result are shown from there.
+        ("time_warp_export", "ShowVV3TimeWarp"),
         (
             "youth_already",
             "This villager is already full of youth. "
@@ -766,22 +763,49 @@ def main() -> None:
             sub dword ptr [0x582644], 1000000
             jmp do_village_wide
         legacy_charge:
+            # Time Warp (row 0) is owned end to end by the companion DLL: what
+            # it advances, what its prompt must say, and whether it may run at
+            # all all depend on the game speed at this instant, and it has to
+            # credit each villager through the game's own 0x45C640 so the
+            # 80-year notification still fires. The DLL reaches the manager,
+            # the record array and the tech balance by itself, so the only
+            # argument is the cost.
+            #
+            # Stack: the cost is pushed first and stays put -- LoadLibraryA and
+            # GetProcAddress are both stdcall and clean their own arguments --
+            # then ShowVV3TimeWarp@4 consumes it. The two failure paths drop it
+            # themselves.
+            cmp ebx, 0
+            jne legacy_not_time_warp
+            mov eax, dword ptr [0x{s['tech_costs']:X}]
+            push eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+            test eax, eax
+            je time_warp_unavailable
+            push 0x{s['time_warp_export']:X}
+            push eax
+            call dword ptr [0x47C128]
+            test eax, eax
+            je time_warp_unavailable
+            call eax
+            # 0 = the player cancelled: say nothing and reopen the menu, the
+            # same as Cancel on every other row. 1 (applied) and 2 (refused
+            # with the reason already shown) both close it.
+            test eax, eax
+            jz menu_loop
+            jmp menu_done
+        time_warp_unavailable:
+            add esp, 4
+            jmp menu_done
+        legacy_not_time_warp:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [0x582644], eax
             jb insufficient
-            # Time Warp while the game is paused advances nothing at all
-            # (measured: 0 years in every game), so refuse it here, BEFORE the
-            # deduction below.  Checking after the `sub` would still cost the
-            # player 50,000 points for a no-op, which is exactly the bug being
-            # fixed.  Only row 0 is affected; every other row charges normally.
-            cmp ebx, 0
-            jne tw_charge_ok
-            mov ecx, dword ptr [edi + ebp + 0x12F20]
-            cmp ecx, 0x3E7
-            jl tw_charge_ok
-            mov eax, 0x{s['paused']:X}
-            jmp show_status
-        tw_charge_ok:
+            # Row 0 (Time Warp) never reaches here -- legacy_charge hands
+            # it to the companion DLL, which owns its own paused refusal and
+            # its own charge.
+            #
             # Row 1 is the Island Event, which is queued by zeroing its
             # countdown. A second purchase while one is pending zeroes an
             # already-zero field: no extra event, full charge. Refuse instead.
@@ -797,8 +821,6 @@ def main() -> None:
             jmp show_result
         ie_charge_ok:
             sub dword ptr [0x582644], eax
-            cmp ebx, 0
-            je do_time_warp
             cmp ebx, 1
             je do_island_event
             cmp ebx, 2
@@ -820,30 +842,6 @@ def main() -> None:
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
-
-        do_time_warp:
-            # EXACT, not calibrated. The owner states the game's own time
-            # base: one villager year is 4 real hours at slow, 2 at normal and
-            # 1 at fast. The delta is in real seconds, so the years a given
-            # delta buys are delta / (hours * 3600):
-            #
-            #     slow    43200 / 14400 =  3 years
-            #     normal  43200 /  7200 =  6 years
-            #     fast    43200 /  3600 = 12 years
-            #
-            # The targets 3 / 6 / 12 are exactly inverse to the hours-per-year
-            # 4 / 2 / 1, so ONE flat amount hits all three on the nose and no
-            # per-speed table is needed. That also removes this feature's
-            # dependence on reading the speed field correctly, which is what
-            # the previous scaled tables were guessing around.
-            #
-            # Paused is still refused before the charge, which does read the
-            # speed field -- that guard is unaffected.
-            mov eax, 43200
-        tw_apply:
-            sub dword ptr [0x4A4210], eax
-            mov eax, 0x{s['time_warp_done']:X}
-            jmp show_status
 
         do_island_event:
             # Queue the event a few seconds out instead of making it due on the

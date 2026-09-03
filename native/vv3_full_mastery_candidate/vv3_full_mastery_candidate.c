@@ -2373,6 +2373,246 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
     return FALSE;
 }
 
+/* ------------------------------------------------------------------ *
+ *  Time Warp                                                          *
+ * ------------------------------------------------------------------ *
+ *
+ * The aging mechanism is the same in all five games, but VV3 differs from VV1
+ * and VV2 in two ways that matter, both read off this exact build rather than
+ * carried over:
+ *
+ *   * the record layout is NOT the VV1/VV2 shape.  There the pending slice and
+ *     the marker sit just below the age field; here the age is at +0xDC4 while
+ *     the pending slice is at +0xE6C and the marker at +0xE70, ABOVE it.  The
+ *     aging loop walks esi = record + 0xF10, so its [esi-0x14C] is the age and
+ *     its [esi-0xA0] the marker -- confirmed twice over, because the same base
+ *     puts the health field it tests at [esi-0x98] = record + 0xE78, which is
+ *     the offset the rest of this project already uses.
+ *
+ *   * the age is NOT a plain add.  0x0045C640 adds the units and then, if the
+ *     total reaches 0x640 (1600 units = 80 years), tail-calls 0x00412CD0 --
+ *     the old-age notification.  Writing the field directly would skip that,
+ *     so this calls the game's own routine instead.  VV1 and VV2 really do
+ *     just `add`, which is why they can write theirs.
+ *
+ * How the engine ages a villager here:
+ *
+ *   [0x004A4210] is a time_t epoch.  sub_403330 returns "real seconds since
+ *   that epoch".  The difference accumulates at +0xE6C and is then CLAMPED at
+ *   0x0045F51D:
+ *
+ *       > 86400                                   -> forced to 86400
+ *       > 23800 slow / 31000 normal / 38200 fast  -> forced to 31000
+ *
+ *   before converting with  units += (pending / 60) / speed_code, at 20 units
+ *   per villager year.
+ *
+ * That clamp is why simply moving the epoch cannot work.  The advance the
+ * targets need -- 36000 s at slow, 43200 s at normal and fast -- is over the
+ * threshold at every speed, so all three collapse to 31000 and yield
+ * 2.55 / 4.3 / 8.6 years instead of 3 / 6 / 12.  Pushing a LARGER number in
+ * makes the warp smaller, which is exactly the reported bug.
+ *
+ * So the advance is applied in two halves: the epoch moves by the true delta
+ * so every other time-based system sees a real jump, and each villager is
+ * credited the exact units through the game's own routine, with its marker
+ * moved by the same delta so its own tick does not process -- and clamp -- the
+ * same jump a second time.
+ */
+#define VV3_TW_SPEED_OFFSET        0x12F20  /* off the manager, arch-adjusted   */
+#define VV3_TW_SPEED_PAUSED           999
+#define VV3_TW_TIME_EPOCH_VA         0x004A4210u
+#define VV3_TW_TECH_POINTS_VA   0x00582644u
+#define VV3_TW_AGE_OFFSET          0xDC4    /* age units; 20 == 1 villager year */
+#define VV3_TW_LAST_SEEN_OFFSET    0xE70    /* elapsed value this record saw    */
+#define VV3_TW_HEALTH_OFFSET       0xE78
+#define VV3_TW_TICK_GATE_OFFSET    0xE94    /* engine ages only while this is 0 */
+#define VV3_TW_UNITS_PER_YEAR   20
+#define VV3_TW_ADD_AGE_FN       0x0045C640u
+
+/* Speed codes are the engine's own divisors, written by the speed menu at
+   0x0041DB13 / 0x0041DB65 / 0x0041DBB4.  A year is 20 * 60 * code seconds:
+   2 hours at normal and 1 at fast exactly, and 3h20m at slow -- slow is NOT
+   the 4 hours it is often quoted as, which is why the years are targeted
+   directly here instead of derived from an hours-per-year figure. */
+#define VV3_TW_SPEED_SLOW       10
+#define VV3_TW_SPEED_NORMAL     6
+#define VV3_TW_SPEED_FAST       3
+
+/* 0x0045C640: adds `units` to the age field addressed by ECX, and fires the
+   80-year notification if the total crosses 1600.  ret 4.
+
+   That is __thiscall, which MSVC does not accept on a function pointer in C.
+   __fastcall is the exact equivalent here: it puts the first argument in ECX
+   and the second in EDX, and passes the rest on the stack for the callee to
+   clean -- so declaring a dead EDX parameter reproduces the target's ABI
+   byte for byte (ECX = this, one stack argument, ret 4). */
+typedef void(__fastcall *vv3_add_age_fn)(void *age_field, int unused_edx,
+                                         int units);
+
+#define VV3_TW_CANCELLED 0
+#define VV3_TW_APPLIED   1
+#define VV3_TW_REFUSED   2
+
+static int vv3_time_warp_years(int speed) {
+    switch (speed) {
+    case VV3_TW_SPEED_SLOW:   return 3;
+    case VV3_TW_SPEED_NORMAL: return 6;
+    case VV3_TW_SPEED_FAST:   return 12;
+    default:                  return 0;   /* paused, or a code we don't know */
+    }
+}
+
+static const char *vv3_speed_name(int speed) {
+    switch (speed) {
+    case VV3_TW_SPEED_SLOW:   return "slow";
+    case VV3_TW_SPEED_NORMAL: return "normal";
+    case VV3_TW_SPEED_FAST:   return "fast";
+    default:                  return "unknown";
+    }
+}
+
+/* The manager, and the speed field on it.  Reads the singleton POINTER rather
+   than calling the lazy getter at 0x428B60, for the same reason the pending-row
+   probe above does: the getter constructs a manager when there is none, and a
+   null pointer already answers the question.  The arch probe picks the right
+   field offset on expanded builds, exactly as the executable does. */
+static int *vv3_speed_field(void) {
+    unsigned char *manager =
+        *(unsigned char **)(UINT_PTR)VV3_MANAGER_SINGLETON;
+    unsigned int extra = 0;
+    if (manager == 0) {
+        return 0;
+    }
+    if (*(volatile unsigned int *)(UINT_PTR)VV3_ARCH_PROBE
+        == VV3_ARCH_EXPANDED_VALUE) {
+        extra = VV3_ARCH_EXPANDED_OFFSET;
+    }
+    return (int *)(manager + extra + VV3_TW_SPEED_OFFSET);
+}
+
+/* Returns how many records were carried, 0 when the village is empty -- the
+   caller treats that as "nothing happened" and charges nothing. */
+static int vv3_time_warp_apply(int speed, int years) {
+    unsigned int bound = *(volatile unsigned int *)(UINT_PTR)VV3_SLOT_BOUND_PTR;
+    unsigned char *base = (unsigned char *)(UINT_PTR)VV3_RECORD_BASE;
+    vv3_add_age_fn add_age = (vv3_add_age_fn)(UINT_PTR)VV3_TW_ADD_AGE_FN;
+    int units = years * VV3_TW_UNITS_PER_YEAR;
+    int delta = units * 60 * speed;
+    unsigned int i;
+    int occupied = 0;
+
+    if (bound == 0 || bound > 256) {
+        return 0;               /* unrecognised bound -> do nothing */
+    }
+    /* Count BEFORE touching anything: an empty village must not move the world
+       clock, because the caller charges nothing when this returns zero. Any
+       occupied record counts, whether or not the age credit will reach it. */
+    for (i = 0; i < bound; ++i) {
+        if (*(volatile int *)(base + i * VV3_RECORD_STRIDE + VV3_OFF_ACTIVE)) {
+            ++occupied;
+        }
+    }
+    if (occupied == 0) {
+        return 0;
+    }
+
+    *(int *)(UINT_PTR)VV3_TW_TIME_EPOCH_VA -= delta;
+
+    for (i = 0; i < bound; ++i) {
+        unsigned char *rec = base + i * VV3_RECORD_STRIDE;
+        if (*(volatile int *)(rec + VV3_OFF_ACTIVE) == 0) {
+            continue;
+        }
+        /* The marker moves for EVERY occupied record, including ones the age
+           credit skips.  It is what stops that villager's own tick from
+           putting this jump through the clamp -- skipping it would not hold
+           the record's age, it would advance it by the clamped amount. */
+        *(int *)(rec + VV3_TW_LAST_SEEN_OFFSET) += delta;
+        /* Credit only what the engine's own loop would age: it requires the
+           tick gate clear and health above zero (0x0045F4A6 / 0x0045F4AF).
+           A skeleton holds a record but does not get older. */
+        if (*(unsigned char *)(rec + VV3_TW_TICK_GATE_OFFSET) != 0) {
+            continue;
+        }
+        if (*(int *)(rec + VV3_TW_HEALTH_OFFSET) <= 0) {
+            continue;
+        }
+        add_age(rec + VV3_TW_AGE_OFFSET, 0, units);
+    }
+    return occupied;
+}
+
+/* Tech-menu row 0.  Owns its own confirmation, afford check, charge and
+   result, because what it advances and what it says both depend on the game
+   speed at the moment of purchase.
+
+   Return value, which the caller branches on:
+     0  the player pressed Cancel -- nothing was said and nothing was done, so
+        the Tech menu reopens, exactly as Cancel does on every other row;
+     1  applied and charged;
+     2  refused, with the reason already shown -- the menu closes afterwards,
+        which is what every other refusal in this menu does. */
+/* Exported through the .def alias only, like the rest of this file: adding
+   __declspec(dllexport) as well publishes the decorated _ShowVV3TimeWarp@4
+   alongside it, which would grow the export table by two. */
+int __stdcall ShowVV3TimeWarp(int cost) {
+    static const char *const TITLE = "Origins Upgrades";
+    char message[448];
+    HWND owner = GetForegroundWindow();
+    int *speed_field = vv3_speed_field();
+    int *tech = (int *)(UINT_PTR)VV3_TW_TECH_POINTS_VA;
+    int speed, years;
+
+    if (speed_field == 0) {
+        MessageBoxA(owner,
+                    "Time Warp could not reach the village. No tech points "
+                    "have been deducted.",
+                    TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return VV3_TW_REFUSED;
+    }
+    speed = *speed_field;
+    years = vv3_time_warp_years(speed);
+    if (years <= 0) {
+        /* Paused advances nothing at all, so it must refuse BEFORE any charge
+           rather than bill for a no-op. */
+        MessageBoxA(owner,
+                    speed >= VV3_TW_SPEED_PAUSED
+                        ? "Time Warp is unavailable while the game is paused."
+                        : "Time Warp could not read the game speed. No tech "
+                          "points have been deducted.",
+                    TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return VV3_TW_REFUSED;
+    }
+    wsprintfA(message,
+              "Do you want to buy Time Warp for %d tech points?\r\n"
+              "On %s game speed, this will advance %d villager years.\r\n"
+              "Press OK to confirm, or Cancel.",
+              cost, vv3_speed_name(speed), years);
+    if (MessageBoxA(owner, message, TITLE,
+                    MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND)
+        != IDOK) {
+        return VV3_TW_CANCELLED;
+    }
+    if (*tech < cost) {
+        MessageBoxA(owner, "Not enough tech points.", TITLE,
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return VV3_TW_REFUSED;
+    }
+    if (vv3_time_warp_apply(speed, years) <= 0) {
+        MessageBoxA(owner,
+                    "Time Warp could not reach the village records. No tech "
+                    "points have been deducted.",
+                    TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return VV3_TW_REFUSED;
+    }
+    *tech -= cost;
+    wsprintfA(message, "Advanced %d years.", years);
+    MessageBoxA(owner, message, TITLE,
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return VV3_TW_APPLIED;
+}
+
 __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     int sex,
     int age,
