@@ -2402,6 +2402,8 @@ def main() -> None:
             # skeletons and pregnancies as occupants -- they hold a record even
             # though the living-population counter skips them.
             mov ecx, dword ptr [eax + 0xADE8]
+            test ecx, ecx
+            jz pending_rows_done
             add ecx, 0x28
             xor edx, edx
             mov ebx, 0x5A

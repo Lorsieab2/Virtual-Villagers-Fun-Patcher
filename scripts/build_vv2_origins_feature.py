@@ -2295,6 +2295,8 @@ def main() -> None:
             push edx
             push ebx
             mov ecx, dword ptr [edi + 0x305A4]
+            test ecx, ecx
+            jz pending_rows_slots_ok
             add ecx, 0x30
             xor edx, edx
             mov ebx, 0x5A
