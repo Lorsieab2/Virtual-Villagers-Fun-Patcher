@@ -131,6 +131,24 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       every register except the intended EDI are preserved.  It leaves flags
 #       undefined, which is safe here: the next instruction is `push edi`.
 #       Reaching it is a `call`, not a jmp, so it adds no stock re-entry.
+#   0x35AB0                         re-confirmed after the Island Event queue
+#       delay and its guard.  Two things in this block's reach changed: the
+#       purchase branch now calls the scheduler clock (0x402F70) and stores
+#       now+delay instead of a constant zero, and the pending-rows helper it
+#       calls now reads that field through a time window instead of comparing
+#       it to zero.  Contract re-checked, not assumed.  The clock writes none
+#       of EBP/EBX/ESI/EDI and returns with a balanced stack.  The purchase
+#       branch preserves EDI (the world, and the store's base) by hand and
+#       jumps to `success`, which reads neither EAX nor ECX -- it pushes
+#       constants plus EBX and calls the result helper, and opens with
+#       `push 0`, so the flags `add eax, N` leaves are not consumed.  The
+#       helper still brackets its whole body with push/pop of EAX/ECX/EDX/EBX
+#       and returns EDI as the only intentional output; it carries the due
+#       stamp in EBX precisely because that register survives the clock call,
+#       and reloads EAX with the world afterwards because the clock returns
+#       the time there.  Both of its new branches pop exactly what they push.
+#       Reaching the clock is a `call`, not a jmp, so no stock re-entry is
+#       added.
 #   0x35AB0/0x4A700                  confirmed.  The 0x35AB0 fall-through
 #       repeats the displaced `cmp [esp+4],8` immediately before 0x435AB5;
 #       the 0x4A700 fall-through repeats `mov eax,[esp+4]; push ebx`
@@ -159,7 +177,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "C67676FB9A3DB9F16865330909235B94E521DC7C6117C30768BFE454732BC0F8",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "E35F1EF19A0CA5256BDBB96157C20753306694CB812FF3C34DED5D64C35B1B38",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "3ECEBF9754F7758496400390A31FA6F56572BC7874708D17F54715261996C768",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",

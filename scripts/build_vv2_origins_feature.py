@@ -116,6 +116,24 @@ BARREL_CUE_COUNTER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_CUE_COUNTER_FILE_OFFSET - SHR_FILE_OFFSET
 )
 BARREL_CUE_FRAMES = 90
+# The purchased Island Event is queued a few real seconds out rather than being
+# made due on the very next scheduler tick, so a NATURAL island event due in the
+# same tick cannot present back to back with the purchased one.
+#
+# 0x403200 is the scheduler's own clock: it converts GetSystemTimeAsFileTime
+# through 0x989680 (10,000,000), so it returns Unix epoch SECONDS -- the same
+# units [world+0x2EAE0] already holds and the same units Time Warp subtracts in.
+#
+# CRITICAL: the duplicate-purchase guard reads that same field, and it used to
+# treat "queued" as "exactly zero", because queueing meant "due now".  A delayed
+# stamp is NOT zero, so storing now+delay without teaching the guard about it
+# made a freshly bought Island Event look un-purchased -- the row stayed enabled
+# and could be bought again inside the window and charged twice.  That shipped
+# once (#207) and was reverted (#209).  The guard now treats a stamp as queued
+# when it is zero OR falls due within ISLAND_QUEUE_DELAY_SECONDS; a naturally
+# scheduled event sits far beyond that window and is still ignored.
+ISLAND_QUEUE_CLOCK_VA = 0x403200
+ISLAND_QUEUE_DELAY_SECONDS = 5
 # Change Appearance helper: placed after the optional village-wide payload in
 # the .shr reserve (village-wide occupies 0x9A800..0x9AD20). The first 0x100
 # bytes hold the helper code; the export name string follows at +0x100.
@@ -136,7 +154,20 @@ TIME_WARP_HELPER_FILE_OFFSET = 0x9AFA0
 TIME_WARP_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     TIME_WARP_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
-PENDING_ROWS_FILE_OFFSET = 0x9A4A0
+# Relocated out of the 0x9A4A0 slot: that cave is only 0x50 bytes before the
+# barrel roll override at 0x9A4F0, and teaching the duplicate-purchase guard
+# about a delayed due stamp needs more than that.
+#
+# 0x9A800 was tried first and is WRONG: it is inside the range
+# vv2_origins_village_wide_upgrades claims (0x9A800..0x9AD20), and that patch
+# is co-selectable with this one, so the composer rejected the pair.  Checking
+# only this feature's own manifest is not enough -- every vv2_*.json has to be
+# consulted.  .shr is also only 0x9A000..0x9B000, so the apparent free tail
+# past 0x9AFF0 is outside the section entirely.
+#
+# 0x9A280..0x9A300 is verified zero in the stock image and unclaimed by every
+# vv2 manifest, with 128 bytes for a routine that needs 105.
+PENDING_ROWS_FILE_OFFSET = 0x9A280
 PENDING_ROWS_VA = IMAGE_BASE + SHR_RVA + (PENDING_ROWS_FILE_OFFSET - SHR_FILE_OFFSET)
 APPEARANCE_FILE_OFFSET = 0x9AD20
 APPEARANCE_VA = IMAGE_BASE + SHR_RVA + (APPEARANCE_FILE_OFFSET - SHR_FILE_OFFSET)
@@ -861,7 +892,14 @@ def main() -> None:
             jmp menu_done
 
         do_island_event:
-            mov dword ptr [edi + 0x2EAE0], 0
+            # Queue it; do not make it due immediately.  edi is the world and is
+            # also the store's base, so it is preserved by hand across the call.
+            push edi
+            mov ecx, edi
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            pop edi
+            add eax, {ISLAND_QUEUE_DELAY_SECONDS}
+            mov dword ptr [edi + 0x2EAE0], eax
             jmp success
 
         do_tech_doubler:
@@ -2334,9 +2372,30 @@ def main() -> None:
     )
     pending_rows_code = assemble(
         f"""
-            cmp dword ptr [edi + 0x2EAE0], 0
-            jne pending_rows_barrel
+            # Queued == due now (0, the legacy/barrel trigger) OR due within the
+            # queue window.  ebx carries the stamp across the call because it is
+            # callee-saved; eax is the caller's accumulator so it is saved around
+            # the clock, which returns the time in it.  Both push paths pop.
+            push ebx
+            push ecx
+            mov ebx, dword ptr [edi + 0x2EAE0]
+            test ebx, ebx
+            jz pending_rows_island
+            push eax
+            mov ecx, edi
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            sub ebx, eax
+            pop eax
+            cmp ebx, {ISLAND_QUEUE_DELAY_SECONDS}
+            ja pending_rows_notqueued
+        pending_rows_island:
+            pop ecx
+            pop ebx
             or eax, 0x800000
+            jmp pending_rows_barrel
+        pending_rows_notqueued:
+            pop ecx
+            pop ebx
         pending_rows_barrel:
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
             je pending_rows_slots

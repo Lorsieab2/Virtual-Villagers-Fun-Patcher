@@ -153,6 +153,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # the VV2 feature tests; all other Origins rows remain
                     # byte-identical to the prior record.
                     repaired_offsets = {
+                    # Island Event queue delay + its duplicate-purchase guard.  The
+                    # purchased Island Event is now stamped now+5s from the scheduler's
+                    # own clock instead of being made due on the next tick, so a natural
+                    # island event due in the same tick cannot present alongside it.  The
+                    # guard on the same field had to learn about that: it used to read
+                    # "queued" as "exactly zero", so a delayed stamp looked un-purchased
+                    # and the row could be bought twice (#207, reverted in #209).  It now
+                    # treats a stamp as queued when it is zero OR due within the window.
+                    "0x943A8", "0x9A280", "0x9A4A0",
                         # VV2 mask-stage delivery owns these fixed-image
                         # detours; their guards are asserted in the dedicated
                         # VV2 mask contract tests below.
@@ -202,6 +211,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # dialog strings, preflight/Cure helpers, deferred Barrel
                     # helper, and the already-repaired section metadata rows.
                     repaired_offsets = {
+                    # Island Event queue delay + its duplicate-purchase guard.  The
+                    # purchased Island Event is now stamped now+5s from the scheduler's
+                    # own clock instead of being made due on the next tick, so a natural
+                    # island event due in the same tick cannot present alongside it.  The
+                    # guard on the same field had to learn about that: it used to read
+                    # "queued" as "exactly zero", so a delayed stamp looked un-purchased
+                    # and the row could be bought twice (#207, reverted in #209).  It now
+                    # treats a stamp as queued when it is zero OR due within the window.
+                    "0x56900", "0x8BF00",
                         # Time Warp moved wholesale into the companion DLL,
                         # which now owns its speed-aware confirmation, the
                         # paused refusal, the charge, and an advance that does
@@ -436,6 +454,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     )
                 elif path.name == "vv4_origins_feature.json":
                     corrected_offsets = {
+                    # Island Event queue delay + its duplicate-purchase guard.  The
+                    # purchased Island Event is now stamped now+5s from the scheduler's
+                    # own clock instead of being made due on the next tick, so a natural
+                    # island event due in the same tick cannot present alongside it.  The
+                    # guard on the same field had to learn about that: it used to read
+                    # "queued" as "exactly zero", so a delayed stamp looked un-purchased
+                    # and the row could be bought twice (#207, reverted in #209).  It now
+                    # treats a stamp as queued when it is zero OR due within the window.
+                    "0x89373", "0xCCC20",
                         # Time Warp moved wholesale into the companion DLL, which
                         # now owns its speed-aware confirmation, the paused refusal
                         # and an advance that does not trip the engine's per-speed

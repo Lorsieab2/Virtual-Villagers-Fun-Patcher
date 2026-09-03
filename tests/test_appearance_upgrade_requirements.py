@@ -289,6 +289,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 continue
             repaired_offsets = {
                 "data/vv1_origins_feature.json": {
+                    # Island Event queue delay + its duplicate-purchase guard.  The
+                    # purchased Island Event is now stamped now+5s from the scheduler's
+                    # own clock instead of being made due on the next tick, so a natural
+                    # island event due in the same tick cannot present alongside it.  The
+                    # guard on the same field had to learn about that: it used to read
+                    # "queued" as "exactly zero", so a delayed stamp looked un-purchased
+                    # and the row could be bought twice (#207, reverted in #209).  It now
+                    # treats a stamp as queued when it is zero OR due within the window.
+                    "0x56900", "0x8BF00",
                     # Purchased Barrel of Babies always delivers three
                     # children: stock rolls rand(100) for one/two/three, so a
                     # 75,000-point purchase was partly a coin flip. The cave
@@ -448,6 +457,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                 },
                 "data/vv2_origins_feature.json": {
+                    # Island Event queue delay + its duplicate-purchase guard.  The
+                    # purchased Island Event is now stamped now+5s from the scheduler's
+                    # own clock instead of being made due on the next tick, so a natural
+                    # island event due in the same tick cannot present alongside it.  The
+                    # guard on the same field had to learn about that: it used to read
+                    # "queued" as "exactly zero", so a delayed stamp looked un-purchased
+                    # and the row could be bought twice (#207, reverted in #209).  It now
+                    # treats a stamp as queued when it is zero OR due within the window.
+                    "0x943A8", "0x9A280", "0x9A4A0",
                     # Purchased Barrel of Babies always delivers three
                     # children: stock rolls rand(100) for one/two/three, so a
                     # 75,000-point purchase was partly a coin flip. The cave
@@ -550,6 +568,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x2E3F5", "0x34357", "0x344B3", "0x60B48", "0x60D10",
                 },
                 "data/vv4_origins_feature.json": {
+                    # Island Event queue delay + its duplicate-purchase guard.  The
+                    # purchased Island Event is now stamped now+5s from the scheduler's
+                    # own clock instead of being made due on the next tick, so a natural
+                    # island event due in the same tick cannot present alongside it.  The
+                    # guard on the same field had to learn about that: it used to read
+                    # "queued" as "exactly zero", so a delayed stamp looked un-purchased
+                    # and the row could be bought twice (#207, reverted in #209).  It now
+                    # treats a stamp as queued when it is zero OR due within the window.
+                    "0x89373", "0xCCC20",
                     # Time Warp moved wholesale into the companion DLL, which
                     # now owns its speed-aware confirmation, the paused refusal
                     # and an advance that does not trip the engine's per-speed
