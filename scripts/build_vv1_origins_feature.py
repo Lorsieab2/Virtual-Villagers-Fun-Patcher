@@ -123,6 +123,25 @@ BARREL_DELAY_COUNTER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_DELAY_COUNTER_FILE_OFFSET - SHR_FILE_OFFSET
 )
 BARREL_DELAY_TICKS = 180
+# The purchased Island Event is queued a few real seconds out rather than being
+# made due on the very next scheduler tick, so a NATURAL island event due in the
+# same tick cannot present back to back with the purchased one.
+#
+# 0x402F70 is the scheduler's own clock: it converts GetSystemTimeAsFileTime
+# through 0x989680 (10,000,000), so it returns Unix epoch SECONDS -- the same
+# units [world+0xA300] already holds and the same units Time Warp subtracts in.
+#
+# CRITICAL: the duplicate-purchase guard below reads that same field, and it
+# used to treat "queued" as "exactly zero", because queueing meant "due now".
+# A delayed stamp is NOT zero, so storing now+delay without teaching the guard
+# about it made a freshly bought Island Event look un-purchased -- the row
+# stayed enabled and could be bought again inside the delay window and charged
+# twice.  That regression shipped once (#207) and was reverted (#209).  The
+# guard therefore now treats a stamp as queued when it is zero OR falls due
+# within ISLAND_QUEUE_DELAY_SECONDS; a naturally scheduled event sits far
+# beyond that window and is still correctly ignored.
+ISLAND_QUEUE_CLOCK_VA = 0x402F70
+ISLAND_QUEUE_DELAY_SECONDS = 5
 BARREL_MAIN_HELPER_FILE_OFFSET = 0x8B710
 BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
@@ -1123,7 +1142,15 @@ def main() -> None:
 
 
         do_island_event:
-            mov dword ptr [edi + 0xA300], 0
+            # Queue it; do not make it due immediately.  edi is the world and is
+            # also the store's base, so it is preserved by hand across the clock
+            # call rather than relying on the callee to leave it alone.
+            push edi
+            mov ecx, edi
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            pop edi
+            add eax, {ISLAND_QUEUE_DELAY_SECONDS}
+            mov dword ptr [edi + 0xA300], eax
             jmp success
 
         do_barrel:
@@ -2418,10 +2445,22 @@ def main() -> None:
             push edx
             push ebx
             mov eax, dword ptr [esi + 0x0C]
-            cmp dword ptr [eax + 0xA300], 0
-            jne pending_rows_barrel
+            # Queued == due now (0, the legacy/barrel trigger) OR due within the
+            # queue window.  ebx carries the stamp because it is callee-saved and
+            # the clock clobbers eax/ecx/edx; eax is reloaded with the world
+            # afterwards because the clock returns the time in it.
+            mov ebx, dword ptr [eax + 0xA300]
+            test ebx, ebx
+            jz pending_rows_island
+            mov ecx, eax
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            sub ebx, eax
+            cmp ebx, {ISLAND_QUEUE_DELAY_SECONDS}
+            ja pending_rows_barrel
+        pending_rows_island:
             or edi, 0x800000
         pending_rows_barrel:
+            mov eax, dword ptr [esi + 0x0C]
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
             je pending_rows_slots
             or edi, 0x1000000

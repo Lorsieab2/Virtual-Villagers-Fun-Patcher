@@ -21,6 +21,24 @@ from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 
 
 IMAGE_BASE = 0x400000
+# The purchased Island Event is queued a few real seconds out rather than being
+# made due on the very next scheduler tick, so a NATURAL island event due in the
+# same tick cannot present back to back with the purchased one.
+#
+# 0x403750 is the scheduler's own clock: it converts GetSystemTimeAsFileTime
+# through 0x989680 (10,000,000), so it returns Unix epoch SECONDS -- the same
+# units [world+0x170E0] already holds and the same units Time Warp subtracts in.
+#
+# CRITICAL: the duplicate-purchase guard reads that same field, and it used to
+# treat "queued" as "exactly zero", because queueing meant "due now".  A delayed
+# stamp is NOT zero, so storing now+delay without teaching the guard about it
+# made a freshly bought Island Event look un-purchased -- the row stayed enabled
+# and could be bought again inside the window and charged twice.  That shipped
+# once (#207) and was reverted (#209).  The guard now treats a stamp as queued
+# when it is zero OR falls due within ISLAND_QUEUE_DELAY_SECONDS; a naturally
+# scheduled event sits far beyond that window and is still ignored.
+ISLAND_QUEUE_CLOCK_VA = 0x403750
+ISLAND_QUEUE_DELAY_SECONDS = 5
 PAYLOAD_FILE_OFFSET = 0x89373
 PAYLOAD_VA = IMAGE_BASE + PAYLOAD_FILE_OFFSET
 PAYLOAD_SIZE = 0xC8D
@@ -1032,8 +1050,16 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
         do_island_event:
+            # Queue it; do not make it due immediately.  The lazy getter returns
+            # the world in EAX, which the clock overwrites with the time, so the
+            # world is parked on the stack and comes back in ECX.
             call 0x41FE70
-            mov dword ptr [eax + 0x170E0], 0
+            push eax
+            mov ecx, eax
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            pop ecx
+            add eax, {ISLAND_QUEUE_DELAY_SECONDS}
+            mov dword ptr [ecx + 0x170E0], eax
             jmp success
         do_barrel:
             # Arm the barrel, flag this as the PURCHASED barrel (so its spawn always
@@ -1938,11 +1964,31 @@ def main() -> None:
             mov eax, dword ptr [0x4CB51C]
             test eax, eax
             jz pending_rows_done
-            cmp dword ptr [eax + 0x170E0], 0
-            jne pending_rows_barrel
+            # Queued == due now (0) OR due within the queue window.  ebx carries
+            # the stamp across the call (callee-saved) and eax holds the world,
+            # which the clock overwrites, so it is saved too.  Every path pops
+            # what it pushed before branching away.
+            push ebx
+            push ecx
+            mov ebx, dword ptr [eax + 0x170E0]
+            test ebx, ebx
+            jz pending_rows_island
+            mov ecx, eax
+            push eax
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            sub ebx, eax
+            pop eax
+            cmp ebx, {ISLAND_QUEUE_DELAY_SECONDS}
+            ja pending_rows_notqueued
+        pending_rows_island:
+            pop ecx
+            pop ebx
             or edx, 0x800000
             or edx, 0x1000000
             jmp pending_rows_done
+        pending_rows_notqueued:
+            pop ecx
+            pop ebx
         pending_rows_barrel:
             cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
             je pending_rows_slots
