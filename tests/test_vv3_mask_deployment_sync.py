@@ -145,7 +145,12 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         self.assertTrue(self.builder.REQUIRED_MASK_EXPORTS <= exports)
         self.assertTrue(self.builder.REQUIRED_RUNNING_EXPORTS <= exports)
         self.assertIn("VV3RunningMaskBoundary", exports)
-        self.assertEqual(len(exports), 32)
+        # 33 since the companion gained ShowVV3TimeWarp, which owns Time
+        # Warp's speed-aware prompt, paused refusal, charge and advance.
+        # It is exported through the .def alias only -- adding
+        # __declspec(dllexport) as well would publish the decorated
+        # _ShowVV3TimeWarp@4 beside it and make this 34.
+        self.assertEqual(len(exports), 33)
 
     def test_deployed_companion_carries_every_complete_result_message(self) -> None:
         """Every COMPLETE refusal message in the C source must be in the DLL.

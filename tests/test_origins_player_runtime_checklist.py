@@ -373,6 +373,16 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     )
                 elif path.name == "vv3_origins_feature.json":
                     corrected_offsets = {
+                        # Time Warp moved wholesale into the companion DLL,
+                        # which now owns its speed-aware confirmation, the
+                        # paused refusal, the charge, and an advance that does
+                        # not trip the engine's per-speed aging clamp. VV3
+                        # needs no new cave: the loader replaces the flat
+                        # advance inside the payload row 0 already used. The
+                        # Cure and Change Appearance caves move only because
+                        # the retired "paused" and "Time Warp completed."
+                        # strings shorten the block ahead of them.
+                        "0x7BD40",
                         # The duplicate-purchase guard for VV3 moved out of the
                         # executable and into the companion DLL, so tech_menu fits
                         # its original slot again and detail_menu/tech_increment

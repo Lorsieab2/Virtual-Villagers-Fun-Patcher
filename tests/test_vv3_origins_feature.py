@@ -572,7 +572,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "A586B7D0AD21493556E2053B9135D900ADD2147135CDF43C41B3C96AAF2392BD",
+            "9D637DD1A5C44BF06970C2496BA6D5C0EF5A140B04F74C35F426F1CE38452F9E",
         )
         self.assertEqual(
             bytes.fromhex(
@@ -586,14 +586,51 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
 
     def test_time_warp_advances_an_exact_number_of_years(self) -> None:
-        """One flat delta, exact at every speed.
+        """Exact at every speed, credited through the game's own age routine.
 
-        A villager year is 4 real hours at slow, 2 at normal and 1 at fast, and
-        the delta is in real seconds, so 43200 buys exactly 3 / 6 / 12 years.
-        The per-speed table this replaces was calibrated by scaling whole years
-        read off a screen, which could only ever approximate.
+        VV3 ages a villager the same way the other four do -- 20 units a year,
+        units += (pending / 60) / speed_code, speed being a divisor of 10 slow
+        / 6 normal / 3 fast -- and clamps the pending slice first, at
+        0x0045F51D: over 86400 becomes 86400, and otherwise anything over
+        23800 / 31000 / 38200 is forced to 31000. Every delta the 3 / 6 / 12
+        target needs is above its own threshold, so the flat 43200 this
+        replaces collapsed to 31000 at all three speeds.
+
+        Two things are VV3-specific and are pinned here rather than assumed
+        from VV1 and VV2:
+
+        * the record layout is a different shape. The age sits at +0xDC4 while
+          the marker is ABOVE it at +0xE70, where VV1 and VV2 both keep theirs
+          just below the age.
+        * the age is not a plain add. 0x0045C640 adds the units and fires the
+          80-year notification at 1600, so the companion calls it instead of
+          writing the field and silently skipping that.
         """
         text = (ROOT / "scripts" / "build_vv3_origins_feature.py").read_text(encoding="utf-8")
-        self.assertIn("mov eax, 43200", text)
+        self.assertNotIn("mov eax, 43200", text)
+        self.assertNotIn("do_time_warp:", text)
         self.assertNotIn("tw_slow:", text)
         self.assertNotIn("tw_fast:", text)
+        self.assertIn("time_warp_export", text)
+
+        dll = (
+            ROOT / "native" / "vv3_full_mastery_candidate"
+            / "vv3_full_mastery_candidate.c"
+        ).read_text(encoding="utf-8")
+
+        codes = {"SLOW": 10, "NORMAL": 6, "FAST": 3}
+        years = {"SLOW": 3, "NORMAL": 6, "FAST": 12}
+        for name, code in codes.items():
+            self.assertIn(f"#define VV3_TW_SPEED_{name}", dll)
+            delta = years[name] * 20 * 60 * code
+            # Round-trips exactly through the engine's integer conversion...
+            self.assertEqual((delta // 60) // code // 20, years[name])
+            # ...and is over its own clamp threshold, which is why the world
+            # clock alone cannot deliver it.
+            self.assertGreater(delta, {"SLOW": 23800, "NORMAL": 31000, "FAST": 38200}[name])
+
+        self.assertIn("#define VV3_TW_AGE_OFFSET          0xDC4", dll)
+        self.assertIn("#define VV3_TW_LAST_SEEN_OFFSET    0xE70", dll)
+        self.assertIn("#define VV3_TW_ADD_AGE_FN       0x0045C640u", dll)
+        self.assertIn("add_age(rec + VV3_TW_AGE_OFFSET, 0, units);", dll)
+        self.assertIn("VV3_TW_LAST_SEEN_OFFSET) += delta;", dll)
