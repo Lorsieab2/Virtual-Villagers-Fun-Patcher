@@ -2873,8 +2873,10 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
         }
     } else if (msg == WM_COMMAND) {
         unsigned int id = LOWORD(wp);
-        if (id >= IDC_CAF_MODE_FIRST && id <= IDC_CAF_MODE_FIRST + 9) {
-            int r;
+        /* These two run BEFORE the mask branch, not inside it.  3400..3411 can
+           never satisfy the 3301..3310 test, so nesting them there left both
+           modes stuck at zero: the radio looked selected through the control's
+           own behaviour while OK saw no override at all. */
         if (id >= IDC_CAF_HEAD_FIRST && id <= IDC_CAF_HEAD_LAST) {
             caf_head_mode = (int)(id - IDC_CAF_HEAD_FIRST);
             caf_set_head_body_enable(w);
@@ -2885,6 +2887,8 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
             caf_set_head_body_enable(w);
             return TRUE;
         }
+        if (id >= IDC_CAF_MODE_FIRST && id <= IDC_CAF_MODE_FIRST + 9) {
+            int r;
             caf_mask_mode = (int)(id - IDC_CAF_MODE_FIRST);
             for (r = 0; r < 10; ++r)
                 CheckDlgButton(w, IDC_CAF_MODE_FIRST + r, r == caf_mask_mode ? BST_CHECKED : BST_UNCHECKED);

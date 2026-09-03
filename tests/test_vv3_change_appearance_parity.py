@@ -28,6 +28,12 @@ import re
 import subprocess
 import sys
 import unittest
+
+try:  # Pillow is optional; source-only checkouts must still run the suite
+    import PIL  # noqa: F401
+    HAVE_PIL = True
+except ImportError:  # pragma: no cover
+    HAVE_PIL = False
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -131,8 +137,8 @@ class MaskColumnKeepsItsHeaderTests(unittest.TestCase):
 
     def test_the_header_still_reads_mask(self) -> None:
         dlg = dialog()
-        self.assertRegex(dlg, r'CTEXT\s+"Mask", -1, 272, 14, 50, 9')
-        self.assertRegex(dlg, r'CTEXT\s+"Mask", -1, 272, 122, 50, 9')
+        self.assertRegex(dlg, r'CTEXT\s+"Mask", -1, 272, 12, 50, 9')
+        self.assertRegex(dlg, r'CTEXT\s+"Mask", -1, 272, 120, 50, 9')
 
     def test_the_colour_name_has_its_own_control(self) -> None:
         dlg = dialog()
@@ -141,9 +147,9 @@ class MaskColumnKeepsItsHeaderTests(unittest.TestCase):
                 self.assertRegex(dlg, r'CTEXT\s+"", %d,' % rid)
 
     def test_those_controls_sit_inside_their_panels(self) -> None:
-        """The male panel is 6,2,368,110 and the female 6,116,368,110."""
+        """The male panel is 6,2,368,104 and the female 6,110,368,104."""
         dlg = dialog()
-        for rid, top, bottom in ((3210, 2, 112), (3230, 116, 226)):
+        for rid, top, bottom in ((3210, 2, 106), (3230, 110, 214)):
             with self.subTest(id=rid):
                 m = re.search(r'CTEXT\s+"", %d, \d+, (\d+), \d+, (\d+)' % rid, dlg)
                 self.assertIsNotNone(m)
@@ -184,7 +190,67 @@ class BehaviourIsWiredTests(unittest.TestCase):
         self.assertIn("vv3_head_pick(!sex[i], head_mode - 2, &head_rng)", self.src)
 
 
+class DefectsFoundInReviewTests(unittest.TestCase):
+    """Two bugs that review caught and the first version of this file did not.
+
+    The original tests asserted the handlers and the groups EXISTED. Both
+    defects were about position, which existence checks cannot see.
+    """
+
+    def test_the_override_handlers_are_not_nested_in_the_mask_branch(self) -> None:
+        """3400..3411 can never satisfy a 3301..3310 test.
+
+        Nested there, both modes stayed zero: the radio looked selected through
+        the control's own behaviour while OK saw no override at all -- the
+        whole feature was inert.
+        """
+        src = SRC.read_text(encoding="utf-8", errors="surrogateescape")
+        body = src[src.index("} else if (msg == WM_COMMAND) {"):]
+        body = body[: body.index("        switch (id) {")]
+        head_at = body.index("id >= IDC_CAF_HEAD_FIRST")
+        body_at = body.index("id >= IDC_CAF_BODY_FIRST")
+        mask_at = body.index("id >= IDC_CAF_MODE_FIRST")
+        self.assertLess(head_at, mask_at,
+                        "the Head handler must run before the mask branch")
+        self.assertLess(body_at, mask_at,
+                        "the Body handler must run before the mask branch")
+
+    def test_no_left_panel_crosses_the_full_width_bottom_group(self) -> None:
+        """The bottom group starts at y=218; a 110-tall female panel ends at 226."""
+        dlg = dialog()
+        for caption in ('"Male Villagers"', '"Female Villagers"'):
+            with self.subTest(panel=caption):
+                m = re.search(
+                    r"GROUPBOX\s+%s, -1, \d+, (\d+), \d+, (\d+)" % re.escape(caption),
+                    dlg,
+                )
+                self.assertIsNotNone(m, caption + " is missing")
+                top, height = int(m.group(1)), int(m.group(2))
+                self.assertLessEqual(
+                    top + height, 218,
+                    caption + " overlaps the Mask Distribution group",
+                )
+
+    def test_every_panel_child_stays_inside_its_panel(self) -> None:
+        """Shrinking the panels to 104 must not leave a control hanging out."""
+        dlg = dialog()
+        panels = {}
+        for caption in ('"Male Villagers"', '"Female Villagers"'):
+            m = re.search(
+                r"GROUPBOX\s+%s, -1, \d+, (\d+), \d+, (\d+)" % re.escape(caption), dlg)
+            panels[caption] = (int(m.group(1)), int(m.group(1)) + int(m.group(2)))
+        # the mask colour statics are the two that sit lowest in each panel
+        for rid, caption in ((3210, '"Male Villagers"'), (3230, '"Female Villagers"')):
+            with self.subTest(id=rid):
+                m = re.search(r'CTEXT\s+"", %d, \d+, (\d+), \d+, (\d+)' % rid, dlg)
+                self.assertIsNotNone(m)
+                bottom = int(m.group(1)) + int(m.group(2))
+                self.assertLessEqual(bottom, panels[caption][1],
+                                     "the mask colour text hangs below its panel")
+
+
 class BucketsAreGeneratedTests(unittest.TestCase):
+    @unittest.skipUnless(HAVE_PIL, "requires Pillow")
     def test_the_committed_header_matches_the_head_sheets(self) -> None:
         result = subprocess.run(
             [sys.executable, str(ROOT / "scripts" / "build_vv3_head_hair_buckets.py"), "--check"],
