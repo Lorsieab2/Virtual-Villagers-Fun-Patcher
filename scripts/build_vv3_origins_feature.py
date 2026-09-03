@@ -2022,10 +2022,23 @@ def main() -> None:
     # and the 3-child spawn runs from the game's own outcome when the player
     # dismisses the popup.  The 57 saved pointers are held on the stack, so no
     # data cave is needed.
+    #
+    # The manager getter MUST run before the snapshot.  The event objects are
+    # allocated lazily by the manager constructor (0x418630), which fills
+    # 0x4B3C7C onwards; until something forces that construction the whole array
+    # reads zero.  Snapshotting first therefore captured 57 nulls, and the
+    # restore loop wrote them back over the table the getter had just built --
+    # destroying it for the rest of the session.  Because the singleton at
+    # 0x4B3C38 was then non-null, the getter never rebuilt it, so the purchased
+    # barrel AND every natural island event stayed dead until the game was
+    # restarted.  Live tracing caught this: the pending flag at 0x4B3C75 went
+    # 1 -> 0 on schedule while all 58 slots read zero and no popup appeared.
     barrel_present_code = assemble(
         f"""
             pushad
             mov ebp, esi
+            call 0x{BARREL_SELECT_MANAGER_VA:X}
+            mov ebx, eax
             mov esi, 0x{BARREL_EVENT_OBJECT_VA:X}
             mov ecx, 0x{BARREL_SAVE_COUNT:X}
         bp_save:
@@ -2037,8 +2050,7 @@ def main() -> None:
             mov ecx, 0x{BARREL_EVENT_SLOT_COUNT:X}
             rep stosd
             push ebp
-            call 0x{BARREL_SELECT_MANAGER_VA:X}
-            mov ecx, eax
+            mov ecx, ebx
             call 0x{BARREL_PRESENT_EVENT_VA:X}
             mov edi, 0x{BARREL_SAVE_LOW_VA:X}
             mov ecx, 0x{BARREL_SAVE_COUNT:X}
