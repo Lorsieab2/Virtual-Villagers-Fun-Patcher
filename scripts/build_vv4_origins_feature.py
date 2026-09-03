@@ -75,13 +75,13 @@ APPEARANCE_HELPER_VA = 0x728760
 #     eligible while armed), presents it via 0x417790, and only THEN activates it
 #     via 0x401D40 -- which is the call that reaches the 3-child spawn 0x414D90.
 #
-# OPEN: that last step is conditional. 0x418190 activates only when the presenter
-# object's +0x48 byte is non-zero (`cmp byte [esp+0x58], 0` / `je` at 0x418206,
-# presenter at esp+0x10). Nothing in the 0x417790 constructor writes +0x48, so it
-# is set somewhere in presentation. If it stays zero on this path the event still
-# appears and no children are ever created -- which matches the reported symptom
-# of the barrel cueing correctly while the population never changes. Confirming
-# that needs a runtime trace, not more static reading.
+# The 0x418190 activation check is `cmp byte [esp+0x58], 0` at 0x418206.
+# At that point the presenter base is the post-return `[esp+0x0C]`, so this is
+# presenter+0x4C (not +0x48). The exact-stock 0x417790 constructor zeros +0x4C
+# at 0x4177D0 and sets it to 1 at 0x417E5B before its normal `ret 4`. Therefore
+# the direct 0x418190 call below is not blocked by an uninitialised activation
+# flag. The remaining runtime boundary is the native activation and spawn path:
+# 0x401D40 -> presenter action 1 -> 0x417EE5 -> event vtable+0x30 -> 0x414D90.
 #
 # Ruled out by inspection, so do not re-derive: the first child is NOT gated by
 # the two flag-gated room-checks (they sit before children 2 and 3); the
