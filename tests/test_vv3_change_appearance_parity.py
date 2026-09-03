@@ -118,6 +118,40 @@ class ControlIdsDoNotCollideTests(unittest.TestCase):
                          "a WS_GROUP inside the mask run would split it in two")
 
 
+class MaskColumnKeepsItsHeaderTests(unittest.TestCase):
+    """The colour name must not eat the column label.
+
+    The code has always called SetDlgItemTextA on IDC_CAF_M_MASK_T (3210) and
+    IDC_CAF_F_MASK_T (3230), but no control carried those ids, so the mask
+    colour name was silently never shown. Giving the ids to the "Mask" HEADER
+    made it live and immediately replaced the word "Mask" with "No change",
+    leaving the third column unlabelled while Body and Head kept theirs. The
+    ids therefore belong on their own statics under the cells.
+    """
+
+    def test_the_header_still_reads_mask(self) -> None:
+        dlg = dialog()
+        self.assertRegex(dlg, r'CTEXT\s+"Mask", -1, 272, 14, 50, 9')
+        self.assertRegex(dlg, r'CTEXT\s+"Mask", -1, 272, 122, 50, 9')
+
+    def test_the_colour_name_has_its_own_control(self) -> None:
+        dlg = dialog()
+        for rid in (3210, 3230):
+            with self.subTest(id=rid):
+                self.assertRegex(dlg, r'CTEXT\s+"", %d,' % rid)
+
+    def test_those_controls_sit_inside_their_panels(self) -> None:
+        """The male panel is 6,2,368,110 and the female 6,116,368,110."""
+        dlg = dialog()
+        for rid, top, bottom in ((3210, 2, 112), (3230, 116, 226)):
+            with self.subTest(id=rid):
+                m = re.search(r'CTEXT\s+"", %d, \d+, (\d+), \d+, (\d+)' % rid, dlg)
+                self.assertIsNotNone(m)
+                y, h = int(m.group(1)), int(m.group(2))
+                self.assertGreater(y, top)
+                self.assertLessEqual(y + h, bottom)
+
+
 class BehaviourIsWiredTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
