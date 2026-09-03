@@ -2248,13 +2248,17 @@ static int vv1_time_warp_apply(int speed, int years) {
     }
     golden = VV_GOLDEN_CHILD_PTR;     /* 0 when the village has none */
 
-    /* Count BEFORE touching anything.  A village with no one to age must not
+    /* Count BEFORE touching anything.  A village with nobody in it must not
        move the world clock: the caller reads a zero return as "nothing
        happened" and charges nothing, so advancing global time here would give
-       the jump away for free. */
+       the jump away for free.
+       The test is ANY occupied record, not any ageable one.  A village whose
+       sole survivor is the Golden Child is still a village -- its clock, and
+       that record's own marker, must still move; only the age credit is
+       withheld below. */
     for (i = 0; i < VV_MASK_SLOTS; i++) {
         unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
-        if (rec[VV_OCCUPIED_OFFSET] == 1 && rec != golden) {
+        if (rec[VV_OCCUPIED_OFFSET] == 1) {
             credited++;
         }
     }
@@ -2291,7 +2295,17 @@ static int vv1_time_warp_apply(int speed, int years) {
 /* Tech-menu row 0.  Owns its own confirmation, afford check, charge and
    result, the same way Cure and Change Appearance for All already do, because
    what it advances and what it says both depend on the speed at the moment of
-   purchase.  Returns 1 if the player was charged. */
+   purchase.
+
+   Return value, which the caller branches on:
+     0  the player pressed Cancel -- nothing was said and nothing was done, so
+        the Tech menu reopens, exactly as Cancel does on every other row;
+     1  applied and charged;
+     2  refused, with the reason already shown -- the menu closes afterwards,
+        which is what every other refusal in this menu does. */
+#define VV1_TW_CANCELLED 0
+#define VV1_TW_APPLIED   1
+#define VV1_TW_REFUSED   2
 __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
     int gamectx_ptr,
     int cost
@@ -2304,7 +2318,7 @@ __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
     int speed, years;
 
     if (ctx == NULL) {
-        return 0;
+        return VV1_TW_REFUSED;
     }
     speed = *(int *)(ctx + VV1_TW_SPEED_OFFSET);
     years = vv1_time_warp_years(speed);
@@ -2320,7 +2334,7 @@ __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
             "Origins Upgrades",
             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
         );
-        return 0;
+        return VV1_TW_REFUSED;
     }
     vv1_format_cost(cost, cost_text);
     wsprintfA(
@@ -2338,7 +2352,7 @@ __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
             "Origins Upgrades",
             MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
         ) != IDOK) {
-        return 0;
+        return VV1_TW_CANCELLED;
     }
     tech = (int *)(ctx + VV_TECH_POINTS_OFFSET);
     if (*tech < cost) {
@@ -2348,7 +2362,7 @@ __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
             "Origins Upgrades",
             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
         );
-        return 0;
+        return VV1_TW_REFUSED;
     }
     if (vv1_time_warp_apply(speed, years) <= 0) {
         MessageBoxA(
@@ -2358,7 +2372,7 @@ __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
             "Origins Upgrades",
             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
         );
-        return 0;
+        return VV1_TW_REFUSED;
     }
     *tech -= cost;
     wsprintfA(message, "Advanced %d years.", years);
@@ -2368,7 +2382,7 @@ __declspec(dllexport) int __stdcall ShowOriginsTimeWarp(
         "Origins Upgrades",
         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
-    return 1;
+    return VV1_TW_APPLIED;
 }
 
 __declspec(dllexport) int __stdcall ShowOriginsRowMessage(

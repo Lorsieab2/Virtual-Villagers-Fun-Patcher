@@ -1000,3 +1000,21 @@ class VV1RequiredFixTests(unittest.TestCase):
             body.index("VV1_TW_TIME_EPOCH_VA -= delta;"),
             "the epoch moves before the village is known to be non-empty",
         )
+        # ...but that preflight counts ANY occupied record. A village whose
+        # only survivor is the Golden Child is still a village: its clock and
+        # that record's marker must still move, only the age credit is held.
+        preflight = body[body.index("Count BEFORE"): body.index("if (credited == 0) {")]
+        self.assertIn("if (rec[VV_OCCUPIED_OFFSET] == 1) {", preflight)
+        self.assertNotIn("golden", preflight)
+
+        # Cancel must be distinguishable from a refusal, so the Tech menu can
+        # reopen on Cancel the way it does for every other row instead of
+        # closing outright.
+        self.assertIn("#define VV1_TW_CANCELLED 0", dll)
+        self.assertIn("#define VV1_TW_APPLIED   1", dll)
+        self.assertIn("#define VV1_TW_REFUSED   2", dll)
+        self.assertIn("return VV1_TW_CANCELLED;", dll)
+        dispatch = exe_side[exe_side.index("jne charge_not_time_warp"):]
+        dispatch = dispatch[: dispatch.index("charge_not_time_warp:")]
+        self.assertIn("test eax, eax", dispatch)
+        self.assertIn("jz menu_loop", dispatch)
