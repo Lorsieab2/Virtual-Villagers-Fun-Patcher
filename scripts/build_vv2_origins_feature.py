@@ -75,6 +75,20 @@ VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x820
 RUNNING_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x30
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x9A009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET)
+# Raised by do_barrel and cleared by the count helper, so exactly one barrel
+# -- the purchased one -- is forced to three children. A natural barrel keeps
+# the stock dice roll. Separate from BARREL_PENDING, which is consumed when the
+# event is cued rather than when the children are counted.
+BARREL_UPGRADE_FLAG_FILE_OFFSET = 0x9A704
+BARREL_UPGRADE_FLAG_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_UPGRADE_FLAG_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# Replaces the stock rand(100) that picks the barrel's baby count.
+BARREL_COUNT_ROLL_FILE_OFFSET = 0x9A4F0
+BARREL_COUNT_ROLL_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_COUNT_ROLL_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_COUNT_ROLL_SITE = 0x37ADC
 BARREL_PENDING_FILE_OFFSET = 0x9A700
 BARREL_PENDING_VA = IMAGE_BASE + SHR_RVA + (BARREL_PENDING_FILE_OFFSET - SHR_FILE_OFFSET)
 BARREL_CLOSE_HELPER_FILE_OFFSET = 0x9A710
@@ -297,6 +311,12 @@ def rel32_jump(source_va: int, target_va: int) -> bytes:
         4, "little", signed=True
     )
 
+
+def rel32_call(source_va: int, target_va: int) -> bytes:
+    """A five-byte E8 call, same displacement maths as rel32_jump."""
+    return b"\xE8" + int(target_va - (source_va + 5)).to_bytes(
+        4, "little", signed=True
+    )
 
 def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str) -> None:
     labels[name] = STRINGS_VA + len(blob)
@@ -805,6 +825,7 @@ def main() -> None:
             cmp dword ptr [edi + 0x2EADC], eax
             jb barrel_insufficient
             sub dword ptr [edi + 0x2EADC], eax
+            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 1
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
             push 0
             push ebx
@@ -2330,6 +2351,40 @@ def main() -> None:
         b"\0" * len(pending_rows_code),
         pending_rows_code,
         "mark the Tech menu's Island Event and Barrel of Babies rows Unavailable while one of each is already pending, so a second purchase cannot be clicked and cannot be charged for",
+    )
+    # Stock decides the barrel's baby count by dice: rand(100) under 33 gives
+    # one child, 33..66 two, 67..99 three. A 75,000-point purchase was therefore
+    # partly a coin flip regardless of room, which is the other half of the
+    # reported "only 2 children" -- the slot shortage is the first half.
+    #
+    # Only the PURCHASED barrel is forced; a natural one still rolls. The
+    # caller's own `push 0x64` / `add esp, 4` are untouched, so this pushes its
+    # own argument for the real rand and cleans it up.
+    barrel_count_roll_code = assemble(
+        f"""
+            push 0x64
+            call 0x4031A0
+            add esp, 4
+            cmp byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
+            je barrel_roll_done
+            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
+            mov eax, 0x63
+        barrel_roll_done:
+            ret
+        """,
+        BARREL_COUNT_ROLL_VA,
+    )
+    patch(
+        BARREL_COUNT_ROLL_FILE_OFFSET,
+        b"\0" * len(barrel_count_roll_code),
+        barrel_count_roll_code,
+        "give the purchased Barrel of Babies its full three children, leaving natural barrels on the stock random count",
+    )
+    patch(
+        BARREL_COUNT_ROLL_SITE,
+        bytes.fromhex("E8BFB6FCFF"),
+        rel32_call(IMAGE_BASE + BARREL_COUNT_ROLL_SITE, BARREL_COUNT_ROLL_VA),
+        "route the barrel's baby-count roll through the purchased-barrel override",
     )
     patch(
         BARREL_GATE_FILE_OFFSET,
