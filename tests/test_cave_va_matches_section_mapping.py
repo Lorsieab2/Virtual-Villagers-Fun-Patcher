@@ -16,7 +16,9 @@ table out of each generated executable and checks every
 from __future__ import annotations
 
 import ast
+import importlib.util
 import re
+import sys
 import unittest
 from pathlib import Path
 
@@ -61,45 +63,60 @@ def va_for(secs, offset: int):
     return None, None
 
 
-def constants(source: str) -> tuple[dict[str, int], dict[str, str]]:
+def constants(script: Path) -> tuple[dict[str, int], dict[str, str]]:
     """Every module-level integer constant, with the text it was written as.
 
-    Parsed with `ast` rather than matched line by line.  A line-based regex
-    stops at the first newline, so a parenthesized multiline declaration --
-    which is exactly how VV1 and VV2 write theirs:
+    The values come from IMPORTING the generator, not from evaluating its
+    source.  Two rounds of review found this audit quietly skipping the very
+    declarations it exists to protect, each time because a hand-rolled
+    evaluator could not cope with how a VA was written:
 
-        PENDING_ROWS_VA = IMAGE_BASE + SHR_RVA + (
-            PENDING_ROWS_FILE_OFFSET - SHR_FILE_OFFSET
-        )
+      * a line-based regex stopped at the first newline, dropping every
+        parenthesized multiline declaration -- 31 VV1 and 11 VV2 pairs;
+      * an `ast` evaluator with only previously-resolved integers in scope
+        could not call the generator's own helpers, so nine more VV1 pairs
+        whose VA is `mask_code_va(...)` -- the mask, portrait, save-slot, tick
+        and newborn caves -- were skipped as well.
 
-    -- failed to evaluate and was dropped without a word.  That silently
-    excluded 31 VV1 and 11 VV2 pairs while the aggregate count still passed on
-    the other games, so the check protected far less than it claimed to.
+    Importing the module sidesteps the whole class of problem: whatever the
+    generator computes, however it computes it, is what gets checked.  These
+    modules only define constants and functions at import time; `main()` is
+    guarded by `__name__ == "__main__"`, which is not true here.
+
+    The source is still parsed, but only to recover the TEXT each name was
+    written as, which is what distinguishes a deliberate `NAME_VA = OTHER_VA`
+    alias from a real mapping claim.
     """
-    found: dict[str, int] = {}
+    values: dict[str, int] = {}
     exprs: dict[str, str] = {}
+
+    spec = importlib.util.spec_from_file_location(f"gen_{script.stem}", script)
+    if spec is None or spec.loader is None:
+        return values, exprs
+    module = importlib.util.module_from_spec(spec)
+    argv = sys.argv
     try:
-        tree = ast.parse(source)
-    except SyntaxError:
-        return found, exprs
-    for node in tree.body:
-        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
-            continue
-        target = node.targets[0]
-        if not isinstance(target, ast.Name):
-            continue
-        try:
-            value = eval(                                   # noqa: S307
-                compile(ast.Expression(node.value), "<const>", "eval"),
-                {"__builtins__": {}},
-                dict(found),
-            )
-        except Exception:
-            continue
+        sys.argv = [str(script)]
+        spec.loader.exec_module(module)
+    except Exception:
+        return values, exprs
+    finally:
+        sys.argv = argv
+
+    for name, value in vars(module).items():
         if isinstance(value, int) and not isinstance(value, bool):
-            found[target.id] = value
-            exprs[target.id] = ast.unparse(node.value).strip()
-    return found, exprs
+            values[name] = value
+
+    try:
+        tree = ast.parse(script.read_text(encoding="utf-8"))
+    except (SyntaxError, OSError):
+        return values, exprs
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            target = node.targets[0]
+            if isinstance(target, ast.Name):
+                exprs[target.id] = ast.unparse(node.value).strip()
+    return values, exprs
 
 
 class CaveVaMatchesSectionMappingTests(unittest.TestCase):
@@ -117,7 +134,7 @@ class CaveVaMatchesSectionMappingTests(unittest.TestCase):
             script = ROOT / f"scripts/build_{game}_origins_feature.py"
             if not script.is_file() or not exe_path.is_file():
                 continue
-            values, exprs = constants(script.read_text(encoding="utf-8"))
+            values, exprs = constants(script)
             secs = sections(exe_path.read_bytes())
             for key, offset in sorted(values.items()):
                 if not key.endswith("_FILE_OFFSET"):
@@ -138,7 +155,12 @@ class CaveVaMatchesSectionMappingTests(unittest.TestCase):
                         f"{va:#x} would execute whatever happens to live there.",
                     )
                 checked += 1
-        self.assertGreater(checked, 10, "no cave VA pairs were checked")
+        # No absolute threshold: research/ fixtures are untracked and may be
+        # installed one game at a time, so "more than ten pairs" fails on a
+        # correct tree that happens to have only VV5. The per-game checks
+        # below are the real assertion -- every game that IS present must
+        # contribute at least one pair.
+        self.assertGreater(checked, 0, "no cave VA pairs were checked")
         # Per game, not just in aggregate: a parsing regression that dropped
         # every VV1 pair would otherwise still pass on the strength of the
         # other four, which is how the multiline declarations went unchecked.

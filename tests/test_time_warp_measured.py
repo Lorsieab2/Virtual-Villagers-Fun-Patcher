@@ -1,36 +1,34 @@
-"""Time Warp is calibrated from PLAY, and paused refuses without charging.
+"""Time Warp advances an EXACT number of years, and paused costs nothing.
 
 This file replaces tests/test_time_warp_paused.py and
-tests/test_time_warp_speed_independent.py, both of which asserted models of the
-engine that playtesting disproved. Three different theories have now been tried
--- "scale by the speed", "one flat amount everywhere", and "VV1-VV4 divide
-while VV5 multiplies" -- and each was wrong for at least one game. What follows
-is the owner's measurements and the arithmetic that turns them into deltas,
-with no engine model in between.
+tests/test_time_warp_speed_independent.py, and then replaced its own earlier
+contents twice more. Four theories of the engine were tried and each was wrong
+for at least one game: "scale by the speed", "one flat amount everywhere",
+"VV1-VV4 divide while VV5 multiplies", and finally a per-speed table calibrated
+by scaling play measurements. The last of those was not wrong so much as
+INEXACT -- it scaled by whole years read off a screen, so VV3's "4 to 5 years"
+could only ever produce an estimate.
 
-Measured on v1.34.29, which was already running a per-speed table:
+The owner then supplied the game's own time base, which settles it exactly:
 
-    game   slow      normal     fast        paused
-    VV1    1 @32400  3 @21600   11 @21600   0
-    VV2    1 @32400  3 @21600    9 @10800   0
-    VV3    3 @16200  3 @21600  4-5 @36000   0
-    VV4    -- its Tech screen crashed before it could be measured --
-    VV5    1 @32400  5 @32400    8 @32400   0  (all three ran the same amount)
+    one villager year = 4 real hours at slow
+                        2 real hours at normal
+                        1 real hour  at fast
 
-The goal is no longer three years at every speed. That target needed the delta
-to cancel the engine's own scaling, and three separate theories of how to do
-that were each wrong for at least one game. The target is now 3 at slow, 6 at
-normal and 12 at fast -- a doubling per step, which is roughly what the engine
-already does -- so each delta only has to be scaled by target / observed.
+The delta is subtracted from a real-time clock, so the years a delta buys are
+`delta / (hours * 3600)`:
 
-Assuming only that the advance is LINEAR in the delta at a fixed speed. That
-one assumption is the thing to re-check if a re-measure disagrees.
+    slow    43200 / 14400 =  3 years
+    normal  43200 /  7200 =  6 years
+    fast    43200 /  3600 = 12 years
 
-VV5's three speeds all ran the same 32400 and still produced 1 / 5 / 8, so its
-spread comes from the engine rather than from the delta. It still divides
-(194400 / speed) rather than branching, which is why it ran one amount at every
-setting; retuning it to the new targets needs its speed field confirmed first,
-since the division cannot distinguish speeds the field does not distinguish.
+The requested targets, 3 / 6 / 12, are exactly inverse to the hours-per-year
+4 / 2 / 1. So ONE flat amount hits all three precisely, and no per-speed table
+is needed at all. That also removes the feature's dependence on reading the
+speed field correctly, which every previous table was guessing around.
+
+Paused still reads the speed field, because whether to refuse a paused
+purchase is a separate question from how far the clock moves.
 """
 from __future__ import annotations
 
@@ -40,32 +38,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# game -> (generator, slow, normal, fast) for the four table-driven games
-TABLE_GAMES = {
-    "vv1": ("scripts/build_vv1_origins_feature.py", 97200, 43200, 23564),
-    "vv2": ("scripts/build_vv2_origins_feature.py", 97200, 43200, 14400),
-    "vv3": ("scripts/build_vv3_origins_feature.py", 16200, 43200, 96000),
-    # VV4 still carries its v1.34.29 table: its Tech screen crashed before it
-    # could be measured, so there is nothing yet to scale from.
-    "vv4": ("scripts/build_vv4_origins_feature.py", 32400, 21600, 10800),
+GENERATORS = {
+    "vv1": "scripts/build_vv1_origins_feature.py",
+    "vv2": "scripts/build_vv2_origins_feature.py",
+    "vv3": "scripts/build_vv3_origins_feature.py",
+    "vv4": "scripts/build_vv4_origins_feature.py",
+    "vv5": "scripts/build_vv5_origins_feature.py",
 }
 
-# What v1.34.29 actually ran, and the years each speed produced in play.
-V1_34_29 = {
-    "vv1": ((32400, 21600, 21600), (1, 3, 11)),
-    "vv2": ((32400, 21600, 10800), (1, 3, 9)),
-    "vv3": ((16200, 21600, 36000), (3, 3, 4.5)),   # fast reported as 4-5
-}
-# The target is no longer three years everywhere. The owner asked for 3 at
-# slow, 6 at normal and 12 at fast, which goes WITH the engine's own scaling
-# rather than trying to cancel it.
-TARGET_YEARS = (3, 6, 12)
-# VV5 divides instead of branching; 32400 * 6 = 194400.
-VV5_GENERATOR = "scripts/build_vv5_origins_feature.py"
-VV5_CONSTANT = 194400
-
-ALL_GENERATORS = {gid: gen for gid, (gen, *_rest) in TABLE_GAMES.items()}
-ALL_GENERATORS["vv5"] = VV5_GENERATOR
+# Real hours per villager year, as stated by the owner.
+HOURS_PER_YEAR = {"slow": 4, "normal": 2, "fast": 1}
+TARGET_YEARS = {"slow": 3, "normal": 6, "fast": 12}
+FLAT_DELTA = 43200
 
 PAUSE_SENTINEL = "0x3E7"
 
@@ -75,24 +59,70 @@ def source(rel: str) -> str:
 
 
 def time_warp_branch(text: str) -> str:
-    """The assembly from the Time Warp label to the next label."""
+    """The assembly from the Time Warp label to the next unrelated label."""
     match = re.search(r"^\s*(do_)?time_warp:\s*$", text, re.M)
     if not match:
         return ""
     rest = text[match.end():]
-    # The branch continues through its own tw_* helper labels (tw_slow,
-    # tw_fast, tw_apply, tw_divide) and ends at the next unrelated label.
     for candidate in re.finditer(r"^\s{8}([a-z_0-9]+):\s*$", rest, re.M):
         if not candidate.group(1).startswith("tw_"):
             return rest[: candidate.start()]
     return rest
 
 
+class ExactYearsTests(unittest.TestCase):
+    def test_the_flat_delta_is_exact_at_every_speed(self) -> None:
+        """The arithmetic, stated independently of any generator."""
+        for speed, hours in HOURS_PER_YEAR.items():
+            with self.subTest(speed=speed):
+                seconds_per_year = hours * 3600
+                self.assertEqual(
+                    FLAT_DELTA % seconds_per_year, 0,
+                    "the delta must divide evenly, or the advance is an estimate",
+                )
+                self.assertEqual(FLAT_DELTA // seconds_per_year, TARGET_YEARS[speed])
+
+    def test_the_targets_are_inverse_to_the_year_length(self) -> None:
+        """Why one flat amount can be exact at three different speeds."""
+        for speed, hours in HOURS_PER_YEAR.items():
+            with self.subTest(speed=speed):
+                self.assertEqual(hours * TARGET_YEARS[speed], 12)
+
+    def test_every_game_subtracts_that_exact_amount(self) -> None:
+        for gid, generator in GENERATORS.items():
+            with self.subTest(game=gid):
+                warp = time_warp_branch(source(generator))
+                self.assertTrue(warp, f"{gid} Time Warp branch not found")
+                self.assertIn(f"mov eax, {FLAT_DELTA}", warp)
+
+    def test_no_game_still_selects_a_delta_by_speed(self) -> None:
+        """A per-speed table is now wrong, not merely redundant.
+
+        Each entry would have to buy a different number of years, which is the
+        opposite of what one flat amount achieves.
+        """
+        for gid, generator in GENERATORS.items():
+            with self.subTest(game=gid):
+                warp = time_warp_branch(source(generator))
+                self.assertNotIn("tw_slow:", warp, f"{gid} still branches per speed")
+                self.assertNotIn("tw_fast:", warp, f"{gid} still branches per speed")
+
+    def test_vv5_no_longer_divides_by_its_speed_field(self) -> None:
+        """Its three speeds all read the same value, so the division did nothing.
+
+        VV5 measured 1 / 5 / 8 years while every speed ran the same 32400 --
+        the engine's own spread showing through a divisor that never varied.
+        """
+        warp = time_warp_branch(source(GENERATORS["vv5"]))
+        self.assertNotIn("div ecx", warp)
+        self.assertNotIn("mov eax, 194400", warp)
+
+
 class PausedRefusesTests(unittest.TestCase):
     """Paused advances 0 years everywhere, so it must not cost anything."""
 
     def test_every_game_checks_the_paused_sentinel(self) -> None:
-        for gid, generator in ALL_GENERATORS.items():
+        for gid, generator in GENERATORS.items():
             with self.subTest(game=gid):
                 self.assertIn(
                     PAUSE_SENTINEL, source(generator),
@@ -100,20 +130,19 @@ class PausedRefusesTests(unittest.TestCase):
                 )
 
     def test_the_refusal_comes_before_the_deduction(self) -> None:
-        """The whole point: checking after the charge still costs the player.
+        """Checking after the charge still costs the player.
 
         VV1 charged 50,000 tech points for an advance of zero years, which is
         the reported bug. The guard is worthless unless it precedes the
         instruction that deducts.
         """
-        for gid, generator in ALL_GENERATORS.items():
+        for gid, generator in GENERATORS.items():
             with self.subTest(game=gid):
                 text = source(generator)
                 refusal = text.find("tw_charge_ok")
                 self.assertNotEqual(
                     refusal, -1, f"{gid} has no pre-charge Time Warp guard"
                 )
-                # The deduction that the guard jumps over.
                 deduction = re.search(
                     r"^\s*(sub dword ptr \[[^\]]+\], eax|neg eax)\s*$",
                     text[refusal:], re.M,
@@ -123,13 +152,9 @@ class PausedRefusesTests(unittest.TestCase):
                 )
 
     def test_no_game_advances_the_clock_while_paused(self) -> None:
-        """A paused purchase must reach a message, not the clock write."""
-        for gid, generator in ALL_GENERATORS.items():
+        for gid, generator in GENERATORS.items():
             with self.subTest(game=gid):
                 text = source(generator)
-                # Anchor on the LABEL, not the first mention: the jump to it
-                # comes before the sentinel test, so searching back from the
-                # jump would look at the wrong side of the guard.
                 guard = text.find("tw_charge_ok:")
                 self.assertNotEqual(guard, -1, f"{gid} has no tw_charge_ok label")
                 window = text[max(0, guard - 700): guard]
@@ -143,103 +168,21 @@ class PausedRefusesTests(unittest.TestCase):
                 )
 
 
-class MeasuredDeltaTests(unittest.TestCase):
-    def test_each_table_game_uses_its_measured_deltas(self) -> None:
-        for gid, (generator, slow, normal, fast) in TABLE_GAMES.items():
-            with self.subTest(game=gid):
-                warp = time_warp_branch(source(generator))
-                self.assertTrue(warp, f"{gid} Time Warp branch not found")
-                for label, value in (("slow", slow), ("normal", normal), ("fast", fast)):
-                    self.assertIn(
-                        f"mov eax, {value}", warp,
-                        f"{gid} is missing its measured {label} delta {value}",
-                    )
+class LabelHonestyTests(unittest.TestCase):
+    def test_no_dialog_promises_a_fixed_number_of_years(self) -> None:
+        """The advance depends on the speed, so a fixed caption cannot be true.
 
-    def test_each_table_game_branches_on_the_speed_codes(self) -> None:
-        """3 / 6 / 10, read from what VV1 and VV3 actually store."""
-        for gid, (generator, *_rest) in TABLE_GAMES.items():
-            with self.subTest(game=gid):
-                warp = time_warp_branch(source(generator))
-                self.assertIn("cmp eax, 3", warp)
-                self.assertIn("cmp eax, 10", warp)
-
-    def test_no_table_game_kept_the_old_flat_amount_alone(self) -> None:
-        """A single unconditional 21600 is the shape that measured wrong."""
-        for gid, (generator, *_rest) in TABLE_GAMES.items():
-            with self.subTest(game=gid):
-                warp = time_warp_branch(source(generator))
+        The caption used to read "Advances 3 Villager Years" while the action
+        moved six years at normal and twelve at fast -- understating a
+        permanent 50,000-point purchase by up to four times.
+        """
+        for rc in ROOT.glob("native/**/*.rc"):
+            with self.subTest(resource=rc.name):
+                text = rc.read_text(encoding="utf-8", errors="surrogateescape")
                 self.assertNotRegex(
-                    warp, r"sub dword ptr \[0x[0-9A-Fa-f]+\], 21600",
-                    f"{gid} still subtracts a flat 21600",
+                    text, r"Time Warp[^\"]*Advances \d+ Villager Years",
+                    f"{rc.name} still promises a fixed number of years",
                 )
-
-    def test_vv5_divides_so_it_needs_no_speed_codes(self) -> None:
-        warp = time_warp_branch(source(VV5_GENERATOR))
-        self.assertTrue(warp, "VV5 Time Warp branch not found")
-        self.assertIn(f"mov eax, {VV5_CONSTANT}", warp)
-        self.assertIn("div ecx", warp)
-        self.assertNotIn("mov eax, 129600", warp)
-
-    def test_vv5_guards_its_divisor(self) -> None:
-        """A zero speed would fault; the branch must fall back to normal."""
-        warp = time_warp_branch(source(VV5_GENERATOR))
-        self.assertIn("test ecx, ecx", warp)
-        self.assertIn("mov ecx, 6", warp)
-
-    def test_the_vv5_constant_is_the_normal_speed_measurement(self) -> None:
-        """129600 gave 12 years, so 3 years is 32400, and 32400 * 6 = 194400."""
-        self.assertEqual(VV5_CONSTANT, 32400 * 6)
-
-
-class MeasurementProvenanceTests(unittest.TestCase):
-    """The numbers must stay traceable to the measurements that produced them."""
-
-    def test_each_generator_records_that_it_was_measured(self) -> None:
-        for gid, generator in ALL_GENERATORS.items():
-            with self.subTest(game=gid):
-                warp = time_warp_branch(source(generator))
-                self.assertRegex(
-                    warp.lower(), r"measured",
-                    f"{gid} Time Warp no longer says where its numbers came from",
-                )
-
-    def test_the_deltas_are_the_measurements_scaled_to_the_targets(self) -> None:
-        """Re-derives every table number from what v1.34.29 actually did.
-
-        Each game's own delta is scaled per speed, not one shared constant:
-        the three games were running different amounts, so scaling from a
-        single number would only be right for whichever game happened to
-        match it.
-        """
-        for gid, (ran, observed) in V1_34_29.items():
-            _generator, *current = TABLE_GAMES[gid]
-            with self.subTest(game=gid):
-                expected = [
-                    round(delta * target / years)
-                    for delta, years, target in zip(ran, observed, TARGET_YEARS)
-                ]
-                self.assertEqual(current, expected)
-
-    def test_every_target_is_a_doubling_of_the_one_below(self) -> None:
-        """3 / 6 / 12 -- the shape the engine already produces.
-
-        Earlier attempts tried to make one number of years hold across every
-        speed and had to fight the clock to do it. Each of the three theories
-        that produced was wrong for at least one game.
-        """
-        slow, normal, fast = TARGET_YEARS
-        self.assertEqual(normal, slow * 2)
-        self.assertEqual(fast, normal * 2)
-
-    def test_vv4_is_still_awaiting_its_measurement(self) -> None:
-        """Recorded rather than silently left behind.
-
-        VV4's Tech screen crashed in v1.34.29 (a cave declared at
-        IMAGE_BASE + file offset in a section that is not identity-mapped), so
-        it could not be measured. Its table is unchanged until it is.
-        """
-        self.assertNotIn("vv4", V1_34_29)
-        self.assertEqual(TABLE_GAMES["vv4"][1:], (32400, 21600, 10800))
 
 
 if __name__ == "__main__":

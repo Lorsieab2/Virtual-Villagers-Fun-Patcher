@@ -142,50 +142,18 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertIn("call 0x45D2D0", self.builder)
         self.assertIn("call 0x45D1C0", self.builder)
 
-    def test_time_warp_uses_its_measured_per_speed_deltas(self) -> None:
-        """VV4's advance scales with speed, so its delta has to as well.
+    def test_time_warp_advances_an_exact_number_of_years(self) -> None:
+        """One flat delta, exact at every speed.
 
-        This replaces an assertion that VV4 subtracts one flat 21600 and never
-        reads the speed field. Measured in play, that flat amount advanced 2
-        years at slow, 3 at normal and 6 at fast, and a paused purchase
-        advanced nothing while still charging.
-
-        The branch now selects 32400 / 21600 / 10800 -- the old amount scaled
-        by 3/measured at each speed -- and refuses while paused before any
-        points are deducted.
+        A villager year is 4 real hours at slow, 2 at normal and 1 at fast, and
+        the delta is in real seconds, so 43200 buys exactly 3 / 6 / 12 years.
+        The per-speed table this replaces was calibrated by scaling whole years
+        read off a screen, which could only ever approximate.
         """
-        try:
-            import capstone
-        except ImportError:
-            self.skipTest("capstone not available")
-
-        # Pick the payload that carries the clock write, not merely the
-        # first large one -- the manifest has several big patches.
-        # sub dword ptr [0x4B8230], eax  ->  29 05 30 82 4B 00
-        clock_write = bytes.fromhex("290530824B00")
-        payload = next(
-            blob
-            for blob in (
-                bytes.fromhex(item["after"]) for item in self.manifest["patches"]
-            )
-            if clock_write in blob
-        )
-        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-        text = chr(10).join(
-            f"{insn.mnemonic} {insn.op_str}"
-            for insn in md.disasm(payload, 0x400000)
-        )
-
-        # The clock write takes its amount from a register now.
-        self.assertIn("sub dword ptr [0x4b8230], eax", text)
-        for delta in ("0x7e90", "0x5460", "0x2a30"):   # 32400, 21600, 10800
-            self.assertIn(f"mov eax, {delta}", text)
-        self.assertIn("cmp eax, 3", text)
-        self.assertIn("cmp eax, 0xa", text)
-        # Paused is refused before charging.
-        self.assertIn("0x3e7", text)
-
-
+        text = self.builder
+        self.assertIn("mov eax, 43200", text)
+        self.assertNotIn("tw_slow:", text)
+        self.assertNotIn("tw_fast:", text)
     def test_composes_with_current_vv4_features_in_all_modes(self) -> None:
         patch_ids = [patch.id for patch in load_fun_patches() if patch.game_id == "vv4"]
         self.assertIn(FEATURE_ID, patch_ids)

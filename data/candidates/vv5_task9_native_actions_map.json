@@ -6,8 +6,8 @@
   },
   "active_base": {
     "size": 28772,
-    "file_sha256": "16A16C107A172CD11207B988CECA93D4A6176063CAEC3856EC5A321B6D49221F",
-    "source_text_sha256": "327112AE2915E232891BCFC9C370F5DE39E3CA883A607007EE77276E1C478E1F"
+    "file_sha256": "9C9F181D0B72A06AAB4B7C84F29E9308D93F74782F197A82C333E15DE617D0E5",
+    "source_text_sha256": "32B8B46A3E3285505676CA5663C14B9E707A53241B65EBAB9BB7A0896966282E"
   },
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "A70D9D6429C369D9FB5A4B01ABA114F12F462EBFB76B2F5E279262281C5C85CB"
+      "source_text_sha256": "BECF2CB88E05E3CE06C6F5B16FEC7C4451837D5864B7499BB7C33B0CA22F8BF4"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -30,7 +30,7 @@
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "8893FD473DC5E63689CAEE19876834BEB7D437DF3B75676F65DFE09737F0DB08"
+      "source_text_sha256": "C92504B925E9B0F98225085BA5954363AA809A9EE3DD71C679C3A55FEBAD800B"
     },
     "companion_builder": {
       "path": "scripts/build_vv5_task9_origins_dll.ps1",
@@ -46,7 +46,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "327112AE2915E232891BCFC9C370F5DE39E3CA883A607007EE77276E1C478E1F"
+      "source_text_sha256": "32B8B46A3E3285505676CA5663C14B9E707A53241B65EBAB9BB7A0896966282E"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -68,10 +68,10 @@
   },
   "companion": {
     "size": 1753088,
-    "sha256": "A4354F1722060839CD52B500C559FF4986EF781FE3852E9BB6EE118915FEEC37"
+    "sha256": "CD57C95C60EFF3213BF8665809903C821F1333D159B5B8D70C0F5D6E9324F554"
   },
   "payload": {
-    "sha256": "94B6C880A8660283EFDB404795D0D4A749EF41F2007F04AA8313FD33F08D181B",
+    "sha256": "95B2F7F0BB059CB47903DF179EF459AFA438753C00FFC4A4AB1CF9F0CC026D26",
     "geometry": {
       "tech": {
         "allocation_bridge_bytes": "97E8EC6F0100E8C7D9C9FF",

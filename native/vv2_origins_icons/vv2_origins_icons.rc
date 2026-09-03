@@ -43,7 +43,7 @@ BEGIN
     /* ---- left column: rows 0-6 ---- */
     ICON        101, -1, 8,   6,  24, 24
     ICON        109, 1100, 22, 18, 12, 12
-    LTEXT       "Time Warp - Advances 3 Villager Years", -1, 40, 8, 195, 10
+    LTEXT       "Time Warp - Advances the Village Clock", -1, 40, 8, 195, 10
     LTEXT       "50,000 tech points", -1, 40, 20, 150, 9
     PUSHBUTTON  "Buy", 1000, 240, 9, 55, 18
 

@@ -803,30 +803,24 @@ def main() -> None:
             jmp menu_done
 
         do_time_warp:
-            # Measured, not modelled.  With delta = speed * 3600 (10800 /
-            # 21600 / 36000) VV3 advanced 2 / 3 / 3 years at slow / normal /
-            # fast.  Normal and fast are already right, so only slow moves:
-            # scaling its delta by 3/2 gives 16200.  Two previous attempts to
-            # derive these numbers from a model of the clock were wrong in
-            # different directions, so the table below is the measurements and
-            # nothing else.  Re-measure after touching it.
+            # EXACT, not calibrated. The owner states the game's own time
+            # base: one villager year is 4 real hours at slow, 2 at normal and
+            # 1 at fast. The delta is in real seconds, so the years a given
+            # delta buys are delta / (hours * 3600):
             #
-            # Speed codes are 3 / 6 / 10, read from the constants the game
-            # itself stores into the speed field at manager +0x12F20.  Any
-            # unexpected value takes the normal-speed delta; paused was
-            # already refused before charging.
-            mov eax, dword ptr [edi + ebp + 0x12F20]
-            cmp eax, 3
-            je tw_slow
-            cmp eax, 10
-            je tw_fast
+            #     slow    43200 / 14400 =  3 years
+            #     normal  43200 /  7200 =  6 years
+            #     fast    43200 /  3600 = 12 years
+            #
+            # The targets 3 / 6 / 12 are exactly inverse to the hours-per-year
+            # 4 / 2 / 1, so ONE flat amount hits all three on the nose and no
+            # per-speed table is needed. That also removes this feature's
+            # dependence on reading the speed field correctly, which is what
+            # the previous scaled tables were guessing around.
+            #
+            # Paused is still refused before the charge, which does read the
+            # speed field -- that guard is unaffected.
             mov eax, 43200
-            jmp tw_apply
-        tw_slow:
-            mov eax, 16200
-            jmp tw_apply
-        tw_fast:
-            mov eax, 96000
         tw_apply:
             sub dword ptr [0x4A4210], eax
             mov eax, 0x{s['time_warp_done']:X}

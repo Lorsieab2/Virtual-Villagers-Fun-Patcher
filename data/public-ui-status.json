@@ -3,7 +3,7 @@
   "policy": {
     "permanent_action_caption": "Buy",
     "remove_allowed_only_for": ["Food Doubler", "Tech Doubler"],
-    "time_warp_caption": "Time Warp - Advances 3 Villager Years"
+    "time_warp_caption": "Time Warp - Advances the Village Clock"
   },
   "games": {
     "vv3": {

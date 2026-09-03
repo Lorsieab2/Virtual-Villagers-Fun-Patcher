@@ -27,7 +27,7 @@ class PermanentPurchaseContractTests(unittest.TestCase):
     def test_inventory_has_exact_labels_prices_and_policies(self):
         actions = {row["id"]: row for row in self.raw["action_definitions"]}
         expected = {
-            "time_warp": ("Time Warp - Advances 3 Villager Years", 50000, "buy_only"),
+            "time_warp": ("Time Warp - Advances the Village Clock", 50000, "buy_only"),
             "island_event": ("Island Event", 30000, "buy_only"),
             "barrel_of_babies": ("Barrel of Babies", 75000, "buy_only"),
             "tech_point_doubler": ("Tech Point Doubler", 500000, "buy_or_owned_remove"),
