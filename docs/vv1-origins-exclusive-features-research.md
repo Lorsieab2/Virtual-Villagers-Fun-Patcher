@@ -26,7 +26,7 @@ The APK's Tech screen exposes these purchases:
 
 | Purchase | Cost | Recovered effect |
 |---|---:|---|
-| Time Warp | 50,000 | Advances the village by exactly 3 displayed villager years; its elapsed-clock adjustment scales with game speed. |
+| Time Warp | 50,000 | Advances the village by exactly 3 displayed villager years on slow, 6 on normal and 12 on fast, matching the engine's own year length at each speed (3 h 20 m / 2 h / 1 h of real time). Refused while paused, which advances nothing. |
 | Island Event | 30,000 | Opens the non-catastrophic Island Event route. |
 | Barrel of Babies | 75,000 | Opens the native event-12 Barrel of Babies result with magnitude 10, spawning exactly three young children through the stock event path. |
 | Bump Max Population | 250,000 | Adds 10 to the mobile cap, repeatable to a 30-point bonus. |

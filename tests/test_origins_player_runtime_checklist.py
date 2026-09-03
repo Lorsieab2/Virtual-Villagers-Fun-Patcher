@@ -202,6 +202,22 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # dialog strings, preflight/Cure helpers, deferred Barrel
                     # helper, and the already-repaired section metadata rows.
                     repaired_offsets = {
+                        # Time Warp moved wholesale into the companion DLL,
+                        # which now owns its speed-aware confirmation, the
+                        # paused refusal, the charge, and an advance that does
+                        # not trip the engine own per-speed aging clamp.  New
+                        # .shr stub at 0x8BF80; the menu dispatch and the
+                        # deleted flat advance both live in the payload row.
+                        # The dead exe-side "paused" string went with it, which
+                        # shortens the string block and moves every later
+                        # string address -- so the rows that push one of those
+                        # addresses each differ by exactly that shift and
+                        # nothing else.  Asserted in test_time_warp_measured.py
+                        # and test_vv1_required_fixes.py.
+                        "0x8BF80", "0x85D30",
+                        "0x8B009", "0x8B530", "0x8B93F", "0x8BA80",
+                        "0x8BB00", "0x8BD30", "0x8BE00",
+                        "0x8E024", "0x8E1B4", "0x8E6C0", "0x8E720", "0x8E900",
                         # VV1 save-slot capture repair: the trampoline used to
                         # normalize the META file's slot 0 to zero and STORE it,
                         # overwriting the live village slot and running the table

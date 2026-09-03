@@ -21,7 +21,11 @@ NATIVE = ROOT / "native"
 # CASE-INSENSITIVE: a case-sensitive version missed the Equal Division
 # results, which capitalise the word ("Set %u Villagers' Job Preferences."),
 # so those still read "1 Villagers" while this guard passed.
-HARDCODED = re.compile(r"%[0-9]*[du]\s+villagers?\b", re.IGNORECASE)
+# The negative lookahead exempts a compound unit: "this will advance 6
+# villager YEARS" counts years, not villagers, and reads correctly at any
+# number. Only a count qualifying "villager(s)" directly can produce the
+# "1 villagers" this guards against.
+HARDCODED = re.compile(r"%[0-9]*[du]\s+villagers?\b(?!\s+years?\b)", re.IGNORECASE)
 # A counted villager result of any shape, used only for anti-vacuity.
 COUNTED = re.compile(r"%[0-9]*[du]\s+(?:%s|villagers?)\b", re.IGNORECASE)
 

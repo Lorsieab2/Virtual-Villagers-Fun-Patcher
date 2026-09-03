@@ -329,7 +329,7 @@ wording and the same shell, so the menus read identically across all five.
 
 | Upgrade | Cost |
 |---|---:|
-| Time Warp - Advances 3 Villager Years | 50,000 |
+| Time Warp - Advances the Village Clock | 50,000 |
 | Island Event | 30,000 |
 | Barrel of Babies | 75,000 |
 | Tech Point Doubler | 500,000 |
@@ -347,8 +347,15 @@ wording and the same shell, so the menus read identically across all five.
 A New Home has no Collections rows, because it has no collections to complete
 or reset. Every other row it shows uses the same wording as the rest.
 
-**Time Warp** advances the village by three villager years at **every** game
-speed, including while the game is paused. It is never refused for being paused.
+**Time Warp** advances the village by **three villager years on slow, six on
+normal and twelve on fast**. The amount depends on the speed because the game's
+own clock does: one villager year takes 3 h 20 m of real time on slow, 2 hours
+on normal and 1 hour on fast, so the same purchase buys more years the faster
+the village is running. The confirmation names the speed and the exact number
+of years before you commit, and the result says how many years it advanced.
+
+While the game is **paused** it advances nothing at all, so it is refused with
+a message and costs no tech points.
 
 **Barrel of Babies** delivers three children, so it is only sold when the
 village has room for all three -- that is, when the population is at or below
