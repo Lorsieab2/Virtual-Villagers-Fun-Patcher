@@ -313,13 +313,14 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             ).hexdigest().upper(),
             "089CA76E8A9B720A2F320D35D408F52FB33E28A9AB4BC4D91287DC2842BBF2D2",
         )
-        # Re-pinned after the companion DLL's final Change Appearance for All
-        # preflight repair. The DLL still links shell32 and derives the mask
-        # sidecar path from the exe basename; data/vv2_origins_feature.json
-        # certifies this same digest, and this assertion is the second pin.
+        # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
+        # Time Warp's speed-aware prompt, paused refusal, charge and advance.
+        # The DLL still links shell32 and derives the mask sidecar path from
+        # the exe basename; data/vv2_origins_feature.json certifies this same
+        # digest, and this assertion is the second pin.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "D27D1D5FFBE77BE05E30A5073AD7F5AC4CA1D60EB84E29CAFB118219865C6656",
+            "1A7ACF7F3B4B7E93099454F5DB95A2ECBAD08CC7A559B77D80F2DE8B13E7EF2B",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

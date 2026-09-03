@@ -59,7 +59,7 @@ GENERATORS = {
 
 # Games whose Time Warp has moved into the companion DLL. Grows one game per
 # pull request; the flat-delta assertions below cover the remainder.
-MIGRATED = {"vv1"}
+MIGRATED = {"vv1", "vv2"}
 
 # Each game's Time Warp constants are scoped with its own prefix:
 # vv2_origins_icons.c #includes vv1_origins_icons.c after pre-defining the
@@ -67,6 +67,7 @@ MIGRATED = {"vv1"}
 # game's Time Warp code would be silently retargeted in the other's build.
 COMPANIONS = {
     "vv1": "native/vv1_origins_icons/vv1_origins_icons.c",
+    "vv2": "native/vv2_origins_icons/vv2_origins_icons.c",
 }
 
 # The engine's own speed divisors, and the years each must buy.

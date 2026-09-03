@@ -458,8 +458,10 @@ class ManifestTests(unittest.TestCase):
         # unbuyable while one of each is already on its way + the purchased
         # barrel's baby-count override (cave 0x9A4F0 and its call site
         # 0x37ADC), which gives a bought barrel its full three children while
-        # a natural one keeps the stock random count.
-        self.assertEqual(len(rows), 36)
+        # a natural one keeps the stock random count + the Time Warp loader
+        # stub (0x9AFA0), which hands row 0 to the companion DLL that owns its
+        # speed-aware prompt, paused refusal, charge and advance.
+        self.assertEqual(len(rows), 37)
         mask_guards = {
             0x3160: "8B4424048B11",
             0x95B0: "8B09E989F3FFFF",
