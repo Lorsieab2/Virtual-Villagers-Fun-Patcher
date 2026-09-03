@@ -289,6 +289,13 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 continue
             repaired_offsets = {
                 "data/vv1_origins_feature.json": {
+                    # Purchased Barrel of Babies always delivers three
+                    # children: stock rolls rand(100) for one/two/three, so a
+                    # 75,000-point purchase was partly a coin flip. The cave
+                    # and its call site replace that one roll; natural barrels
+                    # are untouched.
+                    "0x8B962", "0x2B00C",
+
                     # Duplicate-purchase guards. An Island Event is queued
                     # by zeroing a countdown and a Barrel of Babies by setting
                     # a flag, so buying a second one while the first is
@@ -421,6 +428,13 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                 },
                 "data/vv2_origins_feature.json": {
+                    # Purchased Barrel of Babies always delivers three
+                    # children: stock rolls rand(100) for one/two/three, so a
+                    # 75,000-point purchase was partly a coin flip. The cave
+                    # and its call site replace that one roll; natural barrels
+                    # are untouched.
+                    "0x9A4F0", "0x37ADC",
+
                     # Duplicate-purchase guards. An Island Event is queued
                     # by zeroing a countdown and a Barrel of Babies by setting
                     # a flag, so buying a second one while the first is

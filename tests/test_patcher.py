@@ -455,8 +455,11 @@ class ManifestTests(unittest.TestCase):
         # Running / Grant Full Mastery / Complete / Reset Collections) + the
         # Barrel of Babies capacity gate (0x9AF58) + the pending-purchase row
         # states (0x9A4A0), which mark the Island Event and Barrel rows
-        # unbuyable while one of each is already on its way.
-        self.assertEqual(len(rows), 34)
+        # unbuyable while one of each is already on its way + the purchased
+        # barrel's baby-count override (cave 0x9A4F0 and its call site
+        # 0x37ADC), which gives a bought barrel its full three children while
+        # a natural one keeps the stock random count.
+        self.assertEqual(len(rows), 36)
         mask_guards = {
             0x3160: "8B4424048B11",
             0x95B0: "8B09E989F3FFFF",

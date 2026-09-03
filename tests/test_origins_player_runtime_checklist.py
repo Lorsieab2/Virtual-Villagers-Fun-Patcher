@@ -165,6 +165,12 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x9A300",
                         "0x9A530",
                         "0x943A8",
+                        # Purchased Barrel of Babies always delivers three
+                        # children: stock rolls rand(100) for one/two/three, so
+                        # a 75,000-point purchase was partly a coin flip. The
+                        # cave and its call site replace that one roll;
+                        # natural barrels are untouched.
+                        "0x9A4F0", "0x37ADC",
                         # Duplicate-purchase guard: an Island Event is
                         # queued by zeroing a countdown and a Barrel of Babies
                         # by setting a flag, so a second purchase while one is
@@ -207,6 +213,12 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x248",
                         "0x28470",
                         "0x56900",
+                        # Purchased Barrel of Babies always delivers three
+                        # children: stock rolls rand(100) for one/two/three, so
+                        # a 75,000-point purchase was partly a coin flip. The
+                        # cave and its call site replace that one roll;
+                        # natural barrels are untouched.
+                        "0x8B962", "0x2B00C",
                         # Duplicate-purchase guard: an Island Event is
                         # queued by zeroing a countdown and a Barrel of Babies
                         # by setting a flag, so a second purchase while one is
