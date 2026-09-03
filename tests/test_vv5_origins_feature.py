@@ -84,7 +84,10 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             before = bytes.fromhex(item["before"])
             self.assertEqual(self.stock[offset : offset + len(before)], before)
             self.assertEqual(len(before), len(bytes.fromhex(item["after"])))
-        self.assertEqual(len(self.payload), 0xF60)
+        # 0xF3C since Time Warp moved into the companion: the flat
+        # advance and two now-dead strings came out, the export name
+        # went in, and the block is that much shorter.
+        self.assertEqual(len(self.payload), 0xF3C)
         self.assertEqual(
             self.stock[0xDB000 : 0xDB000 + len(self.payload)],
             b"\0" * len(self.payload),
@@ -154,17 +157,57 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertNotIn("evidence", relocation)
 
     def test_time_warp_advances_an_exact_number_of_years(self) -> None:
-        """One flat delta, exact at every speed.
+        """Exact at every speed, and VV5's per-villager aging rate respected.
 
-        A villager year is 4 real hours at slow, 2 at normal and 1 at fast, and
-        the delta is in real seconds, so 43200 buys exactly 3 / 6 / 12 years.
-        The per-speed table this replaces was calibrated by scaling whole years
-        read off a screen, which could only ever approximate.
+        The clamp is the same as the other four (0x0046FFCB): over 86400
+        becomes 86400, otherwise anything over 23800 slow / 31000 normal /
+        38200 fast is forced to 31000. Every delta the 3 / 6 / 12 target needs
+        is above its own threshold, so the flat 43200 this replaces collapsed
+        at all three speeds and landed 2.55 / 4.3 / 8.6 years.
+
+        What is unique to VV5, and is pinned here because getting it wrong is
+        silent: its conversion folds a PER-VILLAGER aging rate in. The loop at
+        0x00470040 reads +0x1CC8 and doubles it when it exceeds 1, then
+        multiplies the converted seconds by it, and it credits nothing unless
+        the faction byte at +0x1CEC is zero. Crediting a flat years*20 to
+        everyone would under-age the fast agers and over-age the gated ones,
+        so the companion reproduces the rate instead.
         """
         text = self.source
-        self.assertIn("mov eax, 43200", text)
+        self.assertNotIn("mov eax, 43200", text)
+        self.assertNotIn("do_time_warp:", text)
         self.assertNotIn("tw_slow:", text)
         self.assertNotIn("tw_fast:", text)
+        self.assertIn("time_warp_export", text)
+
+        dll = (
+            ROOT / "native" / "vv5_task9_origins" / "vv5_task9_origins.c"
+        ).read_text(encoding="utf-8")
+
+        codes = {"SLOW": 10, "NORMAL": 6, "FAST": 3}
+        years = {"SLOW": 3, "NORMAL": 6, "FAST": 12}
+        thresholds = {"SLOW": 23800, "NORMAL": 31000, "FAST": 38200}
+        for name, code in codes.items():
+            self.assertIn(f"#define VV5_TW_SPEED_{name}", dll)
+            delta = years[name] * 20 * 60 * code
+            self.assertEqual((delta // 60) // code // 20, years[name])
+            self.assertGreater(delta, thresholds[name])
+
+        self.assertIn("#define VV5_TW_AGE_OFFSET       0x1B8C", dll)
+        self.assertIn("#define VV5_TW_LAST_SEEN_OFFSET 0x1C38", dll)
+        self.assertIn("#define VV5_TW_RATE_OFFSET      0x1CC8", dll)
+        self.assertIn("#define VV5_TW_FACTION_OFFSET   0x1CEC", dll)
+        # The engine's own rate fold, reproduced rather than approximated.
+        self.assertIn("return rate > 1 ? rate + rate : rate;", dll)
+        self.assertIn("+= units * rate;", dll)
+        self.assertIn("VV5_TW_LAST_SEEN_OFFSET) += delta;", dll)
+        # 64-bit epoch: the borrow has to be carried.
+        self.assertIn("epoch[1] -= 1;", dll)
+        # The executable keeps the charge, so the companion must not deduct.
+        self.assertNotIn("*tech -= cost;", dll)
+        # No owner fallback in this companion.
+        self.assertIn("HWND owner = GetOriginsOwner();", dll)
+
     def test_active_task9_time_warp_is_speed_independent(self) -> None:
         """The SHIPPING VV5 Time Warp: one constant, no speed scaling.
 
@@ -571,7 +614,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "DE4D46F08409127705A12C0622080CCFBA2B9777469BD4C899AD4C13C2C2449A",
+            "848452B6C2B9EA668B06E90C354E5C4BD4CD8988DC9174DEE006623E5D4DBDE3",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],

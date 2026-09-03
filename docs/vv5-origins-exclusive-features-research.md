@@ -324,13 +324,25 @@ Stock-mode rendering does not apply any expanded relocation row. In expanded
 mode the two doubler hook rows accept only their exact native override
 preimages; an unknown preimage fails closed rather than being rewritten.
 
-Time Warp advances exactly three displayed villager years. With the confirmed
-VV5 relation of two real hours per displayed year at normal speed, its clock
-shift is `129600 / speed` seconds:
+Time Warp advances **3 displayed villager years on slow, 6 on normal and 12 on
+fast**. The amount is speed-dependent because the engine's own year length is:
+the speed field is a DIVISOR (10 slow, 6 normal, 3 fast) and a villager year
+costs `20 * 60 * code` seconds, so 3 h 20 m on slow, 2 hours on normal and 1
+hour on fast.
 
-- half speed (`3`): 43,200 seconds;
-- normal speed (`6`): 21,600 seconds;
-- double speed (`10`): 12,960 seconds.
+The earlier claim of a fixed three years with a `129600 / speed` clock shift
+was wrong on both halves. It ignored the clamp at `0x0046FFCB`, which cuts the
+pending slice to 31000 whenever it exceeds 23800 / 31000 / 38200 -- so no clock
+shift alone can deliver more than about 2.55 / 4.3 / 8.6 years, whatever number
+is pushed in. A larger shift makes the warp *smaller* once it crosses the
+threshold.
+
+The companion therefore advances the clock by the true delta AND credits each
+villager's age units directly, moving its last-seen marker by the same delta so
+its own tick cannot re-process and clamp the jump. VV5 alone folds a
+per-villager aging rate (`+0x1CC8`, doubled above 1) into the conversion and
+gates the credit on the faction byte (`+0x1CEC`), and the companion reproduces
+both rather than crediting a flat amount to everyone.
 
 Pause (`999`) refuses without charging.
 
