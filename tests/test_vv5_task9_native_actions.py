@@ -392,9 +392,14 @@ class Task9ArtifactTests(unittest.TestCase):
         source = NATIVE.read_text(encoding="utf-8")
         generator = (ROOT / "scripts/build_vv5_task9_native_actions.py").read_text(encoding="utf-8")
         exports = DEF.read_text(encoding="utf-8")
-        # One in the owner capture (BeginOriginsOwner) and one as the modal
-        # parent of the Change Appearance picker; neither is an owner fallback.
-        self.assertEqual(source.count("GetForegroundWindow()"), 2)
+        # Exactly ONE: the owner capture in BeginOriginsOwner, which validates
+        # the handle is same-process before keeping it. The Change Appearance
+        # picker used to read the foreground window directly as its modal
+        # parent, which contradicted this companion's own published contract
+        # ("same-process HWND only; ... no foreground fallback") and could
+        # parent the chooser to an unrelated application if focus moved while
+        # the purchase confirmation was open. It uses GetOriginsOwner() now.
+        self.assertEqual(source.count("GetForegroundWindow()"), 1)
         self.assertIn("validate_same_process_window(GetForegroundWindow())", source)
         self.assertIn("GetWindowThreadProcessId", source)
         self.assertIn("GetCurrentProcessId", source)

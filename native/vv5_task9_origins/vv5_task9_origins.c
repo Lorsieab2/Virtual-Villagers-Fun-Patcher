@@ -453,6 +453,10 @@ static INT_PTR CALLBACK appearance_dialog(
     return FALSE;
 }
 
+/* Declared ahead of its first use: the Change Appearance picker parents
+   its modal on the validated owner rather than the foreground window. */
+__declspec(dllexport) HWND __stdcall GetOriginsOwner(void);
+
 __declspec(dllexport) int __stdcall ShowAppearanceChooser(
     int sex,
     int age,
@@ -467,10 +471,16 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
     appearance_body = (body && *body >= 0 && *body < APPEARANCE_BODY_COUNT) ? *body : 0;
     appearance_mask = (mask && *mask >= 0 && *mask < APPEARANCE_MASK_COUNT) ? *mask : 0;
 
+    /* GetOriginsOwner, not GetForegroundWindow. The emitted owner contract
+       promises "same-process HWND only; ... no foreground fallback", and a raw
+       foreground read breaks that: if focus moves to another application while
+       the purchase confirmation is open, the chooser parents itself to an
+       unrelated window. The owner is captured and validated by
+       BeginOriginsOwner before the menu opens, so it is available here. */
     result = DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(IDD_APPEARANCE),
-        GetForegroundWindow(),
+        GetOriginsOwner(),
         appearance_dialog,
         0
     );
@@ -490,7 +500,6 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
 }
 
 __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table);
-__declspec(dllexport) HWND __stdcall GetOriginsOwner(void);
 
 /* ---------- Change Appearance for All (VV2-style, VV5 offsets) ----------
    Whole-village mass appearance editor for the Tech screen (450,000 tech). The
