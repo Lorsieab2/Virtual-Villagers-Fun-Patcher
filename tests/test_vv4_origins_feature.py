@@ -143,17 +143,53 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertIn("call 0x45D1C0", self.builder)
 
     def test_time_warp_advances_an_exact_number_of_years(self) -> None:
-        """One flat delta, exact at every speed.
+        """Exact at every speed, credited past the engine's aging clamp.
 
-        A villager year is 4 real hours at slow, 2 at normal and 1 at fast, and
-        the delta is in real seconds, so 43200 buys exactly 3 / 6 / 12 years.
-        The per-speed table this replaces was calibrated by scaling whole years
-        read off a screen, which could only ever approximate.
+        VV4 ages a villager the same way the others do -- 20 units a year,
+        units += (pending / 60) / speed_code, speed being a divisor of 10 slow
+        / 6 normal / 3 fast -- and clamps the pending slice first, at
+        0x00466574 / 0x00466594: over 86400 becomes 86400, and otherwise
+        anything over 23800 / 31000 / 38200 is forced to 31000. Every delta
+        the 3 / 6 / 12 target needs is above its own threshold, so the flat
+        43200 this replaces collapsed to 31000 at all three speeds and landed
+        2.55 / 4.3 / 8.6 years.
+
+        Pinned here rather than assumed from the other games, because VV3
+        already proved the layout is not shared: VV4's aging loop walks
+        esi = record + 0x1CC7, putting the pending slice at +0x1C34, the
+        marker at +0x1C38 and the age at +0x1B8C. Its adder at 0x00465F10 is
+        a plain add with no side effects, so the field is written directly --
+        unlike VV3, whose adder fires the 80-year notification.
         """
         text = self.builder
-        self.assertIn("mov eax, 43200", text)
+        self.assertNotIn("mov eax, 43200", text)
+        self.assertNotIn("do_time_warp:", text)
         self.assertNotIn("tw_slow:", text)
         self.assertNotIn("tw_fast:", text)
+        self.assertIn("time_warp_export", text)
+
+        dll = (
+            ROOT / "native" / "vv4_origins_icons" / "vv4_origins_icons.c"
+        ).read_text(encoding="utf-8")
+
+        codes = {"SLOW": 10, "NORMAL": 6, "FAST": 3}
+        years = {"SLOW": 3, "NORMAL": 6, "FAST": 12}
+        thresholds = {"SLOW": 23800, "NORMAL": 31000, "FAST": 38200}
+        for name, code in codes.items():
+            self.assertIn(f"#define VV4_TW_SPEED_{name}", dll)
+            delta = years[name] * 20 * 60 * code
+            self.assertEqual((delta // 60) // code // 20, years[name])
+            self.assertGreater(delta, thresholds[name])
+
+        self.assertIn("#define VV4_TW_AGE_OFFSET       0x1B8C", dll)
+        self.assertIn("#define VV4_TW_LAST_SEEN_OFFSET 0x1C38", dll)
+        self.assertIn("VV4_TW_LAST_SEEN_OFFSET) += delta;", dll)
+        self.assertIn("VV4_TW_AGE_OFFSET) += units;", dll)
+        # The epoch is 64-bit here, so the borrow has to be carried.
+        self.assertIn("epoch[1] -= 1;", dll)
+        # The executable keeps the charge (VV4 pays through its own native
+        # tech-point routine), so the companion must not deduct anything.
+        self.assertNotIn("*tech -= cost;", dll)
     def test_composes_with_current_vv4_features_in_all_modes(self) -> None:
         patch_ids = [patch.id for patch in load_fun_patches() if patch.game_id == "vv4"]
         self.assertIn(FEATURE_ID, patch_ids)

@@ -550,6 +550,16 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x2E3F5", "0x34357", "0x344B3", "0x60B48", "0x60D10",
                 },
                 "data/vv4_origins_feature.json": {
+                    # Time Warp moved wholesale into the companion DLL, which
+                    # now owns its speed-aware confirmation, the paused refusal
+                    # and an advance that does not trip the engine's per-speed
+                    # aging clamp. The charge stays in the executable, because
+                    # VV4 pays through its own native tech-point routine. No new
+                    # cave: the resolve replaces the flat advance in the payload
+                    # row 0 already used, and the retired "paused" string moves
+                    # every later string address, which is why the DLL-resolving
+                    # caves change by an immediate only.
+                    "0x89373", "0xCC004", "0xCC180", "0xCC760", "0xCCD00", "0xCCD90",
                     # Duplicate-purchase guards. An Island Event is queued
                     # by zeroing a countdown and a Barrel of Babies by setting
                     # a flag, so buying a second one while the first is
