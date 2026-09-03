@@ -4068,7 +4068,7 @@ def main() -> None:
         "source_bindings": bindings,
         "frozen_c342": {"count": C342_COUNT, "rows_sha256": C342_ROWS_SHA256, "unchanged": True},
         "task9_contract": {
-            "owner": "BeginOriginsOwner/GetOriginsOwner/EndOriginsOwner; same-process HWND only; capture before fullscreen leave; no foreground fallback; centralized restore then End",
+            "owner": "BeginOriginsOwner/GetOriginsOwner/EndOriginsOwner; same-process HWND only, validated on capture and on every read; no foreground fallback anywhere -- the Change Appearance picker parents on GetOriginsOwner too; there is no fullscreen leave/restore: the modal is invoked in place and SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS is set to 0 first so the fullscreen window is not minimised behind it; EndOriginsOwner clears the captured handle on the single exit path",
             "sequence": "complete dry-run -> IDOK -> fresh identity/snapshot/funds -> mutation -> postverify -> one native charge -> exact balance readback",
             "selection": "resolver 0x425950 null-guarded before +0x17E24; unsigned command 0..3 before resolver or price access",
             "eligibility": "active +0x1CD4, Heathen mask/status +0x1CE1 == 0, current-Believer faction +0x1CEC == 0, signed living health +0x1C40 > 0",
