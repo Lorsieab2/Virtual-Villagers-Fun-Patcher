@@ -1913,10 +1913,18 @@ def main() -> None:
         """,
         BARREL_ROOM_CHECK_VA,
     )
-    if len(barrel_room_check_code) > 0x100:
+    # Bound the room check at the DISARM STUB, not at the end of the shared
+    # 0x100 reservation.  The stub starts halfway through that reservation, so
+    # a 0x100 bound would let the room check grow straight over it -- emitting
+    # two overlapping patches at 0x8EB00 and 0x8EB80 with the build still
+    # reporting success.  Derived from the offsets rather than restated as
+    # 0x80, so moving either cave cannot leave this stale.
+    _room_check_room = BARREL_DISARM_FILE_OFFSET - BARREL_ROOM_CHECK_FILE_OFFSET
+    if len(barrel_room_check_code) > _room_check_room:
         raise RuntimeError(
-            "VV1 Barrel delivery recheck exceeds its .vv1mc reservation: "
-            f"{len(barrel_room_check_code):#x} > 0x100"
+            "VV1 Barrel delivery recheck would run into the disarm stub at "
+            f"{BARREL_DISARM_FILE_OFFSET:#x}: "
+            f"{len(barrel_room_check_code):#x} > {_room_check_room:#x}"
         )
     # Split at `barrel_main_restore` so the prefix can be assembled on its own
     # to MEASURE that label's offset -- see BARREL_MAIN_RESTORE_VA below.  The
@@ -2022,10 +2030,19 @@ def main() -> None:
         """,
         BARREL_DISARM_VA,
     )
-    if len(barrel_disarm_code) > 0x80:
+    # The stub runs to the end of the shared reservation, which is exactly
+    # where vv1_birth_control's composition overlay begins (0x8EC00).  Derived
+    # for the same reason as the room-check bound above: overrunning here would
+    # write into another feature's overlay rather than merely into a sibling
+    # cave, so the number must not be restated by hand.
+    _disarm_room = (
+        BARREL_ROOM_CHECK_FILE_OFFSET + 0x100 - BARREL_DISARM_FILE_OFFSET
+    )
+    if len(barrel_disarm_code) > _disarm_room:
         raise RuntimeError(
-            "VV1 Barrel disarm stub overruns its half of the .vv1mc slot: "
-            f"{len(barrel_disarm_code):#x} > 0x80"
+            "VV1 Barrel disarm stub overruns the .vv1mc reservation and would "
+            "reach vv1_birth_control's composition overlay: "
+            f"{len(barrel_disarm_code):#x} > {_disarm_room:#x}"
         )
     barrel_close_helper_code = assemble(
         f"""

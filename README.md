@@ -383,6 +383,14 @@ whether the villager in it is alive, unborn, or a skeleton, so the check never
 hands out a slot that is already spoken for. `docs/duplicate-purchase-guards.md`
 records that reasoning, and the one measurement question still open about it.
 
+Because the barrel is queued, the village can fill up during the wait. The room
+check therefore runs **again at delivery**, and if there is no longer space the
+barrel is *held* rather than spent: it stays queued and arrives once a slot
+frees. You are never charged twice, and a paid barrel never quietly delivers
+fewer than three children. In A New Home, if the event itself cannot be created
+the three-child bonus is released again rather than left waiting to attach to
+whichever barrel turns up next.
+
 Results that count villagers name the number and the reason, and read correctly
 at one: *"Skipped over 1 villager. Reason: already likes running."*
 
