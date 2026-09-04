@@ -11,12 +11,16 @@ VV5 carries two copies of the Tech-menu handler:
 
 | where | address | status |
 | --- | --- | --- |
-| base Origins payload, also embedded verbatim in the Task9 record's `0xDB000` patch | `0x7B2xxx` | replaced at load |
+| base Origins payload; the Task9 record's `0xDB000` patch carries a MODIFIED copy of it | `0x7B2xxx` | superseded at load |
 | Task9 stock menu page | `0x7C9000` | **this is what runs** |
 
 Reading `data/vv5_origins_feature.json`, or the `0xDB000` patch inside
 `data/vv5_task9_native_actions.json`, shows an old refusal path and leads
-straight to the wrong conclusion. Both were read that way in this repository's
+straight to the wrong conclusion. The two blobs are NOT interchangeable
+either -- the Task9 copy differs from the base payload (it replaces the
+handlers at `0x7B22C0` and `0x7B2600` with jumps into the `0x7C9000` page and
+changes eligibility bytes), so neither one may be substituted for the other
+in an audit. Both were read that way in this repository's
 history, by two different people, and both times the answer was wrong.
 
 The only reliable method is to render and disassemble:
@@ -51,9 +55,21 @@ behaviours.
 ```
 
 False for the shipping build: a native call is made for each of the three rows.
-This metadata feeds the transparency log, so the published contract currently
-says the opposite of what players get. It needs correcting to describe the
-shipping build.
+
+It is not the only false claim in that file, and correcting only this one would
+leave the player-facing behaviour contract wrong:
+
+- the top-level `description` states Time Warp produces exact 3 / 6 / 12-year
+  advances and names the speed in its confirmation, which the shipping
+  `194400 / speed` routine does not do;
+- `task9_contract.actions.time_warp` identifies the companion as the writer,
+  which it is not in the stock layout.
+
+`docs/transparency-log.md` republishes that top-level description, so all three
+statements are player-facing. Any correction has to cover the set, not just the
+STOP sentence. Note that the Time Warp items become TRUE if the live path is
+repaired -- so sequence the metadata fix after that repair rather than
+describing behaviour that is about to change.
 
 ## Consequence 2: VV5's Time Warp is still the original bug
 
@@ -82,8 +98,10 @@ the one-shot pending token (bit 3, value 8, at `0x51D388`) when the purchase
 completes. It deliberately does not arm the scheduler while the Upgrades menu
 is open. A separate `barrel_close_arm` detour on the Technologies-screen close
 handler later consumes that token, sets the forced-Barrel marker (bit 2), and
-writes `[manager+0x17D3C] = 0`, so the native index-25 Barrel event is
-presented only after the screen closes.
+writes `[manager+0x17D3C] = 0`, so the native index-**26** Barrel event is
+presented only after the screen closes. (Slot 25 is `CEventTheStingingWasps`
+and slot 26 is `CEventBarrelOBabiesV`, per `tests/test_vv5_barrel_event_index.py`;
+forcing 25 is the already-diagnosed wasps-instead-of-children bug.)
 
 The purchase write and the arming write therefore happen at different times, in
 different code. Any audit or change here has to keep that ordering in view.
@@ -117,10 +135,13 @@ gaps:
 | faction | `+0x1CEC` | the **supported** current-faction predicate |
 | mask byte | `+0x1CE1` | listed in `data/equal_division_evidence.json` under `forbidden_routes` as `vv5_unproved_heathen_active_byte` -- **not** a proven Heathen indicator |
 
-Equal Division additionally skips records whose `+0x1CE1` is non-zero, which is
-conservative: declining to touch extra records can only reduce what a feature
-writes. Using that byte to *decide* a record is safe to write is the forbidden
-direction, because its meaning is unproved.
+Equal Division additionally skips records whose `+0x1CE1` is non-zero. That is a
+narrowing of the eligible population, but it must NOT be described as only ever
+reducing what gets written: `ApplyVV5EqualDivision` assigns jobs round-robin and
+advances per-sex seat counters for eligible records only, so excluding one record
+shifts every later assignment and can rewrite a villager whose preference already
+matched. Using that byte to *decide* a record is safe to write remains the
+forbidden direction, because its meaning is unproved.
 
 ## Also worth knowing
 
