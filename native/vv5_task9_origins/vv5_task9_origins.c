@@ -945,20 +945,33 @@ static int vv5_aging_rate(const unsigned char *rec) {
 
 /* Returns how many occupied records were carried, 0 when the village is
    empty -- the caller treats that as "nothing happened" and charges nothing. */
-static int vv5_time_warp_apply(int speed, int years) {
-    unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
-    int units = years * VV5_TW_UNITS_PER_YEAR;   /* the base-rate credit */
-    int delta = units * 60 * speed;              /* the real seconds it costs */
-    int i, occupied = 0;
+typedef void(__fastcall *vv5_charge_fn)(void *balance, int unused_edx, int delta);
 
-    /* Count BEFORE touching anything: an empty village must not move the world
-       clock, because the caller charges nothing when this returns zero. Any
-       occupied record counts, whether or not the age credit will reach it. */
+
+/* Count BEFORE touching anything: an empty village must not move the world
+   clock and must not be billed. Any occupied record counts, whether or not the
+   age credit will reach it -- see the marker write below for why that
+   distinction matters. This is a helper of its own, unlike the other four
+   games, because the charge sits between the confirmation and the mutation and
+   so needs the count before either. */
+static int vv5_village_occupied(void) {
+    const unsigned char *base = (const unsigned char *)(UINT_PTR)VV5_REC_BASE;
+    int i, occupied = 0;
     for (i = 0; i < VV5_REC_COUNT; ++i) {
         if (base[(size_t)i * VV5_REC_STRIDE + VV5_OFF_ACTIVE] != 0) {
             ++occupied;
         }
     }
+    return occupied;
+}
+
+
+static int vv5_time_warp_apply(int speed, int years) {
+    unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
+    int units = years * VV5_TW_UNITS_PER_YEAR;   /* the base-rate credit */
+    int delta = units * 60 * speed;              /* the real seconds it costs */
+    int i, occupied = vv5_village_occupied();
+
     if (occupied == 0) {
         return 0;
     }
@@ -1051,13 +1064,45 @@ __declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
         != IDOK) {
         return VV5_TW_CANCELLED;
     }
-    if (vv5_time_warp_apply(speed, years) <= 0) {
+    if (vv5_village_occupied() <= 0) {
         MessageBoxA(owner,
                     "Time Warp could not reach the village records. No tech "
                     "points have been deducted.",
                     TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return VV5_TW_REFUSED;
     }
+    /* Charge HERE: after the player confirms, before anything is mutated.
+       The executable used to pay after this function returned, by which point
+       the clock had moved, every villager had been credited and the success
+       box had been shown -- so a charge that did not land granted a free warp
+       that had already been reported, and could not be undone. Both the funds
+       check and the deduction read-back therefore have to sit between the
+       confirmation and the first write, which is only possible in here: the
+       confirmation is a blocking MessageBoxA, so any balance the caller reads
+       beforehand is stale by the time the player answers. */
+    {
+        vv5_charge_fn charge = (vv5_charge_fn)(UINT_PTR)VV5_CHARGE_FN;
+        int *balance = (int *)(UINT_PTR)VV5_TECH;
+        int before = *balance;
+
+        if (before < cost) {
+            MessageBoxA(owner,
+                        "Time Warp needs more tech points than the village "
+                        "has. Nothing has been changed or deducted.",
+                        TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+            return VV5_TW_REFUSED;
+        }
+        charge(balance, 0, -cost);
+        if (*balance != before - cost) {
+            /* True as written, now that it runs before the mutation. */
+            MessageBoxA(owner,
+                        "Time Warp could not deduct its tech points. The "
+                        "village clock has not been changed.",
+                        TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+            return VV5_TW_REFUSED;
+        }
+    }
+    vv5_time_warp_apply(speed, years);
     wsprintfA(message, "Advanced %d years.", years);
     MessageBoxA(owner, message, TITLE,
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);

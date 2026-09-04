@@ -13,3 +13,11 @@ data/guardians_of_isola/** -text
 # VV4 Heathen-mask head atlases (masked + base) are pinned by exact-byte
 # hashes in data/vv4_origins_feature.json; keep blobs byte-identical.
 assets/vv4_masks/** -text
+
+# The VV5 Origins payload is pinned by a RAW byte hash (ACTIVE_SHA256 in
+# scripts/build_vv5_task9_native_actions.py), which sits at the base of VV5's
+# seven-layer identity chain. Without an EOL rule the hash follows
+# core.autocrlf, so a Windows checkout and an LF checkout settle to different
+# chains and the generator's identity check fails on whichever one did not
+# produce the pin.
+/data/vv5_origins_feature.json text eol=lf

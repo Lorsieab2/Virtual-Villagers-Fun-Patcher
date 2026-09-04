@@ -46,7 +46,7 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "1983C284BE6394509DC57022C84A93DE80676C8AD58ED893D3E7C30074769E16"
+ACTIVE_SHA256 = "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
 ACTIVE_SOURCE_TEXT_SHA256 = "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
@@ -2157,25 +2157,24 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         test eax, eax
         jz tw_apply_unavailable
         call eax
-        # 0 = the player cancelled. Say NOTHING: the companion owns the whole
-        # interaction, so its confirmation box is the only dialog a Time Warp
-        # click may produce, and routing to `cancelled` here made VV5 the one
-        # game that answered Cancel with a second popup. VV1, VV2, VV3 and VV4
-        # all fall through silently. 1 (applied) and 2 (refused, reason already
-        # shown) both close the same way.
+        # The companion owns the WHOLE transaction now -- confirm, charge,
+        # read the deduction back, then mutate -- so nothing is charged here.
+        #
+        # The charge has to sit between the confirmation and the first write,
+        # and only the companion can put it there: its confirmation is a
+        # blocking MessageBoxA, so any balance this page reads beforehand is
+        # already stale when the player answers, and a charge issued after the
+        # call returns comes too late -- the clock has moved, every villager is
+        # credited and "Advanced N years" has been shown, so a deduction that
+        # did not land cannot be undone.
+        #
+        # 0 = cancelled: say NOTHING. The companion's box is the only dialog a
+        # Time Warp click may produce, and routing to `cancelled` here made VV5
+        # the one game that answered Cancel with a second popup; VV1, VV2, VV3
+        # and VV4 all fall through silently. 1 (applied, and paid for) and
+        # 2 (refused, reason already shown) both close the same way.
         test eax, eax
         jz done
-        cmp eax, 1
-        jne done
-        push -50000
-        mov ecx, 0x51D5F8
-        call 0x4237B0
-        # And read the balance back: the charge routine returns nothing, so a
-        # deduction that did not land is otherwise invisible.
-        mov eax, dword ptr [ebp-0x20]
-        sub eax, 50000
-        cmp dword ptr [0x51D5F8], eax
-        jne charge_unknown
         jmp done
     tw_apply_unavailable:
         add esp, 4

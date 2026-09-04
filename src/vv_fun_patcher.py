@@ -695,16 +695,16 @@ VV5_TASK9_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "7CCB0BD2A922B20B1C9BF82294137DD9B86C81C70894EE65EF7A75645E2816AB",
-    "map": "434B0E2F7E657C8AF8BD9FCA911317B0FC4F0D06FBD0B3DAD685EEBB89AF9244",
+    "manifest": "FA37066AE3B4AEF8BACE49B572CAE18C56E9D0CF1BFB9EFFEA2E361A182DCFB3",
+    "map": "F66ACCFC089E29B24DCAF0A25FF963215F7745E23930FB6B2AE0D15D045A55FE",
 }
-VV5_TASK9_DLL_SHA256 = "23A5D66C834FF891E38CE3B93A87C8FFAD5AEF707F96584D7BDB43D28584F355"
+VV5_TASK9_DLL_SHA256 = "A8DF8B822288133C91F35921DCA62D38BC615A197244A5421E696545E8306631"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "9CB10406C171446C4C3FABFEFE79310F170674E895BD41E0B583D17EC051A610",
-    "immediate_fixed": "9CB10406C171446C4C3FABFEFE79310F170674E895BD41E0B583D17EC051A610",
+    "collection_progression": "C5F311ABEE2AB78246E19DBD7FDBAED7009C6C5AE909E18C736C768A1D390E32",
+    "immediate_fixed": "C5F311ABEE2AB78246E19DBD7FDBAED7009C6C5AE909E18C736C768A1D390E32",
     "experimental_expanded_256": "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457",
     "experimental_expanded_256_progression": "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457",
 }
@@ -736,8 +736,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "992EA0F4CFAD419C37A9FCD6066A9193121EB7D36622DCF2CC127384222F0F8D",
-    "task9_builder": "D915625A436587C657A27E101B8195D118D184A2CD0C9523D472871D6639669B",
+    "builder": "056E91808A4F0DD9E8502B826CE7CABEB2E2015317CB53EDF241AD36BC8DBCEB",
+    "task9_builder": "F57BAC3A336B5071BC8DE10EBBB79861CF1B5A35C5E74D2BEDC4CBF0ECFD94B2",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -746,8 +746,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
         "core": "5AA28CEAAFBC6F4278FF01C41F67E0394227C272123EAC9433BD6D011A4087CE",
     },
     "vv5": {
-        "manifest": "782AB0120769864B331B8B4B318D738A8F7531D7A9CE4BB0D4C0B01ED84D0920",
-        "map": "5447096834DCE3A91F5074BE8E314F36FA1BD8AF77706FE3EADFC01366B650F5",
+        "manifest": "64EE27EABBB44C7D020F59CA89B61EC3479A355E5054388A3A0A1076A58116D2",
+        "map": "107D8B3687882E4AEE26AE9354129564986948D3470D0957C06941C6E4B67CAE",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -2175,16 +2175,26 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
     companion = VV5_TASK9_PATHS["dll"].read_bytes()
     if len(companion) != expected_companion["size"] or hashlib.sha256(companion).hexdigest().upper() != VV5_TASK9_DLL_SHA256:
         raise PatcherError("VV5 Task9 companion identity mismatch.")
-    for export in (
-        b"BeginOriginsOwner\0",
-        b"GetOriginsOwner\0",
-        b"EndOriginsOwner\0",
-        b"ShowOriginsUpgradeMenuState\0",
-        b"ConfirmVV5Task9Action\0",
-        b"ShowVV5Task9Result\0",
-    ):
-        if companion.count(export) != 1:
-            raise PatcherError("VV5 Task9 companion export surface drifted.")
+    # Parsed from the export directory, not counted as strings: the shipping
+    # Time Warp resolves ShowVv5TimeWarp through GetProcAddress, so a rebuild
+    # that dropped the export would disable the row while the name still sat
+    # in the DLL's string pool and satisfied a substring check.
+    exported = _pe_export_names(companion)
+    required = {
+        b"BeginOriginsOwner",
+        b"GetOriginsOwner",
+        b"EndOriginsOwner",
+        b"ShowOriginsUpgradeMenuState",
+        b"ConfirmVV5Task9Action",
+        b"ShowVV5Task9Result",
+        b"ShowVv5TimeWarp",
+    }
+    missing = sorted(name.decode() for name in required - exported)
+    if missing:
+        raise PatcherError(
+            "VV5 Task9 companion export surface drifted; not exported: "
+            + ", ".join(missing)
+        )
     transaction = record.get("pe_append_transaction", {})
     layouts = transaction.get("layouts")
     if transaction.get("section") != ".vv5t9" or not isinstance(layouts, dict) or set(layouts) != set(VV5_TASK9_PAGE_SHA256):
@@ -4800,6 +4810,51 @@ def _relocation_ledger_sha256(patches: list[dict[str, Any]]) -> str:
         separators=(",", ":"),
     ).encode("utf-8")
     return hashlib.sha256(canonical).hexdigest().upper()
+
+
+def _pe_export_names(data: bytes) -> set[bytes]:
+    """Every name in a PE32 image's export directory.
+
+    Parsed rather than searched: a name appearing in the file's string pool is
+    not evidence that the function is exported, so a companion whose export a
+    rebuild dropped would otherwise pass every check while silently disabling
+    the feature that resolves it at runtime.
+    """
+    pe = int.from_bytes(data[0x3C:0x40], "little")
+    if data[pe : pe + 4] != b"PE\0\0":
+        raise PatcherError("companion is not a PE image.")
+    opt = pe + 24
+    if int.from_bytes(data[opt : opt + 2], "little") != 0x10B:
+        raise PatcherError("companion is not a PE32 image.")
+    section_count = int.from_bytes(data[pe + 6 : pe + 8], "little")
+    opt_size = int.from_bytes(data[pe + 20 : pe + 22], "little")
+    sections = []
+    for i in range(section_count):
+        h = pe + 24 + opt_size + i * 40
+        sections.append((
+            int.from_bytes(data[h + 12 : h + 16], "little"),   # virtual address
+            int.from_bytes(data[h + 16 : h + 20], "little"),   # virtual size
+            int.from_bytes(data[h + 20 : h + 24], "little"),   # raw pointer
+        ))
+
+    def at(rva: int, length: int) -> bytes:
+        for va, size, raw in sections:
+            if va <= rva < va + size:
+                start = raw + (rva - va)
+                return data[start : start + length]
+        raise PatcherError("companion export table points outside every section.")
+
+    directory_rva = int.from_bytes(data[opt + 96 : opt + 100], "little")
+    if not directory_rva:
+        return set()
+    table = at(directory_rva, 40)
+    name_count = int.from_bytes(table[24:28], "little")
+    names_rva = int.from_bytes(table[32:36], "little")
+    names = set()
+    for i in range(name_count):
+        rva = int.from_bytes(at(names_rva + i * 4, 4), "little")
+        names.add(at(rva, 128).split(b"\0", 1)[0])
+    return names
 
 
 def _validate_vv5_origins_relocation_contract(
