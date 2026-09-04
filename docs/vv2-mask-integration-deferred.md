@@ -1,65 +1,67 @@
-# VV2 Heathen-mask runtime: deferred, and the constraints it must meet
+# VV2 Heathen-mask runtime: shipped, and the invariants it satisfies
 
-The VV2 mask runtime exists in the tree but is **not integrated into the shipped
-catalog**. `load_fun_patches()` lists no VV2 mask feature, so the production VV2
-manifest applies neither the `.mtab`/`.vvmk` sections, nor the render/init/sweep
-hooks, nor the atlas. Normal patcher output is unaffected by any of it.
+The VV2 mask runtime **ships as part of `vv2_enable_origins_exclusive_features`**.
+It is not a separate catalog entry, which makes it easy to look for a
+"vv2 mask" feature id, find nothing, and wrongly conclude it is unintegrated.
+That mistake was made in an earlier revision of this file and is the reason the
+file now leads with the correction.
 
-That is a deliberate state, not a half-finished ship. This file records the
-constraints review raised against that code, so they are not lost now that the
-review threads are closed. Anyone integrating it has to satisfy all of them.
+Evidence, from the shipping artefacts rather than from source:
 
-## Blocking, before it can ship
+- `data/vv2_origins_feature.json` contains the `.mtab` and `.vvmk` section
+  entries.
+- The shipped `assets/origins/VVFP VV2 Origins Icons.dll` exports
+  `Vv2MaskRestore`, `Vv2MaskSaveSidecar`, `Vv2ExtractAtlas`, and the
+  three-argument `_ShowVV2AppearanceChooser@12`.
 
-1. **Rebuild and commit the companion.** The shipped
-   `assets/origins/VVFP VV2 Origins Icons.dll` still exports the four-argument
-   `_ShowVV2AppearanceChooser@16`, lacks ordinal 100, and lacks `Vv2MaskRestore`
-   and `Vv2MaskSaveSidecar`. A three-argument bridge resolving the old
-   four-argument export will dereference garbage. The companion rebuild is a
-   hard prerequisite, not a follow-up.
+So a normal catalog selection of VV2 Origins applies this runtime, and any
+review finding against it is a finding about shipped behaviour.
 
-2. **Namespace persistence by save slot.** Every VV2 save currently shares one
-   `vv2_masks.dat`, while the game has slots 1-5. An index-keyed table then
-   bleeds between villages: masks assigned in one village are applied to
-   unrelated villagers occupying the same record indices in another.
+## Invariants this runtime already satisfies
 
-   This is a solved problem elsewhere in this repository — VV1, VV3, VV4 and VV5
-   all key the mask sidecar to the active save slot for exactly this reason.
-   Copy that, do not re-derive it.
+These were once open review findings. They are now implemented, and are recorded
+here as invariants to preserve rather than as work to do — presenting them as
+blockers would send an integrator toward rework that is already done.
 
-3. **Persist masks cleared by the free-slot sweep.** The sweep clears the
-   in-memory table without updating the sidecar, so a restart restores the stale
-   nonzero byte. Because a freed slot's seen-alive latch starts at zero, the
-   sweep deliberately leaves it intact, and a newborn reusing that slot inherits
-   a mask nobody chose. The sidecar has to be written on sweep, not only on
-   purchase.
+1. **The companion exports match the bridge.** The shipped DLL provides ordinal
+   100, `_ShowVV2AppearanceChooser@12`, `Vv2MaskRestore` and
+   `Vv2MaskSaveSidecar`, so the three-argument bridge resolves the function it
+   expects.
 
-4. **Do not charge when nothing changes.** Change Appearance for All deducts
-   450,000 without comparing the selection against the eligible villagers'
-   current head/body/mask. Choosing a mask every villager already wears, or
-   buying with no active records, charges in full for no effect.
+2. **Persistence is namespaced by save slot.** `build_vv2_mask_stage2.py`
+   tracks the slot explicitly — the save-path builder publishes it, the
+   per-frame sweep reloads the sidecar when it changes, and the DLL reads
+   `SLOT_VA` to choose `vv2_masks_<slot>.dat`. Village 2 can therefore neither
+   show nor overwrite village 1's masks.
 
-   The shipped village-wide rows already solve this: they report
-   `VV2_RES_NO_CHANGE`, return 0, and the executable charges only on a success
-   return. Follow that pattern.
+3. **The sweep persists what it clears.** Slot capture and the post-sweep save
+   are wired, so a freed slot does not resurrect a stale nibble on restart.
 
-5. **Publish the atlas only after a complete write.** A short or failed
-   `WriteFile` leaves a truncated `heathen_masks.png`, the init hook asks the
-   game to load it, and every later launch skips extraction because the file
-   exists. Verify the return value *and* `w == sz`, and delete a short write
-   rather than leaving it in place.
+4. **Appearance for All compares before charging.** The companion materialises
+   the target head/body/mask values and compares them against the eligible
+   villagers, so a selection that changes nothing does not deduct 450,000.
 
-6. **Make the atlas builder portable.** `scripts/build_vv2_mask_atlas_exact.py`
-   reads absolute `C:/Users/Owner/...` paths and fails on any other machine. The
-   source images live under `research/vv2-mask-source`; derive the path from
-   `__file__`.
+5. **The atlas is published atomically.** Extraction writes
+   `heathen_masks.png.tmp` and only then promotes it, and the path-length check
+   reserves room for the staging suffix — so a short or failed write cannot
+   leave a truncated PNG that every later launch skips re-extracting.
 
-## Already fixed
+6. **The atlas builder is portable.** `build_vv2_mask_atlas_exact.py` derives
+   its root from `Path(__file__).resolve().parents[1]` rather than an absolute
+   author-only path.
 
-The module-path handling raised alongside these is done. Both companions reject
-a truncated path rather than deriving a save folder from a fragment:
+Module-path handling is likewise done: both companions reject a truncated path
+rather than deriving a save folder from a fragment.
 
 ```c
 n = GetModuleFileNameA(GetModuleHandleA(NULL), exe, MAX_PATH);
 if (n == 0 || n >= MAX_PATH) return 0;   /* empty or truncated -> skip */
 ```
+
+## The lesson worth keeping
+
+Absence of a feature id is not absence of a feature. The VV2 mask runtime is
+bundled into the Origins feature, so `load_fun_patches()` never lists it
+separately. Check the manifest sections and the companion's export table before
+concluding that anything is unshipped — and never use "it does not reach a user"
+to close a review thread without that check.

@@ -183,20 +183,30 @@ A villager record's in-use byte means **"this record slot is taken"**, not
 `+0x1CD4`, and a survey of a village showing **Population 0** on the HUD counted
 **134 occupied records**.
 
-This is the mechanism behind the owner's original report that skeletons suppress
-the Barrel of Babies. The free-slot gate counts *occupancy*, because occupancy is
-what the spawn actually needs — a skeleton still holds the slot a child would go
-into. The population counter, by contrast, skips any record whose health is at or
-below zero, so a village full of bodies reads as small while its slots are nearly
-all taken. The two numbers legitimately disagree, and code that conflates them
-will be wrong in exactly the direction players notice.
-
-The same distinction caused a confusing measurement during VV3 barrel work: a
-live process showed 15 occupied records against a HUD population of 18, which is
-not reconcilable until you stop treating the two as the same quantity.
-
-Anything that iterates villager records needs to decide which question it is
-asking:
+The two counts answer different questions, so code that iterates records has to
+decide which it is asking:
 
 - *Is there room?* -> count occupied slots.
 - *How many villagers are there?* -> count living records, and say so.
+
+The free-slot gate counts occupancy, because occupancy is what a spawn needs: a
+skeleton still holds the slot a child would go into.
+
+### What this does NOT explain
+
+Two things were previously attributed to this distinction here, wrongly.
+
+**It does not identify the mechanism behind the reproduced VV2 short-spawn.**
+The investigation above records that the reproduced village had ample free
+records, and deliberately leaves slot allocation versus world-space placement
+unresolved pending a live pool capture. A VV5 occupancy survey says nothing
+about which of those two caused it. Treating occupancy as the answer would aim
+the eventual delivery-time fix at the wrong subsystem.
+
+**A reading of 15 occupied against a HUD population of 18 is not reconciled by
+this distinction — it is impossible under it.** Every living villager occupies a
+record, and skeletons only make the occupied count *larger* than the living
+count, so occupied can never be less than population. That measurement
+therefore indicates a mismatched scan, a timing skew, the wrong pool, or a
+different HUD definition, and it remains unexplained. It is recorded here as an
+open measurement question, not as a solved one.
