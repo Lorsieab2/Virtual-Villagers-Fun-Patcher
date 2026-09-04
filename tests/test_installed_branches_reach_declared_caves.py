@@ -199,7 +199,11 @@ class InstalledBranchesReachDeclaredCavesTests(unittest.TestCase):
                         f"{target:#x} executes whatever happens to be there.",
                     )
                 checked += 1
-        self.assertGreater(checked, 20, "no installed branches were checked")
+        # Not a fixed floor: research/ fixtures are installed per game, so a
+        # checkout with only VV2 or only VV5 has fewer than 21 branch rows and
+        # would fail a threshold while being entirely correct. The subTests
+        # above are the real assertion; this one just proves the audit ran.
+        self.assertGreater(checked, 0, "no installed branches were checked")
 
     def test_the_source_translation_matches_the_generators_own_vas(self) -> None:
         """Guards the translation this audit depends on.
