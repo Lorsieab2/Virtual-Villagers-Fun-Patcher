@@ -2586,6 +2586,33 @@ static int vv3_time_warp_apply(int speed, int years) {
      1  applied and charged;
      2  refused, with the reason already shown -- the menu closes afterwards,
         which is what every other refusal in this menu does. */
+/* Group a cost with thousands separators, matching every other purchase box in
+   this menu: those read their price from a pre-formatted table ("50,000"), but
+   Time Warp receives its cost as an argument, so it has to format the value it
+   was actually given rather than substitute a fixed string. Mirrors VV1's
+   vv1_format_cost. `out` must be at least 16 bytes; the largest upgrade cost is
+   7 digits (1,000,000). */
+static void vv3_format_cost(int value, char *out) {
+    char digits[16];
+    int count = 0;
+    int position;
+    int written = 0;
+    if (value < 0) {
+        value = 0;
+    }
+    do {
+        digits[count++] = (char)('0' + (value % 10));
+        value /= 10;
+    } while (value > 0 && count < (int)sizeof(digits));
+    for (position = count - 1; position >= 0; --position) {
+        out[written++] = digits[position];
+        if (position > 0 && (position % 3) == 0) {
+            out[written++] = ',';
+        }
+    }
+    out[written] = '\0';
+}
+
 /* Exported through the .def alias only, like the rest of this file: adding
    __declspec(dllexport) as well publishes the decorated _ShowVV3TimeWarp@4
    alongside it, which would grow the export table by two. */
@@ -2595,6 +2622,7 @@ int __stdcall ShowVV3TimeWarp(int cost) {
     HWND owner = GetForegroundWindow();
     int *speed_field = vv3_speed_field();
     int *tech = (int *)(UINT_PTR)VV3_TW_TECH_POINTS_VA;
+    char cost_text[16];
     int speed, years;
 
     if (speed_field == 0) {
@@ -2617,11 +2645,12 @@ int __stdcall ShowVV3TimeWarp(int cost) {
                     TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return VV3_TW_REFUSED;
     }
+    vv3_format_cost(cost, cost_text);
     wsprintfA(message,
-              "Do you want to buy Time Warp for %d tech points?\r\n"
+              "Do you want to buy Time Warp for %s tech points?\r\n"
               "On %s game speed, this will advance %d villager years.\r\n"
               "Press OK to confirm, or Cancel.",
-              cost, vv3_speed_name(speed), years);
+              cost_text, vv3_speed_name(speed), years);
     if (MessageBoxA(owner, message, TITLE,
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND)
         != IDOK) {
