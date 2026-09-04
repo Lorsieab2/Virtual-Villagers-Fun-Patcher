@@ -2157,8 +2157,14 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         test eax, eax
         jz tw_apply_unavailable
         call eax
+        # 0 = the player cancelled. Say NOTHING: the companion owns the whole
+        # interaction, so its confirmation box is the only dialog a Time Warp
+        # click may produce, and routing to `cancelled` here made VV5 the one
+        # game that answered Cancel with a second popup. VV1, VV2, VV3 and VV4
+        # all fall through silently. 1 (applied) and 2 (refused, reason already
+        # shown) both close the same way.
         test eax, eax
-        jz cancelled
+        jz done
         cmp eax, 1
         jne done
         push -50000
