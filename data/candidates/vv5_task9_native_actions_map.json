@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "B007A84663888FEBB9D6E9FABC2A970155F786FBB6CB364DF1970CF10DF6AC34"
+      "source_text_sha256": "2056223AC2E8885821BBAA4E51083CA1B821BFCD439BFD4DA9BCC17D11BE4B68"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
