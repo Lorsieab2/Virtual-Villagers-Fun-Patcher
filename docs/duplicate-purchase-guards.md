@@ -179,7 +179,10 @@ in both games, in a register the enclosing update owner is already using:
 * **VV1** -- `0x42402D  mov eax, [esi + 0x10]` sits two instructions before the
   `call 0x448600` that is spliced, in the same basic block. That `[esi+0x10]`
   is exactly what the population getter takes, proved by a stock call site in
-  the same function: `0x42373C  mov ecx, [esi + 0x10] ; call 0x41cf90`. The
+  the same function: `0x423739  mov ecx, [esi + 0x10]` feeding
+  `0x42373C  call 0x41cf90`. No inter-function padding separates that site from
+  the splice -- the run from `0x42373C` to the epilogue at `0x424064` contains
+  no alignment fill at all, so both share one `esi`. The
   helper already recovers that register, because `mov esi, [esp + 4]` after
   `pushad` reads the enclosing frame's ESI back.
 * **VV2** -- `0x42E9EB  mov edi, [esi + 0x10]` immediately precedes the splice
