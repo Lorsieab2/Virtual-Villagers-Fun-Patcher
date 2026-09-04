@@ -381,6 +381,11 @@ body the game ships, for both sexes: **20 each in A New Home** and **30 each in
 the other four**. Both choosers offer the same range, so anything you can set on
 one villager you can set for the whole village.
 
+Both count what actually changes, not who was looked at. If every villager
+already has the head, body and mask you picked, nothing is written and
+**nothing is charged** -- the same is true if you select options only for a sex
+your village does not currently have.
+
 ### Buying, removing, and the green checkmarks
 
 Choosing a row asks `Do you want to buy ... for ... tech points?` and applies
