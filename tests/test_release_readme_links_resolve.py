@@ -11,6 +11,7 @@ Naming one file would only fix today's instance, so this derives the list from
 the README itself. Any future `docs/...` reference is covered automatically.
 """
 
+import ast
 import re
 import unittest
 from pathlib import Path
@@ -35,7 +36,32 @@ def referenced_docs():
 
 
 def packaged_files():
-    return BUILD_RELEASE.read_text(encoding="utf-8")
+    """The real `FILES` collection, parsed from the module's AST.
+
+    An earlier version searched the whole source for a quoted pathname, which
+    review correctly called out: a path left behind in a comment or diagnostic
+    satisfies that search even after the entry is gone from `FILES`. Confirmed
+    by experiment -- replacing the entry with a comment quoting the same path
+    made the old assertion pass while the file was genuinely unpackaged.
+
+    `utf-8-sig` because this file carries a BOM, which `ast.parse` rejects.
+    """
+    tree = ast.parse(BUILD_RELEASE.read_text(encoding="utf-8-sig"))
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(
+            isinstance(t, ast.Name) and t.id == "FILES" for t in node.targets
+        ):
+            continue
+        if not isinstance(node.value, (ast.List, ast.Tuple, ast.Set)):
+            continue
+        return {
+            e.value
+            for e in node.value.elts
+            if isinstance(e, ast.Constant) and isinstance(e.value, str)
+        }
+    raise AssertionError("no FILES list literal found in scripts/build_release.py")
 
 
 class ReleaseReadmeLinksTests(unittest.TestCase):
@@ -57,10 +83,11 @@ class ReleaseReadmeLinksTests(unittest.TestCase):
 
     def test_every_referenced_doc_is_packaged_in_the_release(self):
         release = packaged_files()
+        self.assertTrue(release, "FILES parsed as empty; the check would be inert")
         for rel in referenced_docs():
             with self.subTest(doc=rel):
                 self.assertIn(
-                    f'"{rel}"',
+                    rel,
                     release,
                     f"README references {rel} but scripts/build_release.py "
                     "does not package it, so the shipped README links to a "

@@ -386,10 +386,15 @@ records that reasoning, and the one measurement question still open about it.
 Because the barrel is queued, the village can fill up during the wait. The room
 check therefore runs **again at delivery**, and if there is no longer space the
 barrel is *held* rather than spent: it stays queued and arrives once a slot
-frees. You are never charged twice, and a paid barrel never quietly delivers
-fewer than three children. In A New Home, if the event itself cannot be created
-the three-child bonus is released again rather than left waiting to attach to
-whichever barrel turns up next.
+frees. You are never charged twice. In A New Home, if the event itself cannot be
+created the three-child bonus is released again rather than left waiting to
+attach to whichever barrel turns up next.
+
+That covers a barrel losing its room *during the queue delay*. It is not a
+promise that every paid barrel always delivers three children: a separate,
+still-unexplained short-spawn has been reproduced in a village with plenty of
+free records, and `docs/duplicate-purchase-guards.md` records what is and is
+not known about it.
 
 Results that count villagers name the number and the reason, and read correctly
 at one: *"Skipped over 1 villager. Reason: already likes running."*

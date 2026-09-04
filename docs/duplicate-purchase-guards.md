@@ -153,7 +153,7 @@ Until then the row is deliberately NOT blocked on a guessed threshold: a guard
 that does not fire in the reported case would be worse than none, because it
 would look like the bug was fixed.
 
-## Known gap: capacity is checked at purchase, not at delivery
+## Closed: capacity is now checked at delivery as well as at purchase
 
 The Barrel row is refused unless three villager slots are free, and the
 purchased barrel's child count is forced to three. Both decisions are made when
@@ -163,18 +163,48 @@ completing, or another event taking a record, can leave fewer than three slots
 by the time the children are actually placed. The stock per-child allocation
 then stops early, and the purchase has already been charged.
 
-The arming window is now as small as it can be: the three-child override is
-raised immediately before the deferred dispatch rather than at purchase, so a
-natural barrel firing during the delay can no longer consume it.
+The arming window is as small as it can be: the three-child override is raised
+immediately before the deferred dispatch rather than at purchase, so a natural
+barrel firing during the delay cannot consume it.
 
-Re-validating capacity at delivery is NOT implemented, and the reason is
-specific rather than an oversight. The count-roll site holds only the event
-object in ESI; it has no route to the villager pool. VV1's records are reached
-as `[player + 0xADE8]`, and a scan of the running process found no global
-holding that player pointer -- which is the same reason VV1's menu helper has
-to read it from `[esi + 0x0C]` instead. Closing this properly means plumbing a
-context pointer into the deferred dispatch, which is a real change to that
-path rather than an addition beside it.
+**This section previously recorded delivery-time revalidation as unimplemented,
+and gave a specific reason: that the dispatch site holds only the event object
+and has no route to the villager pool, so closing it would mean plumbing a
+context pointer into the deferred path. That reason was wrong**, and the
+correction is kept visible here because it blocked the fix for a while.
+
+The village needs no plumbing and no captured pointer. It is live at the splice
+in both games, in a register the enclosing update owner is already using:
+
+* **VV1** -- `0x42402D  mov eax, [esi + 0x10]` sits two instructions before the
+  `call 0x448600` that is spliced, in the same basic block. That `[esi+0x10]`
+  is exactly what the population getter takes, proved by a stock call site in
+  the same function: `0x42373C  mov ecx, [esi + 0x10] ; call 0x41cf90`. The
+  helper already recovers that register, because `mov esi, [esp + 4]` after
+  `pushad` reads the enclosing frame's ESI back.
+* **VV2** -- `0x42E9EB  mov edi, [esi + 0x10]` immediately precedes the splice
+  at `0x42E9EE`, and EDI is untouched until the helper's own resume. The
+  surrounding code drives that object through `+0x2EAC4`, `+0x2EB08`,
+  `+0x30460` and `+0x305A0`, the last adjacent to the `+0x305A4` record-pool
+  field the purchase preflight validates.
+
+Both now re-run the purchase-time capacity rule against that live pointer at
+delivery. **A refusal holds the paid event rather than spending it**: the
+pending token stays set and a later tick retries, so the barrel arrives once a
+slot frees. VV2 asks the companion DLL's `GateVV2BarrelSilent`, which shares
+`vv2_barrel_has_room` with the noisy purchase gate so the two cannot drift; it
+is separate from `GateVV2Barrel` only because that one raises the "close to
+maximum" dialog, which a retry loop must not do.
+
+### What this does NOT fix
+
+This closes the **queue-window** case: capacity that was present at purchase
+and gone by delivery. It does not explain or fix the reproduced short-spawn
+described above, where a village with 31 living villagers and ample record
+capacity still delivered fewer than three children. That mechanism -- slot
+allocation versus world-space placement -- remains unresolved, and a barrel can
+still be consumed short through it. The delivery recheck is not a guarantee
+that every paid barrel yields three children.
 
 ## Record occupancy is not population: `+0x1CD4` in VV5
 
