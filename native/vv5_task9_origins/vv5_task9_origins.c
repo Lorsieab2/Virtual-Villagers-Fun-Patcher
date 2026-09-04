@@ -610,12 +610,30 @@ static unsigned int caf_rand(void) {           /* xorshift, self-contained */
 static unsigned char *caf_rec(int i) {
     return (unsigned char *)(VV5_REC_BASE + (unsigned int)i * VV5_REC_STRIDE);
 }
-static void caf_set_mask(int idx, int mask) {
+static int caf_get_mask(int idx) {
+    const unsigned char *t = (const unsigned char *)VV5_MASK_TABLE;
+    unsigned char b = t[idx >> 1];
+    return (idx & 1) ? ((b >> 4) & 0x0F) : (b & 0x0F);
+}
+/* Every appearance write goes through these two, and both report whether they
+   actually changed anything.  The caller charges 450,000 on a positive count,
+   so counting writes instead of changes billed the player for re-selecting the
+   head, body or mask colour a villager already had -- a village left
+   byte-identical.  VV1 through VV4 all count changes; VV5 was the exception. */
+static int caf_set_mask(int idx, int mask) {
     unsigned char *t = (unsigned char *)VV5_MASK_TABLE;
     unsigned char b = t[idx >> 1];
+    if (caf_get_mask(idx) == (mask & 0x0F)) return 0;
     if (idx & 1) b = (unsigned char)((b & 0x0F) | ((mask & 0x0F) << 4));
     else         b = (unsigned char)((b & 0xF0) | (mask & 0x0F));
     t[idx >> 1] = b;
+    return 1;
+}
+static int caf_set_field(int idx, int offset, int value) {
+    int *field = (int *)(caf_rec(idx) + offset);
+    if (*field == value) return 0;
+    *field = value;
+    return 1;
 }
 static int caf_bucket_head(int sex, int mode) {
     const unsigned char *b; int n;
@@ -671,27 +689,27 @@ static int caf_apply(void) {
     /* Heads */
     if (caf_heads_mode != 0) {
         for (i = 0; i < na; ++i)
-            *(int *)(caf_rec(active[i]) + VV5_OFF_HEAD) =
+            touched += caf_set_field(active[i], VV5_OFF_HEAD,
                 (caf_heads_mode == 1) ? (int)(caf_rand() % VV5_HEAD_COUNT)
-                                      : caf_bucket_head(sex_of[i], caf_heads_mode);
-        touched = na;
+                                      : caf_bucket_head(sex_of[i], caf_heads_mode));
     } else {
         for (i = 0; i < na; ++i)
-            if (caf_head[sex_of[i]] >= 0) { *(int *)(caf_rec(active[i]) + VV5_OFF_HEAD) = caf_head[sex_of[i]]; touched = na; }
+            if (caf_head[sex_of[i]] >= 0)
+                touched += caf_set_field(active[i], VV5_OFF_HEAD, caf_head[sex_of[i]]);
     }
     /* Bodies */
     if (caf_bodies_mode != 0) {
         for (i = 0; i < na; ++i)
-            *(int *)(caf_rec(active[i]) + VV5_OFF_BODY) = (int)(caf_rand() % VV5_BODY_COUNT);
-        touched = na;
+            touched += caf_set_field(active[i], VV5_OFF_BODY,
+                                     (int)(caf_rand() % VV5_BODY_COUNT));
     } else {
         for (i = 0; i < na; ++i)
-            if (caf_body[sex_of[i]] >= 0) { *(int *)(caf_rec(active[i]) + VV5_OFF_BODY) = caf_body[sex_of[i]]; touched = na; }
+            if (caf_body[sex_of[i]] >= 0)
+                touched += caf_set_field(active[i], VV5_OFF_BODY, caf_body[sex_of[i]]);
     }
     /* Masks */
     if (caf_single_mask >= 0) {                       /* village-wide single colour */
-        for (i = 0; i < na; ++i) caf_set_mask(active[i], caf_single_mask);
-        touched = na;
+        for (i = 0; i < na; ++i) touched += caf_set_mask(active[i], caf_single_mask);
     } else if (caf_mask_dist == 1) {                  /* VV5-style tiers */
         int order[VV5_REC_COUNT], k;
         for (i = 0; i < na; ++i) order[i] = i;         /* index into active[] */
@@ -706,30 +724,27 @@ static int caf_apply(void) {
                 else if (assigned < purple + red) m = 3;
                 else if (assigned < purple + red + orange) m = 2;
                 else m = 1;
-                caf_set_mask(active[slot], m);
+                touched += caf_set_mask(active[slot], m);
                 ++assigned;
             }
-            if (chief >= 0) caf_set_mask(active[chief], 5);
+            if (chief >= 0) touched += caf_set_mask(active[chief], 5);
         }
-        touched = na;
     } else if (caf_mask_dist == 2) {                  /* Random (All 5 + No Mask) */
-        for (i = 0; i < na; ++i) caf_set_mask(active[i], (int)(caf_rand() % 6));
-        touched = na;
+        for (i = 0; i < na; ++i) touched += caf_set_mask(active[i], (int)(caf_rand() % 6));
     } else if (caf_mask_dist == 3) {                  /* Random (All 5) */
-        for (i = 0; i < na; ++i) caf_set_mask(active[i], (int)(caf_rand() % 5) + 1);
-        touched = na;
+        for (i = 0; i < na; ++i) touched += caf_set_mask(active[i], (int)(caf_rand() % 5) + 1);
     } else if (caf_mask_dist == 4) {                  /* Equal, balanced M/F */
         int males[VV5_REC_COUNT], females[VV5_REC_COUNT], nm = 0, nf = 0, k = 0, a = 0, b = 0;
         for (i = 0; i < na; ++i) (sex_of[i] ? (females[nf++] = active[i]) : (males[nm++] = active[i]));
         caf_shuffle(males, nm); caf_shuffle(females, nf);
         while (a < nm || b < nf) {
-            if (a < nm) caf_set_mask(males[a++], (k++ % 5) + 1);
-            if (b < nf) caf_set_mask(females[b++], (k++ % 5) + 1);
+            if (a < nm) touched += caf_set_mask(males[a++], (k++ % 5) + 1);
+            if (b < nf) touched += caf_set_mask(females[b++], (k++ % 5) + 1);
         }
-        touched = na;
     } else {                                          /* Off -> per-sex mask cyclers */
         for (i = 0; i < na; ++i)
-            if (caf_mask[sex_of[i]] >= 0) { caf_set_mask(active[i], caf_mask[sex_of[i]]); touched = na; }
+            if (caf_mask[sex_of[i]] >= 0)
+                touched += caf_set_mask(active[i], caf_mask[sex_of[i]]);
     }
     return touched;
 }
@@ -1141,7 +1156,10 @@ __declspec(dllexport) int __stdcall ShowVV5AppearanceForAll(void) {
     {
         int touched = caf_apply();
         if (touched <= 0) {
-            MessageBoxA(owner, "No appearance options were selected. No tech points deducted.",
+            MessageBoxA(owner,
+                "Nothing was changed -- either no appearance options were "
+                "selected, or every villager already had the ones chosen. "
+                "No tech points have been deducted.",
                         "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
             return 0;
         }
