@@ -79,6 +79,11 @@ FILES = [
     "docs/origins-playtest-readiness.md",
     "docs/appearance-upgrades-requirements.md",
     "docs/origins-player-runtime-checklist.md",
+    # Referenced by README's Barrel of Babies section for the occupancy-vs-
+    # population reasoning and the delivery-time recheck. Without it the
+    # shipped README links to a file the bundle does not contain -- the same
+    # broken-link defect recorded on #55/#57.
+    "docs/duplicate-purchase-guards.md",
     "docs/transparency-log.md",
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
