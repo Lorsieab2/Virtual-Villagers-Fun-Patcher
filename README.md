@@ -357,11 +357,29 @@ of years before you commit, and the result says how many years it advanced.
 While the game is **paused** it advances nothing at all, so it is refused with
 a message and costs no tech points.
 
+**Island Event** and **Barrel of Babies** are *queued* rather than fired the
+instant you buy them. Each waits a few real seconds after you close the Tech
+screen before it runs, so the purchase confirmation can be read first and the
+event does not arrive underneath the menu you bought it from. The delay also
+keeps a natural island event that happened to be due at the same moment from
+consuming the one you paid for -- the failure that made a purchased Barrel look
+like it had done nothing at all.
+
+New Believers is the one exception today: its two rows still fire on the next
+scheduler tick rather than after a delay.
+
+While one of these events is still on its way, its row is disabled and reads
+**Unavailable** in all five games, so a second copy cannot be clicked and cannot
+be charged for.
+
 **Barrel of Babies** delivers three children, so it is only sold when the
 village has room for all three -- that is, when the population is at or below
-its current maximum minus three. Above that it refuses and deducts nothing, and
-buying it again while one is already on its way is refused too rather than
-charged twice.
+its current maximum minus three. Above that it refuses and deducts nothing.
+Room is measured in *occupied villager records* rather than in living
+villagers, which is deliberately conservative: a record counts as occupied
+whether the villager in it is alive, unborn, or a skeleton, so the check never
+hands out a slot that is already spoken for. `docs/duplicate-purchase-guards.md`
+records that reasoning, and the one measurement question still open about it.
 
 Results that count villagers name the number and the reason, and read correctly
 at one: *"Skipped over 1 villager. Reason: already likes running."*
@@ -380,6 +398,29 @@ at one: *"Skipped over 1 villager. Reason: already likes running."*
 body the game ships, for both sexes: **20 each in A New Home** and **30 each in
 the other four**. Both choosers offer the same range, so anything you can set on
 one villager you can set for the whole village.
+
+**Change Appearance for All** adds four village-wide groups on top of that pair
+of per-sex selectors, and all five games now carry the same set:
+
+- **Village-wide Heads** -- *Off (use the Head selectors above)*, *Random (by
+  gender)*, or one hair bucket for everyone: *All Black Hair*, *All Brown
+  Hair*, *All Red / Ginger Hair*, *All Blonde Hair*, or *All Other Hair /
+  Styles*. Picking a head for the whole village raises the same genetics
+  warning the per-villager chooser does.
+- **Village-wide Bodies** -- *Off (use the Body selectors above)* or *Random
+  (by gender)*.
+- **Village-wide Single Mask Color** -- give every villager the same mask, or
+  *None (remove all masks)*.
+- **Mask Distribution (all villagers)** -- *Off*, *VV5-style* (1 Chief, 4
+  Purple, up to 7 Red, up to 10 Orange, rest Blue), *Random*, or *Equal Colors*
+  (all five colours, balanced between the sexes).
+
+A village-wide group set to **Off** leaves that attribute alone and greys out
+nothing; set to anything else it overrides the matching per-sex selectors,
+which are disabled while the override is active so the two cannot disagree. The
+single-colour and distribution mask choices are one exclusive set, so a colour
+and a distribution can never both be selected. An **OK** that would change
+nothing says so and costs no tech points.
 
 ### Buying, removing, and the green checkmarks
 
