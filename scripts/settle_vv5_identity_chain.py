@@ -42,7 +42,24 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 os.chdir(ROOT)
 sys.path.insert(0, str(ROOT / "src"))
-from vv_fun_patcher import source_text_sha256  # noqa: E402
+from vv_fun_patcher import (  # noqa: E402
+    _pe_export_names,
+    source_text_sha256,
+)
+
+# Every export the shipping build resolves at runtime. Time Warp reaches
+# ShowVv5TimeWarp through GetProcAddress, so a companion missing it
+# disables the row silently -- and settlement is the wrong place to find
+# that out afterwards.
+REQUIRED_EXPORTS = {
+    b"BeginOriginsOwner",
+    b"GetOriginsOwner",
+    b"EndOriginsOwner",
+    b"ShowOriginsUpgradeMenuState",
+    b"ConfirmVV5Task9Action",
+    b"ShowVV5Task9Result",
+    b"ShowVv5TimeWarp",
+}
 
 DLL = "data/candidates/VVFP VV5 Task9 Origins Icons.dll"
 ACTIVE = "data/vv5_origins_feature.json"
@@ -107,6 +124,24 @@ def pinned(path: str, pattern: str) -> str | None:
 
 
 def main() -> None:
+    # 0 -- refuse to certify a companion that does not export what the
+    #      shipping build resolves. Settlement repins the DLL and then
+    #      recomputes six further layers over it, so a broken binary
+    #      caught only by the patcher afterwards has already had the whole
+    #      chain rebuilt around it.
+    missing = sorted(
+        name.decode()
+        for name in REQUIRED_EXPORTS - _pe_export_names(Path(DLL).read_bytes())
+    )
+    if missing:
+        raise SystemExit(
+            "REFUSING to settle: the companion does not export "
+            + ", ".join(missing)
+            + "\nRebuild it before settling; repinning it here would\n"
+            "certify a build whose Time Warp row is dead."
+        )
+    print(f"  companion exports {len(REQUIRED_EXPORTS)}/{len(REQUIRED_EXPORTS)} present")
+
     # 1 -- the Origins payload the caller just built.
     swap(GENERATOR, pinned(GENERATOR, r'ACTIVE_SHA256 = "([0-9A-F]{64})"'),
          raw(ACTIVE), "generator ACTIVE_SHA256")

@@ -488,11 +488,11 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "F57BAC3A336B5071BC8DE10EBBB79861CF1B5A35C5E74D2BEDC4CBF0ECFD94B2"
+      "source_text_sha256": "9E57EE84182ED9F23028901A23068B5143FD814A67EC8E7E39BBB4C8015E3AE4"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "E83FB3CDA60660FE18AC924BE16A2C6E1BE0933BD706766474242300160D767B"
+      "source_text_sha256": "3EB0E7E6B51303F23A15A0FCE9D060663C26DC3EA33ECECFD783A8A405727CBF"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -613,7 +613,7 @@
         "speed": "[manager+0x17D7C] read by the companion; 10 slow / 6 normal / 3 fast, 999 paused",
         "delta": "years * 20 * 60 * speed_code subtracted from the 64-bit village clock 0x4C6250/0x4C6254 -- 36000 slow, 43200 normal, 43200 fast",
         "effect": "advances 3 displayed villager years on slow, 6 on normal and 12 on fast; the engine clamps any pending slice over 23800/31000/38200 down to 31000 (0x0046FFCB), so a clock-only advance can never reach these targets and a larger delta yields a SMALLER warp",
-        "writer": "companion ShowVv5TimeWarp: confirms naming the speed and years, refuses while paused before any charge, moves the clock by the true delta, then credits each villager exactly years*20 age units scaled by its own aging rate (+0x1CC8, doubled above 1) and gated on the faction byte (+0x1CEC), advancing its last-seen marker (+0x1C38) so its own tick cannot re-process and clamp the same jump; the executable charges -50000 via 0x4237B0 only when the companion reports it applied",
+        "writer": "companion ShowVv5TimeWarp owns the whole transaction: it confirms naming the speed and years, refuses while paused before any charge, verifies funds, charges -50000 through the game's own 0x4237B0 and reads the deduction back, and only then moves the clock by the true delta and credits each villager exactly years*20 age units scaled by its own aging rate (+0x1CC8, doubled above 1) and gated on the faction byte (+0x1CEC), advancing its last-seen marker (+0x1C38) so its own tick cannot re-process and clamp the same jump; the executable charges nothing, because a charge after the companion returns cannot undo a warp it has already applied and reported",
         "dialog": "companion MessageBoxA (names the current game speed and the years)"
       },
       "full_heal": {
@@ -772,5 +772,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "BE5D6B03D56CE913CFC48447C391A9E238AB0F010873C56DC5984B732FA024CF"
+  "task9_map_canonical_sha256": "9E66EB87361C5AF996F5446727FC2724C94FAB1F3591E2807F611A472091D3F5"
 }

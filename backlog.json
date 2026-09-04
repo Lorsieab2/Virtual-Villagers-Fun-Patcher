@@ -1,5 +1,53 @@
 [
  {
+  "pr": 214,
+  "state": "OPEN",
+  "thread": "PRRT_kwDOTgbKa86fL954",
+  "id": 3931448673,
+  "path": "scripts/settle_vv5_identity_chain.py",
+  "line": 131,
+  "outdated": false,
+  "title": "Validate exports before repinning the companion",
+  "replies": 0,
+  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Validate exports before repinning the companion**\n\nWhen a rebuilt DLL omits `ShowVv5TimeWarp` or another required export, this settlement path repins the DLL, regenerates the dependent artifacts, and ultimately prints `settled` without ever calling `_pe_export_names`, `_certified_vv5_task9_record`, or `load_builds`; the broken artifact is rejected only later when the patcher or tests load the catalog. Fresh evidence beyond the earlier export-surface finding is the newly added settlement script itself, which bypasses the new validator before blessing the DLL, so validate the export table before this swap or run catalog validation before reporting success.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
+ },
+ {
+  "pr": 214,
+  "state": "OPEN",
+  "thread": "PRRT_kwDOTgbKa86fL958",
+  "id": 3931448680,
+  "path": "scripts/build_vv5_task9_native_actions.py",
+  "line": 2140,
+  "outdated": false,
+  "title": "Correct the reversed charge-owner contract",
+  "replies": 0,
+  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Correct the reversed charge-owner contract**\n\nThis newly added contract says the companion deliberately does not charge and that the executable deducts after return, but the code immediately below and `ShowVv5TimeWarp` now do the exact opposite: the companion charges before mutation and the executable never charges. The native function header and generated `upgrade_specs.time_warp.writer` repeat the stale ownership model, so a maintainer following the documented transaction could reintroduce a post-mutation or double charge; update all three descriptions to match the new ordering.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
+ },
+ {
+  "pr": 214,
+  "state": "OPEN",
+  "thread": "PRRT_kwDOTgbKa86fL96D",
+  "id": 3931448687,
+  "path": "docs/review-findings-audit.md",
+  "line": 54,
+  "outdated": false,
+  "title": "Query review summaries before claiming complete coverage",
+  "replies": 0,
+  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Query review summaries before claiming complete coverage**\n\nThe replacement audit says the earlier failure to query review summaries is fixed, but this GraphQL selection still reads only `reviewThreads` and their inline comments; it never selects `reviews` or `latestReviews`, even though the preceding section identifies those as the sources of review summaries. When a bot finding exists only in a review body, it is absent from the reported 239-thread sweep and cannot have been checked, so add and paginate the reviews connection or narrow the audit's completeness claim.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
+ },
+ {
+  "pr": 214,
+  "state": "OPEN",
+  "thread": "PRRT_kwDOTgbKa86fL96I",
+  "id": 3931448693,
+  "path": "tests/test_installed_branches_reach_declared_caves.py",
+  "line": 206,
+  "outdated": false,
+  "title": "Keep branch-audit coverage proportional to available fixtures",
+  "replies": 0,
+  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Keep branch-audit coverage proportional to available fixtures**\n\nWhen `va_of` starts returning `None` for most installed branch rows because a section mapping or manifest offset drifts, the loop silently skips those rows and this weakened assertion still passes as long as one branch remains mappable. The former floor was incompatible with partial fixture sets, but replacing it with `> 0` removes the only guard against broad audit coverage loss and can let the same kind of bad native branch this test targets ship unchecked; assert an expected count per available game or fail each installed branch whose source cannot be mapped.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
+ },
+ {
   "pr": 200,
   "state": "MERGED",
   "thread": "PRRT_kwDOTgbKa86exZOl",
@@ -10,101 +58,5 @@
   "title": "Revalidate capacity when the deferred barrel is delivered",
   "replies": 1,
   "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Revalidate capacity when the deferred barrel is delivered**\n\nForcing the random roll to `0x63` requests three children but does not reserve three villager records. Capacity is checked when the player buys the Barrel, while VV1 deliberately waits another 180 update ticks before dispatching it (VV2 waits 90), so if a pregnancy or another event occupies a slot during that interval, the stock per-child allocation can still stop after one or two children despite the full 75,000-point charge. Recheck or reserve all three slots at delivery time before consuming the paid event.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
- },
- {
-  "pr": 192,
-  "state": "MERGED",
-  "thread": "PRRT_kwDOTgbKa86euS8X",
-  "id": 3919733531,
-  "path": "tests/test_cave_va_matches_section_mapping.py",
-  "line": null,
-  "outdated": true,
-  "title": "Cover helper-derived cave addresses in the VA audit",
-  "replies": 0,
-  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Cover helper-derived cave addresses in the VA audit**\n\nFresh evidence beyond the earlier multiline-declaration case is that this broad exception still silently drops nine current VV1 pairs, including `MASK_RESTORE_STUB_FILE_OFFSET`/`MASK_RESTORE_STUB_VA`: their VA expressions call `mask_code_va(...)`, but the evaluator exposes only previously resolved integers, so the call raises and is skipped here. A wrong VA in any of those mask, portrait, save-slot, tick, or newborn caves therefore passes the new audit; the evaluator should safely support this helper-derived form or explicitly require every syntactic offset/VA pair to be accounted for.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
- },
- {
-  "pr": 181,
-  "state": "MERGED",
-  "thread": "PRRT_kwDOTgbKa86esJQu",
-  "id": 3918863505,
-  "path": "docs/p1-findings-audit.md",
-  "line": 17,
-  "outdated": false,
-  "title": "Verify findings that merely received a later commit",
-  "replies": 0,
-  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Verify findings that merely received a later commit**\n\nA later commit can be unrelated to a review finding, as this paragraph itself acknowledges, but the audit individually checks only the 17 findings without such a commit and provides no verification for the other 49. Consequently the opening claim that every P1 finding was checked against `main` is unsupported for most findings; inspect those 49 against the current tree as well or narrow the stated scope of the audit.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
- },
- {
-  "pr": 181,
-  "state": "MERGED",
-  "thread": "PRRT_kwDOTgbKa86esJQz",
-  "id": 3918863511,
-  "path": "docs/p1-findings-audit.md",
-  "line": 39,
-  "outdated": false,
-  "title": "Count the three PR #178 findings separately",
-  "replies": 0,
-  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Count the three PR #178 findings separately**\n\nThis row explicitly represents three findings, while the table has 16 preceding single-finding rows, so the section documents 19 findings rather than the claimed 17. The headline total of 70 therefore counts this grouped row as one and underreports the number of P1 findings by two; split these entries or adjust the section and overall totals accordingly.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
- },
- {
-  "pr": 181,
-  "state": "MERGED",
-  "thread": "PRRT_kwDOTgbKa86esJQ5",
-  "id": 3918863521,
-  "path": "docs/p1-findings-audit.md",
-  "line": 38,
-  "outdated": false,
-  "title": "Reconcile the claimed VV2 crash retest",
-  "replies": 0,
-  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Reconcile the claimed VV2 crash retest**\n\nThis says the affected rows were retested as no longer crashing, but the current README's Lost Children warning states that the report has not been reproduced or cleared in a playtest and explicitly calls the crash unresolved (`README.md` lines 428\u2013436 and 445). These conflicting current-tree safety statements leave readers unable to tell whether Time Warp and Food Point Doubler are safe; remove the unrecorded retest claim or update the authoritative warning with the supporting result.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
- },
- {
-  "pr": 181,
-  "state": "MERGED",
-  "thread": "PRRT_kwDOTgbKa86esJQ8",
-  "id": 3918863528,
-  "path": "docs/p1-findings-audit.md",
-  "line": 46,
-  "outdated": false,
-  "title": "Paginate the inline-comment query",
-  "replies": 0,
-  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Paginate the inline-comment query**\n\nFor any PR whose inline review comments span multiple API pages, this command inspects only the first page and can omit later P1 findings. In the inspected GitHub CLI 2.96.0, `gh api --help` defines `--paginate` as making additional requests until there are no more pages; add that flag (and combine its page outputs) so the claimed repository-wide count is not truncated.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
- },
- {
-  "pr": 181,
-  "state": "MERGED",
-  "thread": "PRRT_kwDOTgbKa86esJRA",
-  "id": 3918863533,
-  "path": "docs/p1-findings-audit.md",
-  "line": 47,
-  "outdated": false,
-  "title": "Request reviews instead of only issue comments",
-  "replies": 0,
-  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Request reviews instead of only issue comments**\n\nThis command cannot collect the review summaries the surrounding text says were audited: in the inspected GitHub CLI 2.96.0, `gh pr view --help` lists `comments`, `latestReviews`, and `reviews` as separate JSON fields, while the recipe requests only `comments`. Query `reviews`/`latestReviews` or the pull-request reviews API as well, otherwise summaries containing P1 information are absent from the reproduced dataset.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
- },
- {
-  "pr": 179,
-  "state": "MERGED",
-  "thread": "PRRT_kwDOTgbKa86esMUo",
-  "id": 3918882709,
-  "path": "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
-  "line": 1219,
-  "outdated": false,
-  "title": "Update the world-mask nudge documentation",
-  "replies": 0,
-  "body": "**<sub><sub>![P3 Badge](https://img.shields.io/badge/P3-lightgrey?style=flat)</sub></sub>  Update the world-mask nudge documentation**\n\nThese constants now move an adult mask 10 px left and 25 px up, so at the documented newborn scale of 0.80 the rounded offsets are 8 px and 20 px. The adjacent implementation comment still claims 4 px and 12 px, and `tests/test_vv3_world_mask_nudge.py` lines 5-12 still describes the reviewed registration as 5/15; anyone using this audit evidence to verify or retune the rendering receives two different specifications, so update both descriptions with the new values.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
- },
- {
-  "pr": 163,
-  "state": "MERGED",
-  "thread": "PRRT_kwDOTgbKa86d8e6F",
-  "id": 3900157615,
-  "path": "tests/test_appearance_option_counts.py",
-  "line": null,
-  "outdated": true,
-  "title": "Run source count assertions without local executables",
-  "replies": 0,
-  "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Run source count assertions without local executables**\n\nWhen the ignored `research/stock-executables` fixtures are absent\u2014as they are in a clean checkout\u2014this calls `skipTest` on the first game and aborts the entire method, even though `_declared` only reads committed source files. Consequently, the advertised cross-game guard never checks VV2 or VV5 counts in that environment; remove the executable prerequisite from this test and leave fixture-dependent verification to `test_the_binaries_roll_the_ranges_this_file_claims`.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e."
  }
 ]

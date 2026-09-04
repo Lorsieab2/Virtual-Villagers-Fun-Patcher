@@ -35,9 +35,9 @@ returns issue comments — review summaries live under `reviews` /
 `latestReviews`, and inline findings under `reviewThreads`, so that pair
 silently misses most of the data.
 
-One paginated GraphQL query over all pull requests, walking `reviewThreads`
-and their comments, and classifying each unresolved thread by whether a
-non-Codex reply exists:
+Two paginated GraphQL sweeps over all pull requests. The first walks
+`reviewThreads` and their comments, classifying each unresolved thread by
+whether a non-Codex reply exists:
 
 ```graphql
 query($cursor: String) {
@@ -61,10 +61,33 @@ query($cursor: String) {
 }
 ```
 
-Two traps worth naming. The outer page needs its own cursor loop, or the audit
-stops at the 25 newest pull requests. And `gh api graphql` output must be
-decoded as UTF-8 explicitly — finding bodies carry badge markup and curly
-quotes, and the default console codec drops them.
+The reviews sweep, run alongside it:
+
+```graphql
+reviews(first: 100) {
+  pageInfo { hasNextPage }
+  nodes { author { login } state submittedAt body }
+}
+```
+
+The second sweep reads `reviews` and their bodies, and it is not optional.
+**Not every finding is a thread.** Codex cannot anchor an inline comment on a
+binary file, so a finding about one goes in the review body instead, where no
+amount of walking `reviewThreads` will ever see it. Reading bodies found two
+real findings that the thread sweep had missed entirely: 1.9 MB of MSVC
+intermediates committed against `.gitignore`'s own rules, and an expanded VV5
+contract advertising `129600 / speed` while its payload divides `194400`.
+
+Of 158 Codex reviews, 5 bodies carry a finding, and no pull request's reviews
+connection paginated. A body-only finding cannot be resolved through
+`resolveReviewThread` — there is no thread — so it is answered by fixing it and
+recording the fix in the pull request.
+
+Three traps worth naming. The outer page needs its own cursor loop, or the
+audit stops at the 25 newest pull requests. `reviews(first: 100)` needs its
+`pageInfo.hasNextPage` checked rather than assumed. And `gh api graphql` output
+must be decoded as UTF-8 explicitly — finding bodies carry badge markup and
+curly quotes, and the default console codec drops them.
 
 ## How each finding was judged
 
@@ -91,10 +114,14 @@ argued back, the reply says that too.
 
 | | count |
 | --- | ---: |
-| unresolved at the start of the sweep | 239 |
+| unresolved threads at the start of the sweep | 239 |
 | resolved: already answered, never marked resolved | 87 |
 | resolved: verified, answered with evidence | 151 |
 | **open: correct and not yet fixed** | **1** |
+| findings found only in review bodies | 5 |
+
+The five body-only findings have no thread to resolve; they are fixed in the
+tree and answered on their pull requests.
 
 The one open finding is [#200's deferred-Barrel capacity
 recheck](https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/pull/200).

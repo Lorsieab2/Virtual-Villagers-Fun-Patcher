@@ -879,7 +879,11 @@ def main() -> None:
                 "confirmation": "MessageBoxA IDOK only through the captured same-process Task9 companion owner",
                 "manager": "0x425950 nonnull",
                 "speed": "[manager+0x17D7C] signed positive and not 999",
-                "delta": "129600 / exact positive speed",
+                # 194400, not 129600: the routine below divides 194400,
+                # kept in step with the Task9 generator. The contract
+                # advertised the older constant and so described
+                # behaviour its own payload does not implement.
+                "delta": "194400 / exact positive speed",
                 "clock": "0x4C6250/0x4C6254 sub/sbb and exact readback",
                 "funds": "0x51D5F8; one -50000 call to 0x4237B0 and exact readback before clock mutation",
                 "dispatcher": "EBX!=0 -> 0x904967 unavailable; EBX==0 -> Time Warp -> 0x904846 menu",

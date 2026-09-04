@@ -1012,17 +1012,26 @@ static int vv5_time_warp_apply(int speed, int years) {
     return occupied;
 }
 
-/* Tech-menu row 0.  Confirms (naming the speed and the years it will buy) and
-   applies; the executable keeps the charge, because VV5 charges through the
-   game's own tech-point routine at 0x004237B0 and that call already sits in
-   the menu.  So this must NOT deduct anything.
+/* Tech-menu row 0.  Owns the WHOLE transaction, in this order: confirm
+   (naming the current speed and the years it buys), count the village, verify
+   funds, charge through the game's own tech-point routine at 0x004237B0, read
+   the deduction back, and only then move the clock and credit the villagers.
+
+   The charge lives here, not in the executable, and the ordering is the whole
+   point.  The confirmation is a blocking MessageBoxA, so a balance the caller
+   reads before this returns is stale by the time the player answers; and a
+   charge issued after this returns is too late, because the clock has moved,
+   every villager has been credited and "Advanced N years" has been shown, so
+   a deduction that did not land grants a free warp that was already reported.
+   Between the confirmation and the first write is the only correct place, and
+   only this function can be there.  The executable must NOT deduct anything.
 
    Return value, which the caller branches on:
-     0  the player pressed Cancel -- nothing was said and nothing was done, so
-        the Tech menu reopens, exactly as Cancel does on every other row;
-     1  applied -- the caller charges;
-     2  refused, with the reason already shown; the caller charges nothing and
-        closes the menu, which is what every other refusal here does. */
+     0  the player pressed Cancel -- nothing was said, nothing was charged and
+        nothing was done.  The caller must stay silent too: this box is the
+        only dialog one Time Warp click may produce;
+     1  applied, and already paid for;
+     2  refused, with the reason already shown, and nothing charged. */
 __declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
     char message[448];
