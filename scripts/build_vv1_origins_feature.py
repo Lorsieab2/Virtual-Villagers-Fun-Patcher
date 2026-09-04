@@ -1986,6 +1986,21 @@ def main() -> None:
         barrel_main_helper_source,
         BARREL_MAIN_HELPER_VA,
     )
+    # The helper has never had a generator bound, and the disarm branch took it
+    # to 0x7f of the 0x80 that separate it from EQUAL_DIVISION_CORE -- one byte
+    # spare.  Without this, the next edit here would emit overlapping patches at
+    # 0x8B710 and 0x8B790 with the build reporting success; the manifest tests
+    # only catch that afterwards.  Derived from the two offsets, like the .vv1mc
+    # bounds below, so moving either cave cannot leave it stale.
+    _main_helper_room = (
+        EQUAL_DIVISION_CORE_FILE_OFFSET - BARREL_MAIN_HELPER_FILE_OFFSET
+    )
+    if len(barrel_main_helper_code) > _main_helper_room:
+        raise RuntimeError(
+            "VV1 Barrel main helper would run into the Equal Division core at "
+            f"{EQUAL_DIVISION_CORE_FILE_OFFSET:#x}: "
+            f"{len(barrel_main_helper_code):#x} > {_main_helper_room:#x}"
+        )
     # Disarm tail, emitted AFTER the helper so its resume address is derived
     # from the assembled helper rather than restated.
     #

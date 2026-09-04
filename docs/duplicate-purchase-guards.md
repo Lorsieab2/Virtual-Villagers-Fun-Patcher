@@ -234,20 +234,41 @@ set and a later tick retries, so the barrel arrives once a slot frees. That is
 deliberately preferred over refunding or dropping it, both of which are worse
 for the player than the short count being fixed.
 
-### The window this leaves open
+### The window this left open, and how it was closed
 
 The three-child override is a one-shot flag armed immediately before dispatch.
 In VV1 the event construction *after* it can still fail (`call 0x44AF03`
-returning zero), which leaves the flag armed with no dispatch. That predates the
-delivery recheck; what the recheck changes is that the retry path can re-arm it
-on a later tick, so a persistent construction failure is a slightly wider
-target than before.
+returning zero), which left the flag armed with no dispatch. That predated the
+delivery recheck; what the recheck changed is that the retry path could re-arm
+it on a later tick, so a persistent construction failure became a repeating
+target rather than a one-shot one.
 
-It is recorded rather than fixed because the consequence favours the player and
-the trigger is an allocation failure: a stale armed flag is consumed by the
-*next* barrel, natural or purchased, which then delivers three children instead
-of the stock random count. Nobody is charged for it and nobody loses a child.
-Closing it needs a disarm on the construction-failure path, which does not fit
-the helper's remaining bytes and would have to route through the patch-owned
-`.vv1mc` tail — worth doing when that cave is next opened, not worth rushing
-into a release for a window that can only make a barrel bigger.
+It was **recorded rather than fixed** for v1.34.31, on the grounds that the
+consequence favours the player and the trigger is an allocation failure: a
+stale armed flag is consumed by the *next* barrel, natural or purchased, which
+then delivers three children instead of the stock random count. Nobody is
+charged for it and nobody loses a child.
+
+**It is now fixed.** The stated reason for deferring — that a disarm "does not
+fit the helper's remaining bytes and would have to route through the
+patch-owned `.vv1mc` tail" — was only half right. Routing through `.vv1mc` is
+exactly what it does, but that cave did not need to wait for some later
+opening: the room check's `0x100` reservation already had 182 free bytes and
+the disarm is 12.
+
+The construction-failure branch targets a stub at `0x8EB80`, inside that same
+reservation (room check at `+0x00`, disarm at `+0x80`). The stub clears the
+flag and jumps back to the `popad` both refusal paths already shared. That
+resume address is *measured* from the assembled helper rather than restated, so
+the two cannot drift apart.
+
+The **no-room** path deliberately does not disarm: nothing was armed on it, and
+clearing there would mask a future ordering mistake rather than fix one. A test
+pins that asymmetry so a later tidy-up cannot quietly collapse the two paths.
+
+All three caves involved now carry generator bounds derived from the
+neighbouring offsets rather than restated as literals — the main helper against
+`EQUAL_DIVISION_CORE_FILE_OFFSET`, the room check against the disarm stub, and
+the disarm stub against the end of the reservation, which is where
+`vv1_birth_control`'s composition overlay begins at `0x8EC00`. Before that, each
+could have grown into its neighbour with the build still reporting success.
