@@ -307,11 +307,15 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # The doubler wrapper regions in 0x943A8 (tech 0x820:0x8A0, food 0x8A0:0x960)
         # and the positive writers 0x26290/0x262B0 are byte-for-byte unchanged, as
         # the inventory/wrapper/_call_target assertions above independently verify.
+        # Re-pinned again for the Barrel's delivery-time capacity recheck. The
+        # manifest diff against the parent commit is exactly two added caves
+        # (0x9A4A0 silent gate stub, 0x9A745 glue) and the main helper at
+        # 0x9A780 that calls them -- nothing in any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "64858532A8F5C185542CCF1792558BEEBC06086DDB9844DAF483F353FC7E5A6D",
+            "768A0E39231735900653CAF505E1731AAD68C26F5DAA33BF38841743CD40C4FE",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
@@ -320,7 +324,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # digest, and this assertion is the second pin.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "BC660DF33F2FF0A547678488402E031E8B8B181C46B58B6736A4EED7266E20A7",
+            "2F996F32D5D5F92FC531B4C66B0C0B2A24B5F8461273FA064D77C834A542F19D",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

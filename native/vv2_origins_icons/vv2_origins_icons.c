@@ -1061,23 +1061,38 @@ __declspec(dllexport) int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
     return VV2_TW_APPLIED;
 }
 
-__declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
+/* Does the village have room for the Barrel's three children?  Shared by both
+   entry points below so the purchase gate and the delivery recheck cannot
+   drift apart -- two copies of one capacity rule is how a deferred barrel ends
+   up disagreeing with the row that sold it. */
+static int vv2_barrel_has_room(void *pool) {
     vv2_pop_demand_t population_demand =
         (vv2_pop_demand_t)(UINT_PTR)0x00425860;
     vv2_collection_done_t collection_done =
         (vv2_collection_done_t)(UINT_PTR)0x00426120;
-    int demand;
-    int cap;
     if (pool == 0) {
         return 0;
     }
-    demand = population_demand(pool, 0);
-    cap = vv2_population_cap(collection_done, pool);
-    if (demand + 3 > cap) {
+    return population_demand(pool, 0) + 3
+        <= vv2_population_cap(collection_done, pool);
+}
+
+__declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
+    if (!vv2_barrel_has_room(pool)) {
         ShowVV2UpgradeResult(VV2_ACT_BARREL, VV2_RES_POP_FULL, 0, 0, 0, 0);
         return 0;
     }
     return 1;
+}
+
+/* Silent probe for the DELIVERY path.  The Barrel is cued and only dispatched
+   BARREL_CUE_FRAMES later, so a pregnancy or event can take a slot inside that
+   window; the paid event is then held and retried rather than spent on a short
+   count.  A retry every cue period must not raise the "close to maximum"
+   dialog each time, which is the only reason this is separate from
+   GateVV2Barrel -- the arithmetic is identical. */
+__declspec(dllexport) int __stdcall GateVV2BarrelSilent(void *pool) {
+    return vv2_barrel_has_room(pool);
 }
 
 /* ---- Change Appearance chooser (213) ---- */

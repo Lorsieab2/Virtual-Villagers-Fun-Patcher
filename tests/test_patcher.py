@@ -454,14 +454,22 @@ class ManifestTests(unittest.TestCase):
         # DLL-dispatch stub in the old whole-village slot (0x9AE40, routing Grant
         # Running / Grant Full Mastery / Complete / Reset Collections) + the
         # Barrel of Babies capacity gate (0x9AF58) + the pending-purchase row
-        # states (0x9A4A0), which mark the Island Event and Barrel rows
-        # unbuyable while one of each is already on its way + the purchased
-        # barrel's baby-count override (cave 0x9A4F0 and its call site
-        # 0x37ADC), which gives a bought barrel its full three children while
-        # a natural one keeps the stock random count + the Time Warp loader
-        # stub (0x9AFA0), which hands row 0 to the companion DLL that owns its
-        # speed-aware prompt, paused refusal, charge and advance.
-        self.assertEqual(len(rows), 37)
+        # states (0x9A280 -- this comment said 0x9A4A0 long after
+        # PENDING_ROWS_FILE_OFFSET was relocated out of that 0x50-byte slot),
+        # which mark the Island Event and Barrel rows unbuyable while one of
+        # each is already on its way + the purchased barrel's baby-count
+        # override (cave 0x9A4F0 and its call site 0x37ADC), which gives a
+        # bought barrel its full three children while a natural one keeps the
+        # stock random count + the Time Warp loader stub (0x9AFA0), which hands
+        # row 0 to the companion DLL that owns its speed-aware prompt, paused
+        # refusal, charge and advance + the Barrel's DELIVERY-time capacity
+        # recheck: the silent gate stub (0x9A4A0, now genuinely free) and the
+        # glue that calls it (0x9A745), which hold and retry a cued barrel
+        # whose village filled up during the cue delay instead of spending it
+        # on a short count.
+        self.assertEqual(len(rows), 39)
+        for required in (0x9A4A0, 0x9A745):
+            self.assertIn(required, rows, "delivery-time recheck cave is missing")
         mask_guards = {
             0x3160: "8B4424048B11",
             0x95B0: "8B09E989F3FFFF",
@@ -500,11 +508,11 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertEqual(
             rows[0x9A780]["after"],
-            "803D00C7490003741C803D00C74900027558C60500C7490003C70508"
-            "C749005A000000EB45FF0D08C74900753DC60500C7490000C60504C7"
-            "49000181ECD8500000682C1A4B7F6A028D4C2408E80F81F9FF6A0056"
-            "8D4C2408E8F352F6FF89E1E8AC69F9FF81C4D850000089F9E80F6AF6"
-            "FFE9FF21F9FF",
+            "803D00C7490003741C803D00C74900027561C60500C7490003C705"
+            "08C749005A000000EB4EFF0D08C749007546E893FFFFFF85C0743D"
+            "C60500C7490000C60504C749000181ECD8500000682C1A4B7F6A02"
+            "8D4C2408E80681F9FF6A00568D4C2408E8EA52F6FF89E1E8A369F9"
+            "FF81C4D850000089F9E8066AF6FFE9F621F9FF",
         )
         self.assertEqual(rows[0x2E9F0]["before"], "E80B48FDFF")
         self.assertEqual(rows[0x2E9F0]["after"], "E98BDD0600")
