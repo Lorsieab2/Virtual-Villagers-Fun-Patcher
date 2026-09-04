@@ -18,6 +18,14 @@ produced by a route the source edit does not reach on its own:
 
 Both shipped the old string while the source read correctly, which is exactly
 what checking the source instead of the artifact would have missed.
+
+The companion list below is EXPLICIT rather than discovered by searching the
+built DLLs for a prompt. An earlier version of this file did the latter, and
+review pointed out that it cannot detect the regression it advertises: a DLL
+that dropped or rewrote the prompt would simply leave the filtered set, so the
+content assertions would never look at it and the "at least one" guard would
+still pass on its siblings. A test whose population is defined by the property
+under test cannot fail.
 """
 from __future__ import annotations
 
@@ -29,54 +37,92 @@ ROOT = Path(__file__).resolve().parents[1]
 RAW = b"Do you want to buy Time Warp for %d tech points?"
 FORMATTED = b"Do you want to buy Time Warp for %s tech points?"
 
-SEARCH_DIRS = (ROOT / "data" / "candidates", ROOT / "assets" / "origins")
-
-
-def _companions_with_a_time_warp_prompt():
-    """Every built DLL that carries the Time Warp confirmation at all."""
-    found = []
-    for directory in SEARCH_DIRS:
-        if not directory.is_dir():
-            continue
-        for dll in sorted(directory.glob("*.dll")):
-            blob = dll.read_bytes()
-            if b"Do you want to buy Time Warp for" in blob:
-                found.append((dll, blob))
-    return found
+# Every built companion that offers a Tech-menu Time Warp row. Each must exist
+# and each must carry a formatted prompt; a missing file is a failure, not a
+# silent skip.
+EXPECTED_COMPANIONS = (
+    Path("assets/origins/VVFP VV1 Origins Icons.dll"),
+    Path("assets/origins/VVFP VV2 Origins Icons.dll"),
+    Path("assets/origins/VVFP VV4 Origins Icons.dll"),
+    Path("data/candidates/VVFP VV3 Full Mastery Candidate.dll"),
+    Path("data/candidates/VVFP VV3 Safe Upgrades.dll"),
+    Path("data/candidates/VVFP VV5 Task9 Origins Icons.dll"),
+)
 
 
 class TimeWarpCostFormattingTests(unittest.TestCase):
-    def test_at_least_one_companion_is_present_to_check(self) -> None:
-        """Guards against this whole file passing because nothing was built."""
-        self.assertTrue(
-            _companions_with_a_time_warp_prompt(),
-            "no built companion carries a Time Warp prompt; this suite would "
-            "otherwise pass vacuously",
+    def test_every_expected_companion_is_present(self) -> None:
+        """A companion that vanished must fail here rather than be skipped."""
+        missing = [str(p) for p in EXPECTED_COMPANIONS if not (ROOT / p).is_file()]
+        self.assertEqual(
+            missing, [],
+            "expected companions are not built, so the assertions below would "
+            f"not examine them: {missing}",
         )
 
+    def test_every_expected_companion_still_has_a_time_warp_prompt(self) -> None:
+        """The prompt itself must survive.
+
+        This is what stops the suite going quiet: without it, a companion that
+        dropped the prompt would satisfy "does not print a raw cost" trivially.
+        """
+        for rel in EXPECTED_COMPANIONS:
+            path = ROOT / rel
+            if not path.is_file():
+                continue          # already failed above; do not double-report
+            with self.subTest(dll=rel.name):
+                self.assertIn(
+                    b"Do you want to buy Time Warp for", path.read_bytes(),
+                    f"{rel.name} no longer carries a Time Warp prompt at all",
+                )
+
     def test_no_companion_prints_a_raw_cost(self) -> None:
-        for dll, blob in _companions_with_a_time_warp_prompt():
-            with self.subTest(dll=dll.name):
+        for rel in EXPECTED_COMPANIONS:
+            path = ROOT / rel
+            if not path.is_file():
+                continue
+            with self.subTest(dll=rel.name):
                 self.assertNotIn(
-                    RAW, blob,
-                    f"{dll.name} prints the Time Warp cost unformatted, so it "
+                    RAW, path.read_bytes(),
+                    f"{rel.name} prints the Time Warp cost unformatted, so it "
                     f'reads "for 50000 tech points" while every other row in '
                     f'the same menu reads "50,000"',
                 )
 
     def test_every_companion_prints_a_formatted_cost(self) -> None:
-        """Not merely the absence of `%d`: the formatted form must be present.
-
-        A companion that dropped the cost from the prompt entirely would pass
-        the check above while telling the player less than before.
-        """
-        for dll, blob in _companions_with_a_time_warp_prompt():
-            with self.subTest(dll=dll.name):
+        """Not merely the absence of `%d`: the formatted form must be present."""
+        for rel in EXPECTED_COMPANIONS:
+            path = ROOT / rel
+            if not path.is_file():
+                continue
+            with self.subTest(dll=rel.name):
                 self.assertIn(
-                    FORMATTED, blob,
-                    f"{dll.name} has a Time Warp prompt that does not quote a "
+                    FORMATTED, path.read_bytes(),
+                    f"{rel.name} has a Time Warp prompt that does not quote a "
                     "formatted cost",
                 )
+
+    def test_no_other_built_companion_slipped_in_with_a_raw_cost(self) -> None:
+        """Catch a companion added later that the explicit list does not name.
+
+        The list above is the guard against silent omission; this is the guard
+        against the list going stale.
+        """
+        for directory in (ROOT / "data" / "candidates", ROOT / "assets" / "origins"):
+            if not directory.is_dir():
+                continue
+            for dll in sorted(directory.glob("*.dll")):
+                blob = dll.read_bytes()
+                if b"Do you want to buy Time Warp for" not in blob:
+                    continue
+                rel = dll.relative_to(ROOT)
+                with self.subTest(dll=rel.name):
+                    self.assertIn(
+                        rel, EXPECTED_COMPANIONS,
+                        f"{rel} carries a Time Warp prompt but is not in "
+                        "EXPECTED_COMPANIONS; add it so it is checked by name",
+                    )
+                    self.assertNotIn(RAW, blob, f"{rel.name} prints a raw cost")
 
 
 if __name__ == "__main__":
