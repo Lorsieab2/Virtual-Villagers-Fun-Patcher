@@ -210,3 +210,44 @@ count, so occupied can never be less than population. That measurement
 therefore indicates a mismatched scan, a timing skew, the wrong pool, or a
 different HUD definition, and it remains unexplained. It is recorded here as an
 open measurement question, not as a solved one.
+
+## Delivery-time capacity, and one window it leaves open
+
+The purchase-time capacity gate is not the whole story, because neither game
+dispatches the Barrel immediately. VV1 waits 180 ticks of the main-village
+update owner; VV2 waits 90 frames of the same loop. A pregnancy or another
+event can take a slot inside that window, and the stock per-child allocation
+then stops after one or two children while the player has paid the full 75,000.
+
+Both games now recheck at delivery, against the live village rather than a
+pointer captured at purchase:
+
+* VV1 reads it as `[esi + 0x10]` at the splice, and reruns the purchase ladder
+  (the 12/22/47 tiers, the three housing flags, and the shared
+  `POPULATION_FINAL_TIER` helper for whichever cap is installed).
+* VV2 reads the same field — already in EDI at its splice — and asks the
+  companion DLL's `GateVV2BarrelSilent`, which shares `vv2_barrel_has_room`
+  with the noisy purchase gate so the two cannot drift.
+
+With no room the paid event is **held**, not consumed: the pending token stays
+set and a later tick retries, so the barrel arrives once a slot frees. That is
+deliberately preferred over refunding or dropping it, both of which are worse
+for the player than the short count being fixed.
+
+### The window this leaves open
+
+The three-child override is a one-shot flag armed immediately before dispatch.
+In VV1 the event construction *after* it can still fail (`call 0x44AF03`
+returning zero), which leaves the flag armed with no dispatch. That predates the
+delivery recheck; what the recheck changes is that the retry path can re-arm it
+on a later tick, so a persistent construction failure is a slightly wider
+target than before.
+
+It is recorded rather than fixed because the consequence favours the player and
+the trigger is an allocation failure: a stale armed flag is consumed by the
+*next* barrel, natural or purchased, which then delivers three children instead
+of the stock random count. Nobody is charged for it and nobody loses a child.
+Closing it needs a disarm on the construction-failure path, which does not fit
+the helper's remaining bytes and would have to route through the patch-owned
+`.vv1mc` tail — worth doing when that cave is next opened, not worth rushing
+into a release for a window that can only make a barrel bigger.
