@@ -76,10 +76,22 @@ answering, because it is the standard any future change here has to meet. VV5
 marks villagers with two independent record bytes, per the Equal Division
 contract:
 
-| field | offset | meaning |
+| field | offset | status |
 | --- | --- | --- |
-| Heathen mask | `+0x1CE1` | non-zero = masked Heathen |
-| faction | `+0x1CEC` | non-zero = off-faction |
+| faction | `+0x1CEC` | the **supported** predicate: non-zero = off-faction |
+| mask byte | `+0x1CE1` | **not** a proven Heathen indicator -- see below |
+
+`+0x1CEC` is the only offset this repository treats as an authoritative
+current-faction test. `+0x1CE1` is explicitly listed in
+`data/equal_division_evidence.json` under `forbidden_routes` as
+`vv5_unproved_heathen_active_byte`, so it must not be used as *the* Heathen
+predicate, and this document does not claim it is one.
+
+The distinction is between skipping more and deciding more. Equal Division
+additionally skips records whose `+0x1CE1` is non-zero, which is conservative:
+declining to touch extra records can only reduce what a feature writes. Relying
+on that byte to *decide* that a record is safe to write would be the forbidden
+direction, because the byte's meaning is unproved.
 
 **Time Warp** is the only one of the three that iterates villager records. Its
 age credit is gated on faction, and that gate is the engine's own test, on the
