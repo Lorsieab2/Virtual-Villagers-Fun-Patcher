@@ -383,6 +383,19 @@ whether the villager in it is alive, unborn, or a skeleton, so the check never
 hands out a slot that is already spoken for. `docs/duplicate-purchase-guards.md`
 records that reasoning, and the one measurement question still open about it.
 
+Because the barrel is queued, the village can fill up during the wait. The room
+check therefore runs **again at delivery**, and if there is no longer space the
+barrel is *held* rather than spent: it stays queued and arrives once a slot
+frees. You are never charged twice. In A New Home, if the event itself cannot be
+created the three-child bonus is released again rather than left waiting to
+attach to whichever barrel turns up next.
+
+That covers a barrel losing its room *during the queue delay*. It is not a
+promise that every paid barrel always delivers three children: a separate,
+still-unexplained short-spawn has been reproduced in a village with plenty of
+free records, and `docs/duplicate-purchase-guards.md` records what is and is
+not known about it.
+
 Results that count villagers name the number and the reason, and read correctly
 at one: *"Skipped over 1 villager. Reason: already likes running."*
 
@@ -617,7 +630,7 @@ Expanded-256 population modes are removed from the active patcher.
 
 ## Command line
 
-Pass `--patch-mode stock`, `--patch-mode collection_progression`, or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. The available IDs are all current user-selectable per-game patches, including the five combined Origins Tech, Details, and Village-Wide routes and the ordinary VV1-VV5 patches. Each combined route automatically resolves its internal Origins base prerequisite, so its Tech-screen and Villager Details-screen buttons/upgrades are applied together with the village-wide payload; duplicate base entries, individual Full Mastery entries, and other withdrawn historical records remain hidden. Runtime/player confirmation remains pending. Use `collection_progression` or `immediate_fixed` for Origins-style routes because their certified append layouts do not include `stock` for VV3-VV5. The disabled VV3 Full Heal / Cure All candidate is not a CLI or catalog ID. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
+Pass `--patch-mode stock`, `--patch-mode collection_progression`, or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. The available IDs are all current user-selectable per-game patches, including the five combined Origins Tech, Details, and Village-Wide routes and the ordinary VV1-VV5 patches. Each combined route automatically resolves its internal Origins base prerequisite, so its Tech-screen and Villager Details-screen buttons/upgrades are applied together with the village-wide payload; duplicate base entries, individual Full Mastery entries, and other withdrawn historical records remain hidden. Runtime/player confirmation remains pending. All three population modes accept the Origins-style routes in every game; the earlier restriction to `collection_progression` and `immediate_fixed` for VV3-VV5 no longer applies, because those routes' append layouts now certify under `stock` as well. The disabled VV3 Full Heal / Cure All candidate is not a CLI or catalog ID. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
 The five current combined Origins route IDs are `vv1_origins_village_wide_upgrades`, `vv2_origins_village_wide_upgrades`, `vv3_origins_village_wide_upgrades`, `vv4_origins_village_wide_upgrades`, and `vv5_origins_village_wide_upgrades`.
 Historical standalone Full Mastery and individual Full Mastery records are kept
 only as evidence and are not selectable or included in releases. The corrected VV4

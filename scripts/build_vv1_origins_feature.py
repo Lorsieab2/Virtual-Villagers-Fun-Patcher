@@ -576,6 +576,18 @@ MASK_NEWBORN_CLEAR_VA = mask_code_va(MASK_NEWBORN_CLEAR_FILE_OFFSET)
 # in its own appended sections rather than squeezing it into shared caves.
 BARREL_ROOM_CHECK_FILE_OFFSET = MASK_CODE_FILE_BASE + 0xB00  # .vv1mc, 0x100 reserved
 BARREL_ROOM_CHECK_VA = mask_code_va(BARREL_ROOM_CHECK_FILE_OFFSET)
+# Disarm tail for the three-child one-shot.  BARREL_ROOM_CHECK arms the flag
+# immediately before dispatch, but the event construction after it can still
+# fail (`call 0x44AF03` returning zero), which left the flag armed with no
+# dispatch -- and the delivery retry can re-arm it on a later tick, so a
+# persistent construction failure is a repeating target rather than a
+# one-shot one.  Consequence favours the player (a stale flag makes the NEXT
+# barrel deliver three children, nobody charged), which is why this was
+# recorded rather than rushed into the previous release -- but the cave has
+# 182 free bytes and the fix is 12, so there is no reason to leave it.
+# Shares the room check's 0x100 reservation; the guard below covers both.
+BARREL_DISARM_FILE_OFFSET = BARREL_ROOM_CHECK_FILE_OFFSET + 0x80
+BARREL_DISARM_VA = mask_code_va(BARREL_DISARM_FILE_OFFSET)
 MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET = 0x3C393
 MASK_NEWBORN_CLEAR_SPLICE_VA = IMAGE_BASE + MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET
 MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B
@@ -1901,13 +1913,24 @@ def main() -> None:
         """,
         BARREL_ROOM_CHECK_VA,
     )
-    if len(barrel_room_check_code) > 0x100:
+    # Bound the room check at the DISARM STUB, not at the end of the shared
+    # 0x100 reservation.  The stub starts halfway through that reservation, so
+    # a 0x100 bound would let the room check grow straight over it -- emitting
+    # two overlapping patches at 0x8EB00 and 0x8EB80 with the build still
+    # reporting success.  Derived from the offsets rather than restated as
+    # 0x80, so moving either cave cannot leave this stale.
+    _room_check_room = BARREL_DISARM_FILE_OFFSET - BARREL_ROOM_CHECK_FILE_OFFSET
+    if len(barrel_room_check_code) > _room_check_room:
         raise RuntimeError(
-            "VV1 Barrel delivery recheck exceeds its .vv1mc reservation: "
-            f"{len(barrel_room_check_code):#x} > 0x100"
+            "VV1 Barrel delivery recheck would run into the disarm stub at "
+            f"{BARREL_DISARM_FILE_OFFSET:#x}: "
+            f"{len(barrel_room_check_code):#x} > {_room_check_room:#x}"
         )
-    barrel_main_helper_code = assemble(
-        f"""
+    # Split at `barrel_main_restore` so the prefix can be assembled on its own
+    # to MEASURE that label's offset -- see BARREL_MAIN_RESTORE_VA below.  The
+    # prefix ends with the two jumps that leave the helper, so it assembles
+    # standalone without the labels that follow it.
+    barrel_main_helper_source_prefix = f"""
             call 0x448600
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 2
             jne barrel_main_done
@@ -1929,7 +1952,11 @@ def main() -> None:
             call 0x44AF03
             add esp, 4
             test eax, eax
-            je barrel_main_restore
+            # Construction failed AFTER the one-shot was armed.  Route through
+            # the disarm stub so the flag does not survive with no dispatch --
+            # otherwise the retry re-arms it every tick and the NEXT barrel,
+            # natural or purchased, silently inherits the three-child override.
+            je barrel_main_disarm
             mov ebx, eax
             push 0x7F4B1A2C
             push 1
@@ -1943,13 +1970,104 @@ def main() -> None:
             call 0x427620
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
             mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
+        barrel_main_disarm:
+            jmp 0x{BARREL_DISARM_VA:X}
+    """
+    barrel_main_helper_source = (
+        barrel_main_helper_source_prefix
+        + """
         barrel_main_restore:
             popad
         barrel_main_done:
             jmp 0x424044
-        """,
+        """
+    )
+    barrel_main_helper_code = assemble(
+        barrel_main_helper_source,
         BARREL_MAIN_HELPER_VA,
     )
+    # The helper has never had a generator bound, and the disarm branch took it
+    # to 0x7f of the 0x80 that separate it from EQUAL_DIVISION_CORE -- one byte
+    # spare.  Without this, the next edit here would emit overlapping patches at
+    # 0x8B710 and 0x8B790 with the build reporting success; the manifest tests
+    # only catch that afterwards.  Derived from the two offsets, like the .vv1mc
+    # bounds below, so moving either cave cannot leave it stale.
+    _main_helper_room = (
+        EQUAL_DIVISION_CORE_FILE_OFFSET - BARREL_MAIN_HELPER_FILE_OFFSET
+    )
+    if len(barrel_main_helper_code) > _main_helper_room:
+        raise RuntimeError(
+            "VV1 Barrel main helper would run into the Equal Division core at "
+            f"{EQUAL_DIVISION_CORE_FILE_OFFSET:#x}: "
+            f"{len(barrel_main_helper_code):#x} > {_main_helper_room:#x}"
+        )
+    # Disarm tail, emitted AFTER the helper so its resume address is derived
+    # from the assembled helper rather than restated.
+    #
+    # `barrel_main_restore` is the popad both refusal paths share.  Its address
+    # is MEASURED, not searched for: assembling the helper a second time with
+    # everything from that label onwards removed gives a prefix whose length is
+    # exactly the label's offset.  An earlier version hunted for the last 0x61
+    # byte instead, which is a heuristic -- 0x61 also occurs inside immediates
+    # and displacements, and a second popad added after the restore would have
+    # silently retargeted the stub.  Measuring cannot be fooled either way.
+    # The prefix still names `barrel_main_restore` and `barrel_main_done`,
+    # defined after the split, so assembling it alone needs both terminated --
+    # and they must sit exactly where the real helper puts them, or the branch
+    # displacements shift.  `barrel_main_restore` lands at the prefix's end;
+    # `barrel_main_done` is one byte further on, past the single-byte `popad`.
+    # Getting that spacing wrong moves every `jne`/`jb` to it by one, which the
+    # startswith() check below catches rather than silently mis-measuring.
+    _prefix = assemble(
+        barrel_main_helper_source_prefix
+        + "\n        barrel_main_restore:\n            popad\n"
+        + "        barrel_main_done:\n",
+        BARREL_MAIN_HELPER_VA,
+    )
+    # Drop the terminating popad again: the prefix proper ends at the restore.
+    # Assert it rather than trusting the slice -- taking [:-1] on faith is the
+    # same "assume the byte is what I expect" mistake the measurement above
+    # exists to remove.
+    if not _prefix.endswith(b"\x61"):
+        raise RuntimeError(
+            "VV1 barrel prefix does not end with the terminating popad "
+            f"(last byte {_prefix[-1]:#04x}); the measured restore offset "
+            "would be off by one"
+        )
+    _prefix = _prefix[:-1]
+    BARREL_MAIN_RESTORE_VA = BARREL_MAIN_HELPER_VA + len(_prefix)
+    if barrel_main_helper_code[len(_prefix)] != 0x61:
+        raise RuntimeError(
+            "VV1 barrel restore does not land on popad "
+            f"(found {barrel_main_helper_code[len(_prefix)]:#04x}); the disarm "
+            "stub would resume at the wrong instruction"
+        )
+    if not barrel_main_helper_code.startswith(_prefix):
+        raise RuntimeError(
+            "VV1 barrel helper prefix does not match the full assembly; the "
+            "measured restore offset would be meaningless"
+        )
+    barrel_disarm_code = assemble(
+        f"""
+            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
+            jmp 0x{BARREL_MAIN_RESTORE_VA:X}
+        """,
+        BARREL_DISARM_VA,
+    )
+    # The stub runs to the end of the shared reservation, which is exactly
+    # where vv1_birth_control's composition overlay begins (0x8EC00).  Derived
+    # for the same reason as the room-check bound above: overrunning here would
+    # write into another feature's overlay rather than merely into a sibling
+    # cave, so the number must not be restated by hand.
+    _disarm_room = (
+        BARREL_ROOM_CHECK_FILE_OFFSET + 0x100 - BARREL_DISARM_FILE_OFFSET
+    )
+    if len(barrel_disarm_code) > _disarm_room:
+        raise RuntimeError(
+            "VV1 Barrel disarm stub overruns the .vv1mc reservation and would "
+            "reach vv1_birth_control's composition overlay: "
+            f"{len(barrel_disarm_code):#x} > {_disarm_room:#x}"
+        )
     barrel_close_helper_code = assemble(
         f"""
             mov ecx, dword ptr [esi + 0x14]
@@ -3646,6 +3764,12 @@ def main() -> None:
         b"\0" * 4,
         b"\0" * 4,
         f"reserve the process-local VV1 Barrel event delay counter: the main-village update owner is a genuine per-frame tick, so the queued event now waits {BARREL_DELAY_TICKS} ticks after the Tech screen closes instead of firing on the very next one, giving the purchase confirmation time to be read first",
+    )
+    patch(
+        BARREL_DISARM_FILE_OFFSET,
+        b"\0" * len(barrel_disarm_code),
+        barrel_disarm_code,
+        "clear the purchased Barrel's three-child override when the event object cannot be constructed, so a failed dispatch does not leave the one-shot armed for whichever barrel arrives next",
     )
     patch(
         BARREL_ROOM_CHECK_FILE_OFFSET,

@@ -393,6 +393,12 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # deferred delay holds the barrel instead of spending it
                         # on a short count.
                         "0x8B710", "0x8EB00",
+                        # Barrel disarm on construction failure: the one-shot is armed just
+                        # before dispatch, so a failed `call 0x44AF03` used to leave it armed --
+                        # and the delivery retry re-armed it each tick. The failure path now
+                        # routes through a stub (0x8EB80) that clears it and rejoins the shared
+                        # restore, which moves the helper (0x8B710) by one branch.
+                        "0x8B710", "0x8EB80",
                         # Village all-pose mask identity stash (Stage 1): 2 loop-top
                         # splices + their stash caves (inert; hook reads the slot later).
                         "0x37798", "0x38900", "0x8B180", "0x8B191",

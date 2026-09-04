@@ -31,9 +31,9 @@ VV1_STANDALONE_RENDER_SHA256 = {
         "immediate_fixed": "C02F431266FB9AC5C9C6FD62EE92D1AEEC6C3AF699F907CBE698FA4784664054",
     },
     "vv1_enable_origins_exclusive_features": {
-        "stock": "CD1D38B3C91F676245EAADCF846404DC96C2634D6656D62CF438591854951936",
-        "collection_progression": "AAF58FFD9F268C6699FF9E8FC749778F6E4A4A620EC67D13F4186FD6EA825496",
-        "immediate_fixed": "AAF58FFD9F268C6699FF9E8FC749778F6E4A4A620EC67D13F4186FD6EA825496",
+        "stock": "CDBCFAD3D99EB8E0E458D1BC4B01BE59855631B72280811280270175F73D6D47",
+        "collection_progression": "F29F3F1063144A392470BD435AB316C526E0F3763A8E040722C0986612A091C6",
+        "immediate_fixed": "F29F3F1063144A392470BD435AB316C526E0F3763A8E040722C0986612A091C6",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
@@ -192,9 +192,11 @@ class VV1VV3BirthControlTests(unittest.TestCase):
             index for index, value in enumerate(origins_code_page) if value
         )
         self.assertLess(highest, overlay_start)
-        # 0xB49 == the end of the Barrel delivery-time capacity recheck, the
-        # last .vv1mc cave Origins owns (0x8EB00, 0x100 reserved).
-        self.assertEqual(highest, 0xB49)
+        # 0xB8B == the end of the Barrel disarm stub, which shares the room
+        # check's 0x100 reservation at 0x8EB00 (check at +0x00, disarm at
+        # +0x80). Still the last .vv1mc bytes Origins owns, and still clear
+        # of the 0xC00 overlay by 0x75 bytes.
+        self.assertEqual(highest, 0xB8B)
         self.assertEqual(origins_only[0x8F000:0x90000], b"\x00" * 0x1000)
 
     def test_vv1_append_base_precedes_overlay_independent_of_catalog_order(self) -> None:

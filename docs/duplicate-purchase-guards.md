@@ -153,7 +153,7 @@ Until then the row is deliberately NOT blocked on a guessed threshold: a guard
 that does not fire in the reported case would be worse than none, because it
 would look like the bug was fixed.
 
-## Known gap: capacity is checked at purchase, not at delivery
+## Closed: capacity is now checked at delivery as well as at purchase
 
 The Barrel row is refused unless three villager slots are free, and the
 purchased barrel's child count is forced to three. Both decisions are made when
@@ -163,18 +163,48 @@ completing, or another event taking a record, can leave fewer than three slots
 by the time the children are actually placed. The stock per-child allocation
 then stops early, and the purchase has already been charged.
 
-The arming window is now as small as it can be: the three-child override is
-raised immediately before the deferred dispatch rather than at purchase, so a
-natural barrel firing during the delay can no longer consume it.
+The arming window is as small as it can be: the three-child override is raised
+immediately before the deferred dispatch rather than at purchase, so a natural
+barrel firing during the delay cannot consume it.
 
-Re-validating capacity at delivery is NOT implemented, and the reason is
-specific rather than an oversight. The count-roll site holds only the event
-object in ESI; it has no route to the villager pool. VV1's records are reached
-as `[player + 0xADE8]`, and a scan of the running process found no global
-holding that player pointer -- which is the same reason VV1's menu helper has
-to read it from `[esi + 0x0C]` instead. Closing this properly means plumbing a
-context pointer into the deferred dispatch, which is a real change to that
-path rather than an addition beside it.
+**This section previously recorded delivery-time revalidation as unimplemented,
+and gave a specific reason: that the dispatch site holds only the event object
+and has no route to the villager pool, so closing it would mean plumbing a
+context pointer into the deferred path. That reason was wrong**, and the
+correction is kept visible here because it blocked the fix for a while.
+
+The village needs no plumbing and no captured pointer. It is live at the splice
+in both games, in a register the enclosing update owner is already using:
+
+* **VV1** -- `0x42402D  mov eax, [esi + 0x10]` sits two instructions before the
+  `call 0x448600` that is spliced, in the same basic block. That `[esi+0x10]`
+  is exactly what the population getter takes, proved by a stock call site in
+  the same function: `0x42373C  mov ecx, [esi + 0x10] ; call 0x41cf90`. The
+  helper already recovers that register, because `mov esi, [esp + 4]` after
+  `pushad` reads the enclosing frame's ESI back.
+* **VV2** -- `0x42E9EB  mov edi, [esi + 0x10]` immediately precedes the splice
+  at `0x42E9EE`, and EDI is untouched until the helper's own resume. The
+  surrounding code drives that object through `+0x2EAC4`, `+0x2EB08`,
+  `+0x30460` and `+0x305A0`, the last adjacent to the `+0x305A4` record-pool
+  field the purchase preflight validates.
+
+Both now re-run the purchase-time capacity rule against that live pointer at
+delivery. **A refusal holds the paid event rather than spending it**: the
+pending token stays set and a later tick retries, so the barrel arrives once a
+slot frees. VV2 asks the companion DLL's `GateVV2BarrelSilent`, which shares
+`vv2_barrel_has_room` with the noisy purchase gate so the two cannot drift; it
+is separate from `GateVV2Barrel` only because that one raises the "close to
+maximum" dialog, which a retry loop must not do.
+
+### What this does NOT fix
+
+This closes the **queue-window** case: capacity that was present at purchase
+and gone by delivery. It does not explain or fix the reproduced short-spawn
+described above, where a village with 31 living villagers and ample record
+capacity still delivered fewer than three children. That mechanism -- slot
+allocation versus world-space placement -- remains unresolved, and a barrel can
+still be consumed short through it. The delivery recheck is not a guarantee
+that every paid barrel yields three children.
 
 ## Record occupancy is not population: `+0x1CD4` in VV5
 
@@ -234,20 +264,41 @@ set and a later tick retries, so the barrel arrives once a slot frees. That is
 deliberately preferred over refunding or dropping it, both of which are worse
 for the player than the short count being fixed.
 
-### The window this leaves open
+### The window this left open, and how it was closed
 
 The three-child override is a one-shot flag armed immediately before dispatch.
 In VV1 the event construction *after* it can still fail (`call 0x44AF03`
-returning zero), which leaves the flag armed with no dispatch. That predates the
-delivery recheck; what the recheck changes is that the retry path can re-arm it
-on a later tick, so a persistent construction failure is a slightly wider
-target than before.
+returning zero), which left the flag armed with no dispatch. That predated the
+delivery recheck; what the recheck changed is that the retry path could re-arm
+it on a later tick, so a persistent construction failure became a repeating
+target rather than a one-shot one.
 
-It is recorded rather than fixed because the consequence favours the player and
-the trigger is an allocation failure: a stale armed flag is consumed by the
-*next* barrel, natural or purchased, which then delivers three children instead
-of the stock random count. Nobody is charged for it and nobody loses a child.
-Closing it needs a disarm on the construction-failure path, which does not fit
-the helper's remaining bytes and would have to route through the patch-owned
-`.vv1mc` tail — worth doing when that cave is next opened, not worth rushing
-into a release for a window that can only make a barrel bigger.
+It was **recorded rather than fixed** for v1.34.31, on the grounds that the
+consequence favours the player and the trigger is an allocation failure: a
+stale armed flag is consumed by the *next* barrel, natural or purchased, which
+then delivers three children instead of the stock random count. Nobody is
+charged for it and nobody loses a child.
+
+**It is now fixed.** The stated reason for deferring — that a disarm "does not
+fit the helper's remaining bytes and would have to route through the
+patch-owned `.vv1mc` tail" — was only half right. Routing through `.vv1mc` is
+exactly what it does, but that cave did not need to wait for some later
+opening: the room check's `0x100` reservation already had 182 free bytes and
+the disarm is 12.
+
+The construction-failure branch targets a stub at `0x8EB80`, inside that same
+reservation (room check at `+0x00`, disarm at `+0x80`). The stub clears the
+flag and jumps back to the `popad` both refusal paths already shared. That
+resume address is *measured* from the assembled helper rather than restated, so
+the two cannot drift apart.
+
+The **no-room** path deliberately does not disarm: nothing was armed on it, and
+clearing there would mask a future ordering mistake rather than fix one. A test
+pins that asymmetry so a later tidy-up cannot quietly collapse the two paths.
+
+All three caves involved now carry generator bounds derived from the
+neighbouring offsets rather than restated as literals — the main helper against
+`EQUAL_DIVISION_CORE_FILE_OFFSET`, the room check against the disarm stub, and
+the disarm stub against the end of the reservation, which is where
+`vv1_birth_control`'s composition overlay begins at `0x8EC00`. Before that, each
+could have grown into its neighbour with the build still reporting success.
