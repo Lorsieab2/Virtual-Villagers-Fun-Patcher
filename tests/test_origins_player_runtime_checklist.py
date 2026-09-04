@@ -379,6 +379,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # and patch-owned cave clear the selected mask nibble
                         # and mark the active sidecar dirty for Vv1MaskTick.
                         "0x3C393", "0x8EA00",
+                        # Barrel of Babies delivery-time capacity recheck: the
+                        # main-village helper now loads the village and calls a
+                        # room check in its own .vv1mc cave before consuming the
+                        # paid event, so a village that filled up during the
+                        # deferred delay holds the barrel instead of spending it
+                        # on a short count.
+                        "0x8B710", "0x8EB00",
                         # Village all-pose mask identity stash (Stage 1): 2 loop-top
                         # splices + their stash caves (inert; hook reads the slot later).
                         "0x37798", "0x38900", "0x8B180", "0x8B191",

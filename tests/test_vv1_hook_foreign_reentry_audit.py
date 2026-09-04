@@ -174,7 +174,15 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_builder_action_fixes", "0x48336"): "8901998FCDDD8EB745F1666B550B4C384919536E546CA4B1EAAF3BDB90176485",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
-    ("vv1_enable_origins_exclusive_features", "0x2403F"): "C67676FB9A3DB9F16865330909235B94E521DC7C6117C30768BFE454732BC0F8",
+    # Re-reviewed when the Barrel gained a delivery-time capacity recheck.
+    # The cave now loads the village as [esi+0x10] and calls the room check
+    # at 0x490B00 before consuming the paid event.  Register contract is
+    # unchanged for the stock function: every added instruction sits inside
+    # the existing pushad/popad bracket, the room check clobbers only
+    # eax/ecx/edx (esi/ebx/edi survive for the dispatch that follows), and
+    # the new "no room" path branches to the same popad the create-failure
+    # path already used.  esi itself is read, never written.
+    ("vv1_enable_origins_exclusive_features", "0x2403F"): "EDA51F2E4A87D26BDA7DA5F4040DF0440B26F9E9329BDD2A5EFF4E9040531999",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
     ("vv1_enable_origins_exclusive_features", "0x35AB0"): "3ECEBF9754F7758496400390A31FA6F56572BC7874708D17F54715261996C768",
