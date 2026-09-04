@@ -2138,6 +2138,14 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         # result, returning 0 cancelled / 1 applied / 2 refused-with-reason.
         # It deliberately does NOT charge: the deduction stays here, on the
         # game's own tech-point routine, and happens only on 1.
+        # Re-read the balance IMMEDIATELY before dispatching. The companion
+        # applies both halves of the warp and announces the result before
+        # control comes back here, so a balance checked only after it returns
+        # would let an already-reported warp go uncharged.
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, 50000
+        jb insufficient
+        mov dword ptr [ebp-0x20], eax
         push 50000
         push 0x{s['dll']:X}
         call dword ptr [0x4951E0]
@@ -2156,6 +2164,12 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         push -50000
         mov ecx, 0x51D5F8
         call 0x4237B0
+        # And read the balance back: the charge routine returns nothing, so a
+        # deduction that did not land is otherwise invisible.
+        mov eax, dword ptr [ebp-0x20]
+        sub eax, 50000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
         jmp done
     tw_apply_unavailable:
         add esp, 4

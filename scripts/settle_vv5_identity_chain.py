@@ -67,16 +67,37 @@ def run(script: str) -> None:
         )
 
 
-def swap(path: str, old: str, new: str, label: str) -> None:
-    """Replace every occurrence of `old`. A digest can legitimately be pinned in
-    more than one place -- the two stock modes share a page hash, for instance."""
+def swap(path: str, old: str, new: str, label: str,
+         within: str | None = None) -> None:
+    r"""Replace `old` with `new`, optionally only inside a named block.
+
+    `within` is a regex selecting the enclosing constant (for example
+    ``VV5_TASK9_PAGE_SHA256 = \{.*?\n\}``). Pass it whenever the value being
+    replaced is a bare digest, because the same digest can legitimately appear
+    in an unrelated pin -- a global replace once retargeted
+    VV3_RUNNING_CERTIFIED_SHA256["map"] to the VV5 Task9 map hash, corrupting a
+    certification that had not been touched.
+
+    Without `within` the replacement is global, which is only safe for values
+    that are unique by construction (a full assignment line, say).
+    """
     if old == new:
         return
     p = Path(path)
     s = p.read_text(encoding="utf-8")
-    if old not in s:
-        raise SystemExit(f"{label}: {old[:16]}... not found in {path}")
-    p.write_text(s.replace(old, new), encoding="utf-8")
+    if within is None:
+        if old not in s:
+            raise SystemExit(f"{label}: {old[:16]}... not found in {path}")
+        p.write_text(s.replace(old, new), encoding="utf-8")
+    else:
+        m = re.search(within, s, re.S)
+        if m is None:
+            raise SystemExit(f"{label}: block {within!r} not found in {path}")
+        block = m.group(0)
+        if old not in block:
+            raise SystemExit(f"{label}: {old[:16]}... not in the {label} block")
+        s = s[: m.start()] + block.replace(old, new) + s[m.end():]
+        p.write_text(s, encoding="utf-8")
     print(f"  {label} -> {new[:12]}")
 
 
@@ -103,7 +124,8 @@ def main() -> None:
     for key, path in (("manifest", "data/vv5_task9_native_actions.json"),
                       ("map", "data/candidates/vv5_task9_native_actions_map.json")):
         current = re.search(rf'"{key}": "([0-9A-F]{{64}})"', block).group(1)
-        swap(str(PATCHER), current, txt(path), f"patcher {key} identity")
+        swap(str(PATCHER), current, txt(path), f"patcher {key} identity",
+             within=r"VV5_TASK9_SOURCE_TEXT_SHA256 = \{.*?\}")
 
     swap(str(PATCHER), pinned(str(PATCHER), r'VV5_TASK9_DLL_SHA256 = "([0-9A-F]{64})"'),
          raw(DLL), "patcher companion sha")
@@ -133,16 +155,20 @@ def main() -> None:
     current = pinned(EXPANDED, r'if sha\(stock_page\) != "([0-9A-F]{64})"')
     if current:
         swap(EXPANDED, current, stock_sha, "expanded builder stock page")
-    page_block = re.search(r"VV5_TASK9_PAGE_SHA256 = \{(.*?)\n\}",
-                           PATCHER.read_text(encoding="utf-8"), re.S).group(1)
     for mode in ("collection_progression", "immediate_fixed",
                  "experimental_expanded_256", "experimental_expanded_256_progression"):
+        # Re-read each time. The two stock modes share a hash, so settling one
+        # settles the other, and a block captured before the loop then sends
+        # the next iteration hunting for a value that is already gone.
+        page_block = re.search(r"VV5_TASK9_PAGE_SHA256 = \{(.*?)\n\}",
+                               PATCHER.read_text(encoding="utf-8"), re.S).group(1)
         m = re.search(rf'"{mode}": "([0-9A-F]{{64}})"', page_block)
         if not m:
             continue
         want = expanded_sha if "expanded" in mode else stock_sha
         if m.group(1) != want:
-            swap(str(PATCHER), m.group(1), want, f"patcher page {mode}")
+            swap(str(PATCHER), m.group(1), want, f"patcher page {mode}",
+                 within=r"VV5_TASK9_PAGE_SHA256 = \{.*?\n\}")
 
     # 4 -- the page-length guard, only once every byte assertion still holds.
     manifest = json.loads(
@@ -189,25 +215,27 @@ def main() -> None:
     run(EXPANDED)
     print("  expanded artefacts regenerated")
 
-    artefacts = re.search(r"EXPANDED_TIME_WARP_ARTIFACT_SHA256 = \{(.*?)\n\}",
-                          PATCHER.read_text(encoding="utf-8"), re.S).group(1)
     for game, key, path in (
         ("vv3", "manifest", "data/vv3_expanded_time_warp.json"),
         ("vv3", "map", "data/candidates/vv3_expanded_time_warp_map.json"),
         ("vv5", "manifest", "data/vv5_expanded_time_warp.json"),
         ("vv5", "map", "data/candidates/vv5_expanded_time_warp_map.json"),
     ):
+        artefacts = re.search(r"EXPANDED_TIME_WARP_ARTIFACT_SHA256 = \{(.*?)\n\}",
+                              PATCHER.read_text(encoding="utf-8"), re.S).group(1)
         segment = re.search(rf'"{game}": \{{(.*?)\}}', artefacts, re.S).group(1)
         m = re.search(rf'"{key}": "([0-9A-F]{{64}})"', segment)
         if m and Path(path).is_file():
-            swap(str(PATCHER), m.group(1), txt(path), f"expanded {game} {key}")
+            swap(str(PATCHER), m.group(1), txt(path), f"expanded {game} {key}",
+                 within=r"EXPANDED_TIME_WARP_ARTIFACT_SHA256 = \{.*?\n\}")
 
     # 6 -- the builder SOURCE pins, which move whenever either builder is edited.
     for pin, script in (("builder", EXPANDED), ("task9_builder", GENERATOR)):
         m = re.search(rf'"{pin}": "([0-9A-F]{{64}})"',
                       PATCHER.read_text(encoding="utf-8"))
         if m:
-            swap(str(PATCHER), m.group(1), txt(script), f"expanded {pin} source")
+            swap(str(PATCHER), m.group(1), txt(script), f"expanded {pin} source",
+                 within=r"EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = \{.*?\n\}")
 
     run("scripts/generate_transparency_docs.py")
     print("settled")
