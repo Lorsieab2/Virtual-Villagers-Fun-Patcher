@@ -23,8 +23,8 @@ VV4_MAP_OUT = ROOT / "data/candidates/vv4_expanded_time_warp_map.json"
 VV5_OUT = ROOT / "data/vv5_expanded_time_warp.json"
 VV5_MAP_OUT = ROOT / "data/candidates/vv5_expanded_time_warp_map.json"
 
-COMPANION_SHA256 = "7D9A9B3A6573BB6A5C6AFBA485A4F62CE93092FFC51BE940F2FA44372E1E33D4"
-COMPANION_SIZE = 1755648
+COMPANION_SHA256 = "2B30420687D9E68215190BF8B7C0C19235919A81C021DCAA249F4C2975EC5ADD"
+COMPANION_SIZE = 1756160
 EXPANDED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
