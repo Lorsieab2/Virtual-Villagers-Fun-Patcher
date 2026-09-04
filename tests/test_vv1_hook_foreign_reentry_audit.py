@@ -182,7 +182,14 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # eax/ecx/edx (esi/ebx/edi survive for the dispatch that follows), and
     # the new "no room" path branches to the same popad the create-failure
     # path already used.  esi itself is read, never written.
-    ("vv1_enable_origins_exclusive_features", "0x2403F"): "EDA51F2E4A87D26BDA7DA5F4040DF0440B26F9E9329BDD2A5EFF4E9040531999",
+    # Re-reviewed again when the construction-failure path gained a disarm.
+    # The register contract is unchanged: the new branch is a `je` to a
+    # `jmp` into the patch-owned .vv1mc stub, which writes one absolute byte
+    # (the three-child one-shot) and jumps back to the SAME popad both
+    # refusal paths already shared -- derived from the assembled helper, not
+    # restated. No register is read or written, so the stub cannot disturb
+    # the dispatch that follows or the stock frame the helper resumes into.
+    ("vv1_enable_origins_exclusive_features", "0x2403F"): "3C41A85F1AFE8DB276941C33B261D1AC08DF11AF8227CB295343321C45634CCC",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
     ("vv1_enable_origins_exclusive_features", "0x35AB0"): "3ECEBF9754F7758496400390A31FA6F56572BC7874708D17F54715261996C768",

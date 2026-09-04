@@ -576,6 +576,18 @@ MASK_NEWBORN_CLEAR_VA = mask_code_va(MASK_NEWBORN_CLEAR_FILE_OFFSET)
 # in its own appended sections rather than squeezing it into shared caves.
 BARREL_ROOM_CHECK_FILE_OFFSET = MASK_CODE_FILE_BASE + 0xB00  # .vv1mc, 0x100 reserved
 BARREL_ROOM_CHECK_VA = mask_code_va(BARREL_ROOM_CHECK_FILE_OFFSET)
+# Disarm tail for the three-child one-shot.  BARREL_ROOM_CHECK arms the flag
+# immediately before dispatch, but the event construction after it can still
+# fail (`call 0x44AF03` returning zero), which left the flag armed with no
+# dispatch -- and the delivery retry can re-arm it on a later tick, so a
+# persistent construction failure is a repeating target rather than a
+# one-shot one.  Consequence favours the player (a stale flag makes the NEXT
+# barrel deliver three children, nobody charged), which is why this was
+# recorded rather than rushed into the previous release -- but the cave has
+# 182 free bytes and the fix is 12, so there is no reason to leave it.
+# Shares the room check's 0x100 reservation; the guard below covers both.
+BARREL_DISARM_FILE_OFFSET = BARREL_ROOM_CHECK_FILE_OFFSET + 0x80
+BARREL_DISARM_VA = mask_code_va(BARREL_DISARM_FILE_OFFSET)
 MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET = 0x3C393
 MASK_NEWBORN_CLEAR_SPLICE_VA = IMAGE_BASE + MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET
 MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B
@@ -1929,7 +1941,11 @@ def main() -> None:
             call 0x44AF03
             add esp, 4
             test eax, eax
-            je barrel_main_restore
+            # Construction failed AFTER the one-shot was armed.  Route through
+            # the disarm stub so the flag does not survive with no dispatch --
+            # otherwise the retry re-arms it every tick and the NEXT barrel,
+            # natural or purchased, silently inherits the three-child override.
+            je barrel_main_disarm
             mov ebx, eax
             push 0x7F4B1A2C
             push 1
@@ -1943,6 +1959,8 @@ def main() -> None:
             call 0x427620
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
             mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
+        barrel_main_disarm:
+            jmp 0x{BARREL_DISARM_VA:X}
         barrel_main_restore:
             popad
         barrel_main_done:
@@ -1950,6 +1968,30 @@ def main() -> None:
         """,
         BARREL_MAIN_HELPER_VA,
     )
+    # Disarm tail, emitted AFTER the helper so its resume address is derived
+    # from the assembled helper rather than restated.  `barrel_main_restore` is
+    # the `popad` that both refusal paths share; it is the last popad in the
+    # helper, immediately before the trailing `jmp 0x424044`.
+    _bm = barrel_main_helper_code
+    _popad_at = _bm.rindex(b"a")
+    BARREL_MAIN_RESTORE_VA = BARREL_MAIN_HELPER_VA + _popad_at
+    if _bm[_popad_at + 1] != 0xE9:
+        raise RuntimeError(
+            "VV1 barrel restore is not the popad immediately before the tail "
+            "jmp; the disarm stub would resume at the wrong instruction"
+        )
+    barrel_disarm_code = assemble(
+        f"""
+            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
+            jmp 0x{BARREL_MAIN_RESTORE_VA:X}
+        """,
+        BARREL_DISARM_VA,
+    )
+    if len(barrel_disarm_code) > 0x80:
+        raise RuntimeError(
+            "VV1 Barrel disarm stub overruns its half of the .vv1mc slot: "
+            f"{len(barrel_disarm_code):#x} > 0x80"
+        )
     barrel_close_helper_code = assemble(
         f"""
             mov ecx, dword ptr [esi + 0x14]
@@ -3646,6 +3688,12 @@ def main() -> None:
         b"\0" * 4,
         b"\0" * 4,
         f"reserve the process-local VV1 Barrel event delay counter: the main-village update owner is a genuine per-frame tick, so the queued event now waits {BARREL_DELAY_TICKS} ticks after the Tech screen closes instead of firing on the very next one, giving the purchase confirmation time to be read first",
+    )
+    patch(
+        BARREL_DISARM_FILE_OFFSET,
+        b"\0" * len(barrel_disarm_code),
+        barrel_disarm_code,
+        "clear the purchased Barrel's three-child override when the event object cannot be constructed, so a failed dispatch does not leave the one-shot armed for whichever barrel arrives next",
     )
     patch(
         BARREL_ROOM_CHECK_FILE_OFFSET,
