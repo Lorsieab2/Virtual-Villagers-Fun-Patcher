@@ -175,3 +175,28 @@ holding that player pointer -- which is the same reason VV1's menu helper has
 to read it from `[esi + 0x0C]` instead. Closing this properly means plumbing a
 context pointer into the deferred dispatch, which is a real change to that
 path rather than an addition beside it.
+
+## Record occupancy is not population: `+0x1CD4` in VV5
+
+A villager record's in-use byte means **"this record slot is taken"**, not
+"a villager is alive in it". Skeletons keep their records. In VV5 that byte is
+`+0x1CD4`, and a survey of a village showing **Population 0** on the HUD counted
+**134 occupied records**.
+
+This is the mechanism behind the owner's original report that skeletons suppress
+the Barrel of Babies. The free-slot gate counts *occupancy*, because occupancy is
+what the spawn actually needs — a skeleton still holds the slot a child would go
+into. The population counter, by contrast, skips any record whose health is at or
+below zero, so a village full of bodies reads as small while its slots are nearly
+all taken. The two numbers legitimately disagree, and code that conflates them
+will be wrong in exactly the direction players notice.
+
+The same distinction caused a confusing measurement during VV3 barrel work: a
+live process showed 15 occupied records against a HUD population of 18, which is
+not reconcilable until you stop treating the two as the same quantity.
+
+Anything that iterates villager records needs to decide which question it is
+asking:
+
+- *Is there room?* -> count occupied slots.
+- *How many villagers are there?* -> count living records, and say so.
