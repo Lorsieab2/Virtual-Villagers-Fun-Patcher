@@ -175,3 +175,38 @@ holding that player pointer -- which is the same reason VV1's menu helper has
 to read it from `[esi + 0x0C]` instead. Closing this properly means plumbing a
 context pointer into the deferred dispatch, which is a real change to that
 path rather than an addition beside it.
+
+## Record occupancy is not population: `+0x1CD4` in VV5
+
+A villager record's in-use byte means **"this record slot is taken"**, not
+"a villager is alive in it". Skeletons keep their records. In VV5 that byte is
+`+0x1CD4`, and a survey of a village showing **Population 0** on the HUD counted
+**134 occupied records**.
+
+The two counts answer different questions, so code that iterates records has to
+decide which it is asking:
+
+- *Is there room?* -> count occupied slots.
+- *How many villagers are there?* -> count living records, and say so.
+
+The free-slot gate counts occupancy, because occupancy is what a spawn needs: a
+skeleton still holds the slot a child would go into.
+
+### What this does NOT explain
+
+Two things were previously attributed to this distinction here, wrongly.
+
+**It does not identify the mechanism behind the reproduced VV2 short-spawn.**
+The investigation above records that the reproduced village had ample free
+records, and deliberately leaves slot allocation versus world-space placement
+unresolved pending a live pool capture. A VV5 occupancy survey says nothing
+about which of those two caused it. Treating occupancy as the answer would aim
+the eventual delivery-time fix at the wrong subsystem.
+
+**A reading of 15 occupied against a HUD population of 18 is not reconciled by
+this distinction — it is impossible under it.** Every living villager occupies a
+record, and skeletons only make the occupied count *larger* than the living
+count, so occupied can never be less than population. That measurement
+therefore indicates a mismatched scan, a timing skew, the wrong pool, or a
+different HUD definition, and it remains unexplained. It is recorded here as an
+open measurement question, not as a solved one.
