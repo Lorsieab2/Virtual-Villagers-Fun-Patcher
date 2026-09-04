@@ -351,8 +351,10 @@ or reset. Every other row it shows uses the same wording as the rest.
 normal and twelve on fast**. The amount depends on the speed because the game's
 own clock does: one villager year takes 3 h 20 m of real time on slow, 2 hours
 on normal and 1 hour on fast, so the same purchase buys more years the faster
-the village is running. The confirmation names the speed and the exact number
-of years before you commit, and the result says how many years it advanced.
+the village is running. The confirmation names the cost, the speed and the
+exact number of years before you commit, and the result says how many years it
+advanced. The cost is written the same way as every other row -- **50,000**, not
+50000.
 
 While the game is **paused** it advances nothing at all, so it is refused with
 a message and costs no tech points.
