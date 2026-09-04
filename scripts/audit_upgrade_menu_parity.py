@@ -249,6 +249,38 @@ def audit_badges(verbose: bool = True) -> list[str]:
                     f"; {inert} inert)"
                 )
             print(f"  {game}/{screen:<8} rows={rows:>2} badges={badges:>2}{note}")
+
+    # The "only rows 3 and 4 can show" note above is a claim about the
+    # generators, so check it against them rather than printing a constant.
+    # Without this the standalone audit still exits 0 after a generator gains
+    # or drops a Tech satisfied bit, leaving that validation to the unit test
+    # alone -- which is no help to anyone running the audit on its own.
+    expected = {1 << row for row in SATISFIED_BITS_SET_BY_EXE}
+    if verbose:
+        print("\ntech satisfied bits set by each generator:")
+    for game, generator in sorted(GENERATORS.items()):
+        if not generator.is_file():
+            if verbose:
+                print(f"  {game:<4} (generator not present; skipped)")
+            continue
+        try:
+            bits = tech_state_bits(generator)
+        except RuntimeError as exc:
+            # A generator whose Tech state block can no longer be bounded is
+            # itself a finding, not a row to drop quietly: an unreadable
+            # builder is exactly the state in which a dropped bit hides.
+            problems.append(f"{game}: {exc}")
+            if verbose:
+                print(f"  {game:<4} UNREADABLE: {exc}")
+            continue
+        if verbose:
+            print(f"  {game:<4} {sorted(bits)}")
+        if bits != expected:
+            problems.append(
+                f"{game}'s Tech state builder sets bits {sorted(bits)}, not "
+                f"the expected {sorted(expected)} "
+                f"(rows {sorted(SATISFIED_BITS_SET_BY_EXE)})"
+            )
     return problems
 
 
