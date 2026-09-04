@@ -85,6 +85,32 @@ def group_fun_patches(builds, patches):
 WAIT_POLL_SECONDS = 0.03
 
 
+def centered_origin(parent_rect, size, screen):
+    """Top-left corner for a window of ``size`` centred on ``parent_rect``.
+
+    ``parent_rect`` is ``(x, y, w, h)`` in virtual-desktop coordinates, or None
+    when the parent is not viewable.
+
+    The parent-relative result must NOT be clamped to zero. On a multi-monitor
+    desktop, a window on a screen positioned left of or above the primary
+    display has legitimately NEGATIVE root coordinates, and clamping throws the
+    child onto the primary monitor. For the wait window that is the worst
+    possible failure: it holds a modal grab, so the application appears locked
+    while the thing explaining why sits on a screen the user may not be looking
+    at -- exactly the "looks like a crash" impression the window exists to
+    prevent.
+
+    Only the screen-centred fallback is clamped, because there a negative value
+    really would be off-screen.
+    """
+    width, height = size
+    if parent_rect is not None:
+        px, py, pwidth, pheight = parent_rect
+        return px + (pwidth - width) // 2, py + (pheight - height) // 2
+    swidth, sheight = screen
+    return max(0, (swidth - width) // 2), max(0, (sheight - height) // 2)
+
+
 class WaitWindow:
     """A small "Please wait..." window shown over blocking work.
 
@@ -124,16 +150,19 @@ class WaitWindow:
     def _center(self) -> None:
         window = self._window
         window.update_idletasks()
-        width = window.winfo_width()
-        height = window.winfo_height()
+        size = (window.winfo_width(), window.winfo_height())
         parent = self._parent
+        rect = None
         if parent is not None and parent.winfo_viewable():
-            x = parent.winfo_rootx() + (parent.winfo_width() - width) // 2
-            y = parent.winfo_rooty() + (parent.winfo_height() - height) // 2
-        else:
-            x = (window.winfo_screenwidth() - width) // 2
-            y = (window.winfo_screenheight() - height) // 2
-        window.geometry(f"+{max(0, x)}+{max(0, y)}")
+            rect = (
+                parent.winfo_rootx(),
+                parent.winfo_rooty(),
+                parent.winfo_width(),
+                parent.winfo_height(),
+            )
+        screen = (window.winfo_screenwidth(), window.winfo_screenheight())
+        x, y = centered_origin(rect, size, screen)
+        window.geometry(f"+{x}+{y}")
 
     def close(self) -> None:
         try:
