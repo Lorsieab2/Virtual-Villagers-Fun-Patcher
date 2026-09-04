@@ -93,25 +93,49 @@ declining to touch extra records can only reduce what a feature writes. Relying
 on that byte to *decide* that a record is safe to write would be the forbidden
 direction, because the byte's meaning is unproved.
 
-**Time Warp** is the only one of the three that iterates villager records. Its
-age credit is gated on faction, and that gate is the engine's own test, on the
-engine's own field, at the address its comment cites:
+**Time Warp**: the row that ships does not touch villager records at all.
+
+Row 0 calls `0x7CA040`, and the emitted page there is
+`build_vv5_task9_native_actions.py::build_time_warp` -- the ORIGINAL
+implementation, still live:
 
 ```
-0x00470077  cmp  byte ptr [esi + 0x1cec], bl   ; faction == 0 ?
-0x0047007f  jne  0x47008d                      ; otherwise no age credit
-0x00470082  lea  ecx, [esi + 0x1b8c]           ; the age field
-0x00470088  call 0x46f7f0                      ; apply
+0x007ca18e  mov  eax, 0x2f760              ; 194,400
+0x007ca198  div  ecx                       ; / speed
+0x007ca1ae  sub  dword ptr [0x4c6250], eax ; the global clock, 64-bit
+0x007ca1b4  sbb  dword ptr [0x4c6254], 0
 ```
 
-`VV5_TW_FACTION_OFFSET = 0x1CEC` and `VV5_TW_AGE_OFFSET = 0x1B8C` match it
-exactly, so Time Warp cannot age a villager the base game would not age. Note
-the engine filters on faction ONLY and never reads the mask byte `0x1CE1` in
-that loop, so matching it -- rather than adding a mask test the engine does not
-have -- is the correct behaviour. Its one universal write, the last-seen
-marker, is required rather than risky: that marker is what stops a villager's
-own tick from putting the jump through the aging clamp, and omitting it would
-advance that villager by the clamped amount instead of holding them.
+It writes only the world clock. It does not resolve `ShowVv5TimeWarp`, and it
+never iterates the villager array, so it cannot target a Heathen record by
+construction. Note this also means VV5 still has the ORIGINAL Time Warp bug the
+owner reported: a clamped `194400 / speed`, not the exact 3 / 6 / 12.
+
+There is a second, companion implementation -- `vv5_time_warp_apply` in
+`native/vv5_task9_origins/vv5_task9_origins.c` -- which does iterate records.
+**It is not what ships.** `ShowVv5TimeWarp` appears once in the rendered image,
+inside the `0x7B2000` page that the Task9 stock page replaces, so it is never
+called in the stock layout. Two earlier revisions of this document analysed
+that routine as though it were the shipping row; it is not, and its behaviour
+says nothing about what players currently get.
+
+For whenever that companion path does become live, its record handling has to
+be assessed on its own terms, and it does NOT trivially satisfy the STOP:
+
+```c
+*(int *)(rec + VV5_TW_LAST_SEEN_OFFSET) += delta;   /* EVERY active record */
+if (rec[VV5_TW_FACTION_OFFSET] != 0) continue;      /* only THEN the faction test */
+```
+
+The age credit is gated on `+0x1CEC`, which is the engine's own test at
+`0x00470077` on the engine's own field `0x1B8C`, and that part is sound. But
+the last-seen marker is written for every active record **before** the faction
+check, so it deliberately writes current off-faction and Heathen records.
+Explaining why that write is necessary -- omitting it would advance the
+villager by the clamped amount instead of holding them -- justifies the design;
+it does not by itself satisfy a STOP whose stated requirement is to avoid
+Heathen record targeting. Before that path is used as evidence for anything,
+the contract has to explicitly permit and validate this marker write.
 
 **Island Event and Barrel** write no villager record *at the trigger*: the
 island row sets one dword on the manager (`[edi+0x17D3C]`), and the barrel adds
@@ -130,6 +154,10 @@ not do.
 
 ## What should happen
 
+0. **VV5's Time Warp is still the original bug.** The shipping row divides a
+   clamped `194400 / speed` and never reaches the exact 3 / 6 / 12 work done
+   for the other four games. VV5 is the only game where the owner's reported
+   Time Warp problem is still unfixed.
 1. The `native_event_safety` block should be corrected to describe the shipping
    build. As written it is a false published contract, and it feeds the
    transparency log.
