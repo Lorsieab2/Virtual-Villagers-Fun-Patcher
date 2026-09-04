@@ -2010,6 +2010,15 @@ def main() -> None:
         BARREL_MAIN_HELPER_VA,
     )
     # Drop the terminating popad again: the prefix proper ends at the restore.
+    # Assert it rather than trusting the slice -- taking [:-1] on faith is the
+    # same "assume the byte is what I expect" mistake the measurement above
+    # exists to remove.
+    if not _prefix.endswith(b"\x61"):
+        raise RuntimeError(
+            "VV1 barrel prefix does not end with the terminating popad "
+            f"(last byte {_prefix[-1]:#04x}); the measured restore offset "
+            "would be off by one"
+        )
     _prefix = _prefix[:-1]
     BARREL_MAIN_RESTORE_VA = BARREL_MAIN_HELPER_VA + len(_prefix)
     if barrel_main_helper_code[len(_prefix)] != 0x61:
