@@ -42,6 +42,12 @@ SETTINGS = ROOT / "patcher_local_settings.json"
 # The releases page is what a player actually wants to land on, so the link
 # goes straight there rather than querying an API and reporting a comparison.
 RELEASES_PAGE = "https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases"
+# How long to keep retrying the wait window's modal grab before giving up, and
+# how long to wait between attempts. Two seconds is far longer than a window
+# manager needs to make a window viewable, so exhausting it means something is
+# genuinely wrong rather than merely slow.
+GRAB_TIMEOUT_SECONDS = 2.0
+GRAB_POLL_SECONDS = 0.03
 
 
 def group_fun_patches(builds, patches):
@@ -140,11 +146,7 @@ class WaitWindow:
             window.transient(parent)
         self._center()
         if modal:
-            # Blocks a second click on Apply while the first one is running.
-            try:
-                window.grab_set()
-            except tk.TclError:
-                pass
+            self._take_grab()
         window.update()
 
     def _center(self) -> None:
@@ -163,6 +165,37 @@ class WaitWindow:
         screen = (window.winfo_screenwidth(), window.winfo_screenheight())
         x, y = centered_origin(rect, size, screen)
         window.geometry(f"+{x}+{y}")
+
+    def _take_grab(self) -> None:
+        """Take the modal grab, retrying until the window is viewable.
+
+        The grab is what blocks a second click on Apply while the first one is
+        running. Tk refuses it with TclError until the window manager has made
+        the window viewable, which is why the obvious `try/except: pass` looks
+        harmless -- but swallowing the failure leaves every control underneath
+        live. A double-click on Apply then gets through twice and starts two
+        patch workers against the same output folder, which is precisely the
+        thing the grab exists to prevent, and the window still looks modal.
+
+        Waiting with `wait_visibility()` is not the fix: it blocks forever when
+        the window never becomes viewable, which is exactly what a withdrawn or
+        iconified parent produces. So this pumps the event loop and retries
+        against a deadline, and raises if the grab never lands -- a visible
+        failure at startup beats a modal window that is not modal.
+        """
+        deadline = time.monotonic() + GRAB_TIMEOUT_SECONDS
+        while True:
+            try:
+                self._window.grab_set()
+                return
+            except tk.TclError:
+                if time.monotonic() >= deadline:
+                    raise
+                try:
+                    self._window.update()
+                except tk.TclError:
+                    pass
+                time.sleep(GRAB_POLL_SECONDS)
 
     def close(self) -> None:
         try:
