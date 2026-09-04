@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features + Heathen Mask Cosmetics (Task9 native actions)",
-  "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years on slow, six on normal and twelve on fast for a single 50,000 tech-point charge, and is refused with no charge while the game is paused; the confirmation names the current speed and the exact number of years before you buy. Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point \"Change Appearance for All\" Tech upgrade, with the chosen Heathen masks rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.",
+  "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years on slow, six on normal and twelve on fast for a single 50,000 tech-point charge, and is refused with no charge while the game is paused; the confirmation names the current speed and the exact number of years before you buy. Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point \"Change Appearance for All\" Tech upgrade. Both charge only when something actually changes: if every villager already has the chosen head, body and mask, they say so and deduct nothing. The chosen Heathen masks are rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
@@ -488,7 +488,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "F7DB8C0C212E6E7C4DEA1FB4EB47B53DE3C657D7690EBEE2CEF1515FA7904EE8"
+      "source_text_sha256": "2056223AC2E8885821BBAA4E51083CA1B821BFCD439BFD4DA9BCC17D11BE4B68"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -772,5 +772,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "8625C9B1444970A164CCAE3ACC2F24E1A59E5DDAD8A793DAE496AC3C8376AE3C"
+  "task9_map_canonical_sha256": "3CBAA6E594EDB2761EC87A45EF61A39442210E9DA326792B3E59DBFBDD52D658"
 }

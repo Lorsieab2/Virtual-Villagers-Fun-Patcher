@@ -419,8 +419,14 @@ A village-wide group set to **Off** leaves that attribute alone and greys out
 nothing; set to anything else it overrides the matching per-sex selectors,
 which are disabled while the override is active so the two cannot disagree. The
 single-colour and distribution mask choices are one exclusive set, so a colour
-and a distribution can never both be selected. An **OK** that would change
-nothing says so and costs no tech points.
+and a distribution can never both be selected.
+
+Neither chooser charges for a change it did not make. **Change Appearance**
+costs nothing if you press OK on the head, body and mask the villager already
+has. **Change Appearance for All** counts what actually changes rather than who
+was looked at, so it charges nothing when every villager already matches your
+selection -- including when you set options only for a sex your village does
+not currently have.
 
 ### Buying, removing, and the green checkmarks
 
