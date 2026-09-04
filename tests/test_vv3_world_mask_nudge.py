@@ -4,12 +4,14 @@ Two things are pinned here.
 
 First, the offset itself.  The masks used to draw low and to the right of the
 villagers' faces, so the village draw now applies a reviewed registration of
-5 px left and 15 px up.
+10 px left and 33 px up, with a further 4 px left on the two right-facing
+frames, whose art sits deeper into its cell.
 
 Second -- and this is the part a plain constant would get wrong -- that offset
 is multiplied by the villager's live draw scale.  Children are drawn smaller
-than adults, so a flat 15 px lift would overshoot a toddler's head while
-sitting correctly on an adult.
+than adults, so a flat 33 px lift would overshoot a toddler's head while
+sitting correctly on an adult -- at the newborn scale of 0.80 the lift is
+26 px and the sideways move 8 px.
 
 The scale comes from the sixth village head-draw argument, and it is an
 IEEE-754 *float*, not an integer: 0x0042E5E0 loads the two coordinates with
