@@ -484,8 +484,14 @@ class VV1RequiredFixTests(unittest.TestCase):
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
         main_helper_off = 0x8B710
         main_helper_va = 0x48D710
+        # Disassemble the helper's whole reserved block, not a 0x60 window:
+        # the delivery-time capacity recheck pushed the constructor and
+        # destructor calls past 0x60, and a window that silently excludes the
+        # teardown would report a missing destructor that is actually there.
+        # 0x80 is the gap from BARREL_MAIN_HELPER_FILE_OFFSET (0x8B710) to
+        # EQUAL_DIVISION_CORE_FILE_OFFSET (0x8B790).
         insns = list(
-            md.disasm(rendered[main_helper_off : main_helper_off + 0x60], main_helper_va)
+            md.disasm(rendered[main_helper_off : main_helper_off + 0x80], main_helper_va)
         )
         calls = [i for i in insns if i.mnemonic == "call"]
         call_targets = [int(i.op_str, 16) for i in calls]

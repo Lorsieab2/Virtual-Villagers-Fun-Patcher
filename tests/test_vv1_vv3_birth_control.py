@@ -31,9 +31,9 @@ VV1_STANDALONE_RENDER_SHA256 = {
         "immediate_fixed": "C02F431266FB9AC5C9C6FD62EE92D1AEEC6C3AF699F907CBE698FA4784664054",
     },
     "vv1_enable_origins_exclusive_features": {
-        "stock": "5902A763D0F512E4CDA2A12C97EFA2B1C9B4414403933AEB12DF56D782D225ED",
-        "collection_progression": "71246E0E7DF7A0D5165160089CC5C6BF46A9729F56D332AC3854FA4D521A0D3D",
-        "immediate_fixed": "71246E0E7DF7A0D5165160089CC5C6BF46A9729F56D332AC3854FA4D521A0D3D",
+        "stock": "CD1D38B3C91F676245EAADCF846404DC96C2634D6656D62CF438591854951936",
+        "collection_progression": "AAF58FFD9F268C6699FF9E8FC749778F6E4A4A620EC67D13F4186FD6EA825496",
+        "immediate_fixed": "AAF58FFD9F268C6699FF9E8FC749778F6E4A4A620EC67D13F4186FD6EA825496",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
@@ -175,11 +175,26 @@ class VV1VV3BirthControlTests(unittest.TestCase):
             [origins.id],
         )
         origins_code_page = origins_only[0x8E000:0x8F000]
+        # The contract that matters is not the incidental high-water mark --
+        # it is that Origins writes NOTHING in the 0x400 bytes Birth Control
+        # claims at 0x8EC00, so that overlay's zero_fill preimage holds and
+        # the two features stay independent.  Assert that directly, and keep
+        # a high-water check only as a bound below the overlay so a future
+        # Origins cave cannot creep into it unnoticed.
+        overlay_start = int(overlay["overlay_offset"], 0) - 0x8E000
+        self.assertEqual(overlay_start, 0xC00)
         self.assertEqual(
-            max(index for index, value in enumerate(origins_code_page) if value),
-            0xA48,
+            origins_code_page[overlay_start:],
+            b"\x00" * (0x1000 - overlay_start),
+            "Origins wrote into the range Birth Control overlays",
         )
-        self.assertEqual(origins_code_page[0xA49:], b"\x00" * 0x5B7)
+        highest = max(
+            index for index, value in enumerate(origins_code_page) if value
+        )
+        self.assertLess(highest, overlay_start)
+        # 0xB49 == the end of the Barrel delivery-time capacity recheck, the
+        # last .vv1mc cave Origins owns (0x8EB00, 0x100 reserved).
+        self.assertEqual(highest, 0xB49)
         self.assertEqual(origins_only[0x8F000:0x90000], b"\x00" * 0x1000)
 
     def test_vv1_append_base_precedes_overlay_independent_of_catalog_order(self) -> None:
