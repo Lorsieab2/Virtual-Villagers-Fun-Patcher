@@ -151,7 +151,11 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
             encoding="utf-8"
         )
-        helper = source.split("barrel_main_helper_code = assemble(", 1)[1].split(
+        # Slice from where the helper's ASSEMBLY now begins, not from the
+        # assemble() call: the body was split into a reusable prefix so the
+        # disarm stub can measure the restore label's offset, and that moved
+        # the assemble() call to after the destructor this test guards.
+        helper = source.split("barrel_main_helper_source_prefix = f", 1)[1].split(
             "patch(\n        HEAL_CAVE_FILE_OFFSET", 1
         )[0]
         self.assertIn(

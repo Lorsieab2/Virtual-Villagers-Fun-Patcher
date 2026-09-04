@@ -1918,8 +1918,11 @@ def main() -> None:
             "VV1 Barrel delivery recheck exceeds its .vv1mc reservation: "
             f"{len(barrel_room_check_code):#x} > 0x100"
         )
-    barrel_main_helper_code = assemble(
-        f"""
+    # Split at `barrel_main_restore` so the prefix can be assembled on its own
+    # to MEASURE that label's offset -- see BARREL_MAIN_RESTORE_VA below.  The
+    # prefix ends with the two jumps that leave the helper, so it assembles
+    # standalone without the labels that follow it.
+    barrel_main_helper_source_prefix = f"""
             call 0x448600
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 2
             jne barrel_main_done
@@ -1961,24 +1964,56 @@ def main() -> None:
             mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
         barrel_main_disarm:
             jmp 0x{BARREL_DISARM_VA:X}
+    """
+    barrel_main_helper_source = (
+        barrel_main_helper_source_prefix
+        + """
         barrel_main_restore:
             popad
         barrel_main_done:
             jmp 0x424044
-        """,
+        """
+    )
+    barrel_main_helper_code = assemble(
+        barrel_main_helper_source,
         BARREL_MAIN_HELPER_VA,
     )
     # Disarm tail, emitted AFTER the helper so its resume address is derived
-    # from the assembled helper rather than restated.  `barrel_main_restore` is
-    # the `popad` that both refusal paths share; it is the last popad in the
-    # helper, immediately before the trailing `jmp 0x424044`.
-    _bm = barrel_main_helper_code
-    _popad_at = _bm.rindex(b"a")
-    BARREL_MAIN_RESTORE_VA = BARREL_MAIN_HELPER_VA + _popad_at
-    if _bm[_popad_at + 1] != 0xE9:
+    # from the assembled helper rather than restated.
+    #
+    # `barrel_main_restore` is the popad both refusal paths share.  Its address
+    # is MEASURED, not searched for: assembling the helper a second time with
+    # everything from that label onwards removed gives a prefix whose length is
+    # exactly the label's offset.  An earlier version hunted for the last 0x61
+    # byte instead, which is a heuristic -- 0x61 also occurs inside immediates
+    # and displacements, and a second popad added after the restore would have
+    # silently retargeted the stub.  Measuring cannot be fooled either way.
+    # The prefix still names `barrel_main_restore` and `barrel_main_done`,
+    # defined after the split, so assembling it alone needs both terminated --
+    # and they must sit exactly where the real helper puts them, or the branch
+    # displacements shift.  `barrel_main_restore` lands at the prefix's end;
+    # `barrel_main_done` is one byte further on, past the single-byte `popad`.
+    # Getting that spacing wrong moves every `jne`/`jb` to it by one, which the
+    # startswith() check below catches rather than silently mis-measuring.
+    _prefix = assemble(
+        barrel_main_helper_source_prefix
+        + "\n        barrel_main_restore:\n            popad\n"
+        + "        barrel_main_done:\n",
+        BARREL_MAIN_HELPER_VA,
+    )
+    # Drop the terminating popad again: the prefix proper ends at the restore.
+    _prefix = _prefix[:-1]
+    BARREL_MAIN_RESTORE_VA = BARREL_MAIN_HELPER_VA + len(_prefix)
+    if barrel_main_helper_code[len(_prefix)] != 0x61:
         raise RuntimeError(
-            "VV1 barrel restore is not the popad immediately before the tail "
-            "jmp; the disarm stub would resume at the wrong instruction"
+            "VV1 barrel restore does not land on popad "
+            f"(found {barrel_main_helper_code[len(_prefix)]:#04x}); the disarm "
+            "stub would resume at the wrong instruction"
+        )
+    if not barrel_main_helper_code.startswith(_prefix):
+        raise RuntimeError(
+            "VV1 barrel helper prefix does not match the full assembly; the "
+            "measured restore offset would be meaningless"
         )
     barrel_disarm_code = assemble(
         f"""
