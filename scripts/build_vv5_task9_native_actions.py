@@ -360,6 +360,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("division_export", b"ApplyVV5EqualDivision\0"),
         ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
         ("tw_get", b"GetOriginsOwner\0"),
+        ("tw_apply", b"ShowVv5TimeWarp\0"),
         ("tw_user32", b"USER32.dll\0"),
         ("tw_messagebox", b"MessageBoxA\0"),
         ("tw_title", b"Origins Upgrades\0"),
@@ -2119,9 +2120,48 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [ebp-0x24], eax
         mov eax, dword ptr [0x4C6254]
         mov dword ptr [ebp-0x28], eax
-        mov eax, 0x{s['tw_warning']:X}
-        mov edx, 1
-        call show_message
+        # The confirmation, the advance and the result all move to the
+        # companion. Three reasons, in order of importance:
+        #
+        #  * the engine CLAMPS a villager's pending slice before converting it
+        #    (0x0046FFCB: over 23800 slow / 31000 normal / 38200 fast is forced
+        #    to 31000), so no clock-only write reaches 3 / 6 / 12 years at any
+        #    speed -- and a larger delta produces a SMALLER warp. That is what
+        #    the old `194400 / speed` here actually did.
+        #  * VV5 folds a per-villager aging rate (+0x1CC8) into the conversion
+        #    and gates it on the faction byte (+0x1CEC), so the credit is not
+        #    one number for the whole village.
+        #  * the prompt has to name the current speed and the years it buys,
+        #    which a fixed string cannot.
+        #
+        # ShowVv5TimeWarp confirms, applies both halves and shows its own
+        # result, returning 0 cancelled / 1 applied / 2 refused-with-reason.
+        # It deliberately does NOT charge: the deduction stays here, on the
+        # game's own tech-point routine, and happens only on 1.
+        push 50000
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz tw_apply_unavailable
+        push 0x{s['tw_apply']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz tw_apply_unavailable
+        call eax
+        test eax, eax
+        jz cancelled
+        cmp eax, 1
+        jne done
+        push -50000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        jmp done
+    tw_apply_unavailable:
+        add esp, 4
+        mov eax, 0x{s['tw_unavailable']:X}
+        jmp warning_status
+    tw_legacy_unreached:
         cmp eax, 1
         jne cancelled
         call 0x425950
@@ -2154,11 +2194,18 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [ebp-0x2C], eax
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        # Speed independent by construction: delta * speed is constant.
+        # UNREACHABLE as of the companion dispatch above, and kept only so
+        # the surrounding verify/label structure is untouched.
         #
-        # This is the SHIPPING VV5 Time Warp -- the loader replaces the VV5
-        # Origins base record with this Task9 page, so a fix applied only to
-        # build_vv5_origins_feature.py would never reach a player.
+        # It WAS the shipping VV5 Time Warp: the loader replaces the VV5
+        # Origins base record with this Task9 page, so the fix applied to
+        # build_vv5_origins_feature.py alone never reached a player. That is
+        # exactly how this survived -- verifying the Origins manifest proves
+        # nothing about VV5; only the rendered image does.
+        #
+        # Its reasoning below is also wrong: it assumes the advance tracks
+        # delta * speed, which ignores the clamp that caps any single pending
+        # slice at 31000 regardless.
         #
         # Measured with a flat 129600: 6-7 years at slow, 12 at normal, 24 at
         # fast. Fast is exactly twice normal and normal twice slow, so the
