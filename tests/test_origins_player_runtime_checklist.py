@@ -153,6 +153,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # the VV2 feature tests; all other Origins rows remain
                     # byte-identical to the prior record.
                     repaired_offsets = {
+                        # Barrel of Babies delivery-time capacity recheck: a silent
+                        # gate stub (0x9A4A0) and the glue that calls it (0x9A745),
+                        # wired into the main helper (0x9A780), so a cued barrel
+                        # whose village filled up during the cue delay is held and
+                        # retried instead of spent on a short count.
+                        "0x9A4A0", "0x9A745", "0x9A780",
+
                     # Island Event queue delay + its duplicate-purchase guard.  The
                     # purchased Island Event is now stamped now+5s from the scheduler's
                     # own clock instead of being made due on the next tick, so a natural

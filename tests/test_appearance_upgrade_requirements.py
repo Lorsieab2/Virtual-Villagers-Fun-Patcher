@@ -464,6 +464,12 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
                 },
                 "data/vv2_origins_feature.json": {
+                    # Barrel of Babies delivery-time capacity recheck: a silent
+                    # gate stub (0x9A4A0) and the glue that calls it (0x9A745),
+                    # wired into the main helper (0x9A780), so a cued barrel
+                    # whose village filled up during the cue delay is held and
+                    # retried instead of spent on a short count.
+                    "0x9A4A0", "0x9A745", "0x9A780",
                     # Island Event queue delay + its duplicate-purchase guard.  The
                     # purchased Island Event is now stamped now+5s from the scheduler's
                     # own clock instead of being made due on the next tick, so a natural

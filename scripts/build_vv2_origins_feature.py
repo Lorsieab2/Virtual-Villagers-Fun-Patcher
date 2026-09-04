@@ -250,6 +250,48 @@ BARREL_GATE_VA = IMAGE_BASE + SHR_RVA + (
 )
 BARREL_GATE_EXPORT_BYTES = b"GateVV2Barrel\0"
 
+# Delivery-time capacity recheck for the deferred Barrel of Babies.  Capacity
+# is gated when the row is bought, but the event is only dispatched
+# BARREL_CUE_FRAMES later, so a pregnancy or another event can take a slot
+# inside that window and the stock per-child allocation then stops after one
+# or two children while the player has paid the full 75,000.
+#
+# The player object needs no pointer captured at purchase.  The splice at
+# 0x42E9EE is preceded, in the same basic block, by the load that puts it in
+# EDI:
+#
+#   0x42E9EB  mov edi, dword ptr [esi + 0x10]
+#   0x42E9EE  mov ecx, edi          <- the splice (helper replays this pair)
+#   0x42E9F0  call 0x403200
+#   0x42E9F5  cmp dword ptr [edi + 0x305a0], eax
+#
+# and [esi+0x10] is the same object the Tech menu reaches as [esi+0x0C]: the
+# surrounding code drives it through +0x2EAC4, +0x2EB08, +0x30460 and +0x305A0,
+# the last of which is adjacent to the +0x305A4 record-pool field the purchase
+# preflight validates before calling the gate.  EDI is untouched between the
+# splice and the helper's own resume, so it is still the pool at the recheck.
+#
+# GateVV2Barrel cannot be reused directly: it SHOWS the "close to maximum"
+# notice when it refuses, and a held barrel retries every cue period.  The
+# companion DLL therefore exports GateVV2BarrelSilent, the same arithmetic
+# without the dialog (both call one shared vv2_barrel_has_room, so the purchase
+# gate and the delivery recheck cannot drift apart).
+#
+# Two caves rather than one: the stub plus its export string needs about 70
+# bytes and the glue about 30, and .shr has no single free run that large.
+# Both regions below are zero in the stock image AND unclaimed by every vv2
+# manifest -- the check that 0x9A800 failed, because the optional Village-Wide
+# Upgrades patch owns 0x9A800..0x9AD20 and is co-selectable with this one.
+BARREL_GATE_SILENT_FILE_OFFSET = 0x9A4A0   # 0x50 free before the roll override
+BARREL_GATE_SILENT_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_GATE_SILENT_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_GATE_SILENT_EXPORT_BYTES = b"GateVV2BarrelSilent\0"
+BARREL_DELIVERY_GATE_FILE_OFFSET = 0x9A745  # 0x3B free before the main helper
+BARREL_DELIVERY_GATE_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_DELIVERY_GATE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+
 # VV2 villager record fields (exact-build appearance audit).
 VV2_HEAD_FIELD = 0x548
 VV2_BODY_FIELD = 0x54C
@@ -2049,6 +2091,75 @@ def main() -> None:
     )
     assert len(barrel_gate_code) == barrel_gate_len
     barrel_gate_block = barrel_gate_code + BARREL_GATE_EXPORT_BYTES
+    # Silent twin of the gate stub above, for the delivery path.  Same
+    # LoadLibrary + GetProcAddress handshake, pointed at GateVV2BarrelSilent.
+    def _barrel_gate_silent_src(export_va: int) -> str:
+        return f"""
+            push esi
+            mov esi, dword ptr [esp + 8]
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je bgs_block
+            push 0x{export_va:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je bgs_block
+            push esi
+            call eax
+            pop esi
+            ret 4
+        bgs_block:
+            xor eax, eax
+            pop esi
+            ret 4
+        """
+
+    _bgs_placeholder = BARREL_GATE_SILENT_VA + 0x100
+    barrel_gate_silent_len = len(
+        assemble(_barrel_gate_silent_src(_bgs_placeholder), BARREL_GATE_SILENT_VA)
+    )
+    barrel_gate_silent_export_va = BARREL_GATE_SILENT_VA + barrel_gate_silent_len
+    barrel_gate_silent_code = assemble(
+        _barrel_gate_silent_src(barrel_gate_silent_export_va),
+        BARREL_GATE_SILENT_VA,
+    )
+    assert len(barrel_gate_silent_code) == barrel_gate_silent_len
+    barrel_gate_silent_block = (
+        barrel_gate_silent_code + BARREL_GATE_SILENT_EXPORT_BYTES
+    )
+    if len(barrel_gate_silent_block) > 0x50:
+        raise RuntimeError(
+            "Silent barrel gate overruns its cave (0x9A4A0..0x9A4F0, before the "
+            f"barrel roll override): {len(barrel_gate_silent_block):#x} > 0x50"
+        )
+
+    # Delivery glue.  EDI is the player object.  Returns 1 to dispatch, 0 to
+    # HOLD -- and on a hold it re-arms the cue counter itself, so the paid
+    # barrel is retried a cue period later rather than being consumed on a
+    # short count.  Refunding or dropping it would be worse than the short
+    # count this fixes, so the token is deliberately left pending.
+    barrel_delivery_gate_code = assemble(
+        f"""
+            push edi
+            call 0x{BARREL_GATE_SILENT_VA:X}
+            test eax, eax
+            jnz bdg_go
+            mov dword ptr [0x{BARREL_CUE_COUNTER_VA:X}], {BARREL_CUE_FRAMES}
+            xor eax, eax
+            ret
+        bdg_go:
+            mov eax, 1
+            ret
+        """,
+        BARREL_DELIVERY_GATE_VA,
+    )
+    if len(barrel_delivery_gate_code) > 0x3B:
+        raise RuntimeError(
+            "Barrel delivery gate overruns its cave (0x9A745..0x9A780, before "
+            f"the main helper): {len(barrel_delivery_gate_code):#x} > 0x3B"
+        )
     if BARREL_GATE_FILE_OFFSET + len(barrel_gate_block) > 0x9B000:
         raise RuntimeError(
             f"Barrel-gate stub overruns the .shr reserve: "
@@ -2216,6 +2327,13 @@ def main() -> None:
         barrel_ticking:
             dec dword ptr [0x{BARREL_CUE_COUNTER_VA:X}]
             jnz barrel_resume
+            # Recheck capacity against the LIVE village before consuming the
+            # paid event.  EDI is still the player object loaded at 0x42E9EB.
+            # 0 = no room: the gate has re-armed the cue counter, so fall
+            # through to the stock resume with the token still pending.
+            call 0x{BARREL_DELIVERY_GATE_VA:X}
+            test eax, eax
+            jz barrel_resume
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
             # Arm the three-child override HERE, immediately before the
             # purchased barrel is dispatched -- not back at purchase time.
@@ -2484,6 +2602,18 @@ def main() -> None:
         bytes.fromhex("E8BFB6FCFF"),
         rel32_call(IMAGE_BASE + BARREL_COUNT_ROLL_SITE, BARREL_COUNT_ROLL_VA),
         "route the barrel's baby-count roll through the purchased-barrel override",
+    )
+    patch(
+        BARREL_GATE_SILENT_FILE_OFFSET,
+        b"\0" * len(barrel_gate_silent_block),
+        barrel_gate_silent_block,
+        "ask the companion DLL's GateVV2BarrelSilent whether the village still has room for three children, without the message box GateVV2Barrel shows, so the delivery-time recheck can refuse quietly and retry",
+    )
+    patch(
+        BARREL_DELIVERY_GATE_FILE_OFFSET,
+        b"\0" * len(barrel_delivery_gate_code),
+        barrel_delivery_gate_code,
+        "recheck at delivery, not only at purchase, that the village still has room for three more children before the cued Barrel of Babies is consumed; with no room the paid event is held and the cue counter re-armed so it is retried instead of being spent on a short count",
     )
     patch(
         BARREL_GATE_FILE_OFFSET,
