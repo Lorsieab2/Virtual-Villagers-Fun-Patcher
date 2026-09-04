@@ -187,8 +187,19 @@ class InstalledBranchesReachDeclaredCavesTests(unittest.TestCase):
             }
             for off, opcode, rel in installed_branches(manifest):
                 source = va_of(secs, off)
+                with self.subTest(game=game, offset=hex(off), stage="source"):
+                    # Not `continue`: a row whose source will not map is the
+                    # defect, not a row to pass over. Skipping them silently is
+                    # how coverage can collapse to a single branch while the
+                    # aggregate assertion below still passes.
+                    self.assertIsNotNone(
+                        source,
+                        f"{game}: the branch installed at {off:#x} has no "
+                        f"containing raw section, so its target cannot be "
+                        f"checked at all",
+                    )
                 if source is None:
-                    continue          # outside every raw section
+                    continue
                 target = source + 5 + rel
                 with self.subTest(game=game, offset=hex(off)):
                     self.assertTrue(
@@ -199,7 +210,23 @@ class InstalledBranchesReachDeclaredCavesTests(unittest.TestCase):
                         f"{target:#x} executes whatever happens to be there.",
                     )
                 checked += 1
-        self.assertGreater(checked, 20, "no installed branches were checked")
+        # Not a fixed floor: research/ fixtures are installed per game, so a
+        # checkout with only VV2 or only VV5 has fewer than 21 branch rows and
+        # would fail a threshold while being entirely correct.
+        #
+        # Coverage is protected by the source subTest above rather than by this
+        # number: every installed branch must map to a section, so rows cannot
+        # drop out of the audit unnoticed and leave this passing on one
+        # survivor. Here we only prove the run was not vacuous.
+        self.assertGreater(checked, 0, "no installed branches were checked")
+        self.assertEqual(
+            checked,
+            sum(len(list(installed_branches(json.loads(
+                GAMES[g][0].read_text(encoding="utf-8")))))
+                for g in available
+                if GAMES[g][0].is_file() and GAMES[g][1].is_file()),
+            "some installed branch rows were not audited",
+        )
 
     def test_the_source_translation_matches_the_generators_own_vas(self) -> None:
         """Guards the translation this audit depends on.

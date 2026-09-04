@@ -23,8 +23,8 @@ VV4_MAP_OUT = ROOT / "data/candidates/vv4_expanded_time_warp_map.json"
 VV5_OUT = ROOT / "data/vv5_expanded_time_warp.json"
 VV5_MAP_OUT = ROOT / "data/candidates/vv5_expanded_time_warp_map.json"
 
-COMPANION_SHA256 = "23A5D66C834FF891E38CE3B93A87C8FFAD5AEF707F96584D7BDB43D28584F355"
-COMPANION_SIZE = 1754624
+COMPANION_SHA256 = "7D9A9B3A6573BB6A5C6AFBA485A4F62CE93092FFC51BE940F2FA44372E1E33D4"
+COMPANION_SIZE = 1755648
 EXPANDED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
@@ -482,7 +482,7 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
     if sha(base_page) != "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457":
         raise RuntimeError("Task9 Expanded baseline page drift")
     stock_page, stock_map = task9.build_page(0x7C9000)
-    if sha(stock_page) != "4B6F6528CC9AD284B674F56955EAFB92A3543B374EF4CC7A6A31EB8D1CAF95BF":
+    if sha(stock_page) != "9AD7C765ED05B9F858C7883955557039D9E1CD482BDA27F3AED3A1ED5FAD55B0":
         raise RuntimeError("Task9 stock page drift")
 
     strings_start = task9.OFF["strings"]
@@ -879,7 +879,11 @@ def main() -> None:
                 "confirmation": "MessageBoxA IDOK only through the captured same-process Task9 companion owner",
                 "manager": "0x425950 nonnull",
                 "speed": "[manager+0x17D7C] signed positive and not 999",
-                "delta": "129600 / exact positive speed",
+                # 194400, not 129600: the routine below divides 194400,
+                # kept in step with the Task9 generator. The contract
+                # advertised the older constant and so described
+                # behaviour its own payload does not implement.
+                "delta": "194400 / exact positive speed",
                 "clock": "0x4C6250/0x4C6254 sub/sbb and exact readback",
                 "funds": "0x51D5F8; one -50000 call to 0x4237B0 and exact readback before clock mutation",
                 "dispatcher": "EBX!=0 -> 0x904967 unavailable; EBX==0 -> Time Warp -> 0x904846 menu",

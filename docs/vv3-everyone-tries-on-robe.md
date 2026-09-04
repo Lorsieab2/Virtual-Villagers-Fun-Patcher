@@ -112,18 +112,20 @@ No Population Increase:
 |---|---|---|
 | `0x280..0x283` | `00 10 00 00` | Widen the existing `.shr` virtual size to one mapped page. |
 | `0x29C..0x29F` | `60 00 00 F0` | Add the section's missing execute permission bit. |
-| `0xB4100..0xB41EA` | 235-byte wrapper | Use the reviewed zero-filled portion of `.shr`. |
+| `0xB4100..0xB4300` | 512-byte wrapper | Use the reviewed zero-filled portion of `.shr`. |
 | `0x22B2A..0x22B2D` | `00 81 6C 00` | Mode-specific: repoint the stock robe callback at the wrapper (VA `0x6C8100`). |
 
 The payload SHA-256 is
-`95C62B33A52196912CD06FEAB8FCEE6EF070FE1D18EE68B11FFD33F9F44B51BC`.
-The complete 235-byte cave preimage SHA-256 is
-`22B94C6893BFC091BE2A9F454A045184DF6C0398CFFA2B4E90C0065DD6EEB1B0`.
+`84C1A3C27B4811AA8B28BD3C3AE53583186FD4CBB629D93CA09364E0DD12CB9C`.
+The complete 512-byte cave preimage SHA-256 is
+`076A27C79E5ACE2A3D47F9DD2E83E4FF6EA8872B3C2218F66C92B89B55F36560`.
 The renderer recomputes the PE checksum after composition and after guarded
 removal.
 
-The wrapper assembles to 188 bytes and is NOP-padded to the reviewed 235-byte
-owned range, so the owned window is unchanged from the previous revision.
+The wrapper assembles to 407 bytes and is NOP-padded to the reviewed
+512-byte owned range. The window grew from 235 bytes when the
+chief gate and the one-shot scan were added; both digests above cover the
+current 512-byte range.
 
 ## Safety and current runtime boundary
 

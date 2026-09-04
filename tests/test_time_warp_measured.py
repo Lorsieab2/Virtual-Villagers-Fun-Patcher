@@ -285,9 +285,12 @@ class MigratedGamesTests(unittest.TestCase):
         for gid in sorted(MIGRATED):
             with self.subTest(game=gid):
                 dll = source(COMPANIONS[gid])
-                fn = dll[dll.index("_time_warp_apply("):]
-                start = fn.index("Count BEFORE")
-                pre = fn[start: fn.index("return 0;", start)]
+                # Anchored on the comment, not on a function name: VV5 counts
+                # in its own vv5_village_occupied() helper so the charge can
+                # sit between the confirmation and the mutation, while the
+                # other four still count inside *_time_warp_apply.
+                start = dll.index("Count BEFORE")
+                pre = dll[start: dll.index("return", start)]
                 self.assertNotIn("eligible", pre)
                 self.assertNotIn("golden", pre)
                 self.assertNotIn("health", pre.lower())

@@ -23,3 +23,8 @@ scratchpad/
 *.exp
 *.lib
 *.res
+
+# Scratch output from the review-findings sweep (see
+# docs/review-findings-audit.md); regenerated on demand, never a build input.
+backlog.json
+review_bodies.json

@@ -46,7 +46,7 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "1983C284BE6394509DC57022C84A93DE80676C8AD58ED893D3E7C30074769E16"
+ACTIVE_SHA256 = "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
 ACTIVE_SOURCE_TEXT_SHA256 = "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
@@ -360,6 +360,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("division_export", b"ApplyVV5EqualDivision\0"),
         ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
         ("tw_get", b"GetOriginsOwner\0"),
+        ("tw_apply", b"ShowVv5TimeWarp\0"),
         ("tw_user32", b"USER32.dll\0"),
         ("tw_messagebox", b"MessageBoxA\0"),
         ("tw_title", b"Origins Upgrades\0"),
@@ -2119,9 +2120,75 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [ebp-0x24], eax
         mov eax, dword ptr [0x4C6254]
         mov dword ptr [ebp-0x28], eax
-        mov eax, 0x{s['tw_warning']:X}
-        mov edx, 1
-        call show_message
+        # The confirmation, the advance and the result all move to the
+        # companion. Three reasons, in order of importance:
+        #
+        #  * the engine CLAMPS a villager's pending slice before converting it
+        #    (0x0046FFCB: over 23800 slow / 31000 normal / 38200 fast is forced
+        #    to 31000), so no clock-only write reaches 3 / 6 / 12 years at any
+        #    speed -- and a larger delta produces a SMALLER warp. That is what
+        #    the old `194400 / speed` here actually did.
+        #  * VV5 folds a per-villager aging rate (+0x1CC8) into the conversion
+        #    and gates it on the faction byte (+0x1CEC), so the credit is not
+        #    one number for the whole village.
+        #  * the prompt has to name the current speed and the years it buys,
+        #    which a fixed string cannot.
+        #
+        # ShowVv5TimeWarp owns the WHOLE transaction: it confirms, verifies
+        # funds, charges through the game's own tech-point routine, reads the
+        # deduction back, and only then applies both halves and shows its
+        # result. It returns 0 cancelled / 1 applied / 2 refused-with-reason.
+        # Nothing is charged here. The charge has to sit between the
+        # confirmation and the first write, and only the companion can put it
+        # there -- its confirmation is a blocking MessageBoxA, so a balance
+        # read on this page beforehand is stale by the time the player answers,
+        # and a charge after the call returns is too late to undo a warp that
+        # has already moved the clock and been reported.
+        # Re-read the balance IMMEDIATELY before dispatching. The companion
+        # applies both halves of the warp and announces the result before
+        # control comes back here, so a balance checked only after it returns
+        # would let an already-reported warp go uncharged.
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, 50000
+        jb insufficient
+        mov dword ptr [ebp-0x20], eax
+        push 50000
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz tw_apply_unavailable
+        push 0x{s['tw_apply']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz tw_apply_unavailable
+        call eax
+        # The companion owns the WHOLE transaction -- confirm, verify funds,
+        # charge, read the deduction back, then mutate -- so nothing is charged
+        # here and NOTHING is said here.
+        #
+        # The charge has to sit between the confirmation and the first write,
+        # and only the companion can put it there: its confirmation is a
+        # blocking MessageBoxA, so any balance this page reads beforehand is
+        # already stale when the player answers, and a charge issued after the
+        # call returns comes too late -- the clock has moved, every villager is
+        # credited and "Advanced N years" has been shown, so a deduction that
+        # did not land cannot be undone.
+        #
+        # The return value is therefore NOT branched on. All three outcomes end
+        # the same way: 0 cancelled (the companion's box is the only dialog one
+        # Time Warp click may produce -- routing this to `cancelled` made VV5
+        # the one game that answered Cancel with a second popup), 1 applied and
+        # already paid for, 2 refused with the reason already shown. An earlier
+        # revision kept a `test eax, eax / jz done` in front of this jump, which
+        # read as though the cases were distinguished when both arms landed on
+        # the same label.
+        jmp done
+    tw_apply_unavailable:
+        add esp, 4
+        mov eax, 0x{s['tw_unavailable']:X}
+        jmp warning_status
+    tw_legacy_unreached:
         cmp eax, 1
         jne cancelled
         call 0x425950
@@ -2154,11 +2221,18 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [ebp-0x2C], eax
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        # Speed independent by construction: delta * speed is constant.
+        # UNREACHABLE as of the companion dispatch above, and kept only so
+        # the surrounding verify/label structure is untouched.
         #
-        # This is the SHIPPING VV5 Time Warp -- the loader replaces the VV5
-        # Origins base record with this Task9 page, so a fix applied only to
-        # build_vv5_origins_feature.py would never reach a player.
+        # It WAS the shipping VV5 Time Warp: the loader replaces the VV5
+        # Origins base record with this Task9 page, so the fix applied to
+        # build_vv5_origins_feature.py alone never reached a player. That is
+        # exactly how this survived -- verifying the Origins manifest proves
+        # nothing about VV5; only the rendered image does.
+        #
+        # Its reasoning below is also wrong: it assumes the advance tracks
+        # delta * speed, which ignores the clamp that caps any single pending
+        # slice at 31000 regardless.
         #
         # Measured with a flat 129600: 6-7 years at slow, 12 at normal, 24 at
         # fast. Fast is exactly twice normal and normal twice slow, so the
@@ -4080,7 +4154,7 @@ def main() -> None:
                 "running": {"price": 40000, "preference_id": 38, "likes": ["0x1F5C", "0x1F60", "0x1F64"], "dislikes": ["0x1F68", "0x1F6C", "0x1F70"], "native": {"membership": "0x464F90", "insertion": "0x464AD0", "first_removal": "0x4649E0"}},
                 "barrel_of_babies": {"price": 75000, "scope": "village event scheduler (presents the native Barrel event, index 26, after the Tech screen closes)", "room_check": "both capacity checks call the game's own per-villager cap gate 0x472bd0, which every population mode patches (0x72C49 -> 0x94500 helper) to its live cap (stock 105, collection_progression 150, immediate_fixed 150, expanded-256 256); the barrel is refused with no deduction when the village is at its current mode's cap", "mechanism": "VV2 general approach: charge -75000 via 0x4237B0, set one-shot pending token (or [0x51D388],8) only; the origins-base Tech handler routes stock command 0 (screen close) to barrel_close_arm, which consumes the token, sets the forced-Barrel marker (or [0x51D388],4), and makes the next event due ([manager+0x17D3C]=0); the selector detour at 0x41890F forces the next chosen index to 26 (CEventBarrelOBabiesV in the 0x4DC850 event-object table -- NOT the 0x4D7B24 string-table index, which is one higher) and clears the marker so the native three-child Barrel presents with the main-village owner after the menu closes", "children": 3, "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "island_event": {"price": 30000, "scope": "village next-event scheduler (not a per-record write)", "mechanism": "resolve manager 0x425950, verify snapshot, charge -30000 via 0x4237B0, set next-event timer [manager+0x17D3C]=0 so the native scheduler (0x442850 -> sub_418870) runs a random eligible island event", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
-                "time_warp": {"price": 50000, "scope": "village clock AND a per-villager age credit; the clock alone cannot deliver the advance", "speed": "[manager+0x17D7C] read by the companion; 10 slow / 6 normal / 3 fast, 999 paused", "delta": "years * 20 * 60 * speed_code subtracted from the 64-bit village clock 0x4C6250/0x4C6254 -- 36000 slow, 43200 normal, 43200 fast", "effect": "advances 3 displayed villager years on slow, 6 on normal and 12 on fast; the engine clamps any pending slice over 23800/31000/38200 down to 31000 (0x0046FFCB), so a clock-only advance can never reach these targets and a larger delta yields a SMALLER warp", "writer": "companion ShowVv5TimeWarp: confirms naming the speed and years, refuses while paused before any charge, moves the clock by the true delta, then credits each villager exactly years*20 age units scaled by its own aging rate (+0x1CC8, doubled above 1) and gated on the faction byte (+0x1CEC), advancing its last-seen marker (+0x1C38) so its own tick cannot re-process and clamp the same jump; the executable charges -50000 via 0x4237B0 only when the companion reports it applied", "dialog": "companion MessageBoxA (names the current game speed and the years)"},
+                "time_warp": {"price": 50000, "scope": "village clock AND a per-villager age credit; the clock alone cannot deliver the advance", "speed": "[manager+0x17D7C] read by the companion; 10 slow / 6 normal / 3 fast, 999 paused", "delta": "years * 20 * 60 * speed_code subtracted from the 64-bit village clock 0x4C6250/0x4C6254 -- 36000 slow, 43200 normal, 43200 fast", "effect": "advances 3 displayed villager years on slow, 6 on normal and 12 on fast; the engine clamps any pending slice over 23800/31000/38200 down to 31000 (0x0046FFCB), so a clock-only advance can never reach these targets and a larger delta yields a SMALLER warp", "writer": "companion ShowVv5TimeWarp owns the whole transaction: it confirms naming the speed and years, refuses while paused before any charge, verifies funds, charges -50000 through the game's own 0x4237B0 and reads the deduction back, and only then moves the clock by the true delta and credits each villager exactly years*20 age units scaled by its own aging rate (+0x1CC8, doubled above 1) and gated on the faction byte (+0x1CEC), advancing its last-seen marker (+0x1C38) so its own tick cannot re-process and clamp the same jump; the executable charges nothing, because a charge after the companion returns cannot undo a warp it has already applied and reported", "dialog": "companion MessageBoxA (names the current game speed and the years)"},
                 "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
             },
         },

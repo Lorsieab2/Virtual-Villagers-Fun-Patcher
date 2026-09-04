@@ -1375,8 +1375,10 @@ static const int VV3_WORLD_MASK_X_NUDGE_BY_FACING[8] = {
    from 0.80 at birth up to 1.00 at adulthood.
 
    So the nudges above are written for a full-size adult and multiplied by this
-   live scale.  That is what "scale with height / child size" means here: a
-   newborn at 0.80 moves 12 px up and 4 px left, not 15 and 5.
+   live scale.  That is what "scale with height / child size" means here: the
+   adult registration is 33 px up and 10 px left (14 on the two right-facing
+   frames, which add VV3_WORLD_MASK_X_NUDGE_BY_FACING), so a newborn at 0.80
+   moves 26 px up and 8 px left -- 11 px left when right-facing.
 
    The coordinates themselves are plain screen pixels.  Every village caller of
    the camera setter 0x0042E250 (0x0042E49C, 0x00464BF1, 0x0046A1DA,

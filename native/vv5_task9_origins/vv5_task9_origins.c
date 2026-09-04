@@ -610,12 +610,30 @@ static unsigned int caf_rand(void) {           /* xorshift, self-contained */
 static unsigned char *caf_rec(int i) {
     return (unsigned char *)(VV5_REC_BASE + (unsigned int)i * VV5_REC_STRIDE);
 }
-static void caf_set_mask(int idx, int mask) {
+static int caf_get_mask(int idx) {
+    const unsigned char *t = (const unsigned char *)VV5_MASK_TABLE;
+    unsigned char b = t[idx >> 1];
+    return (idx & 1) ? ((b >> 4) & 0x0F) : (b & 0x0F);
+}
+/* Every appearance write goes through these two, and both report whether they
+   actually changed anything.  The caller charges 450,000 on a positive count,
+   so counting writes instead of changes billed the player for re-selecting the
+   head, body or mask colour a villager already had -- a village left
+   byte-identical.  VV1 through VV4 all count changes; VV5 was the exception. */
+static int caf_set_mask(int idx, int mask) {
     unsigned char *t = (unsigned char *)VV5_MASK_TABLE;
     unsigned char b = t[idx >> 1];
+    if (caf_get_mask(idx) == (mask & 0x0F)) return 0;
     if (idx & 1) b = (unsigned char)((b & 0x0F) | ((mask & 0x0F) << 4));
     else         b = (unsigned char)((b & 0xF0) | (mask & 0x0F));
     t[idx >> 1] = b;
+    return 1;
+}
+static int caf_set_field(int idx, int offset, int value) {
+    int *field = (int *)(caf_rec(idx) + offset);
+    if (*field == value) return 0;
+    *field = value;
+    return 1;
 }
 static int caf_bucket_head(int sex, int mode) {
     const unsigned char *b; int n;
@@ -671,27 +689,27 @@ static int caf_apply(void) {
     /* Heads */
     if (caf_heads_mode != 0) {
         for (i = 0; i < na; ++i)
-            *(int *)(caf_rec(active[i]) + VV5_OFF_HEAD) =
+            touched += caf_set_field(active[i], VV5_OFF_HEAD,
                 (caf_heads_mode == 1) ? (int)(caf_rand() % VV5_HEAD_COUNT)
-                                      : caf_bucket_head(sex_of[i], caf_heads_mode);
-        touched = na;
+                                      : caf_bucket_head(sex_of[i], caf_heads_mode));
     } else {
         for (i = 0; i < na; ++i)
-            if (caf_head[sex_of[i]] >= 0) { *(int *)(caf_rec(active[i]) + VV5_OFF_HEAD) = caf_head[sex_of[i]]; touched = na; }
+            if (caf_head[sex_of[i]] >= 0)
+                touched += caf_set_field(active[i], VV5_OFF_HEAD, caf_head[sex_of[i]]);
     }
     /* Bodies */
     if (caf_bodies_mode != 0) {
         for (i = 0; i < na; ++i)
-            *(int *)(caf_rec(active[i]) + VV5_OFF_BODY) = (int)(caf_rand() % VV5_BODY_COUNT);
-        touched = na;
+            touched += caf_set_field(active[i], VV5_OFF_BODY,
+                                     (int)(caf_rand() % VV5_BODY_COUNT));
     } else {
         for (i = 0; i < na; ++i)
-            if (caf_body[sex_of[i]] >= 0) { *(int *)(caf_rec(active[i]) + VV5_OFF_BODY) = caf_body[sex_of[i]]; touched = na; }
+            if (caf_body[sex_of[i]] >= 0)
+                touched += caf_set_field(active[i], VV5_OFF_BODY, caf_body[sex_of[i]]);
     }
     /* Masks */
     if (caf_single_mask >= 0) {                       /* village-wide single colour */
-        for (i = 0; i < na; ++i) caf_set_mask(active[i], caf_single_mask);
-        touched = na;
+        for (i = 0; i < na; ++i) touched += caf_set_mask(active[i], caf_single_mask);
     } else if (caf_mask_dist == 1) {                  /* VV5-style tiers */
         int order[VV5_REC_COUNT], k;
         for (i = 0; i < na; ++i) order[i] = i;         /* index into active[] */
@@ -706,30 +724,27 @@ static int caf_apply(void) {
                 else if (assigned < purple + red) m = 3;
                 else if (assigned < purple + red + orange) m = 2;
                 else m = 1;
-                caf_set_mask(active[slot], m);
+                touched += caf_set_mask(active[slot], m);
                 ++assigned;
             }
-            if (chief >= 0) caf_set_mask(active[chief], 5);
+            if (chief >= 0) touched += caf_set_mask(active[chief], 5);
         }
-        touched = na;
     } else if (caf_mask_dist == 2) {                  /* Random (All 5 + No Mask) */
-        for (i = 0; i < na; ++i) caf_set_mask(active[i], (int)(caf_rand() % 6));
-        touched = na;
+        for (i = 0; i < na; ++i) touched += caf_set_mask(active[i], (int)(caf_rand() % 6));
     } else if (caf_mask_dist == 3) {                  /* Random (All 5) */
-        for (i = 0; i < na; ++i) caf_set_mask(active[i], (int)(caf_rand() % 5) + 1);
-        touched = na;
+        for (i = 0; i < na; ++i) touched += caf_set_mask(active[i], (int)(caf_rand() % 5) + 1);
     } else if (caf_mask_dist == 4) {                  /* Equal, balanced M/F */
         int males[VV5_REC_COUNT], females[VV5_REC_COUNT], nm = 0, nf = 0, k = 0, a = 0, b = 0;
         for (i = 0; i < na; ++i) (sex_of[i] ? (females[nf++] = active[i]) : (males[nm++] = active[i]));
         caf_shuffle(males, nm); caf_shuffle(females, nf);
         while (a < nm || b < nf) {
-            if (a < nm) caf_set_mask(males[a++], (k++ % 5) + 1);
-            if (b < nf) caf_set_mask(females[b++], (k++ % 5) + 1);
+            if (a < nm) touched += caf_set_mask(males[a++], (k++ % 5) + 1);
+            if (b < nf) touched += caf_set_mask(females[b++], (k++ % 5) + 1);
         }
-        touched = na;
     } else {                                          /* Off -> per-sex mask cyclers */
         for (i = 0; i < na; ++i)
-            if (caf_mask[sex_of[i]] >= 0) { caf_set_mask(active[i], caf_mask[sex_of[i]]); touched = na; }
+            if (caf_mask[sex_of[i]] >= 0)
+                touched += caf_set_mask(active[i], caf_mask[sex_of[i]]);
     }
     return touched;
 }
@@ -945,20 +960,33 @@ static int vv5_aging_rate(const unsigned char *rec) {
 
 /* Returns how many occupied records were carried, 0 when the village is
    empty -- the caller treats that as "nothing happened" and charges nothing. */
-static int vv5_time_warp_apply(int speed, int years) {
-    unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
-    int units = years * VV5_TW_UNITS_PER_YEAR;   /* the base-rate credit */
-    int delta = units * 60 * speed;              /* the real seconds it costs */
-    int i, occupied = 0;
+typedef void(__fastcall *vv5_charge_fn)(void *balance, int unused_edx, int delta);
 
-    /* Count BEFORE touching anything: an empty village must not move the world
-       clock, because the caller charges nothing when this returns zero. Any
-       occupied record counts, whether or not the age credit will reach it. */
+
+/* Count BEFORE touching anything: an empty village must not move the world
+   clock and must not be billed. Any occupied record counts, whether or not the
+   age credit will reach it -- see the marker write below for why that
+   distinction matters. This is a helper of its own, unlike the other four
+   games, because the charge sits between the confirmation and the mutation and
+   so needs the count before either. */
+static int vv5_village_occupied(void) {
+    const unsigned char *base = (const unsigned char *)(UINT_PTR)VV5_REC_BASE;
+    int i, occupied = 0;
     for (i = 0; i < VV5_REC_COUNT; ++i) {
         if (base[(size_t)i * VV5_REC_STRIDE + VV5_OFF_ACTIVE] != 0) {
             ++occupied;
         }
     }
+    return occupied;
+}
+
+
+static int vv5_time_warp_apply(int speed, int years) {
+    unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
+    int units = years * VV5_TW_UNITS_PER_YEAR;   /* the base-rate credit */
+    int delta = units * 60 * speed;              /* the real seconds it costs */
+    int i, occupied = vv5_village_occupied();
+
     if (occupied == 0) {
         return 0;
     }
@@ -999,17 +1027,26 @@ static int vv5_time_warp_apply(int speed, int years) {
     return occupied;
 }
 
-/* Tech-menu row 0.  Confirms (naming the speed and the years it will buy) and
-   applies; the executable keeps the charge, because VV5 charges through the
-   game's own tech-point routine at 0x004237B0 and that call already sits in
-   the menu.  So this must NOT deduct anything.
+/* Tech-menu row 0.  Owns the WHOLE transaction, in this order: confirm
+   (naming the current speed and the years it buys), count the village, verify
+   funds, charge through the game's own tech-point routine at 0x004237B0, read
+   the deduction back, and only then move the clock and credit the villagers.
+
+   The charge lives here, not in the executable, and the ordering is the whole
+   point.  The confirmation is a blocking MessageBoxA, so a balance the caller
+   reads before this returns is stale by the time the player answers; and a
+   charge issued after this returns is too late, because the clock has moved,
+   every villager has been credited and "Advanced N years" has been shown, so
+   a deduction that did not land grants a free warp that was already reported.
+   Between the confirmation and the first write is the only correct place, and
+   only this function can be there.  The executable must NOT deduct anything.
 
    Return value, which the caller branches on:
-     0  the player pressed Cancel -- nothing was said and nothing was done, so
-        the Tech menu reopens, exactly as Cancel does on every other row;
-     1  applied -- the caller charges;
-     2  refused, with the reason already shown; the caller charges nothing and
-        closes the menu, which is what every other refusal here does. */
+     0  the player pressed Cancel -- nothing was said, nothing was charged and
+        nothing was done.  The caller must stay silent too: this box is the
+        only dialog one Time Warp click may produce;
+     1  applied, and already paid for;
+     2  refused, with the reason already shown, and nothing charged. */
 __declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
     char message[448];
@@ -1051,13 +1088,45 @@ __declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
         != IDOK) {
         return VV5_TW_CANCELLED;
     }
-    if (vv5_time_warp_apply(speed, years) <= 0) {
+    if (vv5_village_occupied() <= 0) {
         MessageBoxA(owner,
                     "Time Warp could not reach the village records. No tech "
                     "points have been deducted.",
                     TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return VV5_TW_REFUSED;
     }
+    /* Charge HERE: after the player confirms, before anything is mutated.
+       The executable used to pay after this function returned, by which point
+       the clock had moved, every villager had been credited and the success
+       box had been shown -- so a charge that did not land granted a free warp
+       that had already been reported, and could not be undone. Both the funds
+       check and the deduction read-back therefore have to sit between the
+       confirmation and the first write, which is only possible in here: the
+       confirmation is a blocking MessageBoxA, so any balance the caller reads
+       beforehand is stale by the time the player answers. */
+    {
+        vv5_charge_fn charge = (vv5_charge_fn)(UINT_PTR)VV5_CHARGE_FN;
+        int *balance = (int *)(UINT_PTR)VV5_TECH;
+        int before = *balance;
+
+        if (before < cost) {
+            MessageBoxA(owner,
+                        "Time Warp needs more tech points than the village "
+                        "has. Nothing has been changed or deducted.",
+                        TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+            return VV5_TW_REFUSED;
+        }
+        charge(balance, 0, -cost);
+        if (*balance != before - cost) {
+            /* True as written, now that it runs before the mutation. */
+            MessageBoxA(owner,
+                        "Time Warp could not deduct its tech points. The "
+                        "village clock has not been changed.",
+                        TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+            return VV5_TW_REFUSED;
+        }
+    }
+    vv5_time_warp_apply(speed, years);
     wsprintfA(message, "Advanced %d years.", years);
     MessageBoxA(owner, message, TITLE,
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
@@ -1087,7 +1156,10 @@ __declspec(dllexport) int __stdcall ShowVV5AppearanceForAll(void) {
     {
         int touched = caf_apply();
         if (touched <= 0) {
-            MessageBoxA(owner, "No appearance options were selected. No tech points deducted.",
+            MessageBoxA(owner,
+                "Nothing was changed -- either no appearance options were "
+                "selected, or every villager already had the ones chosen. "
+                "No tech points have been deducted.",
                         "Change Appearance for All", MB_OK | MB_ICONINFORMATION);
             return 0;
         }
