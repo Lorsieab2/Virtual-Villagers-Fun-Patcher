@@ -545,6 +545,37 @@ MASK_TICK_STUB_VA = mask_code_va(MASK_TICK_STUB_FILE_OFFSET)
 # record and the original local index remains at [esp+0x10].
 MASK_NEWBORN_CLEAR_FILE_OFFSET = MASK_CODE_FILE_BASE + 0xA00
 MASK_NEWBORN_CLEAR_VA = mask_code_va(MASK_NEWBORN_CLEAR_FILE_OFFSET)
+# Delivery-time capacity recheck for the deferred Barrel of Babies.  Capacity
+# is checked when the row is bought, but VV1 then waits BARREL_DELAY_TICKS
+# before dispatching, so a pregnancy or event can take a slot inside that
+# window and the stock per-child allocation stops short while the player has
+# paid the full 75,000.  Rechecking needs the village object, and the earlier
+# reading of this was that it required a pointer captured at purchase which
+# could go stale across a village load.  That is not so: the enclosing
+# main-village update owner holds it, and the splice site can read it.
+#
+#   0x42402D  mov eax, dword ptr [esi + 0x10]     <- village, same basic block
+#   0x424030  cmp dword ptr [eax + 0xa318], 0x3e7
+#   0x42403F  call 0x448600                       <- BARREL_MAIN_HELPER splice
+#
+# and a stock call site in the SAME function proves [esi+0x10] is exactly what
+# the population getter takes:
+#
+#   0x42373C  mov ecx, dword ptr [esi + 0x10] ; call 0x41cf90
+#
+# (same function: .text between 0x423000 and 0x424070 carries inter-function
+# alignment padding only at 0x4232BA, 0x4232DE and 0x42338C, none of which
+# falls between those two sites).  The helper already recovers that register:
+# `mov esi, [esp + 4]` after `pushad` reads the enclosing frame's ESI back,
+# because pushad stores EDI at [esp] and ESI at [esp+4].
+#
+# This lives in the patch-owned R-X .vv1mc section rather than a .shr gap.
+# BARREL_MAIN_HELPER has 11 bytes of headroom to EQUAL_DIVISION_CORE and the
+# ladder needs about 60, and .shr's one large hole is reserved for the
+# optional village-wide payload -- the same owner directive that put the mask
+# in its own appended sections rather than squeezing it into shared caves.
+BARREL_ROOM_CHECK_FILE_OFFSET = MASK_CODE_FILE_BASE + 0xB00  # .vv1mc, 0x100 reserved
+BARREL_ROOM_CHECK_VA = mask_code_va(BARREL_ROOM_CHECK_FILE_OFFSET)
 MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET = 0x3C393
 MASK_NEWBORN_CLEAR_SPLICE_VA = IMAGE_BASE + MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET
 MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B
@@ -1827,6 +1858,54 @@ def main() -> None:
         """,
         VILLAGE_PREFLIGHT_VA,
     )
+    # Delivery-time capacity recheck.  ecx = the village object; returns 1 in
+    # eax when there is still room for three more children, 0 otherwise, and
+    # arms the three-child one-shot only on the way to a real dispatch.  This
+    # is the purchase-time ladder from the menu handler re-run against a live
+    # pointer: the same 12/22/47 tiers, the same three housing flags, and the
+    # same POPULATION_FINAL_TIER helper for whichever cap is installed.
+    # Clobbers only eax/ecx/edx, so esi/ebx/edi stay intact for the caller's
+    # dispatch, which still needs esi.
+    barrel_room_check_code = assemble(
+        f"""
+            push ecx
+            call 0x41CF90
+            pop ecx
+            cmp eax, 12
+            jbe barrel_room_ok
+            cmp byte ptr [ecx + 0x9FE8], 1
+            jne barrel_room_none
+            cmp eax, 22
+            jbe barrel_room_ok
+            cmp byte ptr [ecx + 0x9FF0], 1
+            jne barrel_room_none
+            cmp eax, 47
+            jbe barrel_room_ok
+            cmp byte ptr [ecx + 0x9FF8], 1
+            jne barrel_room_none
+            call 0x{POPULATION_FINAL_TIER_VA:X}
+            test eax, eax
+            jz barrel_room_none
+        barrel_room_ok:
+            # Arm the three-child override HERE, immediately before the
+            # purchased barrel is dispatched -- not back at purchase time.
+            # Raising it at purchase left it set for the whole deferred delay,
+            # so a NATURAL barrel firing in that window would consume the
+            # one-shot and the paid barrel would fall back to a random count.
+            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 1
+            mov eax, 1
+            ret
+        barrel_room_none:
+            xor eax, eax
+            ret
+        """,
+        BARREL_ROOM_CHECK_VA,
+    )
+    if len(barrel_room_check_code) > 0x100:
+        raise RuntimeError(
+            "VV1 Barrel delivery recheck exceeds its .vv1mc reservation: "
+            f"{len(barrel_room_check_code):#x} > 0x100"
+        )
     barrel_main_helper_code = assemble(
         f"""
             call 0x448600
@@ -1835,14 +1914,17 @@ def main() -> None:
             inc dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}]
             cmp dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], {BARREL_DELAY_TICKS}
             jb barrel_main_done
-            # Arm the three-child override HERE, immediately before the
-            # purchased barrel is dispatched -- not back at purchase time.
-            # Raising it at purchase left it set for the whole deferred delay,
-            # so a NATURAL barrel firing in that window would consume the
-            # one-shot and the paid barrel would fall back to a random count.
-            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 1
             pushad
             mov esi, dword ptr [esp + 4]
+            # Recheck capacity against the LIVE village before consuming the
+            # paid event.  No room -> hold it: BARREL_PENDING stays 2 and the
+            # next tick tries again, so a barrel bought into a village that
+            # filled up during the delay arrives once a slot frees instead of
+            # being spent on a short count.
+            mov ecx, dword ptr [esi + 0x10]
+            call 0x{BARREL_ROOM_CHECK_VA:X}
+            test eax, eax
+            je barrel_main_restore
             push 0x50F0
             call 0x44AF03
             add esp, 4
@@ -3564,6 +3646,15 @@ def main() -> None:
         b"\0" * 4,
         b"\0" * 4,
         f"reserve the process-local VV1 Barrel event delay counter: the main-village update owner is a genuine per-frame tick, so the queued event now waits {BARREL_DELAY_TICKS} ticks after the Tech screen closes instead of firing on the very next one, giving the purchase confirmation time to be read first",
+    )
+    patch(
+        BARREL_ROOM_CHECK_FILE_OFFSET,
+        b"\0" * len(barrel_room_check_code),
+        barrel_room_check_code,
+        "recheck at delivery, not only at purchase, that the village still has "
+        "room for three more children before the deferred Barrel of Babies is "
+        "consumed; with no room the paid event is held and retried on a later "
+        "tick instead of being spent on a short count",
     )
     patch(
         BARREL_MAIN_HELPER_FILE_OFFSET,
