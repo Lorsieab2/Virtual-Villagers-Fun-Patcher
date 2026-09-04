@@ -107,33 +107,75 @@ class TimeWarpPromptTests(unittest.TestCase):
                 )
 
     def test_the_executable_adds_no_dialog_when_the_player_cancels(self) -> None:
-        """Return 0 must reach a silent label in every game.
+        """No jump taken on the companion's return may show a message.
 
         This is the assertion VV5 failed: `jz cancelled` printed a second box
         after the companion's own prompt had already been dismissed.
+
+        The check is the property, not one shape of it. VV1-VV4 branch on the
+        return and must branch somewhere silent; VV5 no longer branches at all,
+        because the companion owns confirm, charge, apply and report, so every
+        outcome ends the same way. "Does not branch" is the stronger guarantee,
+        and both have to satisfy the same rule: nothing reachable from the
+        return may reach a label that shows a message.
         """
         for game, path in GENERATORS.items():
             with self.subTest(game=game):
                 src = (ROOT / path).read_text(encoding="utf-8", errors="replace")
-
-                # The dispatch is the `call`/`call eax` whose result is tested
-                # against 0 and then compared with 1 (applied). Match on that
-                # shape rather than a label name, which differs per game.
-                hits = re.findall(
-                    r"test eax, eax\s*\n\s*(?:#[^\n]*\n\s*)*j(?:z|e)\s+(\w+)"
-                    r"(?:\s*\n\s*(?:#[^\n]*\n\s*)*(?:cmp eax, 1|jmp \w+))",
-                    src,
+                targets = self._targets_after_the_time_warp_dispatch(src)
+                self.assertTrue(
+                    targets,
+                    f"{game}: no Time Warp companion dispatch found, so this "
+                    "guard is not checking anything",
                 )
-                warp = [h for h in hits if "time" in h or h in SILENT_TARGETS
-                        or h == "cancelled"]
-                self.assertTrue(warp, f"{game}: no Time Warp cancel branch found")
-                for target in warp:
+                for target in targets:
                     self.assertIn(
                         target, SILENT_TARGETS,
-                        f"{game}: a cancel branches to {target!r}, which shows a "
-                        "message -- the companion already owns the interaction, "
-                        "so this makes one click produce two dialogs",
+                        f"{game}: the companion's return reaches {target!r}, "
+                        "which shows a message -- the companion already owns "
+                        "the interaction, so this makes one click produce two "
+                        "dialogs",
                     )
+
+    @staticmethod
+    def _targets_after_the_time_warp_dispatch(src: str) -> list[str]:
+        """Every label reachable from the companion's RETURN value.
+
+        Anchored on the call that invokes the companion, and nothing else:
+
+          * ``call 0x{TIME_WARP_HELPER_VA:X}`` -- VV1 and VV2 call the helper
+            directly, and that text appears only at a dispatch site;
+          * ``call eax`` immediately after the export name is pushed -- VV3, VV4
+            and VV5 resolve through GetProcAddress.
+
+        Two things are deliberately excluded. The LoadLibrary/GetProcAddress
+        failure branches sit *before* the call and legitimately show a message,
+        because the companion never ran and nothing else will tell the player
+        anything. And the helper's own assembly body contains calls of its own,
+        which is why the ``call eax`` form requires the export push directly in
+        front of it rather than merely somewhere nearby.
+        """
+        helper = re.compile(r"call 0x\{TIME_WARP_HELPER_VA:X\}")
+        resolved = re.compile(
+            r"push 0x\{s\[.(?:time_warp_export|tw_apply).\]:X\}"
+            r"(?:[^\n]*\n\s*){1,6}call eax"
+        )
+        label = re.compile(r"\n\s{0,8}[a-z_][a-z0-9_]*:\s*\n")
+        jump = re.compile(r"\bj(?:mp|z|e|ne|nz)\s+([a-z_][a-z0-9_]*)")
+
+        targets: list[str] = []
+        for pattern in (helper, resolved):
+            for match in pattern.finditer(src):
+                # Generous window: the dispatch carries a long explanatory
+                # comment, and a window that ends inside it silently drops the
+                # very branches this guard exists to see. The label search
+                # below is what actually bounds the region.
+                tail = src[match.end(): match.end() + 6000]
+                stop = label.search(tail)
+                if stop:
+                    tail = tail[: stop.start()]
+                targets += jump.findall(tail)
+        return targets
 
 
 if __name__ == "__main__":

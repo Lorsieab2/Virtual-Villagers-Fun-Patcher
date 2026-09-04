@@ -2163,8 +2163,9 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         test eax, eax
         jz tw_apply_unavailable
         call eax
-        # The companion owns the WHOLE transaction now -- confirm, charge,
-        # read the deduction back, then mutate -- so nothing is charged here.
+        # The companion owns the WHOLE transaction -- confirm, verify funds,
+        # charge, read the deduction back, then mutate -- so nothing is charged
+        # here and NOTHING is said here.
         #
         # The charge has to sit between the confirmation and the first write,
         # and only the companion can put it there: its confirmation is a
@@ -2174,13 +2175,14 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         # credited and "Advanced N years" has been shown, so a deduction that
         # did not land cannot be undone.
         #
-        # 0 = cancelled: say NOTHING. The companion's box is the only dialog a
-        # Time Warp click may produce, and routing to `cancelled` here made VV5
-        # the one game that answered Cancel with a second popup; VV1, VV2, VV3
-        # and VV4 all fall through silently. 1 (applied, and paid for) and
-        # 2 (refused, reason already shown) both close the same way.
-        test eax, eax
-        jz done
+        # The return value is therefore NOT branched on. All three outcomes end
+        # the same way: 0 cancelled (the companion's box is the only dialog one
+        # Time Warp click may produce -- routing this to `cancelled` made VV5
+        # the one game that answered Cancel with a second popup), 1 applied and
+        # already paid for, 2 refused with the reason already shown. An earlier
+        # revision kept a `test eax, eax / jz done` in front of this jump, which
+        # read as though the cases were distinguished when both arms landed on
+        # the same label.
         jmp done
     tw_apply_unavailable:
         add esp, 4
