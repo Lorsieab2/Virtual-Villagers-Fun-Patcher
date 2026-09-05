@@ -80,8 +80,10 @@ QUEUED_GLOBALS = {
         "BARREL_CUE_COUNTER": (0x49C708, 4),
     },
     "vv3": {
+        # Only the pending flag. BARREL_DUE (0x6E004C) is never zeroed anywhere
+        # in the rendered image -- scanning for its clear encoding returns no
+        # matches -- so requiring it would demand a store that does not exist.
         "BARREL_PENDING_FLAG": (0x4B3C75, 1),
-        "BARREL_DUE": (0x6E004C, 4),
     },
     "vv4": {
         "BARREL_UPGRADE_FLAG": (0x728B00, 1),
@@ -109,7 +111,7 @@ SLOT_PATH_WINDOWS = {
     # cave (0xCCFD0) or its out-of-line reset helper (0xCCE00).
     "vv1": [(0x8E800, 0x8E900)],
     "vv2": [(0xB2380, 0xB2440)],
-    "vv3": [(0xB2000, 0xB4000)],
+    "vv3": [(0xCB100, 0xCB180)],
     "vv4": [(0xCCE00, 0xCCE40), (0xCCFD0, 0xCD000)],
     "vv5": [(0xF8F00, 0xF8F80)],
 }
@@ -204,18 +206,14 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
         Without this a detector that quietly stops matching shrinks the scope
         the README is checked against instead of failing.
         """
-        for game in ("vv1", "vv2", "vv5"):
+        for game in TITLES:
             with self.subTest(game=game, expected="clears"):
                 self.assertTrue(
                     self._clears_every_queued_global(game),
-                    f"{game} should clear every queued-event global",
-                )
-        for game in ("vv3", "vv4"):
-            with self.subTest(game=game, expected="does not clear"):
-                self.assertFalse(
-                    self._clears_every_queued_global(game),
-                    f"{game} is not expected to clear queued-event state; if "
-                    "that changed, update the README queued-event bullet",
+                    f"{game} no longer clears every queued-event global on a "
+                    "slot change; the owner asked for all five games to be "
+                    "protected against upgrades reading Unavailable after a "
+                    "save switch",
                 )
 
     def test_a_partial_clear_does_not_count(self):
@@ -264,10 +262,11 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
         )
         self.assertEqual(
             touched,
-            [],
-            "VV4 out-of-line reset helper now clears queued-event state "
-            f"({touched}); the README queued-event bullet must be updated to "
-            "include The Tree of Life",
+            sorted(QUEUED_GLOBALS["vv4"]),
+            "VV4 out-of-line reset helper must clear BOTH barrel flags as well "
+            f"as doubler ownership; it currently touches {touched}. The cave "
+            "that calls it has 2 bytes of headroom, so the helper is where "
+            "these clears belong.",
         )
 
     def test_the_queued_bullet_names_every_clearing_game(self):
@@ -281,18 +280,26 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
                     "README queued-event bullet never names it",
                 )
 
-    def test_the_queued_bullet_names_the_games_that_do_not_clear(self):
-        """The exception has to be stated where the claim is made."""
+    def test_the_bullet_states_no_exception_while_none_exists(self):
+        """No game is exempt now, so the bullet must not claim one is.
+
+        This is the mirror of the check it replaces. While VV3 and VV4 did not
+        clear, the bullet had to name them; now that every game clears, a
+        leftover exception sentence would understate the protection. Either way
+        the bullet is pinned to what the images actually do.
+        """
         bullet = self._queued_bullet()
-        for game in set(TITLES) - self._clearing_games():
-            with self.subTest(game=game):
-                self.assertIn(
-                    TITLES[game],
-                    bullet,
-                    f"{TITLES[game]} does NOT clear queued-event state and "
-                    "the bullet must say so, or readers are told it cannot "
-                    "cross saves when it can",
-                )
+        self.assertEqual(
+            self._clearing_games(),
+            set(TITLES),
+            "not every game clears; this test assumes they all do",
+        )
+        self.assertNotIn(
+            "do not clear theirs",
+            bullet,
+            "every game now clears queued-event state on a slot change, so "
+            "the bullet must not carry a VV3/VV4 exception",
+        )
 
     def test_the_summary_does_not_overclaim(self):
         """The bold lead-in must not contradict the exception below it.

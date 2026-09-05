@@ -479,12 +479,11 @@ game.** Two kinds of state are affected when you load a different save slot:
   different village now clears it. In those three, a doubler stays owned only
   until you switch villages -- come back to the village that paid for it and
   you will need to buy it again, the same as after restarting the game.
-- **A queued Island Event or Barrel of Babies.** In A New Home, The Lost
-  Children and New Believers a pending event no longer follows you into another
-  save, where its row would have read **Unavailable** and the event could have
-  been delivered to a village that never bought it. **The Secret City and The
-  Tree of Life do not clear theirs**, so in those two a Barrel or Island Event
-  bought but not yet delivered can still carry across a slot change.
+- **A queued Island Event or Barrel of Babies.** In all five games a pending
+  event no longer follows you into another save, where its row would have read
+  **Unavailable** and the event could have been delivered to a village that
+  never bought it. A New Home, The Lost Children and New Believers already
+  behaved this way; The Secret City and The Tree of Life now do too.
 
 Saving does not trigger either reset -- only genuinely changing slots does, so
 a doubler you own survives an autosave.
