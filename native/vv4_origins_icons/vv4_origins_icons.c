@@ -1104,6 +1104,40 @@ static const char *const g_villager_names[5] = {
 static const char *const g_villager_costs[5] = {
     "50,000", "100,000", "40,000", "50,000", "5,000"
 };
+
+/* Row lookups go through these, never by raw subscript.
+
+
+   The villager tables hold 5 entries and the tech tables 14, so indexing the
+   villager tables with a tech row walks off the end and yields whatever
+   follows in .rdata. That is not hypothetical: a player hit it, and the crash
+   dump shows user32 dereferencing 0x1C131105 with EDI = ID_BUY_FIRST, i.e.
+   while setting a row button's caption from the resulting garbage pointer.
+
+   Returning "" instead is safe for every caller here -- SetDlgItemTextA and
+   wsprintfA %s both accept an empty string -- so a mode mix-up degrades to a
+   blank label rather than killing the process. */
+#define VV4_ARRAY_LEN(a) ((int)(sizeof(a) / sizeof((a)[0])))
+
+static const char *vv4_row_name(int villager_menu, int row) {
+    if (row < 0) {
+        return "";
+    }
+    if (villager_menu) {
+        return row < VV4_ARRAY_LEN(g_villager_names) ? g_villager_names[row] : "";
+    }
+    return row < VV4_ARRAY_LEN(g_tech_names) ? g_tech_names[row] : "";
+}
+
+static const char *vv4_row_cost(int villager_menu, int row) {
+    if (row < 0) {
+        return "";
+    }
+    if (villager_menu) {
+        return row < VV4_ARRAY_LEN(g_villager_costs) ? g_villager_costs[row] : "";
+    }
+    return row < VV4_ARRAY_LEN(g_tech_costs) ? g_tech_costs[row] : "";
+}
 static int g_villager_menu;  /* set at WM_INITDIALOG; menus are modal/one-at-a-time */
 /* The full state bitmask handed to the villager menu at open time (low bits:
    0=youth already youngest, 1=already fully mastered, 2=already likes Running,
@@ -1339,10 +1373,8 @@ static INT_PTR CALLBACK upgrade_dialog(
                Collections rows (9/10) take the standard confirm here. */
             if (lstrcmpA(label, "Buy") == 0
                 && !(!g_villager_menu && row >= 6 && row <= 8)) {
-                const char *name = g_villager_menu ? g_villager_names[row]
-                                                   : g_tech_names[row];
-                const char *cost = g_villager_menu ? g_villager_costs[row]
-                                                   : g_tech_costs[row];
+                const char *name = vv4_row_name(g_villager_menu, row);
+                const char *cost = vv4_row_cost(g_villager_menu, row);
                 char msg[512];
                 wsprintfA(msg,
                     "Do you want to buy %s for %s tech points?\r\n"
