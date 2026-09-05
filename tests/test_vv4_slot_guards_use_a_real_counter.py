@@ -51,6 +51,21 @@ ACTIVE_BYTE = 0x1CC4
 PREGNANT_FIELD = 0x1C4C
 PENDING_BABIES = 0x1C50
 SLOT_COUNT = 0x96
+# Rendered-image landmarks inside the counter helper. Pinned so a branch
+# that keeps its shape but flips its meaning cannot pass.
+WRITER_VA = 0x45E91C          # the stock `add [0x4d6de8], ecx`
+# Per-guard capacity thresholds and branch polarity, read from a
+# rendered image. Pinned so a guard that still CALLS the counter but
+# compares the wrong number cannot pass.
+GUARD_EXPECTATIONS = {
+    0x489020: (0x93, "jg"),    # triplets: needs 3 free
+    0x489040: (0x94, "jg"),    # twins: needs 2 free
+    0x489060: (0x96, "jge"),   # event newcomer: needs 1 free
+    0x489080: (0x96, "jge"),   # first barrel child: needs 1 free
+}
+LOOP_HEAD_VA = 0x4890FE      # the per-record compare the loop returns to
+NEXT_RECORD_VA = 0x489119    # `add edx, stride` -- the skip destination
+PREGNANCY_FIELD = 0x1C4C     # non-zero when the record is expecting
 
 
 def _sections(image):
@@ -105,6 +120,28 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
                     "guard decides from something other than the record counter",
                 )
 
+    def test_every_guard_pins_its_threshold_and_branch(self):
+        """Calling the counter is not enough; the comparison decides capacity.
+
+        Changing the triplet guard's 0x93 to 0x96 would leave the call intact
+        and let a multiple birth proceed with too few free records, overrunning
+        the 150-slot pool. Each guard's compared value and branch are asserted.
+        """
+        for va, (threshold, jump) in GUARD_EXPECTATIONS.items():
+            with self.subTest(guard=hex(va)):
+                insns = self._disasm(va, 24)
+                cmps = [i for i in insns if i.mnemonic == "cmp"]
+                self.assertTrue(cmps, f"guard at {va:#x} compares nothing")
+                self.assertIn(
+                    hex(threshold), cmps[0].op_str.lower(),
+                    f"guard at {va:#x} no longer reserves against {threshold:#x} "
+                    "free records")
+                after = insns[insns.index(cmps[0]) + 1]
+                self.assertEqual(
+                    after.mnemonic, jump,
+                    f"guard at {va:#x} branches with {after.mnemonic}, not "
+                    f"{jump}; the polarity decides whether the event is allowed")
+
     def test_no_guard_reads_the_running_total(self):
         """The exact regression: back to the lifetime-conception total."""
         for va in GUARD_VAS:
@@ -115,13 +152,32 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
                 self.assertNotIn(hex(RUNNING_TOTAL_ADDRESS), text.lower())
 
     def test_running_total_is_still_written_but_no_longer_consulted(self):
-        """The stock writer stays; only the guards' dependence on it is gone."""
+        """The stock writer stays; only the guards' dependence on it is gone.
+
+        Disassembled rather than counted. Four matching address bytes prove
+        only that the number appears somewhere -- it could be a read, an
+        immediate operand, or unaligned data. That exact ambiguity is what
+        produced the documentation error this suite exists to correct, so the
+        mnemonic and the memory destination are asserted directly.
+        """
         needle = struct.pack("<I", RUNNING_TOTAL_ADDRESS)
         self.assertEqual(
             self.image.count(needle),
             1,
             "expected exactly the stock `add [0x4d6de8], ecx` writer",
         )
+        insn = self._disasm(WRITER_VA, 8)[0]
+        self.assertEqual(
+            insn.mnemonic, "add",
+            f"{WRITER_VA:#x} is not an add; the running total is no longer "
+            "written where the documentation says it is")
+        self.assertIn(
+            hex(RUNNING_TOTAL_ADDRESS), insn.op_str.lower(),
+            "the add does not target the running-total address")
+        self.assertTrue(
+            insn.op_str.lower().strip().startswith("dword ptr ["),
+            f"the running total is not the DESTINATION of {insn.mnemonic} "
+            f"{insn.op_str}; a read here would leave the counter unwritten")
 
     def test_counter_sweeps_the_record_array(self):
         text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in self._disasm(COUNTER_VA, 64))
@@ -129,6 +185,59 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
         self.assertIn(hex(RECORD_STRIDE), text.lower(), "counter does not use the record stride")
         self.assertIn(hex(ACTIVE_BYTE), text.lower(), "counter does not test the active byte")
         self.assertIn(hex(SLOT_COUNT), text.lower(), "counter does not bound at 150 slots")
+
+    def _branch_after(self, compare_operand):
+        """The conditional branch that follows a given compare, as (mnemonic, target).
+
+        Returns the FIRST conditional jump after the compare whose operand text
+        matches, so the assertion is anchored to that specific test rather than
+        to whatever jump happens to come next.
+        """
+        insns = self._disasm(COUNTER_VA, 64)
+        for index, insn in enumerate(insns):
+            if insn.mnemonic != "cmp" or compare_operand not in insn.op_str.lower():
+                continue
+            for follower in insns[index + 1:]:
+                if follower.mnemonic.startswith("j"):
+                    return follower.mnemonic, int(follower.op_str, 16)
+        return None, None
+
+    def test_the_active_byte_branch_skips_inactive_records(self):
+        """Polarity matters: `jne` here would count the dead and skip the living.
+
+        Presence of a jump is not enough -- flipping this one inverts the
+        counter's meaning while leaving every other assertion satisfied.
+        """
+        mnemonic, target = self._branch_after(hex(ACTIVE_BYTE))
+        self.assertEqual(mnemonic, "je",
+                         "the active-byte test must skip when the byte is zero; "
+                         "any other polarity counts inactive records as live")
+        self.assertEqual(target, NEXT_RECORD_VA,
+                         "the inactive path must jump to the next-record step")
+
+    def test_the_pregnancy_branch_skips_only_the_pending_add(self):
+        """`jne` here would drop pending babies from the demand figure."""
+        mnemonic, target = self._branch_after(hex(PREGNANCY_FIELD))
+        self.assertEqual(mnemonic, "je",
+                         "a non-pregnant record must skip the pending-baby add")
+        self.assertEqual(target, NEXT_RECORD_VA,
+                         "the not-pregnant path must jump to the next-record step")
+
+    def test_the_loop_actually_walks_every_record(self):
+        """Without this, a helper that reads ONE record satisfies the rest.
+
+        Removing the tail, or flipping its back-edge, leaves the base, stride,
+        active byte, slot count, return and every guard call intact.
+        """
+        insns = self._disasm(COUNTER_VA, 64)
+        text = [(i.mnemonic, i.op_str.lower()) for i in insns]
+        self.assertIn(("sub", "ecx, 1"), text,
+                      "the counter does not decrement its record countdown")
+        back = [i for i in insns
+                if i.mnemonic == "jne" and int(i.op_str, 16) == LOOP_HEAD_VA]
+        self.assertTrue(back,
+                        f"no conditional back-edge to {LOOP_HEAD_VA:#x}; the "
+                        "counter does not sweep all 150 records")
 
     def test_counter_adds_pending_babies_behind_a_pregnancy_gate(self):
         """Geometry alone is not enough.
