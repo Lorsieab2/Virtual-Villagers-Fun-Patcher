@@ -2560,14 +2560,26 @@ def main() -> None:
             # vv2_barrel_has_room() the buy path calls, without its dialog.
             #
             # eax carries the result flags, so it is preserved across the
-            # call; the gate takes the villager pool and returns 1 for room.
+            # call; the gate takes the PLAYER OBJECT (it dereferences +0x305A4
+            # itself) and returns 1 for room. Passing the pool instead made it
+            # read the pool as a player and dereference garbage -- the delivery
+            # path at barrel_delivery_gate_code pushes edi directly, same as here.
+            #
+            # BOTH checks are required and neither subsumes the other. The
+            # occupied-record scan above catches dead and unburied villagers
+            # that still hold a record while the population counter skips
+            # them; the gate catches the mode-dependent population ceiling.
+            # An earlier version of this fix replaced the scan with the gate
+            # and silently dropped the skeleton case.
+            cmp edx, 0xFD
+            ja pending_rows_no_room
             push eax
-            mov edx, dword ptr [edi + 0x305A4]
-            push edx
+            push edi
             call 0x{BARREL_GATE_SILENT_VA:X}
             test eax, eax
             pop eax
             jnz pending_rows_slots_ok
+        pending_rows_no_room:
             or eax, 0x1000000
         pending_rows_slots_ok:
             pop ebx
@@ -2731,7 +2743,7 @@ def main() -> None:
         replacement = bytes.fromhex(item["after"])
         rendered[offset : offset + len(replacement)] = replacement
     OUT_EXE.write_bytes(rendered)
-    OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
+    OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8", newline="")
 
     mask_header_patches = [
         {
@@ -2893,7 +2905,7 @@ def main() -> None:
         "patches": patches,
     }
     MANIFEST_JSON.write_text(
-        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline=""
     )
     used = max(index for index, value in enumerate(code) if value) + 1
     print(f"code bytes used: {used:#x}/{STRINGS_OFFSET:#x}")
