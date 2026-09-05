@@ -58,11 +58,16 @@ WRITER_VA = 0x45E91C          # the stock `add [0x4d6de8], ecx`
 # rendered image. Pinned so a guard that still CALLS the counter but
 # compares the wrong number cannot pass.
 GUARD_EXPECTATIONS = {
-    0x489020: (0x93, "jg"),    # triplets: needs 3 free
-    0x489040: (0x94, "jg"),    # twins: needs 2 free
-    0x489060: (0x96, "jge"),   # event newcomer: needs 1 free
-    0x489080: (0x96, "jge"),   # first barrel child: needs 1 free
+    # va: (compared value, branch mnemonic, branch destination)
+    0x489020: (0x93, "jg", 0x45E8D3),    # triplets: needs 3 free
+    0x489040: (0x94, "jg", 0x45E8E4),    # twins: needs 2 free
+    0x489060: (0x96, "jge", 0x489077),   # event newcomer: needs 1 free
+    0x489080: (0x96, "jge", 0x489096),   # first barrel child: needs 1 free
 }
+# The fifth guard compares no threshold -- it converts occupancy into remaining
+# capacity and clamps the brood to it, so it needs its own expectations.
+CLAMP_GUARD_VA = 0x4890C0
+CLAMP_MAX_CHILDREN = 6
 LOOP_HEAD_VA = 0x4890FE      # the per-record compare the loop returns to
 NEXT_RECORD_VA = 0x489119    # `add edx, stride` -- the skip destination
 PREGNANCY_FIELD = 0x1C4C     # non-zero when the record is expecting
@@ -123,24 +128,58 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
     def test_every_guard_pins_its_threshold_and_branch(self):
         """Calling the counter is not enough; the comparison decides capacity.
 
-        Changing the triplet guard's 0x93 to 0x96 would leave the call intact
-        and let a multiple birth proceed with too few free records, overrunning
-        the 150-slot pool. Each guard's compared value and branch are asserted.
+        Operands are compared exactly, so neither `cmp eax, 0x930` nor
+        `cmp ebx, 0x93` satisfies a 0x93 expectation, and the destination is
+        pinned because a rel32 can be retargeted while mnemonic and threshold
+        stay put.
         """
-        for va, (threshold, jump) in GUARD_EXPECTATIONS.items():
+        for va, (threshold, jump, destination) in GUARD_EXPECTATIONS.items():
             with self.subTest(guard=hex(va)):
                 insns = self._disasm(va, 24)
                 cmps = [i for i in insns if i.mnemonic == "cmp"]
                 self.assertTrue(cmps, f"guard at {va:#x} compares nothing")
-                self.assertIn(
-                    hex(threshold), cmps[0].op_str.lower(),
-                    f"guard at {va:#x} no longer reserves against {threshold:#x} "
-                    "free records")
+                operands = self._ops(cmps[0])
+                self.assertEqual(
+                    operands[0], "eax",
+                    f"guard at {va:#x} compares {operands[0]}, not the counter "
+                    "result")
+                self.assertTrue(
+                    self._is_imm(operands[1], threshold),
+                    f"guard at {va:#x} reserves against {operands[1]}, not "
+                    f"{threshold:#x} free records")
                 after = insns[insns.index(cmps[0]) + 1]
                 self.assertEqual(
                     after.mnemonic, jump,
                     f"guard at {va:#x} branches with {after.mnemonic}, not "
                     f"{jump}; the polarity decides whether the event is allowed")
+                self.assertEqual(
+                    int(after.op_str, 16), destination,
+                    f"guard at {va:#x} branches to {after.op_str}, not "
+                    f"{destination:#x}; the destination decides what is skipped")
+
+    def test_the_clamp_guard_converts_and_limits(self):
+        """The fifth guard has no threshold -- it clamps the brood instead.
+
+        It negates the occupancy count, adds the pool size to get remaining
+        capacity, refuses when that is <= 0, and caps the result at six. All of
+        that was unpinned: it was checked only for calling the counter.
+        """
+        insns = self._disasm(CLAMP_GUARD_VA, 40)
+        decoded = [(i.mnemonic, self._ops(i)) for i in insns]
+        self.assertIn(("neg", ["eax"]), decoded,
+                      "the clamp guard does not negate the occupancy count")
+        self.assertTrue(
+            any(m == "add" and o[0] == "eax" and self._is_imm(o[1], SLOT_COUNT)
+                for m, o in decoded if len(o) > 1),
+            f"the clamp guard does not add the {SLOT_COUNT:#x}-slot pool size, "
+            "so it is not computing remaining capacity")
+        self.assertTrue(any(m == "jle" for m, _ in decoded),
+                        "the clamp guard has no zero-capacity refusal")
+        self.assertTrue(
+            any(m == "mov" and o[0] == "eax"
+                and self._is_imm(o[1], CLAMP_MAX_CHILDREN)
+                for m, o in decoded if len(o) > 1),
+            f"the clamp guard no longer caps the brood at {CLAMP_MAX_CHILDREN}")
 
     def test_no_guard_reads_the_running_total(self):
         """The exact regression: back to the lifetime-conception total."""
@@ -154,30 +193,31 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
     def test_running_total_is_still_written_but_no_longer_consulted(self):
         """The stock writer stays; only the guards' dependence on it is gone.
 
-        Disassembled rather than counted. Four matching address bytes prove
-        only that the number appears somewhere -- it could be a read, an
-        immediate operand, or unaligned data. That exact ambiguity is what
-        produced the documentation error this suite exists to correct, so the
-        mnemonic and the memory destination are asserted directly.
+        Disassembled and compared operand by operand. Counting address bytes
+        proves only that the number appears -- `add dword ptr [eax], 0x4d6de8`
+        would satisfy a mnemonic check, contain the address, start with a
+        memory destination, and still not write it. That is the same ambiguity
+        that produced the documentation error this suite corrects.
         """
         needle = struct.pack("<I", RUNNING_TOTAL_ADDRESS)
         self.assertEqual(
-            self.image.count(needle),
-            1,
-            "expected exactly the stock `add [0x4d6de8], ecx` writer",
-        )
+            self.image.count(needle), 1,
+            "expected exactly the stock `add [0x4d6de8], ecx` writer")
         insn = self._disasm(WRITER_VA, 8)[0]
         self.assertEqual(
             insn.mnemonic, "add",
             f"{WRITER_VA:#x} is not an add; the running total is no longer "
             "written where the documentation says it is")
-        self.assertIn(
-            hex(RUNNING_TOTAL_ADDRESS), insn.op_str.lower(),
-            "the add does not target the running-total address")
-        self.assertTrue(
-            insn.op_str.lower().strip().startswith("dword ptr ["),
-            f"the running total is not the DESTINATION of {insn.mnemonic} "
-            f"{insn.op_str}; a read here would leave the counter unwritten")
+        operands = self._ops(insn)
+        self.assertEqual(len(operands), 2,
+                         f"unexpected operand shape: {insn.op_str}")
+        self.assertEqual(
+            operands[0], f"dword ptr [{RUNNING_TOTAL_ADDRESS:#x}]",
+            f"the running total is not the DESTINATION -- got {operands[0]}")
+        self.assertEqual(
+            operands[1], "ecx",
+            f"the writer adds {operands[1]}, not ecx; that changes the "
+            "documented lifetime-conception semantics")
 
     def test_counter_sweeps_the_record_array(self):
         text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in self._disasm(COUNTER_VA, 64))
@@ -185,6 +225,20 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
         self.assertIn(hex(RECORD_STRIDE), text.lower(), "counter does not use the record stride")
         self.assertIn(hex(ACTIVE_BYTE), text.lower(), "counter does not test the active byte")
         self.assertIn(hex(SLOT_COUNT), text.lower(), "counter does not bound at 150 slots")
+
+    @staticmethod
+    def _ops(insn):
+        """Decoded operands, normalised. Substring matching is not enough:
+        `cmp eax, 0x93` and `cmp eax, 0x930` both contain "0x93", and a changed
+        left operand is invisible to it."""
+        return [part.strip().lower() for part in insn.op_str.split(",")]
+
+    @staticmethod
+    def _is_imm(operand, value):
+        try:
+            return int(operand, 16) == value
+        except ValueError:
+            return False
 
     def _branch_after(self, compare_operand):
         """The conditional branch that follows a given compare, as (mnemonic, target).
@@ -224,20 +278,40 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
                          "the not-pregnant path must jump to the next-record step")
 
     def test_the_loop_actually_walks_every_record(self):
-        """Without this, a helper that reads ONE record satisfies the rest.
+        """Three things must hold, and each breaks alone while the rest pass.
 
-        Removing the tail, or flipping its back-edge, leaves the base, stride,
-        active byte, slot count, return and every guard call intact.
+        The countdown must be initialised INTO ECX (a `mov ebx, 0x96` leaves
+        ECX holding an uninitialised caller value), the next-record step must
+        advance EDX (advancing another register counts one record 150 times),
+        and the back-edge must return to the per-record compare.
         """
         insns = self._disasm(COUNTER_VA, 64)
-        text = [(i.mnemonic, i.op_str.lower()) for i in insns]
-        self.assertIn(("sub", "ecx, 1"), text,
+        decoded = [(i.mnemonic, self._ops(i)) for i in insns]
+
+        self.assertTrue(
+            any(m == "mov" and o[0] == "ecx" and self._is_imm(o[1], SLOT_COUNT)
+                for m, o in decoded if len(o) > 1),
+            f"the countdown is not `mov ecx, {SLOT_COUNT:#x}`; the loop would "
+            "run on an uninitialised caller value")
+        self.assertIn(("sub", ["ecx", "1"]), decoded,
                       "the counter does not decrement its record countdown")
-        back = [i for i in insns
-                if i.mnemonic == "jne" and int(i.op_str, 16) == LOOP_HEAD_VA]
-        self.assertTrue(back,
-                        f"no conditional back-edge to {LOOP_HEAD_VA:#x}; the "
-                        "counter does not sweep all 150 records")
+
+        step = [i for i in insns if i.address == NEXT_RECORD_VA]
+        self.assertTrue(step, f"nothing decodes at {NEXT_RECORD_VA:#x}")
+        operands = self._ops(step[0])
+        self.assertEqual(
+            (step[0].mnemonic, operands[0]), ("add", "edx"),
+            f"the next-record step is `{step[0].mnemonic} {step[0].op_str}`; "
+            "advancing anything but EDX walks the same record every iteration")
+        self.assertTrue(
+            self._is_imm(operands[1], RECORD_STRIDE),
+            f"the next-record step advances by {operands[1]}, not the stride")
+
+        self.assertTrue(
+            [i for i in insns
+             if i.mnemonic == "jne" and int(i.op_str, 16) == LOOP_HEAD_VA],
+            f"no conditional back-edge to {LOOP_HEAD_VA:#x}; the counter does "
+            "not sweep all 150 records")
 
     def test_counter_adds_pending_babies_behind_a_pregnancy_gate(self):
         """Geometry alone is not enough.
