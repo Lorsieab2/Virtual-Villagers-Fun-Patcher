@@ -2551,8 +2551,23 @@ def main() -> None:
             add ecx, 0xE48C
             dec ebx
             jnz pending_rows_count
-            cmp edx, 0x57
-            jbe pending_rows_slots_ok
+            # Ask the SAME gate the purchase path uses instead of comparing to
+            # a literal 87. That literal is the stock ceiling; under Immediate
+            # Fixed the real cap is 256, and under Collection Progression it
+            # rises with collections, so the row read "Unavailable" from 88
+            # occupied records onward while the purchase path would have
+            # allowed the barrel. GateVV2BarrelSilent wraps the same
+            # vv2_barrel_has_room() the buy path calls, without its dialog.
+            #
+            # eax carries the result flags, so it is preserved across the
+            # call; the gate takes the villager pool and returns 1 for room.
+            push eax
+            mov edx, dword ptr [edi + 0x305A4]
+            push edx
+            call 0x{BARREL_GATE_SILENT_VA:X}
+            test eax, eax
+            pop eax
+            jnz pending_rows_slots_ok
             or eax, 0x1000000
         pending_rows_slots_ok:
             pop ebx

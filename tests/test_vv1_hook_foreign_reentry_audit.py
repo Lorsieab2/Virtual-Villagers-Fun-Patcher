@@ -192,7 +192,14 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "3C41A85F1AFE8DB276941C33B261D1AC08DF11AF8227CB295343321C45634CCC",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "3ECEBF9754F7758496400390A31FA6F56572BC7874708D17F54715261996C768",
+    # Re-reviewed: the pending_rows cave now calls POPULATION_FINAL_TIER_VA
+    # instead of comparing the occupied-record count to a literal 87, so the
+    # row gate follows the installed population mode like the purchase path
+    # already did. Register contract re-checked and unchanged: the cave still
+    # pushes eax/ecx/edx/ebx on entry and pops all four before ret, the helper
+    # clobbers only eax (already saved), and edi -- which carries the result
+    # flags -- is neither read nor written by it.
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "7D5FFDB2BC7B618FFD998B07955CF672C6D2FC5EB394EC2F91C212DC22C71F2C",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",
