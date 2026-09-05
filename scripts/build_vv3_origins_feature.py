@@ -819,8 +819,37 @@ def main() -> None:
             # than an executable string because the string block is full.
             cmp ebx, 1
             jne ie_charge_ok
-            cmp dword ptr [edi + ebp + 0x12EF4], 0
-            jne ie_charge_ok
+            # Is an Island Event already queued? The field is the village's
+            # next-island-event TIMESTAMP in Unix epoch seconds, and
+            # queue_arm_island_code writes clock() + QUEUE_DELAY_SECONDS to
+            # it. Pending therefore means "the stamp is within the delay
+            # window ahead of now", not "the field is zero".
+            #
+            # This previously tested the field against 0, documented as
+            # "queued by zeroing its countdown" -- true of an older mechanism
+            # that was replaced by the timestamp. Because a pending event
+            # leaves the field NON-zero, the old test passed the purchase
+            # through: a second buy inside the window deducted another 30,000
+            # tech points and merely overwrote the same timer, still producing
+            # exactly one event. Same shape as VV1's pending_rows check.
+            #
+            # edx is free at this point (the cost is in eax, the row in ebx),
+            # so the stamp is held there rather than in esi, which is live
+            # across this whole routine. eax carries the cost the sub below
+            # consumes, so it rides the stack across the clock call.
+            push eax
+            mov edx, dword ptr [edi + ebp + 0x12EF4]
+            test edx, edx
+            jz ie_not_pending
+            call 0x{QUEUE_CLOCK_VA:X}
+            sub edx, eax
+            cmp edx, {QUEUE_DELAY_SECONDS}
+            ja ie_not_pending
+            pop eax
+            mov eax, 10
+            jmp show_result
+        ie_not_pending:
+            pop eax
             mov eax, 10
             jmp show_result
         ie_charge_ok:
