@@ -657,6 +657,13 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # owned .shr scratch before the exact 0x403670 save
                     # builder continues its untouched body.
                     "0xCCFCC", "0xCCFD0", "0x3670",
+                    # Save-switch ownership reset: VV4 keeps Origins doubler
+                    # ownership in the process global 0x4D6E10, which is not in
+                    # the .ldw save, so a doubler bought in one village stayed
+                    # owned in another. The slot-capture cave now calls an
+                    # out-of-line helper here on a real slot change; out of line
+                    # because that cave has only 48 bytes before .rsrc.
+                    "0xCCE00",
                 },
                 # 0x1890F: the D37 barrel selector hook — its forced native
                 # event index is corrected from 30 (Chutes Without Ladders) to

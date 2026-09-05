@@ -426,7 +426,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler composition contract: {'stacking': ['positive earned tech deltas only', 'positive food-source deltas only'], 'exclusions': ['Island Event tech-point gain', 'Duplicate Collectibles tech-point gain'], 'food_mastery_status': 'confirmed in exact-build disassembly; native transform documented in doubler evidence', 'status': 'GO: positive writer wrappers double eligible positive deltas once after native adjustments; duplicate collectibles and audited Island Event paths remain native; runtime/player confirmation pending'}
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 48; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 49; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Optional Text changes (`vv4_optional_text_changes`)
 

@@ -300,6 +300,16 @@ MASK_SAVE_SLOT_CAVE_VA = 0x728FD0
 MASK_SAVE_SLOT_CAVE_FILE_OFFSET = 0xCCFD0
 MASK_SAVE_SLOT_FILE_OFFSET = 0xCCFCC
 MASK_SAVE_SLOT_LIMIT_VA = 0x729000
+# VV4 stores Origins doubler ownership in this process global (bit 0 = Tech
+# Doubler, bit 1 = Food Doubler). It is NOT part of the .ldw save, so it
+# leaks across a village switch unless the slot-capture hook clears it.
+DOUBLER_OWNERSHIP_VA = 0x4D6E10
+# The reset itself lives out of line: the save-slot cave has only 48 bytes
+# before .rsrc, and the fix must not be shrunk to fit a cave. This region is
+# verified zero in the stock image (0xCCDFB..0xCCEB0, 181 bytes) and
+# unclaimed by every vv4 manifest.
+DOUBLER_RESET_VA = 0x728E00
+DOUBLER_RESET_FILE_OFFSET = 0xCCE00
 
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
@@ -387,7 +397,17 @@ def mask_save_slot_cave() -> bytes:
             jb mss_keep_previous
             cmp eax, 5
             ja mss_keep_previous
+            # Only act on a real slot CHANGE. This builder runs for saves as
+            # well as loads, so resetting unconditionally would wipe the
+            # doubler the player owns on every autosave.
+            cmp eax, dword ptr [{MASK_SAVE_SLOT_VA}]
+            je mss_keep_previous
             mov dword ptr [{MASK_SAVE_SLOT_VA}], eax
+            # Switching villages: drop Origins upgrade ownership.
+            # Out-of-line because this cave has only 48 bytes to the end of
+            # .shr (.rsrc begins at 0x729000, so the apparent free tail past it
+            # is resource data, not ours) -- see DOUBLER_RESET_VA.
+            call 0x{DOUBLER_RESET_VA:X}
         mss_keep_previous:
             jmp 0x{MASK_SAVE_SLOT_SITE + 6:X}
         """,
@@ -2045,6 +2065,24 @@ def main() -> None:
     # owned .shr tail; the native save format and every later save instruction are
     # unchanged.
     mask_save_slot = mask_save_slot_cave()
+    # Out-of-line ownership reset, called by the save-slot cave on a real slot
+    # change. See DOUBLER_RESET_VA for why it is not inline.
+    doubler_reset = assemble(
+        f"""
+            mov dword ptr [0x{DOUBLER_OWNERSHIP_VA:X}], 0
+            ret
+        """,
+        DOUBLER_RESET_VA,
+    )
+    if len(doubler_reset) > 0xB0:
+        raise RuntimeError(
+            "VV4 doubler reset overruns its verified-free .shr region: "
+            f"{len(doubler_reset):#x} > 0xB0"
+        )
+    patch(DOUBLER_RESET_FILE_OFFSET, b"\0" * len(doubler_reset), doubler_reset,
+          "clear Origins doubler ownership when the player switches to a "
+          "different save slot, so a doubler bought in one village does not "
+          "stay owned in another that never paid for it")
     patch(MASK_SAVE_SLOT_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
           "Heathen mask: patch-owned active-save slot scratch (zero = fail closed)")
     patch(MASK_SAVE_SLOT_CAVE_FILE_OFFSET, b"\0" * len(mask_save_slot), mask_save_slot,

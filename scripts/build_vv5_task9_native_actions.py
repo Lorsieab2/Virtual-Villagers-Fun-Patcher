@@ -3894,6 +3894,22 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         je sc_skip
         mov dword ptr [0x{SLOT_SCRATCH:X}], eax
         mov byte ptr [0x{MASK_LOADED:X}], 0
+        # Same reasoning, applied to Origins upgrade state. 0x51D388 is a
+        # PROCESS global, not part of the .ldw save, so without this it
+        # survives a village switch: a Tech Point Doubler bought in one
+        # village stays owned in another that never paid for it, and its row
+        # reads "Remove" instead of "Buy". VV1 and VV2 avoid this by hanging
+        # the flags off the village object, which follows the save for free.
+        #
+        # This word also carries the Barrel of Babies pending token (bit 3)
+        # and the forced-event marker (bit 2), so clearing it here also stops
+        # a barrel queued in one village from firing in the next.
+        #
+        # Clearing rather than restoring is deliberate: none of these bits are
+        # in the save, so there is nothing to reload. A freshly loaded village
+        # correctly starts unowned -- exactly what a player who restarted the
+        # game already sees today.
+        mov dword ptr [0x51D388], 0
     sc_skip:
         sub esp, 0x104
         jmp 0x403606

@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "75838A66B61F3081DB6BE7A0DA8EA8FF0293493A128533EC79CBD2D2DF885622"
+      "source_text_sha256": "339A0271152E8CBAE2B650089C49A7FA24F4DB1C6D7AC7F8A3DFDD972EC9DC7D"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -107,7 +107,7 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "9AD7C765ED05B9F858C7883955557039D9E1CD482BDA27F3AED3A1ED5FAD55B0",
+      "page_sha256": "617704BB6775D244BCAE7D63E34BC08B3C7D7AFCA5543DEB588A7B3EE3007DB0",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -146,7 +146,7 @@
         "mask_set": "417A88470F523C80BFBDB2DD6A0FB59BF4A2C50A394F8B544F72549521ED18C3",
         "mask_load_once": "93239B09DD7AFFD7805CE61D39612ECB5C1D6C584C6352B6E5633C2BA13232AE",
         "bighead_mask": "150A2B84F7C70FF2473301CB83FB360B8A4E9C4BB03DE18C9EC3FB6D8799FA3F",
-        "slot_capture": "A1FAD95C8D52494A5EA63E71B01DF4927F7D9CDDEE2C0A48D1718234E846E3BA",
+        "slot_capture": "83937B154D20DDCA69358DDC9E41B51C132FAC7104476873D8A3A3333A1CAF70",
         "mask_birth_clear": "8E22CBDA8F223E8732159616675CDDC845CED768A3C5344214FCB1F8245E5DB4"
       },
       "routine_length": {
@@ -187,7 +187,7 @@
         "mask_set": 88,
         "mask_load_once": 46,
         "bighead_mask": 287,
-        "slot_capture": 39,
+        "slot_capture": 49,
         "mask_birth_clear": 30
       },
       "entry_virtual_addresses": {
@@ -253,7 +253,7 @@
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "9AD7C765ED05B9F858C7883955557039D9E1CD482BDA27F3AED3A1ED5FAD55B0",
+      "page_sha256": "617704BB6775D244BCAE7D63E34BC08B3C7D7AFCA5543DEB588A7B3EE3007DB0",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -292,7 +292,7 @@
         "mask_set": "417A88470F523C80BFBDB2DD6A0FB59BF4A2C50A394F8B544F72549521ED18C3",
         "mask_load_once": "93239B09DD7AFFD7805CE61D39612ECB5C1D6C584C6352B6E5633C2BA13232AE",
         "bighead_mask": "150A2B84F7C70FF2473301CB83FB360B8A4E9C4BB03DE18C9EC3FB6D8799FA3F",
-        "slot_capture": "A1FAD95C8D52494A5EA63E71B01DF4927F7D9CDDEE2C0A48D1718234E846E3BA",
+        "slot_capture": "83937B154D20DDCA69358DDC9E41B51C132FAC7104476873D8A3A3333A1CAF70",
         "mask_birth_clear": "8E22CBDA8F223E8732159616675CDDC845CED768A3C5344214FCB1F8245E5DB4"
       },
       "routine_length": {
@@ -333,7 +333,7 @@
         "mask_set": 88,
         "mask_load_once": 46,
         "bighead_mask": 287,
-        "slot_capture": 39,
+        "slot_capture": 49,
         "mask_birth_clear": 30
       },
       "entry_virtual_addresses": {

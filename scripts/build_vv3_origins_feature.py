@@ -100,6 +100,10 @@ SAVE_SLOT_CAPTURE_CAVE_VA = SECTION_CODE_VA + 0x100
 SAVE_SLOT_CAPTURE_RETURN_VA = SAVE_SLOT_CAPTURE_FN + SAVE_SLOT_CAPTURE_LEN
 SAVE_SLOT_CAPTURE_BEFORE = bytes.fromhex("8B4424048B11")
 SAVE_SLOT_PTR = SECTION_DATA_VA + 0x44
+# VV3 stores Origins doubler ownership in this process global (bit 0 = Tech
+# Doubler, bit 1 = Food Doubler). It is NOT part of the .ldw save, so it
+# leaks across a village switch unless the slot-capture hook clears it.
+DOUBLER_OWNERSHIP_VA = 0x5824D0
 # The companion publishes this one-argument boundary function in .vv3md.  The
 # detail and village-wide Running writers call it before/after their exact
 # preference mutations so the existing raw-preference identity can be refreshed
@@ -1923,7 +1927,26 @@ def main() -> None:
             jb save_slot_keep_previous
             cmp eax, 5
             ja save_slot_keep_previous
+            # Only act on a real slot CHANGE. The builder runs for saves as
+            # well as loads, so resetting unconditionally would wipe the
+            # doubler the player owns on every autosave.
+            cmp eax, dword ptr [0x{SAVE_SLOT_PTR:X}]
+            je save_slot_keep_previous
             mov dword ptr [0x{SAVE_SLOT_PTR:X}], eax
+            # Switching villages: drop Origins upgrade ownership.
+            #
+            # VV3 keeps doubler ownership in a PROCESS GLOBAL, so without this
+            # it survives a village switch: buy a Tech Point Doubler in one
+            # village, load another without restarting, and the row reads
+            # "Remove" while the doubler is live in a village that never paid
+            # for it. VV1 and VV2 do not have this bug because they hang the
+            # flags off the village object, which follows the save for free.
+            #
+            # Clearing rather than restoring is deliberate: these flags are not
+            # in the .ldw save at all, so there is nothing to reload. A freshly
+            # loaded village correctly starts unowned -- which is exactly what
+            # a player who restarted the game already sees today.
+            mov dword ptr [0x{DOUBLER_OWNERSHIP_VA:X}], 0
         save_slot_keep_previous:
             popfd
             mov eax, dword ptr [esp + 4]
