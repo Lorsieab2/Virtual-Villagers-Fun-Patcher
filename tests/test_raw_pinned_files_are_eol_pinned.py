@@ -341,6 +341,7 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         """
         corpus = _pin_corpus()
         allowed_by_path = pinned_digests_by_path()
+        declared_by_path = _authenticated_digests()
         stale = []
         # Union, not the digest-derived set alone: the rule-derived set
         # survives content drift, while the digest-derived set catches a
@@ -356,10 +357,23 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             if not path.is_file():
                 continue
             digest = hashlib.sha256(path.read_bytes()).hexdigest().upper()
+            # PATH-OWNED first, and for a raw-pinned file that is the only
+            # answer accepted. The registry now names all 36 of them, so the
+            # global corpus fallback below is reachable only for a file that
+            # carries an eol rule without being raw-pinned at all.
+            #
+            # The fallback is what let a substitution pass: it asks whether the
+            # bytes are pinned ANYWHERE, so a file committed with another
+            # pinned file's content inherited the aggressor's digest. Codex
+            # reproduced that on this PR twice, before and after the registry
+            # was introduced, because the registry then covered only 18 of 36.
+            registered = declared_by_path.get(relative)
+            if registered is not None:
+                if digest != registered:
+                    stale.append(relative)
+                continue
             allowed = allowed_by_path.get(relative)
             if allowed is None:
-                # Rule-derived only: no pin recorded anywhere for this path, so
-                # fall back to asking whether the bytes are pinned at all.
                 others = [t for name, t in corpus.items() if name != relative]
                 if not any(digest in text for text in others):
                     stale.append(relative)
