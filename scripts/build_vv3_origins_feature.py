@@ -2490,7 +2490,7 @@ def main() -> None:
                     "append_sha256": hashlib.sha256(
                         bytes(append_code + append_data)
                     ).hexdigest().upper(),
-                    "purpose": "append the owned .vv3mc R-X mask code and .vv3md R/W mask data sections",
+                    "purpose": "append the owned .vv3mc R-X mask code and .vv3md R/W mask data sections; the save-slot capture cave in .vv3mc also clears Origins doubler ownership when the player loads a different save slot, so a doubler bought in one village does not stay owned in another that never paid for it",
                     "header_patches": header_patches,
                 }
                 for mode in ("collection_progression", "immediate_fixed")
