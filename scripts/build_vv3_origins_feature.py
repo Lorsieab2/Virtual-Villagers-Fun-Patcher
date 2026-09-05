@@ -2010,6 +2010,15 @@ def main() -> None:
             # event another save bought. Absolute store, no register operand,
             # so the displaced bytes and the resume are untouched.
             mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
+            # The purchased Island Event needs exactly the same treatment, for
+            # exactly the reason written above -- it was added later and missed
+            # this reset, so a player who bought an event in village A and
+            # switched to B inside the delay window found B's first Island
+            # Event refused for an event A had paid for. Codex caught it on
+            # #249. Its due stamp goes too: leaving a stale future stamp behind
+            # would keep the release helper from retiring a flag set later.
+            mov byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
+            mov dword ptr [0x{ISLAND_DUE_VA:X}], 0
         save_slot_keep_previous:
             popfd
             mov eax, dword ptr [esp + 4]

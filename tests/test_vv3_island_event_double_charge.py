@@ -176,7 +176,7 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
             for name, encoding, want in (
                 ("guard test", GUARD_TEST, 2),
                 ("arm (set to 1)", FLAG_ARM, 1),
-                ("consume (clear to 0)", FLAG_CLEAR, 1),
+                ("consume (clear to 0)", FLAG_CLEAR, 2),
             ):
                 with self.subTest(variant=variant, site=name):
                     self.assertEqual(
@@ -263,8 +263,24 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
         before the clear, rather than asserting any particular instruction
         sequence.
         """
-        index = self.payload.find(FLAG_CLEAR)
-        self.assertGreater(index, 0, "flag clear not found")
+        # The RELEASE clear, not the save-slot reset. Both zero the same byte,
+        # so a bare find() picks whichever the assembler placed first; the
+        # release is the one preceded by the due comparison.
+        index = -1
+        probe = self.payload.find(FLAG_CLEAR)
+        while probe > 0:
+            window = self.payload[max(0, probe - 0x18) : probe]
+            if bytes([0x3B, 0x05]) + DUE_VA.to_bytes(4, "little") in window:
+                index = probe
+                break
+            probe = self.payload.find(FLAG_CLEAR, probe + 1)
+        self.assertGreater(
+            index,
+            0,
+            "no flag clear is preceded by a comparison against the due time, "
+            "so the pending flag is released without checking whether the "
+            "event has actually come due",
+        )
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
         window = self.payload[max(0, index - 0x18) : index]
         decoded = list(md.disasm(window, 0))
@@ -291,6 +307,38 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
             "nothing writes the island due time, so the clear guard compares "
             f"the clock against an uninitialised slot at 0x{DUE_VA:X}",
         )
+
+    def test_a_save_slot_change_clears_the_island_state(self):
+        """The flag is process-global; the event it describes is per-save.
+
+        Codex found this on #249: buy an Island Event in village A, switch to
+        village B inside the five-second window, and B's first Island Event was
+        refused for an event A had paid for. The Barrel already cleared its own
+        flag here and the comment beside it spells out exactly this hazard --
+        the island flag was simply added later and missed the reset.
+
+        The due stamp is cleared too. A stale FUTURE stamp left behind would
+        stop the release helper retiring a flag armed afterwards, turning a
+        transient leak into a permanent one.
+        """
+        clear_flag = FLAG_CLEAR
+        clear_due = bytes([0xC7, 0x05]) + DUE_VA.to_bytes(4, "little") + bytes(4)
+        for variant, payload in sorted(_payload_variants().items()):
+            with self.subTest(variant=variant):
+                self.assertGreaterEqual(
+                    payload.count(clear_flag),
+                    2,
+                    "the island pending flag is cleared in only one place. The "
+                    "save-slot capture hook must clear it too, or a purchase "
+                    "in one village blocks the next village's first event",
+                )
+                self.assertIn(
+                    clear_due,
+                    payload,
+                    "the island due stamp is not zeroed on a slot change, so a "
+                    "stale future stamp can stop the release helper retiring a "
+                    "flag armed in the new village",
+                )
 
     def test_the_guard_needs_no_clock_call(self):
         """Register-clobber safety, structurally.
