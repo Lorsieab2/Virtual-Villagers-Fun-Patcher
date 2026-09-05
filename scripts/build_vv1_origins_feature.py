@@ -3076,6 +3076,14 @@ def main() -> None:
             mov dword ptr [{VILLAGE_CUR_IDX_VA:#x}], 0xffffffff
             mov dword ptr [{MASK_SCROLL_X_VA:#x}], 0
             mov dword ptr [{MASK_SCROLL_Y_VA:#x}], 0
+            # Queued-event state is per-SAVE but lives in the executable, so it
+            # survives a slot change unless cleared here. Without this, a Barrel
+            # bought in one village leaves the row reading "Unavailable" in the
+            # next one -- and the delay counter carries over too, so the queued
+            # event could be delivered into a village that never paid for it.
+            mov byte ptr [{BARREL_PENDING_VA:#x}], 0
+            mov dword ptr [{BARREL_DELAY_COUNTER_VA:#x}], 0
+            mov byte ptr [{BARREL_UPGRADE_FLAG_VA:#x}], 0
             xor eax, eax
             mov edi, {MASK_TABLE_VA:#x}
             mov ecx, {MASK_TABLE_SIZE // 4}
@@ -3096,7 +3104,7 @@ def main() -> None:
         SAVE_SLOT_CAPTURE_FILE_OFFSET,
         b"\0" * len(save_slot_capture_code),
         save_slot_capture_code,
-        "capture the exact VV1 numbered village save-slot argument at 0x402ED0 into .vv1md and reset the restore/frame/table state on a real slot change; slot zero (the meta file) and out-of-range values leave the live capture and mask tables untouched",
+        "capture the exact VV1 numbered village save-slot argument at 0x402ED0 into .vv1md and reset the restore/frame/table state AND the queued Barrel/Island event state (pending flag, delay counter, three-child one-shot) on a real slot change, so a purchase made in one village cannot leave the next village's row reading Unavailable or deliver into a save that never paid for it; slot zero (the meta file) and out-of-range values leave the live capture and mask tables untouched",
     )
     if SAVE_SLOT_CAPTURE_FILE_OFFSET + len(save_slot_capture_code) > MASK_TICK_NAME_FILE_OFFSET:
         raise RuntimeError("VV1 save-slot capture overlaps the mask tick export name")
