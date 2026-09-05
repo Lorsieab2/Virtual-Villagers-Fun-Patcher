@@ -62,6 +62,7 @@ def _constant(name: str) -> int:
 
 
 FLAG_VA = _constant("SECTION_DATA_VA") + 0x50
+DUE_VA = _constant("SECTION_DATA_VA") + 0x54
 
 # Byte-sized absolute forms, which is how the assembler encodes these.
 GUARD_TEST = bytes([0x80, 0x3D]) + FLAG_VA.to_bytes(4, "little") + bytes([0x00])
@@ -111,6 +112,20 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
         self.payload = _payload_bytes()
         self.assertTrue(self.payload, "no VV3 patch bodies found")
 
+    def _purchase_guard(self):
+        """Offset of the PURCHASE guard, not the handler's pre-check.
+
+        Both read the same flag byte, so find() alone picks whichever the
+        assembler happened to place first. The purchase guard is the one
+        immediately protecting the tech-point deduction, so walk back from
+        that.
+        """
+        deduct = self.payload.find(DEDUCT)
+        self.assertGreater(deduct, 0, "deduction not found")
+        index = self.payload.rfind(GUARD_TEST, 0, deduct)
+        self.assertGreater(index, 0, "purchase guard not found")
+        return index
+
     def test_the_old_zero_test_is_gone(self):
         """The original regression, pinned by encoding.
 
@@ -155,18 +170,21 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
         variants = _payload_variants()
         self.assertTrue(variants, "no VV3 build variants found")
         for variant, payload in sorted(variants.items()):
-            for name, encoding in (
-                ("guard test", GUARD_TEST),
-                ("arm (set to 1)", FLAG_ARM),
-                ("consume (clear to 0)", FLAG_CLEAR),
+            # Two reads of the flag are correct: the purchase guard in the
+            # Tech menu, and the handler's cheap pre-check before it spends a
+            # clock call on the due comparison. Only the WRITES are unique.
+            for name, encoding, want in (
+                ("guard test", GUARD_TEST, 2),
+                ("arm (set to 1)", FLAG_ARM, 1),
+                ("consume (clear to 0)", FLAG_CLEAR, 1),
             ):
                 with self.subTest(variant=variant, site=name):
                     self.assertEqual(
                         payload.count(encoding),
-                        1,
+                        want,
                         f"the {variant} build has "
                         f"{payload.count(encoding)} {name} sites for the "
-                        f"island pending flag at 0x{FLAG_VA:X}, expected 1",
+                        f"island pending flag at 0x{FLAG_VA:X}, expected {want}",
                     )
 
     @unittest.skipIf(capstone is None, "requires capstone")
@@ -179,8 +197,7 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
         passed against that build, because it never asked where the
         not-pending path GOES.
         """
-        index = self.payload.find(GUARD_TEST)
-        self.assertGreater(index, 0, "guard not found")
+        index = self._purchase_guard()
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
         decoded = list(md.disasm(self.payload[index : index + 0x40], 0))
         self.assertGreaterEqual(len(decoded), 2, "guard did not decode")
@@ -206,8 +223,7 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
     @unittest.skipIf(capstone is None, "requires capstone")
     def test_a_pending_purchase_reaches_the_refusal(self):
         """The other half: while one is outstanding, refuse."""
-        index = self.payload.find(GUARD_TEST)
-        self.assertGreater(index, 0, "guard not found")
+        index = self._purchase_guard()
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
         decoded = list(md.disasm(self.payload[index : index + 0x40], 0))
         fallthrough = decoded[2]
@@ -221,14 +237,59 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
 
     def test_the_refusal_precedes_the_deduction(self):
         """Refusing after charging would still take the player's points."""
-        guard = self.payload.find(GUARD_TEST)
-        self.assertGreater(guard, 0, "guard not found")
+        guard = self._purchase_guard()
         charge = self.payload.find(DEDUCT, guard)
         self.assertGreater(
             charge,
             guard,
             "the tech-point deduction does not follow the guard, so a refused "
             "second purchase could still be charged",
+        )
+
+    @unittest.skipIf(capstone is None, "requires capstone")
+    def test_the_flag_is_not_cleared_before_the_event_is_due(self):
+        """The handler runs EVERY frame, so entry is not consumption.
+
+        The first repair cleared the flag on handler entry, reasoning that
+        reaching the island-event handler proved gameplay had resumed. True,
+        but not sufficient -- Codex caught it on #249: the hook runs every
+        gameplay frame, so the very first frame after the Tech menu closed
+        cleared the flag while the event was still QUEUE_DELAY_SECONDS away.
+        Reopening the menu inside that window then saw a clear flag and allowed
+        a second 30,000-point purchase for the same event.
+
+        The clear must therefore be guarded by a due-time comparison, the same
+        shape the Barrel has always used. This asserts the guard is REACHED
+        before the clear, rather than asserting any particular instruction
+        sequence.
+        """
+        index = self.payload.find(FLAG_CLEAR)
+        self.assertGreater(index, 0, "flag clear not found")
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        window = self.payload[max(0, index - 0x18) : index]
+        decoded = list(md.disasm(window, 0))
+        text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in decoded)
+        self.assertIn(
+            f"cmp eax, dword ptr [0x{DUE_VA:x}]",
+            text,
+            "the pending flag is cleared without first comparing the clock "
+            "against the recorded due time, so it clears on the first "
+            f"gameplay frame and a second purchase is allowed: {text}",
+        )
+        self.assertTrue(
+            any(i.mnemonic == "jb" for i in decoded),
+            "no below-branch guarding the clear, so an event that is not yet "
+            f"due would still be released: {text}",
+        )
+
+    def test_the_purchase_records_a_due_time_for_that_guard(self):
+        """A guard reading a slot nothing writes would never fire."""
+        arm_due = bytes([0xA3]) + DUE_VA.to_bytes(4, "little")
+        alt = bytes([0x89, 0x05]) + DUE_VA.to_bytes(4, "little")
+        self.assertTrue(
+            arm_due in self.payload or alt in self.payload,
+            "nothing writes the island due time, so the clear guard compares "
+            f"the clock against an uninitialised slot at 0x{DUE_VA:X}",
         )
 
     def test_the_guard_needs_no_clock_call(self):
@@ -239,9 +300,14 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
         cannot have that class of bug, so assert the absence of the call rather
         than trying to prove a save/restore is correct.
         """
-        index = self.payload.find(GUARD_TEST)
-        self.assertGreater(index, 0, "guard not found")
-        window = self.payload[index : index + 0x10]
+        index = self.payload.find(DEDUCT)
+        self.assertGreater(index, 0, "deduction not found")
+        # The PURCHASE guard, which is the one that carried the clobber bug --
+        # scoped by walking back from the deduction it protects. The handler's
+        # clear site legitimately calls the clock, under pushad/popad.
+        start = self.payload.rfind(GUARD_TEST, 0, index)
+        self.assertGreater(start, 0, "purchase guard not found")
+        window = self.payload[start:index]
         self.assertNotIn(
             bytes([0xE8]),
             window,
