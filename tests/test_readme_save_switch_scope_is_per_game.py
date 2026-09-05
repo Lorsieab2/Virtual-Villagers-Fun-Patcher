@@ -128,8 +128,14 @@ def _clear_bytes(address, width):
     return b"\xC7\x05" + struct.pack("<I", address) + b"\x00\x00\x00\x00"
 
 
-@unittest.skipIf(capstone is None, "requires capstone")
 class ReadmeSaveSwitchScopeTests(unittest.TestCase):
+    """Capstone is required by exactly ONE test here (the VV4 helper
+    disassembly). Skipping the whole class on its absence also skipped the
+    README wording checks, which need no disassembler at all -- so a machine
+    without capstone silently stopped verifying the documentation this file
+    exists to police. The skip now sits on the single test that needs it.
+    """
+
     @classmethod
     def setUpClass(cls):
         builds = {b.id: b for b in load_builds()}
@@ -145,8 +151,20 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
             )
 
     def _image(self, game):
+        """The rendered image, or a skip that says exactly what is missing.
+
+        The stock executables are the player's own game files and cannot be
+        committed, so a clean checkout genuinely cannot render them and a skip
+        is the honest outcome. What matters is that the skip NAMES the input,
+        so an absent artifact check is visible as a missing prerequisite rather
+        than looking like a test that simply chose not to run.
+        """
         if game not in self.images:
-            self.skipTest(f"{game} stock executable unavailable")
+            self.skipTest(
+                f"{game}: {STOCK[game]} is absent, so the rendered-image "
+                "checks cannot run. Supply your own copy of the game to "
+                "exercise them."
+            )
         return self.images[game]
 
     def _clears_every_queued_global(self, game):
@@ -241,6 +259,7 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
             "VV1 no longer clears every queued-event global it uses",
         )
 
+    @unittest.skipIf(capstone is None, "requires capstone")
     def test_vv4_reset_helper_is_followed_through_the_call(self):
         """VV4 reset is out of line; read the helper, not just the cave.
 
@@ -345,9 +364,15 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
     def test_readme_says_ownership_is_not_restored_on_return(self):
         section = self._section()
         self.assertTrue(
-            "buy it again" in section or "nothing to reload" in section,
-            "the README does not explain that in VV3/VV4/VV5 a doubler is "
-            "cleared rather than restored, so a returning player must re-buy",
+            "buy it again" in section,
+            # `"buy it again" or "nothing to reload"` accepted text that says
+            # the opposite: a README claiming ownership IS restored could still
+            # contain "nothing to reload" in some other clause and pass. The
+            # affirmative statement that the player must re-buy is the claim
+            # under test, so require it specifically.
+            "the README does not state that a returning player must buy the "
+            "doubler again -- in VV3/VV4/VV5 ownership is CLEARED rather than "
+            "restored, and the section has to say so plainly",
         )
 
 
