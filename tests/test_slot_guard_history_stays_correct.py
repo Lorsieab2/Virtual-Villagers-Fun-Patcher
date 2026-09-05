@@ -23,12 +23,16 @@ copying between files.
 """
 
 import re
+import subprocess
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SEARCH_DIRS = ("docs", "tests", "scripts", "src")
-SUFFIXES = {".md", ".py"}
+# Every tracked text file, not a hand-listed set of directories. The
+# top-level README.md carries the main population-safety documentation
+# and How to Use.txt is user-facing, and a directory-scoped scan reached
+# neither -- so the false claim could have been copied into exactly the
+# places players read while this "repo-wide" test stayed green.
 
 # Phrasings that assert the address is unwritten. Deliberately narrow: the
 # files legitimately DISCUSS the false claim while correcting it, so this
@@ -47,13 +51,30 @@ QUOTING_ALLOWED = {
 
 
 def _repo_files():
-    for folder in SEARCH_DIRS:
-        base = ROOT / folder
-        if not base.is_dir():
+    """Every tracked file that decodes as text -- no extension allowlist.
+
+    An allowlist contradicts the promise this helper makes, and the repo
+    tracks .c, .h, .bat, .rc, .def and .xml files where the false claim
+    could just as easily be copied into a comment or a user-facing batch
+    file. Files that do not decode as UTF-8 are binaries and are skipped;
+    nothing else is.
+    """
+    result = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=ROOT, capture_output=True, check=False)
+    if result.returncode != 0:
+        raise AssertionError("git ls-files failed; cannot establish the scan set")
+    for name in result.stdout.decode("utf-8", "replace").split(chr(0)):
+        if not name:
             continue
-        for path in base.rglob("*"):
-            if path.suffix.lower() in SUFFIXES and path.is_file():
-                yield path
+        path = ROOT / name
+        if not path.is_file():
+            continue
+        try:
+            path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        yield path
 
 
 class SlotGuardHistoryTests(unittest.TestCase):
