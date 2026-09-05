@@ -146,6 +146,26 @@ def _blob_lf(relative: str) -> bytes | None:
     return result.stdout.replace(CRLF, LF)
 
 
+def eol_pinned_files() -> list[str]:
+    """Tracked JSON carrying an explicit `text eol=lf` rule, by PATH.
+
+    Deliberately independent of any digest. `raw_pinned_files()` identifies a
+    file by its current hash matching a pin, which means a file that DRIFTS
+    from its pin stops being recognised as pinned and silently leaves its own
+    guard -- Codex found this on #247, and it reproduces: committing a change
+    to `data/native_evidence_queries.json` without repinning leaves every
+    assertion in this file green while the pin is broken.
+
+    A rule, once written, records the relationship permanently, so drift
+    cannot erase it.
+    """
+    return sorted(
+        relative
+        for relative in _tracked_json()
+        if eol_attribute(relative) == "lf"
+    )
+
+
 def eol_attribute(relative: str) -> str:
     """The `eol` attribute git reports for a path."""
     out = _git("check-attr", "eol", "--", relative)
@@ -254,7 +274,10 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         """
         corpus = _pin_corpus()
         stale = []
-        for relative in raw_pinned_files():
+        # Union, not raw_pinned_files() alone: the rule-derived set survives
+        # content drift, while the digest-derived set catches a raw-pinned file
+        # that has no rule yet (which the test above reports separately).
+        for relative in sorted(set(raw_pinned_files()) | set(eol_pinned_files())):
             path = ROOT / relative
             if not path.is_file():
                 continue
@@ -267,13 +290,14 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             stale,
             [],
             "these files are pinned by a raw sha256, but the bytes ON DISK do "
-            "not match any pinned digest. On Windows this usually means an "
-            "existing checkout kept stale CRLF copies when the eol rules "
-            "arrived -- `git checkout --force` will NOT fix it. Re-materialise "
-            "ONLY these paths, so unrelated local work is untouched: for each, "
+            "not match any pinned digest. Either the file drifted from its pin "
+            "without being repinned, or -- more often on Windows -- an existing "
+            "checkout kept stale CRLF copies when the eol rules arrived, which "
+            "`git checkout --force` will NOT repair. Re-materialise ONLY these "
+            "paths, so unrelated local work is untouched: for each, "
             "`git rm --cached -- <path>` then `git checkout HEAD -- <path>`. Do "
             "NOT use `git rm --cached -r . && git reset --hard`; the --hard "
-            "resets the whole worktree and silently discards any uncommitted "
+            "resets the whole worktree and silently discards every uncommitted "
             f"change: {stale}",
         )
 
