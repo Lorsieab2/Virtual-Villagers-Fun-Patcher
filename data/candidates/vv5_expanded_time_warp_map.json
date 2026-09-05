@@ -4,11 +4,11 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "3249A4E2C7FCCCDB2E61BE9CF1B72332513D62321A54C66BFBA3C77A9A9DAEFA"
+      "source_text_sha256": "EBFE6A92BB1F5EB35EF8CC346A6CDB6747F5436EB88D605FDF3EAB77EA1C20B7"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "3024F8902CCE25C7448A9BC53D3074643DFFD462BBD7D46754B68ED628EF4D46"
+      "source_text_sha256": "4A870128572F27A41F8863002065CBB6B9C25FB317A07084AD3DA32BEE580E9E"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -34,9 +34,9 @@
   "page_rva": "0x504000",
   "page_va": "0x904000",
   "layout": {
-    "stock_page_sha256": "617704BB6775D244BCAE7D63E34BC08B3C7D7AFCA5543DEB588A7B3EE3007DB0",
-    "expanded_baseline_page_sha256": "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457",
-    "expanded_time_warp_page_sha256": "1321431553BAF8D4F5BDBA951C1D44E3F7AB877FB7F202C36F251CC540AFDC14",
+    "stock_page_sha256": "07F7CA0E1A6473C6FB37ECBF59EA7F83EF7636AEDE4BF236B6FF822C83B4CCF1",
+    "expanded_baseline_page_sha256": "3A2A85716621F061ACA6B3FDF47E0AA9C85191A96EA6DFA5AED6D0AF74F2FFB0",
+    "expanded_time_warp_page_sha256": "200BCD990DBB308C75AFB62663850D6F443E507230F31C6E1941B7D4437AB081",
     "age_length": 652,
     "age_sha256_stock": "0BF24696E77297502FF39BE62B4D7C8A7E8A6B6D24CE0F0962BC90F1093E8E8F",
     "age_sha256_expanded": "24DFF28FE8ED815BA8C98A3551E75312FC33F885B1E232D97823166412188A62",
@@ -74,9 +74,9 @@
       "purpose": "set fixed dialog state 0x1E00 and bypass dynamic row 3/4 state while preserving row 5 Full Heal"
     },
     {
-      "offset": "0xF48AB",
-      "before": "83FB030F82B3000000",
-      "after": "83FB050F828C070000",
+      "offset": "0xF48B0",
+      "before": "83FB030F82E2000000",
+      "after": "83FB050F8287070000",
       "purpose": "route commands 0..4 through the dispatcher so only command 0 runs Time Warp and commands 1..4 are unavailable"
     },
     {
