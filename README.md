@@ -467,6 +467,21 @@ nothing tells you so in its result instead.
 The checkmark never means a row is unavailable. Every visible row stays
 clickable, and a row that changes nothing says so and deducts no tech points.
 
+**Switching save files does not carry upgrade state between villages.** Two
+kinds of state are cleared when you load a different save slot:
+
+- **Doubler ownership.** A doubler bought in one village used to stay owned in
+  another that never paid for it. A New Home and The Lost Children keep that
+  flag on the village itself, so they were never affected; the other three kept
+  it in memory shared by every save. All five now behave the same way -- load a
+  different village and its doublers are whatever that village actually bought.
+- **A queued Island Event or Barrel of Babies.** A pending event no longer
+  follows you into another save, where its row would have read **Unavailable**
+  and the event could have been delivered to a village that never bought it.
+
+Saving does not trigger either reset -- only genuinely changing slots does, so
+a doubler you own survives an autosave.
+
 Both menus close with **Cancel** or the Esc key, and each shows
 `Press ESC to exit this menu.` once.
 
