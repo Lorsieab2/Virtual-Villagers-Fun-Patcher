@@ -9,20 +9,44 @@
   ],
   "artifacts": [
     {
-      "path": "data/candidates/vv3_origins_running_base_candidate.json",
-      "sha256": "65F1F5FA72F127986F71A69368E1CC7E013FD0D00B1E6640113B34032ACB9B21"
+      "path": "data/candidates/vv2_full_mastery_all_candidate.json",
+      "sha256": "41CC8B5ADEAF702B1ACC38C832EADEEBF9B7FB23DA23A8A6E6328690F121A53C"
+    },
+    {
+      "path": "data/candidates/vv2_full_mastery_all_candidate_map.json",
+      "sha256": "F93FC7C11D2306A3AA5DCC44EAC26785BC26BD86D46FCFAE51252E6E13FEE8C8"
+    },
+    {
+      "path": "data/candidates/vv2_individual_full_mastery_candidate.json",
+      "sha256": "D78C51E12B791D2606C822235636B98A99A92EBD6F7B175E5F61EB8605CB1E88"
+    },
+    {
+      "path": "data/candidates/vv2_individual_full_mastery_candidate_map.json",
+      "sha256": "32170E3964A1281715C779886F95FB727A057733D9E0F2A294553D290FECF9EA"
+    },
+    {
+      "path": "data/candidates/vv2_individual_grant_running_binding.json",
+      "sha256": "7075BE65B694568FE3B833FEF14EBF7CE665A28DA6C2070B768212DEAEEEACEA"
     },
     {
       "path": "data/candidates/vv3_all_villagers_like_running_candidate.json",
       "sha256": "D6AC66D196D4765AB7DC6D719B3180082C15BBF2F267EBF36D614A14B45556A5"
     },
     {
-      "path": "data/candidates/vv3_running_candidate_map.json",
-      "sha256": "9EF68688077708C3FCFD5336088D33EE1DB997A0917117DB559916D725620F32"
+      "path": "data/candidates/vv3_expanded_time_warp_map.json",
+      "sha256": "FB308848ED65695E62F65A6074861F8740009962FC99EFFBD8AEFD2A859F0031"
     },
     {
-      "path": "data/candidates/vv3_origins_full_mastery_base_candidate.json",
-      "sha256": "71AEE1460B9B39974D42465EE17A81F04B74916623F636ADC83D5F5DE8B5DE3D"
+      "path": "data/candidates/vv3_full256_serializer_candidate.json",
+      "sha256": "4C2186DA89A5F1D561DF730A35FA884815F2DB588E82D05536011DD25000222A"
+    },
+    {
+      "path": "data/candidates/vv3_full_heal_cure_all_candidate.json",
+      "sha256": "3600D697F595B57212B6316C55907C5261D103A0E6A4AD47578B524B5CECB1D0"
+    },
+    {
+      "path": "data/candidates/vv3_full_heal_cure_all_candidate_map.json",
+      "sha256": "BF39F257BB52A9C0EB55D60D8BB03055C5141271123D68264CD44001E85717BB"
     },
     {
       "path": "data/candidates/vv3_full_mastery_all_candidate.json",
@@ -49,12 +73,16 @@
       "sha256": "00C7B9C1DB59E6B36C945551CC40A347C4D302917A6677EE1EDE14F26142F362"
     },
     {
-      "path": "data/candidates/vv2_full_mastery_all_candidate.json",
-      "sha256": "41CC8B5ADEAF702B1ACC38C832EADEEBF9B7FB23DA23A8A6E6328690F121A53C"
+      "path": "data/candidates/vv3_origins_full_mastery_base_candidate.json",
+      "sha256": "71AEE1460B9B39974D42465EE17A81F04B74916623F636ADC83D5F5DE8B5DE3D"
     },
     {
-      "path": "data/candidates/vv2_full_mastery_all_candidate_map.json",
-      "sha256": "F93FC7C11D2306A3AA5DCC44EAC26785BC26BD86D46FCFAE51252E6E13FEE8C8"
+      "path": "data/candidates/vv3_origins_running_base_candidate.json",
+      "sha256": "65F1F5FA72F127986F71A69368E1CC7E013FD0D00B1E6640113B34032ACB9B21"
+    },
+    {
+      "path": "data/candidates/vv3_running_candidate_map.json",
+      "sha256": "9EF68688077708C3FCFD5336088D33EE1DB997A0917117DB559916D725620F32"
     },
     {
       "path": "data/candidates/vv4_full_heal_cure_all_candidate.json",
@@ -65,6 +93,14 @@
       "sha256": "7F9ABBE3939C801F3F2F91F67E7C60A015866E05F5E8765E7760C42B89A166B4"
     },
     {
+      "path": "data/candidates/vv4_full_mastery_all_candidate.json",
+      "sha256": "64AA5E8BE95CE7BEC62B52EBA520F6E70DDD2F44EF3DB21BAE5464B9E59735E0"
+    },
+    {
+      "path": "data/candidates/vv5_expanded_time_warp_map.json",
+      "sha256": "5C19F8133CC9FE6FF106C0D92BE6266EB29DA55C30DD8493FF1A341468B7E11A"
+    },
+    {
       "path": "data/candidates/vv5_individual_running_candidate.json",
       "sha256": "A2AC2AD4C1FE1C6BE8E2DD28B34CDC67FB575396D16986F8BF7271E7A308D405"
     },
@@ -73,12 +109,48 @@
       "sha256": "3149BCAFADEC63C9CECD39BA1A5CE5C2EFA7E6435237C14AC80D74E4F6A754A7"
     },
     {
-      "path": "data/candidates/vv3_full_heal_cure_all_candidate.json",
-      "sha256": "3600D697F595B57212B6316C55907C5261D103A0E6A4AD47578B524B5CECB1D0"
+      "path": "data/candidates/vv5_post_prototype_overlay.json",
+      "sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
     },
     {
-      "path": "data/candidates/vv3_full_heal_cure_all_candidate_map.json",
-      "sha256": "BF39F257BB52A9C0EB55D60D8BB03055C5141271123D68264CD44001E85717BB"
+      "path": "data/candidates/vv5_task9_native_actions_map.json",
+      "sha256": "65EB58159564AEB441370231A9D77A2A722B7793FFFBFF340919C7497B7E08F7"
+    },
+    {
+      "path": "data/expanded_256_static_repair_integration.json",
+      "sha256": "90E50499192D9B5A303EAF2E85124D303E42A1B9CC1D9CF902D20A178504B035"
+    },
+    {
+      "path": "data/expanded_atomic_writer_integration.json",
+      "sha256": "1B7068D0679CA896706AA201D27726AF612FD167C0406C5D509774E40728F6A6"
+    },
+    {
+      "path": "data/native_evidence/vv1_vv2_native_query_manifest.json",
+      "sha256": "B79E1613061369AA75A2791AA3329FF6DF8BF89958982F33233C5B567C4981C5"
+    },
+    {
+      "path": "data/native_evidence_queries.json",
+      "sha256": "E6154939F54FB570522E9C7C7EA5CE480D42523D7B6D8B0A313EDF4E50D7AB56"
+    },
+    {
+      "path": "data/vv3_expanded_time_warp.json",
+      "sha256": "F5094E6275F6A019B001B89E265B71ACD365499C00E57E45AB5AFB6C44C9A8C8"
+    },
+    {
+      "path": "data/vv3_expanded_time_warp_core.json",
+      "sha256": "5AA28CEAAFBC6F4278FF01C41F67E0394227C272123EAC9433BD6D011A4087CE"
+    },
+    {
+      "path": "data/vv5_expanded_time_warp.json",
+      "sha256": "1D95C45DE1564FA5ECF0E8A1276D09DFC00398FDC5C223BCCA37AAF16EE6D8FF"
+    },
+    {
+      "path": "data/vv5_origins_feature.json",
+      "sha256": "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
+    },
+    {
+      "path": "data/vv5_task9_native_actions.json",
+      "sha256": "AE0B376B94BC2E8FC03F03172F3F2272F800B8A40C0B804832EB78433A77EA44"
     }
   ]
 }

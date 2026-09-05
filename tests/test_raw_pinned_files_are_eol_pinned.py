@@ -27,6 +27,7 @@ covered the moment it appears instead of waiting to be found the painful way.
 """
 
 import hashlib
+import json
 import subprocess
 import unittest
 from pathlib import Path
@@ -35,47 +36,39 @@ ROOT = Path(__file__).resolve().parents[1]
 
 CRLF = bytes((13, 10))
 LF = bytes((10,))
+CR = bytes((13,))
+BOM = bytes((0xEF, 0xBB, 0xBF))
+
+# The path->digest registry. Excluded when looking for corroboration, because
+# the registry agreeing with itself proves nothing about the pin the patcher
+# actually enforces.
+REGISTRY_PATH = "data/source-text-authentication.json"
 
 # Where a raw whole-file hash can be written down. Not just Python: two of the
 # CRLF-pinned files below are pinned inside SIBLING JSON MANIFESTS, which is
 # why every sweep restricted to scripts/ and src/ missed them.
 PIN_GLOBS = ("scripts/**/*.py", "src/**/*.py", "tests/**/*.py", "data/**/*.json")
 
-# Four files are pinned against their CRLF bytes, so a `text eol=lf` rule would
-# force them to LF and break those pins permanently. All four are pre-existing
-# defects, NOT things this rule set fixes. Each line gives the CRLF digest that
-# IS pinned, and where:
+# Files whose pin is recorded against their CRLF bytes, where a `text eol=lf`
+# rule would force LF and break the pin permanently.
+#
+# EMPTY, and that is the point. Four files were listed here:
 #
 #   data/candidates/vv2_individual_grant_running_binding.json
-#       FC8165A0... in vv2_individual_full_mastery_candidate.json and its _map
 #   data/candidates/vv4_full_mastery_all_candidate.json
-#       DD41DDC2... in vv4_full_mastery_all_candidate_map.json
 #   data/native_evidence/vv1_vv2_native_query_manifest.json
-#       A53C6D01... in validate_authorized_analyzer_workflow.py (MANIFEST_SHA)
-#       and data/authorized_analyzer_workflow.json
 #   data/native_evidence_queries.json
-#       FED6AE17... in validate_authorized_analyzer_workflow.py (QUERY_PLAN_SHA)
-#       and three times in data/authorized_analyzer_workflow.json
 #
-# In every case the LF digest is pinned nowhere, so the pin was minted on a
-# Windows autocrlf=true clone. `validate_authorized_analyzer_workflow.py`
-# therefore already fails on any LF checkout -- reproduced by running it, where
-# it raises AssertionError at its sha256 comparison. Nothing in the suite
-# executes it, which is why that has gone unnoticed.
+# Their pins were minted on a Windows autocrlf=true clone, so the committed LF
+# blobs never satisfied them and `validate_authorized_analyzer_workflow.py`
+# failed its sha256 assertions on every LF checkout. All four have been
+# repinned against their LF bytes and given rules, so the exception is gone.
 #
-# The first two are pinned INSIDE SIBLING JSON MANIFESTS, not in Python, which
-# is why sweeps limited to scripts/ and src/ never saw them.
-#
-# Repinning any of these against LF is a separate change with its own
-# verification; folding a content change into a line-endings rule set would
-# bury it. The exception is the standing record of what is still broken, and
-# the expiry test below fails if an entry stops exhibiting the defect.
-KNOWN_UNPINNED_CRLF_DEFECTS = {
-    "data/candidates/vv2_individual_grant_running_binding.json",
-    "data/candidates/vv4_full_mastery_all_candidate.json",
-    "data/native_evidence/vv1_vv2_native_query_manifest.json",
-    "data/native_evidence_queries.json",
-}
+# The set stays as a mechanism rather than being deleted: a future pin minted
+# on a CRLF clone lands here, with the same requirement that it be repinned
+# rather than silently exempted. The expiry test below refuses an entry that no
+# longer exhibits the defect, so this cannot quietly become a dumping ground.
+KNOWN_UNPINNED_CRLF_DEFECTS: set[str] = set()
 
 
 def _git(*args: str) -> str:
@@ -127,19 +120,43 @@ def raw_pinned_files() -> list[str]:
     Testing both makes the set identical on every clone, and catches a file
     whose pin was recorded against either encoding.
     """
+    return sorted(pinned_digests_by_path())
+
+
+def pinned_digests_by_path() -> dict[str, set[str]]:
+    """Each raw-pinned file mapped to the digests recorded FOR IT.
+
+    Keeping the pin-to-path relationship is the whole point, and its absence
+    was a real hole Codex found on #247: a check that asks only "do these bytes
+    appear as some pin?" passes for a file holding a DIFFERENT pinned file's
+    contents. Reproduced by copying
+    `data/candidates/vv2_full_mastery_all_candidate.json` over
+    `data/native_evidence_queries.json` -- all five tests passed while the
+    latter no longer matched its own E6154939 pin.
+
+    A file's allowed digests are those of its committed blob, in either
+    encoding, that some other file records. Both encodings still matter: a pin
+    minted on a Windows clone is written against CRLF bytes, which is exactly
+    how `vv1_vv2_native_query_manifest.json` escaped two manual sweeps.
+    """
     corpus = _pin_corpus()
-    found = []
+    pinned: dict[str, set[str]] = {}
     for relative in _tracked_json():
         as_lf = _blob_lf(relative)
         if as_lf is None:
             continue
         others = [text for name, text in corpus.items() if name != relative]
-        for candidate in (as_lf, as_lf.replace(LF, CRLF)):
-            digest = hashlib.sha256(candidate).hexdigest().upper()
-            if any(digest in text for text in others):
-                found.append(relative)
-                break
-    return sorted(found)
+        allowed = {
+            digest
+            for digest in (
+                hashlib.sha256(candidate).hexdigest().upper()
+                for candidate in (as_lf, as_lf.replace(LF, CRLF))
+            )
+            if any(digest in text for text in others)
+        }
+        if allowed:
+            pinned[relative] = allowed
+    return pinned
 
 
 def _blob_lf(relative: str) -> bytes | None:
@@ -159,6 +176,66 @@ def _blob_lf(relative: str) -> bytes | None:
     if result.returncode != 0 or not result.stdout:
         return None
     return result.stdout.replace(CRLF, LF)
+
+
+def _authenticated_digests() -> dict[str, str]:
+    """Path -> source-text digest, from the repository's own registry.
+
+    `data/source-text-authentication.json` exists precisely to bind a path to
+    the digest of its canonicalised text, and documents the canonicalisation it
+    uses. It is the reference that NAMES the file, so unlike a corpus search it
+    stays correct when the file's contents change -- which is exactly when a
+    digest match stops being evidence of anything.
+
+    This addresses the hole Codex found on #247: with only the corpus search, a
+    file committed with ANOTHER pinned file's exact bytes inherited the
+    aggressor's digest and passed.
+
+    Deliberately this registry, and not any "path"/"sha256" pair found in the
+    tree. Several records legitimately name a live path with a DELIBERATELY
+    historical digest -- two candidate maps do so for
+    data/vv5_origins_feature.json, and
+    ...fullscreen_owner_transition_evidence_gate.json names the fullscreen
+    candidate under "status": "disabled-static-oracle-only". Treating those as
+    live pins reports correct files as broken, which is worse than the hole it
+    would close.
+
+    Covers 18 of the 28 raw-pinned files today. It is a floor, not a ceiling:
+    the assertion below is exact for what the registry names, and the corpus
+    search still covers the rest.
+    """
+    registry = ROOT / REGISTRY_PATH
+    try:
+        record = json.loads(registry.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeError, ValueError):
+        return {}
+    return {
+        entry["path"].replace(chr(92), "/"): entry["sha256"].upper()
+        for entry in record.get("artifacts", [])
+        if isinstance(entry, dict)
+        and isinstance(entry.get("path"), str)
+        and isinstance(entry.get("sha256"), str)
+    }
+
+
+def eol_pinned_files() -> list[str]:
+    """Tracked JSON carrying an explicit `text eol=lf` rule, by PATH.
+
+    Deliberately independent of any digest. `raw_pinned_files()` identifies a
+    file by its current hash matching a pin, which means a file that DRIFTS
+    from its pin stops being recognised as pinned and silently leaves its own
+    guard -- Codex found this on #247, and it reproduces: committing a change
+    to `data/native_evidence_queries.json` without repinning leaves every
+    assertion in this file green while the pin is broken.
+
+    A rule, once written, records the relationship permanently, so drift
+    cannot erase it.
+    """
+    return sorted(
+        relative
+        for relative in _tracked_json()
+        if eol_attribute(relative) == "lf"
+    )
 
 
 def eol_attribute(relative: str) -> str:
@@ -237,6 +314,182 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                     "`text eol=lf` rule and drop it from "
                     "KNOWN_UNPINNED_CRLF_DEFECTS",
                 )
+
+    def test_worktree_bytes_actually_satisfy_their_pins(self):
+        """The rules are a means; matching bytes are the end.
+
+        Asserting only that a `text eol=lf` rule exists is not enough, and
+        Codex found the gap on #247: an EXISTING core.autocrlf=true checkout
+        that pulls the rules keeps its stale CRLF copies, because git does not
+        rewrite files whose content did not change. In that state all four
+        repinned files carried their old CRLF digests, `git status` was clean,
+        and this file's other assertions all passed -- the rules were present,
+        so nothing complained, while the pins were broken.
+
+        `git checkout --force -- .` does NOT repair it; git still considers the
+        files unchanged. The migration that works, applied to ONLY the paths
+        this test names, is:
+
+            git rm --cached -- <path>
+            git checkout HEAD -- <path>
+
+        Deliberately per-path. The whole-worktree form
+        (`git rm --cached -r . && git reset --hard`) also repairs it, but
+        `--hard` silently discards every uncommitted change in the checkout --
+        reproduced by appending a line to README.md and running it, which
+        removed the line with no warning. A migration note is read by someone
+        whose pins are already failing, which is a bad moment to hand them a
+        command that eats their work.
+
+        This asserts the outcome instead of the mechanism, so the breakage is
+        loud and the message says how to fix it.
+        """
+        corpus = _pin_corpus()
+        allowed_by_path = pinned_digests_by_path()
+        declared_by_path = _authenticated_digests()
+        stale = []
+        uncorroborated = []
+        # Union, not the digest-derived set alone: the rule-derived set
+        # survives content drift, while the digest-derived set catches a
+        # raw-pinned file that has no rule yet (reported by the test above).
+        candidates = set(allowed_by_path) | set(eol_pinned_files())
+        # A file in the exception set is pinned to its CRLF bytes ON PURPOSE,
+        # so hashing its LF worktree copy here would report it stale and make
+        # the suite unpassable with any entry present -- which would render the
+        # documented mechanism unusable in exactly the window it exists for.
+        candidates -= KNOWN_UNPINNED_CRLF_DEFECTS
+        for relative in sorted(candidates):
+            path = ROOT / relative
+            if not path.is_file():
+                continue
+            digest = hashlib.sha256(path.read_bytes()).hexdigest().upper()
+            # PATH-OWNED first, and for a raw-pinned file that is the only
+            # answer accepted. The registry now names all 36 of them, so the
+            # global corpus fallback below is reachable only for a file that
+            # carries an eol rule without being raw-pinned at all.
+            #
+            # The fallback is what let a substitution pass: it asks whether the
+            # bytes are pinned ANYWHERE, so a file committed with another
+            # pinned file's content inherited the aggressor's digest. Codex
+            # reproduced that on this PR twice, before and after the registry
+            # was introduced, because the registry then covered only 18 of 36.
+            registered = declared_by_path.get(relative)
+            if registered is not None:
+                if digest != registered:
+                    stale.append(relative)
+                    continue
+                # The registry says the file is intact. Require the CONSUMER
+                # to agree, or the registry can mask a broken production pin:
+                # change a pinned file, update only its registry digest, and
+                # every assertion here passes while the pin the patcher
+                # actually enforces still names the old bytes. Codex
+                # reproduced exactly that on 0ecbf576 by appending whitespace
+                # to data/native_evidence_queries.json.
+                #
+                # Corroboration is deliberately sought OUTSIDE both the
+                # artifact and the registry: a self-describing manifest
+                # trivially contains its own digest, and the registry agreeing
+                # with itself proves nothing.
+                # Only files the corpus ALSO pins need to agree with it. Three
+                # of the originally registered artifacts -- vv3_running_candidate_map,
+                # vv4_full_heal_cure_all_candidate and its map -- are recorded
+                # nowhere else, so for them the registry is the sole pin rather
+                # than a second opinion, and demanding corroboration would
+                # condemn correct files.
+                #
+                # What must not happen is the registry DISAGREEING with a pin
+                # that exists: that is the masking case, where a file is
+                # changed, the registry updated, and the consumer left naming
+                # the old bytes.
+                others = [
+                    text
+                    for name, text in corpus.items()
+                    if name not in (relative, REGISTRY_PATH)
+                ]
+                pinned_elsewhere = {
+                    candidate
+                    for candidate in allowed_by_path.get(relative, set())
+                    if any(candidate in text for text in others)
+                }
+                if pinned_elsewhere and digest not in pinned_elsewhere:
+                    uncorroborated.append(relative)
+                continue
+            allowed = allowed_by_path.get(relative)
+            if allowed is None:
+                others = [t for name, t in corpus.items() if name != relative]
+                if not any(digest in text for text in others):
+                    stale.append(relative)
+            elif digest not in allowed:
+                stale.append(relative)
+        self.assertEqual(
+            uncorroborated,
+            [],
+            "the registry records a digest for these files that NO other pin "
+            "in the repository agrees with. Either the file was changed and "
+            "only data/source-text-authentication.json was updated -- leaving "
+            "the pin the patcher enforces naming the old bytes -- or the "
+            "consumer was repinned and the registry was not. Update both, so "
+            f"the registry records a pin rather than replacing one: {uncorroborated}",
+        )
+        self.assertEqual(
+            stale,
+            [],
+            "these files are pinned by a raw sha256, but the bytes ON DISK do "
+            "not match any pinned digest. Either the file drifted from its pin "
+            "without being repinned, or -- more often on Windows -- an existing "
+            "checkout kept stale CRLF copies when the eol rules arrived, which "
+            "`git checkout --force` will NOT repair. Re-materialise ONLY these "
+            "paths, so unrelated local work is untouched: for each, "
+            "`git rm --cached -- <path>` then `git checkout HEAD -- <path>` "
+            "-- but COMMIT OR STASH FIRST if you have edited any of these "
+            "files, because that checkout overwrites the worktree copy and "
+            "your edit goes with it. Do NOT use "
+            "`git rm --cached -r . && git reset --hard`; the --hard resets the "
+            "whole worktree and silently discards every uncommitted change: "
+            f"{stale}",
+        )
+
+    def test_registered_artifacts_match_their_own_recorded_digest(self):
+        """Path-anchored, so contents cannot vote on their own identity.
+
+        The other worktree assertion asks whether a file's bytes appear as SOME
+        pin, which Codex showed is weaker than it reads: commit one pinned
+        file's exact bytes over another and the victim inherits the aggressor's
+        digest and passes.
+
+        data/source-text-authentication.json binds each path to the digest of
+        its canonicalised text, so it can answer "does THIS file still match
+        ITS pin" rather than "are these bytes pinned anywhere".
+        """
+        registered = _authenticated_digests()
+        self.assertGreater(
+            len(registered),
+            10,
+            "the source-text authentication registry looks empty or moved; "
+            "this assertion would pass vacuously",
+        )
+        wrong = []
+        for relative, expected in sorted(registered.items()):
+            path = ROOT / relative
+            if not path.is_file():
+                continue
+            raw = path.read_bytes()
+            if raw.startswith(BOM):
+                raw = raw[len(BOM):]
+            canonical = raw.replace(CRLF, LF).replace(CR, LF)
+            actual = hashlib.sha256(canonical).hexdigest().upper()
+            if actual != expected:
+                wrong.append(
+                    f"{relative} is {actual[:12]}, registered as {expected[:12]}"
+                )
+        self.assertEqual(
+            wrong,
+            [],
+            "these files no longer match the digest recorded for them BY NAME "
+            "in data/source-text-authentication.json. Either the file changed "
+            "without the registry being updated, or it now holds content that "
+            f"belongs to a different file: {wrong}",
+        )
 
     def test_a_crlf_checkout_would_break_a_pinned_hash(self):
         """Anti-vacuity: prove the rule is load-bearing, not decorative.
