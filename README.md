@@ -370,9 +370,22 @@ like it had done nothing at all.
 New Believers is the one exception today: its two rows still fire on the next
 scheduler tick rather than after a delay.
 
-While one of these events is still on its way, its row is disabled and reads
-**Unavailable** in all five games, so a second copy cannot be clicked and cannot
-be charged for.
+While one of these events is still on its way, its row reads **Why not?** in all
+five games instead of offering a second purchase. Clicking it explains that one
+has already been bought and arrives a few seconds after the screen closes, and
+closes nothing -- so a second copy cannot be bought and cannot be charged for.
+
+The same button appears when a **Barrel of Babies** cannot be delivered because
+the village has no room for the children. That message says so explicitly, and
+notes that a villager who has died still occupies a slot until they are buried,
+so burying any remains may free the space. The two causes are told apart on
+purpose: waiting clears a queued event, but waiting will not empty a full
+village.
+
+Earlier versions drew these rows as a disabled button reading *Unavailable*,
+which said that the upgrade could not be bought without saying why or whether
+waiting would help -- and, being disabled, the button could not respond to a
+click at all.
 
 **Barrel of Babies** delivers three children, so it is only sold when the
 village has room for all three -- that is, when the population is at or below

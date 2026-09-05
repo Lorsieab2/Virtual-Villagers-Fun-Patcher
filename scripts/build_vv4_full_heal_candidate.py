@@ -1318,7 +1318,7 @@ def _generate_into(output_root: Path) -> dict[str, object]:
     _write(output_root / MANIFEST.name, {**manifest, "rendered_modes": rendered_modes, "emitted_audit": outputs})
     _write(output_root / MAP.name, {**artifact_map, "rendered_modes": rendered_modes, "emitted_audit": outputs})
     (output_root / DOC.name).write_bytes(DOC.read_bytes())
-    (output_root / "emission-audit.json").write_text(json.dumps(outputs, indent=2) + "\r\n", encoding="utf-8")
+    (output_root / "emission-audit.json").write_text(json.dumps(outputs, indent=2) + "\r\n", encoding="utf-8", newline="")
     return outputs
 
 

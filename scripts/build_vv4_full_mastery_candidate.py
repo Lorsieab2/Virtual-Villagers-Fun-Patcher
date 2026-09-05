@@ -1701,8 +1701,8 @@ def main() -> None:
     }
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    BASE_OUT.write_text(json.dumps(base, indent=2) + "\n", encoding="utf-8")
-    FEATURE_OUT.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8")
+    BASE_OUT.write_text(json.dumps(base, indent=2) + "\n", encoding="utf-8", newline="")
+    FEATURE_OUT.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8", newline="")
 
     sys.path.insert(0, str(ROOT / "src"))
     from vv_fun_patcher import FunPatch, _pe_checksum_layout, load_builds, load_fun_patches, render_patched_bytes  # noqa: PLC0415
@@ -1876,7 +1876,7 @@ def main() -> None:
         ),
         "rendered_candidates": renders,
     }
-    MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
+    MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8", newline="")
     DOC_OUT.write_text(
         (
             "# VV4 Full Mastery certified corrected-geometry playtest feature\n\n"

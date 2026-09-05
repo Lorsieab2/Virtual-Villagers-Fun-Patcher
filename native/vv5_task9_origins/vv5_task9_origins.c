@@ -365,20 +365,67 @@ static int vv5_has_free_villager_slots(int wanted) {
     return 0;
 }
 
-static int row_purchase_pending(int villager_menu, int row, long state) {
+/* Why a Tech-menu row is blocked, or BLOCK_NONE.
+
+   The two causes are kept distinct rather than collapsed into a boolean,
+   because they ask completely different things of the player: a queued event
+   clears itself in a few seconds, while a full village needs them to act. The
+   row used to be drawn as a disabled button reading "Unavailable", which
+   conveyed neither -- and a disabled button also swallows the click, so there
+   was nowhere to put an explanation even if one existed.
+
+   This covers only the two queued-event rows. VV5 also disables rows for
+   STATE_LIMITED_CAPABILITY, which means something else entirely (this build
+   is not verified for that path) and keeps its own "Unavailable" label. */
+enum {
+    BLOCK_NONE = 0,
+    BLOCK_ALREADY_PENDING = 1,
+    BLOCK_NO_VILLAGER_SLOTS = 2
+};
+
+#define ROW_STATE_MAX 16
+static int block_reasons[ROW_STATE_MAX];
+
+static const char *block_reason_text(int reason, int row) {
+    if (reason == BLOCK_NO_VILLAGER_SLOTS) {
+        return "There is no room in the village for the children this would "
+               "bring.\n\nEvery villager slot is taken. Note that a villager "
+               "who has died still occupies a slot until they are buried, so "
+               "burying any remains may be enough to free the space.";
+    }
+    if (row == PENDING_ROW_ISLAND) {
+        return "An island event has already been bought and is on its way."
+               "\n\nIt arrives a few seconds after this screen closes. Buying "
+               "it again would charge you a second time for the same event, "
+               "so close this screen and wait for it to arrive.";
+    }
+    return "A barrel of babies has already been bought and is on its way."
+           "\n\nIt arrives a few seconds after this screen closes. Buying it "
+           "again would charge you a second time for the same barrel, so "
+           "close this screen and wait for it to arrive.";
+}
+
+static int row_block_reason(int villager_menu, int row, long state) {
     if (villager_menu) {
-        return 0;
+        return BLOCK_NONE;
     }
     if (row == PENDING_ROW_ISLAND && (state & STATE_ISLAND_PENDING) != 0) {
-        return 1;
+        return BLOCK_ALREADY_PENDING;
     }
     if (row != PENDING_ROW_BARREL) {
-        return 0;
+        return BLOCK_NONE;
     }
     if ((state & STATE_BARREL_PENDING) != 0) {
-        return 1;
+        return BLOCK_ALREADY_PENDING;
     }
-    return !vv5_has_free_villager_slots(VV5_BARREL_CHILDREN);
+    return vv5_has_free_villager_slots(VV5_BARREL_CHILDREN)
+        ? BLOCK_NONE
+        : BLOCK_NO_VILLAGER_SLOTS;
+}
+
+/* Thin wrapper so callers needing only the yes/no answer are unchanged. */
+static int row_purchase_pending(int villager_menu, int row, long state) {
+    return row_block_reason(villager_menu, row, state) != BLOCK_NONE;
 }
 
 static INT_PTR CALLBACK appearance_dialog(
@@ -1242,6 +1289,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         int first_unsupported_row = villager_menu ? 4 : 6;
         int row_count = villager_menu ? 5 : 14;
         int row;
+        int blocked;
+        for (row = 0; row < ROW_STATE_MAX; ++row) {
+            block_reasons[row] = BLOCK_NONE;
+        }
         for (row = 0; row < row_count; ++row) {
             /* Unlike the other games, VV5 hides the badge inside this loop
                rather than in a separate pass beforehand, so the hide has to
@@ -1249,9 +1300,13 @@ static INT_PTR CALLBACK upgrade_dialog(
                badges VISIBLE, and skipping it would leave a stale green
                checkmark on the row. */
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
-            if (row_purchase_pending(villager_menu, row, (long)lparam)) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+            blocked = row_block_reason(villager_menu, row, (long)lparam);
+            if (blocked != BLOCK_NONE) {
+                /* Enabled on purpose: the WM_COMMAND handler intercepts the
+                   click, explains, and neither closes the dialog nor charges. */
+                block_reasons[row] = blocked;
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Why not?");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
             if (limited_capability && row >= first_unsupported_row) {
@@ -1283,7 +1338,18 @@ static INT_PTR CALLBACK upgrade_dialog(
     if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
-            EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
+            int clicked = (int)(command - ID_BUY_FIRST);
+            if (clicked >= 0 && clicked < ROW_STATE_MAX
+                && block_reasons[clicked] != BLOCK_NONE) {
+                /* Explain and stay open. Returning the row here would run the
+                   purchase path and charge for it. */
+                MessageBoxA(window,
+                            block_reason_text(block_reasons[clicked], clicked),
+                            "Not right now",
+                            MB_OK | MB_ICONINFORMATION);
+                return TRUE;
+            }
+            EndDialog(window, (INT_PTR)clicked);
             return TRUE;
         }
         if (command == IDCANCEL) {

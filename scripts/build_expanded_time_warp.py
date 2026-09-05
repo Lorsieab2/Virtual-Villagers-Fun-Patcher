@@ -23,8 +23,8 @@ VV4_MAP_OUT = ROOT / "data/candidates/vv4_expanded_time_warp_map.json"
 VV5_OUT = ROOT / "data/vv5_expanded_time_warp.json"
 VV5_MAP_OUT = ROOT / "data/candidates/vv5_expanded_time_warp_map.json"
 
-COMPANION_SHA256 = "2B30420687D9E68215190BF8B7C0C19235919A81C021DCAA249F4C2975EC5ADD"
-COMPANION_SIZE = 1756160
+COMPANION_SHA256 = "DCE6CB9A5380701E657F12C398BA32A903E518C08FC9E48C919A6C4D91BFA4D6"
+COMPANION_SIZE = 1756672
 EXPANDED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
@@ -891,8 +891,8 @@ def main() -> None:
         }
     )
 
-    VV4_OUT.write_text(json.dumps(vv4, indent=2) + "\n", encoding="utf-8")
-    VV5_OUT.write_text(json.dumps(vv5, indent=2) + "\n", encoding="utf-8")
+    VV4_OUT.write_text(json.dumps(vv4, indent=2) + "\n", encoding="utf-8", newline="")
+    VV5_OUT.write_text(json.dumps(vv5, indent=2) + "\n", encoding="utf-8", newline="")
     vv4_map_out = {
         "id": vv4["id"],
         "status": "independent static Disassembler GO; runtime/player pending",
@@ -941,8 +941,8 @@ def main() -> None:
             "experimental_expanded_256_progression": "B6AD620FA4B1D339B18130BA737EDC17CB0C40E326D0D461AA43166B79ABAA88",
         },
     }
-    VV4_MAP_OUT.write_text(json.dumps(vv4_map_out, indent=2) + "\n", encoding="utf-8")
-    VV5_MAP_OUT.write_text(json.dumps(vv5_map_out, indent=2) + "\n", encoding="utf-8")
+    VV4_MAP_OUT.write_text(json.dumps(vv4_map_out, indent=2) + "\n", encoding="utf-8", newline="")
+    VV5_MAP_OUT.write_text(json.dumps(vv5_map_out, indent=2) + "\n", encoding="utf-8", newline="")
     print(f"VV4 payload {len(vv4_payload)} bytes {sha(vv4_payload)}")
     print(f"VV5 dispatcher {vv5_map['dispatcher_length']} bytes {vv5_map['dispatcher_sha256']}")
     print(f"VV5 page {vv5_map['expanded_time_warp_page_sha256']}")

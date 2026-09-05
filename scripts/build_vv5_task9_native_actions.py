@@ -4421,8 +4421,8 @@ def main() -> None:
         },
     }
     result["task9_map_canonical_sha256"] = canonical_sha(map_record)
-    OUT.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
-    MAP_OUT.write_text(json.dumps(map_record, indent=2) + "\n", encoding="utf-8")
+    OUT.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8", newline="")
+    MAP_OUT.write_text(json.dumps(map_record, indent=2) + "\n", encoding="utf-8", newline="")
     print(f"manifest {OUT} {sha(OUT.read_bytes())}")
     print(f"map {MAP_OUT} {sha(MAP_OUT.read_bytes())}")
     for mode in LAYOUTS:

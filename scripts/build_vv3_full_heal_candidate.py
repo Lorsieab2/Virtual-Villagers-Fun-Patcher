@@ -984,8 +984,8 @@ def main() -> None:
         "rendered": {mode: {"sha256": RENDERED_SHA256[mode], "runtime_player_status": "pending"} for mode in manifest["supported_modes"]},
     }
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    MAP_OUT.write_text(json.dumps(artifact_map, indent=2) + "\n", encoding="utf-8")
+    MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
+    MAP_OUT.write_text(json.dumps(artifact_map, indent=2) + "\n", encoding="utf-8", newline="")
     DOC_OUT.write_text(
         "# VV3 Full Heal / Cure All (candidate-only / blocked / catalog-hidden)\n\n"
         "This stock-only candidate is disabled, catalog-hidden, and blocked. Its implementation is retained as static provenance only and is bound to commit `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`; D209/C213 static reports do not make it selectable or runtime-ready. "

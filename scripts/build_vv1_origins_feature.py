@@ -4123,7 +4123,7 @@ def main() -> None:
         },
         "patches": patches,
     }
-    OUT_JSON.write_text(rendered_json, encoding="utf-8")
+    OUT_JSON.write_text(rendered_json, encoding="utf-8", newline="")
     MANIFEST_JSON.write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )

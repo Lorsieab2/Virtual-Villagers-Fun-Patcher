@@ -28,7 +28,7 @@ def main() -> None:
         function_name = ida_funcs.get_func_name(function.start_ea) if function else "<none>"
         raw = ida_bytes.get_bytes(ea, ida_bytes.get_item_size(ea)) or b""
         rows.append(f"{ea:08X} {function_name:<16} {raw.hex().upper():<30} {plain}")
-    OUTPUT.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    OUTPUT.write_text("\n".join(rows) + "\n", encoding="utf-8", newline="")
     ida_pro.qexit(0)
 
 

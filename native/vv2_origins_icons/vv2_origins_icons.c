@@ -108,6 +108,7 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
         int row_count = villager_menu ? 5 : VV2_TECH_ROW_COUNT;
         int row;
+        int blocked;
         /* Hide EVERY badge the dialog can carry, not just the first nine.
            The tech menu runs to 14 rows (6 base + 3 village-wide grants +
            Complete/Reset Collections + two Equal Division rows + Change
@@ -119,6 +120,9 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
            ones that can ever display a checkmark, and only while owned in the
            current save.  GetDlgItem returns NULL for a row this game does not
            declare and ShowWindow(NULL, ...) is a harmless no-op. */
+        for (row = 0; row < ROW_STATE_MAX; ++row) {
+            block_reasons[row] = BLOCK_NONE;
+        }
         for (row = 0; row < 14; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
@@ -129,9 +133,15 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
             if (satisfied && !villager_menu && (row == 3 || row == 4)) {
                 ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
             }
-            if (row_purchase_pending(villager_menu, row, (long)lparam)) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+            blocked = row_block_reason(villager_menu, row, (long)lparam);
+            if (blocked != BLOCK_NONE) {
+                /* Enabled on purpose: a disabled button swallows the click,
+                   leaving nothing to explain the refusal with. See
+                   block_reason_text() in vv1_origins_icons.c, which this
+                   file includes. */
+                block_reasons[row] = blocked;
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Why not?");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
             if (!villager_menu && satisfied && !(village_wide_buy && row >= 6)) {
@@ -147,6 +157,15 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_VV2_BUY_LAST) {
+            int clicked = (int)(command - ID_BUY_FIRST);
+            if (clicked >= 0 && clicked < ROW_STATE_MAX
+                && block_reasons[clicked] != BLOCK_NONE) {
+                MessageBoxA(window,
+                            block_reason_text(block_reasons[clicked], clicked),
+                            "Not right now",
+                            MB_OK | MB_ICONINFORMATION);
+                return TRUE;
+            }
             EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
             return TRUE;
         }
