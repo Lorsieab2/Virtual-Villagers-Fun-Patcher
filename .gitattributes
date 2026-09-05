@@ -1,3 +1,18 @@
+# MIGRATING AN EXISTING WINDOWS CHECKOUT
+#
+# These eol rules govern files git WRITES. A clone that already existed when a
+# rule arrived keeps its stale CRLF copy, because the file's content did not
+# change and git does not rewrite unchanged paths -- `git status` stays clean
+# while raw-sha256 pins silently fail. `git checkout --force -- .` does NOT
+# repair it; git still considers those files unchanged. Re-materialise the
+# worktree from the index instead:
+#
+#     git rm --cached -r .
+#     git reset --hard
+#
+# tests/test_raw_pinned_files_are_eol_pinned.py asserts the worktree bytes
+# actually satisfy their pins, so this failure is loud rather than silent.
+
 # Canonical VV3 candidate metadata is authenticated as exact UTF-8/no-BOM/LF
 # bytes. Keep Git blobs and Windows checkouts byte-identical regardless
 # of core.autocrlf or clone configuration.

@@ -223,6 +223,48 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                     "KNOWN_UNPINNED_CRLF_DEFECTS",
                 )
 
+    def test_worktree_bytes_actually_satisfy_their_pins(self):
+        """The rules are a means; matching bytes are the end.
+
+        Asserting only that a `text eol=lf` rule exists is not enough, and
+        Codex found the gap on #247: an EXISTING core.autocrlf=true checkout
+        that pulls the rules keeps its stale CRLF copies, because git does not
+        rewrite files whose content did not change. In that state all four
+        repinned files carried their old CRLF digests, `git status` was clean,
+        and this file's other assertions all passed -- the rules were present,
+        so nothing complained, while the pins were broken.
+
+        `git checkout --force -- .` does NOT repair it; git still considers the
+        files unchanged. The migration that works is:
+
+            git rm --cached -r .
+            git reset --hard
+
+        This asserts the outcome instead of the mechanism, so the breakage is
+        loud and the message says how to fix it.
+        """
+        corpus = _pin_corpus()
+        stale = []
+        for relative in raw_pinned_files():
+            path = ROOT / relative
+            if not path.is_file():
+                continue
+            raw = path.read_bytes()
+            digest = hashlib.sha256(raw).hexdigest().upper()
+            others = [text for name, text in corpus.items() if name != relative]
+            if not any(digest in text for text in others):
+                stale.append(relative)
+        self.assertEqual(
+            stale,
+            [],
+            "these files are pinned by a raw sha256, but the bytes ON DISK do "
+            "not match any pinned digest. On Windows this usually means an "
+            "existing checkout kept stale CRLF copies when the eol rules "
+            "arrived -- `git checkout --force` will NOT fix it; run "
+            "`git rm --cached -r . && git reset --hard` to re-materialise the "
+            f"worktree from the index: {stale}",
+        )
+
     def test_a_crlf_checkout_would_break_a_pinned_hash(self):
         """Anti-vacuity: prove the rule is load-bearing, not decorative.
 
