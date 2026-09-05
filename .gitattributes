@@ -62,3 +62,11 @@ assets/vv4_masks/** -text
 /data/candidates/vv3_running_candidate_map.json text eol=lf
 /data/candidates/vv4_full_heal_cure_all_candidate.json text eol=lf
 /data/candidates/vv4_full_heal_cure_all_candidate_map.json text eol=lf
+
+# Repinned against their LF bytes (previously pinned to CRLF, minted on a
+# Windows autocrlf=true clone), so they can now carry the same rule as every
+# other raw-pinned file.
+/data/candidates/vv2_individual_grant_running_binding.json text eol=lf
+/data/candidates/vv4_full_mastery_all_candidate.json text eol=lf
+/data/native_evidence/vv1_vv2_native_query_manifest.json text eol=lf
+/data/native_evidence_queries.json text eol=lf

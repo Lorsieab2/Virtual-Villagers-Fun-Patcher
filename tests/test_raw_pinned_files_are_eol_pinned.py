@@ -41,41 +41,26 @@ LF = bytes((10,))
 # why every sweep restricted to scripts/ and src/ missed them.
 PIN_GLOBS = ("scripts/**/*.py", "src/**/*.py", "tests/**/*.py", "data/**/*.json")
 
-# Four files are pinned against their CRLF bytes, so a `text eol=lf` rule would
-# force them to LF and break those pins permanently. All four are pre-existing
-# defects, NOT things this rule set fixes. Each line gives the CRLF digest that
-# IS pinned, and where:
+# Files whose pin is recorded against their CRLF bytes, where a `text eol=lf`
+# rule would force LF and break the pin permanently.
+#
+# EMPTY, and that is the point. Four files were listed here:
 #
 #   data/candidates/vv2_individual_grant_running_binding.json
-#       FC8165A0... in vv2_individual_full_mastery_candidate.json and its _map
 #   data/candidates/vv4_full_mastery_all_candidate.json
-#       DD41DDC2... in vv4_full_mastery_all_candidate_map.json
 #   data/native_evidence/vv1_vv2_native_query_manifest.json
-#       A53C6D01... in validate_authorized_analyzer_workflow.py (MANIFEST_SHA)
-#       and data/authorized_analyzer_workflow.json
 #   data/native_evidence_queries.json
-#       FED6AE17... in validate_authorized_analyzer_workflow.py (QUERY_PLAN_SHA)
-#       and three times in data/authorized_analyzer_workflow.json
 #
-# In every case the LF digest is pinned nowhere, so the pin was minted on a
-# Windows autocrlf=true clone. `validate_authorized_analyzer_workflow.py`
-# therefore already fails on any LF checkout -- reproduced by running it, where
-# it raises AssertionError at its sha256 comparison. Nothing in the suite
-# executes it, which is why that has gone unnoticed.
+# Their pins were minted on a Windows autocrlf=true clone, so the committed LF
+# blobs never satisfied them and `validate_authorized_analyzer_workflow.py`
+# failed its sha256 assertions on every LF checkout. All four have been
+# repinned against their LF bytes and given rules, so the exception is gone.
 #
-# The first two are pinned INSIDE SIBLING JSON MANIFESTS, not in Python, which
-# is why sweeps limited to scripts/ and src/ never saw them.
-#
-# Repinning any of these against LF is a separate change with its own
-# verification; folding a content change into a line-endings rule set would
-# bury it. The exception is the standing record of what is still broken, and
-# the expiry test below fails if an entry stops exhibiting the defect.
-KNOWN_UNPINNED_CRLF_DEFECTS = {
-    "data/candidates/vv2_individual_grant_running_binding.json",
-    "data/candidates/vv4_full_mastery_all_candidate.json",
-    "data/native_evidence/vv1_vv2_native_query_manifest.json",
-    "data/native_evidence_queries.json",
-}
+# The set stays as a mechanism rather than being deleted: a future pin minted
+# on a CRLF clone lands here, with the same requirement that it be repinned
+# rather than silently exempted. The expiry test below refuses an entry that no
+# longer exhibits the defect, so this cannot quietly become a dumping ground.
+KNOWN_UNPINNED_CRLF_DEFECTS: set[str] = set()
 
 
 def _git(*args: str) -> str:

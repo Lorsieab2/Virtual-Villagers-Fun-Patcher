@@ -16,7 +16,7 @@
     "status": "STOP_MISSING_DEDICATED_MANIFEST",
     "available_manifest": {
       "path": "data/native_evidence/vv1_vv2_native_query_manifest.json",
-      "sha256": "A53C6D01B0AD58124EFDA7F2C2C8FC6ABC537DE5104C46F3C29F4C43B9305F42",
+      "sha256": "B79E1613061369AA75A2791AA3329FF6DF8BF89958982F33233C5B567C4981C5",
       "games": ["vv1", "vv2"],
       "query_count": 48,
       "query_ids": [
@@ -47,7 +47,7 @@
       "dll_count": 7,
       "inventory_sha256": "1B348AC2FA05E1D723F92AFBBB2E98507F624F7EDBC39B237D8C2B722955A1E6",
       "executable": {"path": "Virtual Villagers - The Secret City.exe", "size": 831488, "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"},
-      "query_plan": {"path": "data/native_evidence_queries.json", "sha256": "FED6AE17FAB8FB173DD56AC20FA6FED7C80BE62EE9D53202FE705BDCC1B55087", "query_count": 10},
+      "query_plan": {"path": "data/native_evidence_queries.json", "sha256": "E6154939F54FB570522E9C7C7EA5CE480D42523D7B6D8B0A313EDF4E50D7AB56", "query_count": 10},
       "collectibles_plan": {"path": "data/vv2_vv5_collectibles_expanded256_disassembly_plan.json", "sha256": "D5D2DB8B63B4BF5FE7E05AF677EAFF74907C8D9E0D1ECB66C676616AAE06E98E", "query_count": 10},
       "export": {"status": "PENDING_AUTHORIZED_MACHINE_SESSION", "artifact_path": null, "artifact_sha256": null, "resolved_rows": 0}
     },
@@ -57,7 +57,7 @@
       "dll_count": 7,
       "inventory_sha256": "DDA63528390D271F356E1A359AD991DB6A759E118F1EAD8F58813FD00103E155",
       "executable": {"path": "Virtual Villagers - The Tree of Life.exe", "size": 929792, "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"},
-      "query_plan": {"path": "data/native_evidence_queries.json", "sha256": "FED6AE17FAB8FB173DD56AC20FA6FED7C80BE62EE9D53202FE705BDCC1B55087", "query_count": 10},
+      "query_plan": {"path": "data/native_evidence_queries.json", "sha256": "E6154939F54FB570522E9C7C7EA5CE480D42523D7B6D8B0A313EDF4E50D7AB56", "query_count": 10},
       "collectibles_plan": {"path": "data/vv2_vv5_collectibles_expanded256_disassembly_plan.json", "sha256": "D5D2DB8B63B4BF5FE7E05AF677EAFF74907C8D9E0D1ECB66C676616AAE06E98E", "query_count": 10},
       "export": {"status": "PENDING_AUTHORIZED_MACHINE_SESSION", "artifact_path": null, "artifact_sha256": null, "resolved_rows": 0}
     },
@@ -67,7 +67,7 @@
       "dll_count": 7,
       "inventory_sha256": "9B9773905E5DA8D7A5B67FB8FD58E70093870429C60853C0023F5FFFEF3BF977",
       "executable": {"path": "Virtual Villagers - New Believers.exe", "size": 991232, "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"},
-      "query_plan": {"path": "data/native_evidence_queries.json", "sha256": "FED6AE17FAB8FB173DD56AC20FA6FED7C80BE62EE9D53202FE705BDCC1B55087", "query_count": 10},
+      "query_plan": {"path": "data/native_evidence_queries.json", "sha256": "E6154939F54FB570522E9C7C7EA5CE480D42523D7B6D8B0A313EDF4E50D7AB56", "query_count": 10},
       "collectibles_plan": {"path": "data/vv2_vv5_collectibles_expanded256_disassembly_plan.json", "sha256": "D5D2DB8B63B4BF5FE7E05AF677EAFF74907C8D9E0D1ECB66C676616AAE06E98E", "query_count": 10},
       "export": {"status": "PENDING_AUTHORIZED_MACHINE_SESSION", "artifact_path": null, "artifact_sha256": null, "resolved_rows": 0}
     }
