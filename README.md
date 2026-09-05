@@ -467,8 +467,8 @@ nothing tells you so in its result instead.
 The checkmark never means a row is unavailable. Every visible row stays
 clickable, and a row that changes nothing says so and deducts no tech points.
 
-**Switching save files does not carry upgrade state between villages.** Two
-kinds of state are cleared when you load a different save slot:
+**Switching save files clears some upgrade state, and the details differ by
+game.** Two kinds of state are affected when you load a different save slot:
 
 - **Doubler ownership.** A doubler bought in one village used to stay owned in
   another that never paid for it. A New Home and The Lost Children keep that
@@ -482,9 +482,9 @@ kinds of state are cleared when you load a different save slot:
 - **A queued Island Event or Barrel of Babies.** In A New Home, The Lost
   Children and New Believers a pending event no longer follows you into another
   save, where its row would have read **Unavailable** and the event could have
-  been delivered to a village that never bought it. The Secret City and The
-  Tree of Life do not clear their queued-event state on a slot change, so a
-  Barrel bought but not yet delivered can still carry across a switch there.
+  been delivered to a village that never bought it. **The Secret City and The
+  Tree of Life do not clear theirs**, so in those two a Barrel or Island Event
+  bought but not yet delivered can still carry across a slot change.
 
 Saving does not trigger either reset -- only genuinely changing slots does, so
 a doubler you own survives an autosave.
