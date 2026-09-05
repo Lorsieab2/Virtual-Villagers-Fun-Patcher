@@ -318,9 +318,12 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
 
         payload = _manifest_payload("data/vv3_origins_feature.json")
         arm = bytes([0xC6, 0x05]) + flag.to_bytes(4, "little") + bytes([0x01])
-        self.assertIn(
-            arm,
-            payload,
+        # assertTrue on a membership test, not assertIn: the payload is ~78KB
+        # and assertIn prints all of it as hex on failure, burying the message
+        # that says what to do. Same trap this file already documents for the
+        # DLL blobs above.
+        self.assertTrue(
+            arm in payload,
             f"the VV3 companion reads a pending flag at 0x{flag:X}, but the "
             "VV3 payload never sets it. The DLL half and the payload half are "
             "on different branches; merging the companion without the arming "
