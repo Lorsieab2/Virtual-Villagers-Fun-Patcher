@@ -66,6 +66,30 @@ BURIAL_HINT = b"buried"
 OVERCLAIM = b"Every villager slot is taken"
 
 
+def _manifest_payload(relative: str) -> bytes:
+    """Every emitted byte of a feature manifest: patches AND appended layouts.
+
+    Reading only `patches` is a false-negative waiting to happen, and it bit
+    immediately: VV3 emits its arming instruction into the appended R-X page,
+    which lives under `pe_append_transaction.layouts`, so a patches-only scan
+    reported the flag as unarmed on a build that arms it correctly. A guard
+    that cannot see half the payload cannot certify anything about it.
+    """
+    import json as _json
+
+    manifest = _json.loads((ROOT / relative).read_text(encoding="utf-8"))
+    blobs = [
+        bytes.fromhex(patch["after"])
+        for patch in manifest.get("patches", [])
+        if patch.get("after")
+    ]
+    layouts = manifest.get("pe_append_transaction", {}).get("layouts", {})
+    for layout in layouts.values():
+        if layout.get("append_bytes"):
+            blobs.append(bytes.fromhex(layout["append_bytes"]))
+    return b"".join(blobs)
+
+
 class BlockedRowsExplainThemselvesTests(unittest.TestCase):
     def test_every_shipped_companion_carries_the_explanations(self):
         """The bytes the player actually runs.
@@ -257,19 +281,7 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
             text = (ROOT / source).read_text(encoding="utf-8", errors="ignore")
             if f"0x{bit:X}" not in text.upper():
                 continue
-            manifest = _json.loads(
-                (ROOT / manifest_path).read_text(encoding="utf-8")
-            )
-            payload = b"".join(
-                bytes.fromhex(patch["after"])
-                for patch in manifest.get("patches", [])
-                if patch.get("after")
-            )
-            for layout in (
-                manifest.get("pe_append_transaction", {}).get("layouts", {}).values()
-            ):
-                if layout.get("append_bytes"):
-                    payload += bytes.fromhex(layout["append_bytes"])
+            payload = _manifest_payload(manifest_path)
             # `or <reg>, imm32` for each of the registers these payloads use.
             setters = [
                 bytes([opcode]) + bit.to_bytes(4, "little")
@@ -304,14 +316,7 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
             self.skipTest("VV3 companion does not read an island pending flag")
         flag = int(match.group(1), 16)
 
-        manifest = _json.loads(
-            (ROOT / "data" / "vv3_origins_feature.json").read_text(encoding="utf-8")
-        )
-        payload = b"".join(
-            bytes.fromhex(patch["after"])
-            for patch in manifest.get("patches", [])
-            if patch.get("after")
-        )
+        payload = _manifest_payload("data/vv3_origins_feature.json")
         arm = bytes([0xC6, 0x05]) + flag.to_bytes(4, "little") + bytes([0x01])
         self.assertIn(
             arm,
