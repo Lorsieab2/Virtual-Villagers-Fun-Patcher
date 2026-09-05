@@ -111,6 +111,22 @@ DOUBLER_OWNERSHIP_VA = 0x5824D0
 RUNNING_BOUNDARYFN_PTR = SECTION_DATA_VA + 0x48
 # Barrel queue: the epoch second at which the pending barrel becomes due.
 BARREL_DUE_VA = SECTION_DATA_VA + 0x4C
+# Purchased-Island-Event pending flag: 1 from the moment the purchase arms the
+# queue until the island-event handler has actually consumed it.
+#
+# This is a DEDICATED flag rather than an inference from the due timestamp at
+# [world+0x12EF4], and the difference is the whole point. That field is the
+# village's next-island-event stamp; it is non-zero in normal play, it is
+# written by natural events too, and "now is past the stamp" does NOT mean the
+# event was consumed -- the handler only runs during village gameplay, so a
+# player sitting in the paused Tech menu leaves an armed event overdue and
+# still outstanding. Any window test therefore either refuses legitimate
+# purchases or re-opens the double charge, depending on which way it errs.
+#
+# The Barrel already solved this the right way with BARREL_PENDING_FLAG_VA:
+# set on arm, cleared by the handler on consume. This mirrors it, in the
+# appended R/W data section rather than a code cave.
+ISLAND_PENDING_FLAG_VA = SECTION_DATA_VA + 0x50
 RUNNING_BOUNDARY_BEFORE_CAVE_VA = SECTION_CODE_VA + 0x180
 RUNNING_BOUNDARY_AFTER_CAVE_VA = SECTION_CODE_VA + 0x1C0
 RUNNING_VILLAGE_WRAPPER_CAVE_VA = SECTION_CODE_VA + 0x220
@@ -819,37 +835,32 @@ def main() -> None:
             # than an executable string because the string block is full.
             cmp ebx, 1
             jne ie_charge_ok
-            # Is an Island Event already queued? The field is the village's
-            # next-island-event TIMESTAMP in Unix epoch seconds, and
-            # queue_arm_island_code writes clock() + QUEUE_DELAY_SECONDS to
-            # it. Pending therefore means "the stamp is within the delay
-            # window ahead of now", not "the field is zero".
+            # Is a PURCHASED Island Event still outstanding? Refuse a second
+            # buy while one is, so the 30,000 points are not deducted twice
+            # for a single event.
             #
-            # This previously tested the field against 0, documented as
-            # "queued by zeroing its countdown" -- true of an older mechanism
-            # that was replaced by the timestamp. Because a pending event
-            # leaves the field NON-zero, the old test passed the purchase
-            # through: a second buy inside the window deducted another 30,000
-            # tech points and merely overwrote the same timer, still producing
-            # exactly one event. Same shape as VV1's pending_rows check.
+            # This tests a dedicated flag, not the due timestamp at
+            # [world+0x12EF4]. An earlier version compared that stamp against
+            # clock() and treated "inside the delay window" as pending, which
+            # Codex found broken three ways on #249, all traceable to the same
+            # mistake of inferring state instead of recording it:
             #
-            # edx is free at this point (the cost is in eax, the row in ebx),
-            # so the stamp is held there rather than in esi, which is live
-            # across this whole routine. eax carries the cost the sub below
-            # consumes, so it rides the stack across the clock call.
-            push eax
-            mov edx, dword ptr [edi + ebp + 0x12EF4]
-            test edx, edx
-            jz ie_not_pending
-            call 0x{QUEUE_CLOCK_VA:X}
-            sub edx, eax
-            cmp edx, {QUEUE_DELAY_SECONDS}
-            ja ie_not_pending
-            pop eax
-            mov eax, 10
-            jmp show_result
-        ie_not_pending:
-            pop eax
+            #   * the not-pending branch fell straight into `mov eax, 10`, so
+            #     EVERY Island Event purchase was refused and no ebx == 1 path
+            #     could reach ie_charge_ok at all;
+            #   * the stamp was held in edx across a call to 0x403330, which
+            #     clobbers eax/ecx/edx, so the subtraction read scratch;
+            #   * an overdue-but-unconsumed event -- the player reopens the
+            #     paused Tech menu during the delay and leaves it open, so the
+            #     handler never runs -- underflowed the unsigned compare and
+            #     read as not pending, re-opening the double charge.
+            #
+            # A flag has none of those failure modes: it is set on arm and
+            # cleared only when the handler has actually consumed the event,
+            # so "outstanding" is recorded rather than guessed, and nothing
+            # here needs a clock call or a live register.
+            cmp byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
+            je ie_charge_ok
             mov eax, 10
             jmp show_result
         ie_charge_ok:
@@ -2096,8 +2107,26 @@ def main() -> None:
     barrel_hook_code = assemble(
         f"""
             cmp byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
-            je bh_original
+            je bh_no_barrel
             call 0x{BARREL_PRESENT_VA:X}
+        bh_no_barrel:
+            # Release the purchased-Island-Event flag. Reaching this hook is
+            # itself the proof the guard needs: it is spliced into the
+            # island-event handler, which runs only during live village
+            # gameplay. By the time control arrives here the Tech menu has
+            # closed, the world clock is running, and the handler below is
+            # about to process the queue the purchase armed.
+            #
+            # That is exactly the condition a timestamp comparison inside the
+            # paused menu could not express. A player who reopens the menu
+            # during the delay and leaves it open never reaches this
+            # instruction, so their event correctly stays pending and a second
+            # purchase stays refused -- Codex's third P1 on #249.
+            #
+            # Deliberately a plain store: no clock call, no live register, and
+            # no effect on the flags the spliced-out instructions below run
+            # under.
+            mov byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
         bh_original:
             mov ecx, dword ptr [esi + 0x10]
             call 0x403330
@@ -2180,6 +2209,7 @@ def main() -> None:
             pop ecx
             add eax, {QUEUE_DELAY_SECONDS}
             mov dword ptr [ecx + 0x12EF4], eax
+            mov byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 1
             ret
         """,
         QUEUE_ARM_ISLAND_VA,
