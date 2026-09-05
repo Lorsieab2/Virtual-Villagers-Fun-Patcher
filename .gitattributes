@@ -4,11 +4,19 @@
 # rule arrived keeps its stale CRLF copy, because the file's content did not
 # change and git does not rewrite unchanged paths -- `git status` stays clean
 # while raw-sha256 pins silently fail. `git checkout --force -- .` does NOT
-# repair it; git still considers those files unchanged. Re-materialise the
-# worktree from the index instead:
+# repair it; git still considers those files unchanged.
 #
-#     git rm --cached -r .
-#     git reset --hard
+# Re-materialise ONLY the files the test names, so unrelated local work is
+# untouched. For each path it reports:
+#
+#     git rm --cached -- <path>
+#     git checkout HEAD -- <path>
+#
+# Do NOT use `git rm --cached -r . && git reset --hard`. That repairs every
+# file, but `--hard` resets the whole working tree and SILENTLY DISCARDS any
+# uncommitted change -- verified by appending a line to README.md and running
+# it, which removed the line with no warning. Commit or stash first if you use
+# the broad form for any reason.
 #
 # tests/test_raw_pinned_files_are_eol_pinned.py asserts the worktree bytes
 # actually satisfy their pins, so this failure is loud rather than silent.

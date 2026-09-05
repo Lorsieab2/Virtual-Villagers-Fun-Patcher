@@ -235,10 +235,19 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         so nothing complained, while the pins were broken.
 
         `git checkout --force -- .` does NOT repair it; git still considers the
-        files unchanged. The migration that works is:
+        files unchanged. The migration that works, applied to ONLY the paths
+        this test names, is:
 
-            git rm --cached -r .
-            git reset --hard
+            git rm --cached -- <path>
+            git checkout HEAD -- <path>
+
+        Deliberately per-path. The whole-worktree form
+        (`git rm --cached -r . && git reset --hard`) also repairs it, but
+        `--hard` silently discards every uncommitted change in the checkout --
+        reproduced by appending a line to README.md and running it, which
+        removed the line with no warning. A migration note is read by someone
+        whose pins are already failing, which is a bad moment to hand them a
+        command that eats their work.
 
         This asserts the outcome instead of the mechanism, so the breakage is
         loud and the message says how to fix it.
@@ -260,9 +269,12 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             "these files are pinned by a raw sha256, but the bytes ON DISK do "
             "not match any pinned digest. On Windows this usually means an "
             "existing checkout kept stale CRLF copies when the eol rules "
-            "arrived -- `git checkout --force` will NOT fix it; run "
-            "`git rm --cached -r . && git reset --hard` to re-materialise the "
-            f"worktree from the index: {stale}",
+            "arrived -- `git checkout --force` will NOT fix it. Re-materialise "
+            "ONLY these paths, so unrelated local work is untouched: for each, "
+            "`git rm --cached -- <path>` then `git checkout HEAD -- <path>`. Do "
+            "NOT use `git rm --cached -r . && git reset --hard`; the --hard "
+            "resets the whole worktree and silently discards any uncommitted "
+            f"change: {stale}",
         )
 
     def test_a_crlf_checkout_would_break_a_pinned_hash(self):
