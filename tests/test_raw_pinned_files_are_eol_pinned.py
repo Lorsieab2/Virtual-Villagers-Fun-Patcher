@@ -112,19 +112,43 @@ def raw_pinned_files() -> list[str]:
     Testing both makes the set identical on every clone, and catches a file
     whose pin was recorded against either encoding.
     """
+    return sorted(pinned_digests_by_path())
+
+
+def pinned_digests_by_path() -> dict[str, set[str]]:
+    """Each raw-pinned file mapped to the digests recorded FOR IT.
+
+    Keeping the pin-to-path relationship is the whole point, and its absence
+    was a real hole Codex found on #247: a check that asks only "do these bytes
+    appear as some pin?" passes for a file holding a DIFFERENT pinned file's
+    contents. Reproduced by copying
+    `data/candidates/vv2_full_mastery_all_candidate.json` over
+    `data/native_evidence_queries.json` -- all five tests passed while the
+    latter no longer matched its own E6154939 pin.
+
+    A file's allowed digests are those of its committed blob, in either
+    encoding, that some other file records. Both encodings still matter: a pin
+    minted on a Windows clone is written against CRLF bytes, which is exactly
+    how `vv1_vv2_native_query_manifest.json` escaped two manual sweeps.
+    """
     corpus = _pin_corpus()
-    found = []
+    pinned: dict[str, set[str]] = {}
     for relative in _tracked_json():
         as_lf = _blob_lf(relative)
         if as_lf is None:
             continue
         others = [text for name, text in corpus.items() if name != relative]
-        for candidate in (as_lf, as_lf.replace(LF, CRLF)):
-            digest = hashlib.sha256(candidate).hexdigest().upper()
-            if any(digest in text for text in others):
-                found.append(relative)
-                break
-    return sorted(found)
+        allowed = {
+            digest
+            for digest in (
+                hashlib.sha256(candidate).hexdigest().upper()
+                for candidate in (as_lf, as_lf.replace(LF, CRLF))
+            )
+            if any(digest in text for text in others)
+        }
+        if allowed:
+            pinned[relative] = allowed
+    return pinned
 
 
 def _blob_lf(relative: str) -> bytes | None:
@@ -273,18 +297,30 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         loud and the message says how to fix it.
         """
         corpus = _pin_corpus()
+        allowed_by_path = pinned_digests_by_path()
         stale = []
-        # Union, not raw_pinned_files() alone: the rule-derived set survives
-        # content drift, while the digest-derived set catches a raw-pinned file
-        # that has no rule yet (which the test above reports separately).
-        for relative in sorted(set(raw_pinned_files()) | set(eol_pinned_files())):
+        # Union, not the digest-derived set alone: the rule-derived set
+        # survives content drift, while the digest-derived set catches a
+        # raw-pinned file that has no rule yet (reported by the test above).
+        candidates = set(allowed_by_path) | set(eol_pinned_files())
+        # A file in the exception set is pinned to its CRLF bytes ON PURPOSE,
+        # so hashing its LF worktree copy here would report it stale and make
+        # the suite unpassable with any entry present -- which would render the
+        # documented mechanism unusable in exactly the window it exists for.
+        candidates -= KNOWN_UNPINNED_CRLF_DEFECTS
+        for relative in sorted(candidates):
             path = ROOT / relative
             if not path.is_file():
                 continue
-            raw = path.read_bytes()
-            digest = hashlib.sha256(raw).hexdigest().upper()
-            others = [text for name, text in corpus.items() if name != relative]
-            if not any(digest in text for text in others):
+            digest = hashlib.sha256(path.read_bytes()).hexdigest().upper()
+            allowed = allowed_by_path.get(relative)
+            if allowed is None:
+                # Rule-derived only: no pin recorded anywhere for this path, so
+                # fall back to asking whether the bytes are pinned at all.
+                others = [t for name, t in corpus.items() if name != relative]
+                if not any(digest in text for text in others):
+                    stale.append(relative)
+            elif digest not in allowed:
                 stale.append(relative)
         self.assertEqual(
             stale,
@@ -295,10 +331,13 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             "checkout kept stale CRLF copies when the eol rules arrived, which "
             "`git checkout --force` will NOT repair. Re-materialise ONLY these "
             "paths, so unrelated local work is untouched: for each, "
-            "`git rm --cached -- <path>` then `git checkout HEAD -- <path>`. Do "
-            "NOT use `git rm --cached -r . && git reset --hard`; the --hard "
-            "resets the whole worktree and silently discards every uncommitted "
-            f"change: {stale}",
+            "`git rm --cached -- <path>` then `git checkout HEAD -- <path>` "
+            "-- but COMMIT OR STASH FIRST if you have edited any of these "
+            "files, because that checkout overwrites the worktree copy and "
+            "your edit goes with it. Do NOT use "
+            "`git rm --cached -r . && git reset --hard`; the --hard resets the "
+            "whole worktree and silently discards every uncommitted change: "
+            f"{stale}",
         )
 
     def test_a_crlf_checkout_would_break_a_pinned_hash(self):

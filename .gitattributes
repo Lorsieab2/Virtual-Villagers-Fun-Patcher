@@ -12,6 +12,13 @@
 #     git rm --cached -- <path>
 #     git checkout HEAD -- <path>
 #
+# COMMIT OR STASH FIRST if you have edited any of those files. The checkout
+# overwrites the worktree copy, and an edit to one of them goes with it -- git
+# does not warn, because `rm --cached` succeeds whenever the index matches
+# HEAD, whatever the worktree holds. The test can name a file for genuine
+# content drift as well as for stale line endings, so a reported path is not
+# necessarily one you have left alone.
+#
 # Do NOT use `git rm --cached -r . && git reset --hard`. That repairs every
 # file, but `--hard` resets the whole working tree and SILENTLY DISCARDS any
 # uncommitted change -- verified by appending a line to README.md and running
