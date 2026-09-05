@@ -71,6 +71,8 @@ CLAMP_MAX_CHILDREN = 6
 CLAMP_NO_CAPACITY_VA = 0x4890ED   # `ret` -- refuse, create nothing
 CLAMP_PROCEED_VA = 0x4890D8       # the reservation argument push
 RESERVATION_CALL_VA = 0x467B00    # sub_467B00, the creation helper
+CLAMP_BROOD_PUSH_VA = 0x4890E0    # the brood-count argument specifically
+RESERVATION_CALL_ANCHOR = 0x4890E8  # the call site; the proceed path ends here
 PENDING_FIELD = 0x1C50            # pending-baby count on a record
 # Brood written on each multiple-birth guard's ALLOWED path. Pinned so a
 # guard can keep its threshold and branch while writing a larger brood.
@@ -212,17 +214,42 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
                 for m, o in decoded if len(o) > 1),
             f"the clamp guard no longer caps the brood at {CLAMP_MAX_CHILDREN}")
 
-        call = [i for i in insns
-                if i.mnemonic == "call"
-                and self._is_imm(i.op_str, RESERVATION_CALL_VA)]
+        refusal = [i for i in insns if i.address == CLAMP_NO_CAPACITY_VA]
         self.assertTrue(
-            call, f"the clamp guard does not reach {RESERVATION_CALL_VA:#x}")
-        pushes = [i for i in insns
-                  if i.mnemonic == "push" and i.address < call[0].address]
-        self.assertIn(
-            "eax", [self._ops(i)[0] for i in pushes],
-            "the clamped count is never pushed; the reservation helper would "
+            refusal, f"nothing decodes at {CLAMP_NO_CAPACITY_VA:#x}")
+        self.assertEqual(
+            refusal[0].mnemonic, "ret",
+            f"the zero-capacity destination is `{refusal[0].mnemonic}`, not "
+            "`ret`; a fall-through there runs on into the counter instead of "
+            "refusing the reservation")
+
+        # The brood push is asserted at its exact address, not "somewhere before
+        # the call" -- otherwise moving it to another register while a different
+        # argument became `push eax` would still satisfy this.
+        brood = [i for i in insns if i.address == CLAMP_BROOD_PUSH_VA]
+        self.assertTrue(brood, f"nothing decodes at {CLAMP_BROOD_PUSH_VA:#x}")
+        self.assertEqual(
+            (brood[0].mnemonic, self._ops(brood[0])[0]), ("push", "eax"),
+            f"{CLAMP_BROOD_PUSH_VA:#x} is `{brood[0].mnemonic} "
+            f"{brood[0].op_str}`, not `push eax`; the reservation helper would "
             "receive an unrelated brood count")
+
+        # And the proceed path must actually REACH the call: walk forward from
+        # the clamp's proceed target and refuse any early return or jump away.
+        walked = [i for i in insns
+                  if CLAMP_PROCEED_VA <= i.address <= RESERVATION_CALL_ANCHOR]
+        self.assertTrue(walked, "the proceed path decodes to nothing")
+        for insn in walked:
+            self.assertNotIn(
+                insn.mnemonic, ("ret", "jmp"),
+                f"`{insn.mnemonic} {insn.op_str}` at {insn.address:#x} leaves "
+                "the proceed path before the reservation call, so a clamp "
+                "result of 1..6 would create nothing")
+        self.assertTrue(
+            any(i.mnemonic == "call"
+                and self._is_imm(i.op_str, RESERVATION_CALL_VA)
+                for i in walked),
+            f"the proceed path does not reach {RESERVATION_CALL_VA:#x}")
 
     def test_each_multiple_birth_writes_its_own_brood(self):
         """A threshold is only half the guard; the payload is the other half.
