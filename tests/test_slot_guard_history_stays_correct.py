@@ -33,7 +33,6 @@ ROOT = Path(__file__).resolve().parents[1]
 # and How to Use.txt is user-facing, and a directory-scoped scan reached
 # neither -- so the false claim could have been copied into exactly the
 # places players read while this "repo-wide" test stayed green.
-SUFFIXES = {".md", ".py", ".txt", ".json", ".ps1"}
 
 # Phrasings that assert the address is unwritten. Deliberately narrow: the
 # files legitimately DISCUSS the false claim while correcting it, so this
@@ -52,23 +51,30 @@ QUOTING_ALLOWED = {
 
 
 def _repo_files():
-    """Every tracked text file in the repository, root included.
+    """Every tracked file that decodes as text -- no extension allowlist.
 
-    Uses git rather than a directory walk so the set follows what is actually
-    committed: an untracked scratch file is not documentation, and a newly
-    added directory is covered without editing this list.
+    An allowlist contradicts the promise this helper makes, and the repo
+    tracks .c, .h, .bat, .rc, .def and .xml files where the false claim
+    could just as easily be copied into a comment or a user-facing batch
+    file. Files that do not decode as UTF-8 are binaries and are skipped;
+    nothing else is.
     """
     result = subprocess.run(
         ["git", "ls-files", "-z"],
         cwd=ROOT, capture_output=True, check=False)
     if result.returncode != 0:
         raise AssertionError("git ls-files failed; cannot establish the scan set")
-    for name in result.stdout.decode("utf-8", "replace").split("\0"):
+    for name in result.stdout.decode("utf-8", "replace").split(chr(0)):
         if not name:
             continue
         path = ROOT / name
-        if path.suffix.lower() in SUFFIXES and path.is_file():
-            yield path
+        if not path.is_file():
+            continue
+        try:
+            path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        yield path
 
 
 class SlotGuardHistoryTests(unittest.TestCase):
