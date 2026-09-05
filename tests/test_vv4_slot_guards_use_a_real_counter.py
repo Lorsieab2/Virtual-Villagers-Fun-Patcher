@@ -76,9 +76,23 @@ RESERVATION_CALL_ANCHOR = 0x4890E8  # the call site; the proceed path ends here
 PENDING_FIELD = 0x1C50            # pending-baby count on a record
 # Brood written on each multiple-birth guard's ALLOWED path. Pinned so a
 # guard can keep its threshold and branch while writing a larger brood.
+# Each multiple-birth guard writes a brood and then RESUMES the stock routine.
+# Both halves are pinned: the brood, and the continuation it jumps back to.
+# Retargeting the triplet continuation to the twin path leaves the `mov ..., 3`
+# intact and then lets the twin path overwrite the pending count with 2.
 GUARD_PAYLOADS = {
-    0x489030: 3,   # triplets
-    0x489050: 2,   # twins
+    0x489030: (3, 0x45E8CA),   # triplets
+    0x489050: (2, 0x45E8DD),   # twins
+}
+
+# The two queued-event guards do not write a brood -- they push the stock
+# routine's arguments and resume it. Pinned the same way: the exact argument
+# sequence and the continuation, so a guard cannot resume the WRONG stock
+# action (Island Event into the Barrel routine, or either with a changed
+# delay) while every threshold and skip destination still matches.
+EVENT_PAYLOADS = {
+    0x48906C: (["esi", 0x258], 0x4148B6),   # Island Event
+    0x48908C: ([0xC8], 0x414D95),           # Barrel of Babies
 }
 LOOP_HEAD_VA = 0x4890FE      # the per-record compare the loop returns to
 NEXT_RECORD_VA = 0x489119    # `add edx, stride` -- the skip destination
@@ -258,9 +272,10 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
         call, the 0x93 comparison, the `jg` and both destinations intact -- and
         at a demand of 147 permits a fourth baby past the 150-record pool.
         """
-        for va, brood in GUARD_PAYLOADS.items():
+        for va, (brood, resume) in GUARD_PAYLOADS.items():
             with self.subTest(payload=hex(va)):
-                insn = self._disasm(va, 16)[0]
+                insns = self._disasm(va, 24)
+                insn = insns[0]
                 self.assertEqual(
                     insn.mnemonic, "mov",
                     f"{va:#x} is `{insn.mnemonic}`, not the brood write")
@@ -273,6 +288,81 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
                     self._is_imm(source, brood),
                     f"the guard at {va:#x} reserves {source} babies, not "
                     f"{brood}")
+                # The continuation is the other half. Without it, retargeting
+                # the triplet jump to the twin path keeps this brood write and
+                # then lets the twin path overwrite the 3 with a 2.
+                self.assertGreater(
+                    len(insns), 1,
+                    f"nothing follows the brood write at {va:#x}")
+                # Mnemonic first, then the target. Parsing the operand inside
+                # the tuple would raise on any non-rel32 continuation (`ret`,
+                # `nop`, `jmp eax` all give an unparseable op_str), replacing
+                # the message below with an unrelated ValueError.
+                self.assertEqual(
+                    insns[1].mnemonic, "jmp",
+                    f"the guard at {va:#x} resumes with `{insns[1].mnemonic} "
+                    f"{insns[1].op_str}`, not a `jmp`; a retargeted "
+                    "continuation runs a different stock birth path and can "
+                    "overwrite the brood this guard just reserved")
+                # `_is_imm` rather than a bare `int(..., 16)`: an INDIRECT
+                # continuation (`jmp eax`) keeps the mnemonic and so reaches
+                # here, and parsing its operand would raise instead of
+                # reporting the message below.
+                self.assertTrue(
+                    self._is_imm(insns[1].op_str, resume),
+                    f"the guard at {va:#x} resumes at `{insns[1].op_str}`, not "
+                    f"{resume:#x}; a retargeted continuation runs a different "
+                    "stock birth path and can overwrite the brood this guard "
+                    "just reserved")
+
+    def test_each_event_guard_resumes_its_own_stock_action(self):
+        """The queued-event guards push arguments and resume -- pin both.
+
+        `GUARD_EXPECTATIONS` pins only each guard's taken SKIP destination, so
+        the fall-through payload was unconstrained: Island Event could push the
+        Barrel's argument, or either could resume the other's stock routine,
+        with every existing assertion still green.
+        """
+        for va, (args, resume) in EVENT_PAYLOADS.items():
+            with self.subTest(event=hex(va)):
+                insns = self._disasm(va, 24)
+                pushes = []
+                index = 0
+                while index < len(insns) and insns[index].mnemonic == "push":
+                    pushes.append(self._ops(insns[index])[0])
+                    index += 1
+                self.assertEqual(
+                    len(pushes), len(args),
+                    f"the guard at {va:#x} pushes {len(pushes)} arguments, not "
+                    f"{len(args)}; the stock routine would read the wrong stack")
+                for position, (actual, expected) in enumerate(zip(pushes, args)):
+                    if isinstance(expected, int):
+                        self.assertTrue(
+                            self._is_imm(actual, expected),
+                            f"argument {position} at {va:#x} is `{actual}`, not "
+                            f"{expected:#x}")
+                    else:
+                        self.assertEqual(
+                            actual, expected,
+                            f"argument {position} at {va:#x} is `{actual}`, not "
+                            f"`{expected}`")
+                self.assertLess(
+                    index, len(insns),
+                    f"nothing follows the pushes at {va:#x}")
+                # Split for the same reason as the brood continuation above:
+                # a non-rel32 resume has an op_str `int` cannot parse.
+                self.assertEqual(
+                    insns[index].mnemonic, "jmp",
+                    f"the guard at {va:#x} resumes with "
+                    f"`{insns[index].mnemonic} {insns[index].op_str}`, not a "
+                    "`jmp`; it would run the wrong stock action")
+                # `_is_imm` for the same reason as the brood continuation:
+                # `jmp eax` keeps the mnemonic and would raise on parse.
+                self.assertTrue(
+                    self._is_imm(insns[index].op_str, resume),
+                    f"the guard at {va:#x} resumes at "
+                    f"`{insns[index].op_str}`, not {resume:#x}; it would run "
+                    "the wrong stock action")
 
     def test_no_guard_reads_the_running_total(self):
         """The exact regression: back to the lifetime-conception total."""
