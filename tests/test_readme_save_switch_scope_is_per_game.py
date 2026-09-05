@@ -84,26 +84,49 @@ SLOT_PATH_BOUNDS = {
     "vv1": ("save_slot_capture_code = assemble(", "save_slot_done:"),
     "vv2": ("slot_asm = f\"\"\"", "slot_done:"),
     "vv3": ("save_slot_capture_cave = assemble(", "save_slot_keep_previous:"),
-    "vv4": ("def mask_save_slot_cave", "mss_keep_previous:"),
+    # VV4's reset is OUT OF LINE, so its slot path is TWO disjoint regions:
+    # the cave (which gates on the slot change and calls the helper) and the
+    # helper itself (which does the clearing). Both are bounded tightly.
+    #
+    # Do NOT collapse these into one span from the cave to the helper. That
+    # swallows ~65KB of builder including the barrel DELIVERY paths, which zero
+    # the same globals -- measured: with VV4's slot-change clears removed, such
+    # a region still reported VV4 as clearing. An inert detector reports a
+    # regressed game as fixed forever.
+    "vv4": [("def mask_save_slot_cave", "mss_keep_previous:"),
+            ("doubler_reset = assemble(", "        DOUBLER_RESET_VA,")],
     "vv5": ('put(page, page_va, "slot_capture"', "sc_skip:"),
 }
 
 
 def _slot_path(game):
-    """Just the slot-change region, or the whole file if unbounded."""
+    """The slot-change region(s) for a game, concatenated.
+
+    A game may need more than one region: VV4 gates in its slot cave and clears
+    in the out-of-line helper that cave calls, and those are far apart in the
+    builder. Each region is bounded on its own so no region grows to swallow
+    the delivery paths, which zero the same globals and would make the detector
+    report a regressed game as still clearing.
+    """
     text = _sources(game)
-    start_marker, end_marker = SLOT_PATH_BOUNDS[game]
-    start = text.find(start_marker)
-    if start < 0:
-        raise AssertionError(
-            f"{game}: slot-path start marker {start_marker!r} no longer exists; "
-            "the detector would silently report this game as not clearing")
-    end = text.find(end_marker, start)
-    if end <= start:
-        raise AssertionError(
-            f"{game}: slot-path end marker {end_marker!r} not found after the "
-            "start marker; the region would run to end of file")
-    return text[start:end]
+    bounds = SLOT_PATH_BOUNDS[game]
+    if isinstance(bounds, tuple):
+        bounds = [bounds]
+    regions = []
+    for start_marker, end_marker in bounds:
+        start = text.find(start_marker)
+        if start < 0:
+            raise AssertionError(
+                f"{game}: slot-path start marker {start_marker!r} no longer "
+                "exists; the detector would silently report this game as not "
+                "clearing")
+        end = text.find(end_marker, start + len(start_marker))
+        if end <= start:
+            raise AssertionError(
+                f"{game}: slot-path end marker {end_marker!r} not found after "
+                f"{start_marker!r}; the region would run to end of file")
+        regions.append(text[start:end])
+    return "\n".join(regions)
 
 
 def _sources(game):
@@ -142,24 +165,35 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
         """If the detector matched nothing or everything it would be inert."""
         clearing = games_clearing_queued_events()
         self.assertTrue(clearing, "no game detected as clearing queued events")
-        self.assertNotEqual(
-            clearing,
-            set(TITLES),
-            "every game detected as clearing; the scope check would be vacuous",
-        )
+        # All five genuinely clear now, so "everything" is the correct answer
+        # rather than a sign of a broken detector. The inertness this guard
+        # exists to catch is covered instead by removing a clear: the detector
+        # must then drop that game, which
+        # test_the_detector_sees_every_game_that_really_clears asserts.
+        for game in TITLES:
+            with self.subTest(game=game):
+                self.assertIn(
+                    game, clearing,
+                    f"{game} no longer detected as clearing queued events")
 
     def test_the_detector_sees_every_game_that_really_clears(self):
         """Positive control, from the source rather than from the detector.
 
-        VV1, VV2 and VV5 demonstrably zero queued-event state on a slot change
-        (VV5 by zeroing the word that carries the pending token). Pinning that
-        here means a detector that quietly stops matching -- as an earlier
-        regex version did, reporting only VV5 -- fails instead of silently
-        shrinking the scope the README is checked against.
+        All five games now zero queued-event state on a slot change: VV1, VV2,
+        VV3 and VV4 through explicit barrel-global clears, VV5 by zeroing the
+        word that carries the pending token. Pinning that here means a detector
+        that quietly stops matching -- as an earlier regex version did,
+        reporting only VV5 -- fails instead of silently shrinking the scope the
+        README is checked against.
+
+        VV3 and VV4 were added when their slot-change resets learned to clear
+        the queued Barrel. VV4 also required widening its slot-path region:
+        its reset is out of line, so the clears sit in the helper the cave
+        calls rather than in the cave itself.
         """
         self.assertEqual(
             games_clearing_queued_events(),
-            {"vv1", "vv2", "vv5"},
+            set(TITLES),
             "the queued-event detector no longer agrees with the builders")
 
     def test_readme_names_the_games_that_clear_queued_events(self):
@@ -173,15 +207,27 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
                     "change but the README's save-switch section never names it",
                 )
 
-    def test_readme_does_not_claim_all_five_clear_queued_events(self):
-        """The blanket claim review rejected, in the form it was written."""
+    def test_readme_queued_event_claim_matches_the_builders(self):
+        """The blanket claim is only allowed while it is actually true.
+
+        Review originally rejected "a pending event no longer follows you into
+        another save" because VV3 and VV4 did not clear theirs. They do now, so
+        the unqualified sentence is accurate -- but it becomes wrong again the
+        moment any game stops clearing, so it is tied to the detector rather
+        than simply permitted.
+        """
         section = readme_section()
-        self.assertNotIn(
-            "A pending event no longer follows you into another save",
-            section,
-            "the README makes an unqualified queued-event claim, but VV3 and "
-            "VV4 do not clear theirs on a slot change",
-        )
+        blanket = "no longer follows you into another save"
+        if games_clearing_queued_events() == set(TITLES):
+            self.assertIn(
+                blanket, section,
+                "every game clears its queued-event state, so the README "
+                "should say so plainly instead of naming a subset")
+        else:
+            self.assertNotIn(
+                blanket, section,
+                "the README makes an unqualified queued-event claim, but not "
+                "every game clears theirs on a slot change")
 
     def test_readme_does_not_claim_uniform_doubler_behaviour(self):
         section = readme_section()
