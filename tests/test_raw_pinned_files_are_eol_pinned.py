@@ -33,8 +33,35 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+CRLF = bytes((13, 10))
+LF = bytes((10,))
+
 # Where a raw whole-file hash would be written down.
 CODE_DIRECTORIES = ("scripts", "src")
+
+# Files whose pin is currently recorded against their CRLF bytes, so adding a
+# `text eol=lf` rule would force them to LF and break the pin permanently.
+# These are pre-existing defects, NOT things this rule set fixes:
+#
+#   data/native_evidence/vv1_vv2_native_query_manifest.json
+#       `MANIFEST_SHA` in scripts/validate_authorized_analyzer_workflow.py is
+#       A53C6D01..., which is the file's CRLF digest. The committed blob is LF
+#       and hashes to B79E1613..., so that validator already fails on any LF
+#       checkout -- reproduced by running it directly. It is not covered by the
+#       suite, which is why the failure has gone unnoticed. Fixing it means
+#       regenerating the pin against LF, which is a separate change with its
+#       own verification, not something to smuggle into an EOL rule set.
+#
+#   data/native_evidence/vv1_vv2_full_heal_collections_query_manifest.json
+#       Sits beside it and matches no digest in scripts/ or src/ on either LF
+#       or CRLF, so where (or whether) it is pinned is unresolved.
+#
+# Listing them here is deliberate: the exception is the record of what is still
+# broken. Removing a path from this set without repinning the file re-breaks it.
+KNOWN_UNPINNED_CRLF_DEFECTS = {
+    "data/native_evidence/vv1_vv2_native_query_manifest.json",
+    "data/native_evidence/vv1_vv2_full_heal_collections_query_manifest.json",
+}
 
 
 def _git(*args: str) -> str:
@@ -115,6 +142,7 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             relative
             for relative in raw_pinned_files()
             if eol_attribute(relative) != "lf"
+            and relative not in KNOWN_UNPINNED_CRLF_DEFECTS
         ]
         self.assertEqual(
             missing,
@@ -123,6 +151,36 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             "rule, so their identity depends on the contributor's "
             f"core.autocrlf setting: {missing}",
         )
+
+    def test_the_known_defects_are_still_defects(self):
+        """An exception must not outlive the problem it excuses.
+
+        `KNOWN_UNPINNED_CRLF_DEFECTS` exists because those files are pinned to
+        their CRLF bytes, so an `eol=lf` rule would break them. If someone
+        repins one against LF, the exception becomes a hole that silently
+        exempts a file the rule should now cover -- so require each entry to
+        still exhibit the defect, and fail asking for it to be removed.
+        """
+        code = _code_text()
+        for relative in sorted(KNOWN_UNPINNED_CRLF_DEFECTS):
+            path = ROOT / relative
+            if not path.is_file():
+                continue
+            with self.subTest(path=relative):
+                raw = path.read_bytes()
+                as_lf = hashlib.sha256(
+                    raw.replace(CRLF, LF)
+                ).hexdigest().upper()
+                # assertFalse on a membership test, not assertNotIn: the
+                # latter prints the entire concatenated source corpus on
+                # failure, which buries the message in megabytes of output.
+                self.assertFalse(
+                    as_lf in code,
+                    f"{relative} now matches a pin on its LF bytes ({as_lf}), "
+                    "so the reason for excepting it is gone: give it a "
+                    "`text eol=lf` rule and drop it from "
+                    "KNOWN_UNPINNED_CRLF_DEFECTS",
+                )
 
     def test_a_crlf_checkout_would_break_a_pinned_hash(self):
         """Anti-vacuity: prove the rule is load-bearing, not decorative.
