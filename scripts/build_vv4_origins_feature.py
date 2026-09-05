@@ -2008,7 +2008,20 @@ def main() -> None:
             # explain themselves -- told the player a barrel was on its way
             # when none had been bought. Codex caught it on #254.
             or edx, 0x800000
-            jmp pending_rows_done
+            # FALL THROUGH to the barrel checks rather than jumping to the end.
+            # The jump was load-bearing only while this branch set the barrel
+            # bit itself: dropping the bit and keeping the jump left the Barrel
+            # row unexamined whenever an island event was pending, so a player
+            # could buy an island event, buy a barrel inside the same five
+            # second window, reopen the menu, and be charged for a second
+            # barrel while the first was still armed. Codex caught that on the
+            # fix, not the original -- the repair needed the same scrutiny as
+            # the defect.
+            #
+            # Jump PAST pending_rows_notqueued, which pops ecx/ebx: this path
+            # has already popped them above, and falling into a second pair of
+            # pops would unbalance the stack.
+            jmp pending_rows_barrel
         pending_rows_notqueued:
             pop ecx
             pop ebx

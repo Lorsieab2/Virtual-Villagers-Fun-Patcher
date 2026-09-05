@@ -29,6 +29,11 @@ import pathlib
 import re
 import unittest
 
+try:
+    import capstone
+except ImportError:  # pragma: no cover - exercised only without capstone
+    capstone = None
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 # Every game's dialog source. VV2 includes VV1's file, so it has no separate
@@ -160,6 +165,68 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
                     "burial, so it says what is wrong without saying what the "
                     "player can do about it",
                 )
+
+    def test_a_pending_island_still_examines_the_barrel_row(self):
+        """VV4: the island branch must not skip the barrel checks.
+
+        The original code set the BARREL bit from the island branch, which was
+        wrong -- it claimed a barrel was on its way when none had been bought.
+        Removing that bit while KEEPING the branch's jump to the end was also
+        wrong, and Codex caught it on the fix rather than the original: with
+        both gone, the Barrel row went unexamined whenever an island event was
+        pending, so a player could buy an island event, buy a barrel inside the
+        same five-second window, reopen the menu, and be charged for a second
+        barrel while the first was still armed.
+
+        Asserted as: the jump that immediately follows the island bit must land
+        on the barrel-armed comparison. That is the single instruction the
+        defect changes, and checking it directly avoids a reachability walk --
+        an earlier version of this test searched forward in the blob instead,
+        and passed against the known-bad build because the barrel check is
+        still PRESENT in the image, merely jumped over.
+        """
+        if capstone is None:
+            self.skipTest("requires capstone")
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        island_bit = bytes.fromhex("81CA00008000")  # or edx, 0x800000
+        found = False
+        for patch in manifest.get("patches", []):
+            after = patch.get("after")
+            if not after or island_bit not in bytes.fromhex(after):
+                continue
+            found = True
+            blob = bytes.fromhex(after)
+            offset = patch.get("file_offset")
+            if offset is None:
+                offset = int(str(patch.get("offset", "0")), 0)
+            base = 0x400000 + offset
+            md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+            listing = {i.address: i for i in md.disasm(blob, base)}
+            island = base + blob.find(island_bit)
+            after_bit = listing[island].address + listing[island].size
+            branch = listing.get(after_bit)
+            self.assertIsNotNone(branch, "no instruction follows the island bit")
+            self.assertEqual(
+                branch.mnemonic,
+                "jmp",
+                "the island branch no longer ends in a jump; re-check that it "
+                f"still reaches the barrel checks: {branch.mnemonic} "
+                f"{branch.op_str}",
+            )
+            landing = listing.get(int(branch.op_str, 16))
+            self.assertIsNotNone(landing, "island branch jumps outside the cave")
+            self.assertEqual(
+                (landing.mnemonic, landing.op_str.split(",")[0].strip()),
+                ("cmp", "byte ptr [0x728b04]"),
+                "the island branch does not land on the barrel-armed check, "
+                "so a barrel queued inside the same window goes unexamined and "
+                f"can be charged twice: {landing.mnemonic} {landing.op_str}",
+            )
+        self.assertTrue(found, "VV4 island-pending branch not found")
 
     def test_a_blocked_click_cannot_reach_the_purchase(self):
         """The refusal must not charge.
