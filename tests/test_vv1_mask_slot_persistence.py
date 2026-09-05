@@ -292,7 +292,18 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         self.assertEqual(len(bytes.fromhex(splice["after"])), 6)
         self.assertTrue(splice["after"].endswith("90"))
         cave = patches["0x8E820"]
-        self.assertEqual(len(bytes.fromhex(cave["after"])), 125)
+        # Bounded, not pinned to an exact byte count: the cave legitimately
+        # grows when it gains another per-save reset (it gained the queued
+        # Barrel/Island clear), and an exact length turns every such change
+        # into a spurious failure. What must hold is that it still fits its
+        # reservation -- 0x820..0x8F0, where the mask tick export name
+        # begins.
+        cave_length = len(bytes.fromhex(cave["after"]))
+        self.assertGreater(cave_length, 0, "the save-slot cave is empty")
+        self.assertLessEqual(
+            cave_length, 0x8F0 - 0x820,
+            "the save-slot capture cave has outgrown its reservation and "
+            "would overlap the mask tick export name")
         # pushfd then pushad: the capture now preserves the flags as well as
         # every GP register, because its range check clobbers them.
         self.assertEqual(bytes.fromhex(cave["after"])[0], 0x9C)  # pushfd

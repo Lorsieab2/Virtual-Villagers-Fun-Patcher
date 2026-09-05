@@ -207,7 +207,13 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x9410"): "7982B49692070B5D5F0D7E6CD6DA207196D56F6F20AD25F3F3DC996712D2E303",
     ("vv1_enable_origins_exclusive_features", "0x93E0"): "1C0DD220A551A2824C06CA9B84800EA4848EBEC44D2DF5A95D1512C0601AA1BF",
     ("vv1_enable_origins_exclusive_features", "0x93C0"): "EE4841DFEC23F672852234656E80B117C2D70CABC3CA5031D45C2C1C08CFAAA3",
-    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "05441D52DA5CA09EE2A426FE393B21D074C929A990A190E5E0CF1CFBD73FA8ED",
+    # Re-reviewed when the save-slot capture gained the queued-event reset
+    # (Barrel pending / delay counter / three-child one-shot). Register
+    # behaviour is unchanged: the added stores are absolute `mov imm` with
+    # no register operand, inside the existing pushfd/pushad..popad/popfd
+    # window, and the re-entry target is untouched. Nothing the stock code
+    # at the resume depends on is altered.
+    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "CC5C7A84A9D1E7A37517F4008B9C83F2542494F80EC3926F4D4BF8EC8DAE8DC6",
     ("vv1_enable_origins_exclusive_features", "0x3C393"): "323F30C734F89D8ABAF15C4C864AC78A0320AE634B5D4D99EA826801C35F8044",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
     # reproduce the villager index load, stash it to .data, and re-enter stock
