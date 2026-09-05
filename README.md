@@ -399,6 +399,11 @@ not known about it.
 Results that count villagers name the number and the reason, and read correctly
 at one: *"Skipped over 1 villager. Reason: already likes running."*
 
+Every row that completes says so, including Complete and Reset All
+Collections, both Equal Division of Labor rows and Change Appearance for
+All. In The Tree of Life those five used to apply silently -- the purchase
+worked, but nothing confirmed it.
+
 ### Villager Details screen — `Villager Upgrades`
 
 | Upgrade | Cost |
