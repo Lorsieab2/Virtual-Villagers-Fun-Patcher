@@ -173,9 +173,15 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
     def _clearing_games(self):
         return {g for g in TITLES if self._clears_every_queued_global(g)}
 
+    # The section is found by a stable prefix, NOT by its full summary
+    # sentence. Anchoring on the whole sentence made the lookup depend on the
+    # very wording this file also polices: rephrasing the summary broke section
+    # lookup and failed every test at once, which hides the real signal.
+    SECTION_ANCHOR = "**Switching save files"
+
     def _section(self):
         text = (ROOT / "README.md").read_text(encoding="utf-8")
-        start = text.index("**Switching save files clears some upgrade state")
+        start = text.index(self.SECTION_ANCHOR)
         return text[start : text.index("Both menus close with", start)]
 
     def _queued_bullet(self):
@@ -301,21 +307,33 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
             "the bullet must not carry a VV3/VV4 exception",
         )
 
-    def test_the_summary_does_not_overclaim(self):
-        """The bold lead-in must not contradict the exception below it.
+    def test_the_summary_matches_whether_any_game_is_exempt(self):
+        """The lead-in must track the images, in BOTH directions.
 
-        Review flagged that a reader who stops at the summary is still told
-        queued state cannot cross saves, even though the bullet says it can in
-        two games. The summary has to be qualified rather than absolute.
+        Review's original objection was that an absolute summary contradicted
+        the bullet while VV3 and VV4 did not clear. #240 made them clear, so
+        that sentence is now TRUE -- but banning it forever would leave the
+        README permanently understating the protection, and permitting it
+        forever would let the contradiction return unnoticed the moment a game
+        stops clearing.
+
+        So the ban is tied to the detector rather than fixed: the unqualified
+        claim is allowed only while every game really clears, and forbidden the
+        moment one does not. Review's point survives as a live check instead of
+        a frozen string.
         """
-        section = self._section()
-        lead = section[: section.index("- **Doubler ownership")]
-        self.assertNotIn(
-            "does not carry upgrade state between villages",
-            lead,
-            "the summary states an unqualified rule that the queued-event "
-            "bullet then contradicts for The Secret City and The Tree of Life",
-        )
+        lead = self._section()
+        lead = lead[: lead.index("- **Doubler ownership")]
+        absolute = "does not carry upgrade state between villages" in lead
+        exempt = set(TITLES) - self._clearing_games()
+        if exempt:
+            self.assertFalse(
+                absolute,
+                "the summary states an unqualified rule, but "
+                f"{sorted(TITLES[g] for g in exempt)} do not clear queued-event "
+                "state; a reader who stops at the lead-in is told something "
+                "the bullet below then contradicts",
+            )
 
     def test_readme_does_not_claim_uniform_doubler_behaviour(self):
         self.assertNotIn(
