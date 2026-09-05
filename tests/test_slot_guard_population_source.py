@@ -4,18 +4,24 @@ VV4's five 150-slot saturation guards all decided using a static address:
 
     00489080  cmp dword ptr [0x4D6DE8], 0x96
 
-**Nothing ever wrote `0x4D6DE8`.** Its only appearance in the stock image is a
-coincidental byte match inside the immediate operand of `or eax, 0x4d6de8`, and
-its `.data` initial value is 0.  Whatever that address happened to hold at
-runtime decided whether children were allowed to spawn, which is why the
-Barrel of Babies presented its event and then delivered nobody.
+`0x4D6DE8` **is** written -- by `add dword ptr [0x4d6de8], ecx` at `0x45E91C`,
+where ecx is `[record+0x1C50]`, the babies a confirmed pregnancy still owes.
+Nothing anywhere DECREMENTS it, so it is a lifetime total of babies ever
+conceived rather than live demand.  Once that tally passes the threshold the
+guards fire forever and quietly suppress twins, triplets and event children for
+the rest of the save, however empty the village is.
 
-VV3 looked fine at first because its address IS written -- `add dword ptr
-[0x5824A8], ecx` at `0x455BF3`.  But nothing in stock ever READS it, and it only
-ever accumulates: each birth adds 2 or 3.  Once that running tally passes the
-threshold, VV3's guards fire forever and quietly suppress twins, triplets and
-event children for the rest of the save.  So "written somewhere" was too weak a
-rule -- it passed VV3.
+(An earlier version of THIS docstring said nothing wrote it.  That came from
+decoding one byte late: `01 0D E8 6D 4D 00` becomes `0D E8 6D 4D 00`,
+`or eax, 0x4D6DE8`, and the writer disappears.  Both decode cleanly and both
+resynchronise at `0x45E922`, which is why the wrong reading survived.  The
+detailed note beside COUNTING_GAMES below already had this right while this
+docstring still had it wrong -- and a file that contradicts itself is how the
+error spread onward into `docs/vv4-slot-guards-are-inert.md`.)
+
+VV3 has the identical shape -- `add dword ptr [0x5824A8], ecx` at `0x455BF3`,
+never read by stock and never decremented.  So "written somewhere" was too weak
+a rule: both games passed it while both totals only ever climb.
 
 Only VV5 was right: it CALLS a helper that sweeps the villager records.
 
