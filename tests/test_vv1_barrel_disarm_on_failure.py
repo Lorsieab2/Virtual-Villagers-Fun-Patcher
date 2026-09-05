@@ -96,6 +96,59 @@ class BarrelDisarmOnFailureTests(unittest.TestCase):
             "the helper would run into EQUAL_DIVISION_CORE",
         )
 
+    def test_successful_dispatch_never_reaches_the_disarm(self):
+        """The bug Codex found on #224, pinned.
+
+        The success path cleared the pending token and then fell straight
+        through into the disarm stub, which clears BARREL_UPGRADE_FLAG. That
+        flag has to survive until the barrel-count hook consumes it, so every
+        PAID barrel silently reverted to the stock random one-to-three child
+        count -- the player was charged 75,000 tech points for the guaranteed
+        three and got the vanilla roll.
+
+        Walk forward from the last write that clears the pending token (the
+        end of the success cleanup) and require the next control transfer to
+        leave for the shared restore rather than reach the disarm.
+        """
+        writes = [
+            i
+            for i in self.main
+            if i.mnemonic == "mov"
+            and hex(PENDING) in i.op_str.lower()
+            and i.op_str.rstrip().endswith(", 0")
+        ]
+        self.assertTrue(writes, "no pending-token clear found in the helper")
+        after = [i for i in self.main if i.address > writes[-1].address]
+        popal = next((i for i in after if i.mnemonic == "popal"), None)
+        self.assertIsNotNone(popal, "no shared restore after the success path")
+        # Only look BEFORE the restore. Asserting merely "the next transfer is
+        # not the disarm" is inert: with the fall-through bug there is no jump
+        # at all here, so the search ran past popal and found the helper's tail
+        # `jmp 0x424044`, which is not DISARM_VA -- and the test passed with the
+        # bug present. Verified by restoring the bug and watching it pass.
+        between = [i for i in after if i.address < popal.address]
+        transfer = next(
+            (i for i in between if i.mnemonic in {"jmp", "je", "jz", "jne"}),
+            None,
+        )
+        self.assertIsNotNone(
+            transfer,
+            "successful dispatch falls through to whatever follows instead of "
+            "jumping to the shared restore -- with the disarm stub next in the "
+            "cave that clears the three-child override, so the paid barrel "
+            "gives the stock random count",
+        )
+        self.assertEqual(
+            transfer.mnemonic,
+            "jmp",
+            "the success path must leave unconditionally",
+        )
+        self.assertEqual(
+            int(transfer.op_str, 16),
+            popal.address,
+            "successful dispatch must jump straight to the shared restore",
+        )
+
     # -- the stub ----------------------------------------------------------
 
     def test_disarm_clears_the_override_flag(self):
@@ -141,10 +194,26 @@ class BarrelDisarmOnFailureTests(unittest.TestCase):
         )
 
     def test_construction_failure_routes_through_the_disarm(self):
+        """The failure branch must reach the disarm stub.
+
+        It used to hop via a trampoline inside the helper, so this walked the
+        instructions at the branch target and expected a `jmp DISARM_VA`. The
+        branch now targets DISARM_VA directly -- the trampoline was removed
+        when the SUCCESS path stopped falling through into it, which also
+        returned five bytes to a cave that was one over its bound. Asserting
+        the destination rather than the route is both stricter and immune to
+        that layout choice.
+        """
         branch = self._branch_after(CONSTRUCTOR)
         target = int(branch.op_str, 16)
+        if target == DISARM_VA:
+            return
         tail = [i for i in self.main if i.address >= target]
-        self.assertTrue(tail, "the failure branch leaves the helper")
+        self.assertTrue(
+            tail,
+            "the failure branch neither targets the disarm directly nor lands "
+            "anywhere inside the helper",
+        )
         self.assertEqual(
             tail[0].mnemonic,
             "jmp",

@@ -1956,7 +1956,7 @@ def main() -> None:
             # the disarm stub so the flag does not survive with no dispatch --
             # otherwise the retry re-arms it every tick and the NEXT barrel,
             # natural or purchased, silently inherits the three-child override.
-            je barrel_main_disarm
+            je 0x{BARREL_DISARM_VA:X}
             mov ebx, eax
             push 0x7F4B1A2C
             push 1
@@ -1970,8 +1970,14 @@ def main() -> None:
             call 0x427620
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
             mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
-        barrel_main_disarm:
-            jmp 0x{BARREL_DISARM_VA:X}
+            # Successful dispatch must NOT fall through into the disarm stub:
+            # that stub clears BARREL_UPGRADE_FLAG, which has to stay armed
+            # until the later barrel-count hook consumes it. Falling through
+            # made every paid barrel revert to the stock random one-to-three
+            # child count -- the player was charged 75,000 tech points for the
+            # guaranteed three and silently got the vanilla roll. Only the
+            # constructor-failure branch may enter the stub.
+            jmp barrel_main_restore
     """
     barrel_main_helper_source = (
         barrel_main_helper_source_prefix
@@ -2687,8 +2693,23 @@ def main() -> None:
             add ecx, 0x3D8
             dec ebx
             jnz pending_rows_count
-            cmp edx, 0x57
-            jbe pending_rows_done
+            # Ask the SAME mode-aware helper the purchase path uses, instead of
+            # comparing to a literal 87. That literal is the stock ceiling; on
+            # Collection Progression / Immediate Fixed the real ceiling is 253,
+            # so the row read "Unavailable" from 88 occupied records onward
+            # while the purchase path would have allowed the barrel. Reported
+            # by the owner in VV1 after a natural barrel plus a Time Warp --
+            # the warp ages villagers and leaves unburied skeletons, which
+            # still hold records, pushing the count past 87.
+            #
+            # POPULATION_FINAL_TIER_VA takes the occupied count in eax and
+            # returns 1 when three more will fit under the INSTALLED mode. eax
+            # is already saved at cave entry and edi (the result flags) is
+            # untouched by it.
+            mov eax, edx
+            call 0x{POPULATION_FINAL_TIER_VA:X}
+            test eax, eax
+            jnz pending_rows_done
             or edi, 0x1000000
         pending_rows_done:
             pop ebx
@@ -4123,9 +4144,13 @@ def main() -> None:
         },
         "patches": patches,
     }
-    OUT_JSON.write_text(rendered_json, encoding="utf-8")
+    OUT_JSON.write_text(rendered_json, encoding="utf-8", newline="")
+    # newline="" keeps the LF this JSON is built with. Without it Python
+    # rewrites the whole tracked manifest in CRLF on Windows -- a 594-line
+    # phantom diff on an autocrlf=false clone, silently absorbed on an
+    # autocrlf=true one, burying the real change in a reviewed artifact.
     MANIFEST_JSON.write_text(
-        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline=""
     )
     print(f"code bytes used: {max(i for i, value in enumerate(code) if value) + 1:#x}/0x700")
     print(f"string bytes used: {len(strings):#x}/0x2d0")
