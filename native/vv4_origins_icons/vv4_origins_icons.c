@@ -1104,6 +1104,40 @@ static const char *const g_villager_names[5] = {
 static const char *const g_villager_costs[5] = {
     "50,000", "100,000", "40,000", "50,000", "5,000"
 };
+
+/* Row lookups go through these, never by raw subscript.
+
+
+   The villager tables hold 5 entries and the tech tables 14, so indexing the
+   villager tables with a tech row walks off the end and yields whatever
+   follows in .rdata. That is not hypothetical: a player hit it, and the crash
+   dump shows user32 dereferencing 0x1C131105 with EDI = ID_BUY_FIRST, i.e.
+   while setting a row button's caption from the resulting garbage pointer.
+
+   Returning "" instead is safe for every caller here -- SetDlgItemTextA and
+   wsprintfA %s both accept an empty string -- so a mode mix-up degrades to a
+   blank label rather than killing the process. */
+#define VV4_ARRAY_LEN(a) ((int)(sizeof(a) / sizeof((a)[0])))
+
+static const char *vv4_row_name(int villager_menu, int row) {
+    if (row < 0) {
+        return "";
+    }
+    if (villager_menu) {
+        return row < VV4_ARRAY_LEN(g_villager_names) ? g_villager_names[row] : "";
+    }
+    return row < VV4_ARRAY_LEN(g_tech_names) ? g_tech_names[row] : "";
+}
+
+static const char *vv4_row_cost(int villager_menu, int row) {
+    if (row < 0) {
+        return "";
+    }
+    if (villager_menu) {
+        return row < VV4_ARRAY_LEN(g_villager_costs) ? g_villager_costs[row] : "";
+    }
+    return row < VV4_ARRAY_LEN(g_tech_costs) ? g_tech_costs[row] : "";
+}
 static int g_villager_menu;  /* set at WM_INITDIALOG; menus are modal/one-at-a-time */
 /* The full state bitmask handed to the villager menu at open time (low bits:
    0=youth already youngest, 1=already fully mastered, 2=already likes Running,
@@ -1339,10 +1373,8 @@ static INT_PTR CALLBACK upgrade_dialog(
                Collections rows (9/10) take the standard confirm here. */
             if (lstrcmpA(label, "Buy") == 0
                 && !(!g_villager_menu && row >= 6 && row <= 8)) {
-                const char *name = g_villager_menu ? g_villager_names[row]
-                                                   : g_tech_names[row];
-                const char *cost = g_villager_menu ? g_villager_costs[row]
-                                                   : g_tech_costs[row];
+                const char *name = vv4_row_name(g_villager_menu, row);
+                const char *cost = vv4_row_cost(g_villager_menu, row);
                 char msg[512];
                 wsprintfA(msg,
                     "Do you want to buy %s for %s tech points?\r\n"
@@ -2002,19 +2034,21 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
            per-upgrade wording, using the row the player just clicked. (Cure and
            the village-wide grants have their own result exports and never reach
            here.) */
-        const char *const *names = g_last_villager ? g_villager_names
-                                                   : g_tech_names;
-        int nmax = g_last_villager ? 5 : 9;
-        if (g_last_row < nmax) {
+        /* Bound comes from the table itself via vv4_row_name, not a
+           hand-written length. The previous `nmax = 9` was wrong for the
+           fourteen-entry tech table, so rows 9..13 -- both Collections rows,
+           both Equal Division of Labor rows and Change Appearance for All --
+           produced no result message at all. */
+        const char *name = vv4_row_name(g_last_villager, g_last_row);
+        if (name[0] != '\0') {
             if (lstrcmpA(text, "Purchased.") == 0) {
                 if (g_last_villager && g_last_row == 4) {
                     return 0;  /* Change Appearance shows no result box */
                 }
-                wsprintfA(msg, "%s completed.", names[g_last_row]);
+                wsprintfA(msg, "%s completed.", name);
                 out = msg;
             } else if (lstrcmpA(text, "Removed.") == 0) {
-                wsprintfA(msg, "%s was removed. No refund was issued.",
-                          names[g_last_row]);
+                wsprintfA(msg, "%s was removed. No refund was issued.", name);
                 out = msg;
             }
         }
