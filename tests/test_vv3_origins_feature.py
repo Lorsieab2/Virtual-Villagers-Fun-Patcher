@@ -305,7 +305,11 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                     rendered[0xCB100:0xCB105],
                     bytes.fromhex("9C8B442408"),
                 )
-                cave = rendered[0xCB100:0xCB130]
+                # 0x40, not 0x30: the cave also clears the queued-Barrel
+                # pending flag on a slot change, which pushes the replayed
+                # prologue to offset 0x2E. A 0x30 slice cuts it in half and
+                # reports a correct cave as broken.
+                cave = rendered[0xCB100:0xCB140]
                 for label, encoding in (
                     ("cmp eax, 1", "83F801"),
                     ("cmp eax, 5", "83F805"),
