@@ -4,11 +4,11 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "3249A4E2C7FCCCDB2E61BE9CF1B72332513D62321A54C66BFBA3C77A9A9DAEFA"
+      "source_text_sha256": "C64A8BE24F94E4D2DD9780BAC8EEE571D3572645AC608F1D3797830165E477CC"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "3024F8902CCE25C7448A9BC53D3074643DFFD462BBD7D46754B68ED628EF4D46"
+      "source_text_sha256": "23E571997A5E2087EC45F26F8FC1A04B93D04A1AA8A622D3D5AB3ECA1ACB5F3C"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",

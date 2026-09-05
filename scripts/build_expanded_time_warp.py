@@ -479,10 +479,10 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         raise RuntimeError("Task9 age reserve drift")
     page_va = 0x904000
     base_page, base_map = task9.build_page(page_va)
-    if sha(base_page) != "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457":
+    if sha(base_page) != "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3":
         raise RuntimeError("Task9 Expanded baseline page drift")
     stock_page, stock_map = task9.build_page(0x7C9000)
-    if sha(stock_page) != "617704BB6775D244BCAE7D63E34BC08B3C7D7AFCA5543DEB588A7B3EE3007DB0":
+    if sha(stock_page) != "E696D6405D8CDFBA188E5DFADF79263912AA3C4BE36C7263DC5E7BA163E47969":
         raise RuntimeError("Task9 stock page drift")
 
     strings_start = task9.OFF["strings"]
@@ -531,10 +531,36 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         raise RuntimeError("VV5 Time Warp string preimage is not zero")
     dll_va = int(base_map["string_virtual_addresses"]["dll"], 0)
     routine_va = page_va + task9.OFF["time_warp"]
+    # The Task9 tech_menu routine's own "unavailable" handler, LOCATED rather
+    # than hardcoded. This was a literal 0x904967, and adding a helper to
+    # tech_menu moved the label to 0x90499B -- leaving the literal pointing at
+    # the third byte of the `call` at 0x904964, so an unsupported row in
+    # expanded mode jumped into the middle of an instruction. Nothing pinned
+    # this address, so unlike `show` and the command router it drifted in
+    # silence.
+    #
+    # The handler is the `push 0 / push 0 / push 0xA / push ebx` prologue that
+    # raises the "unavailable" dialog; that four-push sequence occurs once in
+    # the routine. Refusing on anything other than exactly one match keeps a
+    # future layout change loud instead of letting it pick a wrong site.
+    unavailable_prologue = bytes.fromhex("6A006A006A0A53")
+    tech_start = task9.OFF["tech_menu"]
+    tech_end = tech_start + task9.SIZES["tech_menu"]
+    tech_body = bytes(base_page[tech_start:tech_end])
+    hits = [
+        i for i in range(len(tech_body))
+        if tech_body.startswith(unavailable_prologue, i)
+    ]
+    if len(hits) != 1:
+        raise RuntimeError(
+            "VV5 Task9 unavailable handler is not uniquely locatable: "
+            f"{len(hits)} candidate(s)"
+        )
+    unavailable_va = page_va + tech_start + hits[0]
     routine = asm(
         f"""
             test ebx, ebx
-            jne 0x904967
+            jne 0x{unavailable_va:X}
             push ebp
             mov ebp, esp
             push ebx
@@ -703,7 +729,12 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         raise RuntimeError("VV5 Time Warp routine preimage is not zero")
     if base_page[0x846:0x850] != bytes.fromhex("B800070000F70588D351"):
         raise RuntimeError("VV5 Task9 menu-state preimage drift")
-    if base_page[0x8AB:0x8B4] != bytes.fromhex("83FB030F82B3000000"):
+    # The router sits 5 bytes later than it used to: `show` now opens with a
+    # call to the pending-state helper that publishes STATE_ISLAND_PENDING /
+    # STATE_BARREL_PENDING. `show` itself is unchanged at 0x90488F, so the
+    # menu-state patch above and its jmp displacement are untouched -- only this
+    # site and its own rel32 move.
+    if base_page[0x8B0:0x8B9] != bytes.fromhex("83FB030F8214010000"):
         raise RuntimeError("VV5 Task9 command-router operand preimage drift")
     patches = [
         {
@@ -713,9 +744,9 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
             "purpose": "set fixed dialog state 0x1E00 and bypass dynamic row 3/4 state while preserving row 5 Full Heal",
         },
         {
-            "offset": "0xF48AB",
-            "before": "83FB030F82B3000000",
-            "after": "83FB050F828C070000",
+            "offset": "0xF48B0",
+            "before": "83FB030F8214010000",
+            "after": "83FB050F8287070000",
             "purpose": "route commands 0..4 through the dispatcher so only command 0 runs Time Warp and commands 1..4 are unavailable",
         },
         {
@@ -735,7 +766,7 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
     ]
     rendered = bytearray(base_page)
     rendered[0x846:0x850] = bytes.fromhex("B8001E0000E93F000000")
-    rendered[0x8AB:0x8B4] = bytes.fromhex("83FB050F828C070000")
+    rendered[0x8B0:0x8B9] = bytes.fromhex("83FB050F8287070000")
     rendered[task9.OFF["time_warp"] : task9.OFF["time_warp"] + len(routine_block)] = routine_block
     rendered[string_offset : string_offset + len(string_blob)] = string_blob
     return patches, {
@@ -749,7 +780,7 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         "dispatcher_sha256": sha(routine),
         "dispatcher_block_sha256": sha(routine_block),
         "dispatcher_va": "0x905040",
-        "unavailable_target": "0x904967",
+        "unavailable_target": f"0x{unavailable_va:X}",
         "menu_target": "0x904846",
         "strings_offset": f"0x{string_offset:X}",
         "strings_file_offset": f"0x{0xF4000 + string_offset:X}",
@@ -886,7 +917,13 @@ def main() -> None:
                 "delta": "194400 / exact positive speed",
                 "clock": "0x4C6250/0x4C6254 sub/sbb and exact readback",
                 "funds": "0x51D5F8; one -50000 call to 0x4237B0 and exact readback before clock mutation",
-                "dispatcher": "EBX!=0 -> 0x904967 unavailable; EBX==0 -> Time Warp -> 0x904846 menu",
+                # Read back from the overlay's own map rather than restated,
+                # so the contract cannot describe a target the dispatcher does
+                # not actually branch to.
+                "dispatcher": (
+                    f"EBX!=0 -> {vv5_map['unavailable_target']} unavailable; "
+                    "EBX==0 -> Time Warp -> 0x904846 menu"
+                ),
             },
         }
     )

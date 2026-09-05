@@ -104,13 +104,19 @@ class Task9ArtifactTests(unittest.TestCase):
         # (command 1), and Barrel of Babies (command 2), adding three result
         # paths and shifting the offsets/`done` target; the expanded-256 baseline
         # keeps the original seven paths.
+        #
+        # Every offset here moved by 5 when `show` gained a call to the
+        # pending-state helper (which publishes STATE_ISLAND_PENDING /
+        # STATE_BARREL_PENDING so blocked rows can explain themselves). The
+        # counts -- 18 stock, 7 expanded -- and the single shared `done` target
+        # are the invariant this test exists to protect, and both are unchanged.
         stock_offsets = [
-            0x124, 0x1D5, 0x1E2, 0x1EF, 0x1FC, 0x209, 0x216, 0x223,
-            0x230, 0x23A, 0x244, 0x24E, 0x258, 0x262, 0x273, 0x284, 0x295, 0x2A6,
+            0x129, 0x1DA, 0x231, 0x23E, 0x24B, 0x258, 0x265, 0x272,
+            0x27F, 0x289, 0x293, 0x29D, 0x2A7, 0x2B1, 0x2C2, 0x2D3, 0x2E4, 0x2F5,
         ]
-        stock_done = 0xAEB
-        expanded_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
-        expanded_done = 0x9AB
+        stock_done = 0xB3A
+        expanded_offsets = [0xBB, 0x131, 0x188, 0x199, 0x1AA, 0x1BB, 0x1CC]
+        expanded_done = 0xA11
         for mode, layout in builder.LAYOUTS.items():
             page, page_map = builder.build_page(layout["page_va"])
             start = builder.OFF["tech_menu"]
@@ -331,11 +337,19 @@ class Task9ArtifactTests(unittest.TestCase):
         )
         # The separate Expanded Time Warp overlay still sees its exact Task9
         # Tech-menu preimages; capability state is injected in show_menu.
+        #
+        # The menu-state preimage is unchanged: it precedes `show`, which stays
+        # at page offset 0x88F because the overlay jumps straight to it.
         self.assertEqual(
             expanded_tech[0x6:0x10], bytes.fromhex("B800070000F70588D351")
         )
+        # The command router moved 5 bytes later, and its own rel32 grew, when
+        # `show` gained a call to the pending-state helper. Both this offset and
+        # the displacement must track build_expanded_time_warp.py, which patches
+        # the same site -- a mismatch there aims the overlay's `jb` at the wrong
+        # instruction rather than at the dispatcher.
         self.assertEqual(
-            expanded_tech[0x6B:0x74], bytes.fromhex("83FB030F82B3000000")
+            expanded_tech[0x70:0x79], bytes.fromhex("83FB030F8214010000")
         )
         expanded_tech_bound = expanded_tech.find(bytes.fromhex("83FB05"))
         expanded_detail_bound = expanded_detail.find(bytes.fromhex("83FB03"))
