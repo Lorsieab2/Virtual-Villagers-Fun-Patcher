@@ -845,9 +845,11 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         # and VV4 set the equivalent bits in their own payloads
         # (`or edi, 0x800000` / `or edx, 0x800000`).
         #
-        # Island: bit 4 (0x10) is the purchase token, retired when the Tech
-        # screen closes and the scheduler can actually run.
-        test dword ptr [0x51D388], 0x10
+        # Island: mask purchase (bit 4) and delivery (bit 5) together, the same
+        # 0x30 the purchase guard uses, so the row keeps explaining itself for
+        # the whole window rather than falling back to a bare "Unavailable" the
+        # moment the Tech screen closes.
+        test dword ptr [0x51D388], 0x30
         jz tps_barrel
         or eax, 0x800000
     tps_barrel:
@@ -2396,13 +2398,18 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jz unavailable
         mov edi, eax
         mov dword ptr [ebp-0x18], edi
-        # An island event bought earlier in this menu session is still
-        # outstanding. The Tech menu is modal and the scheduler cannot run while
-        # it is open, so without this the row can be bought again: the timer is
-        # already zero, the second 30,000 is taken in full, and still exactly
-        # one event fires. The Barrel guards its own purchase the same way
-        # (test [0x51D388], 0xC) for the same reason.
-        test dword ptr [0x51D388], 0x10
+        # An island event bought earlier is still outstanding, anywhere between
+        # purchase and delivery.
+        #
+        # Bit 4 (0x10) is the purchase token; bit 5 (0x20) is the delivery
+        # token that barrel_close_arm sets as it clears 0x10. Testing 0x10
+        # alone leaves the gap the Barrel's guard already documents: close the
+        # screen, reopen it before the scheduler has ticked, and the event is
+        # armed but no longer "pending", so a second 30,000 is charged for the
+        # same event. Closing the screen is when delivery becomes POSSIBLE, not
+        # when it happens. Masking both (0x30) covers purchase through
+        # delivery, exactly as the Barrel masks 0xC.
+        test dword ptr [0x51D388], 0x30
         jnz pending
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x20], eax
@@ -2962,12 +2969,43 @@ def build_barrel_close_arm(page: bytearray, page_va: int) -> bytes:
     forces the chosen event index to 25 and clears the marker."""
     return put(page, page_va, "barrel_close_arm", """
         pushad
-        # Retire the Island Event token. The purchase armed the scheduler
-        # immediately, but the scheduler only runs once this screen closes, so
-        # the event is delivered from here onward and the row becomes buyable
-        # again. Holding the token until this point is what stops a second
-        # charge inside a single menu session.
+        # --- purchased Island Event, purchase -> delivery -> retired ---------
+        #
+        # This routine runs on EVERY Tech-screen close, which is what makes it
+        # the right place for both halves.
+        #
+        # Retiring the state outright here was wrong (Codex, #255): closing the
+        # screen is when delivery becomes POSSIBLE, not when it happens. A
+        # player who reopened the screen before the scheduler had ticked found
+        # the row buyable again while the event was still merely due, and paid
+        # 30,000 for it twice. The Barrel documents the same gap on its own
+        # token, which is why its guard masks 0xC rather than bit 3 alone.
+        #
+        # So the purchase token (bit 4) hands over to a delivery token (bit 5),
+        # and the guard masks both (0x30). Bit 5 is retired only once the event
+        # is provably consumed: the purchase sets [manager+0x17D3C] = 0 to make
+        # the event due, and the native scheduler REWRITES that field to the
+        # next due time when it runs the event, so a non-zero countdown with
+        # bit 5 still set means delivery has happened.
+        #
+        # The selector detour at 0x41890F would be the tidier home for that
+        # check, but its body is a fixed 0x28-byte slot that is exactly full --
+        # the builder's byte-exact guard on BARREL_SELECTOR_BODY_REPAIRED
+        # refuses the seven bytes rather than let them overflow.
+        test dword ptr [0x51D388], 0x20
+        jz island_arm
+        call 0x425950
+        test eax, eax
+        jz island_done
+        cmp dword ptr [eax+0x17D3C], 0
+        je island_done
+        and dword ptr [0x51D388], 0xFFFFFFDF
+    island_arm:
+        test dword ptr [0x51D388], 0x10
+        jz island_done
         and dword ptr [0x51D388], 0xFFFFFFEF
+        or dword ptr [0x51D388], 0x20
+    island_done:
         test dword ptr [0x51D388], 8
         jz arm_done
         and dword ptr [0x51D388], 0xFFFFFFF7
