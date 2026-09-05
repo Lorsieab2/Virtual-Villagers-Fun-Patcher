@@ -107,11 +107,34 @@ class PendingGuardKnowsAboutTheDelayTests(unittest.TestCase):
                                  gid + " guard does not compute stamp - now")
 
     def test_zero_is_still_accepted_as_queued(self) -> None:
-        """Some barrels still trigger by zeroing, so zero must remain pending."""
+        """Some barrels still trigger by zeroing, so zero must remain pending.
+
+        Asserted as an OUTCOME -- a zero slot reaches the island-pending label
+        -- rather than by pinning `test ebx, ebx` immediately followed by `jz`.
+        That encoding stopped being the only correct one when VV4 had to tell
+        apart the two upgrades sharing its queue slot: do_barrel zeroes
+        [world+0x170E0] to cue the game's own event check, so a zero there can
+        belong to either, and VV4 now consults BARREL_ARMED_VA before deciding.
+        Zero with no barrel armed still means the island is pending -- the
+        property this test is named for. Only the branch shape changed, which
+        is exactly the kind of change a mechanism-pinned assertion cannot
+        survive.
+        """
         for gid, (script, _c, _f, _r) in GAMES.items():
             with self.subTest(game=gid):
-                body = guard((ROOT / script).read_text(encoding="utf-8"))
-                self.assertRegex(body, r"test ebx, ebx\s*\n\s*jz ")
+                text = guard((ROOT / script).read_text(encoding="utf-8"))
+                self.assertIn(
+                    "test ebx, ebx",
+                    text,
+                    f"{gid}: the guard no longer tests the queue slot for zero",
+                )
+                self.assertTrue(
+                    "jz pending_rows_island" in text
+                    or "jmp pending_rows_island" in text,
+                    f"{gid}: no path from the zero test reaches the "
+                    "island-pending label, so an event that signals itself by "
+                    "zeroing the slot would read as not pending",
+                )
 
     def test_the_guard_balances_every_push_it_makes(self) -> None:
         """Both exits pop what they pushed; an unbalanced path corrupts the caller.

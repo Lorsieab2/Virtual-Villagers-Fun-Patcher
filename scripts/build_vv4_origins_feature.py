@@ -1990,9 +1990,27 @@ def main() -> None:
             # what it pushed before branching away.
             push ebx
             push ecx
+            # VV4's Barrel and Island Event share ONE queue slot: do_barrel
+            # sets [world+0x170E0] = 0 to cue the game's own event check, which
+            # is exactly how the Island Event upgrade fires. So a zero here
+            # means "an event is due", NOT "an island event was purchased".
+            #
+            # Reading zero as island-pending therefore told a player who had
+            # just bought a Barrel that an island event was already on its way.
+            # That is the mirror of the bit-sharing defect Codex found on the
+            # island branch, and the shared slot was flagged by the other
+            # session hitting the same shape in VV5.
+            #
+            # BARREL_ARMED_VA disambiguates: it is set by do_barrel and cleared
+            # once the barrel is presented, so a zero slot with the barrel
+            # armed belongs to the barrel and the island row must stay clear.
             mov ebx, dword ptr [eax + 0x170E0]
             test ebx, ebx
-            jz pending_rows_island
+            jnz pending_rows_island_window
+            cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            jne pending_rows_notqueued
+            jmp pending_rows_island
+        pending_rows_island_window:
             mov ecx, eax
             push eax
             call 0x{ISLAND_QUEUE_CLOCK_VA:X}

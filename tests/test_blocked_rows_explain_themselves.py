@@ -330,6 +330,52 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
             "patch ships a guard that can never fire",
         )
 
+    def test_a_queued_barrel_does_not_claim_an_island_event(self):
+        """VV4 shares ONE queue slot between the two upgrades.
+
+        do_barrel sets [world+0x170E0] = 0 to cue the game's own event check,
+        which is exactly how the Island Event upgrade fires. So a zero there
+        means "an event is due", not "an island event was purchased" -- and
+        reading zero as island-pending told a player who had just bought a
+        Barrel that an island event was already on its way.
+
+        That is the mirror of the bit-sharing defect on the island branch, and
+        it was found because the other session hit the same single-slot shape
+        in VV5 and said to check VV1/VV4. VV1 and VV3 use separate slots and
+        are unaffected; VV4 shares one and needed disambiguating.
+
+        BARREL_ARMED_VA tells them apart, so the zero test must consult it
+        before concluding the island is pending.
+        """
+        if capstone is None:
+            self.skipTest("requires capstone")
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        island_bit = bytes.fromhex("81CA00008000")
+        armed_test = bytes.fromhex("803D048B720000")  # cmp byte [0x728B04], 0
+        found = False
+        for patch in manifest.get("patches", []):
+            after = patch.get("after")
+            if not after or island_bit not in bytes.fromhex(after):
+                continue
+            found = True
+            blob = bytes.fromhex(after)
+            slot_read = bytes.fromhex("8B98E0700100")  # mov ebx, [eax+0x170E0]
+            index = blob.find(slot_read)
+            self.assertGreater(index, 0, "VV4 queue-slot read not found")
+            window = blob[index : index + 0x20]
+            self.assertTrue(
+                armed_test in window,
+                "VV4 decides the island row is pending from the shared queue "
+                "slot without consulting the barrel-armed flag, so buying a "
+                "Barrel makes the Island row claim an island event is already "
+                "on its way",
+            )
+        self.assertTrue(found, "VV4 island-pending branch not found")
+
     def test_a_blocked_click_cannot_reach_the_purchase(self):
         """The refusal must not charge.
 
