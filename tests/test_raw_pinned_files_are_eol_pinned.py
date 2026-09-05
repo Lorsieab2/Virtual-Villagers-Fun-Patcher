@@ -36,36 +36,43 @@ ROOT = Path(__file__).resolve().parents[1]
 CRLF = bytes((13, 10))
 LF = bytes((10,))
 
-# Where a raw whole-file hash would be written down.
-CODE_DIRECTORIES = ("scripts", "src")
+# Where a raw whole-file hash can be written down. Not just Python: two of the
+# CRLF-pinned files below are pinned inside SIBLING JSON MANIFESTS, which is
+# why every sweep restricted to scripts/ and src/ missed them.
+PIN_GLOBS = ("scripts/**/*.py", "src/**/*.py", "tests/**/*.py", "data/**/*.json")
 
-# Two files are pinned against their CRLF bytes, so a `text eol=lf` rule would
-# force them to LF and break those pins permanently. Both are pre-existing
-# defects, NOT things this rule set fixes, and both feed the same validator:
+# Four files are pinned against their CRLF bytes, so a `text eol=lf` rule would
+# force them to LF and break those pins permanently. All four are pre-existing
+# defects, NOT things this rule set fixes. Each line gives the CRLF digest that
+# IS pinned, and where:
 #
+#   data/candidates/vv2_individual_grant_running_binding.json
+#       FC8165A0... in vv2_individual_full_mastery_candidate.json and its _map
+#   data/candidates/vv4_full_mastery_all_candidate.json
+#       DD41DDC2... in vv4_full_mastery_all_candidate_map.json
 #   data/native_evidence/vv1_vv2_native_query_manifest.json
-#       Its CRLF digest A53C6D01... is pinned in TWO places --
-#       `MANIFEST_SHA` in scripts/validate_authorized_analyzer_workflow.py and
-#       data/authorized_analyzer_workflow.json. The committed blob is LF and
-#       hashes to B79E1613..., which is pinned nowhere, so that validator
-#       already fails on any LF checkout -- reproduced by running it directly,
-#       where it raises AssertionError at the sha256 comparison. Nothing in the
-#       suite executes it, which is why the failure has gone unnoticed.
-#       Repinning it against LF is a separate change with its own verification;
-#       folding a content change into a line-endings rule set would bury it.
-#
+#       A53C6D01... in validate_authorized_analyzer_workflow.py (MANIFEST_SHA)
+#       and data/authorized_analyzer_workflow.json
 #   data/native_evidence_queries.json
-#       Same defect, same validator. Its CRLF digest FED6AE17... is pinned as
-#       `QUERY_PLAN_SHA` and appears three times in
-#       data/authorized_analyzer_workflow.json as the `query_plan` sha256. The
-#       LF form E6154939... is pinned nowhere.
+#       FED6AE17... in validate_authorized_analyzer_workflow.py (QUERY_PLAN_SHA)
+#       and three times in data/authorized_analyzer_workflow.json
 #
-# A sweep of every tracked JSON found exactly these two pinned only under CRLF.
+# In every case the LF digest is pinned nowhere, so the pin was minted on a
+# Windows autocrlf=true clone. `validate_authorized_analyzer_workflow.py`
+# therefore already fails on any LF checkout -- reproduced by running it, where
+# it raises AssertionError at its sha256 comparison. Nothing in the suite
+# executes it, which is why that has gone unnoticed.
 #
-# The exception is the standing record of what is still broken. Removing this
-# path without repinning the file re-breaks it, which the expiry test below
-# guards against.
+# The first two are pinned INSIDE SIBLING JSON MANIFESTS, not in Python, which
+# is why sweeps limited to scripts/ and src/ never saw them.
+#
+# Repinning any of these against LF is a separate change with its own
+# verification; folding a content change into a line-endings rule set would
+# bury it. The exception is the standing record of what is still broken, and
+# the expiry test below fails if an entry stops exhibiting the defect.
 KNOWN_UNPINNED_CRLF_DEFECTS = {
+    "data/candidates/vv2_individual_grant_running_binding.json",
+    "data/candidates/vv4_full_mastery_all_candidate.json",
     "data/native_evidence/vv1_vv2_native_query_manifest.json",
     "data/native_evidence_queries.json",
 }
@@ -85,12 +92,26 @@ def _tracked_json() -> list[str]:
     ]
 
 
+def _pin_corpus() -> dict[str, str]:
+    """Every file that could record a pin, keyed by repo-relative path.
+
+    Keyed rather than concatenated so a file's own digest -- which trivially
+    appears in itself for a self-describing manifest -- can be excluded.
+    """
+    corpus = {}
+    for pattern in PIN_GLOBS:
+        for path in ROOT.glob(pattern):
+            try:
+                corpus[path.relative_to(ROOT).as_posix()] = path.read_text(
+                    encoding="utf-8", errors="ignore"
+                )
+            except OSError:
+                continue
+    return corpus
+
+
 def _code_text() -> str:
-    parts = []
-    for directory in CODE_DIRECTORIES:
-        for path in (ROOT / directory).rglob("*.py"):
-            parts.append(path.read_text(encoding="utf-8", errors="ignore"))
-    return "".join(parts)
+    return "".join(_pin_corpus().values())
 
 
 def raw_pinned_files() -> list[str]:
@@ -106,19 +127,38 @@ def raw_pinned_files() -> list[str]:
     Testing both makes the set identical on every clone, and catches a file
     whose pin was recorded against either encoding.
     """
-    code = _code_text()
+    corpus = _pin_corpus()
     found = []
     for relative in _tracked_json():
-        path = ROOT / relative
-        if not path.is_file():
+        as_lf = _blob_lf(relative)
+        if as_lf is None:
             continue
-        raw = path.read_bytes()
-        as_lf = raw.replace(CRLF, LF)
+        others = [text for name, text in corpus.items() if name != relative]
         for candidate in (as_lf, as_lf.replace(LF, CRLF)):
-            if hashlib.sha256(candidate).hexdigest().upper() in code:
+            digest = hashlib.sha256(candidate).hexdigest().upper()
+            if any(digest in text for text in others):
                 found.append(relative)
                 break
     return sorted(found)
+
+
+def _blob_lf(relative: str) -> bytes | None:
+    """The committed blob, normalised to LF. None when unavailable.
+
+    Reading the blob rather than the worktree is what makes this identical on
+    every clone. A disk-based version reported different sets on an
+    autocrlf=false clone and an autocrlf=true one, which is the same defect
+    these rules exist to prevent -- in the guard itself.
+    """
+    result = subprocess.run(
+        ["git", "show", f"HEAD:{relative}"],
+        cwd=ROOT,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0 or not result.stdout:
+        return None
+    return result.stdout.replace(CRLF, LF)
 
 
 def eol_attribute(relative: str) -> str:

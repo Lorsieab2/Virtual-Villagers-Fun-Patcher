@@ -55,3 +55,10 @@ assets/vv4_masks/** -text
 /data/vv3_expanded_time_warp_core.json text eol=lf
 /data/vv5_expanded_time_warp.json text eol=lf
 /data/vv5_task9_native_actions.json text eol=lf
+
+# Also raw-pinned, found once the pin search included sibling JSON manifests
+# rather than only scripts/ and src/.
+/data/candidates/vv3_full256_serializer_candidate.json text eol=lf
+/data/candidates/vv3_running_candidate_map.json text eol=lf
+/data/candidates/vv4_full_heal_cure_all_candidate.json text eol=lf
+/data/candidates/vv4_full_heal_cure_all_candidate_map.json text eol=lf
