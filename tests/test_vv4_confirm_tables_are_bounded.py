@@ -97,5 +97,27 @@ class VV4ConfirmTableBoundsTests(unittest.TestCase):
             "re-check whether the overflow this guards is still possible")
 
 
+    def test_no_hand_written_table_length_survives(self) -> None:
+        """Bounds must come from the tables, not from a literal.
+
+        The result path carried `nmax = g_last_villager ? 5 : 9` against a
+        FOURTEEN-entry tech table, so rows 9..13 -- both Collections rows, both
+        Equal Division of Labor rows and Change Appearance for All -- silently
+        produced no result message. It never crashed, because it was bounded;
+        it was just bounded to the wrong number. Two hand-written lengths for
+        the same tables is how the confirm path ended up with none and this one
+        with a wrong one.
+        """
+        src = _source()
+        self.assertNotIn(
+            "g_last_villager ? 5 : 9", src,
+            "the result path still uses a hand-written table length; derive the "
+            "bound from the table via vv4_row_name instead")
+        self.assertIn(
+            "vv4_row_name(g_last_villager, g_last_row)", src,
+            "the result path must reach the tables through the bounded accessor")
+
+
+
 if __name__ == "__main__":
     unittest.main()

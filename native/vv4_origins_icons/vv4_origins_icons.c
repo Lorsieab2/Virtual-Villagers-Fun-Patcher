@@ -2034,19 +2034,21 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
            per-upgrade wording, using the row the player just clicked. (Cure and
            the village-wide grants have their own result exports and never reach
            here.) */
-        const char *const *names = g_last_villager ? g_villager_names
-                                                   : g_tech_names;
-        int nmax = g_last_villager ? 5 : 9;
-        if (g_last_row < nmax) {
+        /* Bound comes from the table itself via vv4_row_name, not a
+           hand-written length. The previous `nmax = 9` was wrong for the
+           fourteen-entry tech table, so rows 9..13 -- both Collections rows,
+           both Equal Division of Labor rows and Change Appearance for All --
+           produced no result message at all. */
+        const char *name = vv4_row_name(g_last_villager, g_last_row);
+        if (name[0] != '\0') {
             if (lstrcmpA(text, "Purchased.") == 0) {
                 if (g_last_villager && g_last_row == 4) {
                     return 0;  /* Change Appearance shows no result box */
                 }
-                wsprintfA(msg, "%s completed.", names[g_last_row]);
+                wsprintfA(msg, "%s completed.", name);
                 out = msg;
             } else if (lstrcmpA(text, "Removed.") == 0) {
-                wsprintfA(msg, "%s was removed. No refund was issued.",
-                          names[g_last_row]);
+                wsprintfA(msg, "%s was removed. No refund was issued.", name);
                 out = msg;
             }
         }
