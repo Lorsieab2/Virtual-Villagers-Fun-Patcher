@@ -130,6 +130,62 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
         self.assertIn(hex(ACTIVE_BYTE), text.lower(), "counter does not test the active byte")
         self.assertIn(hex(SLOT_COUNT), text.lower(), "counter does not bound at 150 slots")
 
+    def test_each_guard_pins_its_threshold_and_branch(self):
+        """The call alone does not encode capacity; the threshold does.
+
+        Changing the triplet guard's `cmp eax, 0x93` to `0x96` would still
+        call the counter and still branch -- and would then permit three
+        children with one slot free, overrunning the 150-record pool. The
+        thresholds are the semantics: 147 leaves room for three, 148 for two,
+        150 for one. Branch polarity and destination are pinned for the same
+        reason: inverting `jg` admits exactly the case it exists to refuse.
+        """
+        expected = {
+            # guard:      (compare, threshold, jump, destination)
+            0x489020: ("cmp", 0x93, "jg", 0x45E8D3),   # triplets: 3 slots
+            0x489040: ("cmp", 0x94, "jg", 0x45E8E4),   # twins: 2 slots
+            0x489060: ("cmp", 0x96, "jge", 0x489077),  # event newcomer
+            0x489080: ("cmp", 0x96, "jge", 0x489096),  # first barrel child
+        }
+        for va, (mnem, threshold, jump, destination) in expected.items():
+            with self.subTest(guard=hex(va)):
+                ins = self._disasm(va, 24)
+                self.assertEqual(ins[1].mnemonic, mnem, "no comparison after the call")
+                self.assertEqual(
+                    int(ins[1].op_str.split(", ")[1], 0),
+                    threshold,
+                    "capacity threshold changed; the guard now admits a "
+                    "different number of free slots",
+                )
+                self.assertEqual(ins[2].mnemonic, jump, "branch polarity changed")
+                self.assertEqual(
+                    int(ins[2].op_str, 16),
+                    destination,
+                    "branch destination changed",
+                )
+
+    def test_abandoned_infants_guard_clamps_to_remaining_slots(self):
+        """This one computes rather than compares, so it needs its own shape.
+
+        `neg eax ; add eax, 0x96` turns demand into remaining slots; the two
+        following branches clamp the reservation to at most six and refuse
+        entirely when nothing is free.
+        """
+        ins = self._disasm(0x4890C0, 32)
+        text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins[:6])
+        self.assertEqual(ins[0].mnemonic, "call")
+        self.assertEqual(int(ins[0].op_str, 16), COUNTER_VA)
+        self.assertIn("neg eax", text, "demand is not converted to free slots")
+        self.assertIn(f"add eax, {hex(SLOT_COUNT)}", text, "wrong pool size")
+        self.assertTrue(
+            any(i.mnemonic == "jle" for i in ins[:6]),
+            "no refusal branch when no slots remain",
+        )
+        self.assertTrue(
+            any(i.mnemonic == "cmp" and i.op_str.endswith(", 6") for i in ins[:8]),
+            "the six-infant ceiling is no longer applied",
+        )
+
     def test_counter_adds_pending_babies_behind_a_pregnancy_gate(self):
         """Geometry alone is not enough.
 

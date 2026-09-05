@@ -23,12 +23,17 @@ copying between files.
 """
 
 import re
+import subprocess
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SEARCH_DIRS = ("docs", "tests", "scripts", "src")
-SUFFIXES = {".md", ".py"}
+# Every tracked text file, not a hand-picked set of subdirectories. An earlier
+# version scanned only docs/tests/scripts/src and only .md/.py, which left the
+# top-level README.md -- where the population-safety behaviour is actually
+# documented for users -- and How to Use.txt outside a check that called itself
+# repo-wide. Verified: appending the false claim to README.md passed.
+SUFFIXES = {".md", ".py", ".txt"}
 
 # Phrasings that assert the address is unwritten. Deliberately narrow: the
 # files legitimately DISCUSS the false claim while correcting it, so this
@@ -47,13 +52,24 @@ QUOTING_ALLOWED = {
 
 
 def _repo_files():
-    for folder in SEARCH_DIRS:
-        base = ROOT / folder
-        if not base.is_dir():
-            continue
-        for path in base.rglob("*"):
-            if path.suffix.lower() in SUFFIXES and path.is_file():
-                yield path
+    """Tracked text files, asked of git rather than guessed at.
+
+    Using `git ls-files` means a new documentation file is covered the moment
+    it is tracked, instead of only when someone remembers to widen a list.
+    """
+    listing = subprocess.run(
+        ["git", "ls-files", "--full-name"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if listing.returncode != 0:  # pragma: no cover - not a git checkout
+        raise unittest.SkipTest("not a git checkout")
+    for name in listing.stdout.splitlines():
+        path = ROOT / name
+        if path.suffix.lower() in SUFFIXES and path.is_file():
+            yield path
 
 
 class SlotGuardHistoryTests(unittest.TestCase):
@@ -88,6 +104,10 @@ class SlotGuardHistoryTests(unittest.TestCase):
         names = {p.name for p in _repo_files()}
         self.assertIn("test_slot_guard_population_source.py", names)
         self.assertIn("vv4-slot-guards-are-inert.md", names)
+        # The root-level user documentation specifically: these sat outside an
+        # earlier version of this scan while it claimed to be repo-wide.
+        self.assertIn("README.md", names)
+        self.assertIn("How to Use.txt", names)
         self.assertGreater(len(names), 50)
 
 
