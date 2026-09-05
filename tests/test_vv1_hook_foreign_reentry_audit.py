@@ -189,7 +189,16 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # refusal paths already shared -- derived from the assembled helper, not
     # restated. No register is read or written, so the stub cannot disturb
     # the dispatch that follows or the stock frame the helper resumes into.
-    ("vv1_enable_origins_exclusive_features", "0x2403F"): "3C41A85F1AFE8DB276941C33B261D1AC08DF11AF8227CB295343321C45634CCC",
+    # Re-reviewed: the barrel main helper no longer falls through into the
+    # disarm stub on a SUCCESSFUL dispatch -- that stub clears
+    # BARREL_UPGRADE_FLAG, which must stay armed until the barrel-count hook
+    # consumes it, so falling through silently reverted every paid barrel to
+    # the stock random count. The failure branch now targets the stub
+    # directly and the trampoline is gone, which also freed 5 bytes in a cave
+    # that was one byte over its bound. Register contract unchanged: the
+    # helper still pushad/popad around the whole body and the stub still
+    # rejoins the same shared restore.
+    ("vv1_enable_origins_exclusive_features", "0x2403F"): "40E7A84AF567A2DA2F1DDA917EA6D1981B4B113BFE9F6AE691535DB56BE13D74",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
     # Re-reviewed: the pending_rows cave now calls POPULATION_FINAL_TIER_VA

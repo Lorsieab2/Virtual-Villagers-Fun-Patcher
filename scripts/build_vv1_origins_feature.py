@@ -1956,7 +1956,7 @@ def main() -> None:
             # the disarm stub so the flag does not survive with no dispatch --
             # otherwise the retry re-arms it every tick and the NEXT barrel,
             # natural or purchased, silently inherits the three-child override.
-            je barrel_main_disarm
+            je 0x{BARREL_DISARM_VA:X}
             mov ebx, eax
             push 0x7F4B1A2C
             push 1
@@ -1970,8 +1970,14 @@ def main() -> None:
             call 0x427620
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
             mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
-        barrel_main_disarm:
-            jmp 0x{BARREL_DISARM_VA:X}
+            # Successful dispatch must NOT fall through into the disarm stub:
+            # that stub clears BARREL_UPGRADE_FLAG, which has to stay armed
+            # until the later barrel-count hook consumes it. Falling through
+            # made every paid barrel revert to the stock random one-to-three
+            # child count -- the player was charged 75,000 tech points for the
+            # guaranteed three and silently got the vanilla roll. Only the
+            # constructor-failure branch may enter the stub.
+            jmp barrel_main_restore
     """
     barrel_main_helper_source = (
         barrel_main_helper_source_prefix
