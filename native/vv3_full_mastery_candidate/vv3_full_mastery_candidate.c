@@ -398,22 +398,37 @@ static int vv3_has_free_villager_slots(int wanted) {
    it can reach the world manager and read the two values itself. Nothing is
    asked of the executable.
 
-   It reads the manager's singleton POINTER (0x4B309C) rather than calling the
-   getter at 0x428B60 that the executable's own purchase path uses. That getter
-   is a lazy constructor: when the pointer is null it allocates 0x12FD4 bytes
-   and constructs the manager. Building the menu must not have that side
-   effect, and a null pointer already answers the question -- with no manager
-   there is nothing pending.
+   Both pending answers now come from flags the payload owns -- the Barrel's at
+   0x4B3C75 and the Island's at 0x6E0050 -- so the row predicate reads plain
+   bytes and needs no manager at all. It deliberately does NOT call the getter
+   at 0x428B60 that the executable's purchase path uses: that getter is a lazy
+   constructor which allocates 0x12FD4 bytes and builds the manager when the
+   pointer is null, and merely drawing a menu must not have that side effect.
 
-   The manager layout differs between the stock and expanded builds. The
-   executable picks between them by testing whether the immediate at 0x42883A
-   is 256, and this uses that same probe so both builds read the right field. */
+   The capacity half still walks villager records, and that walk is where the
+   stock/expanded layout difference matters: the executable distinguishes the
+   two by testing whether the immediate at 0x42883A is 256, and
+   vv3_has_free_villager_slots uses the same probe. */
 #define VV3_MANAGER_SINGLETON     0x4B309C
 #define VV3_ARCH_PROBE            0x42883A
 #define VV3_ARCH_EXPANDED_VALUE   0x100
 #define VV3_ARCH_EXPANDED_OFFSET  0x7598
 #define VV3_ISLAND_COUNTDOWN_OFF  0x12EF4
 #define VV3_BARREL_PENDING_FLAG   0x4B3C75
+/* The purchased Island Event's pending flag, in the patch's own appended data
+   page (SECTION_DATA_VA + 0x50), set when the purchase arms the queue and
+   cleared once the island-event handler has actually consumed it.
+
+   This must be READ, never re-derived. The countdown field above cannot answer
+   the question: the purchase writes clock() + QUEUE_DELAY_SECONDS there, so it
+   is non-zero throughout the queue window, and comparing it against a window
+   was tried and removed on #249 for three separate reasons. The decisive one is
+   that the handler runs only during village gameplay, so an event armed and
+   then left overdue in the paused Tech menu is still outstanding while any
+   timestamp comparison says otherwise -- which either refuses legitimate
+   purchases or re-opens the double charge. The payload and this predicate must
+   share one definition of "pending", and the flag is it. */
+#define VV3_ISLAND_PENDING_FLAG   0x6E0050
 
 enum {
     VV3_PENDING_ROW_ISLAND = 1,
@@ -459,32 +474,34 @@ static const char *vv3_block_reason_text(int reason, int row) {
 }
 
 static int vv3_row_block_reason(int villager_menu, int row) {
-    unsigned char *manager;
-    int extra;
-
     if (villager_menu) {
         return VV3_BLOCK_NONE;
     }
     if (row == VV3_PENDING_ROW_BARREL) {
+        /* Capacity is checked FIRST, matching the other four games. The two
+           causes are independent -- a queued barrel and a full village can hold
+           at once -- and "no room" is the more actionable, since waiting clears
+           a queue but not a village. Answering "already on its way" to a player
+           whose village has since filled up tells them to wait for a barrel
+           that will arrive short. */
+        if (!vv3_has_free_villager_slots(VV3_BARREL_CHILDREN)) {
+            return VV3_BLOCK_NO_VILLAGER_SLOTS;
+        }
         if (*(volatile unsigned char *)(UINT_PTR)VV3_BARREL_PENDING_FLAG != 0) {
             return VV3_BLOCK_ALREADY_PENDING;
         }
-        return vv3_has_free_villager_slots(VV3_BARREL_CHILDREN)
-            ? VV3_BLOCK_NONE
-            : VV3_BLOCK_NO_VILLAGER_SLOTS;
+        return VV3_BLOCK_NONE;
     }
     if (row != VV3_PENDING_ROW_ISLAND) {
         return VV3_BLOCK_NONE;
     }
-    manager = *(unsigned char *volatile *)(UINT_PTR)VV3_MANAGER_SINGLETON;
-    if (manager == NULL) {
-        return VV3_BLOCK_NONE;    /* no manager yet -> claim nothing */
-    }
-    extra = (*(volatile unsigned int *)(UINT_PTR)VV3_ARCH_PROBE
-             == (unsigned int)VV3_ARCH_EXPANDED_VALUE)
-        ? VV3_ARCH_EXPANDED_OFFSET
-        : 0;
-    return *(volatile int *)(manager + extra + VV3_ISLAND_COUNTDOWN_OFF) == 0
+    /* Read the payload's own pending flag rather than inferring pending-ness
+       from the countdown. The old test was `countdown == 0`, but the purchase
+       stores clock() + QUEUE_DELAY_SECONDS there, so the field is NON-zero for
+       the whole queue window: the row stayed buyable, and the player could pay
+       another 30,000 points to overwrite the same due stamp. See the comment on
+       VV3_ISLAND_PENDING_FLAG for why no timestamp comparison can replace it. */
+    return *(volatile unsigned char *)(UINT_PTR)VV3_ISLAND_PENDING_FLAG != 0
         ? VV3_BLOCK_ALREADY_PENDING
         : VV3_BLOCK_NONE;
 }
