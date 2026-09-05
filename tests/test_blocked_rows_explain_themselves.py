@@ -54,8 +54,11 @@ DLLS = {
 BUTTON_LABEL = b"Why not?"
 DIALOG_TITLE = b"Not right now"
 PENDING_TEXT = b"already been bought and is on its way"
-NO_SLOTS_TEXT = b"no room in the village for the children"
+NO_SLOTS_TEXT = b"not enough room in the village for the three children"
 BURIAL_HINT = b"buried"
+# The wording must not claim EVERY slot is taken: the check is for three free
+# records, so with one or two free that would contradict the visible village.
+OVERCLAIM = b"Every villager slot is taken"
 
 
 class BlockedRowsExplainThemselvesTests(unittest.TestCase):
@@ -77,13 +80,21 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
                     PENDING_TEXT,
                     NO_SLOTS_TEXT,
                 ):
-                    self.assertIn(
-                        needle,
-                        blob,
+                    # assertTrue on a membership test, not assertIn: the latter
+                    # prints the entire DLL on failure, which buried the real
+                    # message under 16MB of hex.
+                    self.assertTrue(
+                        needle in blob,
                         f"{relative} does not contain {needle!r}. The source "
                         "may have been edited without rebuilding the DLL, in "
                         "which case players keep the old bare 'Unavailable'",
                     )
+                self.assertFalse(
+                    OVERCLAIM in blob,
+                    f"{relative} still claims every villager slot is taken. "
+                    "The barrel needs THREE free records, so with one or two "
+                    "free that contradicts what the player can see",
+                )
 
     def test_no_shipped_companion_still_disables_these_rows(self):
         """Anti-regression on the mechanism that caused the complaint.
@@ -127,8 +138,8 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
         for game in ("vv1", "vv3", "vv4", "vv5"):
             text = (ROOT / SOURCES[game]).read_bytes()
             with self.subTest(game=game):
-                self.assertIn(PENDING_TEXT, text, f"{game}: no pending text")
-                self.assertIn(NO_SLOTS_TEXT, text, f"{game}: no capacity text")
+                self.assertTrue(PENDING_TEXT in text, f"{game}: no pending text")
+                self.assertTrue(NO_SLOTS_TEXT in text, f"{game}: no capacity text")
 
     def test_the_capacity_message_mentions_burial(self):
         """The actionable half.
@@ -143,9 +154,8 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
             with self.subTest(game=game):
                 self.assertGreater(index, 0, f"{relative}: capacity text absent")
                 window = blob[index : index + 400]
-                self.assertIn(
-                    BURIAL_HINT,
-                    window,
+                self.assertTrue(
+                    BURIAL_HINT in window,
                     f"{relative}: the capacity message does not mention "
                     "burial, so it says what is wrong without saying what the "
                     "player can do about it",

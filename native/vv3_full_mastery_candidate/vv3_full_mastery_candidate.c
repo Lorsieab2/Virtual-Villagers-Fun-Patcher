@@ -440,10 +440,11 @@ static int vv3_block_reasons[VV3_ROW_STATE_MAX];
 
 static const char *vv3_block_reason_text(int reason, int row) {
     if (reason == VV3_BLOCK_NO_VILLAGER_SLOTS) {
-        return "There is no room in the village for the children this would "
-               "bring.\n\nEvery villager slot is taken. Note that a villager "
-               "who has died still occupies a slot until they are buried, so "
-               "burying any remains may be enough to free the space.";
+        return "There is not enough room in the village for the three children "
+               "a barrel brings.\n\nThree villager slots have to be free. A "
+               "villager who has died still occupies a slot until they are "
+               "buried, and a pregnancy holds one too, so burying any remains "
+               "may be enough to free the space.";
     }
     if (row == VV3_PENDING_ROW_ISLAND) {
         return "An island event has already been bought and is on its way."

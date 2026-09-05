@@ -2689,7 +2689,10 @@ def main() -> None:
             jnz pending_rows_count
             cmp edx, 0x57
             jbe pending_rows_done
-            or edi, 0x1000000
+            # A DISTINCT bit from the queued-barrel one above. They shared
+            # 0x1000000 until Codex caught it on #254, so a player whose
+            # village was full was told a barrel had already been bought.
+            or edi, 0x2000000
         pending_rows_done:
             pop ebx
             pop edx

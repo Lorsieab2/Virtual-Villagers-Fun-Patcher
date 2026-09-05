@@ -131,6 +131,17 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       every register except the intended EDI are preserved.  It leaves flags
 #       undefined, which is safe here: the next instruction is `push edi`.
 #       Reaching it is a `call`, not a jmp, so it adds no stock re-entry.
+#   0x35AB0                         re-confirmed after the barrel row learned
+#                                   to explain itself: the pending-rows helper
+#                                   at 0x8BF00 changed by exactly ONE
+#                                   instruction, `or edi, 0x1000000` ->
+#                                   `or edi, 0x2000000`, giving the "no room"
+#                                   case its own state bit so the DLL can tell
+#                                   it from a queued barrel.  Same instruction,
+#                                   same register, identical push/pop sequence
+#                                   (38 instructions before and after, one
+#                                   differing immediate), so the recorded
+#                                   register contract is unaffected.
 #   0x35AB0                         re-confirmed after the Island Event queue
 #       delay and its guard.  Two things in this block's reach changed: the
 #       purchase branch now calls the scheduler clock (0x402F70) and stores
@@ -192,7 +203,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "3C41A85F1AFE8DB276941C33B261D1AC08DF11AF8227CB295343321C45634CCC",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "3ECEBF9754F7758496400390A31FA6F56572BC7874708D17F54715261996C768",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "5CB80CF3045F9E6D4E35C33940FD51A8EF0CC24BF524FBEA661E4BD74049B310",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",

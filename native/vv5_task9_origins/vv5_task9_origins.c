@@ -318,7 +318,16 @@ static void appearance_repaint(HWND window, int control) {
    bit 9 means both "row 9 satisfied" and "row 1 unavailable". */
 enum {
     STATE_ISLAND_PENDING = 0x800000,
-    STATE_BARREL_PENDING = 0x1000000
+    STATE_BARREL_PENDING = 0x1000000,
+    /* Set when the barrel cannot be delivered because the village has no room
+       for the children, as distinct from one already being queued.
+
+       These shared a bit until Codex caught it on #254: the payload set
+       STATE_BARREL_PENDING for BOTH causes, so a player whose village was full
+       was told a barrel had already been bought -- a plainly false statement
+       about their own save. VV4 was worse still, setting the barrel bit while
+       only an Island Event was pending. */
+    STATE_BARREL_NO_ROOM = 0x2000000
 };
 
 enum {
@@ -388,10 +397,11 @@ static int block_reasons[ROW_STATE_MAX];
 
 static const char *block_reason_text(int reason, int row) {
     if (reason == BLOCK_NO_VILLAGER_SLOTS) {
-        return "There is no room in the village for the children this would "
-               "bring.\n\nEvery villager slot is taken. Note that a villager "
-               "who has died still occupies a slot until they are buried, so "
-               "burying any remains may be enough to free the space.";
+        return "There is not enough room in the village for the three children "
+               "a barrel brings.\n\nThree villager slots have to be free. A "
+               "villager who has died still occupies a slot until they are "
+               "buried, and a pregnancy holds one too, so burying any remains "
+               "may be enough to free the space.";
     }
     if (row == PENDING_ROW_ISLAND) {
         return "An island event has already been bought and is on its way."
@@ -415,12 +425,14 @@ static int row_block_reason(int villager_menu, int row, long state) {
     if (row != PENDING_ROW_BARREL) {
         return BLOCK_NONE;
     }
+    if ((state & STATE_BARREL_NO_ROOM) != 0
+        || !vv5_has_free_villager_slots(VV5_BARREL_CHILDREN)) {
+        return BLOCK_NO_VILLAGER_SLOTS;
+    }
     if ((state & STATE_BARREL_PENDING) != 0) {
         return BLOCK_ALREADY_PENDING;
     }
-    return vv5_has_free_villager_slots(VV5_BARREL_CHILDREN)
-        ? BLOCK_NONE
-        : BLOCK_NO_VILLAGER_SLOTS;
+    return BLOCK_NONE;
 }
 
 /* Thin wrapper so callers needing only the yes/no answer are unchanged. */

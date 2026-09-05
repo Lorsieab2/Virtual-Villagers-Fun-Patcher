@@ -2553,7 +2553,9 @@ def main() -> None:
             jnz pending_rows_count
             cmp edx, 0x57
             jbe pending_rows_slots_ok
-            or eax, 0x1000000
+            # A DISTINCT bit from the queued-barrel one above, so the DLL can
+            # tell "no room" from "already bought" and say which.
+            or eax, 0x2000000
         pending_rows_slots_ok:
             pop ebx
             pop edx

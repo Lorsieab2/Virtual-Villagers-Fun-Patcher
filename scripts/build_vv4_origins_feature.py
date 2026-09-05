@@ -2003,8 +2003,11 @@ def main() -> None:
         pending_rows_island:
             pop ecx
             pop ebx
+            # Island only. This also set the BARREL bit, so a pending island
+            # event disabled the Barrel row too and -- once the rows could
+            # explain themselves -- told the player a barrel was on its way
+            # when none had been bought. Codex caught it on #254.
             or edx, 0x800000
-            or edx, 0x1000000
             jmp pending_rows_done
         pending_rows_notqueued:
             pop ecx
@@ -2042,7 +2045,9 @@ def main() -> None:
             add ecx, 0x2E3C
             dec ebx
             jnz pending_rows_count
-            or edx, 0x1000000
+            # A DISTINCT bit from the queued-barrel one, so the DLL can tell
+            # "no room" from "already bought" and say which.
+            or edx, 0x2000000
         pending_rows_slots_ok:
             pop esi
             pop ebx
