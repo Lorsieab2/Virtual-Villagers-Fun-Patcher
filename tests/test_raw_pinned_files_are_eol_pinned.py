@@ -27,6 +27,7 @@ covered the moment it appears instead of waiting to be found the painful way.
 """
 
 import hashlib
+import json
 import subprocess
 import unittest
 from pathlib import Path
@@ -35,6 +36,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 CRLF = bytes((13, 10))
 LF = bytes((10,))
+CR = bytes((13,))
+BOM = bytes((0xEF, 0xBB, 0xBF))
 
 # Where a raw whole-file hash can be written down. Not just Python: two of the
 # CRLF-pinned files below are pinned inside SIBLING JSON MANIFESTS, which is
@@ -168,6 +171,46 @@ def _blob_lf(relative: str) -> bytes | None:
     if result.returncode != 0 or not result.stdout:
         return None
     return result.stdout.replace(CRLF, LF)
+
+
+def _authenticated_digests() -> dict[str, str]:
+    """Path -> source-text digest, from the repository's own registry.
+
+    `data/source-text-authentication.json` exists precisely to bind a path to
+    the digest of its canonicalised text, and documents the canonicalisation it
+    uses. It is the reference that NAMES the file, so unlike a corpus search it
+    stays correct when the file's contents change -- which is exactly when a
+    digest match stops being evidence of anything.
+
+    This addresses the hole Codex found on #247: with only the corpus search, a
+    file committed with ANOTHER pinned file's exact bytes inherited the
+    aggressor's digest and passed.
+
+    Deliberately this registry, and not any "path"/"sha256" pair found in the
+    tree. Several records legitimately name a live path with a DELIBERATELY
+    historical digest -- two candidate maps do so for
+    data/vv5_origins_feature.json, and
+    ...fullscreen_owner_transition_evidence_gate.json names the fullscreen
+    candidate under "status": "disabled-static-oracle-only". Treating those as
+    live pins reports correct files as broken, which is worse than the hole it
+    would close.
+
+    Covers 18 of the 28 raw-pinned files today. It is a floor, not a ceiling:
+    the assertion below is exact for what the registry names, and the corpus
+    search still covers the rest.
+    """
+    registry = ROOT / "data" / "source-text-authentication.json"
+    try:
+        record = json.loads(registry.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeError, ValueError):
+        return {}
+    return {
+        entry["path"].replace(chr(92), "/"): entry["sha256"].upper()
+        for entry in record.get("artifacts", [])
+        if isinstance(entry, dict)
+        and isinstance(entry.get("path"), str)
+        and isinstance(entry.get("sha256"), str)
+    }
 
 
 def eol_pinned_files() -> list[str]:
@@ -338,6 +381,48 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             "`git rm --cached -r . && git reset --hard`; the --hard resets the "
             "whole worktree and silently discards every uncommitted change: "
             f"{stale}",
+        )
+
+    def test_registered_artifacts_match_their_own_recorded_digest(self):
+        """Path-anchored, so contents cannot vote on their own identity.
+
+        The other worktree assertion asks whether a file's bytes appear as SOME
+        pin, which Codex showed is weaker than it reads: commit one pinned
+        file's exact bytes over another and the victim inherits the aggressor's
+        digest and passes.
+
+        data/source-text-authentication.json binds each path to the digest of
+        its canonicalised text, so it can answer "does THIS file still match
+        ITS pin" rather than "are these bytes pinned anywhere".
+        """
+        registered = _authenticated_digests()
+        self.assertGreater(
+            len(registered),
+            10,
+            "the source-text authentication registry looks empty or moved; "
+            "this assertion would pass vacuously",
+        )
+        wrong = []
+        for relative, expected in sorted(registered.items()):
+            path = ROOT / relative
+            if not path.is_file():
+                continue
+            raw = path.read_bytes()
+            if raw.startswith(BOM):
+                raw = raw[len(BOM):]
+            canonical = raw.replace(CRLF, LF).replace(CR, LF)
+            actual = hashlib.sha256(canonical).hexdigest().upper()
+            if actual != expected:
+                wrong.append(
+                    f"{relative} is {actual[:12]}, registered as {expected[:12]}"
+                )
+        self.assertEqual(
+            wrong,
+            [],
+            "these files no longer match the digest recorded for them BY NAME "
+            "in data/source-text-authentication.json. Either the file changed "
+            "without the registry being updated, or it now holds content that "
+            f"belongs to a different file: {wrong}",
         )
 
     def test_a_crlf_checkout_would_break_a_pinned_hash(self):
