@@ -1920,7 +1920,10 @@ class StockIntegrationTests(unittest.TestCase):
                 0x148B0: "E9AB47070090",
                 0x14D90: "E9EB420700",
                 # VV4 now counts live records like VV5 does. It used to
-                # compare a static 0x4D6DE8 that nothing ever wrote.
+                # compare a static 0x4D6DE8, which IS written (`add
+                # [0x4d6de8], ecx` at 0x45E91C) but never decremented -- a
+                # lifetime conception total that eventually passes the
+                # threshold and then suppresses children permanently.
                 0x89060: "E88B0000003D96000000",
                 0x89080: "E86B0000003D96000000",
             },
