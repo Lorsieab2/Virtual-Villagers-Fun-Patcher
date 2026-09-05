@@ -21,3 +21,37 @@ assets/vv4_masks/** -text
 # chains and the generator's identity check fails on whichever one did not
 # produce the pin.
 /data/vv5_origins_feature.json text eol=lf
+
+# Every JSON below is pinned by a RAW whole-file sha256 that appears in
+# scripts/ or src/, exactly like data/vv5_origins_feature.json above.
+# Without an EOL rule those hashes follow core.autocrlf, so a Windows
+# checkout and an LF checkout produce different bytes and the generator's
+# identity check fails on whichever one did not create the pin. The set is
+# mechanically derived -- a file belongs here if and only if its raw
+# sha256 is pinned in code -- and is asserted by
+# tests/test_raw_pinned_files_are_eol_pinned.py.
+/data/candidates/vv2_full_mastery_all_candidate.json text eol=lf
+/data/candidates/vv2_full_mastery_all_candidate_map.json text eol=lf
+/data/candidates/vv2_individual_full_mastery_candidate.json text eol=lf
+/data/candidates/vv2_individual_full_mastery_candidate_map.json text eol=lf
+/data/candidates/vv3_all_villagers_like_running_candidate.json text eol=lf
+/data/candidates/vv3_expanded_time_warp_map.json text eol=lf
+/data/candidates/vv3_full_heal_cure_all_candidate.json text eol=lf
+/data/candidates/vv3_full_heal_cure_all_candidate_map.json text eol=lf
+/data/candidates/vv3_full_mastery_all_candidate.json text eol=lf
+/data/candidates/vv3_full_mastery_all_candidate_map.json text eol=lf
+/data/candidates/vv3_individual_grant_running_candidate.json text eol=lf
+/data/candidates/vv3_individual_grant_running_candidate_map.json text eol=lf
+/data/candidates/vv3_origins_full_mastery_base_candidate.json text eol=lf
+/data/candidates/vv3_origins_running_base_candidate.json text eol=lf
+/data/candidates/vv5_expanded_time_warp_map.json text eol=lf
+/data/candidates/vv5_individual_running_candidate.json text eol=lf
+/data/candidates/vv5_individual_running_candidate_map.json text eol=lf
+/data/candidates/vv5_post_prototype_overlay.json text eol=lf
+/data/candidates/vv5_task9_native_actions_map.json text eol=lf
+/data/expanded_256_static_repair_integration.json text eol=lf
+/data/expanded_atomic_writer_integration.json text eol=lf
+/data/vv3_expanded_time_warp.json text eol=lf
+/data/vv3_expanded_time_warp_core.json text eol=lf
+/data/vv5_expanded_time_warp.json text eol=lf
+/data/vv5_task9_native_actions.json text eol=lf

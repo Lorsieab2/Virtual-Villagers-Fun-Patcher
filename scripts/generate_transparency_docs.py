@@ -272,6 +272,11 @@ def build_document() -> str:
 
 
 if __name__ == "__main__":
+    # newline="" keeps the LF endings the document is built with. Without it
+    # Python applies universal-newline translation on Windows, so this script
+    # rewrites the whole file with CRLF -- a whole-file diff on a clone with
+    # core.autocrlf=false, and silently absorbed on one with autocrlf=true,
+    # which is the harder case to notice. The committed blob is LF.
     (ROOT / "docs" / "transparency-log.md").write_text(
-        build_document(), encoding="utf-8"
+        build_document(), encoding="utf-8", newline=""
     )
