@@ -68,6 +68,16 @@ GUARD_EXPECTATIONS = {
 # capacity and clamps the brood to it, so it needs its own expectations.
 CLAMP_GUARD_VA = 0x4890C0
 CLAMP_MAX_CHILDREN = 6
+CLAMP_NO_CAPACITY_VA = 0x4890ED   # `ret` -- refuse, create nothing
+CLAMP_PROCEED_VA = 0x4890D8       # the reservation argument push
+RESERVATION_CALL_VA = 0x467B00    # sub_467B00, the creation helper
+PENDING_FIELD = 0x1C50            # pending-baby count on a record
+# Brood written on each multiple-birth guard's ALLOWED path. Pinned so a
+# guard can keep its threshold and branch while writing a larger brood.
+GUARD_PAYLOADS = {
+    0x489030: 3,   # triplets
+    0x489050: 2,   # twins
+}
 LOOP_HEAD_VA = 0x4890FE      # the per-record compare the loop returns to
 NEXT_RECORD_VA = 0x489119    # `add edx, stride` -- the skip destination
 PREGNANCY_FIELD = 0x1C4C     # non-zero when the record is expecting
@@ -160,13 +170,13 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
     def test_the_clamp_guard_converts_and_limits(self):
         """The fifth guard has no threshold -- it clamps the brood instead.
 
-        Both decisions are pinned to their own comparison. The clamp contains
-        TWO `jle`s, so asserting that some `jle` exists pins neither: flipping
-        the one after `cmp eax, 6` to `jge` would replace a remaining capacity
-        of 1..5 with six and over-reserve the pool, while the zero-capacity
-        `jle` stayed put and this test stayed green.
+        Both decisions are pinned to their own comparison AND destination, and
+        the clamped value is traced to the reservation call. Each of those can
+        break alone: retargeting the zero-capacity `jle` from the `ret` to the
+        argument push creates children with no slot remaining, and pushing a
+        different register hands the helper an unrelated brood count.
         """
-        insns = self._disasm(CLAMP_GUARD_VA, 40)
+        insns = self._disasm(CLAMP_GUARD_VA, 48)
         decoded = [(i.mnemonic, self._ops(i)) for i in insns]
 
         self.assertIn(("neg", ["eax"]), decoded,
@@ -176,32 +186,66 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
                 if i.mnemonic == "add" and self._ops(i)[0] == "eax"
                 and self._is_imm(self._ops(i)[1], SLOT_COUNT)]
         self.assertTrue(
-            pool,
-            f"the clamp guard does not add the {SLOT_COUNT:#x}-slot pool size, "
-            "so it is not computing remaining capacity")
+            pool, f"the clamp guard does not add the {SLOT_COUNT:#x}-slot pool")
         after_pool = insns[insns.index(pool[0]) + 1]
         self.assertEqual(
-            after_pool.mnemonic, "jle",
-            f"the branch after the pool-size add is {after_pool.mnemonic}, not "
-            "jle; that is the zero-capacity refusal")
+            (after_pool.mnemonic, int(after_pool.op_str, 16)),
+            ("jle", CLAMP_NO_CAPACITY_VA),
+            f"the zero-capacity branch is `{after_pool.mnemonic} "
+            f"{after_pool.op_str}`, not `jle {CLAMP_NO_CAPACITY_VA:#x}`; "
+            "retargeting it creates children with no slot remaining")
 
         cap = [i for i in insns
                if i.mnemonic == "cmp" and self._ops(i)[0] == "eax"
                and self._is_imm(self._ops(i)[1], CLAMP_MAX_CHILDREN)]
-        self.assertTrue(
-            cap, f"the clamp guard no longer compares against "
-                 f"{CLAMP_MAX_CHILDREN}")
+        self.assertTrue(cap, "the clamp guard no longer compares against "
+                             f"{CLAMP_MAX_CHILDREN}")
         after_cap = insns[insns.index(cap[0]) + 1]
         self.assertEqual(
-            after_cap.mnemonic, "jle",
-            f"the branch after `cmp eax, {CLAMP_MAX_CHILDREN}` is "
-            f"{after_cap.mnemonic}, not jle; the wrong polarity replaces a "
-            "remaining capacity of 1..5 with six")
+            (after_cap.mnemonic, int(after_cap.op_str, 16)),
+            ("jle", CLAMP_PROCEED_VA),
+            f"the brood clamp branches to `{after_cap.mnemonic} "
+            f"{after_cap.op_str}`, not `jle {CLAMP_PROCEED_VA:#x}`")
         self.assertTrue(
             any(m == "mov" and o[0] == "eax"
                 and self._is_imm(o[1], CLAMP_MAX_CHILDREN)
                 for m, o in decoded if len(o) > 1),
             f"the clamp guard no longer caps the brood at {CLAMP_MAX_CHILDREN}")
+
+        call = [i for i in insns
+                if i.mnemonic == "call"
+                and self._is_imm(i.op_str, RESERVATION_CALL_VA)]
+        self.assertTrue(
+            call, f"the clamp guard does not reach {RESERVATION_CALL_VA:#x}")
+        pushes = [i for i in insns
+                  if i.mnemonic == "push" and i.address < call[0].address]
+        self.assertIn(
+            "eax", [self._ops(i)[0] for i in pushes],
+            "the clamped count is never pushed; the reservation helper would "
+            "receive an unrelated brood count")
+
+    def test_each_multiple_birth_writes_its_own_brood(self):
+        """A threshold is only half the guard; the payload is the other half.
+
+        Changing the triplet's `mov [esi+0x1c50], 3` to 4 keeps the counter
+        call, the 0x93 comparison, the `jg` and both destinations intact -- and
+        at a demand of 147 permits a fourth baby past the 150-record pool.
+        """
+        for va, brood in GUARD_PAYLOADS.items():
+            with self.subTest(payload=hex(va)):
+                insn = self._disasm(va, 16)[0]
+                self.assertEqual(
+                    insn.mnemonic, "mov",
+                    f"{va:#x} is `{insn.mnemonic}`, not the brood write")
+                destination, source = self._ops(insn)
+                self.assertEqual(
+                    destination, f"dword ptr [esi + {PENDING_FIELD:#x}]",
+                    f"the brood at {va:#x} is written to {destination}, not the "
+                    "pending-baby field")
+                self.assertTrue(
+                    self._is_imm(source, brood),
+                    f"the guard at {va:#x} reserves {source} babies, not "
+                    f"{brood}")
 
     def test_no_guard_reads_the_running_total(self):
         """The exact regression: back to the lifetime-conception total."""
@@ -262,21 +306,24 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
         except ValueError:
             return False
 
-    def _gate(self, displacement):
-        """(compare, following branch) for the record-field test at `displacement`.
+    def _gate(self, displacement, width):
+        """(compare, following branch) for a record-field test.
+
+        `width` is asserted, not inferred: byte and dword reads are NOT
+        interchangeable. Reading the active flag as a dword makes an
+        inactive record with any nonzero adjacent byte count as occupied.
 
         The memory operand is parsed and compared exactly. Substring matching
         would let `0x1cc4` also match `0x1cc40`, i.e. a counter reading outside
         the intended field while every polarity assertion still passed.
         """
-        want = f"byte ptr [edx + {displacement:#x}]"
-        want_dword = f"dword ptr [edx + {displacement:#x}]"
+        want = f"{width} ptr [edx + {displacement:#x}]"
         insns = self._disasm(COUNTER_VA, 64)
         for index, insn in enumerate(insns):
             if insn.mnemonic != "cmp":
                 continue
             operands = self._ops(insn)
-            if operands[0] not in (want, want_dword):
+            if operands[0] != want:
                 continue
             if not self._is_imm(operands[1], 0) and operands[1] != "0":
                 continue
@@ -291,7 +338,7 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
         Presence of a jump is not enough -- flipping this one inverts the
         counter's meaning while leaving every other assertion satisfied.
         """
-        compare, branch = self._gate(ACTIVE_BYTE)
+        compare, branch = self._gate(ACTIVE_BYTE, "byte")
         self.assertIsNotNone(
             compare,
             f"no `cmp [edx + {ACTIVE_BYTE:#x}], 0` in the counter; the active-byte\n"
@@ -305,7 +352,7 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
 
     def test_the_pregnancy_branch_skips_only_the_pending_add(self):
         """`jne` here would drop pending babies from the demand figure."""
-        compare, branch = self._gate(PREGNANCY_FIELD)
+        compare, branch = self._gate(PREGNANCY_FIELD, "dword")
         self.assertIsNotNone(
             compare,
             f"no `cmp [edx + {PREGNANCY_FIELD:#x}], 0` in the counter")
@@ -406,6 +453,25 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
             "no branch between the pregnancy test and the add: the count would "
             "include babies for villagers who are not pregnant",
         )
+
+
+    def test_the_pending_add_accumulates_into_eax(self):
+        """The demand figure is EAX; adding elsewhere silently drops babies.
+
+        The pregnancy-gate test accepts any `add` mentioning the field, so
+        redirecting this one to another register left every assertion green
+        while the returned demand omitted every unborn baby.
+        """
+        adds = [i for i in self._disasm(COUNTER_VA, 64)
+                if i.mnemonic == "add"
+                and self._ops(i)[1] == f"dword ptr [edx + {PENDING_FIELD:#x}]"]
+        self.assertTrue(
+            adds,
+            f"no `add <reg>, [edx + {PENDING_FIELD:#x}]` in the counter")
+        self.assertEqual(
+            self._ops(adds[0])[0], "eax",
+            f"pending babies are added into {self._ops(adds[0])[0]}, not eax; "
+            "the returned demand would omit every unborn baby")
 
     def test_counter_skips_unoccupied_records(self):
         """The active-byte test must gate the increment, not merely appear."""
