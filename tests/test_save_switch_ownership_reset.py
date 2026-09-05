@@ -127,9 +127,20 @@ class SaveSwitchOwnershipResetTests(unittest.TestCase):
                 # the gate lives at the call site, not beside the store. Assert
                 # the helper is CALLED rather than fallen into, which is what
                 # makes the caller's existing slot compare load-bearing.
-                self.assertIn(
-                    b"\xC3",
-                    image[index : index + 16],
+                # Decode FORWARD to the end of the helper rather than
+                # looking a fixed distance ahead. The helper legitimately
+                # clears more than ownership -- VV4 also clears its queued
+                # Barrel flags here -- so a fixed window reports a correctly
+                # gated helper as ungated once anything is added to it.
+                returns = False
+                for instruction in md.disasm(image[index : index + 64], 0):
+                    if instruction.mnemonic == "ret":
+                        returns = True
+                        break
+                    if instruction.mnemonic in ("jmp", "call"):
+                        break
+                self.assertTrue(
+                    returns,
                     f"{game} clears ownership inline with no preceding compare "
                     "and does not return, so it is neither gated here nor a "
                     "callee gated by its caller",

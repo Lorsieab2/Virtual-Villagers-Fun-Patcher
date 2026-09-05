@@ -1947,6 +1947,12 @@ def main() -> None:
             # loaded village correctly starts unowned -- which is exactly what
             # a player who restarted the game already sees today.
             mov dword ptr [0x{DOUBLER_OWNERSHIP_VA:X}], 0
+            # The queued Barrel is per-SAVE but its pending flag lives in the
+            # executable, so it follows the player into the next village unless
+            # cleared here: that village's row would read "Unavailable" for an
+            # event another save bought. Absolute store, no register operand,
+            # so the displaced bytes and the resume are untouched.
+            mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
         save_slot_keep_previous:
             popfd
             mov eax, dword ptr [esp + 4]
