@@ -377,6 +377,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("iv_cancelled", b"Island Event was canceled.\r\nNo tech points have been deducted.\0"),
         ("iv_recheck", b"The village or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
         ("iv_unavailable", b"Island Event is unavailable.\r\nNo tech points have been deducted.\0"),
+        ("iv_pending", b"An Island Event is already on its way.\r\nNo tech points have been deducted.\0"),
         ("iv_success", b"Island Event completed.\0"),
         ("iv_charge_unknown", b"The final tech-point balance did not match the exact 30,000-point deduction. The charge outcome is unknown; no event was queued.\0"),
         ("iv_queue_unknown", b"The 30,000-point deduction was verified, but the event could not be queued.\0"),
@@ -772,6 +773,18 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         je show
         or eax, 0x1000
     show:
+        # NOTHING may be inserted between `menu:` and here, and `show` must stay
+        # at 0x90488F with the command router at 0x9048AB. The Expanded Time
+        # Warp overlay (build_expanded_time_warp.py) patches this page at those
+        # FIXED offsets, and its replacement bytes carry relative displacements
+        # computed against this layout -- it replaces the whole dynamic state
+        # block with `mov eax, 0x1E00; jmp 0x90488F`. Adding the pending-state
+        # code inline shifted the router by 0x22 and silently aimed a `jb` at
+        # the wrong instruction. The byte guards caught it, but only because the
+        # preimages are pinned; the state bits therefore go in a helper at the
+        # tail of this routine's reserve, called from here so every pinned
+        # address is unchanged.
+        call tech_pending_state
         push eax
         push 0
         call 0x{page_va + OFF['show_menu']:X}
@@ -824,6 +837,29 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         nop
         nop
         nop
+    tech_pending_state:
+        # Publish the pending tokens as state bits so blocked rows explain
+        # themselves instead of reading "Unavailable". The companion consumes
+        # STATE_ISLAND_PENDING (0x800000) and STATE_BARREL_PENDING (0x1000000),
+        # but nothing produced them, so both branches were unreachable -- VV1
+        # and VV4 set the equivalent bits in their own payloads
+        # (`or edi, 0x800000` / `or edx, 0x800000`).
+        #
+        # Island: bit 4 (0x10) is the purchase token, retired when the Tech
+        # screen closes and the scheduler can actually run.
+        test dword ptr [0x51D388], 0x10
+        jz tps_barrel
+        or eax, 0x800000
+    tps_barrel:
+        # Barrel: mask purchase (bit 3) and delivery (bit 2) together -- the
+        # same 0xC the Barrel's own guard uses -- so the row stays explained
+        # from purchase right through to the event being presented.
+        test dword ptr [0x51D388], 0xC
+        jz tps_done
+        or eax, 0x1000000
+    tps_done:
+        ret
+
     heal:
         call 0x{page_va + OFF['heal']:X}
         jmp done
@@ -2360,6 +2396,14 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jz unavailable
         mov edi, eax
         mov dword ptr [ebp-0x18], edi
+        # An island event bought earlier in this menu session is still
+        # outstanding. The Tech menu is modal and the scheduler cannot run while
+        # it is open, so without this the row can be bought again: the timer is
+        # already zero, the second 30,000 is taken in full, and still exactly
+        # one event fires. The Barrel guards its own purchase the same way
+        # (test [0x51D388], 0xC) for the same reason.
+        test dword ptr [0x51D388], 0x10
+        jnz pending
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x20], eax
         cmp eax, 30000
@@ -2388,10 +2432,16 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov dword ptr [edi+0x17D3C], 0
         cmp dword ptr [edi+0x17D3C], 0
         jne queue_unknown
+        or dword ptr [0x51D388], 0x10
+        test dword ptr [0x51D388], 0x10
+        jz queue_unknown
         mov eax, 0x{s['iv_success']:X}
         mov edx, 0x40
         call show_message
         jmp done
+    pending:
+        mov eax, 0x{s['iv_pending']:X}
+        jmp warning_status
     insufficient:
         mov eax, 0x{s['tw_insufficient']:X}
         jmp warning_status
@@ -2912,6 +2962,12 @@ def build_barrel_close_arm(page: bytearray, page_va: int) -> bytes:
     forces the chosen event index to 25 and clears the marker."""
     return put(page, page_va, "barrel_close_arm", """
         pushad
+        # Retire the Island Event token. The purchase armed the scheduler
+        # immediately, but the scheduler only runs once this screen closes, so
+        # the event is delivered from here onward and the row becomes buyable
+        # again. Holding the token until this point is what stops a second
+        # charge inside a single menu session.
+        and dword ptr [0x51D388], 0xFFFFFFEF
         test dword ptr [0x51D388], 8
         jz arm_done
         and dword ptr [0x51D388], 0xFFFFFFF7

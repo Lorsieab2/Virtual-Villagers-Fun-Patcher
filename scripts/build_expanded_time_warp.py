@@ -479,10 +479,10 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         raise RuntimeError("Task9 age reserve drift")
     page_va = 0x904000
     base_page, base_map = task9.build_page(page_va)
-    if sha(base_page) != "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457":
+    if sha(base_page) != "3A2A85716621F061ACA6B3FDF47E0AA9C85191A96EA6DFA5AED6D0AF74F2FFB0":
         raise RuntimeError("Task9 Expanded baseline page drift")
     stock_page, stock_map = task9.build_page(0x7C9000)
-    if sha(stock_page) != "617704BB6775D244BCAE7D63E34BC08B3C7D7AFCA5543DEB588A7B3EE3007DB0":
+    if sha(stock_page) != "07F7CA0E1A6473C6FB37ECBF59EA7F83EF7636AEDE4BF236B6FF822C83B4CCF1":
         raise RuntimeError("Task9 stock page drift")
 
     strings_start = task9.OFF["strings"]
@@ -703,7 +703,12 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         raise RuntimeError("VV5 Time Warp routine preimage is not zero")
     if base_page[0x846:0x850] != bytes.fromhex("B800070000F70588D351"):
         raise RuntimeError("VV5 Task9 menu-state preimage drift")
-    if base_page[0x8AB:0x8B4] != bytes.fromhex("83FB030F82B3000000"):
+    # The router sits 5 bytes later than it used to: `show` now opens with a
+    # call to the pending-state helper that publishes STATE_ISLAND_PENDING /
+    # STATE_BARREL_PENDING. `show` itself is unchanged at 0x90488F, so the
+    # menu-state patch above and its jmp displacement are untouched -- only this
+    # site and its own rel32 move.
+    if base_page[0x8B0:0x8B9] != bytes.fromhex("83FB030F82E2000000"):
         raise RuntimeError("VV5 Task9 command-router operand preimage drift")
     patches = [
         {
@@ -713,9 +718,9 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
             "purpose": "set fixed dialog state 0x1E00 and bypass dynamic row 3/4 state while preserving row 5 Full Heal",
         },
         {
-            "offset": "0xF48AB",
-            "before": "83FB030F82B3000000",
-            "after": "83FB050F828C070000",
+            "offset": "0xF48B0",
+            "before": "83FB030F82E2000000",
+            "after": "83FB050F8287070000",
             "purpose": "route commands 0..4 through the dispatcher so only command 0 runs Time Warp and commands 1..4 are unavailable",
         },
         {
@@ -735,7 +740,7 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
     ]
     rendered = bytearray(base_page)
     rendered[0x846:0x850] = bytes.fromhex("B8001E0000E93F000000")
-    rendered[0x8AB:0x8B4] = bytes.fromhex("83FB050F828C070000")
+    rendered[0x8B0:0x8B9] = bytes.fromhex("83FB050F8287070000")
     rendered[task9.OFF["time_warp"] : task9.OFF["time_warp"] + len(routine_block)] = routine_block
     rendered[string_offset : string_offset + len(string_blob)] = string_blob
     return patches, {
