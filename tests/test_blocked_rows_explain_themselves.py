@@ -25,6 +25,7 @@ present in the C file but absent from the shipped binary would leave the
 player with the old behaviour and a green suite.
 """
 
+import json
 import pathlib
 import re
 import unittest
@@ -55,6 +56,15 @@ DLLS = {
     "vv4": "assets/origins/VVFP VV4 Origins Icons.dll",
     "vv5": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
 }
+
+# The VV3 payload manifest, which must carry the writer for any pending state
+# the VV3 companion reads.
+VV3_MANIFEST = "data/vv3_origins_feature.json"
+# The purchased Island Event's pending flag, in the patch's appended data page
+# (SECTION_DATA_VA 0x006E0000 + 0x50). Kept as a number rather than parsed out
+# of the builder, so that a rename on either side shows up as a failure here
+# instead of silently disabling the check.
+ISLAND_PENDING_FLAG = 0x6E0050
 
 BUTTON_LABEL = b"Why not?"
 DIALOG_TITLE = b"Not right now"
@@ -124,6 +134,56 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
                     "The barrel needs THREE free records, so with one or two "
                     "free that contradicts what the player can see",
                 )
+
+    def test_every_state_a_companion_reads_has_a_producer(self):
+        """A predicate reading a byte nothing writes is silently always false.
+
+        This is the defect Codex found in VV5 on #254: the companion consumed
+        STATE_ISLAND_PENDING / STATE_BARREL_PENDING while no payload ever set
+        them, so both branches were unreachable and the row could only ever say
+        "Unavailable". Fixing VV3's twin re-created it in a new shape -- the
+        VV3 companion reads the island pending flag at 0x6E0050, but the writer
+        lives on a different branch, so on any merge order that lands the
+        companion first the flag is permanently zero. A green suite proves
+        nothing here, because zero is a *valid* value for the flag; nothing
+        asserts on it.
+
+        So the rule is checked directly: if the compiled companion references
+        the flag, the shipped VV3 payload must contain the instruction that
+        arms it.
+        """
+        blob = (ROOT / DLLS["vv3_safe_upgrades"]).read_bytes()
+        address = ISLAND_PENDING_FLAG.to_bytes(4, "little")
+        if address not in blob:
+            self.skipTest(
+                "this VV3 companion does not read the island pending flag"
+            )
+        manifest = json.loads(
+            (ROOT / VV3_MANIFEST).read_text(encoding="utf-8")
+        )
+        payload = []
+        for patch in manifest.get("patches", []):
+            if patch.get("after"):
+                payload.append(bytes.fromhex(patch["after"]))
+        layouts = manifest.get("pe_append_transaction", {}).get("layouts", {})
+        for layout in layouts.values():
+            if layout.get("append_bytes"):
+                payload.append(bytes.fromhex(layout["append_bytes"]))
+        payload = b"".join(payload)
+        # `mov byte ptr [0x6E0050], 1` -- the arm, written when the purchase
+        # queues the event.
+        arm = bytes([0xC6, 0x05]) + address + bytes([0x01])
+        # assertTrue on a membership test, not assertIn: the latter prints the
+        # whole payload on failure, which buries the message under hex -- the
+        # same reason the DLL checks above avoid it.
+        self.assertTrue(
+            arm in payload,
+            "the VV3 companion reads the island pending flag at "
+            f"0x{ISLAND_PENDING_FLAG:X}, but no shipped VV3 payload writes it. "
+            "The flag is therefore always zero: the island row never reports "
+            "pending and the Tech-menu guard never fires. The writer lives in "
+            "build_vv3_origins_feature.py -- both halves have to ship together",
+        )
 
     def test_no_shipped_companion_still_disables_these_rows(self):
         """Anti-regression on the mechanism that caused the complaint.
