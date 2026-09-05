@@ -262,15 +262,21 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
         except ValueError:
             return False
 
-    def _gate(self, displacement):
+    def _gate(self, displacement, width):
         """(compare, following branch) for the record-field test at `displacement`.
+
+        `width` is required rather than optional. Accepting either width let
+        `cmp byte ptr [edx+0x1cc4], 0` become `cmp dword ptr [edx+0x1cc4], 0`
+        while every assertion still passed -- and a dword read of a byte flag
+        counts an inactive record as occupied whenever any adjacent byte in
+        the same dword happens to be nonzero.
 
         The memory operand is parsed and compared exactly. Substring matching
         would let `0x1cc4` also match `0x1cc40`, i.e. a counter reading outside
         the intended field while every polarity assertion still passed.
         """
-        want = f"byte ptr [edx + {displacement:#x}]"
-        want_dword = f"dword ptr [edx + {displacement:#x}]"
+        want = f"{width} ptr [edx + {displacement:#x}]"
+        want_dword = want
         insns = self._disasm(COUNTER_VA, 64)
         for index, insn in enumerate(insns):
             if insn.mnemonic != "cmp":
@@ -291,7 +297,7 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
         Presence of a jump is not enough -- flipping this one inverts the
         counter's meaning while leaving every other assertion satisfied.
         """
-        compare, branch = self._gate(ACTIVE_BYTE)
+        compare, branch = self._gate(ACTIVE_BYTE, "byte")
         self.assertIsNotNone(
             compare,
             f"no `cmp [edx + {ACTIVE_BYTE:#x}], 0` in the counter; the active-byte\n"
@@ -305,7 +311,7 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
 
     def test_the_pregnancy_branch_skips_only_the_pending_add(self):
         """`jne` here would drop pending babies from the demand figure."""
-        compare, branch = self._gate(PREGNANCY_FIELD)
+        compare, branch = self._gate(PREGNANCY_FIELD, "dword")
         self.assertIsNotNone(
             compare,
             f"no `cmp [edx + {PREGNANCY_FIELD:#x}], 0` in the counter")
@@ -365,6 +371,94 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
              if i.mnemonic == "jne" and int(i.op_str, 16) == LOOP_HEAD_VA],
             f"no conditional back-edge to {LOOP_HEAD_VA:#x}")
 
+
+    # -- payload bindings ---------------------------------------------------
+    #
+    # Everything above pins how a guard DECIDES. These pin what it then DOES.
+    # A decision that reaches the wrong payload is not a guard.
+
+    def test_clamp_branch_destinations_are_pinned(self):
+        """`jle` with a retargeted displacement is still `jle`.
+
+        Redirecting the zero-capacity jump from 0x4890ED to 0x4890D8 falls
+        through into the reservation call with no slot remaining, which is
+        exactly what this guard exists to prevent -- and the mnemonic-only
+        assertions could not see it.
+        """
+        insns = self._disasm(0x4890C0, 40)
+        by_address = {i.address: i for i in insns}
+        expected = {
+            0x4890CC: 0x4890ED,  # no slots left -> skip the reservation
+            0x4890D1: 0x4890D8,  # already <= 6  -> keep the computed count
+        }
+        for address, destination in expected.items():
+            with self.subTest(branch=hex(address)):
+                insn = by_address.get(address)
+                self.assertIsNotNone(insn, f"no instruction at {address:#x}")
+                self.assertEqual(insn.mnemonic, "jle", "branch polarity changed")
+                self.assertEqual(
+                    int(insn.op_str, 16),
+                    destination,
+                    "clamp branch retargeted; the guard can now fall through "
+                    "to the reservation with no capacity",
+                )
+
+    def test_clamped_count_is_what_reaches_the_reservation(self):
+        """Computing a clamped EAX proves nothing if EAX is not the argument.
+
+        `push eax` -> `push ebx` at 0x4890E0 leaves every arithmetic and
+        branch assertion green while the reservation helper receives an
+        unrelated brood count.
+        """
+        insns = self._disasm(0x4890C0, 48)
+        pushes = [i for i in insns if i.mnemonic == "push"]
+        self.assertTrue(pushes, "the reservation takes no stack arguments")
+        eax_pushes = [i for i in pushes if i.op_str.strip().lower() == "eax"]
+        self.assertEqual(
+            len(eax_pushes),
+            1,
+            "expected exactly one `push eax` carrying the clamped count",
+        )
+        self.assertEqual(
+            eax_pushes[0].address,
+            0x4890E0,
+            "the clamped count is pushed from a different position, so the "
+            "reservation helper receives it as a different argument",
+        )
+        clamp = next(i for i in insns if i.mnemonic == "mov" and i.op_str.lower() == "eax, 6")
+        self.assertLess(
+            clamp.address,
+            eax_pushes[0].address,
+            "the six-infant ceiling is applied after the count is pushed",
+        )
+
+    def test_multiple_birth_payloads_are_pinned(self):
+        """A threshold only means something paired with its brood count.
+
+        `mov [esi+0x1c50], 3` -> `4` preserves the counter call, the
+        comparison, the branch and both destinations -- and then permits four
+        babies at a demand of 147, overrunning the 150-record pool.
+        """
+        expected = {
+            0x489030: 3,  # triplet fallthrough, guarded by cmp eax, 0x93
+            0x489050: 2,  # twin fallthrough, guarded by cmp eax, 0x94
+        }
+        for address, brood in expected.items():
+            with self.subTest(payload=hex(address)):
+                insn = self._disasm(address, 12)[0]
+                self.assertEqual(insn.mnemonic, "mov")
+                operands = self._ops(insn)
+                self.assertEqual(
+                    operands[0],
+                    f"dword ptr [esi + {PENDING_BABIES:#x}]",
+                    "the brood count is written to a different field",
+                )
+                self.assertTrue(
+                    self._is_imm(operands[1], brood) or operands[1] == str(brood),
+                    f"brood count is {operands[1]}, not {brood}; the guard's "
+                    "threshold no longer matches what it allows",
+                )
+
     def test_counter_adds_pending_babies_behind_a_pregnancy_gate(self):
         """Geometry alone is not enough.
 
@@ -391,6 +485,22 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
         self.assertIsNotNone(add)
         self.assertEqual(gate.mnemonic, "cmp", "the pregnancy field is not tested")
         self.assertEqual(add.mnemonic, "add", "pending babies are not accumulated")
+        # Destination and memory source together. Accepting any `add`
+        # mentioning 0x1c50 let a ModRM change turn `add eax, [edx+0x1c50]`
+        # into `add ebx, [edx+0x1c50]`: the babies are still read, and the
+        # returned demand still omits every one of them.
+        add_operands = self._ops(add)
+        self.assertEqual(
+            add_operands[0],
+            "eax",
+            f"pending babies accumulate into {add_operands[0]}, not the "
+            "returned accumulator, so the demand omits them entirely",
+        )
+        self.assertEqual(
+            add_operands[1],
+            f"dword ptr [edx + {PENDING_BABIES:#x}]",
+            "the pending-baby count is read from a different field",
+        )
         self.assertLess(
             gate.address,
             add.address,
