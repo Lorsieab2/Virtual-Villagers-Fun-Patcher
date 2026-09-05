@@ -39,6 +39,11 @@ LF = bytes((10,))
 CR = bytes((13,))
 BOM = bytes((0xEF, 0xBB, 0xBF))
 
+# The path->digest registry. Excluded when looking for corroboration, because
+# the registry agreeing with itself proves nothing about the pin the patcher
+# actually enforces.
+REGISTRY_PATH = "data/source-text-authentication.json"
+
 # Where a raw whole-file hash can be written down. Not just Python: two of the
 # CRLF-pinned files below are pinned inside SIBLING JSON MANIFESTS, which is
 # why every sweep restricted to scripts/ and src/ missed them.
@@ -199,7 +204,7 @@ def _authenticated_digests() -> dict[str, str]:
     the assertion below is exact for what the registry names, and the corpus
     search still covers the rest.
     """
-    registry = ROOT / "data" / "source-text-authentication.json"
+    registry = ROOT / REGISTRY_PATH
     try:
         record = json.loads(registry.read_text(encoding="utf-8-sig"))
     except (OSError, UnicodeError, ValueError):
@@ -343,6 +348,7 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         allowed_by_path = pinned_digests_by_path()
         declared_by_path = _authenticated_digests()
         stale = []
+        uncorroborated = []
         # Union, not the digest-derived set alone: the rule-derived set
         # survives content drift, while the digest-derived set catches a
         # raw-pinned file that has no rule yet (reported by the test above).
@@ -371,6 +377,42 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             if registered is not None:
                 if digest != registered:
                     stale.append(relative)
+                    continue
+                # The registry says the file is intact. Require the CONSUMER
+                # to agree, or the registry can mask a broken production pin:
+                # change a pinned file, update only its registry digest, and
+                # every assertion here passes while the pin the patcher
+                # actually enforces still names the old bytes. Codex
+                # reproduced exactly that on 0ecbf576 by appending whitespace
+                # to data/native_evidence_queries.json.
+                #
+                # Corroboration is deliberately sought OUTSIDE both the
+                # artifact and the registry: a self-describing manifest
+                # trivially contains its own digest, and the registry agreeing
+                # with itself proves nothing.
+                # Only files the corpus ALSO pins need to agree with it. Three
+                # of the originally registered artifacts -- vv3_running_candidate_map,
+                # vv4_full_heal_cure_all_candidate and its map -- are recorded
+                # nowhere else, so for them the registry is the sole pin rather
+                # than a second opinion, and demanding corroboration would
+                # condemn correct files.
+                #
+                # What must not happen is the registry DISAGREEING with a pin
+                # that exists: that is the masking case, where a file is
+                # changed, the registry updated, and the consumer left naming
+                # the old bytes.
+                others = [
+                    text
+                    for name, text in corpus.items()
+                    if name not in (relative, REGISTRY_PATH)
+                ]
+                pinned_elsewhere = {
+                    candidate
+                    for candidate in allowed_by_path.get(relative, set())
+                    if any(candidate in text for text in others)
+                }
+                if pinned_elsewhere and digest not in pinned_elsewhere:
+                    uncorroborated.append(relative)
                 continue
             allowed = allowed_by_path.get(relative)
             if allowed is None:
@@ -379,6 +421,16 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                     stale.append(relative)
             elif digest not in allowed:
                 stale.append(relative)
+        self.assertEqual(
+            uncorroborated,
+            [],
+            "the registry records a digest for these files that NO other pin "
+            "in the repository agrees with. Either the file was changed and "
+            "only data/source-text-authentication.json was updated -- leaving "
+            "the pin the patcher enforces naming the old bytes -- or the "
+            "consumer was repinned and the registry was not. Update both, so "
+            f"the registry records a pin rather than replacing one: {uncorroborated}",
+        )
         self.assertEqual(
             stale,
             [],
