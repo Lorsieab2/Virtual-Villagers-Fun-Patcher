@@ -39,28 +39,35 @@ LF = bytes((10,))
 # Where a raw whole-file hash would be written down.
 CODE_DIRECTORIES = ("scripts", "src")
 
-# Files whose pin is currently recorded against their CRLF bytes, so adding a
-# `text eol=lf` rule would force them to LF and break the pin permanently.
-# These are pre-existing defects, NOT things this rule set fixes:
+# Two files are pinned against their CRLF bytes, so a `text eol=lf` rule would
+# force them to LF and break those pins permanently. Both are pre-existing
+# defects, NOT things this rule set fixes, and both feed the same validator:
 #
 #   data/native_evidence/vv1_vv2_native_query_manifest.json
-#       `MANIFEST_SHA` in scripts/validate_authorized_analyzer_workflow.py is
-#       A53C6D01..., which is the file's CRLF digest. The committed blob is LF
-#       and hashes to B79E1613..., so that validator already fails on any LF
-#       checkout -- reproduced by running it directly. It is not covered by the
-#       suite, which is why the failure has gone unnoticed. Fixing it means
-#       regenerating the pin against LF, which is a separate change with its
-#       own verification, not something to smuggle into an EOL rule set.
+#       Its CRLF digest A53C6D01... is pinned in TWO places --
+#       `MANIFEST_SHA` in scripts/validate_authorized_analyzer_workflow.py and
+#       data/authorized_analyzer_workflow.json. The committed blob is LF and
+#       hashes to B79E1613..., which is pinned nowhere, so that validator
+#       already fails on any LF checkout -- reproduced by running it directly,
+#       where it raises AssertionError at the sha256 comparison. Nothing in the
+#       suite executes it, which is why the failure has gone unnoticed.
+#       Repinning it against LF is a separate change with its own verification;
+#       folding a content change into a line-endings rule set would bury it.
 #
-#   data/native_evidence/vv1_vv2_full_heal_collections_query_manifest.json
-#       Sits beside it and matches no digest in scripts/ or src/ on either LF
-#       or CRLF, so where (or whether) it is pinned is unresolved.
+#   data/native_evidence_queries.json
+#       Same defect, same validator. Its CRLF digest FED6AE17... is pinned as
+#       `QUERY_PLAN_SHA` and appears three times in
+#       data/authorized_analyzer_workflow.json as the `query_plan` sha256. The
+#       LF form E6154939... is pinned nowhere.
 #
-# Listing them here is deliberate: the exception is the record of what is still
-# broken. Removing a path from this set without repinning the file re-breaks it.
+# A sweep of every tracked JSON found exactly these two pinned only under CRLF.
+#
+# The exception is the standing record of what is still broken. Removing this
+# path without repinning the file re-breaks it, which the expiry test below
+# guards against.
 KNOWN_UNPINNED_CRLF_DEFECTS = {
     "data/native_evidence/vv1_vv2_native_query_manifest.json",
-    "data/native_evidence/vv1_vv2_full_heal_collections_query_manifest.json",
+    "data/native_evidence_queries.json",
 }
 
 
@@ -87,11 +94,17 @@ def _code_text() -> str:
 
 
 def raw_pinned_files() -> list[str]:
-    """Tracked JSON whose committed whole-file sha256 appears in code.
+    """Tracked JSON whose sha256 -- as LF or as CRLF -- appears in code.
 
-    Hashes the file on disk rather than the blob: with the `eol=lf` rules in
-    place the two agree, and reading the worktree keeps the test meaningful in
-    an export or archive where git history is unavailable.
+    Both encodings are checked, and that matters. Hashing only the worktree
+    copy makes the result depend on the reader's `core.autocrlf`: the other
+    session's CRLF clone flagged a file this one did not, purely because the
+    on-disk bytes differed. Hashing only the LF form misses a pin that was
+    minted on a Windows clone -- which is exactly how
+    `vv1_vv2_native_query_manifest.json` escaped two manual sweeps.
+
+    Testing both makes the set identical on every clone, and catches a file
+    whose pin was recorded against either encoding.
     """
     code = _code_text()
     found = []
@@ -99,9 +112,12 @@ def raw_pinned_files() -> list[str]:
         path = ROOT / relative
         if not path.is_file():
             continue
-        digest = hashlib.sha256(path.read_bytes()).hexdigest().upper()
-        if digest in code:
-            found.append(relative)
+        raw = path.read_bytes()
+        as_lf = raw.replace(CRLF, LF)
+        for candidate in (as_lf, as_lf.replace(LF, CRLF)):
+            if hashlib.sha256(candidate).hexdigest().upper() in code:
+                found.append(relative)
+                break
     return sorted(found)
 
 
