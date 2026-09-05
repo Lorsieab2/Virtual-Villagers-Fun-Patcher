@@ -26,6 +26,14 @@ The guard now uses a DEDICATED flag, mirroring the Barrel's long-standing
 `BARREL_PENDING_FLAG_VA`: set when the purchase arms the queue, cleared by the
 island-event handler once it has actually consumed it.
 
+Codex then found a FOURTH P1 in that repair. The handler cleared the flag with
+an unconditional store, and the handler runs every gameplay frame -- so the very
+first frame after the purchase menu closed retired the flag while the event was
+still queued for `QUEUE_DELAY_SECONDS`, and a second purchase inside that window
+was charged again. Reaching the hook proves the *menu has closed*; it does not
+prove the *event has been consumed*, which is what the flag has to mean. The
+release is therefore gated on a due stamp recorded when the queue is armed.
+
 These tests assert OUTCOMES against the emitted bytes -- which branch reaches
 the deduction and which reaches the refusal -- because the previous suite here
 asserted the mechanism (`cmp edx, 5`, a `ja` exists) and passed green while the
@@ -62,12 +70,19 @@ def _constant(name: str) -> int:
 
 
 FLAG_VA = _constant("SECTION_DATA_VA") + 0x50
+# The epoch second at which the queued event becomes due. The release compares
+# the clock against this before retiring the flag.
+DUE_VA = _constant("SECTION_DATA_VA") + 0x54
 
 # Byte-sized absolute forms, which is how the assembler encodes these.
 GUARD_TEST = bytes([0x80, 0x3D]) + FLAG_VA.to_bytes(4, "little") + bytes([0x00])
 FLAG_ARM = bytes([0xC6, 0x05]) + FLAG_VA.to_bytes(4, "little") + bytes([0x01])
 FLAG_CLEAR = bytes([0xC6, 0x05]) + FLAG_VA.to_bytes(4, "little") + bytes([0x00])
 DEDUCT = bytes([0x29, 0x05]) + TECH_BALANCE_VA.to_bytes(4, "little")
+# `cmp eax, dword ptr [DUE_VA]` -- the release gate.
+DUE_COMPARE = bytes([0x3B, 0x05]) + DUE_VA.to_bytes(4, "little")
+# `mov dword ptr [DUE_VA], eax` -- recorded when the queue is armed.
+DUE_RECORD = bytes([0xA3]) + DUE_VA.to_bytes(4, "little")
 
 # The old timestamp reads, both of which are defects if they come back.
 OLD_ZERO_TEST = bytes.fromhex("83BC2FF42E010000")
@@ -145,29 +160,117 @@ class VV3IslandEventDoubleChargeTests(unittest.TestCase):
             "pending flag instead",
         )
 
-    def test_the_flag_is_tested_set_and_cleared_exactly_once_each(self):
+    def test_the_flag_is_tested_set_and_cleared_the_expected_number_of_times(self):
         """A flag nothing sets, or nothing clears, is worse than no flag.
 
         Without the arm the guard never fires and the double charge returns.
         Without the clear the flag latches on the first purchase and refuses
         Island Event for the rest of the save.
+
+        The arm and the clear are each unique: exactly one place records that an
+        event is outstanding, and exactly one place retires it.
+
+        The flag is TESTED twice, and both are load-bearing:
+
+          * the purchase guard, which refuses a second buy, and
+          * the release helper, which early-outs when nothing is queued so the
+            every-frame path costs one compare instead of a clock call.
+
+        Pinning the test count at one would forbid that early-out, so the counts
+        are asserted per site rather than as one number for all three.
         """
         variants = _payload_variants()
         self.assertTrue(variants, "no VV3 build variants found")
         for variant, payload in sorted(variants.items()):
-            for name, encoding in (
-                ("guard test", GUARD_TEST),
-                ("arm (set to 1)", FLAG_ARM),
-                ("consume (clear to 0)", FLAG_CLEAR),
+            for name, encoding, expected in (
+                ("guard test", GUARD_TEST, 2),
+                ("arm (set to 1)", FLAG_ARM, 1),
+                ("consume (clear to 0)", FLAG_CLEAR, 1),
             ):
                 with self.subTest(variant=variant, site=name):
                     self.assertEqual(
                         payload.count(encoding),
-                        1,
+                        expected,
                         f"the {variant} build has "
                         f"{payload.count(encoding)} {name} sites for the "
-                        f"island pending flag at 0x{FLAG_VA:X}, expected 1",
+                        f"island pending flag at 0x{FLAG_VA:X}, "
+                        f"expected {expected}",
                     )
+
+    def test_the_release_is_gated_on_the_due_time(self):
+        """Codex's fourth P1: closing the menu is not consuming the event.
+
+        The release runs in the island-event handler, which fires every
+        gameplay frame. An unconditional store there retires the flag on the
+        FIRST frame after the purchase menu closes -- while the event is still
+        queued for the delay -- so a second purchase inside that window is
+        charged again, which is the original double charge.
+
+        Arming must record the due stamp, and the release must compare against
+        it. Both sites are required in every build variant.
+        """
+        variants = _payload_variants()
+        self.assertTrue(variants, "no VV3 build variants found")
+        for variant, payload in sorted(variants.items()):
+            with self.subTest(variant=variant, site="record due stamp"):
+                self.assertIn(
+                    DUE_RECORD,
+                    payload,
+                    f"the {variant} build never records the island event's due "
+                    f"time at 0x{DUE_VA:X}, so the release has nothing to "
+                    "compare against and can only clear unconditionally",
+                )
+            with self.subTest(variant=variant, site="compare due stamp"):
+                self.assertIn(
+                    DUE_COMPARE,
+                    payload,
+                    f"the {variant} build clears the island pending flag "
+                    "without comparing the clock against the due time, so the "
+                    "first frame after the menu closes retires a still-queued "
+                    "event and the second purchase is charged again",
+                )
+
+    @unittest.skipIf(capstone is None, "requires capstone")
+    def test_the_clear_is_dominated_by_the_due_compare(self):
+        """The gate must actually precede the clear on the path that reaches it.
+
+        Both instructions existing somewhere is not enough -- a compare that
+        sits after the store, or in an unrelated routine, would satisfy a
+        presence check while leaving the defect in place. This walks backwards
+        from each clear and requires the compare, with a conditional branch,
+        in the instructions immediately before it.
+        """
+        variants = _payload_variants()
+        self.assertTrue(variants, "no VV3 build variants found")
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        for variant, payload in sorted(variants.items()):
+            with self.subTest(variant=variant):
+                site = payload.find(FLAG_CLEAR)
+                self.assertGreater(
+                    site, 0, "no island pending-flag clear in this build"
+                )
+                start = max(0, site - 48)
+                window = list(md.disasm(payload[start:site], start))
+                text = " ; ".join(
+                    f"{i.mnemonic} {i.op_str}" for i in window
+                )
+                self.assertTrue(
+                    any(
+                        i.mnemonic == "cmp"
+                        and f"0x{DUE_VA:x}" in i.op_str
+                        for i in window
+                    ),
+                    "the clear is not preceded by a comparison against the due "
+                    f"time at 0x{DUE_VA:X}: {text}",
+                )
+                self.assertTrue(
+                    any(
+                        i.mnemonic in ("jb", "jbe", "jae", "ja")
+                        for i in window
+                    ),
+                    "the due comparison has no unsigned branch, so its result "
+                    f"cannot skip the clear: {text}",
+                )
 
     @unittest.skipIf(capstone is None, "requires capstone")
     def test_a_non_pending_purchase_reaches_the_deduction(self):

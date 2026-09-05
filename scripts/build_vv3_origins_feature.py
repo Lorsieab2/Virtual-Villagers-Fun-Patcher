@@ -127,6 +127,20 @@ BARREL_DUE_VA = SECTION_DATA_VA + 0x4C
 # set on arm, cleared by the handler on consume. This mirrors it, in the
 # appended R/W data section rather than a code cave.
 ISLAND_PENDING_FLAG_VA = SECTION_DATA_VA + 0x50
+# The epoch second at which the queued island event becomes due.  The
+# village field at [world + 0x12EF4] holds the same value for the GAME's
+# scheduling, but the release runs in a frame context with no pointer to
+# the world, so it needs its own copy by absolute address -- exactly as
+# BARREL_DUE_VA already does for the barrel.
+ISLAND_DUE_VA = SECTION_DATA_VA + 0x54
+# Releasing the flag needs a clock call, a compare and a store.  That does
+# not fit in the 0x7B3B1 frame hook -- growing it runs into barrel_present
+# at 0x7B3E0, which the byte guard catches -- and it cannot live inside
+# barrel_present, because that routine only runs when a BARREL is pending,
+# so the island flag would stick and block every later purchase.  It gets
+# its own slot in the patch-owned R-X page instead.
+ISLAND_RELEASE_CAVE_OFF = 0x380
+ISLAND_RELEASE_VA = SECTION_CODE_VA + ISLAND_RELEASE_CAVE_OFF
 RUNNING_BOUNDARY_BEFORE_CAVE_VA = SECTION_CODE_VA + 0x180
 RUNNING_BOUNDARY_AFTER_CAVE_VA = SECTION_CODE_VA + 0x1C0
 RUNNING_VILLAGE_WRAPPER_CAVE_VA = SECTION_CODE_VA + 0x220
@@ -2110,23 +2124,23 @@ def main() -> None:
             je bh_no_barrel
             call 0x{BARREL_PRESENT_VA:X}
         bh_no_barrel:
-            # Release the purchased-Island-Event flag. Reaching this hook is
-            # itself the proof the guard needs: it is spliced into the
-            # island-event handler, which runs only during live village
-            # gameplay. By the time control arrives here the Tech menu has
-            # closed, the world clock is running, and the handler below is
-            # about to process the queue the purchase armed.
+            # Release the purchased-Island-Event flag, but only once the
+            # queued event is actually due.
             #
-            # That is exactly the condition a timestamp comparison inside the
-            # paused menu could not express. A player who reopens the menu
-            # during the delay and leaves it open never reaches this
-            # instruction, so their event correctly stays pending and a second
-            # purchase stays refused -- Codex's third P1 on #249.
+            # Reaching this hook proves the Tech menu has closed -- it is
+            # spliced into the island-event handler, which runs only during
+            # live village gameplay.  It does NOT prove the queued event has
+            # been consumed, and that is what the flag has to mean.  An
+            # unconditional store here fires on the FIRST frame after the
+            # menu closes, while the event is still queued for
+            # QUEUE_DELAY_SECONDS, so a second purchase inside that window is
+            # charged again -- the original double-charge, reintroduced by
+            # the release.  Codex's fourth P1 on #249.
             #
-            # Deliberately a plain store: no clock call, no live register, and
-            # no effect on the flags the spliced-out instructions below run
-            # under.
-            mov byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
+            # The comparison needs a clock call, so it lives in the
+            # patch-owned page rather than inflating this hook.  The helper
+            # preserves every register and the flags.
+            call 0x{ISLAND_RELEASE_VA:X}
         bh_original:
             mov ecx, dword ptr [esi + 0x10]
             call 0x403330
@@ -2209,6 +2223,7 @@ def main() -> None:
             pop ecx
             add eax, {QUEUE_DELAY_SECONDS}
             mov dword ptr [ecx + 0x12EF4], eax
+            mov dword ptr [0x{ISLAND_DUE_VA:X}], eax
             mov byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 1
             ret
         """,
@@ -2223,6 +2238,39 @@ def main() -> None:
         QUEUE_ARM_ISLAND_CAVE_OFF,
         queue_arm_island_code,
         "arm the purchased Island Event a few seconds out",
+    )
+    # Clear the island pending flag once the queued event's delay has
+    # actually elapsed.  Called every frame from the island-event handler
+    # splice.  eax/ecx/edx are caller-saved and the clock writes all three;
+    # the spliced-out tail reloads ecx but nothing guarantees the rest, and
+    # those instructions run under the flags this would otherwise disturb,
+    # so everything including eflags is preserved here.
+    island_release_code = assemble(
+        f"""
+            cmp byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
+            je ir_done
+            pushfd
+            push eax
+            push ecx
+            push edx
+            call 0x{QUEUE_CLOCK_VA:X}
+            cmp eax, dword ptr [0x{ISLAND_DUE_VA:X}]
+            jb ir_restore
+            mov byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
+        ir_restore:
+            pop edx
+            pop ecx
+            pop eax
+            popfd
+        ir_done:
+            ret
+        """,
+        ISLAND_RELEASE_VA,
+    )
+    put_cave(
+        ISLAND_RELEASE_CAVE_OFF,
+        island_release_code,
+        "release the island pending flag once its delay has elapsed",
     )
     barrel_splice_before = assemble(
         "mov ecx, dword ptr [esi + 0x10]\n call 0x403330",
