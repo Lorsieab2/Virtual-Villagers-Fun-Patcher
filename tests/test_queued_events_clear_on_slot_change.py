@@ -104,3 +104,95 @@ class QueuedEventsClearOnSlotChangeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --- VV2 ---------------------------------------------------------------------
+# VV2's slot stub lives in the APPENDED .vvmk page, which has no manifest row at
+# all -- the page is built by the stage-2 builder and appended whole. Searching
+# data/vv2_origins_feature.json for these clears finds nothing even when the fix
+# is present, which cost me a wrong "it did not land" conclusion once already.
+# So VV2 is asserted against the RENDERED executable, which is what ships.
+VV2_STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Lost Children.exe"
+VV2_QUEUED_GLOBALS = {
+    0x0049C700: "Barrel pending flag",
+    0x0049C704: "three-child one-shot",
+    0x0049C708: "Barrel cue counter",
+}
+
+
+@unittest.skipUnless(VV2_STOCK.is_file(), "VV2 stock executable not present")
+class VV2QueuedEventsClearOnSlotChangeTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        import sys
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_fun_patcher as patcher
+
+        build = next(b for b in patcher.load_builds() if b.id == "vv2")
+        cls.image, _ = patcher.render_patched_bytes(
+            VV2_STOCK, build, "immediate_fixed",
+            ["vv2_origins_village_wide_upgrades"])
+
+    def _stub(self) -> bytes:
+        """The slot stub, located by FOLLOWING the detour and translating the
+        target through the section table.
+
+        Both steps matter. The stub lives in the appended `.vvmk` section, whose
+        virtual address is NOT `file offset + 0x400000` -- VA 0x4B4000 maps to
+        raw 0xB2000 -- so the naive subtraction lands past the end of the image
+        and reads empty bytes, which looks exactly like a missing fix.
+        """
+        detour = self.image[0x3160:0x3166]
+        self.assertEqual(detour[0], 0xE9,
+                         "0x3160 is not a jmp; the save-builder detour moved")
+        rel = struct.unpack("<i", detour[1:5])[0]
+        target = 0x403160 + 5 + rel
+
+        pe = struct.unpack_from("<I", self.image, 0x3C)[0]
+        count = struct.unpack_from("<H", self.image, pe + 6)[0]
+        opt = struct.unpack_from("<H", self.image, pe + 20)[0]
+        base = struct.unpack_from("<I", self.image, pe + 52)[0]
+        for index in range(count):
+            entry = pe + 24 + opt + index * 40
+            va = base + struct.unpack_from("<I", self.image, entry + 12)[0]
+            size = struct.unpack_from("<I", self.image, entry + 8)[0]
+            raw = struct.unpack_from("<I", self.image, entry + 20)[0]
+            if va <= target < va + size:
+                offset = raw + (target - va)
+                return self.image[offset:offset + 0x50]
+        self.fail(f"the detour target {target:#x} is in no section")
+
+    def test_the_stub_is_where_the_detour_points(self) -> None:
+        """Without this the byte checks below could scan unrelated padding."""
+        self.assertEqual(
+            self._stub()[0], 0x50,
+            "the resolved slot stub does not start with `push eax`; the "
+            "detour target has moved and this suite is reading the wrong "
+            "bytes")
+
+    def test_every_queued_event_global_is_cleared(self) -> None:
+        cleared = _cleared_addresses(self._stub())
+        for address, name in VV2_QUEUED_GLOBALS.items():
+            with self.subTest(state=name):
+                self.assertIn(
+                    address, cleared,
+                    f"VV2's {name} at {address:#010x} is not cleared on a save-"
+                    "slot change, so a Barrel bought in one village leaves the "
+                    "next village's row reading Unavailable")
+
+    def test_the_clears_sit_behind_the_slot_change_compare(self) -> None:
+        """They must NOT run on every save, only on a real slot change.
+
+        The save-path builder runs on saves as well as loads. Clearing
+        unconditionally would discard a legitimately pending event on every
+        autosave -- a different bug in the same place.
+        """
+        stub = self._stub()
+        compare = stub.find(b"\x3b\x05")          # cmp eax, [SLOT_VA]
+        self.assertGreaterEqual(compare, 0, "no slot compare in the stub")
+        first_clear = min(
+            stub.find(struct.pack("<I", a)) for a in VV2_QUEUED_GLOBALS)
+        self.assertGreater(
+            first_clear, compare,
+            "a queued-event clear runs before the slot-change compare, so it "
+            "would fire on every autosave and discard a pending event")

@@ -629,6 +629,9 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # because this fires mid-load before the villager records exist. Replays the 6
     # displaced bytes and resumes at 0x403166. ----
     SAVEPATH_VA = 0x403160
+    BARREL_PENDING_VA = 0x49C700
+    BARREL_UPGRADE_FLAG_VA = 0x49C704
+    BARREL_CUE_COUNTER_VA = 0x49C708
     slot_asm = f"""
         push eax
         mov  eax, [esp+8]                    /* +8: our push shifted esp; arg1 = slot */
@@ -638,6 +641,15 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         je   slot_done                       /* same village -> keep masks loaded */
         mov  [0x{SLOT_VA:X}], eax            /* new village */
         mov  byte ptr [0x{LOADED_VA:X}], 0   /* re-arm: sweep reloads next frame */
+        /* Queued-event state is per-SAVE but lives in the executable, so it
+           follows the player into the next village unless cleared here: the row
+           would read "Unavailable" for an event another save bought, and the
+           cue counter would carry over and deliver it into a village that never
+           paid for it. Absolute stores only -- no register operand, so the
+           displaced bytes and the resume are untouched. */
+        mov  byte ptr [0x{BARREL_PENDING_VA:X}], 0
+        mov  byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
+        mov  dword ptr [0x{BARREL_CUE_COUNTER_VA:X}], 0
     slot_done:
         pop  eax
         mov  eax, dword ptr [esp+4]          /* displaced */
