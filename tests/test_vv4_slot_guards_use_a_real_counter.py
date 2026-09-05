@@ -294,13 +294,26 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
                 self.assertGreater(
                     len(insns), 1,
                     f"nothing follows the brood write at {va:#x}")
+                # Mnemonic first, then the target. Parsing the operand inside
+                # the tuple would raise on any non-rel32 continuation (`ret`,
+                # `nop`, `jmp eax` all give an unparseable op_str), replacing
+                # the message below with an unrelated ValueError.
                 self.assertEqual(
-                    (insns[1].mnemonic, int(insns[1].op_str, 16)),
-                    ("jmp", resume),
+                    insns[1].mnemonic, "jmp",
                     f"the guard at {va:#x} resumes with `{insns[1].mnemonic} "
-                    f"{insns[1].op_str}`, not `jmp {resume:#x}`; a retargeted "
+                    f"{insns[1].op_str}`, not a `jmp`; a retargeted "
                     "continuation runs a different stock birth path and can "
                     "overwrite the brood this guard just reserved")
+                # `_is_imm` rather than a bare `int(..., 16)`: an INDIRECT
+                # continuation (`jmp eax`) keeps the mnemonic and so reaches
+                # here, and parsing its operand would raise instead of
+                # reporting the message below.
+                self.assertTrue(
+                    self._is_imm(insns[1].op_str, resume),
+                    f"the guard at {va:#x} resumes at `{insns[1].op_str}`, not "
+                    f"{resume:#x}; a retargeted continuation runs a different "
+                    "stock birth path and can overwrite the brood this guard "
+                    "just reserved")
 
     def test_each_event_guard_resumes_its_own_stock_action(self):
         """The queued-event guards push arguments and resume -- pin both.
@@ -336,12 +349,20 @@ class VV4SlotGuardCounterTests(unittest.TestCase):
                 self.assertLess(
                     index, len(insns),
                     f"nothing follows the pushes at {va:#x}")
+                # Split for the same reason as the brood continuation above:
+                # a non-rel32 resume has an op_str `int` cannot parse.
                 self.assertEqual(
-                    (insns[index].mnemonic, int(insns[index].op_str, 16)),
-                    ("jmp", resume),
+                    insns[index].mnemonic, "jmp",
                     f"the guard at {va:#x} resumes with "
-                    f"`{insns[index].mnemonic} {insns[index].op_str}`, not "
-                    f"`jmp {resume:#x}`; it would run the wrong stock action")
+                    f"`{insns[index].mnemonic} {insns[index].op_str}`, not a "
+                    "`jmp`; it would run the wrong stock action")
+                # `_is_imm` for the same reason as the brood continuation:
+                # `jmp eax` keeps the mnemonic and would raise on parse.
+                self.assertTrue(
+                    self._is_imm(insns[index].op_str, resume),
+                    f"the guard at {va:#x} resumes at "
+                    f"`{insns[index].op_str}`, not {resume:#x}; it would run "
+                    "the wrong stock action")
 
     def test_no_guard_reads_the_running_total(self):
         """The exact regression: back to the lifetime-conception total."""
