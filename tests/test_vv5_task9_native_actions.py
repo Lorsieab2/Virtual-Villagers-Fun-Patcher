@@ -111,12 +111,12 @@ class Task9ArtifactTests(unittest.TestCase):
         # counts -- 18 stock, 7 expanded -- and the single shared `done` target
         # are the invariant this test exists to protect, and both are unchanged.
         stock_offsets = [
-            0x129, 0x1DA, 0x20A, 0x217, 0x224, 0x231, 0x23E, 0x24B,
-            0x258, 0x262, 0x26C, 0x276, 0x280, 0x28A, 0x29B, 0x2AC, 0x2BD, 0x2CE,
+            0x129, 0x1DA, 0x231, 0x23E, 0x24B, 0x258, 0x265, 0x272,
+            0x27F, 0x289, 0x293, 0x29D, 0x2A7, 0x2B1, 0x2C2, 0x2D3, 0x2E4, 0x2F5,
         ]
-        stock_done = 0xB13
-        expanded_offsets = [0xBB, 0x129, 0x156, 0x167, 0x178, 0x189, 0x19A]
-        expanded_done = 0x9DF
+        stock_done = 0xB3A
+        expanded_offsets = [0xBB, 0x131, 0x188, 0x199, 0x1AA, 0x1BB, 0x1CC]
+        expanded_done = 0xA11
         for mode, layout in builder.LAYOUTS.items():
             page, page_map = builder.build_page(layout["page_va"])
             start = builder.OFF["tech_menu"]
@@ -349,7 +349,7 @@ class Task9ArtifactTests(unittest.TestCase):
         # the same site -- a mismatch there aims the overlay's `jb` at the wrong
         # instruction rather than at the dispatcher.
         self.assertEqual(
-            expanded_tech[0x70:0x79], bytes.fromhex("83FB030F82E2000000")
+            expanded_tech[0x70:0x79], bytes.fromhex("83FB030F8214010000")
         )
         expanded_tech_bound = expanded_tech.find(bytes.fromhex("83FB05"))
         expanded_detail_bound = expanded_detail.find(bytes.fromhex("83FB03"))

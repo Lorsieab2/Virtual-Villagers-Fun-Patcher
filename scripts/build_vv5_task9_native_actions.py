@@ -845,8 +845,32 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         # and VV4 set the equivalent bits in their own payloads
         # (`or edi, 0x800000` / `or edx, 0x800000`).
         #
+        # Retire a DELIVERED island event first. Bit 5 is handed over at screen
+        # close, and the scheduler then runs the event while the player is back
+        # in the village -- but the only other place that clears it is the next
+        # screen close, so without this the row would still claim the event was
+        # on its way for the whole of the player's next visit, and refuse a
+        # legitimate purchase.
+        #
+        # The consumption signal is the same one barrel_close_arm uses: the
+        # purchase sets [manager+0x17D3C] = 0 to make the event due, and the
+        # native scheduler rewrites it to the next due time once the event has
+        # run, so a non-zero countdown with bit 5 still set means delivered.
+        # eax carries the state word being built, so it rides the stack.
+        test dword ptr [0x51D388], 0x20
+        jz tps_island
+        push eax
+        call 0x425950
+        test eax, eax
+        jz tps_island_restore
+        cmp dword ptr [eax+0x17D3C], 0
+        je tps_island_restore
+        and dword ptr [0x51D388], 0xFFFFFFDF
+    tps_island_restore:
+        pop eax
+    tps_island:
         # Island: mask purchase (bit 4) and delivery (bit 5) together, the same
-        # 0x30 the purchase guard uses, so the row keeps explaining itself for
+        # bits the purchase guard reads, so the row keeps explaining itself for
         # the whole window rather than falling back to a bare "Unavailable" the
         # moment the Tech screen closes.
         test dword ptr [0x51D388], 0x30
@@ -2398,18 +2422,25 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jz unavailable
         mov edi, eax
         mov dword ptr [ebp-0x18], edi
-        # An island event bought earlier is still outstanding, anywhere between
-        # purchase and delivery.
+        # Any queued village event blocks this purchase -- Island OR Barrel.
         #
-        # Bit 4 (0x10) is the purchase token; bit 5 (0x20) is the delivery
-        # token that barrel_close_arm sets as it clears 0x10. Testing 0x10
-        # alone leaves the gap the Barrel's guard already documents: close the
-        # screen, reopen it before the scheduler has ticked, and the event is
-        # armed but no longer "pending", so a second 30,000 is charged for the
-        # same event. Closing the screen is when delivery becomes POSSIBLE, not
-        # when it happens. Masking both (0x30) covers purchase through
-        # delivery, exactly as the Barrel masks 0xC.
-        test dword ptr [0x51D388], 0x30
+        # Island: bit 4 (0x10) is the purchase token, bit 5 (0x20) the delivery
+        # token barrel_close_arm hands it to. Testing 0x10 alone leaves the gap
+        # the Barrel's own guard documents: close the screen, reopen it before
+        # the scheduler has ticked, and the event is armed but no longer
+        # "pending", so a second 30,000 is charged for the same event. Closing
+        # the screen is when delivery becomes POSSIBLE, not when it happens.
+        #
+        # Barrel: bits 3 (8) and 2 (4), purchase and delivery. These matter
+        # here because BOTH upgrades queue through the SAME single due-event
+        # slot [manager+0x17D3C]. Buying an Island while a Barrel is pending
+        # took the 30,000, and then the forced-Barrel selector consumed the one
+        # due slot as a Barrel -- the player paid for an Island Event that
+        # never existed.
+        #
+        # 0x3C is all four bits: neither action may be bought while either is
+        # outstanding.
+        test dword ptr [0x51D388], 0x3C
         jnz pending
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x20], eax
@@ -2558,7 +2589,11 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         # has run, and the barrel is armed but no longer pending, so a second
         # 75,000-point charge went through and still produced one barrel.
         # Masking both (0xC) covers purchase through delivery.
-        test dword ptr [0x51D388], 0xC
+        # 0x3C, not 0xC: the Island's tokens (0x10 purchase, 0x20 delivery)
+        # count too, because both upgrades queue through the same single
+        # due-event slot [manager+0x17D3C]. A Barrel bought while an Island was
+        # outstanding would consume that slot and strand the Island's charge.
+        test dword ptr [0x51D388], 0x3C
         jnz pending
         # Room for all THREE children, not just one -- see barrel_room below.
         call barrel_room
