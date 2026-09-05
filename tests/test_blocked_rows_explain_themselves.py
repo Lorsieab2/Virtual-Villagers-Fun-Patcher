@@ -228,6 +228,100 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
             )
         self.assertTrue(found, "VV4 island-pending branch not found")
 
+    def test_no_companion_reads_a_state_bit_nothing_writes(self):
+        """A reader with no producer is a silently dead feature.
+
+        Codex found this on VV5: the companion tested STATE_BARREL_PENDING and
+        STATE_ISLAND_PENDING, and nothing in the VV5 payload ever set them, so
+        both branches were unreachable and the rows never became "Why not?".
+        A suite cannot notice on its own, because an always-zero flag is a
+        perfectly valid state -- nothing asserts, everything passes.
+
+        The same trap recurs across branches. A DLL that reads VV3's island
+        flag at SECTION_DATA_VA + 0x50 is inert unless the payload that ARMS
+        that flag is present too, and those two halves have lived on separate
+        branches. This pins the invariant rather than the branch topology: for
+        each game, if the companion reads a pending bit, the payload must
+        contain an instruction that sets it.
+        """
+        import json as _json
+
+        # game -> (companion source, payload manifest, bit)
+        pairs = (
+            ("vv1", SOURCES["vv1"], "data/vv1_origins_feature.json", 0x800000),
+            ("vv1", SOURCES["vv1"], "data/vv1_origins_feature.json", 0x1000000),
+            ("vv4", SOURCES["vv4"], "data/vv4_origins_feature.json", 0x800000),
+            ("vv4", SOURCES["vv4"], "data/vv4_origins_feature.json", 0x1000000),
+        )
+        for game, source, manifest_path, bit in pairs:
+            text = (ROOT / source).read_text(encoding="utf-8", errors="ignore")
+            if f"0x{bit:X}" not in text.upper():
+                continue
+            manifest = _json.loads(
+                (ROOT / manifest_path).read_text(encoding="utf-8")
+            )
+            payload = b"".join(
+                bytes.fromhex(patch["after"])
+                for patch in manifest.get("patches", [])
+                if patch.get("after")
+            )
+            for layout in (
+                manifest.get("pe_append_transaction", {}).get("layouts", {}).values()
+            ):
+                if layout.get("append_bytes"):
+                    payload += bytes.fromhex(layout["append_bytes"])
+            # `or <reg>, imm32` for each of the registers these payloads use.
+            setters = [
+                bytes([opcode]) + bit.to_bytes(4, "little")
+                for opcode in (0x0D, 0xC9, 0xCA, 0xCF)  # eax, ecx, edx, edi
+            ]
+            with self.subTest(game=game, bit=hex(bit)):
+                self.assertTrue(
+                    any(setter in payload for setter in setters),
+                    f"{game}'s companion tests state bit {hex(bit)} but its "
+                    "payload never sets it, so that branch is unreachable and "
+                    "the row silently keeps the old behaviour",
+                )
+
+    def test_a_flag_the_companion_reads_is_armed_by_the_payload(self):
+        """The cross-branch case, stated as bytes rather than as topology.
+
+        VV3's companion reads the island pending flag in the patch's own data
+        page. The instruction that ARMS it lives in the payload builder, and
+        those two halves have been developed on separate branches -- so a merge
+        order exists in which the DLL ships reading a byte nothing ever writes.
+        That is the VV5 defect again, and it passes a green suite because zero
+        is a valid value for a flag.
+        """
+        import json as _json
+        import re as _re
+
+        source = (ROOT / SOURCES["vv3"]).read_text(encoding="utf-8", errors="ignore")
+        match = _re.search(
+            r"define\s+VV3_ISLAND_PENDING_FLAG\s+(0x[0-9A-Fa-f]+)", source
+        )
+        if match is None:
+            self.skipTest("VV3 companion does not read an island pending flag")
+        flag = int(match.group(1), 16)
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv3_origins_feature.json").read_text(encoding="utf-8")
+        )
+        payload = b"".join(
+            bytes.fromhex(patch["after"])
+            for patch in manifest.get("patches", [])
+            if patch.get("after")
+        )
+        arm = bytes([0xC6, 0x05]) + flag.to_bytes(4, "little") + bytes([0x01])
+        self.assertIn(
+            arm,
+            payload,
+            f"the VV3 companion reads a pending flag at 0x{flag:X}, but the "
+            "VV3 payload never sets it. The DLL half and the payload half are "
+            "on different branches; merging the companion without the arming "
+            "patch ships a guard that can never fire",
+        )
+
     def test_a_blocked_click_cannot_reach_the_purchase(self):
         """The refusal must not charge.
 
