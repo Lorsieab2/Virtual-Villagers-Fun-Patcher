@@ -2055,8 +2055,8 @@ def main() -> None:
         },
         "provenance": {"implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4", "implementation_commit": None, "audit_commit": None, "acceptance_commit": None},
     }
-    RUNNING_OUT.write_text(json.dumps(running_candidate, indent=2) + "\n", encoding="utf-8")
-    RUNNING_MAP_OUT.write_text(json.dumps({"candidate": running_candidate, "slot": running_map}, indent=2) + "\n", encoding="utf-8")
+    RUNNING_OUT.write_text(json.dumps(running_candidate, indent=2) + "\n", encoding="utf-8", newline="")
+    RUNNING_MAP_OUT.write_text(json.dumps({"candidate": running_candidate, "slot": running_map}, indent=2) + "\n", encoding="utf-8", newline="")
     RUNNING_DOC_OUT.write_text(
         "# VV5 individual Grant Running candidate\n\n"
         "This candidate is disabled and catalog-hidden pending independent emitted-byte and runtime recertification. "
@@ -2324,8 +2324,8 @@ def main() -> None:
     }
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    BASE_OUT.write_text(json.dumps(base, indent=2) + "\n", encoding="utf-8")
-    FEATURE_OUT.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8")
+    BASE_OUT.write_text(json.dumps(base, indent=2) + "\n", encoding="utf-8", newline="")
+    FEATURE_OUT.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8", newline="")
 
     sys.path.insert(0, str(ROOT / "src"))
     from vv_fun_patcher import FunPatch, _pe_checksum_layout, load_builds, render_patched_bytes  # noqa: PLC0415
@@ -2493,7 +2493,7 @@ def main() -> None:
             },
         },
     }
-    MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
+    MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8", newline="")
     DOC_OUT.write_text(
         (
             "# VV5 Full Mastery certified playtest feature\n\n"

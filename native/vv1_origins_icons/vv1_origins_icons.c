@@ -936,7 +936,16 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
    bit 9 means both "row 9 satisfied" and "row 1 unavailable". */
 enum {
     STATE_ISLAND_PENDING = 0x800000,
-    STATE_BARREL_PENDING = 0x1000000
+    STATE_BARREL_PENDING = 0x1000000,
+    /* Set when the barrel cannot be delivered because the village has no room
+       for the children, as distinct from one already being queued.
+
+       These shared a bit until Codex caught it on #254: the payload set
+       STATE_BARREL_PENDING for BOTH causes, so a player whose village was full
+       was told a barrel had already been bought -- a plainly false statement
+       about their own save. VV4 was worse still, setting the barrel bit while
+       only an Island Event was pending. */
+    STATE_BARREL_NO_ROOM = 0x2000000
 };
 
 enum {
@@ -944,17 +953,82 @@ enum {
     PENDING_ROW_BARREL = 2    /* Barrel of Babies */
 };
 
-/* Is this tech-menu row blocked by an identical purchase already pending?
+/* Why a tech-menu row is blocked, or BLOCK_NONE when it is not.
+
+   These rows used to be drawn as a disabled button reading "Unavailable",
+   which is accurate and useless: it tells the player the upgrade cannot be
+   bought without telling them why, or whether waiting will help. The two
+   causes are completely different -- one clears itself in a few seconds, the
+   other needs the player to do something about their village -- so the row
+   now stays CLICKABLE and clicking it explains which applies.
+
    Villager-menu rows are never affected. Shared by every game's dialog
    (VV2 includes this file; the others carry their own copy). */
-static int row_purchase_pending(int villager_menu, int row, long state) {
+/* Per-row block reasons for the dialog currently on screen. The dialog is
+   modal and only ever one exists, so a file-static array is enough and keeps
+   this off the DLL's exported surface. Sized to the largest row count any of
+   these games declares (14 in VV1's tech menu). */
+#define ROW_STATE_MAX 16
+static int block_reasons[ROW_STATE_MAX];
+
+enum {
+    BLOCK_NONE = 0,
+    BLOCK_ALREADY_PENDING = 1,  /* one of these is already queued */
+    BLOCK_NO_VILLAGER_SLOTS = 2 /* the village has no room for the children */
+};
+
+static int row_block_reason(int villager_menu, int row, long state) {
     if (villager_menu) {
-        return 0;
+        return BLOCK_NONE;
     }
     if (row == PENDING_ROW_ISLAND && (state & STATE_ISLAND_PENDING) != 0) {
-        return 1;
+        return BLOCK_ALREADY_PENDING;
     }
-    return row == PENDING_ROW_BARREL && (state & STATE_BARREL_PENDING) != 0;
+    if (row != PENDING_ROW_BARREL) {
+        return BLOCK_NONE;
+    }
+    /* Capacity is checked FIRST. Both bits can be set at once -- a queued
+       barrel and a full village are independent -- and "no room" is the more
+       actionable of the two, since waiting clears the queue but not the
+       village. */
+    if ((state & STATE_BARREL_NO_ROOM) != 0) {
+        return BLOCK_NO_VILLAGER_SLOTS;
+    }
+    if ((state & STATE_BARREL_PENDING) != 0) {
+        return BLOCK_ALREADY_PENDING;
+    }
+    return BLOCK_NONE;
+}
+
+/* The text shown when the player clicks a blocked row.
+
+   Deliberately concrete about what to DO next. "Unavailable" left a player
+   who had just paid for an event unsure whether the purchase had failed,
+   whether the game was broken, or whether they should keep clicking. */
+static const char *block_reason_text(int reason, int row) {
+    if (reason == BLOCK_NO_VILLAGER_SLOTS) {
+        return "There is not enough room in the village for the three children "
+               "a barrel brings.\n\nThree villager slots have to be free. A "
+               "villager who has died still occupies a slot until they are "
+               "buried, and a pregnancy holds one too, so burying any remains "
+               "may be enough to free the space.";
+    }
+    if (row == PENDING_ROW_ISLAND) {
+        return "An island event has already been bought and is on its way.\n\n"
+               "It arrives a few seconds after this screen closes. Buying it "
+               "again would charge you a second time for the same event, so "
+               "close this screen and wait for it to arrive.";
+    }
+    return "A barrel of babies has already been bought and is on its way.\n\n"
+           "It arrives a few seconds after this screen closes. Buying it again "
+           "would charge you a second time for the same barrel, so close this "
+           "screen and wait for it to arrive.";
+}
+
+/* Kept as a thin wrapper so existing callers that only need the yes/no
+   answer -- and the tests that pin them -- do not have to change. */
+static int row_purchase_pending(int villager_menu, int row, long state) {
+    return row_block_reason(villager_menu, row, state) != BLOCK_NONE;
 }
 
 static INT_PTR CALLBACK upgrade_dialog(
@@ -972,8 +1046,12 @@ static INT_PTR CALLBACK upgrade_dialog(
                 ? 7
                 : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6));
         int row;
+        int blocked;
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
+        for (row = 0; row < ROW_STATE_MAX; ++row) {
+            block_reasons[row] = BLOCK_NONE;
+        }
         /* Only rows 0-8 carry a status-badge ICON (ID_CHECK_FIRST+row) in the
            two-column .rc; the Equal Division rows (9/10) and Change Appearance
            for All (11) have no badge at all (matching VV2's layout, where those
@@ -996,9 +1074,16 @@ static INT_PTR CALLBACK upgrade_dialog(
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
-            if (row_purchase_pending(villager_menu, row, (long)lparam)) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+            blocked = row_block_reason(villager_menu, row, (long)lparam);
+            if (blocked != BLOCK_NONE) {
+                /* Leave the button ENABLED. A disabled button swallows the
+                   click, so there is nothing to explain the refusal with --
+                   which is the whole complaint about "Unavailable". The
+                   WM_COMMAND handler below intercepts the click, shows the
+                   reason, and does NOT close the dialog or charge anything. */
+                block_reasons[row] = blocked;
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Why not?");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
             if ((lparam & (1 << row)) != 0) {
@@ -1028,7 +1113,18 @@ static INT_PTR CALLBACK upgrade_dialog(
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
-            EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
+            int clicked = (int)(command - ID_BUY_FIRST);
+            if (clicked >= 0 && clicked < ROW_STATE_MAX
+                && block_reasons[clicked] != BLOCK_NONE) {
+                /* Explain and stay open. Returning the row here would run the
+                   purchase path and charge for it. */
+                MessageBoxA(window,
+                            block_reason_text(block_reasons[clicked], clicked),
+                            "Not right now",
+                            MB_OK | MB_ICONINFORMATION);
+                return TRUE;
+            }
+            EndDialog(window, (INT_PTR)clicked);
             return TRUE;
         }
         if (command == IDCANCEL) {

@@ -377,10 +377,10 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # Warp's speed-aware prompt, paused refusal, charge and advance -- the
         # charge moved in here so it happens between the confirmation and the
         # mutation rather than after both.
-        self.assertEqual(vv5_companion["size"], 1756160)
+        self.assertEqual(vv5_companion["size"], 1756672)
         self.assertEqual(
             vv5_companion["sha256"],
-            "2B30420687D9E68215190BF8B7C0C19235919A81C021DCAA249F4C2975EC5ADD",
+            "EB900814C05D5DEB2B6D621F0E52F83D40A10652AEDB643D6A0CBFA5ADA16E6C",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

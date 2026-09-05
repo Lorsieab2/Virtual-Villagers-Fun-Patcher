@@ -105,7 +105,7 @@ def swap(path: str, old: str, new: str, label: str,
     if within is None:
         if old not in s:
             raise SystemExit(f"{label}: {old[:16]}... not found in {path}")
-        p.write_text(s.replace(old, new), encoding="utf-8")
+        p.write_text(s.replace(old, new), encoding="utf-8", newline="")
     else:
         m = re.search(within, s, re.S)
         if m is None:
@@ -114,7 +114,7 @@ def swap(path: str, old: str, new: str, label: str,
         if old not in block:
             raise SystemExit(f"{label}: {old[:16]}... not in the {label} block")
         s = s[: m.start()] + block.replace(old, new) + s[m.end():]
-        p.write_text(s, encoding="utf-8")
+        p.write_text(s, encoding="utf-8", newline="")
     print(f"  {label} -> {new[:12]}")
 
 
@@ -177,7 +177,7 @@ def main() -> None:
         s,
     )
     if updated != s:
-        PATCHER.write_text(updated, encoding="utf-8")
+        PATCHER.write_text(updated, encoding="utf-8", newline="")
         print(f"  patcher companion size -> {size}")
 
     # 3 -- the Task9 PAGE hashes, above the manifest/map layer.

@@ -11,13 +11,13 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features and Heathen Masks",
-  "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row is disabled and reads Unavailable, so it cannot be bought twice. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art.",
+  "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
       "source": "assets/origins/VVFP VV2 Origins Icons.dll",
       "destination": "VVFP VV2 Origins Icons.dll",
-      "sha256": "2F996F32D5D5F92FC531B4C66B0C0B2A24B5F8461273FA064D77C834A542F19D"
+      "sha256": "8ABE7C26E1C1AF3084B8C1683610D483D26D02AECB392D09E27020ACEF993B97"
     }
   ],
   "pe_append_transaction": {
@@ -359,7 +359,7 @@
     {
       "offset": "0x9A280",
       "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "53518B9FE0EA020085DB74105089F9E86C6FF6FF29C35883FB057709595B0D00008000EB02595B803D00C749000074050D000000015152538B8FA405030085C9742383C13031D2BB0001000080390074014281C18CE400004B75F183FA5776050D000000015B5A59C3",
+      "after": "53518B9FE0EA020085DB74105089F9E86C6FF6FF29C35883FB057709595B0D00008000EB02595B803D00C749000074050D000000015152538B8FA405030085C9742383C13031D2BB0001000080390074014281C18CE400004B75F183FA5776050D000000025B5A59C3",
       "purpose": "mark the Tech menu's Island Event and Barrel of Babies rows Unavailable while one of each is already pending, so a second purchase cannot be clicked and cannot be charged for"
     },
     {

@@ -422,31 +422,76 @@ enum {
 
 /* Is this Tech-menu row blocked by an identical purchase already pending?
    Villager-menu rows are never affected. */
-static int vv3_row_purchase_pending(int villager_menu, int row) {
+/* Why a Tech-menu row is blocked, or VV3_BLOCK_NONE.
+
+   The two causes are distinguished rather than collapsed into a boolean,
+   because they call for completely different things from the player: a queued
+   event clears itself in seconds, while a full village needs them to act. The
+   row used to be drawn as a disabled button reading "Unavailable", which said
+   neither. */
+enum {
+    VV3_BLOCK_NONE = 0,
+    VV3_BLOCK_ALREADY_PENDING = 1,
+    VV3_BLOCK_NO_VILLAGER_SLOTS = 2
+};
+
+#define VV3_ROW_STATE_MAX 16
+static int vv3_block_reasons[VV3_ROW_STATE_MAX];
+
+static const char *vv3_block_reason_text(int reason, int row) {
+    if (reason == VV3_BLOCK_NO_VILLAGER_SLOTS) {
+        return "There is not enough room in the village for the three children "
+               "a barrel brings.\n\nThree villager slots have to be free. A "
+               "villager who has died still occupies a slot until they are "
+               "buried, and a pregnancy holds one too, so burying any remains "
+               "may be enough to free the space.";
+    }
+    if (row == VV3_PENDING_ROW_ISLAND) {
+        return "An island event has already been bought and is on its way."
+               "\n\nIt arrives a few seconds after this screen closes. Buying "
+               "it again would charge you a second time for the same event, "
+               "so close this screen and wait for it to arrive.";
+    }
+    return "A barrel of babies has already been bought and is on its way."
+           "\n\nIt arrives a few seconds after this screen closes. Buying it "
+           "again would charge you a second time for the same barrel, so "
+           "close this screen and wait for it to arrive.";
+}
+
+static int vv3_row_block_reason(int villager_menu, int row) {
     unsigned char *manager;
     int extra;
 
     if (villager_menu) {
-        return 0;
+        return VV3_BLOCK_NONE;
     }
     if (row == VV3_PENDING_ROW_BARREL) {
         if (*(volatile unsigned char *)(UINT_PTR)VV3_BARREL_PENDING_FLAG != 0) {
-            return 1;
+            return VV3_BLOCK_ALREADY_PENDING;
         }
-        return !vv3_has_free_villager_slots(VV3_BARREL_CHILDREN);
+        return vv3_has_free_villager_slots(VV3_BARREL_CHILDREN)
+            ? VV3_BLOCK_NONE
+            : VV3_BLOCK_NO_VILLAGER_SLOTS;
     }
     if (row != VV3_PENDING_ROW_ISLAND) {
-        return 0;
+        return VV3_BLOCK_NONE;
     }
     manager = *(unsigned char *volatile *)(UINT_PTR)VV3_MANAGER_SINGLETON;
     if (manager == NULL) {
-        return 0;                 /* no manager yet -> claim nothing */
+        return VV3_BLOCK_NONE;    /* no manager yet -> claim nothing */
     }
     extra = (*(volatile unsigned int *)(UINT_PTR)VV3_ARCH_PROBE
              == (unsigned int)VV3_ARCH_EXPANDED_VALUE)
         ? VV3_ARCH_EXPANDED_OFFSET
         : 0;
-    return *(volatile int *)(manager + extra + VV3_ISLAND_COUNTDOWN_OFF) == 0;
+    return *(volatile int *)(manager + extra + VV3_ISLAND_COUNTDOWN_OFF) == 0
+        ? VV3_BLOCK_ALREADY_PENDING
+        : VV3_BLOCK_NONE;
+}
+
+/* Thin wrapper so callers that only need the yes/no answer are unchanged. */
+static int vv3_row_purchase_pending(int villager_menu, int row) {
+    return vv3_row_block_reason(villager_menu, row) != VV3_BLOCK_NONE;
 }
 
 
@@ -484,6 +529,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                     ? 8
                     : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6)));
         int row;
+        int blocked;
         /* Hide EVERY badge the dialog can carry, not just the first nine.
            The tech menu runs to 14 rows (6 base + 3 village-wide grants +
            Complete/Reset Collections + two Equal Division rows + Change
@@ -495,13 +541,20 @@ static INT_PTR CALLBACK upgrade_dialog(
            ones that can ever display a checkmark, and only while owned in the
            current save.  GetDlgItem returns NULL for a row this game does not
            declare and ShowWindow(NULL, ...) is a harmless no-op. */
+        for (row = 0; row < VV3_ROW_STATE_MAX; ++row) {
+            vv3_block_reasons[row] = VV3_BLOCK_NONE;
+        }
         for (row = 0; row < 14; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
-            if (vv3_row_purchase_pending(villager_menu, row)) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+            blocked = vv3_row_block_reason(villager_menu, row);
+            if (blocked != VV3_BLOCK_NONE) {
+                /* Enabled on purpose: a disabled button swallows the click,
+                   so there would be nothing to explain the refusal with. */
+                vv3_block_reasons[row] = blocked;
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Why not?");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
             if ((lparam & (1 << row)) != 0) {
@@ -531,7 +584,18 @@ static INT_PTR CALLBACK upgrade_dialog(
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             int row = (int)(command - ID_BUY_FIRST);
-            const char *name = s_villager_menu ? detail_names[row] : tech_names[row];
+            const char *name;
+            if (row >= 0 && row < VV3_ROW_STATE_MAX
+                && vv3_block_reasons[row] != VV3_BLOCK_NONE) {
+                /* Explain and stay open. Falling through would run the
+                   purchase path and charge for it. */
+                MessageBoxA(window,
+                            vv3_block_reason_text(vv3_block_reasons[row], row),
+                            "Not right now",
+                            MB_OK | MB_ICONINFORMATION);
+                return TRUE;
+            }
+            name = s_villager_menu ? detail_names[row] : tech_names[row];
             const char *cost = s_villager_menu ? detail_costs[row] : tech_costs[row];
             /* Owned Tech/Food Doublers (rows 3/4) show an explicit "Remove"
                button. Removal is not a purchase and therefore has no

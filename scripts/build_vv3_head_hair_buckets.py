@@ -197,7 +197,7 @@ def main() -> int:
             return 1
         print("up to date:", HEADER)
         return 0
-    HEADER.write_text(text, encoding="utf-8")
+    HEADER.write_text(text, encoding="utf-8", newline="")
     print("wrote", HEADER)
     return 0
 

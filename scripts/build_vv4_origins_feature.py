@@ -1990,9 +1990,27 @@ def main() -> None:
             # what it pushed before branching away.
             push ebx
             push ecx
+            # VV4's Barrel and Island Event share ONE queue slot: do_barrel
+            # sets [world+0x170E0] = 0 to cue the game's own event check, which
+            # is exactly how the Island Event upgrade fires. So a zero here
+            # means "an event is due", NOT "an island event was purchased".
+            #
+            # Reading zero as island-pending therefore told a player who had
+            # just bought a Barrel that an island event was already on its way.
+            # That is the mirror of the bit-sharing defect Codex found on the
+            # island branch, and the shared slot was flagged by the other
+            # session hitting the same shape in VV5.
+            #
+            # BARREL_ARMED_VA disambiguates: it is set by do_barrel and cleared
+            # once the barrel is presented, so a zero slot with the barrel
+            # armed belongs to the barrel and the island row must stay clear.
             mov ebx, dword ptr [eax + 0x170E0]
             test ebx, ebx
-            jz pending_rows_island
+            jnz pending_rows_island_window
+            cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            jne pending_rows_notqueued
+            jmp pending_rows_island
+        pending_rows_island_window:
             mov ecx, eax
             push eax
             call 0x{ISLAND_QUEUE_CLOCK_VA:X}
@@ -2003,9 +2021,25 @@ def main() -> None:
         pending_rows_island:
             pop ecx
             pop ebx
+            # Island only. This also set the BARREL bit, so a pending island
+            # event disabled the Barrel row too and -- once the rows could
+            # explain themselves -- told the player a barrel was on its way
+            # when none had been bought. Codex caught it on #254.
             or edx, 0x800000
-            or edx, 0x1000000
-            jmp pending_rows_done
+            # FALL THROUGH to the barrel checks rather than jumping to the end.
+            # The jump was load-bearing only while this branch set the barrel
+            # bit itself: dropping the bit and keeping the jump left the Barrel
+            # row unexamined whenever an island event was pending, so a player
+            # could buy an island event, buy a barrel inside the same five
+            # second window, reopen the menu, and be charged for a second
+            # barrel while the first was still armed. Codex caught that on the
+            # fix, not the original -- the repair needed the same scrutiny as
+            # the defect.
+            #
+            # Jump PAST pending_rows_notqueued, which pops ecx/ebx: this path
+            # has already popped them above, and falling into a second pair of
+            # pops would unbalance the stack.
+            jmp pending_rows_barrel
         pending_rows_notqueued:
             pop ecx
             pop ebx
@@ -2042,7 +2076,9 @@ def main() -> None:
             add ecx, 0x2E3C
             dec ebx
             jnz pending_rows_count
-            or edx, 0x1000000
+            # A DISTINCT bit from the queued-barrel one, so the DLL can tell
+            # "no room" from "already bought" and say which.
+            or edx, 0x2000000
         pending_rows_slots_ok:
             pop esi
             pop ebx
@@ -2183,7 +2219,7 @@ def main() -> None:
         replacement = bytes.fromhex(str(item["after"]))
         rendered[offset : offset + len(replacement)] = replacement
     OUT_EXE.write_bytes(rendered)
-    OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
+    OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8", newline="")
 
     manifest = {
         "id": "vv4_enable_origins_exclusive_features",
@@ -2191,7 +2227,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xA0CD8", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features (with Heathen Mask mod)",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row is disabled and reads Unavailable, so it cannot be bought twice. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
         "output_tag": "Origins Exclusive Features",
         "ui_contract": ui_metadata,
         "native_handlers": {
@@ -2299,7 +2335,7 @@ def main() -> None:
             "patches": expanded_shr_relocations,
         },
     }
-    MANIFEST_JSON.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    MANIFEST_JSON.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
     used = max(index for index, value in enumerate(code) if value) + 1
     print(f"code bytes used: {used:#x}/{STRINGS_OFFSET:#x}")
     print(f"string bytes used: {len(strings):#x}/{PAYLOAD_SIZE - STRINGS_OFFSET:#x}")

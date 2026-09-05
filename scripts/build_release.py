@@ -189,7 +189,7 @@ def main() -> int:
             raise RuntimeError(f"release archive CRC failure: {bad}")
     digest = hashlib.sha256(target.read_bytes()).hexdigest().upper()
     manifest = {"file":target.name,"size":target.stat().st_size,"sha256":digest,"entries":FILES}
-    (OUTPUTS / f"{target.stem}.manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    (OUTPUTS / f"{target.stem}.manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
     print(json.dumps(manifest, indent=2))
     return 0
 
