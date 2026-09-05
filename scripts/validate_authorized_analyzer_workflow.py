@@ -6,6 +6,9 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CRLF_BYTES = bytes((13, 10))
+CR_BYTE = bytes((13,))
+LF_BYTE = bytes((10,))
 WORKFLOW = ROOT / "data" / "authorized_analyzer_workflow.json"
 EXPECTED = {
     "vv3": (415, "1B348AC2FA05E1D723F92AFBBB2E98507F624F7EDBC39B237D8C2B722955A1E6", "Virtual Villagers - The Secret City.exe", 831488, "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"),
@@ -22,7 +25,25 @@ GAME_BINDING_KEYS = {
 
 
 def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+    """Digest a file's canonical LF bytes, not its checkout bytes.
+
+    Every path this validator hashes is tracked UTF-8 text. Hashing the raw
+    worktree bytes made the result depend on core.autocrlf, so the pins here
+    were minted on a Windows clone and could never be satisfied on an LF one.
+    The .gitattributes rules keep new checkouts LF, but an EXISTING
+    autocrlf=true checkout keeps its stale CRLF copies when it pulls -- git
+    does not rewrite files whose content did not change -- so attributes alone
+    cannot repair the clones that already have the bad bytes.
+
+    Normalising here fixes both: the digest is the same on every clone and in
+    every checkout state, so this can never again be broken by line endings.
+    Binary payloads are hashed elsewhere and are deliberately not routed
+    through this helper.
+    """
+    payload = path.read_bytes()
+    if path.suffix.lower() in (".json", ".txt", ".md"):
+        payload = payload.replace(CRLF_BYTES, LF_BYTE).replace(CR_BYTE, LF_BYTE)
+    return hashlib.sha256(payload).hexdigest().upper()
 
 
 def validate(document: dict) -> None:
