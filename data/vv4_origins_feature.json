@@ -426,8 +426,8 @@
     },
     {
       "offset": "0xCCE00",
-      "before": "0000000000000000000000",
-      "after": "C705106E4D0000000000C3",
+      "before": "00000000000000000000000000000000000000000000000000",
+      "after": "C705106E4D0000000000C605008B720000C605048B720000C3",
       "purpose": "clear Origins doubler ownership when the player switches to a different save slot, so a doubler bought in one village does not stay owned in another that never paid for it"
     },
     {

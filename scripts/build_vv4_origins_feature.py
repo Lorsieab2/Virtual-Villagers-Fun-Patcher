@@ -2070,6 +2070,15 @@ def main() -> None:
     doubler_reset = assemble(
         f"""
             mov dword ptr [0x{DOUBLER_OWNERSHIP_VA:X}], 0
+            # The queued Barrel is per-SAVE but both flags live in the
+            # executable, so they follow the player into the next village
+            # unless cleared here: that village's row would read "Unavailable"
+            # for an event another save bought, and an armed barrel could be
+            # delivered into a village that never paid for it. Absolute stores,
+            # no register operand, and the helper is called only on a real slot
+            # change, so an autosave cannot discard a pending barrel.
+            mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
+            mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
             ret
         """,
         DOUBLER_RESET_VA,
