@@ -13,7 +13,7 @@ there**, so the write is a no-op the player still pays for.
 | --- | --- | --- |
 | VV1 | countdown `player + 0xA300` zeroed | flag byte in `.shr` set |
 | VV2 | countdown `player + 0x2EAE0` zeroed | flag byte in `.shr` set |
-| VV3 | countdown `manager + 0x12EF4` zeroed | flag byte `0x4B3C75` set |
+| VV3 | due stamp `manager + 0x12EF4` set to `clock() + 5` | flag byte `0x4B3C75` set |
 | VV4 | countdown `world + 0x170E0` zeroed (getter `0x41FE70`) | armed flag `0x728B04`, **and the same countdown** |
 | VV5 | countdown `manager + 0x17D3C` zeroed | flag bit 4 of `0x51D388`, **and the same countdown** |
 
@@ -66,11 +66,23 @@ setup at all — its cave had two spare bytes.
 
 **VV3 does the same, but computes it in the DLL.** Its payload has no cave
 space left to work out the state, which is exactly what the companion DLL is
-for: the DLL runs inside the game's own process, so it calls VV3's own
-parameterless world-manager getter at `0x428B60`, reads the countdown and the
-Barrel flag itself, and marks the rows blocked so the dialog can draw them as
-"Why not?" and explain them. Nothing is asked of the executable,
-and VV3's payload is byte-identical to what it was before this feature.
+for: the DLL runs inside the game's own process, so it reads the world manager
+and the two pending flags itself, and disables the rows. Nothing is asked of
+the executable.
+
+Both pending answers come from **flags the payload owns** -- the Barrel's at
+`0x4B3C75` and the Island's at `0x6E0050` (`SECTION_DATA_VA + 0x50`, in the
+patch's own R/W `.vv3md` page). The Island flag cannot be replaced by reading
+the countdown: arming writes `clock() + 5` there, so the field is *non-zero for
+the whole queue window*, and the original `countdown == 0` test therefore never
+refused anything. The payload sets the flag when it arms the queue and clears
+it when a different save slot is loaded; the DLL retires it once the due second
+has passed, because the payload's frame hook has no room left (its slot is 47
+bytes) and logic goes in the DLL when cave space runs out.
+
+The DLL reads the manager singleton at `0x4B309C` directly rather than calling
+the lazy getter at `0x428B60`: that getter *constructs* a manager when there is
+none, and merely drawing a menu must not have that side effect.
 
 It uses the same probe the executable uses to tell the stock and expanded
 builds apart (whether the immediate at `0x42883A` is 256), so it reads the

@@ -843,9 +843,17 @@ def main() -> None:
             # it to the companion DLL, which owns its own paused refusal and
             # its own charge.
             #
-            # Row 1 is the Island Event, which is queued by zeroing its
-            # countdown. A second purchase while one is pending zeroes an
-            # already-zero field: no extra event, full charge. Refuse instead.
+            # Row 1 is the Island Event. A second purchase while one is
+            # pending overwrites the same due stamp: no extra event, full
+            # charge. Refuse instead.
+            #
+            # Read the payload's own pending flag, NOT the countdown. Arming
+            # stores clock() + QUEUE_DELAY_SECONDS into [world+0x12EF4], so the
+            # field is NON-zero for the entire queue window and the old
+            # `countdown == 0` test never fired -- it refused only in the
+            # instant before the stamp was written. The flag is the same one
+            # the companion DLL's row predicate reads, so the executable
+            # fallback and the DLL now agree instead of disagreeing.
             #
             # This sits after `jb insufficient` so it cannot disturb the flags
             # that branch reads, and the message is a DLL result code rather
