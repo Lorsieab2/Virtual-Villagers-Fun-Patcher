@@ -149,6 +149,26 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       the time there.  Both of its new branches pop exactly what they push.
 #       Reaching the clock is a `call`, not a jmp, so no stock re-entry is
 #       added.
+#   0x35AB0                         re-confirmed after the Barrel row's
+#       population gate.  The pending-rows helper this block reaches used to
+#       compare its occupied-record count against a literal 87 -- the stock
+#       ceiling -- so the row read "no room" from 88 records while the purchase
+#       path, which is mode-aware, would have allowed the barrel.  It now keeps
+#       that scan against the physical array bound (0xFD = 256 records minus the
+#       barrel's three children) and delegates the varying ceiling to
+#       POPULATION_FINAL_TIER_VA, the SAME helper the purchase path calls.
+#       Contract re-checked rather than assumed, by disassembling the emitted
+#       image: that helper is three compares, two `mov eax,1`, one `xor eax,eax`
+#       and three balanced `ret`s -- it writes EAX and flags ONLY, touches no
+#       memory and has no net stack effect, so EDI (the accumulator this block
+#       is building), EBX, ESI, EBP and EDX all survive it.  EDX carries the
+#       occupied count and is caller-saved by convention, so the row brackets
+#       the call with push/pop EDX by hand; EAX was pushed by the routine's own
+#       prologue and is reloaded from [esi+0x0C] above, so using it as the
+#       argument register consumes nothing live.  Flags are left undefined by
+#       the call, which is safe here: the next instruction is `test eax, eax`,
+#       which redefines them.  Reaching it is a `call`, not a jmp, so it adds no
+#       stock re-entry.
 #   0x35AB0/0x4A700                  confirmed.  The 0x35AB0 fall-through
 #       repeats the displaced `cmp [esp+4],8` immediately before 0x435AB5;
 #       the 0x4A700 fall-through repeats `mov eax,[esp+4]; push ebx`
@@ -192,7 +212,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x2403F"): "3C41A85F1AFE8DB276941C33B261D1AC08DF11AF8227CB295343321C45634CCC",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "3ECEBF9754F7758496400390A31FA6F56572BC7874708D17F54715261996C768",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "FBFBA058DF564884524DC97179578558705AC3E93EC9AFF69010F02D742E55FC",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",

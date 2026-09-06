@@ -2687,8 +2687,34 @@ def main() -> None:
             add ecx, 0x3D8
             dec ebx
             jnz pending_rows_count
-            cmp edx, 0x57
-            jbe pending_rows_done
+            # Two separate questions, both of which must pass.
+            #
+            # 1. Is there PHYSICAL room? The array is 256 records and a barrel
+            #    brings three children, so 253 (0xFD) is the bound. This is a
+            #    statement about storage and does not vary by patch mode.
+            cmp edx, 0xFD
+            ja pending_rows_no_room
+            # 2. Does the POPULATION CEILING allow three more? That is the part
+            #    that varies -- 87 stock, 256 under Collection Progression and
+            #    Immediate Fixed -- and it was previously a hardcoded `cmp edx,
+            #    0x57`, the stock value. From 88 occupied records onward the row
+            #    read "no room" while the purchase path would have sold the
+            #    barrel, so the menu contradicted the buy logic in every
+            #    expanded mode.
+            #
+            #    POPULATION_FINAL_TIER_VA is the SAME helper the purchase path
+            #    calls; it reads the cap-check opcode to tell the modes apart.
+            #    Asking it here is what keeps the two in agreement. edx carries
+            #    the occupied count and the helper does not preserve it, so it
+            #    rides the stack; eax is scratch and takes the population count
+            #    the helper wants.
+            push edx
+            mov eax, edx
+            call 0x{POPULATION_FINAL_TIER_VA:X}
+            test eax, eax
+            pop edx
+            jnz pending_rows_done
+        pending_rows_no_room:
             or edi, 0x1000000
         pending_rows_done:
             pop ebx
