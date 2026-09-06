@@ -1546,7 +1546,13 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
             wsprintfA(message, "Cured sickness from %u %s.\r\n\r\nRestored %u %s to full health.",
                       amount_a, vpl_lc(amount_a), amount_b, vpl_lc(amount_b));
         } else if (action == ACTION_COMPLETE_COLLECTIONS) {
-            wsprintfA(message, "Marked all %u collectibles as found and triggered %u collection goals.", amount_a, amount_b);
+            /* amount_b is a runtime count of the trophies this click actually
+               earned (relics, science, Master Collector), so it can legitimately
+               be 1 -- pluralise it the way VV2 does rather than always printing
+               "goals". VV2 conditions on its own amount_a; here the varying
+               count is amount_b. */
+            wsprintfA(message, "Marked all %u collectibles as found and triggered %u collection goal%s.",
+                      amount_a, amount_b, amount_b == 1 ? "" : "s");
         } else if (action == ACTION_RESET_COLLECTIONS) {
             wsprintfA(message, "Cleared all %u collectibles.", amount_a);
         } else if (action == ACTION_GRANT_RUNNING_ALL) {

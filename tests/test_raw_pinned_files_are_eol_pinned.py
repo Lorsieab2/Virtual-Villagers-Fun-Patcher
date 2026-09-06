@@ -41,41 +41,26 @@ LF = bytes((10,))
 # why every sweep restricted to scripts/ and src/ missed them.
 PIN_GLOBS = ("scripts/**/*.py", "src/**/*.py", "tests/**/*.py", "data/**/*.json")
 
-# Four files are pinned against their CRLF bytes, so a `text eol=lf` rule would
-# force them to LF and break those pins permanently. All four are pre-existing
-# defects, NOT things this rule set fixes. Each line gives the CRLF digest that
-# IS pinned, and where:
+# Files whose pin is recorded against their CRLF bytes, where a `text eol=lf`
+# rule would force LF and break the pin permanently.
+#
+# EMPTY, and that is the point. Four files were listed here:
 #
 #   data/candidates/vv2_individual_grant_running_binding.json
-#       FC8165A0... in vv2_individual_full_mastery_candidate.json and its _map
 #   data/candidates/vv4_full_mastery_all_candidate.json
-#       DD41DDC2... in vv4_full_mastery_all_candidate_map.json
 #   data/native_evidence/vv1_vv2_native_query_manifest.json
-#       A53C6D01... in validate_authorized_analyzer_workflow.py (MANIFEST_SHA)
-#       and data/authorized_analyzer_workflow.json
 #   data/native_evidence_queries.json
-#       FED6AE17... in validate_authorized_analyzer_workflow.py (QUERY_PLAN_SHA)
-#       and three times in data/authorized_analyzer_workflow.json
 #
-# In every case the LF digest is pinned nowhere, so the pin was minted on a
-# Windows autocrlf=true clone. `validate_authorized_analyzer_workflow.py`
-# therefore already fails on any LF checkout -- reproduced by running it, where
-# it raises AssertionError at its sha256 comparison. Nothing in the suite
-# executes it, which is why that has gone unnoticed.
+# Their pins were minted on a Windows autocrlf=true clone, so the committed LF
+# blobs never satisfied them and `validate_authorized_analyzer_workflow.py`
+# failed its sha256 assertions on every LF checkout. All four have been
+# repinned against their LF bytes and given rules, so the exception is gone.
 #
-# The first two are pinned INSIDE SIBLING JSON MANIFESTS, not in Python, which
-# is why sweeps limited to scripts/ and src/ never saw them.
-#
-# Repinning any of these against LF is a separate change with its own
-# verification; folding a content change into a line-endings rule set would
-# bury it. The exception is the standing record of what is still broken, and
-# the expiry test below fails if an entry stops exhibiting the defect.
-KNOWN_UNPINNED_CRLF_DEFECTS = {
-    "data/candidates/vv2_individual_grant_running_binding.json",
-    "data/candidates/vv4_full_mastery_all_candidate.json",
-    "data/native_evidence/vv1_vv2_native_query_manifest.json",
-    "data/native_evidence_queries.json",
-}
+# The set stays as a mechanism rather than being deleted: a future pin minted
+# on a CRLF clone lands here, with the same requirement that it be repinned
+# rather than silently exempted. The expiry test below refuses an entry that no
+# longer exhibits the defect, so this cannot quietly become a dumping ground.
+KNOWN_UNPINNED_CRLF_DEFECTS: set[str] = set()
 
 
 def _git(*args: str) -> str:
@@ -237,6 +222,60 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                     "`text eol=lf` rule and drop it from "
                     "KNOWN_UNPINNED_CRLF_DEFECTS",
                 )
+
+    def test_worktree_bytes_actually_satisfy_their_pins(self):
+        """The rules are a means; matching bytes are the end.
+
+        Asserting only that a `text eol=lf` rule exists is not enough, and
+        Codex found the gap on #247: an EXISTING core.autocrlf=true checkout
+        that pulls the rules keeps its stale CRLF copies, because git does not
+        rewrite files whose content did not change. In that state all four
+        repinned files carried their old CRLF digests, `git status` was clean,
+        and this file's other assertions all passed -- the rules were present,
+        so nothing complained, while the pins were broken.
+
+        `git checkout --force -- .` does NOT repair it; git still considers the
+        files unchanged. The migration that works, applied to ONLY the paths
+        this test names, is:
+
+            git rm --cached -- <path>
+            git checkout HEAD -- <path>
+
+        Deliberately per-path. The whole-worktree form
+        (`git rm --cached -r . && git reset --hard`) also repairs it, but
+        `--hard` silently discards every uncommitted change in the checkout --
+        reproduced by appending a line to README.md and running it, which
+        removed the line with no warning. A migration note is read by someone
+        whose pins are already failing, which is a bad moment to hand them a
+        command that eats their work.
+
+        This asserts the outcome instead of the mechanism, so the breakage is
+        loud and the message says how to fix it.
+        """
+        corpus = _pin_corpus()
+        stale = []
+        for relative in raw_pinned_files():
+            path = ROOT / relative
+            if not path.is_file():
+                continue
+            raw = path.read_bytes()
+            digest = hashlib.sha256(raw).hexdigest().upper()
+            others = [text for name, text in corpus.items() if name != relative]
+            if not any(digest in text for text in others):
+                stale.append(relative)
+        self.assertEqual(
+            stale,
+            [],
+            "these files are pinned by a raw sha256, but the bytes ON DISK do "
+            "not match any pinned digest. On Windows this usually means an "
+            "existing checkout kept stale CRLF copies when the eol rules "
+            "arrived -- `git checkout --force` will NOT fix it. Re-materialise "
+            "ONLY these paths, so unrelated local work is untouched: for each, "
+            "`git rm --cached -- <path>` then `git checkout HEAD -- <path>`. Do "
+            "NOT use `git rm --cached -r . && git reset --hard`; the --hard "
+            "resets the whole worktree and silently discards any uncommitted "
+            f"change: {stale}",
+        )
 
     def test_a_crlf_checkout_would_break_a_pinned_hash(self):
         """Anti-vacuity: prove the rule is load-bearing, not decorative.

@@ -305,11 +305,14 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                     rendered[0xCB100:0xCB105],
                     bytes.fromhex("9C8B442408"),
                 )
-                # 0x40, not 0x30: the cave also clears the queued-Barrel
-                # pending flag on a slot change, which pushes the replayed
-                # prologue to offset 0x2E. A 0x30 slice cuts it in half and
-                # reports a correct cave as broken.
-                cave = rendered[0xCB100:0xCB140]
+                # 0x50, not 0x30: the cave clears the queued-Barrel pending
+                # flag on a slot change, and now the purchased-Island flag and
+                # its due stamp as well (11 further bytes), which pushes the
+                # replayed prologue past 0x2E. Too small a slice cuts the
+                # prologue in half and reports a correct cave as broken -- this
+                # window has been widened twice for exactly that reason, so
+                # prefer widening it to trimming what the cave does.
+                cave = rendered[0xCB100:0xCB150]
                 for label, encoding in (
                     ("cmp eax, 1", "83F801"),
                     ("cmp eax, 5", "83F805"),
@@ -576,7 +579,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "9D637DD1A5C44BF06970C2496BA6D5C0EF5A140B04F74C35F426F1CE38452F9E",
+            "DBABCEA5A7080CC32B567E6F4EF8388A9FCFD1169F5F06B7FBF1B1D62C763638",
         )
         self.assertEqual(
             bytes.fromhex(

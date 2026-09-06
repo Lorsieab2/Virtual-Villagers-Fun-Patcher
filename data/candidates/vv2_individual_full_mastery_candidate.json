@@ -40,7 +40,7 @@
     },
     "selected_binding": {
       "path": "data/candidates/vv2_individual_grant_running_binding.json",
-      "sha256": "FC8165A0A04BD6094477B1DBD86785A2F5733637861E12A371BA7DFDE1EB2C09",
+      "sha256": "7075BE65B694568FE3B833FEF14EBF7CE665A28DA6C2070B768212DEAEEEACEA",
       "facts": "existing selected Detail path, 256 bound, active/living eligibility, and exact selection/account reacquisition requirement"
     },
     "native_parent_map": {
