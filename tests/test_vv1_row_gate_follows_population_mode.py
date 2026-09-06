@@ -316,34 +316,69 @@ class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
             "empty slots, so its value is meaningless: %s" % text,
         )
 
+        # The stride must advance the register the occupancy test DEREFERENCES.
+        # Matching only the mnemonic and the immediate lets `add eax, 0x3D8`
+        # pass while ECX stays parked on the first record for all 256
+        # iterations -- the count comes out 0 or 256 and never the real one.
+        pointers = {
+            i.op_str[len("byte ptr ["):-len("], 0")]
+            for i in self.instructions
+            if i.mnemonic == "cmp"
+            and i.op_str.startswith("byte ptr [")
+            and i.op_str.endswith("], 0")
+        }
+        advanced = {
+            i.op_str.split(",")[0].strip()
+            for i in self.instructions
+            if i.mnemonic == "add" and i.op_str.endswith("%#x" % RECORD_STRIDE)
+        }
         self.assertTrue(
-            any(
-                i.mnemonic == "add" and i.op_str.endswith("%#x" % RECORD_STRIDE)
-                for i in self.instructions
-            ),
-            "the scan does not advance by the villager-record stride %#x, so "
-            "it is not walking the record array: %s" % (RECORD_STRIDE, text),
+            pointers & advanced,
+            "the villager-record stride %#x is added to %s, but the occupancy "
+            "test reads through %s -- the record pointer never moves, so the "
+            "scan samples one slot %d times: %s"
+            % (RECORD_STRIDE, sorted(advanced) or "nothing",
+               sorted(pointers) or "nothing", RECORD_COUNT, text),
         )
+
+        # The backedge's flags must come from decrementing the register the
+        # bound was loaded into. `mov ebx, 0x100 ... dec ecx ... jnz` keeps
+        # both the bound and a backward branch while the loop is governed by
+        # something else entirely.
+        counters = {
+            i.op_str.split(",")[0].strip()
+            for i in self.instructions
+            if i.mnemonic == "mov" and i.op_str.endswith("%#x" % RECORD_COUNT)
+        }
         self.assertTrue(
-            any(
-                i.mnemonic == "mov" and i.op_str.endswith("%#x" % RECORD_COUNT)
-                for i in self.instructions
-            ),
+            counters,
             "the scan no longer covers all %d records; occupied records are "
             "not packed to the front, so a shorter walk misses skeletons "
             "living above the bound: %s" % (RECORD_COUNT, text),
         )
 
-        backedges = [
-            i for i in self.instructions
-            if i.mnemonic in ("jne", "jnz", "loop", "ja", "jg")
-            and (_branch_target(i) or (i.address + 1)) <= i.address
-        ]
+        by_addr = {i.address: n for n, i in enumerate(self.instructions)}
+        governed = []
+        for branch in self.instructions:
+            if branch.mnemonic not in ("jne", "jnz", "loop"):
+                continue
+            target = _branch_target(branch)
+            if target is None or target > branch.address:
+                continue
+            # Walk back to the instruction that last set the flags.
+            index = by_addr[branch.address]
+            for earlier in reversed(self.instructions[max(0, index - 4):index]):
+                if earlier.mnemonic in ("dec", "sub", "cmp", "test"):
+                    reg = earlier.op_str.split(",")[0].strip()
+                    if reg in counters:
+                        governed.append(branch)
+                    break
         self.assertTrue(
-            backedges,
-            "the record loop has no backedge, so the bound is loaded and then "
-            "exactly one record is inspected -- the scan degenerates to a "
-            "single sample: %s" % text,
+            governed,
+            "the record loop's backward branch is not controlled by the "
+            "register holding the %d-record bound (%s), so the loop runs "
+            "according to something other than the record count: %s"
+            % (RECORD_COUNT, sorted(counters) or "none", text),
         )
 
     def test_the_helper_receives_the_count_and_its_answer_gates_the_row(self):
