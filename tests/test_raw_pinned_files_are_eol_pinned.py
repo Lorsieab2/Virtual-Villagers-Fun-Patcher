@@ -531,10 +531,43 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                 # registry value to appear somewhere outside the artifact and the
                 # registry catches it without needing to know which constant
                 # belongs to which path.
+                # Corroboration must come from a consumer that NAMES this
+                # path, not from any file that happens to hold the digest.
+                #
+                # Digest uniqueness in the registry is not enough, because the
+                # registry is mutable: swap two artifacts' contents AND swap
+                # their registry digests, and each digest still has exactly one
+                # registry owner while each is found in the OTHER artifact's
+                # consumer. Codex reproduced that on 5ed8196 -- 12 tests green
+                # on a tree where two files had exchanged identities, with
+                # VV2_FULL_MASTERY_MANIFEST_SHA256 and QUERY_PLAN_SHA still
+                # authenticating the original mappings.
+                #
+                # A consumer that enforces a path's digest refers to that path,
+                # so requiring the holder to mention the artifact by name binds
+                # the corroboration to the path instead of to the value. This
+                # is file-level, NOT the line-proximity rule rejected earlier:
+                # proximity failed because layout is arbitrary, while "this
+                # file talks about this artifact" is a property of the file.
+                #
+                # The sibling `<artifact>_map.json` counts as naming its
+                # artifact. That pairing is a declared convention in this repo,
+                # and it is how data/candidates/vv4_full_mastery_all_candidate
+                # .json is legitimately corroborated -- its map records the
+                # value as `feature_manifest_sha256` without spelling the
+                # basename, and rejecting that would condemn a correct file.
+                basename = relative.rsplit("/", 1)[-1]
+                stem = basename[: -len(".json")] if basename.endswith(
+                    ".json"
+                ) else basename
                 elsewhere = [
                     text
                     for name, text in corpus.items()
                     if name not in (relative, REGISTRY_PATH)
+                    and (
+                        basename in text
+                        or name.rsplit("/", 1)[-1] == f"{stem}_map.json"
+                    )
                 ]
                 # A digest ANOTHER registered path owns cannot also be this
                 # path's. That is the substitution case in its final form:
