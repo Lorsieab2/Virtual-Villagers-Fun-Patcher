@@ -437,6 +437,55 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
             "no row/bit pairings found; this test looks inert",
         )
 
+    def test_the_island_token_is_retired_on_a_path_a_purchase_reaches(self):
+        """A token cleared only on the uncommon path latches forever.
+
+        VV4's island token was cleared inside barrel_cue's BARREL-ARMED branch.
+        An ordinary island purchase has BARREL_ARMED_VA == 0, so it takes
+        cue_scheduler and never reaches the clear -- the token latched and the
+        Island row stayed at "Why not?" for the rest of the save. Codex found
+        it on #254; the other session hit the identical shape in VV5, where a
+        delivery bit was set on the common path and cleared on one that only
+        runs in the uncommon case.
+
+        The retirement now reads a STATE CHANGE rather than relying on a code
+        path: do_island_event writes 0 to make the event due, and the native
+        scheduler rewrites the field to the next due time once it has run the
+        event, so a non-zero field with the token still set means delivered.
+
+        Asserted structurally: the clear must be reachable from the guard's own
+        token test, which every menu build executes, rather than sitting behind
+        the barrel-armed branch.
+        """
+        if capstone is None:
+            self.skipTest("requires capstone")
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        token = 0x728B08
+        test_tok = bytes([0x80, 0x3D]) + token.to_bytes(4, "little") + bytes([0x00])
+        clear_tok = bytes([0xC6, 0x05]) + token.to_bytes(4, "little") + bytes([0x00])
+        found = False
+        for patch in manifest.get("patches", []):
+            after = patch.get("after")
+            if not after or test_tok not in bytes.fromhex(after):
+                continue
+            found = True
+            blob = bytes.fromhex(after)
+            start = blob.find(test_tok)
+            # The retirement must live in the same routine as the guard test,
+            # within reach of it -- not in a separate branch a purchase skips.
+            window = blob[start : start + 0x40]
+            self.assertTrue(
+                clear_tok in window,
+                "the island token is not retired near the guard that reads it, "
+                "so a purchase that never enters the barrel-armed branch "
+                "leaves it set and the row stays blocked for the whole save",
+            )
+        self.assertTrue(found, "VV4 island token guard not found")
+
     def test_a_blocked_click_cannot_reach_the_purchase(self):
         """The refusal must not charge.
 

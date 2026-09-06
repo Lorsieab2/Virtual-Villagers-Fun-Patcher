@@ -1756,7 +1756,11 @@ def main() -> None:
             push eax
             call 0x418190
             mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
-            mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            # The island token is NOT cleared here. This branch runs only when
+            # BARREL_ARMED_VA was set, so an ordinary island purchase never
+            # reaches it -- clearing here left the token latched for the rest
+            # of the save. It is retired in the pending helper instead, by
+            # reading the scheduler's own rewrite of the countdown.
             ret 4
         cue_scheduler:
             jmp 0x418000
@@ -2027,7 +2031,30 @@ def main() -> None:
             # and stops a naturally scheduled event that has merely entered its
             # final seconds from being reported as bought.
             cmp byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
-            jne pending_rows_island
+            je pending_rows_island_untracked
+            # The token is set. Has the event actually been delivered?
+            #
+            # Read the STATE CHANGE, not a code path. do_island_event writes 0
+            # to make the event due; the native scheduler rewrites the field to
+            # the NEXT due time once it has run the event. So a non-zero field
+            # with the token still set means delivery happened, and the token
+            # is retired here -- on the menu build, which is the first moment
+            # the player can observe it, because delivery occurs while they are
+            # in the village.
+            #
+            # Retiring it from barrel_cue instead does not work: that clear sat
+            # inside the barrel-armed branch, and an ordinary island purchase
+            # has BARREL_ARMED_VA == 0, so it took cue_scheduler and never
+            # reached the clear. The token latched and the row stayed blocked
+            # for the rest of the save. Codex caught it on #254; the other
+            # session hit the identical shape in VV5 and the same state-change
+            # reading is what fixed it there.
+            mov ebx, dword ptr [eax + 0x170E0]
+            test ebx, ebx
+            jz pending_rows_island
+            mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            jmp pending_rows_island_window
+        pending_rows_island_untracked:
             mov ebx, dword ptr [eax + 0x170E0]
             test ebx, ebx
             jnz pending_rows_island_window
