@@ -556,6 +556,24 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                 # .json is legitimately corroborated -- its map records the
                 # value as `feature_manifest_sha256` without spelling the
                 # basename, and rejecting that would condemn a correct file.
+                #
+                # KNOWN LIMIT, stated rather than left to read as full cover.
+                # That sibling map is itself unregistered and unpinned -- no
+                # file in the tree records its digest -- so the one artifact
+                # relying on this rule is corroborated more weakly than the
+                # other 32, which are named by a consumer that enforces the
+                # digest in code. Substituting it would take a two-file edit:
+                # change the artifact and its registry row, and edit the map
+                # to hold the new digest. Uniqueness would not object, because
+                # the invented digest is still registered to exactly one path.
+                #
+                # Not closed here on purpose. The durable fix is to register
+                # the map, or to have consumers read their digest from the
+                # registry so there is one pin per path by construction. Both
+                # are schema changes and belong in their own PR with the
+                # owner's go-ahead, exactly like the limit already recorded in
+                # this PR's description. Claiming the guard is tighter than it
+                # is would repeat the mistake these findings were about.
                 basename = relative.rsplit("/", 1)[-1]
                 stem = basename[: -len(".json")] if basename.endswith(
                     ".json"
