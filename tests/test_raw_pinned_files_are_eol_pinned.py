@@ -194,81 +194,33 @@ def _blob_lf(relative: str) -> bytes | None:
 def _recorded_digests_for(relative: str, corpus: dict[str, str]) -> set[str]:
     """Digests some OTHER file records for this path, independent of its bytes.
 
-    The corroboration check used to derive its comparison set from the file's
-    CURRENT hashes, which makes it structurally unable to see the disagreement
-    it exists to detect: change the file and update only the registry, and the
-    old consumer digest can never enter the set, so the check finds nothing to
-    disagree with. Codex reproduced exactly that on `86927c75`.
+    Reads the DECLARED binding, never a derived one. Earlier revisions looked
+    for the path in another file and took the digests written near it -- the
+    enclosing JSON object, or the enclosing blank-line-delimited statement
+    group in Python. Both are layout heuristics, and layout is not a binding:
 
-    Recorded digests are found by locating the path in another file and reading
-    the digests written near it -- the same object, or the same JSON entry --
-    so the answer depends on what the repository SAYS about this path rather
-    than on what the path presently contains.
+      * `src/vv_fun_patcher.py` mentions `builds.json` at line 36 inside a
+        block with no blank line until line 314, so the "bounded" window spans
+        282 lines and captures 44 unrelated SHA-256 values. Measured on
+        4bba6b0b -- that is a global search wearing a smaller hat, and it is
+        what made `data/builds.json` look pinned when its digest is recorded
+        nowhere (Codex P2, this PR).
+      * The same file keeps the VV2 candidate path in one constant and its
+        digest in another, so the object-scoped form found nothing at all --
+        28 of 36 artifacts returned empty (Codex P1, this PR).
+
+    The repository already maintains the binding this predicate needs, in
+    `data/source-text-authentication.json`: one row per path, naming its
+    digest. Reading it removes the inference entirely. A path the registry does
+    not name has no recorded digest, which is the correct answer rather than a
+    guess assembled from whatever happened to sit nearby.
+
+    `corpus` is retained in the signature because callers pass it and the
+    return contract is unchanged; the answer no longer depends on it.
     """
-    # Two ways a repository names a path, and both have to be recognised.
-    #
-    # As one literal string, which is how JSON manifests write it:
-    #     "path": "data/native_evidence_queries.json"
-    #
-    # Or assembled from components, which is how src/vv_fun_patcher.py writes
-    # nearly all of them:
-    #     ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json"
-    #
-    # Searching only for the literal form is why this predicate returned an
-    # empty set for 28 of the 36 eol-pinned files. Codex found the gap; the
-    # measurement is what showed it was the common case rather than an
-    # exception, and a predicate that answers "no record" for most of its
-    # inputs is worse than one that is obviously absent, because the checks
-    # built on it go quiet instead of failing.
-    forms = [json.dumps(relative)]
-    parts = relative.split("/")
-    if len(parts) > 1:
-        # `ROOT / "data" / "candidates" / "x.json"` -- match the tail segments
-        # in order, allowing the separators and whitespace the source uses.
-        forms.append(
-            " / ".join(json.dumps(segment) for segment in parts)
-        )
-    forms.append(json.dumps(parts[-1]))
-
-    found: set[str] = set()
-    for name, text in corpus.items():
-        if name in (relative, REGISTRY_PATH):
-            continue
-        for needle in forms:
-            start = text.find(needle)
-            while start >= 0:
-                # For a literal path inside JSON the enclosing object is the
-                # right scope. For a Python constant the digest is declared
-                # nearby but outside any brace, so fall back to a bounded line
-                # window -- deliberately small, because a wide window catches
-                # neighbouring entries describing other artifacts, which
-                # condemned two correct files when this used 400 characters.
-                open_brace = text.rfind("{", 0, start)
-                close_brace = text.find("}", start)
-                if open_brace >= 0 and close_brace > start:
-                    window = text[open_brace:close_brace]
-                    found.update(
-                        match.group(0).upper()
-                        for match in re.finditer(r"[0-9A-Fa-f]{64}", window)
-                    )
-                if name.endswith(".py"):
-                    # The digest for a component-built path is a module-level
-                    # constant a few lines away. Bound it to the enclosing
-                    # statement group rather than a character count.
-                    line_start = text.rfind("\n\n", 0, start)
-                    line_end = text.find("\n\n", start)
-                    if line_start < 0:
-                        line_start = 0
-                    if line_end < 0:
-                        line_end = len(text)
-                    found.update(
-                        match.group(0).upper()
-                        for match in re.finditer(
-                            r"[0-9A-Fa-f]{64}", text[line_start:line_end]
-                        )
-                    )
-                start = text.find(needle, start + 1)
-    return found
+    del corpus  # answer comes from the declared registry, not a text search
+    declared = _authenticated_digests().get(relative)
+    return {declared} if declared else set()
 
 
 def _authenticated_digests() -> dict[str, str]:
@@ -308,6 +260,27 @@ def _authenticated_digests() -> dict[str, str]:
         if isinstance(entry, dict)
         and isinstance(entry.get("path"), str)
         and isinstance(entry.get("sha256"), str)
+    }
+
+
+def _committed_registry_paths() -> set[str]:
+    """Paths the registry names at HEAD, independent of the working tree.
+
+    Deliberately read from the committed blob. A guard whose inventory comes
+    from the working tree can be switched off by editing the working tree,
+    which is the shape of every erasure Codex found on this PR.
+    """
+    blob = _git("show", f"HEAD:{REGISTRY_PATH}")
+    if not blob.strip():
+        return set()
+    try:
+        record = json.loads(blob)
+    except ValueError:
+        return set()
+    return {
+        entry["path"].replace(chr(92), "/")
+        for entry in record.get("artifacts", [])
+        if isinstance(entry, dict) and isinstance(entry.get("path"), str)
     }
 
 
@@ -472,17 +445,26 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         # still enforces it. Asking "was this path ever authenticated" has to
         # read that binding, not the file's own current or committed bytes --
         # both of which the drift replaces.
-        historically_pinned = {
-            relative
-            for relative in eol_pinned_files()
-            if _recorded_digests_for(relative, corpus)
-        }
+        # The candidate inventory is the COMMITTED registry, not the working
+        # tree's. Every input the previous form intersected -- current bytes
+        # (`raw_pinned_files`), the live registry row (`_authenticated_digests`),
+        # and a proximity search (`historically_pinned`) -- is mutable by the
+        # very commit the guard exists to catch: drift the file and delete its
+        # row and all three signals vanish together, so the path leaves the set
+        # and nothing reports it. Codex reproduced that twice on this PR, on
+        # data/native_evidence_queries.json and on the VV2 candidate.
+        #
+        # HEAD's copy of the registry is not editable by the working tree, so a
+        # row deleted in the index is still named here and the path stays under
+        # guard. A row deleted in a COMMIT is caught by the coverage assertion
+        # below, which requires the registry to name every eol-pinned path.
+        committed = _committed_registry_paths()
         candidates = set(allowed_by_path) | (
             set(eol_pinned_files())
             & (
                 set(_authenticated_digests())
                 | set(raw_pinned_files())
-                | historically_pinned
+                | committed
             )
         )
         # A file in the exception set is pinned to its CRLF bytes ON PURPOSE,
@@ -576,6 +558,21 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                     continue
                 if relative in REGISTRY_IS_SOLE_PIN:
                     continue
+                # Presence, plus the ownership test above. Codex asked for
+                # corroboration to establish that the external pin belongs to
+                # `relative` rather than occurring anywhere, and the reachable
+                # form of that is the `owners` check: registered paths are
+                # distinct artifacts, so a digest naming two of them is
+                # substitution and is rejected before reaching here.
+                #
+                # A basename-proximity rule was tried and REJECTED as a false
+                # positive: data/candidates/vv4_full_mastery_all_candidate.json
+                # is corroborated by its own map file, which records the digest
+                # as `feature_manifest_sha256` without spelling the basename
+                # nearby. Requiring the name to sit beside the digest would
+                # condemn that correct file, so ownership is established from
+                # the registry's one-row-per-path structure rather than from
+                # the layout of the corroborating file.
                 if not any(registered in text for text in elsewhere):
                     uncorroborated.append(relative)
                 continue
@@ -638,8 +635,21 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         # a substitution passes again. Codex reproduced that on 86927c75 by
         # deleting the row for data/native_evidence_queries.json and replacing
         # the file with another pinned JSON.
+        #
+        # Anchored to the COMMITTED registry as well as to current bytes.
+        # `raw_pinned_files()` is computed from what the files contain now, so
+        # a commit that drifts a file AND drops its row removes it from both
+        # sides of this subtraction and the deletion becomes invisible -- the
+        # erasure Codex reproduced on this PR. HEAD's row list cannot be edited
+        # by the working tree, so the path stays in the minuend and a deleted
+        # row is reported instead of vanishing.
         uncovered = sorted(
-            set(raw_pinned_files()) - set(registered) - KNOWN_UNPINNED_CRLF_DEFECTS
+            (
+                set(raw_pinned_files())
+                | (_committed_registry_paths() & set(eol_pinned_files()))
+            )
+            - set(registered)
+            - KNOWN_UNPINNED_CRLF_DEFECTS
         )
         self.assertEqual(
             uncovered,
@@ -684,10 +694,28 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         corpus = _pin_corpus()
         registered = _authenticated_digests()
         no_longer_sole = []
+        # A missing row is a FAILURE, not a skip. These artifacts are pinned by
+        # the registry and by nothing else, so deleting the row deletes their
+        # only authentication -- and because they have no second record, the
+        # deletion also removes them from every other check here. Skipping on
+        # `None` meant the one case that destroys the pin was the one case that
+        # reported nothing. Codex reproduced it by committing the deletion of
+        # the vv3_running_candidate_map row: all 12 tests stayed green.
+        missing_row = sorted(
+            relative
+            for relative in REGISTRY_IS_SOLE_PIN
+            if registered.get(relative) is None
+        )
+        self.assertEqual(
+            missing_row,
+            [],
+            "these paths are exempt from corroboration BECAUSE the registry is "
+            "their sole pin, but the registry no longer names them -- so they "
+            "now have no pin at all. Restore the row, or drop the path from "
+            f"REGISTRY_IS_SOLE_PIN if it is genuinely gone: {missing_row}",
+        )
         for relative in sorted(REGISTRY_IS_SOLE_PIN):
-            digest = registered.get(relative)
-            if digest is None:
-                continue
+            digest = registered[relative]
             elsewhere = [
                 text
                 for name, text in corpus.items()
