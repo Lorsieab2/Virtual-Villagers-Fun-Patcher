@@ -111,6 +111,30 @@ DOUBLER_OWNERSHIP_VA = 0x5824D0
 RUNNING_BOUNDARYFN_PTR = SECTION_DATA_VA + 0x48
 # Barrel queue: the epoch second at which the pending barrel becomes due.
 BARREL_DUE_VA = SECTION_DATA_VA + 0x4C
+# Purchased-Island-Event pending flag: 1 from the moment the purchase arms the
+# queue until the island-event handler has actually consumed it.
+#
+# This is a DEDICATED flag rather than an inference from the due timestamp at
+# [world+0x12EF4], and the difference is the whole point. That field is the
+# village's next-island-event stamp; it is non-zero in normal play, it is
+# written by natural events too, and "now is past the stamp" does NOT mean the
+# event was consumed -- the handler only runs during village gameplay, so a
+# player sitting in the paused Tech menu leaves an armed event overdue and
+# still outstanding. Any window test therefore either refuses legitimate
+# purchases or re-opens the double charge, depending on which way it errs.
+#
+# The Barrel already solved this the right way with BARREL_PENDING_FLAG_VA:
+# set on arm, cleared by the handler on consume. This mirrors it, in the
+# appended R/W data section rather than a code cave.
+ISLAND_PENDING_FLAG_VA = SECTION_DATA_VA + 0x50
+# The epoch second at which the purchased island event becomes due. Written
+# alongside the flag when the purchase arms the queue, and read by the handler
+# hook so the flag is cleared only once that moment has actually passed.
+#
+# A copy rather than a read of [world+0x12EF4]: the handler hook does not have
+# the world pointer, and that field is written by natural events too, so it is
+# not a trustworthy record of what THIS purchase queued.
+ISLAND_DUE_VA = SECTION_DATA_VA + 0x54
 RUNNING_BOUNDARY_BEFORE_CAVE_VA = SECTION_CODE_VA + 0x180
 RUNNING_BOUNDARY_AFTER_CAVE_VA = SECTION_CODE_VA + 0x1C0
 RUNNING_VILLAGE_WRAPPER_CAVE_VA = SECTION_CODE_VA + 0x220
@@ -214,8 +238,17 @@ BARREL_PRESENT_FILE_OFFSET = 0x7B3E0
 # overlaps, so this cannot silently collide with another patch again.
 QUEUE_ARM_BARREL_CAVE_OFF = 0x300
 QUEUE_ARM_ISLAND_CAVE_OFF = 0x340
+# Releasing the purchased-island pending flag lives here for the same reason
+# the arming helpers do. Inlining the due-time check into the barrel hook grew
+# that cave from 0x2F to 0x3A bytes and ran it into barrel_present at 0x7B3E0,
+# which the byte guards caught. The .text tail cannot absorb the growth -- .text
+# VirtualSize ends at 0x47B254, so the padding before the hook was never ours --
+# and shrinking the check would mean shipping a weaker guard. Moving it to the
+# page this patch owns costs the hook a single 5-byte call instead.
+QUEUE_RELEASE_ISLAND_CAVE_OFF = 0x380
 QUEUE_ARM_BARREL_VA = SECTION_CODE_VA + QUEUE_ARM_BARREL_CAVE_OFF
 QUEUE_ARM_ISLAND_VA = SECTION_CODE_VA + QUEUE_ARM_ISLAND_CAVE_OFF
+QUEUE_RELEASE_ISLAND_VA = SECTION_CODE_VA + QUEUE_RELEASE_ISLAND_CAVE_OFF
 # Both queued upgrades wait this many real seconds before they fire, so a
 # natural island event that happens to be due in the same tick cannot collide
 # with the purchased one.  0x403330 is the scheduler's own clock: it converts
@@ -819,8 +852,32 @@ def main() -> None:
             # than an executable string because the string block is full.
             cmp ebx, 1
             jne ie_charge_ok
-            cmp dword ptr [edi + ebp + 0x12EF4], 0
-            jne ie_charge_ok
+            # Is a PURCHASED Island Event still outstanding? Refuse a second
+            # buy while one is, so the 30,000 points are not deducted twice
+            # for a single event.
+            #
+            # This tests a dedicated flag, not the due timestamp at
+            # [world+0x12EF4]. An earlier version compared that stamp against
+            # clock() and treated "inside the delay window" as pending, which
+            # Codex found broken three ways on #249, all traceable to the same
+            # mistake of inferring state instead of recording it:
+            #
+            #   * the not-pending branch fell straight into `mov eax, 10`, so
+            #     EVERY Island Event purchase was refused and no ebx == 1 path
+            #     could reach ie_charge_ok at all;
+            #   * the stamp was held in edx across a call to 0x403330, which
+            #     clobbers eax/ecx/edx, so the subtraction read scratch;
+            #   * an overdue-but-unconsumed event -- the player reopens the
+            #     paused Tech menu during the delay and leaves it open, so the
+            #     handler never runs -- underflowed the unsigned compare and
+            #     read as not pending, re-opening the double charge.
+            #
+            # A flag has none of those failure modes: it is set on arm and
+            # cleared only when the handler has actually consumed the event,
+            # so "outstanding" is recorded rather than guessed, and nothing
+            # here needs a clock call or a live register.
+            cmp byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
+            je ie_charge_ok
             mov eax, 10
             jmp show_result
         ie_charge_ok:
@@ -1953,6 +2010,15 @@ def main() -> None:
             # event another save bought. Absolute store, no register operand,
             # so the displaced bytes and the resume are untouched.
             mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
+            # The purchased Island Event needs exactly the same treatment, for
+            # exactly the reason written above -- it was added later and missed
+            # this reset, so a player who bought an event in village A and
+            # switched to B inside the delay window found B's first Island
+            # Event refused for an event A had paid for. Codex caught it on
+            # #249. Its due stamp goes too: leaving a stale future stamp behind
+            # would keep the release helper from retiring a flag set later.
+            mov byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
+            mov dword ptr [0x{ISLAND_DUE_VA:X}], 0
         save_slot_keep_previous:
             popfd
             mov eax, dword ptr [esp + 4]
@@ -2067,8 +2133,14 @@ def main() -> None:
     barrel_hook_code = assemble(
         f"""
             cmp byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
-            je bh_original
+            je bh_no_barrel
             call 0x{BARREL_PRESENT_VA:X}
+        bh_no_barrel:
+            # Release the purchased-Island-Event flag if -- and only if -- the
+            # event is actually due. The work is in a helper on the appended
+            # patch-owned page; see QUEUE_RELEASE_ISLAND_CAVE_OFF for why it is
+            # not inlined here.
+            call 0x{QUEUE_RELEASE_ISLAND_VA:X}
         bh_original:
             mov ecx, dword ptr [esi + 0x10]
             call 0x403330
@@ -2151,6 +2223,8 @@ def main() -> None:
             pop ecx
             add eax, {QUEUE_DELAY_SECONDS}
             mov dword ptr [ecx + 0x12EF4], eax
+            mov dword ptr [0x{ISLAND_DUE_VA:X}], eax
+            mov byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 1
             ret
         """,
         QUEUE_ARM_ISLAND_VA,
@@ -2164,6 +2238,39 @@ def main() -> None:
         QUEUE_ARM_ISLAND_CAVE_OFF,
         queue_arm_island_code,
         "arm the purchased Island Event a few seconds out",
+    )
+    # Clear the pending flag ONLY once the event is due.
+    #
+    # The barrel hook that calls this runs every gameplay frame, so "we reached
+    # the handler" does NOT mean the event was delivered -- an earlier version
+    # cleared on entry and released the flag on the very first frame after the
+    # Tech menu closed, five seconds early, letting a second 30,000-point
+    # purchase through for the same event. Compare against the due time the
+    # purchase recorded, the same shape barrel_present_code uses.
+    #
+    # pushad/popad because 0x403330 clobbers eax/ecx/edx and the hook's spliced
+    # out instructions still need their registers; popad restores the flags
+    # they run under too.
+    queue_release_island_code = assemble(
+        f"""
+            cmp byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
+            je qri_done
+            pushad
+            call 0x{QUEUE_CLOCK_VA:X}
+            cmp eax, dword ptr [0x{ISLAND_DUE_VA:X}]
+            jb qri_restore
+            mov byte ptr [0x{ISLAND_PENDING_FLAG_VA:X}], 0
+        qri_restore:
+            popad
+        qri_done:
+            ret
+        """,
+        QUEUE_RELEASE_ISLAND_VA,
+    )
+    put_cave(
+        QUEUE_RELEASE_ISLAND_CAVE_OFF,
+        queue_release_island_code,
+        "release the purchased Island Event pending flag once it is due",
     )
     barrel_splice_before = assemble(
         "mov ecx, dword ptr [esi + 0x10]\n call 0x403330",
