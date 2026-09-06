@@ -1393,30 +1393,23 @@ static INT_PTR CALLBACK upgrade_dialog(
                badges VISIBLE, and skipping it would leave a stale green
                checkmark on the row. */
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
-            /* The expanded layout's own unavailability comes FIRST.
-               STATE_LIMITED_CAPABILITY means this build does not bind the
-               native queued-event rows at all, so the row cannot run whatever
-               the village looks like. Asking row_block_reason first let its
-               capacity check win and turned an unsupported row into a
-               clickable "Why not?" promising that freeing three villager
-               slots would allow the purchase -- and after the player freed
-               them the row went back to "Unavailable" and still did nothing.
-               A false remedy is worse than a bare refusal. Codex found this
-               on #254. */
-            if (limited_capability && row >= first_unsupported_row) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
-                continue;
-            }
-            /* A row's OWN unavailable bit also outranks a block reason, and
-               the first version of this fix missed that: it gated only on
-               `row >= first_unsupported_row`, which is 6, while the expanded
-               layout marks the BARREL row -- row 2 -- unavailable through
-               bit (8 + 2) = 0x400 in menu_state 0x700. So the exact queued-
-               event row this PR is about still reached row_block_reason and
-               still became a clickable capacity remedy for something the
-               build cannot run. Codex caught it on #254. */
-            if (!villager_menu && (lparam & (1L << (8 + row))) != 0) {
+            /* A row this BUILD cannot run is refused before any reason is
+               computed, and BOTH forms of that have to be tested here.
+               STATE_LIMITED_CAPABILITY covers rows at or above
+               first_unsupported_row; the per-row bit 1 << (8 + row) covers the
+               rest, and the expanded layout sets exactly those -- menu_state
+               0x700 is bits 8, 9 and 10, which are rows 0, 1 and 2, and row 2
+               is the Barrel.
+               Asking row_block_reason first let its capacity check win on a
+               row the build does not bind at all, turning an unsupported row
+               into a clickable "Why not?" promising that freeing three
+               villager slots would allow the purchase -- and after the player
+               freed them the row went back to "Unavailable" and still did
+               nothing. A false remedy is worse than a bare refusal, which is
+               the opposite of what these reasons exist for. Codex found this
+               on #254; the capability half alone does not cover row 2. */
+            if ((limited_capability && row >= first_unsupported_row)
+                || (lparam & (1L << (8 + row))) != 0) {
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
                 continue;
@@ -1430,8 +1423,6 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
-            /* The limited-capability case is handled above and `continue`s,
-               so control only reaches here for a row this build supports. */
             if ((lparam & (1 << row)) != 0) {
                 /* Only the two Doublers may ever show a green check, and only
                    while they are owned in the current save. Every other row --
@@ -1448,10 +1439,11 @@ static INT_PTR CALLBACK upgrade_dialog(
                 } else {
                     EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
                 }
-            } else if ((lparam & (1 << (8 + row))) != 0) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
+            /* No trailing `1 << (8 + row)` branch here any more: that bit is
+               tested at the top of the loop, before any reason is computed,
+               and `continue`s. Leaving a second copy would be unreachable
+               code documenting a path that cannot run. */
         }
         return TRUE;
     }
