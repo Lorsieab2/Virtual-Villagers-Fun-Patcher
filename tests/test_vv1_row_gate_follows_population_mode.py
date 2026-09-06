@@ -26,13 +26,20 @@ children a barrel brings. That is a statement about physical storage and does
 not vary by mode, so deriving it from the cap would be wrong in both
 directions: too strict wherever the cap is below 253, and meaningless at 256.
 
-These tests read the **emitted** research executable rather than the builder
-source, because a source edit whose generator did not run leaves the shipped
-payload carrying the old literal -- which is exactly what happened while this
-fix was being written, with a fully green suite.
+These tests read the **tracked manifest** -- the bytes the patcher installs --
+rather than the builder source, because a source edit whose generator did not
+run leaves the shipped payload carrying the old literal. That is exactly what
+happened while this fix was being written, with a fully green suite.
+
+They deliberately do NOT read the research executable under ``research/``.
+That directory is gitignored and nothing in it is tracked, so a clean checkout
+has no copy and every test here would skip -- protecting nothing in CI. It
+would also miss a generator run that wrote the executable and left the manifest
+stale, since the builder writes the executable first.
 """
 
 import importlib.util
+import json
 import pathlib
 import sys
 import unittest
@@ -44,10 +51,13 @@ except ImportError:  # pragma: no cover - exercised only without capstone
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BUILDER = ROOT / "scripts" / "build_vv1_origins_feature.py"
-RESEARCH = (
-    ROOT / "research" / "vv1-origins-apk"
-    / "Virtual Villagers - A New Home - Origins Feature Research.exe"
-)
+# The TRACKED manifest, which is what the patcher installs. An earlier version
+# of this file read the research executable under research/, but that directory
+# is gitignored and nothing there is tracked -- so in a clean checkout every
+# test below skipped, and the suite protected nothing. It also could not catch a
+# generator run that wrote the research exe and left the manifest stale, because
+# the builder writes the executable first.
+MANIFEST = ROOT / "data" / "vv1_origins_feature.json"
 
 # 256-record array minus the three children a barrel brings.
 PHYSICAL_BOUND = 0xFD
@@ -62,25 +72,39 @@ def _builder():
     return module
 
 
-def _section_lookup(image):
-    pe = image.find(b"PE\0\0")
-    count = int.from_bytes(image[pe + 6:pe + 8], "little")
-    opt = int.from_bytes(image[pe + 20:pe + 22], "little")
-    table = pe + 24 + opt
-    base = int.from_bytes(image[pe + 24 + 28:pe + 24 + 32], "little")
+def _row_gate_instructions():
+    """Decode the pending-rows routine out of the TRACKED manifest.
 
-    def raw(va):
-        rva = va - base
-        for index in range(count):
-            entry = table + index * 40
-            start = int.from_bytes(image[entry + 12:entry + 16], "little")
-            size = int.from_bytes(image[entry + 8:entry + 12], "little")
-            ptr = int.from_bytes(image[entry + 20:entry + 24], "little")
-            if start <= rva < start + max(size, 1):
-                return ptr + (rva - start)
-        return None
+    The builder emits this routine as one patch whose file offset is
+    ``PENDING_ROWS_FILE_OFFSET`` and whose code is assembled for
+    ``PENDING_ROWS_VA``, so the patch body can be disassembled at that virtual
+    address directly -- no PE section walk, and no dependency on an untracked
+    build artifact.
 
-    return raw
+    Both addresses are read from the builder rather than hardcoded, so moving
+    the routine surfaces as a failure here instead of silently checking the
+    wrong bytes.
+    """
+    builder = _builder()
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    start = builder.PENDING_ROWS_FILE_OFFSET
+    for patch in manifest.get("patches", []):
+        body = patch.get("after")
+        if not body:
+            continue
+        offset = int(patch["offset"], 0)
+        blob = bytes.fromhex(body)
+        if not offset <= start < offset + len(blob):
+            continue
+        inside = start - offset
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        return builder, list(
+            md.disasm(blob[inside:], builder.PENDING_ROWS_VA)
+        )
+    raise AssertionError(
+        "no VV1 patch carries file offset %#x, so the pending-rows routine "
+        "is not in the shipped manifest at all" % start
+    )
 
 
 def _direct_target(instruction):
@@ -103,20 +127,7 @@ def _direct_target(instruction):
 class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        if not RESEARCH.is_file():
-            raise unittest.SkipTest(
-                "VV1 research executable not built in this clone"
-            )
-        cls.builder = _builder()
-        image = RESEARCH.read_bytes()
-        raw = _section_lookup(image)
-        offset = raw(cls.builder.PENDING_ROWS_VA)
-        if offset is None:
-            raise unittest.SkipTest("pending-rows routine not mapped")
-        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-        cls.instructions = list(
-            md.disasm(image[offset:offset + 0x140], cls.builder.PENDING_ROWS_VA)
-        )
+        cls.builder, cls.instructions = _row_gate_instructions()
 
     def test_the_stock_only_ceiling_is_gone(self):
         """The exact regression, pinned by its encoding.
