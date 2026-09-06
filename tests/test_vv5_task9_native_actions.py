@@ -292,9 +292,15 @@ class Task9ArtifactTests(unittest.TestCase):
         native = NATIVE.read_text(encoding="utf-8")
         self.assertIn("STATE_LIMITED_CAPABILITY = 0x400000", native)
         self.assertIn("int first_unsupported_row = villager_menu ? 4 : 6;", native)
-        self.assertIn(
-            "if (limited_capability && row >= first_unsupported_row)", native
-        )
+        # Both halves of the build-level refusal must be present. This used to
+        # pin the whole `if (...)` line, which states one expression rather
+        # than the property: the condition was widened to also test the per-row
+        # `1 << (8 + row)` unavailable bit, because the capability half alone
+        # does not cover row 2 -- the Barrel -- in the expanded layout, whose
+        # menu_state 0x700 marks rows 0, 1 and 2 unavailable. Pinning the old
+        # text would have failed that correct fix.
+        self.assertIn("limited_capability && row >= first_unsupported_row", native)
+        self.assertIn("(lparam & (1L << (8 + row))) != 0", native)
         self.assertIn('SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable")', native)
 
         stock, _ = builder.build_page(0x7C9000)
