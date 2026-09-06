@@ -128,9 +128,43 @@ to any change here. Their module-name strings are also scrubbed -- the name RVAs
 read as heap fill -- so the module list cannot show whether the companion DLLs
 were loaded. The attribution above does not depend on the module list.
 
+## Not every "Application Error" record is a crash
+
+The Windows event log records more than access violations under the Application
+Error source, and counting rows without checking the exception code produces
+badly wrong conclusions.
+
+The largest single cluster on this machine looks alarming at first glance: 68
+records against a modded A New Home build, all at one address, far more than any
+other site. They are not crashes. Fifty-nine carry exception code `0x4000001F`
+(`STATUS_WX86_BREAKPOINT`) and nine carry `0x4000001E`
+(`STATUS_WX86_SINGLE_STEP`) -- debugger breakpoint and single-step events. All 68
+fall inside a single 26-minute window on 23 August from one folder: somebody was
+debugging, and the log recorded it.
+
+Filter to `0xC0000005` before counting anything. Across all five games there are
+323 Application Error rows but **234 genuine access violations**. For A New Home
+the count drops from 153 rows to 76 real faults, and the distribution flattens
+out to a long tail whose largest site has seven records, so it has no dominant
+signature at all.
+
+The faulting address in that cluster is also a warning about reading too much
+into one instruction. It is `mov eax, [esp+arg_0]`, the first instruction of
+`sub_43DEF0`, which reads the function's own argument off the stack -- an address
+that can only fault if `ESP` itself is bad. Since `sub_43DEF0` is a state-machine
+dispatcher with 78 call sites that tail-jumps into handlers, and at least one of
+those handlers (`sub_43DAD0`) calls back into it, stack exhaustion through
+recursion is an entirely plausible reading. It is also the wrong one: the records
+are breakpoints, and no such crash happened. Check the exception code first.
+
+For completeness, no VVFP patch overlaps `sub_43DEF0` or any of its 78 call
+sites, with the positive control passing on the known patch at `0x402ED0`.
+
 ## Virtual Villagers 2 -- The Lost Children
 
-Sixty-one crash records in the Windows event log, across four different builds.
+Sixty-one records in the Windows event log, across four different builds. All 61
+are genuine `0xC0000005` access violations -- unlike the A New Home cluster
+above, none of these are debugger events.
 
 ### The two most frequent sites are stock defects
 
