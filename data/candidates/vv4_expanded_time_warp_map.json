@@ -4,7 +4,7 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "9AD1CDF6F5BBE9C98A135BAE23E45EEB751362C5FD282BBF01DA6C4FADAFD24E"
+      "source_text_sha256": "A695C2720DDBB882219A5BCE2DF5432DD1B0C3879E314BFF83EEA5F764CA526B"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
@@ -12,7 +12,7 @@
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "F8054C219B5E6344AF35B1FBF440F0A6C99CED21186B2E4C16AF533FA3CFDD6B"
+      "source_text_sha256": "A4D5BD0CEA9A59BD09428AE1B5323B13DB027F7A286BEE6BE951F43E336CAB48"
     },
     "task9_companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -26,7 +26,7 @@
   "companion": {
     "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "destination": "VVFP Origins Icons.dll",
-    "sha256": "76B7AB64A8EC1D0252034F0E318E82CFA3FF00490A4A7FB0828BB7BAAD28D599",
+    "sha256": "626971402090640E331BF589930E77C80652E6133E06827391755BE981B8666C",
     "size": 1756672
   },
   "payload_file_offset": "0x89373",

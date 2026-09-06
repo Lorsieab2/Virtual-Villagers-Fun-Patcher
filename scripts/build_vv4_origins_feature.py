@@ -127,6 +127,16 @@ BARREL_ARMED_VA = 0x728B04            # byte: barrel is armed-eligible until pre
 # Verified unreferenced in the built image before use (0 hits, against 5
 # for 0x728B00 and 7 for 0x728B04).
 ISLAND_PURCHASED_VA = 0x728B08
+# dword: the due stamp do_island_event wrote for the PURCHASED event.
+#
+# Delivery is detectable only as the scheduler REWRITING that slot. It
+# cannot be read off the clock: the purchase stores a future stamp and the
+# scheduler replaces it with the NEXT event's future stamp, so "has the
+# stored time passed" is false both before and after delivery. Codex
+# caught that on #254 after a first attempt used the clock.
+#
+# Verified unreferenced in the built image before use (0 hits).
+ISLAND_DUE_STAMP_VA = 0x728B0C
 # Per-event cooldown byte the scheduler sets on the event it presents
 # (`mov byte [esi+0x4CC9F4],1`, esi=event index); barrel index 25 -> 0x4CC9F4+0x19.
 # do_barrel clears it so a previously-fired barrel is not held off. Nothing reads
@@ -1093,9 +1103,12 @@ def main() -> None:
             pop ecx
             add eax, {ISLAND_QUEUE_DELAY_SECONDS}
             mov dword ptr [ecx + 0x170E0], eax
-            # Record that THIS event was purchased. The timestamp alone cannot
-            # say so, and a Barrel bought inside the window overwrites it.
+            # Record that THIS event was purchased, and WHICH stamp was written
+            # for it. The slot alone cannot say either: it is shared with the
+            # Barrel and written by natural events, and its value is replaced
+            # on delivery by another future time.
             mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 1
+            mov dword ptr [0x{ISLAND_DUE_STAMP_VA:X}], eax
             jmp success
         do_barrel:
             # Arm the barrel, flag this as the PURCHASED barrel (so its spawn always
@@ -2044,28 +2057,30 @@ def main() -> None:
             # the next build then read it as Barrel-only, re-enabling a second
             # charged Island purchase. Codex caught that on #254.
             #
-            # Delivery is "the stored time has PASSED": the scheduler will not
-            # have run the event before its due time, and once it has run it
-            # the field holds the next event's due time, which is also in the
-            # past relative to nothing -- so comparing against the clock is the
-            # test that distinguishes the two, where a bare zero/non-zero test
-            # cannot.
+            # Delivery is the scheduler REWRITING the slot, and that is the
+            # only thing that distinguishes it. Two earlier attempts failed on
+            # the same point:
             #
-            # Retiring from barrel_cue instead does not work at all: that clear
-            # sat inside the barrel-armed branch, and an ordinary island
-            # purchase has BARREL_ARMED_VA == 0, so it took cue_scheduler and
-            # never reached the clear -- the token latched and the row stayed
-            # blocked for the rest of the save.
+            #   * "the field is non-zero" is true from the instant of purchase,
+            #     because the purchase stores clock() + delay, not zero;
+            #   * "the stored time has passed" is false BOTH before delivery
+            #     and after it, because the scheduler immediately writes the
+            #     next event's future due time.
+            #
+            # So compare against the stamp the purchase actually wrote. While
+            # the slot still holds it, the purchased event is outstanding; once
+            # it differs, the scheduler has replaced it and the event is gone.
+            #
+            # Retiring from barrel_cue does not work at all: that clear sat
+            # inside the barrel-armed branch, and an ordinary island purchase
+            # has BARREL_ARMED_VA == 0, so it took cue_scheduler and never
+            # reached the clear -- the token latched for the rest of the save.
             mov ebx, dword ptr [eax + 0x170E0]
-            test ebx, ebx
-            jz pending_rows_island
-            push eax
-            mov ecx, eax
-            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
-            cmp ebx, eax
-            pop eax
-            ja pending_rows_island
+            cmp ebx, dword ptr [0x{ISLAND_DUE_STAMP_VA:X}]
+            je pending_rows_island
             mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            test ebx, ebx
+            jz pending_rows_notqueued
             jmp pending_rows_island_window
         pending_rows_island_untracked:
             mov ebx, dword ptr [eax + 0x170E0]
@@ -2178,6 +2193,7 @@ def main() -> None:
             mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
             mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
             mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            mov dword ptr [0x{ISLAND_DUE_STAMP_VA:X}], 0
             ret
         """,
         DOUBLER_RESET_VA,

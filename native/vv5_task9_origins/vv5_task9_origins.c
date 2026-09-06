@@ -1327,6 +1327,19 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
                 continue;
             }
+            /* A row's OWN unavailable bit also outranks a block reason, and
+               the first version of this fix missed that: it gated only on
+               `row >= first_unsupported_row`, which is 6, while the expanded
+               layout marks the BARREL row -- row 2 -- unavailable through
+               bit (8 + 2) = 0x400 in menu_state 0x700. So the exact queued-
+               event row this PR is about still reached row_block_reason and
+               still became a clickable capacity remedy for something the
+               build cannot run. Codex caught it on #254. */
+            if (!villager_menu && (lparam & (1L << (8 + row))) != 0) {
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+                continue;
+            }
             blocked = row_block_reason(villager_menu, row, (long)lparam);
             if (blocked != BLOCK_NONE) {
                 /* Enabled on purpose: the WM_COMMAND handler intercepts the

@@ -517,13 +517,25 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
         )
         index = payload.find(clear)
         self.assertGreater(index, 0, "island token clear not found")
+        # The retirement must compare against the stamp the PURCHASE recorded.
+        # Two weaker signals were tried and both failed:
+        #   * "the field is non-zero" is true from the instant of purchase,
+        #     because the purchase stores clock() + delay, not zero;
+        #   * "the stored time has passed" is false both before delivery AND
+        #     after it, because the scheduler immediately writes the next
+        #     event's future due time.
+        # Only the REWRITE distinguishes them, so the recorded stamp has to be
+        # read here.
+        stamp = 0x728B0C
+        compare = bytes([0x3B, 0x1D]) + stamp.to_bytes(4, "little")
         window = payload[max(0, index - 0x18) : index]
         self.assertIn(
-            bytes([0xE8]),
+            compare,
             window,
-            "the island token is retired without consulting the clock, so the "
-            "purchase's own future timestamp reads as delivery and the token "
-            "clears during its own queue window",
+            "the island token is retired without comparing the slot against "
+            "the stamp the purchase recorded, so it cannot tell the purchased "
+            "event from the scheduler's post-delivery replacement -- both are "
+            "future timestamps when observed",
         )
 
     def test_a_blocked_click_cannot_reach_the_purchase(self):
