@@ -372,9 +372,15 @@
     },
     {
       "offset": "0xCCB10",
-      "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "803D048B72000074168B4424046A1950E86BF6CEFFC605048B720000C20400E9CCF4CEFF",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "803D048B720000741B8B4424046A1950E86BF6CEFFC605048B720000E81FFFFFFFC20400E9C7F4CEFF",
       "purpose": "Barrel cue (spliced on the event scheduler): when armed, present the native barrel event (index 25) directly so its pop-up shows and its lifecycle runs the spawn"
+    },
+    {
+      "offset": "0xCCA50",
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "803D088B720000741E60E81174CFFF5089C1E8E9ACCDFF5983C0058981E0700100A30C8B720061C3",
+      "purpose": "Island requeue: after a purchased Barrel consumes the shared event slot, re-arm a purchased Island Event on it and restamp its due time, so the paid event is delivered instead of discarded"
     },
     {
       "offset": "0xCCC00",

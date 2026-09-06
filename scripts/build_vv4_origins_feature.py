@@ -145,6 +145,21 @@ ISLAND_DUE_STAMP_VA = 0x728B0C
 BARREL_COOLDOWN_VA = 0x4CCA0D
 BARREL_CUE_FILE_OFFSET = 0xCCB10
 BARREL_CUE_VA = 0x728B10
+# Re-arms a purchased Island Event that a Barrel displaced from the shared queue
+# slot. It lives out of line because barrel_cue has 12 spare bytes and this needs
+# roughly forty; barrel_cue reaches it with a five-byte call.
+#
+# The two purchases contend for ONE slot. do_island_event writes
+# clock() + ISLAND_QUEUE_DELAY_SECONDS into [world+0x170E0]; do_barrel writes 0
+# to the same field to cue the game's event check. Whichever the player buys
+# second, only one event can be due, and the Barrel is the one the cue presents.
+# The 30,000 points spent on the Island bought nothing.
+#
+# Requeueing here rather than refusing the Barrel is the repository owner's
+# decision, taken on #254. It keeps both purchases: the Barrel presents first,
+# and the Island is put back on the slot as this runs.
+BARREL_ISLAND_REQUEUE_FILE_OFFSET = 0xCCA50
+BARREL_ISLAND_REQUEUE_VA = 0x728A50
 # The purchased barrel must ALWAYS deliver 3, so it bypasses the game's tiered
 # population gate (0x468350, which caps growth by owned population upgrades). The
 # stock barrel spawn (0x414D90) calls 0x468350 before child 2 and before child 3;
@@ -1774,11 +1789,63 @@ def main() -> None:
             # reaches it -- clearing here left the token latched for the rest
             # of the save. It is retired in the pending helper instead, by
             # reading the scheduler's own rewrite of the countdown.
+            #
+            # The Barrel has just consumed the shared queue slot. If an Island
+            # Event was also bought, put it back -- see the requeue helper.
+            call 0x{BARREL_ISLAND_REQUEUE_VA:X}
             ret 4
         cue_scheduler:
             jmp 0x418000
         """,
         BARREL_CUE_VA,
+    )
+    # Put a displaced Island Event back on the shared queue slot.
+    #
+    # Called from barrel_cue at the one moment the Barrel has just taken that
+    # slot: the armed branch has presented the native barrel and cleared
+    # BARREL_ARMED_VA, so an ordinary island purchase never reaches here.
+    #
+    # Only a PURCHASED island is requeued. ISLAND_PURCHASED_VA is the token
+    # do_island_event sets; when it is clear there is nothing outstanding and
+    # this returns without touching the slot, so a Barrel bought on its own
+    # leaves the scheduler exactly as the stock game left it.
+    #
+    # Writing the countdown alone is not enough. The pending helper decides
+    # whether the token is still outstanding by comparing the slot against
+    # ISLAND_DUE_STAMP_VA -- the stamp the purchase wrote -- and retires the
+    # token as soon as the two differ. Requeueing without updating the stamp
+    # would therefore be undone on the very next menu build: the row would go
+    # buyable again and the player could be charged a second 30,000 points for
+    # the event that is now genuinely queued. Both are written here, from the
+    # same clock value, so they cannot disagree.
+    #
+    # A fresh clock() + ISLAND_QUEUE_DELAY_SECONDS rather than the original
+    # stamp: that stamp is in the past by now (the Barrel consumed the window),
+    # and restoring a past due time would make the event due in the same tick
+    # the Barrel is presenting, which is the back-to-back delivery the delay
+    # exists to prevent.
+    #
+    # pushad/popad because this runs between 0x418190 returning and barrel_cue's
+    # `ret 4`; the world getter and the clock both clobber volatiles, and the
+    # stack argument the `ret 4` cleans must be left exactly where it is.
+    barrel_island_requeue = assemble(
+        f"""
+            cmp byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            jz requeue_done
+            pushad
+            call 0x41FE70
+            push eax
+            mov ecx, eax
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            pop ecx
+            add eax, {ISLAND_QUEUE_DELAY_SECONDS}
+            mov dword ptr [ecx + 0x170E0], eax
+            mov dword ptr [0x{ISLAND_DUE_STAMP_VA:X}], eax
+            popad
+        requeue_done:
+            ret
+        """,
+        BARREL_ISLAND_REQUEUE_VA,
     )
     # Mode-aware Barrel capacity gate, called from the purchase preflight. Returns
     # eax=1 when the village can accommodate 3 more, eax=0 otherwise. The cap and
@@ -1989,6 +2056,9 @@ def main() -> None:
           "admit the Barrel of Babies event while the purchased-barrel token is armed")
     patch(BARREL_CUE_FILE_OFFSET, b"\0" * len(barrel_cue), barrel_cue,
           "Barrel cue (spliced on the event scheduler): when armed, present the native barrel event (index 25) directly so its pop-up shows and its lifecycle runs the spawn")
+    patch(BARREL_ISLAND_REQUEUE_FILE_OFFSET,
+          b"\0" * len(barrel_island_requeue), barrel_island_requeue,
+          "Island requeue: after a purchased Barrel consumes the shared event slot, re-arm a purchased Island Event on it and restamp its due time, so the paid event is delivered instead of discarded")
     patch(BARREL_CAPACITY_FILE_OFFSET, b"\0" * len(barrel_capacity), barrel_capacity,
           "Barrel purchase gate: refuse (no charge) only when population (0x467610) + 3 would exceed the 150-slot record array")
     patch(BARREL_CHECK1_FILE_OFFSET, b"\0" * len(barrel_check1), barrel_check1,

@@ -467,24 +467,126 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
         token = 0x728B08
         test_tok = bytes([0x80, 0x3D]) + token.to_bytes(4, "little") + bytes([0x00])
         clear_tok = bytes([0xC6, 0x05]) + token.to_bytes(4, "little") + bytes([0x00])
-        found = False
-        for patch in manifest.get("patches", []):
-            after = patch.get("after")
-            if not after or test_tok not in bytes.fromhex(after):
+        # The token is read by more than one routine, and only one of them is
+        # the row guard whose job is to retire it. The requeue helper also
+        # tests it -- to decide whether a Barrel displaced a paid Island Event
+        # -- and correctly does NOT clear it, because that event is still
+        # outstanding after being put back on the queue. Asserting over every
+        # reader would demand a clear from a routine whose whole purpose is to
+        # keep the token alive, so the routine under test is identified by the
+        # patch that installs the row guard.
+        guards = [
+            patch
+            for patch in manifest.get("patches", [])
+            if patch.get("after")
+            and test_tok in bytes.fromhex(patch["after"])
+            and "rows Unavailable" in patch.get("purpose", "")
+        ]
+        self.assertEqual(
+            len(guards),
+            1,
+            "expected exactly one VV4 row-guard patch reading the island token; "
+            f"found {len(guards)}",
+        )
+        blob = bytes.fromhex(guards[0]["after"])
+        start = blob.find(test_tok)
+        # The retirement must live in the same routine as the guard test,
+        # within reach of it -- not in a separate branch a purchase skips.
+        window = blob[start : start + 0x40]
+        self.assertTrue(
+            clear_tok in window,
+            "the island token is not retired near the guard that reads it, "
+            "so a purchase that never enters the barrel-armed branch "
+            "leaves it set and the row stays blocked for the whole save",
+        )
+
+    def test_a_barrel_requeues_the_island_event_it_displaced(self):
+        """A paid Island Event must survive the Barrel that took its slot.
+
+        VV4 queues both purchases through the single [world+0x170E0]
+        countdown. do_island_event stores clock() + ISLAND_QUEUE_DELAY_SECONDS
+        there; do_barrel stores 0 to cue the game's own event check. So a
+        Barrel bought inside the Island's window overwrites the Island's due
+        stamp, the barrel cue presents the Barrel, and the row guard then sees
+        a stamp that no longer matches ISLAND_DUE_STAMP_VA and retires the
+        token. The player paid 30,000 tech points for an event that never
+        arrives. Codex found this on #254 and the repository owner chose to
+        requeue the Island rather than refuse the Barrel.
+
+        Asserted on the shipped bytes, because the defect is invisible in the
+        builder source: the requeue must re-arm the slot AND restamp the due
+        time. Writing the countdown alone would be undone on the next menu
+        build, since the guard retires the token as soon as the slot and the
+        stamp disagree -- and the row would then go buyable again, allowing a
+        second charge for the event that is now genuinely queued.
+        """
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        requeue = [
+            patch
+            for patch in manifest.get("patches", [])
+            if "Island requeue" in patch.get("purpose", "")
+        ]
+        self.assertEqual(
+            len(requeue), 1, "expected exactly one VV4 island-requeue patch"
+        )
+        blob = bytes.fromhex(requeue[0]["after"])
+
+        token = 0x728B08
+        stamp = 0x728B0C
+        # Only a PURCHASED island is requeued; a Barrel bought on its own must
+        # leave the scheduler exactly as the stock game left it.
+        self.assertIn(
+            bytes([0x80, 0x3D]) + token.to_bytes(4, "little") + bytes([0x00]),
+            blob,
+            "the requeue does not test the island token, so it would re-arm the "
+            "slot even when no Island Event was ever bought",
+        )
+        # mov dword ptr [ecx + 0x170E0], eax -- the shared queue slot.
+        self.assertIn(
+            bytes([0x89, 0x81]) + (0x170E0).to_bytes(4, "little"),
+            blob,
+            "the requeue does not write the shared queue slot, so the paid "
+            "Island Event is still discarded",
+        )
+        # mov dword ptr [ISLAND_DUE_STAMP_VA], eax -- written from the SAME
+        # eax as the slot, so the guard's comparison cannot disagree.
+        self.assertIn(
+            bytes([0xA3]) + stamp.to_bytes(4, "little"),
+            blob,
+            "the requeue does not restamp the due time, so the row guard "
+            "retires the token on the next menu build and the requeued event "
+            "is lost anyway",
+        )
+
+        # The barrel cue must actually reach it, or none of the above runs.
+        # "Barrel cue" also names the splice that routes the scheduler tick
+        # into it; the body is the one that holds the call.
+        cue = [
+            patch
+            for patch in manifest.get("patches", [])
+            if patch.get("purpose", "").startswith("Barrel cue (spliced")
+        ]
+        self.assertEqual(len(cue), 1, "expected exactly one VV4 barrel-cue patch")
+        cue_blob = bytes.fromhex(cue[0]["after"])
+        cue_va = int(cue[0]["offset"], 16) + 0x65C000
+        requeue_va = int(requeue[0]["offset"], 16) + 0x65C000
+        called = False
+        for index in range(len(cue_blob) - 4):
+            if cue_blob[index] != 0xE8:
                 continue
-            found = True
-            blob = bytes.fromhex(after)
-            start = blob.find(test_tok)
-            # The retirement must live in the same routine as the guard test,
-            # within reach of it -- not in a separate branch a purchase skips.
-            window = blob[start : start + 0x40]
-            self.assertTrue(
-                clear_tok in window,
-                "the island token is not retired near the guard that reads it, "
-                "so a purchase that never enters the barrel-armed branch "
-                "leaves it set and the row stays blocked for the whole save",
-            )
-        self.assertTrue(found, "VV4 island token guard not found")
+            rel = int.from_bytes(cue_blob[index + 1 : index + 5], "little", signed=True)
+            if cue_va + index + 5 + rel == requeue_va:
+                called = True
+                break
+        self.assertTrue(
+            called,
+            "the barrel cue never calls the requeue helper, so a displaced "
+            "Island Event is never put back on the queue",
+        )
 
     def test_the_island_token_survives_its_own_queue_window(self):
         """Retiring on "the field is non-zero" clears it at purchase time.
