@@ -414,6 +414,17 @@ static int vv3_has_free_villager_slots(int wanted) {
 #define VV3_ARCH_EXPANDED_OFFSET  0x7598
 #define VV3_ISLAND_COUNTDOWN_OFF  0x12EF4
 #define VV3_BARREL_PENDING_FLAG   0x4B3C75
+/* The purchased Island Event's pending flag, in the patch's own appended R/W
+   data page (SECTION_DATA_VA + 0x50 = 0x6E0050). The payload sets it when the
+   purchase arms the queue, clears it on a save-slot change, and retires it once
+   its own due stamp has passed; this predicate only ever READS it.
+
+   It must not be re-derived from [manager+0x12EF4]: that field holds
+   clock() + QUEUE_DELAY_SECONDS from the moment of purchase, so it is non-zero
+   for the entire queue window, and it is written by natural island events too.
+   The old `countdown == 0` test could therefore never fire. */
+#define VV3_ISLAND_PENDING_FLAG   0x6E0050
+
 
 enum {
     VV3_PENDING_ROW_ISLAND = 1,
@@ -459,32 +470,40 @@ static const char *vv3_block_reason_text(int reason, int row) {
 }
 
 static int vv3_row_block_reason(int villager_menu, int row) {
-    unsigned char *manager;
-    int extra;
-
     if (villager_menu) {
         return VV3_BLOCK_NONE;
     }
     if (row == VV3_PENDING_ROW_BARREL) {
+        /* Capacity is checked FIRST, matching the other four games. The two
+           causes are independent -- a queued barrel and a full village can hold
+           at once -- and "no room" is the more actionable of the two, since
+           waiting clears a queue but not a village. Answering "already on its
+           way" to a player whose village has filled up since the purchase tells
+           them to wait for a barrel that will arrive short. */
+        if (!vv3_has_free_villager_slots(VV3_BARREL_CHILDREN)) {
+            return VV3_BLOCK_NO_VILLAGER_SLOTS;
+        }
         if (*(volatile unsigned char *)(UINT_PTR)VV3_BARREL_PENDING_FLAG != 0) {
             return VV3_BLOCK_ALREADY_PENDING;
         }
-        return vv3_has_free_villager_slots(VV3_BARREL_CHILDREN)
-            ? VV3_BLOCK_NONE
-            : VV3_BLOCK_NO_VILLAGER_SLOTS;
+        return VV3_BLOCK_NONE;
     }
     if (row != VV3_PENDING_ROW_ISLAND) {
         return VV3_BLOCK_NONE;
     }
-    manager = *(unsigned char *volatile *)(UINT_PTR)VV3_MANAGER_SINGLETON;
-    if (manager == NULL) {
-        return VV3_BLOCK_NONE;    /* no manager yet -> claim nothing */
-    }
-    extra = (*(volatile unsigned int *)(UINT_PTR)VV3_ARCH_PROBE
-             == (unsigned int)VV3_ARCH_EXPANDED_VALUE)
-        ? VV3_ARCH_EXPANDED_OFFSET
-        : 0;
-    return *(volatile int *)(manager + extra + VV3_ISLAND_COUNTDOWN_OFF) == 0
+    /* Read the payload's own pending flag. The countdown at [manager+0x12EF4]
+       cannot answer this: the purchase stores clock() + QUEUE_DELAY_SECONDS
+       there, so it is non-zero for the whole queue window, and the old
+       `countdown == 0` test could never fire.
+
+       Retirement is deliberately NOT done here. The payload owns the full
+       lifecycle -- it sets the flag when it arms the queue, clears it on a save
+       -slot change, and retires it from queue_release_island_code once its own
+       ISLAND_DUE_VA stamp has passed. Clearing it from this predicate as well
+       would mean two writers with two different notions of "delivered", and
+       this one runs while merely DRAWING a menu. Reading only keeps the payload
+       the single source of truth. */
+    return *(volatile unsigned char *)(UINT_PTR)VV3_ISLAND_PENDING_FLAG != 0
         ? VV3_BLOCK_ALREADY_PENDING
         : VV3_BLOCK_NONE;
 }
