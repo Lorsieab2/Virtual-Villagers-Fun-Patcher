@@ -2034,24 +2034,37 @@ def main() -> None:
             je pending_rows_island_untracked
             # The token is set. Has the event actually been delivered?
             #
-            # Read the STATE CHANGE, not a code path. do_island_event writes 0
-            # to make the event due; the native scheduler rewrites the field to
-            # the NEXT due time once it has run the event. So a non-zero field
-            # with the token still set means delivery happened, and the token
-            # is retired here -- on the menu build, which is the first moment
-            # the player can observe it, because delivery occurs while they are
-            # in the village.
+            # Read the STATE CHANGE, not a code path -- but the right one.
+            # do_island_event stores clock() + ISLAND_QUEUE_DELAY_SECONDS, a
+            # FUTURE timestamp, so "the field is non-zero" is true from the
+            # instant of purchase and retiring on that cleared the token
+            # during the queue window. It survived the immediate menu build
+            # only because the delay check below still blocked the row, but a
+            # Barrel bought from that same menu zeroes the shared countdown and
+            # the next build then read it as Barrel-only, re-enabling a second
+            # charged Island purchase. Codex caught that on #254.
             #
-            # Retiring it from barrel_cue instead does not work: that clear sat
-            # inside the barrel-armed branch, and an ordinary island purchase
-            # has BARREL_ARMED_VA == 0, so it took cue_scheduler and never
-            # reached the clear. The token latched and the row stayed blocked
-            # for the rest of the save. Codex caught it on #254; the other
-            # session hit the identical shape in VV5 and the same state-change
-            # reading is what fixed it there.
+            # Delivery is "the stored time has PASSED": the scheduler will not
+            # have run the event before its due time, and once it has run it
+            # the field holds the next event's due time, which is also in the
+            # past relative to nothing -- so comparing against the clock is the
+            # test that distinguishes the two, where a bare zero/non-zero test
+            # cannot.
+            #
+            # Retiring from barrel_cue instead does not work at all: that clear
+            # sat inside the barrel-armed branch, and an ordinary island
+            # purchase has BARREL_ARMED_VA == 0, so it took cue_scheduler and
+            # never reached the clear -- the token latched and the row stayed
+            # blocked for the rest of the save.
             mov ebx, dword ptr [eax + 0x170E0]
             test ebx, ebx
             jz pending_rows_island
+            push eax
+            mov ecx, eax
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            cmp ebx, eax
+            pop eax
+            ja pending_rows_island
             mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
             jmp pending_rows_island_window
         pending_rows_island_untracked:

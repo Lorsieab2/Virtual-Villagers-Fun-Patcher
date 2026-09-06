@@ -486,6 +486,46 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
             )
         self.assertTrue(found, "VV4 island token guard not found")
 
+    def test_the_island_token_survives_its_own_queue_window(self):
+        """Retiring on "the field is non-zero" clears it at purchase time.
+
+        VV4's island purchase stores clock() + ISLAND_QUEUE_DELAY_SECONDS -- a
+        FUTURE timestamp -- so the field is non-zero from the instant of
+        purchase. A retirement keyed on non-zero therefore fires immediately,
+        during the queue window. It survived the same menu build only because
+        the delay check still blocked the row, but a Barrel bought from that
+        menu zeroes the shared countdown and the next build read it as
+        Barrel-only, re-enabling a second charged Island purchase. Codex found
+        that on #254, after the token itself was added.
+
+        Delivery is "the stored time has PASSED", which needs the clock. This
+        asserts the comparison is there: a retirement with no clock call in
+        front of it cannot distinguish the purchase's own future stamp from
+        the scheduler's post-delivery rewrite.
+        """
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        token = 0x728B08
+        clear = bytes([0xC6, 0x05]) + token.to_bytes(4, "little") + bytes([0x00])
+        payload = b"".join(
+            bytes.fromhex(patch["after"])
+            for patch in manifest.get("patches", [])
+            if patch.get("after")
+        )
+        index = payload.find(clear)
+        self.assertGreater(index, 0, "island token clear not found")
+        window = payload[max(0, index - 0x18) : index]
+        self.assertIn(
+            bytes([0xE8]),
+            window,
+            "the island token is retired without consulting the clock, so the "
+            "purchase's own future timestamp reads as delivery and the token "
+            "clears during its own queue window",
+        )
+
     def test_a_blocked_click_cannot_reach_the_purchase(self):
         """The refusal must not charge.
 

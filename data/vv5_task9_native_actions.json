@@ -14,7 +14,7 @@
     {
       "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "EB900814C05D5DEB2B6D621F0E52F83D40A10652AEDB643D6A0CBFA5ADA16E6C",
+      "sha256": "76B7AB64A8EC1D0252034F0E318E82CFA3FF00490A4A7FB0828BB7BAAD28D599",
       "size": 1756672
     },
     {
@@ -492,7 +492,7 @@
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "CD8133D7203895A141557C2F629CF1F5443FB4D3578279DF1900D74E0C136CF2"
+      "source_text_sha256": "F8054C219B5E6344AF35B1FBF440F0A6C99CED21186B2E4C16AF533FA3CFDD6B"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -772,5 +772,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "0DA800B7972B6F5516E2A18DABDEC43AD697C83946EC95E063F9952872877A36"
+  "task9_map_canonical_sha256": "78CD71F63353D670A5A69FA76A721DE86290971A1BA63D7D3DA76E5B04EB4D97"
 }

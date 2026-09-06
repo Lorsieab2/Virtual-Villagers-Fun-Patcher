@@ -1312,6 +1312,21 @@ static INT_PTR CALLBACK upgrade_dialog(
                badges VISIBLE, and skipping it would leave a stale green
                checkmark on the row. */
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
+            /* The expanded layout's own unavailability comes FIRST.
+               STATE_LIMITED_CAPABILITY means this build does not bind the
+               native queued-event rows at all, so the row cannot run whatever
+               the village looks like. Asking row_block_reason first let its
+               capacity check win and turned an unsupported row into a
+               clickable "Why not?" promising that freeing three villager
+               slots would allow the purchase -- and after the player freed
+               them the row went back to "Unavailable" and still did nothing.
+               A false remedy is worse than a bare refusal. Codex found this
+               on #254. */
+            if (limited_capability && row >= first_unsupported_row) {
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+                continue;
+            }
             blocked = row_block_reason(villager_menu, row, (long)lparam);
             if (blocked != BLOCK_NONE) {
                 /* Enabled on purpose: the WM_COMMAND handler intercepts the
@@ -1321,10 +1336,9 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
-            if (limited_capability && row >= first_unsupported_row) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
-            } else if ((lparam & (1 << row)) != 0) {
+            /* The limited-capability case is handled above and `continue`s,
+               so control only reaches here for a row this build supports. */
+            if ((lparam & (1 << row)) != 0) {
                 /* Only the two Doublers may ever show a green check, and only
                    while they are owned in the current save. Every other row --
                    including the Details menu's already-satisfied rows, whose
