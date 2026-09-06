@@ -415,8 +415,35 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         # The rule-derived set is still unioned in, but restricted to files
         # something actually pins -- that is what keeps a file inside its own
         # guard after it drifts, which was the reason for adding it.
+        # "Something pins it" must include what pinned it BEFORE this commit.
+        # Testing only the current bytes and the current registry lets a single
+        # commit that drifts the file AND deletes its registry row drop the
+        # path from the set entirely -- both signals vanish together, and the
+        # guard cannot report a file it is no longer looking at. Codex
+        # reproduced that on #258 by appending whitespace and removing the row.
+        #
+        # The committed blob's own digests survive both edits, so they answer
+        # "was this path ever authenticated" independently of what the working
+        # tree currently says.
+        # A digest recorded BESIDE the path is the evidence that survives both
+        # edits: the file's bytes change and its registry row disappears, but
+        # data/authorized_analyzer_workflow.json still binds this path to the
+        # old digest, and scripts/validate_authorized_analyzer_workflow.py
+        # still enforces it. Asking "was this path ever authenticated" has to
+        # read that binding, not the file's own current or committed bytes --
+        # both of which the drift replaces.
+        historically_pinned = {
+            relative
+            for relative in eol_pinned_files()
+            if _recorded_digests_for(relative, corpus)
+        }
         candidates = set(allowed_by_path) | (
-            set(eol_pinned_files()) & (set(_authenticated_digests()) | set(raw_pinned_files()))
+            set(eol_pinned_files())
+            & (
+                set(_authenticated_digests())
+                | set(raw_pinned_files())
+                | historically_pinned
+            )
         )
         # A file in the exception set is pinned to its CRLF bytes ON PURPOSE,
         # so hashing its LF worktree copy here would report it stale and make
