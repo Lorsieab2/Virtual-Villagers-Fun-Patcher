@@ -376,11 +376,15 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # Grew when the companion gained ShowVv5TimeWarp, which owns Time
         # Warp's speed-aware prompt, paused refusal, charge and advance -- the
         # charge moved in here so it happens between the confirmation and the
-        # mutation rather than after both.
-        self.assertEqual(vv5_companion["size"], 1756672)
+        # mutation rather than after both. Grew again by 512 bytes when the
+        # Barrel row learned to ask the live population cap rather than only
+        # counting free physical records, so the row stops offering a purchase
+        # the preflight then refuses; that calculation lives here rather than in
+        # the payload because the Task9 page has 196 bytes left.
+        self.assertEqual(vv5_companion["size"], 1757184)
         self.assertEqual(
             vv5_companion["sha256"],
-            "14F5E53326C4F825BB38401F84A7B2940C6AD78F2D104AF354E52756E2B7FD59",
+            "722AF08FCBAB01847A5ADF637E507C5D3A2A68DB5D47D027D8D9275A41B31002",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

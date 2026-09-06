@@ -374,6 +374,80 @@ static int vv5_has_free_villager_slots(int wanted) {
     return 0;
 }
 
+/* The live population cap, rebuilt exactly the way the payload's own
+   barrel_room rebuilds it -- which is in turn exactly how the game's gate at
+   0x472BD0 builds it.
+
+   This is a SECOND capacity question, not a restatement of the record scan
+   above. That scan counts free physical records; this counts against the
+   population maximum the installed mode actually set. A village at its cap
+   with records to spare -- the ordinary case -- passes the scan and fails
+   this, and until now the row only asked the scan, so it read "Buy" and the
+   purchase then refused it. Codex found this on #254.
+
+   The bonuses and base are read from the bytes the population mode installed
+   rather than hardcoded, so this tracks stock (90 + 15 = 105), Collection
+   Progression (135 + 15 = 150) and Immediate Fixed (60 + 90 = 150) without
+   knowing which is present:
+
+     * the two collection bonuses (+5 each, both -> 15) come from the game's
+       own 0x414690 on manager 0x4DBFC8, which is __thiscall;
+     * Immediate Fixed replaces the "both -> 15" step at 0x472C04 with
+       `mov esi, 0x3C`, so a 0xBE opcode there means a flat base with the
+       bonuses discarded;
+     * stock still has `add esi, 0x5A` at 0x472C49 (opcode 0x83), so the base
+       is its own byte operand; the population modes replace that with a jump
+       to the 0x494500 helper, whose `add esi, imm32` carries the raised base.
+
+   Fails OPEN, unlike the payload's copy, and deliberately: this only decides
+   whether to grey a row and say why, so an unrecognised form must not invent
+   a refusal the purchase gate would not make. The payload's own check still
+   fails closed before any charge, which is where the money is at stake. */
+static int vv5_barrel_has_room_for_three(void) {
+    unsigned int bonus = 0;
+    unsigned int maximum;
+    unsigned int current;
+
+    if (*(volatile unsigned char *)(UINT_PTR)0x472C04 == 0xBE) {
+        maximum = *(volatile unsigned int *)(UINT_PTR)0x472C05;
+    } else {
+        __asm {
+            push 0x68
+            mov ecx, 0x4DBFC8
+            mov eax, 0x414690
+            call eax
+            test al, al
+            je v5r_second
+            add dword ptr bonus, 5
+        v5r_second:
+            push 0x50
+            mov ecx, 0x4DBFC8
+            mov eax, 0x414690
+            call eax
+            test al, al
+            je v5r_done
+            add dword ptr bonus, 5
+        v5r_done:
+        }
+        maximum = (bonus == 10u) ? 15u : bonus;
+    }
+
+    if (*(volatile unsigned char *)(UINT_PTR)0x472C49 == 0x83) {
+        maximum += *(volatile unsigned char *)(UINT_PTR)0x472C4B;
+    } else if (*(volatile unsigned char *)(UINT_PTR)0x472C49 == 0xE9) {
+        maximum += *(volatile unsigned int *)(UINT_PTR)0x494502;
+    } else {
+        return 1;               /* unrecognised form -> claim nothing */
+    }
+
+    __asm {
+        mov eax, 0x4944C0
+        call eax
+        mov current, eax
+    }
+    return (current + 3u <= maximum) ? 1 : 0;
+}
+
 /* Why a Tech-menu row is blocked, or BLOCK_NONE.
 
    The two causes are kept distinct rather than collapsed into a boolean,
@@ -425,8 +499,15 @@ static int row_block_reason(int villager_menu, int row, long state) {
     if (row != PENDING_ROW_BARREL) {
         return BLOCK_NONE;
     }
+    /* All three capacity sources, because they refuse independently. The
+       payload may publish STATE_BARREL_NO_ROOM; the record scan catches
+       physical exhaustion (slots held by the dead); and the live cap catches
+       the ordinary population boundary. Asking only the first two left the row
+       reading "Buy" right up to the mode's maximum, and the purchase preflight
+       then refused what the row had just offered. */
     if ((state & STATE_BARREL_NO_ROOM) != 0
-        || !vv5_has_free_villager_slots(VV5_BARREL_CHILDREN)) {
+        || !vv5_has_free_villager_slots(VV5_BARREL_CHILDREN)
+        || !vv5_barrel_has_room_for_three()) {
         return BLOCK_NO_VILLAGER_SLOTS;
     }
     if ((state & STATE_BARREL_PENDING) != 0) {
