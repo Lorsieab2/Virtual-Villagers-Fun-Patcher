@@ -531,6 +531,20 @@ Static render and regression checks pass. That is not yet proof the reported
 crash is gone -- only a playtest can establish that. Every unrelated VV2 patch
 is unaffected.
 
+Since then the machine's actual crash records have been examined, and they do
+narrow the question, though they do not close it. Of 61 recorded Lost Children
+crashes, the two most frequent sites happen on the **unmodified** executable as
+well as the modded one. That executable contains none of this project's code, so
+those two cannot be caused by it. Two further sites appear only on modded builds,
+at the two instructions immediately after the mask compositor hook; both were
+checked in a disassembler and the hook replays the instructions it displaced with
+the correct registers, while its sweep stays inside the structure it walks. The
+evidence points at a bad object arriving from the game rather than at the hook.
+
+None of that is a playtest, and the reported Time Warp and Food Point Doubler
+trigger has still not been reproduced or cleared. The full measurements, including
+what would falsify them, are in [docs/crash-dump-findings.md](docs/crash-dump-findings.md).
+
 ### Status
 
 These menus are verified by build-level tests -- exact bytes, dialog wording,

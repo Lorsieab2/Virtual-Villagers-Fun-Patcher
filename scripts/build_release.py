@@ -84,6 +84,11 @@ FILES = [
     # shipped README links to a file the bundle does not contain -- the same
     # broken-link defect recorded on #55/#57.
     "docs/duplicate-purchase-guards.md",
+    # Referenced by README's "known crash" section. A player reading that the
+    # VV2 crash is still unconfirmed should be able to reach the measurements
+    # behind that claim, including which crash sites also occur on the
+    # unmodified executable and therefore cannot be ours.
+    "docs/crash-dump-findings.md",
     "docs/transparency-log.md",
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
