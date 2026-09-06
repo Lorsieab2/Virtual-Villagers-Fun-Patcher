@@ -173,11 +173,29 @@ class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
         call to the tier helper is not a caller of the cave.
         """
         rows_va = self.where["rows_va"]
-        rows_file = self.where["rows_file"]
+        shr_file = _constant("SHR_FILE_OFFSET")
+        shr_rva = _constant("SHR_RVA")
+        image_base = _constant("IMAGE_BASE")
         inside = {i.address for i in self.instructions}
-        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
 
+        # Patch bodies land at two different kinds of address, and using one
+        # rule for both is how this check first reported the call as MISSING
+        # against correct shipped bytes:
+        #
+        #   * bodies inside the appended .shr page map through the section --
+        #     IMAGE_BASE + SHR_RVA + (offset - SHR_FILE_OFFSET);
+        #   * every other body is a plain overwrite of the stock image, so its
+        #     virtual address is simply IMAGE_BASE + offset.
+        #
+        # The caller lives in the menu patch at 0x56900, which is the second
+        # kind. Applying the .shr formula to it gives 0x458900 instead of
+        # 0x456900 -- a 0x2000 skew -- and a scan with the wrong base reports
+        # absence just as confidently as it would report a hit.
+        #
+        # Both mappings are tried, and a hit under either counts: the point is
+        # that SOMETHING outside the routine calls it, not which arithmetic
+        # names the site.
         callers = []
         for patch in manifest.get("patches", []):
             body = patch.get("after")
@@ -185,15 +203,20 @@ class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
                 continue
             offset = int(patch["offset"], 0)
             blob = bytes.fromhex(body)
-            # Every patch body in this feature is assembled for the .shr page,
-            # so its virtual base is the routine's VA shifted by the file-offset
-            # difference. That makes each body's addresses directly comparable.
-            base = rows_va - (rows_file - offset)
-            for ins in md.disasm(blob, base):
-                if ins.address in inside:
-                    continue
-                if _direct_target(ins) == rows_va:
-                    callers.append("%s+%#x" % (patch["offset"], ins.address - base))
+            bases = {
+                image_base + offset,
+                image_base + shr_rva + (offset - shr_file),
+            }
+            for base in bases:
+                for k in range(len(blob) - 4):
+                    if blob[k] != 0xE8:
+                        continue
+                    rel = int.from_bytes(blob[k + 1:k + 5], "little", signed=True)
+                    site = base + k
+                    if site in inside:
+                        continue
+                    if site + 5 + rel == rows_va:
+                        callers.append("%s+%#x" % (patch["offset"], k))
 
         self.assertTrue(
             callers,
