@@ -376,6 +376,58 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
             )
         self.assertTrue(found, "VV4 island-pending branch not found")
 
+    def test_each_row_is_blocked_only_by_its_own_pending_bit(self):
+        """A shared resource needs a discriminator for the ANSWER, not just
+        the guard.
+
+        The other session hit this on VV5: widening both guards to mask either
+        token blocked the purchase correctly, but each refusal still chose its
+        message from the row clicked, so buying a Barrel while an Island was
+        outstanding reported "a barrel of babies is already on its way" about a
+        barrel the player never bought. The refusal was right and the
+        explanation was false.
+
+        VV1, VV2, VV4 and VV5 avoid that by construction rather than by
+        checking: each row is gated by ITS OWN bit, so the row and the bit
+        cannot disagree and a message keyed on the row is still truthful. That
+        is a real property and nothing enforced it -- exactly the kind of
+        invariant that decays silently when someone later widens a mask to fix
+        a double-charge, which is how VV5 acquired the defect.
+        """
+        # Parsed line-wise rather than by regex: the pairing is always a
+        # single `row == PENDING_ROW_X ... STATE_X_PENDING` condition, and a
+        # plain scan avoids a multiline pattern that is easy to get subtly
+        # wrong and hard to read.
+        pairs_by_game = {}
+        for game, relative in sorted(SOURCES.items()):
+            text = (ROOT / relative).read_text(encoding="utf-8", errors="ignore")
+            found = []
+            for line in text.splitlines():
+                if "PENDING_ROW_" not in line or "_PENDING)" not in line:
+                    continue
+                row = line.split("PENDING_ROW_", 1)[1].split()[0].strip("),;")
+                bit = line.split("STATE_", 1)[1].split(")")[0].strip()
+                found.append((row, bit))
+            if found:
+                pairs_by_game[game] = found
+        for game, pairs in sorted(pairs_by_game.items()):
+            for row, bit in pairs:
+                subject = bit.replace("_PENDING", "")
+                with self.subTest(game=game, row=row):
+                    self.assertEqual(
+                        row,
+                        subject,
+                        f"{SOURCES[game]}: the {row} row is gated by "
+                        f"STATE_{bit}, a bit belonging to the other upgrade. "
+                        "A refusal message keyed on the row clicked would then "
+                        "name an event the player never bought",
+                    )
+        self.assertGreater(
+            len(pairs_by_game),
+            0,
+            "no row/bit pairings found; this test looks inert",
+        )
+
     def test_a_blocked_click_cannot_reach_the_purchase(self):
         """The refusal must not charge.
 
