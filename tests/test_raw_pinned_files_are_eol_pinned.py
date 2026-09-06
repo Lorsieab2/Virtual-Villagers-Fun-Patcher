@@ -45,6 +45,18 @@ BOM = bytes((0xEF, 0xBB, 0xBF))
 # actually enforces.
 REGISTRY_PATH = "data/source-text-authentication.json"
 
+# Artifacts the registry is the SOLE record for. Verified with `git grep`: no
+# other file in the repository holds their digest, so there is nothing for the
+# registry to agree with and demanding corroboration would condemn correct
+# files. Kept as an explicit, checked list rather than a silent skip -- the
+# expiry assertion below fails if one of these gains a second record, so the
+# exemption cannot outlive its reason.
+REGISTRY_IS_SOLE_PIN = {
+    "data/candidates/vv3_running_candidate_map.json",
+    "data/candidates/vv4_full_heal_cure_all_candidate.json",
+    "data/candidates/vv4_full_heal_cure_all_candidate_map.json",
+}
+
 # Where a raw whole-file hash can be written down. Not just Python: two of the
 # CRLF-pinned files below are pinned inside SIBLING JSON MANIFESTS, which is
 # why every sweep restricted to scripts/ and src/ missed them.
@@ -442,8 +454,30 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                 # that exists: that is the masking case, where a file is
                 # changed, the registry updated, and the consumer left naming
                 # the old bytes.
-                recorded = _recorded_digests_for(relative, corpus)
-                if recorded and registered not in recorded:
+                # Does ANY consumer hold this digest?
+                #
+                # Not "is it recorded near the path" -- proximity does not
+                # survive the way pins are actually written. src/vv_fun_patcher.py
+                # keeps data/candidates/vv2_full_mastery_all_candidate.json in
+                # VV2_FULL_MASTERY_CANDIDATE_PATHS and its digest in a separate
+                # VV2_FULL_MASTERY_MANIFEST_SHA256 constant, so a scan scoped to
+                # the enclosing structure finds nothing. Codex measured the
+                # damage: 28 of 36 registered artifacts had no digest found that
+                # way, leaving the check inert for most of them.
+                #
+                # Presence is the property that actually matters. A registry-only
+                # repin invents a digest NO consumer holds, so requiring the
+                # registry value to appear somewhere outside the artifact and the
+                # registry catches it without needing to know which constant
+                # belongs to which path.
+                elsewhere = [
+                    text
+                    for name, text in corpus.items()
+                    if name not in (relative, REGISTRY_PATH)
+                ]
+                if relative in REGISTRY_IS_SOLE_PIN:
+                    continue
+                if not any(registered in text for text in elsewhere):
                     uncorroborated.append(relative)
                 continue
             allowed = allowed_by_path.get(relative)
@@ -537,6 +571,37 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             "in data/source-text-authentication.json. Either the file changed "
             "without the registry being updated, or it now holds content that "
             f"belongs to a different file: {wrong}",
+        )
+
+    def test_the_sole_pin_exemptions_are_still_sole(self):
+        """An exemption must not outlive the reason for it.
+
+        REGISTRY_IS_SOLE_PIN exists because no other file records those
+        artifacts' digests, so the corroboration check has nothing to compare
+        against. If one later gains a second record, the exemption becomes a
+        hole that silently skips a file the check should now cover -- the same
+        failure mode KNOWN_UNPINNED_CRLF_DEFECTS guards against above.
+        """
+        corpus = _pin_corpus()
+        registered = _authenticated_digests()
+        no_longer_sole = []
+        for relative in sorted(REGISTRY_IS_SOLE_PIN):
+            digest = registered.get(relative)
+            if digest is None:
+                continue
+            elsewhere = [
+                text
+                for name, text in corpus.items()
+                if name not in (relative, REGISTRY_PATH)
+            ]
+            if any(digest in text for text in elsewhere):
+                no_longer_sole.append(relative)
+        self.assertEqual(
+            no_longer_sole,
+            [],
+            "these files now have a second record of their digest, so the "
+            "registry is no longer their sole pin and the exemption is a hole: "
+            f"drop them from REGISTRY_IS_SOLE_PIN: {no_longer_sole}",
         )
 
     def test_a_crlf_checkout_would_break_a_pinned_hash(self):
