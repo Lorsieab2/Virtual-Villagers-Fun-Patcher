@@ -405,7 +405,19 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
         # Union, not the digest-derived set alone: the rule-derived set
         # survives content drift, while the digest-derived set catches a
         # raw-pinned file that has no rule yet (reported by the test above).
-        candidates = set(allowed_by_path) | set(eol_pinned_files())
+        # Digest-pinned paths only. Including every file with an eol=lf rule
+        # made an ordinary line-ending rule imply a SHA-256 pin: adding
+        # `/data/builds.json text eol=lf` for plain cross-platform text
+        # normalisation reported that file as stale, because nothing
+        # authenticates it and nothing should have to. Codex found that on
+        # #258, and it would have blocked using eol=lf for its actual purpose.
+        #
+        # The rule-derived set is still unioned in, but restricted to files
+        # something actually pins -- that is what keeps a file inside its own
+        # guard after it drifts, which was the reason for adding it.
+        candidates = set(allowed_by_path) | (
+            set(eol_pinned_files()) & (set(_authenticated_digests()) | set(raw_pinned_files()))
+        )
         # A file in the exception set is pinned to its CRLF bytes ON PURPOSE,
         # so hashing its LF worktree copy here would report it stale and make
         # the suite unpassable with any entry present -- which would render the
@@ -475,6 +487,26 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                     for name, text in corpus.items()
                     if name not in (relative, REGISTRY_PATH)
                 ]
+                # A digest ANOTHER registered path owns cannot also be this
+                # path's. That is the substitution case in its final form:
+                # copy one pinned file over another and repin the victim's
+                # registry row to the aggressor's digest, and a presence check
+                # is satisfied because a consumer really does hold that value
+                # -- for the aggressor. Codex reproduced it on #258.
+                #
+                # Registered paths are distinct artifacts by construction, so a
+                # shared digest means two paths claim the same bytes, which is
+                # exactly what substitution produces.
+                owners = [
+                    other
+                    for other, digest_of in declared_by_path.items()
+                    if other != relative and digest_of == registered
+                ]
+                if owners:
+                    uncorroborated.append(
+                        f"{relative} (digest also registered to {owners[0]})"
+                    )
+                    continue
                 if relative in REGISTRY_IS_SOLE_PIN:
                     continue
                 if not any(registered in text for text in elsewhere):
