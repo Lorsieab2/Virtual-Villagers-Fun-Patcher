@@ -93,6 +93,7 @@ def _addresses():
     }
 
 
+
 def _row_gate_instructions():
     """Decode the pending-rows routine out of the TRACKED manifest.
 
@@ -135,6 +136,22 @@ def _direct_target(instruction):
         return None
 
 
+def _branch_target(instruction):
+    """Absolute target of a direct jump, or None for indirect forms."""
+    if not instruction.mnemonic.startswith("j"):
+        return None
+    try:
+        return int(instruction.op_str, 16)
+    except ValueError:
+        return None
+
+
+def _writes_eax(instruction):
+    """True when the instruction's destination operand is EAX."""
+    first = instruction.op_str.split(",")[0].strip()
+    return first == "eax"
+
+
 @unittest.skipIf(capstone is None, "requires capstone")
 class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
     @classmethod
@@ -146,35 +163,84 @@ class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
             "%s %s" % (i.mnemonic, i.op_str) for i in self.instructions
         )
 
-    def test_the_stock_only_ceiling_is_gone(self):
-        """The exact regression, pinned by its encoding.
+    def test_the_tech_menu_actually_calls_this_routine(self):
+        """A validated routine nothing calls protects nothing.
 
-        ``cmp edx, 0x57`` is the stock ceiling. Its return means the row
-        refuses from 88 occupied records in every mode, including the ones
-        where the purchase path allows up to 256.
+        Removing the Tech-menu ``call PENDING_ROWS_VA`` while leaving the cave
+        in place makes every other assertion here vacuous -- the routine is
+        still perfect and never runs. The caller must therefore be asserted
+        too, and it has to live OUTSIDE the routine: the cave's own internal
+        call to the tier helper is not a caller of the cave.
         """
+        rows_va = self.where["rows_va"]
+        rows_file = self.where["rows_file"]
+        inside = {i.address for i in self.instructions}
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+
+        callers = []
+        for patch in manifest.get("patches", []):
+            body = patch.get("after")
+            if not body:
+                continue
+            offset = int(patch["offset"], 0)
+            blob = bytes.fromhex(body)
+            # Every patch body in this feature is assembled for the .shr page,
+            # so its virtual base is the routine's VA shifted by the file-offset
+            # difference. That makes each body's addresses directly comparable.
+            base = rows_va - (rows_file - offset)
+            for ins in md.disasm(blob, base):
+                if ins.address in inside:
+                    continue
+                if _direct_target(ins) == rows_va:
+                    callers.append("%s+%#x" % (patch["offset"], ins.address - base))
+
+        self.assertTrue(
+            callers,
+            "nothing outside the routine calls the pending-rows cave at %#x, "
+            "so the entire gate is unreachable and every other assertion in "
+            "this file passes against a build where the row is never checked"
+            % rows_va,
+        )
+
+    def test_the_stock_only_ceiling_is_gone(self):
+        """The exact regression, in ANY register.
+
+        ``cmp edx, 0x57`` was the original. Recognising the literal only when
+        the compare uses EDX lets ``mov eax, edx / cmp eax, 0x57 / ja`` put the
+        stock-only gate back in front of the mode-aware helper while this test
+        stays green, so the literal is rejected whatever register carries the
+        count.
+        """
+        pattern = re.compile(
+            r"^(?:e[abcd]x|e[sd]i|ebp)\s*,\s*(?:%#x|%d)$"
+            % (STOCK_LITERAL, STOCK_LITERAL)
+        )
         offenders = [
-            hex(i.address)
+            "%#x: %s %s" % (i.address, i.mnemonic, i.op_str)
             for i in self.instructions
-            if i.mnemonic == "cmp"
-            and i.op_str.replace(" ", "") == "edx,%#x" % STOCK_LITERAL
+            if i.mnemonic == "cmp" and pattern.match(i.op_str.strip())
         ]
         self.assertFalse(
             offenders,
-            "the VV1 Barrel row compares occupied records against the stock "
+            "the VV1 Barrel row compares a record count against the stock "
             "ceiling 87 again, so it reports 'no room' from 88 records while "
             "the purchase path would allow the barrel: %s" % offenders,
         )
 
     def test_the_scan_counts_occupied_records_across_the_whole_array(self):
-        """The scan must be a real loop, gated on occupancy.
+        """The scan must be a real loop, correctly polarised, over all records.
 
-        Asserting only that an ``inc edx`` exists proves nothing: making the
-        increment unconditional, or shrinking the loop to one record, leaves
-        such a check green while the row computes a meaningless count. So this
-        pins the three parts that make it a scan -- the occupancy test, the
-        conditional that skips the increment, and the walk over the full
-        256-record array at the correct stride.
+        Each part is asserted because each breaks alone:
+
+        * the occupancy compare, and a branch that skips the increment when the
+          record reads ZERO. Inverting that ``je`` to ``jne`` counts the EMPTY
+          slots instead -- the count inverts and the row reports no room in an
+          empty village.
+        * the record stride, so it walks records rather than bytes.
+        * the bound **and a backedge that uses it**. Deleting the loop's ``jnz``
+          leaves bound, stride, compare and increment all in place while
+          exactly one record is inspected.
         """
         text = self._text()
         by_addr = {i.address: n for n, i in enumerate(self.instructions)}
@@ -186,45 +252,45 @@ class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
         self.assertTrue(
             increments,
             "nothing counts occupied villager records any more, so a village "
-            "full of unburied remains can buy a barrel with nowhere to put "
-            "its children: %s" % text,
+            "full of unburied remains can buy a barrel with nowhere to put its "
+            "children: %s" % text,
         )
 
-        # The increment must be reached only when a record reads as occupied:
-        # a `cmp byte ptr [reg], 0` AND a conditional that skips the increment.
-        #
-        # Requiring only the `cmp` is not enough, and mutation testing proved
-        # it: NOPing the `je` leaves the compare in place, so the increment
-        # becomes unconditional and every slot is counted -- while a
-        # cmp-only assertion stays green. Both halves are needed, and the
-        # branch must actually jump PAST the increment.
         gated = False
         for inc in increments:
             index = by_addr[inc.address]
             window = self.instructions[max(0, index - 3):index]
-            has_cmp = any(
+            compares_zero = any(
                 i.mnemonic == "cmp"
                 and i.op_str.startswith("byte ptr [")
                 and i.op_str.endswith(", 0")
                 for i in window
             )
-            skips = False
-            for i in window:
-                if i.mnemonic not in ("je", "jz", "jne", "jnz"):
-                    continue
-                try:
-                    target = int(i.op_str, 16)
-                except ValueError:
-                    continue
-                if target > inc.address:
-                    skips = True
-            if has_cmp and skips:
+            # `cmp X, 0` sets ZF when the record is EMPTY, so the branch that
+            # jumps past the increment must be JE/JZ. JNE skips on occupied,
+            # which counts empty slots instead.
+            skips_on_zero = any(
+                i.mnemonic in ("je", "jz")
+                and (_branch_target(i) or 0) > inc.address
+                for i in window
+            )
+            counts_empty = any(
+                i.mnemonic in ("jne", "jnz")
+                and (_branch_target(i) or 0) > inc.address
+                for i in window
+            )
+            self.assertFalse(
+                counts_empty,
+                "the branch guarding the record counter skips on NON-zero, so "
+                "it counts EMPTY records: the count is inverted and the row "
+                "reports no room in an empty village: %s" % text,
+            )
+            if compares_zero and skips_on_zero:
                 gated = True
         self.assertTrue(
             gated,
-            "the record counter is incremented without testing whether the "
-            "record is occupied, so it counts every slot and the row reports "
-            "no room in an empty village: %s" % text,
+            "the record counter is not guarded by an occupancy test that skips "
+            "empty slots, so its value is meaningless: %s" % text,
         )
 
         self.assertTrue(
@@ -245,19 +311,33 @@ class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
             "living above the bound: %s" % (RECORD_COUNT, text),
         )
 
+        backedges = [
+            i for i in self.instructions
+            if i.mnemonic in ("jne", "jnz", "loop", "ja", "jg")
+            and (_branch_target(i) or (i.address + 1)) <= i.address
+        ]
+        self.assertTrue(
+            backedges,
+            "the record loop has no backedge, so the bound is loaded and then "
+            "exactly one record is inspected -- the scan degenerates to a "
+            "single sample: %s" % text,
+        )
+
     def test_the_helper_receives_the_count_and_its_answer_gates_the_row(self):
         """The call must be wired, not merely present.
 
-        Three separate ways a present call still misreports capacity, each of
-        which a target-only assertion misses:
+        Four ways a present call still misreports capacity, each demonstrated
+        to slip past a looser assertion:
 
-          * the helper's ABI wants the occupied count in EAX. Drop the
-            ``mov eax, edx`` and it reads a stale pointer and normally says
-            "no room", disabling the row.
-          * nothing testing EAX afterwards means the answer is discarded.
-          * the no-room bit must be written only when the helper says no; if
-            the branch is removed or inverted the row is marked unavailable
-            regardless of the installed mode.
+        * ``mov eax, edx`` must be the **last** write to EAX before the call.
+          ``mov eax, edx / xor eax, eax / call`` passes a search-in-a-window
+          while the helper receives zero.
+        * ``test eax, eax`` must sit **immediately** after the call, or the
+          branch below consumes some other instruction's flags.
+        * the skipped write must be exactly ``or edi, 0x1000000``. ``or eax,
+          0x1000000`` writes a scratch register and marks no row.
+        * polarity: the helper returns 1 for room, so the branch past the
+          no-room write is JNE/JNZ.
         """
         tier = self.where["tier_va"]
         text = self._text()
@@ -274,77 +354,67 @@ class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
         wired = []
         for call in calls:
             index = by_addr[call.address]
-            before = self.instructions[max(0, index - 3):index]
-            after = self.instructions[index + 1:index + 5]
 
-            passes_count = any(
-                i.mnemonic == "mov" and i.op_str.replace(" ", "") == "eax,edx"
-                for i in before
+            passes_count = False
+            for earlier in reversed(self.instructions[max(0, index - 8):index]):
+                if not _writes_eax(earlier):
+                    continue
+                passes_count = (
+                    earlier.mnemonic == "mov"
+                    and earlier.op_str.replace(" ", "") == "eax,edx"
+                )
+                break
+
+            after = self.instructions[index + 1:index + 3]
+            tests_result = bool(
+                after
+                and after[0].mnemonic == "test"
+                and after[0].op_str.replace(" ", "") == "eax,eax"
             )
-            tests_result = any(
-                i.mnemonic == "test"
-                and i.op_str.replace(" ", "") == "eax,eax"
-                for i in after
-            )
-            # The helper returns 1 for "room". After `test eax, eax` that sets
-            # ZF only when the answer was 0, so the branch that skips the
-            # no-room write must be JNE/JNZ -- "not zero" means room.
-            #
-            # Polarity has to be asserted explicitly, not inferred from finding
-            # a suitable branch: inverting `jne` to `je` simply makes a
-            # search-for-jne find nothing, which is indistinguishable from
-            # "this call site was not the interesting one". Mutation testing
-            # caught exactly that. So a wrong-polarity branch over the same
-            # no-room write is recorded as a POSITIVE fault rather than an
-            # absence.
+
             skips_no_room = False
             inverted = False
-            for branch in after:
-                if branch.mnemonic not in ("jne", "jnz", "je", "jz"):
-                    continue
-                try:
-                    target = int(branch.op_str, 16)
-                except ValueError:
-                    continue
-                jumps_over_no_room = any(
-                    i.mnemonic == "or"
-                    and "%#x" % NO_ROOM_BIT in i.op_str
-                    and call.address < i.address < target
-                    for i in self.instructions
-                )
-                if not jumps_over_no_room:
-                    continue
-                if branch.mnemonic in ("jne", "jnz"):
-                    skips_no_room = True
-                else:
-                    inverted = True
+            if tests_result and len(after) > 1:
+                branch = after[1]
+                target = _branch_target(branch)
+                if target is not None:
+                    jumps_over = any(
+                        i.mnemonic == "or"
+                        and i.op_str.replace(" ", "") == "edi,%#x" % NO_ROOM_BIT
+                        and call.address < i.address < target
+                        for i in self.instructions
+                    )
+                    if jumps_over and branch.mnemonic in ("jne", "jnz"):
+                        skips_no_room = True
+                    elif jumps_over:
+                        inverted = True
+
             self.assertFalse(
                 inverted,
                 "the branch after the tier helper skips the no-room bit on "
                 "ZERO, but the helper returns 1 for room -- so the row is "
-                "marked unavailable exactly when there IS room, and available "
-                "when there is not: %s" % text,
+                "marked unavailable exactly when there IS room: %s" % text,
             )
             wired.append((passes_count, tests_result, skips_no_room))
 
         self.assertTrue(
             any(w[0] for w in wired),
-            "the occupied count is never moved into EAX before the tier "
-            "helper call, so the helper reads an unrelated value and normally "
-            "reports no room -- disabling the Barrel row even though the scan "
-            "and the call are both present: %s" % text,
+            "the occupied count is not the last value written to EAX before "
+            "the tier helper call, so the helper reads something else and "
+            "normally reports no room -- disabling the Barrel row while the "
+            "scan and the call are both present: %s" % text,
         )
         self.assertTrue(
             any(w[1] for w in wired),
-            "nothing tests the tier helper's result, so its answer is "
-            "discarded and the row's availability does not follow the "
-            "installed population mode: %s" % text,
+            "the tier helper's result is not tested immediately after the "
+            "call, so the branch below consumes unrelated flags and row "
+            "availability does not follow the population mode: %s" % text,
         )
         self.assertTrue(
             any(w[2] for w in wired),
-            "a 'room available' answer does not branch past the no-room bit, "
-            "so the Barrel row is marked unavailable regardless of what the "
-            "tier helper said: %s" % text,
+            "a 'room available' answer does not branch past `or edi, %#x`, so "
+            "the Barrel row's unavailable bit is written regardless of what "
+            "the tier helper said: %s" % (NO_ROOM_BIT, text),
         )
 
 
