@@ -430,6 +430,17 @@ static int vv3_has_free_villager_slots(int wanted) {
    share one definition of "pending", and the flag is it. */
 #define VV3_ISLAND_PENDING_FLAG   0x6E0050
 
+/* The scheduler's own clock, 0x403330: converts GetSystemTimeAsFileTime through
+   10,000,000 and returns Unix epoch SECONDS -- the same units the purchase
+   writes into [manager+0x12EF4]. Calling it is side-effect free (it constructs
+   nothing), which is what makes it safe from a menu-draw path. */
+#define VV3_SCHEDULER_CLOCK 0x403330
+
+static unsigned int vv3_scheduler_now(void) {
+    typedef unsigned int(__cdecl * clock_t_fn)(void);
+    return ((clock_t_fn)(UINT_PTR)VV3_SCHEDULER_CLOCK)();
+}
+
 enum {
     VV3_PENDING_ROW_ISLAND = 1,
     VV3_PENDING_ROW_BARREL = 2
@@ -512,9 +523,47 @@ static int vv3_row_block_reason(int villager_menu, int row) {
        the whole queue window: the row stayed buyable, and the player could pay
        another 30,000 points to overwrite the same due stamp. See the comment on
        VV3_ISLAND_PENDING_FLAG for why no timestamp comparison can replace it. */
-    return *(volatile unsigned char *)(UINT_PTR)VV3_ISLAND_PENDING_FLAG != 0
-        ? VV3_BLOCK_ALREADY_PENDING
-        : VV3_BLOCK_NONE;
+    if (*(volatile unsigned char *)(UINT_PTR)VV3_ISLAND_PENDING_FLAG == 0) {
+        return VV3_BLOCK_NONE;
+    }
+    /* Retire a DELIVERED event before answering.
+
+       The payload sets this flag when it arms the queue; the native handler
+       then presents the event once the due stamp is reached. The payload's
+       frame hook has no room left to clear the flag -- its slot is 47 bytes
+       and the clearing sequence does not fit -- so the retirement lives here,
+       in the DLL, which is where logic goes when cave space runs out.
+
+       This is NOT the timestamp-window heuristic removed on #249. That one
+       inferred pending-ness from how long ago the stamp was written, which is
+       unanswerable while the game is paused. This compares the game's own
+       scheduler clock against the due stamp the purchase wrote: strictly
+       before it, the event is still queued; at or after it, the handler has
+       had its chance to run and the flag is stale.
+
+       The comparison is deliberately one-directional. [manager+0x12EF4] holds
+       an epoch-SECONDS due time, and it is NOT known whether the native
+       handler zeroes that field or rewrites it to the next natural event, so
+       neither "== 0" nor "changed" can be relied on to mean consumed. "The due
+       second has passed" is true under both, which is why it is the test used.
+
+       Reading the singleton directly rather than the lazy getter at 0x428B60
+       keeps drawing a menu free of side effects, and a null manager leaves the
+       flag alone. */
+    {
+        unsigned char *manager =
+            *(unsigned char **)(UINT_PTR)VV3_MANAGER_SINGLETON;
+        if (manager != 0) {
+            unsigned int due = *(volatile unsigned int *)
+                (manager + VV3_ISLAND_COUNTDOWN_OFF);
+            unsigned int now = vv3_scheduler_now();
+            if (now != 0 && due != 0 && now >= due) {
+                *(volatile unsigned char *)(UINT_PTR)VV3_ISLAND_PENDING_FLAG = 0;
+                return VV3_BLOCK_NONE;
+            }
+        }
+    }
+    return VV3_BLOCK_ALREADY_PENDING;
 }
 
 /* Thin wrapper so callers that only need the yes/no answer are unchanged. */
