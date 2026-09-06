@@ -28,6 +28,7 @@ covered the moment it appears instead of waiting to be found the painful way.
 
 import hashlib
 import json
+import re
 import subprocess
 import unittest
 from pathlib import Path
@@ -176,6 +177,46 @@ def _blob_lf(relative: str) -> bytes | None:
     if result.returncode != 0 or not result.stdout:
         return None
     return result.stdout.replace(CRLF, LF)
+
+
+def _recorded_digests_for(relative: str, corpus: dict[str, str]) -> set[str]:
+    """Digests some OTHER file records for this path, independent of its bytes.
+
+    The corroboration check used to derive its comparison set from the file's
+    CURRENT hashes, which makes it structurally unable to see the disagreement
+    it exists to detect: change the file and update only the registry, and the
+    old consumer digest can never enter the set, so the check finds nothing to
+    disagree with. Codex reproduced exactly that on `86927c75`.
+
+    Recorded digests are found by locating the path in another file and reading
+    the digests written near it -- the same object, or the same JSON entry --
+    so the answer depends on what the repository SAYS about this path rather
+    than on what the path presently contains.
+    """
+    quoted = json.dumps(relative)
+    alternate = json.dumps(relative.replace("/", chr(92) + chr(92)))
+    found: set[str] = set()
+    for name, text in corpus.items():
+        if name in (relative, REGISTRY_PATH):
+            continue
+        for needle in (quoted, alternate):
+            start = text.find(needle)
+            while start >= 0:
+                # The ENCLOSING JSON object only. A fixed-width window catches
+                # neighbouring entries that describe something else -- with
+                # 400 characters either side, the two vv4_full_heal candidates
+                # picked up their siblings' digests and were reported as
+                # disagreeing with their own correct registry rows.
+                open_brace = text.rfind("{", 0, start)
+                close_brace = text.find("}", start)
+                if open_brace >= 0 and close_brace > start:
+                    window = text[open_brace:close_brace]
+                    found.update(
+                        match.group(0).upper()
+                        for match in re.finditer(r"[0-9A-Fa-f]{64}", window)
+                    )
+                start = text.find(needle, start + 1)
+    return found
 
 
 def _authenticated_digests() -> dict[str, str]:
@@ -401,17 +442,8 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
                 # that exists: that is the masking case, where a file is
                 # changed, the registry updated, and the consumer left naming
                 # the old bytes.
-                others = [
-                    text
-                    for name, text in corpus.items()
-                    if name not in (relative, REGISTRY_PATH)
-                ]
-                pinned_elsewhere = {
-                    candidate
-                    for candidate in allowed_by_path.get(relative, set())
-                    if any(candidate in text for text in others)
-                }
-                if pinned_elsewhere and digest not in pinned_elsewhere:
+                recorded = _recorded_digests_for(relative, corpus)
+                if recorded and registered not in recorded:
                     uncorroborated.append(relative)
                 continue
             allowed = allowed_by_path.get(relative)
@@ -467,6 +499,22 @@ class RawPinnedFilesAreEolPinnedTests(unittest.TestCase):
             10,
             "the source-text authentication registry looks empty or moved; "
             "this assertion would pass vacuously",
+        )
+        # COVERAGE, not size. A count-only guard cannot see a deletion: remove
+        # one row and the file drops back to the global-digest fallback, where
+        # a substitution passes again. Codex reproduced that on 86927c75 by
+        # deleting the row for data/native_evidence_queries.json and replacing
+        # the file with another pinned JSON.
+        uncovered = sorted(
+            set(raw_pinned_files()) - set(registered) - KNOWN_UNPINNED_CRLF_DEFECTS
+        )
+        self.assertEqual(
+            uncovered,
+            [],
+            "these files are pinned by a raw sha256 but are not named in "
+            f"{REGISTRY_PATH}, so nothing owns their path and a file committed "
+            "with another pinned file's bytes inherits that file's digest. Add "
+            f"a row for each: {uncovered}",
         )
         wrong = []
         for relative, expected in sorted(registered.items()):
