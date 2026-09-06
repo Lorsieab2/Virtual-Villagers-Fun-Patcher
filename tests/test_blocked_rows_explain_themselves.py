@@ -537,6 +537,20 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
             "event from the scheduler's post-delivery replacement -- both are "
             "future timestamps when observed",
         )
+        # Not every change to the slot is a delivery. do_barrel writes ZERO to
+        # cue the game's own event check, so a Barrel bought inside the island
+        # window looks exactly like a scheduler rewrite; retiring on it cleared
+        # a token whose event had not been delivered, and reopening the menu
+        # before the cue ran allowed another 30,000-point charge.
+        armed = bytes([0x80, 0x3D]) + (0x728B04).to_bytes(4, "little") + bytes([0x00])
+        forward = payload[index - 0x18 : index]
+        self.assertIn(
+            armed,
+            forward,
+            "the island token is retired without checking whether a Barrel is "
+            "armed, so do_barrel's zero-write to the shared slot is mistaken "
+            "for a scheduler delivery and the queued island event is lost",
+        )
 
     def test_a_blocked_click_cannot_reach_the_purchase(self):
         """The refusal must not charge.

@@ -2078,6 +2078,20 @@ def main() -> None:
             mov ebx, dword ptr [eax + 0x170E0]
             cmp ebx, dword ptr [0x{ISLAND_DUE_STAMP_VA:X}]
             je pending_rows_island
+            # The stamp changed -- but not every change is a delivery.
+            # do_barrel writes ZERO to this shared slot to cue the game's own
+            # event check, so a Barrel bought inside the island window looks
+            # identical to a scheduler rewrite and would retire a token whose
+            # event has not been delivered. Reopening the menu before the cue
+            # ran then allowed another 30,000-point charge. Codex caught that
+            # on #254 after the stamp comparison replaced the clock test.
+            #
+            # An armed Barrel is the one writer that is NOT the scheduler, so
+            # hold the token across that transition and let the next build --
+            # once the Barrel has been presented and BARREL_ARMED_VA cleared --
+            # make the delivery judgement.
+            cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            jne pending_rows_island
             mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
             test ebx, ebx
             jz pending_rows_notqueued

@@ -25,11 +25,27 @@ does advance the village again.
 
 ## How each game refuses
 
-**VV1, VV2, VV4, VV5 — the row is never clickable.** The Tech menu's state
-word gains two bits, and the companion DLL draws those rows as disabled
-"Unavailable" buttons. Because the click cannot happen, the charge path is
-never entered, and no refusal message is needed — which is what makes this
-affordable, since the executables' string blocks are effectively full.
+**VV1, VV2, VV4, VV5 — the row stays clickable and explains itself.** The Tech
+menu's state word gains two bits, and the companion DLL draws those rows as
+enabled **"Why not?"** buttons. Clicking one is intercepted in `WM_COMMAND`
+*before* any dispatch: it shows the reason, closes nothing, and never reaches
+the charge path.
+
+The rows were originally drawn as *disabled* "Unavailable" buttons, on the
+reasoning that a click which cannot happen needs no refusal message. That was
+affordable but unhelpful — it told the player the upgrade could not be bought
+without saying why, or whether waiting would help, and a disabled button cannot
+respond to a click at all, so there was nowhere to put an explanation. The
+messages live in the companion DLL rather than the executables, whose string
+blocks are effectively full, so the original cost argument still holds.
+
+Two causes are distinguished, because they ask different things of the player:
+one already queued (waiting clears it) and no room for the three children a
+Barrel brings (waiting does not). The wording differs per game by necessity —
+VV3 and VV5 track a purchase directly and say an event *has already been
+bought*, while VV1, VV2 and VV4 read a countdown that naturally scheduled
+events also write, so they say an event *is already queued and on its way*
+rather than claiming a purchase they cannot establish.
 
 ```
 STATE_ISLAND_PENDING  0x800000
@@ -52,7 +68,8 @@ setup at all — its cave had two spare bytes.
 space left to work out the state, which is exactly what the companion DLL is
 for: the DLL runs inside the game's own process, so it calls VV3's own
 parameterless world-manager getter at `0x428B60`, reads the countdown and the
-Barrel flag itself, and disables the rows. Nothing is asked of the executable,
+Barrel flag itself, and marks the rows blocked so the dialog can draw them as
+"Why not?" and explain them. Nothing is asked of the executable,
 and VV3's payload is byte-identical to what it was before this feature.
 
 It uses the same probe the executable uses to tell the stock and expanded
