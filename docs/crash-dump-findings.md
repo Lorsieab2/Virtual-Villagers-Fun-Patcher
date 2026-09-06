@@ -59,14 +59,29 @@ exactly once at `.rdata:0x48A614` and `0x43E9F0` exactly once at
 absence is genuine. Our code is in no function-pointer table, and `call eax`
 therefore cannot reach it.
 
-### The faulting value is not in the image
+### Where the faulting value could have come from
 
-`0x2E000000` occurs 238 times in the image, and **none of those occurrences is
-dword-aligned**. Every one straddles a boundary inside adjacent string data,
+`0x2E000000` occurs 238 times in the image, and none of those occurrences is
+dword-aligned. Every one straddles a boundary inside adjacent string data,
 because `0x2E` is the ASCII `.` in literals such as `".png"`, `"..\images\"`,
-`"..\sounds\"` and `".?AVl"`. A vtable slot is always 4-byte aligned, so no
-vtable in this image can yield that value. Reporting the raw count of 238
-without the alignment check would invert this conclusion.
+`"..\sounds\"` and `".?AVl"`.
+
+An earlier draft of this document argued from that alignment that no vtable
+could yield the value, since a well-formed vtable's slots are 4-byte aligned.
+**That argument is wrong, and it is worth keeping the correction visible so it
+is not reintroduced.** Review pointed out that it assumes a well-formed vtable
+while reasoning about a corrupted one. `mov eax, [eax+0Ch]` on x86 reads a dword
+from any byte address, so a corrupt vtable pointer `P` reaches an unaligned
+occurrence `A` whenever `P == A - 0xC` -- always solvable. Alignment therefore
+excludes nothing here.
+
+What the alignment does establish is narrower, and is all that is claimed: none
+of the 238 occurrences is a deliberate function pointer. They are incidental
+byte sequences inside string literals, not entries any code was built to call.
+
+The attribution in the previous section does not rest on this at all. It rests
+on our three addresses appearing nowhere in the image, so an indirect call
+cannot reach them regardless of how the vtable pointer was corrupted.
 
 For completeness, slot `+0xC` of the dispatcher vtable at `0x48A614` holds
 `0x4AE36C`, which is not a function at all -- consistent with the object in
@@ -119,8 +134,10 @@ exactly eleven patch spans inside the stock image: `0x41890F`, `0x41EB6F`,
 
 The nearest patch to the fault is over 160 KB away.
 
-**Conclusion.** A stock null-pointer dereference. We patch neither the function
-nor any of its callers.
+**Conclusion.** A null-pointer dereference in stock code. We patch neither the
+function nor any of its callers, so nothing of ours diverted control here --
+though as the section on patch coverage below sets out, that does not by itself
+exclude a corruption originating elsewhere.
 
 Two limits on this evidence, stated rather than glossed. These dumps carry
 timestamps later than the machine's own clock, so they cannot be placed relative
@@ -219,21 +236,67 @@ Both faulting instructions are *after* the point where the hook has already
 returned control to stock code. A fault inside the stub would report an address
 in the appended code section, not here.
 
-**Conclusion.** These are a null or stale receiver arriving from the game at the
-compositor entry -- the same null-`this` shape as the VV5 finding. The hook does
-not corrupt the receiver and its sweep stays in bounds. No fix is proposed: the
-cause is upstream of our code and there is no reproduction.
+**Conclusion.** A null or stale receiver at the compositor entry -- the same
+null-`this` shape as the VV5 finding. The two mechanisms by which the hook could
+have produced it were checked and ruled out: the replay does not corrupt the
+receiver, and the sweep stays inside the structure.
+
+That is as far as the evidence goes. It does not establish that the hook is
+uninvolved by some path not examined here, and these are the crash sites closest
+to our code anywhere in this document, so they deserve the least generous
+reading. What would settle it is a reproduction, or catching the receiver going
+bad; neither exists. No fix is proposed, because there is nothing yet to aim one
+at.
 
 ### Records that are historical
 
 `+0x25872` (9 records) is on a Modded Playtest build from folders dated
 2026-08-10, a superseded playtest, and has not recurred.
 
+## What patch coverage does and does not prove
+
+Every attribution above uses patch-span overlap, and it is important to be
+precise about how much that carries, because review flagged an earlier draft for
+overstating it.
+
+Patch coverage answers one question well: **did our code execute at the faulting
+instruction, or place something at the address that faulted?** A hook that does
+not overlap the faulting function or any of its call sites did not directly
+divert control there.
+
+It does **not** prove our code is uninvolved. A hook anywhere in the process can
+corrupt an object, a heap block, or a global that stock code dereferences much
+later, and the fault then lands in code we never touched. That is exactly the
+shape of the VV4 finding -- a stale object reached through a vtable -- so the
+possibility cannot be waved away.
+
+Nor does seeing a fault site on an unmodified build settle the modded
+occurrences. It proves the stock game *can* produce that signature; it does not
+prove every modded instance has the same upstream cause. Two different causes can
+converge on one faulting instruction, and a null receiver is precisely the kind
+of symptom many causes share.
+
+So the honest status of every conclusion here is: **no evidence implicates our
+code, and for the VV2 compositor hook the specific mechanisms by which it could
+have were checked and ruled out** -- the register-correct replay and the proven
+sweep bound. That is weaker than "our code is innocent", and it is deliberately
+not written as though it were. Closing any of these properly needs a
+reproduction, or a traced corruption path, neither of which exists yet.
+
+This is also why no fix is proposed anywhere in this document. A fix aimed at a
+cause that has not been traced cannot be validated, and shipping one would make
+the next investigation harder rather than easier.
+
 ## Standing guidance
 
 - Our own record-stride loops across VV1-VV4 are all counted. The stock scans
   they sit near are not; do not "fix" a stock scan to match.
-- Attribute a crash by patch coverage, never by which module name appears in the
-  log -- a modded build still runs overwhelmingly stock code.
+- Patch coverage narrows attribution, it does not close it. Never write up a
+  no-overlap result as proof of innocence; say what was ruled out and what was
+  not.
+- Never attribute by which module name appears in the log -- a modded build still
+  runs overwhelmingly stock code.
 - Convert file offsets to virtual addresses through the section table before
   comparing a manifest against a disassembly, and never compare across games.
+- Filter by exception code before counting; breakpoints and single-step events
+  share the Application Error source with real faults.

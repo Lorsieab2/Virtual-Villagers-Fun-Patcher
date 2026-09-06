@@ -538,8 +538,11 @@ well as the modded one. That executable contains none of this project's code, so
 those two cannot be caused by it. Two further sites appear only on modded builds,
 at the two instructions immediately after the mask compositor hook; both were
 checked in a disassembler and the hook replays the instructions it displaced with
-the correct registers, while its sweep stays inside the structure it walks. The
-evidence points at a bad object arriving from the game rather than at the hook.
+the correct registers, while its sweep stays inside the structure it walks. That
+rules out the two ways the hook could have caused them directly. It does not
+prove the patch is uninvolved by some other path -- a hook can corrupt state that
+stock code dereferences later -- so this narrows the question rather than
+answering it.
 
 None of that is a playtest, and the reported Time Warp and Food Point Doubler
 trigger has still not been reproduced or cleared. The full measurements, including
