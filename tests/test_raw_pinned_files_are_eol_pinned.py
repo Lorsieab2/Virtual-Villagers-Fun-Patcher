@@ -205,20 +205,44 @@ def _recorded_digests_for(relative: str, corpus: dict[str, str]) -> set[str]:
     so the answer depends on what the repository SAYS about this path rather
     than on what the path presently contains.
     """
-    quoted = json.dumps(relative)
-    alternate = json.dumps(relative.replace("/", chr(92) + chr(92)))
+    # Two ways a repository names a path, and both have to be recognised.
+    #
+    # As one literal string, which is how JSON manifests write it:
+    #     "path": "data/native_evidence_queries.json"
+    #
+    # Or assembled from components, which is how src/vv_fun_patcher.py writes
+    # nearly all of them:
+    #     ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json"
+    #
+    # Searching only for the literal form is why this predicate returned an
+    # empty set for 28 of the 36 eol-pinned files. Codex found the gap; the
+    # measurement is what showed it was the common case rather than an
+    # exception, and a predicate that answers "no record" for most of its
+    # inputs is worse than one that is obviously absent, because the checks
+    # built on it go quiet instead of failing.
+    forms = [json.dumps(relative)]
+    parts = relative.split("/")
+    if len(parts) > 1:
+        # `ROOT / "data" / "candidates" / "x.json"` -- match the tail segments
+        # in order, allowing the separators and whitespace the source uses.
+        forms.append(
+            " / ".join(json.dumps(segment) for segment in parts)
+        )
+    forms.append(json.dumps(parts[-1]))
+
     found: set[str] = set()
     for name, text in corpus.items():
         if name in (relative, REGISTRY_PATH):
             continue
-        for needle in (quoted, alternate):
+        for needle in forms:
             start = text.find(needle)
             while start >= 0:
-                # The ENCLOSING JSON object only. A fixed-width window catches
-                # neighbouring entries that describe something else -- with
-                # 400 characters either side, the two vv4_full_heal candidates
-                # picked up their siblings' digests and were reported as
-                # disagreeing with their own correct registry rows.
+                # For a literal path inside JSON the enclosing object is the
+                # right scope. For a Python constant the digest is declared
+                # nearby but outside any brace, so fall back to a bounded line
+                # window -- deliberately small, because a wide window catches
+                # neighbouring entries describing other artifacts, which
+                # condemned two correct files when this used 400 characters.
                 open_brace = text.rfind("{", 0, start)
                 close_brace = text.find("}", start)
                 if open_brace >= 0 and close_brace > start:
@@ -226,6 +250,22 @@ def _recorded_digests_for(relative: str, corpus: dict[str, str]) -> set[str]:
                     found.update(
                         match.group(0).upper()
                         for match in re.finditer(r"[0-9A-Fa-f]{64}", window)
+                    )
+                if name.endswith(".py"):
+                    # The digest for a component-built path is a module-level
+                    # constant a few lines away. Bound it to the enclosing
+                    # statement group rather than a character count.
+                    line_start = text.rfind("\n\n", 0, start)
+                    line_end = text.find("\n\n", start)
+                    if line_start < 0:
+                        line_start = 0
+                    if line_end < 0:
+                        line_end = len(text)
+                    found.update(
+                        match.group(0).upper()
+                        for match in re.finditer(
+                            r"[0-9A-Fa-f]{64}", text[line_start:line_end]
+                        )
                     )
                 start = text.find(needle, start + 1)
     return found
