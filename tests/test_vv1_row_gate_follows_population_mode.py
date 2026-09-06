@@ -61,8 +61,17 @@ STOCK_LITERAL = 0x57
 # The villager-record stride and array length the scan walks.
 RECORD_STRIDE = 0x3D8
 RECORD_COUNT = 0x100
-# The state bit that marks the Barrel row unavailable.
-NO_ROOM_BIT = 0x1000000
+# The state bits that mark the Barrel row unavailable.
+#
+# 0x1000000 means "a Barrel is already queued"; 0x2000000 means "the village
+# has no room for the children". They were one bit until the row learned to
+# explain itself, at which point a player whose village was full was told a
+# barrel had already been bought -- so the capacity case got its own bit.
+#
+# This test is about whether the tier helper's answer GATES the write, not
+# about which bit is written, so it accepts either. Pinning one value made it
+# fail against a correct gate that had simply moved to the other.
+NO_ROOM_BITS = (0x1000000, 0x2000000)
 
 
 def _constant(name):
@@ -438,7 +447,8 @@ class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
                 if target is not None:
                     jumps_over = any(
                         i.mnemonic == "or"
-                        and i.op_str.replace(" ", "") == "edi,%#x" % NO_ROOM_BIT
+                        and i.op_str.replace(" ", "")
+                        in tuple("edi,%#x" % b for b in NO_ROOM_BITS)
                         and call.address < i.address < target
                         for i in self.instructions
                     )
@@ -470,9 +480,10 @@ class VV1RowGateFollowsPopulationModeTests(unittest.TestCase):
         )
         self.assertTrue(
             any(w[2] for w in wired),
-            "a 'room available' answer does not branch past `or edi, %#x`, so "
+            "a 'room available' answer does not branch past `or edi, %s`, so "
             "the Barrel row's unavailable bit is written regardless of what "
-            "the tier helper said: %s" % (NO_ROOM_BIT, text),
+            "the tier helper said: %s"
+            % (" or ".join(hex(b) for b in NO_ROOM_BITS), text),
         )
 
 
