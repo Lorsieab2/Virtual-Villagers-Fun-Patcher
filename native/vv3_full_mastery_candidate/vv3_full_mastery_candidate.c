@@ -458,6 +458,9 @@ static const char *vv3_block_reason_text(int reason, int row) {
            "close this screen and wait for it to arrive.";
 }
 
+/* Defined further down, next to the export that shares it. */
+static int vv3_barrel_has_room_for_three(void);
+
 static int vv3_row_block_reason(int villager_menu, int row) {
     unsigned char *manager;
     int extra;
@@ -469,9 +472,18 @@ static int vv3_row_block_reason(int villager_menu, int row) {
         if (*(volatile unsigned char *)(UINT_PTR)VV3_BARREL_PENDING_FLAG != 0) {
             return VV3_BLOCK_ALREADY_PENDING;
         }
-        return vv3_has_free_villager_slots(VV3_BARREL_CHILDREN)
-            ? VV3_BLOCK_NONE
-            : VV3_BLOCK_NO_VILLAGER_SLOTS;
+        /* BOTH capacity questions, because they can refuse independently and
+           the purchase gate asks both. The record scan catches physical
+           exhaustion -- skeletons and corpses still occupying slots -- while
+           the live cap catches the ordinary case of a village at its current
+           mode's population maximum with records to spare. Asking only the
+           first left the row reading "Buy" right up to the cap, and the
+           preflight then refused the purchase the row had just offered. */
+        if (!vv3_has_free_villager_slots(VV3_BARREL_CHILDREN)
+            || !vv3_barrel_has_room_for_three()) {
+            return VV3_BLOCK_NO_VILLAGER_SLOTS;
+        }
+        return VV3_BLOCK_NONE;
     }
     if (row != VV3_PENDING_ROW_ISLAND) {
         return VV3_BLOCK_NONE;
@@ -1970,7 +1982,16 @@ __declspec(dllexport) int __stdcall PrepareOriginsVillageWide(int command) {
    Barrel preflight can refuse before charging.  These absolute addresses are
    fixed: the game exe is non-ASLR (image base 0x00400000) and loaded in this
    process. */
-__declspec(dllexport) int __stdcall PrepareBarrelBabies(void) {
+/* The body is a plain static so the row predicate can ask the SAME question the
+   purchase gate asks. It used to be reachable only through the export, and the
+   row predicate answered a different one -- vv3_has_free_villager_slots counts
+   free physical RECORDS, while this computes the live population CAP. At the
+   cap with records still free (90 living villagers in stock mode with no
+   bonuses, say) the row read "Buy" and the preflight below then refused it, so
+   the capacity explanation only ever appeared for record exhaustion, never for
+   the boundary players actually hit. Codex found this on #254. Keeping one
+   implementation means the two answers cannot drift apart again. */
+static int vv3_barrel_has_room_for_three(void) {
     unsigned int current = 0;
     unsigned int maxpop = 0;
 
@@ -2020,6 +2041,10 @@ __declspec(dllexport) int __stdcall PrepareBarrelBabies(void) {
         pop ebx
     }
     return (current + 3u <= maxpop) ? 1 : 0;
+}
+
+__declspec(dllexport) int __stdcall PrepareBarrelBabies(void) {
+    return vv3_barrel_has_room_for_three();
 }
 
 /* ---- Tech-screen one-shot / guard result boxes ----
