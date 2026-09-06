@@ -315,7 +315,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "A7ECC8D487660DDBFDC5A68294C5261DCE545870C40667217C177151530FAE66",
+            "D904A1EC232BB1B543C23BADBE9A18E7AFA1106077B25C2A311C59D2FCAE11F7",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.

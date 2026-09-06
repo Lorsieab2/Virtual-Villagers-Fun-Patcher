@@ -131,17 +131,6 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       every register except the intended EDI are preserved.  It leaves flags
 #       undefined, which is safe here: the next instruction is `push edi`.
 #       Reaching it is a `call`, not a jmp, so it adds no stock re-entry.
-#   0x35AB0                         re-confirmed after the barrel row learned
-#                                   to explain itself: the pending-rows helper
-#                                   at 0x8BF00 changed by exactly ONE
-#                                   instruction, `or edi, 0x1000000` ->
-#                                   `or edi, 0x2000000`, giving the "no room"
-#                                   case its own state bit so the DLL can tell
-#                                   it from a queued barrel.  Same instruction,
-#                                   same register, identical push/pop sequence
-#                                   (38 instructions before and after, one
-#                                   differing immediate), so the recorded
-#                                   register contract is unaffected.
 #   0x35AB0                         re-confirmed after the Island Event queue
 #       delay and its guard.  Two things in this block's reach changed: the
 #       purchase branch now calls the scheduler clock (0x402F70) and stores
@@ -200,10 +189,26 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # refusal paths already shared -- derived from the assembled helper, not
     # restated. No register is read or written, so the stub cannot disturb
     # the dispatch that follows or the stock frame the helper resumes into.
-    ("vv1_enable_origins_exclusive_features", "0x2403F"): "3C41A85F1AFE8DB276941C33B261D1AC08DF11AF8227CB295343321C45634CCC",
+    # Re-reviewed: the barrel main helper no longer falls through into the
+    # disarm stub on a SUCCESSFUL dispatch -- that stub clears
+    # BARREL_UPGRADE_FLAG, which must stay armed until the barrel-count hook
+    # consumes it, so falling through silently reverted every paid barrel to
+    # the stock random count. The failure branch now targets the stub
+    # directly and the trampoline is gone, which also freed 5 bytes in a cave
+    # that was one byte over its bound. Register contract unchanged: the
+    # helper still pushad/popad around the whole body and the stub still
+    # rejoins the same shared restore.
+    ("vv1_enable_origins_exclusive_features", "0x2403F"): "40E7A84AF567A2DA2F1DDA917EA6D1981B4B113BFE9F6AE691535DB56BE13D74",
     ("vv1_enable_origins_exclusive_features", "0x28470"): "F739955B349CB69FC3FDBBC591C5461D5F5395D91D3421D3005F37AC85DAC504",
     ("vv1_enable_origins_exclusive_features", "0x358DC"): "6BBFAD8D3A7A8414759CFD64840F17AB0336E0F5237596247C101162DFE1AB01",
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "5CB80CF3045F9E6D4E35C33940FD51A8EF0CC24BF524FBEA661E4BD74049B310",
+    # Re-reviewed: the pending_rows cave now calls POPULATION_FINAL_TIER_VA
+    # instead of comparing the occupied-record count to a literal 87, so the
+    # row gate follows the installed population mode like the purchase path
+    # already did. Register contract re-checked and unchanged: the cave still
+    # pushes eax/ecx/edx/ebx on entry and pops all four before ret, the helper
+    # clobbers only eax (already saved), and edi -- which carries the result
+    # flags -- is neither read nor written by it.
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "6F47F1453C2DD7EC0B91D875F5FB6CBF79677D54A10AB52658802882CA4A4576",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",

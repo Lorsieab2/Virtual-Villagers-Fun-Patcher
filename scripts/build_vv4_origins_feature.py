@@ -2022,6 +2022,16 @@ def main() -> None:
             # the stamp across the call (callee-saved) and eax holds the world,
             # which the clock overwrites, so it is saved too.  Every path pops
             # what it pushed before branching away.
+            #
+            # EDX is saved for the same reason as EAX and is NOT optional: it
+            # carries this helper's accumulator (set by `mov edx, eax` on entry
+            # and returned by `mov eax, edx` at the tail), and EDX is
+            # caller-saved -- the clock at 0x403750 writes it six times.  Losing
+            # it returned a stale pointer left behind by the graphics driver;
+            # that value has bit 16 set, so the DLL's
+            # `g_villager_menu = (lParam >> 16) & 1` flipped the Tech menu into
+            # villager mode and every row answered with the per-villager
+            # "already ..." message instead of its own prompt.
             push ebx
             push ecx
             # VV4's Barrel and Island Event share ONE queue slot: do_barrel
@@ -2104,7 +2114,9 @@ def main() -> None:
         pending_rows_island_window:
             mov ecx, eax
             push eax
+            push edx
             call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            pop edx
             sub ebx, eax
             pop eax
             cmp ebx, {ISLAND_QUEUE_DELAY_SECONDS}
