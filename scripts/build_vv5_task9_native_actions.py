@@ -2478,6 +2478,14 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call show_message
         jmp done
     pending:
+        # Same reasoning as the Barrel's refusal: this guard masks 0x3C, so a
+        # pending BARREL reaches it, and naming an Island Event there would be
+        # false. Pick the message from the token that is set.
+        test dword ptr [0x51D388], 0x30
+        jnz pending_island
+        mov eax, 0x{s['bb_pending']:X}
+        jmp warning_status
+    pending_island:
         mov eax, 0x{s['iv_pending']:X}
         jmp warning_status
     insufficient:
@@ -2639,6 +2647,15 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, 0x{s['bb_full']:X}
         jmp warning_status
     pending:
+        # Name whichever event actually holds the shared due-event slot. This
+        # guard masks 0x3C, so an outstanding ISLAND reaches it too, and saying
+        # "A Barrel of Babies is already on its way" there would be false --
+        # the player never bought one.
+        test dword ptr [0x51D388], 0xC
+        jnz pending_barrel
+        mov eax, 0x{s['iv_pending']:X}
+        jmp warning_status
+    pending_barrel:
         mov eax, 0x{s['bb_pending']:X}
         jmp warning_status
     insufficient:
