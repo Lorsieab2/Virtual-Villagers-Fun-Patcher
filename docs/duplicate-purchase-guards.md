@@ -66,28 +66,23 @@ setup at all — its cave had two spare bytes.
 
 **VV3 does the same, but computes it in the DLL.** Its payload has no cave
 space left to work out the state, which is exactly what the companion DLL is
-for: the DLL runs inside the game's own process, so it reads the two pending
-flags itself and marks the rows blocked, and the dialog draws them as
-"Why not?" buttons that explain the reason. Nothing is asked of the executable.
+for: the DLL runs inside the game's own process, so it reads the world manager
+and the two pending flags itself, and disables the rows. Nothing is asked of
+the executable.
 
 Both pending answers come from **flags the payload owns** -- the Barrel's at
 `0x4B3C75` and the Island's at `0x6E0050` (`SECTION_DATA_VA + 0x50`, in the
 patch's own R/W `.vv3md` page). The Island flag cannot be replaced by reading
-the countdown: arming writes `clock() + 5` into `[world+0x12EF4]`, so that field
-is *non-zero for the whole queue window*, and the original `countdown == 0` test
-therefore never refused anything.
+the countdown: arming writes `clock() + 5` there, so the field is *non-zero for
+the whole queue window*, and the original `countdown == 0` test therefore never
+refused anything. The payload sets the flag when it arms the queue and clears
+it when a different save slot is loaded; the DLL retires it once the due second
+has passed, because the payload's frame hook has no room left (its slot is 47
+bytes) and logic goes in the DLL when cave space runs out.
 
-The payload owns the flag's whole lifecycle: it sets the flag (and its own copy
-of the due second at `SECTION_DATA_VA + 0x54`) when the purchase arms the queue,
-clears both when a different save slot is loaded, and retires the flag from
-`queue_release_island_code` once that stamp has passed. The DLL only **reads**
-it. Two writers with two different notions of "delivered" -- one of them running
-while merely drawing a menu -- would be a bug, so the payload stays the single
-source of truth.
-
-The due stamp is kept as the payload's **own copy** rather than read back from
-`[world+0x12EF4]`, because that field is also written by natural island events,
-so it is not a trustworthy record of what this purchase queued.
+The DLL reads the manager singleton at `0x4B309C` directly rather than calling
+the lazy getter at `0x428B60`: that getter *constructs* a manager when there is
+none, and merely drawing a menu must not have that side effect.
 
 It uses the same probe the executable uses to tell the stock and expanded
 builds apart (whether the immediate at `0x42883A` is 256), so it reads the
