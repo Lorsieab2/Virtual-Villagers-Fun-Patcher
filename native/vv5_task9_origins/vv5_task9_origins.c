@@ -404,10 +404,10 @@ static const char *block_reason_text(int reason, int row) {
                "may be enough to free the space.";
     }
     if (row == PENDING_ROW_ISLAND) {
-        return "An island event has already been bought and is on its way."
-               "\n\nIt arrives a few seconds after this screen closes. Buying "
-               "it again would charge you a second time for the same event, "
-               "so close this screen and wait for it to arrive.";
+        return "An island event is already queued and on its way."
+               "\n\nIt arrives shortly. Buying one now would charge you again "
+               "without producing a second event, so close this screen and "
+               "wait for it to arrive.";
     }
     return "A barrel of babies has already been bought and is on its way."
            "\n\nIt arrives a few seconds after this screen closes. Buying it "

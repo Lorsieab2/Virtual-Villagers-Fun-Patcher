@@ -114,6 +114,19 @@ APPEARANCE_HELPER_VA = 0x728760
 # the 0x414D90 detour below); natural barrels leave it 0 and are unchanged.
 BARREL_UPGRADE_FLAG_VA = 0x728B00
 BARREL_ARMED_VA = 0x728B04            # byte: barrel is armed-eligible until presented
+# byte: an Island Event was PURCHASED and has not been delivered yet.
+#
+# The queue slot [world+0x170E0] cannot answer this. It is shared -- the
+# Barrel zeroes it to cue the game's own event check -- and it is written
+# by naturally scheduled events too, so neither its value nor its
+# proximity to now establishes who put it there. Two Codex findings on
+# #254 come from asking it anyway: a Barrel bought during the island
+# window overwrote a still-outstanding island purchase, and a natural
+# event inside its final five seconds was reported as already bought.
+#
+# Verified unreferenced in the built image before use (0 hits, against 5
+# for 0x728B00 and 7 for 0x728B04).
+ISLAND_PURCHASED_VA = 0x728B08
 # Per-event cooldown byte the scheduler sets on the event it presents
 # (`mov byte [esi+0x4CC9F4],1`, esi=event index); barrel index 25 -> 0x4CC9F4+0x19.
 # do_barrel clears it so a previously-fired barrel is not held off. Nothing reads
@@ -1080,6 +1093,9 @@ def main() -> None:
             pop ecx
             add eax, {ISLAND_QUEUE_DELAY_SECONDS}
             mov dword ptr [ecx + 0x170E0], eax
+            # Record that THIS event was purchased. The timestamp alone cannot
+            # say so, and a Barrel bought inside the window overwrites it.
+            mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 1
             jmp success
         do_barrel:
             # Arm the barrel, flag this as the PURCHASED barrel (so its spawn always
@@ -1740,6 +1756,7 @@ def main() -> None:
             push eax
             call 0x418190
             mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
             ret 4
         cue_scheduler:
             jmp 0x418000
@@ -2004,12 +2021,17 @@ def main() -> None:
             # BARREL_ARMED_VA disambiguates: it is set by do_barrel and cleared
             # once the barrel is presented, so a zero slot with the barrel
             # armed belongs to the barrel and the island row must stay clear.
+            # A PURCHASED island event is outstanding until it is delivered,
+            # whatever the shared slot currently holds. Checking the token
+            # first keeps a Barrel bought inside the window from erasing it,
+            # and stops a naturally scheduled event that has merely entered its
+            # final seconds from being reported as bought.
+            cmp byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            jne pending_rows_island
             mov ebx, dword ptr [eax + 0x170E0]
             test ebx, ebx
             jnz pending_rows_island_window
-            cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
-            jne pending_rows_notqueued
-            jmp pending_rows_island
+            jmp pending_rows_notqueued
         pending_rows_island_window:
             mov ecx, eax
             push eax
@@ -2115,6 +2137,7 @@ def main() -> None:
             # change, so an autosave cannot discard a pending barrel.
             mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
             mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
             ret
         """,
         DOUBLER_RESET_VA,

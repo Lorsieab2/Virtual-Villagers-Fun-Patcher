@@ -128,12 +128,23 @@ class PendingGuardKnowsAboutTheDelayTests(unittest.TestCase):
                     text,
                     f"{gid}: the guard no longer tests the queue slot for zero",
                 )
-                self.assertTrue(
+                # VV4 no longer infers the island from the slot at all: it
+                # reads a dedicated purchase token, because the slot is shared
+                # with the Barrel and is also written by naturally scheduled
+                # events, so neither its value nor its nearness to now
+                # establishes who queued it. A token test is a STRONGER
+                # answer than the zero test this assertion was written for, so
+                # accept either -- what must not happen is neither.
+                reaches_pending = (
                     "jz pending_rows_island" in text
-                    or "jmp pending_rows_island" in text,
-                    f"{gid}: no path from the zero test reaches the "
-                    "island-pending label, so an event that signals itself by "
-                    "zeroing the slot would read as not pending",
+                    or "jmp pending_rows_island" in text
+                    or "jne pending_rows_island" in text
+                )
+                self.assertTrue(
+                    reaches_pending,
+                    f"{gid}: no path reaches the island-pending label, so a "
+                    "queued event would read as not pending however it "
+                    "signalled itself",
                 )
 
     def test_the_guard_balances_every_push_it_makes(self) -> None:

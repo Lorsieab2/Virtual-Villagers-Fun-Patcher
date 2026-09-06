@@ -363,16 +363,25 @@ class BlockedRowsExplainThemselvesTests(unittest.TestCase):
                 continue
             found = True
             blob = bytes.fromhex(after)
+            # The guard must not decide the island is pending from the shared
+            # slot alone. It now reads a dedicated purchase token FIRST, which
+            # is a stronger discriminator than the barrel-armed flag it used
+            # before: the flag only told the Barrel apart, while the token also
+            # keeps a Barrel bought inside the window from erasing a
+            # still-outstanding island purchase, and stops a naturally
+            # scheduled event being reported as bought. Either is acceptable;
+            # neither is not.
+            token_test = bytes([0x80, 0x3D]) + (0x728B08).to_bytes(4, "little") + bytes([0x00])
             slot_read = bytes.fromhex("8B98E0700100")  # mov ebx, [eax+0x170E0]
             index = blob.find(slot_read)
             self.assertGreater(index, 0, "VV4 queue-slot read not found")
-            window = blob[index : index + 0x20]
+            window = blob[max(0, index - 0x20) : index + 0x20]
             self.assertTrue(
-                armed_test in window,
+                token_test in window or armed_test in window,
                 "VV4 decides the island row is pending from the shared queue "
-                "slot without consulting the barrel-armed flag, so buying a "
-                "Barrel makes the Island row claim an island event is already "
-                "on its way",
+                "slot without consulting the purchase token or the "
+                "barrel-armed flag, so a Barrel purchase and a natural event "
+                "are both indistinguishable from a bought island event",
             )
         self.assertTrue(found, "VV4 island-pending branch not found")
 
