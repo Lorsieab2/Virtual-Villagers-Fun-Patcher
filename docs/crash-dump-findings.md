@@ -177,6 +177,106 @@ are breakpoints, and no such crash happened. Check the exception code first.
 For completeness, no VVFP patch overlaps `sub_43DEF0` or any of its 78 call
 sites, with the positive control passing on the known patch at `0x402ED0`.
 
+## Virtual Villagers 1 -- A New Home, Time Warp
+
+The first crash reported from an actual playtest rather than found in the logs,
+and the only one with a full memory dump. The player bought Time Warp and the
+game crashed, in their words, "immediately when I returned to the village" --
+the Tech-screen-close transition, not the aged-village state the warp produces.
+
+`EIP = 0x00416391`, reading `0x9FE8`, `ESP` aligned, `eax = ecx = ebx = edx = 0`:
+
+    0x416380  sub esp, 8
+    0x416383  push esi
+    0x416384  mov  esi, ecx
+    0x416386  call sub_416350
+    0x41638B  mov  eax, [esi+1480h]     ; loads a pointer out of the object
+    0x416391  mov  cl,  [eax+9FE8h]     ; <-- faults, eax = 0
+
+The faulting address equals the offset exactly, so `eax` was null.
+
+### Two mechanisms proposed and both refuted
+
+This one took three attempts, and the discarded theories are recorded because
+each looked convincing and each would have been written up as the answer.
+
+**"The allocation failed."** The field's only writer in the whole image is
+`0x4172C8`, which stores the result of `sub_41D500` unchecked. That function is
+a lazy singleton which returns NULL when `operator new(0xADF4)` fails -- a clean
+fit. The dump refutes it: the cached singleton `dword_48AEDC` holds `0x027D2050`,
+and `edi` at the fault holds the same value. The allocation succeeded and the
+object is live. The crashing object at `esi = 0x0BD92A48` is a different
+instance.
+
+**"Three image loads returned NULL."** The initialiser at `0x417900` loads
+`lagoon_restored.jpg`, `temple_rebuilt.jpg` and `garden_restored.png` into
+`+0x1470`, `+0x1474` and `+0x1478`, and all three are zero in the dump. The file
+names match the reported symptom exactly -- tech-upgrade artwork, shown on
+returning to the village. It is still wrong, for two independent reasons:
+
+- The `jz` that reaches the `xor eax, eax` null path tests **`operator new`**,
+  not the image load. `sub_40A070`'s return value is never tested at all, so a
+  missing or unreadable image cannot produce these nulls; whatever it returns is
+  stored.
+- Allocation failure is impossible here anyway. The dump's `MemoryInfoList`
+  reports 407.6 MB committed, 1532.3 MB free, and a largest free block of
+  1098.04 MB. `operator new` cannot have failed for 28, 52 and 52 bytes.
+
+### What the memory actually shows
+
+A contiguous zero run from `+0x1470` to `+0x1488`, with live data on both sides:
+`+0x10E0` holds `0x0D8D6F00`, `+0x14B8` holds `0x0D8D6F54`, and `+0x148C` holds
+`0x0C05C445`. The object is populated -- 1282 non-zero bytes in its first 0x1500
+-- so this is not a freed block and not a wholesale zeroing.
+
+Those fields are still at their allocation-time zero while their neighbours were
+filled in by some other path. **The initialiser that owns them did not run on
+this object.** That is the certain claim. Which path reaches `sub_416380` on such
+an object is not traced, and is not guessed at here.
+
+Note also that `sub_416350`, called immediately before the faulting load, clears
+`+0x10` through `+0x1400` in 256 iterations of stride `0x14`. `+0x1480` lies
+past that range, so the clear is not what zeroed it.
+
+### Attribution
+
+`sub_423390` reaches the faulting function through a **vtable slot** in
+`.rdata:0x4598D0`, so this is virtual dispatch rather than a direct call.
+
+- The bytes that fault are byte-identical to the stock executable. Comparing
+  live crashed memory against the stock image: `sub_416380`, `sub_416350`,
+  `sub_423390`'s tail including the call site at `0x423494`, and the vtable slot
+  itself all match exactly. This is the same decisive form used for VV4, and it
+  is stronger than a patch-span scan because it cannot have a coverage hole.
+- VVFP has exactly two `.rdata` patches, at `0x456900` and `0x485D30`. Neither
+  covers `0x4598D0`, so the dispatch cannot have been redirected by this project.
+- No VVFP code calls `sub_423390`, `sub_416380`, `sub_4179D0`, `sub_417280` or
+  `sub_41D500`. Every `E8` relative call in every VV1 patch payload was decoded
+  and its target resolved; none of the five appears.
+- The patcher's own packaging is cleared separately: it copies the game folder
+  with `shutil.copytree` and no `ignore=` filter, then verifies every file by
+  size and SHA-256, raising rather than continuing on any mismatch.
+- The `Visual Mods` patch swaps two of the three named images. Its pinned
+  preimages were checked against the player's own untouched originals and match
+  exactly, as do both the replacement and restore copies against their manifest
+  hashes.
+
+One observation settles the packaging question without needing the folder, which
+has since been deleted: `temple_rebuilt.jpg` is **not** a file this project
+touches. Had a swap damaged the two that are, the third would still have loaded.
+All three were zero, so the outcome is not specific to the swapped files.
+
+### Status
+
+The dereference is unchecked stock code that this project does not patch, on a
+dispatch it cannot reach, in a function whose bytes it has not modified. No fix
+is proposed: the path that leaves the object half-initialised is untraced, and a
+fix aimed at an untraced path cannot be validated.
+
+A caveat that applies to this dump as it did to the VV5 ones: its module-name
+strings are scrubbed, so the loaded-module list cannot be read and is not relied
+on anywhere above.
+
 ## Virtual Villagers 2 -- The Lost Children
 
 Sixty-one records in the Windows event log, across four different builds. All 61

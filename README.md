@@ -536,10 +536,16 @@ Children immediately after the purchased/success dialog is displayed.** That
 records the observed trigger only; it does not establish whether the charge or
 the action persisted.
 
+**A later playtest did not reproduce it.** The player has since confirmed that
+Time Warp and the Food Point Doubler no longer crash The Lost Children. That is
+one clean run against one report, so it is recorded as what it is -- the trigger
+failing to reproduce -- rather than as a proven fix. The `.shr` repair described
+below is the most likely reason, but nothing here establishes that it was the
+cause.
+
 Nothing is disabled because of it: the VV2 Origins patch and its dependent
 village-wide upgrade are selectable, and its Doublers buy, remove and
-repurchase like every other game's. What is still outstanding is **runtime
-confirmation** -- the report has not been reproduced or cleared in a playtest.
+repurchase like every other game's.
 
 The crash audit did find `.shr` raw-offset versus virtual-address confusion in
 the VV2 builder, displacing some helper and header references by `0x2000`. The
@@ -562,9 +568,31 @@ prove the patch is uninvolved by some other path -- a hook can corrupt state tha
 stock code dereferences later -- so this narrows the question rather than
 answering it.
 
-None of that is a playtest, and the reported Time Warp and Food Point Doubler
-trigger has still not been reproduced or cleared. The full measurements, including
-what would falsify them, are in [docs/crash-dump-findings.md](docs/crash-dump-findings.md).
+The full measurements, including what would falsify them, are in
+[docs/crash-dump-findings.md](docs/crash-dump-findings.md).
+
+### A New Home: a Time Warp crash, once
+
+A player bought Time Warp in A New Home and the game crashed on returning to the
+village. It has happened once, with a full memory dump, and it has not recurred.
+
+The fault is a null pointer dereferenced without a check, in game code this
+project does not patch. The bytes that fault are byte-identical to the
+unmodified executable, the call reaches them through a vtable slot no patch here
+touches, and no code from this project appears anywhere on that path. The
+patcher's file copying is also not implicated: it copies the game folder whole
+and verifies every file by size and checksum, refusing to continue on a
+mismatch.
+
+What is **not** established is which sequence of events leaves the game in that
+state. Because that is untraced, no fix is proposed -- a change aimed at a cause
+nobody has pinned down could not be shown to work, and might hide the next
+occurrence. Two plausible explanations were investigated and both were disproved
+by the dump rather than argued away; the write-up records them so they are not
+proposed again.
+
+If it happens to you, the crash dump is what makes it traceable. The measurements
+are in [docs/crash-dump-findings.md](docs/crash-dump-findings.md).
 
 ### Status
 
@@ -572,7 +600,9 @@ These menus are verified by build-level tests -- exact bytes, dialog wording,
 and the purchased/success dialog paths -- and the patcher refuses to write an
 executable whose bytes it cannot account for. They have had far less **playtest**
 coverage than the ordinary patches, so **runtime** confirmation in a real village
-is still the last step for many rows, and the VV2 **crash** above is unresolved.
+is still the last step for many rows. The VV2 **crash** above did not reproduce
+in a later playtest; the A New Home one happened once and its trigger is still
+untraced.
 Whatever happens, the unmodified original EXE and folder are always left
 untouched beside the modded copy.
 
