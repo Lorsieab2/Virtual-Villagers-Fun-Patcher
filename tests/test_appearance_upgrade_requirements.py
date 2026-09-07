@@ -409,7 +409,7 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # Dislike-clear helper (0x8BE80); and the detour that
                     # splices the hook into sub_437790's per-villager
                     # render loop right after its own occupied-flag check.
-                    "0x8BEA8", "0x377B8", "0x24103", "0x913C",
+                    "0x8BEA8", "0x377B8", "0x913C",
                     # Change Appearance for All (Tech screen row 11): its
                     # DLL-dispatch stub (resolve + call the whole-village
                     # chooser export, which owns its own afford check,
@@ -446,7 +446,10 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # Live mask maintenance: the existing per-frame cache
                     # hook now calls the owned Vv1MaskTick resolver/caller;
                     # its export name and resolver live in the .vv1mc tail.
-                    "0x8E400", "0x8E6C0", "0x8E8F0", "0x8E900",
+                    "0x8E400", "0x8E580", "0x8E6C0", "0x8E8F0", "0x8E900",
+                    # Startup-crash repair: remove the obsolete back-edge
+                    # detour at 0x24103 and its now-unused relocated stub.
+                    "0x24103",
                     # Exact newborn/allocation reuse guard: the stock splice
                     # and its patch-owned cave clear the selected mask nibble
                     # and mark the active sidecar dirty for Vv1MaskTick.

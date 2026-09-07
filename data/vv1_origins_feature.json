@@ -286,8 +286,8 @@
     },
     {
       "offset": "0x8E820",
-      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "9C608B44242883F805777D83F80172783B05F41149007470A3F4114900C605A811490000C7059810490000000000C7059C10490000000000C705B4114900FFFFFFFFC705A010490000000000C705A410490000000000C60500D7480000C70504D7480000000000C60508D748000031C0BF00104900B920000000F3ABBFD0114900B908000000F3AB619D8B4424048B11E92126F7FF",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "9C608B44242883F805775F83F801725A3B05F41149007452A3F4114900C605A811490000C7059810490000000000C705B4114900FFFFFFFFC60500D7480000C70504D7480000000000C60508D748000031C0BF00104900B920000000F3ABBFD0114900B908000000F3AB619D8B4424048B11E93F26F7FF",
       "purpose": "capture the exact VV1 numbered village save-slot argument at 0x402ED0 into .vv1md and reset the restore/frame/table state AND the queued Barrel/Island event state (pending flag, delay counter, three-child one-shot) on a real slot change, so a purchase made in one village cannot leave the next village's row reading Unavailable or deliver into a save that never paid for it; slot zero (the meta file) and out-of-range values leave the live capture and mask tables untouched"
     },
     {
@@ -310,15 +310,9 @@
     },
     {
       "offset": "0x8E400",
-      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "0F85C884FAFF8935981049008B8CBEDCDB030081F900010000735589CAD1EA0FB69200104900F6C1017405C1EA04EB0383E20F85D2743983FA057734538B1D9C10490081FB000100007324888BA8104900FF059C1049008B9E10E003008B4B08890DA01049008B4B0C890DA41049005BE94973FAFF803DA8114900007505E83D020000E8780400008B4E30890D941049005189F1E9A98CF7FF",
-      "purpose": "cosmetic head-mask overlay: the stash-only occupied-check hook and the per-frame destination-surface cache hook (the draw hook itself is relocated -- see below) -- lazy-IMG_Load's a mask PNG once per colour (cached in .data forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over. All writable state (surface cache, pending-draw slot, dest-surface cache, villager-array base, and the 128-byte mask table) lives in .data, NOT in this executable .shr blob, so nothing writes into an executable page at runtime (W^X). Never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field"
-    },
-    {
-      "offset": "0x8E580",
-      "before": "0000000000000000000000000000000000000000",
-      "after": "8B4E086A00C7059C10490000000000E9743BF9FF",
-      "purpose": "cosmetic head-mask overlay draw hook, relocated to its own confirmed-zero .shr gap: it recomputes each masked villager's screen position, facing frame and colour from the 1-byte record index the stash hook left this frame plus the saved village scroll, then blits the matching mask cell; too big to sit in the 0x8BEA8 cave beside the stash and frame-cache hooks"
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "0F85C884FAFF893598104900E9AD73FAFF803DA8114900007505E8A1020000E8DC0400008B4E30890D941049005189F1E90D8DF7FF",
+      "purpose": "cosmetic head-mask overlay: the occupied-check manager hook and the per-frame destination-surface cache hook for the active shared all-pose renderer. All writable state (surface cache, dest-surface cache, villager-array base, and the 128-byte mask table) lives in the patch-owned R/W data section, not executable code. Never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field"
     },
     {
       "offset": "0x8E720",
@@ -417,16 +411,10 @@
       "purpose": "splice the mask-overlay stash hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, neither is modified by this hook"
     },
     {
-      "offset": "0x24103",
-      "before": "8B4E086A00",
-      "after": "E978C40600",
-      "purpose": "splice the mask-overlay draw hook into FUN_00423390 right after its own 'call sub_437790' returns. Reproduces the displaced 'mov ecx,[esi+8] / push 0' pair exactly before resuming the native call that follows; the draw itself now targets DEST_SURFACE_CACHE_VA (see MASK_THIRD_DETOUR below) rather than this function's own esi+0x30, which direct ReadProcessMemory inspection proved reads a stable but invalid surface here (0x0BAD0D60, w=904 h=0 pitch=0 pixels=0x5D9, 10/10 samples)"
-    },
-    {
       "offset": "0x913C",
       "before": "8B4E30518BCE",
-      "after": "E93473080090",
-      "purpose": "splice into FUN_00409060 (the true main per-frame tick) immediately before its own call to FUN_00403830 (the function that does the real SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain) -- reproduces the displaced 'mov ecx,[esi+0x30] / push ecx / mov ecx,esi' trio exactly (native presentation is bit-for-bit unchanged) and additionally caches that same, definitively-correct destination-surface pointer into DEST_SURFACE_CACHE_VA for the mask draw hook (splice point 2) to consume"
+      "after": "E9D072080090",
+      "purpose": "splice into FUN_00409060 (the true main per-frame tick) immediately before its own call to FUN_00403830 (the function that does the real SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent chain) -- runs the active mask restore/tick maintenance, reproduces the displaced 'mov ecx,[esi+0x30] / push ecx / mov ecx,esi' trio exactly (native presentation is bit-for-bit unchanged), and retains the already-reviewed destination-surface snapshot"
     },
     {
       "offset": "0x2ED0",
