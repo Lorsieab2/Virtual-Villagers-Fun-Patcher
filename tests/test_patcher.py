@@ -1009,7 +1009,7 @@ class ManifestTests(unittest.TestCase):
             # vv2 +6 for the unbounded slot-scan guards: each site costs a
             # trampoline plus a cave. See tests/test_slot_scan_saturation_guard.py.
             expected_safety_counts = {
-                "vv1": 21,
+                "vv1": 22,
                 "vv2": 21,
                 "vv3": 9,
                 "vv4": 11,
