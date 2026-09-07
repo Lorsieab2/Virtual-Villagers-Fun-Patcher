@@ -318,7 +318,16 @@ static void appearance_repaint(HWND window, int control) {
    bit 9 means both "row 9 satisfied" and "row 1 unavailable". */
 enum {
     STATE_ISLAND_PENDING = 0x800000,
-    STATE_BARREL_PENDING = 0x1000000
+    STATE_BARREL_PENDING = 0x1000000,
+    /* Set when the barrel cannot be delivered because the village has no room
+       for the children, as distinct from one already being queued.
+
+       These shared a bit until Codex caught it on #254: the payload set
+       STATE_BARREL_PENDING for BOTH causes, so a player whose village was full
+       was told a barrel had already been bought -- a plainly false statement
+       about their own save. VV4 was worse still, setting the barrel bit while
+       only an Island Event was pending. */
+    STATE_BARREL_NO_ROOM = 0x2000000
 };
 
 enum {
@@ -365,20 +374,151 @@ static int vv5_has_free_villager_slots(int wanted) {
     return 0;
 }
 
-static int row_purchase_pending(int villager_menu, int row, long state) {
+/* The live population cap, rebuilt exactly the way the payload's own
+   barrel_room rebuilds it -- which is in turn exactly how the game's gate at
+   0x472BD0 builds it.
+
+   This is a SECOND capacity question, not a restatement of the record scan
+   above. That scan counts free physical records; this counts against the
+   population maximum the installed mode actually set. A village at its cap
+   with records to spare -- the ordinary case -- passes the scan and fails
+   this, and until now the row only asked the scan, so it read "Buy" and the
+   purchase then refused it. Codex found this on #254.
+
+   The bonuses and base are read from the bytes the population mode installed
+   rather than hardcoded, so this tracks stock (90 + 15 = 105), Collection
+   Progression (135 + 15 = 150) and Immediate Fixed (60 + 90 = 150) without
+   knowing which is present:
+
+     * the two collection bonuses (+5 each, both -> 15) come from the game's
+       own 0x414690 on manager 0x4DBFC8, which is __thiscall;
+     * Immediate Fixed replaces the "both -> 15" step at 0x472C04 with
+       `mov esi, 0x3C`, so a 0xBE opcode there means a flat base with the
+       bonuses discarded;
+     * stock still has `add esi, 0x5A` at 0x472C49 (opcode 0x83), so the base
+       is its own byte operand; the population modes replace that with a jump
+       to the 0x494500 helper, whose `add esi, imm32` carries the raised base.
+
+   Fails OPEN, unlike the payload's copy, and deliberately: this only decides
+   whether to grey a row and say why, so an unrecognised form must not invent
+   a refusal the purchase gate would not make. The payload's own check still
+   fails closed before any charge, which is where the money is at stake. */
+static int vv5_barrel_has_room_for_three(void) {
+    unsigned int bonus = 0;
+    unsigned int maximum;
+    unsigned int current;
+
+    if (*(volatile unsigned char *)(UINT_PTR)0x472C04 == 0xBE) {
+        maximum = *(volatile unsigned int *)(UINT_PTR)0x472C05;
+    } else {
+        __asm {
+            push 0x68
+            mov ecx, 0x4DBFC8
+            mov eax, 0x414690
+            call eax
+            test al, al
+            je v5r_second
+            add dword ptr bonus, 5
+        v5r_second:
+            push 0x50
+            mov ecx, 0x4DBFC8
+            mov eax, 0x414690
+            call eax
+            test al, al
+            je v5r_done
+            add dword ptr bonus, 5
+        v5r_done:
+        }
+        maximum = (bonus == 10u) ? 15u : bonus;
+    }
+
+    if (*(volatile unsigned char *)(UINT_PTR)0x472C49 == 0x83) {
+        maximum += *(volatile unsigned char *)(UINT_PTR)0x472C4B;
+    } else if (*(volatile unsigned char *)(UINT_PTR)0x472C49 == 0xE9) {
+        maximum += *(volatile unsigned int *)(UINT_PTR)0x494502;
+    } else {
+        return 1;               /* unrecognised form -> claim nothing */
+    }
+
+    __asm {
+        mov eax, 0x4944C0
+        call eax
+        mov current, eax
+    }
+    return (current + 3u <= maximum) ? 1 : 0;
+}
+
+/* Why a Tech-menu row is blocked, or BLOCK_NONE.
+
+   The two causes are kept distinct rather than collapsed into a boolean,
+   because they ask completely different things of the player: a queued event
+   clears itself in a few seconds, while a full village needs them to act. The
+   row used to be drawn as a disabled button reading "Unavailable", which
+   conveyed neither -- and a disabled button also swallows the click, so there
+   was nowhere to put an explanation even if one existed.
+
+   This covers only the two queued-event rows. VV5 also disables rows for
+   STATE_LIMITED_CAPABILITY, which means something else entirely (this build
+   is not verified for that path) and keeps its own "Unavailable" label. */
+enum {
+    BLOCK_NONE = 0,
+    BLOCK_ALREADY_PENDING = 1,
+    BLOCK_NO_VILLAGER_SLOTS = 2
+};
+
+#define ROW_STATE_MAX 16
+static int block_reasons[ROW_STATE_MAX];
+
+static const char *block_reason_text(int reason, int row) {
+    if (reason == BLOCK_NO_VILLAGER_SLOTS) {
+        return "There is not enough room in the village for the three children "
+               "a barrel brings.\n\nThree villager slots have to be free. A "
+               "villager who has died still occupies a slot until they are "
+               "buried, and a pregnancy holds one too, so burying any remains "
+               "may be enough to free the space.";
+    }
+    if (row == PENDING_ROW_ISLAND) {
+        return "An island event has already been bought and is on its way."
+               "\n\nIt arrives a few seconds after this screen closes. Buying "
+               "it again would charge you a second time for the same event, "
+               "so close this screen and wait for it to arrive.";
+    }
+    return "A barrel of babies has already been bought and is on its way."
+           "\n\nIt arrives a few seconds after this screen closes. Buying it "
+           "again would charge you a second time for the same barrel, so "
+           "close this screen and wait for it to arrive.";
+}
+
+static int row_block_reason(int villager_menu, int row, long state) {
     if (villager_menu) {
-        return 0;
+        return BLOCK_NONE;
     }
     if (row == PENDING_ROW_ISLAND && (state & STATE_ISLAND_PENDING) != 0) {
-        return 1;
+        return BLOCK_ALREADY_PENDING;
     }
     if (row != PENDING_ROW_BARREL) {
-        return 0;
+        return BLOCK_NONE;
+    }
+    /* All three capacity sources, because they refuse independently. The
+       payload may publish STATE_BARREL_NO_ROOM; the record scan catches
+       physical exhaustion (slots held by the dead); and the live cap catches
+       the ordinary population boundary. Asking only the first two left the row
+       reading "Buy" right up to the mode's maximum, and the purchase preflight
+       then refused what the row had just offered. */
+    if ((state & STATE_BARREL_NO_ROOM) != 0
+        || !vv5_has_free_villager_slots(VV5_BARREL_CHILDREN)
+        || !vv5_barrel_has_room_for_three()) {
+        return BLOCK_NO_VILLAGER_SLOTS;
     }
     if ((state & STATE_BARREL_PENDING) != 0) {
-        return 1;
+        return BLOCK_ALREADY_PENDING;
     }
-    return !vv5_has_free_villager_slots(VV5_BARREL_CHILDREN);
+    return BLOCK_NONE;
+}
+
+/* Thin wrapper so callers needing only the yes/no answer are unchanged. */
+static int row_purchase_pending(int villager_menu, int row, long state) {
+    return row_block_reason(villager_menu, row, state) != BLOCK_NONE;
 }
 
 static INT_PTR CALLBACK appearance_dialog(
@@ -1242,6 +1382,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         int first_unsupported_row = villager_menu ? 4 : 6;
         int row_count = villager_menu ? 5 : 14;
         int row;
+        int blocked;
+        for (row = 0; row < ROW_STATE_MAX; ++row) {
+            block_reasons[row] = BLOCK_NONE;
+        }
         for (row = 0; row < row_count; ++row) {
             /* Unlike the other games, VV5 hides the badge inside this loop
                rather than in a separate pass beforehand, so the hide has to
@@ -1249,15 +1393,37 @@ static INT_PTR CALLBACK upgrade_dialog(
                badges VISIBLE, and skipping it would leave a stale green
                checkmark on the row. */
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
-            if (row_purchase_pending(villager_menu, row, (long)lparam)) {
+            /* A row this BUILD cannot run is refused before any reason is
+               computed, and BOTH forms of that have to be tested here.
+               STATE_LIMITED_CAPABILITY covers rows at or above
+               first_unsupported_row; the per-row bit 1 << (8 + row) covers the
+               rest, and the expanded layout sets exactly those -- menu_state
+               0x700 is bits 8, 9 and 10, which are rows 0, 1 and 2, and row 2
+               is the Barrel.
+               Asking row_block_reason first let its capacity check win on a
+               row the build does not bind at all, turning an unsupported row
+               into a clickable "Why not?" promising that freeing three
+               villager slots would allow the purchase -- and after the player
+               freed them the row went back to "Unavailable" and still did
+               nothing. A false remedy is worse than a bare refusal, which is
+               the opposite of what these reasons exist for. Codex found this
+               on #254; the capability half alone does not cover row 2. */
+            if ((limited_capability && row >= first_unsupported_row)
+                || (lparam & (1L << (8 + row))) != 0) {
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
                 continue;
             }
-            if (limited_capability && row >= first_unsupported_row) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
-            } else if ((lparam & (1 << row)) != 0) {
+            blocked = row_block_reason(villager_menu, row, (long)lparam);
+            if (blocked != BLOCK_NONE) {
+                /* Enabled on purpose: the WM_COMMAND handler intercepts the
+                   click, explains, and neither closes the dialog nor charges. */
+                block_reasons[row] = blocked;
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Why not?");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
+                continue;
+            }
+            if ((lparam & (1 << row)) != 0) {
                 /* Only the two Doublers may ever show a green check, and only
                    while they are owned in the current save. Every other row --
                    including the Details menu's already-satisfied rows, whose
@@ -1273,17 +1439,29 @@ static INT_PTR CALLBACK upgrade_dialog(
                 } else {
                     EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
                 }
-            } else if ((lparam & (1 << (8 + row))) != 0) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
+            /* No trailing `1 << (8 + row)` branch here any more: that bit is
+               tested at the top of the loop, before any reason is computed,
+               and `continue`s. Leaving a second copy would be unreachable
+               code documenting a path that cannot run. */
         }
         return TRUE;
     }
     if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
-            EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
+            int clicked = (int)(command - ID_BUY_FIRST);
+            if (clicked >= 0 && clicked < ROW_STATE_MAX
+                && block_reasons[clicked] != BLOCK_NONE) {
+                /* Explain and stay open. Returning the row here would run the
+                   purchase path and charge for it. */
+                MessageBoxA(window,
+                            block_reason_text(block_reasons[clicked], clicked),
+                            "Not right now",
+                            MB_OK | MB_ICONINFORMATION);
+                return TRUE;
+            }
+            EndDialog(window, (INT_PTR)clicked);
             return TRUE;
         }
         if (command == IDCANCEL) {

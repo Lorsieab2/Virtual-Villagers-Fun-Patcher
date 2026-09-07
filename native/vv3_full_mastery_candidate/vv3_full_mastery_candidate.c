@@ -398,22 +398,48 @@ static int vv3_has_free_villager_slots(int wanted) {
    it can reach the world manager and read the two values itself. Nothing is
    asked of the executable.
 
-   It reads the manager's singleton POINTER (0x4B309C) rather than calling the
-   getter at 0x428B60 that the executable's own purchase path uses. That getter
-   is a lazy constructor: when the pointer is null it allocates 0x12FD4 bytes
-   and constructs the manager. Building the menu must not have that side
-   effect, and a null pointer already answers the question -- with no manager
-   there is nothing pending.
+   Both pending answers now come from flags the payload owns -- the Barrel's at
+   0x4B3C75 and the Island's at 0x6E0050 -- so the row predicate reads plain
+   bytes and needs no manager at all. It deliberately does NOT call the getter
+   at 0x428B60 that the executable's purchase path uses: that getter is a lazy
+   constructor which allocates 0x12FD4 bytes and builds the manager when the
+   pointer is null, and merely drawing a menu must not have that side effect.
 
-   The manager layout differs between the stock and expanded builds. The
-   executable picks between them by testing whether the immediate at 0x42883A
-   is 256, and this uses that same probe so both builds read the right field. */
+   The capacity half still walks villager records, and that walk is where the
+   stock/expanded layout difference matters: the executable distinguishes the
+   two by testing whether the immediate at 0x42883A is 256, and
+   vv3_has_free_villager_slots uses the same probe. */
 #define VV3_MANAGER_SINGLETON     0x4B309C
 #define VV3_ARCH_PROBE            0x42883A
 #define VV3_ARCH_EXPANDED_VALUE   0x100
 #define VV3_ARCH_EXPANDED_OFFSET  0x7598
 #define VV3_ISLAND_COUNTDOWN_OFF  0x12EF4
 #define VV3_BARREL_PENDING_FLAG   0x4B3C75
+/* The purchased Island Event's pending flag, in the patch's own appended data
+   page (SECTION_DATA_VA + 0x50), set when the purchase arms the queue and
+   cleared once the island-event handler has actually consumed it.
+
+   This must be READ, never re-derived. The countdown field above cannot answer
+   the question: the purchase writes clock() + QUEUE_DELAY_SECONDS there, so it
+   is non-zero throughout the queue window, and comparing it against a window
+   was tried and removed on #249 for three separate reasons. The decisive one is
+   that the handler runs only during village gameplay, so an event armed and
+   then left overdue in the paused Tech menu is still outstanding while any
+   timestamp comparison says otherwise -- which either refuses legitimate
+   purchases or re-opens the double charge. The payload and this predicate must
+   share one definition of "pending", and the flag is it. */
+#define VV3_ISLAND_PENDING_FLAG   0x6E0050
+
+/* The scheduler's own clock, 0x403330: converts GetSystemTimeAsFileTime through
+   10,000,000 and returns Unix epoch SECONDS -- the same units the purchase
+   writes into [manager+0x12EF4]. Calling it is side-effect free (it constructs
+   nothing), which is what makes it safe from a menu-draw path. */
+#define VV3_SCHEDULER_CLOCK 0x403330
+
+static unsigned int vv3_scheduler_now(void) {
+    typedef unsigned int(__cdecl * clock_t_fn)(void);
+    return ((clock_t_fn)(UINT_PTR)VV3_SCHEDULER_CLOCK)();
+}
 
 enum {
     VV3_PENDING_ROW_ISLAND = 1,
@@ -422,31 +448,127 @@ enum {
 
 /* Is this Tech-menu row blocked by an identical purchase already pending?
    Villager-menu rows are never affected. */
-static int vv3_row_purchase_pending(int villager_menu, int row) {
-    unsigned char *manager;
-    int extra;
+/* Why a Tech-menu row is blocked, or VV3_BLOCK_NONE.
 
+   The two causes are distinguished rather than collapsed into a boolean,
+   because they call for completely different things from the player: a queued
+   event clears itself in seconds, while a full village needs them to act. The
+   row used to be drawn as a disabled button reading "Unavailable", which said
+   neither. */
+enum {
+    VV3_BLOCK_NONE = 0,
+    VV3_BLOCK_ALREADY_PENDING = 1,
+    VV3_BLOCK_NO_VILLAGER_SLOTS = 2
+};
+
+#define VV3_ROW_STATE_MAX 16
+static int vv3_block_reasons[VV3_ROW_STATE_MAX];
+
+static const char *vv3_block_reason_text(int reason, int row) {
+    if (reason == VV3_BLOCK_NO_VILLAGER_SLOTS) {
+        return "There is not enough room in the village for the three children "
+               "a barrel brings.\n\nThree villager slots have to be free. A "
+               "villager who has died still occupies a slot until they are "
+               "buried, and a pregnancy holds one too, so burying any remains "
+               "may be enough to free the space.";
+    }
+    if (row == VV3_PENDING_ROW_ISLAND) {
+        return "An island event has already been bought and is on its way."
+               "\n\nIt arrives a few seconds after this screen closes. Buying "
+               "it again would charge you a second time for the same event, "
+               "so close this screen and wait for it to arrive.";
+    }
+    return "A barrel of babies has already been bought and is on its way."
+           "\n\nIt arrives a few seconds after this screen closes. Buying it "
+           "again would charge you a second time for the same barrel, so "
+           "close this screen and wait for it to arrive.";
+}
+
+/* Defined further down, next to the export that shares it. */
+static int vv3_barrel_has_room_for_three(void);
+
+static int vv3_row_block_reason(int villager_menu, int row) {
     if (villager_menu) {
-        return 0;
+        return VV3_BLOCK_NONE;
     }
     if (row == VV3_PENDING_ROW_BARREL) {
-        if (*(volatile unsigned char *)(UINT_PTR)VV3_BARREL_PENDING_FLAG != 0) {
-            return 1;
+        /* Capacity is checked FIRST, matching the other four games. The two
+           causes are independent -- a queued barrel and a full village can hold
+           at once -- and "no room" is the more actionable, since waiting clears
+           a queue but not a village. Answering "already on its way" to a player
+           whose village has since filled up tells them to wait for a barrel
+           that will arrive short. */
+        /* BOTH capacity questions, because they refuse independently and the
+           purchase gate is subject to both. The record scan catches physical
+           exhaustion -- skeletons and corpses still occupying slots -- while
+           the live cap catches the ordinary case of a village at its current
+           mode's population maximum with records to spare. Asking only the
+           scan left the row reading "Buy" right up to the cap, and the
+           preflight then refused the purchase the row had just offered. */
+        if (!vv3_has_free_villager_slots(VV3_BARREL_CHILDREN)
+            || !vv3_barrel_has_room_for_three()) {
+            return VV3_BLOCK_NO_VILLAGER_SLOTS;
         }
-        return !vv3_has_free_villager_slots(VV3_BARREL_CHILDREN);
+        if (*(volatile unsigned char *)(UINT_PTR)VV3_BARREL_PENDING_FLAG != 0) {
+            return VV3_BLOCK_ALREADY_PENDING;
+        }
+        return VV3_BLOCK_NONE;
     }
     if (row != VV3_PENDING_ROW_ISLAND) {
-        return 0;
+        return VV3_BLOCK_NONE;
     }
-    manager = *(unsigned char *volatile *)(UINT_PTR)VV3_MANAGER_SINGLETON;
-    if (manager == NULL) {
-        return 0;                 /* no manager yet -> claim nothing */
+    /* Read the payload's own pending flag rather than inferring pending-ness
+       from the countdown. The old test was `countdown == 0`, but the purchase
+       stores clock() + QUEUE_DELAY_SECONDS there, so the field is NON-zero for
+       the whole queue window: the row stayed buyable, and the player could pay
+       another 30,000 points to overwrite the same due stamp. See the comment on
+       VV3_ISLAND_PENDING_FLAG for why no timestamp comparison can replace it. */
+    if (*(volatile unsigned char *)(UINT_PTR)VV3_ISLAND_PENDING_FLAG == 0) {
+        return VV3_BLOCK_NONE;
     }
-    extra = (*(volatile unsigned int *)(UINT_PTR)VV3_ARCH_PROBE
-             == (unsigned int)VV3_ARCH_EXPANDED_VALUE)
-        ? VV3_ARCH_EXPANDED_OFFSET
-        : 0;
-    return *(volatile int *)(manager + extra + VV3_ISLAND_COUNTDOWN_OFF) == 0;
+    /* Retire a DELIVERED event before answering.
+
+       The payload sets this flag when it arms the queue; the native handler
+       then presents the event once the due stamp is reached. The payload's
+       frame hook has no room left to clear the flag -- its slot is 47 bytes
+       and the clearing sequence does not fit -- so the retirement lives here,
+       in the DLL, which is where logic goes when cave space runs out.
+
+       This is NOT the timestamp-window heuristic removed on #249. That one
+       inferred pending-ness from how long ago the stamp was written, which is
+       unanswerable while the game is paused. This compares the game's own
+       scheduler clock against the due stamp the purchase wrote: strictly
+       before it, the event is still queued; at or after it, the handler has
+       had its chance to run and the flag is stale.
+
+       The comparison is deliberately one-directional. [manager+0x12EF4] holds
+       an epoch-SECONDS due time, and it is NOT known whether the native
+       handler zeroes that field or rewrites it to the next natural event, so
+       neither "== 0" nor "changed" can be relied on to mean consumed. "The due
+       second has passed" is true under both, which is why it is the test used.
+
+       Reading the singleton directly rather than the lazy getter at 0x428B60
+       keeps drawing a menu free of side effects, and a null manager leaves the
+       flag alone. */
+    {
+        unsigned char *manager =
+            *(unsigned char **)(UINT_PTR)VV3_MANAGER_SINGLETON;
+        if (manager != 0) {
+            unsigned int due = *(volatile unsigned int *)
+                (manager + VV3_ISLAND_COUNTDOWN_OFF);
+            unsigned int now = vv3_scheduler_now();
+            if (now != 0 && due != 0 && now >= due) {
+                *(volatile unsigned char *)(UINT_PTR)VV3_ISLAND_PENDING_FLAG = 0;
+                return VV3_BLOCK_NONE;
+            }
+        }
+    }
+    return VV3_BLOCK_ALREADY_PENDING;
+}
+
+/* Thin wrapper so callers that only need the yes/no answer are unchanged. */
+static int vv3_row_purchase_pending(int villager_menu, int row) {
+    return vv3_row_block_reason(villager_menu, row) != VV3_BLOCK_NONE;
 }
 
 
@@ -484,6 +606,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                     ? 8
                     : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6)));
         int row;
+        int blocked;
         /* Hide EVERY badge the dialog can carry, not just the first nine.
            The tech menu runs to 14 rows (6 base + 3 village-wide grants +
            Complete/Reset Collections + two Equal Division rows + Change
@@ -495,13 +618,20 @@ static INT_PTR CALLBACK upgrade_dialog(
            ones that can ever display a checkmark, and only while owned in the
            current save.  GetDlgItem returns NULL for a row this game does not
            declare and ShowWindow(NULL, ...) is a harmless no-op. */
+        for (row = 0; row < VV3_ROW_STATE_MAX; ++row) {
+            vv3_block_reasons[row] = VV3_BLOCK_NONE;
+        }
         for (row = 0; row < 14; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
-            if (vv3_row_purchase_pending(villager_menu, row)) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+            blocked = vv3_row_block_reason(villager_menu, row);
+            if (blocked != VV3_BLOCK_NONE) {
+                /* Enabled on purpose: a disabled button swallows the click,
+                   so there would be nothing to explain the refusal with. */
+                vv3_block_reasons[row] = blocked;
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Why not?");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
             if ((lparam & (1 << row)) != 0) {
@@ -531,7 +661,18 @@ static INT_PTR CALLBACK upgrade_dialog(
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             int row = (int)(command - ID_BUY_FIRST);
-            const char *name = s_villager_menu ? detail_names[row] : tech_names[row];
+            const char *name;
+            if (row >= 0 && row < VV3_ROW_STATE_MAX
+                && vv3_block_reasons[row] != VV3_BLOCK_NONE) {
+                /* Explain and stay open. Falling through would run the
+                   purchase path and charge for it. */
+                MessageBoxA(window,
+                            vv3_block_reason_text(vv3_block_reasons[row], row),
+                            "Not right now",
+                            MB_OK | MB_ICONINFORMATION);
+                return TRUE;
+            }
+            name = s_villager_menu ? detail_names[row] : tech_names[row];
             const char *cost = s_villager_menu ? detail_costs[row] : tech_costs[row];
             /* Owned Tech/Food Doublers (rows 3/4) show an explicit "Remove"
                button. Removal is not a purchase and therefore has no
@@ -1906,7 +2047,16 @@ __declspec(dllexport) int __stdcall PrepareOriginsVillageWide(int command) {
    Barrel preflight can refuse before charging.  These absolute addresses are
    fixed: the game exe is non-ASLR (image base 0x00400000) and loaded in this
    process. */
-__declspec(dllexport) int __stdcall PrepareBarrelBabies(void) {
+/* The body is a plain static so the row predicate can ask the SAME question the
+   purchase gate asks. It used to be reachable only through the export, and the
+   row predicate answered a different one -- vv3_has_free_villager_slots counts
+   free physical RECORDS, while this computes the live population CAP. At the
+   cap with records still free (90 living villagers in stock mode with no
+   bonuses, say) the row read "Buy" and the preflight below then refused it, so
+   the capacity explanation only ever appeared for record exhaustion, never for
+   the boundary players actually hit. Codex found this on #254. Keeping one
+   implementation means the two answers cannot drift apart again. */
+static int vv3_barrel_has_room_for_three(void) {
     unsigned int current = 0;
     unsigned int maxpop = 0;
 
@@ -1956,6 +2106,10 @@ __declspec(dllexport) int __stdcall PrepareBarrelBabies(void) {
         pop ebx
     }
     return (current + 3u <= maxpop) ? 1 : 0;
+}
+
+__declspec(dllexport) int __stdcall PrepareBarrelBabies(void) {
+    return vv3_barrel_has_room_for_three();
 }
 
 /* ---- Tech-screen one-shot / guard result boxes ----

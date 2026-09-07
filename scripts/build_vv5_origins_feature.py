@@ -1192,7 +1192,7 @@ def main() -> None:
         replacement = bytes.fromhex(str(item["after"]))
         rendered[offset : offset + len(replacement)] = replacement
     OUT_EXE.write_bytes(rendered)
-    OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
+    OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8", newline="")
     manifest = {
         "id": "vv5_enable_origins_exclusive_features",
         "game_id": "vv5",
@@ -1335,7 +1335,7 @@ def main() -> None:
             "patches": [],
         },
     }
-    MANIFEST_JSON.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    MANIFEST_JSON.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
     used = max(i for i, value in enumerate(code) if value) + 1
     print(f"code bytes used: {used:#x}/{STRINGS_OFFSET:#x}")
     print(f"string bytes used: {len(strings):#x}/{PAYLOAD_SIZE - STRINGS_OFFSET:#x}")

@@ -695,18 +695,18 @@ VV5_TASK9_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "14F5045FEB4338EB3AF828A24409299AA0B0848A1659208B6F567879F7CB25B8",
-    "map": "69A89E0FBCF9C85D8911D60E038CE6A69D5997EDA9C42419397D910911E38214",
+    "manifest": "7E9A0F4FFD46C24B1C7E9CECA018667F065C2E5E1B05B2C3983F9E42A526E0B0",
+    "map": "EAC6FD8E480C1637E69D7818F34AD4271A6846CECB646D2F79C5D0F749D77268",
 }
-VV5_TASK9_DLL_SHA256 = "5E9D90D0B7F75E3A930F3E59E7A185FE6DC4E5D20EF23028D42C81C5D9A7A960"
+VV5_TASK9_DLL_SHA256 = "98990A2306E2F3ACA4978FAEB162E63509BFFEC9F3C640D242957F348C9913F2"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "617704BB6775D244BCAE7D63E34BC08B3C7D7AFCA5543DEB588A7B3EE3007DB0",
-    "immediate_fixed": "617704BB6775D244BCAE7D63E34BC08B3C7D7AFCA5543DEB588A7B3EE3007DB0",
-    "experimental_expanded_256": "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457",
-    "experimental_expanded_256_progression": "88AEDF7FAE96AA725744EC00E63C9F5262AC73D0E29DFF9ABB2EDCF5BACD9457",
+    "collection_progression": "31E5E3C1D1FE323B76EE540C771E29AAC1A17F89468555999E31E16479BAB046",
+    "immediate_fixed": "31E5E3C1D1FE323B76EE540C771E29AAC1A17F89468555999E31E16479BAB046",
+    "experimental_expanded_256": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
+    "experimental_expanded_256_progression": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
 }
 VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -736,8 +736,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "7EE17141685B0EA682507E91002F4F8E06F69AE97430CC1CADFDA39EDD147F80",
-    "task9_builder": "339A0271152E8CBAE2B650089C49A7FA24F4DB1C6D7AC7F8A3DFDD972EC9DC7D",
+    "builder": "A535FE196C8A16AE31F126585F54C4A79E962E6E96DBE01B30A08E416E9D3CE6",
+    "task9_builder": "66460A7EF09B6662C0EB324CC5426A204F79271DAFC68FC6F4DD66FEECA412AE",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -746,8 +746,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
         "core": "5AA28CEAAFBC6F4278FF01C41F67E0394227C272123EAC9433BD6D011A4087CE",
     },
     "vv5": {
-        "manifest": "212D5D439044CAB1CA7DE38066C4F84CB01CA6BFC23C0080E93C61AE518C6BA6",
-        "map": "37A74CBB6AD2A62AE76CB04ADE2D3542895CF62B27F78E3D615BAE7129314501",
+        "manifest": "9E3F5FD9811ED60F425DE8AD05E8DF8942B15F9EFE4196195E76E4EDDD88C5E1",
+        "map": "E56EA100E85C94AC7CF42867F2F3CCB3EA0F734E6855EFBC27E070A5B1FE953D",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -2158,7 +2158,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1756160,
+        "size": 1757184,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -2491,7 +2491,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1756160,
+        "size": 1757184,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -2683,11 +2683,11 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
                 or record.get("companion_contract") != expected_companion
                 or len(first) != 4
                 or [item.get("offset") for item in first]
-                != ["0xF4846", "0xF48AB", "0xF5040", "0xFB0C9"]
+                != ["0xF4846", "0xF48B0", "0xF5040", "0xFB0C9"]
                 or first[0].get("before") != "B800070000F70588D351"
                 or first[0].get("after") != "B8001E0000E93F000000"
-                or first[1].get("before") != "83FB030F82B3000000"
-                or first[1].get("after") != "83FB050F828C070000"
+                or first[1].get("before") != "83FB030F8214010000"
+                or first[1].get("after") != "83FB050F8287070000"
                 or first[2].get("before_fill") != "00"
                 or first[2].get("length") != 0x500
                 or artifact.get("layout", {}).get("stock_page_sha256")

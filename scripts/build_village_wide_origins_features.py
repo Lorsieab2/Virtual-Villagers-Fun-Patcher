@@ -1069,7 +1069,7 @@ def main() -> None:
                 }
             )
         manifest_path = ROOT / "data" / f"{feature_id}.json"
-        manifest_path.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8")
+        manifest_path.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8", newline="")
         print(f"{game_id}: {len(payload):#x} bytes -> {manifest_path}")
 
 

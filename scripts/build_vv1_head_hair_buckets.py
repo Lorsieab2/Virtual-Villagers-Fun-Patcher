@@ -180,7 +180,7 @@ def main() -> int:
             return 1
         print("vv1_head_buckets.h is up to date")
         return 0
-    HEADER.write_text(header, encoding="utf-8")
+    HEADER.write_text(header, encoding="utf-8", newline="")
     print(f"wrote {HEADER}")
     return 0
 

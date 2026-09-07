@@ -737,7 +737,7 @@ def main() -> None:
             if not path.is_file() or path.read_text(encoding="utf-8") != rendered:
                 raise RuntimeError(f"generated artifact is stale: {path.relative_to(ROOT)}")
         else:
-            path.write_text(rendered, encoding="utf-8")
+            path.write_text(rendered, encoding="utf-8", newline="")
     print(f"VV3 Time Warp page {len(page)} bytes {layout['page_sha256']}")
     for mode, identity in identities.items():
         print(f"{mode}: {identity['atomic_result']['sha256']} / Statistics {identity['statistics_result']['sha256']}")

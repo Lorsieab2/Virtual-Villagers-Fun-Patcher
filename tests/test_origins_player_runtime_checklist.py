@@ -515,6 +515,18 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # the previous capture intact.  Certified by
                         # scripts/audit_save_path_integrity.py.
                         "0xCCFD0",
+                        # Island requeue after a Barrel takes the shared slot.
+                        # Both purchases queue through [world+0x170E0], so a
+                        # Barrel bought inside the Island's window overwrote the
+                        # paid Island's due stamp and the row guard then retired
+                        # its token -- 30,000 tech points for an event that never
+                        # arrived. The barrel cue now calls a new out-of-line
+                        # helper that re-arms the Island and restamps its due
+                        # time; out of line because the cue had 12 spare bytes
+                        # and the requeue needs forty. Codex found this on #254
+                        # and the repository owner chose requeue over refusing
+                        # the Barrel.
+                        "0xCCA50", "0xCCB10",
                         "0xCC004", "0xCC160", "0xCC170",
                         "0x156F8", "0x15862", "0x1586F", "0x15A81",
                         "0x15B46", "0x15D8C", "0x16722", "0x16735",

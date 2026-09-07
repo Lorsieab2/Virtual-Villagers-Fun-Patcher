@@ -208,7 +208,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # pushes eax/ecx/edx/ebx on entry and pops all four before ret, the helper
     # clobbers only eax (already saved), and edi -- which carries the result
     # flags -- is neither read nor written by it.
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "7D5FFDB2BC7B618FFD998B07955CF672C6D2FC5EB394EC2F91C212DC22C71F2C",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "6F47F1453C2DD7EC0B91D875F5FB6CBF79677D54A10AB52658802882CA4A4576",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",

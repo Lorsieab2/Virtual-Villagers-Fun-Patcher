@@ -1,0 +1,683 @@
+"""A blocked Barrel/Island row must say WHY, in all five games.
+
+The Tech menu used to draw a blocked Island Event or Barrel of Babies row as a
+DISABLED button reading "Unavailable". That is accurate and useless: it tells
+the player the upgrade cannot be bought without telling them why, or whether
+waiting will help. Worse, a disabled button swallows the click, so there was
+nowhere to put an explanation even if one existed.
+
+The row now stays clickable, reads "Why not?", and clicking it shows the
+specific reason and closes nothing -- in particular it does NOT reach the
+purchase path, so nothing is charged.
+
+Two causes are distinguished, because they ask completely different things of
+the player:
+
+  * ALREADY PENDING -- one was bought moments ago and arrives a few seconds
+    after the screen closes. Waiting fixes it.
+  * NO VILLAGER SLOTS -- the village has no room for the children. Waiting does
+    NOT fix it; the player has to act. The text names burial specifically,
+    because a dead villager keeps occupying a record until they are buried,
+    which is exactly the state that surprises players.
+
+These tests assert against the COMPILED DLLs as well as the sources. A string
+present in the C file but absent from the shipped binary would leave the
+player with the old behaviour and a green suite.
+"""
+
+import pathlib
+import re
+import unittest
+
+try:
+    import capstone
+except ImportError:  # pragma: no cover - exercised only without capstone
+    capstone = None
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+
+# Every game's dialog source. VV2 includes VV1's file, so it has no separate
+# copy of the reason table; it is listed for the call sites it does own.
+SOURCES = {
+    "vv1": "native/vv1_origins_icons/vv1_origins_icons.c",
+    "vv2": "native/vv2_origins_icons/vv2_origins_icons.c",
+    "vv3": "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
+    "vv4": "native/vv4_origins_icons/vv4_origins_icons.c",
+    "vv5": "native/vv5_task9_origins/vv5_task9_origins.c",
+}
+
+# The shipped companions. VV3 deploys the same canonical build twice.
+DLLS = {
+    "vv1": "assets/origins/VVFP VV1 Origins Icons.dll",
+    "vv2": "assets/origins/VVFP VV2 Origins Icons.dll",
+    "vv3": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+    "vv3_safe_upgrades": "data/candidates/VVFP VV3 Safe Upgrades.dll",
+    "vv4": "assets/origins/VVFP VV4 Origins Icons.dll",
+    "vv5": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+}
+
+BUTTON_LABEL = b"Why not?"
+DIALOG_TITLE = b"Not right now"
+PENDING_TEXT = b"already been bought and is on its way"
+NO_SLOTS_TEXT = b"not enough room in the village for the three children"
+BURIAL_HINT = b"buried"
+# The wording must not claim EVERY slot is taken: the check is for three free
+# records, so with one or two free that would contradict the visible village.
+OVERCLAIM = b"Every villager slot is taken"
+
+
+def _manifest_payload(relative: str) -> bytes:
+    """Every emitted byte of a feature manifest: patches AND appended layouts.
+
+    Reading only `patches` is a false-negative waiting to happen, and it bit
+    immediately: VV3 emits its arming instruction into the appended R-X page,
+    which lives under `pe_append_transaction.layouts`, so a patches-only scan
+    reported the flag as unarmed on a build that arms it correctly. A guard
+    that cannot see half the payload cannot certify anything about it.
+    """
+    import json as _json
+
+    manifest = _json.loads((ROOT / relative).read_text(encoding="utf-8"))
+    blobs = [
+        bytes.fromhex(patch["after"])
+        for patch in manifest.get("patches", [])
+        if patch.get("after")
+    ]
+    layouts = manifest.get("pe_append_transaction", {}).get("layouts", {})
+    for layout in layouts.values():
+        if layout.get("append_bytes"):
+            blobs.append(bytes.fromhex(layout["append_bytes"]))
+    return b"".join(blobs)
+
+
+class BlockedRowsExplainThemselvesTests(unittest.TestCase):
+    def test_every_shipped_companion_carries_the_explanations(self):
+        """The bytes the player actually runs.
+
+        Checking the C sources alone would pass while the DLL in the release
+        still had the old behaviour -- the companions are committed binaries,
+        so a source edit without a rebuild is a real and silent failure mode.
+        """
+        for game, relative in sorted(DLLS.items()):
+            path = ROOT / relative
+            with self.subTest(game=game):
+                self.assertTrue(path.is_file(), f"missing companion: {relative}")
+                blob = path.read_bytes()
+                for needle in (
+                    BUTTON_LABEL,
+                    DIALOG_TITLE,
+                    PENDING_TEXT,
+                    NO_SLOTS_TEXT,
+                ):
+                    # assertTrue on a membership test, not assertIn: the latter
+                    # prints the entire DLL on failure, which buried the real
+                    # message under 16MB of hex.
+                    self.assertTrue(
+                        needle in blob,
+                        f"{relative} does not contain {needle!r}. The source "
+                        "may have been edited without rebuilding the DLL, in "
+                        "which case players keep the old bare 'Unavailable'",
+                    )
+                self.assertFalse(
+                    OVERCLAIM in blob,
+                    f"{relative} still claims every villager slot is taken. "
+                    "The barrel needs THREE free records, so with one or two "
+                    "free that contradicts what the player can see",
+                )
+
+    def test_no_shipped_companion_still_disables_these_rows(self):
+        """Anti-regression on the mechanism that caused the complaint.
+
+        A disabled button cannot explain itself. If a future edit re-disables
+        the row, the reason text would still be present in the binary and the
+        test above would pass, so this pins the source side of it.
+        """
+        pattern = re.compile(
+            r"blocked\s*!=\s*(?:VV3_)?BLOCK_NONE\s*\)\s*\{(?P<body>.*?)\n            \}",
+            re.S,
+        )
+        for game, relative in sorted(SOURCES.items()):
+            text = (ROOT / relative).read_text(encoding="utf-8", errors="ignore")
+            match = pattern.search(text)
+            with self.subTest(game=game):
+                self.assertIsNotNone(
+                    match, f"{relative}: no block-reason branch found"
+                )
+                body = match.group("body")
+                self.assertIn(
+                    "TRUE",
+                    body,
+                    f"{relative}: the blocked row is not left enabled, so the "
+                    "click cannot be intercepted and explained",
+                )
+                self.assertNotIn(
+                    "FALSE",
+                    body,
+                    f"{relative}: the blocked row is disabled again. A "
+                    "disabled button swallows the click, which is the whole "
+                    "reason 'Unavailable' was unhelpful",
+                )
+
+    def test_the_two_causes_are_distinguished(self):
+        """One message for both causes would be no better than 'Unavailable'.
+
+        A queued event clears itself; a full village does not. Collapsing them
+        would tell a player to wait when waiting cannot help.
+        """
+        for game in ("vv1", "vv3", "vv4", "vv5"):
+            text = (ROOT / SOURCES[game]).read_bytes()
+            with self.subTest(game=game):
+                self.assertTrue(PENDING_TEXT in text, f"{game}: no pending text")
+                self.assertTrue(NO_SLOTS_TEXT in text, f"{game}: no capacity text")
+
+    def test_the_capacity_message_mentions_burial(self):
+        """The actionable half.
+
+        A player told only that the village is full has no way to know that
+        burying remains frees a slot -- a dead villager keeps their record
+        until buried, which is precisely the state that looks like a bug.
+        """
+        for game, relative in sorted(DLLS.items()):
+            blob = (ROOT / relative).read_bytes()
+            index = blob.find(NO_SLOTS_TEXT)
+            with self.subTest(game=game):
+                self.assertGreater(index, 0, f"{relative}: capacity text absent")
+                window = blob[index : index + 400]
+                self.assertTrue(
+                    BURIAL_HINT in window,
+                    f"{relative}: the capacity message does not mention "
+                    "burial, so it says what is wrong without saying what the "
+                    "player can do about it",
+                )
+
+    def test_a_pending_island_still_examines_the_barrel_row(self):
+        """VV4: the island branch must not skip the barrel checks.
+
+        The original code set the BARREL bit from the island branch, which was
+        wrong -- it claimed a barrel was on its way when none had been bought.
+        Removing that bit while KEEPING the branch's jump to the end was also
+        wrong, and Codex caught it on the fix rather than the original: with
+        both gone, the Barrel row went unexamined whenever an island event was
+        pending, so a player could buy an island event, buy a barrel inside the
+        same five-second window, reopen the menu, and be charged for a second
+        barrel while the first was still armed.
+
+        Asserted as: the jump that immediately follows the island bit must land
+        on the barrel-armed comparison. That is the single instruction the
+        defect changes, and checking it directly avoids a reachability walk --
+        an earlier version of this test searched forward in the blob instead,
+        and passed against the known-bad build because the barrel check is
+        still PRESENT in the image, merely jumped over.
+        """
+        if capstone is None:
+            self.skipTest("requires capstone")
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        island_bit = bytes.fromhex("81CA00008000")  # or edx, 0x800000
+        found = False
+        for patch in manifest.get("patches", []):
+            after = patch.get("after")
+            if not after or island_bit not in bytes.fromhex(after):
+                continue
+            found = True
+            blob = bytes.fromhex(after)
+            offset = patch.get("file_offset")
+            if offset is None:
+                offset = int(str(patch.get("offset", "0")), 0)
+            base = 0x400000 + offset
+            md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+            listing = {i.address: i for i in md.disasm(blob, base)}
+            island = base + blob.find(island_bit)
+            after_bit = listing[island].address + listing[island].size
+            branch = listing.get(after_bit)
+            self.assertIsNotNone(branch, "no instruction follows the island bit")
+            self.assertEqual(
+                branch.mnemonic,
+                "jmp",
+                "the island branch no longer ends in a jump; re-check that it "
+                f"still reaches the barrel checks: {branch.mnemonic} "
+                f"{branch.op_str}",
+            )
+            landing = listing.get(int(branch.op_str, 16))
+            self.assertIsNotNone(landing, "island branch jumps outside the cave")
+            self.assertEqual(
+                (landing.mnemonic, landing.op_str.split(",")[0].strip()),
+                ("cmp", "byte ptr [0x728b04]"),
+                "the island branch does not land on the barrel-armed check, "
+                "so a barrel queued inside the same window goes unexamined and "
+                f"can be charged twice: {landing.mnemonic} {landing.op_str}",
+            )
+        self.assertTrue(found, "VV4 island-pending branch not found")
+
+    def test_no_companion_reads_a_state_bit_nothing_writes(self):
+        """A reader with no producer is a silently dead feature.
+
+        Codex found this on VV5: the companion tested STATE_BARREL_PENDING and
+        STATE_ISLAND_PENDING, and nothing in the VV5 payload ever set them, so
+        both branches were unreachable and the rows never became "Why not?".
+        A suite cannot notice on its own, because an always-zero flag is a
+        perfectly valid state -- nothing asserts, everything passes.
+
+        The same trap recurs across branches. A DLL that reads VV3's island
+        flag at SECTION_DATA_VA + 0x50 is inert unless the payload that ARMS
+        that flag is present too, and those two halves have lived on separate
+        branches. This pins the invariant rather than the branch topology: for
+        each game, if the companion reads a pending bit, the payload must
+        contain an instruction that sets it.
+        """
+        import json as _json
+
+        # game -> (companion source, payload manifest, bit)
+        pairs = (
+            ("vv1", SOURCES["vv1"], "data/vv1_origins_feature.json", 0x800000),
+            ("vv1", SOURCES["vv1"], "data/vv1_origins_feature.json", 0x1000000),
+            ("vv4", SOURCES["vv4"], "data/vv4_origins_feature.json", 0x800000),
+            ("vv4", SOURCES["vv4"], "data/vv4_origins_feature.json", 0x1000000),
+        )
+        for game, source, manifest_path, bit in pairs:
+            text = (ROOT / source).read_text(encoding="utf-8", errors="ignore")
+            if f"0x{bit:X}" not in text.upper():
+                continue
+            payload = _manifest_payload(manifest_path)
+            # `or <reg>, imm32` for each of the registers these payloads use.
+            setters = [
+                bytes([opcode]) + bit.to_bytes(4, "little")
+                for opcode in (0x0D, 0xC9, 0xCA, 0xCF)  # eax, ecx, edx, edi
+            ]
+            with self.subTest(game=game, bit=hex(bit)):
+                self.assertTrue(
+                    any(setter in payload for setter in setters),
+                    f"{game}'s companion tests state bit {hex(bit)} but its "
+                    "payload never sets it, so that branch is unreachable and "
+                    "the row silently keeps the old behaviour",
+                )
+
+    def test_a_flag_the_companion_reads_is_armed_by_the_payload(self):
+        """The cross-branch case, stated as bytes rather than as topology.
+
+        VV3's companion reads the island pending flag in the patch's own data
+        page. The instruction that ARMS it lives in the payload builder, and
+        those two halves have been developed on separate branches -- so a merge
+        order exists in which the DLL ships reading a byte nothing ever writes.
+        That is the VV5 defect again, and it passes a green suite because zero
+        is a valid value for a flag.
+        """
+        import json as _json
+        import re as _re
+
+        source = (ROOT / SOURCES["vv3"]).read_text(encoding="utf-8", errors="ignore")
+        match = _re.search(
+            r"define\s+VV3_ISLAND_PENDING_FLAG\s+(0x[0-9A-Fa-f]+)", source
+        )
+        if match is None:
+            self.skipTest("VV3 companion does not read an island pending flag")
+        flag = int(match.group(1), 16)
+
+        payload = _manifest_payload("data/vv3_origins_feature.json")
+        arm = bytes([0xC6, 0x05]) + flag.to_bytes(4, "little") + bytes([0x01])
+        # assertTrue on a membership test, not assertIn: the payload is ~78KB
+        # and assertIn prints all of it as hex on failure, burying the message
+        # that says what to do. Same trap this file already documents for the
+        # DLL blobs above.
+        self.assertTrue(
+            arm in payload,
+            f"the VV3 companion reads a pending flag at 0x{flag:X}, but the "
+            "VV3 payload never sets it. The DLL half and the payload half are "
+            "on different branches; merging the companion without the arming "
+            "patch ships a guard that can never fire",
+        )
+
+    def test_a_queued_barrel_does_not_claim_an_island_event(self):
+        """VV4 shares ONE queue slot between the two upgrades.
+
+        do_barrel sets [world+0x170E0] = 0 to cue the game's own event check,
+        which is exactly how the Island Event upgrade fires. So a zero there
+        means "an event is due", not "an island event was purchased" -- and
+        reading zero as island-pending told a player who had just bought a
+        Barrel that an island event was already on its way.
+
+        That is the mirror of the bit-sharing defect on the island branch, and
+        it was found because the other session hit the same single-slot shape
+        in VV5 and said to check VV1/VV4. VV1 and VV3 use separate slots and
+        are unaffected; VV4 shares one and needed disambiguating.
+
+        BARREL_ARMED_VA tells them apart, so the zero test must consult it
+        before concluding the island is pending.
+        """
+        if capstone is None:
+            self.skipTest("requires capstone")
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        island_bit = bytes.fromhex("81CA00008000")
+        armed_test = bytes.fromhex("803D048B720000")  # cmp byte [0x728B04], 0
+        found = False
+        for patch in manifest.get("patches", []):
+            after = patch.get("after")
+            if not after or island_bit not in bytes.fromhex(after):
+                continue
+            found = True
+            blob = bytes.fromhex(after)
+            # The guard must not decide the island is pending from the shared
+            # slot alone. It now reads a dedicated purchase token FIRST, which
+            # is a stronger discriminator than the barrel-armed flag it used
+            # before: the flag only told the Barrel apart, while the token also
+            # keeps a Barrel bought inside the window from erasing a
+            # still-outstanding island purchase, and stops a naturally
+            # scheduled event being reported as bought. Either is acceptable;
+            # neither is not.
+            token_test = bytes([0x80, 0x3D]) + (0x728B08).to_bytes(4, "little") + bytes([0x00])
+            slot_read = bytes.fromhex("8B98E0700100")  # mov ebx, [eax+0x170E0]
+            index = blob.find(slot_read)
+            self.assertGreater(index, 0, "VV4 queue-slot read not found")
+            window = blob[max(0, index - 0x20) : index + 0x20]
+            self.assertTrue(
+                token_test in window or armed_test in window,
+                "VV4 decides the island row is pending from the shared queue "
+                "slot without consulting the purchase token or the "
+                "barrel-armed flag, so a Barrel purchase and a natural event "
+                "are both indistinguishable from a bought island event",
+            )
+        self.assertTrue(found, "VV4 island-pending branch not found")
+
+    def test_each_row_is_blocked_only_by_its_own_pending_bit(self):
+        """A shared resource needs a discriminator for the ANSWER, not just
+        the guard.
+
+        The other session hit this on VV5: widening both guards to mask either
+        token blocked the purchase correctly, but each refusal still chose its
+        message from the row clicked, so buying a Barrel while an Island was
+        outstanding reported "a barrel of babies is already on its way" about a
+        barrel the player never bought. The refusal was right and the
+        explanation was false.
+
+        VV1, VV2, VV4 and VV5 avoid that by construction rather than by
+        checking: each row is gated by ITS OWN bit, so the row and the bit
+        cannot disagree and a message keyed on the row is still truthful. That
+        is a real property and nothing enforced it -- exactly the kind of
+        invariant that decays silently when someone later widens a mask to fix
+        a double-charge, which is how VV5 acquired the defect.
+        """
+        # Parsed line-wise rather than by regex: the pairing is always a
+        # single `row == PENDING_ROW_X ... STATE_X_PENDING` condition, and a
+        # plain scan avoids a multiline pattern that is easy to get subtly
+        # wrong and hard to read.
+        pairs_by_game = {}
+        for game, relative in sorted(SOURCES.items()):
+            text = (ROOT / relative).read_text(encoding="utf-8", errors="ignore")
+            found = []
+            for line in text.splitlines():
+                if "PENDING_ROW_" not in line or "_PENDING)" not in line:
+                    continue
+                row = line.split("PENDING_ROW_", 1)[1].split()[0].strip("),;")
+                bit = line.split("STATE_", 1)[1].split(")")[0].strip()
+                found.append((row, bit))
+            if found:
+                pairs_by_game[game] = found
+        for game, pairs in sorted(pairs_by_game.items()):
+            for row, bit in pairs:
+                subject = bit.replace("_PENDING", "")
+                with self.subTest(game=game, row=row):
+                    self.assertEqual(
+                        row,
+                        subject,
+                        f"{SOURCES[game]}: the {row} row is gated by "
+                        f"STATE_{bit}, a bit belonging to the other upgrade. "
+                        "A refusal message keyed on the row clicked would then "
+                        "name an event the player never bought",
+                    )
+        self.assertGreater(
+            len(pairs_by_game),
+            0,
+            "no row/bit pairings found; this test looks inert",
+        )
+
+    def test_the_island_token_is_retired_on_a_path_a_purchase_reaches(self):
+        """A token cleared only on the uncommon path latches forever.
+
+        VV4's island token was cleared inside barrel_cue's BARREL-ARMED branch.
+        An ordinary island purchase has BARREL_ARMED_VA == 0, so it takes
+        cue_scheduler and never reaches the clear -- the token latched and the
+        Island row stayed at "Why not?" for the rest of the save. Codex found
+        it on #254; the other session hit the identical shape in VV5, where a
+        delivery bit was set on the common path and cleared on one that only
+        runs in the uncommon case.
+
+        The retirement now reads a STATE CHANGE rather than relying on a code
+        path: do_island_event writes 0 to make the event due, and the native
+        scheduler rewrites the field to the next due time once it has run the
+        event, so a non-zero field with the token still set means delivered.
+
+        Asserted structurally: the clear must be reachable from the guard's own
+        token test, which every menu build executes, rather than sitting behind
+        the barrel-armed branch.
+        """
+        if capstone is None:
+            self.skipTest("requires capstone")
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        token = 0x728B08
+        test_tok = bytes([0x80, 0x3D]) + token.to_bytes(4, "little") + bytes([0x00])
+        clear_tok = bytes([0xC6, 0x05]) + token.to_bytes(4, "little") + bytes([0x00])
+        # The token is read by more than one routine, and only one of them is
+        # the row guard whose job is to retire it. The requeue helper also
+        # tests it -- to decide whether a Barrel displaced a paid Island Event
+        # -- and correctly does NOT clear it, because that event is still
+        # outstanding after being put back on the queue. Asserting over every
+        # reader would demand a clear from a routine whose whole purpose is to
+        # keep the token alive, so the routine under test is identified by the
+        # patch that installs the row guard.
+        guards = [
+            patch
+            for patch in manifest.get("patches", [])
+            if patch.get("after")
+            and test_tok in bytes.fromhex(patch["after"])
+            and "rows Unavailable" in patch.get("purpose", "")
+        ]
+        self.assertEqual(
+            len(guards),
+            1,
+            "expected exactly one VV4 row-guard patch reading the island token; "
+            f"found {len(guards)}",
+        )
+        blob = bytes.fromhex(guards[0]["after"])
+        start = blob.find(test_tok)
+        # The retirement must live in the same routine as the guard test,
+        # within reach of it -- not in a separate branch a purchase skips.
+        window = blob[start : start + 0x40]
+        self.assertTrue(
+            clear_tok in window,
+            "the island token is not retired near the guard that reads it, "
+            "so a purchase that never enters the barrel-armed branch "
+            "leaves it set and the row stays blocked for the whole save",
+        )
+
+    def test_a_barrel_requeues_the_island_event_it_displaced(self):
+        """A paid Island Event must survive the Barrel that took its slot.
+
+        VV4 queues both purchases through the single [world+0x170E0]
+        countdown. do_island_event stores clock() + ISLAND_QUEUE_DELAY_SECONDS
+        there; do_barrel stores 0 to cue the game's own event check. So a
+        Barrel bought inside the Island's window overwrites the Island's due
+        stamp, the barrel cue presents the Barrel, and the row guard then sees
+        a stamp that no longer matches ISLAND_DUE_STAMP_VA and retires the
+        token. The player paid 30,000 tech points for an event that never
+        arrives. Codex found this on #254 and the repository owner chose to
+        requeue the Island rather than refuse the Barrel.
+
+        Asserted on the shipped bytes, because the defect is invisible in the
+        builder source: the requeue must re-arm the slot AND restamp the due
+        time. Writing the countdown alone would be undone on the next menu
+        build, since the guard retires the token as soon as the slot and the
+        stamp disagree -- and the row would then go buyable again, allowing a
+        second charge for the event that is now genuinely queued.
+        """
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        requeue = [
+            patch
+            for patch in manifest.get("patches", [])
+            if "Island requeue" in patch.get("purpose", "")
+        ]
+        self.assertEqual(
+            len(requeue), 1, "expected exactly one VV4 island-requeue patch"
+        )
+        blob = bytes.fromhex(requeue[0]["after"])
+
+        token = 0x728B08
+        stamp = 0x728B0C
+        # Only a PURCHASED island is requeued; a Barrel bought on its own must
+        # leave the scheduler exactly as the stock game left it.
+        self.assertIn(
+            bytes([0x80, 0x3D]) + token.to_bytes(4, "little") + bytes([0x00]),
+            blob,
+            "the requeue does not test the island token, so it would re-arm the "
+            "slot even when no Island Event was ever bought",
+        )
+        # mov dword ptr [ecx + 0x170E0], eax -- the shared queue slot.
+        self.assertIn(
+            bytes([0x89, 0x81]) + (0x170E0).to_bytes(4, "little"),
+            blob,
+            "the requeue does not write the shared queue slot, so the paid "
+            "Island Event is still discarded",
+        )
+        # mov dword ptr [ISLAND_DUE_STAMP_VA], eax -- written from the SAME
+        # eax as the slot, so the guard's comparison cannot disagree.
+        self.assertIn(
+            bytes([0xA3]) + stamp.to_bytes(4, "little"),
+            blob,
+            "the requeue does not restamp the due time, so the row guard "
+            "retires the token on the next menu build and the requeued event "
+            "is lost anyway",
+        )
+
+        # The barrel cue must actually reach it, or none of the above runs.
+        # "Barrel cue" also names the splice that routes the scheduler tick
+        # into it; the body is the one that holds the call.
+        cue = [
+            patch
+            for patch in manifest.get("patches", [])
+            if patch.get("purpose", "").startswith("Barrel cue (spliced")
+        ]
+        self.assertEqual(len(cue), 1, "expected exactly one VV4 barrel-cue patch")
+        cue_blob = bytes.fromhex(cue[0]["after"])
+        cue_va = int(cue[0]["offset"], 16) + 0x65C000
+        requeue_va = int(requeue[0]["offset"], 16) + 0x65C000
+        called = False
+        for index in range(len(cue_blob) - 4):
+            if cue_blob[index] != 0xE8:
+                continue
+            rel = int.from_bytes(cue_blob[index + 1 : index + 5], "little", signed=True)
+            if cue_va + index + 5 + rel == requeue_va:
+                called = True
+                break
+        self.assertTrue(
+            called,
+            "the barrel cue never calls the requeue helper, so a displaced "
+            "Island Event is never put back on the queue",
+        )
+
+    def test_the_island_token_survives_its_own_queue_window(self):
+        """Retiring on "the field is non-zero" clears it at purchase time.
+
+        VV4's island purchase stores clock() + ISLAND_QUEUE_DELAY_SECONDS -- a
+        FUTURE timestamp -- so the field is non-zero from the instant of
+        purchase. A retirement keyed on non-zero therefore fires immediately,
+        during the queue window. It survived the same menu build only because
+        the delay check still blocked the row, but a Barrel bought from that
+        menu zeroes the shared countdown and the next build read it as
+        Barrel-only, re-enabling a second charged Island purchase. Codex found
+        that on #254, after the token itself was added.
+
+        Delivery is "the stored time has PASSED", which needs the clock. This
+        asserts the comparison is there: a retirement with no clock call in
+        front of it cannot distinguish the purchase's own future stamp from
+        the scheduler's post-delivery rewrite.
+        """
+        import json as _json
+
+        manifest = _json.loads(
+            (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+        )
+        token = 0x728B08
+        clear = bytes([0xC6, 0x05]) + token.to_bytes(4, "little") + bytes([0x00])
+        payload = b"".join(
+            bytes.fromhex(patch["after"])
+            for patch in manifest.get("patches", [])
+            if patch.get("after")
+        )
+        index = payload.find(clear)
+        self.assertGreater(index, 0, "island token clear not found")
+        # The retirement must compare against the stamp the PURCHASE recorded.
+        # Two weaker signals were tried and both failed:
+        #   * "the field is non-zero" is true from the instant of purchase,
+        #     because the purchase stores clock() + delay, not zero;
+        #   * "the stored time has passed" is false both before delivery AND
+        #     after it, because the scheduler immediately writes the next
+        #     event's future due time.
+        # Only the REWRITE distinguishes them, so the recorded stamp has to be
+        # read here.
+        stamp = 0x728B0C
+        compare = bytes([0x3B, 0x1D]) + stamp.to_bytes(4, "little")
+        window = payload[max(0, index - 0x18) : index]
+        self.assertIn(
+            compare,
+            window,
+            "the island token is retired without comparing the slot against "
+            "the stamp the purchase recorded, so it cannot tell the purchased "
+            "event from the scheduler's post-delivery replacement -- both are "
+            "future timestamps when observed",
+        )
+        # Not every change to the slot is a delivery. do_barrel writes ZERO to
+        # cue the game's own event check, so a Barrel bought inside the island
+        # window looks exactly like a scheduler rewrite; retiring on it cleared
+        # a token whose event had not been delivered, and reopening the menu
+        # before the cue ran allowed another 30,000-point charge.
+        armed = bytes([0x80, 0x3D]) + (0x728B04).to_bytes(4, "little") + bytes([0x00])
+        forward = payload[index - 0x18 : index]
+        self.assertIn(
+            armed,
+            forward,
+            "the island token is retired without checking whether a Barrel is "
+            "armed, so do_barrel's zero-write to the shared slot is mistaken "
+            "for a scheduler delivery and the queued island event is lost",
+        )
+
+    def test_a_blocked_click_cannot_reach_the_purchase(self):
+        """The refusal must not charge.
+
+        The handler shows the message and returns TRUE, which keeps the dialog
+        open. Falling through to EndDialog would report the row as bought and
+        run the purchase path.
+        """
+        for game, relative in sorted(SOURCES.items()):
+            text = (ROOT / relative).read_text(encoding="utf-8", errors="ignore")
+            with self.subTest(game=game):
+                marker = "MessageBoxA(window,"
+                index = text.find(marker, text.find("WM_COMMAND"))
+                self.assertGreater(
+                    index, 0, f"{relative}: no refusal MessageBoxA in WM_COMMAND"
+                )
+                after = text[index : index + 400]
+                self.assertIn(
+                    "return TRUE;",
+                    after,
+                    f"{relative}: the refusal does not return TRUE, so the "
+                    "dialog may fall through to the purchase path and charge "
+                    "for an upgrade it just refused",
+                )
+
+
+if __name__ == "__main__":
+    unittest.main()
