@@ -249,7 +249,8 @@ past that range, so the clear is not what zeroed it.
   itself all match exactly. This is the same decisive form used for VV4, and it
   is stronger than a patch-span scan because it cannot have a coverage hole.
 - VVFP has exactly two `.rdata` patches, at `0x456900` and `0x485D30`. Neither
-  covers `0x4598D0`, so the dispatch cannot have been redirected by this project.
+  covers `0x4598D0`, so the slot still holds its stock target and no patch here
+  redirected the dispatch. That is a statement about control flow only.
 - No VVFP code calls `sub_423390`, `sub_416380`, `sub_4179D0`, `sub_417280` or
   `sub_41D500`. Every `E8` relative call in every VV1 patch payload was decoded
   and its target resolved; none of the five appears.
@@ -269,9 +270,19 @@ All three were zero, so the outcome is not specific to the swapped files.
 ### Status
 
 The dereference is unchecked stock code that this project does not patch, on a
-dispatch it cannot reach, in a function whose bytes it has not modified. No fix
-is proposed: the path that leaves the object half-initialised is untraced, and a
-fix aimed at an untraced path cannot be validated.
+dispatch it did not redirect, in a function whose bytes it has not modified.
+
+That is the absence of a direct call and of any control-flow redirection. It is
+**not** proof that the patch is uninvolved, and the section on what patch
+coverage does and does not prove applies here in full. The Time Warp purchase
+runs this project's code and then returns into the stock screen-close flow, so
+an unchanged dispatch can still consume state that ran earlier. Nothing measured
+here excludes that, and review flagged an earlier draft of this section for
+claiming otherwise.
+
+No fix is proposed: the path that leaves the object half-initialised is
+untraced, and a fix aimed at an untraced path cannot be validated. Nor is the
+investigation closed -- a second occurrence, with a dump, is what would move it.
 
 A caveat that applies to this dump as it did to the VV5 ones: its module-name
 strings are scrubbed, so the loaded-module list cannot be read and is not relied

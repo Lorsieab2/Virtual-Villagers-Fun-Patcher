@@ -584,6 +584,11 @@ patcher's file copying is also not implicated: it copies the game folder whole
 and verifies every file by size and checksum, refusing to continue on a
 mismatch.
 
+That is not the same as this project being ruled out, and it is not written as
+though it were. Buying Time Warp runs this patcher's code before the game
+returns to the village, so it remains possible for that to leave the game in a
+state its own code then trips over. Nothing measured so far excludes it.
+
 What is **not** established is which sequence of events leaves the game in that
 state. Because that is untraced, no fix is proposed -- a change aimed at a cause
 nobody has pinned down could not be shown to work, and might hide the next
