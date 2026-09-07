@@ -102,10 +102,6 @@ class QueuedEventsClearOnSlotChangeTests(unittest.TestCase):
             "overlap the mask tick export name")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 # --- VV2 ---------------------------------------------------------------------
 # VV2's slot stub lives in the APPENDED .vvmk page, which has no manifest row at
 # all -- the page is built by the stage-2 builder and appended whole. Searching
@@ -196,3 +192,11 @@ class VV2QueuedEventsClearOnSlotChangeTests(unittest.TestCase):
             first_clear, compare,
             "a queued-event clear runs before the slot-change compare, so it "
             "would fire on every autosave and discard a pending event")
+
+
+# The runner must stay at the BOTTOM of the file. It used to sit above the VV2
+# class, so `python tests/test_queued_events_clear_on_slot_change.py` collected
+# only the three VV1 tests defined before it and silently skipped every VV2
+# assertion -- reporting OK while testing none of them. Codex found it on #234.
+if __name__ == "__main__":
+    unittest.main()
