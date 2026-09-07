@@ -146,7 +146,24 @@ class WaitWindow:
             window.transient(parent)
         self._center()
         if modal:
-            self._take_grab()
+            # A grab timeout raises out of __init__, so _run_with_wait never
+            # receives the object and its `finally` cannot call close(). The
+            # Toplevel would be left registered under the root with its
+            # progress bar running and its close protocol a no-op -- an
+            # unclosable stale window, and a fresh one accumulating on every
+            # retry, because production calls originate in Tk callbacks where
+            # an exception is reported without stopping the main loop. Tear
+            # the partial window down before re-raising. Codex found this on
+            # #221.
+            try:
+                self._take_grab()
+            except Exception:
+                try:
+                    self._bar.stop()
+                    window.destroy()
+                except tk.TclError:
+                    pass
+                raise
         window.update()
 
     def _center(self) -> None:
@@ -191,8 +208,17 @@ class WaitWindow:
             except tk.TclError:
                 if time.monotonic() >= deadline:
                     raise
+                # update_idletasks(), NOT update(). update() runs a nested
+                # event loop that dispatches ARBITRARY pending events -- and
+                # at this point no grab exists yet, so a click that arrived
+                # during the retry window goes to the parent's Apply control
+                # and re-enters _apply/_run_with_wait. That defeats the exact
+                # modal guarantee this routine is here to provide. Idle tasks
+                # cover the mapping and geometry work that makes the window
+                # viewable, which is all the retry actually needs. Codex found
+                # this on #221.
                 try:
-                    self._window.update()
+                    self._window.update_idletasks()
                 except tk.TclError:
                     pass
                 time.sleep(GRAB_POLL_SECONDS)
