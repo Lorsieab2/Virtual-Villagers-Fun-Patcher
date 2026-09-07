@@ -75,6 +75,11 @@ modes use the stable short `- Modded` name. The selected mode,
 optional patches, hashes, and applied edits remain identified in the adjacent
 `.patch-log.json`.
 
+In A New Home, the automatic safety also preflights the stock two-villager
+creation path: when only one physical record remains it creates one villager,
+and when the 256-record pool is full it skips the second creation. This keeps
+the stock allocator from scanning past its physical record array.
+
 ## Optional patches by game
 
 Every patch below is optional and off by default. The patcher lists them

@@ -177,6 +177,36 @@ are breakpoints, and no such crash happened. Check the exception code first.
 For completeness, no VVFP patch overlaps `sub_43DEF0` or any of its 78 call
 sites, with the positive control passing on the known patch at `0x402ED0`.
 
+## Virtual Villagers 1 -- A New Home -- full-capacity creation crash
+
+The supplied full dump and a live trace of the exact downloaded modded
+executable identify a stock two-villager creation path. The optional first
+creation at `0x42EF5F` can consume the final physical slot; the second,
+unconditional creation at `0x42EFD0`, then enters stock `0x43C350`.
+
+That stock routine scans the 256 in-use bytes without a bound. In the live
+trace it produced index `0x103`; in the dump, the same initializer at
+`0x439470` with index `271` wrote through the manager record array into the
+neighboring UI object, clearing the two pointers later used by the crash at
+`0x41ABAE` (`sub edx,[eax+0x0C]`, with `eax=0`). The exact arithmetic is
+`271 * 0x3D8 + 0x44 + 25 * 0x18 = 0x41444` and lane `+0x48 = 0x41448`, the
+manager-to-object offsets of the two corrupted fields.
+
+The fix is limited to that multi-creation path. A small bounded helper preserves
+the caller's manager argument, scans the live in-use byte at
+`manager+0x28 + index*0x3D8` for all 256 records, and returns the occupied count.
+The first-call trampoline skips the first creation
+when that count is `>=255`; the second-call trampoline skips the second when it
+is `>=256`. Both success paths call the unchanged stock creator, and both skip
+paths clean the five stock arguments before returning through the stock cleanup.
+The stock allocator's return contract and the other direct callers are unchanged.
+
+The generated safety rows are guarded by the exact stock preimages and use
+zero-filled `.text` caves at file offsets `0x565E0`, `0x56840`, and `0x56860`.
+Static
+verification and the full test suite are required; player startup stability
+remains the final runtime acceptance gate.
+
 ## Virtual Villagers 1 -- A New Home, Time Warp
 
 The first crash reported from an actual playtest rather than found in the logs,

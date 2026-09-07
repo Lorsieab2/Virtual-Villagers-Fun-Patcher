@@ -59,6 +59,36 @@
       },
       "safety_patches": [
         {
+          "offset": "0x2EF5F",
+          "before": "E8ECD30000",
+          "after": "E97C760200",
+          "purpose": "preflight the first creation in VV1's two-villager path so it cannot consume the last slot needed by the second creation"
+        },
+        {
+          "offset": "0x565E0",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E87B0200003DFF000000730AE85F5DFEFFE96E89FDFF83C414E99D89FDFF0000",
+          "purpose": "count occupied VV1 records and skip the first two-villager creation when fewer than two physical slots remain"
+        },
+        {
+          "offset": "0x2EFD0",
+          "before": "E87BD30000",
+          "after": "E96B780200",
+          "purpose": "preflight the second creation in VV1's two-villager path so a full 256-slot table cannot enter the unbounded stock scan"
+        },
+        {
+          "offset": "0x56840",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E81B0000003D00010000730AE8FF5AFEFFE97F87FDFF83C414E94B88FDFF0000",
+          "purpose": "count occupied VV1 records and skip the second two-villager creation when all 256 physical slots are occupied"
+        },
+        {
+          "offset": "0x56860",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000",
+          "after": "5131C08D512831C9803A0074014081C2D80300004181F90001000072EB59C300",
+          "purpose": "boundedly count occupied VV1 record flags from the manager argument across the 256-slot pool and preserve the caller register"
+        },
+        {
           "offset": "0x3BC4E",
           "before": "C7865C03000002000000",
           "after": "E92DA901009090909090",

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import struct
 import unittest
 from pathlib import Path
 
@@ -13,6 +14,44 @@ MANIFEST = ROOT / "data" / "vv1_origins_feature.json"
 
 
 class VV1StartupCrashRegressionTests(unittest.TestCase):
+    def test_full_capacity_two_creation_path_is_preflighted(self) -> None:
+        builds = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+        game = next(item for item in builds["games"] if item["id"] == "vv1")
+        patches = {int(item["offset"], 16): item for item in game["safety_patches"]}
+
+        # The first creation is allowed only with two slots available; the
+        # second is allowed only with one slot available. Both trampolines
+        # route through separate zero-filled caves and retain the stock call
+        # when the preflight succeeds. The count comes from live record flags.
+        expected = {
+            0x2EF5F: (0x565E0, 0xFF),
+            0x2EFD0: (0x56840, 0x100),
+        }
+        for trampoline, (cave, threshold) in expected.items():
+            with self.subTest(trampoline=hex(trampoline)):
+                row = patches[trampoline]
+                after = bytes.fromhex(row["after"])
+                self.assertEqual(len(after), 5)
+                self.assertEqual(after[0], 0xE9)
+                self.assertEqual(
+                    trampoline + 0x400000 + 5 + struct.unpack("<i", after[1:])[0],
+                    cave + 0x400000,
+                )
+                cave_bytes = bytes.fromhex(patches[cave]["after"])
+                self.assertEqual(cave_bytes[0], 0xE8)
+                self.assertEqual(cave_bytes[5], 0x3D)
+                self.assertEqual(cave_bytes[6:10], threshold.to_bytes(4, "little"))
+                self.assertEqual(cave_bytes[10], 0x73)
+
+        self.assertEqual(bytes.fromhex(patches[0x565E0]["before"]), bytes(32))
+        self.assertEqual(bytes.fromhex(patches[0x56840]["before"]), bytes(32))
+        self.assertEqual(bytes.fromhex(patches[0x56860]["before"]), bytes(32))
+        self.assertEqual(
+            bytes.fromhex(patches[0x56860]["after"]),
+            bytes.fromhex("5131C08D512831C9803A0074014081C2D80300004181F90001000072EB59C3")
+            + bytes(1),
+        )
+
     def test_obsolete_backedge_detour_is_absent_from_the_manifest(self) -> None:
         """The central pin, and it must not depend on an optional fixture.
 
