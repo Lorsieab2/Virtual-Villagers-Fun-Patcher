@@ -1,0 +1,45 @@
+name: tests
+
+# The suite is the project's safety net -- it is what proves a manifest edit
+# still lands the bytes it claims. Until now nothing ran it automatically, so
+# a regression could only be caught by whoever remembered to run it locally.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A newer push supersedes an in-flight run for the same ref.
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          # setup-python's pip cache hashes a dependency file and fails the
+          # step when none matches, so it must name a real one.
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run the suite
+        # The stock game executables are gitignored and must never be
+        # committed, so a CI checkout cannot have them. tests/conftest.py
+        # reports those tests as skipped rather than failed, which is what
+        # makes this run meaningful: red here is a real regression, not a
+        # checkout missing game files it is not allowed to carry.
+        run: python -m pytest tests/ -q
