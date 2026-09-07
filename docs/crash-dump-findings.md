@@ -195,7 +195,7 @@ the Tech-screen-close transition, not the aged-village state the warp produces.
 
 The faulting address equals the offset exactly, so `eax` was null.
 
-### Two mechanisms proposed, both still open
+### Two mechanisms proposed, one ruled out and one still open
 
 This one took several attempts, and each theory is recorded with what is and is
 not established about it, because each looked convincing and each would
@@ -246,11 +246,16 @@ allocation failed earlier and a later one succeeded. `MemoryInfoList` reports
 crash time**, which makes failure implausible but is not a statement about
 minutes earlier.
 
-So the two theories are not really two. Both reduce to the same unanswered
-question -- whether `operator new` returned NULL at some earlier moment -- and
-the dump cannot answer it, because it records one instant and that instant shows
-memory to spare. Answering it needs a second occurrence, or a way to establish
-the allocation chronology.
+So the image-load mechanism is ruled out: a failed load cannot put a zero in
+these fields. What it collapses into is the *other* theory -- with that route
+closed, the `jz` on `operator new` is the only remaining way a zero gets here,
+and whether that allocation ever failed is exactly the question the dump cannot
+answer, because it records one instant and that instant shows memory to spare.
+
+One mechanism eliminated, then, and one open; and the open one is not
+independent of the first -- both paths funnel into the same unanswered
+allocation question. Answering it needs a second occurrence, or a way to
+establish the allocation chronology.
 
 ### What the memory actually shows
 
