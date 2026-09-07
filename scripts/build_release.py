@@ -235,16 +235,27 @@ def _build_source_archive() -> dict | None:
     except (OSError, subprocess.CalledProcessError):
         temp.unlink(missing_ok=True)
         return None
+    # Validate the TEMP file and only then publish it under the release name.
+    # Checking after the replace defeated the gate it exists for: an archive
+    # containing a prohibited executable would already be sitting in outputs/
+    # under its final release filename when the assert raised, where it reads
+    # as a valid artifact. Review caught this on #264. The temp file is removed
+    # on rejection so a failed build leaves nothing behind at all.
+    try:
+        with zipfile.ZipFile(temp) as archive:
+            members = archive.namelist()
+            # The stock game executables must never ship. They live under the
+            # gitignored research/ tree, so a committed-only archive cannot
+            # contain them -- but assert it rather than trusting the ignore
+            # rule to stay correct.
+            _assert_no_executable_members(members)
+            bad = archive.testzip()
+            if bad:
+                raise RuntimeError(f"source archive CRC failure: {bad}")
+    except Exception:
+        temp.unlink(missing_ok=True)
+        raise
     temp.replace(target)
-    with zipfile.ZipFile(target) as archive:
-        members = archive.namelist()
-        # The stock game executables must never ship. They live under the
-        # gitignored research/ tree, so a committed-only archive cannot contain
-        # them -- but assert it rather than trusting the ignore rule.
-        _assert_no_executable_members(members)
-        bad = archive.testzip()
-        if bad:
-            raise RuntimeError(f"source archive CRC failure: {bad}")
     return {
         "file": target.name,
         "size": target.stat().st_size,
