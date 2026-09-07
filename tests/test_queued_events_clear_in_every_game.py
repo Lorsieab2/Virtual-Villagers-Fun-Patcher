@@ -84,6 +84,14 @@ RESETS = {
     },
     "vv4": {
         "helper_at": 0x728E00,
+        # VV4's reset is out of line, so the helper's own bytes say nothing
+        # about whether it RUNS. Reading only the helper proved it ends in
+        # `ret` while the call could have been deleted, or moved ahead of the
+        # slot-change compare so the clears fired on every autosave -- the
+        # helper bytes are identical either way and the test still passed.
+        # Codex found that on #240. `caller_at` names the slot cave so the
+        # call can be located and its gating checked.
+        "caller_at": 0x728FD0,
         "globals": {
             0x728B00: "purchased-Barrel flag",
             0x728B04: "Barrel armed flag",
@@ -205,6 +213,59 @@ class QueuedEventsClearInEveryGameTests(unittest.TestCase):
                             "village's row reading Unavailable and can be "
                             "delivered into a save that never paid for it")
 
+    def _assert_out_of_line_reset_is_called_behind_the_gate(self, game, spec):
+        """Follow an out-of-line reset from the call site that should gate it.
+
+        Proving the helper ends in `ret` proves only that it is a callee, not
+        that anything calls it or that the call is conditional. Both failures
+        leave the helper's bytes untouched: delete the call and the clears
+        never run, or hoist it above the slot-change compare and they run on
+        every autosave, discarding a pending event each time.
+
+        So decode the caller, find the `call` that targets the helper, and
+        require a preceding conditional branch that jumps PAST it -- the shape
+        that runs the reset only when the slot actually changed.
+        """
+        caller_at = spec.get("caller_at")
+        self.assertIsNotNone(
+            caller_at, f"{game}: an out-of-line reset needs a caller_at")
+        image = self._image(game)
+        offset = self._offset(image, caller_at)
+        self.assertIsNotNone(
+            offset, f"{game}: {caller_at:#x} is not mapped")
+
+        target = spec["helper_at"]
+        call = None
+        gates = []
+        for instruction in self.md.disasm(image[offset:offset + 0x80], caller_at):
+            if (instruction.mnemonic.startswith("j")
+                    and instruction.mnemonic != "jmp"
+                    and instruction.op_str.startswith("0x")):
+                gates.append(instruction)
+            if (instruction.mnemonic == "call"
+                    and instruction.op_str.startswith("0x")
+                    and int(instruction.op_str, 16) == target):
+                call = instruction
+                break
+            if instruction.mnemonic == "ret":
+                break
+
+        self.assertIsNotNone(
+            call,
+            f"{game}: {caller_at:#x} never calls the reset helper at "
+            f"{target:#x}, so its clears never run and queued-event state "
+            "survives a save-slot change")
+        self.assertTrue(
+            gates,
+            f"{game}: the call to {target:#x} has no preceding conditional "
+            "branch, so the reset is unconditional and would discard a "
+            "pending event on every autosave")
+        gate = gates[-1]
+        self.assertGreater(
+            int(gate.op_str, 16), call.address,
+            f"{game}: the branch before the call to {target:#x} does not jump "
+            "past it, so the reset is not gated on a real slot change")
+
     def test_the_clears_are_gated_on_a_real_slot_change(self):
         """Unconditional would discard a pending event on every autosave.
 
@@ -230,15 +291,17 @@ class QueuedEventsClearInEveryGameTests(unittest.TestCase):
                     and instruction.op_str.startswith("0x")
                 ]
                 if not skips:
-                    # VV4's reset is out of line, so its gate lives at the call
-                    # site. Require it to be a callee that RETURNS -- fallen
-                    # into code would not.
+                    # An out-of-line reset is gated at its CALL SITE, so the
+                    # helper's own bytes cannot answer the question. Require it
+                    # to return, then go and check the caller.
                     self.assertEqual(
                         block[-1].mnemonic, "ret",
                         f"{game} clears queued-event state with no preceding "
                         "compare and does not return, so it is neither gated "
                         "here nor a callee gated by its caller; a pending "
                         "event would be discarded on every autosave")
+                    self._assert_out_of_line_reset_is_called_behind_the_gate(
+                        game, spec)
                     continue
 
                 # Every clear must lie strictly between the LAST skip branch
