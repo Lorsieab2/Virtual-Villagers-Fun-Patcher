@@ -92,6 +92,7 @@ RESETS = {
         # Codex found that on #240. `caller_at` names the slot cave so the
         # call can be located and its gating checked.
         "caller_at": 0x728FD0,
+        "saved_slot_at": 0x728FCC,
         "globals": {
             0x728B00: "purchased-Barrel flag",
             0x728B04: "Barrel armed flag",
@@ -235,13 +236,22 @@ class QueuedEventsClearInEveryGameTests(unittest.TestCase):
             offset, f"{game}: {caller_at:#x} is not mapped")
 
         target = spec["helper_at"]
+        saved_slot = spec["saved_slot_at"]
         call = None
         gates = []
+        compared_saved_slot = False
         for instruction in self.md.disasm(image[offset:offset + 0x80], caller_at):
+            # Only a compare against the SAVED slot arms the next branch. The
+            # range checks (`cmp eax,1` / `cmp eax,5`) leave it disarmed, so
+            # their `jb`/`ja` cannot be mistaken for the slot-change gate.
+            if instruction.mnemonic == "cmp":
+                compared_saved_slot = f"{saved_slot:#x}" in instruction.op_str
             if (instruction.mnemonic.startswith("j")
                     and instruction.mnemonic != "jmp"
                     and instruction.op_str.startswith("0x")):
-                gates.append(instruction)
+                if compared_saved_slot:
+                    gates.append(instruction)
+                compared_saved_slot = False
             if (instruction.mnemonic == "call"
                     and instruction.op_str.startswith("0x")
                     and int(instruction.op_str, 16) == target):
@@ -257,9 +267,13 @@ class QueuedEventsClearInEveryGameTests(unittest.TestCase):
             "survives a save-slot change")
         self.assertTrue(
             gates,
-            f"{game}: the call to {target:#x} has no preceding conditional "
-            "branch, so the reset is unconditional and would discard a "
-            "pending event on every autosave")
+            f"{game}: the call to {target:#x} has no conditional branch tied "
+            f"to a comparison against the saved slot at {saved_slot:#x}, so "
+            "the reset is not gated on a real slot change and would discard a "
+            "pending event on every autosave. Codex found on #269 that "
+            "accepting ANY preceding branch let VV4's `jb`/`ja` range checks "
+            "stand in for the slot compare, so deleting the compare left this "
+            "assertion passing")
         gate = gates[-1]
         self.assertGreater(
             int(gate.op_str, 16), call.address,
