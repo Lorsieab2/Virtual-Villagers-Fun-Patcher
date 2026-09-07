@@ -59,6 +59,15 @@ STOCK = {
 # doubler ownership (0x51D388, bits 2 and 3) and zeroes the whole word, so it is
 # covered by test_save_switch_ownership_reset.py rather than by a separate
 # clear here. Asserting a separate store for VV5 would fail on correct code.
+# Instructions that write EFLAGS. A compare only arms the branch that
+# immediately consumes it, so anything here appearing in between disarms it.
+FLAG_WRITERS = frozenset({
+    "cmp", "test", "add", "sub", "and", "or", "xor", "inc", "dec", "neg",
+    "shl", "shr", "sar", "rol", "ror", "mul", "imul", "div", "idiv", "adc",
+    "sbb", "bt", "bts", "btr", "cmpxchg", "lock",
+})
+
+
 RESETS = {
     "vv1": {
         "detour_at": 0x402ED0,
@@ -244,8 +253,15 @@ class QueuedEventsClearInEveryGameTests(unittest.TestCase):
             # Only a compare against the SAVED slot arms the next branch. The
             # range checks (`cmp eax,1` / `cmp eax,5`) leave it disarmed, so
             # their `jb`/`ja` cannot be mistaken for the slot-change gate.
-            if instruction.mnemonic == "cmp":
-                compared_saved_slot = f"{saved_slot:#x}" in instruction.op_str
+            # The branch must consume THAT compare's flags. Any intervening
+            # EFLAGS writer disarms it -- otherwise a `test` or `add` slipped
+            # between the compare and the jump leaves the jump governed by
+            # different flags while still counting as the gate. Codex found
+            # this second hole on #270.
+            if instruction.mnemonic in FLAG_WRITERS:
+                compared_saved_slot = (
+                    instruction.mnemonic == "cmp"
+                    and f"{saved_slot:#x}" in instruction.op_str)
             if (instruction.mnemonic.startswith("j")
                     and instruction.mnemonic != "jmp"
                     and instruction.op_str.startswith("0x")):
