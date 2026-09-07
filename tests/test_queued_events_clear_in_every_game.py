@@ -31,6 +31,7 @@ from pathlib import Path
 
 try:
     import capstone
+    import capstone.x86
 except ImportError:  # pragma: no cover - exercised only without capstone
     capstone = None
 
@@ -59,13 +60,23 @@ STOCK = {
 # doubler ownership (0x51D388, bits 2 and 3) and zeroes the whole word, so it is
 # covered by test_save_switch_ownership_reset.py rather than by a separate
 # clear here. Asserting a separate store for VV5 would fail on correct code.
-# Instructions that write EFLAGS. A compare only arms the branch that
-# immediately consumes it, so anything here appearing in between disarms it.
-FLAG_WRITERS = frozenset({
-    "cmp", "test", "add", "sub", "and", "or", "xor", "inc", "dec", "neg",
-    "shl", "shr", "sar", "rol", "ror", "mul", "imul", "div", "idiv", "adc",
-    "sbb", "bt", "bts", "btr", "cmpxchg", "lock",
-})
+# The flags a conditional branch can consume. Asking Capstone which flags an
+# instruction MODIFIES is what makes this exhaustive: a hand-written mnemonic
+# list looks complete and is not -- `xadd` writes ZF and was missing from the
+# first version of this check, which Codex caught on #276. Anything the
+# decoder says writes one of these disarms a pending compare.
+BRANCH_FLAGS = 0 if capstone is None else (
+    capstone.x86.X86_EFLAGS_MODIFY_ZF
+    | capstone.x86.X86_EFLAGS_MODIFY_CF
+    | capstone.x86.X86_EFLAGS_MODIFY_SF
+    | capstone.x86.X86_EFLAGS_MODIFY_OF
+    | capstone.x86.X86_EFLAGS_MODIFY_PF
+)
+
+
+def _writes_branch_flags(instruction):
+    """True when the decoder reports this instruction modifying branch flags."""
+    return bool(getattr(instruction, "eflags", 0) & BRANCH_FLAGS)
 
 
 RESETS = {
@@ -141,6 +152,8 @@ class QueuedEventsClearInEveryGameTests(unittest.TestCase):
         cls.catalog = {p.id for p in load_fun_patches()}
         cls.images = {}
         cls.md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        # .eflags is only populated in detail mode.
+        cls.md.detail = True
 
     def _image(self, game):
         if game not in self.images:
@@ -258,7 +271,7 @@ class QueuedEventsClearInEveryGameTests(unittest.TestCase):
             # between the compare and the jump leaves the jump governed by
             # different flags while still counting as the gate. Codex found
             # this second hole on #270.
-            if instruction.mnemonic in FLAG_WRITERS:
+            if _writes_branch_flags(instruction):
                 compared_saved_slot = (
                     instruction.mnemonic == "cmp"
                     and f"{saved_slot:#x}" in instruction.op_str)
