@@ -327,13 +327,84 @@ an unchanged dispatch can still consume state that ran earlier. Nothing measured
 here excludes that, and review flagged an earlier draft of this section for
 claiming otherwise.
 
-No fix is proposed: the path that leaves the object half-initialised is
-untraced, and a fix aimed at an untraced path cannot be validated. Nor is the
-investigation closed -- a second occurrence, with a dump, is what would move it.
+For that first dump alone, no fix was proposed: the path that leaves the object
+half-initialised was untraced, and a fix aimed at an untraced path could not be
+validated. The second supplied dump and the byte-level A/B below supersede that
+earlier status for the patched-build startup failure reported against v1.34.34.
 
 A caveat that applies to this dump as it did to the VV5 ones: its module-name
 strings are scrubbed, so the loaded-module list cannot be read and is not relied
 on anywhere above.
+
+### v1.34.34 startup dump and byte-level A/B
+
+The supplied second dump is from the exact current modded build:
+
+    vv1_fulldumps/Virtual Villagers - A New Home - Modded.exe.29656.dmp
+    SHA-256 95224AB83603FDB34FE8B83B655ACED253ACB87BDF3A9C6567308EAA85B7F7C5
+
+Windows recorded the same application access violation twice for this modded
+executable on 6 September 2026. The records report exception `0xC0000005` at
+module offset `0x16391`; the full dump was captured from the later occurrence.
+CDB identifies a full-memory user dump with six seconds of process uptime and
+the exact fault:
+
+    0x00416380  sub esp, 8
+    0x00416383  push esi
+    0x00416384  mov esi, ecx
+    0x00416386  call 0x00416350
+    0x0041638B  mov eax, [esi+1480h]
+    0x00416391  mov cl, [eax+9FE8h]       ; eax = 0, reads 0x00009FE8
+
+This dump supplies the caller chain that was missing from the earlier dump.
+At the fault, the saved caller return is `0x0041B88F`; the caller loads
+`[main+0x3C]` and calls `0x416380`:
+
+    0x0041B87C  mov ecx, [esi+3Ch]
+    0x0041B887  mov [esi+20h], eax
+    0x0041B88A  call 0x00416380
+    0x0041B88F  mov ecx, [esi+8]
+
+The object is the cached singleton at `0x48B580`. Its constructor path allocates
+the object, calls `0x41D500`, stores the result at `+0x1480`, and later calls
+`0x416380` itself before returning. Therefore this exact object could not have
+left its constructor with `+0x1480 == 0`: that would have faulted during the
+constructor. The current dump consequently **refutes** the earlier allocation-
+null explanation for this occurrence. It shows the field zero only at the final
+instant; the clearing or stale-object transition remains outside the dump.
+
+The release ZIP was checked against GitHub (SHA-256
+`31DAFC66D36CB76786E16F34103C2B570963E62D00920279A6C0716E7C4A9A4B`). The
+modded executable is `18D63F583E019CBF217845784B39F3B6712DFDC71FD3F7E98A63B731BBC0526E`;
+the named stock executable is
+`1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D`.
+The release's Origins manifest installs a detour at raw file offset `0x24103`,
+replacing the stock bytes `8B4E086A00` with a jump to the retired back-edge
+SDL-blit stub. The source already says that the old blit is fully retired and
+the active all-pose mask path uses `VILLAGE_CUR_IDX`, not the old list.
+Repository history traces that detour to commit `49a4775`, whose subject marked
+it `[DIAGNOSTIC, WILL REVERT]`; it entered released builds at v1.34.15 and was
+still present in the v1.34.34 manifest.
+
+As a local binary A/B, restoring the stock five-byte sequence in the supplied
+modded executable (`8B4E086A00`) also required restoring the PE checksum at
+raw `0x150`-`0x151`; the mutant otherwise differed only at raw
+`0x24103`-`0x24106` (the fifth byte was already `00`). The hook-restored mutant
+SHA-256 was
+`827623BC37CD4673753613D6E0143F92E833A301BD4636DE45457190DA9D7EDA`; it
+remained running for more than 120 seconds. Separately, an unmodified modded
+repro using an isolated empty profile faulted after about 34 seconds at stock
+address `0x41ABAE`; that is not the supplied six-second `0x416391` dump. The
+stock executable and the hook-restored mutant stayed alive during that local
+comparison. This isolates the locally reproduced patched-build startup failure
+to the `0x24103` detour. The supplied `0x416391` occurrence converges on a
+different stock null dereference, so the exact transition clearing `+0x1480`
+remains a player/runtime question.
+
+The repair therefore removes that detour and its dead list/counter plumbing,
+regenerates the manifest, and keeps the active all-pose hook sites. The
+regression test asserts both that raw `0x24103` is absent from the manifest and
+that the stock bytes remain present, while the all-pose sites remain installed.
 
 ## Virtual Villagers 2 -- The Lost Children
 

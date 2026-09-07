@@ -101,10 +101,9 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       and indirect-jumps to the selected stock five-argument draw.  Those
 #       targets begin with `sub esp,0x10`; the shared masked path's calls end
 #       `ret 0x14`, so stack and callee-saved state match the native thunks.
-#   0x24103                         confirmed.  The cave decodes to the exact
-#       displaced `mov ecx,[esi+8]; push 0`, plus a data-only counter reset,
-#       then jumps 0x424108.  The resume immediately calls native code and
-#       later consumes ESI; ECX/ESP are exactly defined and no flags are changed.
+#   0x24103                         intentionally absent.  The obsolete
+#       FUN_00423390 back-edge detour was removed; the exact stock bytes remain
+#       unpatched because the old SDL-blit path is fully retired.
 #   0x913C                          confirmed.  The cave optionally calls the
 #       pushad/popad restore stub, then calls the pushad/popad Vv1MaskTick
 #       resolver/caller before reproducing `mov ecx,[esi+0x30]; push ecx; mov
@@ -213,9 +212,8 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",
     ("vv1_enable_origins_exclusive_features", "0x8B004"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
-    ("vv1_enable_origins_exclusive_features", "0x24103"): "003BBF1143C6AC2F7AD6DD0D0A70346447E500F851CD3ABD7EDE134A87AEC848",
-    ("vv1_enable_origins_exclusive_features", "0x377B8"): "3EC4BE5669CAA10DB6414592D5C6FDE19C02942709AA65B8EE3A849F488DE5C0",
-    ("vv1_enable_origins_exclusive_features", "0x913C"): "4A5BA4B685535D7823C84E6F0DEF23E7EC59FD81D3A141055A6D271178BC5E37",
+    ("vv1_enable_origins_exclusive_features", "0x377B8"): "D44A6B9C0DB1C684604A9818144F1209EFCC19BA484337579CD40B644FB56257",
+    ("vv1_enable_origins_exclusive_features", "0x913C"): "E8C3E35B56C0AD00518A27056132703EE942FDC5C6BAD9C3C1F90698AD701198",
     # The three newer detours below are part of the same integrated mask
     # branch. Their cave contracts are pinned separately in the review notes:
     # 0x9410 restores the original thunk pass path; 0x93E0/0x93C0 select the
@@ -229,7 +227,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # no register operand, inside the existing pushfd/pushad..popad/popfd
     # window, and the re-entry target is untouched. Nothing the stock code
     # at the resume depends on is altered.
-    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "CC5C7A84A9D1E7A37517F4008B9C83F2542494F80EC3926F4D4BF8EC8DAE8DC6",
+    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "CC7BA6DF24ABB82A900C039DF8EC348D41919D44227D1D0FD4DBEBA8A2D2F5C1",
     ("vv1_enable_origins_exclusive_features", "0x3C393"): "323F30C734F89D8ABAF15C4C864AC78A0320AE634B5D4D99EA826801C35F8044",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
     # reproduce the villager index load, stash it to .data, and re-enter stock

@@ -343,7 +343,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # Running Dislike-clear helper; and the detour
                         # splicing that hook into sub_437790's per-villager
                         # render loop right after its own occupied check.
-                        "0x8BEA8", "0x377B8", "0x24103", "0x913C",
+                        "0x8BEA8", "0x377B8", "0x913C",
                         # Change Appearance for All (Tech screen row 11): its
                         # DLL-dispatch stub in the confirmed-unused .shr gap
                         # after equal_division_core; the row's confirm-price
@@ -381,7 +381,10 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x8E720", "0x8E75A", "0x8E774", "0x8E78E", "0x8E7A8",
                         # Per-frame dead-slot/reuse maintenance: changed frame
                         # hook plus the owned export-name and resolver blocks.
-                        "0x8E400", "0x8E6C0", "0x8E8F0", "0x8E900",
+                        "0x8E400", "0x8E580", "0x8E6C0", "0x8E8F0", "0x8E900",
+                        # Startup-crash repair: remove the obsolete back-edge
+                        # detour at 0x24103 and its now-unused relocated stub.
+                        "0x24103",
                         # Exact newborn/allocation reuse guard: the stock splice
                         # and patch-owned cave clear the selected mask nibble
                         # and mark the active sidecar dirty for Vv1MaskTick.
