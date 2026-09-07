@@ -3,6 +3,7 @@
 import hashlib
 import json
 import shutil
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
@@ -173,6 +174,60 @@ def _assert_no_executable_members(members: list[str]) -> None:
         )
 
 
+SOURCE_NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}-source.zip"
+
+
+def _build_source_archive() -> dict | None:
+    """Write the full tracked source tree beside the release archive.
+
+    GitHub attaches "Source code (zip/tar.gz)" to a release automatically, but
+    only once the tag exists -- a DRAFT release reports ``zipball_url: null``,
+    so a draft handed to a playtester carries no source at all. Building it here
+    means the source ships with every release regardless of draft state, from
+    the exact commit the binaries were built from.
+
+    ``git archive HEAD`` is used rather than walking the working tree, so the
+    archive contains what is COMMITTED and nothing else: no build outputs, no
+    scratch files, and none of the gitignored ``research/`` stock executables.
+    The files force-added under ``research/`` (the mask and skin source art) are
+    tracked, so they are included -- they are inputs the patcher's own build
+    needs, not third-party binaries.
+
+    Returns None when git is unavailable rather than failing the release: the
+    patcher archive is the deliverable, and a missing source zip should not
+    block it.
+    """
+    target = OUTPUTS / SOURCE_NAME
+    temp = OUTPUTS / (SOURCE_NAME + ".tmp")
+    temp.unlink(missing_ok=True)
+    try:
+        subprocess.run(
+            ["git", "archive", "--format=zip",
+             f"--prefix=Virtual-Villagers-Fun-Patcher-{VERSION}-source/",
+             "-o", str(temp), "HEAD"],
+            cwd=ROOT, check=True, capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        temp.unlink(missing_ok=True)
+        return None
+    temp.replace(target)
+    with zipfile.ZipFile(target) as archive:
+        members = archive.namelist()
+        # The stock game executables must never ship. They live under the
+        # gitignored research/ tree, so a committed-only archive cannot contain
+        # them -- but assert it rather than trusting the ignore rule.
+        _assert_no_executable_members(members)
+        bad = archive.testzip()
+        if bad:
+            raise RuntimeError(f"source archive CRC failure: {bad}")
+    return {
+        "file": target.name,
+        "size": target.stat().st_size,
+        "sha256": hashlib.sha256(target.read_bytes()).hexdigest().upper(),
+        "entries": len(members),
+    }
+
+
 def main() -> int:
     _assert_no_executable_members(FILES)
     OUTPUTS.mkdir(exist_ok=True)
@@ -194,6 +249,9 @@ def main() -> int:
             raise RuntimeError(f"release archive CRC failure: {bad}")
     digest = hashlib.sha256(target.read_bytes()).hexdigest().upper()
     manifest = {"file":target.name,"size":target.stat().st_size,"sha256":digest,"entries":FILES}
+    source = _build_source_archive()
+    if source is not None:
+        manifest["source_archive"] = source
     (OUTPUTS / f"{target.stem}.manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
     print(json.dumps(manifest, indent=2))
     return 0
