@@ -3,6 +3,7 @@
 import hashlib
 import json
 import shutil
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
@@ -173,6 +174,96 @@ def _assert_no_executable_members(members: list[str]) -> None:
         )
 
 
+SOURCE_NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}-source.zip"
+
+
+def _build_source_archive() -> dict | None:
+    """Write the full tracked source tree beside the release archive.
+
+    GitHub attaches "Source code (zip/tar.gz)" to a release automatically, but
+    only once the tag exists -- a DRAFT release reports ``zipball_url: null``,
+    so a draft handed to a playtester carries no source at all. Building it here
+    means the source ships with every release regardless of draft state, from
+    the exact commit the binaries were built from.
+
+    ``git archive HEAD`` is used rather than walking the working tree, so the
+    archive contains what is COMMITTED and nothing else: no build outputs, no
+    scratch files, and none of the gitignored ``research/`` stock executables.
+    The files force-added under ``research/`` (the mask and skin source art) are
+    tracked, so they are included -- they are inputs the patcher's own build
+    needs, not third-party binaries.
+
+    A DIRTY tree is refused outright, because the two archives are built from
+    different snapshots: ``main`` packs ``FILES`` out of the WORKING TREE while
+    this packs HEAD. With an uncommitted tracked change the shipped source would
+    not be the shipped binaries' source, and the sharpest case is the one this
+    whole feature exists to prevent -- an uncommitted ``PATCHER_VERSION`` bump
+    yields a patcher ZIP named for the new version beside a source ZIP whose
+    contents are still the old one. Review caught this on #264.
+
+    Only tracked files are consulted (``--untracked-files=no``): untracked
+    scratch is invisible to both archives, so it cannot cause a mismatch and
+    must not block a release.
+
+    Returns None when git is unavailable rather than failing the release: the
+    patcher archive is the deliverable, and a missing source zip should not
+    block it.
+    """
+    try:
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            cwd=ROOT, check=True, capture_output=True, text=True,
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    if dirty:
+        raise RuntimeError(
+            "refusing to build a source archive from a dirty tree -- the patcher "
+            "archive is built from the working tree and this from HEAD, so they "
+            "would not match. Commit or stash first:\n" + dirty
+        )
+    target = OUTPUTS / SOURCE_NAME
+    temp = OUTPUTS / (SOURCE_NAME + ".tmp")
+    temp.unlink(missing_ok=True)
+    try:
+        subprocess.run(
+            ["git", "archive", "--format=zip",
+             f"--prefix=Virtual-Villagers-Fun-Patcher-{VERSION}-source/",
+             "-o", str(temp), "HEAD"],
+            cwd=ROOT, check=True, capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        temp.unlink(missing_ok=True)
+        return None
+    # Validate the TEMP file and only then publish it under the release name.
+    # Checking after the replace defeated the gate it exists for: an archive
+    # containing a prohibited executable would already be sitting in outputs/
+    # under its final release filename when the assert raised, where it reads
+    # as a valid artifact. Review caught this on #264. The temp file is removed
+    # on rejection so a failed build leaves nothing behind at all.
+    try:
+        with zipfile.ZipFile(temp) as archive:
+            members = archive.namelist()
+            # The stock game executables must never ship. They live under the
+            # gitignored research/ tree, so a committed-only archive cannot
+            # contain them -- but assert it rather than trusting the ignore
+            # rule to stay correct.
+            _assert_no_executable_members(members)
+            bad = archive.testzip()
+            if bad:
+                raise RuntimeError(f"source archive CRC failure: {bad}")
+    except Exception:
+        temp.unlink(missing_ok=True)
+        raise
+    temp.replace(target)
+    return {
+        "file": target.name,
+        "size": target.stat().st_size,
+        "sha256": hashlib.sha256(target.read_bytes()).hexdigest().upper(),
+        "entries": len(members),
+    }
+
+
 def main() -> int:
     _assert_no_executable_members(FILES)
     OUTPUTS.mkdir(exist_ok=True)
@@ -194,6 +285,9 @@ def main() -> int:
             raise RuntimeError(f"release archive CRC failure: {bad}")
     digest = hashlib.sha256(target.read_bytes()).hexdigest().upper()
     manifest = {"file":target.name,"size":target.stat().st_size,"sha256":digest,"entries":FILES}
+    source = _build_source_archive()
+    if source is not None:
+        manifest["source_archive"] = source
     (OUTPUTS / f"{target.stem}.manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
     print(json.dumps(manifest, indent=2))
     return 0
