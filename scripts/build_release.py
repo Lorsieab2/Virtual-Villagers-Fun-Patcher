@@ -193,10 +193,35 @@ def _build_source_archive() -> dict | None:
     tracked, so they are included -- they are inputs the patcher's own build
     needs, not third-party binaries.
 
+    A DIRTY tree is refused outright, because the two archives are built from
+    different snapshots: ``main`` packs ``FILES`` out of the WORKING TREE while
+    this packs HEAD. With an uncommitted tracked change the shipped source would
+    not be the shipped binaries' source, and the sharpest case is the one this
+    whole feature exists to prevent -- an uncommitted ``PATCHER_VERSION`` bump
+    yields a patcher ZIP named for the new version beside a source ZIP whose
+    contents are still the old one. Review caught this on #264.
+
+    Only tracked files are consulted (``--untracked-files=no``): untracked
+    scratch is invisible to both archives, so it cannot cause a mismatch and
+    must not block a release.
+
     Returns None when git is unavailable rather than failing the release: the
     patcher archive is the deliverable, and a missing source zip should not
     block it.
     """
+    try:
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            cwd=ROOT, check=True, capture_output=True, text=True,
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    if dirty:
+        raise RuntimeError(
+            "refusing to build a source archive from a dirty tree -- the patcher "
+            "archive is built from the working tree and this from HEAD, so they "
+            "would not match. Commit or stash first:\n" + dirty
+        )
     target = OUTPUTS / SOURCE_NAME
     temp = OUTPUTS / (SOURCE_NAME + ".tmp")
     temp.unlink(missing_ok=True)
