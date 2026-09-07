@@ -111,7 +111,12 @@ class VV5ProtectedTestRuntimeTests(unittest.TestCase):
 
     def test_local_wheel_discovery_is_repository_scoped_and_deterministic(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            root = Path(temp_dir)
+            # resolve() because Windows hands out 8.3 short paths for some
+            # temp directories (RUNNER~1 for runneradmin on GitHub's runners).
+            # discover_local_wheels resolves what it returns, so comparing
+            # against an unresolved expectation fails on the short-path form
+            # while passing everywhere else.
+            root = Path(temp_dir).resolve()
             wheel_root = root / ".tools" / "keystone-runtime"
             wheel_root.mkdir(parents=True)
             wheels = {
