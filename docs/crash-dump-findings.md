@@ -195,7 +195,7 @@ the Tech-screen-close transition, not the aged-village state the warp produces.
 
 The faulting address equals the offset exactly, so `eax` was null.
 
-### Two mechanisms proposed, one narrowed and one still open
+### Two mechanisms proposed, both still open
 
 This one took several attempts, and each theory is recorded with what is and is
 not established about it, because each looked convincing and each would
@@ -245,6 +245,12 @@ allocation failed earlier and a later one succeeded. `MemoryInfoList` reports
 407.6 MB committed, 1532.3 MB free and a largest free block of 1098.04 MB **at
 crash time**, which makes failure implausible but is not a statement about
 minutes earlier.
+
+So the two theories are not really two. Both reduce to the same unanswered
+question -- whether `operator new` returned NULL at some earlier moment -- and
+the dump cannot answer it, because it records one instant and that instant shows
+memory to spare. Answering it needs a second occurrence, or a way to establish
+the allocation chronology.
 
 ### What the memory actually shows
 
