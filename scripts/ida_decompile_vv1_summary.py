@@ -27,7 +27,7 @@ OUTPUT = ROOT / "research" / "vv1-summary-pseudocode.txt"
 
 ida_auto.auto_wait()
 if not ida_hexrays.init_hexrays_plugin():
-    OUTPUT.write_text("VV1_SUMMARY_HEXRAYS_UNAVAILABLE\n", encoding="utf-8")
+    OUTPUT.write_text("VV1_SUMMARY_HEXRAYS_UNAVAILABLE\n", encoding="utf-8", newline="")
     ida_pro.qexit(1)
 
 rows = ["VV1_SUMMARY_DECOMPILATION_BEGIN"]
@@ -42,6 +42,6 @@ for ea in idautils.Functions():
     except Exception as error:
         rows.append(f"DECOMPILE_ERROR {error}")
 rows.append("VV1_SUMMARY_DECOMPILATION_END")
-OUTPUT.write_text("\n".join(rows) + "\n", encoding="utf-8")
+OUTPUT.write_text("\n".join(rows) + "\n", encoding="utf-8", newline="")
 
 ida_pro.qexit(0)

@@ -60,7 +60,7 @@ def update_vv3_patch_log_messages(
     messages = dict(log.get("messages") or {})
     messages.update(vv3_authoritative_result_messages(manifest_path))
     log["messages"] = messages
-    patch_log_path.write_text(json.dumps(log, indent=2) + "\n", encoding="utf-8")
+    patch_log_path.write_text(json.dumps(log, indent=2) + "\n", encoding="utf-8", newline="")
     return log
 
 
@@ -276,7 +276,7 @@ def write_inventory_and_checksums(root: Path, **kwargs: object) -> dict[str, obj
     inventory, records = build_inventory(root, **kwargs)
     inventory_path = root / INVENTORY_NAME
     checksums_path = root / CHECKSUMS_NAME
-    inventory_path.write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")
+    inventory_path.write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8", newline="")
     checksums_path.write_text(
         "\n".join(f"{record['sha256']}  {record['path']}" for record in records) + "\n",
         encoding="utf-8",

@@ -114,6 +114,29 @@ APPEARANCE_HELPER_VA = 0x728760
 # the 0x414D90 detour below); natural barrels leave it 0 and are unchanged.
 BARREL_UPGRADE_FLAG_VA = 0x728B00
 BARREL_ARMED_VA = 0x728B04            # byte: barrel is armed-eligible until presented
+# byte: an Island Event was PURCHASED and has not been delivered yet.
+#
+# The queue slot [world+0x170E0] cannot answer this. It is shared -- the
+# Barrel zeroes it to cue the game's own event check -- and it is written
+# by naturally scheduled events too, so neither its value nor its
+# proximity to now establishes who put it there. Two Codex findings on
+# #254 come from asking it anyway: a Barrel bought during the island
+# window overwrote a still-outstanding island purchase, and a natural
+# event inside its final five seconds was reported as already bought.
+#
+# Verified unreferenced in the built image before use (0 hits, against 5
+# for 0x728B00 and 7 for 0x728B04).
+ISLAND_PURCHASED_VA = 0x728B08
+# dword: the due stamp do_island_event wrote for the PURCHASED event.
+#
+# Delivery is detectable only as the scheduler REWRITING that slot. It
+# cannot be read off the clock: the purchase stores a future stamp and the
+# scheduler replaces it with the NEXT event's future stamp, so "has the
+# stored time passed" is false both before and after delivery. Codex
+# caught that on #254 after a first attempt used the clock.
+#
+# Verified unreferenced in the built image before use (0 hits).
+ISLAND_DUE_STAMP_VA = 0x728B0C
 # Per-event cooldown byte the scheduler sets on the event it presents
 # (`mov byte [esi+0x4CC9F4],1`, esi=event index); barrel index 25 -> 0x4CC9F4+0x19.
 # do_barrel clears it so a previously-fired barrel is not held off. Nothing reads
@@ -122,6 +145,21 @@ BARREL_ARMED_VA = 0x728B04            # byte: barrel is armed-eligible until pre
 BARREL_COOLDOWN_VA = 0x4CCA0D
 BARREL_CUE_FILE_OFFSET = 0xCCB10
 BARREL_CUE_VA = 0x728B10
+# Re-arms a purchased Island Event that a Barrel displaced from the shared queue
+# slot. It lives out of line because barrel_cue has 12 spare bytes and this needs
+# roughly forty; barrel_cue reaches it with a five-byte call.
+#
+# The two purchases contend for ONE slot. do_island_event writes
+# clock() + ISLAND_QUEUE_DELAY_SECONDS into [world+0x170E0]; do_barrel writes 0
+# to the same field to cue the game's event check. Whichever the player buys
+# second, only one event can be due, and the Barrel is the one the cue presents.
+# The 30,000 points spent on the Island bought nothing.
+#
+# Requeueing here rather than refusing the Barrel is the repository owner's
+# decision, taken on #254. It keeps both purchases: the Barrel presents first,
+# and the Island is put back on the slot as this runs.
+BARREL_ISLAND_REQUEUE_FILE_OFFSET = 0xCCA50
+BARREL_ISLAND_REQUEUE_VA = 0x728A50
 # The purchased barrel must ALWAYS deliver 3, so it bypasses the game's tiered
 # population gate (0x468350, which caps growth by owned population upgrades). The
 # stock barrel spawn (0x414D90) calls 0x468350 before child 2 and before child 3;
@@ -1080,6 +1118,12 @@ def main() -> None:
             pop ecx
             add eax, {ISLAND_QUEUE_DELAY_SECONDS}
             mov dword ptr [ecx + 0x170E0], eax
+            # Record that THIS event was purchased, and WHICH stamp was written
+            # for it. The slot alone cannot say either: it is shared with the
+            # Barrel and written by natural events, and its value is replaced
+            # on delivery by another future time.
+            mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 1
+            mov dword ptr [0x{ISLAND_DUE_STAMP_VA:X}], eax
             jmp success
         do_barrel:
             # Arm the barrel, flag this as the PURCHASED barrel (so its spawn always
@@ -1740,11 +1784,68 @@ def main() -> None:
             push eax
             call 0x418190
             mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            # The island token is NOT cleared here. This branch runs only when
+            # BARREL_ARMED_VA was set, so an ordinary island purchase never
+            # reaches it -- clearing here left the token latched for the rest
+            # of the save. It is retired in the pending helper instead, by
+            # reading the scheduler's own rewrite of the countdown.
+            #
+            # The Barrel has just consumed the shared queue slot. If an Island
+            # Event was also bought, put it back -- see the requeue helper.
+            call 0x{BARREL_ISLAND_REQUEUE_VA:X}
             ret 4
         cue_scheduler:
             jmp 0x418000
         """,
         BARREL_CUE_VA,
+    )
+    # Put a displaced Island Event back on the shared queue slot.
+    #
+    # Called from barrel_cue at the one moment the Barrel has just taken that
+    # slot: the armed branch has presented the native barrel and cleared
+    # BARREL_ARMED_VA, so an ordinary island purchase never reaches here.
+    #
+    # Only a PURCHASED island is requeued. ISLAND_PURCHASED_VA is the token
+    # do_island_event sets; when it is clear there is nothing outstanding and
+    # this returns without touching the slot, so a Barrel bought on its own
+    # leaves the scheduler exactly as the stock game left it.
+    #
+    # Writing the countdown alone is not enough. The pending helper decides
+    # whether the token is still outstanding by comparing the slot against
+    # ISLAND_DUE_STAMP_VA -- the stamp the purchase wrote -- and retires the
+    # token as soon as the two differ. Requeueing without updating the stamp
+    # would therefore be undone on the very next menu build: the row would go
+    # buyable again and the player could be charged a second 30,000 points for
+    # the event that is now genuinely queued. Both are written here, from the
+    # same clock value, so they cannot disagree.
+    #
+    # A fresh clock() + ISLAND_QUEUE_DELAY_SECONDS rather than the original
+    # stamp: that stamp is in the past by now (the Barrel consumed the window),
+    # and restoring a past due time would make the event due in the same tick
+    # the Barrel is presenting, which is the back-to-back delivery the delay
+    # exists to prevent.
+    #
+    # pushad/popad because this runs between 0x418190 returning and barrel_cue's
+    # `ret 4`; the world getter and the clock both clobber volatiles, and the
+    # stack argument the `ret 4` cleans must be left exactly where it is.
+    barrel_island_requeue = assemble(
+        f"""
+            cmp byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            jz requeue_done
+            pushad
+            call 0x41FE70
+            push eax
+            mov ecx, eax
+            call 0x{ISLAND_QUEUE_CLOCK_VA:X}
+            pop ecx
+            add eax, {ISLAND_QUEUE_DELAY_SECONDS}
+            mov dword ptr [ecx + 0x170E0], eax
+            mov dword ptr [0x{ISLAND_DUE_STAMP_VA:X}], eax
+            popad
+        requeue_done:
+            ret
+        """,
+        BARREL_ISLAND_REQUEUE_VA,
     )
     # Mode-aware Barrel capacity gate, called from the purchase preflight. Returns
     # eax=1 when the village can accommodate 3 more, eax=0 otherwise. The cap and
@@ -1955,6 +2056,9 @@ def main() -> None:
           "admit the Barrel of Babies event while the purchased-barrel token is armed")
     patch(BARREL_CUE_FILE_OFFSET, b"\0" * len(barrel_cue), barrel_cue,
           "Barrel cue (spliced on the event scheduler): when armed, present the native barrel event (index 25) directly so its pop-up shows and its lifecycle runs the spawn")
+    patch(BARREL_ISLAND_REQUEUE_FILE_OFFSET,
+          b"\0" * len(barrel_island_requeue), barrel_island_requeue,
+          "Island requeue: after a purchased Barrel consumes the shared event slot, re-arm a purchased Island Event on it and restamp its due time, so the paid event is delivered instead of discarded")
     patch(BARREL_CAPACITY_FILE_OFFSET, b"\0" * len(barrel_capacity), barrel_capacity,
           "Barrel purchase gate: refuse (no charge) only when population (0x467610) + 3 would exceed the 150-slot record array")
     patch(BARREL_CHECK1_FILE_OFFSET, b"\0" * len(barrel_check1), barrel_check1,
@@ -2000,9 +2104,84 @@ def main() -> None:
             # "already ..." message instead of its own prompt.
             push ebx
             push ecx
+            # VV4's Barrel and Island Event share ONE queue slot: do_barrel
+            # sets [world+0x170E0] = 0 to cue the game's own event check, which
+            # is exactly how the Island Event upgrade fires. So a zero here
+            # means "an event is due", NOT "an island event was purchased".
+            #
+            # Reading zero as island-pending therefore told a player who had
+            # just bought a Barrel that an island event was already on its way.
+            # That is the mirror of the bit-sharing defect Codex found on the
+            # island branch, and the shared slot was flagged by the other
+            # session hitting the same shape in VV5.
+            #
+            # BARREL_ARMED_VA disambiguates: it is set by do_barrel and cleared
+            # once the barrel is presented, so a zero slot with the barrel
+            # armed belongs to the barrel and the island row must stay clear.
+            # A PURCHASED island event is outstanding until it is delivered,
+            # whatever the shared slot currently holds. Checking the token
+            # first keeps a Barrel bought inside the window from erasing it,
+            # and stops a naturally scheduled event that has merely entered its
+            # final seconds from being reported as bought.
+            cmp byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            je pending_rows_island_untracked
+            # The token is set. Has the event actually been delivered?
+            #
+            # Read the STATE CHANGE, not a code path -- but the right one.
+            # do_island_event stores clock() + ISLAND_QUEUE_DELAY_SECONDS, a
+            # FUTURE timestamp, so "the field is non-zero" is true from the
+            # instant of purchase and retiring on that cleared the token
+            # during the queue window. It survived the immediate menu build
+            # only because the delay check below still blocked the row, but a
+            # Barrel bought from that same menu zeroes the shared countdown and
+            # the next build then read it as Barrel-only, re-enabling a second
+            # charged Island purchase. Codex caught that on #254.
+            #
+            # Delivery is the scheduler REWRITING the slot, and that is the
+            # only thing that distinguishes it. Two earlier attempts failed on
+            # the same point:
+            #
+            #   * "the field is non-zero" is true from the instant of purchase,
+            #     because the purchase stores clock() + delay, not zero;
+            #   * "the stored time has passed" is false BOTH before delivery
+            #     and after it, because the scheduler immediately writes the
+            #     next event's future due time.
+            #
+            # So compare against the stamp the purchase actually wrote. While
+            # the slot still holds it, the purchased event is outstanding; once
+            # it differs, the scheduler has replaced it and the event is gone.
+            #
+            # Retiring from barrel_cue does not work at all: that clear sat
+            # inside the barrel-armed branch, and an ordinary island purchase
+            # has BARREL_ARMED_VA == 0, so it took cue_scheduler and never
+            # reached the clear -- the token latched for the rest of the save.
+            mov ebx, dword ptr [eax + 0x170E0]
+            cmp ebx, dword ptr [0x{ISLAND_DUE_STAMP_VA:X}]
+            je pending_rows_island
+            # The stamp changed -- but not every change is a delivery.
+            # do_barrel writes ZERO to this shared slot to cue the game's own
+            # event check, so a Barrel bought inside the island window looks
+            # identical to a scheduler rewrite and would retire a token whose
+            # event has not been delivered. Reopening the menu before the cue
+            # ran then allowed another 30,000-point charge. Codex caught that
+            # on #254 after the stamp comparison replaced the clock test.
+            #
+            # An armed Barrel is the one writer that is NOT the scheduler, so
+            # hold the token across that transition and let the next build --
+            # once the Barrel has been presented and BARREL_ARMED_VA cleared --
+            # make the delivery judgement.
+            cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            jne pending_rows_island
+            mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            test ebx, ebx
+            jz pending_rows_notqueued
+            jmp pending_rows_island_window
+        pending_rows_island_untracked:
             mov ebx, dword ptr [eax + 0x170E0]
             test ebx, ebx
-            jz pending_rows_island
+            jnz pending_rows_island_window
+            jmp pending_rows_notqueued
+        pending_rows_island_window:
             mov ecx, eax
             push eax
             push edx
@@ -2015,9 +2194,25 @@ def main() -> None:
         pending_rows_island:
             pop ecx
             pop ebx
+            # Island only. This also set the BARREL bit, so a pending island
+            # event disabled the Barrel row too and -- once the rows could
+            # explain themselves -- told the player a barrel was on its way
+            # when none had been bought. Codex caught it on #254.
             or edx, 0x800000
-            or edx, 0x1000000
-            jmp pending_rows_done
+            # FALL THROUGH to the barrel checks rather than jumping to the end.
+            # The jump was load-bearing only while this branch set the barrel
+            # bit itself: dropping the bit and keeping the jump left the Barrel
+            # row unexamined whenever an island event was pending, so a player
+            # could buy an island event, buy a barrel inside the same five
+            # second window, reopen the menu, and be charged for a second
+            # barrel while the first was still armed. Codex caught that on the
+            # fix, not the original -- the repair needed the same scrutiny as
+            # the defect.
+            #
+            # Jump PAST pending_rows_notqueued, which pops ecx/ebx: this path
+            # has already popped them above, and falling into a second pair of
+            # pops would unbalance the stack.
+            jmp pending_rows_barrel
         pending_rows_notqueued:
             pop ecx
             pop ebx
@@ -2054,7 +2249,9 @@ def main() -> None:
             add ecx, 0x2E3C
             dec ebx
             jnz pending_rows_count
-            or edx, 0x1000000
+            # A DISTINCT bit from the queued-barrel one, so the DLL can tell
+            # "no room" from "already bought" and say which.
+            or edx, 0x2000000
         pending_rows_slots_ok:
             pop esi
             pop ebx
@@ -2091,6 +2288,8 @@ def main() -> None:
             # change, so an autosave cannot discard a pending barrel.
             mov byte ptr [0x{BARREL_UPGRADE_FLAG_VA:X}], 0
             mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            mov byte ptr [0x{ISLAND_PURCHASED_VA:X}], 0
+            mov dword ptr [0x{ISLAND_DUE_STAMP_VA:X}], 0
             ret
         """,
         DOUBLER_RESET_VA,
@@ -2195,7 +2394,7 @@ def main() -> None:
         replacement = bytes.fromhex(str(item["after"]))
         rendered[offset : offset + len(replacement)] = replacement
     OUT_EXE.write_bytes(rendered)
-    OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
+    OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8", newline="")
 
     manifest = {
         "id": "vv4_enable_origins_exclusive_features",
@@ -2203,7 +2402,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xA0CD8", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features (with Heathen Mask mod)",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row is disabled and reads Unavailable, so it cannot be bought twice. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
         "output_tag": "Origins Exclusive Features",
         "ui_contract": ui_metadata,
         "native_handlers": {
@@ -2311,7 +2510,7 @@ def main() -> None:
             "patches": expanded_shr_relocations,
         },
     }
-    MANIFEST_JSON.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    MANIFEST_JSON.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
     used = max(index for index, value in enumerate(code) if value) + 1
     print(f"code bytes used: {used:#x}/{STRINGS_OFFSET:#x}")
     print(f"string bytes used: {len(strings):#x}/{PAYLOAD_SIZE - STRINGS_OFFSET:#x}")

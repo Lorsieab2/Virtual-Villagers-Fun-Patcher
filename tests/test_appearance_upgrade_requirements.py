@@ -664,6 +664,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # out-of-line helper here on a real slot change; out of line
                     # because that cave has only 48 bytes before .rsrc.
                     "0xCCE00",
+                    # Island requeue after a Barrel takes the shared queue slot.
+                    # Both purchases arm [world+0x170E0], so a Barrel bought
+                    # inside the Island's window overwrote the paid Island's due
+                    # stamp and its token was then retired -- 30,000 tech points
+                    # for an event that never arrived. The barrel cue now calls
+                    # a new out-of-line helper that re-arms the Island and
+                    # restamps its due time; out of line because the cue had 12
+                    # spare bytes and the requeue needs forty.
+                    "0xCCA50", "0xCCB10",
                 },
                 # 0x1890F: the D37 barrel selector hook — its forced native
                 # event index is corrected from 30 (Chutes Without Ladders) to
