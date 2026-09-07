@@ -592,9 +592,9 @@ state its own code then trips over. Nothing measured so far excludes it.
 What is **not** established is which sequence of events leaves the game in that
 state. Because that is untraced, no fix is proposed -- a change aimed at a cause
 nobody has pinned down could not be shown to work, and might hide the next
-occurrence. Two plausible explanations were investigated and both were disproved
-by the dump rather than argued away; the write-up records them so they are not
-proposed again.
+occurrence. Two plausible explanations were investigated and neither could be
+closed off from the dump alone; the write-up records exactly what each one still
+rests on, so neither is re-proposed as settled.
 
 If it happens to you, the crash dump is what makes it traceable. The measurements
 are in [docs/crash-dump-findings.md](docs/crash-dump-findings.md).

@@ -195,32 +195,56 @@ the Tech-screen-close transition, not the aged-village state the warp produces.
 
 The faulting address equals the offset exactly, so `eax` was null.
 
-### Two mechanisms proposed and both refuted
+### Two mechanisms proposed, one narrowed and one still open
 
-This one took three attempts, and the discarded theories are recorded because
-each looked convincing and each would have been written up as the answer.
+This one took several attempts, and each theory is recorded with what is and is
+not established about it, because each looked convincing and each would
+otherwise be proposed again by the next person to open the dump.
 
 **"The allocation failed."** The field's only writer in the whole image is
 `0x4172C8`, which stores the result of `sub_41D500` unchecked. That function is
 a lazy singleton which returns NULL when `operator new(0xADF4)` fails -- a clean
-fit. The dump refutes it: the cached singleton `dword_48AEDC` holds `0x027D2050`,
-and `edi` at the fault holds the same value. The allocation succeeded and the
-object is live. The crashing object at `esi = 0x0BD92A48` is a different
-instance.
+fit. At crash time the cached singleton `dword_48AEDC` holds `0x027D2050`, and
+`edi` holds the same value, so the singleton is live and the crashing object at
+`esi = 0x0BD92A48` is a different instance.
+
+That weakens the theory but does **not** refute it, and an earlier draft of this
+document claimed it did. Review pointed out the gap: a dump is one instant. It
+shows the singleton populated when the process died, not whether an earlier call
+returned NULL and stored it here before a later call retried and succeeded. The
+chronology is not established, so this remains open rather than closed.
 
 **"Three image loads returned NULL."** The initialiser at `0x417900` loads
 `lagoon_restored.jpg`, `temple_rebuilt.jpg` and `garden_restored.png` into
 `+0x1470`, `+0x1474` and `+0x1478`, and all three are zero in the dump. The file
 names match the reported symptom exactly -- tech-upgrade artwork, shown on
-returning to the village. It is still wrong, for two independent reasons:
+returning to the village.
 
-- The `jz` that reaches the `xor eax, eax` null path tests **`operator new`**,
-  not the image load. `sub_40A070`'s return value is never tested at all, so a
-  missing or unreadable image cannot produce these nulls; whatever it returns is
-  stored.
-- Allocation failure is impossible here anyway. The dump's `MemoryInfoList`
-  reports 407.6 MB committed, 1532.3 MB free, and a largest free block of
-  1098.04 MB. `operator new` cannot have failed for 28, 52 and 52 bytes.
+The reasoning that rules it out has to be exact, because the obvious version of
+it is wrong. Review objected that `sub_40A070`'s return value is never tested by
+the caller, which is precisely why a NULL from it would end up stored -- and
+noted that this repository's own wrapper treats a NULL from that same
+constructor as failure (`native/vv1_origins_icons/vv1_origins_icons.c:460-475`).
+Both points are correct as stated.
+
+What settles it is the constructor's only exit:
+
+    0x40A0D6  mov  eax, esi
+    0x40A0D8  pop  esi
+    0x40A0E3  retn 0Ch
+
+`sub_40A070` returns `this` unconditionally -- `esi` is the block the caller just
+allocated and null-tested. It has no path returning zero. So whatever happens to
+the image inside it, the field receives a non-NULL sprite pointer. (This
+project's wrapper is right to check anyway: it calls the same constructor on a
+block **it** allocated, and is guarding its own allocation.)
+
+That leaves the `jz` on `operator new` as the only route to a zero here, and it
+is the same open question as the theory above: the dump cannot show whether an
+allocation failed earlier and a later one succeeded. `MemoryInfoList` reports
+407.6 MB committed, 1532.3 MB free and a largest free block of 1098.04 MB **at
+crash time**, which makes failure implausible but is not a statement about
+minutes earlier.
 
 ### What the memory actually shows
 
@@ -229,10 +253,22 @@ A contiguous zero run from `+0x1470` to `+0x1488`, with live data on both sides:
 `0x0C05C445`. The object is populated -- 1282 non-zero bytes in its first 0x1500
 -- so this is not a freed block and not a wholesale zeroing.
 
-Those fields are still at their allocation-time zero while their neighbours were
-filled in by some other path. **The initialiser that owns them did not run on
-this object.** That is the certain claim. Which path reaches `sub_416380` on such
-an object is not traced, and is not guessed at here.
+**The certain claim is only this: those fields were never populated on this
+object, while its neighbours were.** An earlier draft went further and said the
+initialiser "did not run", which review correctly called unsupported -- the
+memory cannot distinguish between an initialiser that never ran and one that ran
+and took its null branches.
+
+Two candidate explanations therefore remain open, and both are recorded above
+rather than settled:
+
+- the initialiser never ran on this object, and something else populated its
+  neighbours;
+- it ran and `operator new` returned NULL for all three, which the dump cannot
+  exclude because it shows only the final instant.
+
+Which path reaches `sub_416380` on such an object is not traced either, and is
+not guessed at here.
 
 Note also that `sub_416350`, called immediately before the faulting load, clears
 `+0x10` through `+0x1400` in 256 iterations of stride `0x14`. `+0x1480` lies
