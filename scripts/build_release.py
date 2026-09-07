@@ -254,6 +254,12 @@ def _build_source_archive() -> dict | None:
                 raise RuntimeError(f"source archive CRC failure: {bad}")
     except Exception:
         temp.unlink(missing_ok=True)
+        # A rejected build must not leave an EARLIER build's archive sitting
+        # under the release filename either. It would read as this build's
+        # source while corresponding to different code -- the same "looks like a
+        # valid artifact" failure the ordering fix above addresses, one build
+        # removed.
+        target.unlink(missing_ok=True)
         raise
     temp.replace(target)
     return {
