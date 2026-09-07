@@ -92,6 +92,10 @@ RESETS = {
         # Codex found that on #240. `caller_at` names the slot cave so the
         # call can be located and its gating checked.
         "caller_at": 0x728FD0,
+        # The dword the cave compares the incoming slot against. Naming it
+        # lets the gate check require a branch on THAT comparison rather than
+        # on the surrounding range checks.
+        "saved_slot_at": 0x728FCC,
         "globals": {
             0x728B00: "purchased-Barrel flag",
             0x728B04: "Barrel armed flag",
@@ -235,13 +239,26 @@ class QueuedEventsClearInEveryGameTests(unittest.TestCase):
             offset, f"{game}: {caller_at:#x} is not mapped")
 
         target = spec["helper_at"]
+        saved_slot = spec["saved_slot_at"]
         call = None
         gates = []
+        compared_saved_slot = False
         for instruction in self.md.disasm(image[offset:offset + 0x80], caller_at):
-            if (instruction.mnemonic.startswith("j")
+            # Only a branch that follows a comparison AGAINST THE SAVED SLOT
+            # counts as the gate. VV4's cave also range-checks the slot number
+            # (`jb`/`ja` on 1..5) and those jump to the same destination, so
+            # accepting any preceding conditional branch would keep passing
+            # with the `cmp`/`je` against the saved slot deleted -- and every
+            # autosave for a valid slot would then clear a pending event.
+            # Codex found that on #269.
+            if instruction.mnemonic == "cmp":
+                compared_saved_slot = f"[0x{saved_slot:x}]" in instruction.op_str
+            elif (instruction.mnemonic.startswith("j")
                     and instruction.mnemonic != "jmp"
                     and instruction.op_str.startswith("0x")):
-                gates.append(instruction)
+                if compared_saved_slot:
+                    gates.append(instruction)
+                compared_saved_slot = False
             if (instruction.mnemonic == "call"
                     and instruction.op_str.startswith("0x")
                     and int(instruction.op_str, 16) == target):
@@ -257,8 +274,9 @@ class QueuedEventsClearInEveryGameTests(unittest.TestCase):
             "survives a save-slot change")
         self.assertTrue(
             gates,
-            f"{game}: the call to {target:#x} has no preceding conditional "
-            "branch, so the reset is unconditional and would discard a "
+            f"{game}: no branch on a comparison against the saved slot "
+            f"({saved_slot:#x}) precedes the call to {target:#x}, so the "
+            "reset is not gated on a real slot change and would discard a "
             "pending event on every autosave")
         gate = gates[-1]
         self.assertGreater(
