@@ -2179,8 +2179,9 @@ def main() -> None:
     # destroying it for the rest of the session.  Because the singleton at
     # 0x4B3C38 was then non-null, the getter never rebuilt it, so the purchased
     # barrel AND every natural island event stayed dead until the game was
-    # restarted.  Live tracing caught this: the pending flag at 0x4B3C75 went
-    # 1 -> 0 on schedule while all 58 slots read zero and no popup appeared.
+    # restarted.  Live tracing caught this: the native event-seen byte at
+    # 0x4B3C75 went 1 -> 0 on schedule while all 58 slots read zero and no
+    # popup appeared; it is not the purchased-Barrel pending flag.
     barrel_present_code = assemble(
         f"""
             pushad
