@@ -18,7 +18,12 @@ concurrency:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    # Windows, because the patcher is a Windows tool and says so in code: the
+    # VV3 and VV5 identity-atomic operations raise PatcherError unless they are
+    # on 64-bit Windows. On ubuntu-latest that is 51 failures which are not
+    # defects -- the suite is correctly refusing to certify behaviour on a
+    # platform the tool does not support.
+    runs-on: windows-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
