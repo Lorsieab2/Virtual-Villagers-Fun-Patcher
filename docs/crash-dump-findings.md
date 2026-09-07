@@ -177,6 +177,153 @@ are breakpoints, and no such crash happened. Check the exception code first.
 For completeness, no VVFP patch overlaps `sub_43DEF0` or any of its 78 call
 sites, with the positive control passing on the known patch at `0x402ED0`.
 
+## Virtual Villagers 1 -- A New Home, Time Warp
+
+The first crash reported from an actual playtest rather than found in the logs,
+and the only one with a full memory dump. The player bought Time Warp and the
+game crashed, in their words, "immediately when I returned to the village" --
+the Tech-screen-close transition, not the aged-village state the warp produces.
+
+`EIP = 0x00416391`, reading `0x9FE8`, `ESP` aligned, `eax = ecx = ebx = edx = 0`:
+
+    0x416380  sub esp, 8
+    0x416383  push esi
+    0x416384  mov  esi, ecx
+    0x416386  call sub_416350
+    0x41638B  mov  eax, [esi+1480h]     ; loads a pointer out of the object
+    0x416391  mov  cl,  [eax+9FE8h]     ; <-- faults, eax = 0
+
+The faulting address equals the offset exactly, so `eax` was null.
+
+### Two mechanisms proposed, one narrowed and one still open
+
+This one took several attempts, and each theory is recorded with what is and is
+not established about it, because each looked convincing and each would
+otherwise be proposed again by the next person to open the dump.
+
+**"The allocation failed."** The field's only writer in the whole image is
+`0x4172C8`, which stores the result of `sub_41D500` unchecked. That function is
+a lazy singleton which returns NULL when `operator new(0xADF4)` fails -- a clean
+fit. At crash time the cached singleton `dword_48AEDC` holds `0x027D2050`, and
+`edi` holds the same value, so the singleton is live and the crashing object at
+`esi = 0x0BD92A48` is a different instance.
+
+That weakens the theory but does **not** refute it, and an earlier draft of this
+document claimed it did. Review pointed out the gap: a dump is one instant. It
+shows the singleton populated when the process died, not whether an earlier call
+returned NULL and stored it here before a later call retried and succeeded. The
+chronology is not established, so this remains open rather than closed.
+
+**"Three image loads returned NULL."** The initialiser at `0x417900` loads
+`lagoon_restored.jpg`, `temple_rebuilt.jpg` and `garden_restored.png` into
+`+0x1470`, `+0x1474` and `+0x1478`, and all three are zero in the dump. The file
+names match the reported symptom exactly -- tech-upgrade artwork, shown on
+returning to the village.
+
+The reasoning that rules it out has to be exact, because the obvious version of
+it is wrong. Review objected that `sub_40A070`'s return value is never tested by
+the caller, which is precisely why a NULL from it would end up stored -- and
+noted that this repository's own wrapper treats a NULL from that same
+constructor as failure (`native/vv1_origins_icons/vv1_origins_icons.c:460-475`).
+Both points are correct as stated.
+
+What settles it is the constructor's only exit:
+
+    0x40A0D6  mov  eax, esi
+    0x40A0D8  pop  esi
+    0x40A0E3  retn 0Ch
+
+`sub_40A070` returns `this` unconditionally -- `esi` is the block the caller just
+allocated and null-tested. It has no path returning zero. So whatever happens to
+the image inside it, the field receives a non-NULL sprite pointer. (This
+project's wrapper is right to check anyway: it calls the same constructor on a
+block **it** allocated, and is guarding its own allocation.)
+
+That leaves the `jz` on `operator new` as the only route to a zero here, and it
+is the same open question as the theory above: the dump cannot show whether an
+allocation failed earlier and a later one succeeded. `MemoryInfoList` reports
+407.6 MB committed, 1532.3 MB free and a largest free block of 1098.04 MB **at
+crash time**, which makes failure implausible but is not a statement about
+minutes earlier.
+
+### What the memory actually shows
+
+A contiguous zero run from `+0x1470` to `+0x1488`, with live data on both sides:
+`+0x10E0` holds `0x0D8D6F00`, `+0x14B8` holds `0x0D8D6F54`, and `+0x148C` holds
+`0x0C05C445`. The object is populated -- 1282 non-zero bytes in its first 0x1500
+-- so this is not a freed block and not a wholesale zeroing.
+
+**The certain claim is only this: those fields were never populated on this
+object, while its neighbours were.** An earlier draft went further and said the
+initialiser "did not run", which review correctly called unsupported -- the
+memory cannot distinguish between an initialiser that never ran and one that ran
+and took its null branches.
+
+Two candidate explanations therefore remain open, and both are recorded above
+rather than settled:
+
+- the initialiser never ran on this object, and something else populated its
+  neighbours;
+- it ran and `operator new` returned NULL for all three, which the dump cannot
+  exclude because it shows only the final instant.
+
+Which path reaches `sub_416380` on such an object is not traced either, and is
+not guessed at here.
+
+Note also that `sub_416350`, called immediately before the faulting load, clears
+`+0x10` through `+0x1400` in 256 iterations of stride `0x14`. `+0x1480` lies
+past that range, so the clear is not what zeroed it.
+
+### Attribution
+
+`sub_423390` reaches the faulting function through a **vtable slot** in
+`.rdata:0x4598D0`, so this is virtual dispatch rather than a direct call.
+
+- The bytes that fault are byte-identical to the stock executable. Comparing
+  live crashed memory against the stock image: `sub_416380`, `sub_416350`,
+  `sub_423390`'s tail including the call site at `0x423494`, and the vtable slot
+  itself all match exactly. This is the same decisive form used for VV4, and it
+  is stronger than a patch-span scan because it cannot have a coverage hole.
+- VVFP has exactly two `.rdata` patches, at `0x456900` and `0x485D30`. Neither
+  covers `0x4598D0`, so the slot still holds its stock target and no patch here
+  redirected the dispatch. That is a statement about control flow only.
+- No VVFP code calls `sub_423390`, `sub_416380`, `sub_4179D0`, `sub_417280` or
+  `sub_41D500`. Every `E8` relative call in every VV1 patch payload was decoded
+  and its target resolved; none of the five appears.
+- The patcher's own packaging is cleared separately: it copies the game folder
+  with `shutil.copytree` and no `ignore=` filter, then verifies every file by
+  size and SHA-256, raising rather than continuing on any mismatch.
+- The `Visual Mods` patch swaps two of the three named images. Its pinned
+  preimages were checked against the player's own untouched originals and match
+  exactly, as do both the replacement and restore copies against their manifest
+  hashes.
+
+One observation settles the packaging question without needing the folder, which
+has since been deleted: `temple_rebuilt.jpg` is **not** a file this project
+touches. Had a swap damaged the two that are, the third would still have loaded.
+All three were zero, so the outcome is not specific to the swapped files.
+
+### Status
+
+The dereference is unchecked stock code that this project does not patch, on a
+dispatch it did not redirect, in a function whose bytes it has not modified.
+
+That is the absence of a direct call and of any control-flow redirection. It is
+**not** proof that the patch is uninvolved, and the section on what patch
+coverage does and does not prove applies here in full. The Time Warp purchase
+runs this project's code and then returns into the stock screen-close flow, so
+an unchanged dispatch can still consume state that ran earlier. Nothing measured
+here excludes that, and review flagged an earlier draft of this section for
+claiming otherwise.
+
+No fix is proposed: the path that leaves the object half-initialised is
+untraced, and a fix aimed at an untraced path cannot be validated. Nor is the
+investigation closed -- a second occurrence, with a dump, is what would move it.
+
+A caveat that applies to this dump as it did to the VV5 ones: its module-name
+strings are scrubbed, so the loaded-module list cannot be read and is not relied
+on anywhere above.
+
 ## Virtual Villagers 2 -- The Lost Children
 
 Sixty-one records in the Windows event log, across four different builds. All 61
