@@ -13,7 +13,7 @@ there**, so the write is a no-op the player still pays for.
 | --- | --- | --- |
 | VV1 | countdown `player + 0xA300` zeroed | flag byte in `.shr` set |
 | VV2 | countdown `player + 0x2EAE0` zeroed | flag byte in `.shr` set |
-| VV3 | due stamp `manager + 0x12EF4` set to `clock() + 5` | flag byte `0x4B3C75` set |
+| VV3 | due stamp `manager + 0x12EF4` set to `clock() + 5` | patch-owned flag byte `0x6E0058` set |
 | VV4 | countdown `world + 0x170E0` zeroed (getter `0x41FE70`) | armed flag `0x728B04`, **and the same countdown** |
 | VV5 | countdown `manager + 0x17D3C` zeroed | flag bit 4 of `0x51D388`, **and the same countdown** |
 
@@ -71,7 +71,7 @@ and the two pending flags itself, and disables the rows. Nothing is asked of
 the executable.
 
 Both pending answers come from **flags the payload owns** -- the Barrel's at
-`0x4B3C75` and the Island's at `0x6E0050` (`SECTION_DATA_VA + 0x50`, in the
+`0x6E0058` and the Island's at `0x6E0050` (`SECTION_DATA_VA + 0x50`, in the
 patch's own R/W `.vv3md` page). The Island flag cannot be replaced by reading
 the countdown: arming writes `clock() + 5` there, so the field is *non-zero for
 the whole queue window*, and the original `countdown == 0` test therefore never

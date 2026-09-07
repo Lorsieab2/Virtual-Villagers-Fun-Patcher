@@ -13,7 +13,9 @@ it. Because the singleton at 0x4B3C38 was left non-null the getter never
 rebuilt the table, which killed the purchased barrel AND every natural island
 event for the rest of the session.
 
-Live tracing is what found it -- the pending flag at 0x4B3C75 went 1 -> 0 on
+Live tracing is what found it -- the native event-seen byte at 0x4B3C75 was
+being mistaken for the pending flag.  The purchased pending flag now lives in
+patch-owned data at 0x6E0058 and goes 1 -> 0 on schedule,
 schedule, 75,000 tech points were charged, "Barrel of Babies completed." was
 shown, and all 58 slots read zero with no popup. None of that is visible in the
 cave's bytes, so this pins the ordering instead.

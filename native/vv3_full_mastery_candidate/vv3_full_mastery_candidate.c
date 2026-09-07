@@ -399,7 +399,7 @@ static int vv3_has_free_villager_slots(int wanted) {
    asked of the executable.
 
    Both pending answers now come from flags the payload owns -- the Barrel's at
-   0x4B3C75 and the Island's at 0x6E0050 -- so the row predicate reads plain
+   0x6E0058 and the Island's at 0x6E0050 -- so the row predicate reads plain
    bytes and needs no manager at all. It deliberately does NOT call the getter
    at 0x428B60 that the executable's purchase path uses: that getter is a lazy
    constructor which allocates 0x12FD4 bytes and builds the manager when the
@@ -414,7 +414,7 @@ static int vv3_has_free_villager_slots(int wanted) {
 #define VV3_ARCH_EXPANDED_VALUE   0x100
 #define VV3_ARCH_EXPANDED_OFFSET  0x7598
 #define VV3_ISLAND_COUNTDOWN_OFF  0x12EF4
-#define VV3_BARREL_PENDING_FLAG   0x4B3C75
+#define VV3_BARREL_PENDING_FLAG   0x6E0058
 /* The purchased Island Event's pending flag, in the patch's own appended data
    page (SECTION_DATA_VA + 0x50), set when the purchase arms the queue and
    cleared once the island-event handler has actually consumed it.
@@ -429,6 +429,9 @@ static int vv3_has_free_villager_slots(int wanted) {
    purchases or re-opens the double charge. The payload and this predicate must
    share one definition of "pending", and the flag is it. */
 #define VV3_ISLAND_PENDING_FLAG   0x6E0050
+#define VV3_IMMEDIATE_FIXED_PROBE 0x45FEA2
+#define VV3_COLLECTION_BASE_PROBE 0x45FEE3
+#define VV3_POPULATION_MODE_COLLECTION 0x73
 
 /* The scheduler's own clock, 0x403330: converts GetSystemTimeAsFileTime through
    10,000,000 and returns Unix epoch SECONDS -- the same units the purchase
@@ -439,6 +442,16 @@ static int vv3_has_free_villager_slots(int wanted) {
 static unsigned int vv3_scheduler_now(void) {
     typedef unsigned int(__cdecl * clock_t_fn)(void);
     return ((clock_t_fn)(UINT_PTR)VV3_SCHEDULER_CLOCK)();
+}
+
+static int vv3_barrel_uses_physical_limit(void) {
+    /* Immediate Fixed replaces the native bonus calculation at 0x45FEA2;
+       Collection Progression raises the base byte at 0x45FEE3.  In either
+       public expanded mode, the intended limit is the physical 150-record
+       table, not the stock 87/90 population tier. */
+    return *(volatile unsigned char *)(UINT_PTR)VV3_IMMEDIATE_FIXED_PROBE == 0xBE
+        || *(volatile unsigned char *)(UINT_PTR)VV3_COLLECTION_BASE_PROBE
+            == VV3_POPULATION_MODE_COLLECTION;
 }
 
 enum {
@@ -2059,6 +2072,10 @@ __declspec(dllexport) int __stdcall PrepareOriginsVillageWide(int command) {
 static int vv3_barrel_has_room_for_three(void) {
     unsigned int current = 0;
     unsigned int maxpop = 0;
+
+    if (vv3_barrel_uses_physical_limit()) {
+        return vv3_has_free_villager_slots(VV3_BARREL_CHILDREN);
+    }
 
     /* The game's routines are __thiscall (this in ecx, stack args callee-cleaned
        via ret 4), so drive them with inline asm; esi accumulates the bonus

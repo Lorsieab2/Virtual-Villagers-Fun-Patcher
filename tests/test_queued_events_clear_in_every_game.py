@@ -79,7 +79,7 @@ RESETS = {
     "vv3": {
         "detour_at": 0x403290,
         "globals": {
-            0x4B3C75: "Barrel pending flag",
+            0x6E0058: "Barrel pending flag",
         },
     },
     "vv4": {

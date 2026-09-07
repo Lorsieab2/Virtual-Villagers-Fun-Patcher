@@ -458,12 +458,17 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )[1]
         self.assertIn("s['prepare_barrel_export']", cave)
         self.assertIn("mov eax, 1", cave)  # fail-open
-        # The DLL computes the max mode-awarely by reading the live per-mode base
-        # population byte the patcher rewrites at 0x45FEE3 (not a hardcoded 90).
+        # Expanded public modes use the physical 150-record limit, while stock
+        # retains the native population cap.  The DLL must identify those modes
+        # from the exact patched bytes, not from a hardcoded 87/90 ceiling.
         dll = (ROOT / "native" / "vv3_full_mastery_candidate"
                / "vv3_full_mastery_candidate.c").read_text(encoding="utf-8")
         self.assertIn("PrepareBarrelBabies", dll)
-        self.assertIn("0x45FEE3", dll)
+        self.assertIn("vv3_barrel_uses_physical_limit", dll)
+        self.assertIn("VV3_IMMEDIATE_FIXED_PROBE", dll)
+        self.assertIn("VV3_COLLECTION_BASE_PROBE", dll)
+        self.assertIn("VV3_BARREL_PENDING_FLAG   0x6E0058", dll)
+        self.assertNotIn("VV3_BARREL_PENDING_FLAG   0x4B3C75", dll)
         # do_barrel arms the queue (the real event is deferred to the
         # island-handler hook) and confirms the purchase with the
         # "Barrel of Babies completed." result box.  The arming helper, not

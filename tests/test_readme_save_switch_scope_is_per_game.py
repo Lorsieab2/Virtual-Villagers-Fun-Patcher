@@ -83,7 +83,7 @@ QUEUED_GLOBALS = {
         # Only the pending flag. BARREL_DUE (0x6E004C) is never zeroed anywhere
         # in the rendered image -- scanning for its clear encoding returns no
         # matches -- so requiring it would demand a store that does not exist.
-        "BARREL_PENDING_FLAG": (0x4B3C75, 1),
+        "BARREL_PENDING_FLAG": (0x6E0058, 1),
     },
     "vv4": {
         "BARREL_UPGRADE_FLAG": (0x728B00, 1),

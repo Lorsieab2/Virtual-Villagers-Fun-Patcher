@@ -213,12 +213,15 @@ COLLECTIONS_RESET_VA = IMAGE_BASE + COLLECTIONS_RESET_FILE_OFFSET
 # Deferred barrel-event hook.  Firing the "Another One of Those Barrels" event
 # synchronously from the (paused, modal) Tech menu flashes its popup and never
 # spawns, so do_barrel instead sets a pending flag (the unused game byte
-# 0x4B3C75) and this hook -- spliced into the island-event handler at 0x468727,
+# patch-owned data byte) and this hook -- spliced into the island-event handler at 0x468727,
 # which runs every frame during normal gameplay -- fires the full event once the
 # menu has closed, so it reads and behaves like a real island event.
 BARREL_HOOK_FILE_OFFSET = 0x7B3B1
 BARREL_HOOK_VA = IMAGE_BASE + BARREL_HOOK_FILE_OFFSET
-BARREL_PENDING_FLAG_VA = 0x4B3C75
+# Purchased-Barrel pending state is patch-owned.  0x4B3C75 is the native
+# event-seen byte for event index 0x39, so natural Island/Barrel events can
+# leave it set and falsely block the Tech row forever.
+BARREL_PENDING_FLAG_VA = SECTION_DATA_VA + 0x58
 BARREL_HANDLER_SPLICE_VA = 0x468727
 # Barrel present routine (in the free .text padding just past the hook).  Drives
 # the game's own island-event presenter, forced to the barrel, so the full
@@ -270,7 +273,8 @@ BARREL_PRESENT_EVENT_VA = 0x419B30         # present(this=mgr, scene); ret 4
 # seen, which would consume an unrelated one-shot island event.  So we save and
 # restore that seen array around the present too -- one contiguous dword block
 # from 0x4B3C3C up through the object slots -- undoing the spurious mark (and the
-# barrel's own pending flag at 0x4B3C75, already cleared by the hook, rides along
+# the native event-seen bytes and object slots; the patch-owned Barrel pending
+# flag is separate and is cleared by the hook, so it is not part of this block.
 # unchanged).  Restore starts at BARREL_SAVE_LOW_VA; save descends from the
 # barrel singleton; BARREL_SAVE_COUNT dwords cover the seen array plus slots
 # 1..0x39.
@@ -2175,8 +2179,9 @@ def main() -> None:
     # destroying it for the rest of the session.  Because the singleton at
     # 0x4B3C38 was then non-null, the getter never rebuilt it, so the purchased
     # barrel AND every natural island event stayed dead until the game was
-    # restarted.  Live tracing caught this: the pending flag at 0x4B3C75 went
-    # 1 -> 0 on schedule while all 58 slots read zero and no popup appeared.
+    # restarted.  Live tracing caught this: the native event-seen byte at
+    # 0x4B3C75 went 1 -> 0 on schedule while all 58 slots read zero and no
+    # popup appeared; it is not the purchased-Barrel pending flag.
     barrel_present_code = assemble(
         f"""
             pushad
