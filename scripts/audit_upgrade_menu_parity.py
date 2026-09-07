@@ -75,6 +75,18 @@ TECH_DIALOG_CALL = re.compile(
 OR_BIT = re.compile(
     r"or\s+e(?:ax|bx|cx|dx|si|di|bp),\s*(?P<value>0[xX][0-9a-fA-F]+|\d+)\b"
 )
+# Comment text is stripped before OR_BIT is applied. The pattern matches the
+# instruction as prose too, and `build_vv1_origins_feature.py` discusses
+# `or edi, 8` in a comment right beside the real instruction -- so deleting the
+# instruction left the audit still reporting the bit as present, from the
+# comment alone. An audit that cannot notice the thing it audits being removed
+# is worse than none. Codex found this on #219.
+_ASM_COMMENT = re.compile(r"#[^\n]*")
+
+
+def _instructions_only(block: str) -> str:
+    """Drop comment text so only real instructions are scanned."""
+    return _ASM_COMMENT.sub("", block)
 # `1 << (8 + row)` markers meaning "this row is unavailable", not satisfied
 # bits.  They sit in the same block, so they are excluded explicitly.
 # Values a Tech state builder ORs in that mark a row UNBUYABLE rather than
@@ -223,7 +235,7 @@ def tech_state_bits(generator: Path) -> set[int]:
         raise RuntimeError(
             f"{generator.name}: the Tech state accumulator is never cleared"
         )
-    block = text[starts[-1] : call.end()]
+    block = _instructions_only(text[starts[-1] : call.end()])
     values = {int(m.group("value"), 0) for m in OR_BIT.finditer(block)}
     # Drop the unavailable markers so only satisfied bits are reported.
     return values - UNAVAILABLE_MASK_VALUES
