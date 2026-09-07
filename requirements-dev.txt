@@ -1,0 +1,12 @@
+# Test-suite dependencies.
+#
+# Runtime needs nothing beyond the standard library plus Pillow; everything
+# else here exists to let the tests disassemble, assemble and emulate the
+# patched binaries rather than trust a manifest's description of them.
+pytest
+pytest-subtests      # the suite reports per-game results as subtests
+capstone             # disassembly: what the shipped bytes actually decode to
+keystone-engine      # assembly, for tests that build an expected encoding
+unicorn              # emulation, for tests that execute a patched routine
+pefile               # PE section/VA mapping
+pillow               # sprite and mask-atlas comparisons
