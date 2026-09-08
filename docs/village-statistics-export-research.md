@@ -47,7 +47,7 @@ fields are:
 | People Cured | `+0x9E2C` |
 | Mushrooms Found | `+0x9E30` |
 | Maximum Population | `+0x9E34` |
-| Villagers Buried | `+0x9E38` |
+| Villagers Buried | `+0x9E38` (see the correction below -- this is a **live recount**, not a lifetime total) |
 | Oldest Villager | `+0x9E3C` |
 | Island Events Seen | `+0x9E40` |
 | Twins Birthed | `+0x9E44` |
@@ -290,7 +290,11 @@ uncapped lifetime storage field and mutation route have yet been proven:
   it.
 - Villagers Died at the moment of death. See the correction below: the
   later-game counter is not a usable lifetime total in either direction.
-- Total Stews Made in VV3 and VV4. **VV2 is no longer blocked** -- see below.
+- Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found is a
+  solved and shipping statistic (see below), but the requirements list
+  *Total* Stews Found "with no herb-combination restriction" as a **separate**
+  VV2 statistic, and no writer that increments for every stew has been found.
+  The two must not be conflated.
 - Tribal Chiefs Robed in VV3.
 - Debris Cleared in VV4.
 
@@ -298,6 +302,24 @@ Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
 
 ### Corrections to the list above
+
+**VV1's `+0x9E38` is a live recount, not a lifetime total.** It is listed
+above under confirmed local statistics as *Villagers Buried*, and the exporter
+emits it under that label, but it has only two writers image-wide and both are
+stores rather than increments:
+
+    0x41C3DF  mov [ebp+9E38h], ebx   zero-init
+    0x42F191  mov [edx+9E38h], eax   stores sub_41CF10's return value
+
+`sub_41CF10` is an unrolled 5x10 walk that **recounts currently-occupied grave
+slots** (base `manager+0xA340`, stride `0x2C`) and returns the total. So the
+value saturates at the 50-slot capacity and would fall if a slot were ever
+released. It reports present occupancy, not lifetime burials.
+
+The shipped row is therefore accurate only while a village has buried fewer
+than 50 villagers. Correcting the row is user-visible and is held for the
+owner's decision; this note exists so the table above is not read as
+establishing a lifetime counter that does not exist.
 
 **The later-game "buried" counters decrement.** They were described here as
 incrementing when a corpse record is retired, which reads as a usable lifetime
@@ -316,9 +338,15 @@ route. VV5's `+0xBB80` is the population of a **55-slot visible-marker array**
 from the 500-slot grave array. So no game has an existing lifetime burial
 total, and any such counter must be newly built.
 
-**VV2's unique-recipe total already exists.** The earlier verdict was recorded
-against *Total Stews Made* as a **counter**, and no uncapped counter exists.
-Re-running the search for a **set** rather than a counter found one:
+**VV2's SPECIAL Stews Found is solved -- but that is not the Total.** The
+requirements list two separate VV2 statistics: *Special Stews Found*, and
+*Total Stews Found* "with no herb-combination restriction". What follows
+establishes the **first** only. No writer incrementing on every stew has been
+found, so *Total* Stews Found stays blocked.
+
+The earlier verdict was recorded against *Total Stews Made* as a **counter**,
+and no uncapped counter exists. Re-running the search for a **set** rather than
+a counter found the unique-recipe storage:
 `manager+0x2EAAC`, 19 bytes, indexed directly by recipe id (ids 1..18, index 0
 unused), cleared to exactly 19 bytes by the initializer at `0x425114`. The
 "...found an interesting new recipe!" string (id `0x1C7`) sits between the
@@ -332,8 +360,9 @@ and the increment are gated together.
                  0x4260D4 mark set[id] / 0x4260DC inc [+0x2E520]
     first cook   0x4260A5 mark set[id] / 0x4260AD jmp -> 0x4260DC inc
 
-So `popcount(+0x2EAAC) == [+0x2E520]` at all times, and the shipped row already
-answers "every unique recipe". One narrow caveat: on the first-cook path only,
+So `popcount(+0x2EAAC) == [+0x2E520]` at all times, and the shipped **Special
+Stews Found** row already answers "every unique recipe" exactly. It does not
+answer "every stew cooked", which is the separate Total. One narrow caveat: on the first-cook path only,
 ids 2, 4 and `0x12` branch to `0x4260E2` -- which is the **function tail**, the
 same target the "already known" branch uses -- so they skip the mark and the
 increment together. Those recipes are missed only if one of them is the very
