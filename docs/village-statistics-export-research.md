@@ -154,10 +154,21 @@ incremented inside the childbirth routine, on the twins branch:
 
 Both are mutually exclusive with the `+0x2C` write, which follows
 `mov [litter], 3`. At most one fires per conception: the litter field is
-initialised to 1 (VV4 `0x45E87D`), and the multiple-birth guards
-(`0x45E88F`, `0x45E89E`) branch past both increments, so a singleton
-conception writes neither counter. Exactly one fires when the litter is
-twins or triplets, and neither otherwise.
+initialised to 1 (VV3 `0x455B7C`, VV4 `0x45E87D`), and the multiple-birth
+guards (VV4 `0x45E88F`, `0x45E89E`) branch past both increments, so a
+singleton conception writes neither counter. Exactly one fires when the
+litter is twins or triplets, and neither otherwise.
+
+That distinction is worth stating explicitly because **the singleton birth
+path is this codebase's reliable odd-one-out**. It has now been the case a
+claim failed to cover three separate times: a conception hook placed only on
+the multiple-birth tails silently dropped singleton births; a `cave_va`
+reassignment broke only the singleton trampoline, while a check covering the
+two tail trampolines passed; and the "exactly one fires per conception"
+claim above was true for multiples and false for singletons. For any
+*exactly one* / *always* / *never* claim about the birth path, enumerate the
+cases the model does not name -- the default path and the empty case -- and
+check those first rather than last.
 
 The alignment does not rest on `+0x28` alone. Every neighbouring label was
 matched to the shape of the code that writes it, and only `+0x28` fails to fit:
