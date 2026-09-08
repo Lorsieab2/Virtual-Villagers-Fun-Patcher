@@ -15,7 +15,7 @@
     "vv1": {
       "title": "Virtual Villagers - A New Home",
       "enabled": false,
-      "disabled_reason": "No proven health, preferred-skill, or name offset for this build. The remaining fields plus the record index cannot be shown sufficient to separate two same-appearance villagers, so the native planner remains the path taken.",
+      "disabled_reason": "No proven health or preferred-skill offset for this build. The name is now established (fields.name, record+0x370, char[0x1C]), but the remaining fields plus the record index have still not been shown sufficient to separate two same-appearance villagers, so the native planner remains the path taken.",
       "record": {
         "stride": "0x3D8",
         "count": 256,
@@ -64,12 +64,17 @@
           "type": "i32",
           "count": 5,
           "evidence": "vv1_origins_icons.c VV_SKILL_FARMING/BUILDING/RESEARCH/HEALING/PARENTING_OFFSET 0x3BC..0x3CC, contiguous +4"
+        },
+        "name": {
+          "offset": "0x370",
+          "type": "char[0x1C]",
+          "length": 28,
+          "evidence": "record+0x370, char[0x1C] (0x370..0x38B, 28 bytes). Start proven twice: the write at 0x43C696 (lea eax,[esi+0x370]; mov byte ptr [eax],0; call 0x44B23D) and the read at 0x41874D (imul eax,eax,0x3D8; lea edx,[eax+ecx+0x370]; push edx), where the imul by the proven 0x3D8 record stride is what establishes the base register as a villager record. That it is a character array rather than a scalar is confirmed independently at 0x41C263 (mov byte ptr [esi+edx+0x370], bl), a single-byte store at a variable index into the buffer. LENGTH: bounded only by the displacement sweep of 0x340..0x3D8, which is dense -- every 4-byte slot in that range is referenced EXCEPT the run 0x374..0x388, and the next referenced slot is +0x38C (6 sites, a dword scalar). The sweep is positive-controlled: it finds +0x348 age, +0x350 gender, +0x360 head, +0x364 body, +0x36C id, +0x398 likes, +0x3A8 dislikes and +0x3BC skills, so the gap is a real absence and not a broken search. The buffer therefore spans 0x370..0x38B inclusive = 28 bytes = char[0x1C]. NOTE the copier enforces NOTHING: 0x44B23D is MSVC sprintf (unbounded -- it sets count 0x7FFFFFFF), not a length-limited copy, so the game itself provides no truncation guarantee and the 28-byte figure comes from the neighbouring-field bound alone. A consumer MUST treat the field as char[0x1C] and force a NUL at byte 0x1B before use; assuming char[0x18] would discard four name bytes and could make distinct villagers collide in an identity hash. Earlier displacement scans missed this buffer entirely because names are written by bulk string copies: the address is TAKEN (lea), never accessed as [reg+disp]. The prior entry's note that record[+0x374] lies INSIDE the name buffer was correct -- +0x374 is simply four bytes into it, which is why using it as mask storage silently renamed villagers."
         }
       },
       "absent_fields": {
         "health": "no VV1 health offset is defined or documented",
         "preferred_skill": "no VV1 preferred-skill offset is defined or documented",
-        "name": "ESTABLISHED: record+0x370, char[0x18] (0x370..0x38B). The earlier entry was correct that +0x374 lies INSIDE the buffer -- it is four bytes in, which is why using it as mask storage silently renamed villagers. Start proven by the write at 0x43C696 (lea eax,[esi+0x370]; mov byte ptr [eax],0; call sprintf) and the read at 0x41874D (imul eax,eax,0x3D8; lea edx,[eax+ecx+0x370]; push edx), where the imul by the proven record stride is what establishes the base. Length bounded by displacement sweep: nothing in 0x340..0x3D8 is referenced between 0x370 and 0x38C, and +0x38C is written as a scalar by the conception routine sub_43BBC0. The sweep was positive-controlled -- it finds +0x348 age (55 refs), +0x360 head (37), +0x364 body (29), +0x36C id (16), +0x370 (5) and +0x38C (3) -- so the gap is a real absence and not a broken search. Earlier displacement scans missed this buffer because names are written by bulk string copies: the address is TAKEN, never accessed as [reg+disp]. Treat as char[0x18] and force a NUL at 0x17 before use; sprintf does not guarantee termination at the boundary.",
         "nursing": "record[+0x29] is cleared by the newborn allocator hook but its meaning is not established as nursing"
       },
       "special_villagers": {
@@ -238,11 +243,12 @@
       "title": "Virtual Villagers - The Tree of Life",
       "enabled": true,
       "record": {
-        "base": "0x0050E5AC",
         "stride": "0x2E3C",
         "count": 150,
-        "count_source": "0x0042001C",
-        "evidence": "native/vv4_origins_icons/vv4_origins_icons.c VV_REC_ARRAY_BASE / VV_RECORD_STRIDE / VV_RECORD_COUNT_ADDR / VV_MAX_VILLAGERS"
+        "array_base": "0x50E5AC",
+        "manager": "0x50E568",
+        "accessor": "0x466040",
+        "evidence": "Accessor 0x466040: mov eax,[esp+4]; cmp eax,0x95; ja; imul eax,eax,0x2E3C; lea eax,[eax+ecx+0x44]; ret 4 -- structurally the twin of the proven grave accessor 0x45D650. ecx is the manager singleton 0x50E568, loaded as mov ecx,0x50E568 at all 55 call sites, so the array base is 0x50E568+0x44 = 0x50E5AC: 150 slots of 0x2E3C, spanning 0x50E5AC..0x6BFCD4, entirely inside .data. Cross-checked by the absolute references 0x510240/0x510244 (used at 0x43FFB3 and 0x442BB3 after imul eax,eax,0x2E3C), which resolve exactly to villager[N]+0x1C94/+0x1C98. The established name +0x1B9C and age +0x1B8C both fall inside the 0x2E3C record. NOTE: an earlier scan reported no stride multiply in 0x1000..0x4000; 0x2E3C is inside that range, so that scan was broken, not the game unindexed. capstone renders imul with THREE operands."
       },
       "fields": {
         "active": {
@@ -312,7 +318,7 @@
       },
       "absent_fields": {
         "nursing": "record[+0x1C4C] is documented only as a nursing/pregnancy companion field; no reviewed VA proves boolean nursing semantics, so it is not captured",
-        "parentage": "no VV4 parentage offset is defined or documented"
+        "parentage": "NOT STORED. No villager field holds another villager's pointer or index. Three independent lines: (1) a positive-controlled sweep of every villager-field load feeding a +0x1B9C/+0x1B90/+0x1B8C/+0x1B88 dereference finds only +0x834/+0x838 on a UI object and +0x1B88, the known self-pointer; (2) +0x1C04 and +0x1C08 -- which look like a parent pair because 0x45E81E zeroes them together -- are WRITE-ONLY: exactly one store each (0x45E83A, 0x45E856) and zero reads anywhere in the image, so they cannot function as a link; (3) the birth routine sub_460990 holds mother in ebp and father in esi and passes the other parent's NAME STRING BY VALUE (0x460A1E lea edx,[esi+0x1B9C]; push edx; mov ecx,ebp; call 0x45E7B0), so the child receives a copied string and genetics values, never a reference. sub_45E7B0's this IS a villager record (it calls the manager at 0x50E568 and every offset it touches, 0x1C04..0x1C60, is inside the 0x2E3C record); +0x1C10 receives a copy of the OTHER parent's name, which is what made it look like a second name field. The UI pointers at 0x416F60 +0x834/+0x838 are filled by virtual calls, not read off a villager. CONSEQUENCE: a parentage tracker cannot read a field off the child -- it must hook the moment of conception while both parent records are still live. Incidental correction: +0x1C94/+0x1C98 are screen X/Y coordinates computed at 0x43FF71 from floats plus the camera scroll globals 0x72563C/0x725640, not a parent pair."
       },
       "rejected_fields": {
         "VV_AGE_OFFSET_0x348": "VV1's age offset. VV4's verified display age is +0x1B8C.",
