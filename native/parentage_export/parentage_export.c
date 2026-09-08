@@ -129,6 +129,7 @@ struct game_layout {
     int supported;
     unsigned int stride;
     int slots;
+    unsigned int record_base;  /* first record's offset from the array base */
     unsigned int active;      /* u8, == 1 when the slot is a live villager */
     unsigned int age;         /* i32 */
     unsigned int head;        /* i32 */
@@ -180,7 +181,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        guarantees nothing. Anything that WRITES a VV1 name must use 0x18, the
        bound the game's own villager-to-villager copy uses. */
     {
-        1, 0x3D8, 256,
+        1, 0x3D8, 256, 0,
         0x28, 0x348, 0x360, 0x364, 0x36C,
         0x370, 0x1C,
         FATHER_BY_ID, 0x394, 0x35C,
@@ -211,7 +212,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        after twins correctly reads 0 rather than a stale 2. That is what makes
        the `< 1 -> 1` fallback safe rather than a guess. */
     {
-        1, 0xE48C, 256,
+        1, 0xE48C, 256, 0,
         0x30, 0x530, 0x548, 0x54C, 0,
         0x564, 0x18,
         FATHER_BY_NAME, 0x5C0, 0x544,
@@ -239,7 +240,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        is why "which exit does a single birth take" has to be asked per game
        instead of assumed from one. */
     {
-        1, 0x1F8C, 256,
+        1, 0x1F8C, 256, 0,
         0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
         0xDD4, 0x18,
         FATHER_BY_NAME, 0xE48, 0xE90,
@@ -274,7 +275,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        The `no_villager` sentinel is 0: VV4 stores no father id at all, so the
        id-resolution path is unused here and the field is inert. */
     {
-        1, 0x2E3C, 150,
+        1, 0x2E3C, 150, 0x44,
         0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
         0x1B9C, 0x18,
         FATHER_BY_NAME, 0x1C10, 0x1C50,
@@ -288,7 +289,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
          +0x1C10  father  strncpy at 0x465EBE
        Its resolver call site is 0x467DBE. Same head/body caveat as VV4. */
     {
-        1, 0x2F44, 150,
+        1, 0x2F44, 150, 0x44,
         0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
         0x1B9C, 0x18,
         FATHER_BY_NAME, 0x1C10, 0x1C50,
@@ -357,7 +358,8 @@ static const unsigned char *find_record_by_id(
         return NULL;
     }
     for (slot = 0; slot < g->slots; ++slot) {
-        const unsigned char *record = records + (size_t)slot * g->stride;
+        const unsigned char *record =
+            records + g->record_base + (size_t)slot * g->stride;
         if (*(const unsigned char *)(record + g->active) != 1) {
             continue;
         }
@@ -498,6 +500,15 @@ static int layout_is_usable(const struct game_layout *g) {
     if (g->stride == 0 || g->slots <= 0 || g->log_name == NULL) {
         return 0;
     }
+    /* The first record does not always sit at the array base. VV4's accessor
+       sub_466040 computes `lea eax, [eax + ecx + 0x44]` after multiplying the
+       index by the stride, so record zero is 0x44 bytes in. Without that bias
+       the boundary check below would reject every VV4 and VV5 pointer -- the
+       span would never be an exact multiple of the stride -- and the feature
+       would silently log nothing at all. */
+    if (g->record_base >= g->stride) {
+        return 0;
+    }
     if (g->name_capacity == 0 || g->name_capacity + 1 > MAX_NAME_BYTES) {
         return 0;
     }
@@ -576,6 +587,10 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     }
     {
         size_t span = (size_t)(mother - records);
+        if (span < g->record_base) {
+            return 0;
+        }
+        span -= g->record_base;
         if (span % g->stride != 0) {
             return 0;
         }
