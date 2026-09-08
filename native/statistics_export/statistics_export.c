@@ -380,7 +380,17 @@ static int write_later_game(
         "Village Elders: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
-        "Special Stews Found: %d\n"
+        /* +0x28 is Twins Birthed, not a stew count. The field is incremented
+           inside the childbirth routine on the twins branch -- VV3 0x455BE7
+           after `mov [litter], 2`, VV4 0x45E8DD likewise -- mutually exclusive
+           with the +0x2C triplets write that follows `mov [litter], 3`.
+           Every neighbouring label matches the shape of the code that writes
+           it and only this one did not, in two games with two different
+           encodings. The stale "Special Stews Found" string came from the
+           enum-name mapping recorded in the research document; the
+           requirements ask for Twins Birthed in all five games and for
+           Special Stews Found in The Lost Children alone. */
+        "Twins Birthed: %d\n"
         "Triplets Birthed: %d\n"
         "Puzzles Solved: %d of %d\n",
         title,
@@ -427,7 +437,10 @@ static int write_vv5(
         "Village Elders: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
-        "Special Stews Found: %d\n"
+        /* +0x28 is Twins Birthed. See the note in write_later_game: New
+           Believers shares the later-game block layout, and its own
+           increments sit at 0x465F2D (twins) and 0x465F1A (triplets). */
+        "Twins Birthed: %d\n"
         "Triplets Birthed: %d\n"
         "Heathens Converted: %d\n"
         "Puzzles Solved: %d of %d\n",
