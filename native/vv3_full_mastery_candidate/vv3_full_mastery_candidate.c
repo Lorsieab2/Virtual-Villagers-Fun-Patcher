@@ -826,6 +826,10 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 #define VV3_DISLIKES   0xFC0   /* 3 ints; 38 = running                */
 #define VV3_RUN_PREF   38
 #define VV3_GENDER     0xDC8   /* byte: 0 = male, 1 = female          */
+#define VV3_NAME       0xDD4   /* char[0x18]: the villager's own name  */
+#define VV3_NAME_LEN   0x18
+#define VV3_HEAD_OFF   0xDF0   /* int: head sprite, set at birth       */
+#define VV3_BODY_OFF   0xDF4   /* int: body sprite, set at birth       */
 #define VV3_CHIEF      0xE80   /* byte: != 0 = Tribal Chief (no pref) */
 #define VV3_PREF       0xEC0   /* int:  -1 none, 0..4 preferred skill */
 #define VV3_TECH_POINTS 0x00582644u  /* int: the tech-point pool the Buy charges */
@@ -881,6 +885,22 @@ static int g_vv3_running_capture;
    is bracketed by VV3RunningMaskBoundary, so this raw fingerprint can continue
    to protect slot reuse and slot-shift recovery without assuming Likes/Dislikes
    are immutable.  0 -> 1 (0 reserved). */
+/* Identity hash over BIRTH-FIXED fields only.
+   Gender + Likes + Dislikes alone were not enough: a villager with no
+   preferences hashes the same as every other same-gender villager with none,
+   so the chooser refused the bind with "The appearance could not be safely
+   matched to this villager" -- reported from VV3 against a villager whose
+   Likes and Dislikes were both empty.
+
+   Name, head and body are added because they are set at birth and never move
+   afterwards, which is what the recovery search requires: the mask is found
+   again after a reload by searching for this hash, so anything that changes
+   during play would strand the mask.  Age and the skills are deliberately NOT
+   hashed for exactly that reason -- a villager aging one day or gaining a
+   single skill point would otherwise lose their mask.
+
+   The name is hashed to its terminator rather than over the whole buffer, so
+   uninitialised bytes past the string cannot make two identical names differ. */
 static unsigned int vv3_mask_fingerprint(const unsigned char *rec) {
     unsigned int h = 2166136261u;
     const unsigned char *p;
@@ -894,6 +914,15 @@ static unsigned int vv3_mask_fingerprint(const unsigned char *rec) {
         p = rec + VV3_DISLIKES + i * 4;
         for (b = 0; b < 4; ++b) h = (h ^ p[b]) * 16777619u;
     }
+    p = rec + VV3_NAME;
+    for (i = 0; i < VV3_NAME_LEN && p[i]; ++i) {
+        h = (h ^ p[i]) * 16777619u;
+    }
+    h = (h ^ 0xFFu) * 16777619u;   /* terminator, so "Lu"+"lli" != "Lulli" */
+    p = rec + VV3_HEAD_OFF;
+    for (b = 0; b < 4; ++b) h = (h ^ p[b]) * 16777619u;
+    p = rec + VV3_BODY_OFF;
+    for (b = 0; b < 4; ++b) h = (h ^ p[b]) * 16777619u;
     return h ? h : 1u;
 }
 
@@ -1660,8 +1689,6 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
      mask_mode: 0 = OFF (use the per-sex mask cyclers mask_m/mask_f)
                 1 = VV5-style   2 = Random   3 = Equal
                 4..9 = a single mask for everyone (4=None .. 9=Chief -> byte 0..5) */
-#define VV3_HEAD_OFF 0xDF0
-#define VV3_BODY_OFF 0xDF4
 
 static unsigned int caf_rng;                 /* xorshift32, seeded from GetTickCount */
 /* Why a mask batch refused to apply.  Four unrelated conditions used to share
