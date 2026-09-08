@@ -623,14 +623,53 @@ static int layout_is_usable(const struct game_layout *g) {
     return 1;
 }
 
-__declspec(dllexport) int __stdcall WriteParentageRecord(
+/* Is this pointer one of the array's own record slots?
+
+   The caller hands a record pointer straight from a register, so it is checked
+   rather than trusted: it must sit inside the array, land exactly on a record
+   boundary once the base bias is removed, and be within the slot count. The
+   same test serves the mother and the father, which is the point of factoring
+   it out -- a second copy that drifted would be a silent wrong-record read,
+   and parentage cannot be recovered from the child afterwards. */
+static int is_record_slot(
+    const struct game_layout *g,
+    const unsigned char *records,
+    const unsigned char *record
+) {
+    size_t span;
+
+    if (records == NULL || record == NULL || record < records) {
+        return 0;
+    }
+    span = (size_t)(record - records);
+    if (span < g->record_base) {
+        return 0;
+    }
+    span -= g->record_base;
+    if (span % g->stride != 0) {
+        return 0;
+    }
+    if (span / g->stride >= (size_t)g->slots) {
+        return 0;
+    }
+    return 1;
+}
+
+/* The full entry point. WriteParentageRecord below is the original three
+   argument form and forwards here with no father record, so a trampoline that
+   has not been rebuilt keeps working exactly as it did. */
+__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     int game_id,
     const void *records_pointer,
-    const void *mother_pointer
+    const void *mother_pointer,
+    const void *father_pointer
 ) {
     const struct game_layout *g;
     const unsigned char *records = (const unsigned char *)records_pointer;
     const unsigned char *mother = (const unsigned char *)mother_pointer;
+    const unsigned char *father_supplied =
+        (const unsigned char *)father_pointer;
+    const unsigned char *father_from_caller = NULL;
     int babies;
     const unsigned char *father;
     wchar_t path[MAX_LOG_PATH];
@@ -661,27 +700,33 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     if (records == NULL || mother == NULL) {
         return 0;
     }
-    /* The caller hands the mother's record directly, so check it really is one
-       of the slots rather than trusting the pointer: it must sit inside the
-       array and land exactly on a record boundary. */
-    if (mother < records) {
+    if (!is_record_slot(g, records, mother)) {
         return 0;
-    }
-    {
-        size_t span = (size_t)(mother - records);
-        if (span < g->record_base) {
-            return 0;
-        }
-        span -= g->record_base;
-        if (span % g->stride != 0) {
-            return 0;
-        }
-        if (span / g->stride >= (size_t)g->slots) {
-            return 0;
-        }
     }
     if (*(const unsigned char *)(mother + g->active) != 1) {
         return 0;
+    }
+
+    /* The father's record, when the caller could supply one.
+
+       Games that record the father BY NAME keep no pointer to his record in
+       the mother's, so his age, head and body used to be unavailable on every
+       birth -- the whole column read as "not recorded by this game". They are
+       not unavailable at the hook site, though: the conception routine holds
+       both parent records in registers, so the trampoline can pass the second
+       one and these games gain three real fields.
+
+       It is validated exactly like the mother, and additionally rejected if it
+       IS the mother: a caller that passed the same record twice would print
+       her numbers under his name, which is worse than saying nothing. An
+       unusable pointer falls back to the name-only path rather than failing the
+       record, so a trampoline that passes rubbish loses three fields instead of
+       the whole log. */
+    if (father_supplied != NULL
+        && father_supplied != mother
+        && is_record_slot(g, records, father_supplied)
+        && *(const unsigned char *)(father_supplied + g->active) == 1) {
+        father_from_caller = father_supplied;
     }
 
     /* Both are read from the mother's own record, which is why the hook sits at
@@ -715,19 +760,28 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         memcpy(father_name, "(not recorded by this game)", 28);
         father = NULL;
     } else if (g->father_kind == FATHER_BY_NAME) {
-        /* The name is already in the mother's record; there is no father record
-           to find, so his age, head and body are simply not available in these
-           games. Recording the name we do have beats recording nothing. */
+        /* The name is in the mother's record, so it is read from there either
+           way -- it is the name the game itself recorded for this conception,
+           and it stays authoritative even when a record is also supplied.
+
+           The record, when the caller passed a valid one, supplies the three
+           numbers the name alone cannot. Without it they are genuinely not
+           available in these games, and the log says so rather than printing a
+           0 that a real villager could hold. */
         copy_name_field(mother + g->father, father_name, sizeof(father_name),
                         g->name_capacity);
-        father = NULL;
+        father = father_from_caller;
     } else {
         father = find_record_by_id(
             g, records, *(const int *)(mother + g->father));
     }
-    if (father != NULL) {
+    if (father != NULL && g->father_kind != FATHER_BY_NAME) {
+        /* Not for FATHER_BY_NAME: there the name already came from the
+           mother's record, which is what the game recorded for THIS
+           conception. The supplied record contributes the numbers only, so a
+           father who is later renamed still logs the name he had. */
         copy_villager_name(g, father, father_name, sizeof(father_name));
-    } else if (g->father_kind == FATHER_BY_ID) {
+    } else if (father == NULL && g->father_kind == FATHER_BY_ID) {
         /* The father is recorded by id, and that id may no longer resolve --
            he can die between conception and delivery. Say so plainly rather
            than dropping the record or inventing a name. */
@@ -807,4 +861,17 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reason;
     (void)reserved;
     return TRUE;
+}
+
+
+/* The original three argument entry point, kept so that a trampoline built
+   before the father record was carried keeps working unchanged. It forwards
+   with no father, which is exactly the behaviour it had. */
+__declspec(dllexport) int __stdcall WriteParentageRecord(
+    int game_id,
+    const void *records_pointer,
+    const void *mother_pointer
+) {
+    return WriteParentageRecordWithFather(
+        game_id, records_pointer, mother_pointer, NULL);
 }

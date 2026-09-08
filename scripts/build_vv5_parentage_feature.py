@@ -169,7 +169,13 @@ GET_PROC_ADDRESS_IAT = 0x004951DC
 LOAD_LIBRARY_IAT = 0x004951E0
 
 DLL_NAME = b"VVFP Parentage Export.dll\0"
-EXPORT_NAME = b"WriteParentageRecord\0"
+# The four-argument entry point.  The three-argument
+# WriteParentageRecord still exists in the companion and still behaves as
+# it did, but these two games can do better than it allows: the conception
+# routine holds BOTH parent records in registers, so the father's record
+# can be handed over and his age, head and body reported for real instead
+# of as "not recorded by this game".
+EXPORT_NAME = b"WriteParentageRecordWithFather\0"
 
 # Where the two strings sit inside the page, clear of the trampoline.
 DLL_NAME_OFFSET = 0xF0
@@ -276,20 +282,40 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
             test eax, eax
             jz done
 
-            # WriteParentageRecord(game_id, records, mother).  stdcall, so the
-            # callee cleans its own 12 bytes and the frame stays balanced.
-            # Pushed right to left: the mother first, then the container, then
-            # the game id.  The container is passed UNBIASED -- the companion's
-            # layout row carries record_base 0x48 and applies it itself, and a
+            # WriteParentageRecordWithFather(game_id, records, mother,
+            # father).  stdcall, so the callee cleans its own 16 bytes and
+            # the frame stays balanced.  Pushed right to left: the father
+            # first, then the mother, then the container, then the game id.
+            # The container is passed UNBIASED -- the companion's layout
+            # row carries record_base 0x48 and applies it itself, and a
             # pre-biased pointer would be rejected at slot zero.
             #
-            # The mother is ebp.  pushad stores eax first and edi last, so from
-            # esp the frame reads edi +0x00, esi +0x04, ebp +0x08, esp +0x0C,
-            # ebx +0x10, edx +0x14, ecx +0x18, eax +0x1C.  An earlier draft
-            # used +0x10 and would have passed ebx -- a plausible-looking
-            # pointer that is not the mother, which the companion's boundary
-            # guard would have rejected silently on every birth.
-            push dword ptr [esp + 0x08]
+            # pushad stores eax first and edi last, so from esp the frame
+            # reads edi +0x00, esi +0x04, ebp +0x08, esp +0x0C, ebx +0x10,
+            # edx +0x14, ecx +0x18, eax +0x1C.  An earlier draft used
+            # +0x10 for the mother and would have passed ebx -- a
+            # plausible-looking pointer that is not the mother, which the
+            # companion's boundary guard would have rejected silently on
+            # every birth.
+            #
+            # Both parents are live here.  The routine picks the roles at
+            # its head: it tests [ecx + 0x1B90] and either sets ebp = ecx
+            # with esi the partner, or ebp = esi and esi = ecx.  ebp is
+            # the record carrying the litter count and the father's NAME,
+            # which is what makes ebp the mother and esi the father.
+            #
+            # esi is passed as a hint, not as a trusted pointer.  The
+            # companion validates it against the record array exactly as
+            # it does the mother, rejects it if it is the mother herself
+            # or an inactive slot, and falls back to the name-only text if
+            # any of that fails -- so a wrong guess costs three fields,
+            # never a wrong record.
+            #
+            # The father is read before the mother is pushed, so it uses
+            # the raw frame offset; the mother is read one push later and
+            # so needs 0x08 + 0x04.
+            push dword ptr [esp + 0x04]
+            push dword ptr [esp + 0x0C]
             push 0x{RECORDS_CONTAINER_VA:X}
             push {GAME_ID}
             call eax
@@ -430,7 +456,13 @@ def build() -> dict:
                     "cannot be recovered from the child afterwards. Village "
                     "seeding is excluded, so a new village does not write a "
                     "record for every starting villager. Rolls to a new "
-                    "numbered file every 256 records."
+                    "numbered file every 256 records. The game keeps only "
+                    "the father's name on the mother's record, so his age, "
+                    "head and body come from his own record as the "
+                    "conception routine held it; if that record cannot be "
+                    "confirmed the log names him and says those three "
+                    "fields are not recorded by this game rather than "
+                    "printing a zero a real villager could hold."
                 ),
                 "companion_files": [
                     {
