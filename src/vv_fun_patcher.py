@@ -2959,10 +2959,14 @@ def validate_fun_patch_catalog(
                     f"{patch.name} ({patch.id}) has malformed composition overlays."
                 )
             for base_id, overlay in compositions.items():
+                # VV1 Birth Control's overlay is a fixed historical contract and
+                # keeps its exact pinned geometry below.  Any other feature may
+                # declare one, but it must name a base feature that actually
+                # exists for the same game, so an overlay cannot be keyed on a
+                # feature that will never be selected and thus never validated.
                 if patch.id != VV1_BIRTH_CONTROL_ID or base_id != VV1_ORIGINS_FEATURE_ID:
-                    raise PatcherError(
-                        f"{patch.name} ({patch.id}) declares an unsupported composition overlay."
-                    )
+                    _validate_generic_composition_overlay(patch, base_id, overlay)
+                    continue
                 if not isinstance(overlay, dict) or overlay.get("base_feature") != base_id:
                     raise PatcherError("VV1 composition overlay base-feature contract is malformed.")
                 try:
@@ -3721,6 +3725,80 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal cave contains an unresolved branch relocation.")
 
 
+def _validate_generic_composition_overlay(
+    patch: "FunPatch",
+    base_id: str,
+    overlay: Any,
+) -> None:
+    """Validate a composition overlay declared by a feature other than VV1's.
+
+    VV1 Birth Control's overlay predates this and is pinned to exact offsets,
+    hashes and hook lists, because its geometry is a fixed historical fact.  A
+    new feature's is not, so this checks the properties that actually make an
+    overlay safe rather than pinning values that would have to be edited every
+    time a payload changes:
+
+      * it names the feature it defers to, and that feature is real and belongs
+        to the same game -- an overlay keyed on a non-existent id would never
+        fire, so the feature would silently append and collide instead;
+      * the range is positive and 0x400-aligned, matching the applier's own
+        requirement, so a malformed range is refused here rather than deep in
+        the apply path;
+      * the preimage is a declared zero fill of exactly the overlay length, so
+        the applier can prove at apply time that it is overwriting reserved
+        space and not another feature's bytes;
+      * the page bytes are inline, so no generated-source owner binding is
+        needed and the payload is auditable in the manifest.
+    """
+    if not isinstance(overlay, dict):
+        raise PatcherError(
+            f"{patch.name} ({patch.id}) has a malformed composition overlay for {base_id}."
+        )
+    if overlay.get("base_feature") != base_id:
+        raise PatcherError(
+            f"{patch.name} ({patch.id}) composition overlay must name its base feature."
+        )
+    # The base feature must belong to the same game, so an overlay cannot be
+    # keyed on another game's id and silently never fire.  This is checked by
+    # the id's own game prefix rather than by a catalog lookup, because a
+    # legitimate base can be absent from the public catalog -- VV2's Origins
+    # feature is playtest-disabled, and looking it up would reject a
+    # composition the patcher goes on to build.
+    if not base_id.startswith(f"{patch.game_id}_"):
+        raise PatcherError(
+            f"{patch.name} ({patch.id}) composition overlay base feature "
+            f"{base_id} belongs to a different game."
+        )
+    try:
+        overlay_offset = int(overlay["overlay_offset"], 0)
+        overlay_length = int(overlay["overlay_length"])
+        int(overlay["page_virtual_address"], 0)
+        preimage = overlay["overlay_preimage"]
+    except (KeyError, TypeError, ValueError) as exc:
+        raise PatcherError(
+            f"{patch.name} ({patch.id}) composition overlay geometry is malformed."
+        ) from exc
+    if overlay_offset <= 0 or overlay_length <= 0 or overlay_offset % 0x400:
+        raise PatcherError(
+            f"{patch.name} ({patch.id}) composition overlay must use a positive "
+            "0x400-aligned range."
+        )
+    if (
+        not isinstance(preimage, dict)
+        or preimage.get("kind") != "zero_fill"
+        or preimage.get("length") != overlay_length
+    ):
+        raise PatcherError(
+            f"{patch.name} ({patch.id}) composition overlay must declare a "
+            "zero-fill preimage matching its own length."
+        )
+    if not isinstance(overlay.get("append_bytes"), str) or not overlay["append_bytes"]:
+        raise PatcherError(
+            f"{patch.name} ({patch.id}) composition overlay must carry inline "
+            "page bytes."
+        )
+
+
 VV1_ORIGINS_FEATURE_ID = "vv1_enable_origins_exclusive_features"
 VV1_BIRTH_CONTROL_ID = "vv1_birth_control"
 
@@ -3759,18 +3837,33 @@ def _append_layout(
     # alternate contract carries its own generated page VA and exact zero
     # preimage; standalone Birth Control continues to use the untouched EOF
     # append layout above.
-    if (
-        selected_feature_ids
-        and feature.id == VV1_BIRTH_CONTROL_ID
-        and VV1_ORIGINS_FEATURE_ID in selected_feature_ids
-    ):
-        overlays = transaction.get("composition_overlays", {})
-        overlay = overlays.get(VV1_ORIGINS_FEATURE_ID) if isinstance(overlays, dict) else None
-        if not isinstance(overlay, dict):
+    # A feature that would contend for the single append slot may declare an
+    # overlay into a page the contending feature already appends.  This was
+    # once a literal VV1 Birth Control check, which meant any other feature
+    # declaring an overlay fell through to `return layout` and appended anyway
+    # -- no error, just the wrong path, failing later on the one-append guard
+    # or producing a quietly wrong file.  Matching on the declaration instead
+    # keeps VV1's behaviour identical while letting VV2, VV3 and VV5 parentage
+    # coexist with their own Origins features.
+    if selected_feature_ids:
+        overlays = transaction.get("composition_overlays")
+        if isinstance(overlays, dict):
+            for base_id, overlay in overlays.items():
+                if base_id not in selected_feature_ids:
+                    continue
+                if not isinstance(overlay, dict):
+                    raise PatcherError(
+                        f"{feature.name} ({feature.id}) + {base_id} requires its "
+                        "declared composition overlay."
+                    )
+                return {**overlay, "_composition_overlay": True}
+        if (
+            feature.id == VV1_BIRTH_CONTROL_ID
+            and VV1_ORIGINS_FEATURE_ID in selected_feature_ids
+        ):
             raise PatcherError(
                 "VV1 Birth Control + Origins requires its declared composition overlay."
             )
-        return {**overlay, "_composition_overlay": True}
     return layout
 
 

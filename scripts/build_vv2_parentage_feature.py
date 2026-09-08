@@ -153,6 +153,25 @@ SIZE_OF_IMAGE_AFTER = bytes.fromhex("00400B00")  # 0xB4000
 
 SECTION_HEADER_OFFSET = 0x2B0
 
+# Where the payload lives when Origins is ALSO selected.
+#
+# vv2_enable_origins_exclusive_features appends 8192 bytes at the same stock
+# EOF and the append guard permits exactly one appending feature per build, so
+# the two cannot both bring a page. Origins' block installs two sections, and
+# only one of them can hold code:
+#
+#     .mtab  VA 0x4B3000  file 0xB1000  writable, NOT executable
+#     .vvmk  VA 0x4B4000  file 0xB2000  executable
+#
+# Origins' own content ends at file 0xB241A, so the composed page carries a
+# reserved zero run after it. The overlay applier requires a 0x400-aligned
+# start, which puts the payload at file 0xB2800 / VA 0x4B4800 with 0x800
+# available -- measured on the composed output, not on a manifest.
+OVERLAY_FILE = 0x000B2800
+OVERLAY_VA = 0x004B4800
+OVERLAY_LENGTH = 0x400
+ORIGINS_FEATURE_ID = "vv2_enable_origins_exclusive_features"
+
 # Resolved from the stock import table rather than assumed: the DLL name below
 # is ASCII, so these must be the A variants.
 #     0x474010 -> KERNEL32.dll!LoadLibraryA
@@ -194,10 +213,16 @@ def _section_header() -> bytes:
     return bytes(header)
 
 
-def _build_page() -> tuple[bytes, int]:
-    """Assemble the trampoline, the rejection stub, and the two strings."""
-    dll_name_va = PAGE_VA + DLL_NAME_OFFSET
-    export_name_va = PAGE_VA + EXPORT_NAME_OFFSET
+def _build_page(base_va: int = PAGE_VA, size: int = PAGE_SIZE) -> tuple[bytes, int]:
+    """Assemble the trampoline, the rejection stub, and the two strings.
+
+    `base_va` is a parameter because the payload has two homes and is
+    RE-EMITTED for the second rather than copied: both hooks carry rel32
+    displacements into this page, so relocating the bytes without reassembling
+    would leave each jump short by the distance between the homes.
+    """
+    dll_name_va = base_va + DLL_NAME_OFFSET
+    export_name_va = base_va + EXPORT_NAME_OFFSET
 
     # The page holds two entry points.
     #
@@ -249,16 +274,16 @@ def _build_page() -> tuple[bytes, int]:
             pop edi
             ret 0x1C
         """,
-        PAGE_VA,
+        base_va,
     )
     if len(code) > DLL_NAME_OFFSET:
         raise RuntimeError(
             f"page code is {len(code):#x} bytes, over the {DLL_NAME_OFFSET:#x} allowance"
         )
-    if EXPORT_NAME_OFFSET + len(EXPORT_NAME) > PAGE_SIZE:
+    if EXPORT_NAME_OFFSET + len(EXPORT_NAME) > size:
         raise RuntimeError("strings do not fit inside the owned page")
 
-    page = bytearray(PAGE_SIZE)
+    page = bytearray(size)
     page[: len(code)] = code
     page[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
     page[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
@@ -266,28 +291,11 @@ def _build_page() -> tuple[bytes, int]:
     # reject_stub's address is whatever the assembler placed it at rather than
     # a guess. Its encoding is `pop edi` (0x5F) then `ret 0x1C`.
     stub_index = bytes(code).rindex(bytes.fromhex("5FC21C00"))
-    return bytes(page), PAGE_VA + stub_index
+    return bytes(page), base_va + stub_index
 
 
-def _emit(source: bytes) -> tuple[list[dict[str, object]], dict[str, object]]:
-    """Assemble the page, the header changes, and the two hook rewrites."""
-    if len(source) != STOCK_FILE_SIZE:
-        raise RuntimeError(
-            f"stock file is {len(source):#x} bytes, expected {STOCK_FILE_SIZE:#x}"
-        )
-    if source[REJECT_FILE : REJECT_FILE + len(REJECT_STOLEN)] != REJECT_STOLEN:
-        raise RuntimeError(f"stock bytes at {REJECT_FILE:#x} are not the rejection jcc")
-    if source[EXIT_FILE : EXIT_FILE + len(EXIT_STOLEN)] != EXIT_STOLEN:
-        raise RuntimeError(f"stock bytes at {EXIT_FILE:#x} are not the routine epilogue")
-    if source[SECTION_COUNT_OFFSET : SECTION_COUNT_OFFSET + 2] != SECTION_COUNT_BEFORE:
-        raise RuntimeError("stock NumberOfSections is not 5")
-    if source[SIZE_OF_IMAGE_OFFSET : SIZE_OF_IMAGE_OFFSET + 4] != SIZE_OF_IMAGE_BEFORE:
-        raise RuntimeError("stock SizeOfImage is not 0xB3000")
-    if set(source[SECTION_HEADER_OFFSET : SECTION_HEADER_OFFSET + 40]) != {0}:
-        raise RuntimeError("the sixth section header slot is not free")
-
-    page, reject_stub_va = _build_page()
-
+def _hook_patches(page_va: int, reject_stub_va: int) -> list[dict[str, object]]:
+    """The two hook rewrites, emitted for whichever page holds the payload."""
     # Retarget the rejection. Same six-byte near jcc, new rel32.
     reject_after = assemble(f"je 0x{reject_stub_va:X}", REJECT_VA)
     if len(reject_after) != len(REJECT_STOLEN):
@@ -295,11 +303,11 @@ def _emit(source: bytes) -> tuple[list[dict[str, object]], dict[str, object]]:
 
     # Divert the common exit. A five-byte jmp replaces the five stolen bytes
     # exactly, so nothing downstream shifts.
-    exit_after = assemble(f"jmp 0x{PAGE_VA:X}", EXIT_VA)
+    exit_after = assemble(f"jmp 0x{page_va:X}", EXIT_VA)
     if len(exit_after) != len(EXIT_STOLEN):
         raise RuntimeError("exit diversion does not match the stolen byte count")
 
-    patches = [
+    return [
         {
             "offset": f"0x{REJECT_FILE:X}",
             "before": REJECT_STOLEN.hex().upper(),
@@ -322,6 +330,32 @@ def _emit(source: bytes) -> tuple[list[dict[str, object]], dict[str, object]]:
             ),
         },
     ]
+
+
+def _emit(source: bytes) -> tuple[list[dict[str, object]], dict[str, object]]:
+    """Assemble the page, the header changes, and the two hook rewrites."""
+    if len(source) != STOCK_FILE_SIZE:
+        raise RuntimeError(
+            f"stock file is {len(source):#x} bytes, expected {STOCK_FILE_SIZE:#x}"
+        )
+    if source[REJECT_FILE : REJECT_FILE + len(REJECT_STOLEN)] != REJECT_STOLEN:
+        raise RuntimeError(f"stock bytes at {REJECT_FILE:#x} are not the rejection jcc")
+    if source[EXIT_FILE : EXIT_FILE + len(EXIT_STOLEN)] != EXIT_STOLEN:
+        raise RuntimeError(f"stock bytes at {EXIT_FILE:#x} are not the routine epilogue")
+    if source[SECTION_COUNT_OFFSET : SECTION_COUNT_OFFSET + 2] != SECTION_COUNT_BEFORE:
+        raise RuntimeError("stock NumberOfSections is not 5")
+    if source[SIZE_OF_IMAGE_OFFSET : SIZE_OF_IMAGE_OFFSET + 4] != SIZE_OF_IMAGE_BEFORE:
+        raise RuntimeError("stock SizeOfImage is not 0xB3000")
+    if set(source[SECTION_HEADER_OFFSET : SECTION_HEADER_OFFSET + 40]) != {0}:
+        raise RuntimeError("the sixth section header slot is not free")
+
+    page, reject_stub_va = _build_page()
+    patches = _hook_patches(PAGE_VA, reject_stub_va)
+
+    # The applier requires a full 0x1000 page whose bytes past overlay_length
+    # are zero; only the first OVERLAY_LENGTH of it is written into the parent.
+    overlay_page, overlay_stub_va = _build_page(OVERLAY_VA, PAGE_SIZE)
+    overlay_patches = _hook_patches(OVERLAY_VA, overlay_stub_va)
 
     layout = {
         "original_file_size": f"0x{STOCK_FILE_SIZE:X}",
@@ -357,18 +391,42 @@ def _emit(source: bytes) -> tuple[list[dict[str, object]], dict[str, object]]:
         ],
     }
 
+    # When Origins is co-selected it takes the single append slot, so parentage
+    # overlays into the reserved zeros of Origins' own executable section
+    # instead of appending. The page is re-emitted for that address rather than
+    # copied, and the hooks travel with it.
+    overlay = {
+        "base_feature": ORIGINS_FEATURE_ID,
+        "overlay_offset": f"0x{OVERLAY_FILE:X}",
+        "overlay_length": OVERLAY_LENGTH,
+        "page_virtual_address": f"0x{OVERLAY_VA:X}",
+        "append_bytes": overlay_page.hex().upper(),
+        "page_sha256": hashlib.sha256(overlay_page).hexdigest().upper(),
+        "overlay_preimage": {
+            "kind": "zero_fill",
+            "length": OVERLAY_LENGTH,
+            "sha256": hashlib.sha256(b"\x00" * OVERLAY_LENGTH).hexdigest().upper(),
+        },
+        "purpose": (
+            "place the VV2 parentage trampoline in the reserved zero range of "
+            "the executable section Origins appends, so both features compose "
+            "without either losing its payload"
+        ),
+    }
+
     transaction = {
         "layouts": {
             mode: layout
             for mode in ("stock", "collection_progression", "immediate_fixed")
-        }
+        },
+        "composition_overlays": {ORIGINS_FEATURE_ID: overlay},
     }
-    return patches, transaction
+    return patches, transaction, overlay_patches
 
 
 def build() -> dict:
     source = (STOCK / EXE).read_bytes()
-    patches, transaction = _emit(source)
+    patches, transaction, overlay_patches = _emit(source)
 
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest()
     return {
@@ -399,6 +457,9 @@ def build() -> dict:
                 ],
                 "pe_append_transaction": transaction,
                 "patches": patches,
+                # The hooks aim at whichever page holds the payload, so the
+                # co-selected form swaps them alongside the overlay above.
+                "composition_patches": {ORIGINS_FEATURE_ID: overlay_patches},
             }
         ],
     }
