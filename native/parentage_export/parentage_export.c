@@ -32,28 +32,23 @@
 
        int __thiscall sub_43BBC0(int *this, int a2, int a3, int a4, int a5)
            v9 = this + 246 * a2;   // 246 * 4 == 0x3D8 == the record stride
-           v9[229] = a3;           // record + 0x394 = father id
            v9[215] = 2 or 3;       // record + 0x35C = litter size
 
    `246 * 4` reproducing the proven stride exactly is what establishes that
    `this` is the record array and `a2` is the MOTHER's record index.
 
-   The litter size is written AFTER our hook runs, on the twins/triplets
-   branches, so this file must not read record+0x35C -- see the note on
-   `babies` in WriteParentageRecord below.
+   The litter size is written LATE, on the twins and triplets branches, which
+   is why the hooks sit at the routine's success exits rather than its head --
+   see the VV1 row in GAME_LAYOUTS for the full reasoning.
 
    FIELD OFFSETS
 
-   Every offset here is proven, with its evidence named:
-
-       +0x28   active flag     vv1_origins_icons.c VV_OCCUPIED_OFFSET
-       +0x348  age             vv1_origins_icons.c VV_AGE_OFFSET
-       +0x360  head            vv1_origins_icons.c VV_HEAD_OFFSET
-       +0x364  body            vv1_origins_icons.c VV_CLOTHING_OFFSET
-       +0x36C  villager id     sentinel 0xC7 compared at six sites
-       +0x370  name buffer     sprintf destination at 0x43C696..0x43C6A1;
-                               read back as a string at 0x418753..0x418760
-       +0x394  father id       written from a3 at 0x43BC04
+   Per-game offsets live in GAME_LAYOUTS below, each with the instruction that
+   proves it. They are deliberately NOT duplicated here: an earlier version of
+   this file carried a second copy under the heading "every offset here is
+   proven", and when +0x394 was disproven the copy kept asserting it. A reader
+   consulting the reference block got the wrong value, and the word "proven"
+   made it look checked. One table, or the stale one wins.
 
    The name buffer start could not be found by the field-displacement audit
    because names are written by bulk string copies (sprintf), which take the
@@ -152,7 +147,19 @@ struct game_layout {
     unsigned int age;         /* i32 */
     unsigned int head;        /* i32 */
     unsigned int body;        /* i32 */
-    unsigned int id;          /* i32, per-villager identity */
+    /* The field a game uses to find one villager from another, when it has
+       one at all. Only read when father_kind is FATHER_BY_ID.
+
+       Deliberately not called an "identity": VV1's nearest candidate, +0x36C,
+       is NOT unique. It is rand()%50+1 at 0x43C669 with a second writer using
+       %99, and it is COPIED from parent to child at 0x43C9E5 alongside gender,
+       head and body -- a field that is inherited cannot identify anyone, and
+       with around ninety villagers and fifty values, living villagers share it
+       routinely. Every reader compares it paired with +0x368, which is
+       look-alike avoidance rather than lookup. No game currently sets
+       FATHER_BY_ID, so this field is unused; it exists for a game that turns
+       out to keep a real one. */
+    unsigned int id;
     unsigned int name;        /* char[name_capacity] */
     unsigned int name_capacity;
     int father_kind;          /* FATHER_BY_ID or FATHER_BY_NAME */
@@ -177,7 +184,15 @@ static const struct game_layout GAME_LAYOUTS[6] = {
          +0x348  age         vv1_origins_icons.c VV_AGE_OFFSET
          +0x360  head        vv1_origins_icons.c VV_HEAD_OFFSET
          +0x364  body        vv1_origins_icons.c VV_CLOTHING_OFFSET
-         +0x36C  id          0xC7 sentinel compared at six sites
+         +0x36C  appearance variant -- NOT an id, and not read by this file.
+                 rand()%50+1 at 0x43C669, a second writer using %99, and
+                 copied parent->child at 0x43C9E5 beside gender, head and
+                 body. Every reader compares it paired with +0x368, which is
+                 look-alike avoidance rather than lookup. Its 0xC7 sentinel
+                 is NOT evidence that it identifies anyone -- the skill field
+                 at +0x394 carries the same constant, which is exactly the
+                 coincidence that made this file misread that one as a
+                 father id.
          +0x370  name        sprintf destination at 0x43C696..0x43C6A1, read
                              back as a string at 0x418753..0x418760; bounded at
                              0x1C because nothing is referenced between +0x370
