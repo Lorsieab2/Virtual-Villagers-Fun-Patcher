@@ -92,7 +92,15 @@ static int write_memorial_row(
     FILE *file,
     unsigned int graves_rva,
     unsigned int graves_stride,
-    unsigned int graves_capacity
+    unsigned int graves_capacity,
+    /* Statistics-block offset of the patch-added lifetime burial counter, or
+       zero for a game that does not yet carry one. The counter is incremented
+       by a cave wrapper on the skeleton-pickup latch clear, which runs before
+       the memorial array is consulted and therefore keeps counting once every
+       slot is occupied -- the walk below cannot, since it can only report what
+       the array still holds. */
+    const unsigned char *statistics,
+    unsigned int buried_offset
 ) {
     const unsigned char *module;
     if (graves_rva == 0u) {
@@ -102,9 +110,20 @@ static int write_memorial_row(
     if (module == NULL) {
         return 0;
     }
+    /* Prefer the patch-added lifetime counter when the game carries one: it
+       keeps counting past the array's capacity, which the walk cannot. The
+       walk remains the fallback so a save predating the counter still reports
+       a number rather than nothing. */
+    if (buried_offset != 0u && statistics != NULL) {
+        return fprintf(
+            file,
+            "Villagers Buried: %d\n",
+            read_int(statistics, buried_offset)
+        ) >= 0;
+    }
     return fprintf(
         file,
-        "Graves in the Memorial: %d\n",
+        "Villagers Buried: %d\n",
         count_occupied_graves(
             module + graves_rva, graves_stride, 0x1Cu, graves_capacity)
     ) >= 0;
@@ -178,16 +197,17 @@ static int write_vv1(FILE *file, const unsigned char *manager) {
         "People Cured: %d\n"
         "Mushrooms Found: %d\n"
         "Maximum Population: %d\n"
-        /* manager+0x9E38 is not a lifetime burial total. Two writers exist
-           image-wide and both are stores: 0x41C3DF zero-inits it, 0x42F191
-           stores the return of sub_41CF10, an unrolled 5x10 sweep that
-           recounts occupied grave slots (base manager+0xA340, stride 0x2C).
-           It saturates at the 50-slot capacity and falls if a slot is
-           released, so it cannot carry the requested Villagers Buried, which
-           must increment once per skeleton pickup. The row is kept and its
-           name now states the quantity the field actually holds; the same
-           name the later games already use for their memorial counts. */
-        "Graves in the Memorial: %d\n"
+        /* manager+0x9E38 saturates: two writers exist image-wide and both are
+           stores -- 0x41C3DF zero-inits it and 0x42F191 stores the return of
+           sub_41CF10, an unrolled 5x10 sweep that recounts occupied grave
+           slots (base manager+0xA340, stride 0x2C), so it stops rising at the
+           50-slot capacity. A New Home cannot yet host the cave wrapper the
+           later games use, because its append offset is already claimed by
+           the Origins feature and only one appending feature can install; the
+           composition-overlay route is the fix and is tracked separately.
+           Until then this reports the game's own value under the game's own
+           name. */
+        "Villagers Buried: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
         "Twins Birthed: %d\n"
@@ -372,7 +392,9 @@ static int write_later_game(
        read as "no deaths yet". */
     unsigned int graves_rva,
     unsigned int graves_stride,
-    unsigned int graves_capacity
+    unsigned int graves_capacity,
+    /* Statistics-block offset of the patch-added lifetime burial counter. */
+    unsigned int buried_offset
 ) {
     const unsigned char *statistics = manager + statistics_offset;
     if (fprintf(
@@ -422,7 +444,8 @@ static int write_later_game(
         return 0;
     }
     return write_memorial_row(
-        file, graves_rva, graves_stride, graves_capacity);
+        file, graves_rva, graves_stride, graves_capacity,
+        statistics, buried_offset);
 }
 
 static int write_vv5(
@@ -473,7 +496,8 @@ static int write_vv5(
     }
     /* New Believers: memorial at 0x5481A8, accessor 0x464E70,
        500 slots, stride 0x5C, occupancy +0x1C. */
-    return write_memorial_row(file, 0x1481A8u, 0x5Cu, 500u);
+    return write_memorial_row(
+        file, 0x1481A8u, 0x5Cu, 500u, statistics, 0x38u);
 }
 
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
@@ -531,7 +555,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                occupancy dword at +0x1C. Corroborated by the burial writer
                0x454FF0 and the clear at 0x4549F0, which both step by 0x30 for
                0x1F4 records. */
-            0x197D64u, 0x30u, 500u
+            0x197D64u, 0x30u, 500u,
+            /* Lifetime burials counted at the pickup latch clear. */
+            0x30u
         );
     } else if (game_id == GAME_VV4) {
         written = write_later_game(
@@ -545,7 +571,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             16,
             /* Mausoleum. Accessor 0x45D650: base 0x5025C8, capacity 500,
                stride 0x5C, occupancy +0x1C. Burial writer 0x45D470. */
-            0x1025C8u, 0x5Cu, 500u
+            0x1025C8u, 0x5Cu, 500u,
+            /* Lifetime burials counted at the pickup latch clear. */
+            0x30u
         );
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);
