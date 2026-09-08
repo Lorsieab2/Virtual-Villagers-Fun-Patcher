@@ -396,6 +396,17 @@ When the Tribal Chief completes Pointing out a rare collectible, rejected random
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Write Parentage Log to Text File (`vv3_write_parentage_log`)
+
+On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 3 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.
+
+- Behavior changes: On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 3 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Write Village Statistics to Text File (`vv3_write_village_statistics`)
 
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.

@@ -1,11 +1,11 @@
 {
-  "companion_sha256": "dfa729e378d2a85c2916e1124220693c61e27bb0792914e4e04281c58ff48343",
+  "companion_sha256": "2dbdd6104b186e2df8f943a469cc02fc44b3926803f193961a9d8751afbc9eae",
   "features": [
     {
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "dfa729e378d2a85c2916e1124220693c61e27bb0792914e4e04281c58ff48343",
+          "sha256": "2dbdd6104b186e2df8f943a469cc02fc44b3926803f193961a9d8751afbc9eae",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         }
       ],
@@ -49,7 +49,7 @@
           }
         ]
       },
-      "description": "On each new pregnancy, appends the mother's name, her age at conception, her head and body values, and the number of babies to 'Virtual Villagers 1 Parentage Log N.txt' beside the game executable. VV1 records nothing about the father -- not his name, and no id that could find his record -- so every father field reads as not recorded by this game, rather than a zero or a guessed name that a reader could not tell from a measured one. Parentage is not stored in any villager record, so the mother is captured at conception; she cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.",
+      "description": "On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 1 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.",
       "game_id": "vv1",
       "id": "vv1_write_parentage_log",
       "name": "Write Parentage Log to Text File",

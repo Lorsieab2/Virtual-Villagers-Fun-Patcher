@@ -50,6 +50,7 @@ FILES = [
     "data/statistics_features.json",
     "data/vv1_parentage_feature.json",
     "data/vv2_parentage_feature.json",
+    "data/vv3_parentage_feature.json",
     "data/vv4_parentage_feature.json",
     "data/vv5_parentage_feature.json",
     "data/expanded_atomic_writer_integration.json",
