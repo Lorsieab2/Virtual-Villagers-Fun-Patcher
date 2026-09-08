@@ -3089,11 +3089,20 @@ def resolve_fun_patch_ids(
         seen.add(patch_id)
         requested.append(patch_id)
     requested_set = set(requested)
-    # The public Origins-style menu route owns its legacy Origins base as an
+    # A public feature that depends on an Origins base owns that base as an
     # internal prerequisite.  It is intentionally not a second user-facing
-    # checkbox or CLI choice.
+    # checkbox or CLI choice, so it is resolved in rather than refused.
+    #
+    # This used to be gated on the five village-wide menu ids by name. Any
+    # other public feature declaring the same dependency was refused instead of
+    # resolved -- so a parentage tracker whose payload lives in the page Origins
+    # appends could not be selected on its own, even though the base it needs is
+    # exactly the kind of internal prerequisite this block exists to supply. The
+    # gate is now the dependency itself, which is what the block was always
+    # reasoning about.
     for patch_id in tuple(requested):
-        if patch_id not in PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_ID_SET:
+        if not (set(_dependency_ids(by_id[patch_id]))
+                & INTERNAL_ORIGINS_BASE_FEATURE_ID_SET):
             continue
         for dependency_id in _dependency_ids(by_id[patch_id]):
             if (

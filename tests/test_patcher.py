@@ -1161,7 +1161,7 @@ class ManifestTests(unittest.TestCase):
         feature_ids = [
             patch.id for patch in load_fun_patches() if patch.game_id == "vv2"
         ]
-        self.assertEqual(len(feature_ids), 8)
+        self.assertEqual(len(feature_ids), 9)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -1212,10 +1212,25 @@ class ManifestTests(unittest.TestCase):
                         )
                         for record in applied
                     ]
-                    # VV2's selected feature compositions have no intentional
-                    # overlays: every applied byte range must be unique.
+                    # Every applied byte range must be unique, with ONE
+                    # deliberate exception: a composition overlay writes into
+                    # the page its own prerequisite appended, which is how the
+                    # parentage tracker gets executable space in a game whose
+                    # code cave is spoken for. VV1 has had exactly this shape
+                    # since its tracker shipped; VV2 is the second instance,
+                    # not a new kind of overlap. The pairing is named rather
+                    # than the check relaxed, so any OTHER collision -- the
+                    # thing this guard exists to catch -- still fails.
+                    intentional = {
+                        (
+                            "feature:vv2_write_parentage_log",
+                            "feature:vv2_enable_origins_exclusive_features",
+                        )
+                    }
                     for index, (start, end, owner) in enumerate(records):
                         for prior_start, prior_end, prior_owner in records[:index]:
+                            if {(owner, prior_owner), (prior_owner, owner)} & intentional:
+                                continue
                             self.assertFalse(
                                 start < prior_end and prior_start < end,
                                 f"VV2 overlap {owner}/{prior_owner} at 0x{start:X}",
@@ -3850,6 +3865,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_hospital_recovery_heals",
                 "vv2_gong_of_wonder_coconuts_fix",
                 "vv2_write_village_statistics",
+                "vv2_write_parentage_log",
                 "vv2_enable_origins_exclusive_features",
                 "vv2_origins_village_wide_upgrades",
             },

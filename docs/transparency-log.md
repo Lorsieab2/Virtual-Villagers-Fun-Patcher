@@ -291,6 +291,16 @@ Each child who finishes a Teaching Children lesson gains 7 to 9 points in one eq
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Write Parentage Log to Text File (`vv2_write_parentage_log`)
+
+Records both parents at conception in a plain text log. VV2 keeps the father's name on the mother's record and no father id, so the log names him and reports his age, head and body as not recorded by this game. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.
+
+- Behavior changes: Records both parents at conception in a plain text log. VV2 keeps the father's name on the mother's record and no father id, so the log names him and reports his age, head and body as not recorded by this game. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: vv2_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Write Village Statistics to Text File (`vv2_write_village_statistics`)
 
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
