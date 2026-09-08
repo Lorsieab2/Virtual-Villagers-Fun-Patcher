@@ -377,18 +377,29 @@ It is **not** exact in one case. On the first-cook path only, ids 2, 4 and
 together, leaving the recipe absent from both. Two consequences follow, and
 the second is easy to miss:
 
-- The row **undercounts by one** for as long as that recipe stays uncooked.
-  Cooking it again takes the normal path, where `0x4260B5` still reads zero
-  from the set, so the mark and the increment both run and the count is
-  recovered. The undercount is real but self-correcting on any later cook.
 - The one-time flag at `0x426056` is set *after* the three comparisons, so a
-  skipped first cook leaves it clear and the **next** stew also takes the
-  first-cook path.
+  skipped cook never sets it and the **next** stew takes the first-cook path
+  as well.
+- The undercount therefore **accumulates**. Every excluded recipe cooked
+  before any non-excluded one is skipped in turn, so all three of ids 2, 4
+  and `0x12` can be missed in sequence and the row can be short by up to
+  three. It is not a single-recipe edge case.
+- Recovery is **not automatic**. A skipped recipe is only recorded if it is
+  cooked again *after* some non-excluded stew has set the flag, which is what
+  finally routes cooking through the normal path at `0x4260AF`. Until then
+  `0x4260B5` is never reached for it at all.
 
-So Special Stews Found is exact except for a recipe that was a save's first
-cook and has not been cooked since. That is worth stating plainly rather than
-calling the row exact, and it matters before printing a denominator such as
-"of 18". It is not by itself a reason to change the row.
+So Special Stews Found is exact for any save whose first stew is not one of
+those three recipes, and otherwise undercounts by up to three until each
+missed recipe is recooked past the flag being set. Worth stating at that size
+rather than as a one-off, and it matters before printing a denominator such
+as "of 18".
+
+An earlier revision of this section called the undercount "by one" and
+"self-correcting on any later cook". Both were wrong, and wrong in the same
+direction: they assumed the flag was set on the skipped path, so that only a
+single cook could ever be lost and any recook would recover it. The flag is
+set past the comparisons, not before them.
 
 **A verdict must name the shape it searched for.** "No counter found" and "no
 set found" are different claims, and recording the first as though it were the
