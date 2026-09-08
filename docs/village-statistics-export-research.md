@@ -307,6 +307,36 @@ uncapped lifetime storage field and mutation route have yet been proven:
 Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
 
+### What The Secret City actually has instead of stews
+
+Worth recording so the search is not repeated. VV3 has no stews: it has an
+**Alchemy Lab**, seven herbs (`eObject_Herb1` .. `Herb7` at `0x482294` and
+below), and the tip string `"Different combinations of herbs make different
+potions."` at `0x490D84`.
+
+The one string implying a unique-combination total is
+`"You have concocted 50 unique alchemy recipes"` at `0x49C528`, whose enum
+name `eAlchemyRUsDesc` is id `0x4A9` in the `.data` string table at
+`0x4ABDB0`; the achievement itself is `eAlchemyRUs`, id `0x4A8`, at
+`0x4ABDA0`. Both ids appear at exactly one site each, `0x463EBB` and
+`0x463F0B` in `sub_4639C0`, and that function is the achievements *display*
+builder: it writes ten consecutive title/description id pairs into a stack
+frame. Nothing there evaluates a condition.
+
+Searching for the threshold directly also comes up empty. Thirteen
+`cmp <memory>, 0x32` sites exist image-wide and none is an alchemy counter
+-- they are unrelated fields at `+0xEAC`, `+0xEB4`, `+0xEB8`, `+0xEBC` and
+the global `dword_4B86D8`.
+
+So the achievement text exists while the quantity behind it does not appear
+to, which matches the earlier controlled result that neither VV3 nor VV4
+carries a discovered-recipe set, a recipe-identity resolver, or a discovery
+gate, and that `eTipNewRecipe`'s string id is never referenced by any
+instruction in either game. Delivering "Stews Found, including every herb
+combination" for these two therefore means inventing the recipe identity and
+its storage rather than reading one, which is a different task from every
+other counter in this document.
+
 ### Corrections to the list above
 
 **VV1's `+0x9E38` is a live recount, not a lifetime total.** It is listed
