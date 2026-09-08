@@ -77,7 +77,7 @@ definition establishing every offset. Summary:
 
 | | active | health | age | gender | head | body | skills | preferred | likes | dislikes | nursing | name | protected villager |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| VV1 | `0x28` | -- | `0x348` | `0x350` | `0x360` | `0x364` | `0x3BC` | -- | `0x398` | `0x3A8` | -- | -- | Golden Child (ptr `0x48B614`) |
+| VV1 | `0x28` | -- | `0x348` | `0x350` | `0x360` | `0x364` | `0x3BC` | -- | `0x398` | `0x3A8` | -- | `0x370` | Golden Child (ptr `0x48B614`) |
 | VV2 | `0x30` | `0x52C` | `0x530` | -- | `0x548` | `0x54C` | `0x7E4` | `0x7F8` | `0x5F0` | `0x6E8` | -- | `0x564` | -- |
 | VV3 | `0xF10` | `0xE78` | `0xDC4` | `0xDC8` | `0xDF0` | `0xDF4` | `0xEAC` | `0xEC0` | `0xFB4` | `0xFC0` | `0xE8C` | -- | Tribal Chief (`0xE80`) |
 | VV4 | `0x1CC4` | `0x1C40` | `0x1B8C` | `0x1B90` | `0x1BB8` | `0x1BBC` | `0x1C5C` (x5, f32) | `0x1C70` | `0x1E60` | `0x1E6C` | -- | `0x1BC0` | -- |
@@ -90,7 +90,7 @@ the game next to it".
 
 | Game | Enabled | Why |
 |---|---|---|
-| VV1 | No | No proven health or preferred-skill offset, and the name buffer's start and length are unestablished (`+0x374` is only proven to lie *inside* it) |
+| VV1 | No | No proven health or preferred-skill offset. The name buffer is now established at `+0x370` (28 bytes); the earlier note that `+0x374` lies *inside* it was correct -- it is four bytes in, which is why using it as mask storage silently renamed villagers |
 | VV2 | No | Fields are well evidenced, but this build carries the unresolved Origins crash; nothing new runs on it until that is settled |
 | VV3 | Yes | Richest proven set, including nursing and the Tribal Chief |
 | VV4 | Yes | Rich proven set including the name buffer |
