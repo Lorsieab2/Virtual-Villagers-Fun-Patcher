@@ -159,6 +159,19 @@ static const struct game_layout GAME_LAYOUTS[6] = {
                              and +0x38C, and +0x38C is the next field the
                              conception routine itself writes
          +0x394  father id   written from the caller's argument at 0x43BC04
+
+       That +0x394 really is a villager reference was worth confirming, because
+       the conception routine receives the father id and never reads it back --
+       a field the game writes and does not itself consult is exactly the shape
+       of thing that turns out to be misidentified. It holds up: +0x394 is
+       compared against the same 0xC7 "no villager" sentinel as the proven id
+       field +0x36C (at 0x42EF39) and is initialised to 0xC7 at 0x42427B. No
+       skill or appearance field carries that sentinel.
+
+       The neighbouring +0x38C and +0x390 are NOT parent references despite
+       sitting beside it -- they are an inherited skill slot and value, read as
+       a pair by the birth routine at 0x42EF46 and 0x42EF4D and never compared
+       against a sentinel. Nothing in this file reads them.
          +0x35C  litter      2 at 0x43BC4E, 3 at 0x43BC8C; cleared per
                              pregnancy by 0x42F0C7, 0x43C722 and 0x43CABE
 
