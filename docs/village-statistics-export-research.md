@@ -109,7 +109,7 @@ The common layout is:
 | `+0x1C` | Village Elders |
 | `+0x20` | Oldest Villager |
 | `+0x24` | Island Events Seen |
-| `+0x28` | **Twins Birthed** (the exporter still labels this "Special Stews Found" -- see the correction below) |
+| `+0x28` | **Twins Birthed** (the exporter printed "Special Stews Found" here until the correction below) |
 | `+0x2C` | Triplets Birthed |
 
 `+0x1C` was previously documented here as Villagers Buried, inherited from VV1's
@@ -189,10 +189,15 @@ not evidence of its trigger*. A displayed string is a name too. The earlier
 revision applied the rule to the enum name and exempted the display string; the
 rule applies to both, and only the write site is evidence.
 
-**Consequence for the shipped exporter:** VV3/VV4/VV5 currently print a
-twins-birth count under a "Special Stews Found" label. Relabelling changes
-user-visible output, so it is held for the owner's decision rather than
-corrected here.
+**Consequence for the shipped exporter, now corrected:** VV3/VV4/VV5 printed
+the twins-birth count under a "Special Stews Found" label. Both later-game
+writers now print **Twins Birthed**, which is what the requirements ask for in
+all five games; The Lost Children keeps its own Special Stews Found row, whose
+value comes from a different field entirely (`manager+0x2E520`, the
+unique-recipe gate). The companion DLL was rebuilt and
+`data/statistics_features.json` regenerated so the shipped binary carries the
+corrected string, and `tests/test_statistics_offsets_match_the_research.py`
+pins both writers against a regression to the stale enum-name mapping.
 
 **Consequence for planned work:** VV3/VV4/VV5 twins totals already exist *and
 already persist*, so no new counter, field, or hook is needed for them. Only
