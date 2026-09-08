@@ -212,8 +212,8 @@ COLLECTIONS_RESET_VA = IMAGE_BASE + COLLECTIONS_RESET_FILE_OFFSET
 
 # Deferred barrel-event hook.  Firing the "Another One of Those Barrels" event
 # synchronously from the (paused, modal) Tech menu flashes its popup and never
-# spawns, so do_barrel instead sets a pending flag (the unused game byte
-# patch-owned data byte) and this hook -- spliced into the island-event handler at 0x468727,
+# spawns, so do_barrel instead sets a patch-owned pending flag in the payload
+# data section, and this hook -- spliced into the island-event handler at 0x468727,
 # which runs every frame during normal gameplay -- fires the full event once the
 # menu has closed, so it reads and behaves like a real island event.
 BARREL_HOOK_FILE_OFFSET = 0x7B3B1
@@ -272,10 +272,11 @@ BARREL_PRESENT_EVENT_VA = 0x419B30         # present(this=mgr, scene); ret 4
 # every object slot at the barrel, its random pick marks some *other* index as
 # seen, which would consume an unrelated one-shot island event.  So we save and
 # restore that seen array around the present too -- one contiguous dword block
-# from 0x4B3C3C up through the object slots -- undoing the spurious mark (and the
-# the native event-seen bytes and object slots; the patch-owned Barrel pending
-# flag is separate and is cleared by the hook, so it is not part of this block.
-# unchanged).  Restore starts at BARREL_SAVE_LOW_VA; save descends from the
+# from 0x4B3C3C up through the object slots -- undoing the spurious mark (and
+# leaving the native event-seen bytes and object slots unchanged).  The
+# patch-owned Barrel pending flag is separate and is cleared by the hook, so
+# it is not part of this block.  Restore starts at BARREL_SAVE_LOW_VA; save
+# descends from the
 # barrel singleton; BARREL_SAVE_COUNT dwords cover the seen array plus slots
 # 1..0x39.
 BARREL_SAVE_LOW_VA = 0x4B3C3C
@@ -2017,7 +2018,8 @@ def main() -> None:
             # a player who restarted the game already sees today.
             mov dword ptr [0x{DOUBLER_OWNERSHIP_VA:X}], 0
             # The queued Barrel is per-SAVE but its pending flag lives in the
-            # executable, so it follows the player into the next village unless
+            # patch's own .vv3md page, so it follows the player into the next
+            # village unless
             # cleared here: that village's row would read "Unavailable" for an
             # event another save bought. Absolute store, no register operand,
             # so the displaced bytes and the resume are untouched.
