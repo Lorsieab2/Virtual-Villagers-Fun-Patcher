@@ -290,11 +290,12 @@ uncapped lifetime storage field and mutation route have yet been proven:
   it.
 - Villagers Died at the moment of death. See the correction below: the
   later-game counter is not a usable lifetime total in either direction.
-- Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found is a
-  solved and shipping statistic (see below), but the requirements list
-  *Total* Stews Found "with no herb-combination restriction" as a **separate**
-  VV2 statistic, and no writer that increments for every stew has been found.
-  The two must not be conflated.
+- Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
+  is understood (see below, including the first-cook case where it undercounts
+  by one until the recipe is cooked again), but the requirements list *Total*
+  Stews Found "with no herb-combination restriction" as a **separate** VV2
+  statistic, and no writer that increments for every stew has been found. The
+  two must not be conflated.
 - Tribal Chiefs Robed in VV3.
 - Debris Cleared in VV4.
 
@@ -360,14 +361,29 @@ and the increment are gated together.
                  0x4260D4 mark set[id] / 0x4260DC inc [+0x2E520]
     first cook   0x4260A5 mark set[id] / 0x4260AD jmp -> 0x4260DC inc
 
-So `popcount(+0x2EAAC) == [+0x2E520]` at all times, and the shipped **Special
-Stews Found** row already answers "every unique recipe" exactly. It does not
-answer "every stew cooked", which is the separate Total. One narrow caveat: on the first-cook path only,
-ids 2, 4 and `0x12` branch to `0x4260E2` -- which is the **function tail**, the
-same target the "already known" branch uses -- so they skip the mark and the
-increment together. Those recipes are missed only if one of them is the very
-first stew a save ever cooks. Relevant before printing a denominator such as
-"of 18"; not a reason to change the row.
+So `popcount(+0x2EAAC) == [+0x2E520]` at all times: the counter and the set
+never disagree with each other. The row reports unique recipes rather than
+stews cooked, so it does not answer "every stew cooked", which is the separate
+Total.
+
+It is **not** exact in one case. On the first-cook path only, ids 2, 4 and
+`0x12` branch to `0x4260E2` -- the **function tail**, the same target the
+"already known" branch uses -- so they skip the mark and the increment
+together, leaving the recipe absent from both. Two consequences follow, and
+the second is easy to miss:
+
+- The row **undercounts by one** for as long as that recipe stays uncooked.
+  Cooking it again takes the normal path, where `0x4260B5` still reads zero
+  from the set, so the mark and the increment both run and the count is
+  recovered. The undercount is real but self-correcting on any later cook.
+- The one-time flag at `0x426056` is set *after* the three comparisons, so a
+  skipped first cook leaves it clear and the **next** stew also takes the
+  first-cook path.
+
+So Special Stews Found is exact except for a recipe that was a save's first
+cook and has not been cooked since. That is worth stating plainly rather than
+calling the row exact, and it matters before printing a denominator such as
+"of 18". It is not by itself a reason to change the row.
 
 **A verdict must name the shape it searched for.** "No counter found" and "no
 set found" are different claims, and recording the first as though it were the
