@@ -89,6 +89,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import struct
 from pathlib import Path
 
 import keystone
@@ -146,6 +147,14 @@ OVERLAY_PAGE_VA = 0x007D0C00
 ORIGINS_FEATURE_ID = "vv5_enable_origins_exclusive_features"
 
 # PE header fields this append has to move, at VV4's own offsets.
+# The new section's own header, written into the zero slot that follows the
+# stock section table.  Bumping NumberOfSections without writing this header
+# leaves a zero-filled entry: the loader maps a zero-length section at the
+# image base, the appended page is never mapped, and the hook's first call
+# jumps to unmapped memory.  The slot is verified zero in the stock file, so
+# the preimage below is exact.
+SECTION_HEADER_FILE = 0x2B8
+IMAGE_BASE = 0x400000
 NUMBER_OF_SECTIONS_FILE = 0xFE
 NUMBER_OF_SECTIONS_BEFORE = 5
 SIZE_OF_IMAGE_FILE = 0x148
@@ -310,6 +319,34 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
     return patches, bytes(page)
 
 
+def _section_header() -> bytes:
+    """Build the IMAGE_SECTION_HEADER for the appended parentage page.
+
+    Code, executable and readable, sized to the single page that is appended.
+    VirtualSize is kept equal to SizeOfRawData so the section describes exactly
+    the bytes that exist and cannot overrun what is mapped after it.
+    """
+    name = SECTION_NAME.encode("ascii")
+    if len(name) > 8:
+        raise SystemExit(f"section name {SECTION_NAME!r} exceeds 8 bytes")
+    header = struct.pack(
+        "<8sIIIIIIHHI",
+        name.ljust(8, bytes(1)),
+        APPEND_LENGTH,            # VirtualSize
+        PAGE_VA - IMAGE_BASE,     # VirtualAddress (RVA)
+        APPEND_LENGTH,            # SizeOfRawData
+        STOCK_FILE_SIZE,          # PointerToRawData
+        0,                        # PointerToRelocations
+        0,                        # PointerToLinenumbers
+        0,                        # NumberOfRelocations
+        0,                        # NumberOfLinenumbers
+        0x60000020,               # CODE | EXECUTE | READ
+    )
+    if len(header) != 0x28:
+        raise SystemExit("section header must be 0x28 bytes")
+    return header
+
+
 def build() -> dict:
     source = (STOCK / EXE).read_bytes()
     patches, page = _emit(source)
@@ -346,6 +383,12 @@ def build() -> dict:
                 .to_bytes(2, "little")
                 .hex(),
                 "purpose": "count the appended parentage section",
+            },
+            {
+                "offset": f"0x{SECTION_HEADER_FILE:X}",
+                "before": "00" * 0x28,
+                "after": _section_header().hex(),
+                "purpose": "describe the appended parentage section",
             },
             {
                 "offset": f"0x{SIZE_OF_IMAGE_FILE:X}",
