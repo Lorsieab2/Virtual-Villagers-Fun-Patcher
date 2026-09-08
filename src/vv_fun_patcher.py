@@ -766,6 +766,7 @@ VV5_TASK9_CROSS_SECTION_HOOKS = {
     "0x4BC20": {"stock_target": "0x7B20C0", "expanded_target": "0x8EB0C0", "expanded_policy": "frozen_c342"},
 }
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
+PARENTAGE_FEATURES_PATH = ROOT / "data" / "vv1_parentage_feature.json"
 DEFAULT_PATCH_MODE = "collection_progression"
 PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_IDS = tuple(
     f"vv{game_number}_origins_village_wide_upgrades"
@@ -2752,6 +2753,11 @@ def _load_fun_patch_records(
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")
         )
         items.extend(statistics.get("features", []))
+    if PARENTAGE_FEATURES_PATH.is_file():
+        parentage = json.loads(
+            PARENTAGE_FEATURES_PATH.read_text(encoding="utf-8")
+        )
+        items.extend(parentage.get("features", []))
     if include_expanded_time_warp:
         items.extend(_certified_expanded_time_warp_records())
     enriched: list[FunPatch] = []
@@ -4043,6 +4049,51 @@ def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
             f"Generated VV4 Full Heal page identity mismatch: expected {expected}, got {actual}."
         )
     return bytes(append_bytes)
+
+
+def _select_composition_patches(
+    fun_bytes: list[dict[str, Any]],
+    fun_patches: list[FunPatch],
+) -> list[dict[str, Any]]:
+    """Swap in a feature's alternate patches when it is co-selected.
+
+    VV1's .text cave is exhausted: the parentage tracker and the Origins
+    exclusive features both want 0x56900, so composing them was refused
+    outright and the two could not be selected together.
+
+    A feature may therefore declare `composition_patches`, keyed by the id of
+    the feature it collides with. When BOTH are selected, that feature's own
+    patches are replaced by the alternate set, which its builder emitted for an
+    address the other feature does not own -- for parentage, the zero tail of
+    the R-X page Origins itself appends. Selected alone, nothing changes and
+    the ordinary patches apply.
+
+    The alternate set is re-emitted rather than relocated at apply time: every
+    trampoline ends in a rel32 back into the game's own code, so moving the
+    bytes without reassembling them would leave each jump short by the distance
+    between the two homes.
+    """
+    selected = {feature.id for feature in fun_patches}
+    for feature in fun_patches:
+        compositions = feature.raw.get("composition_patches")
+        if not isinstance(compositions, dict):
+            continue
+        for base_id, alternate in compositions.items():
+            if base_id not in selected:
+                continue
+            if not isinstance(alternate, list) or not alternate:
+                raise PatcherError(
+                    f"{feature.name} ({feature.id}) declares a malformed "
+                    f"composition patch set for {base_id}."
+                )
+            owner = f"feature:{feature.id}"
+            fun_bytes = [
+                patch for patch in fun_bytes if patch.get("_owner") != owner
+            ]
+            fun_bytes.extend(
+                dict(patch, _owner=owner) for patch in alternate
+            )
+    return fun_bytes
 
 
 def _relocate_vv1_birth_control_hooks(
@@ -7118,6 +7169,7 @@ def render_patched_bytes(
         if overrides:
             for patch in overrides.get(patch_mode, []):
                 fun_bytes.append(dict(patch, _owner=f"feature:{feature.id}"))
+    fun_bytes = _select_composition_patches(fun_bytes, fun_patches)
     fun_bytes = _relocate_vv1_birth_control_hooks(
         fun_bytes, fun_patches, patch_mode
     )

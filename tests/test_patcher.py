@@ -1405,7 +1405,10 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn("Open Modded Folder:", source)
         self.assertIn("Patch audit:", source)
         self.assertIn("Village Statistics - Save N.txt:", source)
-        self.assertIn("Parentage Log.html", source)
+        # Plain text, not HTML: the owner asked for "plain text and numbers,
+        # nothing fancy". The GUI previously advertised an HTML log for a
+        # feature no manifest defined and no builder emitted.
+        self.assertIn("Parentage Log N.txt:", source)
         self.assertIn("dialog.resizable(True, True)", source)
         self.assertIn("dialog.minsize(760, 480)", source)
         self.assertNotIn('messagebox.showinfo("Modified EXE created"', source)

@@ -171,6 +171,57 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
     ("vv1_builder_action_fixes", "0x48336"): "8901998FCDDD8EB745F1666B550B4C384919536E546CA4B1EAAF3BDB90176485",
+    # Re-reviewed when the companion gained a game id, so one DLL can serve
+    # all five games the way the statistics companion already does. Each
+    # trampoline grew a single `push <game id>` before the call and the
+    # export went from two arguments to three. The register contract is
+    # UNCHANGED: the added push is inside the same pushad/popad bracket,
+    # the callee is still __stdcall and now cleans twelve bytes instead of
+    # eight, so all three exit paths still converge on the same esp before
+    # popad, and no additional register is read or written.
+    # The parentage tracker's two success-tail trampolines. Both are the same
+    # body differing only in where they rejoin, and both sit at a point the
+    # routine reaches ONLY on a successful conception -- 0x43BCA2 is the
+    # triplets tail and 0x43BCBA the twins tail. The rejection path jumps to
+    # 0x43BCC7 and reaches neither, which is the whole reason the hook moved
+    # here from the routine's head.
+    #
+    # Register contract, and why nothing stock can observe the detour:
+    #
+    #   * The entire body is bracketed by pushad/popad, so every general
+    #     register the stock tail relies on is restored before control returns
+    #     to it. The three loader calls (GetModuleHandleA, LoadLibraryA,
+    #     GetProcAddress) and the companion call are free to clobber whatever
+    #     they like inside that bracket.
+    #   * The two arguments are read from the pushad frame, NOT from live
+    #     registers: saved edi at esp+0x00 (the record array) and saved esi at
+    #     esp+0x04 (the mother's record). Reading them live would be wrong --
+    #     ecx and eax are caller-saved and the loader calls destroy them, so an
+    #     earlier draft that pushed live ecx handed the companion a garbage base
+    #     to index records from. That produces plausible wrong output rather
+    #     than a crash, which is why it is called out here.
+    #   * WriteParentageRecord is __stdcall with two arguments, so it cleans its
+    #     own eight bytes. All three exit paths -- LoadLibraryA fails,
+    #     GetProcAddress fails, and success -- converge on the same esp before
+    #     popad, so the stock frame is untouched.
+    #   * The stolen six bytes are `mov edi, [edi+0x3E010]`, replayed verbatim
+    #     after popad and before the rejoin, so edi holds the manager pointer
+    #     exactly as stock expects at 0x43BCA8 and 0x43BCC0.
+    #
+    # esi and edi are read only; neither is written outside the pushad bracket.
+    ("vv1_write_parentage_log", "0x3BCA2"): "E19A2A0C69EC1C580BD091084BBCD311C42EB96427F2A09740D99ABEDEBA3B45",
+    ("vv1_write_parentage_log", "0x3BCBA"): "6E920CFA7F30C82520BFEA83D242CA5BB482836DAC3BFF7AC944E31837737298",
+    # The singleton route. This one steals nothing: the two branches that
+    # carry a single birth (0x43BC39, a six-byte near je, and 0x43BC4C, a
+    # two-byte short jge) are RETARGETED at their existing widths, so no
+    # instruction moves. The short jge cannot reach the cave with a rel8, so
+    # it aims at 0x43BCCB -- the routine's own five-byte nop pad, exactly one
+    # jmp wide -- which carries the long jump.
+    #
+    # 0x43BCC6 itself is deliberately NOT patched. The rejection path enters
+    # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
+    # that jump in the middle of the inserted instruction.
+    ("vv1_write_parentage_log", "0x3BCCB"): "3B7AD5F4BD6C4A66E944E254877DF6B9ABA3D4D0ECF95DB45DAA41D89B3AF00E",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.
@@ -258,6 +309,18 @@ COMPOSED_CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
 
 # (feature id, splice offset, stock re-entry target) -> why it is safe.
 REVIEWED: dict[tuple[str, str, int], str] = {
+    (
+        "vv1_write_parentage_log",
+        "0x3BCCB",
+        0x43BCC6,
+    ): "singleton path. Re-enters at the stock epilogue `pop esi; pop edi; "
+    "ret 0x10`, which dereferences NO register -- it only unwinds the two "
+    "pushes the routine itself made at 0x43BBC0 and 0x43BBF0. Both are still "
+    "on the stack: the trampoline's whole body sits inside pushad/popad and "
+    "all three of its exit paths converge on the same esp, and the two "
+    "retargeted branches keep their original widths so nothing shifts. This "
+    "is the address stock itself branches to from 0x43BC39 and 0x43BC4C, so "
+    "the arriving state is exactly what stock would have delivered.",
     # Accept path re-enters at 0x43DD0A, which is the natural resume point
     # (splice 0x43DD03 + 7 patched bytes), so the audit auto-excludes it as a
     # plain stock resume -- it is not a foreign re-entry and needs no review.

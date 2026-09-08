@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
+import json
 import unittest
 
 
@@ -110,6 +111,49 @@ class ReleaseManifestTests(unittest.TestCase):
                     if path and path not in bundled:
                         missing.setdefault(patch.id, []).append(path)
         self.assertEqual(missing, {}, f"companion files absent from release bundle: {missing}")
+
+    def test_release_manifest_bundles_every_feature_manifest(self) -> None:
+        """A feature is discovered by reading its manifest, so a release that
+        ships the companion DLL but not the JSON ships a feature the patcher
+        never offers.
+
+        The companion check above cannot catch this: it walks features already
+        loaded from the repository tree, and a manifest missing from the bundle
+        still loads there. That is exactly how the parentage tracker shipped its
+        DLL without the manifest that makes it visible -- the mirror image of
+        shipping a manifest whose DLL is absent, which the check above does
+        catch.
+        """
+        release = load_release_module()
+        bundled = set(release.FILES)
+
+        data_root = ROOT / "data"
+        missing: list[str] = []
+        for manifest in sorted(data_root.glob("*.json")):
+            try:
+                record = json.loads(manifest.read_text(encoding="utf-8"))
+            except (ValueError, OSError):
+                continue
+            features = record.get("features")
+            if not isinstance(features, list) or not features:
+                continue
+            # Only manifests that actually declare selectable features matter;
+            # a data file without them is not a discovery source.
+            if not any(
+                isinstance(entry, dict) and entry.get("id") and entry.get("game_id")
+                for entry in features
+            ):
+                continue
+            relative = f"data/{manifest.name}"
+            if relative not in bundled:
+                missing.append(relative)
+
+        self.assertEqual(
+            missing,
+            [],
+            "feature manifests absent from the release bundle, so the features "
+            f"they declare would never be offered: {missing}",
+        )
 
 
 if __name__ == "__main__":

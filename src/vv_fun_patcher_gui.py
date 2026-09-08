@@ -1197,7 +1197,7 @@ class App(tk.Tk):
                     )
                 if f"{build.id}_write_parentage_log" in selected:
                     artifact_lines.append(
-                        f"{modded_folder / (build.title + ' Parentage Log.html')} — one birth card per child after the child becomes an independent villager."
+                        f"Virtual Villagers 1 Parentage Log N.txt: {modded_folder} — one plain-text record per pregnancy, written at conception; rolls to a new numbered file every 256 records."
                     )
                 ttk.Label(
                     frame,
