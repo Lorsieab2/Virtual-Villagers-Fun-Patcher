@@ -1,15 +1,15 @@
 {
-  "companion_sha256": "1CE0DEEAF73AB48C5B73B6417810958197A68166BA40D6619410287A3101C3FA",
+  "companion_sha256": "0F93135766B7969AA57B1950BB16429F20CDD1DB60D74572EC4D0597DCF3F45E",
   "features": [
     {
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "1CE0DEEAF73AB48C5B73B6417810958197A68166BA40D6619410287A3101C3FA",
+          "sha256": "0F93135766B7969AA57B1950BB16429F20CDD1DB60D74572EC4D0597DCF3F45E",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         }
       ],
-      "description": "On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 4 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record, so his age, head and body come from his own record as the conception routine held it; if that record cannot be confirmed the log names him and says those three fields are not recorded by this game rather than printing a zero a real villager could hold.",
+      "description": "On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 4 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record, so his age, head and body come from his own record: the one the conception routine itself held, or failing that a search for his name. A name shared by two living villagers resolves to neither, and if he cannot be found at all the log names him and reports those three fields as (record not found) rather than printing a zero a real villager could hold.",
       "game_id": "vv4",
       "id": "vv4_write_parentage_log",
       "name": "Write Parentage Log to Text File",

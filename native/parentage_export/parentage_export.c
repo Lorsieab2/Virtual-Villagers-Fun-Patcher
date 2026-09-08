@@ -61,6 +61,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
+#include <string.h>
 #include <wchar.h>
 
 enum {
@@ -623,6 +624,57 @@ static int layout_is_usable(const struct game_layout *g) {
     return 1;
 }
 
+/* Resolve a villager to his record by NAME, for the games that store a father's
+   name rather than an id.
+
+   VV2 through VV5 copy the father's name into the mother's record and keep no
+   id at all -- in VV2 it arrives at the conception site as a formatted string
+   argument, not a record pointer, so there is nothing to capture at the hook.
+   Without a lookup his age, head and body would be printed as zeros while the
+   feature advertises them, which is worse than useless: a reader cannot tell a
+   genuine zero from a missing one.
+
+   The name is not guaranteed unique -- two living villagers may share one --
+   so an ambiguous match resolves to NULL rather than to a guess. Reporting no
+   values is honest; reporting the wrong father's values is not, and a
+   parentage record is permanent with no second source to correct it from.
+
+   Returns NULL when the name matches no active record, which happens
+   legitimately if the father died between conception and this call. */
+static const unsigned char *find_record_by_name(
+    const struct game_layout *g,
+    const unsigned char *records,
+    const char *name
+) {
+    const unsigned char *found = NULL;
+    int slot;
+
+    if (records == NULL || name == NULL || name[0] == '\0') {
+        return NULL;
+    }
+    for (slot = 0; slot < g->slots; ++slot) {
+        const unsigned char *record =
+            records + g->record_base + (size_t)slot * g->stride;
+        char candidate[MAX_NAME_BYTES];
+
+        if (*(const unsigned char *)(record + g->active) != 1) {
+            continue;
+        }
+        copy_villager_name(g, record, candidate, sizeof(candidate));
+        if (strcmp(candidate, name) != 0) {
+            continue;
+        }
+        if (found != NULL) {
+            /* Two active villagers share this name; neither can be shown to be
+               the father, so record none of his values rather than one of
+               theirs. */
+            return NULL;
+        }
+        found = record;
+    }
+    return found;
+}
+
 /* Is this pointer one of the array's own record slots?
 
    The caller hands a record pointer straight from a register, so it is checked
@@ -764,13 +816,27 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
            way -- it is the name the game itself recorded for this conception,
            and it stays authoritative even when a record is also supplied.
 
-           The record, when the caller passed a valid one, supplies the three
-           numbers the name alone cannot. Without it they are genuinely not
-           available in these games, and the log says so rather than printing a
-           0 that a real villager could hold. */
+           His three numbers come from his record, found in one of two ways,
+           and the order matters:
+
+           1. The record the trampoline captured, when it passed one. VV4 and
+              VV5 hold both parent records in registers at the conception site,
+              so the pointer is the father the engine itself was working with.
+           2. Otherwise, a scan for his name. VV1's, VV2's and VV3's hook sites
+              have no father record to capture -- in VV2 the name arrives as a
+              formatted string argument -- so the scan is the only route there.
+
+           The captured pointer is preferred because the scan cannot resolve a
+           name shared by two living villagers, and returns NULL rather than
+           guessing. A pointer the engine handed us has no such ambiguity. When
+           neither route finds him the log says so rather than printing a 0
+           that a real villager could hold. */
         copy_name_field(mother + g->father, father_name, sizeof(father_name),
                         g->name_capacity);
         father = father_from_caller;
+        if (father == NULL) {
+            father = find_record_by_name(g, records, father_name);
+        }
     } else {
         father = find_record_by_id(
             g, records, *(const int *)(mother + g->father));
@@ -798,10 +864,21 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     /* The father's three numbers are rendered as text so an unavailable field
        can say so. They used to print 0 whenever no father record was found,
        and 0 is a value a real villager can hold -- so a reader could not tell
-       an unavailable field from a measured one. Every VV2 and VV4/VV5
-       conception takes that path, because those games keep only the father's
-       name, which made the whole column indistinguishable from a village of
-       newborn fathers. */
+       an unavailable field from a measured one, and the whole column read as a
+       village of newborn fathers.
+
+       Two different unavailable cases, kept distinct because they mean
+       different things to a reader:
+
+         "not recorded by this game" -- the game keeps no father for this birth
+         at all, so nothing was ever looked for. Only VV1 reaches this.
+
+         "(record not found)" -- a father WAS recorded and we went looking for
+         his record, and it is not there. He may have died between conception
+         and this call, or two living villagers may share his name, in which
+         case the scan refuses to guess. Saying "not recorded by this game"
+         here would be a false statement about the game rather than about this
+         particular birth. */
     if (father != NULL) {
         _snprintf(father_age, sizeof(father_age), "%d",
                   *(const int *)(father + g->age));
@@ -812,10 +889,14 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         father_age[sizeof(father_age) - 1] = '\0';
         father_head[sizeof(father_head) - 1] = '\0';
         father_body[sizeof(father_body) - 1] = '\0';
-    } else {
+    } else if (g->father_kind == FATHER_NOT_RECORDED) {
         memcpy(father_age, "not recorded by this game", 26);
         memcpy(father_head, "not recorded by this game", 26);
         memcpy(father_body, "not recorded by this game", 26);
+    } else {
+        memcpy(father_age, "(record not found)", 19);
+        memcpy(father_head, "(record not found)", 19);
+        memcpy(father_body, "(record not found)", 19);
     }
     written = fprintf(
         file,
