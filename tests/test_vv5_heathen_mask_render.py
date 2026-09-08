@@ -2,10 +2,18 @@
 the Task9 native-actions page (the appended .vv5t9 section) rather than a
 standalone .text-cave overlay.
 
-Verifies the two page routines (mask_flip / mask_restore) and the three
-stock-only render-fn detours that drive them, so the picker's persistent +0x1BC0
-choice is actually rendered when Change-Appearance / Origins is applied. A render
-hook can only be *proven* in-game; this guards its shape and wiring.
+Verifies the two page routines (mask_arm / mask_overlay) and the stock-only
+render-fn detours that drive them, so the picker's persistent +0x1BC0 choice is
+actually rendered when Change-Appearance / Origins is applied. A render hook can
+only be *proven* in-game; this guards its shape and wiring.
+
+The central guard here is that NO ROUTINE WRITES A VILLAGER RECORD. An earlier
+design flipped the faction byte +0x1CEC for the duration of the head draw and
+restored it at the epilogue. The stock renderer branches on that byte, so the
+flip diverted the villager onto the heathen draw path -- which for a retired
+chief resolved a sprite that does not exist and crashed the game with a null
+object, leaving the villager permanently heathen because the fault skipped the
+restore. Asserting the absence of those writes is what stops that returning.
 """
 from __future__ import annotations
 
@@ -40,24 +48,33 @@ def test_mask_routines_only_in_stock_page():
     expanded_page, exp_map = t9.build_page(0x904000)
     # stock page carries both routines; the expanded (disabled) page does not
     _, srmap = t9.build_page(STOCK_PAGE_VA)
-    assert "mask_flip" in srmap["routine_length"]
-    assert "mask_restore" in srmap["routine_length"]
-    assert "mask_flip" not in exp_map["routine_length"]
+    assert "mask_arm" in srmap["routine_length"]
+    assert "mask_overlay" in srmap["routine_length"]
+    assert "mask_arm" not in exp_map["routine_length"]
 
 
-def test_flip_routine_reads_choice_flips_faction_and_replays_displaced():
+def test_arm_routine_records_the_choice_without_writing_the_record():
+    """The arm step may observe the villager; it must never modify one.
+
+    This is the regression guard for the crash: every `mov byte ptr [esi+...]`
+    that used to live here diverted the stock draw branch.
+    """
     page, rmap = t9.build_page(STOCK_PAGE_VA)
-    ins = _routine(page, rmap, "mask_flip")
+    ins = _routine(page, rmap, "mask_arm")
     text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
-    # choice now comes from the side-table via mask_get, never from a record byte
+    # choice comes from the side-table via mask_get, never from a record byte
     assert f"call 0x{STOCK_PAGE_VA + t9.OFF['mask_get']:x}" in text
-    assert "0x1bc0" not in text                              # never touches the villager record
-    assert "mov byte ptr [esi + 0x1cec], 1" in text          # transient heathen flip
-    assert "mov byte ptr [esi + 0x1ced], 1" in text          # orange
-    assert "mov byte ptr [esi + 0x1cee], 1" in text          # red
-    assert "mov byte ptr [esi + 0x1cfc], 0xc" in text        # purple
-    assert "mov byte ptr [esi + 0x1cfc], 0xd" in text        # chief
-    assert "mov dword ptr [0x7b1d10], esi" in text           # saves villager pointer
+    assert "0x1bc0" not in text
+    # NO WRITE THROUGH THE VILLAGER POINTER. esi holds the record here, so any
+    # store through it is the defect this test exists to prevent.
+    for i in ins:
+        if i.mnemonic.startswith("mov") and i.op_str.startswith("byte ptr [esi"):
+            raise AssertionError(f"mask_arm writes the villager record: {i.op_str}")
+        if i.mnemonic.startswith("mov") and i.op_str.startswith("dword ptr [esi"):
+            raise AssertionError(f"mask_arm writes the villager record: {i.op_str}")
+    # it records the villager and its choice in scratch only
+    assert "mov dword ptr [0x7b1d10], esi" in text
+    assert "mov dword ptr [0x7b1d04], eax" in text
     # replays the displaced mov ecx,[esp+0xbc] and returns into the render fn
     assert ins[-2].mnemonic == "mov" and ins[-2].op_str == "ecx, dword ptr [esp + 0xbc]"
     assert ins[-1].mnemonic == "jmp" and int(ins[-1].op_str, 16) == 0x472488
@@ -102,16 +119,37 @@ def test_purple_details_mask_is_exactly_five_pixels_lower_than_prior_registratio
     assert list(page[start:start + 5]) == [0, 2, 0, 2, 0]
 
 
-def test_restore_routine_reverts_via_saved_pointer_and_runs_epilogue():
+def test_overlay_replays_the_stock_draw_then_paints_the_mask_over_it():
+    """Stock draw first, mask second, villager record untouched."""
     page, rmap = t9.build_page(STOCK_PAGE_VA)
-    ins = _routine(page, rmap, "mask_restore")
+    ins = _routine(page, rmap, "mask_overlay")
     text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
-    assert "cmp byte ptr [0x7b1d00], 0" in text               # guard
-    assert "mov eax, dword ptr [0x7b1d10]" in text            # saved villager ptr (esi popped)
-    assert "mov byte ptr [eax + 0x1cec], 0" in text           # faction back to believer
-    # replays the displaced epilogue add esp,0xA8 ; ret 8
-    assert ins[-2].mnemonic == "add" and ins[-2].op_str == "esp, 0xa8"
-    assert ins[-1].mnemonic == "ret"
+    # A frame pointer is established FIRST, because the stock callee is
+    # `ret 0x1C` and pops the seven arguments: after it returns they are gone,
+    # so the overlay cannot re-read them off esp. Reading them from the
+    # caller's frame via ebp is what makes the replay possible at all.
+    assert ins[0].mnemonic == "push" and ins[0].op_str == "ebp"
+    assert ins[1].mnemonic == "mov" and ins[1].op_str == "ebp, esp"
+    # the believer head draw this routine replaced runs, with its own arguments
+    assert "call 0x44f5e0" in text
+    assert "cmp byte ptr [0x7b1d00], 0" in text               # armed?
+    assert "mov eax, dword ptr [0x7b1d10]" in text            # the recorded villager
+    # then the heathen head draw paints the mask on top of the finished believer
+    assert "call 0x44f4e0" in text
+    # Each argument push must read a DISTINCT slot of the caller's frame. A
+    # constant-displacement replay silently re-reads one slot seven times,
+    # which review caught on #280.
+    # Both replays push the same seven frame slots: once for the stock call and
+    # once for the overlay, so 14 pushes over 7 distinct slots.
+    slots = [i.op_str for i in ins if i.mnemonic == "push" and "ebp +" in i.op_str]
+    assert len(slots) == 14, f"expected two seven-argument replays, saw {len(slots)}"
+    assert len(set(slots)) == 7, f"replays must read seven DISTINCT slots, saw {sorted(set(slots))}"
+    # no store through the recorded villager pointer -- the record stays stock
+    for i in ins:
+        if i.mnemonic.startswith("mov") and i.op_str.startswith("byte ptr [eax"):
+            raise AssertionError(f"mask_overlay writes the villager record: {i.op_str}")
+    # cleans the caller's seven args exactly as the call it replaced would have
+    assert ins[-1].mnemonic == "ret" and ins[-1].op_str in ("0x1c", "0x1C")
 
 
 def test_scratch_and_table_are_in_proven_free_data_bss():
@@ -146,25 +184,28 @@ def test_no_routine_writes_the_villager_record_mask_byte():
     assert struct.pack("<i", 0x1BC0) not in bytes(page)
 
 
-def test_stock_modes_declare_the_three_render_detours():
+def test_stock_modes_declare_the_render_detours():
     import json
     manifest = json.loads((ROOT / "data/vv5_task9_native_actions.json").read_text(encoding="utf-8"))
     for mode in ("collection_progression", "immediate_fixed"):
         overrides = manifest["patch_mode_overrides"][mode]
         by_off = {int(p["offset"], 0): p for p in overrides}
         page_va = t9.LAYOUTS[mode]["page_va"]
-        # flip detour at 0x472481 -> mask_flip
-        flip = by_off[0x72481]
-        assert flip["before"] == "8B8C24BC000000"
-        assert flip["after"].endswith("9090")               # E9 rel32 + 2 nops
-        rel = int.from_bytes(bytes.fromhex(flip["after"])[1:5], "little", signed=True)
-        assert 0x400000 + 0x72481 + 5 + rel == page_va + t9.OFF["mask_flip"]
-        # both epilogues -> mask_restore
-        for site in (0x72B0F, 0x72B57):
-            r = by_off[site]
-            assert r["before"] == "81C4A80000"
-            rel = int.from_bytes(bytes.fromhex(r["after"])[1:5], "little", signed=True)
-            assert 0x400000 + site + 5 + rel == page_va + t9.OFF["mask_restore"]
+        # arm detour at 0x472481 -> mask_arm
+        arm = by_off[0x72481]
+        assert arm["before"] == "8B8C24BC000000"
+        assert arm["after"].endswith("9090")                # E9 rel32 + 2 nops
+        rel = int.from_bytes(bytes.fromhex(arm["after"])[1:5], "little", signed=True)
+        assert 0x400000 + 0x72481 + 5 + rel == page_va + t9.OFF["mask_arm"]
+        # the believer head-draw CALL -> mask_overlay, which replays it
+        overlay = by_off[0x7279C]
+        assert overlay["before"] == "E83FCEFDFF"            # call 0x44F5E0
+        assert overlay["after"].startswith("E8")            # call rel32, no nops
+        rel = int.from_bytes(bytes.fromhex(overlay["after"])[1:5], "little", signed=True)
+        assert 0x400000 + 0x7279C + 5 + rel == page_va + t9.OFF["mask_overlay"]
+        # the epilogues must NOT be patched any more: there is no state to
+        # restore, which is precisely why the crash can no longer happen.
+        assert 0x72B0F not in by_off and 0x72B57 not in by_off
         # Details-portrait head-draw detour at 0x466E05 -> bighead_mask
         bighead = by_off[0x66E05]
         assert bighead["before"] == "E8962EFAFF"             # call 0x409CA0
@@ -174,7 +215,7 @@ def test_stock_modes_declare_the_three_render_detours():
     # expanded (disabled) modes must NOT carry the render detours
     for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
         offs = {int(p["offset"], 0) for p in manifest["patch_mode_overrides"].get(mode, [])}
-        assert 0x72481 not in offs and 0x72B0F not in offs and 0x66E05 not in offs
+        assert 0x72481 not in offs and 0x7279C not in offs and 0x66E05 not in offs
         assert 0x3600 not in offs                              # no slot_capture detour either
 
 
