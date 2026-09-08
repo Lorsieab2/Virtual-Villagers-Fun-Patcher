@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "34A7F186B3F2E5033B50905FBAAA03E6C20A87027A1E1B1BB51D349A9D96307A",
+  "companion_sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +12,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "34A7F186B3F2E5033B50905FBAAA03E6C20A87027A1E1B1BB51D349A9D96307A"
+          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
         }
       ],
       "patches": [
@@ -26,8 +26,14 @@
           "offset": "0x56730",
           "before_fill": "00",
           "length": 208,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoGsr6/1CEwHQ+g/8BfDmD/wV/NGiwZ0UA/xXQcEUAhcB1D2iwZ0UA/xUQcEUAhcB0FmjMZ0UAUP8V1HBFAIXAdAZXU2oB/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoGsr6/1CEwHQ+g/8BfDmD/wV/NGiwZ0UA/xXQcEUAhcB1D2iwZ0UA/xUQcEUAhcB0FmjMZ0UAUP8V1HBFAIXAdAZXU2oB/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAi4cQ4AMA/4CEngAAxkQ5KADpcCf//wAAAAAAAA==",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
+        },
+        {
+          "offset": "0x48F65",
+          "before": "C644392800",
+          "after": "E97AD80000",
+          "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
         }
       ]
     },
@@ -41,7 +47,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "34A7F186B3F2E5033B50905FBAAA03E6C20A87027A1E1B1BB51D349A9D96307A"
+          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
         }
       ],
       "patches": [
@@ -55,8 +61,14 @@
           "offset": "0x73E50",
           "before_fill": "00",
           "length": 208,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoivX4/1CEwHQ+g/8BfDmD/wV/NGjQPkcA/xXQQEcAhcB1D2jQPkcA/xUQQEcAhcB0FmjsPkcAUP8V1EBHAIXAdAZXU2oC/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoivX4/1CEwHQ+g/8BfDmD/wV/NGjQPkcA/xXQQEcAhcB1D2jQPkcA/xUQQEcAhcB0FmjsPkcAUP8V1EBHAIXAdAZXU2oC/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAi4bUdOUA/4DU5QIAxkQyMADpJhH//wAAAAAAAA==",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
+        },
+        {
+          "offset": "0x6503B",
+          "before": "C644323000",
+          "after": "E9C4EE0000",
+          "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
         }
       ]
     },
@@ -70,7 +82,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "34A7F186B3F2E5033B50905FBAAA03E6C20A87027A1E1B1BB51D349A9D96307A"
+          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
         }
       ],
       "patches": [
@@ -105,7 +117,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "34A7F186B3F2E5033B50905FBAAA03E6C20A87027A1E1B1BB51D349A9D96307A"
+          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
         }
       ],
       "patches": [
@@ -146,7 +158,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "34A7F186B3F2E5033B50905FBAAA03E6C20A87027A1E1B1BB51D349A9D96307A"
+          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
         }
       ],
       "patches": [

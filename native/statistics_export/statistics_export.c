@@ -197,16 +197,14 @@ static int write_vv1(FILE *file, const unsigned char *manager) {
         "People Cured: %d\n"
         "Mushrooms Found: %d\n"
         "Maximum Population: %d\n"
-        /* manager+0x9E38 saturates: two writers exist image-wide and both are
-           stores -- 0x41C3DF zero-inits it and 0x42F191 stores the return of
-           sub_41CF10, an unrolled 5x10 sweep that recounts occupied grave
-           slots (base manager+0xA340, stride 0x2C), so it stops rising at the
-           50-slot capacity. A New Home cannot yet host the cave wrapper the
-           later games use, because its append offset is already claimed by
-           the Origins feature and only one appending feature can install; the
-           composition-overlay route is the fix and is tracked separately.
-           Until then this reports the game's own value under the game's own
-           name. */
+        /* Read from the patch-added lifetime counter at manager+0x9E84, not
+           the stock manager+0x9E38. That field has two writers image-wide and
+           both are stores -- 0x41C3DF zero-inits it and 0x42F191 stores the
+           return of sub_41CF10, an unrolled 5x10 sweep that recounts occupied
+           grave slots -- so it stops rising at the 50-slot capacity. The
+           counter is incremented by a cave wrapper on the skeleton-pickup
+           latch clear at 0x448F65, and sits inside the manager+8 .. +0xABE4
+           range that the full save writes at 0x41BF63, so it persists. */
         "Villagers Buried: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
@@ -220,7 +218,7 @@ static int write_vv1(FILE *file, const unsigned char *manager) {
         read_int(manager, 0x9E2C),
         read_int(manager, 0x9E30),
         read_int(manager, 0x9E34),
-        read_int(manager, 0x9E38),
+        read_int(manager, 0x9E84),
         read_int(manager, 0x9E3C),
         read_int(manager, 0x9E40),
         read_int(manager, 0x9E44),
@@ -248,6 +246,14 @@ static int write_vv2(FILE *file, const unsigned char *manager) {
         "Mushrooms Found: %d\n"
         "Highest Population: %d\n"
         "Village Elders: %d\n"
+        /* The Lost Children has no stock burial statistic. This reads the
+           patch-added lifetime counter at manager+0x2E5D4, incremented by a
+           cave wrapper on the skeleton-pickup latch clear at 0x46503B. The
+           slot sits in a 27-dword run with no stock reference, clear of the
+           puzzle flags at +0x2E768 and the discovered-recipe set at +0x2EAAC,
+           and inside the manager+8 .. +0x30378 range the full save writes at
+           0x424BF3, so it persists. */
+        "Villagers Buried: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
         "Special Stews Found: %d\n"
@@ -261,6 +267,7 @@ static int write_vv2(FILE *file, const unsigned char *manager) {
         read_int(manager, 0x2E50C),
         read_int(manager, 0x2E510),
         read_int(manager, 0x2E514),
+        read_int(manager, 0x2E5D4),
         read_int(manager, 0x2E518),
         read_int(manager, 0x2E51C),
         read_int(manager, 0x2E520),

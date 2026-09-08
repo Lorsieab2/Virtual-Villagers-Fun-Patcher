@@ -70,8 +70,14 @@ class C324LegacyContainmentTests(unittest.TestCase):
         """
         manifest = json.loads((ROOT / "data/statistics_features.json").read_text(encoding="utf-8"))
         forbidden_offsets = {"0x5F45B", "0x664DC", "0x6FF12"}
-        # The pickup latch clear in each later game -- the one permitted site.
-        permitted_pickup = {"0x62293", "0x6A977", "0x73F8F"}
+        # The pickup latch clear in each game -- the only permitted sites.
+        permitted_pickup = {
+            "0x48F65",   # VV1 sub_448600 case 20
+            "0x6503B",   # VV2 sub_464CD0 case 23
+            "0x62293",   # VV3 sub_461FB0 case 25
+            "0x6A977",   # VV4 sub_46A4D0 case 27
+            "0x73F8F",   # VV5 sub_473B30
+        }
         for feature in manifest["features"]:
             for patch in feature["patches"]:
                 offset = patch.get("offset")
@@ -103,7 +109,13 @@ class C324LegacyContainmentTests(unittest.TestCase):
         # The builder now carries a burial hook. It is pinned to the pickup
         # latch clear by the test above rather than forbidden outright.
         builder = (ROOT / "scripts/build_statistics_features.py").read_text(encoding="utf-8")
-        for game, hook in (("vv3", "0x462293"), ("vv4", "0x46A977"), ("vv5", "0x473F8F")):
+        for game, hook in (
+            ("vv1", "0x448F65"),
+            ("vv2", "0x46503B"),
+            ("vv3", "0x462293"),
+            ("vv4", "0x46A977"),
+            ("vv5", "0x473F8F"),
+        ):
             with self.subTest(game=game):
                 self.assertIn(hook.upper().replace("0X", "0x"), builder)
 
