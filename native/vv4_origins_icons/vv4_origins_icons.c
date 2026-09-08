@@ -154,7 +154,23 @@ static const char *const g_mask_names[VV_MASK_COUNT] = {
 #define VV_REC_ARRAY_BASE 0x50E5ACu
 #define VV_REC_STRIDE     0x2E3Cu
 #define VV_MAX_VILLAGERS  150
-#define VV_NAME_OFFSET    0x1BC0        /* 24-byte villager name string (stable) */
+/* The villager's OWN name, 25 bytes, read here as identity only (never written).
+   Proven three ways: the burial writer 0x45D4B4 copies it into the grave record
+   (push 0x19; lea eax,[edi+0x1B9C]; call strncpy), the birth routine at
+   0x460A1E hands it to the conception function, and the display formatter at
+   0x416F88 renders it in the "son of X and Y" line.  It matches VV5's +0x1B9C
+   and sits in the sibling cluster (age 0x1B8C, gender 0x1B90, name 0x1B9C)
+   that both games share.
+
+   This was previously 0x1BC0.  That address is also a real 24-byte villager
+   string, which is why the mistake survived, but 0x45F3B3 fills it by copying
+   an INCOMING string argument from [esp+0x16c], and the block after it copies a
+   second incoming string from [esp+0x170] -- two externally supplied names
+   written onto the villager, not the villager's own.  Hashing it meant two
+   villagers sharing those names and sex produced the same fingerprint, so a
+   restored mask could attach to the wrong villager: the same collision this
+   fingerprint exists to prevent. */
+#define VV_NAME_OFFSET    0x1B9Cu
 /* Occupied/free flag (byte). The game's villager-creation routine
    (FUN_00466270) scans slots 0..149 for the FIRST record whose +0x1CC4 byte is
    0 and reuses it for a newborn, so a dead villager's index gets reallocated.
@@ -259,7 +275,14 @@ static unsigned int vv_fingerprint(const unsigned char *villager) {
     const unsigned char *name = villager + VV_NAME_OFFSET;
     int i;
     for (i = 0; i < 4; i++) { h = (h ^ ((unsigned char *)&sex)[i]) * 16777619u; }
-    for (i = 0; i < 24 && name[i]; i++) { h = (h ^ name[i]) * 16777619u; }
+    /* 25, not 24: the game's burial writer at 0x45D4B2 copies this field with
+       `push 0x19`, so it holds 25 characters and stopping at 24 made two names
+       differing only in the last character hash identically. */
+    for (i = 0; i < 25 && name[i]; i++) { h = (h ^ name[i]) * 16777619u; }
+    /* Mix a terminator so a short name is not a prefix of a longer one --
+       "Lu" and "Lulli" would otherwise differ only by the bytes the loop
+       never reaches.  VV3's fingerprint already does this. */
+    h = (h ^ 0xFFu) * 16777619u;
     return h ? h : 1u;                           /* reserve 0 = "no fp stored" */
 }
 
@@ -562,7 +585,12 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
    entry shape can evolve without silently misreading an old file). There is no
    legacy global sidecar migration: slot 0 and malformed/missing files remain
    all-unmasked. */
-#define VV_SIDECAR_VERSION 1u
+/* Bumped to 2 when VV_NAME_OFFSET was corrected from 0x1BC0 to 0x1B9C.  Every
+   fingerprint in a version-1 file was computed over the wrong string, so those
+   files must not be read: the version gate makes them ignored outright, which
+   restores a save as all-unmasked, rather than silently matching stale
+   fingerprints and putting masks on the wrong villagers. */
+#define VV_SIDECAR_VERSION 2u
 
 static int vv_build_sidecar_path(char *out, int slot) {
     char exe[MAX_PATH];
