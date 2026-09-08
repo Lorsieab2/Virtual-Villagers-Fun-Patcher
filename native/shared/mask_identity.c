@@ -168,7 +168,16 @@ static unsigned int vv_fingerprint(const vv_identity_adapter *a,
     h = vv_hash_field(h, rec, &a->body,            6u);
     h = vv_hash_field(h, rec, &a->nursing,         7u);
     h = vv_hash_field(h, rec, &a->skills,          8u);
-    h = vv_hash_field(h, rec, &a->preferred_skill, 9u);
+    /* preferred_skill is DELIBERATELY NOT HASHED, and tag 9 stays retired so
+     * the remaining tags keep their values.  The player toggles this field from
+     * the details screen -- every build compares it against a -1 "none"
+     * sentinel, and VV3 ships an explicit toggler at 0x46DFFF -- so mixing it
+     * in would let a preference change alter a villager's fingerprint and
+     * orphan their mask.  That is the same failure the safeguard exists to
+     * prevent, and the reason head and body were removed from the VV3
+     * fingerprint earlier.  The adapter still carries the offset, marked
+     * mutable, so a caller can compare it against a baseline; it must never be
+     * an identity input. */
     h = vv_hash_field(h, rec, &a->likes,          10u);
     h = vv_hash_field(h, rec, &a->dislikes,       11u);
     return h;
