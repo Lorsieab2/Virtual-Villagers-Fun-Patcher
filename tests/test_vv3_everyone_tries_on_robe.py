@@ -54,6 +54,11 @@ EXPANDED_COMPOSITION_RESULTS = {
         "71630D00",
     ),
 }
+# Composing every VV3 feature. These move whenever any VV3 feature's bytes
+# change; they last moved when the statistics feature gained its skeleton-pickup
+# burial counter, which adds a seven-byte detour at 0x62293 and a wrapper at
+# cave+0x190. The uninstall roundtrip asserted alongside them is the property
+# that actually matters, and it is unaffected.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
         "D95C64CEB864B9FE968D12DF25A7497A311B42AE3ACB915B8981CDEFB9BC6857",

@@ -59,6 +59,10 @@ GAMES = {
         "load_library_iat": 0x47C124,
         "get_module_handle_iat": 0x47C074,
         "get_proc_address_iat": 0x47C128,
+        "burial_hook_va": 0x462293,
+        "burial_guard": "C687100F000000",
+        "burial_replay": "mov byte ptr [edi + 0xF10], 0",
+        "burial_stat_va": 0x5824D0,
     },
     "vv4": {
         "title": "Virtual Villagers - The Tree of Life",
@@ -75,6 +79,10 @@ GAMES = {
         "get_proc_address_iat": 0x48A1DC,
         "food_hook_va": 0x41D987,
         "food_stat_va": 0x4D6DEC,
+        "burial_hook_va": 0x46A977,
+        "burial_guard": "C686C41C000000",
+        "burial_replay": "mov byte ptr [esi + 0x1CC4], 0",
+        "burial_stat_va": 0x4D6E10,
     },
     "vv5": {
         "title": "Virtual Villagers - New Believers",
@@ -93,6 +101,12 @@ GAMES = {
         "food_stat_va": 0x51D364,
         "conversion_hook_va": 0x4668B0,
         "conversion_stat_va": 0x51D38C,
+        "burial_hook_va": 0x473F8F,
+        "burial_guard": "C686D41C000000",
+        "burial_replay": "mov byte ptr [esi + 0x1CD4], 0",
+        # +0x30 holds the Origins saved bit flags and +0x34 the Heathens
+        # Converted total, so this game's first free reserve dword is +0x38.
+        "burial_stat_va": 0x51D390,
     },
 }
 
@@ -256,6 +270,59 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 "purpose": (
                     "count every completed Heathen conversion once in the "
                     "per-save reserve, counting the tag-17 Heathen Mommy as two"
+                ),
+            }
+        )
+
+    burial_hook_va = config.get("burial_hook_va")
+    if burial_hook_va:
+        # The pickup event is the instruction that clears the corpse's
+        # awaiting-burial latch. It runs before the grave array is consulted,
+        # so it still fires once the array is full -- which a hook on the
+        # burial writer's call site would not, because that writer scans its
+        # 500 slots and returns false without recording anything when none is
+        # free. The latch guard immediately above it means a second dispatch
+        # for the same villager exits before reaching here, so this counts
+        # exactly once per skeleton.
+        burial_wrapper_va = cave_va + 0x190
+        burial_wrapper = assemble(
+            f"""
+                inc dword ptr [0x{int(config['burial_stat_va']):X}]
+                {config['burial_replay']}
+                jmp 0x{int(burial_hook_va) + 7:X}
+            """,
+            burial_wrapper_va,
+        )
+        if 0x190 + len(burial_wrapper) > cave_size:
+            raise RuntimeError(f"{game_id} burial wrapper exceeds cave allowance")
+        payload[0x190 : 0x190 + len(burial_wrapper)] = burial_wrapper
+        burial_hook_file = int(burial_hook_va) - 0x400000
+        burial_guard = bytes.fromhex(str(config["burial_guard"]))
+        if (
+            source[burial_hook_file : burial_hook_file + len(burial_guard)]
+            != burial_guard
+        ):
+            raise RuntimeError(f"{game_id} burial hook guard does not match")
+        # The stolen bytes are one whole instruction, so the five-byte jump
+        # plus two NOPs replaces it exactly and no branch lands inside it.
+        # The latch clear itself is replayed by the wrapper's target, which is
+        # the instruction after it -- the clear is performed by the stolen
+        # instruction being re-emitted here rather than in the cave, so the
+        # wrapper only adds the increment.
+        extra_patches.append(
+            {
+                "offset": f"0x{burial_hook_file:X}",
+                "before": burial_guard.hex().upper(),
+                "after": (
+                    b"\xE9"
+                    + int(burial_wrapper_va - int(burial_hook_va) - 5).to_bytes(
+                        4, "little", signed=True
+                    )
+                    + b"\x90\x90"
+                ).hex().upper(),
+                "purpose": (
+                    "count every skeleton pickup once in the per-save reserve, "
+                    "including pickups made after the memorial array is full"
                 ),
             }
         )
