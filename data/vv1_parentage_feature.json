@@ -9,6 +9,46 @@
           "source": "assets/parentage/VVFP Parentage Export.dll"
         }
       ],
+      "composition_patches": {
+        "vv1_enable_origins_exclusive_features": [
+          {
+            "after": "E98E47050090",
+            "before": "8BBF10E00300",
+            "offset": "0x3BCA2",
+            "purpose": "Divert the triplets success tail of the conception routine sub_43BBC0 to its trampoline, which logs the pregnancy with the litter size the engine has already committed, then replays this instruction."
+          },
+          {
+            "after": "E9C647050090",
+            "before": "8BBF10E00300",
+            "offset": "0x3BCBA",
+            "purpose": "Divert the twins/single success tail of the conception routine sub_43BBC0 to its trampoline, which logs the pregnancy with the litter size the engine has already committed, then replays this instruction."
+          },
+          {
+            "after": "0F8496480500",
+            "before": "0F8487000000",
+            "offset": "0x3BC39",
+            "purpose": "Retarget the singleton branch that skips the twins roll so it reaches the parentage trampoline instead of the epilogue. Same width, so nothing shifts."
+          },
+          {
+            "after": "7D7D",
+            "before": "7D78",
+            "offset": "0x3BC4C",
+            "purpose": "Retarget the singleton branch whose twins roll failed to the five-byte pad after the routine. It stays a two-byte short jump, so nothing shifts; a rel8 cannot reach the cave."
+          },
+          {
+            "after": "E905480500",
+            "before": "9090909090",
+            "offset": "0x3BCCB",
+            "purpose": "Fill the routine's five-byte nop pad with the long jump to the singleton trampoline, which the short branch above can reach."
+          },
+          {
+            "after": "606825054900FF15D070450085C0750F6825054900FF151070450085C0741C684505490050FF15D470450085C0740CFF742404FF7424046A01FFD0618BBF10E00300E92CB8FAFF000000000000000000606825054900FF15D070450085C0750F6825054900FF151070450085C0741C684505490050FF15D470450085C0740CFF742404FF7424046A01FFD0618BBF10E00300E9F4B7FAFF000000000000000000606825054900FF15D070450085C0750F6825054900FF151070450085C0741C684505490050FF15D470450085C0740CFF742404FF7424046A01FFD061E9B0B7FAFF0000000000000000000000000000005656465020506172656E74616765204578706F72742E646C6C000000000000005772697465506172656E746167655265636F726400000000000000000000000000000000000000000000000000000000",
+            "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "offset": "0x8E435",
+            "purpose": "Two loader trampolines, one per success tail, plus the shared DLL and export names. All logging logic lives in the companion DLL; only the call into it is in the executable."
+          }
+        ]
+      },
       "description": "On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 1 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.",
       "game_id": "vv1",
       "id": "vv1_write_parentage_log",

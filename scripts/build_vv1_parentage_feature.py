@@ -182,6 +182,20 @@ CAVE_VA = 0x00456900
 CAVE_FILE = 0x00056900
 CAVE_SIZE = 0x140
 
+# Where the payload lives when Origins is ALSO selected.
+#
+# Origins claims the whole of 0x56900..0x57000, so the two features cannot both
+# use the cave. It also appends an 8 KB block as .vv1mc (R-X code) and .vv1md
+# (R/W data) at VA 0x490000, and the code page has an unclaimed run at file
+# 0x8E435 / VA 0x490435 -- 0x18B bytes, against the 0x140 this needs.
+#
+# The payload is re-emitted for that address rather than copied, because every
+# trampoline ends in a rel32 back into the conception routine and a byte copy
+# would leave all three aimed 0x39B35 bytes short of their targets.
+CO_SELECTED_CAVE_VA = 0x00490435
+CO_SELECTED_CAVE_FILE = 0x0008E435
+ORIGINS_FEATURE_ID = "vv1_enable_origins_exclusive_features"
+
 # Imports, reused from the statistics feature's own verified table entries.
 # Resolved from the stock import table rather than assumed, because the ANSI
 # vs wide pairing matters: the DLL name below is an ASCII string, so these must
@@ -215,8 +229,8 @@ def assemble(source: str, address: int) -> bytes:
     return bytes(encoding)
 
 
-def build() -> dict:
-    source = (STOCK / EXE).read_bytes()
+def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], bytes]:
+    """Assemble the trampolines and hook rewrites for one cave address."""
 
     # Three trampolines -- triplets, twins, singles -- each in its own slot.
     # Each assembles to about 0x45 bytes, so 0x50 apiece. The checks below are
@@ -238,17 +252,36 @@ def build() -> dict:
             raise RuntimeError(
                 f"stock bytes at {offset:#x} are not the expected {label}"
             )
-    if set(source[CAVE_FILE : CAVE_FILE + CAVE_SIZE]) != {0}:
-        raise RuntimeError(f"cave at {CAVE_FILE:#x} is not free")
+    if cave_file + CAVE_SIZE <= len(source):
+        if set(source[cave_file : cave_file + CAVE_SIZE]) != {0}:
+            raise RuntimeError(f"cave at {cave_file:#x} is not free")
+    elif cave_file < len(source):
+        # A cave that straddles the stock end-of-file is a mistake, not an
+        # appended page: appended space starts exactly at EOF.
+        raise RuntimeError(
+            f"cave at {cave_file:#x} straddles the stock end of file"
+        )
+    else:
+        # Past the stock EOF the bytes do not exist yet -- this address lives in
+        # a page Origins appends, and the patcher checks that page's zero
+        # preimage when it applies the composition. Asserting against the stock
+        # file here would only assert that the file is short.
+        pass
 
-    dll_name_va = CAVE_VA + DLL_NAME_OFFSET
-    export_name_va = CAVE_VA + EXPORT_NAME_OFFSET
+    dll_name_va = cave_va + DLL_NAME_OFFSET
+    export_name_va = cave_va + EXPORT_NAME_OFFSET
 
     payload = bytearray(CAVE_SIZE)
     patches: list[dict[str, object]] = []
 
     for index, (tail_va, tail_file) in enumerate(zip(TAIL_VAS, TAIL_FILES)):
-        cave_va = CAVE_VA + index * slot_size
+        # A DISTINCT name, not a reassignment of cave_va: overwriting the base
+        # here left the singleton trampoline below computing its own slot from
+        # an already-advanced base, so its rejoin jumped 0x50 short -- into the
+        # middle of the routine rather than to the epilogue. The emitted bytes
+        # looked plausible and the two tail trampolines were unaffected, which
+        # is exactly why it survived a check that only looked at those two.
+        slot_va = cave_va + index * slot_size
 
         # The trampoline.
         #
@@ -305,9 +338,9 @@ def build() -> dict:
                 mov edi, dword ptr [edi + 0x3E010]
                 jmp 0x{tail_va + len(TAIL_STOLEN):X}
             """,
-            cave_va,
+            slot_va,
         )
-        if cave_va + len(code) > CAVE_VA + DLL_NAME_OFFSET:
+        if slot_va + len(code) > cave_va + DLL_NAME_OFFSET:
             raise RuntimeError(
                 f"trampoline {index} runs into the strings at {DLL_NAME_OFFSET:#x}"
             )
@@ -319,7 +352,7 @@ def build() -> dict:
 
         # Divert the tail: a five-byte jmp plus one nop replaces the six-byte
         # stolen instruction exactly, so nothing downstream shifts.
-        entry = assemble(f"jmp 0x{cave_va:X}", tail_va)
+        entry = assemble(f"jmp 0x{slot_va:X}", tail_va)
         entry = entry + b"\x90" * (len(TAIL_STOLEN) - len(entry))
         if len(entry) != len(TAIL_STOLEN):
             raise RuntimeError("tail entry does not match the stolen byte count")
@@ -357,7 +390,7 @@ def build() -> dict:
     # same reason they do at the tails: esi is written once at 0x43BBF1 and
     # never reassigned before any exit, and edi is written at 0x43BBC1 and left
     # alone, with the intervening manager fetches all targeting eax.
-    single_cave_va = CAVE_VA + 2 * slot_size
+    single_cave_va = cave_va + 2 * slot_size
     single_code = assemble(
         f"""
             pushad
@@ -385,7 +418,7 @@ def build() -> dict:
         """,
         single_cave_va,
     )
-    if single_cave_va + len(single_code) > CAVE_VA + DLL_NAME_OFFSET:
+    if single_cave_va + len(single_code) > cave_va + DLL_NAME_OFFSET:
         raise RuntimeError("singleton trampoline runs into the strings")
     payload[2 * slot_size : 2 * slot_size + len(single_code)] = single_code
 
@@ -445,7 +478,7 @@ def build() -> dict:
     payload[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
     patches.append(
         {
-            "offset": f"0x{CAVE_FILE:X}",
+            "offset": f"0x{cave_file:X}",
             "before": ("00" * CAVE_SIZE).upper(),
             "after": bytes(payload).hex().upper(),
             "purpose": (
@@ -455,6 +488,14 @@ def build() -> dict:
             ),
         }
     )
+
+    return patches, bytes(payload)
+
+
+def build() -> dict:
+    source = (STOCK / EXE).read_bytes()
+    patches, _ = _emit(source, CAVE_VA, CAVE_FILE)
+    co_patches, _ = _emit(source, CO_SELECTED_CAVE_VA, CO_SELECTED_CAVE_FILE)
 
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest()
     return {
@@ -484,6 +525,13 @@ def build() -> dict:
                     }
                 ],
                 "patches": patches,
+                # The same feature, re-emitted for the address it must use when
+                # Origins is also selected. The patcher swaps to these rather
+                # than refusing the composition; see CO_SELECTED_CAVE_VA above
+                # for why a byte copy would not work.
+                "composition_patches": {
+                    ORIGINS_FEATURE_ID: co_patches,
+                },
             }
         ],
     }
