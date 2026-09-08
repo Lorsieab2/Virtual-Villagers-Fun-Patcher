@@ -288,16 +288,71 @@ uncapped lifetime storage field and mutation route have yet been proven:
 
 - Village Elders where the inherited statistics block does not already expose
   it.
-- Villagers Died at the moment of death. The currently restored later-game
-  counter is precisely **Villagers Buried** and increments only when a corpse
-  record is retired after its delay; it must not be relabeled as immediate
-  deaths.
-- Total Stews Made in VV2 through VV4.
+- Villagers Died at the moment of death. See the correction below: the
+  later-game counter is not a usable lifetime total in either direction.
+- Total Stews Made in VV3 and VV4. **VV2 is no longer blocked** -- see below.
 - Tribal Chiefs Robed in VV3.
 - Debris Cleared in VV4.
 
 Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
+
+### Corrections to the list above
+
+**The later-game "buried" counters decrement.** They were described here as
+incrementing when a corpse record is retired, which reads as a usable lifetime
+total that merely lags. It is not one. Enumerating every instruction touching
+each displacement:
+
+    VV4  +0xBB80   0x45D3F3 cmp ...,1   0x45D450 add ...,-1   0x45D627 add ...,1
+    VV3  +0x6810   0x454A35 mov ...,0   0x454E33 cmp ...,1    0x454E85 dec
+                   0x4551C7 / 0x4551D1  load / store
+
+Both increment *and* decrement, both are guarded by a `cmp` against 1, and VV3
+additionally has an explicit zeroing reset. They are live occupancy counts --
+the same disqualification as VV1's `+0x9E38` recount, reached by a different
+route. VV5's `+0xBB80` is the population of a **55-slot visible-marker array**
+(`0xB3B0`, bound `mov ebp, 37h` at `0x464C05`), which is a different structure
+from the 500-slot grave array. So no game has an existing lifetime burial
+total, and any such counter must be newly built.
+
+**VV2's unique-recipe total already exists.** The earlier verdict was recorded
+against *Total Stews Made* as a **counter**, and no uncapped counter exists.
+Re-running the search for a **set** rather than a counter found one:
+`manager+0x2EAAC`, 19 bytes, indexed directly by recipe id (ids 1..18, index 0
+unused), cleared to exactly 19 bytes by the initializer at `0x425114`. The
+"...found an interesting new recipe!" string (id `0x1C7`) sits between the
+test and the mark, which is what establishes the array's meaning rather than
+its shape.
+
+The counter at `+0x2E520` and that set cannot diverge: on both paths the mark
+and the increment are gated together.
+
+    normal path  0x4260B5 test set[id] / 0x4260BE jne exit
+                 0x4260D4 mark set[id] / 0x4260DC inc [+0x2E520]
+    first cook   0x4260A5 mark set[id] / 0x4260AD jmp -> 0x4260DC inc
+
+So `popcount(+0x2EAAC) == [+0x2E520]` at all times, and the shipped row already
+answers "every unique recipe". One narrow caveat: on the first-cook path only,
+ids 2, 4 and `0x12` branch to `0x4260E2` -- which is the **function tail**, the
+same target the "already known" branch uses -- so they skip the mark and the
+increment together. Those recipes are missed only if one of them is the very
+first stew a save ever cooks. Relevant before printing a denominator such as
+"of 18"; not a reason to change the row.
+
+**A verdict must name the shape it searched for.** "No counter found" and "no
+set found" are different claims, and recording the first as though it were the
+second is what kept VV2 blocked. Two further traps cost real time here and are
+worth stating:
+
+- *A conditional jump's meaning is its destination, not its position.* Reading
+  `cmp` / `jz` before an increment as "skips the increment" was wrong; the
+  target was the function exit, so it skipped the mark as well. Resolve the
+  target before inferring intent.
+- *Matching geometry is not evidence.* A VV4 array with the right record count
+  and stride turned out to be the active potion-effect buffer, identified by
+  two sites that clear its byte on expiry. Structure can mislead exactly as a
+  label can; what the code does with the field is the evidence.
 
 ## The memorial arrays, and what a count of them can honestly claim
 
