@@ -98,6 +98,11 @@ enum {
     VV1_NAME_CAPACITY = 0x1C,
     VV1_FATHER_ID_OFFSET = 0x394,
 
+    /* Litter size. Written as 2 at 0x43BC4E and 3 at 0x43BC8C, and compared
+       against 3 at 0x42F062 and 0x4375B3. Final by the time either success
+       tail is reached. */
+    VV1_LITTER_OFFSET = 0x35C,
+
     /* The engine's "no villager" sentinel, compared as 0C7h at six sites
        including 0x41FBDC, 0x42242D and 0x43C7AF. */
     VV1_NO_VILLAGER = 0xC7,
@@ -250,29 +255,25 @@ static int select_log_file(wchar_t *destination, int *existing_records) {
 
 /* Append one conception record.
 
-   `records`      the villager record array base (the conception routine's
-                  `this`), from which the mother is records + index * stride.
-   `mother_index` the mother's record index (the routine's a2).
-   `father_id`    the father's villager id (the routine's a3), NOT an index.
-   `babies`       how many children this pregnancy carries.
+   `records`  the villager record array base (edi at the hook site).
+   `mother`   the mother's record (esi at the hook site).
 
-   On `babies`: the caller passes 1. The engine decides twins and triplets on
-   branches that run AFTER this hook and writes the result to record+0x35C, so
-   reading that field here would report the previous pregnancy's litter size,
-   or zero. Recording the value the engine has actually committed at this
-   instant is correct; claiming a number the engine has not yet chosen would
-   not be.
+   The father's id and the litter size are read from the mother's own record
+   rather than passed in, because the hook sits at the routine's two SUCCESS
+   TAILS -- after the engine has written record+0x35C -- rather than at its
+   head. At the head neither is knowable: the litter size has not been chosen,
+   and the conception may still be rejected by the capacity predicate.
 
    Returns 1 when a record was written, 0 otherwise. The caller ignores the
    result -- a failed log must never disturb the game. */
 __declspec(dllexport) int __stdcall WriteParentageRecord(
     const void *records_pointer,
-    int mother_index,
-    int father_id,
-    int babies
+    const void *mother_pointer
 ) {
     const unsigned char *records = (const unsigned char *)records_pointer;
-    const unsigned char *mother;
+    const unsigned char *mother = (const unsigned char *)mother_pointer;
+    int father_id;
+    int babies;
     const unsigned char *father;
     wchar_t path[MAX_LOG_PATH];
     FILE *file;
@@ -281,15 +282,52 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     int written;
     int existing_records;
 
-    if (records == NULL) {
+    if (records == NULL || mother == NULL) {
         return 0;
     }
-    if (mother_index < 0 || mother_index >= VV1_RECORD_SLOTS) {
+    /* The caller hands the mother's record directly, so check it really is one
+       of the slots rather than trusting the pointer: it must sit inside the
+       array and land exactly on a record boundary. */
+    if (mother < records) {
         return 0;
     }
-    mother = records + (size_t)mother_index * VV1_RECORD_STRIDE;
+    {
+        size_t span = (size_t)(mother - records);
+        if (span % VV1_RECORD_STRIDE != 0) {
+            return 0;
+        }
+        if (span / VV1_RECORD_STRIDE >= VV1_RECORD_SLOTS) {
+            return 0;
+        }
+    }
     if (*(const unsigned char *)(mother + VV1_ACTIVE_OFFSET) != 1) {
         return 0;
+    }
+
+    /* Both are read from the mother's own record, which is why the hook sits at
+       the routine's success tails rather than its head: at the head the engine
+       has not yet chosen the litter size, so every twin and triplet birth would
+       be recorded as a singleton, and a rejected conception would be logged as
+       though it happened. */
+    father_id = *(const int *)(mother + VV1_FATHER_ID_OFFSET);
+    babies = *(const int *)(mother + VV1_LITTER_OFFSET);
+    if (babies < 1) {
+        /* A single birth never writes the field -- only the twins branch
+           (0x43BC4E) and the triplets branch (0x43BC8C) do -- so it reads zero
+           and one is the correct answer.
+
+           Zero, not a stale 2 or 3 from the previous pregnancy: every writer of
+           +0x35C in the image was enumerated, and the delivery routine
+           sub_42E900 clears it at 0x42F0C7 (xor eax,eax; then 0 into both
+           +0x358 and +0x35C), while the two villager-creation routines
+           sub_43C350 and sub_43C840 clear it at 0x43C722 and 0x43CABE. So the
+           field is reliably zero going into each pregnancy.
+
+           That mattered enough to check: if it had retained the previous
+           litter, a single birth following a twin birth would have been logged
+           as twins, and there is no second source to correct such a record
+           from. */
+        babies = 1;
     }
 
     copy_villager_name(mother, mother_name, sizeof(mother_name));

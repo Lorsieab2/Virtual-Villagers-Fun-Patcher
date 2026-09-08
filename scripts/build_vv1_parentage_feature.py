@@ -84,15 +84,65 @@ OUTPUT = ROOT / "data" / "vv1_parentage_feature.json"
 
 EXE = "Virtual Villagers - A New Home.exe"
 
-# The conception routine, and the byte at which the trampoline takes over.
-HOOK_VA = 0x0043BBC0
-HOOK_FILE = 0x0003BBC0
+# The two SUCCESS tails of the conception routine sub_43BBC0.
+#
+# Hooking the routine's HEAD was wrong twice over, and Codex caught both:
+#
+#   * The litter size is not known there. The engine writes record+0x35C on
+#     branches that run later -- 2 at 0x43BC4E, 3 at 0x43BC8C -- so a head hook
+#     can only report a singleton, and every twin and triplet birth would be
+#     recorded permanently wrong. Permanently, because the whole premise of this
+#     feature is that parentage cannot be recovered from the child afterwards:
+#     there is no second source to correct the record from.
+#
+#   * Conception can be REJECTED. 0x43BBC8 tests the result of the capacity
+#     predicate 0x43A1A0 and jumps to 0x43BCC7 when it fails, creating no
+#     pregnancy at all. A head hook logs those phantom conceptions too.
+#
+# Both tails are entered only after the litter size is final and only on
+# success, and both begin with the same six bytes, so one payload serves both:
+#
+#     0x43BCA2  mov edi, [edi+0x3E010]   triplets tail, before inc Triplets
+#     0x43BCBA  mov edi, [edi+0x3E010]   twins/single tail, before inc Twins
+#
+# The rejected path enters at 0x43BCC7 and reaches neither.
+#
+# The shared `ret 0x10` at 0x43BCC8 cannot be used instead: the rejected path
+# falls into it from 0x43BCC7 having pushed only edi, while the success paths
+# arrive via 0x43BCC6 having also pushed esi, so a hook there cannot tell the
+# two apart.
+TAIL_VAS = (0x0043BCA2, 0x0043BCBA)
+TAIL_FILES = (0x0003BCA2, 0x0003BCBA)
 
-# The cave. 0x456580..0x456FFF is the only usable zero run in .text; the
-# statistics feature owns 0x456730..0x4567FF, so this claims the block above
-# it and leaves 0x456900..0x456FFF free for whatever comes next.
-CAVE_VA = 0x00456800
-CAVE_FILE = 0x00056800
+# `mov edi, dword ptr [edi + 0x3E010]` -- the manager pointer fetch that opens
+# both tails. Six bytes, so a five-byte jmp plus one nop replaces it exactly.
+TAIL_STOLEN = bytes.fromhex("8bbf10e00300")
+
+# The cave.
+#
+# 0x456580..0x456FFF is the only usable zero run in .text, and most of it is
+# already spoken for. Being zero in the STOCK executable is NOT evidence that a
+# range is free: the safety patches and several fun patches write into this run
+# at apply time, and the renderer rejects cross-owner overlaps. An earlier draft
+# of this file claimed 0x456800 on the strength of a stock zero-scan alone;
+# data/builds.json shows fun_patches[9]/patches[2] owns exactly that address,
+# so the feature could not have composed in any mode. Codex caught it.
+#
+# Ownership across the run, from data/builds.json plus the statistics feature:
+#     0x56580 0x565B0 0x565E0  safety_patches[6] [8] [1]
+#     0x56600                  fun_patches[8]/patches[2]
+#     0x56680                  safety_patches[9]
+#     0x566A0 0x566E0          fun_patches[6]/patches[1] [3]
+#     0x56730                  statistics feature (emitted, not in builds.json)
+#     0x56800                  fun_patches[9]/patches[2]   <-- the collision
+#     0x56840 0x56860          safety_patches[3] [4]
+#     0x56880                  fun_patches[9]/patches[4]
+#     0x568A0 0x568D0          fun_patches[10]/patches[1] [5]
+#
+# The highest claimed byte is 0x56900, so this takes the block above it. That
+# leaves 0x56900+0x100 .. 0x56FFF free for whatever comes next.
+CAVE_VA = 0x00456900
+CAVE_FILE = 0x00056900
 CAVE_SIZE = 0x100
 
 # Imports, reused from the statistics feature's own verified table entries.
@@ -109,9 +159,14 @@ GET_PROC_ADDRESS_IAT = 0x004570D4
 DLL_NAME = b"VVFP Parentage Export.dll\0"
 EXPORT_NAME = b"WriteParentageRecord\0"
 
-# Where the two strings sit inside the cave block, clear of the code.
-DLL_NAME_OFFSET = 0x80
-EXPORT_NAME_OFFSET = 0xA0
+# Where the two strings sit inside the cave block, clear of BOTH trampolines.
+#
+# Two 0x50 slots occupy 0x00..0x9F, so the strings start at 0xA0. An earlier
+# layout left them at 0x80 and the second trampoline ran straight into the DLL
+# name -- the emitted disassembly decoded the string as instructions, which is
+# exactly what that looks like when it happens.
+DLL_NAME_OFFSET = 0xA0
+EXPORT_NAME_OFFSET = 0xC0
 
 # The five stock bytes the trampoline replaces, restored before returning.
 STOLEN_BYTES = bytes.fromhex("578bf9e8d8e5ffff")
@@ -125,100 +180,134 @@ def assemble(source: str, address: int) -> bytes:
 
 def build() -> dict:
     source = (STOCK / EXE).read_bytes()
-    if source[HOOK_FILE : HOOK_FILE + 5] != STOLEN_BYTES[:5]:
-        raise RuntimeError(
-            f"stock bytes at {HOOK_FILE:#x} are not the expected hook site"
-        )
+
+    # Each tail gets its own trampoline, so the cave block is split in two.
+    # Each assembles to 0x45 bytes, so 0x50 apiece leaves headroom without
+    # reaching the strings at DLL_NAME_OFFSET (0x80). The size check below is
+    # what actually enforces this -- it caught an earlier 0x40 that was too
+    # small rather than letting the second trampoline overwrite the first.
+    slot_size = 0x50
+
+    for tail_file in TAIL_FILES:
+        if source[tail_file : tail_file + len(TAIL_STOLEN)] != TAIL_STOLEN:
+            raise RuntimeError(
+                f"stock bytes at {tail_file:#x} are not the expected tail"
+            )
     if set(source[CAVE_FILE : CAVE_FILE + CAVE_SIZE]) != {0}:
         raise RuntimeError(f"cave at {CAVE_FILE:#x} is not free")
 
     dll_name_va = CAVE_VA + DLL_NAME_OFFSET
     export_name_va = CAVE_VA + EXPORT_NAME_OFFSET
 
-    # The trampoline. Every register the stock routine relies on is preserved
-    # with pushad/popad rather than by hand: the logging call is not on any
-    # hot path (one conception at a time), so the few extra cycles buy immunity
-    # from the whole class of clobber bugs.
-    #
-    # STACK ARITHMETIC, because two things here look wrong and are not.
-    #
-    # At entry esp holds the return address, so the stock arguments sit at +4
-    # (mother index), +8 (father id), +0xC and +0x10 -- four of them, per the
-    # `ret 0x10` at both return sites. pushad then moves esp down by 0x20,
-    # putting the first two at +0x24 and +0x28.
-    #
-    # 1. Both argument reads below are written `[esp + 0x2C]` yet fetch
-    #    DIFFERENT values, because each push moves esp another 4 bytes:
-    #        after `push 1`            0x2C - 0x04 = 0x28  -> father id
-    #        after that push           0x2C - 0x08 = 0x24  -> mother index
-    #    They are correct as written. Rewriting them to "matching" constants
-    #    would break them.
-    #
-    # 2. The record array arrives in ecx, but ecx is caller-saved and the three
-    #    loader calls above are free to destroy it -- so by this point the live
-    #    register holds whatever GetProcAddress left behind, and pushing it
-    #    would hand the DLL a garbage base to index records from. The original
-    #    is in the pushad frame instead. pushad stores, from low address up:
-    #    edi, esi, ebp, esp, ebx, edx, ecx, eax -- so the saved ecx is at
-    #    post-pushad esp+0x18, which after the three pushes above reads as
-    #    esp+0x24.
-    code = assemble(
-        f"""
-            pushad
-            push 0x{dll_name_va:X}
-            call dword ptr [0x{GET_MODULE_HANDLE_IAT:X}]
-            test eax, eax
-            jne resolve_export
-            push 0x{dll_name_va:X}
-            call dword ptr [0x{LOAD_LIBRARY_IAT:X}]
-            test eax, eax
-            jz done
-        resolve_export:
-            push 0x{export_name_va:X}
-            push eax
-            call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
-            test eax, eax
-            jz done
-            # WriteParentageRecord(records, mother_index, father_id, babies).
-            #
-            # `babies` is 1 here on purpose. The engine picks twins and
-            # triplets on branches that run AFTER this point and only then
-            # writes record+0x35C, so reading that field now would report the
-            # PREVIOUS pregnancy's litter size, or zero on the first. Logging
-            # the value the engine has actually committed at this instant is
-            # correct; claiming one it has not yet chosen would not be.
-            push 1
-            push dword ptr [esp + 0x2C]
-            push dword ptr [esp + 0x2C]
-            push dword ptr [esp + 0x24]
-            call eax
-        done:
-            popad
-            # Replay the stolen prologue, then rejoin the routine after it.
-            push edi
-            mov edi, ecx
-            call 0x{0x0043A1A0:X}
-            jmp 0x{HOOK_VA + len(STOLEN_BYTES):X}
-        """,
-        CAVE_VA,
-    )
-    if len(code) > DLL_NAME_OFFSET:
-        raise RuntimeError(
-            f"trampoline is {len(code):#x} bytes, over the {DLL_NAME_OFFSET:#x} allowance"
+    payload = bytearray(CAVE_SIZE)
+    patches: list[dict[str, object]] = []
+
+    for index, (tail_va, tail_file) in enumerate(zip(TAIL_VAS, TAIL_FILES)):
+        cave_va = CAVE_VA + index * slot_size
+
+        # The trampoline.
+        #
+        # Both tails are entered with the two pointers already in registers:
+        #     esi = the mother's record   (lea esi,[edx+edi] at 0x43BBF1, never
+        #                                  reassigned before either tail)
+        #     edi = the record array base (about to be overwritten by the stolen
+        #                                  instruction, which is why the copy is
+        #                                  taken before it runs)
+        #
+        # So there is no stack-offset arithmetic at all. An earlier draft hooked
+        # the routine's head and had to fish arguments out of the pushad frame
+        # at hand-computed displacements; passing registers the game already
+        # holds is simpler and immune to that whole class of mistake.
+        #
+        # pushad stores edi, esi, ebp, esp, ebx, edx, ecx, eax from low address
+        # up, so inside the handler saved edi is at esp+0x00 and saved esi at
+        # esp+0x04. They are read from the frame rather than live because the
+        # three loader calls are free to clobber caller-saved registers, and
+        # reading the frame stays correct if the payload later touches more.
+        code = assemble(
+            f"""
+                pushad
+                push 0x{dll_name_va:X}
+                call dword ptr [0x{GET_MODULE_HANDLE_IAT:X}]
+                test eax, eax
+                jne resolve_export
+                push 0x{dll_name_va:X}
+                call dword ptr [0x{LOAD_LIBRARY_IAT:X}]
+                test eax, eax
+                jz done
+            resolve_export:
+                push 0x{export_name_va:X}
+                push eax
+                call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
+                test eax, eax
+                jz done
+                # WriteParentageRecord(records, mother). stdcall, so the callee
+                # cleans its own 8 bytes and the frame stays balanced. Pushed
+                # right to left: mother (saved esi) first, then records (edi).
+                push dword ptr [esp + 0x04]
+                push dword ptr [esp + 0x04]
+                call eax
+            done:
+                popad
+                # Replay the stolen manager fetch, then rejoin after it.
+                mov edi, dword ptr [edi + 0x3E010]
+                jmp 0x{tail_va + len(TAIL_STOLEN):X}
+            """,
+            cave_va,
+        )
+        if cave_va + len(code) > CAVE_VA + DLL_NAME_OFFSET:
+            raise RuntimeError(
+                f"trampoline {index} runs into the strings at {DLL_NAME_OFFSET:#x}"
+            )
+        if len(code) > slot_size:
+            raise RuntimeError(
+                f"trampoline {index} is {len(code):#x} bytes, over {slot_size:#x}"
+            )
+        payload[index * slot_size : index * slot_size + len(code)] = code
+
+        # Divert the tail: a five-byte jmp plus one nop replaces the six-byte
+        # stolen instruction exactly, so nothing downstream shifts.
+        entry = assemble(f"jmp 0x{cave_va:X}", tail_va)
+        entry = entry + b"\x90" * (len(TAIL_STOLEN) - len(entry))
+        if len(entry) != len(TAIL_STOLEN):
+            raise RuntimeError("tail entry does not match the stolen byte count")
+
+        patches.append(
+            {
+                # The renderer parses `offset` with int(value, 0) and reads
+                # `before`/`after`. An integer offset raises a TypeError there,
+                # and `original`/`bytes` leaves it with no `before` at all -- so
+                # an earlier draft aborted every dry run and every apply that
+                # selected this feature. data/statistics_features.json is the
+                # schema to match.
+                "offset": f"0x{tail_file:X}",
+                "before": TAIL_STOLEN.hex().upper(),
+                "after": entry.hex().upper(),
+                "purpose": (
+                    "Divert the "
+                    + ("triplets" if index == 0 else "twins/single")
+                    + " success tail of the conception routine sub_43BBC0 to "
+                    "its trampoline, which logs the pregnancy with the litter "
+                    "size the engine has already committed, then replays this "
+                    "instruction."
+                ),
+            }
         )
 
-    payload = bytearray(CAVE_SIZE)
-    payload[: len(code)] = code
     payload[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
     payload[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
-
-    # The hook itself: jump to the trampoline, then pad the remainder of the
-    # stolen instructions with nops so the routine's own byte layout is
-    # unchanged for anything that lands mid-sequence.
-    entry = assemble(f"jmp 0x{CAVE_VA:X}", HOOK_VA)
-    entry = entry + b"\x90" * (len(STOLEN_BYTES) - len(entry))
-    if len(entry) != len(STOLEN_BYTES):
-        raise RuntimeError("hook entry does not match the stolen byte count")
+    patches.append(
+        {
+            "offset": f"0x{CAVE_FILE:X}",
+            "before": ("00" * CAVE_SIZE).upper(),
+            "after": bytes(payload).hex().upper(),
+            "purpose": (
+                "Two loader trampolines, one per success tail, plus the shared "
+                "DLL and export names. All logging logic lives in the companion "
+                "DLL; only the call into it is in the executable."
+            ),
+        }
+    )
 
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest()
     return {
@@ -247,28 +336,7 @@ def build() -> dict:
                         "sha256": companion_hash,
                     }
                 ],
-                "patches": [
-                    {
-                        "offset": HOOK_FILE,
-                        "original": STOLEN_BYTES.hex(),
-                        "bytes": entry.hex(),
-                        "purpose": (
-                            "Divert the head of the conception routine "
-                            "sub_43BBC0 to the trampoline, which logs the "
-                            "pregnancy and then replays these bytes."
-                        ),
-                    },
-                    {
-                        "offset": CAVE_FILE,
-                        "original": ("00" * CAVE_SIZE),
-                        "bytes": bytes(payload).hex(),
-                        "purpose": (
-                            "Loader trampoline plus the DLL and export names. "
-                            "All logging logic lives in the companion DLL; "
-                            "only the call into it is in the executable."
-                        ),
-                    },
-                ],
+                "patches": patches,
             }
         ],
     }
