@@ -153,7 +153,8 @@
       },
       "absent_fields": {
         "nursing": "REFUTED as nursing. record[+0x558] is a generic special/memorial flag used for exclusion, not nursing state; and VA 0x44B980 writes processed-age data at record[+0x540], which is likewise not a nursing flag. VV2 has no established nursing offset",
-        "parentage": "no VV2 parentage offset is defined or documented"
+        "parentage": "no VV2 parentage offset is defined or documented",
+        "elder_status": "NOT ESTABLISHED as a meaning, though the storage IS established. record+0x7FC is genuinely a ONE-BYTE field on a villager record: every villager-side access is byte-sized (0x425051, 0x429C1D, 0x44C97F, 0x44CF74, 0x44D2BB, 0x44D4A2, 0x46513C), and the compiler emits mov dword for the skills at +0x7E4..+0x7F8 but mov byte for +0x7FC in the same straight-line block. The title selector at 0x429C15 (imul ecx,ecx,0xE48C; add ecx,edx; cmp byte ptr [ecx+0x7FC],bl; je; push 0x87) shows a non-zero byte makes the villager display as 'Esteemed Elder', bypassing the skill ladder; the same ecx feeds cmp dword ptr [ecx+0x530],0x118, which is how VV2's age offset was established. WHY THE MEANING IS STILL UNPROVEN: the only site that writes the literal 1 is 0x44D4A2, inside the reproduction routine 0x44D190, and it writes to the PARENT, not the newborn. Proven by the adjacent instructions: 0x44D48C copies [edi+0x530] into [esi+0x530], so edi is the source villager and esi the new one, and edi is loaded once at 0x44D257 and never reassigned. The read at 0x46513C is gated behind an age comparison. That is consistent with 'Esteemed Elder' but equally consistent with a has-bred latch that only matters once a villager is old. Do not treat it as a clean Elder boolean until the semantics are pinned down. TRAP RECORDED FOR FUTURE SCANS: a displacement-only search for +0x7FC also hits an AUDIO RESOURCE object at 0x43DC64, 0x43DFB4 and 0x43EFA3, where +0x7FC is a POINTER to a loaded sound. That class reuses +0x7E4..+0x7FC -- exactly the villager's skill range -- with +0x7E4 femsneeze.ogg, +0x7E8 giggles.ogg, +0x7EC gong2.ogg, +0x7F0 cooking.ogg, +0x7F4 chimestiny2.ogg, +0x7F8 chimeslow2.ogg, +0x7FC chimesmysterious.ogg. 0x43DFB4 is a one-line 'mov eax,[ecx+0x7FC]; ret 4' getter and 0x43EFA3 is its destructor release. Those dword accesses do NOT make the villager field a dword. Matching on displacement alone would conflate two unrelated classes."
       },
       "special_villagers": {}
     },
@@ -425,5 +426,33 @@
   },
   "identity_notes": {
     "stable_hash_inputs": "Fields safe as identity-hash inputs are those written once and not rewritten in normal play. The name buffer qualifies in all five games. The preferred skill does NOT: it carries a -1 'none' sentinel and a player-driven toggler in VV3/VV4/VV5, so it changes at runtime by design. Head and body do not qualify either -- the VV3 appearance chooser rewrites them, which is why they were removed from the VV3 mask fingerprint after a mask was orphaned by a head-only edit."
+  },
+  "conception_sites": {
+    "purpose": "Parentage cannot be read back off a child in any of the five games: inheritance computes the child's own appearance and keeps no parent pointer. It must instead be captured at conception, while both parent records are still live. These are the sites where that is possible. Every entry below was re-derived from the stock executables and spot-checked by disassembly rather than accepted as reported.",
+    "conception_functions": {
+      "vv2": "0x0044B980, ret 0x1C, baby count +0x544",
+      "vv3": "0x00455AB0, ret 0x1C, baby count +0xE90",
+      "vv4": "0x0045E7B0, ret 0x1C, baby count +0x1C50",
+      "vv5": "0x00465E00, ret 0x1C, baby count +0x1C50"
+    },
+    "two_parent_call_sites": {
+      "vv4": "0x004650EB (ecx = one parent, edi = the other) and 0x0046511B (ecx = edi). Gender at +0x1B90 decides which becomes the mother; esi is the acting villager and [esi+0x1B88] its self-pointer.",
+      "vv5": "0x0046E16B (ecx = [esi+0x1B88], edi = the partner) and 0x0046E19B (ecx = edi, other parent via eax). Structurally a clone of VV4: 0x46E138 mov ecx,[esi+0x1B88]; 0x46E13E cmp [ecx+0x1B90],1; jne. Stolen bytes e8907cffff and e8607cffff.",
+      "vv3": "ONE call site only, 0x0045B8C9, because both branches converge on it. 0x45B89A tests gender at +0xDC8 directly with NO self-pointer indirection; the else branch at 0x45B8F8 sets up its arguments and jmps back. Both esi and edi are villager records there, but WHICH IS THE MOTHER IS PATH-DEPENDENT, so a hook must re-test [ecx+0xDC8] itself rather than assume.",
+      "vv2": "0x00464A38 in the dispatcher 0x00464680. edi is the acting villager; ebx is the partner BIASED BY +0x530, so the true record is ebx-0x530. That bias is inferred from field-offset arithmetic, not from watching the register be built, so verify in a debugger before shipping. A secondary two-record pair exists at 0x0044F8F0/0x0044F930 where ebx is UNBIASED."
+    },
+    "hazards": {
+      "vv3_jump_target": "VERIFIED AND CRITICAL. 0x0045B8C9 is itself a jmp landing site, targeted by 0x45B91C (mov ecx,edi; jmp 0x45B8C9). Only the 5-byte call may be stolen. Extending the stolen bytes backwards puts a live landing site inside them and WILL crash the game.",
+      "vv2_ecx_is_not_the_mother": "VERIFIED. VV2 is the outlier: 0x44B980 push edi; mov edi,ecx; ... then 0x44B990 mov eax,[esp+8]; imul eax,eax,0xE48C. So ecx is the MANAGER/array base and the mother is an INDEX in the first stack argument. VV3, VV4 and VV5 all pass the mother directly in ecx. A hook that assumes ecx is the mother will read the manager and log garbage. VV2's slot count is 0x100 (256), not the 150 the other games use.",
+      "relative_calls": "Every one of these sites is a 5-byte relative E8. The rel32 must be recomputed if the instruction is relocated into a trampoline.",
+      "vv2_entry_stolen_bytes": "The conception function's own entry bytes at 0x0044B980 contain a relative call at byte +3 (e8 88f9ffff), which likewise must be relocated if copied."
+    },
+    "mate_finders": {
+      "vv2": "none -- inlined at 0x464860..0x4648D4, 256 slots",
+      "vv3": "0x0045CE00 (callers 0x45B60C, 0x45B7F1)",
+      "vv4": "0x00466DA0 (callers 0x464181, 0x464FFE)",
+      "vv5": "0x00470A10, called at 0x0046E07E immediately before conception; matches VV4 predicate for predicate -- age >= 0x168 both sides, genders differ, not already pregnant, relatedness check, add esi,0x2F44 over 150 slots, returns -1 on failure"
+    },
+    "not_established": "VV2's ebx bias and its +0x538 gender reading are inferred, not observed. Nothing here was confirmed against a live process; it is all static evidence. A debugger breakpoint at each site, checking that the named register points at a record whose name offset holds a readable name, would settle all of it."
   }
 }
