@@ -30,6 +30,7 @@ FILES = [
     "assets/origins/m5.png",
     "assets/origins/mask_atlas.png",
     "assets/statistics/VVFP Statistics Export.dll",
+    "assets/parentage/VVFP Parentage Export.dll",
     "data/builds.json",
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",
