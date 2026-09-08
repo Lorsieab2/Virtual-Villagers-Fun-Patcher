@@ -766,6 +766,7 @@ VV5_TASK9_CROSS_SECTION_HOOKS = {
     "0x4BC20": {"stock_target": "0x7B20C0", "expanded_target": "0x8EB0C0", "expanded_policy": "frozen_c342"},
 }
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
+PARENTAGE_FEATURES_PATH = ROOT / "data" / "vv1_parentage_feature.json"
 DEFAULT_PATCH_MODE = "collection_progression"
 PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_IDS = tuple(
     f"vv{game_number}_origins_village_wide_upgrades"
@@ -2752,6 +2753,11 @@ def _load_fun_patch_records(
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")
         )
         items.extend(statistics.get("features", []))
+    if PARENTAGE_FEATURES_PATH.is_file():
+        parentage = json.loads(
+            PARENTAGE_FEATURES_PATH.read_text(encoding="utf-8")
+        )
+        items.extend(parentage.get("features", []))
     if include_expanded_time_warp:
         items.extend(_certified_expanded_time_warp_records())
     enriched: list[FunPatch] = []
