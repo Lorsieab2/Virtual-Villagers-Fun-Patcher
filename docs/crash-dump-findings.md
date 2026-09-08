@@ -100,7 +100,79 @@ tell whether it helped.
 
 ## Virtual Villagers 5 -- New Believers
 
-Three dumps, all with an identical signature: `EIP = 0x473447`, reading
+### The 0x4271C0 mask crash -- ours, fixed in #280
+
+A fourth dump, `New Believers - Modded.exe.44432.dmp`, timestamped
+2026-09-07 21:04. It predates v1.34.38, which was cut at 22:15, so it comes
+from a pre-fix build. Unlike the three dumps below, its module-name strings are
+intact, so the loaded module list is readable.
+
+    code   0xC0000005, read at 0x00000008
+    EIP    0x004271C0     ECX = 0        -- a null `this`
+    ESP    0x001AFD48     4-byte aligned -- the stack IS trustworthy here
+    base   0x400000, the preferred base: no relocation, EIP maps directly
+
+`0x4271C0` is a four-byte accessor, `8B 41 08 C3` = `mov eax,[ecx+8]` / `ret`,
+byte-identical to stock. The return address `0x4727A1` on the stack falls
+inside the mask feature's flip window.
+
+**Root cause.** The heathen-mask feature flipped the villager's faction byte
+`+0x1CEC` to heathen for the duration of the head draw and restored it in the
+epilogue. The stock renderer *branches* on that byte at `0x472729`: believers
+draw through `0x44F5E0`, heathens through `0x44F4E0`. The flip therefore did not
+merely change an atlas -- it diverted the villager onto a different draw path.
+For a retired chief that path resolved a sprite that does not exist and passed
+a null object into `0x4271C0`. Because the fault escaped before the epilogue,
+the villager was left permanently heathen with its colour fields zeroed. The
+owner's reproduction was: tribal mask on the retired chief, then dragging
+villagers near him.
+
+**Fix, merged in #280 and verified in the shipped artifact.** The flip is gone.
+`mask_arm` (`0x72481` -> `0x472481`) only records which villager has a mask and
+writes no villager field. `mask_overlay` (`0x7279C` -> `0x47279C`) replaces the
+believer draw *call*, performs that stock call unchanged, then paints the mask
+on top via the heathen head draw using the same argument tuple read from the
+caller's frame. The two epilogue detours at `0x72B0F` and `0x72B57` are removed
+and are absent from `data/vv5_task9_native_actions.json`; `0x472729` is not
+patched. No window remains in which a fault can leave a villager corrupted.
+
+### Why this one is worth reading twice
+
+This crash was first attributed to stock code, incorrectly, on the strength of
+four checks that were each individually correct:
+
+1. The faulting bytes in the dump's own memory were identical to stock.
+2. No stack word in 0x600 bytes fell inside either loaded companion DLL's
+   range -- and both DLLs *were* loaded, which this dump can show because its
+   module names are readable.
+3. No VV5 patch span overlapped the fault site or the caller region.
+4. A positive control confirmed the overlap test did find the known patches at
+   `0x41890F` and `0x4237B0`, so its silence at the fault site was a real
+   negative rather than a broken scan.
+
+Every measurement was right and the conclusion was still wrong, because
+patch-overlap analysis answers *did we overwrite the faulting instruction*, not
+*did we cause the fault*. A hook that writes a state byte which stock code
+**branches on** produces a fault in code nobody touched. The fault site was
+stock precisely because the bug was upstream of it.
+
+The positive control did not save the conclusion either: it validated the
+**search** and not the **inference**, so it passed and still supported a wrong
+answer. A control proves your method can see what it is looking for; it says
+nothing about whether that is the right thing to look for.
+
+The section "What patch coverage does and does not prove" below already stated
+this in the abstract, and was read before the wrong conclusion was published.
+It is recorded here as a concrete case because the abstract form demonstrably
+did not stick. Before writing "stock code, not ours", ask what state our
+patches write that the faulting path *reads* -- and check the dump's timestamp
+against the shipped fix, since this dump was already diagnosed and fixed hours
+earlier by another session.
+
+
+### The 0x473447 crash -- stock code
+
+Three further dumps, all with an identical signature: `EIP = 0x473447`, reading
 `0x1B80`, `ESP` aligned, with `ecx`, `eax` and `esi` all zero.
 
 Unlike VV4 this is a fixed, repeatable fault at a real code address, and the
