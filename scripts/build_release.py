@@ -49,6 +49,7 @@ FILES = [
     "data/vv5_origins_village_wide_upgrades.json",
     "data/statistics_features.json",
     "data/vv1_parentage_feature.json",
+    "data/vv3_parentage_feature.json",
     "data/expanded_atomic_writer_integration.json",
     "data/vv5_task9_native_actions.json",
     "docs/max-population-research.md",

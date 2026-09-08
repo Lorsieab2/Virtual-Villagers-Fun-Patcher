@@ -291,13 +291,20 @@ static const struct game_layout GAME_LAYOUTS[6] = {
          +0xE48   father  strncpy destination at 0x455B6D
          +0xE90   litter  1 at 0x455B7C, 3 at 0x455BBF, 2 at 0x455BDD
 
+       The container header is 0x14: accessor sub_45C840 does
+       `imul eax, 0x1F8C` then `lea eax, [eax + ecx + 0x14]`, with ecx the
+       container -- the global 0x59E110, which all 57 callers load as an
+       immediate. VV3 is the third distinct header value across the five games
+       (VV1/VV2 have none, VV4 0x44, VV5 0x48), which is why each one is
+       measured in its own binary rather than carried across.
+
        VV3 WRITES the singleton default of 1 at 0x455B7C, where VV1 and VV2
        write nothing for a single birth. The `< 1 -> 1` fallback is therefore
        redundant here rather than load-bearing -- harmless, but the difference
        is why "which exit does a single birth take" has to be asked per game
        instead of assumed from one. */
     {
-        1, 0x1F8C, 256, 0,
+        1, 0x1F8C, 256, 0x14,
         0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
         0xDD4, 0x18,
         FATHER_BY_NAME, 0xE48, 0xE90,

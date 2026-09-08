@@ -1,0 +1,34 @@
+{
+  "companion_sha256": "6ae735ad21a773dc1e4b72f6e60642cfa47d73c067b1466173b0c8ddb86f4f5b",
+  "features": [
+    {
+      "companion_files": [
+        {
+          "destination": "VVFP Parentage Export.dll",
+          "sha256": "6ae735ad21a773dc1e4b72f6e60642cfa47d73c067b1466173b0c8ddb86f4f5b",
+          "source": "assets/parentage/VVFP Parentage Export.dll"
+        }
+      ],
+      "description": "On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 3 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.",
+      "game_id": "vv3",
+      "id": "vv3_write_parentage_log",
+      "name": "Write Parentage Log to Text File",
+      "output_tag": "Parentage Log Text Export",
+      "patches": [
+        {
+          "after": "E96C5A020090",
+          "before": "010DA8245800",
+          "offset": "0x55BF3",
+          "purpose": "Divert the conception routine sub_455AB0 at the one address past every litter write that is reached on success only, so the log records the committed litter size and never a rejected conception."
+        },
+        {
+          "after": "6068B4B64700FF1574C0470085C0750F68B4B64700FF1524C1470085C0741D68D4B6470050FF1528C1470085C0740DFF7424046810E159006A03FFD061010DA8245800E94DA5FDFF00000000000000005656465020506172656E74616765204578706F72742E646C6C000000000000005772697465506172656E746167655265636F726400000000000000000000000000000000000000000000000000000000",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "offset": "0x7B664",
+          "purpose": "Loader trampoline plus the DLL and export names. All logging logic lives in the companion DLL; only the call into it is in the executable."
+        }
+      ]
+    }
+  ],
+  "schema_version": 1
+}
