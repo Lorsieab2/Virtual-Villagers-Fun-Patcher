@@ -346,6 +346,58 @@ static int select_log_file(
 
    Returns 1 when a record was written, 0 otherwise. The caller ignores the
    result -- a failed log must never disturb the game. */
+/* Is this layout row self-consistent enough to read a record with?
+
+   The `supported` flag alone is not enough. While every later game is left at
+   { 0 } the flag is the only thing that matters, but the moment a row is filled
+   in, a single mistyped constant is all that stands between a typo and a
+   permanently wrong parentage record -- and a wrong record cannot be corrected
+   later, because parentage is not recoverable from the child.
+
+   The specific hazards, each checked below:
+
+     * a zero stride reaches `span % g->stride` and divides by zero;
+     * a nonpositive slot count makes the array bound meaningless, so any
+       pointer at or above `records` passes the boundary test;
+     * a null log_name is passed straight to _snwprintf_s;
+     * a field offset at or beyond the stride reads the NEXT villager's record,
+       which produces plausible, wrong, and completely undetectable output.
+
+   Every field is checked against the stride with its own width, so a four-byte
+   read at stride-2 is rejected rather than straddling the record boundary. */
+static int layout_is_usable(const struct game_layout *g) {
+    static const unsigned int WORD = 4;
+    unsigned int stride;
+
+    if (g == NULL || !g->supported) {
+        return 0;
+    }
+    if (g->stride == 0 || g->slots <= 0 || g->log_name == NULL) {
+        return 0;
+    }
+    if (g->name_capacity == 0 || g->name_capacity + 1 > MAX_NAME_BYTES) {
+        return 0;
+    }
+    stride = g->stride;
+
+    /* One-byte field. */
+    if (g->active >= stride) {
+        return 0;
+    }
+    /* Four-byte fields: the LAST byte read must still be inside the record. */
+    if (g->age + WORD > stride) return 0;
+    if (g->head + WORD > stride) return 0;
+    if (g->body + WORD > stride) return 0;
+    if (g->id + WORD > stride) return 0;
+    if (g->father_id + WORD > stride) return 0;
+    if (g->litter + WORD > stride) return 0;
+    /* The whole name buffer must fit. */
+    if (g->name + g->name_capacity > stride) {
+        return 0;
+    }
+    return 1;
+}
+
 __declspec(dllexport) int __stdcall WriteParentageRecord(
     int game_id,
     const void *records_pointer,
@@ -368,11 +420,12 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         return 0;
     }
     g = &GAME_LAYOUTS[game_id];
-    /* A game whose record geometry has not been established refuses outright.
-       Logging a plausible-looking wrong number would be worse than logging
-       nothing, because parentage cannot be recovered from the child later and
-       there is no second source to correct the record from. */
-    if (!g->supported || g->name_capacity + 1 > MAX_NAME_BYTES) {
+    /* A game whose record geometry has not been established refuses outright,
+       and so does one whose row is filled in but not self-consistent. Logging a
+       plausible-looking wrong number would be worse than logging nothing,
+       because parentage cannot be recovered from the child later and there is
+       no second source to correct the record from. */
+    if (!layout_is_usable(g)) {
         return 0;
     }
     if (records == NULL || mother == NULL) {
