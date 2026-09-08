@@ -828,8 +828,8 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 #define VV3_GENDER     0xDC8   /* byte: 0 = male, 1 = female          */
 #define VV3_NAME       0xDD4   /* char[0x18]: the villager's own name  */
 #define VV3_NAME_LEN   0x18
-#define VV3_HEAD_OFF   0xDF0   /* int: head sprite, set at birth       */
-#define VV3_BODY_OFF   0xDF4   /* int: body sprite, set at birth       */
+#define VV3_HEAD_OFF   0xDF0   /* int: head sprite; the chooser REWRITES it  */
+#define VV3_BODY_OFF   0xDF4   /* int: body sprite; the chooser REWRITES it  */
 #define VV3_CHIEF      0xE80   /* byte: != 0 = Tribal Chief (no pref) */
 #define VV3_PREF       0xEC0   /* int:  -1 none, 0..4 preferred skill */
 #define VV3_TECH_POINTS 0x00582644u  /* int: the tech-point pool the Buy charges */
@@ -892,12 +892,16 @@ static int g_vv3_running_capture;
    matched to this villager" -- reported from VV3 against a villager whose
    Likes and Dislikes were both empty.
 
-   Name, head and body are added because they are set at birth and never move
-   afterwards, which is what the recovery search requires: the mask is found
-   again after a reload by searching for this hash, so anything that changes
-   during play would strand the mask.  Age and the skills are deliberately NOT
-   hashed for exactly that reason -- a villager aging one day or gaining a
-   single skill point would otherwise lose their mask.
+   The NAME is added because it is fixed for the villager's life, which is what
+   the recovery search requires: the mask is found again after a reload by
+   searching for this hash, so anything that changes during play would strand it.
+
+   Head and body are deliberately NOT hashed even though they look like birth
+   data: the appearance chooser rewrites both (see the head/body writes in the
+   individual and village-wide appearance paths), so a head-only edit would
+   change the fingerprint and orphan the mask that was stored under the old one.
+   Review caught that on #280.  Age and the skills are excluded for the same
+   reason -- one day of ageing or a single skill point would lose every mask.
 
    The name is hashed to its terminator rather than over the whole buffer, so
    uninitialised bytes past the string cannot make two identical names differ. */
@@ -919,10 +923,6 @@ static unsigned int vv3_mask_fingerprint(const unsigned char *rec) {
         h = (h ^ p[i]) * 16777619u;
     }
     h = (h ^ 0xFFu) * 16777619u;   /* terminator, so "Lu"+"lli" != "Lulli" */
-    p = rec + VV3_HEAD_OFF;
-    for (b = 0; b < 4; ++b) h = (h ^ p[b]) * 16777619u;
-    p = rec + VV3_BODY_OFF;
-    for (b = 0; b < 4; ++b) h = (h ^ p[b]) * 16777619u;
     return h ? h : 1u;
 }
 

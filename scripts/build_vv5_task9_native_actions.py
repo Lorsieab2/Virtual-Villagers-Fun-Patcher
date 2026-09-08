@@ -3816,29 +3816,37 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # draw manager, and both callees clean their own arguments, so the caller's
     # stack is unchanged either way.
     restore = put(page, page_va, "mask_overlay", """
+        push ebp
+        mov ebp, esp
+        push dword ptr [ebp+0x20]
+        push dword ptr [ebp+0x1C]
+        push dword ptr [ebp+0x18]
+        push dword ptr [ebp+0x14]
+        push dword ptr [ebp+0x10]
+        push dword ptr [ebp+0x0C]
+        push dword ptr [ebp+0x08]
         call 0x44F5E0
         cmp byte ptr [0x7B1D00], 0
         je mo_done
-        pushad
         mov eax, [0x7B1D10]
-        cmp eax, 0
-        je mo_pop
-        mov edx, [0x7B1D04]
-        push edx
-        push dword ptr [esp+0x28]
-        push dword ptr [esp+0x2C]
-        push dword ptr [esp+0x30]
-        push dword ptr [esp+0x34]
-        push dword ptr [esp+0x38]
-        push dword ptr [esp+0x3C]
-        push dword ptr [esp+0x40]
+        test eax, eax
+        je mo_done
+        pushad
+        push dword ptr [ebp+0x20]
+        push dword ptr [ebp+0x1C]
+        push dword ptr [ebp+0x18]
+        push dword ptr [ebp+0x14]
+        push dword ptr [ebp+0x10]
+        push dword ptr [ebp+0x0C]
+        push dword ptr [ebp+0x08]
+        push dword ptr [0x7B1D04]
         mov ecx, 0x521078
         call 0x44F4E0
-    mo_pop:
         popad
-        mov byte ptr [0x7B1D00], 0
     mo_done:
-        ret
+        mov byte ptr [0x7B1D00], 0
+        pop ebp
+        ret 0x1C
     """)
 
     # mask_get: esi = villager record -> eax = mask choice (0-5), 0 if none or

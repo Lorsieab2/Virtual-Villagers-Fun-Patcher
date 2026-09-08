@@ -124,18 +124,32 @@ def test_overlay_replays_the_stock_draw_then_paints_the_mask_over_it():
     page, rmap = t9.build_page(STOCK_PAGE_VA)
     ins = _routine(page, rmap, "mask_overlay")
     text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
-    # the believer head draw this routine replaced runs FIRST and unchanged
-    assert ins[0].mnemonic == "call" and int(ins[0].op_str, 16) == 0x44F5E0
+    # A frame pointer is established FIRST, because the stock callee is
+    # `ret 0x1C` and pops the seven arguments: after it returns they are gone,
+    # so the overlay cannot re-read them off esp. Reading them from the
+    # caller's frame via ebp is what makes the replay possible at all.
+    assert ins[0].mnemonic == "push" and ins[0].op_str == "ebp"
+    assert ins[1].mnemonic == "mov" and ins[1].op_str == "ebp, esp"
+    # the believer head draw this routine replaced runs, with its own arguments
+    assert "call 0x44f5e0" in text
     assert "cmp byte ptr [0x7b1d00], 0" in text               # armed?
     assert "mov eax, dword ptr [0x7b1d10]" in text            # the recorded villager
     # then the heathen head draw paints the mask on top of the finished believer
     assert "call 0x44f4e0" in text
+    # Each argument push must read a DISTINCT slot of the caller's frame. A
+    # constant-displacement replay silently re-reads one slot seven times,
+    # which review caught on #280.
+    # Both replays push the same seven frame slots: once for the stock call and
+    # once for the overlay, so 14 pushes over 7 distinct slots.
+    slots = [i.op_str for i in ins if i.mnemonic == "push" and "ebp +" in i.op_str]
+    assert len(slots) == 14, f"expected two seven-argument replays, saw {len(slots)}"
+    assert len(set(slots)) == 7, f"replays must read seven DISTINCT slots, saw {sorted(set(slots))}"
     # no store through the recorded villager pointer -- the record stays stock
     for i in ins:
         if i.mnemonic.startswith("mov") and i.op_str.startswith("byte ptr [eax"):
             raise AssertionError(f"mask_overlay writes the villager record: {i.op_str}")
-    # the callee cleans its own arguments, so this returns without adjusting esp
-    assert ins[-1].mnemonic == "ret" and ins[-1].op_str == ""
+    # cleans the caller's seven args exactly as the call it replaced would have
+    assert ins[-1].mnemonic == "ret" and ins[-1].op_str in ("0x1c", "0x1C")
 
 
 def test_scratch_and_table_are_in_proven_free_data_bss():
