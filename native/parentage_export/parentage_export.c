@@ -91,6 +91,17 @@ enum {
        fails the guard rather than overrunning these buffers. */
     MAX_NAME_BYTES = 64,
 
+    /* How a game records the other parent.
+
+       This is not a detail: VV1 stores a father ID and his record is found by
+       scanning the array for it, while VV4 and VV5 store the father's NAME
+       directly in the mother's record and keep no id anywhere. Reading one as
+       the other interprets a name buffer as an integer, resolves nothing, and
+       logs "(unknown)" for every single birth -- a feature that appears to work
+       and records nothing useful. */
+    FATHER_BY_ID = 0,
+    FATHER_BY_NAME = 1,
+
     GAME_VV1 = 1,
     GAME_VV2 = 2,
     GAME_VV3 = 3,
@@ -125,7 +136,8 @@ struct game_layout {
     unsigned int id;          /* i32, per-villager identity */
     unsigned int name;        /* char[name_capacity] */
     unsigned int name_capacity;
-    unsigned int father_id;   /* i32, the other parent's id */
+    int father_kind;          /* FATHER_BY_ID or FATHER_BY_NAME */
+    unsigned int father;      /* an i32 id, or a char[name_capacity] */
     unsigned int litter;      /* i32, babies in this pregnancy */
     int no_villager;          /* the "no such villager" id sentinel */
     const wchar_t *log_name;  /* "<name> <n>.txt" beside the executable */
@@ -158,7 +170,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         1, 0x3D8, 256,
         0x28, 0x348, 0x360, 0x364, 0x36C,
         0x370, 0x1C,
-        0x394, 0x35C,
+        FATHER_BY_ID, 0x394, 0x35C,
         0xC7,
         L"Virtual Villagers 1 Parentage Log"
     },
@@ -172,14 +184,53 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        position as VV2. */
     { 0 },
 
-    /* VV4 -- The Tree of Life. Stride 0x2E3C and name +0x1B9C established, and
-       a two-pointer conception site is reported at 0x4650EB/0x46511B, but that
-       is static analysis this file has not verified. */
-    { 0 },
+    /* VV4 -- The Tree of Life. Verified against the stock binary:
+         +0x1B8C  age     cmp ecx, 118h at 0x45EC31 and 0x45EC37
+         +0x1B90  sex     cmp [ecx+1B90h], 1 at 0x460990
+         +0x1B9C  name    lea edx,[esi+1B9Ch] at 0x460A1E; 14 lea sites and no
+                          scalar load, which is what a buffer looks like
+         +0x1BB8  head    mov ecx,[esi+1BB8h] at 0x460A10
+         +0x1BBC  body    mov edx,[esi+1BBCh] at 0x460A09
+         +0x1C50  litter  1 at 0x45E87D, 3 at 0x45E8C0, 2 at 0x45E8D3
+         +0x1C10  father  strncpy(esi+1C10h, Source, 0x18) at 0x45E86E
 
-    /* VV5 -- New Believers. Stride 0x2F44 and name +0x1B9C established; its
-       conception site is presumed analogous to VV4 and is unverified. */
-    { 0 }
+       On head vs body: both offsets have real load instructions behind them, so
+       both satisfy the evidence rule. What is inferred is only WHICH LABEL goes
+       on which -- +0x1BB8 is inherited as (a10+a12)/2 while +0x1BBC is
+       rand(29), both clamped 0..29. If a playtest ever shows the two columns
+       reversed, swap these two offsets and nothing else changes. Recording the
+       values with a possibly-swapped label beats withholding them, because the
+       log is the only record of a conception that ever exists.
+
+       There is NO father id field, only the father's name, which is why the
+       hook belongs at the role-resolver call site 0x460A2E where both parents
+       are live record pointers (ecx/ebp the mother, esi the father) rather than
+       at the routine head where the father is only decomposed scalars.
+
+       The `no_villager` sentinel is 0: VV4 stores no father id at all, so the
+       id-resolution path is unused here and the field is inert. */
+    {
+        1, 0x2E3C, 150,
+        0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
+        0x1B9C, 0x18,
+        FATHER_BY_NAME, 0x1C10, 0x1C50,
+        0,
+        L"Virtual Villagers 4 Parentage Log"
+    },
+
+    /* VV5 -- New Believers. Structurally identical to VV4 at every offset used
+       here; the resolver headers are byte-identical. Verified separately:
+         +0x1C50  litter  1 at 0x465ECD, 3 at 0x465F10, 2 at 0x465F23
+         +0x1C10  father  strncpy at 0x465EBE
+       Its resolver call site is 0x467DBE. Same head/body caveat as VV4. */
+    {
+        1, 0x2F44, 150,
+        0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
+        0x1B9C, 0x18,
+        FATHER_BY_NAME, 0x1C10, 0x1C50,
+        0,
+        L"Virtual Villagers 5 Parentage Log"
+    }
 };
 
 /* Names are engine-written with sprintf into a fixed 0x1C-byte field, so a
@@ -187,19 +238,18 @@ static const struct game_layout GAME_LAYOUTS[6] = {
    that is one byte longer and terminate it ourselves rather than trusting the
    buffer, and replace anything unprintable so one corrupt record cannot make
    the whole log unreadable. */
-static void copy_villager_name(
-    const struct game_layout *g,
-    const unsigned char *record,
+static void copy_name_field(
+    const unsigned char *source,
     char *out,
-    size_t out_size
+    size_t out_size,
+    unsigned int capacity
 ) {
     size_t index;
-    const unsigned char *source = record + g->name;
 
     if (out_size == 0) {
         return;
     }
-    for (index = 0; index + 1 < out_size && index < g->name_capacity; ++index) {
+    for (index = 0; index + 1 < out_size && index < capacity; ++index) {
         unsigned char value = source[index];
         if (value == 0) {
             break;
@@ -215,6 +265,15 @@ static void copy_villager_name(
             out[out_size - 1 < 9 ? out_size - 1 : 9] = '\0';
         }
     }
+}
+
+static void copy_villager_name(
+    const struct game_layout *g,
+    const unsigned char *record,
+    char *out,
+    size_t out_size
+) {
+    copy_name_field(record + g->name, out, out_size, g->name_capacity);
 }
 
 /* Resolve a villager id to its record by scanning the array.
@@ -389,7 +448,15 @@ static int layout_is_usable(const struct game_layout *g) {
     if (g->head + WORD > stride) return 0;
     if (g->body + WORD > stride) return 0;
     if (g->id + WORD > stride) return 0;
-    if (g->father_id + WORD > stride) return 0;
+    if (g->father_kind == FATHER_BY_ID) {
+        if (g->father + WORD > stride) return 0;
+    } else if (g->father_kind == FATHER_BY_NAME) {
+        /* A name field is read with the same capacity as the villager's own
+           name, so it must fit whole. */
+        if (g->father + g->name_capacity > stride) return 0;
+    } else {
+        return 0;
+    }
     if (g->litter + WORD > stride) return 0;
     /* The whole name buffer must fit. */
     if (g->name + g->name_capacity > stride) {
@@ -406,7 +473,6 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     const struct game_layout *g;
     const unsigned char *records = (const unsigned char *)records_pointer;
     const unsigned char *mother = (const unsigned char *)mother_pointer;
-    int father_id;
     int babies;
     const unsigned char *father;
     wchar_t path[MAX_LOG_PATH];
@@ -455,7 +521,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
        has not yet chosen the litter size, so every twin and triplet birth would
        be recorded as a singleton, and a rejected conception would be logged as
        though it happened. */
-    father_id = *(const int *)(mother + g->father_id);
+
     babies = *(const int *)(mother + g->litter);
     if (babies < 1) {
         /* A single birth never writes the field -- only the twins branch
@@ -477,10 +543,20 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     }
 
     copy_villager_name(g, mother, mother_name, sizeof(mother_name));
-    father = find_record_by_id(g, records, father_id);
+    if (g->father_kind == FATHER_BY_NAME) {
+        /* The name is already in the mother's record; there is no father record
+           to find, so his age, head and body are simply not available in these
+           games. Recording the name we do have beats recording nothing. */
+        copy_name_field(mother + g->father, father_name, sizeof(father_name),
+                        g->name_capacity);
+        father = NULL;
+    } else {
+        father = find_record_by_id(
+            g, records, *(const int *)(mother + g->father));
+    }
     if (father != NULL) {
         copy_villager_name(g, father, father_name, sizeof(father_name));
-    } else {
+    } else if (g->father_kind == FATHER_BY_ID) {
         /* The father is recorded by id, and that id may no longer resolve --
            he can die between conception and delivery. Say so plainly rather
            than dropping the record or inventing a name. */
