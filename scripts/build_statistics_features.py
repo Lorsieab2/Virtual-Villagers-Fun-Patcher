@@ -55,6 +55,23 @@ GAMES = {
         "burial_manager": "mov eax, dword ptr [esi + 0xE574D4]",
         "burial_stat_offset": 0x2E5D4,
         "burial_replay": "mov byte ptr [edx + esi + 0x30], 0",
+        # 0x44BA8C is the first instruction after the twins branch and has
+        # exactly one predecessor: that branch. The mandatory 256-slot
+        # saturation guard detours the branch itself and rejoins here only
+        # when it allows the birth, so hooking this instruction counts every
+        # accepted twin birth once and never a rejected one, without touching
+        # a byte the guard owns.
+        "twins_hook_va": 0x44BA8C,
+        "twins_guard": "8B87D474E500",
+        # 0x473DF4 sits in a 44-byte gap between two other features' wrappers.
+        # The larger run at 0x473F42 is deliberately left whole: publish-time
+        # executable-name crash immunity needs 169 contiguous zero bytes in an
+        # executable section, and splitting that run is what makes publishing
+        # fail with "no code cave".
+        "twins_wrapper_va": 0x473DF4,
+        "twins_manager": "mov eax, dword ptr [edi + 0xE574D4]",
+        "twins_stat_offset": 0x2E5D8,
+        "twins_resume_va": 0x44BA92,
     },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",
@@ -355,6 +372,65 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 "purpose": (
                     "count every skeleton pickup once in the per-save reserve, "
                     "including pickups made after the memorial array is full"
+                ),
+            }
+        )
+
+    twins_hook_va = config.get("twins_hook_va")
+    if twins_hook_va:
+        # The Lost Children is the only game with no twins counter of its own.
+        # Its childbirth routine is cumulative rather than exclusive: the twins
+        # branch sets litter 2 and falls through into the triplets test, so the
+        # existing increment at 0x44BAD2 fires only for triplets and a
+        # twins-only birth leaves via 0x44BAA5 or 0x44BAB4 without counting.
+        # Hooking the twins branch itself therefore counts every multiple birth
+        # once, and a later promotion to triplets does not double count because
+        # the triplets increment targets a different field.
+        #
+        # This wrapper does not fit the 0xD0 statistics cave, whose free tail
+        # the burial wrapper already uses, so it lives in the game's own .text
+        # slack -- zero padding between VirtualSize and SizeOfRawData, verified
+        # stock-zero and clear of every range other features claim there.
+        twins_wrapper_va = int(config["twins_wrapper_va"])
+        twins_guard = bytes.fromhex(str(config["twins_guard"]))
+        twins_wrapper = assemble(
+            f"""
+                {config['twins_manager']}
+                inc dword ptr [eax + 0x{int(config['twins_stat_offset']):X}]
+                jmp 0x{int(config['twins_resume_va']):X}
+            """,
+            twins_wrapper_va,
+        )
+        twins_hook_file = int(twins_hook_va) - 0x400000
+        twins_wrapper_file = twins_wrapper_va - 0x400000
+        if source[twins_hook_file : twins_hook_file + len(twins_guard)] != twins_guard:
+            raise RuntimeError(f"{game_id} twins hook guard does not match")
+        if any(source[twins_wrapper_file : twins_wrapper_file + len(twins_wrapper)]):
+            raise RuntimeError(f"{game_id} twins wrapper site is not stock zero padding")
+        extra_patches.append(
+            {
+                "offset": f"0x{twins_wrapper_file:X}",
+                "before": "00" * len(twins_wrapper),
+                "after": twins_wrapper.hex().upper(),
+                "purpose": (
+                    "install the twins counter wrapper in stock zero padding"
+                ),
+            }
+        )
+        extra_patches.append(
+            {
+                "offset": f"0x{twins_hook_file:X}",
+                "before": twins_guard.hex().upper(),
+                "after": (
+                    b"\xE9"
+                    + int(twins_wrapper_va - int(twins_hook_va) - 5).to_bytes(
+                        4, "little", signed=True
+                    )
+                    + b"\x90" * (len(twins_guard) - 5)
+                ).hex().upper(),
+                "purpose": (
+                    "count every twin birth the saturation guard allows once "
+                    "in the per-save reserve"
                 ),
             }
         )

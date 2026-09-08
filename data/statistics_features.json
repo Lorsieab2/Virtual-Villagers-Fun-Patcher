@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825",
+  "companion_sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +12,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
+          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
         }
       ],
       "patches": [
@@ -47,7 +47,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
+          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
         }
       ],
       "patches": [
@@ -69,6 +69,18 @@
           "before": "C644323000",
           "after": "E9C4EE0000",
           "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
+        },
+        {
+          "offset": "0x73DF4",
+          "before": "0000000000000000000000000000000000",
+          "after": "8B87D474E500FF80D8E50200E98D7CFDFF",
+          "purpose": "install the twins counter wrapper in stock zero padding"
+        },
+        {
+          "offset": "0x4BA8C",
+          "before": "8B87D474E500",
+          "after": "E96383020090",
+          "purpose": "count every twin birth the saturation guard allows once in the per-save reserve"
         }
       ]
     },
@@ -82,7 +94,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
+          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
         }
       ],
       "patches": [
@@ -117,7 +129,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
+          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
         }
       ],
       "patches": [
@@ -158,7 +170,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "33793CBDF1AC1655B67B3D74FDC850F8A84BA68800DA418988636726AB949825"
+          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
         }
       ],
       "patches": [

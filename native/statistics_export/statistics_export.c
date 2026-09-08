@@ -257,6 +257,13 @@ static int write_vv2(FILE *file, const unsigned char *manager) {
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
         "Special Stews Found: %d\n"
+        /* The Lost Children counts triplets natively at manager+0x2E524 but
+           has no twins counter: its childbirth routine is cumulative, so the
+           twins branch at 0x44BA82 sets litter 2 and falls through into the
+           triplets test, and a twins-only birth returns without counting.
+           This reads the patch-added counter at manager+0x2E5D8, incremented
+           by a wrapper on that branch. */
+        "Twins Birthed: %d\n"
         "Triplets Birthed: %d\n"
         "Puzzles Solved: %d of 16\n",
         real_hours(GAME_VV2, manager),
@@ -271,6 +278,7 @@ static int write_vv2(FILE *file, const unsigned char *manager) {
         read_int(manager, 0x2E518),
         read_int(manager, 0x2E51C),
         read_int(manager, 0x2E520),
+        read_int(manager, 0x2E5D8),
         read_int(manager, 0x2E524),
         count_flags(manager, puzzle_offsets, 16)
     ) >= 0;
