@@ -292,10 +292,10 @@ static int write_later_game(
         "People Cured: %d\n"
         "%s: %d\n"
         "Highest Population: %d\n"
-        "Villagers Buried: %d\n"
+        "Village Elders: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
-        "Twins Birthed: %d\n"
+        "Special Stews Found: %d\n"
         "Triplets Birthed: %d\n"
         "Puzzles Solved: %d of %d\n",
         title,
@@ -335,10 +335,10 @@ static int write_vv5(
         "People Cured: %d\n"
         "Mushrooms Found: %d\n"
         "Highest Population: %d\n"
-        "Villagers Buried: %d\n"
+        "Village Elders: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
-        "Twins Birthed: %d\n"
+        "Special Stews Found: %d\n"
         "Triplets Birthed: %d\n"
         "Heathens Converted: %d\n"
         "Puzzles Solved: %d of %d\n",

@@ -106,19 +106,33 @@ The common layout is:
 | `+0x10` | People Cured |
 | `+0x14` | Mushrooms Found in VV3/VV5; Collectibles Found in VV4 |
 | `+0x18` | Highest Population |
-| `+0x1C` | Villagers Buried |
+| `+0x1C` | Village Elders |
 | `+0x20` | Oldest Villager |
 | `+0x24` | Island Events Seen |
-| `+0x28` | Twins Birthed |
+| `+0x28` | Special Stews Found |
 | `+0x2C` | Triplets Birthed |
 
-Stock VV3 maintains every counter except Villagers Buried. Stock VV4 and VV5
-maintain every counter except Food Gathered and Villagers Buried. Those fields
-are not guesses: they are the unchanged inherited slots between otherwise
-matching VV1-style fields. Historical manifests proposed omitted mutation
-sites, but their Villagers Buried hooks are downstream of the required
-successful-pickup event and are not certified. Existing saves retain stock
-history; retroactive initialization requires the atomic migration above.
+`+0x1C` and `+0x28` were previously documented here as Villagers Buried and
+Twins Birthed, inherited from VV1's layout. That was wrong, and the correction
+matters because it changes what has to be built rather than merely what a row
+is called.
+
+Each executable carries its own statistics table pairing an internal enum name
+with the string it draws, and the enum names were kept across sequels while the
+displayed statistic changed:
+
+    eTotemsMade      -> "Village Elders"        (not Villagers Buried)
+    eTwinsBirthed    -> "Special Stews Found"   (not Twins Birthed)
+
+So VV2 through VV5 do not have an unmaintained Villagers Buried slot waiting to
+be populated -- they have no such counter at all, and `+0x1C` holds a live elder
+count the exporter was mislabelling. VV1 is the only game whose own table lists
+Villagers Buried and Twins Birthed.
+
+Villagers Buried and Twins Birthed for VV2-VV5 are therefore NEW counters that
+must be built and stored by this project, not stock fields to be repaired. The
+mutation-site analysis below still applies to building them, but its premise
+that the destination slot already exists does not.
 
 The block range `+0x30..+0x97` has no direct stock code references in any of the
 three games. It is still zeroed, serialized, and restored, but the current
