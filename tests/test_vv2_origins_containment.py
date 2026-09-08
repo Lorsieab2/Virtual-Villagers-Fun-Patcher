@@ -146,7 +146,17 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
         for mode in load_patch_modes():
             with self.subTest(mode=mode.id):
                 rendered, applied = render_patched_bytes(source, build, mode.id, remaining)
-                self.assertEqual(len(rendered), build.size)
+                # Everything up to the stock end of file must be unchanged in
+                # size: this test is about containment, and a non-Origins
+                # feature must not disturb the stock image.  It may still bring
+                # its own appended page -- vv2_write_parentage_log does,
+                # because VV2's .text cannot hold both its trampoline and the
+                # executable-name crash-immunity reserve -- so the assertion is
+                # that the image never SHRINKS below stock and that any growth
+                # is whole pages appended past it, not that the size is
+                # unchanged.
+                self.assertGreaterEqual(len(rendered), build.size)
+                self.assertEqual((len(rendered) - build.size) % 0x1000, 0)
                 owners = {item["owner"].removeprefix("feature:") for item in applied}
                 self.assertTrue(PUBLIC.isdisjoint(owners))
                 self.assertTrue(
