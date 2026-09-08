@@ -42,14 +42,20 @@ At the function head, before any push:
     0x43BBF1  lea  esi, [edx + edi]        ; esi = the MOTHER's record
     0x43BC04  mov  [esi+0x394], edx        ; from [esp+0x10] -- the FATHER id
 
-and the call site confirms the same three arguments:
+and the call site corroborates both mappings:
 
+    0x43DD19  push edi
     0x43DD24  mov  eax, [edx + 0x36C]      ; the father's villager ID
     0x43DD2A  push ecx                     ; mother index
     0x43DD2F  push eax                     ; father id  (a VALUE, not an index)
     0x43DD30  push ecx
     0x43DD31  mov  ecx, esi                ; record array base
     0x43DD33  call sub_43BBC0
+
+The routine takes FOUR stack arguments, not three: both its return sites are
+`ret 0x10` (0x43BCB7 and 0x43BCC8) and it reads a fourth slot at 0x43BBE2.
+Only the first two are read here, but anyone extending this trampoline to
+reach the third or fourth needs the real frame size rather than a guess.
 
 `0x3D8` reproducing the proven record stride is what establishes that ecx is
 the record array and that [esp+8] is the mother's index.
@@ -136,9 +142,10 @@ def build() -> dict:
     #
     # STACK ARITHMETIC, because two things here look wrong and are not.
     #
-    # At entry esp holds the return address, so the three stock arguments sit
-    # at +4 (mother index), +8 (father id) and +0xC. pushad then moves esp down
-    # by 0x20, putting them at +0x24, +0x28 and +0x2C.
+    # At entry esp holds the return address, so the stock arguments sit at +4
+    # (mother index), +8 (father id), +0xC and +0x10 -- four of them, per the
+    # `ret 0x10` at both return sites. pushad then moves esp down by 0x20,
+    # putting the first two at +0x24 and +0x28.
     #
     # 1. Both argument reads below are written `[esp + 0x2C]` yet fetch
     #    DIFFERENT values, because each push moves esp another 4 bytes:
