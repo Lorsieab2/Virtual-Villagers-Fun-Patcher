@@ -165,6 +165,30 @@ struct game_layout {
     int father_kind;          /* FATHER_BY_ID or FATHER_BY_NAME */
     unsigned int father;      /* an i32 id, or a char[name_capacity] */
     unsigned int litter;      /* i32, babies in this pregnancy */
+    /* Some games copy the father's own traits INTO the mother's record at
+       conception, by value. Where they do, those copies are the better source:
+       they are taken from the father himself at the moment of conception and
+       survive his death, while a name scan can fail afterwards and can be
+       defeated by two living villagers sharing a name.
+
+       VV2 does this. Its conception routine sub_44B980 takes the father's
+       fields as stack arguments and stores them on the mother: the caller at
+       0x421FE7 pushes [father+0x54C] then [father+0x548] then a pointer to
+       [father+0x564], and the callee writes [esp+0x24] to mother+0x5DC at
+       0x44BA24 and [esp+0x20] to mother+0x5E0 at 0x44BA43 while sprintf'ing
+       the name into mother+0x5C0. Since +0x548 is head and +0x54C is body on
+       a VV2 villager, mother+0x5E0 is the father's head and mother+0x5DC is
+       his body. The two other real-conception callers, at 0x464A38 and
+       0x464C4D, push the same three fields in the same order; their internal
+       branches select a later argument, not these.
+
+       Zero means "this game copies nothing", which is every game but VV2. His
+       AGE is not among the copied fields in any game -- VV2's neighbouring
+       mother+0x5E4 is a hardcoded 1 written at 0x44BA10, a pregnancy flag
+       rather than a trait, and reading it as an age would print 1 for every
+       father who ever lived. */
+    unsigned int father_head_copy;  /* i32 on the MOTHER, 0 when absent */
+    unsigned int father_body_copy;  /* i32 on the MOTHER, 0 when absent */
     /* The "no such villager" id sentinel.
        VV1 uses 0xC7: it is written to the father field at 0x42427B and tested
        there at 0x42EF39. An unset father therefore resolves to no record and
@@ -242,6 +266,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x28, 0x348, 0x360, 0x364, 0x36C,
         0x370, 0x1C,
         FATHER_NOT_RECORDED, 0, 0x35C,
+        0, 0,
         0xC7,
         L"Virtual Villagers 1 Parentage Log"
     },
@@ -261,8 +286,16 @@ static const struct game_layout GAME_LAYOUTS[6] = {
          +0x544   litter  2 at 0x44BA82, 3 at 0x44BAB6
 
        VV2 keeps NO father id -- the father's NAME is copied into the mother's
-       record and that is the only record of him the game ever has. So his age,
-       head and body are genuinely unavailable here, the same as VV4 and VV5.
+       record, so he is found by name like VV3, VV4 and VV5.
+
+       But the name is NOT the only trace of him. Conception also copies his
+       head and body onto the mother by value: sub_44B980 takes them as stack
+       arguments and stores them at mother+0x5E0 and mother+0x5DC, which is why
+       father_head_copy and father_body_copy are set here and nowhere else.
+       Those copies outlive him, so VV2 reports his head and body even when the
+       name scan cannot find a record. His AGE is not copied and is not
+       recoverable from the mother, so it alone can still read "record not
+       found".
 
        Note the litter field is never written for a single birth: 0 means one
        baby, and the delivery routine clears it at 0x43BF85, so a singleton
@@ -273,6 +306,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x30, 0x530, 0x548, 0x54C, 0,
         0x564, 0x18,
         FATHER_BY_NAME, 0x5C0, 0x544,
+        0x5E0, 0x5DC,
         0,
         L"Virtual Villagers 2 Parentage Log"
     },
@@ -301,6 +335,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
         0xDD4, 0x18,
         FATHER_BY_NAME, 0xE48, 0xE90,
+        0, 0,
         0,
         L"Virtual Villagers 3 Parentage Log"
     },
@@ -343,6 +378,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
         0x1B9C, 0x18,
         FATHER_BY_NAME, 0x1C10, 0x1C50,
+        0, 0,
         0,
         L"Virtual Villagers 4 Parentage Log"
     },
@@ -366,6 +402,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
         0x1B9C, 0x18,
         FATHER_BY_NAME, 0x1C10, 0x1C50,
+        0, 0,
         0,
         L"Virtual Villagers 5 Parentage Log"
     }
@@ -603,6 +640,18 @@ static int layout_is_usable(const struct game_layout *g) {
     if (g->father_kind == FATHER_BY_ID && g->id + WORD > stride) {
         return 0;
     }
+    /* The father's copied traits are read from the MOTHER's record, so they are
+       bounded by the same stride as every other field here. Zero means the game
+       copies nothing and nothing is read, which is why the guard is conditional
+       rather than unconditional -- an unconditional `0 + WORD > stride` would
+       pass anyway, but stating the condition keeps the "0 means absent" rule in
+       one shape everywhere it appears. */
+    if (g->father_head_copy != 0 && g->father_head_copy + WORD > stride) {
+        return 0;
+    }
+    if (g->father_body_copy != 0 && g->father_body_copy + WORD > stride) {
+        return 0;
+    }
     if (g->father_kind == FATHER_NOT_RECORDED) {
         /* Nothing to validate: the field is unused. */
         (void)0;
@@ -816,6 +865,28 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         memcpy(father_age, "not recorded by this game", 26);
         memcpy(father_head, "not recorded by this game", 26);
         memcpy(father_body, "not recorded by this game", 26);
+    }
+
+    /* Where the game copied the father's traits onto the mother at conception,
+       prefer those copies over anything the name scan produced -- and use them
+       even when it produced nothing. They are the same numbers, read from the
+       father himself at conception rather than from whoever still answers to
+       his name at delivery, so they are correct in the two cases the scan is
+       not: he has died in the interval, or a second living villager shares his
+       name and the scan rightly refuses to guess.
+
+       This replaces the head and body text only. His age is not copied by any
+       game, so it keeps whatever the scan concluded, and a log can legitimately
+       report a measured head and body beside an unavailable age. */
+    if (g->father_head_copy != 0) {
+        _snprintf(father_head, sizeof(father_head), "%d",
+                  *(const int *)(mother + g->father_head_copy));
+        father_head[sizeof(father_head) - 1] = '\0';
+    }
+    if (g->father_body_copy != 0) {
+        _snprintf(father_body, sizeof(father_body), "%d",
+                  *(const int *)(mother + g->father_body_copy));
+        father_body[sizeof(father_body) - 1] = '\0';
     }
     written = fprintf(
         file,
