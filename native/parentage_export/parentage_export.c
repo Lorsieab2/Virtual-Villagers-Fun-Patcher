@@ -175,14 +175,64 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         L"Virtual Villagers 1 Parentage Log"
     },
 
-    /* VV2 -- The Lost Children. Stride 0xE48C and name +0x564 are established,
-       but the conception routine's callers are not traced and the remaining
-       offsets are not established, so this stays unsupported. */
-    { 0 },
+    /* VV2 -- The Lost Children. Conception is sub_44B980; the mother arrives as
+       an INDEX in the first stack argument and is reached by
+       `imul eax, 0E48Ch` at 0x44B994 feeding `lea esi,[eax+edi]` at 0x44B99B,
+       which is what proves the stride and that ecx holds the array rather than
+       a villager.
 
-    /* VV3 -- The Secret City. Stride 0x1F8C and name +0xDD4 established; same
-       position as VV2. */
-    { 0 },
+         +0x30    active
+         +0x530   age     gates in sub_44F610 (>= 0x168, < 0x3E8)
+         +0x548   head    lower of the appearance pair
+         +0x54C   body    higher of the pair
+         +0x564   name    sprintf destination in sub_44C600 and its siblings
+         +0x5C0   father  sprintf'd from the partner's own +0x564 at 0x44BA49
+         +0x544   litter  2 at 0x44BA82, 3 at 0x44BAB6
+
+       VV2 keeps NO father id -- the father's NAME is copied into the mother's
+       record and that is the only record of him the game ever has. So his age,
+       head and body are genuinely unavailable here, the same as VV4 and VV5.
+
+       Note the litter field is never written for a single birth: 0 means one
+       baby, and the delivery routine clears it at 0x43BF85, so a singleton
+       after twins correctly reads 0 rather than a stale 2. That is what makes
+       the `< 1 -> 1` fallback safe rather than a guess. */
+    {
+        1, 0xE48C, 256,
+        0x30, 0x530, 0x548, 0x54C, 0,
+        0x564, 0x18,
+        FATHER_BY_NAME, 0x5C0, 0x544,
+        0,
+        L"Virtual Villagers 2 Parentage Log"
+    },
+
+    /* VV3 -- The Secret City. Conception is sub_455AB0, and unlike VV1 and VV2
+       the mother arrives as a RECORD POINTER directly in ecx -- `mov esi, ecx`
+       at 0x455AB1, with no stride multiply anywhere in the routine. That is why
+       a stride scan finds nothing in VV3 and why a hook ported from VV1 or VV2
+       would read the wrong object.
+
+         +0xF10   active
+         +0xDC4   age     cmp [esi+0DC4h], 118h at nine sites
+         +0xDF0   head    lower of the appearance pair
+         +0xDF4   body    higher of the pair
+         +0xDD4   name    strncpy bound 0x18 at 0x455B6D
+         +0xE48   father  strncpy destination at 0x455B6D
+         +0xE90   litter  1 at 0x455B7C, 3 at 0x455BBF, 2 at 0x455BDD
+
+       VV3 WRITES the singleton default of 1 at 0x455B7C, where VV1 and VV2
+       write nothing for a single birth. The `< 1 -> 1` fallback is therefore
+       redundant here rather than load-bearing -- harmless, but the difference
+       is why "which exit does a single birth take" has to be asked per game
+       instead of assumed from one. */
+    {
+        1, 0x1F8C, 256,
+        0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
+        0xDD4, 0x18,
+        FATHER_BY_NAME, 0xE48, 0xE90,
+        0,
+        L"Virtual Villagers 3 Parentage Log"
+    },
 
     /* VV4 -- The Tree of Life. Verified against the stock binary:
          +0x1B8C  age     cmp ecx, 118h at 0x45EC31 and 0x45EC37
@@ -194,13 +244,14 @@ static const struct game_layout GAME_LAYOUTS[6] = {
          +0x1C50  litter  1 at 0x45E87D, 3 at 0x45E8C0, 2 at 0x45E8D3
          +0x1C10  father  strncpy(esi+1C10h, Source, 0x18) at 0x45E86E
 
-       On head vs body: both offsets have real load instructions behind them, so
-       both satisfy the evidence rule. What is inferred is only WHICH LABEL goes
-       on which -- +0x1BB8 is inherited as (a10+a12)/2 while +0x1BBC is
-       rand(29), both clamped 0..29. If a playtest ever shows the two columns
-       reversed, swap these two offsets and nothing else changes. Recording the
-       values with a possibly-swapped label beats withholding them, because the
-       log is the only record of a conception that ever exists.
+       On head vs body: both offsets have load instructions behind them, and the
+       assignment is not inferred -- the owner states head comes first and body
+       second in all five games, so the lower offset of the appearance pair is
+       head. Static analysis could only ever have narrowed this to "the pair is
+       {head, body}", since +0x1BB8 is inherited as (a10+a12)/2 and +0x1BBC is
+       rand(29), both clamped 0..29, and neither carries a label. Which is worth
+       remembering: when a question is about how the game BEHAVES rather than
+       how it is encoded, asking is cheaper and more reliable than deriving.
 
        There is NO father id field, only the father's name, which is why the
        hook belongs at the role-resolver call site 0x460A2E where both parents
@@ -447,7 +498,14 @@ static int layout_is_usable(const struct game_layout *g) {
     if (g->age + WORD > stride) return 0;
     if (g->head + WORD > stride) return 0;
     if (g->body + WORD > stride) return 0;
-    if (g->id + WORD > stride) return 0;
+    /* The villager-id field is only read when a game records the father BY ID
+       and his record has to be found by scanning for it. VV2, VV3, VV4 and VV5
+       record the father's name instead and have no proven id field at all, so
+       requiring one there would mean inventing an offset -- exactly what the
+       unsupported-by-default design exists to prevent. */
+    if (g->father_kind == FATHER_BY_ID && g->id + WORD > stride) {
+        return 0;
+    }
     if (g->father_kind == FATHER_BY_ID) {
         if (g->father + WORD > stride) return 0;
     } else if (g->father_kind == FATHER_BY_NAME) {
