@@ -115,6 +115,36 @@ APPEND_LENGTH = 0x1000
 PAGE_VA = 0x007C9000
 SECTION_NAME = ".vv5pl"
 
+# Where the payload lives when Origins is ALSO selected.
+#
+# Only one feature may append per build: the append guard pins each layout to
+# the file size it expects to start from, so a second appender fails whichever
+# order they run in.  vv5_enable_origins_exclusive_features pulls in the
+# .vv5t9 section (task 9 native actions), which appends 0x8000 bytes at the
+# stock EOF, and the public vv5_origins_village_wide_upgrades depends on
+# Origins, so a player selecting the village-wide upgrades reaches that append
+# transitively.
+#
+# .vv5t9 is executable (characteristics 0x60000020) and uses 0x7A83 of its
+# 0x8000, leaving a 0x57D zero tail.  The overlay therefore takes the
+# 0x400-aligned window at file 0xF9C00 -- inside that tail, measured zero in
+# every patch mode and with the village-wide upgrades also selected -- which
+# maps to VA 0x7D0C00.  The payload's real footprint is 0x125 bytes: code to
+# 0x4B, then the two loader strings.
+#
+# The destination is NOT page-aligned, and does not need to be: it is a tail
+# inside a section that is already mapped executable, not a page of its own.
+# The declared zero preimage is what proves the range was unclaimed, and the
+# patcher re-checks it against the composed parent before writing.
+#
+# Re-emitted for that address rather than copied: the trampoline's rejoin and
+# its call to the conception routine are both rel32, so moving the bytes
+# without reassembling would leave each aimed at the wrong target.
+OVERLAY_OFFSET = 0x000F9C00
+OVERLAY_LENGTH = 0x400
+OVERLAY_PAGE_VA = 0x007D0C00
+ORIGINS_FEATURE_ID = "vv5_enable_origins_exclusive_features"
+
 # PE header fields this append has to move, at VV4's own offsets.
 NUMBER_OF_SECTIONS_FILE = 0xFE
 NUMBER_OF_SECTIONS_BEFORE = 5
@@ -169,7 +199,7 @@ def assemble(source: str, address: int) -> bytes:
     return bytes(encoding)
 
 
-def _emit(source: bytes) -> tuple[list[dict], bytes]:
+def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) -> tuple[list[dict], bytes]:
     """Assemble the trampoline page and the hook rewrite."""
 
     if source[HOOK_FILE : HOOK_FILE + len(HOOK_STOLEN)] != HOOK_STOLEN:
@@ -181,10 +211,10 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             f"stock file is {len(source):#x} bytes, expected {STOCK_FILE_SIZE:#x}"
         )
 
-    dll_name_va = PAGE_VA + DLL_NAME_OFFSET
-    export_name_va = PAGE_VA + EXPORT_NAME_OFFSET
+    dll_name_va = page_va + DLL_NAME_OFFSET
+    export_name_va = page_va + EXPORT_NAME_OFFSET
 
-    page = bytearray(APPEND_LENGTH)
+    page = bytearray(page_len)
 
     # The trampoline replaces the call, so it must perform that call itself and
     # then return to the instruction after it.  Both parents are live records
@@ -249,7 +279,7 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             popad
             ret
         """,
-        PAGE_VA,
+        page_va,
     )
     if len(code) > DLL_NAME_OFFSET:
         raise RuntimeError(
@@ -262,7 +292,7 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
 
     # Divert the call: a five-byte call to the page replaces the five-byte call
     # to the conception routine exactly, so nothing downstream shifts.
-    entry = assemble(f"call 0x{PAGE_VA:X}", HOOK_VA)
+    entry = assemble(f"call 0x{page_va:X}", HOOK_VA)
     if len(entry) != len(HOOK_STOLEN):
         raise RuntimeError("hook entry does not match the stolen byte count")
 
@@ -283,6 +313,19 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
 def build() -> dict:
     source = (STOCK / EXE).read_bytes()
     patches, page = _emit(source)
+    # The overlay page is generated a full 0x1000 long even though only the
+    # first OVERLAY_LENGTH bytes are written.  _apply_composition_overlay
+    # requires exactly that shape and checks the tail past OVERLAY_LENGTH is
+    # zero, which is what proves nothing is written outside the reserved
+    # window.  The payload is 0x125 bytes, so the tail is zero by construction.
+    overlay_patches, overlay_page = _emit(
+        source, OVERLAY_PAGE_VA, 0x1000
+    )
+    if len(overlay_page) != 0x1000 or any(overlay_page[OVERLAY_LENGTH:]):
+        raise SystemExit(
+            "overlay page must be 0x1000 bytes and zero past "
+            f"0x{OVERLAY_LENGTH:X}"
+        )
 
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper()
     page_hash = hashlib.sha256(page).hexdigest().upper()
@@ -345,6 +388,33 @@ def build() -> dict:
                 ],
                 "pe_append_transaction": {
                     "section": SECTION_NAME,
+                    "composition_overlays": {
+                        ORIGINS_FEATURE_ID: {
+                            "base_feature": ORIGINS_FEATURE_ID,
+                            "overlay_offset": f"0x{OVERLAY_OFFSET:X}",
+                            "overlay_length": OVERLAY_LENGTH,
+                            "page_virtual_address": f"0x{OVERLAY_PAGE_VA:X}",
+                            "append_bytes": overlay_page.hex(),
+                            "page_sha256": hashlib.sha256(overlay_page)
+                            .hexdigest()
+                            .upper(),
+                            "overlay_preimage": {
+                                "kind": "zero_fill",
+                                "length": OVERLAY_LENGTH,
+                                "sha256": hashlib.sha256(
+                                    bytes(OVERLAY_LENGTH)
+                                )
+                                .hexdigest()
+                                .upper(),
+                            },
+                            "hook_patches": overlay_patches,
+                            "purpose": (
+                                "place the parentage trampoline in the zero "
+                                "window of the page Origins appends, so only "
+                                "one feature appends in any build"
+                            ),
+                        }
+                    },
                     "layouts": {
                         "stock": layout,
                         "collection_progression": layout,
