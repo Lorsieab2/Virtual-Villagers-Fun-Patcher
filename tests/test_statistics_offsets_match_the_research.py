@@ -38,10 +38,17 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "native" / "statistics_export" / "statistics_export.c"
 RESEARCH = ROOT / "docs" / "village-statistics-export-research.md"
 
-# The exporter prints this row from `+0x28`; the research table records that
-# offset as Twins Birthed. The divergence is real, documented, and awaiting an
-# owner decision -- not drift for this module to fail on.
-KNOWN_LABEL_DIVERGENCE = {"0x28": ("Special Stews Found", "Twins Birthed")}
+# Rows whose printed label must match what the research document records for
+# that offset. `+0x28` is here because it did not: the later games printed
+# "Special Stews Found" over a field the childbirth routine increments on the
+# twins branch, and the requirements ask for Twins Birthed in all five games
+# with Special Stews Found in The Lost Children alone. Pinning it keeps the
+# stale enum-name mapping from being reintroduced.
+LABELLED_OFFSETS = {"0x28": "Twins Birthed"}
+
+# The Lost Children genuinely has a Special Stews Found statistic, from a
+# different field. Its writer must keep that row.
+VV2_KEEPS = "Special Stews Found"
 
 
 def _function_body(name: str) -> str:
@@ -114,28 +121,44 @@ class StatisticsOffsetsMatchTheResearchTests(unittest.TestCase):
                         % (writer, offset),
                     )
 
-    def test_the_known_label_divergence_is_still_recorded(self) -> None:
-        """+0x28 prints one name and is documented as another, on purpose.
+    def test_labelled_offsets_print_what_the_research_records(self) -> None:
+        """A row's printed label must match the statistic at its offset.
 
-        If the row is ever relabelled, this fails and the divergence note in
-        the research document has to be revisited in the same change.
+        `+0x28` shipped as "Special Stews Found" over a field the childbirth
+        routine increments on the twins branch. Both later-game writers now
+        print Twins Birthed, and this fails if either regresses to the stale
+        enum-name mapping.
         """
-        body = _function_body("write_later_game")
         documented = _documented_layout()
-        for offset, (shipped, researched) in KNOWN_LABEL_DIVERGENCE.items():
-            with self.subTest(offset=offset):
-                self.assertIn(
-                    r'"%s: %%d\n"' % shipped,
-                    body,
-                    "the exporter no longer prints %r; the recorded divergence is stale"
-                    % shipped,
-                )
-                self.assertIn(
-                    researched,
-                    documented.get(offset, ""),
-                    "the research table no longer records +%s as %r"
-                    % (offset, researched),
-                )
+        for writer in ("write_later_game", "write_vv5"):
+            body = _function_body(writer)
+            for offset, label in LABELLED_OFFSETS.items():
+                with self.subTest(writer=writer, offset=offset):
+                    self.assertIn(
+                        r'"%s: %%d\n"' % label,
+                        body,
+                        "%s does not print +%s as %r" % (writer, offset, label),
+                    )
+                    self.assertIn(
+                        label,
+                        documented.get(offset, ""),
+                        "the research table no longer records +%s as %r"
+                        % (offset, label),
+                    )
+
+    def test_the_lost_children_keeps_its_own_stew_row(self) -> None:
+        """VV2's Special Stews Found is a real, separate statistic.
+
+        The later-game relabel must not be applied to The Lost Children, whose
+        requirements list Special Stews Found explicitly and whose value comes
+        from a different field entirely.
+        """
+        body = _function_body("write_vv2")
+        self.assertIn(
+            r'"%s: %%d\n"' % VV2_KEEPS,
+            body,
+            "write_vv2 no longer prints its Special Stews Found row",
+        )
 
 
 if __name__ == "__main__":
