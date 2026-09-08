@@ -69,7 +69,7 @@
       "absent_fields": {
         "health": "no VV1 health offset is defined or documented",
         "preferred_skill": "no VV1 preferred-skill offset is defined or documented",
-        "name": "start and length not established. record[+0x374] is proven to lie INSIDE the name buffer, but neither its beginning nor its full length was established, so no name field can be read safely",
+        "name": "ESTABLISHED: record+0x370, char[0x18] (0x370..0x38B). The earlier entry was correct that +0x374 lies INSIDE the buffer -- it is four bytes in, which is why using it as mask storage silently renamed villagers. Start proven by the write at 0x43C696 (lea eax,[esi+0x370]; mov byte ptr [eax],0; call sprintf) and the read at 0x41874D (imul eax,eax,0x3D8; lea edx,[eax+ecx+0x370]; push edx), where the imul by the proven record stride is what establishes the base. Length bounded by displacement sweep: nothing in 0x340..0x3D8 is referenced between 0x370 and 0x38C, and +0x38C is written as a scalar by the conception routine sub_43BBC0. The sweep was positive-controlled -- it finds +0x348 age (55 refs), +0x360 head (37), +0x364 body (29), +0x36C id (16), +0x370 (5) and +0x38C (3) -- so the gap is a real absence and not a broken search. Earlier displacement scans missed this buffer because names are written by bulk string copies: the address is TAKEN, never accessed as [reg+disp]. Treat as char[0x18] and force a NUL at 0x17 before use; sprintf does not guarantee termination at the boundary.",
         "nursing": "record[+0x29] is cleared by the newborn allocator hook but its meaning is not established as nursing"
       },
       "special_villagers": {
