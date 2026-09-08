@@ -1414,6 +1414,40 @@ class GuiSourceTests(unittest.TestCase):
         self.assertNotIn('messagebox.showinfo("Modified EXE created"', source)
         self.assertNotIn('messagebox.showinfo("All five modified EXEs created"', source)
 
+    def test_parentage_artifact_label_names_the_selected_game(self) -> None:
+        """The advertised log filename must match what the companion writes.
+
+        This was fixed text naming Virtual Villagers 1 while only VV1 shipped
+        the feature, so every other game's players were told to look for a file
+        that does not exist.  A substring check on the source cannot catch that
+        -- the hardcoded label contains "Parentage Log N.txt:" too -- so this
+        derives the label the way the GUI does and compares it against the log
+        names the companion actually declares.
+        """
+        gui_source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(
+            encoding="utf-8"
+        )
+        companion = (
+            ROOT / "native" / "parentage_export" / "parentage_export.c"
+        ).read_text(encoding="utf-8")
+        declared = set(
+            re.findall(r'L"(Virtual Villagers \d Parentage Log)"', companion)
+        )
+        self.assertEqual(
+            len(declared), 5, "the companion must declare a log name per game"
+        )
+
+        # The label must be built from the build id rather than written out.
+        self.assertNotIn("Virtual Villagers 1 Parentage Log N.txt", gui_source)
+
+        for build in load_builds():
+            with self.subTest(game=build.id):
+                rendered = (
+                    f"Virtual Villagers {build.id.removeprefix('vv')} "
+                    "Parentage Log"
+                )
+                self.assertIn(rendered, declared)
+
     def test_fun_patches_have_select_and_deselect_all_controls(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn('text="Select All Patches"', source)

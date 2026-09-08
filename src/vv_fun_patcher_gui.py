@@ -1196,8 +1196,14 @@ class App(tk.Tk):
                         f"Village Statistics - Save N.txt: {modded_folder} — refreshed after each successful save; contains that save's lifetime statistics."
                     )
                 if f"{build.id}_write_parentage_log" in selected:
+                    # The companion names the log after the game it was built
+                    # for, so this label has to follow build.id.  It was fixed
+                    # text while only VV1 shipped the feature, which told every
+                    # other game's players to look for a file that does not
+                    # exist.
+                    parentage_game = build.id.removeprefix("vv")
                     artifact_lines.append(
-                        f"Virtual Villagers 1 Parentage Log N.txt: {modded_folder} — one plain-text record per pregnancy, written at conception; rolls to a new numbered file every 256 records."
+                        f"Virtual Villagers {parentage_game} Parentage Log N.txt: {modded_folder} — one plain-text record per pregnancy, written at conception; rolls to a new numbered file every 256 records."
                     )
                 ttk.Label(
                     frame,
