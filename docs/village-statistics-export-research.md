@@ -109,30 +109,96 @@ The common layout is:
 | `+0x1C` | Village Elders |
 | `+0x20` | Oldest Villager |
 | `+0x24` | Island Events Seen |
-| `+0x28` | Special Stews Found |
+| `+0x28` | **Twins Birthed** (the exporter still labels this "Special Stews Found" -- see the correction below) |
 | `+0x2C` | Triplets Birthed |
 
-`+0x1C` and `+0x28` were previously documented here as Villagers Buried and
-Twins Birthed, inherited from VV1's layout. That was wrong, and the correction
-matters because it changes what has to be built rather than merely what a row
-is called.
+`+0x1C` was previously documented here as Villagers Buried, inherited from VV1's
+layout. That was wrong, and the correction matters because it changes what has
+to be built rather than merely what a row is called.
 
 Each executable carries its own statistics table pairing an internal enum name
 with the string it draws, and the enum names were kept across sequels while the
 displayed statistic changed:
 
     eTotemsMade      -> "Village Elders"        (not Villagers Buried)
-    eTwinsBirthed    -> "Special Stews Found"   (not Twins Birthed)
+
+VV2's `+0x2E514` is confirmed **Village Elders**, and confirmed from the game's
+own UI rather than from the enum name: the statistics screen builder
+`sub_43F860` pushes label string id `0x368` at `0x4407EF` and reads the field at
+`0x44082A` seven instructions later. Id `0x368` is literally `"Village Elders"`
+(EN pointer `0x48F378`), sitting between `0x367` "Highest Population" and
+`0x369` "Oldest Villager". So the row-to-field pairing is read off the builder,
+not inferred.
 
 So VV2 through VV5 do not have an unmaintained Villagers Buried slot waiting to
-be populated -- they have no such counter at all, and `+0x1C` holds a live elder
-count the exporter was mislabelling. VV1 is the only game whose own table lists
-Villagers Buried and Twins Birthed.
+be populated -- they have no such counter at all. VV1 is the only game whose own
+table lists Villagers Buried.
 
-Villagers Buried and Twins Birthed for VV2-VV5 are therefore NEW counters that
-must be built and stored by this project, not stock fields to be repaired. The
-mutation-site analysis below still applies to building them, but its premise
-that the destination slot already exists does not.
+**Villagers Buried for VV2-VV5 is therefore a NEW counter** that must be built
+and stored by this project, not a stock field to be repaired. The mutation-site
+analysis below still applies to building it, but its premise that the
+destination slot already exists does not.
+
+### Correction: `+0x28` is Twins Birthed, and the enum name was right
+
+An earlier revision of this section recorded
+
+    eTwinsBirthed    -> "Special Stews Found"   (not Twins Birthed)
+
+on the reasoning that the displayed string was authoritative and the enum name
+was stale inheritance. **That was backwards.** The disassembly shows `+0x28` is
+incremented inside the childbirth routine, on the twins branch:
+
+    VV3  0x455BE7  inc dword_5824C8      in sub_455AB0, after `mov [litter], 2`
+    VV4  0x45E8DD  add dword_4D6E08, 1   in sub_45E7B0, after `mov [litter], 2`
+
+Both are mutually exclusive with the `+0x2C` write, which follows
+`mov [litter], 3`. Exactly one fires per conception, on the birth path.
+
+The alignment does not rest on `+0x28` alone. Every neighbouring label was
+matched to the shape of the code that writes it, and only `+0x28` fails to fit:
+
+| Offset | Label | Code shape | Fits |
+|---|---|---|---|
+| `+0x08` | Babies Made | `add ..., ecx` -- adds the *litter size* | yes |
+| `+0x14` | Mushrooms / Collectibles | `cmp ..., 1F4h` (500 cap) | yes |
+| `+0x18` | Highest Population | load / max / store | yes |
+| `+0x20` | Oldest Villager | load / max / store | yes |
+| `+0x24` | Island Events Seen | plain increment | yes |
+| `+0x28` | "Special Stews Found" | `inc` on the twins branch of childbirth | **no** |
+
+Two games, two different encodings (`inc` vs `add ,1`), the same answer.
+
+**The generalisable lesson:** this project's rule is that *a counter's name is
+not evidence of its trigger*. A displayed string is a name too. The earlier
+revision applied the rule to the enum name and exempted the display string; the
+rule applies to both, and only the write site is evidence.
+
+**Consequence for the shipped exporter:** VV3/VV4/VV5 currently print a
+twins-birth count under a "Special Stews Found" label. Relabelling changes
+user-visible output, so it is held for the owner's decision rather than
+corrected here.
+
+**Consequence for planned work:** VV3/VV4/VV5 twins totals already exist *and
+already persist*, so no new counter, field, or hook is needed for them. Only
+VV2 lacks a twins counter -- its twins branch at `0x44BA82` sets litter size 2
+and increments nothing.
+
+### The block is persisted, and how that was missed
+
+The statistics block is copied wholesale between a live global and the saved
+manager copy:
+
+    VV3  save  sub_4264A0: dest = manager+0x4EC, src = dword_5824A0, `rep movsd`, ecx = 0x26
+         load  sub_426480: dest = dword_5824A0,  src = manager+0x4EC, same
+    VV4  live block dword_4D6DE0, same shape
+
+38 dwords (152 bytes) flat in both directions. An earlier analysis concluded
+these counters were "never read, so session-scoped, resetting each launch",
+because a per-address xref scan found exactly one reference to each -- the
+write. **That was a scanning artifact, not a fact about the game:** a bulk
+`rep movsd` over the whole block is invisible to per-address xref scans. Any
+future claim that a block field is unread must account for bulk copies.
 
 The block range `+0x30..+0x97` has no direct stock code references in any of the
 three games. It is still zeroed, serialized, and restored, but the current
