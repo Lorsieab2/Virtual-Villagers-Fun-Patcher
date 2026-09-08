@@ -101,6 +101,11 @@ enum {
        and records nothing useful. */
     FATHER_BY_ID = 0,
     FATHER_BY_NAME = 1,
+    /* The game records nothing about the other parent that can be read back
+       from the mother. VV1 is the only such case: its conception routine
+       RECEIVES a partner value and never reads it, and the field that looked
+       like a father id turned out to be a skill value -- see the VV1 row. */
+    FATHER_NOT_RECORDED = 2,
 
     GAME_VV1 = 1,
     GAME_VV2 = 2,
@@ -178,20 +183,38 @@ static const struct game_layout GAME_LAYOUTS[6] = {
                              0x1C because nothing is referenced between +0x370
                              and +0x38C, and +0x38C is the next field the
                              conception routine itself writes
-         +0x394  father id   written from the caller's argument at 0x43BC04
+         +0x394  NOT the father -- see below
 
-       That +0x394 really is a villager reference was worth confirming, because
-       the conception routine receives the father id and never reads it back --
-       a field the game writes and does not itself consult is exactly the shape
-       of thing that turns out to be misidentified. It holds up: +0x394 is
-       compared against the same 0xC7 "no villager" sentinel as the proven id
-       field +0x36C (at 0x42EF39) and is initialised to 0xC7 at 0x42427B. No
-       skill or appearance field carries that sentinel.
+       VV1 RECORDS NOTHING ABOUT THE FATHER, which is why father_kind is
+       FATHER_NOT_RECORDED here and only here.
 
-       The neighbouring +0x38C and +0x390 are NOT parent references despite
-       sitting beside it -- they are an inherited skill slot and value, read as
-       a pair by the birth routine at 0x42EF46 and 0x42EF4D and never compared
-       against a sentinel. Nothing in this file reads them.
+       An earlier version of this file read +0x394 as a father id, on the
+       strength of `mov [esi+0x394], edx` at 0x43BC04 inside the conception
+       routine. That was wrong, and the disassembly says so plainly once the
+       argument slots are traced rather than assumed:
+
+           0x43BBD0  mov eax, [esp+0x10]     ; the same argument
+           0x43BBD4  cmp eax, 2              ; normalised...
+           0x43BBD9  mov eax, 1              ; ...into a skill slot
+           0x43BC00  mov edx, [esp+0x10]     ; and reloaded here
+           0x43BC04  mov [esi+0x394], edx    ; stored as what looked like a father
+           0x43BC0A  mov [esi+0x38C], eax    ; skill slot
+           0x43BC10  mov [esi+0x390], ecx    ; skill value
+
+       All three come from one skill-selection pair. The caller does pass the
+       partner's +0x36C at [esp+0xC], and the routine never reads that slot at
+       all.
+
+       +0x36C would not have identified him anyway: it is rand()%50+1 at
+       0x43C669 (and rand()%99+1 at 0x41C247), it is COPIED from parent to child
+       at 0x43C9E5 alongside gender, head and body, and every reader compares it
+       paired with +0x368. That is look-alike avoidance, not identity -- with
+       ~90 villagers and 50 possible values, living villagers share it routinely.
+
+       So there is no father to name from the mother's record. The log says so
+       rather than printing a skill value as if it were a parent. Both parents'
+       records ARE live at the six call sites, so capturing him there is
+       possible; that is a design change and it is with the owner.
          +0x35C  litter      2 at 0x43BC4E, 3 at 0x43BC8C; cleared per
                              pregnancy by 0x42F0C7, 0x43C722 and 0x43CABE
 
@@ -203,7 +226,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         1, 0x3D8, 256, 0,
         0x28, 0x348, 0x360, 0x364, 0x36C,
         0x370, 0x1C,
-        FATHER_BY_ID, 0x394, 0x35C,
+        FATHER_NOT_RECORDED, 0, 0x35C,
         0xC7,
         L"Virtual Villagers 1 Parentage Log"
     },
@@ -313,9 +336,18 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        here; the resolver headers are byte-identical. Verified separately:
          +0x1C50  litter  1 at 0x465ECD, 3 at 0x465F10, 2 at 0x465F23
          +0x1C10  father  strncpy at 0x465EBE
-       Its resolver call site is 0x467DBE. Same head/body caveat as VV4. */
+       Its resolver call site is 0x467DBE. Same head/body caveat as VV4.
+
+       The container header is 0x48, NOT VV4's 0x44 -- accessor sub_46F950 does
+       `lea eax, [eax + ecx + 0x48]`. The two games are structurally identical
+       at every record offset and differ here, which is why this was verified
+       rather than inherited: carrying VV4's 0x44 across would have put every
+       VV5 mother pointer four bytes off a record boundary, the guard would have
+       rejected every call, and VV5 would have logged nothing at all without
+       any error. The container is the global 0x554148, loaded as an immediate
+       at all 445 of its occurrences. */
     {
-        1, 0x2F44, 150, 0x44,
+        1, 0x2F44, 150, 0x48,
         0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
         0x1B9C, 0x18,
         FATHER_BY_NAME, 0x1C10, 0x1C50,
@@ -556,7 +588,10 @@ static int layout_is_usable(const struct game_layout *g) {
     if (g->father_kind == FATHER_BY_ID && g->id + WORD > stride) {
         return 0;
     }
-    if (g->father_kind == FATHER_BY_ID) {
+    if (g->father_kind == FATHER_NOT_RECORDED) {
+        /* Nothing to validate: the field is unused. */
+        (void)0;
+    } else if (g->father_kind == FATHER_BY_ID) {
         if (g->father + WORD > stride) return 0;
     } else if (g->father_kind == FATHER_BY_NAME) {
         /* A name field is read with the same capacity as the villager's own
@@ -655,7 +690,10 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     }
 
     copy_villager_name(g, mother, mother_name, sizeof(mother_name));
-    if (g->father_kind == FATHER_BY_NAME) {
+    if (g->father_kind == FATHER_NOT_RECORDED) {
+        memcpy(father_name, "(not recorded by this game)", 28);
+        father = NULL;
+    } else if (g->father_kind == FATHER_BY_NAME) {
         /* The name is already in the mother's record; there is no father record
            to find, so his age, head and body are simply not available in these
            games. Recording the name we do have beats recording nothing. */
