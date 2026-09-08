@@ -16,6 +16,25 @@ static int read_int(const unsigned char *manager, unsigned int offset) {
     return *(const int *)(manager + offset);
 }
 
+static void write_int(unsigned char *manager, unsigned int offset, int value) {
+    *(int *)(manager + offset) = value;
+}
+
+/* Marker value proving a save's burial counter has been seeded.
+
+   A save created before the counter existed carries graves the counter never
+   saw, so reporting the raw counter would show zero for a village with a full
+   memorial. The requirements allow a retained-memorial count as a ONE-TIME
+   lower-bound baseline and are explicit that it must not be an amount added
+   per export, so the seed is gated on a dedicated marker rather than on the
+   counter being zero: a genuine save with no burials yet is indistinguishable
+   from an unseeded one by value alone, and re-seeding it every export would
+   overwrite real pickups once the memorial filled.
+
+   The constant is arbitrary but distinctive, so a slot that happens to hold a
+   small integer for some other reason does not read as initialised. */
+#define BURIAL_BASELINE_MARKER 0x56425331 /* 'VBS1' */
+
 static int count_flags(
     const unsigned char *manager,
     const unsigned int *offsets,
@@ -88,19 +107,50 @@ static int count_occupied_graves(
    write_later_game alone, which silently omitted it for New Believers because
    that game has its own writer -- review caught that on #285. One emitter used
    by every caller cannot drift apart that way again. */
+/* Seed a save's burial counter from its memorial once, then leave it alone.
+
+   Returns the counter's value. The seed takes the larger of the stored counter
+   and the current occupied-grave count, so a save that already has pickups
+   recorded never loses them to a smaller memorial, and a save predating the
+   counter starts from the graves it can still see rather than from zero.
+
+   After seeding, the memorial is never consulted again for this value: the
+   cave wrapper on the skeleton-pickup latch clear is what advances it, and
+   that keeps counting once every slot is occupied. This is the "count
+   occupied graves first, then count buried skeletons past the maximum"
+   behaviour the requirements describe. */
+static int seeded_burial_total(
+    unsigned char *manager,
+    unsigned int counter_offset,
+    unsigned int marker_offset,
+    const unsigned char *graves,
+    unsigned int graves_stride,
+    unsigned int graves_capacity
+) {
+    int stored = read_int(manager, counter_offset);
+    if (read_int(manager, marker_offset) != (int)BURIAL_BASELINE_MARKER) {
+        int baseline = count_occupied_graves(
+            graves, graves_stride, 0x1Cu, graves_capacity);
+        if (baseline > stored) {
+            stored = baseline;
+            write_int(manager, counter_offset, stored);
+        }
+        write_int(manager, marker_offset, (int)BURIAL_BASELINE_MARKER);
+    }
+    return stored;
+}
+
 static int write_memorial_row(
     FILE *file,
     unsigned int graves_rva,
     unsigned int graves_stride,
     unsigned int graves_capacity,
-    /* Statistics-block offset of the patch-added lifetime burial counter, or
-       zero for a game that does not yet carry one. The counter is incremented
-       by a cave wrapper on the skeleton-pickup latch clear, which runs before
-       the memorial array is consulted and therefore keeps counting once every
-       slot is occupied -- the walk below cannot, since it can only report what
-       the array still holds. */
-    const unsigned char *statistics,
-    unsigned int buried_offset
+    /* Statistics block of the game, and the offsets within it of the
+       patch-added lifetime burial counter and its one-time seeded marker. A
+       zero counter offset means the game does not carry one yet. */
+    unsigned char *statistics,
+    unsigned int buried_offset,
+    unsigned int marker_offset
 ) {
     const unsigned char *module;
     if (graves_rva == 0u) {
@@ -110,17 +160,22 @@ static int write_memorial_row(
     if (module == NULL) {
         return 0;
     }
-    /* Prefer the patch-added lifetime counter when the game carries one: it
-       keeps counting past the array's capacity, which the walk cannot. The
-       walk remains the fallback so a save predating the counter still reports
-       a number rather than nothing. */
     if (buried_offset != 0u && statistics != NULL) {
         return fprintf(
             file,
             "Villagers Buried: %d\n",
-            read_int(statistics, buried_offset)
+            seeded_burial_total(
+                statistics,
+                buried_offset,
+                marker_offset,
+                module + graves_rva,
+                graves_stride,
+                graves_capacity
+            )
         ) >= 0;
     }
+    /* No counter for this game yet: report what the memorial still holds
+       rather than nothing. */
     return fprintf(
         file,
         "Villagers Buried: %d\n",
@@ -179,7 +234,7 @@ static int real_hours(int game_id, const unsigned char *manager) {
     return ((real_hours_function)(module + rva))(manager, NULL);
 }
 
-static int write_vv1(FILE *file, const unsigned char *manager) {
+static int write_vv1(FILE *file, unsigned char *manager) {
     static const unsigned int puzzle_offsets[16] = {
         0x9FA8, 0x9FB0, 0x9FB8, 0x9FC0,
         0x9FC8, 0x9FD8, 0x9FE0, 0x9FE8,
@@ -218,7 +273,10 @@ static int write_vv1(FILE *file, const unsigned char *manager) {
         read_int(manager, 0x9E2C),
         read_int(manager, 0x9E30),
         read_int(manager, 0x9E34),
-        read_int(manager, 0x9E84),
+        /* Seeded once from the 50-slot memorial at manager+0xA340, then
+           advanced only by the pickup wrapper. */
+        seeded_burial_total(manager, 0x9E84u, 0x9E88u,
+                            manager + 0xA340u, 0x2Cu, 50u),
         read_int(manager, 0x9E3C),
         read_int(manager, 0x9E40),
         read_int(manager, 0x9E44),
@@ -227,7 +285,28 @@ static int write_vv1(FILE *file, const unsigned char *manager) {
     ) >= 0;
 }
 
-static int write_vv2(FILE *file, const unsigned char *manager) {
+/* The Lost Children's memorial uses a different occupancy field.
+
+   The later games mark a record occupied by a non-zero age at record+0x1C,
+   which is what count_occupied_graves tests. VV2's records are stride 0x7C
+   with the occupancy dword at record+0x74, so it needs its own walk rather
+   than the shared one; passing the shared walk a wrong offset would report
+   zero and silently seed a village's whole memorial away. */
+static int vv2_seeded_burial_total(unsigned char *manager) {
+    int stored = read_int(manager, 0x2E5D4u);
+    if (read_int(manager, 0x2E5DCu) != (int)BURIAL_BASELINE_MARKER) {
+        int baseline = count_occupied_graves(
+            manager + 0x2EB0Cu, 0x7Cu, 0x74u, 50u);
+        if (baseline > stored) {
+            stored = baseline;
+            write_int(manager, 0x2E5D4u, stored);
+        }
+        write_int(manager, 0x2E5DCu, (int)BURIAL_BASELINE_MARKER);
+    }
+    return stored;
+}
+
+static int write_vv2(FILE *file, unsigned char *manager) {
     static const unsigned int puzzle_offsets[16] = {
         0x2E768, 0x2E770, 0x2E778, 0x2E780,
         0x2E788, 0x2E790, 0x2E798, 0x2E7A0,
@@ -274,7 +353,13 @@ static int write_vv2(FILE *file, const unsigned char *manager) {
         read_int(manager, 0x2E50C),
         read_int(manager, 0x2E510),
         read_int(manager, 0x2E514),
-        read_int(manager, 0x2E5D4),
+        /* Seeded once from the 50-slot memorial. The Lost Children reaches
+           its grave records through a container pointer rather than a fixed
+           offset -- the allocator at 0x464CD0 loads [esi+0xE574D4] and then
+           indexes +0x2EB0C at stride 0x7C -- and the manager this exporter
+           receives IS that container, so the records sit at manager+0x2EB0C
+           with the occupancy dword at record+0x74. */
+        vv2_seeded_burial_total(manager),
         read_int(manager, 0x2E518),
         read_int(manager, 0x2E51C),
         read_int(manager, 0x2E520),
@@ -395,7 +480,7 @@ static int count_vv5_puzzles(
 
 static int write_later_game(
     FILE *file,
-    const unsigned char *manager,
+    unsigned char *manager,
     const char *title,
     const char *collection_label,
     unsigned int statistics_offset,
@@ -408,10 +493,12 @@ static int write_later_game(
     unsigned int graves_rva,
     unsigned int graves_stride,
     unsigned int graves_capacity,
-    /* Statistics-block offset of the patch-added lifetime burial counter. */
-    unsigned int buried_offset
+    /* Statistics-block offsets of the patch-added lifetime burial counter
+       and its one-time seeded marker. */
+    unsigned int buried_offset,
+    unsigned int marker_offset
 ) {
-    const unsigned char *statistics = manager + statistics_offset;
+    unsigned char *statistics = (unsigned char *)manager + statistics_offset;
     if (fprintf(
         file,
         "%s\n"
@@ -460,16 +547,16 @@ static int write_later_game(
     }
     return write_memorial_row(
         file, graves_rva, graves_stride, graves_capacity,
-        statistics, buried_offset);
+        statistics, buried_offset, marker_offset);
 }
 
 static int write_vv5(
     FILE *file,
-    const unsigned char *manager,
+    unsigned char *manager,
     int puzzles_solved,
     int puzzle_total
 ) {
-    const unsigned char *statistics = manager + 0x7B4u;
+    unsigned char *statistics = manager + 0x7B4u;
     if (fprintf(
         file,
         "Virtual Villagers - New Believers\n"
@@ -512,7 +599,7 @@ static int write_vv5(
     /* New Believers: memorial at 0x5481A8, accessor 0x464E70,
        500 slots, stride 0x5C, occupancy +0x1C. */
     return write_memorial_row(
-        file, 0x1481A8u, 0x5Cu, 500u, statistics, 0x38u);
+        file, 0x1481A8u, 0x5Cu, 500u, statistics, 0x38u, 0x3Cu);
 }
 
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
@@ -520,7 +607,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     const void *manager_pointer,
     int save_id
 ) {
-    const unsigned char *manager = (const unsigned char *)manager_pointer;
+    /* The counters this exporter seeds live in the manager, so the pointer
+       is used mutably. The seed writes at most one dword per save, once. */
+    unsigned char *manager = (unsigned char *)manager_pointer;
     wchar_t temporary[MAX_LONG_PATH];
     wchar_t destination[MAX_LONG_PATH];
     FILE *file;
@@ -571,8 +660,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                0x454FF0 and the clear at 0x4549F0, which both step by 0x30 for
                0x1F4 records. */
             0x197D64u, 0x30u, 500u,
-            /* Lifetime burials counted at the pickup latch clear. */
-            0x30u
+            /* Lifetime burials counted at the pickup latch clear, seeded
+               once from the memorial via the marker at +0x34. */
+            0x30u, 0x34u
         );
     } else if (game_id == GAME_VV4) {
         written = write_later_game(
@@ -587,8 +677,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             /* Mausoleum. Accessor 0x45D650: base 0x5025C8, capacity 500,
                stride 0x5C, occupancy +0x1C. Burial writer 0x45D470. */
             0x1025C8u, 0x5Cu, 500u,
-            /* Lifetime burials counted at the pickup latch clear. */
-            0x30u
+            /* Lifetime burials counted at the pickup latch clear, seeded
+               once from the memorial via the marker at +0x34. */
+            0x30u, 0x34u
         );
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2",
+  "companion_sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +12,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
+          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
         }
       ],
       "patches": [
@@ -47,7 +47,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
+          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
         }
       ],
       "patches": [
@@ -94,7 +94,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
+          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
         }
       ],
       "patches": [
@@ -129,7 +129,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
+          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
         }
       ],
       "patches": [
@@ -170,7 +170,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "B9342C212C0EC36204136C0546256654A68FA862B8690AA721B7BFC0E7AEC2E2"
+          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
         }
       ],
       "patches": [
