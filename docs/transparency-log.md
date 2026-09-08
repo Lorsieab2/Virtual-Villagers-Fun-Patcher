@@ -459,6 +459,16 @@ Replaces some in-game text with wording consistent with the other Virtual Villag
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Write Parentage Log to Text File (`vv4_write_parentage_log`)
+
+On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 4 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record, so his age, head and body come from his own record as the conception routine held it; if that record cannot be confirmed the log names him and says those three fields are not recorded by this game rather than printing a zero a real villager could hold.
+
+- Behavior changes: On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 4 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record, so his age, head and body come from his own record as the conception routine held it; if that record cannot be confirmed the log names him and says those three fields are not recorded by this game rather than printing a zero a real villager could hold.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
@@ -563,6 +573,16 @@ For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divis
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Write Parentage Log to Text File (`vv5_write_parentage_log`)
+
+On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 5 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record, so his age, head and body come from his own record as the conception routine held it; if that record cannot be confirmed the log names him and says those three fields are not recorded by this game rather than printing a zero a real villager could hold.
+
+- Behavior changes: On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 5 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record, so his age, head and body come from his own record as the conception routine held it; if that record cannot be confirmed the log names him and says those three fields are not recorded by this game rather than printing a zero a real villager could hold.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv5_write_village_statistics`)
 

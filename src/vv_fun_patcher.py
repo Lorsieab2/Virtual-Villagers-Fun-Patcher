@@ -3832,7 +3832,21 @@ def _append_layout(
                     f"{feature.name} ({feature.id}) declares a malformed "
                     f"composition overlay for {base_id}."
                 )
-            return {**overlay, "_composition_overlay": True}
+            # Selection of the base is necessary but NOT sufficient: a
+            # feature can be selected and still append nothing in this
+            # mode.  vv5's Origins is built from two manifests -- the
+            # patch set in vv5_origins_feature.json and the .vv5t9
+            # append in vv5_task9_native_actions.json -- so a caller
+            # holding only the first has Origins selected with no append
+            # behind it, and the overlay destination does not exist.  The
+            # decision is finished in _apply_appends, which can see
+            # whether the base really appends here.
+            return {
+                **overlay,
+                "_composition_overlay": True,
+                "_composition_overlay_requires_append_by": base_id,
+                "_composition_overlay_fallback": layout,
+            }
     return layout
 
 
@@ -3840,7 +3854,7 @@ def _resolve_overlay_preimage(layout: dict[str, Any]) -> bytes:
     """Resolve and authenticate a composition overlay's declared preimage."""
     spec = layout.get("overlay_preimage")
     if not isinstance(spec, dict) or spec.get("kind") != "zero_fill":
-        raise PatcherError("VV1 composition overlay must declare a zero-fill preimage.")
+        raise PatcherError("Composition overlay must declare a zero-fill preimage.")
     try:
         length = int(spec["length"])
     except (KeyError, TypeError, ValueError) as exc:
@@ -3871,7 +3885,10 @@ def _apply_composition_overlay(
             f"{feature.name} ({feature.id}) has a malformed composition overlay."
         ) from exc
     if offset < 0 or length <= 0 or offset % 0x400:
-        raise PatcherError("VV1 composition overlay must use a positive 0x400-aligned range.")
+        raise PatcherError(
+            f"{feature.name} ({feature.id}) composition overlay must use a "
+            f"positive 0x400-aligned range."
+        )
     preimage = _resolve_overlay_preimage(layout)
     if len(preimage) != length or offset + length > len(data):
         raise PatcherError(
@@ -3914,6 +3931,32 @@ def _apply_pe_append_transactions(
         feature.id: _append_layout(feature, patch_mode, selected_feature_ids)
         for feature in fun_patches
     }
+    # Finish the conditional overlays: one applies only if the feature it
+    # composes with is itself performing a real append in this mode.  When it
+    # is not, the destination was never created, so the standalone append
+    # layout is the correct form and there is no contention to avoid.
+    for feature_id, candidate in list(append_layouts.items()):
+        if not isinstance(candidate, dict):
+            continue
+        base_id = candidate.get("_composition_overlay_requires_append_by")
+        if base_id is None:
+            continue
+        base_layout = append_layouts.get(base_id)
+        base_appends = isinstance(base_layout, dict) and not base_layout.get(
+            "_composition_overlay"
+        )
+        if base_appends:
+            append_layouts[feature_id] = {
+                key: value
+                for key, value in candidate.items()
+                if key
+                not in {
+                    "_composition_overlay_requires_append_by",
+                    "_composition_overlay_fallback",
+                }
+            }
+        else:
+            append_layouts[feature_id] = candidate.get("_composition_overlay_fallback")
     append_features = sorted(
         fun_patches,
         key=lambda feature: bool(
@@ -4135,6 +4178,8 @@ def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
     return bytes(append_bytes)
 
 
+
+
 def _select_composition_patches(
     fun_bytes: list[dict[str, Any]],
     fun_patches: list[FunPatch],
@@ -4178,6 +4223,89 @@ def _select_composition_patches(
                 dict(patch, _owner=owner) for patch in alternate
             )
     return fun_bytes
+
+
+def _relocate_composition_overlay_hooks(
+    fun_bytes: list[dict[str, Any]],
+    fun_patches: list[FunPatch],
+    patch_mode: str,
+    selected_feature_ids: set[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Swap in an overlay's own hook bytes when its overlay form is selected.
+
+    A feature that moves its payload into a co-selected parent's spare space
+    also has to move the hooks that reach it: every trampoline entry is a
+    rel32, so the standalone bytes point at the address the standalone append
+    would have used and would land in the middle of the parent's own code.
+
+    VV1 Birth Control keeps `_relocate_vv1_birth_control_hooks`, which
+    regenerates its bytes from its page builder.  Everything else declares the
+    relocated bytes in the overlay itself as `hook_patches`, matched to the
+    patch they replace by offset, so the manifest that pins the payload also
+    pins the hooks that reach it and the two cannot drift apart.
+    """
+    selected_ids = (
+        {feature.id for feature in fun_patches}
+        if selected_feature_ids is None
+        else set(selected_feature_ids)
+    )
+    replacements: dict[tuple[str, int], dict[str, Any]] = {}
+    for feature in fun_patches:
+        if feature.id == VV1_BIRTH_CONTROL_ID:
+            continue
+        layout = _append_layout(feature, patch_mode, selected_ids)
+        if not isinstance(layout, dict) or layout.get("_composition_overlay") is not True:
+            continue
+        base_id = layout.get("_composition_overlay_requires_append_by")
+        if base_id is not None:
+            base_layout = _append_layout(
+                next(item for item in fun_patches if item.id == base_id),
+                patch_mode,
+                selected_ids,
+            )
+            if not isinstance(base_layout, dict) or base_layout.get(
+                "_composition_overlay"
+            ):
+                continue
+        for patch in layout.get("hook_patches") or []:
+            try:
+                offset = int(patch["offset"], 0)
+            except (KeyError, TypeError, ValueError) as exc:
+                raise PatcherError(
+                    f"{feature.name} ({feature.id}) composition overlay hook "
+                    f"patch is malformed."
+                ) from exc
+            replacements[(f"feature:{feature.id}", offset)] = patch
+    if not replacements:
+        return fun_bytes
+    relocated: list[dict[str, Any]] = []
+    used: set[tuple[str, int]] = set()
+    for patch in fun_bytes:
+        try:
+            key = (str(patch.get("_owner")), int(patch.get("offset", "0x0"), 0))
+        except (TypeError, ValueError):
+            relocated.append(patch)
+            continue
+        replacement = replacements.get(key)
+        if replacement is None:
+            relocated.append(patch)
+            continue
+        used.add(key)
+        updated = dict(patch)
+        updated["after"] = replacement["after"]
+        if "before" in replacement:
+            updated["before"] = replacement["before"]
+        relocated.append(updated)
+    missing = set(replacements) - used
+    if missing:
+        # A declared relocation that matches nothing means the overlay and the
+        # feature's own patch list disagree about where the hook lives, which
+        # would silently leave the standalone rel32 pointing into the parent.
+        offsets = ", ".join(f"0x{offset:X}" for _, offset in sorted(missing))
+        raise PatcherError(
+            f"Composition overlay hook relocation matched no patch at {offsets}."
+        )
+    return relocated
 
 
 def _relocate_vv1_birth_control_hooks(
@@ -4526,12 +4654,27 @@ def _remove_feature_bytes(
     patches = list(feature.patches)
     patches.extend(feature.raw.get("patch_mode_overrides", {}).get(patch_mode, []))
     if composition_overlay is not None:
-        patches = _relocate_vv1_birth_control_hooks(
-            [dict(patch, _owner=f"feature:{feature.id}") for patch in patches],
-            [feature],
-            patch_mode,
-            {VV1_ORIGINS_FEATURE_ID, VV1_BIRTH_CONTROL_ID},
-        )
+        owned = [dict(patch, _owner=f"feature:{feature.id}") for patch in patches]
+        if feature.id == VV1_BIRTH_CONTROL_ID:
+            patches = _relocate_vv1_birth_control_hooks(
+                owned,
+                [feature],
+                patch_mode,
+                {VV1_ORIGINS_FEATURE_ID, VV1_BIRTH_CONTROL_ID},
+            )
+        else:
+            # Removal has to undo exactly what installation wrote, so the
+            # overlay's relocated hook bytes are what must be matched here
+            # too -- reversing the standalone bytes would fail the preimage
+            # check and leave the hook installed.
+            overlay_layout, _ = composition_overlay
+            base_id = overlay_layout.get("base_feature")
+            patches = _relocate_composition_overlay_hooks(
+                owned,
+                [feature],
+                patch_mode,
+                {feature.id, base_id} if base_id else {feature.id},
+            )
     for patch in reversed(patches):
         offset = int(patch["offset"], 0)
         before = _patch_bytes(patch, "before")
@@ -7255,6 +7398,9 @@ def render_patched_bytes(
                 fun_bytes.append(dict(patch, _owner=f"feature:{feature.id}"))
     fun_bytes = _select_composition_patches(fun_bytes, fun_patches)
     fun_bytes = _relocate_vv1_birth_control_hooks(
+        fun_bytes, fun_patches, patch_mode
+    )
+    fun_bytes = _relocate_composition_overlay_hooks(
         fun_bytes, fun_patches, patch_mode
     )
     fun_bytes = _compose_expanded_statistics_after_atomic(
