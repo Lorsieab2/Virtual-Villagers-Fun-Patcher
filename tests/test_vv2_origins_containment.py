@@ -134,6 +134,13 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
             and patch.id not in {
                 "vv2_full_mastery_all_stage_a_candidate",
                 "vv2_individual_full_mastery_candidate",
+                # The parentage tracker is deliberately NOT Origins-free: its
+                # loader trampoline lives in the page Origins appends, because
+                # VV2's own code cave is occupied by the renamed-build crash
+                # guard. Selecting it resolves the Origins base in, which is
+                # exactly what this test exists to prove the OTHER features do
+                # not do -- so it belongs outside the set rather than inside it.
+                "vv2_write_parentage_log",
                 *PUBLIC,
             }
         ]

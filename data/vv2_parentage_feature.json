@@ -1,0 +1,44 @@
+{
+  "features": [
+    {
+      "id": "vv2_write_parentage_log",
+      "game_id": "vv2",
+      "name": "Write Parentage Log to Text File",
+      "output_tag": "parentage",
+      "description": "Records both parents at conception in a plain text log. VV2 keeps the father's name on the mother's record and no father id, so the log names him and reports his age, head and body as not recorded by this game. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.",
+      "dependencies": [
+        "vv2_enable_origins_exclusive_features"
+      ],
+      "companion_files": [
+        {
+          "destination": "VVFP Parentage Export.dll",
+          "sha256": "d113e8d5874003575aae49e463eb0e5639e29b81ba23328b5894949f2c886747",
+          "source": "assets/parentage/VVFP Parentage Export.dll"
+        }
+      ],
+      "patches": [],
+      "composition_patches": {
+        "vv2_enable_origins_exclusive_features": [
+          {
+            "offset": "0x4B98A",
+            "before": "0F8449010000",
+            "after": "0F84EA8A0600",
+            "purpose": "Retarget the conception routine's rejection exit to a relocated one-pop stub, so the success join stops being reachable one byte in and can be diverted whole"
+          },
+          {
+            "offset": "0x4BAD8",
+            "before": "5E5FC21C00",
+            "after": "E93D890600",
+            "purpose": "Divert the single point where every successful conception converges and the litter size is final, into the loader trampoline"
+          },
+          {
+            "offset": "0xB241A",
+            "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "after": "60688A444B00FF15D040470085C0750F688A444B00FF151040470085C0741C68AA444B0050FF15D440470085C0740CFF742404FF7424046A02FFD0615E5FC21C00000000000000000000000000000000000000000000000000000000000000005FC21C000000000000000000000000005656465020506172656E74616765204578706F72742E646C6C000000000000005772697465506172656E746167655265636F72640000000000000000000000000000000000000000000000000000",
+            "purpose": "The loader trampoline, the relocated one-pop rejection stub, and the companion and export name strings"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -197,6 +197,7 @@ On each new pregnancy, appends the mother's and father's names, their ages at co
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 6; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv1_write_village_statistics`)
 
@@ -290,6 +291,16 @@ Each child who finishes a Teaching Children lesson gains 7 to 9 points in one eq
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Write Parentage Log to Text File (`vv2_write_parentage_log`)
+
+Records both parents at conception in a plain text log. VV2 keeps the father's name on the mother's record and no father id, so the log names him and reports his age, head and body as not recorded by this game. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.
+
+- Behavior changes: Records both parents at conception in a plain text log. VV2 keeps the father's name on the mother's record and no father id, so the log names him and reports his age, head and body as not recorded by this game. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: vv2_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits when its required base is also selected: 3; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv2_write_village_statistics`)
 

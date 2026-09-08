@@ -244,9 +244,30 @@ def build_document() -> str:
                     "static source/manifest verification performed; runtime/player confirmation pending",
                 )
             )
-            lines.append(
-                f"- Guarded executable edits: {len(raw.get('patches', []))}; every edit has an exact purpose and before/after guard in the manifest."
-            )
+            # A composition-only feature has an empty top-level `patches` list
+            # and applies its edits from `composition_patches` when its base is
+            # co-selected. Counting only the top-level list reported zero
+            # guarded edits for a feature that makes three, which contradicted
+            # both the manifest and the per-output audit.
+            composition = raw.get("composition_patches", {})
+            composition_counts = sorted(
+                {
+                    len(rows)
+                    for rows in composition.values()
+                    if isinstance(rows, list)
+                }
+            ) if isinstance(composition, dict) else []
+            guarded = len(raw.get("patches", []))
+            if guarded or not composition_counts:
+                lines.append(
+                    f"- Guarded executable edits: {guarded}; every edit has an exact purpose and before/after guard in the manifest."
+                )
+            if composition_counts:
+                lines.append(
+                    "- Guarded executable edits when its required base is also selected: "
+                    + ", ".join(str(count) for count in composition_counts)
+                    + "; every edit has an exact purpose and before/after guard in the manifest."
+                )
             mode_overrides = raw.get("patch_mode_overrides", {})
             if mode_overrides:
                 lines.append(
