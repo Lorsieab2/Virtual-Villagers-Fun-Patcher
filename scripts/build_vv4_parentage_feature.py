@@ -205,11 +205,20 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
     # so inside the handler saved esi is at esp+0x14 and saved ebp at esp+0x10.
     code = assemble(
         f"""
-            # Read the suppression flag BEFORE the call: sub_45E7B0 cleans its
-            # own seven arguments, so they do not exist afterwards.  ebx is
-            # callee-saved and the resolver restores it in its epilogue, and
-            # pushad/popad below preserves it across everything in between.
-            mov ebx, dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
+            # ebx must be preserved by this trampoline, despite being a
+            # nonvolatile register the enclosing routine appears to save.
+            # That routine pushes ebx early and pops it again BEFORE this call
+            # site, so by the time the trampoline runs ebx already holds the
+            # value its own caller expects back, and nothing later restores
+            # it.  The sole caller dereferences it 0x19 bytes after the call
+            # (mov eax, [ebx+0x18]), so leaving the suppression flag there
+            # would make every conception a null-pointer dereference.
+            push ebx
+
+            # Read the suppression flag BEFORE the call: the conception
+            # routine cleans its own seven arguments, so they no longer exist
+            # afterwards.  The displacement includes the ebx just pushed.
+            mov ebx, dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
 
             # The stolen call, performed first so the game's own behaviour is
             # unchanged whatever happens afterwards.
@@ -256,6 +265,7 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             call eax
         done:
             popad
+            pop ebx
             ret
         """,
         PAGE_VA,

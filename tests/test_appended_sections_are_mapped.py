@@ -24,6 +24,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+
 from vv_fun_patcher import load_builds, render_patched_bytes
 
 # game -> stock exe, build id, feature id, hook VA, trampoline VA, conception VA
@@ -48,8 +50,9 @@ CASES = {
 
 MODES = ("collection_progression", "immediate_fixed")
 
-# mov ebx, [esp+0x1C] -- the suppression flag, read before the stolen call
-FLAG_READ = bytes.fromhex("8B5C241C")
+# The conception routine cleans its own seven arguments, so the suppression
+# flag has to be read before the stolen call, not after it.
+FLAG_READ_MNEMONIC = "mov"
 
 
 def _sections(data):
@@ -170,15 +173,82 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
                         target_file,
                         "VV%d %s: the hook jumps to unmapped memory" % (game, mode),
                     )
-                    trampoline = data[target_file : target_file + 9]
-                    self.assertEqual(
-                        trampoline[:4],
-                        FLAG_READ,
-                        "VV%d %s: trampoline does not read the flag first"
-                        % (game, mode),
+                    self._check_trampoline(
+                        game, mode, data, target_file, target, conception
                     )
-                    stolen = target + 9 + struct.unpack_from("<i", trampoline, 5)[0]
-                    self.assertEqual(stolen, conception)
+
+    def _check_trampoline(self, game, mode, data, target_file, target, conception):
+        """Decode the trampoline and check what it does, not how it encodes it.
+
+        Asserted as behaviour rather than as a byte pattern, so a correct change
+        to the prologue does not fail a test it did not break -- pinning the
+        first four bytes did exactly that when ebx preservation was added.
+        """
+        where = "VV%d %s" % (game, mode)
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        listing = list(md.disasm(data[target_file : target_file + 0x60], target))
+        self.assertTrue(listing, "%s: trampoline did not disassemble" % where)
+        decoded = [(item.mnemonic, item.op_str) for item in listing]
+
+        # ebx holds the caller's value at this call site: the enclosing routine
+        # pops its own saved ebx before reaching the hook, and the sole caller
+        # dereferences ebx shortly after the call returns. The trampoline uses
+        # ebx for the suppression flag, so it must save and restore it -- and
+        # the restore has to come after popad, which would otherwise put the
+        # flag straight back into ebx.
+        self.assertEqual(
+            decoded[0],
+            ("push", "ebx"),
+            "%s: trampoline must preserve the caller's ebx first" % where,
+        )
+        popad = next(
+            (i for i, item in enumerate(decoded) if item[0] in ("popal", "popad")),
+            None,
+        )
+        pop_ebx = next(
+            (i for i, item in enumerate(decoded) if item == ("pop", "ebx")), None
+        )
+        self.assertIsNotNone(popad, "%s: trampoline never restores the frame" % where)
+        self.assertIsNotNone(pop_ebx, "%s: trampoline never restores ebx" % where)
+        self.assertGreater(
+            pop_ebx,
+            popad,
+            "%s: ebx is restored before popad, which overwrites it again" % where,
+        )
+
+        # The flag is read into ebx before the stolen call, because the callee
+        # cleans its own arguments and they no longer exist afterwards.
+        call_index = next(
+            (
+                i
+                for i, item in enumerate(listing)
+                if item.mnemonic == "call" and item.op_str.startswith("0x")
+            ),
+            None,
+        )
+        self.assertIsNotNone(call_index, "%s: trampoline makes no direct call" % where)
+        flag_read = next(
+            (
+                i
+                for i, item in enumerate(listing)
+                if item.mnemonic == FLAG_READ_MNEMONIC
+                and item.op_str.startswith("ebx, dword ptr [esp")
+            ),
+            None,
+        )
+        self.assertIsNotNone(flag_read, "%s: trampoline never reads the flag" % where)
+        self.assertLess(
+            flag_read,
+            call_index,
+            "%s: the flag is read after the call, when the arguments are gone" % where,
+        )
+
+        # And the stolen call still goes where it went before the hook.
+        self.assertEqual(
+            int(listing[call_index].op_str, 16),
+            conception,
+            "%s: trampoline does not perform the stolen call" % where,
+        )
 
 
 
