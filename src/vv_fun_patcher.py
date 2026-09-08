@@ -2959,12 +2959,26 @@ def validate_fun_patch_catalog(
                     f"{patch.name} ({patch.id}) has malformed composition overlays."
                 )
             for base_id, overlay in compositions.items():
-                if patch.id != VV1_BIRTH_CONTROL_ID or base_id != VV1_ORIGINS_FEATURE_ID:
+                # When the base is present it must belong to the same game, so a
+                # declaration cannot name a feature of another one. It is only
+                # checked when present, because this validator also runs over
+                # filtered catalogs -- resolve_fun_patch_ids passes a subset in
+                # which an internal Origins base is absent, and requiring it
+                # there rejected the shipped VV1 pairing outright. The
+                # byte-level guarantees do not depend on this: they are enforced
+                # per overlay when it is applied, against the bytes actually
+                # present.
+                base = by_id.get(base_id)
+                if base is not None and base.game_id != patch.game_id:
                     raise PatcherError(
-                        f"{patch.name} ({patch.id}) declares an unsupported composition overlay."
+                        f"{patch.name} ({patch.id}) declares a composition overlay "
+                        f"on {base_id}, which belongs to a different game."
                     )
                 if not isinstance(overlay, dict) or overlay.get("base_feature") != base_id:
-                    raise PatcherError("VV1 composition overlay base-feature contract is malformed.")
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) composition overlay "
+                        "base-feature contract is malformed."
+                    )
                 try:
                     overlay_offset = int(overlay["overlay_offset"], 0)
                     overlay_length = int(overlay["overlay_length"])
@@ -2972,7 +2986,21 @@ def validate_fun_patch_catalog(
                     preimage = overlay["overlay_preimage"]
                 except (KeyError, TypeError, ValueError) as exc:
                     raise PatcherError("VV1 composition overlay geometry is malformed.") from exc
-                if (
+                # VV1 Birth Control's overlay is certified byte for byte: its
+                # exact offset, page VA, generated source, page digest and the
+                # five hook offsets it rewrites. That certification is about
+                # THAT artifact and is kept exactly as it was -- a second
+                # feature using the same mechanism must not loosen it.
+                #
+                # It is scoped to that feature rather than applied to every
+                # overlay, because these constants describe one page in one
+                # game. Any other overlay is held to the structural guarantees
+                # instead, which are what actually make an overlay safe: a
+                # 0x400-aligned range inside the file, a declared zero-fill
+                # preimage matching the bytes really present, and a page whose
+                # remainder is zero. Those are enforced per overlay in
+                # _apply_composition_overlay when it is applied.
+                if patch.id == VV1_BIRTH_CONTROL_ID and (
                     overlay_offset != 0x8EC00
                     or overlay_length != 0x400
                     or overlay_offset + overlay_length != 0x8F000
@@ -2982,14 +3010,29 @@ def validate_fun_patch_catalog(
                     or overlay.get("hook_offsets") != ["0x3DD03", "0x46E96", "0x47084", "0x477FA", "0x39C83"]
                 ):
                     raise PatcherError("VV1 composition overlay geometry/source contract drifted.")
+                if overlay_length <= 0 or overlay_offset < 0 or overlay_offset % 0x400:
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) composition overlay must use a "
+                        "positive 0x400-aligned range."
+                    )
+                # The declared digest must be the digest of that many zero
+                # bytes. It was written down as a literal, which is the digest
+                # of 0x400 zeros and therefore correct only for an overlay of
+                # exactly that length -- a property of the length, not of VV1.
+                # Computing it keeps the check for every overlay, at any
+                # length, instead of passing only the one whose constant
+                # happened to be pinned.
                 if (
                     not isinstance(preimage, dict)
                     or preimage.get("kind") != "zero_fill"
                     or preimage.get("length") != overlay_length
                     or preimage.get("sha256")
-                    != "5F70BF18A086007016E948B04AED3B82103A36BEA41755B6CDDFAF10ACE3C6EF"
+                    != hashlib.sha256(bytes(overlay_length)).hexdigest().upper()
                 ):
-                    raise PatcherError("VV1 composition overlay zero preimage contract drifted.")
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) composition overlay zero "
+                        "preimage contract drifted."
+                    )
         overrides = patch.raw.get("patch_mode_overrides", {})
         if not isinstance(overrides, dict):
             raise PatcherError(
@@ -3762,24 +3805,34 @@ def _append_layout(
         raise PatcherError(
             f"{feature.name} ({feature.id}) has no append layout for {patch_mode}."
         )
-    # VV1 Origins already owns two zero-filled pages at the stock EOF.  The
-    # Birth Control helper is short enough to live in a reserved zero tail of
-    # those pages, but only when the actual co-selection is known here.  The
-    # alternate contract carries its own generated page VA and exact zero
-    # preimage; standalone Birth Control continues to use the untouched EOF
-    # append layout above.
-    if (
-        selected_feature_ids
-        and feature.id == VV1_BIRTH_CONTROL_ID
-        and VV1_ORIGINS_FEATURE_ID in selected_feature_ids
-    ):
-        overlays = transaction.get("composition_overlays", {})
-        overlay = overlays.get(VV1_ORIGINS_FEATURE_ID) if isinstance(overlays, dict) else None
-        if not isinstance(overlay, dict):
-            raise PatcherError(
-                "VV1 Birth Control + Origins requires its declared composition overlay."
-            )
-        return {**overlay, "_composition_overlay": True}
+    # A feature whose own appended page would be a second append can instead
+    # live in a reserved zero tail of a page its co-selected base already owns,
+    # but only when that co-selection is known here.  The alternate contract
+    # carries its own page VA and exact zero preimage; the feature selected
+    # alone continues to use the untouched EOF append layout above.
+    #
+    # The base is read from the declaration rather than matched against a
+    # hardcoded feature id.  Gating on the name meant the mechanism worked only
+    # for the one feature someone remembered to list, so a second feature with
+    # the identical relationship was refused for no reason its own contract
+    # could express -- the same defect as prerequisite resolution being gated on
+    # a list of five village-wide ids.  Nothing about the guarantee changes:
+    # every check that made this safe is structural and is applied per overlay
+    # in _apply_composition_overlay, which requires a 0x400-aligned range inside
+    # the file, a declared zero-fill preimage that matches the bytes actually
+    # present, and a page whose remainder is zero.  Those hold for any feature
+    # or refuse it.
+    overlays = transaction.get("composition_overlays", {})
+    if selected_feature_ids and isinstance(overlays, dict):
+        for base_id, overlay in overlays.items():
+            if base_id not in selected_feature_ids:
+                continue
+            if not isinstance(overlay, dict):
+                raise PatcherError(
+                    f"{feature.name} ({feature.id}) declares a malformed "
+                    f"composition overlay for {base_id}."
+                )
+            return {**overlay, "_composition_overlay": True}
     return layout
 
 
