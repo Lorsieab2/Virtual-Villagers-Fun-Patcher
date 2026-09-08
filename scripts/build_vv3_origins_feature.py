@@ -212,8 +212,8 @@ COLLECTIONS_RESET_VA = IMAGE_BASE + COLLECTIONS_RESET_FILE_OFFSET
 
 # Deferred barrel-event hook.  Firing the "Another One of Those Barrels" event
 # synchronously from the (paused, modal) Tech menu flashes its popup and never
-# spawns, so do_barrel instead sets a pending flag (the unused game byte
-# patch-owned data byte) and this hook -- spliced into the island-event handler at 0x468727,
+# spawns, so do_barrel instead sets a patch-owned pending flag in the payload
+# data section, and this hook -- spliced into the island-event handler at 0x468727,
 # which runs every frame during normal gameplay -- fires the full event once the
 # menu has closed, so it reads and behaves like a real island event.
 BARREL_HOOK_FILE_OFFSET = 0x7B3B1
