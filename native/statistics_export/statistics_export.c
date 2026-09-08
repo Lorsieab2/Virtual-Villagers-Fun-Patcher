@@ -178,7 +178,16 @@ static int write_vv1(FILE *file, const unsigned char *manager) {
         "People Cured: %d\n"
         "Mushrooms Found: %d\n"
         "Maximum Population: %d\n"
-        "Villagers Buried: %d\n"
+        /* manager+0x9E38 is not a lifetime burial total. Two writers exist
+           image-wide and both are stores: 0x41C3DF zero-inits it, 0x42F191
+           stores the return of sub_41CF10, an unrolled 5x10 sweep that
+           recounts occupied grave slots (base manager+0xA340, stride 0x2C).
+           It saturates at the 50-slot capacity and falls if a slot is
+           released, so it cannot carry the requested Villagers Buried, which
+           must increment once per skeleton pickup. The row is kept and its
+           name now states the quantity the field actually holds; the same
+           name the later games already use for their memorial counts. */
+        "Graves in the Memorial: %d\n"
         "Oldest Villager: %d\n"
         "Island Events Seen: %d\n"
         "Twins Birthed: %d\n"
