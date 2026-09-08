@@ -86,31 +86,100 @@ enum {
        rather than writing to a truncated one. */
     MAX_LOG_PATH = 512,
 
-    VV1_RECORD_STRIDE = 0x3D8,
-    VV1_RECORD_SLOTS = 256,
+    /* A fixed local bound for a name, checked against each game's own
+       name_capacity before use, so adding a game with a longer name field
+       fails the guard rather than overrunning these buffers. */
+    MAX_NAME_BYTES = 64,
 
-    VV1_ACTIVE_OFFSET = 0x28,
-    VV1_AGE_OFFSET = 0x348,
-    VV1_HEAD_OFFSET = 0x360,
-    VV1_BODY_OFFSET = 0x364,
-    VV1_ID_OFFSET = 0x36C,
-    VV1_NAME_OFFSET = 0x370,
-    VV1_NAME_CAPACITY = 0x1C,
-    VV1_FATHER_ID_OFFSET = 0x394,
-
-    /* Litter size. Written as 2 at 0x43BC4E and 3 at 0x43BC8C, and compared
-       against 3 at 0x42F062 and 0x4375B3. Final by the time either success
-       tail is reached. */
-    VV1_LITTER_OFFSET = 0x35C,
-
-    /* The engine's "no villager" sentinel, compared as 0C7h at six sites
-       including 0x41FBDC, 0x42242D and 0x43C7AF. */
-    VV1_NO_VILLAGER = 0xC7,
+    GAME_VV1 = 1,
+    GAME_VV2 = 2,
+    GAME_VV3 = 3,
+    GAME_VV4 = 4,
+    GAME_VV5 = 5,
 
     /* The owner asked for a roll "past ~256 villagers". One record per
-       conception, and the record array itself holds 256 slots, so 256 records
-       per file keeps a log to roughly one village's worth of births. */
+       conception, and VV1's record array itself holds 256 slots, so 256
+       records per file keeps a log to roughly one village's worth of births. */
     RECORDS_PER_FILE = 256
+};
+
+/* Per-game record geometry.
+
+   Every field is an offset into a villager record, and every one has to be
+   established by instruction-level evidence in that game's own executable
+   before it is filled in here. A wrong offset does not crash -- it silently
+   logs the wrong number, and because parentage cannot be recovered from the
+   child afterwards, a wrong record is permanent.
+
+   So the four games whose evidence is not yet in are declared with `supported`
+   zero and left at zero. WriteParentageRecord refuses them outright rather
+   than reading a plausible-looking guess. */
+struct game_layout {
+    int supported;
+    unsigned int stride;
+    int slots;
+    unsigned int active;      /* u8, == 1 when the slot is a live villager */
+    unsigned int age;         /* i32 */
+    unsigned int head;        /* i32 */
+    unsigned int body;        /* i32 */
+    unsigned int id;          /* i32, per-villager identity */
+    unsigned int name;        /* char[name_capacity] */
+    unsigned int name_capacity;
+    unsigned int father_id;   /* i32, the other parent's id */
+    unsigned int litter;      /* i32, babies in this pregnancy */
+    int no_villager;          /* the "no such villager" id sentinel */
+    const wchar_t *log_name;  /* "<name> <n>.txt" beside the executable */
+};
+
+static const struct game_layout GAME_LAYOUTS[6] = {
+    /* index 0 is unused so a game id indexes directly. */
+    { 0 },
+
+    /* VV1 -- A New Home. Every offset below is proven:
+         +0x28   active      vv1_origins_icons.c VV_OCCUPIED_OFFSET
+         +0x348  age         vv1_origins_icons.c VV_AGE_OFFSET
+         +0x360  head        vv1_origins_icons.c VV_HEAD_OFFSET
+         +0x364  body        vv1_origins_icons.c VV_CLOTHING_OFFSET
+         +0x36C  id          0xC7 sentinel compared at six sites
+         +0x370  name        sprintf destination at 0x43C696..0x43C6A1, read
+                             back as a string at 0x418753..0x418760; bounded at
+                             0x1C because nothing is referenced between +0x370
+                             and +0x38C, and +0x38C is the next field the
+                             conception routine itself writes
+         +0x394  father id   written from the caller's argument at 0x43BC04
+         +0x35C  litter      2 at 0x43BC4E, 3 at 0x43BC8C; cleared per
+                             pregnancy by 0x42F0C7, 0x43C722 and 0x43CABE
+
+       Read the name as 28 bytes and force a terminator; the copier at
+       0x44B23D is MSVC sprintf with count 0x7FFFFFFF, so it is unbounded and
+       guarantees nothing. Anything that WRITES a VV1 name must use 0x18, the
+       bound the game's own villager-to-villager copy uses. */
+    {
+        1, 0x3D8, 256,
+        0x28, 0x348, 0x360, 0x364, 0x36C,
+        0x370, 0x1C,
+        0x394, 0x35C,
+        0xC7,
+        L"Virtual Villagers 1 Parentage Log"
+    },
+
+    /* VV2 -- The Lost Children. Stride 0xE48C and name +0x564 are established,
+       but the conception routine's callers are not traced and the remaining
+       offsets are not established, so this stays unsupported. */
+    { 0 },
+
+    /* VV3 -- The Secret City. Stride 0x1F8C and name +0xDD4 established; same
+       position as VV2. */
+    { 0 },
+
+    /* VV4 -- The Tree of Life. Stride 0x2E3C and name +0x1B9C established, and
+       a two-pointer conception site is reported at 0x4650EB/0x46511B, but that
+       is static analysis this file has not verified. */
+    { 0 },
+
+    /* VV5 -- New Believers. Stride 0x2F44 and name +0x1B9C established; its
+       conception site is presumed analogous to VV4 and is unverified. */
+    { 0 }
 };
 
 /* Names are engine-written with sprintf into a fixed 0x1C-byte field, so a
@@ -119,17 +188,18 @@ enum {
    buffer, and replace anything unprintable so one corrupt record cannot make
    the whole log unreadable. */
 static void copy_villager_name(
+    const struct game_layout *g,
     const unsigned char *record,
     char *out,
     size_t out_size
 ) {
     size_t index;
-    const unsigned char *source = record + VV1_NAME_OFFSET;
+    const unsigned char *source = record + g->name;
 
     if (out_size == 0) {
         return;
     }
-    for (index = 0; index + 1 < out_size && index < VV1_NAME_CAPACITY; ++index) {
+    for (index = 0; index + 1 < out_size && index < g->name_capacity; ++index) {
         unsigned char value = source[index];
         if (value == 0) {
             break;
@@ -154,20 +224,21 @@ static void copy_villager_name(
    when no active record carries the id, which happens legitimately if the
    father died between conception and this call. */
 static const unsigned char *find_record_by_id(
+    const struct game_layout *g,
     const unsigned char *records,
     int id
 ) {
     int slot;
 
-    if (records == NULL || id == VV1_NO_VILLAGER) {
+    if (records == NULL || id == g->no_villager) {
         return NULL;
     }
-    for (slot = 0; slot < VV1_RECORD_SLOTS; ++slot) {
-        const unsigned char *record = records + (size_t)slot * VV1_RECORD_STRIDE;
-        if (*(const unsigned char *)(record + VV1_ACTIVE_OFFSET) != 1) {
+    for (slot = 0; slot < g->slots; ++slot) {
+        const unsigned char *record = records + (size_t)slot * g->stride;
+        if (*(const unsigned char *)(record + g->active) != 1) {
             continue;
         }
-        if (*(const int *)(record + VV1_ID_OFFSET) == id) {
+        if (*(const int *)(record + g->id) == id) {
             return record;
         }
     }
@@ -178,7 +249,11 @@ static const unsigned char *find_record_by_id(
 
    Beside the executable, matching where the statistics companion writes, so a
    player finds both logs in the same place. */
-static int build_log_path(int file_number, wchar_t *destination) {
+static int build_log_path(
+    const struct game_layout *g,
+    int file_number,
+    wchar_t *destination
+) {
     wchar_t module_path[MAX_LOG_PATH];
     wchar_t *separator;
     DWORD length = GetModuleFileNameW(NULL, module_path, MAX_LOG_PATH);
@@ -195,8 +270,9 @@ static int build_log_path(int file_number, wchar_t *destination) {
         destination,
         MAX_LOG_PATH,
         _TRUNCATE,
-        L"%ls\\Virtual Villagers 1 Parentage Log %d.txt",
+        L"%ls\\%ls %d.txt",
         module_path,
+        g->log_name,
         file_number
     ) >= 0;
 }
@@ -228,13 +304,17 @@ static int count_records(const wchar_t *path) {
 
    Bounded so a corrupt or unwritable directory cannot spin forever; 4096 files
    is far beyond any real playthrough. */
-static int select_log_file(wchar_t *destination, int *existing_records) {
+static int select_log_file(
+    const struct game_layout *g,
+    wchar_t *destination,
+    int *existing_records
+) {
     int number;
 
     *existing_records = 0;
     for (number = 1; number <= 4096; ++number) {
         int records;
-        if (!build_log_path(number, destination)) {
+        if (!build_log_path(g, number, destination)) {
             return 0;
         }
         if (GetFileAttributesW(destination) == INVALID_FILE_ATTRIBUTES) {
@@ -267,9 +347,11 @@ static int select_log_file(wchar_t *destination, int *existing_records) {
    Returns 1 when a record was written, 0 otherwise. The caller ignores the
    result -- a failed log must never disturb the game. */
 __declspec(dllexport) int __stdcall WriteParentageRecord(
+    int game_id,
     const void *records_pointer,
     const void *mother_pointer
 ) {
+    const struct game_layout *g;
     const unsigned char *records = (const unsigned char *)records_pointer;
     const unsigned char *mother = (const unsigned char *)mother_pointer;
     int father_id;
@@ -277,11 +359,22 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     const unsigned char *father;
     wchar_t path[MAX_LOG_PATH];
     FILE *file;
-    char mother_name[VV1_NAME_CAPACITY + 1];
-    char father_name[VV1_NAME_CAPACITY + 1];
+    char mother_name[MAX_NAME_BYTES];
+    char father_name[MAX_NAME_BYTES];
     int written;
     int existing_records;
 
+    if (game_id < GAME_VV1 || game_id > GAME_VV5) {
+        return 0;
+    }
+    g = &GAME_LAYOUTS[game_id];
+    /* A game whose record geometry has not been established refuses outright.
+       Logging a plausible-looking wrong number would be worse than logging
+       nothing, because parentage cannot be recovered from the child later and
+       there is no second source to correct the record from. */
+    if (!g->supported || g->name_capacity + 1 > MAX_NAME_BYTES) {
+        return 0;
+    }
     if (records == NULL || mother == NULL) {
         return 0;
     }
@@ -293,14 +386,14 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     }
     {
         size_t span = (size_t)(mother - records);
-        if (span % VV1_RECORD_STRIDE != 0) {
+        if (span % g->stride != 0) {
             return 0;
         }
-        if (span / VV1_RECORD_STRIDE >= VV1_RECORD_SLOTS) {
+        if (span / g->stride >= (size_t)g->slots) {
             return 0;
         }
     }
-    if (*(const unsigned char *)(mother + VV1_ACTIVE_OFFSET) != 1) {
+    if (*(const unsigned char *)(mother + g->active) != 1) {
         return 0;
     }
 
@@ -309,8 +402,8 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
        has not yet chosen the litter size, so every twin and triplet birth would
        be recorded as a singleton, and a rejected conception would be logged as
        though it happened. */
-    father_id = *(const int *)(mother + VV1_FATHER_ID_OFFSET);
-    babies = *(const int *)(mother + VV1_LITTER_OFFSET);
+    father_id = *(const int *)(mother + g->father_id);
+    babies = *(const int *)(mother + g->litter);
     if (babies < 1) {
         /* A single birth never writes the field -- only the twins branch
            (0x43BC4E) and the triplets branch (0x43BC8C) do -- so it reads zero
@@ -330,10 +423,10 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         babies = 1;
     }
 
-    copy_villager_name(mother, mother_name, sizeof(mother_name));
-    father = find_record_by_id(records, father_id);
+    copy_villager_name(g, mother, mother_name, sizeof(mother_name));
+    father = find_record_by_id(g, records, father_id);
     if (father != NULL) {
-        copy_villager_name(father, father_name, sizeof(father_name));
+        copy_villager_name(g, father, father_name, sizeof(father_name));
     } else {
         /* The father is recorded by id, and that id may no longer resolve --
            he can die between conception and delivery. Say so plainly rather
@@ -341,7 +434,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         memcpy(father_name, "(unknown)", 10);
     }
 
-    if (!select_log_file(path, &existing_records)) {
+    if (!select_log_file(g, path, &existing_records)) {
         return 0;
     }
     file = _wfopen(path, L"ab");
@@ -363,13 +456,13 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         "\n",
         existing_records + 1,
         mother_name,
-        *(const int *)(mother + VV1_AGE_OFFSET),
-        *(const int *)(mother + VV1_HEAD_OFFSET),
-        *(const int *)(mother + VV1_BODY_OFFSET),
+        *(const int *)(mother + g->age),
+        *(const int *)(mother + g->head),
+        *(const int *)(mother + g->body),
         father_name,
-        father != NULL ? *(const int *)(father + VV1_AGE_OFFSET) : 0,
-        father != NULL ? *(const int *)(father + VV1_HEAD_OFFSET) : 0,
-        father != NULL ? *(const int *)(father + VV1_BODY_OFFSET) : 0,
+        father != NULL ? *(const int *)(father + g->age) : 0,
+        father != NULL ? *(const int *)(father + g->head) : 0,
+        father != NULL ? *(const int *)(father + g->body) : 0,
         babies
     ) >= 0;
     /* Flush before closing so a write error is seen while the record can still

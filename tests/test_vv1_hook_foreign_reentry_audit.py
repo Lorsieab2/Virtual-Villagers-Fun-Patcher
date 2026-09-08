@@ -171,6 +171,14 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
     ("vv1_builder_action_fixes", "0x48336"): "8901998FCDDD8EB745F1666B550B4C384919536E546CA4B1EAAF3BDB90176485",
+    # Re-reviewed when the companion gained a game id, so one DLL can serve
+    # all five games the way the statistics companion already does. Each
+    # trampoline grew a single `push <game id>` before the call and the
+    # export went from two arguments to three. The register contract is
+    # UNCHANGED: the added push is inside the same pushad/popad bracket,
+    # the callee is still __stdcall and now cleans twelve bytes instead of
+    # eight, so all three exit paths still converge on the same esp before
+    # popad, and no additional register is read or written.
     # The parentage tracker's two success-tail trampolines. Both are the same
     # body differing only in where they rejoin, and both sit at a point the
     # routine reaches ONLY on a successful conception -- 0x43BCA2 is the
@@ -201,8 +209,8 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     #     exactly as stock expects at 0x43BCA8 and 0x43BCC0.
     #
     # esi and edi are read only; neither is written outside the pushad bracket.
-    ("vv1_write_parentage_log", "0x3BCA2"): "0C35CAD4FD7C9BE46D377D3DF0D0A1CAA4AF23B778AA5A9733F6F2F007A75BEF",
-    ("vv1_write_parentage_log", "0x3BCBA"): "4827A759DED85D0825A3E4E76173CC6E256FC82FCEBF6E481FE92997F79E35E0",
+    ("vv1_write_parentage_log", "0x3BCA2"): "E19A2A0C69EC1C580BD091084BBCD311C42EB96427F2A09740D99ABEDEBA3B45",
+    ("vv1_write_parentage_log", "0x3BCBA"): "6E920CFA7F30C82520BFEA83D242CA5BB482836DAC3BFF7AC944E31837737298",
     # The singleton route. This one steals nothing: the two branches that
     # carry a single birth (0x43BC39, a six-byte near je, and 0x43BC4C, a
     # two-byte short jge) are RETARGETED at their existing widths, so no
@@ -213,7 +221,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # 0x43BCC6 itself is deliberately NOT patched. The rejection path enters
     # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
     # that jump in the middle of the inserted instruction.
-    ("vv1_write_parentage_log", "0x3BCCB"): "2564B0D1FC00F6E0D066C75D44F86A8C8FE3669BAF5343CF94386565017CD85D",
+    ("vv1_write_parentage_log", "0x3BCCB"): "3B7AD5F4BD6C4A66E944E254877DF6B9ABA3D4D0ECF95DB45DAA41D89B3AF00E",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.

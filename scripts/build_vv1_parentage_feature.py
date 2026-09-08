@@ -84,6 +84,10 @@ OUTPUT = ROOT / "data" / "vv1_parentage_feature.json"
 
 EXE = "Virtual Villagers - A New Home.exe"
 
+# The companion takes a game id so one DLL serves all five games, matching
+# how the statistics companion is structured. VV1 is 1.
+GAME_ID = 1
+
 # The SUCCESS exits of the conception routine sub_43BBC0.
 #
 # Hooking the routine's HEAD was wrong twice over, and Codex caught both:
@@ -285,8 +289,15 @@ def build() -> dict:
                 # WriteParentageRecord(records, mother). stdcall, so the callee
                 # cleans its own 8 bytes and the frame stays balanced. Pushed
                 # right to left: mother (saved esi) first, then records (edi).
+                # WriteParentageRecord(game_id, records, mother). stdcall, so
+                # the callee cleans its own 12 bytes and the frame stays
+                # balanced. Pushed right to left, and each push moves esp,
+                # which is why the two frame reads use the same displacement
+                # and still fetch different values: saved esi (the mother)
+                # then saved edi (the record array).
                 push dword ptr [esp + 0x04]
                 push dword ptr [esp + 0x04]
+                push {GAME_ID}
                 call eax
             done:
                 popad
@@ -366,6 +377,7 @@ def build() -> dict:
             jz done
             push dword ptr [esp + 0x04]
             push dword ptr [esp + 0x04]
+            push {GAME_ID}
             call eax
         done:
             popad

@@ -1,3 +1,3 @@
 LIBRARY "VVFP Parentage Export"
 EXPORTS
-    WriteParentageRecord=_WriteParentageRecord@8
+    WriteParentageRecord=_WriteParentageRecord@12
