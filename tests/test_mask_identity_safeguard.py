@@ -482,7 +482,6 @@ class SnapshotTests(SafeguardTestCase):
             ("body", lambda v: v.set_i32(0, "body", 42)),
             ("nursing", lambda v: v.set_u8(0, "nursing", 1)),
             ("skills", lambda v: v.set_i32(0, "skills", 555, 3)),
-            ("preferred_skill", lambda v: v.set_i32(0, "preferred_skill", 4)),
             ("likes", lambda v: v.set_i32(0, "likes", 77, 1)),
             ("dislikes", lambda v: v.set_i32(0, "dislikes", 88, 1)),
         ):
@@ -495,6 +494,20 @@ class SnapshotTests(SafeguardTestCase):
                     self.is_stale(v, before), 1,
                     f"changing {key} did not invalidate the snapshot",
                 )
+
+    def test_preferred_skill_does_not_invalidate_a_snapshot(self) -> None:
+        """The player toggles the preferred skill from the details screen, so a
+        snapshot must survive it.  Were it hashed, ticking a villager's job
+        between snapshot and preflight would orphan their mask -- the same
+        failure that removed head and body from the VV3 fingerprint."""
+        v = self._village(3)
+        _, before = self.snapshot(v)
+        self.assertEqual(self.is_stale(v, before), 0)
+        v.set_i32(0, "preferred_skill", 4)
+        self.assertEqual(
+            self.is_stale(v, before), 0,
+            "changing the preferred skill invalidated the snapshot",
+        )
 
     def test_signature_moves_when_a_mask_is_applied(self) -> None:
         v = self._village(3)
@@ -811,7 +824,6 @@ class ResolutionTests(SafeguardTestCase):
             ("body", lambda v: v.set_i32(1, "body", 99)),
             ("nursing", lambda v: v.set_u8(1, "nursing", 1)),
             ("skills", lambda v: v.set_i32(1, "skills", 99, 4)),
-            ("preferred_skill", lambda v: v.set_i32(1, "preferred_skill", 9)),
             ("likes", lambda v: v.set_i32(1, "likes", 99, 1)),
             ("dislikes", lambda v: v.set_i32(1, "dislikes", 99, 1)),
         )
@@ -830,6 +842,23 @@ class ResolutionTests(SafeguardTestCase):
                     after.entries[0].fingerprint, after.entries[1].fingerprint,
                     f"{key} does not contribute to identity",
                 )
+
+    def test_preferred_skill_does_not_separate_two_villagers(self) -> None:
+        """The counterpart to the list above: the preferred skill is carried in
+        the adapter so a caller can diff it against a baseline, but it must not
+        reach the fingerprint.  Two villagers alike in everything else stay one
+        identity when only their job preference differs."""
+        v = Village()
+        v.populate(0, name="Same", head=1, body=1)
+        v.clone_villager(0, 1)
+        _, snap = self.snapshot(v)
+        self.assertEqual(snap.entries[0].fingerprint, snap.entries[1].fingerprint)
+        v.set_i32(1, "preferred_skill", 9)
+        _, after = self.snapshot(v)
+        self.assertEqual(
+            after.entries[0].fingerprint, after.entries[1].fingerprint,
+            "the preferred skill contributed to identity",
+        )
 
 
 # --------------------------------------------------------------- requirement 6

@@ -826,8 +826,12 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 #define VV3_DISLIKES   0xFC0   /* 3 ints; 38 = running                */
 #define VV3_RUN_PREF   38
 #define VV3_GENDER     0xDC8   /* byte: 0 = male, 1 = female          */
-#define VV3_NAME       0xDD4   /* char[0x18]: the villager's own name  */
-#define VV3_NAME_LEN   0x18
+#define VV3_NAME       0xDD4   /* the villager's own name             */
+/* 0x19, not 0x18: the game's own burial writer at 0x455032 copies this field
+   with `push 0x19; lea ecx,[ebp+0xDD4]; call 0x46F780` (strncpy), so it holds
+   25 characters.  Reading 24 made two villagers whose names differ only in the
+   final character hash identically. */
+#define VV3_NAME_LEN   0x19
 #define VV3_HEAD_OFF   0xDF0   /* int: head sprite; the chooser REWRITES it  */
 #define VV3_BODY_OFF   0xDF4   /* int: body sprite; the chooser REWRITES it  */
 #define VV3_CHIEF      0xE80   /* byte: != 0 = Tribal Chief (no pref) */
@@ -1078,7 +1082,13 @@ static int vv3_mask_can_set_prepared(const void *record, int mask) {
    publishes that save's slot.  All file I/O is in these normal functions,
    never DllMain (loader-lock safe).  A missing/short file leaves the table
    zeroed.  There is intentionally no legacy unsuffixed-file migration. */
-#define VV3_MASK_MAGIC 0x334B534Du   /* "MSK3" little-endian */
+/* "MSK4" little-endian.  Was "MSK3" until VV3_NAME_LEN was corrected from 0x18
+   to 0x19: every fingerprint written under the old length was computed over 24
+   of the field's 25 characters, so a stored sidecar cannot be matched against
+   fingerprints computed the new way.  Changing the magic makes those files fail
+   the check and leave the table zeroed -- the save restores all-unmasked --
+   rather than silently resolving a stale fingerprint onto the wrong villager. */
+#define VV3_MASK_MAGIC 0x344B534Du
 static int g_vv3_mask_loaded;
 static int g_vv3_mask_slot;
 
