@@ -46,32 +46,61 @@ WHAT IS LIVE AT THE HOOK
 The companion takes an array base and a record, so the array base is
 materialised from the global the game itself uses.
 
-WHERE THE PAYLOAD LIVES
+WHERE THE PAYLOAD LIVES, AND WHY TWO EARLIER ANSWERS WERE WRONG
 
-VV3's single .text cave is 0x47B254 length 0xDAC, and 0x9D0 of it belongs to
-the two Origins features. So the answer differs by selection, exactly as it did
-for VV1:
+The payload appends its own executable section rather than taking a cave,
+because VV3's .text has no room -- and establishing that took two corrections
+worth recording, since both are easy to repeat.
 
-    parentage alone       0x99C free at 0x47B664 -- what this file emits
-    parentage + Origins   the cave is full, and unlike VV1 there is no second
-                          home available yet. See below.
+The first address, 0x7B664, was chosen by scanning the STOCK executable for a
+run of zero bytes. It is zero there, and it is also inside 0x7B664..0x7B7F7,
+which vv3_enable_origins_exclusive_features claims. Composing the two raised
 
-CO-SELECTION WITH ORIGINS IS NOT YET SUPPORTED, deliberately.
+    Patch overlap between feature:vv3_enable_origins_exclusive_features
+                     and feature:vv3_write_parentage_log at 0x7B664
 
-VV1 solved the same collision by putting a second copy of the payload in the
-zero tail of the R-X page Origins appends. That does not transfer to VV3: its
-appended block carries an append_sha256 covering the WHOLE block, and the
-patcher refuses the output if a single byte differs. Writing a payload into
-that tail would invalidate an integrity check whose purpose is to protect
-Origins own page, so weakening it to make room here would be the wrong trade.
+The stock file cannot answer "is this space free": a patcher's output is the
+stock input plus every selected feature's bytes, so availability is a property
+of a composition, not of the input.
 
-VV1 has no such certification, which is the entire reason its approach worked
-and this one cannot borrow it.
+The second address, 0x7BB8E, was chosen by scanning the COMPOSED output -- an
+improvement that was still wrong, because a zero byte in a composed image only
+means no feature in THAT composition wrote there. vv3_origins_village_wide_
+upgrades claims 0x7B820..0x7BD40 and swallows it.
 
-The remaining options -- extending VV3 certification to cover a parentage
-region, or giving parentage its own appended section -- both touch machinery
-that currently works, so they are the owner decision rather than an
-assumption made here.
+The reliable method is neither scan: enumerate every claim from the loaded
+catalog, handling `after`, `bytes`, and `after_base64` with an explicit
+`length` -- because computing a claim's size as len(after)//2 reads a
+base64-encoded claim as zero width and reports an occupied region as free.
+Doing that leaves exactly one unclaimed .text gap above the slack:
+
+    0x7B2E0  0x60 bytes
+
+against a 0xA0 payload. .text is VV3's only executable section (.rdata, .data,
+.shr and .rsrc are all non-exec, .shr included despite being writable), so
+there is nowhere else in the image to put code.
+
+There is also a second occupant that appears in no manifest. The
+executable-name crash-immunity reserve is allocated at PUBLISH time by
+_nci_find_cave, which scans the composed bytes for the first zero run in an
+executable section of at least need+4 bytes -- 0xB0 for VV3 -- and takes it. A
+payload landing in that run does not crowd the reserve, it evicts it, and the
+failure is silent: the finder returns None, publish records status "skipped",
+reason "no code cave", and the build still ships without the crash immunity.
+Appending sidesteps that contention entirely.
+
+The page carries its bytes inline via `append_bytes`, so it needs no generated
+page builder and no entry in the owner-bound generated-source allowlist.
+
+CO-SELECTION WITH ORIGINS IS NOT YET SUPPORTED.
+
+vv3_enable_origins_exclusive_features also appends, at the same stock EOF, and
+the append guard permits exactly one appending feature per build. The only
+mechanism that suppresses an append on co-selection is composition_overlays,
+whose dispatch is hardcoded to VV1 Birth Control. VV3 additionally carries a
+tail digest -- the only one in the project -- which asserts both that the file
+ends at Origins' append and that the appended bytes hash to a certified value,
+so writing into that page is refused as well.
 """
 from __future__ import annotations
 
@@ -104,16 +133,29 @@ RESUME_VA = 0x00455BF9
 # the array, so the trampoline materialises the base itself.
 RECORD_ARRAY_VA = 0x0059E110  # the container; the layout subtracts its 0x14 header
 
-# Home when parentage is selected alone.
-CAVE_VA = 0x0047B664
-CAVE_FILE = 0x0007B664
-CAVE_SIZE = 0xA0
+# The appended page. Stock VV3 is five sections ending at file 0xCB000, with
+# SizeOfImage 0x2DF000 and a free section header slot at 0x2C8.
+STOCK_FILE_SIZE = 0x000CB000
+PAGE_FILE = 0x000CB000
+PAGE_VA = 0x006DF000
+PAGE_SIZE = 0x1000
+SECTION_NAME = b".vv3pl\0\0"
 
-# Home when Origins is also selected: the zero tail of the R-X page Origins
-# appends as .vv3mc at VA 0x6DF000 / file 0xCB000. Its own code ends at +0x3A0.
-CO_SELECTED_CAVE_VA = 0x006DF3A0
-CO_SELECTED_CAVE_FILE = 0x000CB3A0
-ORIGINS_FEATURE_ID = "vv3_enable_origins_exclusive_features"
+SECTION_COUNT_OFFSET = 0x10E
+SECTION_COUNT_BEFORE = bytes.fromhex("0500")
+SECTION_COUNT_AFTER = bytes.fromhex("0600")
+
+SIZE_OF_IMAGE_OFFSET = 0x158
+SIZE_OF_IMAGE_BEFORE = bytes.fromhex("00F02D00")  # 0x2DF000
+SIZE_OF_IMAGE_AFTER = bytes.fromhex("00002E00")  # 0x2E0000
+
+SECTION_HEADER_OFFSET = 0x2C8
+
+IMAGE_BASE = 0x00400000
+
+# Kept for the payload-size checks below; the page is 0x1000 but the code and
+# strings must still fit where the offsets say they do.
+CAVE_SIZE = 0xA0
 
 # Resolved from the stock import table rather than assumed: the DLL name below
 # is ASCII, so these must be the A variants.
@@ -141,21 +183,38 @@ def assemble(source: str, address: int) -> bytes:
     return bytes(encoding)
 
 
-def _emit(source: bytes, cave_va: int, cave_file: int) -> list[dict[str, object]]:
-    """Assemble the trampoline and hook rewrite for one cave address."""
+def _section_header() -> bytes:
+    """The 40-byte header for the owned executable page."""
+    header = bytearray(40)
+    header[0:8] = SECTION_NAME
+    header[8:12] = PAGE_SIZE.to_bytes(4, "little")  # VirtualSize
+    header[12:16] = (PAGE_VA - IMAGE_BASE).to_bytes(4, "little")  # VirtualAddress
+    header[16:20] = PAGE_SIZE.to_bytes(4, "little")  # SizeOfRawData
+    header[20:24] = PAGE_FILE.to_bytes(4, "little")  # PointerToRawData
+    # Characteristics: CODE | EXECUTE | READ. Deliberately not writable; the
+    # page holds code and read-only strings, and nothing writes into it.
+    header[36:40] = (0x60000020).to_bytes(4, "little")
+    return bytes(header)
+
+
+def _emit(source: bytes) -> tuple[list[dict[str, object]], dict[str, object]]:
+    """Assemble the page, the header changes, and the hook rewrite."""
+    if len(source) != STOCK_FILE_SIZE:
+        raise RuntimeError(
+            f"stock file is {len(source):#x} bytes, expected {STOCK_FILE_SIZE:#x}"
+        )
     if source[HOOK_FILE : HOOK_FILE + len(HOOK_STOLEN)] != HOOK_STOLEN:
         raise RuntimeError(
             f"stock bytes at {HOOK_FILE:#x} are not the expected hook"
         )
-    if cave_file + CAVE_SIZE <= len(source):
-        if set(source[cave_file : cave_file + CAVE_SIZE]) != {0}:
-            raise RuntimeError(f"cave at {cave_file:#x} is not free")
-    elif cave_file < len(source):
-        raise RuntimeError(f"cave at {cave_file:#x} straddles the stock EOF")
-    # Past the stock EOF the bytes do not exist yet: that address lives in a
-    # page Origins appends, and the patcher checks that page when it applies
-    # the composition. Asserting here would only assert the file is short.
+    if source[SECTION_COUNT_OFFSET : SECTION_COUNT_OFFSET + 2] != SECTION_COUNT_BEFORE:
+        raise RuntimeError("stock NumberOfSections is not 5")
+    if source[SIZE_OF_IMAGE_OFFSET : SIZE_OF_IMAGE_OFFSET + 4] != SIZE_OF_IMAGE_BEFORE:
+        raise RuntimeError("stock SizeOfImage is not 0x2DF000")
+    if set(source[SECTION_HEADER_OFFSET : SECTION_HEADER_OFFSET + 40]) != {0}:
+        raise RuntimeError("the sixth section header slot is not free")
 
+    cave_va = PAGE_VA
     dll_name_va = cave_va + DLL_NAME_OFFSET
     export_name_va = cave_va + EXPORT_NAME_OFFSET
 
@@ -209,10 +268,10 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> list[dict[str, object]
             f"trampoline is {len(code):#x} bytes, over the {DLL_NAME_OFFSET:#x} allowance"
         )
 
-    payload = bytearray(CAVE_SIZE)
-    payload[: len(code)] = code
-    payload[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
-    payload[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
+    page = bytearray(PAGE_SIZE)
+    page[: len(code)] = code
+    page[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
+    page[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
 
     # Divert the hook: a five-byte jmp plus one nop replaces the six stolen
     # bytes exactly, so nothing downstream shifts.
@@ -221,7 +280,7 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> list[dict[str, object]
     if len(entry) != len(HOOK_STOLEN):
         raise RuntimeError("hook entry does not match the stolen byte count")
 
-    return [
+    patches = [
         {
             "offset": f"0x{HOOK_FILE:X}",
             "before": HOOK_STOLEN.hex().upper(),
@@ -233,22 +292,54 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> list[dict[str, object]
                 "rejected conception."
             ),
         },
-        {
-            "offset": f"0x{cave_file:X}",
-            "before": ("00" * CAVE_SIZE).upper(),
-            "after": bytes(payload).hex().upper(),
-            "purpose": (
-                "Loader trampoline plus the DLL and export names. All logging "
-                "logic lives in the companion DLL; only the call into it is in "
-                "the executable."
-            ),
-        },
     ]
+
+    layout = {
+        "original_file_size": f"0x{STOCK_FILE_SIZE:X}",
+        "append_offset": f"0x{PAGE_FILE:X}",
+        "append_length": PAGE_SIZE,
+        "append_bytes": bytes(page).hex().upper(),
+        "page_virtual_address": f"0x{PAGE_VA:X}",
+        "page_sha256": hashlib.sha256(bytes(page)).hexdigest().upper(),
+        "purpose": (
+            "append the owned VV3 parentage trampoline page, because VV3's "
+            ".text has one unclaimed 0x60 gap against a 0xA0 payload and is "
+            "the game's only executable section"
+        ),
+        "header_patches": [
+            {
+                "offset": f"0x{SECTION_COUNT_OFFSET:X}",
+                "before": SECTION_COUNT_BEFORE.hex().upper(),
+                "after": SECTION_COUNT_AFTER.hex().upper(),
+                "purpose": "add the owned .vv3pl executable section",
+            },
+            {
+                "offset": f"0x{SIZE_OF_IMAGE_OFFSET:X}",
+                "before": SIZE_OF_IMAGE_BEFORE.hex().upper(),
+                "after": SIZE_OF_IMAGE_AFTER.hex().upper(),
+                "purpose": "extend SizeOfImage for the owned .vv3pl section",
+            },
+            {
+                "offset": f"0x{SECTION_HEADER_OFFSET:X}",
+                "before": ("00" * 40).upper(),
+                "after": _section_header().hex().upper(),
+                "purpose": "write the owned .vv3pl section header",
+            },
+        ],
+    }
+
+    transaction = {
+        "layouts": {
+            mode: layout
+            for mode in ("stock", "collection_progression", "immediate_fixed")
+        }
+    }
+    return patches, transaction
 
 
 def build() -> dict:
     source = (STOCK / EXE).read_bytes()
-    patches = _emit(source, CAVE_VA, CAVE_FILE)
+    patches, transaction = _emit(source)
 
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest()
     return {
@@ -277,6 +368,7 @@ def build() -> dict:
                         "sha256": companion_hash,
                     }
                 ],
+                "pe_append_transaction": transaction,
                 "patches": patches,
             }
         ],

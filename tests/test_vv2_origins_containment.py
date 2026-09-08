@@ -35,6 +35,7 @@ REMAINING = {
     "vv2_hospital_recovery_heals",
     "vv2_gong_of_wonder_coconuts_fix",
     "vv2_write_village_statistics",
+    "vv2_write_parentage_log",
 }
 
 
