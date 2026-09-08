@@ -31,6 +31,11 @@ GAMES = {
         "load_library_iat": 0x457010,
         "get_module_handle_iat": 0x4570D0,
         "get_proc_address_iat": 0x4570D4,
+        "burial_hook_va": 0x448F65,
+        "burial_guard": "C644392800",
+        "burial_manager": "mov eax, dword ptr [edi + 0x3E010]",
+        "burial_stat_offset": 0x9E84,
+        "burial_replay": "mov byte ptr [ecx + edi + 0x28], 0",
     },
     "vv2": {
         "title": "Virtual Villagers - The Lost Children",
@@ -45,6 +50,11 @@ GAMES = {
         "load_library_iat": 0x474010,
         "get_module_handle_iat": 0x4740D0,
         "get_proc_address_iat": 0x4740D4,
+        "burial_hook_va": 0x46503B,
+        "burial_guard": "C644323000",
+        "burial_manager": "mov eax, dword ptr [esi + 0xE574D4]",
+        "burial_stat_offset": 0x2E5D4,
+        "burial_replay": "mov byte ptr [edx + esi + 0x30], 0",
     },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",
@@ -284,31 +294,53 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
         # free. The latch guard immediately above it means a second dispatch
         # for the same villager exits before reaching here, so this counts
         # exactly once per skeleton.
-        burial_wrapper_va = cave_va + 0x190
+        burial_guard = bytes.fromhex(str(config["burial_guard"]))
+        # The later games keep their statistics block at a fixed global, so the
+        # counter is a single absolute increment. A New Home and The Lost
+        # Children reach theirs through a pointer, so those load the manager
+        # first and increment at an offset from it. Both forms clobber only
+        # EAX, whose next use at each hook is a write (VV1 0x448F84 lea eax,
+        # VV2 0x465042 mov eax), so no live value is lost.
+        if "burial_stat_va" in config:
+            burial_body = (
+                f"inc dword ptr [0x{int(config['burial_stat_va']):X}]"
+            )
+            burial_slot = 0x190
+        else:
+            burial_body = (
+                f"{config['burial_manager']}\n"
+                f"                inc dword ptr "
+                f"[eax + 0x{int(config['burial_stat_offset']):X}]"
+            )
+            # VV1 and VV2 have only a 0xD0 cave, whose tail past the export
+            # name string is the one free run. 0xB4 leaves the strings intact.
+            burial_slot = 0xB4
+        burial_wrapper_va = cave_va + burial_slot
         burial_wrapper = assemble(
             f"""
-                inc dword ptr [0x{int(config['burial_stat_va']):X}]
+                {burial_body}
                 {config['burial_replay']}
-                jmp 0x{int(burial_hook_va) + 7:X}
+                jmp 0x{int(burial_hook_va) + len(burial_guard):X}
             """,
             burial_wrapper_va,
         )
-        if 0x190 + len(burial_wrapper) > cave_size:
+        if burial_slot + len(burial_wrapper) > cave_size:
             raise RuntimeError(f"{game_id} burial wrapper exceeds cave allowance")
-        payload[0x190 : 0x190 + len(burial_wrapper)] = burial_wrapper
+        if any(payload[burial_slot : burial_slot + len(burial_wrapper)]):
+            raise RuntimeError(f"{game_id} burial wrapper would overwrite the cave")
+        payload[burial_slot : burial_slot + len(burial_wrapper)] = burial_wrapper
         burial_hook_file = int(burial_hook_va) - 0x400000
-        burial_guard = bytes.fromhex(str(config["burial_guard"]))
         if (
             source[burial_hook_file : burial_hook_file + len(burial_guard)]
             != burial_guard
         ):
             raise RuntimeError(f"{game_id} burial hook guard does not match")
-        # The stolen bytes are one whole instruction, so the five-byte jump
-        # plus two NOPs replaces it exactly and no branch lands inside it.
-        # The latch clear itself is replayed by the wrapper's target, which is
-        # the instruction after it -- the clear is performed by the stolen
-        # instruction being re-emitted here rather than in the cave, so the
-        # wrapper only adds the increment.
+        # The stolen bytes are always one whole instruction, so the five-byte
+        # jump plus however many NOPs the instruction is longer replaces it
+        # exactly and no branch lands inside it. The later games steal seven
+        # bytes and need two NOPs; VV1 and VV2 steal exactly five and need
+        # none. The wrapper replays the clear before returning, so the corpse
+        # is still removed.
         extra_patches.append(
             {
                 "offset": f"0x{burial_hook_file:X}",
@@ -318,7 +350,7 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                     + int(burial_wrapper_va - int(burial_hook_va) - 5).to_bytes(
                         4, "little", signed=True
                     )
-                    + b"\x90\x90"
+                    + b"\x90" * (len(burial_guard) - 5)
                 ).hex().upper(),
                 "purpose": (
                     "count every skeleton pickup once in the per-save reserve, "
