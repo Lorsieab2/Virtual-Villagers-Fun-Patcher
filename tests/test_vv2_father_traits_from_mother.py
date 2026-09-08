@@ -48,12 +48,54 @@ VV2_EXE = STOCK / "Virtual Villagers - The Lost Children.exe"
 VV2_FATHER_HEAD_COPY = 0x5E0
 VV2_FATHER_BODY_COPY = 0x5DC
 
-# Where the conception routine writes them. `mov [reg + disp32], reg` is 0x89 /r
-# with a four-byte displacement, so the offset is bytes 2..6 of the encoding.
-VV2_WRITES = {
-    0x0044BA24: VV2_FATHER_BODY_COPY,
-    0x0044BA43: VV2_FATHER_HEAD_COPY,
-}
+# The whole chain, register-exact, as encoded bytes in the stock executable.
+#
+# Checking only the store's destination offset would be too weak: it would pass
+# just as happily if some unrelated value were written to mother+0x5DC. What
+# makes these the FATHER's numbers is where the stored register was loaded from,
+# so each link is pinned end to end.
+#
+# The register pairing is visible in the ModRM byte and is not interchangeable:
+# 0x8986 is `mov [esi+disp32], eax` and 0x898E is `mov [esi+disp32], ecx`, so a
+# mixed-up pair would fail here rather than silently swap head for body.
+VV2_CHAIN = (
+    # (address, expected bytes, what this link establishes)
+    (
+        0x0044BA16,
+        "8B442424",
+        "callee loads eax from [esp+0x24], the caller's last-but-one push",
+    ),
+    (
+        0x0044BA24,
+        "8986DC050000",
+        "callee stores eax to mother+0x5DC -- the father's BODY",
+    ),
+    (
+        0x0044BA30,
+        "8B4C2420",
+        "callee loads ecx from [esp+0x20]",
+    ),
+    (
+        0x0044BA43,
+        "898EE0050000",
+        "callee stores ecx to mother+0x5E0 -- the father's HEAD",
+    ),
+    (
+        0x00421FE7,
+        "8B904C050000",
+        "caller reads [father+0x54C], body, and pushes it into [esp+0x24]",
+    ),
+    (
+        0x00421FEE,
+        "8B9048050000",
+        "caller reads [father+0x548], head, and pushes it into [esp+0x20]",
+    ),
+    (
+        0x00421FF5,
+        "8D9064050000",
+        "caller takes [father+0x564], his name, proving the base is the father",
+    ),
+)
 
 VV2_LOG_NAME = "Virtual Villagers 2 Parentage Log"
 
@@ -100,10 +142,16 @@ class VV2FatherTraitsAreCopiedOntoTheMotherTests(unittest.TestCase):
                         f"{name} claims copied traits it has not been shown to have",
                     )
 
-    def test_the_game_really_writes_those_offsets_at_conception(self) -> None:
-        """The offsets must be what the stock executable actually stores.
+    def test_the_values_really_come_from_the_father(self) -> None:
+        """The whole chain must be what the stock executable actually encodes.
 
         Without this the suite would only prove the C file agrees with itself.
+        Checking the store alone would be nearly as weak: it would pass if some
+        unrelated value were written to the offsets the descriptor names, which
+        is exactly how a log ends up carrying plausible but wrong parentage. So
+        every link is pinned -- the caller's read off the father, the push, the
+        callee's load, and the store -- with the registers named by their ModRM
+        bytes rather than merely implied.
         """
         if not VV2_EXE.is_file():
             self.skipTest(f"stock executable not available: {VV2_EXE.name}")
@@ -125,20 +173,14 @@ class VV2FatherTraitsAreCopiedOntoTheMotherTests(unittest.TestCase):
                     return image[offset : offset + count]
             raise AssertionError(f"VA {va:#x} is not in any section")
 
-        for va, expected in VV2_WRITES.items():
+        for va, expected, establishes in VV2_CHAIN:
             with self.subTest(address=f"{va:#x}"):
-                code = read(va, 6)
+                wanted = bytes.fromhex(expected)
+                found = read(va, len(wanted))
                 self.assertEqual(
-                    code[0],
-                    0x89,
-                    f"{va:#x} is not a `mov [reg+disp32], reg` store",
-                )
-                displacement = int.from_bytes(code[2:6], "little")
-                self.assertEqual(
-                    displacement,
-                    expected,
-                    f"conception writes +{displacement:#x} at {va:#x}, "
-                    f"not +{expected:#x}",
+                    found.hex().upper(),
+                    wanted.hex().upper(),
+                    f"at {va:#x} the game no longer {establishes}",
                 )
 
     def test_the_flag_between_them_is_not_read_as_a_trait(self) -> None:
