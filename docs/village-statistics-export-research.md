@@ -153,7 +153,11 @@ incremented inside the childbirth routine, on the twins branch:
     VV4  0x45E8DD  add dword_4D6E08, 1   in sub_45E7B0, after `mov [litter], 2`
 
 Both are mutually exclusive with the `+0x2C` write, which follows
-`mov [litter], 3`. Exactly one fires per conception, on the birth path.
+`mov [litter], 3`. At most one fires per conception: the litter field is
+initialised to 1 (VV4 `0x45E87D`), and the multiple-birth guards
+(`0x45E88F`, `0x45E89E`) branch past both increments, so a singleton
+conception writes neither counter. Exactly one fires when the litter is
+twins or triplets, and neither otherwise.
 
 The alignment does not rest on `+0x28` alone. Every neighbouring label was
 matched to the shape of the code that writes it, and only `+0x28` fails to fit:
