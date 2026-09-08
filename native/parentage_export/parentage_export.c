@@ -140,7 +140,13 @@ struct game_layout {
     int father_kind;          /* FATHER_BY_ID or FATHER_BY_NAME */
     unsigned int father;      /* an i32 id, or a char[name_capacity] */
     unsigned int litter;      /* i32, babies in this pregnancy */
-    int no_villager;          /* the "no such villager" id sentinel */
+    /* The "no such villager" id sentinel.
+       VV1 uses 0xC7: it is written to the father field at 0x42427B and tested
+       there at 0x42EF39. An unset father therefore resolves to no record and
+       the log says so, rather than printing 199 as if it were a real id. The
+       raw id is never written to the log at all -- it exists only to find the
+       father's record -- so this guards a lookup, not a printed value. */
+    int no_villager;
     const wchar_t *log_name;  /* "<name> <n>.txt" beside the executable */
 };
 
