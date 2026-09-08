@@ -3886,9 +3886,22 @@ def _apply_pe_append_transactions(
                 f"{feature.name} ({feature.id}) has a malformed append layout."
             ) from exc
         if original_size != append_offset or len(work) != original_size:
+            # Report `work`, which is what the condition tests. The message used
+            # to print `data`, the untouched input, so a second appending
+            # feature in one build failed with "expected file size 0xB1000,
+            # found 0xB1000" -- two identical numbers and no visible cause,
+            # because the term that actually differed was the working copy an
+            # earlier append had already grown. Two people lost time to that
+            # tautology before anyone read the condition.
             raise PatcherError(
                 f"{feature.name} append guard failed: expected file size "
-                f"0x{original_size:X}, found 0x{len(data):X}."
+                f"0x{original_size:X}, found 0x{len(work):X}"
+                + (
+                    " (an earlier feature in this build already appended to it)"
+                    if len(work) > original_size
+                    else ""
+                )
+                + "."
             )
         if not append_bytes or len(append_bytes) % 0x1000:
             raise PatcherError(
