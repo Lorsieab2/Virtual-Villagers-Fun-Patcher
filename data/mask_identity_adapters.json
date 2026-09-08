@@ -295,10 +295,17 @@
           "evidence": "vv4_origins_icons.c VV_CLOTHING_OFFSET"
         },
         "name": {
+          "offset": "0x1B9C",
+          "type": "str",
+          "length": 25,
+          "safe_write_limit": 24,
+          "evidence": "The villager's OWN name. Proven three ways, all re-derived from the executable: the burial writer 0x45D4B4 (push 0x19; lea eax,[edi+0x1B9C]; call 0x4724E0 strncpy; mov byte ptr [esi+0x19],0); the birth routine at 0x460A1E (lea edx,[esi+0x1B9C]; push edx; mov ecx,ebp; call 0x45E7B0), which passes the other parent's name by value; and the display formatter at 0x416F88 (lea edx,[eax+0x1B9C]) that renders the 'son of X and Y' line. It also matches VV5's +0x1B9C and sits in the sibling cluster 0x1B8C age / 0x1B90 gender / 0x1B9C name / 0x1BB8 / 0x1BBC that VV5 shares exactly. Read 0x19; never WRITE more than 0x18, which is the count VV5's villager-to-villager copy uses."
+        },
+        "secondary_string": {
           "offset": "0x1BC0",
           "type": "str",
-          "count": 24,
-          "evidence": "vv4_origins_icons.c VV_NAME_OFFSET (24-byte villager name string, marked stable); independently re-confirmed by 0x45F3B3 (push 0x18; lea edx,[esi+0x1BC0]; call 0x4724E0 strncpy) -- a 24-byte copy, with the age threshold 0x168 tested on the same esi at 0x4481D0, which proves the base is a villager record. NOTE VV4 HAS TWO VILLAGER STRING BUFFERS and they are easy to confuse. +0x1BC0 is this one, the field the shipped mask feature reads. A SECOND buffer at +0x1B9C is the one used by the burial writer 0x45D4B4 (push 0x19; lea eax,[edi+0x1B9C]; call strncpy) and by the birth routine 0x460A1E, and it is the offset that matches VV5's +0x1B9C. Both are real. Do not 'correct' one to the other: an earlier attempt to do so would have changed what the shipped VV4 feature reads."
+          "length": 24,
+          "evidence": "A SECOND 24-byte villager string buffer, distinct from the villager's own name at +0x1B9C. 0x45F3B3 writes it with push 0x18; lea edx,[esi+0x1BC0]; call strncpy from an INCOMING string argument at [esp+0x16c], and the very next block copies a SECOND incoming string from [esp+0x170] -- a pair of externally supplied names being stored on the villager. What they mean is INFERRED, not proven: the adapter table deliberately claims no parentage anywhere, and a test enforces that, so this field is recorded by what it demonstrably is -- a second string buffer -- rather than by what it appears to hold. Both strings are validated non-empty before the copies. It is a genuine villager field (0x4481D0 tests the 0x168 age threshold on the same esi), which is why it survived earlier checks. WARNING, RECORDED SO IT IS NOT UNDONE: native/vv4_origins_icons.c defines VV_NAME_OFFSET as 0x1BC0 and its vv_fingerprint hashes it together with sex. That means the shipped VV4 mask fingerprint currently keys on a PARENT-NAME field rather than the villager's own name, so two villagers sharing parents and sex can collide -- the same class of failure as the VV3 fingerprint collision. Changing that constant alters the identity of every already-masked VV4 villager, so it is escalated to the repository owner rather than changed here."
         },
         "skills": {
           "offset": "0x1C5C",
