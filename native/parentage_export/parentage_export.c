@@ -129,7 +129,20 @@ struct game_layout {
     int supported;
     unsigned int stride;
     int slots;
-    unsigned int record_base;  /* first record's offset from the array base */
+    /* Where the first record sits relative to the pointer the caller passes.
+
+       This is a CONTAINER HEADER, not a per-record bias: VV4 and VV5 keep the
+       villager array inside an object whose first 0x44 bytes are something
+       else, so records do NOT carry a 0x44-byte prefix each. Naming it
+       record_base rather than record_prefix is deliberate for that reason.
+
+       The caller passes the unbiased container and this subtracts the header,
+       rather than the caller passing `container + 0x44` and this being zero.
+       Both work, but only one fails safely: with the header recorded here, a
+       caller that mistakenly pre-applies it is rejected at slot 0 -- loudly, on
+       the very first birth -- while a caller that forgets to pre-apply it in
+       the other design is accepted at every slot and silently misindexed. */
+    unsigned int record_base;
     unsigned int active;      /* u8, == 1 when the slot is a live villager */
     unsigned int age;         /* i32 */
     unsigned int head;        /* i32 */
@@ -279,7 +292,14 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        at the routine head where the father is only decomposed scalars.
 
        The `no_villager` sentinel is 0: VV4 stores no father id at all, so the
-       id-resolution path is unused here and the field is inert. */
+       id-resolution path is unused here and the field is inert.
+
+       record_base is 0x44 because the accessor sub_466040 computes
+       `lea eax, [eax + ecx + 0x44]` after multiplying the index by the stride
+       -- the villager array lives inside a container whose first 0x44 bytes are
+       something else. The caller passes that container unbiased; the container
+       itself is the global 0x50E568, loaded as an immediate by all 55 callers
+       of the accessor. */
     {
         1, 0x2E3C, 150, 0x44,
         0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
