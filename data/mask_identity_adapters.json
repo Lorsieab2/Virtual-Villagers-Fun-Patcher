@@ -123,8 +123,9 @@
         "name": {
           "offset": "0x564",
           "type": "str",
-          "count": 66,
-          "evidence": "scripts/build_vv2_mask_stage2.py records the villager-name buffer at +0x564 with a 66-byte cap via 0x4682BD; independently re-confirmed (66-byte cap, written through VA 0x4682BD)"
+          "length": 25,
+          "length_confidence": "upper bound from displacement gap, not a count operand",
+          "evidence": "Read site 0x41F39D: imul eax,eax,0xE48C; lea edx,[eax+ecx+0x564]; push edx; call 0x4682BD (sprintf) -- structurally identical to VV1's proven 0x41874D, and the imul by the 0xE48C stride is what establishes the base as a villager record. A villager-to-villager name copy at 0x421630/0x421638 has +0x564 on BOTH operands, both stride-indexed. LENGTH IS AN UPPER BOUND ONLY: VV2 writes via unbounded sprintf, so 0x19 comes from the displacement gap 0x564..0x57D, and the same gap method over-estimated VV1's buffer by 4 bytes. Never write more than 0x18."
         },
         "likes": {
           "offset": "0x5F0",
@@ -211,7 +212,8 @@
         "preferred_skill": {
           "offset": "0xEC0",
           "type": "i32",
-          "evidence": "vv3_full_mastery_candidate.c VV3_PREF (-1 none, 0..4 preferred skill)"
+          "mutable": true,
+          "evidence": "0x459860 mov edi,[ebx+0xEC0]; 0x459866 mov esi,[ebx+edi*4+0xEAC] -- the preference field indexes the skill array directly. Toggler at 0x46DFFF-0x46E0BB sets an index or -1. -1 = none, 0..4. VERIFIED BY DISASSEMBLY. THIS FIELD IS MUTABLE -- the player toggles it and the -1 sentinel proves it is cleared at runtime -- so it MUST NOT be an input to a stable identity hash. Record it and compare against a baseline instead."
         },
         "likes": {
           "offset": "0xFB4",
@@ -224,10 +226,15 @@
           "type": "i32",
           "count": 3,
           "evidence": "vv3_full_mastery_candidate.c VV3_DISLIKES (3 ints)"
+        },
+        "name": {
+          "offset": "0xDD4",
+          "type": "str",
+          "length": 25,
+          "evidence": "Burial writer 0x455032: push 0x19; lea ecx,[ebp+0xDD4]; push ecx; push esi; call 0x46F780 (strncpy, byte-identical to VV4's verified copier); then mov byte ptr [esi+0x19],0. The length is read directly off the push 0x19 count operand rather than inferred from a gap. The same base register is used for +0xDC4 (age) and +0xEAC (skills) in the same basic block. NOTE the buffer's displacement gap is only 4 bytes (refs at 0xDD8/0xDDC/0xDE0), so the length rests on the count operand alone."
         }
       },
       "absent_fields": {
-        "name": "no VV3 name-buffer offset is established; an independent RE audit of build 8BC5DB... could not establish one",
         "parentage": "no VV3 parentage offset is defined or documented"
       },
       "special_villagers": {
@@ -301,7 +308,8 @@
         "preferred_skill": {
           "offset": "0x1C70",
           "type": "i32",
-          "evidence": "vv4_origins_icons.c VV_PREF_OFFSET (-1 none, 0 Farm, 1 Parent, 2 Heal, 3 Research, 4 Build)"
+          "mutable": true,
+          "evidence": "0x4402F5 mov eax,[ecx+0x1C70]; cmp eax,-1; je; mov edi,eax; fld dword ptr [ecx+edi*4+0x1C5C] -- indexes the f32 skill array. -1 = none. VERIFIED BY DISASSEMBLY. THIS FIELD IS MUTABLE -- the player toggles it and the -1 sentinel proves it is cleared at runtime -- so it MUST NOT be an input to a stable identity hash. Record it and compare against a baseline instead."
         },
         "likes": {
           "offset": "0x1E60",
@@ -378,13 +386,30 @@
         "preferred_skill": {
           "offset": "0x1C74",
           "type": "i32",
-          "evidence": "exact-build audit: native preference stores and the VV5 source both use this DWORD"
+          "mutable": true,
+          "evidence": "0x442E96 mov eax,[ecx+0x1C74]; cmp eax,-1; je; mov edi,eax; fld dword ptr [ecx+edi*4+0x1C5C] -- same shape as VV4 one dword higher, consistent with VV5's sixth skill. -1 = none. VERIFIED BY DISASSEMBLY. THIS FIELD IS MUTABLE -- the player toggles it and the -1 sentinel proves it is cleared at runtime -- so it MUST NOT be an input to a stable identity hash. Record it and compare against a baseline instead."
+        },
+        "name": {
+          "offset": "0x1B9C",
+          "type": "str",
+          "length": 25,
+          "safe_write_limit": 24,
+          "evidence": "Burial writer 0x464CB2: push 0x19; lea eax,[edi+0x1B9C]; call 0x47D7C0 (strncpy); mov byte ptr [esi+0x19],0 -- the same shape as VV4's proven 0x45D4B4. Second independent witness at 0x420005: push 0x18; lea edx,[edi+0x1B9C]; lea eax,[ebp+0x1B9C]; call 0x47D7C0, a villager-to-villager name copy with the SAME offset on both sides. IMPORTANT: that copy uses 0x18, not 0x19, so 0x18 is the safe write limit even though the burial copy reads 0x19. Base proven by the sibling-field cluster 0x1B8C/0x1B90/0x1B9C/0x1BB8/0x1BBC on one register, matching VV4's confirmed layout; there is no local imul because the record arrives as an argument."
+        },
+        "likes": {
+          "offset": "0x1F5C",
+          "type": "i32",
+          "count": 3,
+          "evidence": "0x43E50F lea ecx,[edi+0x1F5C]; call 0x464FB0 -- the list formatter that loads eSayLikesList -- immediately followed at 0x43E523 by lea ecx,[edi+0x1F68]; call 0x464A10 for the dislikes list, in the same details-screen function on the same base register. Verified by disassembly. i32 indices into a shared 48-item vocabulary string, -1 = empty."
+        },
+        "dislikes": {
+          "offset": "0x1F68",
+          "type": "i32",
+          "count": 3,
+          "evidence": "0x43E523 lea ecx,[edi+0x1F68]; call 0x464A10 (eSayDislikesList formatter), adjacent to the likes call at 0x43E50F on the same base register. i32 indices, -1 = empty."
         }
       },
       "absent_fields": {
-        "likes": "no exact VV5 source/destination instruction pair is established for a likes array",
-        "dislikes": "no exact VV5 source/destination instruction pair is established for a dislikes array",
-        "name": "no VV5 name-buffer offset is established; an independent RE audit of build 929467... could not establish one",
         "nursing": "no VV5 nursing offset is defined or documented",
         "parentage": "no VV5 parentage offset is defined or documented"
       },
@@ -397,5 +422,8 @@
         }
       }
     }
+  },
+  "identity_notes": {
+    "stable_hash_inputs": "Fields safe as identity-hash inputs are those written once and not rewritten in normal play. The name buffer qualifies in all five games. The preferred skill does NOT: it carries a -1 'none' sentinel and a player-driven toggler in VV3/VV4/VV5, so it changes at runtime by design. Head and body do not qualify either -- the VV3 appearance chooser rewrites them, which is why they were removed from the VV3 mask fingerprint after a mask was orphaned by a head-only edit."
   }
 }
