@@ -61,6 +61,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
+#include <string.h>
 #include <wchar.h>
 
 enum {
@@ -450,6 +451,57 @@ static const unsigned char *find_record_by_id(
     return NULL;
 }
 
+/* Resolve a villager to his record by NAME, for the games that store a father's
+   name rather than an id.
+
+   VV2 through VV5 copy the father's name into the mother's record and keep no
+   id at all -- in VV2 it arrives at the conception site as a formatted string
+   argument, not a record pointer, so there is nothing to capture at the hook.
+   Without a lookup his age, head and body would be printed as zeros while the
+   feature advertises them, which is worse than useless: a reader cannot tell a
+   genuine zero from a missing one.
+
+   The name is not guaranteed unique -- two living villagers may share one --
+   so an ambiguous match resolves to NULL rather than to a guess. Reporting no
+   values is honest; reporting the wrong father's values is not, and a
+   parentage record is permanent with no second source to correct it from.
+
+   Returns NULL when the name matches no active record, which happens
+   legitimately if the father died between conception and this call. */
+static const unsigned char *find_record_by_name(
+    const struct game_layout *g,
+    const unsigned char *records,
+    const char *name
+) {
+    const unsigned char *found = NULL;
+    int slot;
+
+    if (records == NULL || name == NULL || name[0] == '\0') {
+        return NULL;
+    }
+    for (slot = 0; slot < g->slots; ++slot) {
+        const unsigned char *record =
+            records + g->record_base + (size_t)slot * g->stride;
+        char candidate[MAX_NAME_BYTES];
+
+        if (*(const unsigned char *)(record + g->active) != 1) {
+            continue;
+        }
+        copy_villager_name(g, record, candidate, sizeof(candidate));
+        if (strcmp(candidate, name) != 0) {
+            continue;
+        }
+        if (found != NULL) {
+            /* Two active villagers share this name; neither can be shown to be
+               the father, so record none of his values rather than one of
+               theirs. */
+            return NULL;
+        }
+        found = record;
+    }
+    return found;
+}
+
 /* Build "<exe folder>\Virtual Villagers 1 Parentage Log <n>.txt".
 
    Beside the executable, matching where the statistics companion writes, so a
@@ -716,12 +768,15 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         memcpy(father_name, "(not recorded by this game)", 28);
         father = NULL;
     } else if (g->father_kind == FATHER_BY_NAME) {
-        /* The name is already in the mother's record; there is no father record
-           to find, so his age, head and body are simply not available in these
-           games. Recording the name we do have beats recording nothing. */
+        /* These games copy the father's NAME into the mother's record and keep
+           no id, so his record is found by scanning for that name. Without the
+           scan his age, head and body would print as zeros while the feature
+           advertises them -- and a reader could not tell a genuine zero from a
+           missing value. The lookup can still fail (he may have died, or two
+           living villagers may share the name), which is handled below. */
         copy_name_field(mother + g->father, father_name, sizeof(father_name),
                         g->name_capacity);
-        father = NULL;
+        father = find_record_by_name(g, records, father_name);
     } else {
         father = find_record_by_id(
             g, records, *(const int *)(mother + g->father));
@@ -742,6 +797,11 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     if (file == NULL) {
         return 0;
     }
+    /* The father's numbers are printed only when his record was actually
+       found. Printing 0 for a value that was never read is indistinguishable
+       from a villager whose real age, head or body is 0, and a parentage
+       record is permanent with no second source to correct it from -- so an
+       unavailable value says so instead of guessing. */
     written = fprintf(
         file,
         "Conception %d\n"
@@ -749,21 +809,36 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         "    Age at conception: %d\n"
         "    Head: %d\n"
         "    Body: %d\n"
-        "  Father: %s\n"
-        "    Age at conception: %d\n"
-        "    Head: %d\n"
-        "    Body: %d\n"
-        "  Babies in pregnancy: %d\n"
-        "\n",
+        "  Father: %s\n",
         existing_records + 1,
         mother_name,
         *(const int *)(mother + g->age),
         *(const int *)(mother + g->head),
         *(const int *)(mother + g->body),
-        father_name,
-        father != NULL ? *(const int *)(father + g->age) : 0,
-        father != NULL ? *(const int *)(father + g->head) : 0,
-        father != NULL ? *(const int *)(father + g->body) : 0,
+        father_name
+    ) >= 0;
+    if (father != NULL) {
+        written = written && fprintf(
+            file,
+            "    Age at conception: %d\n"
+            "    Head: %d\n"
+            "    Body: %d\n",
+            *(const int *)(father + g->age),
+            *(const int *)(father + g->head),
+            *(const int *)(father + g->body)
+        ) >= 0;
+    } else {
+        written = written && fprintf(
+            file,
+            "    Age at conception: (record not found)\n"
+            "    Head: (record not found)\n"
+            "    Body: (record not found)\n"
+        ) >= 0;
+    }
+    written = written && fprintf(
+        file,
+        "  Babies in pregnancy: %d\n"
+        "\n",
         babies
     ) >= 0;
     /* Flush before closing so a write error is seen while the record can still
