@@ -82,6 +82,34 @@ static int count_occupied_graves(
     return total;
 }
 
+/* Emit the memorial row, or nothing when a game's array is unlocated.
+
+   Shared by both writers deliberately. The row was first added to
+   write_later_game alone, which silently omitted it for New Believers because
+   that game has its own writer -- review caught that on #285. One emitter used
+   by every caller cannot drift apart that way again. */
+static int write_memorial_row(
+    FILE *file,
+    unsigned int graves_rva,
+    unsigned int graves_stride,
+    unsigned int graves_capacity
+) {
+    const unsigned char *module;
+    if (graves_rva == 0u) {
+        return 1;
+    }
+    module = (const unsigned char *)GetModuleHandleW(NULL);
+    if (module == NULL) {
+        return 0;
+    }
+    return fprintf(
+        file,
+        "Graves in the Memorial: %d\n",
+        count_occupied_graves(
+            module + graves_rva, graves_stride, 0x1Cu, graves_capacity)
+    ) >= 0;
+}
+
 static int build_output_paths(
     int save_id,
     wchar_t *temporary,
@@ -374,19 +402,8 @@ static int write_later_game(
     ) < 0) {
         return 0;
     }
-    if (graves_rva != 0u) {
-        const unsigned char *module = (const unsigned char *)GetModuleHandleW(NULL);
-        if (module == NULL) {
-            return 0;
-        }
-        return fprintf(
-            file,
-            "Graves in the Memorial: %d\n",
-            count_occupied_graves(
-                module + graves_rva, graves_stride, 0x1Cu, graves_capacity)
-        ) >= 0;
-    }
-    return 1;
+    return write_memorial_row(
+        file, graves_rva, graves_stride, graves_capacity);
 }
 
 static int write_vv5(
@@ -396,7 +413,7 @@ static int write_vv5(
     int puzzle_total
 ) {
     const unsigned char *statistics = manager + 0x7B4u;
-    return fprintf(
+    if (fprintf(
         file,
         "Virtual Villagers - New Believers\n"
         "Village Statistics\n\n"
@@ -429,7 +446,12 @@ static int write_vv5(
         read_int(statistics, 0x34),
         puzzles_solved,
         puzzle_total
-    ) >= 0;
+    ) < 0) {
+        return 0;
+    }
+    /* New Believers: memorial at 0x5481A8, accessor 0x464E70,
+       500 slots, stride 0x5C, occupancy +0x1C. */
+    return write_memorial_row(file, 0x1481A8u, 0x5Cu, 500u);
 }
 
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
