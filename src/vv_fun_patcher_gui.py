@@ -1196,8 +1196,15 @@ class App(tk.Tk):
                         f"Village Statistics - Save N.txt: {modded_folder} — refreshed after each successful save; contains that save's lifetime statistics."
                     )
                 if f"{build.id}_write_parentage_log" in selected:
+                    # The game number comes from the build. The condition above
+                    # is generic over every game, so a hardcoded "Virtual
+                    # Villagers 1" sent a VV2 player looking for a file the
+                    # companion never writes: each log is named after its own
+                    # game.
                     artifact_lines.append(
-                        f"Virtual Villagers 1 Parentage Log N.txt: {modded_folder} — one plain-text record per pregnancy, written at conception; rolls to a new numbered file every 256 records."
+                        f"Virtual Villagers {build.id.removeprefix('vv')} Parentage Log N.txt: "
+                        f"{modded_folder} — one plain-text record per pregnancy, written at "
+                        "conception; rolls to a new numbered file every 256 records."
                     )
                 ttk.Label(
                     frame,

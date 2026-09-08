@@ -637,6 +637,12 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     FILE *file;
     char mother_name[MAX_NAME_BYTES];
     char father_name[MAX_NAME_BYTES];
+    /* Rendered rather than printed as %d, so an unavailable field can say so
+       instead of printing a 0 that a real villager could also hold. Sized for
+       "not recorded by this game" plus its terminator. */
+    char father_age[32];
+    char father_head[32];
+    char father_body[32];
     int written;
     int existing_records;
 
@@ -735,6 +741,28 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     if (file == NULL) {
         return 0;
     }
+    /* The father's three numbers are rendered as text so an unavailable field
+       can say so. They used to print 0 whenever no father record was found,
+       and 0 is a value a real villager can hold -- so a reader could not tell
+       an unavailable field from a measured one. Every VV2 and VV4/VV5
+       conception takes that path, because those games keep only the father's
+       name, which made the whole column indistinguishable from a village of
+       newborn fathers. */
+    if (father != NULL) {
+        _snprintf(father_age, sizeof(father_age), "%d",
+                  *(const int *)(father + g->age));
+        _snprintf(father_head, sizeof(father_head), "%d",
+                  *(const int *)(father + g->head));
+        _snprintf(father_body, sizeof(father_body), "%d",
+                  *(const int *)(father + g->body));
+        father_age[sizeof(father_age) - 1] = '\0';
+        father_head[sizeof(father_head) - 1] = '\0';
+        father_body[sizeof(father_body) - 1] = '\0';
+    } else {
+        memcpy(father_age, "not recorded by this game", 26);
+        memcpy(father_head, "not recorded by this game", 26);
+        memcpy(father_body, "not recorded by this game", 26);
+    }
     written = fprintf(
         file,
         "Conception %d\n"
@@ -743,9 +771,9 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         "    Head: %d\n"
         "    Body: %d\n"
         "  Father: %s\n"
-        "    Age at conception: %d\n"
-        "    Head: %d\n"
-        "    Body: %d\n"
+        "    Age at conception: %s\n"
+        "    Head: %s\n"
+        "    Body: %s\n"
         "  Babies in pregnancy: %d\n"
         "\n",
         existing_records + 1,
@@ -754,9 +782,9 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         *(const int *)(mother + g->head),
         *(const int *)(mother + g->body),
         father_name,
-        father != NULL ? *(const int *)(father + g->age) : 0,
-        father != NULL ? *(const int *)(father + g->head) : 0,
-        father != NULL ? *(const int *)(father + g->body) : 0,
+        father_age,
+        father_head,
+        father_body,
         babies
     ) >= 0;
     /* Flush before closing so a write error is seen while the record can still

@@ -197,6 +197,7 @@ On each new pregnancy, appends the mother's and father's names, their ages at co
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 6; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv1_write_village_statistics`)
 
@@ -299,7 +300,7 @@ Records both parents at conception in a plain text log. VV2 keeps the father's n
 - Explicit non-changes/exclusions: none declared
 - Dependencies: vv2_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 3; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv2_write_village_statistics`)
 
