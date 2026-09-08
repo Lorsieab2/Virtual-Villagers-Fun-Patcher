@@ -201,8 +201,19 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     #     exactly as stock expects at 0x43BCA8 and 0x43BCC0.
     #
     # esi and edi are read only; neither is written outside the pushad bracket.
-    ("vv1_write_parentage_log", "0x3BCA2"): "8F8AE78F22F0B1F580B36C0F85BE5608D75D9E83D2D08AEC981FFEED35ADCADD",
-    ("vv1_write_parentage_log", "0x3BCBA"): "F0A874F76A8D73A7E8690D9FCD9E97588365F0725BFFB7EE994B1DC8058EE80E",
+    ("vv1_write_parentage_log", "0x3BCA2"): "0C35CAD4FD7C9BE46D377D3DF0D0A1CAA4AF23B778AA5A9733F6F2F007A75BEF",
+    ("vv1_write_parentage_log", "0x3BCBA"): "4827A759DED85D0825A3E4E76173CC6E256FC82FCEBF6E481FE92997F79E35E0",
+    # The singleton route. This one steals nothing: the two branches that
+    # carry a single birth (0x43BC39, a six-byte near je, and 0x43BC4C, a
+    # two-byte short jge) are RETARGETED at their existing widths, so no
+    # instruction moves. The short jge cannot reach the cave with a rel8, so
+    # it aims at 0x43BCCB -- the routine's own five-byte nop pad, exactly one
+    # jmp wide -- which carries the long jump.
+    #
+    # 0x43BCC6 itself is deliberately NOT patched. The rejection path enters
+    # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
+    # that jump in the middle of the inserted instruction.
+    ("vv1_write_parentage_log", "0x3BCCB"): "2564B0D1FC00F6E0D066C75D44F86A8C8FE3669BAF5343CF94386565017CD85D",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.
@@ -290,6 +301,18 @@ COMPOSED_CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
 
 # (feature id, splice offset, stock re-entry target) -> why it is safe.
 REVIEWED: dict[tuple[str, str, int], str] = {
+    (
+        "vv1_write_parentage_log",
+        "0x3BCCB",
+        0x43BCC6,
+    ): "singleton path. Re-enters at the stock epilogue `pop esi; pop edi; "
+    "ret 0x10`, which dereferences NO register -- it only unwinds the two "
+    "pushes the routine itself made at 0x43BBC0 and 0x43BBF0. Both are still "
+    "on the stack: the trampoline's whole body sits inside pushad/popad and "
+    "all three of its exit paths converge on the same esp, and the two "
+    "retargeted branches keep their original widths so nothing shifts. This "
+    "is the address stock itself branches to from 0x43BC39 and 0x43BC4C, so "
+    "the arriving state is exactly what stock would have delivered.",
     # Accept path re-enters at 0x43DD0A, which is the natural resume point
     # (splice 0x43DD03 + 7 patched bytes), so the audit auto-excludes it as a
     # plain stock resume -- it is not a foreign re-entry and needs no review.

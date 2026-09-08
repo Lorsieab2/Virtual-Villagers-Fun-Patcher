@@ -84,7 +84,7 @@ OUTPUT = ROOT / "data" / "vv1_parentage_feature.json"
 
 EXE = "Virtual Villagers - A New Home.exe"
 
-# The two SUCCESS tails of the conception routine sub_43BBC0.
+# The SUCCESS exits of the conception routine sub_43BBC0.
 #
 # Hooking the routine's HEAD was wrong twice over, and Codex caught both:
 #
@@ -99,23 +99,56 @@ EXE = "Virtual Villagers - A New Home.exe"
 #     predicate 0x43A1A0 and jumps to 0x43BCC7 when it fails, creating no
 #     pregnancy at all. A head hook logs those phantom conceptions too.
 #
-# Both tails are entered only after the litter size is final and only on
-# success, and both begin with the same six bytes, so one payload serves both:
+# Moving to the tails fixed both -- and then dropped every SINGLE birth, which
+# is the common case. The tail at 0x43BCBA looks like a "twins/single" join but
+# is not: its only three predecessors (0x43BC71, 0x43BC7B, 0x43BC8A) all sit
+# downstream of `mov [esi+0x35C], 2`, so it is twins-only. Singletons leave via
+# 0x43BC39 and 0x43BC4C, which both target 0x43BCC6 and bypass both tails.
 #
-#     0x43BCA2  mov edi, [edi+0x3E010]   triplets tail, before inc Triplets
-#     0x43BCBA  mov edi, [edi+0x3E010]   twins/single tail, before inc Twins
+# So there are three success exits, and all three are covered:
 #
-# The rejected path enters at 0x43BCC7 and reaches neither.
+#     0x43BCA2  triplets   mov edi,[edi+0x3E010]   -- steal 6, replay, rejoin
+#     0x43BCBA  twins      mov edi,[edi+0x3E010]   -- steal 6, replay, rejoin
+#     singles   RETARGET the two branches rather than stealing anything
 #
-# The shared `ret 0x10` at 0x43BCC8 cannot be used instead: the rejected path
-# falls into it from 0x43BCC7 having pushed only edi, while the success paths
-# arrive via 0x43BCC6 having also pushed esi, so a hook there cannot tell the
-# two apart.
+# The singleton case cannot be hooked the same way. Its natural site 0x43BCC6
+# is `pop esi; pop edi; ret 0x10`, six bytes -- but the REJECTION path enters at
+# 0x43BCC7, one byte in. Stealing six bytes there would leave the rejection jump
+# landing in the middle of the inserted jmp, which crashes the game. The bytes
+# at 0x43BCC6 are therefore left completely untouched.
+#
+# Instead the two singleton branches are retargeted, so nothing is stolen and
+# nothing shifts:
+#
+#     0x43BC39  je  0x43BCC6   is already a six-byte near jcc -> retarget it
+#                              straight at the trampoline.
+#     0x43BC4C  jge 0x43BCC6   is a TWO-byte short jcc; a rel8 cannot reach the
+#                              cave. It is retargeted to 0x43BCCB instead, which
+#                              is +0x7D from the next instruction and so still
+#                              in rel8 range, and 0x43BCCB..0x43BCCF is the
+#                              routine's own five-byte NOP padding -- exactly
+#                              the width of one jmp rel32 to the cave.
+#
+# Both singleton routes therefore reach the trampoline, which logs and then
+# jumps to 0x43BCC6 to rejoin the stock epilogue.
 TAIL_VAS = (0x0043BCA2, 0x0043BCBA)
 TAIL_FILES = (0x0003BCA2, 0x0003BCBA)
 
-# `mov edi, dword ptr [edi + 0x3E010]` -- the manager pointer fetch that opens
-# both tails. Six bytes, so a five-byte jmp plus one nop replaces it exactly.
+# The singleton wiring.
+SINGLE_NEAR_JE_VA = 0x0043BC39      # je 0x43BCC6, six bytes, retargeted
+SINGLE_NEAR_JE_FILE = 0x0003BC39
+SINGLE_NEAR_JE_STOCK = bytes.fromhex("0f8487000000")
+
+SINGLE_SHORT_JGE_VA = 0x0043BC4C    # jge 0x43BCC6, two bytes, aimed at the pad
+SINGLE_SHORT_JGE_FILE = 0x0003BC4C
+SINGLE_SHORT_JGE_STOCK = bytes.fromhex("7d78")
+
+PAD_VA = 0x0043BCCB                 # five nops after the routine
+PAD_FILE = 0x0003BCCB
+PAD_STOCK = bytes.fromhex("9090909090")
+
+EPILOGUE_VA = 0x0043BCC6            # pop esi; pop edi; ret 0x10 -- NEVER patched
+
 TAIL_STOLEN = bytes.fromhex("8bbf10e00300")
 
 # The cave.
@@ -143,7 +176,7 @@ TAIL_STOLEN = bytes.fromhex("8bbf10e00300")
 # leaves 0x56900+0x100 .. 0x56FFF free for whatever comes next.
 CAVE_VA = 0x00456900
 CAVE_FILE = 0x00056900
-CAVE_SIZE = 0x100
+CAVE_SIZE = 0x140
 
 # Imports, reused from the statistics feature's own verified table entries.
 # Resolved from the stock import table rather than assumed, because the ANSI
@@ -165,8 +198,8 @@ EXPORT_NAME = b"WriteParentageRecord\0"
 # layout left them at 0x80 and the second trampoline ran straight into the DLL
 # name -- the emitted disassembly decoded the string as instructions, which is
 # exactly what that looks like when it happens.
-DLL_NAME_OFFSET = 0xA0
-EXPORT_NAME_OFFSET = 0xC0
+DLL_NAME_OFFSET = 0xF0
+EXPORT_NAME_OFFSET = 0x110
 
 # The five stock bytes the trampoline replaces, restored before returning.
 STOLEN_BYTES = bytes.fromhex("578bf9e8d8e5ffff")
@@ -181,17 +214,25 @@ def assemble(source: str, address: int) -> bytes:
 def build() -> dict:
     source = (STOCK / EXE).read_bytes()
 
-    # Each tail gets its own trampoline, so the cave block is split in two.
-    # Each assembles to 0x45 bytes, so 0x50 apiece leaves headroom without
-    # reaching the strings at DLL_NAME_OFFSET (0x80). The size check below is
-    # what actually enforces this -- it caught an earlier 0x40 that was too
-    # small rather than letting the second trampoline overwrite the first.
+    # Three trampolines -- triplets, twins, singles -- each in its own slot.
+    # Each assembles to about 0x45 bytes, so 0x50 apiece. The checks below are
+    # what actually enforce the layout: an earlier 0x40 was too small, and an
+    # earlier string offset let a trampoline run into the DLL name.
     slot_size = 0x50
 
     for tail_file in TAIL_FILES:
         if source[tail_file : tail_file + len(TAIL_STOLEN)] != TAIL_STOLEN:
             raise RuntimeError(
                 f"stock bytes at {tail_file:#x} are not the expected tail"
+            )
+    for label, offset, expected in (
+        ("singleton near je", SINGLE_NEAR_JE_FILE, SINGLE_NEAR_JE_STOCK),
+        ("singleton short jge", SINGLE_SHORT_JGE_FILE, SINGLE_SHORT_JGE_STOCK),
+        ("trailing pad", PAD_FILE, PAD_STOCK),
+    ):
+        if source[offset : offset + len(expected)] != expected:
+            raise RuntimeError(
+                f"stock bytes at {offset:#x} are not the expected {label}"
             )
     if set(source[CAVE_FILE : CAVE_FILE + CAVE_SIZE]) != {0}:
         raise RuntimeError(f"cave at {CAVE_FILE:#x} is not free")
@@ -293,6 +334,100 @@ def build() -> dict:
                 ),
             }
         )
+
+    # The singleton trampoline, in the third slot.
+    #
+    # Reached from the two retargeted branches rather than from stolen bytes.
+    # It logs and then jumps to the stock epilogue at 0x43BCC6, which is left
+    # completely untouched -- see the note above on why stealing there would
+    # crash the rejection path.
+    #
+    # esi and edi hold the mother's record and the record array here for the
+    # same reason they do at the tails: esi is written once at 0x43BBF1 and
+    # never reassigned before any exit, and edi is written at 0x43BBC1 and left
+    # alone, with the intervening manager fetches all targeting eax.
+    single_cave_va = CAVE_VA + 2 * slot_size
+    single_code = assemble(
+        f"""
+            pushad
+            push 0x{dll_name_va:X}
+            call dword ptr [0x{GET_MODULE_HANDLE_IAT:X}]
+            test eax, eax
+            jne resolve_export
+            push 0x{dll_name_va:X}
+            call dword ptr [0x{LOAD_LIBRARY_IAT:X}]
+            test eax, eax
+            jz done
+        resolve_export:
+            push 0x{export_name_va:X}
+            push eax
+            call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
+            test eax, eax
+            jz done
+            push dword ptr [esp + 0x04]
+            push dword ptr [esp + 0x04]
+            call eax
+        done:
+            popad
+            jmp 0x{EPILOGUE_VA:X}
+        """,
+        single_cave_va,
+    )
+    if single_cave_va + len(single_code) > CAVE_VA + DLL_NAME_OFFSET:
+        raise RuntimeError("singleton trampoline runs into the strings")
+    payload[2 * slot_size : 2 * slot_size + len(single_code)] = single_code
+
+    # Retarget the six-byte near je straight at the trampoline.
+    near_je = assemble(f"je 0x{single_cave_va:X}", SINGLE_NEAR_JE_VA)
+    if len(near_je) != len(SINGLE_NEAR_JE_STOCK):
+        raise RuntimeError("retargeted near je changed width")
+    patches.append(
+        {
+            "offset": f"0x{SINGLE_NEAR_JE_FILE:X}",
+            "before": SINGLE_NEAR_JE_STOCK.hex().upper(),
+            "after": near_je.hex().upper(),
+            "purpose": (
+                "Retarget the singleton branch that skips the twins roll so it "
+                "reaches the parentage trampoline instead of the epilogue. "
+                "Same width, so nothing shifts."
+            ),
+        }
+    )
+
+    # The two-byte short jge cannot reach the cave with a rel8, so aim it at the
+    # routine's own trailing pad and put the long jump there.
+    short_jge = assemble(f"jge 0x{PAD_VA:X}", SINGLE_SHORT_JGE_VA)
+    if len(short_jge) != len(SINGLE_SHORT_JGE_STOCK):
+        raise RuntimeError(
+            "retargeted short jge changed width; it would shift the code after it"
+        )
+    patches.append(
+        {
+            "offset": f"0x{SINGLE_SHORT_JGE_FILE:X}",
+            "before": SINGLE_SHORT_JGE_STOCK.hex().upper(),
+            "after": short_jge.hex().upper(),
+            "purpose": (
+                "Retarget the singleton branch whose twins roll failed to the "
+                "five-byte pad after the routine. It stays a two-byte short "
+                "jump, so nothing shifts; a rel8 cannot reach the cave."
+            ),
+        }
+    )
+
+    pad_jump = assemble(f"jmp 0x{single_cave_va:X}", PAD_VA)
+    if len(pad_jump) != len(PAD_STOCK):
+        raise RuntimeError("pad jump does not fit the five nop bytes exactly")
+    patches.append(
+        {
+            "offset": f"0x{PAD_FILE:X}",
+            "before": PAD_STOCK.hex().upper(),
+            "after": pad_jump.hex().upper(),
+            "purpose": (
+                "Fill the routine's five-byte nop pad with the long jump to the "
+                "singleton trampoline, which the short branch above can reach."
+            ),
+        }
+    )
 
     payload[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
     payload[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME

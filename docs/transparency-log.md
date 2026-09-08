@@ -196,7 +196,7 @@ On each new pregnancy, appends the mother's and father's names, their ages at co
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv1_write_village_statistics`)
 
