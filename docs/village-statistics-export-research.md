@@ -217,3 +217,61 @@ uncapped lifetime storage field and mutation route have yet been proven:
 
 Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
+
+## The memorial arrays, and what a count of them can honestly claim
+
+Each later game keeps its dead in a flat array behind a small bounds-checked
+accessor, and each accessor states the whole layout in a handful of
+instructions.
+
+| Game | Accessor | Base | Slots | Stride | Occupied when |
+|---|---|---|---|---:|---|
+| The Secret City | `0x454AD0` | `0x597D64` | 500 | `0x30` | `record+0x1C != 0` |
+| The Tree of Life | `0x45D650` | `0x5025C8` | 500 | `0x5C` | `record+0x1C != 0` |
+| New Believers | `0x464E70` | `0x5481A8` | 500 | `0x5C` | `record+0x1C != 0` |
+
+VV4's and VV5's accessors are instruction-for-instruction identical. VV3
+computes the record with `lea`/`shl` instead of `imul`:
+
+    0x454ADF  lea edx, [eax+eax*2+99h]   ; 3i + 0x99
+    0x454AE6  shl edx, 4                 ;   x16 = 48i + 0x990
+    0x454AE9  cmp dword ptr [edx+ecx], 0 ; occupancy
+    0x454AF5  lea eax, [eax+ecx+974h]    ; base = container 0x5973F0 + 0x974
+
+so a scan shaped on VV4's `imul` cannot find it. VV3 was reached from the Roster
+Of The Dead string table instead, and confirmed by three other functions that
+walk the same array: the burial writer `0x454FF0`, the clear `0x4549F0` and the
+copy `0x454930`, each stepping `0x30` for `0x1F4` records.
+
+The burial writers fill the FIRST record whose `+0x1C` is zero — VV4 `0x45D470`,
+VV3 `0x454FF0` — copying the villager's name and their age at death.
+
+### What the count means, and what it does not
+
+`+0x1C` holds the age at death AND serves as the occupancy test. Because the
+writer takes the first free slot, a slot is reusable once something clears it.
+Nothing has been found that clears one, but that is an absence of evidence, and
+a 500-slot array cannot hold an uncapped lifetime total in any case.
+
+The export therefore reports **graves currently held**, not villagers buried and
+not a lifetime death count. Those quantities genuinely diverge: a villager can
+die without being buried, and the array is bounded while deaths are not. This
+does **not** satisfy the Villagers Buried contract stated at the top of this
+document, which requires an increment at the earliest successful skeleton
+pickup; nothing here changes that item's status.
+
+A villager buried at age zero would leave its record reading free, and the next
+burial would overwrite it. The repository owner confirms that state is
+unreachable in ordinary play and requires external memory editing to produce —
+age forced to zero, then health to zero. The executable agrees: VV4 compares
+`+0x1B8C` against `0x118` and `0x168` at nine sites as a maturity threshold, so
+it is an age that grows before any death path is reached.
+
+### Method note
+
+Every address above was established with a positive control: the same method was
+run first against VV4, where the site was already proven, and required to find it
+before any result elsewhere was believed. That discipline earned its keep — the
+VV3 scan passed its VV4 control and still returned a false negative on VV3, which
+is how the null was recognised as a fact about the scan rather than about the
+game.
