@@ -90,6 +90,12 @@ CAVE_FILE = 0x00056800
 CAVE_SIZE = 0x100
 
 # Imports, reused from the statistics feature's own verified table entries.
+# Resolved from the stock import table rather than assumed, because the ANSI
+# vs wide pairing matters: the DLL name below is an ASCII string, so these must
+# be the A variants. They are --
+#     0x457010 -> KERNEL32.dll!LoadLibraryA
+#     0x4570D0 -> KERNEL32.dll!GetModuleHandleA
+#     0x4570D4 -> KERNEL32.dll!GetProcAddress
 LOAD_LIBRARY_IAT = 0x00457010
 GET_MODULE_HANDLE_IAT = 0x004570D0
 GET_PROC_ADDRESS_IAT = 0x004570D4

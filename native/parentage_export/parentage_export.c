@@ -69,7 +69,22 @@
 #include <wchar.h>
 
 enum {
-    MAX_LONG_PATH = 32768,
+    /* The log sits beside the executable, so the path is bounded by the
+       executable's own path plus a fixed filename.
+
+       This is deliberately NOT the 32768-wchar_t long-path maximum the
+       statistics companion uses. Two such buffers -- one here and one in
+       build_log_path -- are live at the same time in this call chain, which
+       would put 128 KB on the stack. That companion is called from the save
+       handler; this one is called from the conception routine during ordinary
+       gameplay, and a frame that large risks STATUS_STACK_OVERFLOW on any
+       thread whose stack is smaller than the main one. MAX_PATH plus room for
+       the filename costs 1 KB per buffer instead.
+
+       GetModuleFileNameW is checked for truncation against this bound, so an
+       executable installed under a genuinely longer path disables the log
+       rather than writing to a truncated one. */
+    MAX_LOG_PATH = 512,
 
     VV1_RECORD_STRIDE = 0x3D8,
     VV1_RECORD_SLOTS = 256,
@@ -159,11 +174,11 @@ static const unsigned char *find_record_by_id(
    Beside the executable, matching where the statistics companion writes, so a
    player finds both logs in the same place. */
 static int build_log_path(int file_number, wchar_t *destination) {
-    wchar_t module_path[MAX_LONG_PATH];
+    wchar_t module_path[MAX_LOG_PATH];
     wchar_t *separator;
-    DWORD length = GetModuleFileNameW(NULL, module_path, MAX_LONG_PATH);
+    DWORD length = GetModuleFileNameW(NULL, module_path, MAX_LOG_PATH);
 
-    if (length == 0 || length >= MAX_LONG_PATH) {
+    if (length == 0 || length >= MAX_LOG_PATH) {
         return 0;
     }
     separator = wcsrchr(module_path, L'\\');
@@ -173,7 +188,7 @@ static int build_log_path(int file_number, wchar_t *destination) {
     *separator = L'\0';
     return _snwprintf_s(
         destination,
-        MAX_LONG_PATH,
+        MAX_LOG_PATH,
         _TRUNCATE,
         L"%ls\\Virtual Villagers 1 Parentage Log %d.txt",
         module_path,
@@ -208,17 +223,25 @@ static int count_records(const wchar_t *path) {
 
    Bounded so a corrupt or unwritable directory cannot spin forever; 4096 files
    is far beyond any real playthrough. */
-static int select_log_file(wchar_t *destination) {
+static int select_log_file(wchar_t *destination, int *existing_records) {
     int number;
 
+    *existing_records = 0;
     for (number = 1; number <= 4096; ++number) {
+        int records;
         if (!build_log_path(number, destination)) {
             return 0;
         }
         if (GetFileAttributesW(destination) == INVALID_FILE_ATTRIBUTES) {
             return 1;
         }
-        if (count_records(destination) < RECORDS_PER_FILE) {
+        records = count_records(destination);
+        if (records < RECORDS_PER_FILE) {
+            /* Hand the count back rather than making the caller re-derive it.
+               Counting again after opening the file for append would rescan
+               the whole log on every single birth, and would do it through a
+               second handle on a file this call already holds open. */
+            *existing_records = records;
             return 1;
         }
     }
@@ -251,11 +274,12 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     const unsigned char *records = (const unsigned char *)records_pointer;
     const unsigned char *mother;
     const unsigned char *father;
-    wchar_t path[MAX_LONG_PATH];
+    wchar_t path[MAX_LOG_PATH];
     FILE *file;
     char mother_name[VV1_NAME_CAPACITY + 1];
     char father_name[VV1_NAME_CAPACITY + 1];
     int written;
+    int existing_records;
 
     if (records == NULL) {
         return 0;
@@ -279,7 +303,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         memcpy(father_name, "(unknown)", 10);
     }
 
-    if (!select_log_file(path)) {
+    if (!select_log_file(path, &existing_records)) {
         return 0;
     }
     file = _wfopen(path, L"ab");
@@ -299,7 +323,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         "    Body: %d\n"
         "  Babies in pregnancy: %d\n"
         "\n",
-        count_records(path) + 1,
+        existing_records + 1,
         mother_name,
         *(const int *)(mother + VV1_AGE_OFFSET),
         *(const int *)(mother + VV1_HEAD_OFFSET),
@@ -310,6 +334,15 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
         father != NULL ? *(const int *)(father + VV1_BODY_OFFSET) : 0,
         babies
     ) >= 0;
+    /* Flush before closing so a write error is seen while the record can still
+       be reported as failed. A record begins with its "Conception " marker, and
+       that marker is what count_records counts -- so a half-flushed row would
+       be counted as complete by the next call and shift every later record
+       number. Checking the flush separately keeps the failure visible instead
+       of hiding it in fclose. */
+    if (fflush(file) != 0) {
+        written = 0;
+    }
     if (fclose(file) != 0) {
         return 0;
     }
