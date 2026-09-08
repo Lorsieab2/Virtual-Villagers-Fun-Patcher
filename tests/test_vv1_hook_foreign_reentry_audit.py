@@ -171,6 +171,38 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
     ("vv1_builder_action_fixes", "0x48336"): "8901998FCDDD8EB745F1666B550B4C384919536E546CA4B1EAAF3BDB90176485",
+    # The parentage tracker's two success-tail trampolines. Both are the same
+    # body differing only in where they rejoin, and both sit at a point the
+    # routine reaches ONLY on a successful conception -- 0x43BCA2 is the
+    # triplets tail and 0x43BCBA the twins tail. The rejection path jumps to
+    # 0x43BCC7 and reaches neither, which is the whole reason the hook moved
+    # here from the routine's head.
+    #
+    # Register contract, and why nothing stock can observe the detour:
+    #
+    #   * The entire body is bracketed by pushad/popad, so every general
+    #     register the stock tail relies on is restored before control returns
+    #     to it. The three loader calls (GetModuleHandleA, LoadLibraryA,
+    #     GetProcAddress) and the companion call are free to clobber whatever
+    #     they like inside that bracket.
+    #   * The two arguments are read from the pushad frame, NOT from live
+    #     registers: saved edi at esp+0x00 (the record array) and saved esi at
+    #     esp+0x04 (the mother's record). Reading them live would be wrong --
+    #     ecx and eax are caller-saved and the loader calls destroy them, so an
+    #     earlier draft that pushed live ecx handed the companion a garbage base
+    #     to index records from. That produces plausible wrong output rather
+    #     than a crash, which is why it is called out here.
+    #   * WriteParentageRecord is __stdcall with two arguments, so it cleans its
+    #     own eight bytes. All three exit paths -- LoadLibraryA fails,
+    #     GetProcAddress fails, and success -- converge on the same esp before
+    #     popad, so the stock frame is untouched.
+    #   * The stolen six bytes are `mov edi, [edi+0x3E010]`, replayed verbatim
+    #     after popad and before the rejoin, so edi holds the manager pointer
+    #     exactly as stock expects at 0x43BCA8 and 0x43BCC0.
+    #
+    # esi and edi are read only; neither is written outside the pushad bracket.
+    ("vv1_write_parentage_log", "0x3BCA2"): "8F8AE78F22F0B1F580B36C0F85BE5608D75D9E83D2D08AEC981FFEED35ADCADD",
+    ("vv1_write_parentage_log", "0x3BCBA"): "F0A874F76A8D73A7E8690D9FCD9E97588365F0725BFFB7EE994B1DC8058EE80E",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.
