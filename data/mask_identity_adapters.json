@@ -15,7 +15,7 @@
     "vv1": {
       "title": "Virtual Villagers - A New Home",
       "enabled": false,
-      "disabled_reason": "No proven health or preferred-skill offset for this build. The name is now established (fields.name, record+0x370, 28-byte string), but the remaining fields plus the record index have still not been shown sufficient to separate two same-appearance villagers, so the native planner remains the path taken.",
+      "disabled_reason": "No proven preferred-skill offset for this build. The health field is now established (fields.health, record+0x344). The name is now established (fields.name, record+0x370, 28-byte string), but the remaining fields plus the record index have still not been shown sufficient to separate two same-appearance villagers, so the native planner remains the path taken.",
       "record": {
         "stride": "0x3D8",
         "count": 256,
@@ -36,6 +36,11 @@
           "offset": "0x350",
           "type": "u8",
           "evidence": "vv1_origins_icons.c VV_GENDER_OFFSET (VV_GENDER_MALE 1)"
+        },
+        "health": {
+          "offset": "0x344",
+          "type": "i32",
+          "evidence": "Confirmed health field, +836 decimal. docs/vv1-magic-fruit-mortality-research.md records it as the villager's health, written to 100 by the Magic Fruit cleanup alongside the sickness field at +852 (0x354). Re-derived from the executable: the field has exactly four writers, and two of them fix its meaning. 0x41C14C sets it to 0x64 (full) beside the neighbouring +0x340 store, which is villager creation; 0x42EF05 sets it to 0 as the false branch of the mortality comparison at 0x42EF01, whose operand is built by the divide-by-ten age arithmetic at 0x42EED0-0x42EEFC -- death by old age, matching the research document's threshold in internal age units. The other two writers are 0x423016 (computed, reachable as 0 via the xor at 0x423014) and 0x419509. NOTE: unlike VV3/VV4/VV5, VV1 has NO single health arbiter and no cause-of-death field, so a hook modelled on those games would miss whichever kill site it did not cover."
         },
         "head": {
           "offset": "0x360",
@@ -73,7 +78,6 @@
         }
       },
       "absent_fields": {
-        "health": "no VV1 health offset is defined or documented",
         "preferred_skill": "no VV1 preferred-skill offset is defined or documented",
         "nursing": "record[+0x29] is cleared by the newborn allocator hook but its meaning is not established as nursing"
       },
