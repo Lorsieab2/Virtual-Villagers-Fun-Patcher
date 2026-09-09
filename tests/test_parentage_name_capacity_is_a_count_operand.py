@@ -86,13 +86,23 @@ class ParentageNameCapacityIsACountOperandTests(unittest.TestCase):
         rows = _rows()
         md = Cs(CS_ARCH_X86, CS_MODE_32)
         checked = 0
-        for game, (exe, site, field) in MEASURED.items():
+        missing = []
+        for game, (exe, site, field) in sorted(MEASURED.items()):
             if game not in rows:
                 continue
             stock = ROOT / "research/stock-executables" / exe
-            # Opened rather than probed, so a checkout without the games skips
-            # instead of passing having measured nothing.
-            data = stock.read_bytes()
+            # Read INSIDE the loop and recorded rather than raised. Letting the
+            # OSError escape would let conftest skip the whole method on the
+            # first absent game, so a VV5-only installation would check nothing
+            # while reporting skipped -- and a partial install that silently
+            # checks less than it appears to is the failure shape this project
+            # keeps hitting. The test still skips when NOTHING could be
+            # measured, so it can never pass vacuously.
+            try:
+                data = stock.read_bytes()
+            except OSError:
+                missing.append(game)
+                continue
             text_va, text_raw = _text(data)
             offset = text_raw + (site - text_va)
             listing = list(md.disasm(data[offset : offset + 0x20], site))
@@ -148,7 +158,11 @@ class ParentageNameCapacityIsACountOperandTests(unittest.TestCase):
                     "in the last characters"
                     % (game, rows[game]["name_capacity"], operand),
                 )
-        self.assertGreater(checked, 0, "no name capacity was measured")
+        if not checked:
+            self.skipTest(
+                "no stock executable available for %s"
+                % ", ".join("VV%d" % game for game in missing)
+            )
 
     def test_unmeasured_games_are_not_silently_assumed(self):
         """VV1 and VV2 have no count operand, so they must not be listed here.
