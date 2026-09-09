@@ -56,13 +56,51 @@ def _filename_from_frames(error: BaseException) -> str | None:
     return None
 
 
+def _root_markers(root: Path) -> list[str]:
+    """The spellings of `root` that may appear in an error message.
+
+    Windows hands out 8.3 short names in places -- a CI runner's temporary
+    directory arrives as `C:\\Users\\RUNNER~1\\...` while `resolve()` returns
+    the long name -- so a message can name the same directory in a form the
+    resolved marker does not match. Both are tried, and the comparison is
+    case-insensitive because Windows paths are.
+    """
+    markers = {str(root), str(root.resolve())}
+    try:
+        markers.add(str(root.absolute()))
+    except (OSError, ValueError):
+        pass
+    markers.add(_short_name(root))
+    return [m for m in markers if m]
+
+
+def _short_name(path: Path) -> str:
+    """The 8.3 spelling of `path` on Windows, or "" where there is none.
+
+    The directory must exist for Windows to report one, and the call is
+    absent on other platforms, so every failure returns "" and simply adds
+    no marker.
+    """
+    try:
+        import ctypes
+
+        buffer = ctypes.create_unicode_buffer(1024)
+        length = ctypes.windll.kernel32.GetShortPathNameW(  # type: ignore[attr-defined]
+            str(path), buffer, 1024
+        )
+        return buffer.value if length else ""
+    except Exception:
+        return ""
+
+
 def _fixture_path_in_text(text: str) -> str | None:
     """A fixture path quoted in an error message, when there is one."""
+    lowered = text.lower()
     for root in FIXTURE_ROOTS:
-        marker = str(root.resolve())
-        index = text.find(marker)
-        if index != -1:
-            return text[index:].strip().splitlines()[0].strip()
+        for marker in _root_markers(root):
+            index = lowered.find(marker.lower())
+            if index != -1:
+                return text[index:].strip().splitlines()[0].strip()
     return None
 
 

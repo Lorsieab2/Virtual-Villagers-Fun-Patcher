@@ -59,7 +59,13 @@ def _run_case(body: str) -> str:
     produced collection errors rather than the outcomes under test.
     """
     with TemporaryDirectory() as tmp:
-        work = Path(tmp)
+        # Resolved, because the conftest resolves FIXTURE_ROOTS and compares
+        # by substring. On a Windows CI runner the temporary directory comes
+        # back in 8.3 short form (C:\Users\RUNNER~1\...) while the resolved
+        # root is the long name, so an unresolved path here matches nothing
+        # and every absent-fixture case reports a failure instead of a skip.
+        # It passes on a developer machine where the two forms coincide.
+        work = Path(tmp).resolve()
         stock = work / "research" / "stock-executables"
         stock.mkdir(parents=True)
         present = stock / "Present Game - With Spaces.exe"
@@ -168,6 +174,57 @@ class ConftestSkipsOnlyAbsentFixturesTests(unittest.TestCase):
             """
         )
         self.assertIn("1 skipped", out, out)
+
+    def test_a_short_8_3_path_is_recognised(self) -> None:
+        """A path in 8.3 form must resolve to the same verdict as its long name.
+
+        Windows hands out short names in places a test cannot control. A CI
+        runner's temporary directory arrives as `C:\\Users\\RUNNER~1\\...`
+        while `resolve()` returns the long spelling, so a marker built only
+        from the long form matches nothing and every absent-fixture case
+        reports a failure instead of a skip. That is precisely how this
+        module went red in CI while passing on a developer machine, where the
+        two spellings coincide and the case is invisible.
+        """
+        import ctypes
+
+        with TemporaryDirectory(prefix="LongNameNeedingShortening_") as tmp:
+            root = Path(tmp).resolve()
+            stock = root / "research" / "stock-executables"
+            stock.mkdir(parents=True)
+            present = stock / "Present Game - With Spaces.exe"
+            present.write_bytes(b"")
+
+            buffer = ctypes.create_unicode_buffer(1024)
+            length = ctypes.windll.kernel32.GetShortPathNameW(
+                str(present), buffer, 1024
+            )
+            if not length or buffer.value.lower() == str(present).lower():
+                self.skipTest("this filesystem reports no 8.3 short name")
+            short = buffer.value
+
+            import conftest
+
+            original = conftest.FIXTURE_ROOTS
+            conftest.FIXTURE_ROOTS = (stock,)
+            try:
+                self.assertIsNotNone(
+                    conftest._fixture_path_in_text("failed for " + short),
+                    "a short-form path under a fixture root was not "
+                    "recognised as being under it",
+                )
+                self.assertFalse(
+                    conftest._names_an_absent_path(short),
+                    "a file that exists was judged absent when named by its "
+                    "8.3 path, which would mask a real failure",
+                )
+                missing = str(stock / "No Such Game.exe")
+                self.assertTrue(
+                    conftest._names_an_absent_path(missing),
+                    "a genuinely absent file must still be judged absent",
+                )
+            finally:
+                conftest.FIXTURE_ROOTS = original
 
     def test_a_missing_file_error_is_still_skipped(self) -> None:
         """An OSError for an absent fixture keeps its skip.
