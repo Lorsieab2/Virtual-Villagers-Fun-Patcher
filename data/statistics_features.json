@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7",
+  "companion_sha256": "EA4B70E54F091D0ADC0D9CCA94D42BF149850D910170BAE9F3695D298D866DE9",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +12,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
+          "sha256": "EA4B70E54F091D0ADC0D9CCA94D42BF149850D910170BAE9F3695D298D866DE9"
         }
       ],
       "patches": [
@@ -47,7 +47,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
+          "sha256": "EA4B70E54F091D0ADC0D9CCA94D42BF149850D910170BAE9F3695D298D866DE9"
         }
       ],
       "patches": [
@@ -94,7 +94,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
+          "sha256": "EA4B70E54F091D0ADC0D9CCA94D42BF149850D910170BAE9F3695D298D866DE9"
         }
       ],
       "patches": [
@@ -129,7 +129,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
+          "sha256": "EA4B70E54F091D0ADC0D9CCA94D42BF149850D910170BAE9F3695D298D866DE9"
         }
       ],
       "patches": [
@@ -143,7 +143,7 @@
           "offset": "0x89173",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoJ6j3/1CEwHQ+g/8BfDmD/wV/NGjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0FmgPkkgAUP8V3KFIAIXAdAZXU2oE/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNextTQABN4sHeQXpNUf5/+k7R/n/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FEG5NAMaGxBwAAADpaRb+/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoJ6j3/1CEwHQ+g/8BfDmD/wV/NGjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0FmgPkkgAUP8V3KFIAIXAdAZXU2oE/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNextTQABN4sHeQXpNUf5/+k7R/n/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FEG5NAMaGxBwAAADpaRb+/wAAAAAAAP8FGG5NAINGFP9qAek0A/v/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -157,6 +157,12 @@
           "before": "C686C41C000000",
           "after": "E987E901009090",
           "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
+        },
+        {
+          "offset": "0x3965A",
+          "before": "834614FF6A01",
+          "after": "E9BCFC040090",
+          "purpose": "count every unit of stream debris cleared in the per-save reserve, without the trophy's earned-once cap"
         }
       ]
     },
@@ -170,7 +176,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "14DF6DC4B09F1ABDE5BB15DFFA7B24ACF2E3F6A435820B3A3D2896DB1F60C2C7"
+          "sha256": "EA4B70E54F091D0ADC0D9CCA94D42BF149850D910170BAE9F3695D298D866DE9"
         }
       ],
       "patches": [

@@ -496,7 +496,12 @@ static int write_later_game(
     /* Statistics-block offsets of the patch-added lifetime burial counter
        and its one-time seeded marker. */
     unsigned int buried_offset,
-    unsigned int marker_offset
+    unsigned int marker_offset,
+    /* Statistics-block offset of a game-specific extra counter and the label
+       to print it under, or zero for a game that has none. The Tree of Life
+       uses it for Debris Cleared; The Secret City has no equivalent. */
+    unsigned int extra_offset,
+    const char *extra_label
 ) {
     unsigned char *statistics = (unsigned char *)manager + statistics_offset;
     if (fprintf(
@@ -543,6 +548,11 @@ static int write_later_game(
         puzzles_solved,
         puzzle_total
     ) < 0) {
+        return 0;
+    }
+    if (extra_offset != 0u
+        && fprintf(file, "%s: %d\n", extra_label,
+                   read_int(statistics, extra_offset)) < 0) {
         return 0;
     }
     return write_memorial_row(
@@ -662,7 +672,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             0x197D64u, 0x30u, 500u,
             /* Lifetime burials counted at the pickup latch clear, seeded
                once from the memorial via the marker at +0x34. */
-            0x30u, 0x34u
+            0x30u, 0x34u,
+            /* The Secret City has no debris; its stream puzzle differs. */
+            0u, NULL
         );
     } else if (game_id == GAME_VV4) {
         written = write_later_game(
@@ -679,7 +691,12 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             0x1025C8u, 0x5Cu, 500u,
             /* Lifetime burials counted at the pickup latch clear, seeded
                once from the memorial via the marker at +0x34. */
-            0x30u, 0x34u
+            0x30u, 0x34u,
+            /* Debris Cleared at +0x38, incremented by the wrapper on the
+               stream-clearing action at 0x43965A -- the same event the Civil
+               Engineer trophy credits a unit to, without that trophy's
+               stop-once-earned cap. */
+            0x38u, "Debris Cleared"
         );
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);

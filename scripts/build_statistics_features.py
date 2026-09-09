@@ -110,6 +110,25 @@ GAMES = {
         "burial_guard": "C686C41C000000",
         "burial_replay": "mov byte ptr [esi + 0x1CC4], 0",
         "burial_stat_va": 0x4D6E10,
+        # Debris is not discrete pieces -- the stream carries an obstruction
+        # level at debris-manager +0x14 that each clearing action decrements
+        # by one. The game's own unit for that action is the Civil Engineer
+        # trophy's ("You kept 1000 units of debris from building up"), which
+        # this same instruction credits one unit to on the very next lines.
+        # The trophy's progress field stops accruing once earned, so it cannot
+        # serve as the lifetime total itself; this counts the same event
+        # without the cap.
+        "debris_hook_va": 0x43965A,
+        "debris_guard": "834614FF6A01",
+        # Two whole instructions, because the first is only four bytes and a
+        # five-byte jump cannot replace it alone. Nothing branches between
+        # them: the jnz above targets 0x4396A1, outside the range.
+        "debris_replay": (
+            "add dword ptr [esi + 0x14], -1 ; push 1"
+        ),
+        "debris_stat_va": 0x4D6E18,
+        # 0x190 holds the burial wrapper (18 bytes, ends 0x1A2).
+        "debris_slot": 0x1A8,
     },
     "vv5": {
         "title": "Virtual Villagers - New Believers",
@@ -431,6 +450,49 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 "purpose": (
                     "count every twin birth the saturation guard allows once "
                     "in the per-save reserve"
+                ),
+            }
+        )
+
+    debris_hook_va = config.get("debris_hook_va")
+    if debris_hook_va:
+        debris_guard = bytes.fromhex(str(config["debris_guard"]))
+        debris_slot = int(config["debris_slot"])
+        debris_wrapper_va = cave_va + debris_slot
+        debris_wrapper = assemble(
+            "inc dword ptr [0x%X]\n%s\njmp 0x%X"
+            % (
+                int(config["debris_stat_va"]),
+                str(config["debris_replay"]).replace(" ; ", "\n"),
+                int(debris_hook_va) + len(debris_guard),
+            ),
+            debris_wrapper_va,
+        )
+        if debris_slot + len(debris_wrapper) > cave_size:
+            raise RuntimeError(f"{game_id} debris wrapper exceeds cave allowance")
+        if any(payload[debris_slot : debris_slot + len(debris_wrapper)]):
+            raise RuntimeError(f"{game_id} debris wrapper would overwrite the cave")
+        payload[debris_slot : debris_slot + len(debris_wrapper)] = debris_wrapper
+        debris_hook_file = int(debris_hook_va) - 0x400000
+        if (
+            source[debris_hook_file : debris_hook_file + len(debris_guard)]
+            != debris_guard
+        ):
+            raise RuntimeError(f"{game_id} debris hook guard does not match")
+        extra_patches.append(
+            {
+                "offset": f"0x{debris_hook_file:X}",
+                "before": debris_guard.hex().upper(),
+                "after": (
+                    b"\xE9"
+                    + int(debris_wrapper_va - int(debris_hook_va) - 5).to_bytes(
+                        4, "little", signed=True
+                    )
+                    + b"\x90" * (len(debris_guard) - 5)
+                ).hex().upper(),
+                "purpose": (
+                    "count every unit of stream debris cleared in the per-save "
+                    "reserve, without the trophy's earned-once cap"
                 ),
             }
         )
