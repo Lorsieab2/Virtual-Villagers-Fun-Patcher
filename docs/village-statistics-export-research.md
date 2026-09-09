@@ -293,8 +293,9 @@ uncapped lifetime storage field and mutation route have yet been proven:
 
 - Village Elders where the inherited statistics block does not already expose
   it.
-- Villagers Died at the moment of death. See the correction below: the
-  later-game counter is not a usable lifetime total in either direction.
+- Villagers Died in **A New Home and The Lost Children only**. The Secret
+  City, The Tree of Life and New Believers are shipped; see "Villagers Died"
+  below for why the two older games are not, and what completing them needs.
 - Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
   is understood (see below, including the first-cook case where it undercounts
   by one until the recipe is cooked again), but the requirements list *Total*
@@ -306,6 +307,74 @@ uncapped lifetime storage field and mutation route have yet been proven:
 
 Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
+
+### Villagers Died
+
+**Shipped for The Secret City and New Believers.** Both keep health and the
+cause of death in a small sub-object, and every death routes through one of
+two sibling arbiters that write that pair:
+
+| Game | Absolute setter | Delta applier | Sub-object | Health | Cause |
+|---|---|---|---|---|---|
+| The Secret City | `0x462670` | `0x4626B0` | `+0xE6C` | `+0xE78` | `+0xE7C` |
+| New Believers | `0x4758B0` | `0x4758F0` | `+0x1C34` | `+0x1C40` | `+0x1C44` |
+
+Both entry points are hooked in each game. They are not alternatives: the
+delta form does `add [ecx+0x0C], eax` before testing, so a death by
+accumulated damage passes only through it, and hooking the setter alone would
+miss starvation and illness entirely.
+
+What proves these are the *sole* arbiter, rather than one route into death
+among several, is that the **alive** path explicitly writes `-1` to the cause
+field. Every exit of both functions writes that field, so a death cannot slip
+past.
+
+That same fact supplies the idempotency gate. The branch above each site tests
+the **resulting** health, not the prior, so calling either function again on an
+already-dead villager re-enters the death path and would count twice. The
+wrapper tests the cause field for `-1` instead: a living villager reads `-1`
+and is counted, a corpse reads a real cause id and is skipped. This works only
+because the hook precedes the cause write -- at hook time the field still holds
+the prior value. A hook placed after that write would read the new cause and
+count nothing at all.
+
+Testing the cause rather than the prior health also avoids a per-game
+difference: New Believers' delta form adds in place and destroys the prior
+value, so a prior-health test would need different code in each game.
+
+**Not shipped for A New Home or The Lost Children, and the reason is coverage
+rather than reachability.** Both have a health field and both do kill through
+it:
+
+| Game | Health | Cause field | Old-age kill |
+|---|---|---|---|
+| A New Home | `record+0x344` | none | `0x42EF05` |
+| The Lost Children | `record+0x52C` | none | `0x43BDEE` |
+
+Both kill sites share one shape -- the divide-by-ten age arithmetic
+(`mov eax, 66666667h`, `imul`, `sar edx, 3`), a `cmp`/`jge`, then the health
+store. But that store is only the **old-age** path. Starvation and disease
+reach zero health by *decrement* through register-computed pointers inside the
+same tick routine, so a hook on the store would report old-age deaths under a
+total's name: authoritative-looking and quietly wrong. Neither game has a cause
+field to gate on either, so the idempotency trick above does not transfer.
+
+Completing these two means locating the decrement sites and hooking the
+zero-crossing rather than the store. Counting burials instead is exact and
+already shipped, but it is a different quantity and should not be relabelled.
+
+A scanning note, because this cost a full round trip. The Lost Children's
+health field has **thirteen** writers, not two, and exactly one writes zero:
+
+    0x4218DD  mov dword [ecx+edx+52Ch], 64h    two-register form
+    0x424E86  mov dword [esi+ecx+52Ch], 64h    two-register form
+    0x43BDEE  mov dword [ebx+52Ch], 0          single-register form -- the kill
+
+A pattern keyed to the two-register form returns the initialisers, looks
+self-consistent, and misses the kill. The control that catches it is to search
+for the zero write *and* the `0x64` writes together: finding the initialisers
+while finding no kill in a game that plainly has mortality should fail the
+search rather than close the question.
 
 ### What The Secret City actually has instead of stews
 
