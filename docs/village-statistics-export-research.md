@@ -318,6 +318,24 @@ two sibling arbiters that write that pair:
 | The Secret City | `0x462670` | `0x4626B0` | `+0xE6C` | `+0xE78` | `+0xE7C` |
 | New Believers | `0x4758B0` | `0x4758F0` | `+0x1C34` | `+0x1C40` | `+0x1C44` |
 
+The Tree of Life has the same shape and is **not yet shipped**; another
+session holds that work. Its arbiters are `0x46AF00` (absolute,
+`mov [ecx+0x0C], eax`) and `0x46AF40` (delta, `add [ecx+0x0C], eax`), verified
+from the stock bytes along with the kill guards `C7410C00000000` at `0x46AF0F`
+and `0x46AF52` -- byte-identical to the two shipped games -- and the alive
+paths `mov [ecx+0x10], -1` at `0x46AF28` and `0x46AF6B`. The cause write
+follows the hook site at both (`0x46AF16`, `0x46AF59`), which is what lets a
+`cause == -1` gate read the prior value; that ordering reads as incidental and
+is the whole reason the gate counts anything.
+
+**Its record offsets are `+0x1C34` / `+0x1C40` / `+0x1C44` -- identical to New
+Believers, and genuinely so.** This looks exactly like a row copied from the
+game above, and was checked on that suspicion: The Tree of Life really does
+carry `lea ecx, [esi+1C34h]` and `cmp dword ptr [esi+1C40h], 0` in its own
+callers. Two games of the same engine lineage share the layout. The usage
+counts differ (23 references to `+0x1C40` against New Believers' 40), which is
+what distinguishes a shared layout from a transcription error.
+
 Both entry points are hooked in each game. They are not alternatives: the
 delta form does `add [ecx+0x0C], eax` before testing, so a death by
 accumulated damage passes only through it, and hooking the setter alone would
