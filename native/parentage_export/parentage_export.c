@@ -164,7 +164,23 @@ struct game_layout {
     unsigned int name;        /* char[name_capacity] */
     unsigned int name_capacity;
     int father_kind;          /* FATHER_BY_ID or FATHER_BY_NAME */
-    unsigned int father;      /* an i32 id, or a char[name_capacity] */
+    unsigned int father;      /* an i32 id, or a char[father_key_width()] */
+    /* How many bytes of the father's stored NAME KEY the game actually writes,
+       which is not always name_capacity.
+
+       A villager's own name field and the father key on the mother are written
+       by different routines with different counts. VV4 and VV5 write the own
+       name with push 0x19 (25) -- 0x45D4B2 and 0x464CB2 -- but write the father
+       key with push 0x18 (24), at 0x45E84E and 0x465E9E, and VV3 does the same
+       at 0x455B4D. Byte 24 of the key is therefore never written and holds
+       whatever was there before.
+
+       Reading the key at 25 picks that stale byte up, so the comparison against
+       a candidate whose real name is 25 characters long fails and a father with
+       a full-length name silently logs "(record not found)".
+
+       Zero means "same as name_capacity", for games where the two agree. */
+    unsigned int father_key_capacity;
     unsigned int litter;      /* i32, babies in this pregnancy */
     /* Some games copy the father's own traits INTO the mother's record at
        conception, by value. Where they do, those copies are the better source:
@@ -266,7 +282,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         1, 0x3D8, 256, 0,
         0x28, 0x348, 0x360, 0x364, 0x36C,
         0x370, 0x1C,
-        FATHER_NOT_RECORDED, 0, 0x35C,
+        FATHER_NOT_RECORDED, 0, 0, 0x35C,
         0, 0,
         0xC7,
         L"Virtual Villagers 1 Parentage Log"
@@ -306,7 +322,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         1, 0xE48C, 256, 0,
         0x30, 0x530, 0x548, 0x54C, 0,
         0x564, 0x18,
-        FATHER_BY_NAME, 0x5C0, 0x544,
+        FATHER_BY_NAME, 0x5C0, 0, 0x544,
         0x5E0, 0x5DC,
         0,
         L"Virtual Villagers 2 Parentage Log"
@@ -335,7 +351,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         1, 0x1F8C, 256, 0,
         0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
         0xDD4, 0x19,
-        FATHER_BY_NAME, 0xE48, 0xE90,
+        FATHER_BY_NAME, 0xE48, 0x18, 0xE90,
         0, 0,
         0,
         L"Virtual Villagers 3 Parentage Log"
@@ -378,7 +394,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         1, 0x2E3C, 150, 0x44,
         0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
         0x1B9C, 0x19,
-        FATHER_BY_NAME, 0x1C10, 0x1C50,
+        FATHER_BY_NAME, 0x1C10, 0x18, 0x1C50,
         0, 0,
         0,
         L"Virtual Villagers 4 Parentage Log"
@@ -402,7 +418,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         1, 0x2F44, 150, 0x48,
         0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
         0x1B9C, 0x19,
-        FATHER_BY_NAME, 0x1C10, 0x1C50,
+        FATHER_BY_NAME, 0x1C10, 0x18, 0x1C50,
         0, 0,
         0,
         L"Virtual Villagers 5 Parentage Log"
@@ -582,6 +598,15 @@ static int select_log_file(
 
    Returns 1 when a record was written, 0 otherwise. The caller ignores the
    result -- a failed log must never disturb the game. */
+/* How many bytes of the father key this game actually writes.
+
+   Both the layout guard and the scan must ask through here. Fixing only one
+   side would leave the mismatch in place from the other, which is the shape of
+   the defect this exists to prevent. */
+static unsigned int father_key_width(const struct game_layout *g) {
+    return g->father_key_capacity != 0 ? g->father_key_capacity : g->name_capacity;
+}
+
 /* Is this layout row self-consistent enough to read a record with?
 
    The `supported` flag alone is not enough. While every later game is left at
@@ -659,9 +684,10 @@ static int layout_is_usable(const struct game_layout *g) {
     } else if (g->father_kind == FATHER_BY_ID) {
         if (g->father + WORD > stride) return 0;
     } else if (g->father_kind == FATHER_BY_NAME) {
-        /* A name field is read with the same capacity as the villager's own
-           name, so it must fit whole. */
-        if (g->father + g->name_capacity > stride) return 0;
+        /* The key is read at its own width, which may be narrower than the
+           villager's own name field, and it must fit whole. */
+        if (g->father_key_capacity + 1 > MAX_NAME_BYTES) return 0;
+        if (g->father + father_key_width(g) > stride) return 0;
     } else {
         return 0;
     }
@@ -709,7 +735,13 @@ static const unsigned char *find_record_by_name(
         if (*(const unsigned char *)(record + g->active) != 1) {
             continue;
         }
-        copy_villager_name(g, record, candidate, sizeof(candidate));
+        /* Compared at the KEY's width, not the villager's own. The key is a
+           prefix of the real name, so two villagers differing only past that
+           width are indistinguishable from the key alone -- which is exactly
+           what the ambiguity guard below already resolves to NULL. Comparing
+           at the wider width instead would fail to match anyone. */
+        copy_name_field(record + g->name, candidate, sizeof(candidate),
+                        father_key_width(g));
         if (strcmp(candidate, name) != 0) {
             continue;
         }
@@ -881,7 +913,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
            neither route finds him the log says so rather than printing a 0
            that a real villager could hold. */
         copy_name_field(mother + g->father, father_name, sizeof(father_name),
-                        g->name_capacity);
+                        father_key_width(g));
         father = father_from_caller;
         if (father == NULL) {
             father = find_record_by_name(g, records, father_name);
