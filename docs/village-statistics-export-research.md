@@ -323,7 +323,8 @@ routes through one of two sibling arbiters that write that pair:
 The Tree of Life shares New Believers' field offsets exactly, which looks like
 a transcription error and is not: the two are the same engine lineage, and the
 usage counts differ (23 references to `+0x1C40` against 40) in independent
-binaries. Both are hooked, because a death by cumulative damage reaches zero
+binaries; the paragraph below cites the instruction that proves it. Both are
+hooked, because a death by cumulative damage reaches zero
 only through the delta applier. The hooks sit at
 the health-zeroing store in each (`0x46AF0F`, `0x46AF52`), which runs
 before the cause write two instructions later -- so the wrapper still sees
