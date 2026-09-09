@@ -415,11 +415,42 @@ which 45 are `lea` sites -- counting them needs both the SIB and ModRM-only
 encodings, since assuming one form returns 1. It is the routine boundary that
 makes these seven meaningful, not the displacement.
 
-Completing these two games means hooking the zero-crossing at the three damage
-sites, with the same count-the-transition-not-the-state reasoning the later
-games needed. Counting
-burials instead is exact and already shipped, but it is a different quantity
-and should not be relabelled.
+The two games do **not** cost the same to complete, and the three damage sites
+above are The Lost Children's alone. Neither game is finished by hooking them:
+each also needs its old-age store, which is a separate path.
+
+**The Lost Children is completable.** Three damage sites plus the old-age store
+at `0x43BDEE`, with the same count-the-transition-not-the-state reasoning the
+later games needed. Two guard shapes are required, not one, because
+`0x43BB7E`'s in-place `dec` leaves no register holding the pre-value.
+
+**A New Home is not, at a cost proportional to one row.** The same
+byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
+sites, of which sixteen are damage, in **five** instruction forms across three
+regions -- every address below verified against the stock image:
+
+| Form | Sites |
+|---|---|
+| `dec ecx` then store | `0x42ECBE`, `0x42ED3E`, `0x42EDAA` |
+| `call 0x402F10` then `sub [reg], eax` | `0x43A5A8`, `0x43A787`, `0x43A8AE`, `0x43A9D5`, `0x43AADB`, `0x43AC8F`, `0x43B106` |
+| `sub [reg], ebp` | `0x42AB17` |
+| read then `add ecx, -imm` (`-0xF`, `-0x6E`, `-0x46`, `-0x28`) | `0x42C2A6`, `0x42C698`, `0x42C76F`, `0x42C838` |
+| `add edx, -0x32` then store | `0x419DAA` |
+| old-age store | `0x42EF05` |
+
+All seven of the second form call the same routine at `0x402F10`, which
+supplies the amount and looks like a randomiser. Several forms leave no
+register holding the pre-value, so a guard shape has to be argued per site,
+and the cave-audit gate would need a register contract for each.
+
+The Lost Children having exactly three damage sites was the easy case, not the
+representative one. This is recorded as the reason A New Home is not shipped
+rather than as a recipe to follow: sixteen hooks in five shapes for one row is
+not a maintainable feature, and claiming a completion path at that cost would
+be an over-promise of the same kind the document already refuses elsewhere.
+
+Counting burials instead is exact and already shipped, but it is a different
+quantity and should not be relabelled.
 
 **A scanning note, because two sessions reached opposite wrong answers here.**
 Ground truth for The Lost Children's health field is thirteen writers, exactly
