@@ -359,22 +359,41 @@ same tick routine, so a hook on the store would report old-age deaths under a
 total's name: authoritative-looking and quietly wrong. Neither game has a cause
 field to gate on either, so the idempotency trick above does not transfer.
 
-Completing these two means locating the decrement sites and hooking the
-zero-crossing rather than the store. Counting burials instead is exact and
-already shipped, but it is a different quantity and should not be relabelled.
+The damage that reaches zero is applied **through a pointer**, which is why no
+displacement search finds it and why the image contains no `sub [mem]` for
+this field at all. In The Lost Children, inside `sub_43B690`:
 
-A scanning note, because this cost a full round trip. The Lost Children's
-health field has **thirteen** writers, not two, and exactly one writes zero:
+    0043BAE4  mov ecx, [eax+edi+52Ch]   read health
+    0043BAEB  lea eax, [eax+edi+52Ch]   take its ADDRESS
+    0043BAF2  dec ecx
+    0043BAF3  mov [eax], ecx            store back -- NO displacement
 
-    0x4218DD  mov dword [ecx+edx+52Ch], 64h    two-register form
-    0x424E86  mov dword [esi+ecx+52Ch], 64h    two-register form
-    0x43BDEE  mov dword [ebx+52Ch], 0          single-register form -- the kill
+That routine takes the field's address at seven separate `lea` sites, so the
+decrement is only ever reachable behind a register. Completing these two games
+means hooking the zero-crossing at that store, with the same
+count-the-transition-not-the-state reasoning the later games needed. Counting
+burials instead is exact and already shipped, but it is a different quantity
+and should not be relabelled.
 
-A pattern keyed to the two-register form returns the initialisers, looks
-self-consistent, and misses the kill. The control that catches it is to search
-for the zero write *and* the `0x64` writes together: finding the initialisers
-while finding no kill in a game that plainly has mortality should fail the
-search rather than close the question.
+**A scanning note, because two sessions reached opposite wrong answers here.**
+Ground truth for The Lost Children's health field is thirteen writers, exactly
+one of which writes zero (`0x43BDEE`, the old-age kill). Two independent method
+failures produced confident wrong lists:
+
+- A **linear disassembly pass over the section** desynchronised on embedded
+  data and never enumerated `0x43BDEE` at all, while enumerating another store
+  in the same section. Nothing about the result looks incomplete.
+- Classifying by **operand position rather than mnemonic** turned six
+  `cmp dword ptr [reg+0x52C], reg` sites into phantom "writes", because the
+  memory operand renders first.
+
+Either alone is enough to close the question wrongly, and the two overlapped
+enough to look like a disagreement about a single site rather than two broken
+enumerations. The method that survives: **search the bytes for the
+displacement, disassemble at each hit, and classify on the mnemonic.** A
+positive control pairing the zero write with the `0x64` writes catches the
+missing-instruction failure but not the phantom one, so the control is
+necessary and not sufficient.
 
 ### What The Secret City actually has instead of stews
 
