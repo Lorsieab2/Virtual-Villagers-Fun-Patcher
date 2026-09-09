@@ -158,11 +158,13 @@ class ParentageLayoutsMatchTheDeclaredPoolTests(unittest.TestCase):
             VV5  0x464CB2  push 0x19 ; lea eax,[edi+0x1B9C] ; call 0x47D7C0
 
         all followed by `mov byte [esi+0x19], 0`. Each was disassembled from
-        that game's own executable; VV5 in particular cannot be taken from the
-        adapter record, which quotes VV4's address 0x45D4B4 -- that address in
-        VV5's image decodes to `add dword [esi+0xB], edi`, so verifying VV5
-        there finds nothing and invites the conclusion that its length is
-        unproven.
+        that game's own executable.
+
+        One citation is worth knowing about: VV4's adapter record names
+        0x45D4B4 as its burial writer, which is the `lea` -- the `push 0x19`
+        that carries the count is two bytes earlier, at 0x45D4B2. Disassembling
+        from the cited address alone therefore hides the count operand, which
+        is exactly how this length came to look unproven.
 
         Reading only 24 makes two villagers differing in the 25th character
         compare equal, which does not merely truncate the log: it makes the

@@ -451,19 +451,19 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        any error. The container is the global 0x554148, loaded as an immediate
        at all 445 of its occurrences.
 
-       The name field is 25 bytes, established from VV5's OWN burial writer
-       rather than from VV4's:
+       The name field is 25 bytes, from VV5's own burial writer:
 
            0x464CB2  push 0x19
            0x464CB4  lea  eax, [edi+0x1B9C]
            0x464CBC  call 0x47D7C0            (strncpy)
            0x464CC1  mov  byte [esi+0x19], 0  (the terminator, at index 25)
 
-       That distinction is not pedantry here. The adapter record for VV5 quotes
-       VV4's address, 0x45D4B4, which in VV5's image decodes to
-       `add dword [esi+0xB], edi` -- so anyone verifying VV5 at the cited
-       address finds nothing and could conclude the length is unproven. VV5's
-       real site is 0x464CB2 and it carries the same count operand. */
+       VV5 has a second, independent witness that is worth knowing because it
+       looks like a contradiction and is not: 0x420005 copies one villager's
+       name to another with `push 0x18`, from +0x1B9C to +0x1B9C. That is the
+       WRITE bound, which is why the adapter records safe_write_limit 24
+       alongside length 25. Reading 25 and writing at most 24 are both correct,
+       and nothing here writes a name. */
     {
         1, 0x2F44, 150, 0x48,
         0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
