@@ -47,7 +47,7 @@ fields are:
 | People Cured | `+0x9E2C` |
 | Mushrooms Found | `+0x9E30` |
 | Maximum Population | `+0x9E34` |
-| Villagers Buried | `+0x9E38` (see the correction below -- this is a **live recount**, not a lifetime total) |
+| ~~Villagers Buried~~ | ~~`+0x9E38`~~ **NOT a lifetime total and no longer exported.** It is a live recount that saturates at the 50-slot memorial; see the correction below. The exported row reads the patch-added counter at `+0x9E84` instead. |
 | Oldest Villager | `+0x9E3C` |
 | Island Events Seen | `+0x9E40` |
 | Twins Birthed | `+0x9E44` |
@@ -339,10 +339,10 @@ other counter in this document.
 
 ### Corrections to the list above
 
-**VV1's `+0x9E38` is a live recount, not a lifetime total.** It is listed
-above under confirmed local statistics as *Villagers Buried*, and the exporter
-emits it under that label, but it has only two writers image-wide and both are
-stores rather than increments:
+**VV1's `+0x9E38` is a live recount, not a lifetime total, and is no longer
+exported.** It was listed above under confirmed local statistics as *Villagers
+Buried* and the exporter emitted it under that label. It has only two writers
+image-wide and both are stores rather than increments:
 
     0x41C3DF  mov [ebp+9E38h], ebx   zero-init
     0x42F191  mov [edx+9E38h], eax   stores sub_41CF10's return value
@@ -352,10 +352,13 @@ slots** (base `manager+0xA340`, stride `0x2C`) and returns the total. So the
 value saturates at the 50-slot capacity and would fall if a slot were ever
 released. It reports present occupancy, not lifetime burials.
 
-The shipped row is therefore accurate only while a village has buried fewer
-than 50 villagers. Correcting the row is user-visible and is held for the
-owner's decision; this note exists so the table above is not read as
-establishing a lifetime counter that does not exist.
+**Resolved.** The row now reads the patch-added lifetime counter at
+`manager+0x9E84`, which the cave wrapper on the skeleton-pickup latch clear at
+`0x448F65` advances, and which is seeded once per save from the memorial so an
+existing village does not start from zero. The row keeps its name because the
+name was never the problem -- the field behind it was. Every game is now the
+same shape: seed once from occupied graves, then count pickups past the
+memorial's capacity.
 
 **The later-game "buried" counters decrement.** They were described here as
 incrementing when a corpse record is retired, which reads as a usable lifetime
