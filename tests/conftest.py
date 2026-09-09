@@ -78,27 +78,54 @@ def _names_an_absent_path(candidate: str) -> bool:
     The path is therefore confirmed absent before the rewrite is allowed. A
     recovered string can carry trailing prose, so leading prefixes are tried
     as well: the longest prefix that exists means the input is present.
+
+    Each prefix has surrounding punctuation stripped before it is tested.
+    Assertion messages quote and delimit paths in ordinary ways --
+    ``'<path>' while comparing``, ``<path>: expected 3``, ``(<path>)``,
+    ``<path>, which differs`` -- and a prefix that keeps its trailing quote
+    or colon matches nothing on disk, so without this every one of those
+    formats was still masked.
     """
-    text = candidate.strip().rstrip(".:,;")
+    text = candidate.strip()
     if not text:
         return False
-    try:
-        if Path(text).exists():
-            return False
-    except (OSError, ValueError):
-        return False
-    # The message may continue past the path ("...exe while doing X"). Walk
-    # back through whitespace-separated prefixes; if any names something that
-    # exists, the fixture is present and this is not a missing input.
+    # Game filenames contain spaces, so the path cannot simply be split at
+    # the first one. Every contiguous run of words is a candidate -- the
+    # recovered text may carry prose on either side ("near <path>.") -- and
+    # longer runs are tried first so the fullest match wins.
     parts = text.split()
-    for count in range(len(parts) - 1, 0, -1):
-        prefix = " ".join(parts[:count])
-        try:
-            if Path(prefix).exists():
-                return False
-        except (OSError, ValueError):
-            continue
+    if len(parts) > _MAX_WORDS:
+        # The scan is quadratic in word count. A path is recovered from the
+        # start of a line, so a very long run is prose rather than a path;
+        # bound the work instead of letting one message stall the suite.
+        parts = parts[:_MAX_WORDS]
+    for length in range(len(parts), 0, -1):
+        for start in range(0, len(parts) - length + 1):
+            candidate_text = _strip_delimiters(
+                " ".join(parts[start : start + length])
+            )
+            if not candidate_text:
+                continue
+            try:
+                if Path(candidate_text).exists():
+                    return False
+            except (OSError, ValueError):
+                continue
     return True
+
+
+# Punctuation that commonly wraps or follows a path inside an error message
+# and is never part of a path this project reads.
+_DELIMITERS = "\"'`()[]{}<>,;:. \t\r\n"
+
+# Upper bound on words considered when hunting for a path inside a message.
+# The longest path this guards is around a dozen words; the rest is prose.
+_MAX_WORDS = 24
+
+
+def _strip_delimiters(text: str) -> str:
+    """`text` with wrapping and trailing message punctuation removed."""
+    return text.strip(_DELIMITERS)
 
 
 def _is_missing_fixture(error: BaseException) -> str | None:
