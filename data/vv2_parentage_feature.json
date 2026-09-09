@@ -5,14 +5,14 @@
       "game_id": "vv2",
       "name": "Write Parentage Log to Text File",
       "output_tag": "parentage",
-      "description": "Records both parents at conception in a plain text log. VV2 keeps the father's name on the mother's record and no father id, so the log names him and reports his age, head and body as not recorded by this game. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.",
+      "description": "Records both parents at conception in a plain text log. VV2 keeps the father's name on the mother's record and no father id, so he is found by name. His head and body do not depend on that: the game copies them onto the mother at conception, so the log reports them even when he has since died or another villager shares his name. Only his age needs the lookup, and the log says so plainly when it cannot be confirmed rather than printing a zero a real villager could hold. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.",
       "dependencies": [
         "vv2_enable_origins_exclusive_features"
       ],
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "2dbdd6104b186e2df8f943a469cc02fc44b3926803f193961a9d8751afbc9eae",
+          "sha256": "d172d0bf52307e8e7007c4937e3ad609a616f8dfa6549e9909cd01bb829023d2",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         }
       ],

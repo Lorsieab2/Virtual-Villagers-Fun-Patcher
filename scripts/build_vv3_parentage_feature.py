@@ -376,6 +376,13 @@ def _emit(
         "page_virtual_address": f"0x{OVERLAY_VA:X}",
         "append_bytes": overlay_page.hex().upper(),
         "page_sha256": hashlib.sha256(overlay_page).hexdigest().upper(),
+        # The hook is a rel32 into whichever page holds the payload, so the
+        # overlay form needs its own. Declared HERE rather than as a separate
+        # composition_patches entry so that the manifest pinning the payload
+        # also pins the hook that reaches it, and removal -- which is handed
+        # this feature alone and reads the installed form back out of the
+        # image -- finds them together.
+        "hook_patches": overlay_patches,
         "overlay_preimage": {
             "kind": "zero_fill",
             "length": OVERLAY_LENGTH,
@@ -431,9 +438,6 @@ def build() -> dict:
                 ],
                 "pe_append_transaction": transaction,
                 "patches": patches,
-                # The hook aims at whichever page holds the payload, so the
-                # co-selected form swaps it alongside the overlay above.
-                "composition_patches": {ORIGINS_FEATURE_ID: overlay_patches},
             }
         ],
     }

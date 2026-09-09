@@ -4704,6 +4704,37 @@ def _remove_feature_bytes(
                     break
     patches = list(feature.patches)
     patches.extend(feature.raw.get("patch_mode_overrides", {}).get(patch_mode, []))
+    # A feature may also declare composition_patches: a whole alternate patch
+    # set, used instead of its ordinary one when a named feature is co-selected.
+    # Installation swaps to that set; removal has to reverse the set that was
+    # actually written, or it checks the standalone bytes against an image
+    # carrying the relocated ones and refuses.  VV1 and VV2 parentage could not
+    # be uninstalled at all when composed with their Origins feature, because
+    # removal only ever reversed the standalone form.
+    #
+    # Which set was installed is read back out of the image rather than assumed
+    # from the selection, because removal is handed one feature and not the set
+    # it shipped with: whichever alternate's bytes are present at their own
+    # offsets is the one to reverse.
+    compositions = feature.raw.get("composition_patches")
+    if isinstance(compositions, dict):
+        for alternate in compositions.values():
+            if not isinstance(alternate, list) or not alternate:
+                continue
+            present = True
+            for patch in alternate:
+                try:
+                    offset = int(patch["offset"], 0)
+                    after = _patch_bytes(patch, "after")
+                except (KeyError, TypeError, ValueError):
+                    present = False
+                    break
+                if bytes(work[offset : offset + len(after)]) != after:
+                    present = False
+                    break
+            if present:
+                patches = list(alternate)
+                break
     if composition_overlay is not None:
         owned = [dict(patch, _owner=f"feature:{feature.id}") for patch in patches]
         if feature.id == VV1_BIRTH_CONTROL_ID:

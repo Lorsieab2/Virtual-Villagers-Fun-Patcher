@@ -330,19 +330,20 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        write nothing for a single birth. The `< 1 -> 1` fallback is therefore
        redundant here rather than load-bearing -- harmless, but the difference
        is why "which exit does a single birth take" has to be asked per game
-       instead of assumed from one. */
+       instead of assumed from one.
+
+       record_base is 0x14 because the accessor sub_45C840 computes
+
+           imul eax, [esp+4], 0x1F8C     the slot index times the stride
+           lea  eax, [eax + ecx + 0x14]  plus the container header
+
+       so record zero sits 0x14 bytes into the container the trampoline passes.
+       Declaring it 0 while passing the unbiased container makes the span from
+       that pointer to the mother 0x14 larger than a multiple of the stride, and
+       the divisibility guard rejects EVERY conception -- a feature that loads,
+       hooks, runs, and logs nothing. This was 0 for exactly that reason until
+       an automated review caught it. */
     {
-        /* record_base is 0x14 because the accessor sub_45C840 computes
-
-               imul eax, [esp+4], 0x1F8C     the slot index times the stride
-               lea  eax, [eax + ecx + 0x14]  plus the container header
-
-           so record zero sits 0x14 bytes into the container the trampoline
-           passes. Declaring it 0 while passing the unbiased container makes
-           the span from that pointer to the mother 0x14 larger than a multiple
-           of the stride, and the divisibility guard rejects EVERY conception --
-           a feature that loads, hooks, runs, and logs nothing. It was 0 for
-           exactly that reason until an automated review caught it. */
         1, 0x1F8C, 256, 0x14,
         0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
         0xDD4, 0x18,
