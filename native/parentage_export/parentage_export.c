@@ -342,11 +342,35 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        that pointer to the mother 0x14 larger than a multiple of the stride, and
        the divisibility guard rejects EVERY conception -- a feature that loads,
        hooks, runs, and logs nothing. This was 0 for exactly that reason until
-       an automated review caught it. */
+       an automated review caught it.
+
+       The slot count is 150, not 256. data/builds.json declares VV3 with
+       villager_slots 150 and absolute_maximum 150, and VV3 is the only game
+       where the two disagreed with this table -- VV1 and VV2 really are
+       256-slot games, VV4 and VV5 already said 150.
+
+       That mattered because find_record_by_name cannot stop early: it has to
+       walk the whole range to detect two active villagers sharing a name,
+       which is the ambiguity guard that keeps it from attributing the wrong
+       father. So the `active` byte was dereferenced for all 256 slots on every
+       conception, and slots 150..255 are past the pool -- 106 slots, 856,056
+       bytes at this stride. Whether that faults depends on what happens to sit
+       after the pool at runtime, which is the shape of defect that survives
+       every test here and crashes on a player's machine.
+
+       The name field is 25 bytes (0x19), not 0x18. The burial writer at
+       0x455032 does `push 0x19` before copying it, and
+       data/mask_identity_adapters.json records length 25 for +0xDD4; main
+       already ships VV3_NAME_LEN 0x19 for the same field. At 0x18 the scan
+       compares truncated names, so two villagers differing only in the 25th
+       character compare equal -- which does not merely truncate the log, it
+       makes the ambiguity guard refuse a father who was actually
+       distinguishable. Note this is the READ bound only: the adapter warns
+       never to WRITE more than 0x18, and nothing here writes a name. */
     {
-        1, 0x1F8C, 256, 0x14,
+        1, 0x1F8C, 150, 0x14,
         0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
-        0xDD4, 0x18,
+        0xDD4, 0x19,
         FATHER_BY_NAME, 0xE48, 0xE90,
         0, 0,
         0,
