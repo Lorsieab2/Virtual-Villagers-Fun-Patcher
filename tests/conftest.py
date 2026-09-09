@@ -66,13 +66,58 @@ def _fixture_path_in_text(text: str) -> str | None:
     return None
 
 
+def _names_an_absent_path(candidate: str) -> bool:
+    """Whether `candidate` names a fixture path that is genuinely not there.
+
+    Quoting a path is not the same as being unable to read it. An error text
+    is recovered by substring search, so any message mentioning a fixture
+    directory matches -- including an assertion failure that merely names the
+    file it was comparing. Rewriting that into a skip hides a real regression,
+    and a hidden regression is indistinguishable from a passing suite.
+
+    The path is therefore confirmed absent before the rewrite is allowed. A
+    recovered string can carry trailing prose, so leading prefixes are tried
+    as well: the longest prefix that exists means the input is present.
+    """
+    text = candidate.strip().rstrip(".:,;")
+    if not text:
+        return False
+    try:
+        if Path(text).exists():
+            return False
+    except (OSError, ValueError):
+        return False
+    # The message may continue past the path ("...exe while doing X"). Walk
+    # back through whitespace-separated prefixes; if any names something that
+    # exists, the fixture is present and this is not a missing input.
+    parts = text.split()
+    for count in range(len(parts) - 1, 0, -1):
+        prefix = " ".join(parts[:count])
+        try:
+            if Path(prefix).exists():
+                return False
+        except (OSError, ValueError):
+            continue
+    return True
+
+
 def _is_missing_fixture(error: BaseException) -> str | None:
     """The fixture path this error names, when it is one."""
     if not isinstance(error, OSError):
         # The patcher raises its own error type for an absent game
         # executable, naming the path in its message. That is the same
         # missing-input condition and is reported the same way.
-        return _fixture_path_in_text(str(error))
+        #
+        # Only when the path it names is really absent. This branch is
+        # reached by any exception whose text mentions a fixture directory,
+        # AssertionError included, so without the existence check a genuine
+        # failure that merely quotes a path is rewritten into a skip and
+        # disappears from the failure count. An OSError needs no such check:
+        # it got here by a filesystem call that actually failed.
+        named = _fixture_path_in_text(str(error))
+        if named is None or not _names_an_absent_path(named):
+            return None
+        return named
     filename = getattr(error, "filename", None)
     if not filename:
         # Some Windows paths raise without populating `filename` -- shutil's
