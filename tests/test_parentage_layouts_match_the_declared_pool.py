@@ -111,17 +111,16 @@ class ParentageLayoutsMatchTheDeclaredPoolTests(unittest.TestCase):
         """Reading past the name field would compare adjacent record bytes.
 
         This asserts an upper bound rather than equality, because the recorded
-        lengths do not all carry the same weight. VV3's 25 comes from a count
-        operand -- the burial writer at 0x455032 does `push 0x19` -- so it is a
-        measurement. VV2's entry says so itself: "upper bound from displacement
-        gap, not a count operand", which is a ceiling rather than a length, and
-        VV4/VV5 carry a safe_write_limit of 24 alongside their 25.
+        lengths do not all carry the same weight. VV2's entry says so itself:
+        "upper bound from displacement gap, not a count operand", which is a
+        ceiling rather than a length, because VV2 writes its names through an
+        unbounded sprintf and so has no count operand to read.
 
-        Demanding equality everywhere would therefore turn one game's proven
-        value into a claim about four games where the evidence does not support
-        it. The bound that IS safe everywhere is that no row may read more than
-        the recorded length, and each row is separately checked to fit inside
-        its stride below.
+        Demanding equality everywhere would turn the measured games' proven
+        values into a claim about VV2 that its own evidence disclaims. The
+        bound that IS safe everywhere is that no row may read more than the
+        recorded length, and each row is separately checked to fit inside its
+        stride below.
         """
         adapters = json.loads(ADAPTERS.read_text(encoding="utf-8"))
         text = json.dumps(adapters)
@@ -148,20 +147,45 @@ class ParentageLayoutsMatchTheDeclaredPoolTests(unittest.TestCase):
                 )
         self.assertGreater(checked, 0, "no name field was checked at all")
 
-    def test_vv3_reads_its_whole_name_field(self) -> None:
-        """VV3's length is measured, not inferred, so it is pinned exactly.
+    def test_measured_name_lengths_are_read_in_full(self) -> None:
+        """Where a burial writer names the length, read all of it.
 
-        `data/mask_identity_adapters.json` records 25 for +0xDD4 with the
-        burial writer's `push 0x19` as its evidence, and main already ships
-        VV3_NAME_LEN 0x19 for the same field. Reading only 24 makes two
-        villagers differing in the 25th character compare equal, which does not
-        merely truncate the log -- it makes the by-name scan's ambiguity guard
-        refuse a father who was actually distinguishable.
+        VV3, VV4 and VV5 each copy a villager's name with strncpy under a
+        literal count, and write the terminator at index 25:
+
+            VV3  0x455038  push 0x19 ; lea ecx,[ebp+0xDD4]  ; call 0x46F780
+            VV4  0x45D4B2  push 0x19 ; lea eax,[edi+0x1B9C] ; call 0x4724E0
+            VV5  0x464CB2  push 0x19 ; lea eax,[edi+0x1B9C] ; call 0x47D7C0
+
+        all followed by `mov byte [esi+0x19], 0`. Each was disassembled from
+        that game's own executable; VV5 in particular cannot be taken from the
+        adapter record, which quotes VV4's address 0x45D4B4 -- that address in
+        VV5's image decodes to `add dword [esi+0xB], edi`, so verifying VV5
+        there finds nothing and invites the conclusion that its length is
+        unproven.
+
+        Reading only 24 makes two villagers differing in the 25th character
+        compare equal, which does not merely truncate the log: it makes the
+        by-name scan's ambiguity guard refuse a father who was actually
+        distinguishable, or attribute the wrong one.
+
+        VV4 and VV5 also carry safe_write_limit 24. That is the WRITE bound and
+        is orthogonal to the read length -- mistaking it for weak evidence is
+        what left both games truncating after VV3 was fixed. Nothing here
+        writes a name.
         """
-        vv3 = self.rows[2]
-        self.assertTrue(vv3["supported"])
-        self.assertEqual(vv3["name"], 0xDD4)
-        self.assertEqual(vv3["name_capacity"], 0x19)
+        for index, offset in ((3, 0xDD4), (4, 0x1B9C), (5, 0x1B9C)):
+            with self.subTest(game=f"vv{index}"):
+                row = self.rows[index - 1]
+                self.assertTrue(row["supported"])
+                self.assertEqual(row["name"], offset)
+                self.assertEqual(
+                    row["name_capacity"],
+                    0x19,
+                    f"vv{index}'s burial writer proves a 25-byte name with a "
+                    "count operand; reading fewer truncates the scan's "
+                    "comparison",
+                )
 
     def test_every_field_fits_inside_the_record_at_its_own_width(self) -> None:
         """A field read past the stride straddles into the next record."""

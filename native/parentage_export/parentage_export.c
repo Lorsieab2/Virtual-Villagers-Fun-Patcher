@@ -409,11 +409,27 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        -- the villager array lives inside a container whose first 0x44 bytes are
        something else. The caller passes that container unbiased; the container
        itself is the global 0x50E568, loaded as an immediate by all 55 callers
-       of the accessor. */
+       of the accessor.
+
+       The name field is 25 bytes (0x19), the same as VV3's. Its burial writer
+       proves it with a count operand:
+
+           0x45D4B2  push 0x19
+           0x45D4B4  lea  eax, [edi+0x1B9C]
+           0x45D4BC  call 0x4724E0            (strncpy)
+           0x45D4C1  mov  byte [esi+0x19], 0  (the terminator, at index 25)
+
+       This read 0x18 until it was noticed that safe_write_limit 24 in the
+       adapter record is the WRITE bound and says nothing about the read
+       length -- the two are orthogonal, and reading 24 truncates the
+       comparison find_record_by_name depends on. Two villagers differing only
+       in the 25th character then compare equal, so the ambiguity guard refuses
+       a father who was actually distinguishable. Nothing here writes a name,
+       so the 24-byte write limit is not in play. */
     {
         1, 0x2E3C, 150, 0x44,
         0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
-        0x1B9C, 0x18,
+        0x1B9C, 0x19,
         FATHER_BY_NAME, 0x1C10, 0x1C50,
         0, 0,
         0,
@@ -433,11 +449,25 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        VV5 mother pointer four bytes off a record boundary, the guard would have
        rejected every call, and VV5 would have logged nothing at all without
        any error. The container is the global 0x554148, loaded as an immediate
-       at all 445 of its occurrences. */
+       at all 445 of its occurrences.
+
+       The name field is 25 bytes, established from VV5's OWN burial writer
+       rather than from VV4's:
+
+           0x464CB2  push 0x19
+           0x464CB4  lea  eax, [edi+0x1B9C]
+           0x464CBC  call 0x47D7C0            (strncpy)
+           0x464CC1  mov  byte [esi+0x19], 0  (the terminator, at index 25)
+
+       That distinction is not pedantry here. The adapter record for VV5 quotes
+       VV4's address, 0x45D4B4, which in VV5's image decodes to
+       `add dword [esi+0xB], edi` -- so anyone verifying VV5 at the cited
+       address finds nothing and could conclude the length is unproven. VV5's
+       real site is 0x464CB2 and it carries the same count operand. */
     {
         1, 0x2F44, 150, 0x48,
         0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
-        0x1B9C, 0x18,
+        0x1B9C, 0x19,
         FATHER_BY_NAME, 0x1C10, 0x1C50,
         0, 0,
         0,
