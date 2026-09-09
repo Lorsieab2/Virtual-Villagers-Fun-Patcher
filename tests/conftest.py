@@ -56,14 +56,114 @@ def _filename_from_frames(error: BaseException) -> str | None:
     return None
 
 
+def _root_markers(root: Path) -> list[str]:
+    """The spellings of `root` that may appear in an error message.
+
+    Windows hands out 8.3 short names in places -- a CI runner's temporary
+    directory arrives as `C:\\Users\\RUNNER~1\\...` while `resolve()` returns
+    the long name -- so a message can name the same directory in a form the
+    resolved marker does not match. Both are tried, and the comparison is
+    case-insensitive because Windows paths are.
+    """
+    markers = {str(root), str(root.resolve())}
+    try:
+        markers.add(str(root.absolute()))
+    except (OSError, ValueError):
+        pass
+    markers.add(_short_name(root))
+    return [m for m in markers if m]
+
+
+def _short_name(path: Path) -> str:
+    """The 8.3 spelling of `path` on Windows, or "" where there is none.
+
+    The directory must exist for Windows to report one, and the call is
+    absent on other platforms, so every failure returns "" and simply adds
+    no marker.
+    """
+    try:
+        import ctypes
+
+        buffer = ctypes.create_unicode_buffer(1024)
+        length = ctypes.windll.kernel32.GetShortPathNameW(  # type: ignore[attr-defined]
+            str(path), buffer, 1024
+        )
+        return buffer.value if length else ""
+    except Exception:
+        return ""
+
+
 def _fixture_path_in_text(text: str) -> str | None:
     """A fixture path quoted in an error message, when there is one."""
+    lowered = text.lower()
     for root in FIXTURE_ROOTS:
-        marker = str(root.resolve())
-        index = text.find(marker)
-        if index != -1:
-            return text[index:].strip().splitlines()[0].strip()
+        for marker in _root_markers(root):
+            index = lowered.find(marker.lower())
+            if index != -1:
+                return text[index:].strip().splitlines()[0].strip()
     return None
+
+
+def _names_an_absent_path(candidate: str) -> bool:
+    """Whether `candidate` names a fixture path that is genuinely not there.
+
+    Quoting a path is not the same as being unable to read it. An error text
+    is recovered by substring search, so any message mentioning a fixture
+    directory matches -- including an assertion failure that merely names the
+    file it was comparing. Rewriting that into a skip hides a real regression,
+    and a hidden regression is indistinguishable from a passing suite.
+
+    The path is therefore confirmed absent before the rewrite is allowed. A
+    recovered string can carry trailing prose, so leading prefixes are tried
+    as well: the longest prefix that exists means the input is present.
+
+    Each prefix has surrounding punctuation stripped before it is tested.
+    Assertion messages quote and delimit paths in ordinary ways --
+    ``'<path>' while comparing``, ``<path>: expected 3``, ``(<path>)``,
+    ``<path>, which differs`` -- and a prefix that keeps its trailing quote
+    or colon matches nothing on disk, so without this every one of those
+    formats was still masked.
+    """
+    text = candidate.strip()
+    if not text:
+        return False
+    # Game filenames contain spaces, so the path cannot simply be split at
+    # the first one. Every contiguous run of words is a candidate -- the
+    # recovered text may carry prose on either side ("near <path>.") -- and
+    # longer runs are tried first so the fullest match wins.
+    parts = text.split()
+    if len(parts) > _MAX_WORDS:
+        # The scan is quadratic in word count. A path is recovered from the
+        # start of a line, so a very long run is prose rather than a path;
+        # bound the work instead of letting one message stall the suite.
+        parts = parts[:_MAX_WORDS]
+    for length in range(len(parts), 0, -1):
+        for start in range(0, len(parts) - length + 1):
+            candidate_text = _strip_delimiters(
+                " ".join(parts[start : start + length])
+            )
+            if not candidate_text:
+                continue
+            try:
+                if Path(candidate_text).exists():
+                    return False
+            except (OSError, ValueError):
+                continue
+    return True
+
+
+# Punctuation that commonly wraps or follows a path inside an error message
+# and is never part of a path this project reads.
+_DELIMITERS = "\"'`()[]{}<>,;:. \t\r\n"
+
+# Upper bound on words considered when hunting for a path inside a message.
+# The longest path this guards is around a dozen words; the rest is prose.
+_MAX_WORDS = 24
+
+
+def _strip_delimiters(text: str) -> str:
+    """`text` with wrapping and trailing message punctuation removed."""
+    return text.strip(_DELIMITERS)
 
 
 def _is_missing_fixture(error: BaseException) -> str | None:
@@ -72,7 +172,17 @@ def _is_missing_fixture(error: BaseException) -> str | None:
         # The patcher raises its own error type for an absent game
         # executable, naming the path in its message. That is the same
         # missing-input condition and is reported the same way.
-        return _fixture_path_in_text(str(error))
+        #
+        # Only when the path it names is really absent. This branch is
+        # reached by any exception whose text mentions a fixture directory,
+        # AssertionError included, so without the existence check a genuine
+        # failure that merely quotes a path is rewritten into a skip and
+        # disappears from the failure count. An OSError needs no such check:
+        # it got here by a filesystem call that actually failed.
+        named = _fixture_path_in_text(str(error))
+        if named is None or not _names_an_absent_path(named):
+            return None
+        return named
     filename = getattr(error, "filename", None)
     if not filename:
         # Some Windows paths raise without populating `filename` -- shutil's
