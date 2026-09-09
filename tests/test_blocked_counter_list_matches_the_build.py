@@ -30,6 +30,7 @@ following.
 
 from __future__ import annotations
 
+import ast
 import re
 import unittest
 from pathlib import Path
@@ -145,7 +146,76 @@ def _game_configs() -> dict[str, str]:
 
 
 def _configured(counter: str, block: str) -> bool:
-    return ('"%s"' % COUNTER_GATE[counter]) in block
+    """Whether the builder would emit `counter` for this game's config.
+
+    The key being PRESENT is not enough. The builder guards each counter with
+    `if <gate>:` or `for ... in config.get("death_hooks", [])`, so a gate left
+    behind with a falsy value -- `[]`, `0`, `None` -- emits nothing while a
+    substring check still calls it configured. That is the shipped-but-absent
+    regression this module exists to catch.
+
+    The value is read by parsing the dict rather than by matching text. A
+    regex that stopped at the next quote was tried first and was wrong: given
+    `"death_hooks": [],  "other": [...]` it captured across the boundary into
+    a non-empty string, so an emptied gate still read as truthy. Nested
+    literals are not a regular language, and the builder's values are lists
+    of dicts.
+    """
+    gate = COUNTER_GATE[counter]
+    return bool(_parsed_config(block).get(gate))
+
+
+def _parsed_config(block: str) -> dict[str, object]:
+    """One game's dict, as a real Python object.
+
+    `ast.literal_eval` rejects the hex arithmetic and name references the
+    builder may use, so unparseable values are kept as a sentinel that is
+    truthy -- an unreadable value means "present and not obviously empty",
+    which is the safe reading for a gate.
+    """
+    opening = block.find("{")
+    body = block[opening + 1 :] if opening != -1 else block
+    depth = 0
+    for index, char in enumerate(body):
+        if char in "([{":
+            depth += 1
+        elif char in ")]}":
+            if depth == 0:
+                body = body[:index]
+                break
+            depth -= 1
+    parsed: dict[str, object] = {}
+    for match in re.finditer(r'"([a-z_0-9]+)"\s*:\s*', body):
+        start = match.end()
+        depth = 0
+        end = start
+        while end < len(body):
+            char = body[end]
+            if char in "([{":
+                depth += 1
+            elif char in ")]}":
+                if depth == 0:
+                    break
+                depth -= 1
+            elif char == "," and depth == 0:
+                break
+            end += 1
+        text = body[start:end].strip()
+        try:
+            parsed[match.group(1)] = ast.literal_eval(text)
+        except (ValueError, SyntaxError):
+            parsed[match.group(1)] = _UNPARSEABLE
+    return parsed
+
+
+class _Unparseable:
+    """A value this module could not evaluate. Truthy on purpose."""
+
+    def __bool__(self) -> bool:
+        return True
+
+
+_UNPARSEABLE = _Unparseable()
 
 
 def _blocked_list() -> str:
@@ -258,16 +328,35 @@ class BlockedCounterListMatchesTheBuildTests(unittest.TestCase):
         for counter, gate in COUNTER_GATE.items():
             with self.subTest(counter=counter):
                 self.assertFalse(
-                    _configured(counter, '"%s_stat_va": 0x1234,' % counter),
+                    _configured(counter, '"%s_stat_va": 0x1234,\n}' % counter),
                     "a bare %s_stat_va reads as configured; the gate must be "
                     "%r, which is what the builder branches on"
                     % (counter, gate),
                 )
                 self.assertTrue(
-                    _configured(counter, '"%s": [],' % gate),
+                    _configured(counter, '"%s": 0x1234,\n}' % gate),
                     "the gating key %r is not recognised, so this module "
                     "cannot see the counter at all" % gate,
                 )
+
+    def test_a_falsy_gate_is_not_configured(self) -> None:
+        """A gate left behind with a falsy value emits nothing.
+
+        The builder writes `if <gate>:` and
+        `for ... in config.get("death_hooks", [])`, so `[]`, `0` and `None`
+        all produce no output while leaving the key in place. Matching on the
+        key alone would call that configured -- and an earlier version of the
+        control above asserted exactly that, using `[]` as its truthy
+        example, locking the wrong semantics into the test meant to pin them.
+        """
+        for counter, gate in COUNTER_GATE.items():
+            for falsy in ("[]", "0", "None"):
+                with self.subTest(counter=counter, value=falsy):
+                    self.assertFalse(
+                        _configured(counter, '"%s": %s,\n}' % (gate, falsy)),
+                        "%r left behind as %s emits nothing, so it must not "
+                        "read as configured" % (gate, falsy),
+                    )
 
     def test_a_blocked_counter_is_not_configured(self) -> None:
         """Listed as blocked, but the build emits it -> built twice.
@@ -276,7 +365,7 @@ class BlockedCounterListMatchesTheBuildTests(unittest.TestCase):
         picking work off the blocked list would rebuild something that
         already ships.
         """
-        for counter, (phrase, _scope) in BLOCKED_BULLETS.items():
+        for counter, (phrase, scope) in BLOCKED_BULLETS.items():
             for game_id in self._named_blocked(phrase):
                 with self.subTest(counter=counter, game=game_id):
                     self.assertFalse(
@@ -285,6 +374,15 @@ class BlockedCounterListMatchesTheBuildTests(unittest.TestCase):
                         "configures it. A counter documented as blocked but "
                         "present invites building it a second time."
                         % (phrase, TITLES[game_id]),
+                    )
+                    self.assertIn(
+                        game_id,
+                        scope,
+                        "%r is listed as blocked for %s, which never "
+                        "requested it. Blocking a counter for a game outside "
+                        "its requirement invents work, and checking only that "
+                        "the build does not configure it would let that pass "
+                        "unnoticed." % (phrase, TITLES[game_id]),
                     )
 
     def test_a_configured_counter_is_not_listed_as_blocked(self) -> None:
