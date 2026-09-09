@@ -13,6 +13,10 @@ change still reads as complete.
 Eight shipping features were affected -- three parentage features and five
 Origins bases.
 
+Header edits are reported as guarded regions plus a byte total, never as
+"fields": a manifest may pack several 40-byte section headers into one patch
+record, so a count of records describes the packing rather than the change.
+
 The assertion is deliberately derived from the manifests rather than from a
 list of feature ids: a new appending feature must appear in the document
 without anyone remembering to extend this test.
@@ -102,12 +106,37 @@ class TransparencyReportsAppendedSectionsTests(unittest.TestCase):
                     body,
                     f"{feature.id} reports a different size than it declares",
                 )
+                # Header edits are counted as guarded regions and sized in
+                # bytes, never as "fields". A manifest may pack several 40-byte
+                # section headers into one patch record -- VV3 Origins writes
+                # both of its headers in a single 80-byte edit -- so a count of
+                # records describes the manifest's packing rather than the
+                # extent of the PE change. Reporting records as fields would
+                # reintroduce, one level up, the same patch-record/PE-structure
+                # conflation this file exists to prevent: VV1 and VV3 Origins
+                # make the same header changes and would report 4 against 3.
                 headers = layout.get("header_patches") or []
+                header_bytes = 0
+                for item in headers:
+                    if not isinstance(item, dict):
+                        continue
+                    try:
+                        header_bytes += len(bytes.fromhex(item.get("after", "")))
+                    except ValueError:
+                        continue
+                noun = "region" if len(headers) == 1 else "regions"
                 self.assertIn(
-                    f"rewrites {len(headers)} PE header field(s)",
+                    f"rewrites {len(headers)} guarded header {noun} "
+                    f"({header_bytes} bytes)",
                     body,
-                    f"{feature.id} reports a different header count than it "
-                    "declares",
+                    f"{feature.id} reports a different header edit count or "
+                    "size than it declares",
+                )
+                self.assertNotIn(
+                    "PE header field(s)",
+                    body,
+                    f"{feature.id} still describes packed patch records as PE "
+                    "header fields",
                 )
 
                 # Every section the layout installs must be named, with the
@@ -155,6 +184,52 @@ class TransparencyReportsAppendedSectionsTests(unittest.TestCase):
             8,
             "fewer appending features were checked than ship today; either a "
             "feature stopped appending or this test stopped finding them",
+        )
+
+    def test_equal_header_changes_report_equal_sizes(self) -> None:
+        """Packing must not change what the document says the game receives.
+
+        VV1 and VV3 Origins install the same two section headers and the same
+        two scalar fields. VV1 spends four patch records on it and VV3 three,
+        because VV3 packs both 40-byte headers into one 80-byte edit. A count
+        of records alone therefore reports a difference that does not exist in
+        the patched executable, which is the conflation this file prevents.
+        The byte total is the invariant that holds across both.
+        """
+        sizes: dict[str, int] = {}
+        for feature in patcher.load_fun_patches():
+            transaction = feature.raw.get("pe_append_transaction")
+            if not isinstance(transaction, dict):
+                continue
+            layouts = transaction.get("layouts")
+            if not isinstance(layouts, dict) or not layouts:
+                continue
+            layout = next(iter(layouts.values()))
+            if not isinstance(layout, dict):
+                continue
+            declared = _sections_from_layout(layout)
+            if len(declared) != 2:
+                continue
+            total = 0
+            for item in layout.get("header_patches") or []:
+                if not isinstance(item, dict):
+                    continue
+                try:
+                    total += len(bytes.fromhex(item.get("after", "")))
+                except ValueError:
+                    continue
+            sizes[feature.id] = total
+
+        self.assertGreaterEqual(
+            len(sizes),
+            2,
+            "expected several two-section features to compare",
+        )
+        self.assertEqual(
+            len(set(sizes.values())),
+            1,
+            "features installing two sections report different header byte "
+            f"totals, so packing is leaking into the document: {sizes}",
         )
 
     def test_an_overlay_alternative_is_disclosed(self) -> None:

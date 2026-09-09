@@ -80,6 +80,16 @@ def _append_transaction_lines(raw: dict) -> list[str]:
     count above covers neither, because both live in `pe_append_transaction`
     rather than in `patches`.
 
+    The header edits are reported as guarded *regions* plus their total byte
+    count, never as a count of "fields". A manifest is free to pack several
+    40-byte section-header structures into one patch record -- VV3's Origins
+    feature writes both of its headers in a single 80-byte edit -- so the
+    number of records describes how the manifest is packed, not how much of the
+    PE changes. Calling records "fields" would restate, one level up, exactly
+    the patch-record/PE-structure conflation this function exists to remove:
+    VV1 and VV3 Origins install the same two section headers and the same two
+    scalars, and would otherwise report 4 and 3.
+
     Reported per distinct geometry rather than per patch mode: every shipping
     feature declares the same layout for all of its modes, so listing three
     identical lines would pad the document without adding information. If a
@@ -103,16 +113,30 @@ def _append_transaction_lines(raw: dict) -> list[str]:
         except (KeyError, TypeError, ValueError):
             continue
         headers = layout.get("header_patches")
+        headers = headers if isinstance(headers, list) else []
+        header_bytes = 0
+        for item in headers:
+            if not isinstance(item, dict):
+                continue
+            try:
+                header_bytes += len(bytes.fromhex(item.get("after", "")))
+            except ValueError:
+                continue
         shape = (
             length,
-            len(headers) if isinstance(headers, list) else 0,
+            (len(headers), header_bytes),
             tuple(_declared_sections(layout)),
         )
         if shape not in seen:
             seen.append(shape)
 
     lines = []
-    for length, header_count, sections in seen:
+    for length, (header_edits, header_bytes), sections in seen:
+        edit_noun = "region" if header_edits == 1 else "regions"
+        header_phrase = (
+            f"{header_edits} guarded header {edit_noun} "
+            f"({header_bytes} bytes)"
+        )
         if sections:
             described = ", ".join(
                 _describe_section(*section) for section in sections
@@ -120,14 +144,14 @@ def _append_transaction_lines(raw: dict) -> list[str]:
             noun = "section" if len(sections) == 1 else "sections"
             lines.append(
                 f"- Appends {length} bytes as {len(sections)} new PE {noun} -- "
-                f"{described} -- and rewrites {header_count} PE header "
-                "field(s) to map them; the appended bytes and every header "
+                f"{described} -- and rewrites {header_phrase} of the PE "
+                "headers to map them; the appended bytes and every header "
                 "change carry an exact before/after guard in the manifest."
             )
         else:
             lines.append(
-                f"- Appends {length} bytes and rewrites {header_count} PE "
-                "header field(s); the appended bytes and every header change "
+                f"- Appends {length} bytes and rewrites {header_phrase} of "
+                "the PE headers; the appended bytes and every header change "
                 "carry an exact before/after guard in the manifest."
             )
 
@@ -400,7 +424,7 @@ def build_document() -> str:
             # feature makes to a game, and counting only `patches` omitted them
             # entirely -- one parentage feature reported a single guarded edit
             # while also adding a 4096-byte code page and rewriting three
-            # header fields. A transparency document that undercounts the
+            # header regions. A transparency document that undercounts the
             # biggest change is worse than one that says nothing, because the
             # number reads as complete.
             lines.extend(_append_transaction_lines(raw))
