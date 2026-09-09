@@ -48,6 +48,7 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
         catalog = patcher.load_fun_patches()
         builds = {build.id: build for build in patcher.load_builds()}
         covered = 0
+        expected_cases = 0
         expected_games = 0
         missing_fixtures: list[str] = []
 
@@ -79,6 +80,7 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
             ):
                 if feature_id not in requested:
                     continue
+                expected_cases += len(MODES)
                 # Resolve dependencies exactly as a real run does.  VV2's
                 # parentage requires its Origins feature, so a request that
                 # omits Origins still installs it -- and removal leaves it
@@ -123,11 +125,25 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
         self.assertGreater(
             present_games, 0, "no parentage feature was discovered at all"
         )
-        self.assertGreaterEqual(
+        # Equality against what the loop actually decided to run, not a floor
+        # computed from what it was expected to run.
+        #
+        # This was `covered >= present_games * len(MODES)`, which recomputes
+        # the shape independently of the loop and then compares to it. That
+        # arithmetic was already wrong: each game contributes TWO selection
+        # forms, so real coverage is 30 subtests while the floor demanded 15.
+        # Half of it could have disappeared silently.
+        #
+        # Counting `expected` at the same place the loop commits to a case
+        # cannot drift from it, so a game or a form that stops being exercised
+        # fails here instead of quietly reducing coverage. Raised by a peer
+        # session, whose version of this guard asserted the same identity.
+        self.assertEqual(
             covered,
-            present_games * len(MODES),
+            expected_cases,
             "parentage removal coverage collapsed: "
-            f"{covered} subtests for {present_games} available games",
+            f"{covered} of {expected_cases} cases ran across {present_games} "
+            "available games",
         )
 
 
