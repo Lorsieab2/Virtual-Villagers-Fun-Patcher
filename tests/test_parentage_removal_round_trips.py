@@ -42,24 +42,69 @@ ORIGINS_SUFFIXES = (
 )
 MODES = ("stock", "collection_progression", "immediate_fixed")
 
+# The two installed forms every parentage feature must be exercised in: with
+# its game's Origins features co-selected, and without them. They are separate
+# code paths -- one game's overlay form was broken while its standalone form
+# worked -- so both have to run for every game.
+SELECTION_FORM_LABELS = ("with-origins", "no-origins")
+
+
+def SELECTION_FORMS(every, without_origins):
+    return tuple(zip(SELECTION_FORM_LABELS, (every, without_origins)))
+
 
 class ParentageRemovalRoundTripTests(unittest.TestCase):
+    def test_the_coverage_constants_are_pinned_outside_themselves(self) -> None:
+        """MODES and SELECTION_FORM_LABELS drive the loops AND the expectation.
+
+        That makes them the one thing the round-trip test cannot check about
+        itself: deleting an entry shrinks the loop and the expected count
+        together, so the equality still holds and coverage silently drops. It
+        was demonstrated -- removing "immediate_fixed" left that test green at
+        22 subtests instead of 32.
+
+        Pinning them here breaks the circularity, and MODES is pinned against
+        the patcher's own declared modes rather than a second copy of the same
+        literal, so a mode genuinely added to the product fails this instead of
+        going quietly unexercised.
+
+        SELECTION_FORM_LABELS has no external authority -- the two forms are a
+        property of this test's design, not of the patcher -- so it is pinned
+        as a literal, which at least makes deleting one a visible edit here.
+        """
+        declared = tuple(mode.id for mode in patcher.load_patch_modes())
+        self.assertEqual(
+            MODES,
+            declared,
+            "MODES must match the patch modes the patcher declares; a mode "
+            "added to the product but not here would never be exercised",
+        )
+        self.assertEqual(SELECTION_FORM_LABELS, ("with-origins", "no-origins"))
+
     def test_every_parentage_feature_removes_to_the_image_without_it(self) -> None:
         catalog = patcher.load_fun_patches()
         builds = {build.id: build for build in patcher.load_builds()}
         covered = 0
-        expected_games = 0
+        present_games = 0
         missing_fixtures: list[str] = []
 
         for game_id, build in builds.items():
             feature_id = f"{game_id}_write_parentage_log"
-            if not any(item.id == feature_id for item in catalog):
-                continue
             source = ROOT / "research" / "stock-executables" / build.input_name
-            expected_games += 1
             if not source.exists():
                 missing_fixtures.append(build.input_name)
                 continue
+            # Counted for every game whose executable is present, BEFORE the
+            # catalog is consulted. Deriving it after that check let a feature
+            # vanishing from the catalog remove its cases from both sides of
+            # the equality at once, so the whole game disappeared and the guard
+            # still passed -- which is the exact collapse it exists to catch.
+            present_games += 1
+            self.assertTrue(
+                any(item.id == feature_id for item in catalog),
+                f"{feature_id} is missing from the catalog; every game with a "
+                "stock executable must ship a parentage feature",
+            )
 
             feature = patcher.get_fun_patch(feature_id)
             every = [
@@ -73,12 +118,13 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
                 if not item.endswith(ORIGINS_SUFFIXES)
             ]
 
-            for label, requested in (
-                ("with-origins", every),
-                ("no-origins", without_origins),
-            ):
-                if feature_id not in requested:
-                    continue
+            for label, requested in SELECTION_FORMS(every, without_origins):
+                self.assertIn(
+                    feature_id,
+                    requested,
+                    f"{feature_id} is absent from the {label} selection, so "
+                    "that form would silently stop being exercised",
+                )
                 # Resolve dependencies exactly as a real run does.  VV2's
                 # parentage requires its Origins feature, so a request that
                 # omits Origins still installs it -- and removal leaves it
@@ -119,15 +165,40 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
                 "stock executables are unavailable: "
                 + ", ".join(sorted(missing_fixtures))
             )
-        present_games = expected_games - len(missing_fixtures)
+        # present_games is already the count of games whose executable was
+        # found -- the loop skips the others before incrementing it, so
+        # subtracting missing_fixtures here would remove them twice.
         self.assertGreater(
             present_games, 0, "no parentage feature was discovered at all"
         )
-        self.assertGreaterEqual(
+        # The expectation is computed from CONSTANTS and the count of available
+        # games, never from anything the loop decided.
+        #
+        # This assertion has now been wrong twice in opposite directions, and
+        # the two failures are worth keeping because they are the same mistake:
+        #
+        #   `covered >= present_games * len(MODES)` recomputed the shape from
+        #   the outside and got it wrong -- each game runs TWO selection forms,
+        #   so it demanded 15 where the real number is 30, and half the
+        #   coverage could vanish unnoticed.
+        #
+        #   Counting at the point the loop commits to a case fixed the
+        #   arithmetic but tied the expectation to the loop, so a case the loop
+        #   stopped running was subtracted from BOTH sides and the equality
+        #   still held. A whole game disappearing passed.
+        #
+        # An expectation is only a check if the thing being checked cannot
+        # move it. So: len(SELECTION_FORM_LABELS) * len(MODES) per available
+        # game, with the loop asserting separately that every form really does
+        # include the feature and every game with an executable really does
+        # have one.
+        expected_cases = present_games * len(SELECTION_FORM_LABELS) * len(MODES)
+        self.assertEqual(
             covered,
-            present_games * len(MODES),
+            expected_cases,
             "parentage removal coverage collapsed: "
-            f"{covered} subtests for {present_games} available games",
+            f"{covered} of {expected_cases} cases ran across {present_games} "
+            "available games",
         )
 
 

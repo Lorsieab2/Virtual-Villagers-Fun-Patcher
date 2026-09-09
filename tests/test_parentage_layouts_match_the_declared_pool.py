@@ -85,7 +85,23 @@ class ParentageLayoutsMatchTheDeclaredPoolTests(unittest.TestCase):
         self.builds = {game["id"]: game for game in builds["games"]}
 
     def test_slot_count_matches_the_declared_villager_pool(self) -> None:
-        """Scanning past the pool is an out-of-bounds read on every birth."""
+        """The declared slot count must match the game's pool exactly.
+
+        Equality matters in both directions, and the two failures are
+        different defects rather than one being a milder version of the other.
+
+        Too MANY slots is an out-of-bounds read: find_record_by_name cannot
+        stop early, because the full walk is the ambiguity guard that keeps it
+        from attributing the wrong father, so the `active` byte is
+        dereferenced for every declared slot on every conception.
+
+        Too FEW is silent loss. is_record_slot rejects any mother whose span
+        divides out past the declared count, so WriteParentageRecord returns 0
+        and those villagers' births are never logged at all -- and
+        find_record_by_name stops short, so fathers living in the tail are
+        never found for anyone. Nothing faults and nothing complains; the log
+        is simply missing records, which is the harder of the two to notice.
+        """
         for index, row in enumerate(self.rows, start=1):
             game_id = f"vv{index}"
             with self.subTest(game=game_id):
@@ -95,9 +111,10 @@ class ParentageLayoutsMatchTheDeclaredPoolTests(unittest.TestCase):
                 self.assertEqual(
                     row["slots"],
                     declared,
-                    f"{game_id} scans {row['slots']} slots but the game "
-                    f"declares {declared}; the record scan cannot stop early, "
-                    "so the excess is read out of bounds on every conception",
+                    f"{game_id} declares {row['slots']} slots but the game has "
+                    f"{declared}; too many reads out of bounds on every "
+                    "conception, too few silently drops the births of "
+                    "villagers in the tail and never finds fathers there",
                 )
                 # And the absolute maximum must agree, or "villager_slots" is
                 # not the bound it looks like.
