@@ -48,13 +48,17 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
         catalog = patcher.load_fun_patches()
         builds = {build.id: build for build in patcher.load_builds()}
         covered = 0
+        expected_games = 0
+        missing_fixtures: list[str] = []
 
         for game_id, build in builds.items():
             feature_id = f"{game_id}_write_parentage_log"
             if not any(item.id == feature_id for item in catalog):
                 continue
             source = ROOT / "research" / "stock-executables" / build.input_name
+            expected_games += 1
             if not source.exists():
+                missing_fixtures.append(build.input_name)
                 continue
 
             feature = patcher.get_fun_patch(feature_id)
@@ -101,10 +105,29 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
                         )
                         covered += 1
 
-        # Guard against this suite silently covering nothing if the features
-        # are renamed or the stock executables are unavailable.
+        # The stock executables are gitignored, so a clean checkout has none of
+        # them and this test legitimately covers nothing. That must SKIP rather
+        # than fail -- but it must skip only for that reason.
+        #
+        # The distinction matters: a bare "covered == 0 -> skip" would also
+        # swallow the case this assertion exists to catch, where the fixtures
+        # are present and the features have been renamed or dropped out of the
+        # catalog. So absence is decided from the fixtures themselves, and any
+        # game whose executable IS present must contribute its subtests.
+        if missing_fixtures and not covered:
+            self.skipTest(
+                "stock executables are unavailable: "
+                + ", ".join(sorted(missing_fixtures))
+            )
+        present_games = expected_games - len(missing_fixtures)
+        self.assertGreater(
+            present_games, 0, "no parentage feature was discovered at all"
+        )
         self.assertGreaterEqual(
-            covered, 12, "parentage removal coverage collapsed"
+            covered,
+            present_games * len(MODES),
+            "parentage removal coverage collapsed: "
+            f"{covered} subtests for {present_games} available games",
         )
 
 
