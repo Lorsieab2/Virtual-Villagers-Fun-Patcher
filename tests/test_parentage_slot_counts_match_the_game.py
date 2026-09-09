@@ -62,8 +62,12 @@ EXPORTER = ROOT / "native/parentage_export/parentage_export.c"
 # (cmp eax, imm32), not the `83 F8 95` (imm8) short form, so a byte search for
 # the obvious pattern finds nothing in any of the five games.
 ACCESSORS = {
-    4: ("Virtual Villagers - The Tree of Life.exe", 0x466040),
-    5: ("Virtual Villagers - New Believers.exe", 0x46F950),
+    4: ("Virtual Villagers - The Tree of Life.exe", 0x466040, None),
+    5: ("Virtual Villagers - New Believers.exe", 0x46F950, None),
+    # VV3's accessor states the stride and base but no bound, so the count is
+    # read from the call site that gates it. `cmp eax, 0x96 ; jge` is EXCLUSIVE
+    # where VV4/VV5's `cmp eax, 0x95 ; ja` is inclusive, and both mean 150.
+    3: ("Virtual Villagers - The Secret City.exe", 0x45C840, 0x45EE68),
 }
 
 
@@ -96,6 +100,36 @@ def _text_section(data: bytes):
             _, rva, raw_size, raw = struct.unpack_from("<IIII", data, entry + 8)
             return image_base + rva, raw, raw_size
     raise AssertionError("no .text section")
+
+
+def _gate_bound(data: bytes, gate_va: int) -> int | None:
+    """The slot count stated by a call site that guards the accessor.
+
+    Used where the accessor itself carries no bound. The comparison is decoded
+    rather than pattern-matched, and the branch decides the convention:
+    `jge`/`jae` skip when the index is >= the literal, so the literal IS the
+    count; `ja`/`jg` skip when it is >, so the count is literal + 1. Reading one
+    convention as the other is a silent off-by-one -- it is how VV3 got read as
+    151 once.
+    """
+    from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+
+    text_va, text_raw, _ = _text_section(data)
+    offset = text_raw + (gate_va - text_va)
+    md = Cs(CS_ARCH_X86, CS_MODE_32)
+    limit = None
+    for insn in md.disasm(data[offset : offset + 0x20], gate_va):
+        if insn.mnemonic == "cmp" and limit is None:
+            argument = insn.op_str.split(",")[-1].strip()
+            if argument.startswith("0x"):
+                limit = int(argument, 16)
+        elif insn.mnemonic in ("jge", "jae", "jnb") and limit is not None:
+            return limit
+        elif insn.mnemonic in ("ja", "jg", "jnbe") and limit is not None:
+            return limit + 1
+        elif insn.mnemonic == "call":
+            break
+    return None
 
 
 def _accessor_bound(data: bytes, accessor_va: int):
@@ -142,32 +176,55 @@ class ParentageSlotCountsMatchTheGameTests(unittest.TestCase):
 
     def test_the_count_matches_the_accessor_where_it_is_known(self):
         checked = 0
-        for game, (exe, accessor_va) in ACCESSORS.items():
+        missing = []
+        for game, (exe, accessor_va, gate_va) in sorted(ACCESSORS.items()):
             stock = ROOT / "research/stock-executables" / exe
-            # Opened, not probed, so a checkout without the games skips rather
-            # than passing having verified nothing.
-            data = stock.read_bytes()
+            # Read INSIDE the loop and recorded rather than raised, so one
+            # absent game does not abort the others. A test that skips
+            # wholesale on a partial install reports green while checking
+            # nothing, which is the failure shape this project keeps hitting.
+            try:
+                data = stock.read_bytes()
+            except OSError:
+                missing.append(game)
+                continue
+
             slots, stride, base = _accessor_bound(data, accessor_va)
+            if gate_va is not None:
+                # The accessor carries no bound of its own; the count comes
+                # from the call site that guards it.
+                slots = _gate_bound(data, gate_va)
             row = self.rows[game]
             with self.subTest(game=game):
                 self.assertIsNotNone(
-                    slots, "VV%d accessor bound was not decoded" % game
+                    slots, "VV%d bound was not decoded" % game
                 )
                 checked += 1
-                # The walk must not run past what the game itself permits.
-                self.assertLessEqual(
+                # EQUALITY, not an upper bound. The accessor states the exact
+                # count, and an under-count is a different defect rather than a
+                # milder one: find_record_by_name stops early so fathers in the
+                # omitted tail are never found, and is_record_slot rejects
+                # mothers there so their births are never logged at all --
+                # silent loss rather than an out-of-bounds read.
+                self.assertEqual(
                     int(row["slots"], 0),
                     slots,
-                    "VV%d walks %s slots but the game bounds the index at %d; "
-                    "the difference is read out of bounds on every conception"
-                    % (game, row["slots"], slots - 1),
+                    "VV%d declares %s slots but the game allows exactly %d; "
+                    "too many reads past the pool on every conception, too few "
+                    "silently drops the records in the tail"
+                    % (game, row["slots"], slots),
                 )
-                # Stride and base come from the same instructions, so pinning
-                # them here proves the accessor really is the record accessor
-                # rather than some other routine that happens to decode.
+                # Stride and base come from the accessor's own instructions, so
+                # pinning them proves the routine decoded really is the record
+                # accessor rather than something else that happens to decode.
                 self.assertEqual(int(row["stride"], 0), stride)
                 self.assertEqual(int(row["record_base"], 0), base)
-        self.assertGreater(checked, 0, "no accessor bound was checked")
+
+        if not checked:
+            self.skipTest(
+                "no stock executable available for %s"
+                % ", ".join("VV%d" % game for game in missing)
+            )
 
 
 if __name__ == "__main__":
