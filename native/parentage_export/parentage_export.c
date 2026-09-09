@@ -651,6 +651,14 @@ static int count_records(const wchar_t *path) {
 /* Choose the file to append to: the highest-numbered existing file that is not
    yet full, else the next one. Starts at 1 so the first log reads "... 1.txt".
 
+   `existing_records` is the count across EVERY log file, not just the one
+   chosen, because it becomes the record's printed number. Counting only the
+   chosen file restarted numbering at 1 in each new file, so a village past 256
+   births had two records called "Conception 1", two called "Conception 2", and
+   nothing to order them by -- which is the one thing a numbered record exists
+   to provide. The earlier files are already visited by this loop to find the
+   first one that is not full, so accumulating the total costs no extra work.
+
    Bounded so a corrupt or unwritable directory cannot spin forever; 4096 files
    is far beyond any real playthrough. */
 static int select_log_file(
@@ -659,6 +667,7 @@ static int select_log_file(
     int *existing_records
 ) {
     int number;
+    int total = 0;
 
     *existing_records = 0;
     for (number = 1; number <= 4096; ++number) {
@@ -667,15 +676,24 @@ static int select_log_file(
             return 0;
         }
         if (GetFileAttributesW(destination) == INVALID_FILE_ATTRIBUTES) {
+            /* A gap in the numbering ends the walk, so `total` counts the
+               unbroken run this file continues rather than silently skipping
+               past a deleted log and numbering as though it were still there. */
+            *existing_records = total;
             return 1;
         }
         records = count_records(destination);
+        total += records;
         if (records < RECORDS_PER_FILE) {
             /* Hand the count back rather than making the caller re-derive it.
                Counting again after opening the file for append would rescan
                the whole log on every single birth, and would do it through a
-               second handle on a file this call already holds open. */
-            *existing_records = records;
+               second handle on a file this call already holds open.
+
+               `total` already includes this file's own records, so it is the
+               number of conceptions logged so far and the next one is
+               total + 1. */
+            *existing_records = total;
             return 1;
         }
     }
