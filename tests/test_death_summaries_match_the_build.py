@@ -29,6 +29,11 @@ import re
 import unittest
 from pathlib import Path
 
+from test_blocked_counter_list_matches_the_build import (
+    _configured,
+    _game_configs,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 RESEARCH = ROOT / "docs" / "village-statistics-export-research.md"
@@ -46,24 +51,26 @@ TITLES = {
 def _ships_death() -> set[str]:
     """Game ids whose configuration makes the builder emit a death counter.
 
-    Keyed on `death_hooks`, which is what `build_game` iterates; a game with
-    no hooks emits nothing however many other death keys it carries.
+    Delegates to the blocked-counter guard's parser rather than repeating it.
+    Two reasons, and the first was learned the hard way here: an earlier
+    version of this function tested whether the KEY was present, so a game
+    carrying `"death_hooks": []` counted as shipping while `build_game`'s
+    `for death in config.get("death_hooks", [])` emitted nothing. This module
+    would then have demanded a stale shipping claim and rejected a correct
+    summary -- the exact inversion it exists to prevent -- and its own
+    docstring already promised the opposite. That is the same falsy-gate
+    defect review found in the blocked-counter guard, reintroduced by writing
+    a second parser instead of using the first.
+
+    Second, a duplicated parse of GAMES is a second thing to keep in step with
+    the builder's formatting. One parser, already mutation-tested against an
+    emptied gate, is the whole point.
     """
-    text = BUILDER.read_text(encoding="utf-8")
-    opening = re.search(r"^GAMES = \{", text, re.MULTILINE)
-    closing = re.search(r"^\}", text[opening.end() :], re.MULTILINE)
-    body = text[opening.end() : opening.end() + closing.start()]
-    starts = [
-        (m.start(), m.group(1))
-        for m in re.finditer(r'^    "(vv\d)": \{', body, re.MULTILINE)
-    ]
-    bounds = [pos for pos, _ in starts] + [len(body)]
-    shipping = set()
-    for index, (pos, game_id) in enumerate(starts):
-        block = body[pos : bounds[index + 1]]
-        if '"death_hooks"' in block:
-            shipping.add(game_id)
-    return shipping
+    return {
+        game_id
+        for game_id, block in _game_configs().items()
+        if _configured("death", block)
+    }
 
 
 def _death_section() -> str:
@@ -126,6 +133,12 @@ class DeathSummariesMatchTheBuildTests(unittest.TestCase):
 
         A missing row does not read as an omission; it reads as evidence the
         game was never done.
+
+        Checked in both directions. A one-way membership test is not a guard:
+        requiring every shipping game to appear says nothing about a row left
+        behind for a game whose counter was removed, so the stale claim this
+        module exists to catch would survive in its most authoritative form --
+        a table of addresses someone would try to build from.
         """
         rows = re.findall(r"^\| ([A-Z][^|]+?) \| `0x", self.section, re.MULTILINE)
         named = {title.strip() for title in rows}
@@ -137,6 +150,15 @@ class DeathSummariesMatchTheBuildTests(unittest.TestCase):
                     "%s ships the counter but has no row in the arbiter "
                     "table" % TITLES[game_id],
                 )
+        for game_id in sorted(set(TITLES) - self.shipping):
+            with self.subTest(game=game_id, shipping=False):
+                self.assertNotIn(
+                    TITLES[game_id],
+                    named,
+                    "%s has an arbiter-table row but the build emits no death "
+                    "counter for it, so the table advertises a feature that "
+                    "does not exist" % TITLES[game_id],
+                )
 
     def test_the_blocked_bullet_follow_on_agrees(self) -> None:
         """The sentence after the blocked bullet restates the shipping set.
@@ -144,17 +166,36 @@ class DeathSummariesMatchTheBuildTests(unittest.TestCase):
         It sits two lines from the bullet a separate guard already checks, and
         was the last of the three to be noticed precisely because that guard
         made the neighbouring line look supervised.
+
+        Checked in both directions, like the table above. The bullet names
+        both sets -- the blocked games in bold, the shipping ones in the
+        prose that follows -- so the two are separated before comparing
+        rather than searched for across the whole bullet. Searching the whole
+        bullet would report every game it mentions as shipping, including the
+        ones it is contrasting against, which is the same trap the
+        blocked-counter guard hit and solved the same way.
         """
         marker = "- Villagers Died"
         start = self.document.index(marker)
         bullet = self.document[start : self.document.index("\n- ", start + 1)]
+        blocked_span = " ".join(re.findall(r"\*\*(.+?)\*\*", bullet, re.DOTALL))
+        shipping_prose = bullet.replace(blocked_span, " ")
         for game_id in sorted(self.shipping):
             with self.subTest(game=game_id):
                 self.assertIn(
                     TITLES[game_id],
-                    bullet,
+                    shipping_prose,
                     "%s ships the counter but the blocked bullet's follow-on "
                     "sentence does not say so" % TITLES[game_id],
+                )
+        for game_id in sorted(set(TITLES) - self.shipping):
+            with self.subTest(game=game_id, shipping=False):
+                self.assertIn(
+                    TITLES[game_id],
+                    blocked_span,
+                    "%s does not ship the counter, so the bullet must name it "
+                    "as blocked; a game in neither half of the sentence is "
+                    "simply unaccounted for" % TITLES[game_id],
                 )
 
 
