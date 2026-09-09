@@ -458,10 +458,12 @@ def build() -> dict:
                     "record for every starting villager. Rolls to a new "
                     "numbered file every 256 records. The game keeps only "
                     "the father's name on the mother's record, so his age, "
-                    "head and body come from his own record as the "
-                    "conception routine held it; if that record cannot be "
-                    "confirmed the log names him and says those three "
-                    "fields are not recorded by this game rather than "
+                    "head and body come from his own record: the one the "
+                    "conception routine itself held, or failing that a "
+                    "search for his name. A name shared by two living "
+                    "villagers resolves to neither, and if he cannot be "
+                    "found at all the log names him and reports those "
+                    "three fields as (record not found) rather than "
                     "printing a zero a real villager could hold."
                 ),
                 "companion_files": [
