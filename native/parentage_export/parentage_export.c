@@ -1050,7 +1050,18 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     if (!select_log_file(g, path, &existing_records)) {
         return 0;
     }
-    file = _wfopen(path, L"ab");
+    /* Text mode, so the C runtime translates each \n into the CRLF that every
+       Windows text viewer expects. These games are Windows-only and the log is
+       something a player opens in Notepad, which renders a bare-LF file as one
+       unbroken line -- a 256-record log became 2816 LFs and zero CRLFs, all of
+       it on one line.
+
+       The read side stays BINARY on purpose: count_records must see the bytes
+       as they are on disk, and matching "Conception " at the start of a line
+       works under either ending because the marker is at the START. Reading in
+       text mode would also silently swallow a lone CR, which is exactly the
+       corruption the count is supposed to survive. */
+    file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
     }

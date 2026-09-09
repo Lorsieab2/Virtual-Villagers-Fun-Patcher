@@ -691,7 +691,11 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
         return 0;
     }
 
-    file = _wfopen(temporary, L"wb");
+    /* Text mode, so each \n becomes the CRLF a Windows text viewer expects.
+       The statistics file is written and never read back, so nothing depends
+       on its byte-for-byte length; a player opening it in Notepad does depend
+       on the line breaks being there. */
+    file = _wfopen(temporary, L"w");
     if (file == NULL) {
         return 0;
     }
