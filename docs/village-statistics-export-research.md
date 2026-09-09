@@ -392,8 +392,10 @@ read through the pointer before the `dec`. Two guard shapes, not one.
 
 Immediate store, register store-back, in-place `dec`: three forms for one
 field, which is the same lesson as the scanning note below arriving a third
-time. Image-wide, `0x52C` appears as a displacement in 45 `lea` sites; it is
-the routine boundary that makes these seven meaningful, not the displacement.
+time. Image-wide, `0x52C` appears as a displacement 135 times in `.text`, of
+which 45 are `lea` sites -- counting them needs both the SIB and ModRM-only
+encodings, since assuming one form returns 1. It is the routine boundary that
+makes these seven meaningful, not the displacement.
 
 Completing these two games means hooking the zero-crossing at the three damage
 sites, with the same count-the-transition-not-the-state reasoning the later
