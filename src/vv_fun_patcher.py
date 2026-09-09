@@ -4704,6 +4704,37 @@ def _remove_feature_bytes(
                     break
     patches = list(feature.patches)
     patches.extend(feature.raw.get("patch_mode_overrides", {}).get(patch_mode, []))
+    # A feature may also declare composition_patches: a whole alternate patch
+    # set, used instead of its ordinary one when a named feature is co-selected.
+    # Installation swaps to that set; removal has to reverse the set that was
+    # actually written, or it checks the standalone bytes against an image
+    # carrying the relocated ones and refuses.  VV1 and VV2 parentage could not
+    # be uninstalled at all when composed with their Origins feature, because
+    # removal only ever reversed the standalone form.
+    #
+    # Which set was installed is read back out of the image rather than assumed
+    # from the selection, because removal is handed one feature and not the set
+    # it shipped with: whichever alternate's bytes are present at their own
+    # offsets is the one to reverse.
+    compositions = feature.raw.get("composition_patches")
+    if isinstance(compositions, dict):
+        for alternate in compositions.values():
+            if not isinstance(alternate, list) or not alternate:
+                continue
+            present = True
+            for patch in alternate:
+                try:
+                    offset = int(patch["offset"], 0)
+                    after = _patch_bytes(patch, "after")
+                except (KeyError, TypeError, ValueError):
+                    present = False
+                    break
+                if bytes(work[offset : offset + len(after)]) != after:
+                    present = False
+                    break
+            if present:
+                patches = list(alternate)
+                break
     if composition_overlay is not None:
         owned = [dict(patch, _owner=f"feature:{feature.id}") for patch in patches]
         if feature.id == VV1_BIRTH_CONTROL_ID:
@@ -7876,7 +7907,60 @@ def render_patched_bytes(
             raise PatcherError(
                 "VV3 Origins output does not contain its complete village mask append."
             )
-        if hashlib.sha256(data[append_offset:]).hexdigest().upper() != layout["append_sha256"]:
+        # This digest proves Origins' appended page arrived intact.  Hashing the
+        # whole tail also froze the trailing zeros Origins never uses, which is
+        # a side effect of how the check was written rather than the property it
+        # protects, and it made those reserved bytes unusable by any other
+        # feature.  When a co-selected feature declares an overlay into them,
+        # fingerprint Origins' own region byte for byte and require the
+        # remainder to have been zero in the certified page, so an overlay can
+        # only ever land in space Origins left empty and can never mask a change
+        # to Origins' real content.  With no overlay declared the split point is
+        # the end of the page and this is the original whole-tail check.
+        certified = _resolve_append_bytes(vv3_feature, layout)
+        if (
+            len(certified) != append_length
+            or hashlib.sha256(certified).hexdigest().upper() != layout["append_sha256"]
+        ):
+            raise PatcherError(
+                "VV3 Origins certified village mask append is not self-consistent."
+            )
+        reserved_start = append_length
+        for feature in fun_patches:
+            transaction = feature.raw.get("pe_append_transaction")
+            overlays = (
+                transaction.get("composition_overlays")
+                if isinstance(transaction, dict)
+                else None
+            )
+            overlay = (
+                overlays.get("vv3_enable_origins_exclusive_features")
+                if isinstance(overlays, dict)
+                else None
+            )
+            if not isinstance(overlay, dict):
+                continue
+            try:
+                start = int(overlay["overlay_offset"], 0) - append_offset
+            except (KeyError, TypeError, ValueError) as exc:
+                raise PatcherError(
+                    "VV3 Origins co-selected overlay geometry is malformed."
+                ) from exc
+            if not 0 < start < append_length:
+                raise PatcherError(
+                    "VV3 Origins co-selected overlay falls outside the appended page."
+                )
+            reserved_start = min(reserved_start, start)
+        if any(certified[reserved_start:]):
+            raise PatcherError(
+                "VV3 Origins co-selected overlay would occupy certified content."
+            )
+        if (
+            hashlib.sha256(data[append_offset : append_offset + reserved_start])
+            .hexdigest()
+            .upper()
+            != hashlib.sha256(certified[:reserved_start]).hexdigest().upper()
+        ):
             raise PatcherError(
                 "VV3 Origins output village mask append fingerprint is not certified."
             )

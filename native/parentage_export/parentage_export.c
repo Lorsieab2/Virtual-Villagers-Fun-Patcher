@@ -164,7 +164,31 @@ struct game_layout {
     unsigned int name;        /* char[name_capacity] */
     unsigned int name_capacity;
     int father_kind;          /* FATHER_BY_ID or FATHER_BY_NAME */
-    unsigned int father;      /* an i32 id, or a char[name_capacity] */
+    unsigned int father;      /* an i32 id, or a char[father_key_capacity] */
+    /* How many bytes of the father's stored NAME the game actually writes.
+       Zero means "same as name_capacity".
+
+       This is NOT the same number as name_capacity, and conflating them breaks
+       the by-name scan on exactly the villagers it is hardest to notice. A
+       villager's own name field is 25 bytes in VV3/VV4/VV5, proven by the
+       burial writers' `push 0x19`. But conception copies the father's name
+       onto the mother with `push 0x18` -- 24 bytes:
+
+           VV3  0x455B4D  push 0x18 ; ... lea eax,[esi+0xE48]  ; call 0x46F780
+           VV5  0x465E9E  push 0x18 ; ... lea eax,[esi+0x1C10] ; call 0x47D7C0
+
+       So byte 25 of the stored key is never supplied by that write. Comparing
+       a 25-byte read of a candidate's own name against it would mismatch for
+       any father whose name is 24 characters long -- rejecting the correct
+       father, or matching stale bytes.
+
+       Reading the key at its own width is also exactly right rather than a
+       compromise: the stored key is a prefix of the real name, so comparing
+       that many bytes is the strongest test the data supports. It does mean
+       two villagers differing only in byte 25 cannot be told apart from the
+       key alone -- which the ambiguity guard already handles by resolving to
+       NULL rather than guessing. */
+    unsigned int father_key_capacity;
     unsigned int litter;      /* i32, babies in this pregnancy */
     /* Some games copy the father's own traits INTO the mother's record at
        conception, by value. Where they do, those copies are the better source:
@@ -266,7 +290,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         1, 0x3D8, 256, 0,
         0x28, 0x348, 0x360, 0x364, 0x36C,
         0x370, 0x1C,
-        FATHER_NOT_RECORDED, 0, 0x35C,
+        FATHER_NOT_RECORDED, 0, 0, 0x35C,
         0, 0,
         0xC7,
         L"Virtual Villagers 1 Parentage Log"
@@ -301,12 +325,21 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        Note the litter field is never written for a single birth: 0 means one
        baby, and the delivery routine clears it at 0x43BF85, so a singleton
        after twins correctly reads 0 rather than a stale 2. That is what makes
-       the `< 1 -> 1` fallback safe rather than a guess. */
+       the `< 1 -> 1` fallback safe rather than a guess.
+
+       father_key_capacity is 0 -- "same as the villager's own name" -- and
+       that is a checked answer rather than an omission. VV3/VV4/VV5 write the
+       key with an explicit `push 0x18` into a 0x19 field, so their key is
+       narrower than a name. VV2 has no such count to differ from: the copy at
+       0x44BA49 passes only a destination and a source, and its callee
+       0x4682BD is a vsprintf-family formatter that sets its own limit to
+       0x7FFFFFFF -- unbounded. So VV2's key is bounded by the field, not by a
+       count, and reading it at the same 0x18 the name uses is right. */
     {
         1, 0xE48C, 256, 0,
         0x30, 0x530, 0x548, 0x54C, 0,
         0x564, 0x18,
-        FATHER_BY_NAME, 0x5C0, 0x544,
+        FATHER_BY_NAME, 0x5C0, 0, 0x544,
         0x5E0, 0x5DC,
         0,
         L"Virtual Villagers 2 Parentage Log"
@@ -330,12 +363,48 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        write nothing for a single birth. The `< 1 -> 1` fallback is therefore
        redundant here rather than load-bearing -- harmless, but the difference
        is why "which exit does a single birth take" has to be asked per game
-       instead of assumed from one. */
+       instead of assumed from one.
+
+       record_base is 0x14 because the accessor sub_45C840 computes
+
+           imul eax, [esp+4], 0x1F8C     the slot index times the stride
+           lea  eax, [eax + ecx + 0x14]  plus the container header
+
+       so record zero sits 0x14 bytes into the container the trampoline passes.
+       Declaring it 0 while passing the unbiased container makes the span from
+       that pointer to the mother 0x14 larger than a multiple of the stride, and
+       the divisibility guard rejects EVERY conception -- a feature that loads,
+       hooks, runs, and logs nothing. This was 0 for exactly that reason until
+       an automated review caught it.
+
+       The slot count is 150, not 256. data/builds.json declares VV3 with
+       villager_slots 150 and absolute_maximum 150, and VV3 is the only game
+       where the two disagreed with this table -- VV1 and VV2 really are
+       256-slot games, VV4 and VV5 already said 150.
+
+       That mattered because find_record_by_name cannot stop early: it has to
+       walk the whole range to detect two active villagers sharing a name,
+       which is the ambiguity guard that keeps it from attributing the wrong
+       father. So the `active` byte was dereferenced for all 256 slots on every
+       conception, and slots 150..255 are past the pool -- 106 slots, 856,056
+       bytes at this stride. Whether that faults depends on what happens to sit
+       after the pool at runtime, which is the shape of defect that survives
+       every test here and crashes on a player's machine.
+
+       The name field is 25 bytes (0x19), not 0x18. The burial writer at
+       0x455032 does `push 0x19` before copying it, and
+       data/mask_identity_adapters.json records length 25 for +0xDD4; main
+       already ships VV3_NAME_LEN 0x19 for the same field. At 0x18 the scan
+       compares truncated names, so two villagers differing only in the 25th
+       character compare equal -- which does not merely truncate the log, it
+       makes the ambiguity guard refuse a father who was actually
+       distinguishable. Note this is the READ bound only: the adapter warns
+       never to WRITE more than 0x18, and nothing here writes a name. */
     {
-        1, 0x1F8C, 256, 0,
+        1, 0x1F8C, 150, 0x14,
         0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
-        0xDD4, 0x18,
-        FATHER_BY_NAME, 0xE48, 0xE90,
+        0xDD4, 0x19,
+        FATHER_BY_NAME, 0xE48, 0x18, 0xE90,
         0, 0,
         0,
         L"Virtual Villagers 3 Parentage Log"
@@ -373,12 +442,28 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        -- the villager array lives inside a container whose first 0x44 bytes are
        something else. The caller passes that container unbiased; the container
        itself is the global 0x50E568, loaded as an immediate by all 55 callers
-       of the accessor. */
+       of the accessor.
+
+       The name field is 25 bytes (0x19), the same as VV3's. Its burial writer
+       proves it with a count operand:
+
+           0x45D4B2  push 0x19
+           0x45D4B4  lea  eax, [edi+0x1B9C]
+           0x45D4BC  call 0x4724E0            (strncpy)
+           0x45D4C1  mov  byte [esi+0x19], 0  (the terminator, at index 25)
+
+       This read 0x18 until it was noticed that safe_write_limit 24 in the
+       adapter record is the WRITE bound and says nothing about the read
+       length -- the two are orthogonal, and reading 24 truncates the
+       comparison find_record_by_name depends on. Two villagers differing only
+       in the 25th character then compare equal, so the ambiguity guard refuses
+       a father who was actually distinguishable. Nothing here writes a name,
+       so the 24-byte write limit is not in play. */
     {
         1, 0x2E3C, 150, 0x44,
         0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
-        0x1B9C, 0x18,
-        FATHER_BY_NAME, 0x1C10, 0x1C50,
+        0x1B9C, 0x19,
+        FATHER_BY_NAME, 0x1C10, 0x18, 0x1C50,
         0, 0,
         0,
         L"Virtual Villagers 4 Parentage Log"
@@ -397,12 +482,26 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        VV5 mother pointer four bytes off a record boundary, the guard would have
        rejected every call, and VV5 would have logged nothing at all without
        any error. The container is the global 0x554148, loaded as an immediate
-       at all 445 of its occurrences. */
+       at all 445 of its occurrences.
+
+       The name field is 25 bytes, from VV5's own burial writer:
+
+           0x464CB2  push 0x19
+           0x464CB4  lea  eax, [edi+0x1B9C]
+           0x464CBC  call 0x47D7C0            (strncpy)
+           0x464CC1  mov  byte [esi+0x19], 0  (the terminator, at index 25)
+
+       VV5 has a second, independent witness that is worth knowing because it
+       looks like a contradiction and is not: 0x420005 copies one villager's
+       name to another with `push 0x18`, from +0x1B9C to +0x1B9C. That is the
+       WRITE bound, which is why the adapter records safe_write_limit 24
+       alongside length 25. Reading 25 and writing at most 24 are both correct,
+       and nothing here writes a name. */
     {
         1, 0x2F44, 150, 0x48,
         0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
-        0x1B9C, 0x18,
-        FATHER_BY_NAME, 0x1C10, 0x1C50,
+        0x1B9C, 0x19,
+        FATHER_BY_NAME, 0x1C10, 0x18, 0x1C50,
         0, 0,
         0,
         L"Virtual Villagers 5 Parentage Log"
@@ -450,6 +549,20 @@ static void copy_villager_name(
     size_t out_size
 ) {
     copy_name_field(record + g->name, out, out_size, g->name_capacity);
+}
+
+/* How many bytes of the father's stored name a game actually writes.
+
+   Zero in the table means "the same as the villager's own name", which is the
+   right default for a game whose conception copy and burial copy use the same
+   count. Where they differ -- VV3, VV4 and VV5 write the key with `push 0x18`
+   while a villager's own field is 0x19 -- the key's own width is what must be
+   read, or byte 25 of the comparison comes from whatever the write never
+   supplied. */
+static unsigned int father_key_width(const struct game_layout *g) {
+    return g->father_key_capacity != 0
+        ? g->father_key_capacity
+        : g->name_capacity;
 }
 
 /* Resolve a villager id to its record by scanning the array.
@@ -659,9 +772,10 @@ static int layout_is_usable(const struct game_layout *g) {
     } else if (g->father_kind == FATHER_BY_ID) {
         if (g->father + WORD > stride) return 0;
     } else if (g->father_kind == FATHER_BY_NAME) {
-        /* A name field is read with the same capacity as the villager's own
-           name, so it must fit whole. */
-        if (g->father + g->name_capacity > stride) return 0;
+        /* The stored key is read at its OWN width, which is not always the
+           villager's own name width -- see father_key_capacity. It must fit
+           whole either way. */
+        if (g->father + father_key_width(g) > stride) return 0;
     } else {
         return 0;
     }
@@ -709,7 +823,19 @@ static const unsigned char *find_record_by_name(
         if (*(const unsigned char *)(record + g->active) != 1) {
             continue;
         }
-        copy_villager_name(g, record, candidate, sizeof(candidate));
+        /* The candidate is read at the KEY's width, not its own, because that
+           is what the stored key can possibly contain. Where a game writes the
+           key with fewer bytes than a villager's name field holds -- VV3, VV4
+           and VV5 write 0x18 into a 0x19 field -- reading the candidate at
+           0x19 and the key at 0x18 makes every 24-character name mismatch.
+
+           Comparing at the key's width is the strongest test the data
+           supports rather than a concession: the key IS a prefix of the real
+           name. Two villagers differing only past that width are then
+           indistinguishable from the key alone, which is precisely the case
+           the ambiguity guard below resolves to NULL instead of guessing. */
+        copy_name_field(record + g->name, candidate, sizeof(candidate),
+                        father_key_width(g));
         if (strcmp(candidate, name) != 0) {
             continue;
         }
@@ -881,7 +1007,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
            neither route finds him the log says so rather than printing a 0
            that a real villager could hold. */
         copy_name_field(mother + g->father, father_name, sizeof(father_name),
-                        g->name_capacity);
+                        father_key_width(g));
         father = father_from_caller;
         if (father == NULL) {
             father = find_record_by_name(g, records, father_name);
