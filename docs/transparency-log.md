@@ -102,7 +102,7 @@ Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manua
 - Dependencies: none
 - Evidence status: implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending
 - Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
-- Appends 4096 bytes as a new executable section, and rewrites 3 PE header field(s) to map it; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- Appends 4096 bytes as 1 new PE section -- `.vv1bc` (executable code) -- and rewrites 3 PE header field(s) to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv1_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 
 #### Builder Action Fixes (`vv1_builder_action_fixes`)
@@ -149,7 +149,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 64; every edit has an exact purpose and before/after guard in the manifest.
-- Appends 8192 bytes as a new executable section, and rewrites 4 PE header field(s) to map it; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- Appends 8192 bytes as 2 new PE sections -- `.vv1mc` (executable code), `.vv1md` (writable data) -- and rewrites 4 PE header field(s) to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
 #### Magic Fruit of Life Alters Mortality (`vv1_magic_fruit_alters_mortality`)
 
@@ -264,7 +264,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler purchase status: {'status': 'Tech and Food Doublers are available at 500,000 tech points; owned upgrades can be removed for no refund and bought again.', 'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 39; every edit has an exact purpose and before/after guard in the manifest.
-- Appends 8192 bytes as a new executable section, and rewrites 4 PE header field(s) to map it; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- Appends 8192 bytes as 2 new PE sections -- `.mtab` (writable data), `.vvmk` (executable code) -- and rewrites 4 PE header field(s) to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
 #### Gong of Wonder Coconuts Fix (`vv2_gong_of_wonder_coconuts_fix`)
 
@@ -358,7 +358,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 28; every edit has an exact purpose and before/after guard in the manifest.
-- Appends 8192 bytes as a new executable section, and rewrites 3 PE header field(s) to map it; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- Appends 8192 bytes as 2 new PE sections -- `.vv3mc` (executable code), `.vv3md` (writable data) -- and rewrites 3 PE header field(s) to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
 #### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
 
@@ -410,7 +410,7 @@ Records both parents at conception in a plain text log: their names, ages, head 
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-- Appends 4096 bytes as a new executable section, and rewrites 3 PE header field(s) to map it; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- Appends 4096 bytes as 1 new PE section -- `.vv3pl` (executable code) -- and rewrites 3 PE header field(s) to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 
 #### Write Village Statistics to Text File (`vv3_write_village_statistics`)
@@ -485,7 +485,7 @@ On each new pregnancy, appends the mother's and father's names, their ages at co
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-- Appends 4096 bytes as a new executable section, and rewrites 3 PE header field(s) to map it; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- Appends 4096 bytes as 1 new PE section -- `.vv4pl` (executable code) -- and rewrites 3 PE header field(s) to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 
@@ -550,7 +550,7 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 - Native event safety: {'disabled_rows': ['Time Warp', 'Island Event', 'Barrel of Babies'], 'reason': 'VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.', 'evidence_status': 'STOP; no charge or native call is made for these rows'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
-- Appends 32768 bytes as a new executable section, and rewrites 3 PE header field(s) to map it; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- Appends 32768 bytes as 1 new PE section -- `.vv5t9` (executable code) -- and rewrites 3 PE header field(s) to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - Mode-specific guarded edits: experimental_expanded_256=7, experimental_expanded_256_progression=7, collection_progression=7, immediate_fixed=7; these rows are selected only for the named population mode.
 
 #### Guardians of Isola Rewrite (`vv5_guardians_of_isola_rewrite`)
@@ -602,7 +602,7 @@ On each new pregnancy, appends the mother's and father's names, their ages at co
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-- Appends 4096 bytes as a new executable section, and rewrites 3 PE header field(s) to map it; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- Appends 4096 bytes as 1 new PE section -- `.vv5pl` (executable code) -- and rewrites 3 PE header field(s) to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv5_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 
 #### Write Village Statistics to Text File (`vv5_write_village_statistics`)
