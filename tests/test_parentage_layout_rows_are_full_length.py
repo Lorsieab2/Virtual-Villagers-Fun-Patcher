@@ -104,6 +104,35 @@ class ParentageLayoutRowsAreFullLengthTests(unittest.TestCase):
                 self.assertNotIn(entry["head"], copies)
                 self.assertNotIn(entry["body"], copies)
 
+        # Fields in the MIDDLE of the row, which a shift confined to the
+        # middle would move while arity and the trailing fields stay right.
+        # That gap is not hypothetical: inserting father_key_capacity after
+        # `father` while writing its value after `litter` shifted every row,
+        # putting the litter offset into father_key_capacity -- and this test
+        # passed, because the count was still correct and the pinned fields
+        # were all near the end.
+        for index, entry in enumerate(decoded, start=1):
+            with self.subTest(game=index):
+                # The litter count is a real record offset in every game, so a
+                # value that is zero or implausibly small means a slot moved.
+                litter = int(entry["litter"], 0)
+                self.assertGreater(
+                    litter,
+                    0x100,
+                    "VV%d litter offset %s is too small to be a record field; "
+                    "a middle-of-row shift has moved it" % (index, entry["litter"]),
+                )
+                # The key width is a small count, never an offset. If an offset
+                # lands here the row has shifted the other way.
+                key = int(entry["father_key_capacity"], 0)
+                self.assertLessEqual(
+                    key,
+                    0x40,
+                    "VV%d father_key_capacity %s looks like an offset rather "
+                    "than a width; a slot has shifted"
+                    % (index, entry["father_key_capacity"]),
+                )
+
         # Every row names its own game's log file, so a wholesale row shift
         # cannot hide behind matching arity.
         for index, entry in enumerate(decoded, start=1):
