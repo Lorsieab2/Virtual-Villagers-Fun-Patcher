@@ -16,6 +16,62 @@ def _items(values) -> list[str]:
     return [str(value).strip() for value in values if str(value).strip()]
 
 
+def _append_transaction_lines(raw: dict) -> list[str]:
+    """Describe an appended executable section, if the feature declares one.
+
+    This is the largest change a feature can make to a game -- a whole new
+    section of code plus the PE header fields that map it -- and the guarded
+    edit count above covers neither, because both live in
+    `pe_append_transaction` rather than in `patches`.
+
+    Reported per distinct geometry rather than per patch mode: every shipping
+    feature declares the same layout for all of its modes, so listing three
+    identical lines would pad the document without adding information. If a
+    feature ever declares genuinely different geometry per mode, each one is
+    listed, because then the difference is the thing worth knowing.
+    """
+
+    transaction = raw.get("pe_append_transaction")
+    if not isinstance(transaction, dict):
+        return []
+    layouts = transaction.get("layouts")
+    if not isinstance(layouts, dict):
+        return []
+
+    seen: list[tuple[int, int]] = []
+    for layout in layouts.values():
+        if not isinstance(layout, dict):
+            continue
+        try:
+            length = int(layout["append_length"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        headers = layout.get("header_patches")
+        shape = (length, len(headers) if isinstance(headers, list) else 0)
+        if shape not in seen:
+            seen.append(shape)
+
+    lines = []
+    for length, headers in seen:
+        lines.append(
+            f"- Appends {length} bytes as a new executable section, and rewrites "
+            f"{headers} PE header field(s) to map it; the appended bytes and "
+            "every header change carry an exact before/after guard in the "
+            "manifest."
+        )
+
+    overlays = transaction.get("composition_overlays")
+    if isinstance(overlays, dict) and overlays:
+        lines.append(
+            "- When "
+            + ", ".join(sorted(overlays))
+            + " is also selected it appends nothing, writing its payload into "
+            "that feature's reserved zero range instead; the range is checked "
+            "against a declared zero preimage before anything is written."
+        )
+    return lines
+
+
 def _contain_running_claim(text: str) -> str:
     """Keep generated summaries fail-closed without rewriting pinned candidates."""
 
@@ -268,6 +324,15 @@ def build_document() -> str:
                     + ", ".join(str(count) for count in composition_counts)
                     + "; every edit has an exact purpose and before/after guard in the manifest."
                 )
+            # A feature may also append a whole executable section and rewrite
+            # the PE headers that map it. Those are the largest changes any
+            # feature makes to a game, and counting only `patches` omitted them
+            # entirely -- one parentage feature reported a single guarded edit
+            # while also adding a 4096-byte code page and rewriting three
+            # header fields. A transparency document that undercounts the
+            # biggest change is worse than one that says nothing, because the
+            # number reads as complete.
+            lines.extend(_append_transaction_lines(raw))
             mode_overrides = raw.get("patch_mode_overrides", {})
             if mode_overrides:
                 lines.append(
