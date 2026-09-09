@@ -55,23 +55,39 @@ GAMES = {
         "burial_manager": "mov eax, dword ptr [esi + 0xE574D4]",
         "burial_stat_offset": 0x2E5D4,
         "burial_replay": "mov byte ptr [edx + esi + 0x30], 0",
-        # 0x44BA8C is the first instruction after the twins branch and has
-        # exactly one predecessor: that branch. The mandatory 256-slot
-        # saturation guard detours the branch itself and rejoins here only
-        # when it allows the birth, so hooking this instruction counts every
-        # accepted twin birth once and never a rejected one, without touching
-        # a byte the guard owns.
+        # Counted in two parts, because The Lost Children's childbirth is
+        # cumulative rather than exclusive: the twins branch sets litter 2 and
+        # falls THROUGH into the triplet test, which may overwrite it with 3.
+        #
+        # 0x44BA8C, the instruction after the twins branch, is reached by every
+        # multiple birth and by nothing else -- the saturation guard detours
+        # the branch itself and rejoins here only when it allows the birth. So
+        # it counts twins and triplets alike.
+        #
+        # 0x44BAD2 is the stock triplets increment, reached only once a birth
+        # has actually been promoted to triplets. Decrementing the twins
+        # counter there removes exactly the births the first hook
+        # over-counted, leaving twins counting twins only, matching the
+        # mutually exclusive behaviour of the later games.
+        #
+        # The epilogue at 0x44BAD8 would have been simpler but the parentage
+        # feature already detours it, and two features cannot own one address.
         "twins_hook_va": 0x44BA8C,
         "twins_guard": "8B87D474E500",
-        # 0x473DF4 sits in a 44-byte gap between two other features' wrappers.
-        # The larger run at 0x473F42 is deliberately left whole: publish-time
-        # executable-name crash immunity needs 169 contiguous zero bytes in an
-        # executable section, and splitting that run is what makes publishing
-        # fail with "no code cave".
         "twins_wrapper_va": 0x473DF4,
         "twins_manager": "mov eax, dword ptr [edi + 0xE574D4]",
         "twins_stat_offset": 0x2E5D8,
         "twins_resume_va": 0x44BA92,
+        # The correcting decrement on the triplet path. edi is already the
+        # manager here (0x44BACC loads it), so no extra load is needed.
+        "triplet_hook_va": 0x44BAD2,
+        "triplet_guard": "FF8724E50200",
+        # At the END of the 106-byte run at 0x473F96, not its start, so the
+        # longest contiguous zero run in this section stays as large as
+        # possible for publish-time name-crash immunity.
+        "triplet_wrapper_va": 0x473FED,
+        "triplet_body": "dec dword ptr [edi + 0x2E5D8]",
+        "triplet_replay": "inc dword ptr [edi + 0x2E524]",
     },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",
@@ -89,7 +105,11 @@ GAMES = {
         "burial_hook_va": 0x462293,
         "burial_guard": "C687100F000000",
         "burial_replay": "mov byte ptr [edi + 0xF10], 0",
-        "burial_stat_va": 0x5824D0,
+        # +0x30 (0x5824D0) is the Origins doubler ownership bitmask, whose
+        # bits 0 and 1 mark the Tech and Food Doublers owned. Incrementing it
+        # per pickup would grant doublers and be reset by Origins purchases,
+        # so this and its marker start at +0x38.
+        "burial_stat_va": 0x5824D8,
     },
     "vv4": {
         "title": "Virtual Villagers - The Tree of Life",
@@ -109,7 +129,9 @@ GAMES = {
         "burial_hook_va": 0x46A977,
         "burial_guard": "C686C41C000000",
         "burial_replay": "mov byte ptr [esi + 0x1CC4], 0",
-        "burial_stat_va": 0x4D6E10,
+        # +0x30 (0x4D6E10) is the Origins doubler ownership bitmask; see the
+        # VV3 note. Burial counter and marker take +0x3C and +0x40.
+        "burial_stat_va": 0x4D6E1C,
         # Debris is not discrete pieces -- the stream carries an obstruction
         # level at debris-manager +0x14 that each clearing action decrements
         # by one. The game's own unit for that action is the Civil Engineer
@@ -126,7 +148,7 @@ GAMES = {
         "debris_replay": (
             "add dword ptr [esi + 0x14], -1 ; push 1"
         ),
-        "debris_stat_va": 0x4D6E18,
+        "debris_stat_va": 0x4D6E24,
         # 0x190 holds the burial wrapper (18 bytes, ends 0x1A2).
         "debris_slot": 0x1A8,
     },
@@ -413,11 +435,12 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
         twins_wrapper_va = int(config["twins_wrapper_va"])
         twins_guard = bytes.fromhex(str(config["twins_guard"]))
         twins_wrapper = assemble(
-            f"""
-                {config['twins_manager']}
-                inc dword ptr [eax + 0x{int(config['twins_stat_offset']):X}]
-                jmp 0x{int(config['twins_resume_va']):X}
-            """,
+            (
+                str(config["twins_manager"]) + "\n"
+                + "inc dword ptr [eax + 0x%X]\n"
+                % int(config["twins_stat_offset"])
+                + "jmp 0x%X" % int(config["twins_resume_va"])
+            ),
             twins_wrapper_va,
         )
         twins_hook_file = int(twins_hook_va) - 0x400000
@@ -450,6 +473,66 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 "purpose": (
                     "count every twin birth the saturation guard allows once "
                     "in the per-save reserve"
+                ),
+            }
+        )
+
+    triplet_hook_va = config.get("triplet_hook_va")
+    if triplet_hook_va:
+        # Removes the over-count the twins hook makes for a birth that is
+        # later promoted to triplets. Reached only on the triplet path, so
+        # every decrement pairs with exactly one earlier increment.
+        triplet_guard = bytes.fromhex(str(config["triplet_guard"]))
+        triplet_wrapper_va = int(config["triplet_wrapper_va"])
+        triplet_wrapper = assemble(
+            (
+                str(config["triplet_body"]) + "\n"
+                + str(config["triplet_replay"]) + "\n"
+                + "jmp 0x%X"
+                % (int(triplet_hook_va) + len(triplet_guard))
+            ),
+            triplet_wrapper_va,
+        )
+        triplet_hook_file = int(triplet_hook_va) - 0x400000
+        triplet_wrapper_file = triplet_wrapper_va - 0x400000
+        if (
+            source[triplet_hook_file : triplet_hook_file + len(triplet_guard)]
+            != triplet_guard
+        ):
+            raise RuntimeError(f"{game_id} triplet hook guard does not match")
+        if any(
+            source[
+                triplet_wrapper_file : triplet_wrapper_file + len(triplet_wrapper)
+            ]
+        ):
+            raise RuntimeError(
+                f"{game_id} triplet wrapper site is not stock zero padding"
+            )
+        extra_patches.append(
+            {
+                "offset": f"0x{triplet_wrapper_file:X}",
+                "before": "00" * len(triplet_wrapper),
+                "after": triplet_wrapper.hex().upper(),
+                "purpose": (
+                    "install the triplet correction wrapper in stock zero "
+                    "padding"
+                ),
+            }
+        )
+        extra_patches.append(
+            {
+                "offset": f"0x{triplet_hook_file:X}",
+                "before": triplet_guard.hex().upper(),
+                "after": (
+                    b"\xE9"
+                    + int(
+                        triplet_wrapper_va - int(triplet_hook_va) - 5
+                    ).to_bytes(4, "little", signed=True)
+                    + b"\x90" * (len(triplet_guard) - 5)
+                ).hex().upper(),
+                "purpose": (
+                    "remove the twins over-count for a birth promoted to "
+                    "triplets, so twins counts twins only"
                 ),
             }
         )

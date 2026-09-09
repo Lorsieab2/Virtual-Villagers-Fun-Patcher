@@ -501,9 +501,20 @@ static int write_later_game(
        to print it under, or zero for a game that has none. The Tree of Life
        uses it for Debris Cleared; The Secret City has no equivalent. */
     unsigned int extra_offset,
-    const char *extra_label
+    const char *extra_label,
+    /* RVA of the game's LIVE statistics block. The later games keep the block
+       at a fixed global and copy it wholesale into the save on write and back
+       on load, and the pickup wrapper increments the live copy. Seeding the
+       saved copy alone would not stick: the next save overwrites it from the
+       still-unseeded live block. Seeding the live block makes both agree, and
+       the stock copy then carries the value out. */
+    unsigned int live_statistics_rva
 ) {
     unsigned char *statistics = (unsigned char *)manager + statistics_offset;
+    unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    unsigned char *live = module == NULL
+        ? NULL
+        : module + live_statistics_rva;
     if (fprintf(
         file,
         "%s\n"
@@ -550,14 +561,17 @@ static int write_later_game(
     ) < 0) {
         return 0;
     }
+    /* Read the live block for patch-added counters: the wrapper increments
+       it, and the saved copy only catches up on the next stock save. */
     if (extra_offset != 0u
         && fprintf(file, "%s: %d\n", extra_label,
-                   read_int(statistics, extra_offset)) < 0) {
+                   read_int(live != NULL ? live : statistics,
+                            extra_offset)) < 0) {
         return 0;
     }
     return write_memorial_row(
         file, graves_rva, graves_stride, graves_capacity,
-        statistics, buried_offset, marker_offset);
+        live != NULL ? live : statistics, buried_offset, marker_offset);
 }
 
 static int write_vv5(
@@ -607,9 +621,18 @@ static int write_vv5(
         return 0;
     }
     /* New Believers: memorial at 0x5481A8, accessor 0x464E70,
-       500 slots, stride 0x5C, occupancy +0x1C. */
-    return write_memorial_row(
-        file, 0x1481A8u, 0x5Cu, 500u, statistics, 0x38u, 0x3Cu);
+       500 slots, stride 0x5C, occupancy +0x1C.
+
+       Seeded against the LIVE block at 0x51D358, not the saved copy. The
+       pickup wrapper increments the live block, and the stock save copies it
+       out wholesale afterwards; seeding the saved copy alone would be
+       overwritten by the still-unseeded live values on the next save. */
+    {
+        unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+        unsigned char *live = module == NULL ? statistics : module + 0x11D358u;
+        return write_memorial_row(
+            file, 0x1481A8u, 0x5Cu, 500u, live, 0x38u, 0x3Cu);
+    }
 }
 
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
@@ -671,10 +694,13 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                0x1F4 records. */
             0x197D64u, 0x30u, 500u,
             /* Lifetime burials counted at the pickup latch clear, seeded
-               once from the memorial via the marker at +0x34. */
-            0x30u, 0x34u,
+               once from the memorial via the marker at +0x3C. +0x30 is the
+               Origins doubler ownership bitmask and must not be touched. */
+            0x38u, 0x3Cu,
             /* The Secret City has no debris; its stream puzzle differs. */
-            0u, NULL
+            0u, NULL,
+            /* Live statistics block, which the pickup wrapper increments. */
+            0x1824A0u
         );
     } else if (game_id == GAME_VV4) {
         written = write_later_game(
@@ -690,13 +716,16 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                stride 0x5C, occupancy +0x1C. Burial writer 0x45D470. */
             0x1025C8u, 0x5Cu, 500u,
             /* Lifetime burials counted at the pickup latch clear, seeded
-               once from the memorial via the marker at +0x34. */
-            0x30u, 0x34u,
-            /* Debris Cleared at +0x38, incremented by the wrapper on the
+               once from the memorial via the marker at +0x40. +0x30 is the
+               Origins doubler ownership bitmask and must not be touched. */
+            0x3Cu, 0x40u,
+            /* Debris Cleared at +0x44, incremented by the wrapper on the
                stream-clearing action at 0x43965A -- the same event the Civil
                Engineer trophy credits a unit to, without that trophy's
                stop-once-earned cap. */
-            0x38u, "Debris Cleared"
+            0x44u, "Debris Cleared",
+            /* Live statistics block, which both wrappers increment. */
+            0xD6DE0u
         );
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);
