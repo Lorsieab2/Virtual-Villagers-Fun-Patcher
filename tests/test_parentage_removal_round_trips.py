@@ -42,25 +42,47 @@ ORIGINS_SUFFIXES = (
 )
 MODES = ("stock", "collection_progression", "immediate_fixed")
 
+# The two installed forms every parentage feature must be exercised in. Named
+# here rather than built inline so the expected case count can be computed from
+# a constant the loop does not control.
+#
+# That distinction is the whole point: an expectation the loop computes shrinks
+# whenever the loop runs less, so both sides of the final equality fall together
+# and the guard passes while coverage collapses. Deriving it from
+# len(SELECTION_FORMS) * len(MODES) instead means a form or a mode that stops
+# being run fails loudly.
+SELECTION_FORM_LABELS = ("with-origins", "no-origins")
+
+
+def SELECTION_FORMS(every, without_origins):
+    return tuple(zip(SELECTION_FORM_LABELS, (every, without_origins)))
+
 
 class ParentageRemovalRoundTripTests(unittest.TestCase):
     def test_every_parentage_feature_removes_to_the_image_without_it(self) -> None:
         catalog = patcher.load_fun_patches()
         builds = {build.id: build for build in patcher.load_builds()}
         covered = 0
-        expected_cases = 0
-        expected_games = 0
+        present_games = 0
         missing_fixtures: list[str] = []
 
         for game_id, build in builds.items():
             feature_id = f"{game_id}_write_parentage_log"
-            if not any(item.id == feature_id for item in catalog):
-                continue
             source = ROOT / "research" / "stock-executables" / build.input_name
-            expected_games += 1
             if not source.exists():
                 missing_fixtures.append(build.input_name)
                 continue
+            # Counted for every game whose executable is present, BEFORE the
+            # catalog is consulted. Deriving it after that check let a feature
+            # vanishing from the catalog remove its cases from both sides of
+            # the equality at once, so the whole game disappeared and the guard
+            # still passed -- which is the exact collapse it exists to catch.
+            present_games += 1
+            self.assertTrue(
+                any(item.id == feature_id for item in catalog),
+                f"{feature_id} is missing from the catalog; every game with a "
+                "stock executable must ship a parentage feature",
+            )
 
             feature = patcher.get_fun_patch(feature_id)
             every = [
@@ -74,13 +96,13 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
                 if not item.endswith(ORIGINS_SUFFIXES)
             ]
 
-            for label, requested in (
-                ("with-origins", every),
-                ("no-origins", without_origins),
-            ):
-                if feature_id not in requested:
-                    continue
-                expected_cases += len(MODES)
+            for label, requested in SELECTION_FORMS(every, without_origins):
+                self.assertIn(
+                    feature_id,
+                    requested,
+                    f"{feature_id} is absent from the {label} selection, so "
+                    "that form would silently stop being exercised",
+                )
                 # Resolve dependencies exactly as a real run does.  VV2's
                 # parentage requires its Origins feature, so a request that
                 # omits Origins still installs it -- and removal leaves it
@@ -121,23 +143,34 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
                 "stock executables are unavailable: "
                 + ", ".join(sorted(missing_fixtures))
             )
-        present_games = expected_games - len(missing_fixtures)
+        # present_games is already the count of games whose executable was
+        # found -- the loop skips the others before incrementing it, so
+        # subtracting missing_fixtures here would remove them twice.
         self.assertGreater(
             present_games, 0, "no parentage feature was discovered at all"
         )
-        # Equality against what the loop actually decided to run, not a floor
-        # computed from what it was expected to run.
+        # The expectation is computed from CONSTANTS and the count of available
+        # games, never from anything the loop decided.
         #
-        # This was `covered >= present_games * len(MODES)`, which recomputes
-        # the shape independently of the loop and then compares to it. That
-        # arithmetic was already wrong: each game contributes TWO selection
-        # forms, so real coverage is 30 subtests while the floor demanded 15.
-        # Half of it could have disappeared silently.
+        # This assertion has now been wrong twice in opposite directions, and
+        # the two failures are worth keeping because they are the same mistake:
         #
-        # Counting `expected` at the same place the loop commits to a case
-        # cannot drift from it, so a game or a form that stops being exercised
-        # fails here instead of quietly reducing coverage. Raised by a peer
-        # session, whose version of this guard asserted the same identity.
+        #   `covered >= present_games * len(MODES)` recomputed the shape from
+        #   the outside and got it wrong -- each game runs TWO selection forms,
+        #   so it demanded 15 where the real number is 30, and half the
+        #   coverage could vanish unnoticed.
+        #
+        #   Counting at the point the loop commits to a case fixed the
+        #   arithmetic but tied the expectation to the loop, so a case the loop
+        #   stopped running was subtracted from BOTH sides and the equality
+        #   still held. A whole game disappearing passed.
+        #
+        # An expectation is only a check if the thing being checked cannot
+        # move it. So: len(SELECTION_FORM_LABELS) * len(MODES) per available
+        # game, with the loop asserting separately that every form really does
+        # include the feature and every game with an executable really does
+        # have one.
+        expected_cases = present_games * len(SELECTION_FORM_LABELS) * len(MODES)
         self.assertEqual(
             covered,
             expected_cases,
