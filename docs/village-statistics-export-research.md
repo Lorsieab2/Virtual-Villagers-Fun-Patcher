@@ -293,9 +293,9 @@ uncapped lifetime storage field and mutation route have yet been proven:
 
 - Village Elders where the inherited statistics block does not already expose
   it.
-- Villagers Died in **A New Home and The Lost Children only**. The Secret
-  City, The Tree of Life and New Believers are shipped; see "Villagers Died"
-  below for why the two older games are not, and what completing them needs.
+- Villagers Died in **A New Home, The Lost Children and The Tree of Life**.
+  Only The Secret City and New Believers ship the counter; see "Villagers
+  Died" below for why the others do not, and what completing them needs.
 - Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
   is understood (see below, including the first-cook case where it undercounts
   by one until the recipe is cooked again), but the requirements list *Total*
@@ -303,7 +303,6 @@ uncapped lifetime storage field and mutation route have yet been proven:
   statistic, and no writer that increments for every stew has been found. The
   two must not be conflated.
 - Tribal Chiefs Robed in VV3.
-- Debris Cleared in VV4.
 
 Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
