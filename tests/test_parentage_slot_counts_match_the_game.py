@@ -220,11 +220,23 @@ class ParentageSlotCountsMatchTheGameTests(unittest.TestCase):
                 self.assertEqual(int(row["stride"], 0), stride)
                 self.assertEqual(int(row["record_base"], 0), base)
 
-        if not checked:
+        # Coverage floor, not merely "something ran". Every game whose
+        # executable is present must have contributed, so a partial install
+        # cannot quietly shrink what this proves while still reporting green.
+        # Borrowed from a peer session's removal test, which had the stronger
+        # shape than the one I wrote.
+        present = len(ACCESSORS) - len(missing)
+        if not present:
             self.skipTest(
                 "no stock executable available for %s"
                 % ", ".join("VV%d" % game for game in missing)
             )
+        self.assertEqual(
+            checked,
+            present,
+            "%d of %d available games were checked; coverage collapsed rather "
+            "than the fixtures being absent" % (checked, present),
+        )
 
 
 if __name__ == "__main__":

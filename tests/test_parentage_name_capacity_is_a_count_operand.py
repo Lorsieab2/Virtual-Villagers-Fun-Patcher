@@ -158,11 +158,21 @@ class ParentageNameCapacityIsACountOperandTests(unittest.TestCase):
                     "in the last characters"
                     % (game, rows[game]["name_capacity"], operand),
                 )
-        if not checked:
+        # Coverage floor rather than "something ran": every measured game
+        # whose executable is present must have contributed, so a partial
+        # install cannot quietly reduce what this proves.
+        present = len([game for game in MEASURED if game in rows]) - len(missing)
+        if not present:
             self.skipTest(
                 "no stock executable available for %s"
                 % ", ".join("VV%d" % game for game in missing)
             )
+        self.assertEqual(
+            checked,
+            present,
+            "%d of %d available games were measured; coverage collapsed rather "
+            "than the fixtures being absent" % (checked, present),
+        )
 
     def test_unmeasured_games_are_not_silently_assumed(self):
         """VV1 and VV2 have no count operand, so they must not be listed here.
