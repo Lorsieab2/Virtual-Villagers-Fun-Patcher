@@ -368,9 +368,36 @@ this field at all. In The Lost Children, inside `sub_43B690`:
     0043BAF3  mov [eax], ecx            store back -- NO displacement
 
 That routine takes the field's address at seven separate `lea` sites, so the
-decrement is only ever reachable behind a register. Completing these two games
-means hooking the zero-crossing at that store, with the same
-count-the-transition-not-the-state reasoning the later games needed. Counting
+decrement is only ever reachable behind a register. **Seven address-taking
+sites are not seven damage paths**, and hooking all of them would count
+healing as death:
+
+| Site | Instruction after the `lea` | Effect |
+|---|---|---|
+| `0x43BAEB` | `dec ecx` ; `mov [eax], ecx` | damage |
+| `0x43BB7E` | `dec dword ptr [eax]` | damage, in place |
+| `0x43BBD7` | `inc ecx` ; `mov [eax], ecx` | heal |
+| `0x43BC43` | `dec ecx` ; `mov [eax], ecx` | damage |
+| `0x43BC59` | `cmp ecx,ebx` ; `jge` ; `mov [eax], ebx` | floor clamp, only raises |
+| `0x43BD02` | `inc ecx` ; `mov [eax], ecx` | heal |
+| `0x43BD0F` | `cmp [eax],64h` ; `jle` ; `mov [eax],64h` | ceiling clamp |
+
+`0x43BC59` deserves the explicit note because it reads as an ordinary store:
+it fires only when health is *below* `ebx` and raises it to that floor, so it
+can never lower health. And `0x43BB7E` is a **third** instruction form for
+writing this field -- an in-place `dec` with no separate store and no register
+holding the value. A guard that reads the pre-value out of `ECX` works at
+`0x43BAEB` and `0x43BC43` but has nothing to read at `0x43BB7E`, which must be
+read through the pointer before the `dec`. Two guard shapes, not one.
+
+Immediate store, register store-back, in-place `dec`: three forms for one
+field, which is the same lesson as the scanning note below arriving a third
+time. Image-wide, `0x52C` appears as a displacement in 45 `lea` sites; it is
+the routine boundary that makes these seven meaningful, not the displacement.
+
+Completing these two games means hooking the zero-crossing at the three damage
+sites, with the same count-the-transition-not-the-state reasoning the later
+games needed. Counting
 burials instead is exact and already shipped, but it is a different quantity
 and should not be relabelled.
 
