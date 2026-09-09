@@ -293,7 +293,7 @@ uncapped lifetime storage field and mutation route have yet been proven:
 
 - Village Elders where the inherited statistics block does not already expose
   it.
-- Villagers Died in **A New Home, The Lost Children and The Tree of Life**.
+- Villagers Died in **A New Home and The Lost Children**.
   Only The Secret City and New Believers ship the counter; see "Villagers
   Died" below for why the others do not, and what completing them needs.
 - Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
@@ -318,15 +318,16 @@ two sibling arbiters that write that pair:
 | The Secret City | `0x462670` | `0x4626B0` | `+0xE6C` | `+0xE78` | `+0xE7C` |
 | New Believers | `0x4758B0` | `0x4758F0` | `+0x1C34` | `+0x1C40` | `+0x1C44` |
 
-The Tree of Life has the same shape and is **not yet shipped**; another
-session holds that work. Its arbiters are `0x46AF00` (absolute,
-`mov [ecx+0x0C], eax`) and `0x46AF40` (delta, `add [ecx+0x0C], eax`), verified
-from the stock bytes along with the kill guards `C7410C00000000` at `0x46AF0F`
-and `0x46AF52` -- byte-identical to the two shipped games -- and the alive
-paths `mov [ecx+0x10], -1` at `0x46AF28` and `0x46AF6B`. The cause write
-follows the hook site at both (`0x46AF16`, `0x46AF59`), which is what lets a
-`cause == -1` gate read the prior value; that ordering reads as incidental and
-is the whole reason the gate counts anything.
+The Tree of Life has the same shape and **ships**. Its arbiters are
+`sub_46AF00`, which sets health absolutely, and `sub_46AF40`, which applies
+a delta with `add [ecx+0xC], eax`; both are hooked, because a death by
+cumulative damage reaches zero only through the second. The hooks sit at
+the health-zeroing store in each (`0x46AF0F`, `0x46AF52`), which runs
+before the cause write two instructions later -- so the wrapper still sees
+the PRIOR cause and counts the transition once. Its counter is at +0x48 of
+the live block rather than the +0x40 the other two games use, because
++0x40 is this game's burial marker: the reserve layouts are not parallel
+and the offset cannot be ported.
 
 **Its record offsets are `+0x1C34` / `+0x1C40` / `+0x1C44` -- identical to New
 Believers, and genuinely so.** This looks exactly like a row copied from the
