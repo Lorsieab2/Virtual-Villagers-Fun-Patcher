@@ -222,6 +222,34 @@ def pytest_runtest_makereport(item, call):
             return
     report = outcome.get_result()
     report.outcome = "skipped"
+    # pytest's own short-summary folding requires the (path, lineno, reason)
+    # triple that a real skip carries -- _folded_skips asserts both the type
+    # and the length. Setting a bare string produced a correct `-q` run and
+    # crashed the terminal reporter on `-rs` or `-ra`:
+    #
+    #     assert isinstance(event.longrepr, tuple)
+    #     AssertionError: (<TestReport ... outcome='skipped'>, 'requires ...')
+    #
+    # which is worth fixing rather than avoiding, because `-rs` is how anyone
+    # asks "what is this suite NOT running?" -- the exact question a
+    # skip-rewriting hook makes it important to be able to answer.
+    # report.location carries a ZERO-based line, while the short summary
+    # prints a skip's line one-based without adjusting it. Passing the raw
+    # value through reported every rewritten skip one line too low, and a test
+    # declared on the first line printed as ":0", which is not a line at all.
+    #
+    # Verified side by side in one file rather than reasoned about: a genuine
+    # self.skipTest on line 3 reports ":3", while this rewrite for a test on
+    # line 5 reported ":4" until the adjustment below.
+    location = getattr(report, "location", None)
+    if isinstance(location, tuple) and len(location) == 3:
+        path, lineno = location[0], location[1]
+        if isinstance(lineno, int):
+            lineno += 1
+    else:
+        path, lineno = str(item.path), None
     report.longrepr = (
-        f"requires a local game file that is gitignored and absent: {missing}"
+        str(path),
+        lineno,
+        f"requires a local game file that is gitignored and absent: {missing}",
     )
