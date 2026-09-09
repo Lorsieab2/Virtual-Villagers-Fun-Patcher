@@ -325,7 +325,16 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        Note the litter field is never written for a single birth: 0 means one
        baby, and the delivery routine clears it at 0x43BF85, so a singleton
        after twins correctly reads 0 rather than a stale 2. That is what makes
-       the `< 1 -> 1` fallback safe rather than a guess. */
+       the `< 1 -> 1` fallback safe rather than a guess.
+
+       father_key_capacity is 0 -- "same as the villager's own name" -- and
+       that is a checked answer rather than an omission. VV3/VV4/VV5 write the
+       key with an explicit `push 0x18` into a 0x19 field, so their key is
+       narrower than a name. VV2 has no such count to differ from: the copy at
+       0x44BA49 passes only a destination and a source, and its callee
+       0x4682BD is a vsprintf-family formatter that sets its own limit to
+       0x7FFFFFFF -- unbounded. So VV2's key is bounded by the field, not by a
+       count, and reading it at the same 0x18 the name uses is right. */
     {
         1, 0xE48C, 256, 0,
         0x30, 0x530, 0x548, 0x54C, 0,
