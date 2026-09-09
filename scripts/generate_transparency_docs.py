@@ -16,13 +16,69 @@ def _items(values) -> list[str]:
     return [str(value).strip() for value in values if str(value).strip()]
 
 
-def _append_transaction_lines(raw: dict) -> list[str]:
-    """Describe an appended executable section, if the feature declares one.
+SECTION_HEADER_SIZE = 40
+IMAGE_SCN_MEM_EXECUTE = 0x20000000
+IMAGE_SCN_MEM_WRITE = 0x80000000
 
-    This is the largest change a feature can make to a game -- a whole new
-    section of code plus the PE header fields that map it -- and the guarded
-    edit count above covers neither, because both live in
-    `pe_append_transaction` rather than in `patches`.
+
+def _declared_sections(layout: dict) -> list[tuple[str, bool, bool]]:
+    """Name and permissions of every section a layout installs.
+
+    Section headers are 40 bytes, but a manifest may write SEVERAL of them in
+    ONE patch: VV3's Origins feature installs two in a single 80-byte write.
+    Counting patches rather than parsing them reported that feature as
+    installing no sections at all, and reported the two-section features as
+    installing one.
+
+    Permissions are read rather than assumed, because "executable section" is
+    not always true -- three features add a writable, non-executable data
+    section beside their code, and a player reading that a patch adds
+    executable code should not be told that about a data page.
+    """
+
+    sections: list[tuple[str, bool, bool]] = []
+    for item in layout.get("header_patches") or []:
+        if not isinstance(item, dict):
+            continue
+        try:
+            blob = bytes.fromhex(item.get("after", ""))
+        except ValueError:
+            continue
+        if len(blob) < SECTION_HEADER_SIZE or len(blob) % SECTION_HEADER_SIZE:
+            continue
+        for offset in range(0, len(blob), SECTION_HEADER_SIZE):
+            header = blob[offset : offset + SECTION_HEADER_SIZE]
+            name = header[:8].rstrip(b"\0").decode("latin1", "replace")
+            if not name.startswith("."):
+                continue
+            flags = int.from_bytes(header[36:40], "little")
+            sections.append(
+                (
+                    name,
+                    bool(flags & IMAGE_SCN_MEM_EXECUTE),
+                    bool(flags & IMAGE_SCN_MEM_WRITE),
+                )
+            )
+    return sections
+
+
+def _describe_section(name: str, executable: bool, writable: bool) -> str:
+    if executable:
+        kind = "executable code"
+    elif writable:
+        kind = "writable data"
+    else:
+        kind = "read-only data"
+    return f"`{name}` ({kind})"
+
+
+def _append_transaction_lines(raw: dict) -> list[str]:
+    """Describe the sections a feature appends, if it declares any.
+
+    This is the largest change a feature can make to a game -- whole new
+    sections plus the PE header fields that map them -- and the guarded edit
+    count above covers neither, because both live in `pe_append_transaction`
+    rather than in `patches`.
 
     Reported per distinct geometry rather than per patch mode: every shipping
     feature declares the same layout for all of its modes, so listing three
@@ -38,7 +94,7 @@ def _append_transaction_lines(raw: dict) -> list[str]:
     if not isinstance(layouts, dict):
         return []
 
-    seen: list[tuple[int, int]] = []
+    seen: list[tuple[int, int, tuple]] = []
     for layout in layouts.values():
         if not isinstance(layout, dict):
             continue
@@ -47,18 +103,33 @@ def _append_transaction_lines(raw: dict) -> list[str]:
         except (KeyError, TypeError, ValueError):
             continue
         headers = layout.get("header_patches")
-        shape = (length, len(headers) if isinstance(headers, list) else 0)
+        shape = (
+            length,
+            len(headers) if isinstance(headers, list) else 0,
+            tuple(_declared_sections(layout)),
+        )
         if shape not in seen:
             seen.append(shape)
 
     lines = []
-    for length, headers in seen:
-        lines.append(
-            f"- Appends {length} bytes as a new executable section, and rewrites "
-            f"{headers} PE header field(s) to map it; the appended bytes and "
-            "every header change carry an exact before/after guard in the "
-            "manifest."
-        )
+    for length, header_count, sections in seen:
+        if sections:
+            described = ", ".join(
+                _describe_section(*section) for section in sections
+            )
+            noun = "section" if len(sections) == 1 else "sections"
+            lines.append(
+                f"- Appends {length} bytes as {len(sections)} new PE {noun} -- "
+                f"{described} -- and rewrites {header_count} PE header "
+                "field(s) to map them; the appended bytes and every header "
+                "change carry an exact before/after guard in the manifest."
+            )
+        else:
+            lines.append(
+                f"- Appends {length} bytes and rewrites {header_count} PE "
+                "header field(s); the appended bytes and every header change "
+                "carry an exact before/after guard in the manifest."
+            )
 
     overlays = transaction.get("composition_overlays")
     if isinstance(overlays, dict) and overlays:

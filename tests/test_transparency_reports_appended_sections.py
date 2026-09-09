@@ -33,6 +33,34 @@ import vv_fun_patcher as patcher  # noqa: E402
 TRANSPARENCY = ROOT / "docs" / "transparency-log.md"
 
 
+def _sections_from_layout(layout: dict) -> list[tuple[str, bool, bool]]:
+    """Parse the section headers a layout installs, from the manifest bytes.
+
+    Deliberately a second implementation rather than an import of the
+    generator's: a test that reuses the code under test cannot disagree with
+    it, and the defect this file exists for was a miscount in exactly that
+    parsing -- one 80-byte patch carrying two headers was read as none.
+    """
+    out: list[tuple[str, bool, bool]] = []
+    for item in layout.get("header_patches") or []:
+        if not isinstance(item, dict):
+            continue
+        try:
+            blob = bytes.fromhex(item.get("after", ""))
+        except ValueError:
+            continue
+        if len(blob) < 40 or len(blob) % 40:
+            continue
+        for start in range(0, len(blob), 40):
+            header = blob[start : start + 40]
+            name = header[:8].rstrip(b"\0").decode("latin1", "replace")
+            if not name.startswith("."):
+                continue
+            flags = int.from_bytes(header[36:40], "little")
+            out.append((name, bool(flags & 0x20000000), bool(flags & 0x80000000)))
+    return out
+
+
 def _sections() -> dict[str, str]:
     """The document body for each feature, keyed by feature id."""
     text = TRANSPARENCY.read_text(encoding="utf-8")
@@ -67,12 +95,6 @@ class TransparencyReportsAppendedSectionsTests(unittest.TestCase):
                     f"{feature.id} appends a section but has no transparency "
                     "section at all",
                 )
-                self.assertIn(
-                    "new executable section",
-                    body,
-                    f"{feature.id} appends {layout.get('append_length')} bytes "
-                    "and the document does not say so",
-                )
                 # The reported size must be the size actually declared, not a
                 # placeholder -- a wrong number is worse than an absent one.
                 self.assertIn(
@@ -86,6 +108,43 @@ class TransparencyReportsAppendedSectionsTests(unittest.TestCase):
                     body,
                     f"{feature.id} reports a different header count than it "
                     "declares",
+                )
+
+                # Every section the layout installs must be named, with the
+                # permissions it actually carries.
+                #
+                # Section headers are 40 bytes but a manifest may write several
+                # in one patch -- VV3's Origins feature installs two in a
+                # single 80-byte write -- so this parses them rather than
+                # counting patches. Describing a writable data page as
+                # "executable code" is exactly the kind of wrong-but-plausible
+                # statement a transparency document must not make: three
+                # features add such a page beside their code.
+                declared = _sections_from_layout(layout)
+                self.assertTrue(
+                    declared,
+                    f"{feature.id} declares header patches but none parse as "
+                    "section headers",
+                )
+                for name, executable, writable in declared:
+                    kind = (
+                        "executable code"
+                        if executable
+                        else "writable data"
+                        if writable
+                        else "read-only data"
+                    )
+                    self.assertIn(
+                        f"`{name}` ({kind})",
+                        body,
+                        f"{feature.id} does not describe {name} as {kind}",
+                    )
+                noun = "section" if len(declared) == 1 else "sections"
+                self.assertIn(
+                    f"as {len(declared)} new PE {noun}",
+                    body,
+                    f"{feature.id} reports a different section count than it "
+                    "installs",
                 )
                 checked += 1
 
