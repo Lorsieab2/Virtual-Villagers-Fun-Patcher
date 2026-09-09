@@ -30,6 +30,7 @@ following.
 
 from __future__ import annotations
 
+import ast
 import re
 import unittest
 from pathlib import Path
@@ -48,13 +49,32 @@ TITLES = {
     "vv5": "New Believers",
 }
 
-# A counter is "configured" for a game when the builder carries the key that
-# drives its hook. These are the keys, per counter, as the builder spells them.
-COUNTER_KEYS = {
-    "death": ("death_hooks", "death_stat_va"),
-    "debris": ("debris_hook_va", "debris_stat_va"),
-    "twins": ("twins_hook_va",),
-    "burial": ("burial_hook_va",),
+# The single key that GATES each counter's emission in the builder, and so
+# decides whether the counter ships.
+#
+# Deliberately one key, not any of the counter's keys. Emission is guarded by
+# `config.get("burial_hook_va")`, `config.get("twins_hook_va")`,
+# `config.get("debris_hook_va")` and `config.get("death_hooks", [])`; every
+# `*_stat_va` is read only INSIDE the branch its hook key opens. Accepting an
+# auxiliary key would mean a hook removed while its storage address was left
+# behind still reads as shipped here, while the builder emits nothing -- which
+# is precisely the shipped-but-absent regression this module exists to catch.
+# Every gating key in the builder is listed, including the ones no blocked
+# bullet mentions. An incomplete table here is not a harmless omission: it
+# makes a counter invisible to anything reading this map, and absence then
+# reads as evidence the counter is not built. That happened -- a summary of
+# per-game counters derived from a partial table dropped VV2's triplet hook
+# and never showed VV4's food or VV5's conversion hooks at all, because the
+# map only carried the four counters the blocked list happened to discuss.
+# `test_every_builder_gate_is_listed` keeps this in step with the builder.
+COUNTER_GATE = {
+    "food": "food_hook_va",
+    "conversion": "conversion_hook_va",
+    "burial": "burial_hook_va",
+    "twins": "twins_hook_va",
+    "triplet": "triplet_hook_va",
+    "debris": "debris_hook_va",
+    "death": "death_hooks",
 }
 
 # The blocked-list bullet that governs each counter, by the phrase that opens
@@ -70,33 +90,132 @@ COUNTER_KEYS = {
 # A counter with no games left to block has NO bullet, which is the correct
 # end state rather than a missing one: `Debris Cleared` reached it when the
 # entry was removed on discovering the counter ships.
+# Scopes come from `docs/village-statistics-requirements.md`, which is the
+# document that says what was asked for. Villagers Died is requested for all
+# five games; Debris Cleared is listed under The Tree of Life alone, with New
+# Believers asking for Heathens Converted instead.
 BLOCKED_BULLETS = {
     "death": ("Villagers Died", {"vv1", "vv2", "vv3", "vv4", "vv5"}),
-    "debris": ("Debris Cleared", {"vv4", "vv5"}),
+    "debris": ("Debris Cleared", {"vv4"}),
 }
 
 
 def _game_configs() -> dict[str, str]:
-    """The builder's GAMES dict, split into one text block per game id."""
+    """The builder's GAMES dict, split into one text block per game id.
+
+    The last game's block must stop at the end of GAMES, not at the end of
+    the file. Everything after GAMES is the builder's own code, which
+    mentions every configuration key it can consume, so a slice running to
+    EOF reports the final game as configuring every counter regardless of
+    what its dictionary says. That is not hypothetical: it shipped in the
+    first draft of this module and made VV5 opaque to every check here while
+    the positive control still passed, because the control asked whether a
+    block *contained* a key rather than whether it *ended* in the right
+    place.
+    """
     text = BUILDER.read_text(encoding="utf-8")
+    opening = re.search(r"^GAMES = \{", text, re.MULTILINE)
+    if opening is None:
+        raise AssertionError(
+            "no GAMES dict found in the builder; this module's parse has "
+            "drifted from the file it reads"
+        )
+    # The dict is written one game per top-level key at four spaces, so its
+    # close is the first "}" in the first column after it opens.
+    closing = re.search(r"^\}", text[opening.end() :], re.MULTILINE)
+    if closing is None:
+        raise AssertionError(
+            "GAMES is never closed at column zero; the builder's formatting "
+            "changed and this module's parse needs updating"
+        )
+    body = text[opening.end() : opening.end() + closing.start()]
     starts = [
         (m.start(), m.group(1))
-        for m in re.finditer(r'^    "(vv\d)": \{', text, re.MULTILINE)
+        for m in re.finditer(r'^    "(vv\d)": \{', body, re.MULTILINE)
     ]
     if not starts:
         raise AssertionError(
             "no game blocks found in the builder; this module's parse of "
             "GAMES has drifted from the file it reads"
         )
-    bounds = [pos for pos, _ in starts] + [len(text)]
+    bounds = [pos for pos, _ in starts] + [len(body)]
     return {
-        game_id: text[pos : bounds[index + 1]]
+        game_id: body[pos : bounds[index + 1]]
         for index, (pos, game_id) in enumerate(starts)
     }
 
 
 def _configured(counter: str, block: str) -> bool:
-    return any(key in block for key in COUNTER_KEYS[counter])
+    """Whether the builder would emit `counter` for this game's config.
+
+    The key being PRESENT is not enough. The builder guards each counter with
+    `if <gate>:` or `for ... in config.get("death_hooks", [])`, so a gate left
+    behind with a falsy value -- `[]`, `0`, `None` -- emits nothing while a
+    substring check still calls it configured. That is the shipped-but-absent
+    regression this module exists to catch.
+
+    The value is read by parsing the dict rather than by matching text. A
+    regex that stopped at the next quote was tried first and was wrong: given
+    `"death_hooks": [],  "other": [...]` it captured across the boundary into
+    a non-empty string, so an emptied gate still read as truthy. Nested
+    literals are not a regular language, and the builder's values are lists
+    of dicts.
+    """
+    gate = COUNTER_GATE[counter]
+    return bool(_parsed_config(block).get(gate))
+
+
+def _parsed_config(block: str) -> dict[str, object]:
+    """One game's dict, as a real Python object.
+
+    `ast.literal_eval` rejects the hex arithmetic and name references the
+    builder may use, so unparseable values are kept as a sentinel that is
+    truthy -- an unreadable value means "present and not obviously empty",
+    which is the safe reading for a gate.
+    """
+    opening = block.find("{")
+    body = block[opening + 1 :] if opening != -1 else block
+    depth = 0
+    for index, char in enumerate(body):
+        if char in "([{":
+            depth += 1
+        elif char in ")]}":
+            if depth == 0:
+                body = body[:index]
+                break
+            depth -= 1
+    parsed: dict[str, object] = {}
+    for match in re.finditer(r'"([a-z_0-9]+)"\s*:\s*', body):
+        start = match.end()
+        depth = 0
+        end = start
+        while end < len(body):
+            char = body[end]
+            if char in "([{":
+                depth += 1
+            elif char in ")]}":
+                if depth == 0:
+                    break
+                depth -= 1
+            elif char == "," and depth == 0:
+                break
+            end += 1
+        text = body[start:end].strip()
+        try:
+            parsed[match.group(1)] = ast.literal_eval(text)
+        except (ValueError, SyntaxError):
+            parsed[match.group(1)] = _UNPARSEABLE
+    return parsed
+
+
+class _Unparseable:
+    """A value this module could not evaluate. Truthy on purpose."""
+
+    def __bool__(self) -> bool:
+        return True
+
+
+_UNPARSEABLE = _Unparseable()
 
 
 def _blocked_list() -> str:
@@ -130,6 +249,115 @@ class BlockedCounterListMatchesTheBuildTests(unittest.TestCase):
                     "means the parse split the builder in the wrong places",
                 )
 
+    def test_no_block_runs_past_the_end_of_games(self) -> None:
+        """Each block must END in the right place, not merely contain a key.
+
+        The first draft of this module sliced the last game to the end of the
+        file, so VV5's block swallowed the builder's own code -- which names
+        every configuration key it consumes. Every counter then read as
+        configured for VV5 whatever its dictionary held, and the control
+        above still passed, because containing `burial_hook_va` says nothing
+        about where a block stops.
+
+        Two independent bounds, since a wrong boundary is invisible to a
+        containment check: no block may carry builder code, and no block may
+        be wildly larger than its siblings.
+        """
+        for game_id, block in self.configs.items():
+            with self.subTest(game=game_id):
+                for token in ("def build_game", "def main", "raise RuntimeError"):
+                    self.assertNotIn(
+                        token,
+                        block,
+                        "%s's block contains builder code (%r), so it runs "
+                        "past the end of GAMES and every key lookup in it is "
+                        "meaningless" % (game_id, token),
+                    )
+        largest = max(len(b) for b in self.configs.values())
+        smallest = min(len(b) for b in self.configs.values())
+        self.assertLess(
+            largest,
+            smallest * 20,
+            "one game's block dwarfs the others (%d vs %d chars), which is "
+            "what an unbounded final slice looks like"
+            % (largest, smallest),
+        )
+
+    def test_every_builder_gate_is_listed(self) -> None:
+        """COUNTER_GATE must name every key the builder branches on.
+
+        A missing entry does not fail anything on its own -- it makes that
+        counter invisible here, and absence from a map is easily mistaken for
+        absence from the build. A per-game summary derived from this table
+        was reported twice with VV2's triplet hook dropped and VV4's food and
+        VV5's conversion hooks never shown, because the map carried only the
+        counters the blocked list happened to discuss.
+
+        The builder is the source of truth: every `config.get("..._hook_va")`
+        and `config.get("..._hooks", ...)` it reads is a gate, so the check
+        is derived from the file rather than restated by hand.
+        """
+        text = BUILDER.read_text(encoding="utf-8")
+        gates = set(
+            re.findall(
+                r'config\.get\(\s*"([a-z_]+(?:_hook_va|_hooks))"', text
+            )
+        )
+        self.assertTrue(
+            gates,
+            "no config.get gates found in the builder; this check's pattern "
+            "has drifted from the file it reads",
+        )
+        self.assertEqual(
+            gates,
+            set(COUNTER_GATE.values()),
+            "COUNTER_GATE and the builder's gating keys disagree; a counter "
+            "missing here is invisible to this module, and its absence reads "
+            "as though the counter were not built",
+        )
+
+    def test_only_the_gating_key_counts_as_configured(self) -> None:
+        """A leftover storage address must not read as a shipped counter.
+
+        `death_stat_va` and `debris_stat_va` are consumed only inside the
+        branch their hook key opens, so a hook removed while its address was
+        left behind emits nothing while still looking configured. Accepting
+        any auxiliary key would let exactly the regression this module
+        targets pass, so the gate is asserted to be the hook key alone.
+        """
+        for counter, gate in COUNTER_GATE.items():
+            with self.subTest(counter=counter):
+                self.assertFalse(
+                    _configured(counter, '"%s_stat_va": 0x1234,\n}' % counter),
+                    "a bare %s_stat_va reads as configured; the gate must be "
+                    "%r, which is what the builder branches on"
+                    % (counter, gate),
+                )
+                self.assertTrue(
+                    _configured(counter, '"%s": 0x1234,\n}' % gate),
+                    "the gating key %r is not recognised, so this module "
+                    "cannot see the counter at all" % gate,
+                )
+
+    def test_a_falsy_gate_is_not_configured(self) -> None:
+        """A gate left behind with a falsy value emits nothing.
+
+        The builder writes `if <gate>:` and
+        `for ... in config.get("death_hooks", [])`, so `[]`, `0` and `None`
+        all produce no output while leaving the key in place. Matching on the
+        key alone would call that configured -- and an earlier version of the
+        control above asserted exactly that, using `[]` as its truthy
+        example, locking the wrong semantics into the test meant to pin them.
+        """
+        for counter, gate in COUNTER_GATE.items():
+            for falsy in ("[]", "0", "None"):
+                with self.subTest(counter=counter, value=falsy):
+                    self.assertFalse(
+                        _configured(counter, '"%s": %s,\n}' % (gate, falsy)),
+                        "%r left behind as %s emits nothing, so it must not "
+                        "read as configured" % (gate, falsy),
+                    )
+
     def test_a_blocked_counter_is_not_configured(self) -> None:
         """Listed as blocked, but the build emits it -> built twice.
 
@@ -137,7 +365,7 @@ class BlockedCounterListMatchesTheBuildTests(unittest.TestCase):
         picking work off the blocked list would rebuild something that
         already ships.
         """
-        for counter, (phrase, _scope) in BLOCKED_BULLETS.items():
+        for counter, (phrase, scope) in BLOCKED_BULLETS.items():
             for game_id in self._named_blocked(phrase):
                 with self.subTest(counter=counter, game=game_id):
                     self.assertFalse(
@@ -146,6 +374,15 @@ class BlockedCounterListMatchesTheBuildTests(unittest.TestCase):
                         "configures it. A counter documented as blocked but "
                         "present invites building it a second time."
                         % (phrase, TITLES[game_id]),
+                    )
+                    self.assertIn(
+                        game_id,
+                        scope,
+                        "%r is listed as blocked for %s, which never "
+                        "requested it. Blocking a counter for a game outside "
+                        "its requirement invents work, and checking only that "
+                        "the build does not configure it would let that pass "
+                        "unnoticed." % (phrase, TITLES[game_id]),
                     )
 
     def test_a_configured_counter_is_not_listed_as_blocked(self) -> None:
