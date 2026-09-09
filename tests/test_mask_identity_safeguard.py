@@ -451,7 +451,14 @@ class SnapshotTests(SafeguardTestCase):
         self.assertEqual(snap.live_count, 3)
 
     def test_health_is_ignored_for_liveness_when_unproven(self) -> None:
-        """VV1 has no proven health offset; its villagers must still count."""
+        """A build with no proven health offset must still count its villagers.
+
+        VV1 was the example until its health field was established at +0x344.
+        The scenario is not hypothetical even so: `absent_fields` still
+        carries nursing and preferred_skill, and any future build may be
+        adopted before every field is proven, so liveness must never depend
+        on a field the adapter does not have.
+        """
         v = self._village(3)
         v.set_i32(1, "health", -5)
         v.adapter.health = Field(0, OFF["health"], F_I32, 1)
