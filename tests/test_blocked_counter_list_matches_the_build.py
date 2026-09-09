@@ -49,12 +49,20 @@ TITLES = {
 }
 
 # A counter is "configured" for a game when the builder carries the key that
-# drives its hook. These are the keys, per counter, as the builder spells them.
+# DRIVES ITS HOOK -- one key per counter, not any key mentioning it.
+#
+# The storage address is deliberately excluded. `build_game` emits death only
+# inside `for death in config.get("death_hooks", ...)` and debris only under
+# `debris_hook_va`; the matching `*_stat_va` values are read only inside those
+# branches. So a partial edit that removes the hook list and leaves the address
+# behind emits nothing while still mentioning the counter, and a membership
+# test over both keys would call that shipped. That is the exact scenario this
+# module exists to catch, so it must turn on the driving key alone.
 COUNTER_KEYS = {
-    "death": ("death_hooks", "death_stat_va"),
-    "debris": ("debris_hook_va", "debris_stat_va"),
-    "twins": ("twins_hook_va",),
-    "burial": ("burial_hook_va",),
+    "death": "death_hooks",
+    "debris": "debris_hook_va",
+    "twins": "twins_hook_va",
+    "burial": "burial_hook_va",
 }
 
 # The blocked-list bullet that governs each counter, by the phrase that opens
@@ -72,7 +80,12 @@ COUNTER_KEYS = {
 # entry was removed on discovering the counter ships.
 BLOCKED_BULLETS = {
     "death": ("Villagers Died", {"vv1", "vv2", "vv3", "vv4", "vv5"}),
-    "debris": ("Debris Cleared", {"vv4", "vv5"}),
+    # Debris is requested for The Tree of Life ALONE. New Believers requests
+    # Heathens Converted instead and has no debris hook or exporter row, so
+    # including it here would invent a blocked requirement rather than check
+    # one -- and the research document would have to make a false claim to
+    # satisfy it.
+    "debris": ("Debris Cleared", {"vv4"}),
 }
 
 
@@ -88,7 +101,14 @@ def _game_configs() -> dict[str, str]:
             "no game blocks found in the builder; this module's parse of "
             "GAMES has drifted from the file it reads"
         )
-    bounds = [pos for pos, _ in starts] + [len(text)]
+    # The LAST game must stop at the end of the GAMES dict, not the end of the
+    # file. Using len(text) swept `build_game` into vv5's block -- 23,554
+    # characters instead of 1,250 -- and since that function mentions every
+    # configuration key, vv5 then read as having every counter. The bug is
+    # invisible in the passing direction: it only ever ADDS counters, so it
+    # makes absent bullets look correct rather than making present ones fail.
+    end = text.index("\n}\n", starts[-1][0])
+    bounds = [pos for pos, _ in starts] + [end]
     return {
         game_id: text[pos : bounds[index + 1]]
         for index, (pos, game_id) in enumerate(starts)
@@ -96,7 +116,7 @@ def _game_configs() -> dict[str, str]:
 
 
 def _configured(counter: str, block: str) -> bool:
-    return any(key in block for key in COUNTER_KEYS[counter])
+    return COUNTER_KEYS[counter] in block
 
 
 def _blocked_list() -> str:
