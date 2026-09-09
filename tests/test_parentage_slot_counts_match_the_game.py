@@ -30,8 +30,37 @@ sys.path.insert(0, str(ROOT / "src"))
 EXPORTER = ROOT / "native/parentage_export/parentage_export.c"
 
 # game -> stock executable, and the accessor whose bound is authoritative.
-# Only the games whose accessor has been identified are pinned; the rest are
-# still checked for the weaker property that the count is positive and sane.
+#
+# Only VV4 and VV5 are here, and the omissions are deliberate rather than
+# unfinished work.
+#
+# VV3's accessor cannot be pinned this way because it does not bound anything:
+#
+#     0x45C840  mov  eax, [esp+4]
+#     0x45C844  imul eax, eax, 0x1F8C
+#     0x45C84A  lea  eax, [eax+ecx+0x14]
+#     0x45C84E  ret  4
+#
+# The check lives in its callers -- 0x45EE68 does `cmp eax, 0x96 ; jge <skip>`
+# before `call 0x45C840` -- so there is no bound inside the accessor to read.
+# Note the convention differs: VV3's 0x96 with `jge` is EXCLUSIVE while
+# VV4/VV5's 0x95 with `ja` is INCLUSIVE, and both mean 150. Reading VV3's
+# literal the way this test reads VV4's would give 151 and be wrong.
+#
+# VV1 and VV2 are absent for the same reason in a weaker form: a scan for their
+# strides found bounds that do not belong to the villager pool, so pinning them
+# would assert a number that has not been established.
+#
+# Those three are still covered by the weaker check below that the count is
+# positive and not absurd, and by the separate test that compares the companion
+# against builds.json. The two are complementary: this one proves the accessor
+# agrees with the layout wherever an accessor states a bound, the other proves
+# the layout agrees with the declared pool for every game.
+#
+# The bound is DECODED with capstone from a known address rather than located
+# by byte pattern. That matters: the encoding here is `3D 95 00 00 00`
+# (cmp eax, imm32), not the `83 F8 95` (imm8) short form, so a byte search for
+# the obvious pattern finds nothing in any of the five games.
 ACCESSORS = {
     4: ("Virtual Villagers - The Tree of Life.exe", 0x466040),
     5: ("Virtual Villagers - New Believers.exe", 0x46F950),
