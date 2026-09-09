@@ -42,15 +42,10 @@ ORIGINS_SUFFIXES = (
 )
 MODES = ("stock", "collection_progression", "immediate_fixed")
 
-# The two installed forms every parentage feature must be exercised in. Named
-# here rather than built inline so the expected case count can be computed from
-# a constant the loop does not control.
-#
-# That distinction is the whole point: an expectation the loop computes shrinks
-# whenever the loop runs less, so both sides of the final equality fall together
-# and the guard passes while coverage collapses. Deriving it from
-# len(SELECTION_FORMS) * len(MODES) instead means a form or a mode that stops
-# being run fails loudly.
+# The two installed forms every parentage feature must be exercised in: with
+# its game's Origins features co-selected, and without them. They are separate
+# code paths -- one game's overlay form was broken while its standalone form
+# worked -- so both have to run for every game.
 SELECTION_FORM_LABELS = ("with-origins", "no-origins")
 
 
@@ -59,6 +54,33 @@ def SELECTION_FORMS(every, without_origins):
 
 
 class ParentageRemovalRoundTripTests(unittest.TestCase):
+    def test_the_coverage_constants_are_pinned_outside_themselves(self) -> None:
+        """MODES and SELECTION_FORM_LABELS drive the loops AND the expectation.
+
+        That makes them the one thing the round-trip test cannot check about
+        itself: deleting an entry shrinks the loop and the expected count
+        together, so the equality still holds and coverage silently drops. It
+        was demonstrated -- removing "immediate_fixed" left that test green at
+        22 subtests instead of 32.
+
+        Pinning them here breaks the circularity, and MODES is pinned against
+        the patcher's own declared modes rather than a second copy of the same
+        literal, so a mode genuinely added to the product fails this instead of
+        going quietly unexercised.
+
+        SELECTION_FORM_LABELS has no external authority -- the two forms are a
+        property of this test's design, not of the patcher -- so it is pinned
+        as a literal, which at least makes deleting one a visible edit here.
+        """
+        declared = tuple(mode.id for mode in patcher.load_patch_modes())
+        self.assertEqual(
+            MODES,
+            declared,
+            "MODES must match the patch modes the patcher declares; a mode "
+            "added to the product but not here would never be exercised",
+        )
+        self.assertEqual(SELECTION_FORM_LABELS, ("with-origins", "no-origins"))
+
     def test_every_parentage_feature_removes_to_the_image_without_it(self) -> None:
         catalog = patcher.load_fun_patches()
         builds = {build.id: build for build in patcher.load_builds()}
