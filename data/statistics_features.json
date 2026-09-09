@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "3CC143584C15C278B51451C07B2F4F6F949A2AC581F36E98793A96C32547720E",
+  "companion_sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +12,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "3CC143584C15C278B51451C07B2F4F6F949A2AC581F36E98793A96C32547720E"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -26,8 +26,14 @@
           "offset": "0x56730",
           "before_fill": "00",
           "length": 208,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoGsr6/1CEwHQ+g/8BfDmD/wV/NGiwZ0UA/xXQcEUAhcB1D2iwZ0UA/xUQcEUAhcB0FmjMZ0UAUP8V1HBFAIXAdAZXU2oB/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoGsr6/1CEwHQ+g/8BfDmD/wV/NGiwZ0UA/xXQcEUAhcB1D2iwZ0UA/xUQcEUAhcB0FmjMZ0UAUP8V1HBFAIXAdAZXU2oB/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAi4cQ4AMA/4CEngAAxkQ5KADpcCf//wAAAAAAAA==",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
+        },
+        {
+          "offset": "0x48F65",
+          "before": "C644392800",
+          "after": "E97AD80000",
+          "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
         }
       ]
     },
@@ -41,7 +47,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "3CC143584C15C278B51451C07B2F4F6F949A2AC581F36E98793A96C32547720E"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -55,8 +61,38 @@
           "offset": "0x73E50",
           "before_fill": "00",
           "length": 208,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoivX4/1CEwHQ+g/8BfDmD/wV/NGjQPkcA/xXQQEcAhcB1D2jQPkcA/xUQQEcAhcB0FmjsPkcAUP8V1EBHAIXAdAZXU2oC/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoivX4/1CEwHQ+g/8BfDmD/wV/NGjQPkcA/xXQQEcAhcB1D2jQPkcA/xUQQEcAhcB0FmjsPkcAUP8V1EBHAIXAdAZXU2oC/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAi4bUdOUA/4DU5QIAxkQyMADpJhH//wAAAAAAAA==",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
+        },
+        {
+          "offset": "0x6503B",
+          "before": "C644323000",
+          "after": "E9C4EE0000",
+          "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
+        },
+        {
+          "offset": "0x73DF4",
+          "before": "0000000000000000000000000000000000",
+          "after": "8B87D474E500FF80D8E50200E98D7CFDFF",
+          "purpose": "install the twins counter wrapper in stock zero padding"
+        },
+        {
+          "offset": "0x4BA8C",
+          "before": "8B87D474E500",
+          "after": "E96383020090",
+          "purpose": "count every twin birth the saturation guard allows once in the per-save reserve"
+        },
+        {
+          "offset": "0x73FED",
+          "before": "0000000000000000000000000000000000",
+          "after": "FF8FD8E50200FF8724E50200E9DA7AFDFF",
+          "purpose": "install the triplet correction wrapper in stock zero padding"
+        },
+        {
+          "offset": "0x4BAD2",
+          "before": "FF8724E50200",
+          "after": "E91685020090",
+          "purpose": "remove the twins over-count for a birth promoted to triplets, so twins counts twins only"
         }
       ]
     },
@@ -70,7 +106,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "3CC143584C15C278B51451C07B2F4F6F949A2AC581F36E98793A96C32547720E"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -84,8 +120,26 @@
           "offset": "0x7B464",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnotoD4/1CEwHQ+g/8BfDmD/wV/NGjktEcA/xV0wEcAhcB1D2jktEcA/xUkwUcAhcB0FmgAtUcAUP8VKMFHAIXAdAZXU2oD/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnotoD4/1CEwHQ+g/8BfDmD/wV/NGjktEcA/xV0wEcAhcB1D2jktEcA/xUkwUcAhcB0FmgAtUcAUP8VKMFHAIXAdAZXU2oD/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8F2CRYAMaHEA8AAADplGz+/wAAAAAAAIN5EP91Bv8F4CRYAMdBDAAAAADpqXD+/wAAAAAAAAAAg3kQ/3UG/wXgJFgAx0EMAAAAAOlCcP7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
+        },
+        {
+          "offset": "0x62293",
+          "before": "C687100F000000",
+          "after": "E95C9301009090",
+          "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
+        },
+        {
+          "offset": "0x626C6",
+          "before": "C7410C00000000",
+          "after": "E9418F01009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
+        },
+        {
+          "offset": "0x6267F",
+          "before": "C7410C00000000",
+          "after": "E9A88F01009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
         }
       ]
     },
@@ -99,7 +153,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "3CC143584C15C278B51451C07B2F4F6F949A2AC581F36E98793A96C32547720E"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -113,7 +167,7 @@
           "offset": "0x89173",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoJ6j3/1CEwHQ+g/8BfDmD/wV/NGjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0FmgPkkgAUP8V3KFIAIXAdAZXU2oE/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNextTQABN4sHeQXpNUf5/+k7R/n/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoJ6j3/1CEwHQ+g/8BfDmD/wV/NGjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0FmgPkkgAUP8V3KFIAIXAdAZXU2oE/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNextTQABN4sHeQXpNUf5/+k7R/n/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FHG5NAMaGxBwAAADpaRb+/wAAAAAAAP8FJG5NAINGFP9qAek0A/v/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -121,6 +175,18 @@
           "before": "01378B07790B",
           "after": "E9B7B8060090",
           "purpose": "restore the inherited Food Gathered counter for every final positive food award while preserving stock underflow handling"
+        },
+        {
+          "offset": "0x6A977",
+          "before": "C686C41C000000",
+          "after": "E987E901009090",
+          "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
+        },
+        {
+          "offset": "0x3965A",
+          "before": "834614FF6A01",
+          "after": "E9BCFC040090",
+          "purpose": "count every unit of stream debris cleared in the per-save reserve, without the trophy's earned-once cap"
         }
       ]
     },
@@ -134,7 +200,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "3CC143584C15C278B51451C07B2F4F6F949A2AC581F36E98793A96C32547720E"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -148,7 +214,7 @@
           "offset": "0x94932",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidno+O/2/1CEwHQ+g/8BfDmD/wV/NGiySUkA/xXYUUkAhcB1D2iySUkA/xXgUUkAhcB0FmjOSUkAUP8V3FFJAIXAdAZXU2oF/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNWTTUQABN4sHeQXplqH4/+mcofj/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIO5/BwAABF1CYMFjNNRAALrBv8FjNNRAIPsEFaJzukxHv3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidno+O/2/1CEwHQ+g/8BfDmD/wV/NGiySUkA/xXYUUkAhcB1D2iySUkA/xXgUUkAhcB0FmjOSUkAUP8V3FFJAIXAdAZXU2oF/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNWTTUQABN4sHeQXplqH4/+mcofj/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIO5/BwAABF1CYMFjNNRAALrBv8FjNNRAIPsEFaJzukxHv3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FkNNRAMaG1BwAAADpwvT9/wAAAAAAAIN5EP91Bv8FmNNRAMdBDAAAAADpFw7+/wAAAAAAAAAAg3kQ/3UG/wWY01EAx0EMAAAAAOm0Df7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -162,6 +228,24 @@
           "before": "83EC10568BF1",
           "after": "E9ADE1020090",
           "purpose": "count every completed Heathen conversion once in the per-save reserve, counting the tag-17 Heathen Mommy as two"
+        },
+        {
+          "offset": "0x73F8F",
+          "before": "C686D41C000000",
+          "after": "E92E0B02009090",
+          "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
+        },
+        {
+          "offset": "0x75902",
+          "before": "C7410C00000000",
+          "after": "E9D3F101009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
+        },
+        {
+          "offset": "0x758BF",
+          "before": "C7410C00000000",
+          "after": "E936F201009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
         }
       ]
     }

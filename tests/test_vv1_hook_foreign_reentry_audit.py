@@ -171,6 +171,41 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
     ("vv1_builder_action_fixes", "0x48336"): "8901998FCDDD8EB745F1666B550B4C384919536E546CA4B1EAAF3BDB90176485",
+    # The statistics tracker's lifetime burial counter, spliced over the
+    # skeleton-pickup latch clear at 0x448F65 in sub_448600's case 20. That
+    # instruction IS the pickup: it clears the corpse's exists-flag before the
+    # memorial array is consulted, which is why the counter keeps rising once
+    # every grave slot is occupied. The decay path at 0x42E9C3 clears the same
+    # flag without writing a grave and is deliberately NOT hooked.
+    #
+    # No REVIEWED entry accompanies this because there is no foreign re-entry
+    # to review: the cave rejoins at 0x448F6A, the splice address plus the five
+    # patched bytes, which is the natural stock resume the audit excludes by
+    # construction. The register contract is recorded here instead, because the
+    # fingerprint is what catches the cave's body changing underneath it.
+    #
+    #   * The body is four instructions: load the manager from [edi+0x3E010],
+    #     increment the counter at [eax+0x9E84], replay the stolen
+    #     `mov byte [ecx+edi+0x28], 0` byte-identically, and jump back. No push,
+    #     no pop, no call, so ESP at re-entry equals ESP at the splice -- the
+    #     stack is untouched rather than merely balanced.
+    #   * EAX is the only register written, and it is dead at 0x448F6A. The
+    #     first eight instructions from the resume point touch EBX, ESP, EDX,
+    #     EBP and ECX; the next use of EAX is the WRITE at 0x448F84
+    #     (`lea eax, [edx+ebp+0xA340]`). Nothing reads the incoming value.
+    #   * Flags are clobbered by the increment and are also dead: the resume
+    #     instruction `xor ebx, ebx` sets them itself, and the first conditional
+    #     is 0x448F8B `jnz`, which follows `test ecx, ecx` at 0x448F82.
+    #   * ECX and EDI arrive exactly as stock left them. The replayed
+    #     instruction reads both and the cave modifies neither; EDI is read
+    #     again at 0x448F70 from that same value.
+    #   * The manager pointer comes from [edi+0x3E010], the same indirection
+    #     stock itself uses four instructions later to reach the grave array,
+    #     rather than a live register the cave assumes.
+    (
+        "vv1_write_village_statistics",
+        "0x48F65",
+    ): "02508335BD2CD30D6BB49EB3DDFB8C9BBF7F236EC07AC525DA03D2EC1E0EA9B5",
     # Re-reviewed when the companion gained a game id, so one DLL can serve
     # all five games the way the statistics companion already does. Each
     # trampoline grew a single `push <game id>` before the call and the

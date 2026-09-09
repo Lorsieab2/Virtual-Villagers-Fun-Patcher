@@ -54,16 +54,23 @@ EXPANDED_COMPOSITION_RESULTS = {
         "71630D00",
     ),
 }
+# Composing every VV3 feature. These move whenever any VV3 feature's bytes
+# change. They last moved for two reasons at once: the statistics feature's
+# skeleton-pickup burial counter (a seven-byte detour at 0x62293 and a wrapper
+# at cave+0x190), and VV3 parentage joining the catalog. The uninstall
+# roundtrip asserted alongside them is the property that actually matters, and
+# it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-        "D95C64CEB864B9FE968D12DF25A7497A311B42AE3ACB915B8981CDEFB9BC6857",
-        "87E10C00",
+        "5FC03BC373E5567CFC65BF1BE337521B7DF3D251D8A8EB8F7058293BAABA1FF0",
+        "BB820D00",
     ),
     "immediate_fixed": (
-        "670558651E3F58C4A912C38377181EEFECBD091E087E89038870CD834848E422",
-        "85230D00",
+        "755E3066D45DA9FA86AC669404277E136176D1EC0374D37E6BDAD0F7185B2C68",
+        "B9C40D00",
     ),
 }
+
 
 
 def digest(data: bytes | bytearray) -> str:

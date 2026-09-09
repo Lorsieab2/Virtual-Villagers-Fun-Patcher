@@ -53,13 +53,42 @@ class C324LegacyContainmentTests(unittest.TestCase):
         # is not redirected by this containment metadata.
         self.assertEqual(candidate["games"]["vv1"]["cure_guard"]["after"], "83FB05")
 
-    def test_burial_detours_are_absent_and_stock_guards_remain(self) -> None:
+    def test_burial_is_counted_at_pickup_and_never_at_retirement(self) -> None:
+        """The counter may hook the pickup, and only the pickup.
+
+        The requirements define Villagers Buried as incrementing exactly once
+        at the earliest successful skeleton pickup, and rule out grave
+        placement, record retirement, and any site gated on memorial capacity.
+        The three offsets below are the record-retirement sites -- VV3
+        sub_45F3E0, VV4 sub_46EF10 and VV5 sub_46FE90 -- which remain
+        forbidden and must still hold their stock bytes.
+
+        This previously asserted that no burial detour existed at all. That
+        was correct while no pickup site had been established; now that one
+        has, a blanket ban would forbid the feature the requirements ask for,
+        so the ban is narrowed to the sites that are actually wrong.
+        """
         manifest = json.loads((ROOT / "data/statistics_features.json").read_text(encoding="utf-8"))
         forbidden_offsets = {"0x5F45B", "0x664DC", "0x6FF12"}
+        # The pickup latch clear in each game -- the only permitted sites.
+        permitted_pickup = {
+            "0x48F65",   # VV1 sub_448600 case 20
+            "0x6503B",   # VV2 sub_464CD0 case 23
+            "0x62293",   # VV3 sub_461FB0 case 25
+            "0x6A977",   # VV4 sub_46A4D0 case 27
+            "0x73F8F",   # VV5 sub_473B30
+        }
         for feature in manifest["features"]:
             for patch in feature["patches"]:
-                self.assertNotIn(patch.get("offset"), forbidden_offsets)
-                self.assertNotIn("buried", patch.get("purpose", "").casefold())
+                offset = patch.get("offset")
+                self.assertNotIn(offset, forbidden_offsets)
+                purpose = patch.get("purpose", "").casefold()
+                if "pickup" in purpose or "buried" in purpose:
+                    self.assertIn(
+                        offset,
+                        permitted_pickup,
+                        "a burial patch may only hook the pickup latch clear",
+                    )
         expected = {
             "Virtual Villagers - The Secret City.exe": (0x5F45B, "881EE9B8010000"),
             "Virtual Villagers - The Tree of Life.exe": (0x664DC, "885EFD385EFD"),
@@ -77,7 +106,18 @@ class C324LegacyContainmentTests(unittest.TestCase):
         self.assertIn("VV2 `state+0x2E514` is **Village Elders**", docs)
         self.assertIn("Memorial migration", docs)
         self.assertIn("ON HOLD", docs)
-        self.assertNotIn("burial_hook_va", (ROOT / "scripts/build_statistics_features.py").read_text(encoding="utf-8"))
+        # The builder now carries a burial hook. It is pinned to the pickup
+        # latch clear by the test above rather than forbidden outright.
+        builder = (ROOT / "scripts/build_statistics_features.py").read_text(encoding="utf-8")
+        for game, hook in (
+            ("vv1", "0x448F65"),
+            ("vv2", "0x46503B"),
+            ("vv3", "0x462293"),
+            ("vv4", "0x46A977"),
+            ("vv5", "0x473F8F"),
+        ):
+            with self.subTest(game=game):
+                self.assertIn(hook.upper().replace("0X", "0x"), builder)
 
 
 if __name__ == "__main__":

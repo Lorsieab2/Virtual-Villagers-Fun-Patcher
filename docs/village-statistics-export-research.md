@@ -47,7 +47,7 @@ fields are:
 | People Cured | `+0x9E2C` |
 | Mushrooms Found | `+0x9E30` |
 | Maximum Population | `+0x9E34` |
-| Villagers Buried | `+0x9E38` |
+| ~~Villagers Buried~~ | ~~`+0x9E38`~~ **NOT a lifetime total and no longer exported.** It is a live recount that saturates at the 50-slot memorial; see the correction below. The exported row reads the patch-added counter at `+0x9E84` instead. |
 | Oldest Villager | `+0x9E3C` |
 | Island Events Seen | `+0x9E40` |
 | Twins Birthed | `+0x9E44` |
@@ -109,7 +109,7 @@ The common layout is:
 | `+0x1C` | Village Elders |
 | `+0x20` | Oldest Villager |
 | `+0x24` | Island Events Seen |
-| `+0x28` | **Twins Birthed** (the exporter still labels this "Special Stews Found" -- see the correction below) |
+| `+0x28` | **Twins Birthed** (the exporter printed "Special Stews Found" here until the correction below) |
 | `+0x2C` | Triplets Birthed |
 
 `+0x1C` was previously documented here as Villagers Buried, inherited from VV1's
@@ -189,10 +189,15 @@ not evidence of its trigger*. A displayed string is a name too. The earlier
 revision applied the rule to the enum name and exempted the display string; the
 rule applies to both, and only the write site is evidence.
 
-**Consequence for the shipped exporter:** VV3/VV4/VV5 currently print a
-twins-birth count under a "Special Stews Found" label. Relabelling changes
-user-visible output, so it is held for the owner's decision rather than
-corrected here.
+**Consequence for the shipped exporter, now corrected:** VV3/VV4/VV5 printed
+the twins-birth count under a "Special Stews Found" label. Both later-game
+writers now print **Twins Birthed**, which is what the requirements ask for in
+all five games; The Lost Children keeps its own Special Stews Found row, whose
+value comes from a different field entirely (`manager+0x2E520`, the
+unique-recipe gate). The companion DLL was rebuilt and
+`data/statistics_features.json` regenerated so the shipped binary carries the
+corrected string, and `tests/test_statistics_offsets_match_the_research.py`
+pins both writers against a regression to the stale enum-name mapping.
 
 **Consequence for planned work:** VV3/VV4/VV5 twins totals already exist *and
 already persist*, so no new counter, field, or hook is needed for them. Only
@@ -288,16 +293,160 @@ uncapped lifetime storage field and mutation route have yet been proven:
 
 - Village Elders where the inherited statistics block does not already expose
   it.
-- Villagers Died at the moment of death. The currently restored later-game
-  counter is precisely **Villagers Buried** and increments only when a corpse
-  record is retired after its delay; it must not be relabeled as immediate
-  deaths.
-- Total Stews Made in VV2 through VV4.
+- Villagers Died at the moment of death. See the correction below: the
+  later-game counter is not a usable lifetime total in either direction.
+- Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
+  is understood (see below, including the first-cook case where it undercounts
+  by one until the recipe is cooked again), but the requirements list *Total*
+  Stews Found "with no herb-combination restriction" as a **separate** VV2
+  statistic, and no writer that increments for every stew has been found. The
+  two must not be conflated.
 - Tribal Chiefs Robed in VV3.
 - Debris Cleared in VV4.
 
 Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
+
+### What The Secret City actually has instead of stews
+
+Worth recording so the search is not repeated. VV3 has no stews: it has an
+**Alchemy Lab**, seven herbs (`eObject_Herb1` .. `Herb7` at `0x482294` and
+below), and the tip string `"Different combinations of herbs make different
+potions."` at `0x490D84`.
+
+The one string implying a unique-combination total is
+`"You have concocted 50 unique alchemy recipes"` at `0x49C528`, whose enum
+name `eAlchemyRUsDesc` is id `0x4A9` in the `.data` string table at
+`0x4ABDB0`; the achievement itself is `eAlchemyRUs`, id `0x4A8`, at
+`0x4ABDA0`. Both ids appear at exactly one site each, `0x463EBB` and
+`0x463F0B` in `sub_4639C0`, and that function is the achievements *display*
+builder: it writes ten consecutive title/description id pairs into a stack
+frame. Nothing there evaluates a condition.
+
+Searching for the threshold directly also comes up empty. Thirteen
+`cmp <memory>, 0x32` sites exist image-wide and none is an alchemy counter
+-- they are unrelated fields at `+0xEAC`, `+0xEB4`, `+0xEB8`, `+0xEBC` and
+the global `dword_4B86D8`.
+
+So the achievement text exists while the quantity behind it does not appear
+to, which matches the earlier controlled result that neither VV3 nor VV4
+carries a discovered-recipe set, a recipe-identity resolver, or a discovery
+gate, and that `eTipNewRecipe`'s string id is never referenced by any
+instruction in either game. Delivering "Stews Found, including every herb
+combination" for these two therefore means inventing the recipe identity and
+its storage rather than reading one, which is a different task from every
+other counter in this document.
+
+### Corrections to the list above
+
+**VV1's `+0x9E38` is a live recount, not a lifetime total, and is no longer
+exported.** It was listed above under confirmed local statistics as *Villagers
+Buried* and the exporter emitted it under that label. It has only two writers
+image-wide and both are stores rather than increments:
+
+    0x41C3DF  mov [ebp+9E38h], ebx   zero-init
+    0x42F191  mov [edx+9E38h], eax   stores sub_41CF10's return value
+
+`sub_41CF10` is an unrolled 5x10 walk that **recounts currently-occupied grave
+slots** (base `manager+0xA340`, stride `0x2C`) and returns the total. So the
+value saturates at the 50-slot capacity and would fall if a slot were ever
+released. It reports present occupancy, not lifetime burials.
+
+**Resolved.** The row now reads the patch-added lifetime counter at
+`manager+0x9E84`, which the cave wrapper on the skeleton-pickup latch clear at
+`0x448F65` advances, and which is seeded once per save from the memorial so an
+existing village does not start from zero. The row keeps its name because the
+name was never the problem -- the field behind it was. Every game is now the
+same shape: seed once from occupied graves, then count pickups past the
+memorial's capacity.
+
+**The later-game "buried" counters decrement.** They were described here as
+incrementing when a corpse record is retired, which reads as a usable lifetime
+total that merely lags. It is not one. Enumerating every instruction touching
+each displacement:
+
+    VV4  +0xBB80   0x45D3F3 cmp ...,1   0x45D450 add ...,-1   0x45D627 add ...,1
+    VV3  +0x6810   0x454A35 mov ...,0   0x454E33 cmp ...,1    0x454E85 dec
+                   0x4551C7 / 0x4551D1  load / store
+
+Both increment *and* decrement, both are guarded by a `cmp` against 1, and VV3
+additionally has an explicit zeroing reset. They are live occupancy counts --
+the same disqualification as VV1's `+0x9E38` recount, reached by a different
+route. VV5's `+0xBB80` is the population of a **55-slot visible-marker array**
+(`0xB3B0`, bound `mov ebp, 37h` at `0x464C05`), which is a different structure
+from the 500-slot grave array. So no game has an existing lifetime burial
+total, and any such counter must be newly built.
+
+**VV2's SPECIAL Stews Found is solved -- but that is not the Total.** The
+requirements list two separate VV2 statistics: *Special Stews Found*, and
+*Total Stews Found* "with no herb-combination restriction". What follows
+establishes the **first** only. No writer incrementing on every stew has been
+found, so *Total* Stews Found stays blocked.
+
+The earlier verdict was recorded against *Total Stews Made* as a **counter**,
+and no uncapped counter exists. Re-running the search for a **set** rather than
+a counter found the unique-recipe storage:
+`manager+0x2EAAC`, 19 bytes, indexed directly by recipe id (ids 1..18, index 0
+unused), cleared to exactly 19 bytes by the initializer at `0x425114`. The
+"...found an interesting new recipe!" string (id `0x1C7`) sits between the
+test and the mark, which is what establishes the array's meaning rather than
+its shape.
+
+The counter at `+0x2E520` and that set cannot diverge: on both paths the mark
+and the increment are gated together.
+
+    normal path  0x4260B5 test set[id] / 0x4260BE jne exit
+                 0x4260D4 mark set[id] / 0x4260DC inc [+0x2E520]
+    first cook   0x4260A5 mark set[id] / 0x4260AD jmp -> 0x4260DC inc
+
+So `popcount(+0x2EAAC) == [+0x2E520]` at all times: the counter and the set
+never disagree with each other. The row reports unique recipes rather than
+stews cooked, so it does not answer "every stew cooked", which is the separate
+Total.
+
+It is **not** exact in one case. On the first-cook path only, ids 2, 4 and
+`0x12` branch to `0x4260E2` -- the **function tail**, the same target the
+"already known" branch uses -- so they skip the mark and the increment
+together, leaving the recipe absent from both. Two consequences follow, and
+the second is easy to miss:
+
+- The one-time flag at `0x426056` is set *after* the three comparisons, so a
+  skipped cook never sets it and the **next** stew takes the first-cook path
+  as well.
+- The undercount therefore **accumulates**. Every excluded recipe cooked
+  before any non-excluded one is skipped in turn, so all three of ids 2, 4
+  and `0x12` can be missed in sequence and the row can be short by up to
+  three. It is not a single-recipe edge case.
+- Recovery is **not automatic**. A skipped recipe is only recorded if it is
+  cooked again *after* some non-excluded stew has set the flag, which is what
+  finally routes cooking through the normal path at `0x4260AF`. Until then
+  `0x4260B5` is never reached for it at all.
+
+So Special Stews Found is exact for any save whose first stew is not one of
+those three recipes, and otherwise undercounts by up to three until each
+missed recipe is recooked past the flag being set. Worth stating at that size
+rather than as a one-off, and it matters before printing a denominator such
+as "of 18".
+
+An earlier revision of this section called the undercount "by one" and
+"self-correcting on any later cook". Both were wrong, and wrong in the same
+direction: they assumed the flag was set on the skipped path, so that only a
+single cook could ever be lost and any recook would recover it. The flag is
+set past the comparisons, not before them.
+
+**A verdict must name the shape it searched for.** "No counter found" and "no
+set found" are different claims, and recording the first as though it were the
+second is what kept VV2 blocked. Two further traps cost real time here and are
+worth stating:
+
+- *A conditional jump's meaning is its destination, not its position.* Reading
+  `cmp` / `jz` before an increment as "skips the increment" was wrong; the
+  target was the function exit, so it skipped the mark as well. Resolve the
+  target before inferring intent.
+- *Matching geometry is not evidence.* A VV4 array with the right record count
+  and stride turned out to be the active potion-effect buffer, identified by
+  two sites that clear its byte on expiry. Structure can mislead exactly as a
+  label can; what the code does with the field is the evidence.
 
 ## The memorial arrays, and what a count of them can honestly claim
 
