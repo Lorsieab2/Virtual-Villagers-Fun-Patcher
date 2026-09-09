@@ -294,8 +294,9 @@ uncapped lifetime storage field and mutation route have yet been proven:
 - Village Elders where the inherited statistics block does not already expose
   it.
 - Villagers Died in **A New Home and The Lost Children**.
-  Only The Secret City and New Believers ship the counter; see "Villagers
-  Died" below for why the others do not, and what completing them needs.
+  The Secret City, The Tree of Life and New Believers ship the counter; see
+  "Villagers Died" below for why the other two do not, and what completing
+  them needs.
 - Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
   is understood (see below, including the first-cook case where it undercounts
   by one until the recipe is cooked again), but the requirements list *Total*
@@ -309,19 +310,21 @@ these uncapped lifetime totals.
 
 ### Villagers Died
 
-**Shipped for The Secret City and New Believers.** Both keep health and the
-cause of death in a small sub-object, and every death routes through one of
-two sibling arbiters that write that pair:
+**Shipped for The Secret City, The Tree of Life and New Believers.** All three
+keep health and the cause of death in a small sub-object, and every death
+routes through one of two sibling arbiters that write that pair:
 
 | Game | Absolute setter | Delta applier | Sub-object | Health | Cause |
 |---|---|---|---|---|---|
 | The Secret City | `0x462670` | `0x4626B0` | `+0xE6C` | `+0xE78` | `+0xE7C` |
+| The Tree of Life | `0x46AF00` | `0x46AF40` | `+0x1C34` | `+0x1C40` | `+0x1C44` |
 | New Believers | `0x4758B0` | `0x4758F0` | `+0x1C34` | `+0x1C40` | `+0x1C44` |
 
-The Tree of Life has the same shape and **ships**. Its arbiters are
-`sub_46AF00`, which sets health absolutely, and `sub_46AF40`, which applies
-a delta with `add [ecx+0xC], eax`; both are hooked, because a death by
-cumulative damage reaches zero only through the second. The hooks sit at
+The Tree of Life shares New Believers' field offsets exactly, which looks like
+a transcription error and is not: the two are the same engine lineage, and the
+usage counts differ (23 references to `+0x1C40` against 40) in independent
+binaries. Both are hooked, because a death by cumulative damage reaches zero
+only through the delta applier. The hooks sit at
 the health-zeroing store in each (`0x46AF0F`, `0x46AF52`), which runs
 before the cause write two instructions later -- so the wrapper still sees
 the PRIOR cause and counts the transition once. Its counter is at +0x48 of

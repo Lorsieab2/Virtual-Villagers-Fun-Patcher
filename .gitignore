@@ -28,3 +28,11 @@ scratchpad/
 # docs/review-findings-audit.md); regenerated on demand, never a build input.
 backlog.json
 review_bodies.json
+
+# Generated pytest reports. These are local verification artefacts: they carry
+# run-specific paths and the machine name, and scripts/build_release.py packages
+# the whole tracked tree with `git archive HEAD`, so a committed one ships to
+# users.
+*.junit.xml
+junit*.xml
+j*.xml
