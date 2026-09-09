@@ -334,7 +334,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
     {
         1, 0x1F8C, 256, 0,
         0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
-        0xDD4, 0x18,
+        0xDD4, 0x19,
         FATHER_BY_NAME, 0xE48, 0xE90,
         0, 0,
         0,
@@ -377,7 +377,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
     {
         1, 0x2E3C, 150, 0x44,
         0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
-        0x1B9C, 0x18,
+        0x1B9C, 0x19,
         FATHER_BY_NAME, 0x1C10, 0x1C50,
         0, 0,
         0,
@@ -401,7 +401,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
     {
         1, 0x2F44, 150, 0x48,
         0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
-        0x1B9C, 0x18,
+        0x1B9C, 0x19,
         FATHER_BY_NAME, 0x1C10, 0x1C50,
         0, 0,
         0,
