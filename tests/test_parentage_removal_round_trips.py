@@ -131,5 +131,46 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
         )
 
 
+    def test_an_alternate_patch_set_is_distinguishable_from_the_default(self) -> None:
+        """Removal identifies the installed form by reading the image back.
+
+        It concludes "the alternate is installed" when every one of that
+        alternate's patches is present at its own offset. That test is only
+        sound while each alternate writes to at least one offset the ordinary
+        set never touches -- otherwise an ordinary install whose bytes happen
+        to coincide would be misread as an overlay install, and removal would
+        reverse the wrong set.
+
+        Today both declaring features satisfy this by a wide margin, because
+        the alternate relocates the payload to a different page. Nothing
+        enforced it, though, so a future feature whose alternate differed only
+        in a hook's rel32 -- at the same offsets -- would silently break the
+        detection with no test to notice.
+        """
+        checked = 0
+        for feature in patcher.load_fun_patches():
+            compositions = feature.raw.get("composition_patches")
+            if not isinstance(compositions, dict):
+                continue
+            ordinary = {int(patch["offset"], 0) for patch in feature.patches}
+            for base_id, alternate in compositions.items():
+                with self.subTest(feature=feature.id, base=base_id):
+                    self.assertIsInstance(alternate, list)
+                    self.assertTrue(alternate)
+                    alternate_offsets = {
+                        int(patch["offset"], 0) for patch in alternate
+                    }
+                    self.assertTrue(
+                        alternate_offsets - ordinary,
+                        f"{feature.id}'s alternate set for {base_id} writes "
+                        "only to offsets the ordinary set also writes, so "
+                        "removal cannot tell which form is installed",
+                    )
+                    checked += 1
+        self.assertGreater(
+            checked, 0, "no composition_patches declaration was found to check"
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
