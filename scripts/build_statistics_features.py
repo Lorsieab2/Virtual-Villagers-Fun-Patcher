@@ -166,6 +166,38 @@ GAMES = {
         "debris_stat_va": 0x4D6E24,
         # 0x190 holds the burial wrapper (18 bytes, ends 0x1A2).
         "debris_slot": 0x1A8,
+        # Every death in this game routes through one of two sibling health
+        # arbiters, exactly as in The Secret City and New Believers. What
+        # proves they are the sole arbiter rather than one path among several
+        # is that the ALIVE path explicitly writes -1 to the cause field
+        # (0x46AF28, 0x46AF6B): a living villager always carries -1 and a dead
+        # one a real cause id.
+        #
+        # That is also what makes the count idempotent. The branch above each
+        # hook tests the RESULTING health, not the prior, so calling either
+        # routine again on an already-dead villager re-enters the death path;
+        # testing the cause for -1 counts the transition exactly once.
+        #
+        # The ordering is load-bearing and reads as incidental: each hook site
+        # is the health-zeroing store, which runs BEFORE the cause write two
+        # instructions later (0x46AF0F -> 0x46AF16, 0x46AF52 -> 0x46AF59). At
+        # hook time the cause field therefore still holds the PRIOR value. A
+        # hook placed after the cause write would see the new cause every time
+        # and count nothing at all.
+        #
+        # +0x48, not the +0x40 the other two games use: +0x40 is this game's
+        # burial marker. The reserve layouts are not parallel across games.
+        # Stock code touches this block only up to +0x2C, so +0x48 is free of
+        # both stock use and every other patch.
+        "death_stat_va": 0x4D6E28,
+        "death_cause_offset": 0x10,
+        "death_hooks": [
+            # 0x46AF00 sets health absolutely; 0x46AF40 applies a delta with
+            # `add [ecx+0xC], eax`, so a death by cumulative damage passes
+            # only through the second. Hooking one alone would miss it.
+            {"hook_va": 0x46AF0F, "guard": "C7410C00000000", "slot": 0x1C8},
+            {"hook_va": 0x46AF52, "guard": "C7410C00000000", "slot": 0x1E0},
+        ],
     },
     "vv5": {
         "title": "Virtual Villagers - New Believers",

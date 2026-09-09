@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA",
+  "companion_sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +12,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
+          "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
         }
       ],
       "patches": [
@@ -47,7 +47,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
+          "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
         }
       ],
       "patches": [
@@ -106,7 +106,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
+          "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
         }
       ],
       "patches": [
@@ -153,7 +153,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
+          "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
         }
       ],
       "patches": [
@@ -167,7 +167,7 @@
           "offset": "0x89173",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoJ6j3/1CEwHQ+g/8BfDmD/wV/NGjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0FmgPkkgAUP8V3KFIAIXAdAZXU2oE/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNextTQABN4sHeQXpNUf5/+k7R/n/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FHG5NAMaGxBwAAADpaRb+/wAAAAAAAP8FJG5NAINGFP9qAek0A/v/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoJ6j3/1CEwHQ+g/8BfDmD/wV/NGjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0FmgPkkgAUP8V3KFIAIXAdAZXU2oE/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNextTQABN4sHeQXpNUf5/+k7R/n/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FHG5NAMaGxBwAAADpaRb+/wAAAAAAAP8FJG5NAINGFP9qAek0A/v/AAAAAAAAAAAAAAAAAAAAg3kQ/3UG/wUobk0Ax0EMAAAAAOnDG/7/g3kQ/3UG/wUobk0Ax0EMAAAAAOnuG/7/AAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -187,6 +187,18 @@
           "before": "834614FF6A01",
           "after": "E9BCFC040090",
           "purpose": "count every unit of stream debris cleared in the per-save reserve, without the trophy's earned-once cap"
+        },
+        {
+          "offset": "0x6AF0F",
+          "before": "C7410C00000000",
+          "after": "E927E401009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
+        },
+        {
+          "offset": "0x6AF52",
+          "before": "C7410C00000000",
+          "after": "E9FCE301009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
         }
       ]
     },
@@ -200,7 +212,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
+          "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
         }
       ],
       "patches": [

@@ -497,11 +497,20 @@ static int write_later_game(
        and its one-time seeded marker. */
     unsigned int buried_offset,
     unsigned int marker_offset,
-    /* Statistics-block offset of a game-specific extra counter and the label
-       to print it under, or zero for a game that has none. The Tree of Life
-       uses it for Debris Cleared; The Secret City has no equivalent. */
+    /* Statistics-block offsets of up to two game-specific extra counters and
+       the labels to print them under. Zero omits a row.
+
+       Two, not one, because The Tree of Life needs both: Villagers Died and
+       Debris Cleared. With a single slot the two games sharing this writer
+       could each have one row and no more -- The Secret City spent it on
+       Villagers Died, The Tree of Life on Debris Cleared -- so adding the
+       death counter to The Tree of Life would have silently displaced its
+       debris row rather than joining it. New Believers avoids the limit only
+       by having a bespoke writer with its rows spelled out. */
     unsigned int extra_offset,
     const char *extra_label,
+    unsigned int second_extra_offset,
+    const char *second_extra_label,
     /* RVA of the game's LIVE statistics block. The later games keep the block
        at a fixed global and copy it wholesale into the save on write and back
        on load, and the pickup wrapper increments the live copy. Seeding the
@@ -567,6 +576,12 @@ static int write_later_game(
         && fprintf(file, "%s: %d\n", extra_label,
                    read_int(live != NULL ? live : statistics,
                             extra_offset)) < 0) {
+        return 0;
+    }
+    if (second_extra_offset != 0u
+        && fprintf(file, "%s: %d\n", second_extra_label,
+                   read_int(live != NULL ? live : statistics,
+                            second_extra_offset)) < 0) {
         return 0;
     }
     return write_memorial_row(
@@ -715,6 +730,8 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                that assign the cause of death. The Secret City has no debris
                row; its stream puzzle differs. */
             0x40u, "Villagers Died",
+            /* The Secret City has no debris row; its stream puzzle differs. */
+            0u, NULL,
             /* Live statistics block, which the pickup wrapper increments. */
             0x1824A0u
         );
@@ -739,8 +756,16 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                stream-clearing action at 0x43965A -- the same event the Civil
                Engineer trophy credits a unit to, without that trophy's
                stop-once-earned cap. */
+            /* Villagers Died at +0x48, counted at the two health arbiters
+               that assign the cause of death -- sub_46AF00 sets health
+               absolutely and sub_46AF40 applies a delta, and both must be
+               hooked because cumulative damage reaches zero only through the
+               second. +0x48 rather than the +0x40 the other games use: +0x40
+               is this game's burial MARKER, so the reserve layouts are not
+               parallel across games and the offset cannot be ported. */
+            0x48u, "Villagers Died",
             0x44u, "Debris Cleared",
-            /* Live statistics block, which both wrappers increment. */
+            /* Live statistics block, which all three wrappers increment. */
             0xD6DE0u
         );
     } else {
