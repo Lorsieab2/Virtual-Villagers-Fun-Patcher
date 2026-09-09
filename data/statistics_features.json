@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "0C7C4BA1DB702758A010147ED9E6D5423D8D9CF027C3B909B08A73AF0757219B",
+  "companion_sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +12,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "0C7C4BA1DB702758A010147ED9E6D5423D8D9CF027C3B909B08A73AF0757219B"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -47,7 +47,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "0C7C4BA1DB702758A010147ED9E6D5423D8D9CF027C3B909B08A73AF0757219B"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -106,7 +106,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "0C7C4BA1DB702758A010147ED9E6D5423D8D9CF027C3B909B08A73AF0757219B"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -120,7 +120,7 @@
           "offset": "0x7B464",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnotoD4/1CEwHQ+g/8BfDmD/wV/NGjktEcA/xV0wEcAhcB1D2jktEcA/xUkwUcAhcB0FmgAtUcAUP8VKMFHAIXAdAZXU2oD/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8F2CRYAMaHEA8AAADplGz+/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnotoD4/1CEwHQ+g/8BfDmD/wV/NGjktEcA/xV0wEcAhcB1D2jktEcA/xUkwUcAhcB0FmgAtUcAUP8VKMFHAIXAdAZXU2oD/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8F2CRYAMaHEA8AAADplGz+/wAAAAAAAIN5EP91Bv8F4CRYAMdBDAAAAADpqXD+/wAAAAAAAAAAg3kQ/3UG/wXgJFgAx0EMAAAAAOlCcP7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -128,6 +128,18 @@
           "before": "C687100F000000",
           "after": "E95C9301009090",
           "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
+        },
+        {
+          "offset": "0x626C6",
+          "before": "C7410C00000000",
+          "after": "E9418F01009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
+        },
+        {
+          "offset": "0x6267F",
+          "before": "C7410C00000000",
+          "after": "E9A88F01009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
         }
       ]
     },
@@ -141,7 +153,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "0C7C4BA1DB702758A010147ED9E6D5423D8D9CF027C3B909B08A73AF0757219B"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -188,7 +200,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "0C7C4BA1DB702758A010147ED9E6D5423D8D9CF027C3B909B08A73AF0757219B"
+          "sha256": "635E1CE4B4C38D75C49D9F69C3FB04CC4DC255A6004D354DDDFFABFC162D6AEA"
         }
       ],
       "patches": [
@@ -202,7 +214,7 @@
           "offset": "0x94932",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidno+O/2/1CEwHQ+g/8BfDmD/wV/NGiySUkA/xXYUUkAhcB1D2iySUkA/xXgUUkAhcB0FmjOSUkAUP8V3FFJAIXAdAZXU2oF/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNWTTUQABN4sHeQXplqH4/+mcofj/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIO5/BwAABF1CYMFjNNRAALrBv8FjNNRAIPsEFaJzukxHv3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FkNNRAMaG1BwAAADpwvT9/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidno+O/2/1CEwHQ+g/8BfDmD/wV/NGiySUkA/xXYUUkAhcB1D2iySUkA/xXgUUkAhcB0FmjOSUkAUP8V3FFJAIXAdAZXU2oF/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNWTTUQABN4sHeQXplqH4/+mcofj/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIO5/BwAABF1CYMFjNNRAALrBv8FjNNRAIPsEFaJzukxHv3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FkNNRAMaG1BwAAADpwvT9/wAAAAAAAIN5EP91Bv8FmNNRAMdBDAAAAADpFw7+/wAAAAAAAAAAg3kQ/3UG/wWY01EAx0EMAAAAAOm0Df7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -222,6 +234,18 @@
           "before": "C686D41C000000",
           "after": "E92E0B02009090",
           "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
+        },
+        {
+          "offset": "0x75902",
+          "before": "C7410C00000000",
+          "after": "E9D3F101009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
+        },
+        {
+          "offset": "0x758BF",
+          "before": "C7410C00000000",
+          "after": "E936F201009090",
+          "purpose": "count every villager death once, at the health arbiter that assigns the cause of death"
         }
       ]
     }

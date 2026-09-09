@@ -414,7 +414,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
 
 ## Virtual Villagers - The Tree of Life
 
@@ -602,7 +602,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 7; every edit has an exact purpose and before/after guard in the manifest.
 
 ## Transparency and validation boundaries
 

@@ -110,6 +110,21 @@ GAMES = {
         # per pickup would grant doublers and be reset by Origins purchases,
         # so this and its marker start at +0x38.
         "burial_stat_va": 0x5824D8,
+        # Every death in this game routes through one of two sibling health
+        # arbiters. The proof they are the sole arbiter rather than one path
+        # among several is that the ALIVE path explicitly writes -1 to the
+        # cause field (0x4626DF, 0x462698): a living villager always has
+        # cause -1 and a dead one a real cause id, which is also what makes
+        # the count idempotent. The branch above each site tests the
+        # RESULTING health, not the prior, so calling either again on an
+        # already-dead villager re-enters the death path; testing the cause
+        # for -1 counts the transition exactly once.
+        "death_stat_va": 0x5824E0,
+        "death_cause_offset": 0x10,
+        "death_hooks": [
+            {"hook_va": 0x4626C6, "guard": "C7410C00000000", "slot": 0x1A8},
+            {"hook_va": 0x46267F, "guard": "C7410C00000000", "slot": 0x1C8},
+        ],
     },
     "vv4": {
         "title": "Virtual Villagers - The Tree of Life",
@@ -175,6 +190,13 @@ GAMES = {
         # +0x30 holds the Origins saved bit flags and +0x34 the Heathens
         # Converted total, so this game's first free reserve dword is +0x38.
         "burial_stat_va": 0x51D390,
+        # Same two-arbiter shape as The Secret City; see that note.
+        "death_stat_va": 0x51D398,
+        "death_cause_offset": 0x10,
+        "death_hooks": [
+            {"hook_va": 0x475902, "guard": "C7410C00000000", "slot": 0x1A8},
+            {"hook_va": 0x4758BF, "guard": "C7410C00000000", "slot": 0x1C8},
+        ],
     },
 }
 
@@ -576,6 +598,55 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 "purpose": (
                     "count every unit of stream debris cleared in the per-save "
                     "reserve, without the trophy's earned-once cap"
+                ),
+            }
+        )
+
+    for death in config.get("death_hooks", []):
+        # Count the transition into death, once. The wrapper reads ecx only
+        # and writes no register, so no value live at the hook can be lost.
+        death_guard = bytes.fromhex(str(death["guard"]))
+        death_slot = int(death["slot"])
+        death_hook_va = int(death["hook_va"])
+        death_wrapper_va = cave_va + death_slot
+        death_wrapper = assemble(
+            (
+                "cmp dword ptr [ecx + 0x%X], -1\n"
+                % int(config["death_cause_offset"])
+                + "jne death_counted\n"
+                + "inc dword ptr [0x%X]\n"
+                % int(config["death_stat_va"])
+                + "death_counted:\n"
+                + "mov dword ptr [ecx + 0x0C], 0\n"
+                + "jmp 0x%X" % (death_hook_va + len(death_guard))
+            ),
+            death_wrapper_va,
+        )
+        if death_slot + len(death_wrapper) > cave_size:
+            raise RuntimeError(f"{game_id} death wrapper exceeds cave allowance")
+        if any(payload[death_slot : death_slot + len(death_wrapper)]):
+            raise RuntimeError(f"{game_id} death wrapper would overwrite the cave")
+        payload[death_slot : death_slot + len(death_wrapper)] = death_wrapper
+        death_hook_file = death_hook_va - 0x400000
+        if (
+            source[death_hook_file : death_hook_file + len(death_guard)]
+            != death_guard
+        ):
+            raise RuntimeError(f"{game_id} death hook guard does not match")
+        extra_patches.append(
+            {
+                "offset": f"0x{death_hook_file:X}",
+                "before": death_guard.hex().upper(),
+                "after": (
+                    b"\xE9"
+                    + int(death_wrapper_va - death_hook_va - 5).to_bytes(
+                        4, "little", signed=True
+                    )
+                    + b"\x90" * (len(death_guard) - 5)
+                ).hex().upper(),
+                "purpose": (
+                    "count every villager death once, at the health arbiter "
+                    "that assigns the cause of death"
                 ),
             }
         )

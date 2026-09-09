@@ -574,6 +574,15 @@ static int write_later_game(
         live != NULL ? live : statistics, buried_offset, marker_offset);
 }
 
+/* New Believers' live statistics block, or the saved copy if the module
+   handle is unavailable. The patch-added counters are incremented in the
+   live block by cave wrappers; the saved copy only catches up on the next
+   stock save, so reading it would lag by one save. */
+static unsigned char *vv5_live_statistics(unsigned char *saved) {
+    unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    return module == NULL ? saved : module + 0x11D358u;
+}
+
 static int write_vv5(
     FILE *file,
     unsigned char *manager,
@@ -601,6 +610,10 @@ static int write_vv5(
         "Twins Birthed: %d\n"
         "Triplets Birthed: %d\n"
         "Heathens Converted: %d\n"
+        /* Counted at the two health arbiters that assign the cause of death.
+           Read from the LIVE block, which the wrappers increment; the saved
+           copy only catches up on the next stock save. */
+        "Villagers Died: %d\n"
         "Puzzles Solved: %d of %d\n",
         later_game_hours(manager, 0x36E0u, 0x7B4u),
         read_int(statistics, 0x04),
@@ -615,6 +628,7 @@ static int write_vv5(
         read_int(statistics, 0x28),
         read_int(statistics, 0x2C),
         read_int(statistics, 0x34),
+        read_int(vv5_live_statistics(statistics), 0x40),
         puzzles_solved,
         puzzle_total
     ) < 0) {
@@ -697,8 +711,10 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                once from the memorial via the marker at +0x3C. +0x30 is the
                Origins doubler ownership bitmask and must not be touched. */
             0x38u, 0x3Cu,
-            /* The Secret City has no debris; its stream puzzle differs. */
-            0u, NULL,
+            /* Villagers Died at +0x40, counted at the two health arbiters
+               that assign the cause of death. The Secret City has no debris
+               row; its stream puzzle differs. */
+            0x40u, "Villagers Died",
             /* Live statistics block, which the pickup wrapper increments. */
             0x1824A0u
         );
