@@ -293,8 +293,9 @@ uncapped lifetime storage field and mutation route have yet been proven:
 
 - Village Elders where the inherited statistics block does not already expose
   it.
-- Villagers Died at the moment of death. See the correction below: the
-  later-game counter is not a usable lifetime total in either direction.
+- Villagers Died in **A New Home, The Lost Children and The Tree of Life**.
+  Only The Secret City and New Believers ship the counter; see "Villagers
+  Died" below for why the others do not, and what completing them needs.
 - Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
   is understood (see below, including the first-cook case where it undercounts
   by one until the recipe is cooked again), but the requirements list *Total*
@@ -302,10 +303,174 @@ uncapped lifetime storage field and mutation route have yet been proven:
   statistic, and no writer that increments for every stew has been found. The
   two must not be conflated.
 - Tribal Chiefs Robed in VV3.
-- Debris Cleared in VV4.
 
 Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
+
+### Villagers Died
+
+**Shipped for The Secret City and New Believers.** Both keep health and the
+cause of death in a small sub-object, and every death routes through one of
+two sibling arbiters that write that pair:
+
+| Game | Absolute setter | Delta applier | Sub-object | Health | Cause |
+|---|---|---|---|---|---|
+| The Secret City | `0x462670` | `0x4626B0` | `+0xE6C` | `+0xE78` | `+0xE7C` |
+| New Believers | `0x4758B0` | `0x4758F0` | `+0x1C34` | `+0x1C40` | `+0x1C44` |
+
+The Tree of Life has the same shape and is **not yet shipped**; another
+session holds that work. Its arbiters are `0x46AF00` (absolute,
+`mov [ecx+0x0C], eax`) and `0x46AF40` (delta, `add [ecx+0x0C], eax`), verified
+from the stock bytes along with the kill guards `C7410C00000000` at `0x46AF0F`
+and `0x46AF52` -- byte-identical to the two shipped games -- and the alive
+paths `mov [ecx+0x10], -1` at `0x46AF28` and `0x46AF6B`. The cause write
+follows the hook site at both (`0x46AF16`, `0x46AF59`), which is what lets a
+`cause == -1` gate read the prior value; that ordering reads as incidental and
+is the whole reason the gate counts anything.
+
+**Its record offsets are `+0x1C34` / `+0x1C40` / `+0x1C44` -- identical to New
+Believers, and genuinely so.** This looks exactly like a row copied from the
+game above, and was checked on that suspicion: The Tree of Life really does
+carry `lea ecx, [esi+1C34h]` and `cmp dword ptr [esi+1C40h], 0` in its own
+callers. Two games of the same engine lineage share the layout. The usage
+counts differ (23 references to `+0x1C40` against New Believers' 40), which is
+what distinguishes a shared layout from a transcription error.
+
+Both entry points are hooked in each game. They are not alternatives: the
+delta form does `add [ecx+0x0C], eax` before testing, so a death by
+accumulated damage passes only through it, and hooking the setter alone would
+miss starvation and illness entirely.
+
+What proves these are the *sole* arbiter, rather than one route into death
+among several, is that the **alive** path explicitly writes `-1` to the cause
+field. Every exit of both functions writes that field, so a death cannot slip
+past.
+
+That same fact supplies the idempotency gate. The branch above each site tests
+the **resulting** health, not the prior, so calling either function again on an
+already-dead villager re-enters the death path and would count twice. The
+wrapper tests the cause field for `-1` instead: a living villager reads `-1`
+and is counted, a corpse reads a real cause id and is skipped. This works only
+because the hook precedes the cause write -- at hook time the field still holds
+the prior value. A hook placed after that write would read the new cause and
+count nothing at all.
+
+Testing the cause rather than the prior health also avoids a per-game
+difference: New Believers' delta form adds in place and destroys the prior
+value, so a prior-health test would need different code in each game.
+
+**Not shipped for A New Home or The Lost Children, and the reason is coverage
+rather than reachability.** Both have a health field and both do kill through
+it:
+
+| Game | Health | Cause field | Old-age kill |
+|---|---|---|---|
+| A New Home | `record+0x344` | none | `0x42EF05` |
+| The Lost Children | `record+0x52C` | none | `0x43BDEE` |
+
+Both kill sites share one shape -- the divide-by-ten age arithmetic
+(`mov eax, 66666667h`, `imul`, `sar edx, 3`), a `cmp`/`jge`, then the health
+store. But that store is only the **old-age** path. Starvation and disease
+reach zero health by *decrement* through register-computed pointers inside the
+same tick routine, so a hook on the store would report old-age deaths under a
+total's name: authoritative-looking and quietly wrong. Neither game has a cause
+field to gate on either, so the idempotency trick above does not transfer.
+
+The damage that reaches zero is applied **through a pointer**, which is why no
+displacement search finds it and why the image contains no `sub [mem]` for
+this field at all. In The Lost Children, inside `sub_43B690`:
+
+    0043BAE4  mov ecx, [eax+edi+52Ch]   read health
+    0043BAEB  lea eax, [eax+edi+52Ch]   take its ADDRESS
+    0043BAF2  dec ecx
+    0043BAF3  mov [eax], ecx            store back -- NO displacement
+
+That routine takes the field's address at seven separate `lea` sites, so the
+decrement is only ever reachable behind a register. **Seven address-taking
+sites are not seven damage paths**, and hooking all of them would count
+healing as death:
+
+| Site | Instruction after the `lea` | Effect |
+|---|---|---|
+| `0x43BAEB` | `dec ecx` ; `mov [eax], ecx` | damage |
+| `0x43BB7E` | `dec dword ptr [eax]` | damage, in place |
+| `0x43BBD7` | `inc ecx` ; `mov [eax], ecx` | heal |
+| `0x43BC43` | `dec ecx` ; `mov [eax], ecx` | damage |
+| `0x43BC59` | `cmp ecx,ebx` ; `jge` ; `mov [eax], ebx` | floor clamp, only raises |
+| `0x43BD02` | `inc ecx` ; `mov [eax], ecx` | heal |
+| `0x43BD0F` | `cmp [eax],64h` ; `jle` ; `mov [eax],64h` | ceiling clamp |
+
+`0x43BC59` deserves the explicit note because it reads as an ordinary store:
+it fires only when health is *below* `ebx` and raises it to that floor, so it
+can never lower health. And `0x43BB7E` is a **third** instruction form for
+writing this field -- an in-place `dec` with no separate store and no register
+holding the value. A guard that reads the pre-value out of `ECX` works at
+`0x43BAEB` and `0x43BC43` but has nothing to read at `0x43BB7E`, which must be
+read through the pointer before the `dec`. Two guard shapes, not one.
+
+Immediate store, register store-back, in-place `dec`: three forms for one
+field, which is the same lesson as the scanning note below arriving a third
+time. Image-wide, `0x52C` appears as a displacement 135 times in `.text`, of
+which 45 are `lea` sites -- counting them needs both the SIB and ModRM-only
+encodings, since assuming one form returns 1. It is the routine boundary that
+makes these seven meaningful, not the displacement.
+
+The two games do **not** cost the same to complete, and the three damage sites
+above are The Lost Children's alone. Neither game is finished by hooking them:
+each also needs its old-age store, which is a separate path.
+
+**The Lost Children is completable.** Three damage sites plus the old-age store
+at `0x43BDEE`, with the same count-the-transition-not-the-state reasoning the
+later games needed. Two guard shapes are required, not one, because
+`0x43BB7E`'s in-place `dec` leaves no register holding the pre-value.
+
+**A New Home is not, at a cost proportional to one row.** The same
+byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
+sites, of which sixteen are damage, in **five** instruction forms across three
+regions -- every address below verified against the stock image:
+
+| Form | Sites |
+|---|---|
+| `dec ecx` then store | `0x42ECBE`, `0x42ED3E`, `0x42EDAA` |
+| `call 0x402F10` then `sub [reg], eax` | `0x43A5A8`, `0x43A787`, `0x43A8AE`, `0x43A9D5`, `0x43AADB`, `0x43AC8F`, `0x43B106` |
+| `sub [reg], ebp` | `0x42AB17` |
+| read then `add ecx, -imm` (`-0xF`, `-0x6E`, `-0x46`, `-0x28`) | `0x42C2A6`, `0x42C698`, `0x42C76F`, `0x42C838` |
+| `add edx, -0x32` then store | `0x419DAA` |
+| old-age store | `0x42EF05` |
+
+All seven of the second form call the same routine at `0x402F10`, which
+supplies the amount and looks like a randomiser. Several forms leave no
+register holding the pre-value, so a guard shape has to be argued per site,
+and the cave-audit gate would need a register contract for each.
+
+The Lost Children having exactly three damage sites was the easy case, not the
+representative one. This is recorded as the reason A New Home is not shipped
+rather than as a recipe to follow: sixteen hooks in five shapes for one row is
+not a maintainable feature, and claiming a completion path at that cost would
+be an over-promise of the same kind the document already refuses elsewhere.
+
+Counting burials instead is exact and already shipped, but it is a different
+quantity and should not be relabelled.
+
+**A scanning note, because two sessions reached opposite wrong answers here.**
+Ground truth for The Lost Children's health field is thirteen writers, exactly
+one of which writes zero (`0x43BDEE`, the old-age kill). Two independent method
+failures produced confident wrong lists:
+
+- A **linear disassembly pass over the section** desynchronised on embedded
+  data and never enumerated `0x43BDEE` at all, while enumerating another store
+  in the same section. Nothing about the result looks incomplete.
+- Classifying by **operand position rather than mnemonic** turned six
+  `cmp dword ptr [reg+0x52C], reg` sites into phantom "writes", because the
+  memory operand renders first.
+
+Either alone is enough to close the question wrongly, and the two overlapped
+enough to look like a disagreement about a single site rather than two broken
+enumerations. The method that survives: **search the bytes for the
+displacement, disassemble at each hit, and classify on the mnemonic.** A
+positive control pairing the zero write with the `0x64` writes catches the
+missing-instruction failure but not the phantom one, so the control is
+necessary and not sufficient.
 
 ### What The Secret City actually has instead of stews
 
