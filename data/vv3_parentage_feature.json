@@ -1,15 +1,15 @@
 {
-  "companion_sha256": "d172d0bf52307e8e7007c4937e3ad609a616f8dfa6549e9909cd01bb829023d2",
+  "companion_sha256": "6debde8c05cbc1b4648a4853e060130bf5763b6ad730980f84f7dd4a8b3143af",
   "features": [
     {
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "d172d0bf52307e8e7007c4937e3ad609a616f8dfa6549e9909cd01bb829023d2",
+          "sha256": "6debde8c05cbc1b4648a4853e060130bf5763b6ad730980f84f7dd4a8b3143af",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         }
       ],
-      "description": "On each new pregnancy, appends the mother's and father's names, their ages at conception, their head and body values, and the number of babies to 'Virtual Villagers 3 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.",
+      "description": "Records both parents at conception in a plain text log: their names, ages, head and body values, and the number of babies, appended to 'Virtual Villagers 3 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. VV3 keeps the father's name on the mother's record and no father id, so he is found by name, and unlike VV2 it copies none of his values onto her -- so his age, head and body all depend on that lookup. He cannot be found when he has since died or another villager shares his name, and the log then records '(record not found)' for each of those three fields rather than printing a zero a real villager could hold. Rolls to a new numbered file every 256 records.",
       "game_id": "vv3",
       "id": "vv3_write_parentage_log",
       "name": "Write Parentage Log to Text File",

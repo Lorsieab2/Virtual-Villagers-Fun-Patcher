@@ -420,14 +420,22 @@ def build() -> dict:
                 "name": "Write Parentage Log to Text File",
                 "output_tag": "Parentage Log Text Export",
                 "description": (
-                    "On each new pregnancy, appends the mother's and father's "
-                    "names, their ages at conception, their head and body "
-                    "values, and the number of babies to "
+                    "Records both parents at conception in a plain text log: "
+                    "their names, ages, head and body values, and the number "
+                    "of babies, appended to "
                     "'Virtual Villagers 3 Parentage Log N.txt' beside the game "
                     "executable. Parentage is not stored in any villager "
                     "record, so both parents are captured at conception; they "
-                    "cannot be recovered from the child afterwards. Rolls to a "
-                    "new numbered file every 256 records."
+                    "cannot be recovered from the child afterwards. VV3 keeps "
+                    "the father's name on the mother's record and no father "
+                    "id, so he is found by name, and unlike VV2 it copies none "
+                    "of his values onto her -- so his age, head and body all "
+                    "depend on that lookup. He cannot be found when he has "
+                    "since died or another villager shares his name, and the "
+                    "log then records '(record not found)' for each of those "
+                    "three fields rather than printing a zero a real villager "
+                    "could hold. Rolls to a new numbered file every 256 "
+                    "records."
                 ),
                 "companion_files": [
                     {
