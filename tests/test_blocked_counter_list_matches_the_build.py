@@ -58,11 +58,22 @@ TITLES = {
 # auxiliary key would mean a hook removed while its storage address was left
 # behind still reads as shipped here, while the builder emits nothing -- which
 # is precisely the shipped-but-absent regression this module exists to catch.
+# Every gating key in the builder is listed, including the ones no blocked
+# bullet mentions. An incomplete table here is not a harmless omission: it
+# makes a counter invisible to anything reading this map, and absence then
+# reads as evidence the counter is not built. That happened -- a summary of
+# per-game counters derived from a partial table dropped VV2's triplet hook
+# and never showed VV4's food or VV5's conversion hooks at all, because the
+# map only carried the four counters the blocked list happened to discuss.
+# `test_every_builder_gate_is_listed` keeps this in step with the builder.
 COUNTER_GATE = {
-    "death": "death_hooks",
-    "debris": "debris_hook_va",
-    "twins": "twins_hook_va",
+    "food": "food_hook_va",
+    "conversion": "conversion_hook_va",
     "burial": "burial_hook_va",
+    "twins": "twins_hook_va",
+    "triplet": "triplet_hook_va",
+    "debris": "debris_hook_va",
+    "death": "death_hooks",
 }
 
 # The blocked-list bullet that governs each counter, by the phrase that opens
@@ -200,6 +211,39 @@ class BlockedCounterListMatchesTheBuildTests(unittest.TestCase):
             "one game's block dwarfs the others (%d vs %d chars), which is "
             "what an unbounded final slice looks like"
             % (largest, smallest),
+        )
+
+    def test_every_builder_gate_is_listed(self) -> None:
+        """COUNTER_GATE must name every key the builder branches on.
+
+        A missing entry does not fail anything on its own -- it makes that
+        counter invisible here, and absence from a map is easily mistaken for
+        absence from the build. A per-game summary derived from this table
+        was reported twice with VV2's triplet hook dropped and VV4's food and
+        VV5's conversion hooks never shown, because the map carried only the
+        counters the blocked list happened to discuss.
+
+        The builder is the source of truth: every `config.get("..._hook_va")`
+        and `config.get("..._hooks", ...)` it reads is a gate, so the check
+        is derived from the file rather than restated by hand.
+        """
+        text = BUILDER.read_text(encoding="utf-8")
+        gates = set(
+            re.findall(
+                r'config\.get\(\s*"([a-z_]+(?:_hook_va|_hooks))"', text
+            )
+        )
+        self.assertTrue(
+            gates,
+            "no config.get gates found in the builder; this check's pattern "
+            "has drifted from the file it reads",
+        )
+        self.assertEqual(
+            gates,
+            set(COUNTER_GATE.values()),
+            "COUNTER_GATE and the builder's gating keys disagree; a counter "
+            "missing here is invisible to this module, and its absence reads "
+            "as though the counter were not built",
         )
 
     def test_only_the_gating_key_counts_as_configured(self) -> None:
