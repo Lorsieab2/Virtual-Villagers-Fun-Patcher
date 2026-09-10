@@ -487,11 +487,17 @@ had been examined to the same depth when only one had.
 | lethal `lea`-mediated sites | **18** | **23** |
 | total hooks incl. the old-age store | **19** | **24** |
 
-The instruction forms are the same four, including the randomiser shape where a
-`call` separates the address computation from the subtraction
-(`0x43A5A8`: `lea ebx,[edx+esi+344h] ; call 0x402F10 ; sub [ebx],eax`) and the
-one where pops are interleaved between the load and the store-back
-(`0x42C2A6`: `lea ; mov ecx,[eax] ; pop edi ; add ecx,-0Fh ; pop esi ; mov [eax],ecx`).
+The instruction families overlap -- both games have the randomiser shape and
+the interleaved-pops shape -- but A New Home's damage is enumerated below in
+**six** distinct forms against The Lost Children's four, so the games are alike
+in *kind* of difficulty and not in the number of guard shapes a hook would need
+to argue.
+
+The two shared shapes are the randomiser, where a `call` separates the address
+computation from the subtraction (`0x43A5A8`:
+`lea ebx,[edx+esi+344h] ; call 0x402F10 ; sub [ebx],eax`), and the one where
+pops are interleaved between the load and the store-back (`0x42C2A6`:
+`lea ; mov ecx,[eax] ; pop edi ; add ecx,-0Fh ; pop esi ; mov [eax],ecx`).
 
 **The convergence route is closed for A New Home too, and it needed the same
 control to close honestly.** Walking flow forward from the 18 sites gives eleven
@@ -727,20 +733,32 @@ all of them.
 
 **A New Home is not, at a cost proportional to one row.** The same
 byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
-sites, of which sixteen are damage, in **five** instruction forms across three
-regions -- every address below verified against the stock image:
+sites, of which **eighteen** are damage, across three regions -- every address
+below verified against the stock image:
 
 | Form | Sites |
 |---|---|
 | `dec ecx` then store | `0x42ECBE`, `0x42ED3E`, `0x42EDAA` |
 | `call 0x402F10` then `sub [reg], eax` | `0x43A5A8`, `0x43A787`, `0x43A8AE`, `0x43A9D5`, `0x43AADB`, `0x43AC8F`, `0x43B106` |
+| `call 0x402F10`, read, `sub` in a register, store back | `0x43B2C8`, `0x43B387` |
 | `sub [reg], ebp` | `0x42AB17` |
 | read then `add ecx, -imm` (`-0xF`, `-0x6E`, `-0x46`, `-0x28`) | `0x42C2A6`, `0x42C698`, `0x42C76F`, `0x42C838` |
 | `add edx, -0x32` then store | `0x419DAA` |
 | old-age store | `0x42EF05` |
 
-All seven of the second form call the same routine at `0x402F10`, which
-supplies the amount and looks like a randomiser. Several forms leave no
+**This table read sixteen damage sites until the set was re-derived, and the
+two it gained say something about how it missed them.** `0x43B2C8` and
+`0x43B387` are the randomiser form -- the same `call 0x402F10` supplying the
+amount -- but they subtract in a register and store back
+(`call ; mov ecx,[ebx] ; sub ecx,eax ; mov [ebx],ecx`) instead of subtracting
+into memory. A classifier looking for `sub [reg], eax` sees the first seven and
+not these two, so the miss was a **shape assumption inside a form that had
+already been found**, not an unexamined region. The earlier count was a subset
+of this one, not a competing measurement: diffing the address sets gives
+`{0x43B2C8, 0x43B387}` added and nothing removed.
+
+All nine sites of the randomiser family call the same routine at `0x402F10`,
+which supplies the amount. Several forms leave no
 register holding the pre-value, so a guard shape has to be argued per site,
 and the cave-audit gate would need a register contract for each.
 
