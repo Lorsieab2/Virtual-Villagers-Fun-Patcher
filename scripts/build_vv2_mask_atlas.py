@@ -270,6 +270,10 @@ def preview() -> None:
             cell.alpha_composite(mcell, (0, PADTOP - ADULT_MASK_DY))
             grid.alpha_composite(cell, (f * HEAD_W, r * ch))
     out = SCRATCH / "vv2_mask_preview.png"
+    # The default scratch location is relative and need not exist yet -- it was
+    # an absolute path on one machine before, which happened to. Create it the
+    # same way build_mask_atlas creates its own output directory.
+    out.parent.mkdir(parents=True, exist_ok=True)
     grid.resize((HEAD_W * FRAMES * 7, ch * MASK_ROWS * 7), Image.NEAREST).convert("RGB").save(out)
     print("preview ->", out)
 

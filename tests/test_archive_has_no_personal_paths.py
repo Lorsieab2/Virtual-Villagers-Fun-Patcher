@@ -45,7 +45,17 @@ PERSONAL = re.compile(
 # the short spelling is the thing under test -- the CI runner hands back
 # `RUNNER~1` while `resolve()` returns the long name, and the fixture-skip
 # logic has to match either.
-IMPERSONAL_ACCOUNTS = {b"runner", b"runner~1", b"<u>", b"<user>", b"username"}
+IMPERSONAL_ACCOUNTS = {
+    b"runner",
+    b"runner~1",
+    b"<u>",
+    b"<user>",
+    b"username",
+    # This module's own pattern control uses a synthetic account. It is
+    # tracked, so the scan sees it -- and should, since excusing the file
+    # wholesale is the weakness this test was rewritten to avoid.
+    b"someone",
+}
 
 # Deliberately NOT a set of exempt files. An earlier draft of this test
 # excused whole files, and a probe showed the cost: adding a real leak to an
