@@ -564,13 +564,34 @@ first completed cook of every save, and misses an excluded-id first cook twice
 over. Hooking the site that *looks* like the top of the block is exactly the
 trap: the block has two entries, not one.
 
-The hook must sit where both routes are already committed to a completed cook.
-`0x426017`, the `+0x2E7A8` read, dominates both routes -- but it is upstream of
-the `[esi+0x205]` check at `0x42604C`, which can still abandon Route A, so a
-counter there over-counts. The honest options are to hook **both** routes
-(`0x42609F` on A and `0x4260AF` on B), or to hook `0x4260DC` itself and
-reconstruct the unrestricted total separately, since that instruction is the
-one point every counted cook reaches.
+**No single site downstream of the split sees every completed cook**, and this
+is worth stating because two plausible-looking plans both fail:
+
+| candidate | misses |
+|---|---|
+| `0x42609F` + `0x4260AF` (both routes) | an excluded id cooked while `+0x2E7A8` is clear -- it exits at `0x42602E`/`0x426037`/`0x426040`, upstream of both |
+| `0x4260DC` (the increment) | the above, **and** every repeat, which exits at `0x4260BE` |
+
+`0x4260AF` does observe repeats, because it sits before the gate; that is the
+one thing the pair gets right. But the excluded-while-unflagged case reaches
+none of the four addresses, so neither plan produces an unrestricted total.
+
+The only site that dominates every route is `0x426017`, the `+0x2E7A8` read,
+which every path reaches with the result id already assigned at `+0x3044C`.
+It has one escape below it: the `[esi+0x205]` test at `0x42604C`, on Route A
+only. A counter placed at `0x426017` therefore counts every completed cook
+**plus** any Route A call abandoned by that test.
+
+So the requirement is satisfiable, but only by a hook that also knows what
+`[esi+0x205]` means -- either by hooking `0x426017` and subtracting the
+abandoned case, or by intercepting `0x42604C` as well. Establishing what that
+flag represents is the remaining work; it is read at `0x426046` and written in
+one other place, and until it is understood no counter here can be called
+correct.
+
+The general trap, recorded because it produced three successive wrong answers
+in this routine: a hook site must be checked against **every** early exit
+above it, not only against the branch that first looks like the gate.
 
 Per the project's standing preference the storage belongs in the companion DLL
 rather than a new stock field or cave allocation.
