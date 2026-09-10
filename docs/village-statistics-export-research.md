@@ -313,10 +313,13 @@ uncapped lifetime storage field and mutation route have yet been proven:
   the exact mechanism of `+0x2E520` and what a hook satisfying the requirement
   would have to cover. The two must not be conflated.
 - Tribal Chiefs Robed in VV3. **This one is different in kind from the others
-  above, and is closed rather than open.** See "Tribal Chiefs Robed" below: the
-  quantity does not exist in the game, and no amount of further searching will
-  find it. The entries above are blocked on evidence; this one is blocked on
-  the game, which is a decision for the owner rather than a research task.
+  above.** See "Tribal Chiefs Robed" below: the mechanism that records a chief
+  is a one-shot latch and cannot represent a count, and the game's own accessor
+  reads it as a boolean. What is *not* established is that no separate lifetime
+  counter exists elsewhere -- see the stated limit at the end of that section.
+  The entries above are blocked on finding a writer; this one is blocked on the
+  storage the known writer uses, which is a different question and points at a
+  decision rather than more of the same search.
 
 Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
@@ -371,6 +374,27 @@ Adding the row would therefore mean this project storing its own count, which
 is a new counter rather than a repair -- the same situation as Villagers Buried
 for VV2 through VV5, and needing the owner's decision rather than more
 research.
+
+### What this does NOT establish
+
+The evidence above is about the puzzle slot: it is a latch, and the accessor
+reads it as a boolean. **It is not a proof that no separate lifetime counter
+exists anywhere in the image.** An earlier revision of this section said the
+quantity "does not exist in the game, and no amount of further searching will
+find it", which claimed more than was measured.
+
+Every write on the robe fitting's success path targets `[esi+...]`, the puzzle
+object's own fields. Its eight callees were then checked for references to the
+persisted statistics block -- and that check is **not usable**, because it
+failed its own positive control: `sub_4264A0` provably copies the block and the
+scan did not flag it. The block arrives there in `ECX` from the caller, so a
+callee scanned for the literal address can never match. A method that cannot
+find a known-present case says nothing about absence.
+
+Closing the row on "no separate counter exists" therefore needs an argument
+this section does not have. What it does have is enough for the decision: the
+mechanism the game actually uses cannot hold the number, so shipping the row
+means adding storage regardless of whether some other field happens to exist.
 
 ### Villagers Died
 

@@ -189,13 +189,49 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
         self.assertTrue(increments, "AdvancePuzzle must contain the increment")
 
         guards = [
-            addr for addr, mn, _ in decoded if mn == "jne" and addr > checks[0]
+            (addr, ops) for addr, mn, ops in decoded
+            if mn == "jne" and addr > checks[0]
         ]
         self.assertTrue(guards, "the early-out branch must follow the IsComplete call")
+        guard_address, guard_target = guards[0]
         self.assertLess(
-            guards[0],
+            guard_address,
             increments[0],
             "the early-out must precede the increment, or the latch does not hold",
+        )
+
+        # Ordering alone is not the latch. A `jne` before the `inc` that jumped
+        # BACKWARD, or straight AT the increment, would satisfy the ordering
+        # check while leaving completed puzzles advanceable -- which is the
+        # whole property this file exists to establish. So the destination is
+        # checked, and it must land past the last write in the routine.
+        target = int(guard_target, 16)
+        self.assertGreater(
+            target,
+            increments[0],
+            "the early-out must jump PAST the increment, not before or at it",
+        )
+        writes = [
+            addr for addr, mn, ops in decoded
+            if mn == "mov" and ops.startswith("dword ptr [")
+        ]
+        self.assertTrue(writes, "the routine must contain the progress store")
+        self.assertGreater(
+            target,
+            max(writes),
+            "the early-out must skip every write the counting path performs",
+        )
+        landing = [entry for entry in decoded if entry[0] == target]
+        self.assertTrue(
+            landing,
+            f"the branch target {target:#010x} must be an instruction "
+            "boundary inside this routine",
+        )
+        self.assertIn(
+            landing[0][1],
+            ("pop", "ret", "leave"),
+            "the early-out must land in the epilogue, which is what makes it "
+            "a return rather than a re-entry",
         )
 
     def test_the_robe_fitting_advances_puzzle_one(self):
@@ -227,11 +263,54 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
             "the last push before the call is the puzzle id, and it is the chief",
         )
 
+    def _entry_before(self, address, limit=0x400):
+        """Nearest preceding address whose decode chain reaches `address`.
+
+        Candidate starts are restricted to addresses immediately after padding
+        (`nop`/`int3`), which is where MSVC begins a function, and a candidate
+        is accepted only if decoding forward from it lands EXACTLY on
+        `address`. That is a validated instruction-boundary chain rather than a
+        guess at one.
+        """
+        text = next(s for s in self.sections if s[0] == ".text")
+        _name, start, _vsize, raw, _rsize = text
+        for candidate in range(address - 1, max(start, address - limit) - 1, -1):
+            index = raw + (candidate - start)
+            if self.data[index - 1] not in (0x90, 0xCC):
+                continue
+            for instruction in self.md.disasm(
+                self.data[index:index + (address - candidate) + 16], candidate
+            ):
+                if instruction.address == address:
+                    return candidate
+                if instruction.address > address:
+                    break
+        return None
+
     def test_no_other_site_advances_the_chief_puzzle(self):
         """A second advance would not change the latch, but would change the story.
 
         Scanned across the whole of .text rather than near any known address,
         so this is a statement about the image and not about a window in it.
+
+        Each candidate is decoded from a validated instruction boundary rather
+        than from `call - 0x18`. That fixed offset is not safe: x86 is
+        variable-length, and measured against this image **three of the
+        twenty-seven** call sites to `AdvancePuzzle` desynchronise from it --
+        the decode never reaches the call at all, so its argument is never
+        read. Any of those three could have carried a second `push 1` and this
+        assertion would still have passed. A site whose boundary cannot be
+        established is reported rather than skipped, because "could not decode"
+        and "does not push 1" must not look alike.
+
+        **Honest limit of the anchoring change.** Swapping the anchoring back
+        to `call - 0x18` does *not* make this test fail today, because none of
+        the three desynchronising sites happens to carry a `push 1`. The change
+        is therefore defensive rather than currently load-bearing: it removes a
+        way this assertion could be wrong in future without announcing it, and
+        that is stated here rather than left to look like a mutation-tested
+        property when it is not. The desync count above is the measurement that
+        justifies it.
         """
         _name, start, _vsize, raw, rsize = next(
             s for s in self.sections if s[0] == ".text"
@@ -239,25 +318,40 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
         blob = self.data[raw:raw + rsize]
 
         sites = []
+        unresolved = []
         for offset in range(len(blob) - 5):
             if blob[offset] != 0xE8:
                 continue
             disp = struct.unpack_from("<i", blob, offset + 1)[0]
-            if start + offset + 5 + disp != ADVANCE_PUZZLE:
+            call_site = start + offset
+            if call_site + 5 + disp != ADVANCE_PUZZLE:
                 continue
-            # Decode forward from a little before the call so the push that
-            # supplies the id is read as an instruction, not as a byte match.
-            window = self._disasm(start + offset - 0x18, 0x1E)
-            pushes = [
-                i for i in window
-                if i.mnemonic == "push" and i.address < start + offset
-            ]
+            entry = self._entry_before(call_site)
+            if entry is None:
+                unresolved.append(call_site)
+                continue
+            window = list(
+                self.md.disasm(
+                    self.data[
+                        raw + (entry - start):raw + (entry - start)
+                        + (call_site - entry)
+                    ],
+                    entry,
+                )
+            )
+            pushes = [i for i in window if i.mnemonic == "push"]
             if pushes and pushes[-1].op_str == "1":
-                sites.append(start + offset)
+                sites.append(call_site)
 
         self.assertEqual(
-            sites,
-            [ADVANCE_CALL_SITE],
+            [],
+            [hex(address) for address in unresolved],
+            "every call site must be decodable from a validated boundary; an "
+            "undecodable one hides its argument",
+        )
+        self.assertEqual(
+            [hex(address) for address in sites],
+            [hex(ADVANCE_CALL_SITE)],
             "the robe fitting must be the only route that advances puzzle 1",
         )
 
