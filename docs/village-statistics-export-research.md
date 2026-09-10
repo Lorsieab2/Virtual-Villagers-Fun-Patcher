@@ -433,11 +433,27 @@ The two games do **not** cost the same to complete, and the three damage sites
 above are The Lost Children's alone. Neither game is finished by hooking them:
 each also needs its old-age store, which is a separate path.
 
-**The Lost Children is completable, but not at three sites.** The table above
-enumerates `sub_43B690`, and an earlier revision of this paragraph read it as
-enumerating the game. Classifying by mnemonic across every `.text` reference to
-`+0x52C` finds **29 sites that mutate the field**, and four damage paths with
-their own death checks sit outside that routine entirely:
+**The Lost Children is NOT completable at three sites, and the full set is not
+yet established.** The table above enumerates `sub_43B690`, and an earlier
+revision of this paragraph read it as enumerating the game. It does not: damage
+paths with their own death checks sit outside that routine, and every count
+offered so far has been revised upward on re-examination.
+
+Four such sites are verified individually and are listed below as **examples
+that disprove the three-site claim, not as a complete set**. Two later searches
+found families that earlier passes could not see -- one where the damage sits
+past a `call` (`0x462990`: `lea ebp,[edx+esi+52Ch] ; call ; sub [ebp],eax`) and
+one where pops are interleaved between the load and the store-back
+(`0x43909F`: `lea ; mov ecx,[eax] ; pop ; add ecx,-0Fh ; pop ; mov [eax],ecx`).
+Both are real reductions; both were dropped silently by classifiers that
+recognised only the shapes they had been written for.
+
+So the honest state is that VV2 belongs in **A New Home's category rather than
+The Secret City's**: the number of damage paths is large, not yet fixed, and
+the arbiter-shaped design that fits the later three games does not apply. A
+count will be trustworthy only when the classifier that produces it fails
+loudly on an unrecognised shape instead of discarding it, with an assertion
+that the unclassified bucket is empty.
 
 | Site | Instruction | Death check |
 |---|---|---|
@@ -446,9 +462,10 @@ their own death checks sit outside that routine entirely:
 | `0x433367` | `sub [eax], ebp` | `0x43337D` `test ecx,ecx ; jge ; mov [eax],0` |
 | `0x4375E7` | `sub [eax], ebp` | `0x4375FD` `test ecx,ecx ; jge ; mov [eax],0` |
 
-A hook set built from `sub_43B690` alone misses all four, which is a silent
-undercount shipped under a total's name -- the failure this document refuses
-for A New Home, and worse here because it would ship looking complete.
+A hook set built from `sub_43B690` alone misses all four, and misses the two
+families named above as well, which is a silent undercount shipped under a
+total's name -- the failure this document refuses for A New Home, and worse
+here because it would ship looking complete.
 
 Two sites must be **excluded deliberately** rather than omitted, since an
 address absent from a list is indistinguishable from one nobody examined:
@@ -460,11 +477,36 @@ address absent from a list is indistinguishable from one nobody examined:
 - `0x44EE21` -- `add ecx,-0x5A ; mov [eax],ecx ; jns` guards on the sign flag,
   a fourth guard shape, and is not a death path.
 
-So four guard shapes are required, not two: a pre-value in a register
+**At least** four guard shapes are required, not two: a pre-value in a register
 (`0x43BAEB`, `0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must
 be read through the pointer first; read-modify-write through a `lea`-ed pointer
 with the test *after* (`0x433367`, `0x4375E7`); and the sign-guarded form. Plus
-the old-age store at `0x43BDEE`, which no decrement reaches.
+the old-age store at `0x43BDEE`, which no decrement reaches. The two families
+named above add further shapes, and the count is a floor rather than a total
+for the same reason the site count is.
+
+A design proposing one wrapper for all sites was withdrawn on this basis. It
+rested on every damage site opening with a 7-byte `lea` that leaves the health
+pointer in `eax`. That is not a rule with an exception; classifying every `lea`
+in `.text` that carries `+0x52C` by its destination register gives:
+
+| Destination | 7-byte SIB form | 6-byte ModRM form |
+|---|---:|---:|
+| `eax` | 25 combined | |
+| `edi` | 12 combined | |
+| `ebp` | 5 combined | |
+| `esi` | 3 combined | |
+| **totals** | **37** | **8** |
+
+Twenty of forty-five target something other than `eax` -- **44 per cent**. A
+second session counting only the SIB form arrives at 35 sites and 31 per cent;
+the two disagree on the population, not on the finding, and both refute the
+premise. `0x462990` is merely the first counter-example encountered, not the
+only one, and there the `lea` also sits behind a `call`.
+
+A structural claim drawn from an incomplete set is only as complete as the set
+-- and verifying it carefully across that set makes it more persuasive without
+making it more sound.
 
 **A New Home is not, at a cost proportional to one row.** The same
 byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
