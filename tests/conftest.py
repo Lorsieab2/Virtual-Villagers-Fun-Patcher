@@ -399,10 +399,16 @@ def _module_names_an_absent_fixture(report) -> bool:
     An earlier plan was to convert the callers to a generated-reason helper.
     Measuring first showed that would have fixed nothing here: those are
     `skipTest` calls, while every live instance of this defect is a
-    `skipUnless` **decorator**, evaluated at import time. Thirteen of them, in
-    thirteen files.
+    `skipUnless` **decorator**, evaluated at import time -- a couple of dozen
+    of them, spread across nearly as many files.
 
-    What all thirteen share is not a wording but a shape -- each gates on a
+    The count is deliberately not stated exactly. Two sessions measured it on
+    the same day and got 13, 15 and 18 depending on whether the grep handled
+    multi-line decorators, and a precise figure in a durable comment outlives
+    the session that wrote it and goes quietly stale. What matters is the
+    shape, and the shape is what this function keys on.
+
+    What they share is not a wording but a shape -- each gates on a
     module-level path:
 
         STOCK.is_file()   VV2_STOCK.is_file()   ATLAS.is_file()
