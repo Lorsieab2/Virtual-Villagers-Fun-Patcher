@@ -521,11 +521,35 @@ a shipped counter is worse than a missing site, because it looks like data**
 and nothing downstream can distinguish it from a real death.
 
 `0x44EE21` was listed here in an earlier revision as "guards on the sign flag
-and is not a death path". **That was wrong and it is one of the 23.** The `jns`
-sits at `0x44EE2D`, *after* the store at `0x44EE2B`, so it branches on a result
-already written rather than preventing the write. A guard that prevents a death
-has to come before the store; one that comes after is an observation of the
-outcome. The reduction itself, `add ecx, -0x5A`, is unclamped.
+and is not a death path". **That was wrong and it is one of the 23**, and two
+independent readings of the same eleven bytes say so.
+
+**From the ordering.** The `jns` sits at `0x44EE2D`, *after* the store at
+`0x44EE2B`, so it branches on a result already written rather than preventing
+the write. A guard that prevents a death has to come before the store; one that
+comes after is an observation of the outcome.
+
+**From the fall-through.** `jns` is taken when the result is non-negative, so
+the fall-through is *exactly* the case where health went below zero -- and what
+sits there is a repair:
+
+    0044EE2B  89 08   mov [eax], ecx     the reduction, committed
+    0044EE2D  0f 89   jns 0x44F448       survived -> leave
+    0044EE33  5f 5e 5d                   pop edi ; pop esi ; pop ebp
+    0044EE36  89 18   mov [eax], ebx     the clamp
+    0044EE38  5b      pop ebx
+
+`ebx` is never assigned anywhere in this routine -- the only instruction naming
+it between the `push ebx` prologue at `0x44EDF0` and here is the matching
+`pop` -- so the clamp writes back the **caller's** value. Callers pass zero for
+a floor.
+
+The two arguments are independent and answer different questions. Ordering
+proves the branch is *too late*; the clamp proves **the authors expected the
+value to go negative** and wrote code to catch it. Intent rather than sequence,
+from a different feature of the same bytes.
+
+The reduction itself, `add ecx, -0x5A`, is unclamped on the path that matters.
 
 Four guard shapes are required, not two: a pre-value in a register (`0x43BAEB`,
 `0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must be read
