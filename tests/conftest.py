@@ -365,9 +365,31 @@ def _is_fixture_skip(reason: str) -> bool:
     cannot examine them.
 
     A proactive skip mentioning no filename whatsoever remains invisible here,
-    and no classifier reading prose can fix that. Making it unforgeable needs a
-    shared `skip_missing_fixture(path)` helper the tests call -- a change to 21
-    test files rather than to this one, and the right next step.
+    and no classifier reading prose can fix that.
+
+    **That residual gap is 77 tests across 24 distinct phrasings, not a
+    theoretical corner.** Counted from the junit of a full run in a worktree
+    with no fixtures, the largest groups being `requires the VV4 stock
+    executable` (15), `requires the exact-build VV1 stock executable` (8) and
+    `stock VV5 executable is not checked in` (8). A live reproducer, which is
+    a real node rather than a constructed probe:
+
+        pytest "tests/test_vv4_slot_guards_use_a_real_counter.py::
+                VV4SlotGuardCounterTests::
+                test_counter_adds_pending_babies_behind_a_pregnancy_gate"
+        1 skipped        exit 0
+
+    That is a focused run of a fixture-dependent test exiting 0 with this
+    guard installed -- the same shape as the defect the guard was written for.
+
+    Twenty-four wordings for one condition is also the argument against ever
+    fixing this by extending the matching: the twenty-fifth is one commit
+    away. The fix is a shared `skip_missing_fixture(path)` helper that the
+    tests call, so the reason is generated rather than written and cannot be
+    phrased into invisibility. That is a change across those test files rather
+    than to this one, which is why it is not in this commit -- but it is the
+    fix, and the numbers above are here so the next reader does not have to
+    rediscover the scale before deciding it is worth doing.
     """
     if not reason:
         return False
