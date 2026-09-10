@@ -45,17 +45,40 @@ PERSONAL = re.compile(
 # the short spelling is the thing under test -- the CI runner hands back
 # `RUNNER~1` while `resolve()` returns the long name, and the fixture-skip
 # logic has to match either.
+# An allow-list is a two-way door: it suppresses signal in both directions, so
+# an entry that stops being true keeps hiding whatever replaces it. Each is
+# therefore recorded with what it is exempt FOR, and a test below asserts every
+# one is still there for that reason.
+#
+# `runner` and `runner~1` are the CI machine's own directory and its 8.3 short
+# form; the short spelling is the subject of the conftest tests rather than an
+# incidental mention. The placeholders already stand in for an account name.
+# `someone` is this module's own pattern control, which is tracked and so is
+# scanned like any other file -- excusing the file wholesale is the weakness
+# this test was rewritten to avoid.
 IMPERSONAL_ACCOUNTS = {
-    b"runner",
-    b"runner~1",
-    b"<u>",
-    b"<user>",
-    b"username",
-    # This module's own pattern control uses a synthetic account. It is
-    # tracked, so the scan sees it -- and should, since excusing the file
-    # wholesale is the weakness this test was rewritten to avoid.
-    b"someone",
+    # The CI runner's directory only ever appears in its 8.3 short form, which
+    # is the whole point of those tests -- the runner hands back `RUNNER~1`
+    # while `resolve()` returns the long name. Writing the witness down forced
+    # this correction: the first draft claimed plain `runner` was in
+    # conftest.py, and it is not.
+    b"runner~1": "tests/conftest.py",
+    b"someone": "tests/test_archive_has_no_personal_paths.py",
 }
+
+# Deliberately NOT listed above: `runner`, `<u>`, `<user>`, `username`. They
+# are the conventional spellings a placeholder might use, and an earlier draft
+# carried them mapped to None so this module could "say they are absent on
+# purpose". That reintroduced the hole the mapping exists to close: a dormant
+# entry is an unconditional exemption, so a tracked file acquiring a real
+# path under \Users\username would be waved through on dictionary
+# membership alone. Verified by probe -- with those entries present, exactly
+# that path passed.
+#
+# An account earns an exemption by having a witness, not by looking
+# impersonal. If a placeholder is genuinely needed later, add it together
+# with the file that uses it, and the staleness check keeps it honest from
+# that moment on.
 
 # Deliberately NOT a set of exempt files. An earlier draft of this test
 # excused whole files, and a probe showed the cost: adding a real leak to an
@@ -109,6 +132,38 @@ class ArchiveHasNoPersonalPathsTests(unittest.TestCase):
                 match = PERSONAL.search(spelling)
                 self.assertIsNotNone(match, "pattern missed a real spelling")
                 self.assertEqual(match.group(1).lower(), b"someone")
+
+    def test_every_exemption_is_still_exempt_for_something(self) -> None:
+        """An allow-list entry that stops being true starts hiding things.
+
+        Each exemption names the file it exists for. If that file no longer
+        carries the account name -- renamed, rewritten, deleted -- the entry is
+        stale, and a stale entry silently excuses whatever takes its place. So
+        the exemption has to keep earning itself.
+
+        Every entry must have a witness. An exemption with nothing to point
+        at is unconditional, and an unconditional exemption for a plausible
+        account name -- `username`, say -- would wave through the very
+        disclosure this module exists to catch.
+        """
+        for account, witness in sorted(IMPERSONAL_ACCOUNTS.items()):
+            with self.subTest(account=account.decode()):
+                path = ROOT / witness
+                self.assertTrue(
+                    path.is_file(),
+                    f"{witness} is gone, so the {account.decode()!r} exemption "
+                    f"no longer has a reason",
+                )
+                blob = path.read_bytes()
+                found = {
+                    m.group(1).lower() for m in PERSONAL.finditer(blob)
+                }
+                self.assertIn(
+                    account,
+                    found,
+                    f"{witness} no longer contains {account.decode()!r}, so "
+                    f"that exemption is stale and would now only hide things",
+                )
 
     def test_no_tracked_file_names_a_home_directory(self) -> None:
         offenders: list[str] = []
