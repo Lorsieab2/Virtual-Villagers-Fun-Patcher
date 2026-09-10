@@ -495,6 +495,31 @@ def _names_used_by_the_skip_condition(module, location) -> set[str]:
     `Path`. The narrowing is correct but currently unobservable, so no
     assertion pins it -- writing one would pin behaviour that cannot differ,
     which is the dead-code-as-safeguard shape this file already removed once.
+
+    Every decorator on the node is inspected, not just the outermost. Stacked
+    gates are common here and the fixture one is usually inner:
+
+        @unittest.skipIf(capstone is None, "requires capstone")
+        @unittest.skipUnless(STOCK.is_file(), "requires the VV4 stock exe")
+        class VV4SlotGuardCounterTests(unittest.TestCase):
+
+    Stopping at the first decorator would find `capstone is None`, name no
+    `Path`, and decline -- never reaching the condition that actually fired.
+
+    One property that reads like a defect, so it is recorded rather than left
+    to be rediscovered. **Scope changes the right answer.** That class alone
+    exits 1, as it should. The *file* containing it exits 0, because it also
+    holds `VV4SlotGuardDocTests`, three tests that read documentation and need
+    no binary:
+
+        3 passed, 15 skipped        exit 0
+
+    Something executed, so the run did verify something, and the guard is
+    correctly silent. A reviewer measuring the file concluded the headline case
+    was uncovered; measuring the class showed it was. Both measurements were
+    right and only one answers "does the guard catch this" -- a file that also
+    contains passing tests cannot, because those legitimately suppress the
+    signal.
     """
     file = getattr(module, "__file__", None)
     if not file:
