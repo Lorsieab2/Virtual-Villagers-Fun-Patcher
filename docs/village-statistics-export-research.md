@@ -437,7 +437,8 @@ above are `sub_43B690`'s alone rather than the game's. Neither game is finished
 by hooking them: each also needs its old-age store, which is a separate path.
 
 **The Lost Children is NOT completable at a cost proportional to one row, and
-the set is now settled at 23 lethal sites.** The table above enumerates `sub_43B690`, and an earlier
+the set is now settled at 23 lethal sites plus the old-age store, 24 hooks in
+all.** The table above enumerates `sub_43B690`, and an earlier
 revision of this paragraph read it as enumerating the game. It does not: damage
 paths with their own death checks sit outside that routine, and every count
 offered so far has been revised upward on re-examination.
@@ -487,9 +488,26 @@ answer-site is reached from five of them. That one is `0x43BD21`, `sub_43B690`'s
 own exit -- **a chokepoint does exist, it is simply local to one routine out of
 many**, and generalising from it is the error that produced every earlier count.
 
+Immediate targets alone do not settle this, though, since separate blocks can
+still converge later or call a common routine. So flow was walked forward from
+each of the 23 sites, through unconditional jumps and both edges of
+conditionals, recording every `call` reached. Twelve distinct callees turn up
+and the most-shared is reached from **16 of the 23** -- which looks exactly like
+the shared handler the design wanted.
+
+It is not one. `0x4031A0` is a bounded random-number helper (`test/jle`,
+`cmp 0x7FFF/jg`, then `cdq ; idiv esi`) with **1551 callers image-wide**: it is
+reached from 16 death sites because it is reached from nearly everything. The
+next two, `0x403200` (137 callers) and `0x44B2A0` (71 callers), are a clock
+helper and a slot-scan loop, on the same argument. **Caller count is the control
+that separates a shared handler from a shared utility**; without it a downstream
+trace yields a convincing false positive. No callee is reached from all 23, and
+none of the shared ones is death-specific.
+
 Three independent grounds therefore close this row, any one of which would make
 it disproportionate: 23 lethal sites across four instruction forms each needing
-its own guard; no convergence point to hook instead; and 35 bytes of worst-case
+its own guard, plus the old-age store for 24 hooks in all; no convergence point
+to hook instead, neither at the branch targets nor downstream of them; and 35 bytes of worst-case
 contiguous free `.text` on the composed image with every VV2 feature selected,
 measured on the built output rather than on stock.
 
@@ -556,7 +574,9 @@ Four guard shapes are required, not two: a pre-value in a register (`0x43BAEB`,
 through the pointer first; read-modify-write through a `lea`-ed pointer with the
 test *after* (`0x433367`, `0x4375E7`); and the randomiser form, where a `call`
 separates the address computation from the subtraction (`0x462990` and eleven
-siblings). Plus the old-age store at `0x43BDEE`, which no decrement reaches.
+siblings). Plus the old-age store at `0x43BDEE`, which no decrement reaches
+and which is therefore **additional to the 23**: a complete death implementation
+is 24 hooks, not 23.
 
 A design proposing one wrapper for all sites was withdrawn on this basis. It
 rested on every damage site opening with a 7-byte `lea` that leaves the health
@@ -621,8 +641,11 @@ Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
 
 **A scanning note, because two sessions reached opposite wrong answers here.**
-Ground truth for The Lost Children's health field is thirteen writers, exactly
-one of which writes zero (`0x43BDEE`, the old-age kill). Two independent method
+Ground truth for The Lost Children's health field is thirteen *direct* writers
+-- instructions with `[reg+0x52C]` as the destination operand -- exactly one of
+which writes zero (`0x43BDEE`, the old-age kill). These are a **disjoint
+population from the 23 lethal sites** above, which reach the field through a
+`lea`-ed pointer instead; `0x43BDEE` is not among the 23 and never was. Two independent method
 failures produced confident wrong lists:
 
 - A **linear disassembly pass over the section** desynchronised on embedded
