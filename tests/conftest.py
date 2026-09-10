@@ -11,6 +11,24 @@ A missing input is not a failing test. Reporting those as skipped keeps the
 distinction visible, so a red run means a real regression rather than a
 checkout without the games installed.
 
+What that costs, stated here because the exit status cannot say it. Measured
+by moving the executables aside on a machine that has them:
+
+    with the executables    1342 passed, 123 skipped
+    without them            1176 passed, 376 skipped
+
+The ~166 tests that stop running are not a random sample. They are the layer
+that verifies PATCHED OUTPUT -- StockIntegrationTests, ManifestTests, the
+per-game feature suites, and PublishLeavesRoomForCrashImmunityTests, whose
+subtests catch a wrapper splitting the executable zero run and breaking
+publish-time name-crash immunity.
+
+So a green run without the executables is evidence about the code that does
+not need them, and nothing more. CI is such a run by construction, since the
+binaries are copyrighted and correctly gitignored; byte-level guarantees rest
+on a local run with them linked. The exact count depends on the tree
+(``inputs/`` differs per machine); the composition does not.
+
 The dependency is detected from what a test actually DOES -- an unreadable
 fixture path at run time -- not from scanning its source. Two earlier attempts
 here failed in exactly the way this repository's crash notes warn about:
