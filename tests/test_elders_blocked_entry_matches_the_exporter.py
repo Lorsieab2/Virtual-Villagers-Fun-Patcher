@@ -45,7 +45,13 @@ WRITER_GAMES = {
     "write_vv5": {"vv5"},
 }
 
-ROW = "Village Elders"
+# The complete emitted row, not the label. A bare substring test on
+# "Village Elders" also matches a comment mentioning the row, or a different
+# label containing it -- `"Former Village Elders: %d\n"` would keep a game in
+# the shipping set with the real row gone. That is correct today only by luck,
+# and it is the third substring-where-exact-was-meant defect this repository
+# has produced, so the row is matched as the exact format string it is.
+ROW = '"Village Elders: %d\\n"'
 
 
 def _writer_bodies() -> dict[str, str]:
