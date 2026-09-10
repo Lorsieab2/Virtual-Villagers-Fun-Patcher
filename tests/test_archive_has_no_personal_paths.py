@@ -64,14 +64,21 @@ IMPERSONAL_ACCOUNTS = {
     # conftest.py, and it is not.
     b"runner~1": "tests/conftest.py",
     b"someone": "tests/test_archive_has_no_personal_paths.py",
-    # Not present anywhere today. Kept because they are the conventional
-    # spellings a placeholder would use, and listed with None so the staleness
-    # check says so deliberately rather than by omission.
-    b"runner": None,
-    b"<u>": None,
-    b"<user>": None,
-    b"username": None,
 }
+
+# Deliberately NOT listed above: `runner`, `<u>`, `<user>`, `username`. They
+# are the conventional spellings a placeholder might use, and an earlier draft
+# carried them mapped to None so this module could "say they are absent on
+# purpose". That reintroduced the hole the mapping exists to close: a dormant
+# entry is an unconditional exemption, so a tracked file acquiring a real
+# path under \Users\username would be waved through on dictionary
+# membership alone. Verified by probe -- with those entries present, exactly
+# that path passed.
+#
+# An account earns an exemption by having a witness, not by looking
+# impersonal. If a placeholder is genuinely needed later, add it together
+# with the file that uses it, and the staleness check keeps it honest from
+# that moment on.
 
 # Deliberately NOT a set of exempt files. An earlier draft of this test
 # excused whole files, and a probe showed the cost: adding a real leak to an
@@ -134,14 +141,13 @@ class ArchiveHasNoPersonalPathsTests(unittest.TestCase):
         stale, and a stale entry silently excuses whatever takes its place. So
         the exemption has to keep earning itself.
 
-        Entries mapped to None are conventional placeholders that are not in
-        the tree today; they are allowed to be absent, and are listed so this
-        test can say that deliberately rather than by omission.
+        Every entry must have a witness. An exemption with nothing to point
+        at is unconditional, and an unconditional exemption for a plausible
+        account name -- `username`, say -- would wave through the very
+        disclosure this module exists to catch.
         """
         for account, witness in sorted(IMPERSONAL_ACCOUNTS.items()):
             with self.subTest(account=account.decode()):
-                if witness is None:
-                    continue
                 path = ROOT / witness
                 self.assertTrue(
                     path.is_file(),
