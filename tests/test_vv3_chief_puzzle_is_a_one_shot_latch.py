@@ -62,6 +62,7 @@ ROBE_FITTING = 0x431A40
 ADVANCE_CALL_SITE = 0x431B88          # the call inside the robe fitting
 THRESHOLDS = 0x49D230                 # indexed as [reg*4 + 0x49D230]
 HAS_CHIEF = 0x415030                  # the game's own boolean accessor
+LATCH_EARLY_OUT = 0x4359D0            # AdvancePuzzle's epilogue
 CHIEF_PUZZLE_ID = 1
 
 
@@ -227,11 +228,23 @@ class Vv3ChiefPuzzleIsAOneShotLatch(unittest.TestCase):
             f"the branch target {target:#010x} must be an instruction "
             "boundary inside this routine",
         )
-        self.assertIn(
+        # Pinned to the exact address rather than to "some epilogue-looking
+        # mnemonic past the writes". A relative assertion drifts silently if
+        # the routine is ever reordered; an exact one fails loudly and makes
+        # somebody re-derive the latch. The relative checks above stay, because
+        # together they say WHY this address is the right one -- the constant
+        # alone would be unexplained.
+        self.assertEqual(
+            target,
+            LATCH_EARLY_OUT,
+            "the early-out must reach the routine's epilogue at "
+            f"{LATCH_EARLY_OUT:#010x}",
+        )
+        self.assertEqual(
             landing[0][1],
-            ("pop", "ret", "leave"),
-            "the early-out must land in the epilogue, which is what makes it "
-            "a return rather than a re-entry",
+            "pop",
+            "the early-out must land on the epilogue's first pop, which is "
+            "what makes it a return rather than a re-entry",
         )
 
     def test_the_robe_fitting_advances_puzzle_one(self):
