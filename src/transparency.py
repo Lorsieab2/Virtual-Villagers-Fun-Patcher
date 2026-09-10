@@ -21,6 +21,19 @@ from typing import Any, Iterable
 TRANSPARENCY_FILENAME = "VVFP Transparency Log.txt"
 PATCHER_VERSION = "v1.34.38"
 
+# The newest version already published as a GitHub release. PATCHER_VERSION
+# must be strictly greater than this before a build is cut, or the artifact
+# and its transparency reports carry a version string that already identifies
+# a different, published download -- which is what a user quotes when
+# reporting a problem.
+#
+# Recorded here rather than read from tags: CI checks out with the default
+# actions/checkout depth, which fetches no tags at all, so a tag-based check
+# would find nothing and pass vacuously. A committed constant is the only
+# source of truth available offline, and updating it is part of cutting a
+# release.
+LAST_PUBLISHED_VERSION = "v1.34.38"
+
 
 def validate_feature_transparency_metadata(features: Iterable[Any]) -> None:
     """Reject selectable features whose report coverage is incomplete."""

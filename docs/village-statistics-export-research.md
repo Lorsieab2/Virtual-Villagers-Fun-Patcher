@@ -291,8 +291,16 @@ separate path and must not trigger a village-statistics export.
 The following requested totals were not added in this pass because no exact,
 uncapped lifetime storage field and mutation route have yet been proven:
 
-- Village Elders where the inherited statistics block does not already expose
-  it.
+- Village Elders in **A New Home only**. The Lost Children exposes it at
+  `+0x2E514`, and the later three games at `+0x1C` of the inherited block, so
+  all four already ship the row. A New Home does not have the field: its
+  statistics run is `+0x9E20` through `+0x9E48` with every slot accounted for,
+  and the slot its successors use for Village Elders holds the saturating
+  memorial recount instead -- the layouts diverge there rather than one being
+  a superset of the other. The `Elderly` string in that executable is a
+  villager health and age status, not a counter, and the remaining matches are
+  German and Spanish words containing "elder" by coincidence. Completing this
+  needs new storage plus a hook, not a field that is waiting to be read.
 - Villagers Died in **A New Home and The Lost Children**.
   The Secret City, The Tree of Life and New Believers ship the counter; see
   "Villagers Died" below for why the other two do not, and what completing
@@ -425,10 +433,38 @@ The two games do **not** cost the same to complete, and the three damage sites
 above are The Lost Children's alone. Neither game is finished by hooking them:
 each also needs its old-age store, which is a separate path.
 
-**The Lost Children is completable.** Three damage sites plus the old-age store
-at `0x43BDEE`, with the same count-the-transition-not-the-state reasoning the
-later games needed. Two guard shapes are required, not one, because
-`0x43BB7E`'s in-place `dec` leaves no register holding the pre-value.
+**The Lost Children is completable, but not at three sites.** The table above
+enumerates `sub_43B690`, and an earlier revision of this paragraph read it as
+enumerating the game. Classifying by mnemonic across every `.text` reference to
+`+0x52C` finds **29 sites that mutate the field**, and four damage paths with
+their own death checks sit outside that routine entirely:
+
+| Site | Instruction | Death check |
+|---|---|---|
+| `0x420E16` | `add dword [eax], -0x14` | `0x420E39` `cmp [eax],ebx ; jge` |
+| `0x421013` | `add dword [eax], -0x0A` | `0x421036` `cmp [eax],ebx ; jge` |
+| `0x433367` | `sub [eax], ebp` | `0x43337D` `test ecx,ecx ; jge ; mov [eax],0` |
+| `0x4375E7` | `sub [eax], ebp` | `0x4375FD` `test ecx,ecx ; jge ; mov [eax],0` |
+
+A hook set built from `sub_43B690` alone misses all four, which is a silent
+undercount shipped under a total's name -- the failure this document refuses
+for A New Home, and worse here because it would ship looking complete.
+
+Two sites must be **excluded deliberately** rather than omitted, since an
+address absent from a list is indistinguishable from one nobody examined:
+
+- `0x46116C` -- `dec ecx ; cmp ecx,3 ; mov [eax],ecx ; jge ; mov [eax],3`
+  floors at **three**, so it can never reach a death state. A
+  count-the-transition gate never fires there, which makes it harmless *by
+  accident*: change that constant and the gate silently starts counting.
+- `0x44EE21` -- `add ecx,-0x5A ; mov [eax],ecx ; jns` guards on the sign flag,
+  a fourth guard shape, and is not a death path.
+
+So four guard shapes are required, not two: a pre-value in a register
+(`0x43BAEB`, `0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must
+be read through the pointer first; read-modify-write through a `lea`-ed pointer
+with the test *after* (`0x433367`, `0x4375E7`); and the sign-guarded form. Plus
+the old-age store at `0x43BDEE`, which no decrement reaches.
 
 **A New Home is not, at a cost proportional to one row.** The same
 byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
