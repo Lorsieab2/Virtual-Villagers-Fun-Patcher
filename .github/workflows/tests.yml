@@ -79,6 +79,24 @@ jobs:
         # integrity, safety guards and ABI contracts sit in the half CI does
         # not run.
         #
+        # The gap is mostly INVISIBLE AT FILE GRANULARITY, which is what makes
+        # it easy to miss. Measured the same way, per file:
+        #
+        #   chief-puzzle latch              0 passed   5 skipped   none runs
+        #   crash-immunity reserve          2 passed  10 skipped   partial
+        #   death-wrapper replay            2 passed   2 skipped   partial
+        #   statistics register contract  185 passed   2 skipped   partial
+        #
+        # Only the first fails to run at all. The others report passes and look
+        # covered, while the binary-level cases inside them skip -- 10 of 12
+        # for the crash-immunity reserve, across all five games, so that guard
+        # has never run in CI. The register contract is the extreme case: 185
+        # passing subtests beside the 2 that actually decode a wrapper.
+        #
+        # So reading a file's presence in a green run as evidence it was
+        # checked is exactly the wrong inference. "Some of it ran" is the case
+        # to be careful about, here and in the conftest guard below.
+        #
         # VVFP_ALLOW_NO_FIXTURES is deliberately NOT set. The guard in
         # tests/conftest.py fires only when every fixture-dependent test in a
         # run skipped, and thousands of ordinary tests execute here, so it
