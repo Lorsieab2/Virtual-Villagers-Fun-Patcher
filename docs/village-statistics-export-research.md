@@ -312,10 +312,65 @@ uncapped lifetime storage field and mutation route have yet been proven:
   in "Why The Lost Children has no total stew count" below, which also gives
   the exact mechanism of `+0x2E520` and what a hook satisfying the requirement
   would have to cover. The two must not be conflated.
-- Tribal Chiefs Robed in VV3.
+- Tribal Chiefs Robed in VV3. **This one is different in kind from the others
+  above, and is closed rather than open.** See "Tribal Chiefs Robed" below: the
+  quantity does not exist in the game, and no amount of further searching will
+  find it. The entries above are blocked on evidence; this one is blocked on
+  the game, which is a decision for the owner rather than a research task.
 
 Threshold-limited achievement counters are not accepted as substitutes for
 these uncapped lifetime totals.
+
+### Tribal Chiefs Robed
+
+**VV3 does not maintain this quantity, and cannot be read for it.** Robing a
+chief is a story puzzle, and every puzzle is a saturating progress value behind
+a one-way latch.
+
+    sub_435990  AdvancePuzzle(id)              the only incrementing route
+        0x435999  call 0x4358D0                ; IsComplete(id)
+        0x43599E  test al, al
+        0x4359A0  jne  0x4359D0                ; already complete -> no write
+        0x4359A2  mov  edx, [edi+esi*8]
+        0x4359A5  inc  edx
+        0x4359A6  mov  [edi+esi*8], edx
+
+The chief is puzzle id 1, whose threshold is 1. The single advance takes
+progress from 0 to 1, which equals the threshold and marks it complete, so
+every later robing hits the `jne` and returns. The stored value cannot
+represent two: it is not a counter that saturates at one, it is a latch.
+
+The game agrees. Its own accessor is a boolean:
+
+    0x415030  push 1 ; mov ecx, 0x594990 ; call 0x4358D0
+    0x41503C  test al, al ; setne al ; ret
+
+`setne` collapses the stored value to 0 or 1, and two of its callers pair it
+with `cmp [0x5945E0], 0xA`, the tribe-size influence rule. Nothing in the image
+reads a chief quantity.
+
+The advancing site is the robe fitting `sub_431A40`, whose `cmp eax, 0x1F` at
+`0x431AB0` forks into the game's own "The robe fits!" and "The robe does not
+fit" outcomes; the success branch ends at `0x431B7E push 1 ; call 0x435990`.
+That is the only site in `.text` that advances puzzle 1.
+
+`tests/test_vv3_chief_puzzle_is_a_one_shot_latch.py` pins all of the above,
+and each of its assertions was validated against a mutated known-bad copy.
+
+**Two dead ends recorded so they are not walked again.** The string route is
+closed by design: "The robe fits! The chosen one has been found." at `0x4926BD`
+has zero `.text` references because tips are fetched by resource id, so finding
+no references says nothing about whether a counter exists. And the table of
+handler initialisers at `0x49D298` must not be used to derive puzzle ids -- no
+instruction subscripts it, and it holds 25 entries against the 26 in the tables
+that *are* subscripted (`[reg*4 + 0x49D230]` and `[reg*4 + 0x4B0D88]`). An
+earlier draft of the test above derived the chief's id from an index into it
+and reached the right answer for an unsound reason.
+
+Adding the row would therefore mean this project storing its own count, which
+is a new counter rather than a repair -- the same situation as Villagers Buried
+for VV2 through VV5, and needing the owner's decision rather than more
+research.
 
 ### Villagers Died
 
