@@ -45,16 +45,32 @@ PERSONAL = re.compile(
 # the short spelling is the thing under test -- the CI runner hands back
 # `RUNNER~1` while `resolve()` returns the long name, and the fixture-skip
 # logic has to match either.
+# An allow-list is a two-way door: it suppresses signal in both directions, so
+# an entry that stops being true keeps hiding whatever replaces it. Each is
+# therefore recorded with what it is exempt FOR, and a test below asserts every
+# one is still there for that reason.
+#
+# `runner` and `runner~1` are the CI machine's own directory and its 8.3 short
+# form; the short spelling is the subject of the conftest tests rather than an
+# incidental mention. The placeholders already stand in for an account name.
+# `someone` is this module's own pattern control, which is tracked and so is
+# scanned like any other file -- excusing the file wholesale is the weakness
+# this test was rewritten to avoid.
 IMPERSONAL_ACCOUNTS = {
-    b"runner",
-    b"runner~1",
-    b"<u>",
-    b"<user>",
-    b"username",
-    # This module's own pattern control uses a synthetic account. It is
-    # tracked, so the scan sees it -- and should, since excusing the file
-    # wholesale is the weakness this test was rewritten to avoid.
-    b"someone",
+    # The CI runner's directory only ever appears in its 8.3 short form, which
+    # is the whole point of those tests -- the runner hands back `RUNNER~1`
+    # while `resolve()` returns the long name. Writing the witness down forced
+    # this correction: the first draft claimed plain `runner` was in
+    # conftest.py, and it is not.
+    b"runner~1": "tests/conftest.py",
+    b"someone": "tests/test_archive_has_no_personal_paths.py",
+    # Not present anywhere today. Kept because they are the conventional
+    # spellings a placeholder would use, and listed with None so the staleness
+    # check says so deliberately rather than by omission.
+    b"runner": None,
+    b"<u>": None,
+    b"<user>": None,
+    b"username": None,
 }
 
 # Deliberately NOT a set of exempt files. An earlier draft of this test
@@ -109,6 +125,39 @@ class ArchiveHasNoPersonalPathsTests(unittest.TestCase):
                 match = PERSONAL.search(spelling)
                 self.assertIsNotNone(match, "pattern missed a real spelling")
                 self.assertEqual(match.group(1).lower(), b"someone")
+
+    def test_every_exemption_is_still_exempt_for_something(self) -> None:
+        """An allow-list entry that stops being true starts hiding things.
+
+        Each exemption names the file it exists for. If that file no longer
+        carries the account name -- renamed, rewritten, deleted -- the entry is
+        stale, and a stale entry silently excuses whatever takes its place. So
+        the exemption has to keep earning itself.
+
+        Entries mapped to None are conventional placeholders that are not in
+        the tree today; they are allowed to be absent, and are listed so this
+        test can say that deliberately rather than by omission.
+        """
+        for account, witness in sorted(IMPERSONAL_ACCOUNTS.items()):
+            with self.subTest(account=account.decode()):
+                if witness is None:
+                    continue
+                path = ROOT / witness
+                self.assertTrue(
+                    path.is_file(),
+                    f"{witness} is gone, so the {account.decode()!r} exemption "
+                    f"no longer has a reason",
+                )
+                blob = path.read_bytes()
+                found = {
+                    m.group(1).lower() for m in PERSONAL.finditer(blob)
+                }
+                self.assertIn(
+                    account,
+                    found,
+                    f"{witness} no longer contains {account.decode()!r}, so "
+                    f"that exemption is stale and would now only hide things",
+                )
 
     def test_no_tracked_file_names_a_home_directory(self) -> None:
         offenders: list[str] = []
