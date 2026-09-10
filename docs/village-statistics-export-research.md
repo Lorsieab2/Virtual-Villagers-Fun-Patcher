@@ -291,8 +291,16 @@ separate path and must not trigger a village-statistics export.
 The following requested totals were not added in this pass because no exact,
 uncapped lifetime storage field and mutation route have yet been proven:
 
-- Village Elders where the inherited statistics block does not already expose
-  it.
+- Village Elders in **A New Home only**. The Lost Children exposes it at
+  `+0x2E514`, and the later three games at `+0x1C` of the inherited block, so
+  all four already ship the row. A New Home does not have the field: its
+  statistics run is `+0x9E20` through `+0x9E48` with every slot accounted for,
+  and the slot its successors use for Village Elders holds the saturating
+  memorial recount instead -- the layouts diverge there rather than one being
+  a superset of the other. The `Elderly` string in that executable is a
+  villager health and age status, not a counter, and the remaining matches are
+  German and Spanish words containing "elder" by coincidence. Completing this
+  needs new storage plus a hook, not a field that is waiting to be read.
 - Villagers Died in **A New Home and The Lost Children**.
   The Secret City, The Tree of Life and New Believers ship the counter; see
   "Villagers Died" below for why the other two do not, and what completing
