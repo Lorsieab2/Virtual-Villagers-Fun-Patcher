@@ -298,11 +298,12 @@ uncapped lifetime storage field and mutation route have yet been proven:
   "Villagers Died" below for why the other two do not, and what completing
   them needs.
 - Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
-  is understood (see below, including the first-cook case where it undercounts
-  by one until the recipe is cooked again), but the requirements list *Total*
-  Stews Found "with no herb-combination restriction" as a **separate** VV2
-  statistic, and no writer that increments for every stew has been found. The
-  two must not be conflated.
+  is understood, but the requirements list *Total* Stews Found "with no
+  herb-combination restriction" as a **separate** VV2 statistic. The Lost
+  Children does not persist such a count anywhere -- established exhaustively
+  in "Why The Lost Children has no total stew count" below, which also gives
+  the exact mechanism of `+0x2E520` and the one hook site that would satisfy
+  the requirement. The two must not be conflated.
 - Tribal Chiefs Robed in VV3.
 
 Threshold-limited achievement counters are not accepted as substitutes for
@@ -476,6 +477,71 @@ displacement, disassemble at each hit, and classify on the mnemonic.** A
 positive control pairing the zero write with the `0x64` writes catches the
 missing-instruction failure but not the phantom one, so the control is
 necessary and not sufficient.
+
+### Why The Lost Children has no total stew count
+
+`+0x2E520` is **not** a count of special stews cooked. It is a count of
+**distinct recipes discovered**, and the difference is a per-recipe flag array.
+
+```
+004260AF  mov ecx, [esi+0x3044C]              ; the stew RESULT ID
+004260B5  mov al, [esi+ecx+0x2EAAC]           ; per-recipe "already found" flag
+004260BC  test al, al
+004260BE  jne 0x4260E2                        ; already found -> skip the increment
+004260C9  call 0x4257A0                       ; (message 0x1C7)
+004260CE  mov edx, [esi+0x3044C]
+004260D4  mov byte ptr [esi+edx+0x2EAAC], 1   ; mark this recipe found
+004260DC  inc dword ptr [esi+0x2E520]         ; increment -- FIRST TIME ONLY
+```
+
+Cooking the same stew a second time increments nothing, because `+0x2EAAC`
+indexed by result id is already set. This supersedes the earlier description of
+a first-cook "undercount by one until the recipe is cooked again": there is no
+undercount and no correction on a later cook. The counter is doing exactly what
+it was written to do, and it is bounded by the number of recipes.
+
+The result space is 18 outcomes. The cook routine assigns 17 literal ids
+between `0x425C17` and `0x42600D` (`1`-`0x12`), plus computed ones through
+`mov [esi+0x3044C], eax`. The completion path excludes three before reaching
+the increment:
+
+```
+00426025  mov eax, [esi+0x3044C]
+0042602B  cmp eax, 4     je 0x4260E2
+00426034  cmp eax, 2     je 0x4260E2
+0042603D  cmp eax, 0x12  je 0x4260E2
+```
+
+So 15 of the 18 outcomes can ever increment it, and each at most once.
+
+**The absence is exhaustive, not a failed search.** Every 4-byte offset in
+`0x2E4C0`-`0x2E560` was byte-searched for its disp32 encoding and each hit
+classified by mnemonic -- never by a linear disassembly pass, which
+desynchronises and silently omits real stores. Eleven incrementing writers
+exist in that range:
+
+| field | writers |
+|---|---|
+| `+0x2E4FC` | `add` x2 (`0x42629A`, `0x463742`) |
+| `+0x2E500` | `inc` x2 (`0x44BA92`, `0x44BAC6`) |
+| `+0x2E504` | `add` (`0x4262BA`) |
+| `+0x2E508` | `inc` x3 (`0x44DA75`, `0x46477A`, `0x46482D`) |
+| `+0x2E514` | `inc` (`0x44D55F`) |
+| `+0x2E520` | `inc` (`0x4260DC`) |
+| `+0x2E524` | `inc` (`0x44BAD2`) |
+
+Exactly one touches a stew field and it is the gated one. The positive control
+for the method is the same table: it recovers the known writers for People
+Cured, Village Elders and Triplets Birthed, so a field it reports as having no
+unconditional writer genuinely has none.
+
+**What the requirement would need.** The count has to be new persistent state;
+no stock field holds it. The hook site is already isolated: `0x4260DC` sits
+*after* the recipe gate, while `0x4260AF` sits *before* it, so a counter
+incremented at the top of that block counts every completed cook including
+repeats -- which is the "no herb-combination restriction" the requirements ask
+for. Per the project's standing preference the storage belongs in the companion
+DLL rather than a new stock field or cave allocation.
 
 ### What The Secret City actually has instead of stews
 
