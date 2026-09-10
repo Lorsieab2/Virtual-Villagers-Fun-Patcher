@@ -23,6 +23,13 @@ distinguish are the point:
   * selected some, ran some       -> fine, whatever else skipped
   * selected some, ran none       -> the silent-nothing case, fail
 
+A skip is recognised from the DISK, never from its wording, by three branches:
+a reason quoting a fixture path, a reason quoting only a declared basename,
+and -- for a class-level `@unittest.skipUnless` decorator, which never runs a
+body and so quotes neither -- a fixture Path in the test module's own globals
+that is not there. The last is what makes a fourteenth decorator with a brand
+new phrasing covered on the day it is written.
+
 This module drives real pytest subprocesses rather than asserting on the
 source of the hook, because the defect being prevented IS an exit status. A
 source-level assertion would pass while the hook returned 0.
@@ -41,7 +48,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ARunThatVerifiedNothingFails(unittest.TestCase):
-    def _run(self, tmp: Path, body: str, env_extra=None, extra_files=None):
+    def _run(
+        self, tmp: Path, body: str, env_extra=None, extra_files=None, imports=None
+    ):
         """Run pytest on a throwaway file in a tree with its own conftest.
 
         The real `conftest.py` is copied in so the hook under test is the
@@ -87,11 +96,22 @@ class ARunThatVerifiedNothingFails(unittest.TestCase):
         )
         for name, contents in (extra_files or {}).items():
             (tmp / "tests" / name).write_text(contents, encoding="utf-8")
+        if imports:
+            # Put the named modules into the subprocess's sys.modules without
+            # contributing any test, by importing them from the probe conftest.
+            with open(
+                tmp / "tests" / "conftest.py", "a", encoding="utf-8"
+            ) as handle:
+                for name in imports:
+                    handle.write(f"\nimport {name}  # noqa: E402,F401\n")
         env = dict(os.environ)
         env.pop("VVFP_ALLOW_NO_FIXTURES", None)
+        env["PYTHONPATH"] = str(tmp / "tests")
         if env_extra:
             env.update(env_extra)
-        selection = ["tests"] if extra_files else ["tests/test_probe.py"]
+        selection = (
+            ["tests"] if (extra_files and not imports) else ["tests/test_probe.py"]
+        )
         return subprocess.run(
             [sys.executable, "-m", "pytest", *selection, "-q",
              "-p", "no:cacheprovider"],
@@ -514,6 +534,256 @@ class ARunThatVerifiedNothingFails(unittest.TestCase):
                 "missing tools are not missing inputs"
                 + result.stdout[-2000:],
             )
+
+    def test_a_class_level_decorator_skip_is_seen(self):
+        """The case no reason-reading branch can reach.
+
+        Thirteen files gate a whole class on a module-level path:
+
+            @unittest.skipUnless(STOCK.is_file(), "requires the VV4 stock exe")
+            class VV4SlotGuardCounterTests(unittest.TestCase):
+
+        The body never runs, nothing raises, no file is opened, and the reason
+        names neither a path nor a basename -- so the rewrite hook has no
+        exception and both reason branches correctly decline it. A focused run
+        of such a test exited 0 with the guard installed, which review reported
+        with a real node.
+
+        The probe below reproduces the shape rather than importing the real
+        test, so it fails for the mechanism rather than for whichever file
+        happens to carry a decorator today.
+
+        Note the probe's `STOCK` points INSIDE a fixture root. A Path elsewhere
+        must not count, or every skip in a module that merely holds some
+        missing path would be treated as a missing game input.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            tmp = Path(temp)
+            (tmp / "research" / "stock-executables").mkdir(parents=True)
+            result = self._run(
+                tmp,
+                """
+                import unittest
+                from pathlib import Path
+
+                ROOT = Path(__file__).resolve().parents[1]
+                STOCK = ROOT / "research" / "stock-executables" / "Absent.exe"
+
+                @unittest.skipUnless(STOCK.is_file(), "requires the stock exe")
+                class Gated(unittest.TestCase):
+                    def test_needs_the_binary(self):
+                        self.assertTrue(True)
+                """,
+            )
+            self.assertNotEqual(
+                result.returncode,
+                0,
+                "a class-level decorator skip for an absent fixture must not "
+                "exit 0" + result.stdout[-2000:],
+            )
+            self.assertIn("verified nothing", result.stdout)
+
+    def test_a_decorator_skip_for_a_present_file_is_ignored(self):
+        """The negative control for the branch above.
+
+        The module-globals branch decides from the disk, so a module whose
+        fixture paths all exist has skipped for some other reason and must not
+        be counted. Without this, the branch could degrade into "any skip in a
+        module that mentions a Path", which is the over-reporting failure the
+        reason branches were carefully built to avoid.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            tmp = Path(temp)
+            root = tmp / "research" / "stock-executables"
+            root.mkdir(parents=True)
+            (root / "Present.exe").write_bytes(b"stub")
+            result = self._run(
+                tmp,
+                """
+                import unittest
+                from pathlib import Path
+
+                ROOT = Path(__file__).resolve().parents[1]
+                STOCK = ROOT / "research" / "stock-executables" / "Present.exe"
+
+                # Names STOCK, so the condition gate admits it and the
+                # exists() check is what must decline. `is_dir()` is
+                # false for a file, so this skips while STOCK exists.
+                @unittest.skipUnless(STOCK.is_dir(), "unrelated reason")
+                class Gated(unittest.TestCase):
+                    def test_skipped_for_another_cause(self):
+                        self.assertTrue(True)
+                """,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                "a skip in a module whose fixtures are all present is not a "
+                "missing-input run" + result.stdout[-2000:],
+            )
+
+    def test_a_tool_skip_is_not_blamed_on_another_modules_fixture(self):
+        """The module-globals branch must read the REPORTING module only.
+
+        Found by mutation: deleting the `Path(file).name != name` filter left
+        every other test here green, so the filter looked like tidiness. It is
+        not. With it removed, a module that skips for a missing TOOL is
+        attributed to some *other* module's absent fixture Path, and a run that
+        should be green exits 1:
+
+            with the name match     exit=0
+            WITHOUT the name match  exit=1, banner shown
+
+        That is the over-reporting direction, which costs other people time and
+        looks like diligence while doing it -- the failure the reason branches
+        were built to avoid, reintroduced by the branch that fixed the
+        under-reporting one.
+
+        Reaching it needed a run where NOTHING executes: any executed test
+        keeps the guard silent regardless, which is why the first four
+        mutations could not see the difference.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            tmp = Path(temp)
+            result = self._run(
+                tmp,
+                """
+                import unittest
+
+                @unittest.skipUnless(False, "requires capstone")
+                class ToolGated(unittest.TestCase):
+                    def test_needs_a_tool(self):
+                        self.assertTrue(True)
+                """,
+                extra_files={
+                    # A sibling holding an absent fixture Path and contributing
+                    # NO executed test. If it ran one, the guard would stay
+                    # silent for that reason instead and this would pass
+                    # whatever the branch does -- which is exactly how the
+                    # first version of this test failed to catch the mutation.
+                    "sibling_holder.py": (
+                        "from pathlib import Path\n"
+                        "\n"
+                        "ROOT = Path(__file__).resolve().parents[1]\n"
+                        "STOCK = (\n"
+                        '    ROOT / "research" / "stock-executables" / "Absent.exe"\n'
+                        ")\n"
+                    ),
+                },
+                imports=["sibling_holder"],
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                "a tool skip must not be attributed to another module's "
+                "missing fixture" + result.stdout[-2000:],
+            )
+            self.assertNotIn("verified nothing", result.stdout)
+
+    def test_an_absent_path_outside_the_fixture_roots_is_ignored(self):
+        """Only Paths under a fixture root count as a missing game input.
+
+        Also found by mutation: replacing the root test with `True` left every
+        other test green. Without it, ANY absent Path in the module's globals
+        counts -- an output directory not yet created, a temp file, a
+        scratch artefact -- and a skip for any reason at all in such a module
+        reddens the run.
+
+        That is the same over-reporting direction as the sibling-module case,
+        reached by a different route, and both were invisible until the
+        mutation was run. Two negative controls for one branch, because the
+        branch has two independent ways to say yes too often.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            tmp = Path(temp)
+            result = self._run(
+                tmp,
+                """
+                import unittest
+                from pathlib import Path
+
+                ROOT = Path(__file__).resolve().parents[1]
+                # Absent, but NOT under a fixture root.
+                SCRATCH = ROOT / "build" / "not-made-yet.bin"
+
+                # Names SCRATCH, so the condition gate admits it and the
+                # fixture-root restriction is what must decline.
+                @unittest.skipUnless(SCRATCH.is_file(), "unrelated reason")
+                class Gated(unittest.TestCase):
+                    def test_skipped_for_another_cause(self):
+                        self.assertTrue(True)
+                """,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                "an absent path outside the fixture roots is not a missing "
+                "game input" + result.stdout[-2000:],
+            )
+            self.assertNotIn("verified nothing", result.stdout)
+
+    def test_a_bare_skip_in_a_module_holding_a_fixture_path_is_ignored(self):
+        """A file retired for an unrelated reason must not demand game files.
+
+        Review found this as a regression against main, and it is the third
+        over-reporting hole in the same branch:
+
+            tests/test_vv2_origins_playtest_feature.py
+                STOCK = ROOT / "research" / "stock-executables"
+                @unittest.skip("superseded by the current ... tests")
+
+            on the fix   10 skipped, exit 1, "Link the game files into ..."
+            on main      10 skipped, exit 0
+
+        A file skipped as **superseded**, with no fixture condition anywhere,
+        was told to link game files and failed the run. Two files did it.
+
+        That is worse than the under-reporting bug being fixed. A guard that
+        cries wolf on a legitimate configuration teaches people to set
+        VVFP_ALLOW_NO_FIXTURES=1 permanently, which restores the original
+        blindness with extra steps -- the same trap that sank a peer's
+        competing guard earlier.
+
+        The cause was inferring the dependency instead of observing it:
+        "this module mentions an absent fixture Path" is not "this skip
+        happened because of one". The condition of the decorator that actually
+        caused the skip is now parsed, and only the globals it names are
+        consulted.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            result = self._run(
+                Path(temp),
+                """
+                import unittest
+                from pathlib import Path
+
+                ROOT = Path(__file__).resolve().parents[1]
+                # Declared, absent, and irrelevant to why this file skips.
+                STOCK = ROOT / "research" / "stock-executables" / "Absent.exe"
+
+                @unittest.skip("superseded by newer tests")
+                class Retired(unittest.TestCase):
+                    def test_not_run_any_more(self):
+                        self.assertTrue(True)
+                """,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                "a file skipped for an unrelated reason must not be treated "
+                "as a missing-input run" + result.stdout[-2000:],
+            )
+            self.assertNotIn("verified nothing", result.stdout)
 
     def test_the_escape_hatch_permits_a_fixtureless_run(self):
         """Someone without the game files must still be able to run the suite.

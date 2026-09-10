@@ -23,8 +23,10 @@ that is per-file, so a partial install skips exactly the tests it should.
 
 from pathlib import Path
 
+import ast
 import json
 import os
+import sys
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -364,32 +366,9 @@ def _is_fixture_skip(reason: str) -> bool:
     run without capstone has not silently failed to examine the binaries, it
     cannot examine them.
 
-    A proactive skip mentioning no filename whatsoever remains invisible here,
-    and no classifier reading prose can fix that.
-
-    **That residual gap is 77 tests across 24 distinct phrasings, not a
-    theoretical corner.** Counted from the junit of a full run in a worktree
-    with no fixtures, the largest groups being `requires the VV4 stock
-    executable` (15), `requires the exact-build VV1 stock executable` (8) and
-    `stock VV5 executable is not checked in` (8). A live reproducer, which is
-    a real node rather than a constructed probe:
-
-        pytest "tests/test_vv4_slot_guards_use_a_real_counter.py::
-                VV4SlotGuardCounterTests::
-                test_counter_adds_pending_babies_behind_a_pregnancy_gate"
-        1 skipped        exit 0
-
-    That is a focused run of a fixture-dependent test exiting 0 with this
-    guard installed -- the same shape as the defect the guard was written for.
-
-    Twenty-four wordings for one condition is also the argument against ever
-    fixing this by extending the matching: the twenty-fifth is one commit
-    away. The fix is a shared `skip_missing_fixture(path)` helper that the
-    tests call, so the reason is generated rather than written and cannot be
-    phrased into invisibility. That is a change across those test files rather
-    than to this one, which is why it is not in this commit -- but it is the
-    fix, and the numbers above are here so the next reader does not have to
-    rediscover the scale before deciding it is worth doing.
+    A skip whose reason names no file at all is handled by
+    `_module_names_an_absent_fixture` instead, which reads the test module's
+    own globals rather than its prose. See that function for why.
     """
     if not reason:
         return False
@@ -402,6 +381,177 @@ def _is_fixture_skip(reason: str) -> bool:
     return any(name in lowered for name in _absent_fixture_basenames())
 
 
+def _module_names_an_absent_fixture(report) -> bool:
+    """Whether the skipped test's own module points at a missing fixture.
+
+    This covers the case no reason-reading branch can: a **class-level
+    decorator**.
+
+        @unittest.skipUnless(STOCK.is_file(), "requires the VV4 stock executable")
+        class VV4SlotGuardCounterTests(unittest.TestCase):
+
+    The body never runs, nothing is raised, and no file is opened, so
+    `_is_missing_fixture` has no exception to inspect. The reason names no path
+    and no basename, so both branches of `_is_fixture_skip` correctly decline
+    it. The result was a focused run of a genuinely fixture-dependent test
+    exiting 0 with this guard installed -- reported by review with exactly that
+    node, and still reproducing after the reason-based branches were added.
+
+    An earlier plan was to convert the callers to a generated-reason helper.
+    Measuring first showed that would have fixed nothing here: those are
+    `skipTest` calls, while every live instance of this defect is a
+    `skipUnless` **decorator**, evaluated at import time -- a couple of dozen
+    of them, spread across nearly as many files.
+
+    The count is deliberately not stated exactly. Two sessions measured it on
+    the same day and got 13, 15 and 18 depending on whether the grep handled
+    multi-line decorators, and a precise figure in a durable comment outlives
+    the session that wrote it and goes quietly stale. What matters is the
+    shape, and the shape is what this function keys on.
+
+    What they share is not a wording but a shape -- each gates on a
+    module-level path:
+
+        STOCK.is_file()   VV2_STOCK.is_file()   ATLAS.is_file()
+        STOCK.exists()    VV3_DLL.is_file()     STOCK_DIR.is_dir()
+
+    So the decision is taken from the module's globals. The report names the
+    test file; the module is already imported by the time setup runs; any
+    global holding a `Path` under a fixture root that is not on disk means the
+    skip was a missing input. That is a fact about the disk, like the other two
+    branches, and it needs no cooperation from the test author at all -- a
+    fourteenth decorator with a brand new wording is covered on the day it is
+    written.
+
+    The tool/input distinction survives: `@unittest.skipIf(capstone is None,
+    ...)` has no fixture Path in its module's globals to find.
+    """
+    location = getattr(report, "location", None)
+    if not (isinstance(location, tuple) and location):
+        return False
+    name = Path(str(location[0])).name
+    module = None
+    for candidate in list(sys.modules.values()):
+        file = getattr(candidate, "__file__", None)
+        if file and Path(file).name == name:
+            module = candidate
+            break
+    if module is None:
+        return False
+
+    gating = _names_used_by_the_skip_condition(module, location)
+    if not gating:
+        return False
+
+    roots = [root.resolve() for root in FIXTURE_ROOTS]
+    for attribute in gating:
+        value = getattr(module, attribute, None)
+        if not isinstance(value, Path):
+            continue
+        try:
+            resolved = value.resolve()
+        except (OSError, ValueError):
+            continue
+        if any(
+            resolved == root or root in resolved.parents for root in roots
+        ) and not value.exists():
+            return True
+    return False
+
+
+def _names_used_by_the_skip_condition(module, location) -> set[str]:
+    """Globals named by the decorator that actually caused this skip.
+
+    Review found the hole this closes, and it is the third over-reporting one
+    in this function. Asking "does this module mention an absent fixture Path"
+    is not the same question as "did this skip happen because of one", and the
+    difference is a live regression:
+
+        tests/test_vv2_origins_playtest_feature.py
+            STOCK = ROOT / "research" / "stock-executables"
+            @unittest.skip("superseded by the current ... tests")
+
+    A file retired as **superseded**, with no fixture condition anywhere, was
+    told to link game files and failed the run. That is the over-reporting
+    direction, and it is worse than the under-reporting one it was fixing: a
+    guard that cries wolf on a legitimate configuration teaches people to set
+    VVFP_ALLOW_NO_FIXTURES=1 permanently, which restores the original
+    blindness with extra steps.
+
+    So the dependency is now **observed rather than inferred**. The report
+    carries the file and line of the skipped item, the decorator sits directly
+    above it, and its condition names the globals it gates on. Only those are
+    consulted.
+
+    Parsed with `ast` rather than by matching text, so `STOCK.is_file()`,
+    `HAVE_DEPS and STOCK.exists()` and `STOCK_DIR.is_dir()` are all read as
+    the names they use. A bare `@unittest.skip("superseded")` has no condition
+    at all and therefore names nothing, which is the case that regressed.
+
+    Only `args[0]` is walked, not the whole decorator. Mutating that to walk
+    the entire call survives every test, and the reason is worth recording
+    rather than papering over with a test for it: across the whole suite the
+    only name the wider walk adds is `unittest` itself, which is never a
+    `Path`. The narrowing is correct but currently unobservable, so no
+    assertion pins it -- writing one would pin behaviour that cannot differ,
+    which is the dead-code-as-safeguard shape this file already removed once.
+
+    Every decorator on the node is inspected, not just the outermost. Stacked
+    gates are common here and the fixture one is usually inner:
+
+        @unittest.skipIf(capstone is None, "requires capstone")
+        @unittest.skipUnless(STOCK.is_file(), "requires the VV4 stock exe")
+        class VV4SlotGuardCounterTests(unittest.TestCase):
+
+    Stopping at the first decorator would find `capstone is None`, name no
+    `Path`, and decline -- never reaching the condition that actually fired.
+
+    One property that reads like a defect, so it is recorded rather than left
+    to be rediscovered. **Scope changes the right answer.** That class alone
+    exits 1, as it should. The *file* containing it exits 0, because it also
+    holds `VV4SlotGuardDocTests`, three tests that read documentation and need
+    no binary:
+
+        3 passed, 15 skipped        exit 0
+
+    Something executed, so the run did verify something, and the guard is
+    correctly silent. A reviewer measuring the file concluded the headline case
+    was uncovered; measuring the class showed it was. Both measurements were
+    right and only one answers "does the guard catch this" -- a file that also
+    contains passing tests cannot, because those legitimately suppress the
+    signal.
+    """
+    file = getattr(module, "__file__", None)
+    if not file:
+        return set()
+    try:
+        source = Path(file).read_text(encoding="utf-8")
+        tree = ast.parse(source)
+    except (OSError, ValueError, SyntaxError):
+        return set()
+
+    line = location[1] if len(location) > 1 else None
+    if not isinstance(line, int):
+        return set()
+    # `location` is zero-based; ast line numbers are one-based.
+    target = line + 1
+
+    names: set[str] = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.ClassDef, ast.FunctionDef)):
+            continue
+        end = getattr(node, "end_lineno", node.lineno)
+        if not node.lineno <= target <= end:
+            continue
+        for decorator in node.decorator_list:
+            if not isinstance(decorator, ast.Call) or not decorator.args:
+                continue
+            for sub in ast.walk(decorator.args[0]):
+                if isinstance(sub, ast.Name):
+                    names.add(sub.id)
+    return names
+
+
 def pytest_runtest_logreport(report):
     """Record which fixture-dependent tests skipped and which ran."""
     if report.when != "call" and not (report.when == "setup" and report.skipped):
@@ -412,7 +562,9 @@ def pytest_runtest_logreport(report):
         reason = str(longrepr[2])
     elif isinstance(longrepr, str):
         reason = longrepr
-    if report.skipped and _is_fixture_skip(reason):
+    if report.skipped and (
+        _is_fixture_skip(reason) or _module_names_an_absent_fixture(report)
+    ):
         _fixture_skips.append(report.nodeid)
     elif report.when == "call" and not report.skipped:
         _fixture_executed.append(report.nodeid)
