@@ -140,6 +140,12 @@ class Vv2HealthMutationSitesAreClassified(unittest.TestCase):
         cls.data = STOCK.read_bytes()
         cls.va, cls.raw, cls.rsize = _text_section(cls.data)
         cls.md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        # Required for the EFLAGS model the liveness check reads. Without it
+        # every `instruction.eflags` access raises CS_ERR_DETAIL rather than
+        # returning zero, so the failure is loud -- but the ad-hoc scripts that
+        # first derived these results set it and this class did not, which is
+        # its own small lesson about analysis and test drifting apart.
+        cls.md.detail = True
         cls.chains = cls._collect(cls)
 
     def _collect(self):
@@ -495,6 +501,121 @@ class Vv2HealthMutationSitesAreClassified(unittest.TestCase):
                     head.op_str,
                     "the lea must address the health field",
                 )
+
+    def _flag_writes(self, instruction):
+        """Flags this instruction leaves DEFINED, by any means.
+
+        Counting only capstone's MODIFY class is wrong and produced a false
+        alarm: `test ecx, ecx` is MODIFY on PF/ZF/SF but RESET on CF/OF,
+        because the SDM has TEST *clear* those rather than leave them stale.
+        Reading MODIFY alone made OF look live at two sites and nearly produced
+        a "your analysis is wrong" message to a peer whose analysis was right.
+        """
+        import capstone
+
+        defined = set()
+        for flag in ("CF", "PF", "AF", "ZF", "SF", "OF"):
+            for kind in ("MODIFY", "RESET", "SET", "UNDEFINED"):
+                mask = getattr(capstone.x86, f"X86_EFLAGS_{kind}_{flag}", 0)
+                if mask & instruction.eflags:
+                    defined.add(flag)
+        return defined
+
+    def _flag_reads(self, instruction):
+        import capstone
+
+        return {
+            flag
+            for flag in ("CF", "PF", "AF", "ZF", "SF", "OF")
+            if getattr(capstone.x86, f"X86_EFLAGS_TEST_{flag}", 0)
+            & instruction.eflags
+        }
+
+    def test_no_site_resumes_with_live_flags(self):
+        """Nothing downstream may read a flag the mutation set.
+
+        A wrapper spliced in here restores registers but not flags unless it
+        says so, and a corrupted flag produces a WRONG NUMBER rather than a
+        crash -- the class that never generates a bug report. So whether the
+        mutation's flags are still live at the resume point decides whether the
+        wrapper must carry a `pushfd`/`popfd` pair.
+
+        The answer is that they are dead at all seven sites. Establishing that
+        took three attempts, in both wrong directions:
+
+          1. walking to the first flag READER and stopping -- reports dead
+             whenever a reader is far away, regardless of intervening writes;
+          2. tracking writes but counting only capstone's MODIFY class --
+             reported OF live at 0x433367 and 0x4375E7, because the `test`
+             between the resume point and the `jge` RESETs OF rather than
+             MODIFYing it;
+          3. counting MODIFY, RESET, SET and UNDEFINED as writes -- dead
+             everywhere, which the SDM confirms.
+
+        The shipped wrapper carries `pushfd`/`popfd` anyway, so this property
+        is not load-bearing. It is asserted because a future site added without
+        it would otherwise silently depend on a fact nobody re-derived, and
+        because the analysis above is worth keeping next to the addresses it
+        describes.
+        """
+        for address in sorted(DOCUMENTED_DAMAGE):
+            with self.subTest(site=hex(address)):
+                span = self._stolen_span(address)
+                resume = address + span
+                live = {"CF", "PF", "AF", "ZF", "SF", "OF"}
+                start = self.raw + (resume - self.va)
+                verdict = None
+                for instruction in self.md.disasm(
+                    self.data[start:start + 48], resume
+                ):
+                    read = self._flag_reads(instruction) & live
+                    if read:
+                        verdict = (
+                            f"{instruction.address:#010x} "
+                            f"{instruction.mnemonic} {instruction.op_str} "
+                            f"reads {sorted(read)} left by the mutation"
+                        )
+                        break
+                    live -= self._flag_writes(instruction)
+                    if not live:
+                        break
+                    if instruction.mnemonic in ("call", "ret"):
+                        verdict = "flags still live across a call boundary"
+                        break
+                self.assertIsNone(
+                    verdict,
+                    f"{address:#010x} resumes with live flags: {verdict}",
+                )
+
+    def test_the_flag_model_counts_reset_as_a_write(self):
+        """Positive control for the liveness check above.
+
+        The check's clean answer is "nothing live", which is also what a model
+        that thinks every instruction rewrites everything would report. This
+        pins the specific modelling detail that got it wrong: `test` must be
+        seen to define CF and OF, not merely PF/ZF/SF.
+        """
+        import capstone
+
+        decoded = list(self.md.disasm(b"\x85\xc9", 0))
+        self.assertEqual(len(decoded), 1)
+        self.assertEqual(decoded[0].mnemonic, "test")
+        defined = self._flag_writes(decoded[0])
+        self.assertEqual(
+            defined,
+            {"CF", "PF", "AF", "ZF", "SF", "OF"},
+            "TEST defines every arithmetic flag -- SF/ZF/PF from the result, "
+            "CF/OF cleared, AF undefined -- and a model that misses the "
+            "cleared ones reports stale flags that are actually zero",
+        )
+        # And the converse: a `mov` must define nothing, or the liveness walk
+        # would clear flags that really are still live.
+        moved = list(self.md.disasm(b"\x8b\x46\x04", 0))
+        self.assertEqual(
+            self._flag_writes(moved[0]),
+            set(),
+            "a plain mov must not be treated as defining flags",
+        )
 
     def test_the_old_age_store_is_a_store_not_a_decrement(self):
         """0x43BDEE zeroes health directly; no decrement reaches it.
