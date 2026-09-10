@@ -23,6 +23,7 @@ that is per-file, so a partial install skips exactly the tests it should.
 
 from pathlib import Path
 
+import os
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -253,3 +254,80 @@ def pytest_runtest_makereport(item, call):
         lineno,
         f"requires a local game file that is gitignored and absent: {missing}",
     )
+
+
+# --- The whole-run guard -------------------------------------------------
+#
+# A test that skips for a missing fixture is correct behaviour; a *run* in
+# which every fixture-dependent test skipped is a run that verified nothing,
+# and it exits 0 exactly like a run that verified everything. Three sessions
+# hit this independently on the same repository, each diagnosing it as a local
+# worktree problem and each solving it privately by linking the fixtures in.
+# Nobody could see it from the terminal output, because "5 skipped" and
+# "5 passed" are both green.
+#
+# So the run fails when the fixture-dependent tests it selected ALL skipped for
+# the missing-input reason. Selecting none is fine -- that is a run that never
+# asked. Selecting some and executing some is fine. Only "asked, and every
+# answer was 'no input'" is the silent-nothing case.
+#
+# Set VVFP_ALLOW_NO_FIXTURES=1 to permit it, for the genuine case of a
+# contributor without the game files running the rest of the suite.
+
+_FIXTURE_SKIP_REASON = "requires a local game file that is gitignored and absent"
+
+_fixture_skips: list[str] = []
+_fixture_executed: list[str] = []
+
+
+def pytest_runtest_logreport(report):
+    """Record which fixture-dependent tests skipped and which ran."""
+    if report.when != "call" and not (report.when == "setup" and report.skipped):
+        return
+    longrepr = getattr(report, "longrepr", None)
+    reason = ""
+    if isinstance(longrepr, tuple) and len(longrepr) == 3:
+        reason = str(longrepr[2])
+    elif isinstance(longrepr, str):
+        reason = longrepr
+    if report.skipped and _FIXTURE_SKIP_REASON in reason:
+        _fixture_skips.append(report.nodeid)
+    elif report.when == "call" and not report.skipped:
+        _fixture_executed.append(report.nodeid)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_sessionfinish(session, exitstatus):
+    """Fail a run whose fixture-dependent tests all skipped.
+
+    Deliberately keyed on the skip REASON rather than on a count of skips:
+    withdrawn features and unavailable displays skip too, and those are not
+    evidence of a missing input. Only the reason this file itself writes is
+    counted.
+    """
+    yield
+    if os.environ.get("VVFP_ALLOW_NO_FIXTURES") == "1":
+        return
+    if not _fixture_skips:
+        return
+    if _fixture_executed:
+        return
+    if session.exitstatus != 0:
+        return
+    session.exitstatus = 1
+    reporter = session.config.pluginmanager.get_plugin("terminalreporter")
+    if reporter is not None:
+        reporter.write_sep(
+            "=",
+            "every selected test that needs a game file skipped: this run "
+            "verified nothing",
+            red=True,
+        )
+        reporter.write_line(
+            f"{len(_fixture_skips)} test(s) skipped for a missing input and "
+            "none executed."
+        )
+        reporter.write_line(
+            "Link the game files into research/stock-executables, or set "
+            "VVFP_ALLOW_NO_FIXTURES=1 to accept a run that cannot check them."
+        )
