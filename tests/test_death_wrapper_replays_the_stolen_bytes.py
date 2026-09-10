@@ -26,6 +26,8 @@ from __future__ import annotations
 
 import ast
 import base64
+import hashlib
+import importlib.util
 import json
 import sys
 import unittest
@@ -127,49 +129,98 @@ class DeathWrapperReplaysTheStolenBytes(unittest.TestCase):
                 "no death hook could be checked against its executable"
             )
 
-    def test_the_replayed_bytes_appear_in_the_cave_payload(self):
-        """The wrapper's payload must actually contain the stolen bytes.
+    def test_each_wrapper_replays_its_own_guard_in_its_own_slot(self):
+        """Every death wrapper must contain its stolen bytes, at its own slot.
 
-        The strongest available end-to-end check short of running the game: for
-        each death hook, the guard bytes it replaces must appear inside the
-        cave payload the same feature installs. If the generator ever emitted a
-        restatement again, and that restatement differed, this fails.
+        Two earlier versions of this assertion could not fail, and both reasons
+        are worth keeping because neither is visible from reading it.
+
+        **It read the committed manifest.** Deleting `death_guard` from the
+        generator's `death_wrapper = ...` line left this test green: the
+        manifest on disk is then *stale*, not wrong, so the test measured a
+        file the change never touched. It only went red if someone happened to
+        regenerate first. The payload is now built by calling ``build_game``
+        here, so the bytes under test are produced by the code under test.
+
+        **It searched the whole payload.** Every shipping game has *two* death
+        hooks with the same seven guard bytes:
+
+            vv3, vv4, vv5:  2 hooks each, guard C7410C00000000 for both
+
+        so a whole-payload ``assertIn`` is satisfied by the sibling wrapper
+        even when one wrapper has lost its replay entirely. Each check is now
+        scoped to that wrapper's own ``slot``.
+
+        Both were found by review rather than by my own mutation runs, which
+        had all targeted the manifest rather than the generator -- the same
+        error as mutating a list instead of the derivation that fills it.
         """
-        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        sys.path.insert(0, str(ROOT / "scripts"))
+        spec = importlib.util.spec_from_file_location(
+            "_statistics_generator", GENERATOR
+        )
+        generator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(generator)
+
+        companion = hashlib.sha256(generator.COMPANION.read_bytes()).hexdigest().upper()
+
         checked = 0
-        for feature in manifest["features"]:
-            # The cave payload is carried as `after_base64`, not `after` --
-            # large rows use base64 and declare `length`/`before_fill` instead
-            # of a hex preimage. Collecting only `after` finds the five-byte
-            # hook jumps and none of the payload, which made an earlier version
-            # of this test fail against a perfectly correct manifest.
-            blob = b"".join(
+        for game_id, config in generator.GAMES.items():
+            hooks = config.get("death_hooks") or []
+            if not hooks:
+                continue
+            exe = ROOT / "research" / "stock-executables" / str(config["exe"])
+            if not exe.is_file():
+                continue
+
+            feature = generator.build_game(game_id, config, companion)
+            payloads = [
                 base64.b64decode(row["after_base64"])
                 for row in feature["patches"]
                 if row.get("after_base64")
+            ]
+            self.assertEqual(
+                len(payloads),
+                1,
+                f"{game_id} must emit exactly one cave payload for slots to "
+                "be meaningful",
             )
-            self.assertTrue(
-                blob,
-                f"{feature['game_id']} has no cave payload to search, which "
-                "means this check is looking in the wrong place",
-            )
-            for row in feature["patches"]:
-                if "count every villager death" not in str(row.get("purpose", "")):
-                    continue
-                guard = bytes.fromhex(row["before"])
-                with self.subTest(
-                    game=feature["game_id"], offset=row["offset"]
-                ):
+            payload = payloads[0]
+
+            for hook in hooks:
+                guard = bytes.fromhex(str(hook["guard"]))
+                slot = int(hook["slot"])
+                # The wrapper occupies [slot, next wrapper or end). Bounding it
+                # by the next slot is what stops a sibling satisfying this.
+                later = [
+                    int(other["slot"])
+                    for other in hooks
+                    if int(other["slot"]) > slot
+                ]
+                end = min(later) if later else len(payload)
+                window = payload[slot:end]
+                with self.subTest(game=game_id, slot=hex(slot)):
+                    self.assertTrue(
+                        window,
+                        f"{game_id} slot {slot:#x} is empty, so this check "
+                        "would pass vacuously",
+                    )
                     self.assertIn(
                         guard,
-                        blob,
-                        "the stolen bytes must be replayed inside the cave "
-                        "payload; a hardcoded replay that drifted from the "
-                        "guard would not appear here",
+                        window,
+                        "the wrapper at this slot must replay ITS OWN stolen "
+                        "bytes; a whole-payload search would be satisfied by "
+                        "the sibling wrapper, which shares the same guard",
                     )
                 checked += 1
-        self.assertGreater(
-            checked, 0, "no death hooks found to check, which is itself wrong"
+
+        if not checked:
+            self.skipTest(
+                "requires a local game file that is gitignored and absent: "
+                "no death wrapper could be generated"
+            )
+        self.assertGreaterEqual(
+            checked, 2, "at least one game ships two death hooks"
         )
 
 
