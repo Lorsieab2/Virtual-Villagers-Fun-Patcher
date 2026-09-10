@@ -302,9 +302,10 @@ uncapped lifetime storage field and mutation route have yet been proven:
   German and Spanish words containing "elder" by coincidence. Completing this
   needs new storage plus a hook, not a field that is waiting to be read.
 - Villagers Died in **A New Home and The Lost Children**. **Closed at
-  proportional cost, not blocked on evidence** -- the two call for different
-  decisions, one being a search and the other a judgement about whether a row
-  is worth the cost.
+  proportional cost, not blocked on evidence** -- and both are now measured
+  rather than one measured and one asserted to match: 19 hooks for A New Home,
+  24 for The Lost Children, with no convergence point in either. Both call for
+  the same judgement about whether a row is worth that cost.
   The Secret City, The Tree of Life and New Believers ship the counter; see
   "Villagers Died" below for why the other two do not, and what completing
   them needs.
@@ -471,6 +472,43 @@ reach zero health by *decrement* through register-computed pointers inside the
 same tick routine, so a hook on the store would report old-age deaths under a
 total's name: authoritative-looking and quietly wrong. Neither game has a cause
 field to gate on either, so the idempotency trick above does not transfer.
+
+**A New Home has now been measured the same way as The Lost Children, and it
+lands in the same place.** Until this was done the document asserted parity
+between the two games without a count for the first, which read as though both
+had been examined to the same depth when only one had.
+
+| | A New Home | The Lost Children |
+|---|---|---|
+| health field | `record+0x344` | `record+0x52C` |
+| sites touching the field | 88 | 130 |
+| direct writers (memory as destination) | 9 | 13 |
+| of those, storing literal zero | `0x42EF05` | `0x43BDEE` |
+| lethal `lea`-mediated sites | **18** | **23** |
+| total hooks incl. the old-age store | **19** | **24** |
+
+The instruction forms are the same four, including the randomiser shape where a
+`call` separates the address computation from the subtraction
+(`0x43A5A8`: `lea ebx,[edx+esi+344h] ; call 0x402F10 ; sub [ebx],eax`) and the
+one where pops are interleaved between the load and the store-back
+(`0x42C2A6`: `lea ; mov ecx,[eax] ; pop edi ; add ecx,-0Fh ; pop esi ; mov [eax],ecx`).
+
+**The convergence route is closed for A New Home too, and it needed the same
+control to close honestly.** Walking flow forward from the 18 sites gives eleven
+distinct callees with the most-shared reached from **13 of the 18** -- which
+again looks exactly like a shared death handler. It is not one: `0x402F10` is
+the bounded RNG helper (`cmp esi,7FFFh ; jg`, then `cdq ; idiv esi`) with **917
+callers image-wide**, and the next two, `0x402F70` (92 callers) and `0x43A130`
+(31), are the clock helper and a slot-scan loop. Structurally identical to The
+Lost Children's `0x4031A0`/`0x403200`/`0x44B2A0` at 1551/137/71.
+
+**A counting note that cost a wrong set.** A first pass also returned 18, but a
+*different* 18: it counted `0x448624` as damage on a `cmp dword ptr [esi], 0`,
+which only reads through the pointer, and missed `0x43B387`. The totals agreed
+while the membership did not, so comparing counts would have confirmed a wrong
+answer. Sites are only comparable as **address sets**; a site is lethal only
+when the same register the `lea` loaded is the destination of a *reducing*
+write.
 
 The damage that reaches zero is applied **through a pointer**, which is why no
 displacement search finds it and why the image contains no `sub [mem]` for
