@@ -40,12 +40,21 @@ binaries are copyrighted and correctly gitignored; byte-level guarantees rest
 on a local run with them linked.
 
 Treat the totals as approximate. They depend on the tree (``inputs/`` differs
-per machine) and carry roughly +/-7 from a Tk-initialisation flake in the GUI
-tests: those skip or run unpredictably across identical invocations, with the
-reason reported as a missing ``init.tcl`` even though ``tkinter.Tk()``
-succeeds in the same interpreter outside pytest. The cause is unresolved and
-is not the fixture mechanism this module implements. The composition does not
-vary, and the fixture gap is far outside that noise.
+per machine) and carry a Tk-initialisation flake in the GUI tests, which skip
+or run unpredictably. The reason is reported as a missing ``init.tcl`` even
+though ``tkinter.Tk()`` succeeds in the same interpreter outside pytest.
+
+The cause is unresolved. What has been ruled out, so nobody repeats it: it is
+not the GUI import, not module-level versus test-time construction, and not
+pytest itself -- a one-line probe module doing ``tkinter.Tk()`` passes alone.
+Run alongside the GUI file it sometimes fails and sometimes passes, and the
+ordering does not decide it: probe-first failed once and passed once across
+two identical invocations. So it is nondeterministic within a process rather
+than a poisoning by any one module, and a single run in either arrangement
+will support whichever conclusion it happens to land on.
+
+This is not the fixture mechanism this module implements. The composition of
+the fixture gap does not vary, and that gap is far outside this noise.
 
 The dependency is detected from what a test actually DOES -- an unreadable
 fixture path at run time -- not from scanning its source. Two earlier attempts
