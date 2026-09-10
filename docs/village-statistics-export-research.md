@@ -301,7 +301,10 @@ uncapped lifetime storage field and mutation route have yet been proven:
   villager health and age status, not a counter, and the remaining matches are
   German and Spanish words containing "elder" by coincidence. Completing this
   needs new storage plus a hook, not a field that is waiting to be read.
-- Villagers Died in **A New Home and The Lost Children**.
+- Villagers Died in **A New Home and The Lost Children**. **Closed at
+  proportional cost, not blocked on evidence** -- the two call for different
+  decisions, one being a search and the other a judgement about whether a row
+  is worth the cost.
   The Secret City, The Tree of Life and New Believers ship the counter; see
   "Villagers Died" below for why the other two do not, and what completing
   them needs.
@@ -429,12 +432,12 @@ which 45 are `lea` sites -- counting them needs both the SIB and ModRM-only
 encodings, since assuming one form returns 1. It is the routine boundary that
 makes these seven meaningful, not the displacement.
 
-The two games do **not** cost the same to complete, and the three damage sites
-above are The Lost Children's alone. Neither game is finished by hooking them:
-each also needs its old-age store, which is a separate path.
+The two games do **not** cost the same to complete, and the sites in the table
+above are `sub_43B690`'s alone rather than the game's. Neither game is finished
+by hooking them: each also needs its old-age store, which is a separate path.
 
-**The Lost Children is NOT completable at three sites, and the full set is not
-yet established.** The table above enumerates `sub_43B690`, and an earlier
+**The Lost Children is NOT completable at a cost proportional to one row, and
+the set is now settled at 23 lethal sites.** The table above enumerates `sub_43B690`, and an earlier
 revision of this paragraph read it as enumerating the game. It does not: damage
 paths with their own death checks sit outside that routine, and every count
 offered so far has been revised upward on re-examination.
@@ -448,12 +451,47 @@ one where pops are interleaved between the load and the store-back
 Both are real reductions; both were dropped silently by classifiers that
 recognised only the shapes they had been written for.
 
-So the honest state is that VV2 belongs in **A New Home's category rather than
-The Secret City's**: the number of damage paths is large, not yet fixed, and
-the arbiter-shaped design that fits the later three games does not apply. A
-count will be trustworthy only when the classifier that produces it fails
-loudly on an unrecognised shape instead of discarding it, with an assertion
-that the unclassified bucket is empty.
+So VV2 belongs in **A New Home's category rather than The Secret City's**: the
+damage paths are many and the arbiter-shaped design that fits the later three
+games does not apply.
+
+The count is now settled. Two sessions rebuilt their classifiers so that every
+site lands in a named bucket -- with the unclassified bucket asserted empty
+rather than silently discarded -- ran them independently from opposite starting
+points, and **diffed the address sets rather than the counts**:
+
+| | |
+|---|---:|
+| `lea` sites taking the health field's address | 45 |
+| of those, sites that **reduce** health | 25 |
+| of those, sites that can reach **zero** | **23** |
+| distinct instruction forms among them | 4 |
+
+The sets were identical. The 23 are `0x420E16`, `0x421013`, `0x433367`,
+`0x4375E7`, `0x43909F`, `0x4392CC`, `0x4393DC`, `0x4394EC`, `0x43BAEB`,
+`0x43BB7E`, `0x43BC43`, `0x44EE21`, `0x462990`, `0x462ACD`, `0x462C05`,
+`0x462D3C`, `0x462E78`, `0x462F8A`, `0x46308D`, `0x463638`, `0x4638DA`,
+`0x46403E` and `0x4641A7`. Twelve share the randomiser shape
+`lea ; call 0x4031A0 ; sub [ptr], eax`.
+
+**The convergence route is closed as well**, measured rather than assumed. If
+the deaths funnelled through a shared handler, the reads of health followed by
+a `<= 0` test would collapse onto a few targets. Two independently written
+scanners agree that they do not:
+
+    56 checks, 48 distinct targets, largest cluster 5
+    59 checks, 50+ distinct targets, largest cluster 3
+
+Fifty-odd places ask whether a villager is dead, and the most popular
+answer-site is reached from five of them. That one is `0x43BD21`, `sub_43B690`'s
+own exit -- **a chokepoint does exist, it is simply local to one routine out of
+many**, and generalising from it is the error that produced every earlier count.
+
+Three independent grounds therefore close this row, any one of which would make
+it disproportionate: 23 lethal sites across four instruction forms each needing
+its own guard; no convergence point to hook instead; and 35 bytes of worst-case
+contiguous free `.text` on the composed image with every VV2 feature selected,
+measured on the built output rather than on stock.
 
 | Site | Instruction | Death check |
 |---|---|---|
@@ -474,16 +512,27 @@ address absent from a list is indistinguishable from one nobody examined:
   floors at **three**, so it can never reach a death state. A
   count-the-transition gate never fires there, which makes it harmless *by
   accident*: change that constant and the gate silently starts counting.
-- `0x44EE21` -- `add ecx,-0x5A ; mov [eax],ecx ; jns` guards on the sign flag,
-  a fourth guard shape, and is not a death path.
+- `0x4614DA` -- `edx = -15 - rand() ; add ; cmp eax,3 ; jge ; mov [esi],3`
+  reduces health and clamps it to three on the same path, so it is damage
+  that cannot kill.
 
-**At least** four guard shapes are required, not two: a pre-value in a register
-(`0x43BAEB`, `0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must
-be read through the pointer first; read-modify-write through a `lea`-ed pointer
-with the test *after* (`0x433367`, `0x4375E7`); and the sign-guarded form. Plus
-the old-age store at `0x43BDEE`, which no decrement reaches. The two families
-named above add further shapes, and the count is a floor rather than a total
-for the same reason the site count is.
+Hooking either would report a death that never happened. **A false positive in
+a shipped counter is worse than a missing site, because it looks like data**
+and nothing downstream can distinguish it from a real death.
+
+`0x44EE21` was listed here in an earlier revision as "guards on the sign flag
+and is not a death path". **That was wrong and it is one of the 23.** The `jns`
+sits at `0x44EE2D`, *after* the store at `0x44EE2B`, so it branches on a result
+already written rather than preventing the write. A guard that prevents a death
+has to come before the store; one that comes after is an observation of the
+outcome. The reduction itself, `add ecx, -0x5A`, is unclamped.
+
+Four guard shapes are required, not two: a pre-value in a register (`0x43BAEB`,
+`0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must be read
+through the pointer first; read-modify-write through a `lea`-ed pointer with the
+test *after* (`0x433367`, `0x4375E7`); and the randomiser form, where a `call`
+separates the address computation from the subtraction (`0x462990` and eleven
+siblings). Plus the old-age store at `0x43BDEE`, which no decrement reaches.
 
 A design proposing one wrapper for all sites was withdrawn on this basis. It
 rested on every damage site opening with a 7-byte `lea` that leaves the health
@@ -527,11 +576,15 @@ supplies the amount and looks like a randomiser. Several forms leave no
 register holding the pre-value, so a guard shape has to be argued per site,
 and the cave-audit gate would need a register contract for each.
 
-The Lost Children having exactly three damage sites was the easy case, not the
-representative one. This is recorded as the reason A New Home is not shipped
-rather than as a recipe to follow: sixteen hooks in five shapes for one row is
-not a maintainable feature, and claiming a completion path at that cost would
-be an over-promise of the same kind the document already refuses elsewhere.
+`sub_43B690` having three damage sites was the easy case, not the
+representative one -- and those three were that routine's, never the game's.
+The Lost Children has since been measured at 23 lethal sites across four
+instruction forms, so it belongs in A New Home's category rather than standing
+as a contrast to it. Both are recorded as the reason those two games are not
+shipped rather than as a recipe to follow: hooks in that quantity and that many
+shapes, for one row, is not a maintainable feature, and claiming a completion
+path at that cost would be an over-promise of the same kind the document
+already refuses elsewhere.
 
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
