@@ -18,6 +18,8 @@ known-good atlas; only the hair goes away.
 Output: assets/vv4_masks/vvfp_mask_atlas.png (shipped to Images/vvfp_mask_atlas00.png).
 """
 from __future__ import annotations
+
+import os
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -28,7 +30,8 @@ ROOT = Path(__file__).resolve().parents[1]
 # placement), NOT from any previously-written clean atlas -- keep this pinned to the
 # dirty backup so re-runs never drift off the known-good positions.
 CUR = ROOT / "assets/vv4_masks/vvfp_mask_atlas_dirty_backup.png"
-STRIPS = Path(r"C:/Users/Owner/Downloads/VV4 mask mockups")
+# Hand-drawn mockups, kept outside the repository; override for your own copy.
+STRIPS = Path(os.environ.get("VVFP_VV4_MASK_MOCKUPS", "vv4-mask-mockups"))
 OUT = ROOT / "assets/vv4_masks/vvfp_mask_atlas.png"
 
 CELL_W, CELL_H, COLS = 40, 65, 8
