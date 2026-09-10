@@ -467,15 +467,28 @@ families named above as well, which is a silent undercount shipped under a
 total's name -- the failure this document refuses for A New Home, and worse
 here because it would ship looking complete.
 
-Two sites must be **excluded deliberately** rather than omitted, since an
-address absent from a list is indistinguishable from one nobody examined:
+One site is **excluded deliberately** rather than omitted, since an address
+absent from a list is indistinguishable from one nobody examined:
 
 - `0x46116C` -- `dec ecx ; cmp ecx,3 ; mov [eax],ecx ; jge ; mov [eax],3`
   floors at **three**, so it can never reach a death state. A
   count-the-transition gate never fires there, which makes it harmless *by
   accident*: change that constant and the gate silently starts counting.
-- `0x44EE21` -- `add ecx,-0x5A ; mov [eax],ecx ; jns` guards on the sign flag,
-  a fourth guard shape, and is not a death path.
+
+`0x44EE21` was previously excluded here as "sign-guarded, not a death path".
+That was wrong, and the byte order is what settles it:
+
+    8d 84 30 2c050000   lea eax,[eax+esi+52Ch]
+    8b 08               mov ecx,[eax]
+    83 c1 a6            add ecx,-5Ah
+    89 08               mov [eax],ecx        <- the store happens HERE
+    0f 89 ...           jns                  <- observed AFTER the store
+
+The branch reads the result rather than preventing it, so the reduced value is
+already committed and may be negative. It is lethal. An exclusion justified by
+a guard that runs *after* the write is the same error as reading a chokepoint
+from one routine: the instruction was examined, and the question asked of it
+was the wrong one.
 
 **At least** four guard shapes are required, not two: a pre-value in a register
 (`0x43BAEB`, `0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must
