@@ -132,6 +132,57 @@ class ARunThatVerifiedNothingFails(unittest.TestCase):
             )
             self.assertIn("verified nothing", result.stdout)
 
+    def test_a_partial_checkout_stays_green(self):
+        """One game file present, another absent: the run examined binaries.
+
+        **This is the case that separated two independently built guards**, and
+        it is pinned rather than left as a property because it is the whole
+        reason for the three-case shape.
+
+        A peer session's version keyed on "was any skip rewritten for a missing
+        fixture", which cannot distinguish *nothing was examined* from
+        *something was examined and something else was not*. They reproduced it
+        on their own branch: one fixture test passing and one skipping gave
+        exit 1, with the guard firing on a run that had genuinely checked a
+        binary.
+
+        That is not a corner case. It is the shape of any checkout holding some
+        of the five games, and a guard that reddens it would be routinely
+        ignored -- which is worse than the problem it solves.
+
+        The distinction from `test_a_run_with_one_real_test_passing_does_not_fail`
+        matters: that one has an ORDINARY test passing beside a fixture skip.
+        This one has a FIXTURE-DEPENDENT test passing, which is the case a
+        skip-counting guard gets wrong.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            result = self._run(
+                Path(temp),
+                f"""
+                import unittest
+
+                class FixtureDependent(unittest.TestCase):
+                    def test_game_we_have(self):
+                        self.assertTrue(True)
+
+                    def test_game_we_lack(self):
+                        raise unittest.SkipTest("{self.REASON}: missing.exe")
+                """,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                "a partial checkout examined binaries and must stay green"
+                + result.stdout[-2000:],
+            )
+            self.assertNotIn(
+                "verified nothing",
+                result.stdout,
+                "the guard must not fire when a fixture-dependent test ran",
+            )
+
     def test_a_run_with_one_real_test_passing_does_not_fail(self):
         """The false-alarm case, which matters more than the defect.
 

@@ -47,4 +47,21 @@ jobs:
         # reports those tests as skipped rather than failed, which is what
         # makes this run meaningful: red here is a real regression, not a
         # checkout missing game files it is not allowed to carry.
+        #
+        # The size of that gap is load-bearing, and was measured only after it
+        # had sat unstated under a day of merge decisions: CI skips roughly 225
+        # more tests than a local run with the five executables linked in --
+        # about 1165 passed / 408 skipped here against 1369 / 81 locally.
+        #
+        # So "CI is green" means green over the subset that does not need the
+        # binaries. That is a real signal, not a weak one. But anything
+        # asserted about patched output, disassembly, or a built artifact was
+        # NOT checked here, and has to be run somewhere holding the games
+        # before it counts as verified.
+        #
+        # VVFP_ALLOW_NO_FIXTURES is deliberately NOT set. The guard in
+        # tests/conftest.py fires only when every fixture-dependent test in a
+        # run skipped, and thousands of ordinary tests execute here, so it
+        # stays silent without an opt-out. Setting one would also mask the case
+        # where the fixtures were meant to arrive and did not.
         run: python -m pytest tests/ -q
