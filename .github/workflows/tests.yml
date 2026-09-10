@@ -47,4 +47,20 @@ jobs:
         # reports those tests as skipped rather than failed, which is what
         # makes this run meaningful: red here is a real regression, not a
         # checkout missing game files it is not allowed to carry.
+        #
+        # VVFP_ALLOW_MISSING_FIXTURES is set for exactly that reason. The
+        # session guard added alongside it refuses to exit 0 when tests were
+        # skipped for absent game files, because on a DEVELOPER machine that
+        # silence is a lie -- a fresh worktree lacks the binaries and the suite
+        # still passes, which was read as evidence about the code three times
+        # in one day. Here the absence is structural and permitted, so the
+        # guard is opted out of rather than satisfied.
+        #
+        # The consequence is worth stating where someone will read it: this
+        # run genuinely does not examine the game binaries. It skipped 225
+        # tests for want of them, against 81 skips on a machine that has them.
+        # A green CI run is evidence about the code that does not need the
+        # executables, and nothing more.
+        env:
+          VVFP_ALLOW_MISSING_FIXTURES: "1"
         run: python -m pytest tests/ -q
