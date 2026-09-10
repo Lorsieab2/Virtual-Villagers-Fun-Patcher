@@ -582,12 +582,34 @@ It has one escape below it: the `[esi+0x205]` test at `0x42604C`, on Route A
 only. A counter placed at `0x426017` therefore counts every completed cook
 **plus** any Route A call abandoned by that test.
 
-So the requirement is satisfiable, but only by a hook that also knows what
-`[esi+0x205]` means -- either by hooking `0x426017` and subtracting the
-abandoned case, or by intercepting `0x42604C` as well. Establishing what that
-flag represents is the remaining work; it is read at `0x426046` and written in
-one other place, and until it is understood no counter here can be called
-correct.
+`[esi+0x205]` has been resolved, and it narrows the gap rather than leaving it
+open. Every byte access to that field in `.text` was enumerated by scanning for
+the ModRM disp32 forms with any base register:
+
+```
+00426046  mov al, [esi+0x205]        read   -- the test at 0x42604C
+00426093  mov byte [esi+0x205], 0    clear  -- on the Route A success path
+```
+
+**Two accesses. It is read once and cleared once, and nothing in `.text` ever
+sets it to a non-zero value.** The scan is trustworthy because the identical
+method, run against `+0x2E7A8`, recovers that flag's `set imm8=0x1` at
+`0x426056` together with five reads -- so a field it reports as never set is
+genuinely never set, not merely missed by the pattern.
+
+That has a consequence for the counter. The test at `0x42604C` is
+`je 0x4260E2` when the byte is zero, so on any path where the field still holds
+zero the Route A cook is abandoned. Whatever writes it must therefore lie
+outside `.text` -- a save-load, an initialiser, or a write through a computed
+pointer -- and until that writer is found the frequency of the abandoned case
+is unknown.
+
+This is not a small residual. A counter at `0x426017` over-counts by exactly
+the abandoned cases, and "abandoned cook" could be anything from a rare failure
+to a routine outcome; a nearly-correct lifetime total is the failure this
+document refuses everywhere else. The remaining work is to find the writer, and
+the search has to look beyond a `.text` disp32 scan because that scan has
+already been run and come back with nothing.
 
 The general trap, recorded because it produced three successive wrong answers
 in this routine: a hook site must be checked against **every** early exit
