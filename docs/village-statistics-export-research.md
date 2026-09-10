@@ -302,9 +302,10 @@ uncapped lifetime storage field and mutation route have yet been proven:
   German and Spanish words containing "elder" by coincidence. Completing this
   needs new storage plus a hook, not a field that is waiting to be read.
 - Villagers Died in **A New Home and The Lost Children**. **Closed at
-  proportional cost, not blocked on evidence** -- the two call for different
-  decisions, one being a search and the other a judgement about whether a row
-  is worth the cost.
+  proportional cost, not blocked on evidence** -- and both are now measured
+  rather than one measured and one asserted to match: 19 hooks for A New Home,
+  24 for The Lost Children, with no convergence point in either. Both call for
+  the same judgement about whether a row is worth that cost.
   The Secret City, The Tree of Life and New Believers ship the counter; see
   "Villagers Died" below for why the other two do not, and what completing
   them needs.
@@ -471,6 +472,49 @@ reach zero health by *decrement* through register-computed pointers inside the
 same tick routine, so a hook on the store would report old-age deaths under a
 total's name: authoritative-looking and quietly wrong. Neither game has a cause
 field to gate on either, so the idempotency trick above does not transfer.
+
+**A New Home has now been measured the same way as The Lost Children, and it
+lands in the same place.** Until this was done the document asserted parity
+between the two games without a count for the first, which read as though both
+had been examined to the same depth when only one had.
+
+| | A New Home | The Lost Children |
+|---|---|---|
+| health field | `record+0x344` | `record+0x52C` |
+| sites touching the field | 88 | 130 |
+| direct writers (memory as destination) | 9 | 13 |
+| of those, storing literal zero | `0x42EF05` | `0x43BDEE` |
+| lethal `lea`-mediated sites | **18** | **23** |
+| total hooks incl. the old-age store | **19** | **24** |
+
+The instruction families overlap -- both games have the randomiser shape and
+the interleaved-pops shape -- but A New Home's damage is enumerated below in
+**six** distinct forms against The Lost Children's four, so the games are alike
+in *kind* of difficulty and not in the number of guard shapes a hook would need
+to argue.
+
+The two shared shapes are the randomiser, where a `call` separates the address
+computation from the subtraction (`0x43A5A8`:
+`lea ebx,[edx+esi+344h] ; call 0x402F10 ; sub [ebx],eax`), and the one where
+pops are interleaved between the load and the store-back (`0x42C2A6`:
+`lea ; mov ecx,[eax] ; pop edi ; add ecx,-0Fh ; pop esi ; mov [eax],ecx`).
+
+**The convergence route is closed for A New Home too, and it needed the same
+control to close honestly.** Walking flow forward from the 18 sites gives eleven
+distinct callees with the most-shared reached from **13 of the 18** -- which
+again looks exactly like a shared death handler. It is not one: `0x402F10` is
+the bounded RNG helper (`cmp esi,7FFFh ; jg`, then `cdq ; idiv esi`) with **917
+callers image-wide**, and the next two, `0x402F70` (92 callers) and `0x43A130`
+(31), are the clock helper and a slot-scan loop. Structurally identical to The
+Lost Children's `0x4031A0`/`0x403200`/`0x44B2A0` at 1551/137/71.
+
+**A counting note that cost a wrong set.** A first pass also returned 18, but a
+*different* 18: it counted `0x448624` as damage on a `cmp dword ptr [esi], 0`,
+which only reads through the pointer, and missed `0x43B387`. The totals agreed
+while the membership did not, so comparing counts would have confirmed a wrong
+answer. Sites are only comparable as **address sets**; a site is lethal only
+when the same register the `lea` loaded is the destination of a *reducing*
+write.
 
 The damage that reaches zero is applied **through a pointer**, which is why no
 displacement search finds it and why the image contains no `sub [mem]` for
@@ -689,20 +733,54 @@ all of them.
 
 **A New Home is not, at a cost proportional to one row.** The same
 byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
-sites, of which sixteen are damage, in **five** instruction forms across three
-regions -- every address below verified against the stock image:
+sites, of which **eighteen** are damage, across three regions -- every address
+below verified against the stock image.
+
+The 31 was re-measured after the equivalent VV2 figure turned out to be an
+undercount: a scan matching only the seven-byte SIB encoding reported 35 where
+the true population is 45. VV1's number survives that check -- 28 SIB-form plus
+3 ModRM-only is 31 -- so it was already counting both encodings.
+
+The destination spread is the part worth carrying across, because it is nearly
+identical to VV2's:
+
+| Game | `eax` | `edi` | `ebx` | `ebp` | `esi` | non-`eax` |
+|---|---:|---:|---:|---:|---:|---:|
+| A New Home | 17 | 9 | 4 | 0 | 1 | **14 of 31 (45%)** |
+| The Lost Children | 25 | 12 | 0 | 5 | 3 | **20 of 45 (44%)** |
+
+So the premise that defeated the single-wrapper design for The Lost Children --
+that every damage site leaves the health pointer in `eax` -- fails at the same
+rate here. The two games are alike in this, which is why the conclusion below
+is a cost judgement rather than a gap in the evidence. The register that takes
+up the slack differs (`ebx` in A New Home, `ebp` in The Lost Children), which
+is why a wrapper written against either game's spread would not transfer to the
+other even if the rate matched.
+
 
 | Form | Sites |
 |---|---|
 | `dec ecx` then store | `0x42ECBE`, `0x42ED3E`, `0x42EDAA` |
 | `call 0x402F10` then `sub [reg], eax` | `0x43A5A8`, `0x43A787`, `0x43A8AE`, `0x43A9D5`, `0x43AADB`, `0x43AC8F`, `0x43B106` |
+| `call 0x402F10`, read, `sub` in a register, store back | `0x43B2C8`, `0x43B387` |
 | `sub [reg], ebp` | `0x42AB17` |
 | read then `add ecx, -imm` (`-0xF`, `-0x6E`, `-0x46`, `-0x28`) | `0x42C2A6`, `0x42C698`, `0x42C76F`, `0x42C838` |
 | `add edx, -0x32` then store | `0x419DAA` |
 | old-age store | `0x42EF05` |
 
-All seven of the second form call the same routine at `0x402F10`, which
-supplies the amount and looks like a randomiser. Several forms leave no
+**This table read sixteen damage sites until the set was re-derived, and the
+two it gained say something about how it missed them.** `0x43B2C8` and
+`0x43B387` are the randomiser form -- the same `call 0x402F10` supplying the
+amount -- but they subtract in a register and store back
+(`call ; mov ecx,[ebx] ; sub ecx,eax ; mov [ebx],ecx`) instead of subtracting
+into memory. A classifier looking for `sub [reg], eax` sees the first seven and
+not these two, so the miss was a **shape assumption inside a form that had
+already been found**, not an unexamined region. The earlier count was a subset
+of this one, not a competing measurement: diffing the address sets gives
+`{0x43B2C8, 0x43B387}` added and nothing removed.
+
+All nine sites of the randomiser family call the same routine at `0x402F10`,
+which supplies the amount. Several forms leave no
 register holding the pre-value, so a guard shape has to be argued per site,
 and the cave-audit gate would need a register contract for each.
 
