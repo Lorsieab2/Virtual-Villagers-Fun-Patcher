@@ -49,15 +49,35 @@ jobs:
         # checkout missing game files it is not allowed to carry.
         #
         # The size of that gap is load-bearing, and was measured only after it
-        # had sat unstated under a day of merge decisions: CI skips roughly 225
-        # more tests than a local run with the five executables linked in --
-        # about 1165 passed / 408 skipped here against 1369 / 81 locally.
+        # had sat unstated under a day of merge decisions:
+        #
+        #   CI                        1161 passed   407 skipped   3657 tests
+        #   local, binaries present   1328 passed   153 skipped   4126 tests
+        #   local, binaries hidden    1159 passed   409 skipped   3657 tests
+        #
+        # Hiding the executables locally reproduces CI to within two tests --
+        # and those two are the Tk display cases -- so the gap is entirely
+        # fixture-attributable rather than partly platform. That controlled
+        # form is worth more than differencing two dissimilar environments,
+        # which cannot rule the other causes out.
+        #
+        # Note the TOTAL falls, 4126 to 3657: 469 subtests do not merely skip,
+        # they do not exist without the binaries, so a skip count understates
+        # the gap.
         #
         # So "CI is green" means green over the subset that does not need the
         # binaries. That is a real signal, not a weak one. But anything
         # asserted about patched output, disassembly, or a built artifact was
         # NOT checked here, and has to be run somewhere holding the games
         # before it counts as verified.
+        #
+        # Concretely, and this is the part worth knowing before quoting a
+        # green run: tests/test_patcher.py -- the file whose name most
+        # suggests it guards the patcher -- runs 102 passed / 17 skipped with
+        # the binaries and 52 passed / 111 skipped without, measured in a
+        # `git archive HEAD` checkout holding exactly what CI holds. Manifest
+        # integrity, safety guards and ABI contracts sit in the half CI does
+        # not run.
         #
         # VVFP_ALLOW_NO_FIXTURES is deliberately NOT set. The guard in
         # tests/conftest.py fires only when every fixture-dependent test in a
