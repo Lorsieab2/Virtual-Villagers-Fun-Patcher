@@ -43,10 +43,11 @@ name: tests
 # bytes was not checked here, whatever its summary line says.
 #
 # The exact count depends on the tree (`inputs/` contents differ per machine)
-# and carries roughly +/-7 from a separate Tk-initialisation flake in the GUI
-# tests, which skip or run unpredictably across identical invocations. Treat
-# the totals as approximate. The composition does not vary, and the CI gap is
-# far outside that noise -- a few hundred tests, against a flake of seven.
+# and carries a separate Tk-initialisation flake in the GUI tests, which skip
+# or run unpredictably across identical invocations. Treat the totals as
+# approximate; see tests/conftest.py for what has been ruled out. The
+# composition does not vary, and the CI gap is far outside that noise -- a few
+# hundred tests, against a flake of single digits.
 on:
   push:
     branches: [main]
