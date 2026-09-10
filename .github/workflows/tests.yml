@@ -47,4 +47,59 @@ jobs:
         # reports those tests as skipped rather than failed, which is what
         # makes this run meaningful: red here is a real regression, not a
         # checkout missing game files it is not allowed to carry.
+        #
+        # The size of that gap is load-bearing, and was measured only after it
+        # had sat unstated under a day of merge decisions:
+        #
+        #   CI                        1161 passed   407 skipped   3657 tests
+        #   local, binaries present   1328 passed   153 skipped   4126 tests
+        #   local, binaries hidden    1159 passed   409 skipped   3657 tests
+        #
+        # Hiding the executables locally reproduces CI to within two tests --
+        # and those two are the Tk display cases -- so the gap is entirely
+        # fixture-attributable rather than partly platform. That controlled
+        # form is worth more than differencing two dissimilar environments,
+        # which cannot rule the other causes out.
+        #
+        # Note the TOTAL falls, 4126 to 3657: 469 subtests do not merely skip,
+        # they do not exist without the binaries, so a skip count understates
+        # the gap.
+        #
+        # So "CI is green" means green over the subset that does not need the
+        # binaries. That is a real signal, not a weak one. But anything
+        # asserted about patched output, disassembly, or a built artifact was
+        # NOT checked here, and has to be run somewhere holding the games
+        # before it counts as verified.
+        #
+        # Concretely, and this is the part worth knowing before quoting a
+        # green run: tests/test_patcher.py -- the file whose name most
+        # suggests it guards the patcher -- runs 102 passed / 17 skipped with
+        # the binaries and 52 passed / 111 skipped without, measured in a
+        # `git archive HEAD` checkout holding exactly what CI holds. Manifest
+        # integrity, safety guards and ABI contracts sit in the half CI does
+        # not run.
+        #
+        # The gap is mostly INVISIBLE AT FILE GRANULARITY, which is what makes
+        # it easy to miss. Measured the same way, per file:
+        #
+        #   chief-puzzle latch              0 passed   5 skipped   none runs
+        #   crash-immunity reserve          2 passed  10 skipped   partial
+        #   death-wrapper replay            2 passed   2 skipped   partial
+        #   statistics register contract  185 passed   2 skipped   partial
+        #
+        # Only the first fails to run at all. The others report passes and look
+        # covered, while the binary-level cases inside them skip -- 10 of 12
+        # for the crash-immunity reserve, across all five games, so that guard
+        # has never run in CI. The register contract is the extreme case: 185
+        # passing subtests beside the 2 that actually decode a wrapper.
+        #
+        # So reading a file's presence in a green run as evidence it was
+        # checked is exactly the wrong inference. "Some of it ran" is the case
+        # to be careful about, here and in the conftest guard below.
+        #
+        # VVFP_ALLOW_NO_FIXTURES is deliberately NOT set. The guard in
+        # tests/conftest.py fires only when every fixture-dependent test in a
+        # run skipped, and thousands of ordinary tests execute here, so it
+        # stays silent without an opt-out. Setting one would also mask the case
+        # where the fixtures were meant to arrive and did not.
         run: python -m pytest tests/ -q
