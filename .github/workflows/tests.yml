@@ -3,6 +3,33 @@ name: tests
 # The suite is the project's safety net -- it is what proves a manifest edit
 # still lands the bytes it claims. Until now nothing ran it automatically, so
 # a regression could only be caught by whoever remembered to run it locally.
+#
+# WHAT A GREEN RUN HERE DOES AND DOES NOT MEAN.
+#
+# The stock game executables are gitignored -- they are copyrighted and must
+# never be committed -- so this checkout cannot have them and the tests that
+# read them skip. That is permitted and expected, not a defect to fix. But
+# skipping is invisible in the exit status, so a green check here is evidence
+# about the code that does NOT need the executables, and nothing more.
+#
+# The gap is not a random sample. Measured by moving the executables aside on
+# a machine that has them:
+#
+#   with the executables    1342 passed, 123 skipped
+#   without them (here)     1176 passed, 376 skipped
+#
+# The ~166 tests that never run are the layer that verifies PATCHED OUTPUT --
+# StockIntegrationTests, ManifestTests, the per-game feature suites, and
+# PublishLeavesRoomForCrashImmunityTests, whose ten subtests catch a wrapper
+# splitting the executable zero run and breaking publish-time name-crash
+# immunity. That guard has never executed in CI, in any game.
+#
+# So CI validates the Python that builds patches, not the patches themselves.
+# Byte-level guarantees rest on a local run with the executables linked, and a
+# reviewer reading a green check should not infer otherwise.
+#
+# The exact count depends on the tree (`inputs/` contents differ per machine);
+# the composition does not.
 on:
   push:
     branches: [main]
