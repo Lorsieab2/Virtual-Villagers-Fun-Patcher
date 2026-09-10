@@ -641,7 +641,16 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
         death_slot = int(death["slot"])
         death_hook_va = int(death["hook_va"])
         death_wrapper_va = cave_va + death_slot
-        death_wrapper = assemble(
+        # The counting half, then the stolen bytes replayed VERBATIM, then the
+        # return jump. An earlier version emitted `mov dword ptr [ecx+0x0C], 0`
+        # as the replay, which is correct only because every game shipping this
+        # feature hooks that same instruction: the hardcoded text and the
+        # site's own `guard` bytes are the same seven bytes. Replaying the
+        # guard is strictly more general and, for the games already shipping,
+        # emits exactly what the hardcoded form did -- an equivalence checked
+        # by regenerating this manifest and requiring it byte-identical, not
+        # argued.
+        death_prologue = assemble(
             (
                 "cmp dword ptr [ecx + 0x%X], -1\n"
                 % int(config["death_cause_offset"])
@@ -649,11 +658,14 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 + "inc dword ptr [0x%X]\n"
                 % int(config["death_stat_va"])
                 + "death_counted:\n"
-                + "mov dword ptr [ecx + 0x0C], 0\n"
-                + "jmp 0x%X" % (death_hook_va + len(death_guard))
             ),
             death_wrapper_va,
         )
+        death_return = assemble(
+            "jmp 0x%X" % (death_hook_va + len(death_guard)),
+            death_wrapper_va + len(death_prologue) + len(death_guard),
+        )
+        death_wrapper = death_prologue + death_guard + death_return
         if death_slot + len(death_wrapper) > cave_size:
             raise RuntimeError(f"{game_id} death wrapper exceeds cave allowance")
         if any(payload[death_slot : death_slot + len(death_wrapper)]):
