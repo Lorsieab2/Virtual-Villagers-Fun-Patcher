@@ -25,6 +25,7 @@ from pathlib import Path
 
 import json
 import os
+import sys
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -364,32 +365,9 @@ def _is_fixture_skip(reason: str) -> bool:
     run without capstone has not silently failed to examine the binaries, it
     cannot examine them.
 
-    A proactive skip mentioning no filename whatsoever remains invisible here,
-    and no classifier reading prose can fix that.
-
-    **That residual gap is 77 tests across 24 distinct phrasings, not a
-    theoretical corner.** Counted from the junit of a full run in a worktree
-    with no fixtures, the largest groups being `requires the VV4 stock
-    executable` (15), `requires the exact-build VV1 stock executable` (8) and
-    `stock VV5 executable is not checked in` (8). A live reproducer, which is
-    a real node rather than a constructed probe:
-
-        pytest "tests/test_vv4_slot_guards_use_a_real_counter.py::
-                VV4SlotGuardCounterTests::
-                test_counter_adds_pending_babies_behind_a_pregnancy_gate"
-        1 skipped        exit 0
-
-    That is a focused run of a fixture-dependent test exiting 0 with this
-    guard installed -- the same shape as the defect the guard was written for.
-
-    Twenty-four wordings for one condition is also the argument against ever
-    fixing this by extending the matching: the twenty-fifth is one commit
-    away. The fix is a shared `skip_missing_fixture(path)` helper that the
-    tests call, so the reason is generated rather than written and cannot be
-    phrased into invisibility. That is a change across those test files rather
-    than to this one, which is why it is not in this commit -- but it is the
-    fix, and the numbers above are here so the next reader does not have to
-    rediscover the scale before deciding it is worth doing.
+    A skip whose reason names no file at all is handled by
+    `_module_names_an_absent_fixture` instead, which reads the test module's
+    own globals rather than its prose. See that function for why.
     """
     if not reason:
         return False
@@ -402,6 +380,68 @@ def _is_fixture_skip(reason: str) -> bool:
     return any(name in lowered for name in _absent_fixture_basenames())
 
 
+def _module_names_an_absent_fixture(report) -> bool:
+    """Whether the skipped test's own module points at a missing fixture.
+
+    This covers the case no reason-reading branch can: a **class-level
+    decorator**.
+
+        @unittest.skipUnless(STOCK.is_file(), "requires the VV4 stock executable")
+        class VV4SlotGuardCounterTests(unittest.TestCase):
+
+    The body never runs, nothing is raised, and no file is opened, so
+    `_is_missing_fixture` has no exception to inspect. The reason names no path
+    and no basename, so both branches of `_is_fixture_skip` correctly decline
+    it. The result was a focused run of a genuinely fixture-dependent test
+    exiting 0 with this guard installed -- reported by review with exactly that
+    node, and still reproducing after the reason-based branches were added.
+
+    An earlier plan was to convert the callers to a generated-reason helper.
+    Measuring first showed that would have fixed nothing here: those are
+    `skipTest` calls, while every live instance of this defect is a
+    `skipUnless` **decorator**, evaluated at import time. Thirteen of them, in
+    thirteen files.
+
+    What all thirteen share is not a wording but a shape -- each gates on a
+    module-level path:
+
+        STOCK.is_file()   VV2_STOCK.is_file()   ATLAS.is_file()
+        STOCK.exists()    VV3_DLL.is_file()     STOCK_DIR.is_dir()
+
+    So the decision is taken from the module's globals. The report names the
+    test file; the module is already imported by the time setup runs; any
+    global holding a `Path` under a fixture root that is not on disk means the
+    skip was a missing input. That is a fact about the disk, like the other two
+    branches, and it needs no cooperation from the test author at all -- a
+    fourteenth decorator with a brand new wording is covered on the day it is
+    written.
+
+    The tool/input distinction survives: `@unittest.skipIf(capstone is None,
+    ...)` has no fixture Path in its module's globals to find.
+    """
+    location = getattr(report, "location", None)
+    if not (isinstance(location, tuple) and location):
+        return False
+    name = Path(str(location[0])).name
+    roots = [root.resolve() for root in FIXTURE_ROOTS]
+    for module in list(sys.modules.values()):
+        file = getattr(module, "__file__", None)
+        if not file or Path(file).name != name:
+            continue
+        for value in vars(module).values():
+            if not isinstance(value, Path):
+                continue
+            try:
+                resolved = value.resolve()
+            except (OSError, ValueError):
+                continue
+            if any(
+                resolved == root or root in resolved.parents for root in roots
+            ) and not value.exists():
+                return True
+    return False
+
+
 def pytest_runtest_logreport(report):
     """Record which fixture-dependent tests skipped and which ran."""
     if report.when != "call" and not (report.when == "setup" and report.skipped):
@@ -412,7 +452,9 @@ def pytest_runtest_logreport(report):
         reason = str(longrepr[2])
     elif isinstance(longrepr, str):
         reason = longrepr
-    if report.skipped and _is_fixture_skip(reason):
+    if report.skipped and (
+        _is_fixture_skip(reason) or _module_names_an_absent_fixture(report)
+    ):
         _fixture_skips.append(report.nodeid)
     elif report.when == "call" and not report.skipped:
         _fixture_executed.append(report.nodeid)
