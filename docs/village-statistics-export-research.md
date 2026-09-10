@@ -487,9 +487,26 @@ for the same reason the site count is.
 
 A design proposing one wrapper for all sites was withdrawn on this basis. It
 rested on every damage site opening with a 7-byte `lea` that leaves the health
-pointer in `eax`, which is true of the sites then enumerated and not of
-`0x462990`, where the `lea` targets `ebp` and a `call` intervenes. A structural
-claim drawn from an incomplete set is only as complete as the set.
+pointer in `eax`. That is not a rule with an exception; classifying every `lea`
+in `.text` that carries `+0x52C` by its destination register gives:
+
+| Destination | 7-byte SIB form | 6-byte ModRM form |
+|---|---:|---:|
+| `eax` | 25 combined | |
+| `edi` | 12 combined | |
+| `ebp` | 5 combined | |
+| `esi` | 3 combined | |
+| **totals** | **37** | **8** |
+
+Twenty of forty-five target something other than `eax` -- **44 per cent**. A
+second session counting only the SIB form arrives at 35 sites and 31 per cent;
+the two disagree on the population, not on the finding, and both refute the
+premise. `0x462990` is merely the first counter-example encountered, not the
+only one, and there the `lea` also sits behind a `call`.
+
+A structural claim drawn from an incomplete set is only as complete as the set
+-- and verifying it carefully across that set makes it more persuasive without
+making it more sound.
 
 **A New Home is not, at a cost proportional to one row.** The same
 byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
