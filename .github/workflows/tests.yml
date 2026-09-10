@@ -42,8 +42,11 @@ name: tests
 # patched output was never made. Anything a test file claims about patched
 # bytes was not checked here, whatever its summary line says.
 #
-# The exact count depends on the tree (`inputs/` contents differ per machine);
-# the composition does not.
+# The exact count depends on the tree (`inputs/` contents differ per machine)
+# and carries roughly +/-7 from a separate Tk-initialisation flake in the GUI
+# tests, which skip or run unpredictably across identical invocations. Treat
+# the totals as approximate. The composition does not vary, and the CI gap is
+# far outside that noise -- a few hundred tests, against a flake of seven.
 on:
   push:
     branches: [main]

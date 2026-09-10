@@ -37,8 +37,15 @@ guarantee while the assertion about patched output was never made.
 So a green run without the executables is evidence about the code that does
 not need them, and nothing more. CI is such a run by construction, since the
 binaries are copyrighted and correctly gitignored; byte-level guarantees rest
-on a local run with them linked. The exact count depends on the tree
-(``inputs/`` differs per machine); the composition does not.
+on a local run with them linked.
+
+Treat the totals as approximate. They depend on the tree (``inputs/`` differs
+per machine) and carry roughly +/-7 from a Tk-initialisation flake in the GUI
+tests: those skip or run unpredictably across identical invocations, with the
+reason reported as a missing ``init.tcl`` even though ``tkinter.Tk()``
+succeeds in the same interpreter outside pytest. The cause is unresolved and
+is not the fixture mechanism this module implements. The composition does not
+vary, and the fixture gap is far outside that noise.
 
 The dependency is detected from what a test actually DOES -- an unreadable
 fixture path at run time -- not from scanning its source. Two earlier attempts
