@@ -28,6 +28,20 @@ name: tests
 # Byte-level guarantees rest on a local run with the executables linked, and a
 # reviewer reading a green check should not infer otherwise.
 #
+# The gap is invisible at file granularity, which is what makes it easy to
+# miss. Under CI's conditions these files do not go red or vanish -- they
+# report passes:
+#
+#   test_publish_leaves_room_for_crash_immunity   2 passed, 10 skipped
+#   test_death_wrapper_replays_the_stolen_bytes   2 passed,  2 skipped
+#   test_statistics_wrappers_preserve_registers   2 passed,  2 skipped
+#
+# The subtests that skip are the binary-level ones -- 10 of 12 for crash
+# immunity, across all five games. So a reader scanning CI output sees green
+# in the file whose NAME promises the guarantee, while the assertion about
+# patched output was never made. Anything a test file claims about patched
+# bytes was not checked here, whatever its summary line says.
+#
 # The exact count depends on the tree (`inputs/` contents differ per machine);
 # the composition does not.
 on:

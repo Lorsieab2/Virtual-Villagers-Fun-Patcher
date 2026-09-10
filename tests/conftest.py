@@ -23,6 +23,17 @@ per-game feature suites, and PublishLeavesRoomForCrashImmunityTests, whose
 subtests catch a wrapper splitting the executable zero run and breaking
 publish-time name-crash immunity.
 
+The gap is invisible at file granularity. Without the executables these files
+do not go red or vanish -- they report passes, and only the binary-level
+subtests skip:
+
+    test_publish_leaves_room_for_crash_immunity   2 passed, 10 skipped
+    test_death_wrapper_replays_the_stolen_bytes   2 passed,  2 skipped
+    test_statistics_wrappers_preserve_registers   2 passed,  2 skipped
+
+So a summary line can show green in the file whose name promises the
+guarantee while the assertion about patched output was never made.
+
 So a green run without the executables is evidence about the code that does
 not need them, and nothing more. CI is such a run by construction, since the
 binaries are copyrighted and correctly gitignored; byte-level guarantees rest
