@@ -21,11 +21,23 @@ had not installed. Only the file a test opens says what that test needs, and
 that is per-file, so a partial install skips exactly the tests it should.
 """
 
+import os
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# Rewritten skips recorded during the run, so the session can refuse to exit 0
+# when the suite silently examined nothing. See pytest_sessionfinish below.
+_MISSING_FIXTURE_SKIPS: list[str] = []
+
+# Set to any non-empty value to allow a run with missing game files to pass.
+# Intended for environments that genuinely do not have them -- a contributor
+# without the games, or a docs-only check. CI and release verification must
+# NOT set it.
+ALLOW_MISSING_FIXTURES_ENV = "VVFP_ALLOW_MISSING_FIXTURES"
+
 
 # Directories holding gitignored game binaries. A path under any of these that
 # cannot be opened is a missing input, not a defect.
@@ -252,4 +264,58 @@ def pytest_runtest_makereport(item, call):
         str(path),
         lineno,
         f"requires a local game file that is gitignored and absent: {missing}",
+    )
+    _MISSING_FIXTURE_SKIPS.append(report.nodeid)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Refuse to exit 0 when tests were skipped for want of the game files.
+
+    A test that skipped because its input was absent proved nothing, and a run
+    made entirely of those skips is indistinguishable from a passing one by
+    exit status alone. That is not hypothetical here: a fresh worktree lacks
+    every gitignored binary, and reviewers have three times read a green run in
+    one as evidence about the code.
+
+    The rewrite above is deliberate and correct -- a missing input is not a
+    defect, and turning it into a failure per-test would make the suite unusable
+    for anyone without the games. What was missing is a signal at the level
+    where the question is actually asked: did this run examine the binaries or
+    not.
+
+    Opt out with VVFP_ALLOW_MISSING_FIXTURES for a machine that genuinely has
+    no game files. CI and any release verification must leave it unset, because
+    there the skips mean the fixtures failed to arrive.
+    """
+
+    if not _MISSING_FIXTURE_SKIPS:
+        return
+    if os.environ.get(ALLOW_MISSING_FIXTURES_ENV):
+        return
+    # Do not mask a real failure: a run that already failed keeps its status.
+    if exitstatus != 0:
+        return
+
+    session.exitstatus = 1
+    reporter = session.config.pluginmanager.get_plugin("terminalreporter")
+    if reporter is None:
+        return
+    count = len(_MISSING_FIXTURE_SKIPS)
+    shown = "\n".join("    " + nodeid for nodeid in _MISSING_FIXTURE_SKIPS[:10])
+    if count > 10:
+        shown += "\n    ... and %d more" % (count - 10)
+    reporter.write_sep("=", "missing game files", red=True)
+    reporter.write_line(
+        "%d test(s) skipped because a gitignored game file was absent, so this "
+        "run did not examine the binaries. Exit status forced to 1: a green "
+        "run here would be evidence about the fixtures, not about the code."
+        % count
+    )
+    reporter.write_line("Expected under one of:")
+    for root in FIXTURE_ROOTS:
+        reporter.write_line("    %s" % root)
+    reporter.write_line("Skipped:")
+    reporter.write_line(shown)
+    reporter.write_line(
+        "Set %s=1 to allow this deliberately." % ALLOW_MISSING_FIXTURES_ENV
     )
