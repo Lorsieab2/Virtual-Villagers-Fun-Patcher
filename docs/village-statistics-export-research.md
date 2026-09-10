@@ -553,9 +553,16 @@ the two disagree on the population, not on the finding, and both refute the
 premise. `0x462990` is merely the first counter-example encountered, not the
 only one, and there the `lea` also sits behind a `call`.
 
+Restricted to the 23 that can actually kill -- the set a hook would target --
+the spread is `eax` 12, `edi` 8, `ebp` 3. So the premise fails on **eleven of
+the twenty-three sites a counter would have to hook**, not merely somewhere in
+the wider population.
+
 A structural claim drawn from an incomplete set is only as complete as the set
 -- and verifying it carefully across that set makes it more persuasive without
-making it more sound.
+making it more sound. The withdrawn design had been checked against its seven
+sites and held on all seven; what was never asked was whether the seven were
+all of them.
 
 **A New Home is not, at a cost proportional to one row.** The same
 byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
