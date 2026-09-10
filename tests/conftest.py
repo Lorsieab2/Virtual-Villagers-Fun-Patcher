@@ -312,8 +312,20 @@ def pytest_sessionfinish(session, exitstatus):
         return
     if _fixture_executed:
         return
-    if session.exitstatus != 0:
-        return
+    # No `if session.exitstatus != 0: return` here, and its absence is
+    # deliberate. A peer session's independently built guard needed one,
+    # because theirs fires on any recorded fixture skip and so could overwrite
+    # a real failure's status. This one cannot reach that state: anything that
+    # fails -- a call, a setUp error, a teardown error -- is recorded in
+    # `_fixture_executed`, so the check above has already returned. A
+    # collection error aborts before the skips are recorded, so `_fixture_skips`
+    # is empty and the check before that returns.
+    #
+    # The line was present in an earlier version. It was removed after a
+    # mutation deleting it could not be made to fail: every case constructed
+    # for it -- collection error, setUp explosion, a real assertion failure --
+    # showed identical behaviour with and without. Dead code that reads as a
+    # safeguard is worse than no code, because the next person trusts it.
     session.exitstatus = 1
     reporter = session.config.pluginmanager.get_plugin("terminalreporter")
     if reporter is not None:

@@ -41,21 +41,43 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ARunThatVerifiedNothingFails(unittest.TestCase):
-    def _run(self, tmp: Path, body: str, env_extra=None):
+    def _run(self, tmp: Path, body: str, env_extra=None, extra_files=None):
         """Run pytest on a throwaway file in a tree with its own conftest.
 
         The real `conftest.py` is copied in so the hook under test is the
         shipped one, not a reimplementation. Using a synthetic test file keeps
         this independent of whichever real tests happen to need fixtures.
+
+        It has to be a subprocess: the thing under test is the exit status of a
+        run, which cannot be observed from inside the run producing it.
+
+        A peer session reported a trap worth recording. A probe tree that
+        mirrors the real layout (`tests/conftest.py` under a root) is needed to
+        exercise the conftest's FileNotFoundError **rewrite**, because that
+        hook derives its fixture roots from `parents[1]` of its own file; a
+        flat copy points them above the temp tree and the rewrite never fires.
+
+        These probes are deliberately flat, and that is sound only because the
+        guard keys on the **reason string carried in `longrepr`** rather than
+        on the rewrite that normally produces it, so a bare `SkipTest` with
+        that reason reaches it identically. The consequence is stated rather
+        than left implicit: **this module tests the guard, not the rewrite.**
+        The rewrite has its own coverage in
+        `test_conftest_skips_only_absent_fixtures.py`, and
+        `test_the_reason_string_still_matches_the_conftest` is what stops the
+        two drifting apart silently.
         """
         (tmp / "conftest.py").write_bytes((ROOT / "tests" / "conftest.py").read_bytes())
         (tmp / "test_probe.py").write_text(textwrap.dedent(body), encoding="utf-8")
+        for name, contents in (extra_files or {}).items():
+            (tmp / name).write_text(contents, encoding="utf-8")
         env = dict(os.environ)
         env.pop("VVFP_ALLOW_NO_FIXTURES", None)
         if env_extra:
             env.update(env_extra)
+        selection = ["."] if extra_files else ["test_probe.py"]
         return subprocess.run(
-            [sys.executable, "-m", "pytest", "test_probe.py", "-q",
+            [sys.executable, "-m", "pytest", *selection, "-q",
              "-p", "no:cacheprovider"],
             capture_output=True,
             text=True,
@@ -211,6 +233,135 @@ class ARunThatVerifiedNothingFails(unittest.TestCase):
                 0,
                 "the CI shape -- fixture tests skipping while ordinary tests "
                 "run -- must stay green" + result.stdout[-2000:],
+            )
+
+    def test_the_ci_shape_stays_green(self):
+        """CI has no game files by design, and must not go red.
+
+        `.github/workflows/tests.yml` says so explicitly: the stock executables
+        are gitignored and "a CI checkout cannot have them", with skipping
+        being "what makes this run meaningful". A guard that reddened every CI
+        run would be removed within a day, and rightly.
+
+        It stays green because a full-suite run selects both kinds -- the
+        fixture tests skip while thousands of ordinary tests execute -- so
+        something did run. That is why the guard asks whether any
+        fixture-dependent test EXECUTED rather than whether any skipped.
+
+        A peer session's independently built guard keyed on the latter and
+        reddened this case; measuring it is what settled which design shipped.
+        It is asserted here because it is the property someone tightening this
+        guard would break first, and they would not find out until CI failed on
+        an unrelated pull request.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            result = self._run(
+                Path(temp),
+                f"""
+                import unittest
+
+                class FixtureDependent(unittest.TestCase):
+                    def test_needs_exe_a(self):
+                        raise unittest.SkipTest("{self.REASON}: a.exe")
+
+                    def test_needs_exe_b(self):
+                        raise unittest.SkipTest("{self.REASON}: b.exe")
+
+                class Ordinary(unittest.TestCase):
+                    def test_runs_anywhere(self):
+                        self.assertTrue(True)
+                """,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                "the CI shape -- fixture tests skipping while ordinary tests "
+                "run -- must stay green" + result.stdout[-2000:],
+            )
+
+    def test_a_real_failure_is_not_masked_by_the_guard(self):
+        """A genuine regression must fail the run as itself.
+
+        Contributed by the peer session above, together with the reason this
+        checks the banner rather than the exit status: asserting
+        `returncode == 1` is satisfied whether the real failure set it OR the
+        guard overrode it, so it is blind to the branch it exists for. Their
+        mutation dropping the guard's already-failed early exit passed against
+        that weaker form.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            result = self._run(
+                Path(temp),
+                f"""
+                import unittest
+
+                class Probe(unittest.TestCase):
+                    def test_needs_absent_file(self):
+                        raise unittest.SkipTest("{self.REASON}: a.exe")
+
+                    def test_genuinely_broken(self):
+                        self.assertEqual(1, 2, "a real regression")
+                """,
+            )
+            self.assertNotEqual(
+                result.returncode, 0, "a real failure must fail the run"
+            )
+            self.assertIn("a real regression", result.stdout)
+            self.assertNotIn(
+                "verified nothing",
+                result.stdout,
+                "the guard must stay silent when a real failure already failed "
+                "the run; announcing itself there buries the regression",
+            )
+
+    def test_a_collection_error_keeps_its_own_exit_status(self):
+        """The already-failed early exit, exercised where it actually matters.
+
+        The peer's mutation -- dropping `if session.exitstatus != 0: return` --
+        survived against their real-failure test and against the one above,
+        because in both a test had executed and the guard's other conditions
+        already stopped it.
+
+        The branch only bites when fixture skips were recorded, **nothing
+        executed**, and the run failed anyway: a collection error. pytest exits
+        2 there, and without the early exit the guard would overwrite that with
+        1 and print a message about missing fixtures over an import that blew
+        up.
+
+        Finding it required constructing the case rather than reusing the
+        obvious one, which is the general lesson: a mutation that survives
+        means the test set is missing a case, not that the code is fine.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            result = self._run(
+                Path(temp),
+                f"""
+                import unittest
+
+                class Probe(unittest.TestCase):
+                    def test_needs_absent(self):
+                        raise unittest.SkipTest("{self.REASON}: a.exe")
+                """,
+                extra_files={"test_broken.py": 'raise RuntimeError("import blew up")\n'},
+            )
+            self.assertEqual(
+                result.returncode,
+                2,
+                "a collection error must keep pytest's own exit status"
+                + result.stdout[-2000:],
+            )
+            self.assertIn("import blew up", result.stdout)
+            self.assertNotIn(
+                "verified nothing",
+                result.stdout,
+                "the guard must not overwrite a collection error with its own "
+                "status and bury the cause",
             )
 
     def test_the_escape_hatch_permits_a_fixtureless_run(self):
