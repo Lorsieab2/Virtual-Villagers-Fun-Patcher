@@ -298,11 +298,12 @@ uncapped lifetime storage field and mutation route have yet been proven:
   "Villagers Died" below for why the other two do not, and what completing
   them needs.
 - Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
-  is understood (see below, including the first-cook case where it undercounts
-  by one until the recipe is cooked again), but the requirements list *Total*
-  Stews Found "with no herb-combination restriction" as a **separate** VV2
-  statistic, and no writer that increments for every stew has been found. The
-  two must not be conflated.
+  is understood, but the requirements list *Total* Stews Found "with no
+  herb-combination restriction" as a **separate** VV2 statistic. The Lost
+  Children does not persist such a count anywhere -- established exhaustively
+  in "Why The Lost Children has no total stew count" below, which also gives
+  the exact mechanism of `+0x2E520` and what a hook satisfying the requirement
+  would have to cover. The two must not be conflated.
 - Tribal Chiefs Robed in VV3.
 
 Threshold-limited achievement counters are not accepted as substitutes for
@@ -476,6 +477,146 @@ displacement, disassemble at each hit, and classify on the mnemonic.** A
 positive control pairing the zero write with the `0x64` writes catches the
 missing-instruction failure but not the phantom one, so the control is
 necessary and not sufficient.
+
+### Why The Lost Children has no total stew count
+
+`+0x2E520` is **not** a count of special stews cooked. It is a count of
+**distinct recipes discovered**, and the difference is a per-recipe flag array.
+
+```
+004260AF  mov ecx, [esi+0x3044C]              ; the stew RESULT ID
+004260B5  mov al, [esi+ecx+0x2EAAC]           ; per-recipe "already found" flag
+004260BC  test al, al
+004260BE  jne 0x4260E2                        ; already found -> skip the increment
+004260C9  call 0x4257A0                       ; (message 0x1C7)
+004260CE  mov edx, [esi+0x3044C]
+004260D4  mov byte ptr [esi+edx+0x2EAAC], 1   ; mark this recipe found
+004260DC  inc dword ptr [esi+0x2E520]         ; increment -- FIRST TIME ONLY
+```
+
+Cooking the same stew a second time increments nothing, because `+0x2EAAC`
+indexed by result id is already set. This supersedes the earlier description of
+a first-cook "undercount by one until the recipe is cooked again": there is no
+undercount and no correction on a later cook. The counter is doing exactly what
+it was written to do, and it is bounded by the number of recipes.
+
+The result space is 18 outcomes, and **all 18 can eventually count** -- but by
+two different routes, selected by a "first stew ever" flag at `+0x2E7A8`:
+
+```
+00426017  mov al, [esi+0x2E7A8]     ; has any stew been cooked before?
+0042601F  jne 0x4260AF              ; yes -> ROUTE B, the per-recipe gate
+
+          ; ROUTE A, taken once ever, applies three exclusions:
+0042602B  cmp eax, 4     je 0x4260E2
+00426034  cmp eax, 2     je 0x4260E2
+0042603D  cmp eax, 0x12  je 0x4260E2
+00426056  mov byte ptr [esi+0x2E7A8], 1    ; set the flag
+004260A5  mov byte ptr [esi+eax+0x2EAAC], 1
+004260AD  jmp 0x4260DC              ; straight to the increment, past the gate
+```
+
+The exclusions therefore apply **only while `+0x2E7A8` is still clear**, and
+that flag is set at `0x426056` -- *after* all four early exits, the three id
+comparisons and the `[esi+0x205]` test at `0x42604C`. An excluded cook takes
+none of them and leaves the flag clear, so the **next** stew takes Route A
+again.
+
+The shortfall therefore accumulates. Cook ids `2`, `4` and `0x12` in
+succession before anything else and all three go uncounted, because each one
+exits before reaching the instruction that would have switched later cooks to
+Route B. The count can be as much as three short.
+
+It is not permanent. Those cooks also leave `+0x2EAAC` unset, so once any
+non-excluded stew sets the flag, re-cooking a previously excluded recipe
+reaches Route B, passes the gate and counts. The ceiling is therefore the
+number of recipes rather than 15 -- but the recovery requires a later cook of
+that specific recipe, not merely a later cook of anything.
+
+**The absence is exhaustive, not a failed search.** Every 4-byte offset in
+`0x2E4C0`-`0x2E560` was byte-searched for its disp32 encoding and each hit
+classified by mnemonic -- never by a linear disassembly pass, which
+desynchronises and silently omits real stores. Eleven incrementing writers
+exist in that range:
+
+| field | writers |
+|---|---|
+| `+0x2E4FC` | `add` x2 (`0x42629A`, `0x463742`) |
+| `+0x2E500` | `inc` x2 (`0x44BA92`, `0x44BAC6`) |
+| `+0x2E504` | `add` (`0x4262BA`) |
+| `+0x2E508` | `inc` x3 (`0x44DA75`, `0x46477A`, `0x46482D`) |
+| `+0x2E514` | `inc` (`0x44D55F`) |
+| `+0x2E520` | `inc` (`0x4260DC`) |
+| `+0x2E524` | `inc` (`0x44BAD2`) |
+
+Exactly one touches a stew field and it is the gated one. The positive control
+for the method is the same table: it recovers the known writers for People
+Cured, Village Elders and Triplets Birthed, so a field it reports as having no
+unconditional writer genuinely has none.
+
+**What the requirement would need.** The count has to be new persistent state;
+no stock field holds it.
+
+**`0x4260AF` is the wrong hook site**, and the reason generalises. Route A
+marks the recipe at `0x4260A5` and then `jmp`s from `0x4260AD` directly to
+`0x4260DC`, bypassing `0x4260AF` entirely. A counter placed there misses the
+first completed cook of every save, and misses an excluded-id first cook twice
+over. Hooking the site that *looks* like the top of the block is exactly the
+trap: the block has two entries, not one.
+
+**No single site downstream of the split sees every completed cook**, and this
+is worth stating because two plausible-looking plans both fail:
+
+| candidate | misses |
+|---|---|
+| `0x42609F` + `0x4260AF` (both routes) | an excluded id cooked while `+0x2E7A8` is clear -- it exits at `0x42602E`/`0x426037`/`0x426040`, upstream of both |
+| `0x4260DC` (the increment) | the above, **and** every repeat, which exits at `0x4260BE` |
+
+`0x4260AF` does observe repeats, because it sits before the gate; that is the
+one thing the pair gets right. But the excluded-while-unflagged case reaches
+none of the four addresses, so neither plan produces an unrestricted total.
+
+The only site that dominates every route is `0x426017`, the `+0x2E7A8` read,
+which every path reaches with the result id already assigned at `+0x3044C`.
+It has one escape below it: the `[esi+0x205]` test at `0x42604C`, on Route A
+only. A counter placed at `0x426017` therefore counts every completed cook
+**plus** any Route A call abandoned by that test.
+
+`[esi+0x205]` has been resolved, and it narrows the gap rather than leaving it
+open. Every byte access to that field in `.text` was enumerated by scanning for
+the ModRM disp32 forms with any base register:
+
+```
+00426046  mov al, [esi+0x205]        read   -- the test at 0x42604C
+00426093  mov byte [esi+0x205], 0    clear  -- on the Route A success path
+```
+
+**Two accesses. It is read once and cleared once, and nothing in `.text` ever
+sets it to a non-zero value.** The scan is trustworthy because the identical
+method, run against `+0x2E7A8`, recovers that flag's `set imm8=0x1` at
+`0x426056` together with five reads -- so a field it reports as never set is
+genuinely never set, not merely missed by the pattern.
+
+That has a consequence for the counter. The test at `0x42604C` is
+`je 0x4260E2` when the byte is zero, so on any path where the field still holds
+zero the Route A cook is abandoned. Whatever writes it must therefore lie
+outside `.text` -- a save-load, an initialiser, or a write through a computed
+pointer -- and until that writer is found the frequency of the abandoned case
+is unknown.
+
+This is not a small residual. A counter at `0x426017` over-counts by exactly
+the abandoned cases, and "abandoned cook" could be anything from a rare failure
+to a routine outcome; a nearly-correct lifetime total is the failure this
+document refuses everywhere else. The remaining work is to find the writer, and
+the search has to look beyond a `.text` disp32 scan because that scan has
+already been run and come back with nothing.
+
+The general trap, recorded because it produced three successive wrong answers
+in this routine: a hook site must be checked against **every** early exit
+above it, not only against the branch that first looks like the gate.
+
+Per the project's standing preference the storage belongs in the companion DLL
+rather than a new stock field or cave allocation.
 
 ### What The Secret City actually has instead of stews
 
