@@ -67,15 +67,31 @@ class ARunThatVerifiedNothingFails(unittest.TestCase):
         `test_the_reason_string_still_matches_the_conftest` is what stops the
         two drifting apart silently.
         """
-        (tmp / "conftest.py").write_bytes((ROOT / "tests" / "conftest.py").read_bytes())
-        (tmp / "test_probe.py").write_text(textwrap.dedent(body), encoding="utf-8")
+        # Mirror the real layout: tests/ under a root that also carries
+        # data/builds.json. The conftest resolves both its fixture roots and
+        # the manifest of declared executables from `parents[1]` of its own
+        # file, so a flat probe tree points them outside itself -- the
+        # basename branch then sees an empty declaration list and cannot fire.
+        # That is the layout trap a peer session reported, hit here for real.
+        (tmp / "tests").mkdir(exist_ok=True)
+        (tmp / "data").mkdir(exist_ok=True)
+        (tmp / "research" / "stock-executables").mkdir(parents=True, exist_ok=True)
+        (tmp / "tests" / "conftest.py").write_bytes(
+            (ROOT / "tests" / "conftest.py").read_bytes()
+        )
+        (tmp / "data" / "builds.json").write_bytes(
+            (ROOT / "data" / "builds.json").read_bytes()
+        )
+        (tmp / "tests" / "test_probe.py").write_text(
+            textwrap.dedent(body), encoding="utf-8"
+        )
         for name, contents in (extra_files or {}).items():
-            (tmp / name).write_text(contents, encoding="utf-8")
+            (tmp / "tests" / name).write_text(contents, encoding="utf-8")
         env = dict(os.environ)
         env.pop("VVFP_ALLOW_NO_FIXTURES", None)
         if env_extra:
             env.update(env_extra)
-        selection = ["."] if extra_files else ["test_probe.py"]
+        selection = ["tests"] if extra_files else ["tests/test_probe.py"]
         return subprocess.run(
             [sys.executable, "-m", "pytest", *selection, "-q",
              "-p", "no:cacheprovider"],
@@ -413,6 +429,90 @@ class ARunThatVerifiedNothingFails(unittest.TestCase):
                 result.stdout,
                 "the guard must not overwrite a collection error with its own "
                 "status and bury the cause",
+            )
+
+    def test_a_skip_naming_only_a_basename_is_recognised(self):
+        """Tests that skip proactively name the file, not a path.
+
+        The guard's first version keyed on the reason `conftest.py` writes when
+        it rewrites a FileNotFoundError. Review found the hole with a
+        reproduction: many tests never reach that path, because they check for
+        the binary themselves and skip before opening anything --
+
+            if not VV2_EXE.is_file():
+                self.skipTest(f"stock executable not available: {VV2_EXE.name}")
+
+        -- so a focused run of exactly the kind of test this guard protects
+        still exited 0. That is the defect, inside the fix for it.
+
+        A second version matched the SUBJECT of the phrasing. Surveying the
+        suite found 52 distinct skip reasons, of which it caught 16 and missed
+        real absences worded differently, so the wording is not usable at all:
+        the check now asks whether the named FILE is missing from disk.
+
+        `{VV2_EXE.name}` is a bare basename with no directory, which is why
+        the path-based branch alone was not enough and the basenames are read
+        from `data/builds.json`.
+        """
+        import tempfile
+
+        missing = "Virtual Villagers - The Lost Children.exe"
+        with tempfile.TemporaryDirectory() as temp:
+            result = self._run(
+                Path(temp),
+                f"""
+                import unittest
+
+                class Probe(unittest.TestCase):
+                    def test_skips_with_a_bare_basename(self):
+                        raise unittest.SkipTest(
+                            "stock executable not available: {missing}"
+                        )
+                """,
+            )
+            if (ROOT / "research" / "stock-executables" / missing).is_file():
+                self.skipTest(
+                    "this tree HAS the executable, so the basename is not "
+                    "absent and the branch under test cannot fire here"
+                )
+            self.assertNotEqual(
+                result.returncode,
+                0,
+                "a proactive skip naming an absent game file must be counted"
+                + result.stdout[-2000:],
+            )
+            self.assertIn("verified nothing", result.stdout)
+
+    def test_a_missing_tool_is_not_a_missing_fixture(self):
+        """Skips for absent tools must never be counted as fixture skips.
+
+        `requires capstone` and `Tk display is not available` name no fixture
+        file, so neither the path branch nor the basename branch can match
+        them. That falls out of deciding from the file rather than the
+        wording, and it is asserted because widening the check to "any skip"
+        is exactly the design that reddened CI on a peer's branch.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            result = self._run(
+                Path(temp),
+                """
+                import unittest
+
+                class Probe(unittest.TestCase):
+                    def test_needs_capstone(self):
+                        raise unittest.SkipTest("requires capstone")
+
+                    def test_needs_a_display(self):
+                        raise unittest.SkipTest("Tk display is not available")
+                """,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                "missing tools are not missing inputs"
+                + result.stdout[-2000:],
             )
 
     def test_the_escape_hatch_permits_a_fixtureless_run(self):

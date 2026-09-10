@@ -23,6 +23,7 @@ that is per-file, so a partial install skips exactly the tests it should.
 
 from pathlib import Path
 
+import json
 import os
 import pytest
 
@@ -288,42 +289,95 @@ _FIXTURE_SKIP_REASON = "requires a local game file that is gitignored and absent
 #     SKIPPED: stock executable not available: Virtual Villagers - ....exe
 #     1 skipped        exit 0
 #
-# The wordings in use are many and none is authoritative: "stock executable
-# not available", "stock executable is not present in this isolated source
-# worktree", "no generated executables present", "{game} stock executable
-# unavailable", "{exe_name} is not present", "companion DLL not built".
-# Matching them by phrase would be the same brittleness one level along, so
-# the test is on the SUBJECT rather than the phrasing: a skip that names a
-# game executable, a companion DLL, or the fixture roots.
+# A first fix keyed on the SUBJECT of the phrasing -- "stock executable",
+# "companion DLL" and so on. That was better than one exact string and still
+# wrong: surveying the suite finds 52 distinct skip reasons, of which the
+# subject list caught 16 and missed real fixture absences worded differently
+# (`stock {game_id} executable fixture is unavailable`, `{exe_name} is not
+# present`, `certified parent exe not present in this checkout`). Each new
+# phrasing silently narrows the check again, which is this bug recurring
+# rather than being fixed -- a peer session made exactly that argument.
 #
-# `requires capstone` and `Tk display is not available` deliberately do not
-# match. They are missing TOOLS, not missing inputs -- a run without capstone
-# has not silently failed to examine the binaries, it cannot examine them at
-# all, and reddening that would be a different claim.
-_FIXTURE_SUBJECTS = (
-    "stock executable",
-    "stock vv",
-    "generated executables",
-    "companion dll",
-    "game file that is gitignored",
-    "stock-executables",
-)
+# So the decision is not made from the wording at all. `_fixture_path_in_text`
+# recovers any fixture path quoted in the reason and `_names_an_absent_path`
+# confirms it is genuinely missing from disk -- the same pair the rewrite hook
+# above already uses, so a proactive `skipTest` and a rewritten
+# FileNotFoundError are now judged identically.
+#
+# That also gives the tool/input distinction for free rather than by
+# enumeration. "requires capstone" and "Tk display is not available" quote no
+# fixture path, so they cannot match: those are missing TOOLS, and a run
+# without capstone has not silently failed to examine the binaries, it cannot
+# examine them at all. Reddening that would be a different claim.
+#
+# The remaining gap is a proactive skip that mentions no path at all. Making
+# those unforgeable needs a shared helper the tests call rather than a
+# classifier reading their prose, which is the right next step and a change to
+# 21 test files rather than to this one.
 
 _fixture_skips: list[str] = []
 _fixture_executed: list[str] = []
 
 
-def _is_fixture_skip(reason: str) -> bool:
-    """Whether a skip reason names an absent game binary or companion.
+def _absent_fixture_basenames() -> set[str]:
+    """Basenames of declared game executables that are not on disk.
 
-    Matched on the subject rather than on any one project's phrasing, because
-    the phrasings are inconsistent and adding each new one as it appears is
-    how this check silently narrows again.
+    Read from `data/builds.json`, which is where the project already declares
+    which executables exist, rather than from a list of titles kept here. A
+    sixth game or a renamed input needs no edit in this file, and a name that
+    drifts out of the manifest stops being recognised rather than lingering.
     """
-    lowered = reason.lower()
+    names: set[str] = set()
+    manifest = ROOT / "data" / "builds.json"
+    try:
+        declared = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, ValueError):  # pragma: no cover - manifest unreadable
+        return names
+    for game in declared.get("games", ()):
+        name = str(game.get("input_name") or "")
+        if not name:
+            continue
+        if not any((root / name).is_file() for root in FIXTURE_ROOTS):
+            names.add(name.lower())
+    return names
+
+
+def _is_fixture_skip(reason: str) -> bool:
+    """Whether a skip reason concerns a fixture file that is absent from disk.
+
+    Decided from the FILE rather than from the phrasing, in two steps because
+    tests name their inputs two ways.
+
+    A reason quoting a full path under a fixture root is checked with the same
+    pair the rewrite hook uses, so a proactive `skipTest` and a rewritten
+    FileNotFoundError are judged identically.
+
+    A reason quoting only a BASENAME -- `skipTest(f"... {VV2_EXE.name}")`, the
+    exact form review reported -- has no path to check, so the basename is
+    matched against the fixture files that are declared and missing. That is
+    still a fact about the disk rather than about the wording: if the file is
+    present, the skip had some other cause and does not count.
+
+    Both give the tool/input distinction for free rather than by enumeration.
+    "requires capstone" and "Tk display is not available" name no fixture file
+    at all, so neither branch can match them -- those are missing TOOLS, and a
+    run without capstone has not silently failed to examine the binaries, it
+    cannot examine them.
+
+    A proactive skip mentioning no filename whatsoever remains invisible here,
+    and no classifier reading prose can fix that. Making it unforgeable needs a
+    shared `skip_missing_fixture(path)` helper the tests call -- a change to 21
+    test files rather than to this one, and the right next step.
+    """
+    if not reason:
+        return False
     if _FIXTURE_SKIP_REASON in reason:
         return True
-    return any(subject in lowered for subject in _FIXTURE_SUBJECTS)
+    quoted = _fixture_path_in_text(reason)
+    if quoted is not None and _names_an_absent_path(quoted):
+        return True
+    lowered = reason.lower()
+    return any(name in lowered for name in _absent_fixture_basenames())
 
 
 def pytest_runtest_logreport(report):
