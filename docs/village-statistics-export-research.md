@@ -516,14 +516,22 @@ two different routes, selected by a "first stew ever" flag at `+0x2E7A8`:
 004260AD  jmp 0x4260DC              ; straight to the increment, past the gate
 ```
 
-The exclusions therefore apply **only on the very first cook of the save**. If
-one of ids `2`, `4` or `0x12` is the first stew ever cooked, that cook leaves
-both `+0x2EAAC` and the counter untouched -- but the recipe byte is still
-unset, so cooking it again after any other stew has set `+0x2E7A8` reaches
-Route B, passes the gate and counts normally. Nothing is permanently excluded.
+The exclusions therefore apply **only while `+0x2E7A8` is still clear**, and
+that flag is set at `0x426056` -- *after* all four early exits, the three id
+comparisons and the `[esi+0x205]` test at `0x42604C`. An excluded cook takes
+none of them and leaves the flag clear, so the **next** stew takes Route A
+again.
 
-So the ceiling is the number of recipes, not 15, and the only lasting effect of
-the exclusions is that one particular first cook is not counted at the time.
+The shortfall therefore accumulates. Cook ids `2`, `4` and `0x12` in
+succession before anything else and all three go uncounted, because each one
+exits before reaching the instruction that would have switched later cooks to
+Route B. The count can be as much as three short.
+
+It is not permanent. Those cooks also leave `+0x2EAAC` unset, so once any
+non-excluded stew sets the flag, re-cooking a previously excluded recipe
+reaches Route B, passes the gate and counts. The ceiling is therefore the
+number of recipes rather than 15 -- but the recovery requires a later cook of
+that specific recipe, not merely a later cook of anything.
 
 **The absence is exhaustive, not a failed search.** Every 4-byte offset in
 `0x2E4C0`-`0x2E560` was byte-searched for its disp32 encoding and each hit
