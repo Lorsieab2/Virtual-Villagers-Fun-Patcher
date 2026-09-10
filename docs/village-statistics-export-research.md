@@ -301,7 +301,10 @@ uncapped lifetime storage field and mutation route have yet been proven:
   villager health and age status, not a counter, and the remaining matches are
   German and Spanish words containing "elder" by coincidence. Completing this
   needs new storage plus a hook, not a field that is waiting to be read.
-- Villagers Died in **A New Home and The Lost Children**.
+- Villagers Died in **A New Home and The Lost Children**. **Closed at
+  proportional cost, not blocked on evidence** -- the two call for different
+  decisions, one being a search and the other a judgement about whether a row
+  is worth the cost.
   The Secret City, The Tree of Life and New Believers ship the counter; see
   "Villagers Died" below for why the other two do not, and what completing
   them needs.
@@ -429,12 +432,13 @@ which 45 are `lea` sites -- counting them needs both the SIB and ModRM-only
 encodings, since assuming one form returns 1. It is the routine boundary that
 makes these seven meaningful, not the displacement.
 
-The two games do **not** cost the same to complete, and the three damage sites
-above are The Lost Children's alone. Neither game is finished by hooking them:
-each also needs its old-age store, which is a separate path.
+The two games do **not** cost the same to complete, and the sites in the table
+above are `sub_43B690`'s alone rather than the game's. Neither game is finished
+by hooking them: each also needs its old-age store, which is a separate path.
 
-**The Lost Children is NOT completable at three sites, and the full set is not
-yet established.** The table above enumerates `sub_43B690`, and an earlier
+**The Lost Children is NOT completable at a cost proportional to one row, and
+the set is now settled at 23 lethal sites plus the old-age store, 24 hooks in
+all.** The table above enumerates `sub_43B690`, and an earlier
 revision of this paragraph read it as enumerating the game. It does not: damage
 paths with their own death checks sit outside that routine, and every count
 offered so far has been revised upward on re-examination.
@@ -448,12 +452,64 @@ one where pops are interleaved between the load and the store-back
 Both are real reductions; both were dropped silently by classifiers that
 recognised only the shapes they had been written for.
 
-So the honest state is that VV2 belongs in **A New Home's category rather than
-The Secret City's**: the number of damage paths is large, not yet fixed, and
-the arbiter-shaped design that fits the later three games does not apply. A
-count will be trustworthy only when the classifier that produces it fails
-loudly on an unrecognised shape instead of discarding it, with an assertion
-that the unclassified bucket is empty.
+So VV2 belongs in **A New Home's category rather than The Secret City's**: the
+damage paths are many and the arbiter-shaped design that fits the later three
+games does not apply.
+
+The count is now settled. Two sessions rebuilt their classifiers so that every
+site lands in a named bucket -- with the unclassified bucket asserted empty
+rather than silently discarded -- ran them independently from opposite starting
+points, and **diffed the address sets rather than the counts**:
+
+| | |
+|---|---:|
+| `lea` sites taking the health field's address | 45 |
+| of those, sites that **reduce** health | 25 |
+| of those, sites that can reach **zero** | **23** |
+| distinct instruction forms among them | 4 |
+
+The sets were identical. The 23 are `0x420E16`, `0x421013`, `0x433367`,
+`0x4375E7`, `0x43909F`, `0x4392CC`, `0x4393DC`, `0x4394EC`, `0x43BAEB`,
+`0x43BB7E`, `0x43BC43`, `0x44EE21`, `0x462990`, `0x462ACD`, `0x462C05`,
+`0x462D3C`, `0x462E78`, `0x462F8A`, `0x46308D`, `0x463638`, `0x4638DA`,
+`0x46403E` and `0x4641A7`. Twelve share the randomiser shape
+`lea ; call 0x4031A0 ; sub [ptr], eax`.
+
+**The convergence route is closed as well**, measured rather than assumed. If
+the deaths funnelled through a shared handler, the reads of health followed by
+a `<= 0` test would collapse onto a few targets. Two independently written
+scanners agree that they do not:
+
+    56 checks, 48 distinct targets, largest cluster 5
+    59 checks, 50+ distinct targets, largest cluster 3
+
+Fifty-odd places ask whether a villager is dead, and the most popular
+answer-site is reached from five of them. That one is `0x43BD21`, `sub_43B690`'s
+own exit -- **a chokepoint does exist, it is simply local to one routine out of
+many**, and generalising from it is the error that produced every earlier count.
+
+Immediate targets alone do not settle this, though, since separate blocks can
+still converge later or call a common routine. So flow was walked forward from
+each of the 23 sites, through unconditional jumps and both edges of
+conditionals, recording every `call` reached. Twelve distinct callees turn up
+and the most-shared is reached from **16 of the 23** -- which looks exactly like
+the shared handler the design wanted.
+
+It is not one. `0x4031A0` is a bounded random-number helper (`test/jle`,
+`cmp 0x7FFF/jg`, then `cdq ; idiv esi`) with **1551 callers image-wide**: it is
+reached from 16 death sites because it is reached from nearly everything. The
+next two, `0x403200` (137 callers) and `0x44B2A0` (71 callers), are a clock
+helper and a slot-scan loop, on the same argument. **Caller count is the control
+that separates a shared handler from a shared utility**; without it a downstream
+trace yields a convincing false positive. No callee is reached from all 23, and
+none of the shared ones is death-specific.
+
+Three independent grounds therefore close this row, any one of which would make
+it disproportionate: 23 lethal sites across four instruction forms each needing
+its own guard, plus the old-age store for 24 hooks in all; no convergence point
+to hook instead, neither at the branch targets nor downstream of them; and 35 bytes of worst-case
+contiguous free `.text` on the composed image with every VV2 feature selected,
+measured on the built output rather than on stock.
 
 | Site | Instruction | Death check |
 |---|---|---|
@@ -474,16 +530,53 @@ address absent from a list is indistinguishable from one nobody examined:
   floors at **three**, so it can never reach a death state. A
   count-the-transition gate never fires there, which makes it harmless *by
   accident*: change that constant and the gate silently starts counting.
-- `0x44EE21` -- `add ecx,-0x5A ; mov [eax],ecx ; jns` guards on the sign flag,
-  a fourth guard shape, and is not a death path.
+- `0x4614DA` -- `edx = -15 - rand() ; add ; cmp eax,3 ; jge ; mov [esi],3`
+  reduces health and clamps it to three on the same path, so it is damage
+  that cannot kill.
 
-**At least** four guard shapes are required, not two: a pre-value in a register
-(`0x43BAEB`, `0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must
-be read through the pointer first; read-modify-write through a `lea`-ed pointer
-with the test *after* (`0x433367`, `0x4375E7`); and the sign-guarded form. Plus
-the old-age store at `0x43BDEE`, which no decrement reaches. The two families
-named above add further shapes, and the count is a floor rather than a total
-for the same reason the site count is.
+Hooking either would report a death that never happened. **A false positive in
+a shipped counter is worse than a missing site, because it looks like data**
+and nothing downstream can distinguish it from a real death.
+
+`0x44EE21` was listed here in an earlier revision as "guards on the sign flag
+and is not a death path". **That was wrong and it is one of the 23**, and two
+independent readings of the same eleven bytes say so.
+
+**From the ordering.** The `jns` sits at `0x44EE2D`, *after* the store at
+`0x44EE2B`, so it branches on a result already written rather than preventing
+the write. A guard that prevents a death has to come before the store; one that
+comes after is an observation of the outcome.
+
+**From the fall-through.** `jns` is taken when the result is non-negative, so
+the fall-through is *exactly* the case where health went below zero -- and what
+sits there is a repair:
+
+    0044EE2B  89 08   mov [eax], ecx     the reduction, committed
+    0044EE2D  0f 89   jns 0x44F448       survived -> leave
+    0044EE33  5f 5e 5d                   pop edi ; pop esi ; pop ebp
+    0044EE36  89 18   mov [eax], ebx     the clamp
+    0044EE38  5b      pop ebx
+
+`ebx` is never assigned anywhere in this routine -- the only instruction naming
+it between the `push ebx` prologue at `0x44EDF0` and here is the matching
+`pop` -- so the clamp writes back the **caller's** value. Callers pass zero for
+a floor.
+
+The two arguments are independent and answer different questions. Ordering
+proves the branch is *too late*; the clamp proves **the authors expected the
+value to go negative** and wrote code to catch it. Intent rather than sequence,
+from a different feature of the same bytes.
+
+The reduction itself, `add ecx, -0x5A`, is unclamped on the path that matters.
+
+Four guard shapes are required, not two: a pre-value in a register (`0x43BAEB`,
+`0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must be read
+through the pointer first; read-modify-write through a `lea`-ed pointer with the
+test *after* (`0x433367`, `0x4375E7`); and the randomiser form, where a `call`
+separates the address computation from the subtraction (`0x462990` and eleven
+siblings). Plus the old-age store at `0x43BDEE`, which no decrement reaches
+and which is therefore **additional to the 23**: a complete death implementation
+is 24 hooks, not 23.
 
 A design proposing one wrapper for all sites was withdrawn on this basis. It
 rested on every damage site opening with a 7-byte `lea` that leaves the health
@@ -504,9 +597,16 @@ the two disagree on the population, not on the finding, and both refute the
 premise. `0x462990` is merely the first counter-example encountered, not the
 only one, and there the `lea` also sits behind a `call`.
 
+Restricted to the 23 that can actually kill -- the set a hook would target --
+the spread is `eax` 12, `edi` 8, `ebp` 3. So the premise fails on **eleven of
+the twenty-three sites a counter would have to hook**, not merely somewhere in
+the wider population.
+
 A structural claim drawn from an incomplete set is only as complete as the set
 -- and verifying it carefully across that set makes it more persuasive without
-making it more sound.
+making it more sound. The withdrawn design had been checked against its seven
+sites and held on all seven; what was never asked was whether the seven were
+all of them.
 
 **A New Home is not, at a cost proportional to one row.** The same
 byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
@@ -527,18 +627,25 @@ supplies the amount and looks like a randomiser. Several forms leave no
 register holding the pre-value, so a guard shape has to be argued per site,
 and the cave-audit gate would need a register contract for each.
 
-The Lost Children having exactly three damage sites was the easy case, not the
-representative one. This is recorded as the reason A New Home is not shipped
-rather than as a recipe to follow: sixteen hooks in five shapes for one row is
-not a maintainable feature, and claiming a completion path at that cost would
-be an over-promise of the same kind the document already refuses elsewhere.
+`sub_43B690` having three damage sites was the easy case, not the
+representative one -- and those three were that routine's, never the game's.
+The Lost Children has since been measured at 23 lethal sites across four
+instruction forms, so it belongs in A New Home's category rather than standing
+as a contrast to it. Both are recorded as the reason those two games are not
+shipped rather than as a recipe to follow: hooks in that quantity and that many
+shapes, for one row, is not a maintainable feature, and claiming a completion
+path at that cost would be an over-promise of the same kind the document
+already refuses elsewhere.
 
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
 
 **A scanning note, because two sessions reached opposite wrong answers here.**
-Ground truth for The Lost Children's health field is thirteen writers, exactly
-one of which writes zero (`0x43BDEE`, the old-age kill). Two independent method
+Ground truth for The Lost Children's health field is thirteen *direct* writers
+-- instructions with `[reg+0x52C]` as the destination operand -- exactly one of
+which writes zero (`0x43BDEE`, the old-age kill). These are a **disjoint
+population from the 23 lethal sites** above, which reach the field through a
+`lea`-ed pointer instead; `0x43BDEE` is not among the 23 and never was. Two independent method
 failures produced confident wrong lists:
 
 - A **linear disassembly pass over the section** desynchronised on embedded
