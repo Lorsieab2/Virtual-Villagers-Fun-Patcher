@@ -18,6 +18,7 @@ Usage:
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from PIL import Image
@@ -68,14 +69,29 @@ NUDGE_X = [0, 0, 0, 0, 0, 0, 0, 0]
 HEAD_FACE_CY = 24                  # the head's face sits here in its 40x65 cell
 ADULT_MASK_DY = MASK_ANCHOR_CY - HEAD_FACE_CY   # 32px lift (preview + exe reference)
 
-SRC = Path(r"C:/Users/Owner/Downloads/Virtual Villagers - New Believers/Images/vv5_heathenheads.png")
-HEADS_DIR = Path(r"C:/Users/Owner/Downloads/Virtual Villagers - The Lost Children/Images")
-SCRATCH = Path(r"C:/Users/Owner/AppData/Local/Temp/claude/C--Users-Owner--claude/0273893a-8270-4370-a19f-cd0f96b9c774/scratchpad")
+# Authoring inputs live outside the repository: they are extracted game art and
+# hand-drawn mockups, neither of which is redistributable. Point these at your
+# own copies with the environment variables, which is also why no default names
+# a particular machine -- this file ships in the source archive.
+_GAMES = Path(os.environ.get("VVFP_GAME_IMAGES", "game-images"))
+SRC = Path(
+    os.environ.get(
+        "VVFP_VV5_HEATHEN_HEADS",
+        str(_GAMES / "Virtual Villagers - New Believers" / "Images" / "vv5_heathenheads.png"),
+    )
+)
+HEADS_DIR = Path(
+    os.environ.get(
+        "VVFP_VV2_IMAGES",
+        str(_GAMES / "Virtual Villagers - The Lost Children" / "Images"),
+    )
+)
+SCRATCH = Path(os.environ.get("VVFP_SCRATCH", "build/scratch"))
 
 # User-authored resized mask art ("port" files) — correct sizes + full Chief feathers that my
 # VV5 extraction had cropped.  If present, these are the mask source (7 frames each, already at
 # the user's chosen size, so MASK_SCALE is forced to 1.0).  One connected component per frame.
-PORT_DIR = Path(r"C:/Users/Owner/Downloads/VV2 mask mockups")
+PORT_DIR = Path(os.environ.get("VVFP_VV2_MASK_MOCKUPS", "vv2-mask-mockups"))
 PORT_FILES = ["blue", "orange", "red", "purple", "chief"]
 
 

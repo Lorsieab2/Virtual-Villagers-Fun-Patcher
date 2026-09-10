@@ -40,7 +40,9 @@ ROOT = Path(__file__).resolve().parents[1]
 VANILLA = Path(
     os.environ.get(
         "VVFP_VANILLA_GAMES",
-        r"C:\Users\Owner\Downloads\Read-Only Vanilla LDW Games",
+        # A neutral default: this file ships in the source archive, so the
+        # fallback must not name anyone's machine or say which games they own.
+        "vanilla-ldw-games",
     )
 )
 INSTALL_NAME = {
