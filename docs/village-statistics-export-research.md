@@ -301,10 +301,18 @@ uncapped lifetime storage field and mutation route have yet been proven:
   villager health and age status, not a counter, and the remaining matches are
   German and Spanish words containing "elder" by coincidence. Completing this
   needs new storage plus a hook, not a field that is waiting to be read.
-- Villagers Died in **A New Home and The Lost Children**.
-  The Secret City, The Tree of Life and New Believers ship the counter; see
-  "Villagers Died" below for why the other two do not, and what completing
-  them needs.
+- Villagers Died in **A New Home and The Lost Children**. **Closed at
+  proportional cost, not blocked on evidence** -- the distinction matters
+  because the two call for different decisions.
+  The Secret City, The Tree of Life and New Believers ship the counter because
+  each routes every death through one arbiter that also records a cause.
+  Neither of the first two games
+  has that shape: The Lost Children has 23 lethal damage sites across four
+  instruction forms, no convergence point to hook instead, and 35 bytes of
+  worst-case contiguous free `.text` to build in. See "Villagers Died" below
+  for the enumeration, the two deliberate exclusions, and the measurements.
+  Further searching is not expected to move these numbers; what remains is a
+  judgement about whether one row is worth that cost, not a search.
 - Total Stews Made in VV2 through VV4. VV2's **Special** Stews Found ships and
   is understood, but the requirements list *Total* Stews Found "with no
   herb-combination restriction" as a **separate** VV2 statistic. The Lost
@@ -433,38 +441,100 @@ The two games do **not** cost the same to complete, and the three damage sites
 above are The Lost Children's alone. Neither game is finished by hooking them:
 each also needs its old-age store, which is a separate path.
 
-**The Lost Children is completable, but not at three sites.** The table above
-enumerates `sub_43B690`, and an earlier revision of this paragraph read it as
-enumerating the game. Classifying by mnemonic across every `.text` reference to
-`+0x52C` finds **29 sites that mutate the field**, and four damage paths with
-their own death checks sit outside that routine entirely:
+**The Lost Children is NOT completable at a cost proportional to one row,
+and this is now a closed finding rather than an open task.** The table above
+enumerates `sub_43B690`, and two successive revisions of this paragraph read it
+as enumerating the game -- first as three damage sites, then as seven. Two
+sessions then classified the whole image independently, from opposite starting
+points, and converged on the same set:
 
-| Site | Instruction | Death check |
-|---|---|---|
-| `0x420E16` | `add dword [eax], -0x14` | `0x420E39` `cmp [eax],ebx ; jge` |
-| `0x421013` | `add dword [eax], -0x0A` | `0x421036` `cmp [eax],ebx ; jge` |
-| `0x433367` | `sub [eax], ebp` | `0x43337D` `test ecx,ecx ; jge ; mov [eax],0` |
-| `0x4375E7` | `sub [eax], ebp` | `0x4375FD` `test ecx,ecx ; jge ; mov [eax],0` |
+| | |
+|---|---:|
+| `lea` sites taking the health field's address | 45 |
+| of those, sites that **reduce** health | 25 |
+| of those, sites that can reach **zero** | **23** |
+| distinct instruction forms among them | 4 |
 
-A hook set built from `sub_43B690` alone misses all four, which is a silent
-undercount shipped under a total's name -- the failure this document refuses
-for A New Home, and worse here because it would ship looking complete.
+The 23 are `0x420E16`, `0x421013`, `0x433367`, `0x4375E7`, `0x43909F`,
+`0x4392CC`, `0x4393DC`, `0x4394EC`, `0x43BAEB`, `0x43BB7E`, `0x43BC43`,
+`0x44EE21`, `0x462990`, `0x462ACD`, `0x462C05`, `0x462D3C`, `0x462E78`,
+`0x462F8A`, `0x46308D`, `0x463638`, `0x4638DA`, `0x46403E` and `0x4641A7`.
+Twelve share the randomiser shape `lea ; call 0x4031A0 ; sub [ptr], eax`.
+
+**There is no convergence point.** If the deaths funnelled through a shared
+handler, the reads of health that test for `<= 0` would collapse onto a few
+targets. Measured twice, with independently written scanners:
+
+    56 checks, 48 distinct targets, largest cluster 5
+    59 checks, 50+ distinct targets, largest cluster 3
+
+Fifty-odd places ask "is this villager dead", and the most popular answer-site
+is reached from five of them. The largest cluster is `0x43BD21`, the tick
+routine's own exit -- which is exactly why `sub_43B690` looked tractable. **A
+chokepoint does exist; it is local to one routine out of many**, and
+generalising from it is the error that produced both earlier counts.
+
+Three independent grounds now close the row, any one of which would make it
+disproportionate:
+
+- 23 lethal sites across four instruction forms, each needing its own guard;
+- no convergence point to hook instead;
+- 35 bytes of worst-case contiguous free `.text` on the composed image with
+  every VV2 feature selected, measured on the built output rather than stock.
 
 Two sites must be **excluded deliberately** rather than omitted, since an
-address absent from a list is indistinguishable from one nobody examined:
+address absent from a list is indistinguishable from one nobody examined. Both
+reduce health and then clamp it above zero, so both are damage that cannot
+kill:
 
 - `0x46116C` -- `dec ecx ; cmp ecx,3 ; mov [eax],ecx ; jge ; mov [eax],3`
-  floors at **three**, so it can never reach a death state. A
-  count-the-transition gate never fires there, which makes it harmless *by
-  accident*: change that constant and the gate silently starts counting.
-- `0x44EE21` -- `add ecx,-0x5A ; mov [eax],ecx ; jns` guards on the sign flag,
-  a fourth guard shape, and is not a death path.
+- `0x4614DA` -- `edx = -15 - rand() ; add ; cmp eax,3 ; jge ; mov [esi],3`
 
-So four guard shapes are required, not two: a pre-value in a register
-(`0x43BAEB`, `0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must
-be read through the pointer first; read-modify-write through a `lea`-ed pointer
-with the test *after* (`0x433367`, `0x4375E7`); and the sign-guarded form. Plus
-the old-age store at `0x43BDEE`, which no decrement reaches.
+Hooking either counts a death that cannot happen. **A false positive in a
+shipped counter is worse than a missing site, because it looks like data** and
+nothing downstream can distinguish it from a real death.
+
+`0x44EE21` was excluded in an earlier revision as "sign-guarded, not a death
+path". That was wrong: `add ecx,-0x5A ; mov [eax],ecx` stores an unclamped
+reduction, and the `jns` after it observes the result rather than preventing
+it. It is lethal, and it is in the 23 above.
+
+### Two scanning errors that produced the wrong counts
+
+Both are recorded because either one alone yields a confident wrong total.
+
+**Backward decode picks the wrong instruction.** Locating an instruction by
+stepping back until the decode "covers" the displacement stops at the first
+offset that fits -- which can be a longer instruction that swallowed the real
+one. Nine sites were missed this way, every one latched exactly one byte late:
+
+    bytes     0f 8d bc 30 2c 05 00 00
+    0x462ACD  lea edi, [eax+esi+0x52C]   the real instruction
+    0x462ACE  mov ...                    what the scan recorded
+
+The `0F` before the `8D` makes `0F 8D` a `jge`, which swallows the `lea`.
+Enumerate **every** candidate decode covering the displacement, keep those
+matching the shape sought, and take the **shortest**: a longer decode has
+necessarily eaten a preceding opcode byte.
+
+**A mnemonic in a window is not a data-flow test.** `0x44F043` was briefly
+counted as damage because a `dec ecx` appeared near the `lea`. That `dec` is
+the loop counter over 256 villager records, and the only health write in the
+routine is `mov dword ptr [eax], 0x64` -- a **mass heal**:
+
+    0044F043  lea eax, [esi+0x52C]
+    0044F049  mov ecx, 0x100             256 records
+    0044F061  mov dword ptr [eax], 0x64  the only health write
+    0044F06A  add eax, 0xE48C            stride to the next record
+    0044F06F  dec ecx                    the loop, not the health
+
+Arithmetic direction must be tied to the register holding the health value,
+never to any decrement in the vicinity. Relatedly, `add reg, reg` is
+**undecidable** from the mnemonic alone: `mov edx, -15 ; sub edx, eax ;
+add eax, edx` reduces, while `add eax, 2 ; add edx, eax` raises. The same site
+was classified in opposite directions by two scanners keyed on the immediate's
+sign, which is the clearest evidence that neither heuristic was sound.
+
 
 **A New Home is not, at a cost proportional to one row.** The same
 byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
