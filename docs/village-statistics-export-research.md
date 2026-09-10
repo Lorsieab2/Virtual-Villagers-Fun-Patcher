@@ -690,7 +690,26 @@ all of them.
 **A New Home is not, at a cost proportional to one row.** The same
 byte-search-then-classify pass over its health field at `+0x344` finds 31 `lea`
 sites, of which sixteen are damage, in **five** instruction forms across three
-regions -- every address below verified against the stock image:
+regions -- every address below verified against the stock image.
+
+The 31 was re-measured after the equivalent VV2 figure turned out to be an
+undercount: a scan matching only the seven-byte SIB encoding reported 35 where
+the true population is 45. VV1's number survives that check -- 28 SIB-form plus
+3 ModRM-only is 31 -- so it was already counting both encodings.
+
+The destination spread is the part worth carrying across, because it is nearly
+identical to VV2's:
+
+| Game | `eax` | `edi` | `ebx` | `esi` | non-`eax` |
+|---|---:|---:|---:|---:|---:|
+| A New Home | 17 | 9 | 4 | 1 | **14 of 31 (45%)** |
+| The Lost Children | 25 | 12 | 5 | 3 | **20 of 45 (44%)** |
+
+So the premise that defeated the single-wrapper design for The Lost Children --
+that every damage site leaves the health pointer in `eax` -- fails at the same
+rate here, across four destination registers rather than three. The two games
+are alike in this, which is why the conclusion below is a cost judgement rather
+than a gap in the evidence.
 
 | Form | Sites |
 |---|---|
