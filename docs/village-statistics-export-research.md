@@ -302,8 +302,8 @@ uncapped lifetime storage field and mutation route have yet been proven:
   herb-combination restriction" as a **separate** VV2 statistic. The Lost
   Children does not persist such a count anywhere -- established exhaustively
   in "Why The Lost Children has no total stew count" below, which also gives
-  the exact mechanism of `+0x2E520` and the one hook site that would satisfy
-  the requirement. The two must not be conflated.
+  the exact mechanism of `+0x2E520` and what a hook satisfying the requirement
+  would have to cover. The two must not be conflated.
 - Tribal Chiefs Robed in VV3.
 
 Threshold-limited achievement counters are not accepted as substitutes for
@@ -500,19 +500,30 @@ a first-cook "undercount by one until the recipe is cooked again": there is no
 undercount and no correction on a later cook. The counter is doing exactly what
 it was written to do, and it is bounded by the number of recipes.
 
-The result space is 18 outcomes. The cook routine assigns 17 literal ids
-between `0x425C17` and `0x42600D` (`1`-`0x12`), plus computed ones through
-`mov [esi+0x3044C], eax`. The completion path excludes three before reaching
-the increment:
+The result space is 18 outcomes, and **all 18 can eventually count** -- but by
+two different routes, selected by a "first stew ever" flag at `+0x2E7A8`:
 
 ```
-00426025  mov eax, [esi+0x3044C]
+00426017  mov al, [esi+0x2E7A8]     ; has any stew been cooked before?
+0042601F  jne 0x4260AF              ; yes -> ROUTE B, the per-recipe gate
+
+          ; ROUTE A, taken once ever, applies three exclusions:
 0042602B  cmp eax, 4     je 0x4260E2
 00426034  cmp eax, 2     je 0x4260E2
 0042603D  cmp eax, 0x12  je 0x4260E2
+00426056  mov byte ptr [esi+0x2E7A8], 1    ; set the flag
+004260A5  mov byte ptr [esi+eax+0x2EAAC], 1
+004260AD  jmp 0x4260DC              ; straight to the increment, past the gate
 ```
 
-So 15 of the 18 outcomes can ever increment it, and each at most once.
+The exclusions therefore apply **only on the very first cook of the save**. If
+one of ids `2`, `4` or `0x12` is the first stew ever cooked, that cook leaves
+both `+0x2EAAC` and the counter untouched -- but the recipe byte is still
+unset, so cooking it again after any other stew has set `+0x2E7A8` reaches
+Route B, passes the gate and counts normally. Nothing is permanently excluded.
+
+So the ceiling is the number of recipes, not 15, and the only lasting effect of
+the exclusions is that one particular first cook is not counted at the time.
 
 **The absence is exhaustive, not a failed search.** Every 4-byte offset in
 `0x2E4C0`-`0x2E560` was byte-searched for its disp32 encoding and each hit
@@ -536,12 +547,25 @@ Cured, Village Elders and Triplets Birthed, so a field it reports as having no
 unconditional writer genuinely has none.
 
 **What the requirement would need.** The count has to be new persistent state;
-no stock field holds it. The hook site is already isolated: `0x4260DC` sits
-*after* the recipe gate, while `0x4260AF` sits *before* it, so a counter
-incremented at the top of that block counts every completed cook including
-repeats -- which is the "no herb-combination restriction" the requirements ask
-for. Per the project's standing preference the storage belongs in the companion
-DLL rather than a new stock field or cave allocation.
+no stock field holds it.
+
+**`0x4260AF` is the wrong hook site**, and the reason generalises. Route A
+marks the recipe at `0x4260A5` and then `jmp`s from `0x4260AD` directly to
+`0x4260DC`, bypassing `0x4260AF` entirely. A counter placed there misses the
+first completed cook of every save, and misses an excluded-id first cook twice
+over. Hooking the site that *looks* like the top of the block is exactly the
+trap: the block has two entries, not one.
+
+The hook must sit where both routes are already committed to a completed cook.
+`0x426017`, the `+0x2E7A8` read, dominates both routes -- but it is upstream of
+the `[esi+0x205]` check at `0x42604C`, which can still abandon Route A, so a
+counter there over-counts. The honest options are to hook **both** routes
+(`0x42609F` on A and `0x4260AF` on B), or to hook `0x4260DC` itself and
+reconstruct the unrestricted total separately, since that instruction is the
+one point every counted cook reaches.
+
+Per the project's standing preference the storage belongs in the companion DLL
+rather than a new stock field or cave allocation.
 
 ### What The Secret City actually has instead of stews
 
