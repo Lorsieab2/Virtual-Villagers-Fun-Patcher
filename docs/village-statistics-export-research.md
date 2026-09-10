@@ -485,10 +485,21 @@ That was wrong, and the byte order is what settles it:
     0f 89 ...           jns                  <- observed AFTER the store
 
 The branch reads the result rather than preventing it, so the reduced value is
-already committed and may be negative. It is lethal. An exclusion justified by
-a guard that runs *after* the write is the same error as reading a chokepoint
-from one routine: the instruction was examined, and the question asked of it
-was the wrong one.
+already committed and may be negative. It is lethal.
+
+The fall-through confirms it structurally. At `0x44EE36` the code stores `ebx`
+back into the field, and `ebx` is the caller's value -- pushed unmodified in
+the prologue at `0x44EDF0` (`53`, `push ebx`) and popped immediately after the
+clamp. **A guard prevents the write; this repairs it afterwards.** A path that
+needs repairing is a path that can reach zero, which is exactly what "is not a
+death path" denied.
+
+An exclusion justified by a guard that runs *after* the write is the same error
+as reading a chokepoint from one routine: the instruction was examined, and the
+question asked of it was the wrong one. That failure family is worth separating
+from the rest of this document's scanning notes -- blindness is fixed by
+widening the instrument, but a wrong question survives any amount of re-reading,
+because every re-read confirms the answer to the question that was asked.
 
 **At least** four guard shapes are required, not two: a pre-value in a register
 (`0x43BAEB`, `0x43BC43`); the in-place `dec` at `0x43BB7E` whose pre-value must
