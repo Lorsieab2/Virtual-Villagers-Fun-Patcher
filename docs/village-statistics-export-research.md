@@ -527,11 +527,30 @@ supplies the amount and looks like a randomiser. Several forms leave no
 register holding the pre-value, so a guard shape has to be argued per site,
 and the cave-audit gate would need a register contract for each.
 
-The Lost Children having exactly three damage sites was the easy case, not the
-representative one. This is recorded as the reason A New Home is not shipped
-rather than as a recipe to follow: sixteen hooks in five shapes for one row is
-not a maintainable feature, and claiming a completion path at that cost would
-be an over-promise of the same kind the document already refuses elsewhere.
+`sub_43B690` having three damage sites was the easy case, not the
+representative one -- and the three were that routine's, never the game's.
+The Lost Children has been measured since at **23 lethal sites across four
+instruction forms**, so it is in A New Home's category rather than a
+contrast to it. Both are recorded as the reason those two games are not
+shipped rather than as a recipe to follow: hooks in that quantity, in that
+many shapes, for one row is not a maintainable feature, and claiming a
+completion path at that cost would be an over-promise of the same kind the
+document already refuses elsewhere.
+
+Two sessions reached the 23 independently, from opposite starting points,
+and diffed the address sets rather than the counts: identical. Two further
+sites reduce health and are **floor-clamped so they cannot reach zero**
+(`0x46116C` and `0x4614DA`, both flooring at 3). They are excluded
+deliberately, because hooking one would report a death that never happened
+-- a false positive is worse than a missing site, since it looks like data
+and nothing downstream can tell.
+
+The convergence route is closed too, measured rather than assumed. If the
+deaths funnelled through a shared handler, the reads of health followed by a
+`<= 0` test would branch to a few common targets. They do not: **56 such
+checks reach 48 distinct targets, and the most-shared is reached from 5 of
+them** -- and that one is `sub_43B690`'s own exit, which is exactly why that
+routine looked tractable and why generalising from it was wrong.
 
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
