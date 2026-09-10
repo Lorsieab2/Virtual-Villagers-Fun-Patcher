@@ -23,6 +23,7 @@ that is per-file, so a partial install skips exactly the tests it should.
 
 from pathlib import Path
 
+import ast
 import json
 import os
 import sys
@@ -429,23 +430,101 @@ def _module_names_an_absent_fixture(report) -> bool:
     if not (isinstance(location, tuple) and location):
         return False
     name = Path(str(location[0])).name
+    module = None
+    for candidate in list(sys.modules.values()):
+        file = getattr(candidate, "__file__", None)
+        if file and Path(file).name == name:
+            module = candidate
+            break
+    if module is None:
+        return False
+
+    gating = _names_used_by_the_skip_condition(module, location)
+    if not gating:
+        return False
+
     roots = [root.resolve() for root in FIXTURE_ROOTS]
-    for module in list(sys.modules.values()):
-        file = getattr(module, "__file__", None)
-        if not file or Path(file).name != name:
+    for attribute in gating:
+        value = getattr(module, attribute, None)
+        if not isinstance(value, Path):
             continue
-        for value in vars(module).values():
-            if not isinstance(value, Path):
-                continue
-            try:
-                resolved = value.resolve()
-            except (OSError, ValueError):
-                continue
-            if any(
-                resolved == root or root in resolved.parents for root in roots
-            ) and not value.exists():
-                return True
+        try:
+            resolved = value.resolve()
+        except (OSError, ValueError):
+            continue
+        if any(
+            resolved == root or root in resolved.parents for root in roots
+        ) and not value.exists():
+            return True
     return False
+
+
+def _names_used_by_the_skip_condition(module, location) -> set[str]:
+    """Globals named by the decorator that actually caused this skip.
+
+    Review found the hole this closes, and it is the third over-reporting one
+    in this function. Asking "does this module mention an absent fixture Path"
+    is not the same question as "did this skip happen because of one", and the
+    difference is a live regression:
+
+        tests/test_vv2_origins_playtest_feature.py
+            STOCK = ROOT / "research" / "stock-executables"
+            @unittest.skip("superseded by the current ... tests")
+
+    A file retired as **superseded**, with no fixture condition anywhere, was
+    told to link game files and failed the run. That is the over-reporting
+    direction, and it is worse than the under-reporting one it was fixing: a
+    guard that cries wolf on a legitimate configuration teaches people to set
+    VVFP_ALLOW_NO_FIXTURES=1 permanently, which restores the original
+    blindness with extra steps.
+
+    So the dependency is now **observed rather than inferred**. The report
+    carries the file and line of the skipped item, the decorator sits directly
+    above it, and its condition names the globals it gates on. Only those are
+    consulted.
+
+    Parsed with `ast` rather than by matching text, so `STOCK.is_file()`,
+    `HAVE_DEPS and STOCK.exists()` and `STOCK_DIR.is_dir()` are all read as
+    the names they use. A bare `@unittest.skip("superseded")` has no condition
+    at all and therefore names nothing, which is the case that regressed.
+
+    Only `args[0]` is walked, not the whole decorator. Mutating that to walk
+    the entire call survives every test, and the reason is worth recording
+    rather than papering over with a test for it: across the whole suite the
+    only name the wider walk adds is `unittest` itself, which is never a
+    `Path`. The narrowing is correct but currently unobservable, so no
+    assertion pins it -- writing one would pin behaviour that cannot differ,
+    which is the dead-code-as-safeguard shape this file already removed once.
+    """
+    file = getattr(module, "__file__", None)
+    if not file:
+        return set()
+    try:
+        source = Path(file).read_text(encoding="utf-8")
+        tree = ast.parse(source)
+    except (OSError, ValueError, SyntaxError):
+        return set()
+
+    line = location[1] if len(location) > 1 else None
+    if not isinstance(line, int):
+        return set()
+    # `location` is zero-based; ast line numbers are one-based.
+    target = line + 1
+
+    names: set[str] = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.ClassDef, ast.FunctionDef)):
+            continue
+        end = getattr(node, "end_lineno", node.lineno)
+        if not node.lineno <= target <= end:
+            continue
+        for decorator in node.decorator_list:
+            if not isinstance(decorator, ast.Call) or not decorator.args:
+                continue
+            for sub in ast.walk(decorator.args[0]):
+                if isinstance(sub, ast.Name):
+                    names.add(sub.id)
+    return names
 
 
 def pytest_runtest_logreport(report):

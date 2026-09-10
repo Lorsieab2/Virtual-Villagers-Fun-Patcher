@@ -610,7 +610,10 @@ class ARunThatVerifiedNothingFails(unittest.TestCase):
                 ROOT = Path(__file__).resolve().parents[1]
                 STOCK = ROOT / "research" / "stock-executables" / "Present.exe"
 
-                @unittest.skipUnless(False, "some unrelated reason")
+                # Names STOCK, so the condition gate admits it and the
+                # exists() check is what must decline. `is_dir()` is
+                # false for a file, so this skips while STOCK exists.
+                @unittest.skipUnless(STOCK.is_dir(), "unrelated reason")
                 class Gated(unittest.TestCase):
                     def test_skipped_for_another_cause(self):
                         self.assertTrue(True)
@@ -711,7 +714,9 @@ class ARunThatVerifiedNothingFails(unittest.TestCase):
                 # Absent, but NOT under a fixture root.
                 SCRATCH = ROOT / "build" / "not-made-yet.bin"
 
-                @unittest.skipUnless(False, "some unrelated reason")
+                # Names SCRATCH, so the condition gate admits it and the
+                # fixture-root restriction is what must decline.
+                @unittest.skipUnless(SCRATCH.is_file(), "unrelated reason")
                 class Gated(unittest.TestCase):
                     def test_skipped_for_another_cause(self):
                         self.assertTrue(True)
@@ -722,6 +727,61 @@ class ARunThatVerifiedNothingFails(unittest.TestCase):
                 0,
                 "an absent path outside the fixture roots is not a missing "
                 "game input" + result.stdout[-2000:],
+            )
+            self.assertNotIn("verified nothing", result.stdout)
+
+    def test_a_bare_skip_in_a_module_holding_a_fixture_path_is_ignored(self):
+        """A file retired for an unrelated reason must not demand game files.
+
+        Review found this as a regression against main, and it is the third
+        over-reporting hole in the same branch:
+
+            tests/test_vv2_origins_playtest_feature.py
+                STOCK = ROOT / "research" / "stock-executables"
+                @unittest.skip("superseded by the current ... tests")
+
+            on the fix   10 skipped, exit 1, "Link the game files into ..."
+            on main      10 skipped, exit 0
+
+        A file skipped as **superseded**, with no fixture condition anywhere,
+        was told to link game files and failed the run. Two files did it.
+
+        That is worse than the under-reporting bug being fixed. A guard that
+        cries wolf on a legitimate configuration teaches people to set
+        VVFP_ALLOW_NO_FIXTURES=1 permanently, which restores the original
+        blindness with extra steps -- the same trap that sank a peer's
+        competing guard earlier.
+
+        The cause was inferring the dependency instead of observing it:
+        "this module mentions an absent fixture Path" is not "this skip
+        happened because of one". The condition of the decorator that actually
+        caused the skip is now parsed, and only the globals it names are
+        consulted.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            result = self._run(
+                Path(temp),
+                """
+                import unittest
+                from pathlib import Path
+
+                ROOT = Path(__file__).resolve().parents[1]
+                # Declared, absent, and irrelevant to why this file skips.
+                STOCK = ROOT / "research" / "stock-executables" / "Absent.exe"
+
+                @unittest.skip("superseded by newer tests")
+                class Retired(unittest.TestCase):
+                    def test_not_run_any_more(self):
+                        self.assertTrue(True)
+                """,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                "a file skipped for an unrelated reason must not be treated "
+                "as a missing-input run" + result.stdout[-2000:],
             )
             self.assertNotIn("verified nothing", result.stdout)
 
