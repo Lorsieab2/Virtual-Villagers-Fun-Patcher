@@ -276,8 +276,54 @@ def pytest_runtest_makereport(item, call):
 
 _FIXTURE_SKIP_REASON = "requires a local game file that is gitignored and absent"
 
+# The reason above is the one THIS file writes when it rewrites a
+# FileNotFoundError. Many tests never reach that path: they check for the
+# binary themselves and call `skipTest` with their own wording before opening
+# anything. Keying on the rewritten reason alone missed all of them, so a
+# focused run of exactly the tests this guard protects still exited 0 --
+# reported by review with a reproduction:
+#
+#     pytest tests/test_vv2_father_traits_from_mother.py::...::
+#            test_the_values_really_come_from_the_father
+#     SKIPPED: stock executable not available: Virtual Villagers - ....exe
+#     1 skipped        exit 0
+#
+# The wordings in use are many and none is authoritative: "stock executable
+# not available", "stock executable is not present in this isolated source
+# worktree", "no generated executables present", "{game} stock executable
+# unavailable", "{exe_name} is not present", "companion DLL not built".
+# Matching them by phrase would be the same brittleness one level along, so
+# the test is on the SUBJECT rather than the phrasing: a skip that names a
+# game executable, a companion DLL, or the fixture roots.
+#
+# `requires capstone` and `Tk display is not available` deliberately do not
+# match. They are missing TOOLS, not missing inputs -- a run without capstone
+# has not silently failed to examine the binaries, it cannot examine them at
+# all, and reddening that would be a different claim.
+_FIXTURE_SUBJECTS = (
+    "stock executable",
+    "stock vv",
+    "generated executables",
+    "companion dll",
+    "game file that is gitignored",
+    "stock-executables",
+)
+
 _fixture_skips: list[str] = []
 _fixture_executed: list[str] = []
+
+
+def _is_fixture_skip(reason: str) -> bool:
+    """Whether a skip reason names an absent game binary or companion.
+
+    Matched on the subject rather than on any one project's phrasing, because
+    the phrasings are inconsistent and adding each new one as it appears is
+    how this check silently narrows again.
+    """
+    lowered = reason.lower()
+    if _FIXTURE_SKIP_REASON in reason:
+        return True
+    return any(subject in lowered for subject in _FIXTURE_SUBJECTS)
 
 
 def pytest_runtest_logreport(report):
@@ -290,7 +336,7 @@ def pytest_runtest_logreport(report):
         reason = str(longrepr[2])
     elif isinstance(longrepr, str):
         reason = longrepr
-    if report.skipped and _FIXTURE_SKIP_REASON in reason:
+    if report.skipped and _is_fixture_skip(reason):
         _fixture_skips.append(report.nodeid)
     elif report.when == "call" and not report.skipped:
         _fixture_executed.append(report.nodeid)
