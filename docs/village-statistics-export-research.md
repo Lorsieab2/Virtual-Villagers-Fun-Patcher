@@ -797,6 +797,31 @@ already refuses elsewhere.
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
 
+**A New Home's eighteen-site set is complete, independently re-derived.** The
+same classify-every-`lea` pass used for The Lost Children, run against
+`+0x344`:
+
+```
+lea sites carrying +0x344   31    (eax 17, edi 9, ebx 4, esi 1)
+documented damage sites     18    ALL recovered
+remaining sites             13    classified, ZERO damage among them
+```
+
+The thirteen are four clamps (`0x41A07A` ceiling, `0x42AB2F` zero, `0x42EDC0`
+floor, `0x42EE44` ceiling), one heal (`0x42EE2E`, `inc dword [eax]`), five
+reads or branches with no write, and three `lea`-plus-padding sites that touch
+only bytes. None mutates health downward.
+
+So unlike The Lost Children -- whose count was revised upward twice before it
+settled -- A New Home's list was already complete. That is worth recording
+because the two games were treated as equally uncertain and only one of them
+was.
+
+Both death counters also have verified storage. `+0x9E90` is free in A New
+Home (zero stock references) and sits at 40,592 against a 44,008-byte save,
+inside the serialised extent with 3,416 bytes of margin. The doubler
+persistence failure -- fields at 44,360, past the extent -- cannot recur.
+
 **The Lost Children's counter storage survives a save, and that was measured
 rather than assumed.** A New Home's doubler persistence bug is exactly a field
 written past the serialised extent -- real, unused, correctly chosen, and 352

@@ -149,7 +149,21 @@ class VV1VV3BirthControlTests(unittest.TestCase):
                         *feature.raw.get("explicit_non_changes", []),
                     ]
                 )
+                # A New Home no longer applies the fallback: its chooser tail
+                # now requires the parenting preference to be checked and
+                # rejects an unchecked villager outright. The Lost Children
+                # and The Secret City still describe the native VV4/VV5
+                # behaviour they leave in place, so the assertion is per game
+                # rather than shared -- asserting the old wording for all
+                # three is what let the contract keep advertising a fallback
+                # this build had stopped applying.
                 self.assertIn("25% non-preference fallback", text)
+                if feature.id == "vv1_birth_control":
+                    self.assertIn(
+                        "REQUIRES the parenting preference to be checked",
+                        text,
+                    )
+                    self.assertIn("rejected instead of reaching", text)
                 self.assertIn("native", text.lower())
                 self.assertIn("conception", text.lower())
                 self.assertIn("delivery", text.lower())
