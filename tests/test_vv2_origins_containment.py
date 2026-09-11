@@ -141,6 +141,7 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # exactly what this test exists to prove the OTHER features do
                 # not do -- so it belongs outside the set rather than inside it.
                 "vv2_write_parentage_log",
+                "vv2_learning_never_fails",
                 *PUBLIC,
             }
         ]

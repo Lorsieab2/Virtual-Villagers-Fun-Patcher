@@ -767,6 +767,122 @@
   ],
   "fun_patches": [
     {
+      "id": "vv1_learning_never_fails",
+      "game_id": "vv1",
+      "name": "Learning Skills Never Fails",
+      "description": "Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.",
+      "output_tag": "Learning Skills Never Fails",
+      "behavior_changes": [
+        "Removes only the five native work-task skill-failure branches in A New Home, so each eligible work task reaches its stock skill-gain path.",
+        "Does not alter pregnancy, food, tech-point, or other random outcomes."
+      ],
+      "explicit_non_changes": [
+        "The native skill increment code and skill caps remain stock.",
+        "No save data, villager creation, or non-work-task RNG path is changed."
+      ],
+      "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
+      "patches": [
+        {"offset": "0x3D483", "before": "7E76", "after": "EB76", "purpose": "make the Farming success target unconditional"},
+        {"offset": "0x3D5E0", "before": "7E7C", "after": "EB7C", "purpose": "make the Building success target unconditional"},
+        {"offset": "0x3D72A", "before": "7E19", "after": "EB19", "purpose": "make the Researching success target unconditional"},
+        {"offset": "0x3D7F8", "before": "0F8F2EFFFFFF", "after": "909090909090", "purpose": "remove the Healing failure branch and fall through to stock skill gain"},
+        {"offset": "0x3D8AC", "before": "7E77", "after": "EB77", "purpose": "make the Parenting success target unconditional"}
+      ]
+    },
+    {
+      "id": "vv2_learning_never_fails",
+      "game_id": "vv2",
+      "name": "Learning Skills Never Fails",
+      "description": "Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.",
+      "output_tag": "Learning Skills Never Fails",
+      "behavior_changes": [
+        "Removes only the five native work-task skill-failure branches in The Lost Children, so each eligible work task reaches its stock skill-gain path.",
+        "Does not alter pregnancy, food, tech-point, or other random outcomes."
+      ],
+      "explicit_non_changes": [
+        "The native skill increment code and skill caps remain stock.",
+        "No save data, villager creation, or non-work-task RNG path is changed."
+      ],
+      "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
+      "patches": [
+        {"offset": "0x4E1E2", "before": "7E77", "after": "EB77", "purpose": "make the Farming success target unconditional"},
+        {"offset": "0x4E37B", "before": "0F8E8D000000", "after": "E98E00000090", "purpose": "make the Building success target unconditional"},
+        {"offset": "0x4E4E2", "before": "7E2D", "after": "EB2D", "purpose": "make the Researching success target unconditional"},
+        {"offset": "0x4E5E5", "before": "7E2D", "after": "EB2D", "purpose": "make the Healing success target unconditional"},
+        {"offset": "0x4E6EA", "before": "0F8E8C000000", "after": "E98D00000090", "purpose": "make the Parenting success target unconditional"}
+      ]
+    },
+    {
+      "id": "vv3_learning_never_fails",
+      "game_id": "vv3",
+      "name": "Learning Skills Never Fails",
+      "description": "Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.",
+      "output_tag": "Learning Skills Never Fails",
+      "behavior_changes": [
+        "Removes only the five native work-task skill-failure branches in The Secret City, so each eligible work task reaches its stock skill-gain path.",
+        "Does not alter pregnancy, food, tech-point, or other random outcomes."
+      ],
+      "explicit_non_changes": [
+        "The native skill increment code and skill caps remain stock.",
+        "No save data, villager creation, or non-work-task RNG path is changed."
+      ],
+      "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
+      "patches": [
+        {"offset": "0x5A34E", "before": "0F8EBE000000", "after": "E9BF00000090", "purpose": "make the Farming success target unconditional"},
+        {"offset": "0x5A4FD", "before": "0F8EB6000000", "after": "E9B700000090", "purpose": "make the Building success target unconditional"},
+        {"offset": "0x5A67F", "before": "7E53", "after": "EB53", "purpose": "make the Researching success target unconditional"},
+        {"offset": "0x5A799", "before": "7E42", "after": "EB42", "purpose": "make the Healing success target unconditional"},
+        {"offset": "0x5A8A3", "before": "0F8EAC000000", "after": "E9AD00000090", "purpose": "make the Parenting success target unconditional"}
+      ]
+    },
+    {
+      "id": "vv4_learning_never_fails",
+      "game_id": "vv4",
+      "name": "Learning Skills Never Fails",
+      "description": "Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.",
+      "output_tag": "Learning Skills Never Fails",
+      "behavior_changes": [
+        "Removes only the five native work-task skill-failure branches in The Tree of Life, so each eligible work task reaches its stock skill-gain path.",
+        "Does not alter pregnancy, food, tech-point, or other random outcomes."
+      ],
+      "explicit_non_changes": [
+        "The native skill increment code and skill caps remain stock.",
+        "No save data, villager creation, or non-work-task RNG path is changed."
+      ],
+      "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
+      "patches": [
+        {"offset": "0x62B21", "before": "0F8EEB000000", "after": "E9EC00000090", "purpose": "make the Farming success target unconditional"},
+        {"offset": "0x62D9F", "before": "0F8EED000000", "after": "E9EE00000090", "purpose": "make the Building success target unconditional"},
+        {"offset": "0x62FAA", "before": "7E73", "after": "EB73", "purpose": "make the Researching success target unconditional"},
+        {"offset": "0x63136", "before": "7E5F", "after": "EB5F", "purpose": "make the Healing success target unconditional"},
+        {"offset": "0x632AF", "before": "0F8ED2000000", "after": "E9D300000090", "purpose": "make the Parenting success target unconditional"}
+      ]
+    },
+    {
+      "id": "vv5_learning_never_fails",
+      "game_id": "vv5",
+      "name": "Learning Skills Never Fails",
+      "description": "Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, Parenting, and Devotion; heathens and all non-skill outcomes remain unchanged.",
+      "output_tag": "Learning Skills Never Fails",
+      "behavior_changes": [
+        "Removes only the six native work-task skill-failure branches in New Believers, including Devotion, so each eligible believer work task reaches its stock skill-gain path.",
+        "Does not alter pregnancy, food, tech-point, or other random outcomes, and does not alter heathens."
+      ],
+      "explicit_non_changes": [
+        "The native skill increment code and skill caps remain stock.",
+        "No save data, villager creation, or non-work-task RNG path is changed."
+      ],
+      "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
+      "patches": [
+        {"offset": "0x6B311", "before": "0F8EAE000000", "after": "E9AF00000090", "purpose": "make the Farming success target unconditional"},
+        {"offset": "0x6B4DD", "before": "0F8E9D000000", "after": "E99E00000090", "purpose": "make the Building success target unconditional"},
+        {"offset": "0x6B6C7", "before": "7E73", "after": "EB73", "purpose": "make the Researching success target unconditional"},
+        {"offset": "0x6B853", "before": "7E5F", "after": "EB5F", "purpose": "make the Healing success target unconditional"},
+        {"offset": "0x6B9CC", "before": "0F8E95000000", "after": "E99600000090", "purpose": "make the Parenting success target unconditional"},
+        {"offset": "0x6BB7F", "before": "7E5F", "after": "EB5F", "purpose": "make the Devotion success target unconditional"}
+      ]
+    },
+    {
       "id": "vv5_clickable_tips",
       "game_id": "vv5",
       "name": "Clickable Tips",

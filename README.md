@@ -86,6 +86,13 @@ Every patch below is optional and off by default. The patcher lists them
 under these same game headers, sorted by name. Selecting a patch that has a
 prerequisite selects the prerequisite automatically.
 
+**Learning Skills Never Fails** is available for all five games. It makes the
+native work-task skill roll succeed every time for Farming, Building,
+Researching, Healing, and Parenting; New Believers also includes Devotion.
+The stock skill gains and caps remain active. It does not change pregnancies,
+food, tech-point gain, or other outcomes. In New Believers it applies only to
+believers; heathens remain unchanged. This optional patch is off by default.
+
 ### Virtual Villagers - A New Home
 
 **Birth Control**
