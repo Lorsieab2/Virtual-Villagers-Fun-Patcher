@@ -797,6 +797,26 @@ already refuses elsewhere.
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
 
+**No convergence point exists below the damage sites either.** Earlier passes
+ruled out candidates *at* the sites and left open whether the damage funnels
+through a shared callee one frame down. It does not, and the near-miss is
+worth recording because it looked convincing:
+
+| Callee | Reached from | Callers image-wide |
+|---|---:|---:|
+| `0x4031A0` | **15 of 22** damage sites | **1551** |
+| `0x441680` | 6 | 795 |
+| `0x44B2A0` | 6 | 71 |
+
+`0x4031A0` at 15 of 22 is exactly the shape a convergence point would have,
+and it is a generic bounds clamp -- `push esi ; mov esi,[esp+8] ; test esi,esi
+; jle ; cmp esi,0x7FFF ; jg` -- called 1551 times across the image. The
+reached-from count alone would have endorsed it; the caller count is what
+refutes it. **A shared callee is only a convergence point if the sharing is
+specific**, and that is a second measurement rather than a stronger reading of
+the first.
+
+
 **A scanning note, because two sessions reached opposite wrong answers here.**
 Ground truth for The Lost Children's health field is thirteen *direct* writers
 -- instructions with `[reg+0x52C]` as the destination operand -- exactly one of
