@@ -3006,7 +3006,7 @@ def validate_fun_patch_catalog(
                     or overlay_offset + overlay_length != 0x8F000
                     or page_va != 0x490C00
                     or overlay.get("append_source") != "generated:vv1_birth_control_page"
-                    or overlay.get("page_sha256") != "FCADAAD8447CDD35F2B24BFFE4340F2A0E09F7F022EB8A602A62A1B84732AE34"
+                    or overlay.get("page_sha256") != "5CEAFF6BDEB44CB98AA54B7ED4707BCD9B12CD406D0AC5BD5D2576E4A752BF23"
                     or overlay.get("hook_offsets") != ["0x3DD03", "0x46E96", "0x47084", "0x477FA", "0x39C83"]
                 ):
                     raise PatcherError("VV1 composition overlay geometry/source contract drifted.")

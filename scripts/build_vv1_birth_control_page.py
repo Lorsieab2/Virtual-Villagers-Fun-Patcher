@@ -202,13 +202,29 @@ def build_page(page_va: int = PAGE_VA) -> tuple[bytes, dict[str, object]]:
     asm.jcc(0x8D, "chooser_reject")  # signed >= rejects the action
     asm.emit(bytes.fromhex("83FD02"))  # cmp ebp, 2
     asm.jcc(0x85, "chooser_return")  # non-embracing category returns
-    asm.emit(bytes.fromhex("817FD003000002"))  # pref != 2 is not guaranteed
-    asm.jcc(0x84, "chooser_return")  # checked embracing preference returns
-    asm.emit(bytes.fromhex("6A64"))
-    asm.call(0x402F10)
-    asm.emit(bytes.fromhex("83C404"))
-    asm.emit(bytes.fromhex("83F84B"))  # cmp eax, 75
-    asm.jcc(0x8D, "chooser_return")  # 25% fallback
+    # cmp dword ptr [edi + 0x3D0], 2 -- the checked-preference test.
+    #
+    # This shipped as 81 7F D0 03000002, which is NOT that instruction. 0x81
+    # takes an imm32, so the assembler consumed the displacement's own bytes
+    # into the operand and emitted `cmp dword ptr [edi-0x30], 0x02000003` --
+    # a field 48 bytes BEFORE the record, against a value nothing holds. The
+    # comparison could never be equal, so the branch below never taken, and
+    # every villager fell through to the roll that used to sit here. Both
+    # encodings are seven bytes, so nothing shifted and no size check tripped;
+    # the page hash pinned the wrong bytes exactly as stably as the right ones.
+    asm.emit(bytes.fromhex("83BFD003000002"))
+    # JE: preference checked -> chooser_return (allow). This direction is
+    # UNCHANGED and correct -- do not "fix" it. chooser_reject sits ABOVE
+    # chooser_return, so falling through on equal would block everyone.
+    asm.jcc(0x84, "chooser_return")
+    # Unchecked preference now REJECTS rather than rolling.
+    #
+    # The 25% non-preference fallback that stood here was deliberate parity
+    # with VV4/VV5's native chooser, and the owner has overruled that target:
+    # "This should NEVER happen unless they BOTH HAVE PARENTING SKILL AND IT
+    # IS CHECKED AS A PREFERENCE." A roll that admits one in four unchecked
+    # villagers is exactly the leak reported, so the conjunction is made real
+    # by falling into chooser_reject instead.
     asm.label("chooser_reject")
     asm.emit(bytes.fromhex("B901000000"))  # ECX=1 -> original zero result
     asm.jmp(0x439C9D)
