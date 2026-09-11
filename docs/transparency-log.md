@@ -151,6 +151,16 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Guarded executable edits: 64; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.vv1mc` (executable code), `.vv1md` (writable data) -- and rewrites 4 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
+#### Learning Skills Never Fails (`vv1_learning_never_fails`)
+
+Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
+
+- Behavior changes: Removes only the five native work-task skill-failure branches in A New Home, so each eligible work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes.
+- Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence; runtime/player confirmation pending
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Magic Fruit of Life Alters Mortality (`vv1_magic_fruit_alters_mortality`)
 
 Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
@@ -286,6 +296,16 @@ A villager who completes Recovering at the hospital gains exactly 1 health point
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Learning Skills Never Fails (`vv2_learning_never_fails`)
+
+Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
+
+- Behavior changes: Removes only the five native work-task skill-failure branches in The Lost Children, so each eligible work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes.
+- Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence; runtime/player confirmation pending
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Teaching Children Grants Skill (`vv2_teaching_children_grants_skill`)
 
 Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
@@ -370,6 +390,16 @@ Dropping an active, living, non-nursing villager on the robe interrupts every ot
 - Evidence status: independently reviewed exact-build static implementation; install/uninstall and current-mode composition are automated, while player runtime confirmation remains pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 - Mode-specific guarded edits: stock=1, collection_progression=1, immediate_fixed=1; these rows are selected only for the named population mode.
+
+#### Learning Skills Never Fails (`vv3_learning_never_fails`)
+
+Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
+
+- Behavior changes: Removes only the five native work-task skill-failure branches in The Secret City, so each eligible work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes.
+- Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence; runtime/player confirmation pending
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
 
@@ -465,6 +495,16 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 50; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Learning Skills Never Fails (`vv4_learning_never_fails`)
+
+Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
+
+- Behavior changes: Removes only the five native work-task skill-failure branches in The Tree of Life, so each eligible work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes.
+- Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence; runtime/player confirmation pending
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Optional Text changes (`vv4_optional_text_changes`)
 
@@ -572,6 +612,16 @@ Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 11; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Learning Skills Never Fails (`vv5_learning_never_fails`)
+
+Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, Parenting, and Devotion; heathens and all non-skill outcomes remain unchanged.
+
+- Behavior changes: Removes only the six native work-task skill-failure branches in New Believers, including Devotion, so each eligible believer work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes, and does not alter heathens.
+- Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
+- Dependencies: none
+- Evidence status: static exact-build evidence; runtime/player confirmation pending
+- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Statue Drops: Normal Action or Honoring (`vv5_statue_polishing_or_honoring`)
 
