@@ -797,6 +797,28 @@ already refuses elsewhere.
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
 
+**The Lost Children's counter storage survives a save, and that was measured
+rather than assumed.** A New Home's doubler persistence bug is exactly a field
+written past the serialised extent -- real, unused, correctly chosen, and 352
+bytes beyond what reaches disk -- so the same question has to be answered
+before any new counter is placed:
+
+| | A New Home (broken) | The Lost Children |
+|---|---:|---:|
+| real save file | 44,008 | **197,500** |
+| serialised extent | 0xABE8 | `0x30370` = 197,488 (pushed twice) |
+| counter field | 44,360 (`0xAD48`) | 189,916 (`+0x2E5DC`) |
+| position | **352 bytes PAST** | **7,572 bytes inside** |
+
+Measured against an actual save file on disk, not inferred from the
+allocation. The twelve-byte difference between the file and the allocation is
+header overhead.
+
+So the burial, twins and death counters at `+0x2E5D4`..`+0x2E5DC` are already
+within the region the game serialises, and a death counter placed beside them
+inherits that. The failure that broke the doublers cannot recur here -- but it
+was only knowable by looking at a save.
+
 **No convergence point exists below the damage sites either.** Earlier passes
 ruled out candidates *at* the sites and left open whether the damage funnels
 through a shared callee one frame down. It does not, and the near-miss is
