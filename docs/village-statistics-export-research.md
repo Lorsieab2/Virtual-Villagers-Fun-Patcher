@@ -1397,3 +1397,41 @@ registration** rather than a change to the handler: the Hospital has to become
 a legal drop target for action `0x27`, and the drop has to be refused until
 `sub_4617F0(6, 0x405)` reports Level 2 Medicine. Neither of those is in the
 handler, which is the good case.
+
+### The Lost Children damage count is 21, not 22
+
+A splice-safety pass over the damage sites turned up an apparent hazard at
+`0x44B448` -- a branch from `0x44B4BA` landing at `0x44B450`, one byte inside
+what was recorded as a nine-byte `dec dword [eax]` span. Splicing there would
+have returned control into the middle of the inserted jump.
+
+The site is not a damage site at all, and the reason is a decoding bug in the
+classifier rather than anything in the binary:
+
+```
+8d bb 2c050000   lea edi,[ebx+0x52C]    SIX bytes, ModRM form, no SIB
+8b ff            mov edi,edi            hot-patch padding
+8a 87 04fbffff   mov al,[edi-0x4FC]     a BYTE read at record+0x30
+84 c0            test al,al
+83 3f 00         cmp dword [edi], 0     reads health, never writes it
+```
+
+The classifier assumed every `lea` carrying `+0x52C` was the seven-byte
+SIB form and read the mutation at `+7`. At this one site the `lea` is six
+bytes, so `+7` lands one byte into `mov edi,edi` and the following `ff` of
+`8a 87 04fb**ff**ff` reads as `ff /1`, a `dec dword [eax]` that is not there.
+
+**One site of the twenty-two uses the short form**, which is why the error
+appeared exactly once and looked like a genuine hazard rather than a decoding
+mistake. It also explains the near-miss: had the branch target not forced a
+second look, a hook would have been placed on an instruction that only reads.
+
+So the set is **21 damage sites plus the old-age store at `0x43BDEE`, 22 hooks
+in all**, and the splice check is clean for every one of them: zero branch
+targets land inside any span once the `lea` length is decoded from its ModRM
+byte instead of assumed.
+
+The general form is the one already recorded twice in this document -- a fixed
+offset is an assumption about encoding, and x86 does not guarantee it. The
+first instance turned six `cmp` sites into phantom writes; this one turned a
+read into a phantom `dec`.
