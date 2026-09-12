@@ -797,6 +797,27 @@ already refuses elsewhere.
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
 
+**The trampolines have a verified home, and it is not the cave.** Twenty-three
+hooks at roughly twenty-five bytes each need about 575 bytes. The statistics
+cave has six bytes free of 208, and the largest contiguous executable run in a
+fully composed image is 35 bytes, so a cave-resident design is short by more
+than an order of magnitude. That is a measurement, not a preference.
+
+The Lost Children already appends an executable page for Origins, and it has
+room:
+
+```
+append page      file 0xB1000..0xB3000    VA 0x4B3000    8,192 bytes
+parentage payload at 0xB241A            = offset 5,146 into the page
+free before it                            5,146 bytes
+needed for 23 trampolines                   575 bytes
+```
+
+So the mechanism is proven in the shipped build rather than invented, and the
+margin is roughly nine times what the feature needs. This is also what the
+owner's standing rule asks for -- appended pages and DLL-side logic ahead of
+cave space -- reached here by measurement rather than by preference.
+
 **The Lost Children's counter storage survives a save, measured against a real
 save file rather than inferred.** The doubler persistence defect was a field
 written 352 bytes past what the game serialises, so a free slot is not enough
