@@ -807,14 +807,23 @@ The Lost Children already appends an executable page for Origins, and it has
 room:
 
 ```
-append page      file 0xB1000..0xB3000    VA 0x4B3000    8,192 bytes
-parentage payload at 0xB241A            = offset 5,146 into the page
-free before it                            5,146 bytes
-needed for 23 trampolines                   575 bytes
+append page   file 0xB1000..0xB3000   VA 0x4B3000   8,192 bytes
+  .mtab       0xB1000..0xB2000        WRITABLE, not executable
+  .vvmk       0xB2000..0xB3000        executable
+    occupied  0xB2000..0xB241A        912 bytes of mask-renderer code
+    FREE TAIL 0xB241A..0xB3000        3,046 bytes
+needed for 23 trampolines                           575 bytes
 ```
 
+The usable run is the `.vvmk` tail, **not** the 5,146 bytes preceding the
+renderer. That prefix is `.mtab` -- a writable data page -- plus the
+renderer's own code, so placing trampolines there would put them in
+non-executable storage or overwrite the mask code. The layout names the pair
+`.mtab/.vvmk` in a single entry, which is exactly the shape that invites
+treating two sections as one.
+
 So the mechanism is proven in the shipped build rather than invented, and the
-margin is roughly nine times what the feature needs. This is also what the
+margin is roughly five times what the feature needs. This is also what the
 owner's standing rule asks for -- appended pages and DLL-side logic ahead of
 cave space -- reached here by measurement rather than by preference.
 
@@ -824,16 +833,30 @@ written 352 bytes past what the game serialises, so a free slot is not enough
 on its own -- it has to be inside the saved extent:
 
 ```
-real VV2 save                197,500 bytes
+VV2 serialised extent        197,488 bytes  (0x30370; the 197,500-byte
+                                             file carries 12 bytes of header)
 burial counter   +0x2E5D4    189,908   inside, shipped
 twins counter    +0x2E5D8    189,912   inside, shipped
-deaths counter   +0x2E5DC    189,916   inside, 7,584 bytes of margin
+deaths counter   +0x2E5DC    189,916   inside, 7,572 bytes of margin
 ```
 
-`+0x2E5DC` is also unreferenced by stock code, and the scan that establishes
-that is controlled: the same pass returns 4 references for `+0x2E520`
-(Special Stews Found, known used), so zero is a real absence rather than a
-broken search.
+The margin is measured against the **serialised extent**, not the file size.
+Using the file size overstates it by the header and contradicts the
+serialisation arithmetic recorded below, which is the figure the counter
+actually depends on.
+
+Both slots are unreferenced by stock code, and **both scans are controlled**,
+because a scan that matches nothing looks identical to one that is broken:
+
+```
+The Lost Children   +0x2E5DC   0 refs   control +0x2E520 (Special Stews)  4 refs
+A New Home          +0x9E90    0 refs   control +0x9E24  (Babies Made)    6 refs
+```
+
+The method is a byte search for the little-endian displacement across
+`.text`, counting every occurrence. The control is a field of the same shape
+in the same block that stock code is known to use, so a non-zero result there
+proves the search can find what is present.
 
 **A New Home's eighteen-site set is complete, independently re-derived.** The
 same classify-every-`lea` pass used for The Lost Children, run against
