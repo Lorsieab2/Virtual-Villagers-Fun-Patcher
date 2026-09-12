@@ -1337,7 +1337,41 @@ sub_4617F0(6, 0x405)   2 sites   0x452777, 0x4528CE   Medicine
 internally is the Level 2 the player is shown, which is why a search for a
 literal 2 finds nothing.
 
-What remains is the Hospital as a work target: the action dispatcher at
-`0x46F780` is shared, so the object the Chief is dropped on has to be shown
-to reach it, and `eObject_Hospital` is table-indexed the same way the say
-strings are. That is the next measurement, not an assumption.
+The handler itself is `sub_44A310`, and its prologue names the action a
+second time:
+
+```
+0x44A310  push esi ; push edi ; push 0x27 ; push 0x482 ; call ...
+          called from exactly ONE site, 0x453965
+```
+
+So action `0x27` appears both at the handler's entry and at the say site
+`0x44BC4D` a little under 0x1940 bytes inside it. A single caller and a single
+say site make this the whole of the Direct Work path rather than one branch of
+several.
+
+`eObject_Hospital` resolves through a different table shape again -- a dense
+pointer array indexed by object id rather than the `{enum, display, 0, id}`
+records the say strings use:
+
+```
+0xA8FF0  [0]  eObject_None        <- enum base
+0xA8FF4  [1]  eObject_Fireplace
+0xA8FF8  [2]  eObject_Hut
+...
+0xA9090  [40] eObject_Hospital    id 0x28
+```
+
+The base matters: the array physically starts at `0xA8EF0` with UI strings
+(`Select`, `Edit`, `Erase`), so measuring the index from the array start gives
+104 rather than 40. `eObject_None` is what anchors the object enum, and using
+the wrong anchor produces a plausible id that is wrong by 64.
+
+**What is still not established** is that the Hospital reaches this handler.
+The 0x300 bytes before the say site contain exactly one immediate comparison,
+`cmp eax, 0xFF`, which is not an object-id test -- so the targeting decision is
+made elsewhere, and no measurement yet connects object 0x28 to action 0x27.
+Recorded as an open question rather than an assumption, because the shape of
+the feature depends on the answer: if the handler already accepts any work
+object, the gate is the only new code; if it enumerates targets, the Hospital
+has to be added to that enumeration.
