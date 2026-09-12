@@ -23,12 +23,12 @@ from vv_fun_patcher import (  # noqa: E402
 
 VV1_SHA256 = "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
 VV3_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
-VV1_PAGE_SHA256 = "07944F005CF5048EAF744BC33564FE86FCFBC72DF30FD03AF60CDEFC2EE105BE"
+VV1_PAGE_SHA256 = "FD6F1D56A5B3CCC623A4AC6083532A05FABD076280B07E26500EBB06784DDDC4"
 VV1_STANDALONE_RENDER_SHA256 = {
     "vv1_birth_control": {
-        "stock": "1FD411FE223E5388D50B6A38BEFE3F144B360ECD3F3744867764E81B8E3C3B2D",
-        "collection_progression": "07736B6BF018AE29EBD6DDAB710A5BA97F114A8375792FF7D4E4C63A881184EC",
-        "immediate_fixed": "07736B6BF018AE29EBD6DDAB710A5BA97F114A8375792FF7D4E4C63A881184EC",
+        "stock": "B43E2AFC818803BF39C8841BA0DBFC975704C5131F1538C2D707AFFA75F71A5E",
+        "collection_progression": "5B271935EE0B4F59AD4261C284B10F189F307B5EE5336922F039E34C4C9649D5",
+        "immediate_fixed": "5B271935EE0B4F59AD4261C284B10F189F307B5EE5336922F039E34C4C9649D5",
     },
     "vv1_enable_origins_exclusive_features": {
         "stock": "DA77A793E5F950A70D16C1DD0122DF5979D1B2A713709A7805ABA73307AB728A",
@@ -107,10 +107,30 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         self.assertEqual(page[0x080:0x086], bytes.fromhex("813868010000"))
         self.assertEqual(page[0x0C0:0x0C6], bytes.fromhex("813968010000"))
         self.assertEqual(page[0x100:0x107], bytes.fromhex("8178F468010000"))
-        self.assertEqual(page[0x140:0x146], bytes.fromhex("0F8E3E000000"))
-        self.assertIn(bytes.fromhex("817FD003000002"), page)
-        self.assertIn(bytes.fromhex("6A64"), page)
-        self.assertIn(bytes.fromhex("83C40483F84B"), page)
+        # The chooser tail's first jump. Its displacement shrank from 0x3E to
+        # 0x2B when the non-preference roll below was removed, because
+        # chooser_reject moved eleven bytes closer.
+        self.assertEqual(page[0x140:0x146], bytes.fromhex("0F8E2B000000"))
+        # The checked-preference test, in the encoding that actually performs
+        # it. This file previously asserted 81 7F D0 03000002, which is NOT
+        # that instruction: 0x81 takes an imm32, so the assembler consumed the
+        # displacement's own bytes into the operand and emitted
+        # `cmp dword ptr [edi-0x30], 0x02000003` -- a field 48 bytes before the
+        # record, against a value nothing holds. The comparison could never be
+        # equal, so the preference branch never fired and every villager
+        # reached the roll.
+        #
+        # The test pinned that, which is part of why it survived: a byte
+        # assertion and a page hash both guarantee that what shipped is what
+        # was generated, and neither asks whether what was generated is what
+        # was meant.
+        self.assertIn(bytes.fromhex("83BFD003000002"), page)
+        self.assertNotIn(bytes.fromhex("817FD003000002"), page)
+        # The 25% non-preference fallback is GONE. It was deliberate parity
+        # with VV4/VV5's native chooser, and that target was overruled:
+        # embracing now requires the parenting preference to be checked, so an
+        # unchecked villager falls into chooser_reject instead of rolling.
+        self.assertNotIn(bytes.fromhex("83C40483F84B"), page)
         self.assertNotIn(bytes.fromhex("E900000000"), page)
 
     def test_all_early_birth_control_records_state_literal_vv4_vv5_contract(self) -> None:
@@ -129,7 +149,21 @@ class VV1VV3BirthControlTests(unittest.TestCase):
                         *feature.raw.get("explicit_non_changes", []),
                     ]
                 )
+                # A New Home no longer applies the fallback: its chooser tail
+                # now requires the parenting preference to be checked and
+                # rejects an unchecked villager outright. The Lost Children
+                # and The Secret City still describe the native VV4/VV5
+                # behaviour they leave in place, so the assertion is per game
+                # rather than shared -- asserting the old wording for all
+                # three is what let the contract keep advertising a fallback
+                # this build had stopped applying.
                 self.assertIn("25% non-preference fallback", text)
+                if feature.id == "vv1_birth_control":
+                    self.assertIn(
+                        "REQUIRES the parenting preference to be checked",
+                        text,
+                    )
+                    self.assertIn("rejected instead of reaching", text)
                 self.assertIn("native", text.lower())
                 self.assertIn("conception", text.lower())
                 self.assertIn("delivery", text.lower())

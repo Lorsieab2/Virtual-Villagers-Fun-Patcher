@@ -797,6 +797,73 @@ already refuses elsewhere.
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
 
+**A New Home's eighteen-site set is complete, independently re-derived.** The
+same classify-every-`lea` pass used for The Lost Children, run against
+`+0x344`:
+
+```
+lea sites carrying +0x344   31    (eax 17, edi 9, ebx 4, esi 1)
+documented damage sites     18    ALL recovered
+remaining sites             13    classified, ZERO damage among them
+```
+
+The thirteen are four clamps (`0x41A07A` ceiling, `0x42AB2F` zero, `0x42EDC0`
+floor, `0x42EE44` ceiling), one heal (`0x42EE2E`, `inc dword [eax]`), five
+reads or branches with no write, and three `lea`-plus-padding sites that touch
+only bytes. None mutates health downward.
+
+So unlike The Lost Children -- whose count was revised upward twice before it
+settled -- A New Home's list was already complete. That is worth recording
+because the two games were treated as equally uncertain and only one of them
+was.
+
+Both death counters also have verified storage. `+0x9E90` is free in A New
+Home (zero stock references) and sits at 40,592 against a 44,008-byte save,
+inside the serialised extent with 3,416 bytes of margin. The doubler
+persistence failure -- fields at 44,360, past the extent -- cannot recur.
+
+**The Lost Children's counter storage survives a save, and that was measured
+rather than assumed.** A New Home's doubler persistence bug is exactly a field
+written past the serialised extent -- real, unused, correctly chosen, and 352
+bytes beyond what reaches disk -- so the same question has to be answered
+before any new counter is placed:
+
+| | A New Home (broken) | The Lost Children |
+|---|---:|---:|
+| real save file | 44,008 | **197,500** |
+| serialised extent | 0xABE8 | `0x30370` = 197,488 (pushed twice) |
+| counter field | 44,360 (`0xAD48`) | 189,916 (`+0x2E5DC`) |
+| position | **352 bytes PAST** | **7,572 bytes inside** |
+
+Measured against an actual save file on disk, not inferred from the
+allocation. The twelve-byte difference between the file and the allocation is
+header overhead.
+
+So the burial, twins and death counters at `+0x2E5D4`..`+0x2E5DC` are already
+within the region the game serialises, and a death counter placed beside them
+inherits that. The failure that broke the doublers cannot recur here -- but it
+was only knowable by looking at a save.
+
+**No convergence point exists below the damage sites either.** Earlier passes
+ruled out candidates *at* the sites and left open whether the damage funnels
+through a shared callee one frame down. It does not, and the near-miss is
+worth recording because it looked convincing:
+
+| Callee | Reached from | Callers image-wide |
+|---|---:|---:|
+| `0x4031A0` | **15 of 22** damage sites | **1551** |
+| `0x441680` | 6 | 795 |
+| `0x44B2A0` | 6 | 71 |
+
+`0x4031A0` at 15 of 22 is exactly the shape a convergence point would have,
+and it is a generic bounds clamp -- `push esi ; mov esi,[esp+8] ; test esi,esi
+; jle ; cmp esi,0x7FFF ; jg` -- called 1551 times across the image. The
+reached-from count alone would have endorsed it; the caller count is what
+refutes it. **A shared callee is only a convergence point if the sharing is
+specific**, and that is a second measurement rather than a stronger reading of
+the first.
+
+
 **A scanning note, because two sessions reached opposite wrong answers here.**
 Ground truth for The Lost Children's health field is thirteen *direct* writers
 -- instructions with `[reg+0x52C]` as the destination operand -- exactly one of

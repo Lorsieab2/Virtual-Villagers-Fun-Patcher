@@ -650,22 +650,71 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
         # emits exactly what the hardcoded form did -- an equivalence checked
         # by regenerating this manifest and requiring it byte-identical, not
         # argued.
-        death_prologue = assemble(
-            (
-                "cmp dword ptr [ecx + 0x%X], -1\n"
-                % int(config["death_cause_offset"])
+        # Two idempotency gates, because the games are not alike.
+        #
+        # The Secret City, The Tree of Life and New Believers keep a cause of
+        # death beside the health field, and the arbiter that zeroes health
+        # writes the cause immediately after. Hooking before that write means
+        # the wrapper still sees the PRIOR cause, so `cause == -1` is exactly
+        # "this villager was alive a moment ago" and counts the transition
+        # once however many times the arbiter runs.
+        #
+        # The Lost Children and A New Home have no cause field at all, so that
+        # gate does not transfer. There the transition is read from the health
+        # value itself: count only when the pre-value was positive and the
+        # result is not. `death_pre_reg` names the register holding the health
+        # value before the site's mutation commits; sites whose pre-value is
+        # not in a register are hooked through the pointer instead and carry
+        # `death_pre_ptr`.
+        cause_offset = config.get("death_cause_offset")
+        post_gate = None
+        if cause_offset is not None:
+            gate = (
+                "cmp dword ptr [ecx + 0x%X], -1\n" % int(cause_offset)
                 + "jne death_counted\n"
-                + "inc dword ptr [0x%X]\n"
-                % int(config["death_stat_va"])
+            )
+        else:
+            pre = str(death.get("pre_reg", "")).strip()
+            if not pre:
+                raise RuntimeError(
+                    f"{game_id} death hook {death_hook_va:#x} has no "
+                    "death_cause_offset and no pre_reg: the wrapper cannot "
+                    "tell a death from an ordinary injury, and counting "
+                    "every mutation would report wounds as deaths"
+                )
+            # The pre-check is all that can run BEFORE the stolen instruction;
+            # the post-check has to run AFTER it, because until the mutation is
+            # replayed the field still holds the pre-value. An earlier version
+            # emitted both halves in the prologue, which put `cmp [ptr], 0`
+            # against memory the site had not yet written -- so `jg` always
+            # took the skip and the counter could never increment. The wrapper
+            # is therefore three parts rather than two.
+            gate = "cmp %s, 0\njle death_counted\n" % pre
+            post_gate = (
+                "cmp dword ptr [%s], 0\n" % str(death["post_ptr"])
+                + "jg death_counted\n"
+                + "inc dword ptr [0x%X]\n" % int(config["death_stat_va"])
                 + "death_counted:\n"
-            ),
+            )
+        # The stolen bytes are emitted INSIDE the single assembly rather than
+        # concatenated around it, so `death_counted` resolves for gates on
+        # both sides of the replay. Assembling the halves separately cannot
+        # work: each assemble() call has its own symbol table, and a label
+        # defined in one fragment is missing from the other.
+        replay = "".join(".byte 0x%02X\n" % b for b in death_guard)
+        if post_gate is None:
+            body = (
+                gate
+                + "inc dword ptr [0x%X]\n" % int(config["death_stat_va"])
+                + "death_counted:\n"
+                + replay
+            )
+        else:
+            body = gate + replay + post_gate
+        death_wrapper = assemble(
+            body + "jmp 0x%X" % (death_hook_va + len(death_guard)),
             death_wrapper_va,
         )
-        death_return = assemble(
-            "jmp 0x%X" % (death_hook_va + len(death_guard)),
-            death_wrapper_va + len(death_prologue) + len(death_guard),
-        )
-        death_wrapper = death_prologue + death_guard + death_return
         if death_slot + len(death_wrapper) > cave_size:
             raise RuntimeError(f"{game_id} death wrapper exceeds cave allowance")
         if any(payload[death_slot : death_slot + len(death_wrapper)]):
