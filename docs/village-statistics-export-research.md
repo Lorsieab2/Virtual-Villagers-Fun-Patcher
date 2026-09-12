@@ -797,6 +797,23 @@ already refuses elsewhere.
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
 
+**The Lost Children's counter storage survives a save, measured against a real
+save file rather than inferred.** The doubler persistence defect was a field
+written 352 bytes past what the game serialises, so a free slot is not enough
+on its own -- it has to be inside the saved extent:
+
+```
+real VV2 save                197,500 bytes
+burial counter   +0x2E5D4    189,908   inside, shipped
+twins counter    +0x2E5D8    189,912   inside, shipped
+deaths counter   +0x2E5DC    189,916   inside, 7,584 bytes of margin
+```
+
+`+0x2E5DC` is also unreferenced by stock code, and the scan that establishes
+that is controlled: the same pass returns 4 references for `+0x2E520`
+(Special Stews Found, known used), so zero is a real absence rather than a
+broken search.
+
 **A New Home's eighteen-site set is complete, independently re-derived.** The
 same classify-every-`lea` pass used for The Lost Children, run against
 `+0x344`:
