@@ -1263,3 +1263,58 @@ before any result elsewhere was believed. That discipline earned its keep — th
 VV3 scan passed its VV4 control and still returned a false negative on VV3, which
 is how the null was recognised as a fact about the scan rather than about the
 game.
+
+## Directing Work at the Hospital (The Secret City)
+
+The requested feature is a Tribal Chief Direct Work action dropped on the
+Hospital once Level 2 Medicine is bought, working like the existing
+researching and farming Direct Work actions. The mechanism is table-driven,
+so none of the strings involved is referenced by address and a search for
+them returns nothing:
+
+```
+"Directing work"  VA 0x4963D0   .text references: 0
+eSayDirectWork    VA 0x4963E0   .text references: 0
+```
+
+Both are reached through a 16-byte record table, `{enum_ptr, display_ptr, 0,
+id}`, whose neighbours decode cleanly and confirm the layout:
+
+```
+0xAE2D4  id 0x219  eSayUsePotion    "Using potion"
+0xAE2E4  id 0x21A  eSayDirectWork   "Directing work"
+0xAE2F4  id 0x21B  eSaySayRefusing  "Refusing"
+```
+
+**Say id `0x21A` is pushed at exactly one site, `0x44BC4D`**, which is the
+whole of the existing Direct Work path:
+
+```
+0x44BC4D  push 0x21A              "Directing work"
+0x44BC52  mov ecx, edi
+0x44BC54  call 0x42F190           the say routine
+0x44BC59  push 0x27               action 39
+0x44BC5B  push eax
+0x44BC5C  lea ecx, [esi+0xF28]
+0x44BC62  push ecx
+0x44BC63  call 0x46F780           the action dispatcher
+```
+
+The Level 2 Medicine gate is a separate helper. `sub_4617F0` takes
+`(level, tech_id)` and is called with only two distinct pairs in the whole
+image, both at level 6:
+
+```
+sub_4617F0(6, 0x25F)   1 site
+sub_4617F0(6, 0x405)   2 sites   0x452777, 0x4528CE   Medicine
+```
+
+`0x405` is `eTechMedicineLabel`'s id, taken from the tech record at
+`0xAF1E4`. So the gate the feature needs is `sub_4617F0(6, 0x405)` -- level 6
+internally is the Level 2 the player is shown, which is why a search for a
+literal 2 finds nothing.
+
+What remains is the Hospital as a work target: the action dispatcher at
+`0x46F780` is shared, so the object the Chief is dropped on has to be shown
+to reach it, and `eObject_Hospital` is table-indexed the same way the say
+strings are. That is the next measurement, not an assumption.
