@@ -1367,11 +1367,33 @@ The base matters: the array physically starts at `0xA8EF0` with UI strings
 104 rather than 40. `eObject_None` is what anchors the object enum, and using
 the wrong anchor produces a plausible id that is wrong by 64.
 
-**What is still not established** is that the Hospital reaches this handler.
-The 0x300 bytes before the say site contain exactly one immediate comparison,
-`cmp eax, 0xFF`, which is not an object-id test -- so the targeting decision is
-made elsewhere, and no measurement yet connects object 0x28 to action 0x27.
-Recorded as an open question rather than an assumption, because the shape of
-the feature depends on the answer: if the handler already accepts any work
-object, the gate is the only new code; if it enumerates targets, the Hospital
-has to be added to that enumeration.
+**The handler tests no object id at all**, which answers the question in the
+cheaper direction. Every `cmp reg, imm8` across its 0x193D bytes:
+
+```
+cmp reg, 0x01   x3      cmp reg, 0x1E   x1
+cmp reg, 0x03   x3      cmp reg, 0x28   x1   <- looks like Hospital
+cmp reg, 0x0A   x1      cmp reg, 0x32   x15
+cmp reg, 0x14   x8      cmp reg, 0xFF   x18
+cmp reg, 0x19   x1
+```
+
+The single `0x28` is not an object test. In context it is
+
+```
+0x44AAF8  call <rand>
+0x44AAFC  cmp eax, 0x28
+0x44AAFF  jge
+```
+
+a forty-percent probability roll. Reporting it as the Hospital comparison
+would have been the easiest mistake available here -- the constant matches the
+object id exactly, appears exactly once, and sits in the right routine.
+Reading the three bytes before it is what separates the two.
+
+So target selection happens upstream of `sub_44A310`, and the handler accepts
+whatever object it is given. That makes the feature a **gate plus target
+registration** rather than a change to the handler: the Hospital has to become
+a legal drop target for action `0x27`, and the drop has to be refused until
+`sub_4617F0(6, 0x405)` reports Level 2 Medicine. Neither of those is in the
+handler, which is the good case.
