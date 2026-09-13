@@ -1608,3 +1608,56 @@ twelve `esi` sites and near none of the others.
 So the constraint is real: ten damage sites plus the old-age store cannot
 reach the counter the way the shipped wrappers do, and the feature needs the
 manager obtained some other way at those sites.
+
+### Caching the manager at its one point of publication
+
+The twelve unreachable sites need the manager without a live base register,
+and the appended page can hold it -- but only if something populates the cache
+before the first death. Writing it from the reachable death sites does not
+work: until a villager dies at one of those ten, the cache is null and every
+death at the other twelve goes uncounted.
+
+The manager is **written exactly once** in the whole image:
+
+```
+0x44C1E5   89 86 d474e500   mov [esi + 0xE574D4], eax
+```
+
+One store, found by searching the displacement for the `89` form rather than
+the `8b` loads. It sits inside a run of constructor calls, each storing its
+result:
+
+```
+0x44C1D1  mov [esi+0xE574B8], edi
+0x44C1D7  mov [esi+0xE574BC], edi
+0x44C1DD  call <ctor>
+0x44C1E5  mov [esi+0xE574D4], eax     <- the manager
+0x44C1EB  call <ctor>
+0x44C1F0  mov [esi+0xE574D0], eax
+```
+
+That is object setup, so it necessarily precedes any villager death, which is
+exactly the ordering the cache needs. The manager is already in `eax` at that
+instruction, so the publication costs five bytes:
+
+```
+a3 <cache VA>     mov [cache], eax
+```
+
+The site splices cleanly: the span is six bytes (`89 86` plus disp32), a
+five-byte jump fits with one NOP, and walking from a verified boundary at
+`0x44C1C8` finds zero branch targets inside it.
+
+The twelve sites then read the cache absolutely and guard it:
+
+```
+a1 <cache VA>     mov eax, [cache]
+85 c0             test eax, eax
+74 xx             jz skip            never dereference a null cache
+ff 80 dce50200    inc dword [eax + 0x2E5DC]
+```
+
+The `jz` matters even with startup publication: a save loaded before the
+patch, or any path that reaches a death site before the constructor, becomes a
+missed count rather than a crash. A counter that under-reports in a case
+nobody can construct is acceptable; a null dereference is not.
