@@ -797,6 +797,67 @@ already refuses elsewhere.
 Counting burials instead is exact and already shipped, but it is a different
 quantity and should not be relabelled.
 
+**The trampolines have a verified home, and it is not the cave.** Twenty-three
+hooks at roughly twenty-five bytes each need about 575 bytes. The statistics
+cave has six bytes free of 208, and the largest contiguous executable run in a
+fully composed image is 35 bytes, so a cave-resident design is short by more
+than an order of magnitude. That is a measurement, not a preference.
+
+The Lost Children already appends an executable page for Origins, and it has
+room:
+
+```
+append page   file 0xB1000..0xB3000   VA 0x4B3000   8,192 bytes
+  .mtab       0xB1000..0xB2000        WRITABLE, not executable
+  .vvmk       0xB2000..0xB3000        executable
+    occupied  0xB2000..0xB241A        912 bytes of mask-renderer code
+    FREE TAIL 0xB241A..0xB3000        3,046 bytes
+needed for 23 trampolines                           575 bytes
+```
+
+The usable run is the `.vvmk` tail, **not** the 5,146 bytes preceding the
+renderer. That prefix is `.mtab` -- a writable data page -- plus the
+renderer's own code, so placing trampolines there would put them in
+non-executable storage or overwrite the mask code. The layout names the pair
+`.mtab/.vvmk` in a single entry, which is exactly the shape that invites
+treating two sections as one.
+
+So the mechanism is proven in the shipped build rather than invented, and the
+margin is roughly five times what the feature needs. This is also what the
+owner's standing rule asks for -- appended pages and DLL-side logic ahead of
+cave space -- reached here by measurement rather than by preference.
+
+**The Lost Children's counter storage survives a save, measured against a real
+save file rather than inferred.** The doubler persistence defect was a field
+written 352 bytes past what the game serialises, so a free slot is not enough
+on its own -- it has to be inside the saved extent:
+
+```
+VV2 serialised extent        197,488 bytes  (0x30370; the 197,500-byte
+                                             file carries 12 bytes of header)
+burial counter   +0x2E5D4    189,908   inside, shipped
+twins counter    +0x2E5D8    189,912   inside, shipped
+deaths counter   +0x2E5DC    189,916   inside, 7,572 bytes of margin
+```
+
+The margin is measured against the **serialised extent**, not the file size.
+Using the file size overstates it by the header and contradicts the
+serialisation arithmetic recorded below, which is the figure the counter
+actually depends on.
+
+Both slots are unreferenced by stock code, and **both scans are controlled**,
+because a scan that matches nothing looks identical to one that is broken:
+
+```
+The Lost Children   +0x2E5DC   0 refs   control +0x2E520 (Special Stews)  4 refs
+A New Home          +0x9E90    0 refs   control +0x9E24  (Babies Made)    6 refs
+```
+
+The method is a byte search for the little-endian displacement across
+`.text`, counting every occurrence. The control is a field of the same shape
+in the same block that stock code is known to use, so a non-zero result there
+proves the search can find what is present.
+
 **A New Home's eighteen-site set is complete, independently re-derived.** The
 same classify-every-`lea` pass used for The Lost Children, run against
 `+0x344`:
@@ -1225,3 +1286,152 @@ before any result elsewhere was believed. That discipline earned its keep — th
 VV3 scan passed its VV4 control and still returned a false negative on VV3, which
 is how the null was recognised as a fact about the scan rather than about the
 game.
+
+## Directing Work at the Hospital (The Secret City)
+
+The requested feature is a Tribal Chief Direct Work action dropped on the
+Hospital once Level 2 Medicine is bought, working like the existing
+researching and farming Direct Work actions. The mechanism is table-driven,
+so none of the strings involved is referenced by address and a search for
+them returns nothing:
+
+```
+"Directing work"  VA 0x4963D0   .text references: 0
+eSayDirectWork    VA 0x4963E0   .text references: 0
+```
+
+Both are reached through a 16-byte record table, `{enum_ptr, display_ptr, 0,
+id}`, whose neighbours decode cleanly and confirm the layout:
+
+```
+0xAE2D4  id 0x219  eSayUsePotion    "Using potion"
+0xAE2E4  id 0x21A  eSayDirectWork   "Directing work"
+0xAE2F4  id 0x21B  eSaySayRefusing  "Refusing"
+```
+
+**Say id `0x21A` is pushed at exactly one site, `0x44BC4D`**, which is the
+whole of the existing Direct Work path:
+
+```
+0x44BC4D  push 0x21A              "Directing work"
+0x44BC52  mov ecx, edi
+0x44BC54  call 0x42F190           the say routine
+0x44BC59  push 0x27               action 39
+0x44BC5B  push eax
+0x44BC5C  lea ecx, [esi+0xF28]
+0x44BC62  push ecx
+0x44BC63  call 0x46F780           the action dispatcher
+```
+
+The Level 2 Medicine gate is a separate helper. `sub_4617F0` takes
+`(level, tech_id)` and is called with only two distinct pairs in the whole
+image, both at level 6:
+
+```
+sub_4617F0(6, 0x25F)   1 site
+sub_4617F0(6, 0x405)   2 sites   0x452777, 0x4528CE   Medicine
+```
+
+`0x405` is `eTechMedicineLabel`'s id, taken from the tech record at
+`0xAF1E4`. So the gate the feature needs is `sub_4617F0(6, 0x405)` -- level 6
+internally is the Level 2 the player is shown, which is why a search for a
+literal 2 finds nothing.
+
+The handler itself is `sub_44A310`, and its prologue names the action a
+second time:
+
+```
+0x44A310  push esi ; push edi ; push 0x27 ; push 0x482 ; call ...
+          called from exactly ONE site, 0x453965
+```
+
+So action `0x27` appears both at the handler's entry and at the say site
+`0x44BC4D` a little under 0x1940 bytes inside it. A single caller and a single
+say site make this the whole of the Direct Work path rather than one branch of
+several.
+
+`eObject_Hospital` resolves through a different table shape again -- a dense
+pointer array indexed by object id rather than the `{enum, display, 0, id}`
+records the say strings use:
+
+```
+0xA8FF0  [0]  eObject_None        <- enum base
+0xA8FF4  [1]  eObject_Fireplace
+0xA8FF8  [2]  eObject_Hut
+...
+0xA9090  [40] eObject_Hospital    id 0x28
+```
+
+The base matters: the array physically starts at `0xA8EF0` with UI strings
+(`Select`, `Edit`, `Erase`), so measuring the index from the array start gives
+104 rather than 40. `eObject_None` is what anchors the object enum, and using
+the wrong anchor produces a plausible id that is wrong by 64.
+
+**The handler tests no object id at all**, which answers the question in the
+cheaper direction. Every `cmp reg, imm8` across its 0x193D bytes:
+
+```
+cmp reg, 0x01   x3      cmp reg, 0x1E   x1
+cmp reg, 0x03   x3      cmp reg, 0x28   x1   <- looks like Hospital
+cmp reg, 0x0A   x1      cmp reg, 0x32   x15
+cmp reg, 0x14   x8      cmp reg, 0xFF   x18
+cmp reg, 0x19   x1
+```
+
+The single `0x28` is not an object test. In context it is
+
+```
+0x44AAF8  call <rand>
+0x44AAFC  cmp eax, 0x28
+0x44AAFF  jge
+```
+
+a forty-percent probability roll. Reporting it as the Hospital comparison
+would have been the easiest mistake available here -- the constant matches the
+object id exactly, appears exactly once, and sits in the right routine.
+Reading the three bytes before it is what separates the two.
+
+So target selection happens upstream of `sub_44A310`, and the handler accepts
+whatever object it is given. That makes the feature a **gate plus target
+registration** rather than a change to the handler: the Hospital has to become
+a legal drop target for action `0x27`, and the drop has to be refused until
+`sub_4617F0(6, 0x405)` reports Level 2 Medicine. Neither of those is in the
+handler, which is the good case.
+
+### The Lost Children damage count is 21, not 22
+
+A splice-safety pass over the damage sites turned up an apparent hazard at
+`0x44B448` -- a branch from `0x44B4BA` landing at `0x44B450`, one byte inside
+what was recorded as a nine-byte `dec dword [eax]` span. Splicing there would
+have returned control into the middle of the inserted jump.
+
+The site is not a damage site at all, and the reason is a decoding bug in the
+classifier rather than anything in the binary:
+
+```
+8d bb 2c050000   lea edi,[ebx+0x52C]    SIX bytes, ModRM form, no SIB
+8b ff            mov edi,edi            hot-patch padding
+8a 87 04fbffff   mov al,[edi-0x4FC]     a BYTE read at record+0x30
+84 c0            test al,al
+83 3f 00         cmp dword [edi], 0     reads health, never writes it
+```
+
+The classifier assumed every `lea` carrying `+0x52C` was the seven-byte
+SIB form and read the mutation at `+7`. At this one site the `lea` is six
+bytes, so `+7` lands one byte into `mov edi,edi` and the following `ff` of
+`8a 87 04fb**ff**ff` reads as `ff /1`, a `dec dword [eax]` that is not there.
+
+**One site of the twenty-two uses the short form**, which is why the error
+appeared exactly once and looked like a genuine hazard rather than a decoding
+mistake. It also explains the near-miss: had the branch target not forced a
+second look, a hook would have been placed on an instruction that only reads.
+
+So the set is **21 damage sites plus the old-age store at `0x43BDEE`, 22 hooks
+in all**, and the splice check is clean for every one of them: zero branch
+targets land inside any span once the `lea` length is decoded from its ModRM
+byte instead of assumed.
+
+The general form is the one already recorded twice in this document -- a fixed
+offset is an assumption about encoding, and x86 does not guarantee it. The
+first instance turned six `cmp` sites into phantom writes; this one turned a
+read into a phantom `dec`.
