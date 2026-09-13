@@ -1435,3 +1435,417 @@ The general form is the one already recorded twice in this document -- a fixed
 offset is an assumption about encoding, and x86 does not guarantee it. The
 first instance turned six `cmp` sites into phantom writes; this one turned a
 read into a phantom `dec`.
+
+### Why VV2's death counter cannot extend the statistics feature
+
+The statistics emitter writes every wrapper into a fixed-size cave buffer at
+`cave_va + slot`. The Lost Children's cave is 208 bytes and the built payload
+uses 202 of them:
+
+```
+vv2 cave payload   208 bytes, 202 used, 6 free
+22 trampolines     ~550 bytes
+```
+
+So this is a separate append-based feature rather than more `death_hooks`
+entries, and the generator work already merged -- the optional cause field and
+the transition gate -- applies to A New Home, whose cave is the same size and
+whose hook count is lower, only if that game's arithmetic works out. It does
+not follow from VV2's.
+
+The home is the appended Origins page, immediately after the parentage
+payload, and the space is measured in the built page rather than assumed from
+the layout:
+
+```
+append page          0xB1000..0xB3000
+  .mtab              0xB1000..0xB2000   writable, unusable for code
+  .vvmk              0xB2000..0xB3000   executable
+    mask renderer    0xB2000..0xB241A   912 bytes
+    parentage        0xB241A..0xB24D8   0xBE bytes
+    FREE             0xB24D8..0xB3000   2,856 bytes, all zero
+```
+
+`build_vv2_parentage_feature.py` is the working model for this shape, and two
+of its guardrails are worth carrying rather than rediscovering:
+
+- the payload preimage is read from **the built Origins page**, not from the
+  manifest's `append_bytes`, because those carry build-time scaffolding at
+  that offset which is replaced before the overlay is applied
+- it asserts the payload address is **past the stock end of file**, so a
+  mistake that puts it inside the stock image fails loudly instead of
+  overwriting real code
+
+The trampoline is a detour rather than a tail here: the stolen bytes are a
+`lea` plus a mutation in the middle of a routine, not an epilogue, so each one
+has to jump back. That is the rejoin-rel32 class the parentage comment warns
+about, and it is why the splice check enumerating branch targets inside every
+span had to come first.
+
+### Stolen spans, and why a byte-wise branch scan cannot check them
+
+Every hook needs two facts: how many bytes to steal, and whether anything
+branches into the middle of them. Both were derived rather than assumed, and
+both assumptions failed first.
+
+**Spans, decoded from ModRM rather than a fixed offset.** The `lea` is six or
+seven bytes depending on whether it carries a SIB, and the mutation that
+follows is one of five shapes, so the span is found by walking whole
+instructions until the field is written:
+
+```
+ 9 bytes   0x433367 0x4375E7 0x43BB7E
+10 bytes   0x420E16 0x421013 0x43BAEB 0x43BC43
+12 bytes   0x44EE21
+14 bytes   0x462C05 0x462D3C 0x462E78 0x462F8A
+15 bytes   0x462990
+16 bytes   0x43909F 0x4392CC 0x4393DC 0x4394EC
+21 bytes   0x4638DA 0x46403E
+23 bytes   0x463638 0x4641A7
+ 7 bytes   0x43BDEE  (old-age store, no lea)
+```
+
+All 21 damage sites resolve, every span is at least nine bytes, and a
+five-byte jump fits everywhere.
+
+**The splice check needed a boundary-aware scan.** A byte-wise search for
+`E8/E9/EB/7x/0F8x` flagged two sites as unsafe:
+
+```
+0x463638  targets at +1 and +17
+0x4641A7  targets at +17 and +22
+```
+
+Both are phantoms. The bytes that looked like branches are fields inside other
+instructions:
+
+```
+8b ae d4 74 e5 00   mov ebp,[esi+0xE574D4]   the "74 e5" is disp32
+8b 7c 24 1c         mov edi,[esp+0x1C]       the "7c 24" is ModRM+SIB
+```
+
+Walking the same region from a verified instruction boundary finds **zero**
+real targets inside either span. So all 22 hooks splice cleanly.
+
+This is the third instance of one failure in this feature: `0x44B448` decoded
+a byte read as a phantom `dec`, six `cmp` sites once decoded as phantom
+writes, and now two phantom branch targets. **Every one came from decoding at
+an offset that was not an instruction boundary**, and every one looked like a
+real finding -- the phantom hazard is especially convincing, because a branch
+landing one byte into a `lea` is exactly what a genuine hazard would look
+like.
+
+The rule that survives all three: a scan that starts anywhere except a known
+boundary is generating candidates, not facts, and each candidate has to be
+re-derived from a boundary before it is believed in either direction.
+
+### The counter is not reachable from every hook site
+
+The shipped VV2 counters are seventeen bytes and need no DLL call:
+
+```
+8b 87 d474e500   mov eax, [edi + 0xE574D4]    the manager
+ff 80 d8e50200   inc dword [eax + 0x2E5D8]    the counter
+e9 rel32         jmp back
+```
+
+That template does not transfer to every death site, and the reason is the
+manager load rather than the increment. `0xE574D4` is not an address: it sits
+far above the image, which ends at `0x4B5000`. It is a displacement against a
+base the surrounding code has already established, so the wrapper only works
+where such a register is live.
+
+Measured across the twenty-two sites by looking for the same displacement in
+each site's own neighbourhood:
+
+```
+esi live, manager reachable   12 sites   0x44EE21, 0x462990, 0x462C05,
+                                         0x462D3C, 0x462E78, 0x462F8A,
+                                         0x463638, 0x4638DA, 0x46403E,
+                                         0x4641A7
+no base register nearby       10 sites   0x420E16, 0x421013, 0x433367,
+                                         0x4375E7, 0x43909F, 0x4392CC,
+                                         0x4393DC, 0x4394EC, 0x43BAEB,
+                                         0x43BB7E, 0x43BC43, 0x43BDEE
+```
+
+Two readings of the displacement were tried and both fail, which is what
+establishes that it cannot be made absolute: `mov esi, 0xE57090` appears 61
+times, and `0xE57090 + 0xE574D4` is `0x1CAE564`, far outside the image;
+treating `0xE574D4` as the address itself puts it outside too. Neither gives a
+statically addressable global, so there is nothing to hardcode.
+
+This is a constraint on the design rather than a defect. The ten sites without
+a live base need the manager obtained some other way -- recovered from the
+villager record they already hold, or the counter kept somewhere reachable
+without it -- and that is the next thing to establish. Recording it because
+the twins wrapper makes the work look finished: the template is real, it is
+simply not universal, and copying it to a site where the base register is dead
+would read a pointer out of whatever happened to be in that register.
+
+**A near-miss worth recording, because it nearly reversed the finding.** The
+shipped twins wrapper reaches the manager with `mov eax,[edi + 0xE574D4]`, and
+the stock bytes immediately after its hook at `0x44BA8C` contain exactly that
+instruction. The damage site `0x43BAEB` also uses `edi` -- as the villager
+record base for `lea eax,[eax+edi+0x52C]`. Two sites, same register, one of
+them proven to reach the manager through it.
+
+That is not evidence, and the distance is what shows it:
+
+```
+0x44BA8C - 0x43BAEB = 0xFFA1 = 65,441 bytes
+```
+
+They are different routines -- `sub_43B690` is the health tick, `0x44BA8C` is
+in childbirth -- so `edi` in one has no relationship to `edi` in the other. A
+register name is not a value, and matching names across routines is the same
+class of error as matching a constant across contexts.
+
+The wider re-scan confirms the original result rather than overturning it:
+searching +/-0x1000 around every site finds the manager displacement near the
+twelve `esi` sites and near none of the others.
+
+So the constraint is real: ten damage sites plus the old-age store cannot
+reach the counter the way the shipped wrappers do, and the feature needs the
+manager obtained some other way at those sites.
+
+### Caching the manager at its one point of publication
+
+The twelve unreachable sites need the manager without a live base register,
+and the appended page can hold it -- but only if something populates the cache
+before the first death. Writing it from the reachable death sites does not
+work: until a villager dies at one of those ten, the cache is null and every
+death at the other twelve goes uncounted.
+
+The manager is **written exactly once** in the whole image:
+
+```
+0x44C1E5   89 86 d474e500   mov [esi + 0xE574D4], eax
+```
+
+One store, found by searching the displacement for the `89` form rather than
+the `8b` loads. It sits inside a run of constructor calls, each storing its
+result:
+
+```
+0x44C1D1  mov [esi+0xE574B8], edi
+0x44C1D7  mov [esi+0xE574BC], edi
+0x44C1DD  call <ctor>
+0x44C1E5  mov [esi+0xE574D4], eax     <- the manager
+0x44C1EB  call <ctor>
+0x44C1F0  mov [esi+0xE574D0], eax
+```
+
+That is object setup, so it necessarily precedes any villager death, which is
+exactly the ordering the cache needs. The manager is already in `eax` at that
+instruction, so the publication costs five bytes:
+
+```
+a3 <cache VA>     mov [cache], eax
+```
+
+The site splices cleanly: the span is six bytes (`89 86` plus disp32), a
+five-byte jump fits with one NOP, and walking from a verified boundary at
+`0x44C1C8` finds zero branch targets inside it.
+
+The twelve sites then read the cache absolutely and guard it:
+
+```
+a1 <cache VA>     mov eax, [cache]
+85 c0             test eax, eax
+74 xx             jz skip            never dereference a null cache
+ff 80 dce50200    inc dword [eax + 0x2E5DC]
+```
+
+The `jz` matters even with startup publication: a save loaded before the
+patch, or any path that reaches a death site before the constructor, becomes a
+missed count rather than a crash. A counter that under-reports in a case
+nobody can construct is acceptable; a null dereference is not.
+
+### The trampoline, and three defects found while building it
+
+Proposed form, 50 bytes, claimed as one shape for all twenty-two sites. **The
+shape is withdrawn** -- four further defects, recorded in the section after
+next, each break it at a named site -- but it is kept here because three of its
+defects were caught before it was written down and the fourth is the reason the
+shape cannot be uniform:
+
+```
+9c                pushfd
+51                push ecx                 the pre-value
+<stolen bytes>    replayed verbatim
+50                push eax                 the health pointer
+83 7c 24 04 00    cmp dword [esp+4], 0     pre
+7e xx             jle restore
+83 38 00          cmp dword [eax], 0       post
+7f xx             jg restore
+a1 <cache>        mov eax, [cache]
+85 c0             test eax, eax
+74 xx             jz restore
+ff 80 dce50200    inc dword [eax + 0x2E5DC]
+restore:
+58 59 9d          pop eax ; pop ecx ; popfd
+e9 rel32          jmp back
+```
+
+Twenty-two sites at fifty bytes would be 1,100 of the 2,856 available. That
+figure rests on the shape being uniform and does not survive the section after
+next; the 2,856 remains the ceiling.
+
+Three defects were caught building it, each of which would have shipped a
+counter that looked right:
+
+**EAX is not dead at most sites.** The first version let the trampoline
+clobber it, on the strength of three sites whose resumed code immediately
+overwrites it. Checking all twenty-two: only **nine** provably write EAX before
+reading it. Preserving it costs two bytes and removes thirteen individual
+liveness arguments, each of which would have been a chance to be wrong.
+
+**One site resumes on a conditional jump.** `0x44EE21` continues at `jns`,
+reading the flags from the `add ecx,-0x5A` inside its own span -- the same
+instruction whose result makes the site lethal. Any `cmp` in the trampoline
+destroys them. Exactly one of the twenty-two does this, which is why a
+spot-check would have missed it.
+
+**The pre-check cannot follow the replay.** A form with a single replay and
+the comparison afterwards assembles cleanly and is wrong: at `0x44EE21` the
+mutation is `add ecx,-0x5A`, so by then `ecx` holds the post-value and the
+gate compares a number against itself. The pre-value is stashed before the
+replay instead, which keeps one replay and works wherever the mutation
+modifies its own source register.
+
+And one arithmetic slip caught before it was written down: after
+`pushfd ; push ecx ; <replay> ; push eax` the pre-value is at `[esp+4]`, not
+`[esp+8]`. The wrong offset reads the saved flags as health, which is a
+positive number often enough to look like a working counter.
+
+### "Replay the stolen bytes verbatim" is wrong for nine of the sites
+
+The trampoline copies each site's stolen bytes and executes them at the
+appended page. That is safe only while those bytes are position-independent,
+and nine spans are not:
+
+```
+0x462990  0x462C05  0x462D3C  0x462E78  0x462F8A
+0x463638  0x4638DA  0x46403E  0x4641A7
+```
+
+Each carries `e8 <rel32>` at offset `+7`, and all nine call the same routine,
+`0x4031A0`. A relative call encodes a distance, so copying the bytes to a
+different address silently changes where they go:
+
+```
+0x463638  at its own site the call reaches 0x4031A0
+          replayed at 0x4B44E0 it would reach 0x45404A
+0x4641A7  at its own site 0x4031A0
+          replayed 0x4534DB
+```
+
+Neither destination is a function entry. The game would execute whatever bytes
+happen to sit there, which is a crash rather than a wrong number -- and it
+would not have been caught by any check written so far, because the bytes
+copy correctly and the manifest verifies.
+
+The fix is mechanical because the shape is uniform: re-encode the displacement
+for the trampoline's address rather than copying it. Verified on `0x463638`:
+
+```
+original rel32   5c fb f9 ff
+retargeted       b2 ec f4 ff
+from 0x4B44E9 + 5 + rel = 0x4031A0
+```
+
+The general rule this feature now carries: **a replay is only verbatim if the
+bytes contain no relative displacement.** Anything with `e8`, `e9`, a short
+jump, or a rip-relative form has to be re-encoded for its new address, and the
+builder has to assert that every stolen span is either free of relative
+branches or has had each one retargeted. Copying is the default and it is
+wrong nine times out of twenty-two here.
+
+### The one-shape trampoline fails at four named sites
+
+Review of the shape above found four more defects, and they are not variations
+on one mistake: the template makes four separate assumptions -- about the
+stack, about where the pre-value lives, about where the health pointer lives,
+and about which flags the resumed code reads -- and every one of them is
+already contradicted by a measurement recorded earlier in this document.
+
+None of the four could be re-measured here, because no stock executable ships
+in the repository. Each is derived from a site analysis already written down
+above, and each cites the line it comes from.
+
+**The replay must not run under a shifted ESP.** `pushfd ; push ecx` moves ESP
+down eight bytes before the stolen span executes. The bytes recorded for the
+23-byte spans include
+
+```
+8b 7c 24 1c         mov edi,[esp+0x1C]
+```
+
+-- the same instruction whose ModRM+SIB was mistaken for a branch target in the
+splice check. Replayed after two pushes it reads the original `[esp+0x14]`
+instead, which is not the value the stock code loads. So nothing may change ESP
+before the replay, and the pre-value and flag saves cannot be pushes. The
+appended page already holds one absolute slot -- the manager cache -- and
+absolute slots are what this needs: `89 0d <va>` is six bytes and leaves ESP
+alone. The alternative, adjusting every ESP-relative operand in the span, means
+re-encoding stock bytes per site to save one byte, which is the more expensive
+of the two by every measure.
+
+**ECX is not the pre-value.** `push ecx` is a valid capture only for the
+register store-back form -- `0x43BAEB` and `0x43BC43`, where `dec ecx` leaves
+the post-value in `ecx` and the pre-value is one greater. It captures unrelated
+state at the other two shapes this document has already enumerated: the in-place
+`dec dword [eax]` at `0x43BB7E`, recorded above as having "no separate store and
+no register holding the value", and the old-age store at `0x43BDEE`, which
+writes a literal zero and reads nothing first. At those two the pre-value has to
+be read through the site's own destination operand before the mutation. The gate
+is not optional at the old-age store either: without it a villager already at
+zero is counted a second time.
+
+**EAX is not the health pointer.** The post-check `cmp dword [eax], 0`
+dereferences `eax` at all twenty-two sites, and the document already measured
+the spread across the twenty-three lethal sites as `eax` 12, `edi` 8, `ebp` 3.
+`0x462990` is the worked example: `lea ebp,[edx+esi+52Ch] ; call ; sub
+[ebp],eax` puts the pointer in `ebp` and leaves `eax` holding the **damage
+amount** the call returned -- a small integer, dereferenced as an address. The
+old-age store has no `lea` at all. This is the same premise that was withdrawn
+once already, four sections above, for the wrapper design: it has come back
+inside the trampoline.
+
+**`popfd` restores the wrong flags at `0x44EE21`.** The template captures flags
+with `pushfd` **before** the replay and restores them after the gate. The
+resumed `jns` at that site reads the flags produced by the replayed
+`add ecx,-0x5A`, which is exactly what the entry flags are not. The section
+above identifies the hazard and then hands the site the wrong flags anyway: the
+`cmp`s are correctly kept from destroying the post-add flags, but so is the
+`popfd`, which overwrites them with the entry copy. At that site the flags to
+save are the ones the replay produces, captured after it rather than before.
+
+So the counts settle as follows, and none of them is new -- each restates a
+measurement this document already carries:
+
+```
+guard shapes needed        4     established above, not 1
+sites where eax holds      12    of 23; edi 8, ebp 3
+  the health pointer
+sites with no pre-value    2     0x43BB7E in-place dec, 0x43BDEE zero store
+  in any register
+sites needing post-replay  1     0x44EE21
+  flags
+spans that touch esp       at least the 23-byte pair
+spans needing a retarget   9     recorded in the section above
+```
+
+The trampoline is therefore per-shape, not per-feature, and **the 1,100-byte
+budget is withdrawn with the shape that produced it.** What the appended page
+has is 2,856 bytes; what the trampolines cost is unmeasured until the four
+shapes are settled and sized individually.
+
+The rule this adds to the two already recorded: **a wrapper is uniform only if
+every assumption it makes about registers, flags and the stack has been checked
+at every site, not at the site it was written against.** The shape above was
+written against the register store-back form and is correct there. Four
+assumptions, four sites that break them, and each one assembles cleanly and
+produces a counter that moves -- which is the failure mode this whole feature
+keeps meeting: wrong numbers look exactly like right ones until a villager dies.
