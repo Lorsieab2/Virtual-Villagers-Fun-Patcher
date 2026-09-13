@@ -1849,3 +1849,65 @@ written against the register store-back form and is correct there. Four
 assumptions, four sites that break them, and each one assembles cleanly and
 produces a counter that moves -- which is the failure mode this whole feature
 keeps meeting: wrong numbers look exactly like right ones until a villager dies.
+
+### The trampoline, rebuilt with memory scratch
+
+The withdrawn one-shape trampoline failed on four assumptions -- esp, the
+pre-value's location, the pointer register, and the flags. Classifying the
+twenty-two sites by mutation form and pointer register gives **eight** shapes,
+not four:
+
+```
+call-then-store      edi   6    load-modify-store   eax   4
+add-imm-into-mem     eax   3    call-then-store     ebp   3
+sub-reg-into-mem     eax   2    dec-reg-store       eax   2
+dec-in-place         eax   1    literal-zero        --    1
+```
+
+Those eight collapse to **four** -- one per pointer register, plus the
+no-`lea` old-age store -- once the pre-value is read *through the pointer*
+rather than captured from whichever register happens to hold it. The `lea`
+always produces the pointer before the mutation, so the trampoline replays the
+`lea` first, reads the field, then replays the rest:
+
+```
+<lea>                        pointer now in eax / edi / ebp
+mov [SAVE], eax              save eax to MEMORY, not the stack
+mov eax, [<ptr>]             the pre-value
+mov [PRE], eax
+mov eax, [SAVE]              eax restored, esp untouched
+<mutation>                   the rest of the span, flags set here
+mov [SAVE], eax
+pushfd
+mov eax, [PRE]
+cmp eax, 0        / jle restore
+cmp dword [<ptr>], 0 / jg restore
+mov eax, [MGR]    / test eax, eax / jz restore
+inc dword [eax + 0x2E5DC]
+restore:
+popfd
+mov eax, [SAVE]
+jmp back
+```
+
+Three slots in the appended page: `MGR` at `0x4B44D8`, `PRE` at `0x4B44DC`,
+`SAVE` at `0x4B44E0`.
+
+**Saving EAX to memory rather than pushing it is the load-bearing choice.**
+A `push` before the mutation shifts `esp`, and the 23-byte spans contain
+`8b 7c 24 1c` -- `mov edi,[esp+0x1C]` -- which would then read the wrong slot.
+That was the first of the four withdrawal defects and it rules out the stack
+for anything that must survive *across* the replay.
+
+Flags reach the resume point intact: `mov` does not touch them, so the
+mutation's flags survive to `pushfd`, and `popfd` restores them before the
+return jump. That satisfies `0x44EE21`, which resumes at `jns` reading the
+flags its own `add ecx,-0x5A` produced. `pushfd`/`popfd` are balanced, so the
+resumed code sees the original `esp`.
+
+Only EAX is used, and it is restored around both halves, so no per-site
+register-liveness argument is needed -- which matters because a byte-wise scan
+of what each span touches finds **no** register free at every site.
+
+Measured at 89 bytes for the `ebp` form, so twenty-two sites are about 1,958
+bytes of the 2,856 available.
