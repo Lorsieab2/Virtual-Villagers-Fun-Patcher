@@ -1582,3 +1582,29 @@ without it -- and that is the next thing to establish. Recording it because
 the twins wrapper makes the work look finished: the template is real, it is
 simply not universal, and copying it to a site where the base register is dead
 would read a pointer out of whatever happened to be in that register.
+
+**A near-miss worth recording, because it nearly reversed the finding.** The
+shipped twins wrapper reaches the manager with `mov eax,[edi + 0xE574D4]`, and
+the stock bytes immediately after its hook at `0x44BA8C` contain exactly that
+instruction. The damage site `0x43BAEB` also uses `edi` -- as the villager
+record base for `lea eax,[eax+edi+0x52C]`. Two sites, same register, one of
+them proven to reach the manager through it.
+
+That is not evidence, and the distance is what shows it:
+
+```
+0x44BA8C - 0x43BAEB = 0xFFA1 = 65,441 bytes
+```
+
+They are different routines -- `sub_43B690` is the health tick, `0x44BA8C` is
+in childbirth -- so `edi` in one has no relationship to `edi` in the other. A
+register name is not a value, and matching names across routines is the same
+class of error as matching a constant across contexts.
+
+The wider re-scan confirms the original result rather than overturning it:
+searching +/-0x1000 around every site finds the manager displacement near the
+twelve `esi` sites and near none of the others.
+
+So the constraint is real: ten damage sites plus the old-age store cannot
+reach the counter the way the shipped wrappers do, and the feature needs the
+manager obtained some other way at those sites.
