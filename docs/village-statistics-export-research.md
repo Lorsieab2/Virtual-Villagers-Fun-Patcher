@@ -1538,3 +1538,47 @@ like.
 The rule that survives all three: a scan that starts anywhere except a known
 boundary is generating candidates, not facts, and each candidate has to be
 re-derived from a boundary before it is believed in either direction.
+
+### The counter is not reachable from every hook site
+
+The shipped VV2 counters are seventeen bytes and need no DLL call:
+
+```
+8b 87 d474e500   mov eax, [edi + 0xE574D4]    the manager
+ff 80 d8e50200   inc dword [eax + 0x2E5D8]    the counter
+e9 rel32         jmp back
+```
+
+That template does not transfer to every death site, and the reason is the
+manager load rather than the increment. `0xE574D4` is not an address: it sits
+far above the image, which ends at `0x4B5000`. It is a displacement against a
+base the surrounding code has already established, so the wrapper only works
+where such a register is live.
+
+Measured across the twenty-two sites by looking for the same displacement in
+each site's own neighbourhood:
+
+```
+esi live, manager reachable   12 sites   0x44EE21, 0x462990, 0x462C05,
+                                         0x462D3C, 0x462E78, 0x462F8A,
+                                         0x463638, 0x4638DA, 0x46403E,
+                                         0x4641A7
+no base register nearby       10 sites   0x420E16, 0x421013, 0x433367,
+                                         0x4375E7, 0x43909F, 0x4392CC,
+                                         0x4393DC, 0x4394EC, 0x43BAEB,
+                                         0x43BB7E, 0x43BC43, 0x43BDEE
+```
+
+Two readings of the displacement were tried and both fail, which is what
+establishes that it cannot be made absolute: `mov esi, 0xE57090` appears 61
+times, and `0xE57090 + 0xE574D4` is `0x1CAE564`, far outside the image;
+treating `0xE574D4` as the address itself puts it outside too. Neither gives a
+statically addressable global, so there is nothing to hardcode.
+
+This is a constraint on the design rather than a defect. The ten sites without
+a live base need the manager obtained some other way -- recovered from the
+villager record they already hold, or the counter kept somewhere reachable
+without it -- and that is the next thing to establish. Recording it because
+the twins wrapper makes the work look finished: the template is real, it is
+simply not universal, and copying it to a site where the base register is dead
+would read a pointer out of whatever happened to be in that register.
