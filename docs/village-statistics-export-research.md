@@ -1481,3 +1481,60 @@ The trampoline is a detour rather than a tail here: the stolen bytes are a
 has to jump back. That is the rejoin-rel32 class the parentage comment warns
 about, and it is why the splice check enumerating branch targets inside every
 span had to come first.
+
+### Stolen spans, and why a byte-wise branch scan cannot check them
+
+Every hook needs two facts: how many bytes to steal, and whether anything
+branches into the middle of them. Both were derived rather than assumed, and
+both assumptions failed first.
+
+**Spans, decoded from ModRM rather than a fixed offset.** The `lea` is six or
+seven bytes depending on whether it carries a SIB, and the mutation that
+follows is one of five shapes, so the span is found by walking whole
+instructions until the field is written:
+
+```
+ 9 bytes   0x433367 0x4375E7 0x43BB7E
+10 bytes   0x420E16 0x421013 0x43BAEB 0x43BC43
+12 bytes   0x44EE21
+14 bytes   0x462C05 0x462D3C 0x462E78 0x462F8A
+15 bytes   0x462990
+16 bytes   0x43909F 0x4392CC 0x4393DC 0x4394EC
+21 bytes   0x4638DA 0x46403E
+23 bytes   0x463638 0x4641A7
+ 7 bytes   0x43BDEE  (old-age store, no lea)
+```
+
+All 21 damage sites resolve, every span is at least nine bytes, and a
+five-byte jump fits everywhere.
+
+**The splice check needed a boundary-aware scan.** A byte-wise search for
+`E8/E9/EB/7x/0F8x` flagged two sites as unsafe:
+
+```
+0x463638  targets at +1 and +17
+0x4641A7  targets at +17 and +22
+```
+
+Both are phantoms. The bytes that looked like branches are fields inside other
+instructions:
+
+```
+8b ae d4 74 e5 00   mov ebp,[esi+0xE574D4]   the "74 e5" is disp32
+8b 7c 24 1c         mov edi,[esp+0x1C]       the "7c 24" is ModRM+SIB
+```
+
+Walking the same region from a verified instruction boundary finds **zero**
+real targets inside either span. So all 22 hooks splice cleanly.
+
+This is the third instance of one failure in this feature: `0x44B448` decoded
+a byte read as a phantom `dec`, six `cmp` sites once decoded as phantom
+writes, and now two phantom branch targets. **Every one came from decoding at
+an offset that was not an instruction boundary**, and every one looked like a
+real finding -- the phantom hazard is especially convincing, because a branch
+landing one byte into a `lea` is exactly what a genuine hazard would look
+like.
+
+The rule that survives all three: a scan that starts anywhere except a known
+boundary is generating candidates, not facts, and each candidate has to be
+re-derived from a boundary before it is believed in either direction.
