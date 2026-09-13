@@ -1664,7 +1664,11 @@ nobody can construct is acceptable; a null dereference is not.
 
 ### The trampoline, and three defects found while building it
 
-Final form, 50 bytes, one shape for all twenty-two sites:
+Proposed form, 50 bytes, claimed as one shape for all twenty-two sites. **The
+shape is withdrawn** -- four further defects, recorded in the section after
+next, each break it at a named site -- but it is kept here because three of its
+defects were caught before it was written down and the fourth is the reason the
+shape cannot be uniform:
 
 ```
 9c                pushfd
@@ -1684,7 +1688,9 @@ restore:
 e9 rel32          jmp back
 ```
 
-Twenty-two sites at fifty bytes is 1,100 of the 2,856 available.
+Twenty-two sites at fifty bytes would be 1,100 of the 2,856 available. That
+figure rests on the shape being uniform and does not survive the section after
+next; the 2,856 remains the ceiling.
 
 Three defects were caught building it, each of which would have shipped a
 counter that looked right:
@@ -1755,3 +1761,91 @@ jump, or a rip-relative form has to be re-encoded for its new address, and the
 builder has to assert that every stolen span is either free of relative
 branches or has had each one retargeted. Copying is the default and it is
 wrong nine times out of twenty-two here.
+
+### The one-shape trampoline fails at four named sites
+
+Review of the shape above found four more defects, and they are not variations
+on one mistake: the template makes four separate assumptions -- about the
+stack, about where the pre-value lives, about where the health pointer lives,
+and about which flags the resumed code reads -- and every one of them is
+already contradicted by a measurement recorded earlier in this document.
+
+None of the four could be re-measured here, because no stock executable ships
+in the repository. Each is derived from a site analysis already written down
+above, and each cites the line it comes from.
+
+**The replay must not run under a shifted ESP.** `pushfd ; push ecx` moves ESP
+down eight bytes before the stolen span executes. The bytes recorded for the
+23-byte spans include
+
+```
+8b 7c 24 1c         mov edi,[esp+0x1C]
+```
+
+-- the same instruction whose ModRM+SIB was mistaken for a branch target in the
+splice check. Replayed after two pushes it reads the original `[esp+0x14]`
+instead, which is not the value the stock code loads. So nothing may change ESP
+before the replay, and the pre-value and flag saves cannot be pushes. The
+appended page already holds one absolute slot -- the manager cache -- and
+absolute slots are what this needs: `89 0d <va>` is six bytes and leaves ESP
+alone. The alternative, adjusting every ESP-relative operand in the span, means
+re-encoding stock bytes per site to save one byte, which is the more expensive
+of the two by every measure.
+
+**ECX is not the pre-value.** `push ecx` is a valid capture only for the
+register store-back form -- `0x43BAEB` and `0x43BC43`, where `dec ecx` leaves
+the post-value in `ecx` and the pre-value is one greater. It captures unrelated
+state at the other two shapes this document has already enumerated: the in-place
+`dec dword [eax]` at `0x43BB7E`, recorded above as having "no separate store and
+no register holding the value", and the old-age store at `0x43BDEE`, which
+writes a literal zero and reads nothing first. At those two the pre-value has to
+be read through the site's own destination operand before the mutation. The gate
+is not optional at the old-age store either: without it a villager already at
+zero is counted a second time.
+
+**EAX is not the health pointer.** The post-check `cmp dword [eax], 0`
+dereferences `eax` at all twenty-two sites, and the document already measured
+the spread across the twenty-three lethal sites as `eax` 12, `edi` 8, `ebp` 3.
+`0x462990` is the worked example: `lea ebp,[edx+esi+52Ch] ; call ; sub
+[ebp],eax` puts the pointer in `ebp` and leaves `eax` holding the **damage
+amount** the call returned -- a small integer, dereferenced as an address. The
+old-age store has no `lea` at all. This is the same premise that was withdrawn
+once already, four sections above, for the wrapper design: it has come back
+inside the trampoline.
+
+**`popfd` restores the wrong flags at `0x44EE21`.** The template captures flags
+with `pushfd` **before** the replay and restores them after the gate. The
+resumed `jns` at that site reads the flags produced by the replayed
+`add ecx,-0x5A`, which is exactly what the entry flags are not. The section
+above identifies the hazard and then hands the site the wrong flags anyway: the
+`cmp`s are correctly kept from destroying the post-add flags, but so is the
+`popfd`, which overwrites them with the entry copy. At that site the flags to
+save are the ones the replay produces, captured after it rather than before.
+
+So the counts settle as follows, and none of them is new -- each restates a
+measurement this document already carries:
+
+```
+guard shapes needed        4     established above, not 1
+sites where eax holds      12    of 23; edi 8, ebp 3
+  the health pointer
+sites with no pre-value    2     0x43BB7E in-place dec, 0x43BDEE zero store
+  in any register
+sites needing post-replay  1     0x44EE21
+  flags
+spans that touch esp       at least the 23-byte pair
+spans needing a retarget   9     recorded in the section above
+```
+
+The trampoline is therefore per-shape, not per-feature, and **the 1,100-byte
+budget is withdrawn with the shape that produced it.** What the appended page
+has is 2,856 bytes; what the trampolines cost is unmeasured until the four
+shapes are settled and sized individually.
+
+The rule this adds to the two already recorded: **a wrapper is uniform only if
+every assumption it makes about registers, flags and the stack has been checked
+at every site, not at the site it was written against.** The shape above was
+written against the register store-back form and is correct there. Four
+assumptions, four sites that break them, and each one assembles cleanly and
+produces a counter that moves -- which is the failure mode this whole feature
+keeps meeting: wrong numbers look exactly like right ones until a villager dies.
