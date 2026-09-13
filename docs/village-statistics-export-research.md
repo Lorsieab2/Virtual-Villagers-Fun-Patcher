@@ -1435,3 +1435,49 @@ The general form is the one already recorded twice in this document -- a fixed
 offset is an assumption about encoding, and x86 does not guarantee it. The
 first instance turned six `cmp` sites into phantom writes; this one turned a
 read into a phantom `dec`.
+
+### Why VV2's death counter cannot extend the statistics feature
+
+The statistics emitter writes every wrapper into a fixed-size cave buffer at
+`cave_va + slot`. The Lost Children's cave is 208 bytes and the built payload
+uses 202 of them:
+
+```
+vv2 cave payload   208 bytes, 202 used, 6 free
+22 trampolines     ~550 bytes
+```
+
+So this is a separate append-based feature rather than more `death_hooks`
+entries, and the generator work already merged -- the optional cause field and
+the transition gate -- applies to A New Home, whose cave is the same size and
+whose hook count is lower, only if that game's arithmetic works out. It does
+not follow from VV2's.
+
+The home is the appended Origins page, immediately after the parentage
+payload, and the space is measured in the built page rather than assumed from
+the layout:
+
+```
+append page          0xB1000..0xB3000
+  .mtab              0xB1000..0xB2000   writable, unusable for code
+  .vvmk              0xB2000..0xB3000   executable
+    mask renderer    0xB2000..0xB241A   912 bytes
+    parentage        0xB241A..0xB24D8   0xBE bytes
+    FREE             0xB24D8..0xB3000   2,856 bytes, all zero
+```
+
+`build_vv2_parentage_feature.py` is the working model for this shape, and two
+of its guardrails are worth carrying rather than rediscovering:
+
+- the payload preimage is read from **the built Origins page**, not from the
+  manifest's `append_bytes`, because those carry build-time scaffolding at
+  that offset which is replaced before the overlay is applied
+- it asserts the payload address is **past the stock end of file**, so a
+  mistake that puts it inside the stock image fails loudly instead of
+  overwriting real code
+
+The trampoline is a detour rather than a tail here: the stolen bytes are a
+`lea` plus a mutation in the middle of a routine, not an epilogue, so each one
+has to jump back. That is the rejoin-rel32 class the parentage comment warns
+about, and it is why the splice check enumerating branch targets inside every
+span had to come first.
