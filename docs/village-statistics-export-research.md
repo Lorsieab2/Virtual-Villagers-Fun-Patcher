@@ -1712,3 +1712,46 @@ And one arithmetic slip caught before it was written down: after
 `pushfd ; push ecx ; <replay> ; push eax` the pre-value is at `[esp+4]`, not
 `[esp+8]`. The wrong offset reads the saved flags as health, which is a
 positive number often enough to look like a working counter.
+
+### "Replay the stolen bytes verbatim" is wrong for nine of the sites
+
+The trampoline copies each site's stolen bytes and executes them at the
+appended page. That is safe only while those bytes are position-independent,
+and nine spans are not:
+
+```
+0x462990  0x462C05  0x462D3C  0x462E78  0x462F8A
+0x463638  0x4638DA  0x46403E  0x4641A7
+```
+
+Each carries `e8 <rel32>` at offset `+7`, and all nine call the same routine,
+`0x4031A0`. A relative call encodes a distance, so copying the bytes to a
+different address silently changes where they go:
+
+```
+0x463638  at its own site the call reaches 0x4031A0
+          replayed at 0x4B44E0 it would reach 0x45404A
+0x4641A7  at its own site 0x4031A0
+          replayed 0x4534DB
+```
+
+Neither destination is a function entry. The game would execute whatever bytes
+happen to sit there, which is a crash rather than a wrong number -- and it
+would not have been caught by any check written so far, because the bytes
+copy correctly and the manifest verifies.
+
+The fix is mechanical because the shape is uniform: re-encode the displacement
+for the trampoline's address rather than copying it. Verified on `0x463638`:
+
+```
+original rel32   5c fb f9 ff
+retargeted       b2 ec f4 ff
+from 0x4B44E9 + 5 + rel = 0x4031A0
+```
+
+The general rule this feature now carries: **a replay is only verbatim if the
+bytes contain no relative displacement.** Anything with `e8`, `e9`, a short
+jump, or a rip-relative form has to be re-encoded for its new address, and the
+builder has to assert that every stolen span is either free of relative
+branches or has had each one retargeted. Copying is the default and it is
+wrong nine times out of twenty-two here.
