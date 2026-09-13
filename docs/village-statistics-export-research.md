@@ -1661,3 +1661,54 @@ The `jz` matters even with startup publication: a save loaded before the
 patch, or any path that reaches a death site before the constructor, becomes a
 missed count rather than a crash. A counter that under-reports in a case
 nobody can construct is acceptable; a null dereference is not.
+
+### The trampoline, and three defects found while building it
+
+Final form, 50 bytes, one shape for all twenty-two sites:
+
+```
+9c                pushfd
+51                push ecx                 the pre-value
+<stolen bytes>    replayed verbatim
+50                push eax                 the health pointer
+83 7c 24 04 00    cmp dword [esp+4], 0     pre
+7e xx             jle restore
+83 38 00          cmp dword [eax], 0       post
+7f xx             jg restore
+a1 <cache>        mov eax, [cache]
+85 c0             test eax, eax
+74 xx             jz restore
+ff 80 dce50200    inc dword [eax + 0x2E5DC]
+restore:
+58 59 9d          pop eax ; pop ecx ; popfd
+e9 rel32          jmp back
+```
+
+Twenty-two sites at fifty bytes is 1,100 of the 2,856 available.
+
+Three defects were caught building it, each of which would have shipped a
+counter that looked right:
+
+**EAX is not dead at most sites.** The first version let the trampoline
+clobber it, on the strength of three sites whose resumed code immediately
+overwrites it. Checking all twenty-two: only **nine** provably write EAX before
+reading it. Preserving it costs two bytes and removes thirteen individual
+liveness arguments, each of which would have been a chance to be wrong.
+
+**One site resumes on a conditional jump.** `0x44EE21` continues at `jns`,
+reading the flags from the `add ecx,-0x5A` inside its own span -- the same
+instruction whose result makes the site lethal. Any `cmp` in the trampoline
+destroys them. Exactly one of the twenty-two does this, which is why a
+spot-check would have missed it.
+
+**The pre-check cannot follow the replay.** A form with a single replay and
+the comparison afterwards assembles cleanly and is wrong: at `0x44EE21` the
+mutation is `add ecx,-0x5A`, so by then `ecx` holds the post-value and the
+gate compares a number against itself. The pre-value is stashed before the
+replay instead, which keeps one replay and works wherever the mutation
+modifies its own source register.
+
+And one arithmetic slip caught before it was written down: after
+`pushfd ; push ecx ; <replay> ; push eax` the pre-value is at `[esp+4]`, not
+`[esp+8]`. The wrong offset reads the saved flags as health, which is a
+positive number often enough to look like a working counter.
