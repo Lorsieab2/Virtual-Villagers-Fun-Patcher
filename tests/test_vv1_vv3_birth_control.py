@@ -38,6 +38,22 @@ VV1_STANDALONE_RENDER_SHA256 = {
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
 VV1_STOCK = ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe"
+def _vv1_birth_control_page() -> bytes:
+    """Build the owned VV1 chooser page from its generator."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "_vv1_bc_page", ROOT / "scripts" / "build_vv1_birth_control_page.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    built = module.build_page()
+    return bytes(built[0] if isinstance(built, tuple) else built)
+
+
+VV3_STOCK = (
+    ROOT / "inputs" / "vv3-stock-copy" / "Virtual Villagers - The Secret City.exe"
+)
 
 
 def _patches(feature_id: str) -> list[dict[str, str]]:
@@ -149,14 +165,14 @@ class VV1VV3BirthControlTests(unittest.TestCase):
                         *feature.raw.get("explicit_non_changes", []),
                     ]
                 )
-                # A New Home no longer applies the fallback: its chooser tail
-                # now requires the parenting preference to be checked and
-                # rejects an unchecked villager outright. The Lost Children
-                # and The Secret City still describe the native VV4/VV5
-                # behaviour they leave in place, so the assertion is per game
-                # rather than shared -- asserting the old wording for all
-                # three is what let the contract keep advertising a fallback
-                # this build had stopped applying.
+                # A New Home and The Secret City no longer apply the
+                # fallback: both chooser tails now require the parenting
+                # preference to be checked and reject an unchecked villager
+                # outright. The Lost Children still describes the native
+                # VV4/VV5 behaviour it leaves in place, so the assertion is
+                # per game rather than shared -- asserting the old wording for
+                # all three is what let the contract keep advertising a
+                # fallback a build had stopped applying.
                 self.assertIn("25% non-preference fallback", text)
                 if feature.id == "vv1_birth_control":
                     self.assertIn(
@@ -164,6 +180,12 @@ class VV1VV3BirthControlTests(unittest.TestCase):
                         text,
                     )
                     self.assertIn("rejected instead of reaching", text)
+                if feature.id == "vv3_birth_control":
+                    # The description must say the fallback is REMOVED, not
+                    # that it "remains in force" -- the old wording described
+                    # exactly the leak the owner reported.
+                    self.assertIn("fallback is removed", text)
+                    self.assertNotIn("fallback remain in force", text)
                 self.assertIn("native", text.lower())
                 self.assertIn("conception", text.lower())
                 self.assertIn("delivery", text.lower())
@@ -177,12 +199,39 @@ class VV1VV3BirthControlTests(unittest.TestCase):
             "0x5D0C0": "81FAE80300007D60",
             "0x5D187": "81FAE80300007D60",
         }
-        self.assertEqual([int(patch["offset"], 0) for patch in patches], [int(offset, 0) for offset in expected])
-        for patch in patches:
+        selector = [p for p in patches if p["offset"] in expected]
+        self.assertEqual(
+            [int(patch["offset"], 0) for patch in selector],
+            [int(offset, 0) for offset in expected],
+        )
+        for patch in selector:
             with self.subTest(offset=patch["offset"]):
                 self.assertEqual(patch["before"], expected[patch["offset"]])
                 self.assertEqual(patch["after"], "9090909090909090")
         self.assertNotIn(0x4584B0, {int(p["offset"], 0) for p in patches})
+
+    def test_vv3_closes_the_non_preference_embracing_fallback(self) -> None:
+        """The chooser must reject an unchecked villager, not roll for one.
+
+        The leak reported against the build is a villager without the
+        parenting preference checked still initiating Embracing. In stock VV3
+        the chooser tail at 0x459730 falls past its preference test into
+        RNG(100) >= 75, admitting one unchecked villager in four. The patch
+        replaces that roll with a jump to the routine own reject epilogue.
+        """
+        patches = _patches("vv3_birth_control")
+        roll = [p for p in patches if int(p["offset"], 0) == 0x59890]
+        self.assertEqual(len(roll), 1, "the fallback-removal patch is missing")
+        patch = roll[0]
+        # push 0x64 ; call RNG ; add esp,4 ; xor ecx,ecx ; cmp eax,0x4B ; setge cl
+        self.assertEqual(patch["before"], "6A64E8399AFAFF83C40433C983F84B0F9DC1")
+        # jmp 0x4598B8 (the reject epilogue), then padding
+        self.assertEqual(patch["after"], "EB2690909090909090909090909090909090")
+        self.assertEqual(len(patch["after"]), len(patch["before"]))
+
+        # rel8 arithmetic, computed rather than copied from the literal:
+        # the jump must land exactly on the reject epilogue.
+        self.assertEqual(0x59890 + 0x400000 + 2 + 0x26, 0x4598B8)
 
     def test_vv1_birth_control_origins_overlay_contract_is_bounded(self) -> None:
         catalog = load_fun_patches()
@@ -374,6 +423,75 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         restored[checksum : checksum + 4] = b"\x00" * 4
         expected_stock[checksum : checksum + 4] = b"\x00" * 4
         self.assertEqual(restored, expected_stock)
+
+    def test_the_closed_vv3_fallback_is_reached_only_by_the_parenting_category(
+        self,
+    ) -> None:
+        """Codex raised this as P1 on #336; VV3 carries the same stock guard.
+
+        The finding was that a non-Parenting job selected without a matching
+        preference would also be rejected. Stock tests the selected category
+        first, so it cannot be:
+
+            0x459883  cmp edi, 1             VV3's Parenting category
+            0x459886  jne 0x4598AF           <-- every other job leaves here
+            0x459888  cmp [ebx+0xEC0], edi   the checked preference
+            0x45988E  je  0x4598AF
+            0x459890  <-- the patched roll
+
+        0x4598AF is `mov eax, edi` and the routine's ordinary return, so a
+        non-Parenting category leaves with its selection intact and never
+        reaches the patched bytes. Pinned against the stock image so a future
+        edit that moves the guard fails here.
+        """
+        stock = VV3_STOCK.read_bytes()
+        # cmp edi, 1 / jne -- the category guard.
+        self.assertEqual(stock[0x59883:0x59886], bytes.fromhex("83FF01"))
+        self.assertEqual(stock[0x59886:0x59888], bytes.fromhex("7527"))
+        non_parenting = 0x459888 + 0x27
+        self.assertEqual(non_parenting, 0x4598AF)
+        self.assertGreater(non_parenting, 0x459890 + 18)
+        # pop ebp / mov eax, edi -- the selection is returned unchanged,
+        # which is the ordinary stock return, not the reject epilogue at
+        # 0x4598B8 that the patch jumps to.
+        self.assertEqual(
+            stock[non_parenting - 0x400000 : non_parenting - 0x400000 + 3],
+            bytes.fromhex("5D8BC7"),
+        )
+
+    def test_vv1_preserves_the_fallback_for_non_parenting_categories(self) -> None:
+        """The owner asked for this explicitly on #336, for VV1 as well.
+
+        VV1's chooser tail lives in the owned `.vv1bc` page rather than in
+        inline patches, so its guard is in emitted bytes, but it is the same
+        shape VV2 and VV3 get from stock: the selected category is tested
+        before the preference test, and anything that is not the Parenting
+        category leaves with its selection intact.
+
+            83 FD 02            cmp ebp, 2          the Parenting category
+            0F 85 17000000      jne chooser_return  <-- every other job here
+            83 BF D0030000 02   cmp [edi+0x3D0], 2  the checked preference
+            0F 84 0A000000      je  chooser_return
+            B9 01000000         mov ecx, 1          chooser_reject
+
+        `chooser_return` sets ECX to 0, which yields the original EBP result,
+        so Farming, Building, Research and Healing keep the stock outcome and
+        never reach the reject. Only an unchecked Parenting preference falls
+        into `chooser_reject`.
+
+        Pinned against the generated page, so removing or reordering the
+        category test fails here rather than in a playtest.
+        """
+        page = _vv1_birth_control_page()
+        guard = bytes.fromhex("83FD020F8517000000")
+        self.assertIn(guard, page)
+        # The preference test must come AFTER the category guard, never
+        # before it -- reversing them applies the Parenting rule to every job.
+        preference = bytes.fromhex("83BFD003000002")
+        self.assertIn(preference, page)
+        self.assertLess(page.index(guard), page.index(preference))
+        # chooser_reject is reached only by falling through both tests.
+        self.assertIn(bytes.fromhex("B901000000"), page)
 
 
 if __name__ == "__main__":

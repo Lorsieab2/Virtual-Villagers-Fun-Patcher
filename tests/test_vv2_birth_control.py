@@ -81,6 +81,12 @@ EXCLUDED_STOCK_WINDOWS = (
 
 DELIVERY_SAFETY_OFFSETS = {0x3BE8E, 0x73F20}
 
+# The chooser fallback-removal patch: file 0x49E36 == VA 0x449E36, the
+# 25% non-preference roll in the chooser at 0x449C60.
+CHOOSER_FALLBACK_OFFSET = 0x49E36
+CHOOSER_FALLBACK_BEFORE = bytes.fromhex("6A64E86393FBFF83C40433D283F84B0F9CC2")
+CHOOSER_FALLBACK_AFTER = bytes.fromhex("EB1D90909090909090909090909090909090")
+
 PREGNANCY_WRITER_CALLS = (
     (0x22006, bytes.fromhex("E875990200")),
     (0x4EB3E, bytes.fromhex("E83DCEFFFF")),
@@ -115,10 +121,20 @@ class VV2BirthControlTests(unittest.TestCase):
     def test_manifest_has_exact_two_equal_length_guarded_blocks(self) -> None:
         self.assertEqual(self.feature.game_id, "vv2")
         self.assertEqual(self.feature.name, "Birth Control")
-        self.assertEqual(len(self.feature.patches), 2)
         self.assertIn(AUDIT_COMMIT, self.feature.raw["evidence_status"])
+        # The two 40-byte candidate-scan blocks are asserted here. The
+        # chooser fallback-removal patch at 0x49E36 is a different shape and
+        # is covered by its own test below, so this pairing is scoped to the
+        # scan offsets rather than to "every patch in the feature".
+        scan_offsets = {offset for offset, _, _, _, _ in BLOCKS}
+        scans = [
+            patch
+            for patch in self.feature.patches
+            if int(patch["offset"], 0) in scan_offsets
+        ]
+        self.assertEqual(len(scans), 2)
         for patch, (offset, _, before, after, _) in zip(
-            self.feature.patches, BLOCKS, strict=True
+            scans, BLOCKS, strict=True
         ):
             with self.subTest(offset=hex(offset)):
                 self.assertEqual(int(patch["offset"], 0), offset)
@@ -154,7 +170,7 @@ class VV2BirthControlTests(unittest.TestCase):
                 ]
                 self.assertEqual(
                     [int(edit["offset"], 0) for edit in selected_feature],
-                    [block[0] for block in BLOCKS],
+                    [block[0] for block in BLOCKS] + [CHOOSER_FALLBACK_OFFSET],
                 )
                 self.assertFalse(
                     any(
@@ -165,6 +181,21 @@ class VV2BirthControlTests(unittest.TestCase):
                 for offset, _, before, after, _ in BLOCKS:
                     self.assertEqual(selected[offset : offset + 40], after)
                     self.assertEqual(deselected[offset : offset + 40], before)
+                # The chooser fallback block is 18 bytes, not 40.
+                self.assertEqual(
+                    selected[
+                        CHOOSER_FALLBACK_OFFSET : CHOOSER_FALLBACK_OFFSET
+                        + len(CHOOSER_FALLBACK_AFTER)
+                    ],
+                    CHOOSER_FALLBACK_AFTER,
+                )
+                self.assertEqual(
+                    deselected[
+                        CHOOSER_FALLBACK_OFFSET : CHOOSER_FALLBACK_OFFSET
+                        + len(CHOOSER_FALLBACK_BEFORE)
+                    ],
+                    CHOOSER_FALLBACK_BEFORE,
+                )
 
     def test_guard_failure_is_atomic_and_returns_no_partial_render(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -180,6 +211,12 @@ class VV2BirthControlTests(unittest.TestCase):
         allowed = set()
         for offset, _, _, _, _ in BLOCKS:
             allowed.update(range(offset, offset + 40))
+        allowed.update(
+            range(
+                CHOOSER_FALLBACK_OFFSET,
+                CHOOSER_FALLBACK_OFFSET + len(CHOOSER_FALLBACK_AFTER),
+            )
+        )
         for mode in load_patch_modes():
             with self.subTest(mode=mode.id):
                 selected, _ = render_patched_bytes(STOCK, self.build, mode.id, [FEATURE_ID])
@@ -227,7 +264,10 @@ class VV2BirthControlTests(unittest.TestCase):
                     for edit in applied
                     if edit["owner"] == f"feature:{FEATURE_ID}"
                 }
-                self.assertEqual(feature_offsets, {block[0] for block in BLOCKS})
+                self.assertEqual(
+                    feature_offsets,
+                    {block[0] for block in BLOCKS} | {CHOOSER_FALLBACK_OFFSET},
+                )
                 safety_offsets = {
                     int(edit["offset"], 0)
                     for edit in applied
@@ -273,7 +313,9 @@ class VV2BirthControlTests(unittest.TestCase):
                     for edit in applied
                     if edit["owner"] == f"feature:{FEATURE_ID}"
                 ]
-                self.assertEqual(feature_offsets, [0x6488D, 0x64A8F])
+                self.assertEqual(
+                    feature_offsets, [0x6488D, 0x64A8F, CHOOSER_FALLBACK_OFFSET]
+                )
 
     def test_documentation_and_transparency_are_exact_and_deterministic(self) -> None:
         from scripts.generate_transparency_docs import build_document
@@ -376,6 +418,115 @@ class VV2BirthControlTests(unittest.TestCase):
             "direct/event births",
         ):
             self.assertIn(marker, text)
+
+    def test_chooser_rejects_unchecked_preference_instead_of_rolling(self) -> None:
+        """An unchecked preference must reject, not get a 25% pass.
+
+        The leak reported against the build is a villager without the
+        parenting preference checked still initiating Embracing. VV2's
+        chooser at 0x449C60 returns the Embracing code 2 to its caller at
+        0x43B526, which then runs the breeding sequence. Stock fell past the
+        preference test at 0x449E2E into RNG(100), returning 2 whenever the
+        roll was 75 or more, which is one unchecked villager in four.
+        """
+        roll = [
+            patch
+            for patch in self.feature.patches
+            if int(patch["offset"], 0) == 0x49E36
+        ]
+        self.assertEqual(len(roll), 1, "the fallback-removal patch is missing")
+        patch = roll[0]
+        # push 0x64 ; call 0x4031A0 ; add esp,4 ; xor edx,edx ; cmp eax,0x4B ; setl dl
+        self.assertEqual(patch["before"], "6A64E86393FBFF83C40433D283F84B0F9CC2")
+        # jmp 0x449E55 (xor eax,eax, so the routine returns 0), then padding
+        self.assertEqual(patch["after"], "EB1D90909090909090909090909090909090")
+        self.assertEqual(len(patch["after"]), len(patch["before"]))
+        self.assertEqual(
+            STOCK.read_bytes()[0x49E36 : 0x49E36 + 18],
+            bytes.fromhex(patch["before"]),
+        )
+
+        # rel8 arithmetic computed rather than copied from the literal: the
+        # jump must land on the reject path, the one that zeroes EAX.
+        self.assertEqual(0x449E36 + 2 + 0x1D, 0x449E55)
+
+        # VV2 rejects with 0, where VV3 rejects with -1. Transplanting VV3's
+        # bytes here would return the wrong sentinel to the caller.
+        self.assertNotIn("EB26", patch["after"])
+
+    def test_candidate_scan_patches_drop_a_sex_field_not_a_preference(self) -> None:
+        """The scan patches are not the preference fix and must not move.
+
+        [edi+0x538] is the sex field (2 == female), written at villager
+        creation from a 50/50 RNG roll and never from UI input; the real
+        preference is [edi+0x7F8], which the chooser tests. Pinning these two
+        entries keeps a later reading of "the preference gate was NOPed here"
+        from being acted on.
+        """
+        patches = {
+            patch["offset"]: patch for patch in self.feature.patches
+        }
+        for offset in ("0x6488D", "0x64A8F"):
+            with self.subTest(offset=offset):
+                self.assertIn(offset, patches)
+                after = bytes.fromhex(patches[offset]["after"])
+                self.assertEqual(after[:3], bytes.fromhex("8B5308"))
+                self.assertEqual(after[14:], b"\x90" * 26)
+
+    def test_the_closed_fallback_is_reached_only_by_the_parenting_category(self) -> None:
+        """Codex raised this as P1 on #336; the guard already exists in stock.
+
+        The finding was that `0x449C60` is the shared five-job chooser -- it
+        is, and the five-way skill dispatch just above the patch proves it:
+
+            0x449DE9  mov esi, [edi+0x7EC]   Research
+            0x449DF1  mov esi, [edi+0x7E4]   Farming
+            0x449DF9  mov esi, [edi+0x7F0]   Healing
+            0x449E01  mov esi, [edi+0x7E8]   Building
+            0x449E09  mov esi, [edi+0x7F4]   Parenting
+
+        so an unconditional reject on a path all five reach really would
+        suppress Farming, Building, Research and Healing.
+
+        The conclusion does not follow, because stock already tests the
+        selected category between that dispatch and the patched roll:
+
+            0x449E25  mov eax, [esp+0x0C]    the selected category
+            0x449E29  cmp eax, 2             Parenting
+            0x449E2C  jne 0x449E57           <-- every other job leaves here
+            0x449E2E  cmp [edi+0x7F8], eax   the checked preference
+            0x449E34  je  0x449E57
+            0x449E36  <-- the patched roll
+
+        A non-Parenting category is gone two instructions earlier and never
+        reaches the patched bytes at all. This pins that guard against the
+        stock image, so if a future edit moves or removes it the reject
+        stops being Parenting-only and this fails.
+        """
+        stock = STOCK.read_bytes()
+        for offset, field in (
+            (0x49DE9, 0x7EC),
+            (0x49DF1, 0x7E4),
+            (0x49DF9, 0x7F0),
+            (0x49E01, 0x7E8),
+            (0x49E09, 0x7F4),
+        ):
+            with self.subTest(skill_field=hex(field)):
+                self.assertEqual(
+                    stock[offset : offset + 6],
+                    bytes.fromhex("8BB7") + struct.pack("<I", field),
+                )
+        # cmp eax, 2 / jne -- the category guard, immediately before the roll.
+        self.assertEqual(stock[0x49E29:0x49E2C], bytes.fromhex("83F802"))
+        self.assertEqual(stock[0x49E2C:0x49E2E], bytes.fromhex("7529"))
+        # The non-Parenting exit lands on the stock epilogue, past the patch.
+        non_parenting = 0x449E2E + 0x29
+        self.assertEqual(non_parenting, 0x449E57)
+        self.assertGreater(non_parenting, 0x449E36 + 18)
+        self.assertEqual(
+            stock[non_parenting - 0x400000 : non_parenting - 0x400000 + 6],
+            bytes.fromhex("5F5E5B59C208"),
+        )
 
 
 if __name__ == "__main__":
