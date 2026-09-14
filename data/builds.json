@@ -1034,7 +1034,7 @@
       "id": "vv2_birth_control",
       "game_id": "vv2",
       "name": "Birth Control",
-      "description": "Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor and 25% non-preference fallback remain in force, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.",
+      "description": "Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.",
       "output_tag": "Birth Control",
       "behavior_changes": [
         "The writer-reaching opcode-12 candidate scans at file offsets 0x6488D and 0x64A8F reject candidates whose already-loaded internal age in EAX is at least 1000.",
@@ -1042,7 +1042,7 @@
       ],
       "explicit_non_changes": [
         "The stock manual carrier/female-only age<1000 gate is unchanged, and no male upper-age gate is added.",
-        "The native VV4/VV5-style chooser score floor and 25% non-preference fallback, token 43 exact string work, willingness token 39 learning, planner logic, conception roll, pregnancy writer, delivery, save format, RNG, food, fertility, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety remains separately owned and applies in every public mode.",
+        "The native VV4/VV5-style chooser score floor, token 43 exact string work, willingness token 39 learning, planner logic, conception roll, pregnancy writer, delivery, save format, RNG, food, fertility, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety remains separately owned and applies in every public mode.",
         "Love Note event, Gong grant, Silver Mirror clone, direct/event births, and every path outside the two writer-reaching opcode-12 candidate scans are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode."
       ],
       "evidence_status": "implemented from exact-build disassembly commit 74778bd6a7d3a17dd990636cf6d4e769466800c6; static verification complete, runtime/player confirmation pending",
@@ -1058,6 +1058,12 @@
           "before": "8B530883FA0275073DE80300007C1983BF38050000020F85A701000081F9E80300000F8D9B010000",
           "after": "8B53083DE80300000F8DB50100009090909090909090909090909090909090909090909090909090",
           "purpose": "preserve candidate sex in EDX and reject age>=1000 before the second writer-reaching opcode-12 candidate commit"
+        },
+        {
+          "offset": "0x49E36",
+          "before": "6A64E86393FBFF83C40433D283F84B0F9CC2",
+          "after": "EB1D90909090909090909090909090909090",
+          "purpose": "close the 25% non-preference Embracing fallback in the chooser at 0x449C60: send the unchecked-preference path straight to the reject path at 0x449E55, which returns 0, instead of rolling RNG(100) and returning the Embracing code 2 on a roll of 75 or more"
         }
       ]
     },
