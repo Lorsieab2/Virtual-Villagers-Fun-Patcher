@@ -225,6 +225,57 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                     "no patch may still materialise a villager pointer",
                 )
 
+    def test_vv5_statue_selector_preserves_ecx_across_the_random_call(self) -> None:
+        """The selector must not leak the RNG's clobber of ECX to its caller.
+
+        Both hooked sites replace a `push 0x9D` that sits between a load of
+        ECX and a use of it, so ECX is live across the call the selector
+        makes:
+
+        * `0x6BF9A` is preceded by `mov ecx, [esi+0x1B88]`.
+        * `0x796EB` is preceded by `mov ecx, [esp+0x10]`, and the very next
+          stock instruction after the hook is `mov [ecx+0x1C54], 0x1A` --
+          a *write* through ECX.
+
+        The stock random function at `0x403660` destroys ECX: both of its
+        paths call `0x47CFD8`, which runs `mov ecx, [eax+0x14]`,
+        `imul ecx, ecx, 0x343FD`, `add ecx, 0x269EC3`. Without a save and
+        restore the write above lands on the multiplied LCG state instead of
+        the villager record. `docs/vv5-statue-training-research.md` records
+        that exact defect reaching players once already, as a `0xC0000005`
+        at `0x0046558A`.
+
+        Dropping the skill reads removed the selector's *own* use of ECX but
+        not the caller's, so this pins the surviving ABI requirement.
+        """
+        builds = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+        feature = next(
+            item
+            for item in builds["fun_patches"]
+            if item["id"] == "vv5_statue_polishing_or_honoring"
+        )
+        selector = next(
+            item for item in feature["patches"] if item["offset"] == "0x94840"
+        )
+        body = bytes.fromhex(selector["after"])
+        call = body.index(0xE8)
+        self.assertIn(
+            0x51,
+            body[:call],
+            "ECX must be pushed before the random call",
+        )
+        after_call = body[call + 5 :]
+        self.assertIn(
+            0x59,
+            after_call[: after_call.index(0x85)],
+            "ECX must be popped after the random call, before the result test",
+        )
+        self.assertEqual(
+            len(selector["after"]),
+            len(selector["before"]),
+            "the selector must not change the patch length",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
