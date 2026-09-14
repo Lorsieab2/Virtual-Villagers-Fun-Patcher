@@ -38,6 +38,19 @@ VV1_STANDALONE_RENDER_SHA256 = {
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
 VV1_STOCK = ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe"
+def _vv1_birth_control_page() -> bytes:
+    """Build the owned VV1 chooser page from its generator."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "_vv1_bc_page", ROOT / "scripts" / "build_vv1_birth_control_page.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    built = module.build_page()
+    return bytes(built[0] if isinstance(built, tuple) else built)
+
+
 VV3_STOCK = (
     ROOT / "inputs" / "vv3-stock-copy" / "Virtual Villagers - The Secret City.exe"
 )
@@ -445,6 +458,40 @@ class VV1VV3BirthControlTests(unittest.TestCase):
             stock[non_parenting - 0x400000 : non_parenting - 0x400000 + 3],
             bytes.fromhex("5D8BC7"),
         )
+
+    def test_vv1_preserves_the_fallback_for_non_parenting_categories(self) -> None:
+        """The owner asked for this explicitly on #336, for VV1 as well.
+
+        VV1's chooser tail lives in the owned `.vv1bc` page rather than in
+        inline patches, so its guard is in emitted bytes, but it is the same
+        shape VV2 and VV3 get from stock: the selected category is tested
+        before the preference test, and anything that is not the Parenting
+        category leaves with its selection intact.
+
+            83 FD 02            cmp ebp, 2          the Parenting category
+            0F 85 17000000      jne chooser_return  <-- every other job here
+            83 BF D0030000 02   cmp [edi+0x3D0], 2  the checked preference
+            0F 84 0A000000      je  chooser_return
+            B9 01000000         mov ecx, 1          chooser_reject
+
+        `chooser_return` sets ECX to 0, which yields the original EBP result,
+        so Farming, Building, Research and Healing keep the stock outcome and
+        never reach the reject. Only an unchecked Parenting preference falls
+        into `chooser_reject`.
+
+        Pinned against the generated page, so removing or reordering the
+        category test fails here rather than in a playtest.
+        """
+        page = _vv1_birth_control_page()
+        guard = bytes.fromhex("83FD020F8517000000")
+        self.assertIn(guard, page)
+        # The preference test must come AFTER the category guard, never
+        # before it -- reversing them applies the Parenting rule to every job.
+        preference = bytes.fromhex("83BFD003000002")
+        self.assertIn(preference, page)
+        self.assertLess(page.index(guard), page.index(preference))
+        # chooser_reject is reached only by falling through both tests.
+        self.assertIn(bytes.fromhex("B901000000"), page)
 
 
 if __name__ == "__main__":
