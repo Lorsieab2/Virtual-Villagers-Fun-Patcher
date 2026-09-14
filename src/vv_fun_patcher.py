@@ -8239,7 +8239,8 @@ def dry_run(
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
         playtest_output_root=playtest_output_root,
     )
-    _require_name_crash_immunity(patched, build.input_name, applied)
+    if build.id not in NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
+        _require_name_crash_immunity(patched, build.input_name, applied)
     return _result(
         build,
         source,
@@ -8269,7 +8270,8 @@ def dry_run_all(
         ]
         fun_patches = _selected_fun_patches(build, selected_ids)
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
-        _require_name_crash_immunity(patched, build.input_name, applied)
+        if build.id not in NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
+            _require_name_crash_immunity(patched, build.input_name, applied)
         results.append(
             _result(
                 build,
@@ -9732,6 +9734,36 @@ def _apply_name_crash_immunity(
     }
 
 
+# Builds that must NOT receive the executable-name wrapper.
+#
+# The wrapper makes GetModuleFileNameA report the stock basename so a renamed
+# build takes the same name-gated init path as the original. For VV1, VV2 and
+# VV3 that works and their shipped builds run. For VV4 and VV5 it is fatal:
+# the wrapped build faults 0xC0000005 during startup inside _strncpy, on a
+# Source argument holding a small integer rather than an address.
+#
+# Measured on the exact shipped builds rather than inferred. Holding the
+# feature set and the game folder constant and varying only these two things:
+#
+#     wrapper  name        VV4          VV5
+#     -------  ----------  -----------  -----------
+#     no       stock       runs         -
+#     no       - Modded    runs         runs
+#     yes      stock       0xC0000005   -
+#     yes      - Modded    0xC0000005   0xC0000005
+#
+# The wrapped rows reproduce the shipped builds byte for byte. The unwrapped
+# "- Modded" rows are the decisive ones: that is exactly the renamed case the
+# wrapper exists to protect, and those builds start and keep running without
+# it. For these two games the guard is not merely unnecessary, it is the
+# defect.
+#
+# Kept as a per-build exemption rather than removing the wrapper, because
+# VV1/VV2/VV3 demonstrably work with it and none of this is evidence about
+# them. Publication still fails closed for every build that is still guarded.
+NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS = frozenset({"vv4", "vv5"})
+
+
 def _require_name_crash_immunity(
     data: bytearray,
     expected_basename: str,
@@ -9834,7 +9866,8 @@ def apply_patch(
     # crashes the game (basename-gated init/save folder).  Immunise the output
     # so it boots under any filename.  Post-render, in place, checksum-safe; the
     # source-vs-output transparency diff records the exact bytes it changed.
-    _require_name_crash_immunity(patched, build.input_name, applied)
+    if build.id not in NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
+        _require_name_crash_immunity(patched, build.input_name, applied)
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
