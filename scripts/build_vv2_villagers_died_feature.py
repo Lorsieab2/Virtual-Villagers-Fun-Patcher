@@ -114,10 +114,28 @@ def _appended_f2v(fo: int) -> int:
 PAYLOAD_FILE = 0xB24D8
 PAGE_END_FILE = 0xB3000
 
+# The scratch slots CANNOT live beside the code. The append is two sections,
+# not one page, and their characteristics differ:
+#
+#     .mtab  VA 0xB3000  0xC0000040  read/WRITE, no execute
+#     .vvmk  VA 0xB4000  0x60000020  read/EXECUTE, no write
+#
+# Putting the slots in .vvmk assembles and verifies and then faults on the
+# first `mov [SAVE], eax`, because Windows maps that page non-writable. The
+# layout names the pair ".mtab/.vvmk" in a single string, which is what
+# invited reading them as one region.
+#
+# .mtab is occupied at BOTH ends -- the mask table at +0x0 and +0x100, and
+# other state at +0xF00..+0xF20 -- so the tail is not free either. The slots
+# go in the interior run, which is 3,328 bytes and holds nothing.
+SCRATCH_MTAB_OFFSET = 0x200
+MTAB_FILE = 0xB1000
+MTAB_VA = 0x4B3000
+
 SLOT_MGR = 0
 SLOT_PRE = 4
 SLOT_SAVE = 8
-CODE_OFFSET = 12
+CODE_OFFSET = 0
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -261,11 +279,19 @@ def build() -> dict:
             "meant to sit in the appended page"
         )
 
+    scratch = MTAB_VA + SCRATCH_MTAB_OFFSET
     slots = {
-        "mgr": _appended_f2v(PAYLOAD_FILE + SLOT_MGR),
-        "pre": _appended_f2v(PAYLOAD_FILE + SLOT_PRE),
-        "save": _appended_f2v(PAYLOAD_FILE + SLOT_SAVE),
+        "mgr": scratch + SLOT_MGR,
+        "pre": scratch + SLOT_PRE,
+        "save": scratch + SLOT_SAVE,
     }
+    # The slots must be writable and the code must not be. Assert the two are
+    # in different sections rather than trusting the constants above.
+    code_va = _appended_f2v(PAYLOAD_FILE)
+    if not (MTAB_VA <= scratch < MTAB_VA + 0x1000):
+        raise RuntimeError("scratch slots are outside the writable .mtab section")
+    if code_va < MTAB_VA + 0x1000:
+        raise RuntimeError("trampolines are not in the executable .vvmk section")
 
     # Every hook's stock bytes are asserted before anything is emitted.
     for site, span in SPANS.items():
@@ -291,6 +317,76 @@ def build() -> dict:
     room = PAGE_END_FILE - PAYLOAD_FILE
     if used > room:
         raise RuntimeError(f"payload needs {used} bytes, page has {room}")
+
+    _verify(source, text, text_base, emitted)
+
+    return _summary(slots, used, room, emitted)
+
+
+def _rel32_targets(code: bytes, va: int, exclude: int | None = None) -> list[int]:
+    out = []
+    i = 0
+    while i < len(code) - 4:
+        if code[i] in (0xE8, 0xE9):
+            target = va + i + 5 + struct.unpack_from("<i", code, i + 1)[0]
+            if target != exclude:
+                out.append(target)
+            i += 5
+            continue
+        i += 1
+    return out
+
+
+def _verify(source: bytes, text: bytes, base: int,
+            emitted: dict[int, tuple[int, bytes]]) -> None:
+    """Check the emitted bytes, not the intention behind them.
+
+    Every one of these corresponds to a defect this feature actually
+    produced, so none of them is precautionary.
+    """
+    retargeted = 0
+    for site, (tva, code) in emitted.items():
+        span = SPANS[site]
+        stolen = text[site - base:site - base + span]
+
+        # 1. A replayed relative call must still reach the routine it reached
+        #    at the site. Copying the bytes unchanged sends 0x463638 to
+        #    0x45404A, which is not a function entry -- a crash the manifest
+        #    cannot see, because the bytes copy perfectly.
+        want = _rel32_targets(stolen, site)
+        got = _rel32_targets(code, tva, exclude=site + span)
+        if want != got:
+            raise RuntimeError(
+                f"{site:#x}: replayed call targets {[hex(x) for x in want]} "
+                f"became {[hex(x) for x in got]}"
+            )
+        retargeted += len(want)
+
+        # 2. The trampoline must return to exactly one instruction past the
+        #    stolen span. One byte out and the resumed stream is misaligned.
+        if code[-5] != 0xE9:
+            raise RuntimeError(f"{site:#x}: trampoline does not end in jmp")
+        back = tva + len(code) + struct.unpack_from("<i", code, len(code) - 4)[0]
+        if back != site + span:
+            raise RuntimeError(
+                f"{site:#x}: returns to {back:#x}, expected {site + span:#x}"
+            )
+
+        # 3. The hook's own jump has to reach the trampoline.
+        if not -2 ** 31 <= tva - (site + 5) < 2 ** 31:
+            raise RuntimeError(f"{site:#x}: trampoline is out of rel32 range")
+
+    # 4. A comparison that finds nothing passes trivially. Nine spans carry a
+    #    rel32, so if this count is not nine the check above was vacuous and
+    #    proved nothing.
+    if retargeted != 9:
+        raise RuntimeError(
+            f"expected 9 retargeted calls across the spans, saw {retargeted}; "
+            "the call-target check is not exercising anything"
+        )
+
+
+def _summary(slots, used, room, emitted) -> dict:
 
     return {
         "slots": {k: hex(v) for k, v in slots.items()},
