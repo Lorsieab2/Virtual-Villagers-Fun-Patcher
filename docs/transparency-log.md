@@ -631,7 +631,7 @@ Statue drops use skill-aware choices: Honoring is available only to villagers wi
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV4 Nursery School Divisor Parity (`vv5_vv4_nursery_divisor_parity`)
 

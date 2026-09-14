@@ -176,21 +176,54 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
         self.assertIn("lea ecx, [eax + 0x52C]", helper)
         self.assertNotIn("[esi + 0x10]", helper)
 
-    def test_vv5_statue_fault_sites_use_record_adapters(self) -> None:
+    def test_vv5_statue_fault_sites_are_not_hooked_at_all(self) -> None:
+        """The sites that needed a record adapter are no longer hooked.
+
+        This guard used to require that the statue feature reach `0x6CC39`
+        and `0x6CDED` through an adapter which materialises the villager
+        pointer, because hooking them without one dispatched on a stale
+        register and faulted.
+
+        The feature no longer hooks them. Its scope is the completed statue
+        only -- the one state where Polishing and Honoring are both genuinely
+        available -- so the construction-state and upgradeable-statue
+        dispatches keep the stock behaviour the game already selects by
+        statue state. An unhooked site cannot read a villager pointer at all,
+        which removes the fault rather than handling it.
+
+        Asserting the absence is the stronger property, so this checks that no
+        patch touches either offset AND that no remaining patch body contains
+        the adapter's `mov ecx, [esi+0x1B88]`, which would mean a selector
+        somewhere still wants a villager record.
+        """
         builds = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
         feature = next(
             item
             for item in builds["fun_patches"]
             if item["id"] == "vv5_statue_polishing_or_honoring"
         )
-        patches = {item["offset"]: item for item in feature["patches"]}
-        self.assertEqual(patches["0x6CC39"]["after"], "E827780200")
-        self.assertEqual(patches["0x6CDED"]["after"], "E8BA760200")
-        trampoline = bytes.fromhex(patches["0x94460"]["after"])
-        self.assertEqual(trampoline[5:16], bytes.fromhex("8B8E881B0000E9D0020000"))
-        self.assertEqual(trampoline[0x4C:0x57], bytes.fromhex("8B8E881B0000E989030000"))
-        confused = bytes.fromhex(patches["0x947B0"]["after"])
-        self.assertIn(bytes.fromhex("6BC081051F0000000FB6C0"), confused)
+        offsets = {item["offset"] for item in feature["patches"]}
+        for site in ("0x6CC39", "0x6CDED", "0x6BF60", "0x796B3", "0x79726", "0x6C45D"):
+            with self.subTest(site=site):
+                self.assertNotIn(
+                    site,
+                    offsets,
+                    f"{site} is decided by statue state in stock and must stay unhooked",
+                )
+        self.assertEqual(
+            offsets,
+            {"0x6BF9A", "0x796EB", "0x94460", "0x94840"},
+            "only the two completed-statue dispatches, the trampoline and the "
+            "selector may be patched",
+        )
+        adapter = bytes.fromhex("8B8E881B0000")
+        for item in feature["patches"]:
+            with self.subTest(offset=item["offset"]):
+                self.assertNotIn(
+                    adapter,
+                    bytes.fromhex(item["after"]),
+                    "no patch may still materialise a villager pointer",
+                )
 
 
 if __name__ == "__main__":
