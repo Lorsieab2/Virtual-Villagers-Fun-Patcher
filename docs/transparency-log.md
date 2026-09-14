@@ -625,13 +625,13 @@ Believers succeed every work-task skill roll for Farming, Building, Researching,
 
 #### Statue Drops: Normal Action or Honoring (`vv5_statue_polishing_or_honoring`)
 
-Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.
+Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.
 
-- Behavior changes: Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.
+- Behavior changes: Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV4 Nursery School Divisor Parity (`vv5_vv4_nursery_divisor_parity`)
 
