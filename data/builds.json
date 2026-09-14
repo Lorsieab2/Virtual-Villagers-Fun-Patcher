@@ -1447,21 +1447,9 @@
       "id": "vv5_statue_polishing_or_honoring",
       "game_id": "vv5",
       "name": "Statue Drops: Normal Action or Honoring",
-      "description": "Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.",
+      "description": "Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.",
       "output_tag": "Random Statue Training",
       "patches": [
-        {
-          "offset": "0x6C45D",
-          "before": "68A0000000",
-          "after": "E845800200",
-          "purpose": "route the first eligible-statue dispatch through the 50/50 Polishing or Honoring selector"
-        },
-        {
-          "offset": "0x6CDED",
-          "before": "68A0000000",
-          "after": "E8BA760200",
-          "purpose": "materialize this call site's villager pointer before routing the second eligible-statue dispatch through the 50/50 Polishing or Honoring selector"
-        },
         {
           "offset": "0x6BF9A",
           "before": "689D000000",
@@ -1475,52 +1463,16 @@
           "purpose": "route the second completed-statue dispatch through the 50/50 Polishing or Honoring selector"
         },
         {
-          "offset": "0x6BF60",
-          "before": "6895000000",
-          "after": "E8FB840200",
-          "purpose": "route the first construction-state dispatch through the 50/50 Building a statue or Honoring selector"
-        },
-        {
-          "offset": "0x6CC39",
-          "before": "6895000000",
-          "after": "E827780200",
-          "purpose": "materialize this call site's villager pointer before routing the second construction-state dispatch through the 50/50 Building a statue or Honoring selector"
-        },
-        {
-          "offset": "0x796B3",
-          "before": "6895000000",
-          "after": "E8A8AD0100",
-          "purpose": "route the world-drop construction-state dispatch through the 50/50 Building a statue or Honoring selector"
-        },
-        {
-          "offset": "0x79726",
-          "before": "6A1FC744240C66000000",
-          "after": "E855AD01009090909090",
-          "purpose": "route the missing-technology response through the 50/50 Confused or Honoring selector while replacing the following stack write"
-        },
-        {
           "offset": "0x94460",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E9DB0200008B8E881B0000E9D002000090909090909090909090909090909090E92B03000090909090909090909090909090909090909090909090909090909090909090909090E9940300008B8E881B0000E989030000909090909090909090",
-          "purpose": "trampoline to skill-aware statue selectors in executable padding, with dedicated second-dispatch adapters that load the villager pointer"
-        },
-        {
-          "offset": "0x94740",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5A525183B9701C0000007E2083B9541C0000007E216A02E804EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C39090",
-          "purpose": "select Building a statue or Honoring only when Devotion and Building skills permit both outcomes"
-        },
-        {
-          "offset": "0x947B0",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5A525183B9701C0000007E2B83B9541C0000007E346A02E894EEF6FF83C404596BC081051F0000000FB6C0C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C3",
-          "purpose": "select Confused or Honoring only when Devotion is present, preserving the original stack write"
+          "after": "9090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090E9940300009090909090909090909090909090909090909090",
+          "purpose": "trampoline to the completed-statue Polishing-or-Honoring selector in executable padding"
         },
         {
           "offset": "0x94840",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5A525183B9701C0000007E2083B9541C0000007E216A02E804EEF6FF83C404596BC003059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C39090",
-          "purpose": "select Polishing the Statue or Honoring only when Devotion and Building skills permit both outcomes"
+          "after": "516A02E818EEF6FF83C4045985C07407B89D000000EB05B8A00000005A5052C390909090909090909090909090909090909090909090909090909090909090909090",
+          "purpose": "choose Polishing the Statue or Honoring 50/50 on a completed statue, with no skill or villager-pointer reads"
         }
       ]
     },

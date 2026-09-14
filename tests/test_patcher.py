@@ -3611,37 +3611,58 @@ class StockIntegrationTests(unittest.TestCase):
             "6A64E859EDF6FF83C40483F8327D1E8B8E881B0000885C240F"
             "8D54240F5268A0000000E8580CFDFFE9F0A8FDFFE908A9FDFF"
         ))
-        self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E845800200"))
-        self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8BA760200"))
+        # Only the COMPLETED statue is a coin flip. The requirement is that
+        # the choice still depends on the statue's own state, so every dispatch
+        # the stock game already decides by state is left alone: an upgradeable
+        # statue still offers Honoring, construction still offers Building a
+        # statue, and a missing technology still gives Confused.
+        #
+        # These are asserted BYTE-IDENTICAL to stock. The previous revision
+        # pinned all eight hooks, so it could not have noticed the feature
+        # reaching outside the behaviour it is named for.
+        stock_image = source.read_bytes()
+        for offset, label in (
+            (0x6C45D, "upgradeable statue, first dispatch"),
+            (0x6CDED, "upgradeable statue, second dispatch"),
+            (0x6BF60, "construction state, first dispatch"),
+            (0x6CC39, "construction state, second dispatch"),
+            (0x796B3, "construction state, world drop"),
+            (0x79726, "missing technology, Confused"),
+        ):
+            with self.subTest(site=label):
+                self.assertEqual(
+                    bytes(rendered[offset : offset + 10]),
+                    bytes(stock_image[offset : offset + 10]),
+                    f"{label} must stay base-game identical",
+                )
+
+        # The two completed-statue dispatches route into the selector.
         self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E808850200"))
         self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B7AD0100"))
-        self.assertEqual(
-            bytes(rendered[0x6BF55:0x6BF6F]),
-            bytes.fromhex(
-                "8B8E881B00008D44241650E8FB840200C644241E00E81196FFFF"
-            ),
+
+        # The selector is an unconditional 50/50 with no skill or villager
+        # reads. The skill gates it replaced could not work: five of the eight
+        # call sites entered the trampoline without ECX pointing at a villager,
+        # so both reads landed on a stale pointer and resolved to Honoring
+        # every time -- the reported defect.
+        self.assertNotIn(
+            bytes.fromhex("8B8E881B0000"),
+            bytes(rendered[0x94460:0x944C0]),
+            "no call site needs a villager pointer once the skill reads are gone",
         )
-        self.assertEqual(
-            bytes(rendered[0x6CC30:0x6CC43]),
-            bytes.fromhex("8D54241952885C241DE827780200E9D5FEFFFF"),
-        )
-        self.assertEqual(
-            bytes(rendered[0x796AA:0x796CC]),
-            bytes.fromhex(
-                "8B4C24108D54240C52E8A8AD0100C781541C000017000000"
-                "C644241400E8B4BEFEFF"
-            ),
-        )
-        self.assertEqual(
-            bytes(rendered[0x7971D:0x79735]),
-            bytes.fromhex(
-                "8D4C2404518B4C2414E855AD01009090909090E84BBEFEFF"
-            ),
-        )
-        self.assertEqual(bytes(rendered[0x94460:0x944C0]), bytes.fromhex("E9DB0200008B8E881B0000E9D002000090909090909090909090909090909090E92B03000090909090909090909090909090909090909090909090909090909090909090909090E9940300008B8E881B0000E989030000909090909090909090"))
-        self.assertEqual(bytes(rendered[0x94740:0x94740+66]), bytes.fromhex("5A525183B9701C0000007E2083B9541C0000007E216A02E804EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C39090"))
-        self.assertEqual(bytes(rendered[0x947B0:0x947B0+91]), bytes.fromhex("5A525183B9701C0000007E2B83B9541C0000007E346A02E894EEF6FF83C404596BC081051F0000000FB6C0C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C3"))
-        self.assertEqual(bytes(rendered[0x94840:0x94840+66]), bytes.fromhex("5A525183B9701C0000007E2083B9541C0000007E216A02E804EEF6FF83C404596BC003059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C39090"))
+        selector = bytes(rendered[0x94840 : 0x94840 + 66])
+        for field in (0x1C70, 0x1C54):
+            with self.subTest(field=hex(field)):
+                self.assertNotIn(
+                    field.to_bytes(4, "little"),
+                    selector,
+                    "the selector must not read a skill field",
+                )
+        # Both outcomes must be reachable. An earlier draft had the equal
+        # branch land on the jump rather than on the Honoring store, which
+        # would have made the "50/50" always choose Polishing.
+        self.assertIn(bytes.fromhex("B89D000000"), selector)
+        self.assertIn(bytes.fromhex("B8A0000000"), selector)
         self.assertEqual(
             bytes(rendered[0x25FE1:0x25FE5]), bytes.fromhex("40454900")
         )
@@ -3700,21 +3721,58 @@ class StockIntegrationTests(unittest.TestCase):
             + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
             + len(feature.patches),
         )
-        self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E845800200"))
-        self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8BA760200"))
+        # Only the COMPLETED statue is a coin flip. The requirement is that
+        # the choice still depends on the statue's own state, so every dispatch
+        # the stock game already decides by state is left alone: an upgradeable
+        # statue still offers Honoring, construction still offers Building a
+        # statue, and a missing technology still gives Confused.
+        #
+        # These are asserted BYTE-IDENTICAL to stock. The previous revision
+        # pinned all eight hooks, so it could not have noticed the feature
+        # reaching outside the behaviour it is named for.
+        stock_image = source.read_bytes()
+        for offset, label in (
+            (0x6C45D, "upgradeable statue, first dispatch"),
+            (0x6CDED, "upgradeable statue, second dispatch"),
+            (0x6BF60, "construction state, first dispatch"),
+            (0x6CC39, "construction state, second dispatch"),
+            (0x796B3, "construction state, world drop"),
+            (0x79726, "missing technology, Confused"),
+        ):
+            with self.subTest(site=label):
+                self.assertEqual(
+                    bytes(rendered[offset : offset + 10]),
+                    bytes(stock_image[offset : offset + 10]),
+                    f"{label} must stay base-game identical",
+                )
+
+        # The two completed-statue dispatches route into the selector.
         self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E808850200"))
         self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B7AD0100"))
-        self.assertEqual(bytes(rendered[0x6BF60:0x6BF65]), bytes.fromhex("E8FB840200"))
-        self.assertEqual(bytes(rendered[0x6CC39:0x6CC3E]), bytes.fromhex("E827780200"))
-        self.assertEqual(bytes(rendered[0x796B3:0x796B8]), bytes.fromhex("E8A8AD0100"))
-        self.assertEqual(
-            bytes(rendered[0x79726:0x79730]),
-            bytes.fromhex("E855AD01009090909090"),
+
+        # The selector is an unconditional 50/50 with no skill or villager
+        # reads. The skill gates it replaced could not work: five of the eight
+        # call sites entered the trampoline without ECX pointing at a villager,
+        # so both reads landed on a stale pointer and resolved to Honoring
+        # every time -- the reported defect.
+        self.assertNotIn(
+            bytes.fromhex("8B8E881B0000"),
+            bytes(rendered[0x94460:0x944C0]),
+            "no call site needs a villager pointer once the skill reads are gone",
         )
-        self.assertEqual(bytes(rendered[0x94460:0x944C0]), bytes.fromhex("E9DB0200008B8E881B0000E9D002000090909090909090909090909090909090E92B03000090909090909090909090909090909090909090909090909090909090909090909090E9940300008B8E881B0000E989030000909090909090909090"))
-        self.assertEqual(bytes(rendered[0x94740:0x94740+66]), bytes.fromhex("5A525183B9701C0000007E2083B9541C0000007E216A02E804EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C39090"))
-        self.assertEqual(bytes(rendered[0x947B0:0x947B0+91]), bytes.fromhex("5A525183B9701C0000007E2B83B9541C0000007E346A02E894EEF6FF83C404596BC081051F0000000FB6C0C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C3"))
-        self.assertEqual(bytes(rendered[0x94840:0x94840+66]), bytes.fromhex("5A525183B9701C0000007E2083B9541C0000007E216A02E804EEF6FF83C404596BC003059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C39090"))
+        selector = bytes(rendered[0x94840 : 0x94840 + 66])
+        for field in (0x1C70, 0x1C54):
+            with self.subTest(field=hex(field)):
+                self.assertNotIn(
+                    field.to_bytes(4, "little"),
+                    selector,
+                    "the selector must not read a skill field",
+                )
+        # Both outcomes must be reachable. An earlier draft had the equal
+        # branch land on the jump rather than on the Honoring store, which
+        # would have made the "50/50" always choose Polishing.
+        self.assertIn(bytes.fromhex("B89D000000"), selector)
+        self.assertIn(bytes.fromhex("B8A0000000"), selector)
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
@@ -3859,6 +3917,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(
             set(all_vv2_features),
             {
+                "vv2_learning_never_fails",
                 "vv2_birth_control",
                 "vv2_easier_healing_mastery",
                 "vv2_teaching_children_grants_skill",
@@ -3868,7 +3927,6 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_write_parentage_log",
                 "vv2_enable_origins_exclusive_features",
                 "vv2_origins_village_wide_upgrades",
-                "vv2_learning_never_fails",
             },
         )
         for mode in ALL_MODES:
