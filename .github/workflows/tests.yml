@@ -102,4 +102,35 @@ jobs:
         # run skipped, and thousands of ordinary tests execute here, so it
         # stays silent without an opt-out. Setting one would also mask the case
         # where the fixtures were meant to arrive and did not.
-        run: python -m pytest tests/ -q
+        # The JUnit XML below carries per-case detail into the run's Summary
+        # tab. Subtests are the reason that matters here: pytest-subtests reports thousands of them
+        # (2908 locally at the time of writing, against 1384 test functions),
+        # and with -q alone every one of those is invisible in the Actions UI
+        # unless it fails. A failing subtest also names only its parent test
+        # function in the job log, so "which game / which mode" had to be read
+        # out of the raw log by hand.
+        #
+        # -rf prints pytest's short failure summary, which is the ONLY place
+        # a failing subtest's parameters appear -- `SUBFAILED(mode='...')`.
+        # They are not in the JUnit XML, so the summary step reads both. tee
+        # keeps the log on screen in the job while saving it for that step.
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests/ -q -rf --junit-xml=junit.xml 2>&1 | tee pytest.log
+
+      - name: Summarise the run
+        # Always, so a red run gets the same breakdown as a green one -- that
+        # is the case where the detail is actually wanted.
+        if: always()
+        shell: bash
+        run: |
+          python scripts/summarise_test_run.py junit.xml pytest.log >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-${{ github.run_id }}
+          path: junit.xml
+          if-no-files-found: error
