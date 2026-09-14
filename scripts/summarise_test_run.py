@@ -50,8 +50,15 @@ from pathlib import Path
 # `SUBFAILED(mode='x') path::Class::test` and the plain `FAILED path::...`
 # that pytest prints under `-rf`. The parenthesised group is what unittest
 # was given in subTest(...), and is absent for a non-subtest failure.
+# One level of nesting is allowed inside the parameter text, because a
+# repr routinely contains parentheses -- `path=PosixPath('a/b')` and
+# `pair=(1, 2)` both appear in this suite. A flat `[^)]*` stops at the
+# inner `)`, the following whitespace assertion then fails, and the whole
+# line is skipped, which shows the failure with no parameters at all.
 _TERSE_FAILURE = re.compile(
-    r"^(?:SUB)?(?:FAILED|ERROR)(?:\((?P<params>[^)]*)\))?\s+(?P<test>\S+)",
+    r"^(?:SUB)?(?:FAILED|ERROR)"
+    r"(?:\((?P<params>(?:[^()]|\([^()]*\))*)\))?"
+    r"\s+(?P<test>\S+)",
     re.MULTILINE,
 )
 
@@ -159,21 +166,33 @@ def main(argv: list[str]) -> int:
         print(file=out)
         print("| test | failing case | message |", file=out)
         print("|---|---|---|", file=out)
-        for case in failing[:_MAX_FAILURES_LISTED]:
+        rows = 0
+        for case in failing:
             name = case.get("name", "")
             where = case.get("classname", "")
             if where.startswith("tests."):
                 where = where[len("tests.") :]
             key = f"{where.rsplit('.', 1)[-1]}::{name}"
-            params = ", ".join(params_for.get(key, []))
-            detail = next((k for k in case if k.tag in ("failure", "error")), None)
-            message = detail.get("message") if detail is not None else ""
-            print(
-                f"| `{where}::{name}` "
-                f"| {('`' + _cell(params, 80) + '`') if params else '-'} "
-                f"| {_cell(message)} |",
-                file=out,
-            )
+            # pytest-subtests puts one <failure> per failing subtest inside
+            # the SAME <testcase>, so a method with two bad modes carries two
+            # sibling elements. One row each, paired positionally with the
+            # parameters the terse log listed for this test in the same order,
+            # or the rows would say which cases failed but not which message
+            # belonged to which -- and every failure after the first would be
+            # dropped entirely.
+            details = [k for k in case if k.tag in ("failure", "error")]
+            listed = params_for.get(key, [])
+            for index, detail in enumerate(details):
+                if rows >= _MAX_FAILURES_LISTED:
+                    break
+                params = listed[index] if index < len(listed) else ""
+                print(
+                    f"| `{where}::{name}` "
+                    f"| {('`' + _cell(params, 80) + '`') if params else '-'} "
+                    f"| {_cell(detail.get('message'))} |",
+                    file=out,
+                )
+                rows += 1
         if len(failing) > _MAX_FAILURES_LISTED:
             print(file=out)
             print(

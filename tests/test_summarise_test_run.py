@@ -134,6 +134,74 @@ class SummariseTestRunTests(unittest.TestCase):
         self.assertTrue(row.endswith(" |"))
         self.assertEqual(row.count(" | "), 2)
 
+    def test_every_failing_subtest_gets_its_own_row(self) -> None:
+        """Codex P2 on #337, reproduced against a real two-mode failure.
+
+        pytest-subtests puts one <failure> per failing subtest inside the
+        SAME <testcase>, so a method whose two modes both fail carries two
+        sibling elements. Reading only the first showed one row with one
+        message while joining every parameter into it, which both dropped a
+        real failure and mislabelled the one it kept.
+        """
+        two = self.tmp / "two.xml"
+        two.write_text(
+            REPORT.replace(
+                '<failure message="AssertionError: \'AAAA\' != \'BBBB\'">tb</failure>',
+                '<failure message="first mode broke">tb</failure>'
+                '<failure message="second mode broke">tb</failure>',
+            ).replace('failures="1"', 'failures="2"'),
+            encoding="utf-8",
+        )
+        log = self.tmp / "two.log"
+        log.write_text(
+            "SUBFAILED(mode='collection_progression') "
+            "tests/test_robe.py::RobeTests::test_composition\n"
+            "SUBFAILED(mode='immediate_fixed') "
+            "tests/test_robe.py::RobeTests::test_composition\n",
+            encoding="utf-8",
+        )
+        out = run(two, log)
+        rows = [ln for ln in out.splitlines() if "test_composition" in ln]
+        self.assertEqual(len(rows), 2)
+        # Each row carries its OWN parameters and its OWN message, paired.
+        self.assertIn("collection_progression", rows[0])
+        self.assertIn("first mode broke", rows[0])
+        self.assertIn("immediate_fixed", rows[1])
+        self.assertIn("second mode broke", rows[1])
+        # and neither row mixes the two parameter sets together.
+        self.assertNotIn("immediate_fixed", rows[0])
+
+    def test_parameters_containing_parentheses_are_recovered(self) -> None:
+        """Codex P2 on #337: a repr with parentheses broke the whole match.
+
+        A flat `[^)]*` stops at the inner `)`, the trailing whitespace
+        assertion then fails, and the entire SUBFAILED line is skipped -- so
+        the row showed no parameters at all rather than showing them wrongly.
+        This suite really does pass Path values to subTest.
+        """
+        for params in (
+            "path=PosixPath('a/b')",
+            "pair=(1, 2)",
+            "mode='collection_progression'",
+        ):
+            with self.subTest(params=params):
+                log = self.tmp / "paren.log"
+                log.write_text(
+                    f"SUBFAILED({params}) "
+                    "tests/test_robe.py::RobeTests::test_composition\n",
+                    encoding="utf-8",
+                )
+                out = run(self.xml, log)
+                row = next(
+                    ln for ln in out.splitlines() if "test_composition" in ln
+                )
+                self.assertNotIn("| - |", row)
+                # The parameter NAME and any inner parentheses survive into
+                # the rendered cell; quotes arrive HTML-escaped.
+                self.assertIn(params.split("=", 1)[0], row)
+                if "(" in params.split("=", 1)[1]:
+                    self.assertIn("(", row.split("|")[2])
+
 
 if __name__ == "__main__":
     unittest.main()
