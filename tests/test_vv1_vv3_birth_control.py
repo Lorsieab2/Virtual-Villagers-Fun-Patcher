@@ -38,6 +38,9 @@ VV1_STANDALONE_RENDER_SHA256 = {
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
 VV1_STOCK = ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe"
+VV3_STOCK = (
+    ROOT / "inputs" / "vv3-stock-copy" / "Virtual Villagers - The Secret City.exe"
+)
 
 
 def _patches(feature_id: str) -> list[dict[str, str]]:
@@ -407,6 +410,41 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         restored[checksum : checksum + 4] = b"\x00" * 4
         expected_stock[checksum : checksum + 4] = b"\x00" * 4
         self.assertEqual(restored, expected_stock)
+
+    def test_the_closed_vv3_fallback_is_reached_only_by_the_parenting_category(
+        self,
+    ) -> None:
+        """Codex raised this as P1 on #336; VV3 carries the same stock guard.
+
+        The finding was that a non-Parenting job selected without a matching
+        preference would also be rejected. Stock tests the selected category
+        first, so it cannot be:
+
+            0x459883  cmp edi, 1             VV3's Parenting category
+            0x459886  jne 0x4598AF           <-- every other job leaves here
+            0x459888  cmp [ebx+0xEC0], edi   the checked preference
+            0x45988E  je  0x4598AF
+            0x459890  <-- the patched roll
+
+        0x4598AF is `mov eax, edi` and the routine's ordinary return, so a
+        non-Parenting category leaves with its selection intact and never
+        reaches the patched bytes. Pinned against the stock image so a future
+        edit that moves the guard fails here.
+        """
+        stock = VV3_STOCK.read_bytes()
+        # cmp edi, 1 / jne -- the category guard.
+        self.assertEqual(stock[0x59883:0x59886], bytes.fromhex("83FF01"))
+        self.assertEqual(stock[0x59886:0x59888], bytes.fromhex("7527"))
+        non_parenting = 0x459888 + 0x27
+        self.assertEqual(non_parenting, 0x4598AF)
+        self.assertGreater(non_parenting, 0x459890 + 18)
+        # pop ebp / mov eax, edi -- the selection is returned unchanged,
+        # which is the ordinary stock return, not the reject epilogue at
+        # 0x4598B8 that the patch jumps to.
+        self.assertEqual(
+            stock[non_parenting - 0x400000 : non_parenting - 0x400000 + 3],
+            bytes.fromhex("5D8BC7"),
+        )
 
 
 if __name__ == "__main__":

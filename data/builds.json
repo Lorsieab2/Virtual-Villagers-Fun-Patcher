@@ -1038,11 +1038,12 @@
       "output_tag": "Birth Control",
       "behavior_changes": [
         "The writer-reaching opcode-12 candidate scans at file offsets 0x6488D and 0x64A8F reject candidates whose already-loaded internal age in EAX is at least 1000.",
+        "The chooser at 0x449C60 no longer rolls RNG(100) for a villager whose parenting preference is unchecked. File offset 0x49E36 replaces that roll with a jump to the routine's own reject path at 0x449E55, which returns 0. Stock tests the selected category at 0x449E29 (cmp eax,2 / jne 0x449E57) before this point, so Farming, Building, Research and Healing never reach the patched bytes.",
         "Both complete 40-byte guarded blocks are one atomic VV2-only optional feature."
       ],
       "explicit_non_changes": [
         "The stock manual carrier/female-only age<1000 gate is unchanged, and no male upper-age gate is added.",
-        "The native VV4/VV5-style chooser score floor, token 43 exact string work, willingness token 39 learning, planner logic, conception roll, pregnancy writer, delivery, save format, RNG, food, fertility, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety remains separately owned and applies in every public mode.",
+        "The native VV4/VV5-style chooser score floor, token 43 exact string work, willingness token 39 learning, planner logic, conception roll, pregnancy writer, delivery, save format, RNG, food, fertility, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety remains separately owned and applies in every public mode. The chooser's 25% non-preference fallback is removed for the Parenting category, which is the one change this feature adds there.",
         "Love Note event, Gong grant, Silver Mirror clone, direct/event births, and every path outside the two writer-reaching opcode-12 candidate scans are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode."
       ],
       "evidence_status": "implemented from exact-build disassembly commit 74778bd6a7d3a17dd990636cf6d4e769466800c6; static verification complete, runtime/player confirmation pending",
@@ -1642,11 +1643,12 @@
       "output_tag": "Birth Control",
       "behavior_changes": [
         "The five repeated candidate-selector blocks at file offsets 0x5CE74, 0x5CF35, 0x5CFFC, 0x5D0C0, and 0x5D187 retain each candidate's stock age<1000 check while removing only the initiator's duplicate age<1000 check.",
+        "The chooser at 0x459730 no longer rolls RNG(100) for a villager whose parenting preference is unchecked. File offset 0x59890 replaces that roll with a jump to the routine's own reject epilogue at 0x4598B8. Stock tests the selected category at 0x459883 (cmp edi,1 / jne 0x4598AF) before this point, so Farming, Building, Research and Healing leave the routine with their selection intact and never reach the patched bytes.",
         "The ordinary action-13 autonomous/catch-up route therefore follows the VV4 reference boundary: the scanned candidate is capped at internal age 999, but the initiating villager has no male or female upper-age ceiling in this selector."
       ],
       "explicit_non_changes": [
         "The native VV3 manual pairing handler at VA 0x4584B0 retains its category-1 carrier/female-only internal-age-1000 rejection for both participants.",
-        "The native VV4/VV5-style chooser score floor and 25% non-preference fallback, action selection, preference scoring, conception roll/writer, pending delivery, save format, RNG, health, fertility, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety remains separately owned and applies in every public mode.",
+        "The native VV4/VV5-style chooser score floor, action selection, preference scoring, conception roll/writer, pending delivery, save format, RNG, health, fertility, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety remains separately owned and applies in every public mode. The 25% non-preference fallback is NOT among them: it is removed by this feature, and only for the Parenting category, which stock selects before the patched roll is reachable.",
         "Direct event-created births, Island Events, clone paths, and every route outside the ordinary action-13 mate selector are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode."
       ],
       "evidence_status": "implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending",

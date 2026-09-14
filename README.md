@@ -97,7 +97,7 @@ believers; heathens remain unchanged. This optional patch is off by default.
 
 **Birth Control**
 
-Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
+Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and requires the parenting preference to be checked, rejecting an unchecked villager rather than rolling the former 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
 
 - Patch ID: `vv1_birth_control`
 
@@ -155,7 +155,7 @@ After a successful save, writes the village's lifetime statistics to a Village S
 
 **Birth Control**
 
-Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor and 25% non-preference fallback remain in force, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.
+Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.
 
 - Patch ID: `vv2_birth_control`
 
@@ -201,7 +201,7 @@ After a successful save, writes the village's lifetime statistics to a Village S
 
 **Birth Control**
 
-Matches the VV4/VV5 Birth Control boundary on the exact VV3 ordinary action-13 route: the native chooser's score floor and 25% non-preference fallback remain in force, the scanned candidate stays in the stock internal-age 360..999 range, and the initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.
+Matches the VV4/VV5 Birth Control boundary on the exact VV3 ordinary action-13 route: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the scanned candidate stays in the stock internal-age 360..999 range, and the initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.
 
 - Patch ID: `vv3_birth_control`
 

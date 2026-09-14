@@ -473,6 +473,61 @@ class VV2BirthControlTests(unittest.TestCase):
                 self.assertEqual(after[:3], bytes.fromhex("8B5308"))
                 self.assertEqual(after[14:], b"\x90" * 26)
 
+    def test_the_closed_fallback_is_reached_only_by_the_parenting_category(self) -> None:
+        """Codex raised this as P1 on #336; the guard already exists in stock.
+
+        The finding was that `0x449C60` is the shared five-job chooser -- it
+        is, and the five-way skill dispatch just above the patch proves it:
+
+            0x449DE9  mov esi, [edi+0x7EC]   Research
+            0x449DF1  mov esi, [edi+0x7E4]   Farming
+            0x449DF9  mov esi, [edi+0x7F0]   Healing
+            0x449E01  mov esi, [edi+0x7E8]   Building
+            0x449E09  mov esi, [edi+0x7F4]   Parenting
+
+        so an unconditional reject on a path all five reach really would
+        suppress Farming, Building, Research and Healing.
+
+        The conclusion does not follow, because stock already tests the
+        selected category between that dispatch and the patched roll:
+
+            0x449E25  mov eax, [esp+0x0C]    the selected category
+            0x449E29  cmp eax, 2             Parenting
+            0x449E2C  jne 0x449E57           <-- every other job leaves here
+            0x449E2E  cmp [edi+0x7F8], eax   the checked preference
+            0x449E34  je  0x449E57
+            0x449E36  <-- the patched roll
+
+        A non-Parenting category is gone two instructions earlier and never
+        reaches the patched bytes at all. This pins that guard against the
+        stock image, so if a future edit moves or removes it the reject
+        stops being Parenting-only and this fails.
+        """
+        stock = STOCK.read_bytes()
+        for offset, field in (
+            (0x49DE9, 0x7EC),
+            (0x49DF1, 0x7E4),
+            (0x49DF9, 0x7F0),
+            (0x49E01, 0x7E8),
+            (0x49E09, 0x7F4),
+        ):
+            with self.subTest(skill_field=hex(field)):
+                self.assertEqual(
+                    stock[offset : offset + 6],
+                    bytes.fromhex("8BB7") + struct.pack("<I", field),
+                )
+        # cmp eax, 2 / jne -- the category guard, immediately before the roll.
+        self.assertEqual(stock[0x49E29:0x49E2C], bytes.fromhex("83F802"))
+        self.assertEqual(stock[0x49E2C:0x49E2E], bytes.fromhex("7529"))
+        # The non-Parenting exit lands on the stock epilogue, past the patch.
+        non_parenting = 0x449E2E + 0x29
+        self.assertEqual(non_parenting, 0x449E57)
+        self.assertGreater(non_parenting, 0x449E36 + 18)
+        self.assertEqual(
+            stock[non_parenting - 0x400000 : non_parenting - 0x400000 + 6],
+            bytes.fromhex("5F5E5B59C208"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
