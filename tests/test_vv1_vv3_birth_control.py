@@ -149,14 +149,14 @@ class VV1VV3BirthControlTests(unittest.TestCase):
                         *feature.raw.get("explicit_non_changes", []),
                     ]
                 )
-                # A New Home no longer applies the fallback: its chooser tail
-                # now requires the parenting preference to be checked and
-                # rejects an unchecked villager outright. The Lost Children
-                # and The Secret City still describe the native VV4/VV5
-                # behaviour they leave in place, so the assertion is per game
-                # rather than shared -- asserting the old wording for all
-                # three is what let the contract keep advertising a fallback
-                # this build had stopped applying.
+                # A New Home and The Secret City no longer apply the
+                # fallback: both chooser tails now require the parenting
+                # preference to be checked and reject an unchecked villager
+                # outright. The Lost Children still describes the native
+                # VV4/VV5 behaviour it leaves in place, so the assertion is
+                # per game rather than shared -- asserting the old wording for
+                # all three is what let the contract keep advertising a
+                # fallback a build had stopped applying.
                 self.assertIn("25% non-preference fallback", text)
                 if feature.id == "vv1_birth_control":
                     self.assertIn(
@@ -164,6 +164,12 @@ class VV1VV3BirthControlTests(unittest.TestCase):
                         text,
                     )
                     self.assertIn("rejected instead of reaching", text)
+                if feature.id == "vv3_birth_control":
+                    # The description must say the fallback is REMOVED, not
+                    # that it "remains in force" -- the old wording described
+                    # exactly the leak the owner reported.
+                    self.assertIn("fallback is removed", text)
+                    self.assertNotIn("fallback remain in force", text)
                 self.assertIn("native", text.lower())
                 self.assertIn("conception", text.lower())
                 self.assertIn("delivery", text.lower())
@@ -177,12 +183,39 @@ class VV1VV3BirthControlTests(unittest.TestCase):
             "0x5D0C0": "81FAE80300007D60",
             "0x5D187": "81FAE80300007D60",
         }
-        self.assertEqual([int(patch["offset"], 0) for patch in patches], [int(offset, 0) for offset in expected])
-        for patch in patches:
+        selector = [p for p in patches if p["offset"] in expected]
+        self.assertEqual(
+            [int(patch["offset"], 0) for patch in selector],
+            [int(offset, 0) for offset in expected],
+        )
+        for patch in selector:
             with self.subTest(offset=patch["offset"]):
                 self.assertEqual(patch["before"], expected[patch["offset"]])
                 self.assertEqual(patch["after"], "9090909090909090")
         self.assertNotIn(0x4584B0, {int(p["offset"], 0) for p in patches})
+
+    def test_vv3_closes_the_non_preference_embracing_fallback(self) -> None:
+        """The chooser must reject an unchecked villager, not roll for one.
+
+        The leak reported against the build is a villager without the
+        parenting preference checked still initiating Embracing. In stock VV3
+        the chooser tail at 0x459730 falls past its preference test into
+        RNG(100) >= 75, admitting one unchecked villager in four. The patch
+        replaces that roll with a jump to the routine own reject epilogue.
+        """
+        patches = _patches("vv3_birth_control")
+        roll = [p for p in patches if int(p["offset"], 0) == 0x59890]
+        self.assertEqual(len(roll), 1, "the fallback-removal patch is missing")
+        patch = roll[0]
+        # push 0x64 ; call RNG ; add esp,4 ; xor ecx,ecx ; cmp eax,0x4B ; setge cl
+        self.assertEqual(patch["before"], "6A64E8399AFAFF83C40433C983F84B0F9DC1")
+        # jmp 0x4598B8 (the reject epilogue), then padding
+        self.assertEqual(patch["after"], "EB2690909090909090909090909090909090")
+        self.assertEqual(len(patch["after"]), len(patch["before"]))
+
+        # rel8 arithmetic, computed rather than copied from the literal:
+        # the jump must land exactly on the reject epilogue.
+        self.assertEqual(0x59890 + 0x400000 + 2 + 0x26, 0x4598B8)
 
     def test_vv1_birth_control_origins_overlay_contract_is_bounded(self) -> None:
         catalog = load_fun_patches()

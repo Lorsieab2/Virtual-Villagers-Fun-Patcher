@@ -1632,7 +1632,7 @@
       "id": "vv3_birth_control",
       "game_id": "vv3",
       "name": "Birth Control",
-      "description": "Matches the VV4/VV5 Birth Control boundary on the exact VV3 ordinary action-13 route: the native chooser's score floor and 25% non-preference fallback remain in force, the scanned candidate stays in the stock internal-age 360..999 range, and the initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.",
+      "description": "Requires BOTH parenting skill and the checked preference before a villager will initiate Embracing. The native chooser's score floor remains in force and the scanned candidate stays in the stock internal-age 360..999 range, but the 25% non-preference fallback is removed: a roll that admitted one unchecked villager in four is the reported leak. The initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.",
       "output_tag": "Birth Control",
       "behavior_changes": [
         "The five repeated candidate-selector blocks at file offsets 0x5CE74, 0x5CF35, 0x5CFFC, 0x5D0C0, and 0x5D187 retain each candidate's stock age<1000 check while removing only the initiator's duplicate age<1000 check.",
@@ -1674,6 +1674,12 @@
           "before": "81FAE80300007D60",
           "after": "9090909090909090",
           "purpose": "remove only the fifth action-13 selector block's duplicate initiator age>=1000 rejection"
+        },
+        {
+          "offset": "0x59890",
+          "before": "6A64E8399AFAFF83C40433C983F84B0F9DC1",
+          "after": "EB2690909090909090909090909090909090",
+          "purpose": "close the 25% non-preference Embracing fallback in the chooser at 0x459730: send the unchecked-preference path straight to the reject epilogue at 0x4598B8 instead of rolling RNG(100)>=75"
         }
       ]
     },
