@@ -631,3 +631,53 @@ the next investigation harder rather than easier.
   comparing a manifest against a disassembly, and never compare across games.
 - Filter by exception code before counting; breakpoints and single-step events
   share the Application Error source with real faults.
+
+## VV5 `- Copy.exe` crashes, January 2027 — stock code, not the patcher
+
+Three dumps in `%LOCALAPPDATA%\CrashDumps`, all naming
+`Virtual Villagers - New Believers - Copy.exe`, dated 2027-01-15 (x2) and
+2027-01-18. All three are the same fault:
+
+```
+code      0xC0000005   access violation, READ
+address   0x473447
+params    [0x0, 0x1B80]      read attempt at 0x1B80
+```
+
+The instruction is stock:
+
+```
+0x473440  83 ec 10 53 56 8b f1   sub esp,0x10 ; push ebx ; push esi
+                                 mov esi, ecx          <- the this pointer
+0x473447  8b 8e 80 1b 00 00      mov ecx, [esi+0x1B80] <- faults
+```
+
+`ecx` carries `this` into the routine, `esi` receives it, and `+0x1B80` is a
+villager-record field. The reported fault address `0x1B80` is exactly
+`0 + 0x1B80`, so `this` was **null on entry** — the routine itself is not at
+fault, one of its 121 callers passed null.
+
+**The crashing binaries are unpatched.** All three copies were located and
+hashed against the stock image:
+
+```
+stock sha256 92946781980220e9...
+expanded-256-player-tests/...            MATCH
+expanded-256-player-tests-corrected/...  MATCH
+expanded-256-runtime-qa/stock/...        MATCH
+```
+
+Byte-identical, so the patcher never wrote to them. This is confirmed
+independently by the manifest: **zero** VV5 patches exist anywhere in
+`0x473400-0x473500`.
+
+Two further details support the same reading. The patcher's output is named
+`- Modded.exe`, never `- Copy.exe`; and one of the three paths is literally
+the `stock` control directory of a runtime QA run, which exists to be
+unpatched.
+
+**So no fix belongs in the patcher for this.** Recording it rather than
+leaving the dumps unexplained, because an unattributed crash dump next to a
+patcher release invites the assumption that the release caused it — and the
+file name alone (`- Copy` against `- Modded`) is weak evidence either way
+without the hashes.
