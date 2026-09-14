@@ -1911,3 +1911,37 @@ of what each span touches finds **no** register free at every site.
 
 Measured at 89 bytes for the `ebp` form, so twenty-two sites are about 1,958
 bytes of the 2,856 available.
+
+### All twenty-two trampolines emit and verify
+
+The design produces working bytes. Laid out from `0x4B44E4`, after the three
+scratch slots:
+
+```
+total          1,731 bytes of 2,844 available
+first          0x4B44E4
+last ends      0x4B4BA7
+sizes          73-89 bytes, by pointer register and span length
+```
+
+Four invariants are checked on the emitted bytes rather than argued:
+
+```
+1. call targets preserved   22/22   every retargeted rel32 resolves to the
+                                    same address it reached at the site
+2. page fit                 OK      ends 0x4B4BA7, page ends 0x4B5000
+3. hook rel32 reach         OK      all 22 sites reach their trampoline
+4. return target            OK      each returns exactly to site + span
+```
+
+Check 1 is the one that needed proving rather than running. A comparison of
+"calls found before" against "calls found after" passes trivially when there
+are no calls, so it was controlled: **nine** spans contain a rel32 and
+**nine** calls are retargeted, so the comparison is doing work. Mutating the
+builder to copy the bytes verbatim instead of retargeting fails exactly those
+nine sites and no others.
+
+That mutation is worth keeping in the eventual test. Verbatim copying is the
+natural way to write a replay, it produces bytes that assemble and a manifest
+that verifies, and it sends `0x463638` to `0x45404A` -- which is not a
+function entry, so the failure is a crash rather than a wrong count.
