@@ -260,8 +260,21 @@ class App(tk.Tk):
             self.builds = load_builds()
             self.patch_modes = load_patch_modes()
             self.fun_patches = load_public_fun_patches()
+            # Every fun patch starts selected. The owner's standing rule is
+            # that a build never silently lacks a feature, so the default is
+            # everything on and unticking is the deliberate act.
+            #
+            # Not driven by data/builds.json's `default_selected`: nothing in
+            # src/ or scripts/ reads that field, so it decides nothing and
+            # setting it would leave every box unticked exactly as before.
+            #
+            # Safe as a blanket default because no fun patch declares a
+            # conflict. The only declared relationships are dependencies --
+            # each game's village-wide upgrades, and VV2's parentage log,
+            # require that game's Origins base -- and selecting everything
+            # satisfies those by construction.
             self.fun_patch_vars = {
-                patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
+                patch.id: tk.BooleanVar(value=True) for patch in self.fun_patches
             }
             self._last_fun_selection: set[str] = set()
             self.exe_var = tk.StringVar()
@@ -757,7 +770,13 @@ class App(tk.Tk):
         saved_mode = data.get("patch_mode", DEFAULT_PATCH_MODE)
         if saved_mode in {mode.id for mode in self.patch_modes}:
             self.patch_mode_var.set(saved_mode)
-        selected_fun = data.get("fun_patches", [])
+        # Only an actually-present saved selection may override the
+        # all-selected default. Reading a missing key as an empty list would
+        # turn every patch off on a fresh install -- where the settings file
+        # does not exist and data is {} -- and on any older settings file
+        # written before this key existed, which is precisely when the
+        # default is supposed to apply.
+        selected_fun = data.get("fun_patches")
         if isinstance(selected_fun, list):
             for patch in self.fun_patches:
                 self.fun_patch_vars[patch.id].set(patch.id in selected_fun)
