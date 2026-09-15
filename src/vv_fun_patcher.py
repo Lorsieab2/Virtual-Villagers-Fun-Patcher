@@ -9862,10 +9862,16 @@ def apply_patch(
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
         playtest_output_root=playtest_output_root,
     )
-    # Every published build is renamed off the stock exe name, which by itself
-    # crashes the game (basename-gated init/save folder).  Immunise the output
-    # so it boots under any filename.  Post-render, in place, checksum-safe; the
-    # source-vs-output transparency diff records the exact bytes it changed.
+    # Published builds are renamed off the stock exe name. For VV1/VV2/VV3 that
+    # rename by itself crashes the game (basename-gated init), so those builds
+    # are immunised here: post-render, in place, checksum-safe, with the
+    # source-vs-output transparency diff recording the exact bytes it changed.
+    #
+    # VV4 and VV5 are exempt. Measured on the shipped builds, the wrapper is
+    # what crashes THEM, and an unwrapped "- Modded" build starts and keeps
+    # running -- see NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS. Exempting them also
+    # restores base-game save-folder behaviour, because the games gate the
+    # save folder on the same basename the wrapper rewrites.
     if build.id not in NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
         _require_name_crash_immunity(patched, build.input_name, applied)
     output_parent = output_folder.parent
