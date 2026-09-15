@@ -406,6 +406,19 @@ means adding storage regardless of whether some other field happens to exist.
 keep health and the cause of death in a small sub-object, and every death
 routes through one of two sibling arbiters that write that pair:
 
+> **The counter is instrumented but no longer exported.** The owner removed
+> the `Villagers Died` row from the Village Statistics file, preferring
+> `Villagers Buried` because it stays meaningful once the graveyards fill.
+> The hooks below are still installed and still increment their counters in
+> all three games; what changed is that no exporter prints the value.
+>
+> So "shipped" in this section means the instrumentation ships, which is
+> what `death_hooks` in `scripts/build_statistics_features.py` decides and
+> what the guard in `tests/test_death_summaries_match_the_build.py` checks.
+> It does not mean a player sees a row. Anything below describing the
+> counter's arbiters, offsets or slots remains accurate; only its
+> visibility changed.
+
 | Game | Absolute setter | Delta applier | Sub-object | Health | Cause |
 |---|---|---|---|---|---|
 | The Secret City | `0x462670` | `0x4626B0` | `+0xE6C` | `+0xE78` | `+0xE7C` |
