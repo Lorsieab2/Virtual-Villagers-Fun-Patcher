@@ -289,6 +289,13 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 continue
             repaired_offsets = {
                 "data/vv1_origins_feature.json": {
+                    # Doubler persistence (#344): the two exe splices that call
+                    # the already-shipped Vv1DoublerSave / Vv1DoublerRestore, plus
+                    # their stubs and export names in the patch-owned .vv1mc
+                    # section. The ownership flags sit past the serialised extent,
+                    # so the stock save never wrote them.
+                    "0x8E5E0", "0x8E630", "0x8E680", "0x8E6A0",
+                    "0x1BEAE", "0x1BF68",
                     # Island Event queue delay + its duplicate-purchase guard.  The
                     # purchased Island Event is now stamped now+5s from the scheduler's
                     # own clock instead of being made due on the next tick, so a natural
