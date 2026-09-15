@@ -260,8 +260,21 @@ class App(tk.Tk):
             self.builds = load_builds()
             self.patch_modes = load_patch_modes()
             self.fun_patches = load_public_fun_patches()
+            # Every fun patch starts selected. The owner's standing rule is
+            # that a build never silently lacks a feature, so the default is
+            # everything on and unticking is the deliberate act.
+            #
+            # Not driven by data/builds.json's `default_selected`: nothing in
+            # src/ or scripts/ reads that field, so it decides nothing and
+            # setting it would leave every box unticked exactly as before.
+            #
+            # Safe as a blanket default because no fun patch declares a
+            # conflict. The only declared relationships are dependencies --
+            # each game's village-wide upgrades, and VV2's parentage log,
+            # require that game's Origins base -- and selecting everything
+            # satisfies those by construction.
             self.fun_patch_vars = {
-                patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
+                patch.id: tk.BooleanVar(value=True) for patch in self.fun_patches
             }
             self._last_fun_selection: set[str] = set()
             self.exe_var = tk.StringVar()
