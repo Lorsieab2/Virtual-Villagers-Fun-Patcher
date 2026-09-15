@@ -692,20 +692,56 @@ __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
 
        <My Documents>\LDW\<exe basename>\vv1_doublers_<slot>.dat
 
-   Format (little-endian): 4-byte magic 'VD01' + two 4-byte flags, tech then
-   food.  This is a SEPARATE file from vv1_masks_<slot>.dat on purpose: the two
-   features are independent, and a fault in one must never be able to damage the
-   other's state.
+   Format (little-endian): 4-byte magic 'VD02', two 4-byte flags (tech then
+   food), then the 4-byte village tag that binds the file to one village.  This
+   is a SEPARATE file from vv1_masks_<slot>.dat on purpose: the two features are
+   independent, and a fault in one must never be able to damage the other's
+   state.
+
+   The magic is 'VD02' rather than 'VD01' because the record grew from 12 bytes
+   to 16.  A 'VD01' file left by an earlier build is 12 bytes, so the 16-byte
+   read fails its length check and the file is ignored -- the doublers are not
+   restored until the next save rewrites the sidecar, which is the pre-fix
+   behaviour rather than a misread.  Bumping the magic also means a 'VD01' file
+   can never be mistaken for a tagged one even if it were padded.
 
    Fail-closed exactly like the mask sidecar.  Any failure -- no Documents
-   folder, missing file, short read, wrong magic, slot not captured, null game
-   state -- leaves the in-memory flags untouched.  The worst case is "the
+   folder, missing file, short read, wrong magic, a tag from a different
+   village, slot not captured, null game state -- leaves the in-memory flags
+   untouched.  The worst case is "the
    doubler is not restored", never a crash and never a damaged save.  File I/O
    never runs from DllMain; it runs from the exports below, which the exe calls
    outside the loader lock. */
-#define VV_DOUBLER_SIDECAR_MAGIC 0x31304456u  /* 'V' 'D' '0' '1' */
+#define VV_DOUBLER_SIDECAR_MAGIC 0x32304456u  /* 'V' 'D' '0' '2' */
 #define VV_DOUBLER_TECH_OFFSET 0xAD48u
 #define VV_DOUBLER_FOOD_OFFSET 0xAD4Cu
+
+/* Village identity, so a sidecar can never be applied to a different village.
+
+   Save slots are reused: start a new village in slot 2 and the old village's
+   sidecar is still sitting at vv1_doublers_2.dat.  Matching on the slot alone
+   would hand the new village doublers it never earned.  The window is narrow --
+   Vv1DoublerSave writes zeros whenever nothing is owned and runs on every save,
+   so the file self-corrects at the new village's first save -- but a reload
+   before that first save is enough to see it.
+
+   The tag is a dword the game stamps into every villager record when the
+   village is created.  Measured across 38 of the owner's saves covering 22
+   distinct villages: constant at every one of the 90 record slots within a
+   village, and distinct across all 22 villages.  Villages created seconds apart
+   differ by +6, +7 and +52 while unrelated villages differ by millions, which
+   is a free-running millisecond clock sampled once at creation -- an identity,
+   never a function of mutable village state, so it cannot drift as the village
+   is played.
+
+   ON THE OFFSET.  This is the in-memory offset, and it is NOT the file offset.
+   The tag sits at file +0x188; the saver at 0x41BEDB copies the staged buffer
+   to state+8 and the loader at 0x41BF58 passes state+8 to the reader, over a
+   12-byte header, so file = state - 8 + 0xC = state + 4.  Three landmarks
+   confirm it: state+8 lands at file 0xC (right after the header), and
+   state+0xABE4 -- the settings block the exe reads at 0x41BF21 -- lands at
+   44008, exactly EOF, so the payload ends precisely where that block begins. */
+#define VV_DOUBLER_VILLAGE_TAG_OFFSET 0x184u
 
 static int vv1_doubler_sidecar_path(char *out, size_t n, int slot) {
     char docs[MAX_PATH];
@@ -761,14 +797,16 @@ __declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
     char tmp[MAX_PATH];
     HANDLE file;
     DWORD wrote;
-    unsigned int payload[3];
+    unsigned int payload[4];
     unsigned int *tech;
     unsigned int *food;
+    unsigned int *tag;
     BOOL ok = TRUE;
     int slot = vv1_mask_current_slot();
     tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
     food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
-    if (!slot || tech == NULL || food == NULL) {
+    tag = vv1_doubler_field(state, VV_DOUBLER_VILLAGE_TAG_OFFSET);
+    if (!slot || tech == NULL || food == NULL || tag == NULL) {
         return 0;
     }
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
@@ -777,6 +815,7 @@ __declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
     payload[0] = VV_DOUBLER_SIDECAR_MAGIC;
     payload[1] = (*tech != 0) ? 1u : 0u;
     payload[2] = (*food != 0) ? 1u : 0u;
+    payload[3] = *tag;  /* binds this sidecar to this village */
     if (lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)) {
         return 0;
     }
@@ -818,13 +857,15 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
     char path[MAX_PATH];
     HANDLE file;
     DWORD got;
-    unsigned int payload[3];
+    unsigned int payload[4];
     unsigned int *tech;
     unsigned int *food;
+    unsigned int *tag;
     int slot = vv1_mask_current_slot();
     tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
     food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
-    if (!slot || tech == NULL || food == NULL) {
+    tag = vv1_doubler_field(state, VV_DOUBLER_VILLAGE_TAG_OFFSET);
+    if (!slot || tech == NULL || food == NULL || tag == NULL) {
         return 0;
     }
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
@@ -835,9 +876,15 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
     if (file == INVALID_HANDLE_VALUE) {
         return 0;  /* no sidecar for this slot -> nothing owned, as before */
     }
+    /* The village tag must match as well as the magic.  A sidecar left behind
+       by a previous village in this reused slot fails here and is ignored,
+       which falls back to the pre-fix behaviour -- the doublers are simply not
+       restored -- rather than granting doublers the village never earned.  The
+       stale file is left alone; the next save overwrites it for this village. */
     if (ReadFile(file, payload, sizeof(payload), &got, NULL)
         && got == sizeof(payload)
-        && payload[0] == VV_DOUBLER_SIDECAR_MAGIC) {
+        && payload[0] == VV_DOUBLER_SIDECAR_MAGIC
+        && payload[3] == *tag) {
         /* Normalised to 0/1 on write, and normalised again here, so a corrupt
            or hand-edited value can only ever mean owned or not owned. */
         *tech = (payload[1] != 0) ? 1u : 0u;
