@@ -214,6 +214,34 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         path.name,
                     )
                 elif path.name == "vv1_origins_feature.json":
+                    # Doubler persistence (#344): the tech and food doubler
+                    # ownership flags live at state+0xAD48/+0xAD4C, which is past
+                    # the 0xABDC the game serialises, so the stock save never
+                    # writes them and both doublers were lost on reload. The DLL
+                    # half already shipped; these rows are the exe calls to it.
+                    #   0x8E5E0 save stub    0x8E630 restore stub
+                    #   0x8E680 save name    0x8E6A0 restore name
+                    #   0x1BF68 save splice  0x1BEFD restore splice
+                    #
+                    # WHICH FUNCTION IS WHICH. sub_402FD0 opens "rb" and
+                    # freads the 'ldwg' magic, so it is the READER; sub_403160
+                    # opens "wb" and fwrites, so it is the WRITER. Therefore
+                    # sub_41BE00 (which calls 402FD0, then rep movsds the
+                    # staged buffer into state+8 at 0x41BEDB) LOADS, and
+                    # sub_41BF10 (which calls 403160 with state+8) SAVES.
+                    #
+                    #   0x1BF68 is the SAVE function's epilogue: the write at
+                    #           0x41BF63 has returned and ESI holds the state,
+                    #           so the sidecar is published only after a save
+                    #           that actually succeeded.
+                    #   0x1BEFD is on the LOAD path after the state is in
+                    #           place -- the read succeeded and the rep movsd
+                    #           ran -- with EBX holding it. It replaces
+                    #           `call sub_448450`. It is NOT 0x41BEAE, which
+                    #           runs BEFORE the read and so would sample the
+                    #           previous village, and NOT the shared epilogue
+                    #           0x41BF02, which 0x41BE92 also reaches on a
+                    #           path that never loaded anything.
                     # The Tech crash hotfix changes only the corrected menu,
                     # dialog strings, preflight/Cure helpers, deferred Barrel
                     # helper, and the already-repaired section metadata rows.
@@ -227,6 +255,12 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # and the row could be bought twice (#207, reverted in #209).  It now
                     # treats a stamp as queued when it is zero OR due within the window.
                     "0x56900", "0x8BF00",
+                    # Doubler persistence rows; see the note above.
+                    "0x8E5E0", "0x8E630", "0x8E680", "0x8E6A0",
+                    # 0x1BEAE is listed because the fix REMOVES it: the save
+                    # hook used to sit there, before the read, and that site is
+                    # now back to its stock bytes.
+                    "0x1BEAE", "0x1BEFD", "0x1BF68",
                         # Time Warp moved wholesale into the companion DLL,
                         # which now owns its speed-aware confirmation, the
                         # paused refusal, the charge, and an advance that does

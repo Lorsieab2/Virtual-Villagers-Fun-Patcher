@@ -17,7 +17,7 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "871D052DB8B0F8B3E65E724424F3312FA5D02FAD3B85E4F33895E0CD52B46893"
+      "sha256": "CDFB2CDB65409D0C625365FFBC8BDCDFCDA1FBE093E2CBC1B1609106C123E5AF"
     },
     {
       "source": "assets/origins/m1.png",
@@ -307,6 +307,42 @@
       "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "60A1F811490083F801743685C0752468995D4800FF151070450085C0741968F008490050FF15D470450085C07409A3F8114900FFD0EB0AC705F81149000100000061C3",
       "purpose": "live village-frame mask service: resolve Vv1MaskTick once, cache missing DLL/export as a fail-open sentinel, and sweep/persist dead mask slots every rendered frame"
+    },
+    {
+      "offset": "0x8E680",
+      "before": "000000000000000000000000000000",
+      "after": "567631446F75626C65725361766500",
+      "purpose": "read-only Vv1DoublerSave export name for the doubler persistence service"
+    },
+    {
+      "offset": "0x8E6A0",
+      "before": "000000000000000000000000000000000000",
+      "after": "567631446F75626C6572526573746F726500",
+      "purpose": "read-only Vv1DoublerRestore export name for the doubler persistence service"
+    },
+    {
+      "offset": "0x8E5E0",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "60A1FC11490083F801743785C0752468995D4800FF151070450085C0741A688006490050FF15D470450085C0740AA3FC11490056FFD0EB0AC705FC11490001000000615F5EC20400",
+      "purpose": "doubler persistence, save half (in owned R-X .vv1mc): resolve Vv1DoublerSave once, cache a missing DLL/export as a fail-open sentinel, publish the two ownership flags to the sidecar, then replay the displaced push/push and resume the stock save"
+    },
+    {
+      "offset": "0x8E630",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "60A10012490083F801743785C0752468995D4800FF151070450085C0741A68A006490050FF15D470450085C0740AA30012490053FFD0EB0AC705001249000100000061E8D87DFBFFE985B8F8FF",
+      "purpose": "doubler persistence, load half (in owned R-X .vv1mc): resolve Vv1DoublerRestore once, cache a missing DLL/export as a fail-open sentinel, reapply the two ownership flags after the stock read has completed, then replay the displaced epilogue"
+    },
+    {
+      "offset": "0x1BF68",
+      "before": "5F5EC20400",
+      "after": "E973460700",
+      "purpose": "persist the tech and food doubler ownership flags on every save. They live at state+0xAD48/+0xAD4C, past the 0xABDC the game serialises, so the stock save never writes them and both doublers are lost on reload"
+    },
+    {
+      "offset": "0x1BEFD",
+      "before": "E84EC50200",
+      "after": "E92E470700",
+      "purpose": "reapply the two doubler ownership flags after a save is loaded. Spliced at the epilogue 0x41BF68, where the read call at 0x41BF63 has returned and ESI still holds the saved game state -- not at 0x41BF5B, where those bytes are that call's arguments and a splice would run before the read"
     },
     {
       "offset": "0x8E400",

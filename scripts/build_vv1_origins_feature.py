@@ -452,6 +452,11 @@ MASK_BIRTH_DIRTY_VA = DATA_SCRATCH_BASE_VA + 0x1FC
 # validated export address. It is independent of save-slot state, so slot
 # changes deliberately do not clear it.
 MASK_TICK_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x1F8
+# Cached Vv1DoublerSave / Vv1DoublerRestore pointers. 0 = unresolved,
+# 1 = permanent fail-open sentinel, so a build without the DLL does not
+# repeat loader work on every save or load.
+DOUBLER_SAVE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x1FC
+DOUBLER_RESTORE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x200
 # The village-mask code (two per-loop stash writes + the shared-draw hook) lives
 # in the patch-owned .vv1mc R-X section, laid out contiguously with the other
 # VV1 mask helpers and kept separate from the stock shared .shr section.
@@ -505,7 +510,67 @@ MASK_TICK_NAME = b"Vv1MaskTick\0"
 MASK_TICK_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x8F0
 MASK_TICK_NAME_VA = mask_code_va(MASK_TICK_NAME_FILE_OFFSET)
 MASK_TICK_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x900
+# Doubler persistence stubs and export names, in the patch-owned .vv1mc
+# R-X section. Placed inside the 395-byte gap at 0x435..0x5C0, which the
+# feature's own patch list shows is unoccupied, rather than past the
+# highest allocation: the region above 0xC00 is not free at guard time
+# even though no manifest patch declares it, so appending there fails the
+# byte guard. Layout, all within the gap:
+#     0x440 save stub (<=0x80)   0x4C0 restore stub (<=0x80)
+#     0x540 save name (0x20)     0x560 restore name (0x20)  ends 0x580
+# Export names live in the patch-owned .vv1mc section, NOT the shared
+# .rdata string cave at 0x85D30. That cave is borrowed and nearly full --
+# adding these two names took it from 720 to 732 bytes against its 0x2D0
+# ceiling, overflowing it -- and MASK_TICK_NAME already sets the precedent
+# of keeping an export name here instead.
+DOUBLER_SAVE_NAME = b"Vv1DoublerSave\0"
+DOUBLER_SAVE_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x680
+DOUBLER_RESTORE_NAME = b"Vv1DoublerRestore\0"
+DOUBLER_RESTORE_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x6A0
+DOUBLER_SAVE_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x5E0
+DOUBLER_RESTORE_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x630
 MASK_TICK_STUB_VA = mask_code_va(MASK_TICK_STUB_FILE_OFFSET)
+DOUBLER_SAVE_STUB_VA = mask_code_va(DOUBLER_SAVE_STUB_FILE_OFFSET)
+DOUBLER_RESTORE_STUB_VA = mask_code_va(DOUBLER_RESTORE_STUB_FILE_OFFSET)
+DOUBLER_SAVE_NAME_VA = mask_code_va(DOUBLER_SAVE_NAME_FILE_OFFSET)
+DOUBLER_RESTORE_NAME_VA = mask_code_va(DOUBLER_RESTORE_NAME_FILE_OFFSET)
+# Splice points, verified byte-for-byte against the stock image:
+#   0x41BEAE  56 68 DC AB 00 00   push esi / push 0xABDC   (EBX = state)
+#   0x41BF68  5F 5E C2 04 00      pop edi / pop esi / retn 4  (ESI = state)
+#
+# WHICH FUNCTION IS WHICH.  The two routines look alike and the earlier
+# revision of these hooks had them backwards, which left the feature inert
+# even though every splice verified.  The file primitives settle it:
+#
+#   sub_402FD0   fopen("rb"), fread, checks the 'ldwg' magic   -> the READER
+#   sub_403160   fopen("wb"), fwrite header + payload          -> the WRITER
+#
+# so
+#
+#   sub_41BE00   calls sub_402FD0 at 0x41BEC4, then `rep movsd` at 0x41BEDB
+#                copies the staged buffer into state+8         -> this LOADS
+#   sub_41BF10   calls sub_403160 at 0x41BF63 with state+8     -> this SAVES
+#
+# THE RESTORE HOOK, 0x41BEFD, is on the load path AFTER the state is in
+# place: the read succeeded (0x41BECB jnz), `rep movsd` has installed it, and
+# EBX still holds the state.  It replaces `call sub_448450`, which is exactly
+# five bytes.  It is NOT at 0x41BEAE, where the earlier revision put it --
+# that is before the read, so it sampled the previous village's flags -- and
+# NOT at the shared epilogue 0x41BF02, which 0x41BE92 also jumps to on a path
+# that never loaded anything.  0x41BEFD has a single predecessor, 0x41BEF7,
+# reached only by falling through the success branch.
+#
+# THE SAVE HOOK, 0x41BF68, is the save function's epilogue: the write at
+# 0x41BF63 has returned, ESI still holds the state, and the epilogue is
+# exactly five bytes -- the minimum a jmp rel32 needs.  The stub replays the
+# epilogue itself rather than jumping back, since the function ends there.
+# Publishing the sidecar here, after the native write, is also what keeps the
+# two in step: a failed or crashed save never reaches this point, so the
+# sidecar cannot outlive a .ldw that was never written.
+DOUBLER_SAVE_HOOK_VA = 0x41BF68
+DOUBLER_SAVE_HOOK_GUARD = bytes.fromhex("5F5EC20400")
+DOUBLER_LOAD_HOOK_VA = 0x41BEFD
+DOUBLER_LOAD_HOOK_GUARD = bytes.fromhex("E84EC50200")
 # Exact stock newborn/allocation boundary.  sub_43C350 selects the first free
 # record, stores the live occupied byte at 0x43C393, and returns that record's
 # index to every normal/event caller.  The mask hook is placed immediately
@@ -2835,6 +2900,112 @@ def main() -> None:
             f"VV1 mask tick stub exceeds its .vv1mc reservation: "
             f"{len(mask_tick_stub_code):#x} > 0x100"
         )
+    # Persist the two doubler ownership flags on save.
+    #
+    # They live at <state>+0xAD48 and +0xAD4C, which is 364 and 368 bytes PAST
+    # the 0xABDC the game serialises, so the stock save never writes them and
+    # the player loses both doublers on reload. Extending that length would
+    # make existing saves unreadable by the stock game, and the dwords inside
+    # the extent are not free (+0xABE4 has 27 references, +0xABDC IS the
+    # length), so the flags are published to a sidecar instead.
+    #
+    # Runs AFTER the stock write, at the save function's epilogue 0x41BF68,
+    # where the write call at 0x41BF63 has returned. That ordering is what
+    # keeps the sidecar and the .ldw in step: a save that fails or crashes
+    # never reaches the epilogue, so the sidecar is never published for a
+    # .ldw that was not written, and a stale sidecar cannot outlive the save
+    # it describes. The DLL only reads the two flags and publishes its own
+    # file; it never touches the game's buffer.
+    #
+    # ESI is the saved-game-state object at this splice -- the same object
+    # the write at 0x41BF58 passed as state+8. pushad preserves it and every
+    # other live register across the resolve-and-call. The stub replays
+    # `pop edi / pop esi / ret 4` itself rather than jumping back, because
+    # the function ends there and there is nothing to return to.
+    doubler_save_stub_code = assemble(
+        f"""
+            pushad
+            mov eax, dword ptr [{DOUBLER_SAVE_DLL_FN_VA:#x}]
+            cmp eax, 1
+            je doubler_save_ret
+            test eax, eax
+            jnz doubler_save_call
+            push {s['icons_dll']:#x}
+            call dword ptr [0x457010]                   # LoadLibraryA
+            test eax, eax
+            jz doubler_save_missing
+            push {DOUBLER_SAVE_NAME_VA:#x}
+            push eax
+            call dword ptr [0x4570D4]                   # GetProcAddress
+            test eax, eax
+            jz doubler_save_missing
+            mov dword ptr [{DOUBLER_SAVE_DLL_FN_VA:#x}], eax
+        doubler_save_call:
+            push esi                                    # saved game state
+            call eax                                    # Vv1DoublerSave @4
+            jmp doubler_save_ret
+        doubler_save_missing:
+            mov dword ptr [{DOUBLER_SAVE_DLL_FN_VA:#x}], 1
+        doubler_save_ret:
+            popad
+            pop edi                                     # displaced epilogue
+            pop esi                                     # displaced epilogue
+            ret 4                                       # displaced epilogue
+        """,
+        DOUBLER_SAVE_STUB_VA,
+    )
+    if len(doubler_save_stub_code) > 0x80:
+        raise RuntimeError(
+            f"VV1 doubler save stub exceeds its .vv1mc reservation: "
+            f"{len(doubler_save_stub_code):#x} > 0x80"
+        )
+    # Restore the two flags on load.
+    #
+    # Spliced at 0x41BEFD, inside the LOAD function sub_41BE00, at the point
+    # where the state is actually in place: the read at 0x41BEC4 returned
+    # true (0x41BECB jnz) and the `rep movsd` at 0x41BEDB has copied the
+    # staged buffer into state+8. EBX holds that state. The displaced five
+    # bytes are `call sub_448450`, which the stub replays before resuming.
+    #
+    # popad restores ECX to what 0x41BEF7 loaded for that call, so the stub
+    # does not need to rebuild the argument.
+    doubler_restore_stub_code = assemble(
+        f"""
+            pushad
+            mov eax, dword ptr [{DOUBLER_RESTORE_DLL_FN_VA:#x}]
+            cmp eax, 1
+            je doubler_restore_ret
+            test eax, eax
+            jnz doubler_restore_call
+            push {s['icons_dll']:#x}
+            call dword ptr [0x457010]                   # LoadLibraryA
+            test eax, eax
+            jz doubler_restore_missing
+            push {DOUBLER_RESTORE_NAME_VA:#x}
+            push eax
+            call dword ptr [0x4570D4]                   # GetProcAddress
+            test eax, eax
+            jz doubler_restore_missing
+            mov dword ptr [{DOUBLER_RESTORE_DLL_FN_VA:#x}], eax
+        doubler_restore_call:
+            push ebx                                    # saved game state
+            call eax                                    # Vv1DoublerRestore @4
+            jmp doubler_restore_ret
+        doubler_restore_missing:
+            mov dword ptr [{DOUBLER_RESTORE_DLL_FN_VA:#x}], 1
+        doubler_restore_ret:
+            popad                                       # restores ECX, which
+                                                        # 0x41BEF7 already set
+            call 0x448450                               # displaced
+            jmp {DOUBLER_LOAD_HOOK_VA + len(DOUBLER_LOAD_HOOK_GUARD):#x}
+        """,
+        DOUBLER_RESTORE_STUB_VA,
+    )
+    if len(doubler_restore_stub_code) > 0x80:
+        raise RuntimeError(
+            f"VV1 doubler restore stub exceeds its .vv1mc reservation: "
+            f"{len(doubler_restore_stub_code):#x} > 0x80"
+        )
     # Clear a reused record at the game's own newborn/allocation boundary.
     # sub_43C350 selects the first free record and its exact initialization
     # starts at 0x43C393; at this point ESI is that record and the original
@@ -2983,6 +3154,66 @@ def main() -> None:
         b"\0" * len(mask_tick_stub_code),
         mask_tick_stub_code,
         "live village-frame mask service: resolve Vv1MaskTick once, cache missing DLL/export as a fail-open sentinel, and sweep/persist dead mask slots every rendered frame",
+    )
+    patch(
+        DOUBLER_SAVE_NAME_FILE_OFFSET,
+        b"\0" * len(DOUBLER_SAVE_NAME),
+        DOUBLER_SAVE_NAME,
+        "read-only Vv1DoublerSave export name for the doubler persistence service",
+    )
+    patch(
+        DOUBLER_RESTORE_NAME_FILE_OFFSET,
+        b"\0" * len(DOUBLER_RESTORE_NAME),
+        DOUBLER_RESTORE_NAME,
+        "read-only Vv1DoublerRestore export name for the doubler persistence service",
+    )
+    patch(
+        DOUBLER_SAVE_STUB_FILE_OFFSET,
+        b"\0" * len(doubler_save_stub_code),
+        doubler_save_stub_code,
+        "doubler persistence, save half (in owned R-X .vv1mc): resolve "
+        "Vv1DoublerSave once, cache a missing DLL/export as a fail-open "
+        "sentinel, publish the two ownership flags to the sidecar, then replay "
+        "the displaced push/push and resume the stock save",
+    )
+    patch(
+        DOUBLER_RESTORE_STUB_FILE_OFFSET,
+        b"\0" * len(doubler_restore_stub_code),
+        doubler_restore_stub_code,
+        "doubler persistence, load half (in owned R-X .vv1mc): resolve "
+        "Vv1DoublerRestore once, cache a missing DLL/export as a fail-open "
+        "sentinel, reapply the two ownership flags after the stock read has "
+        "completed, then replay the displaced epilogue",
+    )
+    patch(
+        DOUBLER_SAVE_HOOK_VA - 0x400000,
+        DOUBLER_SAVE_HOOK_GUARD,
+        (
+            b"\xE9"
+            + (DOUBLER_SAVE_STUB_VA - DOUBLER_SAVE_HOOK_VA - 5).to_bytes(
+                4, "little", signed=True
+            )
+            + b"\x90" * (len(DOUBLER_SAVE_HOOK_GUARD) - 5)
+        ),
+        "persist the tech and food doubler ownership flags on every save. They "
+        "live at state+0xAD48/+0xAD4C, past the 0xABDC the game serialises, so "
+        "the stock save never writes them and both doublers are lost on reload",
+    )
+    patch(
+        DOUBLER_LOAD_HOOK_VA - 0x400000,
+        DOUBLER_LOAD_HOOK_GUARD,
+        (
+            b"\xE9"
+            + (DOUBLER_RESTORE_STUB_VA - DOUBLER_LOAD_HOOK_VA - 5).to_bytes(
+                4, "little", signed=True
+            )
+            + b"\x90" * (len(DOUBLER_LOAD_HOOK_GUARD) - 5)
+        ),
+        "reapply the two doubler ownership flags after a save is loaded. "
+        "Spliced at the epilogue 0x41BF68, where the read call at 0x41BF63 has "
+        "returned and ESI still holds the saved game state -- not at 0x41BF5B, "
+        "where those bytes are that call's arguments and a splice would run "
+        "before the read",
     )
     mask_overlay_blob = (
         mask_hook_code
