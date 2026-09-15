@@ -110,6 +110,17 @@ GAMES = {
         # per pickup would grant doublers and be reset by Origins purchases,
         # so this and its marker start at +0x38.
         "burial_stat_va": 0x5824D8,
+        # The robing routine sub_45FBC0, whose first instruction loads the
+        # villager record. It is the ONLY writer of the chief flag +0xE80 in
+        # the image, and its single caller sub_431FE0 is the ceremony -- which
+        # goes on to call the puzzle-progress routine at 0x432042, so the
+        # puzzle is downstream of robing and a hook here catches the
+        # replacement chiefs the puzzle never fires for.
+        "robing_hook_va": 0x45FBC0,
+        "robing_guard": "8B4424048B88740E0000",
+        # +0x38/+0x3C are burials and their marker, +0x40 the death counter,
+        # so the next free per-save reserve dword is +0x44.
+        "robing_stat_va": 0x5824E4,
         # Every death in this game routes through one of two sibling health
         # arbiters. The proof they are the sole arbiter rather than one path
         # among several is that the ALIVE path explicitly writes -1 to the
@@ -392,6 +403,66 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 "purpose": (
                     "count every completed Heathen conversion once in the "
                     "per-save reserve, counting the tag-17 Heathen Mommy as two"
+                ),
+            }
+        )
+
+    robing_hook_va = config.get("robing_hook_va")
+    if robing_hook_va:
+        # Chiefs Robed, as a LIFETIME total rather than a roster snapshot.
+        #
+        # A walk of living villagers carrying the chief flag reports the
+        # chiefs a village holds NOW, so it falls back to 1 -- or 0 -- as
+        # chiefs die and are replaced, and the requirements forbid exactly
+        # that: lifetime totals "must not be reconstructed only from current
+        # village state when that would lose historical events".
+        #
+        # This hook sits on the robing routine's first instruction, which is
+        # the single place the chief flag is ever written, so every robing is
+        # counted once and no replacement is missed. The two displaced
+        # instructions are replayed before returning to the stock body.
+        #
+        # 0xB4 is the first 4-byte-aligned free byte after the export name.
+        # That name is "WriteVillageStatistics" plus a NUL at 0x9C -- 23 bytes, so it
+        # occupies 0x9C..0xB2 INCLUSIVE and its terminator lives at 0xB2.
+        # Starting at 0xB2 overwrites that NUL, leaving the name unterminated
+        # so GetProcAddress reads past it and the companion is never found;
+        # tests/test_patcher.py catches exactly that. Scanning the built
+        # payload for zero runs cannot distinguish a terminator from a gap,
+        # which is how the wrong offset was picked the first time.
+        # The burial wrapper sits at 0x190, so 0xB4..0x18F is the usable gap.
+        robing_wrapper_va = cave_va + 0xB4
+        robing_wrapper = assemble(
+            f"""
+                inc dword ptr [0x{int(config['robing_stat_va']):X}]
+                mov eax, [esp + 4]
+                mov ecx, [eax + 0xE74]
+                jmp 0x{int(robing_hook_va) + 10:X}
+            """,
+            robing_wrapper_va,
+        )
+        if 0xB4 + len(robing_wrapper) > 0x190:
+            raise RuntimeError(f"{game_id} robing wrapper overruns the free cave gap")
+        payload[0xB4 : 0xB4 + len(robing_wrapper)] = robing_wrapper
+        robing_hook_file = int(robing_hook_va) - 0x400000
+        robing_guard = bytes.fromhex(str(config["robing_guard"]))
+        if source[robing_hook_file : robing_hook_file + len(robing_guard)] != robing_guard:
+            raise RuntimeError(f"{game_id} robing hook guard does not match")
+        extra_patches.append(
+            {
+                "offset": f"0x{robing_hook_file:X}",
+                "before": robing_guard.hex().upper(),
+                "after": (
+                    b"\xE9"
+                    + int(
+                        robing_wrapper_va - int(robing_hook_va) - 5
+                    ).to_bytes(4, "little", signed=True)
+                    + b"\x90" * (len(robing_guard) - 5)
+                ).hex().upper(),
+                "purpose": (
+                    "count every robing once in the per-save reserve, including "
+                    "the replacement chiefs the one-shot chief puzzle never "
+                    "fires for"
                 ),
             }
         )
