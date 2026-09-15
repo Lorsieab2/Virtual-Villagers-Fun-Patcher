@@ -87,13 +87,31 @@ class ParentageLayoutRowsAreFullLengthTests(unittest.TestCase):
         # 0xC7. If a slot had shifted this would be a trait offset or zero.
         self.assertEqual(decoded[0]["no_villager"], "0xC7")
 
-        # VV2 is the only game that copies the father's traits onto the mother.
-        self.assertEqual(decoded[1]["father_head_copy"], "0x5E0")
-        self.assertEqual(decoded[1]["father_body_copy"], "0x5DC")
-        for index in (0, 2, 3, 4):
+        # Every game but VV1 copies the father's traits onto the mother. These
+        # were all zero except VV2 until VV3/VV4/VV5's conception routines were
+        # disassembled; the offsets are pinned against each stock executable in
+        # tests/test_parentage_father_copies.py.
+        #
+        # They still serve this test's purpose, which is detecting a shifted
+        # column: each value is distinct from its neighbours in the same row,
+        # so a slot shift moves a recognisable number into the wrong name.
+        expected_copies = {
+            0: ("0", "0"),            # VV1 records nothing about the father
+            1: ("0x5E0", "0x5DC"),
+            2: ("0xE68", "0xE64"),
+            3: ("0x1C30", "0x1C2C"),
+            4: ("0x1C30", "0x1C2C"),
+        }
+        for index, (head, body) in expected_copies.items():
             with self.subTest(game=index + 1):
-                self.assertEqual(decoded[index]["father_head_copy"], "0")
-                self.assertEqual(decoded[index]["father_body_copy"], "0")
+                self.assertEqual(decoded[index]["father_head_copy"], head)
+                self.assertEqual(decoded[index]["father_body_copy"], body)
+                if head != "0":
+                    # Body sits four bytes BEFORE head in every game that
+                    # copies. A transposed pair is exactly what a shifted slot
+                    # or a by-eye pairing produces, and it would otherwise look
+                    # entirely plausible.
+                    self.assertEqual(int(body, 16) + 4, int(head, 16))
 
         # The copies must not collide with the mother's own trait offsets, which
         # is what reading a shifted slot would look like.
