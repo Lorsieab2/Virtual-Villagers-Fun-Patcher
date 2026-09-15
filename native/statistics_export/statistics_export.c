@@ -101,6 +101,165 @@ static int count_occupied_graves(
     return total;
 }
 
+/* Walk a game's living villagers and count the ones the owner calls elders.
+
+   "Village Elders = anyone who reaches Master status in at least 3 or more
+   skills. All 5 games."  Counted per villager, so mastering five skills still
+   counts once.
+
+   This is a WALK, not a counter.  Elder-ness and chief-ness are states already
+   written in each villager's record, so they can be read directly from the
+   array whenever the file is written.  No hook, no wrapper, no statistics-block
+   slot and no cave space is needed for either row -- which also means neither
+   can drift out of step with the game the way a counter seeded once can.
+
+   Every offset below was measured, and each has two independent witnesses.
+
+   THE ARRAY.  Each game reaches its villagers through a bounds-checked
+   accessor that hands over the whole layout:
+
+     VV3 0x45C840  imul eax, 0x1F8C / lea eax,[eax+ecx+0x14]   container 0x59E110
+     VV4 0x466040  cmp eax,0x95 / imul eax,0x2E3C / lea +0x44  container 0x50E568
+     VV5 0x46F950  imul eax, 0x2F44 / lea eax,[eax+ecx+0x48]   container 0x554148
+
+   VV4's accessor rejects an index above 0x95, which is 149 -- confirming the
+   150 slots that data/builds.json and parentage_export.c both already declare.
+   Those strides, slot counts, record bases and active bytes match
+   parentage_export.c exactly; this file and that one measured them separately.
+
+   THE SKILLS.  The two later games store skills as FLOATS and VV3 stores them
+   as ints, which is why an integer-only search finds nothing in VV4 and VV5:
+
+     VV3  +0xEAC +0xEB0 +0xEB4 +0xEB8 +0xEBC   int32, five skills
+     VV4  +0x1C5C .. +0x1C6C                   float, five skills
+     VV5  +0x1C5C .. +0x1C70                   float, SIX skills
+
+   VV3's block is identified by the ladder itself: +0xEAC, +0xEB4, +0xEB8 and
+   +0xEBC are each compared against 0x14, 0x32 and 0x58 -- the 20/50/88 rungs --
+   at sites including 0x421751, 0x43000F and 0x4214DE.  VV4's and VV5's blocks
+   are the only runs of consecutive dwords in the whole stride that the code
+   touches with floating-point instructions and never with integer ones, and
+   both sit beside the proven age (+0x1B8C) and active (+0x1CC4 / +0x1CD4)
+   fields.  VV5 having six is not a typo: New Believers adds a sixth skill, and
+   its run is one dword longer in the disassembly.
+
+   THE THRESHOLD.  Master is 88 in VV3, VV4 and VV5.  Measured from each game's
+   own ladder rather than assumed from one: VV1's is 90 (cmp eax,0x5A), so the
+   value genuinely differs between games and is passed in per game.
+
+   CORROBORATED AGAINST THE OWNER'S OWN SAVES.  The saved (compacted) form of
+   the same records was parsed out of 65 of the owner's .ldw files.  In every
+   one, each living villager's skills land in 0..100 with no NaN, and every
+   Secret City save has exactly one living chief -- never zero, never two, never
+   a dead villager.  That is a check on the field identifications, not merely on
+   the arithmetic.  It also produced the elder lists the rows should now show
+   (Rano, Amaro, Mino and Gin, and so on), which stay identical across different
+   save slots of the same village.
+
+   Returns -1 when the array cannot be located, which the callers treat as "omit
+   the row" rather than printing a zero that would read as "no elders yet". */
+static int count_village_elders(
+    const unsigned char *records,
+    unsigned int record_base,
+    unsigned int stride,
+    int slots,
+    unsigned int active_offset,
+    unsigned int skills_offset,
+    int skill_count,
+    int skills_are_floats,
+    int master_threshold
+) {
+    int slot;
+    int total = 0;
+    if (records == NULL || stride == 0 || slots <= 0 || skill_count <= 0) {
+        return -1;
+    }
+    for (slot = 0; slot < slots; ++slot) {
+        const unsigned char *record =
+            records + record_base + (size_t)slot * stride;
+        int mastered = 0;
+        int index;
+        if (*(const unsigned char *)(record + active_offset) != 1) {
+            continue;
+        }
+        for (index = 0; index < skill_count; ++index) {
+            const unsigned char *field =
+                record + skills_offset + (unsigned int)index * 4u;
+            if (skills_are_floats) {
+                float value = *(const float *)field;
+                /* NaN fails every comparison, which is the wanted answer. */
+                if (value >= (float)master_threshold) {
+                    ++mastered;
+                }
+            } else if (*(const int *)field >= master_threshold) {
+                ++mastered;
+            }
+        }
+        if (mastered >= 3) {
+            ++total;
+        }
+    }
+    return total;
+}
+
+/* Count the villagers currently wearing the chief's robe (The Secret City).
+
+   "Chiefs Robed: everyone who has been made Chief with the robe and bears the
+   title Tribal Chief."
+
+   The flag is a dword in the villager's own record.  The owner said so
+   directly -- "there is a certain value (byte or 4byte) that makes villagers
+   chief, it is set within a villager's array data" -- and the saves agree: in
+   all 23 Secret City saves exactly one LIVING villager carries it, chiefs
+   differ between villages, and no dead villager ever carries it.
+
+   NOT HOOKED TO THE CHIEF PUZZLE, deliberately.  VV3 tracks chief creation as
+   one of its sixteen puzzles, and the puzzle-progress routine at 0x435990 runs
+   its completion branch exactly once, on the transition to complete.  A chief
+   can die and be replaced many times and none of those replacements re-fires
+   it.  The owner flagged this precisely: the counter "shouldn't depend on the
+   puzzle since the puzzle only completes upon the first chief being made".  A
+   puzzle-hooked counter would read 1 forever and look plausible while being
+   wrong.
+
+   WHAT THIS ROW MEANS.  It reports the chiefs the village holds right now,
+   which in ordinary play is one once the robe exists and zero before.  It is
+   NOT a lifetime total of everyone ever robed: nothing in the record survives a
+   chief's death to be counted later, so a lifetime figure cannot be recovered
+   from village state alone and is not claimed here.  The same care applies as
+   to Villagers Buried, which is reported as graves held for the same reason.
+
+   Why the rank strings were no help: "Tribal Chief", "Esteemed Elder" and
+   "Master " live in an inline value/key localization table at 0x499B08 whose
+   entries have ZERO code references by address, so the rank "ids" recorded from
+   the ladder are row numbers in that table, not operands any instruction
+   compares against a villager. */
+static int count_robed_chiefs(
+    const unsigned char *records,
+    unsigned int record_base,
+    unsigned int stride,
+    int slots,
+    unsigned int active_offset,
+    unsigned int chief_offset
+) {
+    int slot;
+    int total = 0;
+    if (records == NULL || stride == 0 || slots <= 0) {
+        return -1;
+    }
+    for (slot = 0; slot < slots; ++slot) {
+        const unsigned char *record =
+            records + record_base + (size_t)slot * stride;
+        if (*(const unsigned char *)(record + active_offset) != 1) {
+            continue;
+        }
+        if (*(const int *)(record + chief_offset) == 1) {
+            ++total;
+        }
+    }
+    return total;
+}
+
 /* Emit the memorial row, or nothing when a game's array is unlocated.
 
    Shared by both writers deliberately. The row was first added to
@@ -517,13 +676,43 @@ static int write_later_game(
        saved copy alone would not stick: the next save overwrites it from the
        still-unseeded live block. Seeding the live block makes both agree, and
        the stock copy then carries the value out. */
-    unsigned int live_statistics_rva
+    unsigned int live_statistics_rva,
+    /* Villager array, for the Village Elders and Chiefs Robed walks: the RVA
+       of the container the game's own accessor is called with, plus the
+       record layout inside it. count_village_elders records where each of
+       these was measured. A zero RVA means "not located". */
+    unsigned int villagers_rva,
+    unsigned int villager_record_base,
+    unsigned int villager_stride,
+    int villager_slots,
+    unsigned int villager_active,
+    unsigned int villager_skills,
+    int villager_skill_count,
+    int villager_skills_are_floats,
+    int villager_master,
+    /* Record offset of the chief flag. Zero omits the Chiefs Robed row:
+       only The Secret City has a chief. */
+    unsigned int villager_chief
 ) {
     unsigned char *statistics = (unsigned char *)manager + statistics_offset;
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
     unsigned char *live = module == NULL
         ? NULL
         : module + live_statistics_rva;
+    /* The villager array is reached through the module base, exactly like the
+       live statistics block above. Negative means the walk could not run. */
+    int elders = (module == NULL || villagers_rva == 0u)
+        ? -1
+        : count_village_elders(
+            module + villagers_rva,
+            villager_record_base,
+            villager_stride,
+            villager_slots,
+            villager_active,
+            villager_skills,
+            villager_skill_count,
+            villager_skills_are_floats,
+            villager_master);
     if (fprintf(
         file,
         "%s\n"
@@ -560,7 +749,10 @@ static int write_later_game(
         collection_label,
         read_int(statistics, 0x14),
         read_int(statistics, 0x18),
-        read_int(statistics, 0x1C),
+        /* Was read_int(statistics, 0x1C). That field has ZERO references in
+           the executable -- nothing in the stock game ever writes it -- so the
+           row printed a dead field. It is now the measured mastery walk. */
+        elders < 0 ? 0 : elders,
         read_int(statistics, 0x20),
         read_int(statistics, 0x24),
         read_int(statistics, 0x28),
@@ -569,6 +761,22 @@ static int write_later_game(
         puzzle_total
     ) < 0) {
         return 0;
+    }
+    /* Chiefs Robed, for the one game that has a chief. Walked, not counted:
+       see count_robed_chiefs for why this must not be hooked to the chief
+       puzzle, which fires only for the FIRST chief a village ever has. */
+    if (villager_chief != 0u && module != NULL && villagers_rva != 0u) {
+        int chiefs = count_robed_chiefs(
+            module + villagers_rva,
+            villager_record_base,
+            villager_stride,
+            villager_slots,
+            villager_active,
+            villager_chief);
+        if (chiefs >= 0
+            && fprintf(file, "Chiefs Robed: %d\n", chiefs) < 0) {
+            return 0;
+        }
     }
     /* Read the live block for patch-added counters: the wrapper increments
        it, and the saved copy only catches up on the next stock save. */
@@ -605,6 +813,26 @@ static int write_vv5(
     int puzzle_total
 ) {
     unsigned char *statistics = manager + 0x7B4u;
+    /* New Believers' villager array, for the Village Elders walk. The
+       container is the global 0x554148 (RVA 0x154148), reached through
+       accessor sub_46F950 which computes `lea eax,[eax+ecx+0x48]` after
+       multiplying by the 0x2F44 stride -- both recorded independently in
+       parentage_export.c, whose VV5 row notes the header is 0x48 and NOT
+       VV4's 0x44.
+
+       SIX skill floats at +0x1C5C..+0x1C70, one more than The Tree of Life:
+       that run is the only sequence of consecutive dwords in the stride the
+       code touches with floating-point instructions and never with integer
+       ones, and it sits beside the proven age +0x1B8C and active +0x1CD4.
+       Passing VV4's five here would silently ignore the sixth skill and
+       undercount elders in exactly the game that has the most skills. */
+    unsigned char *vv5_module = (unsigned char *)GetModuleHandleW(NULL);
+    int elders = vv5_module == NULL ? -1 : count_village_elders(
+        vv5_module + 0x154148u,
+        0x48u, 0x2F44u, 150,
+        0x1CD4u,
+        0x1C5Cu, 6, 1,
+        88);
     if (fprintf(
         file,
         "Virtual Villagers - New Believers\n"
@@ -638,7 +866,10 @@ static int write_vv5(
         read_int(statistics, 0x10),
         read_int(statistics, 0x14),
         read_int(statistics, 0x18),
-        read_int(statistics, 0x1C),
+        /* Was read_int(statistics, 0x1C), a field with ZERO references
+           anywhere in the executable -- nothing in the stock game writes it.
+           Now the measured mastery walk. */
+        elders < 0 ? 0 : elders,
         read_int(statistics, 0x20),
         read_int(statistics, 0x24),
         read_int(statistics, 0x28),
@@ -739,7 +970,22 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             0u, NULL,
             0u, NULL,
             /* Live statistics block, which the pickup wrapper increments. */
-            0x1824A0u
+            0x1824A0u,
+            /* Villager array: container 0x59E110, reached through accessor
+               sub_45C840 (imul 0x1F8C, lea +0x14) at all 57 of its call
+               sites. Skills are INT32 at +0xEAC..+0xEBC, identified by the
+               ladder itself -- those offsets are compared against 0x14, 0x32
+               and 0x58 (the 20/50/88 rungs) at 0x421751, 0x43000F, 0x4214DE
+               and others. Active byte +0xF10, re-confirmed this pass at
+               0x41BF52. */
+            0x19E110u, 0x14u, 0x1F8Cu, 150,
+            0xF10u,
+            0xEACu, 5, 0,
+            88,
+            /* Chief flag +0xAC. In all 23 of the owner's Secret City saves
+               exactly one LIVING villager carries it -- never zero, never
+               two, never a dead villager -- and chiefs differ per village. */
+            0xACu
         );
     } else if (game_id == GAME_VV4) {
         written = write_later_game(
@@ -770,7 +1016,21 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             0x44u, "Debris Cleared",
             0u, NULL,
             /* Live statistics block, which all three wrappers increment. */
-            0xD6DE0u
+            0xD6DE0u,
+            /* Villager array: container 0x50E568, reached through accessor
+               sub_466040 at 54 of its 55 call sites. That accessor rejects an
+               index above 0x95 -- 149 -- which independently confirms the 150
+               slots declared in data/builds.json and parentage_export.c.
+               Skills are FLOATS at +0x1C5C..+0x1C6C: the only run of
+               consecutive dwords in the whole stride that the code touches
+               with floating-point instructions and never with integer ones,
+               sitting beside the proven age +0x1B8C and active +0x1CC4. */
+            0x10E568u, 0x44u, 0x2E3Cu, 150,
+            0x1CC4u,
+            0x1C5Cu, 5, 1,
+            88,
+            /* The Tree of Life has no chief. */
+            0u
         );
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);
