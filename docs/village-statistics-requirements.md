@@ -15,7 +15,11 @@ save in all five games:
 - Island Events Seen
 - Twins Birthed
 - Triplets Birthed
-- Villagers Died, counting every villager death when it occurs
+- Villagers Died is NO LONGER EXPORTED. The owner removed the row,
+  preferring Villagers Buried because it stays meaningful once the
+  graveyards fill. The counter is still instrumented and still
+  increments in The Secret City, The Tree of Life and New Believers;
+  only the printed row is gone.
 - Puzzles Solved
 
 Game-specific lifetime statistics:

@@ -246,12 +246,12 @@ static int write_vv1(FILE *file, unsigned char *manager) {
         "Virtual Villagers - A New Home\n"
         "Village Statistics\n\n"
         "Real Hours Played: %d\n"
-        "Points Earned: %d\n"
+        "Tech Points Earned: %d\n"
         "Babies Made: %d\n"
         "Food Gathered: %d\n"
         "People Cured: %d\n"
         "Mushrooms Found: %d\n"
-        "Maximum Population: %d\n"
+        "Highest Population: %d\n"
         /* Read from the patch-added lifetime counter at manager+0x9E84, not
            the stock manager+0x9E38. That field has two writers image-wide and
            both are stores -- 0x41C3DF zero-inits it and 0x42F191 stores the
@@ -318,7 +318,7 @@ static int write_vv2(FILE *file, unsigned char *manager) {
         "Virtual Villagers - The Lost Children\n"
         "Village Statistics\n\n"
         "Real Hours Played: %d\n"
-        "Points Earned: %d\n"
+        "Tech Points Earned: %d\n"
         "Babies Made: %d\n"
         "Food Gathered: %d\n"
         "People Cured: %d\n"
@@ -529,7 +529,7 @@ static int write_later_game(
         "%s\n"
         "Village Statistics\n\n"
         "Real Hours Played: %d\n"
-        "Points Earned: %d\n"
+        "Tech Points Earned: %d\n"
         "Babies Made: %d\n"
         "Food Gathered: %d\n"
         "People Cured: %d\n"
@@ -610,7 +610,7 @@ static int write_vv5(
         "Virtual Villagers - New Believers\n"
         "Village Statistics\n\n"
         "Real Hours Played: %d\n"
-        "Points Earned: %d\n"
+        "Tech Points Earned: %d\n"
         "Babies Made: %d\n"
         "Food Gathered: %d\n"
         "People Cured: %d\n"
@@ -625,10 +625,11 @@ static int write_vv5(
         "Twins Birthed: %d\n"
         "Triplets Birthed: %d\n"
         "Heathens Converted: %d\n"
-        /* Counted at the two health arbiters that assign the cause of death.
-           Read from the LIVE block, which the wrappers increment; the saved
-           copy only catches up on the next stock save. */
-        "Villagers Died: %d\n"
+        /* Villagers Died was removed at the owner's instruction --
+           Villagers Buried is the kept statistic, because it stays
+           meaningful once the graveyard fills. The counter itself is left
+           in place and still incremented by its wrappers; only the row is
+           gone. */
         "Puzzles Solved: %d of %d\n",
         later_game_hours(manager, 0x36E0u, 0x7B4u),
         read_int(statistics, 0x04),
@@ -643,7 +644,6 @@ static int write_vv5(
         read_int(statistics, 0x28),
         read_int(statistics, 0x2C),
         read_int(statistics, 0x34),
-        read_int(vv5_live_statistics(statistics), 0x40),
         puzzles_solved,
         puzzle_total
     ) < 0) {
@@ -730,11 +730,13 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                once from the memorial via the marker at +0x3C. +0x30 is the
                Origins doubler ownership bitmask and must not be touched. */
             0x38u, 0x3Cu,
-            /* Villagers Died at +0x40, counted at the two health arbiters
-               that assign the cause of death. The Secret City has no debris
-               row; its stream puzzle differs. */
-            0x40u, "Villagers Died",
-            /* The Secret City has no debris row; its stream puzzle differs. */
+            /* No extra rows. Villagers Died was removed at the owner's
+               instruction -- Villagers Buried is the kept statistic,
+               because it stays meaningful once the graveyard fills. The
+               counter at +0x40 is left in place and still incremented by
+               its wrappers; only the row is gone. The Secret City has no
+               debris row either; its stream puzzle differs. */
+            0u, NULL,
             0u, NULL,
             /* Live statistics block, which the pickup wrapper increments. */
             0x1824A0u
@@ -760,15 +762,13 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                stream-clearing action at 0x43965A -- the same event the Civil
                Engineer trophy credits a unit to, without that trophy's
                stop-once-earned cap. */
-            /* Villagers Died at +0x48, counted at the two health arbiters
-               that assign the cause of death -- sub_46AF00 sets health
-               absolutely and sub_46AF40 applies a delta, and both must be
-               hooked because cumulative damage reaches zero only through the
-               second. +0x48 rather than the +0x40 the other games use: +0x40
-               is this game's burial MARKER, so the reserve layouts are not
-               parallel across games and the offset cannot be ported. */
-            0x48u, "Villagers Died",
+            /* Villagers Died was removed at the owner's instruction --
+               Villagers Buried is the kept statistic, because it stays
+               meaningful once the graveyard fills. Its counter at +0x48 is
+               left in place and still incremented by its wrappers; only the
+               row is gone, so Debris Cleared is now the single extra. */
             0x44u, "Debris Cleared",
+            0u, NULL,
             /* Live statistics block, which all three wrappers increment. */
             0xD6DE0u
         );
