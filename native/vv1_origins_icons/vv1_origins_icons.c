@@ -669,6 +669,186 @@ __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
     vv1_mask_sidecar_load();
 }
 
+/* --- Doubler ownership sidecar ------------------------------------------
+   The Origins tech/food point doublers record ownership in two fields of the
+   saved game state, +0xAD48 (tech) and +0xAD4C (food).  Those fields are set
+   correctly while the game runs, but they are NEVER persisted, and the reason
+   is structural rather than a missing write: the game's own serializer copies
+   0xABDC = 43996 bytes (`push 0xABDC` at 0x41BEAF and 0x41BF5B), while the two
+   fields live at 44360 and 44364 -- 364 and 368 bytes PAST the end of the
+   serialized extent.  So a purchased doubler is gone on the next load, which is
+   exactly what the owner reported.
+
+   Extending the game's serialized length is not an option: the length is also
+   what the loader reads, so a longer record would make every existing save
+   unreadable by the stock game and by older patcher builds.  Relocating the
+   flags into the extent is not safe either -- the apparently free dwords below
+   it are not free.  A disp32 scan (validated by a positive control that finds
+   all 27 references to +0xABE4) shows +0xABDC is the serialized length itself
+   and +0xABE4/+0xABE8 are live fields, so writing there would corrupt saves.
+
+   The flags are therefore mirrored to a sidecar next to the save, keyed by the
+   same numbered slot the mask sidecar uses:
+
+       <My Documents>\LDW\<exe basename>\vv1_doublers_<slot>.dat
+
+   Format (little-endian): 4-byte magic 'VD01' + two 4-byte flags, tech then
+   food.  This is a SEPARATE file from vv1_masks_<slot>.dat on purpose: the two
+   features are independent, and a fault in one must never be able to damage the
+   other's state.
+
+   Fail-closed exactly like the mask sidecar.  Any failure -- no Documents
+   folder, missing file, short read, wrong magic, slot not captured, null game
+   state -- leaves the in-memory flags untouched.  The worst case is "the
+   doubler is not restored", never a crash and never a damaged save.  File I/O
+   never runs from DllMain; it runs from the exports below, which the exe calls
+   outside the loader lock. */
+#define VV_DOUBLER_SIDECAR_MAGIC 0x31304456u  /* 'V' 'D' '0' '1' */
+#define VV_DOUBLER_TECH_OFFSET 0xAD48u
+#define VV_DOUBLER_FOOD_OFFSET 0xAD4Cu
+
+static int vv1_doubler_sidecar_path(char *out, size_t n, int slot) {
+    char docs[MAX_PATH];
+    char exe[MAX_PATH];
+    char *base;
+    char *dot;
+    DWORD exelen;
+    if (slot < VV_MASK_FIRST_SAVE_SLOT || slot > VV_MASK_LAST_SAVE_SLOT) {
+        return 0;
+    }
+    if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) {
+        return 0;
+    }
+    exelen = GetModuleFileNameA(NULL, exe, MAX_PATH);
+    if (exelen == 0 || exelen >= MAX_PATH) {
+        return 0;
+    }
+    base = strrchr(exe, '\\');
+    base = base ? base + 1 : exe;
+    dot = strrchr(base, '.');
+    if (dot != NULL) {
+        *dot = '\0';  /* strip ".exe" -> the save-folder basename */
+    }
+    /* Same bound as the mask sidecar: wsprintfA takes no destination size, so
+       check the longest string this writes before writing any of it. */
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + 32 + 1 > n) {
+        return 0;
+    }
+    wsprintfA(out, "%s\\LDW", docs);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s", docs, base);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\vv1_doublers_%u.dat", docs, base,
+              (unsigned int)slot);
+    return 1;
+}
+
+/* Both flags are read through the caller-supplied saved-game-state pointer --
+   the same object the exe already has in hand at every doubler call site.  The
+   DLL never hunts for it through a global, so a null or not-yet-created state
+   simply means "do nothing". */
+static unsigned int *vv1_doubler_field(void *state, unsigned int offset) {
+    if (state == NULL) {
+        return NULL;
+    }
+    return (unsigned int *)((unsigned char *)state + offset);
+}
+
+/* Persist the two ownership flags for the current slot.  Returns 1 on a
+   published sidecar, 0 on any failure (leaving any existing sidecar intact). */
+__declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
+    char path[MAX_PATH];
+    char tmp[MAX_PATH];
+    HANDLE file;
+    DWORD wrote;
+    unsigned int payload[3];
+    unsigned int *tech;
+    unsigned int *food;
+    BOOL ok = TRUE;
+    int slot = vv1_mask_current_slot();
+    tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
+    food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
+    if (!slot || tech == NULL || food == NULL) {
+        return 0;
+    }
+    if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
+        return 0;
+    }
+    payload[0] = VV_DOUBLER_SIDECAR_MAGIC;
+    payload[1] = (*tech != 0) ? 1u : 0u;
+    payload[2] = (*food != 0) ? 1u : 0u;
+    if (lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)) {
+        return 0;
+    }
+    lstrcpyA(tmp, path);
+    lstrcatA(tmp, ".tmp");
+    file = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!WriteFile(file, payload, sizeof(payload), &wrote, NULL)
+        || wrote != sizeof(payload)) {
+        ok = FALSE;
+    }
+    if (ok && !FlushFileBuffers(file)) {
+        ok = FALSE;
+    }
+    if (!CloseHandle(file)) {
+        ok = FALSE;
+    }
+    if (!ok) {
+        DeleteFileA(tmp);
+        return 0;
+    }
+    /* Publish only after the payload is written, flushed and closed, so a
+       crash mid-write can never leave a half-written sidecar in place. */
+    if (!MoveFileExA(tmp, path,
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(tmp);
+        return 0;
+    }
+    return 1;
+}
+
+/* Restore the two ownership flags for the current slot.  Returns 1 when a
+   valid sidecar was applied.  On any failure the in-memory flags are left
+   exactly as the game set them, so a missing sidecar behaves like today. */
+__declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
+    char path[MAX_PATH];
+    HANDLE file;
+    DWORD got;
+    unsigned int payload[3];
+    unsigned int *tech;
+    unsigned int *food;
+    int slot = vv1_mask_current_slot();
+    tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
+    food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
+    if (!slot || tech == NULL || food == NULL) {
+        return 0;
+    }
+    if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
+        return 0;
+    }
+    file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return 0;  /* no sidecar for this slot -> nothing owned, as before */
+    }
+    if (ReadFile(file, payload, sizeof(payload), &got, NULL)
+        && got == sizeof(payload)
+        && payload[0] == VV_DOUBLER_SIDECAR_MAGIC) {
+        /* Normalised to 0/1 on write, and normalised again here, so a corrupt
+           or hand-edited value can only ever mean owned or not owned. */
+        *tech = (payload[1] != 0) ? 1u : 0u;
+        *food = (payload[2] != 0) ? 1u : 0u;
+        CloseHandle(file);
+        return 1;
+    }
+    CloseHandle(file);
+    return 0;
+}
+
 /* Called once from the main village render tick on every frame, after the
    one-shot restore gate. This is deliberately separate from Details and from
    any selection/pickup flag: it observes the authoritative occupied byte for

@@ -170,6 +170,22 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x46E96"): "5C9F87C9FA92B6B7BCB38A902E9E81009F206F636B8A09A0BA7FA86040BF358F",
     ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
+    # Doubler persistence, save half. The stub pushad/popads around
+    # LoadLibraryA + GetProcAddress("Vv1DoublerSave") + call, replays the
+    # displaced `push esi / push 0xABDC`, then jumps to 0x41BEB4 --
+    # exactly S + 6, a plain resume rather than a foreign re-entry, so no
+    # REVIEWED entry is required. pushad/popad restores EBX (the saved
+    # game state) and every other live register, and the single stdcall
+    # argument is unwound by the callee's `ret 4`, so ESP is unchanged.
+    ("vv1_enable_origins_exclusive_features", "0x1BEAE"): "D1611667F8A166D78BAE547279860F8701C1D7CB76DB3CD6B2015B8FFD280E49",
+    # Doubler persistence, load half. Spliced at the epilogue 0x41BF68,
+    # where the read call at 0x41BF63 has returned and ESI still holds the
+    # saved game state -- not at 0x41BF5B, where those bytes are that
+    # call's arguments and a splice would run BEFORE the load. The stub
+    # pushad/popads around the resolve-and-call, then replays the
+    # displaced `pop edi / pop esi / ret 4` and RETURNS. It never jumps
+    # back into stock code, so it creates no re-entry of any kind.
+    ("vv1_enable_origins_exclusive_features", "0x1BF68"): "56FD87090A29906A283FED5D7C1C90F34FA63CBDF1E3E8657F84BA799DA2D49A",
     ("vv1_builder_action_fixes", "0x48336"): "8901998FCDDD8EB745F1666B550B4C384919536E546CA4B1EAAF3BDB90176485",
     # The statistics tracker's lifetime burial counter, spliced over the
     # skeleton-pickup latch clear at 0x448F65 in sub_448600's case 20. That

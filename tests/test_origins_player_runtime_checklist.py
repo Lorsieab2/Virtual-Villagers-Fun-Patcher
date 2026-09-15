@@ -214,6 +214,17 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         path.name,
                     )
                 elif path.name == "vv1_origins_feature.json":
+                    # Doubler persistence (#344): the tech and food doubler
+                    # ownership flags live at state+0xAD48/+0xAD4C, which is past
+                    # the 0xABDC the game serialises, so the stock save never
+                    # writes them and both doublers were lost on reload. The DLL
+                    # half already shipped; these rows are the exe calls to it.
+                    #   0x8E5E0 save stub    0x8E630 restore stub
+                    #   0x8E680 save name    0x8E6A0 restore name
+                    #   0x1BEAE save splice  0x1BF68 load splice (the epilogue,
+                    #           where the read call at 0x41BF63 has returned --
+                    #           NOT 0x41BF5B, where those bytes are that call's
+                    #           arguments and a splice would run before the load)
                     # The Tech crash hotfix changes only the corrected menu,
                     # dialog strings, preflight/Cure helpers, deferred Barrel
                     # helper, and the already-repaired section metadata rows.
@@ -227,6 +238,9 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # and the row could be bought twice (#207, reverted in #209).  It now
                     # treats a stamp as queued when it is zero OR due within the window.
                     "0x56900", "0x8BF00",
+                    # Doubler persistence rows; see the note above.
+                    "0x8E5E0", "0x8E630", "0x8E680", "0x8E6A0",
+                    "0x1BEAE", "0x1BF68",
                         # Time Warp moved wholesale into the companion DLL,
                         # which now owns its speed-aware confirmation, the
                         # paused refusal, the charge, and an advance that does
