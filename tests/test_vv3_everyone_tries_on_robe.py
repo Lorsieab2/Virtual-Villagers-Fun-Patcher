@@ -57,17 +57,18 @@ EXPANDED_COMPOSITION_RESULTS = {
 # Composing every VV3 feature. These move whenever any VV3 feature's bytes
 # change. They last moved for two reasons at once: the statistics feature's
 # skeleton-pickup burial counter (a seven-byte detour at 0x62293 and a wrapper
-# at cave+0x190), and VV3 parentage joining the catalog. The uninstall
+# at cave+0x190), VV3 parentage joining the catalog, and the Chiefs Robed
+# counter's wrapper on the robing routine sub_45FBC0 (cave+0xB2). The uninstall
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-        "A08341285369B1E0CB29BDEFA4F9384AF55DB5061BE2F2D089A456D889858718",
-        "5F680D00",
+        "6204679BA65EFAFA85836F07A68952E395373E2693CB3DE5B3A2AAF93233DD57",
+        "8E370D00",
     ),
     "immediate_fixed": (
-        "7BDEBE99178CC8FF26A8256CC025853DAEA818BD7FD0B013212815DDB439FD56",
-        "5DAA0D00",
+        "FDCF74FB09221D9CF4EA142742136B1C38CEE073BA25CA4A74F761414EF63C8C",
+        "8C790D00",
     ),
 }
 

@@ -75,6 +75,7 @@ COUNTER_GATE = {
     "triplet": "triplet_hook_va",
     "debris": "debris_hook_va",
     "death": "death_hooks",
+    "robing": "robing_hook_va",
 }
 
 # The blocked-list bullet that governs each counter, by the phrase that opens
