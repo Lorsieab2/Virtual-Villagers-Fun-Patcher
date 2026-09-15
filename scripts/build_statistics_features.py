@@ -121,6 +121,13 @@ GAMES = {
         # +0x38/+0x3C are burials and their marker, +0x40 the death counter,
         # so the next free per-save reserve dword is +0x44.
         "robing_stat_va": 0x5824E4,
+        # One-time seed marker for the robing counter, at +0x48. A save
+        # created before the hook existed has had chiefs the counter never
+        # saw, so the raw counter would read 0 for a village that plainly
+        # has a chief. Gated on a dedicated marker rather than on the
+        # counter being zero, because a genuine new village with no chief
+        # yet is indistinguishable from an unseeded one by value alone.
+        "robing_marker_va": 0x5824E8,
         # Every death in this game routes through one of two sibling health
         # arbiters. The proof they are the sole arbiter rather than one path
         # among several is that the ALIVE path explicitly writes -1 to the

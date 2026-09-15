@@ -34,6 +34,7 @@ static void write_int(unsigned char *manager, unsigned int offset, int value) {
    The constant is arbitrary but distinctive, so a slot that happens to hold a
    small integer for some other reason does not read as initialised. */
 #define BURIAL_BASELINE_MARKER 0x56425331 /* 'VBS1' */
+#define ROBING_BASELINE_MARKER 0x56433131 /* 'VC11' */
 
 static int count_flags(
     const unsigned char *manager,
@@ -99,6 +100,71 @@ static int count_occupied_graves(
         }
     }
     return total;
+}
+
+/* Seed a save's Chiefs Robed counter once, then leave it to the hook.
+
+   The wrapper on the robing routine counts every robing from the moment the
+   patch is installed. A save created before that has had chiefs the counter
+   never saw, so the raw value would read 0 for a village that visibly has a
+   chief, and would stay short by every pre-install robing for ever. The
+   requirements call for lifetime totals "from creation of the individual
+   save", so the field has to be initialised rather than merely zeroed.
+
+   WHAT IS RECOVERABLE. Nothing in a save records chiefs who have died --
+   which is the whole reason this row needs a counter and not a walk. The one
+   fact still present is whether a chief exists now, and a village with a
+   chief has had at least one. So the baseline is 1 when a living villager
+   carries the chief flag, and 0 otherwise.
+
+   That is a LOWER BOUND for a village that has already lost a chief, and
+   exact for every village that has not. It is strictly better than 0 and
+   never overstates, which is the same bargain the memorial baseline makes
+   for Villagers Buried.
+
+   Gated on its own marker, not on the counter being zero: a brand-new
+   village that has genuinely never had a chief is indistinguishable by
+   value from an unseeded one, and re-seeding every export would pin the
+   count at 1 for ever. The marker is written once whether or not a chief was
+   found, so the seed happens exactly once per save.
+
+   Only ever raises the stored value, so a counter that has already run ahead
+   of the baseline is never walked backwards. */
+static int seeded_robing_total(
+    unsigned char *counters,
+    unsigned int counter_offset,
+    unsigned int marker_offset,
+    const unsigned char *records,
+    unsigned int record_base,
+    unsigned int stride,
+    int slots,
+    unsigned int active_offset,
+    unsigned int chief_offset
+) {
+    int stored = read_int(counters, counter_offset);
+    if (read_int(counters, marker_offset) != (int)ROBING_BASELINE_MARKER) {
+        int baseline = 0;
+        if (records != NULL && stride != 0 && slots > 0) {
+            int slot;
+            for (slot = 0; slot < slots; ++slot) {
+                const unsigned char *record =
+                    records + record_base + (size_t)slot * stride;
+                if (*(const unsigned char *)(record + active_offset) != 1) {
+                    continue;
+                }
+                if (*(const unsigned char *)(record + chief_offset) != 0) {
+                    baseline = 1;
+                    break;
+                }
+            }
+        }
+        if (baseline > stored) {
+            stored = baseline;
+            write_int(counters, counter_offset, stored);
+        }
+        write_int(counters, marker_offset, (int)ROBING_BASELINE_MARKER);
+    }
+    return stored;
 }
 
 /* Emit the memorial row, or nothing when a game's array is unlocated.
@@ -528,7 +594,16 @@ static int write_later_game(
        current state when that loses history. The counter is advanced by a
        wrapper on the robing routine itself; see the robing hook in
        scripts/build_statistics_features.py. */
-    unsigned int chiefs_offset
+    unsigned int chiefs_offset,
+    /* Statistics-block offset of the Chiefs Robed one-time seed marker, and
+       the villager array the baseline is read from. Zero omits the seed. */
+    unsigned int chiefs_marker_offset,
+    unsigned int villagers_rva,
+    unsigned int villager_record_base,
+    unsigned int villager_stride,
+    int villager_slots,
+    unsigned int villager_active,
+    unsigned int villager_chief
 ) {
     unsigned char *statistics = (unsigned char *)manager + statistics_offset;
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
@@ -594,11 +669,18 @@ static int write_later_game(
        patch-added counter: the wrapper increments the live copy and the
        saved copy only catches up on the next stock save, so reading the
        saved one would lag by a save. */
-    if (chiefs_offset != 0u
-        && fprintf(file, "Chiefs Robed: %d\n",
-                   read_int(live != NULL ? live : statistics,
-                            chiefs_offset)) < 0) {
-        return 0;
+    if (chiefs_offset != 0u) {
+        unsigned char *counters = live != NULL ? live : statistics;
+        int chiefs = chiefs_marker_offset == 0u || module == NULL
+            ? read_int(counters, chiefs_offset)
+            : seeded_robing_total(
+                counters, chiefs_offset, chiefs_marker_offset,
+                module + villagers_rva,
+                villager_record_base, villager_stride, villager_slots,
+                villager_active, villager_chief);
+        if (fprintf(file, "Chiefs Robed: %d\n", chiefs) < 0) {
+            return 0;
+        }
     }
     /* Read the live block for patch-added counters: the wrapper increments
        it, and the saved copy only catches up on the next stock save. */
@@ -779,7 +861,20 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                the chief flag in the image -- so every replacement chief is
                counted, including the ones the one-shot chief puzzle never
                fires for. */
-            0x44u
+            0x44u,
+            /* Seed marker at +0x48, and the villager array the one-time
+               baseline is read from: container 0x59E110 (accessor sub_45C840,
+               record base 0x14, stride 0x1F8C, 150 slots), active byte +0xF10,
+               chief flag +0xE80.
+
+               +0xE80 is the chief flag in the IN-MEMORY record. It is the only
+               field the robing routine sets, and it is runtime-confirmed in
+               tests/test_vv3_everyone_tries_on_robe.py, where with two chiefs
+               present it was set on exactly those two villagers and clear on
+               the other 147. */
+            0x48u,
+            0x19E110u, 0x14u, 0x1F8Cu, 150,
+            0xF10u, 0xE80u
         );
     } else if (game_id == GAME_VV4) {
         written = write_later_game(
@@ -811,8 +906,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             0u, NULL,
             /* Live statistics block, which all three wrappers increment. */
             0xD6DE0u,
-            /* The Tree of Life has no chief. */
-            0u
+            /* The Tree of Life has no chief, so no row and no seed. */
+            0u,
+            0u, 0u, 0u, 0u, 0, 0u, 0u
         );
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);
