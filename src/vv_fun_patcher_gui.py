@@ -770,7 +770,13 @@ class App(tk.Tk):
         saved_mode = data.get("patch_mode", DEFAULT_PATCH_MODE)
         if saved_mode in {mode.id for mode in self.patch_modes}:
             self.patch_mode_var.set(saved_mode)
-        selected_fun = data.get("fun_patches", [])
+        # Only an actually-present saved selection may override the
+        # all-selected default. Reading a missing key as an empty list would
+        # turn every patch off on a fresh install -- where the settings file
+        # does not exist and data is {} -- and on any older settings file
+        # written before this key existed, which is precisely when the
+        # default is supposed to apply.
+        selected_fun = data.get("fun_patches")
         if isinstance(selected_fun, list):
             for patch in self.fun_patches:
                 self.fun_patch_vars[patch.id].set(patch.id in selected_fun)

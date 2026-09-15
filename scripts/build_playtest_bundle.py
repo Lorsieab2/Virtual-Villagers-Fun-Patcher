@@ -467,10 +467,7 @@ def _parser() -> argparse.ArgumentParser:
         p.add_argument("--source-folder", type=Path, required=True)
         p.add_argument("--output-root", type=Path, required=True)
         p.add_argument("--patch-mode", default="collection_progression", choices=("collection_progression", "immediate_fixed"))
-        # Optional: omitting it selects every fun patch for the game, so a
-        # generated build never silently lacks a feature. Naming any
-        # --fun-patch still restricts the build to exactly those.
-        p.add_argument("--fun-patch", action="append")
+        p.add_argument("--fun-patch", action="append", required=True)
         if command == "build":
             p.add_argument("--package", action="store_true")
     package = sub.add_parser("package")
@@ -478,42 +475,20 @@ def _parser() -> argparse.ArgumentParser:
     package.add_argument("--game-folder", type=Path, required=True)
     package.add_argument("--output-root", type=Path, required=True)
     package.add_argument("--patch-mode", default="collection_progression", choices=("collection_progression", "immediate_fixed"))
-    # Optional here too; omitting it means every fun patch for the game.
-    package.add_argument("--fun-patch", action="append")
+    package.add_argument("--fun-patch", action="append", required=True)
     return parser
-
-
-def _resolve_feature_ids(game_id: str, requested: list[str] | None) -> list[str]:
-    """Every fun patch for the game when none was named.
-
-    The owner's rule is that a build never silently lacks a feature, so
-    omitting --fun-patch selects everything rather than nothing. Naming any
-    --fun-patch still restricts the build to exactly those, which is what
-    the isolation and composition workflows rely on.
-
-    Safe as a blanket default because no fun patch declares a conflict: the
-    only declared relationships are dependencies, and selecting everything
-    satisfies them by construction."""
-    if requested:
-        return list(requested)
-    return [
-        patch.id
-        for patch in _patcher_module().load_public_fun_patches()
-        if patch.game_id == game_id
-    ]
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
-        feature_ids = _resolve_feature_ids(args.game, args.fun_patch)
         if args.command == "dry-run":
-            result = dry_run(args.game, args.source_folder, args.output_root, feature_ids, args.patch_mode)
+            result = dry_run(args.game, args.source_folder, args.output_root, args.fun_patch, args.patch_mode)
         elif args.command == "build":
-            result = build_bundle(args.game, args.source_folder, args.output_root, feature_ids, args.patch_mode, args.package)
+            result = build_bundle(args.game, args.source_folder, args.output_root, args.fun_patch, args.patch_mode, args.package)
         else:
-            _assert_feature_ids(args.game, feature_ids)
-            result = package_folder(args.game, args.game_folder, args.output_root, feature_ids, args.patch_mode)
+            _assert_feature_ids(args.game, args.fun_patch)
+            result = package_folder(args.game, args.game_folder, args.output_root, args.fun_patch, args.patch_mode)
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0
     except (BundleError, OSError, ValueError) as exc:
