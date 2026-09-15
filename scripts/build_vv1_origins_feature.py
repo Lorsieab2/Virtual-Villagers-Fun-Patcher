@@ -538,18 +538,39 @@ DOUBLER_RESTORE_NAME_VA = mask_code_va(DOUBLER_RESTORE_NAME_FILE_OFFSET)
 #   0x41BEAE  56 68 DC AB 00 00   push esi / push 0xABDC   (EBX = state)
 #   0x41BF68  5F 5E C2 04 00      pop edi / pop esi / retn 4  (ESI = state)
 #
-# The load hook is the EPILOGUE, deliberately, not the argument setup at
-# 0x41BF5B. There the `push 0xABDC / mov ecx,esi` pair are arguments to the
-# call at 0x41BF63 that performs the read, so a splice on them runs BEFORE
-# the load and the stock read would then overwrite whatever was restored.
-# 0x41BF68 is where that call returns: the read has completed, ESI still
-# holds the saved game state, and the epilogue is exactly five bytes --
-# the minimum a jmp rel32 needs. The stub replays the epilogue itself
-# rather than jumping back, since the function ends there.
-DOUBLER_SAVE_HOOK_VA = 0x41BEAE
-DOUBLER_SAVE_HOOK_GUARD = bytes.fromhex("5668DCAB0000")
-DOUBLER_LOAD_HOOK_VA = 0x41BF68
-DOUBLER_LOAD_HOOK_GUARD = bytes.fromhex("5F5EC20400")
+# WHICH FUNCTION IS WHICH.  The two routines look alike and the earlier
+# revision of these hooks had them backwards, which left the feature inert
+# even though every splice verified.  The file primitives settle it:
+#
+#   sub_402FD0   fopen("rb"), fread, checks the 'ldwg' magic   -> the READER
+#   sub_403160   fopen("wb"), fwrite header + payload          -> the WRITER
+#
+# so
+#
+#   sub_41BE00   calls sub_402FD0 at 0x41BEC4, then `rep movsd` at 0x41BEDB
+#                copies the staged buffer into state+8         -> this LOADS
+#   sub_41BF10   calls sub_403160 at 0x41BF63 with state+8     -> this SAVES
+#
+# THE RESTORE HOOK, 0x41BEFD, is on the load path AFTER the state is in
+# place: the read succeeded (0x41BECB jnz), `rep movsd` has installed it, and
+# EBX still holds the state.  It replaces `call sub_448450`, which is exactly
+# five bytes.  It is NOT at 0x41BEAE, where the earlier revision put it --
+# that is before the read, so it sampled the previous village's flags -- and
+# NOT at the shared epilogue 0x41BF02, which 0x41BE92 also jumps to on a path
+# that never loaded anything.  0x41BEFD has a single predecessor, 0x41BEF7,
+# reached only by falling through the success branch.
+#
+# THE SAVE HOOK, 0x41BF68, is the save function's epilogue: the write at
+# 0x41BF63 has returned, ESI still holds the state, and the epilogue is
+# exactly five bytes -- the minimum a jmp rel32 needs.  The stub replays the
+# epilogue itself rather than jumping back, since the function ends there.
+# Publishing the sidecar here, after the native write, is also what keeps the
+# two in step: a failed or crashed save never reaches this point, so the
+# sidecar cannot outlive a .ldw that was never written.
+DOUBLER_SAVE_HOOK_VA = 0x41BF68
+DOUBLER_SAVE_HOOK_GUARD = bytes.fromhex("5F5EC20400")
+DOUBLER_LOAD_HOOK_VA = 0x41BEFD
+DOUBLER_LOAD_HOOK_GUARD = bytes.fromhex("E84EC50200")
 # Exact stock newborn/allocation boundary.  sub_43C350 selects the first free
 # record, stores the live occupied byte at 0x43C393, and returns that record's
 # index to every normal/event caller.  The mask hook is placed immediately
@@ -2888,13 +2909,19 @@ def main() -> None:
     # the extent are not free (+0xABE4 has 27 references, +0xABDC IS the
     # length), so the flags are published to a sidecar instead.
     #
-    # Runs BEFORE the stock write. The DLL only reads the two flags and
-    # publishes its own file -- it never touches the game's buffer -- so
-    # either order is safe here; going first means a sidecar failure cannot
-    # leave the stock save half written.
+    # Runs AFTER the stock write, at the save function's epilogue 0x41BF68,
+    # where the write call at 0x41BF63 has returned. That ordering is what
+    # keeps the sidecar and the .ldw in step: a save that fails or crashes
+    # never reaches the epilogue, so the sidecar is never published for a
+    # .ldw that was not written, and a stale sidecar cannot outlive the save
+    # it describes. The DLL only reads the two flags and publishes its own
+    # file; it never touches the game's buffer.
     #
-    # EBX is the saved-game-state object at this splice; pushad preserves it
-    # and every other live register across the resolve-and-call.
+    # ESI is the saved-game-state object at this splice -- the same object
+    # the write at 0x41BF58 passed as state+8. pushad preserves it and every
+    # other live register across the resolve-and-call. The stub replays
+    # `pop edi / pop esi / ret 4` itself rather than jumping back, because
+    # the function ends there and there is nothing to return to.
     doubler_save_stub_code = assemble(
         f"""
             pushad
@@ -2914,16 +2941,16 @@ def main() -> None:
             jz doubler_save_missing
             mov dword ptr [{DOUBLER_SAVE_DLL_FN_VA:#x}], eax
         doubler_save_call:
-            push ebx                                    # saved game state
+            push esi                                    # saved game state
             call eax                                    # Vv1DoublerSave @4
             jmp doubler_save_ret
         doubler_save_missing:
             mov dword ptr [{DOUBLER_SAVE_DLL_FN_VA:#x}], 1
         doubler_save_ret:
             popad
-            push esi                                    # displaced
-            push 0xabdc                                 # displaced
-            jmp {DOUBLER_SAVE_HOOK_VA + len(DOUBLER_SAVE_HOOK_GUARD):#x}
+            pop edi                                     # displaced epilogue
+            pop esi                                     # displaced epilogue
+            ret 4                                       # displaced epilogue
         """,
         DOUBLER_SAVE_STUB_VA,
     )
@@ -2934,14 +2961,14 @@ def main() -> None:
         )
     # Restore the two flags on load.
     #
-    # Spliced at the EPILOGUE 0x41BF68, which is where the read call at
-    # 0x41BF63 returns -- not at 0x41BF5B, where the push/mov pair are that
-    # call's ARGUMENTS. A splice there would run before the load, and the
-    # stock read would then overwrite the restored flags.
+    # Spliced at 0x41BEFD, inside the LOAD function sub_41BE00, at the point
+    # where the state is actually in place: the read at 0x41BEC4 returned
+    # true (0x41BECB jnz) and the `rep movsd` at 0x41BEDB has copied the
+    # staged buffer into state+8. EBX holds that state. The displaced five
+    # bytes are `call sub_448450`, which the stub replays before resuming.
     #
-    # ESI still holds the saved game state at the epilogue. The stub replays
-    # `pop edi / pop esi / ret 4` itself rather than jumping back, because the
-    # function ends there and there is nothing to return to.
+    # popad restores ECX to what 0x41BEF7 loaded for that call, so the stub
+    # does not need to rebuild the argument.
     doubler_restore_stub_code = assemble(
         f"""
             pushad
@@ -2961,16 +2988,16 @@ def main() -> None:
             jz doubler_restore_missing
             mov dword ptr [{DOUBLER_RESTORE_DLL_FN_VA:#x}], eax
         doubler_restore_call:
-            push esi                                    # saved game state
+            push ebx                                    # saved game state
             call eax                                    # Vv1DoublerRestore @4
             jmp doubler_restore_ret
         doubler_restore_missing:
             mov dword ptr [{DOUBLER_RESTORE_DLL_FN_VA:#x}], 1
         doubler_restore_ret:
-            popad
-            pop edi                                     # displaced epilogue
-            pop esi                                     # displaced epilogue
-            ret 4                                       # displaced epilogue
+            popad                                       # restores ECX, which
+                                                        # 0x41BEF7 already set
+            call 0x448450                               # displaced
+            jmp {DOUBLER_LOAD_HOOK_VA + len(DOUBLER_LOAD_HOOK_GUARD):#x}
         """,
         DOUBLER_RESTORE_STUB_VA,
     )

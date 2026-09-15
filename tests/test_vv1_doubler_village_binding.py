@@ -163,5 +163,89 @@ class VillageTagBindingTest(unittest.TestCase):
         )
 
 
+class HookDirectionTest(unittest.TestCase):
+    """The save hook must be on the save function and the restore hook on the
+    load function.
+
+    An earlier revision had them the other way round.  Every splice verified,
+    every guard matched, and the feature was still completely inert: the save
+    export ran on load (before the read, so it sampled the previous village)
+    and the restore export ran at the end of a save (where nothing needs
+    restoring and nothing is re-serialised).
+
+    The file primitives are what settle the direction, so this test asserts
+    against those rather than against the function names:
+
+        sub_402FD0  fopen("rb") + fread + 'ldwg' magic   -> the READER
+        sub_403160  fopen("wb") + fwrite                 -> the WRITER
+    """
+
+    GENERATOR = ROOT / "scripts" / "build_vv1_origins_feature.py"
+
+    # sub_41BF10 calls the WRITER at 0x41BF63, so it saves.  0x41BF68 is its
+    # epilogue: the write has returned and ESI holds the state.
+    SAVE_HOOK_VA = 0x41BF68
+    SAVE_HOOK_GUARD = "5F5EC20400"
+
+    # sub_41BE00 calls the READER at 0x41BEC4 and installs the result with the
+    # rep movsd at 0x41BEDB.  0x41BEFD is past both, and EBX holds the state.
+    LOAD_HOOK_VA = 0x41BEFD
+    LOAD_HOOK_GUARD = "E84EC50200"
+
+    # Before the read, and before the rep movsd -- where the save hook used to
+    # be.  Nothing may be spliced here.
+    PRE_READ_VA = 0x41BEAE
+
+    def setUp(self) -> None:
+        self.text = self.GENERATOR.read_text(encoding="utf-8")
+
+    def _const(self, name: str) -> str:
+        match = re.search(
+            r"^%s\s*=\s*(.+)$" % re.escape(name), self.text, re.MULTILINE
+        )
+        self.assertIsNotNone(match, "%s is not defined" % name)
+        return match.group(1).strip()
+
+    def test_save_hook_is_on_the_save_function(self) -> None:
+        self.assertEqual(
+            int(self._const("DOUBLER_SAVE_HOOK_VA"), 16),
+            self.SAVE_HOOK_VA,
+            "Vv1DoublerSave must be spliced at the SAVE function's epilogue "
+            "(sub_41BF10, which calls the writer sub_403160), not on the load "
+            "function",
+        )
+        self.assertIn(self.SAVE_HOOK_GUARD, self._const("DOUBLER_SAVE_HOOK_GUARD"))
+
+    def test_restore_hook_is_on_the_load_function_after_the_state_lands(self) -> None:
+        self.assertEqual(
+            int(self._const("DOUBLER_LOAD_HOOK_VA"), 16),
+            self.LOAD_HOOK_VA,
+            "Vv1DoublerRestore must be spliced on the LOAD function "
+            "(sub_41BE00) AFTER the rep movsd at 0x41BEDB installs the state",
+        )
+        self.assertIn(self.LOAD_HOOK_GUARD, self._const("DOUBLER_LOAD_HOOK_GUARD"))
+
+    def test_nothing_is_spliced_before_the_read(self) -> None:
+        """0x41BEAE runs before the read, so a hook there sees the previous
+        village's flags.  That is where the save hook used to sit."""
+        for name in ("DOUBLER_SAVE_HOOK_VA", "DOUBLER_LOAD_HOOK_VA"):
+            self.assertNotEqual(
+                int(self._const(name), 16),
+                self.PRE_READ_VA,
+                "%s is at 0x41BEAE, which runs BEFORE the read at 0x41BEC4" % name,
+            )
+
+    def test_each_stub_pushes_the_register_its_site_actually_holds(self) -> None:
+        """EBX on the load path, ESI at the save epilogue.  Pushing the wrong
+        one hands the DLL a pointer that is not the game state."""
+        save = self.text[self.text.index("doubler_save_call:"):]
+        save = save[:save.index("doubler_save_ret:")]
+        self.assertIn("push esi", save, "the save epilogue holds the state in ESI")
+
+        restore = self.text[self.text.index("doubler_restore_call:"):]
+        restore = restore[:restore.index("doubler_restore_ret:")]
+        self.assertIn("push ebx", restore, "the load path holds the state in EBX")
+
+
 if __name__ == "__main__":
     unittest.main()

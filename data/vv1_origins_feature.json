@@ -322,26 +322,26 @@
     },
     {
       "offset": "0x8E5E0",
-      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "60A1FC11490083F801743785C0752468995D4800FF151070450085C0741A688006490050FF15D470450085C0740AA3FC11490053FFD0EB0AC705FC11490001000000615668DCAB0000E986B8F8FF",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "60A1FC11490083F801743785C0752468995D4800FF151070450085C0741A688006490050FF15D470450085C0740AA3FC11490056FFD0EB0AC705FC11490001000000615F5EC20400",
       "purpose": "doubler persistence, save half (in owned R-X .vv1mc): resolve Vv1DoublerSave once, cache a missing DLL/export as a fail-open sentinel, publish the two ownership flags to the sidecar, then replay the displaced push/push and resume the stock save"
     },
     {
       "offset": "0x8E630",
-      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "60A10012490083F801743785C0752468995D4800FF151070450085C0741A68A006490050FF15D470450085C0740AA30012490056FFD0EB0AC7050012490001000000615F5EC20400",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "60A10012490083F801743785C0752468995D4800FF151070450085C0741A68A006490050FF15D470450085C0740AA30012490053FFD0EB0AC705001249000100000061E8D87DFBFFE985B8F8FF",
       "purpose": "doubler persistence, load half (in owned R-X .vv1mc): resolve Vv1DoublerRestore once, cache a missing DLL/export as a fail-open sentinel, reapply the two ownership flags after the stock read has completed, then replay the displaced epilogue"
-    },
-    {
-      "offset": "0x1BEAE",
-      "before": "5668DCAB0000",
-      "after": "E92D47070090",
-      "purpose": "persist the tech and food doubler ownership flags on every save. They live at state+0xAD48/+0xAD4C, past the 0xABDC the game serialises, so the stock save never writes them and both doublers are lost on reload"
     },
     {
       "offset": "0x1BF68",
       "before": "5F5EC20400",
-      "after": "E9C3460700",
+      "after": "E973460700",
+      "purpose": "persist the tech and food doubler ownership flags on every save. They live at state+0xAD48/+0xAD4C, past the 0xABDC the game serialises, so the stock save never writes them and both doublers are lost on reload"
+    },
+    {
+      "offset": "0x1BEFD",
+      "before": "E84EC50200",
+      "after": "E92E470700",
       "purpose": "reapply the two doubler ownership flags after a save is loaded. Spliced at the epilogue 0x41BF68, where the read call at 0x41BF63 has returned and ESI still holds the saved game state -- not at 0x41BF5B, where those bytes are that call's arguments and a splice would run before the read"
     },
     {
