@@ -22,14 +22,22 @@ def test_name_crash_finalizer_rejects_partial_site_mapping_without_writes() -> N
     with patch.object(
         patcher,
         "_nci_find_call_sites",
-        return_value=[IMAGE_BASE + 0x27DD, IMAGE_BASE + 0x2944],
+        # 0x2944 is the save-folder site and is now REMOVED from the rewrite
+        # set before any writability check, so probing it would test nothing.
+        # 0x27DD is wrapped, so making it unmappable still exercises the
+        # partial-failure path this test exists for.
+        return_value=[
+            IMAGE_BASE + 0x27DD,
+            IMAGE_BASE + 0x2944,
+            IMAGE_BASE + 0x50967,
+        ],
     ):
         original_mapper = patcher._nci_rva_to_off
         with patch.object(
             patcher,
             "_nci_rva_to_off",
             side_effect=lambda info, rva: None
-            if rva == 0x2944
+            if rva == 0x27DD
             else original_mapper(info, rva),
         ):
             result = patcher._apply_name_crash_immunity(

@@ -135,7 +135,15 @@ class NameCrashWrapperTests(unittest.TestCase):
         for row in applied:
             self.assertEqual(row["purpose"], "wrong-exe-name crash immunity")
             self.assertEqual(row["owner"], "automatic:name_crash_immunity")
-        self.assertEqual(len(result["call_sites"]), 5)
+        # Four, not five: VV1 has five GetModuleFileNameA call sites and the
+        # save-folder one (RVA 0x2944) is deliberately left unwrapped so the
+        # published exe uses a folder named after itself (#347).
+        self.assertEqual(len(result["call_sites"]), 4)
+        self.assertNotIn(
+            IMAGE_BASE + 0x2944,
+            result["call_sites"],
+            "the save-folder call site must not be rewritten",
+        )
         name_to_code = result["wrapper_va"] - result["name_va"]
         wrapper_length = len(
             patcher._nci_wrapper(
@@ -185,25 +193,173 @@ class NameCrashWrapperTests(unittest.TestCase):
                 )
 
     def test_partial_call_site_failure_is_fail_closed(self) -> None:
+        """One unmappable site must abort the whole rewrite.
+
+        The probe deliberately uses 0x27DD rather than 0x2944. 0x2944 is the
+        save-folder call site, which is now REMOVED from the rewrite set
+        before any writability check runs, so using it here would test
+        nothing -- the earlier version of this test did exactly that and
+        started passing for the wrong reason.
+        """
         data = _synthetic_pe()
         original = bytes(data)
         with patch.object(
             patcher,
             "_nci_find_call_sites",
-            return_value=[IMAGE_BASE + 0x27DD, IMAGE_BASE + 0x2944],
+            # 0x2944 must be present or the drift guard fires first; the
+            # rewrite set after exclusion is {0x27DD, 0x50967}.
+            return_value=[
+                IMAGE_BASE + 0x27DD,
+                IMAGE_BASE + 0x2944,
+                IMAGE_BASE + 0x50967,
+            ],
         ):
             original_mapper = patcher._nci_rva_to_off
             with patch.object(
                 patcher,
                 "_nci_rva_to_off",
                 side_effect=lambda info, rva: None
-                if rva == 0x2944
+                if rva == 0x27DD
                 else original_mapper(info, rva),
             ):
                 result = patcher._apply_name_crash_immunity(
                     data, EXPECTED_BASENAME, []
                 )
         self.assertEqual(result, {"status": "skipped", "reason": "call site not writable"})
+        self.assertEqual(bytes(data), original)
+
+    def test_the_save_folder_site_is_left_unwrapped(self) -> None:
+        """#347: the published exe must use a folder named after ITSELF.
+
+        Every other site stays wrapped, so the name-gated init path still sees
+        the stock basename -- which is what makes the rename survivable for
+        VV1/VV2/VV3, where exempting the whole wrapper is not an option.
+        """
+        for iat_rva, save_rva in patcher._NCI_SAVE_FOLDER_CALL_SITE_RVAS.items():
+            with self.subTest(iat=hex(iat_rva)):
+                sites = patcher._NCI_CALL_SITE_RVAS[iat_rva]
+                self.assertIn(
+                    save_rva,
+                    sites,
+                    "the save-folder site must be one of the discovered sites, "
+                    "or the exclusion silently does nothing",
+                )
+                self.assertGreater(
+                    len(sites),
+                    1,
+                    "excluding the only site would leave nothing wrapped",
+                )
+
+    def test_the_named_site_is_the_one_that_builds_the_save_folder(self) -> None:
+        """Checked against the executables, not against the map itself.
+
+        A map that is merely self-consistent would still pass while naming a
+        CRT internal or the directory-only site -- mutation testing showed
+        exactly that. The decisive evidence is the string "\\LDW": it appears
+        ONCE in each image and is referenced ONCE, and that reference lies in
+        the same function as the save-folder call. So the named site must be
+        the `call [IAT]` nearest before that reference.
+        """
+        import struct
+
+        stock = {
+            0x5711C: "Virtual Villagers - A New Home.exe",
+            0x7411C: "Virtual Villagers - The Lost Children.exe",
+            0x7C130: "Virtual Villagers - The Secret City.exe",
+        }
+        root = Path(__file__).resolve().parents[1] / "research" / "stock-executables"
+        for iat_rva, exe_name in stock.items():
+            exe = root / exe_name
+            if not exe.is_file():
+                self.skipTest("%s is not available" % exe_name)
+            blob = exe.read_bytes()
+            with self.subTest(game=exe_name):
+                pe = struct.unpack_from("<I", blob, 0x3C)[0]
+                nsec = struct.unpack_from("<H", blob, pe + 6)[0]
+                optsz = struct.unpack_from("<H", blob, pe + 20)[0]
+                base = struct.unpack_from("<I", blob, pe + 24 + 28)[0]
+                secs = []
+                for i in range(nsec):
+                    off = pe + 24 + optsz + i * 40
+                    secs.append(struct.unpack_from("<IIII", blob, off + 8))
+
+                def to_va(file_off):
+                    for vsize, vaddr, rsize, rawoff in secs:
+                        if rawoff <= file_off < rawoff + rsize:
+                            return base + vaddr + (file_off - rawoff)
+                    return None
+
+                # "\LDW" must be unique, or "the reference" is not well defined.
+                needle = b"\\LDW"
+                self.assertEqual(
+                    blob.count(needle), 1, "expected exactly one \\LDW string"
+                )
+                ldw_va = to_va(blob.index(needle))
+                self.assertIsNotNone(ldw_va)
+                refs = [
+                    i
+                    for i in range(len(blob) - 4)
+                    if blob[i:i + 4] == struct.pack("<I", ldw_va)
+                ]
+                self.assertEqual(len(refs), 1, "expected exactly one reference")
+                ref_off = refs[0]
+
+                # The nearest `call [IAT]` before that reference.
+                call = b"\xff\x15" + struct.pack("<I", base + iat_rva)
+                before = [
+                    i
+                    for i in range(ref_off)
+                    if blob[i:i + 6] == call
+                ]
+                self.assertTrue(before, "no import call before the \\LDW reference")
+                nearest_va = to_va(before[-1])
+                self.assertEqual(
+                    nearest_va - base,
+                    patcher._NCI_SAVE_FOLDER_CALL_SITE_RVAS[iat_rva],
+                    "the map names a site that is not the one whose function "
+                    "builds the save folder",
+                )
+
+    def test_every_wrapped_game_has_a_save_folder_exemption(self) -> None:
+        """A game left out of the map keeps the reported bug.
+
+        VV4 and VV5 are absent legitimately -- they are exempt from the
+        wrapper entirely, so their save-folder sites already see the real
+        name. Every game that IS wrapped needs an entry.
+        """
+        wrapped = {
+            iat: rvas
+            for iat, rvas in patcher._NCI_CALL_SITE_RVAS.items()
+            if iat in (0x5711C, 0x7411C, 0x7C130)
+        }
+        self.assertEqual(
+            set(wrapped),
+            set(patcher._NCI_SAVE_FOLDER_CALL_SITE_RVAS),
+            "a wrapped game is missing its save-folder exemption",
+        )
+
+    def test_a_drifted_save_folder_site_fails_closed(self) -> None:
+        """If the map names a site the discovery does not return, stop.
+
+        Silently wrapping everything would restore the reported bug; silently
+        wrapping nothing would leave the rename unsurvivable. Neither is safe,
+        so the wrapper declines and publication fails closed.
+        """
+        data = _synthetic_pe()
+        original = bytes(data)
+        with patch.object(
+            patcher,
+            "_nci_find_call_sites",
+            return_value=[IMAGE_BASE + 0x27DD, IMAGE_BASE + 0x50967],
+        ):
+            result = patcher._apply_name_crash_immunity(data, EXPECTED_BASENAME, [])
+        self.assertEqual(
+            result,
+            {
+                "status": "skipped",
+                "reason": "save-folder call site not among the discovered sites",
+            },
+        )
         self.assertEqual(bytes(data), original)
 
 

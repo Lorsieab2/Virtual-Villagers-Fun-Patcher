@@ -3040,7 +3040,12 @@ class StockIntegrationTests(unittest.TestCase):
                 for row in log["patches"]
                 if row["owner"] == "automatic:pe_checksum"
             ]
-            self.assertEqual(len(name_guard_rows), 7)
+            # Six, not seven: two fixed rows (the name blob and the wrapper)
+            # plus one per rewritten call site. VV2 has five
+            # GetModuleFileNameA sites and the save-folder one (0x402BD4) is
+            # deliberately left unwrapped so the published exe uses a folder
+            # named after itself (#347), leaving four.
+            self.assertEqual(len(name_guard_rows), 6)
             self.assertEqual(len(checksum_rows), 1)
             self.assertEqual(
                 len(log["patches"]),
