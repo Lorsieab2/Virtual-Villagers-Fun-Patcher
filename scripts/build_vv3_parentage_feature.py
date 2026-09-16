@@ -421,8 +421,8 @@ def build() -> dict:
                 "output_tag": "Parentage Log Text Export",
                 "description": (
                     "Records both parents at conception in a plain text log: "
-                    "their names, ages, head and body values, and the number "
-                    "of babies, appended to "
+                    "their names, the mother's age at conception, both head "
+                    "and body values, and the number of babies, appended to "
                     "'Virtual Villagers 3 Parentage Log N.txt' beside the game "
                     "executable. Parentage is not stored in any villager "
                     "record, so both parents are captured at conception; they "
@@ -431,12 +431,10 @@ def build() -> dict:
                     "id. His HEAD and BODY are copied onto her at conception, "
                     "so the log reads them from her record and they are "
                     "correct even after he dies or another villager takes his "
-                    "name. His AGE is not copied by any game, so it still "
-                    "depends on finding his record: when he cannot be found "
-                    "the log names him and records '(record not found)' for "
-                    "the age alone, rather than printing a zero a real "
-                    "villager could hold. Rolls to a new numbered file every "
-                    "256 records."
+                    "name. His AGE is not recorded: no game copies it onto "
+                    "her, and the child's age derives from the mother's, so "
+                    "the log carries hers alone. Rolls to a new numbered "
+                    "file every 256 records."
                 ),
                 "companion_files": [
                     {

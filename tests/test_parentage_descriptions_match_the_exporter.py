@@ -9,10 +9,16 @@ decoration. It drifted twice from one change to the exporter:
   * VV1 said it appends "the mother's and father's names, their ages at
     conception, their head and body values" while VV1 is FATHER_NOT_RECORDED,
     so every father field -- his name included -- reads as unavailable.
+  * VV2 through VV5 still advertised "their ages at conception" after the
+    father's age was removed from the record entirely. The guard did not catch
+    it because it only checked how a description talked about lookup FAILURE,
+    never which fields it claimed. That omission also left the previous
+    assertion inverted: with the age gone, no father field depends on a lookup
+    any more, yet every description was still required to say one could fail.
 
-Both were true when written, and neither was caught by anything: a description
-is prose, and no test read it against the C. This does, by deriving the
-expectation from the exporter's own layout table.
+All three were true when written, and none was caught by anything: a
+description is prose, and no test read it against the C. This does, by deriving
+the expectation from the exporter's own layout table and its format string.
 """
 
 from __future__ import annotations
@@ -113,22 +119,71 @@ class ParentageDescriptionsMatchExporterTests(unittest.TestCase):
                             "description must not say they are %s"
                             % (game, NOT_RECORDED),
                         )
-                        # It must acknowledge that the lookup can fail, but
-                        # not necessarily by quoting the literal string. VV2's
-                        # description explains the failure in prose because its
-                        # head and body come from the mother's copies and only
-                        # the age depends on the lookup -- demanding the exact
-                        # text would fail a description that is more accurate
-                        # than the one it replaced.
-                        self.assertTrue(
-                            NOT_FOUND in description
-                            or "cannot be confirmed" in description
-                            or "cannot be found" in description,
-                            "VV%d must say what happens when the father cannot "
-                            "be found, since the lookup can legitimately fail"
-                            % game,
-                        )
         self.assertGreater(checked, 0, "no parentage description was checked")
+
+    def test_no_description_advertises_an_age_for_the_father(self):
+        """The record prints one age, and it is the mother's.
+
+        Derived from the exporter rather than asserted as a constant: if a
+        father age is ever reinstated, this guard must start allowing the
+        claim again instead of failing for a description that became true.
+        """
+        source = EXPORTER.read_text(encoding="utf-8")
+        ages = source.count("Age at conception")
+        self.assertEqual(
+            ages, 1, "the exporter no longer prints exactly one age; "
+            "this guard's premise has changed and needs revisiting"
+        )
+        # Wordings that claim an age the exporter does not print. The
+        # plurals advertise one for both parents; the singulars describe the
+        # father's specifically, which a plural-only check misses -- VV5 kept
+        # "reports the age as (record not found)" through exactly that gap.
+        plural = (
+            "their ages",
+            "ages at conception",
+            "their ages at conception",
+            "the age as",
+            "for the age",
+            "the age alone",
+            "his age",
+            "His AGE is not copied,",
+        )
+        for game, path in MANIFESTS.items():
+            if not path.exists():
+                continue
+            for description in _descriptions(path):
+                if "arentage" not in description and "onception" not in description:
+                    continue
+                with self.subTest(game=game):
+                    for phrase in plural:
+                        self.assertNotIn(
+                            phrase,
+                            description,
+                            "VV%d describes an age the log does not record; "
+                            "only the mother's is printed" % game,
+                        )
+
+    def test_a_description_that_mentions_an_age_says_whose(self):
+        """"the mother's age" is fine; a bare "age" invites the old reading.
+
+        Only applies to descriptions that mention an age at all -- a
+        description may legitimately omit the subject entirely.
+        """
+        for game, path in MANIFESTS.items():
+            if not path.exists():
+                continue
+            for description in _descriptions(path):
+                if "arentage" not in description and "onception" not in description:
+                    continue
+                if "age" not in description.lower():
+                    continue
+                with self.subTest(game=game):
+                    self.assertTrue(
+                        "mother's age" in description
+                        or "her age" in description,
+                        "VV%d mentions an age without saying it is the "
+                        "mother's" % game,
+                    )
 
     def test_both_unavailable_strings_exist_in_the_exporter(self):
         source = EXPORTER.read_text(encoding="utf-8")

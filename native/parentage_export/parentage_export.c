@@ -956,7 +956,6 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     /* Rendered rather than printed as %d, so an unavailable field can say so
        instead of printing a 0 that a real villager could also hold. Sized for
        "not recorded by this game" plus its terminator. */
-    char father_age[32];
     char father_head[32];
     char father_body[32];
     int written;
@@ -1097,7 +1096,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     if (file == NULL) {
         return 0;
     }
-    /* The father's three numbers are rendered as text so an unavailable field
+    /* The father's two numbers are rendered as text so an unavailable field
        can say so. They used to print 0 whenever no father record was found,
        and 0 is a value a real villager can hold -- so a reader could not tell
        an unavailable field from a measured one, and the whole column read as a
@@ -1114,23 +1113,27 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
          and this call, or two living villagers may share his name, in which
          case the scan refuses to guess. Saying "not recorded by this game"
          here would be a false statement about the game rather than about this
-         particular birth. */
+         particular birth.
+
+       His AGE is deliberately not among the printed fields. The owner asked to
+       "only record the age of the mother since that's what determines child
+       age", so it is omitted rather than repaired. It was also the only field
+       that still depended on the by-name scan for its value: no game copies
+       the father's age onto the mother, so an age could only ever come from
+       finding his live record, which fails exactly in the two cases above.
+       Head and body come from the mother's copies below and need no such
+       lookup. */
     if (father != NULL) {
-        _snprintf(father_age, sizeof(father_age), "%d",
-                  *(const int *)(father + g->age));
         _snprintf(father_head, sizeof(father_head), "%d",
                   *(const int *)(father + g->head));
         _snprintf(father_body, sizeof(father_body), "%d",
                   *(const int *)(father + g->body));
-        father_age[sizeof(father_age) - 1] = '\0';
         father_head[sizeof(father_head) - 1] = '\0';
         father_body[sizeof(father_body) - 1] = '\0';
     } else if (g->father_kind == FATHER_NOT_RECORDED) {
-        memcpy(father_age, "not recorded by this game", 26);
         memcpy(father_head, "not recorded by this game", 26);
         memcpy(father_body, "not recorded by this game", 26);
     } else {
-        memcpy(father_age, "(record not found)", 19);
         memcpy(father_head, "(record not found)", 19);
         memcpy(father_body, "(record not found)", 19);
     }
@@ -1143,9 +1146,8 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
        not: he has died in the interval, or a second living villager shares his
        name and the scan rightly refuses to guess.
 
-       This replaces the head and body text only. His age is not copied by any
-       game, so it keeps whatever the scan concluded, and a log can legitimately
-       report a measured head and body beside an unavailable age. */
+       Head and body are the only father fields the log prints, and these
+       copies are where both now come from whenever the game provides them. */
     if (g->father_head_copy != 0) {
         _snprintf(father_head, sizeof(father_head), "%d",
                   *(const int *)(mother + g->father_head_copy));
@@ -1164,7 +1166,6 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "    Head: %d\n"
         "    Body: %d\n"
         "  Father: %s\n"
-        "    Age at conception: %s\n"
         "    Head: %s\n"
         "    Body: %s\n"
         "  Babies in pregnancy: %d\n"
@@ -1175,7 +1176,6 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         *(const int *)(mother + g->head),
         *(const int *)(mother + g->body),
         father_name,
-        father_age,
         father_head,
         father_body,
         babies
