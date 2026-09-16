@@ -76,6 +76,11 @@ COUNTER_GATE = {
     "debris": "debris_hook_va",
     "death": "death_hooks",
     "robing": "robing_hook_va",
+    # Village Elders, buried half. Gated only in The Tree of Life: VV3 and
+    # VV5 persist the three-or-more verdict at burial already, so they need
+    # no hook and correctly have no gate here. There is no BLOCKED_BULLETS
+    # entry because the counter is not blocked pending evidence -- it ships.
+    "elder": "elder_hook_va",
 }
 
 # The blocked-list bullet that governs each counter, by the phrase that opens

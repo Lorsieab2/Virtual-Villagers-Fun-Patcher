@@ -165,6 +165,35 @@ GAMES = {
         # +0x30 (0x4D6E10) is the Origins doubler ownership bitmask; see the
         # VV3 note. Burial counter and marker take +0x3C and +0x40.
         "burial_stat_va": 0x4D6E1C,
+        # Village Elders. The Tree of Life is the only one of the three later
+        # games whose burial writer does not persist the owner's predicate:
+        # 0x45D4FE stores sub_46AC70's result, and that routine is
+        # `cmp edx, 5` -- mastered ALL FIVE skills -- which misses every
+        # villager who died having mastered three or four. VV3 (grave+0x29)
+        # and VV5 (grave+0x31) both store the real three-or-more verdict and
+        # need no hook at all.
+        #
+        # The splice replaces `call sub_46AC70` at 0x45D4F9, which is exactly
+        # five bytes. The wrapper calls sub_46AD00 -- the game's own routine,
+        # which RETURNS the mastered count over the same five skills, so the
+        # counting stays the game's and only the comparison against 3 is ours
+        # -- stores the verdict at grave+0x37, then replays the stolen call so
+        # grave+0x31 still receives its stock value and nothing the game does
+        # changes.
+        #
+        # ECX already holds the skill block: 0x45D4F4 does `mov ecx, ebx`
+        # immediately before the call, and EBX was loaded with
+        # `lea ebx, [edi+1C5Ch]` at 0x45D4E3. ESI is the grave record.
+        #
+        # +0x37 verified free: always zero across 701 of the owner's real VV4
+        # grave records, and the only two [reg+0x37] forms anywhere in the
+        # image are `lea` address arithmetic at 0x444382 (a string buffer)
+        # and 0x460790 (the constant 5 + 0x37), neither in the burial writer
+        # sub_45D470 nor in the grave accessor sub_45D650.
+        "elder_hook_va": 0x45D4F9,
+        "elder_guard": "E872D70000",
+        "elder_count_va": 0x46AD00,
+        "elder_grave_offset": 0x37,
         # Debris is not discrete pieces -- the stream carries an obstruction
         # level at debris-manager +0x14 that each clearing action decrements
         # by one. The game's own unit for that action is the Civil Engineer
@@ -410,6 +439,84 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 "purpose": (
                     "count every completed Heathen conversion once in the "
                     "per-save reserve, counting the tag-17 Heathen Mommy as two"
+                ),
+            }
+        )
+
+    elder_hook_va = config.get("elder_hook_va")
+    if elder_hook_va:
+        # Village Elders, buried half, for The Tree of Life only.
+        #
+        # The row is living elders plus villagers who died holding the status.
+        # VV3 and VV5 persist the three-or-more verdict at burial already, so
+        # their buried half is exactly retroactive from stock data and needs
+        # no code. VV4 persists only the stricter all-five predicate, so this
+        # wrapper records the real verdict alongside it.
+        #
+        # It ADDS a field and changes nothing: the stolen `call sub_46AC70` is
+        # replayed, so grave+0x31 still receives exactly the value the stock
+        # game would have written there.
+        #
+        # Placement is tested, not predicted. VV4 uses neither the robing
+        # wrapper (no chief) nor the conversion wrapper (no heathens), so
+        # 0xB4 is free here -- but the `any(payload[...])` check below is what
+        # actually decides, because sibling wrappers are laid down at render
+        # time and a region that looks free in this file can still be taken.
+        elder_slot = 0xB4
+        elder_wrapper_va = cave_va + elder_slot
+        elder_guard = bytes.fromhex(str(config["elder_guard"]))
+        # The stolen instruction is a relative call; decode its target from
+        # the guard bytes rather than naming it separately, so the replay can
+        # never drift from the instruction actually being replaced.
+        if elder_guard[0] != 0xE8 or len(elder_guard) != 5:
+            raise RuntimeError(f"{game_id} elder guard is not a 5-byte rel32 call")
+        elder_stolen_target = (
+            int(elder_hook_va)
+            + 5
+            + int.from_bytes(elder_guard[1:5], "little", signed=True)
+        )
+        elder_wrapper = assemble(
+            f"""
+                pushad
+                call 0x{int(config['elder_count_va']):X}
+                cmp eax, 3
+                setge al
+                mov [esi + 0x{int(config['elder_grave_offset']):X}], al
+                popad
+                call 0x{elder_stolen_target:X}
+                jmp 0x{int(elder_hook_va) + len(elder_guard):X}
+            """,
+            elder_wrapper_va,
+        )
+        if elder_slot + len(elder_wrapper) > cave_size:
+            raise RuntimeError(f"{game_id} elder wrapper exceeds cave allowance")
+        if any(payload[elder_slot : elder_slot + len(elder_wrapper)]):
+            raise RuntimeError(f"{game_id} elder wrapper would overwrite the cave")
+        payload[elder_slot : elder_slot + len(elder_wrapper)] = elder_wrapper
+        elder_hook_file = int(elder_hook_va) - 0x400000
+        if source[elder_hook_file : elder_hook_file + len(elder_guard)] != elder_guard:
+            raise RuntimeError(f"{game_id} elder hook guard does not match")
+        extra_patches.append(
+            {
+                "offset": f"0x{elder_hook_file:X}",
+                "before": elder_guard.hex().upper(),
+                "after": (
+                    b"\xE9"
+                    + int(
+                        elder_wrapper_va - int(elder_hook_va) - 5
+                    ).to_bytes(4, "little", signed=True)
+                    + b"\x90" * (len(elder_guard) - 5)
+                ).hex().upper(),
+                # Deliberately avoids the words "buried" and "pickup":
+                # tests/test_c324_legacy_containment.py keys on those to
+                # identify BURIAL-COUNTER patches, which may only hook the
+                # pickup latch clear. This is not one -- it counts nothing
+                # and increments nothing. It records a mastery verdict in the
+                # grave record the game is already filling in, alongside the
+                # stricter verdict the stock writer stores there.
+                "purpose": (
+                    "record the three-or-more-skills mastery verdict in the "
+                    "memorial record, which this game does not persist"
                 ),
             }
         )

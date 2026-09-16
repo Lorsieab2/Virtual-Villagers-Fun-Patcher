@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "8F9814FDF929D74B36D6AD35F3EF8854FBAEE74D2B605BA2FB551EF8265B7955",
+  "companion_sha256": "B8F105CED8E5469D2D4E1C2660D19F7D05906C33A904C3A922EC19A9B78A3AF3",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +12,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "8F9814FDF929D74B36D6AD35F3EF8854FBAEE74D2B605BA2FB551EF8265B7955"
+          "sha256": "B8F105CED8E5469D2D4E1C2660D19F7D05906C33A904C3A922EC19A9B78A3AF3"
         }
       ],
       "patches": [
@@ -47,7 +47,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "8F9814FDF929D74B36D6AD35F3EF8854FBAEE74D2B605BA2FB551EF8265B7955"
+          "sha256": "B8F105CED8E5469D2D4E1C2660D19F7D05906C33A904C3A922EC19A9B78A3AF3"
         }
       ],
       "patches": [
@@ -106,7 +106,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "8F9814FDF929D74B36D6AD35F3EF8854FBAEE74D2B605BA2FB551EF8265B7955"
+          "sha256": "B8F105CED8E5469D2D4E1C2660D19F7D05906C33A904C3A922EC19A9B78A3AF3"
         }
       ],
       "patches": [
@@ -159,7 +159,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "8F9814FDF929D74B36D6AD35F3EF8854FBAEE74D2B605BA2FB551EF8265B7955"
+          "sha256": "B8F105CED8E5469D2D4E1C2660D19F7D05906C33A904C3A922EC19A9B78A3AF3"
         }
       ],
       "patches": [
@@ -173,7 +173,7 @@
           "offset": "0x89173",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoJ6j3/1CEwHQ+g/8BfDmD/wV/NGjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0FmgPkkgAUP8V3KFIAIXAdAZXU2oE/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNextTQABN4sHeQXpNUf5/+k7R/n/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FHG5NAMaGxBwAAADpaRb+/wAAAAAAAP8FJG5NAINGFP9qAek0A/v/AAAAAAAAAAAAAAAAAAAAg3kQ/3UG/wUobk0Ax0EMAAAAAOnDG/7/g3kQ/3UG/wUobk0Ax0EMAAAAAOnuG/7/AAAAAAAAAAA=",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoJ6j3/1CEwHQ+g/8BfDmD/wV/NGjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0FmgPkkgAUP8V3KFIAIXAdAZXU2oE/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAYOjTGv7/g/gDD53AiEY3Yeg0Gv7/6b1C/f8AAIX2fgYBNextTQABN4sHeQXpNUf5/+k7R/n/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FHG5NAMaGxBwAAADpaRb+/wAAAAAAAP8FJG5NAINGFP9qAek0A/v/AAAAAAAAAAAAAAAAAAAAg3kQ/3UG/wUobk0Ax0EMAAAAAOnDG/7/g3kQ/3UG/wUobk0Ax0EMAAAAAOnuG/7/AAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -181,6 +181,12 @@
           "before": "01378B07790B",
           "after": "E9B7B8060090",
           "purpose": "restore the inherited Food Gathered counter for every final positive food award while preserving stock underflow handling"
+        },
+        {
+          "offset": "0x5D4F9",
+          "before": "E872D70000",
+          "after": "E929BD0200",
+          "purpose": "record the three-or-more-skills mastery verdict in the memorial record, which this game does not persist"
         },
         {
           "offset": "0x6A977",
@@ -218,7 +224,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "8F9814FDF929D74B36D6AD35F3EF8854FBAEE74D2B605BA2FB551EF8265B7955"
+          "sha256": "B8F105CED8E5469D2D4E1C2660D19F7D05906C33A904C3A922EC19A9B78A3AF3"
         }
       ],
       "patches": [
