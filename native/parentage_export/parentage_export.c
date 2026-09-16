@@ -207,11 +207,43 @@ struct game_layout {
        0x464C4D, push the same three fields in the same order; their internal
        branches select a later argument, not these.
 
-       Zero means "this game copies nothing", which is every game but VV2. His
-       AGE is not among the copied fields in any game -- VV2's neighbouring
+       Zero means "this game copies nothing". That was once recorded as every
+       game but VV2, and it was wrong: VV3, VV4 and VV5 copy both values too,
+       in the same instruction pattern VV2 uses.
+
+           VV3  caller 0x458319 [esi+0DF4h] BODY / 0x458320 [esi+0DF0h] HEAD
+                store  0x455B4F -> +0xE64 BODY, 0x455B67 -> +0xE68 HEAD
+           VV4  caller 0x460A09 / 0x460A10
+                store  0x45E850 -> +0x1C2C BODY, 0x45E868 -> +0x1C30 HEAD
+           VV5  caller 0x467D99 / 0x467DA0
+                store  0x465EA0 -> +0x1C2C BODY, 0x465EB8 -> +0x1C30 HEAD
+
+       The stored pair is INVERTED relative to address order in all four games
+       -- body sits four bytes BEFORE head, exactly as VV2's +0x5DC/+0x5E0 do.
+       The order is established from the push sequence rather than from the
+       addresses: each caller pushes body then head, and x86 pushes descend, so
+       head is the lower argument slot. Pairing these offsets by eye would swap
+       every father's appearance in the log.
+
+       Leaving them zero was not a harmless omission. It forced every one of
+       those three games down the name-scan path, which resolves a name against
+       LIVING villagers only. Measured across 52 of the owner's VV5 saves: of
+       394 father-name groups, 362 carry exactly one stored head/body pair, and
+       in 8 a living villager sharing a dead father's name has different values
+       -- so the scan printed another villager's appearance under the father's
+       name, silently. The scan's own ambiguity guard cannot see that case,
+       because only one live match exists to find.
+
+       These are write-only fields: +0x1C2C and +0x1C30 have no reader anywhere
+       in VV5's image, which is what a value kept solely to be serialised looks
+       like.
+
+       His AGE is not among the copied fields in any game -- VV2's neighbouring
        mother+0x5E4 is a hardcoded 1 written at 0x44BA10, a pregnancy flag
        rather than a trait, and reading it as an age would print 1 for every
-       father who ever lived. */
+       father who ever lived. VV3/VV4/VV5 have no age copy either, so "Age at
+       conception" still depends on finding his record and can still be
+       unavailable when head and body are not. */
     unsigned int father_head_copy;  /* i32 on the MOTHER, 0 when absent */
     unsigned int father_body_copy;  /* i32 on the MOTHER, 0 when absent */
     /* The "no such villager" id sentinel.
@@ -405,7 +437,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xF10, 0xDC4, 0xDF0, 0xDF4, 0,
         0xDD4, 0x19,
         FATHER_BY_NAME, 0xE48, 0x18, 0xE90,
-        0, 0,
+        0xE68, 0xE64,
         0,
         L"Virtual Villagers 3 Parentage Log"
     },
@@ -464,7 +496,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
         0x1B9C, 0x19,
         FATHER_BY_NAME, 0x1C10, 0x18, 0x1C50,
-        0, 0,
+        0x1C30, 0x1C2C,
         0,
         L"Virtual Villagers 4 Parentage Log"
     },
@@ -502,7 +534,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B98,
         0x1B9C, 0x19,
         FATHER_BY_NAME, 0x1C10, 0x18, 0x1C50,
-        0, 0,
+        0x1C30, 0x1C2C,
         0,
         L"Virtual Villagers 5 Parentage Log"
     }

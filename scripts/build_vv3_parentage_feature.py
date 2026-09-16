@@ -428,14 +428,15 @@ def build() -> dict:
                     "record, so both parents are captured at conception; they "
                     "cannot be recovered from the child afterwards. VV3 keeps "
                     "the father's name on the mother's record and no father "
-                    "id, so he is found by name, and unlike VV2 it copies none "
-                    "of his values onto her -- so his age, head and body all "
-                    "depend on that lookup. He cannot be found when he has "
-                    "since died or another villager shares his name, and the "
-                    "log then records '(record not found)' for each of those "
-                    "three fields rather than printing a zero a real villager "
-                    "could hold. Rolls to a new numbered file every 256 "
-                    "records."
+                    "id. His HEAD and BODY are copied onto her at conception, "
+                    "so the log reads them from her record and they are "
+                    "correct even after he dies or another villager takes his "
+                    "name. His AGE is not copied by any game, so it still "
+                    "depends on finding his record: when he cannot be found "
+                    "the log names him and records '(record not found)' for "
+                    "the age alone, rather than printing a zero a real "
+                    "villager could hold. Rolls to a new numbered file every "
+                    "256 records."
                 ),
                 "companion_files": [
                     {
