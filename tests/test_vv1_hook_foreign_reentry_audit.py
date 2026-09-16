@@ -263,17 +263,38 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     #     earlier draft that pushed live ecx handed the companion a garbage base
     #     to index records from. That produces plausible wrong output rather
     #     than a crash, which is why it is called out here.
-    #   * WriteParentageRecord is __stdcall with two arguments, so it cleans its
-    #     own eight bytes. All three exit paths -- LoadLibraryA fails,
-    #     GetProcAddress fails, and success -- converge on the same esp before
-    #     popad, so the stock frame is untouched.
+    #   * RE-REVIEWED when VV1 gained the father capture. The companion entry
+    #     point is now WriteParentageRecordWithFather, __stdcall with FOUR
+    #     arguments, so it cleans its own sixteen bytes. Three
+    #     properties were re-checked against the disassembled cave rather than
+    #     assumed:
+    #
+    #       - Every failure branch (GetModuleHandleA/LoadLibraryA returning
+    #         null, GetProcAddress returning null) jumps straight to popad,
+    #         BEFORE any of the four argument pushes. So no failure path can
+    #         leave arguments stranded on the stack.
+    #       - The success path pushes exactly four and the callee removes
+    #         exactly four, so all three paths still converge on one esp at
+    #         popad and the stock frame is untouched.
+    #       - The two frame reads moved from [esp+0x04] to [esp+0x08] because
+    #         the father is pushed first. Saved esi sat at esp+0x04 and saved
+    #         edi at esp+0x00; one push drops esp by four, so they are at
+    #         esp+0x08 and (after the next push) esp+0x08 again. Getting this
+    #         wrong would hand the companion the wrong record array, which
+    #         produces plausible wrong output rather than a crash.
+    #
+    #     The father is read from a fixed cave slot and the slot is CLEARED in
+    #     the same breath, so a pregnancy that reaches a tail without passing a
+    #     patched call site logs "(not captured for this birth)" instead of
+    #     inheriting whichever father was captured last. A wrong parent is
+    #     unrecoverable once written; an absent one is merely incomplete.
     #   * The stolen six bytes are `mov edi, [edi+0x3E010]`, replayed verbatim
     #     after popad and before the rejoin, so edi holds the manager pointer
     #     exactly as stock expects at 0x43BCA8 and 0x43BCC0.
     #
     # esi and edi are read only; neither is written outside the pushad bracket.
-    ("vv1_write_parentage_log", "0x3BCA2"): "E19A2A0C69EC1C580BD091084BBCD311C42EB96427F2A09740D99ABEDEBA3B45",
-    ("vv1_write_parentage_log", "0x3BCBA"): "6E920CFA7F30C82520BFEA83D242CA5BB482836DAC3BFF7AC944E31837737298",
+    ("vv1_write_parentage_log", "0x3BCA2"): "4CE4A72C8ED048246F3C49C13FAE7757300FDE56BD21CDCBADF56F55A34BFF66",
+    ("vv1_write_parentage_log", "0x3BCBA"): "BE48F395B00A2F8B40F8F8CFE6E9C79097AE4AAFCE58352DA199E4AC77172959",
     # The singleton route. This one steals nothing: the two branches that
     # carry a single birth (0x43BC39, a six-byte near je, and 0x43BC4C, a
     # two-byte short jge) are RETARGETED at their existing widths, so no
@@ -284,7 +305,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # 0x43BCC6 itself is deliberately NOT patched. The rejection path enters
     # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
     # that jump in the middle of the inserted instruction.
-    ("vv1_write_parentage_log", "0x3BCCB"): "3B7AD5F4BD6C4A66E944E254877DF6B9ABA3D4D0ECF95DB45DAA41D89B3AF00E",
+    ("vv1_write_parentage_log", "0x3BCCB"): "725B2D36952CCD230EA2A5446922123B33E20D6703A7FED3FBB045587E43A10A",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.

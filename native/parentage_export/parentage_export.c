@@ -102,6 +102,22 @@ enum {
        RECEIVES a partner value and never reads it, and the field that looked
        like a father id turned out to be a skill value -- see the VV1 row. */
     FATHER_NOT_RECORDED = 2,
+    /* The game records nothing about the father that can be read back from the
+       mother, but the CALLER hands us his record. VV1 only.
+
+       This is a different situation from FATHER_NOT_RECORDED and collapsing
+       the two would be wrong in both directions. There is still no father
+       field anywhere in the mother's record, so there is no name to copy and
+       no id to resolve. But VV1's conception routine is called from six sites,
+       and every one of them holds his record POINTER in a register at the
+       call -- the game loads exactly one field off it (+0x36C) and discards
+       the rest. So the trampolines capture the pointer and every father field
+       comes from his own record, his name included.
+
+       A record is not guaranteed. If a site is ever reached without one, or
+       the pointer fails validation, the log says the father is unavailable for
+       that birth rather than inventing him. */
+    FATHER_BY_CAPTURE = 3,
 
     GAME_VV1 = 1,
     GAME_VV2 = 2,
@@ -281,8 +297,10 @@ static const struct game_layout GAME_LAYOUTS[6] = {
                              conception routine itself writes
          +0x394  NOT the father -- see below
 
-       VV1 RECORDS NOTHING ABOUT THE FATHER, which is why father_kind is
-       FATHER_NOT_RECORDED here and only here.
+       VV1 RECORDS NOTHING ABOUT THE FATHER IN THE MOTHER'S RECORD, which is
+       why father_kind is FATHER_BY_CAPTURE here and only here: his fields come
+       from a record pointer the trampolines capture at the conception CALL
+       SITES, not from any field of hers.
 
        An earlier version of this file read +0x394 as a father id, on the
        strength of `mov [esi+0x394], edx` at 0x43BC04 inside the conception
@@ -307,10 +325,31 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        paired with +0x368. That is look-alike avoidance, not identity -- with
        ~90 villagers and 50 possible values, living villagers share it routinely.
 
-       So there is no father to name from the mother's record. The log says so
-       rather than printing a skill value as if it were a parent. Both parents'
-       records ARE live at the six call sites, so capturing him there is
-       possible; that is a design change and it is with the owner.
+       So there is no father to name from the mother's record -- and the log
+       never prints a skill value as if it were a parent.
+
+       His record IS live at all six call sites, and that is where he now comes
+       from. sub_43BBC0 is called from exactly six places and referenced
+       indirectly from none:
+
+           0x43DD33  0x43DD54  0x43DD7B  0x43DD94  0x447031  0x447238
+
+       Each loads one field off his record and throws the pointer away:
+
+           0x43DD33  mov edx,[esp+0x1C]      ; his record
+           0x43DD24  mov eax,[edx+0x36C]     ; the only field the game wants
+           0x43DD2F  push eax                ; only the scalar is passed on
+
+       Scanning the 96 bytes before each call for loads in the record range
+       0x300..0x3E0 returns ['0x36c'] at all six and nothing else, so his name,
+       head, body and age are all readable there and simply unused.
+
+       A hook INSIDE the routine cannot reach him: its prologue forms exactly
+       one record pointer (imul 0x3D8 at 0x43BBEA, the mother's), that is the
+       only stride multiply in the whole function, and its only stack reads are
+       +0x08, +0x10 and +0x14 -- none of which carries a father pointer or
+       index. So the six call sites are the only place his identity exists, and
+       each one stashes the pointer for the success-tail trampolines to read.
          +0x35C  litter      2 at 0x43BC4E, 3 at 0x43BC8C; cleared per
                              pregnancy by 0x42F0C7, 0x43C722 and 0x43CABE
 
@@ -322,7 +361,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         1, 0x3D8, 256, 0,
         0x28, 0x348, 0x360, 0x364, 0x36C,
         0x370, 0x1C,
-        FATHER_NOT_RECORDED, 0, 0, 0x35C,
+        FATHER_BY_CAPTURE, 0, 0, 0x35C,
         0, 0,
         0xC7,
         L"Virtual Villagers 1 Parentage Log"
@@ -816,8 +855,14 @@ static int layout_is_usable(const struct game_layout *g) {
     if (g->father_body_copy != 0 && g->father_body_copy + WORD > stride) {
         return 0;
     }
-    if (g->father_kind == FATHER_NOT_RECORDED) {
-        /* Nothing to validate: the field is unused. */
+    if (g->father_kind == FATHER_NOT_RECORDED
+            || g->father_kind == FATHER_BY_CAPTURE) {
+        /* Nothing to validate: neither kind reads a father field out of the
+           mother's record, so `father` is unused and its offset means nothing.
+           FATHER_BY_CAPTURE reads his own record instead, and that pointer is
+           validated at use against the record array -- stride alignment, slot
+           range, active flag, and not-the-mother -- which is a stronger check
+           than any offset arithmetic here could be. */
         (void)0;
     } else if (g->father_kind == FATHER_BY_ID) {
         if (g->father + WORD > stride) return 0;
@@ -1035,6 +1080,18 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     if (g->father_kind == FATHER_NOT_RECORDED) {
         memcpy(father_name, "(not recorded by this game)", 28);
         father = NULL;
+    } else if (g->father_kind == FATHER_BY_CAPTURE) {
+        /* Nothing to read from the mother -- the capture is the only source.
+
+           When it is absent the fields are unavailable for THIS birth, which
+           is not the same claim as "this game does not record it", so the
+           wording deliberately differs from the branch above. A reader who
+           sees it on some births and not others learns something true: the
+           call site that produced this one did not carry a father. */
+        father = father_from_caller;
+        if (father == NULL) {
+            memcpy(father_name, "(not captured for this birth)", 30);
+        }
     } else if (g->father_kind == FATHER_BY_NAME) {
         /* The name is in the mother's record, so it is read from there either
            way -- it is the name the game itself recorded for this conception,
@@ -1069,7 +1126,10 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         /* Not for FATHER_BY_NAME: there the name already came from the
            mother's record, which is what the game recorded for THIS
            conception. The supplied record contributes the numbers only, so a
-           father who is later renamed still logs the name he had. */
+           father who is later renamed still logs the name he had.
+
+           FATHER_BY_CAPTURE does reach here, and must: VV1 keeps no name for
+           him anywhere, so his own record is the only place one exists. */
         copy_villager_name(g, father, father_name, sizeof(father_name));
     } else if (father == NULL && g->father_kind == FATHER_BY_ID) {
         /* The father is recorded by id, and that id may no longer resolve --
@@ -1133,6 +1193,11 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     } else if (g->father_kind == FATHER_NOT_RECORDED) {
         memcpy(father_head, "not recorded by this game", 26);
         memcpy(father_body, "not recorded by this game", 26);
+    } else if (g->father_kind == FATHER_BY_CAPTURE) {
+        /* No lookup happens for this kind, so "(record not found)" would name
+           a search that was never run. The capture simply did not arrive. */
+        memcpy(father_head, "(not captured for this birth)", 30);
+        memcpy(father_body, "(not captured for this birth)", 30);
     } else {
         memcpy(father_head, "(record not found)", 19);
         memcpy(father_body, "(record not found)", 19);

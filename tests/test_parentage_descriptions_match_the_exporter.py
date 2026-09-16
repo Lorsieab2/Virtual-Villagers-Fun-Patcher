@@ -52,8 +52,19 @@ def _father_kinds() -> dict[int, str]:
     five-kinds assertion below would catch rather than silently mis-map.
     """
     source = EXPORTER.read_text(encoding="utf-8")
+    # Block comments only; the file uses no // comments.
+    #
+    # Each row is preceded by a long comment explaining its offsets, and
+    # those comments name FATHER_* constants freely -- the VV1 row's does
+    # so several times. Matching them as though they were code shifted
+    # every game's kind by one and dropped VV5 off the end, which is what
+    # the five-kinds assertion reported when FATHER_BY_CAPTURE arrived.
+    source = re.sub(r"/\*.*?\*/", "", source, flags=re.DOTALL)
     table = source[source.index("GAME_LAYOUTS[6] = {") :]
-    kinds = re.findall(r"\b(FATHER_BY_ID|FATHER_BY_NAME|FATHER_NOT_RECORDED)\b,", table)
+    kinds = re.findall(
+        r"\b(FATHER_BY_ID|FATHER_BY_NAME|FATHER_NOT_RECORDED|FATHER_BY_CAPTURE)\b,",
+        table,
+    )
     return {game: kind for game, kind in zip(range(1, 6), kinds)}
 
 

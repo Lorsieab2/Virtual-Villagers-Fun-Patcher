@@ -1,30 +1,30 @@
 {
-  "companion_sha256": "8741090d4ff468f02f9f5ca5b0c93da4a4aecee5221091685782ab351a22bf8b",
+  "companion_sha256": "1711d898a1c1f500944b9abecd9a370e8c957eed44e1e9000e37c3382e6ab68c",
   "features": [
     {
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "8741090d4ff468f02f9f5ca5b0c93da4a4aecee5221091685782ab351a22bf8b",
+          "sha256": "1711d898a1c1f500944b9abecd9a370e8c957eed44e1e9000e37c3382e6ab68c",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         }
       ],
       "composition_patches": {
         "vv1_enable_origins_exclusive_features": [
           {
-            "after": "E98E47050090",
+            "after": "E95951050090",
             "before": "8BBF10E00300",
             "offset": "0x3BCA2",
             "purpose": "Divert the triplets success tail of the conception routine sub_43BBC0 to its trampoline, which logs the pregnancy with the litter size the engine has already committed, then replays this instruction."
           },
           {
-            "after": "E9C647050090",
+            "after": "E9A151050090",
             "before": "8BBF10E00300",
             "offset": "0x3BCBA",
             "purpose": "Divert the twins/single success tail of the conception routine sub_43BBC0 to its trampoline, which logs the pregnancy with the litter size the engine has already committed, then replays this instruction."
           },
           {
-            "after": "0F8496480500",
+            "after": "0F8481520500",
             "before": "0F8487000000",
             "offset": "0x3BC39",
             "purpose": "Retarget the singleton branch that skips the twins roll so it reaches the parentage trampoline instead of the epilogue. Same width, so nothing shifts."
@@ -36,20 +36,56 @@
             "purpose": "Retarget the singleton branch whose twins roll failed to the five-byte pad after the routine. It stays a two-byte short jump, so nothing shifts; a rel8 cannot reach the cave."
           },
           {
-            "after": "E905480500",
+            "after": "E9F0510500",
             "before": "9090909090",
             "offset": "0x3BCCB",
             "purpose": "Fill the routine's five-byte nop pad with the long jump to the singleton trampoline, which the short branch above can reach."
           },
           {
-            "after": "606825054900FF15D070450085C0750F6825054900FF151070450085C0741C684505490050FF15D470450085C0740CFF742404FF7424046A01FFD0618BBF10E00300E92CB8FAFF000000000000000000606825054900FF15D070450085C0750F6825054900FF151070450085C0741C684505490050FF15D470450085C0740CFF742404FF7424046A01FFD0618BBF10E00300E9F4B7FAFF000000000000000000606825054900FF15D070450085C0750F6825054900FF151070450085C0741C684505490050FF15D470450085C0740CFF742404FF7424046A01FFD061E9B0B7FAFF0000000000000000000000000000005656465020506172656E74616765204578706F72742E646C6C000000000000005772697465506172656E746167655265636F726400000000000000000000000000000000000000000000000000000000",
-            "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-            "offset": "0x8E435",
-            "purpose": "Two loader trampolines, one per success tail, plus the shared DLL and export names. All logging logic lives in the companion DLL; only the call into it is in the executable."
+            "after": "E838320500",
+            "before": "E888DEFFFF",
+            "offset": "0x3DD33",
+            "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+          },
+          {
+            "after": "E827320500",
+            "before": "E867DEFFFF",
+            "offset": "0x3DD54",
+            "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+          },
+          {
+            "after": "E810320500",
+            "before": "E840DEFFFF",
+            "offset": "0x3DD7B",
+            "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+          },
+          {
+            "after": "E807320500",
+            "before": "E827DEFFFF",
+            "offset": "0x3DD94",
+            "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+          },
+          {
+            "after": "E87A9F0400",
+            "before": "E88A4BFFFF",
+            "offset": "0x47031",
+            "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+          },
+          {
+            "after": "E8839D0400",
+            "before": "E88349FFFF",
+            "offset": "0x47238",
+            "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+          },
+          {
+            "after": "6068200F4900FF15D070450085C0750F68200F4900FF151070450085C0742C68400F490050FF15D470450085C0741CFF35600F4900C705600F490000000000FF742408FF7424086A01FFD0618BBF10E00300E951AEFAFF0000000000000000006068200F4900FF15D070450085C0750F68200F4900FF151070450085C0742C68400F490050FF15D470450085C0741CFF35600F4900C705600F490000000000FF742408FF7424086A01FFD0618BBF10E00300E909AEFAFF0000000000000000006068200F4900FF15D070450085C0750F68200F4900FF151070450085C0742C68400F490050FF15D470450085C0741CFF35600F4900C705600F490000000000FF742408FF7424086A01FFD061E9B5ADFAFF0000000000000000000000000000005656465020506172656E74616765204578706F72742E646C6C000000000000005772697465506172656E746167655265636F7264576974684661746865720000000000000000000000000000000000008915600F4900E945ACFAFF0000000000A3600F4900E936ACFAFF000000000000892D600F4900E925ACFAFF0000000000892D600F4900E915ACFAFF0000000000A3600F4900E906ACFAFF000000000000890D600F4900E9F5ABFAFF0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "offset": "0x8EE00",
+            "purpose": "Three loader trampolines -- triplets, twins and singletons -- plus the shared DLL and export names, the father-capture slot, and the six stubs that fill it. All logging logic lives in the companion DLL; only the call into it is in the executable."
           }
         ]
       },
-      "description": "On each new pregnancy, appends the mother's name, her age at conception, her head and body values, and the number of babies to 'Virtual Villagers 1 Parentage Log N.txt' beside the game executable. VV1 records nothing about the father -- not his name, and no id that could find his record -- so every father field reads as not recorded by this game, rather than a zero or a guessed name that a reader could not tell from a measured one. Parentage is not stored in any villager record, so the mother is captured at conception; she cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.",
+      "description": "On each new pregnancy, appends both parents' names, the mother's age at conception, both head and body values, and the number of babies to 'Virtual Villagers 1 Parentage Log N.txt' beside the game executable. Only the mother's age is recorded, because the child's age derives from hers. VV1 stores nothing about the father in the mother's record -- not his name, and no id that could find him -- so his details are captured from his own record at the six conception call sites, where the game holds it briefly and reads only one field of it. A birth that reaches delivery without such a capture reports the father as not captured for that birth, rather than naming the wrong villager. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.",
       "game_id": "vv1",
       "id": "vv1_write_parentage_log",
       "name": "Write Parentage Log to Text File",
@@ -62,13 +98,13 @@
           "purpose": "Divert the triplets success tail of the conception routine sub_43BBC0 to its trampoline, which logs the pregnancy with the litter size the engine has already committed, then replays this instruction."
         },
         {
-          "after": "E991AC010090",
+          "after": "E9A1AC010090",
           "before": "8BBF10E00300",
           "offset": "0x3BCBA",
           "purpose": "Divert the twins/single success tail of the conception routine sub_43BBC0 to its trampoline, which logs the pregnancy with the litter size the engine has already committed, then replays this instruction."
         },
         {
-          "after": "0F8461AD0100",
+          "after": "0F8481AD0100",
           "before": "0F8487000000",
           "offset": "0x3BC39",
           "purpose": "Retarget the singleton branch that skips the twins roll so it reaches the parentage trampoline instead of the epilogue. Same width, so nothing shifts."
@@ -80,16 +116,52 @@
           "purpose": "Retarget the singleton branch whose twins roll failed to the five-byte pad after the routine. It stays a two-byte short jump, so nothing shifts; a rel8 cannot reach the cave."
         },
         {
-          "after": "E9D0AC0100",
+          "after": "E9F0AC0100",
           "before": "9090909090",
           "offset": "0x3BCCB",
           "purpose": "Fill the routine's five-byte nop pad with the long jump to the singleton trampoline, which the short branch above can reach."
         },
         {
-          "after": "6068F0694500FF15D070450085C0750F68F0694500FF151070450085C0741C68106A450050FF15D470450085C0740CFF742404FF7424046A01FFD0618BBF10E00300E96153FEFF0000000000000000006068F0694500FF15D070450085C0750F68F0694500FF151070450085C0741C68106A450050FF15D470450085C0740CFF742404FF7424046A01FFD0618BBF10E00300E92953FEFF0000000000000000006068F0694500FF15D070450085C0750F68F0694500FF151070450085C0741C68106A450050FF15D470450085C0740CFF742404FF7424046A01FFD061E9E552FEFF0000000000000000000000000000005656465020506172656E74616765204578706F72742E646C6C000000000000005772697465506172656E746167655265636F726400000000000000000000000000000000000000000000000000000000",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8388D0100",
+          "before": "E888DEFFFF",
+          "offset": "0x3DD33",
+          "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+        },
+        {
+          "after": "E8278D0100",
+          "before": "E867DEFFFF",
+          "offset": "0x3DD54",
+          "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+        },
+        {
+          "after": "E8108D0100",
+          "before": "E840DEFFFF",
+          "offset": "0x3DD7B",
+          "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+        },
+        {
+          "after": "E8078D0100",
+          "before": "E827DEFFFF",
+          "offset": "0x3DD94",
+          "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+        },
+        {
+          "after": "E87AFA0000",
+          "before": "E88A4BFFFF",
+          "offset": "0x47031",
+          "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+        },
+        {
+          "after": "E883F80000",
+          "before": "E88349FFFF",
+          "offset": "0x47238",
+          "purpose": "Redirect one of the six conception call sites through a stub that stashes the father's record pointer, which is live in a register here and discarded by the stock code. VV1 stores nothing about him in the mother's record, so this is the only place his identity exists. Same width, so nothing shifts."
+        },
+        {
+          "after": "6068206A4500FF15D070450085C0750F68206A4500FF151070450085C0742C68406A450050FF15D470450085C0741CFF35606A4500C705606A450000000000FF742408FF7424086A01FFD0618BBF10E00300E95153FEFF0000000000000000006068206A4500FF15D070450085C0750F68206A4500FF151070450085C0742C68406A450050FF15D470450085C0741CFF35606A4500C705606A450000000000FF742408FF7424086A01FFD0618BBF10E00300E90953FEFF0000000000000000006068206A4500FF15D070450085C0750F68206A4500FF151070450085C0742C68406A450050FF15D470450085C0741CFF35606A4500C705606A450000000000FF742408FF7424086A01FFD061E9B552FEFF0000000000000000000000000000005656465020506172656E74616765204578706F72742E646C6C000000000000005772697465506172656E746167655265636F7264576974684661746865720000000000000000000000000000000000008915606A4500E94551FEFF0000000000A3606A4500E93651FEFF000000000000892D606A4500E92551FEFF0000000000892D606A4500E91551FEFF0000000000A3606A4500E90651FEFF000000000000890D606A4500E9F550FEFF0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "offset": "0x56900",
-          "purpose": "Two loader trampolines, one per success tail, plus the shared DLL and export names. All logging logic lives in the companion DLL; only the call into it is in the executable."
+          "purpose": "Three loader trampolines -- triplets, twins and singletons -- plus the shared DLL and export names, the father-capture slot, and the six stubs that fill it. All logging logic lives in the companion DLL; only the call into it is in the executable."
         }
       ]
     }
