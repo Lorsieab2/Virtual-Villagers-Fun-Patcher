@@ -97,16 +97,48 @@ def _described_offsets() -> set[str]:
 
 
 class StatisticsOffsetsMatchTheResearchTests(unittest.TestCase):
+    # Village Elders. +0x1C is the one field in the block the writer must NOT
+    # read: it has zero non-stack references in any of the three later-game
+    # executables, so the games allocate it and never compute it, and reading
+    # it is why the row reported 0. It is computed instead, from the living
+    # roster plus the verdict each game's burial writer persisted.
+    DELIBERATELY_NOT_READ = {0x1C}
+
     def test_the_later_game_writer_reads_a_contiguous_block(self) -> None:
-        """Rows step by 4 with no gap, so a dropped row cannot pass unnoticed."""
+        """Rows step by 4, so a dropped row cannot pass unnoticed.
+
+        One offset is skipped on purpose and is named above; every other gap
+        is still a failure. Listing it explicitly keeps this guard able to
+        catch an accidental drop, which is the whole reason it exists.
+        """
         offsets = [int(value, 16) for value in _read_offsets(_function_body("write_later_game"))]
         self.assertTrue(offsets, "no statistics reads found in write_later_game")
         self.assertEqual(offsets, sorted(offsets), "rows are not in ascending offset order")
+        expected = [
+            offset
+            for offset in range(
+                offsets[0],
+                offsets[0] + 4 * (len(offsets) + len(self.DELIBERATELY_NOT_READ)),
+                4,
+            )
+            if offset not in self.DELIBERATELY_NOT_READ
+        ]
         self.assertEqual(
             offsets,
-            list(range(offsets[0], offsets[0] + 4 * len(offsets), 4)),
+            expected,
             "statistics rows are no longer contiguous 4-byte fields",
         )
+
+    def test_the_skipped_field_is_actually_computed(self) -> None:
+        """Skipping +0x1C is only correct because the row is computed.
+
+        Without this, the exemption above would also pass if the row were
+        simply deleted.
+        """
+        exporter = SOURCE.read_text(encoding="utf-8")
+        self.assertIn("Village Elders: %d", exporter)
+        self.assertIn("count_living_elders", exporter)
+        self.assertIn("count_buried_elders", exporter)
 
     def test_every_read_offset_is_documented(self) -> None:
         described = _described_offsets()

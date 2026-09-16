@@ -261,23 +261,132 @@ class ChiefsRobedIsSeededForExistingSavesTests(unittest.TestCase):
         self.assertNotIn("0xACu", self.exporter)
 
 
-class VillageEldersStillNeedsALifetimeCounterTests(unittest.TestCase):
-    """The row is knowingly unfinished; this pins why, so it is not forgotten.
+class VillageEldersCountsTheLivingAndTheDeadTests(unittest.TestCase):
+    """The row is fixed, and this pins the shape of the fix.
 
-    The field it reads has zero references in any of the three later-game
-    executables, so nothing in the stock game writes it. The fix is a
-    lifetime mastery counter, NOT a roster walk -- the walk was tried and
-    correctly rejected in review.
+    This class previously asserted the row was knowingly unfinished. That was
+    correct at the time: the field it read, statistics+0x1C, has zero
+    non-stack references in any of the three later-game executables, and the
+    obvious repair -- a bare walk of the living roster -- was tried and
+    correctly rejected in review, because it is not a lifetime total and
+    counts DOWN as elders die.
+
+    What changed is the owner's instruction that the row be retroactive: "a
+    retroactive counter for dead villagers too would be nice." That resolves
+    the objection rather than overriding it. The walk is paired with the
+    verdict each game's burial writer already persisted, so the figure covers
+    villagers who have died and only ever grows.
+
+    These tests exist so the buried half cannot be dropped later, leaving the
+    bare walk the review rejected.
     """
 
     def setUp(self) -> None:
         self.exporter = EXPORTER.read_text(encoding="utf-8")
 
-    def test_the_known_gap_is_recorded_next_to_the_field(self) -> None:
-        self.assertIn("ZERO references", self.exporter)
+    def test_the_dead_field_is_no_longer_read_for_this_row(self) -> None:
+        """statistics+0x1C is never written by any of the three games."""
+        self.assertIn("count_living_elders", self.exporter)
+        self.assertIn("count_buried_elders", self.exporter)
 
-    def test_no_writer_reintroduces_a_roster_walk_for_elders(self) -> None:
-        self.assertNotIn("count_village_elders", self.exporter)
+    def test_a_bare_roster_walk_is_never_shipped_alone(self) -> None:
+        """Every living count must be paired with a buried count.
+
+        A walk on its own is the design review rejected: it reports who holds
+        the status now and falls as elders die. The pairing is what makes the
+        row a lifetime figure.
+        """
+        living = self.exporter.count("count_living_elders(")
+        buried = self.exporter.count("count_buried_elders(")
+        # One definition plus N call sites each; the call counts must match.
+        self.assertGreaterEqual(living, 2)
+        self.assertEqual(
+            living,
+            buried,
+            "every count_living_elders call must be paired with a "
+            "count_buried_elders call, or the row loses its dead elders",
+        )
+
+    def test_the_buried_half_is_actually_added(self) -> None:
+        """Not merely present -- ADDED to the living count.
+
+        Mutation testing caught this: a guard that only checked
+        count_buried_elders appeared in the file still passed when the call
+        was multiplied by zero, which is the bare roster walk review
+        rejected wearing the right name.
+        """
+        # Skip the definition, which is `static int count_living_elders(`.
+        calls = [
+            match
+            for match in re.finditer(r"count_living_elders\(", self.exporter)
+            if "static int " not in self.exporter[max(0, match.start() - 12):match.start()]
+        ]
+        self.assertGreaterEqual(len(calls), 2, "expected a call site per game")
+        for call in calls:
+            tail = self.exporter[call.end(): call.end() + 600]
+            self.assertRegex(
+                tail,
+                r"\)\s*\n\s*\+\s*count_buried_elders\(",
+                "a living count is not summed with a buried count",
+            )
+        self.assertNotIn("* count_buried_elders", self.exporter)
+        self.assertNotIn("0 * count", self.exporter)
+
+    def test_the_mastery_bar_is_three(self) -> None:
+        """The owner's definition: Master status in at least THREE skills."""
+        self.assertIn("if (mastered >= 3) {", self.exporter)
+
+    def test_graves_are_gated_on_occupancy(self) -> None:
+        """Without the gate the terminator slot is counted.
+
+        In the owner's VV5 saves slot 499 carries a garbage name and a
+        non-boolean byte where the elder flag lives, which is what made an
+        early count report three distinct values for a field `setnl` can only
+        write as 0 or 1.
+        """
+        body = self.exporter[self.exporter.index("static int count_buried_elders"):]
+        body = body[: body.index("\n}")]
+        self.assertIn("read_int(record, occupied_offset) == 0", body)
+        self.assertIn("continue;", body)
+
+    def test_vv4s_elder_flag_is_patch_owned_not_the_stock_byte(self) -> None:
+        """VV4 must write +0x37, never +0x31.
+
+        +0x31 is where the stock burial writer stores sub_46AC70's verdict,
+        and that routine is `cmp edx, 5` -- mastered ALL five skills. Pointing
+        the patch flag there would both clobber a stock field and count a
+        far rarer thing under the owner's three-or-more label.
+        """
+        builder = BUILDER.read_text(encoding="utf-8")
+        self.assertIn('"elder_grave_offset": 0x37,', builder)
+        self.assertNotIn('"elder_grave_offset": 0x31,', builder)
+
+    def test_vv4s_wrapper_replays_the_instruction_it_stole(self) -> None:
+        """The splice takes `call sub_46AC70`; it must be replayed.
+
+        Without the replay grave+0x31 never receives its stock value, so the
+        patch would silently change behaviour the owner did not ask to change
+        -- and the epitaph selector downstream reads that field.
+        """
+        builder = BUILDER.read_text(encoding="utf-8")
+        block = builder[builder.index("elder_hook_va = config.get"):]
+        block = block[: block.index("robing_hook_va = config.get")]
+        self.assertIn("call 0x{elder_stolen_target:X}", block)
+        # Decoded from the guard bytes, so the replay cannot drift from the
+        # instruction actually being replaced.
+        self.assertIn("elder_stolen_target = (", block)
+        self.assertIn('int.from_bytes(elder_guard[1:5], "little", signed=True)', block)
+
+    def test_the_skill_encoding_and_count_are_not_shared_between_games(self) -> None:
+        """VV5 has six skills; VV3 and VV4 have five. VV3 stores int32.
+
+        Carrying either across games is silently wrong: six slots on a
+        five-skill game reads past the block, and the wrong encoding compares
+        a float bit pattern against an integer threshold.
+        """
+        self.assertIn("0xEACu, 5u, 0", self.exporter)      # VV3 int32, 5
+        self.assertIn("0x1C5Cu, 5u, 1", self.exporter)     # VV4 float, 5
+        self.assertIn("0x1C5Cu, 6u, 1", self.exporter)     # VV5 float, 6
 
 
 class RequirementsStillGovernTests(unittest.TestCase):
