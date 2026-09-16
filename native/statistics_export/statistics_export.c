@@ -35,6 +35,7 @@ static void write_int(unsigned char *manager, unsigned int offset, int value) {
    small integer for some other reason does not read as initialised. */
 #define BURIAL_BASELINE_MARKER 0x56425331 /* 'VBS1' */
 #define ROBING_BASELINE_MARKER 0x56433131 /* 'VC11' */
+#define ELDER_BASELINE_MARKER 0x56453431 /* 'VE41' */
 
 static int count_flags(
     const unsigned char *manager,
@@ -178,6 +179,65 @@ static int count_living_elders(
     return total;
 }
 
+/* Seed VV4's patch-owned elder flag once, from the stock all-five flag.
+
+   Only the burial hook writes grave+0x37, so every grave in a save created
+   before this patch reads zero there. Without this, VV4's dead half would
+   report 0 for exactly the long-running villages the owner asked to see
+   counted retroactively -- which would contradict the whole point of the
+   change rather than merely be incomplete. Codex raised this as a P1 on
+   #353 and was right.
+
+   WHAT IS RECOVERABLE. The stock writer stores sub_46AC70's verdict at
+   grave+0x31, and that predicate is `cmp edx, 5` -- mastered ALL FIVE. Every
+   villager who mastered five also mastered three, so the stock flag is a
+   strict SUBSET of the owner's rule. Seeding from it can never overcount; it
+   is a true lower bound, and it is exact for any village whose dead elders
+   all mastered everything.
+
+   It does NOT recover villagers who died having mastered three or four, and
+   nothing in a VV4 save records those -- the game never computed the
+   predicate, which is the defect being fixed. So this is the same bargain
+   the memorial baseline already makes for Villagers Buried: strictly better
+   than zero, never overstated, and exact from the patch forward.
+
+   Gated on its own marker rather than on the field being zero. A save whose
+   graves genuinely hold no elders is indistinguishable by value from an
+   unseeded one, and re-running the migration every export would be harmless
+   only until the burial hook had written a real verdict the stock flag
+   disagrees with -- at which point a re-seed would clear it. The marker is
+   written once whether or not anything was seeded. */
+static void seed_vv4_elder_flags(
+    unsigned char *counters,
+    unsigned int marker_offset,
+    unsigned char *graves,
+    unsigned int stride,
+    unsigned int capacity,
+    unsigned int occupied_offset,
+    unsigned int stock_offset,
+    unsigned int elder_offset
+) {
+    unsigned int index;
+    if (counters == NULL || graves == NULL) {
+        return;
+    }
+    if (read_int(counters, marker_offset) == (int)ELDER_BASELINE_MARKER) {
+        return;
+    }
+    for (index = 0; index < capacity; ++index) {
+        unsigned char *record = graves + index * stride;
+        if (read_int(record, occupied_offset) == 0) {
+            continue;
+        }
+        /* Only ever sets, never clears: a verdict the burial hook already
+           wrote must survive a seed that runs after it. */
+        if (*(const unsigned char *)(record + stock_offset) != 0) {
+            *(unsigned char *)(record + elder_offset) = 1;
+        }
+    }
+    write_int(counters, marker_offset, (int)ELDER_BASELINE_MARKER);
+}
+
 /* Count villagers who died holding the status, from the flag their game's
    burial writer already stored in the grave record.
 
@@ -193,7 +253,26 @@ static int count_living_elders(
 
    VV4 is the exception and is handled by its caller: its burial writer stores
    the ALL-FIVE predicate instead, so its stock flag undercounts and a
-   patch-owned flag is used. */
+   patch-owned flag is used.
+
+   KNOWN BOUND, stated rather than glossed. The memorial holds 500 records
+   and each game's burial writer takes the first free slot, returning without
+   writing anything once all 500 are occupied (VV4 sub_45D470 scans to 0x1F4
+   then returns al = 0). An elder who dies with a full memorial therefore
+   leaves the living half without entering this one, and the total can fall.
+   Codex raised this as a P2 on #353 and the mechanism is real.
+
+   It is not fixed here, deliberately. count_occupied_graves already reasons
+   the same way for Villagers Buried -- "nothing has been found that clears
+   one, but 'nothing found' is not proof, and the array is bounded while a
+   village's deaths are not" -- and reports graves currently held rather than
+   a lifetime total it cannot support. Lifting the bound means uncapped
+   patch-owned storage per dead villager in three executables, which is a new
+   subsystem rather than the smallest safe change.
+
+   Measured in the owner's saves: the largest memorial occupancy is 36 of 500
+   in VV4 and 37 of 500 in VV5, so the bound is nowhere near being reached in
+   the villages this was asked for. */
 static int count_buried_elders(
     const unsigned char *graves,
     unsigned int stride,
@@ -742,13 +821,25 @@ static int write_later_game(
     unsigned int villager_skills,
     unsigned int villager_skill_count,
     int villager_skills_are_float,
-    unsigned int grave_elder_offset
+    unsigned int grave_elder_offset,
+    /* VV4 only: the stock grave field its patch-owned elder flag is seeded
+       from, and the statistics-block marker that makes the seed one-time.
+       Zero for the games whose burial writer already stores the owner's
+       predicate, which need no migration. */
+    unsigned int grave_elder_seed_offset,
+    unsigned int elder_marker_offset
 ) {
     unsigned char *statistics = (unsigned char *)manager + statistics_offset;
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
     unsigned char *live = module == NULL
         ? NULL
         : module + live_statistics_rva;
+    if (grave_elder_seed_offset != 0 && module != NULL) {
+        seed_vv4_elder_flags(
+            statistics, elder_marker_offset,
+            module + graves_rva, graves_stride, graves_capacity,
+            0x1Cu, grave_elder_seed_offset, grave_elder_offset);
+    }
     if (fprintf(
         file,
         "%s\n"
@@ -1061,7 +1152,10 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                rule (cmp eax,3 / setnl), so VV3's dead half is exactly
                retroactive from stock data. */
             0xEACu, 5u, 0,
-            0x29u
+            0x29u,
+            /* The Secret City's burial writer already stores the
+               three-or-more verdict, so there is nothing to migrate. */
+            0u, 0u
         );
     } else if (game_id == GAME_VV4) {
         written = write_later_game(
@@ -1121,7 +1215,10 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                0x460790, neither in the burial writer nor the grave
                accessor. */
             0x1C5Cu, 5u, 1,
-            0x37u
+            0x37u,
+            /* Seed +0x37 once from the stock all-five flag at +0x31, marked
+               at statistics+0x4C (0x4D6E2C, zero references image-wide). */
+            0x31u, 0x4Cu
         );
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);

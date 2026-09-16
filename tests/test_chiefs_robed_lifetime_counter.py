@@ -349,6 +349,60 @@ class VillageEldersCountsTheLivingAndTheDeadTests(unittest.TestCase):
         self.assertIn("read_int(record, occupied_offset) == 0", body)
         self.assertIn("continue;", body)
 
+    def test_vv4s_existing_graves_are_seeded(self) -> None:
+        """Only the burial hook writes +0x37, so pre-patch graves read zero.
+
+        Without a seed VV4's dead half reports 0 for exactly the long-running
+        villages the retroactive behaviour was asked for. Codex raised this
+        as a P1 on #353; measured in the owner's saves, +0x37 is set on 0 of
+        393 occupied graves while the stock all-five flag is set on 16.
+        """
+        # The function must be DEFINED and CALLED. Mutation testing caught
+        # this: deleting the call site left the definition in place and an
+        # earlier version of this assertion still passed, which is the P1
+        # shipping again under a name that looks fixed.
+        self.assertIn("static void seed_vv4_elder_flags", self.exporter)
+        calls = [
+            match
+            for match in re.finditer(r"seed_vv4_elder_flags\(", self.exporter)
+            if "static void " not in self.exporter[max(0, match.start() - 14):match.start()]
+        ]
+        self.assertEqual(len(calls), 1, "the seed is defined but never called")
+        self.assertIn("ELDER_BASELINE_MARKER", self.exporter)
+        # Seeded from the stock all-five flag, which is a strict SUBSET of
+        # three-or-more, so the baseline can never overcount.
+        self.assertIn("0x31u, 0x4Cu", self.exporter)
+
+    def test_the_seed_is_one_time_and_never_clears(self) -> None:
+        """Two properties the seed must have, both easy to get wrong.
+
+        Gated on its own marker, not on the field being zero: a save whose
+        graves hold no elders is indistinguishable by value from an unseeded
+        one. And set-only: a verdict the burial hook already wrote must
+        survive a seed that runs afterwards.
+        """
+        body = self.exporter[self.exporter.index("static void seed_vv4_elder_flags"):]
+        body = body[: body.index("\n}")]
+        self.assertIn("== (int)ELDER_BASELINE_MARKER", body)
+        self.assertIn("return;", body)
+        self.assertIn("(record + elder_offset) = 1;", body)
+        # Set-only. Checked against the elder field specifically, because a
+        # bare "= 0;" also matches the loop's own `index = 0` initialiser --
+        # which is how the first draft of this assertion failed on correct
+        # code.
+        self.assertNotIn("(record + elder_offset) = 0;", body)
+        self.assertIn("write_int(counters, marker_offset", body)
+
+    def test_the_memorial_bound_is_documented_not_hidden(self) -> None:
+        """The 500-record cap is a real limitation and must be stated.
+
+        Codex raised it as a P2 on #353. It is inherited rather than fixed,
+        for the same reason count_occupied_graves already declines to claim a
+        lifetime total, so the source has to say so.
+        """
+        self.assertIn("KNOWN BOUND", self.exporter)
+        self.assertIn("500", self.exporter)
+
     def test_vv4s_elder_flag_is_patch_owned_not_the_stock_byte(self) -> None:
         """VV4 must write +0x37, never +0x31.
 
