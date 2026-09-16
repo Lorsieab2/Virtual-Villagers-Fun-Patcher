@@ -9460,6 +9460,53 @@ _NCI_CALL_SITE_RVAS: dict[int, tuple[int, ...]] = {
     0x8A12C: (0x2DAD, 0x306A, 0x266EF, 0x2964A, 0x29975, 0x76D6A, 0x7EDF3),
 }
 
+# The ONE call site per game whose enclosing function builds the save folder,
+# and which must therefore keep seeing the REAL exe name.
+#
+# The owner's requirement (#347): "The exes outputted by the patcher should
+# create and read save files from a folder with the EXACT SAME NAME AS THE
+# OUTPUTTED EXES. THIS IS VANILLA, BASE-GAME, STOCK UNMODDED BEHAVIOR THAT
+# SHOULD NEVER BE CHANGED."  The wrapper rewrites every call site to report
+# the stock basename, so a "- Modded" exe resolves the vanilla folder.  #343
+# fixed VV4 and VV5 by exempting them from the wrapper entirely, which is not
+# available here: VV1, VV2 and VV3 were each launched WITH the wrapper and run,
+# and it is what makes the rename survivable for them.
+#
+# IDENTIFIED STRUCTURALLY, NOT BY ADDRESS.  Each executable contains the string
+# "\\LDW" exactly ONCE and references it exactly ONCE, and in all three games
+# that reference sits in the same function as one of these calls:
+#
+#     game  "\\LDW" VA    reference   function      the call site
+#     VV1   0x4573AC      0x4029D8    sub_402930    0x402944  (RVA 0x2944)
+#     VV2   0x4743AC      0x402C68    sub_402BC0    0x402BD4  (RVA 0x2BD4)
+#     VV3   0x47C56C      0x402D98    sub_402CF0    0x402D04  (RVA 0x2D04)
+#
+# That function copies from AFTER the last backslash, strips ".exe", and
+# appends "\\LDW" -- precisely "a folder named after the exe".
+#
+# EVERY OTHER SITE STAYS WRAPPED, which is what keeps the name-gated init path
+# seeing the stock name.  Classified per game rather than assumed:
+#
+#   the directory-only site (VV1 0x27DD, VV2 0x2A6D, VV3 0x2AAD)
+#       truncates AT the last backslash (`mov byte ptr [esi+1], 0`), so the
+#       basename is discarded and this site cannot affect the save folder
+#       either way.
+#   the CRT internals (VV1 0x50967/0x50ED5/0x52C57 and the equivalents)
+#       are MSVC runtime paths; two of them push "<program name unknown>".
+#   VV3's 0x3C46F / 0x3CE1A / 0x3EC89
+#       take hModule from a VARIABLE with a 0x104 stack buffer and check for
+#       ERROR_INSUFFICIENT_BUFFER -- the module-path idiom used for resource
+#       loading, not the save folder.  The save-folder site alone passes
+#       hModule = NULL into a fixed 0x1FE global.
+#
+# VV4 and VV5 are absent because they are exempt from the wrapper entirely, so
+# their save-folder sites already see the real name.
+_NCI_SAVE_FOLDER_CALL_SITE_RVAS: dict[int, int] = {
+    0x5711C: 0x2944,
+    0x7411C: 0x2BD4,
+    0x7C130: 0x2D04,
+}
+
 
 def _nci_find_gmfn_iat(data: bytes, info: dict[str, Any]) -> int | None:
     if len(info["dirs"]) < 2:
@@ -9672,6 +9719,30 @@ def _apply_name_crash_immunity(
     sites = _nci_find_call_sites(bytes(data), info, iat_va)
     if not sites:
         return {"status": "skipped", "reason": "no GetModuleFileNameA call sites"}
+    # Leave the save-folder call site unwrapped, so the published exe creates
+    # and reads saves in a folder named after ITSELF -- which is what the stock
+    # game does under any name, and what the owner requires (#347).  Every
+    # other site stays wrapped, so the name-gated init path still sees the
+    # stock basename and the rename remains survivable for VV1/VV2/VV3.
+    #
+    # Fails closed rather than silently doing nothing: if the map names a site
+    # for this image and that site is not among the discovered ones, the two
+    # have drifted apart and the wrapper must not be applied on a stale
+    # assumption about which call does what.
+    save_folder_rva = _NCI_SAVE_FOLDER_CALL_SITE_RVAS.get(iat_va - base)
+    if save_folder_rva is not None:
+        save_folder_va = base + save_folder_rva
+        if save_folder_va not in sites:
+            return {
+                "status": "skipped",
+                "reason": "save-folder call site not among the discovered sites",
+            }
+        sites = [site for site in sites if site != save_folder_va]
+        if not sites:
+            return {
+                "status": "skipped",
+                "reason": "no call sites left to wrap",
+            }
     # Size the cave from the emitted wrapper itself.  Its length changes when
     # failure guards are strengthened; a stale fixed allowance can select a
     # zero run that ends before the complete wrapper.
