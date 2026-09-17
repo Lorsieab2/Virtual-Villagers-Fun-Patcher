@@ -114,9 +114,17 @@ enum {
        the rest. So the trampolines capture the pointer and every father field
        comes from his own record, his name included.
 
-       A record is not guaranteed. If a site is ever reached without one, or
-       the pointer fails validation, the log says the father is unavailable for
-       that birth rather than inventing him. */
+       He travels in an argument slot the routine never reads: sub_43BBC0
+       takes four stack arguments and reads only three of them, so the stubs
+       overwrite the unread one with his record pointer. That needs no writable
+       storage anywhere in the image, which matters because every code page the
+       feature could have used is R-X.
+
+       A record is not guaranteed. If a site is ever reached without one the
+       slot still holds whatever the stock caller pushed -- his +0x36C scalar,
+       a small integer that fails the record validation below -- and the log
+       says the father is unavailable for that birth rather than inventing
+       him. */
     FATHER_BY_CAPTURE = 3,
 
     GAME_VV1 = 1,

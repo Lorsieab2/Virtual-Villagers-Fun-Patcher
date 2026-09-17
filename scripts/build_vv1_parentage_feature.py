@@ -198,17 +198,35 @@ CAVE_SIZE = 0x200
 #
 # A hook inside the routine cannot reach him. Its prologue forms exactly one
 # record pointer -- imul 0x3D8 at 0x43BBEA, the mother's -- that is the only
-# stride multiply in the function, and its only stack reads are +0x08, +0x10
-# and +0x14, none of which carries a father pointer or index.
+# stride multiply in the function.
 #
-# So each call site is redirected to a small stub that stashes his pointer and
-# then tail-calls the real routine. All six stock calls are five-byte E8 near
-# calls, so each is replaced by another five-byte call and nothing shifts.
+# HOW HE TRAVELS: an argument slot the routine never reads.
 #
-# The base register differs per site, which is why there are six stubs rather
-# than one: at two sites his pointer is in ebp, elsewhere it has just been
-# loaded into eax/ecx/edx from a stack slot. Each stub is emitted for its own
-# register.
+# sub_43BBC0 is __thiscall ending in `ret 0x10`, so it takes four stack
+# arguments. After its `push edi` they sit at [esp+0x08], [esp+0x0C],
+# [esp+0x10] and [esp+0x14]. Disassembling every esp-based memory operand in
+# the whole routine finds accesses to exactly three of them:
+#
+#     [esp+0x08]  1 read   0x43BBE6  mov edx,[esp+8]      the mother's index
+#     [esp+0x10]  2 reads  0x43BBD0, 0x43BC00             a skill selector
+#     [esp+0x14]  1 read   0x43BBE2  mov ecx,[esp+0x14]
+#     [esp+0x0C]  0 reads  -- the father's +0x36C, passed and ignored
+#
+# So the third argument is dead. Each call site is redirected through a stub
+# that replaces the pushed +0x36C VALUE with the father's record POINTER, and
+# the success-tail trampolines read the pointer back out of that slot.
+#
+# This is why there is no writable scratch slot. An earlier draft kept the
+# pointer in a fixed cave address, which Codex correctly rejected: the cave is
+# in .text (0x60000020, R-X) and the Origins-composed page is .vv1mc with the
+# same characteristics, so the very first conception would have written to a
+# read-only page and access-violated. Passing the pointer in a dead argument
+# needs no writable storage at all, and it cannot go stale -- there is nothing
+# that persists between births to go stale.
+#
+# The stubs are per-site because the father's pointer is in a different
+# register at each one, and because the already-pushed value has to be
+# overwritten in place:
 #
 #     site      the instruction that loads his +0x36C, giving the register
 #     0x43DD33  0x43DD24  mov eax,[edx+0x36C]   -> edx
@@ -217,7 +235,11 @@ CAVE_SIZE = 0x200
 #     0x43DD94  0x43DD89  mov eax,[ebp+0x36C]   -> ebp
 #     0x447031  0x447020  mov ecx,[eax+0x36C]   -> eax
 #     0x447238  0x44721D  mov edx,[ecx+0x36C]   -> ecx
+#
+# At the stub the return address is on top, so the four arguments are at
+# [esp+0x04] .. [esp+0x10] and the dead one is at [esp+0x08].
 CONCEPTION_VA = 0x0043BBC0
+FATHER_ARG_AT_STUB = 0x08          # [esp+0x08] once the call pushed its return
 FATHER_CALL_SITES = (
     (0x0043DD33, 0x0003DD33, "edx"),
     (0x0043DD54, 0x0003DD54, "eax"),
@@ -227,10 +249,27 @@ FATHER_CALL_SITES = (
     (0x00447238, 0x00447238 - 0x400000, "ecx"),
 )
 
-# Where the captured pointer lives, and where the six stubs go. Both sit past
-# the strings so the existing layout checks keep their meaning.
-FATHER_SLOT_OFFSET = 0x160     # 4 bytes
-FATHER_STUB_OFFSET = 0x170     # six stubs, 0x10 apiece
+# Where each trampoline finds that argument, as a displacement from the tail's
+# own esp BEFORE its pushad. Measured from the routine's stack adjustments:
+#
+#     0x43BBC0  push edi        +4
+#     0x43BBF0  push esi        +8
+#     0x43BC3F  push 0x64 / 0x43BC46 add esp,4    (balanced)
+#     0x43BC7D  push 0x64 / 0x43BC84 add esp,4    (balanced)
+#     0x43BCAF  pop esi         +4
+#     0x43BCB6  pop edi         +0
+#
+# So the triplets tail and both singleton branches sit at +8, while the twins
+# tail at 0x43BCBA is past both pops and sits at +0. Getting this wrong reads
+# a neighbouring argument, which is a plausible-looking wrong pointer rather
+# than a crash -- the companion's record validation is what stops it becoming
+# a wrong father in the log.
+FATHER_ARG_AT_TRIPLETS = 0x0C + 8
+FATHER_ARG_AT_TWINS = 0x0C + 0
+FATHER_ARG_AT_SINGLE = 0x0C + 8
+
+# Six stubs, each: overwrite the dead argument, then tail-call the routine.
+FATHER_STUB_OFFSET = 0x170
 FATHER_STUB_SIZE = 0x10
 
 # Where the payload lives when Origins is ALSO selected.
@@ -351,12 +390,17 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
 
     dll_name_va = cave_va + DLL_NAME_OFFSET
     export_name_va = cave_va + EXPORT_NAME_OFFSET
-    father_slot_va = cave_va + FATHER_SLOT_OFFSET
 
     payload = bytearray(CAVE_SIZE)
     patches: list[dict[str, object]] = []
 
     for index, (tail_va, tail_file) in enumerate(zip(TAIL_VAS, TAIL_FILES)):
+        # Per-tail, NOT shared: the triplets tail is still inside the routine's
+        # two pushes while the twins tail is past both pops, so the same
+        # argument sits at different displacements. pushad then adds 0x20.
+        father_arg_in_frame = 0x20 + (
+            FATHER_ARG_AT_TRIPLETS if index == 0 else FATHER_ARG_AT_TWINS
+        )
         # A DISTINCT name, not a reassignment of cave_va: overwriting the base
         # here left the singleton trampoline below computing its own slot from
         # an already-advanced base, so its rejoin jumped 0x50 short -- into the
@@ -413,16 +457,18 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
                 # WriteParentageRecordWithFather(game_id, records, mother,
                 # father). Pushed right to left, so the father goes first.
                 #
-                # The slot is read and then CLEARED, which matters: it is
-                # written at the conception call sites and read here, and a
-                # pregnancy that reached a tail without passing a patched call
-                # site would otherwise inherit whichever father was captured
-                # last. Clearing makes that case log "(not captured for this
-                # birth)" instead of naming the wrong villager -- a wrong
-                # parent is unrecoverable once written, an absent one is
-                # merely incomplete.
-                push dword ptr [0x{father_slot_va:X}]
-                mov dword ptr [0x{father_slot_va:X}], 0
+                # The father arrives in the conception routine's third
+                # stack argument, which the routine itself never reads. pushad
+                # has just pushed 0x20 bytes, so the argument moves down by
+                # that much; father_arg_in_frame already includes it.
+                #
+                # There is nothing to clear and nothing that can go stale: the
+                # value lives in this call's own frame, so a pregnancy that
+                # somehow reached here without a patched call site reads
+                # whatever the stock caller pushed -- his +0x36C scalar, a
+                # small integer that fails the companion's record validation
+                # and logs "(not captured for this birth)".
+                push dword ptr [esp + 0x{father_arg_in_frame:X}]
                 push dword ptr [esp + 0x08]
                 push dword ptr [esp + 0x08]
                 push {GAME_ID}
@@ -486,6 +532,10 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
     # never reassigned before any exit, and edi is written at 0x43BBC1 and left
     # alone, with the intervening manager fetches all targeting eax.
     single_cave_va = cave_va + 2 * slot_size
+    # The singleton route is entered from branches at 0x43BC39 and 0x43BC4C,
+    # both of which are still inside the routine's two pushes, so it uses the
+    # same displacement as the triplets tail.
+    father_arg_in_frame = 0x20 + FATHER_ARG_AT_SINGLE
     single_code = assemble(
         f"""
             pushad
@@ -503,8 +553,7 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
             call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
             test eax, eax
             jz done
-            push dword ptr [0x{father_slot_va:X}]
-            mov dword ptr [0x{father_slot_va:X}], 0
+            push dword ptr [esp + 0x{father_arg_in_frame:X}]
             push dword ptr [esp + 0x08]
             push dword ptr [esp + 0x08]
             push {GAME_ID}
@@ -586,9 +635,18 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
     for stub_index, (call_va, call_file, reg) in enumerate(FATHER_CALL_SITES):
         stub_offset = FATHER_STUB_OFFSET + stub_index * FATHER_STUB_SIZE
         stub_va = cave_va + stub_offset
+        # Overwrite the dead third argument IN PLACE with the father's record
+        # pointer, then tail-call the routine. The stub writes the caller's own
+        # stack frame -- always writable -- rather than any part of the image,
+        # which is the whole point of this design.
+        #
+        # The jmp, not a call: the routine must see exactly the frame the game
+        # built, including the return address that sends it back to the real
+        # caller. An extra frame here would leave `ret 0x10` unwinding the
+        # wrong number of bytes.
         stub = assemble(
             f"""
-                mov dword ptr [0x{father_slot_va:X}], {reg}
+                mov dword ptr [esp + 0x{FATHER_ARG_AT_STUB:X}], {reg}
                 jmp 0x{CONCEPTION_VA:X}
             """,
             stub_va,

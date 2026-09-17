@@ -7,12 +7,26 @@ is nothing to read at the success tails.
 
 His record IS live at the call sites. sub_43BBC0 has six callers and no
 indirect references, and each loads exactly one field off his record (+0x36C)
-before discarding the pointer. So each call is routed through a stub that
-stashes the pointer, and the success-tail trampolines pass it to the companion.
+before discarding the pointer.
+
+He travels in an argument slot the routine never reads. sub_43BBC0 ends in
+`ret 0x10` and takes four stack arguments; disassembling every esp-based memory
+operand in the whole routine finds reads of [esp+0x08], [esp+0x10] and
+[esp+0x14] and NONE of [esp+0x0C]. So each call site is routed through a stub
+that overwrites that dead argument with his record pointer, and the
+success-tail trampolines read it back out of their own frame.
+
+THE SLOT IS NOT IN MEMORY, and that is load-bearing. An earlier draft kept the
+pointer at a fixed cave address; Codex caught that the cave is in .text
+(0x60000020, R-X) and the Origins-composed page is .vv1mc with the same
+characteristics, so the first conception would have written a read-only page
+and access-violated. No test here could have caught it -- the manifests were
+byte-correct and every jump target verified. Only the section characteristics
+said otherwise, which is why one of these guards now checks them directly.
 
 These guards pin the parts that would fail silently rather than loudly: a stub
-aimed at the wrong place still assembles, and a capture that is never cleared
-still logs -- with the previous birth's father.
+aimed at the wrong register still assembles and captures a stranger, and a
+trampoline reading the wrong displacement gets a neighbouring argument.
 """
 
 from __future__ import annotations
@@ -36,7 +50,6 @@ CAVE_VA = 0x00456900
 CAVE_FILE = 0x00056900
 STUB_OFFSET = 0x170
 STUB_SIZE = 0x10
-SLOT_OFFSET = 0x160
 
 
 def _feature():
@@ -131,17 +144,79 @@ class VV1CapturesTheFatherAtTheCallSitesTests(unittest.TestCase):
                     "the stub does not tail-call the conception routine",
                 )
 
-    def test_every_stub_writes_the_same_slot(self) -> None:
-        """Six stubs, one slot -- a stray address would capture nothing."""
+    def test_no_stub_writes_into_the_image(self) -> None:
+        """The regression Codex caught: a write target inside a R-X section.
+
+        The cave lives in .text, which is 0x60000020 -- readable and
+        executable, NOT writable. A stub storing to any absolute address in the
+        image would access-violate on the first conception. Writing the
+        caller's own stack cannot, because a stack page is always writable.
+        """
         payload = _cave_payload()
-        slot_va = CAVE_VA + SLOT_OFFSET
-        packed = struct.pack("<I", slot_va)
         for index in range(len(CALL_SITES)):
             start = STUB_OFFSET + index * STUB_SIZE
             stub = payload[start : start + STUB_SIZE]
             with self.subTest(stub=index):
-                self.assertIn(
-                    packed, stub, "this stub does not write the capture slot"
+                # mov [esp+disp8], r32 is 89 /r with mod=01, rm=100 (SIB),
+                # and a SIB base of esp. An absolute store would be 89 /r with
+                # mod=00 rm=101, or the A3 short form for eax.
+                self.assertNotEqual(
+                    stub[0], 0xA3, "absolute store to eax's short form"
+                )
+                self.assertEqual(stub[0], 0x89, "not a register store")
+                modrm = stub[1]
+                self.assertEqual(
+                    modrm >> 6, 1, "not an [esp+disp8] store"
+                )
+                self.assertEqual(
+                    modrm & 7, 4, "not SIB-addressed, so not stack-relative"
+                )
+                self.assertEqual(stub[2], 0x24, "SIB base is not esp")
+
+    def test_the_cave_section_is_not_writable(self) -> None:
+        """States the premise the guard above depends on.
+
+        If .text ever became writable this test would fail, and the reasoning
+        in the docstring would need revisiting rather than silently holding.
+        """
+        if not STOCK.is_file():
+            self.skipTest("the exact-build VV1 executable is not available")
+        blob = STOCK.read_bytes()
+        pe = struct.unpack_from("<I", blob, 0x3C)[0]
+        count = struct.unpack_from("<H", blob, pe + 6)[0]
+        opt = struct.unpack_from("<H", blob, pe + 20)[0]
+        base = struct.unpack_from("<I", blob, pe + 24 + 28)[0]
+        for index in range(count):
+            off = pe + 24 + opt + index * 40
+            vsize, vaddr, rsize, _ = struct.unpack_from("<IIII", blob, off + 8)
+            chars = struct.unpack_from("<I", blob, off + 36)[0]
+            start = base + vaddr
+            if start <= CAVE_VA < start + max(vsize, rsize):
+                self.assertFalse(
+                    chars & 0x80000000,
+                    "the cave's section is writable, so the reasoning that "
+                    "forced the father onto the stack no longer applies",
+                )
+                return
+        self.fail("the cave is not inside any section")
+
+    def test_every_stub_writes_the_dead_argument(self) -> None:
+        """Six stubs, one slot -- a stray address would capture nothing."""
+        """[esp+0x08] at the stub, which is the routine's [esp+0x0C].
+
+        One slot lower would overwrite the mother's index; one higher would
+        overwrite a skill selector the routine does read. Either changes
+        gameplay rather than merely logging the wrong thing.
+        """
+        payload = _cave_payload()
+        for index in range(len(CALL_SITES)):
+            start = STUB_OFFSET + index * STUB_SIZE
+            stub = payload[start : start + STUB_SIZE]
+            with self.subTest(stub=index):
+                self.assertEqual(
+                    stub[3],
+                    0x08,
+                    "the stub writes the wrong argument slot",
                 )
 
     def test_each_stub_captures_the_register_its_site_uses(self) -> None:
@@ -161,24 +236,12 @@ class VV1CapturesTheFatherAtTheCallSitesTests(unittest.TestCase):
             self.skipTest("the exact-build VV1 executable is not available")
         blob = STOCK.read_bytes()
         payload = _cave_payload()
-        slot_va = CAVE_VA + SLOT_OFFSET
-
-        # mov r32,[r32+disp32] is 8B /r with mod=10; rm is the base register.
-        # The short forms that store eax use opcode A3 and encode no register.
-        store_modrm = {
-            0: 0xA3,   # eax -- special-cased below
-            1: 0x0D,   # ecx
-            2: 0x15,   # edx
-            3: 0x1D,   # ebx
-            5: 0x2D,   # ebp
-            6: 0x35,   # esi
-            7: 0x3D,   # edi
-        }
 
         for index, va in enumerate(CALL_SITES):
             with self.subTest(site=hex(va)):
                 call_off = va - 0x400000
                 window = blob[call_off - 96 : call_off]
+                # mov r32,[base+0x36C] is 8B /r with mod=10; rm is the base.
                 base = None
                 for i in range(len(window) - 6):
                     if (
@@ -192,49 +255,55 @@ class VV1CapturesTheFatherAtTheCallSitesTests(unittest.TestCase):
                     base, "no +0x36C load before this call site"
                 )
 
+                # The stub is  mov [esp+0x08], <reg>  ==  89 /r 24 08, where
+                # the reg field of the ModRM byte names the source register.
                 start = STUB_OFFSET + index * STUB_SIZE
                 stub = payload[start : start + STUB_SIZE]
-                if base == 0:
-                    expected = b"\xa3" + struct.pack("<I", slot_va)
-                else:
-                    expected = (
-                        b"\x89"
-                        + bytes([store_modrm[base]])
-                        + struct.pack("<I", slot_va)
-                    )
-                self.assertTrue(
-                    stub.startswith(expected),
-                    "stub %d captures the wrong register: the site loads the "
-                    "father from register %d, so the stub must store that one"
-                    % (index, base),
+                self.assertEqual(stub[0], 0x89, "not a register store")
+                source = (stub[1] >> 3) & 7
+                self.assertEqual(
+                    source,
+                    base,
+                    "stub %d stores register %d, but the site loads the father "
+                    "from register %d -- it would capture a stranger"
+                    % (index, source, base),
                 )
 
-    def test_the_slot_is_cleared_after_it_is_read(self) -> None:
-        """Otherwise a birth with no capture inherits the last father.
+    def test_each_trampoline_reads_the_right_displacement(self) -> None:
+        """Measured from the routine's own pushes and pops, not assumed.
 
-        That is the failure mode worth a guard of its own: it does not crash
-        and it does not look wrong, it just attributes a child to whoever
-        conceived previously. A wrong parent cannot be corrected later, because
-        parentage is not recoverable from the child.
+        The triplets tail and both singleton branches sit between `push edi` /
+        `push esi` and the matching pops, so the argument is 8 bytes further
+        down than at entry; the twins tail is past both pops and is not. pushad
+        then adds 0x20 to all of them.
+
+        Reading the wrong displacement silently fetches a neighbouring
+        argument, which is a plausible-looking wrong pointer rather than a
+        crash.
         """
         payload = _cave_payload()
-        slot_va = CAVE_VA + SLOT_OFFSET
-        # mov dword ptr [slot], 0  ==  C7 05 <slot> 00000000
-        clear = b"\xc7\x05" + struct.pack("<I", slot_va) + b"\x00\x00\x00\x00"
-        self.assertEqual(
-            payload.count(clear),
-            3,
-            "each of the three trampolines must clear the slot after reading it",
-        )
-
-    def test_the_slot_starts_empty(self) -> None:
-        """A non-zero initial value would be a father before any conception."""
-        payload = _cave_payload()
-        self.assertEqual(
-            payload[SLOT_OFFSET : SLOT_OFFSET + 4],
-            b"\x00\x00\x00\x00",
-            "the capture slot must start empty",
-        )
+        expected = {0: 0x20 + 0x0C + 8, 1: 0x20 + 0x0C + 0, 2: 0x20 + 0x0C + 8}
+        for index, want in expected.items():
+            body = payload[index * 0x60 : (index + 1) * 0x60]
+            with self.subTest(trampoline=index):
+                # push dword ptr [esp+disp8] == FF 74 24 disp8. The FIRST such
+                # push in each body is the father; the two after it read the
+                # pushad frame at a fixed 0x08.
+                #
+                # The actual value is compared rather than merely asserting the
+                # expected one appears somewhere: triplets and singleton share
+                # a displacement, so a containment check still passes when
+                # their two values are swapped -- which is exactly the mutation
+                # that survived the first version of this guard.
+                marker = b"\xff\x74\x24"
+                self.assertIn(marker, body, "no father push in this body")
+                at = body.index(marker)
+                self.assertEqual(
+                    body[at + 3],
+                    want,
+                    "trampoline %d reads the father at %#x, expected %#x"
+                    % (index, body[at + 3], want),
+                )
 
     def test_the_composed_payload_does_not_overlap_origins(self) -> None:
         """The composed cave moved twice; both earlier addresses were occupied.

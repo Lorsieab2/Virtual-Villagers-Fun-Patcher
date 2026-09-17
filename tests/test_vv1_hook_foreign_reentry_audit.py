@@ -283,18 +283,47 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     #         wrong would hand the companion the wrong record array, which
     #         produces plausible wrong output rather than a crash.
     #
-    #     The father is read from a fixed cave slot and the slot is CLEARED in
-    #     the same breath, so a pregnancy that reaches a tail without passing a
-    #     patched call site logs "(not captured for this birth)" instead of
-    #     inheriting whichever father was captured last. A wrong parent is
-    #     unrecoverable once written; an absent one is merely incomplete.
+    #     RE-REVIEWED AGAIN when the father moved off a cave slot and onto
+    #     the stack. The first version kept his pointer at a fixed cave
+    #     address, and Codex correctly rejected it: the cave is in .text
+    #     (0x60000020, R-X), so the very first conception would have written a
+    #     read-only page and access-violated. Nothing in this audit could have
+    #     caught that -- the cave bytes were well-formed and every rejoin was
+    #     correct -- which is why the placement reasoning is recorded here now.
+    #
+    #     He travels instead in the conception routine's third stack argument.
+    #     sub_43BBC0 ends in `ret 0x10` and takes four; disassembling every
+    #     esp-based memory operand in the whole routine finds reads of
+    #     [esp+0x08], [esp+0x10] and [esp+0x14] and NONE of [esp+0x0C]. So the
+    #     stubs overwrite that dead argument in the caller's own frame, which
+    #     is always writable, and these trampolines read it back.
+    #
+    #     The displacement is PER-TAIL and was measured from the routine's own
+    #     stack adjustments rather than assumed:
+    #
+    #         0x43BBC0  push edi      +4
+    #         0x43BBF0  push esi      +8
+    #         0x43BCAF  pop esi       +4
+    #         0x43BCB6  pop edi       +0
+    #
+    #     The triplets tail and both singleton branches are inside that pair
+    #     and read at 0x20+0x14; the twins tail is past both pops and reads at
+    #     0x20+0x0C. The two `push 0x64` / `add esp,4` pairs in between are
+    #     balanced and do not shift it.
+    #
+    #     Nothing can go stale now: the value lives in this call's own frame,
+    #     so a pregnancy reaching a tail without a patched call site reads
+    #     whatever the stock caller pushed -- his +0x36C scalar, a small
+    #     integer that fails the companion's record validation and logs
+    #     "(not captured for this birth)". A wrong parent is unrecoverable
+    #     once written; an absent one is merely incomplete.
     #   * The stolen six bytes are `mov edi, [edi+0x3E010]`, replayed verbatim
     #     after popad and before the rejoin, so edi holds the manager pointer
     #     exactly as stock expects at 0x43BCA8 and 0x43BCC0.
     #
     # esi and edi are read only; neither is written outside the pushad bracket.
-    ("vv1_write_parentage_log", "0x3BCA2"): "4CE4A72C8ED048246F3C49C13FAE7757300FDE56BD21CDCBADF56F55A34BFF66",
-    ("vv1_write_parentage_log", "0x3BCBA"): "BE48F395B00A2F8B40F8F8CFE6E9C79097AE4AAFCE58352DA199E4AC77172959",
+    ("vv1_write_parentage_log", "0x3BCA2"): "DB81C3E852B3D2CFCE678787F245D889D6EC2B250A9CBE770614E5F184AB6BF5",
+    ("vv1_write_parentage_log", "0x3BCBA"): "56500B97C7192D1591BE4AE3ADDAC1DA1094461EAF53FDFB3CB94D1D47F94299",
     # The singleton route. This one steals nothing: the two branches that
     # carry a single birth (0x43BC39, a six-byte near je, and 0x43BC4C, a
     # two-byte short jge) are RETARGETED at their existing widths, so no
@@ -305,7 +334,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # 0x43BCC6 itself is deliberately NOT patched. The rejection path enters
     # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
     # that jump in the middle of the inserted instruction.
-    ("vv1_write_parentage_log", "0x3BCCB"): "725B2D36952CCD230EA2A5446922123B33E20D6703A7FED3FBB045587E43A10A",
+    ("vv1_write_parentage_log", "0x3BCCB"): "36E234C66676FD297DA7E46147594D24E6696219CA8A4E85C51E6FE531B3C2AA",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.
