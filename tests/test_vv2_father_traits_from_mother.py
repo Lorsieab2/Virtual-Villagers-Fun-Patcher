@@ -101,7 +101,7 @@ VV2_LOG_NAME = "Virtual Villagers 2 Parentage Log"
 
 # The copy pair is the line after the FATHER_* line and before no_villager.
 COPY_PAIR = (
-    r"FATHER_(?:BY_NAME|BY_ID|NOT_RECORDED),[^\n]*\n\s*"
+    r"FATHER_(?:BY_NAME|BY_ID|NOT_RECORDED|BY_CAPTURE),[^\n]*\n\s*"
     r"(0x[0-9A-Fa-f]+|0),\s*(0x[0-9A-Fa-f]+|0),"
 )
 
@@ -126,7 +126,12 @@ class VV2FatherTraitsAreCopiedOntoTheMotherTests(unittest.TestCase):
                     f"{name} is missing the father_head_copy/father_body_copy pair",
                 )
 
-    # VV1 keeps nothing about the father at all, so it alone must stay zero.
+    # VV1 keeps nothing about the father IN THE MOTHER'S RECORD, so it alone
+    # must stay zero here. That is unchanged by the father now being captured
+    # from his own record at the conception call sites: these two fields mean
+    # "the game copied his head and body onto HER", and VV1 still does not.
+    # Filling them in for VV1 would make the exporter read two offsets of the
+    # mother's record that hold something else entirely.
     # VV3, VV4 and VV5 were zero here until their conception routines were
     # disassembled and found to store the father's head and body exactly as
     # VV2 does -- see tests/test_parentage_father_copies.py, which pins each

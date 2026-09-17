@@ -180,7 +180,97 @@ TAIL_STOLEN = bytes.fromhex("8bbf10e00300")
 # leaves 0x56900+0x100 .. 0x56FFF free for whatever comes next.
 CAVE_VA = 0x00456900
 CAVE_FILE = 0x00056900
-CAVE_SIZE = 0x140
+# 0x140 for the three trampolines and the two strings, plus the father-capture
+# block below. The stock zero run at 0x56900 is 0x700 bytes, so this is well
+# inside it; the check in _emit still asserts the whole span is zero.
+CAVE_SIZE = 0x200
+
+# --- the father capture -----------------------------------------------------
+#
+# VV1 stores NOTHING about the father in the mother's record, so unlike VV2-VV5
+# there is no field to read at the success tails. His record pointer exists only
+# at the CALL SITES of the conception routine, where the game loads exactly one
+# field off it (+0x36C) and discards the rest.
+#
+# sub_43BBC0 has six callers and no indirect references:
+#
+#     0x43DD33  0x43DD54  0x43DD7B  0x43DD94  0x447031  0x447238
+#
+# A hook inside the routine cannot reach him. Its prologue forms exactly one
+# record pointer -- imul 0x3D8 at 0x43BBEA, the mother's -- that is the only
+# stride multiply in the function.
+#
+# HOW HE TRAVELS: an argument slot the routine never reads.
+#
+# sub_43BBC0 is __thiscall ending in `ret 0x10`, so it takes four stack
+# arguments. After its `push edi` they sit at [esp+0x08], [esp+0x0C],
+# [esp+0x10] and [esp+0x14]. Disassembling every esp-based memory operand in
+# the whole routine finds accesses to exactly three of them:
+#
+#     [esp+0x08]  1 read   0x43BBE6  mov edx,[esp+8]      the mother's index
+#     [esp+0x10]  2 reads  0x43BBD0, 0x43BC00             a skill selector
+#     [esp+0x14]  1 read   0x43BBE2  mov ecx,[esp+0x14]
+#     [esp+0x0C]  0 reads  -- the father's +0x36C, passed and ignored
+#
+# So the third argument is dead. Each call site is redirected through a stub
+# that replaces the pushed +0x36C VALUE with the father's record POINTER, and
+# the success-tail trampolines read the pointer back out of that slot.
+#
+# This is why there is no writable scratch slot. An earlier draft kept the
+# pointer in a fixed cave address, which Codex correctly rejected: the cave is
+# in .text (0x60000020, R-X) and the Origins-composed page is .vv1mc with the
+# same characteristics, so the very first conception would have written to a
+# read-only page and access-violated. Passing the pointer in a dead argument
+# needs no writable storage at all, and it cannot go stale -- there is nothing
+# that persists between births to go stale.
+#
+# The stubs are per-site because the father's pointer is in a different
+# register at each one, and because the already-pushed value has to be
+# overwritten in place:
+#
+#     site      the instruction that loads his +0x36C, giving the register
+#     0x43DD33  0x43DD24  mov eax,[edx+0x36C]   -> edx
+#     0x43DD54  0x43DD45  mov ecx,[eax+0x36C]   -> eax
+#     0x43DD7B  0x43DD70  mov ecx,[ebp+0x36C]   -> ebp
+#     0x43DD94  0x43DD89  mov eax,[ebp+0x36C]   -> ebp
+#     0x447031  0x447020  mov ecx,[eax+0x36C]   -> eax
+#     0x447238  0x44721D  mov edx,[ecx+0x36C]   -> ecx
+#
+# At the stub the return address is on top, so the four arguments are at
+# [esp+0x04] .. [esp+0x10] and the dead one is at [esp+0x08].
+CONCEPTION_VA = 0x0043BBC0
+FATHER_ARG_AT_STUB = 0x08          # [esp+0x08] once the call pushed its return
+FATHER_CALL_SITES = (
+    (0x0043DD33, 0x0003DD33, "edx"),
+    (0x0043DD54, 0x0003DD54, "eax"),
+    (0x0043DD7B, 0x0003DD7B, "ebp"),
+    (0x0043DD94, 0x0003DD94, "ebp"),
+    (0x00447031, 0x00447031 - 0x400000, "eax"),
+    (0x00447238, 0x00447238 - 0x400000, "ecx"),
+)
+
+# Where each trampoline finds that argument, as a displacement from the tail's
+# own esp BEFORE its pushad. Measured from the routine's stack adjustments:
+#
+#     0x43BBC0  push edi        +4
+#     0x43BBF0  push esi        +8
+#     0x43BC3F  push 0x64 / 0x43BC46 add esp,4    (balanced)
+#     0x43BC7D  push 0x64 / 0x43BC84 add esp,4    (balanced)
+#     0x43BCAF  pop esi         +4
+#     0x43BCB6  pop edi         +0
+#
+# So the triplets tail and both singleton branches sit at +8, while the twins
+# tail at 0x43BCBA is past both pops and sits at +0. Getting this wrong reads
+# a neighbouring argument, which is a plausible-looking wrong pointer rather
+# than a crash -- the companion's record validation is what stops it becoming
+# a wrong father in the log.
+FATHER_ARG_AT_TRIPLETS = 0x0C + 8
+FATHER_ARG_AT_TWINS = 0x0C + 0
+FATHER_ARG_AT_SINGLE = 0x0C + 8
+
+# Six stubs, each: overwrite the dead argument, then tail-call the routine.
+FATHER_STUB_OFFSET = 0x170
+FATHER_STUB_SIZE = 0x10
 
 # Where the payload lives when Origins is ALSO selected.
 #
@@ -192,8 +282,33 @@ CAVE_SIZE = 0x140
 # The payload is re-emitted for that address rather than copied, because every
 # trampoline ends in a rel32 back into the conception routine and a byte copy
 # would leave all three aimed 0x39B35 bytes short of their targets.
-CO_SELECTED_CAVE_VA = 0x00490435
-CO_SELECTED_CAVE_FILE = 0x0008E435
+# Measured against real renders, not predicted from manifests.
+#
+# The previous address here was 0x8E435, chosen for a 0x18B gap between two
+# Origins patches. That was correct for the 0x140 payload it was sized against
+# and is not correct now: at 0x200 the payload would run 0x75 bytes into the
+# Origins stub block at 0x8E5C0 and corrupt the mask renderer. The zero-preimage
+# check in _emit cannot catch that, because past the stock end of file there are
+# no bytes to compare.
+#
+# Manifest arithmetic then got it wrong a second time. Summing what Origins
+# writes suggested everything above 0x8EB8C was free, so this moved to 0x8EC00
+# -- and the patcher's own byte guard rejected it, because VV1 Birth Control
+# claims the whole 0x490000 page and other patches compose into it at apply
+# time. Neither manifest shows that.
+#
+# So the free runs were measured by rendering VV1 with every other fun patch
+# selected, in all three build modes, and intersecting the result. Exactly two
+# runs of 0x100 or more are zero in every mode:
+#
+#     0x8E435 .. 0x8E5C0   0x18B   (the old home, too small at 0x200)
+#     0x8ED82 .. 0x90000   0x127E
+#
+# This takes 0x8EE00 in the second run, which leaves it ending exactly at
+# 0x8F000. Re-measure with scripts against a render if this payload grows
+# again; do not re-derive it from the manifests.
+CO_SELECTED_CAVE_VA = 0x00490E00
+CO_SELECTED_CAVE_FILE = 0x0008EE00
 ORIGINS_FEATURE_ID = "vv1_enable_origins_exclusive_features"
 
 # Imports, reused from the statistics feature's own verified table entries.
@@ -208,7 +323,10 @@ GET_MODULE_HANDLE_IAT = 0x004570D0
 GET_PROC_ADDRESS_IAT = 0x004570D4
 
 DLL_NAME = b"VVFP Parentage Export.dll\0"
-EXPORT_NAME = b"WriteParentageRecord\0"
+# The four-argument entry point. The three-argument WriteParentageRecord is
+# still exported and still works, but VV1 now has a father to pass and the
+# extra argument is the only way to hand it over.
+EXPORT_NAME = b"WriteParentageRecordWithFather\0"
 
 # Where the two strings sit inside the cave block, clear of BOTH trampolines.
 #
@@ -216,8 +334,8 @@ EXPORT_NAME = b"WriteParentageRecord\0"
 # layout left them at 0x80 and the second trampoline ran straight into the DLL
 # name -- the emitted disassembly decoded the string as instructions, which is
 # exactly what that looks like when it happens.
-DLL_NAME_OFFSET = 0xF0
-EXPORT_NAME_OFFSET = 0x110
+DLL_NAME_OFFSET = 0x120
+EXPORT_NAME_OFFSET = 0x140
 
 # The five stock bytes the trampoline replaces, restored before returning.
 STOLEN_BYTES = bytes.fromhex("578bf9e8d8e5ffff")
@@ -236,7 +354,9 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
     # Each assembles to about 0x45 bytes, so 0x50 apiece. The checks below are
     # what actually enforce the layout: an earlier 0x40 was too small, and an
     # earlier string offset let a trampoline run into the DLL name.
-    slot_size = 0x50
+    # 0x60, not 0x50: each trampoline gained a push of the captured father
+    # and a clear of the slot, which took the largest from 0x45 to 0x57.
+    slot_size = 0x60
 
     for tail_file in TAIL_FILES:
         if source[tail_file : tail_file + len(TAIL_STOLEN)] != TAIL_STOLEN:
@@ -275,6 +395,12 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
     patches: list[dict[str, object]] = []
 
     for index, (tail_va, tail_file) in enumerate(zip(TAIL_VAS, TAIL_FILES)):
+        # Per-tail, NOT shared: the triplets tail is still inside the routine's
+        # two pushes while the twins tail is past both pops, so the same
+        # argument sits at different displacements. pushad then adds 0x20.
+        father_arg_in_frame = 0x20 + (
+            FATHER_ARG_AT_TRIPLETS if index == 0 else FATHER_ARG_AT_TWINS
+        )
         # A DISTINCT name, not a reassignment of cave_va: overwriting the base
         # here left the singleton trampoline below computing its own slot from
         # an already-advanced base, so its rejoin jumped 0x50 short -- into the
@@ -328,8 +454,23 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
                 # which is why the two frame reads use the same displacement
                 # and still fetch different values: saved esi (the mother)
                 # then saved edi (the record array).
-                push dword ptr [esp + 0x04]
-                push dword ptr [esp + 0x04]
+                # WriteParentageRecordWithFather(game_id, records, mother,
+                # father). Pushed right to left, so the father goes first.
+                #
+                # The father arrives in the conception routine's third
+                # stack argument, which the routine itself never reads. pushad
+                # has just pushed 0x20 bytes, so the argument moves down by
+                # that much; father_arg_in_frame already includes it.
+                #
+                # There is nothing to clear and nothing that can go stale: the
+                # value lives in this call's own frame, so a pregnancy that
+                # somehow reached here without a patched call site reads
+                # whatever the stock caller pushed -- his +0x36C scalar, a
+                # small integer that fails the companion's record validation
+                # and logs "(not captured for this birth)".
+                push dword ptr [esp + 0x{father_arg_in_frame:X}]
+                push dword ptr [esp + 0x08]
+                push dword ptr [esp + 0x08]
                 push {GAME_ID}
                 call eax
             done:
@@ -391,6 +532,10 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
     # never reassigned before any exit, and edi is written at 0x43BBC1 and left
     # alone, with the intervening manager fetches all targeting eax.
     single_cave_va = cave_va + 2 * slot_size
+    # The singleton route is entered from branches at 0x43BC39 and 0x43BC4C,
+    # both of which are still inside the routine's two pushes, so it uses the
+    # same displacement as the triplets tail.
+    father_arg_in_frame = 0x20 + FATHER_ARG_AT_SINGLE
     single_code = assemble(
         f"""
             pushad
@@ -408,8 +553,9 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
             call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
             test eax, eax
             jz done
-            push dword ptr [esp + 0x04]
-            push dword ptr [esp + 0x04]
+            push dword ptr [esp + 0x{father_arg_in_frame:X}]
+            push dword ptr [esp + 0x08]
+            push dword ptr [esp + 0x08]
             push {GAME_ID}
             call eax
         done:
@@ -474,6 +620,76 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
         }
     )
 
+    # The six father-capture stubs, and the six call-site retargets.
+    #
+    # Each stub stashes the father's record pointer and then jumps to the real
+    # conception routine, so the routine runs with its arguments and stack
+    # exactly as the game built them -- the stub is transparent to it. The
+    # stashed pointer is consumed and cleared by whichever success tail the
+    # pregnancy reaches.
+    #
+    # Nothing here validates the pointer: that happens in the DLL, against the
+    # record array, and is a stronger check than anything available here. A
+    # site that somehow passed rubbish loses the father's three fields for that
+    # birth and nothing else.
+    for stub_index, (call_va, call_file, reg) in enumerate(FATHER_CALL_SITES):
+        stub_offset = FATHER_STUB_OFFSET + stub_index * FATHER_STUB_SIZE
+        stub_va = cave_va + stub_offset
+        # Overwrite the dead third argument IN PLACE with the father's record
+        # pointer, then tail-call the routine. The stub writes the caller's own
+        # stack frame -- always writable -- rather than any part of the image,
+        # which is the whole point of this design.
+        #
+        # The jmp, not a call: the routine must see exactly the frame the game
+        # built, including the return address that sends it back to the real
+        # caller. An extra frame here would leave `ret 0x10` unwinding the
+        # wrong number of bytes.
+        stub = assemble(
+            f"""
+                mov dword ptr [esp + 0x{FATHER_ARG_AT_STUB:X}], {reg}
+                jmp 0x{CONCEPTION_VA:X}
+            """,
+            stub_va,
+        )
+        if len(stub) > FATHER_STUB_SIZE:
+            raise RuntimeError(
+                f"father stub {stub_index} is {len(stub):#x} bytes, over "
+                f"{FATHER_STUB_SIZE:#x}"
+            )
+        if stub_offset + len(stub) > CAVE_SIZE:
+            raise RuntimeError(f"father stub {stub_index} runs past the cave")
+        payload[stub_offset : stub_offset + len(stub)] = stub
+
+        # The stock five-byte E8 call, verified before it is replaced. All six
+        # sites are direct near calls and sub_43BBC0 has no indirect
+        # references, so redirecting them reaches every caller.
+        stock_call = assemble(f"call 0x{CONCEPTION_VA:X}", call_va)
+        if len(stock_call) != 5:
+            raise RuntimeError("the stock conception call is not five bytes")
+        if source[call_file : call_file + 5] != stock_call:
+            raise RuntimeError(
+                f"stock bytes at {call_file:#x} are not a call to the "
+                f"conception routine"
+            )
+        new_call = assemble(f"call 0x{stub_va:X}", call_va)
+        if len(new_call) != len(stock_call):
+            raise RuntimeError("the retargeted call changed width")
+        patches.append(
+            {
+                "offset": f"0x{call_file:X}",
+                "before": stock_call.hex().upper(),
+                "after": new_call.hex().upper(),
+                "purpose": (
+                    "Redirect one of the six conception call sites through a "
+                    "stub that stashes the father's record pointer, which is "
+                    "live in a register here and discarded by the stock code. "
+                    "VV1 stores nothing about him in the mother's record, so "
+                    "this is the only place his identity exists. Same width, "
+                    "so nothing shifts."
+                ),
+            }
+        )
+
     payload[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
     payload[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
     patches.append(
@@ -482,9 +698,11 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
             "before": ("00" * CAVE_SIZE).upper(),
             "after": bytes(payload).hex().upper(),
             "purpose": (
-                "Two loader trampolines, one per success tail, plus the shared "
-                "DLL and export names. All logging logic lives in the companion "
-                "DLL; only the call into it is in the executable."
+                "Three loader trampolines -- triplets, twins and singletons "
+                "-- plus the shared DLL and export names, the father-capture "
+                "slot, and the six stubs that fill it. All logging logic lives "
+                "in the companion DLL; only the call into it is in the "
+                "executable."
             ),
         }
     )
@@ -508,17 +726,24 @@ def build() -> dict:
                 "name": "Write Parentage Log to Text File",
                 "output_tag": "Parentage Log Text Export",
                 "description": (
-                    "On each new pregnancy, appends the mother's name, her age "
-                    "at conception, her head and body values, and the number of "
-                    "babies to 'Virtual Villagers 1 Parentage Log N.txt' beside "
-                    "the game executable. VV1 records nothing about the father -- "
-                    "not his name, and no id that could find his record -- so "
-                    "every father field reads as not recorded by this game, "
-                    "rather than a zero or a guessed name that a reader could "
-                    "not tell from a measured one. Parentage is not stored in "
-                    "any villager record, so the mother is captured at "
-                    "conception; she cannot be recovered from the child "
-                    "afterwards. Rolls to a new numbered file every 256 records."
+                    "On each new pregnancy, appends both parents' names, "
+                    "the mother's age at conception, both head and body "
+                    "values, and the number of babies to 'Virtual "
+                    "Villagers 1 Parentage Log N.txt' beside the game "
+                    "executable. Only the mother's age is recorded, "
+                    "because the child's age derives from hers. VV1 "
+                    "stores nothing about the father in the mother's "
+                    "record -- not his name, and no id that could find "
+                    "him -- so his details are captured from his own "
+                    "record at the six conception call sites, where the "
+                    "game holds it briefly and reads only one field of "
+                    "it. A birth that reaches delivery without such a "
+                    "capture reports the father as not captured for that "
+                    "birth, rather than naming the wrong villager. "
+                    "Parentage is not stored in any villager record, so "
+                    "both parents are captured at conception; they cannot "
+                    "be recovered from the child afterwards. Rolls to a "
+                    "new numbered file every 256 records."
                 ),
                 "companion_files": [
                     {
