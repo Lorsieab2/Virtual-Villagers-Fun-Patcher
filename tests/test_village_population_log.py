@@ -102,40 +102,108 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 self.assertEqual(row["body"], values[7], "body")
                 self.assertEqual(row["name"], values[9], "name")
                 self.assertEqual(row["name_capacity"], values[10], "name cap")
+                # The father block, which the first version of this guard did
+                # not compare at all. A stale or swapped offset here prints
+                # another field as the father's name or appearance, and every
+                # other guard still passes -- the log just quietly describes
+                # the wrong villager.
+                #
+                # The parentage row's order is father_kind, father,
+                # father_key_capacity, litter, father_head_copy,
+                # father_body_copy. father_kind is a bare identifier rather
+                # than a number, so the numeric list skips it: values[11] is
+                # `father`, [12] father_key_capacity, [13] litter, [14] head
+                # copy, [15] body copy.
+                self.assertEqual(
+                    row["father_name"], values[11], "father name")
+                self.assertEqual(
+                    row["father_name_capacity"], values[12],
+                    "father name capacity")
+                self.assertEqual(
+                    row["father_head"], values[14], "father head copy")
+                self.assertEqual(
+                    row["father_body"], values[15], "father body copy")
 
     def test_every_array_and_skill_offset_matches_the_statistics_row(self) -> None:
-        """The array RVA and skill table are shared with Village Elders.
+        """Bound to each game's OWN statistics call, not a file-wide set.
 
-        Both companions read the same array. If one is ever corrected and the
-        other is not, the roster reads a stale base and logs 150 wrong
-        villagers -- silently, because nothing crashes and the output still
-        looks like a roster.
+        The first version of this guard collected every hexadecimal literal in
+        the statistics source into one set and asked whether each RVA appeared
+        anywhere in it. That passes when VV3's and VV4's array bases are
+        swapped, because both literals are still present -- the exporter would
+        read another game's records and every test would stay green. Codex
+        caught exactly that.
+
+        So each game's argument group is located by its own title string and
+        the offsets are compared positionally within it.
         """
         statistics = STATISTICS.read_text(encoding="utf-8")
         stripped = re.sub(r"/\*.*?\*/", "", statistics, flags=re.DOTALL)
-        literals = {
-            int(value, 16)
-            for value in re.findall(r"0[xX]([0-9A-Fa-f]+)[uU]?", stripped)
+
+        # VV3 and VV4 pass their title as an argument to the shared
+        # write_later_game; VV5 has its own writer and embeds the title in a
+        # format string. Anchoring on the title text works for all three
+        # because it appears exactly once either way.
+        titles = {
+            3: "Virtual Villagers - The Secret City",
+            4: "Virtual Villagers - The Tree of Life",
+            5: "VIRTUAL VILLAGERS - NEW BELIEVERS",
         }
         for game, row in self.rows.items():
             with self.subTest(game=game):
+                needle = titles[game]
+                if needle not in stripped:
+                    needle = needle.title().replace("Of", "of")
+                self.assertIn(
+                    needle, stripped,
+                    "cannot locate game %d's statistics call" % game)
+                where = stripped.index(needle)
+                # The argument list runs from the title to the end of that
+                # call. Bounded generously and then searched, so a later
+                # argument being added does not silently shift the match.
+                window = stripped[where:where + 4000]
+                literals = [
+                    int(value, 16)
+                    for value in re.findall(r"0[xX]([0-9A-Fa-f]+)[uU]?", window)
+                ]
                 self.assertIn(
                     row["villagers_rva"],
                     literals,
-                    "the villager array RVA %#x does not appear in the "
-                    "statistics companion" % row["villagers_rva"],
+                    "the villager array RVA %#x is not in game %d's own "
+                    "statistics call" % (row["villagers_rva"], game),
+                )
+                # And no OTHER game may share it. Membership alone passes when
+                # two games are given the same base -- both then "appear in
+                # their own call" because one of them legitimately does, while
+                # the other silently reads the wrong game's records.
+                others = [
+                    other
+                    for other, row2 in self.rows.items()
+                    if other != game
+                    and row2["villagers_rva"] == row["villagers_rva"]
+                ]
+                self.assertEqual(
+                    others, [],
+                    "game %d shares its villager array RVA %#x with %s"
+                    % (game, row["villagers_rva"], others),
                 )
                 self.assertIn(
                     row["skills"],
                     literals,
-                    "the skill offset %#x does not appear in the statistics "
-                    "companion" % row["skills"],
+                    "the skill offset %#x is not in game %d's own call"
+                    % (row["skills"], game),
                 )
                 self.assertIn(
                     row["active"],
                     literals,
-                    "the active-flag offset %#x does not appear in the "
-                    "statistics companion" % row["active"],
+                    "the active-flag offset %#x is not in game %d's own call"
+                    % (row["active"], game),
+                )
+                self.assertIn(
+                    row["stride"],
+                    literals,
+                    "the stride %#x is not in game %d's own call"
+                    % (row["stride"], game),
                 )
 
     def test_the_array_fits_inside_every_image(self) -> None:
@@ -212,10 +280,98 @@ class VillagePopulationBehaviourTests(unittest.TestCase):
     def setUp(self) -> None:
         self.source = POPULATION.read_text(encoding="utf-8")
 
-    def test_the_roster_is_truncated_not_appended(self) -> None:
-        """A snapshot supersedes; appending would describe several moments."""
-        self.assertIn('_wfopen(path, L"w")', self.source)
+    def test_the_roster_is_published_atomically(self) -> None:
+        """Truncating the destination first destroys the last good roster.
+
+        A full disk or a crash between the truncate and the last write would
+        leave the player with an empty file where they previously had a
+        complete one. The statistics companion already writes a temporary and
+        renames; this must too.
+        """
+        # The call must be REACHABLE, not merely present. Asserting only that
+        # the text appears passes when the condition around it is disabled,
+        # which strands every roster as a .tmp and never updates the
+        # destination at all.
+        publish = self.source[self.source.index("static int publish_file"):]
+        publish = publish[:publish.index("\n}")]
+        self.assertIn("if (!MoveFileExW(temporary, destination,", publish)
+        self.assertIn("MOVEFILE_REPLACE_EXISTING", publish)
+        self.assertNotIn("if (0", publish)
+        self.assertIn('_wfopen(temporary, L"w")', self.source)
+        self.assertNotIn('_wfopen(destination', self.source)
         self.assertNotIn('_wfopen(path, L"a")', self.source)
+
+    def test_a_failed_write_removes_the_temporary(self) -> None:
+        """A half-written roster must not be left beside the executable."""
+        # Every `return 0` that can be reached with the temporary open must
+        # remove it first. Counted exactly rather than as a lower bound: a
+        # >= check passes when one of several cleanups is deleted, which is
+        # precisely the regression this guard exists to catch.
+        source = self.source
+        body = source[source.index("WriteVillagePopulation("):]
+        opened = body.index('_wfopen(temporary, L"w")')
+        after = body[opened:]
+        # Failure paths after the first open: the header write, the villager
+        # write, and the two inside publish_file.
+        self.assertEqual(
+            after.count("DeleteFileW(temporary)"),
+            3,
+            "both failure paths after the first open must remove the "
+            "temporary, or a half-written roster is left beside the exe",
+        )
+        self.assertEqual(
+            source.count("DeleteFileW(temporary)"),
+            6,
+            "a cleanup was added or removed; re-check every failure path "
+            "that can be reached while the temporary is open",
+        )
+
+    def test_an_empty_village_still_replaces_the_roster(self) -> None:
+        """Every villager can die, and that is a real state to report.
+
+        Opening lazily on the first live villager meant an extinct village
+        kept displaying the villagers it had before -- a file that looks
+        current and is not, which is worse than an absent one. Codex raised
+        this and was right.
+
+        The check is structural rather than textual: the first open must be
+        unconditional and must sit BEFORE the slot loop. An earlier version
+        of this guard checked only the explanatory comment and the ordering
+        of two strings, and a mutation that restored the lazy open while
+        leaving both in place survived it.
+        """
+        source = self.source
+        body = source[source.index("__stdcall WriteVillagePopulation("):]
+        loop = body.index("for (index = 0; index < g->slots")
+        before_loop = body[:loop]
+
+        # The open itself, unguarded, before the loop.
+        self.assertIn(
+            'file = _wfopen(temporary, L"w");',
+            before_loop,
+            "the first roster file must be opened before the slot loop, so "
+            "an empty village still replaces the previous snapshot",
+        )
+        self.assertIn(
+            "if (!build_log_paths(file_index, temporary, destination)) {",
+            before_loop,
+            "the pre-loop open must build its paths unconditionally",
+        )
+        # And nothing may short-circuit either one. Scoped to after the
+        # declarations, because `FILE *file = NULL;` is a legitimate
+        # initialiser there.
+        executable = before_loop[before_loop.index("villagers = module +"):]
+        self.assertNotIn("if (0", executable)
+        self.assertNotIn(
+            "file = NULL;",
+            executable,
+            "something reassigns file to NULL before the loop, which is the "
+            "lazy open returning by another name",
+        )
+
+    def test_a_shrinking_village_does_not_leave_stale_files(self) -> None:
+        """A village that drops below a file boundary keeps the old files."""
+        self.assertIn("DeleteFileW(old_destination)", self.source)
 
     def test_the_file_rolls_at_the_requested_count(self) -> None:
         """The owner asked for "text files hold 256 villagers each"."""

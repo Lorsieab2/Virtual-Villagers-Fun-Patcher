@@ -222,8 +222,19 @@ static void copy_name_field(
     destination[limit] = '\0';
 }
 
-/* Build "<exe folder>\Village Population <n>.txt". */
-static int build_log_path(int index, wchar_t *path) {
+/* Build "<exe folder>\Village Population <n>.txt" and its .tmp sibling.
+
+   Two paths, because the roster is published by writing the temporary and
+   renaming over the destination. Truncating the destination up front would
+   destroy the last good snapshot before a single villager had been written,
+   so a full disk or a crash mid-write would leave the player with an empty
+   roster where they previously had a complete one. The statistics companion
+   already publishes this way; this follows it. */
+static int build_log_paths(
+    int index,
+    wchar_t *temporary,
+    wchar_t *destination
+) {
     wchar_t module_path[MAX_LONG_PATH];
     wchar_t *separator;
     DWORD length = GetModuleFileNameW(NULL, module_path, MAX_LONG_PATH);
@@ -236,8 +247,39 @@ static int build_log_path(int index, wchar_t *path) {
     }
     *separator = L'\0';
     if (_snwprintf_s(
-            path, MAX_LONG_PATH, _TRUNCATE,
+            temporary, MAX_LONG_PATH, _TRUNCATE,
+            L"%ls\\Village Population %d.tmp", module_path, index) < 0) {
+        return 0;
+    }
+    if (_snwprintf_s(
+            destination, MAX_LONG_PATH, _TRUNCATE,
             L"%ls\\Village Population %d.txt", module_path, index) < 0) {
+        return 0;
+    }
+    return 1;
+}
+
+/* Close the temporary and rename it over the destination.
+
+   Returns 0 on any failure, having removed the temporary so a half-written
+   roster is never left lying beside the executable. */
+static int publish_file(FILE *file, const wchar_t *temporary,
+                        const wchar_t *destination) {
+    /* Flushed separately from the close so a write error is seen while it can
+       still fail the call, rather than being swallowed by fclose and leaving
+       a truncated file published as complete. */
+    if (fflush(file) != 0) {
+        fclose(file);
+        DeleteFileW(temporary);
+        return 0;
+    }
+    if (fclose(file) != 0) {
+        DeleteFileW(temporary);
+        return 0;
+    }
+    if (!MoveFileExW(temporary, destination,
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileW(temporary);
         return 0;
     }
     return 1;
@@ -330,7 +372,8 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     int file_index = 1;
     int in_file = 0;
     FILE *file = NULL;
-    wchar_t path[MAX_LONG_PATH];
+    wchar_t temporary[MAX_LONG_PATH];
+    wchar_t destination[MAX_LONG_PATH];
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
@@ -347,6 +390,27 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     }
     villagers = module + g->villagers_rva;
 
+    /* The first file is opened unconditionally, not lazily on the first live
+       villager.
+
+       An empty village is a real state -- every villager can die -- and it
+       must produce an empty roster rather than leaving the previous one in
+       place. Opening lazily meant a village that had just gone extinct kept
+       displaying the villagers it had before, which is worse than saying
+       nothing: the file looks current and is not. */
+    if (!build_log_paths(file_index, temporary, destination)) {
+        return 0;
+    }
+    file = _wfopen(temporary, L"w");
+    if (file == NULL) {
+        return 0;
+    }
+    if (fprintf(file, "%s Village Population\n\n", g->title) < 0) {
+        fclose(file);
+        DeleteFileW(temporary);
+        return 0;
+    }
+
     for (index = 0; index < g->slots; ++index) {
         const unsigned char *record =
             villagers + g->record_base + index * g->stride;
@@ -354,34 +418,28 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
             continue;
         }
         if (file == NULL) {
-            if (!build_log_path(file_index, path)) {
+            if (!build_log_paths(file_index, temporary, destination)) {
                 return 0;
             }
-            /* Truncating, not appending: this is a SNAPSHOT of the village as
-               it stands, so the previous snapshot is superseded rather than
-               accumulated. Appending would grow without bound across saves
-               and would make the file describe several different moments at
-               once, which is the opposite of what a roster is for. */
-            file = _wfopen(path, L"w");
+            file = _wfopen(temporary, L"w");
             if (file == NULL) {
                 return 0;
             }
             if (fprintf(file, "%s Village Population\n\n", g->title) < 0) {
                 fclose(file);
+                DeleteFileW(temporary);
                 return 0;
             }
         }
         if (!write_villager(file, g, record, written + 1)) {
             fclose(file);
+            DeleteFileW(temporary);
             return 0;
         }
         ++written;
         ++in_file;
         if (in_file >= VILLAGERS_PER_FILE) {
-            /* Flush before closing so a write error is seen while it can
-               still fail the whole call, rather than being swallowed by
-               fclose and leaving a truncated file reported as complete. */
-            if (fflush(file) != 0 || fclose(file) != 0) {
+            if (!publish_file(file, temporary, destination)) {
                 return 0;
             }
             file = NULL;
@@ -390,13 +448,31 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
         }
     }
 
-    if (file != NULL) {
-        if (fflush(file) != 0) {
-            fclose(file);
-            return 0;
-        }
-        if (fclose(file) != 0) {
-            return 0;
+    if (file != NULL && !publish_file(file, temporary, destination)) {
+        return 0;
+    }
+
+    /* Remove any roster files a LARGER village left behind.
+
+       A village that shrinks below a file boundary would otherwise keep the
+       old higher-numbered files, and those describe villagers who are no
+       longer there. Deleting them is the same reasoning as truncating the
+       first file for an empty village: a stale roster that looks current is
+       worse than an absent one.
+
+       Bounded by the slot count rather than looping until a delete fails, so
+       a permission error on one file cannot spin forever. */
+    {
+        int stale = file_index + 1;
+        int limit = (int)(g->slots / VILLAGERS_PER_FILE) + 2;
+        while (stale <= limit) {
+            wchar_t old_temporary[MAX_LONG_PATH];
+            wchar_t old_destination[MAX_LONG_PATH];
+            if (!build_log_paths(stale, old_temporary, old_destination)) {
+                break;
+            }
+            DeleteFileW(old_destination);
+            ++stale;
         }
     }
     return written;
