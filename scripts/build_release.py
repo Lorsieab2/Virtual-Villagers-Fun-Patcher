@@ -31,6 +31,7 @@ FILES = [
     "assets/origins/mask_atlas.png",
     "assets/statistics/VVFP Statistics Export.dll",
     "assets/parentage/VVFP Parentage Export.dll",
+    "assets/population/VVFP Population Export.dll",
     "data/builds.json",
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",
