@@ -322,8 +322,8 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     #     exactly as stock expects at 0x43BCA8 and 0x43BCC0.
     #
     # esi and edi are read only; neither is written outside the pushad bracket.
-    ("vv1_write_parentage_log", "0x3BCA2"): "DB81C3E852B3D2CFCE678787F245D889D6EC2B250A9CBE770614E5F184AB6BF5",
-    ("vv1_write_parentage_log", "0x3BCBA"): "56500B97C7192D1591BE4AE3ADDAC1DA1094461EAF53FDFB3CB94D1D47F94299",
+    ("vv1_write_parentage_log", "0x3BCA2"): "DB48428E6AD12FA29BE76276073491148BF63ABF668CCCC0ED98FCCD74946C51",
+    ("vv1_write_parentage_log", "0x3BCBA"): "37C1AE2B24AA726A9D8C88ACFF7620AC371D52F7A19717852B4DAFFE5AC52E16",
     # The singleton route. This one steals nothing: the two branches that
     # carry a single birth (0x43BC39, a six-byte near je, and 0x43BC4C, a
     # two-byte short jge) are RETARGETED at their existing widths, so no
@@ -334,7 +334,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # 0x43BCC6 itself is deliberately NOT patched. The rejection path enters
     # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
     # that jump in the middle of the inserted instruction.
-    ("vv1_write_parentage_log", "0x3BCCB"): "36E234C66676FD297DA7E46147594D24E6696219CA8A4E85C51E6FE531B3C2AA",
+    ("vv1_write_parentage_log", "0x3BCCB"): "7C2BCE507A162C9EB2D9FEFF3F3E75CCF54644DDCB5D8ED7412CC4B813D3C401",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.

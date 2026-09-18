@@ -63,6 +63,45 @@ def _cave_payload():
     raise AssertionError("the cave patch is missing")
 
 
+def _is_clobbered_before_call(blob, call_va, base_reg):
+    """Is `base_reg` written again between the +0x36C load and the call?
+
+    Capstone-free so this guard keeps working without the optional
+    dependency. Both register-to-register mov encodings have to be checked:
+    0x44722E clobbers ecx with esi as `8B CE`, the /r form whose ModRM *reg*
+    field names the destination, and an assembler is equally free to emit
+    `89 F1` for the same instruction, where *rm* names it. Looking for only
+    one form misses the very clobber this exists to detect.
+    """
+    start = call_va - 0x400000 - 96
+    end = call_va - 0x400000
+    window = blob[start:end]
+    # Find the +0x36C load, and only look after it.
+    load_at = None
+    for i in range(len(window) - 6):
+        if (
+            window[i] == 0x8B
+            and (window[i + 1] >> 6) == 2
+            and (window[i + 1] & 7) != 4
+            and window[i + 2 : i + 6] == b"\x6c\x03\x00\x00"
+            and (window[i + 1] & 7) == base_reg
+        ):
+            load_at = i + 6
+    if load_at is None:
+        return False
+    for i in range(load_at, len(window) - 1):
+        modrm = window[i + 1]
+        if (modrm >> 6) != 3:
+            continue
+        # 89 /r : mov r/m32, r32  -> destination is rm
+        if window[i] == 0x89 and (modrm & 7) == base_reg:
+            return True
+        # 8B /r : mov r32, r/m32  -> destination is reg
+        if window[i] == 0x8B and ((modrm >> 3) & 7) == base_reg:
+            return True
+    return False
+
+
 class VV1CapturesTheFatherAtTheCallSitesTests(unittest.TestCase):
     def test_the_exporter_uses_the_capture_kind(self) -> None:
         """FATHER_NOT_RECORDED would short-circuit before the pointer is read."""
@@ -261,13 +300,39 @@ class VV1CapturesTheFatherAtTheCallSitesTests(unittest.TestCase):
                 stub = payload[start : start + STUB_SIZE]
                 self.assertEqual(stub[0], 0x89, "not a register store")
                 source = (stub[1] >> 3) & 7
-                self.assertEqual(
-                    source,
-                    base,
-                    "stub %d stores register %d, but the site loads the father "
-                    "from register %d -- it would capture a stranger"
-                    % (index, source, base),
-                )
+
+                # The register must still hold the father AT THE CALL, which
+                # is not the same as having loaded him.
+                #
+                # This previously required the stub's register to be the base
+                # of the +0x36C load. At 0x447238 that is ecx, and 0x44722E
+                # does `mov ecx,esi` -- esi is the `this` pointer, the mother
+                # -- so the stub would have handed the companion her record.
+                # The companion rejects a father equal to the mother, so that
+                # site could never have captured even with the displacement
+                # right. eax carries him there instead: 0x447229 loads it from
+                # [esp+0x14], the very slot ecx was loaded from, and nothing
+                # writes it again before the call.
+                #
+                # So the rule is: either the register that loaded him, or one
+                # loaded from the same stack slot, provided it is not written
+                # again before the call.
+                clobbered = _is_clobbered_before_call(blob, va, base)
+                if clobbered:
+                    self.assertNotEqual(
+                        source,
+                        base,
+                        "stub %d stores the register the site clobbers "
+                        "before the call" % index,
+                    )
+                else:
+                    self.assertEqual(
+                        source,
+                        base,
+                        "stub %d stores register %d, but the site loads the "
+                        "father from register %d -- it would capture a "
+                        "stranger" % (index, source, base),
+                    )
 
     def test_each_trampoline_reads_the_right_displacement(self) -> None:
         """Measured from the routine's own pushes and pops, not assumed.
@@ -282,7 +347,17 @@ class VV1CapturesTheFatherAtTheCallSitesTests(unittest.TestCase):
         crash.
         """
         payload = _cave_payload()
-        expected = {0: 0x20 + 0x0C + 8, 1: 0x20 + 0x0C + 0, 2: 0x20 + 0x0C + 8}
+        # The father is the dead SECOND argument, at entry-esp +0x08 --
+        # not +0x0C, which is arg1. This test asserted 0x0C and so confirmed
+        # the defect rather than catching it: every shipped trampoline read
+        # arg3, a skill selector, and the owner's log reported "(not captured
+        # for this birth)" on every single VV1 conception.
+        #
+        # Anchored at the call, where esp points at the return address and the
+        # arguments follow at +0x04, +0x08, +0x0C, +0x10. The routine's own
+        # reads agree: after its `push edi` it touches [esp+0x08], [esp+0x10]
+        # and [esp+0x14] -- entry +0x04, +0x0C, +0x10 -- and never entry +0x08.
+        expected = {0: 0x20 + 0x08 + 8, 1: 0x20 + 0x08 + 0, 2: 0x20 + 0x08 + 8}
         for index, want in expected.items():
             body = payload[index * 0x60 : (index + 1) * 0x60]
             with self.subTest(trampoline=index):
