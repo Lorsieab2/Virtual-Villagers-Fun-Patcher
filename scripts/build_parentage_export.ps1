@@ -2,6 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nativeRoot = Join-Path $projectRoot "native\parentage_export"
+$sharedRoot = Join-Path $projectRoot "native\shared"
 $outputRoot = Join-Path $projectRoot "assets\parentage"
 $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
 $sdkVersion = "10.0.26100.0"
@@ -18,7 +19,9 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\um") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
+    /I $sharedRoot `
     (Join-Path $nativeRoot "parentage_export.c") `
+    (Join-Path $sharedRoot "village_identity.c") `
     /link `
     ("/DEF:" + (Join-Path $nativeRoot "parentage_export.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
@@ -33,6 +36,7 @@ if ($LASTEXITCODE -ne 0) {
 
 @(
     (Join-Path $projectRoot "parentage_export.obj"),
+    (Join-Path $projectRoot "village_identity.obj"),
     (Join-Path $projectRoot "parentage_export.exp"),
     (Join-Path $projectRoot "parentage_export.lib")
 ) | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {

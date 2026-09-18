@@ -616,7 +616,12 @@ static int write_villager(
    because neither is actionable from inside the game. */
 __declspec(dllexport) int __stdcall WriteVillagePopulation(
     int game_id,
-    const void *module_pointer
+    const void *module_pointer,
+    /* "Village: <name> (Save <n>)\n", already assembled by the caller, or
+       an empty string when the village could not be identified. The
+       statistics companion builds it because it is the one hooked onto the
+       save call, where the name and the slot are both in registers. */
+    const char *village
 ) {
     const struct game_layout *g;
     const unsigned char *module = (const unsigned char *)module_pointer;
@@ -631,6 +636,9 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
+    }
+    if (village == NULL) {
+        village = "";
     }
     g = &GAME_LAYOUTS[game_id];
     if (!layout_is_sane(g)) {
@@ -667,7 +675,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     if (file == NULL) {
         return 0;
     }
-    if (fprintf(file, "%s Village Population\n\n", g->title) < 0) {
+    if (fprintf(file, "%s Village Population\n%s\n", g->title, village) < 0) {
         fclose(file);
         DeleteFileW(temporary);
         return 0;
@@ -687,7 +695,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
             if (file == NULL) {
                 return 0;
             }
-            if (fprintf(file, "%s Village Population\n\n", g->title) < 0) {
+            if (fprintf(file, "%s Village Population\n%s\n", g->title, village) < 0) {
                 fclose(file);
                 DeleteFileW(temporary);
                 return 0;

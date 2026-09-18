@@ -64,6 +64,8 @@
 #include <string.h>
 #include <wchar.h>
 
+#include "village_identity.h"
+
 enum {
     /* The log sits beside the executable, so the path is bounded by the
        executable's own path plus a fixed filename.
@@ -727,8 +729,96 @@ static int count_records(const wchar_t *path) {
     return count;
 }
 
+/* Read the village header a log file was opened with, if it has one.
+
+   The header is the first line, written when the file was new, and it names
+   the village those records belong to. Recovering it is what lets a log be
+   compared against the village currently being played, so records are never
+   appended under another village's name.
+
+   Returns 1 and fills `out` when the file starts with a header; returns 0 for
+   a file with no header at all, which is a log written before this existed or
+   one whose village could not be identified. */
+static int read_log_header(const wchar_t *path, char *out, size_t size) {
+    FILE *file;
+    char line[256];
+    size_t length;
+
+    if (out == NULL || size == 0) {
+        return 0;
+    }
+    out[0] = '\0';
+    file = _wfopen(path, L"rb");
+    if (file == NULL) {
+        return 0;
+    }
+    if (fgets(line, (int)sizeof(line), file) == NULL) {
+        fclose(file);
+        return 0;
+    }
+    fclose(file);
+
+    /* A record marker as the first line means the file has no header. */
+    if (strncmp(line, "Conception ", 11) == 0) {
+        return 0;
+    }
+    /* Trim the line ending, which is CRLF on disk because the log is written
+       in text mode. */
+    length = strlen(line);
+    while (length > 0 && (line[length - 1] == '\n' || line[length - 1] == '\r')) {
+        line[--length] = '\0';
+    }
+    if (length == 0) {
+        return 0;
+    }
+    _snprintf_s(out, size, _TRUNCATE, "%s", line);
+    return 1;
+}
+
+/* Whether a log file belongs to the village currently being played.
+
+   `village` is the header for the current village, as published at the last
+   save, and carries its own trailing newline. A file matches when its own
+   recovered header is the same text.
+
+   A file with NO header always matches. Those are logs written before the
+   header existed, and rotating away from one would strand a player's history
+   in an old file and restart their numbering for no reason -- the log is
+   still theirs, it simply predates the village being recorded.
+
+   Likewise, when the current village is unknown -- nothing has been saved yet
+   in this session -- every file matches. Rotating on "I do not know" would
+   start a fresh log on every launch. */
+static int log_belongs_to_village(const wchar_t *path, const char *village) {
+    char existing[256];
+    char current[256];
+    size_t length;
+
+    if (village == NULL || village[0] == '\0') {
+        return 1;
+    }
+    if (!read_log_header(path, existing, sizeof existing)) {
+        return 1;
+    }
+    _snprintf_s(current, sizeof current, _TRUNCATE, "%s", village);
+    length = strlen(current);
+    while (length > 0
+           && (current[length - 1] == '\n' || current[length - 1] == '\r')) {
+        current[--length] = '\0';
+    }
+    return strcmp(existing, current) == 0;
+}
+
 /* Choose the file to append to: the highest-numbered existing file that is not
    yet full, else the next one. Starts at 1 so the first log reads "... 1.txt".
+
+   A file belonging to a DIFFERENT village is treated as full, so the log rolls
+   to a new file rather than appending under the previous village's header.
+   Codex caught this: the owner keeps several villages per game and switches
+   between them, and without the check a conception in the new village would be
+   filed under the old village's name and save number. A missing header is a
+   cosmetic problem; a record attributed to the wrong village is a wrong record,
+   and parentage cannot be recovered afterwards to correct it.
 
    `existing_records` is the count across EVERY log file, not just the one
    chosen, because it becomes the record's printed number. Counting only the
@@ -742,6 +832,7 @@ static int count_records(const wchar_t *path) {
    is far beyond any real playthrough. */
 static int select_log_file(
     const struct game_layout *g,
+    const char *village,
     wchar_t *destination,
     int *existing_records
 ) {
@@ -763,6 +854,13 @@ static int select_log_file(
         }
         records = count_records(destination);
         total += records;
+        if (!log_belongs_to_village(destination, village)) {
+            /* Another village's log. Keep walking so this one is never
+               appended to, and so `total` still counts it -- the record
+               number is a running total across the whole game's logs, and
+               skipping these would restart numbering partway through. */
+            continue;
+        }
         if (records < RECORDS_PER_FILE) {
             /* Hand the count back rather than making the caller re-derive it.
                Counting again after opening the file for append would rescan
@@ -1003,6 +1101,9 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     int babies;
     const unsigned char *father;
     wchar_t path[MAX_LOG_PATH];
+    /* The village header, as published at the last save. Empty when
+       nothing has been saved yet in this session. */
+    char village[VV_VILLAGE_NAME_MAX + 32];
     FILE *file;
     char mother_name[MAX_NAME_BYTES];
     char father_name[MAX_NAME_BYTES];
@@ -1146,7 +1247,33 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         memcpy(father_name, "(unknown)", 10);
     }
 
-    if (!select_log_file(g, path, &existing_records)) {
+    /* Recall the village BEFORE choosing the file. The choice depends on
+       it: a log belonging to a different village must not be appended
+       to, or its records would be filed under the wrong village name
+       and save number.
+
+       WHEN THIS IS EMPTY, AND WHY THAT IS THE RIGHT ANSWER.  The village is
+       published by the statistics companion, which is the only code sitting
+       on the save call where the name and slot both exist.  A player who
+       selects the parentage log WITHOUT Village Statistics therefore has no
+       publisher, and every log is written with no header.
+
+       Codex raised this and was right that it happens.  The fix is not to
+       make Statistics a prerequisite: the patcher closes a selection over its
+       prerequisites in BOTH directions, so declaring one would mean
+       unticking Village Statistics silently unticks the parentage log.  That
+       trades a missing header line for a missing feature, which is the wrong
+       way round -- the records are the feature and the header is a label on
+       them.
+
+       So the log degrades instead.  With no publisher it is written exactly
+       as it was before headers existed: every record correct, simply
+       unlabelled.  Both features ship enabled by default, so the ordinary
+       player gets the header anyway. */
+    if (!vv_village_recall(village, sizeof village)) {
+        village[0] = '\0';
+    }
+    if (!select_log_file(g, village, path, &existing_records)) {
         return 0;
     }
     /* Text mode, so the C runtime translates each \n into the CRLF that every
@@ -1163,6 +1290,33 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
+    }
+    /* Name the village at the top of a NEW log, so a player with several
+       villages per game can tell which one a log belongs to and can
+       cross-reference it against that village's statistics and roster.
+
+       Only on a new file. The log is appended to across a whole village's
+       history, so writing the header on every birth would interleave it
+       between records.
+
+       ftell is the test rather than existing_records, because that count
+       spans every file in the run -- it is non-zero for a brand-new
+       roll-over file, which is exactly a file that still needs a header.
+       In append mode the position is the end of the file, so zero means
+       nothing has ever been written here.
+
+       The village was recalled BEFORE the file was chosen, because
+       select_log_file needs it: a file belonging to a different village is
+       skipped rather than appended to, so the header written here always
+       matches the records that follow it.
+
+       A village that has not been saved in this session publishes nothing,
+       and the log is then written without a header rather than not at all. */
+    if (ftell(file) == 0 && village[0] != '\0') {
+        if (fprintf(file, "%s", village) < 0) {
+            fclose(file);
+            return 0;
+        }
     }
     /* The father's two numbers are rendered as text so an unavailable field
        can say so. They used to print 0 whenever no father record was found,
