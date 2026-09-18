@@ -1125,6 +1125,11 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
        on the line breaks being there. */
     file = _wfopen(temporary, L"w");
     if (file == NULL) {
+        /* The statistics temporary could not be created, but the roster's own
+           destination may be perfectly writable, and the game reports the save
+           as successful either way. See the note below the writers: neither
+           file's failure may suppress the other. */
+        write_village_population(game_id);
         return 0;
     }
     if (game_id == GAME_VV1) {
@@ -1279,8 +1284,21 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
         );
     }
     closed = fclose(file) == 0;
+
+    /* The roster is exported independently of the statistics outcome.
+
+       These are two separate files with two separate failure modes: the
+       statistics destination can be held open by another process without
+       delete sharing while the roster destination is perfectly writable.
+       Returning early on a statistics failure used to skip the roster
+       entirely, so a save that the game reports as successful left the
+       roster describing a village that no longer exists -- stale in a way
+       that looks current, which is the failure this exporter exists to
+       avoid. Neither file's failure is actionable from inside the game, so
+       neither is allowed to suppress the other. */
     if (!written || !closed) {
         DeleteFileW(temporary);
+        write_village_population(game_id);
         return 0;
     }
     if (!MoveFileExW(
@@ -1289,6 +1307,7 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH
         )) {
         DeleteFileW(temporary);
+        write_village_population(game_id);
         return 0;
     }
     write_village_population(game_id);

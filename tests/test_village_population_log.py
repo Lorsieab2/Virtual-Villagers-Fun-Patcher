@@ -161,91 +161,229 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                     row["father_body"], values[15], "father body copy")
 
     def test_every_array_and_skill_offset_matches_the_statistics_row(self) -> None:
-        """Bound to each game's OWN statistics call, not a file-wide set.
+        """Compare POSITIONALLY inside each game's own call.
 
-        The first version of this guard collected every hexadecimal literal in
-        the statistics source into one set and asked whether each RVA appeared
-        anywhere in it. That passes when VV3's and VV4's array bases are
-        swapped, because both literals are still present -- the exporter would
-        read another game's records and every test would stay green. Codex
-        caught exactly that.
+        Two earlier versions of this guard were too weak, and Codex caught
+        both. The first gathered every hexadecimal literal in the statistics
+        source into one set and asked whether each offset appeared anywhere in
+        it, which passes with VV3's and VV4's array bases swapped because both
+        literals are still somewhere in the file. The second narrowed that to
+        a fixed-size window after the game's title, but the window is wider
+        than the call: VV3's reaches VV4's title after 834 characters. Giving
+        VV3 the VV4 skill offset 0x1C5C still passed the whole suite.
 
-        So each game's argument group is located by its own title string and
-        the offsets are compared positionally within it.
+        Membership is the flaw in both. An offset appearing *somewhere* says
+        nothing about it appearing in the *right argument slot*, and a wrong
+        layout is exactly the case where the value is real but misplaced. So
+        the call's argument list is parsed by matching its parentheses and the
+        arguments are compared by position.
         """
         statistics = STATISTICS.read_text(encoding="utf-8")
         stripped = re.sub(r"/\*.*?\*/", "", statistics, flags=re.DOTALL)
 
-        # VV3 and VV4 pass their title as an argument to the shared
-        # write_later_game; VV5 has its own writer and embeds the title in a
-        # format string. Anchoring on the title text works for all three
-        # because it appears exactly once either way.
+        def arguments_of_the_call_naming(title):
+            """Every top-level argument of the call that passes `title`."""
+            quoted = '"%s"' % title
+            self.assertIn(
+                quoted, stripped, "cannot locate the call naming %r" % title)
+            self.assertEqual(
+                stripped.count(quoted), 1,
+                "%r must name exactly one call" % title)
+            at = stripped.index(quoted)
+
+            # Back up to the '(' that opens the enclosing call, skipping any
+            # nested call that closes before it.
+            depth, index = 0, at
+            while index > 0:
+                index -= 1
+                if stripped[index] == ")":
+                    depth += 1
+                elif stripped[index] == "(":
+                    if depth == 0:
+                        break
+                    depth -= 1
+            opening = index
+            self.assertEqual(
+                stripped[opening], "(",
+                "unbalanced parentheses before %r" % title)
+
+            # Forward to its match.
+            depth, index = 0, opening
+            while index < len(stripped):
+                if stripped[index] == "(":
+                    depth += 1
+                elif stripped[index] == ")":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                index += 1
+            self.assertLess(
+                index, len(stripped), "unterminated call naming %r" % title)
+
+            # Split on commas at depth zero, so a nested call stays one
+            # argument rather than scattering its own operands into the list.
+            body = stripped[opening + 1:index]
+            arguments, depth, current = [], 0, ""
+            for character in body:
+                if character == "(":
+                    depth += 1
+                elif character == ")":
+                    depth -= 1
+                if character == "," and depth == 0:
+                    arguments.append(current.strip())
+                    current = ""
+                else:
+                    current += character
+            arguments.append(current.strip())
+            return [argument for argument in arguments if argument]
+
+        def as_number(argument):
+            return int(argument.rstrip("uU"), 0)
+
+        # VV3 and VV4 both call the shared write_later_game with the same
+        # signature, so the villager-layout arguments sit at fixed positions.
+        # Asserted rather than searched for, because a shifted argument list is
+        # itself a defect this guard should fail on.
+        positions = {
+            "villagers_rva": 20,
+            "stride": 22,
+            "slots": 23,
+            "skills": 26,
+            "skill_count": 27,
+        }
         titles = {
             # VV1 and VV2 are absent: the statistics companion has no Village
             # Elders row for either and never walks their villager arrays, so
             # there is no second copy of these offsets to agree with.
             3: "Virtual Villagers - The Secret City",
             4: "Virtual Villagers - The Tree of Life",
-            5: "VIRTUAL VILLAGERS - NEW BELIEVERS",
         }
-        for game, row in self.rows.items():
-            if game not in titles:
-                continue
+        for game, title in sorted(titles.items()):
             with self.subTest(game=game):
-                needle = titles[game]
-                if needle not in stripped:
-                    needle = needle.title().replace("Of", "of")
-                self.assertIn(
-                    needle, stripped,
-                    "cannot locate game %d's statistics call" % game)
-                where = stripped.index(needle)
-                # The argument list runs from the title to the end of that
-                # call. Bounded generously and then searched, so a later
-                # argument being added does not silently shift the match.
-                window = stripped[where:where + 4000]
-                literals = [
-                    int(value, 16)
-                    for value in re.findall(r"0[xX]([0-9A-Fa-f]+)[uU]?", window)
-                ]
-                self.assertIn(
-                    row["villagers_rva"],
-                    literals,
-                    "the villager array RVA %#x is not in game %d's own "
-                    "statistics call" % (row["villagers_rva"], game),
-                )
-                # And no OTHER game may share it. Membership alone passes when
-                # two games are given the same base -- both then "appear in
-                # their own call" because one of them legitimately does, while
-                # the other silently reads the wrong game's records.
-                others = [
-                    other
-                    for other, row2 in self.rows.items()
-                    if other != game
-                    and row2["villagers_rva"] == row["villagers_rva"]
-                ]
+                row = self.rows[game]
+                arguments = arguments_of_the_call_naming(title)
                 self.assertEqual(
-                    others, [],
-                    "game %d shares its villager array RVA %#x with %s"
-                    % (game, row["villagers_rva"], others),
-                )
+                    len(arguments), 32,
+                    "game %d's statistics call changed shape; the positional "
+                    "offsets below are no longer trustworthy" % game)
+                self.assertEqual(
+                    arguments[2], '"%s"' % title,
+                    "argument 2 must be the title")
+                for field, position in sorted(positions.items()):
+                    self.assertEqual(
+                        row[field], as_number(arguments[position]),
+                        "game %d's %s must equal statistics argument %d"
+                        % (game, field, position))
+
+        # VV5 has its own writer, so its offsets are not passed as arguments.
+        # Its villager RVA is still shared, and is compared against the single
+        # literal the statistics source uses for it.
+        with self.subTest(game=5):
+            self.assertEqual(
+                stripped.count("0x154148u"), 1,
+                "VV5's villager array RVA must appear exactly once")
+            self.assertEqual(self.rows[5]["villagers_rva"], 0x154148)
+
+        # No two games may share a villager array base. Positional equality
+        # alone still passes if a row and its call are given the same wrong
+        # base, and that reads one game's records for another.
+        bases = {}
+        for game, row in self.rows.items():
+            bases.setdefault(row["villagers_rva"], []).append(game)
+        for base, games in sorted(bases.items()):
+            with self.subTest(base=base):
+                self.assertEqual(
+                    len(games), 1,
+                    "games %s share the villager array base %#x"
+                    % (games, base))
+
+    def test_the_roster_is_exported_on_every_path_past_the_statistics_file(
+        self,
+    ) -> None:
+        """A statistics failure must not suppress the roster.
+
+        The two exports are separate files with separate failure modes. The
+        statistics destination can be held open by another process without
+        delete sharing, or its temporary can fail to open, while the roster's
+        own destination is perfectly writable -- and the game reports the save
+        as successful either way, because the executable deliberately ignores
+        export failures.
+
+        Before this was fixed, a statistics failure returned early and the
+        roster was never attempted, so the player kept a roster describing a
+        village that no longer existed: stale in a way that looks current,
+        which is the exact failure this exporter exists to prevent. Codex
+        caught it.
+
+        Every return after the statistics file is opened must therefore reach
+        the roster call first. Checked by walking the function's own text
+        rather than by counting call sites, because adding a call somewhere
+        harmless would satisfy a count while leaving a path uncovered.
+        """
+        source = STATISTICS.read_text(encoding="utf-8")
+        opening = source.index(
+            "__declspec(dllexport) int __stdcall WriteVillageStatistics(")
+        brace = source.index(
+            "{", source.index(")", source.index("save_id", opening)))
+
+        depth, index = 0, brace
+        while index < len(source):
+            if source[index] == "{":
+                depth += 1
+            elif source[index] == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            index += 1
+        self.assertLess(index, len(source), "unterminated function body")
+
+        body = re.sub(
+            r"/\*.*?\*/", "", source[brace:index + 1], flags=re.DOTALL)
+
+        # Everything before the statistics file is opened is pure argument
+        # validation -- nothing has been written and no roster is owed.
+        marker = '_wfopen(temporary, L"w")'
+        self.assertIn(marker, body, "cannot locate the statistics file open")
+        after = body[body.index(marker):]
+
+        # Each return is checked against the statements that IMMEDIATELY
+        # precede it, not against everything earlier in the function.
+        #
+        # The first version of this guard asked whether the call appeared
+        # anywhere before the return, which is a cumulative text search rather
+        # than a control-flow one: an earlier path's call satisfied a later
+        # return that had none, so restoring the original bug still passed.
+        # Walking back only to the start of the enclosing block is what makes
+        # the difference between "a call exists above" and "this path makes
+        # the call".
+        call = "write_village_population(game_id);"
+        returns = list(re.finditer(r"return\s+[^;]+;", after))
+        self.assertGreaterEqual(
+            len(returns), 4,
+            "expected every statistics outcome to have its own return")
+        for match in returns:
+            with self.subTest(at=match.start()):
+                # Back up to the brace that opens this return's own block.
+                depth, index = 0, match.start()
+                while index > 0:
+                    index -= 1
+                    if after[index] == "}":
+                        depth += 1
+                    elif after[index] == "{":
+                        if depth == 0:
+                            break
+                        depth -= 1
+                block = after[index:match.start()]
+                # A return at function scope walks back to the function's own
+                # brace and would see every earlier path's call, so for that
+                # case the search starts after the last closing brace instead
+                # -- the statements that actually run before this return.
+                if block.rstrip().endswith("}") or "}" in block:
+                    block = block[block.rindex("}") + 1:]
                 self.assertIn(
-                    row["skills"],
-                    literals,
-                    "the skill offset %#x is not in game %d's own call"
-                    % (row["skills"], game),
-                )
-                self.assertIn(
-                    row["active"],
-                    literals,
-                    "the active-flag offset %#x is not in game %d's own call"
-                    % (row["active"], game),
-                )
-                self.assertIn(
-                    row["stride"],
-                    literals,
-                    "the stride %#x is not in game %d's own call"
-                    % (row["stride"], game),
-                )
+                    call, block,
+                    "this return leaves the roster stale -- the statements "
+                    "before it never export it: %s" % match.group(0))
 
     def test_every_game_declares_its_preference_offsets(self) -> None:
         """Measured per game against the running game's own Details screen.
