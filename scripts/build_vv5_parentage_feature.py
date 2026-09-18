@@ -269,7 +269,6 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
             # whole list in order.  +0x1C is also where the seventh argument
             # sits before any push, which is why the suppression flag is read
             # at the same displacement first.
-            mov ebx, dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
             push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
             push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
             push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
@@ -282,6 +281,28 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
             # 0x467DBC (`mov ecx, ebp`) immediately before the hook, and the
             # seven pushes above do not touch it, so it arrives intact.
             call 0x{CONCEPTION_VA:X}
+
+            # Save the caller's ebx, then read the suppression flag into it.
+            #
+            # BOTH happen after the callee returns, and that is deliberate.
+            #
+            # ebx is not dead across this call, which an earlier version of
+            # this page assumed after looking only at the instructions
+            # immediately following the hook.  The routine the hook sits in is
+            # entered from a caller that keeps a live ebx across it and then
+            # dereferences it -- `mov eax, [ebx+0x18]` -- before popping its
+            # own saved copy.  Leaving the flag in ebx makes that a null
+            # dereference whenever the flag is zero.  Codex caught this.
+            #
+            # Reading the flag afterwards is possible because this page cleans
+            # the GAME's seven arguments itself: the callee popped only the
+            # copies pushed above, so the originals are still in place here,
+            # and the flag sits at the same displacement plus the four bytes
+            # this push adds.  Nothing touches ebx or the stack across the
+            # call, which is what the callee's esp-relative argument reads
+            # require.
+            push ebx
+            mov ebx, dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
 
             pushad
             # Village seeding passes the suppression flag set, with a hardcoded
@@ -344,6 +365,10 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
             call eax
         done:
             popad
+            # Restore the caller's ebx.  This must follow popad, which would
+            # otherwise put the suppression flag back into it.
+            pop ebx
+
             # Clean the GAME's seven arguments, exactly as the routine this
             # page impersonates would have.  Returning with a bare `ret` would
             # leave 0x1C bytes of the caller's frame stranded.

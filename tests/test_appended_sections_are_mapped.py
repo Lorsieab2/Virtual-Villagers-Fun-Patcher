@@ -249,8 +249,22 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
             % where,
         )
 
-        # The flag is read into ebx before the stolen call, because the callee
-        # cleans its own arguments and they no longer exist afterwards.
+        # The flag is read into ebx AFTER the stolen call.
+        #
+        # This previously required the opposite, on the premise that the
+        # callee cleans its own arguments so they no longer exist afterwards.
+        # That was true while the page WRAPPED the call. It is false now that
+        # the page impersonates the routine: the callee pops only the copies
+        # this page re-pushed, and the game's own seven arguments survive
+        # untouched -- this page cleans those itself with its `ret 0x1C`.
+        #
+        # Reading afterwards is what lets ebx be preserved. Saving the
+        # caller's ebx before the call would put a dword between esp and the
+        # callee's arguments and shift its esp-relative reads, which is the
+        # defect this whole page exists to avoid; and the flag cannot be read
+        # into ebx before saving ebx, because the read destroys it. Doing both
+        # after the call resolves that, and the displacement accounts for the
+        # push: the seventh argument sits one dword higher.
         call_index = next(
             (
                 i
@@ -270,10 +284,30 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
             None,
         )
         self.assertIsNotNone(flag_read, "%s: trampoline never reads the flag" % where)
-        self.assertLess(
+        self.assertGreater(
             flag_read,
             call_index,
-            "%s: the flag is read after the call, when the arguments are gone" % where,
+            "%s: the flag must be read after the call, so that saving ebx "
+            "cannot shift the callee's argument frame" % where,
+        )
+
+        # And it must read the GAME's surviving argument, one dword above its
+        # entry displacement to account for the pushed ebx.
+        save_ebx = next(
+            (i for i, item in enumerate(decoded) if item == ("push", "ebx")),
+            None,
+        )
+        self.assertIsNotNone(save_ebx, "%s: the caller's ebx is never saved" % where)
+        self.assertGreater(
+            save_ebx,
+            call_index,
+            "%s: ebx is saved before the call, which shifts the frame" % where,
+        )
+        self.assertLess(
+            save_ebx,
+            flag_read,
+            "%s: the flag read destroys ebx, so ebx must be saved first"
+            % where,
         )
 
         # And the stolen call still goes where it went before the hook.

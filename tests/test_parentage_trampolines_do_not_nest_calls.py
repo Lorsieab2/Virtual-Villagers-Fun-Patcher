@@ -121,6 +121,58 @@ class ParentageTrampolinesDoNotNestCallsTests(unittest.TestCase):
                     "the trampoline must clean the caller's arguments with "
                     "ret %#x, as the routine it replaces does" % CALLEE_CLEANUP)
 
+    def test_the_callers_ebx_is_preserved(self) -> None:
+        """ebx is live across this call site, so the page must restore it.
+
+        Codex raised this as a P1 and was right. An earlier version read the
+        suppression flag into ebx and never restored it, on the premise that
+        ebx was dead -- a premise drawn from looking only at the instructions
+        immediately after the hook.
+
+        The routine the hook sits in is entered from a caller that keeps a
+        live ebx across it and then dereferences it: in VV5 that is
+        `mov eax, [ebx+0x18]` at 0x43E397, which runs before the caller pops
+        its own saved copy. Leaving the flag there is a null dereference
+        whenever the flag is zero.
+
+        The save has to come AFTER the stolen call, because nothing may sit
+        between esp and the callee's arguments; and the restore has to come
+        after popad, which would otherwise put the flag straight back.
+        """
+        for game, (manifest, conception) in sorted(WRAPPING_GAMES.items()):
+            with self.subTest(game=game):
+                code, address = payloads(manifest)[0]
+                stream = self.decoded(code, address, 0x120)
+                decoded = [(i.mnemonic, i.op_str) for i in stream]
+
+                call_index = next(
+                    i for i, ins in enumerate(stream)
+                    if ins.mnemonic == "call"
+                    and ins.op_str == hex(conception))
+                push_ebx = next(
+                    (i for i, item in enumerate(decoded)
+                     if item == ("push", "ebx")), None)
+                pop_ebx = next(
+                    (i for i, item in enumerate(decoded)
+                     if item == ("pop", "ebx")), None)
+                popad = next(
+                    (i for i, item in enumerate(decoded)
+                     if item[0] in ("popal", "popad")), None)
+
+                self.assertIsNotNone(
+                    push_ebx, "the caller's ebx is never saved")
+                self.assertIsNotNone(
+                    pop_ebx, "the caller's ebx is never restored")
+                self.assertIsNotNone(popad, "the page never restores the frame")
+                self.assertGreater(
+                    push_ebx, call_index,
+                    "ebx must be saved AFTER the stolen call; saving it "
+                    "before puts a dword between esp and the arguments")
+                self.assertGreater(
+                    pop_ebx, popad,
+                    "ebx must be restored after popad, which would otherwise "
+                    "put the suppression flag back into it")
+
     def test_no_stray_push_sits_between_entry_and_the_stolen_call(
         self,
     ) -> None:
