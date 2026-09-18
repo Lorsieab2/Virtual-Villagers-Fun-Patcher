@@ -146,6 +146,48 @@ class VV1FatherArgumentSlotTests(unittest.TestCase):
                     "%s must be measured from the father's own slot" % name)
                 self.assertIn(adjustment, TAIL_ADJUSTMENTS)
 
+    def test_the_reentry_audit_records_the_same_displacement(self) -> None:
+        """The audit prose must not contradict the emitted bytes.
+
+        Codex raised this: the fingerprints were updated but the register
+        contract recorded alongside them still described the defective
+        offsets. An audit that records the wrong contract is worse than no
+        audit, because it is what a later reviewer consults -- it would have
+        justified restoring the exact bug being fixed here.
+
+        So the prose is checked against the same constant the trampolines are
+        built from, rather than left to be re-read by eye.
+        """
+        audit = (ROOT / "tests"
+                 / "test_vv1_hook_foreign_reentry_audit.py").read_text(
+                     encoding="utf-8")
+        self.assertIn(
+            "0x20+0x08", audit,
+            "the audit must record the twins tail's real displacement")
+        self.assertIn(
+            "0x20+0x08+8", audit,
+            "the audit must show how the deeper tails are derived")
+        # The defective values must not survive anywhere in the prose.
+        self.assertNotIn(
+            "0x20+0x14", audit,
+            "the audit still records arg3's displacement")
+        self.assertNotIn(
+            "0x20+0x0C", audit,
+            "the audit still records arg1's displacement")
+        # Case-insensitive: the prose capitalises SECOND for emphasis, so a
+        # revert to "third" could arrive in any casing.
+        # Case-insensitive, and tolerant of the comment wrapping: the prose
+        # capitalises SECOND for emphasis and the phrase spans a line break,
+        # so a revert to "third" could arrive in any casing or layout.
+        self.assertNotRegex(
+            audit,
+            r"(?i)third\s+stack\s*(?:\n\s*#)?\s*argument",
+            "the dead slot is the second argument, not the third")
+        self.assertRegex(
+            audit,
+            r"(?i)second\s+stack\s*(?:\n\s*#)?\s*argument",
+            "the audit must name the second argument as the dead slot")
+
     def test_no_site_passes_the_mothers_register(self) -> None:
         """esi is the `this` pointer -- the mother -- at every call site.
 
