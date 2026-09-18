@@ -186,18 +186,38 @@ class LogsCarryTheVillageTests(unittest.TestCase):
             "the save-time export must publish the village for the others",
         )
 
-    def test_the_parentage_log_writes_its_header_only_on_a_new_file(self) -> None:
-        """The parentage log is appended to across a village's whole history.
-        Writing the header per record would interleave it between conceptions,
-        so it is gated on the file being empty."""
+    def test_the_header_is_recalled_chosen_and_gated_in_that_order(self) -> None:
+        """Three steps, and the ORDER between them is the whole invariant.
+
+        The village must be recalled BEFORE the log file is chosen, because the
+        choice depends on it -- a file belonging to another village has to be
+        skipped rather than appended to, or its records are filed under the
+        wrong village. The header must then be written only into a new file.
+
+        Asserted as a sequence rather than by searching a fixed window around
+        one of the calls. An earlier version of this guard looked 600
+        characters back from the recall; when the recall correctly moved
+        earlier in the function, the window stopped covering the gate and the
+        test failed while the code was right. Position is not the property
+        worth pinning here -- relative order is.
+        """
         source = PARENTAGE_C.read_text(encoding="utf-8")
-        self.assertIn("vv_village_recall(village, sizeof village)", source)
-        recall = source.index("vv_village_recall(village")
-        window = source[max(0, recall - 600):recall]
-        self.assertIn(
-            "ftell(file) == 0",
-            window,
-            "the header must be gated on the log file being new",
+        recall = source.find("vv_village_recall(village, sizeof village)")
+        select = source.find("select_log_file(g, village, path")
+        gate = source.find("ftell(file) == 0")
+        self.assertNotEqual(recall, -1, "the village is never recalled")
+        self.assertNotEqual(select, -1, "the file choice is not given the village")
+        self.assertNotEqual(gate, -1, "the header is not gated on a new file")
+        self.assertLess(
+            recall,
+            select,
+            "the village must be recalled before the log file is chosen, or "
+            "records can be appended under another village's header",
+        )
+        self.assertLess(
+            select,
+            gate,
+            "the file must be chosen before its header is written",
         )
 
     def test_the_gate_is_ftell_not_the_record_count(self) -> None:
@@ -205,13 +225,114 @@ class LogsCarryTheVillageTests(unittest.TestCase):
         a brand-new roll-over file -- which is precisely a file that still needs
         a header. Using it would leave every roll-over log unidentified."""
         source = PARENTAGE_C.read_text(encoding="utf-8")
-        recall = source.index("vv_village_recall(village")
-        window = source[max(0, recall - 600):recall]
         self.assertNotIn(
-            "existing_records == 0",
-            window,
+            "if (existing_records == 0",
+            source,
             "the header gate must not depend on the run-wide record count",
         )
+
+    def test_a_log_from_another_village_is_not_appended_to(self) -> None:
+        """Codex found that switching save slots left the same game-wide file
+        selected, so conceptions from the new village were appended under the
+        previous village's header. A misattributed record is worse than an
+        unlabelled one: parentage cannot be recovered from a child afterwards,
+        so the mistake is permanent."""
+        source = PARENTAGE_C.read_text(encoding="utf-8")
+        self.assertIn(
+            "if (!log_belongs_to_village(destination, village)) {",
+            source,
+            "select_log_file must skip a log belonging to another village",
+        )
+
+    def test_a_log_with_no_header_is_never_rotated_away_from(self) -> None:
+        """Logs written before headers existed are still the player's. Rotating
+        away from one would strand their history in an old file and restart the
+        numbering for no reason. The same applies when the current village is
+        unknown -- rotating on "I do not know" would start a fresh log on every
+        launch."""
+        source = PARENTAGE_C.read_text(encoding="utf-8")
+        body = source[source.index("static int log_belongs_to_village"):]
+        body = body[:body.index("\n}\n")]
+        self.assertIn(
+            "read_log_header(path, existing, sizeof existing)",
+            body,
+            "the comparison must read the log's own header",
+        )
+        self.assertEqual(
+            body.count("return 1;"),
+            2,
+            "a headerless log and an unknown village must each match",
+        )
+
+
+class PublisherLifetimeTests(unittest.TestCase):
+    def test_only_one_mapping_handle_is_ever_opened(self) -> None:
+        """Codex found the publisher opening a fresh handle on every save and
+        never closing one, while its comment claimed a single process-lifetime
+        handle. That is one leaked kernel handle per save, and the owner plays
+        long sessions with frequent saves.
+
+        The handle genuinely cannot be closed -- a file mapping lives only
+        while a handle to it is open, and the parentage log reads it much
+        later -- so the fix is to cache exactly one.
+        """
+        source = IDENTITY_C.read_text(encoding="utf-8")
+        self.assertIn(
+            "static HANDLE vv_share_handle",
+            source,
+            "the publisher must cache its mapping handle",
+        )
+        body = source[source.index("void vv_village_publish("):]
+        body = body[:body.index("\n}\n")]
+        self.assertIn(
+            "if (vv_share_handle == NULL) {",
+            body,
+            "the mapping must only be created when one is not already held",
+        )
+        self.assertEqual(
+            body.count("vv_share_open(1)"),
+            1,
+            "the publisher must open the mapping in exactly one place",
+        )
+
+
+class ParentageStandsAloneTests(unittest.TestCase):
+    def test_the_parentage_log_does_not_require_the_statistics_feature(
+        self,
+    ) -> None:
+        """Codex correctly found that a parentage log selected WITHOUT Village
+        Statistics has no publisher and so gets no header. Making Statistics a
+        prerequisite is the wrong fix: the patcher closes a selection over its
+        prerequisites in BOTH directions, so unticking Statistics would
+        silently untick the parentage log -- trading a missing header line for
+        a missing feature.
+
+        The log degrades instead, exactly as it behaved before headers
+        existed. This guard exists because the dependency was tried and
+        deliberately reverted; re-adding it would quietly remove a feature the
+        owner asked for.
+        """
+        import json
+
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                manifest = json.loads(
+                    (ROOT / "data" / ("vv%d_parentage_feature.json" % game))
+                    .read_text(encoding="utf-8")
+                )
+                for feature in manifest["features"]:
+                    # Narrowed to the STATISTICS dependency specifically. VV2's
+                    # parentage log legitimately depends on its Origins
+                    # upgrades, because VV2's own code cave is occupied by the
+                    # renamed-build crash guard and the loader trampoline has
+                    # to live in the page Origins appends. A guard that banned
+                    # every dependency failed on that unrelated, correct one.
+                    self.assertNotIn(
+                        "vv%d_write_village_statistics" % game,
+                        feature.get("dependencies", []),
+                        "VV%d's parentage log must stay selectable without "
+                        "Village Statistics" % game,
+                    )
 
 
 class HeaderAssemblyTests(unittest.TestCase):

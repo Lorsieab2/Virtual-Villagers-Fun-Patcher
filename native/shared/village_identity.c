@@ -156,18 +156,36 @@ static HANDLE vv_share_open(int create) {
     return OpenFileMappingW(FILE_MAP_READ, FALSE, name);
 }
 
+/* The single mapping handle this process keeps open.
+
+   A file mapping lives only while a handle to it is open, so the publisher
+   cannot close its handle: doing so would discard the village the moment the
+   call returned, and the parentage log -- which runs at a completely different
+   time -- would never see it. The handle therefore has to outlive the call.
+
+   It must also be exactly ONE handle. An earlier version opened a new one on
+   every save and never closed any of them, while its comment claimed a single
+   process-lifetime handle; that is one leaked kernel handle per save, and the
+   owner plays long sessions with frequent saves. Codex caught the mismatch
+   between the comment and the code. Caching it here makes the comment true:
+   the first publish creates the mapping, every later one reuses it, and the
+   handle is released when the process exits. */
+static HANDLE vv_share_handle = NULL;
+
 void vv_village_publish(const char *header) {
-    HANDLE mapping;
     void *view;
 
     if (header == NULL) {
         return;
     }
-    mapping = vv_share_open(1);
-    if (mapping == NULL) {
-        return;
+    if (vv_share_handle == NULL) {
+        vv_share_handle = vv_share_open(1);
+        if (vv_share_handle == NULL) {
+            return;
+        }
     }
-    view = MapViewOfFile(mapping, FILE_MAP_WRITE, 0, 0, VV_SHARE_BYTES);
+    view = MapViewOfFile(vv_share_handle, FILE_MAP_WRITE, 0, 0,
+                         VV_SHARE_BYTES);
     if (view != NULL) {
         /* Truncate rather than overflow: the block is sized for the longest
            header this module can assemble, so a longer one means the caller
@@ -180,11 +198,6 @@ void vv_village_publish(const char *header) {
         ((char *)view)[length] = '\0';
         UnmapViewOfFile(view);
     }
-    /* The handle is deliberately NOT closed. A file mapping lives only while a
-       handle to it is open, so closing here would discard the village the
-       moment this call returns, and the parentage log -- which runs at a
-       completely different time -- would never see it. It is one handle for
-       the lifetime of the process, released when the game exits. */
 }
 
 int vv_village_recall(char *out, size_t size) {
