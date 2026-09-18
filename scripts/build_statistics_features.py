@@ -17,6 +17,8 @@ sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 
 
+POPULATION_COMPANION = ROOT / "assets/population/VVFP Population Export.dll"
+
 GAMES = {
     "vv1": {
         "title": "Virtual Villagers - A New Home",
@@ -291,7 +293,12 @@ def rel32_call(source_va: int, target_va: int) -> bytes:
     )
 
 
-def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> dict:
+def build_game(
+    game_id: str,
+    config: dict[str, object],
+    companion_hash: str,
+    population_hash: str,
+) -> dict:
     source = (STOCK / str(config["exe"])).read_bytes()
     cave_file = int(config["cave_file"])
     cave_va = int(config["cave_va"])
@@ -963,7 +970,21 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 "source": "assets/statistics/VVFP Statistics Export.dll",
                 "destination": "VVFP Statistics Export.dll",
                 "sha256": companion_hash,
-            }
+            },
+            # The Village Population roster, which the statistics companion
+            # calls after a successful save. It ships for all five games
+            # because the call is inside that DLL rather than in the
+            # executable: the roster needed no appended section, no
+            # composition overlay against every other appending feature, and
+            # no code cave. "dll over cave space always".
+            #
+            # It must be present whenever the statistics companion is, or the
+            # call finds nothing and the roster silently never appears.
+            {
+                "source": "assets/population/VVFP Population Export.dll",
+                "destination": "VVFP Population Export.dll",
+                "sha256": population_hash,
+            },
         ],
         "patches": [
             {
@@ -991,8 +1012,10 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
 
 def main() -> None:
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper()
+    population_hash = hashlib.sha256(
+        POPULATION_COMPANION.read_bytes()).hexdigest().upper()
     features = [
-        build_game(game_id, config, companion_hash)
+        build_game(game_id, config, companion_hash, population_hash)
         for game_id, config in GAMES.items()
     ]
     OUTPUT.write_text(

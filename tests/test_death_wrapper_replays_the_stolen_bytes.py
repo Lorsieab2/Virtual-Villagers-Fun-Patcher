@@ -173,7 +173,7 @@ class DeathWrapperReplaysTheStolenBytes(unittest.TestCase):
             if not exe.is_file():
                 continue
 
-            feature = generator.build_game(game_id, config, companion)
+            feature = generator.build_game(game_id, config, companion, "0" * 64)
             payloads = [
                 base64.b64decode(row["after_base64"])
                 for row in feature["patches"]

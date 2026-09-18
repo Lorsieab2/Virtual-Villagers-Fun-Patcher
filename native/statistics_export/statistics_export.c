@@ -1044,6 +1044,54 @@ static int write_vv5(
     }
 }
 
+/* Invoke the Village Population companion, if it is present.
+
+   THE CALL IS HERE RATHER THAN IN THE EXECUTABLE, deliberately. The roster
+   wants exactly this moment -- a save that has just succeeded -- and this
+   companion is already resolved and running at it. Putting the call between
+   the two DLLs means the game executable needs NO new bytes for it: no
+   appended section, no composition overlay against every other appending
+   feature, no code cave.
+
+   That matters more than convenience here. Executable space in these games is
+   scarce and contested: the statistics cave is full, what looks free in a
+   stock file is often claimed at apply time, free bytes repeatedly turned out
+   to be in non-executable sections, and giving the roster its own page would
+   have needed five append layouts and eight composition overlays -- one
+   against every other feature that appends, in every game. A DLL-to-DLL call
+   has none of that. The owner's standing rule is "dll over cave space
+   always".
+
+   FAILURE IS NEVER FATAL. The roster is a log, and a save that succeeded must
+   keep reporting success whether or not the log was written. A missing DLL, a
+   missing export, or a refusal from the roster itself all leave this silent.
+
+   The module is resolved on every call rather than cached. It is one
+   GetModuleHandleW on a save, which is not a path that needs optimising, and
+   caching a handle across a save that may have unloaded it is a worse trade.
+   Nothing here unloads the library: the roster stays loaded for the process's
+   life, exactly as this companion does. */
+static void write_village_population(int game_id) {
+    typedef int(__stdcall * population_function)(int, const void *);
+    HMODULE library = GetModuleHandleW(L"VVFP Population Export.dll");
+    population_function write;
+
+    if (library == NULL) {
+        library = LoadLibraryW(L"VVFP Population Export.dll");
+        if (library == NULL) {
+            return;
+        }
+    }
+    write = (population_function)GetProcAddress(
+        library, "WriteVillagePopulation");
+    if (write == NULL) {
+        return;
+    }
+    /* NULL module: the roster resolves the executable itself, which it must do
+       anyway for its own array arithmetic. */
+    write(game_id, NULL);
+}
+
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
     int game_id,
     const void *manager_pointer,
@@ -1077,6 +1125,11 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
        on the line breaks being there. */
     file = _wfopen(temporary, L"w");
     if (file == NULL) {
+        /* The statistics temporary could not be created, but the roster's own
+           destination may be perfectly writable, and the game reports the save
+           as successful either way. See the note below the writers: neither
+           file's failure may suppress the other. */
+        write_village_population(game_id);
         return 0;
     }
     if (game_id == GAME_VV1) {
@@ -1231,8 +1284,21 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
         );
     }
     closed = fclose(file) == 0;
+
+    /* The roster is exported independently of the statistics outcome.
+
+       These are two separate files with two separate failure modes: the
+       statistics destination can be held open by another process without
+       delete sharing while the roster destination is perfectly writable.
+       Returning early on a statistics failure used to skip the roster
+       entirely, so a save that the game reports as successful left the
+       roster describing a village that no longer exists -- stale in a way
+       that looks current, which is the failure this exporter exists to
+       avoid. Neither file's failure is actionable from inside the game, so
+       neither is allowed to suppress the other. */
     if (!written || !closed) {
         DeleteFileW(temporary);
+        write_village_population(game_id);
         return 0;
     }
     if (!MoveFileExW(
@@ -1241,7 +1307,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH
         )) {
         DeleteFileW(temporary);
+        write_village_population(game_id);
         return 0;
     }
+    write_village_population(game_id);
     return 1;
 }
