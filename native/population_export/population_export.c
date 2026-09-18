@@ -99,6 +99,16 @@ enum {
 struct game_layout {
     int supported;
     unsigned int villagers_rva;   /* from the module base */
+    /* How villagers_rva reaches the array.
+       0: the RVA IS the array (VV3, VV4, VV5).
+       1: the RVA is a GLOBAL holding a pointer to it (VV1, VV2).
+
+       Kept as its own field rather than folded into the RVA, because the two
+       cases differ in a way that must not be lost: VV1's and VV2's arrays are
+       allocated LAZILY, so the global reads null until the game first builds
+       one. Treating such an RVA as the array walks the pointer variable
+       itself and reads 256 records of neighbouring .data. */
+    int villagers_rva_is_pointer;
     unsigned int record_base;     /* container header before slot 0 */
     unsigned int stride;
     unsigned int slots;
@@ -124,14 +134,60 @@ struct game_layout {
 static const struct game_layout GAME_LAYOUTS[6] = {
     /* index 0 unused so a game id indexes directly */
     { 0 },
-    /* VV1 -- array not reachable from any existing hook; see the header. */
-    { 0 },
-    /* VV2 -- same. */
-    { 0 },
+    /* VV1 -- A New Home.
+       The array is a lazily-allocated singleton behind the global at
+       0x48B614 (RVA 0x8B614): the game loads it, and on the null path
+       allocates 0x3E034 bytes, constructs, and stores the result back.
+       Three checks agree that this allocation is the villager array --
+       256 * 0x3D8 = 0x3D800 fits inside it with a 0x834 trailer, the
+       manager field the conception routine reads with
+       `mov edi,[edi+0x3E010]` falls inside that trailer rather than past
+       the end, and the global is in .data with the WRITE bit, read once and
+       written twice, which is the shape of a lazily-built singleton.
+
+       VV1 copies nothing about the father onto the mother, so the father
+       block is zero here and those lines are simply absent from its roster.
+       Its skill table is not established, so skills are absent too. */
+    {
+        1, 0x8B614u, 1,
+        0u, 0x3D8u, 256u,
+        0x28u, 0x348u, 0x360u, 0x364u,
+        0x370u, 0x1Cu,
+        0u, 0u, 0u, 0u,
+        0u, 0u, 0,
+        "Virtual Villagers 1"
+    },
+    /* VV2 -- The Lost Children. The same singleton shape as VV1: the global
+       at 0x499F24 (RVA 0x99F24), allocation 0xE57500, and the manager field
+       the shipped statistics companion already reads at +0xE574D4 falls
+       inside the 0xE900 trailer after 256 * 0xE48C = 0xE48C00.
+
+       That manager offset is what located the allocation. Searching for
+       0xE48C * slots found nothing at any slot count, because the object is
+       larger than its slots; searching at or above the manager field's own
+       offset returned exactly one candidate.
+
+       VV2 copies the father's head and body onto the mother at conception
+       (+0x5E0 and +0x5DC, body four bytes BEFORE head as in every game), and
+       his name at +0x5C0. Its skill table is not established, so skills are
+       absent. */
+    {
+        1, 0x99F24u, 1,
+        0u, 0xE48Cu, 256u,
+        0x30u, 0x530u, 0x548u, 0x54Cu,
+        0x564u, 0x18u,
+        0x5C0u, 0x18u, 0x5E0u, 0x5DCu,  /* capacity spelled out; parentage
+           declares 0 for this, meaning "same as the villager's own name",
+           which for VV2 is 0x18 -- the same number, stated rather than
+           implied, because this exporter has no such defaulting rule */
+        0u, 0u, 0,
+        "Virtual Villagers 2"
+    },
     /* VV3 -- The Secret City. Skills are INT32 here and the game's own
        predicate compares against 0x58, so the float path must not be used. */
     {
-        1, 0x19E110u, 0x14u, 0x1F8Cu, 150u,
+        1, 0x19E110u, 0,
+        0x14u, 0x1F8Cu, 150u,
         0xF10u, 0xDC4u, 0xDF0u, 0xDF4u,
         0xDD4u, 0x19u,
         0xE48u, 0x18u, 0xE68u, 0xE64u,
@@ -140,7 +196,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
     },
     /* VV4 -- The Tree of Life. */
     {
-        1, 0x10E568u, 0x44u, 0x2E3Cu, 150u,
+        1, 0x10E568u, 0,
+        0x44u, 0x2E3Cu, 150u,
         0x1CC4u, 0x1B8Cu, 0x1BB8u, 0x1BBCu,
         0x1B9Cu, 0x19u,
         0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu,
@@ -149,7 +206,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
     },
     /* VV5 -- New Believers. Six skills, one more than VV3 and VV4. */
     {
-        1, 0x154148u, 0x48u, 0x2F44u, 150u,
+        1, 0x154148u, 0,
+        0x48u, 0x2F44u, 150u,
         0x1CD4u, 0x1B8Cu, 0x1BB8u, 0x1BBCu,
         0x1B9Cu, 0x19u,
         0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu,
@@ -180,7 +238,10 @@ static int layout_is_sane(const struct game_layout *g) {
     if (g->name_capacity == 0u || g->name_capacity + 1u > MAX_NAME_BYTES) {
         return 0;
     }
-    if (g->skill_count == 0u || g->skill_count > MAX_SKILLS) {
+    /* A zero skill count means "this game's skill table is not established",
+       which VV1 and VV2 legitimately are. Their rosters omit the Skills block
+       entirely rather than printing a guessed offset's contents. */
+    if (g->skill_count > MAX_SKILLS) {
         return 0;
     }
     if (g->active + 1u > g->stride) return 0;
@@ -188,7 +249,10 @@ static int layout_is_sane(const struct game_layout *g) {
     if (g->head + WORD > g->stride) return 0;
     if (g->body + WORD > g->stride) return 0;
     if (g->name + g->name_capacity > g->stride) return 0;
-    if (g->skills + g->skill_count * WORD > g->stride) return 0;
+    if (g->skill_count != 0u
+            && g->skills + g->skill_count * WORD > g->stride) {
+        return 0;
+    }
     /* The father block is optional, but if any part of it is declared the
        whole of it must be, and must fit. Half a block would print a name
        beside somebody else's appearance. */
@@ -336,6 +400,14 @@ static int write_villager(
         }
     }
 
+    /* Omitted entirely when the game's skill table is not established,
+       rather than printing an empty heading that reads as "this villager
+       has no skills" -- a different and false claim. VV1 and VV2 are in
+       that position: their arrays are now reachable but their skill
+       offsets are not measured. */
+    if (g->skill_count == 0u) {
+        return fprintf(file, "\n") >= 0;
+    }
     if (fprintf(file, "  Skills:\n") < 0) return 0;
     for (skill = 0; skill < g->skill_count; ++skill) {
         const unsigned char *field = record + g->skills + skill * 4u;
@@ -389,6 +461,14 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
         return 0;
     }
     villagers = module + g->villagers_rva;
+    if (g->villagers_rva_is_pointer) {
+        /* Lazily allocated: null until the game first builds the village, so
+           an export before that point must decline rather than walk zero. */
+        villagers = *(const unsigned char *const *)villagers;
+        if (villagers == NULL) {
+            return 0;
+        }
+    }
 
     /* The first file is opened unconditionally, not lazily on the first live
        villager.

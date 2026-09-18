@@ -28,10 +28,16 @@ STATISTICS = ROOT / "native/statistics_export/statistics_export.c"
 STOCK = ROOT / "research/stock-executables"
 
 EXES = {
+    1: "Virtual Villagers - A New Home.exe",
+    2: "Virtual Villagers - The Lost Children.exe",
     3: "Virtual Villagers - The Secret City.exe",
     4: "Virtual Villagers - The Tree of Life.exe",
     5: "Virtual Villagers - New Believers.exe",
 }
+
+# VV1 and VV2 reach their array through a GLOBAL holding a pointer to it,
+# lazily allocated; VV3, VV4 and VV5 have the array itself at a fixed RVA.
+POINTER_GAMES = {1, 2}
 
 
 def _population_rows() -> dict[int, dict[str, int]]:
@@ -50,7 +56,8 @@ def _population_rows() -> dict[int, dict[str, int]]:
             for v in re.findall(r"0x[0-9A-Fa-f]+u?|\b\d+u?\b", match.group(1))
         ]
         names = [
-            "villagers_rva", "record_base", "stride", "slots",
+            "villagers_rva", "villagers_rva_is_pointer",
+            "record_base", "stride", "slots",
             "active", "age", "head", "body",
             "name", "name_capacity",
             "father_name", "father_name_capacity",
@@ -65,13 +72,25 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
     def setUp(self) -> None:
         self.rows = _population_rows()
 
-    def test_exactly_three_games_are_supported(self) -> None:
-        """VV1 and VV2 are absent on purpose, not by oversight.
+    def test_every_game_is_supported(self) -> None:
+        """All five, once VV1's and VV2's array globals were located."""
+        self.assertEqual(sorted(self.rows), [1, 2, 3, 4, 5])
 
-        Their villager arrays are not reachable from any existing hook, so a
-        row for either would need an array address that is not established.
+    def test_only_vv1_and_vv2_go_through_a_pointer(self) -> None:
+        """Getting this backwards is silent and total.
+
+        Treating a pointer global as the array walks the pointer variable
+        itself and reads 256 records of neighbouring .data; treating the array
+        as a pointer dereferences a villager's first four bytes as an address.
+        Neither crashes reliably and neither looks wrong in the manifest.
         """
-        self.assertEqual(sorted(self.rows), [3, 4, 5])
+        for game, row in self.rows.items():
+            with self.subTest(game=game):
+                self.assertEqual(
+                    bool(row["villagers_rva_is_pointer"]),
+                    game in POINTER_GAMES,
+                    "game %d has the wrong array-access kind" % game,
+                )
 
     def test_every_offset_matches_the_parentage_layout(self) -> None:
         """Name, head, body and the father copies are shared with parentage."""
@@ -116,8 +135,20 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 # copy, [15] body copy.
                 self.assertEqual(
                     row["father_name"], values[11], "father name")
+                # The father block is optional. VV1 declares none at all --
+                # it records nothing about the father in the mother's record --
+                # so its four father fields are zero here and there is nothing
+                # to compare. Parentage still carries a father OFFSET for VV1
+                # because its own row uses FATHER_BY_CAPTURE, which reads the
+                # father from a captured pointer rather than from her record.
+                if row["father_name"] == 0:
+                    continue
+                # Parentage spells 0 as "same as the villager's own name".
+                # This exporter has no such defaulting rule and states the
+                # number, so compare against the resolved value.
+                expected_cap = values[12] or values[10]
                 self.assertEqual(
-                    row["father_name_capacity"], values[12],
+                    row["father_name_capacity"], expected_cap,
                     "father name capacity")
                 self.assertEqual(
                     row["father_head"], values[14], "father head copy")
@@ -145,11 +176,16 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         # format string. Anchoring on the title text works for all three
         # because it appears exactly once either way.
         titles = {
+            # VV1 and VV2 are absent: the statistics companion has no Village
+            # Elders row for either and never walks their villager arrays, so
+            # there is no second copy of these offsets to agree with.
             3: "Virtual Villagers - The Secret City",
             4: "Virtual Villagers - The Tree of Life",
             5: "VIRTUAL VILLAGERS - NEW BELIEVERS",
         }
         for game, row in self.rows.items():
+            if game not in titles:
+                continue
             with self.subTest(game=game):
                 needle = titles[game]
                 if needle not in stripped:
@@ -207,8 +243,16 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 )
 
     def test_the_array_fits_inside_every_image(self) -> None:
-        """A base that ran past the image would walk arbitrary memory."""
+        """A base that ran past the image would walk arbitrary memory.
+
+        Only meaningful for the direct-RVA games: VV1's and VV2's arrays are
+        heap allocations, so nothing about their size is bounded by the image.
+        What IS checked for those two is that the pointer global itself lies
+        inside a writable section, below.
+        """
         for game, row in self.rows.items():
+            if game in POINTER_GAMES:
+                continue
             exe = STOCK / EXES[game]
             if not exe.is_file():
                 self.skipTest("%s is not available" % EXES[game])
@@ -233,7 +277,13 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 )
 
     def test_the_array_lives_in_a_writable_data_section(self) -> None:
-        """A villager array in .text or .rdata would be the wrong address."""
+        """A villager array in .text or .rdata would be the wrong address.
+
+        For VV1 and VV2 the address is the pointer GLOBAL rather than the
+        array, and the same requirement holds for the same reason: the game
+        writes it once when it builds the village, so a read-only home would
+        mean the address is not the global it was taken for.
+        """
         for game, row in self.rows.items():
             exe = STOCK / EXES[game]
             if not exe.is_file():
@@ -258,8 +308,15 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 else:
                     self.fail("the array RVA is not inside any section")
 
-    def test_vv5_alone_has_six_skills(self) -> None:
-        """Carrying VV3's five across would drop a whole column."""
+    def test_each_game_declares_the_skill_count_it_was_shown_to_have(self) -> None:
+        """Zero means "not established", which is not the same as "none".
+
+        VV1's and VV2's skill tables have not been measured, so their rosters
+        omit the Skills block entirely rather than printing a guessed offset's
+        contents as though they were skill levels.
+        """
+        self.assertEqual(self.rows[1]["skill_count"], 0)
+        self.assertEqual(self.rows[2]["skill_count"], 0)
         self.assertEqual(self.rows[3]["skill_count"], 5)
         self.assertEqual(self.rows[4]["skill_count"], 5)
         self.assertEqual(self.rows[5]["skill_count"], 6)
@@ -274,6 +331,11 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         self.assertEqual(self.rows[3]["skills_are_float"], 0)
         self.assertEqual(self.rows[4]["skills_are_float"], 1)
         self.assertEqual(self.rows[5]["skills_are_float"], 1)
+
+    def test_a_game_without_skills_omits_the_block(self) -> None:
+        """An empty "Skills:" heading claims the villager has none."""
+        source = POPULATION.read_text(encoding="utf-8")
+        self.assertIn("if (g->skill_count == 0u) {", source)
 
 
 class VillagePopulationBehaviourTests(unittest.TestCase):
@@ -368,6 +430,25 @@ class VillagePopulationBehaviourTests(unittest.TestCase):
             "something reassigns file to NULL before the loop, which is the "
             "lazy open returning by another name",
         )
+
+    def test_a_lazily_allocated_array_is_null_checked(self) -> None:
+        """VV1's and VV2's globals read null until the village is first built.
+
+        Dereferencing that null walks address 0 as a villager array, which is
+        an access violation on the very first save of a new game -- before the
+        player has done anything. The mutation that removes this guard passes
+        every other test in this file.
+        """
+        source = self.source
+        deref = source.index("*(const unsigned char *const *)villagers")
+        after = source[deref:deref + 200]
+        self.assertIn(
+            "if (villagers == NULL) {",
+            after,
+            "the dereference of a pointer-global array must be null-checked "
+            "immediately, before anything walks it",
+        )
+        self.assertIn("return 0;", after)
 
     def test_a_shrinking_village_does_not_leave_stale_files(self) -> None:
         """A village that drops below a file boundary keeps the old files."""
