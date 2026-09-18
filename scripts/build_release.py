@@ -56,6 +56,7 @@ FILES = [
     "data/vv5_parentage_feature.json",
     "data/expanded_atomic_writer_integration.json",
     "data/vv5_task9_native_actions.json",
+    "docs/game-data-conventions.md",
     "docs/max-population-research.md",
     "docs/island-event-population-research.md",
     "docs/vv2-easier-healing-research.md",
