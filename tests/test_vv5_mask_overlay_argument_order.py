@@ -1,33 +1,46 @@
 """The VV5 mask overlay must hand the heathen head draw its own frame.
 
 VV5 crashed on startup for the owner in v1.35.6. The Windows crash dump named
-the cause exactly, and it was an argument-order defect in this trampoline.
+the cause, and it was an argument-position defect in this trampoline. A first
+repair moved the value to the opposite extreme and was still wrong; Codex caught
+that one in review. Both mistakes are pinned here.
 
 The overlay replaces the believer head draw at 0x47279C. It performs that stock
 call unchanged, then repeats the tuple through the HEATHEN head draw so the mask
-lands on top. The two callees differ:
+lands on top. Both stock call sites build the same shape -- `sub esp, 8` reserves
+two float slots, two `fstp` writes fill them, then the register arguments are
+pushed -- so the reserved floats are the HIGHEST arguments:
 
-    0x44F5E0  believer head draw  ret 0x1C  -> 7 stack arguments
-    0x44F4E0  heathen  head draw  ret 0x20  -> 8 stack arguments
+    heathen  0x44F4E0  ret 0x20, 8 args, site 0x472726
+        args 1-5  ecx, edi, ebp, ebx, eax
+        arg  6    edx  <- the mask selector
+        args 7-8  the two reserved floats
 
-so the overlay pushes one extra dword, the mask selector. The defect was WHERE
-it pushed it. On x86 the last push is the lowest address and therefore argument
-ONE, so pushing the selector last put it where the first real argument belongs
-and shifted all seven others up by a dword.
+    believer 0x44F5E0  ret 0x1C, 7 args, site 0x472780
+        args 1-5  eax, edi, ebp, ebx, edx
+        args 6-7  the two reserved floats
 
-The dump made the consequence concrete. 0x44F4E0 saves four registers, so its
-first stack argument is at [esp+0x14]; it does `mov ebp,[esp+0x14]` then
-`mov ecx,ebp` then `call 0x4271C0`, and 0x4271C0 is `mov eax,[ecx+8]; ret`.
-With the frame shifted, ecx held 5 -- a small integer, not an object pointer --
-so the read went to 0x0000000D and faulted 0xC0000005 at 0x004271C0.
+So the believer tuple maps onto the heathen call as args 1-5 unchanged, the
+selector inserted at 6, and the believer's floats moved up to 7 and 8.
 
-The stock heathen branch at 0x472769 shows the correct order: `push edx`, the
-selector, comes FIRST of its six pushes and is therefore the HIGHEST argument,
-with the two floats already written below it by an earlier `sub esp,8`.
+WHAT WENT WRONG, TWICE.
 
-These guards read the emitted bytes, because that is where the defect lived --
-the source read plausibly either way, and its own comment described the correct
-rule while the code did the opposite.
+Pushing the selector LAST makes it argument ONE. 0x44F4E0 saves four registers,
+so its first stack argument is at [esp+0x14]; it does `mov ebp,[esp+0x14]`,
+`mov ecx,ebp`, `call 0x4271C0`, and 0x4271C0 is `mov eax,[ecx+8]; ret`. With the
+frame shifted, ecx held 5 -- a save slot number, not an object -- so the read
+went to 0x0000000D and faulted 0xC0000005 at 0x004271C0. That is the startup
+crash the owner reported.
+
+Pushing it FIRST makes it argument EIGHT. That stops the crash, because args 1-5
+are then correct and the dereferenced pointer is real, but the selector sits in a
+float slot and both floats shift down -- a masked villager draws with a garbage
+coordinate and the selector is read as a float. It fails quietly rather than
+loudly, which is worse.
+
+These guards read the emitted bytes, because that is where both defects lived:
+the source read plausibly every time, and its own comment twice described a rule
+the code did not follow.
 """
 
 from __future__ import annotations
@@ -45,6 +58,21 @@ OVERLAY_VA = 0x7CFA00
 BELIEVER_DRAW = 0x44F5E0   # ret 0x1C, 7 stack arguments
 HEATHEN_DRAW = 0x44F4E0    # ret 0x20, 8 stack arguments
 SELECTOR = "dword ptr [0x7b1d04]"
+
+# The heathen frame, argument 1 first. Arguments 1-5 are the believer's own
+# 1-5; argument 6 is the selector; arguments 7-8 are the believer's floats.
+EXPECTED_ARGUMENTS = [
+    "dword ptr [ebp + 8]",      # arg 1
+    "dword ptr [ebp + 0xc]",    # arg 2
+    "dword ptr [ebp + 0x10]",   # arg 3
+    "dword ptr [ebp + 0x14]",   # arg 4
+    "dword ptr [ebp + 0x18]",   # arg 5
+    SELECTOR,                   # arg 6
+    "dword ptr [ebp + 0x1c]",   # arg 7  (believer float)
+    "dword ptr [ebp + 0x20]",   # arg 8  (believer float)
+]
+
+SELECTOR_ARGUMENT = 6
 
 
 class VV5MaskOverlayArgumentOrderTests(unittest.TestCase):
@@ -65,8 +93,14 @@ class VV5MaskOverlayArgumentOrderTests(unittest.TestCase):
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
         return list(md.disasm(code[offset:offset + 0x80], OVERLAY_VA))
 
-    def heathen_frame(self, stream):
-        """The pushes between the believer call and the heathen call."""
+    def arguments(self, layout):
+        """The heathen call's arguments, argument 1 first.
+
+        The pushes between the two calls are in reverse argument order, because
+        the last push is the lowest address, so the list is reversed to read as
+        the callee sees it.
+        """
+        stream = self.overlay(layout)
         believer = next(
             i for i, ins in enumerate(stream)
             if ins.mnemonic == "call" and ins.op_str == hex(BELIEVER_DRAW))
@@ -76,88 +110,75 @@ class VV5MaskOverlayArgumentOrderTests(unittest.TestCase):
         self.assertLess(
             believer, heathen,
             "the stock believer draw must happen before the mask overlay")
-        return [ins for ins in stream[believer:heathen]
-                if ins.mnemonic == "push"]
+        pushes = [ins.op_str for ins in stream[believer:heathen]
+                  if ins.mnemonic == "push"]
+        return list(reversed(pushes))
 
-    def test_the_selector_is_the_first_push(self) -> None:
-        """First push == highest argument == where the stock frame puts it.
+    def test_the_selector_is_argument_six(self) -> None:
+        """Not one, and not eight. Both of those shipped and both were wrong.
 
-        This is the assertion the crash was about. Pushing the selector last
-        makes it argument one and shifts every real argument, which is what
-        produced the 0xC0000005 at 0x004271C0 on startup.
+        Argument one is the startup crash. Argument eight stops the crash while
+        putting the selector in a float slot, which draws a masked villager at a
+        garbage coordinate instead of faulting.
         """
         for layout in ("immediate_fixed", "collection_progression"):
             with self.subTest(layout=layout):
-                pushes = self.heathen_frame(self.overlay(layout))
-                self.assertTrue(pushes, "the overlay pushes no arguments")
+                args = self.arguments(layout)
                 self.assertEqual(
-                    pushes[0].op_str,
-                    SELECTOR,
-                    "the mask selector must be pushed FIRST, so it lands as the "
-                    "highest argument exactly as the stock heathen branch at "
-                    "0x472769 places it; pushing it last makes it argument one "
-                    "and shifts the callee's whole frame",
+                    args.index(SELECTOR) + 1,
+                    SELECTOR_ARGUMENT,
+                    "the mask selector must land where the stock heathen site "
+                    "puts edx -- argument 6 of 8, below the two reserved "
+                    "floats",
                 )
 
-    def test_the_selector_is_never_the_last_push(self) -> None:
-        """The specific defect, pinned directly.
+    def test_the_selector_is_never_argument_one(self) -> None:
+        """The v1.35.6 startup crash, pinned by itself."""
+        for layout in ("immediate_fixed", "collection_progression"):
+            with self.subTest(layout=layout):
+                self.assertNotEqual(
+                    self.arguments(layout)[0],
+                    SELECTOR,
+                    "the selector is argument one -- this is the startup crash",
+                )
 
-        Stated separately from the positive assertion because this is the exact
-        shape that shipped and crashed, and a future edit that reorders these
-        pushes should fail on the thing that actually broke.
+    def test_the_selector_is_never_argument_eight(self) -> None:
+        """The first repair, pinned by itself.
+
+        Kept separate from the positive assertion because this shape passes a
+        launch test: it only shows up as a mask drawn in the wrong place.
         """
         for layout in ("immediate_fixed", "collection_progression"):
             with self.subTest(layout=layout):
-                pushes = self.heathen_frame(self.overlay(layout))
                 self.assertNotEqual(
-                    pushes[-1].op_str,
+                    self.arguments(layout)[-1],
                     SELECTOR,
-                    "the selector is the last push, so it is argument one -- "
-                    "this is the v1.35.6 startup crash",
+                    "the selector is argument eight -- it occupies a float slot "
+                    "and shifts both floats down",
                 )
 
     def test_the_heathen_draw_receives_eight_arguments(self) -> None:
-        """0x44F4E0 is ret 0x20, so it cleans eight dwords.
-
-        Pushing any other number leaves the caller's stack unbalanced, which is
-        a different crash from the argument shift but just as fatal.
-        """
+        """0x44F4E0 is ret 0x20, so it cleans eight dwords."""
         for layout in ("immediate_fixed", "collection_progression"):
             with self.subTest(layout=layout):
-                pushes = self.heathen_frame(self.overlay(layout))
                 self.assertEqual(
-                    len(pushes), 8,
+                    len(self.arguments(layout)), 8,
                     "the heathen head draw cleans 0x20 bytes, so it must be "
                     "given exactly eight dwords")
 
-    def test_the_seven_forwarded_arguments_keep_their_order(self) -> None:
-        """Below the selector, the tuple is the caller's own seven, in order.
+    def test_the_whole_frame_matches_the_stock_layout(self) -> None:
+        """Every slot, not just the selector's.
 
-        Read from [ebp+8] upward at the call site means pushed from [ebp+0x20]
-        downward, so that the lowest source displacement ends up as argument
-        one. A reversal here would not crash -- it would draw the mask in the
-        wrong place, which is far harder to notice.
+        The two believer floats have to move UP to 7 and 8 when the selector is
+        inserted at 6. Checking only the selector's position would accept a
+        frame that put the floats back where they started.
         """
-        # Capstone prints a single-digit displacement bare (8) and everything
-        # else in hex (0xc, 0x10). Written out literally rather than formatted,
-        # so the guard fails on a wrong ORDER rather than on a formatting rule
-        # this test guessed at -- an earlier version failed for exactly that.
-        expected = [
-            "dword ptr [ebp + 0x20]",
-            "dword ptr [ebp + 0x1c]",
-            "dword ptr [ebp + 0x18]",
-            "dword ptr [ebp + 0x14]",
-            "dword ptr [ebp + 0x10]",
-            "dword ptr [ebp + 0xc]",
-            "dword ptr [ebp + 8]",
-        ]
         for layout in ("immediate_fixed", "collection_progression"):
             with self.subTest(layout=layout):
-                pushes = self.heathen_frame(self.overlay(layout))
                 self.assertEqual(
-                    [p.op_str for p in pushes[1:]],
-                    expected,
-                    "the seven forwarded arguments must keep the caller's order")
+                    self.arguments(layout),
+                    EXPECTED_ARGUMENTS,
+                    "the heathen frame must match the stock site slot for slot")
 
 
 if __name__ == "__main__":

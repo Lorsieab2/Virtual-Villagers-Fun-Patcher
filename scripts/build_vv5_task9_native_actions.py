@@ -3816,25 +3816,45 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # draw manager, and both callees clean their own arguments, so the caller's
     # stack is unchanged either way.
     #
-    # THE SELECTOR GOES FIRST, AND THAT IS THE WHOLE POINT.
+    # THE SELECTOR IS ARGUMENT SIX. NOT ONE, AND NOT EIGHT.
     #
-    # An earlier version pushed it LAST, which is what a reader expects from
-    # "one extra argument" and is exactly wrong. On x86 the last push is the
-    # LOWEST address, so it becomes argument ONE; pushing the selector last put
-    # it where the first real argument belongs and shifted all seven others up
-    # by a dword.
+    # Both stock call sites build the same shape: `sub esp, 8` reserves two
+    # float slots, two `fstp` writes fill them, and then the register arguments
+    # are pushed. Because the last push is the lowest address, the reserved
+    # floats end up as the HIGHEST arguments:
     #
-    # VV5 then crashed on startup for the owner. The dump named it precisely:
-    # 0x44F4E0 saves four registers, so its first stack argument is at
-    # [esp+0x14]; it does `mov ebp,[esp+0x14]` / `mov ecx,ebp` /
-    # `call 0x4271C0`, and 0x4271C0 is `mov eax,[ecx+8]; ret`. With the frame
-    # shifted, ecx held 5 -- a small integer, not an object -- so the read went
-    # to 0x0000000D and faulted with 0xC0000005 at 0x004271C0.
+    #   heathen 0x44F4E0 (ret 0x20, 8 args) at 0x472726:
+    #       args 1-5  ecx, edi, ebp, ebx, eax
+    #       arg  6    edx   <- the mask selector
+    #       args 7-8  the two reserved floats
     #
-    # The stock heathen branch shows the correct order: `push edx` (the
-    # selector) comes FIRST of its six pushes, making it the HIGHEST argument,
-    # with the two floats already written below it by an earlier `sub esp,8`.
-    # Matching that order is what makes the callee read its own arguments.
+    #   believer 0x44F5E0 (ret 0x1C, 7 args) at 0x472780:
+    #       args 1-5  eax, edi, ebp, ebx, edx
+    #       args 6-7  the two reserved floats
+    #
+    # So the believer tuple this page receives maps onto the heathen call as
+    # args 1-5 unchanged, the selector inserted at 6, and the believer's two
+    # floats moved up to 7 and 8.
+    #
+    # THIS WAS WRONG TWICE, IN OPPOSITE DIRECTIONS, AND BOTH ARE INSTRUCTIVE.
+    #
+    # First it pushed the selector LAST, which makes it argument ONE. That
+    # crashed VV5 on startup for the owner: 0x44F4E0 saves four registers, so
+    # its first stack argument is at [esp+0x14]; it does `mov ebp,[esp+0x14]`,
+    # `mov ecx,ebp`, `call 0x4271C0`, and 0x4271C0 is `mov eax,[ecx+8]; ret`.
+    # With the frame shifted, ecx held 5 -- a save slot number, not an object --
+    # so the read went to 0x0000000D and faulted 0xC0000005 at 0x004271C0.
+    #
+    # The repair for that pushed the selector FIRST, making it argument EIGHT.
+    # That stopped the crash, because arguments 1-5 were then correct and the
+    # dereferenced pointer was real. But it was still wrong: the selector sat
+    # in a float slot and the two floats were shifted down, so a masked
+    # villager would be drawn with a garbage coordinate and the selector read
+    # as a float. Codex caught it before it reached a player.
+    #
+    # The lesson is that "one extra argument" says nothing about WHERE. Count
+    # the callee's arguments from its `ret N`, find the stack slot the stock
+    # site writes each one into, and place the new value in that slot.
     restore = put(page, page_va, "mask_overlay", """
         push ebp
         mov ebp, esp
@@ -3852,9 +3872,9 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         test eax, eax
         je mo_done
         pushad
-        push dword ptr [0x7B1D04]
         push dword ptr [ebp+0x20]
         push dword ptr [ebp+0x1C]
+        push dword ptr [0x7B1D04]
         push dword ptr [ebp+0x18]
         push dword ptr [ebp+0x14]
         push dword ptr [ebp+0x10]
