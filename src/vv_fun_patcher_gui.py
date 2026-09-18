@@ -39,6 +39,26 @@ from vv_fun_patcher import (
 ROOT = Path(__file__).resolve().parents[1]
 SETTINGS = ROOT / "patcher_local_settings.json"
 
+# Patches the default selection leaves OFF.
+#
+# The owner's rule: the defaults select every patch except Learning Skills
+# Never Fails, in all five games. Everything else is on, so this is a
+# deny-list rather than an allow-list -- a new patch is included in the
+# defaults automatically, which is what the "all patches on by default"
+# requirement means, and only a patch named here is held back.
+#
+# Matched by exact id rather than by substring or display name, so a future
+# patch whose name merely mentions learning is not excluded by accident.
+DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
+    "vv%d_learning_never_fails" % game for game in range(1, 6)
+)
+
+
+def default_fun_patch_selection(patch_id: str) -> bool:
+    """Whether a fresh install, or the Default Patches button, ticks this."""
+    return patch_id not in DEFAULT_OFF_FUN_PATCH_IDS
+
+
 # The releases page is what a player actually wants to land on, so the link
 # goes straight there rather than querying an API and reporting a comparison.
 RELEASES_PAGE = "https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases"
@@ -274,7 +294,10 @@ class App(tk.Tk):
             # require that game's Origins base -- and selecting everything
             # satisfies those by construction.
             self.fun_patch_vars = {
-                patch.id: tk.BooleanVar(value=True) for patch in self.fun_patches
+                patch.id: tk.BooleanVar(
+                    value=default_fun_patch_selection(patch.id)
+                )
+                for patch in self.fun_patches
             }
             self._last_fun_selection: set[str] = set()
             self.exe_var = tk.StringVar()
@@ -452,6 +475,11 @@ class App(tk.Tk):
             text="Select All Patches",
             command=self._select_all_fun_patches,
         ).pack(side="left")
+        ttk.Button(
+            fun_actions,
+            text="Default Patches",
+            command=self._default_fun_patches,
+        ).pack(side="left", padx=(8, 0))
         ttk.Button(
             fun_actions,
             text="Deselect All Patches",
@@ -753,6 +781,19 @@ class App(tk.Tk):
     def _select_all_fun_patches(self) -> None:
         for variable in self.fun_patch_vars.values():
             variable.set(True)
+        self._last_fun_selection = set()
+        self._fun_patch_changed()
+
+    def _default_fun_patches(self) -> None:
+        """Restore the default selection: everything except the deny-list.
+
+        Distinct from Select All, which really does tick everything. This is
+        the selection a fresh install starts with, so a player who has been
+        experimenting can get back to it without knowing which patches the
+        default holds back.
+        """
+        for patch_id, variable in self.fun_patch_vars.items():
+            variable.set(default_fun_patch_selection(patch_id))
         self._last_fun_selection = set()
         self._fun_patch_changed()
 

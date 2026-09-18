@@ -1,7 +1,14 @@
-"""Every fun patch starts selected, and a fresh install cannot undo that.
+"""Fun patches start at the default selection, and a fresh install keeps it.
 
-The owner's rule: "from now on, all builds have all patches on by default.
+The owner's rule was "from now on, all builds have all patches on by default.
 even for the patcher. so we never have stupidity like missing features."
+
+It was later narrowed, and the narrower form is what this now checks: "can you
+exclude the 'learning never fails' patches for all 5 games from being selected?
+otherwise it should select all patches." So the default is every patch except a
+named deny-list, which `default_fun_patch_selection` owns and
+tests/test_default_patch_selection.py covers. What matters here is unchanged --
+that whatever the default is, a fresh install does not silently lose it.
 
 Two facts have to hold together, and the first is worthless without the
 second. Review caught that on #350: setting every checkbox to True is
@@ -31,15 +38,28 @@ class FunPatchesDefaultToSelectedTests(unittest.TestCase):
     def setUp(self) -> None:
         self.source = GUI.read_text(encoding="utf-8")
 
-    def test_every_checkbox_variable_starts_true(self) -> None:
+    def test_every_checkbox_variable_starts_at_the_default(self) -> None:
+        """The initial state must consult the shared rule, not a literal.
+
+        This asserted `value=True` for every patch, which was right until the
+        owner excluded Learning Skills Never Fails. Hard-coding True again
+        would put those five back on; hard-coding False would turn everything
+        off. Both are wrong, so the variable's initial value has to come from
+        the same predicate the Default Patches button uses.
+        """
         self.assertIn(
-            "patch.id: tk.BooleanVar(value=True) for patch in self.fun_patches",
+            "default_fun_patch_selection(patch.id)",
             self.source,
-            "fun-patch checkboxes no longer default to selected",
+            "fun-patch checkboxes no longer start at the default selection",
         )
         self.assertNotIn(
             "patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches",
             self.source,
+        )
+        self.assertNotIn(
+            "patch.id: tk.BooleanVar(value=True) for patch in self.fun_patches",
+            self.source,
+            "a literal True ignores the deny-list",
         )
 
     def test_a_missing_saved_selection_does_not_clear_the_default(self) -> None:
