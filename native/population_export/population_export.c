@@ -274,14 +274,19 @@ static const struct game_layout GAME_LAYOUTS[6] = {
 
        VV1 copies nothing about the father onto the mother, so the father
        block is zero here and those lines are simply absent from its roster.
-       Its skill table is not established, so skills are absent too. */
+       Its skill table comes from the shipped Origins Full Mastery
+       walker, which sets every villager's every skill to mastered and so
+       has to know exactly where they are: it compares [esi+0x3BC] through
+       [esi+0x3CC] against 100 while striding esi by 0x3D8. That is the
+       same stride this row already carries, and the five fields sit just
+       above the likes and dislikes arrays at 0x398 and 0x3A8. */
     {
         1, 0x8B614u, 1,
         0u, 0x3D8u, 256u,
         0x28u, 0x348u, 0x360u, 0x364u,
         0x370u, 0x1Cu,
         0u, 0u, 0u, 0u,
-        0u, 0u, 0,
+        0x3BCu, 5u, 0,
         0x398u, 0x3A8u, 4u,
         PREFERENCES_47,
         "Virtual Villagers 1"
@@ -298,8 +303,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
 
        VV2 copies the father's head and body onto the mother at conception
        (+0x5E0 and +0x5DC, body four bytes BEFORE head as in every game), and
-       his name at +0x5C0. Its skill table is not established, so skills are
-       absent. */
+       his name at +0x5C0. */
     {
         1, 0x99F24u, 1,
         0u, 0xE48Cu, 256u,
@@ -309,7 +313,13 @@ static const struct game_layout GAME_LAYOUTS[6] = {
            declares 0 for this, meaning "same as the villager's own name",
            which for VV2 is 0x18 -- the same number, stated rather than
            implied, because this exporter has no such defaulting rule */
-        0u, 0u, 0,
+        /* Five int32 skills, from the shipped Origins Full Mastery
+           walker: it compares [esi+0x7E4] through [esi+0x7F4] against
+           100 while striding esi by 0xE48C, the stride this row already
+           carries. The standalone Full Mastery candidate agrees in both
+           of its build modes and additionally compares against 0x58,
+           the game's own mastery predicate. */
+        0x7E4u, 5u, 0,
         /* Confirmed from two independent sources rather than the game's own
            Details panel: VV2's stock executable crashes on startup on the
            owner's machine (0xC0000005 at 0x44C823, an unbounded villager-array
