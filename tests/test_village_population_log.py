@@ -16,6 +16,7 @@ does not look wrong, it just logs 150 wrong numbers.
 
 from __future__ import annotations
 
+import json
 import re
 import struct
 import unittest
@@ -385,6 +386,129 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                     "this return leaves the roster stale -- the statements "
                     "before it never export it: %s" % match.group(0))
 
+    def test_every_game_declares_a_skill_table(self) -> None:
+        """All five games, and the counts the owner gave.
+
+        VV1 and VV2 shipped without a Skills block because their offsets were
+        not established -- the statistics companion never walks their villager
+        arrays, so there was nothing to carry across. The owner's suggestion
+        settled it: the Origins Full Mastery upgrade sets every villager's
+        every skill to mastered, so its walker has to know exactly where the
+        skills are, and those displacements are the answer.
+
+        The counts are the owner's: "vv1 and vv2 have 5 skills". VV5 is the
+        only game with six.
+        """
+        expected = {1: (0x3BC, 5), 2: (0x7E4, 5), 3: (0xEAC, 5),
+                    4: (0x1C5C, 5), 5: (0x1C5C, 6)}
+        for game, (offset, count) in expected.items():
+            with self.subTest(game=game):
+                row = self.rows[game]
+                self.assertEqual(row["skills"], offset, "skill offset")
+                self.assertEqual(row["skill_count"], count, "skill count")
+
+    def test_no_game_omits_its_skills(self) -> None:
+        """A zero count means "not established", which no game is any more."""
+        for game, row in self.rows.items():
+            with self.subTest(game=game):
+                self.assertNotEqual(
+                    row["skill_count"], 0,
+                    "game %d must declare a skill table" % game)
+
+    def test_the_skill_table_fits_inside_the_record(self) -> None:
+        """A skill past the stride reads the NEXT villager's record."""
+        for game, row in self.rows.items():
+            with self.subTest(game=game):
+                end = row["skills"] + row["skill_count"] * 4
+                self.assertLessEqual(
+                    end, row["stride"],
+                    "game %d's skill table runs past the record" % game)
+
+    def test_vv1_and_vv2_skills_match_their_origins_mastery_walkers(
+        self,
+    ) -> None:
+        """Re-derive the offsets from the walker, do not restate them.
+
+        The first version of this guard parsed the manifest and then only
+        asserted the JSON was non-empty, comparing the exporter against a
+        hard-coded list instead. That is decorative: if a manifest's walker
+        changed, the guard would still pass while the exporter read the wrong
+        field. Codex caught it.
+
+        So this decodes the walker the offsets actually came from. The Origins
+        Full Mastery upgrade sets every villager's every skill to mastered, so
+        it compares a run of consecutive dwords against the mastery ceiling
+        100 while striding the villager array. Those displacements, recovered
+        from the manifest's own payload bytes, must be exactly what this
+        exporter declares.
+        """
+        try:
+            import capstone
+        except ImportError:  # pragma: no cover - optional dependency
+            self.skipTest("capstone is not installed")
+
+        def walker_skill_offsets(manifest_name):
+            """Displacements compared against the mastery ceiling."""
+            record = json.loads(
+                (ROOT / "data" / manifest_name).read_text(encoding="utf-8"))
+            blobs = []
+            for patch in record.get("patches", []):
+                after = patch.get("after")
+                if after and len(after) >= 32:
+                    blobs.append(
+                        (bytes.fromhex(after), int(patch["offset"], 16)))
+            append = record.get("pe_append_transaction") or {}
+            for layout in (append.get("layouts") or {}).values():
+                if layout.get("append_bytes"):
+                    blobs.append((bytes.fromhex(layout["append_bytes"]),
+                                  int(layout["virtual_address"], 16)))
+            self.assertTrue(blobs, "%s carries no payload" % manifest_name)
+
+            md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+            md.detail = True
+            found = set()
+            for code, address in blobs:
+                for instruction in md.disasm(code, address):
+                    immediate = None
+                    memory = None
+                    for operand in instruction.operands:
+                        if operand.type == capstone.x86.X86_OP_IMM:
+                            immediate = operand.imm
+                        elif (operand.type == capstone.x86.X86_OP_MEM
+                                and operand.mem.base
+                                and not operand.mem.index):
+                            memory = operand.mem
+                    # 100 is the mastery ceiling. An integer `cmp` against an
+                    # immediate is also what establishes these are int32
+                    # skills rather than floats, which would have compared
+                    # against a loaded constant.
+                    if immediate == 100 and memory is not None \
+                            and memory.disp > 0:
+                        found.add(memory.disp)
+            return sorted(found)
+
+        expected = {
+            1: "vv1_origins_village_wide_upgrades.json",
+            2: "vv2_origins_village_wide_upgrades.json",
+            # VV3 is the control: its offsets were already established from
+            # another source, so the walker reproducing them is what justifies
+            # trusting the same scan for the two games that had no answer.
+            3: "vv3_origins_village_wide_upgrades.json",
+        }
+        for game, manifest in sorted(expected.items()):
+            with self.subTest(game=game):
+                offsets = walker_skill_offsets(manifest)
+                row = self.rows[game]
+                self.assertEqual(
+                    offsets,
+                    [row["skills"] + 4 * step
+                     for step in range(row["skill_count"])],
+                    "game %d's exporter must read exactly the fields its "
+                    "Full Mastery walker writes" % game)
+                self.assertEqual(
+                    row["skills_are_float"], 0,
+                    "an integer cmp against 100 means int32 skills")
+
     def test_every_game_declares_its_preference_offsets(self) -> None:
         """Measured per game against the running game's own Details screen.
 
@@ -484,25 +608,39 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                     self.fail("the array RVA is not inside any section")
 
     def test_each_game_declares_the_skill_count_it_was_shown_to_have(self) -> None:
-        """Zero means "not established", which is not the same as "none".
+        """Every game now has a measured skill table.
 
-        VV1's and VV2's skill tables have not been measured, so their rosters
-        omit the Skills block entirely rather than printing a guessed offset's
-        contents as though they were skill levels.
+        VV1 and VV2 used to declare zero here, meaning "not established" --
+        their offsets could not be carried across from the statistics
+        companion, which never walks their villager arrays. They were settled
+        from the shipped Origins Full Mastery walker, which has to know where
+        the skills are in order to master them.
+
+        The counts are the owner's: VV1 and VV2 have five, as do VV3 and VV4;
+        VV5 alone has six.
         """
-        self.assertEqual(self.rows[1]["skill_count"], 0)
-        self.assertEqual(self.rows[2]["skill_count"], 0)
+        self.assertEqual(self.rows[1]["skill_count"], 5)
+        self.assertEqual(self.rows[2]["skill_count"], 5)
         self.assertEqual(self.rows[3]["skill_count"], 5)
         self.assertEqual(self.rows[4]["skill_count"], 5)
         self.assertEqual(self.rows[5]["skill_count"], 6)
 
-    def test_vv3_alone_stores_skills_as_integers(self) -> None:
+    def test_only_vv4_and_vv5_store_skills_as_floats(self) -> None:
         """Reading int32 skills through the float path yields nonsense.
 
         VV3's own predicate compares against 0x58, which is 88 as an integer;
-        the other two compare against 88.0f. Taking the wrong branch reinterprets
-        the bits rather than converting them.
+        VV4 and VV5 compare against 88.0f. Taking the wrong branch
+        reinterprets the bits rather than converting them, so a mastered
+        skill of 100 prints as a denormal near zero.
+
+        VV1 and VV2 are asserted here too. Their Origins Full Mastery walkers
+        compare [esi+disp] against the immediate 100 with an ordinary `cmp`,
+        which is an integer comparison -- a float ceiling would have been a
+        loaded constant instead. Before their skills were established these
+        two were absent from this guard, so a float flag on either passed.
         """
+        self.assertEqual(self.rows[1]["skills_are_float"], 0)
+        self.assertEqual(self.rows[2]["skills_are_float"], 0)
         self.assertEqual(self.rows[3]["skills_are_float"], 0)
         self.assertEqual(self.rows[4]["skills_are_float"], 1)
         self.assertEqual(self.rows[5]["skills_are_float"], 1)
