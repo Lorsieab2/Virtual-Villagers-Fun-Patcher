@@ -186,38 +186,85 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
         """
         where = "VV%d %s" % (game, mode)
         md = Cs(CS_ARCH_X86, CS_MODE_32)
-        listing = list(md.disasm(data[target_file : target_file + 0x60], target))
+        # 0x100, not 0x60: the trampoline re-pushes the callee's seven
+        # arguments before the stolen call, so its epilogue sits further in
+        # than it did when the page merely wrapped the call.
+        listing = list(md.disasm(data[target_file : target_file + 0x100], target))
         self.assertTrue(listing, "%s: trampoline did not disassemble" % where)
         decoded = [(item.mnemonic, item.op_str) for item in listing]
 
-        # ebx holds the caller's value at this call site: the enclosing routine
-        # pops its own saved ebx before reaching the hook, and the sole caller
-        # dereferences ebx shortly after the call returns. The trampoline uses
-        # ebx for the suppression flag, so it must save and restore it -- and
-        # the restore has to come after popad, which would otherwise put the
-        # flag straight back into ebx.
-        self.assertEqual(
-            decoded[0],
-            ("push", "ebx"),
-            "%s: trampoline must preserve the caller's ebx first" % where,
+        # NOTHING MAY BE PUSHED BEFORE THE STOLEN CALL EXCEPT THE ARGUMENTS.
+        #
+        # This previously required the trampoline to open with `push ebx`, on
+        # the stated premise that the caller dereferences ebx after the call.
+        # That premise is false in both games: disassembling the hook site
+        # shows only `pop edi; pop esi; pop ebp; ret 8` afterwards, and the
+        # enclosing routine pops its own saved ebx well before reaching the
+        # hook. ebx is dead across this call.
+        #
+        # Worse, the assertion pinned the exact shape that crashed VV4 and VV5
+        # on startup. The hook REPLACES the game's `call`, so the game's call
+        # already pushed a return address; anything else on the stack when the
+        # callee is entered shifts its esp-relative argument reads. The owner
+        # reported the crash and the Windows dumps named it precisely: the
+        # callee's "arg1" held the game's own return address, and MSVC's string
+        # copy faulted on a source pointer of 0x1 -- a save-slot index read
+        # where a name pointer belongs.
+        #
+        # So the requirement is the opposite of what was asserted: only the
+        # re-pushed arguments may precede the stolen call.
+        call_first = next(
+            (i for i, item in enumerate(listing)
+             if item.mnemonic == "call" and item.op_str.startswith("0x")),
+            None,
         )
+        self.assertIsNotNone(
+            call_first, "%s: trampoline makes no direct call" % where)
+        for item in listing[:call_first]:
+            if item.mnemonic != "push":
+                continue
+            self.assertRegex(
+                item.op_str,
+                r"^dword ptr \[esp \+ 0x[0-9a-f]+\]$",
+                "%s: only argument re-pushes may precede the stolen call, "
+                "found `push %s`" % (where, item.op_str),
+            )
+
+        # The trampoline impersonates the routine it replaces, so it must clean
+        # the caller's arguments itself with the same `ret <n>`. A bare `ret`
+        # would strand them.
         popad = next(
             (i for i, item in enumerate(decoded) if item[0] in ("popal", "popad")),
             None,
         )
-        pop_ebx = next(
-            (i for i, item in enumerate(decoded) if item == ("pop", "ebx")), None
-        )
         self.assertIsNotNone(popad, "%s: trampoline never restores the frame" % where)
-        self.assertIsNotNone(pop_ebx, "%s: trampoline never restores ebx" % where)
-        self.assertGreater(
-            pop_ebx,
-            popad,
-            "%s: ebx is restored before popad, which overwrites it again" % where,
+        cleaning_ret = next(
+            (item for item in listing
+             if item.mnemonic == "ret" and item.op_str),
+            None,
+        )
+        self.assertIsNotNone(
+            cleaning_ret,
+            "%s: trampoline must clean the caller's arguments with ret <n>"
+            % where,
         )
 
-        # The flag is read into ebx before the stolen call, because the callee
-        # cleans its own arguments and they no longer exist afterwards.
+        # The flag is read into ebx AFTER the stolen call.
+        #
+        # This previously required the opposite, on the premise that the
+        # callee cleans its own arguments so they no longer exist afterwards.
+        # That was true while the page WRAPPED the call. It is false now that
+        # the page impersonates the routine: the callee pops only the copies
+        # this page re-pushed, and the game's own seven arguments survive
+        # untouched -- this page cleans those itself with its `ret 0x1C`.
+        #
+        # Reading afterwards is what lets ebx be preserved. Saving the
+        # caller's ebx before the call would put a dword between esp and the
+        # callee's arguments and shift its esp-relative reads, which is the
+        # defect this whole page exists to avoid; and the flag cannot be read
+        # into ebx before saving ebx, because the read destroys it. Doing both
+        # after the call resolves that, and the displacement accounts for the
+        # push: the seventh argument sits one dword higher.
         call_index = next(
             (
                 i
@@ -237,10 +284,30 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
             None,
         )
         self.assertIsNotNone(flag_read, "%s: trampoline never reads the flag" % where)
-        self.assertLess(
+        self.assertGreater(
             flag_read,
             call_index,
-            "%s: the flag is read after the call, when the arguments are gone" % where,
+            "%s: the flag must be read after the call, so that saving ebx "
+            "cannot shift the callee's argument frame" % where,
+        )
+
+        # And it must read the GAME's surviving argument, one dword above its
+        # entry displacement to account for the pushed ebx.
+        save_ebx = next(
+            (i for i, item in enumerate(decoded) if item == ("push", "ebx")),
+            None,
+        )
+        self.assertIsNotNone(save_ebx, "%s: the caller's ebx is never saved" % where)
+        self.assertGreater(
+            save_ebx,
+            call_index,
+            "%s: ebx is saved before the call, which shifts the frame" % where,
+        )
+        self.assertLess(
+            save_ebx,
+            flag_read,
+            "%s: the flag read destroys ebx, so ebx must be saved first"
+            % where,
         )
 
         # And the stolen call still goes where it went before the hook.
