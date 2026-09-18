@@ -211,23 +211,51 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
     # so inside the handler saved esi is at esp+0x14 and saved ebp at esp+0x10.
     code = assemble(
         f"""
-            # ebx must be preserved by this trampoline, despite being a
-            # nonvolatile register the enclosing routine appears to save.
-            # That routine pushes ebx early and pops it again BEFORE this call
-            # site, so by the time the trampoline runs ebx already holds the
-            # value its own caller expects back, and nothing later restores
-            # it.  The sole caller dereferences it 0x19 bytes after the call
-            # (mov eax, [ebx+0x18]), so leaving the suppression flag there
-            # would make every conception a null-pointer dereference.
-            push ebx
+            # THE TRAMPOLINE MUST IMPERSONATE sub_45E7B0, NOT WRAP IT.
+            #
+            # The hook replaces `call 0x45E7B0` at 0x460A2E, so the game's own
+            # `call` has already pushed its return address by the time this
+            # page runs.  An inner `call 0x45E7B0` pushes a SECOND one, and the
+            # callee then starts with two return addresses below its arguments
+            # and reads every one of them a dword high.
+            #
+            # VV4 crashed on startup exactly as VV5 did.  Its WER reports give
+            # faults at RVA 0x7250C and 0x72594 -- the same two instructions in
+            # the same MSVC string copy that VV5 faults in, 0x88 apart in both
+            # games.  VV5's crash dump is what established the mechanism: the
+            # frame showed the callee's "arg1" holding the game's own return
+            # address, and strncpy faulting on a source pointer of 0x1, a
+            # save-slot index read where a name pointer belongs.
+            #
+            # VV4's callee is the same shape as VV5's -- `push ebx`, then
+            # `mov bl, [esp+0x20]`, ending `ret 0x1C` -- so the same defect
+            # and the same correction apply.  This routine also builds the
+            # save-slot name list, which is why a parentage patch produced a
+            # startup crash rather than a conception-time one.
+            #
+            # sub_45E7B0 is __thiscall and ends in `ret 0x1C`: it cleans its
+            # own seven arguments.  So this page has to honour the same
+            # contract -- give the callee a frame of its own, and clean the
+            # game's seven arguments itself on the way out.
+            #
+            # The seven arguments are re-pushed right to left.  Each push
+            # lowers esp by four, which moves the next argument down into the
+            # same displacement, so seven identical reads at +0x1C copy the
+            # whole list in order.  +0x1C is also where the seventh argument
+            # sits before any push, which is why the suppression flag is read
+            # at the same displacement first.
+            mov ebx, dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
 
-            # Read the suppression flag BEFORE the call: the conception
-            # routine cleans its own seven arguments, so they no longer exist
-            # afterwards.  The displacement includes the ebx just pushed.
-            mov ebx, dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
-
-            # The stolen call, performed first so the game's own behaviour is
-            # unchanged whatever happens afterwards.
+            # ecx is the __thiscall `this` pointer.  The call site loads it at
+            # the call site immediately before the hook, and the
+            # seven pushes above do not touch it, so it arrives intact.
             call 0x{CONCEPTION_VA:X}
 
             pushad
@@ -291,8 +319,10 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             call eax
         done:
             popad
-            pop ebx
-            ret
+            # Clean the GAME's seven arguments, exactly as the routine this
+            # page impersonates would have.  Returning with a bare `ret` would
+            # leave 0x1C bytes of the caller's frame stranded.
+            ret 0x{SUPPRESSION_ARG_DISPLACEMENT:X}
         """,
         PAGE_VA,
     )
