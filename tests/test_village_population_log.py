@@ -245,12 +245,17 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         # signature, so the villager-layout arguments sit at fixed positions.
         # Asserted rather than searched for, because a shifted argument list is
         # itself a defect this guard should fail on.
+        # Each position is one higher than it was before the village header
+        # was added: write_later_game gained a `village` parameter in third
+        # place, so every argument after `manager` shifted by one. The count
+        # assertion above is what forces this table to be revisited rather
+        # than silently reading the neighbouring argument.
         positions = {
-            "villagers_rva": 20,
-            "stride": 22,
-            "slots": 23,
-            "skills": 26,
-            "skill_count": 27,
+            "villagers_rva": 21,
+            "stride": 23,
+            "slots": 24,
+            "skills": 27,
+            "skill_count": 28,
         }
         titles = {
             # VV1 and VV2 are absent: the statistics companion has no Village
@@ -264,12 +269,12 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 row = self.rows[game]
                 arguments = arguments_of_the_call_naming(title)
                 self.assertEqual(
-                    len(arguments), 32,
+                    len(arguments), 33,
                     "game %d's statistics call changed shape; the positional "
                     "offsets below are no longer trustworthy" % game)
                 self.assertEqual(
-                    arguments[2], '"%s"' % title,
-                    "argument 2 must be the title")
+                    arguments[3], '"%s"' % title,
+                    "argument 3 must be the title")
                 for field, position in sorted(positions.items()):
                     self.assertEqual(
                         row[field], as_number(arguments[position]),
@@ -357,7 +362,14 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         # Walking back only to the start of the enclosing block is what makes
         # the difference between "a call exists above" and "this path makes
         # the call".
-        call = "write_village_population(game_id);"
+        # Matched by NAME rather than by its exact argument text. This
+        # guard is about control flow -- whether each return path makes
+        # the call -- and pinning the arguments here would make it fail
+        # for an unrelated signature change while saying nothing about
+        # the paths. The argument list is pinned by the positional
+        # comparison in test_every_array_and_skill_offset_matches_the_
+        # statistics_row, which is where a wrong argument belongs.
+        call = "write_village_population("
         returns = list(re.finditer(r"return\s+[^;]+;", after))
         self.assertGreaterEqual(
             len(returns), 4,

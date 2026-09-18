@@ -64,6 +64,8 @@
 #include <string.h>
 #include <wchar.h>
 
+#include "village_identity.h"
+
 enum {
     /* The log sits beside the executable, so the path is bounded by the
        executable's own path plus a fixed filename.
@@ -1163,6 +1165,36 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
+    }
+    /* Name the village at the top of a NEW log, so a player with several
+       villages per game can tell which one a log belongs to and can
+       cross-reference it against that village's statistics and roster.
+       See the note on vv_village_recall for why it arrives this way: this
+       export runs at conception, which is nowhere near the save call that
+       knows the village, so the statistics companion publishes it and this
+       one reads it back.
+
+       Only on a new file. The log is appended to across a whole village's
+       history, so writing the header on every birth would interleave it
+       between records, and re-writing it on a roll-over file would be the
+       one place the two logs could disagree about their village.
+
+       ftell is the test rather than existing_records, because that count
+       spans every file in the run -- it is non-zero for a brand-new
+       roll-over file, which is exactly a file that still needs a header.
+       In append mode the position is the end of the file, so zero means
+       nothing has ever been written here.
+
+       A village that has not been saved in this session publishes nothing,
+       and the log is then written without a header rather than not at all. */
+    if (ftell(file) == 0) {
+        char village[VV_VILLAGE_NAME_MAX + 32];
+        if (vv_village_recall(village, sizeof village)) {
+            if (fprintf(file, "%s\n", village) < 0) {
+                fclose(file);
+                return 0;
+            }
+        }
     }
     /* The father's two numbers are rendered as text so an unavailable field
        can say so. They used to print 0 whenever no father record was found,

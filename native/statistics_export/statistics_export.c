@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <wchar.h>
 
+#include "village_identity.h"
+
 enum {
     GAME_VV1 = 1,
     GAME_VV2 = 2,
@@ -500,7 +502,11 @@ static int real_hours(int game_id, const unsigned char *manager) {
     return ((real_hours_function)(module + rva))(manager, NULL);
 }
 
-static int write_vv1(FILE *file, unsigned char *manager) {
+static int write_vv1(
+    FILE *file,
+    unsigned char *manager,
+    const char *village
+) {
     static const unsigned int puzzle_offsets[16] = {
         0x9FA8, 0x9FB0, 0x9FB8, 0x9FC0,
         0x9FC8, 0x9FD8, 0x9FE0, 0x9FE8,
@@ -510,7 +516,8 @@ static int write_vv1(FILE *file, unsigned char *manager) {
     return fprintf(
         file,
         "Virtual Villagers - A New Home\n"
-        "Village Statistics\n\n"
+        "Village Statistics\n"
+        "%s\n"
         "Real Hours Played: %d\n"
         "Tech Points Earned: %d\n"
         "Babies Made: %d\n"
@@ -532,6 +539,7 @@ static int write_vv1(FILE *file, unsigned char *manager) {
         "Twins Birthed: %d\n"
         "Triplets Birthed: %d\n"
         "Puzzles Solved: %d of 16\n",
+        village,
         real_hours(GAME_VV1, manager),
         read_int(manager, 0x9E20),
         read_int(manager, 0x9E24),
@@ -572,7 +580,11 @@ static int vv2_seeded_burial_total(unsigned char *manager) {
     return stored;
 }
 
-static int write_vv2(FILE *file, unsigned char *manager) {
+static int write_vv2(
+    FILE *file,
+    unsigned char *manager,
+    const char *village
+) {
     static const unsigned int puzzle_offsets[16] = {
         0x2E768, 0x2E770, 0x2E778, 0x2E780,
         0x2E788, 0x2E790, 0x2E798, 0x2E7A0,
@@ -582,7 +594,8 @@ static int write_vv2(FILE *file, unsigned char *manager) {
     return fprintf(
         file,
         "Virtual Villagers - The Lost Children\n"
-        "Village Statistics\n\n"
+        "Village Statistics\n"
+        "%s\n"
         "Real Hours Played: %d\n"
         "Tech Points Earned: %d\n"
         "Babies Made: %d\n"
@@ -611,6 +624,7 @@ static int write_vv2(FILE *file, unsigned char *manager) {
         "Twins Birthed: %d\n"
         "Triplets Birthed: %d\n"
         "Puzzles Solved: %d of 16\n",
+        village,
         real_hours(GAME_VV2, manager),
         read_int(manager, 0x2E4FC),
         read_int(manager, 0x2E500),
@@ -747,6 +761,7 @@ static int count_vv5_puzzles(
 static int write_later_game(
     FILE *file,
     unsigned char *manager,
+    const char *village,
     const char *title,
     const char *collection_label,
     unsigned int statistics_offset,
@@ -843,7 +858,8 @@ static int write_later_game(
     if (fprintf(
         file,
         "%s\n"
-        "Village Statistics\n\n"
+        "Village Statistics\n"
+        "%s\n"
         "Real Hours Played: %d\n"
         "Tech Points Earned: %d\n"
         "Babies Made: %d\n"
@@ -868,6 +884,7 @@ static int write_later_game(
         "Triplets Birthed: %d\n"
         "Puzzles Solved: %d of %d\n",
         title,
+        village,
         later_game_hours(manager, clock_rva, statistics_offset),
         read_int(statistics, 0x04),
         read_int(statistics, 0x08),
@@ -957,6 +974,7 @@ static unsigned char *vv5_live_statistics(unsigned char *saved) {
 static int write_vv5(
     FILE *file,
     unsigned char *manager,
+    const char *village,
     int puzzles_solved,
     int puzzle_total
 ) {
@@ -967,7 +985,8 @@ static int write_vv5(
     if (fprintf(
         file,
         "Virtual Villagers - New Believers\n"
-        "Village Statistics\n\n"
+        "Village Statistics\n"
+        "%s\n"
         "Real Hours Played: %d\n"
         "Tech Points Earned: %d\n"
         "Babies Made: %d\n"
@@ -990,6 +1009,7 @@ static int write_vv5(
            in place and still incremented by its wrappers; only the row is
            gone. */
         "Puzzles Solved: %d of %d\n",
+        village,
         later_game_hours(manager, 0x36E0u, 0x7B4u),
         read_int(statistics, 0x04),
         read_int(statistics, 0x08),
@@ -1071,8 +1091,9 @@ static int write_vv5(
    caching a handle across a save that may have unloaded it is a worse trade.
    Nothing here unloads the library: the roster stays loaded for the process's
    life, exactly as this companion does. */
-static void write_village_population(int game_id) {
-    typedef int(__stdcall * population_function)(int, const void *);
+static void write_village_population(int game_id, const char *village) {
+    typedef int(__stdcall * population_function)(
+        int, const void *, const char *);
     HMODULE library = GetModuleHandleW(L"VVFP Population Export.dll");
     population_function write;
 
@@ -1089,7 +1110,9 @@ static void write_village_population(int game_id) {
     }
     /* NULL module: the roster resolves the executable itself, which it must do
        anyway for its own array arithmetic. */
-    write(game_id, NULL);
+    /* The roster opens with the same identifying line as this log, so the
+       two can be matched to each other and to the same village. */
+    write(game_id, NULL, village);
 }
 
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
@@ -1102,6 +1125,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     unsigned char *manager = (unsigned char *)manager_pointer;
     wchar_t temporary[MAX_LONG_PATH];
     wchar_t destination[MAX_LONG_PATH];
+    char village_name[VV_VILLAGE_NAME_MAX];
+    /* Room for the name plus the fixed wrapper text and the slot. */
+    char village[VV_VILLAGE_NAME_MAX + 32];
     FILE *file;
     int written;
     int closed;
@@ -1115,6 +1141,30 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
     }
+    /* Identify the village at the top of the log. The owner keeps several
+       villages per game, so a log naming only the game cannot be matched to
+       the village it describes, and these logs are meant to be
+       cross-referenced against each other.
+
+       Both halves are already in hand at this point -- save_id is the slot
+       the game pushed at its own save call, and the manager is the block
+       whose +8 is the save buffer holding the name -- so nothing is read
+       from disk and the save folder is neither located nor touched.
+
+       A name that cannot be read leaves an empty string, and the header
+       falls back to the slot alone rather than printing a guess. */
+    if (!vv_village_name(game_id, manager, village_name)) {
+        village_name[0] = '\0';
+    }
+    if (!vv_village_header(
+            village, sizeof village, village_name, save_id)) {
+        village[0] = '\0';
+    }
+    /* Hand it to the exports that are NOT on the save call. The parentage log
+       is written at conception, where there is no save buffer and no slot, so
+       this is the only moment in the process at which the village is known. */
+    vv_village_publish(village);
+
     if (!build_output_paths(save_id, temporary, destination)) {
         return 0;
     }
@@ -1129,17 +1179,18 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
            destination may be perfectly writable, and the game reports the save
            as successful either way. See the note below the writers: neither
            file's failure may suppress the other. */
-        write_village_population(game_id);
+        write_village_population(game_id, village);
         return 0;
     }
     if (game_id == GAME_VV1) {
-        written = write_vv1(file, manager);
+        written = write_vv1(file, manager, village);
     } else if (game_id == GAME_VV2) {
-        written = write_vv2(file, manager);
+        written = write_vv2(file, manager, village);
     } else if (game_id == GAME_VV3) {
         written = write_later_game(
             file,
             manager,
+            village,
             "Virtual Villagers - The Secret City",
             "Mushrooms Found",
             0x4ECu,
@@ -1214,6 +1265,7 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
         written = write_later_game(
             file,
             manager,
+            village,
             "Virtual Villagers - The Tree of Life",
             "Collectibles Found",
             0x850u,
@@ -1279,6 +1331,7 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
         written = write_vv5(
             file,
             manager,
+            village,
             vv5_solved,
             vv5_total
         );
@@ -1298,7 +1351,7 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
        neither is allowed to suppress the other. */
     if (!written || !closed) {
         DeleteFileW(temporary);
-        write_village_population(game_id);
+        write_village_population(game_id, village);
         return 0;
     }
     if (!MoveFileExW(
@@ -1307,9 +1360,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH
         )) {
         DeleteFileW(temporary);
-        write_village_population(game_id);
+        write_village_population(game_id, village);
         return 0;
     }
-    write_village_population(game_id);
+    write_village_population(game_id, village);
     return 1;
 }
