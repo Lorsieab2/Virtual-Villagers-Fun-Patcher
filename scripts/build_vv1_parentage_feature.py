@@ -246,7 +246,28 @@ FATHER_CALL_SITES = (
     (0x0043DD7B, 0x0003DD7B, "ebp"),
     (0x0043DD94, 0x0003DD94, "ebp"),
     (0x00447031, 0x00447031 - 0x400000, "eax"),
-    (0x00447238, 0x00447238 - 0x400000, "ecx"),
+    # 0x447238 takes EAX, not ECX.
+    #
+    # Its father load is `mov ecx,[esp+0x14]` at 0x447219, but 0x44722E then
+    # does `mov ecx,esi` -- esi is the `this` pointer, the mother -- so by the
+    # time the stub runs ecx holds her. The companion rejects a father equal
+    # to the mother, so this site could never have captured even with the
+    # displacement right.
+    #
+    # eax is loaded at 0x447229 from [esp+0x14], the same slot the father came
+    # from, and is not written again before the call; it is pushed as arg1 at
+    # 0x447237. Verified by disassembling the aligned window rather than read
+    # from the surrounding code, whose preceding bytes decode as garbage from
+    # a mid-instruction start.
+    #
+    # Two branches converge on this call. The one above (reached by the jne at
+    # 0x4471F4) is the one that loads the father; the fallthrough at 0x4471F6
+    # never reads [reg+0x36C] at all and loads eax from a different slot,
+    # [esp+0x28]. On that path eax is not the father, and the companion's
+    # record validation rejects it, so that birth loses his three fields
+    # exactly as today. This site therefore goes from never capturing to
+    # capturing on one of its two paths.
+    (0x00447238, 0x00447238 - 0x400000, "eax"),
 )
 
 # Where each trampoline finds that argument, as a displacement from the tail's
@@ -264,9 +285,34 @@ FATHER_CALL_SITES = (
 # a neighbouring argument, which is a plausible-looking wrong pointer rather
 # than a crash -- the companion's record validation is what stops it becoming
 # a wrong father in the log.
-FATHER_ARG_AT_TRIPLETS = 0x0C + 8
-FATHER_ARG_AT_TWINS = 0x0C + 0
-FATHER_ARG_AT_SINGLE = 0x0C + 8
+# The dead slot is the SECOND argument, so it is one dword above arg1.
+#
+# This was 0x0C, which is arg1's displacement, and the mistake was invisible
+# in every static check: the emitted trampolines disassembled correctly, the
+# byte guards passed, and the companion validated the pointer it was handed
+# and correctly reported it as unusable. The owner's parentage log is what
+# exposed it -- every VV1 conception read "(not captured for this birth)",
+# because what was actually being passed was arg3, a skill selector, which
+# is not a record slot.
+#
+# Derivation, anchored at the call rather than at the routine's reads.
+#
+# When `call 0x43bbc0` transfers control, esp points at the return address and
+# the four arguments sit above it: arg1 at +0x04, arg2 at +0x08, arg3 at +0x0C,
+# arg4 at +0x10. Call that esp E. The dead slot is arg2, so the father is at
+# E+0x08.
+#
+# That cross-checks against the routine's own reads. After its `push edi` it
+# reads [esp+0x08], [esp+0x10] and [esp+0x14] and never [esp+0x0C]; undoing the
+# push those are E+0x04, E+0x0C, E+0x10 -- arg1, arg3, arg4 -- leaving E+0x08,
+# arg2, as the one it never touches.
+#
+# The tails are two pushes deep (push edi, push esi), so their esp is E-8 and
+# the father is at +0x08+8 there; the twins tail is past both pops, back at E,
+# so it is at +0x08+0.
+FATHER_ARG_AT_TRIPLETS = 0x08 + 8
+FATHER_ARG_AT_TWINS = 0x08 + 0
+FATHER_ARG_AT_SINGLE = 0x08 + 8
 
 # Six stubs, each: overwrite the dead argument, then tail-call the routine.
 FATHER_STUB_OFFSET = 0x170

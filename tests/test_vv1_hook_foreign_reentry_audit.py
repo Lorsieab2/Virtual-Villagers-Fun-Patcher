@@ -291,25 +291,41 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     #     caught that -- the cave bytes were well-formed and every rejoin was
     #     correct -- which is why the placement reasoning is recorded here now.
     #
-    #     He travels instead in the conception routine's third stack argument.
-    #     sub_43BBC0 ends in `ret 0x10` and takes four; disassembling every
-    #     esp-based memory operand in the whole routine finds reads of
+    #     He travels instead in the conception routine's SECOND stack
+    #     argument. sub_43BBC0 ends in `ret 0x10` and takes four; disassembling
+    #     every esp-based memory operand in the whole routine finds reads of
     #     [esp+0x08], [esp+0x10] and [esp+0x14] and NONE of [esp+0x0C]. So the
     #     stubs overwrite that dead argument in the caller's own frame, which
     #     is always writable, and these trampolines read it back.
     #
-    #     The displacement is PER-TAIL and was measured from the routine's own
-    #     stack adjustments rather than assumed:
+    #     WHICH argument that is, stated carefully, because getting it wrong
+    #     is exactly what shipped broken in v1.35.3. Anchor at the call: when
+    #     `call 0x43BBC0` transfers control, esp points at the return address
+    #     and the four arguments follow at +0x04, +0x08, +0x0C and +0x10.
+    #     Undoing the routine's own `push edi`, its reads of [esp+0x08],
+    #     [esp+0x10] and [esp+0x14] are arg1, arg3 and arg4 -- leaving arg2,
+    #     at entry-esp +0x08, as the one it never touches.
+    #
+    #     This prose previously said "third argument" and recorded the
+    #     displacements below as 0x14 and 0x0C, which are arg3's. Every
+    #     emitted trampoline therefore read a skill selector and the owner's
+    #     log reported "(not captured for this birth)" on every conception.
+    #     An audit that records the defective contract is worse than none:
+    #     a later reviewer consulting it would restore the bug.
+    #
+    #     The displacement is PER-TAIL and is measured from the routine's own
+    #     stack adjustments:
     #
     #         0x43BBC0  push edi      +4
     #         0x43BBF0  push esi      +8
     #         0x43BCAF  pop esi       +4
     #         0x43BCB6  pop edi       +0
     #
-    #     The triplets tail and both singleton branches are inside that pair
-    #     and read at 0x20+0x14; the twins tail is past both pops and reads at
-    #     0x20+0x0C. The two `push 0x64` / `add esp,4` pairs in between are
-    #     balanced and do not shift it.
+    #     The triplets tail and both singleton branches are inside that pair,
+    #     so the father sits at 0x20+0x08+8 = 0x20+0x10 from their post-pushal
+    #     esp; the twins tail is past both pops and reads at 0x20+0x08. The
+    #     two `push 0x64` / `add esp,4` pairs in between are balanced and do
+    #     not shift it.
     #
     #     Nothing can go stale now: the value lives in this call's own frame,
     #     so a pregnancy reaching a tail without a patched call site reads
@@ -317,13 +333,20 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     #     integer that fails the companion's record validation and logs
     #     "(not captured for this birth)". A wrong parent is unrecoverable
     #     once written; an absent one is merely incomplete.
+    #
+    #     One site needs a register the others do not. At 0x447238 the father
+    #     is loaded into ecx, but 0x44722E then does `mov ecx,esi` -- esi is
+    #     the `this` pointer, the mother -- so that stub passes eax instead,
+    #     loaded at 0x447229 from the same stack slot and not written again
+    #     before the call. The rule is the register that SURVIVES to the call,
+    #     not the one that loaded him.
     #   * The stolen six bytes are `mov edi, [edi+0x3E010]`, replayed verbatim
     #     after popad and before the rejoin, so edi holds the manager pointer
     #     exactly as stock expects at 0x43BCA8 and 0x43BCC0.
     #
     # esi and edi are read only; neither is written outside the pushad bracket.
-    ("vv1_write_parentage_log", "0x3BCA2"): "DB81C3E852B3D2CFCE678787F245D889D6EC2B250A9CBE770614E5F184AB6BF5",
-    ("vv1_write_parentage_log", "0x3BCBA"): "56500B97C7192D1591BE4AE3ADDAC1DA1094461EAF53FDFB3CB94D1D47F94299",
+    ("vv1_write_parentage_log", "0x3BCA2"): "DB48428E6AD12FA29BE76276073491148BF63ABF668CCCC0ED98FCCD74946C51",
+    ("vv1_write_parentage_log", "0x3BCBA"): "37C1AE2B24AA726A9D8C88ACFF7620AC371D52F7A19717852B4DAFFE5AC52E16",
     # The singleton route. This one steals nothing: the two branches that
     # carry a single birth (0x43BC39, a six-byte near je, and 0x43BC4C, a
     # two-byte short jge) are RETARGETED at their existing widths, so no
@@ -334,7 +357,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # 0x43BCC6 itself is deliberately NOT patched. The rejection path enters
     # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
     # that jump in the middle of the inserted instruction.
-    ("vv1_write_parentage_log", "0x3BCCB"): "36E234C66676FD297DA7E46147594D24E6696219CA8A4E85C51E6FE531B3C2AA",
+    ("vv1_write_parentage_log", "0x3BCCB"): "7C2BCE507A162C9EB2D9FEFF3F3E75CCF54644DDCB5D8ED7412CC4B813D3C401",
     ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
     ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.
