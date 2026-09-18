@@ -47,7 +47,11 @@ def _population_rows() -> dict[int, dict[str, int]]:
     table = re.sub(r"/\*.*?\*/", "", table, flags=re.DOTALL)
     rows: dict[int, dict[str, int]] = {}
     for match in re.finditer(
-        r'\{\s*1,\s*((?:0x[0-9A-Fa-f]+u?|\d+u?|,|\s)+?)"Virtual Villagers (\d)"',
+        # Identifiers are allowed through because each row now names its
+        # preference list (PREFERENCES_47 / _62 / _79) or NULL alongside the
+        # numeric offsets. The value extraction below still takes only the
+        # numbers, so the names do not shift the positional mapping.
+        r'\{\s*1,\s*((?:0x[0-9A-Fa-f]+u?|\w+|,|\s)+?)"Virtual Villagers (\d)"',
         table,
         re.DOTALL,
     ):
@@ -63,6 +67,7 @@ def _population_rows() -> dict[int, dict[str, int]]:
             "father_name", "father_name_capacity",
             "father_head", "father_body",
             "skills", "skill_count", "skills_are_float",
+            "likes", "dislikes", "preference_slots",
         ]
         rows[int(match.group(2))] = dict(zip(names, values))
     return rows
@@ -241,6 +246,38 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                     "the stride %#x is not in game %d's own call"
                     % (row["stride"], game),
                 )
+
+    def test_every_game_declares_its_preference_offsets(self) -> None:
+        """Measured per game against the running game's own Details screen.
+
+        These are not derivable from each other: the arrays sit at different
+        offsets in every game, VV1 has four slots where the later games have
+        three, and the preference list itself grew from 47 entries to 62 to 79.
+        """
+        expected = {
+            1: (0x398, 0x3A8, 4),
+            2: (0x5F0, 0x6E8, 4),
+            3: (0xFB4, 0xFC0, 3),
+            4: (0x1E60, 0x1E6C, 3),
+            5: (0x1F5C, 0x1F68, 3),
+        }
+        for game, (likes, dislikes, slots) in expected.items():
+            with self.subTest(game=game):
+                row = self.rows[game]
+                self.assertEqual(row["likes"], likes, "likes offset")
+                self.assertEqual(row["dislikes"], dislikes, "dislikes offset")
+                self.assertEqual(
+                    row["preference_slots"], slots, "slot count")
+
+    def test_the_arrays_fit_inside_the_record(self) -> None:
+        """A slot past the stride reads the NEXT villager's taste."""
+        for game, row in self.rows.items():
+            with self.subTest(game=game):
+                for field in ("likes", "dislikes"):
+                    end = row[field] + row["preference_slots"] * 4
+                    self.assertLessEqual(
+                        end, row["stride"],
+                        "%s array runs past the record" % field)
 
     def test_the_array_fits_inside_every_image(self) -> None:
         """A base that ran past the image would walk arbitrary memory.
@@ -449,6 +486,77 @@ class VillagePopulationBehaviourTests(unittest.TestCase):
             "immediately, before anything walks it",
         )
         self.assertIn("return 0;", after)
+
+    def test_each_game_uses_its_own_preference_list(self) -> None:
+        """Indexing the wrong list yields a plausible but wrong word.
+
+        The lists share a prefix -- every game starts "ants, crowds, resting"
+        -- so a mismatch produces sensible-looking output for low indices and
+        silently wrong output for high ones, which is the worst kind of bug to
+        find by reading the log.
+        """
+        source = POPULATION.read_text(encoding="utf-8")
+        table = source[source.index("GAME_LAYOUTS[6] = {"):]
+        expected = {
+            1: "PREFERENCES_47",
+            2: "PREFERENCES_62",
+            3: "PREFERENCES_79",
+            4: "PREFERENCES_79",
+            5: "PREFERENCES_79",
+        }
+        for game, name in expected.items():
+            with self.subTest(game=game):
+                row_start = table.index('"Virtual Villagers %d"' % game)
+                window = table[max(0, row_start - 400):row_start]
+                self.assertIn(
+                    name, window,
+                    "game %d must index %s" % (game, name))
+
+    def test_the_lists_have_the_lengths_they_were_measured_to_have(self) -> None:
+        """A truncated list silently shifts nothing but rejects high indices.
+
+        Counted from the C literal rather than asserted as a number in prose,
+        so a future edit that drops an entry fails here rather than in a log.
+        """
+        source = POPULATION.read_text(encoding="utf-8")
+        for name, count in (("PREFERENCES_47", 47),
+                            ("PREFERENCES_62", 62),
+                            ("PREFERENCES_79", 79)):
+            with self.subTest(list=name):
+                start = source.index("static const char %s[] =" % name)
+                end = source.index(";", start)
+                literal = "".join(
+                    part for part in source[start:end].split('"')[1::2])
+                self.assertEqual(
+                    len(literal.split(",")), count,
+                    "%s should hold %d entries" % (name, count))
+
+    def test_an_empty_slot_is_skipped_rather_than_printed(self) -> None:
+        """The panel shows the FIRST FILLED entry, not slot 0.
+
+        Two real villagers prove this matters: one whose first dislike slot is
+        empty and whose second holds the value the game displays, and one whose
+        slots are all empty and whose panel line is blank. Reading slot 0 gets
+        both wrong.
+        """
+        source = self.source
+        self.assertIn("static int first_preference(", source)
+        body = source[source.index("static int first_preference("):]
+        body = body[:body.index("\n}")]
+        self.assertIn("for (slot = 0; slot < slots; ++slot)", body)
+        self.assertIn("if (value < 0) {", body)
+        self.assertIn("continue;", body)
+
+    def test_an_out_of_range_index_counts_as_empty(self) -> None:
+        """Empty reads as -1 OR as a value past the end of the list.
+
+        Both occur in real villages. An early scan discarded the correct
+        offsets precisely because it required every value to be in range.
+        """
+        source = self.source
+        body = source[source.index("static int preference_name("):]
+        body = body[:body.index("\n}")]
+        self.assertIn("return 0;   /* index past the end of the list */", body)
 
     def test_a_shrinking_village_does_not_leave_stale_files(self) -> None:
         """A village that drops below a file boundary keeps the old files."""

@@ -83,6 +83,111 @@ enum {
     MAX_SKILLS = 8
 };
 
+/* The preference list each game indexes for likes and dislikes.
+
+   One comma-separated list per game, matching the string the executable keeps
+   in its own table under eSayLikesList / eSayDislikesList. It grew across the
+   series -- 47 entries in VV1, 62 in VV2, 79 in the three later games -- so a
+   game must use its own rather than a shared one, and the list is ZERO-BASED:
+   index 0 is "ants", with no adjustment.
+
+   Held here rather than read out of the running executable because the address
+   differs per game and this companion already receives the game id; reading it
+   from the image would add a second thing to keep in step for no benefit. */
+static const char PREFERENCES_47[] =
+    "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
+    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,playing,"
+    "exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,sand,"
+    "sunlight,rough wood,crab meat,whale meat,fish,fruit,papaya,flies,"
+    "swimming,running,learning,dancing,monkeys,parrots,work,lifting,surprises,"
+    "jokes";
+
+static const char PREFERENCES_62[] =
+    "ants,crowds,resting,laundry,medicine,turnips,butterflies,"
+    "flowers,bees,the dark,caves,herbs,berries,snakes,wind,rocks,"
+    "heights,the ocean,playing,exploring,blue,green,red,yellow,drums,"
+    "bushes,bananas,coconuts,sand,sunlight,wood,crab meat,whale meat,"
+    "fish,fruit,papaya,flies,swimming,running,learning,dancing,"
+    "monkeys,parrots,work,lifting,surprises,jokes,sleeping,jumping,"
+    "cooking,fire,eating,dragonflies,owls,dreaming,children,talking,"
+    "holidays,vegetables,quiet,clouds,dirt";
+
+static const char PREFERENCES_79[] =
+    "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
+    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,playing,"
+    "exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,sand,"
+    "sunlight,wood,crab meat,whale meat,fish,fruit,papaya,flies,swimming,"
+    "running,learning,dancing,monkeys,parrots,work,lifting,surprises,jokes,"
+    "sleeping,jumping,cooking,fire,eating,dragonflies,owls,dreaming,children,"
+    "talking,holidays,vegetables,quiet,clouds,dirt,frogs,soap,magic,plants,"
+    "rain,fog,sitting,sharks,honey,stories,coral,thunder,lightning,pearls,"
+    "stars,mango,nature";
+
+/* Copy the index-th comma-separated entry of `list` into `out`.
+
+   Returns 0 when the index is outside the list, which is how an empty slot and
+   a corrupt one both end up reported as absent rather than as a wrong name. */
+static int preference_name(
+    const char *list,
+    int index,
+    char *out,
+    size_t out_size
+) {
+    const char *start = list;
+    int current = 0;
+    size_t length;
+    if (list == NULL || index < 0) {
+        return 0;
+    }
+    while (current < index) {
+        const char *comma = strchr(start, ',');
+        if (comma == NULL) {
+            return 0;   /* index past the end of the list */
+        }
+        start = comma + 1;
+        ++current;
+    }
+    {
+        const char *comma = strchr(start, ',');
+        length = comma == NULL ? strlen(start) : (size_t)(comma - start);
+    }
+    if (length == 0 || length + 1 > out_size) {
+        return 0;
+    }
+    memcpy(out, start, length);
+    out[length] = '\0';
+    return 1;
+}
+
+/* The first filled entry of a preference array, or 0 when every slot is empty.
+
+   Empty is -1 OR an index past the end of the list; both appear in real
+   villages. Scanning for the first filled slot rather than reading slot 0 is
+   what matches the game's own Details panel. */
+static int first_preference(
+    const unsigned char *record,
+    unsigned int base,
+    unsigned int slots,
+    const char *list,
+    char *out,
+    size_t out_size
+) {
+    unsigned int slot;
+    if (base == 0u || list == NULL) {
+        return 0;
+    }
+    for (slot = 0; slot < slots; ++slot) {
+        int value = *(const int *)(record + base + slot * 4u);
+        if (value < 0) {
+            continue;
+        }
+        if (preference_name(list, value, out, out_size)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* Per-game record geometry.
 
    Every offset here is already established and in use by a shipped companion,
@@ -128,6 +233,28 @@ struct game_layout {
     unsigned int skills;          /* i32[skill_count] or float[skill_count] */
     unsigned int skill_count;
     int skills_are_float;
+    /* The villager's likes and dislikes.
+
+       Each is an ARRAY of consecutive i32 indices into the game's own
+       preference list, not a single field -- the owner's rule: "in general
+       likes and dislikes are arrays for all 5 games". A slot is empty when it
+       reads -1 or a value at or past the end of the list; both markers occur
+       in real villages and mean the same thing.
+
+       The game's Details panel shows the FIRST FILLED entry of each array, so
+       that is what this reports. Two villagers made that structure visible:
+       one whose first dislike slot was empty and whose second held the value
+       the panel displayed, and one whose three dislike slots were all empty
+       and whose panel line was blank.
+
+       Zero when the offsets are not established for a game. */
+    unsigned int likes;
+    unsigned int dislikes;
+    unsigned int preference_slots;
+    /* Which preference list this game's indices refer to. The list length
+       differs per game, so indexing VV1's 47 entries with a VV5 index would
+       silently produce the wrong word rather than fail. */
+    const char *preference_list;
     const char *title;
 };
 
@@ -155,6 +282,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x370u, 0x1Cu,
         0u, 0u, 0u, 0u,
         0u, 0u, 0,
+        0x398u, 0x3A8u, 4u,
+        PREFERENCES_47,
         "Virtual Villagers 1"
     },
     /* VV2 -- The Lost Children. The same singleton shape as VV1: the global
@@ -181,6 +310,14 @@ static const struct game_layout GAME_LAYOUTS[6] = {
            which for VV2 is 0x18 -- the same number, stated rather than
            implied, because this exporter has no such defaulting rule */
         0u, 0u, 0,
+        /* Confirmed from two independent sources rather than the game's own
+           Details panel: VV2's stock executable crashes on startup on the
+           owner's machine (0xC0000005 at 0x44C823, an unbounded villager-array
+           walk), so no screen was available to read. The offsets were derived
+           from a save file and, separately, from live memory in the owner's
+           fixed modded build, and the two agree villager by villager. */
+        0x5F0u, 0x6E8u, 4u,
+        PREFERENCES_62,
         "Virtual Villagers 2"
     },
     /* VV3 -- The Secret City. Skills are INT32 here and the game's own
@@ -192,6 +329,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xDD4u, 0x19u,
         0xE48u, 0x18u, 0xE68u, 0xE64u,
         0xEACu, 5u, 0,
+        0xFB4u, 0xFC0u, 3u,
+        PREFERENCES_79,
         "Virtual Villagers 3"
     },
     /* VV4 -- The Tree of Life. */
@@ -202,6 +341,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1B9Cu, 0x19u,
         0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu,
         0x1C5Cu, 5u, 1,
+        0x1E60u, 0x1E6Cu, 3u,
+        PREFERENCES_79,
         "Virtual Villagers 4"
     },
     /* VV5 -- New Believers. Six skills, one more than VV3 and VV4. */
@@ -212,6 +353,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1B9Cu, 0x19u,
         0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu,
         0x1C5Cu, 6u, 1,
+        0x1F5Cu, 0x1F68u, 3u,
+        PREFERENCES_79,
         "Virtual Villagers 5"
     }
 };
@@ -252,6 +395,16 @@ static int layout_is_sane(const struct game_layout *g) {
     if (g->skill_count != 0u
             && g->skills + g->skill_count * WORD > g->stride) {
         return 0;
+    }
+    /* Both preference arrays, when declared, must fit whole. A slot reaching
+       past the stride would read the NEXT villager's record and report one
+       villager's taste as another's. */
+    if (g->likes != 0u || g->dislikes != 0u) {
+        if (g->likes == 0u || g->dislikes == 0u || g->preference_slots == 0u) {
+            return 0;
+        }
+        if (g->likes + g->preference_slots * WORD > g->stride) return 0;
+        if (g->dislikes + g->preference_slots * WORD > g->stride) return 0;
     }
     /* The father block is optional, but if any part of it is declared the
        whole of it must be, and must fit. Half a block would print a name
@@ -371,6 +524,25 @@ static int write_villager(
     }
     if (fprintf(file, "  Body: %d\n", *(const int *)(record + g->body)) < 0) {
         return 0;
+    }
+
+    /* Likes and dislikes, where the offsets are established.
+
+       Printed only when a preference is actually present. A villager with no
+       like recorded gets no Likes line at all, rather than a line saying
+       "none" -- the game's own panel leaves it blank, and an empty line in a
+       roster reads as a value rather than an absence. */
+    if (g->likes != 0u) {
+        const char *list = g->preference_list;
+        char preference[64];
+        if (first_preference(record, g->likes, g->preference_slots, list,
+                             preference, sizeof(preference))) {
+            if (fprintf(file, "  Likes: %s\n", preference) < 0) return 0;
+        }
+        if (first_preference(record, g->dislikes, g->preference_slots, list,
+                             preference, sizeof(preference))) {
+            if (fprintf(file, "  Dislikes: %s\n", preference) < 0) return 0;
+        }
     }
 
     /* Parents, where the game recorded them.
