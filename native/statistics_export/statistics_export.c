@@ -1044,6 +1044,54 @@ static int write_vv5(
     }
 }
 
+/* Invoke the Village Population companion, if it is present.
+
+   THE CALL IS HERE RATHER THAN IN THE EXECUTABLE, deliberately. The roster
+   wants exactly this moment -- a save that has just succeeded -- and this
+   companion is already resolved and running at it. Putting the call between
+   the two DLLs means the game executable needs NO new bytes for it: no
+   appended section, no composition overlay against every other appending
+   feature, no code cave.
+
+   That matters more than convenience here. Executable space in these games is
+   scarce and contested: the statistics cave is full, what looks free in a
+   stock file is often claimed at apply time, free bytes repeatedly turned out
+   to be in non-executable sections, and giving the roster its own page would
+   have needed five append layouts and eight composition overlays -- one
+   against every other feature that appends, in every game. A DLL-to-DLL call
+   has none of that. The owner's standing rule is "dll over cave space
+   always".
+
+   FAILURE IS NEVER FATAL. The roster is a log, and a save that succeeded must
+   keep reporting success whether or not the log was written. A missing DLL, a
+   missing export, or a refusal from the roster itself all leave this silent.
+
+   The module is resolved on every call rather than cached. It is one
+   GetModuleHandleW on a save, which is not a path that needs optimising, and
+   caching a handle across a save that may have unloaded it is a worse trade.
+   Nothing here unloads the library: the roster stays loaded for the process's
+   life, exactly as this companion does. */
+static void write_village_population(int game_id) {
+    typedef int(__stdcall * population_function)(int, const void *);
+    HMODULE library = GetModuleHandleW(L"VVFP Population Export.dll");
+    population_function write;
+
+    if (library == NULL) {
+        library = LoadLibraryW(L"VVFP Population Export.dll");
+        if (library == NULL) {
+            return;
+        }
+    }
+    write = (population_function)GetProcAddress(
+        library, "WriteVillagePopulation");
+    if (write == NULL) {
+        return;
+    }
+    /* NULL module: the roster resolves the executable itself, which it must do
+       anyway for its own array arithmetic. */
+    write(game_id, NULL);
+}
+
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
     int game_id,
     const void *manager_pointer,
@@ -1243,5 +1291,6 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
         DeleteFileW(temporary);
         return 0;
     }
+    write_village_population(game_id);
     return 1;
 }

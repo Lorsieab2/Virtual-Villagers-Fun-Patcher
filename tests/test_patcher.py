@@ -1365,7 +1365,18 @@ class ManifestTests(unittest.TestCase):
         for feature in features.values():
             self.assertIn("lifetime statistics", feature.description)
             self.assertNotIn("runtime", feature.description.casefold())
-            self.assertEqual(len(feature.raw["companion_files"]), 1)
+            # Two companions now: the statistics exporter and the Village
+            # Population roster, which it calls after a successful save. The
+            # roster ships with every game because the call lives inside the
+            # DLL rather than in the executable, so it needed no cave space.
+            names = sorted(
+                entry["destination"]
+                for entry in feature.raw["companion_files"]
+            )
+            self.assertEqual(
+                names,
+                ["VVFP Population Export.dll", "VVFP Statistics Export.dll"],
+            )
 
     def test_statistics_exporter_recovers_completed_vv5_bonus_puzzle_from_save(self) -> None:
         source = (
@@ -3473,7 +3484,15 @@ class StockIntegrationTests(unittest.TestCase):
                         digest(companion),
                         feature.raw["companion_files"][0]["sha256"],
                     )
-                    self.assertEqual(len(log["companion_files"]), 1)
+                    # Two: the statistics exporter and the Village
+                    # Population roster it calls after a successful save.
+                    self.assertEqual(len(log["companion_files"]), 2)
+                    roster = output.parent / "VVFP Population Export.dll"
+                    self.assertTrue(
+                        roster.is_file(),
+                        "the roster companion must be installed beside "
+                        "the statistics one, or the call finds nothing",
+                    )
 
     def test_vv3_to_vv5_statistics_export_uses_inherited_per_save_blocks(self) -> None:
         expected = {
