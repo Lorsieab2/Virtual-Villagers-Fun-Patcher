@@ -3815,6 +3815,26 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # the stock heathen branch at 0x472769 does. Both are __thiscall on the same
     # draw manager, and both callees clean their own arguments, so the caller's
     # stack is unchanged either way.
+    #
+    # THE SELECTOR GOES FIRST, AND THAT IS THE WHOLE POINT.
+    #
+    # An earlier version pushed it LAST, which is what a reader expects from
+    # "one extra argument" and is exactly wrong. On x86 the last push is the
+    # LOWEST address, so it becomes argument ONE; pushing the selector last put
+    # it where the first real argument belongs and shifted all seven others up
+    # by a dword.
+    #
+    # VV5 then crashed on startup for the owner. The dump named it precisely:
+    # 0x44F4E0 saves four registers, so its first stack argument is at
+    # [esp+0x14]; it does `mov ebp,[esp+0x14]` / `mov ecx,ebp` /
+    # `call 0x4271C0`, and 0x4271C0 is `mov eax,[ecx+8]; ret`. With the frame
+    # shifted, ecx held 5 -- a small integer, not an object -- so the read went
+    # to 0x0000000D and faulted with 0xC0000005 at 0x004271C0.
+    #
+    # The stock heathen branch shows the correct order: `push edx` (the
+    # selector) comes FIRST of its six pushes, making it the HIGHEST argument,
+    # with the two floats already written below it by an earlier `sub esp,8`.
+    # Matching that order is what makes the callee read its own arguments.
     restore = put(page, page_va, "mask_overlay", """
         push ebp
         mov ebp, esp
@@ -3832,6 +3852,7 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         test eax, eax
         je mo_done
         pushad
+        push dword ptr [0x7B1D04]
         push dword ptr [ebp+0x20]
         push dword ptr [ebp+0x1C]
         push dword ptr [ebp+0x18]
@@ -3839,7 +3860,6 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         push dword ptr [ebp+0x10]
         push dword ptr [ebp+0x0C]
         push dword ptr [ebp+0x08]
-        push dword ptr [0x7B1D04]
         mov ecx, 0x521078
         call 0x44F4E0
         popad
