@@ -16,6 +16,7 @@ does not look wrong, it just logs 150 wrong numbers.
 
 from __future__ import annotations
 
+import json
 import re
 import struct
 import unittest
@@ -426,41 +427,87 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
     def test_vv1_and_vv2_skills_match_their_origins_mastery_walkers(
         self,
     ) -> None:
-        """Bound to the manifests the offsets were actually read from.
+        """Re-derive the offsets from the walker, do not restate them.
 
-        These two are the only games whose skill offsets did not come from a
-        second in-repo source, so the guard ties them to the walker that
-        established them: the shipped Origins upgrades compare each skill
-        against the mastery ceiling 100 (0x64) while striding the villager
-        array, and those are the displacements this exporter reads.
+        The first version of this guard parsed the manifest and then only
+        asserted the JSON was non-empty, comparing the exporter against a
+        hard-coded list instead. That is decorative: if a manifest's walker
+        changed, the guard would still pass while the exporter read the wrong
+        field. Codex caught it.
+
+        So this decodes the walker the offsets actually came from. The Origins
+        Full Mastery upgrade sets every villager's every skill to mastered, so
+        it compares a run of consecutive dwords against the mastery ceiling
+        100 while striding the villager array. Those displacements, recovered
+        from the manifest's own payload bytes, must be exactly what this
+        exporter declares.
         """
-        import json
+        try:
+            import capstone
+        except ImportError:  # pragma: no cover - optional dependency
+            self.skipTest("capstone is not installed")
+
+        def walker_skill_offsets(manifest_name):
+            """Displacements compared against the mastery ceiling."""
+            record = json.loads(
+                (ROOT / "data" / manifest_name).read_text(encoding="utf-8"))
+            blobs = []
+            for patch in record.get("patches", []):
+                after = patch.get("after")
+                if after and len(after) >= 32:
+                    blobs.append(
+                        (bytes.fromhex(after), int(patch["offset"], 16)))
+            append = record.get("pe_append_transaction") or {}
+            for layout in (append.get("layouts") or {}).values():
+                if layout.get("append_bytes"):
+                    blobs.append((bytes.fromhex(layout["append_bytes"]),
+                                  int(layout["virtual_address"], 16)))
+            self.assertTrue(blobs, "%s carries no payload" % manifest_name)
+
+            md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+            md.detail = True
+            found = set()
+            for code, address in blobs:
+                for instruction in md.disasm(code, address):
+                    immediate = None
+                    memory = None
+                    for operand in instruction.operands:
+                        if operand.type == capstone.x86.X86_OP_IMM:
+                            immediate = operand.imm
+                        elif (operand.type == capstone.x86.X86_OP_MEM
+                                and operand.mem.base
+                                and not operand.mem.index):
+                            memory = operand.mem
+                    # 100 is the mastery ceiling. An integer `cmp` against an
+                    # immediate is also what establishes these are int32
+                    # skills rather than floats, which would have compared
+                    # against a loaded constant.
+                    if immediate == 100 and memory is not None \
+                            and memory.disp > 0:
+                        found.add(memory.disp)
+            return sorted(found)
 
         expected = {
-            1: ("vv1_origins_village_wide_upgrades.json",
-                [0x3BC, 0x3C0, 0x3C4, 0x3C8, 0x3CC]),
-            2: ("vv2_origins_village_wide_upgrades.json",
-                [0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4]),
+            1: "vv1_origins_village_wide_upgrades.json",
+            2: "vv2_origins_village_wide_upgrades.json",
+            # VV3 is the control: its offsets were already established from
+            # another source, so the walker reproducing them is what justifies
+            # trusting the same scan for the two games that had no answer.
+            3: "vv3_origins_village_wide_upgrades.json",
         }
-        for game, (manifest, offsets) in expected.items():
+        for game, manifest in sorted(expected.items()):
             with self.subTest(game=game):
-                path = ROOT / "data" / manifest
-                self.assertTrue(
-                    path.is_file(), "%s must exist" % manifest)
-                blob = json.dumps(json.loads(
-                    path.read_text(encoding="utf-8")))
-                # The walker's bytes are hex in the manifest, so the check is
-                # that the row's first skill offset is the one the exporter
-                # declares and that the five are contiguous dwords.
+                offsets = walker_skill_offsets(manifest)
                 row = self.rows[game]
-                self.assertEqual(row["skills"], offsets[0])
-                self.assertEqual(row["skill_count"], len(offsets))
-                for index in range(1, len(offsets)):
-                    self.assertEqual(
-                        offsets[index] - offsets[index - 1], 4,
-                        "skills must be consecutive dwords")
-                self.assertGreater(
-                    len(blob), 0, "manifest must not be empty")
+                self.assertEqual(
+                    offsets,
+                    [row["skills"] + 4 * step
+                     for step in range(row["skill_count"])],
+                    "game %d's exporter must read exactly the fields its "
+                    "Full Mastery walker writes" % game)
+                self.assertEqual(
+                    row["skills_are_float"], 0,
+                    "an integer cmp against 100 means int32 skills")
 
     def test_every_game_declares_its_preference_offsets(self) -> None:
         """Measured per game against the running game's own Details screen.
