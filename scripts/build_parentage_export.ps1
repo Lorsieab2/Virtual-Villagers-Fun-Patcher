@@ -36,6 +36,7 @@ if ($LASTEXITCODE -ne 0) {
 
 @(
     (Join-Path $projectRoot "parentage_export.obj"),
+    (Join-Path $projectRoot "village_identity.obj"),
     (Join-Path $projectRoot "parentage_export.exp"),
     (Join-Path $projectRoot "parentage_export.lib")
 ) | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {
