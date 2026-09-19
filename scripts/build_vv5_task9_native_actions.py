@@ -4144,21 +4144,33 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         je sc_skip
         mov dword ptr [0x{SLOT_SCRATCH:X}], eax
         mov byte ptr [0x{MASK_LOADED:X}], 0
-        # Same reasoning, applied to Origins upgrade state. 0x51D388 is a
-        # PROCESS global, not part of the .ldw save, so without this it
-        # survives a village switch: a Tech Point Doubler bought in one
-        # village stays owned in another that never paid for it, and its row
-        # reads "Remove" instead of "Buy". VV1 and VV2 avoid this by hanging
-        # the flags off the village object, which follows the save for free.
+        # Same reasoning, applied to Origins upgrade state. Without this, the
+        # outgoing village's upgrade bits are still sitting in 0x51D388 when
+        # the incoming village is selected: a Tech Point Doubler bought in one
+        # village would read as owned in another that never paid for it, and
+        # its row would say "Remove" instead of "Buy".
+        #
+        # 0x51D388 IS SAVED, despite being a fixed .data address rather than a
+        # field of the save state. An earlier version of this comment called it
+        # "a PROCESS global, not part of the .ldw save" and concluded there was
+        # "nothing to reload". That was wrong. The stock exe never references
+        # the address (0 references in .text), which is probably where the
+        # mistake came from, but the game copies the legacy statistics block at
+        # 0x51D388..0x51D3EF into and out of each save -- "copied, serialized
+        # per save, and cleared during new-save initialization" -- which is
+        # exactly why the first dword was chosen for the ownership bits: it
+        # keeps ownership confined to the current save. See
+        # docs/vv5-origins-exclusive-features-research.md, "Save-scoped
+        # ownership storage".
         #
         # This word also carries the Barrel of Babies pending token (bit 3)
         # and the forced-event marker (bit 2), so clearing it here also stops
-        # a barrel queued in one village from firing in the next.
+        # a barrel queued in one village from firing in the next. Those two
+        # are genuinely transient and must not cross a village switch.
         #
-        # Clearing rather than restoring is deliberate: none of these bits are
-        # in the save, so there is nothing to reload. A freshly loaded village
-        # correctly starts unowned -- exactly what a player who restarted the
-        # game already sees today.
+        # Clearing rather than restoring is still right: the incoming save's
+        # own block is loaded with the save, so this only has to make sure the
+        # previous village's bits cannot be read in the meantime.
         mov dword ptr [0x51D388], 0
     sc_skip:
         sub esp, 0x104
