@@ -65,6 +65,7 @@
 #include <wchar.h>
 
 #include "village_identity.h"
+#include "save_folder.h"
 
 enum {
     /* The log sits beside the executable, so the path is bounded by the
@@ -684,24 +685,29 @@ static int build_log_path(
     int file_number,
     wchar_t *destination
 ) {
-    wchar_t module_path[MAX_LOG_PATH];
-    wchar_t *separator;
-    DWORD length = GetModuleFileNameW(NULL, module_path, MAX_LOG_PATH);
+    wchar_t folder[MAX_PATH];
 
-    if (length == 0 || length >= MAX_LOG_PATH) {
+    /* THE LOG BELONGS WITH THE SAVE, NOT WITH THE EXECUTABLE.
+
+       This used to strip GetModuleFileNameW to the exe's own directory, so a
+       village's parentage log was written beside the .exe while the village it
+       describes lives in Documents\LDW\<exe basename>\.  The owner found
+       exported logs sitting in install folders.
+
+       vv_save_folder_w resolves the folder the game itself saves into, derived
+       from the exe basename so a renamed install follows its own save, and it
+       fails rather than falling back to a directory that is not the save.  The
+       reserve covers the longest tail appended below: a backslash, the log
+       name, a space, the number and the NUL. */
+    if (!vv_save_folder_w(folder, 64)) {
         return 0;
     }
-    separator = wcsrchr(module_path, L'\\');
-    if (separator == NULL) {
-        return 0;
-    }
-    *separator = L'\0';
     return _snwprintf_s(
         destination,
         MAX_LOG_PATH,
         _TRUNCATE,
         L"%ls\\%ls %d.txt",
-        module_path,
+        folder,
         g->log_name,
         file_number
     ) >= 0;

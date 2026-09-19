@@ -1389,8 +1389,16 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    if (slot > 0) wsprintfA(out, "%s\\LDW\\%s\\vv2_masks_%d.dat", docs, base, slot);
-    else          wsprintfA(out, "%s\\LDW\\%s\\vv2_masks.dat", docs, base);
+    /* SLOT 0 IS NOT A VILLAGE. Before the first save or load the slot
+       scratch reads 0, and an unsuffixed file shared by EVERY village used
+       to be built for that case. That shared file is precisely the
+       cross-save bleed this keying exists to stop -- the owner's carried
+       144 masked villagers into a village that never chose any. VV1 has
+       always refused slot 0 and has never shown the bleed, so the other
+       games now match it. A pre-load read simply finds nothing, which is
+       correct: a village that has not been loaded has no masks to show. */
+    if (slot <= 0) return 0;
+    wsprintfA(out, "%s\\LDW\\%s\\vv2_masks_%d.dat", docs, base, slot);
     return 1;
 }
 
@@ -1427,34 +1435,20 @@ static void vv2_mask_sidecar_load(void) {
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {
-        /* MIGRATION (Codex P2): builds before the basename fix wrote the sidecar to a
-           HARDCODED canonical folder.  A user who picked masks with one of those builds
-           while running a renamed (e.g. "- Modded") exe would find the new basename path
-           empty and appear to lose every mask.  Fall back to reading the old canonical
-           location once; the next save writes to the correct basename path, so this
-           self-heals without ever deleting or moving the user's file. */
-        char legacy[MAX_PATH];
-        char docs[MAX_PATH];
-        /* MIGRATION (per-slot): builds before the sidecar was slot-keyed wrote ONE
-           vv2_masks.dat for every village. Read it for the FIRST village slot only,
-           so a returning user keeps their masks; later saves write the slot file.
-           Only slot 1 -- applying one shared file to every slot is the very
-           cross-contamination this change exists to stop. */
-        if (VV2_MASK_SLOT == 1 && vv2_mask_sidecar_path_slot(legacy, 0)
-            && lstrcmpiA(legacy, path) != 0) {
-            f = CreateFileA(legacy, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                            FILE_ATTRIBUTE_NORMAL, NULL);
-        }
-        if (f == INVALID_HANDLE_VALUE) {
-        if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) return;
-        if (lstrlenA(docs) + (int)sizeof("\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat") >= MAX_PATH) {
-            return;
-        }
-        wsprintfA(legacy, "%s\\LDW\\Virtual Villagers - The Lost Children\\vv2_masks.dat", docs);
-        if (lstrcmpiA(legacy, path) == 0) return;     /* already the canonical exe -> nothing to migrate */
-        f = CreateFileA(legacy, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (f == INVALID_HANDLE_VALUE) return;        /* no legacy file either -> table stays cleared */
-        }
+        /* NO FALLBACK. A village with no sidecar of its own has no masks.
+
+           Two fallbacks used to live here and both bled state between villages.
+           One rebuilt the path from a HARDCODED folder name, so a renamed exe
+           read the vanilla install's file -- the owner's masks were in the
+           vanilla folder while the Modded folder he played had none, and 144
+           masked villagers appeared in whatever village held slot 1. The other
+           read the pre-slot-keyed shared vv2_masks.dat into slot 1 so a
+           returning player kept their masks, which is indistinguishable from a
+           brand-new village started with Start Over on that slot.
+
+           VV1 has never had either fallback and has never shown this bleed, so
+           matching it is also what makes the five games behave alike. */
+        return;
     }
     if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
         && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {

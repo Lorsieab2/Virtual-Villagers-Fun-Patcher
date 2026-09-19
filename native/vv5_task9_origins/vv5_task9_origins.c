@@ -127,14 +127,18 @@ static int build_mask_sidecar_path(char *out) {
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    /* Key per save slot when known (village slots are >=1). Before the first
-       save/load the scratch is 0; fall back to the legacy unsuffixed name so a
-       pre-load read never points at a slot-specific file that does not exist. */
-    if (slot > 0) {
-        wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
-    } else {
-        wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks.dat", docs, base);
+    /* SLOT 0 IS NOT A VILLAGE. Before the first save or load the slot
+       scratch reads 0, and an unsuffixed file shared by EVERY village used
+       to be built for that case. That shared file is precisely the
+       cross-save bleed this keying exists to stop -- the owner's carried
+       144 masked villagers into a village that never chose any. VV1 has
+       always refused slot 0 and has never shown the bleed, so the other
+       games now match it. A pre-load read simply finds nothing, which is
+       correct: a village that has not been loaded has no masks to show. */
+    if (slot <= 0) {
+        return 0;
     }
+    wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
     return 1;
 }
 
