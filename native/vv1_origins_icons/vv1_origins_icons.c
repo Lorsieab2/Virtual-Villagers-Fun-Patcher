@@ -929,6 +929,7 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
     unsigned int *food;
     unsigned int *tag;
     unsigned int *migrated;
+    BOOL read_ok;
     int slot = vv1_mask_current_slot();
     tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
     food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
@@ -993,7 +994,8 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
        which falls back to the pre-fix behaviour -- the doublers are simply not
        restored -- rather than granting doublers the village never earned.  The
        stale file is left alone; the next save overwrites it for this village. */
-    if (ReadFile(file, payload, sizeof(payload), &got, NULL)
+    read_ok = ReadFile(file, payload, sizeof(payload), &got, NULL);
+    if (read_ok
         && got == sizeof(payload)
         && payload[0] == VV_DOUBLER_SIDECAR_MAGIC
         && payload[3] == *tag) {
@@ -1028,11 +1030,20 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
         return 1;
     }
     /* The file was opened and read but did not apply -- a foreign village tag,
-       a pre-'VD02' record, or a short read.  A tag mismatch is a real answer:
-       this village has no sidecar of its own, so the migration is settled.  A
-       short read is not, so only consume when the read itself succeeded and the
-       record was simply not ours. */
-    if (got == sizeof(payload)) {
+       or a pre-'VD02' record from an older build.
+
+       Both are real answers, so both settle the migration.  A 'VD01' file is
+       12 bytes, so ReadFile SUCCEEDS with got == 12: the record is complete,
+       it simply predates the village tag and cannot be trusted to belong to
+       this village.  Requiring got == sizeof(payload) here deadlocked exactly
+       that case -- the marker stayed clear forever, and Vv1DoublerSave then
+       declined to publish forever on its pending-migration guard, so the
+       legacy file was never upgraded.
+
+       What must NOT settle it is a read that genuinely failed, where nothing
+       was learned.  `read_ok` distinguishes the two: ReadFile returning FALSE
+       is a failure, while a short count is EOF on a smaller, older record. */
+    if (read_ok) {
         *migrated = VV_DOUBLER_MIGRATED_VALUE;
     }
     CloseHandle(file);

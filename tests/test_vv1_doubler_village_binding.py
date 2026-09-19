@@ -313,11 +313,26 @@ class VillageTagBindingTest(unittest.TestCase):
             restore,
             "a missing folder must be distinguished from an unreadable one",
         )
-        # A short read must not count as an answer.
+        # A completed read settles the migration even when the record is a
+        # legacy 12-byte 'VD01' one.
+        #
+        # Requiring got == sizeof(payload) here deadlocked that case: ReadFile
+        # SUCCEEDS on a 12-byte file with got == 12, so the marker stayed clear
+        # forever, and Save then declined to publish forever on its
+        # pending-migration guard -- the legacy file was never upgraded. What
+        # must not settle it is a read that genuinely FAILED, where nothing was
+        # learned, which is what read_ok distinguishes.
         self.assertRegex(
             restore,
-            r"if\s*\(\s*got\s*==\s*sizeof\(payload\)\s*\)",
-            "only a complete read may settle the migration",
+            r"if\s*\(\s*read_ok\s*\)",
+            "a completed read must settle the migration, including a legacy "
+            "12-byte VD01 record, or the file can never be upgraded",
+        )
+        self.assertNotRegex(
+            restore,
+            r"if\s*\(\s*got\s*==\s*sizeof\(payload\)\s*\)\s*\{\s*"
+            r"\*migrated",
+            "settling on a full-size read alone deadlocks the VD01 upgrade",
         )
         # And the sidecar must survive long enough to BE retried.
         #

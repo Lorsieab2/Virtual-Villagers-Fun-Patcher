@@ -365,12 +365,20 @@ header at the next birth -- but the older conception records in it are not
 recoverable. Keep a copy if you want that history.
 
 The A New Home doubler file records which Origins tech and food point doublers
-that village has bought. The game does not save that itself, which is why the
-file exists. Deleting it cannot crash anything or harm the save, but the
-village loses doublers it paid for and would have to buy them again. It is
-also the one file here you are unlikely to ever need to delete: it is tagged
-with the village that wrote it, so a file left behind in a reused slot is
-ignored rather than handing doublers to a village that never earned them.
+that village has bought. The save itself now keeps that, so for a village you
+have loaded since updating, the file is only a spare copy and deleting it costs
+you nothing.
+
+It still matters for a village you have not loaded since updating. Doublers
+bought under an older build were never written into the save -- that was the
+bug -- so until that village is loaded once, this file is the only record, and
+deleting it first means buying those doublers again. Load the village once and
+the save takes over.
+
+Deleting it cannot crash anything or harm the save either way. You are unlikely
+to need to: it is tagged with the village that wrote it, so a file left behind
+in a reused slot is ignored rather than handing doublers to a village that
+never earned them.
 
 WHEN TO USE THIS. If masks ever appear on villagers you did not give them to,
 delete the mask file for that save slot. Close the game, delete that slot's
