@@ -906,10 +906,31 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
         && got == sizeof(payload)
         && payload[0] == VV_DOUBLER_SIDECAR_MAGIC
         && payload[3] == *tag) {
-        /* Normalised to 0/1 on write, and normalised again here, so a corrupt
-           or hand-edited value can only ever mean owned or not owned. */
-        *tech = (payload[1] != 0) ? 1u : 0u;
-        *food = (payload[2] != 0) ? 1u : 0u;
+        /* GRANT ONLY -- the sidecar may turn a flag ON, never off.
+
+           The flags now live inside the serialized save, so the save is the
+           authority and the sidecar is a migration aid for ownership bought
+           under an older build.  The two can disagree: the .ldw write can
+           succeed after a purchase while Vv1DoublerSave fails, and every one of
+           its failure paths deliberately leaves the PREVIOUS .dat in place.  An
+           unconditional assignment here would then copy the older sidecar over
+           the newly saved flag and silently undo the purchase -- or, for a
+           removal, bring the doubler back.
+
+           OR-ing keeps the migration working (save 0 + sidecar 1 -> 1, which is
+           the whole point of the file) while making a stale sidecar unable to
+           revoke what the save already records (save 1 + sidecar 0 -> 1).  It
+           cannot fabricate ownership either: the village tag is checked above,
+           so a sidecar from another village never reaches this line.
+
+           Normalised to 0/1 on write and normalised again here, so a corrupt or
+           hand-edited value can only ever mean owned or not owned. */
+        if (payload[1] != 0) {
+            *tech = 1u;
+        }
+        if (payload[2] != 0) {
+            *food = 1u;
+        }
         CloseHandle(file);
         return 1;
     }

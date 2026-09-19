@@ -177,6 +177,47 @@ class VillageTagBindingTest(unittest.TestCase):
             blob,
             "the shipped DLL does not reference the village tag offset",
         )
+    def test_restore_can_grant_ownership_but_never_revoke_it(self) -> None:
+        """A stale sidecar must not undo what the save already records.
+
+        Now that the flags live inside the serialised save, the save is the
+        authority and the sidecar is a migration aid. The two can disagree: the
+        .ldw write can succeed after a purchase while Vv1DoublerSave fails, and
+        every one of its failure paths deliberately leaves the PREVIOUS .dat in
+        place. An unconditional assignment in Restore would then copy the older
+        sidecar over the newly saved flag and silently undo the purchase, or
+        bring a removed doubler back.
+
+        So Restore must raise a flag to 1 and never lower it. This asserts the
+        direction of the write, which is the part that differs between the bug
+        and the fix -- both versions apply the sidecar, so presence alone
+        cannot tell them apart.
+        """
+        restore = self._function("Restore")
+        for field in ("*tech", "*food"):
+            self.assertNotRegex(
+                restore,
+                re.escape(field) + r"\s*=\s*\(?\s*payload",
+                "%s must not be assigned straight from the sidecar: a stale "
+                "file would revoke ownership the save already holds" % field,
+            )
+            self.assertRegex(
+                restore,
+                re.escape(field) + r"\s*=\s*1u\s*;",
+                "%s must be raised to 1, so the sidecar can only grant" % field,
+            )
+        # And the grant must be conditional on the sidecar actually claiming
+        # ownership, rather than unconditionally setting both flags.
+        self.assertRegex(
+            restore,
+            r"if\s*\(\s*payload\[1\]\s*!=\s*0\s*\)",
+            "the tech grant must be gated on the sidecar claiming tech",
+        )
+        self.assertRegex(
+            restore,
+            r"if\s*\(\s*payload\[2\]\s*!=\s*0\s*\)",
+            "the food grant must be gated on the sidecar claiming food",
+        )
 
 
 class HookDirectionTest(unittest.TestCase):
