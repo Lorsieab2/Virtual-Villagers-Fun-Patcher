@@ -319,6 +319,25 @@ class VillageTagBindingTest(unittest.TestCase):
             r"if\s*\(\s*got\s*==\s*sizeof\(payload\)\s*\)",
             "only a complete read may settle the migration",
         )
+        # And the sidecar must survive long enough to BE retried.
+        #
+        # Leaving the marker clear is useless on its own: Save runs on every
+        # save and would republish the file from in-memory flags that are still
+        # zero precisely because the restore could not read them, destroying
+        # the only record of a purchase before the retry happens. So Save must
+        # decline to publish while the migration is unresolved.
+        self.assertRegex(
+            save,
+            r"if\s*\(\s*\*migrated\s*!=\s*VV_DOUBLER_MIGRATED_VALUE\s*\)",
+            "Save must not republish the sidecar while migration is pending, "
+            "or a transient restore failure loses the purchase on the next save",
+        )
+        decline = save.index("*migrated != VV_DOUBLER_MIGRATED_VALUE")
+        self.assertLess(
+            decline,
+            save.index("CreateFileA"),
+            "the refusal must come before the file is created, not after",
+        )
 
 
 class HookDirectionTest(unittest.TestCase):

@@ -836,12 +836,37 @@ __declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
     unsigned int *tech;
     unsigned int *food;
     unsigned int *tag;
+    unsigned int *migrated;
     BOOL ok = TRUE;
     int slot = vv1_mask_current_slot();
     tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
     food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
     tag = vv1_doubler_field(state, VV_DOUBLER_VILLAGE_TAG_OFFSET);
-    if (!slot || tech == NULL || food == NULL || tag == NULL) {
+    migrated = vv1_doubler_field(state, VV_DOUBLER_MIGRATED_OFFSET);
+    if (!slot || tech == NULL || food == NULL || tag == NULL
+        || migrated == NULL) {
+        return 0;
+    }
+    /* DO NOT PUBLISH WHILE THE MIGRATION IS UNRESOLVED.
+
+       A clear marker means this village either has a sidecar that has not yet
+       been successfully read, or has never been loaded by a build with the
+       relocated fields.  In both cases the file on disk is the better record
+       and must be left alone.
+
+       Without this, leaving the marker clear after a transient read failure
+       achieves nothing: this function runs on every save and would republish
+       the file from in-memory flags that are still zero precisely BECAUSE the
+       restore could not read them, overwriting the only record of a purchase
+       before the retry ever happens.
+
+       A village that genuinely has no sidecar is not stuck here.  Restore
+       consumes the marker when the open fails with ERROR_FILE_NOT_FOUND or
+       ERROR_PATH_NOT_FOUND, so such a village is marked on its first load and
+       publishes normally from then on.  The flags still reach the .ldw
+       meanwhile, which is the primary record now, so nothing is lost that the
+       save does not already hold. */
+    if (*migrated != VV_DOUBLER_MIGRATED_VALUE) {
         return 0;
     }
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
