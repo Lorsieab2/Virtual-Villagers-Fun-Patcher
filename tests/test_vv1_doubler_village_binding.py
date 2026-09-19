@@ -284,14 +284,40 @@ class VillageTagBindingTest(unittest.TestCase):
             "Restore must stamp the marker, where it is in memory before any "
             "save serialises",
         )
-        # And it must be stamped before the file is opened, so every later exit
-        # path -- missing sidecar, short read, wrong magic -- is still marked.
+        # It must NOT be stamped before the sidecar is examined.
+        #
+        # Consuming the migration up front also consumes it when the file
+        # exists but could not be read this time -- an unresolvable Documents
+        # folder, a sharing violation, a failed read. Restore then returns
+        # without granting, the next save persists the marker, and every later
+        # load skips a still-valid sidecar, losing a doubler the player bought.
+        #
+        # "Confirmed absent" and "could not look" are different answers, so the
+        # stamp has to sit on the paths that actually learned something.
         stamp = restore.index("*migrated = VV_DOUBLER_MIGRATED_VALUE")
-        self.assertLess(
+        self.assertGreater(
             stamp,
             restore.index("CreateFileA"),
-            "the marker must be stamped before the sidecar is opened, so a "
-            "village with no sidecar is still marked",
+            "the migration must not be consumed before the sidecar is even "
+            "opened: a transient failure would strand a real sidecar",
+        )
+        # A genuinely missing file is settled, and is told apart from other
+        # open failures by the error code rather than lumped in with them.
+        self.assertIn(
+            "ERROR_FILE_NOT_FOUND",
+            restore,
+            "a missing sidecar must be distinguished from an unreadable one",
+        )
+        self.assertIn(
+            "ERROR_PATH_NOT_FOUND",
+            restore,
+            "a missing folder must be distinguished from an unreadable one",
+        )
+        # A short read must not count as an answer.
+        self.assertRegex(
+            restore,
+            r"if\s*\(\s*got\s*==\s*sizeof\(payload\)\s*\)",
+            "only a complete read may settle the migration",
         )
 
 

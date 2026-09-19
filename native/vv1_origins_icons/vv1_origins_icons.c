@@ -921,26 +921,35 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
     if (*migrated == VV_DOUBLER_MIGRATED_VALUE) {
         return 0;
     }
-    /* Stamp it HERE, on the load path, rather than in Vv1DoublerSave.  That
-       hook is spliced one instruction past the writer call, so a marker set
-       there would not reach disk until the following save, leaving a removal
-       exposed in between -- the very ambiguity this marker removes.  This runs
-       from 0x41BEFD, after the state is in memory and before the player can
-       act, so the first save afterwards serialises it with the flags.
+    /* THE MARKER IS CONSUMED ONLY WHEN THE SIDECAR WAS ACTUALLY EXAMINED.
 
-       Stamped unconditionally, including on the failure paths below: once a
-       village has been loaded by a build that has the relocated fields, its
-       ownership lives in the save whether or not a sidecar was applied.
-       Marking only the migration path would leave a village that never had a
-       sidecar unmarked forever, and its removals permanently vulnerable. */
-    *migrated = VV_DOUBLER_MIGRATED_VALUE;
+       "Confirmed absent" and "could not look" are different answers.  If the
+       Documents folder cannot be resolved, or the file is held by another
+       process, or a read fails, then nothing was learned about this village and
+       the marker must stay clear so the next load tries again.  Consuming it
+       here would strand a real sidecar: Restore returns without granting, the
+       next save persists the marker, and every later load skips a perfectly
+       valid file -- losing a doubler the player paid for.
+
+       Retrying is cheap and safe.  It only means the sidecar is consulted
+       again, which is the pre-marker behaviour, and grant-only still stops a
+       stale file from revoking anything. */
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
-        return 0;
+        return 0;               /* no path -> nothing learned, retry next load */
     }
     file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                        FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {
-        return 0;  /* no sidecar for this slot -> nothing owned, as before */
+        DWORD why = GetLastError();
+        if (why == ERROR_FILE_NOT_FOUND || why == ERROR_PATH_NOT_FOUND) {
+            /* Genuinely not there, and never will be for this village: there is
+               nothing to migrate, so the question is settled. */
+            *migrated = VV_DOUBLER_MIGRATED_VALUE;
+        }
+        /* Any other failure -- sharing violation, access denied -- means the
+           file may well exist and hold a paid doubler.  Leave the marker clear
+           and look again next time. */
+        return 0;
     }
     /* The village tag must match as well as the magic.  A sidecar left behind
        by a previous village in this reused slot fails here and is ignored,
@@ -976,8 +985,18 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
         if (payload[2] != 0) {
             *food = 1u;
         }
+        /* Examined and applied: the migration is done. */
+        *migrated = VV_DOUBLER_MIGRATED_VALUE;
         CloseHandle(file);
         return 1;
+    }
+    /* The file was opened and read but did not apply -- a foreign village tag,
+       a pre-'VD02' record, or a short read.  A tag mismatch is a real answer:
+       this village has no sidecar of its own, so the migration is settled.  A
+       short read is not, so only consume when the read itself succeeded and the
+       record was simply not ours. */
+    if (got == sizeof(payload)) {
+        *migrated = VV_DOUBLER_MIGRATED_VALUE;
     }
     CloseHandle(file);
     return 0;
