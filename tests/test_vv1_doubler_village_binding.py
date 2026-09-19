@@ -265,11 +265,33 @@ class VillageTagBindingTest(unittest.TestCase):
             "the marker check must come before the sidecar is opened",
         )
 
-        # Save stamps it, so a migrated village never re-reads the file.
-        self.assertRegex(
+        # The stamp belongs on the LOAD path, not in Save.
+        #
+        # The save hook is spliced at 0x41BF68, one instruction past the writer
+        # call at 0x41BF63, so anything Save sets reaches memory only after the
+        # .ldw is serialised and would not be on disk until the FOLLOWING save.
+        # A removal in that window would still be undone by a stale sidecar,
+        # which is the ambiguity the marker exists to remove.
+        self.assertNotRegex(
             save,
             r"\*migrated\s*=\s*VV_DOUBLER_MIGRATED_VALUE\s*;",
-            "Save must record that ownership now lives in the save",
+            "Save must not stamp the marker: its hook runs after the write, so "
+            "the marker would miss the save that triggered it",
+        )
+        self.assertRegex(
+            restore,
+            r"\*migrated\s*=\s*VV_DOUBLER_MIGRATED_VALUE\s*;",
+            "Restore must stamp the marker, where it is in memory before any "
+            "save serialises",
+        )
+        # And it must be stamped before the file is opened, so every later exit
+        # path -- missing sidecar, short read, wrong magic -- is still marked.
+        stamp = restore.index("*migrated = VV_DOUBLER_MIGRATED_VALUE")
+        self.assertLess(
+            stamp,
+            restore.index("CreateFileA"),
+            "the marker must be stamped before the sidecar is opened, so a "
+            "village with no sidecar is still marked",
         )
 
 

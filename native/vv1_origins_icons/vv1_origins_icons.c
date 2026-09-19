@@ -836,27 +836,24 @@ __declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
     unsigned int *tech;
     unsigned int *food;
     unsigned int *tag;
-    unsigned int *migrated;
     BOOL ok = TRUE;
     int slot = vv1_mask_current_slot();
     tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
     food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
     tag = vv1_doubler_field(state, VV_DOUBLER_VILLAGE_TAG_OFFSET);
-    migrated = vv1_doubler_field(state, VV_DOUBLER_MIGRATED_OFFSET);
     if (!slot || tech == NULL || food == NULL || tag == NULL) {
         return 0;
     }
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
         return 0;
     }
-    /* Record that this village's ownership now lives in the save.  From here
-       on Vv1DoublerRestore ignores the sidecar for this village, so a later
-       removal cannot be undone by a stale file.  Stamped on save rather than
-       on load so it is written by the same call that persists the flags
-       themselves -- a save that carries the marker always carries the flags. */
-    if (migrated != NULL) {
-        *migrated = VV_DOUBLER_MIGRATED_VALUE;
-    }
+    /* The marker is NOT stamped here.  This hook is spliced at 0x41BF68, one
+       instruction past the writer call at 0x41BF63, so anything set here
+       reaches memory only after the .ldw has been serialised and would not be
+       on disk until the NEXT save.  It is stamped on the load path instead,
+       where it is in memory before any save runs.  The flags are unaffected by
+       that ordering: the game sets them when the player buys or removes a
+       doubler, long before a save. */
     payload[0] = VV_DOUBLER_SIDECAR_MAGIC;
     payload[1] = (*tech != 0) ? 1u : 0u;
     payload[2] = (*food != 0) ? 1u : 0u;
@@ -924,6 +921,19 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
     if (*migrated == VV_DOUBLER_MIGRATED_VALUE) {
         return 0;
     }
+    /* Stamp it HERE, on the load path, rather than in Vv1DoublerSave.  That
+       hook is spliced one instruction past the writer call, so a marker set
+       there would not reach disk until the following save, leaving a removal
+       exposed in between -- the very ambiguity this marker removes.  This runs
+       from 0x41BEFD, after the state is in memory and before the player can
+       act, so the first save afterwards serialises it with the flags.
+
+       Stamped unconditionally, including on the failure paths below: once a
+       village has been loaded by a build that has the relocated fields, its
+       ownership lives in the save whether or not a sidecar was applied.
+       Marking only the migration path would leave a village that never had a
+       sidecar unmarked forever, and its removals permanently vulnerable. */
+    *migrated = VV_DOUBLER_MIGRATED_VALUE;
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
         return 0;
     }
