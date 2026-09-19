@@ -1002,13 +1002,13 @@ def main() -> None:
         menu_loop:
             xor edi, edi
             mov eax, dword ptr [esi + 0x0C]
-            cmp dword ptr [eax + 0xAD48], 0
+            cmp dword ptr [eax + 0x9E90], 0
             je tech_not_owned_for_menu
             or edi, 8
         tech_not_owned_for_menu:
             # eax still holds [esi+0x0C] from the check above -- `or edi, 8`
             # does not touch it, and this cave has no bytes to spare.
-            cmp dword ptr [eax + 0xAD4C], 0
+            cmp dword ptr [eax + 0x9E94], 0
             je food_not_owned_for_menu
             or edi, 16
         food_not_owned_for_menu:
@@ -1073,11 +1073,11 @@ def main() -> None:
             mov eax, dword ptr [esi + 0x0C]
             cmp ebx, 4
             je check_food_owned
-            cmp dword ptr [eax + 0xAD48], 0
+            cmp dword ptr [eax + 0x9E90], 0
             jne remove_doubler
             jmp charge
         check_food_owned:
-            cmp dword ptr [eax + 0xAD4C], 0
+            cmp dword ptr [eax + 0x9E94], 0
             jne remove_doubler
         charge:
             # Time Warp (row 0) is handled end to end by the companion DLL:
@@ -1187,22 +1187,22 @@ def main() -> None:
             jmp success
 
         do_tech_doubler:
-            mov dword ptr [edi + 0xAD48], 1
+            mov dword ptr [edi + 0x9E90], 1
             jmp success
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
         do_food_doubler:
-            or dword ptr [edi + 0xAD4C], 1
+            or dword ptr [edi + 0x9E94], 1
             jmp success
 
         remove_doubler:
             cmp ebx, 4
             je remove_food_doubler
-            mov dword ptr [edi + 0xAD48], 0
+            mov dword ptr [edi + 0x9E90], 0
             jmp removed_success
         remove_food_doubler:
-            mov dword ptr [edi + 0xAD4C], 0
+            mov dword ptr [edi + 0x9E94], 0
         removed_success:
             push 3
             push ebx
@@ -1290,7 +1290,7 @@ def main() -> None:
             je tech_apply
             cmp dword ptr [esp + 4], 0x42BB18
             je tech_apply
-            cmp dword ptr [ebx + 0xAD48], 0
+            cmp dword ptr [ebx + 0x9E90], 0
             jz tech_apply
             shl dword ptr [esp + 8], 1
         tech_apply:
@@ -1318,7 +1318,7 @@ def main() -> None:
             je food_apply
             cmp dword ptr [esp + 4], 0x42B86A
             je food_apply
-            cmp dword ptr [ebx + 0xAD4C], 0
+            cmp dword ptr [ebx + 0x9E94], 0
             jz food_apply
             shl dword ptr [esp + 8], 1
         food_apply:
@@ -1578,7 +1578,7 @@ def main() -> None:
             je cure_all
             cmp ebx, 6
             jae village_wide
-            mov dword ptr [edi + 0xAD4C], 1
+            mov dword ptr [edi + 0x9E94], 1
             ret
         village_wide:
             # None of the three rows charge upfront any more (the generic
@@ -2902,20 +2902,32 @@ def main() -> None:
         )
     # Persist the two doubler ownership flags on save.
     #
-    # They live at <state>+0xAD48 and +0xAD4C, which is 364 and 368 bytes PAST
-    # the 0xABDC the game serialises, so the stock save never writes them and
-    # the player loses both doublers on reload. Extending that length would
-    # make existing saves unreadable by the stock game, and the dwords inside
-    # the extent are not free (+0xABE4 has 27 references, +0xABDC IS the
-    # length), so the flags are published to a sidecar instead.
+    # They live at <state>+0x9E90 and +0x9E94, INSIDE the 0xABDC the game
+    # serialises, so the stock save persists them itself and a purchased
+    # doubler survives a reload with no help from this hook.
+    #
+    # They used to sit at +0xAD48/+0xAD4C, 356 and 360 bytes PAST that extent,
+    # which is why they were lost on reload and why the sidecar was built.
+    # Extending the serialised length is still not an option -- the loader
+    # reads the same length, so a longer record would make existing saves
+    # unreadable by the stock game -- but RELOCATING the flags is safe, which
+    # an earlier version of this comment denied. Its evidence was about
+    # +0xABDC and +0xABE4 at the very TOP of the extent (+0xABDC IS the length,
+    # +0xABE4 has 27 references) and said nothing about the region 3,416 bytes
+    # lower, where the flags now sit.
+    #
+    # THE SIDECAR IS STILL PUBLISHED, as a migration aid: a player who bought a
+    # doubler under an older build has that ownership recorded only in the
+    # file. It is a second copy now rather than the only one.
     #
     # Runs AFTER the stock write, at the save function's epilogue 0x41BF68,
-    # where the write call at 0x41BF63 has returned. That ordering is what
-    # keeps the sidecar and the .ldw in step: a save that fails or crashes
-    # never reaches the epilogue, so the sidecar is never published for a
-    # .ldw that was not written, and a stale sidecar cannot outlive the save
-    # it describes. The DLL only reads the two flags and publishes its own
-    # file; it never touches the game's buffer.
+    # where the write call at 0x41BF63 has returned. That ordering keeps the
+    # sidecar and the .ldw in step: a save that fails or crashes never reaches
+    # the epilogue, so the sidecar is never published for a .ldw that was not
+    # written. It is also why the migration marker is NOT set here -- anything
+    # written at this point misses the save that triggered it -- and is stamped
+    # on the load path instead. The DLL only reads the two flags and publishes
+    # its own file; it never touches the game's buffer.
     #
     # ESI is the saved-game-state object at this splice -- the same object
     # the write at 0x41BF58 passed as state+8. pushad preserves it and every
@@ -3195,9 +3207,11 @@ def main() -> None:
             )
             + b"\x90" * (len(DOUBLER_SAVE_HOOK_GUARD) - 5)
         ),
-        "persist the tech and food doubler ownership flags on every save. They "
-        "live at state+0xAD48/+0xAD4C, past the 0xABDC the game serialises, so "
-        "the stock save never writes them and both doublers are lost on reload",
+        "mirror the tech and food doubler ownership flags to a sidecar on every "
+        "save. The flags live at state+0x9E90/+0x9E94, INSIDE the 0xABDC the game "
+        "serialises, so the stock save now persists them itself; the sidecar is "
+        "kept as a migration aid for ownership bought under an older build, which "
+        "stored the flags at +0xAD48/+0xAD4C, past the extent and never written",
     )
     patch(
         DOUBLER_LOAD_HOOK_VA - 0x400000,

@@ -358,8 +358,8 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
     # that jump in the middle of the inserted instruction.
     ("vv1_write_parentage_log", "0x3BCCB"): "7C2BCE507A162C9EB2D9FEFF3F3E75CCF54644DDCB5D8ED7412CC4B813D3C401",
-    ("vv1_enable_origins_exclusive_features", "0x1D120"): "99B923C87F4D69AB38EA63F758E2712656DC93418797460FD5B5C68C62C8F0D4",
-    ("vv1_enable_origins_exclusive_features", "0x1D140"): "504ACC56E0C6FB7BC92BC58CD2D2425ABE41FAB98247EC859F17D02B2F03B02A",
+    ("vv1_enable_origins_exclusive_features", "0x1D120"): "6BCFB1B986B25AC430D1B9E30D36DB58CC87B19CCB326384E0D74087842F7FDE",
+    ("vv1_enable_origins_exclusive_features", "0x1D140"): "2A7F6BCAFF096282681EA63DCA4CC89377EE5F32C236B5D1FEA2BB49FEC65562",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.
     # The cave now loads the village as [esi+0x10] and calls the room check
     # at 0x490B00 before consuming the paid event.  Register contract is
@@ -394,7 +394,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # pushes eax/ecx/edx/ebx on entry and pops all four before ret, the helper
     # clobbers only eax (already saved), and edi -- which carries the result
     # flags -- is neither read nor written by it.
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "6F47F1453C2DD7EC0B91D875F5FB6CBF79677D54A10AB52658802882CA4A4576",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "817FA84F4EB61E560C44F50751DABC830899945155476CEB2D9709A7BE5CE8C4",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",

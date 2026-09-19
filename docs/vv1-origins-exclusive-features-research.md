@@ -102,8 +102,10 @@ audit is STOP and does not claim every producer is covered. The Island Event
 result composer has one central tech award call (return address `0x428194`) and
 one central food award call (return address `0x4281DA`); those addresses are
 candidate exclusions, not exhaustive proof. Ownership is stored in two
-otherwise-unused fields of the active saved game state (`+0xAD48` and
-`+0xAD4C`), so one save can own a doubler without changing another save in the
+otherwise-unused fields of the active saved game state (`+0x9E90` and
+`+0x9E94`, relocated from `+0xAD48`/`+0xAD4C` which fell outside the
+serialised extent and so were never persisted), so one save can own a
+doubler without changing another save in the
 same game folder. No global INI or executable-side ownership file is created.
 
 The experimental desktop sparkle injection was removed after crash records

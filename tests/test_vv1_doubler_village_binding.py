@@ -81,26 +81,42 @@ class VillageTagBindingTest(unittest.TestCase):
         )
 
     def test_tag_is_inside_the_serialised_payload(self) -> None:
-        """The tag must be a field the save actually round-trips.
-
-        The doubler flags themselves sit at +0xAD48/+0xAD4C, PAST the 0xABDC
-        the game serialises, which is the whole reason this sidecar exists.  A
-        tag with that problem would read as garbage on the restore path.
-        """
+        """The tag must be a field the save actually round-trips."""
         payload_end = PAYLOAD_STATE_BASE + 0xABDC
         offset = self._macro("VV_DOUBLER_VILLAGE_TAG_OFFSET")
         self.assertGreaterEqual(offset, PAYLOAD_STATE_BASE)
         self.assertLess(
             offset + 4,
             payload_end,
-            "the tag must round-trip through the save, unlike the doubler "
-            "flags at +0xAD48/+0xAD4C which do not",
+            "the tag must round-trip through the save",
         )
+
+    def test_doubler_flags_are_inside_the_serialised_payload(self) -> None:
+        """The flags must live where the game actually saves them.
+
+        This is the persistence fix.  The flags used to sit at +0xAD48/+0xAD4C,
+        356 and 360 bytes PAST the 0xABDC the serialiser copies from state+8,
+        so the game set them correctly and then never wrote them to disk and a
+        purchased doubler vanished on reload.  They now sit inside the extent,
+        which is why VV2-VV5 keep their equivalents without any sidecar.
+
+        Asserting the containment directly means a future edit that moves
+        either flag back outside the window fails here rather than silently
+        reintroducing the original bug.
+        """
+        payload_end = PAYLOAD_STATE_BASE + 0xABDC
         for flag in ("VV_DOUBLER_TECH_OFFSET", "VV_DOUBLER_FOOD_OFFSET"):
-            self.assertGreater(
-                self._macro(flag),
+            offset = self._macro(flag)
+            self.assertGreaterEqual(
+                offset,
+                PAYLOAD_STATE_BASE,
+                "%s must not sit before the serialised payload" % flag,
+            )
+            self.assertLess(
+                offset + 4,
                 payload_end,
-                "%s is expected to sit past the serialised extent" % flag,
+                "%s must round-trip through the save, or a purchased doubler "
+                "is lost on reload" % flag,
             )
 
     def test_save_stamps_the_tag(self) -> None:
@@ -160,6 +176,182 @@ class VillageTagBindingTest(unittest.TestCase):
             struct.pack("<I", TAG_STATE_OFFSET),
             blob,
             "the shipped DLL does not reference the village tag offset",
+        )
+    def test_restore_can_grant_ownership_but_never_revoke_it(self) -> None:
+        """A stale sidecar must not undo what the save already records.
+
+        Now that the flags live inside the serialised save, the save is the
+        authority and the sidecar is a migration aid. The two can disagree: the
+        .ldw write can succeed after a purchase while Vv1DoublerSave fails, and
+        every one of its failure paths deliberately leaves the PREVIOUS .dat in
+        place. An unconditional assignment in Restore would then copy the older
+        sidecar over the newly saved flag and silently undo the purchase, or
+        bring a removed doubler back.
+
+        So Restore must raise a flag to 1 and never lower it. This asserts the
+        direction of the write, which is the part that differs between the bug
+        and the fix -- both versions apply the sidecar, so presence alone
+        cannot tell them apart.
+        """
+        restore = self._function("Restore")
+        for field in ("*tech", "*food"):
+            self.assertNotRegex(
+                restore,
+                re.escape(field) + r"\s*=\s*\(?\s*payload",
+                "%s must not be assigned straight from the sidecar: a stale "
+                "file would revoke ownership the save already holds" % field,
+            )
+            self.assertRegex(
+                restore,
+                re.escape(field) + r"\s*=\s*1u\s*;",
+                "%s must be raised to 1, so the sidecar can only grant" % field,
+            )
+        # And the grant must be conditional on the sidecar actually claiming
+        # ownership, rather than unconditionally setting both flags.
+        self.assertRegex(
+            restore,
+            r"if\s*\(\s*payload\[1\]\s*!=\s*0\s*\)",
+            "the tech grant must be gated on the sidecar claiming tech",
+        )
+        self.assertRegex(
+            restore,
+            r"if\s*\(\s*payload\[2\]\s*!=\s*0\s*\)",
+            "the food grant must be gated on the sidecar claiming food",
+        )
+
+    def test_a_migrated_save_ignores_the_sidecar_entirely(self) -> None:
+        """Once the save carries the flags, a 0 in it means a real removal.
+
+        Grant-only alone left `save 0 + sidecar 1` ambiguous: that shape is
+        BOTH the legacy migration and a persisted removal whose sidecar write
+        failed, and OR-ing always picks "restore", so removing a doubler could
+        be undone on the next load. The village tag does not help, because the
+        stale file belongs to the same village.
+
+        The marker disambiguates them. Restore must therefore return BEFORE
+        reading the sidecar when it is set, and Save must stamp it, so the
+        migration happens at most once per village.
+        """
+        restore = self._function("Restore")
+        save = self._function("Save")
+
+        migrated = self._macro("VV_DOUBLER_MIGRATED_OFFSET")
+        payload_end = PAYLOAD_STATE_BASE + 0xABDC
+        self.assertGreaterEqual(migrated, PAYLOAD_STATE_BASE)
+        self.assertLess(
+            migrated + 4,
+            payload_end,
+            "the marker must round-trip through the save like the flags",
+        )
+        for other in ("VV_DOUBLER_TECH_OFFSET", "VV_DOUBLER_FOOD_OFFSET",
+                      "VV_DOUBLER_VILLAGE_TAG_OFFSET"):
+            self.assertNotEqual(
+                migrated,
+                self._macro(other),
+                "the marker must not overlap %s" % other,
+            )
+
+        # Restore bails out on the marker, and does so before opening the file.
+        self.assertRegex(
+            restore,
+            r"if\s*\(\s*\*migrated\s*==\s*VV_DOUBLER_MIGRATED_VALUE\s*\)",
+            "Restore must ignore the sidecar once the save is authoritative",
+        )
+        guard = restore.index("*migrated == VV_DOUBLER_MIGRATED_VALUE")
+        opened = restore.index("CreateFileA")
+        self.assertLess(
+            guard,
+            opened,
+            "the marker check must come before the sidecar is opened",
+        )
+
+        # The stamp belongs on the LOAD path, not in Save.
+        #
+        # The save hook is spliced at 0x41BF68, one instruction past the writer
+        # call at 0x41BF63, so anything Save sets reaches memory only after the
+        # .ldw is serialised and would not be on disk until the FOLLOWING save.
+        # A removal in that window would still be undone by a stale sidecar,
+        # which is the ambiguity the marker exists to remove.
+        self.assertNotRegex(
+            save,
+            r"\*migrated\s*=\s*VV_DOUBLER_MIGRATED_VALUE\s*;",
+            "Save must not stamp the marker: its hook runs after the write, so "
+            "the marker would miss the save that triggered it",
+        )
+        self.assertRegex(
+            restore,
+            r"\*migrated\s*=\s*VV_DOUBLER_MIGRATED_VALUE\s*;",
+            "Restore must stamp the marker, where it is in memory before any "
+            "save serialises",
+        )
+        # It must NOT be stamped before the sidecar is examined.
+        #
+        # Consuming the migration up front also consumes it when the file
+        # exists but could not be read this time -- an unresolvable Documents
+        # folder, a sharing violation, a failed read. Restore then returns
+        # without granting, the next save persists the marker, and every later
+        # load skips a still-valid sidecar, losing a doubler the player bought.
+        #
+        # "Confirmed absent" and "could not look" are different answers, so the
+        # stamp has to sit on the paths that actually learned something.
+        stamp = restore.index("*migrated = VV_DOUBLER_MIGRATED_VALUE")
+        self.assertGreater(
+            stamp,
+            restore.index("CreateFileA"),
+            "the migration must not be consumed before the sidecar is even "
+            "opened: a transient failure would strand a real sidecar",
+        )
+        # A genuinely missing file is settled, and is told apart from other
+        # open failures by the error code rather than lumped in with them.
+        self.assertIn(
+            "ERROR_FILE_NOT_FOUND",
+            restore,
+            "a missing sidecar must be distinguished from an unreadable one",
+        )
+        self.assertIn(
+            "ERROR_PATH_NOT_FOUND",
+            restore,
+            "a missing folder must be distinguished from an unreadable one",
+        )
+        # A completed read settles the migration even when the record is a
+        # legacy 12-byte 'VD01' one.
+        #
+        # Requiring got == sizeof(payload) here deadlocked that case: ReadFile
+        # SUCCEEDS on a 12-byte file with got == 12, so the marker stayed clear
+        # forever, and Save then declined to publish forever on its
+        # pending-migration guard -- the legacy file was never upgraded. What
+        # must not settle it is a read that genuinely FAILED, where nothing was
+        # learned, which is what read_ok distinguishes.
+        self.assertRegex(
+            restore,
+            r"if\s*\(\s*read_ok\s*\)",
+            "a completed read must settle the migration, including a legacy "
+            "12-byte VD01 record, or the file can never be upgraded",
+        )
+        self.assertNotRegex(
+            restore,
+            r"if\s*\(\s*got\s*==\s*sizeof\(payload\)\s*\)\s*\{\s*"
+            r"\*migrated",
+            "settling on a full-size read alone deadlocks the VD01 upgrade",
+        )
+        # And the sidecar must survive long enough to BE retried.
+        #
+        # Leaving the marker clear is useless on its own: Save runs on every
+        # save and would republish the file from in-memory flags that are still
+        # zero precisely because the restore could not read them, destroying
+        # the only record of a purchase before the retry happens. So Save must
+        # decline to publish while the migration is unresolved.
+        self.assertRegex(
+            save,
+            r"if\s*\(\s*\*migrated\s*!=\s*VV_DOUBLER_MIGRATED_VALUE\s*\)",
+            "Save must not republish the sidecar while migration is pending, "
+            "or a transient restore failure loses the purchase on the next save",
+        )
+        decline = save.index("*migrated != VV_DOUBLER_MIGRATED_VALUE")
+        self.assertLess(
+            decline,
+            save.index("CreateFileA"),
+            "the refusal must come before the file is created, not after",
         )
 
 

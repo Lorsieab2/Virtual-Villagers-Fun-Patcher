@@ -671,24 +671,45 @@ __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
 
 /* --- Doubler ownership sidecar ------------------------------------------
    The Origins tech/food point doublers record ownership in two fields of the
-   saved game state, +0xAD48 (tech) and +0xAD4C (food).  Those fields are set
-   correctly while the game runs, but they are NEVER persisted, and the reason
-   is structural rather than a missing write: the game's own serializer copies
-   0xABDC = 43996 bytes (`push 0xABDC` at 0x41BEAF and 0x41BF5B), while the two
-   fields live at 44360 and 44364 -- 364 and 368 bytes PAST the end of the
-   serialized extent.  So a purchased doubler is gone on the next load, which is
-   exactly what the owner reported.
+   saved game state, +0x9E90 (tech) and +0x9E94 (food).
 
-   Extending the game's serialized length is not an option: the length is also
-   what the loader reads, so a longer record would make every existing save
-   unreadable by the stock game and by older patcher builds.  Relocating the
-   flags into the extent is not safe either -- the apparently free dwords below
-   it are not free.  A disp32 scan (validated by a positive control that finds
-   all 27 references to +0xABE4) shows +0xABDC is the serialized length itself
-   and +0xABE4/+0xABE8 are live fields, so writing there would corrupt saves.
+   THOSE ARE NOT THE ORIGINAL OFFSETS, and the history matters.  The flags used
+   to live at +0xAD48 and +0xAD4C, which are 356 and 360 bytes PAST the end of
+   what the game serializes: the serializer copies 0xABDC = 43996 bytes from
+   state+8 (`lea eax,[esi+8]; push 0xABDC` at 0x41BF58), so the persisted window
+   ends at state+0xABE4.  The game set those fields correctly and then never
+   wrote them to disk, so a purchased doubler was gone on the next load, which
+   is what the owner reported.  This sidecar was built to work around that.
 
-   The flags are therefore mirrored to a sidecar next to the save, keyed by the
-   same numbered slot the mask sidecar uses:
+   Extending the serialized length is not an option: the length is also what the
+   loader reads, so a longer record would make every existing save unreadable by
+   the stock game and by older patcher builds.  But RELOCATING the flags into
+   the extent is safe, and that is what is now done.  An earlier version of this
+   comment said otherwise -- it claimed "the apparently free dwords below it are
+   not free" -- and that claim was too broad.  Its evidence concerned +0xABDC,
+   +0xABE4 and +0xABE8, the dwords at the very TOP of the extent, which are
+   indeed the serialized length and live fields.  It said nothing about the
+   region 3,416 bytes lower, where the flags now sit.
+
+   +0x9E90 and +0x9E94 were chosen on three independent lines of evidence:
+
+     - a Capstone scan of .text inspecting real memory operands, carried by a
+       positive control that finds the 71 accesses to +0xADE8, reports no stock
+       reference to either dword;
+     - across 38 of the owner's saves spanning 19 villages both dwords read 0 in
+       every one, while the same test correctly flags +0x9EA4, +0x9EBC, +0x9EC0
+       and +0x9EC8 as varying and +0x9EA8 as a uniform nonzero;
+     - nothing else in the patcher claims them.  That check is not optional: the
+       statistics burial counter owns +0x9E84 and +0x9E88, which read as zero in
+       STOCK saves precisely because they are patch-added, so the save survey
+       alone cannot see patcher claims.
+
+   The flags therefore now persist in the save itself, exactly as VV2-VV5 keep
+   their equivalents.  THE SIDECAR IS KEPT ANYWAY, because players who bought a
+   doubler under an older build have that ownership recorded only in the sidecar
+   file; removing the loader would take away something they paid for.  It is now
+   a second copy rather than the only one.  It is keyed by the same numbered
+   slot the mask sidecar uses:
 
        <My Documents>\LDW\<exe basename>\vv1_doublers_<slot>.dat
 
@@ -713,8 +734,22 @@ __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
    never runs from DllMain; it runs from the exports below, which the exe calls
    outside the loader lock. */
 #define VV_DOUBLER_SIDECAR_MAGIC 0x32304456u  /* 'V' 'D' '0' '2' */
-#define VV_DOUBLER_TECH_OFFSET 0xAD48u
-#define VV_DOUBLER_FOOD_OFFSET 0xAD4Cu
+#define VV_DOUBLER_TECH_OFFSET 0x9E90u
+#define VV_DOUBLER_FOOD_OFFSET 0x9E94u
+/* "This village's doubler ownership lives in the save."  Set once, the first
+   time a village is seen after the relocation, and checked before the sidecar
+   is ever applied.
+
+   It exists because `save 0 + sidecar 1` is ambiguous without it: that shape is
+   both the legacy migration AND a persisted removal whose sidecar write failed.
+   With the marker the two are distinguishable -- absent means the save predates
+   the relocation and has no opinion, present means the 0 is deliberate.
+
+   Same evidence as the two flags: inside the serialised extent, reads 0 across
+   all 38 of the owner's saves, unreferenced by the stock game, unclaimed by the
+   patcher. */
+#define VV_DOUBLER_MIGRATED_OFFSET 0x9E98u
+#define VV_DOUBLER_MIGRATED_VALUE 1u
 
 /* Village identity, so a sidecar can never be applied to a different village.
 
@@ -801,17 +836,49 @@ __declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
     unsigned int *tech;
     unsigned int *food;
     unsigned int *tag;
+    unsigned int *migrated;
     BOOL ok = TRUE;
     int slot = vv1_mask_current_slot();
     tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
     food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
     tag = vv1_doubler_field(state, VV_DOUBLER_VILLAGE_TAG_OFFSET);
-    if (!slot || tech == NULL || food == NULL || tag == NULL) {
+    migrated = vv1_doubler_field(state, VV_DOUBLER_MIGRATED_OFFSET);
+    if (!slot || tech == NULL || food == NULL || tag == NULL
+        || migrated == NULL) {
+        return 0;
+    }
+    /* DO NOT PUBLISH WHILE THE MIGRATION IS UNRESOLVED.
+
+       A clear marker means this village either has a sidecar that has not yet
+       been successfully read, or has never been loaded by a build with the
+       relocated fields.  In both cases the file on disk is the better record
+       and must be left alone.
+
+       Without this, leaving the marker clear after a transient read failure
+       achieves nothing: this function runs on every save and would republish
+       the file from in-memory flags that are still zero precisely BECAUSE the
+       restore could not read them, overwriting the only record of a purchase
+       before the retry ever happens.
+
+       A village that genuinely has no sidecar is not stuck here.  Restore
+       consumes the marker when the open fails with ERROR_FILE_NOT_FOUND or
+       ERROR_PATH_NOT_FOUND, so such a village is marked on its first load and
+       publishes normally from then on.  The flags still reach the .ldw
+       meanwhile, which is the primary record now, so nothing is lost that the
+       save does not already hold. */
+    if (*migrated != VV_DOUBLER_MIGRATED_VALUE) {
         return 0;
     }
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
         return 0;
     }
+    /* The marker is NOT stamped here.  This hook is spliced at 0x41BF68, one
+       instruction past the writer call at 0x41BF63, so anything set here
+       reaches memory only after the .ldw has been serialised and would not be
+       on disk until the NEXT save.  It is stamped on the load path instead,
+       where it is in memory before any save runs.  The flags are unaffected by
+       that ordering: the game sets them when the player buys or removes a
+       doubler, long before a save. */
     payload[0] = VV_DOUBLER_SIDECAR_MAGIC;
     payload[1] = (*tech != 0) ? 1u : 0u;
     payload[2] = (*food != 0) ? 1u : 0u;
@@ -861,36 +928,123 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
     unsigned int *tech;
     unsigned int *food;
     unsigned int *tag;
+    unsigned int *migrated;
+    BOOL read_ok;
     int slot = vv1_mask_current_slot();
     tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
     food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
     tag = vv1_doubler_field(state, VV_DOUBLER_VILLAGE_TAG_OFFSET);
-    if (!slot || tech == NULL || food == NULL || tag == NULL) {
+    migrated = vv1_doubler_field(state, VV_DOUBLER_MIGRATED_OFFSET);
+    if (!slot || tech == NULL || food == NULL || tag == NULL || migrated == NULL) {
         return 0;
     }
-    if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
+    /* THE SAVE IS AUTHORITATIVE ONCE MIGRATED.  After this village has been
+       seen with the relocated fields, a 0 in the save is a real answer -- the
+       player removed that doubler -- and the sidecar must not speak.  Reading
+       it here would restore a removed doubler whenever Vv1DoublerSave had
+       failed, because its failure paths keep the previous .dat and the village
+       tag still matches. */
+    if (*migrated == VV_DOUBLER_MIGRATED_VALUE) {
         return 0;
+    }
+    /* THE MARKER IS CONSUMED ONLY WHEN THE SIDECAR WAS ACTUALLY EXAMINED.
+
+       "Confirmed absent" and "could not look" are different answers.  If the
+       Documents folder cannot be resolved, or the file is held by another
+       process, or a read fails, then nothing was learned about this village and
+       the marker must stay clear so the next load tries again.  Consuming it
+       here would strand a real sidecar: Restore returns without granting, the
+       next save persists the marker, and every later load skips a perfectly
+       valid file -- losing a doubler the player paid for.
+
+       Retrying is cheap and safe.  It only means the sidecar is consulted
+       again, which is the pre-marker behaviour, and grant-only still stops a
+       stale file from revoking anything.
+
+       ONE RESIDUAL CASE, stated rather than papered over.  While the migration
+       is pending, a REMOVAL can still be undone: the .ldw records 0, the
+       unread sidecar still says 1, and the next successful load applies
+       grant-only and restores it.  It needs the sidecar to be unreadable at
+       one load AND the player to remove a doubler before the next successful
+       one, so the window is narrow.  The cost is a refunded doubler coming
+       back rather than a paid one disappearing, which is the safe direction of
+       the two and the same trade grant-only makes deliberately everywhere
+       else.  A purchase in that same window is not at risk at all: the flag
+       reaches the .ldw through the exe patch, and grant-only cannot take it
+       away. */
+    if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
+        return 0;               /* no path -> nothing learned, retry next load */
     }
     file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                        FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {
-        return 0;  /* no sidecar for this slot -> nothing owned, as before */
+        DWORD why = GetLastError();
+        if (why == ERROR_FILE_NOT_FOUND || why == ERROR_PATH_NOT_FOUND) {
+            /* Genuinely not there, and never will be for this village: there is
+               nothing to migrate, so the question is settled. */
+            *migrated = VV_DOUBLER_MIGRATED_VALUE;
+        }
+        /* Any other failure -- sharing violation, access denied -- means the
+           file may well exist and hold a paid doubler.  Leave the marker clear
+           and look again next time. */
+        return 0;
     }
     /* The village tag must match as well as the magic.  A sidecar left behind
        by a previous village in this reused slot fails here and is ignored,
        which falls back to the pre-fix behaviour -- the doublers are simply not
        restored -- rather than granting doublers the village never earned.  The
        stale file is left alone; the next save overwrites it for this village. */
-    if (ReadFile(file, payload, sizeof(payload), &got, NULL)
+    read_ok = ReadFile(file, payload, sizeof(payload), &got, NULL);
+    if (read_ok
         && got == sizeof(payload)
         && payload[0] == VV_DOUBLER_SIDECAR_MAGIC
         && payload[3] == *tag) {
-        /* Normalised to 0/1 on write, and normalised again here, so a corrupt
-           or hand-edited value can only ever mean owned or not owned. */
-        *tech = (payload[1] != 0) ? 1u : 0u;
-        *food = (payload[2] != 0) ? 1u : 0u;
+        /* GRANT ONLY -- the sidecar may turn a flag ON, never off.
+
+           The flags now live inside the serialized save, so the save is the
+           authority and the sidecar is a migration aid for ownership bought
+           under an older build.  The two can disagree: the .ldw write can
+           succeed after a purchase while Vv1DoublerSave fails, and every one of
+           its failure paths deliberately leaves the PREVIOUS .dat in place.  An
+           unconditional assignment here would then copy the older sidecar over
+           the newly saved flag and silently undo the purchase -- or, for a
+           removal, bring the doubler back.
+
+           OR-ing keeps the migration working (save 0 + sidecar 1 -> 1, which is
+           the whole point of the file) while making a stale sidecar unable to
+           revoke what the save already records (save 1 + sidecar 0 -> 1).  It
+           cannot fabricate ownership either: the village tag is checked above,
+           so a sidecar from another village never reaches this line.
+
+           Normalised to 0/1 on write and normalised again here, so a corrupt or
+           hand-edited value can only ever mean owned or not owned. */
+        if (payload[1] != 0) {
+            *tech = 1u;
+        }
+        if (payload[2] != 0) {
+            *food = 1u;
+        }
+        /* Examined and applied: the migration is done. */
+        *migrated = VV_DOUBLER_MIGRATED_VALUE;
         CloseHandle(file);
         return 1;
+    }
+    /* The file was opened and read but did not apply -- a foreign village tag,
+       or a pre-'VD02' record from an older build.
+
+       Both are real answers, so both settle the migration.  A 'VD01' file is
+       12 bytes, so ReadFile SUCCEEDS with got == 12: the record is complete,
+       it simply predates the village tag and cannot be trusted to belong to
+       this village.  Requiring got == sizeof(payload) here deadlocked exactly
+       that case -- the marker stayed clear forever, and Vv1DoublerSave then
+       declined to publish forever on its pending-migration guard, so the
+       legacy file was never upgraded.
+
+       What must NOT settle it is a read that genuinely failed, where nothing
+       was learned.  `read_ok` distinguishes the two: ReadFile returning FALSE
+       is a failure, while a short count is EOF on a smaller, older record. */
+    if (read_ok) {
+        *migrated = VV_DOUBLER_MIGRATED_VALUE;
     }
     CloseHandle(file);
     return 0;

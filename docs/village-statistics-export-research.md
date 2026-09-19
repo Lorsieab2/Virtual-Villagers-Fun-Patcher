@@ -909,6 +909,12 @@ before any new counter is placed:
 | counter field | 44,360 (`0xAD48`) | 189,916 (`+0x2E5DC`) |
 | position | **352 bytes PAST** | **7,572 bytes inside** |
 
+**Since fixed.** A New Home's doubler flags have been relocated to
+`+0x9E90`/`+0x9E94`, 3,412 bytes inside the extent, so the left-hand column
+is a historical example rather than current behaviour. The lesson it
+teaches is unchanged: measure the field against the serialised extent
+before placing it.
+
 Measured against an actual save file on disk, not inferred from the
 allocation. The twelve-byte difference between the file and the allocation is
 header overhead.

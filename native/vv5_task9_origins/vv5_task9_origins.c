@@ -16,6 +16,9 @@
    shared file bleeding masks across slots. The sidecar is a SEPARATE file from the
    .ldw, so it can never corrupt a save. */
 #define MASK_TABLE_BYTES 75
+/* 'VM01' -- a tagged mask sidecar.  An older untagged file has no header
+   at all, so it fails this check and is ignored rather than misread. */
+#define VV5_MASK_SIDECAR_MAGIC 0x31304D56u
 /* Current save slot, written by the exe slot_capture detour (0 until the first
    save/load; village slots are >=1, slot 0 is the meta file). */
 #define VV5_SLOT_SCRATCH 0x007B1D7Cu
@@ -142,13 +145,66 @@ static int build_mask_sidecar_path(char *out) {
     return 1;
 }
 
+/* The village this table belongs to.
+
+   Measured across the owner's 153 VV5 saves covering 10 tribes: two aligned
+   dwords in the save buffer, at +0x328 and +0x338, give 10/10 distinct
+   signatures, stay constant within a village across its N/N+20/N+40
+   generations, and differ across all three REAL same-slot village
+   replacements in the owner's save folder -- the Start Over / delete-tribe
+   events this exists to detect.
+
+   The buffer is the game's manager object plus 8, the same bias every game
+   uses at its save call site. The mapping is confirmed twice over: the tribe
+   name is documented at buffer +0x17D14 and measured at file 0x17D2C, a +0x18
+   header, and VV5's recorded buffer size 0x17D78 + 0x18 is exactly the 97,680
+   bytes a real save occupies.
+
+   Returns 0 when the village cannot be identified, and every caller treats
+   that as "do not touch the table" rather than guessing. */
+#define VV5_MANAGER      0x004DBFC8u
+#define VV5_SAVE_BIAS    8u
+#define VV5_TAG_A_OFFSET 0x328u
+#define VV5_TAG_B_OFFSET 0x338u
+
+static int vv5_village_tag(unsigned int *out) {
+    const unsigned char *buffer =
+        (const unsigned char *)(UINT_PTR)(VV5_MANAGER + VV5_SAVE_BIAS);
+    unsigned int a;
+    unsigned int b;
+    unsigned int h = 2166136261u;          /* FNV-1a over both fields */
+    int i;
+    if (out == NULL) {
+        return 0;
+    }
+    a = *(const volatile unsigned int *)(buffer + VV5_TAG_A_OFFSET);
+    b = *(const volatile unsigned int *)(buffer + VV5_TAG_B_OFFSET);
+    /* A village that has not been loaded reads as all-zero here.  Treat that
+       as "unknown", so a pre-load read can never match a written tag. */
+    if (a == 0u && b == 0u) {
+        return 0;
+    }
+    for (i = 0; i < 4; ++i) { h = (h ^ ((a >> (8 * i)) & 0xFFu)) * 16777619u; }
+    for (i = 0; i < 4; ++i) { h = (h ^ ((b >> (8 * i)) & 0xFFu)) * 16777619u; }
+    *out = h ? h : 1u;                     /* reserve 0 = "no tag" */
+    return 1;
+}
+
 /* Persist the mask side-table (75 bytes at exe 0x7B1D20, passed in) to the
-   sidecar. Called from the chooser on OK. Never touches the .ldw. */
+   sidecar, tagged with the village that owns it.  Called from the chooser on
+   OK. Never touches the .ldw. */
 __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table) {
     char path[MAX_PATH];
     HANDLE h;
     DWORD wrote = 0;
+    unsigned int header[2];
+    unsigned int tag = 0;
     if (table == NULL || !build_mask_sidecar_path(path)) {
+        return;
+    }
+    /* No identifiable village means there is nothing to bind the file to.
+       Writing it untagged would recreate exactly the bug being fixed. */
+    if (!vv5_village_tag(&tag)) {
         return;
     }
     h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
@@ -156,6 +212,9 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
     if (h == INVALID_HANDLE_VALUE) {
         return;
     }
+    header[0] = VV5_MASK_SIDECAR_MAGIC;
+    header[1] = tag;
+    WriteFile(h, header, sizeof(header), &wrote, NULL);
     WriteFile(h, table, MASK_TABLE_BYTES, &wrote, NULL);
     CloseHandle(h);
 }
@@ -167,13 +226,35 @@ __declspec(dllexport) void __stdcall ReadMaskSidecar(unsigned char *table) {
     char path[MAX_PATH];
     HANDLE h;
     DWORD got = 0;
+    unsigned int header[2];
+    unsigned int tag = 0;
     if (table == NULL || !build_mask_sidecar_path(path)) {
         return;
+    }
+    /* FAIL CLOSED, everywhere below: the table is cleared first, so every
+       early return leaves the village with NO masks.  That is exactly the
+       behaviour of a village that never chose any, and it is what stops a
+       new village inheriting a dead one's choices. */
+    memset(table, 0, MASK_TABLE_BYTES);
+    if (!vv5_village_tag(&tag)) {
+        return;                     /* no identifiable village -> no masks */
     }
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
-        memset(table, 0, MASK_TABLE_BYTES);
+        return;                     /* no sidecar -> no masks, as before */
+    }
+    if (!ReadFile(h, header, sizeof(header), &got, NULL)
+        || got != sizeof(header)
+        || header[0] != VV5_MASK_SIDECAR_MAGIC
+        || header[1] != tag) {
+        /* Either a pre-tag 75-byte file from an older build, or a file this
+           village did not write.  Both are ignored rather than applied.  The
+           untagged case costs the player their mask CHOICES once, recovered
+           in seconds from the chooser; applying them would be the reported
+           bug.  The stale file is left alone -- the next chooser write
+           replaces it with a correctly tagged one. */
+        CloseHandle(h);
         return;
     }
     ReadFile(h, table, MASK_TABLE_BYTES, &got, NULL);
