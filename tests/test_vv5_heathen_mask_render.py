@@ -24,7 +24,9 @@ So the guards here are:
     +0x1CEE into scratch and then wrote literal zero back, silently clearing an
     orange or red villager's colour. That is fixed here and guarded below;
   * both epilogues of the render function are detoured, so the flip window
-    closes on every path out.
+    closes on every path out;
+  * and mask_flip UNFLIPS ANY STILL-ARMED VILLAGER BEFORE IT DOES ANYTHING
+    ELSE, so a fault that escapes the epilogues cannot strand one.
 
 tests/test_vv5_mask_overlay_argument_order.py was deleted with the overlay. Its
 assertions were all about that routine's argument tuple and its frame -- the
@@ -75,8 +77,8 @@ def test_flip_only_touches_a_believer_and_refuses_to_nest():
     """The flip may only ever be armed on a Believer, and only one at a time.
 
     Both conditions are what keep the faction change invisible to the player: a
-    real Heathen is never touched, and a second villager cannot be armed while
-    the first is still flipped and waiting to be restored.
+    real Heathen is never touched, and two villagers can never be flipped at
+    once, because arming a new one first unflips any villager still armed.
     """
     page, rmap = t9.build_page(STOCK_PAGE_VA)
     ins = _routine(page, rmap, "mask_flip")
@@ -97,11 +99,12 @@ def test_flip_only_touches_a_believer_and_refuses_to_nest():
         "a non-Believer must skip the whole flip"
     )
 
-    # NO NESTING: an already-armed flip must also branch to the exit
-    armed = [i for i in ins if i.mnemonic == "cmp" and i.op_str == "byte ptr [0x7b1d00], 0"]
-    assert armed, "flip must test the armed guard"
-    guard = ins[ins.index(armed[0]) + 1]
-    assert guard.mnemonic == "jne" and int(guard.op_str, 16) == done
+    # NO NESTING. The flip cannot leave two villagers armed at once, because
+    # it unflips any still-armed villager before it arms a new one. That call
+    # is the first instruction of the routine; see the dedicated self-heal
+    # test for the guarantee that nothing can branch past it.
+    unflip = STOCK_PAGE_VA + t9.OFF["mask_unflip"]
+    assert any(i.mnemonic == "call" and int(i.op_str, 16) == unflip for i in ins)
 
     # the three colour bytes are SAVED before they are overwritten
     for scratch, field in ((0x7B1D04, 0x1CED), (0x7B1D08, 0x1CEE), (0x7B1D0C, 0x1CFC)):
@@ -183,7 +186,7 @@ def test_restore_writes_back_the_saved_colours_not_zero():
     three fields must be restored from its own scratch dword.
     """
     page, rmap = t9.build_page(STOCK_PAGE_VA)
-    ins = _routine(page, rmap, "mask_restore")
+    ins = _routine(page, rmap, "mask_unflip")
     text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
 
     # unarmed villagers are a no-op: the guard jumps straight to the epilogue
@@ -209,9 +212,9 @@ def test_restore_writes_back_the_saved_colours_not_zero():
 
     # the guard is cleared, so the next villager can arm
     assert "mov byte ptr [0x7b1d00], 0" in text
-    # and the displaced epilogue is replayed exactly
-    assert ins[-2].mnemonic == "add" and ins[-2].op_str == "esp, 0xa8"
-    assert ins[-1].mnemonic == "ret" and ins[-1].op_str == "8"
+    # and it returns as a plain subroutine; the epilogue replay lives in
+    # mask_restore, which calls this.
+    assert ins[-1].mnemonic == "ret" and not ins[-1].op_str
 
 
 def test_scratch_and_table_are_in_proven_free_data_bss():
@@ -360,3 +363,56 @@ def test_mask_sidecar_path_is_fail_closed_and_budgeted():
     assert "n == 0 || n >= MAX_PATH" in VV5_SOURCE
     assert "sizeof(\"\\\\vvfp_masks_5.dat\")" in VV5_SOURCE
     assert "docs_len + 5 + base_len" in VV5_SOURCE
+
+
+def test_flip_heals_a_stranded_villager_before_anything_else():
+    """A fault that escapes the epilogues must not strand a villager.
+
+    The flip sets +0x1CEC = 1 so the stock renderer takes the heathen branch,
+    and docs/crash-dump-findings.md records a real fault on that path for a
+    retired chief, escaping before either epilogue ran. Restoring the saved
+    colours does not help if the restore never executes.
+
+    Left unhealed the damage compounds: the armed flag at 0x7B1D00 stays set,
+    the victim keeps +0x1CEC = 1 and is treated as a Heathen, and -- because
+    the flip refuses to arm while the flag is set -- NO villager gets a mask
+    again for the rest of the session.
+
+    So mask_flip calls mask_unflip as its FIRST action, before any branch that
+    could skip it. Every villager drawn therefore repairs a stranded one, and
+    the feature re-enables itself on the next frame.
+    """
+    page, rmap = t9.build_page(STOCK_PAGE_VA)
+    ins = _routine(page, rmap, "mask_flip")
+    unflip = STOCK_PAGE_VA + t9.OFF["mask_unflip"]
+
+    calls = [i for i in ins if i.mnemonic == "call" and int(i.op_str, 16) == unflip]
+    assert calls, "mask_flip must call mask_unflip"
+
+    # It must come before EVERY branch out of the routine, otherwise a villager
+    # with no mask (choice 0) would sail past without healing anyone.
+    heal_at = calls[0].address
+    for i in ins:
+        if i.address >= heal_at:
+            break
+        assert not i.mnemonic.startswith("j"), (
+            f"{i.mnemonic} {i.op_str} at 0x{i.address:X} can skip the heal"
+        )
+
+
+def test_unflip_is_a_callable_subroutine_used_by_both_paths():
+    """One implementation of the undo, reachable from the epilogue and the flip."""
+    page, rmap = t9.build_page(STOCK_PAGE_VA)
+    unflip = _routine(page, rmap, "mask_unflip")
+    assert unflip[-1].mnemonic == "ret" and not unflip[-1].op_str, (
+        "mask_unflip must be a plain `ret` subroutine, not a detour"
+    )
+    # the epilogue detour delegates rather than duplicating the undo
+    restore = _routine(page, rmap, "mask_restore")
+    text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in restore)
+    assert f"call 0x{STOCK_PAGE_VA + t9.OFF['mask_unflip']:x}" in text
+    # and it still replays the displaced epilogue, with the call made while the
+    # frame is intact so `ret 8` stays correct
+    assert restore[0].mnemonic == "call"
+    assert restore[-2].mnemonic == "add" and restore[-2].op_str == "esp, 0xa8"
+    assert restore[-1].mnemonic == "ret" and restore[-1].op_str == "8"

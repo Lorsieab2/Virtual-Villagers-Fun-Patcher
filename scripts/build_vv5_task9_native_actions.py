@@ -234,6 +234,7 @@ OFF = {
     "appearance_all": 0x6500,
     "mask_flip": 0x6800,
     "mask_restore": 0x6A00,
+    "mask_unflip": 0x6B00,
     "mask_get": 0x6C00,
     "mask_set": 0x6C80,
     "mask_load_once": 0x6D00,
@@ -277,7 +278,8 @@ SIZES = {
     "apply_division": 0x80,
     "appearance_all": 0x100,
     "mask_flip": 0x200,
-    "mask_restore": 0x200,
+    "mask_restore": 0x80,
+    "mask_unflip": 0x180,
     "mask_get": 0x80,
     "mask_set": 0x80,
     "mask_load_once": 0x80,
@@ -3805,6 +3807,7 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     flip = put(page, page_va, "mask_flip", f"""
         push eax
         push edx
+        call 0x{page_va + OFF['mask_unflip']:X}
         cmp byte ptr [0x{MASK_LOADED:X}], 0
         jne mf_loaded
         call 0x{page_va + OFF['mask_load_once']:X}
@@ -3814,8 +3817,6 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         je mf_done
         cmp eax, 5
         ja mf_done
-        cmp byte ptr [0x7B1D00], 0
-        jne mf_done
         cmp byte ptr [esi+0x1CEC], 0
         jne mf_done
         mov byte ptr [0x7B1D00], 1
@@ -3870,9 +3871,12 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # wrote literal zero back to both, restoring only +0x1CFC. A mask on an
     # orange or red villager therefore cleared that villager's colour
     # permanently. The saved bytes were already there; they are used now.
-    restore = put(page, page_va, "mask_restore", """
+    # mask_unflip: the whole of the undo, as a plain subroutine so that BOTH
+    # the epilogue detours and mask_flip itself can run it. A villager that was
+    # never flipped hits the guard and this is a no-op. Clobbers nothing.
+    unflip = put(page, page_va, "mask_unflip", """
         cmp byte ptr [0x7B1D00], 0
-        je mr_done
+        je mu_done
         push eax
         push edx
         mov eax, [0x7B1D10]
@@ -3886,7 +3890,14 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         mov byte ptr [0x7B1D00], 0
         pop edx
         pop eax
-    mr_done:
+    mu_done:
+        ret
+    """)
+
+    # mask_restore: the epilogue detour. It runs the undo, then replays the
+    # `add esp,0xA8` it displaced and returns as the stock epilogue would.
+    restore = put(page, page_va, "mask_restore", f"""
+        call 0x{page_va + OFF['mask_unflip']:X}
         add esp, 0xA8
         ret 8
     """)
@@ -4151,7 +4162,7 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         jmp 0x4687F6
     """)
     return {
-        "mask_flip": flip, "mask_restore": restore, "mask_get": get, "mask_set": set_,
+        "mask_flip": flip, "mask_restore": restore, "mask_unflip": unflip, "mask_get": get, "mask_set": set_,
         "mask_load_once": load_once, "bighead_mask": bighead,
         "slot_capture": slot_capture, "mask_birth_clear": birth_clear,
     }
