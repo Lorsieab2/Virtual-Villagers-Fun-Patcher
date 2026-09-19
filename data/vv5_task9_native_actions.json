@@ -488,7 +488,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "BADE217EBE7C69B1CDD7C6B1F66859F783DF751D17026A79A3A35B6878D62801"
+      "source_text_sha256": "58CEDA0FEEDB0CBDADBC5C647D683392BEFFDCBD7F856968308004ED69E6B0A7"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -772,5 +772,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "6CDD9A7D976EEF0352F222AF927A771EE8B5D68ACB6BD465C800821119D66972"
+  "task9_map_canonical_sha256": "DAB3A75283AC93BEFE65BF9480521592D3623BB596CB30A4DBFF748E7ECD55A0"
 }

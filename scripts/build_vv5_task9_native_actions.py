@@ -3743,44 +3743,76 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     the nibble-packed side-table MASK_TABLE, keyed by villager record index,
     0=none / 1-5 = Blue/Orange/Red/Purple/Chief) on a Believer.
 
-    THE MASK IS DRAWN AS AN OVERLAY.  The villager record is never written.
+    THE MASK IS DRAWN BY FLIPPING THE VILLAGER, NOT BY AN OVERLAY.
 
-    An earlier design flipped the record's faction byte (+0x1CEC) to heathen for
-    the duration of the head draw and restored it at the function epilogue.  That
-    crashed the game.  The stock renderer branches on exactly that byte at
-    0x472729: believers draw through 0x44F5E0, heathens through 0x44F4E0.  Setting
-    the byte therefore did not merely change an atlas, it diverted the villager
-    down a different draw path -- and for a retired chief that path resolved a
-    sprite that does not exist, passing a null object into 0x4271C0
-    (`mov eax,[ecx+8]`) and faulting.  The fault happened INSIDE the flip window,
-    so the epilogue restore never ran and the villager was left permanently
-    heathen with its colour fields zeroed.  Reported from a playtest: a mask on
-    the retired chief, then dragging villagers near him.
+    For the duration of one villager's head draw the record's faction byte
+    +0x1CEC is set to heathen and its colour fields are set to the chosen mask,
+    so the game's OWN renderer selects the mask sprite. The fields are put back
+    on the way out. This is what the build the owner confirmed working does, and
+    it is the only thing that renders a village mask.
 
-    Mutating a live object mid-render and relying on an epilogue to undo it is not
-    safe: any fault in between leaves the corruption behind.  So the flip is gone.
-    The stock draw now runs untouched and the mask is painted on top afterwards by
-    calling the heathen head draw (0x44F4E0) directly with the same coordinates,
-    which is how VV3 has always done it.  No branch is diverted, no null sprite is
-    resolved, and a fault mid-draw can no longer corrupt a villager.
+    WHY NOT AN OVERLAY. An earlier design replaced the believer head draw at
+    0x47279C and painted the mask afterwards by calling the heathen head draw
+    with a forwarded argument tuple. It shipped in three releases and rendered a
+    village mask in NONE of them, because the stock heathen branch at 0x472732
+    does not accept a mask number: it PICKS its sprite argument from one of three
+    CALLER stack slots according to the villager's own colour flags, and those
+    slots hold handles the caller already prepared. Four orderings were tried and
+    each failed visibly. 0x47279C is deliberately left unpatched here.
 
-    Two stock-only .text detours drive it:
+    THE CRASH THIS MUST NOT RESURRECT. The stock renderer branches on +0x1CEC at
+    0x472729, so the flip diverts the villager onto the heathen draw path, and
+    for a retired chief that path resolved a sprite that does not exist, passing
+    a null object into 0x4271C0 (`mov eax,[ecx+8]`). Recorded in
+    docs/crash-dump-findings.md; the reproduction was a mask on the retired
+    chief, then dragging villagers near him.
 
-      * mask_arm is entered from 0x472481 (just past the selection-ring block).
-        It only RECORDS the villager and its mask choice in scratch -- it writes
-        nothing to the record -- then replays the displaced `mov ecx,[esp+0xbc]`.
-      * mask_overlay is entered from the believer draw call site (0x47279C). It
-        replays that stock call unchanged, then, if this villager has a mask,
-        calls the heathen head draw 0x44F4E0 with the SAME arguments so the mask
-        paints on top. The believer draw has already happened, so a villager with
-        no heathen sprite simply keeps its normal head instead of resolving a
-        null one.
+    The flip cannot be avoided without losing the feature, so the cleanup is made
+    unskippable instead. mask_unflip is a plain subroutine holding the whole undo,
+    and it runs from BOTH directions:
 
-    Scratch lives in free .data BSS 0x7B1D00 (armed flag / mask choice / villager
-    pointer), never in .text caves, so it never contends with the population,
-    statistics, or other .text-cave features. Nothing in this feature writes a
-    villager record, so there is no state to restore and no window in which a
-    fault can leave one corrupted."""
+      * both epilogues of the render function (0x472B0F, 0x472B57) call it, so it
+        runs on every normal path out; and
+      * mask_flip calls it as its FIRST instruction, before the sidecar load and
+        before any branch that could skip it.
+
+    BE PRECISE ABOUT WHAT THAT SECOND PATH BUYS, AND WHAT IT DOES NOT.
+
+    It does NOT prevent or recover from the retired-chief crash above. That
+    fault is an unhandled 0xC0000005 access violation: the process writes a
+    minidump and dies, so there is no next villager and no next frame. Nothing
+    reached from inside this page can help once that fault is raised.
+
+    What it covers is a recoverable early exit -- any path that leaves the
+    render function without passing through either patched epilogue while the
+    flag is still set. Before it existed, such an exit left the armed flag set,
+    the victim marked Heathen, AND every other villager unmasked for the rest
+    of the session, because the flip refused to arm while the flag was set. So
+    one skipped restore disabled the feature process-wide. Now the next villager
+    drawn repairs it. That was the behaviour of the reference build, and it is
+    the only claim the evidence here supports.
+
+    The retired-chief fault itself remains unaddressed: the flip still takes
+    that draw path, so the sprite resolution is unchanged. There is no
+    reproduction on hand to test against, and the recorded dump predates the
+    reference build the owner confirmed working.
+
+    Three stock-only .text detours drive it:
+
+      * mask_flip is entered from 0x472481 (just past the selection-ring block,
+        so the ring has already drawn with the real faction and stays white).
+        It heals any stranded villager, then flips this one if it is a Believer
+        with a mask, then replays the displaced `mov ecx,[esp+0xbc]`.
+      * mask_restore is entered from both epilogues. It calls mask_unflip while
+        the frame is still intact, then replays the displaced `add esp,0xA8`.
+
+    Only Believers are ever flipped -- a real Heathen is skipped -- and the heal
+    makes it impossible for two villagers to be flipped at once, so no faction
+    change is observable to the player.
+
+    Scratch lives in free .data BSS 0x7B1D00 (armed flag / saved colour bytes /
+    villager pointer), never in .text caves, so it never contends with the
+    population, statistics, or other .text-cave features."""
     # mask_flip: entered from 0x472481, just past the selection-ring block of
     # the per-villager render function. For a Believer that has a mask choice
     # it saves the colour fields and the villager pointer, sets the chosen
