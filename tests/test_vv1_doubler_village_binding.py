@@ -219,6 +219,59 @@ class VillageTagBindingTest(unittest.TestCase):
             "the food grant must be gated on the sidecar claiming food",
         )
 
+    def test_a_migrated_save_ignores_the_sidecar_entirely(self) -> None:
+        """Once the save carries the flags, a 0 in it means a real removal.
+
+        Grant-only alone left `save 0 + sidecar 1` ambiguous: that shape is
+        BOTH the legacy migration and a persisted removal whose sidecar write
+        failed, and OR-ing always picks "restore", so removing a doubler could
+        be undone on the next load. The village tag does not help, because the
+        stale file belongs to the same village.
+
+        The marker disambiguates them. Restore must therefore return BEFORE
+        reading the sidecar when it is set, and Save must stamp it, so the
+        migration happens at most once per village.
+        """
+        restore = self._function("Restore")
+        save = self._function("Save")
+
+        migrated = self._macro("VV_DOUBLER_MIGRATED_OFFSET")
+        payload_end = PAYLOAD_STATE_BASE + 0xABDC
+        self.assertGreaterEqual(migrated, PAYLOAD_STATE_BASE)
+        self.assertLess(
+            migrated + 4,
+            payload_end,
+            "the marker must round-trip through the save like the flags",
+        )
+        for other in ("VV_DOUBLER_TECH_OFFSET", "VV_DOUBLER_FOOD_OFFSET",
+                      "VV_DOUBLER_VILLAGE_TAG_OFFSET"):
+            self.assertNotEqual(
+                migrated,
+                self._macro(other),
+                "the marker must not overlap %s" % other,
+            )
+
+        # Restore bails out on the marker, and does so before opening the file.
+        self.assertRegex(
+            restore,
+            r"if\s*\(\s*\*migrated\s*==\s*VV_DOUBLER_MIGRATED_VALUE\s*\)",
+            "Restore must ignore the sidecar once the save is authoritative",
+        )
+        guard = restore.index("*migrated == VV_DOUBLER_MIGRATED_VALUE")
+        opened = restore.index("CreateFileA")
+        self.assertLess(
+            guard,
+            opened,
+            "the marker check must come before the sidecar is opened",
+        )
+
+        # Save stamps it, so a migrated village never re-reads the file.
+        self.assertRegex(
+            save,
+            r"\*migrated\s*=\s*VV_DOUBLER_MIGRATED_VALUE\s*;",
+            "Save must record that ownership now lives in the save",
+        )
+
 
 class HookDirectionTest(unittest.TestCase):
     """The save hook must be on the save function and the restore hook on the

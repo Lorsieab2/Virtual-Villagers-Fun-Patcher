@@ -736,6 +736,20 @@ __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
 #define VV_DOUBLER_SIDECAR_MAGIC 0x32304456u  /* 'V' 'D' '0' '2' */
 #define VV_DOUBLER_TECH_OFFSET 0x9E90u
 #define VV_DOUBLER_FOOD_OFFSET 0x9E94u
+/* "This village's doubler ownership lives in the save."  Set once, the first
+   time a village is seen after the relocation, and checked before the sidecar
+   is ever applied.
+
+   It exists because `save 0 + sidecar 1` is ambiguous without it: that shape is
+   both the legacy migration AND a persisted removal whose sidecar write failed.
+   With the marker the two are distinguishable -- absent means the save predates
+   the relocation and has no opinion, present means the 0 is deliberate.
+
+   Same evidence as the two flags: inside the serialised extent, reads 0 across
+   all 38 of the owner's saves, unreferenced by the stock game, unclaimed by the
+   patcher. */
+#define VV_DOUBLER_MIGRATED_OFFSET 0x9E98u
+#define VV_DOUBLER_MIGRATED_VALUE 1u
 
 /* Village identity, so a sidecar can never be applied to a different village.
 
@@ -822,16 +836,26 @@ __declspec(dllexport) int __stdcall Vv1DoublerSave(void *state) {
     unsigned int *tech;
     unsigned int *food;
     unsigned int *tag;
+    unsigned int *migrated;
     BOOL ok = TRUE;
     int slot = vv1_mask_current_slot();
     tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
     food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
     tag = vv1_doubler_field(state, VV_DOUBLER_VILLAGE_TAG_OFFSET);
+    migrated = vv1_doubler_field(state, VV_DOUBLER_MIGRATED_OFFSET);
     if (!slot || tech == NULL || food == NULL || tag == NULL) {
         return 0;
     }
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
         return 0;
+    }
+    /* Record that this village's ownership now lives in the save.  From here
+       on Vv1DoublerRestore ignores the sidecar for this village, so a later
+       removal cannot be undone by a stale file.  Stamped on save rather than
+       on load so it is written by the same call that persists the flags
+       themselves -- a save that carries the marker always carries the flags. */
+    if (migrated != NULL) {
+        *migrated = VV_DOUBLER_MIGRATED_VALUE;
     }
     payload[0] = VV_DOUBLER_SIDECAR_MAGIC;
     payload[1] = (*tech != 0) ? 1u : 0u;
@@ -882,11 +906,22 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
     unsigned int *tech;
     unsigned int *food;
     unsigned int *tag;
+    unsigned int *migrated;
     int slot = vv1_mask_current_slot();
     tech = vv1_doubler_field(state, VV_DOUBLER_TECH_OFFSET);
     food = vv1_doubler_field(state, VV_DOUBLER_FOOD_OFFSET);
     tag = vv1_doubler_field(state, VV_DOUBLER_VILLAGE_TAG_OFFSET);
-    if (!slot || tech == NULL || food == NULL || tag == NULL) {
+    migrated = vv1_doubler_field(state, VV_DOUBLER_MIGRATED_OFFSET);
+    if (!slot || tech == NULL || food == NULL || tag == NULL || migrated == NULL) {
+        return 0;
+    }
+    /* THE SAVE IS AUTHORITATIVE ONCE MIGRATED.  After this village has been
+       seen with the relocated fields, a 0 in the save is a real answer -- the
+       player removed that doubler -- and the sidecar must not speak.  Reading
+       it here would restore a removed doubler whenever Vv1DoublerSave had
+       failed, because its failure paths keep the previous .dat and the village
+       tag still matches. */
+    if (*migrated == VV_DOUBLER_MIGRATED_VALUE) {
         return 0;
     }
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
