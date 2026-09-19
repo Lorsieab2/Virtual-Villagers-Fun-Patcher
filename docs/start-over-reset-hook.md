@@ -125,9 +125,9 @@ already hooks, and it is the wrong place for a reset: it runs on **every** save
 and load and cannot distinguish Start Over from ordinary play. Hooking it to
 delete anything would destroy state during normal use.
 
-`deleteSave` runs only when a save is being erased. That is exactly the Start
-Over event, it carries the slot as its argument, and it fires once per erased
-slot.
+Neither function is the reset. Both run during ordinary play, so both would
+destroy persistence rather than reset it. The reset event is still unlocated;
+see the correction above.
 
 ## Hooking space
 
