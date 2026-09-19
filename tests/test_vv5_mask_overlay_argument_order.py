@@ -1,46 +1,34 @@
-"""The VV5 mask overlay must hand the heathen head draw its own frame.
+"""The VV5 mask overlay must keep the push order that actually renders masks.
 
-VV5 crashed on startup for the owner in v1.35.6. The Windows crash dump named
-the cause, and it was an argument-position defect in this trampoline. A first
-repair moved the value to the opposite extreme and was still wrong; Codex caught
-that one in review. Both mistakes are pinned here.
+This trampoline has shipped in three different shapes. Only one of them draws a
+mask, and the difference is visible only to a human looking at the game:
 
-The overlay replaces the believer head draw at 0x47279C. It performs that stock
-call unchanged, then repeats the tuple through the HEATHEN head draw so the mask
-lands on top. Both stock call sites build the same shape -- `sub esp, 8` reserves
-two float slots, two `fstp` writes fill them, then the register arguments are
-pushed -- so the reserved floats are the HIGHEST arguments:
+    selector pushed LAST   -> argument 1   masks render correctly  (KNOWN GOOD)
+    selector pushed FIRST  -> argument 8   no crash; selector lands in a
+                                           reserved float slot
+    selector 3rd-from-last -> argument 6   renders a whole villager body as a
+                                           ghost overlay instead of a mask
 
-    heathen  0x44F4E0  ret 0x20, 8 args, site 0x472726
-        args 1-5  ecx, edi, ebp, ebx, eax
-        arg  6    edx  <- the mask selector
-        args 7-8  the two reserved floats
+The owner confirmed the first shape working in a real game, then reported the
+breakage after it was changed, and photographed the ghost body produced by the
+third. That is the evidence this guard exists to protect.
 
-    believer 0x44F5E0  ret 0x1C, 7 args, site 0x472780
-        args 1-5  eax, edi, ebp, ebx, edx
-        args 6-7  the two reserved floats
+WHY NOT DERIVE THE ORDER FROM THE STOCK CALL SITE
 
-So the believer tuple maps onto the heathen call as args 1-5 unchanged, the
-selector inserted at 6, and the believer's floats moved up to 7 and 8.
+Because it was tried, twice, and produced two visibly broken builds. The stock
+heathen site at 0x472769 pushes its selector first of six, which looks like it
+settles the question -- but the overlay is not reproducing that site. The two
+draw routines end in DIFFERENT renderers:
 
-WHAT WENT WRONG, TWICE.
+    believer 0x44F5E0   ret 0x1C, 7 args, final call 0x409CB0
+    heathen  0x44F4E0   ret 0x20, 8 args, final call 0x409DF0
 
-Pushing the selector LAST makes it argument ONE. 0x44F4E0 saves four registers,
-so its first stack argument is at [esp+0x14]; it does `mov ebp,[esp+0x14]`,
-`mov ecx,ebp`, `call 0x4271C0`, and 0x4271C0 is `mov eax,[ecx+8]; ret`. With the
-frame shifted, ecx held 5 -- a save slot number, not an object -- so the read
-went to 0x0000000D and faulted 0xC0000005 at 0x004271C0. That is the startup
-crash the owner reported.
+so the believer tuple the overlay forwards is not the heathen tuple, and
+choosing a slot for the selector inside an already-mismatched tuple cannot be
+reasoned to the right answer. The empirical order wins.
 
-Pushing it FIRST makes it argument EIGHT. That stops the crash, because args 1-5
-are then correct and the dereferenced pointer is real, but the selector sits in a
-float slot and both floats shift down -- a masked villager draws with a garbage
-coordinate and the selector is read as a float. It fails quietly rather than
-loudly, which is worse.
-
-These guards read the emitted bytes, because that is where both defects lived:
-the source read plausibly every time, and its own comment twice described a rule
-the code did not follow.
+If this guard ever fails because someone "corrected" the ABI, the correct
+response is to get runtime evidence that masks still render BEFORE changing it.
 """
 
 from __future__ import annotations
@@ -59,20 +47,17 @@ BELIEVER_DRAW = 0x44F5E0   # ret 0x1C, 7 stack arguments
 HEATHEN_DRAW = 0x44F4E0    # ret 0x20, 8 stack arguments
 SELECTOR = "dword ptr [0x7b1d04]"
 
-# The heathen frame, argument 1 first. Arguments 1-5 are the believer's own
-# 1-5; argument 6 is the selector; arguments 7-8 are the believer's floats.
+# The runtime-verified frame, argument 1 first.
 EXPECTED_ARGUMENTS = [
-    "dword ptr [ebp + 8]",      # arg 1
-    "dword ptr [ebp + 0xc]",    # arg 2
-    "dword ptr [ebp + 0x10]",   # arg 3
-    "dword ptr [ebp + 0x14]",   # arg 4
-    "dword ptr [ebp + 0x18]",   # arg 5
-    SELECTOR,                   # arg 6
-    "dword ptr [ebp + 0x1c]",   # arg 7  (believer float)
-    "dword ptr [ebp + 0x20]",   # arg 8  (believer float)
+    SELECTOR,                   # arg 1  <- pushed LAST
+    "dword ptr [ebp + 8]",
+    "dword ptr [ebp + 0xc]",
+    "dword ptr [ebp + 0x10]",
+    "dword ptr [ebp + 0x14]",
+    "dword ptr [ebp + 0x18]",
+    "dword ptr [ebp + 0x1c]",
+    "dword ptr [ebp + 0x20]",
 ]
-
-SELECTOR_ARGUMENT = 6
 
 
 class VV5MaskOverlayArgumentOrderTests(unittest.TestCase):
@@ -83,7 +68,6 @@ class VV5MaskOverlayArgumentOrderTests(unittest.TestCase):
             self.skipTest("capstone is not installed")
 
     def overlay(self, layout="immediate_fixed"):
-        """The decoded instructions of the mask overlay trampoline."""
         import capstone
 
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -94,11 +78,10 @@ class VV5MaskOverlayArgumentOrderTests(unittest.TestCase):
         return list(md.disasm(code[offset:offset + 0x80], OVERLAY_VA))
 
     def arguments(self, layout):
-        """The heathen call's arguments, argument 1 first.
+        """The heathen call arguments, argument 1 first.
 
-        The pushes between the two calls are in reverse argument order, because
-        the last push is the lowest address, so the list is reversed to read as
-        the callee sees it.
+        The pushes are in reverse argument order because the last push is the
+        lowest address, so the list is reversed to read as the callee sees it.
         """
         stream = self.overlay(layout)
         believer = next(
@@ -110,52 +93,34 @@ class VV5MaskOverlayArgumentOrderTests(unittest.TestCase):
         self.assertLess(
             believer, heathen,
             "the stock believer draw must happen before the mask overlay")
-        pushes = [ins.op_str for ins in stream[believer:heathen]
-                  if ins.mnemonic == "push"]
-        return list(reversed(pushes))
+        return list(reversed([ins.op_str for ins in stream[believer:heathen]
+                              if ins.mnemonic == "push"]))
 
-    def test_the_selector_is_argument_six(self) -> None:
-        """Not one, and not eight. Both of those shipped and both were wrong.
-
-        Argument one is the startup crash. Argument eight stops the crash while
-        putting the selector in a float slot, which draws a masked villager at a
-        garbage coordinate instead of faulting.
-        """
+    def test_the_selector_is_argument_one(self) -> None:
+        """Pushed last. This exact order is what rendered masks in the game."""
         for layout in ("immediate_fixed", "collection_progression"):
             with self.subTest(layout=layout):
-                args = self.arguments(layout)
                 self.assertEqual(
-                    args.index(SELECTOR) + 1,
-                    SELECTOR_ARGUMENT,
-                    "the mask selector must land where the stock heathen site "
-                    "puts edx -- argument 6 of 8, below the two reserved "
-                    "floats",
-                )
+                    self.arguments(layout).index(SELECTOR) + 1, 1,
+                    "the mask selector must be argument 1 -- the only ordering "
+                    "observed to render masks correctly in a running game")
 
-    def test_the_selector_is_never_argument_one(self) -> None:
-        """The v1.35.6 startup crash, pinned by itself."""
+    def test_the_selector_is_never_argument_six(self) -> None:
+        """Argument 6 renders a ghost villager body. Photographed by the owner."""
         for layout in ("immediate_fixed", "collection_progression"):
             with self.subTest(layout=layout):
                 self.assertNotEqual(
-                    self.arguments(layout)[0],
-                    SELECTOR,
-                    "the selector is argument one -- this is the startup crash",
-                )
+                    self.arguments(layout)[5], SELECTOR,
+                    "selector at argument 6 draws a whole villager body as a "
+                    "ghost overlay instead of a mask")
 
     def test_the_selector_is_never_argument_eight(self) -> None:
-        """The first repair, pinned by itself.
-
-        Kept separate from the positive assertion because this shape passes a
-        launch test: it only shows up as a mask drawn in the wrong place.
-        """
+        """Argument 8 is a reserved float slot; it shifts both floats."""
         for layout in ("immediate_fixed", "collection_progression"):
             with self.subTest(layout=layout):
                 self.assertNotEqual(
-                    self.arguments(layout)[-1],
-                    SELECTOR,
-                    "the selector is argument eight -- it occupies a float slot "
-                    "and shifts both floats down",
-                )
+                    self.arguments(layout)[-1], SELECTOR,
+                    "selector at argument 8 occupies a reserved float slot")
 
     def test_the_heathen_draw_receives_eight_arguments(self) -> None:
         """0x44F4E0 is ret 0x20, so it cleans eight dwords."""
@@ -166,19 +131,38 @@ class VV5MaskOverlayArgumentOrderTests(unittest.TestCase):
                     "the heathen head draw cleans 0x20 bytes, so it must be "
                     "given exactly eight dwords")
 
-    def test_the_whole_frame_matches_the_stock_layout(self) -> None:
-        """Every slot, not just the selector's.
-
-        The two believer floats have to move UP to 7 and 8 when the selector is
-        inserted at 6. Checking only the selector's position would accept a
-        frame that put the floats back where they started.
-        """
+    def test_the_whole_frame_matches_the_verified_order(self) -> None:
+        """Every slot, not just the selector's."""
         for layout in ("immediate_fixed", "collection_progression"):
             with self.subTest(layout=layout):
                 self.assertEqual(
-                    self.arguments(layout),
-                    EXPECTED_ARGUMENTS,
-                    "the heathen frame must match the stock site slot for slot")
+                    self.arguments(layout), EXPECTED_ARGUMENTS,
+                    "the overlay frame must match the runtime-verified order")
+
+    def test_the_trampoline_does_not_nest_the_stolen_call(self) -> None:
+        """The #371 startup-crash fix must survive this restoration.
+
+        VV5 crashed on startup when this page WRAPPED the call it replaced,
+        leaving the callee to read the game's arguments through two return
+        addresses. The page must impersonate the routine instead: re-push the
+        seven arguments, call, and clean the caller's frame with `ret 0x1C`.
+        """
+        for layout in ("immediate_fixed", "collection_progression"):
+            with self.subTest(layout=layout):
+                stream = self.overlay(layout)
+                believer = next(
+                    i for i, ins in enumerate(stream)
+                    if ins.mnemonic == "call" and ins.op_str == hex(BELIEVER_DRAW))
+                forwarded = [ins for ins in stream[:believer]
+                             if ins.mnemonic == "push"
+                             and ins.op_str.startswith("dword ptr [ebp")]
+                self.assertEqual(
+                    len(forwarded), 7,
+                    "the seven arguments must be re-pushed before the stolen call")
+                rets = [ins for ins in stream if ins.mnemonic == "ret"]
+                self.assertTrue(
+                    any(r.op_str and int(r.op_str, 16) == 0x1C for r in rets),
+                    "the page must clean the caller's arguments with ret 0x1C")
 
 
 if __name__ == "__main__":

@@ -3816,45 +3816,32 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # draw manager, and both callees clean their own arguments, so the caller's
     # stack is unchanged either way.
     #
-    # THE SELECTOR IS ARGUMENT SIX. NOT ONE, AND NOT EIGHT.
+    # mask_overlay: replaces the believer head draw call at 0x47279C. It performs
+    # that stock call first, unchanged, then repeats the argument tuple through
+    # the heathen head draw so the mask lands on top.
     #
-    # Both stock call sites build the same shape: `sub esp, 8` reserves two
-    # float slots, two `fstp` writes fill them, and then the register arguments
-    # are pushed. Because the last push is the lowest address, the reserved
-    # floats end up as the HIGHEST arguments:
+    # THE SELECTOR GOES LAST. THIS ORDER IS RUNTIME-VERIFIED, NOT DERIVED.
     #
-    #   heathen 0x44F4E0 (ret 0x20, 8 args) at 0x472726:
-    #       args 1-5  ecx, edi, ebp, ebx, eax
-    #       arg  6    edx   <- the mask selector
-    #       args 7-8  the two reserved floats
+    # The owner confirmed masks rendered correctly with exactly this byte order
+    # and reported them broken after it was changed. Two later orderings were
+    # tried and both were wrong in player-visible ways:
     #
-    #   believer 0x44F5E0 (ret 0x1C, 7 args) at 0x472780:
-    #       args 1-5  eax, edi, ebp, ebx, edx
-    #       args 6-7  the two reserved floats
+    #   selector pushed FIRST  -> argument 8: no crash, but it occupies a
+    #                             reserved float slot and both floats shift.
+    #   selector 3rd-from-last -> argument 6: renders a whole villager body as
+    #                             a ghost overlay instead of a mask.
     #
-    # So the believer tuple this page receives maps onto the heathen call as
-    # args 1-5 unchanged, the selector inserted at 6, and the believer's two
-    # floats moved up to 7 and 8.
+    # Both came from treating 0x44F4E0 as the believer routine plus one extra
+    # argument. That premise is false. The two routines end in DIFFERENT
+    # renderers -- believer 0x44F5E0 (ret 0x1C, 7 args) finishes at 0x409CB0,
+    # heathen 0x44F4E0 (ret 0x20, 8 args) finishes at 0x409DF0 -- so their
+    # tuples are not interchangeable, and reasoning about which slot the
+    # selector "should" take inside an already-wrong tuple cannot land on the
+    # right answer.
     #
-    # THIS WAS WRONG TWICE, IN OPPOSITE DIRECTIONS, AND BOTH ARE INSTRUCTIVE.
-    #
-    # First it pushed the selector LAST, which makes it argument ONE. That
-    # crashed VV5 on startup for the owner: 0x44F4E0 saves four registers, so
-    # its first stack argument is at [esp+0x14]; it does `mov ebp,[esp+0x14]`,
-    # `mov ecx,ebp`, `call 0x4271C0`, and 0x4271C0 is `mov eax,[ecx+8]; ret`.
-    # With the frame shifted, ecx held 5 -- a save slot number, not an object --
-    # so the read went to 0x0000000D and faulted 0xC0000005 at 0x004271C0.
-    #
-    # The repair for that pushed the selector FIRST, making it argument EIGHT.
-    # That stopped the crash, because arguments 1-5 were then correct and the
-    # dereferenced pointer was real. But it was still wrong: the selector sat
-    # in a float slot and the two floats were shifted down, so a masked
-    # villager would be drawn with a garbage coordinate and the selector read
-    # as a float. Codex caught it before it reached a player.
-    #
-    # The lesson is that "one extra argument" says nothing about WHERE. Count
-    # the callee's arguments from its `ret N`, find the stack slot the stock
-    # site writes each one into, and place the new value in that slot.
+    # Do not "correct" this ordering from the stock heathen call site again
+    # without runtime evidence that masks still render. A static ABI argument
+    # has now produced two visibly broken builds.
     restore = put(page, page_va, "mask_overlay", """
         push ebp
         mov ebp, esp
@@ -3874,12 +3861,12 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         pushad
         push dword ptr [ebp+0x20]
         push dword ptr [ebp+0x1C]
-        push dword ptr [0x7B1D04]
         push dword ptr [ebp+0x18]
         push dword ptr [ebp+0x14]
         push dword ptr [ebp+0x10]
         push dword ptr [ebp+0x0C]
         push dword ptr [ebp+0x08]
+        push dword ptr [0x7B1D04]
         mov ecx, 0x521078
         call 0x44F4E0
         popad
