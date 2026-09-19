@@ -109,7 +109,7 @@ DLLNAME = b"VVFP VV2 Origins Icons.dll\x00"
 RESTORE_STR = b"Vv2MaskRestore\x00"
 EXTRACT_STR = b"Vv2ExtractAtlas\x00"
 SAVE_STR = b"Vv2MaskSaveSidecar\x00"
-TAG_STR = b"Vv2VillageTag\x00"
+TAG_STR = b"Vv2MaskSweep\x00"
 LOADLIBRARYA_IAT = 0x474010
 GETPROCADDRESS_IAT = 0x4740D4
 
@@ -269,8 +269,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # identity: two villages do not share villagers. Measured on the owner's
     # saves -- 0% of the living roster changes across a village's own
     # backups, 100% across a real delete-and-recreate.
-    TAG_VA      = MASK_TABLE_VA + 0xF24   # dword: roster hash of the loaded village
-    TAG_FN      = MASK_TABLE_VA + 0xF28   # dword: cached Vv2VillageTag address
+    SWEEP_FN    = MASK_TABLE_VA + 0xF24   # dword: cached Vv2MaskSweep address (the whole per-frame sweep)
     FNAME_VA = CODE_SEC_VA                   # "heathen_masks.png\0" (read-only in the R+X section)
     DLLNAME_VA = FNAME_VA + len(FNAME)       # "VVFP VV2 Origins Icons.dll\0"
     RESTORE_STR_VA = DLLNAME_VA + len(DLLNAME)  # "Vv2MaskRestore\0"
@@ -577,7 +576,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         push 0x{TAG_STR_VA:X}
         push eax
         call dword ptr [0x{GETPROCADDRESS_IAT:X}]
-        mov  dword ptr [0x{TAG_FN:X}], eax
+        mov  dword ptr [0x{SWEEP_FN:X}], eax
     no_restore:
         popad
         jmp  0x{INIT_RET:X}
@@ -602,7 +601,10 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
             "mask stubs now reach 0x%X, past the parentage cave at 0x%X"
             % (init_va + len(init) - CODE_SEC_VA, PARENTAGE_CAVE_OFF)
         )
-    sweep_va = parentage_end
+    # Sequential again, now that the village check lives in the DLL and the
+    # stubs fit before the cave. The guard above still fires if they ever grow
+    # into it, and the death-counter payload from .vvmk 0x4D8 stays untouched.
+    sweep_va = init_va + len(init)
 
     # ---- SWEEP stub: per-frame free-slot guard (detoured from the village
     # compositor entry 0x445B50, a thiscall with ECX = gameCtx = record[0] base;
@@ -613,89 +615,24 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     COMPOSITOR_VA = 0x445B50
     sweep_asm = f"""
         pushad
-        mov  byte ptr [0x{SWEEP_CLEARED_VA:X}], 0
-        /* Slot changed (or first village)? Reload the sidecar before masking.
-           Done HERE, not at the save-path hook: that hook fires during load, before
-           the villager records exist, so reading there would key against absent
-           records. By the first compositor frame they are populated. */
-        xor  ebx, ebx                        /* no tag computed yet */
-        cmp  byte ptr [0x{LOADED_VA:X}], 0
-        je   do_restore
-        /* Loaded -- but for WHICH village? The slot stub only notices a slot
-           NUMBER change, and Start Over and delete-and-recreate both reuse the
-           slot, so the dead village's masks would stay resident. Ask the DLL
-           for the living roster hash and reload when it differs.
+        /* The ENTIRE per-frame sweep lives in the DLL: village-change reload,
+           the 256-record walk with the seen-alive latch, the death clears and
+           the one-shot persist.  This appended page is shared with the
+           parentage cave (0x41A..0x4D8) and the villagers-died payload (from
+           0x4D8), and the loop no longer fit beside them; it is logic, not a
+           hook, so it does not belong here anyway.
 
-           A 0 answer means "unknown" (no DLL, no record array, no living
-           villagers) and is treated as no-change: a missed reload preserves
-           today's behaviour, while a spurious one would discard a live
-           village's masks, which is worse than the bug. */
-        mov  eax, [0x{TAG_FN:X}]
+           ECX is forwarded FIRST, while it still holds the compositor's
+           receiver (record[0]).  An earlier restore call clobbered ECX and
+           caused a first-frame AV at RVA 0xB437C; passing it as the argument
+           up front removes that hazard.  No export -> fall through, which is
+           the game's own behaviour. */
+        mov  eax, [0x{SWEEP_FN:X}]
         test eax, eax
-        jz   slot_ready                      /* no tag export -> leave as-is */
-        call eax                             /* Vv2VillageTag() */
-        test eax, eax
-        jz   slot_ready                      /* unknown -> do not touch */
-        mov  ebx, eax                        /* keep it: stdcall preserves EBX */
-        cmp  eax, [0x{TAG_VA:X}]
-        je   slot_ready                      /* same village -> keep masks */
-    do_restore:
-        mov  eax, [0x{RESTORE_FN:X}]
-        test eax, eax
-        jz   slot_ready                      /* no DLL -> nothing to load */
-        call eax                             /* Vv2MaskRestore(): reads vv2_masks_<slot>.dat */
-        mov  byte ptr [0x{LOADED_VA:X}], 1
-        /* Record the village the table now holds.
-
-           On the village-CHANGED path EBX carries the tag computed just above,
-           and the restore only writes the mask table -- never villager records
-           -- so the roster and its hash cannot have moved across the call.
-           Recording the compared value also stops the two diverging.
-
-           On the FIRST-LOAD path no tag was computed, so EBX is 0 there and the
-           tag is fetched now, with the records already populated. */
-        test ebx, ebx
-        jnz  tag_known
-        mov  eax, [0x{TAG_FN:X}]
-        test eax, eax
-        jz   slot_ready
-        call eax
-        mov  ebx, eax
-    tag_known:
-        mov  dword ptr [0x{TAG_VA:X}], ebx
-    slot_ready:
-        /* Vv2MaskRestore is stdcall and may clobber volatile ECX.  Reload the
-           compositor receiver saved by pushad (+0x18 in its stack frame)
-           before touching record[0].  The old `mov edx, ecx` caused the
-           observed first-frame AV at RVA 0xB437C after restore returned. */
-        mov  edx, [esp+0x18]                 /* edx = original record[0] base */
-        xor  esi, esi                        /* esi = record index i */
-    sweep_loop:
-        cmp  byte ptr [edx+0x30], 0          /* active flag: 0 = free/dead */
-        jne  slot_alive
-        cmp  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 0
-        je   slot_next                       /* never seen alive -> leave (load frame) */
-        mov  byte ptr [esi+0x{MASK_TABLE_VA:X}], 0   /* died: clear its mask */
-        mov  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 0   /* reset latch for reuse */
-        mov  byte ptr [0x{SWEEP_CLEARED_VA:X}], 1
-        jmp  slot_next
-    slot_alive:
-        mov  byte ptr [esi+0x{SEEN_ALIVE_VA:X}], 1   /* latch: seen active */
-    slot_next:
-        add  edx, 0xE48C
-        inc  esi
-        cmp  esi, 0x100
-        jb   sweep_loop
-        /* A dead/reused record must not regain its old mask from the sidecar
-           on the next reload. Persist a single post-sweep snapshot only when
-           this pass actually cleared one or more masks. */
-        cmp  byte ptr [0x{SWEEP_CLEARED_VA:X}], 0
-        je   sweep_save_done
-        mov  eax, [0x{SAVE_FN:X}]
-        test eax, eax
-        jz   sweep_save_done
-        call eax                             /* Vv2MaskSaveSidecar() */
-    sweep_save_done:
+        jz   sweep_done
+        push ecx                             /* record[0] base */
+        call eax                             /* Vv2MaskSweep(base), stdcall @4 */
+    sweep_done:
         popad
         push ebx                             /* displaced 0x445B50 prologue */
         push ebp
@@ -703,8 +640,14 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         mov  esi, ecx
         jmp  0x{COMPOSITOR_VA + 5:X}
     """
-    sweep = asm(sweep_asm, sweep_va)
-    slot_va = sweep_va + len(sweep)
+    # The SLOT stub is laid out first, then the sweep.
+    #
+    # The slot stub is a fixed 0x41 bytes; the sweep is the variable one. With
+    # the sweep first, every byte the sweep gains pushes the slot stub toward
+    # the parentage cave at 0x41A, and the pair straddled it. Emitting the
+    # fixed-size stub first means growth in the sweep stays on the sweep's own
+    # side of the boundary, where the guard below can see it.
+    slot_va = sweep_va
 
     # ---- SLOT stub: detour of the save-path builder 0x403160, the ONLY "%s%d.ldw"
     # builder. arg1 [esp+4] is the slot. Slot 0 is the meta file, never a village, so
@@ -741,7 +684,9 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         jmp  0x{SAVEPATH_VA + 6:X}
     """
     slot_stub = asm(slot_asm, slot_va)
-    end = slot_va + len(slot_stub)
+    sweep_va = slot_va + len(slot_stub)
+    sweep = asm(sweep_asm, sweep_va)
+    end = sweep_va + len(sweep)
     total = end - CODE_SEC_VA
     assert total <= 0x1000, f".vvmk code section overflow: {total:#x}"
     data[cfoff(slot_va):cfoff(slot_va) + len(slot_stub)] = slot_stub

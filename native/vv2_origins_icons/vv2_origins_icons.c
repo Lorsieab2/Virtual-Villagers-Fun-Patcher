@@ -1352,7 +1352,19 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
    Win32-only (wsprintfA/memcpy = intrinsics) to stay CRT-less.
    NEVER call from DllMain (loader lock + SHGetFolderPath). Index-keyed: relies on
    villagers reloading into the same record slots (positional VV2 save). ---- */
-#define VV2_MASK_SIDECAR_MAGIC 0x32304D56u  /* 'V','M','0','2' */
+/* Forward declaration: the tag routine is defined after the sidecar helpers
+   but both of them need it, because the tag is what binds a file to a village. */
+__declspec(dllexport) unsigned int __stdcall Vv2VillageTag(void);
+
+/* 'VM03'.  Bumped from 'VM02' when the village tag was added to the record.
+
+   The tag is what makes detecting a village change useful: the sweep can see
+   that the roster changed, but if the file it then loads is keyed only by slot
+   it simply restores the DEAD village's masks and the bleed survives.  An older
+   'VM02' file has no tag, fails this magic, and is ignored -- that village
+   loses its mask CHOICES once, recovered in seconds from the chooser, rather
+   than wearing another village's masks. */
+#define VV2_MASK_SIDECAR_MAGIC 0x33304D56u  /* 'V','M','0','3' */
 
 static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     char docs[MAX_PATH];
@@ -1412,11 +1424,18 @@ static void vv2_mask_sidecar_save(void) {
     HANDLE f;
     DWORD w;
     unsigned int m = VV2_MASK_SIDECAR_MAGIC;
+    unsigned int tag;
     if (!vv2_mask_table_ok()) return;          /* no .mtab -> nothing to persist */
+    /* No identifiable village means there is nothing to bind the file to.
+       Writing it untagged, or stamping 0, would recreate the very bleed the
+       tag exists to stop. */
+    tag = Vv2VillageTag();
+    if (tag == 0) return;
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) return;
     WriteFile(f, &m, 4, &w, NULL);
+    WriteFile(f, &tag, 4, &w, NULL);       /* binds the file to this village */
     WriteFile(f, VV2_MASK_TABLE, VV2_MASK_TABLE_BYTES, &w, NULL);
     CloseHandle(f);
 }
@@ -1426,12 +1445,15 @@ static void vv2_mask_sidecar_load(void) {
     HANDLE f;
     DWORD g;
     unsigned int m = 0;
+    unsigned int filetag = 0;
+    unsigned int livetag;
     unsigned char buf[VV2_MASK_TABLE_BYTES];
     int i;
     /* A village with no sidecar must show NO masks -- never whatever the previously
        loaded village left in the table. Clear first, then fill if a file exists. */
     if (vv2_mask_table_ok())
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
+    livetag = Vv2VillageTag();
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {
@@ -1450,7 +1472,13 @@ static void vv2_mask_sidecar_load(void) {
            matching it is also what makes the five games behave alike. */
         return;
     }
+    /* THE VILLAGE TAG DECIDES, not the slot.  Slots are reused, so a file left
+       by the previous village is exactly what a Start Over or a
+       delete-and-recreate leaves behind.  A mismatch is ignored, and the table
+       was already cleared above, so the new village starts with no masks. */
     if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
+        && ReadFile(f, &filetag, 4, &g, NULL) && g == 4
+        && livetag != 0 && filetag == livetag
         && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
         /* Sidecars are user-writable and older builds did not constrain every
            byte. Normalize before publishing anything to the render thunks:
@@ -1529,6 +1557,82 @@ __declspec(dllexport) unsigned int __stdcall Vv2VillageTag(void) {
         return 0;                              /* no village loaded yet */
     }
     return h ? h : 1u;                         /* reserve 0 for "unknown" */
+}
+
+/* The village-change check, kept in the DLL rather than in the appended page.
+
+   The .vvmk page is shared by three features -- the mask stubs, the parentage
+   cave at 0x41A..0x4D8, and the villagers-died payload from 0x4D8 -- and the
+   inline comparison did not fit between them.  Rather than take another
+   feature's bytes, the whole decision lives here and the cave only calls in.
+
+   Reloads the sidecar when the living roster differs from the one the mask
+   table was last loaded for, and does nothing when it matches.  A roster that
+   cannot be read (tag 0) leaves both the table and the stored tag untouched:
+   a missed reload preserves today's behaviour, while a spurious one would
+   discard a live village's masks. */
+static unsigned int g_vv2_loaded_village;
+
+__declspec(dllexport) void __stdcall Vv2MaskSyncVillage(void) {
+    unsigned int tag = Vv2VillageTag();
+    if (tag == 0) {
+        return;                 /* unknown village -> do not touch anything */
+    }
+    if (tag == g_vv2_loaded_village) {
+        return;                 /* same village -> keep the masks as they are */
+    }
+    vv2_mask_sidecar_load();    /* clears, then applies only a matching file */
+    g_vv2_loaded_village = tag;
+}
+
+/* ---- The per-frame mask sweep, moved out of the appended page --------------
+
+   The .vvmk page is shared with the parentage cave (0x41A..0x4D8) and the
+   villagers-died payload (from 0x4D8), and the sweep loop no longer fit beside
+   them.  The loop is logic, not a hook, so it lives here; the cave keeps only
+   the detour, pushad/popad, the replayed prologue and one call.
+
+   Line-for-line port of the assembly it replaces, over the same .mtab bytes:
+   a record seen alive that is now free loses its mask and its latch; a record
+   never seen alive is left alone, so a mask restored on the load frame is not
+   wiped before its villager exists; the sidecar is persisted once per pass,
+   only when something was actually cleared. */
+#define VV2_SEEN_ALIVE      ((unsigned char *)0x004B3100)  /* .mtab +0x100 */
+#define VV2_SWEEP_CLEARED   ((unsigned char *)0x004B3F20)  /* .mtab +0xF20 */
+
+/* base = record[0], forwarded from the compositor's ECX before any call could
+   clobber it, so the sweep walks exactly the array the game is about to draw.
+   A null base means the hook fired with no village; do nothing. */
+__declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
+    int i;
+    if (base == 0 || !vv2_mask_table_ok()) {
+        return;
+    }
+    /* Which village is on screen?  Reloads the sidecar on a village change --
+       first load and a same-slot Start Over alike -- and leaves everything
+       untouched when the roster cannot be read. */
+    Vv2MaskSyncVillage();
+
+    *VV2_SWEEP_CLEARED = 0;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        const unsigned char *rec = base + (unsigned int)i * VV2_RECORD_STRIDE;
+        if (rec[VV2_ACTIVE_OFFSET] != 0) {
+            VV2_SEEN_ALIVE[i] = 1;             /* latch: seen active */
+            continue;
+        }
+        if (VV2_SEEN_ALIVE[i] == 0) {
+            continue;                          /* never seen alive -> leave (load frame) */
+        }
+        VV2_MASK_TABLE[i] = 0;                 /* died: clear its mask */
+        VV2_SEEN_ALIVE[i] = 0;                 /* reset latch for reuse */
+        *VV2_SWEEP_CLEARED = 1;
+    }
+    /* A dead/reused record must not regain its old mask from the sidecar on
+       the next reload.  Persist a single post-sweep snapshot only when this
+       pass actually cleared one or more masks. */
+    if (*VV2_SWEEP_CLEARED) {
+        vv2_mask_sidecar_save();
+    }
 }
 
 __declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_load(); }

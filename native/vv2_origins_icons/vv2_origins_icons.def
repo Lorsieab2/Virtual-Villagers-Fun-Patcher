@@ -15,6 +15,8 @@ EXPORTS
     GateVV2BarrelSilent=_GateVV2BarrelSilent@4
     ApplyVV2EqualDivision=_ApplyVV2EqualDivision@8
     Vv2VillageTag=_Vv2VillageTag@0
+    Vv2MaskSyncVillage=_Vv2MaskSyncVillage@0
+    Vv2MaskSweep=_Vv2MaskSweep@4
     Vv2MaskRestore=_Vv2MaskRestore@0
     Vv2MaskSaveSidecar=_Vv2MaskSaveSidecar@0
     Vv2ExtractAtlas=_Vv2ExtractAtlas@0
