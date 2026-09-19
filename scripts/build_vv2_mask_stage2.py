@@ -109,6 +109,7 @@ DLLNAME = b"VVFP VV2 Origins Icons.dll\x00"
 RESTORE_STR = b"Vv2MaskRestore\x00"
 EXTRACT_STR = b"Vv2ExtractAtlas\x00"
 SAVE_STR = b"Vv2MaskSaveSidecar\x00"
+TAG_STR = b"Vv2VillageTag\x00"
 LOADLIBRARYA_IAT = 0x474010
 GETPROCADDRESS_IAT = 0x4740D4
 
@@ -260,11 +261,22 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     RESTORE_FN  = MASK_TABLE_VA + 0xF18   # dword: cached Vv2MaskRestore address
     SAVE_FN     = MASK_TABLE_VA + 0xF1C   # dword: cached Vv2MaskSaveSidecar address
     SWEEP_CLEARED_VA = MASK_TABLE_VA + 0xF20  # byte: sweep cleared at least one mask
+    # The village the mask table was loaded FOR, as a hash of the living
+    # villager roster. 0 = none loaded yet / unknown.
+    #
+    # VV2 stores no village identity in its save (the most discriminating
+    # stable dword takes 5 values across 20 villages), so the roster is the
+    # identity: two villages do not share villagers. Measured on the owner's
+    # saves -- 0% of the living roster changes across a village's own
+    # backups, 100% across a real delete-and-recreate.
+    TAG_VA      = MASK_TABLE_VA + 0xF24   # dword: roster hash of the loaded village
+    TAG_FN      = MASK_TABLE_VA + 0xF28   # dword: cached Vv2VillageTag address
     FNAME_VA = CODE_SEC_VA                   # "heathen_masks.png\0" (read-only in the R+X section)
     DLLNAME_VA = FNAME_VA + len(FNAME)       # "VVFP VV2 Origins Icons.dll\0"
     RESTORE_STR_VA = DLLNAME_VA + len(DLLNAME)  # "Vv2MaskRestore\0"
     EXTRACT_STR_VA = RESTORE_STR_VA + len(RESTORE_STR)  # "Vv2ExtractAtlas\0"
     SAVE_STR_VA = EXTRACT_STR_VA + len(EXTRACT_STR)  # "Vv2MaskSaveSidecar\0"
+    TAG_STR_VA = SAVE_STR_VA + len(SAVE_STR)  # "Vv2VillageTag\0"
 
     def cfoff(va: int) -> int:            # file offset of a VA inside the appended code section
         return CODE_RAW + (va - CODE_SEC_VA)
@@ -551,12 +563,46 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         test eax, eax
         jz   no_restore
         mov  dword ptr [0x{SAVE_FN:X}], eax
+        /* Vv2VillageTag(): hashes the living villager roster, which is VV2's
+           only village identity -- the save stores none. Resolved through the
+           module handle the block above already holds, rather than calling
+           LoadLibraryA a fourth time, because the appended page is shared with
+           the parentage feature and has no bytes to spare. A build without the
+           export simply never reloads on a village change, which is exactly
+           today's behaviour rather than a crash. */
+        push 0x{DLLNAME_VA:X}
+        call dword ptr [0x{LOADLIBRARYA_IAT:X}]
+        test eax, eax
+        jz   no_restore
+        push 0x{TAG_STR_VA:X}
+        push eax
+        call dword ptr [0x{GETPROCADDRESS_IAT:X}]
+        mov  dword ptr [0x{TAG_FN:X}], eax
     no_restore:
         popad
         jmp  0x{INIT_RET:X}
     """
     init = asm(init_asm, init_va)
-    sweep_va = init_va + len(init)
+    # THE SWEEP STARTS AFTER THE PARENTAGE CAVE, NOT WHERE init HAPPENS TO END.
+    #
+    # This appended page is SHARED. build_vv2_parentage_feature.py overlays its
+    # own cave at file 0xB241A -- .vvmk offset 0x41A, length 0xBE -- and
+    # build_vv2_villagers_died_feature.py places its payload immediately after
+    # that. Laying the sweep out sequentially walked straight into the
+    # parentage cave once the village-tag check was added, and the patcher
+    # caught it as a byte-guard failure at that exact address.
+    #
+    # Reserving the region explicitly means the next person to grow a stub gets
+    # a clear assertion here rather than a guard failure three builds later.
+    PARENTAGE_CAVE_OFF = 0x41A
+    PARENTAGE_CAVE_LEN = 0xBE
+    parentage_end = CODE_SEC_VA + PARENTAGE_CAVE_OFF + PARENTAGE_CAVE_LEN
+    if init_va + len(init) > CODE_SEC_VA + PARENTAGE_CAVE_OFF:
+        raise RuntimeError(
+            "mask stubs now reach 0x%X, past the parentage cave at 0x%X"
+            % (init_va + len(init) - CODE_SEC_VA, PARENTAGE_CAVE_OFF)
+        )
+    sweep_va = parentage_end
 
     # ---- SWEEP stub: per-frame free-slot guard (detoured from the village
     # compositor entry 0x445B50, a thiscall with ECX = gameCtx = record[0] base;
@@ -572,13 +618,51 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
            Done HERE, not at the save-path hook: that hook fires during load, before
            the villager records exist, so reading there would key against absent
            records. By the first compositor frame they are populated. */
+        xor  ebx, ebx                        /* no tag computed yet */
         cmp  byte ptr [0x{LOADED_VA:X}], 0
-        jne  slot_ready
+        je   do_restore
+        /* Loaded -- but for WHICH village? The slot stub only notices a slot
+           NUMBER change, and Start Over and delete-and-recreate both reuse the
+           slot, so the dead village's masks would stay resident. Ask the DLL
+           for the living roster hash and reload when it differs.
+
+           A 0 answer means "unknown" (no DLL, no record array, no living
+           villagers) and is treated as no-change: a missed reload preserves
+           today's behaviour, while a spurious one would discard a live
+           village's masks, which is worse than the bug. */
+        mov  eax, [0x{TAG_FN:X}]
+        test eax, eax
+        jz   slot_ready                      /* no tag export -> leave as-is */
+        call eax                             /* Vv2VillageTag() */
+        test eax, eax
+        jz   slot_ready                      /* unknown -> do not touch */
+        mov  ebx, eax                        /* keep it: stdcall preserves EBX */
+        cmp  eax, [0x{TAG_VA:X}]
+        je   slot_ready                      /* same village -> keep masks */
+    do_restore:
         mov  eax, [0x{RESTORE_FN:X}]
         test eax, eax
         jz   slot_ready                      /* no DLL -> nothing to load */
         call eax                             /* Vv2MaskRestore(): reads vv2_masks_<slot>.dat */
         mov  byte ptr [0x{LOADED_VA:X}], 1
+        /* Record the village the table now holds.
+
+           On the village-CHANGED path EBX carries the tag computed just above,
+           and the restore only writes the mask table -- never villager records
+           -- so the roster and its hash cannot have moved across the call.
+           Recording the compared value also stops the two diverging.
+
+           On the FIRST-LOAD path no tag was computed, so EBX is 0 there and the
+           tag is fetched now, with the records already populated. */
+        test ebx, ebx
+        jnz  tag_known
+        mov  eax, [0x{TAG_FN:X}]
+        test eax, eax
+        jz   slot_ready
+        call eax
+        mov  ebx, eax
+    tag_known:
+        mov  dword ptr [0x{TAG_VA:X}], ebx
     slot_ready:
         /* Vv2MaskRestore is stdcall and may clobber volatile ECX.  Reload the
            compositor receiver saved by pushad (+0x18 in its stack frame)
@@ -686,6 +770,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     data[cfoff(RESTORE_STR_VA):cfoff(RESTORE_STR_VA) + len(RESTORE_STR)] = RESTORE_STR
     data[cfoff(EXTRACT_STR_VA):cfoff(EXTRACT_STR_VA) + len(EXTRACT_STR)] = EXTRACT_STR
     data[cfoff(SAVE_STR_VA):cfoff(SAVE_STR_VA) + len(SAVE_STR)] = SAVE_STR
+    data[cfoff(TAG_STR_VA):cfoff(TAG_STR_VA) + len(TAG_STR)] = TAG_STR
     data[cfoff(code0):cfoff(code0) + len(adult)] = adult
     data[cfoff(child_va):cfoff(child_va) + len(child)] = child
     data[cfoff(init_va):cfoff(init_va) + len(init)] = init

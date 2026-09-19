@@ -484,3 +484,59 @@ def test_release_zip_carries_the_literal_vv2_mask_transaction(tmp_path: Path) ->
             assert len(payload) == 0x2000
             assert hashlib.sha256(payload).hexdigest().upper() == layout["page_sha256"]
             assert "append_source" not in layout
+
+
+def test_the_sweep_reloads_when_the_village_changes_not_only_the_slot() -> None:
+    """Start Over reuses the slot, so a slot compare alone cannot see it.
+
+    VV2 stores no village identity -- across 39,691 aligned save dwords that
+    stay constant within a village, the most discriminating takes only five
+    distinct values across twenty villages -- so the living villager roster is
+    the identity instead. Measured on the owner's saves: 0% of the roster
+    changes across a village's own backups, 100% across a real
+    delete-and-recreate.
+
+    The sweep must therefore ask the DLL for the roster hash and reload on a
+    difference, not merely when the slot number moves.
+    """
+    source = STAGE2
+
+    assert "Vv2VillageTag" in source, (
+        "the sweep no longer resolves the village-tag export, so a Start Over "
+        "in the same slot would keep the dead village's masks resident")
+    assert "TAG_VA" in source and "TAG_FN" in source, (
+        "the tag scratch dwords are gone")
+
+    # The comparison must gate the reload, and an unknown tag (0) must be
+    # treated as "leave it alone" rather than as a change: a missed reload
+    # preserves today's behaviour, while a spurious one discards a live
+    # village's masks.
+    gate = source[source.index("cmp  byte ptr [0x{LOADED_VA:X}], 0"):]
+    gate = gate[:gate.index("sweep_loop:")]
+    assert "cmp  eax, [0x{TAG_VA:X}]" in gate, (
+        "the sweep does not compare the roster hash against the loaded one")
+    assert gate.index("test eax, eax") < gate.index("cmp  eax, [0x{TAG_VA:X}]"), (
+        "a zero (unknown) tag must be rejected before it is compared, or an "
+        "unreadable roster would look like a village change")
+
+
+def test_the_mask_stubs_do_not_overrun_the_parentage_cave() -> None:
+    """The appended page is shared, and the guard for that must stay.
+
+    build_vv2_parentage_feature.py overlays its own cave at .vvmk 0x41A, and
+    build_vv2_villagers_died_feature.py sits after it. Laying the mask stubs
+    out sequentially walked into the parentage cave once the village-tag check
+    was added, which the patcher caught as a byte-guard failure at 0xB241A.
+    """
+    source = STAGE2
+    # Assert the reservation is USED, not merely mentioned: the sweep must be
+    # placed after the cave, and the overrun must raise rather than silently
+    # overwrite another feature.
+    assert "sweep_va = parentage_end" in source, (
+        "the sweep is no longer placed after the parentage cave, so it can "
+        "grow into another feature's bytes again")
+    assert "parentage_end = CODE_SEC_VA + PARENTAGE_CAVE_OFF" in source, (
+        "the cave end is no longer derived from the reserved offset")
+    assert "raise RuntimeError(" in source and "past the parentage cave" in source, (
+        "the overrun check no longer raises, so an oversized stub would "
+        "silently overwrite the parentage cave")

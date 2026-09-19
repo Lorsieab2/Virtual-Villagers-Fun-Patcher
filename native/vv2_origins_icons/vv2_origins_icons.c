@@ -1464,6 +1464,73 @@ static void vv2_mask_sidecar_load(void) {
 }
 
 /* exe-callable so an early exe hook can restore at startup, OUTSIDE the loader lock */
+/* ---- Village identity, from the living villager roster --------------------
+
+   VV2 stores no village identity of its own -- unlike VV1 and VV5, which stamp
+   a creation-time value into the save.  Measured across the owner's saves,
+   39,691 aligned dwords stay constant within every village and the most
+   discriminating of them takes only five distinct values across twenty
+   villages, so there is nothing in the save that names which village it is.
+
+   The roster is the identity instead.  Two villages do not share villagers, so
+   hashing the names of the living ones distinguishes them.  Measured on the
+   owner's real saves: 0% of the living roster changes across a village's own
+   backups (all five slots), and 100% changes across a genuine
+   delete-and-recreate.
+
+   Offsets come from the population exporter's per-game table, which derived
+   them from a save file and independently from live memory, and which the
+   owner's own Village Population log confirms by printing correct names.
+
+   +0x5C0 is NOT used here: that is the FATHER's name copied onto the mother at
+   conception, so hashing it would collide across unrelated villagers. */
+#define VV2_NAME_OFFSET     0x564
+#define VV2_NAME_CAPACITY   0x18
+
+/* Returns a hash of the living roster, or 0 when it cannot be read.
+
+   0 means "unknown", never "changed": the caller must leave the mask table
+   alone rather than reload against a village it could not see.  A missed
+   reload merely preserves today's behaviour, while a spurious one would
+   discard a live village's masks. */
+/* The stock record-array getter, declared here because the shared typedef
+   further down this file is defined after this point.  Same address and same
+   __stdcall signature the appearance code uses. */
+typedef unsigned char *(__stdcall *vv2_tag_record_array_fn)(void);
+
+__declspec(dllexport) unsigned int __stdcall Vv2VillageTag(void) {
+    unsigned char *base;
+    unsigned int h = 2166136261u;             /* FNV-1a */
+    int i;
+    int live = 0;
+    base = ((vv2_tag_record_array_fn)0x0044F4E0)();
+    if (base == 0) {
+        return 0;
+    }
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        const unsigned char *rec = base + (unsigned int)i * VV2_RECORD_STRIDE;
+        const unsigned char *name;
+        int k;
+        if (rec[VV2_ACTIVE_OFFSET] == 0) {
+            continue;                          /* free or dead slot */
+        }
+        ++live;
+        name = rec + VV2_NAME_OFFSET;
+        /* Mix the slot index as well as the name, so two villagers sharing a
+           name in different slots do not cancel out, and a roster that merely
+           reorders is still seen as the same set of people in the same places. */
+        h = (h ^ (unsigned int)i) * 16777619u;
+        for (k = 0; k < VV2_NAME_CAPACITY && name[k]; ++k) {
+            h = (h ^ name[k]) * 16777619u;
+        }
+        h = (h ^ 0xFFu) * 16777619u;           /* terminator, so "Lu" != "Lulu" */
+    }
+    if (live == 0) {
+        return 0;                              /* no village loaded yet */
+    }
+    return h ? h : 1u;                         /* reserve 0 for "unknown" */
+}
+
 __declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_load(); }
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
