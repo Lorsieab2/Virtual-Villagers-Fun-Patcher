@@ -87,7 +87,38 @@ push ebx
 call <deleteSave>
 ```
 
-## Why this is the right event, and not buildSavePath
+## CORRECTION: deleteSave is NOT the Start Over event
+
+The reasoning below was wrong, and disk evidence disproves it.
+
+`deleteSave` is called from a **save** routine that rotates backups. Its caller
+passes `ebx = slot + 0x14`, not the raw slot:
+
+```asm
+mov  edi, [esp+0x218]   ; the slot
+test edi, edi
+jle  <skip>
+lea  ebx, [edi+0x14]    ; slot + 20
+push ebx
+call <deleteSave>       ; delete the OLDEST backup
+... then writes a new save through vtable +0xC with mode "wb"
+```
+
+The save files on disk confirm it. VV1's folder holds `Virtual Villagers1.ldw`,
+`...21.ldw` and `...41.ldw` -- the same size, different hashes, written about ten
+minutes apart in descending order. They are three generations of ONE village,
+and `21 = 1 + 20`, `41 = 21 + 20`. The routine writes the new save and drops the
+oldest generation.
+
+So `deleteSave` fires on **every ordinary save**. Hooking it to delete
+patcher state would destroy a player's masks and logs continuously during normal
+play -- the precise "do not fix reset by breaking persistence" failure.
+
+The owner also reports there are **two** ways to reset a tribe: Start Over, and
+deleting the tribe outright from the save-slot screen. Both still need locating,
+and neither is this function.
+
+## Why buildSavePath is also not the event
 
 `buildSavePath` (VV5 `0x403600`) is the choke point the per-slot mask sidecar
 already hooks, and it is the wrong place for a reset: it runs on **every** save
