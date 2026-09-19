@@ -3806,42 +3806,41 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         mov ecx, [esp+0xBC]
         jmp 0x472488
     """)
-    # mask_overlay: replaces the believer head draw call at 0x47279C. It performs
-    # that stock call first, unchanged, then repeats the SAME argument tuple
-    # through the heathen head draw so the mask lands on top.
+    # mask_overlay: replaces the believer head draw call at 0x47279C. It runs
+    # that stock call unchanged, then paints the mask on top through the
+    # heathen head draw -- choosing the mask argument the way the GAME does.
     #
-    # 0x44F5E0 is ret 0x1C (7 dwords) and 0x44F4E0 is ret 0x20 (8 dwords), so the
-    # overlay pushes one extra selector -- the chosen mask colour -- exactly as
-    # the stock heathen branch at 0x472769 does. Both are __thiscall on the same
-    # draw manager, and both callees clean their own arguments, so the caller's
-    # stack is unchanged either way.
+    # ARGUMENT 6 IS A SPRITE HANDLE, NOT A MASK INDEX.
     #
-    # mask_overlay: replaces the believer head draw call at 0x47279C. It performs
-    # that stock call first, unchanged, then repeats the argument tuple through
-    # the heathen head draw so the mask lands on top.
+    # This is what three shipped builds got wrong. The stock heathen branch at
+    # 0x472732 does not receive a mask number; it PICKS argument 6 from one of
+    # three caller stack slots according to the villager's colour flags:
     #
-    # THE SELECTOR GOES LAST. THIS ORDER IS RUNTIME-VERIFIED, NOT DERIVED.
+    #     cmp byte [esi+0x1CED], 0   ; orange -> edx <- [esp+0x4C]
+    #     cmp byte [esi+0x1CEE], 0   ; red    -> edx <- [esp+0x54]
+    #     otherwise                           edx <- [esp+0x30]
     #
-    # The owner confirmed masks rendered correctly with exactly this byte order
-    # and reported them broken after it was changed. Two later orderings were
-    # tried and both were wrong in player-visible ways:
+    # Pushing the sidecar's 1..5 choice into that slot hands the renderer
+    # something that is not a handle, which is why every ordering failed:
+    # argument 1 crashed (it is dereferenced as an object pointer), argument 8
+    # landed in a reserved float slot, and argument 6 drew a ghost body.
     #
-    #   selector pushed FIRST  -> argument 8: no crash, but it occupies a
-    #                             reserved float slot and both floats shift.
-    #   selector 3rd-from-last -> argument 6: renders a whole villager body as
-    #                             a ghost overlay instead of a mask.
+    # v1.34.38, the last build the owner confirmed rendering village masks,
+    # did not supply this argument at all. It wrote the villager's own fields
+    # (+0x1CEC/+0x1CED/+0x1CEE/+0x1CFC) so the stock code chose the handle
+    # itself. That worked, and it is also what caused the retired-chief crash:
+    # mutating a live record mid-render and relying on an epilogue to undo it
+    # leaves the villager permanently heathen if anything faults in between.
     #
-    # Both came from treating 0x44F4E0 as the believer routine plus one extra
-    # argument. That premise is false. The two routines end in DIFFERENT
-    # renderers -- believer 0x44F5E0 (ret 0x1C, 7 args) finishes at 0x409CB0,
-    # heathen 0x44F4E0 (ret 0x20, 8 args) finishes at 0x409DF0 -- so their
-    # tuples are not interchangeable, and reasoning about which slot the
-    # selector "should" take inside an already-wrong tuple cannot land on the
-    # right answer.
+    # So this reads the SAME three caller slots and picks between them by the
+    # mask colour, writing nothing to the record and changing nobody's
+    # faction. In this frame the caller slots sit 8 bytes above where the
+    # stock site reads them, because of the return address and the saved ebp:
     #
-    # Do not "correct" this ordering from the stock heathen call site again
-    # without runtime evidence that masks still render. A static ABI argument
-    # has now produced two visibly broken builds.
+    #     [esp+0x30] -> [ebp+0x38]   blue (and purple/chief, which the stock
+    #                                code also draws from this slot)
+    #     [esp+0x4C] -> [ebp+0x54]   orange
+    #     [esp+0x54] -> [ebp+0x5C]   red
     restore = put(page, page_va, "mask_overlay", """
         push ebp
         mov ebp, esp
@@ -3859,14 +3858,27 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         test eax, eax
         je mo_done
         pushad
-        push dword ptr [ebp+0x20]
+        mov eax, dword ptr [0x7B1D04]
+        cmp eax, 2
+        je mo_orange
+        cmp eax, 3
+        je mo_red
+        mov eax, dword ptr [ebp+0x38]
+        jmp mo_have
+    mo_orange:
+        mov eax, dword ptr [ebp+0x54]
+        jmp mo_have
+    mo_red:
+        mov eax, dword ptr [ebp+0x5C]
+    mo_have:
         push dword ptr [ebp+0x1C]
+        push dword ptr [ebp+0x20]
+        push eax
         push dword ptr [ebp+0x18]
         push dword ptr [ebp+0x14]
         push dword ptr [ebp+0x10]
         push dword ptr [ebp+0x0C]
         push dword ptr [ebp+0x08]
-        push dword ptr [0x7B1D04]
         mov ecx, 0x521078
         call 0x44F4E0
         popad
