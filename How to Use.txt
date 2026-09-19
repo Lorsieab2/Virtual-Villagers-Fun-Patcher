@@ -327,3 +327,55 @@ button/menu and its functional village-wide upgrades. No individual Full
 Mastery record or duplicate Origins-exclusive record is exposed. Existing save
 fields are changed only when the selected in-game upgrade runs. Runtime/player
 confirmation remains pending.
+
+THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
+
+Everything this patcher writes for a village sits beside that village's save,
+in Documents\LDW\<game folder>\ -- the same folder as the .ldw files.
+
+Masks, one file per save slot:
+
+    vv1_masks_<slot>.dat        A New Home
+    vv2_masks_<slot>.dat        The Lost Children
+    vvfp_masks_<slot>.dat       The Secret City, The Tree of Life,
+                                New Believers
+
+Purchased Origins doubler ownership, A New Home only:
+
+    vv1_doublers_<slot>.dat
+
+Exported logs:
+
+    <Game> Parentage Log <n>.txt
+    Village Statistics - Save <slot>.txt
+    Village Population <slot>.txt
+
+DELETING ANY OF THESE IS SAFE. None of them is the game's save, and none is
+required for the game to run. Every mask file is read by code that clears its
+table first and treats a missing file as "this village has no masks", so
+nothing crashes and the file is written again the next time you choose one.
+The statistics and population logs are rewritten in full on every save, so a
+deleted one simply reappears, complete and up to date, after you next save.
+
+Two of them are worth knowing about before you delete them.
+
+The parentage log is built up over time, one line per conception, so deleting
+it does not lose the feature -- the file is recreated with a fresh village
+header at the next birth -- but the older conception records in it are not
+recoverable. Keep a copy if you want that history.
+
+The A New Home doubler file records which Origins tech and food point doublers
+that village has bought. The game does not save that itself, which is why the
+file exists. Deleting it cannot crash anything or harm the save, but the
+village loses doublers it paid for and would have to buy them again. It is
+also the one file here you are unlikely to ever need to delete: it is tagged
+with the village that wrote it, so a file left behind in a reused slot is
+ignored rather than handing doublers to a village that never earned them.
+
+WHEN TO USE THIS. If masks ever appear on villagers you did not give them to,
+delete the mask file for that save slot. This is most likely after Start Over,
+or after deleting a tribe and starting a new one in the same slot: the patcher
+does not yet clear its own mask state when a village is erased that way, so the
+new village can inherit the old one's choices. Close the game, delete that
+slot's mask file, and start the game again -- the new village begins with no
+masks.
