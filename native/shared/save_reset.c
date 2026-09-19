@@ -60,6 +60,57 @@ int vv_test_delete_if_present(const char *path);
 #define VV_RESET_STATIC static
 #endif
 
+/* Does this log file open with the header of the village being erased?
+
+   The exporters write "Village: <name> (Save <n>)" as the first line of a new
+   log, and that line is the only thing distinguishing one village's parentage
+   log from another's: those files roll over by count rather than by slot, so
+   the slot cannot address them.
+
+   A file with no header is NOT matched. Logs written before headers existed
+   cannot be attributed to any village, and deleting one on a guess would
+   destroy history the player still wants. */
+static int log_header_matches(const wchar_t *path, const char *village) {
+    HANDLE f;
+    char line[256];
+    char want[256];
+    DWORD got = 0;
+    DWORD i;
+    int n;
+
+    if (village == NULL || village[0] == '\0') {
+        return 0;
+    }
+    f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!ReadFile(f, line, sizeof(line) - 1, &got, NULL)) {
+        CloseHandle(f);
+        return 0;
+    }
+    CloseHandle(f);
+    line[got] = '\0';
+    for (i = 0; i < got; ++i) {
+        if (line[i] == '\r' || line[i] == '\n') {
+            line[i] = '\0';
+            break;
+        }
+    }
+    /* The published header carries its own trailing newline; compare first
+       lines only. */
+    lstrcpynA(want, village, (int)sizeof(want));
+    n = lstrlenA(want);
+    while (n > 0 && (want[n - 1] == '\n' || want[n - 1] == '\r')) {
+        want[--n] = '\0';
+    }
+    if (want[0] == '\0') {
+        return 0;
+    }
+    return lstrcmpA(line, want) == 0;
+}
+
 VV_RESET_STATIC int delete_if_present(const char *path) {
     if (path == NULL || path[0] == '\0') {
         ++vv_reset_refused_paths;   /* refused before touching the filesystem */
@@ -82,7 +133,7 @@ VV_RESET_STATIC int delete_if_present_w(const wchar_t *path) {
     return 0;
 }
 
-int vv_reset_slot_state(int game, int slot) {
+int vv_reset_slot_state(int game, int slot, const char *village) {
     char folder[MAX_PATH];
     wchar_t folder_w[MAX_PATH];
     char path[MAX_PATH];
@@ -112,22 +163,40 @@ int vv_reset_slot_state(int game, int slot) {
     }
 
     if (!vv_save_folder_w(folder_w, 64)) {
-        return removed;         /* sidecars already handled; logs need the wide form */
+        return removed;         /* sidecars done; the logs need the wide form */
     }
-    for (i = 1; i <= MAX_LOG_FILES; ++i) {
-        int hit = 0;
-        wsprintfW(path_w, L"%ls\\%ls %d.txt", folder_w, PARENTAGE_LOG[game - 1], i);
-        hit += delete_if_present_w(path_w);
-        wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", folder_w, i);
-        hit += delete_if_present_w(path_w);
-        wsprintfW(path_w, L"%ls\\Village Population %d.txt", folder_w, i);
-        hit += delete_if_present_w(path_w);
-        removed += hit;
-        /* Stop at the first gap. The exporters number their files without
-           holes, so a missing index means there are no more -- walking all 4096
-           on every Start Over would stat twelve thousand paths for nothing. */
-        if (hit == 0 && i > 1) {
-            break;
+
+    /* STATISTICS AND POPULATION ARE NUMBERED BY SLOT, NOT BY ROLL-OVER.
+       build_output_paths formats save_id straight into the name, so the file
+       for the village being erased is the one bearing this slot -- and every
+       other numbered file belongs to a village that was NOT reset. Addressing
+       them directly is what stops a reset of slot 1 destroying slots 2..5.
+
+       An earlier version of this function walked every number and deleted what
+       it found. Codex caught it on #380. */
+    wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", folder_w, slot);
+    removed += delete_if_present_w(path_w);
+    wsprintfW(path_w, L"%ls\\Village Population %d.txt", folder_w, slot);
+    removed += delete_if_present_w(path_w);
+
+    /* PARENTAGE IS VILLAGE-SCOPED, SO IT IS MATCHED BY HEADER.
+       Its files roll over by count rather than by slot, so the slot cannot
+       address them. Each one opens with the header the exporter wrote, and a
+       file is deleted only when that header is the village being erased.
+
+       Without a village string nothing here is deleted. Guessing would mean
+       deleting another village's history, and losing a header line is a far
+       smaller harm than that. */
+    if (village != NULL && village[0] != '\0') {
+        for (i = 1; i <= MAX_LOG_FILES; ++i) {
+            wsprintfW(path_w, L"%ls\\%ls %d.txt", folder_w,
+                      PARENTAGE_LOG[game - 1], i);
+            if (GetFileAttributesW(path_w) == INVALID_FILE_ATTRIBUTES) {
+                break;          /* the exporter numbers without holes */
+            }
+            if (log_header_matches(path_w, village)) {
+                removed += delete_if_present_w(path_w);
+            }
         }
     }
     return removed;

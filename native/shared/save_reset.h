@@ -28,9 +28,14 @@
  * `game` is 1..5. `slot` is the village slot the game is erasing; slots are
  * 1-based, and a slot outside 1..5 is refused.
  *
+ * `village` is the header string of the village being erased, as the
+ * exporters write it. Statistics and population logs are addressed by slot,
+ * but parentage logs roll over by count and can only be identified by that
+ * header; without it they are left alone rather than deleted on a guess.
+ *
  * Returns the number of files deleted, or -1 if the save folder could not be
  * resolved and nothing was attempted. A file that does not exist is not an
  * error -- a village with no masks simply has no sidecar to remove. */
-int vv_reset_slot_state(int game, int slot);
+int vv_reset_slot_state(int game, int slot, const char *village);
 
 #endif /* VVFP_SAVE_RESET_H */

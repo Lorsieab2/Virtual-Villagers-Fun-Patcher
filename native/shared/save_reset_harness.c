@@ -41,6 +41,16 @@ static void touch(const char *path) {
     }
 }
 
+static void write_text(const char *path, const char *text) {
+    HANDLE h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                           FILE_ATTRIBUTE_NORMAL, NULL);
+    DWORD written = 0;
+    if (h != INVALID_HANDLE_VALUE) {
+        WriteFile(h, text, (DWORD)lstrlenA(text), &written, NULL);
+        CloseHandle(h);
+    }
+}
+
 static int exists(const char *path) {
     return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
 }
@@ -52,6 +62,11 @@ int main(void) {
     char save1[MAX_PATH], other_game[MAX_PATH];
     char log1[MAX_PATH];
     int removed;
+    char stats1[MAX_PATH], stats2[MAX_PATH];
+    char pop1[MAX_PATH], pop2[MAX_PATH];
+    char log_other[MAX_PATH];
+    static const char VILLAGE[]  = "Village: Kalahuna (Save 1)\n";
+    static const char VILLAGE2[] = "Village: Elsewhere (Save 2)\n";
 
     if (!vv_save_folder(folder, 64)) {
         printf("could not resolve the save folder\n");
@@ -73,15 +88,26 @@ int main(void) {
     wsprintfA(other_game, "%s\\vv2_masks_1.dat", folder);
     wsprintfA(log1, "%s\\Virtual Villagers 1 Parentage Log 1.txt", folder);
 
+    wsprintfA(stats1, "%s\\Village Statistics - Save 1.txt", folder);
+    wsprintfA(stats2, "%s\\Village Statistics - Save 2.txt", folder);
+    wsprintfA(pop1, "%s\\Village Population 1.txt", folder);
+    wsprintfA(pop2, "%s\\Village Population 2.txt", folder);
+    wsprintfA(log_other, "%s\\Virtual Villagers 1 Parentage Log 2.txt", folder);
+
     touch(mask1); touch(mask2); touch(doubler1);
-    touch(save1); touch(other_game); touch(log1);
+    touch(save1); touch(other_game);
+    touch(stats1); touch(stats2); touch(pop1); touch(pop2);
+    /* The two parentage logs carry DIFFERENT village headers: log1 belongs to
+       the village being erased, log_other to a village that is not. */
+    write_text(log1, VILLAGE);
+    write_text(log_other, VILLAGE2);
 
     printf("created 6 files; resetting VV1 slot 1\n");
     check(exists(mask1) && exists(mask2) && exists(doubler1)
           && exists(save1) && exists(other_game) && exists(log1),
           "all 6 files exist before the reset (nonzero denominator)");
 
-    removed = vv_reset_slot_state(1, 1);
+    removed = vv_reset_slot_state(1, 1, VILLAGE);
     printf("vv_reset_slot_state(1, 1) removed %d files\n", removed);
 
     check(removed >= 3, "reset reported removing at least the 3 VV1 slot-1 files");
@@ -92,12 +118,37 @@ int main(void) {
     check(exists(save1), "the game's own .ldw SURVIVES (patcher deletes only its own)");
     check(exists(other_game), "another game's sidecar SURVIVES");
 
+    /* THE P1 CODEX FOUND ON #380. Statistics and population logs are numbered
+       by SLOT, so an unscoped walk deleted villages that were never reset. */
+    check(!exists(stats1), "slot 1 statistics log deleted");
+    check(!exists(pop1), "slot 1 population log deleted");
+    check(exists(stats2), "SLOT 2 STATISTICS SURVIVES (was destroyed before the fix)");
+    check(exists(pop2), "SLOT 2 POPULATION SURVIVES (was destroyed before the fix)");
+
+    /* Parentage logs roll over by count, so they are matched by header. */
+    check(!exists(log1), "parentage log of the erased village deleted");
+    check(exists(log_other), "ANOTHER VILLAGE'S PARENTAGE LOG SURVIVES (header mismatch)");
+
+    /* Without a village string, parentage cannot be identified and must be
+       left alone rather than deleted on a guess. */
+    {
+        char probe[MAX_PATH];
+        wsprintfA(probe, "%s\\Virtual Villagers 1 Parentage Log 1.txt", folder);
+        write_text(probe, VILLAGE);
+        check(exists(probe), "parentage probe recreated (nonzero denominator)");
+        vv_reset_slot_state(1, 1, NULL);
+        check(exists(probe), "NULL village leaves parentage logs alone");
+        vv_reset_slot_state(1, 1, "");
+        check(exists(probe), "empty village leaves parentage logs alone");
+        DeleteFileA(probe);
+    }
+
     /* Refusals: nothing outside a real village slot may delete anything. */
-    check(vv_reset_slot_state(1, 0) == -1, "slot 0 refused (meta file, not a village)");
-    check(vv_reset_slot_state(1, 6) == -1, "slot 6 refused (out of range)");
-    check(vv_reset_slot_state(1, -1) == -1, "negative slot refused");
-    check(vv_reset_slot_state(0, 1) == -1, "game 0 refused");
-    check(vv_reset_slot_state(6, 1) == -1, "game 6 refused");
+    check(vv_reset_slot_state(1, 0, VILLAGE) == -1, "slot 0 refused (meta file, not a village)");
+    check(vv_reset_slot_state(1, 6, VILLAGE) == -1, "slot 6 refused (out of range)");
+    check(vv_reset_slot_state(1, -1, VILLAGE) == -1, "negative slot refused");
+    check(vv_reset_slot_state(0, 1, VILLAGE) == -1, "game 0 refused");
+    check(vv_reset_slot_state(6, 1, VILLAGE) == -1, "game 6 refused");
     check(exists(mask2) && exists(save1) && exists(other_game),
           "survivors still present after all five refusals");
 
@@ -115,7 +166,7 @@ int main(void) {
         int before, after;
         wsprintfA(probe, "%s\\vv1_masks_2.dat", folder);
         before = exists(probe);
-        check(vv_reset_slot_state(1, 99) == -1, "slot 99 refused before any path is built");
+        check(vv_reset_slot_state(1, 99, VILLAGE) == -1, "slot 99 refused before any path is built");
         after = exists(probe);
         check(before && after, "refused reset deleted nothing (empty-path guard holds)");
     }
@@ -190,6 +241,7 @@ int main(void) {
 
     /* Clean up what the harness made. */
     DeleteFileA(mask2); DeleteFileA(save1); DeleteFileA(other_game);
+    DeleteFileA(stats2); DeleteFileA(pop2); DeleteFileA(log_other);
 
     printf("\n%s (%d failure%s)\n", failures ? "FAILED" : "OK",
            failures, failures == 1 ? "" : "s");
