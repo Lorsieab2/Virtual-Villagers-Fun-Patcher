@@ -694,20 +694,24 @@ VV5_TASK9_PATHS = {
     "map": ROOT / "data" / "candidates" / "vv5_task9_native_actions_map.json",
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
-# Recertified when the mask overlay's argument order was corrected: it pushed
-# the mask selector LAST, which on x86 makes it argument one and shifted the
-# heathen head draw's whole frame, crashing VV5 on startup in v1.35.6.
+# Recertified when the village-mask overlay was removed and the flip mechanism
+# that v1.34.38 shipped was restored. The overlay painted the mask by calling
+# the heathen head draw with a forwarded argument tuple, and never rendered a
+# village mask in any release: the stock heathen branch does not accept a mask
+# number, it picks its sprite argument from caller stack slots according to the
+# villager's own colour flags. The believer draw at 0x47279C is stock again,
+# and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "4DC23B925D5D70DBE301F6DF7DF83B5A7310EE9CD3AF5C549F712CB6B815AC67",
-    "map": "454731EFE3BDBC0E80E31F52FE99B78293F4FFB1C67223D8BBE55A6673B5E314",
+    "manifest": "53A3053515DAA1A5663214FE987964C46AA5BAA265DC349DB034B434665FCB38",
+    "map": "5B1418A9227310D38C12EDB28E3AFD4680035E809BAD6C2190CC3ED5E2658153",
 }
 VV5_TASK9_DLL_SHA256 = "98990A2306E2F3ACA4978FAEB162E63509BFFEC9F3C640D242957F348C9913F2"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "CD5A465A7FA791CF87AE99DAD6763A53208051A2EBDD3B2C49445E76860CF55A",
-    "immediate_fixed": "CD5A465A7FA791CF87AE99DAD6763A53208051A2EBDD3B2C49445E76860CF55A",
+    "collection_progression": "FA1171D463FDDD1CECEE020DB327F08C660437B5011CD3FB840F2665FFF31980",
+    "immediate_fixed": "FA1171D463FDDD1CECEE020DB327F08C660437B5011CD3FB840F2665FFF31980",
     "experimental_expanded_256": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
     "experimental_expanded_256_progression": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
 }
@@ -739,8 +743,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "F88DEFCF5292537CBD87C04E3B23BB500433EBEA799EEFA343B7111B1511ACF3",
-    "task9_builder": "16C338A994B0DFCC7B0BF5B6A34EB9624F039BC8484ECECD04B21F4163200DFE",
+    "builder": "9A2BE996930D00BC52D1C3EB00EC65DFA96B0832220C4D4B74F8355BB7A3BFE9",
+    "task9_builder": "95863EB4183BC4B6D4E21C5AA2C7C497A4D3A0BA732D37758078106ADB493F92",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -748,12 +752,12 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
         "map": "FB308848ED65695E62F65A6074861F8740009962FC99EFFBD8AEFD2A859F0031",
         "core": "5AA28CEAAFBC6F4278FF01C41F67E0394227C272123EAC9433BD6D011A4087CE",
     },
-    # VV5's pair moved when the Task9 mask overlay's argument order was
-    # corrected: these artifacts embed the builder's source identity, which
-    # changed with it.
+    # VV5's pair moved when the Task9 mask overlay was removed and the flip
+    # mechanism restored: these artifacts embed the builder's source identity,
+    # which changed with it.
     "vv5": {
-        "manifest": "BD9D42811E20C7EA06F6A4CA8E307711D14D95C6C7DC9438C093BF8A23260F55",
-        "map": "4507CAF93FD87D5E0FBF8FB840CD8E1360854E51F6B20E48C137780CBAEB0C53",
+        "manifest": "41F408DFE24AAA5368F0E470115A050747666C4E4EBC3C8E7F7890316333E645",
+        "map": "6ED84337903259E121B7055A072B078804E4127DCA421E517FD9B481959D92F6",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
