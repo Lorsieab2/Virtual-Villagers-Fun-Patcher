@@ -11,6 +11,28 @@ This document exists because four successive attempts to reimplement this
 feature failed, each in a different visible way, and each attempt was reasoned
 from the stock call sites rather than from a working build.
 
+**Which v1.34.38 zip.** There are two, and only one of them is this mechanism.
+`outputs/Virtual-Villagers-Fun-Patcher-v1.34.38-source.zip` in this repository
+contains the OVERLAY: it patches the believer draw at `0x47279C` and leaves both
+epilogues stock. The zip the owner actually downloaded and ran, kept outside the
+repository, contains the flip and has no `mask_overlay` at all. Building from
+the wrong one reproduces the broken build while appearing to confirm the
+working one, which happened once during this work. Check which mechanism a
+candidate source contains before trusting it as a reference:
+
+```
+grep -c "mask_overlay\|mask_arm"   scripts/build_vv5_task9_native_actions.py   # overlay build
+grep -c "mask_flip\|mask_restore"  scripts/build_vv5_task9_native_actions.py   # working build
+```
+
+**Verification of the restoration.** A VV5 patched with the restored builder was
+diffed against a VV5 patched with the owner's working zip, across the whole
+villager render function and both page routines. `mask_flip` is byte-identical.
+`mask_restore` differs only where the literal-zero stores documented in section 4
+become loads of the saved values. The two remaining bytes, at `0x472B14` and
+`0x472B5C`, are the filler after a 5-byte `jmp` that replaced 6 stolen bytes:
+`0x90` here against `0x00` in the working build, and never executed in either.
+
  VILLAGE MASK MECHANISM — extracted from v1.34.38
 
 Extracted by patching a VV5 with the owner's v1.34.38 patcher (owner-confirmed rendering village masks correctly) and disassembling the result. This is the reference implementation. Everything below is read out of a working binary, not inferred.
