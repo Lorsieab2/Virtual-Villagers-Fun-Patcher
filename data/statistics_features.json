@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "904221955289237A1E32D63A33A5BADD9829F4B9B6E26FD4C2DA9942CD1110F1",
+  "companion_sha256": "66E1BEECF20D217EEBC9D09A8BC2B892E7D7A1407B64D36EF9AD940449A3AB47",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,12 +12,12 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "904221955289237A1E32D63A33A5BADD9829F4B9B6E26FD4C2DA9942CD1110F1"
+          "sha256": "66E1BEECF20D217EEBC9D09A8BC2B892E7D7A1407B64D36EF9AD940449A3AB47"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "0DC7B5D22C8DE60A729D59E2FA2439CE6EAB9F048B9816861531CE95C07A6BBC"
+          "sha256": "BAB66CA40A8C8602980974C9359991DB4EB76ECF98202483124A0AA697E6AA76"
         }
       ],
       "patches": [
@@ -52,12 +52,12 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "904221955289237A1E32D63A33A5BADD9829F4B9B6E26FD4C2DA9942CD1110F1"
+          "sha256": "66E1BEECF20D217EEBC9D09A8BC2B892E7D7A1407B64D36EF9AD940449A3AB47"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "0DC7B5D22C8DE60A729D59E2FA2439CE6EAB9F048B9816861531CE95C07A6BBC"
+          "sha256": "BAB66CA40A8C8602980974C9359991DB4EB76ECF98202483124A0AA697E6AA76"
         }
       ],
       "patches": [
@@ -116,12 +116,12 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "904221955289237A1E32D63A33A5BADD9829F4B9B6E26FD4C2DA9942CD1110F1"
+          "sha256": "66E1BEECF20D217EEBC9D09A8BC2B892E7D7A1407B64D36EF9AD940449A3AB47"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "0DC7B5D22C8DE60A729D59E2FA2439CE6EAB9F048B9816861531CE95C07A6BBC"
+          "sha256": "BAB66CA40A8C8602980974C9359991DB4EB76ECF98202483124A0AA697E6AA76"
         }
       ],
       "patches": [
@@ -174,12 +174,12 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "904221955289237A1E32D63A33A5BADD9829F4B9B6E26FD4C2DA9942CD1110F1"
+          "sha256": "66E1BEECF20D217EEBC9D09A8BC2B892E7D7A1407B64D36EF9AD940449A3AB47"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "0DC7B5D22C8DE60A729D59E2FA2439CE6EAB9F048B9816861531CE95C07A6BBC"
+          "sha256": "BAB66CA40A8C8602980974C9359991DB4EB76ECF98202483124A0AA697E6AA76"
         }
       ],
       "patches": [
@@ -244,12 +244,12 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "904221955289237A1E32D63A33A5BADD9829F4B9B6E26FD4C2DA9942CD1110F1"
+          "sha256": "66E1BEECF20D217EEBC9D09A8BC2B892E7D7A1407B64D36EF9AD940449A3AB47"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "0DC7B5D22C8DE60A729D59E2FA2439CE6EAB9F048B9816861531CE95C07A6BBC"
+          "sha256": "BAB66CA40A8C8602980974C9359991DB4EB76ECF98202483124A0AA697E6AA76"
         }
       ],
       "patches": [

@@ -2,6 +2,8 @@
 #include "save_folder.h"
 
 #include <shlobj.h>
+#include <stdio.h>
+#include <string.h>
 
 /* Narrow and wide forms are kept as two functions rather than one generic one
    because the callers are split: the mask sidecars use the ANSI Win32 file
@@ -38,8 +40,8 @@ int vv_save_folder(char *out, int reserve) {
     if (base[0] == '\0') {
         return 0;                   /* no basename: refuse rather than guess */
     }
-    docs_len = lstrlenA(docs);
-    base_len = lstrlenA(base);
+    docs_len = (int)strlen(docs);
+    base_len = (int)strlen(base);
     /* docs + "\LDW\" (5) + basename + whatever the caller will append. */
     if (docs_len + 5 + base_len + reserve >= MAX_PATH) {
         return 0;
@@ -47,9 +49,11 @@ int vv_save_folder(char *out, int reserve) {
     /* Create both levels. CreateDirectoryA on an existing directory fails with
        ERROR_ALREADY_EXISTS, which is not an error for us -- the game itself
        creates these, and we only need them to exist. */
-    wsprintfA(out, "%s\\LDW", docs);
+    _snprintf(out, MAX_PATH,"%s\\LDW", docs);
+    out[MAX_PATH - 1] = 0;
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s", docs, base);
+    _snprintf(out, MAX_PATH,"%s\\LDW\\%s", docs, base);
+    out[MAX_PATH - 1] = 0;
     CreateDirectoryA(out, NULL);
     return 1;
 }
@@ -82,14 +86,16 @@ int vv_save_folder_w(wchar_t *out, int reserve) {
     if (base[0] == L'\0') {
         return 0;
     }
-    docs_len = lstrlenW(docs);
-    base_len = lstrlenW(base);
+    docs_len = (int)wcslen(docs);
+    base_len = (int)wcslen(base);
     if (docs_len + 5 + base_len + reserve >= MAX_PATH) {
         return 0;
     }
-    wsprintfW(out, L"%ls\\LDW", docs);
+    _snwprintf(out, MAX_PATH,L"%ls\\LDW", docs);
+    out[MAX_PATH - 1] = 0;
     CreateDirectoryW(out, NULL);
-    wsprintfW(out, L"%ls\\LDW\\%ls", docs, base);
+    _snwprintf(out, MAX_PATH,L"%ls\\LDW\\%ls", docs, base);
+    out[MAX_PATH - 1] = 0;
     CreateDirectoryW(out, NULL);
     return 1;
 }
