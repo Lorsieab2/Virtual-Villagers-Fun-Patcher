@@ -958,7 +958,19 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
 
        Retrying is cheap and safe.  It only means the sidecar is consulted
        again, which is the pre-marker behaviour, and grant-only still stops a
-       stale file from revoking anything. */
+       stale file from revoking anything.
+
+       ONE RESIDUAL CASE, stated rather than papered over.  While the migration
+       is pending, a REMOVAL can still be undone: the .ldw records 0, the
+       unread sidecar still says 1, and the next successful load applies
+       grant-only and restores it.  It needs the sidecar to be unreadable at
+       one load AND the player to remove a doubler before the next successful
+       one, so the window is narrow.  The cost is a refunded doubler coming
+       back rather than a paid one disappearing, which is the safe direction of
+       the two and the same trade grant-only makes deliberately everywhere
+       else.  A purchase in that same window is not at risk at all: the flag
+       reaches the .ldw through the exe patch, and grant-only cannot take it
+       away. */
     if (!vv1_doubler_sidecar_path(path, sizeof(path), slot)) {
         return 0;               /* no path -> nothing learned, retry next load */
     }
