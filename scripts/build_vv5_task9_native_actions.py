@@ -3776,12 +3776,26 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
       * mask_flip calls it as its FIRST instruction, before the sidecar load and
         before any branch that could skip it.
 
-    So if a draw ever faults between the two, the next villager drawn -- next
-    frame at the latest -- puts the victim back. Without that second path a
-    fault left the armed flag set, the victim permanently heathen, AND every
-    other villager unmasked for the rest of the session, because the flip
-    refused to arm while the flag was set. That was the behaviour of the
-    reference build.
+    BE PRECISE ABOUT WHAT THAT SECOND PATH BUYS, AND WHAT IT DOES NOT.
+
+    It does NOT prevent or recover from the retired-chief crash above. That
+    fault is an unhandled 0xC0000005 access violation: the process writes a
+    minidump and dies, so there is no next villager and no next frame. Nothing
+    reached from inside this page can help once that fault is raised.
+
+    What it covers is a recoverable early exit -- any path that leaves the
+    render function without passing through either patched epilogue while the
+    flag is still set. Before it existed, such an exit left the armed flag set,
+    the victim marked Heathen, AND every other villager unmasked for the rest
+    of the session, because the flip refused to arm while the flag was set. So
+    one skipped restore disabled the feature process-wide. Now the next villager
+    drawn repairs it. That was the behaviour of the reference build, and it is
+    the only claim the evidence here supports.
+
+    The retired-chief fault itself remains unaddressed: the flip still takes
+    that draw path, so the sprite resolution is unchanged. There is no
+    reproduction on hand to test against, and the recorded dump predates the
+    reference build the owner confirmed working.
 
     Three stock-only .text detours drive it:
 

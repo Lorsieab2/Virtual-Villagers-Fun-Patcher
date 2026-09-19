@@ -366,21 +366,27 @@ def test_mask_sidecar_path_is_fail_closed_and_budgeted():
 
 
 def test_flip_heals_a_stranded_villager_before_anything_else():
-    """A fault that escapes the epilogues must not strand a villager.
+    """A recoverable exit that skips the epilogues must not strand a villager.
 
     The flip sets +0x1CEC = 1 so the stock renderer takes the heathen branch,
-    and docs/crash-dump-findings.md records a real fault on that path for a
-    retired chief, escaping before either epilogue ran. Restoring the saved
-    colours does not help if the restore never executes.
+    and the cleanup lives in the two function epilogues. Any path that leaves
+    the render function without passing through one of them, while the flag is
+    still set, strands the villager.
 
-    Left unhealed the damage compounds: the armed flag at 0x7B1D00 stays set,
-    the victim keeps +0x1CEC = 1 and is treated as a Heathen, and -- because
-    the flip refuses to arm while the flag is set -- NO villager gets a mask
-    again for the rest of the session.
+    Left unhealed the damage compounds well past one villager: the armed flag
+    at 0x7B1D00 stays set, the victim keeps +0x1CEC = 1 and is treated as a
+    Heathen, and -- because the flip refuses to arm while the flag is set --
+    NO villager gets a mask again for the rest of the session. One skipped
+    restore disabled the whole feature process-wide.
 
     So mask_flip calls mask_unflip as its FIRST action, before any branch that
-    could skip it. Every villager drawn therefore repairs a stranded one, and
-    the feature re-enables itself on the next frame.
+    could skip it, and the next villager drawn repairs a stranded one.
+
+    This does NOT address the retired-chief fault in
+    docs/crash-dump-findings.md. That is an unhandled 0xC0000005 access
+    violation: the process writes a minidump and dies, so there is no next
+    villager to run the repair. Claiming otherwise would overstate what this
+    guard protects.
     """
     page, rmap = t9.build_page(STOCK_PAGE_VA)
     ins = _routine(page, rmap, "mask_flip")
