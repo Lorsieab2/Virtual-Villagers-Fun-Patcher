@@ -4,6 +4,7 @@
 #include <wchar.h>
 
 #include "village_identity.h"
+#include "save_folder.h"
 
 enum {
     GAME_VV1 = 1,
@@ -458,16 +459,13 @@ static int build_output_paths(
     wchar_t *destination
 ) {
     wchar_t module_path[MAX_LONG_PATH];
-    wchar_t *separator;
-    DWORD length = GetModuleFileNameW(NULL, module_path, MAX_LONG_PATH);
-    if (length == 0 || length >= MAX_LONG_PATH) {
+    /* The export belongs with the SAVE, not with the executable.
+       See native/shared/save_folder.h: this used to strip to the exe's own
+       directory, which put exported logs in the install folder while the
+       village they describe lives under Documents\LDW\<exe basename>\. */
+    if (!vv_save_folder_w(module_path, 64)) {
         return 0;
     }
-    separator = wcsrchr(module_path, L'\\');
-    if (separator == NULL) {
-        return 0;
-    }
-    *separator = L'\0';
     if (_snwprintf_s(
             temporary,
             MAX_LONG_PATH,
