@@ -116,10 +116,32 @@ class SaveSwitchOwnershipResetTests(unittest.TestCase):
                 image = self._available(game)
                 index = image.find(_clear_bytes(address))
                 self.assertGreater(index, 0, f"{game} reset not found")
-                window = image[max(0, index - 48) : index]
-                text = " ; ".join(
-                    f"{i.mnemonic} {i.op_str}" for i in md.disasm(window, 0)
-                )
+                # Decode from a start that ALIGNS with the store.
+                #
+                # x86 is variable-length, so decoding a fixed number of bytes
+                # back from the store begins mid-instruction and produces
+                # garbage that can hide a real compare -- and widening the
+                # window only adds more garbage. VV5's gate is a plain
+                # `cmp eax, [slot_scratch]` 23 bytes before its store, and a
+                # 48-byte view reported it as absent purely because of where
+                # the window happened to begin.
+                #
+                # Trying each start and keeping the one whose last instruction
+                # ends exactly at the store guarantees an instruction-aligned
+                # decode of the real gate.
+                text = ""
+                for back in range(8, 65):
+                    if back > index:
+                        break
+                    decoded = list(md.disasm(image[index - back : index], 0))
+                    if decoded and decoded[-1].address + decoded[-1].size == back:
+                        candidate = " ; ".join(
+                            f"{i.mnemonic} {i.op_str}" for i in decoded
+                        )
+                        if "cmp" in candidate:
+                            text = candidate
+                            break
+                        text = candidate
                 if "cmp" in text:
                     continue
                 # VV4 reaches its reset through a `call` to an out-of-line

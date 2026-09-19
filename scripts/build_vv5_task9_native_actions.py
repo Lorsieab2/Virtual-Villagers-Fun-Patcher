@@ -84,6 +84,29 @@ MASK_TABLE = 0x7B1D20
 # the sidecar into MASK_TABLE on the first village frame, then sets this. All
 # runtime-written state stays in non-exec .data (W^X-clean; code stays R+X).
 MASK_LOADED = 0x7B1D6C
+# The VILLAGE TAG the mask table was loaded for, not a 0/1 flag.
+#
+# 0 = nothing loaded (BSS at launch, and what slot_capture writes on a slot
+# change). Anything else is the tag of the village whose nibbles are resident.
+#
+# This exists because the one-shot gate used to be invalidated only by a SLOT
+# NUMBER change, and Start Over reuses the slot, so a new village kept the dead
+# one's masks in memory -- the bleed the owner reported. Comparing the tag
+# catches that case and a slot change alike.
+#
+# The tag is two aligned dwords of the save buffer (manager+8), folded here
+# with a cheap xor/add rather than the DLL's FNV-1a. The two need not produce
+# the same number: the DLL's tag identifies a village inside the sidecar FILE,
+# while this one only has to CHANGE when the village changes, and both are
+# derived from the same two dwords, so they change together. Doing FNV-1a in
+# the cave would cost bytes for no benefit. Measured across the owner's 153 VV5 saves covering
+# 10 tribes: 10/10 distinct, constant within a village across its N/N+20/N+40
+# generations, and different across all three real same-slot village
+# replacements in the owner's save folder.
+VV5_MANAGER = 0x004DBFC8
+VV5_SAVE_BIAS = 8
+VV5_TAG_A = VV5_MANAGER + VV5_SAVE_BIAS + 0x328
+VV5_TAG_B = VV5_MANAGER + VV5_SAVE_BIAS + 0x338
 # Bighead (Details-screen villager portrait) mask render scratch: five R/W .data
 # BSS dwords in the same proven-free window as the flip scratch -- 0x7B1D14..0x1F
 # (just past the flip scratch, before MASK_TABLE) and 0x7B1D70..0x77 (past the
@@ -3840,9 +3863,20 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         push eax
         push edx
         call 0x{page_va + OFF['mask_unflip']:X}
-        cmp byte ptr [0x{MASK_LOADED:X}], 0
-        jne mf_loaded
+        # Which village is on screen right now? The render path runs with the
+        # save buffer populated, unlike buildSavePath, so the tag is valid here.
+        mov eax, dword ptr [0x{VV5_TAG_A:X}]
+        mov edx, dword ptr [0x{VV5_TAG_B:X}]
+        or eax, edx
+        jz mf_loaded
+        mov eax, dword ptr [0x{VV5_TAG_A:X}]
+        xor eax, edx
+        cmp eax, dword ptr [0x{MASK_LOADED:X}]
+        je mf_loaded
+        push eax
         call 0x{page_va + OFF['mask_load_once']:X}
+        pop eax
+        mov dword ptr [0x{MASK_LOADED:X}], eax
     mf_loaded:
         call 0x{page_va + OFF['mask_get']:X}
         test eax, eax
@@ -4005,7 +4039,6 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # results null-guarded. esi (villager record) is preserved by the stdcall/DLL
     # calls, so the caller (mask_arm) can proceed. No villager-record or save write.
     load_once = put(page, page_va, "mask_load_once", f"""
-        mov byte ptr [0x{MASK_LOADED:X}], 1
         push 0x{s['dll']:X}
         call dword ptr [0x4951E0]
         test eax, eax
@@ -4143,7 +4176,7 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         cmp eax, dword ptr [0x{SLOT_SCRATCH:X}]
         je sc_skip
         mov dword ptr [0x{SLOT_SCRATCH:X}], eax
-        mov byte ptr [0x{MASK_LOADED:X}], 0
+        mov dword ptr [0x{MASK_LOADED:X}], 0
         # Same reasoning, applied to Origins upgrade state. Without this, the
         # outgoing village's upgrade bits are still sitting in 0x51D388 when
         # the incoming village is selected: a Tech Point Doubler bought in one
