@@ -340,6 +340,10 @@ Masks, one file per save slot:
     vvfp_masks_<slot>.dat       The Secret City, The Tree of Life,
                                 New Believers
 
+Purchased Origins doubler ownership, A New Home only:
+
+    vv1_doublers_<slot>.dat
+
 Exported logs:
 
     <Game> Parentage Log <n>.txt
@@ -353,11 +357,20 @@ nothing crashes and the file is written again the next time you choose one.
 The statistics and population logs are rewritten in full on every save, so a
 deleted one simply reappears, complete and up to date, after you next save.
 
-The parentage log is the one exception worth knowing about. It is built up
-over time, one line per conception, so deleting it does not lose the feature --
-the file is recreated with a fresh village header at the next birth -- but the
-older conception records in it are not recoverable. Keep a copy if you want
-that history.
+Two of them are worth knowing about before you delete them.
+
+The parentage log is built up over time, one line per conception, so deleting
+it does not lose the feature -- the file is recreated with a fresh village
+header at the next birth -- but the older conception records in it are not
+recoverable. Keep a copy if you want that history.
+
+The A New Home doubler file records which Origins tech and food point doublers
+that village has bought. The game does not save that itself, which is why the
+file exists. Deleting it cannot crash anything or harm the save, but the
+village loses doublers it paid for and would have to buy them again. It is
+also the one file here you are unlikely to ever need to delete: it is tagged
+with the village that wrote it, so a file left behind in a reused slot is
+ignored rather than handing doublers to a village that never earned them.
 
 WHEN TO USE THIS. If masks ever appear on villagers you did not give them to,
 delete the mask file for that save slot. This is most likely after Start Over,
