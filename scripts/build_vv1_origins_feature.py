@@ -2902,22 +2902,32 @@ def main() -> None:
         )
     # Persist the two doubler ownership flags on save.
     #
-    # They live at <state>+0x9E90 and +0x9E94, inside the 0xABDC the game
-    # serialises.  They used to sit at +0xAD48/+0xAD4C, which is 356 and 360
-    # bytes PAST
-    # the 0xABDC the game serialises, so the stock save never writes them and
-    # the player loses both doublers on reload. Extending that length would
-    # make existing saves unreadable by the stock game, and the dwords inside
-    # the extent are not free (+0xABE4 has 27 references, +0xABDC IS the
-    # length), so the flags are published to a sidecar instead.
+    # They live at <state>+0x9E90 and +0x9E94, INSIDE the 0xABDC the game
+    # serialises, so the stock save persists them itself and a purchased
+    # doubler survives a reload with no help from this hook.
+    #
+    # They used to sit at +0xAD48/+0xAD4C, 356 and 360 bytes PAST that extent,
+    # which is why they were lost on reload and why the sidecar was built.
+    # Extending the serialised length is still not an option -- the loader
+    # reads the same length, so a longer record would make existing saves
+    # unreadable by the stock game -- but RELOCATING the flags is safe, which
+    # an earlier version of this comment denied. Its evidence was about
+    # +0xABDC and +0xABE4 at the very TOP of the extent (+0xABDC IS the length,
+    # +0xABE4 has 27 references) and said nothing about the region 3,416 bytes
+    # lower, where the flags now sit.
+    #
+    # THE SIDECAR IS STILL PUBLISHED, as a migration aid: a player who bought a
+    # doubler under an older build has that ownership recorded only in the
+    # file. It is a second copy now rather than the only one.
     #
     # Runs AFTER the stock write, at the save function's epilogue 0x41BF68,
-    # where the write call at 0x41BF63 has returned. That ordering is what
-    # keeps the sidecar and the .ldw in step: a save that fails or crashes
-    # never reaches the epilogue, so the sidecar is never published for a
-    # .ldw that was not written, and a stale sidecar cannot outlive the save
-    # it describes. The DLL only reads the two flags and publishes its own
-    # file; it never touches the game's buffer.
+    # where the write call at 0x41BF63 has returned. That ordering keeps the
+    # sidecar and the .ldw in step: a save that fails or crashes never reaches
+    # the epilogue, so the sidecar is never published for a .ldw that was not
+    # written. It is also why the migration marker is NOT set here -- anything
+    # written at this point misses the save that triggered it -- and is stamped
+    # on the load path instead. The DLL only reads the two flags and publishes
+    # its own file; it never touches the game's buffer.
     #
     # ESI is the saved-game-state object at this splice -- the same object
     # the write at 0x41BF58 passed as state+8. pushad preserves it and every
@@ -3197,9 +3207,11 @@ def main() -> None:
             )
             + b"\x90" * (len(DOUBLER_SAVE_HOOK_GUARD) - 5)
         ),
-        "persist the tech and food doubler ownership flags on every save. They "
-        "live at state+0x9E90/+0x9E94, inside the 0xABDC the game serialises, so "
-        "the stock save never writes them and both doublers are lost on reload",
+        "mirror the tech and food doubler ownership flags to a sidecar on every "
+        "save. The flags live at state+0x9E90/+0x9E94, INSIDE the 0xABDC the game "
+        "serialises, so the stock save now persists them itself; the sidecar is "
+        "kept as a migration aid for ownership bought under an older build, which "
+        "stored the flags at +0xAD48/+0xAD4C, past the extent and never written",
     )
     patch(
         DOUBLER_LOAD_HOOK_VA - 0x400000,

@@ -336,7 +336,7 @@
       "offset": "0x1BF68",
       "before": "5F5EC20400",
       "after": "E973460700",
-      "purpose": "persist the tech and food doubler ownership flags on every save. They live at state+0x9E90/+0x9E94, inside the 0xABDC the game serialises, so the stock save never writes them and both doublers are lost on reload"
+      "purpose": "mirror the tech and food doubler ownership flags to a sidecar on every save. The flags live at state+0x9E90/+0x9E94, INSIDE the 0xABDC the game serialises, so the stock save now persists them itself; the sidecar is kept as a migration aid for ownership bought under an older build, which stored the flags at +0xAD48/+0xAD4C, past the extent and never written"
     },
     {
       "offset": "0x1BEFD",
