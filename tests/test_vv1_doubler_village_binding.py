@@ -81,26 +81,42 @@ class VillageTagBindingTest(unittest.TestCase):
         )
 
     def test_tag_is_inside_the_serialised_payload(self) -> None:
-        """The tag must be a field the save actually round-trips.
-
-        The doubler flags themselves sit at +0xAD48/+0xAD4C, PAST the 0xABDC
-        the game serialises, which is the whole reason this sidecar exists.  A
-        tag with that problem would read as garbage on the restore path.
-        """
+        """The tag must be a field the save actually round-trips."""
         payload_end = PAYLOAD_STATE_BASE + 0xABDC
         offset = self._macro("VV_DOUBLER_VILLAGE_TAG_OFFSET")
         self.assertGreaterEqual(offset, PAYLOAD_STATE_BASE)
         self.assertLess(
             offset + 4,
             payload_end,
-            "the tag must round-trip through the save, unlike the doubler "
-            "flags at +0xAD48/+0xAD4C which do not",
+            "the tag must round-trip through the save",
         )
+
+    def test_doubler_flags_are_inside_the_serialised_payload(self) -> None:
+        """The flags must live where the game actually saves them.
+
+        This is the persistence fix.  The flags used to sit at +0xAD48/+0xAD4C,
+        356 and 360 bytes PAST the 0xABDC the serialiser copies from state+8,
+        so the game set them correctly and then never wrote them to disk and a
+        purchased doubler vanished on reload.  They now sit inside the extent,
+        which is why VV2-VV5 keep their equivalents without any sidecar.
+
+        Asserting the containment directly means a future edit that moves
+        either flag back outside the window fails here rather than silently
+        reintroducing the original bug.
+        """
+        payload_end = PAYLOAD_STATE_BASE + 0xABDC
         for flag in ("VV_DOUBLER_TECH_OFFSET", "VV_DOUBLER_FOOD_OFFSET"):
-            self.assertGreater(
-                self._macro(flag),
+            offset = self._macro(flag)
+            self.assertGreaterEqual(
+                offset,
+                PAYLOAD_STATE_BASE,
+                "%s must not sit before the serialised payload" % flag,
+            )
+            self.assertLess(
+                offset + 4,
                 payload_end,
-                "%s is expected to sit past the serialised extent" % flag,
+                "%s must round-trip through the save, or a purchased doubler "
+                "is lost on reload" % flag,
             )
 
     def test_save_stamps_the_tag(self) -> None:

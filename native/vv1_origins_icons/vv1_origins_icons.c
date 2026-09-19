@@ -671,24 +671,45 @@ __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
 
 /* --- Doubler ownership sidecar ------------------------------------------
    The Origins tech/food point doublers record ownership in two fields of the
-   saved game state, +0xAD48 (tech) and +0xAD4C (food).  Those fields are set
-   correctly while the game runs, but they are NEVER persisted, and the reason
-   is structural rather than a missing write: the game's own serializer copies
-   0xABDC = 43996 bytes (`push 0xABDC` at 0x41BEAF and 0x41BF5B), while the two
-   fields live at 44360 and 44364 -- 364 and 368 bytes PAST the end of the
-   serialized extent.  So a purchased doubler is gone on the next load, which is
-   exactly what the owner reported.
+   saved game state, +0x9E90 (tech) and +0x9E94 (food).
 
-   Extending the game's serialized length is not an option: the length is also
-   what the loader reads, so a longer record would make every existing save
-   unreadable by the stock game and by older patcher builds.  Relocating the
-   flags into the extent is not safe either -- the apparently free dwords below
-   it are not free.  A disp32 scan (validated by a positive control that finds
-   all 27 references to +0xABE4) shows +0xABDC is the serialized length itself
-   and +0xABE4/+0xABE8 are live fields, so writing there would corrupt saves.
+   THOSE ARE NOT THE ORIGINAL OFFSETS, and the history matters.  The flags used
+   to live at +0xAD48 and +0xAD4C, which are 356 and 360 bytes PAST the end of
+   what the game serializes: the serializer copies 0xABDC = 43996 bytes from
+   state+8 (`lea eax,[esi+8]; push 0xABDC` at 0x41BF58), so the persisted window
+   ends at state+0xABE4.  The game set those fields correctly and then never
+   wrote them to disk, so a purchased doubler was gone on the next load, which
+   is what the owner reported.  This sidecar was built to work around that.
 
-   The flags are therefore mirrored to a sidecar next to the save, keyed by the
-   same numbered slot the mask sidecar uses:
+   Extending the serialized length is not an option: the length is also what the
+   loader reads, so a longer record would make every existing save unreadable by
+   the stock game and by older patcher builds.  But RELOCATING the flags into
+   the extent is safe, and that is what is now done.  An earlier version of this
+   comment said otherwise -- it claimed "the apparently free dwords below it are
+   not free" -- and that claim was too broad.  Its evidence concerned +0xABDC,
+   +0xABE4 and +0xABE8, the dwords at the very TOP of the extent, which are
+   indeed the serialized length and live fields.  It said nothing about the
+   region 3,416 bytes lower, where the flags now sit.
+
+   +0x9E90 and +0x9E94 were chosen on three independent lines of evidence:
+
+     - a Capstone scan of .text inspecting real memory operands, carried by a
+       positive control that finds the 71 accesses to +0xADE8, reports no stock
+       reference to either dword;
+     - across 38 of the owner's saves spanning 19 villages both dwords read 0 in
+       every one, while the same test correctly flags +0x9EA4, +0x9EBC, +0x9EC0
+       and +0x9EC8 as varying and +0x9EA8 as a uniform nonzero;
+     - nothing else in the patcher claims them.  That check is not optional: the
+       statistics burial counter owns +0x9E84 and +0x9E88, which read as zero in
+       STOCK saves precisely because they are patch-added, so the save survey
+       alone cannot see patcher claims.
+
+   The flags therefore now persist in the save itself, exactly as VV2-VV5 keep
+   their equivalents.  THE SIDECAR IS KEPT ANYWAY, because players who bought a
+   doubler under an older build have that ownership recorded only in the sidecar
+   file; removing the loader would take away something they paid for.  It is now
+   a second copy rather than the only one.  It is keyed by the same numbered
+   slot the mask sidecar uses:
 
        <My Documents>\LDW\<exe basename>\vv1_doublers_<slot>.dat
 
@@ -713,8 +734,8 @@ __declspec(dllexport) void __stdcall Vv1MaskRestore(void) {
    never runs from DllMain; it runs from the exports below, which the exe calls
    outside the loader lock. */
 #define VV_DOUBLER_SIDECAR_MAGIC 0x32304456u  /* 'V' 'D' '0' '2' */
-#define VV_DOUBLER_TECH_OFFSET 0xAD48u
-#define VV_DOUBLER_FOOD_OFFSET 0xAD4Cu
+#define VV_DOUBLER_TECH_OFFSET 0x9E90u
+#define VV_DOUBLER_FOOD_OFFSET 0x9E94u
 
 /* Village identity, so a sidecar can never be applied to a different village.
 

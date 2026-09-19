@@ -63,7 +63,7 @@ GAMES = {
 
 # Games whose ownership already lives on the village object, so a reset would
 # be wrong rather than merely unnecessary.
-PER_VILLAGE = {"vv1": 0xAD48, "vv2": 0x2EAE8}
+PER_VILLAGE = {"vv1": 0x9E90, "vv2": 0x2EAE8}
 
 
 def _clear_bytes(address):
