@@ -215,10 +215,16 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     )
                 elif path.name == "vv1_origins_feature.json":
                     # Doubler persistence (#344): the tech and food doubler
-                    # ownership flags live at state+0xAD48/+0xAD4C, which is past
+                    # ownership flags lived at state+0xAD48/+0xAD4C, which is past
                     # the 0xABDC the game serialises, so the stock save never
-                    # writes them and both doublers were lost on reload. The DLL
+                    # wrote them and both doublers were lost on reload. The DLL
                     # half already shipped; these rows are the exe calls to it.
+                    #
+                    # SINCE SUPERSEDED: the flags have been relocated to
+                    # state+0x9E90/+0x9E94, inside the serialised extent, so they
+                    # now persist in the save itself the way VV2-VV5 do. The
+                    # sidecar described below is kept as a second copy so that
+                    # doublers bought under an older build are not lost.
                     #   0x8E5E0 save stub    0x8E630 restore stub
                     #   0x8E680 save name    0x8E6A0 restore name
                     #   0x1BF68 save splice  0x1BEFD restore splice
