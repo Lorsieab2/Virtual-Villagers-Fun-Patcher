@@ -1697,8 +1697,26 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
    mutually-exclusive choice (mask_mode) committed through a preflighted shadow
    of the fingerprint-guarded table + sidecar -- never the record/save.
      mask_mode: 0 = OFF (use the per-sex mask cyclers mask_m/mask_f)
-                1 = VV5-style   2 = Random   3 = Equal
-                4..9 = a single mask for everyone (4=None .. 9=Chief -> byte 0..5) */
+                1 = VV5-style
+                2 = Random, All 5 + No Mask   (% 6, so None can be drawn)
+                3 = Random, All 5             (% 5 + 1, never None)
+                4 = Equal
+                5..10 = a single mask for everyone (5=None .. 10=Chief -> byte 0..5)
+
+     Mode 3 was added so VV3 offers the same five distributions as the other
+     four games; its absence meant a player could not ask for every villager to
+     be masked at random. Inserting it shifted Equal and the colour block up by
+     one, which is why several index comparisons below read 4/5/10 rather than
+     3/4/9. */
+
+/* A DISTRIBUTION mode spreads different masks across the village, so two
+   villagers sharing a fingerprint may legitimately end up different; a single
+   colour mode gives everyone the same mask, where they must agree.
+
+   Named rather than written as `mask_mode >= 1 && mask_mode <= 3`, which is
+   how it read before Random (All 5) was inserted. That literal silently
+   excluded Equal once the modes shifted -- a wrong answer with no crash. */
+#define CAF_MODE_IS_DISTRIBUTION(m) ((m) >= 1 && (m) <= 4)
 
 static unsigned int caf_rng;                 /* xorshift32, seeded from GetTickCount */
 /* Why a mask batch refused to apply.  Four unrelated conditions used to share
@@ -1753,7 +1771,7 @@ static int vv3_mask_make_plan_group_coherent(const unsigned int *plan_fp,
             if (selected[j] != selected[i]) return 0;
             if (!selected[i]) continue;
             if (desired[j] < 0 || desired[j] > VV3_MASK_MAX) return 0;
-            if (mask_mode >= 1 && mask_mode <= 3) {
+            if (CAF_MODE_IS_DISTRIBUTION(mask_mode)) {
                 if (mask_mode == 1 && desired[j] == VV3_MASK_MAX)
                     canonical = VV3_MASK_MAX;
             } else if (desired[j] != canonical) {
@@ -1761,7 +1779,7 @@ static int vv3_mask_make_plan_group_coherent(const unsigned int *plan_fp,
             }
         }
         if (count != vv3_mask_live_fingerprint_count(plan_fp[i])) return 0;
-        if (selected[i] && mask_mode >= 1 && mask_mode <= 3)
+        if (selected[i] && CAF_MODE_IS_DISTRIBUTION(mask_mode))
             for (j = i; j < n; ++j)
                 if (plan_fp[j] == plan_fp[i]) desired[j] = canonical;
     }
@@ -1868,7 +1886,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
             g_vv3_caf_mask_fail = VV3_CAF_MASK_NO_SLOT;
             return 0;
         }
-        if (mask_mode < 0 || mask_mode > 9) {
+        if (mask_mode < 0 || mask_mode > 10) {
             g_vv3_caf_mask_fail = VV3_CAF_MASK_BAD_MODE;
             return 0;
         }
@@ -1907,12 +1925,15 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         if (mask_mode == 0) {
             for (i = 0; i < n; ++i)
                 desired_mask[i] = sex[i] ? mask_f : mask_m;
-        } else if (mask_mode >= 4) {
+        } else if (mask_mode >= 5) {
             for (i = 0; i < n; ++i)
-                desired_mask[i] = mask_mode - 4;
-        } else if (mask_mode == 2) {                /* Random (incl. None) */
+                desired_mask[i] = mask_mode - 5;
+        } else if (mask_mode == 2) {                /* Random (All 5 + No Mask) */
             for (i = 0; i < n; ++i)
                 desired_mask[i] = (int)(caf_rand() % 6u);
+        } else if (mask_mode == 3) {                /* Random (All 5), never None */
+            for (i = 0; i < n; ++i)
+                desired_mask[i] = (int)(caf_rand() % 5u) + 1;
         } else if (mask_mode == 1) {                /* VV5-style proportions */
             static const int quota[3] = {4, 7, 10};
             static const int mval[3]  = {4, 3, 2};
@@ -1935,7 +1956,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
                     ++got;
                 }
             }
-        } else if (mask_mode == 3) {                /* Equal, balanced M/F */
+        } else if (mask_mode == 4) {                /* Equal, balanced M/F */
             int males[256], females[256], nm = 0, nf = 0, k = 0, mi = 0, fi = 0;
             for (i = 0; i < n; ++i) {
                 desired_mask[i] = 0;
@@ -2997,11 +3018,22 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
 #define IDC_CAF_F_MASK_P 3228
 #define IDC_CAF_F_MASK_N 3229
 #define IDC_CAF_F_MASK_T 3230
-#define IDC_CAF_MODE_FIRST 3301    /* 3301..3310 = Off,VV5,Random,Equal,None,Blue,Orange,Red,Purple,Chief */
+/* 3301..3311 = Off, VV5-style, Random(+None), Random(All 5), Equal,
+   then the six single-colour choices None,Blue,Orange,Red,Purple,Chief.
+
+   Random was ONE option here while the other four games offered two.
+   VV3's existing "Random" was already the "+ No Mask" variant (% 6, so
+   None can be drawn); the never-None variant (% 5 + 1) was missing, so
+   VV3 was the only game where a player could not ask for every villager
+   to be masked at random. The new mode is inserted at index 3 and the
+   colours shift up by one, which keeps this contiguous block rather than
+   restructuring VV3 into the separate ID ranges the other games use. */
+#define IDC_CAF_MODE_FIRST 3301
+#define IDC_CAF_MODE_COUNT 11
 
 static int caf_m_head, caf_m_body, caf_m_mask;   /* -1 = no change */
 static int caf_f_head, caf_f_body, caf_f_mask;
-static int caf_mask_mode;                          /* 0..9 (radio id - 3301) */
+static int caf_mask_mode;                          /* 0..10 (radio id - 3301) */
 /* Village-wide Head/Body overrides.  The other four games number these
    3220..3226 / 3240..3241, which VV3 cannot reuse because 3220..3229 is
    already its FEMALE panel -- hence the 3400 block. */
@@ -3086,7 +3118,7 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
     if (msg == WM_INITDIALOG) {
         int r;
         center_topmost_on_owner(w);
-        for (r = 0; r < 10; ++r)
+        for (r = 0; r < IDC_CAF_MODE_COUNT; ++r)
             CheckDlgButton(w, IDC_CAF_MODE_FIRST + r, r == caf_mask_mode ? BST_CHECKED : BST_UNCHECKED);
         SetDlgItemTextA(w, IDC_CAF_M_MASK_T, caf_mask_text(caf_m_mask));
         SetDlgItemTextA(w, IDC_CAF_F_MASK_T, caf_mask_text(caf_f_mask));
@@ -3126,10 +3158,11 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
             caf_set_head_body_enable(w);
             return TRUE;
         }
-        if (id >= IDC_CAF_MODE_FIRST && id <= IDC_CAF_MODE_FIRST + 9) {
+        if (id >= IDC_CAF_MODE_FIRST
+            && id <= IDC_CAF_MODE_FIRST + IDC_CAF_MODE_COUNT - 1) {
             int r;
             caf_mask_mode = (int)(id - IDC_CAF_MODE_FIRST);
-            for (r = 0; r < 10; ++r)
+            for (r = 0; r < IDC_CAF_MODE_COUNT; ++r)
                 CheckDlgButton(w, IDC_CAF_MODE_FIRST + r, r == caf_mask_mode ? BST_CHECKED : BST_UNCHECKED);
             caf_set_mask_enable(w);
             return TRUE;

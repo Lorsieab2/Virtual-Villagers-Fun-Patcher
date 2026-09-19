@@ -263,15 +263,37 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("out_fp[pos] = plan_fp[i];", shadow)
         self.assertIn("if (placed != needed) return 0;", shadow)
 
-    def test_all_ten_mask_options_feed_the_group_coherent_plan(self) -> None:
+    def test_all_eleven_mask_options_feed_the_group_coherent_plan(self) -> None:
+        """Every mode index reaches a branch, and each index means one thing.
+
+        VV3 gained Random (All 5) so its dialog matches the other four games.
+        That inserted a fifth distribution at index 3 and pushed Equal to 4 and
+        the six single-colour choices to 5..10.
+
+        The shift is the hazard this guards. Two branches briefly both tested
+        `mask_mode == 3`, which made Equal unreachable -- a silently wrong
+        result, not a crash. So each index is asserted to select exactly one
+        branch rather than merely appearing somewhere in the engine.
+        """
         engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(
             "#define VW_RUNNING", 1
         )[0]
-        self.assertIn("if (mask_mode == 0)", engine)       # per-sex / Off
+        self.assertIn("if (mask_mode == 0)", engine)      # per-sex / Off
         self.assertIn("mask_mode == 1", engine)           # VV5-style
-        self.assertIn("mask_mode == 2", engine)           # Random
-        self.assertIn("mask_mode == 3", engine)           # Equal
-        self.assertIn("mask_mode >= 4", engine)           # None + five fixed masks
+        self.assertIn("mask_mode == 2", engine)           # Random, All 5 + None
+        self.assertIn("mask_mode == 3", engine)           # Random, All 5
+        self.assertIn("mask_mode == 4", engine)           # Equal
+        self.assertIn("mask_mode >= 5", engine)           # None + five fixed masks
+
+        # No index may select two different behaviours. An earlier draft of
+        # this change left Equal on 3 beside the new Random, so the later
+        # branch could never run.
+        for index in (0, 1, 2, 3, 4):
+            with self.subTest(mask_mode=index):
+                self.assertEqual(
+                    engine.count("mask_mode == %d)" % index), 1,
+                    "mask_mode %d must select exactly one branch" % index)
+
         self.assertIn("vv3_mask_make_plan_group_coherent", engine)
         self.assertIn("vv3_mask_build_batch_shadow", engine)
 
@@ -280,10 +302,26 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         )[1].split("static int vv3_mask_shadow_slot_available", 1)[0]
         self.assertIn("selected[j] != selected[i]", coherent)
         self.assertIn("desired[j] != canonical", coherent)
-        self.assertIn("mask_mode >= 1 && mask_mode <= 3", coherent)
+        # Named rather than the literal range it replaced: written as
+        # `mask_mode >= 1 && mask_mode <= 3`, it silently excluded Equal once
+        # the modes shifted, which would have rejected valid Equal plans.
+        self.assertIn("CAF_MODE_IS_DISTRIBUTION(mask_mode)", coherent)
         self.assertIn("mask_mode == 1 && desired[j] == VV3_MASK_MAX", coherent)
         self.assertIn("desired[j] = canonical", coherent)
         self.assertIn("count != vv3_mask_live_fingerprint_count(plan_fp[i])", coherent)
+
+    def test_the_distribution_predicate_covers_every_distribution(self) -> None:
+        """CAF_MODE_IS_DISTRIBUTION must span 1..4, not 1..3.
+
+        A distribution spreads different masks across the village, so villagers
+        sharing a fingerprint may legitimately differ; a single colour gives
+        everyone the same mask, where they must agree. Equal is a distribution,
+        and leaving it outside the predicate would reject valid Equal plans.
+        """
+        self.assertIn(
+            "#define CAF_MODE_IS_DISTRIBUTION(m) ((m) >= 1 && (m) <= 4)",
+            self.source,
+            "the distribution predicate must include Equal at index 4")
 
     def test_batch_none_counts_any_stored_copy_and_shadow_clears_the_group(self) -> None:
         engine = self.source.split("static int vv3_apply_for_all", 1)[1].split(

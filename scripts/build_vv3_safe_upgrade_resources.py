@@ -19,7 +19,10 @@ OUTPUT = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 FOUNDATION_OUTPUT = (
     ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
 )
-SOURCE_SHA256 = "B96BFC733415B52E7D65331CDEEF828D796E6EFA29F164E9C8798AF7AEEFE6DA"
+# Recertified when VV3 gained the Random (All 5) mask distribution, so its
+# Change Appearance for All dialog offers the same five options as the
+# other four games. The build is /Brepro, so this hash is deterministic.
+SOURCE_SHA256 = "D1FDC182CE60FF1AE4A04E9B63382370D32642C974057F61E48DF5D93E052361"
 SOURCE_SIZE = 1902080
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
