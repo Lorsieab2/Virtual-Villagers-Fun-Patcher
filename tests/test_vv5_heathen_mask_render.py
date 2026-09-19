@@ -1,19 +1,37 @@
-"""Structure guard for the VV5 Heathen-mask cosmetic render, now shipped inside
-the Task9 native-actions page (the appended .vv5t9 section) rather than a
-standalone .text-cave overlay.
+"""Structure guard for the VV5 Heathen-mask cosmetic render, shipped inside the
+Task9 native-actions page (the appended .vv5t9 section).
 
-Verifies the two page routines (mask_arm / mask_overlay) and the stock-only
-render-fn detours that drive them, so the picker's persistent +0x1BC0 choice is
-actually rendered when Change-Appearance / Origins is applied. A render hook can
-only be *proven* in-game; this guards its shape and wiring.
+The mechanism is a FLIP, not an overlay. For the duration of one villager's
+head draw, mask_flip makes a masked Believer look like a Heathen of the chosen
+colour, and mask_restore puts the record back on the way out of the render
+function. The stock renderer then selects the mask sprite itself.
 
-The central guard here is that NO ROUTINE WRITES A VILLAGER RECORD. An earlier
-design flipped the faction byte +0x1CEC for the duration of the head draw and
-restored it at the epilogue. The stock renderer branches on that byte, so the
-flip diverted the villager onto the heathen draw path -- which for a retired
-chief resolved a sprite that does not exist and crashed the game with a null
-object, leaving the villager permanently heathen because the fault skipped the
-restore. Asserting the absence of those writes is what stops that returning.
+That is not a stylistic choice. The stock heathen branch at 0x472732 does not
+accept a mask number: it PICKS its sprite argument from one of three caller
+stack slots according to the villager's own colour flags, so nothing supplied
+from outside can substitute for it. An overlay that called the heathen head
+draw with a forwarded argument tuple shipped in three releases and rendered no
+village mask in any of them; diffing against v1.34.38, which the owner
+confirmed working, showed that build leaves the believer draw at 0x47279C
+completely unpatched.
+
+So the guards here are:
+
+  * the believer head draw at 0x47279C is NOT detoured, in any mode;
+  * mask_flip only ever touches a BELIEVER, and refuses to nest, so no
+    player-observable faction ever changes;
+  * mask_restore RESTORES THE SAVED COLOUR BYTES. v1.34.38 saved +0x1CED and
+    +0x1CEE into scratch and then wrote literal zero back, silently clearing an
+    orange or red villager's colour. That is fixed here and guarded below;
+  * both epilogues of the render function are detoured, so the flip window
+    closes on every path out;
+  * and mask_flip UNFLIPS ANY STILL-ARMED VILLAGER BEFORE IT DOES ANYTHING
+    ELSE, so a fault that escapes the epilogues cannot strand one.
+
+tests/test_vv5_mask_overlay_argument_order.py was deleted with the overlay. Its
+assertions were all about that routine's argument tuple and its frame -- the
+startup crash it guarded (#371) was caused by the overlay wrapping the call it
+replaced, and the flip replaces no call at all. There is no frame to get wrong.
 """
 from __future__ import annotations
 
@@ -44,40 +62,80 @@ def _routine(page: bytes, rmap, name: str) -> list:
 
 
 def test_mask_routines_only_in_stock_page():
-    stock_page, _ = t9.build_page(STOCK_PAGE_VA)
-    expanded_page, exp_map = t9.build_page(0x904000)
-    # stock page carries both routines; the expanded (disabled) page does not
+    _, exp_map = t9.build_page(0x904000)
     _, srmap = t9.build_page(STOCK_PAGE_VA)
-    assert "mask_arm" in srmap["routine_length"]
-    assert "mask_overlay" in srmap["routine_length"]
-    assert "mask_arm" not in exp_map["routine_length"]
+    assert "mask_flip" in srmap["routine_length"]
+    assert "mask_restore" in srmap["routine_length"]
+    # the expanded (disabled) page carries neither
+    assert "mask_flip" not in exp_map["routine_length"]
+    assert "mask_restore" not in exp_map["routine_length"]
+    # and the overlay that never rendered is gone for good
+    assert "mask_overlay" not in srmap["routine_length"]
 
 
-def test_arm_routine_records_the_choice_without_writing_the_record():
-    """The arm step may observe the villager; it must never modify one.
+def test_flip_only_touches_a_believer_and_refuses_to_nest():
+    """The flip may only ever be armed on a Believer, and only one at a time.
 
-    This is the regression guard for the crash: every `mov byte ptr [esi+...]`
-    that used to live here diverted the stock draw branch.
+    Both conditions are what keep the faction change invisible to the player: a
+    real Heathen is never touched, and two villagers can never be flipped at
+    once, because arming a new one first unflips any villager still armed.
     """
     page, rmap = t9.build_page(STOCK_PAGE_VA)
-    ins = _routine(page, rmap, "mask_arm")
+    ins = _routine(page, rmap, "mask_flip")
     text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
-    # choice comes from the side-table via mask_get, never from a record byte
+    # the shared exit label: pop edx / pop eax / mov ecx,[esp+0xbc] / jmp
+    done = ins[-4].address
+    assert ins[-4].mnemonic == "pop" and ins[-4].op_str == "edx"
+
+    # choice comes from the side-table via mask_get, never a record byte
     assert f"call 0x{STOCK_PAGE_VA + t9.OFF['mask_get']:x}" in text
     assert "0x1bc0" not in text
-    # NO WRITE THROUGH THE VILLAGER POINTER. esi holds the record here, so any
-    # store through it is the defect this test exists to prevent.
-    for i in ins:
-        if i.mnemonic.startswith("mov") and i.op_str.startswith("byte ptr [esi"):
-            raise AssertionError(f"mask_arm writes the villager record: {i.op_str}")
-        if i.mnemonic.startswith("mov") and i.op_str.startswith("dword ptr [esi"):
-            raise AssertionError(f"mask_arm writes the villager record: {i.op_str}")
-    # it records the villager and its choice in scratch only
+
+    # BELIEVERS ONLY: a non-zero faction byte must branch to the exit
+    fac = [i for i in ins if i.mnemonic == "cmp" and i.op_str == "byte ptr [esi + 0x1cec], 0"]
+    assert fac, "flip must test the faction byte"
+    guard = ins[ins.index(fac[0]) + 1]
+    assert guard.mnemonic == "jne" and int(guard.op_str, 16) == done, (
+        "a non-Believer must skip the whole flip"
+    )
+
+    # NO NESTING. The flip cannot leave two villagers armed at once, because
+    # it unflips any still-armed villager before it arms a new one. That call
+    # is the first instruction of the routine; see the dedicated self-heal
+    # test for the guarantee that nothing can branch past it.
+    unflip = STOCK_PAGE_VA + t9.OFF["mask_unflip"]
+    assert any(i.mnemonic == "call" and int(i.op_str, 16) == unflip for i in ins)
+
+    # the three colour bytes are SAVED before they are overwritten
+    for scratch, field in ((0x7B1D04, 0x1CED), (0x7B1D08, 0x1CEE), (0x7B1D0C, 0x1CFC)):
+        assert f"movzx edx, byte ptr [esi + 0x{field:x}]" in text
+        assert f"mov dword ptr [0x{scratch:x}], edx" in text
+    # and the villager itself is remembered, because esi is gone by the epilogue
     assert "mov dword ptr [0x7b1d10], esi" in text
-    assert "mov dword ptr [0x7b1d04], eax" in text
+
+    # every masked path ends by setting the faction byte exactly once
+    assert text.count("mov byte ptr [esi + 0x1cec], 1") == 1
+
     # replays the displaced mov ecx,[esp+0xbc] and returns into the render fn
     assert ins[-2].mnemonic == "mov" and ins[-2].op_str == "ecx, dword ptr [esp + 0xbc]"
     assert ins[-1].mnemonic == "jmp" and int(ins[-1].op_str, 16) == 0x472488
+
+
+def test_flip_maps_each_mask_colour_to_exactly_one_field():
+    """1 blue / 2 orange / 3 red / 4 purple / 5 chief, and nothing else."""
+    page, rmap = t9.build_page(STOCK_PAGE_VA)
+    ins = _routine(page, rmap, "mask_flip")
+    text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
+    # out-of-range choices are rejected before anything is written
+    assert "cmp eax, 5" in text and any(i.mnemonic == "ja" for i in ins)
+    # all three colour fields are cleared first, so blue leaves all three at 0
+    for field in (0x1CED, 0x1CEE, 0x1CFC):
+        assert f"mov byte ptr [esi + 0x{field:x}], 0" in text
+    # then exactly one is set per colour
+    assert "mov byte ptr [esi + 0x1ced], 1" in text      # 2 orange
+    assert "mov byte ptr [esi + 0x1cee], 1" in text      # 3 red
+    assert "mov byte ptr [esi + 0x1cfc], 0xc" in text    # 4 purple
+    assert "mov byte ptr [esi + 0x1cfc], 0xd" in text    # 5 chief
 
 
 def test_bighead_routine_replays_head_then_blits_mask_atlas():
@@ -119,37 +177,44 @@ def test_purple_details_mask_is_exactly_five_pixels_lower_than_prior_registratio
     assert list(page[start:start + 5]) == [0, 2, 0, 2, 0]
 
 
-def test_overlay_replays_the_stock_draw_then_paints_the_mask_over_it():
-    """Stock draw first, mask second, villager record untouched."""
+def test_restore_writes_back_the_saved_colours_not_zero():
+    """The v1.34.38 latent bug must not come back with the mechanism.
+
+    That build saved +0x1CED and +0x1CEE into 0x7B1D04 / 0x7B1D08 and then wrote
+    literal zero to both, restoring only +0x1CFC. A mask on an orange or red
+    villager therefore cleared that villager's colour permanently. Each of the
+    three fields must be restored from its own scratch dword.
+    """
     page, rmap = t9.build_page(STOCK_PAGE_VA)
-    ins = _routine(page, rmap, "mask_overlay")
+    ins = _routine(page, rmap, "mask_unflip")
     text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
-    # A frame pointer is established FIRST, because the stock callee is
-    # `ret 0x1C` and pops the seven arguments: after it returns they are gone,
-    # so the overlay cannot re-read them off esp. Reading them from the
-    # caller's frame via ebp is what makes the replay possible at all.
-    assert ins[0].mnemonic == "push" and ins[0].op_str == "ebp"
-    assert ins[1].mnemonic == "mov" and ins[1].op_str == "ebp, esp"
-    # the believer head draw this routine replaced runs, with its own arguments
-    assert "call 0x44f5e0" in text
-    assert "cmp byte ptr [0x7b1d00], 0" in text               # armed?
-    assert "mov eax, dword ptr [0x7b1d10]" in text            # the recorded villager
-    # then the heathen head draw paints the mask on top of the finished believer
-    assert "call 0x44f4e0" in text
-    # Each argument push must read a DISTINCT slot of the caller's frame. A
-    # constant-displacement replay silently re-reads one slot seven times,
-    # which review caught on #280.
-    # Both replays push the same seven frame slots: once for the stock call and
-    # once for the overlay, so 14 pushes over 7 distinct slots.
-    slots = [i.op_str for i in ins if i.mnemonic == "push" and "ebp +" in i.op_str]
-    assert len(slots) == 14, f"expected two seven-argument replays, saw {len(slots)}"
-    assert len(set(slots)) == 7, f"replays must read seven DISTINCT slots, saw {sorted(set(slots))}"
-    # no store through the recorded villager pointer -- the record stays stock
-    for i in ins:
-        if i.mnemonic.startswith("mov") and i.op_str.startswith("byte ptr [eax"):
-            raise AssertionError(f"mask_overlay writes the villager record: {i.op_str}")
-    # cleans the caller's seven args exactly as the call it replaced would have
-    assert ins[-1].mnemonic == "ret" and ins[-1].op_str in ("0x1c", "0x1C")
+
+    # unarmed villagers are a no-op: the guard jumps straight to the epilogue
+    assert ins[0].mnemonic == "cmp" and ins[0].op_str == "byte ptr [0x7b1d00], 0"
+    assert ins[1].mnemonic == "je"
+
+    # the flipped villager is reached through the saved pointer, not esi
+    assert "mov eax, dword ptr [0x7b1d10]" in text
+    # faction goes back to Believer
+    assert "mov byte ptr [eax + 0x1cec], 0" in text
+
+    # EACH colour field is loaded from ITS OWN scratch slot and written back.
+    for scratch, field in ((0x7B1D04, 0x1CED), (0x7B1D08, 0x1CEE), (0x7B1D0C, 0x1CFC)):
+        load = f"mov edx, dword ptr [0x{scratch:x}]"
+        store = f"mov byte ptr [eax + 0x{field:x}], dl"
+        assert load in text, f"+0x{field:X} is not reloaded from 0x{scratch:X}"
+        assert store in text, f"+0x{field:X} is not written back from the load"
+        assert text.index(load) < text.index(store)
+        # and it must NOT be the literal-zero store the working build shipped
+        assert f"mov byte ptr [eax + 0x{field:x}], 0" not in text, (
+            f"+0x{field:X} restored as literal zero, the v1.34.38 defect"
+        )
+
+    # the guard is cleared, so the next villager can arm
+    assert "mov byte ptr [0x7b1d00], 0" in text
+    # and it returns as a plain subroutine; the epilogue replay lives in
+    # mask_restore, which calls this.
+    assert ins[-1].mnemonic == "ret" and not ins[-1].op_str
 
 
 def test_scratch_and_table_are_in_proven_free_data_bss():
@@ -191,21 +256,27 @@ def test_stock_modes_declare_the_render_detours():
         overrides = manifest["patch_mode_overrides"][mode]
         by_off = {int(p["offset"], 0): p for p in overrides}
         page_va = t9.LAYOUTS[mode]["page_va"]
-        # arm detour at 0x472481 -> mask_arm
+        # arm detour at 0x472481 -> mask_flip
         arm = by_off[0x72481]
         assert arm["before"] == "8B8C24BC000000"
         assert arm["after"].endswith("9090")                # E9 rel32 + 2 nops
         rel = int.from_bytes(bytes.fromhex(arm["after"])[1:5], "little", signed=True)
-        assert 0x400000 + 0x72481 + 5 + rel == page_va + t9.OFF["mask_arm"]
-        # the believer head-draw CALL -> mask_overlay, which replays it
-        overlay = by_off[0x7279C]
-        assert overlay["before"] == "E83FCEFDFF"            # call 0x44F5E0
-        assert overlay["after"].startswith("E8")            # call rel32, no nops
-        rel = int.from_bytes(bytes.fromhex(overlay["after"])[1:5], "little", signed=True)
-        assert 0x400000 + 0x7279C + 5 + rel == page_va + t9.OFF["mask_overlay"]
-        # the epilogues must NOT be patched any more: there is no state to
-        # restore, which is precisely why the crash can no longer happen.
-        assert 0x72B0F not in by_off and 0x72B57 not in by_off
+        assert 0x400000 + 0x72481 + 5 + rel == page_va + t9.OFF["mask_flip"]
+
+        # THE BELIEVER HEAD DRAW IS NOT TOUCHED. Detouring it is what three
+        # releases did while rendering no village mask at all; v1.34.38, the
+        # build the owner confirmed working, leaves these five bytes stock.
+        assert 0x7279C not in by_off, "0x47279C must stay unpatched"
+
+        # BOTH epilogues restore, so the flip window closes on every path out
+        for off in (0x72B0F, 0x72B57):
+            ep = by_off[off]
+            assert ep["before"] == "81C4A8000000"            # add esp, 0xA8
+            assert ep["after"].startswith("E9") and ep["after"].endswith("90")
+            assert len(bytes.fromhex(ep["after"])) == 6      # exactly the stolen bytes
+            rel = int.from_bytes(bytes.fromhex(ep["after"])[1:5], "little", signed=True)
+            assert 0x400000 + off + 5 + rel == page_va + t9.OFF["mask_restore"]
+
         # Details-portrait head-draw detour at 0x466E05 -> bighead_mask
         bighead = by_off[0x66E05]
         assert bighead["before"] == "E8962EFAFF"             # call 0x409CA0
@@ -216,6 +287,7 @@ def test_stock_modes_declare_the_render_detours():
     for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
         offs = {int(p["offset"], 0) for p in manifest["patch_mode_overrides"].get(mode, [])}
         assert 0x72481 not in offs and 0x7279C not in offs and 0x66E05 not in offs
+        assert 0x72B0F not in offs and 0x72B57 not in offs
         assert 0x3600 not in offs                              # no slot_capture detour either
 
 
@@ -291,3 +363,56 @@ def test_mask_sidecar_path_is_fail_closed_and_budgeted():
     assert "n == 0 || n >= MAX_PATH" in VV5_SOURCE
     assert "sizeof(\"\\\\vvfp_masks_5.dat\")" in VV5_SOURCE
     assert "docs_len + 5 + base_len" in VV5_SOURCE
+
+
+def test_flip_heals_a_stranded_villager_before_anything_else():
+    """A fault that escapes the epilogues must not strand a villager.
+
+    The flip sets +0x1CEC = 1 so the stock renderer takes the heathen branch,
+    and docs/crash-dump-findings.md records a real fault on that path for a
+    retired chief, escaping before either epilogue ran. Restoring the saved
+    colours does not help if the restore never executes.
+
+    Left unhealed the damage compounds: the armed flag at 0x7B1D00 stays set,
+    the victim keeps +0x1CEC = 1 and is treated as a Heathen, and -- because
+    the flip refuses to arm while the flag is set -- NO villager gets a mask
+    again for the rest of the session.
+
+    So mask_flip calls mask_unflip as its FIRST action, before any branch that
+    could skip it. Every villager drawn therefore repairs a stranded one, and
+    the feature re-enables itself on the next frame.
+    """
+    page, rmap = t9.build_page(STOCK_PAGE_VA)
+    ins = _routine(page, rmap, "mask_flip")
+    unflip = STOCK_PAGE_VA + t9.OFF["mask_unflip"]
+
+    calls = [i for i in ins if i.mnemonic == "call" and int(i.op_str, 16) == unflip]
+    assert calls, "mask_flip must call mask_unflip"
+
+    # It must come before EVERY branch out of the routine, otherwise a villager
+    # with no mask (choice 0) would sail past without healing anyone.
+    heal_at = calls[0].address
+    for i in ins:
+        if i.address >= heal_at:
+            break
+        assert not i.mnemonic.startswith("j"), (
+            f"{i.mnemonic} {i.op_str} at 0x{i.address:X} can skip the heal"
+        )
+
+
+def test_unflip_is_a_callable_subroutine_used_by_both_paths():
+    """One implementation of the undo, reachable from the epilogue and the flip."""
+    page, rmap = t9.build_page(STOCK_PAGE_VA)
+    unflip = _routine(page, rmap, "mask_unflip")
+    assert unflip[-1].mnemonic == "ret" and not unflip[-1].op_str, (
+        "mask_unflip must be a plain `ret` subroutine, not a detour"
+    )
+    # the epilogue detour delegates rather than duplicating the undo
+    restore = _routine(page, rmap, "mask_restore")
+    text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in restore)
+    assert f"call 0x{STOCK_PAGE_VA + t9.OFF['mask_unflip']:x}" in text
+    # and it still replays the displaced epilogue, with the call made while the
+    # frame is intact so `ret 8` stays correct
+    assert restore[0].mnemonic == "call"
+    assert restore[-2].mnemonic == "add" and restore[-2].op_str == "esp, 0xa8"
+    assert restore[-1].mnemonic == "ret" and restore[-1].op_str == "8"

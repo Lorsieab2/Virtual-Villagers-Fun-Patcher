@@ -232,8 +232,9 @@ OFF = {
     "division_no_parenting": 0x6200,
     "apply_division": 0x6400,
     "appearance_all": 0x6500,
-    "mask_arm": 0x6800,
-    "mask_overlay": 0x6A00,
+    "mask_flip": 0x6800,
+    "mask_restore": 0x6A00,
+    "mask_unflip": 0x6B00,
     "mask_get": 0x6C00,
     "mask_set": 0x6C80,
     "mask_load_once": 0x6D00,
@@ -276,8 +277,9 @@ SIZES = {
     "division_no_parenting": 0x200,
     "apply_division": 0x80,
     "appearance_all": 0x100,
-    "mask_arm": 0x200,
-    "mask_overlay": 0x200,
+    "mask_flip": 0x200,
+    "mask_restore": 0x80,
+    "mask_unflip": 0x180,
     "mask_get": 0x80,
     "mask_set": 0x80,
     "mask_load_once": 0x80,
@@ -3779,114 +3781,125 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     statistics, or other .text-cave features. Nothing in this feature writes a
     villager record, so there is no state to restore and no window in which a
     fault can leave one corrupted."""
-    # mask_arm: record ONLY. Runs at 0x472481, before the draw branch is chosen.
-    # Writes no villager field, so the branch at 0x472729 still sees the true
-    # faction and the villager draws through its own stock path.
-    flip = put(page, page_va, "mask_arm", f"""
+    # mask_flip: entered from 0x472481, just past the selection-ring block of
+    # the per-villager render function. For a Believer that has a mask choice
+    # it saves the colour fields and the villager pointer, sets the chosen
+    # colour, flips the faction byte +0x1CEC to heathen, and marks a guard.
+    # The selection ring has already drawn with the real faction, so it stays
+    # white. It then replays the displaced `mov ecx,[esp+0xbc]` and returns.
+    #
+    # WHY A FLIP AND NOT A SECOND DRAW CALL.
+    #
+    # The game's heathen branch at 0x472732 does not accept a mask number. It
+    # PICKS its sprite argument from one of three caller stack slots according
+    # to the villager's own colour flags, and those slots hold handles the
+    # caller already prepared. Nothing supplied from outside can substitute for
+    # that. An overlay that called the heathen head draw with a forwarded
+    # argument tuple was tried in four different orderings and every one failed
+    # visibly -- argument 1 crashed (that slot is dereferenced as an object
+    # pointer), argument 8 landed in a reserved float slot, argument 6 drew a
+    # whole villager body as a ghost, and reading the caller slots drew
+    # nothing. Diffing against v1.34.38, which the owner confirmed working,
+    # settled it: that build never patches the believer draw at 0x47279C.
+    #
+    # Only Believers are ever touched. A real Heathen is skipped, so nobody's
+    # faction is changed in any way the player can observe.
+    flip = put(page, page_va, "mask_flip", f"""
         push eax
         push edx
-        mov byte ptr [0x7B1D00], 0
+        call 0x{page_va + OFF['mask_unflip']:X}
         cmp byte ptr [0x{MASK_LOADED:X}], 0
-        jne ma_loaded
+        jne mf_loaded
         call 0x{page_va + OFF['mask_load_once']:X}
-    ma_loaded:
+    mf_loaded:
         call 0x{page_va + OFF['mask_get']:X}
         test eax, eax
-        je ma_done
+        je mf_done
         cmp eax, 5
-        ja ma_done
+        ja mf_done
         cmp byte ptr [esi+0x1CEC], 0
-        jne ma_done
+        jne mf_done
         mov byte ptr [0x7B1D00], 1
         mov [0x7B1D10], esi
-        mov [0x7B1D04], eax
-    ma_done:
+        movzx edx, byte ptr [esi+0x1CED]
+        mov [0x7B1D04], edx
+        movzx edx, byte ptr [esi+0x1CEE]
+        mov [0x7B1D08], edx
+        movzx edx, byte ptr [esi+0x1CFC]
+        mov [0x7B1D0C], edx
+        mov byte ptr [esi+0x1CED], 0
+        mov byte ptr [esi+0x1CEE], 0
+        mov byte ptr [esi+0x1CFC], 0
+        cmp eax, 2
+        je mf_orange
+        cmp eax, 3
+        je mf_red
+        cmp eax, 4
+        je mf_purple
+        cmp eax, 5
+        je mf_chief
+        jmp mf_setf
+    mf_orange:
+        mov byte ptr [esi+0x1CED], 1
+        jmp mf_setf
+    mf_red:
+        mov byte ptr [esi+0x1CEE], 1
+        jmp mf_setf
+    mf_purple:
+        mov byte ptr [esi+0x1CFC], 12
+        jmp mf_setf
+    mf_chief:
+        mov byte ptr [esi+0x1CFC], 13
+    mf_setf:
+        mov byte ptr [esi+0x1CEC], 1
+    mf_done:
         pop edx
         pop eax
         mov ecx, [esp+0xBC]
         jmp 0x472488
     """)
-    # mask_overlay: replaces the believer head draw call at 0x47279C. It performs
-    # that stock call first, unchanged, then repeats the SAME argument tuple
-    # through the heathen head draw so the mask lands on top.
+
+    # mask_restore: entered from BOTH epilogues of the render function,
+    # 0x472B0F and 0x472B57, each of which is `add esp,0xA8` followed by
+    # `ret 8`. esi has been popped by then, so the villager is reached through
+    # the saved pointer. A villager that was never flipped hits the guard and
+    # this is a no-op.
     #
-    # 0x44F5E0 is ret 0x1C (7 dwords) and 0x44F4E0 is ret 0x20 (8 dwords), so the
-    # overlay pushes one extra selector -- the chosen mask colour -- exactly as
-    # the stock heathen branch at 0x472769 does. Both are __thiscall on the same
-    # draw manager, and both callees clean their own arguments, so the caller's
-    # stack is unchanged either way.
+    # THIS RESTORES THE SAVED VALUES, WHICH v1.34.38 DID NOT.
     #
-    # THE SELECTOR IS ARGUMENT SIX. NOT ONE, AND NOT EIGHT.
-    #
-    # Both stock call sites build the same shape: `sub esp, 8` reserves two
-    # float slots, two `fstp` writes fill them, and then the register arguments
-    # are pushed. Because the last push is the lowest address, the reserved
-    # floats end up as the HIGHEST arguments:
-    #
-    #   heathen 0x44F4E0 (ret 0x20, 8 args) at 0x472726:
-    #       args 1-5  ecx, edi, ebp, ebx, eax
-    #       arg  6    edx   <- the mask selector
-    #       args 7-8  the two reserved floats
-    #
-    #   believer 0x44F5E0 (ret 0x1C, 7 args) at 0x472780:
-    #       args 1-5  eax, edi, ebp, ebx, edx
-    #       args 6-7  the two reserved floats
-    #
-    # So the believer tuple this page receives maps onto the heathen call as
-    # args 1-5 unchanged, the selector inserted at 6, and the believer's two
-    # floats moved up to 7 and 8.
-    #
-    # THIS WAS WRONG TWICE, IN OPPOSITE DIRECTIONS, AND BOTH ARE INSTRUCTIVE.
-    #
-    # First it pushed the selector LAST, which makes it argument ONE. That
-    # crashed VV5 on startup for the owner: 0x44F4E0 saves four registers, so
-    # its first stack argument is at [esp+0x14]; it does `mov ebp,[esp+0x14]`,
-    # `mov ecx,ebp`, `call 0x4271C0`, and 0x4271C0 is `mov eax,[ecx+8]; ret`.
-    # With the frame shifted, ecx held 5 -- a save slot number, not an object --
-    # so the read went to 0x0000000D and faulted 0xC0000005 at 0x004271C0.
-    #
-    # The repair for that pushed the selector FIRST, making it argument EIGHT.
-    # That stopped the crash, because arguments 1-5 were then correct and the
-    # dereferenced pointer was real. But it was still wrong: the selector sat
-    # in a float slot and the two floats were shifted down, so a masked
-    # villager would be drawn with a garbage coordinate and the selector read
-    # as a float. Codex caught it before it reached a player.
-    #
-    # The lesson is that "one extra argument" says nothing about WHERE. Count
-    # the callee's arguments from its `ret N`, find the stack slot the stock
-    # site writes each one into, and place the new value in that slot.
-    restore = put(page, page_va, "mask_overlay", """
-        push ebp
-        mov ebp, esp
-        push dword ptr [ebp+0x20]
-        push dword ptr [ebp+0x1C]
-        push dword ptr [ebp+0x18]
-        push dword ptr [ebp+0x14]
-        push dword ptr [ebp+0x10]
-        push dword ptr [ebp+0x0C]
-        push dword ptr [ebp+0x08]
-        call 0x44F5E0
+    # That build saved +0x1CED and +0x1CEE into 0x7B1D04 / 0x7B1D08 and then
+    # wrote literal zero back to both, restoring only +0x1CFC. A mask on an
+    # orange or red villager therefore cleared that villager's colour
+    # permanently. The saved bytes were already there; they are used now.
+    # mask_unflip: the whole of the undo, as a plain subroutine so that BOTH
+    # the epilogue detours and mask_flip itself can run it. A villager that was
+    # never flipped hits the guard and this is a no-op. Clobbers nothing.
+    unflip = put(page, page_va, "mask_unflip", """
         cmp byte ptr [0x7B1D00], 0
-        je mo_done
+        je mu_done
+        push eax
+        push edx
         mov eax, [0x7B1D10]
-        test eax, eax
-        je mo_done
-        pushad
-        push dword ptr [ebp+0x20]
-        push dword ptr [ebp+0x1C]
-        push dword ptr [0x7B1D04]
-        push dword ptr [ebp+0x18]
-        push dword ptr [ebp+0x14]
-        push dword ptr [ebp+0x10]
-        push dword ptr [ebp+0x0C]
-        push dword ptr [ebp+0x08]
-        mov ecx, 0x521078
-        call 0x44F4E0
-        popad
-    mo_done:
+        mov byte ptr [eax+0x1CEC], 0
+        mov edx, [0x7B1D04]
+        mov byte ptr [eax+0x1CED], dl
+        mov edx, [0x7B1D08]
+        mov byte ptr [eax+0x1CEE], dl
+        mov edx, [0x7B1D0C]
+        mov byte ptr [eax+0x1CFC], dl
         mov byte ptr [0x7B1D00], 0
-        pop ebp
-        ret 0x1C
+        pop edx
+        pop eax
+    mu_done:
+        ret
+    """)
+
+    # mask_restore: the epilogue detour. It runs the undo, then replays the
+    # `add esp,0xA8` it displaced and returns as the stock epilogue would.
+    restore = put(page, page_va, "mask_restore", f"""
+        call 0x{page_va + OFF['mask_unflip']:X}
+        add esp, 0xA8
+        ret 8
     """)
 
     # mask_get: esi = villager record -> eax = mask choice (0-5), 0 if none or
@@ -4149,7 +4162,7 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         jmp 0x4687F6
     """)
     return {
-        "mask_arm": flip, "mask_overlay": restore, "mask_get": get, "mask_set": set_,
+        "mask_flip": flip, "mask_restore": restore, "mask_unflip": unflip, "mask_get": get, "mask_set": set_,
         "mask_load_once": load_once, "bighead_mask": bighead,
         "slot_capture": slot_capture, "mask_birth_clear": birth_clear,
     }
@@ -4468,40 +4481,50 @@ def main() -> None:
             "purpose": "Barrel of Babies (VV2 approach): on Technologies screen close (command 0) arm the deferred native three-child Barrel so it presents with the main-village owner after the menu closes",
         })
     # Heathen-mask cosmetic render (stock only): three detours into the Task9
-    # page's mask_arm / mask_overlay routines so the +0x1BC0 picker choice is
-    # actually rendered. The render hook lives in the appended .vv5t9 page (never
-    # a .text cave), so it cannot contend with the population / statistics / other
-    # cave features. mask_arm enters after the selection-ring block (0x472481,
-    # 7-byte `mov ecx,[esp+0xbc]` replayed inside the routine); mask_overlay
-    # enters from both epilogues (0x472B0F / 0x472B57 = add esp,0xA8; ret 8).
+    # page so the +0x1BC0 picker choice is actually rendered. All of them live in
+    # the appended .vv5t9 page, never a .text cave, so they cannot contend with
+    # the population / statistics / other cave features.
+    #
+    # THE BELIEVER HEAD DRAW AT 0x47279C IS DELIBERATELY NOT PATCHED.
+    #
+    # An earlier version detoured that call and painted a second sprite through
+    # the heathen head draw. It never rendered a village mask in any shipped
+    # release, because the heathen branch does not accept a mask number -- it
+    # picks its sprite argument from caller stack slots according to the
+    # villager's own colour flags. Diffing against v1.34.38, which the owner
+    # confirmed working, showed that build leaves 0x47279C completely alone.
+    #
+    #   mask_flip    enters at 0x472481, just past the selection-ring block
+    #                (7-byte `mov ecx,[esp+0xbc]` replayed inside the routine)
+    #   mask_restore enters from BOTH epilogues, 0x472B0F and 0x472B57, each
+    #                `add esp,0xA8` followed by `ret 8`
     mask_arm_site = 0x472481
     mask_arm_preimage = "8B8C24BC000000"       # mov ecx, [esp+0xBC] (7 bytes)
-    # The believer head draw. Detouring the CALL (not the epilogue) is what makes
-    # the overlay possible without touching the record: the routine performs this
-    # very call first and then paints the mask over its result.
-    mask_overlay_site = 0x47279C
-    mask_overlay_preimage = "E83FCEFDFF"       # call 0x44F5E0 (5 bytes)
+    mask_restore_sites = (0x472B0F, 0x472B57)
+    mask_restore_preimage = "81C4A8000000"     # add esp, 0xA8 (6 bytes)
     if stock[mask_arm_site - 0x400000 : mask_arm_site - 0x400000 + 7].hex().upper() != mask_arm_preimage:
         raise RuntimeError("Heathen-mask arm-site preimage drift at 0x472481")
-    if stock[mask_overlay_site - 0x400000 : mask_overlay_site - 0x400000 + 5].hex().upper() != mask_overlay_preimage:
-        raise RuntimeError("Heathen-mask overlay-site preimage drift at 0x47279C")
+    for site in mask_restore_sites:
+        if stock[site - 0x400000 : site - 0x400000 + 6].hex().upper() != mask_restore_preimage:
+            raise RuntimeError(f"Heathen-mask restore-site preimage drift at 0x{site:X}")
     for mode in ("collection_progression", "immediate_fixed"):
         page_va = LAYOUTS[mode]["page_va"]
         overrides = result["patch_mode_overrides"].setdefault(mode, [])
-        rel = (page_va + OFF["mask_arm"]) - (mask_arm_site + 5)
+        rel = (page_va + OFF["mask_flip"]) - (mask_arm_site + 5)
         overrides.append({
             "offset": f"0x{mask_arm_site - 0x400000:X}",
             "before": mask_arm_preimage,
             "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "9090",
-            "purpose": "Heathen mask: after the selection-ring block, record which villager has a mask choice (no villager field is written, so the stock draw branch is not diverted)",
+            "purpose": "Heathen mask: after the selection-ring block, flip a masked Believer's faction and colour fields so the stock renderer draws the chosen mask",
         })
-        rel = (page_va + OFF["mask_overlay"]) - (mask_overlay_site + 5)
-        overrides.append({
-            "offset": f"0x{mask_overlay_site - 0x400000:X}",
-            "before": mask_overlay_preimage,
-            "after": "E8" + rel.to_bytes(4, "little", signed=True).hex().upper(),
-            "purpose": "Heathen mask: perform the stock believer head draw, then paint the chosen mask on top via the heathen head draw, leaving the villager record untouched",
-        })
+        for site in mask_restore_sites:
+            rel = (page_va + OFF["mask_restore"]) - (site + 5)
+            overrides.append({
+                "offset": f"0x{site - 0x400000:X}",
+                "before": mask_restore_preimage,
+                "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper() + "90",
+                "purpose": "Heathen mask: restore the flipped villager's faction and saved colour fields on the way out of the render function",
+            })
     # Heathen mask on the Details villager portrait (the "bigheads" render): the
     # portrait compositor sub_466C40 draws the head via `call 0x409ca0` at
     # 0x466E05 but never draws the mask (it reads no faction/mask field, unlike
