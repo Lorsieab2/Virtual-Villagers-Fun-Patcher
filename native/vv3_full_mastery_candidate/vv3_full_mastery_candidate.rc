@@ -315,16 +315,17 @@ BEGIN
     GROUPBOX    "Village-wide Single Mask Color", -1, 382, 152, 232, 62
     GROUPBOX    "Mask Distribution (all villagers)", -1, 6, 218, 608, 80
 
-    AUTORADIOBUTTON "Off - use the per-sex Mask selectors above", 3301, 14, 232, 596, 10, WS_GROUP
-    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3302, 14, 246, 596, 10
-    AUTORADIOBUTTON "Random", 3303, 14, 260, 596, 10
-    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3304, 14, 274, 596, 10
-    AUTORADIOBUTTON "None (remove all masks)", 3305, 390, 166, 110, 10
-    AUTORADIOBUTTON "Blue", 3306, 390, 180, 110, 10
-    AUTORADIOBUTTON "Orange", 3307, 390, 194, 110, 10
-    AUTORADIOBUTTON "Red", 3308, 504, 166, 100, 10
-    AUTORADIOBUTTON "Purple", 3309, 504, 180, 100, 10
-    AUTORADIOBUTTON "Chief", 3310, 504, 194, 100, 10
+    AUTORADIOBUTTON "Off (use Mask selectors above)", 3301, 14, 229, 596, 10, WS_GROUP
+    AUTORADIOBUTTON "VV5-style (1 Chief, 4 Purple, up to 7 Red, up to 10 Orange, rest Blue)", 3302, 14, 242, 596, 10
+    AUTORADIOBUTTON "Random (All 5 + No Mask)", 3303, 14, 255, 596, 10
+    AUTORADIOBUTTON "Random (All 5)", 3304, 14, 268, 596, 10
+    AUTORADIOBUTTON "Equal Colors (All 5 colors; balanced M/F)", 3305, 14, 281, 596, 10
+    AUTORADIOBUTTON "None (remove all masks)", 3306, 390, 166, 110, 10
+    AUTORADIOBUTTON "Blue", 3307, 390, 180, 110, 10
+    AUTORADIOBUTTON "Orange", 3308, 390, 194, 110, 10
+    AUTORADIOBUTTON "Red", 3309, 504, 166, 100, 10
+    AUTORADIOBUTTON "Purple", 3310, 504, 180, 100, 10
+    AUTORADIOBUTTON "Chief", 3311, 504, 194, 100, 10
 
     CTEXT       "OK deducts 450,000 tech points. Cancel changes nothing.", -1, 6, 306, 608, 9, WS_GROUP
     DEFPUSHBUTTON "OK",     1, 250, 318, 50, 16
