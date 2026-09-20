@@ -1524,13 +1524,23 @@ static int vv2_roster_living(const unsigned int *a) {
    granularity: different villages share essentially nothing, while the same
    village across one event -- a birth, a death, a barrel of babies into a
    tiny village -- shares nearly everything.  So the overlap must cover a
-   MAJORITY of the smaller roster:
+   STRICT majority of the smaller roster:
 
-       need = ceil(min(living_a, living_b) / 2)
+       need = min(living_a, living_b) / 2 + 1
 
-   One death: prev - 1 >= ceil((prev - 1) / 2), always.  Births: prev >=
-   ceil(prev / 2), always.  A fresh 7-villager start replacing an old village
-   of 7 or more needs four independent slot-name coincidences to pass.
+   Not (n + 1) / 2: that is exactly half when n is even, so one-of-two and
+   two-of-four passed -- a reviewer caught it.  Strict majority still admits
+   every ordinary event, because a birth or a death keeps every member of the
+   smaller roster: one death gives prev - 1 >= (prev - 1) / 2 + 1 for prev >= 3
+   and 1 >= 1 for prev = 2; births keep all prev >= prev / 2 + 1 for prev >= 2
+   and 1 >= 1 for prev = 1.  A fresh 7-villager start replacing an old village
+   of 7 or more needs four independent slot-name coincidences.
+
+   The one legitimate case this rejects that half accepted: a two-villager
+   village losing one and gaining one in the SAME frame (overlap 1 < need 2),
+   which reloads and, since the file snapshot also overlaps by only 1, clears
+   the masks of that village.  Stated rather than hidden; it needs both
+   events in one frame of a two-person village.
 
    Residual, stated rather than hidden: a predecessor that had one or two
    living villagers when it was replaced can still be matched by a single
@@ -1542,7 +1552,7 @@ static int vv2_roster_same(const unsigned int *a, const unsigned int *b) {
     if (need == 0) {
         return 0;                              /* an empty roster matches nothing */
     }
-    need = (need + 1) / 2;                     /* majority of the smaller roster */
+    need = need / 2 + 1;                       /* STRICT majority of the smaller roster */
     return vv2_roster_overlap(a, b) >= need;
 }
 

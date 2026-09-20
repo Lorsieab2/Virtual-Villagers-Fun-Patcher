@@ -691,8 +691,11 @@ def test_one_shared_slot_name_is_not_a_village_identity() -> None:
     same = source[source.index("static int vv2_roster_same("):]
     same = same[:same.index(chr(10) + "}" + chr(10)) + 3]
 
-    assert "need = (need + 1) / 2;" in same, (
-        "the match no longer requires a majority of the smaller roster")
+    assert "need = need / 2 + 1;" in same, (
+        "the match no longer requires a STRICT majority of the smaller roster")
+    assert "need = (need + 1) / 2;" not in same, (
+        "(n + 1) / 2 is exactly half for an even roster: one-of-two and "
+        "two-of-four would match a replacement village")
     assert "vv2_roster_overlap(a, b) >= need" in same, (
         "the overlap is not compared against the majority threshold")
     assert "return vv2_roster_overlap(a, b) > 0" not in same, (
