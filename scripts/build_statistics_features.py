@@ -965,6 +965,18 @@ def build_game(
         "name": "Write Village Statistics to Text File",
         "description": description,
         "output_tag": "Village Statistics Text Export",
+        # A New Home's roster gets its "Parents:" lines from Show Parents'
+        # companion; the roster itself is written without it.
+        "needs_on": (
+            [
+                {
+                    "id": "vv1_show_parents",
+                    "for": "the \"Parents:\" lines in the Village Population roster",
+                },
+            ]
+            if game_id == "vv1"
+            else []
+        ),
         "companion_files": [
             {
                 "source": "assets/statistics/VVFP Statistics Export.dll",

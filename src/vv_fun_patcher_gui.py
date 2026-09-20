@@ -19,6 +19,7 @@ LINK_COLOR = "#0645ad"
 LINK_HOVER_COLOR = "#c5350b"
 
 from vv_fun_patcher import (
+    patch_requirement_text,
     DEFAULT_PATCH_MODE,
     _validate_public_patch_mode,
     PatcherError,
@@ -485,6 +486,10 @@ class App(tk.Tk):
             text="Deselect All Patches",
             command=self._deselect_all_fun_patches,
         ).pack(side="left", padx=(8, 0))
+        # The owner's rule: under every description, in bold, which other
+        # patches must be on for this one (and which need this one).
+        requirement_font = tkfont.nametofont("TkDefaultFont").copy()
+        requirement_font.configure(weight="bold")
         row = fun_row + 2
         for header, patches in group_fun_patches(self.builds, self.fun_patches):
             if header == "Shared / All Games":
@@ -506,6 +511,13 @@ class App(tk.Tk):
                         row=row, column=1, sticky="w", pady=(0, 3)
                     )
                     row += 1
+                    ttk.Label(
+                        mode_box,
+                        text=patch_requirement_text(patch, self.fun_patches),
+                        wraplength=620,
+                        font=requirement_font,
+                    ).grid(row=row, column=1, sticky="w", pady=(0, 6))
+                    row += 1
                 continue
             ttk.Label(
                 mode_box,
@@ -525,6 +537,13 @@ class App(tk.Tk):
                 ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
                     row=row, column=1, sticky="w", pady=(0, 3)
                 )
+                row += 1
+                ttk.Label(
+                    mode_box,
+                    text=patch_requirement_text(patch, self.fun_patches),
+                    wraplength=620,
+                    font=requirement_font,
+                ).grid(row=row, column=1, sticky="w", pady=(0, 6))
                 row += 1
         mode_box.columnconfigure(1, weight=1)
 

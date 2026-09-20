@@ -2887,6 +2887,111 @@ def _dependency_ids(patch: FunPatch) -> tuple[str, ...]:
     return tuple(result)
 
 
+def _needs_on(patch: FunPatch) -> tuple[tuple[str, str], ...]:
+    """Return a feature's optional prerequisites: (feature id, what for).
+
+    ``needs_on`` is the manifest field for a patch that works without another
+    patch but does less: the other patch must be ON for the named part of
+    this one to happen.  Unlike ``dependencies`` it never ticks or unticks
+    anything; it is the wording the player reads under the description.
+    """
+    raw = patch.raw.get("needs_on", ())
+    if not isinstance(raw, (list, tuple)):
+        raise PatcherError(
+            f"Invalid needs_on for {patch.id}: expected a list of {{id, for}} entries."
+        )
+    result: list[tuple[str, str]] = []
+    for entry in raw:
+        if (
+            not isinstance(entry, dict)
+            or not isinstance(entry.get("id"), str)
+            or not entry["id"].strip()
+            or not isinstance(entry.get("for"), str)
+            or not entry["for"].strip()
+        ):
+            raise PatcherError(
+                f"Invalid needs_on entry on {patch.id}: each needs an id and a for."
+            )
+        result.append((entry["id"].strip(), entry["for"].strip()))
+    return tuple(result)
+
+
+def patch_requirements(
+    patch: FunPatch, catalog: list[FunPatch] | tuple[FunPatch, ...]
+) -> tuple[str, ...]:
+    """The sentences that say which other patches must be on for this one.
+
+    The owner's rule: every patch description, in every game, states in bold
+    which patches need to be on for it to work, so the player never learns
+    it from a missing feature.  The sentences come from the manifests --
+    ``dependencies`` (hard: the GUI ticks and unticks them together),
+    ``needs_on`` (functional: this patch does less with the other off) and
+    the reverse of both, found by scanning the catalog -- so a new
+    dependency cannot ship without its sentence.  A patch that needs
+    nothing says so; the internal Origins base is never named as a patch to
+    tick, because the patcher includes it by itself.
+    """
+    by_id = {other.id: other for other in catalog}
+    hard = [
+        dependency_id
+        for dependency_id in _dependency_ids(patch)
+        if dependency_id in by_id
+        and dependency_id not in INTERNAL_ORIGINS_BASE_FEATURE_ID_SET
+    ]
+    uses_origins_base = any(
+        dependency_id in INTERNAL_ORIGINS_BASE_FEATURE_ID_SET
+        for dependency_id in _dependency_ids(patch)
+    )
+    soft = _needs_on(patch)
+    for dependency_id, _ in soft:
+        if dependency_id not in by_id:
+            raise PatcherError(
+                f"{patch.id} needs_on names an unknown patch: {dependency_id}"
+            )
+        if by_id[dependency_id].game_id != patch.game_id:
+            raise PatcherError(
+                f"{patch.id} needs_on names a patch of another game: {dependency_id}"
+            )
+    lines: list[str] = []
+    for dependency_id in hard:
+        lines.append(
+            f"Requires {by_id[dependency_id].name}: ticking this ticks it, "
+            "and unticking it unticks this."
+        )
+    for dependency_id, purpose in soft:
+        lines.append(f"Needs {by_id[dependency_id].name} on for {purpose}.")
+    if not lines:
+        lines.append(
+            "Requires no other patch to be ticked"
+            + (
+                "; the Origins-exclusive base it runs on is included automatically."
+                if uses_origins_base
+                else "."
+            )
+        )
+    elif uses_origins_base:
+        lines.append(
+            "The Origins-exclusive base it runs on is included automatically."
+        )
+    soft_ids = {dependency_id for dependency_id, _ in soft}
+    for other in catalog:
+        if other.id == patch.id:
+            continue
+        if patch.id in _dependency_ids(other):
+            lines.append(f"Needed by {other.name}: unticking this unticks it.")
+        for dependency_id, purpose in _needs_on(other):
+            if dependency_id == patch.id and other.id not in soft_ids:
+                lines.append(f"Needed by {other.name} for {purpose}.")
+    return tuple(lines)
+
+
+def patch_requirement_text(
+    patch: FunPatch, catalog: list[FunPatch] | tuple[FunPatch, ...]
+) -> str:
+    """``patch_requirements`` as one paragraph, for a label or a document."""
+    return " ".join(patch_requirements(patch, catalog))
+
+
 def _conflict_ids(patch: FunPatch) -> tuple[str, ...]:
     """Return normalized optional-patch conflict IDs."""
     raw = patch.raw.get("conflicts", ())

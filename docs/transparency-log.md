@@ -97,6 +97,8 @@ Supported stock identity is the exact `Virtual Villagers - A New Home.exe` build
 
 Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and REQUIRES the parenting preference to be checked, rejecting an unchecked villager rather than applying the VV4/VV5 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: The manual pairing hook at file offset 0x3DD03 routes through an owned .vv1bc page and rejects only the category-2 carrier participant at internal age>=1000. The action-9 writer-reaching scans at 0x46E96 and 0x47084 retain their stock candidate and initiator lower bounds while adding only a candidate upper bound. The planner scan at 0x477FA adds only a candidate upper bound before the stock initiator lower-bound check. The chooser's final score floor at 0x39C80 is raised from 1 to 5, and the tail at 0x39C83 requires a checked parenting preference for category 2: an unchecked villager is rejected instead of reaching the VV4/VV2/VV3 25% non-preference fallback, which this build does not apply.
 - Explicit non-changes/exclusions: No male upper-age gate is added. The existing candidate sex/category checks, writer calls, planner action dispatch, pregnancy writer, delivery, save format, fertility, capacity, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode, and only the named chooser tail is redirected. Direct event-created births, pending delivery, and every route outside the named ordinary manual/planner/action-9 boundaries are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode.
 - Dependencies: none
@@ -109,6 +111,8 @@ Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manua
 
 Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -118,6 +122,8 @@ Villagers whose selected job is Building try the stock construction dispatcher a
 #### Continue Research at Max Technologies (`vv1_continue_research_at_max_technologies`)
 
 Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.
 - Explicit non-changes/exclusions: none declared
@@ -129,6 +135,8 @@ Researchers keep choosing the stock research action and earning tech points afte
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded.
 
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 4 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv1_enable_origins_exclusive_features
@@ -139,6 +147,8 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 #### Enable Origins-Exclusive Features (includes the Heathen Mask mod) (`vv1_enable_origins_exclusive_features`)
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Numeric Keys: Zip Around the Island: unticking this unticks it. Needed by Show Parents in Details Screen: unticking this unticks it. Needed by Sort by Age/Skill/Health in Details Screen: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.
 - Explicit non-changes/exclusions: none declared
@@ -155,6 +165,8 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 
 Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Removes only the five native work-task skill-failure branches in A New Home, so each eligible work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes.
 - Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
 - Dependencies: none
@@ -164,6 +176,8 @@ Villagers succeed every work-task skill roll for Farming, Building, Researching,
 #### Magic Fruit of Life Alters Mortality (`vv1_magic_fruit_alters_mortality`)
 
 Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
 - Explicit non-changes/exclusions: none declared
@@ -175,6 +189,8 @@ Completing the Magic Fruit of Life puzzle globally shifts every ordinary village
 
 The number keys move the view to one of nine sections of the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), gliding there the way The Lost Children and the later games do. Top-row digits and keypad digits both work; holding a key does not repeat; scrolling by hand mid-glide cancels it. Adds the loading-screen tip "You can zip around the island with your numeric keys." Requires Enable Origins-Exclusive Features, whose companion loads this one.
 
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
 - Behavior changes: Pressing 1-9 (top row or numeric keypad) glides the view to the matching ninth of the island, reaching the same corners the game's own map clicks are clamped to (x -205..885, y -5..1205). One more loading-screen tip can appear: "You can zip around the island with your numeric keys."
 - Explicit non-changes/exclusions: No villager, save, or village-state field other than the scroll position is written. Ctrl+digit and Alt+digit are ignored; key auto-repeat is ignored; a digit typed before any village exists does nothing. The "points." string is unchanged in wording; only its internal id moves (0x225 -> 0x27E). No executable space is claimed: every changed byte replaces bytes of the unreferenced demo-version string record or a single immediate.
 - Dependencies: vv1_enable_origins_exclusive_features
@@ -184,6 +200,8 @@ The number keys move the view to one of nine sections of the island, laid out li
 #### Reenable F6 Clothing Change Cheat (`vv1_f6_clothing_change_cheat`)
 
 The clothing shortcut cycles the selected active villager through the stock outfits: pressing F6 spends 5,000 tech points to advance to the next outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: The clothing shortcut cycles the selected active villager through the stock outfits: pressing F6 spends 5,000 tech points to advance to the next outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.
 - Explicit non-changes/exclusions: none declared
@@ -195,6 +213,8 @@ The clothing shortcut cycles the selected active villager through the stock outf
 
 Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -204,6 +224,8 @@ Each child who finishes the unlocked Going to school activity gains 7 to 9 point
 #### Show Parents in Details Screen (`vv1_show_parents`)
 
 Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait -- the father on the left facing right, the mother on the right facing left -- and hovering one reads "Son of <name>" or "Daughter of <name>". The record is kept in vv1_parents_<slot>.dat beside the save, never inside a villager record or the save itself, and an entry is never erased: only a new villager in the same slot starts it over. Each birth is also written to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before this patch have no recorded parents. Requires Enable Origins-Exclusive Features, whose companion loads this one. The father is supplied by Write Parentage Log's conception hook, so with that row off only the mother is recorded.
+
+**Needs Write Parentage Log to Text File on for the father (with it off only the mother is recorded) and for the "Birth" records in the parentage log. The Origins-exclusive base it runs on is included automatically. Needed by Write Village Statistics to Text File for the "Parents:" lines in the Village Population roster.**
 
 - Behavior changes: The Details portrait of a villager under 18 with recorded parents shows two half-faded parent figures in the frame's upper corners, built from each parent's own head and body rows; hovering one shows "Son of <name>" / "Daughter of <name>" under the portrait. Conceptions stash the father's name, head and body against the mother; at each birth the game's own child-creation routine hands the named child and its mother to the companion (the Origins row's hook at 0x43CA48), so both parents are recorded for the child -- during load-time catch-up too -- immediately appended to the parentage log as a "Birth" record, then written to vv1_parents_<slot>.dat. The Village Population roster gains a "Parents:" block on A New Home villagers whose parents are recorded.
 - Explicit non-changes/exclusions: This row changes no executable bytes itself: it is the companion DLL alone, reached through hooks the Origins row (the birth hook, the per-frame tick, the portrait hook) and the parentage log row (the conception hook) install. No villager record field and no byte of the save is written; the record lives only in the sidecar beside the save. A recorded entry is never erased by death, ageing or de-ageing; only a new occupant of the same record slot resets it. Founders, villagers born before the patch, and a birth whose parents cannot be told apart (two look-alike mothers delivering in one frame) are left unknown rather than guessed.
@@ -215,6 +237,8 @@ Gives A New Home the true parentage the later games keep: every villager born in
 
 Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do -- ascending by age, by the villager's highest skill, or by health, with earlier villagers first among equals, and the place in the list is kept when the order is changed. Age is the default. Requires Enable Origins-Exclusive Features, whose companion loads this one and whose arrow hooks ask it which villager comes next.
 
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
 - Behavior changes: The Details screen shows a "Sort By:" band (the owner's art, drawn over the stock background, which is not replaced) with Age, Skill and Health plates and radios in the space between the Age/Gender boxes and the villager strip; clicking a plate or its radio chooses the order. The Details left/right arrows step through the living villagers in the chosen order (ascending key, record index among equals, wrapping at either end); the list position is kept across a change of order, as in the later games.
 - Explicit non-changes/exclusions: This row changes no executable bytes itself: the two arrow hooks and the portrait hook belong to the Origins row's patch; without this DLL they fall through to the stock arrows. Nothing is written to a villager record, the save or any file: the chosen order lasts for the session, as in the later games. The villager strip, the world-view selection and every other way of choosing a villager are untouched; they simply set the position the arrows continue from.
 - Dependencies: vv1_enable_origins_exclusive_features
@@ -224,6 +248,8 @@ Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, un
 #### Visual Mods (`vv1_visual_mods`)
 
 Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Swaps Images/lagoon_restored.jpg, Images/garden_restored.png, Images/MapX1Y2.jpg, and Images/MapX2Y1.jpg for decorated versions (flowers at the lagoon and love hut, clothes at the extra hut near the farm, and colorful flowers in the restored garden). Only these four image files are replaced; each is restored to the exact base-game file when the patch is removed.
 - Explicit non-changes/exclusions: No executable bytes are patched. No gameplay, stats, collectibles, or save data are affected.
@@ -235,6 +261,8 @@ Adds decorative flowers to the lagoon and love hut, clothes to the extra hut nea
 
 On each new pregnancy, appends both parents' names, the mother's age at conception, both head and body values, and the number of babies to 'Virtual Villagers 1 Parentage Log N.txt' beside the game executable. Only the mother's age is recorded, because the child's age derives from hers. VV1 stores nothing about the father in the mother's record -- not his name, and no id that could find him -- so his details are captured from his own record at the six conception call sites, where the game holds it briefly and reads only one field of it. A birth that reaches delivery without such a capture reports the father as not captured for that birth, rather than naming the wrong villager. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.
 
+**Needs Show Parents in Details Screen on for the "Birth" records (conceptions are logged without it).**
+
 - Behavior changes: On each new pregnancy, appends both parents' names, the mother's age at conception, both head and body values, and the number of babies to 'Virtual Villagers 1 Parentage Log N.txt' beside the game executable. Only the mother's age is recorded, because the child's age derives from hers. VV1 stores nothing about the father in the mother's record -- not his name, and no id that could find him -- so his details are captured from his own record at the six conception call sites, where the game holds it briefly and reads only one field of it. A birth that reaches delivery without such a capture reports the father as not captured for that birth, rather than naming the wrong villager. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -245,6 +273,8 @@ On each new pregnancy, appends both parents' names, the mother's age at concepti
 #### Write Village Statistics to Text File (`vv1_write_village_statistics`)
 
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+**Needs Show Parents in Details Screen on for the "Parents:" lines in the Village Population roster.**
 
 - Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared
@@ -264,6 +294,8 @@ Supported stock identity is the exact `Virtual Villagers - The Lost Children.exe
 
 Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: The writer-reaching opcode-12 candidate scans at file offsets 0x6488D and 0x64A8F reject candidates whose already-loaded internal age in EAX is at least 1000. The chooser at 0x449C60 no longer rolls RNG(100) for a villager whose parenting preference is unchecked. File offset 0x49E36 replaces that roll with a jump to the routine's own reject path at 0x449E55, which returns 0. Stock tests the selected category at 0x449E29 (cmp eax,2 / jne 0x449E57) before this point, so Farming, Building, Research and Healing never reach the patched bytes. Both complete 40-byte guarded blocks are one atomic VV2-only optional feature.
 - Explicit non-changes/exclusions: The stock manual carrier/female-only age<1000 gate is unchanged, and no male upper-age gate is added. The native VV4/VV5-style chooser score floor, token 43 exact string work, willingness token 39 learning, planner logic, conception roll, pregnancy writer, delivery, save format, RNG, food, fertility, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety remains separately owned and applies in every public mode. The chooser's 25% non-preference fallback is removed for the Parenting category, which is the one change this feature adds there. Love Note event, Gong grant, Silver Mirror clone, direct/event births, and every path outside the two writer-reaching opcode-12 candidate scans are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode.
 - Dependencies: none
@@ -273,6 +305,8 @@ Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the
 #### Easier Healing Mastery (`vv2_easier_healing_mastery`)
 
 Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.
 - Explicit non-changes/exclusions: none declared
@@ -284,6 +318,8 @@ Healers and villagers who prefer Healing study plants when no sick villager need
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded.
 
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 62 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv2_enable_origins_exclusive_features
@@ -294,6 +330,8 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 #### Enable Origins-Exclusive Features and Heathen Masks (`vv2_enable_origins_exclusive_features`)
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Write Parentage Log to Text File: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art.
 - Explicit non-changes/exclusions: none declared
@@ -310,6 +348,8 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 
 When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -319,6 +359,8 @@ When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of
 #### Hospital Recovery Heals (`vv2_hospital_recovery_heals`)
 
 A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.
 - Explicit non-changes/exclusions: none declared
@@ -330,6 +372,8 @@ A villager who completes Recovering at the hospital gains exactly 1 health point
 
 Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Removes only the five native work-task skill-failure branches in The Lost Children, so each eligible work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes.
 - Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
 - Dependencies: none
@@ -339,6 +383,8 @@ Villagers succeed every work-task skill roll for Farming, Building, Researching,
 #### Teaching Children Grants Skill (`vv2_teaching_children_grants_skill`)
 
 Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 - Explicit non-changes/exclusions: none declared
@@ -350,6 +396,8 @@ Each child who finishes a Teaching Children lesson gains 7 to 9 points in one eq
 
 Rewords the loading-screen tip "You can zip around the island with your keypad." to "You can zip around the island with your numeric keys.", matching A New Home's new tip. The keys themselves already work in The Lost Children; nothing else changes.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: One loading-screen tip reads "numeric keys" instead of "keypad".
 - Explicit non-changes/exclusions: No code, save, or village-state byte changes; the German text is untouched. No executable space is claimed: the new text replaces the unreferenced demo-version strings.
 - Dependencies: none
@@ -360,6 +408,8 @@ Rewords the loading-screen tip "You can zip around the island with your keypad."
 
 Records both parents at conception in a plain text log: their names, the mother's age at conception, both head and body values, and the number of babies. Only the mother's age is recorded, because the child's age derives from hers. VV2 keeps the father's name on the mother's record and no father id; his head and body are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.
 
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
 - Behavior changes: Records both parents at conception in a plain text log: their names, the mother's age at conception, both head and body values, and the number of babies. Only the mother's age is recorded, because the child's age derives from hers. VV2 keeps the father's name on the mother's record and no father id; his head and body are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: vv2_enable_origins_exclusive_features
@@ -369,6 +419,8 @@ Records both parents at conception in a plain text log: their names, the mother'
 #### Write Village Statistics to Text File (`vv2_write_village_statistics`)
 
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared
@@ -388,6 +440,8 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 Requires BOTH parenting skill and the checked preference before a villager will initiate Embracing. The native chooser's score floor remains in force and the scanned candidate stays in the stock internal-age 360..999 range, but the 25% non-preference fallback is removed: a roll that admitted one unchecked villager in four is the reported leak. The initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: The five repeated candidate-selector blocks at file offsets 0x5CE74, 0x5CF35, 0x5CFFC, 0x5D0C0, and 0x5D187 retain each candidate's stock age<1000 check while removing only the initiator's duplicate age<1000 check. The chooser at 0x459730 no longer rolls RNG(100) for a villager whose parenting preference is unchecked. File offset 0x59890 replaces that roll with a jump to the routine's own reject epilogue at 0x4598B8. Stock tests the selected category at 0x459883 (cmp edi,1 / jne 0x4598AF) before this point, so Farming, Building, Research and Healing leave the routine with their selection intact and never reach the patched bytes. The ordinary action-13 autonomous/catch-up route therefore follows the VV4 reference boundary: the scanned candidate is capped at internal age 999, but the initiating villager has no male or female upper-age ceiling in this selector.
 - Explicit non-changes/exclusions: The native VV3 manual pairing handler at VA 0x4584B0 retains its category-1 carrier/female-only internal-age-1000 rejection for both participants. The native VV4/VV5-style chooser score floor, action selection, preference scoring, conception roll/writer, pending delivery, save format, RNG, health, fertility, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety remains separately owned and applies in every public mode. The 25% non-preference fallback is NOT among them: it is removed by this feature, and only for the Parenting category, which stock selects before the patched roll is reachable. Direct event-created births, Island Events, clone paths, and every route outside the ordinary action-13 mate selector are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode.
 - Dependencies: none
@@ -397,6 +451,8 @@ Requires BOTH parenting skill and the checked preference before a villager will 
 #### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv3_origins_village_wide_upgrades`)
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. Island Events and Duplicate Collectibles are excluded.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
 
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -408,6 +464,8 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 #### Enable Origins-Exclusive Features (`vv3_enable_origins_exclusive_features`)
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
 - Explicit non-changes/exclusions: none declared
@@ -424,6 +482,8 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 
 Dropping an active, living, non-nursing villager on the robe interrupts every other active, living, non-nursing villager and sends them to try on the robe too. Each villager receives the complete base-game success or failed-fit result, and the base game alone decides who becomes Tribal Chief.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: After the stock callback handles the dropped villager, every other active, living, non-nursing VV3 villager is interrupted into the robe action through the game's own action dispatcher, so they stop their current task and walk to the amphitheatre. The runtime loop accepts only the authenticated stock bounds 150 and 256.
 - Explicit non-changes/exclusions: Dead, inactive, and nursing villagers are skipped. The unchanged stock callback remains responsible for success/failure, Chief clothing, Chief state, puzzle mutation, and candidate selection for every villager. The wrapper READS two candidate fields and writes neither: +0xE80 (the chief flag) so the ceremony is skipped entirely while the village already has a chief, and +0xE88 so each villager receives the same one of the two robe actions the stock code would have given it. The wrapper does not write +0xE80 or +0xE88, and does not change pregnancy/nursing state, health, age, skills, preferences, or saved record layout. It calls three stock routines per villager -- 0x460F70 to stop the villager's current work, 0x4611B0 to set the amphitheatre destination, and 0x455570 to assign the robe action -- which is the same sequence the game performs for a villager the player drops on the robe.
 - Dependencies: none
@@ -435,6 +495,8 @@ Dropping an active, living, non-nursing villager on the robe interrupts every ot
 
 Villagers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Removes only the five native work-task skill-failure branches in The Secret City, so each eligible work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes.
 - Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
 - Dependencies: none
@@ -444,6 +506,8 @@ Villagers succeed every work-task skill roll for Farming, Building, Researching,
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
 
 Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.
 - Explicit non-changes/exclusions: none declared
@@ -455,6 +519,8 @@ Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 m
 
 Nature level 3 shifts every ordinary villager's complete mortality curve seven displayed years later. The stock Medicine threshold is calculated first, so the benefits stack, and the shared aging loop applies the change during ordinary play and time catch-up.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Nature level 3 shifts every ordinary villager's complete mortality curve seven displayed years later. The stock Medicine threshold is calculated first, so the benefits stack, and the shared aging loop applies the change during ordinary play and time catch-up.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -465,6 +531,8 @@ Nature level 3 shifts every ordinary villager's complete mortality curve seven d
 
 When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -474,6 +542,8 @@ When the Tribal Chief completes Pointing out a rare collectible, rejected random
 #### Write Parentage Log to Text File (`vv3_write_parentage_log`)
 
 Records both parents at conception in a plain text log: their names, the mother's age at conception, both head and body values, and the number of babies, appended to 'Virtual Villagers 3 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. VV3 keeps the father's name on the mother's record and no father id. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they are correct even after he dies or another villager takes his name. His AGE is not recorded: no game copies it onto her, and the child's age derives from the mother's, so the log carries hers alone. Rolls to a new numbered file every 256 records.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Records both parents at conception in a plain text log: their names, the mother's age at conception, both head and body values, and the number of babies, appended to 'Virtual Villagers 3 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. VV3 keeps the father's name on the mother's record and no father id. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they are correct even after he dies or another villager takes his name. His AGE is not recorded: no game copies it onto her, and the child's age derives from the mother's, so the log carries hers alone. Rolls to a new numbered file every 256 records.
 - Explicit non-changes/exclusions: none declared
@@ -486,6 +556,8 @@ Records both parents at conception in a plain text log: their names, the mother'
 #### Write Village Statistics to Text File (`vv3_write_village_statistics`)
 
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared
@@ -505,6 +577,8 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -514,6 +588,8 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 #### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv4_origins_village_wide_upgrades`)
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers, Full Heal/Cure All, All Villagers are Exactly 18, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting, and the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. Island Events and Duplicate Collectibles are excluded.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
 
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers uses the native Float32 skill writer for each changed skill and postverifies exact 100.0 values. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -525,6 +601,8 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 #### Enable Origins-Exclusive Features (with Heathen Mask mod) (`vv4_enable_origins_exclusive_features`)
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.
 - Explicit non-changes/exclusions: none declared
@@ -540,6 +618,8 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 
 Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Removes only the five native work-task skill-failure branches in The Tree of Life, so each eligible work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes.
 - Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
 - Dependencies: none
@@ -549,6 +629,8 @@ Believers succeed every work-task skill roll for Farming, Building, Researching,
 #### Optional Text changes (`vv4_optional_text_changes`)
 
 Replaces some in-game text with wording consistent with the other Virtual Villagers games (for example, the "Scholar" title becomes "Esteemed Elder", and a few labels and event lines are capitalized and punctuated to match). When active, the game's Assets/sm.xml is swapped for the edited version; when the patch is not selected, the base-game text is left untouched. No executable bytes are changed.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Swaps Assets/sm.xml for an edited copy that renames the "Scholar" villager title to "Esteemed Elder" and applies small wording/capitalization/punctuation fixes for cross-game consistency. No executable code is modified; only the Assets/sm.xml text file is replaced, and it is restored to the base-game file when the patch is removed.
 - Explicit non-changes/exclusions: No executable bytes are patched. No gameplay, stats, collectibles, or save data are affected.
@@ -560,6 +642,8 @@ Replaces some in-game text with wording consistent with the other Virtual Villag
 
 On each new pregnancy, appends the mother's and father's names, the mother's age at conception, both head and body values, and the number of babies to 'Virtual Villagers 4 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His AGE is not recorded: no game copies it onto her, and the child's age derives from the mother's, so the log carries hers alone.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: On each new pregnancy, appends the mother's and father's names, the mother's age at conception, both head and body values, and the number of babies to 'Virtual Villagers 4 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His AGE is not recorded: no game copies it onto her, and the child's age derives from the mother's, so the log carries hers alone.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -570,6 +654,8 @@ On each new pregnancy, appends the mother's and father's names, the mother's age
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared
@@ -589,6 +675,8 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 
 Clicking the curled vine beneath the on-screen Puzzles button shows a random in-game tip in the gray message bar (with the engine's own auto-hide timer) and plays the hou.ogg chime.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Adds a click target on the curled vine beneath the on-screen Puzzles button; clicking it shows a random eRandomTip in the gray message bar and plays the hou.ogg chime. Picks the tip at random each click (rdtsc-seeded); no persistent state.
 - Explicit non-changes/exclusions: No gameplay, villager, economy, or save-data changes. Uses only unused .text code padding; no existing engine code or data is altered besides the single hooked click-dispatch site, and no persistent or scratch memory is written.
 - Dependencies: none
@@ -598,6 +686,8 @@ Clicking the curled vine beneath the on-screen Puzzles button shows a random in-
 #### Easier Devotee Training (`vv5_easier_devotee_training`)
 
 Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.
 - Explicit non-changes/exclusions: none declared
@@ -609,6 +699,8 @@ Villagers with positive Devotion skill can spontaneously use the stock Honoring 
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped.
 
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
 - Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
 - Dependencies: vv5_enable_origins_exclusive_features
@@ -619,6 +711,8 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 #### Enable Origins-Exclusive Features + Heathen Mask Cosmetics (Task9 native actions) (`vv5_enable_origins_exclusive_features`)
 
 Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years on slow, six on normal and twelve on fast for a single 50,000 tech-point charge, and is refused with no charge while the game is paused; the confirmation names the cost, the current speed and the exact number of years before you buy, with the cost written the same way as every other row (50,000, not 50000). Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point "Change Appearance for All" Tech upgrade. Both charge only when something actually changes: if every villager already has the chosen head, body and mask, they say so and deduct nothing. The chosen Heathen masks are rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years on slow, six on normal and twelve on fast for a single 50,000 tech-point charge, and is refused with no charge while the game is paused; the confirmation names the cost, the current speed and the exact number of years before you buy, with the cost written the same way as every other row (50,000, not 50000). Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point "Change Appearance for All" Tech upgrade. Both charge only when something actually changes: if every villager already has the chosen head, body and mask, they say so and deduct nothing. The chosen Heathen masks are rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.
 - Explicit non-changes/exclusions: none declared
@@ -637,6 +731,8 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 
 Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -646,6 +742,8 @@ Overhauls the New Believers story presentation: replaces the in-game text (Asset
 #### Heathen Mommy Puzzle Restoration (`vv5_heathen_mommy_puzzle`)
 
 Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic and full-tile rollover messages to the Puzzles screen. Existing saves are not retroactively given a new mother.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic and full-tile rollover messages to the Puzzles screen. Existing saves are not retroactively given a new mother.
 - Explicit non-changes/exclusions: none declared
@@ -657,6 +755,8 @@ Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen
 
 Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, Parenting, and Devotion; heathens and all non-skill outcomes remain unchanged.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: Removes only the six native work-task skill-failure branches in New Believers, including Devotion, so each eligible believer work task reaches its stock skill-gain path. Does not alter pregnancy, food, tech-point, or other random outcomes, and does not alter heathens.
 - Explicit non-changes/exclusions: The native skill increment code and skill caps remain stock. No save data, villager creation, or non-work-task RNG path is changed.
 - Dependencies: none
@@ -666,6 +766,8 @@ Believers succeed every work-task skill roll for Farming, Building, Researching,
 #### Statue Drops: Normal Action or Honoring (`vv5_statue_polishing_or_honoring`)
 
 Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.
 - Explicit non-changes/exclusions: none declared
@@ -677,6 +779,8 @@ Dropping a villager on a completed statue gives Polishing the Statue or Honoring
 
 For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divisor from five to six. VV5 normally distributes one-fifth of a lesson to each of six skills, an arithmetic inconsistency that awards six-fifths in total; this patch distributes exactly one-sixth to each skill without claiming whether the original inconsistency was intentional.
 
+**Requires no other patch to be ticked.**
+
 - Behavior changes: For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divisor from five to six. VV5 normally distributes one-fifth of a lesson to each of six skills, an arithmetic inconsistency that awards six-fifths in total; this patch distributes exactly one-sixth to each skill without claiming whether the original inconsistency was intentional.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
@@ -686,6 +790,8 @@ For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divis
 #### Write Parentage Log to Text File (`vv5_write_parentage_log`)
 
 On each new pregnancy, appends the mother's and father's names, the mother's age at conception, both head and body values, and the number of babies to 'Virtual Villagers 5 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His AGE is not recorded: no game copies it onto her, and the child's age derives from the mother's, so the log carries hers alone.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: On each new pregnancy, appends the mother's and father's names, the mother's age at conception, both head and body values, and the number of babies to 'Virtual Villagers 5 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His AGE is not recorded: no game copies it onto her, and the child's age derives from the mother's, so the log carries hers alone.
 - Explicit non-changes/exclusions: none declared
@@ -698,6 +804,8 @@ On each new pregnancy, appends the mother's and father's names, the mother's age
 #### Write Village Statistics to Text File (`vv5_write_village_statistics`)
 
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+**Requires no other patch to be ticked.**
 
 - Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 - Explicit non-changes/exclusions: none declared

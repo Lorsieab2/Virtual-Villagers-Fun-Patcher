@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from vv_fun_patcher import load_builds, load_fun_patches, load_patch_modes  # noqa: E402
+from vv_fun_patcher import load_builds, load_fun_patches, load_patch_modes, patch_requirement_text  # noqa: E402
 
 
 def _items(values) -> list[str]:
@@ -357,6 +357,10 @@ def build_document() -> str:
             if patch.id.endswith("_enable_origins_exclusive_features"):
                 description += " Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity."
             lines.append(description)
+            lines.append("")
+            # The owner's rule: which patches must be on, in bold, under
+            # every description -- the same sentence the patcher shows.
+            lines.append("**" + patch_requirement_text(patch, patches) + "**")
             lines.append("")
             behavior = [_contain_running_claim(item) for item in _items(raw.get("behavior_changes", [patch.description]))]
             exclusions = _items(raw.get("explicit_non_changes", raw.get("exclusions", [])))
