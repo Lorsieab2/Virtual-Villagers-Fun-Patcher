@@ -467,6 +467,8 @@ MASK_TICK_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x1F8
 # depended on the export's RVA and on event order, which is why it went
 # unnoticed.  SCRATCH_SLOTS below makes any such overlap a build failure.
 DOUBLER_SAVE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x204
+# The exact birth hook's cached Vv1Born address (0 = untried, 1 = unavailable).
+PARENTAGE_BORN_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x208
 DOUBLER_RESTORE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x200
 
 # Every distinct thing this builder or the companion keeps in the .vv1md
@@ -494,6 +496,7 @@ SCRATCH_SLOTS = (
     ("MASK_BIRTH_DIRTY", MASK_BIRTH_DIRTY_VA, 1),
     ("DOUBLER_RESTORE_DLL_FN", DOUBLER_RESTORE_DLL_FN_VA, 4),
     ("DOUBLER_SAVE_DLL_FN", DOUBLER_SAVE_DLL_FN_VA, 4),
+    ("PARENTAGE_BORN_DLL_FN", PARENTAGE_BORN_DLL_FN_VA, 4),
 )
 
 
@@ -676,6 +679,33 @@ MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET = 0x3C393
 MASK_NEWBORN_CLEAR_SPLICE_VA = IMAGE_BASE + MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET
 MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B
 MASK_NEWBORN_CLEAR_ORIGINAL_BYTES = bytes.fromhex("C6462801C6462900")
+# THE EXACT BIRTH HOOK (Show Parents in Details Screen).  sub_43C840(manager,
+# mother_index) is the game's own child creation: it takes the first free
+# record (ESI), copies the mother's head, body and look-alike variant from
+# her record (EBP), names the child (sprintf into ESI+0x370 at 0x43CA36),
+# then calls sub_439470 at 0x43CA48 with ECX = the manager (EDI).  That call
+# is the splice: five bytes, ESI = the child with its name already set,
+# EBP = the mother, a single predecessor (fall-through), and the resume at
+# 0x43CA4D is exactly splice + 5.  The stub hands (child, mother) to the
+# Origins companion's Vv1Born, which forwards to the parentage companion;
+# pushad/popad keep every register and the two pushed arguments intact, then
+# the displaced call is replayed.  Because this runs inside the game's own
+# birth routine it fires during load-time catch-up too, which no per-frame
+# observation can see.  Fail-open: a missing DLL or export caches 1 and
+# the stub is a plain replay from then on.
+# Placed in the 0x435..0x5C0 gap, which a render of A New Home with EVERY fun
+# patch selected, in all three modes, shows zero throughout (the region from
+# 0xC00 belongs to vv1_birth_control's composition overlay and 0xE00 to the
+# parentage log's trampolines; neither shows in this manifest).  Re-measure
+# against a render if this grows; do not re-derive it from the manifests.
+PARENTAGE_BORN_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x440   # .vv1mc, 0x10 reserved
+PARENTAGE_BORN_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x450   # .vv1mc, 0x100 reserved (ends 0x550 < 0x5C0)
+PARENTAGE_BORN_NAME_VA = mask_code_va(PARENTAGE_BORN_NAME_FILE_OFFSET)
+PARENTAGE_BORN_STUB_VA = mask_code_va(PARENTAGE_BORN_STUB_FILE_OFFSET)
+PARENTAGE_BORN_NAME = b"Vv1Born\0"
+PARENTAGE_BORN_SPLICE_VA = 0x43CA48
+PARENTAGE_BORN_SPLICE_GUARD = bytes.fromhex("E823CAFFFF")   # call sub_439470
+PARENTAGE_BORN_RESUME_VA = 0x43CA4D
 PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite draw
 # VV1's Details portrait mask registration is the live head Y minus the
 # scale-aware cell lift, plus this fixed nudge.  Screen Y grows downward, so a
@@ -3134,6 +3164,62 @@ def main() -> None:
         MASK_NEWBORN_CLEAR_ORIGINAL_BYTES,
         newborn_clear_detour_code,
         "splice sub_43C350 immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],0 before clearing the corresponding patch-owned mask nibble",
+    )
+    # The exact birth hook -- see the PARENTAGE_BORN_* constants.
+    patch(
+        PARENTAGE_BORN_NAME_FILE_OFFSET,
+        b"\0" * len(PARENTAGE_BORN_NAME),
+        PARENTAGE_BORN_NAME,
+        "read-only Vv1Born export name for the exact birth hook (Show Parents in Details Screen)",
+    )
+    parentage_born_code = assemble(
+        f"""
+            pushad
+            mov eax, dword ptr [{PARENTAGE_BORN_DLL_FN_VA:#x}]
+            cmp eax, 1
+            je parentage_born_ret
+            test eax, eax
+            jnz parentage_born_call
+            push {s['icons_dll']:#x}
+            call dword ptr [0x457010]                   # LoadLibraryA
+            test eax, eax
+            jz parentage_born_missing
+            push {PARENTAGE_BORN_NAME_VA:#x}
+            push eax
+            call dword ptr [0x4570D4]                   # GetProcAddress
+            test eax, eax
+            jz parentage_born_missing
+            mov dword ptr [{PARENTAGE_BORN_DLL_FN_VA:#x}], eax
+        parentage_born_call:
+            push ebp                                    # the mother's record
+            push esi                                    # the child's record, named
+            call eax                                    # Vv1Born @8
+            jmp parentage_born_ret
+        parentage_born_missing:
+            mov dword ptr [{PARENTAGE_BORN_DLL_FN_VA:#x}], 1
+        parentage_born_ret:
+            popad
+            call 0x439470                               # displaced
+            jmp {PARENTAGE_BORN_RESUME_VA:#x}
+        """,
+        PARENTAGE_BORN_STUB_VA,
+    )
+    if len(parentage_born_code) > 0x100:
+        raise RuntimeError(
+            f"VV1 birth hook stub exceeds its .vv1mc reservation: "
+            f"{len(parentage_born_code):#x} > 0x100"
+        )
+    patch(
+        PARENTAGE_BORN_STUB_FILE_OFFSET,
+        b"\0" * len(parentage_born_code),
+        parentage_born_code,
+        "hand each newborn (ESI, already named) and its mother (EBP) to the Origins companion's Vv1Born under pushad/popad, then replay the displaced call sub_439470 and resume at 0x43CA4D; the Origins companion forwards to the parentage companion, so parents are recorded inside the game's own birth routine -- during load-time catch-up too",
+    )
+    patch(
+        PARENTAGE_BORN_SPLICE_VA - 0x400000,
+        PARENTAGE_BORN_SPLICE_GUARD,
+        b"\xE9" + (PARENTAGE_BORN_STUB_VA - PARENTAGE_BORN_SPLICE_VA - 5).to_bytes(4, "little", signed=True),
+        "splice sub_43C840's call sub_439470 at 0x43CA48 (five bytes, single fall-through predecessor, resume 0x43CA4D = splice + 5) through the exact birth hook",
     )
     # Capture the exact numbered save-slot argument before the native builder
     # formats "%s%d.ldw".  The hook is intentionally a tiny ABI-preserving

@@ -289,6 +289,11 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 continue
             repaired_offsets = {
                 "data/vv1_origins_feature.json": {
+                    # The exact birth hook (Show Parents in Details Screen): the
+                    # splice over sub_43C840's call sub_439470 at 0x43CA48, its
+                    # stub and the "Vv1Born" export name in the measured-free
+                    # 0x435..0x5C0 gap of the patch-owned .vv1mc section.
+                    "0x3CA48", "0x8E440", "0x8E450",
                     # Doubler persistence (#344): the two exe splices that call
                     # the already-shipped Vv1DoublerSave / Vv1DoublerRestore, plus
                     # their stubs and export names in the patch-owned .vv1mc

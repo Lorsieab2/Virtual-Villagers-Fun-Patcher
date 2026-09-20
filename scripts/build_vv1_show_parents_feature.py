@@ -8,9 +8,11 @@ companion (the VV1 parentage log row) hands it the father at conception, and
 it writes each birth back to that log the moment it sees it.
 
 No executable bytes are changed by this row.  Every hook it relies on -- the
+Origins row's exact birth hook inside sub_43C840 (0x43CA48 -> Vv1Born), the
 Origins companion's per-frame tick and its Details portrait hook, and the
-parentage log's conception trampolines -- already exists, which is why the
-row depends on the Origins row: without it nothing calls the companion.  The
+parentage log's conception trampolines -- lives in those rows' patches,
+which is why the row depends on the Origins row: without it nothing calls
+the companion.  The
 parentage log row is not a declared dependency (the patcher closes a selection
 over its prerequisites in both directions, and unticking the log must not
 silently untick this); without it the father is simply not captured.
@@ -61,11 +63,11 @@ def main() -> None:
         ],
         "behavior_changes": [
             "The Details portrait of a villager under 18 with recorded parents shows two half-faded parent figures in the frame's upper corners, built from each parent's own head and body rows; hovering one shows \"Son of <name>\" / \"Daughter of <name>\" under the portrait.",
-            "Conceptions stash the father's name, head and body against the mother; each birth is matched to its delivering mother and both parents are recorded for the child, immediately appended to the parentage log as a \"Birth\" record, then written to vv1_parents_<slot>.dat.",
+            "Conceptions stash the father's name, head and body against the mother; at each birth the game's own child-creation routine hands the named child and its mother to the companion (the Origins row's hook at 0x43CA48), so both parents are recorded for the child -- during load-time catch-up too -- immediately appended to the parentage log as a \"Birth\" record, then written to vv1_parents_<slot>.dat.",
             "The Village Population roster gains a \"Parents:\" block on A New Home villagers whose parents are recorded.",
         ],
         "explicit_non_changes": [
-            "No executable bytes are changed: the row is the companion DLL alone, reached through hooks the Origins row and the parentage log row already install.",
+            "This row changes no executable bytes itself: it is the companion DLL alone, reached through hooks the Origins row (the birth hook, the per-frame tick, the portrait hook) and the parentage log row (the conception hook) install.",
             "No villager record field and no byte of the save is written; the record lives only in the sidecar beside the save.",
             "A recorded entry is never erased by death, ageing or de-ageing; only a new occupant of the same record slot resets it.",
             "Founders, villagers born before the patch, and a birth whose parents cannot be told apart (two look-alike mothers delivering in one frame) are left unknown rather than guessed.",

@@ -205,6 +205,20 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # path that never loaded anything. popad restores ECX to the value
     # 0x41BEF7 loaded for the replayed call, so the stub need not rebuild it.
     ("vv1_enable_origins_exclusive_features", "0x1BEFD"): "5D6C9B15C588A4D6132539503DA6081FC779C571D1465E1D04A3F743579FB612",
+    # The exact birth hook (Show Parents in Details Screen), spliced over
+    # sub_43C840's `call sub_439470` at 0x43CA48: five bytes, a single
+    # fall-through predecessor, and the resume 0x43CA4D is exactly splice + 5,
+    # so no REVIEWED entry is needed. The stub is pushad / cached-pointer
+    # resolve (LoadLibraryA + GetProcAddress("Vv1Born") on the Origins DLL,
+    # 0 untried / 1 unavailable at scratch +0x208) / push ebp, push esi, call
+    # eax / popad, then the displaced call and the jump back. ESI is the
+    # newborn's record (named at 0x43CA36, eleven bytes earlier) and EBP the
+    # mother's record, both read by the stock copy at 0x43C9CD..0x43CA11 and
+    # unchanged between there and the splice; the two arguments stock pushed
+    # for sub_439470 sit under pushad and are untouched. Vv1Born is __stdcall
+    # and cleans its eight bytes, so ESP at popad equals ESP at pushad on
+    # every path, including the fail-open ones.
+    ("vv1_enable_origins_exclusive_features", "0x3CA48"): "E1661C313B017DE9476128EBF65C973015E7245A08A9EFF21C45D3EC5885E17C",
     ("vv1_builder_action_fixes", "0x48336"): "8901998FCDDD8EB745F1666B550B4C384919536E546CA4B1EAAF3BDB90176485",
     # The statistics tracker's lifetime burial counter, spliced over the
     # skeleton-pickup latch clear at 0x448F65 in sub_448600's case 20. That

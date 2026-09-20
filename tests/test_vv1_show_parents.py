@@ -195,6 +195,39 @@ class StockExecutableFactsTests(unittest.TestCase):
         self.assertLess(_define(parentage, "VV1_FATHER_BODY_COL"), 32)
         self.assertLess(_define(parentage, "VV1_MOTHER_BODY_COL"), 32)
 
+    def test_the_exact_birth_hook_is_in_the_origins_patch(self):
+        """sub_43C840's call sub_439470 at 0x43CA48 is spliced to a stub that hands
+        the named child (ESI) and the mother (EBP) to Origins' Vv1Born."""
+        self.assertEqual(self.at(0x43CA48, 5), bytes.fromhex("E823CAFFFF"))
+        # ...and nothing between the name write and the splice touches ESI or EBP
+        self.assertEqual(self.at(0x43CA3B, 13), bytes.fromhex("8B5424188 3C408528BCF895E20".replace(" ", "")))
+        origins = json.loads((ROOT / "data" / "vv1_origins_feature.json").read_text(encoding="utf-8"))
+        splice = [p for p in origins["patches"] if int(p["offset"], 16) == 0x3CA48]
+        self.assertEqual(len(splice), 1, "the birth splice")
+        self.assertEqual(splice[0]["before"].upper(), "E823CAFFFF")
+        self.assertEqual(splice[0]["after"][:2].upper(), "E9")
+        stub = [p for p in origins["patches"] if int(p["offset"], 16) == 0x8E450]
+        self.assertEqual(len(stub), 1, "the birth stub in .vv1mc")
+        stub_bytes = bytes.fromhex(stub[0]["after"])
+        self.assertEqual(stub_bytes[0], 0x60, "pushad first")
+        self.assertIn(b"\x55\x56\xFF\xD0", stub_bytes, "push ebp; push esi; call eax")
+        # .vv1mc maps file 0x8E000 to VA 0x490000, so the stub is at 0x490450; after
+        # popad (0x61) come the displaced call sub_439470 and jmp 0x43CA4D
+        tail = stub_bytes.index(b"\x61\xE8")
+        call_end = 0x490450 + tail + 1 + 5
+        self.assertEqual(stub_bytes[tail + 1:tail + 6], b"\xE8" + (0x439470 - call_end).to_bytes(4, "little", signed=True))
+        self.assertEqual(stub_bytes[tail + 6:tail + 11], b"\xE9" + (0x43CA4D - (call_end + 5)).to_bytes(4, "little", signed=True))
+        self.assertEqual(len(stub_bytes), tail + 11, "nothing after the resume jump")
+        name = [p for p in origins["patches"] if int(p["offset"], 16) == 0x8E440]
+        self.assertEqual(bytes.fromhex(name[0]["after"]), b"Vv1Born\0")
+        origins_def = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.def").read_text(encoding="utf-8")
+        self.assertIn("Vv1Born=_Vv1Born@8", origins_def)
+        origins_dll = pefile.PE(str(ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll"))
+        self.assertIn("Vv1Born", {e.name.decode() for e in origins_dll.DIRECTORY_ENTRY_EXPORT.symbols if e.name})
+        parentage = PARENTAGE_C.read_text(encoding="utf-8")
+        self.assertIn("__stdcall Vv1ParentageBorn(", parentage)
+        self.assertIn('GetProcAddress(companion, "Vv1ParentageBorn")', ORIGINS_C.read_text(encoding="utf-8"))
+
     def test_the_mouse_comes_from_the_games_own_sdl(self):
         pe = pefile.PE(str(STOCK))
         names = {

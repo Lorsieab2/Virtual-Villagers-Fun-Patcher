@@ -254,6 +254,9 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # dialog strings, preflight/Cure helpers, deferred Barrel
                     # helper, and the already-repaired section metadata rows.
                     repaired_offsets = {
+                        # The exact birth hook (Show Parents in Details Screen):
+                        # the splice at 0x43CA48, its stub and its export name.
+                        "0x3CA48", "0x8E440", "0x8E450",
                     # Island Event queue delay + its duplicate-purchase guard.  The
                     # purchased Island Event is now stamped now+5s from the scheduler's
                     # own clock instead of being made due on the next tick, so a natural

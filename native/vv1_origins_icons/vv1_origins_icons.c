@@ -1128,9 +1128,11 @@ static void vv1_numkeys_bridge(void) {
 typedef int (__stdcall *vv1_parentage_tick_t)(void);
 typedef int (__stdcall *vv1_parentage_draw_t)(void *gameobj, void *record,
                                               void *draw_wrapper, const int *args);
+typedef int (__stdcall *vv1_parentage_born_t)(void *child, void *mother);
 static int vv1_parentage_state;   /* 0 = not tried, 1 = resolved, -1 = unavailable */
 static vv1_parentage_tick_t vv1_parentage_tick;
 static vv1_parentage_draw_t vv1_parentage_draw;
+static vv1_parentage_born_t vv1_parentage_born;
 
 static int vv1_parentage_resolve(void) {
     char path[MAX_PATH];
@@ -1157,7 +1159,8 @@ static int vv1_parentage_resolve(void) {
     }
     vv1_parentage_tick = (vv1_parentage_tick_t)GetProcAddress(companion, "Vv1ParentageTick");
     vv1_parentage_draw = (vv1_parentage_draw_t)GetProcAddress(companion, "Vv1ParentageDrawPortrait");
-    if (vv1_parentage_tick == NULL || vv1_parentage_draw == NULL) {
+    vv1_parentage_born = (vv1_parentage_born_t)GetProcAddress(companion, "Vv1ParentageBorn");
+    if (vv1_parentage_tick == NULL || vv1_parentage_draw == NULL || vv1_parentage_born == NULL) {
         return 0;
     }
     vv1_parentage_state = 1;
@@ -1175,6 +1178,16 @@ static void vv1_parentage_bridge_draw(void *gameobj, void *record,
     if (vv1_parentage_resolve()) {
         vv1_parentage_draw(gameobj, record, draw_wrapper, args);
     }
+}
+
+/* The executable's exact birth hook (sub_43C840 at 0x43CA48): the newborn's
+   record, already named, and its mother's.  Forwarded to the parentage
+   companion; a missing companion is a no-op. */
+__declspec(dllexport) int __stdcall Vv1Born(void *child, void *mother) {
+    if (!vv1_parentage_resolve()) {
+        return 0;
+    }
+    return vv1_parentage_born(child, mother);
 }
 
 __declspec(dllexport) void __stdcall Vv1MaskTick(void) {

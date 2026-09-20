@@ -31,6 +31,7 @@ static int failures;
 typedef int (__stdcall *reset_t)(void);
 typedef int (__stdcall *conceive_t)(const void *, const void *, const void *);
 typedef int (__stdcall *tick_t)(const void *);
+typedef int (__stdcall *born_t)(const void *, const void *, const void *);
 typedef int (__stdcall *entry_t)(int, int *);
 typedef int (__stdcall *names_t)(int, char *, char *, int);
 typedef int (__stdcall *births_t)(int *, int);
@@ -59,7 +60,7 @@ static int same(const int *e, int fh, int fb, int mh, int mb) {
 }
 
 int main(int argc, char **argv) {
-    HMODULE dll; reset_t reset; conceive_t conceive; tick_t tick; entry_t entry; names_t names; births_t births; layout_t layout;
+    HMODULE dll; reset_t reset; conceive_t conceive; tick_t tick; entry_t entry; names_t names; births_t births; layout_t layout; born_t born;
     int e[4];
     int b[8];
     char father[32], mother[32];
@@ -75,10 +76,11 @@ int main(int argc, char **argv) {
     names = (names_t)GetProcAddress(dll, "Vv1ParentageProbeNames");
     births = (births_t)GetProcAddress(dll, "Vv1ParentageProbeBirths");
     layout = (layout_t)GetProcAddress(dll, "Vv1ParentageProbeLayout");
-    CHECK(reset && conceive && tick && entry && names && births && layout, "probe seams resolve");
+    born = (born_t)GetProcAddress(dll, "Vv1ParentageProbeBorn");
+    CHECK(reset && conceive && tick && entry && names && births && layout && born, "probe seams resolve");
     CHECK(GetProcAddress(dll, "Vv1ParentageConceived") && GetProcAddress(dll, "Vv1ParentageTick")
           && GetProcAddress(dll, "Vv1ParentageDrawPortrait") && GetProcAddress(dll, "Vv1ParentageQuery")
-          && GetProcAddress(dll, "Vv1ParentageQueryNames"), "game exports resolve");
+          && GetProcAddress(dll, "Vv1ParentageQueryNames") && GetProcAddress(dll, "Vv1ParentageBorn"), "game exports resolve");
     if (!(reset && conceive && tick && entry && names && births && layout)) return 1;
 
     layout(&entry_bytes, &entries, &magic);
@@ -158,6 +160,23 @@ int main(int argc, char **argv) {
     *(int *)(rec(1) + DUE) = 0; born_from(13, 1, "Reborn"); tick(records);   /* slot 13 was Zed, occupied: only the name differs */
     entry(13, e); CHECK(same(e, 7, 2, 4, 9), "a newborn refilling an occupied slot in the delivery frame is matched by its new name (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
     names(13, father, mother, 32); CHECK(strcmp(father, "Goro") == 0, "...with the father from the stash (%s)", father);
+
+    printf("== the exact birth hook: child and mother handed over by the executable ==\n");
+    conceive(records, rec(1), rec(2));
+    *(int *)(rec(1) + DUE) = 800; tick(records);
+    born_from(22, 1, "Hooked");                                   /* created and named inside sub_43C840 */
+    CHECK(born(records, rec(22), rec(1)) == 22, "the hook records by index (22)");
+    entry(22, e); CHECK(same(e, 7, 2, 4, 9), "child [22]: both parents from the hook (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    names(22, father, mother, 32); CHECK(strcmp(father, "Goro") == 0 && strcmp(mother, "Aisha") == 0, "...with names %s / %s", father, mother);
+    CHECK(tick(records) == 0, "the next frame does not treat the hooked child as a new unknown occupant");
+    entry(22, e); CHECK(same(e, 7, 2, 4, 9), "...and its entry is intact");
+    born_from(23, 1, "HookedTwin"); born(records, rec(23), rec(1));
+    entry(23, e); CHECK(same(e, 7, 2, 4, 9), "a twin through the hook gets the same father: the stash is not spent by the hook");
+    *(int *)(rec(1) + DUE) = 0; tick(records);
+    entry(1, e); CHECK(same(e, -1, -1, -1, -1), "(the mother is untouched)");
+    born_from(24, 1, "Later"); born(records, rec(24), rec(1)); entry(24, e); CHECK(same(e, -1, -1, 4, 9), "after the delivery ended the stash is spent: mother only (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    CHECK(born(records, rec(1), rec(1)) == -1, "child == mother is refused");
+    CHECK(born(records, rec(1) + 4, rec(2)) == -1, "an unaligned pointer is refused");
 
     printf("== father with head 0 / body 0 is a real father ==\n");
     conceive(records, rec(1), rec(3));

@@ -17,7 +17,7 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "653137CA987B8FFFE0272874844D59BAA61303E22664CED26A96C0BA6A2A6A8F"
+      "sha256": "1AC268C042B2D2C3966B92BF7A9E9CFC4E5915640F1FC57F8BD9B30C99F314FA"
     },
     {
       "source": "assets/origins/m1.png",
@@ -283,6 +283,24 @@
       "before": "C6462801C6462900",
       "after": "E968460500909090",
       "purpose": "splice sub_43C350 immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],0 before clearing the corresponding patch-owned mask nibble"
+    },
+    {
+      "offset": "0x8E440",
+      "before": "0000000000000000",
+      "after": "567631426F726E00",
+      "purpose": "read-only Vv1Born export name for the exact birth hook (Show Parents in Details Screen)"
+    },
+    {
+      "offset": "0x8E450",
+      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "60A10812490083F801743885C0752468995D4800FF151070450085C0741B684004490050FF15D470450085C0740BA3081249005556FFD0EB0AC705081249000100000061E8D78FFAFFE9AFC5FAFF",
+      "purpose": "hand each newborn (ESI, already named) and its mother (EBP) to the Origins companion's Vv1Born under pushad/popad, then replay the displaced call sub_439470 and resume at 0x43CA4D; the Origins companion forwards to the parentage companion, so parents are recorded inside the game's own birth routine -- during load-time catch-up too"
+    },
+    {
+      "offset": "0x3CA48",
+      "before": "E823CAFFFF",
+      "after": "E9033A0500",
+      "purpose": "splice sub_43C840's call sub_439470 at 0x43CA48 (five bytes, single fall-through predecessor, resume 0x43CA4D = splice + 5) through the exact birth hook"
     },
     {
       "offset": "0x8E820",

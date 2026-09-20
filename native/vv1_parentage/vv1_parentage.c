@@ -32,7 +32,15 @@
      mother.  The stash is in the file too, so a save-and-reload mid-pregnancy
      does not lose him.
 
-     Birth.  A New Home creates a child in sub_43C840, called from the
+     Birth, exactly.  The executable is spliced inside sub_43C840 itself, at
+     0x43CA48, once the child is named: the Origins companion's Vv1Born
+     receives the child's record and the mother's and forwards them to
+     Vv1ParentageBorn.  That is the game's own birth routine, so it fires
+     during load-time catch-up as well, where no rendered frame exists to
+     observe anything.
+
+     Birth, inferred (the fallback when the executable is not patched with
+     the hook).  A New Home creates a child in sub_43C840, called from the
      delivery path once per baby with the mother's index; it copies her head,
      body and look-alike variant (+0x36C) onto the child, and the delivery
      routine clears her due field (+0x358, non-zero throughout a pregnancy)
@@ -617,6 +625,43 @@ static int vv1_frame(const unsigned char *records, int log) {
     return changed;
 }
 
+/* The exact birth, from the executable's hook inside sub_43C840 (through
+   the Origins companion's Vv1Born): the newborn's record, already named,
+   and its mother's.  Fills the child's entry -- father from her stash,
+   mother from her record -- and updates the frame snapshot for that slot
+   so the per-frame inference does not treat the child as an unknown new
+   occupant afterwards.  The stash stays until the delivery ends (the tick
+   spends it when her due and litter fields are zero again), so twins and
+   triplets, born one call each, all get the same father.  Returns the
+   child's index, or -1 when the pointers are not two distinct records of
+   the array. */
+static int vv1_born(const unsigned char *records, const unsigned char *child,
+                    const unsigned char *mother) {
+    unsigned int c, m;
+    if (records == NULL || child == NULL || mother == NULL || child < records || mother < records) {
+        return -1;
+    }
+    c = (unsigned int)(child - records) / VV1_RECORD_STRIDE;
+    m = (unsigned int)(mother - records) / VV1_RECORD_STRIDE;
+    if (c >= VV1_RECORD_COUNT || m >= VV1_RECORD_COUNT || c == m
+        || records + c * VV1_RECORD_STRIDE != child || records + m * VV1_RECORD_STRIDE != mother) {
+        return -1;
+    }
+    memset(&g_entries[c], 0, sizeof(g_entries[c]));
+    g_entries[c].father_head = g_entries[m].stash_head;
+    g_entries[c].father_body = g_entries[m].stash_body;
+    memcpy(g_entries[c].father_name, g_entries[m].stash_name, VV1_NAME_CAPACITY);
+    g_entries[c].mother_head = vv1_plus_one(*(const int *)(mother + VV1_HEAD_OFFSET));
+    g_entries[c].mother_body = vv1_plus_one(*(const int *)(mother + VV1_BODY_OFFSET));
+    vv1_copy_name(mother, g_entries[c].mother_name);
+    if (g_have_prev) {
+        g_prev_occupied[c] = child[VV1_OCCUPIED_OFFSET];
+        g_prev_variant[c] = *(const int *)(child + VV1_VARIANT_OFFSET);
+        memcpy(g_prev_name[c], child + VV1_NAME_OFFSET, VV1_NAME_CAPACITY);
+    }
+    return (int)c;
+}
+
 static void vv1_entry_out(int index, int *out) {
     out[0] = vv1_decode(g_entries[index].father_head);
     out[1] = vv1_decode(g_entries[index].father_body);
@@ -819,6 +864,33 @@ __declspec(dllexport) int __stdcall Vv1ParentageConceived(const void *records_po
     return vv1_parents_save(slot, tag);
 }
 
+/* From the executable's birth hook, through the Origins companion's Vv1Born:
+   the child (named) and the mother.  Records the parents, writes the birth
+   to the parentage log at once, then persists.  Returns 1 when recorded. */
+__declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *mother_pointer) {
+    const unsigned char *records = vv1_records();
+    unsigned int tag;
+    int slot;
+    int c;
+    vv1_birth birth;
+    if (records == NULL) {
+        return 0;
+    }
+    slot = vv1_parents_sync(&tag);
+    if (!slot) {
+        return 0;
+    }
+    c = vv1_born(records, (const unsigned char *)child_pointer, (const unsigned char *)mother_pointer);
+    if (c < 0) {
+        return 0;
+    }
+    birth.child = c;
+    birth.mother = (int)(((const unsigned char *)mother_pointer - records) / VV1_RECORD_STRIDE);
+    vv1_log_birth(records, &birth);   /* the log first, before anything is flushed */
+    vv1_parents_save(slot, tag);
+    return 1;
+}
+
 /* Per frame, from the Origins companion.  Returns 1 when a village is on
    screen and the table corresponds to it, 0 when nothing is known. */
 __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
@@ -951,6 +1023,13 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeConceive(const void *record
                                                               const void *father) {
     return vv1_stash((const unsigned char *)records, (const unsigned char *)mother,
                      (const unsigned char *)father);
+}
+
+/* The exact birth without the log or the file. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeBorn(const void *records, const void *child,
+                                                          const void *mother) {
+    return vv1_born((const unsigned char *)records, (const unsigned char *)child,
+                    (const unsigned char *)mother);
 }
 
 /* A whole frame without the log: infer, spend the stashes. */

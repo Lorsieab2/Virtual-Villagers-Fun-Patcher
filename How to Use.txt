@@ -370,11 +370,13 @@ recorded: founders, and anyone born before the row was on.
 How it is recorded. At conception the father's name, head and body are set
 aside against the mother (this is the same moment the parentage log's hook
 fires, and it is that hook that supplies him, so with Write Parentage Log
-unticked only the mother is recorded). At the birth the child is matched to
-the mother who just delivered, both parents are written to the child's
-entry, the birth is appended to the parentage log at once as a "Birth"
-record, and then the entry is saved to vv1_parents_<slot>.dat beside the
-save. Nothing is written into a villager record or the save.
+unticked only the mother is recorded). At the birth the game's own child-
+creation routine hands the named child and its mother to the companion --
+so births that happen while the game catches up on time you were away are
+recorded just the same -- both parents are written to the child's entry,
+the birth is appended to the parentage log at once as a "Birth" record,
+and then the entry is saved to vv1_parents_<slot>.dat beside the save.
+Nothing is written into a villager record or the save.
 
 An entry is never erased. Death leaves it; growing up hides the figures but
 keeps the record, so a villager made young again shows their parents again.
