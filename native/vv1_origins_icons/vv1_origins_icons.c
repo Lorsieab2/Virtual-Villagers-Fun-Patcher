@@ -1052,9 +1052,69 @@ __declspec(dllexport) int __stdcall Vv1DoublerRestore(void *state) {
    or an exact newborn boundary marked a reused mask dirty.
    Static wiring proves cadence/guards; runtime reuse behavior remains a player
    acceptance gate. */
+/* NUMBER KEYS BRIDGE.  "Zip around the island with the numeric keys" lives
+   in its own companion, "VVFP VV1 Number Keys.dll" (native/vv1_number_keys),
+   which owns the whole feature: the SDL event watch, the section table and
+   the write into the village state.  Nothing about it is in the executable.
+
+   It still has to be loaded by something, and this DLL is already resolved
+   and called every frame by the exe's mask tick, so it is the natural loader:
+   one LoadLibraryA of the file beside the executable, one GetProcAddress,
+   then one call per frame to Vv1NumberKeysTick, which installs the key watch
+   on its first call and advances the glide on every call.  The feature's
+   on/off switch is therefore whether that file is present -- the patcher
+   ships it when the row is ticked -- and a missing file or a missing export
+   fails open to the stock game, resolved once and remembered.
+
+   Loaded by the executable's own directory, not by a bare name, so a DLL of
+   the same name elsewhere on the search path can never be picked up.  Never
+   done from DllMain; this runs from Vv1MaskTick, outside the loader lock. */
+typedef int (__stdcall *vv1_numkeys_tick_t)(void);
+static int vv1_numkeys_bridge_state;   /* 0 = not tried, 1 = resolved, -1 = unavailable */
+static vv1_numkeys_tick_t vv1_numkeys_tick;
+
+static void vv1_numkeys_bridge(void) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE keys;
+    if (vv1_numkeys_bridge_state == 1) {
+        vv1_numkeys_tick();     /* per frame: installs once, then glides */
+        return;
+    }
+    if (vv1_numkeys_bridge_state != 0) {
+        return;
+    }
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        vv1_numkeys_bridge_state = -1;
+        return;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Number Keys.dll") > sizeof(path)) {
+        vv1_numkeys_bridge_state = -1;
+        return;
+    }
+    lstrcpyA(slash + 1, "VVFP VV1 Number Keys.dll");
+    keys = LoadLibraryA(path);
+    if (keys == NULL) {
+        vv1_numkeys_bridge_state = -1;   /* not shipped: the row is off */
+        return;
+    }
+    vv1_numkeys_tick = (vv1_numkeys_tick_t)GetProcAddress(keys, "Vv1NumberKeysTick");
+    if (vv1_numkeys_tick == NULL) {
+        vv1_numkeys_bridge_state = -1;
+        return;
+    }
+    vv1_numkeys_bridge_state = 1;
+    vv1_numkeys_tick();
+}
+
 __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     int swept;
     int birth_dirty;
+    vv1_numkeys_bridge();       /* number keys companion: loaded once, fail-open */
     if (!vv1_mask_prepare_slot()) {
         return;  /* slot not captured yet -> no table or sidecar mutation */
     }

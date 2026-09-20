@@ -120,6 +120,12 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 - Requires: vv1_enable_origins_exclusive_features
 - Patch ID: `vv1_origins_village_wide_upgrades`
 
+**Numeric Keys: Zip Around the Island**
+
+The number keys move the view to one of nine sections of the island, laid out like a numeric keypad (`7 8 9` across the top, `4 5 6` in the middle, `1 2 3` along the bottom), gliding there the way the later games do. Top-row digits and keypad digits both work; holding a key does not repeat; scrolling by hand mid-glide cancels it. Also adds the loading-screen tip "You can zip around the island with your numeric keys." The feature lives in its own companion, `VVFP VV1 Number Keys.dll`, loaded by the Origins companion, so it requires Enable Origins-Exclusive Features.
+
+- Patch ID: `vv1_number_keys`
+
 **Magic Fruit of Life Alters Mortality**
 
 Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
@@ -171,6 +177,12 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 - Requires: vv2_enable_origins_exclusive_features
 - Patch ID: `vv2_origins_village_wide_upgrades`
+
+**Tip Wording: Numeric Keys**
+
+Rewords the loading-screen tip "You can zip around the island with your keypad." to "You can zip around the island with your numeric keys.", matching A New Home's new tip. The keys themselves already work in The Lost Children.
+
+- Patch ID: `vv2_numeric_keys_tip_wording`
 
 **Gong of Wonder Coconuts Fix**
 

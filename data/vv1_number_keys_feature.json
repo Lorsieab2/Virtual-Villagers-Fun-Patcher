@@ -1,0 +1,62 @@
+{
+  "id": "vv1_number_keys",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Numeric Keys: Zip Around the Island",
+  "description": "The number keys move the view to one of nine sections of the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), gliding there the way The Lost Children and the later games do. Top-row digits and keypad digits both work; holding a key does not repeat; scrolling by hand mid-glide cancels it. Adds the loading-screen tip \"You can zip around the island with your numeric keys.\" Requires Enable Origins-Exclusive Features, whose companion loads this one.",
+  "output_tag": "Numeric Keys",
+  "dependencies": [
+    "vv1_enable_origins_exclusive_features"
+  ],
+  "behavior_changes": [
+    "Pressing 1-9 (top row or numeric keypad) glides the view to the matching ninth of the island, reaching the same corners the game's own map clicks are clamped to (x -205..885, y -5..1205).",
+    "One more loading-screen tip can appear: \"You can zip around the island with your numeric keys.\""
+  ],
+  "explicit_non_changes": [
+    "No villager, save, or village-state field other than the scroll position is written.",
+    "Ctrl+digit and Alt+digit are ignored; key auto-repeat is ignored; a digit typed before any village exists does nothing.",
+    "The \"points.\" string is unchanged in wording; only its internal id moves (0x225 -> 0x27E).",
+    "No executable space is claimed: every changed byte replaces bytes of the unreferenced demo-version string record or a single immediate."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/number_keys/VVFP VV1 Number Keys.dll",
+      "destination": "VVFP VV1 Number Keys.dll",
+      "sha256": "FFC8E200E63A46DB67B9A7684978AC5F835F22708CF5E1AE97F4CF8ECF144958"
+    }
+  ],
+  "patches": [
+    {
+      "offset": "0X256B0",
+      "before": "6A1E",
+      "after": "6A1F",
+      "purpose": "draw the loading-screen tip from 31 ids instead of 30 (0x4256B0: push 0x1e -> push 0x1f), so id 0x225 -- the new tip -- can come up; the picker is 0x207 + rand(n)"
+    },
+    {
+      "offset": "0X346E7",
+      "before": "6825020000",
+      "after": "687E020000",
+      "purpose": "the one reader of string id 0x225 (\"points.\", 0x4346E7) asks for 0x27E instead, a free id, freeing 0x225 for the tip; the string itself is unchanged"
+    },
+    {
+      "offset": "0X87244",
+      "before": "25020000",
+      "after": "7E020000",
+      "purpose": "renumber the \"points.\" string record (0x487244) from 0x225 to 0x27E to match its reader"
+    },
+    {
+      "offset": "0X8744C",
+      "before": "59020000741248004012480014124800E0114800",
+      "after": "2502000040124800401248004012480040124800",
+      "purpose": "repurpose the demo-version string record (0x48744C, id 0x259, unreferenced in the full game) as tip id 0x225, all four language pointers at its own storage"
+    },
+    {
+      "offset": "0X81240",
+      "before": "496E206465722044656D6F76657273696F6E2073696E64206D6178696D616C2039204265776F686E6572206DF6676C696368210044656D6F2076657273696F6E206861732061206D617820706F70756C6174696F6E206F6620392100",
+      "after": "596F752063616E207A69702061726F756E64207468652069736C616E64207769746820796F7572206E756D65726963206B6579732E000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "purpose": "the new tip text, written over the demo record's own 92 bytes of German+English storage"
+    }
+  ]
+}

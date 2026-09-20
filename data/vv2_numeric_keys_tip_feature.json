@@ -1,0 +1,32 @@
+{
+  "id": "vv2_numeric_keys_tip_wording",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Tip Wording: Numeric Keys",
+  "description": "Rewords the loading-screen tip \"You can zip around the island with your keypad.\" to \"You can zip around the island with your numeric keys.\", matching A New Home's new tip. The keys themselves already work in The Lost Children; nothing else changes.",
+  "output_tag": "Numeric Keys Tip",
+  "behavior_changes": [
+    "One loading-screen tip reads \"numeric keys\" instead of \"keypad\"."
+  ],
+  "explicit_non_changes": [
+    "No code, save, or village-state byte changes; the German text is untouched.",
+    "No executable space is claimed: the new text replaces the unreferenced demo-version strings."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0X98038",
+      "before": "F0364800",
+      "after": "DCF44800",
+      "purpose": "point tip 0x312's English text (0x498038) at the reworded copy; the German pointer is untouched"
+    },
+    {
+      "offset": "0X8F4DC",
+      "before": "496E206465722044656D6F76657273696F6E2073696E64206D6178696D616C2039204265776F686E6572206DF6676C696368210044656D6F2076657273696F6E206861732061206D617820706F70756C6174696F6E206F6620392100",
+      "after": "596F752063616E207A69702061726F756E64207468652069736C616E64207769746820796F7572206E756D65726963206B6579732E000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "purpose": "the reworded tip, written over the demo-version record's own 92 bytes of storage (id 0x35C, unreferenced in the full game)"
+    }
+  ]
+}
