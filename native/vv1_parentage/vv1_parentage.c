@@ -34,13 +34,16 @@
 
      Birth.  A New Home creates a child in sub_43C840, called from the
      delivery path once per baby with the mother's index; it copies her head,
-     body and look-alike variant (+0x36C) onto the child and clears her litter
-     counter (+0x35C, set to 1..3 at conception, 0 after delivery).  No
+     body and look-alike variant (+0x36C) onto the child, and the delivery
+     routine clears her due field (+0x358, non-zero throughout a pregnancy)
+     and her litter counter (+0x35C, 2 or 3 for twins and triplets only).  No
      executable bytes are spent on a birth hook: the Origins companion calls
      Vv1ParentageTick every frame, and the tick sees the delivery in the
-     records themselves -- a mother whose litter counter dropped to zero this
-     frame, and the records that became occupied this frame whose head, body
-     and +0x36C equal hers.  Each such child gets its entry: father from her
+     records themselves -- a mother whose due field went to zero this frame
+     (or whose litter counter dropped), and the records with a new occupant
+     this frame (unoccupied before, or a different name or +0x36C: a slot
+     can be freed and refilled between two frames) whose head, body and
+     +0x36C equal hers.  Each such child gets its entry: father from her
      stash, mother from her own record.  A newly occupied record with no
      delivering mother (founders, immigrants, a reused slot), or one that is
      not a newborn, gets "unknown" and is not logged: villagers not spawned
@@ -103,7 +106,8 @@
 #define VV1_OCCUPIED_OFFSET    0x28u        /* u8 */
 #define VV1_AGE_OFFSET         0x348u       /* i32, 20 units per villager year */
 #define VV1_GENDER_OFFSET      0x350u       /* i32, 1 = male */
-#define VV1_LITTER_OFFSET      0x35Cu       /* i32: 1..3 while pregnant, 0 otherwise */
+#define VV1_DUE_OFFSET         0x358u       /* i32: non-zero while pregnant (the Details screen's pregnancy test), cleared with +0x35C at delivery (0x42F0B2) */
+#define VV1_LITTER_OFFSET      0x35Cu       /* i32: 2 or 3 for twins/triplets (0x43BC4E/0x43BC8C); a single baby leaves it 0 */
 #define VV1_HEAD_OFFSET        0x360u
 #define VV1_BODY_OFFSET        0x364u
 #define VV1_VARIANT_OFFSET     0x36Cu       /* copied mother -> child at birth */
@@ -181,6 +185,10 @@ static int g_loaded_slot;                     /* 0 = nothing loaded */
 static unsigned int g_loaded_tag;
 static unsigned char g_prev_occupied[VV1_RECORD_COUNT];
 static int g_prev_litter[VV1_RECORD_COUNT];
+static int g_prev_due[VV1_RECORD_COUNT];
+static int g_prev_variant[VV1_RECORD_COUNT];
+static char g_prev_name[VV1_RECORD_COUNT][VV1_NAME_CAPACITY];
+static unsigned char g_spend[VV1_RECORD_COUNT];   /* a delivery ended this frame: spend the stash after logging */
 static int g_have_prev;
 static vv1_birth g_births[VV1_RECORD_COUNT];  /* births seen by the last tick */
 static int g_birth_count;
@@ -456,15 +464,19 @@ static void vv1_take_baseline(const unsigned char *records) {
         const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
         g_prev_occupied[i] = rec[VV1_OCCUPIED_OFFSET];
         g_prev_litter[i] = *(const int *)(rec + VV1_LITTER_OFFSET);
+        g_prev_due[i] = *(const int *)(rec + VV1_DUE_OFFSET);
+        g_prev_variant[i] = *(const int *)(rec + VV1_VARIANT_OFFSET);
+        memcpy(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY);
     }
+    memset(g_spend, 0, sizeof(g_spend));
     g_have_prev = 1;
 }
 
 /* One frame of inference over `records`.  Fills g_births with the records
    that became occupied this frame (each with its mother, or -1) and returns 1
-   when an entry changed.  Marks the mothers who delivered by setting their
-   remembered litter to -1; spending their stashes is vv1_spend_stashes' job,
-   once the caller has logged the births. */
+   when an entry changed.  Marks the mothers whose delivery is over in
+   g_spend; spending their stashes is vv1_spend_stashes' job, once the
+   caller has logged the births. */
 static int vv1_tick_over(const unsigned char *records) {
     int i;
     int changed = 0;
@@ -475,22 +487,39 @@ static int vv1_tick_over(const unsigned char *records) {
         vv1_take_baseline(records);   /* first sight: infer nothing */
         return 0;
     }
-    /* Mothers whose litter counter dropped this frame.  The delivery
-       routine clears it to zero and creates the whole litter in one call,
-       but a drop by one is a delivery too, so twins or triplets that arrived
-       over several frames would still all get the same two parents: the
-       stash is only spent once the counter reaches zero. */
+    /* Mothers who delivered this frame.  The signal is the due field
+       (+0x358): non-zero for the whole pregnancy -- it is what the Details
+       screen tests to show the pregnancy status -- and cleared to zero by
+       the delivery routine (0x42F0B2) along with the litter counter.  The
+       litter counter alone would miss every single-baby pregnancy, because
+       only the twins and triplets branches ever write it.  A drop of the
+       litter counter counts too, so a litter that arrived over several
+       frames would still give every child the same two parents: the stash
+       is only spent once both fields are zero. */
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
         const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
         int litter = *(const int *)(rec + VV1_LITTER_OFFSET);
-        if (g_prev_litter[i] > 0 && litter >= 0 && litter < g_prev_litter[i] && rec[VV1_OCCUPIED_OFFSET]) {
+        int due = *(const int *)(rec + VV1_DUE_OFFSET);
+        if (!rec[VV1_OCCUPIED_OFFSET]) {
+            continue;
+        }
+        if ((g_prev_due[i] != 0 && due == 0)
+            || (g_prev_litter[i] > 0 && litter >= 0 && litter < g_prev_litter[i])) {
             delivered[delivered_count++] = i;
         }
     }
-    /* Records that became occupied this frame. */
+    /* Records with a NEW occupant this frame.  "Became occupied" is not
+       enough: a death and a new villager in the same slot can both happen
+       between two frames, leaving the slot occupied in both snapshots.  So
+       a record is new when it is occupied and either was not, or its name
+       or look-alike variant changed -- neither changes during a life, and
+       a new villager (born or founder) is given both afresh. */
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
         const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
-        if (rec[VV1_OCCUPIED_OFFSET] && !g_prev_occupied[i]) {
+        if (rec[VV1_OCCUPIED_OFFSET]
+            && (!g_prev_occupied[i]
+                || g_prev_variant[i] != *(const int *)(rec + VV1_VARIANT_OFFSET)
+                || memcmp(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY) != 0)) {
             int head = *(const int *)(rec + VV1_HEAD_OFFSET);
             int body = *(const int *)(rec + VV1_BODY_OFFSET);
             int variant = *(const int *)(rec + VV1_VARIANT_OFFSET);
@@ -539,21 +568,21 @@ static int vv1_tick_over(const unsigned char *records) {
     }
     for (i = 0; i < delivered_count; ++i) {
         const unsigned char *mrec = records + (unsigned int)delivered[i] * VV1_RECORD_STRIDE;
-        if (*(const int *)(mrec + VV1_LITTER_OFFSET) == 0) {
-            g_prev_litter[delivered[i]] = -1;   /* "delivery over", until the baseline is retaken */
+        if (*(const int *)(mrec + VV1_LITTER_OFFSET) == 0 && *(const int *)(mrec + VV1_DUE_OFFSET) == 0) {
+            g_spend[delivered[i]] = 1;          /* the delivery is over, until the baseline is retaken */
         }
     }
     return changed;
 }
 
-/* A delivery is over (the litter counter reached zero): the stash has been
+/* A delivery is over (due and litter both zero again): the stash has been
    handed to the children.  Returns 1 when a stash was spent.  Runs after the
    births are logged, and retakes the baseline for the next frame. */
 static int vv1_spend_stashes(const unsigned char *records) {
     int i;
     int changed = 0;
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-        if (g_prev_litter[i] == -1) {
+        if (g_spend[i]) {
             if (g_entries[i].stash_head || g_entries[i].stash_body || g_entries[i].stash_name[0]) {
                 g_entries[i].stash_head = 0;
                 g_entries[i].stash_body = 0;

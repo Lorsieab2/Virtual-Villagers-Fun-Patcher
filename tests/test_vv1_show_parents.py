@@ -97,6 +97,10 @@ class ManifestAndDllTests(unittest.TestCase):
         self.assertIn('GetProcAddress(companion, "WriteParentageBirth")', parentage)
         # the roster block
         self.assertIn("write_vv1_own_parents(file, index)", population)
+        # ...and it must be exported under the name the companion asks for
+        export_dll = pefile.PE(str(ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"))
+        exported = {e.name.decode() for e in export_dll.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
+        self.assertIn("WriteParentageBirth", exported)
 
 
 class OffsetAgreementTests(unittest.TestCase):

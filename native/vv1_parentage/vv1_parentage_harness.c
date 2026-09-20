@@ -21,6 +21,7 @@ static int failures;
 #define COUNT 256
 #define OCC 0x28
 #define AGE 0x348
+#define DUE 0x358
 #define LITTER 0x35C
 #define HEAD 0x360
 #define BODY 0x364
@@ -140,6 +141,23 @@ int main(int argc, char **argv) {
     names(17, father, mother, 32); CHECK(strcmp(father, "Goro") == 0 && strcmp(mother, "Aisha") == 0, "...by name too: %s / %s", father, mother);
     *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(18, 1, "After"); tick(records);
     entry(18, e); CHECK(same(e, -1, -1, 4, 9), "the stash was spent when the counter reached zero (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+
+    printf("== a single baby: the litter counter never moves, only the due field ==\n");
+    conceive(records, rec(1), rec(2));
+    *(int *)(rec(1) + DUE) = 500; tick(records);
+    CHECK(births(NULL, 0) == 0, "pregnant with one: nothing yet");
+    *(int *)(rec(1) + DUE) = 0; born_from(19, 1, "Solo"); tick(records);
+    entry(19, e); CHECK(same(e, 7, 2, 4, 9), "the single child gets both parents from the due field alone (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    *(int *)(rec(1) + DUE) = 600; tick(records); *(int *)(rec(1) + DUE) = 0; born_from(21, 1, "Next"); tick(records);
+    entry(21, e); CHECK(same(e, -1, -1, 4, 9), "...and the stash was spent with it (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+
+    printf("== a slot freed and refilled between two frames ==\n");
+    villager(12, "Stranger", 1, 2, 3); tick(records);   /* occupied in both snapshots, different name and variant */
+    entry(12, e); CHECK(same(e, -1, -1, -1, -1), "the new tenant of a slot occupied in both frames starts unknown (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    conceive(records, rec(1), rec(2)); *(int *)(rec(1) + DUE) = 700; tick(records);
+    *(int *)(rec(1) + DUE) = 0; born_from(13, 1, "Reborn"); tick(records);   /* slot 13 was Zed, occupied: only the name differs */
+    entry(13, e); CHECK(same(e, 7, 2, 4, 9), "a newborn refilling an occupied slot in the delivery frame is matched by its new name (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    names(13, father, mother, 32); CHECK(strcmp(father, "Goro") == 0, "...with the father from the stash (%s)", father);
 
     printf("== father with head 0 / body 0 is a real father ==\n");
     conceive(records, rec(1), rec(3));
