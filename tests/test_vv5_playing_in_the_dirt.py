@@ -1,23 +1,38 @@
 """Move the "Playing in the dirt" Spot (New Believers).
 
 The stock routine at 0x45ED40 registers say-event 504 ("Playing in the dirt",
-the say table row at 0x4D64D0) and then, six times, sends the child to a
-random point in a fixed strip through the go-to wrapper at 0x4745A0:
+the say table row at 0x4D64D0) and then, six times, queues a go-to (command
+type 4 through the wrapper at 0x4745A0) to a random point:
 
-    push 0x22 ; call rand ; mov edi, eax ; add edi, 0x1BA     x = 442 + rand(34)
-    push 0xDA ; call rand ;               add eax, 0xEC      y = 236 + rand(218)
-    (the 0xDA range immediate is at 0x45ED7A, the two bases at 0x45ED80 / 0x45ED91)
-    push 0 ; push 0x64 ; push edi ; push eax ; call 0x4745A0
+    6A 22              push 0x22          edi spread (imm8)
+    E8 rel32           call rand
+    8B F8              mov edi, eax
+    68 DA 00 00 00     push 0xDA          eax spread (imm32)
+    81 C7 BA 01 00 00  add edi, 0x1BA     edi = 442 + rand(34)
+    E8 rel32           call rand
+    83 C4 08           add esp, 8
+    6A 00 6A 64        push 0 ; push 0x64
+    05 EC 00 00 00     add eax, 0xEC      eax = 236 + rand(218)
+    57 50 8B CE E8 ..  push edi ; push eax ; mov ecx, esi ; call 0x4745A0
 
-The wrapper's first argument (eax, pushed last) is y and the second (edi) is
-x: the same wrapper sends villagers to (edi 1131..1181, eax 932..996) where
-ten of the owner's villagers stand at x 1140..1163, y 921..980, and to
-(edi 507..543, eax 598..636) where the lab cluster stands at x 507..515,
-y 594..608.  That strip runs from below the rainbow totem across the river
-to the research shelves.  The owner dropped a villager where the spot should
-be, and the record's position pair at +0x1C98/+0x1C9C read (349, 266); they
-chose a compact patch there rather than the stock strip: the x range stays
-34, the y range becomes 40, both centred on the drop: x 332..366, y 246..286.
+The game's rand(n) returns 0..n-1.  WHICH VALUE IS WHICH AXIS was measured on
+the owner's running village, not inferred: children queued by a patched
+routine carried commands (eax a, edi b) and came to rest at position pairs
+(+0x1C98 ~a, +0x1C9C ~b); eax is the first position field, edi the second.
+Three placements were confirmed live (the children arrived each time) before
+the owner outlined the flower patch east of the dirt path (the worn ground
+with the flowers, west of the flower rock) and asked for the children to stay
+strictly inside it.  The record-to-screen mapping was calibrated from a crowd
+of 22 villagers captured together with their record positions (an earlier
+two-villager estimate was ~110 units off in y): the outline is about 285 wide
+and 253 tall in record units.
+
+A one-byte push cannot hold a spread over 127, so the block is recoded in
+place, same 46 bytes: rand(127) doubled by `lea edi, [eax+eax]` (one byte
+longer than `mov edi, eax`), paid for by `pop ecx ; pop ecx` in place of
+`add esp, 8` (ecx is dead there: `mov ecx, esi` follows before the call).  The
+second rand call moves one byte, so its rel32 is recomputed.  Result:
+x = 1843 + rand(285) -> 1843..2127, y = 1431 + 2*rand(127) -> 1431..1683.
 """
 from __future__ import annotations
 
@@ -37,58 +52,106 @@ STOCK = ROOT / "research" / "stock-executables" / next(
     b for b in patcher.load_builds() if b.id == "vv5"
 ).input_name
 
-STOCK_X, STOCK_Y = 442, 236      # 0x1BA, 0xEC
-X_RANGE, STOCK_Y_RANGE = 34, 218 # rand(0x22) (kept), rand(0xDA) (the stock height)
-NEW_Y_RANGE = 40                 # rand(0x28): the owner chose the compact patch
-OWNER_SPOT = (349, 266)          # the dropped villager's +0x1C98/+0x1C9C
+RAND = 0x403660
+X_BASE, X_SPREAD = 1843, 285
+Y_BASE, Y_HALF = 1431, 127
+OUTLINE = (1843, 2127, 1431, 1687)   # the owner stood a villager on each corner: Tiki (1843,1431), Bua (2127,1687)
+
+
+def expected_block() -> bytes:
+    return (
+        bytes([0x6A, Y_HALF])
+        + b"\xE8" + struct.pack("<i", RAND - (0x45ED72 + 5))
+        + bytes.fromhex("8D3C00")
+        + b"\x68" + struct.pack("<I", X_SPREAD)
+        + bytes.fromhex("81C7") + struct.pack("<I", Y_BASE)
+        + b"\xE8" + struct.pack("<i", RAND - (0x45ED85 + 5))
+        + bytes.fromhex("5959")
+        + bytes.fromhex("6A006A64")
+    )
+
+
+def stock_block() -> bytes:
+    return (
+        bytes.fromhex("6A22")
+        + b"\xE8" + struct.pack("<i", RAND - (0x45ED72 + 5))
+        + bytes.fromhex("8BF8")
+        + bytes.fromhex("68DA000000")
+        + bytes.fromhex("81C7BA010000")
+        + b"\xE8" + struct.pack("<i", RAND - (0x45ED84 + 5))
+        + bytes.fromhex("83C408")
+        + bytes.fromhex("6A006A64")
+    )
 
 
 class PlayingInTheDirtTests(unittest.TestCase):
     def manifest(self) -> dict:
         return json.loads(MANIFEST.read_text(encoding="utf-8"))
 
-    def test_two_immediates_move_the_strip_and_nothing_else(self):
+    def test_the_block_is_recoded_in_place_and_the_base_moved(self):
         m = self.manifest()
         self.assertEqual(m["game_id"], "vv5")
         self.assertEqual(m["companion_files"], [])
-        self.assertEqual(len(m["patches"]), 3)
         by_offset = {int(p["offset"], 16): p for p in m["patches"]}
-        # `add edi, 0x1BA` at 0x45ED7E: opcode 81 C7 then the imm32 at +2.
-        self.assertIn(0x5ED80, by_offset)
-        # `add eax, 0xEC` at 0x45ED90: opcode 05 then the imm32 at +1.
-        self.assertIn(0x5ED91, by_offset)
-        # `push 0xDA` at 0x45ED79: opcode 68 then the imm32 at +1.
-        self.assertIn(0x5ED7A, by_offset)
-        r_before = struct.unpack("<I", bytes.fromhex(by_offset[0x5ED7A]["before"]))[0]
-        r_after = struct.unpack("<I", bytes.fromhex(by_offset[0x5ED7A]["after"]))[0]
-        self.assertEqual((r_before, r_after), (STOCK_Y_RANGE, NEW_Y_RANGE))
-        x_before = struct.unpack("<I", bytes.fromhex(by_offset[0x5ED80]["before"]))[0]
-        x_after = struct.unpack("<I", bytes.fromhex(by_offset[0x5ED80]["after"]))[0]
-        y_before = struct.unpack("<I", bytes.fromhex(by_offset[0x5ED91]["before"]))[0]
-        y_after = struct.unpack("<I", bytes.fromhex(by_offset[0x5ED91]["after"]))[0]
-        self.assertEqual((x_before, y_before), (STOCK_X, STOCK_Y))
-        # The patch is centred on the owner's spot: x keeps the stock width.
-        self.assertEqual(x_after + X_RANGE // 2, OWNER_SPOT[0])
-        self.assertEqual(y_after + NEW_Y_RANGE // 2, OWNER_SPOT[1])
-        self.assertEqual((x_after, y_after), (332, 246))
+        self.assertEqual(sorted(by_offset), [0x5ED70, 0x5ED91])
+        blk = by_offset[0x5ED70]
+        self.assertEqual(bytes.fromhex(blk["before"]), stock_block())
+        self.assertEqual(bytes.fromhex(blk["after"]), expected_block())
+        self.assertEqual(len(blk["before"]), len(blk["after"]), "in place: same length")
+        base = by_offset[0x5ED91]
+        self.assertEqual(base["before"], "EC000000")
+        self.assertEqual(struct.unpack("<I", bytes.fromhex(base["after"]))[0], X_BASE)
         for p in m["patches"]:
-            self.assertEqual(len(p["before"]), len(p["after"]), "in place: same length")
+            self.assertEqual(len(p["before"]), len(p["after"]))
+
+    def test_the_recoded_block_decodes_to_the_intended_instructions(self):
+        try:
+            import capstone  # noqa: PLC0415
+        except ImportError:
+            self.skipTest("capstone not installed")
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        tail = bytes.fromhex("05") + struct.pack("<I", X_BASE) + bytes.fromhex("57508BCE")
+        got = [f"{i.mnemonic} {i.op_str}".strip() for i in md.disasm(expected_block() + tail, 0x45ED70)]
+        self.assertEqual(got, [
+            "push 0x7f", "call 0x403660", "lea edi, [eax + eax]", "push 0x11d",
+            "add edi, 0x597", "call 0x403660", "pop ecx", "pop ecx", "push 0",
+            "push 0x64", "add eax, 0x733", "push edi", "push eax", "mov ecx, esi",
+        ])
+
+    def test_the_ranges_fill_the_owners_outline_and_are_what_rand_can_produce(self):
+        x_lo, x_hi = X_BASE, X_BASE + X_SPREAD - 1                 # rand(503): 0..502
+        y_lo, y_hi = Y_BASE, Y_BASE + 2 * (Y_HALF - 1)            # 2*rand(127): 0..252
+        self.assertEqual((x_lo, x_hi, y_lo, y_hi), (1843, 2127, 1431, 1683))
+        # The owner marked the box by standing a villager on each corner, so the
+        # patch must match it: inside it, and within a step of filling it (the
+        # second coordinate moves in twos, so its top may fall one short).
+        ox0, ox1, oy0, oy1 = OUTLINE
+        self.assertTrue(ox0 <= x_lo and x_hi <= ox1, (x_lo, x_hi, OUTLINE))
+        self.assertTrue(oy0 <= y_lo and y_hi <= oy1, (y_lo, y_hi, OUTLINE))
+        self.assertEqual((x_lo, y_lo), (ox0, oy0))
+        self.assertLessEqual(ox1 - x_hi, 1)
+        # The second coordinate's spread is a one-byte push, so it cannot
+        # exceed 127 and, doubled, cannot reach more than 254 above its base;
+        # the top may therefore fall short of the owner's corner.  Staying
+        # inside the box is the requirement ("make sure it's strict"), so the
+        # shortfall is bounded by that hardware limit, never by a guess.
+        self.assertLessEqual(oy1 - y_hi, max(2, (oy1 - oy0) - 2 * (0x7F - 1)))
+        self.assertLessEqual(Y_HALF, 0x7F)
+        text = " ".join(self.manifest()["behavior_changes"])
+        self.assertIn("%d..%d by %d..%d" % (x_lo, x_hi, y_lo, y_hi), text)
+        self.assertIn("236..453 by 442..475", text)
+        self.assertNotIn("442..476", text)
 
     def test_before_bytes_are_the_stock_routine(self):
         if not STOCK.is_file():
             self.skipTest("stock New Believers exe not present in this checkout")
         exe = STOCK.read_bytes()
-        # The instructions around the two immediates, so a shifted build cannot
-        # be patched at the wrong place.
-        self.assertEqual(exe[0x5ED7E:0x5ED84], bytes.fromhex("81C7BA010000"))   # add edi, 0x1BA
-        self.assertEqual(exe[0x5ED90:0x5ED95], bytes.fromhex("05EC000000"))     # add eax, 0xEC
-        self.assertEqual(exe[0x5ED70:0x5ED72], bytes.fromhex("6A22"))           # push 0x22
-        self.assertEqual(exe[0x5ED79:0x5ED7E], bytes.fromhex("68DA000000"))     # push 0xDA
+        self.assertEqual(exe[0x5ED70:0x5ED90], stock_block())
+        self.assertEqual(exe[0x5ED90:0x5ED95], bytes.fromhex("05EC000000"))
         self.assertEqual(exe[0x5ED45:0x5ED4A], bytes.fromhex("68F8010000"))     # push 0x1F8 (say-event 504)
         for p in self.manifest()["patches"]:
             off = int(p["offset"], 16)
             self.assertEqual(exe[off: off + len(p["before"]) // 2].hex().upper(), p["before"].upper())
-        # The say-table row: id 504, its sound name, its text.
         row = 0x4D64D0 - 0x4C6000 + 811008
         ident, sound, text = struct.unpack_from("<III", exe, row)
         self.assertEqual(ident, 504)
@@ -106,13 +169,10 @@ class PlayingInTheDirtTests(unittest.TestCase):
             STOCK, build, patcher.DEFAULT_PATCH_MODE, ["vv5_playing_in_the_dirt_spot"]
         )
         rendered = bytes(rendered)
-        self.assertEqual(rendered[0x5ED79:0x5ED84], bytes.fromhex("6828000000") + bytes.fromhex("81C74C010000"))
-        self.assertEqual(rendered[0x5ED90:0x5ED95], bytes.fromhex("05F6000000"))
         stock = STOCK.read_bytes()
-        # Outside the three immediates the routine is byte-identical.
-        self.assertEqual(rendered[0x5ED40:0x5ED7A], stock[0x5ED40:0x5ED7A])
-        self.assertEqual(rendered[0x5ED7E:0x5ED80], stock[0x5ED7E:0x5ED80])
-        self.assertEqual(rendered[0x5ED84:0x5ED91], stock[0x5ED84:0x5ED91])
+        self.assertEqual(rendered[0x5ED70:0x5ED90], expected_block())
+        self.assertEqual(rendered[0x5ED90:0x5ED95], bytes.fromhex("05") + struct.pack("<I", X_BASE))
+        self.assertEqual(rendered[0x5ED40:0x5ED70], stock[0x5ED40:0x5ED70])
         self.assertEqual(rendered[0x5ED95:0x5EE60], stock[0x5ED95:0x5EE60])
         self.assertTrue(any("vv5_playing_in_the_dirt_spot" in str(item.get("owner", "")) for item in applied))
 
@@ -129,8 +189,7 @@ class PlayingInTheDirtTests(unittest.TestCase):
         self.assertIn('MOVE THE "PLAYING IN THE DIRT" SPOT (NEW BELIEVERS)', howto)
         doc = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
         self.assertIn("`vv5_playing_in_the_dirt_spot`", doc)
-        # No other manifest touches the three immediates.
-        mine = {0x5ED7A, 0x5ED80, 0x5ED91}
+        mine = set(range(0x5ED70, 0x5ED90)) | set(range(0x5ED91, 0x5ED95))
         for path in sorted((ROOT / "data").glob("*.json")):
             if path.name == MANIFEST.name:
                 continue
