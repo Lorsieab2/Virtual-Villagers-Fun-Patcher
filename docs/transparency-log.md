@@ -763,6 +763,18 @@ Believers succeed every work-task skill roll for Farming, Building, Researching,
 - Evidence status: static exact-build evidence; runtime/player confirmation pending
 - Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Move the "Playing in the dirt" Spot (`vv5_playing_in_the_dirt_spot`)
+
+Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 285 by 253 with six random steps inside it. The action, its text, its sound and its length are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A child who starts "Playing in the dirt" walks to a random point in the flower patch whose record coordinates are 1843..2127 by 1431..1683 (was 236..453 by 442..475; the second coordinate now steps by two) and wanders inside it for the six steps the stock routine already takes.
+- Explicit non-changes/exclusions: The routine's own 46 bytes are recoded in place -- the stock one-byte spread cannot exceed 127, so the second spread is rand(127) doubled with a lea, paid for by popping the two rand arguments instead of adding to esp -- and the base of the first coordinate changes; no code is added, no executable space is claimed, and the routine's step count, speed and animations are untouched. The say-event (504, "Playing in the dirt") and its sound are unchanged; no save or villager-record byte is written.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Statue Drops: Normal Action or Honoring (`vv5_statue_polishing_or_honoring`)
 
 Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.
