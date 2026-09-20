@@ -114,7 +114,7 @@
     },
     {
       "path": "data/candidates/vv5_task9_native_actions_map.json",
-      "sha256": "40A3EC979C3211865E0D242F33C7EE16D1AB573F74341B67948B42B5FC1A4C5E"
+      "sha256": "A0B47D4FCA391634B709409309B8D5E180A81EE531E971786C195E67B7EFC8DA"
     },
     {
       "path": "data/expanded_256_static_repair_integration.json",
@@ -150,7 +150,7 @@
     },
     {
       "path": "data/vv5_task9_native_actions.json",
-      "sha256": "E7DCF66B1C1810AE7F9B79F8B3375055C168031A62EC3C12EE3511FCB41A1821"
+      "sha256": "63E8ACA947BDB2BC13201ABDB2092F901430A87C5F6061BAF8EC383EBA8A7146"
     }
   ]
 }
