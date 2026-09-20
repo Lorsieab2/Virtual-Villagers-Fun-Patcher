@@ -223,8 +223,10 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # SINCE SUPERSEDED: the flags have been relocated to
                     # state+0x9E90/+0x9E94, inside the serialised extent, so they
                     # now persist in the save itself the way VV2-VV5 do. The
-                    # sidecar described below is kept as a second copy so that
-                    # doublers bought under an older build are not lost.
+                    # sidecar file is retired: the save export is a no-op, the
+                    # file is read once on load so doublers bought under an
+                    # older build are not lost, then deleted once the save on
+                    # disk carries the record.
                     #   0x8E5E0 save stub    0x8E630 restore stub
                     #   0x8E680 save name    0x8E6A0 restore name
                     #   0x1BF68 save splice  0x1BEFD restore splice
@@ -237,9 +239,9 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # sub_41BF10 (which calls 403160 with state+8) SAVES.
                     #
                     #   0x1BF68 is the SAVE function's epilogue: the write at
-                    #           0x41BF63 has returned and ESI holds the state,
-                    #           so the sidecar is published only after a save
-                    #           that actually succeeded.
+                    #           0x41BF63 has returned and ESI holds the state.
+                    #           The export there is a no-op now; the splice is
+                    #           kept so it keeps resolving a real function.
                     #   0x1BEFD is on the LOAD path after the state is in
                     #           place -- the read succeeded and the rep movsd
                     #           ran -- with EBX holding it. It replaces

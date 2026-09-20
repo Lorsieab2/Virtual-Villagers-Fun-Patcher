@@ -340,7 +340,8 @@ Masks, one file per save slot:
     vvfp_masks_<slot>.dat       The Secret City, The Tree of Life,
                                 New Believers
 
-Purchased Origins doubler ownership, A New Home only:
+Retired -- written by older builds of A New Home only, never by this one, and
+removed by this one once the save has taken over (see below):
 
     vv1_doublers_<slot>.dat
 
@@ -364,21 +365,24 @@ it does not lose the feature -- the file is recreated with a fresh village
 header at the next birth -- but the older conception records in it are not
 recoverable. Keep a copy if you want that history.
 
-The A New Home doubler file records which Origins tech and food point doublers
-that village has bought. The save itself now keeps that, so for a village you
-have loaded since updating, the file is only a spare copy and deleting it costs
-you nothing.
+The A New Home doubler file is retired. Older builds wrote it to record which
+Origins tech and food point doublers a village had bought, because the save did
+not keep them. The save keeps them now, and this build never writes the file.
 
-It still matters for a village you have not loaded since updating. Doublers
-bought under an older build were never written into the save -- that was the
-bug -- so until that village is loaded once, this file is the only record, and
-deleting it first means buying those doublers again. Load the village once and
-the save takes over.
+If one is still there from an older build, it is read once. The first time a
+village is loaded on this build, any doubler the file records for that village
+is carried over and kept in the save from its next save on. Once a save with
+that record is on disk, the next load deletes the file. Nothing else is ever
+deleted: only the patcher's own file for that slot, only after it has been
+opened and checked to be one, and never a game save or anything else in the
+folder. Start Over removes it as well.
 
-Deleting it cannot crash anything or harm the save either way. You are unlikely
-to need to: it is tagged with the village that wrote it, so a file left behind
-in a reused slot is ignored rather than handing doublers to a village that
-never earned them.
+So a doubler bought under an older build is safe as long as the file is still
+there the first time that village is loaded on this build. Deleting it yourself
+before then means buying those doublers again; at any other time it costs
+nothing. Either way it cannot crash anything or harm the save. A file left
+behind by a different village in a reused slot is ignored rather than applied,
+and is removed the same way.
 
 WHEN TO USE THIS. If masks ever appear on villagers you did not give them to,
 delete the mask file for that save slot. Close the game, delete that slot's

@@ -17,7 +17,7 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "49FBD782148C741E80F42B1DF49D77F93DFD525C36BC16B0E0B03DCB5B8040BB"
+      "sha256": "387626DDC9931F51EBBC5CBF31DD01410B33675D9A197BDE2493ECA51B3FC5D6"
     },
     {
       "source": "assets/origins/m1.png",
@@ -336,7 +336,7 @@
       "offset": "0x1BF68",
       "before": "5F5EC20400",
       "after": "E973460700",
-      "purpose": "mirror the tech and food doubler ownership flags to a sidecar on every save. The flags live at state+0x9E90/+0x9E94, INSIDE the 0xABDC the game serialises, so the stock save now persists them itself; the sidecar is kept as a migration aid for ownership bought under an older build, which stored the flags at +0xAD48/+0xAD4C, past the extent and never written"
+      "purpose": "call the doubler companion at the save epilogue. The flags live at state+0x9E90/+0x9E94, INSIDE the 0xABDC the game serialises, so the stock save persists them itself and the export is a no-op; the sidecar file older builds published (for flags then at +0xAD48/+0xAD4C, past the extent) is retired: read once on the load path as a migration aid, then deleted once the save carries the record"
     },
     {
       "offset": "0x1BEFD",
