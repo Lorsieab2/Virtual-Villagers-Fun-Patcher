@@ -475,11 +475,15 @@ static int vv1_tick_over(const unsigned char *records) {
         vv1_take_baseline(records);   /* first sight: infer nothing */
         return 0;
     }
-    /* Mothers whose litter counter went to zero this frame. */
+    /* Mothers whose litter counter dropped this frame.  The delivery
+       routine clears it to zero and creates the whole litter in one call,
+       but a drop by one is a delivery too, so twins or triplets that arrived
+       over several frames would still all get the same two parents: the
+       stash is only spent once the counter reaches zero. */
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
         const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
         int litter = *(const int *)(rec + VV1_LITTER_OFFSET);
-        if (g_prev_litter[i] > 0 && litter == 0 && rec[VV1_OCCUPIED_OFFSET]) {
+        if (g_prev_litter[i] > 0 && litter >= 0 && litter < g_prev_litter[i] && rec[VV1_OCCUPIED_OFFSET]) {
             delivered[delivered_count++] = i;
         }
     }
@@ -534,14 +538,17 @@ static int vv1_tick_over(const unsigned char *records) {
         }
     }
     for (i = 0; i < delivered_count; ++i) {
-        g_prev_litter[delivered[i]] = -1;   /* "delivered this frame", until the baseline is retaken */
+        const unsigned char *mrec = records + (unsigned int)delivered[i] * VV1_RECORD_STRIDE;
+        if (*(const int *)(mrec + VV1_LITTER_OFFSET) == 0) {
+            g_prev_litter[delivered[i]] = -1;   /* "delivery over", until the baseline is retaken */
+        }
     }
     return changed;
 }
 
-/* A delivery is over: the stash has been handed to the children.  Returns 1
-   when a stash was spent.  Runs after the births are logged, and retakes the
-   baseline for the next frame. */
+/* A delivery is over (the litter counter reached zero): the stash has been
+   handed to the children.  Returns 1 when a stash was spent.  Runs after the
+   births are logged, and retakes the baseline for the next frame. */
 static int vv1_spend_stashes(const unsigned char *records) {
     int i;
     int changed = 0;

@@ -130,6 +130,17 @@ int main(int argc, char **argv) {
     born_from(15, 1, "Late"); tick(records);
     entry(15, e); CHECK(same(e, -1, -1, -1, -1), "a newborn copy a frame later has no delivering mother: unknown");
 
+    printf("== twins delivered one per frame: litter 2 -> 1 -> 0 ==\n");
+    conceive(records, rec(1), rec(2));
+    *(int *)(rec(1) + LITTER) = 2; tick(records);
+    *(int *)(rec(1) + LITTER) = 1; born_from(16, 1, "TwinA"); tick(records);
+    entry(16, e); CHECK(same(e, 7, 2, 4, 9), "the first twin, while the counter is still 1, gets both parents (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    *(int *)(rec(1) + LITTER) = 0; born_from(17, 1, "TwinB"); tick(records);
+    entry(17, e); CHECK(same(e, 7, 2, 4, 9), "the second twin, a frame later, gets the same two parents (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    names(17, father, mother, 32); CHECK(strcmp(father, "Goro") == 0 && strcmp(mother, "Aisha") == 0, "...by name too: %s / %s", father, mother);
+    *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(18, 1, "After"); tick(records);
+    entry(18, e); CHECK(same(e, -1, -1, 4, 9), "the stash was spent when the counter reached zero (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+
     printf("== father with head 0 / body 0 is a real father ==\n");
     conceive(records, rec(1), rec(3));
     *(int *)(rec(1) + LITTER) = 1; tick(records);
