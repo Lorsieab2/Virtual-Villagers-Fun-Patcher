@@ -126,6 +126,12 @@ The number keys move the view to one of nine sections of the island, laid out li
 
 - Patch ID: `vv1_number_keys`
 
+**Show Parents in Details Screen**
+
+Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait, the father on the left facing right and the mother on the right facing left, and hovering one reads "Son of <name>" or "Daughter of <name>". The record lives in `vv1_parents_<slot>.dat` beside the save, never in a villager record or the save itself, and an entry is never erased: only a new villager in the same slot starts it over. Each birth is also appended to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before the patch have no recorded parents. The feature is its own companion, `VVFP VV1 Parentage.dll`, loaded by the Origins companion, so it requires Enable Origins-Exclusive Features; the father comes from Write Parentage Log's conception hook, so with that row off only the mother is recorded.
+
+- Patch ID: `vv1_show_parents`
+
 **Magic Fruit of Life Alters Mortality**
 
 Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.

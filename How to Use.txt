@@ -352,6 +352,42 @@ is claimed for the tip: its text replaces the unused demo-version message.
 The Lost Children's matching tip is reworded from "keypad" to "numeric keys"
 by its own small row, Tip Wording: Numeric Keys.
 
+SHOW PARENTS IN DETAILS SCREEN (A NEW HOME)
+
+The Lost Children and the later games remember each villager's mother and
+father for life and show them as two small figures in the Details portrait
+while the villager is a child. A New Home keeps nothing of the kind, so this
+row adds it.
+
+While a villager is under 18 -- and again if they are ever made younger --
+two small, half-faded figures of the parents stand in the upper corners of
+the Details portrait: the father on the left facing right, the mother on
+the right facing left, each drawn from that parent's own head and body.
+Rest the mouse on one and "Son of <name>" or "Daughter of <name>" appears
+under the portrait. Nothing is shown for a villager whose parents are not
+recorded: founders, and anyone born before the row was on.
+
+How it is recorded. At conception the father's name, head and body are set
+aside against the mother (this is the same moment the parentage log's hook
+fires, and it is that hook that supplies him, so with Write Parentage Log
+unticked only the mother is recorded). At the birth the child is matched to
+the mother who just delivered, both parents are written to the child's
+entry, the birth is appended to the parentage log at once as a "Birth"
+record, and then the entry is saved to vv1_parents_<slot>.dat beside the
+save. Nothing is written into a villager record or the save.
+
+An entry is never erased. Death leaves it; growing up hides the figures but
+keeps the record, so a villager made young again shows their parents again.
+Only a new villager appearing in the same record slot starts that slot over,
+because giving them the previous tenant's parents would be wrong.
+
+The Village Population roster shows the same record as a "Parents:" block
+on each A New Home villager whose parents are known.
+
+The feature is its own companion, VVFP VV1 Parentage.dll, which the Origins
+companion loads once per game session, so the row requires Enable
+Origins-Exclusive Features; unticking that unticks this.
+
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 
 Everything this patcher writes for a village sits beside that village's save,
@@ -363,6 +399,10 @@ Masks, one file per save slot:
     vv2_masks_<slot>.dat        The Lost Children
     vvfp_masks_<slot>.dat       The Secret City, The Tree of Life,
                                 New Believers
+
+Parents, one file per save slot (Show Parents in Details Screen):
+
+    vv1_parents_<slot>.dat      A New Home
 
 Retired -- written by older builds of A New Home only, never by this one, and
 removed by this one once the save has taken over (see below):
@@ -379,12 +419,16 @@ DELETING ANY OF THESE IS SAFE. None of them is the game's save, and none is
 required for the game to run. Every mask file is read by code that clears its
 table first and treats a missing file as "this village has no masks", so
 nothing crashes and the file is written again the next time you choose one.
+The parents file is read the same way, but what it records cannot be rebuilt:
+delete it and every villager in that village becomes a villager of unknown
+parents, until the next births fill it in again.
 The statistics and population logs are rewritten in full on every save, so a
 deleted one simply reappears, complete and up to date, after you next save.
 
 Two of them are worth knowing about before you delete them.
 
-The parentage log is built up over time, one line per conception, so deleting
+The parentage log is built up over time, one record per conception (and, in A
+New Home with Show Parents in Details Screen, one per birth), so deleting
 it does not lose the feature -- the file is recreated with a fresh village
 header at the next birth -- but the older conception records in it are not
 recoverable. Keep a copy if you want that history.

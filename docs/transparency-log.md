@@ -201,6 +201,16 @@ Each child who finishes the unlocked Going to school activity gains 7 to 9 point
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Show Parents in Details Screen (`vv1_show_parents`)
+
+Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait -- the father on the left facing right, the mother on the right facing left -- and hovering one reads "Son of <name>" or "Daughter of <name>". The record is kept in vv1_parents_<slot>.dat beside the save, never inside a villager record or the save itself, and an entry is never erased: only a new villager in the same slot starts it over. Each birth is also written to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before this patch have no recorded parents. Requires Enable Origins-Exclusive Features, whose companion loads this one. The father is supplied by Write Parentage Log's conception hook, so with that row off only the mother is recorded.
+
+- Behavior changes: The Details portrait of a villager under 18 with recorded parents shows two half-faded parent figures in the frame's upper corners, built from each parent's own head and body rows; hovering one shows "Son of <name>" / "Daughter of <name>" under the portrait. Conceptions stash the father's name, head and body against the mother; each birth is matched to its delivering mother and both parents are recorded for the child, immediately appended to the parentage log as a "Birth" record, then written to vv1_parents_<slot>.dat. The Village Population roster gains a "Parents:" block on A New Home villagers whose parents are recorded.
+- Explicit non-changes/exclusions: No executable bytes are changed: the row is the companion DLL alone, reached through hooks the Origins row and the parentage log row already install. No villager record field and no byte of the save is written; the record lives only in the sidecar beside the save. A recorded entry is never erased by death, ageing or de-ageing; only a new occupant of the same record slot resets it. Founders, villagers born before the patch, and a birth whose parents cannot be told apart (two look-alike mothers delivering in one frame) are left unknown rather than guessed.
+- Dependencies: vv1_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Visual Mods (`vv1_visual_mods`)
 
 Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.

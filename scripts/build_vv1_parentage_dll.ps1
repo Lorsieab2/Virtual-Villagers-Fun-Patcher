@@ -1,9 +1,8 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$nativeRoot = Join-Path $projectRoot "native\statistics_export"
-$sharedRoot = Join-Path $projectRoot "native\shared"
-$outputRoot = Join-Path $projectRoot "assets\statistics"
+$nativeRoot = Join-Path $projectRoot "native\vv1_parentage"
+$outputRoot = Join-Path $projectRoot "assets\parentage"
 $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
 $sdkVersion = "10.0.26100.0"
 $vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231"
@@ -19,29 +18,26 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\um") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
-    /I $sharedRoot `
-    (Join-Path $nativeRoot "statistics_export.c") `
-    (Join-Path $sharedRoot "village_identity.c") `
-    (Join-Path $sharedRoot "save_folder.c") `
+    (Join-Path $nativeRoot "vv1_parentage.c") `
     /link `
-    ("/DEF:" + (Join-Path $nativeRoot "statistics_export.def")) `
+    /Brepro `
+    ("/DEF:" + (Join-Path $nativeRoot "vv1_parentage.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
-    ("/OUT:" + (Join-Path $outputRoot "VVFP Statistics Export.dll")) `
+    ("/OUT:" + (Join-Path $outputRoot "VVFP VV1 Parentage.dll")) `
     /RELEASE `
     kernel32.lib `
+    user32.lib `
     shell32.lib
 if ($LASTEXITCODE -ne 0) {
-    throw "Native statistics DLL compilation failed."
+    throw "Native VV1 parentage DLL compilation failed."
 }
 
 @(
-    (Join-Path $projectRoot "statistics_export.obj"),
-    (Join-Path $projectRoot "village_identity.obj"),
-    (Join-Path $projectRoot "save_folder.obj"),
-    (Join-Path $projectRoot "statistics_export.exp"),
-    (Join-Path $projectRoot "statistics_export.lib")
+    (Join-Path $projectRoot "vv1_parentage.obj"),
+    (Join-Path $projectRoot "vv1_parentage.exp"),
+    (Join-Path $projectRoot "vv1_parentage.lib")
 ) | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {
     Remove-Item -LiteralPath $_
 }

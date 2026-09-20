@@ -1092,6 +1092,56 @@ static int is_record_slot(
 /* The full entry point. WriteParentageRecord below is the original three
    argument form and forwards here with no father record, so a trampoline that
    has not been rebuilt keeps working exactly as it did. */
+/* ---- A New Home: the true-parentage companion ------------------------------
+
+   "VVFP VV1 Parentage.dll" keeps each VV1 villager's parents in a sidecar and
+   shows them in the Details screen.  Its conception stash needs exactly what
+   this file's VV1 trampolines already capture -- the mother's record and the
+   father's -- so the VV1 path hands both on.  Resolved once, from the
+   executable's own directory, never from DllMain; when the companion is not
+   shipped (its row is off) the call is skipped and this log is unaffected. */
+typedef int (__stdcall *vv1_parentage_conceived_t)(const void *records,
+                                                    const void *mother,
+                                                    const void *father);
+static int vv1_parentage_state;   /* 0 = not tried, 1 = resolved, -1 = unavailable */
+static vv1_parentage_conceived_t vv1_parentage_conceived;
+
+static void vv1_parentage_bridge(const void *records, const void *mother, const void *father) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    if (vv1_parentage_state == 1) {
+        vv1_parentage_conceived(records, mother, father);
+        return;
+    }
+    if (vv1_parentage_state != 0) {
+        return;
+    }
+    vv1_parentage_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Parentage.dll") > sizeof(path)) {
+        return;
+    }
+    lstrcpyA(slash + 1, "VVFP VV1 Parentage.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return;
+    }
+    vv1_parentage_conceived =
+        (vv1_parentage_conceived_t)GetProcAddress(companion, "Vv1ParentageConceived");
+    if (vv1_parentage_conceived == NULL) {
+        return;
+    }
+    vv1_parentage_state = 1;
+    vv1_parentage_conceived(records, mother, father);
+}
+
 __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     int game_id,
     const void *records_pointer,
@@ -1206,6 +1256,11 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         father = father_from_caller;
         if (father == NULL) {
             memcpy(father_name, "(not captured for this birth)", 30);
+        } else {
+            /* The true-parentage companion stashes him against the mother
+               for the birth to come.  Both pointers were validated above
+               against the live array; a missing companion is a no-op. */
+            vv1_parentage_bridge(records, mother, father);
         }
     } else if (g->father_kind == FATHER_BY_NAME) {
         /* The name is in the mother's record, so it is read from there either
@@ -1419,6 +1474,103 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
        be counted as complete by the next call and shift every later record
        number. Checking the flush separately keeps the failure visible instead
        of hiding it in fclose. */
+    if (fflush(file) != 0) {
+        written = 0;
+    }
+    if (fclose(file) != 0) {
+        return 0;
+    }
+    return written;
+}
+
+/* One birth record, written by the VV1 parentage companion the moment it sees
+   a child appear -- before it spends its pregnancy stash or rewrites its
+   sidecar.  Same file, same village header and roll-over as the conception
+   records above; "Birth" rows are not counted toward the roll (count_records
+   counts "Conception " markers), so a file still holds RECORDS_PER_FILE
+   conceptions plus their births.
+
+   Appearance values arrive as -1 when the companion does not know them (an
+   immigrant, a founder, a birth whose father was never captured), and are
+   printed as "(unknown)" rather than as a number a real villager could hold. */
+__declspec(dllexport) int __stdcall WriteParentageBirth(
+    int game_id,
+    const char *child_name, int child_head, int child_body,
+    const char *mother_name, int mother_head, int mother_body,
+    const char *father_name, int father_head, int father_body
+) {
+    const struct game_layout *g;
+    wchar_t path[MAX_LOG_PATH];
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    char child[MAX_NAME_BYTES];
+    char mother[MAX_NAME_BYTES];
+    char father[MAX_NAME_BYTES];
+    char mh[32], mb[32], fh[32], fb[32];
+    FILE *file;
+    int existing_records;
+    int written;
+
+    if (game_id != GAME_VV1) {
+        return 0;                 /* only A New Home needs a companion for this */
+    }
+    g = &GAME_LAYOUTS[game_id];
+    if (!layout_is_usable(g) || child_name == NULL) {
+        return 0;
+    }
+    copy_name_field((const unsigned char *)child_name, child, sizeof(child), g->name_capacity);
+    if (mother_name != NULL && mother_name[0] != '\0') {
+        copy_name_field((const unsigned char *)mother_name, mother, sizeof(mother), g->name_capacity);
+    } else {
+        memcpy(mother, "(unknown)", 10);
+    }
+    if (father_name != NULL && father_name[0] != '\0') {
+        copy_name_field((const unsigned char *)father_name, father, sizeof(father), g->name_capacity);
+    } else {
+        memcpy(father, "(unknown)", 10);
+    }
+#define VV1_BIRTH_FIELD(out, value) do { \
+        if ((value) < 0) { memcpy((out), "(unknown)", 10); } \
+        else { _snprintf((out), sizeof(out), "%d", (value)); (out)[sizeof(out) - 1] = '\0'; } \
+    } while (0)
+    VV1_BIRTH_FIELD(mh, mother_head);
+    VV1_BIRTH_FIELD(mb, mother_body);
+    VV1_BIRTH_FIELD(fh, father_head);
+    VV1_BIRTH_FIELD(fb, father_body);
+#undef VV1_BIRTH_FIELD
+
+    if (!vv_village_recall(village, sizeof village)) {
+        village[0] = '\0';
+    }
+    if (!select_log_file(g, village, path, &existing_records)) {
+        return 0;
+    }
+    file = _wfopen(path, L"a");
+    if (file == NULL) {
+        return 0;
+    }
+    if (ftell(file) == 0 && village[0] != '\0') {
+        if (fprintf(file, "%s", village) < 0) {
+            fclose(file);
+            return 0;
+        }
+    }
+    written = fprintf(
+        file,
+        "Birth\n"
+        "  Child: %s\n"
+        "    Head: %d\n"
+        "    Body: %d\n"
+        "  Mother: %s\n"
+        "    Head: %s\n"
+        "    Body: %s\n"
+        "  Father: %s\n"
+        "    Head: %s\n"
+        "    Body: %s\n"
+        "\n",
+        child, child_head, child_body,
+        mother, mh, mb,
+        father, fh, fb
+    ) >= 0;
     if (fflush(file) != 0) {
         written = 0;
     }

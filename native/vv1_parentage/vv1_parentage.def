@@ -1,0 +1,14 @@
+LIBRARY "VVFP VV1 Parentage"
+EXPORTS
+    Vv1ParentageConceived=_Vv1ParentageConceived@12
+    Vv1ParentageTick=_Vv1ParentageTick@0
+    Vv1ParentageDrawPortrait=_Vv1ParentageDrawPortrait@16
+    Vv1ParentageQuery=_Vv1ParentageQuery@8
+    Vv1ParentageQueryNames=_Vv1ParentageQueryNames@16
+    Vv1ParentageProbeReset=_Vv1ParentageProbeReset@0
+    Vv1ParentageProbeConceive=_Vv1ParentageProbeConceive@12
+    Vv1ParentageProbeTick=_Vv1ParentageProbeTick@4
+    Vv1ParentageProbeEntry=_Vv1ParentageProbeEntry@8
+    Vv1ParentageProbeNames=_Vv1ParentageProbeNames@16
+    Vv1ParentageProbeBirths=_Vv1ParentageProbeBirths@8
+    Vv1ParentageProbeLayout=_Vv1ParentageProbeLayout@12
