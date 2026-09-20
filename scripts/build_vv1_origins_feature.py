@@ -2916,18 +2916,20 @@ def main() -> None:
     # +0xABE4 has 27 references) and said nothing about the region 3,416 bytes
     # lower, where the flags now sit.
     #
-    # THE SIDECAR IS STILL PUBLISHED, as a migration aid: a player who bought a
-    # doubler under an older build has that ownership recorded only in the
-    # file. It is a second copy now rather than the only one.
+    # THE SIDECAR IS RETIRED. Vv1DoublerSave is a no-op now and the file is
+    # never written; the splice stays so the export keeps resolving a real
+    # function, on the standing rule that the exe is only ever the hook. The
+    # file is still read once on the LOAD path, as a migration aid for a
+    # doubler bought under an older build, and deleted there once the save on
+    # disk carries the record.
     #
     # Runs AFTER the stock write, at the save function's epilogue 0x41BF68,
-    # where the write call at 0x41BF63 has returned. That ordering keeps the
-    # sidecar and the .ldw in step: a save that fails or crashes never reaches
-    # the epilogue, so the sidecar is never published for a .ldw that was not
-    # written. It is also why the migration marker is NOT set here -- anything
-    # written at this point misses the save that triggered it -- and is stamped
-    # on the load path instead. The DLL only reads the two flags and publishes
-    # its own file; it never touches the game's buffer.
+    # where the write call at 0x41BF63 has returned. That ordering is why the
+    # migration marker is NOT set here -- anything written at this point
+    # misses the save that triggered it -- and why the file is not retired
+    # here either: the epilogue cannot see whether the write succeeded, while
+    # the load path reads the marker back off the disk. The DLL never touches
+    # the game's buffer from this export.
     #
     # ESI is the saved-game-state object at this splice -- the same object
     # the write at 0x41BF58 passed as state+8. pushad preserves it and every
@@ -3207,11 +3209,12 @@ def main() -> None:
             )
             + b"\x90" * (len(DOUBLER_SAVE_HOOK_GUARD) - 5)
         ),
-        "mirror the tech and food doubler ownership flags to a sidecar on every "
-        "save. The flags live at state+0x9E90/+0x9E94, INSIDE the 0xABDC the game "
-        "serialises, so the stock save now persists them itself; the sidecar is "
-        "kept as a migration aid for ownership bought under an older build, which "
-        "stored the flags at +0xAD48/+0xAD4C, past the extent and never written",
+        "call the doubler companion at the save epilogue. The flags live at "
+        "state+0x9E90/+0x9E94, INSIDE the 0xABDC the game serialises, so the stock "
+        "save persists them itself and the export is a no-op; the sidecar file "
+        "older builds published (for flags then at +0xAD48/+0xAD4C, past the "
+        "extent) is retired: read once on the load path as a migration aid, "
+        "then deleted once the save carries the record",
     )
     patch(
         DOUBLER_LOAD_HOOK_VA - 0x400000,

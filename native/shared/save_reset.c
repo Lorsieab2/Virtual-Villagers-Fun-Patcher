@@ -11,7 +11,9 @@
    itself observable. */
 int vv_reset_refused_paths = 0;
 
-/* Per-slot sidecars, by game. Every name here is one this patcher writes; the
+/* Per-slot sidecars, by game. Every name here is one this patcher writes or
+   has written -- the VV1 doubler file is retired and no longer written, but a
+   copy left by an older build still belongs to the erased village -- and the
    game's own files are never listed and never deleted.
 
    The lists are per game rather than a single union because deleting a file

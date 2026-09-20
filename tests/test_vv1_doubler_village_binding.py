@@ -53,7 +53,14 @@ class VillageTagBindingTest(unittest.TestCase):
         return int(match.group(1), 16)
 
     def _function(self, name: str) -> str:
-        start = self.text.index("Vv1Doubler%s(void *state) {" % name)
+        return self._body("Vv1Doubler%s(void *state) {" % name)
+
+    def _static(self, name: str) -> str:
+        return self._body("static int %s(" % name)
+
+    def _body(self, opening: str) -> str:
+        name = opening
+        start = self.text.index(opening)
         depth = 0
         for index in range(start, len(self.text)):
             if self.text[index] == "{":
@@ -62,7 +69,7 @@ class VillageTagBindingTest(unittest.TestCase):
                 depth -= 1
                 if depth == 0:
                     return self.text[start:index + 1]
-        self.fail("unterminated Vv1Doubler%s" % name)
+        self.fail("unterminated %s" % name)
 
     def test_tag_offset_matches_the_measured_save_layout(self) -> None:
         """The in-memory offset must be the file offset carried through the
@@ -119,15 +126,34 @@ class VillageTagBindingTest(unittest.TestCase):
                 "is lost on reload" % flag,
             )
 
-    def test_save_stamps_the_tag(self) -> None:
+    def test_save_no_longer_writes_the_sidecar(self) -> None:
+        """The file is retired: the save-epilogue export must not touch disk.
+
+        The flags live inside the serialised extent, so the stock writer has
+        already put them in the .ldw before this export runs.  Publishing a
+        sidecar as well would recreate the very file the load path retires,
+        and would do it from an epilogue that cannot tell whether the write it
+        follows succeeded.  The export itself stays, as a no-op, so the exe's
+        splice keeps resolving a real function.
+        """
         save = self._function("Save")
-        self.assertIn("VV_DOUBLER_VILLAGE_TAG_OFFSET", save)
-        self.assertRegex(
-            save,
-            r"payload\[3\]\s*=\s*\*tag\s*;",
-            "Vv1DoublerSave must stamp the live village tag into the sidecar",
+        for api in ("CreateFileA", "WriteFile", "MoveFileExA", "DeleteFileA",
+                    "vv1_doubler_sidecar_path", "payload"):
+            self.assertNotIn(
+                api,
+                save,
+                "Vv1DoublerSave must not reach %s: the sidecar is retired" % api,
+            )
+        self.assertNotRegex(
+            self.text,
+            r"=\s*VV_DOUBLER_SIDECAR_MAGIC\s*;",
+            "nothing may build a sidecar record any more",
         )
-        self.assertIn("unsigned int payload[4]", save)
+        self.assertNotIn(
+            "vv1_doublers_%u.dat.tmp",
+            self.text,
+            "no temp-and-publish path may remain for the retired file",
+        )
 
     def test_restore_rejects_a_foreign_tag(self) -> None:
         """The guard this whole change exists for."""
@@ -166,17 +192,95 @@ class VillageTagBindingTest(unittest.TestCase):
             blob,
             "the shipped DLL does not carry the 'VD02' magic",
         )
-        self.assertNotIn(
+        self.assertIn(
             struct.pack("<I", SUPERSEDED_MAGIC),
             blob,
-            "the shipped DLL still carries the untagged 'VD01' magic, so it "
-            "was not rebuilt from the current source",
+            "the shipped DLL does not carry the legacy 'VD01' magic, which the "
+            "retirement compares against so an untagged file is deleted too; "
+            "it was not rebuilt from the current source",
         )
         self.assertIn(
             struct.pack("<I", TAG_STATE_OFFSET),
             blob,
             "the shipped DLL does not reference the village tag offset",
         )
+    def test_restore_retires_the_sidecar_once_the_save_carries_the_marker(
+        self,
+    ) -> None:
+        """The file is deleted once, and only when it is provably redundant.
+
+        The marker reaches the .ldw only through a successful save by a build
+        that keeps the flags in-save, so finding it in the state the loader
+        has just copied from disk is proof that the disk holds the record.
+        That is the one moment a deletion is justified, and the retirement is
+        the only code in the doubler unit allowed to delete anything.
+
+        What it may delete is equally narrow: the exact path the unit resolves
+        for the slot, after opening it and reading a magic the unit itself has
+        written.  A path that cannot be resolved, a directory, a file that
+        cannot be opened or read, or foreign bytes all leave the file alone.
+        """
+        restore = self._function("Restore")
+        helper = self._static("vv1_doubler_retire_sidecar")
+
+        # Called from the marker-from-disk branch of Restore, and nowhere else.
+        self.assertRegex(
+            restore,
+            r"if\s*\(\s*\*migrated\s*==\s*VV_DOUBLER_MIGRATED_VALUE\s*\)\s*\{"
+            r"\s*vv1_doubler_retire_sidecar\(slot\);\s*return 0;\s*\}",
+            "Restore must retire the sidecar exactly when the marker arrived "
+            "from the .ldw, and then stop",
+        )
+        self.assertEqual(restore.count("vv1_doubler_retire_sidecar("), 1)
+        self.assertNotIn("DeleteFileA", restore, "Restore deletes only via the helper")
+        self.assertEqual(
+            self.text.count("DeleteFileA(path)"),
+            1,
+            "only the retirement may delete the resolved sidecar path",
+        )
+        self.assertIn("DeleteFileA(path)", helper)
+
+        # Every safety check sits before the delete, in the helper.
+        delete = helper.index("DeleteFileA(path)")
+        for check, why in (
+            ("vv1_doubler_sidecar_path(path, sizeof(path), slot)",
+             "the target must be the path this unit resolves for the slot"),
+            ("GetFileAttributesA(path)",
+             "the target must be examined before it is opened"),
+            ("FILE_ATTRIBUTE_DIRECTORY",
+             "a directory in the sidecar's place must never be the target"),
+            ("CreateFileA(path, GENERIC_READ",
+             "the file must be opened for reading first"),
+            ("ReadFile(file, &magic",
+             "the file must be read before it is judged"),
+            ("CloseHandle(file)",
+             "the read handle must be closed before DeleteFileA, which fails "
+             "on an open handle"),
+        ):
+            self.assertIn(check, helper, why)
+            self.assertLess(helper.index(check), delete, why)
+        self.assertRegex(
+            helper,
+            r"if\s*\(\s*!read_ok\s*\|\|\s*got\s*!=\s*sizeof\(magic\)\s*\)"
+            r"\s*\{\s*return 0;",
+            "an unreadable or short file must be left alone",
+        )
+        magic_check = re.search(
+            r"if\s*\(\s*magic\s*!=\s*VV_DOUBLER_SIDECAR_MAGIC\s*&&\s*"
+            r"magic\s*!=\s*VV_DOUBLER_LEGACY_MAGIC\s*\)\s*\{\s*return 0;",
+            helper,
+        )
+        self.assertIsNotNone(
+            magic_check,
+            "only a file carrying one of the two magics this unit ever wrote "
+            "may be deleted",
+        )
+        self.assertLess(magic_check.start(), delete)
+        self.assertEqual(self._macro("VV_DOUBLER_LEGACY_MAGIC"), SUPERSEDED_MAGIC)
+        # The helper judges the file; it never touches the save state.
+        for forbidden in ("*migrated", "*tech", "*food", "*tag", "state"):
+            self.assertNotIn(forbidden, helper)
+
     def test_restore_can_grant_ownership_but_never_revoke_it(self) -> None:
         """A stale sidecar must not undo what the save already records.
 
@@ -229,8 +333,8 @@ class VillageTagBindingTest(unittest.TestCase):
         stale file belongs to the same village.
 
         The marker disambiguates them. Restore must therefore return BEFORE
-        reading the sidecar when it is set, and Save must stamp it, so the
-        migration happens at most once per village.
+        reading the sidecar when it is set, and must be the one to stamp it,
+        so the migration happens at most once per village.
         """
         restore = self._function("Restore")
         save = self._function("Save")
@@ -336,22 +440,30 @@ class VillageTagBindingTest(unittest.TestCase):
         )
         # And the sidecar must survive long enough to BE retried.
         #
-        # Leaving the marker clear is useless on its own: Save runs on every
-        # save and would republish the file from in-memory flags that are still
-        # zero precisely because the restore could not read them, destroying
-        # the only record of a purchase before the retry happens. So Save must
-        # decline to publish while the migration is unresolved.
-        self.assertRegex(
-            save,
-            r"if\s*\(\s*\*migrated\s*!=\s*VV_DOUBLER_MIGRATED_VALUE\s*\)",
-            "Save must not republish the sidecar while migration is pending, "
-            "or a transient restore failure loses the purchase on the next save",
+        # Leaving the marker clear is useless on its own if anything touches
+        # the file while the migration is unresolved.  Save no longer writes at
+        # all (test_save_no_longer_writes_the_sidecar), so the remaining hazard
+        # is the retirement: it must run only on the branch where the marker
+        # ARRIVED FROM DISK, never on a path that stamped the marker this load.
+        # That stamp is not on disk yet, so deleting the file then would lose
+        # the purchase if the following save never happened.
+        self.assertNotIn(
+            "DeleteFileA",
+            restore,
+            "Restore must not delete inline; the retirement helper decides",
         )
-        decline = save.index("*migrated != VV_DOUBLER_MIGRATED_VALUE")
+        retire = restore.index("vv1_doubler_retire_sidecar(slot)")
         self.assertLess(
-            decline,
-            save.index("CreateFileA"),
-            "the refusal must come before the file is created, not after",
+            retire,
+            restore.index("CreateFileA"),
+            "retirement must be decided before the sidecar is opened for "
+            "reading, i.e. on the marker-from-disk branch alone",
+        )
+        self.assertLess(
+            retire,
+            restore.index("*migrated = VV_DOUBLER_MIGRATED_VALUE"),
+            "retirement must never follow a stamp made this load: that marker "
+            "is not on disk yet",
         )
 
 
