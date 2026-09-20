@@ -469,6 +469,8 @@ MASK_TICK_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x1F8
 DOUBLER_SAVE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x204
 # The exact birth hook's cached Vv1Born address (0 = untried, 1 = unavailable).
 PARENTAGE_BORN_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x208
+# The Details-arrow sort hook's cached Vv1SortStep address (0 = untried, 1 = unavailable).
+SORT_STEP_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x20C
 DOUBLER_RESTORE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x200
 
 # Every distinct thing this builder or the companion keeps in the .vv1md
@@ -497,6 +499,7 @@ SCRATCH_SLOTS = (
     ("DOUBLER_RESTORE_DLL_FN", DOUBLER_RESTORE_DLL_FN_VA, 4),
     ("DOUBLER_SAVE_DLL_FN", DOUBLER_SAVE_DLL_FN_VA, 4),
     ("PARENTAGE_BORN_DLL_FN", PARENTAGE_BORN_DLL_FN_VA, 4),
+    ("SORT_STEP_DLL_FN", SORT_STEP_DLL_FN_VA, 4),
 )
 
 
@@ -699,7 +702,28 @@ MASK_NEWBORN_CLEAR_ORIGINAL_BYTES = bytes.fromhex("C6462801C6462900")
 # parentage log's trampolines; neither shows in this manifest).  Re-measure
 # against a render if this grows; do not re-derive it from the manifests.
 PARENTAGE_BORN_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x440   # .vv1mc, 0x10 reserved
-PARENTAGE_BORN_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x450   # .vv1mc, 0x100 reserved (ends 0x550 < 0x5C0)
+PARENTAGE_BORN_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x450   # .vv1mc, 0x50 reserved
+# THE DETAILS-ARROW SORT HOOK (Sort by Age/Skill/Health in Details Screen).
+# The Details screen's button handler walks the record array for the next
+# living villager on a right arrow (0x44A778..) and the previous on a left
+# arrow (0x44A82D..) and stores the result at state+0xAD34 -- exactly six
+# bytes each, `mov [eax+0xAD34], edi` at 0x44A7FF and `mov [ecx+0xAD34], edi`
+# at 0x44A8B4, each with a single fall-through predecessor and a resume at
+# splice + 6.  The stubs hand the stock candidate (EDI) and the direction to
+# the Origins companion's Vv1SortStep, write its answer into the pushad
+# frame's EDI slot, and replay the store, so the game selects and flags
+# exactly the villager the sort chose.  Fail-open like the birth hook.
+SORT_STEP_RIGHT_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x4A0   # .vv1mc, 0x60 reserved
+SORT_STEP_LEFT_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x500    # .vv1mc, 0x60 reserved
+SORT_STEP_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x560         # .vv1mc, 0x10 reserved (ends 0x570 < 0x5C0)
+SORT_STEP_RIGHT_STUB_VA = mask_code_va(SORT_STEP_RIGHT_STUB_FILE_OFFSET)
+SORT_STEP_LEFT_STUB_VA = mask_code_va(SORT_STEP_LEFT_STUB_FILE_OFFSET)
+SORT_STEP_NAME_VA = mask_code_va(SORT_STEP_NAME_FILE_OFFSET)
+SORT_STEP_NAME = b"Vv1SortStep\0"
+SORT_STEP_RIGHT_SPLICE_VA = 0x44A7FF
+SORT_STEP_LEFT_SPLICE_VA = 0x44A8B4
+SORT_STEP_RIGHT_SPLICE_GUARD = bytes.fromhex("89B834AD0000")   # mov [eax+0xAD34], edi
+SORT_STEP_LEFT_SPLICE_GUARD = bytes.fromhex("89B934AD0000")    # mov [ecx+0xAD34], edi
 PARENTAGE_BORN_NAME_VA = mask_code_va(PARENTAGE_BORN_NAME_FILE_OFFSET)
 PARENTAGE_BORN_STUB_VA = mask_code_va(PARENTAGE_BORN_STUB_FILE_OFFSET)
 PARENTAGE_BORN_NAME = b"Vv1Born\0"
@@ -3204,10 +3228,10 @@ def main() -> None:
         """,
         PARENTAGE_BORN_STUB_VA,
     )
-    if len(parentage_born_code) > 0x100:
+    if len(parentage_born_code) > 0x50:
         raise RuntimeError(
             f"VV1 birth hook stub exceeds its .vv1mc reservation: "
-            f"{len(parentage_born_code):#x} > 0x100"
+            f"{len(parentage_born_code):#x} > 0x50"
         )
     patch(
         PARENTAGE_BORN_STUB_FILE_OFFSET,
@@ -3221,6 +3245,66 @@ def main() -> None:
         b"\xE9" + (PARENTAGE_BORN_STUB_VA - PARENTAGE_BORN_SPLICE_VA - 5).to_bytes(4, "little", signed=True),
         "splice sub_43C840's call sub_439470 at 0x43CA48 (five bytes, single fall-through predecessor, resume 0x43CA4D = splice + 5) through the exact birth hook",
     )
+    # The Details-arrow sort hook -- see the SORT_STEP_* constants.
+    patch(
+        SORT_STEP_NAME_FILE_OFFSET,
+        b"\0" * len(SORT_STEP_NAME),
+        SORT_STEP_NAME,
+        "read-only Vv1SortStep export name for the Details-arrow sort hook (Sort by Age/Skill/Health in Details Screen)",
+    )
+    for _label, _direction, _stub_va, _stub_off, _splice_va, _guard, _base in (
+        ("right", 1, SORT_STEP_RIGHT_STUB_VA, SORT_STEP_RIGHT_STUB_FILE_OFFSET, SORT_STEP_RIGHT_SPLICE_VA, SORT_STEP_RIGHT_SPLICE_GUARD, "eax"),
+        ("left", -1, SORT_STEP_LEFT_STUB_VA, SORT_STEP_LEFT_STUB_FILE_OFFSET, SORT_STEP_LEFT_SPLICE_VA, SORT_STEP_LEFT_SPLICE_GUARD, "ecx"),
+    ):
+        _code = assemble(
+            f"""
+                pushad
+                mov eax, dword ptr [{SORT_STEP_DLL_FN_VA:#x}]
+                cmp eax, 1
+                je sort_{_label}_ret
+                test eax, eax
+                jnz sort_{_label}_call
+                push {s['icons_dll']:#x}
+                call dword ptr [0x457010]                   # LoadLibraryA
+                test eax, eax
+                jz sort_{_label}_missing
+                push {SORT_STEP_NAME_VA:#x}
+                push eax
+                call dword ptr [0x4570D4]                   # GetProcAddress
+                test eax, eax
+                jz sort_{_label}_missing
+                mov dword ptr [{SORT_STEP_DLL_FN_VA:#x}], eax
+            sort_{_label}_call:
+                push {_direction}                           # direction
+                push edi                                    # the stock candidate
+                call eax                                    # Vv1SortStep @8
+                mov dword ptr [esp], eax                    # pushad's EDI slot: what popad restores
+                jmp sort_{_label}_ret
+            sort_{_label}_missing:
+                mov dword ptr [{SORT_STEP_DLL_FN_VA:#x}], 1
+            sort_{_label}_ret:
+                popad
+                mov dword ptr [{_base}+0xAD34], edi         # displaced
+                jmp {_splice_va + 6:#x}
+            """,
+            _stub_va,
+        )
+        if len(_code) > 0x60:
+            raise RuntimeError(
+                f"VV1 sort {_label} stub exceeds its .vv1mc reservation: {len(_code):#x} > 0x60"
+            )
+        patch(
+            _stub_off,
+            b"\0" * len(_code),
+            _code,
+            f"hand the Details {_label}-arrow's stock candidate (EDI) and direction {_direction:+d} to the Origins companion's Vv1SortStep under pushad/popad, store its answer at state+0xAD34 in place of the stock candidate, and resume at {_splice_va + 6:#x}; the Origins companion forwards to the Sort By companion, which walks the later games' order (age / highest skill / health ascending, index tie-break, position kept across a mode change)",
+        )
+        patch(
+            _splice_va - 0x400000,
+            _guard,
+            b"\xE9" + (_stub_va - _splice_va - 5).to_bytes(4, "little", signed=True) + b"\x90",
+            f"splice the Details {_label}-arrow's selection store `mov [{_base}+0xAD34], edi` at {_splice_va:#x} (six bytes, single fall-through predecessor, resume {_splice_va + 6:#x} = splice + 6) through the sort hook",
+        )
     # Capture the exact numbered save-slot argument before the native builder
     # formats "%s%d.ldw".  The hook is intentionally a tiny ABI-preserving
     # trampoline: it saves every register and the flags while it updates

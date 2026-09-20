@@ -15,6 +15,7 @@ EXPORTS
     Vv1DoublerRestore=_Vv1DoublerRestore@4
     Vv1MaskTick=_Vv1MaskTick@0
     Vv1Born=_Vv1Born@8
+    Vv1SortStep=_Vv1SortStep@8
     Vv1MaskApplyDistribution=_Vv1MaskApplyDistribution@8
     ShowOriginsAppearanceForAll=_ShowOriginsAppearanceForAll@4
     Vv1DrawPortraitMask=_Vv1DrawPortraitMask@16

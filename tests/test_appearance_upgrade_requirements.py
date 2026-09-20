@@ -294,6 +294,10 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # stub and the "Vv1Born" export name in the measured-free
                     # 0x435..0x5C0 gap of the patch-owned .vv1mc section.
                     "0x3CA48", "0x8E440", "0x8E450",
+                    # The Details-arrow sort hook (Sort by Age/Skill/Health in
+                    # Details Screen): both arrow splices, their stubs and the
+                    # "Vv1SortStep" export name in the same gap.
+                    "0x4A7FF", "0x4A8B4", "0x8E4A0", "0x8E500", "0x8E560",
                     # Doubler persistence (#344): the two exe splices that call
                     # the already-shipped Vv1DoublerSave / Vv1DoublerRestore, plus
                     # their stubs and export names in the patch-owned .vv1mc
