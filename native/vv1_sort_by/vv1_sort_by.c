@@ -318,10 +318,20 @@ static void vv1_window_to_logical(int *x, int *y) {
     }
     viewport[0] = viewport[1] = 0;
     if (get_viewport != NULL) {
-        get_viewport(renderer, viewport);   /* origin is in scaled units */
+        get_viewport(renderer, viewport);
     }
-    *x = (int)((float)*x / sx) - viewport[0];
-    *y = (int)((float)*y / sy) - viewport[1];
+    /* The viewport's origin is in OUTPUT pixels -- the letterbox SDL leaves
+       when the window's aspect differs from the logical 800x600 -- while the
+       scale maps logical units inside that viewport.  The offset therefore
+       comes off FIRST and the scale second:
+
+           logical = (window - viewport) / scale
+
+       Doing it the other way round only agrees when the origin is zero, which
+       is exactly a plain window; in fullscreen the letterbox is large and
+       every click missed (the owner's report, and Codex's P1 on #398). */
+    *x = (int)(((float)(*x - viewport[0])) / sx);
+    *y = (int)(((float)(*y - viewport[1])) / sy);
 }
 
 static int vv1_hit(int x, int y) {

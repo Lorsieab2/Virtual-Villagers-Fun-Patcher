@@ -117,8 +117,49 @@ class ManifestAndDllTests(unittest.TestCase):
         self.assertLess(watch.index("vv1_window_to_logical(&x, &y)"), watch.index("vv1_hit(x, y)"))
         # No hardcoded scale: the mapping divides by what SDL reports.
         self.assertNotIn("1.5f", source)
-        self.assertIn("(float)*x / sx", source)
-        self.assertIn("(float)*y / sy", source)
+        # ORDER MATTERS.  The viewport origin is in output pixels (the
+        # letterbox); the scale maps logical units inside it; so the inverse
+        # is (window - viewport) / scale.  The other order agrees only when
+        # the origin is zero -- a plain window -- and missed every click in
+        # fullscreen, which is how the owner found it.
+        self.assertIn("(int)(((float)(*x - viewport[0])) / sx)", source)
+        self.assertIn("(int)(((float)(*y - viewport[1])) / sy)", source)
+        self.assertNotIn("/ sx) - viewport", source)
+        self.assertNotIn("/ sy) - viewport", source)
+
+    def test_the_mapping_is_right_in_a_window_and_in_fullscreen(self):
+        # The formula applied to the cases that matter.  800x600 letterboxed
+        # into 1920x1080 scales by 1.8 with 240px bars, so a click in the
+        # middle of a plate must land back inside that plate -- which the old
+        # order got wrong by ~133 logical pixels.
+        import re as _re
+        source = SORT_C.read_text(encoding="utf-8")
+        x0 = [int(v) for v in _re.search(r"SORT_PLATE_X0\[SORT_MODES\]\s*=\s*\{([^}]*)\}", source).group(1).split(",")]
+        x1 = [int(v) for v in _re.search(r"SORT_PLATE_X1\[SORT_MODES\]\s*=\s*\{([^}]*)\}", source).group(1).split(",")]
+        y0, y1 = _define(source, "SORT_PLATE_Y0"), _define(source, "SORT_PLATE_Y1")
+
+        def correct(wx, wy, scale, vx, vy):
+            return int((wx - vx) / scale), int((wy - vy) / scale)
+
+        def wrong(wx, wy, scale, vx, vy):
+            return int(wx / scale) - vx, int(wy / scale) - vy
+
+        for name, scale, vx, vy in (
+            ("windowed 1.5x, no letterbox", 1.5, 0, 0),
+            ("fullscreen 1920x1080", 1.8, 240, 0),
+            ("fullscreen 2560x1440", 2.4, 320, 0),
+        ):
+            for m in range(3):
+                lx = (x0[m] + x1[m]) // 2
+                ly = (y0 + y1) // 2
+                wx, wy = int(lx * scale + vx), int(ly * scale + vy)
+                gx, gy = correct(wx, wy, scale, vx, vy)
+                self.assertTrue(x0[m] <= gx < x1[m] and y0 <= gy < y1,
+                                "%s: plate %d maps to (%d,%d)" % (name, m, gx, gy))
+                if vx:
+                    bx, by = wrong(wx, wy, scale, vx, vy)
+                    self.assertFalse(x0[m] <= bx < x1[m] and y0 <= by < y1,
+                                     "%s: the wrong order would still hit plate %d" % (name, m))
         # A missing export must leave the point untouched rather than crash.
         self.assertIn("if (get_renderer == NULL || get_scale == NULL) {", source)
 
