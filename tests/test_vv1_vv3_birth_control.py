@@ -31,11 +31,13 @@ VV1_STANDALONE_RENDER_SHA256 = {
         "immediate_fixed": "5B271935EE0B4F59AD4261C284B10F189F307B5EE5336922F039E34C4C9649D5",
     },
     # Re-pinned for the exact birth hook (Show Parents in Details Screen): the
-    # splice at 0x3CA48 plus its stub and export name at .vv1mc 0x440/0x450.
+    # splice at 0x3CA48 plus its stub and export name at .vv1mc 0x440/0x450 --
+    # and again for the Details-arrow sort hooks (Sort by Age/Skill/Health in
+    # Details Screen): splices 0x4A7FF/0x4A8B4, stubs 0x4A0/0x500, name 0x560.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "308B57635718194EF1B36A018A67B0C8F0E237BBC31A00BEE3E685E4097C39C5",
-        "collection_progression": "DB8E4DAB31561C5DADBF5EC11F8076A63742ADE27F7661D1738F34A858627CD0",
-        "immediate_fixed": "DB8E4DAB31561C5DADBF5EC11F8076A63742ADE27F7661D1738F34A858627CD0",
+        "stock": "BD26FB840E5F6B0E419CBE0E74EAFFACA4692862FB9F4C24EE605C2717CF26EA",
+        "collection_progression": "CDF61C638FAB01943C261F22765667B3AE88242480EB57C1B3EC0456F133A6C2",
+        "immediate_fixed": "CDF61C638FAB01943C261F22765667B3AE88242480EB57C1B3EC0456F133A6C2",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

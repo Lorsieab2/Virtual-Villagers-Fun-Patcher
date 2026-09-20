@@ -17,7 +17,7 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "1AC268C042B2D2C3966B92BF7A9E9CFC4E5915640F1FC57F8BD9B30C99F314FA"
+      "sha256": "6D81F820989D9DC271F96D0603273AE991FB87D011827DB0AF178C49C4595176"
     },
     {
       "source": "assets/origins/m1.png",
@@ -301,6 +301,36 @@
       "before": "E823CAFFFF",
       "after": "E9033A0500",
       "purpose": "splice sub_43C840's call sub_439470 at 0x43CA48 (five bytes, single fall-through predecessor, resume 0x43CA4D = splice + 5) through the exact birth hook"
+    },
+    {
+      "offset": "0x8E560",
+      "before": "000000000000000000000000",
+      "after": "567631536F72745374657000",
+      "purpose": "read-only Vv1SortStep export name for the Details-arrow sort hook (Sort by Age/Skill/Health in Details Screen)"
+    },
+    {
+      "offset": "0x8E4A0",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "60A10C12490083F801743C85C0752468995D4800FF151070450085C0741F686005490050FF15D470450085C0740FA30C1249006A0157FFD0890424EB0AC7050C124900010000006189B834AD0000E912A3FBFF",
+      "purpose": "hand the Details right-arrow's stock candidate (EDI) and direction +1 to the Origins companion's Vv1SortStep under pushad/popad, store its answer at state+0xAD34 in place of the stock candidate, and resume at 0x44a805; the Origins companion forwards to the Sort By companion, which walks the later games' order (age / highest skill / health ascending, index tie-break, position kept across a mode change)"
+    },
+    {
+      "offset": "0x4A7FF",
+      "before": "89B834AD0000",
+      "after": "E99C5C040090",
+      "purpose": "splice the Details right-arrow's selection store `mov [eax+0xAD34], edi` at 0x44a7ff (six bytes, single fall-through predecessor, resume 0x44a805 = splice + 6) through the sort hook"
+    },
+    {
+      "offset": "0x8E500",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "60A10C12490083F801743C85C0752468995D4800FF151070450085C0741F686005490050FF15D470450085C0740FA30C1249006AFF57FFD0890424EB0AC7050C124900010000006189B934AD0000E967A3FBFF",
+      "purpose": "hand the Details left-arrow's stock candidate (EDI) and direction -1 to the Origins companion's Vv1SortStep under pushad/popad, store its answer at state+0xAD34 in place of the stock candidate, and resume at 0x44a8ba; the Origins companion forwards to the Sort By companion, which walks the later games' order (age / highest skill / health ascending, index tie-break, position kept across a mode change)"
+    },
+    {
+      "offset": "0x4A8B4",
+      "before": "89B934AD0000",
+      "after": "E9475C040090",
+      "purpose": "splice the Details left-arrow's selection store `mov [ecx+0xAD34], edi` at 0x44a8b4 (six bytes, single fall-through predecessor, resume 0x44a8ba = splice + 6) through the sort hook"
     },
     {
       "offset": "0x8E820",

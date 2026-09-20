@@ -390,6 +390,26 @@ The feature is its own companion, VVFP VV1 Parentage.dll, which the Origins
 companion loads once per game session, so the row requires Enable
 Origins-Exclusive Features; unticking that unticks this.
 
+SORT BY AGE/SKILL/HEALTH IN DETAILS SCREEN (A NEW HOME)
+
+The Lost Children and the later games let you sort the villagers you step
+through with the Details arrows. A New Home gets the same band, under the
+Age and Gender boxes: "Sort By:" with Age, Skill and Health, each with a
+radio. Click a plate or its radio to choose the order; Age is the default.
+
+The orders are the later games', measured in The Secret City: each one is
+ascending -- youngest first, lowest highest-skill first, lowest health
+first -- with earlier villagers first among equals, wrapping at either end.
+One quirk is kept on purpose because the later games have it: the place in
+the list is kept when you change the order, so the next arrow press shows
+the villager at the next place of the NEW order. Choosing a villager any
+other way (the strip, the village) starts the arrows from that villager.
+
+Nothing is saved: the order lasts for the session, as in the later games.
+The feature is its own companion, VVFP VV1 Sort By.dll, which the Origins
+companion loads once per game session, so the row requires Enable
+Origins-Exclusive Features; unticking that unticks this.
+
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 
 Everything this patcher writes for a village sits beside that village's save,

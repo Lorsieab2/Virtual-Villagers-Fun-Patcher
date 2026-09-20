@@ -257,6 +257,8 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # The exact birth hook (Show Parents in Details Screen):
                         # the splice at 0x43CA48, its stub and its export name.
                         "0x3CA48", "0x8E440", "0x8E450",
+                        # The Details-arrow sort hook: both splices, stubs, name.
+                        "0x4A7FF", "0x4A8B4", "0x8E4A0", "0x8E500", "0x8E560",
                     # Island Event queue delay + its duplicate-purchase guard.  The
                     # purchased Island Event is now stamped now+5s from the scheduler's
                     # own clock instead of being made due on the next tick, so a natural

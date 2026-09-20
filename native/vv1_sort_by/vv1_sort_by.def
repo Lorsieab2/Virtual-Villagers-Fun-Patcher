@@ -1,0 +1,10 @@
+LIBRARY "VVFP VV1 Sort By"
+EXPORTS
+    Vv1SortByStep=_Vv1SortByStep@8
+    Vv1SortByDraw=_Vv1SortByDraw@16
+    Vv1SortByMode=_Vv1SortByMode@0
+    Vv1SortByProbeReset=_Vv1SortByProbeReset@4
+    Vv1SortByProbeSetMode=_Vv1SortByProbeSetMode@4
+    Vv1SortByProbeStep=_Vv1SortByProbeStep@16
+    Vv1SortByProbeList=_Vv1SortByProbeList@16
+    Vv1SortByProbeHit=_Vv1SortByProbeHit@8

@@ -494,6 +494,8 @@ __declspec(dllexport) void *__stdcall Vv1GetMaskSprite(void) {
    argument cleanup. */
 static void vv1_parentage_bridge_draw(void *gameobj, void *record,
                                       void *draw_wrapper, const int *args);   /* defined with Vv1MaskTick below */
+static void vv1_sort_bridge_draw(void *gameobj, void *record,
+                                 void *draw_wrapper, const int *args);        /* likewise */
 
 __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
                                                         void *record,
@@ -512,6 +514,7 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
     /* The parentage companion draws the parents' figures here, before the
        mask decides whether it has anything of its own to draw. */
     vv1_parentage_bridge_draw(gameobj, record, draw_wrapper, args);
+    vv1_sort_bridge_draw(gameobj, record, draw_wrapper, args);
     /* villager index from THIS gameobj (record = gameobj + index*stride), not
        the world hook's cached base -- so it's correct in the Details context. */
     delta = (size_t)(rec - g);
@@ -1129,10 +1132,15 @@ typedef int (__stdcall *vv1_parentage_tick_t)(void);
 typedef int (__stdcall *vv1_parentage_draw_t)(void *gameobj, void *record,
                                               void *draw_wrapper, const int *args);
 typedef int (__stdcall *vv1_parentage_born_t)(void *child, void *mother);
+typedef int (__stdcall *vv1_sort_step_t)(int candidate, int direction);
+typedef int (__stdcall *vv1_sort_draw_t)(void *gameobj, void *record, void *draw_wrapper, const int *args);
 static int vv1_parentage_state;   /* 0 = not tried, 1 = resolved, -1 = unavailable */
 static vv1_parentage_tick_t vv1_parentage_tick;
 static vv1_parentage_draw_t vv1_parentage_draw;
 static vv1_parentage_born_t vv1_parentage_born;
+static int vv1_sort_state;        /* 0 = not tried, 1 = resolved, -1 = unavailable */
+static vv1_sort_step_t vv1_sort_step;
+static vv1_sort_draw_t vv1_sort_draw;
 
 static int vv1_parentage_resolve(void) {
     char path[MAX_PATH];
@@ -1165,6 +1173,57 @@ static int vv1_parentage_resolve(void) {
     }
     vv1_parentage_state = 1;
     return 1;
+}
+
+/* "VVFP VV1 Sort By.dll" (Sort by Age/Skill/Health in Details Screen): the
+   executable's two Details-arrow stubs ask Vv1SortStep which villager to
+   select, and the Details portrait hook lets it draw its band.  Same
+   loading rule as the other companions; fail-open. */
+static int vv1_sort_resolve(void) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    if (vv1_sort_state != 0) {
+        return vv1_sort_state == 1;
+    }
+    vv1_sort_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Sort By.dll") > sizeof(path)) {
+        return 0;
+    }
+    lstrcpyA(slash + 1, "VVFP VV1 Sort By.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return 0;                 /* not shipped: the row is off */
+    }
+    vv1_sort_step = (vv1_sort_step_t)GetProcAddress(companion, "Vv1SortByStep");
+    vv1_sort_draw = (vv1_sort_draw_t)GetProcAddress(companion, "Vv1SortByDraw");
+    if (vv1_sort_step == NULL || vv1_sort_draw == NULL) {
+        return 0;
+    }
+    vv1_sort_state = 1;
+    return 1;
+}
+
+/* The executable's Details-arrow stubs (0x44A7FF / 0x44A8B4): the stock
+   candidate and the direction; returns the index to select. */
+__declspec(dllexport) int __stdcall Vv1SortStep(int candidate, int direction) {
+    if (!vv1_sort_resolve()) {
+        return candidate;
+    }
+    return vv1_sort_step(candidate, direction);
+}
+
+static void vv1_sort_bridge_draw(void *gameobj, void *record, void *draw_wrapper, const int *args) {
+    if (vv1_sort_resolve()) {
+        vv1_sort_draw(gameobj, record, draw_wrapper, args);
+    }
 }
 
 static void vv1_parentage_bridge_tick(void) {

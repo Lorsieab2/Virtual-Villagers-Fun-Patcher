@@ -219,6 +219,24 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # and cleans its eight bytes, so ESP at popad equals ESP at pushad on
     # every path, including the fail-open ones.
     ("vv1_enable_origins_exclusive_features", "0x3CA48"): "E1661C313B017DE9476128EBF65C973015E7245A08A9EFF21C45D3EC5885E17C",
+    # The Details-arrow sort hook (Sort by Age/Skill/Health in Details Screen):
+    # the right arrow's `mov [eax+0xAD34], edi` at 0x44A7FF and the left
+    # arrow's `mov [ecx+0xAD34], edi` at 0x44A8B4, six bytes each, one
+    # fall-through predecessor each, resume at splice + 6 (0x44A805 /
+    # 0x44A8BA), so no REVIEWED entry is needed. Each stub is pushad /
+    # cached-pointer resolve (LoadLibraryA + GetProcAddress("Vv1SortStep") on
+    # the Origins DLL, 0 untried / 1 unavailable at scratch +0x20C) / push
+    # direction, push edi, call eax / `mov [esp], eax` into pushad's EDI slot /
+    # popad / the displaced store / jump back. EDI is the stock arrow's
+    # candidate index and EAX (right) or ECX (left) the state pointer the
+    # stock code loaded immediately before the store; both are read by the
+    # displaced instruction and neither is otherwise consumed by the stub.
+    # Vv1SortStep is __stdcall and cleans its eight bytes, so ESP at popad
+    # equals ESP at pushad on every path; only EDI is deliberately replaced,
+    # and the stock code after the resume reads state+0xAD34 back, so the
+    # selected flag at record+0x29 lands on the villager the sort chose.
+    ("vv1_enable_origins_exclusive_features", "0x4A7FF"): "A60BAC3A2FCB534ADD52306CD7ACC3F6C7BBB6EEF8697FA5E93D5AC03AF29407",
+    ("vv1_enable_origins_exclusive_features", "0x4A8B4"): "BD8F67537F178A076E15F82A2F47AF0D2E0079AAB7E7A0A798B515BCCD6B147D",
     ("vv1_builder_action_fixes", "0x48336"): "8901998FCDDD8EB745F1666B550B4C384919536E546CA4B1EAAF3BDB90176485",
     # The statistics tracker's lifetime burial counter, spliced over the
     # skeleton-pickup latch clear at 0x448F65 in sub_448600's case 20. That
