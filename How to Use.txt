@@ -390,6 +390,17 @@ The feature is its own companion, VVFP VV1 Parentage.dll, which the Origins
 companion loads once per game session, so the row requires Enable
 Origins-Exclusive Features; unticking that unticks this.
 
+MOVE THE "PLAYING IN THE DIRT" SPOT (NEW BELIEVERS)
+
+In the stock game a child who plays in the dirt walks to a strip of ground
+34 wide and 218 tall that runs from below the rainbow totem across the river
+to the research shelves, so the child wanders through the water. This patch
+makes it a small patch (34 wide, 40 tall; the child takes six random steps
+inside it) on the grass by the rainbow totem. Only three numbers of the
+game's own routine change (the patch's west edge, north edge and height);
+the action, its text, its sound and its length are as before. Nothing is
+saved: it is purely where the child walks.
+
 SORT BY AGE/SKILL/HEALTH IN DETAILS SCREEN (A NEW HOME)
 
 The Lost Children and the later games let you sort the villagers you step

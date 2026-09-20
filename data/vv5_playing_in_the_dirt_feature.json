@@ -1,0 +1,38 @@
+{
+  "id": "vv5_playing_in_the_dirt_spot",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Move the \"Playing in the dirt\" Spot",
+  "description": "Moves where children go to play in the dirt. In the stock game the spot is a strip 34 wide and 218 tall that runs from below the rainbow totem across the river to the research shelves, so a child playing in the dirt wanders through the water; this makes it a small patch (34 wide, 40 tall, six random steps inside it) on the grass by the rainbow totem, where the owner marked it. The action, its text, its sound and its length are unchanged.",
+  "output_tag": "Playing In The Dirt Spot",
+  "behavior_changes": [
+    "A child who starts \"Playing in the dirt\" walks to a random point in the patch x 332..366, y 246..286 (was the strip x 442..476, y 236..454) and wanders inside it for the six steps the stock routine already takes."
+  ],
+  "explicit_non_changes": [
+    "Only three immediates of the stock routine change in place (the strip's west edge, its north edge and its height); no code is added, no executable space is claimed, and the routine's step count, speed and animations are untouched.",
+    "The say-event (504, \"Playing in the dirt\") and its sound are unchanged; no save or villager-record byte is written."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x5ED7A",
+      "before": "DA000000",
+      "after": "28000000",
+      "purpose": "the patch's height: `push 0xDA` (y = base + rand(218)) becomes `push 0x28` (rand(40)) in the Playing-in-the-dirt routine at 0x45ED40"
+    },
+    {
+      "offset": "0x5ED80",
+      "before": "BA010000",
+      "after": "4C010000",
+      "purpose": "the patch's west edge: `add edi, 0x1BA` (x = 442 + rand(34)) becomes 0x14C (x = 332 + rand(34)); the wrapper at 0x4745A0 takes (y, x)"
+    },
+    {
+      "offset": "0x5ED91",
+      "before": "EC000000",
+      "after": "F6000000",
+      "purpose": "the patch's north edge: `add eax, 0xEC` (y = 236 + rand(218)) becomes 0xF6 (y = 246 + rand(40))"
+    }
+  ]
+}

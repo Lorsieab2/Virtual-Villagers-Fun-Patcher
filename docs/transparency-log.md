@@ -763,6 +763,18 @@ Believers succeed every work-task skill roll for Farming, Building, Researching,
 - Evidence status: static exact-build evidence; runtime/player confirmation pending
 - Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Move the "Playing in the dirt" Spot (`vv5_playing_in_the_dirt_spot`)
+
+Moves where children go to play in the dirt. In the stock game the spot is a strip 34 wide and 218 tall that runs from below the rainbow totem across the river to the research shelves, so a child playing in the dirt wanders through the water; this makes it a small patch (34 wide, 40 tall, six random steps inside it) on the grass by the rainbow totem, where the owner marked it. The action, its text, its sound and its length are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A child who starts "Playing in the dirt" walks to a random point in the patch x 332..366, y 246..286 (was the strip x 442..476, y 236..454) and wanders inside it for the six steps the stock routine already takes.
+- Explicit non-changes/exclusions: Only three immediates of the stock routine change in place (the strip's west edge, its north edge and its height); no code is added, no executable space is claimed, and the routine's step count, speed and animations are untouched. The say-event (504, "Playing in the dirt") and its sound are unchanged; no save or villager-record byte is written.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Statue Drops: Normal Action or Honoring (`vv5_statue_polishing_or_honoring`)
 
 Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.

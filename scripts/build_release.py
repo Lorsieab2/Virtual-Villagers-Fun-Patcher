@@ -63,6 +63,7 @@ FILES = [
     "data/vv1_show_parents_feature.json",
     "data/vv1_sort_by_feature.json",
     "data/vv2_numeric_keys_tip_feature.json",
+    "data/vv5_playing_in_the_dirt_feature.json",
     "data/expanded_atomic_writer_integration.json",
     "data/vv5_task9_native_actions.json",
     "docs/game-data-conventions.md",

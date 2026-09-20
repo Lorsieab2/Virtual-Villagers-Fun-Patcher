@@ -131,6 +131,10 @@ SHOW_PARENTS_FEATURE_PATHS = (ROOT / "data" / "vv1_show_parents_feature.json",)
 # Sort by Age/Skill/Health in Details Screen: A New Home's companion that
 # walks the Details arrows in the later games' orders and draws the band.
 SORT_BY_FEATURE_PATHS = (ROOT / "data" / "vv1_sort_by_feature.json",)
+# Move the "Playing in the dirt" Spot: New Believers' two base coordinates
+# of the stock routine, so children play on the grass rather than on the
+# totem statue (the owner marked the spot).
+PLAYING_IN_THE_DIRT_FEATURE_PATHS = (ROOT / "data" / "vv5_playing_in_the_dirt_feature.json",)
 VV2_PLAYTEST_DISABLED_FEATURE_ID = "vv2_enable_origins_exclusive_features"
 VV2_PLAYTEST_DISABLED_FEATURE_PATH = ROOT / "data" / "vv2_origins_feature.json"
 VV3_RUNNING_CANDIDATE_PATHS = {
@@ -2791,6 +2795,11 @@ def _load_fun_patch_records(
             if record.get("enabled", True):
                 items.append(record)
     for feature_path in SORT_BY_FEATURE_PATHS:
+        if feature_path.is_file():
+            record = json.loads(feature_path.read_text(encoding="utf-8"))
+            if record.get("enabled", True):
+                items.append(record)
+    for feature_path in PLAYING_IN_THE_DIRT_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

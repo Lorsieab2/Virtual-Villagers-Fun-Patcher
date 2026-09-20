@@ -329,6 +329,12 @@ Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen
 
 - Patch ID: `vv5_heathen_mommy_puzzle`
 
+**Move the "Playing in the dirt" Spot**
+
+Moves where children go to play in the dirt. In the stock game the spot is a strip 34 wide and 218 tall running from below the rainbow totem across the river to the research shelves, so a child playing in the dirt wanders through the water; this makes it a small patch (34 wide, 40 tall, six random steps inside it) on the grass by the rainbow totem. Three immediates change in place; the action, its text, its sound and its length are unchanged.
+
+- Patch ID: `vv5_playing_in_the_dirt_spot`
+
 **Statue Drops: Normal Action or Honoring**
 
 Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.
