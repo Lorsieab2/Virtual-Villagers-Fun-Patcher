@@ -315,7 +315,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "EF20659B1D51F193AF1EBEF48CB920224F1FEC5B61E5365634AF1C0C96B2ECC3",
+            "90DD07C987E7DBA4C22254702D5D1D5EA535CD209CE9BE2FB744A36A6A3B29D3",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
@@ -324,7 +324,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # digest, and this assertion is the second pin.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "1E57E73AD3502F09D2697B03564AA3DA258C2BFC3B15DAC9B8549DE958292E58",
+            "EB3B69F12B45CFF516FA3B3D4F8397741E514A6920DB83225BE1702582CAF3B2",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

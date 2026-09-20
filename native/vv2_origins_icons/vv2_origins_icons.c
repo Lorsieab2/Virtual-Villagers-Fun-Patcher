@@ -1449,6 +1449,12 @@ static int vv2_mask_sidecar_path(char *out) {
 #define VV2_NAME_OFFSET     0x564
 #define VV2_NAME_CAPACITY   0x18
 
+/* The per-frame sweep's state in the R/W .mtab page: the seen-alive latch
+   (one byte per record) and the cleared-this-pass flag.  Declared here
+   because the village sync resets the latches on a replacement. */
+#define VV2_SEEN_ALIVE      ((unsigned char *)0x004B3100)  /* .mtab +0x100 */
+#define VV2_SWEEP_CLEARED   ((unsigned char *)0x004B3F20)  /* .mtab +0xF20 */
+
 /* The roster the mask table currently corresponds to: one name hash per
    record slot, 0 for an inactive slot.  Lives here so the executable's shared
    appended page carries none of it. */
@@ -1630,24 +1636,36 @@ static void vv2_mask_sidecar_load(const unsigned int *live) {
                                more than one event behind
      no majority            -> replaced: clear, reload only a file whose
                                snapshot shares a majority, adopt the new one */
-__declspec(dllexport) void __stdcall Vv2MaskSyncVillage(unsigned char *base) {
+/* Returns 1 when a village is on screen and the table now corresponds to it,
+   0 when nothing is known -- and on 0 the caller must not sweep or persist,
+   because the latches and the slot number may both belong to a village that
+   is not the one about to appear. */
+__declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     unsigned int cur[VV2_RECORD_COUNT];
+    int i;
     if (base == 0) {
-        return;
+        return 0;
     }
     if (vv2_roster_snapshot(base, cur) == 0) {
-        return;                 /* unknown village -> do not touch anything */
+        return 0;               /* unknown village -> do not touch anything */
     }
     if (g_vv2_have_roster && vv2_roster_same(g_vv2_roster, cur)) {
         if (!vv2_roster_equal(g_vv2_roster, cur)) {
             memcpy(g_vv2_roster, cur, sizeof(cur));
             vv2_mask_sidecar_save();
         }
-        return;                 /* same village -> keep the masks as they are */
+        return 1;               /* same village -> keep the masks as they are */
+    }
+    /* REPLACED.  The seen-alive latches belonged to the previous village;
+       carried into this one they would let its first frames clear masks for
+       slots the old village had alive.  Reset them with the table. */
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        VV2_SEEN_ALIVE[i] = 0;
     }
     vv2_mask_sidecar_load(cur); /* clears, then applies only a matching file */
     memcpy(g_vv2_roster, cur, sizeof(cur));
     g_vv2_have_roster = 1;
+    return 1;
 }
 
 /* ---- The per-frame mask sweep, moved out of the appended page --------------
@@ -1657,8 +1675,6 @@ __declspec(dllexport) void __stdcall Vv2MaskSyncVillage(unsigned char *base) {
    never seen alive is left alone, so a mask restored on the load frame is not
    wiped before its villager exists; the sidecar is persisted once per pass,
    only when something was actually cleared. */
-#define VV2_SEEN_ALIVE      ((unsigned char *)0x004B3100)  /* .mtab +0x100 */
-#define VV2_SWEEP_CLEARED   ((unsigned char *)0x004B3F20)  /* .mtab +0xF20 */
 
 /* base = record[0], forwarded from the compositor's ECX before any call could
    clobber it, so the sweep walks exactly the array the game is about to draw.
@@ -1669,9 +1685,15 @@ __declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
         return;
     }
     /* Which village is on screen?  Reloads the sidecar on a village change --
-       first load and a same-slot Start Over alike -- and leaves everything
-       untouched when the roster cannot be read. */
-    Vv2MaskSyncVillage(base);
+       first load and a same-slot Start Over alike.  On a frame where nothing
+       is known -- a slot switch publishes the new slot before its records
+       exist, and every record briefly reads free -- the death loop MUST NOT
+       run: the old village's latches would clear the table and the persist
+       would write that emptied table into the NEW slot's file, destroying a
+       valid sidecar before its village even appeared. */
+    if (!Vv2MaskSyncVillage(base)) {
+        return;
+    }
 
     *VV2_SWEEP_CLEARED = 0;
     for (i = 0; i < VV2_RECORD_COUNT; ++i) {

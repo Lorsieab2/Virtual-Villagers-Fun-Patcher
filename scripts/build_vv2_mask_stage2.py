@@ -275,7 +275,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     RESTORE_STR_VA = DLLNAME_VA + len(DLLNAME)  # "Vv2MaskRestore\0"
     EXTRACT_STR_VA = RESTORE_STR_VA + len(RESTORE_STR)  # "Vv2ExtractAtlas\0"
     SAVE_STR_VA = EXTRACT_STR_VA + len(EXTRACT_STR)  # "Vv2MaskSaveSidecar\0"
-    TAG_STR_VA = SAVE_STR_VA + len(SAVE_STR)  # "Vv2VillageTag\0"
+    TAG_STR_VA = SAVE_STR_VA + len(SAVE_STR)  # "Vv2MaskSweep\0" (last string; code0 follows it)
 
     def cfoff(va: int) -> int:            # file offset of a VA inside the appended code section
         return CODE_RAW + (va - CODE_SEC_VA)
@@ -330,7 +330,17 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         C_ROW = f"mov  eax, {force_row}"
 
     # code starts after the ptr dword + filename string (4-aligned)
-    code0 = (EXTRACT_STR_VA + len(EXTRACT_STR) + 3) & ~3
+    # The stubs start AFTER the LAST string, not after Vv2ExtractAtlas.
+    #
+    # This used to align code0 right after EXTRACT_STR, and the two strings
+    # laid out beyond it -- Vv2MaskSaveSidecar and Vv2MaskSweep -- were
+    # overwritten by the adult stub's first bytes.  GetProcAddress was handed
+    # garbage, returned NULL, and the init jumped to no_restore before SAVE_FN
+    # (and later SWEEP_FN) was set: the death-clear persist had silently never
+    # worked, and the village-change sweep never ran.  Measured in the rendered
+    # page, not inferred, and pinned by test_every_export_name_survives_in_the
+    # _rendered_page, which fails on the old placement.
+    code0 = (TAG_STR_VA + len(TAG_STR) + 3) & ~3
 
     # ---- ADULT head stub: draw mask (row MASK_ROW_TEST) then original head ----
     # entry: jumped from `call 0x4095B0`; [esp]=ret,[+4]=atlas,[+8]=x,[+c]=y,[+10]=row,[+14]=frame
