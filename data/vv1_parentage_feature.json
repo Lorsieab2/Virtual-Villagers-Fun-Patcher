@@ -89,6 +89,12 @@
       "game_id": "vv1",
       "id": "vv1_write_parentage_log",
       "name": "Write Parentage Log to Text File",
+      "needs_on": [
+        {
+          "for": "the \"Birth\" records (conceptions are logged without it)",
+          "id": "vv1_show_parents"
+        }
+      ],
       "output_tag": "Parentage Log Text Export",
       "patches": [
         {

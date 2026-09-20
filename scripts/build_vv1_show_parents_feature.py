@@ -61,6 +61,15 @@ def main() -> None:
         "dependencies": [
             "vv1_enable_origins_exclusive_features",
         ],
+        # Works without it, but does less: the father comes from the
+        # parentage log's conception hook, and the "Birth" line is written
+        # through its companion.
+        "needs_on": [
+            {
+                "id": "vv1_write_parentage_log",
+                "for": "the father (with it off only the mother is recorded) and for the \"Birth\" records in the parentage log",
+            },
+        ],
         "behavior_changes": [
             "The Details portrait of a villager under 18 with recorded parents shows two half-faded parent figures in the frame's upper corners, built from each parent's own head and body rows; hovering one shows \"Son of <name>\" / \"Daughter of <name>\" under the portrait.",
             "Conceptions stash the father's name, head and body against the mother; at each birth the game's own child-creation routine hands the named child and its mother to the companion (the Origins row's hook at 0x43CA48), so both parents are recorded for the child -- during load-time catch-up too -- immediately appended to the parentage log as a \"Birth\" record, then written to vv1_parents_<slot>.dat.",

@@ -791,6 +791,14 @@ def build() -> dict:
                     "be recovered from the child afterwards. Rolls to a "
                     "new numbered file every 256 records."
                 ),
+                # The "Birth" records come from Show Parents' companion, which
+                # sees every birth; conceptions are logged without it.
+                "needs_on": [
+                    {
+                        "id": "vv1_show_parents",
+                        "for": "the \"Birth\" records (conceptions are logged without it)",
+                    },
+                ],
                 "companion_files": [
                     {
                         "source": "assets/parentage/VVFP Parentage Export.dll",

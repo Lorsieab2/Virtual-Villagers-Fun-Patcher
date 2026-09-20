@@ -128,7 +128,7 @@ The number keys move the view to one of nine sections of the island, laid out li
 
 **Show Parents in Details Screen**
 
-Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait, the father on the left facing right and the mother on the right facing left, and hovering one reads "Son of <name>" or "Daughter of <name>". The record lives in `vv1_parents_<slot>.dat` beside the save, never in a villager record or the save itself, and an entry is never erased: only a new villager in the same slot starts it over. Each birth is also appended to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before the patch have no recorded parents. The feature is its own companion, `VVFP VV1 Parentage.dll`, loaded by the Origins companion, so it requires Enable Origins-Exclusive Features; the father comes from Write Parentage Log's conception hook, so with that row off only the mother is recorded.
+Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait, the father on the left facing right and the mother on the right facing left, and hovering one reads "Son of <name>" or "Daughter of <name>". The record lives in `vv1_parents_<slot>.dat` beside the save, never in a villager record or the save itself, and an entry is never erased: only a new villager in the same slot starts it over. Each birth is also appended to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before the patch have no recorded parents. The feature is its own companion, `VVFP VV1 Parentage.dll`, loaded by the Origins companion, so it requires Enable Origins-Exclusive Features; the father comes from Write Parentage Log's conception hook, so with that row off only the mother is recorded. **Needs Write Parentage Log to Text File on for the father and for the "Birth" records in the parentage log.**
 
 - Patch ID: `vv1_show_parents`
 
@@ -164,7 +164,7 @@ Adds decorative flowers to the lagoon and love hut, clothes to the extra hut nea
 
 **Write Village Statistics to Text File**
 
-After a successful save, writes the village's lifetime statistics to a Village Statistics text file.
+After a successful save, writes the village's lifetime statistics to a Village Statistics text file. **Needs Show Parents in Details Screen on for the "Parents:" lines in the Village Population roster.**
 
 - Patch ID: `vv1_write_village_statistics`
 
