@@ -1460,6 +1460,11 @@ static int vv2_mask_sidecar_path(char *out) {
    appended page carries none of it. */
 static unsigned int g_vv2_roster[VV2_RECORD_COUNT];
 static int g_vv2_have_roster;
+/* The save slot the table was loaded for.  The sidecar is keyed per slot, so
+   a slot change must re-read that slot's file even when the roster still
+   matches -- which it does whenever the owner copies a save between slots.
+   The old cave zeroed LOADED_VA for this; the DLL tracks it directly. */
+static int g_vv2_slot;
 
 /* Fill out[] from the live records.  Returns the number of living villagers;
    0 means "no village is loaded", and every caller treats that as unknown. */
@@ -1629,7 +1634,9 @@ static void vv2_mask_sidecar_load(const unsigned int *live) {
    them.
 
    Per frame:
+     slot unpublished       -> unknown; touch nothing
      no living villagers    -> unknown; touch nothing
+     slot changed           -> replaced, whatever the roster looks like
      majority, unchanged    -> same village, nothing to do
      majority, changed      -> same village, a birth or a death: adopt the new
                                snapshot and persist it, so the file is never
@@ -1642,14 +1649,18 @@ static void vv2_mask_sidecar_load(const unsigned int *live) {
    is not the one about to appear. */
 __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     unsigned int cur[VV2_RECORD_COUNT];
+    int slot = VV2_MASK_SLOT;   /* published by the slot stub; 0 = none yet */
     int i;
-    if (base == 0) {
-        return 0;
+    if (base == 0 || slot <= 0) {
+        return 0;               /* nothing known yet -> do not touch anything */
     }
     if (vv2_roster_snapshot(base, cur) == 0) {
         return 0;               /* unknown village -> do not touch anything */
     }
-    if (g_vv2_have_roster && vv2_roster_same(g_vv2_roster, cur)) {
+    /* Same village means the same SLOT and a roster majority.  A slot change
+       always reloads: the file is keyed per slot, and two slots can hold
+       overlapping rosters when a save has been copied between them. */
+    if (g_vv2_have_roster && slot == g_vv2_slot && vv2_roster_same(g_vv2_roster, cur)) {
         if (!vv2_roster_equal(g_vv2_roster, cur)) {
             memcpy(g_vv2_roster, cur, sizeof(cur));
             vv2_mask_sidecar_save();
@@ -1665,6 +1676,7 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     vv2_mask_sidecar_load(cur); /* clears, then applies only a matching file */
     memcpy(g_vv2_roster, cur, sizeof(cur));
     g_vv2_have_roster = 1;
+    g_vv2_slot = slot;
     return 1;
 }
 

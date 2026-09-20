@@ -783,3 +783,28 @@ def test_a_replacement_resets_the_previous_villages_latches() -> None:
     reload = sync.index("vv2_mask_sidecar_load(cur);")
     assert same_return < reset < reload, (
         "the latches are not reset on the replaced path before the reload")
+
+
+def test_a_slot_change_always_reloads_even_when_the_roster_overlaps() -> None:
+    """The owner copies saves between slots, so two slots can share a roster.
+
+    Switching between them passed the majority test as "same village", so the
+    new slot's own vv2_masks_<slot>.dat was never read and the first slot's
+    masks stayed on screen -- and the next roster change would have saved
+    that table over the destination's file. The old cave zeroed LOADED_VA on
+    a slot change; the DLL sweep dropped that flag, so the slot has to be part
+    of the cached identity instead. Codex caught it on #386.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
+    sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
+    assert "slot == g_vv2_slot && vv2_roster_same(g_vv2_roster, cur)" in sync, (
+        "the same-village test no longer requires the same slot, so switching "
+        "to a copied save keeps the previous slot's masks")
+    assert "g_vv2_slot = slot;" in sync, (
+        "the reload path does not record the slot it loaded for")
+    assert sync.index("g_vv2_slot = slot;") > sync.index("vv2_mask_sidecar_load(cur);"), (
+        "the slot must be adopted with the reload, not before it")
+    assert "slot <= 0" in sync, (
+        "an unpublished slot must count as unknown, not clear the masks")
