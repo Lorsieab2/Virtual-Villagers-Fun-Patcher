@@ -8,3 +8,4 @@ EXPORTS
     Vv1SortByProbeStep=_Vv1SortByProbeStep@16
     Vv1SortByProbeList=_Vv1SortByProbeList@16
     Vv1SortByProbeHit=_Vv1SortByProbeHit@8
+    Vv1SortByProbeMap=_Vv1SortByProbeMap@8

@@ -98,6 +98,65 @@ class ManifestAndDllTests(unittest.TestCase):
             self.assertTrue(x0[m] <= radio_x[m] and radio_x[m] + 16 <= x1[m], "the radio inside its plate's click rect")
             self.assertTrue(y0 <= radio_y and radio_y + 16 <= y1)
 
+    def test_clicks_are_mapped_from_window_pixels_into_logical_space(self):
+        # The game calls SDL_RenderSetLogicalSize, so it draws 800x600 and SDL
+        # stretches that to the window (fullscreen or not) and letterboxes the
+        # rest.  A mouse event carries WINDOW coordinates, so comparing it
+        # straight against logical rectangles only works at exactly 800x600 --
+        # at the owner's 1.5x window every plate was dead and, because the
+        # click sound only plays on a hit, silent.  SDL is asked for the scale
+        # and the viewport instead of any constant being assumed.
+        source = SORT_C.read_text(encoding="utf-8")
+        self.assertIn("static void vv1_window_to_logical(int *x, int *y)", source)
+        for export in ("SDL_RenderGetScale", "SDL_RenderGetViewport", "SDL_GetRenderer"):
+            self.assertIn('GetProcAddress(sdl, "%s")' % export, source)
+        # ...and the event watch must actually use it before testing the point.
+        watch = source[source.index("static int __cdecl vv1_event_watch"):]
+        watch = watch[:watch.index("\nstatic ")]
+        self.assertIn("vv1_window_to_logical(&x, &y)", watch)
+        self.assertLess(watch.index("vv1_window_to_logical(&x, &y)"), watch.index("vv1_hit(x, y)"))
+        # No hardcoded scale: the mapping divides by what SDL reports.
+        self.assertNotIn("1.5f", source)
+        self.assertIn("(float)*x / sx", source)
+        self.assertIn("(float)*y / sy", source)
+        # A missing export must leave the point untouched rather than crash.
+        self.assertIn("if (get_renderer == NULL || get_scale == NULL) {", source)
+
+    def test_the_click_rectangles_match_the_shipped_band_art(self):
+        # The plates' click rects are only correct if they line up with the
+        # art the player sees; measure the gaps between plates in the image
+        # rather than trusting the constants.
+        from PIL import Image
+        import re as _re
+        source = SORT_C.read_text(encoding="utf-8")
+        band = Image.open(ROOT / "assets" / "sort_by" / "vvfp_sort_band.png").convert("RGB")
+        band_x = _define(source, "SORT_BAND_X")
+        band_y = _define(source, "SORT_BAND_Y")
+        x0 = [int(v) for v in _re.search(r"SORT_PLATE_X0\[SORT_MODES\]\s*=\s*\{([^}]*)\}", source).group(1).split(",")]
+        x1 = [int(v) for v in _re.search(r"SORT_PLATE_X1\[SORT_MODES\]\s*=\s*\{([^}]*)\}", source).group(1).split(",")]
+        y0, y1 = _define(source, "SORT_PLATE_Y0"), _define(source, "SORT_PLATE_Y1")
+        row = range(y0 - band_y, y1 - band_y)
+
+        def dark_column(cx):
+            xs = cx - band_x
+            if not (0 <= xs < band.width):
+                return False
+            vals = [sum(band.getpixel((xs, yy))) / 3 for yy in row]
+            return sum(vals) / len(vals) < 70
+
+        for m in range(3):
+            # Inside each plate the wood is bright.  The sample is taken well
+            # clear of the edges: the art frames every plate with a dark
+            # border a few pixels wide, so a point 6px in still reads dark.
+            width = x1[m] - x0[m]
+            self.assertTrue(width > 40, "plate %d is implausibly narrow" % m)
+            self.assertFalse(dark_column(x0[m] + width // 4), "plate %d starts too early" % m)
+            self.assertFalse(dark_column(x1[m] - width // 4), "plate %d ends too late" % m)
+        for m in range(2):
+            # between plates: the dark gap the art has
+            gap = (x1[m] + x0[m + 1]) // 2
+            self.assertTrue(dark_column(gap), "no gap in the art between plates %d and %d" % (m, m + 1))
+
     def test_dll_exports_what_origins_calls(self):
         pe = pefile.PE(str(DLL))
         names = {e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}

@@ -93,6 +93,11 @@
 #define SORT_MODES             3
 
 typedef unsigned int (__cdecl *sdl_add_event_watch_t)(void *filter, void *userdata);
+typedef void *(__cdecl *sdl_get_mouse_focus_t)(void);
+typedef void *(__cdecl *sdl_gl_get_current_window_t)(void);
+typedef void *(__cdecl *sdl_get_renderer_t)(void *window);
+typedef void  (__cdecl *sdl_render_get_scale_t)(void *renderer, float *x, float *y);
+typedef void  (__cdecl *sdl_render_get_viewport_t)(void *renderer, int *rect);
 
 static int g_mode;                        /* 0 age, 1 skill, 2 health */
 static int g_position = -1;               /* position in the current list, -1 = unknown */
@@ -267,6 +272,58 @@ static void vv1_play_click(void) {
     }
 }
 
+/* The game renders 800x600 through SDL_RenderSetLogicalSize, so SDL stretches
+   it to the window and letterboxes the rest -- in fullscreen and windowed
+   alike.  A mouse event carries WINDOW coordinates, so it must be divided by
+   the renderer's scale and shifted by its viewport before it can be compared
+   with anything drawn in logical space.  SDL itself holds both numbers.
+
+   Every import is resolved by name; if any is missing the point is left as it
+   came, which is exactly the old behaviour rather than a crash. */
+static void vv1_window_to_logical(int *x, int *y) {
+    HMODULE sdl = GetModuleHandleA("SDL2.dll");
+    sdl_get_mouse_focus_t get_focus;
+    sdl_gl_get_current_window_t get_current;
+    sdl_get_renderer_t get_renderer;
+    sdl_render_get_scale_t get_scale;
+    sdl_render_get_viewport_t get_viewport;
+    void *window, *renderer;
+    float sx = 1.0f, sy = 1.0f;
+    int viewport[4];
+    if (sdl == NULL) {
+        return;
+    }
+    get_focus = (sdl_get_mouse_focus_t)GetProcAddress(sdl, "SDL_GetMouseFocus");
+    get_current = (sdl_gl_get_current_window_t)GetProcAddress(sdl, "SDL_GL_GetCurrentWindow");
+    get_renderer = (sdl_get_renderer_t)GetProcAddress(sdl, "SDL_GetRenderer");
+    get_scale = (sdl_render_get_scale_t)GetProcAddress(sdl, "SDL_RenderGetScale");
+    get_viewport = (sdl_render_get_viewport_t)GetProcAddress(sdl, "SDL_RenderGetViewport");
+    if (get_renderer == NULL || get_scale == NULL) {
+        return;
+    }
+    window = get_focus ? get_focus() : NULL;
+    if (window == NULL && get_current != NULL) {
+        window = get_current();     /* the cursor may be outside the window */
+    }
+    if (window == NULL) {
+        return;
+    }
+    renderer = get_renderer(window);
+    if (renderer == NULL) {
+        return;
+    }
+    get_scale(renderer, &sx, &sy);
+    if (sx <= 0.0f || sy <= 0.0f) {
+        return;
+    }
+    viewport[0] = viewport[1] = 0;
+    if (get_viewport != NULL) {
+        get_viewport(renderer, viewport);   /* origin is in scaled units */
+    }
+    *x = (int)((float)*x / sx) - viewport[0];
+    *y = (int)((float)*y / sy) - viewport[1];
+}
+
 static int vv1_hit(int x, int y) {
     int m;
     if (y < SORT_PLATE_Y0 || y >= SORT_PLATE_Y1) {
@@ -288,7 +345,11 @@ static int __cdecl vv1_event_watch(void *userdata, void *event) {
     (void)userdata;
     if (e != NULL && *(const unsigned int *)e == 0x401u && e[16] == 1
         && GetTickCount() - g_last_draw_tick < 250u) {
-        int hit = vv1_hit(*(const int *)(e + 20), *(const int *)(e + 24));
+        int x = *(const int *)(e + 20);
+        int y = *(const int *)(e + 24);
+        int hit;
+        vv1_window_to_logical(&x, &y);   /* the event is in window pixels */
+        hit = vv1_hit(x, y);
         if (hit >= 0) {
             g_mode = hit;              /* the position is kept, as in the later games */
             vv1_play_click();
@@ -396,6 +457,16 @@ __declspec(dllexport) int __stdcall Vv1SortByProbeList(const void *records, int 
 
 __declspec(dllexport) int __stdcall Vv1SortByProbeHit(int x, int y) {
     return vv1_hit(x, y);
+}
+
+/* The window-to-logical mapping, for the harness: SDL is absent there, so this
+   returns the point unchanged and proves the no-SDL path leaves it alone. */
+__declspec(dllexport) int __stdcall Vv1SortByProbeMap(int *x, int *y) {
+    if (x == NULL || y == NULL) {
+        return 0;
+    }
+    vv1_window_to_logical(x, y);
+    return 1;
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
