@@ -559,10 +559,10 @@ def test_the_dll_sweep_still_reloads_on_a_village_change() -> None:
               / "vv2_origins_icons.c").read_text(encoding="utf-8")
     body = source[source.index("__stdcall Vv2MaskSweep("):]
     body = body[:body.index("\n}\n") + 3]
-    assert "Vv2MaskSyncVillage();" in body, (
+    assert "Vv2MaskSyncVillage(base);" in body, (
         "Vv2MaskSweep no longer performs the village-change reload, so a "
         "Start Over in the same slot keeps the dead village's masks")
-    assert body.index("Vv2MaskSyncVillage();") < body.index("for ("), (
+    assert body.index("Vv2MaskSyncVillage(base);") < body.index("for ("), (
         "the village reload must precede the death sweep, so the sweep "
         "reconciles the freshly loaded table against the live records")
 
@@ -602,37 +602,70 @@ def test_the_mask_code_clears_both_reserved_ranges() -> None:
 def test_the_sidecar_is_bound_to_the_village_that_wrote_it() -> None:
     """Detecting a village change is useless if the reload restores the old file.
 
-    This is the defect the first attempt shipped: the sweep noticed the village
-    had changed, called the restore, and the restore reloaded
-    vv2_masks_<slot>.dat -- keyed only by slot, with no village in its format.
-    The table was cleared and immediately refilled with the DEAD village's
-    masks, so the same-slot bleed survived every byte guard.
-
-    The record therefore carries the living-roster tag, and the load refuses a
-    file whose tag does not match the village on screen. Removing that check
-    leaves every other test green, which is why it needs its own.
+    The first attempt shipped exactly that: the sweep noticed the change, the
+    restore reloaded vv2_masks_<slot>.dat -- keyed only by slot -- and the
+    table was refilled with the DEAD village's masks. The record therefore
+    carries a per-slot snapshot of the living roster, and the load applies it
+    only when that snapshot shares at least one living villager with the
+    village on screen. Removing that check leaves every other test green.
     """
     source = (ROOT / "native" / "vv2_origins_icons"
               / "vv2_origins_icons.c").read_text(encoding="utf-8")
 
-    # 'VM03': the record grew, so an older untagged file fails the magic and is
-    # ignored rather than misread as a tagged one.
-    assert "0x33304D56u" in source, (
-        "the sidecar magic is not 'VM03'; an untagged file could be misread")
+    # 'VM04': the record grew (snapshot, not a single tag), so an older file
+    # fails the magic and is ignored rather than misread.
+    assert "0x34304D56u" in source, (
+        "the sidecar magic is not 'VM04'; an older file could be misread")
 
     load = source[source.index("static void vv2_mask_sidecar_load("):]
     load = load[:load.index(chr(10) + "}" + chr(10)) + 3]
-    assert "filetag == livetag" in load, (
-        "the mask sidecar is applied without checking which village wrote it, "
-        "so a Start Over in the same slot restores the dead village's masks")
-    assert "livetag != 0" in load, (
-        "an unknown live village (tag 0) must not match a stored tag")
+    assert "vv2_roster_overlap(filesnap, live) > 0" in load, (
+        "the mask sidecar is applied without checking that its roster shares "
+        "a living villager with the village on screen, so a Start Over in the "
+        "same slot restores the dead village's masks")
 
     save = source[source.index("static void vv2_mask_sidecar_save("):]
     save = save[:save.index(chr(10) + "}" + chr(10)) + 3]
-    assert "WriteFile(f, &tag, 4, &w, NULL);" in save, (
-        "the sidecar is written without a village tag, so it can never be "
-        "matched against the village that wrote it")
-    assert "if (tag == 0) return;" in save, (
-        "an unidentifiable village must not write a file at all, rather than "
-        "stamping 0 and poisoning it")
+    assert "WriteFile(f, g_vv2_roster, sizeof(g_vv2_roster), &w, NULL);" in save, (
+        "the sidecar is written without its roster snapshot, so it can never "
+        "be matched against the village that wrote it")
+    assert "if (!g_vv2_have_roster) return;" in save, (
+        "an unidentified village must not write a file at all")
+
+
+def test_a_birth_or_death_does_not_count_as_a_new_village() -> None:
+    """The exact-hash version failed exactly here.
+
+    An exact hash of the active records changes on every birth and death. The
+    sync read that as a replacement, cleared the table, rejected the sidecar
+    (which carried the old hash), and the next death persisted the emptied
+    table -- an ordinary population change removed every surviving villager's
+    mask. Codex caught it before it shipped.
+
+    The rule is overlap: the same village across a birth or a death still
+    shares almost all of its villagers, while a reused slot shares none. So a
+    changed roster that still OVERLAPS must be adopted, not reloaded, and the
+    reload must be reachable only when the overlap is zero.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
+    sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
+
+    overlap = sync.index("vv2_roster_overlap(g_vv2_roster, cur) > 0")
+    reload = sync.index("vv2_mask_sidecar_load(cur);")
+    assert overlap < reload, (
+        "the reload is not gated behind the overlap check")
+    same_village_return = sync.index("return;", overlap)
+    assert same_village_return < reload, (
+        "an overlapping roster must return WITHOUT reloading; otherwise a "
+        "birth or a death wipes every surviving villager's mask")
+    # And the overlapping-but-changed case must adopt the new snapshot rather
+    # than keep comparing against a stale one forever.
+    adopt = sync.index("memcpy(g_vv2_roster, cur, sizeof(cur));")
+    assert overlap < adopt < same_village_return, (
+        "a changed-but-overlapping roster is not adopted as the same village")
+    # The exact-hash export must not come back.
+    assert "Vv2VillageTag" not in source, (
+        "the exact-hash village tag is back; it reads births and deaths as a "
+        "village replacement")

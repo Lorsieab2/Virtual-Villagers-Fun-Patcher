@@ -1352,11 +1352,9 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
    Win32-only (wsprintfA/memcpy = intrinsics) to stay CRT-less.
    NEVER call from DllMain (loader lock + SHGetFolderPath). Index-keyed: relies on
    villagers reloading into the same record slots (positional VV2 save). ---- */
-/* Forward declaration: the tag routine is defined after the sidecar helpers
-   but both of them need it, because the tag is what binds a file to a village. */
-__declspec(dllexport) unsigned int __stdcall Vv2VillageTag(void);
-
-/* 'VM03'.  Bumped from 'VM02' when the village tag was added to the record.
+/* 'VM04'.  Bumped from 'VM03' when the single village tag became a per-slot
+   roster snapshot -- see the overlap rule at vv2_roster_overlap.  Bumped
+   from 'VM02' before that when a village binding was first added.
 
    The tag is what makes detecting a village change useful: the sweep can see
    that the roster changed, but if the file it then loads is keyed only by slot
@@ -1364,7 +1362,7 @@ __declspec(dllexport) unsigned int __stdcall Vv2VillageTag(void);
    'VM02' file has no tag, fails this magic, and is ignored -- that village
    loses its mask CHOICES once, recovered in seconds from the chooser, rather
    than wearing another village's masks. */
-#define VV2_MASK_SIDECAR_MAGIC 0x33304D56u  /* 'V','M','0','3' */
+#define VV2_MASK_SIDECAR_MAGIC 0x34304D56u  /* 'V','M','0','4' */
 
 static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     char docs[MAX_PATH];
@@ -1419,41 +1417,125 @@ static int vv2_mask_sidecar_path(char *out) {
     return vv2_mask_sidecar_path_slot(out, VV2_MASK_SLOT);
 }
 
+
+
+/* exe-callable so an early exe hook can restore at startup, OUTSIDE the loader lock */
+
+/* ---- Village identity, from the living villager roster --------------------
+
+   VV2 stores no village identity of its own -- unlike VV1 and VV5, which stamp
+   a creation-time value into the save.  Measured across the owner's saves,
+   39,691 aligned dwords stay constant within every village and the most
+   discriminating of them takes only five distinct values across twenty
+   villages, so there is nothing in the save that names which village it is.
+
+   The roster is the identity instead, matched by OVERLAP rather than by an
+   exact hash.  An exact hash of the active records changes on every birth and
+   death and read every ordinary population change as a village replacement;
+   a reviewer caught that before it shipped.  The rule that survives it comes
+   from the owner's own reasoning in reverse: two different villages share
+   ZERO villagers (100% of the roster changed on the owner's real
+   delete-and-recreate), while the same village across a birth or a death
+   shares almost all of them.  So a village is the same village whenever ANY
+   living (slot, name) pair survives, and replaced only when none does.
+
+   Offsets come from the population exporter's per-game table, which derived
+   them from a save file and independently from live memory, and which the
+   owner's own Village Population log confirms by printing correct names.
+
+   +0x5C0 is NOT used here: that is the FATHER's name copied onto the mother at
+   conception, so hashing it would collide across unrelated villagers. */
+#define VV2_NAME_OFFSET     0x564
+#define VV2_NAME_CAPACITY   0x18
+
+/* The roster the mask table currently corresponds to: one name hash per
+   record slot, 0 for an inactive slot.  Lives here so the executable's shared
+   appended page carries none of it. */
+static unsigned int g_vv2_roster[VV2_RECORD_COUNT];
+static int g_vv2_have_roster;
+
+/* Fill out[] from the live records.  Returns the number of living villagers;
+   0 means "no village is loaded", and every caller treats that as unknown. */
+static int vv2_roster_snapshot(const unsigned char *base,
+                               unsigned int *out) {
+    int i, live = 0;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        const unsigned char *rec = base + (unsigned int)i * VV2_RECORD_STRIDE;
+        const unsigned char *name;
+        unsigned int h = 2166136261u;          /* FNV-1a */
+        int k;
+        if (rec[VV2_ACTIVE_OFFSET] == 0) {
+            out[i] = 0;
+            continue;
+        }
+        name = rec + VV2_NAME_OFFSET;
+        for (k = 0; k < VV2_NAME_CAPACITY && name[k]; ++k) {
+            h = (h ^ name[k]) * 16777619u;
+        }
+        h = (h ^ 0xFFu) * 16777619u;           /* terminator: "Lu" != "Lulu" */
+        out[i] = h ? h : 1u;                   /* reserve 0 for "inactive" */
+        ++live;
+    }
+    return live;
+}
+
+/* How many living (slot, name) pairs two rosters share.  Zero means they are
+   different villages; anything else means the same village, however much has
+   been born or buried in between. */
+static int vv2_roster_overlap(const unsigned int *a, const unsigned int *b) {
+    int i, n = 0;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        if (a[i] != 0 && a[i] == b[i]) {
+            ++n;
+        }
+    }
+    return n;
+}
+
+static int vv2_roster_equal(const unsigned int *a, const unsigned int *b) {
+    int i;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        if (a[i] != b[i]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* Persist the table together with the roster it belongs to.  A village that
+   has never been identified writes nothing: an unsnapshotted file could never
+   be matched, and writing one would recreate the very bleed this exists to
+   stop. */
 static void vv2_mask_sidecar_save(void) {
     char path[MAX_PATH];
     HANDLE f;
     DWORD w;
     unsigned int m = VV2_MASK_SIDECAR_MAGIC;
-    unsigned int tag;
     if (!vv2_mask_table_ok()) return;          /* no .mtab -> nothing to persist */
-    /* No identifiable village means there is nothing to bind the file to.
-       Writing it untagged, or stamping 0, would recreate the very bleed the
-       tag exists to stop. */
-    tag = Vv2VillageTag();
-    if (tag == 0) return;
+    if (!g_vv2_have_roster) return;            /* unknown village -> do not write */
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) return;
     WriteFile(f, &m, 4, &w, NULL);
-    WriteFile(f, &tag, 4, &w, NULL);       /* binds the file to this village */
+    WriteFile(f, g_vv2_roster, sizeof(g_vv2_roster), &w, NULL); /* binds the file to its village */
     WriteFile(f, VV2_MASK_TABLE, VV2_MASK_TABLE_BYTES, &w, NULL);
     CloseHandle(f);
 }
 
-static void vv2_mask_sidecar_load(void) {
+/* Load the table for the village whose living roster is `live`.  Clears
+   first, so every failure path -- no file, short read, wrong magic, a file
+   from a village that shares no villager with this one -- leaves NO masks,
+   which is exactly what a village that never chose any sees. */
+static void vv2_mask_sidecar_load(const unsigned int *live) {
     char path[MAX_PATH];
     HANDLE f;
     DWORD g;
     unsigned int m = 0;
-    unsigned int filetag = 0;
-    unsigned int livetag;
+    unsigned int filesnap[VV2_RECORD_COUNT];
     unsigned char buf[VV2_MASK_TABLE_BYTES];
     int i;
-    /* A village with no sidecar must show NO masks -- never whatever the previously
-       loaded village left in the table. Clear first, then fill if a file exists. */
     if (vv2_mask_table_ok())
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
-    livetag = Vv2VillageTag();
     if (!vv2_mask_sidecar_path(path)) return;
     f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {
@@ -1472,13 +1554,14 @@ static void vv2_mask_sidecar_load(void) {
            matching it is also what makes the five games behave alike. */
         return;
     }
-    /* THE VILLAGE TAG DECIDES, not the slot.  Slots are reused, so a file left
-       by the previous village is exactly what a Start Over or a
-       delete-and-recreate leaves behind.  A mismatch is ignored, and the table
-       was already cleared above, so the new village starts with no masks. */
+    /* THE ROSTER DECIDES, not the slot.  Slots are reused, so a file left by
+       the previous village is exactly what a Start Over or a
+       delete-and-recreate leaves behind.  Its snapshot shares no living
+       villager with the village on screen, so it is ignored, and the table was
+       already cleared above. */
     if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
-        && ReadFile(f, &filetag, 4, &g, NULL) && g == 4
-        && livetag != 0 && filetag == livetag
+        && ReadFile(f, filesnap, sizeof(filesnap), &g, NULL) && g == sizeof(filesnap)
+        && vv2_roster_overlap(filesnap, live) > 0
         && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
         /* Sidecars are user-writable and older builds did not constrain every
            byte. Normalize before publishing anything to the render thunks:
@@ -1491,106 +1574,40 @@ static void vv2_mask_sidecar_load(void) {
     CloseHandle(f);
 }
 
-/* exe-callable so an early exe hook can restore at startup, OUTSIDE the loader lock */
-/* ---- Village identity, from the living villager roster --------------------
+/* The village-change decision, kept in the DLL rather than in the appended
+   page: that page is shared with the parentage cave (0x41A..0x4D8) and the
+   villagers-died payload (from 0x4D8), and the decision did not fit between
+   them.
 
-   VV2 stores no village identity of its own -- unlike VV1 and VV5, which stamp
-   a creation-time value into the save.  Measured across the owner's saves,
-   39,691 aligned dwords stay constant within every village and the most
-   discriminating of them takes only five distinct values across twenty
-   villages, so there is nothing in the save that names which village it is.
-
-   The roster is the identity instead.  Two villages do not share villagers, so
-   hashing the names of the living ones distinguishes them.  Measured on the
-   owner's real saves: 0% of the living roster changes across a village's own
-   backups (all five slots), and 100% changes across a genuine
-   delete-and-recreate.
-
-   Offsets come from the population exporter's per-game table, which derived
-   them from a save file and independently from live memory, and which the
-   owner's own Village Population log confirms by printing correct names.
-
-   +0x5C0 is NOT used here: that is the FATHER's name copied onto the mother at
-   conception, so hashing it would collide across unrelated villagers. */
-#define VV2_NAME_OFFSET     0x564
-#define VV2_NAME_CAPACITY   0x18
-
-/* Returns a hash of the living roster, or 0 when it cannot be read.
-
-   0 means "unknown", never "changed": the caller must leave the mask table
-   alone rather than reload against a village it could not see.  A missed
-   reload merely preserves today's behaviour, while a spurious one would
-   discard a live village's masks. */
-/* The stock record-array getter, declared here because the shared typedef
-   further down this file is defined after this point.  Same address and same
-   __stdcall signature the appearance code uses. */
-typedef unsigned char *(__stdcall *vv2_tag_record_array_fn)(void);
-
-__declspec(dllexport) unsigned int __stdcall Vv2VillageTag(void) {
-    unsigned char *base;
-    unsigned int h = 2166136261u;             /* FNV-1a */
-    int i;
-    int live = 0;
-    base = ((vv2_tag_record_array_fn)0x0044F4E0)();
+   Per frame:
+     no living villagers    -> unknown; touch nothing
+     overlap, unchanged     -> same village, nothing to do
+     overlap, changed       -> same village, a birth or a death: adopt the new
+                               snapshot and persist it, so the file is never
+                               more than one event behind
+     no overlap             -> replaced: clear, reload only a matching file,
+                               adopt the new snapshot */
+__declspec(dllexport) void __stdcall Vv2MaskSyncVillage(unsigned char *base) {
+    unsigned int cur[VV2_RECORD_COUNT];
     if (base == 0) {
-        return 0;
+        return;
     }
-    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
-        const unsigned char *rec = base + (unsigned int)i * VV2_RECORD_STRIDE;
-        const unsigned char *name;
-        int k;
-        if (rec[VV2_ACTIVE_OFFSET] == 0) {
-            continue;                          /* free or dead slot */
-        }
-        ++live;
-        name = rec + VV2_NAME_OFFSET;
-        /* Mix the slot index as well as the name, so two villagers sharing a
-           name in different slots do not cancel out, and a roster that merely
-           reorders is still seen as the same set of people in the same places. */
-        h = (h ^ (unsigned int)i) * 16777619u;
-        for (k = 0; k < VV2_NAME_CAPACITY && name[k]; ++k) {
-            h = (h ^ name[k]) * 16777619u;
-        }
-        h = (h ^ 0xFFu) * 16777619u;           /* terminator, so "Lu" != "Lulu" */
-    }
-    if (live == 0) {
-        return 0;                              /* no village loaded yet */
-    }
-    return h ? h : 1u;                         /* reserve 0 for "unknown" */
-}
-
-/* The village-change check, kept in the DLL rather than in the appended page.
-
-   The .vvmk page is shared by three features -- the mask stubs, the parentage
-   cave at 0x41A..0x4D8, and the villagers-died payload from 0x4D8 -- and the
-   inline comparison did not fit between them.  Rather than take another
-   feature's bytes, the whole decision lives here and the cave only calls in.
-
-   Reloads the sidecar when the living roster differs from the one the mask
-   table was last loaded for, and does nothing when it matches.  A roster that
-   cannot be read (tag 0) leaves both the table and the stored tag untouched:
-   a missed reload preserves today's behaviour, while a spurious one would
-   discard a live village's masks. */
-static unsigned int g_vv2_loaded_village;
-
-__declspec(dllexport) void __stdcall Vv2MaskSyncVillage(void) {
-    unsigned int tag = Vv2VillageTag();
-    if (tag == 0) {
+    if (vv2_roster_snapshot(base, cur) == 0) {
         return;                 /* unknown village -> do not touch anything */
     }
-    if (tag == g_vv2_loaded_village) {
+    if (g_vv2_have_roster && vv2_roster_overlap(g_vv2_roster, cur) > 0) {
+        if (!vv2_roster_equal(g_vv2_roster, cur)) {
+            memcpy(g_vv2_roster, cur, sizeof(cur));
+            vv2_mask_sidecar_save();
+        }
         return;                 /* same village -> keep the masks as they are */
     }
-    vv2_mask_sidecar_load();    /* clears, then applies only a matching file */
-    g_vv2_loaded_village = tag;
+    vv2_mask_sidecar_load(cur); /* clears, then applies only a matching file */
+    memcpy(g_vv2_roster, cur, sizeof(cur));
+    g_vv2_have_roster = 1;
 }
 
 /* ---- The per-frame mask sweep, moved out of the appended page --------------
-
-   The .vvmk page is shared with the parentage cave (0x41A..0x4D8) and the
-   villagers-died payload (from 0x4D8), and the sweep loop no longer fit beside
-   them.  The loop is logic, not a hook, so it lives here; the cave keeps only
-   the detour, pushad/popad, the replayed prologue and one call.
 
    Line-for-line port of the assembly it replaces, over the same .mtab bytes:
    a record seen alive that is now free loses its mask and its latch; a record
@@ -1611,7 +1628,7 @@ __declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
     /* Which village is on screen?  Reloads the sidecar on a village change --
        first load and a same-slot Start Over alike -- and leaves everything
        untouched when the roster cannot be read. */
-    Vv2MaskSyncVillage();
+    Vv2MaskSyncVillage(base);
 
     *VV2_SWEEP_CLEARED = 0;
     for (i = 0; i < VV2_RECORD_COUNT; ++i) {
@@ -1635,7 +1652,21 @@ __declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
     }
 }
 
-__declspec(dllexport) void __stdcall Vv2MaskRestore(void) { vv2_mask_sidecar_load(); }
+/* exe-callable early restore.  Resolves the record array itself; with no
+   village loaded the snapshot is empty, nothing can match, and the table is
+   simply left cleared -- the same fail-closed result as every other path. */
+typedef unsigned char *(__stdcall *vv2_restore_record_array_fn)(void);
+__declspec(dllexport) void __stdcall Vv2MaskRestore(void) {
+    unsigned int cur[VV2_RECORD_COUNT];
+    unsigned char *base = ((vv2_restore_record_array_fn)0x0044F4E0)();
+    int i;
+    if (base == 0) {
+        for (i = 0; i < VV2_RECORD_COUNT; ++i) cur[i] = 0;
+    } else {
+        vv2_roster_snapshot(base, cur);
+    }
+    vv2_mask_sidecar_load(cur);
+}
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
 
