@@ -455,8 +455,59 @@ MASK_TICK_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x1F8
 # Cached Vv1DoublerSave / Vv1DoublerRestore pointers. 0 = unresolved,
 # 1 = permanent fail-open sentinel, so a build without the DLL does not
 # repeat loader work on every save or load.
-DOUBLER_SAVE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x1FC
+#
+# THE SAVE CACHE MUST NOT SHARE A BYTE WITH MASK_BIRTH_DIRTY.  It once sat at
+# +0x1FC, the same dword whose low byte is MASK_BIRTH_DIRTY: the birth hook's
+# `mov byte ptr [+0x1FC], 1` and the DLL's clear turned a cached
+# `DLL+0x2050` into `DLL+0x2001` and then `DLL+0x2000`, and the next autosave
+# called into the middle of an instruction inside Vv1DoublerRestore -- the
+# owner's crash (dump: eax = DLL+0x2000, ebx = 1, write to address 1, return
+# address in the save stub).  Whether that build crashed or merely fell open
+# (a birth before the first save leaves the cache reading 1, the sentinel)
+# depended on the export's RVA and on event order, which is why it went
+# unnoticed.  SCRATCH_SLOTS below makes any such overlap a build failure.
+DOUBLER_SAVE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x204
 DOUBLER_RESTORE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x200
+
+# Every distinct thing this builder or the companion keeps in the .vv1md
+# scratch, with its size in bytes.  Checked for overlap at import time so a
+# collision like the one above can never be built again.
+SCRATCH_SLOTS = (
+    ("MASK_TABLE", MASK_TABLE_VA, 0x80),
+    ("MASK_SURFACES", MASK_SURFACES_VA, 0x14),
+    ("DEST_SURFACE_CACHE", DEST_SURFACE_CACHE_VA, 4),
+    ("MASK_MANAGER", MASK_MANAGER_VA, 4),
+    ("MASK_RESTORE_DONE", MASK_RESTORE_DONE_VA, 4),
+    ("PORTRAIT_DLL_FN", PORTRAIT_DLL_FN_VA, 4),
+    ("PORTRAIT_RESERVED", PORTRAIT_RESERVED_VA, 4),
+    ("VILLAGE_CUR_IDX", VILLAGE_CUR_IDX_VA, 4),
+    ("VILLAGE_MASK_SPRITE", VILLAGE_MASK_SPRITE_VA, 4),
+    ("VILLAGE_MASK_DLL_FN", VILLAGE_MASK_DLL_FN_VA, 4),
+    ("VILLAGE_SURFACE_SAVE", VILLAGE_SURFACE_SAVE_VA, 4),
+    ("VILLAGE_FILL_SAVE", VILLAGE_FILL_SAVE_VA, 4),
+    ("VILLAGE_MASK_ROW", VILLAGE_MASK_ROW_VA, 4),
+    ("VILLAGE_DBG_CALLER", VILLAGE_DBG_CALLER_VA, 4),
+    ("VILLAGE_MASKED_BITMAP", VILLAGE_MASKED_BITMAP_VA, 0x20),
+    ("VILLAGE_DRAWFN", VILLAGE_DRAWFN_VA, 4),
+    ("MASK_SAVE_SLOT", MASK_SAVE_SLOT_VA, 4),
+    ("MASK_TICK_DLL_FN", MASK_TICK_DLL_FN_VA, 4),
+    ("MASK_BIRTH_DIRTY", MASK_BIRTH_DIRTY_VA, 1),
+    ("DOUBLER_RESTORE_DLL_FN", DOUBLER_RESTORE_DLL_FN_VA, 4),
+    ("DOUBLER_SAVE_DLL_FN", DOUBLER_SAVE_DLL_FN_VA, 4),
+)
+
+
+def _check_scratch_slots(slots=SCRATCH_SLOTS) -> None:
+    ordered = sorted(slots, key=lambda s: s[1])
+    for (a_name, a_va, a_size), (b_name, b_va, b_size) in zip(ordered, ordered[1:]):
+        if a_va + a_size > b_va:
+            raise AssertionError(
+                f"scratch overlap: {a_name} [{a_va:#x}, {a_va + a_size:#x}) and "
+                f"{b_name} [{b_va:#x}, {b_va + b_size:#x})"
+            )
+
+
+_check_scratch_slots()
 # The village-mask code (two per-loop stash writes + the shared-draw hook) lives
 # in the patch-owned .vv1mc R-X section, laid out contiguously with the other
 # VV1 mask helpers and kept separate from the stock shared .shr section.
