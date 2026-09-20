@@ -125,6 +125,9 @@ NUMERIC_KEYS_FEATURE_PATHS = (
     ROOT / "data" / "vv1_number_keys_feature.json",
     ROOT / "data" / "vv2_numeric_keys_tip_feature.json",
 )
+# Show Parents in Details Screen: A New Home's true-parentage companion, which
+# keeps every villager's parents in a sidecar and draws them in the portrait.
+SHOW_PARENTS_FEATURE_PATHS = (ROOT / "data" / "vv1_show_parents_feature.json",)
 VV2_PLAYTEST_DISABLED_FEATURE_ID = "vv2_enable_origins_exclusive_features"
 VV2_PLAYTEST_DISABLED_FEATURE_PATH = ROOT / "data" / "vv2_origins_feature.json"
 VV3_RUNNING_CANDIDATE_PATHS = {
@@ -2775,6 +2778,11 @@ def _load_fun_patch_records(
             if record.get("enabled", True):
                 items.append(record)
     for feature_path in NUMERIC_KEYS_FEATURE_PATHS:
+        if feature_path.is_file():
+            record = json.loads(feature_path.read_text(encoding="utf-8"))
+            if record.get("enabled", True):
+                items.append(record)
+    for feature_path in SHOW_PARENTS_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

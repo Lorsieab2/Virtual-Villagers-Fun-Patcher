@@ -492,6 +492,9 @@ __declspec(dllexport) void *__stdcall Vv1GetMaskSprite(void) {
      atlas, x, y, row, facing, scale, enable.
    The wrapper returns with `ret 0x1C`, so this @16 helper never owns the native
    argument cleanup. */
+static void vv1_parentage_bridge_draw(void *gameobj, void *record,
+                                      void *draw_wrapper, const int *args);   /* defined with Vv1MaskTick below */
+
 __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
                                                         void *record,
                                                         void *draw_wrapper,
@@ -506,6 +509,9 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
     if (g == NULL || rec == NULL || rec < g || draw_wrapper == NULL || args == NULL) {
         return 0;
     }
+    /* The parentage companion draws the parents' figures here, before the
+       mask decides whether it has anything of its own to draw. */
+    vv1_parentage_bridge_draw(gameobj, record, draw_wrapper, args);
     /* villager index from THIS gameobj (record = gameobj + index*stride), not
        the world hook's cached base -- so it's correct in the Details context. */
     delta = (size_t)(rec - g);
@@ -1111,10 +1117,84 @@ static void vv1_numkeys_bridge(void) {
     vv1_numkeys_tick();
 }
 
+/* ---- the VV1 parentage companion ------------------------------------------
+
+   "VVFP VV1 Parentage.dll" (Show Parents in Details Screen) needs two moments
+   this DLL already owns: one call per frame (it watches the records for a
+   birth) and the Details portrait draw (it draws the parents' figures).  Same
+   loading rule as the number-keys companion above: the executable's own
+   directory, resolved once outside the loader lock, fail-open when the DLL is
+   not shipped. */
+typedef int (__stdcall *vv1_parentage_tick_t)(void);
+typedef int (__stdcall *vv1_parentage_draw_t)(void *gameobj, void *record,
+                                              void *draw_wrapper, const int *args);
+typedef int (__stdcall *vv1_parentage_born_t)(void *child, void *mother);
+static int vv1_parentage_state;   /* 0 = not tried, 1 = resolved, -1 = unavailable */
+static vv1_parentage_tick_t vv1_parentage_tick;
+static vv1_parentage_draw_t vv1_parentage_draw;
+static vv1_parentage_born_t vv1_parentage_born;
+
+static int vv1_parentage_resolve(void) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    if (vv1_parentage_state != 0) {
+        return vv1_parentage_state == 1;
+    }
+    vv1_parentage_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Parentage.dll") > sizeof(path)) {
+        return 0;
+    }
+    lstrcpyA(slash + 1, "VVFP VV1 Parentage.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return 0;                 /* not shipped: the row is off */
+    }
+    vv1_parentage_tick = (vv1_parentage_tick_t)GetProcAddress(companion, "Vv1ParentageTick");
+    vv1_parentage_draw = (vv1_parentage_draw_t)GetProcAddress(companion, "Vv1ParentageDrawPortrait");
+    vv1_parentage_born = (vv1_parentage_born_t)GetProcAddress(companion, "Vv1ParentageBorn");
+    if (vv1_parentage_tick == NULL || vv1_parentage_draw == NULL || vv1_parentage_born == NULL) {
+        return 0;
+    }
+    vv1_parentage_state = 1;
+    return 1;
+}
+
+static void vv1_parentage_bridge_tick(void) {
+    if (vv1_parentage_resolve()) {
+        vv1_parentage_tick();
+    }
+}
+
+static void vv1_parentage_bridge_draw(void *gameobj, void *record,
+                                      void *draw_wrapper, const int *args) {
+    if (vv1_parentage_resolve()) {
+        vv1_parentage_draw(gameobj, record, draw_wrapper, args);
+    }
+}
+
+/* The executable's exact birth hook (sub_43C840 at 0x43CA48): the newborn's
+   record, already named, and its mother's.  Forwarded to the parentage
+   companion; a missing companion is a no-op. */
+__declspec(dllexport) int __stdcall Vv1Born(void *child, void *mother) {
+    if (!vv1_parentage_resolve()) {
+        return 0;
+    }
+    return vv1_parentage_born(child, mother);
+}
+
 __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     int swept;
     int birth_dirty;
     vv1_numkeys_bridge();       /* number keys companion: loaded once, fail-open */
+    vv1_parentage_bridge_tick(); /* parentage companion: watches for births, fail-open */
     if (!vv1_mask_prepare_slot()) {
         return;  /* slot not captured yet -> no table or sidecar mutation */
     }

@@ -511,11 +511,88 @@ static int publish_file(FILE *file, const wchar_t *temporary,
 }
 
 /* Write one villager's block. Returns 0 on any write failure. */
+/* ---- A New Home: the villager's OWN parents -----------------------------
+
+   Every other game records only the father of a pregnancy on the mother,
+   which is what the "Father:" block below prints.  A New Home records
+   nothing -- but "VVFP VV1 Parentage.dll" (Show Parents in Details Screen)
+   keeps each villager's own mother and father in a sidecar, and hands them
+   back by record index.  Resolved once, from the executable's own directory,
+   never from DllMain; absent companion, absent block. */
+typedef int (__stdcall *vv1_parents_query_t)(int index, int *out);
+typedef int (__stdcall *vv1_parents_names_t)(int index, char *father, char *mother, int capacity);
+static int vv1_parents_state;     /* 0 = not tried, 1 = resolved, -1 = unavailable */
+static vv1_parents_query_t vv1_parents_query;
+static vv1_parents_names_t vv1_parents_names;
+
+static int vv1_parents_resolve(void) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    if (vv1_parents_state != 0) {
+        return vv1_parents_state == 1;
+    }
+    vv1_parents_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Parentage.dll") > sizeof(path)) {
+        return 0;
+    }
+    lstrcpyA(slash + 1, "VVFP VV1 Parentage.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return 0;
+    }
+    vv1_parents_query = (vv1_parents_query_t)GetProcAddress(companion, "Vv1ParentageQuery");
+    vv1_parents_names = (vv1_parents_names_t)GetProcAddress(companion, "Vv1ParentageQueryNames");
+    if (vv1_parents_query == NULL || vv1_parents_names == NULL) {
+        return 0;
+    }
+    vv1_parents_state = 1;
+    return 1;
+}
+
+/* The block, when at least one parent is known.  Returns 0 only on a write
+   failure. */
+static int write_vv1_own_parents(FILE *file, int index) {
+    int parents[4];
+    char father[MAX_NAME_BYTES];
+    char mother[MAX_NAME_BYTES];
+    int father_known, mother_known;
+    if (!vv1_parents_resolve()
+        || !vv1_parents_query(index, parents)
+        || !vv1_parents_names(index, father, mother, (int)sizeof(father))) {
+        return 1;
+    }
+    father_known = parents[0] >= 0 && parents[1] >= 0;
+    mother_known = parents[2] >= 0 && parents[3] >= 0;
+    if (!father_known && !mother_known) {
+        return 1;
+    }
+    if (fprintf(file, "  Parents:\n") < 0) return 0;
+    if (father_known) {
+        if (fprintf(file, "    Father: %s\n      Head: %d\n      Body: %d\n",
+                    father[0] ? father : "(unnamed)", parents[0], parents[1]) < 0) return 0;
+    }
+    if (mother_known) {
+        if (fprintf(file, "    Mother: %s\n      Head: %d\n      Body: %d\n",
+                    mother[0] ? mother : "(unnamed)", parents[2], parents[3]) < 0) return 0;
+    }
+    return 1;
+}
+
 static int write_villager(
     FILE *file,
     const struct game_layout *g,
     const unsigned char *record,
-    int number
+    int number,
+    int game_id,
+    int index
 ) {
     char name[MAX_NAME_BYTES];
     unsigned int skill;
@@ -578,6 +655,9 @@ static int write_villager(
                     *(const int *)(record + g->father_body)) < 0) {
             return 0;
         }
+    }
+    if (game_id == GAME_VV1 && !write_vv1_own_parents(file, index)) {
+        return 0;
     }
 
     /* Omitted entirely when the game's skill table is not established,
@@ -699,7 +779,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
                 return 0;
             }
         }
-        if (!write_villager(file, g, record, written + 1)) {
+        if (!write_villager(file, g, record, written + 1, game_id, (int)index)) {
             fclose(file);
             DeleteFileW(temporary);
             return 0;

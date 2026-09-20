@@ -1,0 +1,32 @@
+{
+  "id": "vv1_show_parents",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Show Parents in Details Screen",
+  "description": "Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait -- the father on the left facing right, the mother on the right facing left -- and hovering one reads \"Son of <name>\" or \"Daughter of <name>\". The record is kept in vv1_parents_<slot>.dat beside the save, never inside a villager record or the save itself, and an entry is never erased: only a new villager in the same slot starts it over. Each birth is also written to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before this patch have no recorded parents. Requires Enable Origins-Exclusive Features, whose companion loads this one. The father is supplied by Write Parentage Log's conception hook, so with that row off only the mother is recorded.",
+  "output_tag": "Show Parents",
+  "dependencies": [
+    "vv1_enable_origins_exclusive_features"
+  ],
+  "behavior_changes": [
+    "The Details portrait of a villager under 18 with recorded parents shows two half-faded parent figures in the frame's upper corners, built from each parent's own head and body rows; hovering one shows \"Son of <name>\" / \"Daughter of <name>\" under the portrait.",
+    "Conceptions stash the father's name, head and body against the mother; at each birth the game's own child-creation routine hands the named child and its mother to the companion (the Origins row's hook at 0x43CA48), so both parents are recorded for the child -- during load-time catch-up too -- immediately appended to the parentage log as a \"Birth\" record, then written to vv1_parents_<slot>.dat.",
+    "The Village Population roster gains a \"Parents:\" block on A New Home villagers whose parents are recorded."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes itself: it is the companion DLL alone, reached through hooks the Origins row (the birth hook, the per-frame tick, the portrait hook) and the parentage log row (the conception hook) install.",
+    "No villager record field and no byte of the save is written; the record lives only in the sidecar beside the save.",
+    "A recorded entry is never erased by death, ageing or de-ageing; only a new occupant of the same record slot resets it.",
+    "Founders, villagers born before the patch, and a birth whose parents cannot be told apart (two look-alike mothers delivering in one frame) are left unknown rather than guessed."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/parentage/VVFP VV1 Parentage.dll",
+      "destination": "VVFP VV1 Parentage.dll",
+      "sha256": "67A3D1E449F3F75EDF2815DBA2AA6ECCBBC58F58DEE5E78FE55417FA21227410"
+    }
+  ],
+  "patches": []
+}

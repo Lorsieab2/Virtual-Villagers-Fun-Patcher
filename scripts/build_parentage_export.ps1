@@ -22,6 +22,7 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     /I $sharedRoot `
     (Join-Path $nativeRoot "parentage_export.c") `
     (Join-Path $sharedRoot "village_identity.c") `
+    (Join-Path $sharedRoot "save_folder.c") `
     /link `
     ("/DEF:" + (Join-Path $nativeRoot "parentage_export.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
@@ -29,7 +30,8 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
     ("/OUT:" + (Join-Path $outputRoot "VVFP Parentage Export.dll")) `
     /RELEASE `
-    kernel32.lib
+    kernel32.lib `
+    shell32.lib
 if ($LASTEXITCODE -ne 0) {
     throw "Native parentage DLL compilation failed."
 }
@@ -37,6 +39,7 @@ if ($LASTEXITCODE -ne 0) {
 @(
     (Join-Path $projectRoot "parentage_export.obj"),
     (Join-Path $projectRoot "village_identity.obj"),
+    (Join-Path $projectRoot "save_folder.obj"),
     (Join-Path $projectRoot "parentage_export.exp"),
     (Join-Path $projectRoot "parentage_export.lib")
 ) | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {
