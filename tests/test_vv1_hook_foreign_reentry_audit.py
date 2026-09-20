@@ -179,6 +179,13 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # on the load function and Vv1DoublerRestore on the save function.
     #
     # SAVE half, spliced at the save function's epilogue 0x41BF68. The stub
+    # Re-verified again when the save stub's cache dword moved from
+    # scratch+0x1FC to scratch+0x204: only the two absolute operands changed
+    # (the cached-pointer load/store and the sentinel store); the register
+    # contract -- pushad, push esi (state), call, popad, displaced epilogue --
+    # is byte-for-byte the same. +0x1FC was the birth-dirty BYTE, whose writes
+    # corrupted the cached export address and called into the middle of an
+    # instruction (the owner's 23:31 crash dump).
     # pushad/popads around LoadLibraryA + GetProcAddress("Vv1DoublerSave") +
     # call, then replays the displaced `pop edi / pop esi / ret 4` and
     # RETURNS. It never re-enters stock code at all, so it cannot create a
@@ -186,7 +193,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # pointer the write at 0x41BF58 passed as state+8 -- and pushad/popad
     # restores it and every other live register. The single stdcall argument
     # is unwound by the callee's `ret 4`, so ESP is unchanged.
-    ("vv1_enable_origins_exclusive_features", "0x1BF68"): "394B611C7064FE6015DA4E43B8B28409E729103872651A364816081D812C679F",
+    ("vv1_enable_origins_exclusive_features", "0x1BF68"): "BCD3E0DB27AD1BBFFF587C03A39AE0842D86937107FD99BC592F618661EBE350",
     # RESTORE half, spliced on the load path at 0x41BEFD, after the read
     # succeeded (0x41BECB jnz) and the `rep movsd` at 0x41BEDB installed the
     # state. EBX holds that state. The stub replays the displaced
