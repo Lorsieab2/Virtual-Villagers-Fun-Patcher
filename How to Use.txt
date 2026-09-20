@@ -328,6 +328,30 @@ Mastery record or duplicate Origins-exclusive record is exposed. Existing save
 fields are changed only when the selected in-game upgrade runs. Runtime/player
 confirmation remains pending.
 
+NUMERIC KEYS ZIP AROUND THE ISLAND (A NEW HOME)
+
+The later games let the number keys jump the view to one of nine sections of
+the island, laid out like a numeric keypad:
+
+    7 8 9    top row
+    4 5 6    middle
+    1 2 3    bottom row
+
+A New Home now does the same, and glides there the way The Lost Children does
+rather than jumping. Both the top-row digits and the numeric keypad work.
+Holding a key does not repeat; scrolling by hand while it is gliding cancels
+the glide; Ctrl+digit and Alt+digit are left alone; nothing happens until a
+village is on screen. It also adds the loading-screen tip "You can zip around
+the island with your numeric keys."
+
+The feature is its own companion, VVFP VV1 Number Keys.dll, which the Origins
+companion loads once per game session, so the row requires Enable
+Origins-Exclusive Features; unticking that unticks this. No executable space
+is claimed for the tip: its text replaces the unused demo-version message.
+
+The Lost Children's matching tip is reworded from "keypad" to "numeric keys"
+by its own small row, Tip Wording: Numeric Keys.
+
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 
 Everything this patcher writes for a village sits beside that village's save,

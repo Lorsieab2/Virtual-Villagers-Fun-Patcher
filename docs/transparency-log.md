@@ -171,6 +171,16 @@ Completing the Magic Fruit of Life puzzle globally shifts every ordinary village
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Numeric Keys: Zip Around the Island (`vv1_number_keys`)
+
+The number keys move the view to one of nine sections of the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), gliding there the way The Lost Children and the later games do. Top-row digits and keypad digits both work; holding a key does not repeat; scrolling by hand mid-glide cancels it. Adds the loading-screen tip "You can zip around the island with your numeric keys." Requires Enable Origins-Exclusive Features, whose companion loads this one.
+
+- Behavior changes: Pressing 1-9 (top row or numeric keypad) glides the view to the matching ninth of the island, reaching the same corners the game's own map clicks are clamped to (x -205..885, y -5..1205). One more loading-screen tip can appear: "You can zip around the island with your numeric keys."
+- Explicit non-changes/exclusions: No villager, save, or village-state field other than the scroll position is written. Ctrl+digit and Alt+digit are ignored; key auto-repeat is ignored; a digit typed before any village exists does nothing. The "points." string is unchanged in wording; only its internal id moves (0x225 -> 0x27E). No executable space is claimed: every changed byte replaces bytes of the unreferenced demo-version string record or a single immediate.
+- Dependencies: vv1_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Reenable F6 Clothing Change Cheat (`vv1_f6_clothing_change_cheat`)
 
 The clothing shortcut cycles the selected active villager through the stock outfits: pressing F6 spends 5,000 tech points to advance to the next outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.
@@ -312,6 +322,16 @@ Each child who finishes a Teaching Children lesson gains 7 to 9 points in one eq
 
 - Behavior changes: Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 - Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Tip Wording: Numeric Keys (`vv2_numeric_keys_tip_wording`)
+
+Rewords the loading-screen tip "You can zip around the island with your keypad." to "You can zip around the island with your numeric keys.", matching A New Home's new tip. The keys themselves already work in The Lost Children; nothing else changes.
+
+- Behavior changes: One loading-screen tip reads "numeric keys" instead of "keypad".
+- Explicit non-changes/exclusions: No code, save, or village-state byte changes; the German text is untouched. No executable space is claimed: the new text replaces the unreferenced demo-version strings.
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
