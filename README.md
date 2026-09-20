@@ -134,7 +134,7 @@ Gives A New Home the true parentage the later games keep: every villager born in
 
 **Sort by Age/Skill/Health in Details Screen**
 
-Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do: ascending by age, by the villager's highest skill, or by health, earlier villagers first among equals, wrapping at either end, and the place in the list is kept when the order is changed. Age is the default; the choice lasts for the session. The band is game art (the plates and radio) drawn 1:1. The feature is its own companion, `VVFP VV1 Sort By.dll`, loaded by the Origins companion, whose arrow hooks ask it which villager comes next; it requires Enable Origins-Exclusive Features.
+Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do: ascending by age, by the villager's highest skill, or by health, earlier villagers first among equals, wrapping at either end, and the place in the list is kept when the order is changed. Age is the default; the choice lasts for the session. The band is drawn over the stock Details background (which is not replaced), 1:1, with The Lost Children's 16-pixel radio marking the chosen order. The feature is its own companion, `VVFP VV1 Sort By.dll`, loaded by the Origins companion, whose arrow hooks ask it which villager comes next; it requires Enable Origins-Exclusive Features.
 
 - Patch ID: `vv1_sort_by`
 

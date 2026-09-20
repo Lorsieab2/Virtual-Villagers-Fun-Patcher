@@ -38,18 +38,16 @@
    like the number-keys companion.  No sidecar: the chosen order is a session
    setting, as in the later games.
 
-   ART.  The owner's own, after their mockup: Images/vvfp_sort_title.png (the
-   "Sort By:" plate), Images/vvfp_sort_age.png, vvfp_sort_skill.png and
-   vvfp_sort_health.png (one plate each, words included), and
-   Images/vvfp_sort_radio.png (a sheet of three cells: 0 blank, 1 selected;
-   The Lost Children's detailradiobtn.png).  Every image is drawn 1:1 at
-   the mockup's spot through the engine's own draw (0x409410), and the
-   sizes come from the images themselves (the sprite's cell size), so the
-   art can change without touching this code.  The words -- "Sort By:",
-   "Age", "Skill", "Health" -- are the game's own font at 70%, centred on
-   each plate in the Details labels' brown, so they fit inside the plates
-   (the engine's text wrappers only draw at full size; the glyphs are
-   blitted here through its scaled blit). */
+   ART.  The owner's own: Images/vvfp_sort_band.png is the band they painted
+   into the Details background -- the "Sort By:" plate, the Age, Skill and
+   Health plates with their words, and an empty radio holder on each -- cut
+   from their VD_BG.png at (8, 475), 258x40, and drawn back there 1:1 every
+   Details frame through the engine's own draw (0x409410), so the stock
+   background file is never replaced.  Images/vvfp_sort_radio.png is The
+   Lost Children's detailradiobtn.png at 16 px (a sheet of three 16x16
+   cells: 0 blank, 1 selected); the holders in the band ARE its blank cell,
+   so the chosen order's radio is the selected cell drawn 1:1, 16x16, over
+   the holder.  No words are drawn: they are in the art. */
 #include <windows.h>
 #include <string.h>
 
@@ -80,34 +78,18 @@
 #define VV1_ADDR_SPRITE_CTOR   0x0040A070u  /* thiscall(this; file, cols, rows) ret 0xC */
 #define VV1_SPRITE_OBJECT_SIZE 0x34
 #define VV1_ADDR_SCALED_DRAW   0x00409410u  /* thiscall(wrapper; atlas, x, y, row, col, scale, flag) ret 0x1C */
-/* The pieces of the engine's text draw (0x409160), replayed here at a scale
-   the wrappers never expose: the font's implementation object is [font+4],
-   its glyph-rect method is vtable slot 1 (thiscall(impl; char, rect*)),
-   0x402510 (thiscall(impl; colour)) hands back the glyph sheet tinted to
-   the colour, and 0x403D70 is the scaled blit the sprites use. */
-#define VV1_RENDERER_FONT      0x5Cu        /* renderer: the default font */
-#define VV1_FONT_IMPL          0x4u         /* font: its implementation object */
-#define VV1_FONT_IMPL_SURFACE  0xCu         /* impl: the glyph sheet holder, NULL = no glyphs */
-#define VV1_ADDR_FONT_SURFACE  0x00402510u  /* thiscall(impl; colour) -> SDL_Surface* */
-#define VV1_ADDR_BLIT          0x00403D70u  /* thiscall(renderer; surface, x, y, x1, y1, x2, y2, alpha, scale, flag) ret 0x28 */
 
-/* The band under the Age/Gender boxes and above the villager strip
-   (logical 800x600): x 8..280, y 466..521.  Two rows like the owner's mockup:
-   "Sort By:" centred above, then plate+radio for each order. */
-#define SORT_TITLE_X           85           /* the mockup: title plate top-left */
-#define SORT_TITLE_Y           474
-#define SORT_ROW_Y             499          /* top of the plates and radios */
-#define SORT_FIRST_PLATE_X     6
-#define SORT_GROUP_STEP        88           /* plate start to next plate start: 6, 94, 182 */
-#define SORT_RADIO_GAP         4            /* plate right edge to radio */
-#define SORT_DEFAULT_PLATE_W   60           /* until the art is loaded (the harness) */
-#define SORT_DEFAULT_PLATE_H   18
-#define SORT_DEFAULT_RADIO_W   32
-#define SORT_SPRITE_CELL_W     0x10u        /* sprite object: cell width, height */
-#define SORT_SPRITE_CELL_H     0x14u
-#define SORT_TEXT_SCALE        70           /* percent of the font's size: fits the plates */
-#define SORT_TEXT_COLOUR       0xFF002144u  /* the Details labels' brown (68,33,0): the engine reads the word as A,B,G,R */
-#define SORT_TEXT_DY           2            /* the words' top inside a plate */
+/* The band (logical 800x600 pixels), measured from the owner's art: the
+   strip they changed in the Details background is x 8..265, y 475..514;
+   the three plates (each with its radio holder) span x 8..89, 95..176 and
+   184..265 at y 496..514, and the holders are the radio sheet's blank cell
+   at (62, 498), (148, 498) and (240, 498), 16x16 each (template-matched). */
+#define SORT_BAND_X            8
+#define SORT_BAND_Y            475
+#define SORT_PLATE_Y0          496          /* the plates' rows: [Y0, Y1) */
+#define SORT_PLATE_Y1          515
+#define SORT_RADIO_Y           498          /* the holders' top */
+#define SORT_RADIO_SIZE        16           /* the sheet's cells: 16x16 */
 #define SORT_MODES             3
 
 typedef unsigned int (__cdecl *sdl_add_event_watch_t)(void *filter, void *userdata);
@@ -120,11 +102,11 @@ static int g_count;
 static DWORD g_last_draw_tick;            /* when the Details band was last drawn */
 static int g_seen_selection = -1;         /* the selection as of the last drawn Details frame */
 static int g_watch_installed;             /* 0 no, 1 yes, -1 failed */
-static void *g_plate_sprite[SORT_MODES];  /* 0 untried, 1 failed, else sprite */
-static void *g_title_sprite;
+static void *g_band_sprite;               /* 0 untried, 1 failed, else sprite */
 static void *g_radio_sprite;
-static const char *const SORT_PLATE_FILES[SORT_MODES] = { "vvfp_sort_age.png", "vvfp_sort_skill.png", "vvfp_sort_health.png" };
-static const char *const SORT_WORDS[SORT_MODES] = { "Age", "Skill", "Health" };
+static const int SORT_PLATE_X0[SORT_MODES] = { 8, 95, 184 };     /* each plate's columns: [X0, X1) */
+static const int SORT_PLATE_X1[SORT_MODES] = { 90, 177, 266 };
+static const int SORT_RADIO_X[SORT_MODES]  = { 62, 148, 240 };   /* each holder's left edge */
 
 
 /* ---- the rule --------------------------------------------------------- */
@@ -256,135 +238,16 @@ static void vv1_draw_cell(void *wrapper, void *atlas, int x, int y, int row, int
     }
 }
 
-/* One glyph through the scaled blit: (x, y) is the top-left of the scaled
-   glyph (flag 0: no centring). */
-static void vv1_blit_glyph(void *renderer, void *surface, int x, int y, int x1, int y1, int x2, int y2, float scale) {
-    unsigned int f_blit = VV1_ADDR_BLIT;
-    unsigned int alpha_bits, scale_bits;
-    float alpha = 1.0f;
-    int flag = 0;
-    memcpy(&alpha_bits, &alpha, 4);
-    memcpy(&scale_bits, &scale, 4);
-    __asm {
-        mov  ecx, renderer
-        push flag
-        push scale_bits
-        push alpha_bits
-        push y2
-        push x2
-        push y1
-        push x1
-        push y
-        push x
-        push surface
-        call f_blit
-    }
-}
-
-static int vv1_glyph_rect(void *impl, int c, int *rect) {
-    void *vt = *(void **)impl;
-    unsigned int f = *(unsigned int *)((unsigned char *)vt + 4);
-    rect[0] = rect[1] = rect[2] = rect[3] = 0;
-    __asm {
-        mov  ecx, impl
-        push rect
-        push c
-        call f                 /* thiscall(impl; char, rect*) */
-    }
-    return rect[2] - rect[0];
-}
-
-/* The engine's text draw (0x409160) at a scale: same font, same glyph
-   rects, same tinted glyph sheet, each glyph blitted through 0x403D70 with
-   our scale instead of the 1.0 the wrappers hardcode.  Centred on
-   centre_x; y is the top of the scaled text. */
-static void vv1_draw_text_scaled(void *wrapper, const char *text, int centre_x, int y, unsigned int colour, int percent) {
-    unsigned char *renderer = *(unsigned char **)wrapper;
-    unsigned char *font, *impl;
-    void *surface = NULL;
-    unsigned int f_surface = VV1_ADDR_FONT_SURFACE;
-    float scale = (float)percent / 100.0f;
-    int rect[4];
-    int width = 0, x;
-    const char *s;
-    if (renderer == NULL || text == NULL) {
-        return;
-    }
-    font = *(unsigned char **)(renderer + VV1_RENDERER_FONT);
-    if (font == NULL) {
-        return;
-    }
-    impl = *(unsigned char **)(font + VV1_FONT_IMPL);
-    if (impl == NULL || *(void **)(impl + VV1_FONT_IMPL_SURFACE) == NULL) {
-        return;
-    }
-    __asm {
-        mov  ecx, impl
-        push colour
-        call f_surface         /* thiscall(impl; colour) */
-        mov  surface, eax
-    }
-    if (surface == NULL) {
-        return;
-    }
-    for (s = text; *s; ++s) {
-        width += vv1_glyph_rect(impl, (int)(signed char)*s, rect) * percent / 100;
-    }
-    x = centre_x - width / 2;
-    for (s = text; *s; ++s) {
-        int w = vv1_glyph_rect(impl, (int)(signed char)*s, rect);
-        if (w > 0) {
-            vv1_blit_glyph(renderer, surface, x, y, rect[0], rect[1], rect[2], rect[3], scale);
-            x += w * percent / 100;
-        }
-    }
-}
-
-static int vv1_sprite_size(void *sprite, int *w, int *h, int default_w, int default_h) {
-    if (sprite == NULL) {
-        *w = default_w; *h = default_h;
-        return 0;
-    }
-    *w = *(const int *)((unsigned char *)sprite + SORT_SPRITE_CELL_W);
-    *h = *(const int *)((unsigned char *)sprite + SORT_SPRITE_CELL_H);
-    if (*w <= 0 || *h <= 0 || *w > 400 || *h > 100) {
-        *w = default_w; *h = default_h;
-    }
-    return 1;
-}
-
-/* Where each order's plate and radio sit (logical pixels), from the art. */
-static void vv1_group_rects(int mode, int *plate_x, int *plate_w, int *plate_h, int *radio_x, int *radio_w) {
-    int rh;
-    void *plate = (g_plate_sprite[mode] == (void *)1) ? NULL : g_plate_sprite[mode];
-    void *radio = (g_radio_sprite == (void *)1) ? NULL : g_radio_sprite;
-    vv1_sprite_size(plate, plate_w, plate_h, SORT_DEFAULT_PLATE_W, SORT_DEFAULT_PLATE_H);
-    vv1_sprite_size(radio, radio_w, &rh, SORT_DEFAULT_RADIO_W, SORT_DEFAULT_RADIO_W);
-    *plate_x = SORT_FIRST_PLATE_X + mode * SORT_GROUP_STEP;
-    *radio_x = *plate_x + *plate_w + SORT_RADIO_GAP;
-}
-
+/* The band, then the chosen order's radio: the sheet's selected cell,
+   16x16, 1:1, exactly over the holder the art carries. */
 static void vv1_draw_band(void *wrapper) {
-    void *title = vv1_sprite(&g_title_sprite, "vvfp_sort_title.png", 1, 1);
+    void *band = vv1_sprite(&g_band_sprite, "vvfp_sort_band.png", 1, 1);
     void *radios = vv1_sprite(&g_radio_sprite, "vvfp_sort_radio.png", 3, 1);
-    int m;
-    if (title != NULL) {
-        int tw, th;
-        vv1_sprite_size(title, &tw, &th, 74, 23);
-        vv1_draw_cell(wrapper, title, SORT_TITLE_X, SORT_TITLE_Y, 0, 0, 100);
-        vv1_draw_text_scaled(wrapper, "Sort By:", SORT_TITLE_X + tw / 2, SORT_TITLE_Y + SORT_TEXT_DY + 1, SORT_TEXT_COLOUR, SORT_TEXT_SCALE);
+    if (band != NULL) {
+        vv1_draw_cell(wrapper, band, SORT_BAND_X, SORT_BAND_Y, 0, 0, 100);
     }
-    for (m = 0; m < SORT_MODES; ++m) {
-        int px, pw, ph, rx, rw;
-        void *plate = vv1_sprite(&g_plate_sprite[m], SORT_PLATE_FILES[m], 1, 1);
-        vv1_group_rects(m, &px, &pw, &ph, &rx, &rw);
-        if (plate != NULL) {
-            vv1_draw_cell(wrapper, plate, px, SORT_ROW_Y, 0, 0, 100);
-            vv1_draw_text_scaled(wrapper, SORT_WORDS[m], px + pw / 2, SORT_ROW_Y + SORT_TEXT_DY, SORT_TEXT_COLOUR, SORT_TEXT_SCALE);
-        }
-        if (radios != NULL) {
-            vv1_draw_cell(wrapper, radios, rx, SORT_ROW_Y + (ph - rw) / 2, 0, m == g_mode ? 1 : 0, 100);
-        }
+    if (radios != NULL && g_mode >= 0 && g_mode < SORT_MODES) {
+        vv1_draw_cell(wrapper, radios, SORT_RADIO_X[g_mode], SORT_RADIO_Y, 0, 1, 100);
     }
 }
 
@@ -406,11 +269,12 @@ static void vv1_play_click(void) {
 
 static int vv1_hit(int x, int y) {
     int m;
+    if (y < SORT_PLATE_Y0 || y >= SORT_PLATE_Y1) {
+        return -1;
+    }
     for (m = 0; m < SORT_MODES; ++m) {
-        int px, pw, ph, rx, rw;
-        vv1_group_rects(m, &px, &pw, &ph, &rx, &rw);
-        if (y >= SORT_ROW_Y - 2 && y < SORT_ROW_Y + ph + 2 && x >= px - 2 && x < rx + rw + 2) {
-            return m;
+        if (x >= SORT_PLATE_X0[m] && x < SORT_PLATE_X1[m]) {
+            return m;               /* the plate, its word or its radio */
         }
     }
     return -1;

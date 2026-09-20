@@ -11,7 +11,7 @@
     "vv1_enable_origins_exclusive_features"
   ],
   "behavior_changes": [
-    "The Details screen shows a \"Sort By:\" band with Age, Skill and Health plates and radios in the space between the Age/Gender boxes and the villager strip; clicking a plate or its radio chooses the order.",
+    "The Details screen shows a \"Sort By:\" band (the owner's art, drawn over the stock background, which is not replaced) with Age, Skill and Health plates and radios in the space between the Age/Gender boxes and the villager strip; clicking a plate or its radio chooses the order.",
     "The Details left/right arrows step through the living villagers in the chosen order (ascending key, record index among equals, wrapping at either end); the list position is kept across a change of order, as in the later games."
   ],
   "explicit_non_changes": [
@@ -23,32 +23,17 @@
     {
       "source": "assets/sort_by/VVFP VV1 Sort By.dll",
       "destination": "VVFP VV1 Sort By.dll",
-      "sha256": "5F2743A3FFD82438D84034FACFBDF1DFD8AF3DDBCF16045EA44D4E27984DB6E7"
+      "sha256": "6801A7B638D0374B4C44832D0BD491B13856F26228833B6FA6E92BDCD0A9953C"
+    },
+    {
+      "source": "assets/sort_by/vvfp_sort_band.png",
+      "destination": "Images/vvfp_sort_band.png",
+      "sha256": "425BF65E30F67E9E57E8933E4BD604A8E9B71F80CFCF8746355E99E9FD485883"
     },
     {
       "source": "assets/sort_by/vvfp_sort_radio.png",
       "destination": "Images/vvfp_sort_radio.png",
       "sha256": "40BBB2CAF1960EB6181A1E586076AAC4773A70A988B9DAAC4DB06335C3A771A2"
-    },
-    {
-      "source": "assets/sort_by/vvfp_sort_age.png",
-      "destination": "Images/vvfp_sort_age.png",
-      "sha256": "EE4368FBFBB99FD35C148604F3B9A6B97011ADEF4D0E40970D6CED4A0967E3A6"
-    },
-    {
-      "source": "assets/sort_by/vvfp_sort_skill.png",
-      "destination": "Images/vvfp_sort_skill.png",
-      "sha256": "EE4368FBFBB99FD35C148604F3B9A6B97011ADEF4D0E40970D6CED4A0967E3A6"
-    },
-    {
-      "source": "assets/sort_by/vvfp_sort_health.png",
-      "destination": "Images/vvfp_sort_health.png",
-      "sha256": "EE4368FBFBB99FD35C148604F3B9A6B97011ADEF4D0E40970D6CED4A0967E3A6"
-    },
-    {
-      "source": "assets/sort_by/vvfp_sort_title.png",
-      "destination": "Images/vvfp_sort_title.png",
-      "sha256": "61E7EA8B8BC198D2E17691AC2237E9D21252BD48FE3831D208AB56E2D84E397D"
     }
   ],
   "patches": []

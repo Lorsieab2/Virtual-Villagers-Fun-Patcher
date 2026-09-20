@@ -9,9 +9,11 @@ This row ships the companion "VVFP VV1 Sort By.dll", which the Origins row's
 two arrow hooks ask which villager to select, and which draws the "Sort By:"
 band from the Origins companion's Details portrait hook.
 
-The art is the owner's, after their mockup: a "Sort By:" plate, one plate per
-order with its word, and The Lost Children's radio sheet.  Every image is
-drawn 1:1 and sized from the file, so replacing the PNGs is enough.
+The art is the owner's: the band they painted into the Details background
+("Sort By:", the Age/Skill/Health plates with their words and a radio holder
+each), cut from their VD_BG.png at (8, 475) as vvfp_sort_band.png and drawn
+back there 1:1, plus The Lost Children's radio sheet at 16 px, whose selected
+cell marks the chosen order over its holder.
 
 The DLL and the image are pinned by SHA-256, so the manifest must be
 regenerated after every rebuild of the DLL.
@@ -25,8 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "sort_by" / "VVFP VV1 Sort By.dll"
 RADIO = ROOT / "assets" / "sort_by" / "vvfp_sort_radio.png"
-PLATES = {m: ROOT / "assets" / "sort_by" / f"vvfp_sort_{m}.png" for m in ("age", "skill", "health")}
-TITLE = ROOT / "assets" / "sort_by" / "vvfp_sort_title.png"
+BAND = ROOT / "assets" / "sort_by" / "vvfp_sort_band.png"
 OUT = ROOT / "data" / "vv1_sort_by_feature.json"
 
 
@@ -57,7 +58,7 @@ def main() -> None:
             "vv1_enable_origins_exclusive_features",
         ],
         "behavior_changes": [
-            "The Details screen shows a \"Sort By:\" band with Age, Skill and Health plates and radios in the space between the Age/Gender boxes and the villager strip; clicking a plate or its radio chooses the order.",
+            "The Details screen shows a \"Sort By:\" band (the owner's art, drawn over the stock background, which is not replaced) with Age, Skill and Health plates and radios in the space between the Age/Gender boxes and the villager strip; clicking a plate or its radio chooses the order.",
             "The Details left/right arrows step through the living villagers in the chosen order (ascending key, record index among equals, wrapping at either end); the list position is kept across a change of order, as in the later games.",
         ],
         "explicit_non_changes": [
@@ -72,22 +73,14 @@ def main() -> None:
                 "sha256": _sha(DLL),
             },
             {
+                "source": "assets/sort_by/vvfp_sort_band.png",
+                "destination": "Images/vvfp_sort_band.png",
+                "sha256": _sha(BAND),
+            },
+            {
                 "source": "assets/sort_by/vvfp_sort_radio.png",
                 "destination": "Images/vvfp_sort_radio.png",
                 "sha256": _sha(RADIO),
-            },
-        ] + [
-            {
-                "source": f"assets/sort_by/vvfp_sort_{m}.png",
-                "destination": f"Images/vvfp_sort_{m}.png",
-                "sha256": _sha(PLATES[m]),
-            }
-            for m in ("age", "skill", "health")
-        ] + [
-            {
-                "source": "assets/sort_by/vvfp_sort_title.png",
-                "destination": "Images/vvfp_sort_title.png",
-                "sha256": _sha(TITLE),
             },
         ],
         "patches": [],

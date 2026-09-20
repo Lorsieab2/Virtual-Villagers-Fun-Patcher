@@ -30,7 +30,7 @@ HARNESS_C = ROOT / "native" / "vv1_sort_by" / "vv1_sort_by_harness.c"
 ORIGINS_C = ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
 PARENTAGE_C = ROOT / "native" / "vv1_parentage" / "vv1_parentage.c"
 
-ART = ("vvfp_sort_title.png", "vvfp_sort_age.png", "vvfp_sort_skill.png", "vvfp_sort_health.png", "vvfp_sort_radio.png")
+ART = ("vvfp_sort_band.png", "vvfp_sort_radio.png")
 
 
 def _define(source: str, name: str) -> int:
@@ -50,15 +50,53 @@ class ManifestAndDllTests(unittest.TestCase):
         self.assertEqual(manifest["dependencies"], ["vv1_enable_origins_exclusive_features"])
         self.assertTrue(manifest["enabled"])
 
-    def test_art_is_png_and_the_radio_is_a_three_cell_sheet(self):
+    def test_art_is_png_and_the_radio_is_a_three_cell_sheet_of_16px(self):
         for name in ART:
             data = (ROOT / "assets" / "sort_by" / name).read_bytes()
             self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n", name)
         from PIL import Image
         radio = Image.open(ROOT / "assets" / "sort_by" / "vvfp_sort_radio.png")
+        self.assertEqual(radio.height, 16, "the owner: the radio selector is 16x16")
         self.assertEqual(radio.width, radio.height * 3, "three square cells: blank, selected, selected")
+        band = Image.open(ROOT / "assets" / "sort_by" / "vvfp_sort_band.png")
+        self.assertEqual(band.size, (258, 40), "the strip the owner changed in the Details background")
         source = SORT_C.read_text(encoding="utf-8")
         self.assertIn('vv1_sprite(&g_radio_sprite, "vvfp_sort_radio.png", 3, 1)', source)
+        self.assertIn('vv1_sprite(&g_band_sprite, "vvfp_sort_band.png", 1, 1)', source)
+        self.assertEqual(_define(source, "SORT_RADIO_SIZE"), 16)
+        self.assertNotIn("vv1_draw_text_scaled", source, "the words are in the art; no custom text scaling (the owner)")
+
+    def test_the_radio_positions_are_where_the_art_has_its_holders(self):
+        # The holders painted into the band are the sheet's blank cell; the
+        # code's SORT_RADIO_X/Y must land the selected cell exactly on them,
+        # and the plates' click rects must contain them.  Measured from the
+        # art, not from the code, so the two cannot drift apart silently.
+        from PIL import Image
+        source = SORT_C.read_text(encoding="utf-8")
+        band = Image.open(ROOT / "assets" / "sort_by" / "vvfp_sort_band.png").convert("RGBA")
+        radio = Image.open(ROOT / "assets" / "sort_by" / "vvfp_sort_radio.png").convert("RGBA")
+        cell = radio.crop((0, 0, 16, 16))
+        mask = [(x, y) for y in range(16) for x in range(16) if cell.getpixel((x, y))[3] > 128]
+        self.assertGreater(len(mask), 100)
+        band_x, band_y = _define(source, "SORT_BAND_X"), _define(source, "SORT_BAND_Y")
+        self.assertEqual((band_x, band_y), (8, 475))
+        radio_y = _define(source, "SORT_RADIO_Y")
+        radio_x = [int(v) for v in re.search(r"SORT_RADIO_X\[SORT_MODES\]\s*=\s*\{([^}]*)\}", source).group(1).split(",")]
+        x0 = [int(v) for v in re.search(r"SORT_PLATE_X0\[SORT_MODES\]\s*=\s*\{([^}]*)\}", source).group(1).split(",")]
+        x1 = [int(v) for v in re.search(r"SORT_PLATE_X1\[SORT_MODES\]\s*=\s*\{([^}]*)\}", source).group(1).split(",")]
+        y0, y1 = _define(source, "SORT_PLATE_Y0"), _define(source, "SORT_PLATE_Y1")
+
+        def error(bx, by):
+            return sum(abs(a - b) for (x, y) in mask for a, b in zip(band.getpixel((bx + x, by + y))[:3], cell.getpixel((x, y))[:3]))
+
+        for m in range(3):
+            bx, by = radio_x[m] - band_x, radio_y - band_y
+            here = error(bx, by)
+            self.assertLess(here / len(mask), 48, "mode %d: the sheet's blank cell is not at the code's radio spot (16 per channel)" % m)
+            for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                self.assertLess(here, error(bx + dx, by + dy), "mode %d: a neighbour matches better; the spot is off by one" % m)
+            self.assertTrue(x0[m] <= radio_x[m] and radio_x[m] + 16 <= x1[m], "the radio inside its plate's click rect")
+            self.assertTrue(y0 <= radio_y and radio_y + 16 <= y1)
 
     def test_dll_exports_what_origins_calls(self):
         pe = pefile.PE(str(DLL))

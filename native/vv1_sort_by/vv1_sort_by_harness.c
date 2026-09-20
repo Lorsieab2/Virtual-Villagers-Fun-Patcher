@@ -116,9 +116,11 @@ int main(int argc, char **argv) {
     CHECK(step(NULL, -1, 99, +1) == 99, "no records: the stock candidate");
 
     printf("== the click map ==\n");
-    CHECK(hit(6 + 30, 499 + 8) == 0 && hit(94 + 30, 499 + 8) == 1 && hit(182 + 30, 499 + 8) == 2, "each plate answers its order");
-    CHECK(hit(6 + 60 + 4 + 8, 499 + 8) == 0 && hit(6 + 60 + 4 + 30, 499 + 8) == 0, "the radio beside a plate answers the same order");
-    CHECK(hit(6 + 30, 300) == -1 && hit(400, 499 + 8) == -1, "outside the band: nothing");
+    CHECK(hit(30, 505) == 0 && hit(130, 505) == 1 && hit(220, 505) == 2, "each plate answers its order");
+    CHECK(hit(62 + 8, 498 + 8) == 0 && hit(148 + 8, 498 + 8) == 1 && hit(240 + 8, 498 + 8) == 2, "each radio holder answers its order");
+    CHECK(hit(8, 496) == 0 && hit(89, 514) == 0 && hit(90, 505) == -1 && hit(94, 505) == -1 && hit(95, 505) == 1, "the plate edges: inclusive left/top, the gap between plates is nothing");
+    CHECK(hit(30, 495) == -1 && hit(30, 515) == -1 && hit(30, 485) == -1, "above the plates (the title) and below: nothing");
+    CHECK(hit(30, 300) == -1 && hit(400, 505) == -1, "outside the band: nothing");
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
