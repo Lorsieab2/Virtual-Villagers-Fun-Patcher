@@ -35,7 +35,10 @@ MASK_HOOK_ENTRY_PREFIXES = {
     0x3160: "508B442408",
     0x95B0: "508B4424043D505B4400",
     0x9600: "508B4424043D40554400",
-    0x45B50: "60C605",
+    # pushad, then `mov eax,[SWEEP_FN]` -- the cave loads the cached
+    # Vv2MaskSweep pointer and forwards ECX. It used to begin with the
+    # SWEEP_CLEARED store, which moved into the DLL along with the loop.
+    0x45B50: "60A124",
     0x4C5E6: "8986D874E50060",
 }
 
@@ -75,33 +78,59 @@ def test_vv2_atlas_migration_replaces_only_exact_bundled_legacy_art() -> None:
 
 
 def test_dead_slot_clears_are_persisted_once_after_the_sweep() -> None:
+    """One snapshot per pass, and only when something was actually cleared.
+
+    The ordering moved into the DLL with the loop, but the contract is
+    unchanged: reset the flag, walk the records, clear a dead villager's mask
+    and mark the flag, then persist once at the end if anything was marked.
+    Persisting unconditionally would rewrite the sidecar on every frame.
+    """
     assert 'SAVE_STR = b"Vv2MaskSaveSidecar\\x00"' in STAGE2
     assert "SAVE_FN     = MASK_TABLE_VA + 0xF1C" in STAGE2
-    assert "mov  dword ptr [0x{SAVE_FN:X}], eax" in STAGE2
 
-    sweep = STAGE2[STAGE2.index("sweep_asm = f\"\"\""):]
-    reset = sweep.index("mov  byte ptr [0x{SWEEP_CLEARED_VA:X}], 0")
-    clear = sweep.index("mov  byte ptr [esi+0x{MASK_TABLE_VA:X}], 0")
-    mark = sweep.index("mov  byte ptr [0x{SWEEP_CLEARED_VA:X}], 1")
-    save_check = sweep.index("cmp  byte ptr [0x{SWEEP_CLEARED_VA:X}], 0")
-    save_call = sweep.index("call eax                             /* Vv2MaskSaveSidecar() */")
-    loop = sweep.index("sweep_loop:")
-    assert reset < loop < clear < mark < save_check < save_call
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    body = source[source.index("__stdcall Vv2MaskSweep("):]
+    body = body[:body.index("\n}\n") + 3]
+
+    reset = body.index("*VV2_SWEEP_CLEARED = 0;")
+    loop = body.index("for (i = 0;")
+    clear = body.index("VV2_MASK_TABLE[i] = 0;")
+    mark = body.index("*VV2_SWEEP_CLEARED = 1;")
+    check = body.index("if (*VV2_SWEEP_CLEARED)")
+    save = body.index("vv2_mask_sidecar_save();")
+    assert reset < loop < clear < mark < check < save, (
+        "the persist-once ordering is broken; the sidecar would be rewritten "
+        "on every frame or not at all")
 
 
-def test_first_frame_sweep_reloads_the_saved_compositor_receiver() -> None:
-    """The sidecar restore is allowed to clobber volatile ECX.
+def test_the_record_base_cannot_be_clobbered_before_it_is_captured() -> None:
+    """The contract for the VV2 startup AV at generated RVA 0xB437C.
 
-    The sweep must therefore recover the entry receiver saved by ``pushad``
-    before its first record dereference.  This is the exact contract for the
-    observed VV2 startup AV at generated RVA 0xB437C.
+    The sidecar restore is allowed to clobber volatile ECX. The old cave dealt
+    with that by reloading EDX from the pushad frame AFTER the restore call.
+    The base is now forwarded as the call argument before any call runs, so it
+    cannot be clobbered in between -- the hazard is structural rather than
+    worked around.
+
+    The DLL's own null check is the other half: a base that never arrives makes
+    the sweep do nothing rather than dereference it.
     """
-    sweep = STAGE2[STAGE2.index("sweep_asm = f\"\"\""):]
-    restore = sweep.index("call eax                             /* Vv2MaskRestore()")
-    reload_receiver = sweep.index("mov  edx, [esp+0x18]", restore)
-    first_record_read = sweep.index("cmp  byte ptr [edx+0x30], 0", reload_receiver)
-    assert restore < reload_receiver < first_record_read
-    assert "mov  edx, ecx                        /* edx = record[0] base" not in sweep
+    gate = STAGE2[STAGE2.index('sweep_asm = f"""'):]
+    gate = gate[:gate.index('"""', 20)]
+    assert gate.index("push ecx") < gate.index("call eax"), (
+        "the base is captured after a call, so it could already be clobbered")
+    assert "mov  edx, [esp+0x18]" not in gate, (
+        "the pushad-frame reload is back; the base should arrive as an "
+        "argument instead")
+
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    body = source[source.index("__stdcall Vv2MaskSweep("):]
+    body = body[:body.index("\n}\n") + 3]
+    assert "if (base == 0" in body, (
+        "the sweep no longer refuses a null base, so a hook firing with no "
+        "village would dereference it")
 
 
 def test_dll_exports_the_sidecar_save_used_by_the_sweep() -> None:
@@ -362,10 +391,16 @@ def test_manifest_publishes_all_mask_hooks_and_exact_append_pages() -> None:
         assert len(mode_append) == layout["append_length"] == 0x2000
         assert hashlib.sha256(mode_append).hexdigest().upper() == layout["page_sha256"]
         assert layout["page_sha256"] == tx["page_sha256"]
-        # pushad saves entry ECX at [esp+0x18].  The generated lifecycle sweep
-        # must reload it after Vv2MaskRestore and before reading record+0x30;
-        # using live ECX here caused the observed startup AV at RVA 0xB437C.
-        assert bytes.fromhex("8B54241831F6807A3000") in mode_append
+        # The record walk moved into the DLL, so the page no longer contains
+        # it. What the page must still contain is the hook that forwards the
+        # compositor receiver: `push ecx; call eax`, with ECX pushed before any
+        # call can clobber it. Reloading it from the pushad frame afterwards --
+        # `mov edx,[esp+0x18]` -- was the old workaround for the startup AV at
+        # RVA 0xB437C, and must not come back.
+        assert bytes.fromhex("51FFD0") in mode_append, (
+            "the cave does not forward ECX to Vv2MaskSweep")
+        assert bytes.fromhex("8B542418") not in mode_append, (
+            "the pushad-frame reload is back in the appended page")
         assert bytes.fromhex("89CA31F6807A3000") not in mode_append
         for header in layout["header_patches"]:
             before = bytes.fromhex(header["before"])
@@ -484,3 +519,295 @@ def test_release_zip_carries_the_literal_vv2_mask_transaction(tmp_path: Path) ->
             assert len(payload) == 0x2000
             assert hashlib.sha256(payload).hexdigest().upper() == layout["page_sha256"]
             assert "append_source" not in layout
+
+
+def test_the_sweep_lives_in_the_dll_and_the_cave_only_forwards_ecx() -> None:
+    """The appended page is shared, so the loop belongs in the companion.
+
+    .vvmk is claimed by three features: the mask stubs, the parentage cave at
+    0x41A..0x4D8, and the villagers-died payload from 0x4D8. The per-frame
+    sweep is logic rather than a hook, so it lives in the DLL; the executable
+    keeps only the detour, the argument and the replayed prologue.
+
+    ECX must be forwarded BEFORE any call, while it still holds the
+    compositor's receiver. An earlier restore call clobbered ECX and caused a
+    first-frame AV at RVA 0xB437C; passing it up front removes that hazard.
+    """
+    source = STAGE2
+    assert "Vv2MaskSweep" in source, (
+        "the cave no longer resolves the sweep export, so no village-change "
+        "reload and no death sweep would run at all")
+    gate = source[source.index('sweep_asm = f"""'):]
+    gate = gate[:gate.index('"""', 20)]
+    assert "push ecx" in gate, "the record[0] base is not forwarded to the DLL"
+    assert gate.index("push ecx") < gate.index("call eax"), (
+        "ECX is forwarded after the call, so a clobbered ECX would be passed")
+    # The loop must NOT have come back into the page.
+    for gone in ("sweep_loop", "slot_alive", "SEEN_ALIVE_VA"):
+        assert gone not in gate, (
+            f"{gone} is back in the appended page; the loop belongs in the DLL")
+
+
+def test_the_dll_sweep_still_reloads_on_a_village_change() -> None:
+    """The bleed returns silently if the sweep stops asking.
+
+    Byte guards cannot see this: the cave would still call the export, the
+    export would still sweep the dead, and a same-slot Start Over would simply
+    keep the previous village's masks. So pin the call itself.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    body = source[source.index("__stdcall Vv2MaskSweep("):]
+    body = body[:body.index("\n}\n") + 3]
+    assert "Vv2MaskSyncVillage(base)" in body, (
+        "Vv2MaskSweep no longer performs the village-change reload, so a "
+        "Start Over in the same slot keeps the dead village's masks")
+    assert body.index("Vv2MaskSyncVillage(base)") < body.index("for ("), (
+        "the village reload must precede the death sweep, so the sweep "
+        "reconciles the freshly loaded table against the live records")
+
+
+def test_the_mask_code_clears_both_reserved_ranges() -> None:
+    """The appended page is shared, and both neighbours must stay untouched.
+
+    build_vv2_parentage_feature.py overlays its cave at .vvmk 0x41A..0x4D8, and
+    build_vv2_villagers_died_feature.py places its payload from 0x4D8. An
+    earlier revision walked into the first, and the next attempt landed exactly
+    on the second, so this measures the rendered page rather than trusting the
+    layout arithmetic.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "_vv2_feat", ROOT / "scripts" / "build_vv2_origins_feature.py")
+    module = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(module)
+    except SystemExit:
+        pass
+    stock = module.STOCK.read_bytes()
+    append = module.build_vv2_mask_stage2_output(stock)[len(stock):]
+    vvmk = append[0x1000:]
+
+    parentage = sum(1 for byte in vvmk[0x41A:0x4D8] if byte)
+    villagers_died = sum(1 for byte in vvmk[0x4D8:] if byte)
+    assert parentage == 0, (
+        f"{parentage} mask byte(s) land inside the parentage cave "
+        "(.vvmk 0x41A..0x4D8)")
+    assert villagers_died == 0, (
+        f"{villagers_died} mask byte(s) land inside the villagers-died payload "
+        "(.vvmk from 0x4D8)")
+
+
+def test_the_sidecar_is_bound_to_the_village_that_wrote_it() -> None:
+    """Detecting a village change is useless if the reload restores the old file.
+
+    The first attempt shipped exactly that: the sweep noticed the change, the
+    restore reloaded vv2_masks_<slot>.dat -- keyed only by slot -- and the
+    table was refilled with the DEAD village's masks. The record therefore
+    carries a per-slot snapshot of the living roster, and the load applies it
+    only when that snapshot shares at least one living villager with the
+    village on screen. Removing that check leaves every other test green.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+
+    # 'VM04': the record grew (snapshot, not a single tag), so an older file
+    # fails the magic and is ignored rather than misread.
+    assert "0x34304D56u" in source, (
+        "the sidecar magic is not 'VM04'; an older file could be misread")
+
+    load = source[source.index("static void vv2_mask_sidecar_load("):]
+    load = load[:load.index(chr(10) + "}" + chr(10)) + 3]
+    assert "vv2_roster_same(filesnap, live)" in load, (
+        "the mask sidecar is applied without checking that its roster shares "
+        "a living villager with the village on screen, so a Start Over in the "
+        "same slot restores the dead village's masks")
+
+    save = source[source.index("static void vv2_mask_sidecar_save("):]
+    save = save[:save.index(chr(10) + "}" + chr(10)) + 3]
+    assert "WriteFile(f, g_vv2_roster, sizeof(g_vv2_roster), &w, NULL);" in save, (
+        "the sidecar is written without its roster snapshot, so it can never "
+        "be matched against the village that wrote it")
+    assert "if (!g_vv2_have_roster) return;" in save, (
+        "an unidentified village must not write a file at all")
+
+
+def test_a_birth_or_death_does_not_count_as_a_new_village() -> None:
+    """The exact-hash version failed exactly here.
+
+    An exact hash of the active records changes on every birth and death. The
+    sync read that as a replacement, cleared the table, rejected the sidecar
+    (which carried the old hash), and the next death persisted the emptied
+    table -- an ordinary population change removed every surviving villager's
+    mask. Codex caught it before it shipped.
+
+    The rule is overlap: the same village across a birth or a death still
+    shares almost all of its villagers, while a reused slot shares none. So a
+    changed roster that still OVERLAPS must be adopted, not reloaded, and the
+    reload must be reachable only when the overlap is zero.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
+    sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
+
+    overlap = sync.index("vv2_roster_same(g_vv2_roster, cur)")
+    reload = sync.index("vv2_mask_sidecar_load(cur);")
+    assert overlap < reload, (
+        "the reload is not gated behind the overlap check")
+    same_village_return = sync.index("return 1;", overlap)   # the same-village exit
+    assert same_village_return < reload, (
+        "an overlapping roster must return WITHOUT reloading; otherwise a "
+        "birth or a death wipes every surviving villager's mask")
+    # And the overlapping-but-changed case must adopt the new snapshot rather
+    # than keep comparing against a stale one forever.
+    adopt = sync.index("memcpy(g_vv2_roster, cur, sizeof(cur));")
+    assert overlap < adopt < same_village_return, (
+        "a changed-but-overlapping roster is not adopted as the same village")
+    # The exact-hash export must not come back.
+    assert "Vv2VillageTag" not in source, (
+        "the exact-hash village tag is back; it reads births and deaths as a "
+        "village replacement")
+
+
+def test_one_shared_slot_name_is_not_a_village_identity() -> None:
+    """The fourth finding on #386, and the one the majority rule exists for.
+
+    "Two villages never share villagers" is true of whole rosters, not of one
+    slot: founders fill slots 0..6 in order from a finite name pool, so a
+    recreated village landing the same name in the same slot as its
+    predecessor is roughly one-in-pool-size per slot. With `overlap > 0` a
+    single coincidence kept the dead village's masks and wrote them under the
+    new one.
+
+    The predicate must therefore demand a MAJORITY of the smaller roster. A
+    single death leaves prev-1 >= ceil((prev-1)/2) always; births keep every
+    previous villager; a fresh 7-villager start needs four independent
+    coincidences to pass. Restoring `overlap > 0` must fail here.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    same = source[source.index("static int vv2_roster_same("):]
+    same = same[:same.index(chr(10) + "}" + chr(10)) + 3]
+
+    assert "need = need / 2 + 1;" in same, (
+        "the match no longer requires a STRICT majority of the smaller roster")
+    assert "need = (need + 1) / 2;" not in same, (
+        "(n + 1) / 2 is exactly half for an even roster: one-of-two and "
+        "two-of-four would match a replacement village")
+    assert "vv2_roster_overlap(a, b) >= need" in same, (
+        "the overlap is not compared against the majority threshold")
+    assert "return vv2_roster_overlap(a, b) > 0" not in same, (
+        "one shared slot-name is being treated as a village identity again")
+    # And an empty roster must match nothing, so a load frame with no
+    # villagers cannot pass by vacuous majority.
+    assert "if (need == 0)" in same and "return 0;" in same, (
+        "an empty roster must never match")
+
+
+def test_every_export_name_survives_in_the_rendered_page() -> None:
+    """The init resolves exports by NAME from strings in the appended page.
+
+    code0 used to be aligned right after Vv2ExtractAtlas, so the two strings
+    laid out beyond it -- Vv2MaskSaveSidecar and Vv2MaskSweep -- were
+    overwritten by the adult stub. GetProcAddress got garbage, returned NULL,
+    and the init jumped to no_restore before SAVE_FN and SWEEP_FN were set:
+    the death-clear persist had silently never worked, and the village-change
+    sweep never ran at all. Every byte guard stayed green, because the hook
+    that loads [SWEEP_FN] was intact -- it just always found 0.
+
+    Measure the rendered page. Every name the init resolves must be present
+    verbatim, or the export it names is never called.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "_vv2_feat_strings", ROOT / "scripts" / "build_vv2_origins_feature.py")
+    module = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(module)
+    except SystemExit:
+        pass
+    stock = module.STOCK.read_bytes()
+    vvmk = module.build_vv2_mask_stage2_output(stock)[len(stock):][0x1000:]
+
+    for name in (b"VVFP VV2 Origins Icons.dll\x00", b"Vv2MaskRestore\x00",
+                 b"Vv2ExtractAtlas\x00", b"Vv2MaskSaveSidecar\x00",
+                 b"Vv2MaskSweep\x00"):
+        assert name in vvmk, (
+            f"{name[:-1].decode()} is not intact in the rendered page, so the "
+            "init resolves garbage and that export is never called")
+
+
+def test_an_unknown_frame_neither_sweeps_nor_persists() -> None:
+    """A slot switch publishes the new slot before its records exist.
+
+    On such a frame every record reads free. The sync correctly says
+    "unknown" -- but if the death loop still runs, the previous village's
+    seen-alive latches clear the table, and the persist writes that emptied
+    table, tagged with the OLD roster, into the NEW slot's file. Switching to
+    an existing village would destroy its valid sidecar before its villagers
+    even appeared. Codex caught it on #386.
+
+    So the sweep must gate the loop and the persist on the sync's answer.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    body = source[source.index("__stdcall Vv2MaskSweep("):]
+    body = body[:body.index(chr(10) + "}" + chr(10)) + 3]
+    gate = body.index("if (!Vv2MaskSyncVillage(base))")
+    assert gate < body.index("for ("), (
+        "the death loop runs before the sync has said a village is on screen")
+    assert body.index("return;", gate) < body.index("for ("), (
+        "an unknown frame must return before the loop, not fall into it")
+    sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
+    sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
+    assert "int __stdcall Vv2MaskSyncVillage" in source, (
+        "the sync no longer reports whether a village is on screen")
+    assert sync.count("return 0;") >= 2, (
+        "the sync must report unknown for both a null base and an empty roster")
+
+
+def test_a_replacement_resets_the_previous_villages_latches() -> None:
+    """The seen-alive latches belong to the village that set them.
+
+    Carried into a replacement village, they would let its first frames clear
+    masks for slots the old village had alive. The old cave never reset them
+    because it never knew a village had changed; that knowledge is what this
+    PR adds, so the reset belongs with it.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
+    sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
+    same_return = sync.index("return 1;               /* same village")
+    reset = sync.index("VV2_SEEN_ALIVE[i] = 0;")
+    reload = sync.index("vv2_mask_sidecar_load(cur);")
+    assert same_return < reset < reload, (
+        "the latches are not reset on the replaced path before the reload")
+
+
+def test_a_slot_change_always_reloads_even_when_the_roster_overlaps() -> None:
+    """The owner copies saves between slots, so two slots can share a roster.
+
+    Switching between them passed the majority test as "same village", so the
+    new slot's own vv2_masks_<slot>.dat was never read and the first slot's
+    masks stayed on screen -- and the next roster change would have saved
+    that table over the destination's file. The old cave zeroed LOADED_VA on
+    a slot change; the DLL sweep dropped that flag, so the slot has to be part
+    of the cached identity instead. Codex caught it on #386.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
+    sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
+    assert "slot == g_vv2_slot && vv2_roster_same(g_vv2_roster, cur)" in sync, (
+        "the same-village test no longer requires the same slot, so switching "
+        "to a copied save keeps the previous slot's masks")
+    assert "g_vv2_slot = slot;" in sync, (
+        "the reload path does not record the slot it loaded for")
+    assert sync.index("g_vv2_slot = slot;") > sync.index("vv2_mask_sidecar_load(cur);"), (
+        "the slot must be adopted with the reload, not before it")
+    assert "slot <= 0" in sync, (
+        "an unpublished slot must count as unknown, not clear the masks")

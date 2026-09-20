@@ -107,10 +107,18 @@ SLOT_PATH_WINDOWS = {
     # clears sit in one contiguous run, well away from its delivery-path
     # clears: VV1 delivers at 0x8B773/0x8B77A/0x8B930/0x8B975 and switches at
     # 0x8E876..0x8E887; VV2 delivers at 0x9A503/0x9A7B6 and switches at
-    # 0xB23F6..0xB2404; VV4 delivers at 0xCCB25/0xCCB69, nowhere near its slot
+    # 0xB2392..0xB23A0; VV4 delivers at 0xCCB25/0xCCB69, nowhere near its slot
     # cave (0xCCFD0) or its out-of-line reset helper (0xCCE00).
+    #
+    # VV2's window moved when the per-frame sweep was moved into the companion
+    # DLL. That page is shared -- the parentage overlay owns .vvmk 0x41A..0x4D8
+    # and the villagers-died payload starts at 0x4D8 -- and the sweep loop no
+    # longer fit beside them, so only the hook remains in the executable and
+    # the slot stub sits earlier. Measured from the rendered image by following
+    # the 0x403160 detour, exactly as test_queued_events_clear_on_slot_change
+    # does, rather than assumed.
     "vv1": [(0x8E800, 0x8E900)],
-    "vv2": [(0xB2380, 0xB2440)],
+    "vv2": [(0xB2340, 0xB23E0)],
     "vv3": [(0xCB100, 0xCB180)],
     "vv4": [(0xCCE00, 0xCCE40), (0xCCFD0, 0xCD000)],
     "vv5": [(0xF8F00, 0xF8F80)],
