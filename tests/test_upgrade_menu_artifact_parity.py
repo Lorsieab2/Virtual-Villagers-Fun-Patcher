@@ -380,11 +380,14 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # Barrel row learned to ask the live population cap rather than only
         # counting free physical records, so the row stops offering a purchase
         # the preflight then refuses; that calculation lives here rather than in
-        # the payload because the Task9 page has 196 bytes left.
-        self.assertEqual(vv5_companion["size"], 1757184)
+        # the payload because the Task9 page has 196 bytes left. Grew by 1,024
+        # bytes when the mask sidecar's village identity became the living
+        # roster (Vv5MaskSync and the roster snapshot/compare), replacing a tag
+        # read from the wrong object that had stopped masks persisting at all.
+        self.assertEqual(vv5_companion["size"], 1758208)
         self.assertEqual(
             vv5_companion["sha256"],
-            "0281E87A84C01747A11BEBDC79B7F7E551065BAAB129E612D194EC42EE223935",
+            "611CAC6B6BE86F4B0CF80D4AF629942B6DEDE2893E88400DFDB76E33FACBA522",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

@@ -84,29 +84,23 @@ MASK_TABLE = 0x7B1D20
 # the sidecar into MASK_TABLE on the first village frame, then sets this. All
 # runtime-written state stays in non-exec .data (W^X-clean; code stays R+X).
 MASK_LOADED = 0x7B1D6C
-# The VILLAGE TAG the mask table was loaded for, not a 0/1 flag.
+# MASK_LOADED is the cached address of the companion's Vv5MaskSync export:
+# 0 = not resolved yet, 1 = unavailable (no DLL or no export; leave the game
+# alone), anything else = call it.  slot_capture still zeroes it on a slot
+# change, which only forces a harmless re-resolve; the village-change
+# decision itself lives in the DLL now.
 #
-# 0 = nothing loaded (BSS at launch, and what slot_capture writes on a slot
-# change). Anything else is the tag of the village whose nibbles are resident.
-#
-# This exists because the one-shot gate used to be invalidated only by a SLOT
-# NUMBER change, and Start Over reuses the slot, so a new village kept the dead
-# one's masks in memory -- the bleed the owner reported. Comparing the tag
-# catches that case and a slot change alike.
-#
-# The tag is two aligned dwords of the save buffer (manager+8), folded here
-# with a cheap xor/add rather than the DLL's FNV-1a. The two need not produce
-# the same number: the DLL's tag identifies a village inside the sidecar FILE,
-# while this one only has to CHANGE when the village changes, and both are
-# derived from the same two dwords, so they change together. Doing FNV-1a in
-# the cave would cost bytes for no benefit. Measured across the owner's 153 VV5 saves covering
-# 10 tribes: 10/10 distinct, constant within a village across its N/N+20/N+40
-# generations, and different across all three real same-slot village
-# replacements in the owner's save folder.
-VV5_MANAGER = 0x004DBFC8
-VV5_SAVE_BIAS = 8
-VV5_TAG_A = VV5_MANAGER + VV5_SAVE_BIAS + 0x328
-VV5_TAG_B = VV5_MANAGER + VV5_SAVE_BIAS + 0x338
+# It used to hold a "village tag" folded from two dwords read at
+# 0x4DBFC8+8+0x328/+0x338, on the belief that 0x4DBFC8+8 was the save buffer.
+# It is not: the save routine at 0x4244F0 is a __thiscall on a save-state
+# object that GATHERS the static managers into the buffer, and 0x4DBFC8 (the
+# collectible manager) lands at +0x640 while +0x328 is the trophy-progress
+# table at 0x4DB358.  Read live those two dwords are zero, so the gate never
+# reloaded and the DLL never wrote -- masks did not persist at all in
+# v1.35.13.  And the object it meant to read is a statistics table whose
+# values move during play, so it could never have been an identity.  The
+# identity that works, proven in The Lost Children, is the living villager
+# roster, compared in the DLL on a strict majority; the page only calls it.
 # Bighead (Details-screen villager portrait) mask render scratch: five R/W .data
 # BSS dwords in the same proven-free window as the flip scratch -- 0x7B1D14..0x1F
 # (just past the flip scratch, before MASK_TABLE) and 0x7B1D70..0x77 (past the
@@ -265,6 +259,7 @@ OFF = {
     "bighead_offsets": 0x6F00,
     "slot_capture": 0x6F20,
     "mask_birth_clear": 0x6F60,
+    "mask_sync": 0x6FA0,
     "strings": 0x7000,
 }
 
@@ -310,6 +305,7 @@ SIZES = {
     "bighead_offsets": 0x10,
     "slot_capture": 0x40,
     "mask_birth_clear": 0x40,
+    "mask_sync": 0x60,
 }
 
 
@@ -381,6 +377,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("genetics_export", b"ShowVV5Task9GeneticsWarning\0"),
         ("writemask_export", b"WriteMaskSidecar\0"),
         ("readmask_export", b"ReadMaskSidecar\0"),
+        ("sync_export", b"Vv5MaskSync\0"),
         ("bighead_atlas", b"bigheads_masks.png\0"),
         ("division_export", b"ApplyVV5EqualDivision\0"),
         ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
@@ -3863,21 +3860,10 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
         push eax
         push edx
         call 0x{page_va + OFF['mask_unflip']:X}
-        # Which village is on screen right now? The render path runs with the
-        # save buffer populated, unlike buildSavePath, so the tag is valid here.
-        mov eax, dword ptr [0x{VV5_TAG_A:X}]
-        mov edx, dword ptr [0x{VV5_TAG_B:X}]
-        or eax, edx
-        jz mf_loaded
-        mov eax, dword ptr [0x{VV5_TAG_A:X}]
-        xor eax, edx
-        cmp eax, dword ptr [0x{MASK_LOADED:X}]
-        je mf_loaded
-        push eax
-        call 0x{page_va + OFF['mask_load_once']:X}
-        pop eax
-        mov dword ptr [0x{MASK_LOADED:X}], eax
-    mf_loaded:
+        # Which village is on screen right now?  The companion decides, from
+        # the living roster (see mask_sync): it reloads the side-table when the
+        # village changed and keeps it when only a birth or death happened.
+        call 0x{page_va + OFF['mask_sync']:X}
         call 0x{page_va + OFF['mask_get']:X}
         test eax, eax
         je mf_done
@@ -4053,6 +4039,39 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     mlo_ret:
         ret
     """)
+    # mask_sync: every head draw asks the companion whether the village on
+    # screen is still the one the side-table was loaded for (Vv5MaskSync, no
+    # arguments, throttled inside the DLL).  The export address is resolved
+    # once and cached in MASK_LOADED; 1 marks "unavailable" so a missing DLL
+    # or export is not retried on every draw and the game simply has no mask
+    # persistence, as before the feature.  ecx is preserved because the DLL
+    # may clobber it and the caller's registers are live across the flip.
+    sync = put(page, page_va, "mask_sync", f"""
+        push ecx
+        mov eax, dword ptr [0x{MASK_LOADED:X}]
+        cmp eax, 1
+        ja msy_call
+        je msy_ret
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        je msy_fail
+        push 0x{s['sync_export']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        je msy_fail
+        mov dword ptr [0x{MASK_LOADED:X}], eax
+    msy_call:
+        call eax
+        pop ecx
+        ret
+    msy_fail:
+        mov dword ptr [0x{MASK_LOADED:X}], 1
+    msy_ret:
+        pop ecx
+        ret
+    """)
     # bighead_mask: detour for the Details-screen villager-portrait head draw
     # (`call 0x409CA0` at 0x466E05 inside sub_466C40). The portrait compositor
     # reads no faction/mask field, so it never draws the mask. This routine
@@ -4161,14 +4180,13 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # eax is clobbered by the original next instruction (mov eax, security_cookie),
     # the cave is free to use it without preserving.
     #
-    # Slot-CHANGE re-arm: when the captured slot differs from the last one (the
-    # player returned to the menu and loaded a DIFFERENT village without restarting
-    # the process), clear MASK_LOADED so the next village frame re-runs
-    # mask_load_once and reloads the new slot's side-table. Without this the stale
-    # in-memory table bleeds the first village's mask choices into the second and a
-    # subsequent appearance purchase would cross-write the new slot's sidecar.
-    # Same-slot saves (slot unchanged) skip the reset, so a normal save never
-    # triggers a spurious reload.
+    # Slot-CHANGE: when the captured slot differs from the last one (the player
+    # returned to the menu and loaded a DIFFERENT village without restarting
+    # the process), record it.  The village-change decision itself is the
+    # companion's (mask_sync reads this slot and the living roster every
+    # draw); zeroing MASK_LOADED here only drops the cached export address so
+    # it is re-resolved -- LoadLibraryA is idempotent -- which is harmless
+    # and keeps this routine byte-for-byte what it was.
     slot_capture = put(page, page_va, "slot_capture", f"""
         mov eax, dword ptr [esp + 4]
         test eax, eax
@@ -4240,7 +4258,7 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     """)
     return {
         "mask_flip": flip, "mask_restore": restore, "mask_unflip": unflip, "mask_get": get, "mask_set": set_,
-        "mask_load_once": load_once, "bighead_mask": bighead,
+        "mask_load_once": load_once, "mask_sync": sync, "bighead_mask": bighead,
         "slot_capture": slot_capture, "mask_birth_clear": birth_clear,
     }
 
