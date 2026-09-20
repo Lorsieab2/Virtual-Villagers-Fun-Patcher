@@ -1436,8 +1436,9 @@ static int vv2_mask_sidecar_path(char *out) {
    from the owner's own reasoning in reverse: two different villages share
    ZERO villagers (100% of the roster changed on the owner's real
    delete-and-recreate), while the same village across a birth or a death
-   shares almost all of them.  So a village is the same village whenever ANY
-   living (slot, name) pair survives, and replaced only when none does.
+   shares almost all of them.  So a village is the same village when a
+   MAJORITY of the smaller roster survives at the same slots, and replaced when
+   it does not -- one shared slot-name is a coincidence, not an identity.
 
    Offsets come from the population exporter's per-game table, which derived
    them from a save file and independently from live memory, and which the
@@ -1479,9 +1480,7 @@ static int vv2_roster_snapshot(const unsigned char *base,
     return live;
 }
 
-/* How many living (slot, name) pairs two rosters share.  Zero means they are
-   different villages; anything else means the same village, however much has
-   been born or buried in between. */
+/* How many living (slot, name) pairs two rosters share. */
 static int vv2_roster_overlap(const unsigned int *a, const unsigned int *b) {
     int i, n = 0;
     for (i = 0; i < VV2_RECORD_COUNT; ++i) {
@@ -1490,6 +1489,50 @@ static int vv2_roster_overlap(const unsigned int *a, const unsigned int *b) {
         }
     }
     return n;
+}
+
+static int vv2_roster_living(const unsigned int *a) {
+    int i, n = 0;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        if (a[i] != 0) {
+            ++n;
+        }
+    }
+    return n;
+}
+
+/* Are two rosters the same village?
+
+   ONE shared slot-name is not proof.  The game fills founder slots in order
+   from a finite name pool, so a recreated village landing the same name in
+   the same slot as its predecessor is roughly one-in-pool-size per slot --
+   a reviewer caught that `overlap > 0` let a single coincidence keep the
+   dead village's masks and write them under the new one.
+
+   The rule that survives it is the owner's argument at the right
+   granularity: different villages share essentially nothing, while the same
+   village across one event -- a birth, a death, a barrel of babies into a
+   tiny village -- shares nearly everything.  So the overlap must cover a
+   MAJORITY of the smaller roster:
+
+       need = ceil(min(living_a, living_b) / 2)
+
+   One death: prev - 1 >= ceil((prev - 1) / 2), always.  Births: prev >=
+   ceil(prev / 2), always.  A fresh 7-villager start replacing an old village
+   of 7 or more needs four independent slot-name coincidences to pass.
+
+   Residual, stated rather than hidden: a predecessor that had one or two
+   living villagers when it was replaced can still be matched by a single
+   coincidence at the same slot. */
+static int vv2_roster_same(const unsigned int *a, const unsigned int *b) {
+    int la = vv2_roster_living(a);
+    int lb = vv2_roster_living(b);
+    int need = la < lb ? la : lb;
+    if (need == 0) {
+        return 0;                              /* an empty roster matches nothing */
+    }
+    need = (need + 1) / 2;                     /* majority of the smaller roster */
+    return vv2_roster_overlap(a, b) >= need;
 }
 
 static int vv2_roster_equal(const unsigned int *a, const unsigned int *b) {
@@ -1556,12 +1599,12 @@ static void vv2_mask_sidecar_load(const unsigned int *live) {
     }
     /* THE ROSTER DECIDES, not the slot.  Slots are reused, so a file left by
        the previous village is exactly what a Start Over or a
-       delete-and-recreate leaves behind.  Its snapshot shares no living
-       villager with the village on screen, so it is ignored, and the table was
-       already cleared above. */
+       delete-and-recreate leaves behind.  Its snapshot shares at most a
+       coincidence or two with the village on screen -- never a majority -- so
+       it is ignored, and the table was already cleared above. */
     if (ReadFile(f, &m, 4, &g, NULL) && g == 4 && m == VV2_MASK_SIDECAR_MAGIC
         && ReadFile(f, filesnap, sizeof(filesnap), &g, NULL) && g == sizeof(filesnap)
-        && vv2_roster_overlap(filesnap, live) > 0
+        && vv2_roster_same(filesnap, live)
         && ReadFile(f, buf, sizeof(buf), &g, NULL) && g == sizeof(buf)) {
         /* Sidecars are user-writable and older builds did not constrain every
            byte. Normalize before publishing anything to the render thunks:
@@ -1581,12 +1624,12 @@ static void vv2_mask_sidecar_load(const unsigned int *live) {
 
    Per frame:
      no living villagers    -> unknown; touch nothing
-     overlap, unchanged     -> same village, nothing to do
-     overlap, changed       -> same village, a birth or a death: adopt the new
+     majority, unchanged    -> same village, nothing to do
+     majority, changed      -> same village, a birth or a death: adopt the new
                                snapshot and persist it, so the file is never
                                more than one event behind
-     no overlap             -> replaced: clear, reload only a matching file,
-                               adopt the new snapshot */
+     no majority            -> replaced: clear, reload only a file whose
+                               snapshot shares a majority, adopt the new one */
 __declspec(dllexport) void __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     unsigned int cur[VV2_RECORD_COUNT];
     if (base == 0) {
@@ -1595,7 +1638,7 @@ __declspec(dllexport) void __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     if (vv2_roster_snapshot(base, cur) == 0) {
         return;                 /* unknown village -> do not touch anything */
     }
-    if (g_vv2_have_roster && vv2_roster_overlap(g_vv2_roster, cur) > 0) {
+    if (g_vv2_have_roster && vv2_roster_same(g_vv2_roster, cur)) {
         if (!vv2_roster_equal(g_vv2_roster, cur)) {
             memcpy(g_vv2_roster, cur, sizeof(cur));
             vv2_mask_sidecar_save();

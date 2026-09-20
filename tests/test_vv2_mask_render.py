@@ -619,7 +619,7 @@ def test_the_sidecar_is_bound_to_the_village_that_wrote_it() -> None:
 
     load = source[source.index("static void vv2_mask_sidecar_load("):]
     load = load[:load.index(chr(10) + "}" + chr(10)) + 3]
-    assert "vv2_roster_overlap(filesnap, live) > 0" in load, (
+    assert "vv2_roster_same(filesnap, live)" in load, (
         "the mask sidecar is applied without checking that its roster shares "
         "a living villager with the village on screen, so a Start Over in the "
         "same slot restores the dead village's masks")
@@ -652,7 +652,7 @@ def test_a_birth_or_death_does_not_count_as_a_new_village() -> None:
     sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
     sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
 
-    overlap = sync.index("vv2_roster_overlap(g_vv2_roster, cur) > 0")
+    overlap = sync.index("vv2_roster_same(g_vv2_roster, cur)")
     reload = sync.index("vv2_mask_sidecar_load(cur);")
     assert overlap < reload, (
         "the reload is not gated behind the overlap check")
@@ -669,3 +669,35 @@ def test_a_birth_or_death_does_not_count_as_a_new_village() -> None:
     assert "Vv2VillageTag" not in source, (
         "the exact-hash village tag is back; it reads births and deaths as a "
         "village replacement")
+
+
+def test_one_shared_slot_name_is_not_a_village_identity() -> None:
+    """The fourth finding on #386, and the one the majority rule exists for.
+
+    "Two villages never share villagers" is true of whole rosters, not of one
+    slot: founders fill slots 0..6 in order from a finite name pool, so a
+    recreated village landing the same name in the same slot as its
+    predecessor is roughly one-in-pool-size per slot. With `overlap > 0` a
+    single coincidence kept the dead village's masks and wrote them under the
+    new one.
+
+    The predicate must therefore demand a MAJORITY of the smaller roster. A
+    single death leaves prev-1 >= ceil((prev-1)/2) always; births keep every
+    previous villager; a fresh 7-villager start needs four independent
+    coincidences to pass. Restoring `overlap > 0` must fail here.
+    """
+    source = (ROOT / "native" / "vv2_origins_icons"
+              / "vv2_origins_icons.c").read_text(encoding="utf-8")
+    same = source[source.index("static int vv2_roster_same("):]
+    same = same[:same.index(chr(10) + "}" + chr(10)) + 3]
+
+    assert "need = (need + 1) / 2;" in same, (
+        "the match no longer requires a majority of the smaller roster")
+    assert "vv2_roster_overlap(a, b) >= need" in same, (
+        "the overlap is not compared against the majority threshold")
+    assert "return vv2_roster_overlap(a, b) > 0" not in same, (
+        "one shared slot-name is being treated as a village identity again")
+    # And an empty roster must match nothing, so a load frame with no
+    # villagers cannot pass by vacuous majority.
+    assert "if (need == 0)" in same and "return 0;" in same, (
+        "an empty roster must never match")
