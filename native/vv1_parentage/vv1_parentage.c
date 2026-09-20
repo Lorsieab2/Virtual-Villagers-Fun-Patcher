@@ -42,7 +42,9 @@
      frame, and the records that became occupied this frame whose head, body
      and +0x36C equal hers.  Each such child gets its entry: father from her
      stash, mother from her own record.  A newly occupied record with no
-     delivering mother (founders, immigrants, a reused slot) gets "unknown".
+     delivering mother (founders, immigrants, a reused slot), or one that is
+     not a newborn, gets "unknown" and is not logged: villagers not spawned
+     by a conception have no parents (the owner's rule).
 
      The birth is written to the parentage log THE MOMENT it is seen, before
      the stash is spent and before the sidecar is rewritten -- the owner's
@@ -111,6 +113,7 @@
 #define VV1_GENDER_MALE        1
 #define VV1_UNITS_PER_YEAR     20
 #define VV1_PARENTS_UNTIL_YEARS 18          /* shown while age < 18, again if de-aged */
+#define VV1_NEWBORN_YEARS      2            /* a record older than this when it appears was not just born */
 
 /* The Details portrait, from sub_437340 and the atlas construction at
    0x43C08E..0x43C158: heads are "female_heads.png"/"male_heads.png", 7 columns
@@ -487,6 +490,7 @@ static int vv1_tick_over(const unsigned char *records) {
             int head = *(const int *)(rec + VV1_HEAD_OFFSET);
             int body = *(const int *)(rec + VV1_BODY_OFFSET);
             int variant = *(const int *)(rec + VV1_VARIANT_OFFSET);
+            int age = *(const int *)(rec + VV1_AGE_OFFSET);
             int mother = -1;
             int matches = 0;
             int k;
@@ -494,8 +498,12 @@ static int vv1_tick_over(const unsigned char *records) {
                and the look-alike variant all came from her record in
                sub_43C840.  Among the mothers who delivered this frame,
                exactly one should match; if none or several do, the birth is
-               left unknown rather than guessed. */
-            for (k = 0; k < delivered_count; ++k) {
+               left unknown rather than guessed.  Only a NEWBORN can match at
+               all: the owner's rule is that villagers not spawned by a
+               conception have no parents, so a founder or immigrant who
+               happens to appear during a delivery with the same look is never
+               taken for her child -- they arrive grown, a baby does not. */
+            for (k = 0; age < VV1_NEWBORN_YEARS * VV1_UNITS_PER_YEAR && k < delivered_count; ++k) {
                 const unsigned char *mrec = records + (unsigned int)delivered[k] * VV1_RECORD_STRIDE;
                 if (*(const int *)(mrec + VV1_HEAD_OFFSET) == head
                     && *(const int *)(mrec + VV1_BODY_OFFSET) == body
@@ -562,7 +570,9 @@ static int vv1_frame(const unsigned char *records, int log) {
     }
     if (log) {
         for (b = 0; b < g_birth_count; ++b) {
-            vv1_log_birth(records, &g_births[b]);
+            if (g_births[b].mother >= 0) {   /* an arrival is not a birth: nothing to log */
+                vv1_log_birth(records, &g_births[b]);
+            }
         }
     }
     if (vv1_spend_stashes(records)) {

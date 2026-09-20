@@ -121,6 +121,15 @@ int main(int argc, char **argv) {
     entry(20, e); CHECK(same(e, -1, -1, -1, -1), "no delivering mother: unknown parents");
     CHECK(births(b, 8) == 1 && b[0] == 20 && b[1] == -1, "the arrival is reported with mother -1");
 
+    printf("== an adult who appears during a delivery with the same look is not her child ==\n");
+    conceive(records, rec(1), rec(2));
+    *(int *)(rec(1) + LITTER) = 1; tick(records);
+    *(int *)(rec(1) + LITTER) = 0; born_from(14, 1, "Grown"); *(int *)(rec(14) + AGE) = 30 * 20; tick(records);
+    entry(14, e); CHECK(same(e, -1, -1, -1, -1), "a 30-year-old copy of the mother gets no parents (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    CHECK(births(b, 8) == 1 && b[0] == 14 && b[1] == -1, "...and is reported with mother -1, so it is never logged");
+    born_from(15, 1, "Late"); tick(records);
+    entry(15, e); CHECK(same(e, -1, -1, -1, -1), "a newborn copy a frame later has no delivering mother: unknown");
+
     printf("== father with head 0 / body 0 is a real father ==\n");
     conceive(records, rec(1), rec(3));
     *(int *)(rec(1) + LITTER) = 1; tick(records);
