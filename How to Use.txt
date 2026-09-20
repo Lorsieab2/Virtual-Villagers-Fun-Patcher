@@ -389,12 +389,17 @@ delete the mask file for that save slot. Close the game, delete that slot's
 mask file, and start the game again -- the new village begins with no masks.
 
 New Believers and The Lost Children no longer need this. Their mask files
-now record which village wrote them, and the game notices when the village
-changes, so a new village started in a reused slot -- whether through Start
-Over or by deleting the tribe -- begins with no masks on its own.
+now record the living villagers of the village that wrote them, and the game
+notices when the village changes, so a new village started in a reused slot --
+whether through Start Over or by deleting the tribe -- begins with no masks on
+its own.
 
 One thing to expect: the very first load after updating shows no masks even
 on a village that had them, because the older file carries no village record
 and is ignored rather than trusted. Choose them again and they stick. Villagers
 being born or dying does not count as a new village, so ordinary play never
 clears anyone's masks.
+
+(v1.35.13 did not save New Believers' masks at all: its file was bound to a
+village identity read from the wrong place, so it was never written. This
+build writes it; choose the masks once more and they persist from then on.)

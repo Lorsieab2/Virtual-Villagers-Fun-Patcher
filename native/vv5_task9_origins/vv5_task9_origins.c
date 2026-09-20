@@ -16,12 +16,16 @@
    shared file bleeding masks across slots. The sidecar is a SEPARATE file from the
    .ldw, so it can never corrupt a save. */
 #define MASK_TABLE_BYTES 75
-/* 'VM01' -- a tagged mask sidecar.  An older untagged file has no header
-   at all, so it fails this check and is ignored rather than misread. */
-#define VV5_MASK_SIDECAR_MAGIC 0x31304D56u
+/* 'VM05' -- a mask sidecar bound to the living roster of the village that
+   wrote it (see VV5 VILLAGE IDENTITY below).  The two earlier formats are
+   rejected by this magic rather than misread: the original untagged 75-byte
+   file has no header at all, and v1.35.13's 'VM01' carried a tag read from
+   the wrong object, which is why it never got written in the first place. */
+#define VV5_MASK_SIDECAR_MAGIC 0x35304D56u
 /* Current save slot, written by the exe slot_capture detour (0 until the first
    save/load; village slots are >=1, slot 0 is the meta file). */
 #define VV5_SLOT_SCRATCH 0x007B1D7Cu
+#define VV5_MASK_TABLE 0x007B1D20u /* nibble-packed side-table, 150 villagers */
 
 static HINSTANCE module_instance;
 static HWND origins_owner;
@@ -145,123 +149,275 @@ static int build_mask_sidecar_path(char *out) {
     return 1;
 }
 
-/* The village this table belongs to.
+/* VV5 VILLAGE IDENTITY: THE LIVING ROSTER.
 
-   Measured across the owner's 153 VV5 saves covering 10 tribes: two aligned
-   dwords in the save buffer, at +0x328 and +0x338, give 10/10 distinct
-   signatures, stay constant within a village across its N/N+20/N+40
-   generations, and differ across all three REAL same-slot village
-   replacements in the owner's save folder -- the Start Over / delete-tribe
-   events this exists to detect.
+   New Believers has no village-identity field this code can trust.  v1.35.13
+   tried to bind the file to two dwords at "save buffer +0x328/+0x338", read
+   at 0x4DBFC8+8+0x328 -- but 0x4DBFC8 is the collectible manager, not the
+   save state.  The save routine at 0x4244F0 is a __thiscall on a save-state
+   object that GATHERS the static managers into the buffer:
 
-   The buffer is the game's manager object plus 8, the same bias every game
-   uses at its save call site. The mapping is confirmed twice over: the tribe
-   name is documented at buffer +0x17D14 and measured at file 0x17D2C, a +0x18
-   header, and VV5's recorded buffer size 0x17D78 + 0x18 is exactly the 97,680
-   bytes a real save occupies.
+       lea eax, [esi+0x328]; push eax; mov ecx, 0x4DB358; call 0x412EC0
+       lea ecx, [esi+0x640]; push ecx; mov ecx, 0x4DBFC8; call 0x413B80
 
-   Returns 0 when the village cannot be identified, and every caller treats
-   that as "do not touch the table" rather than guessing. */
-#define VV5_MANAGER      0x004DBFC8u
-#define VV5_SAVE_BIAS    8u
-#define VV5_TAG_A_OFFSET 0x328u
-#define VV5_TAG_B_OFFSET 0x338u
+   so buffer+0x328 is what 0x4DB358 serialises (0x412EC0 is a 792-byte copy)
+   and 0x4DBFC8 only lands at +0x640.  Read live, 0x4DC2F8/0x4DC308 are zero
+   in a running village, so WriteMaskSidecar refused every write and no file
+   was ever created -- the owner's "masks are not persistent" report.  Worse,
+   0x4DB358 is the trophy-progress table (0x413450 adds to entry[index] and
+   awards at a threshold), so even at the right address those dwords change
+   during play and would have rejected a village's own file later.
 
-static int vv5_village_tag(unsigned int *out) {
-    const unsigned char *buffer =
-        (const unsigned char *)(UINT_PTR)(VV5_MANAGER + VV5_SAVE_BIAS);
-    unsigned int a;
-    unsigned int b;
-    unsigned int h = 2166136261u;          /* FNV-1a over both fields */
+   The identity that works, already proven in The Lost Children, is the
+   village's own villagers: a snapshot of the living roster (a hash per record
+   slot of the villager's name), matched on a STRICT MAJORITY of the smaller
+   roster.  Different villages share essentially nothing -- a Start Over
+   fills a handful of founder slots from a finite name pool -- while the same
+   village across a birth, a death, or a barrel of babies keeps nearly every
+   member.  See vv5_roster_same for the exact rule and its residual case.
+
+   Record layout is the population exporter's VV5 row, confirmed live in the
+   owner's running village (104 living villagers, names and ages where these
+   offsets say): the array sits at exe 0x554148 (the same object the save
+   routine gathers into buffer+0xC90C), records start 0x48 in, stride 0x2F44,
+   150 slots, active byte at +0x1CD4, name at +0x1B9C (25 bytes). */
+#define VV5_VILLAGERS_VA    0x00554148u
+/* Records start 0x48 into that object: 0x554190, the same VV5_RECORD_BASE the
+   barrel-capacity check below uses, with the same stride. */
+#define VV5_ROSTER_RECORDS  (VV5_VILLAGERS_VA + 0x48u)
+#define VV5_ROSTER_STRIDE   0x2F44u
+#define VV5_RECORD_COUNT    150
+#define VV5_ACTIVE_OFFSET   0x1CD4u
+#define VV5_NAME_OFFSET     0x1B9Cu
+#define VV5_NAME_CAPACITY   0x19
+#define VV5_MASK_COUNT      6          /* 0 = none, 1..5 = the five masks */
+
+static unsigned int g_vv5_roster[VV5_RECORD_COUNT];
+static int g_vv5_have_roster;
+static int g_vv5_slot;                 /* the slot the table was loaded for */
+static DWORD g_vv5_sync_tick;          /* last roster check, GetTickCount */
+
+/* Fill out[] from the live records.  Returns the number of living villagers;
+   0 means "no village is loaded", and every caller treats that as unknown. */
+static int vv5_roster_snapshot(unsigned int *out) {
+    const unsigned char *base =
+        (const unsigned char *)(UINT_PTR)VV5_ROSTER_RECORDS;
+    int i, live = 0;
+    for (i = 0; i < VV5_RECORD_COUNT; ++i) {
+        const unsigned char *rec = base + (unsigned int)i * VV5_ROSTER_STRIDE;
+        const unsigned char *name;
+        unsigned int h = 2166136261u;          /* FNV-1a */
+        int k;
+        if (rec[VV5_ACTIVE_OFFSET] == 0) {
+            out[i] = 0;
+            continue;
+        }
+        name = rec + VV5_NAME_OFFSET;
+        for (k = 0; k < VV5_NAME_CAPACITY && name[k]; ++k) {
+            h = (h ^ name[k]) * 16777619u;
+        }
+        h = (h ^ 0xFFu) * 16777619u;           /* terminator: "Tai" != "Taiga" */
+        out[i] = h ? h : 1u;                   /* reserve 0 for "inactive" */
+        ++live;
+    }
+    return live;
+}
+
+/* How many living (slot, name) pairs two rosters share. */
+static int vv5_roster_overlap(const unsigned int *a, const unsigned int *b) {
+    int i, n = 0;
+    for (i = 0; i < VV5_RECORD_COUNT; ++i) {
+        if (a[i] != 0 && a[i] == b[i]) {
+            ++n;
+        }
+    }
+    return n;
+}
+
+static int vv5_roster_living(const unsigned int *a) {
+    int i, n = 0;
+    for (i = 0; i < VV5_RECORD_COUNT; ++i) {
+        if (a[i] != 0) {
+            ++n;
+        }
+    }
+    return n;
+}
+
+/* Are two rosters the same village?  A STRICT majority of the smaller roster
+   must be shared:
+
+       need = min(living_a, living_b) / 2 + 1
+
+   Not (n + 1) / 2, which is exactly half when n is even.  Strict majority
+   still admits every ordinary event, because a birth or a death keeps every
+   member of the smaller roster.  The one legitimate case it rejects: a
+   two-villager village losing one and gaining one in the same check window,
+   which reloads and clears that village's masks.  Residual, stated rather
+   than hidden: a predecessor with one or two living villagers can still be
+   matched by a single same-slot name coincidence. */
+static int vv5_roster_same(const unsigned int *a, const unsigned int *b) {
+    int la = vv5_roster_living(a);
+    int lb = vv5_roster_living(b);
+    int need = la < lb ? la : lb;
+    if (need == 0) {
+        return 0;                              /* an empty roster matches nothing */
+    }
+    need = need / 2 + 1;                       /* STRICT majority of the smaller roster */
+    return vv5_roster_overlap(a, b) >= need;
+}
+
+static int vv5_roster_equal(const unsigned int *a, const unsigned int *b) {
     int i;
-    if (out == NULL) {
-        return 0;
+    for (i = 0; i < VV5_RECORD_COUNT; ++i) {
+        if (a[i] != b[i]) {
+            return 0;
+        }
     }
-    a = *(const volatile unsigned int *)(buffer + VV5_TAG_A_OFFSET);
-    b = *(const volatile unsigned int *)(buffer + VV5_TAG_B_OFFSET);
-    /* A village that has not been loaded reads as all-zero here.  Treat that
-       as "unknown", so a pre-load read can never match a written tag. */
-    if (a == 0u && b == 0u) {
-        return 0;
-    }
-    for (i = 0; i < 4; ++i) { h = (h ^ ((a >> (8 * i)) & 0xFFu)) * 16777619u; }
-    for (i = 0; i < 4; ++i) { h = (h ^ ((b >> (8 * i)) & 0xFFu)) * 16777619u; }
-    *out = h ? h : 1u;                     /* reserve 0 = "no tag" */
     return 1;
 }
 
-/* Persist the mask side-table (75 bytes at exe 0x7B1D20, passed in) to the
-   sidecar, tagged with the village that owns it.  Called from the chooser on
-   OK. Never touches the .ldw. */
+/* Persist the mask side-table (75 bytes at exe 0x7B1D20, passed in) together
+   with the roster it belongs to.  Called from the chooser on OK and whenever
+   the roster changes under the same village.  A village that has never been
+   identified writes nothing: an unsnapshotted file could never be matched,
+   and writing one would recreate the very bleed this exists to stop.  Never
+   touches the .ldw. */
 __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table) {
     char path[MAX_PATH];
     HANDLE h;
     DWORD wrote = 0;
-    unsigned int header[2];
-    unsigned int tag = 0;
+    unsigned int magic = VV5_MASK_SIDECAR_MAGIC;
     if (table == NULL || !build_mask_sidecar_path(path)) {
         return;
     }
-    /* No identifiable village means there is nothing to bind the file to.
-       Writing it untagged would recreate exactly the bug being fixed. */
-    if (!vv5_village_tag(&tag)) {
-        return;
+    if (!g_vv5_have_roster) {
+        return;                     /* unknown village -> do not write */
     }
     h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
         return;
     }
-    header[0] = VV5_MASK_SIDECAR_MAGIC;
-    header[1] = tag;
-    WriteFile(h, header, sizeof(header), &wrote, NULL);
+    WriteFile(h, &magic, sizeof(magic), &wrote, NULL);
+    WriteFile(h, g_vv5_roster, sizeof(g_vv5_roster), &wrote, NULL); /* binds the file to its village */
     WriteFile(h, table, MASK_TABLE_BYTES, &wrote, NULL);
     CloseHandle(h);
 }
 
-/* Restore the mask side-table from the sidecar into the 75-byte buffer at
-   exe 0x7B1D20 (passed in). Zeroes the table if the sidecar is absent (a save
-   with no recorded masks shows none). Called on the first village frame. */
-__declspec(dllexport) void __stdcall ReadMaskSidecar(unsigned char *table) {
+/* Load the table for the village whose living roster is `live`.  Clears
+   first, so every failure path -- no file, short read, wrong magic, a file
+   from a village that shares no majority with this one -- leaves NO masks,
+   which is exactly what a village that never chose any sees, and what stops
+   a new village inheriting a dead one's choices. */
+static void vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live) {
     char path[MAX_PATH];
     HANDLE h;
     DWORD got = 0;
-    unsigned int header[2];
-    unsigned int tag = 0;
-    if (table == NULL || !build_mask_sidecar_path(path)) {
-        return;
-    }
-    /* FAIL CLOSED, everywhere below: the table is cleared first, so every
-       early return leaves the village with NO masks.  That is exactly the
-       behaviour of a village that never chose any, and it is what stops a
-       new village inheriting a dead one's choices. */
+    unsigned int magic = 0;
+    unsigned int filesnap[VV5_RECORD_COUNT];
+    unsigned char buf[MASK_TABLE_BYTES];
+    int i;
     memset(table, 0, MASK_TABLE_BYTES);
-    if (!vv5_village_tag(&tag)) {
-        return;                     /* no identifiable village -> no masks */
+    if (!build_mask_sidecar_path(path)) {
+        return;
     }
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
         return;                     /* no sidecar -> no masks, as before */
     }
-    if (!ReadFile(h, header, sizeof(header), &got, NULL)
-        || got != sizeof(header)
-        || header[0] != VV5_MASK_SIDECAR_MAGIC
-        || header[1] != tag) {
-        /* Either a pre-tag 75-byte file from an older build, or a file this
-           village did not write.  Both are ignored rather than applied.  The
-           untagged case costs the player their mask CHOICES once, recovered
-           in seconds from the chooser; applying them would be the reported
-           bug.  The stale file is left alone -- the next chooser write
-           replaces it with a correctly tagged one. */
-        CloseHandle(h);
-        return;
-    }
-    ReadFile(h, table, MASK_TABLE_BYTES, &got, NULL);
-    if (got < MASK_TABLE_BYTES) {
-        memset(table + got, 0, MASK_TABLE_BYTES - got);
+    /* THE ROSTER DECIDES, not the slot.  Slots are reused, so a file left by
+       the previous village is exactly what a Start Over leaves behind; its
+       snapshot shares at most a coincidence with the village on screen. */
+    if (ReadFile(h, &magic, sizeof(magic), &got, NULL) && got == sizeof(magic)
+        && magic == VV5_MASK_SIDECAR_MAGIC
+        && ReadFile(h, filesnap, sizeof(filesnap), &got, NULL) && got == sizeof(filesnap)
+        && vv5_roster_same(filesnap, live)
+        && ReadFile(h, buf, sizeof(buf), &got, NULL) && got == sizeof(buf)) {
+        /* Sidecars are user-writable: only 0 (none) through 5 are valid
+           nibbles, so normalise before publishing to the render thunks. */
+        for (i = 0; i < MASK_TABLE_BYTES; ++i) {
+            if ((buf[i] & 0x0Fu) >= VV5_MASK_COUNT) buf[i] &= 0xF0u;
+            if ((buf[i] >> 4) >= VV5_MASK_COUNT) buf[i] &= 0x0Fu;
+        }
+        memcpy(table, buf, sizeof(buf));
     }
     CloseHandle(h);
+}
+
+/* Restore the mask side-table for the village on screen into the 75-byte
+   buffer at exe 0x7B1D20 (passed in), adopting that village's roster.  Kept
+   as an export for the appended page's mask_load_once; Vv5MaskSync is what
+   the render path calls now. */
+__declspec(dllexport) void __stdcall ReadMaskSidecar(unsigned char *table) {
+    unsigned int cur[VV5_RECORD_COUNT];
+    int slot;
+    if (table == NULL) {
+        return;
+    }
+    memset(table, 0, MASK_TABLE_BYTES);
+    slot = *(volatile int *)VV5_SLOT_SCRATCH;
+    if (slot <= 0 || vv5_roster_snapshot(cur) == 0) {
+        return;                     /* no identifiable village -> no masks */
+    }
+    vv5_mask_sidecar_load(table, cur);
+    memcpy(g_vv5_roster, cur, sizeof(cur));
+    g_vv5_have_roster = 1;
+    g_vv5_slot = slot;
+}
+
+/* The village-change decision, called from the render path's mask_flip on
+   every head draw and therefore throttled: the roster is re-read at most
+   every VV5_SYNC_INTERVAL_MS, which is far quicker than a player can reach
+   the chooser after a Start Over, and costs nothing between checks.
+
+     slot unpublished       -> unknown; touch nothing
+     no living villagers    -> unknown; touch nothing
+     slot changed           -> replaced, whatever the roster looks like
+     majority, unchanged    -> same village, nothing to do
+     majority, changed      -> same village, a birth or a death: adopt the
+                               new snapshot and persist it, so the file is
+                               never more than one event behind
+     no majority            -> replaced: clear, reload only a file whose
+                               snapshot shares a majority, adopt the new one
+
+   Returns 1 when a village is on screen and the table corresponds to it,
+   0 when nothing is known.  The appended page ignores the result. */
+#define VV5_SYNC_INTERVAL_MS 250u
+
+__declspec(dllexport) int __stdcall Vv5MaskSync(void) {
+    unsigned int cur[VV5_RECORD_COUNT];
+    unsigned char *table = (unsigned char *)VV5_MASK_TABLE;
+    DWORD now = GetTickCount();
+    int slot;
+    if (g_vv5_have_roster && (now - g_vv5_sync_tick) < VV5_SYNC_INTERVAL_MS) {
+        return 1;                   /* checked a moment ago */
+    }
+    g_vv5_sync_tick = now;
+    slot = *(volatile int *)VV5_SLOT_SCRATCH;
+    if (slot <= 0) {
+        return 0;                   /* nothing known yet -> do not touch anything */
+    }
+    if (vv5_roster_snapshot(cur) == 0) {
+        return 0;                   /* unknown village -> do not touch anything */
+    }
+    /* Same village means the same SLOT and a roster majority.  A slot change
+       always reloads: the file is keyed per slot, and two slots can hold
+       overlapping rosters when a save has been copied between them. */
+    if (g_vv5_have_roster && slot == g_vv5_slot && vv5_roster_same(g_vv5_roster, cur)) {
+        if (!vv5_roster_equal(g_vv5_roster, cur)) {
+            memcpy(g_vv5_roster, cur, sizeof(cur));
+            WriteMaskSidecar(table);
+        }
+        return 1;                   /* same village -> keep the masks as they are */
+    }
+    /* REPLACED (or first sight): clear, reload only a matching file, adopt. */
+    vv5_mask_sidecar_load(table, cur);
+    memcpy(g_vv5_roster, cur, sizeof(cur));
+    g_vv5_have_roster = 1;
+    g_vv5_slot = slot;
+    return 1;
 }
 
 /* ---------- VV5 Change Appearance chooser (VV2-style) ----------
@@ -779,7 +935,6 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
 #define VV5_OFF_BODY   0x1BBC      /* dword body index 0..28 */
 #define VV5_OFF_RANK    0x1CFC     /* dword chief-rank marker; 0xD on the Retired Chief, 0 on ordinary villagers */
 #define VV5_RANK_RETIRED_CHIEF 0x0D
-#define VV5_MASK_TABLE 0x007B1D20u /* nibble-packed side-table, 150 villagers */
 #define VV5_TECH       0x0051D5F8u /* int tech-point balance */
 #define VV5_CHARGE_FN  0x004237B0u /* __thiscall(void* balance_ptr, int delta) */
 
