@@ -54,6 +54,11 @@
 #include <string.h>
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)
+/* The villager manager: the lazy getter at 0x43DA37 allocates 0x3E034 bytes
+   (256 records of 0x3D8 plus the manager trailer) and stores the result
+   here; the village state keeps the same pointer at +0xADE8 (equal in every
+   full dump checked), and record 0 is the allocation itself.  Not a Golden
+   Child pointer, whatever an older comment elsewhere calls it. */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* record 0 is the allocation itself */
 #define VV1_SELECTED_OFFSET    0xAD34u      /* state: the Details screen's selected record index, -1 = none */
 #define VV1_RECORD_STRIDE      0x3D8u
