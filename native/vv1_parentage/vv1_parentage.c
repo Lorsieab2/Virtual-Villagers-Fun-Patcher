@@ -158,7 +158,7 @@
 #define VV1_FATHER_HEAD_COL    1            /* three-quarter view facing right, toward the mother (owner) */
 #define VV1_MOTHER_BODY_COL    11           /* direction 1, frame 3: facing left (the portrait's own) */
 #define VV1_MOTHER_HEAD_COL    2            /* three-quarter view facing left (the portrait's own) */
-#define VV1_TEXT_CX            496          /* the message-bar label's own spot: built at (496, 575) in 0x423173..0x423191 */
+#define VV1_TEXT_CX            590          /* under the middle of the skill bars (owner); the y is the message-bar label's own, built at (496, 575) in 0x423173..0x423191 */
 #define VV1_TEXT_Y             575
 #define VV1_TEXT_COLOUR        0xFFFFFFFFu
 
