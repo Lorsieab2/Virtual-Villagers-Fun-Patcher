@@ -539,7 +539,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         FATHER_BY_NAME, 0x5C0, 0, 0x544,
         0x5E0, 0x5DC,
         0,
-        0x5F0, 0x6E8, 4, PREFERENCES_62,
+        0x5F0, 0x6E8, 62, PREFERENCES_62,
         L"Virtual Villagers 2 Parentage Log"
     },
 

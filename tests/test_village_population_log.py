@@ -525,12 +525,21 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         """Measured per game against the running game's own Details screen.
 
         These are not derivable from each other: the arrays sit at different
-        offsets in every game, VV1 has four slots where the later games have
-        three, and the preference list itself grew from 47 entries to 62 to 79.
+        offsets in every game, the slot counts differ, and the preference list
+        itself grew from 47 entries to 62 to 79.
+
+        VV2's 62 is the outlier and was wrong here until #406 review: it said
+        4, matching VV1, so the exporters scanned four entries of a 62-entry
+        array and reported "(none)" for any villager whose first filled entry
+        sat past slot 3. Three sources give 62 -- 0x6E8 - 0x5F0 is exactly 62
+        dwords, the shipped VV2 Origins companion declares likes[62] and
+        dislikes[62] and walks all of them, and dislikes[62] ends at 0x7E0
+        where the five skills begin at 0x7E4. The gap between the two arrays
+        is asserted below so this cannot silently drift again.
         """
         expected = {
             1: (0x398, 0x3A8, 4),
-            2: (0x5F0, 0x6E8, 4),
+            2: (0x5F0, 0x6E8, 62),
             3: (0xFB4, 0xFC0, 3),
             4: (0x1E60, 0x1E6C, 3),
             5: (0x1F5C, 0x1F68, 3),
@@ -542,6 +551,23 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 self.assertEqual(row["dislikes"], dislikes, "dislikes offset")
                 self.assertEqual(
                     row["preference_slots"], slots, "slot count")
+
+    def test_the_slot_count_matches_the_gap_between_the_arrays(self) -> None:
+        """A second source for the count, so a wrong one cannot just be pinned.
+
+        The likes array runs up to the start of the dislikes array in every
+        game, so (dislikes - likes) / 4 IS the slot count. Deriving it this way
+        is what catches a hand-written number: VV2's declared 4 against a real
+        62 passed the pinned expectation above for as long as both said 4.
+        """
+        for game, row in self.rows.items():
+            with self.subTest(game=game):
+                gap = (row["dislikes"] - row["likes"]) // 4
+                self.assertEqual(
+                    row["preference_slots"], gap,
+                    "VV%d declares %d slots but the likes array spans %d dwords "
+                    "before the dislikes array begins" % (
+                        game, row["preference_slots"], gap))
 
     def test_the_arrays_fit_inside_the_record(self) -> None:
         """A slot past the stride reads the NEXT villager's taste."""
