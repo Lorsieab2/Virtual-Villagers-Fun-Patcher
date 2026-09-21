@@ -287,8 +287,23 @@ static int vv1_hit(int x, int y) {
 
 /* SDL 2.0.3 delivers the mouse-button event already reduced by the renderer's
    own event watcher, which runs before this companion's.  Measured against the
-   running game in fullscreen (SDL reported scale 1.78 and viewport origin 79
-   at 1707x1068, logical 800x600): a click on a plate arrived at
+   running game in fullscreen, at a 1707x1068 client area with a logical size
+   of 800x600, SDL reported:
+
+       scale            1.78 on both axes
+       viewport origin  x = 79, y = 0, in LOGICAL UNITS
+
+   BOTH parts of that matter and the units are the whole point.  The scaled
+   content is 800*1.78 x 600*1.78 = 1424x1068, so it fills the height exactly
+   and is PILLARBOXED, not letterboxed: the y origin is genuinely 0, and the x
+   margin is (1707-1424)/2 = 141.5 WINDOW PIXELS, which is 141.5/1.78 = 79.5
+   LOGICAL units.  SDL_RenderGetViewport reports the rect in logical units when
+   a logical size is set, which is why 79 and not 141 is what comes back, and
+   why it may be added directly to a value that is already in logical space.
+   Reading that 79 as window pixels reproduces nothing and sends you looking
+   for a bug that is not there.
+
+   A click on a plate arrived at
 
        event_x = (logical_x - viewport_x) / scale
        event_y = (logical_y - viewport_y) / scale
@@ -298,14 +313,28 @@ static int vv1_hit(int x, int y) {
 
        logical = event * scale + viewport
 
-   The band drew at logical y 496..515; a real fullscreen click came in near
-   event y 283, and 283*1.78 = 504, landing back in the band.  Two earlier
-   attempts failed: one used the event coordinates raw (they are not in logical
-   space in fullscreen), and one divided by the scale (the wrong direction --
-   the reduction has already happened, so the hook multiplies).  scale and
-   viewport are read live from SDL so the map follows any resolution; if SDL
-   cannot be resolved the event is used as-is, which is correct in a plain
-   window where scale is 1 and the viewport origin is 0. */
+   Two worked examples, one per axis, because a single Y example proves nothing
+   about X: the viewport y is 0, so the y term vanishes and an error in how the
+   origin is applied would not show up there.
+
+       y: the band draws at logical 496..515; a real fullscreen click came in
+          near event y 283, and 283*1.78 + 0 = 504, back inside the band.
+       x: the first plate spans logical 8..90, centre 49.  Its events arrive
+          NEGATIVE, because the plate sits left of the pillarbox origin in
+          logical terms: (49 - 79.5)/1.78 = -17.1, and -17.1*1.78 + 79.5 = 49.5,
+          back on the plate.  Anything here that assumes a non-negative event x
+          breaks the leftmost plate specifically.
+
+   Two earlier attempts failed: one used the event coordinates raw (they are not
+   in logical space in fullscreen), and one divided by the scale (the wrong
+   direction -- the reduction has already happened, so the hook multiplies).
+   scale and viewport are read live from SDL so the map follows any resolution;
+   if SDL cannot be resolved the event is used as-is, which is correct in a
+   plain window where scale is 1 and the viewport origin is 0.
+
+   VERIFIED FULLSCREEN ONLY.  The owner confirmed this by hand in fullscreen at
+   1707x1068.  A maximized window is a THIRD case, neither fullscreen nor a
+   plain window, and it was never measured: see issue #403. */
 static void vv1_event_to_logical(int *x, int *y) {
     HMODULE sdl = GetModuleHandleA("SDL2.dll");
     sdl_get_mouse_focus_t get_focus;
