@@ -426,11 +426,21 @@ static const char *const SKILL_NAMES_VV4[MAX_SKILLS] = {
     "(skill 7)", "(skill 8)"
 };
 
+/* VV5 -- New Believers.  Storage order, measured:
+     Six skills, Devotion last.  Pari names Farming, Apatoa names
+     Healing, Turuki names Research, Moti names Devotion; all four
+     corroborate Parenting at index 1 and Building at index 4. */
+static const char *const SKILL_NAMES_VV5[MAX_SKILLS] = {
+    "Farming", "Parenting", "Healing", "Research", "Building", "Devotion",
+    "(skill 7)", "(skill 8)"
+};
+
 static const char *const *skill_names_for(int game_id) {
     if (game_id == GAME_VV1) { return SKILL_NAMES_VV1; }
     if (game_id == GAME_VV2) { return SKILL_NAMES_VV2; }
     if (game_id == GAME_VV3) { return SKILL_NAMES_VV3; }
     if (game_id == GAME_VV4) { return SKILL_NAMES_VV4; }
+    if (game_id == GAME_VV5) { return SKILL_NAMES_VV5; }
     return SKILL_NAMES_UNVERIFIED;
 }
 
