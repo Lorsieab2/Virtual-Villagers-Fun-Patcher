@@ -49,7 +49,7 @@ struct layout {
 };
 static const struct layout LAYOUTS[5] = {
     { 1, 0x3D8,  256, 0,    0x28,   0x348,  0x360,  0x364,  0x370,  0x1C, 0,      0,    0,      0,      0x35C,  0x398,  0x3A8,  4, 46, "jokes",  "Virtual Villagers 1 Parentage Log" },
-    { 2, 0xE48C, 256, 0,    0x30,   0x530,  0x548,  0x54C,  0x564,  0x18, 0x5C0,  0x18, 0x5E0,  0x5DC,  0x544,  0x5F0,  0x6E8,  4, 61, "dirt",   "Virtual Villagers 2 Parentage Log" },
+    { 2, 0xE48C, 256, 0,    0x30,   0x530,  0x548,  0x54C,  0x564,  0x18, 0x5C0,  0x18, 0x5E0,  0x5DC,  0x544,  0x5F0,  0x6E8, 62, 61, "dirt",   "Virtual Villagers 2 Parentage Log" },
     { 3, 0x1F8C, 150, 0x14, 0xF10,  0xDC4,  0xDF0,  0xDF4,  0xDD4,  0x19, 0xE48,  0x18, 0xE68,  0xE64,  0xE90,  0xFB4,  0xFC0,  3, 78, "nature", "Virtual Villagers 3 Parentage Log" },
     { 4, 0x2E3C, 150, 0x44, 0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1C10, 0x18, 0x1C30, 0x1C2C, 0x1C50, 0x1E60, 0x1E6C, 3, 78, "nature", "Virtual Villagers 4 Parentage Log" },
     { 5, 0x2F44, 150, 0x48, 0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1C10, 0x18, 0x1C30, 0x1C2C, 0x1C50, 0x1F5C, 0x1F68, 3, 78, "nature", "Virtual Villagers 5 Parentage Log" },
@@ -119,6 +119,15 @@ static int read_log(void) {
     fclose(f);
     return 1;
 }
+/* How many conception records the log currently holds. */
+static int n_records(const struct layout *g) {
+    int n = 0;
+    const char *p = logtext;
+    (void)g;
+    while ((p = strstr(p, "Conception ")) != NULL) { ++n; p += 11; }
+    return n;
+}
+
 /* The n-th conception record (1-based) as the text between its marker and the
    next one. */
 static const char *conception(int n) {
@@ -209,8 +218,8 @@ static void run_game(write_t write, const struct layout *layout) {
     ok = write(g->game, records, rec(3), NULL);
     CHECK(ok == 1, "a conception with no captured father record is still logged (returned %d)", ok);
     read_log();
-    r = conception(2);
-    CHECK(r != NULL, "Conception 2 is in the log");
+    r = conception(n_records(g));       /* the record just written */
+    CHECK(r != NULL, "the twins-and-triplets record is in the log");
     if (r) {
         CHECK(record_has(r, "  Babies in pregnancy: 3"), "triplets: 3 babies");
         CHECK(parent_has(r, "  Mother:", "Likes: turnips"), "mother's fields do not depend on the father");
@@ -233,11 +242,40 @@ static void run_game(write_t write, const struct layout *layout) {
         }
     }
 
+    /* --- the LAST slot of each array must be scanned ---
+
+       A preference sitting in the final slot is only found if the scan covers
+       the whole array.  This is what catches a slot count that is too small:
+       VV2 declares 62 slots and an earlier revision of this table said 4, so
+       every villager whose first filled entry sat past slot 3 was logged as
+       "(none)" -- permanently, since a conception record is never rewritten.
+       The harness must not take the count on trust from the same table it is
+       testing, which is exactly why it failed to notice. */
+    villager(5, "Ndidi", 33 * 20, 5, 6);
+    like(5, g->pref_slots - 1, 5);                 /* turnips, in the very last slot */
+    dislike(5, g->pref_slots - 1, g->last_preference);
+    *(int *)(rec(5) + g->litter) = 0;
+    game_copies_father_onto_mother(5, 7);
+    ok = write(g->game, records, rec(5), rec(7));
+    CHECK(ok == 1, "a conception whose preferences sit in the last slot is logged");
+    read_log();
+    {
+        const char *last = conception(n_records(g));
+        CHECK(last != NULL, "that record is in the log");
+        if (last) {
+            CHECK(parent_has(last, "  Mother:", "Likes: turnips"),
+                  "a like in the FINAL slot (%u) is found: a short scan would say (none)", g->pref_slots - 1);
+            _snprintf(line, sizeof line, "Dislikes: %s", g->last_word);
+            CHECK(parent_has(last, "  Mother:", line),
+                  "...and so is a dislike in the final slot");
+        }
+    }
+
     /* --- singleton: the litter field is 0 when the engine chose one baby --- */
     *(int *)(rec(3) + g->litter) = 0;
     ok = write(g->game, records, rec(3), rec(7));
     read_log();
-    r = conception(3);
+    r = conception(n_records(g));       /* the record just written */
     CHECK(r != NULL && record_has(r, "  Babies in pregnancy: 1"), "singleton: litter 0 is logged as 1 baby");
 
     /* --- a namesake: only the ONE living Goro left is the other one --- */
@@ -252,8 +290,8 @@ static void run_game(write_t write, const struct layout *layout) {
         *(int *)(rec(3) + g->litter) = 0;
         ok = write(g->game, records, rec(3), NULL);
         read_log();
-        r = conception(4);
-        CHECK(r != NULL, "Conception 4 is in the log");
+        r = conception(n_records(g));   /* the record just written */
+        CHECK(r != NULL, "the namesake record is in the log");
         if (r) {
             CHECK(record_has(r, "  Father: Goro"), "the name the game recorded is still printed");
             CHECK(parent_has(r, "  Father:", "Head: 7"), "head still comes from the game's own copy on the mother");
@@ -267,7 +305,7 @@ static void run_game(write_t write, const struct layout *layout) {
         game_copies_father_onto_mother(3, 9);
         ok = write(g->game, records, rec(3), rec(9));
         read_log();
-        r = conception(5);
+        r = conception(n_records(g));   /* the record just written */
         CHECK(r != NULL && parent_has(r, "  Father:", "Likes: ants"), "a captured record is printed whoever else shares the name");
         CHECK(r != NULL && parent_has(r, "  Father:", "Head: 1"), "...with the head the game copied for THIS conception");
     }

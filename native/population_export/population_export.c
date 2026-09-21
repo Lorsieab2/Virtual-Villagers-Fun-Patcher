@@ -327,7 +327,12 @@ static const struct game_layout GAME_LAYOUTS[6] = {
            walk), so no screen was available to read. The offsets were derived
            from a save file and, separately, from live memory in the owner's
            fixed modded build, and the two agree villager by villager. */
-        0x5F0u, 0x6E8u, 4u,
+        /* 62 slots, not 4: 0x6E8 - 0x5F0 is exactly 62 dwords, the VV2
+           Origins companion declares likes[62]/dislikes[62] and walks all
+           of them, and dislikes[62] ends at 0x7E0 where the skills begin
+           at 0x7E4.  A count of 4 reported "(none)" for any villager
+           whose first filled entry sat in slots 4..61. */
+        0x5F0u, 0x6E8u, 62u,
         PREFERENCES_62,
         "Virtual Villagers 2"
     },
