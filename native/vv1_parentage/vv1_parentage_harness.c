@@ -42,6 +42,8 @@ typedef int (__stdcall *births_t)(int *, int);
 typedef int (__stdcall *layout_t)(int *, int *, unsigned int *);
 typedef int (__stdcall *roster_t)(const void *, void *);
 typedef int (__stdcall *overlap_t)(const void *, const void *);
+typedef int (__stdcall *sync_t)(int, const void *);
+typedef int (__stdcall *bind_t)(const void *);
 
 static unsigned char records[COUNT * STRIDE];
 static unsigned char *rec(int i) { return records + i * STRIDE; }
@@ -80,7 +82,8 @@ static int same(const int *e, int fh, int fb, int mh, int mb) {
 }
 
 int main(int argc, char **argv) {
-    HMODULE dll; reset_t reset; conceive_t conceive; tick_t tick; entry_t entry; names_t names; births_t births; layout_t layout; born_t born; roster_t roster; overlap_t overlap;
+    setvbuf(stdout, NULL, _IONBF, 0);   /* every line reaches the console even if a check crashes */
+    HMODULE dll; reset_t reset; conceive_t conceive; tick_t tick; entry_t entry; names_t names; births_t births; layout_t layout; born_t born; roster_t roster; overlap_t overlap; sync_t sync; bind_t bind;
     static unsigned char fp[256 * 64];
     int e[4];
     int b[8];
@@ -100,7 +103,9 @@ int main(int argc, char **argv) {
     born = (born_t)GetProcAddress(dll, "Vv1ParentageProbeBorn");
     roster = (roster_t)GetProcAddress(dll, "Vv1ParentageProbeRoster");
     overlap = (overlap_t)GetProcAddress(dll, "Vv1ParentageProbeOverlap");
-    CHECK(reset && conceive && tick && entry && names && births && layout && born && roster && overlap, "probe seams resolve");
+    sync = (sync_t)GetProcAddress(dll, "Vv1ParentageProbeSync");
+    bind = (bind_t)GetProcAddress(dll, "Vv1ParentageProbeBind");
+    CHECK(reset && conceive && tick && entry && names && births && layout && born && roster && overlap && sync && bind, "probe seams resolve");
     CHECK(GetProcAddress(dll, "Vv1ParentageConceived") && GetProcAddress(dll, "Vv1ParentageTick")
           && GetProcAddress(dll, "Vv1ParentageDrawPortrait") && GetProcAddress(dll, "Vv1ParentageQuery")
           && GetProcAddress(dll, "Vv1ParentageQueryNames") && GetProcAddress(dll, "Vv1ParentageBorn"), "game exports resolve");
@@ -272,6 +277,53 @@ int main(int argc, char **argv) {
     memset(records, 0, sizeof records);
     villager(0, "Tane", 2, 2, 5); villager(1, "Moa", 3, 3, 9); *(int *)(rec(0) + GENDER) = 1;
     CHECK(overlap(records, fp) == 0, "Start Over in the same slot: nobody in common, so another village");
+
+    printf("== the sync: no mutation while the roster verdict is unsettled ==\n");
+    /* Village A, bound to its table: Aisha and Goro, with Kai their child. */
+    reset();
+    memset(records, 0, sizeof records);
+    villager(0, "Bomani", 1, 1, 5); villager(1, "Aisha", 4, 9, 7); villager(2, "Goro", 7, 2, 3);
+    *(int *)(rec(2) + GENDER) = 1;
+    CHECK(sync(1, records) == 1, "a village with no table yet is identified: recording may begin");
+    conceive(records, rec(1), rec(2));
+    *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(9, 1, "Kai"); tick(records);
+    entry(9, e); CHECK(same(e, 7, 2, 4, 9), "Kai has both parents (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    bind(records);
+    CHECK(sync(1, records) == 1, "the village matches its own table: identified");
+    /* Start Over in the same slot: strangers, nobody in common. */
+    memset(records, 0, sizeof records);
+    villager(0, "Tane", 2, 2, 5); villager(1, "Moa", 3, 3, 9); *(int *)(rec(0) + GENDER) = 1;
+    {
+        int frame, settled = 1;
+        for (frame = 1; frame < 30; ++frame) {
+            if (sync(1, records) != 0) { settled = 0; break; }
+        }
+        CHECK(settled, "for 29 frames of strangers the sync answers 0: nothing is known, nothing is touched (broke at frame %d)", frame);
+    }
+    entry(9, e); CHECK(same(e, 7, 2, 4, 9), "...and Kai's parents are still in the table meanwhile (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    CHECK(sync(1, records) == 1, "the 30th frame: verdict final, the table is reloaded for the other village");
+    entry(9, e); CHECK(same(e, -1, -1, -1, -1), "...which the old table does not serve: Kai's slot is empty for the new village (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    /* The same village, mid-rebuild: the array empties for a few frames. */
+    reset();
+    memset(records, 0, sizeof records);
+    villager(0, "Bomani", 1, 1, 5); villager(1, "Aisha", 4, 9, 7); villager(2, "Goro", 7, 2, 3);
+    *(int *)(rec(2) + GENDER) = 1;
+    sync(1, records);
+    conceive(records, rec(1), rec(2));
+    *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(9, 1, "Kai"); tick(records);
+    bind(records);
+
+    {
+        static unsigned char keep[COUNT * STRIDE];
+        memcpy(keep, records, sizeof keep);
+        memset(records, 0, sizeof records);
+        CHECK(sync(1, records) == 0, "nobody on screen (the array is being rebuilt): nothing is known");
+        CHECK(sync(1, records) == 0, "...for as long as that lasts");
+        entry(9, e); CHECK(same(e, 7, 2, 4, 9), "...and the table is untouched (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+        memcpy(records, keep, sizeof keep);
+        CHECK(sync(1, records) == 1, "the same villagers are back: identified again, no strikes were counted");
+        entry(9, e); CHECK(same(e, 7, 2, 4, 9), "...with Kai's parents intact (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    }
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;

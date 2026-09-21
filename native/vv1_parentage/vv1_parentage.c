@@ -484,11 +484,21 @@ static void vv1_parents_load(int slot, const unsigned char *records) {
    for VV1_NEW_VILLAGE_STRIKES consecutive frames -- not one, because a load
    rebuilds the array over several -- is another village in the same slot
    (Start Over keeps the slot): the table is reloaded, which the old file
-   fails for the same reason, leaving the new village's parents unknown. */
-static int vv1_parents_sync(void) {
-    int slot = vv1_slot();
-    const unsigned char *records = vv1_records();
+   fails for the same reason, leaving the new village's parents unknown.
+
+   While that verdict is still pending -- strikes counting, or nobody on
+   screen at all -- the answer is 0, "nothing known", NOT the slot: every
+   caller then leaves the table alone.  Returning the slot here let the
+   per-frame tick run the delivery inference against the previous village's
+   baseline and save, and the save rebinds the roster to whoever is on
+   screen -- so the very next frame overlapped, the strikes reset before the
+   verdict was in, and the old table was silently mixed into the new
+   village.  The inference baseline is dropped for the same reason: a
+   snapshot taken before the array was rebuilt must not be compared with the
+   array after it. */
+static int vv1_parents_sync_core(int slot, const unsigned char *records) {
     static vv1_occupant now[VV1_RECORD_COUNT];
+    int i;
     if (!slot || records == NULL) {
         return 0;
     }
@@ -501,11 +511,12 @@ static int vv1_parents_sync(void) {
     }
     switch (vv1_roster_overlap(records, g_roster)) {
     case 0:
-        if (++g_strikes >= VV1_NEW_VILLAGE_STRIKES) {
-            vv1_parents_load(slot, records);
-            g_strikes = 0;
-            g_have_prev = 0;
+        g_have_prev = 0;
+        if (++g_strikes < VV1_NEW_VILLAGE_STRIKES) {
+            return 0;             /* unsettled: nobody touches the table */
         }
+        vv1_parents_load(slot, records);
+        g_strikes = 0;
         break;
     case 1:
         g_strikes = 0;
@@ -515,10 +526,24 @@ static int vv1_parents_sync(void) {
         }
         break;
     default:
-        g_strikes = 0;            /* nothing to compare yet */
-        break;
+        /* No verdict.  Either nothing is recorded yet (a village with no
+           table: recording may begin, so the slot is known) or nobody is
+           on screen (the array is being rebuilt: nothing is known, and
+           the baseline is dropped with it). */
+        g_strikes = 0;
+        for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+            if (records[i * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET] == 1) {
+                return slot;
+            }
+        }
+        g_have_prev = 0;
+        return 0;
     }
     return slot;
+}
+
+static int vv1_parents_sync(void) {
+    return vv1_parents_sync_core(vv1_slot(), vv1_records());
 }
 
 /* ---- the parentage log ------------------------------------------------ */
@@ -1226,6 +1251,20 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeRoster(const void *records,
     }
     vv1_take_roster((const unsigned char *)records, (vv1_occupant *)out);
     return (int)sizeof(vv1_occupant);
+}
+
+/* The sync over a caller-supplied slot and array, so the harness can drive
+   the strike window without the game's globals. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeSync(int slot, const void *records) {
+    return vv1_parents_sync_core(slot, (const unsigned char *)records);
+}
+
+/* Bind the table to the array's occupants in memory -- what a save does
+   minus the file -- so the harness can set up "the village this table
+   belongs to" without touching disk. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeBind(const void *records) {
+    vv1_take_roster((const unsigned char *)records, g_roster);
+    return 1;
 }
 
 __declspec(dllexport) int __stdcall Vv1ParentageProbeOverlap(const void *records, const void *roster) {
