@@ -439,6 +439,14 @@ def build() -> dict:
                     "holds it in EDI -- so a normal birth records his real "
                     "age. Rolls to a new numbered file every 256 records."
                 ),
+                "needs_on": [
+                    {
+                        "id": "vv3_write_village_statistics",
+                        "for": (
+                            "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)"
+                        ),
+                    },
+                ],
                 "companion_files": [
                     {
                         "source": "assets/parentage/VVFP Parentage Export.dll",

@@ -496,17 +496,39 @@ static void vv1_parents_load(int slot, const unsigned char *records) {
    village.  The inference baseline is dropped for the same reason: a
    snapshot taken before the array was rebuilt must not be compared with the
    array after it. */
+/* Is anybody on screen?  An array with no live villager is one the game is
+   still rebuilding, and nothing may be concluded from it -- neither that this
+   is another village, nor that a sidecar does not match. */
+static int vv1_anyone_living(const unsigned char *records) {
+    int i;
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        if (records[i * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET] == 1) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int vv1_parents_sync_core(int slot, const unsigned char *records) {
     static vv1_occupant now[VV1_RECORD_COUNT];
-    int i;
     if (!slot || records == NULL) {
         return 0;
     }
     if (slot != g_loaded_slot) {
+        /* Wait for the array before reading the file.  A slot changes at a
+           load, and at that instant the array is still the previous village's
+           or half rebuilt: loading against it would find no match, reject the
+           sidecar, and -- because the slot would nonetheless be marked loaded
+           -- never retry it, so the next birth would save a blank table over
+           a real one.  Until somebody is on screen the answer is "nothing
+           known", and nothing is loaded, saved or inferred. */
+        g_have_prev = 0;          /* a different village: no delivery can be inferred yet */
+        if (!vv1_anyone_living(records)) {
+            return 0;
+        }
         vv1_parents_load(slot, records);
         g_loaded_slot = slot;
         g_strikes = 0;
-        g_have_prev = 0;          /* a different village: no delivery can be inferred yet */
         return slot;
     }
     switch (vv1_roster_overlap(records, g_roster)) {
@@ -531,10 +553,8 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
            on screen (the array is being rebuilt: nothing is known, and
            the baseline is dropped with it). */
         g_strikes = 0;
-        for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-            if (records[i * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET] == 1) {
-                return slot;
-            }
+        if (vv1_anyone_living(records)) {
+            return slot;
         }
         g_have_prev = 0;
         return 0;

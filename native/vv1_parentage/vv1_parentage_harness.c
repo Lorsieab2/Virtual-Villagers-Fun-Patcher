@@ -325,6 +325,35 @@ int main(int argc, char **argv) {
         entry(9, e); CHECK(same(e, 7, 2, 4, 9), "...with Kai's parents intact (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
     }
 
+    printf("== a slot change waits for the array to be rebuilt ==\n");
+    /* Slot 2 is selected while the array is still empty from the previous
+       village's teardown, then slot 2's own villagers appear.  The table must
+       not be bound to slot 2 until somebody is actually there -- otherwise
+       the sidecar is read against the wrong array, rejected, and the slot
+       marked loaded anyway, so it is never retried.
+
+       Nothing here may let the sync take its persist branch: vv1_parents_save
+       reads the GAME's global array, which does not exist under the harness.
+       Binding the roster to the array before each matching sync is what the
+       scenarios above do for the same reason. */
+    reset();
+    memset(records, 0, sizeof records);
+    villager(0, "Bomani", 1, 1, 5); villager(1, "Aisha", 4, 9, 7); villager(2, "Goro", 7, 2, 3);
+    *(int *)(rec(2) + GENDER) = 1;
+    bind(records);
+    CHECK(sync(1, records) == 1, "slot 1 with its own villagers: identified");
+    conceive(records, rec(1), rec(2));
+    *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(9, 1, "Kai"); tick(records);
+    bind(records);
+    entry(9, e); CHECK(same(e, 7, 2, 4, 9), "slot 1: Kai has both parents (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    memset(records, 0, sizeof records);
+    CHECK(sync(2, records) == 0, "the slot changed but the array is empty: nothing is known");
+    CHECK(sync(2, records) == 0, "...for as long as the rebuild lasts");
+    entry(9, e); CHECK(same(e, 7, 2, 4, 9), "...and slot 1's table is still intact meanwhile (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    villager(0, "Tane", 2, 2, 5); villager(1, "Moa", 3, 3, 9); *(int *)(rec(0) + GENDER) = 1;
+    CHECK(sync(2, records) == 2, "slot 2's villagers are on screen: only now is the slot loaded");
+    entry(9, e); CHECK(same(e, -1, -1, -1, -1), "...and slot 2 does not inherit slot 1's parents (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
 }

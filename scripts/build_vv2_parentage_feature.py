@@ -462,6 +462,14 @@ def build() -> dict:
                 # and left the conception routine completely unpatched -- the
                 # feature silently doing nothing, which is worse than refusing.
                 # The dependency makes the patcher resolve Origins in.
+                "needs_on": [
+                    {
+                        "id": "vv2_write_village_statistics",
+                        "for": (
+                            "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)"
+                        ),
+                    },
+                ],
                 "dependencies": ["vv2_enable_origins_exclusive_features"],
                 "companion_files": [_companion()],
                 # No standalone `patches` list. VV1's tracker has both a cave

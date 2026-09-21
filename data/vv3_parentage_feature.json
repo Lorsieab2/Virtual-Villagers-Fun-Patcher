@@ -13,6 +13,12 @@
       "game_id": "vv3",
       "id": "vv3_write_parentage_log",
       "name": "Write Parentage Log to Text File",
+      "needs_on": [
+        {
+          "for": "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)",
+          "id": "vv3_write_village_statistics"
+        }
+      ],
       "output_tag": "Parentage Log Text Export",
       "patches": [
         {

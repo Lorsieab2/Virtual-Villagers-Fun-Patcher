@@ -62,11 +62,18 @@ class PatchRequirementTests(unittest.TestCase):
         self.assertIn("Needed by Write Village Statistics to Text File for the \"Parents:\" lines", parents)
 
     def test_the_origins_base_is_never_presented_as_a_patch_to_tick(self):
-        for patch_id in ("vv1_sort_by", "vv1_number_keys", "vv2_write_parentage_log",
+        for patch_id in ("vv1_sort_by", "vv1_number_keys",
                          "vv3_origins_village_wide_upgrades", "vv5_origins_village_wide_upgrades"):
             text = self.text(patch_id)
             self.assertIn("Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.", text)
             self.assertNotIn("Requires Enable Origins", text)
+        # VV2's parentage log now also carries the header caveat, so the
+        # Origins base is a trailing sentence rather than a standalone one.
+        vv2_log = self.text("vv2_write_parentage_log")
+        self.assertIn(
+            "The Origins-exclusive base it runs on is included automatically.", vv2_log
+        )
+        self.assertNotIn("Requires Enable Origins", vv2_log)
         for patch in self.public:
             self.assertNotRegex(self.text(patch.id), r"\bvv[1-5]_", (patch.id, self.text(patch.id)))
 
@@ -130,7 +137,21 @@ class PatchRequirementTests(unittest.TestCase):
         self.assertEqual([e["id"] for e in parents["needs_on"]], ["vv1_write_parentage_log"])
         log = json.loads((ROOT / "data" / "vv1_parentage_feature.json").read_text(encoding="utf-8"))
         vv1 = [f for f in log["features"] if f["id"] == "vv1_write_parentage_log"][0]
-        self.assertEqual([e["id"] for e in vv1["needs_on"]], ["vv1_show_parents"])
+        # The header caveat is stated in the patcher for every game, in bold:
+        # the records are correct without Village Statistics, but the village
+        # and savegame header at the top of the log is published by it.
+        self.assertEqual(
+            [e["id"] for e in vv1["needs_on"]],
+            ["vv1_write_village_statistics", "vv1_show_parents"],
+        )
+        for game in ("vv2", "vv3", "vv4", "vv5"):
+            other = json.loads(
+                (ROOT / "data" / (game + "_parentage_feature.json")).read_text(encoding="utf-8")
+            )
+            row = [f for f in other["features"] if f["id"] == game + "_write_parentage_log"][0]
+            self.assertEqual(
+                [e["id"] for e in row["needs_on"]], [game + "_write_village_statistics"]
+            )
         stats = json.loads((ROOT / "data" / "statistics_features.json").read_text(encoding="utf-8"))
         by = {f["id"]: f for f in stats["features"]}
         self.assertEqual([e["id"] for e in by["vv1_write_village_statistics"]["needs_on"]], ["vv1_show_parents"])

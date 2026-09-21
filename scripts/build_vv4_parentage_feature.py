@@ -478,6 +478,14 @@ def build() -> dict:
                     "hands both parents to the hook -- so a normal birth "
                     "records his real age."
                 ),
+                "needs_on": [
+                    {
+                        "id": "vv4_write_village_statistics",
+                        "for": (
+                            "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)"
+                        ),
+                    },
+                ],
                 "companion_files": [
                     {
                         "source": "assets/parentage/VVFP Parentage Export.dll",

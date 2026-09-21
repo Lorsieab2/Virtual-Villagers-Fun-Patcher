@@ -91,6 +91,10 @@
       "name": "Write Parentage Log to Text File",
       "needs_on": [
         {
+          "for": "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)",
+          "id": "vv1_write_village_statistics"
+        },
+        {
           "for": "the \"Birth\" records (conceptions are logged without it)",
           "id": "vv1_show_parents"
         }

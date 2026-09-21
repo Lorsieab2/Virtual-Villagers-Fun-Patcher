@@ -795,6 +795,12 @@ def build() -> dict:
                 # sees every birth; conceptions are logged without it.
                 "needs_on": [
                     {
+                        "id": "vv1_write_village_statistics",
+                        "for": (
+                            "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)"
+                        ),
+                    },
+                    {
                         "id": "vv1_show_parents",
                         "for": "the \"Birth\" records (conceptions are logged without it)",
                     },
