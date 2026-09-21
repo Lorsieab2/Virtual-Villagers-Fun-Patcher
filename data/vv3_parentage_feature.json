@@ -1,15 +1,15 @@
 {
-  "companion_sha256": "340f7b6d5bc820ee26480b11a5883fab54f9b65e120b28bdf9ed2b55ac6f37ff",
+  "companion_sha256": "dc1e768cc58a9ddbb407149bd0bd9a26b2fc50410d1f5433cc614ce2669791a6",
   "features": [
     {
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "340f7b6d5bc820ee26480b11a5883fab54f9b65e120b28bdf9ed2b55ac6f37ff",
+          "sha256": "dc1e768cc58a9ddbb407149bd0bd9a26b2fc50410d1f5433cc614ce2669791a6",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         }
       ],
-      "description": "Records both parents at conception in a plain text log: their names, both parents' ages at conception, both head and body values, and the number of babies, appended to 'Virtual Villagers 3 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. VV3 keeps the father's name on the mother's record and no father id. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they are correct even after he dies or another villager takes his name. His AGE, which has no copy on her, is read from his own record at conception -- the conception routine still holds it in EDI -- so a normal birth records his real age. Rolls to a new numbered file every 256 records.",
+      "description": "Records both parents at conception in a plain text log: their names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies, appended to 'Virtual Villagers 3 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. VV3 keeps the father's name on the mother's record and no father id. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they are correct even after he dies or another villager takes his name. His AGE, which has no copy on her, is read from his own record at conception -- the conception routine still holds it in EDI -- so a normal birth records his real age. Rolls to a new numbered file every 256 records.",
       "game_id": "vv3",
       "id": "vv3_write_parentage_log",
       "name": "Write Parentage Log to Text File",

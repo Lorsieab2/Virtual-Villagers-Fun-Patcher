@@ -774,7 +774,8 @@ def build() -> dict:
                 "description": (
                     "On each new pregnancy, appends both parents' names, "
                     "both parents' ages at conception, both head and body "
-                    "values, and the number of babies to 'Virtual "
+                    "values, both parents' likes and dislikes, and the number "
+                    "of babies to 'Virtual "
                     "Villagers 1 Parentage Log N.txt' beside the game "
                     "executable. The mother's age determines the child's "
                     "age, and the father's age is recorded too. VV1 "

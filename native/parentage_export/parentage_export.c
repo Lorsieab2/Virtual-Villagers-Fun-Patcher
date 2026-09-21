@@ -153,6 +153,105 @@ enum {
    So the four games whose evidence is not yet in are declared with `supported`
    zero and left at zero. WriteParentageRecord refuses them outright rather
    than reading a plausible-looking guess. */
+/* The preference list each game indexes for likes and dislikes.
+
+   The same three lists the population exporter prints from, matching the
+   string each executable keeps under eSayLikesList / eSayDislikesList: 47
+   entries in VV1, 62 in VV2, 79 in the three later games.  ZERO-BASED: index 0
+   is "ants", with no adjustment.  A game must use its own list -- a VV5 index
+   read through VV1's 47 entries would silently print the wrong word. */
+static const char PREFERENCES_47[] =
+    "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
+    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,playing,"
+    "exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,sand,"
+    "sunlight,rough wood,crab meat,whale meat,fish,fruit,papaya,flies,"
+    "swimming,running,learning,dancing,monkeys,parrots,work,lifting,surprises,"
+    "jokes";
+
+static const char PREFERENCES_62[] =
+    "ants,crowds,resting,laundry,medicine,turnips,butterflies,"
+    "flowers,bees,the dark,caves,herbs,berries,snakes,wind,rocks,"
+    "heights,the ocean,playing,exploring,blue,green,red,yellow,drums,"
+    "bushes,bananas,coconuts,sand,sunlight,wood,crab meat,whale meat,"
+    "fish,fruit,papaya,flies,swimming,running,learning,dancing,"
+    "monkeys,parrots,work,lifting,surprises,jokes,sleeping,jumping,"
+    "cooking,fire,eating,dragonflies,owls,dreaming,children,talking,"
+    "holidays,vegetables,quiet,clouds,dirt";
+
+static const char PREFERENCES_79[] =
+    "ants,crowds,resting,laundry,medicine,turnips,butterflies,flowers,bees,"
+    "the dark,caves,herbs,berries,snakes,wind,rocks,heights,the ocean,playing,"
+    "exploring,blue,green,red,yellow,drums,bushes,bananas,coconuts,sand,"
+    "sunlight,wood,crab meat,whale meat,fish,fruit,papaya,flies,swimming,"
+    "running,learning,dancing,monkeys,parrots,work,lifting,surprises,jokes,"
+    "sleeping,jumping,cooking,fire,eating,dragonflies,owls,dreaming,children,"
+    "talking,holidays,vegetables,quiet,clouds,dirt,frogs,soap,magic,plants,"
+    "rain,fog,sitting,sharks,honey,stories,coral,thunder,lightning,pearls,"
+    "stars,mango,nature";
+
+/* Copy the index-th comma-separated entry of `list` into `out`.  Returns 0
+   when the index is outside the list, so an empty slot and a corrupt one are
+   both reported as absent rather than as a wrong word. */
+static int preference_name(
+    const char *list,
+    int index,
+    char *out,
+    size_t out_size
+) {
+    const char *start = list;
+    int current = 0;
+    size_t length;
+    if (list == NULL || index < 0) {
+        return 0;
+    }
+    while (current < index) {
+        const char *comma = strchr(start, ',');
+        if (comma == NULL) {
+            return 0;   /* index past the end of the list */
+        }
+        start = comma + 1;
+        ++current;
+    }
+    {
+        const char *comma = strchr(start, ',');
+        length = comma == NULL ? strlen(start) : (size_t)(comma - start);
+    }
+    if (length == 0 || length + 1 > out_size) {
+        return 0;
+    }
+    memcpy(out, start, length);
+    out[length] = '\0';
+    return 1;
+}
+
+/* The first filled entry of a preference array, or 0 when every slot is
+   empty.  Empty is -1 OR an index past the end of the list; both appear in
+   real villages.  The first FILLED slot is what the game's own Details panel
+   shows, so it is what the log records. */
+static int first_preference(
+    const unsigned char *record,
+    unsigned int base,
+    unsigned int slots,
+    const char *list,
+    char *out,
+    size_t out_size
+) {
+    unsigned int slot;
+    if (base == 0u || list == NULL) {
+        return 0;
+    }
+    for (slot = 0; slot < slots; ++slot) {
+        int value = *(const int *)(record + base + slot * 4u);
+        if (value < 0) {
+            continue;
+        }
+        if (preference_name(list, value, out, out_size)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 struct game_layout {
     int supported;
     unsigned int stride;
@@ -280,6 +379,21 @@ struct game_layout {
        raw id is never written to the log at all -- it exists only to find the
        father's record -- so this guards a lookup, not a printed value. */
     int no_villager;
+    /* Both parents' likes and dislikes, printed on the conception record so
+       two parents who share a name can be told apart -- the owner's identity
+       fields.  Each is an ARRAY of i32 indices into the game's preference
+       list ("in general likes and dislikes are arrays for all 5 games"); the
+       game's Details panel shows the first filled entry, and so does the log.
+
+       These are the population exporter's measured offsets and lists
+       (native/population_export/population_export.c), restated here because
+       this companion prints the same word for the same villager; a test reads
+       both tables and fails if they ever disagree.  Zero means not established
+       for a game, and then no line is printed. */
+    unsigned int likes;
+    unsigned int dislikes;
+    unsigned int preference_slots;
+    const char *preference_list;
     const wchar_t *log_name;  /* "<name> <n>.txt" beside the executable */
 };
 
@@ -375,6 +489,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         FATHER_BY_CAPTURE, 0, 0, 0x35C,
         0, 0,
         0xC7,
+        0x398, 0x3A8, 4, PREFERENCES_47,
         L"Virtual Villagers 1 Parentage Log"
     },
 
@@ -424,6 +539,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         FATHER_BY_NAME, 0x5C0, 0, 0x544,
         0x5E0, 0x5DC,
         0,
+        0x5F0, 0x6E8, 4, PREFERENCES_62,
         L"Virtual Villagers 2 Parentage Log"
     },
 
@@ -489,6 +605,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         FATHER_BY_NAME, 0xE48, 0x18, 0xE90,
         0xE68, 0xE64,
         0,
+        0xFB4, 0xFC0, 3, PREFERENCES_79,
         L"Virtual Villagers 3 Parentage Log"
     },
 
@@ -548,6 +665,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         FATHER_BY_NAME, 0x1C10, 0x18, 0x1C50,
         0x1C30, 0x1C2C,
         0,
+        0x1E60, 0x1E6C, 3, PREFERENCES_79,
         L"Virtual Villagers 4 Parentage Log"
     },
 
@@ -586,6 +704,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         FATHER_BY_NAME, 0x1C10, 0x18, 0x1C50,
         0x1C30, 0x1C2C,
         0,
+        0x1F5C, 0x1F68, 3, PREFERENCES_79,
         L"Virtual Villagers 5 Parentage Log"
     }
 };
@@ -915,6 +1034,23 @@ static int select_log_file(
 
    Every field is checked against the stride with its own width, so a four-byte
    read at stride-2 is rejected rather than straddling the record boundary. */
+/* The word the conception record prints for one parent's preference array:
+   the first filled entry, or "(none)" when every slot is empty.  Printed
+   rather than omitted so every record has the same shape. */
+static void preference_text(
+    const struct game_layout *g,
+    const unsigned char *record,
+    unsigned int base,
+    char *out,
+    size_t out_size
+) {
+    if (record == NULL || g->likes == 0u
+        || !first_preference(record, base, g->preference_slots,
+                             g->preference_list, out, out_size)) {
+        memcpy(out, "(none)", 7);
+    }
+}
+
 static int layout_is_usable(const struct game_layout *g) {
     static const unsigned int WORD = 4;
     unsigned int stride;
@@ -947,6 +1083,16 @@ static int layout_is_usable(const struct game_layout *g) {
     if (g->age + WORD > stride) return 0;
     if (g->head + WORD > stride) return 0;
     if (g->body + WORD > stride) return 0;
+    /* The preference arrays: every slot read must sit inside the record, and
+       a row that names one of the pair must name all of it. */
+    if (g->likes != 0u || g->dislikes != 0u) {
+        if (g->likes == 0u || g->dislikes == 0u || g->preference_slots == 0u
+            || g->preference_list == NULL) {
+            return 0;
+        }
+        if (g->likes + g->preference_slots * WORD > stride) return 0;
+        if (g->dislikes + g->preference_slots * WORD > stride) return 0;
+    }
     /* The villager-id field is only read when a game records the father BY ID
        and his record has to be found by scanning for it. VV2, VV3, VV4 and VV5
        record the father's name instead and have no proven id field at all, so
@@ -1169,6 +1315,11 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     char father_head[32];
     char father_body[32];
     char father_age[32];
+    /* Sized for the longest preference word plus the unavailable wording. */
+    char mother_likes[64];
+    char mother_dislikes[64];
+    char father_likes[64];
+    char father_dislikes[64];
     int written;
     int existing_records;
 
@@ -1446,6 +1597,25 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         memcpy(father_age, "(not captured for this birth)", 30);
     }
 
+    /* Both parents' likes and dislikes -- the owner's identity fields, so
+       two villagers who share a name can be told apart in the log.  Each is
+       what the Details panel shows: the first filled entry of the array, named
+       from this game's own list.  The mother's come from her record, live at
+       the hook.  The father's come from the CAPTURED record only, exactly as
+       his age does: no game copies them onto the mother, and a by-name scan
+       could hand back whichever living villager answers to the stored name.
+       With no captured record they say what his age says -- honestly absent,
+       never guessed. */
+    preference_text(g, mother, g->likes, mother_likes, sizeof mother_likes);
+    preference_text(g, mother, g->dislikes, mother_dislikes, sizeof mother_dislikes);
+    if (father_from_caller != NULL) {
+        preference_text(g, father_from_caller, g->likes, father_likes, sizeof father_likes);
+        preference_text(g, father_from_caller, g->dislikes, father_dislikes, sizeof father_dislikes);
+    } else {
+        memcpy(father_likes, father_age, sizeof father_age);
+        memcpy(father_dislikes, father_age, sizeof father_age);
+    }
+
     /* Where the game copied the father's traits onto the mother at conception,
        prefer those copies over anything the name scan produced -- and use them
        even when it produced nothing. They are the same numbers, read from the
@@ -1473,10 +1643,14 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "    Age at conception: %d\n"
         "    Head: %d\n"
         "    Body: %d\n"
+        "    Likes: %s\n"
+        "    Dislikes: %s\n"
         "  Father: %s\n"
         "    Age at conception: %s\n"
         "    Head: %s\n"
         "    Body: %s\n"
+        "    Likes: %s\n"
+        "    Dislikes: %s\n"
         "  Babies in pregnancy: %d\n"
         "\n",
         existing_records + 1,
@@ -1484,10 +1658,14 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         *(const int *)(mother + g->age),
         *(const int *)(mother + g->head),
         *(const int *)(mother + g->body),
+        mother_likes,
+        mother_dislikes,
         father_name,
         father_age,
         father_head,
         father_body,
+        father_likes,
+        father_dislikes,
         babies
     ) >= 0;
     /* Flush before closing so a write error is seen while the record can still
