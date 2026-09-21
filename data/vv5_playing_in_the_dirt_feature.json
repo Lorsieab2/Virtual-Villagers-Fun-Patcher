@@ -5,13 +5,13 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Move the \"Playing in the dirt\" Spot",
-  "description": "Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 285 by 253 with six random steps inside it. The action, its text, its sound and its length are unchanged.",
+  "description": "Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 477 by 169 with six random steps inside it. The action, its text, its sound and its length are unchanged.",
   "output_tag": "Playing In The Dirt Spot",
   "behavior_changes": [
-    "A child who starts \"Playing in the dirt\" walks to a random point in the flower patch whose record coordinates are 1843..2127 by 1431..1683 (was 236..453 by 442..475; the second coordinate now steps by two) and wanders inside it for the six steps the stock routine already takes."
+    "A child who starts \"Playing in the dirt\" walks to a random point in the flower patch whose record coordinates are 1834..2310 by 1453..1621 (was 236..453 by 442..475; the second coordinate now steps by two) and wanders inside it for the six steps the stock routine already takes."
   ],
   "explicit_non_changes": [
-    "The routine's own 46 bytes are recoded in place -- the stock one-byte spread cannot exceed 127, so the second spread is rand(127) doubled with a lea, paid for by popping the two rand arguments instead of adding to esp -- and the base of the first coordinate changes; no code is added, no executable space is claimed, and the routine's step count, speed and animations are untouched.",
+    "The routine's own 46 bytes are recoded in place -- the stock one-byte spread cannot exceed 127, so the second spread is rand(85) doubled with a lea, paid for by popping the two rand arguments instead of adding to esp -- and the base of the first coordinate changes; no code is added, no executable space is claimed, and the routine's step count, speed and animations are untouched.",
     "The say-event (504, \"Playing in the dirt\") and its sound are unchanged; no save or villager-record byte is written."
   ],
   "companion_files": [],
@@ -19,14 +19,14 @@
     {
       "offset": "0x5ED70",
       "before": "6A22E8E948FAFF8BF868DA00000081C7BA010000E8D748FAFF83C4086A006A64",
-      "after": "6A7FE8E948FAFF8D3C00681D01000081C797050000E8D648FAFF59596A006A64",
-      "purpose": "the two random picks of the Playing-in-the-dirt routine at 0x45ED40: push 0x7F / call rand / lea edi,[eax+eax] / push 0x11D / add edi,0x597 / call rand / pop ecx / pop ecx / push 0 / push 0x64 -- the second coordinate becomes 1431 + 2*rand(127) (1431..1683) and the first pick's spread becomes rand(285); same length, the second call's rel32 recomputed for its new address"
+      "after": "6A55E8E948FAFF8D3C0068DD01000081C7AD050000E8D648FAFF59596A006A64",
+      "purpose": "the two random picks of the Playing-in-the-dirt routine at 0x45ED40: push 0x55 / call rand / lea edi,[eax+eax] / push 0x1DD / add edi,0x5AD / call rand / pop ecx / pop ecx / push 0 / push 0x64 -- the second coordinate becomes 1453 + 2*rand(85) (1453..1621) and the first pick's spread becomes rand(477); same length, the second call's rel32 recomputed for its new address"
     },
     {
       "offset": "0x5ED91",
       "before": "EC000000",
-      "after": "33070000",
-      "purpose": "the first coordinate's base: `add eax, 0xEC` (236 + rand(218)) becomes 0x733 (1843..2127); this value lands in the villager's first position field (+0x1C98)"
+      "after": "2A070000",
+      "purpose": "the first coordinate's base: `add eax, 0xEC` (236 + rand(218)) becomes 0x72A (1834..2310); this value lands in the villager's first position field (+0x1C98)"
     }
   ]
 }
