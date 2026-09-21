@@ -31,7 +31,7 @@ def _fields() -> list[str]:
     body = source[source.index("struct game_layout {") :]
     body = body[: body.index("\n};")]
     return re.findall(
-        r"^\s+(?:unsigned int|int|const wchar_t \*)\s+(\w+);", body, re.M
+        r"^\s+(?:(?:unsigned int|int|const wchar_t \*)\s+|const char \*\s*)(\w+);", body, re.M
     )
 
 

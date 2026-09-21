@@ -425,7 +425,8 @@ def build() -> dict:
                 "description": (
                     "Records both parents at conception in a plain text log: "
                     "their names, both parents' ages at conception, both head "
-                    "and body values, and the number of babies, appended to "
+                    "and body values, both parents' likes and dislikes, and the "
+                    "number of babies, appended to "
                     "'Virtual Villagers 3 Parentage Log N.txt' beside the game "
                     "executable. Parentage is not stored in any villager "
                     "record, so both parents are captured at conception; they "

@@ -461,7 +461,8 @@ def build() -> dict:
                 "description": (
                     "On each new pregnancy, appends the mother's and father's "
                     "names, both parents' ages at conception, both head and "
-                    "body values, and the number of babies to "
+                    "body values, both parents' likes and dislikes, and the "
+                    "number of babies to "
                     "'Virtual Villagers 4 Parentage Log N.txt' beside the game "
                     "executable. Parentage is not stored in any villager "
                     "record, so both parents are captured at conception; they "
