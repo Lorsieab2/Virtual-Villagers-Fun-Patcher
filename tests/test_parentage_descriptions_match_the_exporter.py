@@ -147,7 +147,7 @@ class ParentageDescriptionsMatchExporterTests(unittest.TestCase):
             "if this changed, the descriptions and this guard need revisiting"
         )
         self.assertIn("*(const int *)(mother + g->age)", source)
-        self.assertIn("*(const int *)(father + g->age)", source)
+        self.assertIn("*(const int *)(father_from_caller + g->age)", source)
 
     def test_a_description_that_mentions_an_age_names_a_parent(self):
         """A description mentioning an age must say whose -- the mother's, the

@@ -11,7 +11,7 @@ come from her record and must not come from a by-name scan of the villager
 array (which fails when he has died or a second villager shares his name -- the
 "(record not found)" defect that had the field removed the first time). It is
 read from HIS OWN captured record at the conception hook, the one moment it is
-reliably his: `*(const int *)(father + g->age)`, exactly where his head and
+reliably his: `*(const int *)(father_from_caller + g->age)`, exactly where his head and
 body already come from. When no father record was captured the age says so,
 using the same wording head and body use, never a scan.
 
@@ -73,7 +73,7 @@ class BothParentsAgesAreRecordedTests(unittest.TestCase):
             "the father's age must print under the Father block, as a string",
         )
         # rendered from his own record at conception
-        self.assertIn("*(const int *)(father + g->age)", self.source)
+        self.assertIn("*(const int *)(father_from_caller + g->age)", self.source)
         self.assertIn("father_age", self.source)
 
     def test_the_father_age_never_falls_back_to_a_name_scan(self) -> None:
