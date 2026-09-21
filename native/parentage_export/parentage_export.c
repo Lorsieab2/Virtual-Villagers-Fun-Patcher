@@ -63,6 +63,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
+#include <stdlib.h>
 
 #include "village_identity.h"
 #include "save_folder.h"
@@ -1598,4 +1599,236 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
 ) {
     return WriteParentageRecordWithFather(
         game_id, records_pointer, mother_pointer, NULL);
+}
+
+/* ---- retroactive parent recovery -------------------------------------- */
+
+/* A village whose parents sidecar was bound to the wrong identity lost the
+   parents it had recorded before its children were born.  The parentage LOG
+   did not: every conception recorded the father, and every birth recorded the
+   child and the mother.  RecoverParentageParents reads the log this game
+   wrote and, for each child a caller asks about, hands back the mother and
+   father the log preserved -- matching each Birth to the earliest unconsumed
+   Conception with the same mother, exactly the pairing a reader does by eye.
+
+   THE THREE CASES, which are the owner's rules for who has parents:
+
+     A logged birth whose conception recorded a father  ->  the real parents.
+
+     A logged birth with a mother but no father the log could name (a
+     female villager forced to nurse by an event, with no father at all):
+     the mother, and the FALLBACK FATHER "Unknown" with head 0 and body 0,
+     the same placeholder VV2 and VV3 already use for a fatherless birth.
+
+     A living child the log holds NO birth for  ->  no parents.  Children
+     spawned by an island event or a Barrel of Babies are never carried
+     through a mother's delivery and never logged as a birth, so they are
+     left unrecovered by design.
+
+   This reads only what the game itself persisted, writes nothing, and is
+   idempotent: `found` reports whether the log knew the child, so a caller
+   fills only what it did not already know and never overwrites a parent it
+   already holds. */
+
+#define RECOVER_NAME_CAP 28
+#define RECOVER_MAX 1024
+
+/* The fallback father for a genuine but fatherless birth (event-forced
+   nursing).  VV2/VV3 use exactly this: the name "Unknown" and appearance 0. */
+#define RECOVER_FALLBACK_NAME "Unknown"
+#define RECOVER_FALLBACK_HEAD 0
+#define RECOVER_FALLBACK_BODY 0
+
+/* One child the caller wants resolved.  It fills in `child`; every out field
+   is filled here when the log knows the child. */
+struct recover_request {
+    char child[RECOVER_NAME_CAP];      /* in:  the living child's name */
+    char mother[RECOVER_NAME_CAP];     /* out: the mother's name, or "" */
+    int mother_head;                   /* out: -1 when unknown */
+    int mother_body;                   /* out */
+    char father[RECOVER_NAME_CAP];     /* out: the father's name, "Unknown", or "" */
+    int father_head;                   /* out: -1 when unknown */
+    int father_body;                   /* out */
+    int found;                         /* out: 1 when the log recorded this child's birth */
+};
+
+static void recover_trim(char *s) {
+    size_t n = strlen(s);
+    while (n > 0 && (s[n - 1] == '\n' || s[n - 1] == '\r' || s[n - 1] == ' ')) {
+        s[--n] = '\0';
+    }
+}
+
+/* Read "  Label: value" -> value into out (trimmed).  Returns 1 on a match. */
+static int recover_field(const char *line, const char *label, char *out, size_t cap) {
+    size_t llen = strlen(label);
+    const char *p = line;
+    while (*p == ' ') {
+        ++p;
+    }
+    if (strncmp(p, label, llen) != 0) {
+        return 0;
+    }
+    p += llen;
+    while (*p == ' ') {
+        ++p;
+    }
+    _snprintf_s(out, cap, _TRUNCATE, "%s", p);
+    recover_trim(out);
+    return 1;
+}
+
+/* Parse every log file for this game into conceptions (mother, father) and
+   births (child, mother), in order, then pair them and fill the requests.
+   Returns the number of requests filled. */
+__declspec(dllexport) int __stdcall RecoverParentageParents(
+    int game_id,
+    void *requests_pointer,
+    int request_count
+) {
+    const struct game_layout *g;
+    struct recover_request *reqs = (struct recover_request *)requests_pointer;
+    static char c_mother[RECOVER_MAX][RECOVER_NAME_CAP];
+    static char c_father[RECOVER_MAX][RECOVER_NAME_CAP];
+    static int c_fhead[RECOVER_MAX];
+    static int c_fbody[RECOVER_MAX];
+    static char c_used[RECOVER_MAX];
+    static char b_child[RECOVER_MAX][RECOVER_NAME_CAP];
+    static char b_mother[RECOVER_MAX][RECOVER_NAME_CAP];
+    static int b_mhead[RECOVER_MAX];
+    static int b_mbody[RECOVER_MAX];
+    int n_concept = 0, n_birth = 0;
+    int number, i, r, filled = 0;
+    wchar_t path[MAX_LOG_PATH];
+
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || reqs == NULL || request_count <= 0) {
+        return 0;
+    }
+    g = &GAME_LAYOUTS[game_id];
+    if (!g->supported || g->log_name == NULL) {
+        return 0;
+    }
+
+    for (number = 1; number <= 4096; ++number) {
+        FILE *file;
+        char line[512];
+        char value[RECOVER_NAME_CAP];
+        int state = 0;                /* 0 none, 1 conception, 2 birth */
+        int have_child = 0, have_mother = 0, have_father = 0;
+        int field = 0;                /* whose Head/Body follow: 1 child, 2 mother, 3 father */
+        char cur_child[RECOVER_NAME_CAP], cur_mother[RECOVER_NAME_CAP], cur_father[RECOVER_NAME_CAP];
+        int cur_fhead = -1, cur_fbody = -1, cur_mhead = -1, cur_mbody = -1;
+        if (!build_log_path(g, number, path)) {
+            break;
+        }
+        if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+            break;                    /* a gap ends the walk, like select_log_file */
+        }
+        file = _wfopen(path, L"rb");
+        if (file == NULL) {
+            continue;
+        }
+        cur_child[0] = cur_mother[0] = cur_father[0] = '\0';
+        while (fgets(line, (int)sizeof(line), file) != NULL) {
+            if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Birth", 5) == 0) {
+                if (state == 1 && have_mother && have_father && n_concept < RECOVER_MAX) {
+                    _snprintf_s(c_mother[n_concept], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_mother);
+                    _snprintf_s(c_father[n_concept], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_father);
+                    c_fhead[n_concept] = cur_fhead;
+                    c_fbody[n_concept] = cur_fbody;
+                    c_used[n_concept] = 0;
+                    ++n_concept;
+                } else if (state == 2 && have_child && have_mother && n_birth < RECOVER_MAX) {
+                    _snprintf_s(b_child[n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_child);
+                    _snprintf_s(b_mother[n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_mother);
+                    b_mhead[n_birth] = cur_mhead;
+                    b_mbody[n_birth] = cur_mbody;
+                    ++n_birth;
+                }
+                state = (line[0] == 'C') ? 1 : 2;
+                have_child = have_mother = have_father = field = 0;
+                cur_fhead = cur_fbody = cur_mhead = cur_mbody = -1;
+                cur_child[0] = cur_mother[0] = cur_father[0] = '\0';
+                continue;
+            }
+            if (state == 0) {
+                continue;
+            }
+            if (recover_field(line, "Child:", value, sizeof value)) {
+                _snprintf_s(cur_child, RECOVER_NAME_CAP, _TRUNCATE, "%s", value);
+                have_child = 1; field = 1;
+            } else if (recover_field(line, "Mother:", value, sizeof value)) {
+                _snprintf_s(cur_mother, RECOVER_NAME_CAP, _TRUNCATE, "%s", value);
+                have_mother = 1; field = 2;
+            } else if (recover_field(line, "Father:", value, sizeof value)) {
+                _snprintf_s(cur_father, RECOVER_NAME_CAP, _TRUNCATE, "%s", value);
+                have_father = (strcmp(value, "(unknown)") != 0);
+                field = 3;
+            } else if (recover_field(line, "Head:", value, sizeof value)) {
+                int v = (strcmp(value, "(unknown)") == 0) ? -1 : atoi(value);
+                if (field == 2) { cur_mhead = v; }
+                else if (field == 3) { cur_fhead = v; }
+            } else if (recover_field(line, "Body:", value, sizeof value)) {
+                int v = (strcmp(value, "(unknown)") == 0) ? -1 : atoi(value);
+                if (field == 2) { cur_mbody = v; }
+                else if (field == 3) { cur_fbody = v; }
+            }
+        }
+        if (state == 1 && have_mother && have_father && n_concept < RECOVER_MAX) {
+            _snprintf_s(c_mother[n_concept], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_mother);
+            _snprintf_s(c_father[n_concept], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_father);
+            c_fhead[n_concept] = cur_fhead;
+            c_fbody[n_concept] = cur_fbody;
+            c_used[n_concept] = 0;
+            ++n_concept;
+        } else if (state == 2 && have_child && have_mother && n_birth < RECOVER_MAX) {
+            _snprintf_s(b_child[n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_child);
+            _snprintf_s(b_mother[n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_mother);
+            b_mhead[n_birth] = cur_mhead;
+            b_mbody[n_birth] = cur_mbody;
+            ++n_birth;
+        }
+        fclose(file);
+    }
+
+    /* Each logged birth resolves the child of that name, matched to the
+       earliest unconsumed conception with the same mother.  The mother always
+       comes from the birth record.  The father comes from that conception if
+       it named one; a birth with no father the log could name is a genuine
+       fatherless birth (event-forced nursing) and gets the "Unknown" 0/0
+       fallback the later games use.  A living child with no birth here is a
+       spawn (island event, Barrel of Babies) and is left with no parents. */
+    for (i = 0; i < n_birth; ++i) {
+        int j, match = -1;
+        for (j = 0; j < n_concept; ++j) {
+            if (!c_used[j] && strncmp(c_mother[j], b_mother[i], RECOVER_NAME_CAP) == 0) {
+                match = j;
+                break;
+            }
+        }
+        if (match >= 0) {
+            c_used[match] = 1;
+        }
+        for (r = 0; r < request_count; ++r) {
+            if (reqs[r].found || strncmp(reqs[r].child, b_child[i], RECOVER_NAME_CAP) != 0) {
+                continue;
+            }
+            reqs[r].found = 1;
+            _snprintf_s(reqs[r].mother, RECOVER_NAME_CAP, _TRUNCATE, "%s", b_mother[i]);
+            reqs[r].mother_head = b_mhead[i];
+            reqs[r].mother_body = b_mbody[i];
+            if (match >= 0) {
+                _snprintf_s(reqs[r].father, RECOVER_NAME_CAP, _TRUNCATE, "%s", c_father[match]);
+                reqs[r].father_head = c_fhead[match];
+                reqs[r].father_body = c_fbody[match];
+            } else {
+                _snprintf_s(reqs[r].father, RECOVER_NAME_CAP, _TRUNCATE, "%s", RECOVER_FALLBACK_NAME);
+                reqs[r].father_head = RECOVER_FALLBACK_HEAD;
+                reqs[r].father_body = RECOVER_FALLBACK_BODY;
+            }
+            ++filled;
+            break;
+        }
+    }
+    return filled;
 }
