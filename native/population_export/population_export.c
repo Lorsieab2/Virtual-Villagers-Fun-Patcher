@@ -418,10 +418,19 @@ static const char *const SKILL_NAMES_VV3[MAX_SKILLS] = {
     "(skill 7)", "(skill 8)"
 };
 
+/* VV4 -- The Tree of Life.  Storage order, measured:
+     Tapa names Farming, Pai names Healing and Parenting, Dodi names
+     Research, Piko names Building.  Stored as floats. */
+static const char *const SKILL_NAMES_VV4[MAX_SKILLS] = {
+    "Farming", "Parenting", "Healing", "Research", "Building", "(skill 6)",
+    "(skill 7)", "(skill 8)"
+};
+
 static const char *const *skill_names_for(int game_id) {
     if (game_id == GAME_VV1) { return SKILL_NAMES_VV1; }
     if (game_id == GAME_VV2) { return SKILL_NAMES_VV2; }
     if (game_id == GAME_VV3) { return SKILL_NAMES_VV3; }
+    if (game_id == GAME_VV4) { return SKILL_NAMES_VV4; }
     return SKILL_NAMES_UNVERIFIED;
 }
 
