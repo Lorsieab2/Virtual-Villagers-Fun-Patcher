@@ -442,7 +442,8 @@ def build() -> dict:
                 "description": (
                     "Records both parents at conception in a plain text log: "
                     "their names, both parents' ages at conception, both head "
-                    "and body values, and the number of babies. The mother's "
+                    "and body values, both parents' likes and dislikes, and the "
+                    "number of babies. The mother's "
                     "age determines the child's age, and the father's age is "
                     "recorded too. VV2 keeps the father's name on the mother's "
                     "record and no father id; his head and body are copied onto "
