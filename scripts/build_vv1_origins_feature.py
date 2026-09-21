@@ -682,27 +682,49 @@ MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET = 0x3C393
 MASK_NEWBORN_CLEAR_SPLICE_VA = IMAGE_BASE + MASK_NEWBORN_CLEAR_SPLICE_FILE_OFFSET
 MASK_NEWBORN_CLEAR_RESUME_VA = 0x43C39B
 MASK_NEWBORN_CLEAR_ORIGINAL_BYTES = bytes.fromhex("C6462801C6462900")
-# THE EXACT BIRTH HOOK (Show Parents in Details Screen).  sub_43C840(manager,
-# mother_index) is the game's own child creation: it takes the first free
-# record (ESI), copies the mother's head, body and look-alike variant from
-# her record (EBP), names the child (sprintf into ESI+0x370 at 0x43CA36),
-# then calls sub_439470 at 0x43CA48 with ECX = the manager (EDI).  That call
-# is the splice: five bytes, ESI = the child with its name already set,
-# EBP = the mother, a single predecessor (fall-through), and the resume at
-# 0x43CA4D is exactly splice + 5.  The stub hands (child, mother) to the
-# Origins companion's Vv1Born, which forwards to the parentage companion;
-# pushad/popad keep every register and the two pushed arguments intact, then
-# the displaced call is replayed.  Because this runs inside the game's own
-# birth routine it fires during load-time catch-up too, which no per-frame
-# observation can see.  Fail-open: a missing DLL or export caches 1 and
-# the stub is a plain replay from then on.
+# THE EXACT BIRTH HOOK (Show Parents in Details Screen).  Every child A New
+# Home bears is created from the pregnancy tick sub_42E900, which walks the
+# record array (ESI = the village object, [ESI+4] = the record array, EDI =
+# the mother's byte offset into it) and, once her due field (+0x358) plus the
+# 40-unit nursing time is behind her processed-age cursor (+0x34C), creates
+# the children:
+#     0x42EF5F  call sub_43C350   the extra child of a golden-child mother (+0x394 == 0xC7)
+#     0x42EFD0  call sub_43C350   the first child of every birth
+#     0x42F021  call sub_43C840   the twin (litter +0x35C != 0), copied from the first child
+#     0x42F06D  call sub_43C840   the triplet (litter == 3), copied from the second
+# sub_43C350(manager; ...) takes the first free record, gives it random head
+# and body, names it and returns its INDEX in EAX (ret 0x14); sub_43C840
+# (manager; sibling index) does the same copying the sibling's looks (ret 4).
+# Neither routine knows the mother.  The earlier hook inside sub_43C840 at
+# 0x43CA48 passed EBP, which is the SIBLING's record there, and never ran for
+# a single birth at all -- which is why a Time Warp birth showed no parents.
+# Live play, load-time catch-up and Time Warp all go through these four
+# calls.  The two sub_43C350 calls themselves belong to the build's safety
+# patches (the 256-slot preflight caves at 0x565E0/0x56840 replace them and
+# jump back to the instruction after each call), so the splice is the seven
+# bytes that FOLLOW each call -- `mov ecx,[esi] / mov ebx|ebp,[esi+4] /
+# mov ebp|ebx,eax` -- which every path reaches only with a child just
+# created: EAX = its index, the mother's due and litter fields still set
+# (they are cleared at 0x42F0B2/0x42F0C7, after the last call).  Each site's
+# stub calls one shared body, replays its seven displaced bytes and resumes
+# at splice + 7.  The body, under pushad, hands the child's record
+# ([ESI+4] + EAX*0x3D8) and the mother's ([ESI+4] + EDI), all read from the
+# pushad frame, to the Origins companion's Vv1Born and returns with every
+# register intact.  Fail-open: a missing DLL or export caches 1 and the body
+# is a plain return from then on.
 # Placed in the 0x435..0x5C0 gap, which a render of A New Home with EVERY fun
 # patch selected, in all three modes, shows zero throughout (the region from
 # 0xC00 belongs to vv1_birth_control's composition overlay and 0xE00 to the
 # parentage log's trampolines; neither shows in this manifest).  Re-measure
 # against a render if this grows; do not re-derive it from the manifests.
-PARENTAGE_BORN_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x440   # .vv1mc, 0x10 reserved
-PARENTAGE_BORN_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x450   # .vv1mc, 0x50 reserved
+PARENTAGE_BORN_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x438   # .vv1mc, 8 bytes: "Vv1Born\0" ends at 0x440
+PARENTAGE_BORN_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x440   # .vv1mc, 0x60 reserved (ends 0x4A0): the shared body
+PARENTAGE_BORN_SITE_STUB_FILE_OFFSETS = (                      # .vv1mc, 0x11 each, packed: 0x570..0x5B4 < 0x5C0
+    MASK_CODE_FILE_BASE + 0x570,
+    MASK_CODE_FILE_BASE + 0x581,
+    MASK_CODE_FILE_BASE + 0x592,
+    MASK_CODE_FILE_BASE + 0x5A3,
+)
 # THE DETAILS-ARROW SORT HOOK (Sort by Age/Skill/Health in Details Screen).
 # The Details screen's button handler walks the record array for the next
 # living villager on a right arrow (0x44A778..) and the previous on a left
@@ -727,9 +749,16 @@ SORT_STEP_LEFT_SPLICE_GUARD = bytes.fromhex("89B934AD0000")    # mov [ecx+0xAD34
 PARENTAGE_BORN_NAME_VA = mask_code_va(PARENTAGE_BORN_NAME_FILE_OFFSET)
 PARENTAGE_BORN_STUB_VA = mask_code_va(PARENTAGE_BORN_STUB_FILE_OFFSET)
 PARENTAGE_BORN_NAME = b"Vv1Born\0"
-PARENTAGE_BORN_SPLICE_VA = 0x43CA48
-PARENTAGE_BORN_SPLICE_GUARD = bytes.fromhex("E823CAFFFF")   # call sub_439470
-PARENTAGE_BORN_RESUME_VA = 0x43CA4D
+# (splice VA, the seven displaced bytes) for the four child-creation sites of
+# the pregnancy tick sub_42E900: the instruction after each creation call.
+# The stub replays the bytes and resumes at splice + 7.
+PARENTAGE_BORN_SITES = (
+    (0x42EF64, bytes.fromhex("8B0E8B5E048BE8"), "after call sub_43C350 at 0x42EF5F (the golden-child mother's extra child): mov ecx,[esi] / mov ebx,[esi+4] / mov ebp,eax"),
+    (0x42EFD5, bytes.fromhex("8B0E8B6E048BD8"), "after call sub_43C350 at 0x42EFD0 (the first child of every birth): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax"),
+    (0x42F026, bytes.fromhex("8B0E8B6E048BD8"), "after call sub_43C840 at 0x42F021 (the twin): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax"),
+    (0x42F072, bytes.fromhex("8B0E8B6E048BD8"), "after call sub_43C840 at 0x42F06D (the triplet): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax"),
+)
+PARENTAGE_BORN_SITE_STUB_VAS = tuple(mask_code_va(off) for off in PARENTAGE_BORN_SITE_STUB_FILE_OFFSETS)
 PORTRAIT_SCALED_DRAW_VA = 0x409410        # the engine's shared scaled sprite draw
 # VV1's Details portrait mask registration is the live head Y minus the
 # scale-aware cell lift, plus this fixed nudge.  Screen Y grows downward, so a
@@ -3215,36 +3244,57 @@ def main() -> None:
             jz parentage_born_missing
             mov dword ptr [{PARENTAGE_BORN_DLL_FN_VA:#x}], eax
         parentage_born_call:
-            push ebp                                    # the mother's record
-            push esi                                    # the child's record, named
+            mov edx, dword ptr [esp + 4]                # pushad frame ESI: the village object
+            mov edx, dword ptr [edx + 4]                # its record array
+            mov ecx, dword ptr [esp + 0x1C]             # pushad frame EAX: the new child's record index
+            imul ecx, ecx, 0x3D8
+            add ecx, edx                                # the child's record, already named
+            add edx, dword ptr [esp]                    # pushad frame EDI: the mother's byte offset -> her record
+            push edx                                    # the mother's record
+            push ecx                                    # the child's record
             call eax                                    # Vv1Born @8
             jmp parentage_born_ret
         parentage_born_missing:
             mov dword ptr [{PARENTAGE_BORN_DLL_FN_VA:#x}], 1
         parentage_born_ret:
             popad
-            call 0x439470                               # displaced
-            jmp {PARENTAGE_BORN_RESUME_VA:#x}
+            ret                                         # to the site stub, which replays the displaced bytes
         """,
         PARENTAGE_BORN_STUB_VA,
     )
-    if len(parentage_born_code) > 0x50:
+    if len(parentage_born_code) > 0x60:
         raise RuntimeError(
-            f"VV1 birth hook stub exceeds its .vv1mc reservation: "
-            f"{len(parentage_born_code):#x} > 0x50"
+            f"VV1 birth hook body exceeds its .vv1mc reservation: "
+            f"{len(parentage_born_code):#x} > 0x60"
         )
     patch(
         PARENTAGE_BORN_STUB_FILE_OFFSET,
         b"\0" * len(parentage_born_code),
         parentage_born_code,
-        "hand each newborn (ESI, already named) and its mother (EBP) to the Origins companion's Vv1Born under pushad/popad, then replay the displaced call sub_439470 and resume at 0x43CA4D; the Origins companion forwards to the parentage companion, so parents are recorded inside the game's own birth routine -- during load-time catch-up too",
+        "the shared body of the exact birth hook, called from each site stub right after sub_43C350 or sub_43C840 returned the new child's index in EAX: under pushad/popad it resolves the Origins companion's Vv1Born once (0 untried / 1 unavailable at scratch +0x208) and hands it the child's record ([ESI+4] + EAX*0x3D8) and the mother's ([ESI+4] + EDI), all three read from the pushad frame, then returns with every register as the stock call left it",
     )
-    patch(
-        PARENTAGE_BORN_SPLICE_VA - 0x400000,
-        PARENTAGE_BORN_SPLICE_GUARD,
-        b"\xE9" + (PARENTAGE_BORN_STUB_VA - PARENTAGE_BORN_SPLICE_VA - 5).to_bytes(4, "little", signed=True),
-        "splice sub_43C840's call sub_439470 at 0x43CA48 (five bytes, single fall-through predecessor, resume 0x43CA4D = splice + 5) through the exact birth hook",
-    )
+    for (_site_va, _displaced, _what), _stub_va, _stub_off in zip(
+        PARENTAGE_BORN_SITES, PARENTAGE_BORN_SITE_STUB_VAS, PARENTAGE_BORN_SITE_STUB_FILE_OFFSETS
+    ):
+        _code = (
+            rel32_call(_stub_va, PARENTAGE_BORN_STUB_VA)
+            + _displaced
+            + rel32_jump(_stub_va + 5 + len(_displaced), _site_va + len(_displaced))
+        )
+        if len(_code) != 0x11:
+            raise RuntimeError(f"VV1 birth site stub at {_stub_va:#x} is {len(_code)} bytes, not 0x11")
+        patch(
+            _stub_off,
+            b"\0" * len(_code),
+            _code,
+            f"site stub of the exact birth hook for {_what}: call the shared body, replay the seven displaced bytes, resume at {_site_va + len(_displaced):#x} = splice + 7",
+        )
+        patch(
+            _site_va - 0x400000,
+            _displaced,
+            rel32_jump(_site_va, _stub_va) + b"\x90\x90",
+            f"splice the pregnancy tick sub_42E900 {_what} (seven bytes, reached only with the child just created: EAX = its index, ESI = the village object, EDI = the mother's byte offset) through the exact birth hook, so every child -- live, load-time catch-up or Time Warp, single or twin -- is handed to Vv1Born with its mother",
+        )
     # The Details-arrow sort hook -- see the SORT_STEP_* constants.
     patch(
         SORT_STEP_NAME_FILE_OFFSET,

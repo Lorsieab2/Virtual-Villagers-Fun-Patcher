@@ -498,7 +498,7 @@ def build() -> dict:
                 "output_tag": "Parentage Log Text Export",
                 "description": (
                     "On each new pregnancy, appends the mother's and father's "
-                    "names, the mother's age at conception, both head and "
+                    "names, both parents' ages at conception, both head and "
                     "body values, and the number of babies to "
                     "'Virtual Villagers 5 Parentage Log N.txt' beside the game "
                     "executable. Parentage is not stored in any villager "
@@ -511,9 +511,10 @@ def build() -> dict:
                     "BODY are copied onto her at conception, so the log "
                     "reads them from her record and they stay correct "
                     "even after he dies or another villager takes his "
-                    "name. His AGE is not recorded: no game copies it onto "
-                    "her, and the child's age derives from the mother's, "
-                    "so the log carries hers alone."
+                    "name. His AGE, which has no copy on her, is read from "
+                    "his own record at conception -- the moment the engine "
+                    "hands both parents to the hook -- so a normal birth "
+                    "records his real age."
                 ),
                 "companion_files": [
                     {

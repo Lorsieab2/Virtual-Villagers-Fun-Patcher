@@ -30,14 +30,17 @@ VV1_STANDALONE_RENDER_SHA256 = {
         "collection_progression": "5B271935EE0B4F59AD4261C284B10F189F307B5EE5336922F039E34C4C9649D5",
         "immediate_fixed": "5B271935EE0B4F59AD4261C284B10F189F307B5EE5336922F039E34C4C9649D5",
     },
-    # Re-pinned for the exact birth hook (Show Parents in Details Screen): the
-    # splice at 0x3CA48 plus its stub and export name at .vv1mc 0x440/0x450 --
-    # and again for the Details-arrow sort hooks (Sort by Age/Skill/Health in
-    # Details Screen): splices 0x4A7FF/0x4A8B4, stubs 0x4A0/0x500, name 0x560.
+    # Re-pinned for the exact birth hook (Show Parents in Details Screen),
+    # now four splices after the pregnancy tick's child-creation calls
+    # (0x2EF64/0x2EFD5/0x2F026/0x2F072) with site stubs at .vv1mc
+    # 0x570/0x581/0x592/0x5A3, the shared body at 0x440 and the export name
+    # at 0x438 (the old sub_43C840 splice at 0x3CA48 is gone) -- and for the
+    # Details-arrow sort hooks (Sort by Age/Skill/Health in Details Screen):
+    # splices 0x4A7FF/0x4A8B4, stubs 0x4A0/0x500, name 0x560.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "BD26FB840E5F6B0E419CBE0E74EAFFACA4692862FB9F4C24EE605C2717CF26EA",
-        "collection_progression": "CDF61C638FAB01943C261F22765667B3AE88242480EB57C1B3EC0456F133A6C2",
-        "immediate_fixed": "CDF61C638FAB01943C261F22765667B3AE88242480EB57C1B3EC0456F133A6C2",
+        "stock": "06607F2C2C0F04D9AA24D185CD52F4058D785DE179D3F14BD236437A742AA357",
+        "collection_progression": "B249CDC70340BCF229FE0DA8CC38C600907AD640354DCFEFE5611199E44B40E1",
+        "immediate_fixed": "B249CDC70340BCF229FE0DA8CC38C600907AD640354DCFEFE5611199E44B40E1",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

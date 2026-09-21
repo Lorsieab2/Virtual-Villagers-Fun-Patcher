@@ -1,14 +1,18 @@
 """Emit the VV2 Parentage Tracker feature manifest.
 
 VV2 keeps no father id anywhere. What it does keep is the father's NAME,
-sprintf'd onto the MOTHER's record at +0x5C0 by the conception routine itself:
+sprintf'd onto the MOTHER's record at +0x5C0 by the conception routine itself.
+For normal live conceptions, the caller also still has the father's complete
+record: the two ordinary call sites pass it in EBX/EDI while decomposing its
+name, head and body. The trampoline identifies those return addresses and
+passes that captured record to WriteParentageRecordWithFather. Batch/event
+callers that only provide decomposed values remain uncaptured honestly:
 
     0x44BA20  mov edx, [esp+0x1C]          ; the father's name string, an argument
     0x44BA35  lea eax, [esi+0x5C0]         ; esi is still the mother's record
     0x44BA49  call 0x4682BD                ; sprintf(mother+0x5C0, name)
 
-so the layout row is FATHER_BY_NAME and the father's age, head and body are
-genuinely unavailable, exactly as in VV4 and VV5. Three further fields at
+so the layout row remains FATHER_BY_NAME for the fallback path. Three further fields at
 +0x5DC, +0x5E0 and +0x5E8 are written from stack arguments in the same block.
 They are deliberately NOT read: a store from a conception argument into a field
 adjacent to a known one is precisely the evidence that produced the retracted
@@ -190,7 +194,15 @@ DLL_NAME_OFFSET = 0x70
 EXPORT_NAME_OFFSET = 0x90
 
 DLL_NAME = b"VVFP Parentage Export.dll\0"
-EXPORT_NAME = b"WriteParentageRecord\0"
+EXPORT_NAME = b"WriteParentageRecordWithFather\0"
+
+# Normal conception callers return here after sub_44B980. At the hook, the
+# routine has overwritten EDI with its records container but has preserved the
+# caller's original EDI in the saved prologue slot. The ordinary singleton
+# path has the father in EBX; the alternate ordinary path has him in EDI.
+# Other callers pass only decomposed values and deliberately receive NULL.
+NORMAL_CALLER_EBX_RETURN = 0x0044F8F5
+NORMAL_CALLER_EDI_RETURN = 0x0044F935
 
 # Resolved from the stock import table, not assumed. All three are the ANSI
 # variants, which is what the ASCII name string above requires.
@@ -320,14 +332,27 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
             test eax, eax
             jz done
-            # WriteParentageRecord(game_id, records, mother). stdcall, so the
-            # callee cleans its own 12 bytes and the frame stays balanced.
-            # Pushed right to left, and each push moves esp, which is why the
-            # two frame reads use the same displacement and still fetch
-            # different values: saved esi (the mother) then saved edi (the
-            # record array).
-            push dword ptr [esp + 0x04]
-            push dword ptr [esp + 0x04]
+            # The function's saved prologue stack is below pushad: saved ESI
+            # (the mother) at +0x20, saved EDI at +0x24, and the caller return
+            # address at +0x28. Saved EBX is at +0x10. Select only the two
+            # ordinary callers whose registers are proven father records.
+            xor edx, edx
+            cmp byte ptr [esp + 0x29], 0xF8
+            jne check_edi_caller
+            mov edx, dword ptr [esp + 0x10]
+            jmp have_father
+        check_edi_caller:
+            cmp word ptr [esp + 0x28], 0xF935
+            jne have_father
+            mov edx, dword ptr [esp + 0x24]
+        have_father:
+            # WriteParentageRecordWithFather(game_id, records, mother, father).
+            # stdcall cleans all sixteen bytes. Pushed right to left; the
+            # saved ESI/EDI frame values are read before the pushes move esp.
+            mov ecx, dword ptr [esp + 0x20]
+            push edx
+            push ecx
+            push dword ptr [esp + 0x08]
             push {GAME_ID}
             call eax
         done:
@@ -416,14 +441,17 @@ def build() -> dict:
                 "output_tag": "parentage",
                 "description": (
                     "Records both parents at conception in a plain text log: "
-                    "their names, the mother's age at conception, both head and "
-                    "body values, and the number of babies. Only the mother's "
-                    "age is recorded, because the child's age derives from hers. "
-                    "VV2 keeps the father's name on the mother's record and no "
-                    "father id; his head and body are copied onto her at "
-                    "conception, so the log reads them from her record and they "
-                    "stay correct even after he dies or another villager takes "
-                    "his name. Requires the Origins upgrades: "
+                    "their names, both parents' ages at conception, both head "
+                    "and body values, and the number of babies. The mother's "
+                    "age determines the child's age, and the father's age is "
+                    "recorded too. VV2 keeps the father's name on the mother's "
+                    "record and no father id; his head and body are copied onto "
+                    "her at conception, so the log reads them from her record "
+                    "and they stay correct even after he dies or another "
+                    "villager takes his name. His age, which has no copy on "
+                    "her, is read from his own record -- the two ordinary "
+                    "conception callers still hold it -- so a normal birth "
+                    "records his real age. Requires the Origins upgrades: "
                     "the loader trampoline lives in the page they append, because "
                     "VV2's own code cave is occupied by the renamed-build crash "
                     "guard and has no room for it."

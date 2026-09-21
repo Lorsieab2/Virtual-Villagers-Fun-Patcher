@@ -1169,6 +1169,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
        "not recorded by this game" plus its terminator. */
     char father_head[32];
     char father_body[32];
+    char father_age[32];
     int written;
     int existing_records;
 
@@ -1399,32 +1400,43 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
          here would be a false statement about the game rather than about this
          particular birth.
 
-       His AGE is deliberately not among the printed fields. The owner asked to
-       "only record the age of the mother since that's what determines child
-       age", so it is omitted rather than repaired. It was also the only field
-       that still depended on the by-name scan for its value: no game copies
-       the father's age onto the mother, so an age could only ever come from
-       finding his live record, which fails exactly in the two cases above.
-       Head and body come from the mother's copies below and need no such
-       lookup. */
+       His AGE prints too, at the owner's later request ("capture the father's
+       ages too upon conception").  It is the one field with no copy on the
+       mother, so it comes only from the captured record -- read at the
+       conception hook, the moment it is reliably his, before he can die or be
+       renamed.  When no record was captured it says so, exactly as head and
+       body do, rather than falling back to a by-name scan (the fragile lookup
+       the owner had this field removed over the first time).  Head and body
+       still come from the mother's copies below. */
     if (father != NULL) {
         _snprintf(father_head, sizeof(father_head), "%d",
                   *(const int *)(father + g->head));
         _snprintf(father_body, sizeof(father_body), "%d",
                   *(const int *)(father + g->body));
+        /* His age is read from HIS OWN record at the conception hook, the one
+           moment it is reliably his: he cannot yet have died or been renamed.
+           No game copies it onto the mother, so this captured record is the
+           only source -- which is why the owner asked for it "upon
+           conception" specifically. */
+        _snprintf(father_age, sizeof(father_age), "%d",
+                  *(const int *)(father + g->age));
         father_head[sizeof(father_head) - 1] = '\0';
         father_body[sizeof(father_body) - 1] = '\0';
+        father_age[sizeof(father_age) - 1] = '\0';
     } else if (g->father_kind == FATHER_NOT_RECORDED) {
         memcpy(father_head, "not recorded by this game", 26);
         memcpy(father_body, "not recorded by this game", 26);
+        memcpy(father_age, "not recorded by this game", 26);
     } else if (g->father_kind == FATHER_BY_CAPTURE) {
         /* No lookup happens for this kind, so "(record not found)" would name
            a search that was never run. The capture simply did not arrive. */
         memcpy(father_head, "(not captured for this birth)", 30);
         memcpy(father_body, "(not captured for this birth)", 30);
+        memcpy(father_age, "(not captured for this birth)", 30);
     } else {
         memcpy(father_head, "(record not found)", 19);
         memcpy(father_body, "(record not found)", 19);
+        memcpy(father_age, "(record not found)", 19);
     }
 
     /* Where the game copied the father's traits onto the mother at conception,
@@ -1455,6 +1467,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "    Head: %d\n"
         "    Body: %d\n"
         "  Father: %s\n"
+        "    Age at conception: %s\n"
         "    Head: %s\n"
         "    Body: %s\n"
         "  Babies in pregnancy: %d\n"
@@ -1465,6 +1478,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         *(const int *)(mother + g->head),
         *(const int *)(mother + g->body),
         father_name,
+        father_age,
         father_head,
         father_body,
         babies
@@ -1643,6 +1657,8 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
    is filled here when the log knows the child. */
 struct recover_request {
     char child[RECOVER_NAME_CAP];      /* in:  the living child's name */
+    int child_head;                    /* in:  the living child's head, or -1 to match by name alone */
+    int child_body;                    /* in:  the living child's body */
     char mother[RECOVER_NAME_CAP];     /* out: the mother's name, or "" */
     int mother_head;                   /* out: -1 when unknown */
     int mother_body;                   /* out */
@@ -1678,6 +1694,31 @@ static int recover_field(const char *line, const char *label, char *out, size_t 
     return 1;
 }
 
+/* Store one parsed birth, keeping the MOST RECENT RECOVER_MAX when a very long
+   village overflows the buffer: drop the oldest so a living newborn past the
+   1024th birth is still recoverable. */
+static void recover_push_birth(
+    char b_child[][RECOVER_NAME_CAP], char b_mother[][RECOVER_NAME_CAP],
+    int *b_chead, int *b_cbody, int *b_mhead, int *b_mbody, int *n_birth,
+    const char *child, const char *mother, int chead, int cbody, int mhead, int mbody
+) {
+    int k;
+    if (*n_birth >= RECOVER_MAX) {
+        for (k = 1; k < RECOVER_MAX; ++k) {
+            memcpy(b_child[k - 1], b_child[k], RECOVER_NAME_CAP);
+            memcpy(b_mother[k - 1], b_mother[k], RECOVER_NAME_CAP);
+            b_chead[k - 1] = b_chead[k]; b_cbody[k - 1] = b_cbody[k];
+            b_mhead[k - 1] = b_mhead[k]; b_mbody[k - 1] = b_mbody[k];
+        }
+        *n_birth = RECOVER_MAX - 1;
+    }
+    _snprintf_s(b_child[*n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", child);
+    _snprintf_s(b_mother[*n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", mother);
+    b_chead[*n_birth] = chead; b_cbody[*n_birth] = cbody;
+    b_mhead[*n_birth] = mhead; b_mbody[*n_birth] = mbody;
+    ++*n_birth;
+}
+
 /* Parse every log file for this game into conceptions (mother, father) and
    births (child, mother), in order, then pair them and fill the requests.
    Returns the number of requests filled. */
@@ -1695,11 +1736,26 @@ __declspec(dllexport) int __stdcall RecoverParentageParents(
     static char c_used[RECOVER_MAX];
     static char b_child[RECOVER_MAX][RECOVER_NAME_CAP];
     static char b_mother[RECOVER_MAX][RECOVER_NAME_CAP];
+    static int b_chead[RECOVER_MAX];
+    static int b_cbody[RECOVER_MAX];
     static int b_mhead[RECOVER_MAX];
     static int b_mbody[RECOVER_MAX];
+    static int c_babies[RECOVER_MAX];   /* "Babies in pregnancy" per conception: 1..3 */
+    static int c_matched[RECOVER_MAX];  /* births paired to this conception so far */
     int n_concept = 0, n_birth = 0;
     int number, i, r, filled = 0;
     wchar_t path[MAX_LOG_PATH];
+    /* The village on screen, so recovery reads only its own logs.  Without
+       this, a second village's log in the same save folder could match a child
+       and hand it another village's parents.  Empty until the current village
+       is published (the first save of the session): then log_belongs_to_village
+       accepts every file, exactly as the log writer's own select_log_file does
+       for an unknown village.  The remaining exposure in that window -- a first
+       load before any save -- is narrowed by matching each birth on the child's
+       head and body as well as the name below, so a foreign log would have to
+       hold a child of the SAME name AND appearance to be mistaken; villages
+       with distinct names never collide once a save has published the header. */
+    char village[VV_VILLAGE_NAME_MAX + 32];
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || reqs == NULL || request_count <= 0) {
         return 0;
@@ -1707,6 +1763,9 @@ __declspec(dllexport) int __stdcall RecoverParentageParents(
     g = &GAME_LAYOUTS[game_id];
     if (!g->supported || g->log_name == NULL) {
         return 0;
+    }
+    if (!vv_village_recall(village, sizeof village)) {
+        village[0] = '\0';
     }
 
     for (number = 1; number <= 4096; ++number) {
@@ -1718,11 +1777,16 @@ __declspec(dllexport) int __stdcall RecoverParentageParents(
         int field = 0;                /* whose Head/Body follow: 1 child, 2 mother, 3 father */
         char cur_child[RECOVER_NAME_CAP], cur_mother[RECOVER_NAME_CAP], cur_father[RECOVER_NAME_CAP];
         int cur_fhead = -1, cur_fbody = -1, cur_mhead = -1, cur_mbody = -1;
+        int cur_chead = -1, cur_cbody = -1;
+        int cur_babies = 1;           /* a singleton unless the row says otherwise */
         if (!build_log_path(g, number, path)) {
             break;
         }
         if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
             break;                    /* a gap ends the walk, like select_log_file */
+        }
+        if (!log_belongs_to_village(path, village)) {
+            continue;                 /* another village's log: never recover from it */
         }
         file = _wfopen(path, L"rb");
         if (file == NULL) {
@@ -1736,18 +1800,20 @@ __declspec(dllexport) int __stdcall RecoverParentageParents(
                     _snprintf_s(c_father[n_concept], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_father);
                     c_fhead[n_concept] = cur_fhead;
                     c_fbody[n_concept] = cur_fbody;
+                    c_babies[n_concept] = cur_babies;
+                    c_matched[n_concept] = 0;
                     c_used[n_concept] = 0;
                     ++n_concept;
-                } else if (state == 2 && have_child && have_mother && n_birth < RECOVER_MAX) {
-                    _snprintf_s(b_child[n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_child);
-                    _snprintf_s(b_mother[n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_mother);
-                    b_mhead[n_birth] = cur_mhead;
-                    b_mbody[n_birth] = cur_mbody;
-                    ++n_birth;
+                } else if (state == 2 && have_child && have_mother) {
+                    recover_push_birth(b_child, b_mother, b_chead, b_cbody, b_mhead, b_mbody,
+                                       &n_birth, cur_child, cur_mother, cur_chead, cur_cbody,
+                                       cur_mhead, cur_mbody);
                 }
                 state = (line[0] == 'C') ? 1 : 2;
                 have_child = have_mother = have_father = field = 0;
                 cur_fhead = cur_fbody = cur_mhead = cur_mbody = -1;
+                cur_chead = cur_cbody = -1;
+                cur_babies = 1;
                 cur_child[0] = cur_mother[0] = cur_father[0] = '\0';
                 continue;
             }
@@ -1766,12 +1832,17 @@ __declspec(dllexport) int __stdcall RecoverParentageParents(
                 field = 3;
             } else if (recover_field(line, "Head:", value, sizeof value)) {
                 int v = (strcmp(value, "(unknown)") == 0) ? -1 : atoi(value);
-                if (field == 2) { cur_mhead = v; }
+                if (field == 1) { cur_chead = v; }
+                else if (field == 2) { cur_mhead = v; }
                 else if (field == 3) { cur_fhead = v; }
             } else if (recover_field(line, "Body:", value, sizeof value)) {
                 int v = (strcmp(value, "(unknown)") == 0) ? -1 : atoi(value);
-                if (field == 2) { cur_mbody = v; }
+                if (field == 1) { cur_cbody = v; }
+                else if (field == 2) { cur_mbody = v; }
                 else if (field == 3) { cur_fbody = v; }
+            } else if (recover_field(line, "Babies in pregnancy:", value, sizeof value)) {
+                int b = atoi(value);
+                cur_babies = (b >= 1 && b <= 3) ? b : 1;   /* singleton, twins, triplets */
             }
         }
         if (state == 1 && have_mother && have_father && n_concept < RECOVER_MAX) {
@@ -1779,14 +1850,14 @@ __declspec(dllexport) int __stdcall RecoverParentageParents(
             _snprintf_s(c_father[n_concept], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_father);
             c_fhead[n_concept] = cur_fhead;
             c_fbody[n_concept] = cur_fbody;
+            c_babies[n_concept] = cur_babies;
+            c_matched[n_concept] = 0;
             c_used[n_concept] = 0;
             ++n_concept;
-        } else if (state == 2 && have_child && have_mother && n_birth < RECOVER_MAX) {
-            _snprintf_s(b_child[n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_child);
-            _snprintf_s(b_mother[n_birth], RECOVER_NAME_CAP, _TRUNCATE, "%s", cur_mother);
-            b_mhead[n_birth] = cur_mhead;
-            b_mbody[n_birth] = cur_mbody;
-            ++n_birth;
+        } else if (state == 2 && have_child && have_mother) {
+            recover_push_birth(b_child, b_mother, b_chead, b_cbody, b_mhead, b_mbody,
+                               &n_birth, cur_child, cur_mother, cur_chead, cur_cbody,
+                               cur_mhead, cur_mbody);
         }
         fclose(file);
     }
@@ -1807,10 +1878,23 @@ __declspec(dllexport) int __stdcall RecoverParentageParents(
             }
         }
         if (match >= 0) {
-            c_used[match] = 1;
+            /* One conception covers its whole litter (1..3 babies): consume it
+               only once every baby it bore has been paired, so twins and
+               triplets all keep the father instead of the second and third
+               falling back to Unknown. */
+            if (++c_matched[match] >= c_babies[match]) {
+                c_used[match] = 1;
+            }
         }
         for (r = 0; r < request_count; ++r) {
             if (reqs[r].found || strncmp(reqs[r].child, b_child[i], RECOVER_NAME_CAP) != 0) {
+                continue;
+            }
+            /* Disambiguate same-named children: when the caller supplies the
+               living child's head/body, the birth's own head/body must match.
+               A caller that does not know them passes -1 and matches by name. */
+            if (reqs[r].child_head >= 0
+                && (reqs[r].child_head != b_chead[i] || reqs[r].child_body != b_cbody[i])) {
                 continue;
             }
             reqs[r].found = 1;

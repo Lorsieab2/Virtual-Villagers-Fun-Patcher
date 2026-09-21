@@ -132,54 +132,26 @@ class ParentageDescriptionsMatchExporterTests(unittest.TestCase):
                         )
         self.assertGreater(checked, 0, "no parentage description was checked")
 
-    def test_no_description_advertises_an_age_for_the_father(self):
-        """The record prints one age, and it is the mother's.
+    def test_the_exporter_records_both_parents_ages(self):
+        """The record now prints two ages -- the mother's and the father's.
 
-        Derived from the exporter rather than asserted as a constant: if a
-        father age is ever reinstated, this guard must start allowing the
-        claim again instead of failing for a description that became true.
+        The owner reversed the earlier mother-only rule ("capture the father's
+        ages too upon conception"), so a description mentioning the father's
+        age now describes something true, and this guard confirms the exporter
+        really prints it, from each parent's own record.
         """
         source = EXPORTER.read_text(encoding="utf-8")
         ages = source.count("Age at conception")
         self.assertEqual(
-            ages, 1, "the exporter no longer prints exactly one age; "
-            "this guard's premise has changed and needs revisiting"
+            ages, 2, "the exporter should print an age for both parents; "
+            "if this changed, the descriptions and this guard need revisiting"
         )
-        # Wordings that claim an age the exporter does not print. The
-        # plurals advertise one for both parents; the singulars describe the
-        # father's specifically, which a plural-only check misses -- VV5 kept
-        # "reports the age as (record not found)" through exactly that gap.
-        plural = (
-            "their ages",
-            "ages at conception",
-            "their ages at conception",
-            "the age as",
-            "for the age",
-            "the age alone",
-            "his age",
-            "His AGE is not copied,",
-        )
-        for game, path in MANIFESTS.items():
-            if not path.exists():
-                continue
-            for description in _descriptions(path):
-                if "arentage" not in description and "onception" not in description:
-                    continue
-                with self.subTest(game=game):
-                    for phrase in plural:
-                        self.assertNotIn(
-                            phrase,
-                            description,
-                            "VV%d describes an age the log does not record; "
-                            "only the mother's is printed" % game,
-                        )
+        self.assertIn("*(const int *)(mother + g->age)", source)
+        self.assertIn("*(const int *)(father + g->age)", source)
 
-    def test_a_description_that_mentions_an_age_says_whose(self):
-        """"the mother's age" is fine; a bare "age" invites the old reading.
-
-        Only applies to descriptions that mention an age at all -- a
-        description may legitimately omit the subject entirely.
-        """
+    def test_a_description_that_mentions_an_age_names_a_parent(self):
+        """A description mentioning an age must say whose -- the mother's, the
+        father's, or both -- never a bare "age" that leaves it ambiguous."""
         for game, path in MANIFESTS.items():
             if not path.exists():
                 continue
@@ -191,9 +163,12 @@ class ParentageDescriptionsMatchExporterTests(unittest.TestCase):
                 with self.subTest(game=game):
                     self.assertTrue(
                         "mother's age" in description
-                        or "her age" in description,
-                        "VV%d mentions an age without saying it is the "
-                        "mother's" % game,
+                        or "her age" in description
+                        or "father's age" in description
+                        or "his age" in description
+                        or "parents' ages" in description
+                        or "both parents" in description,
+                        "VV%d mentions an age without naming a parent" % game,
                     )
 
     def test_both_unavailable_strings_exist_in_the_exporter(self):

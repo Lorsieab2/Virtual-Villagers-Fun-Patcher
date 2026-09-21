@@ -205,20 +205,30 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # path that never loaded anything. popad restores ECX to the value
     # 0x41BEF7 loaded for the replayed call, so the stub need not rebuild it.
     ("vv1_enable_origins_exclusive_features", "0x1BEFD"): "5D6C9B15C588A4D6132539503DA6081FC779C571D1465E1D04A3F743579FB612",
-    # The exact birth hook (Show Parents in Details Screen), spliced over
-    # sub_43C840's `call sub_439470` at 0x43CA48: five bytes, a single
-    # fall-through predecessor, and the resume 0x43CA4D is exactly splice + 5,
-    # so no REVIEWED entry is needed. The stub is pushad / cached-pointer
-    # resolve (LoadLibraryA + GetProcAddress("Vv1Born") on the Origins DLL,
-    # 0 untried / 1 unavailable at scratch +0x208) / push ebp, push esi, call
-    # eax / popad, then the displaced call and the jump back. ESI is the
-    # newborn's record (named at 0x43CA36, eleven bytes earlier) and EBP the
-    # mother's record, both read by the stock copy at 0x43C9CD..0x43CA11 and
-    # unchanged between there and the splice; the two arguments stock pushed
-    # for sub_439470 sit under pushad and are untouched. Vv1Born is __stdcall
-    # and cleans its eight bytes, so ESP at popad equals ESP at pushad on
-    # every path, including the fail-open ones.
-    ("vv1_enable_origins_exclusive_features", "0x3CA48"): "E1661C313B017DE9476128EBF65C973015E7245A08A9EFF21C45D3EC5885E17C",
+    # The exact birth hook (Show Parents in Details Screen): four splices in
+    # the pregnancy tick sub_42E900, each over the seven bytes that FOLLOW a
+    # child-creation call (`mov ecx,[esi] / mov ebx|ebp,[esi+4] / mov
+    # ebp|ebx,eax` at 0x42EF64, 0x42EFD5, 0x42F026, 0x42F072), a single
+    # predecessor each (the call's return -- for the two sub_43C350 calls the
+    # build's safety caves at 0x4565F1/0x456851 jump back to exactly these
+    # addresses) and a resume at splice + 7, so no REVIEWED entry is needed.
+    # Each site stub is `call body` / the seven displaced bytes / `jmp
+    # splice+7`.  The shared body is pushad / cached-pointer resolve
+    # (LoadLibraryA + GetProcAddress("Vv1Born") on the Origins DLL, 0
+    # untried / 1 unavailable at scratch +0x208) / the child's record from
+    # the pushad frame's EAX (the index the routine returned) times 0x3D8
+    # plus [frame ESI + 4], the mother's from [frame ESI + 4] + frame EDI /
+    # push mother, push child, call eax / popad / ret.  Every register is
+    # read from the frame, never live, because the loader calls clobber
+    # eax/ecx/edx; ESI and EDI are the tick's own loop state.  Vv1Born is
+    # __stdcall and cleans its eight bytes, so ESP at popad equals ESP at
+    # pushad on every path, including the fail-open ones, and the `ret`
+    # unwinds only the stub's own call.  The replayed bytes then rebuild
+    # ECX/EBX/EBP exactly as stock does from the intact ESI and EAX.
+    ("vv1_enable_origins_exclusive_features", "0x2EF64"): "A04FB807B2D102D789D93D6F881A7324912ED5555112FB14213D8676E31B6846",
+    ("vv1_enable_origins_exclusive_features", "0x2EFD5"): "67A3AD3ED05408CFDCBDA165CEF3DF992B6C62A0D7D5D73F9406DA3185570C9B",
+    ("vv1_enable_origins_exclusive_features", "0x2F026"): "F2DAE9358426F1D329653825A141D51B609A6FC76A6F04875E273560EA9C4CBE",
+    ("vv1_enable_origins_exclusive_features", "0x2F072"): "2767D7F92192568D6825281062EE726534EE9B4756E6C189156D0A2FFCF3670A",
     # The Details-arrow sort hook (Sort by Age/Skill/Health in Details Screen):
     # the right arrow's `mov [eax+0xAD34], edi` at 0x44A7FF and the left
     # arrow's `mov [ecx+0xAD34], edi` at 0x44A8B4, six bytes each, one

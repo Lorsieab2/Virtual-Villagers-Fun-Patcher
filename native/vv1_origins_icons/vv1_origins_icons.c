@@ -1239,9 +1239,10 @@ static void vv1_parentage_bridge_draw(void *gameobj, void *record,
     }
 }
 
-/* The executable's exact birth hook (sub_43C840 at 0x43CA48): the newborn's
-   record, already named, and its mother's.  Forwarded to the parentage
-   companion; a missing companion is a no-op. */
+/* The executable's exact birth hook (the pregnancy tick sub_42E900, right
+   after each of its four child-creation calls): the newborn's record,
+   already named, and its mother's.  Forwarded to the parentage companion; a
+   missing companion is a no-op. */
 __declspec(dllexport) int __stdcall Vv1Born(void *child, void *mother) {
     if (!vv1_parentage_resolve()) {
         return 0;

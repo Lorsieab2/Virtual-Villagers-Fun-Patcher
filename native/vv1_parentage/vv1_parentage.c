@@ -15,11 +15,24 @@
 
        <My Documents>\LDW\<exe basename>\vv1_parents_<slot>.dat
 
-   bound to the village the way the doubler sidecar is: by the creation-time
-   tag the game stamps into every villager record (state+0x184 in the village
-   state that 0x41D500 returns, cached at 0x0048AEDC).  A file left by a
-   previous village in a reused slot fails the tag and is ignored rather than
-   handing the new village someone else's parents.
+   bound to the village by its LIVING ROSTER, the way the later games'
+   companions identify a village: the file carries, per record index, the
+   name, gender and family scalar (+0x36C) of whoever held that slot when it
+   was written, and it is the village's when at least one living villager
+   still matches its slot.  Births and deaths change a roster, so overlap is
+   the test, never an exact match; head and body are left out of the
+   fingerprint because the Origins upgrades change them for a whole village
+   at once.  A file left by a previous village in a reused slot (Start Over
+   keeps the slot) shares nobody with the new founders and is ignored rather
+   than handing the new village someone else's parents.
+
+   NOT the "village tag" at state+0x184 the doubler sidecar binds with: that
+   dword is record 0's last-update clock (file +0x188, the first dword of
+   the per-record block the save keeps), which moves every minute of play
+   and by the whole jump on a Time Warp.  Bound to it, this table was thrown
+   away and rewritten empty within a minute of every session -- which is why
+   the owner never saw a father: the stash stored at conception was gone by
+   the birth.
 
    WHAT IS RECORDED, AND WHEN.
 
@@ -32,30 +45,40 @@
      mother.  The stash is in the file too, so a save-and-reload mid-pregnancy
      does not lose him.
 
-     Birth, exactly.  The executable is spliced inside sub_43C840 itself, at
-     0x43CA48, once the child is named: the Origins companion's Vv1Born
-     receives the child's record and the mother's and forwards them to
-     Vv1ParentageBorn.  That is the game's own birth routine, so it fires
-     during load-time catch-up as well, where no rendered frame exists to
-     observe anything.
+     Birth, exactly.  The executable is spliced in the pregnancy tick
+     (sub_42E900) right after each of its four child-creation calls --
+     sub_43C350 for the first child of every birth (and the extra child of a
+     golden-child mother), sub_43C840 for a twin and a triplet -- once the
+     child exists and is named: the Origins companion's Vv1Born receives the
+     child's record and the mother's and forwards them to Vv1ParentageBorn.
+     That tick is where live play, load-time catch-up and a bought Time Warp
+     all deliver, so every birth reaches the hook.  (An earlier hook sat
+     inside sub_43C840 itself, which only twins go through and where the
+     record it took for the mother is the sibling's: a Time Warp birth showed
+     no parents, which is how it was found.)
 
      Birth, inferred (the fallback when the executable is not patched with
-     the hook).  A New Home creates a child in sub_43C840, called from the
-     delivery path once per baby with the mother's index; it copies her head,
-     body and look-alike variant (+0x36C) onto the child, and the delivery
-     routine clears her due field (+0x358, non-zero throughout a pregnancy)
-     and her litter counter (+0x35C, 2 or 3 for twins and triplets only).  No
-     executable bytes are spent on a birth hook: the Origins companion calls
-     Vv1ParentageTick every frame, and the tick sees the delivery in the
-     records themselves -- a mother whose due field went to zero this frame
-     (or whose litter counter dropped), and the records with a new occupant
-     this frame (unoccupied before, or a different name or +0x36C: a slot
-     can be freed and refilled between two frames) whose head, body and
-     +0x36C equal hers.  Each such child gets its entry: father from her
-     stash, mother from her own record.  A newly occupied record with no
-     delivering mother (founders, immigrants, a reused slot), or one that is
-     not a newborn, gets "unknown" and is not logged: villagers not spawned
-     by a conception have no parents (the owner's rule).
+     the hook).  The delivery clears the mother's due field (+0x358,
+     non-zero throughout a pregnancy) and her litter counter (+0x35C, 2 or 3
+     for twins and triplets only) once all her children exist.  The Origins
+     companion calls Vv1ParentageTick every frame, and the tick sees the
+     delivery in the records themselves -- a mother whose due field went to
+     zero this frame (or whose litter counter dropped), and the records with
+     a new occupant this frame (unoccupied before, or a different name or
+     +0x36C: a slot can be freed and refilled between two frames).  A child
+     is NOT a copy of its mother: the game gives a first child random head
+     and body and a twin its sibling's, so looks can never pair them.  What
+     a child does carry is +0x36C, which sub_43C350 copies from the mother's
+     +0x390 (stored against her at conception) unless that is -1.  So a lone
+     delivering mother is the mother of every newborn that frame; among
+     several, a newborn is hers whose +0x390 equals its +0x36C if exactly one
+     does; otherwise the birth is left unknown rather than guessed.  Each
+     matched child gets its entry: father from her stash, mother from her own
+     record.  A newly occupied record with no delivering mother (founders,
+     immigrants, a reused slot), or one that is not a newborn (a child
+     becomes its own record at 2 years old; older arrivals are grown), gets
+     "unknown" and is not logged: villagers not spawned by a conception have
+     no parents (the owner's rule).
 
      The birth is written to the parentage log THE MOMENT it is seen, before
      the stash is spent and before the sidecar is rewritten -- the owner's
@@ -91,9 +114,11 @@
    sentinel.  Per record index: father head+1, father body+1, mother head+1,
    mother body+1, the pregnancy stash (father head+1, body+1), two spare
    bytes, then the father's, the mother's and the stashed father's names
-   (28 bytes each, NUL-terminated).  256 entries of 92 bytes follow a 12-byte
-   header: magic 'VP01', the village tag, and the slot the file was written
-   for.
+   (28 bytes each, NUL-terminated).  A 12-byte header -- magic 'VP02', a
+   reserved zero, and the slot the file was written for -- is followed by
+   the roster (256 occupants of 32 bytes: name, gender, family scalar) and
+   then the 256 entries of 92 bytes.  'VP01' files, bound to the clock, are
+   not read: nothing in them ever survived a session.
 
    Everything fails closed.  No village on screen, no slot captured, a file
    from another village, a short or foreign file: the table is cleared and
@@ -109,7 +134,7 @@
 #define VV1_RECORD_STRIDE      0x3D8u
 #define VV1_RECORD_COUNT       256
 #define VV1_SAVE_SLOT_PTR      (*(unsigned int *)0x004911F4u)     /* .vv1md MASK_SAVE_SLOT, 1..5 */
-#define VV1_VILLAGE_TAG_OFFSET 0x184u       /* creation-time tag, record 0 inside the state */
+/* state+0x184 (file +0x188) is record 0's last-update clock, NOT a village identity: see the header. */
 
 #define VV1_OCCUPIED_OFFSET    0x28u        /* u8 */
 #define VV1_AGE_OFFSET         0x348u       /* i32, 20 units per villager year */
@@ -118,14 +143,15 @@
 #define VV1_LITTER_OFFSET      0x35Cu       /* i32: 2 or 3 for twins/triplets (0x43BC4E/0x43BC8C); a single baby leaves it 0 */
 #define VV1_HEAD_OFFSET        0x360u
 #define VV1_BODY_OFFSET        0x364u
-#define VV1_VARIANT_OFFSET     0x36Cu       /* copied mother -> child at birth */
+#define VV1_VARIANT_OFFSET     0x36Cu       /* set at creation: a first child gets its mother's +0x390 (sub_43C350 argument 3; random when that is -1), a twin its sibling's */
+#define VV1_LEGACY_OFFSET      0x390u       /* stored against the mother at conception (0x43BC10): what sub_43C350 copies into her child's +0x36C */
 #define VV1_NAME_OFFSET        0x370u       /* sprintf destination at 0x43C696, bounded at 0x1C */
 #define VV1_NAME_CAPACITY      0x1Cu
 
 #define VV1_GENDER_MALE        1
 #define VV1_UNITS_PER_YEAR     20
 #define VV1_PARENTS_UNTIL_YEARS 18          /* shown while age < 18, again if de-aged */
-#define VV1_NEWBORN_YEARS      2            /* a record older than this when it appears was not just born */
+#define VV1_NEWBORN_YEARS      3            /* a child becomes its own record at 2 (sub_43C350 is called with age 0x28 = 40 units); older than this when it appears, it was not just born */
 
 /* The Details portrait, from sub_437340 and the atlas construction at
    0x43C08E..0x43C158: heads are "female_heads.png"/"male_heads.png", 7 columns
@@ -158,8 +184,8 @@
 #define VV1_PARENT_ALPHA       0.8f         /* measured on The Secret City's parent figures (Salote, 8) */
 #define VV1_CELL_W             40
 #define VV1_CELL_H             65
-#define VV1_FATHER_CX          92           /* ~30% across the frame's inner width (37..224), as in The Secret City */
-#define VV1_MOTHER_CX          168          /* ~70% across */
+#define VV1_FATHER_CX          102          /* both parents shifted +10 from The Secret City's 92/168 so the child sits centred between them (the owner's placement) */
+#define VV1_MOTHER_CX          178          /* was 168; same +10 keeps their spacing, and the rollover uses these same centres so it moves with the figures */
 #define VV1_PARENT_CY          208          /* ~a quarter down the frame's inner height (159..389) */
 #define VV1_HEAD_LIFT          3            /* the adult portrait's 5px at scale 200, halved */
 #define VV1_FATHER_BODY_COL    11           /* the same standing frame as the mother (owner: the frames must match) */
@@ -170,7 +196,16 @@
 #define VV1_TEXT_Y             575
 #define VV1_TEXT_COLOUR        0xFFFFFFFFu
 
-#define VV1_PARENTS_MAGIC      0x31305056u  /* 'V' 'P' '0' '1' */
+#define VV1_PARENTS_MAGIC      0x32305056u  /* 'V' 'P' '0' '2' */
+/* The fallback father for a genuine but fatherless birth: a female villager
+   an event forced to nurse, with no father at all.  VV2 and VV3 use exactly
+   this placeholder -- the name "Unknown" and appearance value 0 (a real head
+   and body value, stored +1 like every other).  Children SPAWNED by an
+   island event or a Barrel of Babies are not delivered by a mother and get
+   no parents at all, so this is only ever reached for a real delivery whose
+   stash is empty. */
+#define VV1_FALLBACK_FATHER_NAME "Unknown"
+#define VV1_NEW_VILLAGE_STRIKES 30          /* frames of a roster sharing nobody with the table before it is another village's */
 #define VV1_APPEARANCE_MAX     253          /* fits in a byte once +1 is added */
 
 typedef struct {
@@ -184,13 +219,21 @@ typedef struct {
 } vv1_parent_entry;                           /* 92 bytes */
 
 typedef struct {
+    unsigned char gender;                     /* 1 male, 2 female; 0 = the slot was empty */
+    unsigned char spare[3];
+    int scalar;                               /* +0x36C, set once at creation */
+    char name[VV1_NAME_CAPACITY];
+} vv1_occupant;                               /* 36 bytes */
+
+typedef struct {
     int child;
     int mother;                               /* -1 when no mother could be told */
 } vv1_birth;
 
 static vv1_parent_entry g_entries[VV1_RECORD_COUNT];
+static vv1_occupant g_roster[VV1_RECORD_COUNT];   /* who held each slot when the table was last written or loaded */
 static int g_loaded_slot;                     /* 0 = nothing loaded */
-static unsigned int g_loaded_tag;
+static int g_strikes;                         /* consecutive frames the live roster shared nobody with g_roster */
 static unsigned char g_prev_occupied[VV1_RECORD_COUNT];
 static int g_prev_litter[VV1_RECORD_COUNT];
 static int g_prev_due[VV1_RECORD_COUNT];
@@ -208,18 +251,27 @@ static unsigned char *vv1_records(void) {
     return base ? base + VV1_RECORDS_OFFSET : NULL;
 }
 
-static int vv1_village_tag(unsigned int *out) {
-    unsigned char *state = VV1_VILLAGE_STATE_PTR;
-    if (state == NULL) {
-        return 0;
-    }
-    *out = *(unsigned int *)(state + VV1_VILLAGE_TAG_OFFSET);
-    return *out != 0u;
-}
-
 static int vv1_slot(void) {
     unsigned int slot = VV1_SAVE_SLOT_PTR;
     return (slot >= 1u && slot <= 5u) ? (int)slot : 0;
+}
+
+static unsigned char vv1_plus_one(int value);
+static int vv1_recover_from_log(const unsigned char *records);
+
+/* Fill child c's father from mother m's pregnancy stash, or -- when she has
+   none, a fatherless delivery -- from the "Unknown" 0/0 fallback.  Never
+   called for a spawn, which has no delivering mother. */
+static void vv1_set_father(int c, int m) {
+    if (g_entries[m].stash_head || g_entries[m].stash_body || g_entries[m].stash_name[0]) {
+        g_entries[c].father_head = g_entries[m].stash_head;
+        g_entries[c].father_body = g_entries[m].stash_body;
+        memcpy(g_entries[c].father_name, g_entries[m].stash_name, VV1_NAME_CAPACITY);
+    } else {
+        g_entries[c].father_head = vv1_plus_one(0);
+        g_entries[c].father_body = vv1_plus_one(0);
+        lstrcpynA(g_entries[c].father_name, VV1_FALLBACK_FATHER_NAME, VV1_NAME_CAPACITY);
+    }
 }
 
 static unsigned char vv1_plus_one(int value) {
@@ -241,6 +293,56 @@ static void vv1_copy_name(const unsigned char *record, char *out) {
         out[i] = c;
     }
     out[i] = '\0';
+}
+
+/* ---- the village's identity: its living roster ------------------------ */
+
+/* Who occupies each record right now: name, gender and the family scalar,
+   the three things a villager keeps for life. */
+static void vv1_take_roster(const unsigned char *records, vv1_occupant *out) {
+    int i;
+    memset(out, 0, sizeof(vv1_occupant) * VV1_RECORD_COUNT);
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
+        if (!rec[VV1_OCCUPIED_OFFSET]) {
+            continue;
+        }
+        out[i].gender = (*(const int *)(rec + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) ? 1 : 2;
+        out[i].scalar = *(const int *)(rec + VV1_VARIANT_OFFSET);
+        vv1_copy_name(rec, out[i].name);
+    }
+}
+
+/* Does the village on screen share a villager with a recorded roster?
+   1: at least one living record still matches its slot -- the village is
+      the recorded one (births and deaths since are expected).
+   0: villagers are on screen, the roster names some, and none match -- a
+      different village (Start Over, or another save copied into the slot).
+  -1: nothing to compare: the roster is empty, or nobody is on screen (the
+      array is being rebuilt; not a verdict either way). */
+static int vv1_roster_overlap(const unsigned char *records, const vv1_occupant *roster) {
+    int i, recorded = 0, living = 0;
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
+        char name[VV1_NAME_CAPACITY];
+        if (roster[i].gender) {
+            recorded = 1;
+        }
+        if (!rec[VV1_OCCUPIED_OFFSET]) {
+            continue;
+        }
+        living = 1;
+        if (!roster[i].gender) {
+            continue;
+        }
+        vv1_copy_name(rec, name);
+        if (roster[i].gender == ((*(const int *)(rec + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) ? 1 : 2)
+            && roster[i].scalar == *(const int *)(rec + VV1_VARIANT_OFFSET)
+            && strncmp(roster[i].name, name, VV1_NAME_CAPACITY) == 0) {
+            return 1;
+        }
+    }
+    return (recorded && living) ? 0 : -1;
 }
 
 /* ---- the sidecar ------------------------------------------------------ */
@@ -278,18 +380,21 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
     return 1;
 }
 
-/* Write the table for (slot, tag).  Temporary-then-rename, so a crash mid-
-   write can never leave a half-written file in place. */
-static int vv1_parents_save(int slot, unsigned int tag) {
+/* Write the table for the slot, with the roster as it stands.  Temporary-
+   then-rename, so a crash mid-write can never leave a half-written file in
+   place. */
+static int vv1_parents_save(int slot) {
     char path[MAX_PATH];
     char tmp[MAX_PATH];
     HANDLE file;
     DWORD wrote;
     unsigned int header[3];
+    const unsigned char *records = vv1_records();
     BOOL ok = TRUE;
-    if (!vv1_parents_path(path, sizeof(path), slot)) {
+    if (records == NULL || !vv1_parents_path(path, sizeof(path), slot)) {
         return 0;
     }
+    vv1_take_roster(records, g_roster);
     if (lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)) {
         return 0;
     }
@@ -300,9 +405,12 @@ static int vv1_parents_save(int slot, unsigned int tag) {
         return 0;
     }
     header[0] = VV1_PARENTS_MAGIC;
-    header[1] = tag;
+    header[1] = 0u;
     header[2] = (unsigned int)slot;
     if (!WriteFile(file, header, sizeof(header), &wrote, NULL) || wrote != sizeof(header)) {
+        ok = FALSE;
+    }
+    if (ok && (!WriteFile(file, g_roster, sizeof(g_roster), &wrote, NULL) || wrote != sizeof(g_roster))) {
         ok = FALSE;
     }
     if (ok && (!WriteFile(file, g_entries, sizeof(g_entries), &wrote, NULL) || wrote != sizeof(g_entries))) {
@@ -325,17 +433,21 @@ static int vv1_parents_save(int slot, unsigned int tag) {
     return 1;
 }
 
-/* Load the table for (slot, tag).  Clears first, so every failure -- no file,
-   a short file, wrong magic, another village's tag, another slot's file --
-   leaves no parents, which is exactly what a village never recorded has. */
-static void vv1_parents_load(int slot, unsigned int tag) {
+/* Load the slot's table for the village on screen.  Clears first, so every
+   failure -- no file, a short file, wrong magic, another slot's file, a
+   roster sharing nobody with the living -- leaves no parents, which is
+   exactly what a village never recorded has.  A file whose roster is empty
+   has nothing to contradict and is taken. */
+static void vv1_parents_load(int slot, const unsigned char *records) {
     char path[MAX_PATH];
     HANDLE file;
     DWORD got;
     unsigned int header[3];
-    vv1_parent_entry buf[VV1_RECORD_COUNT];
+    static vv1_occupant roster[VV1_RECORD_COUNT];
+    static vv1_parent_entry buf[VV1_RECORD_COUNT];
     int i;
     memset(g_entries, 0, sizeof(g_entries));
+    memset(g_roster, 0, sizeof(g_roster));
     if (!vv1_parents_path(path, sizeof(path), slot)) {
         return;
     }
@@ -344,39 +456,194 @@ static void vv1_parents_load(int slot, unsigned int tag) {
         return;
     }
     if (ReadFile(file, header, sizeof(header), &got, NULL) && got == sizeof(header)
-        && header[0] == VV1_PARENTS_MAGIC && header[1] == tag && header[2] == (unsigned int)slot
+        && header[0] == VV1_PARENTS_MAGIC && header[2] == (unsigned int)slot
+        && ReadFile(file, roster, sizeof(roster), &got, NULL) && got == sizeof(roster)
         && ReadFile(file, buf, sizeof(buf), &got, NULL) && got == sizeof(buf)) {
-        memcpy(g_entries, buf, sizeof(buf));
-        /* Names are printed and drawn: whatever the file holds, every name
-           ends inside its own buffer. */
         for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-            g_entries[i].father_name[VV1_NAME_CAPACITY - 1] = '\0';
-            g_entries[i].mother_name[VV1_NAME_CAPACITY - 1] = '\0';
-            g_entries[i].stash_name[VV1_NAME_CAPACITY - 1] = '\0';
+            roster[i].name[VV1_NAME_CAPACITY - 1] = '\0';
+        }
+        if (vv1_roster_overlap(records, roster) != 0) {
+            memcpy(g_roster, roster, sizeof(g_roster));
+            memcpy(g_entries, buf, sizeof(buf));
+            /* Names are printed and drawn: whatever the file holds, every
+               name ends inside its own buffer. */
+            for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+                g_entries[i].father_name[VV1_NAME_CAPACITY - 1] = '\0';
+                g_entries[i].mother_name[VV1_NAME_CAPACITY - 1] = '\0';
+                g_entries[i].stash_name[VV1_NAME_CAPACITY - 1] = '\0';
+            }
         }
     }
     CloseHandle(file);
 }
 
 /* Make sure the table on hand belongs to the village on screen.  Returns
-   the slot (1..5) when a village is identified, 0 when nothing is known. */
-static int vv1_parents_sync(unsigned int *tag_out) {
+   the slot (1..5) when a village is identified, 0 when nothing is known.
+   The table follows the slot; within a slot it follows the roster: while a
+   living villager still matches it, the village is the same one and the
+   roster on hand is kept current (and written, so the file's own roster
+   never falls behind the deaths).  A roster sharing nobody with the table
+   for VV1_NEW_VILLAGE_STRIKES consecutive frames -- not one, because a load
+   rebuilds the array over several -- is another village in the same slot
+   (Start Over keeps the slot): the table is reloaded, which the old file
+   fails for the same reason, leaving the new village's parents unknown. */
+static int vv1_parents_sync(void) {
     int slot = vv1_slot();
-    unsigned int tag;
-    if (!slot || !vv1_village_tag(&tag) || vv1_records() == NULL) {
+    const unsigned char *records = vv1_records();
+    static vv1_occupant now[VV1_RECORD_COUNT];
+    if (!slot || records == NULL) {
         return 0;
     }
-    if (slot != g_loaded_slot || tag != g_loaded_tag) {
-        vv1_parents_load(slot, tag);
+    if (slot != g_loaded_slot) {
+        vv1_parents_load(slot, records);
         g_loaded_slot = slot;
-        g_loaded_tag = tag;
+        g_strikes = 0;
         g_have_prev = 0;          /* a different village: no delivery can be inferred yet */
+        if (vv1_recover_from_log(records)) {
+            vv1_parents_save(slot);   /* keep what the log recovered */
+        }
+        return slot;
     }
-    *tag_out = tag;
+    switch (vv1_roster_overlap(records, g_roster)) {
+    case 0:
+        if (++g_strikes >= VV1_NEW_VILLAGE_STRIKES) {
+            vv1_parents_load(slot, records);
+            g_strikes = 0;
+            g_have_prev = 0;
+            if (vv1_recover_from_log(records)) {
+                vv1_parents_save(slot);
+            }
+        }
+        break;
+    case 1:
+        g_strikes = 0;
+        vv1_take_roster(records, now);
+        if (memcmp(now, g_roster, sizeof(now)) != 0) {
+            vv1_parents_save(slot);   /* takes the roster; a death or an arrival is rare */
+        }
+        break;
+    default:
+        g_strikes = 0;            /* nothing to compare yet */
+        break;
+    }
     return slot;
 }
 
 /* ---- the parentage log ------------------------------------------------ */
+
+/* Reconstruct parents from the parentage log for living children the sidecar
+   has no entry for -- the retroactive recovery of a village whose parents were
+   lost to the old binding.  RecoverParentageParents lives in the export
+   companion (it owns the log), reads only what the game wrote, and returns
+   the mother and father the log recorded per child name.  Resolved once. */
+/* Must match struct recover_request in the parentage-export DLL byte for byte:
+   it is the shared ABI RecoverParentageParents reads and writes. */
+struct vv1_recover_request {
+    char child[VV1_NAME_CAPACITY];
+    int child_head, child_body;       /* in: the living child's own head/body, to disambiguate same-named children */
+    char mother[VV1_NAME_CAPACITY];
+    int mother_head, mother_body;
+    char father[VV1_NAME_CAPACITY];
+    int father_head, father_body;
+    int found;
+};
+typedef int (__stdcall *vv1_recover_t)(int game_id, void *requests, int count);
+static int g_recover_state;       /* 0 = not tried, 1 = resolved, -1 = unavailable */
+static vv1_recover_t g_recover;
+
+static vv1_recover_t vv1_recover_fn(void) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    if (g_recover_state == 1) {
+        return g_recover;
+    }
+    if (g_recover_state != 0) {
+        return NULL;
+    }
+    g_recover_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return NULL;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP Parentage Export.dll") > sizeof(path)) {
+        return NULL;
+    }
+    lstrcpyA(slash + 1, "VVFP Parentage Export.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return NULL;
+    }
+    g_recover = (vv1_recover_t)GetProcAddress(companion, "RecoverParentageParents");
+    if (g_recover == NULL) {
+        return NULL;
+    }
+    g_recover_state = 1;
+    return g_recover;
+}
+
+/* Encode a recovered appearance (a raw head/body value, or -1) into the
+   sidecar's +1 form, 0 meaning unknown. */
+static unsigned char vv1_recover_encode(int value) {
+    return (value < 0) ? 0 : vv1_plus_one(value);
+}
+
+/* For every occupied record whose entry has no mother recorded, ask the log
+   who its parents were.  Fills only the blanks, so a father already known is
+   never overwritten; a child the log has no birth for (a spawn) is left with
+   no parents.  Returns 1 when any entry changed. */
+static int vv1_recover_from_log(const unsigned char *records) {
+    static struct vv1_recover_request reqs[VV1_RECORD_COUNT];
+    int idx[VV1_RECORD_COUNT];
+    int count = 0, i, changed = 0;
+    vv1_recover_t recover = vv1_recover_fn();
+    if (recover == NULL || records == NULL) {
+        return 0;
+    }
+    memset(reqs, 0, sizeof(reqs));
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
+        /* Ask about any occupied child missing EITHER parent -- the broken
+           binding lost the whole entry, but a partial entry (mother known,
+           father lost) must be completed too. */
+        if (!rec[VV1_OCCUPIED_OFFSET]
+            || (g_entries[i].mother_head != 0 && g_entries[i].father_head != 0)) {
+            continue;
+        }
+        vv1_copy_name(rec, reqs[count].child);
+        reqs[count].child_head = *(const int *)(rec + VV1_HEAD_OFFSET);
+        reqs[count].child_body = *(const int *)(rec + VV1_BODY_OFFSET);
+        idx[count] = i;
+        ++count;
+    }
+    if (count == 0) {
+        return 0;
+    }
+    recover(1, reqs, count);      /* game 1 = A New Home */
+    for (i = 0; i < count; ++i) {
+        int j = idx[i];
+        if (!reqs[i].found) {
+            continue;             /* no birth in the log: a spawn, no parents */
+        }
+        /* Fill only the blanks: never overwrite a parent already recorded. */
+        if (g_entries[j].mother_head == 0) {
+            g_entries[j].mother_head = vv1_recover_encode(reqs[i].mother_head);
+            g_entries[j].mother_body = vv1_recover_encode(reqs[i].mother_body);
+            lstrcpynA(g_entries[j].mother_name, reqs[i].mother, VV1_NAME_CAPACITY);
+            changed = 1;
+        }
+        if (g_entries[j].father_head == 0 && reqs[i].father[0] != '\0') {
+            g_entries[j].father_head = vv1_recover_encode(reqs[i].father_head);
+            g_entries[j].father_body = vv1_recover_encode(reqs[i].father_body);
+            lstrcpynA(g_entries[j].father_name, reqs[i].father, VV1_NAME_CAPACITY);
+            changed = 1;
+        }
+    }
+    return changed;
+}
 
 /* WriteParentageBirth lives in the parentage companion, which owns the log:
    its file numbering, village header and roll-over.  Resolved once, from the
@@ -528,29 +795,38 @@ static int vv1_tick_over(const unsigned char *records) {
             && (!g_prev_occupied[i]
                 || g_prev_variant[i] != *(const int *)(rec + VV1_VARIANT_OFFSET)
                 || memcmp(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY) != 0)) {
-            int head = *(const int *)(rec + VV1_HEAD_OFFSET);
-            int body = *(const int *)(rec + VV1_BODY_OFFSET);
             int variant = *(const int *)(rec + VV1_VARIANT_OFFSET);
             int age = *(const int *)(rec + VV1_AGE_OFFSET);
             int mother = -1;
             int matches = 0;
             int k;
-            /* The child is a copy of its mother at this instant: head, body
-               and the look-alike variant all came from her record in
-               sub_43C840.  Among the mothers who delivered this frame,
-               exactly one should match; if none or several do, the birth is
-               left unknown rather than guessed.  Only a NEWBORN can match at
-               all: the owner's rule is that villagers not spawned by a
-               conception have no parents, so a founder or immigrant who
-               happens to appear during a delivery with the same look is never
-               taken for her child -- they arrive grown, a baby does not. */
-            for (k = 0; age < VV1_NEWBORN_YEARS * VV1_UNITS_PER_YEAR && k < delivered_count; ++k) {
-                const unsigned char *mrec = records + (unsigned int)delivered[k] * VV1_RECORD_STRIDE;
-                if (*(const int *)(mrec + VV1_HEAD_OFFSET) == head
-                    && *(const int *)(mrec + VV1_BODY_OFFSET) == body
-                    && *(const int *)(mrec + VV1_VARIANT_OFFSET) == variant) {
-                    mother = delivered[k];
-                    ++matches;
+            /* Which delivering mother?  The child is NOT a copy of her: the
+               game gives a first child random looks (sub_43C350) and a twin
+               its sibling's (sub_43C840), so looks can never tell.  What the
+               child does carry is its +0x36C, which sub_43C350 copies from
+               the mother's +0x390 -- stored against her at conception --
+               unless that is -1.  So a lone delivering mother is the mother;
+               among several, the child is hers whose +0x390 equals its
+               +0x36C if exactly one does; otherwise the birth is left
+               unknown rather than guessed.  Only a NEWBORN can match at all:
+               a child becomes its own record at 2 years old, so the owner's
+               rule that villagers not spawned by a conception have no parents
+               keeps a founder or immigrant who happens to appear during a
+               delivery from being taken for her child -- they arrive grown,
+               a baby does not. */
+            if (age < VV1_NEWBORN_YEARS * VV1_UNITS_PER_YEAR) {
+                if (delivered_count == 1) {
+                    mother = delivered[0];
+                    matches = 1;
+                } else {
+                    for (k = 0; k < delivered_count; ++k) {
+                        const unsigned char *mrec = records + (unsigned int)delivered[k] * VV1_RECORD_STRIDE;
+                        int legacy = *(const int *)(mrec + VV1_LEGACY_OFFSET);
+                        if (legacy != -1 && legacy == variant) {
+                            mother = delivered[k];
+                            ++matches;
+                        }
+                    }
                 }
             }
             /* A reused slot starts unknown: this is a different villager, and
@@ -559,9 +835,7 @@ static int vv1_tick_over(const unsigned char *records) {
             memset(&g_entries[i], 0, sizeof(g_entries[i]));
             if (matches == 1) {
                 const unsigned char *mrec = records + (unsigned int)mother * VV1_RECORD_STRIDE;
-                g_entries[i].father_head = g_entries[mother].stash_head;
-                g_entries[i].father_body = g_entries[mother].stash_body;
-                memcpy(g_entries[i].father_name, g_entries[mother].stash_name, VV1_NAME_CAPACITY);
+                vv1_set_father(i, mother);
                 g_entries[i].mother_head = vv1_plus_one(*(const int *)(mrec + VV1_HEAD_OFFSET));
                 g_entries[i].mother_body = vv1_plus_one(*(const int *)(mrec + VV1_BODY_OFFSET));
                 vv1_copy_name(mrec, g_entries[i].mother_name);
@@ -625,9 +899,10 @@ static int vv1_frame(const unsigned char *records, int log) {
     return changed;
 }
 
-/* The exact birth, from the executable's hook inside sub_43C840 (through
-   the Origins companion's Vv1Born): the newborn's record, already named,
-   and its mother's.  Fills the child's entry -- father from her stash,
+/* The exact birth, from the executable's hook in the pregnancy tick
+   sub_42E900, right after the child-creation call (through the Origins
+   companion's Vv1Born): the newborn's record, already named, and its
+   mother's.  Fills the child's entry -- father from her stash,
    mother from her record -- and updates the frame snapshot for that slot
    so the per-frame inference does not treat the child as an unknown new
    occupant afterwards.  The stash stays until the delivery ends (the tick
@@ -648,9 +923,7 @@ static int vv1_born(const unsigned char *records, const unsigned char *child,
         return -1;
     }
     memset(&g_entries[c], 0, sizeof(g_entries[c]));
-    g_entries[c].father_head = g_entries[m].stash_head;
-    g_entries[c].father_body = g_entries[m].stash_body;
-    memcpy(g_entries[c].father_name, g_entries[m].stash_name, VV1_NAME_CAPACITY);
+    vv1_set_father((int)c, (int)m);
     g_entries[c].mother_head = vv1_plus_one(*(const int *)(mother + VV1_HEAD_OFFSET));
     g_entries[c].mother_body = vv1_plus_one(*(const int *)(mother + VV1_BODY_OFFSET));
     vv1_copy_name(mother, g_entries[c].mother_name);
@@ -848,12 +1121,11 @@ __declspec(dllexport) int __stdcall Vv1ParentageConceived(const void *records_po
                                                           const void *mother_pointer,
                                                           const void *father_pointer) {
     const unsigned char *records = (const unsigned char *)records_pointer;
-    unsigned int tag;
     int slot;
     if (records == NULL || records != vv1_records()) {
         return 0;                 /* a records array that is not the live one */
     }
-    slot = vv1_parents_sync(&tag);
+    slot = vv1_parents_sync();
     if (!slot) {
         return 0;
     }
@@ -861,7 +1133,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageConceived(const void *records_po
                   (const unsigned char *)father_pointer) < 0) {
         return 0;
     }
-    return vv1_parents_save(slot, tag);
+    return vv1_parents_save(slot);
 }
 
 /* From the executable's birth hook, through the Origins companion's Vv1Born:
@@ -869,14 +1141,13 @@ __declspec(dllexport) int __stdcall Vv1ParentageConceived(const void *records_po
    to the parentage log at once, then persists.  Returns 1 when recorded. */
 __declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *mother_pointer) {
     const unsigned char *records = vv1_records();
-    unsigned int tag;
     int slot;
     int c;
     vv1_birth birth;
     if (records == NULL) {
         return 0;
     }
-    slot = vv1_parents_sync(&tag);
+    slot = vv1_parents_sync();
     if (!slot) {
         return 0;
     }
@@ -887,20 +1158,19 @@ __declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *
     birth.child = c;
     birth.mother = (int)(((const unsigned char *)mother_pointer - records) / VV1_RECORD_STRIDE);
     vv1_log_birth(records, &birth);   /* the log first, before anything is flushed */
-    vv1_parents_save(slot, tag);
+    vv1_parents_save(slot);
     return 1;
 }
 
 /* Per frame, from the Origins companion.  Returns 1 when a village is on
    screen and the table corresponds to it, 0 when nothing is known. */
 __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
-    unsigned int tag;
-    int slot = vv1_parents_sync(&tag);
+    int slot = vv1_parents_sync();
     if (!slot) {
         return 0;
     }
     if (vv1_frame(vv1_records(), 1)) {
-        vv1_parents_save(slot, tag);
+        vv1_parents_save(slot);
     }
     return 1;
 }
@@ -915,7 +1185,6 @@ __declspec(dllexport) int __stdcall Vv1ParentageDrawPortrait(void *gameobj, void
     unsigned char *rec = (unsigned char *)record;
     size_t delta;
     int index;
-    unsigned int tag;
     const vv1_parent_entry *e;
     void *renderer;
     int father_known, mother_known;
@@ -933,7 +1202,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageDrawPortrait(void *gameobj, void
     if (index < 0 || index >= VV1_RECORD_COUNT) {
         return 0;
     }
-    if (!vv1_parents_sync(&tag)) {
+    if (!vv1_parents_sync()) {
         return 0;
     }
     if (*(const int *)(rec + VV1_AGE_OFFSET) >= VV1_PARENTS_UNTIL_YEARS * VV1_UNITS_PER_YEAR) {
@@ -986,8 +1255,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageDrawPortrait(void *gameobj, void
    head, mother body, each -1 when unknown.  Returns 1 when a village is
    identified and index is in range. */
 __declspec(dllexport) int __stdcall Vv1ParentageQuery(int index, int *out) {
-    unsigned int tag;
-    if (out == NULL || index < 0 || index >= VV1_RECORD_COUNT || !vv1_parents_sync(&tag)) {
+    if (out == NULL || index < 0 || index >= VV1_RECORD_COUNT || !vv1_parents_sync()) {
         return 0;
     }
     vv1_entry_out(index, out);
@@ -999,9 +1267,8 @@ __declspec(dllexport) int __stdcall Vv1ParentageQuery(int index, int *out) {
    range. */
 __declspec(dllexport) int __stdcall Vv1ParentageQueryNames(int index, char *father, char *mother,
                                                            int capacity) {
-    unsigned int tag;
     if (father == NULL || mother == NULL || capacity < 1
-        || index < 0 || index >= VV1_RECORD_COUNT || !vv1_parents_sync(&tag)) {
+        || index < 0 || index >= VV1_RECORD_COUNT || !vv1_parents_sync()) {
         return 0;
     }
     lstrcpynA(father, g_entries[index].father_name, capacity);
@@ -1070,6 +1337,24 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeBirths(int *out, int capaci
         out[2 * i + 1] = g_births[i].mother;
     }
     return g_birth_count;
+}
+
+/* The village identity, for the harness: the roster fingerprint of a records
+   array (256 occupants into `out`), and the overlap verdict between a records
+   array and a roster (1 same village, 0 another, -1 nothing to compare). */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeRoster(const void *records, void *out) {
+    if (records == NULL || out == NULL) {
+        return 0;
+    }
+    vv1_take_roster((const unsigned char *)records, (vv1_occupant *)out);
+    return (int)sizeof(vv1_occupant);
+}
+
+__declspec(dllexport) int __stdcall Vv1ParentageProbeOverlap(const void *records, const void *roster) {
+    if (records == NULL || roster == NULL) {
+        return -2;
+    }
+    return vv1_roster_overlap((const unsigned char *)records, (const vv1_occupant *)roster);
 }
 
 /* The sidecar entry size and header, so a test can check the file format
