@@ -93,6 +93,11 @@
 #define SORT_MODES             3
 
 typedef unsigned int (__cdecl *sdl_add_event_watch_t)(void *filter, void *userdata);
+typedef void *(__cdecl *sdl_get_mouse_focus_t)(void);
+typedef void *(__cdecl *sdl_gl_get_current_window_t)(void);
+typedef void *(__cdecl *sdl_get_renderer_t)(void *window);
+typedef void (__cdecl *sdl_render_get_scale_t)(void *renderer, float *sx, float *sy);
+typedef void (__cdecl *sdl_render_get_viewport_t)(void *renderer, int *rect);
 
 static int g_mode;                        /* 0 age, 1 skill, 2 health */
 static int g_position = -1;               /* position in the current list, -1 = unknown */
@@ -280,15 +285,80 @@ static int vv1_hit(int x, int y) {
     return -1;
 }
 
-/* SDL 2.0.3 SDL_MouseButtonEvent: type +0 (0x401 = SDL_MOUSEBUTTONDOWN),
-   button +16 (1 = left), x +20, y +24 -- the same window coordinates the
-   game itself uses for its buttons. */
+/* SDL 2.0.3 delivers the mouse-button event already reduced by the renderer's
+   own event watcher, which runs before this companion's.  Measured against the
+   running game in fullscreen (SDL reported scale 1.78 and viewport origin 79
+   at 1707x1068, logical 800x600): a click on a plate arrived at
+
+       event_x = (logical_x - viewport_x) / scale
+       event_y = (logical_y - viewport_y) / scale
+
+   so the band, which is drawn in logical 800x600 space, is hit-tested by
+   INVERTING that -- multiply by the scale and add the viewport back:
+
+       logical = event * scale + viewport
+
+   The band drew at logical y 496..515; a real fullscreen click came in near
+   event y 283, and 283*1.78 = 504, landing back in the band.  Two earlier
+   attempts failed: one used the event coordinates raw (they are not in logical
+   space in fullscreen), and one divided by the scale (the wrong direction --
+   the reduction has already happened, so the hook multiplies).  scale and
+   viewport are read live from SDL so the map follows any resolution; if SDL
+   cannot be resolved the event is used as-is, which is correct in a plain
+   window where scale is 1 and the viewport origin is 0. */
+static void vv1_event_to_logical(int *x, int *y) {
+    HMODULE sdl = GetModuleHandleA("SDL2.dll");
+    sdl_get_mouse_focus_t get_focus;
+    sdl_gl_get_current_window_t get_current;
+    sdl_get_renderer_t get_renderer;
+    sdl_render_get_scale_t get_scale;
+    sdl_render_get_viewport_t get_viewport;
+    void *window, *renderer;
+    float sx = 1.0f, sy = 1.0f;
+    int viewport[4] = { 0, 0, 0, 0 };
+    if (sdl == NULL) {
+        return;
+    }
+    get_focus = (sdl_get_mouse_focus_t)GetProcAddress(sdl, "SDL_GetMouseFocus");
+    get_current = (sdl_gl_get_current_window_t)GetProcAddress(sdl, "SDL_GL_GetCurrentWindow");
+    get_renderer = (sdl_get_renderer_t)GetProcAddress(sdl, "SDL_GetRenderer");
+    get_scale = (sdl_render_get_scale_t)GetProcAddress(sdl, "SDL_RenderGetScale");
+    get_viewport = (sdl_render_get_viewport_t)GetProcAddress(sdl, "SDL_RenderGetViewport");
+    if (get_renderer == NULL || get_scale == NULL) {
+        return;                     /* cannot map: leave the event as-is */
+    }
+    window = get_focus ? get_focus() : NULL;
+    if (window == NULL && get_current != NULL) {
+        window = get_current();     /* the cursor may be outside the window */
+    }
+    if (window == NULL) {
+        return;
+    }
+    renderer = get_renderer(window);
+    if (renderer == NULL) {
+        return;
+    }
+    get_scale(renderer, &sx, &sy);
+    if (sx <= 0.0f || sy <= 0.0f) {
+        return;
+    }
+    if (get_viewport != NULL) {
+        get_viewport(renderer, viewport);
+    }
+    *x = (int)((float)*x * sx) + viewport[0];
+    *y = (int)((float)*y * sy) + viewport[1];
+}
+
 static int __cdecl vv1_event_watch(void *userdata, void *event) {
     const unsigned char *e = (const unsigned char *)event;
     (void)userdata;
     if (e != NULL && *(const unsigned int *)e == 0x401u && e[16] == 1
         && GetTickCount() - g_last_draw_tick < 250u) {
-        int hit = vv1_hit(*(const int *)(e + 20), *(const int *)(e + 24));
+        int x = *(const int *)(e + 20);
+        int y = *(const int *)(e + 24);
+        int hit;
+        vv1_event_to_logical(&x, &y);
+        hit = vv1_hit(x, y);
         if (hit >= 0) {
             g_mode = hit;              /* the position is kept, as in the later games */
             vv1_play_click();

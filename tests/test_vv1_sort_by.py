@@ -66,6 +66,67 @@ class ManifestAndDllTests(unittest.TestCase):
         self.assertEqual(_define(source, "SORT_RADIO_SIZE"), 16)
         self.assertNotIn("vv1_draw_text_scaled", source, "the words are in the art; no custom text scaling (the owner)")
 
+    def test_the_watch_inverts_sdls_event_reduction_before_hit_testing(self):
+        """SDL 2.0.3 reduces the button event, so our watch must UN-reduce it.
+
+        Measured against the running game in fullscreen (SDL reported
+        scale 1.78, viewport origin 79, at window 1707x1068 over the logical
+        800x600 band): SDL_RendererEventWatch runs before this DLL's watch and
+        delivers each button event as
+
+            event = (logical - viewport) / scale
+
+        so the band -- drawn in logical 800x600 -- is hit-tested only after the
+        inverse, logical = event * scale + viewport.  Two earlier builds failed
+        here: one hit-tested the event coordinates raw (they are not logical in
+        fullscreen), and one DIVIDED by the scale (the wrong direction, since
+        the reduction has already happened).  This pins the multiply.
+        """
+        source = SORT_C.read_text(encoding="utf-8")
+        # the watch maps before it hits, through the helper
+        self.assertIn("vv1_event_to_logical(&x, &y);", source)
+        self.assertIn("hit = vv1_hit(x, y);", source)
+        # the helper multiplies by the SDL scale and ADDS the viewport, never
+        # divides -- a division would be the failed direction
+        self.assertIn("(int)((float)*x * sx) + viewport[0]", source)
+        self.assertIn("(int)((float)*y * sy) + viewport[1]", source)
+        self.assertNotIn("/ sx", source)
+        self.assertNotIn("/ sy", source)
+        for proc in ("SDL_GetRenderer", "SDL_RenderGetScale", "SDL_RenderGetViewport"):
+            self.assertIn('GetProcAddress(sdl, "%s")' % proc, source)
+
+        plates = ((8, 90), (95, 177), (184, 266))
+        plate_centres = tuple((left + right) // 2 for left, right in plates)
+        logical_y = (496 + 515) // 2
+
+        def sdl_delivers(logical_x, logical_y, viewport, scale):
+            return (int((logical_x - viewport[0]) / scale), int((logical_y - viewport[1]) / scale))
+
+        def watch_recovers(event_x, event_y, viewport, scale):
+            return (int(event_x * scale) + viewport[0], int(event_y * scale) + viewport[1])
+
+        for viewport, scale in (
+            ((0, 0), 1.0),               # a plain window: identity
+            ((79, 0), 1.78),             # the owner's measured fullscreen
+            ((240, 0), 2.4),
+            ((320, 0), 3.2),
+        ):
+            for mode, logical_x in enumerate(plate_centres):
+                ev = sdl_delivers(logical_x, logical_y, viewport, scale)
+                gx, gy = watch_recovers(ev[0], ev[1], viewport, scale)
+                self.assertGreaterEqual(gx, (8, 95, 184)[mode], (viewport, scale, mode))
+                self.assertLess(gx, (90, 177, 266)[mode], (viewport, scale, mode))
+                self.assertGreaterEqual(gy, 496, (viewport, scale))
+                self.assertLess(gy, 515, (viewport, scale))
+
+        # The earlier wrong direction (divide) missed on the Y axis in
+        # fullscreen: a click on the button row came in near event y 283, and
+        # 283/1.78 = 158 is nowhere near the band at y 496..515, while
+        # 283*1.78 = 503 lands inside it.
+        ev = sdl_delivers(plate_centres[1], logical_y, (79, 0), 1.78)
+        self.assertFalse(496 <= int(ev[1] / 1.78) < 515, "dividing misses the band's row")
+        self.assertTrue(496 <= int(ev[1] * 1.78) < 515, "multiplying recovers the band's row")
+
     def test_the_radio_positions_are_where_the_art_has_its_holders(self):
         # The holders painted into the band are the sheet's blank cell; the
         # code's SORT_RADIO_X/Y must land the selected cell exactly on them,
