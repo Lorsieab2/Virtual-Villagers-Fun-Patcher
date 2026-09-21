@@ -138,8 +138,8 @@ int main(int argc, char **argv) {
     entry(1, e);  CHECK(same(e, -1, -1, -1, -1), "the parents of the mother herself stay unknown (the stash is not her parentage)");
     /* the stash is spent */
     *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(12, 1, "Ola"); tick(records);
-    entry(12, e); CHECK(same(e, 0, 0, 4, 9), "a later birth with no new conception: mother known, father is the Unknown 0/0 fallback (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
-    names(12, father, mother, 32); CHECK(strcmp(father, "Unknown") == 0 && strcmp(mother, "Aisha") == 0, "...father name is the Unknown fallback, mother %s", mother);
+    entry(12, e); CHECK(same(e, -1, -1, 4, 9), "a later birth with no new conception: mother known, father blank (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    names(12, father, mother, 32); CHECK(father[0] == 0 && strcmp(mother, "Aisha") == 0, "...no father name, mother %s", mother);
     CHECK(births(b, 8) == 1 && b[0] == 12 && b[1] == 1, "one birth seen this frame");
 
     printf("== a founder appears with nobody delivering ==\n");
@@ -165,7 +165,7 @@ int main(int argc, char **argv) {
     entry(17, e); CHECK(same(e, 7, 2, 4, 9), "the second twin, a frame later, gets the same two parents (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
     names(17, father, mother, 32); CHECK(strcmp(father, "Goro") == 0 && strcmp(mother, "Aisha") == 0, "...by name too: %s / %s", father, mother);
     *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(18, 1, "After"); tick(records);
-    entry(18, e); CHECK(same(e, 0, 0, 4, 9), "the stash was spent when the counter reached zero: the next birth gets the 0/0 fallback father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    entry(18, e); CHECK(same(e, -1, -1, 4, 9), "the stash was spent when the counter reached zero: the next birth has no father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
 
     printf("== a single baby: the litter counter never moves, only the due field ==\n");
     conceived(conceive, 1, 2);
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
     *(int *)(rec(1) + DUE) = 0; born_from(19, 1, "Solo"); tick(records);
     entry(19, e); CHECK(same(e, 7, 2, 4, 9), "the single child gets both parents from the due field alone (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
     *(int *)(rec(1) + DUE) = 600; tick(records); *(int *)(rec(1) + DUE) = 0; born_from(21, 1, "Next"); tick(records);
-    entry(21, e); CHECK(same(e, 0, 0, 4, 9), "...and the stash was spent with it: the fallback father again (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    entry(21, e); CHECK(same(e, -1, -1, 4, 9), "...and the stash was spent with it: no father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
 
     printf("== a slot freed and refilled between two frames ==\n");
     villager(12, "Stranger", 1, 2, 3); tick(records);   /* occupied in both snapshots, different name and variant */
@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
     entry(23, e); CHECK(same(e, 7, 2, 4, 9), "a twin through the hook gets the same father: the stash is not spent by the hook");
     *(int *)(rec(1) + DUE) = 0; tick(records);
     entry(1, e); CHECK(same(e, -1, -1, -1, -1), "(the mother is untouched)");
-    born_from(24, 1, "Later"); born(records, rec(24), rec(1)); entry(24, e); CHECK(same(e, 0, 0, 4, 9), "after the delivery ended the stash is spent: mother, and the 0/0 fallback father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    born_from(24, 1, "Later"); born(records, rec(24), rec(1)); entry(24, e); CHECK(same(e, -1, -1, 4, 9), "after the delivery ended the stash is spent: mother only (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
     CHECK(born(records, rec(1), rec(1)) == -1, "child == mother is refused");
     CHECK(born(records, rec(1) + 4, rec(2)) == -1, "an unaligned pointer is refused");
 

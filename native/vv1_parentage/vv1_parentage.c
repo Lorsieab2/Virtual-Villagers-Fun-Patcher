@@ -204,7 +204,6 @@
    island event or a Barrel of Babies are not delivered by a mother and get
    no parents at all, so this is only ever reached for a real delivery whose
    stash is empty. */
-#define VV1_FALLBACK_FATHER_NAME "Unknown"
 #define VV1_NEW_VILLAGE_STRIKES 30          /* frames of a roster sharing nobody with the table before it is another village's */
 #define VV1_APPEARANCE_MAX     253          /* fits in a byte once +1 is added */
 
@@ -257,20 +256,19 @@ static int vv1_slot(void) {
 }
 
 static unsigned char vv1_plus_one(int value);
-static int vv1_recover_from_log(const unsigned char *records);
 
 /* Fill child c's father from mother m's pregnancy stash, or -- when she has
    none, a fatherless delivery -- from the "Unknown" 0/0 fallback.  Never
    called for a spawn, which has no delivering mother. */
 static void vv1_set_father(int c, int m) {
+    /* The father is the one stashed against the mother at conception.  When
+       she has no stash (a delivery with no captured father) the father is
+       simply left blank: only the mother is recorded, as the manifest
+       promises when Write Parentage Log is off. */
     if (g_entries[m].stash_head || g_entries[m].stash_body || g_entries[m].stash_name[0]) {
         g_entries[c].father_head = g_entries[m].stash_head;
         g_entries[c].father_body = g_entries[m].stash_body;
         memcpy(g_entries[c].father_name, g_entries[m].stash_name, VV1_NAME_CAPACITY);
-    } else {
-        g_entries[c].father_head = vv1_plus_one(0);
-        g_entries[c].father_body = vv1_plus_one(0);
-        lstrcpynA(g_entries[c].father_name, VV1_FALLBACK_FATHER_NAME, VV1_NAME_CAPACITY);
     }
 }
 
@@ -499,9 +497,6 @@ static int vv1_parents_sync(void) {
         g_loaded_slot = slot;
         g_strikes = 0;
         g_have_prev = 0;          /* a different village: no delivery can be inferred yet */
-        if (vv1_recover_from_log(records)) {
-            vv1_parents_save(slot);   /* keep what the log recovered */
-        }
         return slot;
     }
     switch (vv1_roster_overlap(records, g_roster)) {
@@ -510,9 +505,6 @@ static int vv1_parents_sync(void) {
             vv1_parents_load(slot, records);
             g_strikes = 0;
             g_have_prev = 0;
-            if (vv1_recover_from_log(records)) {
-                vv1_parents_save(slot);
-            }
         }
         break;
     case 1:
@@ -530,120 +522,6 @@ static int vv1_parents_sync(void) {
 }
 
 /* ---- the parentage log ------------------------------------------------ */
-
-/* Reconstruct parents from the parentage log for living children the sidecar
-   has no entry for -- the retroactive recovery of a village whose parents were
-   lost to the old binding.  RecoverParentageParents lives in the export
-   companion (it owns the log), reads only what the game wrote, and returns
-   the mother and father the log recorded per child name.  Resolved once. */
-/* Must match struct recover_request in the parentage-export DLL byte for byte:
-   it is the shared ABI RecoverParentageParents reads and writes. */
-struct vv1_recover_request {
-    char child[VV1_NAME_CAPACITY];
-    int child_head, child_body;       /* in: the living child's own head/body, to disambiguate same-named children */
-    char mother[VV1_NAME_CAPACITY];
-    int mother_head, mother_body;
-    char father[VV1_NAME_CAPACITY];
-    int father_head, father_body;
-    int found;
-};
-typedef int (__stdcall *vv1_recover_t)(int game_id, void *requests, int count);
-static int g_recover_state;       /* 0 = not tried, 1 = resolved, -1 = unavailable */
-static vv1_recover_t g_recover;
-
-static vv1_recover_t vv1_recover_fn(void) {
-    char path[MAX_PATH];
-    char *slash;
-    DWORD n;
-    HMODULE companion;
-    if (g_recover_state == 1) {
-        return g_recover;
-    }
-    if (g_recover_state != 0) {
-        return NULL;
-    }
-    g_recover_state = -1;
-    n = GetModuleFileNameA(NULL, path, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return NULL;
-    }
-    slash = strrchr(path, '\\');
-    if (slash == NULL
-        || (size_t)(slash + 1 - path) + sizeof("VVFP Parentage Export.dll") > sizeof(path)) {
-        return NULL;
-    }
-    lstrcpyA(slash + 1, "VVFP Parentage Export.dll");
-    companion = LoadLibraryA(path);
-    if (companion == NULL) {
-        return NULL;
-    }
-    g_recover = (vv1_recover_t)GetProcAddress(companion, "RecoverParentageParents");
-    if (g_recover == NULL) {
-        return NULL;
-    }
-    g_recover_state = 1;
-    return g_recover;
-}
-
-/* Encode a recovered appearance (a raw head/body value, or -1) into the
-   sidecar's +1 form, 0 meaning unknown. */
-static unsigned char vv1_recover_encode(int value) {
-    return (value < 0) ? 0 : vv1_plus_one(value);
-}
-
-/* For every occupied record whose entry has no mother recorded, ask the log
-   who its parents were.  Fills only the blanks, so a father already known is
-   never overwritten; a child the log has no birth for (a spawn) is left with
-   no parents.  Returns 1 when any entry changed. */
-static int vv1_recover_from_log(const unsigned char *records) {
-    static struct vv1_recover_request reqs[VV1_RECORD_COUNT];
-    int idx[VV1_RECORD_COUNT];
-    int count = 0, i, changed = 0;
-    vv1_recover_t recover = vv1_recover_fn();
-    if (recover == NULL || records == NULL) {
-        return 0;
-    }
-    memset(reqs, 0, sizeof(reqs));
-    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-        const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
-        /* Ask about any occupied child missing EITHER parent -- the broken
-           binding lost the whole entry, but a partial entry (mother known,
-           father lost) must be completed too. */
-        if (!rec[VV1_OCCUPIED_OFFSET]
-            || (g_entries[i].mother_head != 0 && g_entries[i].father_head != 0)) {
-            continue;
-        }
-        vv1_copy_name(rec, reqs[count].child);
-        reqs[count].child_head = *(const int *)(rec + VV1_HEAD_OFFSET);
-        reqs[count].child_body = *(const int *)(rec + VV1_BODY_OFFSET);
-        idx[count] = i;
-        ++count;
-    }
-    if (count == 0) {
-        return 0;
-    }
-    recover(1, reqs, count);      /* game 1 = A New Home */
-    for (i = 0; i < count; ++i) {
-        int j = idx[i];
-        if (!reqs[i].found) {
-            continue;             /* no birth in the log: a spawn, no parents */
-        }
-        /* Fill only the blanks: never overwrite a parent already recorded. */
-        if (g_entries[j].mother_head == 0) {
-            g_entries[j].mother_head = vv1_recover_encode(reqs[i].mother_head);
-            g_entries[j].mother_body = vv1_recover_encode(reqs[i].mother_body);
-            lstrcpynA(g_entries[j].mother_name, reqs[i].mother, VV1_NAME_CAPACITY);
-            changed = 1;
-        }
-        if (g_entries[j].father_head == 0 && reqs[i].father[0] != '\0') {
-            g_entries[j].father_head = vv1_recover_encode(reqs[i].father_head);
-            g_entries[j].father_body = vv1_recover_encode(reqs[i].father_body);
-            lstrcpynA(g_entries[j].father_name, reqs[i].father, VV1_NAME_CAPACITY);
-            changed = 1;
-        }
-    }
-    return changed;
-}
 
 /* WriteParentageBirth lives in the parentage companion, which owns the log:
    its file numbering, village header and roll-over.  Resolved once, from the

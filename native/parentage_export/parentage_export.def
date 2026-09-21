@@ -3,4 +3,3 @@ EXPORTS
     WriteParentageRecord=_WriteParentageRecord@12
     WriteParentageRecordWithFather=_WriteParentageRecordWithFather@16
     WriteParentageBirth=_WriteParentageBirth@40
-    RecoverParentageParents=_RecoverParentageParents@12
