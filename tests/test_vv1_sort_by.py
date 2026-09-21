@@ -88,8 +88,13 @@ class ManifestAndDllTests(unittest.TestCase):
         self.assertIn("hit = vv1_hit(x, y);", source)
         # the helper multiplies by the SDL scale and ADDS the viewport, never
         # divides -- a division would be the failed direction
-        self.assertIn("(int)((float)*x * sx) + viewport[0]", source)
-        self.assertIn("(int)((float)*y * sy) + viewport[1]", source)
+        # The viewport comes back in LOGICAL units, so it is scaled into the
+        # same space as event * scale BEFORE it is added; adding it raw mixes
+        # two spaces and drags X left (#403).
+        self.assertIn("(int)((float)*x * sx + (float)viewport[0] * sx)", source)
+        self.assertIn("(int)((float)*y * sy + (float)viewport[1] * sy)", source)
+        # the pre-#403 form, which mixed logical and window-pixel terms
+        self.assertNotIn("(int)((float)*x * sx) + viewport[0]", source)
         self.assertNotIn("/ sx", source)
         self.assertNotIn("/ sy", source)
         for proc in ("SDL_GetRenderer", "SDL_RenderGetScale", "SDL_RenderGetViewport"):
@@ -100,14 +105,24 @@ class ManifestAndDllTests(unittest.TestCase):
         logical_y = (496 + 515) // 2
 
         def sdl_delivers(logical_x, logical_y, viewport, scale):
-            return (int((logical_x - viewport[0]) / scale), int((logical_y - viewport[1]) / scale))
+            # the viewport origin is in LOGICAL units, so it is subtracted
+            # after the divide, not before it (#403)
+            return (
+                int(logical_x / scale - viewport[0]),
+                int(logical_y / scale - viewport[1]),
+            )
 
         def watch_recovers(event_x, event_y, viewport, scale):
-            return (int(event_x * scale) + viewport[0], int(event_y * scale) + viewport[1])
+            # the viewport is logical, so it is scaled before it is added back
+            return (
+                int(event_x * scale + viewport[0] * scale),
+                int(event_y * scale + viewport[1] * scale),
+            )
 
         for viewport, scale in (
             ((0, 0), 1.0),               # a plain window: identity
             ((79, 0), 1.78),             # the owner's measured fullscreen
+            ((113, 0), 1.66),            # the owner's measured maximized (#403)
             ((240, 0), 2.4),
             ((320, 0), 3.2),
         ):
@@ -126,6 +141,26 @@ class ManifestAndDllTests(unittest.TestCase):
         ev = sdl_delivers(plate_centres[1], logical_y, (79, 0), 1.78)
         self.assertFalse(496 <= int(ev[1] / 1.78) < 515, "dividing misses the band's row")
         self.assertTrue(496 <= int(ev[1] * 1.78) < 515, "multiplying recovers the band's row")
+
+        # #403, measured live in the owner's maximized window (client
+        # 1707x996, IsZoomed): SDL reported scale 1.66 and viewport
+        # (113, 0, 800, 600).  A click aimed at the Skill plate arrived at
+        # raw x -19.  The shipped form mapped it to logical 82 -- inside
+        # Age, one plate to the LEFT -- so the owner had to aim right of the
+        # button.  Scaling the viewport first lands it in Skill.
+        raw_x, scale, viewport_x = -19, 1.66, 113
+        before = int(raw_x * scale) + viewport_x
+        after = int(raw_x * scale + viewport_x * scale)
+        self.assertEqual(before, 82)
+        self.assertTrue(8 <= before < 90, "the old form landed in Age")
+        self.assertTrue(95 <= after < 177, "the fix lands the click in Skill")
+
+        # Y is untouched by the change: the display is pillarboxed, so the
+        # content fills the height and viewport[1] is 0.  That is why the
+        # fullscreen verification, whose worked example was a Y coordinate,
+        # never exercised the X bug.
+        for scale in (1.66, 1.78):
+            self.assertEqual(int(283 * scale), int(283 * scale + 0 * scale))
 
     def test_the_radio_positions_are_where_the_art_has_its_holders(self):
         # The holders painted into the band are the sheet's blank cell; the
