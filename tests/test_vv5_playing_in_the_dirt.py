@@ -24,15 +24,19 @@ the owner outlined the flower patch east of the dirt path (the worn ground
 with the flowers, west of the flower rock) and asked for the children to stay
 strictly inside it.  The record-to-screen mapping was calibrated from a crowd
 of 22 villagers captured together with their record positions (an earlier
-two-villager estimate was ~110 units off in y): the outline is about 285 wide
-and 253 tall in record units.
+two-villager estimate was ~110 units off in y).  The owner then outlined the
+area with seven villagers -- Pehe (1865,1459), Sirah (2128,1451), Bua
+(2328,1606), Moti (2238,1667), Tiki (2077,1705), Mapui (1824,1682), Nui
+(1835,1570) -- and the routine can only fill an axis-aligned box, so the box
+is the largest one inside that outline: about 305 wide and 205 tall in
+record units.
 
 A one-byte push cannot hold a spread over 127, so the block is recoded in
 place, same 46 bytes: rand(127) doubled by `lea edi, [eax+eax]` (one byte
 longer than `mov edi, eax`), paid for by `pop ecx ; pop ecx` in place of
 `add esp, 8` (ecx is dead there: `mov ecx, esi` follows before the call).  The
 second rand call moves one byte, so its rel32 is recomputed.  Result:
-x = 1843 + rand(285) -> 1843..2127, y = 1431 + 2*rand(127) -> 1431..1683.
+x = 1860 + rand(305) -> 1860..2164, y = 1479 + 2*rand(103) -> 1479..1683.
 """
 from __future__ import annotations
 
@@ -53,9 +57,9 @@ STOCK = ROOT / "research" / "stock-executables" / next(
 ).input_name
 
 RAND = 0x403660
-X_BASE, X_SPREAD = 1843, 285
-Y_BASE, Y_HALF = 1431, 127
-OUTLINE = (1843, 2127, 1431, 1687)   # the owner stood a villager on each corner: Tiki (1843,1431), Bua (2127,1687)
+X_BASE, X_SPREAD = 1860, 305
+Y_BASE, Y_HALF = 1479, 103
+OUTLINE = (1860, 2164, 1479, 1683)   # the largest box inside the seven-villager outline: Pehe (1865,1459), Sirah (2128,1451), Bua (2328,1606), Moti (2238,1667), Tiki (2077,1705), Mapui (1824,1682), Nui (1835,1570)
 
 
 def expected_block() -> bytes:
@@ -113,15 +117,15 @@ class PlayingInTheDirtTests(unittest.TestCase):
         tail = bytes.fromhex("05") + struct.pack("<I", X_BASE) + bytes.fromhex("57508BCE")
         got = [f"{i.mnemonic} {i.op_str}".strip() for i in md.disasm(expected_block() + tail, 0x45ED70)]
         self.assertEqual(got, [
-            "push 0x7f", "call 0x403660", "lea edi, [eax + eax]", "push 0x11d",
-            "add edi, 0x597", "call 0x403660", "pop ecx", "pop ecx", "push 0",
-            "push 0x64", "add eax, 0x733", "push edi", "push eax", "mov ecx, esi",
+            "push 0x67", "call 0x403660", "lea edi, [eax + eax]", "push 0x131",
+            "add edi, 0x5c7", "call 0x403660", "pop ecx", "pop ecx", "push 0",
+            "push 0x64", "add eax, 0x744", "push edi", "push eax", "mov ecx, esi",
         ])
 
     def test_the_ranges_fill_the_owners_outline_and_are_what_rand_can_produce(self):
         x_lo, x_hi = X_BASE, X_BASE + X_SPREAD - 1                 # rand(503): 0..502
         y_lo, y_hi = Y_BASE, Y_BASE + 2 * (Y_HALF - 1)            # 2*rand(127): 0..252
-        self.assertEqual((x_lo, x_hi, y_lo, y_hi), (1843, 2127, 1431, 1683))
+        self.assertEqual((x_lo, x_hi, y_lo, y_hi), (1860, 2164, 1479, 1683))
         # The owner marked the box by standing a villager on each corner, so the
         # patch must match it: inside it, and within a step of filling it (the
         # second coordinate moves in twos, so its top may fall one short).
