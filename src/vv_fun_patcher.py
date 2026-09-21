@@ -2994,6 +2994,73 @@ def patch_requirements(
     return tuple(lines)
 
 
+def unmet_needs_on(
+    selected_ids: list[str] | tuple[str, ...],
+    catalog: list[FunPatch] | tuple[FunPatch, ...],
+) -> tuple[tuple[str, str, str], ...]:
+    """The co-required patches that are switched off for this selection.
+
+    ``needs_on`` is the functional relationship: the selected patch still
+    applies and still works with the named patch off, it simply does less --
+    the parentage log, for instance, is written correctly but unlabelled
+    without Village Statistics.  That is worth telling the player before the
+    patch runs, and it is NOT a reason to refuse: the owner's rule is confirm,
+    do not hard-block.
+
+    ``dependencies`` is the hard relationship and is deliberately not reported
+    here; the GUI ticks and unticks those together, so they cannot be unmet.
+
+    Returns one ``(patch name, missing patch name, purpose)`` per unmet pair,
+    ordered by the catalog so the dialog reads in the same order as the list
+    the player just ticked.
+    """
+    chosen = set(selected_ids)
+    by_id = {patch.id: patch for patch in catalog}
+    unmet: list[tuple[str, str, str]] = []
+    for patch in catalog:
+        if patch.id not in chosen:
+            continue
+        for dependency_id, purpose in _needs_on(patch):
+            if dependency_id in chosen:
+                continue
+            other = by_id.get(dependency_id)
+            if other is None:
+                raise PatcherError(
+                    f"{patch.id} needs_on names an unknown patch: {dependency_id}"
+                )
+            unmet.append((patch.name, other.name, purpose))
+    return tuple(unmet)
+
+
+def unmet_needs_on_text(
+    selected_ids: list[str] | tuple[str, ...],
+    catalog: list[FunPatch] | tuple[FunPatch, ...],
+) -> str:
+    """``unmet_needs_on`` as the body of a confirmation dialog.
+
+    Empty when nothing is unmet, so a caller can treat the empty string as
+    "nothing to confirm".
+    """
+    unmet = unmet_needs_on(selected_ids, catalog)
+    if not unmet:
+        return ""
+    lines = [
+        "These patches are ticked, but a patch they work with is not:",
+        "",
+    ]
+    for name, missing, purpose in unmet:
+        lines.append(f"- {name}")
+        lines.append(f"    needs {missing} on for {purpose}.")
+        lines.append("")
+    lines.append(
+        "They will still be applied and will still work; they just do less "
+        "with the other patch off."
+    )
+    lines.append("")
+    lines.append("Patch the games anyway?")
+    return "\n".join(lines)
+
+
 def patch_requirement_text(
     patch: FunPatch, catalog: list[FunPatch] | tuple[FunPatch, ...]
 ) -> str:
