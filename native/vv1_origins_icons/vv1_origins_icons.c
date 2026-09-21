@@ -8,6 +8,13 @@
 #ifndef VV_AGE_OFFSET
 #define VV_AGE_OFFSET 0x348
 #endif
+/* NOTE: these five names follow the Details screen's display order, but
+   VV1 STORES its skills in a different order -- 0x3BC is Breeding,
+   0x3C4 is Farming (measured against the running game).  Every use
+   below requires all five to equal 100, so the mismatch changes no
+   behaviour and the names are left as they are rather than renamed
+   across VV1, VV2 and VV4 on VV1's evidence alone.  They should be
+   corrected once each game's own order has been verified. */
 #ifndef VV_SKILL_FARMING_OFFSET
 #define VV_SKILL_FARMING_OFFSET 0x3BC
 #endif

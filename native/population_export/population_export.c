@@ -375,14 +375,42 @@ static const struct game_layout GAME_LAYOUTS[6] = {
     }
 };
 
-/* The skill names, in the order the games store them.
+/* The skill names, in the order EACH GAME STORES THEM.
 
-   VV5 has six and the other two have five; VV5's extra slot is last, so the
-   first five are shared. These are the names the games' own UI uses. */
-static const char *const SKILL_NAMES[MAX_SKILLS] = {
+   This is per-game on purpose.  A game's Details screen lists the skills in
+   one order and the record may store them in another, and the two are not
+   the same in VV1: its screen reads Farming, Building, Research, Healing,
+   Breeding while the record holds Breeding, Building, Farming, Healing,
+   Research.  Labelling the array in screen order therefore named the wrong
+   skill in three slots out of five.
+
+   Building and Healing sit at the symmetric middle positions and so happened
+   to be right either way, which is exactly why this was not obvious: two of
+   every five numbers were correctly labelled and the rest looked plausible.
+
+   VV1's order is measured against the running game.  Yepa, a child with a
+   single non-zero skill, holds it at index 4 and her Details screen shows
+   Research.  Rongo's five values are all distinct (29, 39, 50, 59, 78) and
+   his bars rank shortest to longest Breeding, Building, Farming, Healing,
+   Research, which fixes every slot.
+
+   VV2-VV5 are UNVERIFIED and keep the names they have always had.  They must
+   be checked against their own games the same way before they are trusted;
+   assuming VV1's order carries over is the mistake that produced this bug. */
+static const char *const SKILL_NAMES_UNVERIFIED[MAX_SKILLS] = {
     "Farming", "Building", "Research", "Healing", "Breeding", "Parenting",
     "(skill 7)", "(skill 8)"
 };
+
+/* VV1 -- A New Home.  Storage order, measured; see above. */
+static const char *const SKILL_NAMES_VV1[MAX_SKILLS] = {
+    "Breeding", "Building", "Farming", "Healing", "Research", "(skill 6)",
+    "(skill 7)", "(skill 8)"
+};
+
+static const char *const *skill_names_for(int game_id) {
+    return game_id == GAME_VV1 ? SKILL_NAMES_VV1 : SKILL_NAMES_UNVERIFIED;
+}
 
 /* Reject a layout whose geometry is not self-consistent.
 
@@ -683,7 +711,8 @@ static int write_villager(
         int value = g->skills_are_float
             ? (int)*(const float *)field
             : *(const int *)field;
-        if (fprintf(file, "    %-10s %d\n", SKILL_NAMES[skill], value) < 0) {
+        if (fprintf(file, "    %-10s %d\n",
+                    skill_names_for(game_id)[skill], value) < 0) {
             return 0;
         }
     }

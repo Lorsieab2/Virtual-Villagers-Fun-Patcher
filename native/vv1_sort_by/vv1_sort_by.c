@@ -64,7 +64,13 @@
 #define VV1_OCCUPIED_OFFSET    0x28u        /* u8 */
 #define VV1_HEALTH_OFFSET      0x344u       /* i32; the arrows skip <= 0 */
 #define VV1_AGE_OFFSET         0x348u       /* i32 */
-#define VV1_SKILLS_OFFSET      0x3BCu       /* 5 x i32: farming, building, research, healing, breeding */
+#define VV1_SKILLS_OFFSET      0x3BCu       /* 5 x i32 in STORAGE order:
+                                              breeding, building, farming, healing,
+                                              research -- NOT the Details screen's
+                                              display order, which differs.  Sorting
+                                              here takes the highest VALUE, so it is
+                                              unaffected either way; the order matters
+                                              only to whoever names a slot. */
 #define VV1_SKILL_COUNT        5
 
 #define VV1_ADDR_OPERATOR_NEW  0x0044AF03u  /* cdecl(size) */
