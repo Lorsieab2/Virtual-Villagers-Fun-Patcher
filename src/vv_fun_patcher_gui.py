@@ -20,6 +20,7 @@ LINK_HOVER_COLOR = "#c5350b"
 
 from vv_fun_patcher import (
     patch_requirement_text,
+    unmet_needs_on_text,
     DEFAULT_PATCH_MODE,
     _validate_public_patch_mode,
     PatcherError,
@@ -1073,6 +1074,22 @@ class App(tk.Tk):
             self.status_var.set(str(exc))
             messagebox.showerror("All-five dry run failed", str(exc))
 
+    def _confirm_unmet_needs_on(self, fun_patch_ids: list[str]) -> bool:
+        """Tell the player about co-required patches that are off, then ask.
+
+        The owner's rule is confirm, not hard-block: the patch runs if they
+        say yes.  Returns True when patching should go ahead.
+        """
+        try:
+            body = unmet_needs_on_text(fun_patch_ids, self.fun_patches)
+        except PatcherError:
+            # A malformed needs_on is the strict resolver's to report, with
+            # its actionable text; it must not silently block patching here.
+            return True
+        if not body:
+            return True
+        return messagebox.askyesno("A patch this one works with is off", body)
+
     def _apply(self) -> None:
         try:
             _validate_public_patch_mode(self._mode())
@@ -1081,6 +1098,8 @@ class App(tk.Tk):
             # Read every Tk variable here; the worker thread must not.
             mode = self._mode()
             fun_patch_ids = self._selected_fun_patch_ids(build.id)
+            if not self._confirm_unmet_needs_on(fun_patch_ids):
+                return
             output_root = self._output_root()
             preview = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
@@ -1128,6 +1147,8 @@ class App(tk.Tk):
             # Read every Tk variable here; the worker thread must not.
             mode = self._mode()
             fun_patch_ids = self._selected_fun_patch_ids()
+            if not self._confirm_unmet_needs_on(fun_patch_ids):
+                return
             output_root = self._output_root()
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
