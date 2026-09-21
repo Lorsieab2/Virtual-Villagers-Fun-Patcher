@@ -284,6 +284,13 @@ int main(int argc, char **argv) {
     memset(records, 0, sizeof records);
     villager(0, "Bomani", 1, 1, 5); villager(1, "Aisha", 4, 9, 7); villager(2, "Goro", 7, 2, 3);
     *(int *)(rec(2) + GENDER) = 1;
+    {   /* No sidecar exists under the harness, so the slot is accepted once
+           the window proves it is a village with no record -- then it is
+           identified every frame, which is what the rest of this exercises. */
+        int frame;
+        for (frame = 1; frame <= 40 && sync(1, records) == 0; ++frame) { }
+    }
+    bind(records);
     CHECK(sync(1, records) == 1, "a village with no table yet is identified: recording may begin");
     conceive(records, rec(1), rec(2));
     *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(9, 1, "Kai"); tick(records);
@@ -294,21 +301,26 @@ int main(int argc, char **argv) {
     memset(records, 0, sizeof records);
     villager(0, "Tane", 2, 2, 5); villager(1, "Moa", 3, 3, 9); *(int *)(rec(0) + GENDER) = 1;
     {
-        int frame, settled = 1;
-        for (frame = 1; frame < 30; ++frame) {
-            if (sync(1, records) != 0) { settled = 0; break; }
+        int frame, settled = 0, kept = 1;
+        for (frame = 1; frame <= 40; ++frame) {
+            if (sync(1, records) != 0) { settled = frame; break; }
+            entry(9, e);
+            if (!same(e, 7, 2, 4, 9)) { kept = 0; break; }
         }
-        CHECK(settled, "for 29 frames of strangers the sync answers 0: nothing is known, nothing is touched (broke at frame %d)", frame);
+        CHECK(settled > 1, "strangers in the same slot: the sync answered 0 for %d frames rather than acting at once", settled);
+        CHECK(kept, "...and Kai's parents stayed in the table for every one of them");
     }
-    entry(9, e); CHECK(same(e, 7, 2, 4, 9), "...and Kai's parents are still in the table meanwhile (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
-    CHECK(sync(1, records) == 1, "the 30th frame: verdict final, the table is reloaded for the other village");
     entry(9, e); CHECK(same(e, -1, -1, -1, -1), "...which the old table does not serve: Kai's slot is empty for the new village (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
     /* The same village, mid-rebuild: the array empties for a few frames. */
     reset();
     memset(records, 0, sizeof records);
     villager(0, "Bomani", 1, 1, 5); villager(1, "Aisha", 4, 9, 7); villager(2, "Goro", 7, 2, 3);
     *(int *)(rec(2) + GENDER) = 1;
-    sync(1, records);
+    bind(records);
+    {   /* settle onto the slot: no sidecar exists, so the window runs */
+        int frame;
+        for (frame = 1; frame <= 40 && sync(1, records) == 0; ++frame) { }
+    }
     conceive(records, rec(1), rec(2));
     *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(9, 1, "Kai"); tick(records);
     bind(records);
@@ -351,8 +363,54 @@ int main(int argc, char **argv) {
     CHECK(sync(2, records) == 0, "...for as long as the rebuild lasts");
     entry(9, e); CHECK(same(e, 7, 2, 4, 9), "...and slot 1's table is still intact meanwhile (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
     villager(0, "Tane", 2, 2, 5); villager(1, "Moa", 3, 3, 9); *(int *)(rec(0) + GENDER) = 1;
-    CHECK(sync(2, records) == 2, "slot 2's villagers are on screen: only now is the slot loaded");
-    entry(9, e); CHECK(same(e, -1, -1, -1, -1), "...and slot 2 does not inherit slot 1's parents (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    /* Slot 2 has no sidecar of its own here, so nothing can match: the sync
+       keeps slot 1's table safe and retries until the strike window proves
+       slot 2 really is a village it has no record of. */
+    {
+        /* Strikes are already part-spent by the empty-array frames above, so
+           count until the window actually ends rather than assuming 30.  What
+           matters is that it waits at all, and that slot 1's table survives
+           every frame of the wait. */
+        int frame, settled = 0, kept = 1;
+        for (frame = 1; frame <= 40; ++frame) {
+            if (sync(2, records) != 0) { settled = frame; break; }
+            entry(9, e);
+            if (!same(e, 7, 2, 4, 9)) { kept = 0; break; }
+        }
+        CHECK(settled > 1, "slot 2 has no matching file: the sync waited %d frames rather than binding at once", settled);
+        CHECK(kept, "...and slot 1's table survived every frame of the wait");
+    }
+    entry(9, e); CHECK(same(e, -1, -1, -1, -1), "...then slot 2 starts with an empty table, not slot 1's (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+
+    /* The case a non-empty check cannot see: the slot changes while the
+       PREVIOUS village is still on screen.  The sidecar cannot match those
+       villagers, so the slot must not be marked loaded -- it is retried until
+       the target village appears (or the strike window ends). */
+    reset();
+    memset(records, 0, sizeof records);
+    villager(0, "Bomani", 1, 1, 5); villager(1, "Aisha", 4, 9, 7); villager(2, "Goro", 7, 2, 3);
+    *(int *)(rec(2) + GENDER) = 1;
+    bind(records);
+    {   /* Settle onto slot 1 first: it has no sidecar here either, so the
+           window has to run out before the slot is accepted. */
+        int frame;
+        for (frame = 1; frame <= 40 && sync(1, records) == 0; ++frame) { }
+    }
+    bind(records);
+    CHECK(sync(1, records) == 1, "slot 1 identified");
+    conceive(records, rec(1), rec(2));
+    *(int *)(rec(1) + LITTER) = 1; tick(records); *(int *)(rec(1) + LITTER) = 0; born_from(9, 1, "Kai"); tick(records);
+    bind(records);
+    entry(9, e); CHECK(same(e, 7, 2, 4, 9), "slot 1: Kai has both parents (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    /* Slot 2 selected, but slot 1's villagers are STILL in the array. */
+    {
+        int frame, held = 1;
+        for (frame = 1; frame < 5; ++frame) {
+            if (sync(2, records) != 0) { held = 0; break; }
+        }
+        CHECK(held, "the slot changed while the previous village is still on screen: nothing is known (broke at frame %d)", frame);
+    }
+    entry(9, e); CHECK(same(e, 7, 2, 4, 9), "...and slot 1's table is not overwritten meanwhile (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
 
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;

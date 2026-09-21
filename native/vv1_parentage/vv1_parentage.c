@@ -436,7 +436,7 @@ static int vv1_parents_save(int slot) {
    roster sharing nobody with the living -- leaves no parents, which is
    exactly what a village never recorded has.  A file whose roster is empty
    has nothing to contradict and is taken. */
-static void vv1_parents_load(int slot, const unsigned char *records) {
+static int vv1_parents_load(int slot, const unsigned char *records) {
     char path[MAX_PATH];
     HANDLE file;
     DWORD got;
@@ -444,14 +444,22 @@ static void vv1_parents_load(int slot, const unsigned char *records) {
     static vv1_occupant roster[VV1_RECORD_COUNT];
     static vv1_parent_entry buf[VV1_RECORD_COUNT];
     int i;
-    memset(g_entries, 0, sizeof(g_entries));
-    memset(g_roster, 0, sizeof(g_roster));
+    int matched = 0;
+    /* Nothing is cleared here.  This function is an ATTEMPT: the slot-change
+       path calls it every frame while it waits for the village to appear, and
+       a failed attempt must leave the table it could not replace exactly as it
+       was.  Emptying the table is vv1_parents_reset's job, and the caller does
+       it only when it commits to a slot with no matching file. */
     if (!vv1_parents_path(path, sizeof(path), slot)) {
-        return;
+        return 0;
     }
     file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {
-        return;
+        /* No file for this slot.  Nothing matched, and the caller must still
+           wait for the array to settle before binding a table to this slot:
+           a village whose file has not been written yet looks exactly like
+           one whose villagers have not loaded yet. */
+        return 0;
     }
     if (ReadFile(file, header, sizeof(header), &got, NULL) && got == sizeof(header)
         && header[0] == VV1_PARENTS_MAGIC && header[2] == (unsigned int)slot
@@ -461,6 +469,8 @@ static void vv1_parents_load(int slot, const unsigned char *records) {
             roster[i].name[VV1_NAME_CAPACITY - 1] = '\0';
         }
         if (vv1_roster_overlap(records, roster) != 0) {
+            matched = 1;
+            memset(g_entries, 0, sizeof(g_entries));
             memcpy(g_roster, roster, sizeof(g_roster));
             memcpy(g_entries, buf, sizeof(buf));
             /* Names are printed and drawn: whatever the file holds, every
@@ -473,6 +483,13 @@ static void vv1_parents_load(int slot, const unsigned char *records) {
         }
     }
     CloseHandle(file);
+    return matched;
+}
+
+/* Empty the table: this slot holds a village we have no record of. */
+static void vv1_parents_reset(void) {
+    memset(g_entries, 0, sizeof(g_entries));
+    memset(g_roster, 0, sizeof(g_roster));
 }
 
 /* Make sure the table on hand belongs to the village on screen.  Returns
@@ -515,21 +532,36 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
         return 0;
     }
     if (slot != g_loaded_slot) {
-        /* Wait for the array before reading the file.  A slot changes at a
-           load, and at that instant the array is still the previous village's
-           or half rebuilt: loading against it would find no match, reject the
-           sidecar, and -- because the slot would nonetheless be marked loaded
-           -- never retry it, so the next birth would save a blank table over
-           a real one.  Until somebody is on screen the answer is "nothing
-           known", and nothing is loaded, saved or inferred. */
+        /* Wait for the TARGET village, not merely for somebody.  A slot
+           changes at a load, and at that instant the array still holds the
+           previous village's villagers or a half-rebuilt mixture of the two.
+           Reading the sidecar against those finds no match and rejects it --
+           and if the slot were marked loaded anyway it would never be retried
+           once the real village appeared, so the next birth would save the
+           empty table over a good file.
+
+           So the slot is marked loaded only when the file actually matches
+           the array in front of us (or there is no file, which has nothing to
+           lose).  Until then this answers "nothing known" and tries again next
+           frame.  The same strike window the same-slot path uses bounds that:
+           a genuinely new village in this slot never matches the old file, and
+           after VV1_NEW_VILLAGE_STRIKES frames it is accepted as new with an
+           empty table -- which is the correct answer for it. */
         g_have_prev = 0;          /* a different village: no delivery can be inferred yet */
-        if (!vv1_anyone_living(records)) {
-            return 0;
+        if (vv1_parents_load(slot, records)) {
+            g_loaded_slot = slot;   /* the file is this village's: it is loaded */
+            g_strikes = 0;
+            return slot;
         }
-        vv1_parents_load(slot, records);
-        g_loaded_slot = slot;
-        g_strikes = 0;
-        return slot;
+        if (++g_strikes >= VV1_NEW_VILLAGE_STRIKES) {
+            /* Long enough: this slot really does hold a village the file does
+               not describe.  Commit to it with an empty table. */
+            vv1_parents_reset();
+            g_loaded_slot = slot;
+            g_strikes = 0;
+            return slot;
+        }
+        return 0;                 /* still settling: the table is untouched */
     }
     switch (vv1_roster_overlap(records, g_roster)) {
     case 0:
@@ -537,7 +569,9 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
         if (++g_strikes < VV1_NEW_VILLAGE_STRIKES) {
             return 0;             /* unsettled: nobody touches the table */
         }
-        vv1_parents_load(slot, records);
+        if (!vv1_parents_load(slot, records)) {
+            vv1_parents_reset();  /* another village in this slot: start empty */
+        }
         g_strikes = 0;
         break;
     case 1:
