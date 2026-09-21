@@ -19,7 +19,7 @@ from typing import Any, Iterable
 
 
 TRANSPARENCY_FILENAME = "VVFP Transparency Log.txt"
-PATCHER_VERSION = "v1.35.17"
+PATCHER_VERSION = "v1.35.18"
 
 # The newest version already published as a GitHub release. PATCHER_VERSION
 # must be strictly greater than this before a build is cut, or the artifact
@@ -32,7 +32,7 @@ PATCHER_VERSION = "v1.35.17"
 # would find nothing and pass vacuously. A committed constant is the only
 # source of truth available offline, and updating it is part of cutting a
 # release.
-LAST_PUBLISHED_VERSION = "v1.35.16"
+LAST_PUBLISHED_VERSION = "v1.35.17"
 
 
 def validate_feature_transparency_metadata(features: Iterable[Any]) -> None:
