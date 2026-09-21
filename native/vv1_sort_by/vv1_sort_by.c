@@ -294,9 +294,25 @@ static int vv1_hit(int x, int y) {
        event_y = (logical_y - viewport_y) / scale
 
    so the band, which is drawn in logical 800x600 space, is hit-tested by
-   INVERTING that -- multiply by the scale and add the viewport back:
+   INVERTING that -- multiply by the scale and add the viewport back, with the
+   viewport scaled into the same space first:
 
-       logical = event * scale + viewport
+       logical = (event + viewport) * scale
+
+   SDL_RenderGetViewport reports the viewport in LOGICAL units when a logical
+   size is set, while event * scale has already moved the event toward window
+   pixels, so the origin MUST be scaled before it is added; adding it raw mixes
+   two spaces and drags X to the left (#403).  The display is pillarboxed here,
+   not letterboxed: the content fills the height, so viewport[1] is 0 and the
+   Y axis is unaffected either way -- which is why this survived the fullscreen
+   verification, whose worked example was a Y coordinate.
+
+   Measured live in the owner's maximized window (client 1707x996, IsZoomed):
+   scale 1.66, viewport (113, 0, 800, 600).  A click aimed at the Skill plate
+   arrived at raw x -19; the old form mapped it to logical 82, inside Age, and
+   the corrected form maps it to 156, inside Skill.  In fullscreen (1707x1068)
+   SDL reports scale 1.78 and viewport X 79 LOGICAL units (= 141.5 window px
+   / 1.78), Y origin 0.
 
    The band drew at logical y 496..515; a real fullscreen click came in near
    event y 283, and 283*1.78 = 504, landing back in the band.  Two earlier
@@ -345,8 +361,8 @@ static void vv1_event_to_logical(int *x, int *y) {
     if (get_viewport != NULL) {
         get_viewport(renderer, viewport);
     }
-    *x = (int)((float)*x * sx) + viewport[0];
-    *y = (int)((float)*y * sy) + viewport[1];
+    *x = (int)((float)*x * sx + (float)viewport[0] * sx);
+    *y = (int)((float)*y * sy + (float)viewport[1] * sy);
 }
 
 static int __cdecl vv1_event_watch(void *userdata, void *event) {
