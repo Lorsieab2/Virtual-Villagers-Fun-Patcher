@@ -281,8 +281,12 @@ static int vv1_hit(int x, int y) {
 }
 
 /* SDL 2.0.3 SDL_MouseButtonEvent: type +0 (0x401 = SDL_MOUSEBUTTONDOWN),
-   button +16 (1 = left), x +20, y +24 -- the same window coordinates the
-   game itself uses for its buttons. */
+   button +16 (1 = left), x +20, y +24.  SDL's renderer event watcher is
+   installed when SDL_CreateRenderer succeeds, before this companion adds its
+   watcher.  In SDL 2.0.3 that earlier watcher subtracts the renderer viewport
+   and divides by renderer->scale for mouse-button events, so the event seen
+   here is already in the 800x600 logical space.  Applying a second
+   window-to-logical transform here would double-map fullscreen clicks. */
 static int __cdecl vv1_event_watch(void *userdata, void *event) {
     const unsigned char *e = (const unsigned char *)event;
     (void)userdata;

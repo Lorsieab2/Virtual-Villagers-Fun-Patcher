@@ -66,6 +66,38 @@ class ManifestAndDllTests(unittest.TestCase):
         self.assertEqual(_define(source, "SORT_RADIO_SIZE"), 16)
         self.assertNotIn("vv1_draw_text_scaled", source, "the words are in the art; no custom text scaling (the owner)")
 
+    def test_sdl_203_renderer_watch_maps_fullscreen_events_before_our_watch(self):
+        """Pin SDL 2.0.3's event-watch order and its concrete inverse transform.
+
+        SDL_RendererEventWatch is registered by SDL_CreateRenderer before this
+        DLL installs vv1_event_watch.  It mutates button x/y in place using
+        (window - viewport) / scale, so our watcher must hit-test those already
+        logical values and must not apply the transform a second time.
+        """
+        source = SORT_C.read_text(encoding="utf-8")
+        self.assertIn("vv1_hit(*(const int *)(e + 20), *(const int *)(e + 24))", source)
+        self.assertNotIn("vv1_window_to_logical", source)
+
+        plates = ((8, 90), (95, 177), (184, 266))
+        plate_centres = tuple((left + right) // 2 for left, right in plates)
+        logical_y = (496 + 515) // 2
+
+        def sdl_203_button_point(window_x, window_y, viewport, scale):
+            return (int((window_x - viewport[0]) / scale), int((window_y - viewport[1]) / scale))
+
+        for window, viewport, scale in (
+            ((800, 600), (0, 0), 1.0),
+            ((1920, 1080), (240, 0), 2.4),
+            ((2560, 1440), (320, 0), 3.2),
+        ):
+            for mode, logical_x in enumerate(plate_centres):
+                raw = (round(viewport[0] + logical_x * scale), round(viewport[1] + logical_y * scale))
+                mapped = sdl_203_button_point(*raw, viewport, scale)
+                self.assertGreaterEqual(mapped[0], (8, 95, 184)[mode])
+                self.assertLess(mapped[0], (90, 177, 266)[mode])
+                self.assertGreaterEqual(mapped[1], 496)
+                self.assertLess(mapped[1], 515)
+
     def test_the_radio_positions_are_where_the_art_has_its_holders(self):
         # The holders painted into the band are the sheet's blank cell; the
         # code's SORT_RADIO_X/Y must land the selected cell exactly on them,
