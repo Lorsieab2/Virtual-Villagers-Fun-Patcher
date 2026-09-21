@@ -134,3 +134,63 @@ class Vv2SkillNameOrderTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+VISIBLE_AT = 5  # a bar below this does not render
+
+
+class Vv2DisassemblyLabelsAreNotEvidenceTests(unittest.TestCase):
+    """The stock dispatch's OFFSETS are real; its NAMES are an assumption.
+
+    Codex raised a P1 on #412: the five-job dispatch at 0x449DE9..0x449E09,
+    pinned in tests/test_vv2_birth_control.py, is annotated
+
+        0x449DE9  mov esi, [edi+0x7EC]   Research
+        0x449DF1  mov esi, [edi+0x7E4]   Farming
+        0x449DF9  mov esi, [edi+0x7F0]   Healing
+        0x449E01  mov esi, [edi+0x7E8]   Building
+        0x449E09  mov esi, [edi+0x7F4]   Parenting
+
+    which would make the storage order Farming, Building, Research, Healing,
+    Parenting -- the Details-screen order, contradicting this table.
+
+    The offsets are the executable's own and are not in question. The NAMES
+    beside them are a human annotation written from the screen order, which is
+    the very assumption this bug is about, and the owner's running game
+    settles it against them:
+
+        Dodo [0, 0, 93, 0, 100] shows exactly two filled bars, Farming and
+        Research, with RESEARCH at 100. Under the annotation the lit bars
+        would be Research (93) and Parenting (100) -- Parenting would show a
+        full bar. It is empty on screen.
+
+    Runtime behaviour outranks a comment. This test records the contradiction
+    so the annotation cannot be cited again without this evidence.
+    """
+
+    DISPATCH_ANNOTATION = ("Farming", "Building", "Research", "Healing", "Parenting")
+    DODO = [0, 0, 93, 0, 100]
+    DODO_LIT = {"Farming", "Research"}
+    DODO_AT_100 = "Research"
+
+    def test_the_annotation_contradicts_the_running_game(self):
+        lit = {
+            self.DISPATCH_ANNOTATION[i]
+            for i, v in enumerate(self.DODO)
+            if v >= VISIBLE_AT
+        }
+        self.assertNotEqual(
+            lit,
+            self.DODO_LIT,
+            "if the dispatch annotation matched the game, this PR would be wrong",
+        )
+
+    def test_the_measured_order_reproduces_the_running_game(self):
+        names = c_string_list(POP_C.read_text(encoding="utf-8"), "SKILL_NAMES_VV2")
+        lit = {names[i] for i, v in enumerate(self.DODO) if v >= VISIBLE_AT}
+        self.assertEqual(lit, self.DODO_LIT)
+
+    def test_the_skill_at_one_hundred_is_the_one_the_owner_named(self):
+        names = c_string_list(POP_C.read_text(encoding="utf-8"), "SKILL_NAMES_VV2")
+        hundred = [names[i] for i, v in enumerate(self.DODO) if v == 100]
+        self.assertEqual(hundred, [self.DODO_AT_100])
