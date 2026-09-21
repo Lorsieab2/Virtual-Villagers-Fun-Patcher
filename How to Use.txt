@@ -396,7 +396,7 @@ In the stock game a child who plays in the dirt walks to a strip of ground
 that runs from the rainbow totem's side down across the river, so the child
 wanders through the water and ends up on the bank behind the research
 shelves. This patch makes it the flower patch east of the dirt path (the
-worn ground with the flowers, west of the flower rock; about 477 by 169, and
+worn ground with the flowers, west of the flower rock; about 305 by 205, and
 the child takes six random steps inside it). The game's own routine is
 recoded in its own bytes (no space is added);
 the action, its text, its sound and its length are as before. Nothing is

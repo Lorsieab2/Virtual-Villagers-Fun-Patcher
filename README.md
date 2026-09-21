@@ -331,7 +331,7 @@ Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen
 
 **Move the "Playing in the dirt" Spot**
 
-Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path, the worn ground with the flowers west of the flower rock (about 477 by 169, six random steps inside it). The routine's own bytes are recoded in place; the action, its text, its sound and its length are unchanged.
+Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path, the worn ground with the flowers west of the flower rock (about 305 by 205, six random steps inside it). The routine's own bytes are recoded in place; the action, its text, its sound and its length are unchanged.
 
 - Patch ID: `vv5_playing_in_the_dirt_spot`
 
