@@ -410,9 +410,18 @@ static const char *const SKILL_NAMES_VV2[MAX_SKILLS] = {
     "(skill 7)", "(skill 8)"
 };
 
+/* VV3 -- The Secret City.  Storage order, measured:
+     Vinapu names Farming, Yasawa names Building and Parenting, Dino
+     names Healing, Totolo names Research. */
+static const char *const SKILL_NAMES_VV3[MAX_SKILLS] = {
+    "Farming", "Parenting", "Healing", "Research", "Building", "(skill 6)",
+    "(skill 7)", "(skill 8)"
+};
+
 static const char *const *skill_names_for(int game_id) {
     if (game_id == GAME_VV1) { return SKILL_NAMES_VV1; }
     if (game_id == GAME_VV2) { return SKILL_NAMES_VV2; }
+    if (game_id == GAME_VV3) { return SKILL_NAMES_VV3; }
     return SKILL_NAMES_UNVERIFIED;
 }
 
