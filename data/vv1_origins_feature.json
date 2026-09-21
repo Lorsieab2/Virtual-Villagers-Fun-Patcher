@@ -285,22 +285,64 @@
       "purpose": "splice sub_43C350 immediately after its selected-record boundary begins; the cave replays mov [esi+0x28],1 and mov [esi+0x29],0 before clearing the corresponding patch-owned mask nibble"
     },
     {
-      "offset": "0x8E440",
+      "offset": "0x8E438",
       "before": "0000000000000000",
       "after": "567631426F726E00",
       "purpose": "read-only Vv1Born export name for the exact birth hook (Show Parents in Details Screen)"
     },
     {
-      "offset": "0x8E450",
-      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "60A10812490083F801743885C0752468995D4800FF151070450085C0741B684004490050FF15D470450085C0740BA3081249005556FFD0EB0AC705081249000100000061E8D78FFAFFE9AFC5FAFF",
-      "purpose": "hand each newborn (ESI, already named) and its mother (EBP) to the Origins companion's Vv1Born under pushad/popad, then replay the displaced call sub_439470 and resume at 0x43CA4D; the Origins companion forwards to the parentage companion, so parents are recorded inside the game's own birth routine -- during load-time catch-up too"
+      "offset": "0x8E440",
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "60A10812490083F801744E85C0752468995D4800FF151070450085C07431683804490050FF15D470450085C07421A3081249008B5424048B52048B4C241C69C9D803000001D10314245251FFD0EB0AC705081249000100000061C3",
+      "purpose": "the shared body of the exact birth hook, called from each site stub right after sub_43C350 or sub_43C840 returned the new child's index in EAX: under pushad/popad it resolves the Origins companion's Vv1Born once (0 untried / 1 unavailable at scratch +0x208) and hands it the child's record ([ESI+4] + EAX*0x3D8) and the mother's ([ESI+4] + EDI), all three read from the pushad frame, then returns with every register as the stock call left it"
     },
     {
-      "offset": "0x3CA48",
-      "before": "E823CAFFFF",
-      "after": "E9033A0500",
-      "purpose": "splice sub_43C840's call sub_439470 at 0x43CA48 (five bytes, single fall-through predecessor, resume 0x43CA4D = splice + 5) through the exact birth hook"
+      "offset": "0x8E570",
+      "before": "0000000000000000000000000000000000",
+      "after": "E8CBFEFFFF8B0E8B5E048BE8E9EAE9F9FF",
+      "purpose": "site stub of the exact birth hook for after call sub_43C350 at 0x42EF5F (the golden-child mother's extra child): mov ecx,[esi] / mov ebx,[esi+4] / mov ebp,eax: call the shared body, replay the seven displaced bytes, resume at 0x42ef6b = splice + 7"
+    },
+    {
+      "offset": "0x2EF64",
+      "before": "8B0E8B5E048BE8",
+      "after": "E9071606009090",
+      "purpose": "splice the pregnancy tick sub_42E900 after call sub_43C350 at 0x42EF5F (the golden-child mother's extra child): mov ecx,[esi] / mov ebx,[esi+4] / mov ebp,eax (seven bytes, reached only with the child just created: EAX = its index, ESI = the village object, EDI = the mother's byte offset) through the exact birth hook, so every child -- live, load-time catch-up or Time Warp, single or twin -- is handed to Vv1Born with its mother"
+    },
+    {
+      "offset": "0x8E581",
+      "before": "0000000000000000000000000000000000",
+      "after": "E8BAFEFFFF8B0E8B6E048BD8E94AEAF9FF",
+      "purpose": "site stub of the exact birth hook for after call sub_43C350 at 0x42EFD0 (the first child of every birth): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax: call the shared body, replay the seven displaced bytes, resume at 0x42efdc = splice + 7"
+    },
+    {
+      "offset": "0x2EFD5",
+      "before": "8B0E8B6E048BD8",
+      "after": "E9A71506009090",
+      "purpose": "splice the pregnancy tick sub_42E900 after call sub_43C350 at 0x42EFD0 (the first child of every birth): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax (seven bytes, reached only with the child just created: EAX = its index, ESI = the village object, EDI = the mother's byte offset) through the exact birth hook, so every child -- live, load-time catch-up or Time Warp, single or twin -- is handed to Vv1Born with its mother"
+    },
+    {
+      "offset": "0x8E592",
+      "before": "0000000000000000000000000000000000",
+      "after": "E8A9FEFFFF8B0E8B6E048BD8E98AEAF9FF",
+      "purpose": "site stub of the exact birth hook for after call sub_43C840 at 0x42F021 (the twin): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax: call the shared body, replay the seven displaced bytes, resume at 0x42f02d = splice + 7"
+    },
+    {
+      "offset": "0x2F026",
+      "before": "8B0E8B6E048BD8",
+      "after": "E9671506009090",
+      "purpose": "splice the pregnancy tick sub_42E900 after call sub_43C840 at 0x42F021 (the twin): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax (seven bytes, reached only with the child just created: EAX = its index, ESI = the village object, EDI = the mother's byte offset) through the exact birth hook, so every child -- live, load-time catch-up or Time Warp, single or twin -- is handed to Vv1Born with its mother"
+    },
+    {
+      "offset": "0x8E5A3",
+      "before": "0000000000000000000000000000000000",
+      "after": "E898FEFFFF8B0E8B6E048BD8E9C5EAF9FF",
+      "purpose": "site stub of the exact birth hook for after call sub_43C840 at 0x42F06D (the triplet): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax: call the shared body, replay the seven displaced bytes, resume at 0x42f079 = splice + 7"
+    },
+    {
+      "offset": "0x2F072",
+      "before": "8B0E8B6E048BD8",
+      "after": "E92C1506009090",
+      "purpose": "splice the pregnancy tick sub_42E900 after call sub_43C840 at 0x42F06D (the triplet): mov ecx,[esi] / mov ebp,[esi+4] / mov ebx,eax (seven bytes, reached only with the child just created: EAX = its index, ESI = the village object, EDI = the mother's byte offset) through the exact birth hook, so every child -- live, load-time catch-up or Time Warp, single or twin -- is handed to Vv1Born with its mother"
     },
     {
       "offset": "0x8E560",

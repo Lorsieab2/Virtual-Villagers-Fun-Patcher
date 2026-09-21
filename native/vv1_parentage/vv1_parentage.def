@@ -14,3 +14,7 @@ EXPORTS
     Vv1ParentageProbeNames=_Vv1ParentageProbeNames@16
     Vv1ParentageProbeBirths=_Vv1ParentageProbeBirths@8
     Vv1ParentageProbeLayout=_Vv1ParentageProbeLayout@12
+    Vv1ParentageProbeRoster=_Vv1ParentageProbeRoster@8
+    Vv1ParentageProbeOverlap=_Vv1ParentageProbeOverlap@8
+    Vv1ParentageProbeSync=_Vv1ParentageProbeSync@8
+    Vv1ParentageProbeBind=_Vv1ParentageProbeBind@4

@@ -255,8 +255,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # helper, and the already-repaired section metadata rows.
                     repaired_offsets = {
                         # The exact birth hook (Show Parents in Details Screen):
-                        # the splice at 0x43CA48, its stub and its export name.
+                        # four splices after the pregnancy tick's child-creation
+                        # calls, their site stubs, the shared body and the export
+                        # name; 0x3CA48/0x8E450 because the fix removes the old
+                        # sub_43C840 splice.
                         "0x3CA48", "0x8E440", "0x8E450",
+                        "0x2EF64", "0x2EFD5", "0x2F026", "0x2F072",
+                        "0x8E438", "0x8E570", "0x8E581", "0x8E592", "0x8E5A3",
                         # The Details-arrow sort hook: both splices, stubs, name.
                         "0x4A7FF", "0x4A8B4", "0x8E4A0", "0x8E500", "0x8E560",
                     # Island Event queue delay + its duplicate-purchase guard.  The

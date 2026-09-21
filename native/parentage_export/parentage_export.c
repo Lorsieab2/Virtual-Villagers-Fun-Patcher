@@ -1168,6 +1168,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
        "not recorded by this game" plus its terminator. */
     char father_head[32];
     char father_body[32];
+    char father_age[32];
     int written;
     int existing_records;
 
@@ -1398,14 +1399,14 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
          here would be a false statement about the game rather than about this
          particular birth.
 
-       His AGE is deliberately not among the printed fields. The owner asked to
-       "only record the age of the mother since that's what determines child
-       age", so it is omitted rather than repaired. It was also the only field
-       that still depended on the by-name scan for its value: no game copies
-       the father's age onto the mother, so an age could only ever come from
-       finding his live record, which fails exactly in the two cases above.
-       Head and body come from the mother's copies below and need no such
-       lookup. */
+       His AGE prints too, at the owner's later request ("capture the father's
+       ages too upon conception").  It is the one field with no copy on the
+       mother, so it comes only from the captured record -- read at the
+       conception hook, the moment it is reliably his, before he can die or be
+       renamed.  When no record was captured it says so rather than falling
+       back to a by-name scan (the fragile lookup the owner had this field
+       removed over the first time).  Head and body still come from the
+       mother's copies below. */
     if (father != NULL) {
         _snprintf(father_head, sizeof(father_head), "%d",
                   *(const int *)(father + g->head));
@@ -1424,6 +1425,25 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     } else {
         memcpy(father_head, "(record not found)", 19);
         memcpy(father_body, "(record not found)", 19);
+    }
+
+    /* His age comes from the CAPTURED record only -- the pointer the
+       conception hook handed over, read at the one moment it is reliably his:
+       he cannot yet have died or been renamed.  No game copies it onto the
+       mother, so there is no second source, and the by-name scan above is
+       deliberately not one: a hook that supplies no pointer (VV2's batch and
+       event callers) would otherwise log whichever living villager happens to
+       answer to the stored name -- the "somebody who merely has the same
+       name" the owner ruled out.  So the age is either his or honestly
+       absent, never a scanned villager's. */
+    if (father_from_caller != NULL) {
+        _snprintf(father_age, sizeof(father_age), "%d",
+                  *(const int *)(father_from_caller + g->age));
+        father_age[sizeof(father_age) - 1] = '\0';
+    } else if (g->father_kind == FATHER_NOT_RECORDED) {
+        memcpy(father_age, "not recorded by this game", 26);
+    } else {
+        memcpy(father_age, "(not captured for this birth)", 30);
     }
 
     /* Where the game copied the father's traits onto the mother at conception,
@@ -1454,6 +1474,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "    Head: %d\n"
         "    Body: %d\n"
         "  Father: %s\n"
+        "    Age at conception: %s\n"
         "    Head: %s\n"
         "    Body: %s\n"
         "  Babies in pregnancy: %d\n"
@@ -1464,6 +1485,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         *(const int *)(mother + g->head),
         *(const int *)(mother + g->body),
         father_name,
+        father_age,
         father_head,
         father_body,
         babies

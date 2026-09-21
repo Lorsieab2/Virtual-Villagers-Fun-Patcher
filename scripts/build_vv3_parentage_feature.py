@@ -184,7 +184,7 @@ GET_MODULE_HANDLE_IAT = 0x0047C074
 GET_PROC_ADDRESS_IAT = 0x0047C128
 
 DLL_NAME = b"VVFP Parentage Export.dll\0"
-EXPORT_NAME = b"WriteParentageRecord\0"
+EXPORT_NAME = b"WriteParentageRecordWithFather\0"
 
 # The trampoline assembles to 0x48 bytes, so the strings start at 0x50 with
 # headroom. The size check below is what enforces this -- it caught an
@@ -255,12 +255,15 @@ def _build_page(base_va: int = PAGE_VA) -> bytes:
             call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
             test eax, eax
             jz done
-            # WriteParentageRecord(game_id, records, mother). stdcall, so the
-            # callee cleans its own twelve bytes. Pushed right to left, and the
-            # mother comes from the pushad frame; the array base is a constant
-            # because VV3 reaches records through a global rather than passing
-            # one to the conception routine.
-            push dword ptr [esp + 0x04]
+            # At the hook ESI is the mother's record and EDI is the father's
+            # record from both normal conception callers. pushad saves EDI at
+            # +0 and ESI at +4. Pushed right to left: the father (EDI) first,
+            # which drops ESP by 4, so the mother (saved ESI) is then at +0x08,
+            # NOT +0x04 -- reading +0x04 there would re-push the father and log
+            # him as the mother. VV1's trampoline reads its shifted slot the
+            # same way.
+            push dword ptr [esp + 0x00]
+            push dword ptr [esp + 0x08]
             push 0x{RECORD_ARRAY_VA:X}
             push {GAME_ID}
             call eax
@@ -421,7 +424,7 @@ def build() -> dict:
                 "output_tag": "Parentage Log Text Export",
                 "description": (
                     "Records both parents at conception in a plain text log: "
-                    "their names, the mother's age at conception, both head "
+                    "their names, both parents' ages at conception, both head "
                     "and body values, and the number of babies, appended to "
                     "'Virtual Villagers 3 Parentage Log N.txt' beside the game "
                     "executable. Parentage is not stored in any villager "
@@ -431,11 +434,19 @@ def build() -> dict:
                     "id. His HEAD and BODY are copied onto her at conception, "
                     "so the log reads them from her record and they are "
                     "correct even after he dies or another villager takes his "
-                    "name. His AGE is not recorded: no game copies it onto "
-                    "her, and the child's age derives from the mother's, so "
-                    "the log carries hers alone. Rolls to a new numbered "
-                    "file every 256 records."
+                    "name. His AGE, which has no copy on her, is read from his "
+                    "own record at conception -- the conception routine still "
+                    "holds it in EDI -- so a normal birth records his real "
+                    "age. Rolls to a new numbered file every 256 records."
                 ),
+                "needs_on": [
+                    {
+                        "id": "vv3_write_village_statistics",
+                        "for": (
+                            "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)"
+                        ),
+                    },
+                ],
                 "companion_files": [
                     {
                         "source": "assets/parentage/VVFP Parentage Export.dll",

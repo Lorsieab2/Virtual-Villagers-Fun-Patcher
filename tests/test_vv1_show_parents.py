@@ -196,30 +196,86 @@ class StockExecutableFactsTests(unittest.TestCase):
         self.assertLess(_define(parentage, "VV1_MOTHER_BODY_COL"), 32)
 
     def test_the_exact_birth_hook_is_in_the_origins_patch(self):
-        """sub_43C840's call sub_439470 at 0x43CA48 is spliced to a stub that hands
-        the named child (ESI) and the mother (EBP) to Origins' Vv1Born."""
-        self.assertEqual(self.at(0x43CA48, 5), bytes.fromhex("E823CAFFFF"))
-        # ...and nothing between the name write and the splice touches ESI or EBP
-        self.assertEqual(self.at(0x43CA3B, 13), bytes.fromhex("8B5424188 3C408528BCF895E20".replace(" ", "")))
+        """The pregnancy tick sub_42E900 creates every child through four calls
+        (sub_43C350 for a first child, sub_43C840 for a twin); the seven bytes
+        after each call are spliced to a stub that hands the child (EAX = its
+        index) and the mother (EDI = her byte offset into [ESI+4]) to Origins'
+        Vv1Born, replays them and resumes at splice + 7.  The old hook inside
+        sub_43C840 (0x43CA48) saw only twins, and took the sibling for the
+        mother: a Time Warp birth showed no parents."""
+        try:
+            import capstone  # noqa: PLC0415
+        except ImportError:
+            self.skipTest("capstone not installed")
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+
+        def decode(va, n):
+            return [f"{i.mnemonic} {i.op_str}".strip() for i in md.disasm(self.at(va, n), va)]
+
+        sites = (
+            # (splice, displaced bytes, the creation routine, its call)
+            (0x42EF64, "8B0E8B5E048BE8", 0x43C350, 0x42EF5F),   # the golden-child mother's extra child
+            (0x42EFD5, "8B0E8B6E048BD8", 0x43C350, 0x42EFD0),   # the first child of every birth
+            (0x42F026, "8B0E8B6E048BD8", 0x43C840, 0x42F021),   # the twin
+            (0x42F072, "8B0E8B6E048BD8", 0x43C840, 0x42F06D),   # the triplet
+        )
+        for site, displaced, routine, call_at in sites:
+            self.assertEqual(self.at(call_at, 5), b"\xE8" + (routine - (call_at + 5)).to_bytes(4, "little", signed=True))
+            self.assertEqual(call_at + 5, site, "the splice is the instruction after the call")
+            self.assertEqual(self.at(site, 7), bytes.fromhex(displaced))
+            self.assertEqual(decode(site, 7)[0], "mov ecx, dword ptr [esi]")
+        # both routines return the new record's index in EAX and pop their own arguments
+        self.assertEqual(decode(0x43C813, 2), ["mov eax, edi"])
+        self.assertEqual(decode(0x43C81C, 3), ["ret 0x14"])
+        self.assertEqual(decode(0x43CAED, 3), ["ret 4"])
+        # the mother is the record the tick loops over: EDI steps by a record,
+        # [ESI+4] is the array, her due field is read before the calls and
+        # cleared only after the last one
+        self.assertEqual(decode(0x42EBA3, 6), ["add edi, 0x3d8"])
+        self.assertEqual(decode(0x42EF15, 10), ["mov ecx, dword ptr [esi + 4]", "mov eax, dword ptr [edi + ecx + 0x358]"])
+        self.assertEqual(decode(0x42F0B2, 7), ["mov dword ptr [edi + ecx + 0x358], eax"])
+        # sub_43C840 copies its looks from the SIBLING it is passed, not a mother
+        self.assertEqual(decode(0x43C8B0, 4), ["mov edx, dword ptr [esp + 0x3c]"])
+        self.assertEqual(decode(0x43C988, 3), ["lea ebp, [edx + edi]"])
+
         origins = json.loads((ROOT / "data" / "vv1_origins_feature.json").read_text(encoding="utf-8"))
-        splice = [p for p in origins["patches"] if int(p["offset"], 16) == 0x3CA48]
-        self.assertEqual(len(splice), 1, "the birth splice")
-        self.assertEqual(splice[0]["before"].upper(), "E823CAFFFF")
-        self.assertEqual(splice[0]["after"][:2].upper(), "E9")
-        stub = [p for p in origins["patches"] if int(p["offset"], 16) == 0x8E450]
-        self.assertEqual(len(stub), 1, "the birth stub in .vv1mc")
-        stub_bytes = bytes.fromhex(stub[0]["after"])
-        self.assertEqual(stub_bytes[0], 0x60, "pushad first")
-        self.assertIn(b"\x55\x56\xFF\xD0", stub_bytes, "push ebp; push esi; call eax")
-        # .vv1mc maps file 0x8E000 to VA 0x490000, so the stub is at 0x490450; after
-        # popad (0x61) come the displaced call sub_439470 and jmp 0x43CA4D
-        tail = stub_bytes.index(b"\x61\xE8")
-        call_end = 0x490450 + tail + 1 + 5
-        self.assertEqual(stub_bytes[tail + 1:tail + 6], b"\xE8" + (0x439470 - call_end).to_bytes(4, "little", signed=True))
-        self.assertEqual(stub_bytes[tail + 6:tail + 11], b"\xE9" + (0x43CA4D - (call_end + 5)).to_bytes(4, "little", signed=True))
-        self.assertEqual(len(stub_bytes), tail + 11, "nothing after the resume jump")
-        name = [p for p in origins["patches"] if int(p["offset"], 16) == 0x8E440]
-        self.assertEqual(bytes.fromhex(name[0]["after"]), b"Vv1Born\0")
+        by_offset = {int(p["offset"], 16): p for p in origins["patches"]}
+        self.assertNotIn(0x3CA48, by_offset, "the old sub_43C840 hook is gone")
+        self.assertNotIn(0x8E450, by_offset)
+        # the shared body at .vv1mc 0x440 (VA 0x490440)
+        body = bytes.fromhex(by_offset[0x8E440]["after"])
+        self.assertEqual(bytes.fromhex(by_offset[0x8E440]["before"]), b"\0" * len(body))
+        self.assertLessEqual(len(body), 0x60)
+        text = [f"{i.mnemonic} {i.op_str}".strip() for i in md.disasm(body, 0x490440)]
+        self.assertEqual(text[0], "pushal")
+        self.assertEqual(text[-2:], ["popal", "ret"])
+        for needed in (
+            "mov edx, dword ptr [esp + 4]",       # pushad frame ESI: the village object
+            "mov edx, dword ptr [edx + 4]",       # its record array
+            "mov ecx, dword ptr [esp + 0x1c]",    # pushad frame EAX: the child's index
+            "imul ecx, ecx, 0x3d8",
+            "add ecx, edx",                       # the child's record
+            "add edx, dword ptr [esp]",           # pushad frame EDI: the mother's record
+            "push edx", "push ecx", "call eax",   # Vv1Born(child, mother)
+            "mov dword ptr [0x491208], 1",        # fail-open sentinel
+        ):
+            self.assertIn(needed, text)
+        self.assertNotIn("push esi", text)
+        self.assertNotIn("push edi", text)
+        # the four site stubs, packed at 0x570/0x581/0x592/0x5A3, and their splices
+        for (site, displaced, _routine, _call), stub_off in zip(sites, (0x8E570, 0x8E581, 0x8E592, 0x8E5A3)):
+            stub_va = 0x490000 + stub_off - 0x8E000
+            splice = by_offset[site - 0x400000]
+            self.assertEqual(splice["before"].upper(), displaced)
+            self.assertEqual(bytes.fromhex(splice["after"]),
+                             b"\xE9" + (stub_va - (site + 5)).to_bytes(4, "little", signed=True) + b"\x90\x90")
+            stub = bytes.fromhex(by_offset[stub_off]["after"])
+            self.assertEqual(len(stub), 17)
+            self.assertEqual(stub[:5], b"\xE8" + (0x490440 - (stub_va + 5)).to_bytes(4, "little", signed=True), "call the shared body")
+            self.assertEqual(stub[5:12], bytes.fromhex(displaced), "replay the displaced bytes")
+            self.assertEqual(stub[12:], b"\xE9" + ((site + 7) - (stub_va + 17)).to_bytes(4, "little", signed=True), "resume at splice + 7")
+        self.assertLessEqual(0x8E5A3 + 17, 0x8E5C0, "inside the measured-free gap")
+        self.assertEqual(bytes.fromhex(by_offset[0x8E438]["after"]), b"Vv1Born\0")
         origins_def = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.def").read_text(encoding="utf-8")
         self.assertIn("Vv1Born=_Vv1Born@8", origins_def)
         origins_dll = pefile.PE(str(ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll"))
@@ -227,6 +283,41 @@ class StockExecutableFactsTests(unittest.TestCase):
         parentage = PARENTAGE_C.read_text(encoding="utf-8")
         self.assertIn("__stdcall Vv1ParentageBorn(", parentage)
         self.assertIn('GetProcAddress(companion, "Vv1ParentageBorn")', ORIGINS_C.read_text(encoding="utf-8"))
+
+    def test_the_fallback_pairs_by_the_conception_scalar_not_by_looks(self):
+        """A first child gets random looks and its mother's +0x390 in +0x36C
+        (sub_43C350: `mov edi,[esp+0x4c]` ... `mov [esi+0x36c], edi`), so the
+        frame-inference fallback must not look for a look-alike."""
+        try:
+            import capstone  # noqa: PLC0415
+        except ImportError:
+            self.skipTest("capstone not installed")
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+
+        def decode(va, n):
+            return [f"{i.mnemonic} {i.op_str}".strip() for i in md.disasm(self.at(va, n), va)]
+
+        # the pregnancy tick pushes the mother's +0x390 as the third argument...
+        self.assertEqual(decode(0x42EFB5, 14), ["mov eax, dword ptr [edi + ecx + 0x390]", "mov edx, dword ptr [edi + ecx + 0x38c]"])
+        self.assertEqual(decode(0x42EFC3, 4), ["push 0x28", "push ebx", "push eax"])
+        # ...which sub_43C350 stores into the child's +0x36C unless it is -1
+        self.assertEqual(decode(0x43C63E, 4), ["mov edi, dword ptr [esp + 0x4c]"])
+        self.assertEqual(decode(0x43C652, 5), ["cmp edi, -1", "jne 0x43c671"])
+        self.assertEqual(decode(0x43C67B, 6), ["mov dword ptr [esi + 0x36c], edi"])
+        # the child's head and body are rolled, and its age is the 40 units pushed as the last argument
+        self.assertEqual(decode(0x43C61F, 7), ["push 0x13", "call 0x402f10"])
+        self.assertEqual(decode(0x43C705, 4), ["mov eax, dword ptr [esp + 0x54]"])
+        self.assertEqual(decode(0x43C73C, 6), ["mov dword ptr [esi + 0x348], eax"])
+        # conception stores that scalar against the mother at +0x390
+        self.assertEqual(decode(0x43BC10, 6), ["mov dword ptr [esi + 0x390], ecx"])
+        parentage = PARENTAGE_C.read_text(encoding="utf-8")
+        self.assertEqual(_define(parentage, "VV1_LEGACY_OFFSET"), 0x390)
+        self.assertEqual(_define(parentage, "VV1_NEWBORN_YEARS"), 3)
+        self.assertIn("legacy != -1 && legacy == variant", parentage)
+        self.assertNotIn("VV1_HEAD_OFFSET) == head", parentage)
+        harness = HARNESS_C.read_text(encoding="utf-8")
+        self.assertEqual(_define(harness, "LEGACY"), 0x390)
+        self.assertIn("*(int *)(rec(child) + VARIANT) = *(int *)(rec(mother) + LEGACY);", harness)
 
     def test_the_mouse_comes_from_the_games_own_sdl(self):
         pe = pefile.PE(str(STOCK))

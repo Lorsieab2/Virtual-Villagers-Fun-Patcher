@@ -773,19 +773,19 @@ def build() -> dict:
                 "output_tag": "Parentage Log Text Export",
                 "description": (
                     "On each new pregnancy, appends both parents' names, "
-                    "the mother's age at conception, both head and body "
+                    "both parents' ages at conception, both head and body "
                     "values, and the number of babies to 'Virtual "
                     "Villagers 1 Parentage Log N.txt' beside the game "
-                    "executable. Only the mother's age is recorded, "
-                    "because the child's age derives from hers. VV1 "
+                    "executable. The mother's age determines the child's "
+                    "age, and the father's age is recorded too. VV1 "
                     "stores nothing about the father in the mother's "
                     "record -- not his name, and no id that could find "
-                    "him -- so his details are captured from his own "
-                    "record at the six conception call sites, where the "
-                    "game holds it briefly and reads only one field of "
-                    "it. A birth that reaches delivery without such a "
-                    "capture reports the father as not captured for that "
-                    "birth, rather than naming the wrong villager. "
+                    "him -- so his details, his age included, are "
+                    "captured from his own record at the six conception "
+                    "call sites, where the game holds it briefly. A birth "
+                    "that reaches delivery without such a capture reports "
+                    "the father as not captured for that birth, rather "
+                    "than naming the wrong villager. "
                     "Parentage is not stored in any villager record, so "
                     "both parents are captured at conception; they cannot "
                     "be recovered from the child afterwards. Rolls to a "
@@ -794,6 +794,12 @@ def build() -> dict:
                 # The "Birth" records come from Show Parents' companion, which
                 # sees every birth; conceptions are logged without it.
                 "needs_on": [
+                    {
+                        "id": "vv1_write_village_statistics",
+                        "for": (
+                            "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)"
+                        ),
+                    },
                     {
                         "id": "vv1_show_parents",
                         "for": "the \"Birth\" records (conceptions are logged without it)",

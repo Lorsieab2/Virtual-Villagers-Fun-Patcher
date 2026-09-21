@@ -289,11 +289,16 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 continue
             repaired_offsets = {
                 "data/vv1_origins_feature.json": {
-                    # The exact birth hook (Show Parents in Details Screen): the
-                    # splice over sub_43C840's call sub_439470 at 0x43CA48, its
-                    # stub and the "Vv1Born" export name in the measured-free
-                    # 0x435..0x5C0 gap of the patch-owned .vv1mc section.
+                    # The exact birth hook (Show Parents in Details Screen): now
+                    # four splices after the pregnancy tick's child-creation
+                    # calls, their site stubs, the shared body and the "Vv1Born"
+                    # export name in the measured-free 0x435..0x5C0 gap of the
+                    # patch-owned .vv1mc section.  0x3CA48/0x8E450 are listed
+                    # because the fix REMOVES them: the old sub_43C840 splice
+                    # saw only twins and took the sibling for the mother.
                     "0x3CA48", "0x8E440", "0x8E450",
+                    "0x2EF64", "0x2EFD5", "0x2F026", "0x2F072",
+                    "0x8E438", "0x8E570", "0x8E581", "0x8E592", "0x8E5A3",
                     # The Details-arrow sort hook (Sort by Age/Skill/Health in
                     # Details Screen): both arrow splices, their stubs and the
                     # "Vv1SortStep" export name in the same gap.
