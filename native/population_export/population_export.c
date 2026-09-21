@@ -375,41 +375,45 @@ static const struct game_layout GAME_LAYOUTS[6] = {
     }
 };
 
-/* The skill names, in the order EACH GAME STORES THEM.
+/* The skill names, per game, in the order EACH GAME STORES THEM.
 
-   This is per-game on purpose.  A game's Details screen lists the skills in
-   one order and the record may store them in another, and the two are not
-   the same in VV1: its screen reads Farming, Building, Research, Healing,
-   Breeding while the record holds Breeding, Building, Farming, Healing,
-   Research.  Labelling the array in screen order therefore named the wrong
-   skill in three slots out of five.
+   A game's Details screen lists the skills in one order and the record
+   stores them in another, and the orders differ BETWEEN games too, so one
+   game's answer must never be assumed for another.  VV1 and VV2 hold
+   Building at index 1; VV3, VV4 and VV5 hold it at index 4.
 
-   Building and Healing sit at the symmetric middle positions and so happened
-   to be right either way, which is exactly why this was not obvious: two of
-   every five numbers were correctly labelled and the rest looked plausible.
-
-   VV1's order is measured against the running game.  Yepa, a child with a
-   single non-zero skill, holds it at index 4 and her Details screen shows
-   Research.  Rongo's five values are all distinct (29, 39, 50, 59, 78) and
-   his bars rank shortest to longest Breeding, Building, Farming, Healing,
-   Research, which fixes every slot.
-
-   VV2-VV5 are UNVERIFIED and keep the names they have always had.  They must
-   be checked against their own games the same way before they are trusted;
-   assuming VV1's order carries over is the mistake that produced this bug. */
+   Every order below is measured against the owner's running game, each
+   slot named by a villager whose own Details screen showed that bar.  The
+   table immediately below is the original, kept for any game not yet
+   checked against its own screen. */
 static const char *const SKILL_NAMES_UNVERIFIED[MAX_SKILLS] = {
     "Farming", "Building", "Research", "Healing", "Breeding", "Parenting",
     "(skill 7)", "(skill 8)"
 };
 
-/* VV1 -- A New Home.  Storage order, measured; see above. */
+/* VV1 -- A New Home.  Storage order, measured:
+     Yepa, a child with one non-zero skill, holds it at index 4 and her
+     screen shows Research; Rongo's five distinct values (29, 39, 50, 59,
+     78) rank shortest to longest Breeding, Building, Farming, Healing,
+     Research. */
 static const char *const SKILL_NAMES_VV1[MAX_SKILLS] = {
     "Breeding", "Building", "Farming", "Healing", "Research", "(skill 6)",
     "(skill 7)", "(skill 8)"
 };
 
+/* VV2 -- The Lost Children.  Storage order, measured:
+     Jade [61, 0, 0, 100, 0] names Parenting and Healing; Buru
+     [0, 91, 0, 0, 0] names Building; Dodo [0, 0, 93, 0, 100] names Farming
+     and Research; Tatau [0, 0, 0, 46, 0] names Healing. */
+static const char *const SKILL_NAMES_VV2[MAX_SKILLS] = {
+    "Parenting", "Building", "Farming", "Healing", "Research", "(skill 6)",
+    "(skill 7)", "(skill 8)"
+};
+
 static const char *const *skill_names_for(int game_id) {
-    return game_id == GAME_VV1 ? SKILL_NAMES_VV1 : SKILL_NAMES_UNVERIFIED;
+    if (game_id == GAME_VV1) { return SKILL_NAMES_VV1; }
+    if (game_id == GAME_VV2) { return SKILL_NAMES_VV2; }
+    return SKILL_NAMES_UNVERIFIED;
 }
 
 /* Reject a layout whose geometry is not self-consistent.

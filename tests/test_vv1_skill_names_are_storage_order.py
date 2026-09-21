@@ -118,7 +118,7 @@ class Vv1SkillNameOrderTests(unittest.TestCase):
         self.assertEqual(tuple(names[:5]), VV1_DISPLAY_ORDER)
 
     def test_only_vv1_uses_the_corrected_table(self):
-        self.assertIn("game_id == GAME_VV1 ? SKILL_NAMES_VV1", self.pop)
+        self.assertIn("if (game_id == GAME_VV1) { return SKILL_NAMES_VV1; }", self.pop)
 
     def test_the_log_prints_the_per_game_table(self):
         self.assertIn("skill_names_for(game_id)[skill]", self.pop)
