@@ -37,9 +37,12 @@
    an ease-out that settles in well under a second.  The owner asked for the
    same feel, so a key press only sets a TARGET, and Vv1NumberKeysTick --
    which the Origins companion calls once per frame -- moves the pair a tenth
-   of the way each call (never less than one unit) until it lands.  If the
-   scroll is found somewhere other than where the last tick left it, the
-   player is scrolling by hand and the glide is cancelled rather than fought.
+   of the way each call (never less than one unit) until it lands.  The glide
+   keeps going even when something else moves the scroll underneath it: the
+   owner drags villagers around while travelling with the number keys, and
+   dragging auto-scrolls the view, so a glide that yielded to any external
+   scroll was cancelled by the very thing it was meant to help with.  A key
+   press wins, and another key press retargets.
 
    HOW THE KEYS ARE SEEN.  The game reads input through SDL_PollEvent, and
    its event loop (0x403983) translates only ESC, TAB, ENTER, F-keys and the
@@ -86,11 +89,18 @@ typedef void (__cdecl *vv1_sdl_add_event_watch_t)(vv1_sdl_event_filter_t filter,
 
 static int vv1_numkeys_installed;
 
-/* The glide in progress: where it is heading, and where the last tick left
-   the scroll (so a hand scroll in between is recognised and wins). */
+/* The glide in progress: where it is heading.
+
+   Nothing tracks where the last tick left the scroll.  It used to, so a
+   scroll that moved between ticks could cancel the glide as "the player
+   is scrolling by hand" -- but dragging a villager auto-scrolls the view
+   toward the pointer, which is indistinguishable from a hand scroll in
+   the state (measured: picking a villager up moves the scroll pair and
+   changes nothing else), so the glide died exactly when the player was
+   carrying someone and wanted to travel.  A number key now wins; another
+   number key retargets. */
 static int vv1_pan_active;
 static int vv1_pan_target_x, vv1_pan_target_y;
-static int vv1_pan_last_x, vv1_pan_last_y;
 #define VV1_PAN_DIVISOR 10   /* a tenth of the remaining distance per frame */
 
 /* Start gliding the view to section `digit` (1..9, keypad layout).  Returns
@@ -108,8 +118,6 @@ static int vv1_numkeys_jump(int digit) {
     row = (digit - 1) / 3;   /* 1-3 bottom; 4-6 middle; 7-9 top */
     vv1_pan_target_x = xs[col];
     vv1_pan_target_y = ys[row];
-    vv1_pan_last_x = *(int *)(state + VV1_SCROLL_X_OFFSET);
-    vv1_pan_last_y = *(int *)(state + VV1_SCROLL_Y_OFFSET);
     vv1_pan_active = 1;
     return 1;
 }
@@ -144,14 +152,8 @@ static int vv1_pan_tick(void) {
     }
     x = (int *)(state + VV1_SCROLL_X_OFFSET);
     y = (int *)(state + VV1_SCROLL_Y_OFFSET);
-    if (*x != vv1_pan_last_x || *y != vv1_pan_last_y) {
-        vv1_pan_active = 0;     /* the player scrolled by hand: they win */
-        return 0;
-    }
     *x = vv1_pan_step(*x, vv1_pan_target_x);
     *y = vv1_pan_step(*y, vv1_pan_target_y);
-    vv1_pan_last_x = *x;
-    vv1_pan_last_y = *y;
     if (*x == vv1_pan_target_x && *y == vv1_pan_target_y) {
         vv1_pan_active = 0;
         return 0;

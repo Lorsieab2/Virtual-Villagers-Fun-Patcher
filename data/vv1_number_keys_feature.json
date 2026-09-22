@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Numeric Keys: Zip Around the Island",
-  "description": "The number keys move the view to one of nine sections of the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), gliding there the way The Lost Children and the later games do. Top-row digits and keypad digits both work; holding a key does not repeat; scrolling by hand mid-glide cancels it. Adds the loading-screen tip \"You can zip around the island with your numeric keys.\" Requires Enable Origins-Exclusive Features, whose companion loads this one.",
+  "description": "The number keys move the view to one of nine sections of the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), gliding there the way The Lost Children and the later games do. Top-row digits and keypad digits both work; holding a key does not repeat; a glide keeps going even if the view is scrolled or a villager is dragged mid-glide -- press another number key to change course. Adds the loading-screen tip \"You can zip around the island with your numeric keys.\" Requires Enable Origins-Exclusive Features, whose companion loads this one.",
   "output_tag": "Numeric Keys",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"
@@ -24,7 +24,7 @@
     {
       "source": "assets/number_keys/VVFP VV1 Number Keys.dll",
       "destination": "VVFP VV1 Number Keys.dll",
-      "sha256": "FFC8E200E63A46DB67B9A7684978AC5F835F22708CF5E1AE97F4CF8ECF144958"
+      "sha256": "5E3F1270A609EA6F3F78CBD13FE530A4BE50865CA14B296F6588ECB5C864D255"
     }
   ],
   "patches": [

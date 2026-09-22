@@ -187,7 +187,7 @@ Completing the Magic Fruit of Life puzzle globally shifts every ordinary village
 
 #### Numeric Keys: Zip Around the Island (`vv1_number_keys`)
 
-The number keys move the view to one of nine sections of the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), gliding there the way The Lost Children and the later games do. Top-row digits and keypad digits both work; holding a key does not repeat; scrolling by hand mid-glide cancels it. Adds the loading-screen tip "You can zip around the island with your numeric keys." Requires Enable Origins-Exclusive Features, whose companion loads this one.
+The number keys move the view to one of nine sections of the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), gliding there the way The Lost Children and the later games do. Top-row digits and keypad digits both work; holding a key does not repeat; a glide keeps going even if the view is scrolled or a villager is dragged mid-glide -- press another number key to change course. Adds the loading-screen tip "You can zip around the island with your numeric keys." Requires Enable Origins-Exclusive Features, whose companion loads this one.
 
 **Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
 
