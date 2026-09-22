@@ -154,13 +154,19 @@ int main(int argc, char **argv) {
         for (n = 0; n < 200 && !(*x == -205 && *y == 1205); ++n) tick();
         CHECK(*x == -205 && *y == 1205, "keypad 1 glides to bottom-left (-205, 1205), got (%d, %d)", *x, *y);
 
-        printf("== a hand scroll during the glide wins ==\n");
+        printf("== an external scroll during the glide does NOT cancel it ==\n");
+        /* Dragging a villager auto-scrolls the view, which is indistinguishable
+           from a hand scroll in the state; the owner wants a number key to win
+           either way, so a perturbed scroll must keep gliding to the target. */
         key_event(e, 0x300, '9', 0, 0); sdl_push(e);
         tick(); tick();
-        *x += 7;                 /* the player edge-scrolled */
+        *x -= 40;                /* something else moved the view mid-glide */
         px = *x; py = *y;
         tick(); tick();
-        CHECK(*x == px && *y == py, "glide cancelled: the scroll stays where the player put it");
+        CHECK(*x > px, "after an external scroll the glide keeps moving x toward 885 (%d -> %d)", px, *x);
+        CHECK(*y < py, "after an external scroll the glide keeps moving y toward -5 (%d -> %d)", py, *y);
+        for (n = 0; n < 200 && !(*x == 885 && *y == -5); ++n) tick();
+        CHECK(*x == 885 && *y == -5, "and still lands at top-right (885, -5), got (%d, %d)", *x, *y);
 
         printf("== a new key mid-glide retargets ==\n");
         key_event(e, 0x300, '1', 0, 0); sdl_push(e);
