@@ -99,3 +99,78 @@ int vv_save_folder_w(wchar_t *out, int reserve) {
     CreateDirectoryW(out, NULL);
     return 1;
 }
+
+/* Create "<save folder>\<sub>" one component at a time. */
+int vv_save_subfolder_w(wchar_t *out, const wchar_t *sub, int reserve) {
+    wchar_t folder[MAX_PATH];
+    wchar_t built[MAX_PATH];
+    const wchar_t *p;
+    int len;
+    if (out == NULL || sub == NULL || sub[0] == L'\0' || reserve < 0) {
+        return 0;
+    }
+    /* The base must leave room for the tail AND the caller's own append. */
+    if (!vv_save_folder_w(folder, (int)wcslen(sub) + 1 + reserve)) {
+        return 0;
+    }
+    /* Walk `sub`, creating each component as its trailing backslash (or the
+       end) is reached. CreateDirectoryW on an existing directory fails with
+       ERROR_ALREADY_EXISTS, which is not an error for us. */
+    /* Seed with the separator: `sub` is JOINED to the save folder, never
+       glued onto its name. Without this the first component was created
+       as "<save folder><sub>" -- a mis-named sibling -- and the reset
+       harness passed because its narrow twin made the same mistake. */
+    _snwprintf(built, MAX_PATH, L"%ls\\", folder);
+    built[MAX_PATH - 1] = 0;
+    len = (int)wcslen(built);
+    for (p = sub; ; ++p) {
+        if (*p == L'\\' || *p == L'\0') {
+            CreateDirectoryW(built, NULL);
+            if (*p == L'\0') {
+                break;
+            }
+        }
+        if (len + 1 >= MAX_PATH) {
+            return 0;
+        }
+        built[len++] = (*p == L'\\') ? L'\\' : *p;
+        built[len] = 0;
+    }
+    /* Only now is `out` written: every earlier return leaves it untouched. */
+    _snwprintf(out, MAX_PATH, L"%ls", built);
+    out[MAX_PATH - 1] = 0;
+    return 1;
+}
+
+int vv_save_subfolder(char *out, const char *sub, int reserve) {
+    char folder[MAX_PATH];
+    char built[MAX_PATH];
+    const char *p;
+    int len;
+    if (out == NULL || sub == NULL || sub[0] == '\0' || reserve < 0) {
+        return 0;
+    }
+    if (!vv_save_folder(folder, (int)strlen(sub) + 1 + reserve)) {
+        return 0;
+    }
+    /* Seeded with the separator, as in the wide form. */
+    _snprintf(built, MAX_PATH, "%s\\", folder);
+    built[MAX_PATH - 1] = 0;
+    len = (int)strlen(built);
+    for (p = sub; ; ++p) {
+        if (*p == '\\' || *p == '\0') {
+            CreateDirectoryA(built, NULL);
+            if (*p == '\0') {
+                break;
+            }
+        }
+        if (len + 1 >= MAX_PATH) {
+            return 0;
+        }
+        built[len++] = *p;
+        built[len] = 0;
+    }
+    _snprintf(out, MAX_PATH, "%s", built);
+    out[MAX_PATH - 1] = 0;
+    return 1;
+}

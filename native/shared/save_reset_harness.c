@@ -65,6 +65,7 @@ int main(void) {
     char stats1[MAX_PATH], stats2[MAX_PATH];
     char pop1[MAX_PATH], pop2[MAX_PATH];
     char log_other[MAX_PATH];
+    char popdir[MAX_PATH], pardir[MAX_PATH];   /* the moved log folders */
     static const char VILLAGE[]  = "Village: Kalahuna (Save 1)\n";
     static const char VILLAGE2[] = "Village: Elsewhere (Save 2)\n";
 
@@ -81,18 +82,42 @@ int main(void) {
     /* VV1 owns two sidecars per slot. Create slot 1 and slot 2, plus a game
        save and a file belonging to a different game, so the test can show what
        survives as well as what goes. */
+    /* The population and parentage logs moved into the owner's log layout
+       (#418); the harness follows so it tests the reset against where the
+       exporters actually write. */
+    if (!vv_save_subfolder(popdir, "VVFP Logs\\Tribe Population", 64)
+        || !vv_save_subfolder(pardir, "VVFP Logs\\Tribe Parental Records", 64)) {
+        printf("could not resolve the log subfolders\n");
+        return 2;
+    }
+    /* The subfolders must be INSIDE the save folder -- "<save>\\VVFP Logs\\...",
+       not "<save>VVFP Logs..." glued onto its name. A live run found the
+       helper doing exactly that while this harness passed, because the
+       fixtures and the reset used the same wrong path. Checked against
+       the resolved save folder, not against a literal. */
+    {
+        int flen = lstrlenA(folder);
+        check(strncmp(popdir, folder, flen) == 0 && popdir[flen] == '\\'
+              && strcmp(popdir + flen, "\\VVFP Logs\\Tribe Population") == 0,
+              "population subfolder is <save folder>\\VVFP Logs\\Tribe Population");
+        check(strncmp(pardir, folder, flen) == 0 && pardir[flen] == '\\'
+              && strcmp(pardir + flen, "\\VVFP Logs\\Tribe Parental Records") == 0,
+              "parental subfolder is <save folder>\\VVFP Logs\\Tribe Parental Records");
+        check(GetFileAttributesA(popdir) != INVALID_FILE_ATTRIBUTES,
+              "population subfolder was actually created");
+    }
     wsprintfA(mask1, "%s\\vv1_masks_1.dat", folder);
     wsprintfA(mask2, "%s\\vv1_masks_2.dat", folder);
     wsprintfA(doubler1, "%s\\vv1_doublers_1.dat", folder);
     wsprintfA(save1, "%s\\Virtual Villagers1.ldw", folder);
     wsprintfA(other_game, "%s\\vv2_masks_1.dat", folder);
-    wsprintfA(log1, "%s\\Virtual Villagers 1 Parentage Log 1.txt", folder);
+    wsprintfA(log1, "%s\\Virtual Villagers 1 Parentage Log 1.txt", pardir);
 
     wsprintfA(stats1, "%s\\Village Statistics - Save 1.txt", folder);
     wsprintfA(stats2, "%s\\Village Statistics - Save 2.txt", folder);
-    wsprintfA(pop1, "%s\\Village Population 1.txt", folder);
-    wsprintfA(pop2, "%s\\Village Population 2.txt", folder);
-    wsprintfA(log_other, "%s\\Virtual Villagers 1 Parentage Log 2.txt", folder);
+    wsprintfA(pop1, "%s\\Village Population 1.txt", popdir);
+    wsprintfA(pop2, "%s\\Village Population 2.txt", popdir);
+    wsprintfA(log_other, "%s\\Virtual Villagers 1 Parentage Log 2.txt", pardir);
 
     touch(mask1); touch(mask2); touch(doubler1);
     touch(save1); touch(other_game);
@@ -133,7 +158,7 @@ int main(void) {
        left alone rather than deleted on a guess. */
     {
         char probe[MAX_PATH];
-        wsprintfA(probe, "%s\\Virtual Villagers 1 Parentage Log 1.txt", folder);
+        wsprintfA(probe, "%s\\Virtual Villagers 1 Parentage Log 1.txt", pardir);
         write_text(probe, VILLAGE);
         check(exists(probe), "parentage probe recreated (nonzero denominator)");
         vv_reset_slot_state(1, 1, NULL);
