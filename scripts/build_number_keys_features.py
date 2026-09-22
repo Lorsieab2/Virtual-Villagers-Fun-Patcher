@@ -3,8 +3,8 @@
 Two rows come out of this:
 
   data/vv1_number_keys_feature.json
-      A New Home: the companion DLL that makes the number keys glide the view
-      to a section of the island, plus a new random tip announcing it.
+    A New Home: the companion DLL that makes the number keys glide the view
+      to measured feature targets, plus a new random tip announcing it.
 
   data/vv2_numeric_keys_tip_feature.json
       The Lost Children: the existing tip's wording changed from "keypad" to
@@ -108,23 +108,31 @@ def vv1() -> dict:
         "game_id": "vv1",
         "name": "Numeric Keys: Zip Around the Island",
         "description": (
-            "The number keys move the view to one of nine sections of the island, laid out like a numeric "
-            "keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), gliding there the way "
-            "The Lost Children and the later games do. Top-row digits and keypad digits both work; holding a key "
-            "does not repeat; a glide keeps going even if the view is scrolled or a villager is dragged "
-            "mid-glide -- press another number key to change course. Adds the loading-screen tip \"You can zip "
+            "The number keys move the view to nine measured feature targets in the VV1 1680-unit map, laid out "
+            "like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), using "
+            "the measured truncating tenth-of-remaining glide on the native village-update cadence. Top-row "
+            "digits and keypad digits both work; holding a key does not repeat; a glide keeps going even if the "
+            "view is scrolled or a villager is dragged mid-glide -- press another number key to change course. "
+            "Adds the loading-screen tip \"You can zip "
             "around the island with your numeric keys.\" Requires Enable Origins-Exclusive Features, whose "
             "companion loads this one."
         ),
         "output_tag": "Numeric Keys",
         "dependencies": ["vv1_enable_origins_exclusive_features"],
         "behavior_changes": [
-            "Pressing 1-9 (top row or numeric keypad) glides the view to the matching ninth of the island, "
-            "reaching the same corners the game's own map clicks are clamped to (x -205..885, y -5..1205).",
+            "Pressing 1-9 (top row or numeric keypad) glides the view to the explicitly ported targets "
+            "1=(-150,1200), 2=(300,1200), 3=(850,1200), 4=(-150,500), 5=(300,570), 6=(850,500), "
+            "7=(-150,0), 8=(300,0), 9=(850,0). These are feature targets, not native VV1 keyboard targets; "
+            "they remain inside the exact VV1 native clamp bounds x=-205..885, y=-5..1205.",
+            "The glide advances once per exact native village update with signed truncation toward zero, clears "
+            "active edge velocities, and stops when both post-step remaining deltas divided by ten are zero; "
+            "there is no minimum-one step and no final snap.",
             "One more loading-screen tip can appear: \"You can zip around the island with your numeric keys.\"",
         ],
         "explicit_non_changes": [
-            "No villager, save, or village-state field other than the scroll position is written.",
+            "The companion writes only the camera pair and active native screen edge velocity pair "
+            "(+0x2D8/+0x2DC); the existing native held-record carry routine refreshes a carried villager "
+            "after the camera step. No save-format change is made, and idle updates leave edge scrolling native.",
             "Ctrl+digit and Alt+digit are ignored; key auto-repeat is ignored; a digit typed before any village "
             "exists does nothing.",
             "The \"points.\" string is unchanged in wording; only its internal id moves (0x225 -> 0x27E).",

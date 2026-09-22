@@ -7,49 +7,42 @@
        4 5 6        middle
        1 2 3        bottom row
 
-   A New Home never had it.  This companion adds it entirely on its own: no
-   bytes in the executable, because everything the feature needs already
-   exists.  The Origins companion loads this DLL once and calls
+   A New Home never had it. This companion supplies the key watch and glide;
+   the Origins companion adds the narrow native-update hook that invokes it.
+   The Origins companion loads this DLL once and calls
    Vv1NumberKeysInstall; if this file is not beside the executable, the game
    simply has no number keys, exactly as before.
 
    HOW THE VIEW IS MOVED.  The village state object (the one 0x41D500
-   returns, cached at 0x0048AEDC -- the same object the doubler flags and the
-   tribe name live in) keeps the scroll position as its first two dwords past
-   the header: +8 is x, +0xC is y.  They are the first two dwords of the .ldw
-   payload too (file 0xC/0x10), which is how they were confirmed against the
-   owner's saves.  The game's own map-screen click handler at 0x429BA0 writes
-   them directly and then clamps:
+   returns, cached at 0x0048AEDC) keeps the scroll position at +8/+0xC.  The
+   native village screen object carries that state pointer at +0x10.  The
+   native update hook passes this screen object here once per update, after the
+   screen's edge velocities at +0x2D8/+0x2DC have been computed.  The game's
+   own map-screen click handler at 0x429BA0 writes them directly and then
+   clamps:
 
        0x429C8E  cmp ecx, -205   ...   0x429C9F  cmp ecx, 885     (x)
        0x429CB4  cmp eax, -5     ...   0x429CC8  cmp eax, 1205    (y)
 
-   so those four numbers are the game's own bounds, and a section is simply
-   the corresponding extreme (the midpoint for the middle row or column) --
-   what The Lost Children lands on for the same keys: its key 1 reads back
-   (x min, y max) and key 9 (x max, y min), measured live.  Writing the pair
-   and nothing else is what the game itself does on a map click, so nothing
-   else needs refreshing.
+   Those four numbers are VV1's native clamp extrema.  The nine numeric-glide
+   targets below are explicitly ported from the measured VV2 capture and are
+   intentionally not described as native VV1 keyboard targets.
 
-   HOW THE VIEW GETS THERE.  The later games glide rather than jump: polled
-   live in The Lost Children, the scroll moved by about a tenth of the
-   remaining distance each frame (841 -> 742 -> 653 ... on a 982-unit pan),
-   an ease-out that settles in well under a second.  The owner asked for the
-   same feel, so a key press only sets a TARGET, and Vv1NumberKeysTick --
-   which the Origins companion calls once per frame -- moves the pair a tenth
-   of the way each call (never less than one unit) until it lands.  The glide
-   keeps going even when something else moves the scroll underneath it: the
-   owner drags villagers around while travelling with the number keys, and
-   dragging auto-scrolls the view, so a glide that yielded to any external
-   scroll was cancelled by the very thing it was meant to help with.  A key
-   press wins, and another key press retargets.
+   HOW THE VIEW GETS THERE.  The later games glide rather than jump: the
+   measured VV2 update moved by truncating one tenth of the remaining distance.
+   The port uses C's signed integer division exactly: no minimum-one step and
+   no final snap.  It stops after a step when both post-step remaining deltas
+   divided by ten are zero.  While active, native edge velocities are cleared
+   and the game's own held-record refresh/carry block runs immediately
+   afterward.  A key press wins, and another key press retargets.
 
    HOW THE KEYS ARE SEEN.  The game reads input through SDL_PollEvent, and
    its event loop (0x403983) translates only ESC, TAB, ENTER, F-keys and the
    arrows; digits reach it as text and are dropped.  Rather than splice that
    loop, SDL_AddEventWatch registers a callback SDL runs for every event it
    queues, from inside the game's own SDL_PollEvent on the main thread, so
-   the write to the village state happens on the thread that owns it.  SDL
+   the event watch only records a target; the native update performs the write
+   on the thread that owns the state.  SDL
    2.0.3, the one the game ships, exports it.
 
    Both the top-row digits and the keypad digits are accepted (the tips in
@@ -103,60 +96,67 @@ static int vv1_pan_active;
 static int vv1_pan_target_x, vv1_pan_target_y;
 #define VV1_PAN_DIVISOR 10   /* a tenth of the remaining distance per frame */
 
-/* Start gliding the view to section `digit` (1..9, keypad layout).  Returns
-   1 when a glide was started, 0 when there was no village to move. */
+/* These are the nine measured VV2 targets ported into VV1's 1680-unit map.
+   They are feature targets, not VV1's native keyboard coordinates. */
+static const int vv1_pan_target_xs[9] = {
+    -150, 300, 850,
+    -150, 300, 850,
+    -150, 300, 850
+};
+static const int vv1_pan_target_ys[9] = {
+    1200, 1200, 1200,
+    500, 570, 500,
+    0, 0, 0
+};
+
+/* Start gliding the view to section `digit` (1..9, keypad layout).  The
+   event watch only records the feature target; the native update validates the
+   live screen/state before it writes anything. */
 static int vv1_numkeys_jump(int digit) {
-    static const int xs[3] = { VV1_SCROLL_X_MIN, (VV1_SCROLL_X_MIN + VV1_SCROLL_X_MAX) / 2, VV1_SCROLL_X_MAX };
-    static const int ys[3] = { VV1_SCROLL_Y_MAX, (VV1_SCROLL_Y_MIN + VV1_SCROLL_Y_MAX) / 2, VV1_SCROLL_Y_MIN };
-    unsigned char *state = VV1_VILLAGE_STATE_PTR;
-    int col;
-    int row;
-    if (state == NULL || digit < 1 || digit > 9) {
+    if (VV1_VILLAGE_STATE_PTR == NULL || digit < 1 || digit > 9) {
         return 0;
     }
-    col = (digit - 1) % 3;   /* 1,4,7 left; 2,5,8 middle; 3,6,9 right */
-    row = (digit - 1) / 3;   /* 1-3 bottom; 4-6 middle; 7-9 top */
-    vv1_pan_target_x = xs[col];
-    vv1_pan_target_y = ys[row];
+    vv1_pan_target_x = vv1_pan_target_xs[digit - 1];
+    vv1_pan_target_y = vv1_pan_target_ys[digit - 1];
     vv1_pan_active = 1;
     return 1;
 }
 
-/* One glide step toward `target` from `cur`: a tenth of the way, at least
-   one unit, and never past the target. */
+/* One glide step toward `target` from `cur`: C's signed truncating division.
+   Deliberately no minimum-one step and no snap to the target. */
 static int vv1_pan_step(int cur, int target) {
-    int delta = target - cur;
-    int step;
-    if (delta == 0) {
-        return cur;
-    }
-    step = delta / VV1_PAN_DIVISOR;
-    if (step == 0) {
-        step = delta > 0 ? 1 : -1;
-    }
-    return cur + step;
+    return cur + (target - cur) / VV1_PAN_DIVISOR;
 }
 
-/* Advance the glide by one frame.  Returns 1 while a glide is in progress
-   (after this step), 0 when idle or just finished. */
-static int vv1_pan_tick(void) {
-    unsigned char *state = VV1_VILLAGE_STATE_PTR;
+/* Consume one native village update.  The return value remains 1 on the
+   completion tick, including a zero-axis step, so the caller takes the native
+   held-record refresh/carry path exactly once before edge scrolling resumes. */
+static int vv1_pan_update(void *screen) {
+    unsigned char *screen_bytes = (unsigned char *)screen;
+    unsigned char *state;
     int *x;
     int *y;
     if (!vv1_pan_active) {
         return 0;
     }
-    if (state == NULL) {
-        vv1_pan_active = 0;     /* the village went away: nothing to move */
+    if (screen_bytes == NULL) {
+        vv1_pan_active = 0;
+        return 0;
+    }
+    state = *(unsigned char **)(screen_bytes + 0x10);
+    if (state == NULL || state != VV1_VILLAGE_STATE_PTR) {
+        vv1_pan_active = 0;     /* no current village: nothing to move */
         return 0;
     }
     x = (int *)(state + VV1_SCROLL_X_OFFSET);
     y = (int *)(state + VV1_SCROLL_Y_OFFSET);
     *x = vv1_pan_step(*x, vv1_pan_target_x);
     *y = vv1_pan_step(*y, vv1_pan_target_y);
-    if (*x == vv1_pan_target_x && *y == vv1_pan_target_y) {
+    *(int *)(screen_bytes + 0x2D8) = 0;
+    *(int *)(screen_bytes + 0x2DC) = 0;
+    if ((vv1_pan_target_x - *x) / VV1_PAN_DIVISOR == 0
+        && (vv1_pan_target_y - *y) / VV1_PAN_DIVISOR == 0) {
         vv1_pan_active = 0;
-        return 0;
     }
     return 1;
 }
@@ -216,14 +216,17 @@ __declspec(dllexport) int __stdcall Vv1NumberKeysInstall(void) {
     return 1;
 }
 
-/* Per frame, from the Origins companion: make sure the watch is installed,
-   then advance any glide.  Returns the install state (1 installed, 0 not
-   yet, -1 never) so a caller can log it; the glide result is not reported
-   because nothing needs it. */
+/* Render cadence is installation-only.  Camera advancement is driven by the
+   native village update export below, never from this render tick. */
 __declspec(dllexport) int __stdcall Vv1NumberKeysTick(void) {
-    int installed = Vv1NumberKeysInstall();
-    vv1_pan_tick();
-    return installed;
+    return Vv1NumberKeysInstall();
+}
+
+/* Called by the exact VV1 native village update hook.  Installing here is
+   safe even when this is the first call, before the first render tick. */
+__declspec(dllexport) int __stdcall Vv1NumberKeysUpdate(void *screen) {
+    Vv1NumberKeysInstall();
+    return vv1_pan_update(screen);
 }
 
 /* Test seam: feed one SDL event exactly as the watch would see it and report

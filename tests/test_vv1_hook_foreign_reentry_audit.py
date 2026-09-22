@@ -472,6 +472,12 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # shared-draw hook reads the slot.
     ("vv1_enable_origins_exclusive_features", "0x37798"): "6D0E444DACFA185CA3D13C076829A25DAF3B84696BFC31153416B622D836650D",
     ("vv1_enable_origins_exclusive_features", "0x38900"): "E8D8456C4E183D69B796D6D26005EA39B1E96E01266DACAA859A569C5499EC21",
+    # Numeric-key native-update detour. The active path restores the stock
+    # camera-update contract and re-enters at 0x423FAE, where ESI is the live
+    # screen object and EBX remains the native zero value used by its clamp
+    # block. The stub saves/restores every register and flags around the
+    # optional companion call.
+    ("vv1_enable_origins_exclusive_features", "0x23F89"): "0272AA196CFECAE4EDB2FE99CD7CF5EC8BE7FB2D4C5C554CF17F79032B56BFA4",
     ("vv1_f6_clothing_change_cheat", "0x1FF2E"): "A00945F8D66A35B8BDB078E933690DDE5B048C60287B716EED0276AC20A07F3E",
     ("vv1_magic_fruit_alters_mortality", "0x2EEAA"): "81719DCFD4BC20C6F136E88308A12EDFA14447AF58E3B8B6DC239BBF4053BF10",
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",
@@ -558,6 +564,15 @@ REVIEWED: dict[tuple[str, str, int], str] = {
         "0x39C83",
         0x439C9D,
     ): "chooser tail; both cave paths converge here. No pointer reads.",
+    (
+        "vv1_enable_origins_exclusive_features",
+        "0x23F89",
+        0x423FAE,
+    ): "Numeric-glide active path. The cave preserves all registers, flags, and "
+    "stack around the optional forwarding call. ESI remains the live village "
+    "screen object and EBX remains the native zero value consumed by the stock "
+    "carry/clamp block at 0x423FAE, which performs the existing held-record "
+    "refresh and camera clamps.",
     (
         "vv1_enable_origins_exclusive_features",
         "0x35ACA",

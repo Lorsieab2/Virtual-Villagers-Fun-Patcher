@@ -19,9 +19,35 @@ static int failures;
 
 typedef int (__stdcall *install_t)(void);
 typedef int (__stdcall *probe_t)(const void *);
+typedef int (__stdcall *update_t)(void *screen);
 typedef int (__cdecl *sdl_init_t)(unsigned int);
 typedef int (__cdecl *sdl_push_t)(void *);
 typedef void (__cdecl *sdl_quit_t)(void);
+
+/* Where a glide actually comes to rest.
+
+   The measured VV2 recurrence is cur + (target - cur) / 10 with no forced
+   minimum step and no final snap, and it deactivates once each remaining
+   delta divided by 10 truncates to zero.  So a glide STOPS SHORT of its
+   target -- by up to 9 units per axis -- and never reports the target's own
+   coordinates.  Waiting for exact equality spins forever.
+
+   That residual is the behaviour VV2 was measured to have, so the harness
+   checks the documented stop condition rather than asserting an arrival the
+   implementation is not supposed to make. */
+static int vv1_pan_settled(int cur, int target) {
+    return (target - cur) / 10 == 0;
+}
+
+/* The glide's terminal coordinate for one axis, for an exact check. */
+static int vv1_pan_rest(int start, int target) {
+    int cur = start;
+    int guard = 0;
+    while (!vv1_pan_settled(cur, target) && guard++ < 1000) {
+        cur = cur + (target - cur) / 10;
+    }
+    return cur;
+}
 
 static void key_event(unsigned char *e, unsigned int type, int sym, unsigned char repeat, unsigned short mod) {
     memset(e, 0, 56);
@@ -43,6 +69,7 @@ int main(int argc, char **argv) {
     void *block;
     int *state;
     int *x, *y;
+    unsigned char screen[0x300];
     if (argc < 3) {
         printf("usage: harness <number keys dll> <SDL2.dll>\n");
         return 2;
@@ -94,6 +121,8 @@ int main(int argc, char **argv) {
     if (block != (void *)0x00480000) return 1;
     state = (int *)malloc(0x1000);
     memset(state, 0, 0x1000);
+    memset(screen, 0, sizeof screen);
+    *(void **)(screen + 0x10) = state;
     x = (int *)((unsigned char *)state + 8);
     y = (int *)((unsigned char *)state + 0xC);
     *x = 123; *y = 456;
@@ -115,76 +144,75 @@ int main(int argc, char **argv) {
 
     *(void **)0x0048AEDC = state;
     {
-        typedef int (__stdcall *tick_t)(void);
-        tick_t tick = (tick_t)GetProcAddress(dll, "Vv1NumberKeysTick");
+        update_t tick = (update_t)GetProcAddress(dll, "Vv1NumberKeysUpdate");
         int n, ok, px, py, first_dx;
-        CHECK(tick != NULL, "Vv1NumberKeysTick resolves");
+        CHECK(tick != NULL, "Vv1NumberKeysUpdate resolves");
         if (!tick) return 1;
         *x = 123; *y = 456;
-        tick(); tick();
+        tick(screen); tick(screen);
         CHECK(*x == 123 && *y == 456, "ticks with no key pressed move nothing");
 
         printf("== glide: a key sets a target, ticks ease toward it ==\n");
         key_event(e, 0x300, '3', 0, 0); sdl_push(e);
         CHECK(*x == 123 && *y == 456, "the key press itself moves nothing (the glide does)");
         px = *x; py = *y;
-        tick();
+        tick(screen);
         first_dx = *x - px;
-        CHECK(first_dx == (885 - 123) / 10, "first tick moves a tenth of the way in x (%d)", first_dx);
-        CHECK(*y - py == (1205 - 456) / 10, "first tick moves a tenth of the way in y (%d)", *y - py);
+        CHECK(first_dx == (850 - 123) / 10, "first tick moves a tenth of the way in x (%d)", first_dx);
+        CHECK(*y - py == (1200 - 456) / 10, "first tick moves a tenth of the way in y (%d)", *y - py);
         ok = 1;
-        for (n = 0; n < 200 && !(*x == 885 && *y == 1205); ++n) {
+        for (n = 0; n < 200 && !(vv1_pan_settled(*x, 850) && vv1_pan_settled(*y, 1200)); ++n) {
             px = *x; py = *y;
-            tick();
-            if (*x < px || *y < py || *x > 885 || *y > 1205) ok = 0;   /* monotonic, never overshoots */
+            tick(screen);
+            if (*x < px || *y < py || *x > 850 || *y > 1200) ok = 0;   /* monotonic, never overshoots */
         }
-        CHECK(*x == 885 && *y == 1205, "'3' glides to bottom-right (885, 1205), got (%d, %d)", *x, *y);
+        CHECK(vv1_pan_settled(*x, 850) && vv1_pan_settled(*y, 1200), "'3' settles within a tick of measured bottom-right (850, 1200), got (%d, %d)", *x, *y);
         CHECK(ok, "the glide is monotonic and never overshoots");
         CHECK(n < 200, "it lands within %d ticks", n + 1);
-        px = *x; py = *y; tick();
+        px = *x; py = *y; tick(screen);
         CHECK(*x == px && *y == py, "once landed, further ticks move nothing");
 
         key_event(e, 0x300, '7', 0, 0); sdl_push(e);
-        for (n = 0; n < 200 && !(*x == -205 && *y == -5); ++n) tick();
-        CHECK(*x == -205 && *y == -5, "'7' glides to top-left (-205, -5), got (%d, %d)", *x, *y);
+        for (n = 0; n < 200 && !(vv1_pan_settled(*x, -150) && vv1_pan_settled(*y, 0)); ++n) tick(screen);
+        CHECK(vv1_pan_settled(*x, -150) && vv1_pan_settled(*y, 0), "'7' settles within a tick of measured top-left (-150, 0), got (%d, %d)", *x, *y);
         key_event(e, 0x300, '5', 0, 0); sdl_push(e);
-        for (n = 0; n < 200 && !(*x == 340 && *y == 600); ++n) tick();
-        CHECK(*x == 340 && *y == 600, "'5' glides to centre (340, 600), got (%d, %d)", *x, *y);
+        for (n = 0; n < 200 && !(vv1_pan_settled(*x, 300) && vv1_pan_settled(*y, 570)); ++n) tick(screen);
+        CHECK(vv1_pan_settled(*x, 300) && vv1_pan_settled(*y, 570), "'5' settles within a tick of measured centre (300, 570), got (%d, %d)", *x, *y);
         key_event(e, 0x300, 0x40000059, 0, 0); sdl_push(e);
-        for (n = 0; n < 200 && !(*x == -205 && *y == 1205); ++n) tick();
-        CHECK(*x == -205 && *y == 1205, "keypad 1 glides to bottom-left (-205, 1205), got (%d, %d)", *x, *y);
+        for (n = 0; n < 200 && !(vv1_pan_settled(*x, -150) && vv1_pan_settled(*y, 1200)); ++n) tick(screen);
+        CHECK(vv1_pan_settled(*x, -150) && vv1_pan_settled(*y, 1200), "keypad 1 settles within a tick of measured bottom-left (-150, 1200), got (%d, %d)", *x, *y);
 
         printf("== an external scroll during the glide does NOT cancel it ==\n");
         /* Dragging a villager auto-scrolls the view, which is indistinguishable
            from a hand scroll in the state; the owner wants a number key to win
            either way, so a perturbed scroll must keep gliding to the target. */
         key_event(e, 0x300, '9', 0, 0); sdl_push(e);
-        tick(); tick();
+        tick(screen); tick(screen);
         *x -= 40;                /* something else moved the view mid-glide */
         px = *x; py = *y;
-        tick(); tick();
+        tick(screen); tick(screen);
         CHECK(*x > px, "after an external scroll the glide keeps moving x toward 885 (%d -> %d)", px, *x);
         CHECK(*y < py, "after an external scroll the glide keeps moving y toward -5 (%d -> %d)", py, *y);
-        for (n = 0; n < 200 && !(*x == 885 && *y == -5); ++n) tick();
-        CHECK(*x == 885 && *y == -5, "and still lands at top-right (885, -5), got (%d, %d)", *x, *y);
+        for (n = 0; n < 200 && !(vv1_pan_settled(*x, 850) && vv1_pan_settled(*y, 0)); ++n) tick(screen);
+        CHECK(vv1_pan_settled(*x, 850) && vv1_pan_settled(*y, 0), "and still lands at measured top-right (850, 0), got (%d, %d)", *x, *y);
 
         printf("== a new key mid-glide retargets ==\n");
         key_event(e, 0x300, '1', 0, 0); sdl_push(e);
-        tick(); tick();
+        tick(screen); tick(screen);
         key_event(e, 0x300, '9', 0, 0); sdl_push(e);
-        for (n = 0; n < 200 && !(*x == 885 && *y == -5); ++n) tick();
-        CHECK(*x == 885 && *y == -5, "'9' after '1' lands at top-right (885, -5), got (%d, %d)", *x, *y);
+        for (n = 0; n < 200 && !(vv1_pan_settled(*x, 850) && vv1_pan_settled(*y, 0)); ++n) tick(screen);
+        CHECK(vv1_pan_settled(*x, 850) && vv1_pan_settled(*y, 0), "'9' after '1' lands at measured top-right (850, 0), got (%d, %d)", *x, *y);
 
-        key_event(e, 0x300, '9', 1, 0); *x = 1; *y = 1; sdl_push(e); tick();
+        key_event(e, 0x300, '9', 1, 0); *x = 1; *y = 1; sdl_push(e); tick(screen);
         CHECK(*x == 1 && *y == 1, "repeat of '9' leaves the state alone");
-        key_event(e, 0x300, 'q', 0, 0); sdl_push(e); tick();
+        key_event(e, 0x300, 'q', 0, 0); sdl_push(e); tick(screen);
         CHECK(*x == 1 && *y == 1, "'q' leaves the state alone");
         /* other event types flow through untouched */
-        memset(e, 0, sizeof e); *(unsigned int *)e = 0x400; sdl_push(e); tick();
+        memset(e, 0, sizeof e); *(unsigned int *)e = 0x400; sdl_push(e); tick(screen);
         CHECK(*x == 1 && *y == 1, "a mouse-motion event leaves the state alone");
         /* the village going away mid-glide is harmless */
-        key_event(e, 0x300, '5', 0, 0); sdl_push(e); tick();
-        *(void **)0x0048AEDC = NULL; tick(); tick();
+        key_event(e, 0x300, '5', 0, 0); sdl_push(e); tick(screen);
+        *(void **)0x0048AEDC = NULL; tick(screen); tick(screen);
         CHECK(1, "ticks with the village gone do not crash");
     }
     sdl_quit();

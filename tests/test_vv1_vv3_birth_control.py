@@ -37,10 +37,17 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # at 0x438 (the old sub_43C840 splice at 0x3CA48 is gone) -- and for the
     # Details-arrow sort hooks (Sort by Age/Skill/Health in Details Screen):
     # splices 0x4A7FF/0x4A8B4, stubs 0x4A0/0x500, name 0x560.
+    # Re-pinned for the measured numeric glide moving onto VV1's own village
+    # update. Three edits are added to the Origins feature and none removed or
+    # altered: the splice into the native Update at 0x23F89 (VA 0x423F89), the
+    # hook body at 0x8E960 that resolves the optional Origins forwarding, and
+    # the Vv1NumberKeysUpdate export name at 0x8E9E0. The number-keys feature
+    # file itself is byte-for-byte unchanged, which is why only this entry
+    # moves and the birth-control entry above does not.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "06607F2C2C0F04D9AA24D185CD52F4058D785DE179D3F14BD236437A742AA357",
-        "collection_progression": "B249CDC70340BCF229FE0DA8CC38C600907AD640354DCFEFE5611199E44B40E1",
-        "immediate_fixed": "B249CDC70340BCF229FE0DA8CC38C600907AD640354DCFEFE5611199E44B40E1",
+        "stock": "A8E218F36A10FEC0DB42FB65503A32FBFE575CD7AD31D1F59824599DD2B41915",
+        "collection_progression": "8DD5B4ED77DE423B54579D276F455C88A0A23E749DE2ACBA2E9E8CB58F42DA95",
+        "immediate_fixed": "8DD5B4ED77DE423B54579D276F455C88A0A23E749DE2ACBA2E9E8CB58F42DA95",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
