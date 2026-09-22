@@ -74,3 +74,56 @@ believed to be likes and dislikes. Changing a villager's clothes in-game
 moved one of them, proving the pair were head and body. Meaning is settled
 by perturbing the game state and watching what moves, or by reading the
 game's own display — never by correlation strength alone.
+
+## Pregnant and nursing are one state
+
+The games do not expose a pregnancy readout distinct from nursing: a
+carrying villager's Details panel reads `Nursing for: N min`. The owner
+treats the two as **the same state**, and these logs record it as one.
+
+A candidate field must therefore not be rejected because its holders turn
+out to be nursing rather than visibly pregnant. That rejection cost a long
+detour on VV2, where `+0x540` — the correct field — was discarded twice on
+exactly that reasoning before the game's own panel confirmed a holder.
+
+## A litter is one, two or three babies
+
+In **all five games** a villager carries 1, 2 or 3 babies, never more. Any
+candidate litter field whose live values fall outside that set is
+misidentified, whatever else fits.
+
+This is a cheap falsification test and it works: VV2's `+0x5E4` is
+female-only, which fits a pregnancy field, and was briefly shipped as the
+litter. Its values are 1, 3 and **5**, and 5 is not a possible litter, so
+the field is something else. "Female-only and small positive" is not
+sufficient evidence; the value set must be a subset of {1, 2, 3}.
+
+Nursing adds 1–3 to the population count, matching the litter range, and
+those babies have no villager records of their own.
+
+## The games are alike; an empty result indicts the search
+
+The five games store the same villager concepts in the same shapes. When a
+field is found in one game, the corresponding field exists in the others.
+
+So a search that comes back empty is evidence that **the search** is
+wrong, not that the game is unusual. The correct response is to find which
+assumption excluded the answer — a threshold, a unit, a gender filter, a
+stale anchor — rather than to conclude that this game differs.
+
+Concretely: VV2's pregnancy field went unfound through several passes
+because the search imposed a `value >= 200` floor carried over from VV1's
+scale, and because it required a conception stamp to sit *below* the
+mother's age in a way that ignored the 20-units-per-year conversion. The
+field was at `age + 0x10`, exactly where VV1 puts it.
+
+## Displayed values are converted; compare in the same units
+
+The number a panel shows is frequently not the number in memory. Age is
+the standing example — 20 units to the year, so a villager displaying 41
+holds 836 — and a raw read will never equal the displayed figure.
+
+Treating that mismatch as proof the offset is wrong is a mistake that has
+been made repeatedly. Convert before comparing, and when a measured value
+is off from the display by a suspiciously round factor, suspect units
+before suspecting the address.

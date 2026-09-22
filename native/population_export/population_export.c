@@ -249,6 +249,21 @@ struct game_layout {
        and whose panel line was blank.
 
        Zero when the offsets are not established for a game. */
+    /* Pregnancy, where the field is measured. Both are 0 for a game whose
+       field has not been established, and nothing is printed for it --
+       the same rule the skill table already follows.
+
+       `age_at_conception` is what the owner named it, and the live values
+       say the same: VV1's Akika was age 827 holding 787, Hawa 822 holding
+       782, so the field is the age she WAS when she conceived, not a
+       countdown, and the gap is how far the pregnancy has run.  It is zero
+       when not carrying, which is what makes it the pregnancy test; only
+       that zero/non-zero state is printed, because the raw age would change
+       nothing about the fact and would differ in every snapshot.
+
+       `litter` is the number of babies in this pregnancy. */
+    unsigned int age_at_conception;
+    unsigned int litter;
     unsigned int likes;
     unsigned int dislikes;
     unsigned int preference_slots;
@@ -288,6 +303,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x370u, 0x1Cu,
         0u, 0u, 0u, 0u,
         0x3BCu, 5u, 0,
+        0x358u, 0x35Cu,
         0x398u, 0x3A8u, 4u,
         PREFERENCES_47,
         "Virtual Villagers 1"
@@ -332,6 +348,15 @@ static const struct game_layout GAME_LAYOUTS[6] = {
            of them, and dislikes[62] ends at 0x7E0 where the skills begin
            at 0x7E4.  A count of 4 reported "(none)" for any villager
            whose first filled entry sat in slots 4..61. */
+        /* Confirmed against the owner's Cheat Engine table, which resolves
+           Villager 1's record to base 0x0D730020: Babyplets is listed at
+           0x0D730564, i.e. base+0x544, and the pregnancy field one dword
+           below it at +0x540.  Live, +0x540 is the only field in the whole
+           0xE48C record that is non-zero for exactly the carrying women and
+           zero for every other villager, and the game's own Villager Detail
+           screen confirms one of them (Jade) is nursing.  The owner treats
+           pregnant and nursing as one state, so that is the state logged. */
+        0x540u, 0x544u,
         0x5F0u, 0x6E8u, 62u,
         PREFERENCES_62,
         "Virtual Villagers 2"
@@ -345,6 +370,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xDD4u, 0x19u,
         0xE48u, 0x18u, 0xE68u, 0xE64u,
         0xEACu, 5u, 0,
+        0xE8Cu, 0xE90u,
         0xFB4u, 0xFC0u, 3u,
         PREFERENCES_79,
         "Virtual Villagers 3"
@@ -357,6 +383,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1B9Cu, 0x19u,
         0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu,
         0x1C5Cu, 5u, 1,
+        0x1C4Cu, 0x1C50u,
         0x1E60u, 0x1E6Cu, 3u,
         PREFERENCES_79,
         "Virtual Villagers 4"
@@ -369,6 +396,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1B9Cu, 0x19u,
         0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu,
         0x1C5Cu, 6u, 1,
+        0x1C4Cu, 0x1C50u,
         0x1F5Cu, 0x1F68u, 3u,
         PREFERENCES_79,
         "Virtual Villagers 5"
@@ -472,6 +500,11 @@ static int layout_is_sane(const struct game_layout *g) {
             && g->skills + g->skill_count * WORD > g->stride) {
         return 0;
     }
+    /* Declared pregnancy fields must fit whole, like every other field: a
+       field reaching past the stride would read the NEXT villager's record
+       and report one villager's pregnancy as another's. */
+    if (g->age_at_conception != 0u && g->age_at_conception + WORD > g->stride) return 0;
+    if (g->litter != 0u && g->litter + WORD > g->stride) return 0;
     /* Both preference arrays, when declared, must fit whole. A slot reaching
        past the stride would read the NEXT villager's record and report one
        villager's taste as another's. */
@@ -677,6 +710,25 @@ static int write_villager(
     }
     if (fprintf(file, "  Body: %d\n", *(const int *)(record + g->body)) < 0) {
         return 0;
+    }
+
+    /* Pregnancy, where the field is established for this game.
+
+       Printed only while she is carrying: an absent line means not pregnant,
+       which is what the Details screen shows too.  The age at conception is
+       the pregnancy test rather than a value worth printing -- it is her own
+       age at the moment she conceived, so it says nothing the reader cannot
+       already see and would differ in every snapshot.  The litter follows
+       only when the game set it, because 0 means a single baby and would
+       read as "none". */
+    if (g->age_at_conception != 0u && *(const int *)(record + g->age_at_conception) != 0) {
+        if (fprintf(file, "  Pregnant: yes\n") < 0) return 0;
+    }
+    if (g->litter != 0u) {
+        int litter = *(const int *)(record + g->litter);
+        if (litter > 1 && fprintf(file, "  Babies in pregnancy: %d\n", litter) < 0) {
+            return 0;
+        }
     }
 
     /* Likes and dislikes, where the offsets are established.
