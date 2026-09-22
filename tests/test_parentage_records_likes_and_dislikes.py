@@ -58,12 +58,18 @@ def _lists(source: str) -> dict[str, str]:
 
 def _parentage_rows() -> dict[int, tuple[int, int, int, str]]:
     """(likes, dislikes, slots, list) per game from the parentage exporter's
-    layout table: the four values just before each row's log name."""
+    layout table: the four preference values in each row.
+
+    The child's skills sit between the preference list and the log name and are
+    skipped here. This helper exists to compare the PREFERENCE geometry against
+    the population exporter's; the skills have their own cross-table test.
+    """
     table = _strip_comments(EXPORTER.read_text(encoding="utf-8"))
     table = table[table.index("GAME_LAYOUTS[6] = {") :]
     rows = re.findall(
         r"(0x[0-9A-Fa-f]+|\d+),\s*(0x[0-9A-Fa-f]+|\d+),\s*(\d+),\s*(PREFERENCES_\d+),\s*"
-        r'L"Virtual Villagers (\d) Parentage Log"',
+        r"(?:0x[0-9A-Fa-f]+|\d+),\s*\d+,\s*[01],\s*SKILL_NAMES_VV\d,\s*"
+        r'L"Virtual Villagers (\d) Births and Conceptions Log"',
         table,
     )
     return {int(g): (int(a, 0), int(b, 0), int(c), d) for a, b, c, d, g in rows}
@@ -233,6 +239,105 @@ class TheShippedDllAndManifestsCarryItTests(unittest.TestCase):
                 if COMPANION.is_file():
                     digest = hashlib.sha256(COMPANION.read_bytes()).hexdigest().lower()
                     self.assertIn(digest, text.lower(), "the manifest must pin the rebuilt export DLL")
+
+
+class SkillTablesAgreeWithThePopulationExporterTests(unittest.TestCase):
+    """The two companions must name a villager's skills identically.
+
+    The parentage exporter prints a child's skills on a birth record and the
+    population exporter prints every villager's on the roster and the history.
+    They read the same offsets out of the same record, so a table that drifted
+    in one would have the same villager holding "Farming 40" in one log and
+    "Parenting 40" in another -- wrong in a way that looks entirely plausible,
+    since both are real skills and the number is right.
+
+    The orders were measured per game from the owner's own villagers and are
+    NOT interchangeable: VV1 and VV2 differ from VV3-VV5, and VV5 alone has a
+    sixth skill. Restating them in a second file is what makes this test
+    necessary rather than optional.
+    """
+
+    def _tables(self, path: Path) -> dict[str, list[str]]:
+        text = path.read_text(encoding="utf-8")
+        out = {}
+        for game, body in re.findall(
+            r"SKILL_NAMES_(VV\d)\[MAX_SKILLS\] = \{(.*?)\};", text, re.S
+        ):
+            out[game] = re.findall(r'"([^"]+)"', body)
+        return out
+
+    def test_the_skill_tables_match_the_population_exporter(self):
+        parentage = self._tables(EXPORTER)
+        population = self._tables(POPULATION)
+        self.assertEqual(sorted(parentage), ["VV1", "VV2", "VV3", "VV4", "VV5"])
+        for game in ("VV1", "VV2", "VV3", "VV4", "VV5"):
+            with self.subTest(game=game):
+                self.assertEqual(parentage[game], population[game])
+
+    def test_every_row_declares_its_skills(self):
+        """A row that named no table would silently print no Skills block."""
+        table = _strip_comments(EXPORTER.read_text(encoding="utf-8"))
+        table = table[table.index("GAME_LAYOUTS[6] = {"):]
+        rows = re.findall(
+            r"(0x[0-9A-Fa-f]+|\d+),\s*(\d+),\s*([01]),\s*SKILL_NAMES_(VV\d),\s*"
+            r'L"Virtual Villagers (\d) Births and Conceptions Log"',
+            table,
+        )
+        self.assertEqual([g for *_, g in rows], ["1", "2", "3", "4", "5"])
+        for offset, count, is_float, named, game in rows:
+            with self.subTest(game=game):
+                # The table a row names must be its own game's.
+                self.assertEqual(named, "VV%s" % game)
+                self.assertGreater(int(offset, 0), 0)
+                # Pinned per game, not merely "5 or 6": VV5 alone has a sixth
+                # skill (Devotion), and a VV5 row that quietly dropped to five
+                # would omit it from every birth record while every other
+                # assertion here still passed.
+                self.assertEqual(int(count), 6 if game == "5" else 5)
+                # VV4 and VV5 store floats; VV1-VV3 store i32. Reading one as
+                # the other yields a plausible number, not a visible failure.
+                self.assertEqual(is_float, "1" if game in ("4", "5") else "0")
+
+    def test_the_skill_geometry_matches_the_population_exporter(self):
+        """The OFFSET has to match too, not just the names beside it.
+
+        Checking the name table, the count and the representation flag leaves
+        the one value that actually locates the data unchecked. Changing VV1's
+        offset here from 0x3BC to 0x3C0 passed every other assertion in this
+        file: each skill name would then carry the NEXT slot's number, so a
+        birth record and the roster would disagree about the same villager
+        while both looked entirely plausible. Found in review, and confirmed
+        by making that exact edit.
+
+        So the full geometry is compared per game -- offset, count and
+        representation -- against the population exporter's own rows.
+        """
+        parentage = dict(
+            (int(game), (int(off, 0), int(count), int(flag)))
+            for off, count, flag, _named, game in re.findall(
+                r"(0x[0-9A-Fa-f]+|\d+),\s*(\d+),\s*([01]),\s*SKILL_NAMES_(VV\d),\s*"
+                r'L"Virtual Villagers (\d) Births and Conceptions Log"',
+                _strip_comments(EXPORTER.read_text(encoding="utf-8")),
+            )
+        )
+        population = dict(
+            (int(game), (int(off, 0), int(count), int(flag)))
+            for off, count, flag, game in re.findall(
+                r"(0x[0-9A-Fa-f]+)u,\s*(\d+)u,\s*([01]),.*?"
+                r'"Virtual Villagers (\d)"',
+                _strip_comments(POPULATION.read_text(encoding="utf-8")),
+                re.DOTALL,
+            )
+        )
+        self.assertEqual(sorted(parentage), [1, 2, 3, 4, 5])
+        self.assertEqual(sorted(population), [1, 2, 3, 4, 5])
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                self.assertEqual(
+                    parentage[game], population[game],
+                    "game %d: the two exporters disagree about where the "
+                    "skills are, how many there are, or how they are stored"
+                    % game)
 
 
 if __name__ == "__main__":

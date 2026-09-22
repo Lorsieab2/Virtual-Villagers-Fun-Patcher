@@ -1302,7 +1302,7 @@ class App(tk.Tk):
                     # companion never writes: each log is named after its own
                     # game.
                     artifact_lines.append(
-                        f"Virtual Villagers {build.id.removeprefix('vv')} Parentage Log N.txt: "
+                        f"Virtual Villagers {build.id.removeprefix('vv')} Births and Conceptions Log N.txt: "
                         f"{modded_folder} — one plain-text record per pregnancy, written at "
                         "conception; rolls to a new numbered file every 256 records."
                     )

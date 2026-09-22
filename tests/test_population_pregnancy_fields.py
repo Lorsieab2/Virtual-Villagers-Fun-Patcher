@@ -83,6 +83,9 @@ def population_rows() -> dict[int, dict[str, int]]:
         "active", "age", "head", "body",
         "name", "name_capacity",
         "father_name", "father_name_capacity", "father_head", "father_body",
+        "parent_father_name", "parent_mother_name", "parent_name_capacity",
+        "parent_father_head", "parent_father_body",
+        "parent_mother_head", "parent_mother_body",
         "skills", "skill_count", "skills_are_float",
         "age_at_conception", "litter",
         "likes", "dislikes", "preference_slots",
@@ -124,7 +127,7 @@ class PregnancyLayoutTests(unittest.TestCase):
         found = {}
         for m in re.finditer(
             r'FATHER_BY_\w+,\s*(0x[0-9A-Fa-f]+|0),\s*(0x[0-9A-Fa-f]+|0),'
-            r'\s*(0x[0-9A-Fa-f]+|0),.*?L"Virtual Villagers (\d) Parentage Log"',
+            r'\s*(0x[0-9A-Fa-f]+|0),.*?L"Virtual Villagers (\d) Births and Conceptions Log"',
             table, re.DOTALL,
         ):
             found[int(m.group(4))] = int(m.group(3), 0)

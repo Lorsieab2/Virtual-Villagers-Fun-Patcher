@@ -1,25 +1,25 @@
 {
-  "companion_sha256": "8F53EBD29463158D0E5161980367E7BDA37D21ECFA25159B858E07B2F6E6EC6C",
+  "companion_sha256": "0EE343FA259AC528D96C4E8158BD4FFB20A35977F709976A27E8071686570FF4",
   "features": [
     {
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "8F53EBD29463158D0E5161980367E7BDA37D21ECFA25159B858E07B2F6E6EC6C",
+          "sha256": "0EE343FA259AC528D96C4E8158BD4FFB20A35977F709976A27E8071686570FF4",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         }
       ],
-      "description": "On each new pregnancy, appends the mother's and father's names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies to 'Virtual Villagers 5 Parentage Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His AGE, which has no copy on her, is read from his own record at conception -- the moment the engine hands both parents to the hook -- so a normal birth records his real age.",
+      "description": "On each new pregnancy, appends the mother's and father's names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies to 'Virtual Villagers 5 Births and Conceptions Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His AGE, which has no copy on her, is read from his own record at conception -- the moment the engine hands both parents to the hook -- so a normal birth records his real age.",
       "game_id": "vv5",
       "id": "vv5_write_parentage_log",
-      "name": "Write Parentage Log to Text File",
+      "name": "Write Births and Conceptions Log to Text File",
       "needs_on": [
         {
           "for": "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)",
           "id": "vv5_write_village_statistics"
         }
       ],
-      "output_tag": "Parentage Log Text Export",
+      "output_tag": "Births and Conceptions Log Text Export",
       "patches": [
         {
           "after": "e83d123600",

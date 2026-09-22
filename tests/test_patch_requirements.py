@@ -49,13 +49,13 @@ class PatchRequirementTests(unittest.TestCase):
 
     def test_the_functional_links_between_the_vv1_rows_are_stated_both_ways(self):
         parents = self.text("vv1_show_parents")
-        self.assertIn("Needs Write Parentage Log to Text File on for the father", parents)
+        self.assertIn("Needs Write Births and Conceptions Log to Text File on for the father", parents)
         self.assertIn('"Birth" records', parents)
         log = self.text("vv1_write_parentage_log")
         self.assertIn("Needs Show Parents in Details Screen on for the \"Birth\" records", log)
         # The reverse is declared on both sides, so it is not repeated.
         self.assertEqual(log.count("Show Parents in Details Screen"), 1)
-        self.assertEqual(parents.count("Write Parentage Log to Text File"), 1)
+        self.assertEqual(parents.count("Write Births and Conceptions Log to Text File"), 1)
         stats = self.text("vv1_write_village_statistics")
         self.assertIn("Needs Show Parents in Details Screen on for the \"Parents:\" lines", stats)
         # ...and Show Parents tells the player the roster needs it.
@@ -160,7 +160,7 @@ class PatchRequirementTests(unittest.TestCase):
 
     def test_the_readme_rows_state_the_links_in_bold(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertIn("**Needs Write Parentage Log to Text File on for the father", readme)
+        self.assertIn("**Needs Write Births and Conceptions Log to Text File on for the father", readme)
         self.assertIn("**Needs Show Parents in Details Screen on for the \"Parents:\" lines", readme)
 
 

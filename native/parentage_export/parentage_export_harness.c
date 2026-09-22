@@ -48,11 +48,11 @@ struct layout {
     const char *title;
 };
 static const struct layout LAYOUTS[5] = {
-    { 1, 0x3D8,  256, 0,    0x28,   0x348,  0x360,  0x364,  0x370,  0x1C, 0,      0,    0,      0,      0x35C,  0x398,  0x3A8,  4, 46, "jokes",  "Virtual Villagers 1 Parentage Log" },
-    { 2, 0xE48C, 256, 0,    0x30,   0x530,  0x548,  0x54C,  0x564,  0x18, 0x5C0,  0x18, 0x5E0,  0x5DC,  0x544,  0x5F0,  0x6E8, 62, 61, "dirt",   "Virtual Villagers 2 Parentage Log" },
-    { 3, 0x1F8C, 150, 0x14, 0xF10,  0xDC4,  0xDF0,  0xDF4,  0xDD4,  0x19, 0xE48,  0x18, 0xE68,  0xE64,  0xE90,  0xFB4,  0xFC0,  3, 78, "nature", "Virtual Villagers 3 Parentage Log" },
-    { 4, 0x2E3C, 150, 0x44, 0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1C10, 0x18, 0x1C30, 0x1C2C, 0x1C50, 0x1E60, 0x1E6C, 3, 78, "nature", "Virtual Villagers 4 Parentage Log" },
-    { 5, 0x2F44, 150, 0x48, 0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1C10, 0x18, 0x1C30, 0x1C2C, 0x1C50, 0x1F5C, 0x1F68, 3, 78, "nature", "Virtual Villagers 5 Parentage Log" },
+    { 1, 0x3D8,  256, 0,    0x28,   0x348,  0x360,  0x364,  0x370,  0x1C, 0,      0,    0,      0,      0x35C,  0x398,  0x3A8,  4, 46, "jokes",  "Virtual Villagers 1 Births and Conceptions Log" },
+    { 2, 0xE48C, 256, 0,    0x30,   0x530,  0x548,  0x54C,  0x564,  0x18, 0x5C0,  0x18, 0x5E0,  0x5DC,  0x544,  0x5F0,  0x6E8, 62, 61, "dirt",   "Virtual Villagers 2 Births and Conceptions Log" },
+    { 3, 0x1F8C, 150, 0x14, 0xF10,  0xDC4,  0xDF0,  0xDF4,  0xDD4,  0x19, 0xE48,  0x18, 0xE68,  0xE64,  0xE90,  0xFB4,  0xFC0,  3, 78, "nature", "Virtual Villagers 3 Births and Conceptions Log" },
+    { 4, 0x2E3C, 150, 0x44, 0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1C10, 0x18, 0x1C30, 0x1C2C, 0x1C50, 0x1E60, 0x1E6C, 3, 78, "nature", "Virtual Villagers 4 Births and Conceptions Log" },
+    { 5, 0x2F44, 150, 0x48, 0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1C10, 0x18, 0x1C30, 0x1C2C, 0x1C50, 0x1F5C, 0x1F68, 3, 78, "nature", "Virtual Villagers 5 Births and Conceptions Log" },
 };
 
 static const struct layout *g;
@@ -93,7 +93,14 @@ static int locate_folder(void) {
     if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) return 0;
     base = strrchr(exe, '\\'); base = base ? base + 1 : exe;
     dot = strrchr(base, '.'); if (dot) *dot = 0;
-    _snprintf(folder, MAX_PATH, "%s\\LDW\\%s", docs, base);
+    /* The exporter writes into a subfolder, not the save folder itself. This
+       harness was left addressing the save folder when that layout was
+       introduced, so every lookup missed and all 37 checks failed in a way
+       indistinguishable from the DLL writing nothing at all. Nothing caught
+       it because the harness does not run in CI. */
+    _snprintf(folder, MAX_PATH, "%s\\LDW\\%s\\VVFP Logs\\Births and Conceptions",
+              docs, base);
+    folder[MAX_PATH - 1] = '\0';
     return 1;
 }
 static void remove_logs(void) {

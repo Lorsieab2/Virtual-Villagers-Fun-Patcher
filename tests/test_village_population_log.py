@@ -67,6 +67,12 @@ def _population_rows() -> dict[int, dict[str, int]]:
             "name", "name_capacity",
             "father_name", "father_name_capacity",
             "father_head", "father_body",
+            # The villager's OWN parents, which VV2-VV5 keep on the record for
+            # life. VV1 is the special case: it stores none of these and its
+            # sidecar supplies the block instead, so its row is all zeros here.
+            "parent_father_name", "parent_mother_name", "parent_name_capacity",
+            "parent_father_head", "parent_father_body",
+            "parent_mother_head", "parent_mother_body",
             "skills", "skill_count", "skills_are_float",
             # Pregnancy, added for #418 phase 2A. Both are 0 for a game whose
             # field is not established, and the exporter prints nothing for it.
@@ -108,7 +114,7 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         blocks = dict(
             (int(num), re.sub(r"/\*.*?\*/", "", body, flags=re.DOTALL))
             for body, num in re.findall(
-                r"\{([^{}]*?)L\"Virtual Villagers (\d) Parentage Log\"",
+                r"\{([^{}]*?)L\"Virtual Villagers (\d) Births and Conceptions Log\"",
                 table,
                 re.DOTALL,
             )

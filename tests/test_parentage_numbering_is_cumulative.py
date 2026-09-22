@@ -85,7 +85,12 @@ class ParentageNumberingIsCumulativeTests(unittest.TestCase):
         """
         body = _function("select_log_file")
         accumulate = body.index("total += records")
-        not_full = body.index("if (records < RECORDS_PER_FILE)")
+        # Matched on the condition's opening rather than the whole
+        # expression: a birth now also takes this branch when the file is
+        # full of conceptions, so the condition reads
+        # `records < RECORDS_PER_FILE || (for_birth && records > 0)`.
+        # The ordering this test pins is unaffected.
+        not_full = body.index("if (records < RECORDS_PER_FILE")
         self.assertLess(
             accumulate,
             not_full,

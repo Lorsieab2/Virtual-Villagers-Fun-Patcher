@@ -55,7 +55,7 @@ def main() -> None:
             "Population roster lists each villager's own parents. Founders and villagers "
             "born before this patch have no recorded parents. Requires Enable "
             "Origins-Exclusive Features, whose companion loads this one. The father is "
-            "supplied by Write Parentage Log's conception hook, so with that row off only "
+            "supplied by Write Births and Conceptions Log's conception hook, so with that row off only "
             "the mother is recorded."
         ),
         "output_tag": "Show Parents",

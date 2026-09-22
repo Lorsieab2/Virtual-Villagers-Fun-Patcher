@@ -231,6 +231,47 @@ struct game_layout {
     unsigned int father_name_capacity;
     unsigned int father_head;
     unsigned int father_body;
+    /* THIS VILLAGER'S OWN PARENTS -- a different thing entirely from the
+       father fields above, which describe the man who fathered the child a
+       woman is currently carrying.
+
+       VV2 through VV5 keep both parents' head and body on every villager's
+       own record and keep them for life, adults included, so a villager's
+       ancestry is readable at any moment rather than only at a birth. VV1
+       stores nothing of the kind and reconstructs it in a sidecar instead,
+       so its four values here are zero and write_vv1_own_parents supplies
+       the block.
+
+       Measured live in each game rather than taken from the one documented
+       pair, by three independent tests: the pair matching some living
+       villager's actual appearance far above chance (0% for a control
+       field); grouping into sibling sets, where a wrong offset gives one
+       constant shared by everyone or values shifted by a field; and, in VV2,
+       the father pair matching 47 males and no females while the mother pair
+       matched 79 females and no males. The owner's own facts corroborate it:
+       one male fathers many children, so a single father pair recurs across
+       several mothers, which is exactly the shape the data has.
+
+       The NAMES are stored too, as plain strings on the child: the owner's
+       own statement of how the series works, confirmed live in every game
+       that has them. That is what makes this block readable on its own
+       rather than a pair of numbers the reader has to match against the
+       roster. A name field resolves only to villagers of the right sex --
+       VV2's father field scored 74 male and 0 female, its mother field 85
+       female and 0 male -- and the names agree with the appearance pairs
+       beside them for 141 of 159 stored parents. The 18 that differ are
+       villagers whose looks changed after the birth, which the Origins
+       upgrades do to a whole village at once, so the pairs are a birth-time
+       snapshot while the name still points at the living villager.
+
+       Zero means the game does not store it. */
+    unsigned int parent_father_name;
+    unsigned int parent_mother_name;
+    unsigned int parent_name_capacity;
+    unsigned int parent_father_head;
+    unsigned int parent_father_body;
+    unsigned int parent_mother_head;
+    unsigned int parent_mother_body;
     unsigned int skills;          /* i32[skill_count] or float[skill_count] */
     unsigned int skill_count;
     int skills_are_float;
@@ -301,7 +342,9 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0u, 0x3D8u, 256u,
         0x28u, 0x348u, 0x360u, 0x364u,
         0x370u, 0x1Cu,
-        0u, 0u, 0u, 0u,
+        0u, 0u, 0u, 0u,               /* no pregnancy-father copy in VV1 */
+        0u, 0u, 0u, 0u, 0u, 0u, 0u,   /* and no parents on the record at all:
+                                         the sidecar supplies VV1's block */
         0x3BCu, 5u, 0,
         0x358u, 0x35Cu,
         0x398u, 0x3A8u, 4u,
@@ -330,6 +373,13 @@ static const struct game_layout GAME_LAYOUTS[6] = {
            declares 0 for this, meaning "same as the villager's own name",
            which for VV2 is 0x18 -- the same number, stated rather than
            implied, because this exporter has no such defaulting rule */
+        /* This villager's OWN parents. Measured live across 95 villagers,
+           and VV2 settles it more sharply than any other game: the father
+           pair matched 47 living MALES and not one female, the mother pair
+           79 living FEMALES and not one male. Sibling grouping agrees --
+           five villagers share father (11,16) with mother (19,9), and that
+           same father recurs with several different mothers. */
+        0x57Du, 0x596u, 0x18u, 0x5B0u, 0x5B4u, 0x5B8u, 0x5BCu,
         /* Five int32 skills, from the shipped Origins Full Mastery
            walker: it compares [esi+0x7E4] through [esi+0x7F4] against
            100 while striding esi by 0xE48C, the stride this row already
@@ -369,6 +419,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xF10u, 0xDC4u, 0xDF0u, 0xDF4u,
         0xDD4u, 0x19u,
         0xE48u, 0x18u, 0xE68u, 0xE64u,
+        0xDF8u, 0xE11u, 0x19u, 0xE2Cu, 0xE30u, 0xE34u, 0xE38u,
         0xEACu, 5u, 0,
         0xE8Cu, 0xE90u,
         0xFB4u, 0xFC0u, 3u,
@@ -382,6 +433,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1CC4u, 0x1B8Cu, 0x1BB8u, 0x1BBCu,
         0x1B9Cu, 0x19u,
         0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu,
+        0x1BC0u, 0x1BD9u, 0x19u, 0x1BF4u, 0x1BF8u, 0x1BFCu, 0x1C00u,
         0x1C5Cu, 5u, 1,
         0x1C4Cu, 0x1C50u,
         0x1E60u, 0x1E6Cu, 3u,
@@ -395,6 +447,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1CD4u, 0x1B8Cu, 0x1BB8u, 0x1BBCu,
         0x1B9Cu, 0x19u,
         0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu,
+        0x1BC0u, 0x1BD9u, 0x19u, 0x1BF4u, 0x1BF8u, 0x1BFCu, 0x1C00u,
         0x1C5Cu, 6u, 1,
         0x1C4Cu, 0x1C50u,
         0x1F5Cu, 0x1F68u, 3u,
@@ -525,6 +578,27 @@ static int layout_is_sane(const struct game_layout *g) {
         }
         if (g->father_name_capacity + 1u > MAX_NAME_BYTES) return 0;
         if (g->father_name + g->father_name_capacity > g->stride) return 0;
+    }
+    /* This villager's own parents: a game that names one of the four must
+       name all four, and every read must fit inside the record. All zero
+       means the game does not store them (VV1), and then nothing is printed
+       from here -- VV1's sidecar supplies its block instead. */
+    if (g->parent_father_name != 0u || g->parent_mother_name != 0u
+            || g->parent_father_head != 0u || g->parent_father_body != 0u
+            || g->parent_mother_head != 0u || g->parent_mother_body != 0u) {
+        if (g->parent_father_name == 0u || g->parent_mother_name == 0u
+                || g->parent_name_capacity == 0u
+                || g->parent_father_head == 0u || g->parent_father_body == 0u
+                || g->parent_mother_head == 0u || g->parent_mother_body == 0u) {
+            return 0;
+        }
+        if (g->parent_name_capacity + 1u > MAX_NAME_BYTES) return 0;
+        if (g->parent_father_name + g->parent_name_capacity > g->stride) return 0;
+        if (g->parent_mother_name + g->parent_name_capacity > g->stride) return 0;
+        if (g->parent_father_head + WORD > g->stride) return 0;
+        if (g->parent_father_body + WORD > g->stride) return 0;
+        if (g->parent_mother_head + WORD > g->stride) return 0;
+        if (g->parent_mother_body + WORD > g->stride) return 0;
         if (g->father_head + WORD > g->stride) return 0;
         if (g->father_body + WORD > g->stride) return 0;
     }
@@ -750,13 +824,12 @@ static int write_villager(
         }
     }
 
-    /* Parents, where the game recorded them.
+    /* The father of the child this villager is CARRYING -- the owner's own
+       definition of this line, and not her own father.
 
-       Only the FATHER's details are stored on a villager, and only on a
-       mother carrying his child -- the games copy his name, head and body
-       onto her at conception and never store a mother's own parents. So this
-       block is a pregnancy's father, present on some records and absent on
-       others, which is exactly the "if present" the request allows for.
+       The games copy his name, head and body onto her at conception, so the
+       block is present on a pregnant woman and absent on everyone else,
+       which is exactly the "if present" the request allows for.
 
        An all-zero name means nothing was ever copied: a real name always has
        a first byte, and zero there cannot be a name. Head and body are NOT
@@ -774,6 +847,50 @@ static int write_villager(
         if (fprintf(file, "    Body: %d\n",
                     *(const int *)(record + g->father_body)) < 0) {
             return 0;
+        }
+    }
+
+    /* This villager's OWN parents, which VV2 to VV5 keep on the record for
+       life -- adults included, not only children. Printed in the same shape
+       as VV1's sidecar block below, so a reader cannot tell which mechanism
+       supplied it.
+
+       Only the appearance values are stored; the games keep no parent NAMES,
+       so the names are what the reader matches against the rest of the
+       roster. That is the owner's own framing of how these logs are used.
+
+       Nothing is printed when all four are zero: a founder or an immigrant
+       has no recorded parents, and a block of zeroes would read as a real
+       villager whose head and body are both 0. */
+    if (g->parent_father_name != 0u) {
+        char pf[MAX_NAME_BYTES];
+        char pm[MAX_NAME_BYTES];
+        copy_name_field(record + g->parent_father_name, g->parent_name_capacity,
+                        pf, sizeof(pf));
+        copy_name_field(record + g->parent_mother_name, g->parent_name_capacity,
+                        pm, sizeof(pm));
+        /* A founder or an immigrant has no recorded parents, and its fields
+           are empty rather than absent. Testing the NAMES is what decides
+           it: 0 is a valid head and a valid body, so a parent genuinely at
+           row 0 would be discarded by a zero check on the appearance. */
+        if (pf[0] != '\0' || pm[0] != '\0') {
+            if (fprintf(file, "  Parents:\n") < 0) return 0;
+            if (pf[0] != '\0') {
+                if (fprintf(file, "    Father: %s\n      Head: %d\n      Body: %d\n",
+                            pf,
+                            *(const int *)(record + g->parent_father_head),
+                            *(const int *)(record + g->parent_father_body)) < 0) {
+                    return 0;
+                }
+            }
+            if (pm[0] != '\0') {
+                if (fprintf(file, "    Mother: %s\n      Head: %d\n      Body: %d\n",
+                            pm,
+                            *(const int *)(record + g->parent_mother_head),
+                            *(const int *)(record + g->parent_mother_body)) < 0) {
+                    return 0;
+                }
+            }
         }
     }
     if (game_id == GAME_VV1 && !write_vv1_own_parents(file, index)) {

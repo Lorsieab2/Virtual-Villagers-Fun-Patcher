@@ -127,3 +127,74 @@ Treating that mismatch as proof the offset is wrong is a mistake that has
 been made repeatedly. Convert before comparing, and when a measured value
 is off from the display by a suspiciously round factor, suspect units
 before suspecting the address.
+
+## Villagers are children or adults — use those words
+
+There are exactly two kinds of villager: **children** and **adults**. Those
+are the terms this project uses, in code, in comments, in logs and in
+conversation.
+
+"Newborn" is not one of them. The owner has corrected it repeatedly, and it is
+not merely a style preference — the word implies a third category that does not
+exist and invites treating the youngest villagers as a special case to be
+filtered, reported on, or excluded. They are not special. A child is a villager
+and is logged like any other.
+
+The underlying rule, which is what makes the distinction load-bearing:
+
+* An adult can gain **nursing** status. That adds 1–3 to the population count.
+* The babies being nursed are **not separate villagers**. They have **no
+  record of their own** — nothing in the villager array represents them.
+* A villager becomes a separate villager, a child, at **age 2** (40 age units),
+  which is when a record first exists for it.
+
+So an age floor added to "filter out the very young" filters out nothing that
+was ever there, while wrongly dropping real two-year-olds who are genuine
+separate villagers. That mistake has been made here before.
+
+## The games store both parents on the child, for life
+
+**The games always save the parents' names, head values and body values in the
+child's own villager data.** This is the owner's statement of how the series
+works, and it is the fact any parentage feature should be built on.
+
+It holds for **VV2, VV3, VV4 and VV5**, and it holds permanently — an adult
+villager still carries its own parents' details, not just a child. So a villager's
+ancestry can be read at any moment from its own record. Nothing has to be
+captured at a birth, and no companion has to watch for one.
+
+Measured live, VV2 keeps the father's name at `+0x57D` and the mother's at
+`+0x596`, with their appearance at `+0x5B0`/`+0x5B4` (father) and
+`+0x5B8`/`+0x5BC` (mother). The two agree with each other: across 159 stored
+parent names, 141 had the named villager's current head and body equal to the
+stored pair. The 18 that differed are villagers whose looks changed after the
+birth — the Origins upgrades restyle a whole village — which is exactly what a
+birth-time snapshot should look like.
+
+Do not confuse this with the **pregnancy father** field (VV2 `+0x5C0`). That
+one is the father of the child a woman is currently carrying, copied onto her
+at conception and present only while she is pregnant. The owner's definition:
+"the father of the child this woman is carrying". The two are different fields
+answering different questions, and only the pair above is the villager's own
+ancestry.
+
+**VV1 is the exception.** A New Home stores no parent fields at all, which is
+why it needs a sidecar that reconstructs parentage and binds it to the living
+roster. Its logs get the same Parents block by that route instead.
+
+**VV2 to VV5 show the parents on the Details screen**, so the game itself is
+the reference: open a villager and read the father and mother off the panel,
+then confirm the record holds those names. That is the check to reach for
+first, ahead of any statistical argument.
+
+Where a screen is not available, a wrong offset still fails visibly. Three
+independent tests:
+
+* **Gender purity.** A father field resolves only to male villagers and a
+  mother field only to female ones. VV2's scored 74 male / 0 female and 0 male
+  / 85 female — a coincidence cannot be that clean.
+* **Sibling grouping.** Villagers sharing all four appearance values are
+  siblings, so real fields cluster into family groups. A wrong offset yields
+  one constant shared by everyone, or values shifted by a field.
+* **A control field.** An unrelated pair of dwords matches a living villager's
+  appearance 0% of the time, against 45–87% for the real ones.
