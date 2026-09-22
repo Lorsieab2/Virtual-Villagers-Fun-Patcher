@@ -97,7 +97,7 @@ VV2_CHAIN = (
     ),
 )
 
-VV2_LOG_NAME = "Virtual Villagers 2 Parentage Log"
+VV2_LOG_NAME = "Virtual Villagers 2 Births and Conceptions Log"
 
 # The copy pair is the line after the FATHER_* line and before no_villager.
 COPY_PAIR = (
@@ -109,7 +109,7 @@ COPY_PAIR = (
 def _descriptor_rows() -> list[tuple[str, str]]:
     """Each game's descriptor body, keyed by the log name that ends it."""
     text = SOURCE.read_text(encoding="utf-8")
-    pattern = r"\{(.*?)L\"(Virtual Villagers \d+ Parentage Log)\""
+    pattern = r"\{(.*?)L\"(Virtual Villagers \d+ Births and Conceptions Log)\""
     return [(m.group(2), m.group(1)) for m in re.finditer(pattern, text, re.S)]
 
 
@@ -140,11 +140,11 @@ class VV2FatherTraitsAreCopiedOntoTheMotherTests(unittest.TestCase):
     # copies; leaving them zero forced a name scan that printed a LIVING
     # namesake's appearance under a dead father's name.
     EXPECTED_COPIES = {
-        "Virtual Villagers 1 Parentage Log": (0, 0),
-        "Virtual Villagers 2 Parentage Log": (VV2_FATHER_HEAD_COPY, VV2_FATHER_BODY_COPY),
-        "Virtual Villagers 3 Parentage Log": (0xE68, 0xE64),
-        "Virtual Villagers 4 Parentage Log": (0x1C30, 0x1C2C),
-        "Virtual Villagers 5 Parentage Log": (0x1C30, 0x1C2C),
+        "Virtual Villagers 1 Births and Conceptions Log": (0, 0),
+        "Virtual Villagers 2 Births and Conceptions Log": (VV2_FATHER_HEAD_COPY, VV2_FATHER_BODY_COPY),
+        "Virtual Villagers 3 Births and Conceptions Log": (0xE68, 0xE64),
+        "Virtual Villagers 4 Births and Conceptions Log": (0x1C30, 0x1C2C),
+        "Virtual Villagers 5 Births and Conceptions Log": (0x1C30, 0x1C2C),
     }
 
     def test_each_game_declares_the_copies_it_was_shown_to_have(self) -> None:

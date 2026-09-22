@@ -69,7 +69,7 @@ def _parentage_rows() -> dict[int, tuple[int, int, int, str]]:
     rows = re.findall(
         r"(0x[0-9A-Fa-f]+|\d+),\s*(0x[0-9A-Fa-f]+|\d+),\s*(\d+),\s*(PREFERENCES_\d+),\s*"
         r"(?:0x[0-9A-Fa-f]+|\d+),\s*\d+,\s*[01],\s*SKILL_NAMES_VV\d,\s*"
-        r'L"Virtual Villagers (\d) Parentage Log"',
+        r'L"Virtual Villagers (\d) Births and Conceptions Log"',
         table,
     )
     return {int(g): (int(a, 0), int(b, 0), int(c), d) for a, b, c, d, g in rows}
@@ -280,7 +280,7 @@ class SkillTablesAgreeWithThePopulationExporterTests(unittest.TestCase):
         table = table[table.index("GAME_LAYOUTS[6] = {"):]
         rows = re.findall(
             r"(0x[0-9A-Fa-f]+|\d+),\s*(\d+),\s*([01]),\s*SKILL_NAMES_(VV\d),\s*"
-            r'L"Virtual Villagers (\d) Parentage Log"',
+            r'L"Virtual Villagers (\d) Births and Conceptions Log"',
             table,
         )
         self.assertEqual([g for *_, g in rows], ["1", "2", "3", "4", "5"])

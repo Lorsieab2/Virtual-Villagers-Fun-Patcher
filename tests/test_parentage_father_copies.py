@@ -85,7 +85,7 @@ class FatherCopyOffsetsTest(unittest.TestCase):
 
     def _row(self, game_number: int) -> tuple[int, int]:
         """The father_head_copy / father_body_copy pair from a layout row."""
-        marker = 'L"Virtual Villagers %d Parentage Log"' % game_number
+        marker = 'L"Virtual Villagers %d Births and Conceptions Log"' % game_number
         self.assertIn(marker, self.text)
         row_end = self.text.index(marker)
         row_start = self.text.rindex("{", 0, row_end)

@@ -127,7 +127,7 @@ class PregnancyLayoutTests(unittest.TestCase):
         found = {}
         for m in re.finditer(
             r'FATHER_BY_\w+,\s*(0x[0-9A-Fa-f]+|0),\s*(0x[0-9A-Fa-f]+|0),'
-            r'\s*(0x[0-9A-Fa-f]+|0),.*?L"Virtual Villagers (\d) Parentage Log"',
+            r'\s*(0x[0-9A-Fa-f]+|0),.*?L"Virtual Villagers (\d) Births and Conceptions Log"',
             table, re.DOTALL,
         ):
             found[int(m.group(4))] = int(m.group(3), 0)

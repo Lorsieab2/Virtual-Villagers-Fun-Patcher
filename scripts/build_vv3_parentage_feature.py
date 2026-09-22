@@ -420,14 +420,14 @@ def build() -> dict:
             {
                 "id": "vv3_write_parentage_log",
                 "game_id": "vv3",
-                "name": "Write Parentage Log to Text File",
-                "output_tag": "Parentage Log Text Export",
+                "name": "Write Births and Conceptions Log to Text File",
+                "output_tag": "Births and Conceptions Log Text Export",
                 "description": (
                     "Records both parents at conception in a plain text log: "
                     "their names, both parents' ages at conception, both head "
                     "and body values, both parents' likes and dislikes, and the "
                     "number of babies, appended to "
-                    "'Virtual Villagers 3 Parentage Log N.txt' beside the game "
+                    "'Virtual Villagers 3 Births and Conceptions Log N.txt' beside the game "
                     "executable. Parentage is not stored in any villager "
                     "record, so both parents are captured at conception; they "
                     "cannot be recovered from the child afterwards. VV3 keeps "

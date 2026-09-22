@@ -183,7 +183,7 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn(narrow_pop, self.harness)
         self.assertIn(narrow_par, self.harness)
         self.assertIn('wsprintfA(pop1, "%s\\\\Village Population 1.txt", popdir);', self.harness)
-        self.assertIn('wsprintfA(log1, "%s\\\\Virtual Villagers 1 Parentage Log 1.txt", pardir);',
+        self.assertIn('wsprintfA(log1, "%s\\\\Virtual Villagers 1 Births and Conceptions Log 1.txt", pardir);',
                       self.harness)
         # statistics fixtures still sit in the save root
         self.assertIn('wsprintfA(stats1, "%s\\\\Village Statistics - Save 1.txt", folder);',

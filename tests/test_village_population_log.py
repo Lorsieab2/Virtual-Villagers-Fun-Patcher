@@ -114,7 +114,7 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         blocks = dict(
             (int(num), re.sub(r"/\*.*?\*/", "", body, flags=re.DOTALL))
             for body, num in re.findall(
-                r"\{([^{}]*?)L\"Virtual Villagers (\d) Parentage Log\"",
+                r"\{([^{}]*?)L\"Virtual Villagers (\d) Births and Conceptions Log\"",
                 table,
                 re.DOTALL,
             )

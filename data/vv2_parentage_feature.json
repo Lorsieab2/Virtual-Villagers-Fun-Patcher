@@ -3,7 +3,7 @@
     {
       "id": "vv2_write_parentage_log",
       "game_id": "vv2",
-      "name": "Write Parentage Log to Text File",
+      "name": "Write Births and Conceptions Log to Text File",
       "output_tag": "parentage",
       "description": "Records both parents at conception in a plain text log: their names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies. The mother's age determines the child's age, and the father's age is recorded too. VV2 keeps the father's name on the mother's record and no father id; his head and body are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His age, which has no copy on her, is read from his own record -- the two ordinary conception callers still hold it -- so a normal birth records his real age. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it.",
       "needs_on": [
@@ -18,7 +18,7 @@
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "e7dfbd33f856d72a521feae29aef8452814d32127e11a68a2039248eb319910e",
+          "sha256": "90643fed9f36fe47a4b55967f59eb23e0ed3d20b7657af7ed602623423f501b2",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         }
       ],

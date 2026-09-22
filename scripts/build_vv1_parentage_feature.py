@@ -769,14 +769,14 @@ def build() -> dict:
             {
                 "id": "vv1_write_parentage_log",
                 "game_id": "vv1",
-                "name": "Write Parentage Log to Text File",
-                "output_tag": "Parentage Log Text Export",
+                "name": "Write Births and Conceptions Log to Text File",
+                "output_tag": "Births and Conceptions Log Text Export",
                 "description": (
                     "On each new pregnancy, appends both parents' names, "
                     "both parents' ages at conception, both head and body "
                     "values, both parents' likes and dislikes, and the number "
                     "of babies to 'Virtual "
-                    "Villagers 1 Parentage Log N.txt' beside the game "
+                    "Villagers 1 Births and Conceptions Log N.txt' beside the game "
                     "executable. The mother's age determines the child's "
                     "age, and the father's age is recorded too. VV1 "
                     "stores nothing about the father in the mother's "

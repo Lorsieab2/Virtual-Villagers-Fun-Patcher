@@ -44,11 +44,11 @@ static const char *const SIDECAR_FORMATS[5][3] = {
 #define MAX_LOG_FILES 4096
 
 static const wchar_t *const PARENTAGE_LOG[5] = {
-    L"Virtual Villagers 1 Parentage Log",
-    L"Virtual Villagers 2 Parentage Log",
-    L"Virtual Villagers 3 Parentage Log",
-    L"Virtual Villagers 4 Parentage Log",
-    L"Virtual Villagers 5 Parentage Log",
+    L"Virtual Villagers 1 Births and Conceptions Log",
+    L"Virtual Villagers 2 Births and Conceptions Log",
+    L"Virtual Villagers 3 Births and Conceptions Log",
+    L"Virtual Villagers 4 Births and Conceptions Log",
+    L"Virtual Villagers 5 Births and Conceptions Log",
 };
 
 /* Exposed to the harness under VV_RESET_TESTABLE so the empty-path guard can

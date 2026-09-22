@@ -437,7 +437,7 @@ def build() -> dict:
             {
                 "id": "vv2_write_parentage_log",
                 "game_id": "vv2",
-                "name": "Write Parentage Log to Text File",
+                "name": "Write Births and Conceptions Log to Text File",
                 "output_tag": "parentage",
                 "description": (
                     "Records both parents at conception in a plain text log: "

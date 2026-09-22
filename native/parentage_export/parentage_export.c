@@ -555,7 +555,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xC7,
         0x398, 0x3A8, 4, PREFERENCES_47,
         0x3BC, 5, 0, SKILL_NAMES_VV1,
-        L"Virtual Villagers 1 Parentage Log"
+        L"Virtual Villagers 1 Births and Conceptions Log"
     },
 
     /* VV2 -- The Lost Children. Conception is sub_44B980; the mother arrives as
@@ -606,7 +606,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0,
         0x5F0, 0x6E8, 62, PREFERENCES_62,
         0x7E4, 5, 0, SKILL_NAMES_VV2,
-        L"Virtual Villagers 2 Parentage Log"
+        L"Virtual Villagers 2 Births and Conceptions Log"
     },
 
     /* VV3 -- The Secret City. Conception is sub_455AB0, and unlike VV1 and VV2
@@ -673,7 +673,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0,
         0xFB4, 0xFC0, 3, PREFERENCES_79,
         0xEAC, 5, 0, SKILL_NAMES_VV3,
-        L"Virtual Villagers 3 Parentage Log"
+        L"Virtual Villagers 3 Births and Conceptions Log"
     },
 
     /* VV4 -- The Tree of Life. Verified against the stock binary:
@@ -734,7 +734,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0,
         0x1E60, 0x1E6C, 3, PREFERENCES_79,
         0x1C5C, 5, 1, SKILL_NAMES_VV4,
-        L"Virtual Villagers 4 Parentage Log"
+        L"Virtual Villagers 4 Births and Conceptions Log"
     },
 
     /* VV5 -- New Believers. Structurally identical to VV4 at every offset used
@@ -774,7 +774,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0,
         0x1F5C, 0x1F68, 3, PREFERENCES_79,
         0x1C5C, 6, 1, SKILL_NAMES_VV5,
-        L"Virtual Villagers 5 Parentage Log"
+        L"Virtual Villagers 5 Births and Conceptions Log"
     }
 };
 
@@ -864,7 +864,7 @@ static const unsigned char *find_record_by_id(
     return NULL;
 }
 
-/* Build "<exe folder>\Virtual Villagers 1 Parentage Log <n>.txt".
+/* Build "<exe folder>\Virtual Villagers 1 Births and Conceptions Log <n>.txt".
 
    Beside the executable, matching where the statistics companion writes, so a
    player finds both logs in the same place. */

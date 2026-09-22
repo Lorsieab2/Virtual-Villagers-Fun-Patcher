@@ -111,13 +111,13 @@ int main(void) {
     wsprintfA(doubler1, "%s\\vv1_doublers_1.dat", folder);
     wsprintfA(save1, "%s\\Virtual Villagers1.ldw", folder);
     wsprintfA(other_game, "%s\\vv2_masks_1.dat", folder);
-    wsprintfA(log1, "%s\\Virtual Villagers 1 Parentage Log 1.txt", pardir);
+    wsprintfA(log1, "%s\\Virtual Villagers 1 Births and Conceptions Log 1.txt", pardir);
 
     wsprintfA(stats1, "%s\\Village Statistics - Save 1.txt", folder);
     wsprintfA(stats2, "%s\\Village Statistics - Save 2.txt", folder);
     wsprintfA(pop1, "%s\\Village Population 1.txt", popdir);
     wsprintfA(pop2, "%s\\Village Population 2.txt", popdir);
-    wsprintfA(log_other, "%s\\Virtual Villagers 1 Parentage Log 2.txt", pardir);
+    wsprintfA(log_other, "%s\\Virtual Villagers 1 Births and Conceptions Log 2.txt", pardir);
 
     touch(mask1); touch(mask2); touch(doubler1);
     touch(save1); touch(other_game);
@@ -158,7 +158,7 @@ int main(void) {
        left alone rather than deleted on a guess. */
     {
         char probe[MAX_PATH];
-        wsprintfA(probe, "%s\\Virtual Villagers 1 Parentage Log 1.txt", pardir);
+        wsprintfA(probe, "%s\\Virtual Villagers 1 Births and Conceptions Log 1.txt", pardir);
         write_text(probe, VILLAGE);
         check(exists(probe), "parentage probe recreated (nonzero denominator)");
         vv_reset_slot_state(1, 1, NULL);
