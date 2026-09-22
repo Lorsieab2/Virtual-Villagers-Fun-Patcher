@@ -4,23 +4,35 @@ Both fields were already MEASURED -- the parentage exporter reads them for
 every game it supports -- but the population layout never declared them, so
 neither the roster nor the history showed whether a villager was carrying.
 
+    pregnancy   VV1 0x358, VV2 0x540, VV3 0xE8C, VV4/VV5 0x1C4C
     litter      VV1 0x35C, VV2 0x544, VV3 0xE90, VV4/VV5 0x1C50
-    pregnancy   VV1 0x358 (the due field), VV2 0x5E4 (a flag written at
-                0x44BA10). VV3/VV4/VV5 have no measured field and declare 0,
-                so nothing is printed for them rather than a guess -- the same
-                rule the skill table already follows.
+
+All five come from the owner's Cheat Engine tables, recorded in
+docs/villager-record-reference.md, which outrank any measurement of a
+running process. See that file before changing a value here.
+
+VV2 was briefly shipped as 0x5E4 and that was WRONG. Read live, 0x5E4 holds
+the values 1, 3 and 5 across a village; a litter is never 5, and the field is
+two orders of magnitude too small to be an age. It must not be reinstated --
+the mutation harness carries a case (M8) that fails if it is.
 
 TWO RENDERING DECISIONS, both load-bearing:
 
-* The due field is a COUNTDOWN, not a boolean. Read live from the owner's
-  village, Akika held 787 and Hawa 782 while pregnant and both men held 0.
-  Printing the number would put a figure in the history that means nothing to
-  a reader and changes every tick, so every snapshot would differ even when
-  nothing happened. Only its zero/non-zero state is used.
+* The pregnancy field holds the mother's age at conception, not a boolean and
+  not a countdown. Read live, VV1's Akika held 787 against her age of 827 and
+  Hawa 782 against 822, while every man held 0. Printing the number would put
+  a figure in the history that means nothing to a reader and differs in every
+  snapshot, so only its zero/non-zero state is used.
 
-* litter == 0 means ONE baby, not none. It carries 2 or 3 for twins and
-  triplets and is cleared at delivery, so a "Babies in pregnancy: 0" line
-  would say the opposite of the truth. It is printed only when > 1.
+  The owner treats PREGNANT AND NURSING AS ONE STATE -- the game's own panel
+  reads "Nursing for: N min" and there is no separate pregnancy display -- so
+  this field marking a nursing mother is correct rather than a false positive.
+
+* litter == 0 means ONE baby, not none. The game writes this field only on the
+  twins and triplets branches (VV3 at 0x455BBF and 0x455BDD, VV4 at 0x45E8C0
+  and 0x45E8D3, VV5 at 0x465F10 and 0x465F23), never for a single birth, so a
+  "Babies in pregnancy: 0" line would say the opposite of the truth. It is
+  printed only when > 1.
 """
 
 from __future__ import annotations

@@ -37,8 +37,8 @@ Record base in the sampled process: `0x0C3B0F30`. Stride `0x3D8`.
 | **Babyplets** | `0x0C3B128C` | **`+0x35C`** |
 | Head | `0x0C3B1290` | `+0x360` |
 | Body | `0x0C3B1294` | `+0x364` |
-| Likes | `0x0C3B12CC` | `+0x39C` |
-| Dislikes | `0x0C3B12D8` | `+0x3A8` |
+| Likes, slot 2 | `0x0C3B12CC` | `+0x39C` |
+| Dislikes, slot 1 | `0x0C3B12D8` | `+0x3A8` |
 | Parenting | `0x0C3B12EC` | `+0x3BC` |
 
 Skills run from `+0x3BC` in the order Parenting, Building, Farming,
@@ -66,17 +66,29 @@ Record base in the sampled process: `0x0D730020`. Stride `0xE48C`.
 | Body | `0x0D73056C` | `+0x54C` |
 | Totem Type | `0x0D730570` | `+0x550` |
 | Is Totem | `0x0D730578` | `+0x558` |
-| Likes (3 slots) | `0x0D730610` | `+0x5F0` |
-| Dislikes (3 slots) | `0x0D7307F4` | `+0x7D4` |
+| Likes, slot 1 | `0x0D730610` | `+0x5F0` |
+| Dislikes, slot 1 | `0x0D7307F4` | `+0x7D4` |
 | Parenting | `0x0D730804` | `+0x7E4` |
 | Is Esteemed Elder | `0x0D73081C` | `+0x7FC` |
 
 Skills run from `+0x7E4` in the order Parenting, Building, Farming,
 Healing, Research.
 
-`+0x5E4` is **not** a pregnancy field. It is female-only, which is
-superficially convincing, but holds the values 1, 3 and 5; a litter is
-never 5. It was shipped in error once and must not be reinstated.
+**The likes and dislikes rows above are single slots, not the arrays.** A
+table lists the handful of slots worth watching; the arrays themselves are
+62 entries each, likes at `+0x5F0` and dislikes at `+0x6E8`, which is what
+both exporters read. The dislikes address in the table, `+0x7D4`, is an
+entry partway into that array rather than its start. Reading three slots
+from `+0x7D4` would truncate most villagers' preferences while still
+producing plausible words, so use the array layout, not these rows.
+
+`+0x5E4` is not the field this exporter uses for pregnancy. It is a flag the game writes as a
+hardcoded 1 at `0x44BA10` when a pregnancy begins, which is genuine, but it
+is not the field the tables name and it is not what these logs read: live it
+holds 1, 3 and 5 across a village, so it does not behave as a simple
+pregnancy boolean in a running game. It was shipped here in error once. The
+tables' `+0x540` is what this exporter uses, and the mutation harness carries
+a case (M8) that fails if `+0x5E4` is reinstated.
 
 ## VV3, VV4, VV5
 
