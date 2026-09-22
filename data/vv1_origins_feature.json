@@ -17,7 +17,7 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "6D81F820989D9DC271F96D0603273AE991FB87D011827DB0AF178C49C4595176"
+      "sha256": "40E56B3EC854A3C395BB6EC1C62A023BFB0D7907556AB9C8053DDC3E0F26538C"
     },
     {
       "source": "assets/origins/m1.png",
@@ -396,7 +396,25 @@
       "offset": "0x8E900",
       "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "60A1F811490083F801743685C0752468995D4800FF151070450085C0741968F008490050FF15D470450085C07409A3F8114900FFD0EB0AC705F81149000100000061C3",
-      "purpose": "live village-frame mask service: resolve Vv1MaskTick once, cache missing DLL/export as a fail-open sentinel, and sweep/persist dead mask slots every rendered frame"
+      "purpose": "live village-frame mask service: resolve Vv1MaskTick once, cache missing DLL/export as a fail-open sentinel, and sweep/persist dead mask slots every rendered frame; no numeric camera stepping occurs here"
+    },
+    {
+      "offset": "0x8E9E0",
+      "before": "0000000000000000000000000000000000000000",
+      "after": "5676314E756D6265724B65797355706461746500",
+      "purpose": "read-only Vv1NumberKeysUpdate export name for the native VV1 village-update hook"
+    },
+    {
+      "offset": "0x8E960",
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "9C60A11012490083F801742F85C0752468995D4800FF151070450085C0743068E009490050FF15D470450085C07420A31012490056FFD085C0750D619D8B86D8020000E9E735F9FF619DE9FF35F9FFC7051012490001000000EBE0",
+      "purpose": "native VV1 measured numeric-glide hook: resolve the optional Origins forwarding export once, consume one active screen update, clear active edge velocities through the DLL, route active updates through native held-record carry/clamp, and replay the displaced edge load when idle or fail-open"
+    },
+    {
+      "offset": "0x23F89",
+      "before": "8B86D8020000",
+      "after": "E9D2C9060090",
+      "purpose": "splice the exact VV1 native village Update at 0x423F89: the six-byte edge-velocity load is owned by the measured numeric-glide hook and remains guarded byte-for-byte"
     },
     {
       "offset": "0x8E680",

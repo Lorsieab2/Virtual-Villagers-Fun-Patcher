@@ -2,4 +2,5 @@ LIBRARY "VVFP VV1 Number Keys"
 EXPORTS
     Vv1NumberKeysInstall=_Vv1NumberKeysInstall@0
     Vv1NumberKeysTick=_Vv1NumberKeysTick@0
+    Vv1NumberKeysUpdate=_Vv1NumberKeysUpdate@4
     Vv1NumberKeysProbe=_Vv1NumberKeysProbe@4

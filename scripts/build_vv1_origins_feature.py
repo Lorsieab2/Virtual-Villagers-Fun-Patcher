@@ -472,6 +472,10 @@ PARENTAGE_BORN_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x208
 # The Details-arrow sort hook's cached Vv1SortStep address (0 = untried, 1 = unavailable).
 SORT_STEP_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x20C
 DOUBLER_RESTORE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x200
+# Cached Vv1NumberKeysUpdate pointer for the native village-update hook.
+# 0 = unresolved, 1 = permanent fail-open sentinel, otherwise the validated
+# Origins companion export address.
+NUMBER_KEYS_UPDATE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x210
 
 # Every distinct thing this builder or the companion keeps in the .vv1md
 # scratch, with its size in bytes.  Checked for overlap at import time so a
@@ -500,6 +504,7 @@ SCRATCH_SLOTS = (
     ("DOUBLER_SAVE_DLL_FN", DOUBLER_SAVE_DLL_FN_VA, 4),
     ("PARENTAGE_BORN_DLL_FN", PARENTAGE_BORN_DLL_FN_VA, 4),
     ("SORT_STEP_DLL_FN", SORT_STEP_DLL_FN_VA, 4),
+    ("NUMBER_KEYS_UPDATE_DLL_FN", NUMBER_KEYS_UPDATE_DLL_FN_VA, 4),
 )
 
 
@@ -567,6 +572,11 @@ MASK_TICK_NAME = b"Vv1MaskTick\0"
 MASK_TICK_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x8F0
 MASK_TICK_NAME_VA = mask_code_va(MASK_TICK_NAME_FILE_OFFSET)
 MASK_TICK_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x900
+NUMBER_KEYS_UPDATE_STUB_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x960
+NUMBER_KEYS_UPDATE_STUB_VA = mask_code_va(NUMBER_KEYS_UPDATE_STUB_FILE_OFFSET)
+NUMBER_KEYS_UPDATE_NAME = b"Vv1NumberKeysUpdate\0"
+NUMBER_KEYS_UPDATE_NAME_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x9E0
+NUMBER_KEYS_UPDATE_NAME_VA = mask_code_va(NUMBER_KEYS_UPDATE_NAME_FILE_OFFSET)
 # Doubler persistence stubs and export names, in the patch-owned .vv1mc
 # R-X section. Placed inside the 395-byte gap at 0x435..0x5C0, which the
 # feature's own patch list shows is unoccupied, rather than past the
@@ -903,6 +913,16 @@ MASK_DETOUR_VA = IMAGE_BASE + MASK_DETOUR_FILE_OFFSET
 MASK_DETOUR_ORIGINAL_BYTES = bytes.fromhex("0F8510110000")  # JNZ 0x4388CE
 MASK_NATIVE_SKIP_TARGET_VA = 0x4388CE  # original JNZ target (continue loop)
 MASK_RESUME_VA = 0x4377BE  # instruction right after the displaced JNZ
+
+# Exact VV1 native village update splice.  The selected-follow edge velocity
+# computation immediately before this point feeds the stock carry/clamp block
+# at 0x423FAE.  The hook consumes the six-byte load only for an active numeric
+# glide; the fail-open/idle path replays it and resumes at 0x423F8F.
+NUMBER_KEYS_UPDATE_HOOK_FILE_OFFSET = 0x23F89
+NUMBER_KEYS_UPDATE_HOOK_VA = IMAGE_BASE + NUMBER_KEYS_UPDATE_HOOK_FILE_OFFSET
+NUMBER_KEYS_UPDATE_HOOK_ORIGINAL_BYTES = bytes.fromhex("8B86D8020000")
+NUMBER_KEYS_UPDATE_NATIVE_RESUME_VA = 0x423F8F
+NUMBER_KEYS_UPDATE_ACTIVE_VA = 0x423FAE
 
 # Splice point 2 (the old FUN_00423390 back-edge blit detour) was removed:
 # the blit path is retired and the exact stock bytes at file offset 0x24103
@@ -3029,11 +3049,67 @@ def main() -> None:
         """,
         MASK_TICK_STUB_VA,
     )
-    if len(mask_tick_stub_code) > 0x100:
+    if len(mask_tick_stub_code) > 0x60:
         raise RuntimeError(
             f"VV1 mask tick stub exceeds its .vv1mc reservation: "
-            f"{len(mask_tick_stub_code):#x} > 0x100"
+            f"{len(mask_tick_stub_code):#x} > 0x60"
         )
+    # The native update hook resolves the Origins DLL's forwarding export once
+    # and calls it with the live screen object in ESI.  The active path jumps
+    # straight to the stock held-record refresh/carry block; idle and missing
+    # paths replay the six displaced bytes and resume normal edge scrolling.
+    number_keys_update_stub_code = assemble(
+        f"""
+            pushfd
+            pushad
+            mov eax, dword ptr [{NUMBER_KEYS_UPDATE_DLL_FN_VA:#x}]
+            cmp eax, 1
+            je number_keys_update_idle
+            test eax, eax
+            jnz number_keys_update_call
+            push {s['icons_dll']:#x}
+            call dword ptr [0x457010]                   # LoadLibraryA
+            test eax, eax
+            jz number_keys_update_missing
+            push {NUMBER_KEYS_UPDATE_NAME_VA:#x}
+            push eax
+            call dword ptr [0x4570D4]                   # GetProcAddress
+            test eax, eax
+            jz number_keys_update_missing
+            mov dword ptr [{NUMBER_KEYS_UPDATE_DLL_FN_VA:#x}], eax
+        number_keys_update_call:
+            push esi
+            call eax                                    # Vv1NumberKeysUpdate @4
+            test eax, eax
+            jnz number_keys_update_active
+        number_keys_update_idle:
+            popad
+            popfd
+            mov eax, dword ptr [esi + 0x2D8]
+            jmp {NUMBER_KEYS_UPDATE_NATIVE_RESUME_VA:#x}
+        number_keys_update_active:
+            popad
+            popfd
+            jmp {NUMBER_KEYS_UPDATE_ACTIVE_VA:#x}
+        number_keys_update_missing:
+            mov dword ptr [{NUMBER_KEYS_UPDATE_DLL_FN_VA:#x}], 1
+            jmp number_keys_update_idle
+        """,
+        NUMBER_KEYS_UPDATE_STUB_VA,
+    )
+    if len(number_keys_update_stub_code) > 0x80:
+        raise RuntimeError(
+            f"VV1 number-keys update stub exceeds its .vv1mc reservation: "
+            f"{len(number_keys_update_stub_code):#x} > 0x80"
+        )
+    if len(NUMBER_KEYS_UPDATE_NAME) > 0x20:
+        raise RuntimeError("VV1 number-keys update export name exceeds its reservation")
+    if MASK_TICK_STUB_FILE_OFFSET + len(mask_tick_stub_code) > NUMBER_KEYS_UPDATE_STUB_FILE_OFFSET:
+        raise RuntimeError("VV1 mask tick stub overlaps the number-keys update stub")
+    if NUMBER_KEYS_UPDATE_STUB_FILE_OFFSET + len(number_keys_update_stub_code) > NUMBER_KEYS_UPDATE_NAME_FILE_OFFSET:
+        raise RuntimeError("VV1 number-keys update stub overlaps its export name")
+    if NUMBER_KEYS_UPDATE_NAME_FILE_OFFSET + len(NUMBER_KEYS_UPDATE_NAME) > MASK_CODE_FILE_BASE + 0xA00:
+        raise RuntimeError("VV1 number-keys update export name exceeds the reserved .vv1mc tail")
     # Persist the two doubler ownership flags on save.
     #
     # They live at <state>+0x9E90 and +0x9E94, INSIDE the 0xABDC the game
@@ -3438,7 +3514,25 @@ def main() -> None:
         MASK_TICK_STUB_FILE_OFFSET,
         b"\0" * len(mask_tick_stub_code),
         mask_tick_stub_code,
-        "live village-frame mask service: resolve Vv1MaskTick once, cache missing DLL/export as a fail-open sentinel, and sweep/persist dead mask slots every rendered frame",
+        "live village-frame mask service: resolve Vv1MaskTick once, cache missing DLL/export as a fail-open sentinel, and sweep/persist dead mask slots every rendered frame; no numeric camera stepping occurs here",
+    )
+    patch(
+        NUMBER_KEYS_UPDATE_NAME_FILE_OFFSET,
+        b"\0" * len(NUMBER_KEYS_UPDATE_NAME),
+        NUMBER_KEYS_UPDATE_NAME,
+        "read-only Vv1NumberKeysUpdate export name for the native VV1 village-update hook",
+    )
+    patch(
+        NUMBER_KEYS_UPDATE_STUB_FILE_OFFSET,
+        b"\0" * len(number_keys_update_stub_code),
+        number_keys_update_stub_code,
+        "native VV1 measured numeric-glide hook: resolve the optional Origins forwarding export once, consume one active screen update, clear active edge velocities through the DLL, route active updates through native held-record carry/clamp, and replay the displaced edge load when idle or fail-open",
+    )
+    patch(
+        NUMBER_KEYS_UPDATE_HOOK_FILE_OFFSET,
+        NUMBER_KEYS_UPDATE_HOOK_ORIGINAL_BYTES,
+        rel32_jump(NUMBER_KEYS_UPDATE_HOOK_VA, NUMBER_KEYS_UPDATE_STUB_VA) + b"\x90",
+        "splice the exact VV1 native village Update at 0x423F89: the six-byte edge-velocity load is owned by the measured numeric-glide hook and remains guarded byte-for-byte",
     )
     patch(
         DOUBLER_SAVE_NAME_FILE_OFFSET,

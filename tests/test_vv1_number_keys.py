@@ -7,8 +7,8 @@ Origins companion loads and ticks once per frame.  These guards pin:
     rather than restated -- the village-state global, the scroll pair, and
     the four clamp bounds the game's own map-click handler applies;
   * the SDL event layout and the key classification;
-  * the glide (a tenth of the remaining distance per frame, cancelled by a
-    hand scroll);
+  * the glide (signed truncating tenth-of-remaining step, driven by the
+    native village update, including while a villager is carried);
   * the Origins bridge (load from the executable's own directory, tick per
     frame, fail open);
   * the two manifests: every `before` is the stock bytes, the VV1 tip
@@ -105,66 +105,67 @@ class NumberKeysDllTest(unittest.TestCase):
         self.assertRegex(digit, r"sym\s*>=\s*'1'\s*&&\s*sym\s*<=\s*'9'")
         self.assertRegex(digit, r"sym\s*>=\s*VV1_SDLK_KP_1\s*&&\s*sym\s*<=\s*VV1_SDLK_KP_9")
 
-    def test_keypad_layout_maps_rows_and_columns(self) -> None:
+    def test_keypad_layout_maps_explicit_measured_targets(self) -> None:
         jump = _function(self.text, "static int vv1_numkeys_jump(")
-        self.assertRegex(jump, r"xs\[3\]\s*=\s*\{\s*VV1_SCROLL_X_MIN,\s*\(VV1_SCROLL_X_MIN \+ VV1_SCROLL_X_MAX\) / 2,\s*VV1_SCROLL_X_MAX\s*\}")
-        self.assertRegex(jump, r"ys\[3\]\s*=\s*\{\s*VV1_SCROLL_Y_MAX,\s*\(VV1_SCROLL_Y_MIN \+ VV1_SCROLL_Y_MAX\) / 2,\s*VV1_SCROLL_Y_MIN\s*\}")
-        self.assertRegex(jump, r"col\s*=\s*\(digit - 1\)\s*%\s*3")
-        self.assertRegex(jump, r"row\s*=\s*\(digit - 1\)\s*/\s*3")
-        self.assertRegex(jump, r"if\s*\(\s*state\s*==\s*NULL\s*\|\|\s*digit\s*<\s*1\s*\|\|\s*digit\s*>\s*9\s*\)")
+        self.assertIn("vv1_pan_target_xs[digit - 1]", jump)
+        self.assertIn("vv1_pan_target_ys[digit - 1]", jump)
+        self.assertIn("digit < 1 || digit > 9", jump)
+        self.assertIn("-150, 300, 850", self.text)
+        self.assertIn("1200, 1200, 1200", self.text)
+        self.assertIn("500, 570, 500", self.text)
+        self.assertIn("0, 0, 0", self.text)
         # the key sets a target; it does not write the scroll itself
         self.assertNotRegex(jump, r"\*\(int \*\)\(state \+ VV1_SCROLL_[XY]_OFFSET\)\s*=")
 
-    def test_glide_is_a_tenth_per_frame_and_outlasts_an_external_scroll(self) -> None:
+    def test_glide_is_native_update_driven_with_measured_residual_stop(self) -> None:
         self.assertEqual(_macro(self.text, "VV1_PAN_DIVISOR"), 10)
         step = _function(self.text, "static int vv1_pan_step(")
-        self.assertRegex(step, r"step\s*=\s*delta\s*/\s*VV1_PAN_DIVISOR")
-        self.assertRegex(step, r"step\s*=\s*delta\s*>\s*0\s*\?\s*1\s*:\s*-1", "never stalls short of the target")
-        tick = _function(self.text, "static int vv1_pan_tick(")
-        # The glide must NOT bow out because something else moved the scroll.
-        # Dragging a villager auto-scrolls the view toward the pointer, and
-        # that is indistinguishable from a hand scroll in the village state:
-        # measured in the owner's game, picking a villager up moved the scroll
-        # pair (+8, +0xC) from (829, 763) to (660, 692) and changed nothing
-        # else in the first 96 dwords. A guard on "did the scroll move"
-        # therefore cancelled the glide exactly when the player was carrying
-        # someone and wanted to travel, which is the owner's report.
-        self.assertNotIn("vv1_pan_last_x", tick, "the glide no longer yields to an external scroll")
-        self.assertNotIn("vv1_pan_last_y", tick)
-        self.assertNotIn("vv1_pan_last_x", self.text, "the tracking is gone entirely, not just unused")
-        # It still stops on its own terms: arriving, or the village going away.
-        self.assertIn("vv1_pan_active = 0", tick)
-        self.assertRegex(tick, r"\*x\s*==\s*vv1_pan_target_x\s*&&\s*\*y\s*==\s*vv1_pan_target_y")
-        # A new key press retargets, which is how a glide is interrupted now.
-        jump = _function(self.text, "static int vv1_numkeys_jump(")
-        self.assertIn("vv1_pan_target_x = xs[col]", jump)
-        self.assertIn("vv1_pan_active = 1", jump)
-        self.assertLess(tick.index("state == NULL"), tick.index("vv1_pan_step"), "no village: nothing is dereferenced")
-        export = _function(self.text, "__declspec(dllexport) int __stdcall Vv1NumberKeysTick(")
+        self.assertIn("return cur + (target - cur) / VV1_PAN_DIVISOR", step)
+        self.assertNotIn("step == 0", step)
+        update = _function(self.text, "static int vv1_pan_update(")
+        self.assertIn("screen_bytes + 0x10", update)
+        self.assertIn("state != VV1_VILLAGE_STATE_PTR", update)
+        self.assertIn("screen_bytes + 0x2D8", update)
+        self.assertIn("screen_bytes + 0x2DC", update)
+        self.assertRegex(update, r"\(vv1_pan_target_x - \*x\)\s*/\s*VV1_PAN_DIVISOR\s*==\s*0")
+        self.assertRegex(update, r"\(vv1_pan_target_y - \*y\)\s*/\s*VV1_PAN_DIVISOR\s*==\s*0")
+        self.assertIn("return 1", update, "the completion tick is consumed")
+        self.assertNotIn("vv1_pan_last_x", self.text)
+        self.assertNotIn("vv1_pan_last_y", self.text)
+        tick = _function(self.text, "__declspec(dllexport) int __stdcall Vv1NumberKeysTick(")
+        self.assertIn("Vv1NumberKeysInstall()", tick)
+        self.assertNotIn("vv1_pan_update", tick)
+        export = _function(self.text, "__declspec(dllexport) int __stdcall Vv1NumberKeysUpdate(")
         self.assertIn("Vv1NumberKeysInstall()", export)
-        self.assertIn("vv1_pan_tick()", export)
+        self.assertIn("vv1_pan_update(screen)", export)
+
+    def test_key_before_village_does_not_arm_future_village(self) -> None:
+        jump = _function(self.text, "static int vv1_numkeys_jump(")
+        self.assertIn("VV1_VILLAGE_STATE_PTR == NULL", jump)
 
     def test_exports_and_built_dll(self) -> None:
         deftext = KEYS_DEF.read_text(encoding="utf-8")
-        for name in ("Vv1NumberKeysInstall=_Vv1NumberKeysInstall@0", "Vv1NumberKeysTick=_Vv1NumberKeysTick@0", "Vv1NumberKeysProbe=_Vv1NumberKeysProbe@4"):
+        for name in ("Vv1NumberKeysInstall=_Vv1NumberKeysInstall@0", "Vv1NumberKeysTick=_Vv1NumberKeysTick@0", "Vv1NumberKeysUpdate=_Vv1NumberKeysUpdate@4", "Vv1NumberKeysProbe=_Vv1NumberKeysProbe@4"):
             self.assertIn(name, deftext)
         self.assertTrue(KEYS_DLL.is_file())
         blob = KEYS_DLL.read_bytes()
-        for needle in (b"SDL2.dll\0", b"SDL_AddEventWatch\0", b"Vv1NumberKeysTick\0", struct.pack("<i", -205), struct.pack("<i", 1205)):
+        for needle in (b"SDL2.dll\0", b"SDL_AddEventWatch\0", b"Vv1NumberKeysTick\0", b"Vv1NumberKeysUpdate\0", struct.pack("<i", -150), struct.pack("<i", 1200), struct.pack("<i", 570)):
             self.assertIn(needle, blob, needle)
 
 
 class OriginsBridgeTest(unittest.TestCase):
     def test_bridge_loads_from_the_exe_directory_and_ticks_every_frame(self) -> None:
         text = ORIGINS_C.read_text(encoding="utf-8")
-        bridge = _function(text, "static void vv1_numkeys_bridge(")
+        bridge = _function(text, "static int vv1_numkeys_resolve(")
         self.assertIn("GetModuleFileNameA(NULL, path, MAX_PATH)", bridge)
         self.assertIn('lstrcpyA(slash + 1, "VVFP VV1 Number Keys.dll")', bridge)
         self.assertIn("LoadLibraryA(path)", bridge)
         self.assertNotIn('LoadLibraryA("VVFP', bridge, "never by bare name: the search path is not ours")
         self.assertIn('GetProcAddress(keys, "Vv1NumberKeysTick")', bridge)
-        self.assertRegex(bridge, r"if\s*\(\s*vv1_numkeys_bridge_state\s*==\s*1\s*\)\s*\{\s*vv1_numkeys_tick\(\);")
+        self.assertRegex(bridge, r"if\s*\(\s*vv1_numkeys_bridge_state\s*==\s*1\s*\)\s*\{\s*return\s+1;")
         self.assertRegex(bridge, r"keys\s*==\s*NULL\s*\)\s*\{\s*vv1_numkeys_bridge_state\s*=\s*-1;", "missing file: remembered, fail open")
+        bridge_tick = _function(text, "static void vv1_numkeys_bridge(")
+        self.assertIn("vv1_numkeys_tick();", bridge_tick)
         tick = _function(text, "__declspec(dllexport) void __stdcall Vv1MaskTick(")
         self.assertLess(tick.index("vv1_numkeys_bridge();"), tick.index("vv1_mask_prepare_slot()"),
                         "the bridge runs before any early return of the mask tick")
