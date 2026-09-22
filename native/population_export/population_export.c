@@ -533,7 +533,10 @@ static int build_log_paths(
        See native/shared/save_folder.h: this used to strip to the exe's own
        directory, which put exported logs in the install folder while the
        village they describe lives under Documents\LDW\<exe basename>\. */
-    if (!vv_save_folder_w(module_path, 64)) {
+    /* The owner's layout: every exported log lives under
+       <save folder>\VVFP Logs\, one subfolder per kind. The roster is
+       "Tribe Population". */
+    if (!vv_save_subfolder_w(module_path, L"VVFP Logs\\Tribe Population", 64)) {
         return 0;
     }
     if (_snwprintf_s(
@@ -752,6 +755,74 @@ static int write_villager(
     return fprintf(file, "\n") >= 0;
 }
 
+/* "<save folder>\Village History.txt" -- the permanent log.
+
+   One path, not two: the history is APPENDED, so there is no temporary to
+   publish and nothing to rename over. A partial append at the end of the file
+   is visibly partial, where a truncated roster would look complete. */
+static int build_history_path(wchar_t *destination) {
+    wchar_t module_path[MAX_LONG_PATH];
+    if (!vv_save_subfolder_w(module_path, L"VVFP Logs\\Tribe History", 64)) {
+        return 0;
+    }
+    return _snwprintf_s(
+        destination, MAX_LONG_PATH, _TRUNCATE,
+        L"%ls\\Village History.txt", module_path) >= 0;
+}
+
+/* Append this save's roster to the history.
+
+   Failure is deliberately not fatal to the export: the roster is the feature
+   the player relies on, and a history that could not be written must not stop
+   it being published. Returns 1 on success, 0 on any write failure, and the
+   caller ignores it for that reason. */
+static int append_history(
+    const struct game_layout *g,
+    const unsigned char *villagers,
+    int game_id,
+    const char *village
+) {
+    wchar_t path[MAX_LONG_PATH];
+    FILE *file;
+    unsigned int index;
+    int written = 0;
+    SYSTEMTIME now;
+    if (!build_history_path(path)) {
+        return 0;
+    }
+    file = _wfopen(path, L"a");
+    if (file == NULL) {
+        return 0;
+    }
+    GetLocalTime(&now);
+    if (fprintf(file,
+                "=== %s -- %04d-%02d-%02d %02d:%02d:%02d ===\n%s\n",
+                g->title,
+                now.wYear, now.wMonth, now.wDay,
+                now.wHour, now.wMinute, now.wSecond,
+                village) < 0) {
+        fclose(file);
+        return 0;
+    }
+    for (index = 0; index < g->slots; ++index) {
+        const unsigned char *record =
+            villagers + g->record_base + index * g->stride;
+        if (*(const unsigned char *)(record + g->active) != 1) {
+            continue;
+        }
+        if (!write_villager(file, g, record, written + 1, game_id, (int)index)) {
+            fclose(file);
+            return 0;
+        }
+        ++written;
+    }
+    if (fprintf(file, "\n") < 0) {
+        fclose(file);
+        return 0;
+    }
+    return fclose(file) == 0;
+}
+
 /* Write every living villager, rolling to a new file every 256.
 
    Returns the number of villagers written, or 0 on failure. Zero is also the
@@ -865,6 +936,11 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     if (file != NULL && !publish_file(file, temporary, destination)) {
         return 0;
     }
+
+    /* The permanent history, appended AFTER the roster is safely
+       published so a history failure can never cost the player their
+       roster. Its return is ignored for the same reason. */
+    (void)append_history(g, villagers, game_id, village);
 
     /* Remove any roster files a LARGER village left behind.
 

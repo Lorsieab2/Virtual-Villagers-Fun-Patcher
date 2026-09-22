@@ -712,7 +712,21 @@ class VillagePopulationBehaviourTests(unittest.TestCase):
         self.assertNotIn("if (0", publish)
         self.assertIn('_wfopen(temporary, L"w")', self.source)
         self.assertNotIn('_wfopen(destination', self.source)
-        self.assertNotIn('_wfopen(path, L"a")', self.source)
+        # The ROSTER must never be appended to. The history, by contrast,
+        # is appended on purpose -- it is the permanent log -- so this is
+        # scoped to the roster's own functions rather than the whole file.
+        roster = self.source[self.source.index("static int build_log_paths"):]
+        roster = roster[:roster.index("static int build_history_path")]
+        self.assertNotIn('_wfopen(path, L"a")', roster)
+        export = self.source[self.source.index("__stdcall WriteVillagePopulation("):]
+        self.assertNotIn('L"a"', export, "the export itself opens nothing for append")
+        # And the history really is appended, never truncated or renamed over.
+        history = self.source[self.source.index("static int append_history"):]
+        history = history[:history.index("\n}")]
+        self.assertIn('_wfopen(path, L"a")', history)
+        self.assertNotIn('L"w"', history)
+        self.assertNotIn("MoveFileExW", history)
+        self.assertNotIn("DeleteFileW", history)
 
     def test_a_failed_write_removes_the_temporary(self) -> None:
         """A half-written roster must not be left beside the executable."""

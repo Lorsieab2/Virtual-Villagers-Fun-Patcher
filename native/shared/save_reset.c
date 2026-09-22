@@ -140,6 +140,7 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
     wchar_t folder_w[MAX_PATH];
     char path[MAX_PATH];
     wchar_t path_w[MAX_PATH];
+    wchar_t sub_w[MAX_PATH];     /* the log subfolder the reset now targets */
     int removed = 0;
     int i;
 
@@ -178,8 +179,13 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        it found. Codex caught it on #380. */
     wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", folder_w, slot);
     removed += delete_if_present_w(path_w);
-    wsprintfW(path_w, L"%ls\\Village Population %d.txt", folder_w, slot);
-    removed += delete_if_present_w(path_w);
+    /* The roster moved into the owner's log layout; the reset follows it.
+       vv_save_subfolder_w creates the folder if absent, which is harmless
+       here -- an empty folder is not a stale roster. */
+    if (vv_save_subfolder_w(sub_w, L"VVFP Logs\\Tribe Population", 64)) {
+        wsprintfW(path_w, L"%ls\\Village Population %d.txt", sub_w, slot);
+        removed += delete_if_present_w(path_w);
+    }
 
     /* PARENTAGE IS VILLAGE-SCOPED, SO IT IS MATCHED BY HEADER.
        Its files roll over by count rather than by slot, so the slot cannot
@@ -189,9 +195,10 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        Without a village string nothing here is deleted. Guessing would mean
        deleting another village's history, and losing a header line is a far
        smaller harm than that. */
-    if (village != NULL && village[0] != '\0') {
+    if (village != NULL && village[0] != '\0'
+        && vv_save_subfolder_w(sub_w, L"VVFP Logs\\Tribe Parental Records", 64)) {
         for (i = 1; i <= MAX_LOG_FILES; ++i) {
-            wsprintfW(path_w, L"%ls\\%ls %d.txt", folder_w,
+            wsprintfW(path_w, L"%ls\\%ls %d.txt", sub_w,
                       PARENTAGE_LOG[game - 1], i);
             if (GetFileAttributesW(path_w) == INVALID_FILE_ATTRIBUTES) {
                 break;          /* the exporter numbers without holes */

@@ -58,4 +58,18 @@ int vv_save_folder(char *out, int reserve);
    Same contract, same failure behaviour. */
 int vv_save_folder_w(wchar_t *out, int reserve);
 
+/* Write "<My Documents>\LDW\<exe basename>\<sub>" into `out`, creating every
+   level of `sub` that does not exist. `sub` is a relative tail such as
+   L"VVFP Logs\\Tribe History" -- each backslash-separated component is created
+   in turn, so a two-level tail works without the caller pre-creating the
+   parent.
+
+   Same contract as vv_save_folder_w: `out` must hold MAX_PATH characters,
+   `reserve` is what the caller will still append, and on failure `out` is
+   left unmodified and MUST NOT be used. */
+int vv_save_subfolder_w(wchar_t *out, const wchar_t *sub, int reserve);
+
+/* The narrow form, same contract. */
+int vv_save_subfolder(char *out, const char *sub, int reserve);
+
 #endif /* VVFP_SAVE_FOLDER_H */

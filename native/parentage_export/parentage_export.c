@@ -818,7 +818,9 @@ static int build_log_path(
        fails rather than falling back to a directory that is not the save.  The
        reserve covers the longest tail appended below: a backslash, the log
        name, a space, the number and the NUL. */
-    if (!vv_save_folder_w(folder, 64)) {
+    /* The owner's layout: <save folder>\VVFP Logs\Tribe Parental Records\.
+       The reserve still covers the longest tail appended below. */
+    if (!vv_save_subfolder_w(folder, L"VVFP Logs\\Tribe Parental Records", 64)) {
         return 0;
     }
     return _snwprintf_s(
