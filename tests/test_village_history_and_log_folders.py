@@ -12,7 +12,7 @@ THE FOLDERS. The owner's layout for every exported log:
 
     <save folder>\VVFP Logs\Tribe Population\        the roster
     <save folder>\VVFP Logs\Tribe History\           the history
-    <save folder>\VVFP Logs\Tribe Parental Records\  the parentage log
+    <save folder>\VVFP Logs\Births and Conceptions\  the parentage log
 
 The statistics log was not named and stays where it was. The reset must
 delete from the same folders the exporters write to, so the literal strings
@@ -37,7 +37,7 @@ PAR_DLL = ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"
 
 POPULATION_DIR = 'L"VVFP Logs\\\\Tribe Population"'
 HISTORY_DIR = 'L"VVFP Logs\\\\Tribe History"'
-PARENTAL_DIR = 'L"VVFP Logs\\\\Tribe Parental Records"'
+PARENTAL_DIR = 'L"VVFP Logs\\\\Births and Conceptions"'
 
 
 def function(source: str, opening: str) -> str:
@@ -179,7 +179,7 @@ class LogFolderTests(unittest.TestCase):
 
     def test_the_reset_harness_creates_its_fixtures_where_the_exporters_write(self):
         narrow_pop = '"VVFP Logs\\\\Tribe Population"'
-        narrow_par = '"VVFP Logs\\\\Tribe Parental Records"'
+        narrow_par = '"VVFP Logs\\\\Births and Conceptions"'
         self.assertIn(narrow_pop, self.harness)
         self.assertIn(narrow_par, self.harness)
         self.assertIn('wsprintfA(pop1, "%s\\\\Village Population 1.txt", popdir);', self.harness)
@@ -190,7 +190,7 @@ class LogFolderTests(unittest.TestCase):
                       self.harness)
 
     def test_the_shipped_parentage_dll_carries_its_folder(self):
-        self.assertIn("VVFP Logs\\Tribe Parental Records".encode("utf-16-le"),
+        self.assertIn("VVFP Logs\\Births and Conceptions".encode("utf-16-le"),
                       PAR_DLL.read_bytes())
 
 

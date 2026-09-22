@@ -86,7 +86,7 @@ int main(void) {
        (#418); the harness follows so it tests the reset against where the
        exporters actually write. */
     if (!vv_save_subfolder(popdir, "VVFP Logs\\Tribe Population", 64)
-        || !vv_save_subfolder(pardir, "VVFP Logs\\Tribe Parental Records", 64)) {
+        || !vv_save_subfolder(pardir, "VVFP Logs\\Births and Conceptions", 64)) {
         printf("could not resolve the log subfolders\n");
         return 2;
     }
@@ -101,8 +101,8 @@ int main(void) {
               && strcmp(popdir + flen, "\\VVFP Logs\\Tribe Population") == 0,
               "population subfolder is <save folder>\\VVFP Logs\\Tribe Population");
         check(strncmp(pardir, folder, flen) == 0 && pardir[flen] == '\\'
-              && strcmp(pardir + flen, "\\VVFP Logs\\Tribe Parental Records") == 0,
-              "parental subfolder is <save folder>\\VVFP Logs\\Tribe Parental Records");
+              && strcmp(pardir + flen, "\\VVFP Logs\\Births and Conceptions") == 0,
+              "parental subfolder is <save folder>\\VVFP Logs\\Births and Conceptions");
         check(GetFileAttributesA(popdir) != INVALID_FILE_ATTRIBUTES,
               "population subfolder was actually created");
     }

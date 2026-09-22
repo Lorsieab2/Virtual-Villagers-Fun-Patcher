@@ -196,7 +196,7 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        deleting another village's history, and losing a header line is a far
        smaller harm than that. */
     if (village != NULL && village[0] != '\0'
-        && vv_save_subfolder_w(sub_w, L"VVFP Logs\\Tribe Parental Records", 64)) {
+        && vv_save_subfolder_w(sub_w, L"VVFP Logs\\Births and Conceptions", 64)) {
         for (i = 1; i <= MAX_LOG_FILES; ++i) {
             wsprintfW(path_w, L"%ls\\%ls %d.txt", sub_w,
                       PARENTAGE_LOG[game - 1], i);
