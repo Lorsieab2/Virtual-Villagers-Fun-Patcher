@@ -394,7 +394,71 @@ struct game_layout {
     unsigned int dislikes;
     unsigned int preference_slots;
     const char *preference_list;
+    /* The child's skills on a birth record.  Restated from the population
+       exporter for the same reason the preference offsets above are, and
+       covered by the same cross-table test: the two companions must print the
+       same numbers for the same villager or the logs contradict each other.
+
+       `skills_are_float` is not decoration -- VV4 and VV5 store these as
+       floats where VV1 to VV3 store i32, and reading one as the other yields
+       a plausible-looking number rather than an obvious failure. */
+    unsigned int skills;
+    unsigned int skill_count;
+    int skills_are_float;
+    const char *const *skill_names;
     const wchar_t *log_name;  /* "<name> <n>.txt" beside the executable */
+};
+
+/* MAX_SKILLS and the five skill tables, restated from the population
+   exporter.  The comments are its measurements, kept verbatim: they are
+   the owner's own evidence for each game's storage order, and a table
+   copied without them invites a future reader to "correct" an order that
+   was established the hard way.  A cross-table test fails if these ever
+   disagree with the population exporter's. */
+enum { MAX_SKILLS = 8 };
+
+/* VV1 -- A New Home.  Storage order, measured:
+     Yepa, a child with one non-zero skill, holds it at index 4 and her
+     screen shows Research; Rongo's five distinct values (29, 39, 50, 59,
+     78) rank shortest to longest Breeding, Building, Farming, Healing,
+     Research. */
+static const char *const SKILL_NAMES_VV1[MAX_SKILLS] = {
+    "Breeding", "Building", "Farming", "Healing", "Research", "(skill 6)",
+    "(skill 7)", "(skill 8)"
+};
+
+/* VV2 -- The Lost Children.  Storage order, measured:
+     Jade [61, 0, 0, 100, 0] names Parenting and Healing; Buru
+     [0, 91, 0, 0, 0] names Building; Dodo [0, 0, 93, 0, 100] names Farming
+     and Research; Tatau [0, 0, 0, 46, 0] names Healing. */
+static const char *const SKILL_NAMES_VV2[MAX_SKILLS] = {
+    "Parenting", "Building", "Farming", "Healing", "Research", "(skill 6)",
+    "(skill 7)", "(skill 8)"
+};
+
+/* VV3 -- The Secret City.  Storage order, measured:
+     Vinapu names Farming, Yasawa names Building and Parenting, Dino
+     names Healing, Totolo names Research. */
+static const char *const SKILL_NAMES_VV3[MAX_SKILLS] = {
+    "Farming", "Parenting", "Healing", "Research", "Building", "(skill 6)",
+    "(skill 7)", "(skill 8)"
+};
+
+/* VV4 -- The Tree of Life.  Storage order, measured:
+     Tapa names Farming, Pai names Healing and Parenting, Dodi names
+     Research, Piko names Building.  Stored as floats. */
+static const char *const SKILL_NAMES_VV4[MAX_SKILLS] = {
+    "Farming", "Parenting", "Healing", "Research", "Building", "(skill 6)",
+    "(skill 7)", "(skill 8)"
+};
+
+/* VV5 -- New Believers.  Storage order, measured:
+     Six skills, Devotion last.  Pari names Farming, Apatoa names
+     Healing, Turuki names Research, Moti names Devotion; all four
+     corroborate Parenting at index 1 and Building at index 4. */
+static const char *const SKILL_NAMES_VV5[MAX_SKILLS] = {
+    "Farming", "Parenting", "Healing", "Research", "Building", "Devotion",
+    "(skill 7)", "(skill 8)"
 };
 
 static const struct game_layout GAME_LAYOUTS[6] = {
@@ -490,6 +554,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0, 0,
         0xC7,
         0x398, 0x3A8, 4, PREFERENCES_47,
+        0x3BC, 5, 0, SKILL_NAMES_VV1,
         L"Virtual Villagers 1 Parentage Log"
     },
 
@@ -540,6 +605,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x5E0, 0x5DC,
         0,
         0x5F0, 0x6E8, 62, PREFERENCES_62,
+        0x7E4, 5, 0, SKILL_NAMES_VV2,
         L"Virtual Villagers 2 Parentage Log"
     },
 
@@ -606,6 +672,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xE68, 0xE64,
         0,
         0xFB4, 0xFC0, 3, PREFERENCES_79,
+        0xEAC, 5, 0, SKILL_NAMES_VV3,
         L"Virtual Villagers 3 Parentage Log"
     },
 
@@ -666,6 +733,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1C30, 0x1C2C,
         0,
         0x1E60, 0x1E6C, 3, PREFERENCES_79,
+        0x1C5C, 5, 1, SKILL_NAMES_VV4,
         L"Virtual Villagers 4 Parentage Log"
     },
 
@@ -705,6 +773,7 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1C30, 0x1C2C,
         0,
         0x1F5C, 0x1F68, 3, PREFERENCES_79,
+        0x1C5C, 6, 1, SKILL_NAMES_VV5,
         L"Virtual Villagers 5 Parentage Log"
     }
 };
@@ -1053,6 +1122,57 @@ static void preference_text(
     }
 }
 
+/* The child's Skills block for a birth record, as a single ready-to-print
+   string, or empty when there is nothing to print.
+
+   Rendered exactly as the population exporter renders it -- same "  Skills:"
+   header, same "    %-10s %d" row -- because the two companions describe the
+   same villager and a reader comparing a birth against the roster should not
+   have to notice that one of them formats differently.
+
+   The value is truncated to an integer in both, including for the float
+   games: VV4 and VV5 store the same 0..100 scale as the rest, so printing
+   88.000000 in two games and 88 in three would be a difference in the log
+   that is not a difference in the village.
+
+   Empty on a NULL record or an unestablished table, rather than a header with
+   nothing under it. */
+static void skill_text(
+    const struct game_layout *g,
+    const unsigned char *record,
+    char *out,
+    size_t out_size
+) {
+    unsigned int skill;
+    size_t used;
+    out[0] = '\0';
+    if (record == NULL || g->skill_count == 0u || g->skill_names == NULL) {
+        return;
+    }
+    if (_snprintf(out, out_size, "  Skills:\n") < 0) {
+        out[0] = '\0';
+        return;
+    }
+    out[out_size - 1] = '\0';
+    used = strlen(out);
+    for (skill = 0; skill < g->skill_count; ++skill) {
+        const unsigned char *field = record + g->skills + skill * 4u;
+        int value = g->skills_are_float
+            ? (int)*(const float *)field
+            : *(const int *)field;
+        int n = _snprintf(out + used, out_size - used, "    %-10s %d\n",
+                          g->skill_names[skill], value);
+        if (n < 0) {
+            /* Out of room: drop the whole block rather than emit a truncated
+               row that would read as a real skill value. */
+            out[0] = '\0';
+            return;
+        }
+        used += (size_t)n;
+        out[out_size - 1] = '\0';
+    }
+}
+
 static int layout_is_usable(const struct game_layout *g) {
     static const unsigned int WORD = 4;
     unsigned int stride;
@@ -1094,6 +1214,19 @@ static int layout_is_usable(const struct game_layout *g) {
         }
         if (g->likes + g->preference_slots * WORD > stride) return 0;
         if (g->dislikes + g->preference_slots * WORD > stride) return 0;
+    }
+    /* The child's skills on a birth record. A row that names the array must
+       name all of it, and every element read must sit inside the record --
+       both i32 and float are four bytes wide, so one bound covers each. A
+       zero offset means the game's table is not established, and then no
+       Skills block is printed rather than a guessed offset's contents. */
+    if (g->skills != 0u || g->skill_count != 0u) {
+        if (g->skills == 0u || g->skill_count == 0u
+            || g->skill_names == NULL) {
+            return 0;
+        }
+        if (g->skill_count > MAX_SKILLS) return 0;
+        if (g->skills + g->skill_count * WORD > stride) return 0;
     }
     /* The villager-id field is only read when a game records the father BY ID
        and his record has to be found by scanning for it. VV2, VV3, VV4 and VV5
@@ -1695,11 +1828,17 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
    Appearance values arrive as -1 when the companion does not know them (an
    immigrant, a founder, a birth whose father was never captured), and are
    printed as "(unknown)" rather than as a number a real villager could hold. */
+/* `child_record` is the child's live villager record, or NULL when the caller
+   has none to give. It is what the child's own likes, dislikes and skills are
+   read from -- they are not derivable from the name and appearance values the
+   other arguments carry. A NULL record simply omits those lines, so a caller
+   that cannot supply one still logs a complete birth. */
 __declspec(dllexport) int __stdcall WriteParentageBirth(
     int game_id,
     const char *child_name, int child_head, int child_body,
     const char *mother_name, int mother_head, int mother_body,
-    const char *father_name, int father_head, int father_body
+    const char *father_name, int father_head, int father_body,
+    const void *child_record
 ) {
     const struct game_layout *g;
     wchar_t path[MAX_LOG_PATH];
@@ -1708,6 +1847,9 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     char mother[MAX_NAME_BYTES];
     char father[MAX_NAME_BYTES];
     char mh[32], mb[32], fh[32], fb[32];
+    char child_likes[64], child_dislikes[64];
+    char skills[512];
+    const unsigned char *rec = (const unsigned char *)child_record;
     FILE *file;
     int existing_records;
     int written;
@@ -1740,6 +1882,14 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     VV1_BIRTH_FIELD(fb, father_body);
 #undef VV1_BIRTH_FIELD
 
+    /* The child's own preferences and skills, read from its live record. A
+       caller with no record to give passes NULL, and then these read as
+       "(none)" and the Skills block is empty rather than the birth being
+       dropped. */
+    preference_text(g, rec, g->likes, child_likes, sizeof child_likes);
+    preference_text(g, rec, g->dislikes, child_dislikes, sizeof child_dislikes);
+    skill_text(g, rec, skills, sizeof skills);
+
     if (!vv_village_recall(village, sizeof village)) {
         village[0] = '\0';
     }
@@ -1762,6 +1912,9 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
         "  Child: %s\n"
         "    Head: %d\n"
         "    Body: %d\n"
+        "    Likes: %s\n"
+        "    Dislikes: %s\n"
+        "%s"
         "  Mother: %s\n"
         "    Head: %s\n"
         "    Body: %s\n"
@@ -1769,7 +1922,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
         "    Head: %s\n"
         "    Body: %s\n"
         "\n",
-        child, child_head, child_body,
+        child, child_head, child_body, child_likes, child_dislikes, skills,
         mother, mh, mb,
         father, fh, fb
     ) >= 0;

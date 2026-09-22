@@ -30,8 +30,16 @@ def _fields() -> list[str]:
     source = EXPORTER.read_text(encoding="utf-8")
     body = source[source.index("struct game_layout {") :]
     body = body[: body.index("\n};")]
+    # Every declared type must appear here. A field whose type is missing from
+    # this list is invisible to the parser, which UNDERCOUNTS the struct and
+    # makes a correctly-aligned row look one value too long -- misleading in
+    # the opposite direction to the misalignment this file exists to catch.
+    # `const char *const *` (the per-game skill-name table) is one such form.
     return re.findall(
-        r"^\s+(?:(?:unsigned int|int|const wchar_t \*)\s+|const char \*\s*)(\w+);", body, re.M
+        r"^\s+(?:(?:unsigned int|int|const wchar_t \*)\s+"
+        r"|const char \*const \*\s*|const char \*\s*)(\w+);",
+        body,
+        re.M,
     )
 
 

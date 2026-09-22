@@ -608,7 +608,8 @@ static int vv1_parents_sync(void) {
 typedef int (__stdcall *vv1_write_birth_t)(int game_id,
                                             const char *child_name, int child_head, int child_body,
                                             const char *mother_name, int mother_head, int mother_body,
-                                            const char *father_name, int father_head, int father_body);
+                                            const char *father_name, int father_head, int father_body,
+                                            const void *child_record);
 static int g_log_state;           /* 0 = not tried, 1 = resolved, -1 = unavailable */
 static vv1_write_birth_t g_write_birth;
 
@@ -663,10 +664,14 @@ static void vv1_log_birth(const unsigned char *records, const vv1_birth *birth) 
     child = records + (unsigned int)birth->child * VV1_RECORD_STRIDE;
     e = &g_entries[birth->child];
     vv1_copy_name(child, child_name);
+    /* `child` is the live record: the exporter reads the child's own likes,
+       dislikes and skills from it, which the name and appearance values
+       above cannot supply. */
     write(1, child_name,
           *(const int *)(child + VV1_HEAD_OFFSET), *(const int *)(child + VV1_BODY_OFFSET),
           e->mother_name, vv1_decode(e->mother_head), vv1_decode(e->mother_body),
-          e->father_name, vv1_decode(e->father_head), vv1_decode(e->father_body));
+          e->father_name, vv1_decode(e->father_head), vv1_decode(e->father_body),
+          child);
 }
 
 /* ---- the logic, over any records array (no file I/O) ------------------ */
