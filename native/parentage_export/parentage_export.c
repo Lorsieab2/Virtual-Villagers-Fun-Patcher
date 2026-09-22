@@ -1030,7 +1030,15 @@ static int select_log_file(
     const struct game_layout *g,
     const char *village,
     wchar_t *destination,
-    int *existing_records
+    int *existing_records,
+    /* A BIRTH DOES NOT ROLL OVER. Births are not counted toward the roll --
+       count_records matches only "Conception " -- so a file is full, by that
+       count, the instant its 256th conception is written. A birth asking for
+       a file at that moment would be handed the NEXT one, landing apart from
+       its own conception and ahead of that file's first record. Set for a
+       birth, it appends to the file already holding records, which is the one
+       its conception went to. Found in review. */
+    int for_birth
 ) {
     int number;
     int total = 0;
@@ -1057,7 +1065,7 @@ static int select_log_file(
                skipping these would restart numbering partway through. */
             continue;
         }
-        if (records < RECORDS_PER_FILE) {
+        if (records < RECORDS_PER_FILE || (for_birth && records > 0)) {
             /* Hand the count back rather than making the caller re-derive it.
                Counting again after opening the file for append would rescan
                the whole log on every single birth, and would do it through a
@@ -1621,7 +1629,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     if (!vv_village_recall(village, sizeof village)) {
         village[0] = '\0';
     }
-    if (!select_log_file(g, village, path, &existing_records)) {
+    if (!select_log_file(g, village, path, &existing_records, 0)) {
         return 0;
     }
     /* Text mode, so the C runtime translates each \n into the CRLF that every
@@ -1893,7 +1901,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     if (!vv_village_recall(village, sizeof village)) {
         village[0] = '\0';
     }
-    if (!select_log_file(g, village, path, &existing_records)) {
+    if (!select_log_file(g, village, path, &existing_records, 1)) {
         return 0;
     }
     file = _wfopen(path, L"a");

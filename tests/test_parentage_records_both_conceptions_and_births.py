@@ -87,10 +87,38 @@ class BothRecordKindsTests(unittest.TestCase):
         conception = function(
             self.source,
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
-        self.assertIn("select_log_file(g, village, path, &existing_records)", birth)
-        self.assertIn("select_log_file(g, village, path, &existing_records)", conception)
+        self.assertIn("select_log_file(g, village, path, &existing_records", birth)
+        self.assertIn("select_log_file(g, village, path, &existing_records", conception)
         # And no separate birth log exists to split the two kinds apart.
         self.assertNotIn("Birth Log", self.source)
+
+    def test_a_birth_does_not_roll_over_at_the_file_boundary(self):
+        """The invariant the test above only LOOKED like it established.
+
+        Sharing select_log_file is not enough. count_records counts only
+        "Conception " lines, so a file is full -- by that count -- the instant
+        its 256th conception is written. A birth asking for a file at exactly
+        that moment fails `records < RECORDS_PER_FILE` and is handed the NEXT
+        file, landing apart from its own conception and ahead of that file's
+        first record. Every 256th birth, in every village. Found in review.
+
+        The two calls must therefore differ: the conception may roll over, the
+        birth may not.
+        """
+        chooser = function(self.source, "static int select_log_file(")
+        self.assertIn(
+            "records < RECORDS_PER_FILE || (for_birth && records > 0)", chooser,
+            "a birth must append to the file already holding records rather "
+            "than rolling over when that file is full of conceptions")
+        conception = function(
+            self.source,
+            "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
+        birth = function(
+            self.source, "__declspec(dllexport) int __stdcall WriteParentageBirth(")
+        self.assertIn("&existing_records, 0)", conception,
+                      "the conception path rolls over normally")
+        self.assertIn("&existing_records, 1)", birth,
+                      "the birth path must ask not to roll over")
 
     def test_a_birth_appends_rather_than_truncating(self):
         """A birth that opened "w" would erase the conceptions before it."""

@@ -93,7 +93,14 @@ static int locate_folder(void) {
     if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) return 0;
     base = strrchr(exe, '\\'); base = base ? base + 1 : exe;
     dot = strrchr(base, '.'); if (dot) *dot = 0;
-    _snprintf(folder, MAX_PATH, "%s\\LDW\\%s", docs, base);
+    /* The exporter writes into a subfolder, not the save folder itself. This
+       harness was left addressing the save folder when that layout was
+       introduced, so every lookup missed and all 37 checks failed in a way
+       indistinguishable from the DLL writing nothing at all. Nothing caught
+       it because the harness does not run in CI. */
+    _snprintf(folder, MAX_PATH, "%s\\LDW\\%s\\VVFP Logs\\Births and Conceptions",
+              docs, base);
+    folder[MAX_PATH - 1] = '\0';
     return 1;
 }
 static void remove_logs(void) {

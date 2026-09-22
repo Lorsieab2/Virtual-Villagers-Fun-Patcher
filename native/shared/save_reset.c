@@ -195,16 +195,45 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        Without a village string nothing here is deleted. Guessing would mean
        deleting another village's history, and losing a header line is a far
        smaller harm than that. */
-    if (village != NULL && village[0] != '\0'
-        && vv_save_subfolder_w(sub_w, L"VVFP Logs\\Births and Conceptions", 64)) {
-        for (i = 1; i <= MAX_LOG_FILES; ++i) {
-            wsprintfW(path_w, L"%ls\\%ls %d.txt", sub_w,
-                      PARENTAGE_LOG[game - 1], i);
-            if (GetFileAttributesW(path_w) == INVALID_FILE_ATTRIBUTES) {
-                break;          /* the exporter numbers without holes */
+    if (village != NULL && village[0] != '\0') {
+        /* Both the current location and the one it was renamed from.
+
+           A player who upgrades keeps whatever the previous build wrote: in
+           "Tribe Parental Records", under the old file name. Scanning only
+           the new pair leaves those behind on a Start Over -- records of the
+           village just erased, surviving in a folder nothing writes to any
+           more, which is this function's contract broken quietly. Found in
+           review.
+
+           A build predating the rename cannot have written the new names and
+           one following it cannot have written the old, so the two passes
+           never contend for the same file. */
+        static const wchar_t *const FOLDERS[2] = {
+            L"VVFP Logs\\Births and Conceptions",
+            L"VVFP Logs\\Tribe Parental Records"     /* pre-rename, legacy */
+        };
+        static const wchar_t *const LEGACY_LOG[5] = {
+            L"Virtual Villagers 1 Parentage Log",
+            L"Virtual Villagers 2 Parentage Log",
+            L"Virtual Villagers 3 Parentage Log",
+            L"Virtual Villagers 4 Parentage Log",
+            L"Virtual Villagers 5 Parentage Log"
+        };
+        int pass;
+        for (pass = 0; pass < 2; ++pass) {
+            const wchar_t *stem = pass == 0
+                ? PARENTAGE_LOG[game - 1] : LEGACY_LOG[game - 1];
+            if (!vv_save_subfolder_w(sub_w, FOLDERS[pass], 64)) {
+                continue;
             }
-            if (log_header_matches(path_w, village)) {
-                removed += delete_if_present_w(path_w);
+            for (i = 1; i <= MAX_LOG_FILES; ++i) {
+                wsprintfW(path_w, L"%ls\\%ls %d.txt", sub_w, stem, i);
+                if (GetFileAttributesW(path_w) == INVALID_FILE_ATTRIBUTES) {
+                    break;      /* the exporter numbers without holes */
+                }
+                if (log_header_matches(path_w, village)) {
+                    removed += delete_if_present_w(path_w);
+                }
             }
         }
     }

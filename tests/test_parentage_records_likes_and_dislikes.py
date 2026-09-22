@@ -298,6 +298,47 @@ class SkillTablesAgreeWithThePopulationExporterTests(unittest.TestCase):
                 # the other yields a plausible number, not a visible failure.
                 self.assertEqual(is_float, "1" if game in ("4", "5") else "0")
 
+    def test_the_skill_geometry_matches_the_population_exporter(self):
+        """The OFFSET has to match too, not just the names beside it.
+
+        Checking the name table, the count and the representation flag leaves
+        the one value that actually locates the data unchecked. Changing VV1's
+        offset here from 0x3BC to 0x3C0 passed every other assertion in this
+        file: each skill name would then carry the NEXT slot's number, so a
+        birth record and the roster would disagree about the same villager
+        while both looked entirely plausible. Found in review, and confirmed
+        by making that exact edit.
+
+        So the full geometry is compared per game -- offset, count and
+        representation -- against the population exporter's own rows.
+        """
+        parentage = dict(
+            (int(game), (int(off, 0), int(count), int(flag)))
+            for off, count, flag, _named, game in re.findall(
+                r"(0x[0-9A-Fa-f]+|\d+),\s*(\d+),\s*([01]),\s*SKILL_NAMES_(VV\d),\s*"
+                r'L"Virtual Villagers (\d) Births and Conceptions Log"',
+                _strip_comments(EXPORTER.read_text(encoding="utf-8")),
+            )
+        )
+        population = dict(
+            (int(game), (int(off, 0), int(count), int(flag)))
+            for off, count, flag, game in re.findall(
+                r"(0x[0-9A-Fa-f]+)u,\s*(\d+)u,\s*([01]),.*?"
+                r'"Virtual Villagers (\d)"',
+                _strip_comments(POPULATION.read_text(encoding="utf-8")),
+                re.DOTALL,
+            )
+        )
+        self.assertEqual(sorted(parentage), [1, 2, 3, 4, 5])
+        self.assertEqual(sorted(population), [1, 2, 3, 4, 5])
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                self.assertEqual(
+                    parentage[game], population[game],
+                    "game %d: the two exporters disagree about where the "
+                    "skills are, how many there are, or how they are stored"
+                    % game)
+
 
 if __name__ == "__main__":
     unittest.main()
