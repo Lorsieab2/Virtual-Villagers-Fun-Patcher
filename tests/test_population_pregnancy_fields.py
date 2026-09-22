@@ -211,5 +211,42 @@ class PregnancyOutputTests(unittest.TestCase):
                          "a pregnancy write is not checked")
 
 
+class LayoutGuardGatesEveryReaderTests(unittest.TestCase):
+    """The layout check must STOP the export, not merely report on it.
+
+    Every field this module adds is read straight out of a villager record at
+    a declared offset, and `layout_is_sane` is what proves those offsets fit
+    inside the record before anything reads them. The roster and the history
+    both run in `export_population` after that check.
+
+    A mutation that leaves the call in place but deletes its early return --
+    `if (!layout_is_sane(g)) { /* checked later */ }` -- passed every other
+    test in this file. The guard would still be called, still compute the
+    right answer, and the export would walk a record with fields reaching
+    past the stride anyway, reporting one villager's pregnancy as another's.
+    That is the exact failure the guard exists to prevent, so it needs a test
+    that fails when the guard stops guarding.
+    """
+
+    def setUp(self) -> None:
+        self.pop = POP_C.read_text(encoding="utf-8")
+
+    def test_the_layout_check_returns_rather_than_falling_through(self):
+        index = self.pop.index("if (!layout_is_sane(g)) {")
+        body = self.pop[index:self.pop.index("}", index)]
+        self.assertIn(
+            "return 0;", body,
+            "layout_is_sane is called but its failure does not stop the "
+            "export: every later read, including the history's, would use "
+            "offsets that were never proven to fit the record")
+
+    def test_the_history_runs_after_the_layout_check(self):
+        """Ordering is what makes the single guard cover both writers."""
+        self.assertLess(
+            self.pop.index("if (!layout_is_sane(g)) {"),
+            self.pop.index("append_history(g, villagers"),
+            "the history is appended before the layout is validated")
+
+
 if __name__ == "__main__":
     unittest.main()
