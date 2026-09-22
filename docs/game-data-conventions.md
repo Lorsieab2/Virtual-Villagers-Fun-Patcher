@@ -127,3 +127,27 @@ Treating that mismatch as proof the offset is wrong is a mistake that has
 been made repeatedly. Convert before comparing, and when a measured value
 is off from the display by a suspiciously round factor, suspect units
 before suspecting the address.
+
+## Villagers are children or adults — use those words
+
+There are exactly two kinds of villager: **children** and **adults**. Those
+are the terms this project uses, in code, in comments, in logs and in
+conversation.
+
+"Newborn" is not one of them. The owner has corrected it repeatedly, and it is
+not merely a style preference — the word implies a third category that does not
+exist and invites treating the youngest villagers as a special case to be
+filtered, reported on, or excluded. They are not special. A child is a villager
+and is logged like any other.
+
+The underlying rule, which is what makes the distinction load-bearing:
+
+* An adult can gain **nursing** status. That adds 1–3 to the population count.
+* The babies being nursed are **not separate villagers**. They have **no
+  record of their own** — nothing in the villager array represents them.
+* A villager becomes a separate villager, a child, at **age 2** (40 age units),
+  which is when a record first exists for it.
+
+So an age floor added to "filter out the very young" filters out nothing that
+was ever there, while wrongly dropping real two-year-olds who are genuine
+separate villagers. That mistake has been made here before.
