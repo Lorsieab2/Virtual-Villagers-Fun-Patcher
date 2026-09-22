@@ -106,10 +106,26 @@ class BothRecordKindsTests(unittest.TestCase):
         birth may not.
         """
         chooser = function(self.source, "static int select_log_file(")
-        self.assertIn(
-            "records < RECORDS_PER_FILE || (for_birth && records > 0)", chooser,
-            "a birth must append to the file already holding records rather "
-            "than rolling over when that file is full of conceptions")
+        # A birth must not stop at the first file with records either: after
+        # the first rollover that is file 1, which would put every later birth
+        # back there, apart from its conception and growing without bound. An
+        # earlier attempt at this fix did exactly that. It keeps walking and
+        # takes the village's NEWEST file, which is where its own conception
+        # went.
+        # Pinned as the real condition, not merely that the words appear:
+        # replacing `if (for_birth)` with `if (0)` restores the ORIGINAL bug --
+        # the birth rolling over like a conception -- and left the other
+        # assertions here green.
+        self.assertIn("if (for_birth) {", chooser,
+                      "the birth path must branch on for_birth; disabling that "
+                      "branch restores the rollover bug it exists to prevent")
+        self.assertIn("last_match = number;", chooser,
+                      "a birth must remember the latest matching file")
+        self.assertIn("if (for_birth && last_match != 0)", chooser,
+                      "and select it when the walk ends")
+        self.assertNotIn("(for_birth && records > 0)", chooser,
+                         "stopping at the first non-empty file sends every "
+                         "post-rollover birth back to file 1")
         conception = function(
             self.source,
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")

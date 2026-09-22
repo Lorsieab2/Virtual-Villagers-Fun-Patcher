@@ -223,8 +223,26 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
         for (pass = 0; pass < 2; ++pass) {
             const wchar_t *stem = pass == 0
                 ? PARENTAGE_LOG[game - 1] : LEGACY_LOG[game - 1];
-            if (!vv_save_subfolder_w(sub_w, FOLDERS[pass], 64)) {
-                continue;
+            if (pass == 0) {
+                /* The current folder, which the exporter writes to anyway. */
+                if (!vv_save_subfolder_w(sub_w, FOLDERS[pass], 64)) {
+                    continue;
+                }
+            } else {
+                /* The RETIRED folder is only probed, never created.
+                   vv_save_subfolder_w makes every missing component, so using
+                   it here would recreate an obsolete directory on every Start
+                   Over for players who never had one -- litter, produced by a
+                   compatibility path that should be invisible to them. Found
+                   in review. */
+                wchar_t root[MAX_PATH];
+                if (!vv_save_folder_w(root, (int)wcslen(FOLDERS[pass]) + 1 + 64)) {
+                    continue;
+                }
+                wsprintfW(sub_w, L"%ls\\%ls", root, FOLDERS[pass]);
+                if (GetFileAttributesW(sub_w) == INVALID_FILE_ATTRIBUTES) {
+                    continue;   /* no legacy folder: nothing to clean up */
+                }
             }
             for (i = 1; i <= MAX_LOG_FILES; ++i) {
                 wsprintfW(path_w, L"%ls\\%ls %d.txt", sub_w, stem, i);

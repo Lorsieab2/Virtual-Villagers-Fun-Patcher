@@ -1042,6 +1042,10 @@ static int select_log_file(
 ) {
     int number;
     int total = 0;
+    /* For a birth: the newest of this village's files seen so far, and the
+       running total at that point. Zero until one is found. */
+    int last_match = 0;
+    int last_total = 0;
 
     *existing_records = 0;
     for (number = 1; number <= 4096; ++number) {
@@ -1053,6 +1057,15 @@ static int select_log_file(
             /* A gap in the numbering ends the walk, so `total` counts the
                unbroken run this file continues rather than silently skipping
                past a deleted log and numbering as though it were still there. */
+            if (for_birth && last_match != 0) {
+                /* The village's newest existing file, which is where its most
+                   recent conception went. */
+                if (!build_log_path(g, last_match, destination)) {
+                    return 0;
+                }
+                *existing_records = last_total;
+                return 1;
+            }
             *existing_records = total;
             return 1;
         }
@@ -1065,7 +1078,21 @@ static int select_log_file(
                skipping these would restart numbering partway through. */
             continue;
         }
-        if (records < RECORDS_PER_FILE || (for_birth && records > 0)) {
+        if (for_birth) {
+            /* A birth NEVER rolls over and never stops early. It belongs in
+               the file its own conception went to, which is this village's
+               NEWEST file -- so keep walking and remember the latest match
+               rather than taking the first one that has records.
+
+               Stopping at the first non-empty file put every birth after the
+               first rollover back into file 1, apart from its conception and
+               growing that file without bound. Found in review, after an
+               earlier attempt at this very fix introduced it. */
+            last_match = number;
+            last_total = total;
+            continue;
+        }
+        if (records < RECORDS_PER_FILE) {
             /* Hand the count back rather than making the caller re-derive it.
                Counting again after opening the file for append would rescan
                the whole log on every single birth, and would do it through a
