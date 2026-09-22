@@ -348,7 +348,15 @@ static const struct game_layout GAME_LAYOUTS[6] = {
            of them, and dislikes[62] ends at 0x7E0 where the skills begin
            at 0x7E4.  A count of 4 reported "(none)" for any villager
            whose first filled entry sat in slots 4..61. */
-        0x5E4u, 0x544u,
+        /* Confirmed against the owner's Cheat Engine table, which resolves
+           Villager 1's record to base 0x0D730020: Babyplets is listed at
+           0x0D730564, i.e. base+0x544, and the pregnancy field one dword
+           below it at +0x540.  Live, +0x540 is the only field in the whole
+           0xE48C record that is non-zero for exactly the carrying women and
+           zero for every other villager, and the game's own Villager Detail
+           screen confirms one of them (Jade) is nursing.  The owner treats
+           pregnant and nursing as one state, so that is the state logged. */
+        0x540u, 0x544u,
         0x5F0u, 0x6E8u, 62u,
         PREFERENCES_62,
         "Virtual Villagers 2"

@@ -36,6 +36,12 @@ PAR_C = ROOT / "native" / "parentage_export" / "parentage_export.c"
 # game -> (due, litter) as this change declares them. 0 means "not measured".
 # game -> (age_at_conception, litter). 0 means "not established for this game".
 #
+# VV2's pair is the owner's Cheat Engine table, whose "Change address" dialog
+# resolves Villager 1's Babyplets to base 0x0D730020 + 0x544, putting the
+# pregnancy field one dword below at +0x540. Read live, +0x540 is the only
+# field in the whole 0xE48C record that is non-zero for exactly the carrying
+# women and zero for everyone else, and every holder is female.
+#
 # VV3's pair was located live: +0xE8C is non-zero for exactly the 13 of 85
 # villagers whose litter is also non-zero, every value sits at or just below
 # that villager's own age, and Zania -- age 972, litter 3, conceived at 972 --
@@ -43,7 +49,7 @@ PAR_C = ROOT / "native" / "parentage_export" / "parentage_export.c"
 # a running village and stay at 0 rather than inheriting VV3's shape.
 EXPECTED = {
     1: (0x358, 0x35C),
-    2: (0x5E4, 0x544),
+    2: (0x540, 0x544),
     3: (0xE8C, 0xE90),
     4: (0x1C4C, 0x1C50),
     5: (0x1C4C, 0x1C50),
