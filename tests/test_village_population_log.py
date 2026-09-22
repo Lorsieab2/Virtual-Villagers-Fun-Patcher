@@ -70,7 +70,7 @@ def _population_rows() -> dict[int, dict[str, int]]:
             "skills", "skill_count", "skills_are_float",
             # Pregnancy, added for #418 phase 2A. Both are 0 for a game whose
             # field is not established, and the exporter prints nothing for it.
-            "due", "litter",
+            "age_at_conception", "litter",
             "likes", "dislikes", "preference_slots",
         ]
         rows[int(match.group(2))] = dict(zip(names, values))
