@@ -4,7 +4,7 @@ THE HISTORY (#418). The live roster, "Village Population <n>.txt", is a
 snapshot of who is alive now: rewritten every save, so a villager who dies is
 absent from the next one. The owner wants a history as well, and chose
 snapshot-per-save over matching villagers to their past selves: each save
-appends a dated section to "Village History.txt" and nothing is ever decided
+appends a dated section to "Village History %d.txt" and nothing is ever decided
 about whether two rows are the same person. Nothing can be mismatched because
 nothing is matched.
 
@@ -66,7 +66,7 @@ class HistoryTests(unittest.TestCase):
         path = function(self.pop, "static int build_history_path(")
         self.assertIn("vv_save_subfolder_w(", path)
         self.assertIn(HISTORY_DIR, path)
-        self.assertIn('L"%ls\\\\Village History.txt"', path)
+        self.assertIn('L"%ls\\\\Village History %d.txt"', path)
 
     def test_the_export_appends_the_history_after_publishing_the_roster(self):
         """Order matters: a history failure must never cost the player the
@@ -122,7 +122,7 @@ class HistoryTests(unittest.TestCase):
 
     def test_the_shipped_dll_carries_the_history(self):
         blob = POP_DLL.read_bytes()
-        for wide in ("VVFP Logs\\Tribe History", "Village History.txt",
+        for wide in ("VVFP Logs\\Tribe History", "Village History %d.txt",
                      "VVFP Logs\\Tribe Population"):
             self.assertIn(wide.encode("utf-16-le"), blob, wide)
 
@@ -161,6 +161,23 @@ class LogFolderTests(unittest.TestCase):
         lit = re.search(r'vv_save_subfolder_w\(module_path, (L"[^"]+"), 64\)',
                         paths).group(1)
         self.assertEqual(lit, STATISTICS_DIR)
+
+    def test_the_history_rolls_instead_of_growing_forever(self):
+        """The history appends a full roster on EVERY save, so without a roll
+        it grows without bound -- about 27 KB per save on a real 85-villager
+        village. It rolls on SIZE rather than record count because one
+        snapshot is many lines."""
+        path = function(self.pop, "static int build_history_path(")
+        self.assertIn("HISTORY_BYTES_PER_FILE", path)
+        self.assertIn("Village History %d.txt", path)
+        # The threshold is a real bound, not a placeholder that never trips.
+        m = re.search(r"HISTORY_BYTES_PER_FILE\s*=\s*([0-9*\s]+)\s*\}", self.pop)
+        self.assertIsNotNone(m, "the threshold must be a compile-time constant")
+        self.assertLessEqual(eval(m.group(1)), 64 * 1024 * 1024)
+        self.assertGreater(eval(m.group(1)), 0)
+        # A file that cannot be measured must keep the CURRENT file, never
+        # roll: otherwise a failed stat scatters one village across new files.
+        self.assertIn("return 0;", function(self.pop, "static long long history_file_size("))
 
     def test_the_reset_clears_statistics_from_both_locations(self):
         """A player who upgrades keeps the pre-move copy loose in the save

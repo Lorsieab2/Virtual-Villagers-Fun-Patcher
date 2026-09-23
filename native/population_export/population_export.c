@@ -929,14 +929,55 @@ static int write_villager(
    One path, not two: the history is APPENDED, so there is no temporary to
    publish and nothing to rename over. A partial append at the end of the file
    is visibly partial, where a truncated roster would look complete. */
+enum { HISTORY_BYTES_PER_FILE = 4 * 1024 * 1024 };
+
+/* The size of a file, or 0 when it does not exist or cannot be measured.
+
+   A file that cannot be measured reads as 0, which keeps the CURRENT file in
+   use rather than rolling to a new one. That is the safe direction: a failed
+   measurement must not scatter one village's history across a new file on
+   every save. */
+static long long history_file_size(const wchar_t *path) {
+    WIN32_FILE_ATTRIBUTE_DATA info;
+    if (!GetFileAttributesExW(path, GetFileExInfoStandard, &info)) {
+        return 0;
+    }
+    return ((long long)info.nFileSizeHigh << 32) | info.nFileSizeLow;
+}
+
+/* "<save folder>\VVFP Logs\Tribe History\Village History <n>.txt".
+
+   One path, not two: the history is APPENDED, so there is no temporary to
+   publish and nothing to rename over. A partial append at the end of the file
+   is visibly partial, where a truncated roster would look complete.
+
+   IT ROLLS. The history appends a full roster on EVERY save, so it grows
+   without bound: measured on a real 85-villager village, one snapshot is about
+   27 KB, which reaches a gigabyte in a few tens of thousands of saves. The
+   parentage log and the roster already roll by record count; a snapshot is
+   many lines rather than one record, so this rolls on SIZE instead.
+
+   The roll is checked before each append and never rewrites an existing file:
+   a file at or over the threshold is left closed and the next number is used.
+   Numbering starts at 1 and walks upward, so a player reads them in order and
+   older files stay exactly as they were written. */
 static int build_history_path(wchar_t *destination) {
     wchar_t module_path[MAX_LONG_PATH];
+    int number;
     if (!vv_save_subfolder_w(module_path, L"VVFP Logs\\Tribe History", 64)) {
         return 0;
     }
-    return _snwprintf_s(
-        destination, MAX_LONG_PATH, _TRUNCATE,
-        L"%ls\\Village History.txt", module_path) >= 0;
+    for (number = 1; number < 100000; ++number) {
+        if (_snwprintf_s(
+                destination, MAX_LONG_PATH, _TRUNCATE,
+                L"%ls\\Village History %d.txt", module_path, number) < 0) {
+            return 0;
+        }
+        if (history_file_size(destination) < HISTORY_BYTES_PER_FILE) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /* Append this save's roster to the history.
