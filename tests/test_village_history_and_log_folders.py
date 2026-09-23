@@ -208,6 +208,27 @@ class LogFolderTests(unittest.TestCase):
             self.pop.index("publish_file(file, temporary, destination)"),
             self.pop.index("ensure_parentage_log_for_village(game_id, village)"))
 
+    def test_the_log_migration_is_resumable(self):
+        """Neither an absent source nor a failed move may end the walk.
+
+        A move can fail transiently -- a lock, an antivirus scanner, a sharing
+        violation. Stopping there left the later files behind, and because the
+        earlier ones had already moved, the next attempt found file 1 absent
+        and stopped immediately, treating "already migrated" as "end of run".
+        Those files were stranded, and select_log_file then handed out a
+        number an unmigrated file was still using: one village's history split
+        across two folders with the same conception numbers in both."""
+        path = function(self.par, "static int build_log_path(")
+        body = path[path.index("for (moved = 1"):]
+        # The walk must not break: every exit from an iteration is a continue.
+        self.assertNotIn("break;", body)
+        # An absent source is skipped, not terminal.
+        self.assertIn("already migrated, or never existed", body)
+        # A failed move is left for the next launch rather than ending the run.
+        self.assertIn("retried on the next launch", body)
+        # And it covers the same numbering range select_log_file walks.
+        self.assertIn("moved <= 4096", body)
+
     def test_the_history_rolls_instead_of_growing_forever(self):
         """The history appends a full roster on EVERY save, so without a roll
         it grows without bound -- about 27 KB per save on a real 85-villager

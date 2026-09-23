@@ -917,22 +917,37 @@ static int build_log_path(
             _snwprintf_s(legacy_dir, MAX_LOG_PATH, _TRUNCATE,
                          L"%ls\\VVFP Logs\\Births and Conceptions", root);
             if (GetFileAttributesW(legacy_dir) != INVALID_FILE_ATTRIBUTES) {
-                for (moved = 1; moved <= 4096; ++moved) {
+                /* THE WALK MUST BE RESUMABLE, so neither an absent source
+                   nor a failed move ends it.
+
+                   A move can fail transiently -- a lock, an antivirus
+                   scanner, a sharing violation. Stopping there left the later
+                   files behind, and because the earlier ones had already
+                   moved, the NEXT attempt found file 1 absent and stopped
+                   immediately, treating "already migrated" as "end of run".
+                   Those files were then stranded for good, and
+                   select_log_file, stopping at the gap they left in the new
+                   folder, handed out a number an unmigrated file was still
+                   using: one village's history split across two folders with
+                   the same conception numbers in both.
+
+                   So an absent source is skipped rather than terminal, and a
+                   failed move is simply left for the next launch to retry.
+                   Found in review. */
+                for (moved = 1; moved <= 4096; ++moved) {   /* select_log_file's own ceiling */
                     wchar_t from[MAX_LOG_PATH];
                     wchar_t to[MAX_LOG_PATH];
                     _snwprintf_s(from, MAX_LOG_PATH, _TRUNCATE,
                                  L"%ls\\%ls %d.txt", legacy_dir, g->log_name, moved);
                     if (GetFileAttributesW(from) == INVALID_FILE_ATTRIBUTES) {
-                        break;
+                        continue;   /* already migrated, or never existed */
                     }
                     _snwprintf_s(to, MAX_LOG_PATH, _TRUNCATE,
                                  L"%ls\\%ls %d.txt", folder, g->log_name, moved);
                     if (GetFileAttributesW(to) != INVALID_FILE_ATTRIBUTES) {
                         continue;   /* already migrated: never overwrite */
                     }
-                    if (!MoveFileW(from, to)) {
-                        break;
-                    }
+                    (void)MoveFileW(from, to);   /* retried on the next launch */
                 }
             }
         }
