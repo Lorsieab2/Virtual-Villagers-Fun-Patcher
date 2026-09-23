@@ -475,7 +475,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler composition contract: {'stacking': ['positive earned tech deltas only', 'positive food-source deltas only'], 'exclusions': ['Island Event tech-point gain', 'Duplicate Collectibles tech-point gain'], 'food_mastery_status': 'confirmed absent in the exact-build writer, strings, and bounded caller corpus', 'status': 'GO: positive writer wrappers double eligible positive deltas once; duplicate collectibles and audited Island Event calls remain native; runtime/player confirmation pending'}
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 28; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 29; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.vv3mc` (executable code), `.vv3md` (writable data) -- and rewrites 3 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
 #### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
@@ -549,7 +549,7 @@ Records both parents at conception in a plain text log: their names, both parent
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 4096 bytes as 1 new PE section -- `.vv3pl` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 

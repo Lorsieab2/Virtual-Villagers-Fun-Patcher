@@ -174,6 +174,11 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(
             offsets,
             {
+                # The save-slot menu's tribe delete, so an Origins build sweeps
+                # a deleted tribe's masks even without the parentage log. The
+                # game's other caller of deleteSave rotates backup generations
+                # and passes slot + 0x14; this one pushes the raw slot.
+                0x1B5D3,
                 0x24C,
                 0x9EEA0,
                 0x9EF30,
