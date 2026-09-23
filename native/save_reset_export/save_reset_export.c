@@ -22,6 +22,7 @@
  */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <string.h>   /* strstr, for the header's (Save N) check */
 
 #include "save_reset.h"
 #include "save_folder.h"
@@ -36,6 +37,62 @@
  * FAILING IS SAFE AND SILENT. The game is mid-delete and has no way to show
  * an error, so every failure path leaves files alone rather than guessing.
  * A stale sidecar is a far smaller harm than a wrong deletion. */
+/* Does this header belong to the slot being deleted?
+ *
+ * THE PUBLISHED HEADER IS THE LAST VILLAGE SAVED, NOT NECESSARILY THIS ONE.
+ * A player can save one village, return to the save-slot menu, and delete a
+ * different slot. The header still names the village they were playing, and
+ * handing that to the sweep would delete THAT village's parentage logs --
+ * which are matched by header -- while leaving the deleted village's logs
+ * untouched. Exactly backwards, and unrecoverable. Found in review.
+ *
+ * The exporters write "Village: <name> (Save <n>)", so the slot is in the
+ * header and can be checked against the one being erased. A header that does
+ * not match, or one whose shape is unexpected, is refused: the sweep then
+ * leaves parentage alone rather than deleting on a guess, while the
+ * slot-addressed files -- roster, statistics, sidecars -- still go, because
+ * those the slot identifies on its own. */
+static int header_is_for_slot(const char *header, int slot) {
+    const char *marker = " (Save ";
+    const char *found;
+    int value = 0;
+    int digits = 0;
+
+    if (header == NULL || slot < 1 || slot > 9) {
+        return 0;
+    }
+    /* The LAST occurrence, so a village whose own name contains the marker
+       cannot shadow the real one. */
+    found = NULL;
+    {
+        const char *scan = header;
+        for (;;) {
+            const char *hit = strstr(scan, marker);
+            if (hit == NULL) {
+                break;
+            }
+            found = hit;
+            scan = hit + 1;
+        }
+    }
+    if (found == NULL) {
+        return 0;
+    }
+    found += lstrlenA(marker);
+    while (*found >= '0' && *found <= '9') {
+        value = value * 10 + (*found - '0');
+        ++found;
+        ++digits;
+        if (digits > 2) {
+            return 0;       /* not a save number this game can produce */
+        }
+    }
+    if (digits == 0 || *found != ')') {
+        return 0;
+    }
+    return value == slot;
+}
+
 __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     char village[256];
     const char *header = NULL;
@@ -52,7 +109,8 @@ __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
      * the parentage logs alone rather than deleting on a guess. The
      * slot-addressed files -- roster, statistics, sidecars -- are removed
      * either way, because those the slot does identify. */
-    if (vv_village_recall(village, sizeof(village))) {
+    if (vv_village_recall(village, sizeof(village))
+        && header_is_for_slot(village, slot)) {
         header = village;
     }
     return vv_reset_slot_state(game, slot, header);

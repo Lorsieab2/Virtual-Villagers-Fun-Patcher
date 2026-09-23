@@ -232,6 +232,29 @@ class LogFolderTests(unittest.TestCase):
             # And it never overwrites an already-migrated file.
             self.assertIn("already migrated, or never needed it", fn, path.name)
 
+    def test_the_reset_checks_the_header_belongs_to_the_deleted_slot(self):
+        """The published header is the LAST village saved, not necessarily the
+        one being deleted.
+
+        A player can save one village, return to the save-slot menu, and delete
+        a different slot. Handing that header to the sweep would delete the
+        village they were PLAYING -- parentage logs are matched by header --
+        while leaving the deleted village's logs untouched."""
+        import pathlib
+        root = pathlib.Path(__file__).resolve().parents[1]
+        text = (root / "native/save_reset_export/save_reset_export.c").read_text(
+            encoding="utf-8")
+        fn = function(text, "static int header_is_for_slot(")
+        # The slot is read out of the header's own "(Save N)" and compared.
+        self.assertIn('" (Save "', fn)
+        self.assertIn("return value == slot;", fn)
+        # The LAST occurrence, so a village named "... (Save 2)" cannot shadow
+        # the real marker.
+        self.assertIn("cannot shadow the real one", fn)
+        # And the caller only passes the header when it matches.
+        caller = function(text, "__declspec(dllexport) int __stdcall ResetDeletedTribe(")
+        self.assertIn("header_is_for_slot(village, slot)", caller)
+
     def test_the_log_migration_is_resumable(self):
         """Neither an absent source nor a failed move may end the walk.
 
