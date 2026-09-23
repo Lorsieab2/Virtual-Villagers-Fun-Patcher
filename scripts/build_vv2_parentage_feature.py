@@ -490,9 +490,10 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
     reset_payload[RESET_DLL_NAME_OFFSET : RESET_DLL_NAME_OFFSET + len(RESET_DLL_NAME)] = RESET_DLL_NAME
     reset_payload[RESET_EXPORT_NAME_OFFSET : RESET_EXPORT_NAME_OFFSET + len(RESET_EXPORT_NAME)] = RESET_EXPORT_NAME
 
-    reset_entry = assemble(f"call 0x{reset_code_va:X}", RESET_HOOK_VA)
-    if len(reset_entry) != len(RESET_HOOK_STOLEN):
-        raise RuntimeError("the reset hook entry does not match the stolen bytes")
+    # Origins owns the tribe-delete stub and hook now; see
+    # scripts/build_vv2_origins_feature.py. Claiming the same bytes here
+    # too would make uninstalling the parentage log strip a stub Origins
+    # still needs.
 
     # Patch [0]: repoint the rejection at the stub. Still a six-byte near jcc;
     # only the rel32 changes, so nothing downstream shifts.
@@ -533,26 +534,6 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             "purpose": (
                 "The loader trampoline, the relocated one-pop rejection stub, and "
                 "the companion and export name strings"
-            ),
-        },
-        {
-            "offset": f"0x{RESET_CAVE_FILE:X}",
-            "before": "00" * RESET_CAVE_SIZE,
-            "after": bytes(reset_payload).hex().upper(),
-            "purpose": (
-                "The tribe-delete stub and its companion and export name "
-                "strings, in measured free space after the parentage cave"
-            ),
-        },
-        {
-            "offset": f"0x{RESET_HOOK_FILE:X}",
-            "before": RESET_HOOK_STOLEN.hex().upper(),
-            "after": reset_entry.hex().upper(),
-            "purpose": (
-                "Route the save-slot menu's tribe delete through the reset "
-                "stub, which erases this patcher's state for that slot before "
-                "the game erases the save -- so a new tribe started in the "
-                "same slot does not inherit the old one's masks and logs"
             ),
         },
     ]

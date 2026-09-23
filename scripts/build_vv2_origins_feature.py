@@ -389,6 +389,32 @@ def caller_blacklist_asm(addresses: tuple[int, ...]) -> str:
     )
 
 
+# THE TRIBE-DELETE HOOK, owned here rather than by the parentage log.
+#
+# Origins is what writes the per-slot mask files, so a build with Origins and
+# no parentage log would persist masks with nothing to clean them: a new tribe
+# in a reused slot inherits them, which is the bleed the reset exists to stop.
+#
+# The feature that creates the state owns the cleanup. When both claimed these
+# bytes, uninstalling the parentage log stripped a stub Origins still needed.
+RESET_CAVE_FILE = 0x000B24D8
+RESET_CAVE_VA = 0x004B44D8
+RESET_CAVE_SIZE = 0x62
+RESET_DLL_NAME = b"VVFP Save Reset.dll\0"
+RESET_EXPORT_NAME = b"ResetDeletedTribe\0"
+RESET_DLL_NAME_OFFSET = 0x00
+RESET_EXPORT_NAME_OFFSET = 0x14
+RESET_CODE_OFFSET = 0x28
+RESET_HOOK_VA = 0x00414E77
+RESET_HOOK_FILE = 0x00014E77
+RESET_HOOK_STOLEN = bytes.fromhex("e8f4fd0000")
+RESET_THUNK_VA = 0x00424C70
+RESET_GET_MODULE_HANDLE_IAT = 0x004740D0
+RESET_LOAD_LIBRARY_IAT = 0x00474010
+RESET_GET_PROC_ADDRESS_IAT = 0x004740D4
+RESET_COMPANION_SOURCE = "assets/save_reset/VVFP Save Reset.dll"
+
+
 def assemble(source: str, address: int) -> bytes:
     encoding, _ = Ks(KS_ARCH_X86, KS_MODE_32).asm(source, address)
     return bytes(encoding)
@@ -422,13 +448,75 @@ def main() -> None:
             f"stock SHA-256 mismatch: expected {expected_sha256}, got {actual_sha256}"
         )
     mask_stage2_output = build_vv2_mask_stage2_output(original)
-    mask_append = mask_stage2_output[len(original) :]
+    mask_append = bytearray(mask_stage2_output[len(original) :])
+    # THE TRIBE-DELETE STUB LIVES IN THE APPENDED PAGE ITSELF.
+    #
+    # VV2's append_bytes carry real content rather than zeros, so this
+    # feature writes the page directly rather than patching into it. A
+    # separate patch at the same offset reads as Origins overlapping
+    # itself, which the capacity guard rejects -- correctly.
+    # THE TRIBE-DELETE STUB AND ITS HOOK.
+    #
+    # It preserves every register, because it runs inside the save-slot menu
+    # handler's own frame, and falls through to the game's own delete on EVERY
+    # failure path: a missing companion or an unresolved export costs the
+    # sweep, never the player's save.
+    #
+    # EDI holds the RAW slot the handler loaded for the case the player chose.
+    # The game's other caller of deleteSave rotates backup generations and
+    # passes slot + 0x14, so hooking the handler's own call reaches the reset
+    # and never ordinary play.
+    _reset_payload = bytearray(RESET_CAVE_SIZE)
+    _reset_code = assemble(
+        f"""
+            pushad
+            push 0x{RESET_CAVE_VA + RESET_DLL_NAME_OFFSET:X}
+            call dword ptr [0x{RESET_GET_MODULE_HANDLE_IAT:X}]
+            test eax, eax
+            jnz reset_have_module
+            push 0x{RESET_CAVE_VA + RESET_DLL_NAME_OFFSET:X}
+            call dword ptr [0x{RESET_LOAD_LIBRARY_IAT:X}]
+            test eax, eax
+            jz reset_done
+        reset_have_module:
+            push 0x{RESET_CAVE_VA + RESET_EXPORT_NAME_OFFSET:X}
+            push eax
+            call dword ptr [0x{RESET_GET_PROC_ADDRESS_IAT:X}]
+            test eax, eax
+            jz reset_done
+            push edi
+            push 2
+            call eax
+        reset_done:
+            popad
+            jmp 0x{RESET_THUNK_VA:X}
+        """,
+        RESET_CAVE_VA + RESET_CODE_OFFSET,
+    )
+    if RESET_CODE_OFFSET + len(_reset_code) > RESET_CAVE_SIZE:
+        raise RuntimeError("the reset stub runs past its measured cave")
+    _reset_payload[RESET_CODE_OFFSET : RESET_CODE_OFFSET + len(_reset_code)] = _reset_code
+    _reset_payload[RESET_DLL_NAME_OFFSET : RESET_DLL_NAME_OFFSET + len(RESET_DLL_NAME)] = RESET_DLL_NAME
+    _reset_payload[RESET_EXPORT_NAME_OFFSET : RESET_EXPORT_NAME_OFFSET + len(RESET_EXPORT_NAME)] = RESET_EXPORT_NAME
+
     if (
         len(mask_append) != 0x2000
         or hashlib.sha256(mask_append).hexdigest().upper()
         != VV2_MASK_STAGE2_APPEND_SHA256
     ):
         raise RuntimeError("VV2 mask stage-2 append identity mismatch")
+
+    # The stub goes in AFTER the identity check, which pins the page as the
+    # stage-2 build produced it. Writing before the check would make the
+    # guard compare a page this script had already modified.
+    mask_append = bytearray(mask_append)
+    _reset_off = RESET_CAVE_FILE - len(original)
+    if not all(b == 0 for b in mask_append[_reset_off : _reset_off + RESET_CAVE_SIZE]):
+        raise RuntimeError(
+            f"the reset cave at {RESET_CAVE_FILE:#x} is not free in the appended page"
+        )
+    mask_append[_reset_off : _reset_off + RESET_CAVE_SIZE] = _reset_payload
+    mask_append = bytes(mask_append)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     strings = bytearray()
@@ -1252,7 +1340,15 @@ def main() -> None:
     patches: list[dict[str, str]] = []
 
     def patch(offset: int, before: bytes, after: bytes, purpose: str) -> None:
-        actual = original[offset : offset + len(before)]
+        # Offsets at or beyond the stock file size land in the page this
+        # feature appends, which is zero-filled at build time -- the stock file
+        # has no bytes there to guard against, so the guard applies only to
+        # in-place edits. Matches the VV1 generator.
+        actual = (
+            original[offset : offset + len(before)]
+            if offset < len(original)
+            else before
+        )
         if actual != before:
             raise RuntimeError(
                 f"guard mismatch at {offset:#x}: expected {before.hex()}, "
@@ -2801,6 +2897,15 @@ def main() -> None:
             "immediate_fixed": dict(mask_layout),
         },
     }
+    patch(
+        RESET_HOOK_FILE,
+        RESET_HOOK_STOLEN,
+        rel32_call(RESET_HOOK_VA, RESET_CAVE_VA + RESET_CODE_OFFSET),
+        "Route the save-slot menu's tribe delete through the reset stub, so a "
+        "new tribe started in the same slot does not inherit the old one's "
+        "masks",
+    )
+
 
     manifest = {
         "id": "vv2_enable_origins_exclusive_features",
@@ -2820,7 +2925,15 @@ def main() -> None:
                 "sha256": hashlib.sha256(
                     (ROOT / "assets" / "origins" / "VVFP VV2 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
-            }
+            },
+            {
+                # The tribe-delete stub resolves this by name at runtime.
+                "source": RESET_COMPANION_SOURCE,
+                "destination": "VVFP Save Reset.dll",
+                "sha256": hashlib.sha256(
+                    (ROOT / RESET_COMPANION_SOURCE).read_bytes()
+                ).hexdigest().upper(),
+            },
         ],
         "pe_append_transaction": mask_append_transaction,
         "doubler_evidence": {

@@ -467,7 +467,11 @@ class ManifestTests(unittest.TestCase):
         # glue that calls it (0x9A745), which hold and retry a cued barrel
         # whose village filled up during the cue delay instead of spending it
         # on a short count.
-        self.assertEqual(len(rows), 39)
+        # 40, not 39: Origins gained the tribe-delete hook, so
+        # an Origins build sweeps a deleted tribe's masks even when the
+        # parentage log is not selected. The stub's own bytes live in the
+        # appended page rather than in a patch, so this is +1 not +2.
+        self.assertEqual(len(rows), 40)
         for required in (0x9A4A0, 0x9A745):
             self.assertIn(required, rows, "delivery-time recheck cave is missing")
         mask_guards = {
