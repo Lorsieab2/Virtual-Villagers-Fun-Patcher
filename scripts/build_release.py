@@ -32,6 +32,9 @@ FILES = [
     "assets/statistics/VVFP Statistics Export.dll",
     "assets/parentage/VVFP Parentage Export.dll",
     "assets/population/VVFP Population Export.dll",
+    # The tribe-delete companion. The reset stub in each game resolves it by
+    # name at runtime, so it has to be in the package or the sweep never runs.
+    "assets/save_reset/VVFP Save Reset.dll",
     "assets/number_keys/VVFP VV1 Number Keys.dll",
     "assets/parentage/VVFP VV1 Parentage.dll",
     "assets/sort_by/VVFP VV1 Sort By.dll",

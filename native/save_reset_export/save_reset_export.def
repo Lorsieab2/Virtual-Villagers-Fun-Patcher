@@ -1,0 +1,3 @@
+LIBRARY "VVFP Save Reset"
+EXPORTS
+    ResetDeletedTribe=_ResetDeletedTribe@8

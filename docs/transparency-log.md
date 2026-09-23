@@ -267,8 +267,8 @@ On each new pregnancy, appends both parents' names, both parents' ages at concep
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
-- Guarded executable edits when its required base is also selected: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 13; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 13; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv1_write_village_statistics`)
 
@@ -414,7 +414,7 @@ Records both parents at conception in a plain text log: their names, both parent
 - Explicit non-changes/exclusions: none declared
 - Dependencies: vv2_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits when its required base is also selected: 3; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 5; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv2_write_village_statistics`)
 
@@ -549,7 +549,7 @@ Records both parents at conception in a plain text log: their names, both parent
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 4096 bytes as 1 new PE section -- `.vv3pl` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 
@@ -648,7 +648,7 @@ On each new pregnancy, appends the mother's and father's names, both parents' ag
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 4096 bytes as 1 new PE section -- `.vv4pl` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
@@ -809,7 +809,7 @@ On each new pregnancy, appends the mother's and father's names, both parents' ag
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 4096 bytes as 1 new PE section -- `.vv5pl` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv5_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 

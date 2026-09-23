@@ -1026,6 +1026,45 @@ static int build_history_path(wchar_t *destination) {
     if (!vv_save_subfolder_w(module_path, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
         return 0;
     }
+    /* MIGRATE THE UNNUMBERED HISTORY AND THE RETIRED FOLDER.
+
+       Two renames happened here: the folder was spelled out, and the file
+       gained a number when it started rolling. A player upgrading has
+       "VVFP Logs\Tribe History\Village History.txt" -- an append-only
+       timeline with their whole village in it. Starting a fresh
+       "Village History 1.txt" beside it would silently split that timeline,
+       and every later save would ignore the earlier part.
+
+       It becomes file 1 of the numbered sequence, which is what it is: the
+       oldest snapshots. Only when no file 1 exists, so a village that has
+       already rolled is never overwritten. Both the current folder and the
+       retired one are tried, because the file could be in either depending
+       on which build the player came from.
+
+       A failed move leaves both files alone and is retried next launch. */
+    {
+        static int history_migrated;
+        if (!history_migrated) {
+            wchar_t root[MAX_LONG_PATH];
+            wchar_t legacy[MAX_LONG_PATH];
+            wchar_t first[MAX_LONG_PATH];
+            history_migrated = 1;
+            if (_snwprintf_s(first, MAX_LONG_PATH, _TRUNCATE,
+                             L"%ls\Village History 1.txt", module_path) >= 0
+                && GetFileAttributesW(first) == INVALID_FILE_ATTRIBUTES) {
+                if (_snwprintf_s(legacy, MAX_LONG_PATH, _TRUNCATE,
+                                 L"%ls\Village History.txt", module_path) < 0
+                    || !MoveFileW(legacy, first)) {
+                    if (vv_save_folder_w(root, 96)
+                        && _snwprintf_s(legacy, MAX_LONG_PATH, _TRUNCATE,
+                                        L"%ls\VVFP Logs\Tribe History\Village History.txt",
+                                        root) >= 0) {
+                        (void)MoveFileW(legacy, first);
+                    }
+                }
+            }
+        }
+    }
     for (number = 1; number < 100000; ++number) {
         if (_snwprintf_s(
                 destination, MAX_LONG_PATH, _TRUNCATE,

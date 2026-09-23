@@ -98,6 +98,8 @@ ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "inputs" / "vv4-stock-copy"
 EXE = "Virtual Villagers - The Tree of Life.exe"
 COMPANION = ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"
+# The tribe-delete stub resolves this at runtime; it ships alongside.
+RESET_COMPANION = ROOT / "assets" / "save_reset" / "VVFP Save Reset.dll"
 OUTPUT = ROOT / "data" / "vv4_parentage_feature.json"
 
 GAME_ID = 4
@@ -150,6 +152,31 @@ EXPORT_NAME = b"WriteParentageRecordWithFather\0"
 # Where the two strings sit inside the page, clear of the trampoline.
 DLL_NAME_OFFSET = 0xF0
 EXPORT_NAME_OFFSET = 0x110
+
+# THE TRIBE-DELETE HOOK, sharing this page.
+#
+# The save-slot menu deletes a tribe by calling deleteSave through a `jmp`
+# thunk with the RAW slot in edi. The game's OTHER caller of deleteSave is a
+# save routine rotating backup generations, which passes slot + 0x14 -- so
+# hooking the menu handler's own call reaches the reset and never ordinary
+# play. See docs/start-over-reset-hook.md.
+#
+# Without this the patcher's per-slot state outlives the village: a new tribe
+# started in a reused slot inherits the old one's masks, which is the bleed
+# the owner reported. vv_reset_slot_state has always been correct and never
+# ran, because save_reset.c was not compiled into any shipped companion until
+# VVFP Save Reset.dll.
+RESET_DLL_NAME = b"VVFP Save Reset.dll\0"
+RESET_EXPORT_NAME = b"ResetDeletedTribe\0"
+RESET_DLL_NAME_OFFSET = 0x130
+RESET_EXPORT_NAME_OFFSET = 0x150
+RESET_CODE_OFFSET = 0x170
+
+RESET_HOOK_VA = 0x00418CD5
+RESET_HOOK_FILE = 0x00018CD5
+RESET_HOOK_STOLEN = bytes.fromhex("e8f6640000")
+RESET_THUNK_VA = 0x0041F1D0
+
 
 # The villager record array's container, and the header the game's own accessor
 # adds to reach record zero.  sub_466040 does:
@@ -360,13 +387,71 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
     page[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
     page[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
 
+    # The tribe-delete stub. It preserves every register, because it runs in
+    # the middle of the menu handler's own frame, and it falls through to the
+    # game's delete on EVERY failure: a missing companion or an unresolved
+    # export costs the sweep, never the player's save.
+    reset_va = PAGE_VA + RESET_CODE_OFFSET
+    reset = assemble(
+        f"""
+            pushad
+            push 0x{PAGE_VA + RESET_DLL_NAME_OFFSET:X}
+            call dword ptr [0x{GET_MODULE_HANDLE_IAT:X}]
+            test eax, eax
+            jnz have_module
+            push 0x{PAGE_VA + RESET_DLL_NAME_OFFSET:X}
+            call dword ptr [0x{LOAD_LIBRARY_IAT:X}]
+            test eax, eax
+            jz done
+        have_module:
+            push 0x{PAGE_VA + RESET_EXPORT_NAME_OFFSET:X}
+            push eax
+            call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
+            test eax, eax
+            jz done
+            # ResetDeletedTribe(game, slot). EDI is the raw slot the menu
+            # handler loaded for the case the player chose.
+            push edi
+            push {GAME_ID}
+            call eax
+        done:
+            popad
+            jmp 0x{RESET_THUNK_VA:X}
+        """,
+        reset_va,
+    )
+    if RESET_CODE_OFFSET + len(reset) > len(page):
+        raise RuntimeError("reset stub runs past the end of the page")
+    page[RESET_CODE_OFFSET : RESET_CODE_OFFSET + len(reset)] = reset
+    page[RESET_DLL_NAME_OFFSET : RESET_DLL_NAME_OFFSET + len(RESET_DLL_NAME)] = RESET_DLL_NAME
+    page[RESET_EXPORT_NAME_OFFSET : RESET_EXPORT_NAME_OFFSET + len(RESET_EXPORT_NAME)] = RESET_EXPORT_NAME
+
     # Divert the call: a five-byte call to the page replaces the five-byte call
     # to the conception routine exactly, so nothing downstream shifts.
     entry = assemble(f"call 0x{PAGE_VA:X}", HOOK_VA)
     if len(entry) != len(HOOK_STOLEN):
         raise RuntimeError("hook entry does not match the stolen byte count")
 
+    reset_entry = assemble(f"call 0x{reset_va:X}", RESET_HOOK_VA)
+    if len(reset_entry) != len(RESET_HOOK_STOLEN):
+        raise RuntimeError("reset hook entry does not match the stolen byte count")
+    if source[RESET_HOOK_FILE : RESET_HOOK_FILE + len(RESET_HOOK_STOLEN)] != RESET_HOOK_STOLEN:
+        raise RuntimeError(
+            f"stock bytes at {RESET_HOOK_FILE:#x} are not the expected delete call"
+        )
+
     patches = [
+        {
+            "offset": f"0x{RESET_HOOK_FILE:X}",
+            "before": RESET_HOOK_STOLEN.hex(),
+            "after": reset_entry.hex(),
+            "purpose": (
+                "route the save-slot menu's tribe delete through the reset "
+                "stub, which erases this patcher's state for that slot before "
+                "the game erases the save -- so a new tribe started in the "
+                "same slot does not inherit the old one's masks and logs"
+            ),
+        },
         {
             "offset": f"0x{HOOK_FILE:X}",
             "before": HOOK_STOLEN.hex(),
@@ -413,6 +498,8 @@ def build() -> dict:
     patches, page = _emit(source)
 
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper()
+
+    reset_hash = hashlib.sha256(RESET_COMPANION.read_bytes()).hexdigest().upper()
     page_hash = hashlib.sha256(page).hexdigest().upper()
 
     layout = {
@@ -492,7 +579,12 @@ def build() -> dict:
                         "source": "assets/parentage/VVFP Parentage Export.dll",
                         "destination": "VVFP Parentage Export.dll",
                         "sha256": companion_hash,
-                    }
+                    },
+                    {
+                        "source": "assets/save_reset/VVFP Save Reset.dll",
+                        "destination": "VVFP Save Reset.dll",
+                        "sha256": reset_hash,
+                    },
                 ],
                 "pe_append_transaction": {
                     "section": SECTION_NAME,

@@ -183,7 +183,7 @@ CAVE_FILE = 0x00056900
 # 0x140 for the three trampolines and the two strings, plus the father-capture
 # block below. The stock zero run at 0x56900 is 0x700 bytes, so this is well
 # inside it; the check in _emit still asserts the whole span is zero.
-CAVE_SIZE = 0x200
+CAVE_SIZE = 0x2C0   # 0x200 for parentage, 0xC0 for the tribe-delete stub
 
 # --- the father capture -----------------------------------------------------
 #
@@ -382,6 +382,42 @@ EXPORT_NAME = b"WriteParentageRecordWithFather\0"
 # exactly what that looks like when it happens.
 DLL_NAME_OFFSET = 0x120
 EXPORT_NAME_OFFSET = 0x140
+
+# THE TRIBE-DELETE HOOK.
+#
+# The save-slot menu deletes a tribe by calling deleteSave through a `jmp`
+# thunk with the RAW slot in edi. The game's OTHER caller of deleteSave is a
+# save routine rotating backup generations, which passes slot + 0x14 -- so
+# hooking the menu handler's own call reaches the reset and never ordinary
+# play. See docs/start-over-reset-hook.md.
+#
+# WHERE ITS BYTES GO, and why not .text. VV1 rendered with every patch
+# selected has NO free run of 96 bytes anywhere in .text -- the space is
+# entirely claimed. The only executable room is inside .vv1mc, the page
+# Origins appends, whose largest free run is 188 bytes at file 0x8E344.
+# That was measured by rendering, not assumed.
+#
+# .vv1md, which follows at VA 0x491000, is NOT executable. Placing the stub
+# past the end of .vv1mc would crash on tribe delete rather than fail to
+# build, so the cave is bounded to the run that was measured.
+# Inside the SAME cave _emit places, at a fixed offset past the parentage
+# payload, so it relocates with it: 0x56900 standalone, 0x8EE00 composed.
+# Writing it at a hardcoded appended-page address instead made the
+# standalone pass claim bytes that only exist when Origins appends the
+# page, and the patcher's overlap guard rejected it.
+RESET_OFFSET = 0x200
+RESET_DLL_NAME = b"VVFP Save Reset.dll\0"
+RESET_EXPORT_NAME = b"ResetDeletedTribe\0"
+RESET_DLL_NAME_OFFSET = RESET_OFFSET + 0x00
+RESET_EXPORT_NAME_OFFSET = RESET_OFFSET + 0x14
+RESET_CODE_OFFSET = RESET_OFFSET + 0x28
+
+RESET_HOOK_VA = 0x00413E07
+RESET_HOOK_FILE = 0x00013E07
+RESET_HOOK_STOLEN = bytes.fromhex("e8e4810000")
+RESET_THUNK_VA = 0x0041BFF0
+RESET_COMPANION_SOURCE = "assets/save_reset/VVFP Save Reset.dll"
+
 
 # The five stock bytes the trampoline replaces, restored before returning.
 STOLEN_BYTES = bytes.fromhex("578bf9e8d8e5ffff")
@@ -738,6 +774,55 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
 
     payload[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
     payload[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
+
+    # THE TRIBE-DELETE PAYLOAD, in the measured free run inside .vv1mc.
+    #
+    # The stub preserves every register, because it runs inside the menu
+    # handler's own frame, and falls through to the game's delete on EVERY
+    # failure: a missing companion or an unresolved export costs the sweep,
+    # never the player's save.
+    reset_dll_va = cave_va + RESET_DLL_NAME_OFFSET
+    reset_export_va = cave_va + RESET_EXPORT_NAME_OFFSET
+    reset_code_va = cave_va + RESET_CODE_OFFSET
+    reset_code = assemble(
+        f"""
+            pushad
+            push 0x{reset_dll_va:X}
+            call dword ptr [0x{GET_MODULE_HANDLE_IAT:X}]
+            test eax, eax
+            jnz reset_have_module
+            push 0x{reset_dll_va:X}
+            call dword ptr [0x{LOAD_LIBRARY_IAT:X}]
+            test eax, eax
+            jz reset_done
+        reset_have_module:
+            push 0x{reset_export_va:X}
+            push eax
+            call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
+            test eax, eax
+            jz reset_done
+            # ResetDeletedTribe(game, slot). EDI is the RAW slot the menu
+            # handler loaded for the case the player chose -- not the
+            # slot + 0x14 that the backup rotator passes.
+            push edi
+            push {GAME_ID}
+            call eax
+        reset_done:
+            popad
+            jmp 0x{RESET_THUNK_VA:X}
+        """,
+        reset_code_va,
+    )
+    if RESET_CODE_OFFSET + len(reset_code) > CAVE_SIZE:
+        raise RuntimeError("the reset stub runs past the end of the cave")
+    payload[RESET_CODE_OFFSET : RESET_CODE_OFFSET + len(reset_code)] = reset_code
+    payload[RESET_DLL_NAME_OFFSET : RESET_DLL_NAME_OFFSET + len(RESET_DLL_NAME)] = RESET_DLL_NAME
+    payload[RESET_EXPORT_NAME_OFFSET : RESET_EXPORT_NAME_OFFSET + len(RESET_EXPORT_NAME)] = RESET_EXPORT_NAME
+
+    reset_entry = assemble(f"call 0x{reset_code_va:X}", RESET_HOOK_VA)
+    if len(reset_entry) != len(RESET_HOOK_STOLEN):
+        raise RuntimeError("the reset hook entry does not match the stolen bytes")
+
     patches.append(
         {
             "offset": f"0x{cave_file:X}",
@@ -753,6 +838,20 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
         }
     )
 
+    patches.append(
+        {
+            "offset": f"0x{RESET_HOOK_FILE:X}",
+            "before": RESET_HOOK_STOLEN.hex().upper(),
+            "after": reset_entry.hex().upper(),
+            "purpose": (
+                "Route the save-slot menu's tribe delete through the reset "
+                "stub, which erases this patcher's state for that slot before "
+                "the game erases the save -- so a new tribe started in the "
+                "same slot does not inherit the old one's masks and logs"
+            ),
+        }
+    )
+
     return patches, bytes(payload)
 
 
@@ -762,6 +861,8 @@ def build() -> dict:
     co_patches, _ = _emit(source, CO_SELECTED_CAVE_VA, CO_SELECTED_CAVE_FILE)
 
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest()
+
+    reset_hash = hashlib.sha256((ROOT / RESET_COMPANION_SOURCE).read_bytes()).hexdigest()
     return {
         "schema_version": 1,
         "companion_sha256": companion_hash,
@@ -811,7 +912,12 @@ def build() -> dict:
                         "source": "assets/parentage/VVFP Parentage Export.dll",
                         "destination": "VVFP Parentage Export.dll",
                         "sha256": companion_hash,
-                    }
+                    },
+                    {
+                        "source": "assets/save_reset/VVFP Save Reset.dll",
+                        "destination": "VVFP Save Reset.dll",
+                        "sha256": reset_hash,
+                    },
                 ],
                 "patches": patches,
                 # The same feature, re-emitted for the address it must use when

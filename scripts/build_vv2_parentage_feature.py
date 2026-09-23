@@ -196,6 +196,34 @@ EXPORT_NAME_OFFSET = 0x90
 DLL_NAME = b"VVFP Parentage Export.dll\0"
 EXPORT_NAME = b"WriteParentageRecordWithFather\0"
 
+# THE TRIBE-DELETE HOOK.
+#
+# The save-slot menu deletes a tribe by calling deleteSave through a `jmp`
+# thunk with the RAW slot in edi. The game's OTHER caller of deleteSave is a
+# save routine rotating backup generations, which passes slot + 0x14 -- so
+# hooking the menu handler's own call reaches the reset and never ordinary
+# play. See docs/start-over-reset-hook.md.
+#
+# Its bytes go AFTER the parentage cave, inside the same executable page
+# Origins appends. The free run there was measured by rendering VV2 with every
+# patch selected, not assumed: 2872 zero bytes from 0xB24C8, of which this
+# takes the part past the parentage cave's own end at 0xB24D8.
+RESET_CAVE_FILE = 0xB24D8
+RESET_CAVE_VA = 0x4B44D8
+RESET_DLL_NAME = b"VVFP Save Reset.dll\0"
+RESET_EXPORT_NAME = b"ResetDeletedTribe\0"
+RESET_DLL_NAME_OFFSET = 0x00
+RESET_EXPORT_NAME_OFFSET = 0x20
+RESET_CODE_OFFSET = 0x40
+RESET_CAVE_SIZE = 0x80
+
+RESET_HOOK_VA = 0x00414E77
+RESET_HOOK_FILE = 0x00014E77
+RESET_HOOK_STOLEN = bytes.fromhex("e8f4fd0000")
+RESET_THUNK_VA = 0x00424C70
+RESET_COMPANION_SOURCE = "assets/save_reset/VVFP Save Reset.dll"
+
+
 # Normal conception callers return here after sub_44B980. At the hook, the
 # routine has overwritten EDI with its records container but has preserved the
 # caller's original EDI in the saved prologue slot. The ordinary singleton
@@ -231,6 +259,19 @@ def _companion() -> dict[str, str]:
         "destination": "VVFP Parentage Export.dll",
         "sha256": hashlib.sha256(payload).hexdigest(),
         "source": COMPANION_SOURCE,
+    }
+
+
+def _reset_companion() -> dict:
+    """The tribe-delete stub resolves this at runtime; it ships alongside."""
+
+    import hashlib
+
+    payload = (ROOT / RESET_COMPANION_SOURCE).read_bytes()
+    return {
+        "destination": "VVFP Save Reset.dll",
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "source": RESET_COMPANION_SOURCE,
     }
 
 
@@ -399,6 +440,60 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
     payload[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
     payload[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
 
+    # THE TRIBE-DELETE PAYLOAD, in its own cave after this one.
+    #
+    # Its space was measured by rendering VV2 with every patch selected rather
+    # than assumed: 2872 zero bytes from 0xB24C8 inside .vvmk, the executable
+    # page Origins appends. This cave starts at 0xB24D8, past the end of the
+    # parentage cave above, so the two never overlap.
+    #
+    # The stub preserves every register, because it runs inside the menu
+    # handler's own frame, and falls through to the game's delete on EVERY
+    # failure: a missing companion or an unresolved export costs the sweep,
+    # never the player's save.
+    reset_dll_va = RESET_CAVE_VA + RESET_DLL_NAME_OFFSET
+    reset_export_va = RESET_CAVE_VA + RESET_EXPORT_NAME_OFFSET
+    reset_code_va = RESET_CAVE_VA + RESET_CODE_OFFSET
+    reset_payload = bytearray(RESET_CAVE_SIZE)
+    reset_code = assemble(
+        f"""
+            pushad
+            push 0x{reset_dll_va:X}
+            call dword ptr [0x{GET_MODULE_HANDLE_IAT:X}]
+            test eax, eax
+            jnz reset_have_module
+            push 0x{reset_dll_va:X}
+            call dword ptr [0x{LOAD_LIBRARY_IAT:X}]
+            test eax, eax
+            jz reset_done
+        reset_have_module:
+            push 0x{reset_export_va:X}
+            push eax
+            call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
+            test eax, eax
+            jz reset_done
+            # ResetDeletedTribe(game, slot). EDI is the RAW slot the menu
+            # handler loaded for the case the player chose -- not the
+            # slot + 0x14 that the backup rotator passes.
+            push edi
+            push {GAME_ID}
+            call eax
+        reset_done:
+            popad
+            jmp 0x{RESET_THUNK_VA:X}
+        """,
+        reset_code_va,
+    )
+    if RESET_CODE_OFFSET + len(reset_code) > RESET_CAVE_SIZE:
+        raise RuntimeError("the reset stub runs past the end of its cave")
+    reset_payload[RESET_CODE_OFFSET : RESET_CODE_OFFSET + len(reset_code)] = reset_code
+    reset_payload[RESET_DLL_NAME_OFFSET : RESET_DLL_NAME_OFFSET + len(RESET_DLL_NAME)] = RESET_DLL_NAME
+    reset_payload[RESET_EXPORT_NAME_OFFSET : RESET_EXPORT_NAME_OFFSET + len(RESET_EXPORT_NAME)] = RESET_EXPORT_NAME
+
+    reset_entry = assemble(f"call 0x{reset_code_va:X}", RESET_HOOK_VA)
+    if len(reset_entry) != len(RESET_HOOK_STOLEN):
+        raise RuntimeError("the reset hook entry does not match the stolen bytes")
+
     # Patch [0]: repoint the rejection at the stub. Still a six-byte near jcc;
     # only the rel32 changes, so nothing downstream shifts.
     reject = assemble(f"je 0x{stub_va:X}", REJECT_VA)
@@ -438,6 +533,26 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             "purpose": (
                 "The loader trampoline, the relocated one-pop rejection stub, and "
                 "the companion and export name strings"
+            ),
+        },
+        {
+            "offset": f"0x{RESET_CAVE_FILE:X}",
+            "before": "00" * RESET_CAVE_SIZE,
+            "after": bytes(reset_payload).hex().upper(),
+            "purpose": (
+                "The tribe-delete stub and its companion and export name "
+                "strings, in measured free space after the parentage cave"
+            ),
+        },
+        {
+            "offset": f"0x{RESET_HOOK_FILE:X}",
+            "before": RESET_HOOK_STOLEN.hex().upper(),
+            "after": reset_entry.hex().upper(),
+            "purpose": (
+                "Route the save-slot menu's tribe delete through the reset "
+                "stub, which erases this patcher's state for that slot before "
+                "the game erases the save -- so a new tribe started in the "
+                "same slot does not inherit the old one's masks and logs"
             ),
         },
     ]
@@ -487,7 +602,7 @@ def build() -> dict:
                     },
                 ],
                 "dependencies": ["vv2_enable_origins_exclusive_features"],
-                "companion_files": [_companion()],
+                "companion_files": [_companion(), _reset_companion()],
                 # No standalone `patches` list. VV1's tracker has both a cave
                 # variant and an overlay; VV2 can only have the overlay, because
                 # the built output leaves at most 0x2D contiguous free bytes in

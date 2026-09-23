@@ -961,7 +961,30 @@ static int build_log_path(
                     if (GetFileAttributesW(to) != INVALID_FILE_ATTRIBUTES) {
                         continue;   /* already migrated: never overwrite */
                     }
-                    (void)MoveFileW(from, to);   /* retried on the next launch */
+                    if (!MoveFileW(from, to)) {
+                        /* A FAILED MOVE MUST NOT BE CONSUMED AS A
+                           COMPLETE MIGRATION.
+
+                           Migration and selection happen in the same
+                           call, so leaving a hole here lets
+                           select_log_file hand out the missing number
+                           immediately: a brand-new log is created at
+                           that number, and on the next launch the
+                           destination-exists branch skips the locked
+                           legacy file forever. Two files numbered the
+                           same in two folders -- exactly the split
+                           this migration exists to prevent.
+
+                           Refusing the path build is safe: every
+                           caller already treats it as non-fatal and
+                           simply does not write this record, and the
+                           move is retried on the next launch. Losing
+                           one record's log line is a far smaller harm
+                           than permanently splitting the village's
+                           history. Found in review. */
+                        legacy_logs_migrated = 0;   /* retry next time */
+                        return 0;
+                    }
                 }
             }
         }
