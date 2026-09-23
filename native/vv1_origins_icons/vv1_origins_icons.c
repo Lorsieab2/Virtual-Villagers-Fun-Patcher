@@ -263,6 +263,47 @@ static int vv1_mask_sweep_dead(void) {
    it happens from Vv1MaskRestore (called by the exe at startup, outside the
    lock) and from the picker's own open/commit handlers. */
 #define VV_MASK_SIDECAR_MAGIC 0x31304D56u  /* 'V' 'M' '0' '1' */
+/* MIGRATE A SIDECAR LEFT BY AN OLDER BUILD.
+
+   The data files moved into "Virtual Villagers Fun Patcher Data" under
+   names that say what they hold. A player who upgrades still has the old
+   loose file beside their saves, and the new loader would not find it --
+   so their masks, doublers and recorded parents would silently vanish on
+   the first load even though valid state was sitting on disk.
+
+   Called only when the NEW path is absent. Copies the legacy file into
+   place and removes the original, so the migration happens once and the
+   old name stops shadowing anything afterwards. A failed copy leaves both
+   files untouched and the caller simply finds nothing, which is exactly
+   what it would have found without this.
+
+   MoveFileA rather than CopyFile + Delete: it is atomic within a volume,
+   so an interrupted migration cannot leave a half-written new file that
+   the loader would then read as corrupt state. */
+static void vv_migrate_legacy_sidecar(const char *new_path,
+                                      const char *legacy_name,
+                                      const char *docs,
+                                      const char *base,
+                                      int slot) {
+    char legacy[MAX_PATH];
+    if (new_path == NULL || legacy_name == NULL || docs == NULL
+        || base == NULL) {
+        return;
+    }
+    if (GetFileAttributesA(new_path) != INVALID_FILE_ATTRIBUTES) {
+        return;                 /* already migrated, or never needed it */
+    }
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
+        + sizeof("\\LDW\\\\vv1_doublers_0.dat") > sizeof(legacy)) {
+        return;
+    }
+    wsprintfA(legacy, "%s\\LDW\\%s\\%s%d.dat", docs, base, legacy_name, slot);
+    if (GetFileAttributesA(legacy) == INVALID_FILE_ATTRIBUTES) {
+        return;                 /* nothing of that vintage to migrate */
+    }
+    (void)MoveFileA(legacy, new_path);
+}
+
 static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
     char docs[MAX_PATH];
     char exe[MAX_PATH];
@@ -300,7 +341,8 @@ static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
        that (plus NUL) doesn't fit, fail open (return 0 -> masks simply aren't
        persisted, never a stack smash). Reserve a conservative 32-byte suffix
        budget for the slot and extension rather than hand-counting it. */
-    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\") + 96 + 1 > n) {
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
+            + sizeof("\\LDW\\\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save 0.dat") > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
@@ -313,6 +355,9 @@ static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %u.dat", docs, base,
               (unsigned int)slot);
+    /* A player upgrading from a build that wrote the loose name still
+       has their state under it; move it into place so it is not lost. */
+    vv_migrate_legacy_sidecar(out, "vv1_masks_", docs, base, slot);
     return 1;
 }
 
@@ -839,7 +884,8 @@ static int vv1_doubler_sidecar_path(char *out, size_t n, int slot) {
     }
     /* Same bound as the mask sidecar: wsprintfA takes no destination size, so
        check the longest string this writes before writing any of it. */
-    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\") + 96 + 1 > n) {
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
+            + sizeof("\\LDW\\\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save 0.dat") > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
@@ -852,6 +898,9 @@ static int vv1_doubler_sidecar_path(char *out, size_t n, int slot) {
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save %u.dat", docs, base,
               (unsigned int)slot);
+    /* A player upgrading from a build that wrote the loose name still
+       has their state under it; move it into place so it is not lost. */
+    vv_migrate_legacy_sidecar(out, "vv1_doublers_", docs, base, slot);
     return 1;
 }
 

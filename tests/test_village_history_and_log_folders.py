@@ -150,7 +150,27 @@ class LogFolderTests(unittest.TestCase):
         path = function(self.par, "static int build_log_path(")
         self.assertIn("vv_save_subfolder_w(", path)
         self.assertIn(PARENTAL_DIR, path)
-        self.assertNotIn("vv_save_folder_w(", path)
+        # The log it RETURNS is always built from the subfolder, never from
+        # the save root: the only vv_save_folder_w here resolves the retired
+        # folder to migrate out of, and its result goes to `legacy_dir`.
+        self.assertIn("destination,", path)
+        self.assertNotIn("vv_save_folder_w(folder", path)
+
+    def test_the_parentage_log_migrates_out_of_the_retired_folder(self):
+        """A player upgrading from "VVFP Logs" keeps their existing logs. Left
+        there, the next conception would start a fresh "Log 1.txt" in the new
+        folder: the printed numbering would restart and one village's history
+        would be split across two directories."""
+        path = function(self.par, "static int build_log_path(")
+        self.assertIn('VVFP Logs' + chr(92) * 2 + 'Births and Conceptions', path)
+        # Moved, not copied: nothing is duplicated and an interrupted
+        # migration cannot leave two copies of one record.
+        self.assertIn("MoveFileW(from, to)", path)
+        self.assertNotIn("CopyFile", path)
+        # An existing file in the new folder is never overwritten.
+        self.assertIn("already migrated: never overwrite", path)
+        # The retired folder is probed, never created.
+        self.assertNotIn('vv_save_subfolder_w(legacy_dir', path)
 
     def test_the_statistics_log_lives_in_its_own_folder(self):
         """The owner asked for every log the patcher writes to sit in its own

@@ -139,6 +139,35 @@ def centered_origin(parent_rect, size, screen):
     return max(0, (swidth - width) // 2), max(0, (sheight - height) // 2)
 
 
+
+def _documents_folder() -> Path:
+    """The Documents folder Windows actually resolves, not a home-relative guess.
+
+    The exporters call SHGetFolderPathA(CSIDL_PERSONAL) (see
+    native/shared/save_folder.c), which follows the Known Folder redirection a
+    player may have to OneDrive or a corporate share. Path.home()/"Documents"
+    ignores that redirection, so on a redirected account the completion dialog
+    named a folder the logs are never written to -- the same class of mistake
+    as pointing at the install directory, one layer down. Found in review.
+
+    Falls back to the literal only when the shell call is unavailable, which
+    is the best guess left rather than no path at all.
+    """
+    try:
+        import ctypes
+        import ctypes.wintypes
+        CSIDL_PERSONAL = 5
+        SHGFP_TYPE_CURRENT = 0
+        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+        if ctypes.windll.shell32.SHGetFolderPathW(
+            None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf
+        ) == 0 and buf.value:
+            return Path(buf.value)
+    except (OSError, AttributeError, ImportError):
+        pass
+    return Path.home() / "Documents"
+
+
 class WaitWindow:
     """A small "Please wait..." window shown over blocking work.
 
@@ -1297,7 +1326,7 @@ class App(tk.Tk):
                 # modded_folder sent a player to a directory where these files
                 # are never created. Found in review.
                 save_folder = (
-                    Path.home() / "Documents" / "LDW" / output_exe.stem
+                    _documents_folder() / "LDW" / output_exe.stem
                     / "Virtual Villagers Fun Patcher Logs"
                 )
                 if f"{build.id}_write_village_statistics" in selected:

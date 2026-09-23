@@ -50,13 +50,13 @@
     "experimental_expanded_256",
     "experimental_expanded_256_progression"
   ],
-  "dll_sha256": "1D789FB698C41642C61AAF7E2ED6D44CCBFCC8A07DB794D183FBDF6CE6FB2BC3",
+  "dll_sha256": "1AE5EF5F319491F4FCD927D232F669A76E1E15EB360B1E0F97055EF7EC14561C",
   "companion_install": {
     "required": false,
     "reason": "fullscreen-only wrapper; certified companion/resource bytes are not replaced",
     "input": "data\\candidates\\VVFP VV4 Full Mastery Candidate.dll",
     "size": 282624,
-    "sha256_if_present": "1D789FB698C41642C61AAF7E2ED6D44CCBFCC8A07DB794D183FBDF6CE6FB2BC3"
+    "sha256_if_present": "1AE5EF5F319491F4FCD927D232F669A76E1E15EB360B1E0F97055EF7EC14561C"
   },
   "feature_ranges": [
     "0x89381",

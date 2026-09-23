@@ -892,6 +892,51 @@ static int build_log_path(
     if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64)) {
         return 0;
     }
+    /* MOVE ANY LOGS AN OLDER BUILD LEFT IN THE RETIRED FOLDER.
+
+       The folder was renamed from "VVFP Logs" when the owner asked for the
+       name to be spelled out. Without this, a village with existing logs
+       would have its next conception start a fresh "Log 1.txt" in the new
+       folder: the printed numbering would restart at 1 and one village's
+       history would be split across two directories.
+
+       Every numbered file is moved, not just the newest, so the run stays
+       unbroken -- select_log_file stops walking at the first gap, and a
+       hole would make it renumber over records it could no longer see.
+
+       MoveFileW, so nothing is duplicated and an interrupted migration
+       cannot leave two copies of one file. A move that fails leaves that
+       file where it is and the walk simply stops there. The retired folder
+       is never created: GetFileAttributesW says whether it exists, and for
+       a player who never had one there is nothing to do. */
+    {
+        wchar_t root[MAX_LOG_PATH];
+        wchar_t legacy_dir[MAX_LOG_PATH];
+        if (vv_save_folder_w(root, 96)) {
+            int moved;
+            _snwprintf_s(legacy_dir, MAX_LOG_PATH, _TRUNCATE,
+                         L"%ls\\VVFP Logs\\Births and Conceptions", root);
+            if (GetFileAttributesW(legacy_dir) != INVALID_FILE_ATTRIBUTES) {
+                for (moved = 1; moved <= 4096; ++moved) {
+                    wchar_t from[MAX_LOG_PATH];
+                    wchar_t to[MAX_LOG_PATH];
+                    _snwprintf_s(from, MAX_LOG_PATH, _TRUNCATE,
+                                 L"%ls\\%ls %d.txt", legacy_dir, g->log_name, moved);
+                    if (GetFileAttributesW(from) == INVALID_FILE_ATTRIBUTES) {
+                        break;
+                    }
+                    _snwprintf_s(to, MAX_LOG_PATH, _TRUNCATE,
+                                 L"%ls\\%ls %d.txt", folder, g->log_name, moved);
+                    if (GetFileAttributesW(to) != INVALID_FILE_ATTRIBUTES) {
+                        continue;   /* already migrated: never overwrite */
+                    }
+                    if (!MoveFileW(from, to)) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
     return _snwprintf_s(
         destination,
         MAX_LOG_PATH,
@@ -2024,8 +2069,25 @@ __declspec(dllexport) int __stdcall EnsureParentageLog(
            and an unattributable log is worse than an absent one. */
         return 0;
     }
-    if (!select_log_file(g, village, path, &existing, 0)) {
+    /* ASK FOR THE FILE A BIRTH WOULD USE, NOT THE ONE A CONCEPTION WOULD.
+
+       for_birth = 1 returns the village's NEWEST EXISTING file; for_birth = 0
+       returns the next one to write into, which after the 256th conception is
+       a file that does not exist yet. Creating that one here would leave a
+       header-only rollover sitting ahead of any conception -- and
+       WriteParentageBirth picks the newest matching file, so a birth from the
+       pregnancy still in flight would be written into it, apart from its own
+       conception. That is the defect this feature exists alongside, not one
+       to reintroduce. Found in review.
+
+       With for_birth = 1 this creates a file only when the village has no
+       matching log at all, which is exactly the case the owner asked for: a
+       brand-new village, or one restarted after Start Over. */
+    if (!select_log_file(g, village, path, &existing, 1)) {
         return 0;
+    }
+    if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
+        return 1;               /* this village already has a log */
     }
     file = _wfopen(path, L"a");
     if (file == NULL) {

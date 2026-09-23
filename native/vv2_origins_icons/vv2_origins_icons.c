@@ -243,6 +243,9 @@ __declspec(dllexport) void __stdcall ShowVV2CureResult(int sick, int health) {
 #define VV2_LIKE_CAP        3
 #define VV2_SKILL0_OFFSET   0x7E4
 
+/* vv_migrate_legacy_sidecar comes from vv1_origins_icons.c, which this
+   translation unit includes wholesale. */
+
 static int vv2_record_eligible(const unsigned char *record) {
     if (record[VV2_ACTIVE_OFFSET] == 0) {
         return 0;
@@ -1415,6 +1418,9 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
        correct: a village that has not been loaded has no masks to show. */
     if (slot <= 0) return 0;
     wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat", docs, base, slot);
+    /* A player upgrading from a build that wrote the loose name still
+       has their masks under it; move them into place. */
+    vv_migrate_legacy_sidecar(out, "vv2_masks_", docs, base, slot);
     return 1;
 }
 
