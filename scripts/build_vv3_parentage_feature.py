@@ -190,8 +190,14 @@ EXPORT_NAME = b"WriteParentageRecordWithFather\0"
 # headroom. The size check below is what enforces this -- it caught an
 # earlier 0x40 that was too small rather than letting the code run into the
 # DLL name, which is a failure that decodes as plausible instructions.
-DLL_NAME_OFFSET = 0x50
-EXPORT_NAME_OFFSET = 0x70
+# The strings sit after the code, and the code grew when the father
+# selector was added: it must choose between two registers because the
+# father is in ESI at caller 0x45833E and EDI at 0x45B8C9. 0x50 no
+# longer fits it. The page is PAGE_SIZE bytes and only these strings
+# follow, so moving them down costs nothing, and every reference to
+# them is computed from these constants rather than hardcoded.
+DLL_NAME_OFFSET = 0x90
+EXPORT_NAME_OFFSET = 0xB0
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -255,14 +261,36 @@ def _build_page(base_va: int = PAGE_VA) -> bytes:
             call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
             test eax, eax
             jz done
-            # At the hook ESI is the mother's record and EDI is the father's
-            # record from both normal conception callers. pushad saves EDI at
-            # +0 and ESI at +4. Pushed right to left: the father (EDI) first,
-            # which drops ESP by 4, so the mother (saved ESI) is then at +0x08,
-            # NOT +0x04 -- reading +0x04 there would re-push the father and log
-            # him as the mother. VV1's trampoline reads its shifted slot the
-            # same way.
-            push dword ptr [esp + 0x00]
+            # At the hook ESI is the mother's record: sub_455AB0 does
+            # `mov esi, ecx` at 0x455AB1 and saves only the caller's esi.
+            # pushad then puts EDI at +0 and ESI at +4.
+            #
+            # THE FATHER IS IN A DIFFERENT REGISTER AT EACH CALLER, which is
+            # why one read cannot serve both and why the father column read
+            # "(not captured for this birth)" for every VV3 conception:
+            #
+            #   0x45833E  mov ecx, ebp   -> mother = EBP, father = ESI
+            #   0x45B8C9  mov ecx, esi   -> mother = ESI, father = EDI
+            #
+            # The routine preserved the caller's esi in its own prologue, so
+            # that father is the saved slot at [esp + 0x20]; the other is the
+            # untouched EDI in the pushad block at [esp + 0x00]. The callers
+            # are told apart by the return address at [esp + 0x24], whose low
+            # byte is 0x43 for 0x458343 and 0xCE for 0x45B8CE.
+            #
+            # Pushed right to left: the father first, which drops ESP by 4,
+            # so the mother (pushad ESI) is then at +0x08, NOT +0x04 --
+            # reading +0x04 there would re-push the father and log him as the
+            # mother. VV1's trampoline reads its shifted slot the same way.
+            xor edx, edx
+            cmp byte ptr [esp + 0x24], 0x43
+            jne father_in_edi
+            mov edx, dword ptr [esp + 0x20]
+            jmp have_father
+        father_in_edi:
+            mov edx, dword ptr [esp + 0x00]
+        have_father:
+            push edx
             push dword ptr [esp + 0x08]
             push 0x{RECORD_ARRAY_VA:X}
             push {GAME_ID}

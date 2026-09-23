@@ -1291,9 +1291,18 @@ class App(tk.Tk):
                     f"Transparency Log: {modded_folder / 'VVFP Transparency Log.txt'}"
                 )
                 selected = set(self._selected_fun_patch_ids(build.id))
+                # THE LOGS GO WITH THE SAVE, NOT WITH THE INSTALL. The
+                # exporters resolve Documents\LDW\<exe basename>\ -- the
+                # folder the game itself saves into -- so pointing at
+                # modded_folder sent a player to a directory where these files
+                # are never created. Found in review.
+                save_folder = (
+                    Path.home() / "Documents" / "LDW" / output_exe.stem
+                    / "Virtual Villagers Fun Patcher Logs"
+                )
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(
-                        f"Village Statistics - Save N.txt: {modded_folder / 'VVFP Logs' / 'Village Statistics'} — refreshed after each successful save; contains that save's lifetime statistics."
+                        f"Village Statistics - Save N.txt: {save_folder / 'Village Statistics'} — refreshed after each successful save; contains that save's lifetime statistics."
                     )
                 if f"{build.id}_write_parentage_log" in selected:
                     # The game number comes from the build. The condition above
@@ -1303,7 +1312,7 @@ class App(tk.Tk):
                     # game.
                     artifact_lines.append(
                         f"Virtual Villagers {build.id.removeprefix('vv')} Births and Conceptions Log N.txt: "
-                        f"{modded_folder} — one plain-text record per pregnancy, written at "
+                        f"{save_folder / 'Births and Conceptions'} — one plain-text record per pregnancy, written at "
                         "conception; rolls to a new numbered file every 256 records."
                     )
                 ttk.Label(

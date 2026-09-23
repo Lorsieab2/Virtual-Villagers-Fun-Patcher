@@ -349,7 +349,22 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             # WriteParentageRecordWithFather(game_id, records, mother, father).
             # stdcall cleans all sixteen bytes. Pushed right to left; the
             # saved ESI/EDI frame values are read before the pushes move esp.
-            mov ecx, dword ptr [esp + 0x20]
+            #
+            # THE MOTHER IS THE PUSHAD ESI AT [esp + 0x04], NOT THE SAVED ESI
+            # AT [esp + 0x20]. sub_44B980 builds her into ESI with
+            # `lea esi,[eax+edi]` at 0x44B99B after taking her INDEX from
+            # arg_0; VV2 is the only game that passes an index rather than a
+            # record. [esp + 0x20] is the CALLER's esi, preserved by the
+            # routine's own `push esi`, and in the owner's village that value
+            # equalled the array base -- which, because VV2's record_base is
+            # 0, is a valid slot-0 boundary. is_record_slot accepted it and
+            # every conception was logged with slot 0 as the mother.
+            #
+            # The FATHER stays at [esp + 0x24]: the caller's edi, preserved by
+            # the prologue's `push edi` before `mov edi, ecx` at 0x44B981
+            # overwrote it with the records container. The pushad copy at
+            # [esp + 0x00] is that container, not the father.
+            mov ecx, dword ptr [esp + 0x04]
             push edx
             push ecx
             push dword ptr [esp + 0x08]

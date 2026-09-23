@@ -181,8 +181,21 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
     if (game < 1 || game > 5 || slot < 1 || slot > 5) {
         return -1;
     }
-    /* Reserve the longest tail any name below appends. */
-    if (!vv_save_folder(folder, 64)) {
+    /* Reserve the longest tail any name below appends.
+
+       This is NOT a round number. wsprintfA takes no destination bound, so a
+       reserve shorter than the longest suffix is a stack overrun rather than
+       a truncation -- and the data files' names grew when they moved into
+       their own folder. The longest is VV1's parentage sidecar:
+
+           "\\Virtual Villagers Fun Patcher Data"
+           "\\Virtual Villagers 1 Parentage Records - Save 0.dat"
+
+       sizeof includes the NUL, so this is the exact figure rather than a
+       guess at it, and it recomputes if either name is ever edited. */
+    if (!vv_save_folder(folder, (int)sizeof(
+            "\\Virtual Villagers Fun Patcher Data"
+            "\\Virtual Villagers 1 Parentage Records - Save 0.dat"))) {
         return -1;              /* unresolved path is never a deletion target */
     }
 
