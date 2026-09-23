@@ -871,35 +871,17 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
         }
     )
 
-    # Composed pass only: RESET_CAVE_FILE lives in the page Origins appends,
-    # and the standalone layout has no executable room for it anywhere.
-    if cave_file == CO_SELECTED_CAVE_FILE:
-        patches.append(
-            {
-                "offset": f"0x{RESET_CAVE_FILE:X}",
-                "before": ("00" * RESET_CAVE_SIZE).upper(),
-                "after": bytes(reset_payload).hex().upper(),
-                "purpose": (
-                    "The tribe-delete stub and its companion and export name "
-                    "strings, directly below the parentage carve-out and "
-                    "still inside the executable .vv1mc"
-                ),
-            }
-        )
-        patches.append(
-            {
-                "offset": f"0x{RESET_HOOK_FILE:X}",
-                "before": RESET_HOOK_STOLEN.hex().upper(),
-                "after": reset_entry.hex().upper(),
-                "purpose": (
-                    "Route the save-slot menu's tribe delete through the "
-                    "reset stub, which erases this patcher's state for that "
-                    "slot before the game erases the save -- so a new tribe "
-                    "started in the same slot does not inherit the old one's "
-                    "masks and logs"
-                ),
-            }
-        )
+    # ORIGINS OWNS THE TRIBE-DELETE STUB AND HOOK.
+    #
+    # Origins is what writes the per-slot mask files, so it carries the reset
+    # unconditionally -- a build with Origins and no parentage log still needs
+    # its masks swept. Claiming the same bytes here too would break removal:
+    # uninstalling the parentage log would zero a stub Origins still needs.
+    #
+    # The parentage log therefore contributes no reset patch of its own. It
+    # gets the behaviour for free whenever Origins is selected, which every
+    # shipped build is, and a standalone parentage build has no mask state to
+    # sweep anyway.
 
     return patches, bytes(payload)
 

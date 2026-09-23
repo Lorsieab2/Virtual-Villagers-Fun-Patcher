@@ -752,6 +752,36 @@ EXPANDED_TIME_WARP_PATHS = {
         "map": ROOT / "data" / "candidates" / "vv5_expanded_time_warp_map.json",
     },
 }
+# The two features that may each carry the tribe-delete hook, per game.
+#
+# Origins writes the per-slot mask files; the parentage feature writes the
+# logs. Both create state that a deleted tribe must not leave behind, so both
+# claim the same five-byte call at the same offset, and whichever applies
+# second is a no-op. Naming them here keeps the overlap exemption from
+# admitting any other pair.
+RESET_HOOK_OWNERS = {
+    "vv1": frozenset({
+        "feature:vv1_enable_origins_exclusive_features",
+        "feature:vv1_write_parentage_log",
+    }),
+    "vv2": frozenset({
+        "feature:vv2_enable_origins_exclusive_features",
+        "feature:vv2_write_parentage_log",
+    }),
+    "vv3": frozenset({
+        "feature:vv3_enable_origins_exclusive_features",
+        "feature:vv3_write_parentage_log",
+    }),
+    "vv4": frozenset({
+        "feature:vv4_enable_origins_exclusive_features",
+        "feature:vv4_write_parentage_log",
+    }),
+    "vv5": frozenset({
+        "feature:vv5_enable_origins_exclusive_features",
+        "feature:vv5_write_parentage_log",
+    }),
+}
+
 EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # VV3's generated Expanded-256 record is frozen archival evidence.  Its
     # builder binding is the exact historical artifact binding recorded by the
@@ -7974,6 +8004,30 @@ def render_patched_bytes(
                         before=before,
                         composed_sha256=vv4_composed_parent_sha256 or "",
                     )
+                    # THE TRIBE-DELETE HOOK IS OWNED BY TWO FEATURES.
+                    #
+                    # Origins writes the per-slot mask files and the parentage
+                    # feature writes the logs, so BOTH need the reset: a build
+                    # with Origins and no parentage log would otherwise keep
+                    # persisting masks with nothing to clean them, and a new
+                    # tribe in a reused slot would inherit them. That is the
+                    # bleed the reset exists to stop. Found in review.
+                    #
+                    # They write the SAME five bytes to the SAME offset -- the
+                    # call that routes the menu's delete through the reset stub
+                    # -- so whichever applies second is a no-op. This is much
+                    # narrower than the overlays above: it requires the range
+                    # to match exactly AND the replacement bytes to be
+                    # identical, so it cannot mask two features disagreeing
+                    # about what belongs there.
+                    allowed_reset_hook_overlay = (
+                        prior_start == offset
+                        and prior_end == end
+                        and owner in RESET_HOOK_OWNERS.get(build.id, frozenset())
+                        and prior_owner in RESET_HOOK_OWNERS.get(build.id, frozenset())
+                        and owner != prior_owner
+                        and after == data[offset:end]
+                    )
                     allowed_atomic_statistics_overlay = (
                         patch.get("_atomic_statistics_overlay") is True
                         and owner
@@ -7992,16 +8046,31 @@ def render_patched_bytes(
                         or allowed_vv3_full_heal_cave_overlay
                         or allowed_vv4_full_heal_overlay
                         or allowed_atomic_statistics_overlay
+                        or allowed_reset_hook_overlay
                     ):
                         continue
                     raise PatcherError(
                         f"Patch overlap between {prior_owner} and {owner} at 0x{offset:X}."
                     )
             if actual != before:
-                raise PatcherError(
-                    f"Byte guard failed at {patch['offset']}: "
-                    f"expected {before.hex().upper()}, found {actual.hex().upper()}"
+                # THE SECOND OWNER OF A SHARED PATCH SEES ITS OWN BYTES.
+                #
+                # Origins and the parentage feature both write the tribe-delete
+                # stub and its hook, so whichever applies second finds the
+                # other's identical payload where it expected the stock bytes.
+                # That is the no-op this pair is designed around, not a
+                # collision: it is allowed only when the bytes already present
+                # are EXACTLY what this patch would write, and only for the two
+                # features named for this game.
+                already_written = (
+                    actual == after
+                    and owner in RESET_HOOK_OWNERS.get(build.id, frozenset())
                 )
+                if not already_written:
+                    raise PatcherError(
+                        f"Byte guard failed at {patch['offset']}: "
+                        f"expected {before.hex().upper()}, found {actual.hex().upper()}"
+                    )
             data[offset : offset + len(after)] = after
             applied_ranges.append((offset, end, owner))
             applied.append(
