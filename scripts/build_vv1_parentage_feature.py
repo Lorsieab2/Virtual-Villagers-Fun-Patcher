@@ -183,7 +183,7 @@ CAVE_FILE = 0x00056900
 # 0x140 for the three trampolines and the two strings, plus the father-capture
 # block below. The stock zero run at 0x56900 is 0x700 bytes, so this is well
 # inside it; the check in _emit still asserts the whole span is zero.
-CAVE_SIZE = 0x2C0   # 0x200 for parentage, 0xC0 for the tribe-delete stub
+CAVE_SIZE = 0x200
 
 # --- the father capture -----------------------------------------------------
 #
@@ -405,12 +405,44 @@ EXPORT_NAME_OFFSET = 0x140
 # Writing it at a hardcoded appended-page address instead made the
 # standalone pass claim bytes that only exist when Origins appends the
 # page, and the patcher's overlap guard rejected it.
-RESET_OFFSET = 0x200
+# ITS OWN CAVE, AND ONLY IN THE COMPOSED PASS.
+#
+# VV1 rendered with every patch selected has NO free run this size anywhere
+# in .text -- the space is entirely claimed -- so the stub can only live in
+# .vv1mc, the executable page Origins appends.
+#
+# ITS ADDRESS WAS MEASURED AGAINST EVERY MANIFEST, not against one render.
+# Overlaying the claims of every vv1 manifest on 0x8E000..0x8F000 leaves
+# exactly one unclaimed run of this size: 436 bytes at 0x8EB8C. Two earlier
+# addresses looked free and were not. 0x8E344 read as zero in Origins' own
+# page but the overlap guard rejected it, because Origins writes those bytes.
+# 0x8ED40 passed a single-configuration build and then failed the byte guard
+# the moment another feature was selected, because that feature's code lives
+# there. A render with one set of patches is not a measurement.
+#
+# .vv1md, which follows .vv1mc at VA 0x491000, is NOT executable, so an
+# address past the end of .vv1mc would crash on tribe delete rather than
+# fail to build. This one is comfortably inside it.
+#
+# Two things that measurement caught. .vv1md, which follows .vv1mc at VA
+# 0x491000, is NOT executable, so growing the parentage cave past 0x491000
+# put the stub in a non-executable section -- a crash on tribe delete rather
+# than a build failure. And this address exists only when Origins appends the
+# page, so emitting it in the standalone pass made that pass claim bytes that
+# are not there, which the patcher's overlap guard rejected.
+#
+# So the reset is emitted for the composed layout only. Every shipped build
+# has Origins selected -- all patches ship enabled by default -- and a
+# standalone parentage build simply keeps the pre-existing behaviour of not
+# sweeping on tribe delete, rather than crashing.
+RESET_CAVE_FILE = 0x0008EB8C
+RESET_CAVE_VA = 0x00490B8C
+RESET_CAVE_SIZE = 0x74
 RESET_DLL_NAME = b"VVFP Save Reset.dll\0"
 RESET_EXPORT_NAME = b"ResetDeletedTribe\0"
-RESET_DLL_NAME_OFFSET = RESET_OFFSET + 0x00
-RESET_EXPORT_NAME_OFFSET = RESET_OFFSET + 0x14
-RESET_CODE_OFFSET = RESET_OFFSET + 0x28
+RESET_DLL_NAME_OFFSET = 0x00
+RESET_EXPORT_NAME_OFFSET = 0x14
+RESET_CODE_OFFSET = 0x28
 
 RESET_HOOK_VA = 0x00413E07
 RESET_HOOK_FILE = 0x00013E07
@@ -781,9 +813,10 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
     # handler's own frame, and falls through to the game's delete on EVERY
     # failure: a missing companion or an unresolved export costs the sweep,
     # never the player's save.
-    reset_dll_va = cave_va + RESET_DLL_NAME_OFFSET
-    reset_export_va = cave_va + RESET_EXPORT_NAME_OFFSET
-    reset_code_va = cave_va + RESET_CODE_OFFSET
+    reset_dll_va = RESET_CAVE_VA + RESET_DLL_NAME_OFFSET
+    reset_export_va = RESET_CAVE_VA + RESET_EXPORT_NAME_OFFSET
+    reset_code_va = RESET_CAVE_VA + RESET_CODE_OFFSET
+    reset_payload = bytearray(RESET_CAVE_SIZE)
     reset_code = assemble(
         f"""
             pushad
@@ -813,11 +846,11 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
         """,
         reset_code_va,
     )
-    if RESET_CODE_OFFSET + len(reset_code) > CAVE_SIZE:
-        raise RuntimeError("the reset stub runs past the end of the cave")
-    payload[RESET_CODE_OFFSET : RESET_CODE_OFFSET + len(reset_code)] = reset_code
-    payload[RESET_DLL_NAME_OFFSET : RESET_DLL_NAME_OFFSET + len(RESET_DLL_NAME)] = RESET_DLL_NAME
-    payload[RESET_EXPORT_NAME_OFFSET : RESET_EXPORT_NAME_OFFSET + len(RESET_EXPORT_NAME)] = RESET_EXPORT_NAME
+    if RESET_CODE_OFFSET + len(reset_code) > RESET_CAVE_SIZE:
+        raise RuntimeError("the reset stub runs past its measured cave")
+    reset_payload[RESET_CODE_OFFSET : RESET_CODE_OFFSET + len(reset_code)] = reset_code
+    reset_payload[RESET_DLL_NAME_OFFSET : RESET_DLL_NAME_OFFSET + len(RESET_DLL_NAME)] = RESET_DLL_NAME
+    reset_payload[RESET_EXPORT_NAME_OFFSET : RESET_EXPORT_NAME_OFFSET + len(RESET_EXPORT_NAME)] = RESET_EXPORT_NAME
 
     reset_entry = assemble(f"call 0x{reset_code_va:X}", RESET_HOOK_VA)
     if len(reset_entry) != len(RESET_HOOK_STOLEN):
@@ -838,19 +871,35 @@ def _emit(source: bytes, cave_va: int, cave_file: int) -> tuple[list[dict], byte
         }
     )
 
-    patches.append(
-        {
-            "offset": f"0x{RESET_HOOK_FILE:X}",
-            "before": RESET_HOOK_STOLEN.hex().upper(),
-            "after": reset_entry.hex().upper(),
-            "purpose": (
-                "Route the save-slot menu's tribe delete through the reset "
-                "stub, which erases this patcher's state for that slot before "
-                "the game erases the save -- so a new tribe started in the "
-                "same slot does not inherit the old one's masks and logs"
-            ),
-        }
-    )
+    # Composed pass only: RESET_CAVE_FILE lives in the page Origins appends,
+    # and the standalone layout has no executable room for it anywhere.
+    if cave_file == CO_SELECTED_CAVE_FILE:
+        patches.append(
+            {
+                "offset": f"0x{RESET_CAVE_FILE:X}",
+                "before": ("00" * RESET_CAVE_SIZE).upper(),
+                "after": bytes(reset_payload).hex().upper(),
+                "purpose": (
+                    "The tribe-delete stub and its companion and export name "
+                    "strings, directly below the parentage carve-out and "
+                    "still inside the executable .vv1mc"
+                ),
+            }
+        )
+        patches.append(
+            {
+                "offset": f"0x{RESET_HOOK_FILE:X}",
+                "before": RESET_HOOK_STOLEN.hex().upper(),
+                "after": reset_entry.hex().upper(),
+                "purpose": (
+                    "Route the save-slot menu's tribe delete through the "
+                    "reset stub, which erases this patcher's state for that "
+                    "slot before the game erases the save -- so a new tribe "
+                    "started in the same slot does not inherit the old one's "
+                    "masks and logs"
+                ),
+            }
+        )
 
     return patches, bytes(payload)
 

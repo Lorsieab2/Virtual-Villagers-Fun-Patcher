@@ -267,8 +267,8 @@ On each new pregnancy, appends both parents' names, both parents' ages at concep
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 13; every edit has an exact purpose and before/after guard in the manifest.
-- Guarded executable edits when its required base is also selected: 13; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 14; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv1_write_village_statistics`)
 
