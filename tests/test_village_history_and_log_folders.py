@@ -208,6 +208,30 @@ class LogFolderTests(unittest.TestCase):
             self.pop.index("publish_file(file, temporary, destination)"),
             self.pop.index("ensure_parentage_log_for_village(game_id, village)"))
 
+    def test_the_sidecar_migration_bounds_its_own_slot(self):
+        """The legacy path's length bound assumes a single digit, and the slot
+        is formatted straight into it with %d. Every caller validates the slot
+        first, but this helper checks four pointers and a length and would
+        otherwise trust the one argument that reaches a fixed-size buffer."""
+        import pathlib
+        root = pathlib.Path(__file__).resolve().parents[1]
+        copies = [
+            root / "native/vv1_origins_icons/vv1_origins_icons.c",
+            root / "native/vv1_parentage/vv1_parentage.c",
+            root / "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
+            root / "native/vv5_task9_origins/vv5_task9_origins.c",
+        ]
+        for path in copies:
+            text = path.read_text(encoding="utf-8")
+            self.assertIn("vv_migrate_legacy_sidecar", text, path.name)
+            fn = function(text, "static void vv_migrate_legacy_sidecar(")
+            self.assertIn("slot < 0 || slot > 9", fn, path.name)
+            # A move, never a copy: nothing is duplicated and an interrupted
+            # migration cannot leave a half-written file to be read as state.
+            self.assertIn("MoveFileA(legacy, new_path)", fn, path.name)
+            # And it never overwrites an already-migrated file.
+            self.assertIn("already migrated, or never needed it", fn, path.name)
+
     def test_the_log_migration_is_resumable(self):
         """Neither an absent source nor a failed move may end the walk.
 

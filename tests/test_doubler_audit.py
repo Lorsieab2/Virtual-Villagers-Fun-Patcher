@@ -324,7 +324,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # digest, and this assertion is the second pin.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "C7861CB2B8FE4445940EBDAAAA73649A772AF8507DDAC113F88BFE9CA47A518E",
+            "84972F1E517A972C046564F7EF81D5A5EF162FB8B20A96D4992EE386F08304A1",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

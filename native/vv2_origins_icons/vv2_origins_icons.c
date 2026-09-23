@@ -1402,8 +1402,6 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
-    CreateDirectoryA(out, NULL);
     /* The data files now live in their own clearly named folder rather
        than loose beside the .ldw saves, so create that component too. */
     wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);

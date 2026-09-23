@@ -22,7 +22,7 @@ FOUNDATION_OUTPUT = (
 # Recertified when VV3 gained the Random (All 5) mask distribution, so its
 # Change Appearance for All dialog offers the same five options as the
 # other four games. The build is /Brepro, so this hash is deterministic.
-SOURCE_SHA256 = "8CB9B055FC92B422E89CDC38F59B07454BBDE1EC791C29A988E79BCEE7CED340"
+SOURCE_SHA256 = "2BAF2EEB200DB2D9ABE3816A2F152C6A06923D1ACD7AF481A150FC6318094A92"
 SOURCE_SIZE = 1902592
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

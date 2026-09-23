@@ -75,6 +75,16 @@ static void vv_migrate_legacy_sidecar(const char *new_path,
         || base == NULL) {
         return;
     }
+    /* THE BOUND BELOW ASSUMES ONE DIGIT, so the slot has to be one.
+       Every caller validates the slot before reaching here, but this
+       function checks four pointers and a length and would be trusting
+       exactly one argument it does not own -- and that argument is the one
+       formatted with %d into a buffer sized for a single character. A
+       negative or multi-digit slot is not a real save slot in any of the
+       five games, so refusing is both safe and correct. */
+    if (slot < 0 || slot > 9) {
+        return;
+    }
     if (GetFileAttributesA(new_path) != INVALID_FILE_ATTRIBUTES) {
         return;                 /* already migrated, or never needed it */
     }
