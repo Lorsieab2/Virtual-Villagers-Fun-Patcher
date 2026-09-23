@@ -700,6 +700,16 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # restamps its due time; out of line because the cue had 12
                     # spare bytes and the requeue needs forty.
                     "0xCCA50", "0xCCB10",
+                    # Tribe-delete reset, moved here from the parentage log.
+                    # Origins writes the per-slot mask files, so an Origins-only
+                    # build would persist masks with nothing to sweep them and a
+                    # new tribe in a reused slot would inherit them. The stub
+                    # (0xCC8E8, in the free .shr tail measured against a RENDERED
+                    # image, since the patcher makes .shr RWX at apply time) and
+                    # its hook on the save-slot menu's own deleteSave call
+                    # (0x18CD5) are Origins' now; the parentage manifest drops
+                    # its duplicate claim on 0x18CD5.
+                    "0xCC8E8", "0x18CD5",
                 },
                 # 0x1890F: the D37 barrel selector hook — its forced native
                 # event index is corrected from 30 (Chutes Without Ladders) to

@@ -387,71 +387,19 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
     page[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
     page[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
 
-    # The tribe-delete stub. It preserves every register, because it runs in
-    # the middle of the menu handler's own frame, and it falls through to the
-    # game's delete on EVERY failure: a missing companion or an unresolved
-    # export costs the sweep, never the player's save.
-    reset_va = PAGE_VA + RESET_CODE_OFFSET
-    reset = assemble(
-        f"""
-            pushad
-            push 0x{PAGE_VA + RESET_DLL_NAME_OFFSET:X}
-            call dword ptr [0x{GET_MODULE_HANDLE_IAT:X}]
-            test eax, eax
-            jnz have_module
-            push 0x{PAGE_VA + RESET_DLL_NAME_OFFSET:X}
-            call dword ptr [0x{LOAD_LIBRARY_IAT:X}]
-            test eax, eax
-            jz done
-        have_module:
-            push 0x{PAGE_VA + RESET_EXPORT_NAME_OFFSET:X}
-            push eax
-            call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
-            test eax, eax
-            jz done
-            # ResetDeletedTribe(game, slot). EDI is the raw slot the menu
-            # handler loaded for the case the player chose.
-            push edi
-            push {GAME_ID}
-            call eax
-        done:
-            popad
-            jmp 0x{RESET_THUNK_VA:X}
-        """,
-        reset_va,
-    )
-    if RESET_CODE_OFFSET + len(reset) > len(page):
-        raise RuntimeError("reset stub runs past the end of the page")
-    page[RESET_CODE_OFFSET : RESET_CODE_OFFSET + len(reset)] = reset
-    page[RESET_DLL_NAME_OFFSET : RESET_DLL_NAME_OFFSET + len(RESET_DLL_NAME)] = RESET_DLL_NAME
-    page[RESET_EXPORT_NAME_OFFSET : RESET_EXPORT_NAME_OFFSET + len(RESET_EXPORT_NAME)] = RESET_EXPORT_NAME
-
     # Divert the call: a five-byte call to the page replaces the five-byte call
     # to the conception routine exactly, so nothing downstream shifts.
     entry = assemble(f"call 0x{PAGE_VA:X}", HOOK_VA)
     if len(entry) != len(HOOK_STOLEN):
         raise RuntimeError("hook entry does not match the stolen byte count")
 
-    reset_entry = assemble(f"call 0x{reset_va:X}", RESET_HOOK_VA)
-    if len(reset_entry) != len(RESET_HOOK_STOLEN):
-        raise RuntimeError("reset hook entry does not match the stolen byte count")
-    if source[RESET_HOOK_FILE : RESET_HOOK_FILE + len(RESET_HOOK_STOLEN)] != RESET_HOOK_STOLEN:
-        raise RuntimeError(
-            f"stock bytes at {RESET_HOOK_FILE:#x} are not the expected delete call"
-        )
+    # Origins owns the tribe-delete stub and hook now; see
+    # scripts/build_vv4_origins_feature.py. Claiming the same bytes here too
+    # would make uninstalling the parentage log strip a stub Origins still
+    # needs, and Origins is what writes the per-slot mask files the reset
+    # exists to sweep.
 
     patches = [
-        {
-            "offset": f"0x{RESET_HOOK_FILE:X}",
-            "before": RESET_HOOK_STOLEN.hex(),
-            "after": reset_entry.hex(),
-            "purpose": (
-                "route the save-slot menu's tribe delete through the reset "
-                "stub, which erases this patcher's state for that slot before "
-                "the game erases the save -- so a new tribe started in the "
-                "same slot does not inherit the old one's masks and logs"
-            ),
-        },
         {
             "offset": f"0x{HOOK_FILE:X}",
             "before": HOOK_STOLEN.hex(),
