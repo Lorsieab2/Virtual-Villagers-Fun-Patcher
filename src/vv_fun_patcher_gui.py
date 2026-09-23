@@ -1293,7 +1293,7 @@ class App(tk.Tk):
                 selected = set(self._selected_fun_patch_ids(build.id))
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(
-                        f"Village Statistics - Save N.txt: {modded_folder} — refreshed after each successful save; contains that save's lifetime statistics."
+                        f"Village Statistics - Save N.txt: {modded_folder / 'VVFP Logs' / 'Village Statistics'} — refreshed after each successful save; contains that save's lifetime statistics."
                     )
                 if f"{build.id}_write_parentage_log" in selected:
                     # The game number comes from the build. The condition above

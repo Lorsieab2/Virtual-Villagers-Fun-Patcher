@@ -38,6 +38,7 @@ PAR_DLL = ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"
 POPULATION_DIR = 'L"VVFP Logs\\\\Tribe Population"'
 HISTORY_DIR = 'L"VVFP Logs\\\\Tribe History"'
 PARENTAL_DIR = 'L"VVFP Logs\\\\Births and Conceptions"'
+STATISTICS_DIR = 'L"VVFP Logs\\\\Village Statistics"'
 
 
 def function(source: str, opening: str) -> str:
@@ -151,12 +152,33 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn(PARENTAL_DIR, path)
         self.assertNotIn("vv_save_folder_w(", path)
 
-    def test_the_statistics_log_did_not_move(self):
-        """Not named in the owner's layout; left exactly where it was."""
+    def test_the_statistics_log_lives_in_its_own_folder(self):
+        """The owner asked for every log the patcher writes to sit in its own
+        folder under VVFP Logs, statistics included, rather than loose in the
+        save folder beside the .ldw files."""
         paths = function(self.stat, "static int build_output_paths(")
-        self.assertIn("vv_save_folder_w(", paths)
-        self.assertNotIn("vv_save_subfolder_w(", paths)
-        self.assertNotIn("VVFP Logs", self.stat)
+        self.assertIn("vv_save_subfolder_w(", paths)
+        lit = re.search(r'vv_save_subfolder_w\(module_path, (L"[^"]+"), 64\)',
+                        paths).group(1)
+        self.assertEqual(lit, STATISTICS_DIR)
+
+    def test_the_reset_clears_statistics_from_both_locations(self):
+        """A player who upgrades keeps the pre-move copy loose in the save
+        folder. Clearing only the new path would leave a record of the village
+        just erased sitting in a folder nothing writes to any more -- the same
+        defect the parentage passes already guard against.
+
+        Both must be addressed BY SLOT: a reset of slot 1 must not touch the
+        other saves' statistics."""
+        stat_lit = re.search(r'vv_save_subfolder_w\(module_path, (L"[^"]+"), 64\)',
+                             function(self.stat, "static int build_output_paths(")).group(1)
+        self.assertIn(stat_lit, self.reset)
+        # The pre-move location is still swept, and neither sweep walks every
+        # number: each formats the slot it was given.
+        self.assertEqual(
+            2, self.reset.count('Village Statistics - Save %d.txt'),
+            "the reset must clear the new folder AND the pre-move location")
+        self.assertNotIn('Village Statistics - Save *', self.reset)
 
     def test_the_reset_deletes_from_the_same_folders_the_exporters_write_to(self):
         """Pinned as EQUALITY of the literal, not mere presence: a reset that

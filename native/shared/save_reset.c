@@ -177,6 +177,19 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
 
        An earlier version of this function walked every number and deleted what
        it found. Codex caught it on #380. */
+    /* Village Statistics moved into the owner's log layout, so the reset
+       follows it -- and still clears the pre-move copy, which a player who
+       upgrades keeps loose in the save folder. Leaving that behind would
+       survive a Start Over as a record of the village just erased, the
+       same defect the parentage passes below already guard against.
+
+       Both are addressed by SLOT, never by walking every number: a reset
+       of slot 1 must not touch slots 2..5. */
+    if (vv_save_subfolder_w(sub_w, L"VVFP Logs\\Village Statistics", 64)) {
+        wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", sub_w, slot);
+        removed += delete_if_present_w(path_w);
+    }
+    /* The pre-move location, probed and cleared but never recreated. */
     wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", folder_w, slot);
     removed += delete_if_present_w(path_w);
     /* The roster moved into the owner's log layout; the reset follows it.
