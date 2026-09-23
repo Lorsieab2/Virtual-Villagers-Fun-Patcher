@@ -255,6 +255,27 @@ class LogFolderTests(unittest.TestCase):
         caller = function(text, "__declspec(dllexport) int __stdcall ResetDeletedTribe(")
         self.assertIn("header_is_for_slot(village, slot)", caller)
 
+    def test_the_header_harness_still_matches_the_shipped_function(self):
+        """The harness copies header_is_for_slot rather than linking it, so the
+        copy has to be kept honest or it tests nothing."""
+        import pathlib, re
+        root = pathlib.Path(__file__).resolve().parents[1]
+        real = function(
+            (root / "native/save_reset_export/save_reset_export.c").read_text(encoding="utf-8"),
+            "static int header_is_for_slot(")
+        copy = function(
+            (root / "native/save_reset_export/header_slot_harness.c").read_text(encoding="utf-8"),
+            "static int header_is_for_slot(")
+        # Compare the logic with whitespace and comments normalised away: the
+        # harness is deliberately formatted tighter than the shipped source.
+        def norm(text):
+            text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+            return re.sub(r"\s+", " ", text).strip()
+        self.assertEqual(
+            norm(real), norm(copy),
+            "the harness's copy of header_is_for_slot has drifted from the "
+            "shipped one -- update native/save_reset_export/header_slot_harness.c")
+
     def test_the_log_migration_is_resumable(self):
         """Neither an absent source nor a failed move may end the walk.
 
