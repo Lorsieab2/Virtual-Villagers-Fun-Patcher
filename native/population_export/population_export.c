@@ -732,6 +732,65 @@ static int vv1_parents_resolve(void) {
     return 1;
 }
 
+/* Ask the parentage companion to create this village's log if it has none.
+
+   The owner asked for the logs to exist as soon as a village does, rather
+   than appearing only once something happens in it. This runs on every save,
+   which covers both cases they named: a brand-new village in a slot, and a
+   village restarted with Start Over, since a reset deletes the old files and
+   the next save then finds none.
+
+   The call goes DLL to DLL. Both companions ship together, so the dependency
+   is safe, and it costs the executable no new bytes.
+
+   Every failure is silent and harmless. A missing companion, a missing
+   export or a refused write all leave the log to be created by the first
+   real record exactly as before; none of them may disturb the roster, which
+   is the file the player actually relies on. */
+typedef int (__stdcall *ensure_parentage_log_t)(int, const char *);
+static int parentage_log_state;      /* 0 unknown, 1 resolved, -1 failed */
+static ensure_parentage_log_t ensure_parentage_log;
+
+static void ensure_parentage_log_for_village(int game_id, const char *village) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+
+    if (village == NULL || village[0] == '\0') {
+        /* Without a header the file could not be attributed to a village,
+           and Start Over matches files to villages by that first line. */
+        return;
+    }
+    if (parentage_log_state == 0) {
+        parentage_log_state = -1;
+        n = GetModuleFileNameA(NULL, path, MAX_PATH);
+        if (n == 0 || n >= MAX_PATH) {
+            return;
+        }
+        slash = strrchr(path, '\\');
+        if (slash == NULL
+            || (size_t)(slash + 1 - path)
+               + sizeof("VVFP Parentage Export.dll") > sizeof(path)) {
+            return;
+        }
+        lstrcpyA(slash + 1, "VVFP Parentage Export.dll");
+        companion = LoadLibraryA(path);
+        if (companion == NULL) {
+            return;
+        }
+        ensure_parentage_log = (ensure_parentage_log_t)GetProcAddress(
+            companion, "EnsureParentageLog");
+        if (ensure_parentage_log == NULL) {
+            return;
+        }
+        parentage_log_state = 1;
+    }
+    if (parentage_log_state == 1) {
+        (void)ensure_parentage_log(game_id, village);
+    }
+}
+
 /* The block, when at least one parent is known.  Returns 0 only on a write
    failure. */
 static int write_vv1_own_parents(FILE *file, int index) {
@@ -1151,6 +1210,12 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
        published so a history failure can never cost the player their
        roster. Its return is ignored for the same reason. */
     (void)append_history(g, villagers, game_id, village);
+
+    /* And the parentage log, created empty-but-headed if this village has
+       none yet. Also after the roster, and also ignoring its result: the
+       owner wants the logs to exist as soon as a village does, but not at
+       the cost of the file they actually rely on. */
+    ensure_parentage_log_for_village(game_id, village);
 
     /* Remove any roster files a LARGER village left behind.
 

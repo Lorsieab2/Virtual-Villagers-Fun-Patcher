@@ -162,6 +162,32 @@ class LogFolderTests(unittest.TestCase):
                         paths).group(1)
         self.assertEqual(lit, STATISTICS_DIR)
 
+    def test_the_parentage_log_is_created_when_the_village_is(self):
+        """The owner asked for the logs to exist as soon as a village does,
+        not only once something happens in it -- which covers a brand-new
+        village and one restarted with Start Over, since a reset deletes the
+        previous village's files and the next save then finds none."""
+        fn = function(self.par, "__declspec(dllexport) int __stdcall EnsureParentageLog(")
+        # CREATE-IF-ABSENT, never a rewrite: the logs are append-only and a
+        # record once written is never modified.
+        self.assertIn('_wfopen(path, L"a")', fn)
+        self.assertNotIn('L"w"', fn)
+        # Only an EMPTY file gets the header, so an existing log is untouched.
+        self.assertIn("ftell(file) == 0", fn)
+        # A headerless file could not be attributed to any village, and Start
+        # Over matches files to villages by that first line.
+        self.assertIn("village[0] == " + chr(39) + chr(92) + "0" + chr(39), fn)
+
+        # And the save path actually calls it, DLL to DLL.
+        self.assertIn("ensure_parentage_log_for_village(game_id, village)", self.pop)
+        self.assertIn('"VVFP Parentage Export.dll"', self.pop)
+        self.assertIn('"EnsureParentageLog"', self.pop)
+        # After the roster is published: a failure here must never cost the
+        # player the file they actually rely on.
+        self.assertLess(
+            self.pop.index("publish_file(file, temporary, destination)"),
+            self.pop.index("ensure_parentage_log_for_village(game_id, village)"))
+
     def test_the_history_rolls_instead_of_growing_forever(self):
         """The history appends a full roster on EVERY save, so without a roll
         it grows without bound -- about 27 KB per save on a real 85-villager

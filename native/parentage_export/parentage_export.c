@@ -1981,6 +1981,66 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
 /* The original three argument entry point, kept so that a trampoline built
    before the father record was carried keeps working unchanged. It forwards
    with no father, which is exactly the behaviour it had. */
+/* Create this village's log now, empty but headed, if it does not exist.
+
+   The owner asked for the logs to appear as soon as a village exists rather
+   than only when something happens in it. A brand-new village has had no
+   conception yet, so without this its Births and Conceptions folder sits
+   empty and a player cannot tell whether the feature is working or simply
+   has nothing to say. The same applies after Start Over, which deliberately
+   deletes the previous village's files.
+
+   CREATE-IF-ABSENT, never a write. The logs are append-only and a record,
+   once written, is never modified -- so this opens the selected file in
+   append mode and writes only the header, and only when the file is empty.
+   An existing log for an existing village is left exactly as it was.
+
+   The header matters beyond presentation: Start Over identifies which files
+   belong to the village being erased by that first line, so a headerless
+   file could never be attributed to any village and would survive a reset
+   that was meant to clear it.
+
+   Returns 1 when the log exists afterwards, 0 if it could not be created.
+   Failure is not fatal to anything: the next real record creates the file
+   the same way it always did. */
+__declspec(dllexport) int __stdcall EnsureParentageLog(
+    int game_id,
+    const char *village
+) {
+    const struct game_layout *g;
+    wchar_t path[MAX_LOG_PATH];
+    int existing = 0;
+    FILE *file;
+
+    if (game_id < GAME_VV1 || game_id > GAME_VV5) {
+        return 0;
+    }
+    g = &GAME_LAYOUTS[game_id];
+    if (!layout_is_usable(g)) {
+        return 0;
+    }
+    if (village == NULL || village[0] == '\0') {
+        /* Without the header the file could not be attributed to a village,
+           and an unattributable log is worse than an absent one. */
+        return 0;
+    }
+    if (!select_log_file(g, village, path, &existing, 0)) {
+        return 0;
+    }
+    file = _wfopen(path, L"a");
+    if (file == NULL) {
+        return 0;
+    }
+    /* Empty means brand new: ftell is the end of the file in append mode. */
+    if (ftell(file) == 0) {
+        if (fprintf(file, "%s", village) < 0) {
+            fclose(file);
+            return 0;
+        }
+    }
+    return fclose(file) == 0;
+}
+
 __declspec(dllexport) int __stdcall WriteParentageRecord(
     int game_id,
     const void *records_pointer,
