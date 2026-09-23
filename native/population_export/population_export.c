@@ -641,9 +641,9 @@ static int build_log_paths(
        directory, which put exported logs in the install folder while the
        village they describe lives under Documents\LDW\<exe basename>\. */
     /* The owner's layout: every exported log lives under
-       <save folder>\VVFP Logs\, one subfolder per kind. The roster is
+       <save folder>\Virtual Villagers Fun Patcher Logs\, one subfolder per kind. The roster is
        "Tribe Population". */
-    if (!vv_save_subfolder_w(module_path, L"VVFP Logs\\Tribe Population", 64)) {
+    if (!vv_save_subfolder_w(module_path, L"Virtual Villagers Fun Patcher Logs\\Tribe Population", 64)) {
         return 0;
     }
     if (_snwprintf_s(
@@ -945,7 +945,7 @@ static long long history_file_size(const wchar_t *path) {
     return ((long long)info.nFileSizeHigh << 32) | info.nFileSizeLow;
 }
 
-/* "<save folder>\VVFP Logs\Tribe History\Village History <n>.txt".
+/* "<save folder>\Virtual Villagers Fun Patcher Logs\Tribe History\Village History <n>.txt".
 
    One path, not two: the history is APPENDED, so there is no temporary to
    publish and nothing to rename over. A partial append at the end of the file
@@ -964,7 +964,7 @@ static long long history_file_size(const wchar_t *path) {
 static int build_history_path(wchar_t *destination) {
     wchar_t module_path[MAX_LONG_PATH];
     int number;
-    if (!vv_save_subfolder_w(module_path, L"VVFP Logs\\Tribe History", 64)) {
+    if (!vv_save_subfolder_w(module_path, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
         return 0;
     }
     for (number = 1; number < 100000; ++number) {

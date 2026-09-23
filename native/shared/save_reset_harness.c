@@ -85,24 +85,24 @@ int main(void) {
     /* The population and parentage logs moved into the owner's log layout
        (#418); the harness follows so it tests the reset against where the
        exporters actually write. */
-    if (!vv_save_subfolder(popdir, "VVFP Logs\\Tribe Population", 64)
-        || !vv_save_subfolder(pardir, "VVFP Logs\\Births and Conceptions", 64)) {
+    if (!vv_save_subfolder(popdir, "Virtual Villagers Fun Patcher Logs\\Tribe Population", 64)
+        || !vv_save_subfolder(pardir, "Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64)) {
         printf("could not resolve the log subfolders\n");
         return 2;
     }
-    /* The subfolders must be INSIDE the save folder -- "<save>\\VVFP Logs\\...",
-       not "<save>VVFP Logs..." glued onto its name. A live run found the
+    /* The subfolders must be INSIDE the save folder -- "<save>\\Virtual Villagers Fun Patcher Logs\\...",
+       not "<save>Virtual Villagers Fun Patcher Logs..." glued onto its name. A live run found the
        helper doing exactly that while this harness passed, because the
        fixtures and the reset used the same wrong path. Checked against
        the resolved save folder, not against a literal. */
     {
         int flen = lstrlenA(folder);
         check(strncmp(popdir, folder, flen) == 0 && popdir[flen] == '\\'
-              && strcmp(popdir + flen, "\\VVFP Logs\\Tribe Population") == 0,
-              "population subfolder is <save folder>\\VVFP Logs\\Tribe Population");
+              && strcmp(popdir + flen, "\\Virtual Villagers Fun Patcher Logs\\Tribe Population") == 0,
+              "population subfolder is <save folder>\\Virtual Villagers Fun Patcher Logs\\Tribe Population");
         check(strncmp(pardir, folder, flen) == 0 && pardir[flen] == '\\'
-              && strcmp(pardir + flen, "\\VVFP Logs\\Births and Conceptions") == 0,
-              "parental subfolder is <save folder>\\VVFP Logs\\Births and Conceptions");
+              && strcmp(pardir + flen, "\\Virtual Villagers Fun Patcher Logs\\Births and Conceptions") == 0,
+              "parental subfolder is <save folder>\\Virtual Villagers Fun Patcher Logs\\Births and Conceptions");
         check(GetFileAttributesA(popdir) != INVALID_FILE_ATTRIBUTES,
               "population subfolder was actually created");
     }

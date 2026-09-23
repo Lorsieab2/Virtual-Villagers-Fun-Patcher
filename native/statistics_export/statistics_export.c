@@ -464,12 +464,12 @@ static int build_output_paths(
        directory, which put exported logs in the install folder while the
        village they describe lives under Documents\LDW\<exe basename>\.
 
-       It also belongs in its OWN folder under VVFP Logs, beside Tribe
+       It also belongs in its OWN folder under Virtual Villagers Fun Patcher Logs, beside Tribe
        Population and Births and Conceptions, rather than loose in the save
        folder next to the .ldw files. vv_save_subfolder_w creates every
        missing component and leaves `reserve` bytes for the caller's own
        append, which here is the longer of the two tails below. */
-    if (!vv_save_subfolder_w(module_path, L"VVFP Logs\\Village Statistics", 64)) {
+    if (!vv_save_subfolder_w(module_path, L"Virtual Villagers Fun Patcher Logs\\Village Statistics", 64)) {
         return 0;
     }
     if (_snwprintf_s(

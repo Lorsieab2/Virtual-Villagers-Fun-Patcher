@@ -98,7 +98,7 @@ static int locate_folder(void) {
        introduced, so every lookup missed and all 37 checks failed in a way
        indistinguishable from the DLL writing nothing at all. Nothing caught
        it because the harness does not run in CI. */
-    _snprintf(folder, MAX_PATH, "%s\\LDW\\%s\\VVFP Logs\\Births and Conceptions",
+    _snprintf(folder, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Logs\\Births and Conceptions",
               docs, base);
     folder[MAX_PATH - 1] = '\0';
     return 1;

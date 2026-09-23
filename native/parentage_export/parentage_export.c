@@ -887,9 +887,9 @@ static int build_log_path(
        fails rather than falling back to a directory that is not the save.  The
        reserve covers the longest tail appended below: a backslash, the log
        name, a space, the number and the NUL. */
-    /* The owner's layout: <save folder>\VVFP Logs\Births and Conceptions\.
+    /* The owner's layout: <save folder>\Virtual Villagers Fun Patcher Logs\Births and Conceptions\.
        The reserve still covers the longest tail appended below. */
-    if (!vv_save_subfolder_w(folder, L"VVFP Logs\\Births and Conceptions", 64)) {
+    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64)) {
         return 0;
     }
     return _snwprintf_s(

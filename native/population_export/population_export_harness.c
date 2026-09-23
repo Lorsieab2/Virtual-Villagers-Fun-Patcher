@@ -125,7 +125,7 @@ static char *read_log(void) {
     slash = slash ? slash + 1 : exe;
     { wchar_t *dot = wcsrchr(slash, L'.'); if (dot) { *dot = L'\0'; } }
     _snwprintf(path, MAX_PATH,
-               L"%ls\\LDW\\%ls\\VVFP Logs\\Tribe History\\Village History 1.txt",
+               L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 1.txt",
                folder, slash);
     path[MAX_PATH - 1] = L'\0';
     file = _wfopen(path, L"rb");
@@ -155,7 +155,7 @@ static void remove_log(void) {
     slash = slash ? slash + 1 : exe;
     { wchar_t *dot = wcsrchr(slash, L'.'); if (dot) { *dot = L'\0'; } }
     _snwprintf(path, MAX_PATH,
-               L"%ls\\LDW\\%ls\\VVFP Logs\\Tribe History\\Village History 1.txt",
+               L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History 1.txt",
                folder, slash);
     path[MAX_PATH - 1] = L'\0';
     DeleteFileW(path);

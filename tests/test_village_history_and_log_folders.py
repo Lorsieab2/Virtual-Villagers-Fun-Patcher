@@ -10,9 +10,9 @@ nothing is matched.
 
 THE FOLDERS. The owner's layout for every exported log:
 
-    <save folder>\VVFP Logs\Tribe Population\        the roster
-    <save folder>\VVFP Logs\Tribe History\           the history
-    <save folder>\VVFP Logs\Births and Conceptions\  the parentage log
+    <save folder>\Virtual Villagers Fun Patcher Logs\Tribe Population\        the roster
+    <save folder>\Virtual Villagers Fun Patcher Logs\Tribe History\           the history
+    <save folder>\Virtual Villagers Fun Patcher Logs\Births and Conceptions\  the parentage log
 
 The statistics log was not named and stays where it was. The reset must
 delete from the same folders the exporters write to, so the literal strings
@@ -35,10 +35,10 @@ FOLDER_H = ROOT / "native" / "shared" / "save_folder.h"
 POP_DLL = ROOT / "assets" / "population" / "VVFP Population Export.dll"
 PAR_DLL = ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"
 
-POPULATION_DIR = 'L"VVFP Logs\\\\Tribe Population"'
-HISTORY_DIR = 'L"VVFP Logs\\\\Tribe History"'
-PARENTAL_DIR = 'L"VVFP Logs\\\\Births and Conceptions"'
-STATISTICS_DIR = 'L"VVFP Logs\\\\Village Statistics"'
+POPULATION_DIR = 'L"Virtual Villagers Fun Patcher Logs\\\\Tribe Population"'
+HISTORY_DIR = 'L"Virtual Villagers Fun Patcher Logs\\\\Tribe History"'
+PARENTAL_DIR = 'L"Virtual Villagers Fun Patcher Logs\\\\Births and Conceptions"'
+STATISTICS_DIR = 'L"Virtual Villagers Fun Patcher Logs\\\\Village Statistics"'
 
 
 def function(source: str, opening: str) -> str:
@@ -122,8 +122,8 @@ class HistoryTests(unittest.TestCase):
 
     def test_the_shipped_dll_carries_the_history(self):
         blob = POP_DLL.read_bytes()
-        for wide in ("VVFP Logs\\Tribe History", "Village History %d.txt",
-                     "VVFP Logs\\Tribe Population"):
+        for wide in ("Virtual Villagers Fun Patcher Logs\\Tribe History", "Village History %d.txt",
+                     "Virtual Villagers Fun Patcher Logs\\Tribe Population"):
             self.assertIn(wide.encode("utf-16-le"), blob, wide)
 
 
@@ -154,7 +154,7 @@ class LogFolderTests(unittest.TestCase):
 
     def test_the_statistics_log_lives_in_its_own_folder(self):
         """The owner asked for every log the patcher writes to sit in its own
-        folder under VVFP Logs, statistics included, rather than loose in the
+        folder under Virtual Villagers Fun Patcher Logs, statistics included, rather than loose in the
         save folder beside the .ldw files."""
         paths = function(self.stat, "static int build_output_paths(")
         self.assertIn("vv_save_subfolder_w(", paths)
@@ -192,9 +192,17 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn(stat_lit, self.reset)
         # The pre-move location is still swept, and neither sweep walks every
         # number: each formats the slot it was given.
+        # Three locations now: the current folder, the same folder under the
+        # pre-spell-out name, and the loose pre-move path. A player can be
+        # upgrading from any of them, and a file left in a folder nothing
+        # writes to any more would survive a reset meant to clear it.
         self.assertEqual(
-            2, self.reset.count('Village Statistics - Save %d.txt'),
-            "the reset must clear the new folder AND the pre-move location")
+            3, self.reset.count('Village Statistics - Save %d.txt'),
+            "the reset must clear the current folder, the legacy folder "
+            "name, AND the loose pre-move location")
+        # The legacy folder name, spelled as C source: two backslashes.
+        self.assertIn('VVFP Logs' + chr(92) * 2 + 'Village Statistics',
+                      self.reset)
         self.assertNotIn('Village Statistics - Save *', self.reset)
 
     def test_the_reset_deletes_from_the_same_folders_the_exporters_write_to(self):
@@ -217,8 +225,8 @@ class LogFolderTests(unittest.TestCase):
         self.assertNotIn("Village History", self.reset)
 
     def test_the_reset_harness_creates_its_fixtures_where_the_exporters_write(self):
-        narrow_pop = '"VVFP Logs\\\\Tribe Population"'
-        narrow_par = '"VVFP Logs\\\\Births and Conceptions"'
+        narrow_pop = '"Virtual Villagers Fun Patcher Logs\\\\Tribe Population"'
+        narrow_par = '"Virtual Villagers Fun Patcher Logs\\\\Births and Conceptions"'
         self.assertIn(narrow_pop, self.harness)
         self.assertIn(narrow_par, self.harness)
         self.assertIn('wsprintfA(pop1, "%s\\\\Village Population 1.txt", popdir);', self.harness)
@@ -229,7 +237,7 @@ class LogFolderTests(unittest.TestCase):
                       self.harness)
 
     def test_the_shipped_parentage_dll_carries_its_folder(self):
-        self.assertIn("VVFP Logs\\Births and Conceptions".encode("utf-16-le"),
+        self.assertIn("Virtual Villagers Fun Patcher Logs\\Births and Conceptions".encode("utf-16-le"),
                       PAR_DLL.read_bytes())
 
 

@@ -57,7 +57,8 @@ class VV1MaskSlotSourceTests(unittest.TestCase):
         )
         self.assertIn("#define VV_MASK_FIRST_SAVE_SLOT 1", self.source)
         self.assertIn("#define VV_MASK_LAST_SAVE_SLOT 5", self.source)
-        self.assertIn("vv1_masks_%u.dat", self.source)
+        self.assertIn("Virtual Villagers Fun Patcher Data\\\\Virtual Villagers 1 Village Masks - Save %u.dat",
+                      self.source)
         self.assertNotIn("vv1_masks.dat", self.source)
         self.assertNotIn("vv1_masks.dat", self.generator)
         self.assertIn("MASK_SAVE_SLOT_VA = DATA_SCRATCH_BASE_VA + 0x1F4", self.generator)

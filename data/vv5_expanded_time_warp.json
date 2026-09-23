@@ -33,7 +33,7 @@
   "companion_contract": {
     "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "destination": "VVFP Origins Icons.dll",
-    "sha256": "611CAC6B6BE86F4B0CF80D4AF629942B6DEDE2893E88400DFDB76E33FACBA522",
+    "sha256": "0BD61EECC9E0314CD320EA67C930C5EB92BE38992B242AB7D3DB778F5CB84D6B",
     "size": 1758208
   },
   "patch_mode_overrides": {
@@ -105,7 +105,7 @@
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "978FEC36C237F276227421CE285F918B9DAF310EAB4A1555ACAF76113157A60F"
+      "source_text_sha256": "A9E090D75E6380CA8C3531BE193A0352D42C30E546E3F79B609A3E0B2893A213"
     },
     "task9_companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",

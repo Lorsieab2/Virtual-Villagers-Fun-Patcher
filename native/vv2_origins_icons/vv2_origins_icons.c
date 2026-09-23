@@ -1392,12 +1392,18 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     }
     if (base[0] == 0) return 0;                     /* no usable basename -> skip */
     /* MAX_PATH budget: docs + "\LDW\" + basename + "v2_masks_NN.dat" */
-    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\vv2_masks_00.dat") >= MAX_PATH) {
+    if (lstrlenA(docs) + 5 + lstrlenA(base) + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save 00.dat") >= MAX_PATH) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+    CreateDirectoryA(out, NULL);
+    /* The data files now live in their own clearly named folder rather
+       than loose beside the .ldw saves, so create that component too. */
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
     CreateDirectoryA(out, NULL);
     /* SLOT 0 IS NOT A VILLAGE. Before the first save or load the slot
        scratch reads 0, and an unsuffixed file shared by EVERY village used
@@ -1408,7 +1414,7 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
        games now match it. A pre-load read simply finds nothing, which is
        correct: a village that has not been loaded has no masks to show. */
     if (slot <= 0) return 0;
-    wsprintfA(out, "%s\\LDW\\%s\\vv2_masks_%d.dat", docs, base, slot);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat", docs, base, slot);
     return 1;
 }
 

@@ -621,10 +621,10 @@ static int vv_build_sidecar_path(char *out, int slot) {
     /* lstrcatA has no destination bound. Validate the COMPLETE final path
        before the first append so a redirected Documents folder plus a long
        renamed executable fails open instead of overrunning path[MAX_PATH].
-       sizeof("\\vvfp_masks_0.dat") includes the final NUL; slots 1..5 retain
-       the exact existing one-digit filename namespace. */
+       The data file now lives in a clearly named folder rather than loose
+       beside the saves, so the bound covers that component too. */
     if (lstrlenA(out) + (int)(sizeof("\\LDW\\") - 1) + lstrlenA(base) +
-        (int)sizeof("\\vvfp_masks_0.dat") > MAX_PATH) {
+        (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Village Masks - Save 0.dat") > MAX_PATH) {
         return 0;
     }
     lstrcatA(out, "\\LDW");
@@ -632,7 +632,9 @@ static int vv_build_sidecar_path(char *out, int slot) {
     lstrcatA(out, "\\");
     lstrcatA(out, base);
     CreateDirectoryA(out, NULL);
-    lstrcatA(out, "\\vvfp_masks_");
+    lstrcatA(out, "\\Virtual Villagers Fun Patcher Data");
+    CreateDirectoryA(out, NULL);
+    lstrcatA(out, "\\Village Masks - Save ");
     i = lstrlenA(out);
     out[i] = (char)('0' + slot);
     out[i + 1] = '\0';

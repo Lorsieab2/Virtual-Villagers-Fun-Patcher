@@ -300,14 +300,18 @@ static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
        that (plus NUL) doesn't fit, fail open (return 0 -> masks simply aren't
        persisted, never a stack smash). Reserve a conservative 32-byte suffix
        budget for the slot and extension rather than hand-counting it. */
-    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + 32 + 1 > n) {
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\") + 96 + 1 > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vv1_masks_%u.dat", docs, base,
+    /* The data files now live in their own clearly named folder rather
+       than loose beside the .ldw saves, so create that component too. */
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %u.dat", docs, base,
               (unsigned int)slot);
     return 1;
 }
@@ -835,14 +839,18 @@ static int vv1_doubler_sidecar_path(char *out, size_t n, int slot) {
     }
     /* Same bound as the mask sidecar: wsprintfA takes no destination size, so
        check the longest string this writes before writing any of it. */
-    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + 32 + 1 > n) {
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\") + 96 + 1 > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vv1_doublers_%u.dat", docs, base,
+    /* The data files now live in their own clearly named folder rather
+       than loose beside the .ldw saves, so create that component too. */
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save %u.dat", docs, base,
               (unsigned int)slot);
     return 1;
 }

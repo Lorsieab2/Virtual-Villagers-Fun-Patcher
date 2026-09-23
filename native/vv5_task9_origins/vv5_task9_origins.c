@@ -125,7 +125,7 @@ static int build_mask_sidecar_path(char *out) {
        and wsprintfA/lstrcatA do not perform destination-size checks. */
     docs_len = lstrlenA(docs);
     base_len = lstrlenA(base);
-    if (docs_len + 5 + base_len + (int)sizeof("\\vvfp_masks_5.dat") > MAX_PATH) {
+    if (docs_len + 5 + base_len + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Village Masks - Save 5.dat") > MAX_PATH) {
         return 0;
     }
     /* ensure Documents\LDW and Documents\LDW\<base> exist (CreateDirectory is a
@@ -133,6 +133,12 @@ static int build_mask_sidecar_path(char *out) {
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+    CreateDirectoryA(out, NULL);
+    /* The data files now live in their own clearly named folder rather
+       than loose beside the .ldw saves, so create that component too. */
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
     CreateDirectoryA(out, NULL);
     /* SLOT 0 IS NOT A VILLAGE. Before the first save or load the slot
        scratch reads 0, and an unsuffixed file shared by EVERY village used
@@ -145,7 +151,7 @@ static int build_mask_sidecar_path(char *out) {
     if (slot <= 0) {
         return 0;
     }
-    wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat", docs, base, slot);
     return 1;
 }
 

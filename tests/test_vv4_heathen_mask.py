@@ -92,7 +92,7 @@ class DllStorageContractTests(unittest.TestCase):
         # redirection), in a SEPARATE file -- never inside the .ldw.
         self.assertIn("SHGetSpecialFolderPathA", self.c)
         self.assertIn("CSIDL_PERSONAL", self.c)
-        self.assertIn("vvfp_masks_", self.c)
+        self.assertIn("Village Masks - Save ", self.c)
         self.assertIn(".dat", self.c)
         self.assertNotIn('"\\\\vvfp_masks.dat"', self.c)
         self.assertIn("\\\\LDW", self.c)               # Documents\LDW\<basename>\
@@ -162,7 +162,7 @@ class DllStorageContractTests(unittest.TestCase):
             "\n}", 1
         )[0]
         guard = 'lstrlenA(out) + (int)(sizeof("\\\\LDW\\\\") - 1) + lstrlenA(base) +'
-        suffix = '(int)sizeof("\\\\vvfp_masks_0.dat") > MAX_PATH'
+        suffix = '\\\\Virtual Villagers Fun Patcher Data\\\\Village Masks - Save 0.dat") > MAX_PATH'
         self.assertIn(guard, builder)
         self.assertIn(suffix, builder)
         # sizeof(suffix) includes the NUL. The guard must precede every

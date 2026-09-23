@@ -1134,10 +1134,11 @@ static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
     dot = NULL;
     for (p = base; *p; ++p) if (*p == '.') dot = p;
     if (dot) *dot = '\0';                                  /* strip extension */
-    if (lstrlenA(docs) + lstrlenA(base) + 40 >= cap) return 0;
+    if (lstrlenA(docs) + lstrlenA(base) + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Village Masks - Save 00.dat") + 8 >= cap) return 0;
     wsprintfA(dir, "%s\\LDW", docs);                       CreateDirectoryA(dir, NULL);
     wsprintfA(dir, "%s\\LDW\\%s", docs, base);             CreateDirectoryA(dir, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
+    wsprintfA(dir, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base); CreateDirectoryA(dir, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat", docs, base, slot);
     return 1;
 }
 

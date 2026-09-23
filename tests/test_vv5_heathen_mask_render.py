@@ -361,7 +361,7 @@ def test_mask_sidecar_path_is_fail_closed_and_budgeted():
     # first unbounded wsprintfA call.
     assert "if (slot < 0 || slot > 5)" in VV5_SOURCE
     assert "n == 0 || n >= MAX_PATH" in VV5_SOURCE
-    assert "sizeof(\"\\\\vvfp_masks_5.dat\")" in VV5_SOURCE
+    assert "Village Masks - Save 5.dat" in VV5_SOURCE
     assert "docs_len + 5 + base_len" in VV5_SOURCE
 
 

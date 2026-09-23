@@ -367,14 +367,18 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
     if (dot != NULL) {
         *dot = '\0';
     }
-    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + 32 + 1 > n) {
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\") + 96 + 1 > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vv1_parents_%u.dat", docs, base, (unsigned int)slot);
+    /* The data files live in their own clearly named folder now, so that
+       component has to exist before the file is opened. */
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %u.dat", docs, base, (unsigned int)slot);
     return 1;
 }
 

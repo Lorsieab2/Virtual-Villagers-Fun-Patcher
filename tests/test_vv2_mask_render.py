@@ -145,7 +145,7 @@ def test_sidecar_path_rejects_invalid_slots_before_formatting() -> None:
     # Slot zero remains available only to the explicit legacy migration read;
     # arbitrary save-path arguments must not reach the decimal formatter.
     assert "if (slot < 0 || slot > 5) return 0;" in DLL
-    assert "sizeof(\"\\\\vv2_masks_00.dat\")" in DLL
+    assert "Virtual Villagers 2 Village Masks - Save 00.dat" in DLL
 
 
 def test_sidecar_load_normalizes_every_mask_byte_before_publish() -> None:
