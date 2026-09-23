@@ -868,6 +868,11 @@ static const unsigned char *find_record_by_id(
 
    Beside the executable, matching where the statistics companion writes, so a
    player finds both logs in the same place. */
+/* Set the first time the retired-folder migration runs in this process.
+   The table it would otherwise have lived on is const and shared across
+   games, and this is a per-launch concern rather than a per-game one. */
+static int legacy_logs_migrated;
+
 static int build_log_path(
     const struct game_layout *g,
     int file_number,
@@ -909,9 +914,18 @@ static int build_log_path(
        file where it is and the walk simply stops there. The retired folder
        is never created: GetFileAttributesW says whether it exists, and for
        a player who never had one there is nothing to do. */
-    {
+    /* ONCE PER PROCESS, not once per record. build_log_path runs for every
+       conception and every birth, and the walk no longer terminates early,
+       so without this a village that still has a retired folder would pay
+       4096 GetFileAttributesW calls on every single record written -- and
+       the folder is never removed, so it would pay them forever. One pass
+       per launch is enough: nothing creates legacy files while the game is
+       running, and a file left behind by a failed move is retried on the
+       next launch, which is exactly the resumability this needs. */
+    if (!legacy_logs_migrated) {
         wchar_t root[MAX_LOG_PATH];
         wchar_t legacy_dir[MAX_LOG_PATH];
+        legacy_logs_migrated = 1;
         if (vv_save_folder_w(root, 96)) {
             int moved;
             _snwprintf_s(legacy_dir, MAX_LOG_PATH, _TRUNCATE,

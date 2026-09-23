@@ -228,6 +228,13 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn("retried on the next launch", body)
         # And it covers the same numbering range select_log_file walks.
         self.assertIn("moved <= 4096", body)
+        # ...and it runs ONCE PER PROCESS, not once per record.
+        # build_log_path runs for every conception and every birth, and
+        # the walk no longer terminates early, so an ungated migration
+        # would cost 4096 file checks per record written -- forever,
+        # since the retired folder is never removed.
+        self.assertIn("legacy_logs_migrated", path)
+        self.assertIn("static int legacy_logs_migrated;", self.par)
 
     def test_the_history_rolls_instead_of_growing_forever(self):
         """The history appends a full roster on EVERY save, so without a roll
