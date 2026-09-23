@@ -723,7 +723,7 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 - Doubler purchase status: {'status': 'stock-layout Tech and Food Doubler purchase/remove/repurchase implemented; expanded-256 new purchases are marker-gated unavailable', 'new_purchase': 'Tech and Food available in stock layout at 500,000 tech points after their exact positive-whitelist wrappers; both unavailable in expanded-256', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'full-price repurchase after zero-cost/no-refund removal in stock layout for both doublers; expanded-256 remains unavailable for new purchases'}
 - Native event safety: {'disabled_rows': ['Time Warp', 'Island Event', 'Barrel of Babies'], 'reason': 'VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.', 'evidence_status': 'STOP; no charge or native call is made for these rows'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 14; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 32768 bytes as 1 new PE section -- `.vv5t9` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - Mode-specific guarded edits: experimental_expanded_256=7, experimental_expanded_256_progression=7, collection_progression=8, immediate_fixed=8; these rows are selected only for the named population mode.
 
@@ -809,7 +809,7 @@ On each new pregnancy, appends the mother's and father's names, both parents' ag
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 4096 bytes as 1 new PE section -- `.vv5pl` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv5_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 

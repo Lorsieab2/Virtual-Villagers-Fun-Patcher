@@ -716,7 +716,16 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 # 25 (Barrel O' Babies, "happily adopted"); only the selector
                 # body immediate at 0xDB000+0x180 and this hook's purpose text
                 # change, no other guard.
-                "data/vv5_origins_feature.json": {"0x94B37", "0x94EA0", "0xDB000", "0x1890F"},
+                # 0x94730/0x193F5: the tribe-delete reset, moved here from the
+                # parentage log. Origins writes the per-slot mask files, so an
+                # Origins-only build would persist masks with nothing to sweep
+                # them. The stub sits in the free .text tail measured against a
+                # RENDERED image; the parentage manifest drops its duplicate
+                # claim on 0x193F5.
+                "data/vv5_origins_feature.json": {
+                    "0x94B37", "0x94EA0", "0xDB000", "0x1890F",
+                    "0x94730", "0x193F5",
+                },
             }.get(relative, set())
             if repaired_offsets:
                 self.assertEqual(
