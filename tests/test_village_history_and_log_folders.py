@@ -156,6 +156,40 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn("destination,", path)
         self.assertNotIn("vv_save_folder_w(folder", path)
 
+    def test_the_parentage_migration_covers_every_retired_layout(self):
+        """save_reset.c sweeps four folder/stem combinations; so must this.
+
+        The folder was renamed twice -- "Tribe Parental Records" to "Births
+        and Conceptions", and "VVFP Logs" spelled out -- and the file stem
+        travelled with the folder. Handling only the newest retired pair left
+        a player upgrading from either older layout with their records in a
+        folder nothing reads, while selection started a fresh Log 1 in the
+        new one. Found in review, citing the reset's own table as evidence.
+        """
+        pattern = (
+            'L"((?:VVFP Logs|Virtual Villagers Fun Patcher Logs)'
+            + re.escape(chr(92) * 2)
+            + '(?:Births and Conceptions|Tribe Parental Records))"'
+        )
+        reset_folders = set(re.findall(pattern, self.reset))
+        self.assertEqual(
+            len(reset_folders), 4,
+            f"the reset no longer names four layouts: {sorted(reset_folders)}",
+        )
+        migration_folders = set(re.findall(pattern, self.par))
+        missing = reset_folders - migration_folders
+        self.assertEqual(
+            missing, set(),
+            "the parentage migration does not sweep every layout the reset "
+            f"recognises; missing: {sorted(missing)}",
+        )
+        # And the old stem, which travelled with the old folder name.
+        self.assertIn(
+            "Parentage Log",
+            self.par,
+            "the migration no longer knows the retired file stem",
+        )
+
     def test_the_reset_scan_continues_past_holes_it_made(self):
         """The sweep creates the very gaps it used to stop at.
 
@@ -326,8 +360,12 @@ class LogFolderTests(unittest.TestCase):
         self.assertNotIn("break;", body)
         # An absent source is skipped, not terminal.
         self.assertIn("already migrated, or never existed", body)
-        # A failed move is left for the next launch rather than ending the run.
-        self.assertIn("retried on the next launch", body)
+        # A failed move is left for the next launch rather than ending the
+        # run. Assert on the CODE that does it, not the prose describing it:
+        # this matched a sentence, and reflowing the comment broke the test
+        # while the behaviour was untouched.
+        self.assertIn("legacy_logs_migrated = 0;", body)
+        self.assertIn("return 0;", body)
         # And it covers the same numbering range select_log_file walks.
         self.assertIn("moved <= 4096", body)
         # ...and it runs ONCE PER PROCESS, not once per record.

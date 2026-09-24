@@ -925,34 +925,72 @@ static int build_log_path(
     if (!legacy_logs_migrated) {
         wchar_t root[MAX_LOG_PATH];
         wchar_t legacy_dir[MAX_LOG_PATH];
+        wchar_t legacy_stem[64];
+        /* EVERY LAYOUT THIS PATCHER HAS EVER WRITTEN.
+
+           The folder was renamed twice -- "Tribe Parental Records" to
+           "Births and Conceptions", and "VVFP Logs" spelled out at the
+           owner's request -- and the file stem travelled with the folder.
+           save_reset.c sweeps all four combinations for exactly this
+           reason; the migration handled only the newest retired pair, so
+           a player upgrading from either older layout kept their records
+           in a folder nothing reads while selection started a fresh Log 1
+           in the new one. Found in review.
+
+           Index 0 is where the exporter writes now and is not a source.
+           No build wrote more than one of these, so the passes never
+           contend for the same file. */
+        static const wchar_t *const RETIRED[3] = {
+            L"VVFP Logs\\Births and Conceptions",
+            L"Virtual Villagers Fun Patcher Logs\\Tribe Parental Records",
+            L"VVFP Logs\\Tribe Parental Records"
+        };
+        /* The old stem went with the old folder name. It differs from
+           log_name only in the words after the game number, so it is
+           derived from that number rather than carried in a second
+           per-game table that could drift out of step with the first. */
+        static const int OLD_STEM[3] = { 0, 1, 1 };
+        int pass;
         legacy_logs_migrated = 1;
         if (vv_save_folder_w(root, 96)) {
-            int moved;
-            _snwprintf_s(legacy_dir, MAX_LOG_PATH, _TRUNCATE,
-                         L"%ls\\VVFP Logs\\Births and Conceptions", root);
-            if (GetFileAttributesW(legacy_dir) != INVALID_FILE_ATTRIBUTES) {
+            for (pass = 0; pass < 3; ++pass) {
+                int moved;
+                const wchar_t *stem = g->log_name;
+                if (OLD_STEM[pass]) {
+                    /* "Virtual Villagers N Births and Conceptions Log"
+                       -> "Virtual Villagers N Parentage Log". */
+                    _snwprintf_s(legacy_stem, 64, _TRUNCATE,
+                                 L"Virtual Villagers %c Parentage Log",
+                                 g->log_name[18]);
+                    stem = legacy_stem;
+                }
+                _snwprintf_s(legacy_dir, MAX_LOG_PATH, _TRUNCATE,
+                             L"%ls\\%ls", root, RETIRED[pass]);
+                if (GetFileAttributesW(legacy_dir) == INVALID_FILE_ATTRIBUTES) {
+                    continue;   /* nothing of that vintage to migrate */
+                }
                 /* THE WALK MUST BE RESUMABLE, so neither an absent source
                    nor a failed move ends it.
 
                    A move can fail transiently -- a lock, an antivirus
-                   scanner, a sharing violation. Stopping there left the later
-                   files behind, and because the earlier ones had already
-                   moved, the NEXT attempt found file 1 absent and stopped
-                   immediately, treating "already migrated" as "end of run".
-                   Those files were then stranded for good, and
-                   select_log_file, stopping at the gap they left in the new
-                   folder, handed out a number an unmigrated file was still
-                   using: one village's history split across two folders with
-                   the same conception numbers in both.
+                   scanner, a sharing violation. Stopping there left the
+                   later files behind, and because the earlier ones had
+                   already moved, the NEXT attempt found file 1 absent and
+                   stopped immediately, treating "already migrated" as
+                   "end of run". Those files were then stranded for good,
+                   and select_log_file, stopping at the gap they left in
+                   the new folder, handed out a number an unmigrated file
+                   was still using: one village's history split across two
+                   folders with the same conception numbers in both.
 
-                   So an absent source is skipped rather than terminal, and a
-                   failed move is simply left for the next launch to retry.
-                   Found in review. */
+                   So an absent source is skipped rather than terminal, and
+                   a failed move is simply left for the next launch to
+                   retry. Found in review. */
                 for (moved = 1; moved <= 4096; ++moved) {   /* select_log_file's own ceiling */
                     wchar_t from[MAX_LOG_PATH];
                     wchar_t to[MAX_LOG_PATH];
                     _snwprintf_s(from, MAX_LOG_PATH, _TRUNCATE,
-                                 L"%ls\\%ls %d.txt", legacy_dir, g->log_name, moved);
+                                 L"%ls\\%ls %d.txt", legacy_dir, stem, moved);
                     if (GetFileAttributesW(from) == INVALID_FILE_ATTRIBUTES) {
                         continue;   /* already migrated, or never existed */
                     }
@@ -962,26 +1000,24 @@ static int build_log_path(
                         continue;   /* already migrated: never overwrite */
                     }
                     if (!MoveFileW(from, to)) {
-                        /* A FAILED MOVE MUST NOT BE CONSUMED AS A
-                           COMPLETE MIGRATION.
+                        /* A FAILED MOVE MUST NOT BE CONSUMED AS A COMPLETE
+                           MIGRATION.
 
-                           Migration and selection happen in the same
-                           call, so leaving a hole here lets
-                           select_log_file hand out the missing number
-                           immediately: a brand-new log is created at
-                           that number, and on the next launch the
-                           destination-exists branch skips the locked
-                           legacy file forever. Two files numbered the
-                           same in two folders -- exactly the split
-                           this migration exists to prevent.
+                           Migration and selection happen in the same call,
+                           so leaving a hole here lets select_log_file hand
+                           out the missing number immediately: a brand-new
+                           log is created at that number, and on the next
+                           launch the destination-exists branch skips the
+                           locked legacy file forever. Two files numbered
+                           the same in two folders -- exactly the split this
+                           migration exists to prevent.
 
-                           Refusing the path build is safe: every
-                           caller already treats it as non-fatal and
-                           simply does not write this record, and the
-                           move is retried on the next launch. Losing
-                           one record's log line is a far smaller harm
-                           than permanently splitting the village's
-                           history. Found in review. */
+                           Refusing the path build is safe: every caller
+                           already treats it as non-fatal and simply does
+                           not write this record, and the move is retried on
+                           the next launch. Losing one record's log line is
+                           a far smaller harm than permanently splitting the
+                           village's history. Found in review. */
                         legacy_logs_migrated = 0;   /* retry next time */
                         return 0;
                     }
