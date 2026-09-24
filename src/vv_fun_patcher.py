@@ -145,7 +145,7 @@ VV3_RUNNING_CANDIDATE_PATHS = {
 VV3_RUNNING_CERTIFIED_SHA256 = {
     "base": "65F1F5FA72F127986F71A69368E1CC7E013FD0D00B1E6640113B34032ACB9B21",
     "running": "D6AC66D196D4765AB7DC6D719B3180082C15BBF2F267EBF36D614A14B45556A5",
-    "map": "847781637682D27CC837827701541C8B2BEB96B01F8CEFE4646BC88314F889DB",
+    "map": "D27D2C8290F1A6FEA4FD62A762E5EB6522D814583AE86F40BF0625AAC80C5013",
 }
 VV3_FULL_MASTERY_CANDIDATE_PATHS = {
     "base": ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.json",
@@ -718,13 +718,17 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "1A461358F3527747C2F1246482213E0CB56D4984816C9FC24B619CA24E65A84B",
-    "map": "847781637682D27CC837827701541C8B2BEB96B01F8CEFE4646BC88314F889DB",
+    "manifest": "093E20E5CE4771751A721ACF99E5BE426C744A7C3C5399DAB10B3A1B5617E975",
+    "map": "D27D2C8290F1A6FEA4FD62A762E5EB6522D814583AE86F40BF0625AAC80C5013",
 }
 VV5_TASK9_DLL_SHA256 = "9F29A30FD42A208194C35AF1F13FEBB408AE611250715035558FB20C5DA2D809"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
+# The tribe-delete stub's companion, shipped from this record because it owns
+# the VV5 Origins companion list.
+VV5_TASK9_SAVE_RESET_SHA256 = "4B224A72FD0AC9A708DD13755D862159408E0C35D32A8FFA9718FF6916FDBE06"
+VV5_TASK9_SAVE_RESET_SIZE = 129536
 VV5_TASK9_PAGE_SHA256 = {
     "collection_progression": "86441019FB4C0AD8C4B5D49AECFBFFE72DAB8D04774976EE1F3D97013C8557BA",
     "immediate_fixed": "86441019FB4C0AD8C4B5D49AECFBFFE72DAB8D04774976EE1F3D97013C8557BA",
@@ -790,7 +794,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
     "builder": "1F0E9A903A78EEA24E934C6C5052D00B9A115686778F4B255C1ACB723D6F41B9",
-    "task9_builder": "0DE2CD9027CBC2E6459F35841E64C0F9E03D3DC4D3EA0821F44A7A21715602EB",
+    "task9_builder": "6993FA3FA614778BAB545166FC3809B6538E3BB7E1BC56BE2C056025F36020E9",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -802,8 +806,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "06C2CBD968050BE2E7C89DAA66CFB53DA4F991466581003586AD512E2C2488E5",
-        "map": "31DAC75FB5CDE72BF4A58549C6AD0DEAC593BE7BAC53AC98EF7A74552BC6B65B",
+        "manifest": "2804CFD2C36C6DC6E8E121B10358E71D04B62D803D90323F12744F81942999F7",
+        "map": "CE2BEC3AD2BD7A2ED969974038DB4F63905DB7E92FB1E612B2253425F620E40E",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -2233,8 +2237,30 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "sha256": VV5_TASK9_BIGHEAD_ATLAS_SHA256,
         "size": VV5_TASK9_BIGHEAD_ATLAS_SIZE,
     }
-    if record.get("companion_files") != [expected_companion, expected_bighead_atlas]:
+    # This record OWNS the VV5 Origins companion list -- it is substituted for
+    # the base manifest's -- so the tribe-delete stub's DLL is shipped from
+    # here. Without it the stub resolves nothing and the sweep is silently
+    # lost while every byte guard still passes.
+    expected_save_reset = {
+        "source": "assets/save_reset/VVFP Save Reset.dll",
+        "destination": "VVFP Save Reset.dll",
+        "sha256": VV5_TASK9_SAVE_RESET_SHA256,
+        "size": VV5_TASK9_SAVE_RESET_SIZE,
+    }
+    if record.get("companion_files") != [
+        expected_companion,
+        expected_bighead_atlas,
+        expected_save_reset,
+    ]:
         raise PatcherError("VV5 Task9 companion ownership metadata drifted.")
+    save_reset_path = ROOT / expected_save_reset["source"]
+    save_reset_bytes = save_reset_path.read_bytes()
+    if (
+        len(save_reset_bytes) != VV5_TASK9_SAVE_RESET_SIZE
+        or hashlib.sha256(save_reset_bytes).hexdigest().upper()
+        != VV5_TASK9_SAVE_RESET_SHA256
+    ):
+        raise PatcherError("VV5 Task9 save-reset companion identity mismatch.")
     atlas_path = ROOT / expected_bighead_atlas["source"]
     atlas_bytes = atlas_path.read_bytes()
     if len(atlas_bytes) != expected_bighead_atlas["size"] or hashlib.sha256(atlas_bytes).hexdigest().upper() != VV5_TASK9_BIGHEAD_ATLAS_SHA256:

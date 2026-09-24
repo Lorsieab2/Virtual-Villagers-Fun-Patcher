@@ -22,6 +22,12 @@
       "destination": "Images\\bigheads_masks.png",
       "sha256": "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47",
       "size": 44493
+    },
+    {
+      "source": "assets/save_reset/VVFP Save Reset.dll",
+      "destination": "VVFP Save Reset.dll",
+      "sha256": "4B224A72FD0AC9A708DD13755D862159408E0C35D32A8FFA9718FF6916FDBE06",
+      "size": 129536
     }
   ],
   "doubler_evidence": {
@@ -500,7 +506,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "0DE2CD9027CBC2E6459F35841E64C0F9E03D3DC4D3EA0821F44A7A21715602EB"
+      "source_text_sha256": "6993FA3FA614778BAB545166FC3809B6538E3BB7E1BC56BE2C056025F36020E9"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -784,5 +790,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "AD31237C2B7B216E3EF814E471E03C3E8EC7871E53D5EE8233DE41391B2B0790"
+  "task9_map_canonical_sha256": "3222625F991DECF349B4D934299C4F9B4E47FFF41D64C520F281DCA301D65190"
 }

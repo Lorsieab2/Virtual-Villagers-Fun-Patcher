@@ -4441,6 +4441,7 @@ def main() -> None:
         raise RuntimeError("frozen C342 66-row ledger drift")
     companion = COMPANION.read_bytes()
     bighead_atlas_png = BIGHEAD_ATLAS_PNG.read_bytes()
+    save_reset_dll = (ROOT / "assets/save_reset/VVFP Save Reset.dll").read_bytes()
     bindings = source_bindings()
     pages: dict[str, bytes] = {}
     page_maps: dict[str, object] = {}
@@ -4499,6 +4500,16 @@ def main() -> None:
                 "destination": "Images\\bigheads_masks.png",
                 "sha256": sha(bighead_atlas_png),
                 "size": len(bighead_atlas_png),
+            },
+            {
+                # This record OWNS the VV5 Origins companion list -- the
+                # patcher substitutes it for the base manifest's -- so the
+                # tribe-delete stub's DLL has to be shipped from here, or
+                # the stub resolves nothing and the sweep is silently lost.
+                "source": "assets/save_reset/VVFP Save Reset.dll",
+                "destination": "VVFP Save Reset.dll",
+                "sha256": sha(save_reset_dll),
+                "size": len(save_reset_dll),
             },
         ],
         "pe_append_transaction": {
