@@ -315,10 +315,29 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
                    means there is nothing of that vintage to clean up. */
                 continue;
             }
+            /* WALK THE WHOLE RANGE. An absent number is skipped, never
+               taken as the end of the run.
+
+               The exporter numbers without holes, but THIS FUNCTION MAKES
+               THEM: it deletes the files of the village being erased, and
+               select_log_file then hands the freed number to the next
+               village. So different villages legitimately own consecutive
+               numbers with gaps between them.
+
+               Stopping at the first absence meant a second reset walked
+               into the hole the first one left and stopped there -- village
+               A in file 1 and village B in file 2, resetting A deletes 1,
+               and B's own Start Over then never looks at 2. B's history
+               survived the reset that was meant to clear it. Found in
+               review.
+
+               Every file is still checked by header before deletion, so
+               scanning further can only ever remove more of the erased
+               village's own logs, never another village's. */
             for (i = 1; i <= MAX_LOG_FILES; ++i) {
                 wsprintfW(path_w, L"%ls\\%ls %d.txt", sub_w, stem, i);
                 if (GetFileAttributesW(path_w) == INVALID_FILE_ATTRIBUTES) {
-                    break;      /* the exporter numbers without holes */
+                    continue;   /* a hole this sweep may itself have made */
                 }
                 if (log_header_matches(path_w, village)) {
                     removed += delete_if_present_w(path_w);

@@ -98,55 +98,52 @@ class SaveResetReservesCoverTheirAppendsTests(unittest.TestCase):
         )
 
     def test_every_subfolder_reserve_covers_its_own_append(self) -> None:
-        """`reserve` here covers only what the CALLER appends after `sub`."""
+        """`reserve` here covers only what the CALLER appends after `sub`.
+
+        Pairing a call with its format by position was tried twice and failed
+        twice: forwards, a comment pushed the format out of a fixed window;
+        backwards, an unrelated call between the two was picked up instead.
+        The second version still PASSED a mutation that shrank a real reserve,
+        which is the failure mode that matters -- a guard that reads the wrong
+        number is worse than no guard.
+
+        So the smallest reserve in the file must cover the largest append in
+        the file. That is conservative by construction: it cannot pair the
+        wrong two, and it can only ever be stricter than the truth.
+        """
         text = source()
-        # Pair each vv_save_subfolder_w(..., reserve) with the wsprintfW that
-        # formats into the buffer it filled, on a following line.
-        lines = text.splitlines()
-        checked = 0
-        for index, line in enumerate(lines):
-            call = re.search(
-                r"vv_save_subfolder_w\(\s*(\w+)\s*,\s*(?:L\"[^\"]*\"|\w+(?:\[\w+\])?)"
-                r"\s*,\s*(\d+)\s*\)",
-                line,
-            )
-            if call is None:
-                continue
-            buf, reserve = call.group(1), int(call.group(2))
-            appended = None
-            for follow in lines[index + 1 : index + 16]:
-                fmt = re.search(
-                    r"wsprintfW\(\s*\w+\s*,\s*L\"%ls(.*?)\"\s*,\s*" + buf, follow
-                )
-                if fmt is not None:
-                    appended = fmt.group(1)
-                    break
-            self.assertIsNotNone(
-                appended,
-                f"line {index + 1}: nothing formats into {buf} after this call",
-            )
-            assert appended is not None
-            tail = appended.replace("\\\\", "\\")
-            # Widest substitutions: %d is a slot or a roll-over number, %ls is
-            # the longest log stem in the file.
-            stems = re.findall(r'L"(Virtual Villagers \d [^"]*?)"', text)
-            widest_stem = max((len(s) for s in stems), default=0)
-            size = (
+        stems = re.findall(r'L"(Virtual Villagers \d [^"]*?)"', text)
+        widest_stem = max((len(x) for x in stems), default=0)
+        self.assertGreater(widest_stem, 0, "no log stems found -- pattern moved")
+
+        reserves = [
+            int(m) for m in re.findall(r"vv_save_subfolder_w\([^)]*?,\s*(\d+)\s*\)", text)
+        ]
+        self.assertGreaterEqual(
+            len(reserves), 3, f"only {len(reserves)} subfolder calls found"
+        )
+
+        appends = re.findall(r'wsprintfW\(\s*\w+\s*,\s*L"%ls(.*?)"', text)
+        self.assertGreaterEqual(
+            len(appends), 5, f"only {len(appends)} appends found -- pattern moved"
+        )
+        sizes = []
+        for tail in appends:
+            tail = tail.replace("\\\\", "\\")
+            sizes.append(
                 len(re.sub(r"%d|%ls", "", tail))
                 + tail.count("%d") * WIDEST_LOG_NUMBER
                 + tail.count("%ls") * widest_stem
                 + 1  # NUL
             )
-            with self.subTest(line=index + 1, tail=tail):
-                self.assertGreaterEqual(
-                    reserve,
-                    size,
-                    f"reserve {reserve} does not cover an append of {size}: "
-                    f"{tail!r} (widest stem {widest_stem})",
-                )
-            checked += 1
+        smallest_reserve = min(reserves)
+        largest_append = max(sizes)
         self.assertGreaterEqual(
-            checked, 3, "found fewer subfolder call sites than expected"
+            smallest_reserve,
+            largest_append,
+            f"the smallest reserve in the file is {smallest_reserve} but the "
+            f"largest append is {largest_append} (widest stem {widest_stem}); "
+            "one of these paths overruns its MAX_PATH buffer",
         )
 
     def test_the_legacy_helper_reserves_for_its_callers(self) -> None:

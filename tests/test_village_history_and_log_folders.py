@@ -156,6 +156,40 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn("destination,", path)
         self.assertNotIn("vv_save_folder_w(folder", path)
 
+    def test_the_reset_scan_continues_past_holes_it_made(self):
+        """The sweep creates the very gaps it used to stop at.
+
+        It deletes the erased village's numbered logs, and the exporter then
+        hands a freed number to the next village, so different villages
+        legitimately own non-consecutive numbers. A scan that stopped at the
+        first absent number walked into the hole a previous reset left and
+        stopped there: village A in file 1 and village B in file 2, resetting
+        A deletes 1, and B's own Start Over never reached 2. B's history
+        survived the reset meant to clear it. Found in review.
+        """
+        scan = self.reset[self.reset.index("for (i = 1; i <= MAX_LOG_FILES"):]
+        scan = scan[: scan.index("return removed;")]
+        self.assertIn(
+            "continue;",
+            scan,
+            "the numbered-log scan no longer continues past an absent file",
+        )
+        self.assertNotIn(
+            "break;",
+            scan,
+            "the numbered-log scan stops at the first hole again, so a log "
+            "past a gap survives its own reset",
+        )
+
+    def test_the_harness_covers_the_hole_case(self):
+        """And the on-disk harness reproduces it, rather than asserting it.
+
+        scripts/build_save_reset_harness.ps1 compiles and runs this; the
+        case fails there when the scan is changed back to break.
+        """
+        self.assertIn("LOG PAST A HOLE IS DELETED", self.harness)
+        self.assertIn("gap case set up", self.harness)
+
     def test_the_parentage_log_migrates_out_of_the_retired_folder(self):
         """A player upgrading from "VVFP Logs" keeps their existing logs. Left
         there, the next conception would start a fresh "Log 1.txt" in the new

@@ -168,6 +168,32 @@ int main(void) {
         DeleteFileA(probe);
     }
 
+    /* A RESET MUST SEE PAST THE HOLES AN EARLIER RESET MADE.
+
+       This sweep deletes the erased village's numbered logs, and the
+       exporter then hands a freed number to the next village, so different
+       villages legitimately end up owning non-consecutive numbers. A scan
+       that stopped at the first absent number walked into the hole the
+       previous reset left and stopped there, and the later village's own
+       Start Over never reached its file. Found in review.
+
+       Reproduce it exactly: leave number 1 absent and put the village being
+       erased at number 2. */
+    {
+        char gap1[MAX_PATH];
+        char gap2[MAX_PATH];
+        wsprintfA(gap1, "%s\\Virtual Villagers 1 Births and Conceptions Log 1.txt", pardir);
+        wsprintfA(gap2, "%s\\Virtual Villagers 1 Births and Conceptions Log 2.txt", pardir);
+        DeleteFileA(gap1);                 /* the hole a previous reset made */
+        write_text(gap2, VILLAGE);         /* the erased village, past the hole */
+        check(!exists(gap1) && exists(gap2),
+              "gap case set up: number 1 absent, erased village at number 2");
+        vv_reset_slot_state(1, 1, VILLAGE);
+        check(!exists(gap2),
+              "LOG PAST A HOLE IS DELETED (survived its own reset before the fix)");
+        DeleteFileA(gap2);
+    }
+
     /* Refusals: nothing outside a real village slot may delete anything. */
     check(vv_reset_slot_state(1, 0, VILLAGE) == -1, "slot 0 refused (meta file, not a village)");
     check(vv_reset_slot_state(1, 6, VILLAGE) == -1, "slot 6 refused (out of range)");
