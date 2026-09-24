@@ -190,8 +190,8 @@ class LogFolderTests(unittest.TestCase):
             "the migration no longer knows the retired file stem",
         )
 
-    def test_the_reset_scan_continues_past_holes_it_made(self):
-        """The sweep creates the very gaps it used to stop at.
+    def test_the_reset_scan_does_not_depend_on_contiguous_numbering(self):
+        """The sweep creates the very gaps a range walk used to stop at.
 
         It deletes the erased village's numbered logs, and the exporter then
         hands a freed number to the next village, so different villages
@@ -200,20 +200,35 @@ class LogFolderTests(unittest.TestCase):
         stopped there: village A in file 1 and village B in file 2, resetting
         A deletes 1, and B's own Start Over never reached 2. B's history
         survived the reset meant to clear it. Found in review.
+
+        The fix walked the whole bounded range, which was correct but cost
+        4096 probes per pass -- 457 ms locally, far worse on an SMB share,
+        inside the game's own delete handler. It now ENUMERATES the folder,
+        which is both faster and immune to holes by construction: nothing is
+        being predicted, so there is nothing to predict wrongly.
+
+        This asserts the property, not one implementation of it. The previous
+        version keyed on the range walk's own `for` statement and broke the
+        moment that walk was replaced by something strictly better.
         """
-        scan = self.reset[self.reset.index("for (i = 1; i <= MAX_LOG_FILES"):]
-        scan = scan[: scan.index("return removed;")]
+        sweep = self.reset[self.reset.index("PARENTAGE IS VILLAGE-SCOPED"):]
         self.assertIn(
-            "continue;",
-            scan,
-            "the numbered-log scan no longer continues past an absent file",
+            "FindFirstFileW(",
+            sweep,
+            "the parentage sweep no longer enumerates the folder",
         )
+        self.assertIn("FindNextFileW(", sweep)
+        self.assertIn("FindClose(", sweep, "an enumeration handle is leaked")
+        # Enumeration must not be paired with a numbered probe loop: that
+        # would reintroduce the cost the enumeration exists to remove.
         self.assertNotIn(
-            "break;",
-            scan,
-            "the numbered-log scan stops at the first hole again, so a log "
-            "past a gap survives its own reset",
+            "for (i = 1; i <= MAX_LOG_FILES",
+            sweep,
+            "the numbered probe loop is back alongside the enumeration",
         )
+        # Every candidate is still checked by header before deletion, which is
+        # what stops a wider scan touching another village's logs.
+        self.assertIn("log_header_matches(", sweep)
 
     def test_the_harness_covers_the_hole_case(self):
         """And the on-disk harness reproduces it, rather than asserting it.

@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "3AE4ABA3EA06CA9F62D5A37CF68C2786C23FDC370C6FA387134287BB344683D9",
-      "size": 129536
+      "sha256": "7E395526CFFA7C61F6B34E20D839C49589B699202C8AA9FDF37EF94FAD19E809",
+      "size": 130048
     }
   ],
   "doubler_evidence": {
@@ -495,8 +495,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "8021C96CCAB8D03A54435A4CEDC71EEA146E06F8C90F65B451C400875445C1BD",
-  "base_file_sha256": "8021C96CCAB8D03A54435A4CEDC71EEA146E06F8C90F65B451C400875445C1BD",
+  "base_source_text_sha256": "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26",
+  "base_file_sha256": "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -506,7 +506,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "0879FC91AB66E9816C8F7AD86BFE3518ED4898AFB12C3217EDD47685F3F075A3"
+      "source_text_sha256": "0D118BE516801B86CED2D1305871838F95B2D256B49E03E6F34F3D830B2EDF82"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -534,7 +534,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "8021C96CCAB8D03A54435A4CEDC71EEA146E06F8C90F65B451C400875445C1BD"
+      "source_text_sha256": "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -790,5 +790,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "3937BD147572694E8865DC71B79B36F4B13F68BC620A285E81B9F189E495E7B9"
+  "task9_map_canonical_sha256": "CB8391E035C6EF242E2017F23B1BBB736889F066255BD99221BEA854BAF3EA33"
 }

@@ -315,32 +315,78 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
                    means there is nothing of that vintage to clean up. */
                 continue;
             }
-            /* WALK THE WHOLE RANGE. An absent number is skipped, never
-               taken as the end of the run.
+            /* ENUMERATE THE FOLDER, DO NOT PREDICT ITS CONTENTS.
 
-               The exporter numbers without holes, but THIS FUNCTION MAKES
-               THEM: it deletes the files of the village being erased, and
-               select_log_file then hands the freed number to the next
-               village. So different villages legitimately own consecutive
-               numbers with gaps between them.
+               An earlier version walked 1..MAX_LOG_FILES and stopped at
+               the first absent number. That was wrong, because THIS
+               FUNCTION MAKES HOLES: it deletes the erased village's files
+               and select_log_file then hands the freed number to the next
+               village, so different villages legitimately own
+               non-consecutive numbers. A second reset walked into the hole
+               the first had left and stopped there -- village A in file 1
+               and village B in file 2, resetting A deletes 1, and B's own
+               Start Over never looked at 2.
 
-               Stopping at the first absence meant a second reset walked
-               into the hole the first one left and stopped there -- village
-               A in file 1 and village B in file 2, resetting A deletes 1,
-               and B's own Start Over then never looks at 2. B's history
-               survived the reset that was meant to clear it. Found in
-               review.
+               Walking the whole range fixed that but cost 4096 probes per
+               pass, four passes, whether or not the folder held anything:
+               609 ms on a local disk, and far worse on Documents
+               redirected to an SMB share, where each probe is a round trip
+               and this runs inside the game's own delete handler. Both
+               problems were found in review.
 
-               Every file is still checked by header before deletion, so
-               scanning further can only ever remove more of the erased
-               village's own logs, never another village's. */
-            for (i = 1; i <= MAX_LOG_FILES; ++i) {
-                wsprintfW(path_w, L"%ls\\%ls %d.txt", sub_w, stem, i);
-                if (GetFileAttributesW(path_w) == INVALID_FILE_ATTRIBUTES) {
-                    continue;   /* a hole this sweep may itself have made */
-                }
-                if (log_header_matches(path_w, village)) {
-                    removed += delete_if_present_w(path_w);
+               Asking the directory what it contains costs what the folder
+               actually holds, and holes stop mattering because nothing is
+               being predicted.
+
+               The name filter is the shape the exporter writes -- the stem,
+               a space, a number in 1..MAX_LOG_FILES, ".txt" -- so a
+               hand-made or corrupt name is left alone rather than guessed
+               at, exactly as the bounded walk did. Every match is still
+               checked by header before deletion, so this can only ever
+               remove the erased village's own logs. */
+            {
+                WIN32_FIND_DATAW found;
+                HANDLE search;
+                wchar_t filter[MAX_PATH];
+                int stem_len = lstrlenW(stem);
+                wsprintfW(filter, L"%ls\\%ls *.txt", sub_w, stem);
+                search = FindFirstFileW(filter, &found);
+                if (search != INVALID_HANDLE_VALUE) {
+                    do {
+                        const wchar_t *tail;
+                        int number = 0;
+                        int digits = 0;
+                        if (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                            continue;
+                        }
+                        /* The wildcard matched "<stem> <something>.txt".
+                           Accept only a plain number in range: FindFirstFileW
+                           also matches short 8.3 aliases and anything else
+                           sharing the prefix. */
+                        if (lstrlenW(found.cFileName) <= stem_len + 1) {
+                            continue;
+                        }
+                        tail = found.cFileName + stem_len + 1;
+                        while (*tail >= L'0' && *tail <= L'9') {
+                            if (digits > 5) {
+                                break;      /* absurd; not ours */
+                            }
+                            number = number * 10 + (int)(*tail - L'0');
+                            ++digits;
+                            ++tail;
+                        }
+                        if (digits == 0 || number < 1 || number > MAX_LOG_FILES) {
+                            continue;
+                        }
+                        if (lstrcmpiW(tail, L".txt") != 0) {
+                            continue;
+                        }
+                        wsprintfW(path_w, L"%ls\\%ls", sub_w, found.cFileName);
+                        if (log_header_matches(path_w, village)) {
+                            removed += delete_if_present_w(path_w);
+                        }
+                    } while (FindNextFileW(search, &found));
+                    FindClose(search);
                 }
             }
         }
