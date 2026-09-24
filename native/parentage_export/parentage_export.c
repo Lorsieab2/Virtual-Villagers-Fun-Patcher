@@ -150,9 +150,17 @@ enum {
        records per file keeps a log to roughly one village's worth of births. */
     RECORDS_PER_FILE = 256,
     /* The widest run of consecutive missing numbers the walk will cross.
-       A reset deletes one village's files, so the holes it leaves are
-       bounded by what that village owned; 64 is generous against that and
-       keeps a normal call to a handful of probes. */
+
+       A reset deletes the files whose header names the erased village, so the
+       widest run of holes it can leave is the most CONSECUTIVE files one
+       village owned. A village rolls to a new file every RECORDS_PER_FILE
+       conceptions, so crossing 64 of them means a single village logged
+       64 * 256 = 16,384 conceptions before the next village started -- and
+       even at that point the consequence is a new file rather than lost data.
+
+       Measured rather than guessed: the alternative, walking to the 4096
+       ceiling, costs that many probes on EVERY conception and birth, which is
+       the per-call expense the reset's own enumeration fix removed. */
     MAX_RESET_GAP = 64
 };
 
