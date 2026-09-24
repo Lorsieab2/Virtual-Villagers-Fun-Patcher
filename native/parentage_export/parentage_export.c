@@ -1071,6 +1071,32 @@ static int build_log_path(
     ) >= 0;
 }
 
+/* Does this log already have something in it?
+
+   NOT ftell. A stream freshly opened with "a" reports position 0 however
+   long the file is: the position is not resolved to the end until the
+   first write. Measured with this project's own toolchain and the /MT
+   runtime the shipped DLL is built with -- ftell said 0 on an 18-byte
+   file, and 20 only after one write.
+
+   Each header guard used `ftell(file) == 0` to mean "this file is new",
+   so it held for EVERY record and stamped the village header through the
+   middle of the log: 10 times in the owner's VV3 file, 10 in VV5, 2 in
+   VV2, once before each record written after the village became known.
+
+   CALL THIS BEFORE OPENING THE FILE. Opening with "a" creates it, so a
+   measurement taken afterwards always says empty and brings the same bug
+   back under a new name.
+
+   A file that cannot be measured counts as empty, which is the same
+   answer as "does not exist yet" and is the case that needs a header. */
+static int log_file_has_content(const wchar_t *path) {
+    WIN32_FILE_ATTRIBUTE_DATA info;
+    if (!GetFileAttributesExW(path, GetFileExInfoStandard, &info)) {
+        return 0;
+    }
+    return info.nFileSizeHigh != 0 || info.nFileSizeLow != 0;
+}
 /* Count the records already in a file, so a roll happens at the right point
    and a restarted game continues the current file rather than overwriting it.
 
@@ -1810,6 +1836,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
        nothing has been saved yet in this session. */
     char village[VV_VILLAGE_NAME_MAX + 32];
     FILE *file;
+    int had_content;
     char mother_name[MAX_NAME_BYTES];
     char father_name[MAX_NAME_BYTES];
     /* Rendered rather than printed as %d, so an unavailable field can say so
@@ -2003,6 +2030,8 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
        works under either ending because the marker is at the START. Reading in
        text mode would also silently swallow a lone CR, which is exactly the
        corruption the count is supposed to survive. */
+    /* Measured BEFORE the open, which would create the file. */
+    had_content = log_file_has_content(path);
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
@@ -2015,11 +2044,12 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
        history, so writing the header on every birth would interleave it
        between records.
 
-       ftell is the test rather than existing_records, because that count
-       spans every file in the run -- it is non-zero for a brand-new
-       roll-over file, which is exactly a file that still needs a header.
-       In append mode the position is the end of the file, so zero means
-       nothing has ever been written here.
+       The file's SIZE ON DISK is the test, not existing_records and not
+       ftell. existing_records spans every file in the run, so it is
+       non-zero for a brand-new roll-over file -- exactly a file that
+       still needs a header. ftell is worse: on a freshly opened append
+       stream it reports 0 however long the file is, so it held for every
+       record. See log_file_has_content.
 
        The village was recalled BEFORE the file was chosen, because
        select_log_file needs it: a file belonging to a different village is
@@ -2028,7 +2058,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
 
        A village that has not been saved in this session publishes nothing,
        and the log is then written without a header rather than not at all. */
-    if (ftell(file) == 0 && village[0] != '\0') {
+    if (!had_content && village[0] != '\0') {
         if (fprintf(file, "%s", village) < 0) {
             fclose(file);
             return 0;
@@ -2219,6 +2249,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     char skills[512];
     const unsigned char *rec = (const unsigned char *)child_record;
     FILE *file;
+    int had_content;
     int existing_records;
     int written;
 
@@ -2264,11 +2295,13 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     if (!select_log_file(g, village, path, &existing_records, 1)) {
         return 0;
     }
+    /* Measured BEFORE the open, which would create the file. */
+    had_content = log_file_has_content(path);
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
     }
-    if (ftell(file) == 0 && village[0] != '\0') {
+    if (!had_content && village[0] != '\0') {
         if (fprintf(file, "%s", village) < 0) {
             fclose(file);
             return 0;
@@ -2344,6 +2377,7 @@ __declspec(dllexport) int __stdcall EnsureParentageLog(
     wchar_t path[MAX_LOG_PATH];
     int existing = 0;
     FILE *file;
+    int had_content;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
@@ -2377,12 +2411,15 @@ __declspec(dllexport) int __stdcall EnsureParentageLog(
     if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
         return 1;               /* this village already has a log */
     }
+    /* Measured BEFORE the open, which would create the file. */
+    had_content = log_file_has_content(path);
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
     }
-    /* Empty means brand new: ftell is the end of the file in append mode. */
-    if (ftell(file) == 0) {
+    /* Brand new means nothing on disk -- measured before the open, since
+       opening creates the file. See log_file_has_content. */
+    if (!had_content) {
         if (fprintf(file, "%s", village) < 0) {
             fclose(file);
             return 0;

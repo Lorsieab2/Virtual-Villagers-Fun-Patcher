@@ -303,7 +303,17 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn('_wfopen(path, L"a")', fn)
         self.assertNotIn('L"w"', fn)
         # Only an EMPTY file gets the header, so an existing log is untouched.
-        self.assertIn("ftell(file) == 0", fn)
+        # NOT ftell: on a freshly opened append stream it reports 0
+        # however long the file is, which is what wrote the village
+        # header repeatedly into the middle of the log. The file is
+        # measured on disk, before the open that would create it.
+        self.assertIn("had_content = log_file_has_content(path);", fn)
+        self.assertIn("if (!had_content)", fn)
+        self.assertNotIn("ftell", fn)
+        self.assertLess(
+            fn.index("log_file_has_content(path)"),
+            fn.index('_wfopen(path, L"a")'),
+            "the file must be measured before it is opened")
         # A headerless file could not be attributed to any village, and Start
         # Over matches files to villages by that first line.
         self.assertIn("village[0] == " + chr(39) + chr(92) + "0" + chr(39), fn)
