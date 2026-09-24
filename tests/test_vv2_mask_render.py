@@ -617,7 +617,7 @@ def test_the_sidecar_is_bound_to_the_village_that_wrote_it() -> None:
     assert "0x34304D56u" in source, (
         "the sidecar magic is not 'VM04'; an older file could be misread")
 
-    load = source[source.index("static void vv2_mask_sidecar_load("):]
+    load = source[source.index("static int vv2_mask_sidecar_load("):]
     load = load[:load.index(chr(10) + "}" + chr(10)) + 3]
     assert "vv2_roster_same(filesnap, live)" in load, (
         "the mask sidecar is applied without checking that its roster shares "
@@ -653,7 +653,7 @@ def test_a_birth_or_death_does_not_count_as_a_new_village() -> None:
     sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
 
     overlap = sync.index("vv2_roster_same(g_vv2_roster, cur)")
-    reload = sync.index("vv2_mask_sidecar_load(cur);")
+    reload = sync.index("vv2_mask_sidecar_load(cur)")
     assert overlap < reload, (
         "the reload is not gated behind the overlap check")
     same_village_return = sync.index("return 1;", overlap)   # the same-village exit
@@ -783,7 +783,7 @@ def test_a_replacement_resets_the_previous_villages_latches() -> None:
     sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
     same_return = sync.index("return 1;               /* same village")
     reset = sync.index("VV2_SEEN_ALIVE[i] = 0;")
-    reload = sync.index("vv2_mask_sidecar_load(cur);")
+    reload = sync.index("vv2_mask_sidecar_load(cur)")
     assert same_return < reset < reload, (
         "the latches are not reset on the replaced path before the reload")
 
@@ -807,7 +807,7 @@ def test_a_slot_change_always_reloads_even_when_the_roster_overlaps() -> None:
         "to a copied save keeps the previous slot's masks")
     assert "g_vv2_slot = slot;" in sync, (
         "the reload path does not record the slot it loaded for")
-    assert sync.index("g_vv2_slot = slot;") > sync.index("vv2_mask_sidecar_load(cur);"), (
+    assert sync.index("g_vv2_slot = slot;") > sync.index("vv2_mask_sidecar_load(cur)"), (
         "the slot must be adopted with the reload, not before it")
     assert "slot <= 0" in sync, (
         "an unpublished slot must count as unknown, not clear the masks")

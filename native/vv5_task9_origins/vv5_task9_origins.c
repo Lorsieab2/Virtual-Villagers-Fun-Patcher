@@ -395,7 +395,9 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
    from a village that shares no majority with this one -- leaves NO masks,
    which is exactly what a village that never chose any sees, and what stops
    a new village inheriting a dead one's choices. */
-static void vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live) {
+/* 1 when the load settled (read, or legitimately absent), 0 when the
+   path was refused and the load must stay pending. */
+static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live) {
     char path[MAX_PATH];
     HANDLE h;
     DWORD got = 0;
@@ -403,14 +405,24 @@ static void vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live
     unsigned int filesnap[VV5_RECORD_COUNT];
     unsigned char buf[MASK_TABLE_BYTES];
     int i;
+    /* FAIL CLOSED: the clear precedes EVERY exit.
+
+       A load that does not complete must not leave the PREVIOUS village's
+       masks on screen, so the table is emptied before anything can fail.
+       That rule outranks preserving a locked legacy sidecar: showing one
+       village's masks on another is a visible wrong result, while a refused
+       migration is retried on the next call and costs only this pass.
+
+       The refusal is still REPORTED, so the caller does not latch the roster
+       and adopt an empty table as this village's state. */
     memset(table, 0, MASK_TABLE_BYTES);
     if (!build_mask_sidecar_path(path)) {
-        return;
+        return 0;               /* not settled; retried on the next call */
     }
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
-        return;                     /* no sidecar -> no masks, as before */
+        return 1;                     /* no sidecar -> no masks, as before */
     }
     /* THE ROSTER DECIDES, not the slot.  Slots are reused, so a file left by
        the previous village is exactly what a Start Over leaves behind; its
@@ -429,6 +441,7 @@ static void vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live
         memcpy(table, buf, sizeof(buf));
     }
     CloseHandle(h);
+    return 1;
 }
 
 /* Restore the mask side-table for the village on screen into the 75-byte
@@ -446,7 +459,12 @@ __declspec(dllexport) void __stdcall ReadMaskSidecar(unsigned char *table) {
     if (slot <= 0 || vv5_roster_snapshot(cur) == 0) {
         return;                     /* no identifiable village -> no masks */
     }
-    vv5_mask_sidecar_load(table, cur);
+    /* The other adopt site, with the same hazard: a refused path must
+       not be latched, or the next write truncates the real file with
+       an empty table. Found in review. */
+    if (!vv5_mask_sidecar_load(table, cur)) {
+        return;                 /* stay pending; retried on the next call */
+    }
     memcpy(g_vv5_roster, cur, sizeof(cur));
     g_vv5_have_roster = 1;
     g_vv5_slot = slot;
@@ -497,8 +515,14 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
         }
         return 1;                   /* same village -> keep the masks as they are */
     }
-    /* REPLACED (or first sight): clear, reload only a matching file, adopt. */
-    vv5_mask_sidecar_load(table, cur);
+    /* REPLACED (or first sight): clear, reload only a matching file, adopt.
+
+       ADOPT ONLY A SETTLED LOAD. A refused path used to be adopted
+       anyway, so an empty table sat latched with no retry and the next
+       write migrated the real file and truncated it. Found in review. */
+    if (!vv5_mask_sidecar_load(table, cur)) {
+        return 0;               /* stay pending; retried on the next call */
+    }
     memcpy(g_vv5_roster, cur, sizeof(cur));
     g_vv5_have_roster = 1;
     g_vv5_slot = slot;

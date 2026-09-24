@@ -152,7 +152,7 @@ class Vv5RosterIdentityTest(unittest.TestCase):
         self.assertRegex(write, r"WriteFile\(h,\s*&magic")
         self.assertRegex(write, r"WriteFile\(h,\s*g_vv5_roster,\s*sizeof\(g_vv5_roster\)")
         self.assertRegex(write, r"WriteFile\(h,\s*table,\s*MASK_TABLE_BYTES")
-        load = self._function("static void vv5_mask_sidecar_load(")
+        load = self._function("static int vv5_mask_sidecar_load(")
         self.assertLess(load.index("memset(table, 0, MASK_TABLE_BYTES)"), load.index("return"),
                         "fail closed: the clear must precede EVERY exit, including a failed path")
         self.assertIn("vv5_roster_same(filesnap, live)", load)
@@ -166,8 +166,8 @@ class Vv5RosterIdentityTest(unittest.TestCase):
         # a birth or death under the same village re-persists the snapshot
         self.assertRegex(sync, r"if\s*\(\s*!vv5_roster_equal\(g_vv5_roster,\s*cur\)\s*\)\s*\{\s*memcpy\(g_vv5_roster,\s*cur,\s*sizeof\(cur\)\);\s*WriteMaskSidecar\(table\);")
         # a replacement clears and reloads through the roster-checked loader
-        self.assertIn("vv5_mask_sidecar_load(table, cur);", sync)
-        self.assertLess(sync.index("vv5_mask_sidecar_load(table, cur);"), sync.index("g_vv5_have_roster = 1;"))
+        self.assertIn("vv5_mask_sidecar_load(table, cur)", sync)
+        self.assertLess(sync.index("vv5_mask_sidecar_load(table, cur)"), sync.index("g_vv5_have_roster = 1;"))
         # throttled, but never before the first identification
         self.assertRegex(sync, r"g_vv5_have_roster\s*&&\s*\(now\s*-\s*g_vv5_sync_tick\)\s*<\s*VV5_SYNC_INTERVAL_MS")
 

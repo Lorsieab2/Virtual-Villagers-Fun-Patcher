@@ -1280,9 +1280,24 @@ static void vv3_mask_read_sidecar(int slot) {
     HANDLE h;
     DWORD r = 0, mask_r = 0, fp_r = 0;
     unsigned int magic = 0;
-    g_vv3_mask_loaded = 1;                                 /* one-shot; set first */
+    /* BUILD THE PATH BEFORE COMMITTING TO THE LOAD.
+
+       This used to latch the one-shot AND clear the tables first, so a
+       refused path -- the migration declining because a legacy sidecar
+       is locked -- left an empty table marked loaded with no retry.
+       When the lock cleared, the next write migrated the real file and
+       truncated it with that empty table. Found in review.
+
+       An absent file is different: a fresh slot legitimately has none,
+       and that IS settled, or every frame would repeat a read that
+       cannot succeed. */
+    /* FAIL CLOSED: clear before any exit, so a load that does not complete
+       cannot leave the PREVIOUS village's masks on screen. The one-shot is
+       latched only once the path is known, so a refused migration is
+       retried rather than being recorded as a finished load. */
     vv3_mask_clear_tables();
     if (!vv3_mask_sidecar_path(path, sizeof(path), slot)) return;
+    g_vv3_mask_loaded = 1;                                 /* one-shot */
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) return;

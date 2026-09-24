@@ -1606,7 +1606,9 @@ static void vv2_mask_sidecar_save(void) {
    first, so every failure path -- no file, short read, wrong magic, a file
    from a village that shares no villager with this one -- leaves NO masks,
    which is exactly what a village that never chose any sees. */
-static void vv2_mask_sidecar_load(const unsigned int *live) {
+/* 1 when the load settled (read, or legitimately absent), 0 when the
+   path was refused and the load must stay pending. */
+static int vv2_mask_sidecar_load(const unsigned int *live) {
     char path[MAX_PATH];
     HANDLE f;
     DWORD g;
@@ -1614,9 +1616,17 @@ static void vv2_mask_sidecar_load(const unsigned int *live) {
     unsigned int filesnap[VV2_RECORD_COUNT];
     unsigned char buf[VV2_MASK_TABLE_BYTES];
     int i;
+    /* FAIL CLOSED: the clear precedes EVERY exit, so a load that does not
+       complete cannot leave the PREVIOUS village's masks on screen. That
+       outranks preserving a locked legacy sidecar: showing one village's
+       masks on another is a visible wrong result, while a refused
+       migration is retried on the next call.
+
+       The refusal is still REPORTED, so the caller does not latch the
+       roster and adopt an empty table as this village's state. */
     if (vv2_mask_table_ok())
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
-    if (!vv2_mask_sidecar_path(path)) return;
+    if (!vv2_mask_sidecar_path(path)) return 0;
     f = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {
         /* NO FALLBACK. A village with no sidecar of its own has no masks.
@@ -1632,7 +1642,7 @@ static void vv2_mask_sidecar_load(const unsigned int *live) {
 
            VV1 has never had either fallback and has never shown this bleed, so
            matching it is also what makes the five games behave alike. */
-        return;
+        return 1;
     }
     /* THE ROSTER DECIDES, not the slot.  Slots are reused, so a file left by
        the previous village is exactly what a Start Over or a
@@ -1652,6 +1662,7 @@ static void vv2_mask_sidecar_load(const unsigned int *live) {
         if (vv2_mask_table_ok()) memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
     }
     CloseHandle(f);
+    return 1;
 }
 
 /* The village-change decision, kept in the DLL rather than in the appended
@@ -1699,7 +1710,14 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     for (i = 0; i < VV2_RECORD_COUNT; ++i) {
         VV2_SEEN_ALIVE[i] = 0;
     }
-    vv2_mask_sidecar_load(cur); /* clears, then applies only a matching file */
+    /* ADOPT ONLY A SETTLED LOAD. A refused path -- the migration
+       declining because a legacy sidecar is locked -- used to be
+       adopted anyway, so an empty table sat latched with no retry and
+       the next write migrated the real file and truncated it. Found in
+       review. */
+    if (!vv2_mask_sidecar_load(cur)) {
+        return 0;               /* stay pending; retried on the next call */
+    }
     memcpy(g_vv2_roster, cur, sizeof(cur));
     g_vv2_have_roster = 1;
     g_vv2_slot = slot;
@@ -1768,7 +1786,10 @@ __declspec(dllexport) void __stdcall Vv2MaskRestore(void) {
     } else {
         vv2_roster_snapshot(base, cur);
     }
-    vv2_mask_sidecar_load(cur);
+    /* The other load site. The loader now builds its path before it
+       clears anything, so a refusal leaves the table untouched and the
+       next call retries. Found in review. */
+    (void)vv2_mask_sidecar_load(cur);
 }
 /* exe-callable so the appearance handler can persist right after committing .mtab */
 __declspec(dllexport) void __stdcall Vv2MaskSaveSidecar(void) { vv2_mask_sidecar_save(); }
