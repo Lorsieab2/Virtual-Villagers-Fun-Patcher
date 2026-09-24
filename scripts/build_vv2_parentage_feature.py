@@ -86,6 +86,9 @@ STOCK = ROOT / "research" / "stock-executables" / (
 OUTPUT = ROOT / "data" / "vv2_parentage_feature.json"
 
 GAME_ID = 2
+# The lazily-allocated villager array, behind a fixed global. Documented in
+# native/population_export/population_export.c for this same game.
+SINGLETON = 0x00499F24
 
 # Image geometry is READ FROM THE PE, not written down here. A hardcoded
 # copy of these three numbers is what an earlier draft used, and its
@@ -405,10 +408,26 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             # the prologue's `push edi` before `mov edi, ecx` at 0x44B981
             # overwrote it with the records container. The pushad copy at
             # [esp + 0x00] is that container, not the father.
-            mov ecx, dword ptr [esp + 0x04]
+            # Pushed right to left. The father goes FIRST, which shifts esp by
+            # four -- so the pushad ESI that sits at [esp + 0x04] on entry is
+            # read at [esp + 0x08] here. Pushing her directly rather than via
+            # ecx saves the one byte this stub does not have.
             push edx
-            push ecx
             push dword ptr [esp + 0x08]
+            # THE RECORDS BASE COMES FROM THE SINGLETON, NOT FROM EDI.
+            #
+            # The join is six bytes after `mov edi, [edi + 0xE574D4]` at
+            # 0x44BACC, which replaces the array base with the MANAGER object
+            # the statistics companion reads. Passing the pushad EDI therefore
+            # handed is_record_slot a base far below the real array: the span
+            # to the mother was not a multiple of the 0xE48C stride, so almost
+            # every conception was rejected, and the few that survived landed
+            # on a garbage slot and logged empty head/body/likes.
+            #
+            # Reading the documented singleton at 0x499F24 cannot be clobbered
+            # by anything the routine does before the join. It is the same
+            # global the population exporter already uses for VV2.
+            push dword ptr [0x{SINGLETON:X}]
             push {GAME_ID}
             call eax
         done:
