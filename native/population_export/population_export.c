@@ -1050,14 +1050,14 @@ static int build_history_path(wchar_t *destination) {
             wchar_t first[MAX_LONG_PATH];
             history_migrated = 1;
             if (_snwprintf_s(first, MAX_LONG_PATH, _TRUNCATE,
-                             L"%ls\Village History 1.txt", module_path) >= 0
+                             L"%ls\\Village History 1.txt", module_path) >= 0
                 && GetFileAttributesW(first) == INVALID_FILE_ATTRIBUTES) {
                 if (_snwprintf_s(legacy, MAX_LONG_PATH, _TRUNCATE,
-                                 L"%ls\Village History.txt", module_path) < 0
+                                 L"%ls\\Village History.txt", module_path) < 0
                     || !MoveFileW(legacy, first)) {
                     if (vv_save_folder_w(root, 96)
                         && _snwprintf_s(legacy, MAX_LONG_PATH, _TRUNCATE,
-                                        L"%ls\VVFP Logs\Tribe History\Village History.txt",
+                                        L"%ls\\VVFP Logs\\Tribe History\\Village History.txt",
                                         root) >= 0) {
                         (void)MoveFileW(legacy, first);
                     }
