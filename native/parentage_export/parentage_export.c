@@ -64,6 +64,15 @@
 #include <string.h>
 #include <wchar.h>
 
+/* Internal by default; external under VV_PARENTAGE_TESTABLE so the
+   harness can call select_log_file against real files on disk. The
+   shipped DLL is built without the macro and keeps static linkage. */
+#ifdef VV_PARENTAGE_TESTABLE
+#define VV_PARENTAGE_STATIC
+#else
+#define VV_PARENTAGE_STATIC static
+#endif
+
 #include "village_identity.h"
 #include "save_folder.h"
 
@@ -139,7 +148,12 @@ enum {
     /* The owner asked for a roll "past ~256 villagers". One record per
        conception, and VV1's record array itself holds 256 slots, so 256
        records per file keeps a log to roughly one village's worth of births. */
-    RECORDS_PER_FILE = 256
+    RECORDS_PER_FILE = 256,
+    /* The widest run of consecutive missing numbers the walk will cross.
+       A reset deletes one village's files, so the holes it leaves are
+       bounded by what that village owned; 64 is generous against that and
+       keeps a normal call to a handful of probes. */
+    MAX_RESET_GAP = 64
 };
 
 /* Per-game record geometry.
@@ -1184,7 +1198,7 @@ static int log_belongs_to_village(const wchar_t *path, const char *village) {
 
    Bounded so a corrupt or unwritable directory cannot spin forever; 4096 files
    is far beyond any real playthrough. */
-static int select_log_file(
+VV_PARENTAGE_STATIC int select_log_file(
     const struct game_layout *g,
     const char *village,
     wchar_t *destination,
@@ -1204,6 +1218,13 @@ static int select_log_file(
        running total at that point. Zero until one is found. */
     int last_match = 0;
     int last_total = 0;
+    /* The highest number that exists. A new file goes after it, so the
+       printed running total stays monotonic across the whole sequence. */
+    int highest = 0;
+    /* Consecutive missing numbers. The walk spans the holes a reset leaves
+       but stops once the folder is plainly exhausted, so the per-call cost
+       stays proportional to the files present rather than to the ceiling. */
+    int gap = 0;
 
     *existing_records = 0;
     for (number = 1; number <= 4096; ++number) {
@@ -1212,21 +1233,40 @@ static int select_log_file(
             return 0;
         }
         if (GetFileAttributesW(destination) == INVALID_FILE_ATTRIBUTES) {
-            /* A gap in the numbering ends the walk, so `total` counts the
-               unbroken run this file continues rather than silently skipping
-               past a deleted log and numbering as though it were still there. */
-            if (for_birth && last_match != 0) {
-                /* The village's newest existing file, which is where its most
-                   recent conception went. */
-                if (!build_log_path(g, last_match, destination)) {
-                    return 0;
-                }
-                *existing_records = last_total;
-                return 1;
+            /* A HOLE IS NOT THE END OF THE WALK.
+
+               The reset deletes only the erased village's numbered logs, so
+               it leaves gaps between files other villages still own: delete
+               A's 1 and 3 while B keeps 2 and 4. Since the reset started
+               enumerating the folder rather than stopping at the first
+               absence, it makes those holes reliably.
+
+               Ending the walk here meant village B never saw file 4: its
+               cumulative conception count restarted, and a birth took file 2
+               as the newest and landed apart from its own conception. Found
+               in review, as a consequence of the enumeration fix.
+
+               So skip the hole and keep walking -- but only as far as the
+               highest file that actually exists. Walking the full 4096
+               every time would reintroduce, on every conception and every
+               birth, exactly the per-call probe cost the reset's own
+               enumeration fix removed.
+
+               `gap` counts consecutive missing numbers; once it exceeds the
+               widest gap a reset can leave, there is nothing further to
+               find. A reset deletes one village's files, so the widest run
+               of holes it can produce is bounded by the numbers that village
+               owned -- MAX_RESET_GAP is generous against that.
+
+               A NEW file still goes after the highest that exists, never
+               into a hole: see the tail of this function. */
+            if (++gap > MAX_RESET_GAP) {
+                break;
             }
-            *existing_records = total;
-            return 1;
+            continue;
         }
+        gap = 0;
+        highest = number;       /* the newest file that exists, for the tail */
         records = count_records(destination);
         total += records;
         if (!log_belongs_to_village(destination, village)) {
@@ -1262,6 +1302,34 @@ static int select_log_file(
             *existing_records = total;
             return 1;
         }
+    }
+
+    /* The whole range was walked without finding room.
+
+       A birth belongs in this village's newest file wherever that is, even
+       when later numbers belong to other villages. */
+    if (for_birth && last_match != 0) {
+        if (!build_log_path(g, last_match, destination)) {
+            return 0;
+        }
+        *existing_records = last_total;
+        return 1;
+    }
+    /* Otherwise a new file goes AFTER everything that exists, never into a
+       hole an earlier reset left.
+
+       The printed conception number is `existing_records + 1`, a running
+       total across every file in order, so dropping a new file into a hole
+       below a file that already holds later records would number records out
+       of order. Numbering past the highest existing file keeps the sequence
+       monotonic; the cost is that a reset's holes are not reused, which is
+       only a gap in file NAMES and costs nothing. */
+    if (highest != 0 && highest < 4096) {
+        if (!build_log_path(g, highest + 1, destination)) {
+            return 0;
+        }
+        *existing_records = total;
+        return 1;
     }
     return 0;
 }
@@ -2224,3 +2292,24 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     return WriteParentageRecordWithFather(
         game_id, records_pointer, mother_pointer, NULL);
 }
+
+#ifdef VV_PARENTAGE_TESTABLE
+/* Accessors for native/parentage_export/select_holes_harness.c.
+
+   select_log_file's behaviour around the holes a reset leaves cannot be
+   established by reading the source: the question is what it RETURNS when
+   village A's files 1 and 3 are gone and village B still owns 2 and 4. The
+   harness builds that layout on disk and asks. These exist only under this
+   macro, so the shipped DLL is unchanged. */
+const struct game_layout *vv_parentage_layout(int game) {
+    if (game < 1 || game > 5) {
+        return NULL;
+    }
+    return &GAME_LAYOUTS[game];
+}
+
+int vv_parentage_log_folder(wchar_t *out) {
+    return vv_save_subfolder_w(
+        out, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64);
+}
+#endif

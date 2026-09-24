@@ -34,7 +34,25 @@ EXPORTER = ROOT / "native/parentage_export/parentage_export.c"
 
 
 def function(source: str, opening: str) -> str:
-    start = source.index(opening)
+    """The body of one function, located by its opening.
+
+    Falls back to matching the name alone when the literal is not found:
+    select_log_file is declared VV_PARENTAGE_STATIC so the on-disk harness
+    can link against it, and matching "static int select_log_file(" broke
+    this test while the property it checks was untouched.
+    """
+    try:
+        start = source.index(opening)
+    except ValueError:
+        bare = opening.rsplit(" ", 1)[-1].rstrip("(")
+        match = re.search(
+            r"^(?:[A-Z_]+\s+)?(?:static\s+)?int\s+" + re.escape(bare) + r"\(",
+            source,
+            re.M,
+        )
+        if match is None:
+            raise
+        start = match.start()
     return source[start:source.index("\n}", start)]
 
 

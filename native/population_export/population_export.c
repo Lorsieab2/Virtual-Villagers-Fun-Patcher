@@ -1048,20 +1048,52 @@ static int build_history_path(wchar_t *destination) {
             wchar_t root[MAX_LONG_PATH];
             wchar_t legacy[MAX_LONG_PATH];
             wchar_t first[MAX_LONG_PATH];
+            int stranded = 0;       /* a legacy file exists and would not move */
             history_migrated = 1;
             if (_snwprintf_s(first, MAX_LONG_PATH, _TRUNCATE,
                              L"%ls\\Village History 1.txt", module_path) >= 0
                 && GetFileAttributesW(first) == INVALID_FILE_ATTRIBUTES) {
+                /* AN ABSENT SOURCE AND A FAILED MOVE ARE NOT THE SAME THING.
+
+                   This used to discard the MoveFileW result. A transient
+                   failure -- the file open without delete sharing, a
+                   scanner, a lock -- then fell through to the walk below,
+                   which handed back "Village History 1.txt" as vacant. The
+                   current save created it, and on the NEXT launch the
+                   `first`-exists guard skipped migration entirely: the
+                   player's whole append-only timeline was stranded for good,
+                   while the comment above promised a retry that could never
+                   happen. Found in review.
+
+                   So when a legacy file is really there and will not move,
+                   refuse to build a path at all and clear the latch so the
+                   next launch tries again. The caller already treats a failed
+                   path build as non-fatal and simply does not append this
+                   save's snapshot; losing one snapshot is a far smaller harm
+                   than splitting a timeline that cannot be rebuilt. */
+                int have_legacy = 0;
                 if (_snwprintf_s(legacy, MAX_LONG_PATH, _TRUNCATE,
-                                 L"%ls\\Village History.txt", module_path) < 0
-                    || !MoveFileW(legacy, first)) {
-                    if (vv_save_folder_w(root, 96)
-                        && _snwprintf_s(legacy, MAX_LONG_PATH, _TRUNCATE,
-                                        L"%ls\\VVFP Logs\\Tribe History\\Village History.txt",
-                                        root) >= 0) {
-                        (void)MoveFileW(legacy, first);
+                                 L"%ls\\Village History.txt", module_path) >= 0
+                    && GetFileAttributesW(legacy) != INVALID_FILE_ATTRIBUTES) {
+                    have_legacy = 1;
+                    if (!MoveFileW(legacy, first)) {
+                        stranded = 1;
                     }
                 }
+                if (!have_legacy
+                    && vv_save_folder_w(root, 96)
+                    && _snwprintf_s(legacy, MAX_LONG_PATH, _TRUNCATE,
+                                    L"%ls\\VVFP Logs\\Tribe History\\Village History.txt",
+                                    root) >= 0
+                    && GetFileAttributesW(legacy) != INVALID_FILE_ATTRIBUTES) {
+                    if (!MoveFileW(legacy, first)) {
+                        stranded = 1;
+                    }
+                }
+            }
+            if (stranded) {
+                history_migrated = 0;   /* retry on the next launch */
+                return 0;
             }
         }
     }
