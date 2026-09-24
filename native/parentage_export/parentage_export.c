@@ -958,10 +958,35 @@ static int build_log_path(
                 const wchar_t *stem = g->log_name;
                 if (OLD_STEM[pass]) {
                     /* "Virtual Villagers N Births and Conceptions Log"
-                       -> "Virtual Villagers N Parentage Log". */
+                       -> "Virtual Villagers N Parentage Log".
+
+                       FIND the digit rather than indexing a fixed offset
+                       into the name. [18] is correct for every current
+                       name, but it is an index into a string: rename the
+                       log and it silently addresses a letter, and this
+                       feature would go on quietly migrating nothing while
+                       every test that reads the source still passed.
+
+                       If there is no single digit to find, migrate
+                       nothing for this pass rather than guessing at a
+                       stem -- a wrong stem cannot match anything anyway,
+                       and refusing keeps the failure legible. */
+                    const wchar_t *scan;
+                    wchar_t digit = 0;
+                    for (scan = g->log_name; *scan; ++scan) {
+                        if (*scan >= L'0' && *scan <= L'9') {
+                            if (digit != 0) {
+                                digit = 0;      /* more than one: ambiguous */
+                                break;
+                            }
+                            digit = *scan;
+                        }
+                    }
+                    if (digit == 0) {
+                        continue;
+                    }
                     _snwprintf_s(legacy_stem, 64, _TRUNCATE,
-                                 L"Virtual Villagers %c Parentage Log",
-                                 g->log_name[18]);
+                                 L"Virtual Villagers %c Parentage Log", digit);
                     stem = legacy_stem;
                 }
                 _snwprintf_s(legacy_dir, MAX_LOG_PATH, _TRUNCATE,

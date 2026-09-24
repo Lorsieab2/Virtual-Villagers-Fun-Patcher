@@ -156,6 +156,33 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn("destination,", path)
         self.assertNotIn("vv_save_folder_w(folder", path)
 
+    def test_the_retired_stem_is_found_not_indexed(self):
+        """A fixed index into a name rots silently.
+
+        The old stem was built from `log_name[18]`, correct for every current
+        name but an index into a string: rename the log and it addresses a
+        letter instead of the game number, and the migration goes on quietly
+        moving nothing while every source-reading test still passes. It now
+        scans for the digit and refuses if there is not exactly one.
+        """
+        # assertNotIn would print the whole source file on failure, which
+        # buries the finding under 100KB of C. Assert on a boolean instead.
+        self.assertFalse(
+            "log_name[18]" in self.par,
+            "the retired stem is derived from a hardcoded index again; scan "
+            "for the digit so renaming the log cannot silently address a "
+            "letter",
+        )
+        migration = self.par[self.par.index("EVERY LAYOUT THIS PATCHER HAS EVER WRITTEN"):]
+        migration = migration[: migration.index("return _snwprintf_s")]
+        self.assertIn("L'0'", migration, "nothing scans for the game digit")
+        self.assertIn("L'9'", migration)
+        self.assertIn(
+            "ambiguous",
+            migration,
+            "a name with two digits must be refused, not guessed at",
+        )
+
     def test_the_parentage_migration_covers_every_retired_layout(self):
         """save_reset.c sweeps four folder/stem combinations; so must this.
 
