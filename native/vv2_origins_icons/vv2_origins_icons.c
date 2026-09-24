@@ -1418,7 +1418,13 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
     wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat", docs, base, slot);
     /* A player upgrading from a build that wrote the loose name still
        has their masks under it; move them into place. */
-    vv_migrate_legacy_sidecar(out, "vv2_masks_", docs, base, slot);
+    /* A legacy file that exists and will not move means the masks
+       are still under the old name. Refuse rather than hand back a
+       path to a file that does not exist: an empty table published
+       there would overwrite them for good. Found in review. */
+    if (!vv_migrate_legacy_sidecar(out, "vv2_masks_", docs, base, slot)) {
+        return 0;
+    }
     return 1;
 }
 

@@ -604,32 +604,41 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
    Every failure is silent and harmless: the worst case is the old file
    staying where it is and the village loading unmasked, which is exactly
    what happens today. */
-static void vv4_migrate_legacy_sidecar(const char *new_path,
+/* 1 to proceed, 0 when a legacy sidecar exists and could NOT be moved.
+   The result used to be discarded, so a transient failure left the
+   caller reporting success while pointing at a file that does not
+   exist -- after which an empty table could be published over the
+   real records. Found in review. */
+static int vv4_migrate_legacy_sidecar(const char *new_path,
                                        const char *docs,
                                        const char *base,
                                        int slot) {
     char legacy[MAX_PATH];
     if (new_path == NULL || docs == NULL || base == NULL) {
-        return;
+        return 1;
     }
     /* THE BOUND BELOW ASSUMES ONE DIGIT, so the slot has to be one. The
        caller validates it, but this formats %d into a buffer sized for a
        single character, and a multi-digit slot is not a real save slot. */
     if (slot < 0 || slot > 9) {
-        return;
+        return 1;
     }
     if (GetFileAttributesA(new_path) != INVALID_FILE_ATTRIBUTES) {
-        return;                 /* already migrated, or never needed it */
+        return 1;               /* already migrated, or never needed it */
     }
     if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
         + sizeof("\\LDW\\\\vvfp_masks_0.dat") > sizeof(legacy)) {
-        return;
+        return 1;
     }
     wsprintfA(legacy, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
     if (GetFileAttributesA(legacy) == INVALID_FILE_ATTRIBUTES) {
-        return;                 /* nothing of that vintage to migrate */
+        return 1;               /* nothing of that vintage to migrate */
     }
-    (void)MoveFileA(legacy, new_path);
+    if (!MoveFileA(legacy, new_path)) {
+        /* The masks are still there under the old name. */
+        return 0;
+    }
+    return 1;
 }
 
 static int vv_build_sidecar_path(char *out, int slot) {
@@ -688,7 +697,13 @@ static int vv_build_sidecar_path(char *out, int slot) {
     lstrcatA(out, ".dat");
     /* A player upgrading from a build that wrote the loose name still has
        their masks under it; move it into place so it is not lost. */
-    vv4_migrate_legacy_sidecar(out, docs, base, slot);
+    /* A legacy file that exists and will not move means the masks
+       are still under the old name. Refuse rather than hand back a
+       path to a file that does not exist: an empty table published
+       there would overwrite them for good. Found in review. */
+    if (!vv4_migrate_legacy_sidecar(out, docs, base, slot)) {
+        return 0;
+    }
     return 1;
 }
 

@@ -148,20 +148,8 @@ enum {
     /* The owner asked for a roll "past ~256 villagers". One record per
        conception, and VV1's record array itself holds 256 slots, so 256
        records per file keeps a log to roughly one village's worth of births. */
-    RECORDS_PER_FILE = 256,
-    /* The widest run of consecutive missing numbers the walk will cross.
+    RECORDS_PER_FILE = 256
 
-       A reset deletes the files whose header names the erased village, so the
-       widest run of holes it can leave is the most CONSECUTIVE files one
-       village owned. A village rolls to a new file every RECORDS_PER_FILE
-       conceptions, so crossing 64 of them means a single village logged
-       64 * 256 = 16,384 conceptions before the next village started -- and
-       even at that point the consequence is a new file rather than lost data.
-
-       Measured rather than guessed: the alternative, walking to the 4096
-       ceiling, costs that many probes on EVERY conception and birth, which is
-       the per-call expense the reset's own enumeration fix removed. */
-    MAX_RESET_GAP = 64
 };
 
 /* Per-game record geometry.
@@ -1185,6 +1173,77 @@ static int log_belongs_to_village(const wchar_t *path, const char *village) {
     return strcmp(existing, current) == 0;
 }
 
+/* The highest numbered log present, or 0 when the folder holds none.
+
+   ASK THE DIRECTORY, DO NOT PREDICT IT. An earlier version walked until
+   it had seen a fixed run of missing numbers, on the reasoning that the
+   widest run of holes a reset can leave is bounded by what one village
+   owned. That was wrong: a reset deletes one village's files, but gaps
+   from SEVERAL reset villages coalesce, so no per-village figure bounds
+   them. With a leading gap wider than the bound the selector returned no
+   path at all and logging stopped; with an earlier survivor it could
+   place a new file inside the gap and split numbering from history it had
+   never seen. Found in review.
+
+   One enumeration answers it exactly, which is the same fix the reset
+   sweep already uses, and costs a single directory scan rather than
+   thousands of probes.
+
+   The name filter is the shape this exporter writes -- the stem, a space,
+   a number, ".txt" -- so a hand-made or corrupt name cannot raise the
+   ceiling and strand real logs above it. */
+static int highest_log_number(const struct game_layout *g,
+                              const wchar_t *folder) {
+    WIN32_FIND_DATAW found;
+    HANDLE search;
+    wchar_t filter[MAX_LOG_PATH];
+    int stem_len;
+    int best = 0;
+    if (g == NULL || g->log_name == NULL || folder == NULL) {
+        return 0;
+    }
+    stem_len = lstrlenW(g->log_name);
+    if (_snwprintf_s(filter, MAX_LOG_PATH, _TRUNCATE,
+                     L"%ls\\%ls *.txt", folder, g->log_name) < 0) {
+        return 0;
+    }
+    search = FindFirstFileW(filter, &found);
+    if (search == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    do {
+        const wchar_t *tail;
+        int number = 0;
+        int digits = 0;
+        if (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            continue;
+        }
+        if (lstrlenW(found.cFileName) <= stem_len + 1) {
+            continue;
+        }
+        tail = found.cFileName + stem_len + 1;
+        while (*tail >= L'0' && *tail <= L'9') {
+            if (digits > 5) {
+                break;          /* absurd; not one of ours */
+            }
+            number = number * 10 + (int)(*tail - L'0');
+            ++digits;
+            ++tail;
+        }
+        if (digits == 0 || number < 1 || number > 4096) {
+            continue;
+        }
+        if (lstrcmpiW(tail, L".txt") != 0) {
+            continue;
+        }
+        if (number > best) {
+            best = number;
+        }
+    } while (FindNextFileW(search, &found));
+    FindClose(search);
+    return best;
+}
+
 /* Choose the file to append to: the highest-numbered existing file that is not
    yet full, else the next one. Starts at 1 so the first log reads "... 1.txt".
 
@@ -1229,13 +1288,19 @@ VV_PARENTAGE_STATIC int select_log_file(
     /* The highest number that exists. A new file goes after it, so the
        printed running total stays monotonic across the whole sequence. */
     int highest = 0;
-    /* Consecutive missing numbers. The walk spans the holes a reset leaves
-       but stops once the folder is plainly exhausted, so the per-call cost
-       stays proportional to the files present rather than to the ceiling. */
-    int gap = 0;
+    /* The highest number the folder actually holds, measured once. The
+       walk runs to exactly this, so every hole is crossed and nothing
+       above one is missed. */
+    int ceiling;
+    wchar_t folder[MAX_PATH];
 
     *existing_records = 0;
-    for (number = 1; number <= 4096; ++number) {
+    if (!vv_save_subfolder_w(
+            folder, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64)) {
+        return 0;
+    }
+    ceiling = highest_log_number(g, folder);
+    for (number = 1; number <= ceiling + 1 && number <= 4096; ++number) {
         int records;
         if (!build_log_path(g, number, destination)) {
             return 0;
@@ -1254,26 +1319,19 @@ VV_PARENTAGE_STATIC int select_log_file(
                as the newest and landed apart from its own conception. Found
                in review, as a consequence of the enumeration fix.
 
-               So skip the hole and keep walking -- but only as far as the
-               highest file that actually exists. Walking the full 4096
-               every time would reintroduce, on every conception and every
-               birth, exactly the per-call probe cost the reset's own
-               enumeration fix removed.
-
-               `gap` counts consecutive missing numbers; once it exceeds the
-               widest gap a reset can leave, there is nothing further to
-               find. A reset deletes one village's files, so the widest run
-               of holes it can produce is bounded by the numbers that village
-               owned -- MAX_RESET_GAP is generous against that.
+               So skip the hole and keep walking, as far as the ceiling
+               highest_log_number measured. An earlier version instead
+               stopped after a fixed run of misses, assuming the widest gap
+               a reset leaves is bounded by what one village owned; gaps
+               from SEVERAL reset villages coalesce, so no per-village
+               figure bounds them, and a leading gap wider than the bound
+               made this return no path and stop logging. Found in review.
+               Enumerating once removes the guess entirely.
 
                A NEW file still goes after the highest that exists, never
                into a hole: see the tail of this function. */
-            if (++gap > MAX_RESET_GAP) {
-                break;
-            }
             continue;
         }
-        gap = 0;
         highest = number;       /* the newest file that exists, for the tail */
         records = count_records(destination);
         total += records;

@@ -362,7 +362,21 @@ static int vv1_roster_overlap(const unsigned char *records, const vv1_occupant *
    MoveFileA rather than CopyFile + Delete: it is atomic within a volume,
    so an interrupted migration cannot leave a half-written new file that
    the loader would then read as corrupt state. */
-static void vv_migrate_legacy_sidecar(const char *new_path,
+/* 1 to proceed, 0 when a legacy sidecar exists and could NOT be moved.
+
+   The result used to be discarded. A move can fail transiently -- the
+   file open without delete sharing, a scanner, a lock -- and the caller
+   then reported success pointing at a file that does not exist. The
+   loader read nothing, an empty table was eventually committed, and the
+   next write published it at the new path; from then on the destination
+   existed, migration was skipped forever, and the real records were gone.
+   Found in review.
+
+   Refusing is safe: every caller treats a failed path build as "do not
+   persist this time", so the state stays on disk under its old name and
+   the next launch retries. Losing one save's worth of persistence is a
+   far smaller harm than losing the records permanently. */
+static int vv_migrate_legacy_sidecar(const char *new_path,
                                       const char *legacy_name,
                                       const char *docs,
                                       const char *base,
@@ -370,7 +384,7 @@ static void vv_migrate_legacy_sidecar(const char *new_path,
     char legacy[MAX_PATH];
     if (new_path == NULL || legacy_name == NULL || docs == NULL
         || base == NULL) {
-        return;
+        return 1;
     }
     /* THE BOUND BELOW ASSUMES ONE DIGIT, so the slot has to be one.
        Every caller validates the slot before reaching here, but this
@@ -380,20 +394,25 @@ static void vv_migrate_legacy_sidecar(const char *new_path,
        negative or multi-digit slot is not a real save slot in any of the
        five games, so refusing is both safe and correct. */
     if (slot < 0 || slot > 9) {
-        return;
+        return 1;
     }
     if (GetFileAttributesA(new_path) != INVALID_FILE_ATTRIBUTES) {
-        return;                 /* already migrated, or never needed it */
+        return 1;               /* already migrated, or never needed it */
     }
     if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
         + sizeof("\\LDW\\\\vv1_doublers_0.dat") > sizeof(legacy)) {
-        return;
+        return 1;
     }
     wsprintfA(legacy, "%s\\LDW\\%s\\%s%d.dat", docs, base, legacy_name, slot);
     if (GetFileAttributesA(legacy) == INVALID_FILE_ATTRIBUTES) {
-        return;                 /* nothing of that vintage to migrate */
+        return 1;               /* nothing of that vintage to migrate */
     }
-    (void)MoveFileA(legacy, new_path);
+    if (!MoveFileA(legacy, new_path)) {
+        /* The records are still there under the old name. Say so,
+           so the caller does not publish over them. */
+        return 0;
+    }
+    return 1;
 }
 
 static int vv1_parents_path(char *out, size_t n, int slot) {
@@ -433,7 +452,13 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
     wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %u.dat", docs, base, (unsigned int)slot);
     /* A player upgrading from a build that wrote the loose name still
        has their state under it; move it into place so it is not lost. */
-    vv_migrate_legacy_sidecar(out, "vv1_parents_", docs, base, slot);
+    /* A legacy file that exists and will not move means the parent records
+       are still under the old name. Refuse rather than hand back a
+       path to a file that does not exist: an empty table published
+       there would overwrite them for good. Found in review. */
+    if (!vv_migrate_legacy_sidecar(out, "vv1_parents_", docs, base, slot)) {
+        return 0;
+    }
     return 1;
 }
 

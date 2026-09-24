@@ -150,6 +150,33 @@ int main(void) {
         check(0, "select_log_file returned a path for a rollover");
     }
 
+    /* A GAP WIDER THAN ANY FIXED BOUND.
+
+       An earlier fix stopped after a fixed run of missing numbers, assuming
+       the widest gap a reset leaves is bounded by what one village owned.
+       Gaps from SEVERAL reset villages coalesce, so no per-village figure
+       bounds them: with a leading gap wider than the bound the selector
+       returned no path at all and logging stopped. Found in review.
+
+       100 consecutive holes is wider than the 64 that bound was, so this
+       case fails against it and passes against the measured ceiling. */
+    for (i = 1; i <= 8; ++i) {
+        remove_log(folder, stem, i);
+    }
+    write_log(folder, stem, 101, "Bravo", 3);
+    check(present(folder, stem, 101), "setup: file 101 exists past 100 holes");
+    check(!present(folder, stem, 1), "setup: 1..100 are all holes");
+    if (select_log_file(g, "Bravo", chosen, &records, 0)) {
+        wsprintfW(expect, L"%ls\\%ls 101.txt", folder, stem);
+        printf("  wide gap   -> %ls (existing=%d)\n", chosen, records);
+        check(lstrcmpiW(chosen, expect) == 0,
+              "SELECTION CROSSES A 100-FILE GAP to reach file 101");
+        check(records == 3, "and counts its 3 records");
+    } else {
+        check(0, "select_log_file returned a path across a wide gap");
+    }
+    remove_log(folder, stem, 101);
+
     if (failures) {
         printf("  (files left in place for inspection)\n");
     } else {

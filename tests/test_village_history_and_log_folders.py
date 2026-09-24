@@ -334,13 +334,22 @@ class LogFolderTests(unittest.TestCase):
         for path in copies:
             text = path.read_text(encoding="utf-8")
             self.assertIn("vv_migrate_legacy_sidecar", text, path.name)
-            fn = function(text, "static void vv_migrate_legacy_sidecar(")
+            # "static int" since the helper began REPORTING a failed move
+            # rather than discarding it; the properties below are unchanged.
+            fn = function(text, "static int vv_migrate_legacy_sidecar(")
             self.assertIn("slot < 0 || slot > 9", fn, path.name)
             # A move, never a copy: nothing is duplicated and an interrupted
             # migration cannot leave a half-written file to be read as state.
             self.assertIn("MoveFileA(legacy, new_path)", fn, path.name)
             # And it never overwrites an already-migrated file.
             self.assertIn("already migrated, or never needed it", fn, path.name)
+            # A FAILED MOVE IS REPORTED, NOT SWALLOWED. Discarding it left
+            # the caller reporting success while pointing at a file that
+            # does not exist; an empty table published there overwrote the
+            # real records, and because the destination then existed,
+            # migration was skipped forever. Found in review.
+            self.assertNotIn("(void)MoveFileA", fn, path.name)
+            self.assertIn("return 0;", fn, path.name)
 
     def test_the_reset_checks_the_header_belongs_to_the_deleted_slot(self):
         """The published header is the LAST village saved, not necessarily the

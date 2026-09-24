@@ -22,7 +22,15 @@ FOUNDATION_OUTPUT = (
 # Recertified when VV3 gained the Random (All 5) mask distribution, so its
 # Change Appearance for All dialog offers the same five options as the
 # other four games. The build is /Brepro, so this hash is deterministic.
-SOURCE_SHA256 = "2BAF2EEB200DB2D9ABE3816A2F152C6A06923D1ACD7AF481A150FC6318094A92"
+#
+# Recertified again when vv_migrate_legacy_sidecar began REPORTING a failed
+# move instead of discarding it. The old helper let a transient MoveFileA
+# failure -- the legacy file open without delete sharing -- leave the path
+# builder reporting success while pointing at a file that does not exist; an
+# empty mask table was then published there, and because the destination now
+# existed, migration was skipped forever and the real masks were lost. Found
+# in review.
+SOURCE_SHA256 = "FB765E1E5129F23059968D1A6512F682DE204D5D7B4F5EF1BE27FABD7B1959B7"
 SOURCE_SIZE = 1902592
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
