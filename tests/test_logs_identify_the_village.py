@@ -204,7 +204,12 @@ class LogsCarryTheVillageTests(unittest.TestCase):
         source = PARENTAGE_C.read_text(encoding="utf-8")
         recall = source.find("vv_village_recall(village, sizeof village)")
         select = source.find("select_log_file(g, village, path")
-        gate = source.find("ftell(file) == 0")
+        # The gate, located by the measurement that decides it. This
+        # used to search for "ftell(file) == 0"; that expression is now
+        # gone from the code and survives only inside a comment that
+        # explains why it was wrong, so the search matched the comment
+        # and compared the wrong position.
+        gate = source.find("had_content = log_file_has_content(path);")
         self.assertNotEqual(recall, -1, "the village is never recalled")
         self.assertNotEqual(select, -1, "the file choice is not given the village")
         self.assertNotEqual(gate, -1, "the header is not gated on a new file")
@@ -220,15 +225,32 @@ class LogsCarryTheVillageTests(unittest.TestCase):
             "the file must be chosen before its header is written",
         )
 
-    def test_the_gate_is_ftell_not_the_record_count(self) -> None:
-        """existing_records counts every file in the run, so it is non-zero for
-        a brand-new roll-over file -- which is precisely a file that still needs
-        a header. Using it would leave every roll-over log unidentified."""
+    def test_the_gate_is_the_file_on_disk(self) -> None:
+        """Neither the run-wide record count nor ftell.
+
+        existing_records counts every file in the run, so it is non-zero
+        for a brand-new roll-over file -- precisely a file that still
+        needs a header. Using it would leave every roll-over log
+        unidentified.
+
+        ftell is worse, and was what shipped: on a stream freshly opened
+        with "a" this CRT reports position 0 however long the file is, so
+        the gate held for every record and stamped the header through the
+        middle of the log -- 10 times in the owner's VV3 file, 10 in VV5,
+        2 in VV2. The file's size on disk is the question actually being
+        asked."""
         source = PARENTAGE_C.read_text(encoding="utf-8")
         self.assertNotIn(
             "if (existing_records == 0",
             source,
             "the header gate must not depend on the run-wide record count",
+        )
+        code = re.sub(r"/\*.*?\*/", " ", source, flags=re.S)
+        self.assertNotIn(
+            "ftell",
+            code,
+            "the header gate must not use ftell: on a freshly opened "
+            "append stream it reports 0 however long the file is",
         )
 
     def test_a_log_from_another_village_is_not_appended_to(self) -> None:
