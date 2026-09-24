@@ -177,6 +177,54 @@ int main(void) {
     }
     remove_log(folder, stem, 101);
 
+    /* A HAND-MADE NAME MUST NOT RAISE THE CEILING.
+
+       highest_log_number matches "<stem> <digits>.txt" and nothing else. If a
+       backup or a note sharing the prefix could raise the ceiling, the walk
+       would run past the real files toward a number nothing owns -- and a name
+       parsing as a huge number would push it to the 4096 cap, which is exactly
+       the probe cost the enumeration exists to avoid. */
+    {
+        wchar_t odd[MAX_PATH];
+        HANDLE h;
+        DWORD wrote;
+        for (i = 1; i <= 8; ++i) {
+            remove_log(folder, stem, i);
+        }
+        write_log(folder, stem, 2, "Bravo", 4);
+
+        wsprintfW(odd, L"%ls\\%ls 9999 backup.txt", folder, stem);
+        h = CreateFileW(odd, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                        FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h != INVALID_HANDLE_VALUE) {
+            WriteFile(h, "x", 1, &wrote, NULL);
+            CloseHandle(h);
+        }
+        wsprintfW(odd, L"%ls\\%ls copy.txt", folder, stem);
+        h = CreateFileW(odd, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                        FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h != INVALID_HANDLE_VALUE) {
+            WriteFile(h, "x", 1, &wrote, NULL);
+            CloseHandle(h);
+        }
+
+        if (select_log_file(g, "Bravo", chosen, &records, 0)) {
+            wsprintfW(expect, L"%ls\\%ls 2.txt", folder, stem);
+            printf("  odd names  -> %ls (existing=%d)\n", chosen, records);
+            check(lstrcmpiW(chosen, expect) == 0,
+                  "A HAND-MADE NAME DOES NOT DIVERT SELECTION");
+            check(records == 4, "and does not disturb the running total");
+        } else {
+            check(0, "select_log_file returned a path beside odd names");
+        }
+
+        wsprintfW(odd, L"%ls\\%ls 9999 backup.txt", folder, stem);
+        DeleteFileW(odd);
+        wsprintfW(odd, L"%ls\\%ls copy.txt", folder, stem);
+        DeleteFileW(odd);
+        remove_log(folder, stem, 2);
+    }
+
     if (failures) {
         printf("  (files left in place for inspection)\n");
     } else {

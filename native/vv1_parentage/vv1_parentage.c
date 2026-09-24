@@ -456,6 +456,18 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
        are still under the old name. Refuse rather than hand back a
        path to a file that does not exist: an empty table published
        there would overwrite them for good. Found in review. */
+    /* REFUSING IS A PAUSE, NOT A LOSS.
+
+       Both callers of this builder return 0 cleanly on refusal: the writer
+       skips the write, the loader skips the load, and neither empties the
+       table nor publishes anything. So while a legacy file is locked,
+       persistence simply does not happen and the records stay intact under
+       their old name; the first call after the lock clears migrates them and
+       normal service resumes.
+
+       The old behaviour -- discarding the move result -- published an empty
+       table over those records instead, permanently. A pause is strictly
+       better than that. */
     if (!vv_migrate_legacy_sidecar(out, "vv1_parents_", docs, base, slot)) {
         return 0;
     }
