@@ -592,15 +592,62 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
    fingerprints and putting masks on the wrong villagers. */
 #define VV_SIDECAR_VERSION 2u
 
+/* Move a sidecar left by an older build into the name this one reads.
+
+   The data files moved into "Virtual Villagers Fun Patcher Data" when the
+   folders were spelled out. A player upgrading still has valid persisted
+   masks under the loose pre-move name, and a loader that looks only at the
+   new path clears them -- the village comes back unmasked even though the
+   state is sitting right there. The other five games already migrate; VV4
+   was missed. Found in review.
+
+   Every failure is silent and harmless: the worst case is the old file
+   staying where it is and the village loading unmasked, which is exactly
+   what happens today. */
+static void vv4_migrate_legacy_sidecar(const char *new_path,
+                                       const char *docs,
+                                       const char *base,
+                                       int slot) {
+    char legacy[MAX_PATH];
+    if (new_path == NULL || docs == NULL || base == NULL) {
+        return;
+    }
+    /* THE BOUND BELOW ASSUMES ONE DIGIT, so the slot has to be one. The
+       caller validates it, but this formats %d into a buffer sized for a
+       single character, and a multi-digit slot is not a real save slot. */
+    if (slot < 0 || slot > 9) {
+        return;
+    }
+    if (GetFileAttributesA(new_path) != INVALID_FILE_ATTRIBUTES) {
+        return;                 /* already migrated, or never needed it */
+    }
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
+        + sizeof("\\LDW\\\\vvfp_masks_0.dat") > sizeof(legacy)) {
+        return;
+    }
+    wsprintfA(legacy, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
+    if (GetFileAttributesA(legacy) == INVALID_FILE_ATTRIBUTES) {
+        return;                 /* nothing of that vintage to migrate */
+    }
+    (void)MoveFileA(legacy, new_path);
+}
+
 static int vv_build_sidecar_path(char *out, int slot) {
     char exe[MAX_PATH];
     char base[MAX_PATH];
+    char docs[MAX_PATH];
     DWORD n;
     int i, start, end, j;
     if (slot < 1 || slot > 5 ||
         !SHGetSpecialFolderPathA(NULL, out, CSIDL_PERSONAL, TRUE)) {
         return 0;
     }
+    /* `out` is appended to below, so keep the bare Documents path for the
+       legacy migration, which needs it after the appends have happened. */
+    if (lstrlenA(out) >= (int)sizeof(docs)) {
+        return 0;
+    }
+    lstrcpyA(docs, out);
     n = GetModuleFileNameA(NULL, exe, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) {
         return 0;
@@ -639,6 +686,9 @@ static int vv_build_sidecar_path(char *out, int slot) {
     out[i] = (char)('0' + slot);
     out[i + 1] = '\0';
     lstrcatA(out, ".dat");
+    /* A player upgrading from a build that wrote the loose name still has
+       their masks under it; move it into place so it is not lost. */
+    vv4_migrate_legacy_sidecar(out, docs, base, slot);
     return 1;
 }
 
