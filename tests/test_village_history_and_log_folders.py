@@ -91,9 +91,32 @@ class HistoryTests(unittest.TestCase):
 
     def test_the_history_reuses_the_roster_writer(self):
         """One block format, maintained once: the same write_villager the
-        roster uses, so the two files agree field for field."""
-        self.assertIn("write_villager(file, g, record, written + 1, game_id, (int)index)",
-                      self.history)
+        roster uses, so the two files agree field for field -- EXCEPT for
+        the pregnancy, which the history must not carry at all."""
+        self.assertIn(
+            "write_villager(file, g, record, written + 1, game_id, (int)index,",
+            self.history)
+
+    def test_the_history_asks_for_no_pregnancy_lines(self):
+        """The owner's rule: the history lists the parents of children and
+        nothing to do with pregnancies.
+
+        History is descent, settled at the birth and never changing. A
+        pregnancy is a fact about the moment the log happened to be
+        written, which is what the population roster is for. Printing it
+        in both made the two files near-duplicates, and collided two
+        different men under the word "Father": the one fathering the
+        child she carries, and her own.
+
+        The final argument to write_villager is `with_pregnancy`, and the
+        history passes 0. Reusing the writer WITHOUT that 0 would put
+        every pregnancy line straight back, which is why the test above
+        is not enough on its own.
+        """
+        self.assertIn(
+            "write_villager(file, g, record, written + 1, game_id, (int)index, 0)",
+            self.history,
+            "the history must pass with_pregnancy = 0")
 
     def test_only_living_villagers_are_written_per_snapshot(self):
         """Each snapshot is who is alive AT THAT SAVE. Dead villagers are
