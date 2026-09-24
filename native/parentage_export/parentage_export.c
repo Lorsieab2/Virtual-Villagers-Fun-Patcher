@@ -2311,8 +2311,32 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
         return 0;
     }
     g = &GAME_LAYOUTS[game_id];
-    if (!layout_is_usable(g) || child_name == NULL) {
+    if (!layout_is_usable(g)) {
         return 0;
+    }
+
+    /* THE CHILD'S OWN FIELDS, from its record when the caller has none.
+
+       VV1 passes a real name and real values and is unchanged: an
+       explicit argument always wins, and the record path engages only
+       when the caller supplies nothing.
+
+       It exists so a birth hook can pass just the game id and the
+       child's record. Extracting the name and two integers in the
+       hook instead would mean hand-written assembly inside a cave's
+       byte budget, in four games, to produce facts this function is
+       already holding a pointer to. */
+    if (rec != NULL && (child_name == NULL || child_name[0] == '\0')) {
+        child_name = (const char *)(rec + g->name);
+        if (child_head < 0) {
+            child_head = *(const int *)(rec + g->head);
+        }
+        if (child_body < 0) {
+            child_body = *(const int *)(rec + g->body);
+        }
+    }
+    if (child_name == NULL || child_name[0] == '\0') {
+        return 0;         /* no name from either source: not a villager */
     }
     copy_name_field((const unsigned char *)child_name, child, sizeof(child), g->name_capacity);
 
