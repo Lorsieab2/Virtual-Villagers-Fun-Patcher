@@ -187,7 +187,12 @@ class PregnancyOutputTests(unittest.TestCase):
         self.assertNotIn('"  Due: %d', self.writer)
 
     def test_pregnancy_is_only_printed_when_true(self):
-        self.assertIn("if (g->age_at_conception != 0u && *(const int *)(record + g->age_at_conception) != 0) {",
+        # Matched as a CONDITION rather than as one spelling of it:
+        # the gate gained a with_pregnancy term and now wraps across
+        # lines, which is not a change to the property here.
+        self.assertIn("g->age_at_conception != 0u", self.writer)
+        self.assertIn(
+            "*(const int *)(record + g->age_at_conception) != 0",
                       self.writer)
 
     def test_a_single_baby_prints_no_litter_line(self):
@@ -198,7 +203,9 @@ class PregnancyOutputTests(unittest.TestCase):
 
     def test_an_unmeasured_game_prints_nothing(self):
         """Guarded on the offset, so VV3-VV5 emit no pregnancy line at all."""
-        self.assertIn("if (g->litter != 0u) {", self.writer)
+        # The litter is likewise gated on with_pregnancy now, so the
+        # `if (` prefix no longer immediately precedes it.
+        self.assertIn("g->litter != 0u", self.writer)
 
     def test_the_lines_are_written_before_the_preferences(self):
         """A villager's own facts stay together, ahead of likes and dislikes."""

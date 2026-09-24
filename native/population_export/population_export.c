@@ -820,13 +820,27 @@ static int write_vv1_own_parents(FILE *file, int index) {
     return 1;
 }
 
+/* `with_pregnancy` is 0 for the Village History log and 1 for the
+   Village Population roster.
+
+   The owner's rule: the history lists the parents of children and
+   nothing to do with pregnancies. History is descent -- settled at the
+   birth and never changing afterwards -- while a pregnancy is a fact
+   about the moment the log happened to be written, which is what the
+   population snapshot is for. Printing it in both made the two files
+   near-duplicates and collided two different men under the word
+   "Father": the one fathering the child she carries, and her own.
+
+   One writer with a flag rather than two functions, so the rosters
+   cannot drift apart in any OTHER respect. */
 static int write_villager(
     FILE *file,
     const struct game_layout *g,
     const unsigned char *record,
     int number,
     int game_id,
-    int index
+    int index,
+    int with_pregnancy
 ) {
     char name[MAX_NAME_BYTES];
     unsigned int skill;
@@ -854,10 +868,12 @@ static int write_villager(
        already see and would differ in every snapshot.  The litter follows
        only when the game set it, because 0 means a single baby and would
        read as "none". */
-    if (g->age_at_conception != 0u && *(const int *)(record + g->age_at_conception) != 0) {
+    if (with_pregnancy
+            && g->age_at_conception != 0u
+            && *(const int *)(record + g->age_at_conception) != 0) {
         if (fprintf(file, "  Pregnant: yes\n") < 0) return 0;
     }
-    if (g->litter != 0u) {
+    if (with_pregnancy && g->litter != 0u) {
         int litter = *(const int *)(record + g->litter);
         if (litter > 1 && fprintf(file, "  Babies in pregnancy: %d\n", litter) < 0) {
             return 0;
@@ -886,15 +902,34 @@ static int write_villager(
     /* The father of the child this villager is CARRYING -- the owner's own
        definition of this line, and not her own father.
 
-       The games copy his name, head and body onto her at conception, so the
-       block is present on a pregnant woman and absent on everyone else,
-       which is exactly the "if present" the request allows for.
+       The games copy his name, head and body onto her at conception, but
+       they never clear them at the birth, so the name alone cannot say
+       whether she is carrying NOW. Testing it alone printed this block for
+       every woman who had ever been pregnant, for the rest of her life.
+
+       Measured in the owner's own logs, where the number of father blocks
+       should equal the number of pregnancies: VV2 1 pregnant / 2 blocks,
+       VV3 16 / 38, VV4 9 / 31, VV5 5 / 18.  Live in VV2, Nina is carrying
+       and Zea is not, yet both records hold 'Papago' in this field.
+
+       It read as a contradiction rather than as noise: VV3's Waikiki
+       printed "Father: Rano" from a finished pregnancy immediately above
+       "Parents: Father: Poro", her actual father -- two different men
+       under the same word.
+
+       So the PREGNANCY is the gate, the same test the Pregnant line above
+       uses and the one the field's own comment describes: it is zero when
+       she is not carrying. Every game with father fields (VV2-VV5) has it;
+       VV1 has neither and its roster is unchanged.
 
        An all-zero name means nothing was ever copied: a real name always has
        a first byte, and zero there cannot be a name. Head and body are NOT
        used for that test -- 0 is a valid head and a valid body, so a father
        genuinely at row 0 would be discarded by a zero check on them. */
-    if (g->father_name != 0u && record[g->father_name] != '\0') {
+    if (with_pregnancy
+            && g->father_name != 0u && record[g->father_name] != '\0'
+            && g->age_at_conception != 0u
+            && *(const int *)(record + g->age_at_conception) != 0) {
         char father[MAX_NAME_BYTES];
         copy_name_field(record + g->father_name, g->father_name_capacity,
                         father, sizeof(father));
@@ -1150,7 +1185,8 @@ static int append_history(
         if (*(const unsigned char *)(record + g->active) != 1) {
             continue;
         }
-        if (!write_villager(file, g, record, written + 1, game_id, (int)index)) {
+        /* 0: no pregnancy lines in the history -- parents only. */
+        if (!write_villager(file, g, record, written + 1, game_id, (int)index, 0)) {
             fclose(file);
             return 0;
         }
@@ -1256,7 +1292,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
                 return 0;
             }
         }
-        if (!write_villager(file, g, record, written + 1, game_id, (int)index)) {
+        if (!write_villager(file, g, record, written + 1, game_id, (int)index, 1)) {
             fclose(file);
             DeleteFileW(temporary);
             return 0;
