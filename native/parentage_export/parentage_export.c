@@ -1222,6 +1222,14 @@ static int highest_log_number(const struct game_layout *g,
             continue;
         }
         tail = found.cFileName + stem_len + 1;
+        /* CANONICAL DECIMAL ONLY. The exporter formats the number with
+           %d, which never emits a leading zero, so "... Log 04096.txt" is
+           not a file this code wrote. Accepting it let one hand-made name
+           raise the ceiling to 4096 and reintroduce the per-call probe
+           cost this enumeration exists to remove. Found in review. */
+        if (*tail == L'0') {
+            continue;
+        }
         while (*tail >= L'0' && *tail <= L'9') {
             if (digits > 5) {
                 break;          /* absurd; not one of ours */
@@ -1292,9 +1300,28 @@ VV_PARENTAGE_STATIC int select_log_file(
        walk runs to exactly this, so every hole is crossed and nothing
        above one is missed. */
     int ceiling;
+    /* The lowest number with no file. Only used when the folder holds
+       NOTHING at all, so a fresh installation still gets file 1. */
+    int first_free = 0;
     wchar_t folder[MAX_PATH];
 
     *existing_records = 0;
+    /* MIGRATE BEFORE MEASURING.
+
+       build_log_path performs the retired-folder migration on its first
+       call. Measuring the ceiling before that ran meant an upgrading
+       player -- new folder empty, legacy folder full of logs -- recorded
+       ceiling 0, and the walk then examined only the single file the
+       migration had just moved into place. A birth went there even when
+       its conception was in a later file, and a conception after a full
+       or foreign file 1 took file 2 without checking its header or
+       fullness. Found in review.
+
+       One throwaway call does the migration, so the enumeration below
+       sees the folder as it will actually be. */
+    if (!build_log_path(g, 1, destination)) {
+        return 0;
+    }
     if (!vv_save_subfolder_w(
             folder, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64)) {
         return 0;
@@ -1330,6 +1357,9 @@ VV_PARENTAGE_STATIC int select_log_file(
 
                A NEW file still goes after the highest that exists, never
                into a hole: see the tail of this function. */
+            if (first_free == 0) {
+                first_free = number;
+            }
             continue;
         }
         highest = number;       /* the newest file that exists, for the tail */
@@ -1395,6 +1425,17 @@ VV_PARENTAGE_STATIC int select_log_file(
             return 0;
         }
         *existing_records = total;
+        return 1;
+    }
+    /* NOTHING EXISTS AT ALL: a fresh installation, or the folder after
+       resetting the only village. The first log is file 1, and returning
+       failure here meant it could never be created -- the feature simply
+       did not work for a new player. Found in review. */
+    if (first_free != 0) {
+        if (!build_log_path(g, first_free, destination)) {
+            return 0;
+        }
+        *existing_records = 0;
         return 1;
     }
     return 0;

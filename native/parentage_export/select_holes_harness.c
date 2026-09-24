@@ -177,6 +177,25 @@ int main(void) {
     }
     remove_log(folder, stem, 101);
 
+    /* AN EMPTY FOLDER MUST STILL YIELD FILE 1.
+
+       A fresh installation, or the folder after resetting the only village,
+       has no logs at all. If the very first log can never be created, the
+       feature simply does not work for a new player. Found in review. */
+    for (i = 1; i <= 8; ++i) {
+        remove_log(folder, stem, i);
+    }
+    check(!present(folder, stem, 1), "setup: the folder is empty");
+    if (select_log_file(g, "Bravo", chosen, &records, 0)) {
+        wsprintfW(expect, L"%ls\\%ls 1.txt", folder, stem);
+        printf("  empty      -> %ls (existing=%d)\n", chosen, records);
+        check(lstrcmpiW(chosen, expect) == 0,
+              "AN EMPTY FOLDER YIELDS FILE 1 (a fresh install can log at all)");
+        check(records == 0, "with a zero running total");
+    } else {
+        check(0, "select_log_file returned a path for an empty folder");
+    }
+
     /* A HAND-MADE NAME MUST NOT RAISE THE CEILING.
 
        highest_log_number matches "<stem> <digits>.txt" and nothing else. If a
@@ -191,8 +210,24 @@ int main(void) {
         for (i = 1; i <= 8; ++i) {
             remove_log(folder, stem, i);
         }
-        write_log(folder, stem, 2, "Bravo", 4);
+        /* FULL, so the walk cannot return early and must run to the
+           ceiling -- which is the only situation where a raised ceiling
+           costs anything. With a file that has room the loop returns at
+           once and the ceiling never matters, which is why an earlier
+           version of this case passed against its own mutation. */
+        write_log(folder, stem, 2, "Bravo", 256);
 
+        /* A LEADING ZERO IS NOT CANONICAL. The exporter formats with %d, so
+           "... Log 04096.txt" is not a file it wrote -- but parsed as 4096 it
+           raised the ceiling and reintroduced 4096 probes per call, the exact
+           cost the enumeration removes. Found in review. */
+        wsprintfW(odd, L"%ls\\%ls 04096.txt", folder, stem);
+        h = CreateFileW(odd, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                        FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h != INVALID_HANDLE_VALUE) {
+            WriteFile(h, "x", 1, &wrote, NULL);
+            CloseHandle(h);
+        }
         wsprintfW(odd, L"%ls\\%ls 9999 backup.txt", folder, stem);
         h = CreateFileW(odd, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                         FILE_ATTRIBUTE_NORMAL, NULL);
@@ -208,19 +243,46 @@ int main(void) {
             CloseHandle(h);
         }
 
-        if (select_log_file(g, "Bravo", chosen, &records, 0)) {
-            wsprintfW(expect, L"%ls\\%ls 2.txt", folder, stem);
-            printf("  odd names  -> %ls (existing=%d)\n", chosen, records);
-            check(lstrcmpiW(chosen, expect) == 0,
-                  "A HAND-MADE NAME DOES NOT DIVERT SELECTION");
-            check(records == 4, "and does not disturb the running total");
-        } else {
-            check(0, "select_log_file returned a path beside odd names");
+        /* THE HARM IS COST, NOT JUST CORRECTNESS.
+
+           A leading-zero name parses as a huge number and raises the ceiling,
+           so the walk probes thousands of absent files on EVERY conception
+           and birth -- the stall this enumeration exists to remove. Selection
+           still lands correctly, so asserting only the path lets that
+           regression through: an earlier version of this case passed against
+           the very mutation it was written to catch.
+
+           Time it instead. A correct scan touches a handful of files and is
+           effectively instant; 4096 probes take hundreds of milliseconds even
+           on a local disk, and far longer on OneDrive or a share. */
+        {
+            LARGE_INTEGER freq, t0, t1;
+            double ms;
+            int ok;
+            QueryPerformanceFrequency(&freq);
+            QueryPerformanceCounter(&t0);
+            ok = select_log_file(g, "Bravo", chosen, &records, 0);
+            QueryPerformanceCounter(&t1);
+            ms = 1000.0 * (double)(t1.QuadPart - t0.QuadPart) / (double)freq.QuadPart;
+            if (ok) {
+                wsprintfW(expect, L"%ls\\%ls 3.txt", folder, stem);
+                printf("  odd names  -> %ls (existing=%d, %.1f ms)\n",
+                       chosen, records, ms);
+                check(lstrcmpiW(chosen, expect) == 0,
+                      "A HAND-MADE NAME DOES NOT DIVERT SELECTION (rolls to 3)");
+                check(records == 256, "and does not disturb the running total");
+                check(ms < 50.0,
+                      "AND DOES NOT RAISE THE CEILING (scan stays fast)");
+            } else {
+                check(0, "select_log_file returned a path beside odd names");
+            }
         }
 
         wsprintfW(odd, L"%ls\\%ls 9999 backup.txt", folder, stem);
         DeleteFileW(odd);
         wsprintfW(odd, L"%ls\\%ls copy.txt", folder, stem);
+        DeleteFileW(odd);
+        wsprintfW(odd, L"%ls\\%ls 04096.txt", folder, stem);
         DeleteFileW(odd);
         remove_log(folder, stem, 2);
     }

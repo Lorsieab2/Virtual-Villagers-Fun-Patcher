@@ -206,7 +206,9 @@ static int g_current_slot = 0;
 static int g_sidecar_loaded = 0;
 
 static void vv_write_mask_sidecar(void);
-static void vv_read_mask_sidecar(void);
+/* 1 when the load is settled (read, or legitimately absent), 0 when the
+   path could not be built and the load must stay pending. */
+static int vv_read_mask_sidecar(void);
 
 static void vv_clear_mask_state(void) {
     int i;
@@ -241,8 +243,12 @@ static void vv_sync_save_slot(void) {
 static void vv_prepare_mask_state(void) {
     vv_sync_save_slot();
     if (g_current_slot > 0 && !g_sidecar_loaded) {
-        g_sidecar_loaded = 1;
-        vv_read_mask_sidecar();
+        /* LATCH ONLY WHEN THE LOAD SETTLED. This used to set the flag
+           first, so a read that could not build its path -- a locked
+           legacy sidecar -- left an empty table marked loaded with no
+           retry. The next write then migrated the real file and
+           overwrote it. Found in review. */
+        g_sidecar_loaded = vv_read_mask_sidecar();
     }
 }
 
@@ -771,7 +777,7 @@ static void vv_write_mask_sidecar(void) {
     }
 }
 
-static void vv_read_mask_sidecar(void) {
+static int vv_read_mask_sidecar(void) {
     char path[MAX_PATH];
     HANDLE h;
     DWORD rd;
@@ -781,12 +787,19 @@ static void vv_read_mask_sidecar(void) {
     unsigned int fps[VV_MAX_VILLAGERS];
     int i;
     if (!vv_build_sidecar_path(path, g_current_slot)) {
-        return;
+        /* THE LOAD IS NOT SETTLED. The path builder refuses when a legacy
+           sidecar exists and will not move, so the masks are still on disk
+           under the old name. Latching here would leave an empty table
+           marked as loaded, and the next write would migrate the real file
+           and overwrite it. Found in review. */
+        return 0;
     }
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
-        return;                                  /* no file yet -> stay all-unmasked */
+        /* A fresh slot legitimately has no sidecar. That IS settled:
+           retrying every frame would repeat a read that cannot succeed. */
+        return 1;                                /* no file yet -> unmasked */
     }
     if (ReadFile(h, magic, 4, &rd, NULL) && rd == 4 &&
         magic[0] == 'V' && magic[1] == 'V' && magic[2] == 'M' && magic[3] == 'K' &&
@@ -800,6 +813,7 @@ static void vv_read_mask_sidecar(void) {
         }
     }
     CloseHandle(h);
+    return 1;
 }
 
 /* --- In-world / details mask render via SDL surface blit -------------------

@@ -98,10 +98,25 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("\\\\LDW", self.c)               # Documents\LDW\<basename>\
         # Written on chooser OK, read once lazily on the first present frame.
         self.assertIn("vv_write_mask_sidecar();", self.c)
-        self.assertIn("vv_read_mask_sidecar();", self.c)
+        # The reader now REPORTS whether the load settled, so the caller
+        # latches only a settled one; a bare call would discard that.
+        # assertIn would print the whole 137KB source on failure and bury
+        # the finding; assert on a boolean instead.
+        self.assertTrue(
+            "g_sidecar_loaded = vv_read_mask_sidecar();" in self.c,
+            "the latch is set without regard to whether the load settled",
+        )
         self.assertIn('WriteFile(h, "VVMK", 4', self.c)   # magic + versioned header
         # Read validates magic + version + count before trusting the file.
-        read = self.c.split("static void vv_read_mask_sidecar(void) {", 1)[1].split("\n}", 1)[0]
+        read = self.c.split("static int vv_read_mask_sidecar(void) {", 1)[1].split("\n}", 1)[0]
+        # A REFUSED PATH LEAVES THE LOAD PENDING. The builder refuses when
+        # a legacy sidecar exists and will not move, so the masks are still
+        # on disk under the old name. Latching there left an empty table
+        # marked loaded, and the next write migrated the real file and
+        # overwrote it. Found in review.
+        refusal = read.split("vv_build_sidecar_path(path, g_current_slot))", 1)
+        self.assertEqual(len(refusal), 2, "the path guard moved")
+        self.assertIn("return 0;", refusal[1][:400])
         self.assertIn("VV_SIDECAR_VERSION", read)
         self.assertIn("VV_MAX_VILLAGERS", read)
 
@@ -118,7 +133,7 @@ class DllStorageContractTests(unittest.TestCase):
 
     def test_sidecar_write_is_transactional_with_exact_four_writes(self) -> None:
         write = self.c.split("static void vv_write_mask_sidecar(void) {", 1)[1].split(
-            "static void vv_read_mask_sidecar(void) {", 1
+            "static int vv_read_mask_sidecar(void) {", 1
         )[0]
         # A near-limit final path remains usable for reads, but publication gets
         # its own bounded path budget for the fixed temporary suffix.
