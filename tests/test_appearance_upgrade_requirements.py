@@ -700,13 +700,32 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # restamps its due time; out of line because the cue had 12
                     # spare bytes and the requeue needs forty.
                     "0xCCA50", "0xCCB10",
+                    # Tribe-delete reset, moved here from the parentage log.
+                    # Origins writes the per-slot mask files, so an Origins-only
+                    # build would persist masks with nothing to sweep them and a
+                    # new tribe in a reused slot would inherit them. The stub
+                    # (0xCC8E8, in the free .shr tail measured against a RENDERED
+                    # image, since the patcher makes .shr RWX at apply time) and
+                    # its hook on the save-slot menu's own deleteSave call
+                    # (0x18CD5) are Origins' now; the parentage manifest drops
+                    # its duplicate claim on 0x18CD5.
+                    "0xCC8E8", "0x18CD5",
                 },
                 # 0x1890F: the D37 barrel selector hook — its forced native
                 # event index is corrected from 30 (Chutes Without Ladders) to
                 # 25 (Barrel O' Babies, "happily adopted"); only the selector
                 # body immediate at 0xDB000+0x180 and this hook's purpose text
                 # change, no other guard.
-                "data/vv5_origins_feature.json": {"0x94B37", "0x94EA0", "0xDB000", "0x1890F"},
+                # 0x94730/0x193F5: the tribe-delete reset, moved here from the
+                # parentage log. Origins writes the per-slot mask files, so an
+                # Origins-only build would persist masks with nothing to sweep
+                # them. The stub sits in the free .text tail measured against a
+                # RENDERED image; the parentage manifest drops its duplicate
+                # claim on 0x193F5.
+                "data/vv5_origins_feature.json": {
+                    "0x94B37", "0x94EA0", "0xDB000", "0x1890F",
+                    "0x94730", "0x193F5",
+                },
             }.get(relative, set())
             if repaired_offsets:
                 self.assertEqual(

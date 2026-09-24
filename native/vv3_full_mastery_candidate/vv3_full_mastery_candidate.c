@@ -48,6 +48,76 @@ static const char *const detail_costs[] = {
    Villager Details (1) menu, and the row state (owned bits) so an owned
    Doubler's "Remove" click is confirmed as a removal, not a purchase.  The
    menus are modal and shown one at a time. */
+/* MIGRATE A SIDECAR LEFT BY AN OLDER BUILD.
+
+   The data files moved into "Virtual Villagers Fun Patcher Data" under
+   names that say what they hold. A player who upgrades still has the old
+   loose file beside their saves, and the new loader would not find it --
+   so their masks, doublers and recorded parents would silently vanish on
+   the first load even though valid state was sitting on disk.
+
+   Called only when the NEW path is absent. Copies the legacy file into
+   place and removes the original, so the migration happens once and the
+   old name stops shadowing anything afterwards. A failed copy leaves both
+   files untouched and the caller simply finds nothing, which is exactly
+   what it would have found without this.
+
+   MoveFileA rather than CopyFile + Delete: it is atomic within a volume,
+   so an interrupted migration cannot leave a half-written new file that
+   the loader would then read as corrupt state. */
+/* 1 to proceed, 0 when a legacy sidecar exists and could NOT be moved.
+
+   The result used to be discarded. A move can fail transiently -- the
+   file open without delete sharing, a scanner, a lock -- and the caller
+   then reported success pointing at a file that does not exist. The
+   loader read nothing, an empty table was eventually committed, and the
+   next write published it at the new path; from then on the destination
+   existed, migration was skipped forever, and the real records were gone.
+   Found in review.
+
+   Refusing is safe: every caller treats a failed path build as "do not
+   persist this time", so the state stays on disk under its old name and
+   the next launch retries. Losing one save's worth of persistence is a
+   far smaller harm than losing the records permanently. */
+static int vv_migrate_legacy_sidecar(const char *new_path,
+                                      const char *legacy_name,
+                                      const char *docs,
+                                      const char *base,
+                                      int slot) {
+    char legacy[MAX_PATH];
+    if (new_path == NULL || legacy_name == NULL || docs == NULL
+        || base == NULL) {
+        return 1;
+    }
+    /* THE BOUND BELOW ASSUMES ONE DIGIT, so the slot has to be one.
+       Every caller validates the slot before reaching here, but this
+       function checks four pointers and a length and would be trusting
+       exactly one argument it does not own -- and that argument is the one
+       formatted with %d into a buffer sized for a single character. A
+       negative or multi-digit slot is not a real save slot in any of the
+       five games, so refusing is both safe and correct. */
+    if (slot < 0 || slot > 9) {
+        return 1;
+    }
+    if (GetFileAttributesA(new_path) != INVALID_FILE_ATTRIBUTES) {
+        return 1;               /* already migrated, or never needed it */
+    }
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
+        + sizeof("\\LDW\\\\vv1_doublers_0.dat") > sizeof(legacy)) {
+        return 1;
+    }
+    wsprintfA(legacy, "%s\\LDW\\%s\\%s%d.dat", docs, base, legacy_name, slot);
+    if (GetFileAttributesA(legacy) == INVALID_FILE_ATTRIBUTES) {
+        return 1;               /* nothing of that vintage to migrate */
+    }
+    if (!MoveFileA(legacy, new_path)) {
+        /* The records are still there under the old name. Say so,
+           so the caller does not publish over them. */
+        return 0;
+    }
+    return 1;
+}
+
 static int s_villager_menu;
 static int s_dialog_state;
 
@@ -1134,10 +1204,20 @@ static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
     dot = NULL;
     for (p = base; *p; ++p) if (*p == '.') dot = p;
     if (dot) *dot = '\0';                                  /* strip extension */
-    if (lstrlenA(docs) + lstrlenA(base) + 40 >= cap) return 0;
+    if (lstrlenA(docs) + lstrlenA(base) + (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Village Masks - Save 00.dat") + 8 >= cap) return 0;
     wsprintfA(dir, "%s\\LDW", docs);                       CreateDirectoryA(dir, NULL);
     wsprintfA(dir, "%s\\LDW\\%s", docs, base);             CreateDirectoryA(dir, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
+    wsprintfA(dir, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base); CreateDirectoryA(dir, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat", docs, base, slot);
+    /* A player upgrading from a build that wrote the loose name still
+       has their masks under it; move them into place. */
+    /* A legacy file that exists and will not move means the masks
+       are still under the old name. Refuse rather than hand back a
+       path to a file that does not exist: an empty table published
+       there would overwrite them for good. Found in review. */
+    if (!vv_migrate_legacy_sidecar(out, "vvfp_masks_", docs, base, slot)) {
+        return 0;
+    }
     return 1;
 }
 
@@ -1200,9 +1280,24 @@ static void vv3_mask_read_sidecar(int slot) {
     HANDLE h;
     DWORD r = 0, mask_r = 0, fp_r = 0;
     unsigned int magic = 0;
-    g_vv3_mask_loaded = 1;                                 /* one-shot; set first */
+    /* BUILD THE PATH BEFORE COMMITTING TO THE LOAD.
+
+       This used to latch the one-shot AND clear the tables first, so a
+       refused path -- the migration declining because a legacy sidecar
+       is locked -- left an empty table marked loaded with no retry.
+       When the lock cleared, the next write migrated the real file and
+       truncated it with that empty table. Found in review.
+
+       An absent file is different: a fresh slot legitimately has none,
+       and that IS settled, or every frame would repeat a read that
+       cannot succeed. */
+    /* FAIL CLOSED: clear before any exit, so a load that does not complete
+       cannot leave the PREVIOUS village's masks on screen. The one-shot is
+       latched only once the path is known, so a refused migration is
+       retried rather than being recorded as a finished load. */
     vv3_mask_clear_tables();
     if (!vv3_mask_sidecar_path(path, sizeof(path), slot)) return;
+    g_vv3_mask_loaded = 1;                                 /* one-shot */
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) return;

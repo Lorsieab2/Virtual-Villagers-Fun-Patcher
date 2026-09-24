@@ -31,19 +31,30 @@ COMPANION = ROOT / "assets/parentage/VVFP Parentage Export.dll"
 MANIFESTS = sorted(ROOT.glob("data/vv*_parentage_feature.json"))
 
 
-def _pins(document) -> list[tuple[str, str]]:
-    """Every companion digest in a manifest, as (where, digest) pairs."""
-    found: list[tuple[str, str]] = []
+def _pins(document) -> list[tuple[str, str, str | None]]:
+    """Every companion digest in a manifest, as (where, digest, source) triples.
+
+    The source comes with the pin because a parentage manifest no longer ships
+    only the parentage companion: the tribe-delete stub resolves VVFP Save
+    Reset.dll by name at runtime, so that manifest pins its digest too. A pin
+    is correct when it matches the file IT names, not when every pin in the
+    manifest matches one chosen DLL.
+    """
+    found: list[tuple[str, str, str | None]] = []
 
     def walk(node, path):
         if isinstance(node, dict):
             top = node.get("companion_sha256")
             if isinstance(top, str):
-                found.append((path + ".companion_sha256", top))
+                found.append((path + ".companion_sha256", top, None))
             for entry in node.get("companion_files") or []:
                 if isinstance(entry, dict) and isinstance(entry.get("sha256"), str):
                     name = entry.get("destination") or entry.get("source") or "?"
-                    found.append((path + ".companion_files[%s]" % name, entry["sha256"]))
+                    found.append((
+                        path + ".companion_files[%s]" % name,
+                        entry["sha256"],
+                        entry.get("source"),
+                    ))
             for key, value in node.items():
                 if key != "companion_files":
                     walk(value, path + "." + key)
@@ -76,14 +87,27 @@ class ParentageCompanionPinsMatchShippedDllTests(unittest.TestCase):
                 self.assertTrue(
                     pins, "%s pins no companion digest at all" % manifest.name
                 )
-                for where, pin in pins:
+                for where, pin, source in pins:
                     checked += 1
+                    # A pin with no source is the bare companion_sha256, which
+                    # has always meant the parentage companion.
+                    if source is None:
+                        expected, what = digest, str(COMPANION)
+                    else:
+                        path = ROOT / source
+                        self.assertTrue(
+                            path.is_file(),
+                            "%s%s names %s, which is not in the repository"
+                            % (manifest.name, where, source),
+                        )
+                        expected = hashlib.sha256(path.read_bytes()).hexdigest().upper()
+                        what = source
                     self.assertEqual(
                         pin.upper(),
-                        digest,
-                        "%s%s pins %s but the shipped DLL is %s -- rebuild, "
-                        "THEN regenerate every parentage manifest, in one tree"
-                        % (manifest.name, where, pin[:16], digest[:16]),
+                        expected,
+                        "%s%s pins %s but %s is %s -- rebuild, THEN regenerate "
+                        "every parentage manifest, in one tree"
+                        % (manifest.name, where, pin[:16], what, expected[:16]),
                     )
         self.assertGreater(checked, 0, "no companion pin was checked")
 
@@ -99,7 +123,7 @@ class ParentageCompanionPinsMatchShippedDllTests(unittest.TestCase):
         for manifest in MANIFESTS:
             document = json.loads(manifest.read_text(encoding="utf-8"))
             pins = _pins(document)
-            if pins and not any(w.endswith("companion_sha256") for w, _ in pins):
+            if pins and not any(w.endswith("companion_sha256") for w, _, _ in pins):
                 nested_only.append(manifest.name)
         self.assertTrue(
             nested_only,

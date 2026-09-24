@@ -30,10 +30,23 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPORTER = ROOT / "native/parentage_export/parentage_export.c"
 
 
+FUNCTION_OPENING = r"^(?:[A-Z_]+\s+)?(?:static\s+)?int\s+%s\("
+
+
 def _function(name: str) -> str:
-    """The body of one static function, by name."""
+    """The body of one function, by name.
+
+    The linkage keyword is matched loosely rather than as a literal
+    "static int": select_log_file is declared VV_PARENTAGE_STATIC so the
+    on-disk harness can link against it, and pinning the old spelling made
+    these tests fail with "substring not found" while the property they
+    check was untouched.
+    """
     source = EXPORTER.read_text(encoding="utf-8")
-    start = source.index("static int %s(" % name)
+    match = re.search(FUNCTION_OPENING % re.escape(name), source, re.M)
+    if match is None:
+        raise AssertionError("no definition of %s found" % name)
+    start = match.start()
     # Walk to the closing brace at column zero, which every function here has.
     end = source.index("\n}", start) + 2
     return source[start:end]

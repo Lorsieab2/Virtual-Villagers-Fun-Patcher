@@ -4,15 +4,15 @@ THE HISTORY (#418). The live roster, "Village Population <n>.txt", is a
 snapshot of who is alive now: rewritten every save, so a villager who dies is
 absent from the next one. The owner wants a history as well, and chose
 snapshot-per-save over matching villagers to their past selves: each save
-appends a dated section to "Village History.txt" and nothing is ever decided
+appends a dated section to "Village History %d.txt" and nothing is ever decided
 about whether two rows are the same person. Nothing can be mismatched because
 nothing is matched.
 
 THE FOLDERS. The owner's layout for every exported log:
 
-    <save folder>\VVFP Logs\Tribe Population\        the roster
-    <save folder>\VVFP Logs\Tribe History\           the history
-    <save folder>\VVFP Logs\Births and Conceptions\  the parentage log
+    <save folder>\Virtual Villagers Fun Patcher Logs\Tribe Population\        the roster
+    <save folder>\Virtual Villagers Fun Patcher Logs\Tribe History\           the history
+    <save folder>\Virtual Villagers Fun Patcher Logs\Births and Conceptions\  the parentage log
 
 The statistics log was not named and stays where it was. The reset must
 delete from the same folders the exporters write to, so the literal strings
@@ -35,9 +35,10 @@ FOLDER_H = ROOT / "native" / "shared" / "save_folder.h"
 POP_DLL = ROOT / "assets" / "population" / "VVFP Population Export.dll"
 PAR_DLL = ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"
 
-POPULATION_DIR = 'L"VVFP Logs\\\\Tribe Population"'
-HISTORY_DIR = 'L"VVFP Logs\\\\Tribe History"'
-PARENTAL_DIR = 'L"VVFP Logs\\\\Births and Conceptions"'
+POPULATION_DIR = 'L"Virtual Villagers Fun Patcher Logs\\\\Tribe Population"'
+HISTORY_DIR = 'L"Virtual Villagers Fun Patcher Logs\\\\Tribe History"'
+PARENTAL_DIR = 'L"Virtual Villagers Fun Patcher Logs\\\\Births and Conceptions"'
+STATISTICS_DIR = 'L"Virtual Villagers Fun Patcher Logs\\\\Village Statistics"'
 
 
 def function(source: str, opening: str) -> str:
@@ -65,7 +66,7 @@ class HistoryTests(unittest.TestCase):
         path = function(self.pop, "static int build_history_path(")
         self.assertIn("vv_save_subfolder_w(", path)
         self.assertIn(HISTORY_DIR, path)
-        self.assertIn('L"%ls\\\\Village History.txt"', path)
+        self.assertIn('L"%ls\\\\Village History %d.txt"', path)
 
     def test_the_export_appends_the_history_after_publishing_the_roster(self):
         """Order matters: a history failure must never cost the player the
@@ -121,8 +122,8 @@ class HistoryTests(unittest.TestCase):
 
     def test_the_shipped_dll_carries_the_history(self):
         blob = POP_DLL.read_bytes()
-        for wide in ("VVFP Logs\\Tribe History", "Village History.txt",
-                     "VVFP Logs\\Tribe Population"):
+        for wide in ("Virtual Villagers Fun Patcher Logs\\Tribe History", "Village History %d.txt",
+                     "Virtual Villagers Fun Patcher Logs\\Tribe Population"):
             self.assertIn(wide.encode("utf-16-le"), blob, wide)
 
 
@@ -149,14 +150,325 @@ class LogFolderTests(unittest.TestCase):
         path = function(self.par, "static int build_log_path(")
         self.assertIn("vv_save_subfolder_w(", path)
         self.assertIn(PARENTAL_DIR, path)
-        self.assertNotIn("vv_save_folder_w(", path)
+        # The log it RETURNS is always built from the subfolder, never from
+        # the save root: the only vv_save_folder_w here resolves the retired
+        # folder to migrate out of, and its result goes to `legacy_dir`.
+        self.assertIn("destination,", path)
+        self.assertNotIn("vv_save_folder_w(folder", path)
 
-    def test_the_statistics_log_did_not_move(self):
-        """Not named in the owner's layout; left exactly where it was."""
+    def test_the_retired_stem_is_found_not_indexed(self):
+        """A fixed index into a name rots silently.
+
+        The old stem was built from `log_name[18]`, correct for every current
+        name but an index into a string: rename the log and it addresses a
+        letter instead of the game number, and the migration goes on quietly
+        moving nothing while every source-reading test still passes. It now
+        scans for the digit and refuses if there is not exactly one.
+        """
+        # assertNotIn would print the whole source file on failure, which
+        # buries the finding under 100KB of C. Assert on a boolean instead.
+        self.assertFalse(
+            "log_name[18]" in self.par,
+            "the retired stem is derived from a hardcoded index again; scan "
+            "for the digit so renaming the log cannot silently address a "
+            "letter",
+        )
+        migration = self.par[self.par.index("EVERY LAYOUT THIS PATCHER HAS EVER WRITTEN"):]
+        migration = migration[: migration.index("return _snwprintf_s")]
+        self.assertIn("L'0'", migration, "nothing scans for the game digit")
+        self.assertIn("L'9'", migration)
+        self.assertIn(
+            "ambiguous",
+            migration,
+            "a name with two digits must be refused, not guessed at",
+        )
+
+    def test_the_parentage_migration_covers_every_retired_layout(self):
+        """save_reset.c sweeps four folder/stem combinations; so must this.
+
+        The folder was renamed twice -- "Tribe Parental Records" to "Births
+        and Conceptions", and "VVFP Logs" spelled out -- and the file stem
+        travelled with the folder. Handling only the newest retired pair left
+        a player upgrading from either older layout with their records in a
+        folder nothing reads, while selection started a fresh Log 1 in the
+        new one. Found in review, citing the reset's own table as evidence.
+        """
+        pattern = (
+            'L"((?:VVFP Logs|Virtual Villagers Fun Patcher Logs)'
+            + re.escape(chr(92) * 2)
+            + '(?:Births and Conceptions|Tribe Parental Records))"'
+        )
+        reset_folders = set(re.findall(pattern, self.reset))
+        self.assertEqual(
+            len(reset_folders), 4,
+            f"the reset no longer names four layouts: {sorted(reset_folders)}",
+        )
+        migration_folders = set(re.findall(pattern, self.par))
+        missing = reset_folders - migration_folders
+        self.assertEqual(
+            missing, set(),
+            "the parentage migration does not sweep every layout the reset "
+            f"recognises; missing: {sorted(missing)}",
+        )
+        # And the old stem, which travelled with the old folder name.
+        self.assertIn(
+            "Parentage Log",
+            self.par,
+            "the migration no longer knows the retired file stem",
+        )
+
+    def test_the_reset_scan_does_not_depend_on_contiguous_numbering(self):
+        """The sweep creates the very gaps a range walk used to stop at.
+
+        It deletes the erased village's numbered logs, and the exporter then
+        hands a freed number to the next village, so different villages
+        legitimately own non-consecutive numbers. A scan that stopped at the
+        first absent number walked into the hole a previous reset left and
+        stopped there: village A in file 1 and village B in file 2, resetting
+        A deletes 1, and B's own Start Over never reached 2. B's history
+        survived the reset meant to clear it. Found in review.
+
+        The fix walked the whole bounded range, which was correct but cost
+        4096 probes per pass -- 457 ms locally, far worse on an SMB share,
+        inside the game's own delete handler. It now ENUMERATES the folder,
+        which is both faster and immune to holes by construction: nothing is
+        being predicted, so there is nothing to predict wrongly.
+
+        This asserts the property, not one implementation of it. The previous
+        version keyed on the range walk's own `for` statement and broke the
+        moment that walk was replaced by something strictly better.
+        """
+        sweep = self.reset[self.reset.index("PARENTAGE IS VILLAGE-SCOPED"):]
+        self.assertIn(
+            "FindFirstFileW(",
+            sweep,
+            "the parentage sweep no longer enumerates the folder",
+        )
+        self.assertIn("FindNextFileW(", sweep)
+        self.assertIn("FindClose(", sweep, "an enumeration handle is leaked")
+        # Enumeration must not be paired with a numbered probe loop: that
+        # would reintroduce the cost the enumeration exists to remove.
+        self.assertNotIn(
+            "for (i = 1; i <= MAX_LOG_FILES",
+            sweep,
+            "the numbered probe loop is back alongside the enumeration",
+        )
+        # Every candidate is still checked by header before deletion, which is
+        # what stops a wider scan touching another village's logs.
+        self.assertIn("log_header_matches(", sweep)
+
+    def test_the_harness_covers_the_hole_case(self):
+        """And the on-disk harness reproduces it, rather than asserting it.
+
+        scripts/build_save_reset_harness.ps1 compiles and runs this; the
+        case fails there when the scan is changed back to break.
+        """
+        self.assertIn("LOG PAST A HOLE IS DELETED", self.harness)
+        self.assertIn("gap case set up", self.harness)
+
+    def test_the_parentage_log_migrates_out_of_the_retired_folder(self):
+        """A player upgrading from "VVFP Logs" keeps their existing logs. Left
+        there, the next conception would start a fresh "Log 1.txt" in the new
+        folder: the printed numbering would restart and one village's history
+        would be split across two directories."""
+        path = function(self.par, "static int build_log_path(")
+        self.assertIn('VVFP Logs' + chr(92) * 2 + 'Births and Conceptions', path)
+        # Moved, not copied: nothing is duplicated and an interrupted
+        # migration cannot leave two copies of one record.
+        self.assertIn("MoveFileW(from, to)", path)
+        self.assertNotIn("CopyFile", path)
+        # An existing file in the new folder is never overwritten.
+        self.assertIn("already migrated: never overwrite", path)
+        # The retired folder is probed, never created.
+        self.assertNotIn('vv_save_subfolder_w(legacy_dir', path)
+
+    def test_the_statistics_log_lives_in_its_own_folder(self):
+        """The owner asked for every log the patcher writes to sit in its own
+        folder under Virtual Villagers Fun Patcher Logs, statistics included, rather than loose in the
+        save folder beside the .ldw files."""
         paths = function(self.stat, "static int build_output_paths(")
-        self.assertIn("vv_save_folder_w(", paths)
-        self.assertNotIn("vv_save_subfolder_w(", paths)
-        self.assertNotIn("VVFP Logs", self.stat)
+        self.assertIn("vv_save_subfolder_w(", paths)
+        lit = re.search(r'vv_save_subfolder_w\(module_path, (L"[^"]+"), 64\)',
+                        paths).group(1)
+        self.assertEqual(lit, STATISTICS_DIR)
+
+    def test_the_parentage_log_is_created_when_the_village_is(self):
+        """The owner asked for the logs to exist as soon as a village does,
+        not only once something happens in it -- which covers a brand-new
+        village and one restarted with Start Over, since a reset deletes the
+        previous village's files and the next save then finds none."""
+        fn = function(self.par, "__declspec(dllexport) int __stdcall EnsureParentageLog(")
+        # CREATE-IF-ABSENT, never a rewrite: the logs are append-only and a
+        # record once written is never modified.
+        self.assertIn('_wfopen(path, L"a")', fn)
+        self.assertNotIn('L"w"', fn)
+        # Only an EMPTY file gets the header, so an existing log is untouched.
+        self.assertIn("ftell(file) == 0", fn)
+        # A headerless file could not be attributed to any village, and Start
+        # Over matches files to villages by that first line.
+        self.assertIn("village[0] == " + chr(39) + chr(92) + "0" + chr(39), fn)
+
+        # And the save path actually calls it, DLL to DLL.
+        self.assertIn("ensure_parentage_log_for_village(game_id, village)", self.pop)
+        self.assertIn('"VVFP Parentage Export.dll"', self.pop)
+        self.assertIn('"EnsureParentageLog"', self.pop)
+        # After the roster is published: a failure here must never cost the
+        # player the file they actually rely on.
+        self.assertLess(
+            self.pop.index("publish_file(file, temporary, destination)"),
+            self.pop.index("ensure_parentage_log_for_village(game_id, village)"))
+
+    def test_the_sidecar_migration_bounds_its_own_slot(self):
+        """The legacy path's length bound assumes a single digit, and the slot
+        is formatted straight into it with %d. Every caller validates the slot
+        first, but this helper checks four pointers and a length and would
+        otherwise trust the one argument that reaches a fixed-size buffer."""
+        import pathlib
+        root = pathlib.Path(__file__).resolve().parents[1]
+        copies = [
+            root / "native/vv1_origins_icons/vv1_origins_icons.c",
+            root / "native/vv1_parentage/vv1_parentage.c",
+            root / "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
+            root / "native/vv5_task9_origins/vv5_task9_origins.c",
+        ]
+        for path in copies:
+            text = path.read_text(encoding="utf-8")
+            self.assertIn("vv_migrate_legacy_sidecar", text, path.name)
+            # "static int" since the helper began REPORTING a failed move
+            # rather than discarding it; the properties below are unchanged.
+            fn = function(text, "static int vv_migrate_legacy_sidecar(")
+            self.assertIn("slot < 0 || slot > 9", fn, path.name)
+            # A move, never a copy: nothing is duplicated and an interrupted
+            # migration cannot leave a half-written file to be read as state.
+            self.assertIn("MoveFileA(legacy, new_path)", fn, path.name)
+            # And it never overwrites an already-migrated file.
+            self.assertIn("already migrated, or never needed it", fn, path.name)
+            # A FAILED MOVE IS REPORTED, NOT SWALLOWED. Discarding it left
+            # the caller reporting success while pointing at a file that
+            # does not exist; an empty table published there overwrote the
+            # real records, and because the destination then existed,
+            # migration was skipped forever. Found in review.
+            self.assertNotIn("(void)MoveFileA", fn, path.name)
+            self.assertIn("return 0;", fn, path.name)
+
+    def test_the_reset_checks_the_header_belongs_to_the_deleted_slot(self):
+        """The published header is the LAST village saved, not necessarily the
+        one being deleted.
+
+        A player can save one village, return to the save-slot menu, and delete
+        a different slot. Handing that header to the sweep would delete the
+        village they were PLAYING -- parentage logs are matched by header --
+        while leaving the deleted village's logs untouched."""
+        import pathlib
+        root = pathlib.Path(__file__).resolve().parents[1]
+        text = (root / "native/save_reset_export/save_reset_export.c").read_text(
+            encoding="utf-8")
+        fn = function(text, "static int header_is_for_slot(")
+        # The slot is read out of the header's own "(Save N)" and compared.
+        self.assertIn('" (Save "', fn)
+        self.assertIn("return value == slot;", fn)
+        # The LAST occurrence, so a village named "... (Save 2)" cannot shadow
+        # the real marker.
+        self.assertIn("cannot shadow the real one", fn)
+        # And the caller only passes the header when it matches.
+        caller = function(text, "__declspec(dllexport) int __stdcall ResetDeletedTribe(")
+        self.assertIn("header_is_for_slot(village, slot)", caller)
+
+    def test_the_header_harness_still_matches_the_shipped_function(self):
+        """The harness copies header_is_for_slot rather than linking it, so the
+        copy has to be kept honest or it tests nothing."""
+        import pathlib, re
+        root = pathlib.Path(__file__).resolve().parents[1]
+        real = function(
+            (root / "native/save_reset_export/save_reset_export.c").read_text(encoding="utf-8"),
+            "static int header_is_for_slot(")
+        copy = function(
+            (root / "native/save_reset_export/header_slot_harness.c").read_text(encoding="utf-8"),
+            "static int header_is_for_slot(")
+        # Compare the logic with whitespace and comments normalised away: the
+        # harness is deliberately formatted tighter than the shipped source.
+        def norm(text):
+            text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+            return re.sub(r"\s+", " ", text).strip()
+        self.assertEqual(
+            norm(real), norm(copy),
+            "the harness's copy of header_is_for_slot has drifted from the "
+            "shipped one -- update native/save_reset_export/header_slot_harness.c")
+
+    def test_the_log_migration_is_resumable(self):
+        """Neither an absent source nor a failed move may end the walk.
+
+        A move can fail transiently -- a lock, an antivirus scanner, a sharing
+        violation. Stopping there left the later files behind, and because the
+        earlier ones had already moved, the next attempt found file 1 absent
+        and stopped immediately, treating "already migrated" as "end of run".
+        Those files were stranded, and select_log_file then handed out a
+        number an unmigrated file was still using: one village's history split
+        across two folders with the same conception numbers in both."""
+        path = function(self.par, "static int build_log_path(")
+        body = path[path.index("for (moved = 1"):]
+        # The walk must not break: every exit from an iteration is a continue.
+        self.assertNotIn("break;", body)
+        # An absent source is skipped, not terminal.
+        self.assertIn("already migrated, or never existed", body)
+        # A failed move is left for the next launch rather than ending the
+        # run. Assert on the CODE that does it, not the prose describing it:
+        # this matched a sentence, and reflowing the comment broke the test
+        # while the behaviour was untouched.
+        self.assertIn("legacy_logs_migrated = 0;", body)
+        self.assertIn("return 0;", body)
+        # And it covers the same numbering range select_log_file walks.
+        self.assertIn("moved <= 4096", body)
+        # ...and it runs ONCE PER PROCESS, not once per record.
+        # build_log_path runs for every conception and every birth, and
+        # the walk no longer terminates early, so an ungated migration
+        # would cost 4096 file checks per record written -- forever,
+        # since the retired folder is never removed.
+        self.assertIn("legacy_logs_migrated", path)
+        self.assertIn("static int legacy_logs_migrated;", self.par)
+
+    def test_the_history_rolls_instead_of_growing_forever(self):
+        """The history appends a full roster on EVERY save, so without a roll
+        it grows without bound -- about 27 KB per save on a real 85-villager
+        village. It rolls on SIZE rather than record count because one
+        snapshot is many lines."""
+        path = function(self.pop, "static int build_history_path(")
+        self.assertIn("HISTORY_BYTES_PER_FILE", path)
+        self.assertIn("Village History %d.txt", path)
+        # The threshold is a real bound, not a placeholder that never trips.
+        m = re.search(r"HISTORY_BYTES_PER_FILE\s*=\s*([0-9*\s]+)\s*\}", self.pop)
+        self.assertIsNotNone(m, "the threshold must be a compile-time constant")
+        self.assertLessEqual(eval(m.group(1)), 64 * 1024 * 1024)
+        self.assertGreater(eval(m.group(1)), 0)
+        # A file that cannot be measured must keep the CURRENT file, never
+        # roll: otherwise a failed stat scatters one village across new files.
+        self.assertIn("return 0;", function(self.pop, "static long long history_file_size("))
+
+    def test_the_reset_clears_statistics_from_both_locations(self):
+        """A player who upgrades keeps the pre-move copy loose in the save
+        folder. Clearing only the new path would leave a record of the village
+        just erased sitting in a folder nothing writes to any more -- the same
+        defect the parentage passes already guard against.
+
+        Both must be addressed BY SLOT: a reset of slot 1 must not touch the
+        other saves' statistics."""
+        stat_lit = re.search(r'vv_save_subfolder_w\(module_path, (L"[^"]+"), 64\)',
+                             function(self.stat, "static int build_output_paths(")).group(1)
+        self.assertIn(stat_lit, self.reset)
+        # The pre-move location is still swept, and neither sweep walks every
+        # number: each formats the slot it was given.
+        # Three locations now: the current folder, the same folder under the
+        # pre-spell-out name, and the loose pre-move path. A player can be
+        # upgrading from any of them, and a file left in a folder nothing
+        # writes to any more would survive a reset meant to clear it.
+        self.assertEqual(
+            3, self.reset.count('Village Statistics - Save %d.txt'),
+            "the reset must clear the current folder, the legacy folder "
+            "name, AND the loose pre-move location")
+        # The legacy folder name, spelled as C source: two backslashes.
+        self.assertIn('VVFP Logs' + chr(92) * 2 + 'Village Statistics',
+                      self.reset)
+        self.assertNotIn('Village Statistics - Save *', self.reset)
 
     def test_the_reset_deletes_from_the_same_folders_the_exporters_write_to(self):
         """Pinned as EQUALITY of the literal, not mere presence: a reset that
@@ -178,8 +490,8 @@ class LogFolderTests(unittest.TestCase):
         self.assertNotIn("Village History", self.reset)
 
     def test_the_reset_harness_creates_its_fixtures_where_the_exporters_write(self):
-        narrow_pop = '"VVFP Logs\\\\Tribe Population"'
-        narrow_par = '"VVFP Logs\\\\Births and Conceptions"'
+        narrow_pop = '"Virtual Villagers Fun Patcher Logs\\\\Tribe Population"'
+        narrow_par = '"Virtual Villagers Fun Patcher Logs\\\\Births and Conceptions"'
         self.assertIn(narrow_pop, self.harness)
         self.assertIn(narrow_par, self.harness)
         self.assertIn('wsprintfA(pop1, "%s\\\\Village Population 1.txt", popdir);', self.harness)
@@ -190,7 +502,7 @@ class LogFolderTests(unittest.TestCase):
                       self.harness)
 
     def test_the_shipped_parentage_dll_carries_its_folder(self):
-        self.assertIn("VVFP Logs\\Births and Conceptions".encode("utf-16-le"),
+        self.assertIn("Virtual Villagers Fun Patcher Logs\\Births and Conceptions".encode("utf-16-le"),
                       PAR_DLL.read_bytes())
 
 

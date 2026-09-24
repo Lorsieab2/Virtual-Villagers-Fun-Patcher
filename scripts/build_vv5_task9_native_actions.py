@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
-ACTIVE_SOURCE_TEXT_SHA256 = "6726AFB4FF4874A567DF06F38AB7CA33B00AE7B9CB3DA2641A438FFBA0142898"
+ACTIVE_SHA256 = "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26"
+ACTIVE_SOURCE_TEXT_SHA256 = "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -4441,6 +4441,7 @@ def main() -> None:
         raise RuntimeError("frozen C342 66-row ledger drift")
     companion = COMPANION.read_bytes()
     bighead_atlas_png = BIGHEAD_ATLAS_PNG.read_bytes()
+    save_reset_dll = (ROOT / "assets/save_reset/VVFP Save Reset.dll").read_bytes()
     bindings = source_bindings()
     pages: dict[str, bytes] = {}
     page_maps: dict[str, object] = {}
@@ -4499,6 +4500,16 @@ def main() -> None:
                 "destination": "Images\\bigheads_masks.png",
                 "sha256": sha(bighead_atlas_png),
                 "size": len(bighead_atlas_png),
+            },
+            {
+                # This record OWNS the VV5 Origins companion list -- the
+                # patcher substitutes it for the base manifest's -- so the
+                # tribe-delete stub's DLL has to be shipped from here, or
+                # the stub resolves nothing and the sweep is silently lost.
+                "source": "assets/save_reset/VVFP Save Reset.dll",
+                "destination": "VVFP Save Reset.dll",
+                "sha256": sha(save_reset_dll),
+                "size": len(save_reset_dll),
             },
         ],
         "pe_append_transaction": {

@@ -618,6 +618,16 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # the repaired 0x45F702 head replay (including the
                         # current Purple +5px seating adjustment).
                         "0xCCA40",
+                        # Tribe-delete reset, moved here from the parentage log.
+                        # Origins writes the per-slot mask files, so an Origins-only
+                        # build would persist masks with nothing to sweep them and a
+                        # new tribe in a reused slot would inherit them. The stub
+                        # (0xCC8E8, in the free .shr tail measured against a RENDERED
+                        # image, since the patcher makes .shr RWX at apply time) and
+                        # its hook on the save-slot menu's own deleteSave call
+                        # (0x18CD5) are Origins' now; the parentage manifest drops
+                        # its duplicate claim on 0x18CD5.
+                        "0xCC8E8", "0x18CD5",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

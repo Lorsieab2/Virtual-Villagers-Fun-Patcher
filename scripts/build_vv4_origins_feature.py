@@ -361,6 +361,37 @@ VV4_ALL_FEATURE_ABSOLUTE_RELOCATIONS = (
 )
 
 
+# THE TRIBE-DELETE HOOK, owned here rather than by the parentage log.
+#
+# Origins is what writes the per-slot mask files, so a build with Origins and
+# no parentage log would persist masks with nothing to clean them: a new tribe
+# started in a reused slot inherits them, which is the bleed the reset exists
+# to stop. The feature that creates the state owns the cleanup.
+#
+# The stub lives in the free .shr tail, measured against a RENDERED image
+# rather than the stock one: the patcher rewrites .shr to 0xF0000060 (RWX) at
+# apply time, so the stock header's missing execute bit says nothing about
+# whether code here runs. Content ends at 0x7288E6 and resumes at 0x728A41 in
+# both catalog modes; this 0x62-byte stub sits clear of MASK_BIGHEAD_ATLAS
+# (0x728A3C) above and the appearance helper's tail (0x7287A1) below.
+RESET_CAVE_FILE_OFFSET = 0x000CC8E8
+RESET_CAVE_VA = 0x007288E8
+RESET_CAVE_SIZE = 0x62
+RESET_DLL_NAME = b"VVFP Save Reset.dll\0"
+RESET_EXPORT_NAME = b"ResetDeletedTribe\0"
+RESET_DLL_NAME_OFFSET = 0x00
+RESET_EXPORT_NAME_OFFSET = 0x14
+RESET_CODE_OFFSET = 0x28
+RESET_HOOK_VA = 0x00418CD5
+RESET_HOOK_FILE = 0x00018CD5
+RESET_HOOK_STOLEN = bytes.fromhex("e8f6640000")
+RESET_THUNK_VA = 0x0041F1D0
+RESET_GET_MODULE_HANDLE_IAT = 0x0048A1D8
+RESET_GET_PROC_ADDRESS_IAT = 0x0048A1DC
+RESET_LOAD_LIBRARY_IAT = 0x0048A1E0
+RESET_COMPANION_SOURCE = "assets/save_reset/VVFP Save Reset.dll"
+
+
 def assemble(source: str, address: int) -> bytes:
     encoding, _ = Ks(KS_ARCH_X86, KS_MODE_32).asm(source, address)
     return bytes(encoding)
@@ -2388,6 +2419,64 @@ def main() -> None:
     patch(PAYLOAD_FILE_OFFSET, b"\0" * len(payload), bytes(payload),
           "install the VV4 Origins Tech and Villager upgrade menus and mechanics")
 
+    # THE TRIBE-DELETE STUB AND ITS HOOK.
+    #
+    # Origins writes the per-slot mask files, so a build with Origins and no
+    # parentage log would persist masks with nothing to clean them: a new tribe
+    # started in the same slot inherits them. The feature that creates the
+    # state owns the cleanup, and claiming these bytes in BOTH features would
+    # make uninstalling the parentage log strip a stub Origins still needs.
+    #
+    # The stub preserves every register -- it runs inside the menu handler's
+    # own frame -- and falls through to the game's delete on EVERY failure: a
+    # missing companion or an unresolved export costs the sweep, never the
+    # player's save.
+    #
+    # EDI holds the RAW slot the menu handler loaded. The game's other caller
+    # of deleteSave rotates backup generations and passes slot + 0x14, so
+    # hooking the handler's own call reaches the reset and never ordinary play.
+    reset_payload = bytearray(RESET_CAVE_SIZE)
+    reset_code = assemble(
+        f"""
+            pushad
+            push 0x{RESET_CAVE_VA + RESET_DLL_NAME_OFFSET:X}
+            call dword ptr [0x{RESET_GET_MODULE_HANDLE_IAT:X}]
+            test eax, eax
+            jnz reset_have_module
+            push 0x{RESET_CAVE_VA + RESET_DLL_NAME_OFFSET:X}
+            call dword ptr [0x{RESET_LOAD_LIBRARY_IAT:X}]
+            test eax, eax
+            jz reset_done
+        reset_have_module:
+            push 0x{RESET_CAVE_VA + RESET_EXPORT_NAME_OFFSET:X}
+            push eax
+            call dword ptr [0x{RESET_GET_PROC_ADDRESS_IAT:X}]
+            test eax, eax
+            jz reset_done
+            # ResetDeletedTribe(game, slot)
+            push edi
+            push 4
+            call eax
+        reset_done:
+            popad
+            jmp 0x{RESET_THUNK_VA:X}
+        """,
+        RESET_CAVE_VA + RESET_CODE_OFFSET,
+    )
+    if RESET_CODE_OFFSET + len(reset_code) > RESET_CAVE_SIZE:
+        raise RuntimeError("the reset stub runs past its measured cave")
+    reset_payload[RESET_CODE_OFFSET : RESET_CODE_OFFSET + len(reset_code)] = reset_code
+    reset_payload[RESET_DLL_NAME_OFFSET : RESET_DLL_NAME_OFFSET + len(RESET_DLL_NAME)] = RESET_DLL_NAME
+    reset_payload[
+        RESET_EXPORT_NAME_OFFSET : RESET_EXPORT_NAME_OFFSET + len(RESET_EXPORT_NAME)
+    ] = RESET_EXPORT_NAME
+    patch(RESET_CAVE_FILE_OFFSET, b"\0" * RESET_CAVE_SIZE, bytes(reset_payload),
+          "install the tribe-delete reset stub in the free .shr tail")
+    patch(RESET_HOOK_FILE, RESET_HOOK_STOLEN,
+          assemble(f"call 0x{RESET_CAVE_VA + RESET_CODE_OFFSET:X}", RESET_HOOK_VA),
+          "route the save-slot menu's tribe delete through the reset stub, so a "
+          "new tribe started in the same slot does not inherit the old one's masks")
+
     rendered = bytearray(original)
     for item in patches:
         offset = int(str(item["offset"]), 16)
@@ -2456,6 +2545,14 @@ def main() -> None:
                 "destination": "Images/vvfp_mask_preview.png",
                 "sha256": hashlib.sha256(
                     (ROOT / "assets/vv4_masks/vvfp_mask_preview.png").read_bytes()
+                ).hexdigest().upper(),
+            },
+            {
+                # The tribe-delete stub resolves this by name at runtime.
+                "source": RESET_COMPANION_SOURCE,
+                "destination": "VVFP Save Reset.dll",
+                "sha256": hashlib.sha256(
+                    (ROOT / RESET_COMPANION_SOURCE).read_bytes()
                 ).hexdigest().upper(),
             },
         ],

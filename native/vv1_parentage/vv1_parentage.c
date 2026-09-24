@@ -345,6 +345,76 @@ static int vv1_roster_overlap(const unsigned char *records, const vv1_occupant *
 
 /* ---- the sidecar ------------------------------------------------------ */
 
+/* MIGRATE A SIDECAR LEFT BY AN OLDER BUILD.
+
+   The data files moved into "Virtual Villagers Fun Patcher Data" under
+   names that say what they hold. A player who upgrades still has the old
+   loose file beside their saves, and the new loader would not find it --
+   so their masks, doublers and recorded parents would silently vanish on
+   the first load even though valid state was sitting on disk.
+
+   Called only when the NEW path is absent. Copies the legacy file into
+   place and removes the original, so the migration happens once and the
+   old name stops shadowing anything afterwards. A failed copy leaves both
+   files untouched and the caller simply finds nothing, which is exactly
+   what it would have found without this.
+
+   MoveFileA rather than CopyFile + Delete: it is atomic within a volume,
+   so an interrupted migration cannot leave a half-written new file that
+   the loader would then read as corrupt state. */
+/* 1 to proceed, 0 when a legacy sidecar exists and could NOT be moved.
+
+   The result used to be discarded. A move can fail transiently -- the
+   file open without delete sharing, a scanner, a lock -- and the caller
+   then reported success pointing at a file that does not exist. The
+   loader read nothing, an empty table was eventually committed, and the
+   next write published it at the new path; from then on the destination
+   existed, migration was skipped forever, and the real records were gone.
+   Found in review.
+
+   Refusing is safe: every caller treats a failed path build as "do not
+   persist this time", so the state stays on disk under its old name and
+   the next launch retries. Losing one save's worth of persistence is a
+   far smaller harm than losing the records permanently. */
+static int vv_migrate_legacy_sidecar(const char *new_path,
+                                      const char *legacy_name,
+                                      const char *docs,
+                                      const char *base,
+                                      int slot) {
+    char legacy[MAX_PATH];
+    if (new_path == NULL || legacy_name == NULL || docs == NULL
+        || base == NULL) {
+        return 1;
+    }
+    /* THE BOUND BELOW ASSUMES ONE DIGIT, so the slot has to be one.
+       Every caller validates the slot before reaching here, but this
+       function checks four pointers and a length and would be trusting
+       exactly one argument it does not own -- and that argument is the one
+       formatted with %d into a buffer sized for a single character. A
+       negative or multi-digit slot is not a real save slot in any of the
+       five games, so refusing is both safe and correct. */
+    if (slot < 0 || slot > 9) {
+        return 1;
+    }
+    if (GetFileAttributesA(new_path) != INVALID_FILE_ATTRIBUTES) {
+        return 1;               /* already migrated, or never needed it */
+    }
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
+        + sizeof("\\LDW\\\\vv1_doublers_0.dat") > sizeof(legacy)) {
+        return 1;
+    }
+    wsprintfA(legacy, "%s\\LDW\\%s\\%s%d.dat", docs, base, legacy_name, slot);
+    if (GetFileAttributesA(legacy) == INVALID_FILE_ATTRIBUTES) {
+        return 1;               /* nothing of that vintage to migrate */
+    }
+    if (!MoveFileA(legacy, new_path)) {
+        /* The records are still there under the old name. Say so,
+           so the caller does not publish over them. */
+        return 0;
+    }
+    return 1;
+}
+
 static int vv1_parents_path(char *out, size_t n, int slot) {
     char docs[MAX_PATH];
     char exe[MAX_PATH];
@@ -367,14 +437,40 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
     if (dot != NULL) {
         *dot = '\0';
     }
-    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + 5 + 32 + 1 > n) {
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
+            + sizeof("\\LDW\\\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save 0.dat") > n) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW", docs);
     CreateDirectoryA(out, NULL);
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     CreateDirectoryA(out, NULL);
-    wsprintfA(out, "%s\\LDW\\%s\\vv1_parents_%u.dat", docs, base, (unsigned int)slot);
+    /* The data files live in their own clearly named folder now, so that
+       component has to exist before the file is opened. */
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
+    CreateDirectoryA(out, NULL);
+    wsprintfA(out, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %u.dat", docs, base, (unsigned int)slot);
+    /* A player upgrading from a build that wrote the loose name still
+       has their state under it; move it into place so it is not lost. */
+    /* A legacy file that exists and will not move means the parent records
+       are still under the old name. Refuse rather than hand back a
+       path to a file that does not exist: an empty table published
+       there would overwrite them for good. Found in review. */
+    /* REFUSING IS A PAUSE, NOT A LOSS.
+
+       Both callers of this builder return 0 cleanly on refusal: the writer
+       skips the write, the loader skips the load, and neither empties the
+       table nor publishes anything. So while a legacy file is locked,
+       persistence simply does not happen and the records stay intact under
+       their old name; the first call after the lock clears migrates them and
+       normal service resumes.
+
+       The old behaviour -- discarding the move result -- published an empty
+       table over those records instead, permanently. A pause is strictly
+       better than that. */
+    if (!vv_migrate_legacy_sidecar(out, "vv1_parents_", docs, base, slot)) {
+        return 0;
+    }
     return 1;
 }
 

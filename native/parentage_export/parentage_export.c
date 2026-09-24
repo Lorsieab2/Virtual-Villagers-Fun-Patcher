@@ -64,6 +64,15 @@
 #include <string.h>
 #include <wchar.h>
 
+/* Internal by default; external under VV_PARENTAGE_TESTABLE so the
+   harness can call select_log_file against real files on disk. The
+   shipped DLL is built without the macro and keeps static linkage. */
+#ifdef VV_PARENTAGE_TESTABLE
+#define VV_PARENTAGE_STATIC
+#else
+#define VV_PARENTAGE_STATIC static
+#endif
+
 #include "village_identity.h"
 #include "save_folder.h"
 
@@ -140,6 +149,7 @@ enum {
        conception, and VV1's record array itself holds 256 slots, so 256
        records per file keeps a log to roughly one village's worth of births. */
     RECORDS_PER_FILE = 256
+
 };
 
 /* Per-game record geometry.
@@ -868,6 +878,11 @@ static const unsigned char *find_record_by_id(
 
    Beside the executable, matching where the statistics companion writes, so a
    player finds both logs in the same place. */
+/* Set the first time the retired-folder migration runs in this process.
+   The table it would otherwise have lived on is const and shared across
+   games, and this is a per-launch concern rather than a per-game one. */
+static int legacy_logs_migrated;
+
 static int build_log_path(
     const struct game_layout *g,
     int file_number,
@@ -887,10 +902,163 @@ static int build_log_path(
        fails rather than falling back to a directory that is not the save.  The
        reserve covers the longest tail appended below: a backslash, the log
        name, a space, the number and the NUL. */
-    /* The owner's layout: <save folder>\VVFP Logs\Births and Conceptions\.
+    /* The owner's layout: <save folder>\Virtual Villagers Fun Patcher Logs\Births and Conceptions\.
        The reserve still covers the longest tail appended below. */
-    if (!vv_save_subfolder_w(folder, L"VVFP Logs\\Births and Conceptions", 64)) {
+    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64)) {
         return 0;
+    }
+    /* MOVE ANY LOGS AN OLDER BUILD LEFT IN THE RETIRED FOLDER.
+
+       The folder was renamed from "VVFP Logs" when the owner asked for the
+       name to be spelled out. Without this, a village with existing logs
+       would have its next conception start a fresh "Log 1.txt" in the new
+       folder: the printed numbering would restart at 1 and one village's
+       history would be split across two directories.
+
+       Every numbered file is moved, not just the newest, so the run stays
+       unbroken -- select_log_file stops walking at the first gap, and a
+       hole would make it renumber over records it could no longer see.
+
+       MoveFileW, so nothing is duplicated and an interrupted migration
+       cannot leave two copies of one file. A move that fails leaves that
+       file where it is and the walk simply stops there. The retired folder
+       is never created: GetFileAttributesW says whether it exists, and for
+       a player who never had one there is nothing to do. */
+    /* ONCE PER PROCESS, not once per record. build_log_path runs for every
+       conception and every birth, and the walk no longer terminates early,
+       so without this a village that still has a retired folder would pay
+       4096 GetFileAttributesW calls on every single record written -- and
+       the folder is never removed, so it would pay them forever. One pass
+       per launch is enough: nothing creates legacy files while the game is
+       running, and a file left behind by a failed move is retried on the
+       next launch, which is exactly the resumability this needs. */
+    if (!legacy_logs_migrated) {
+        wchar_t root[MAX_LOG_PATH];
+        wchar_t legacy_dir[MAX_LOG_PATH];
+        wchar_t legacy_stem[64];
+        /* EVERY LAYOUT THIS PATCHER HAS EVER WRITTEN.
+
+           The folder was renamed twice -- "Tribe Parental Records" to
+           "Births and Conceptions", and "VVFP Logs" spelled out at the
+           owner's request -- and the file stem travelled with the folder.
+           save_reset.c sweeps all four combinations for exactly this
+           reason; the migration handled only the newest retired pair, so
+           a player upgrading from either older layout kept their records
+           in a folder nothing reads while selection started a fresh Log 1
+           in the new one. Found in review.
+
+           Index 0 is where the exporter writes now and is not a source.
+           No build wrote more than one of these, so the passes never
+           contend for the same file. */
+        static const wchar_t *const RETIRED[3] = {
+            L"VVFP Logs\\Births and Conceptions",
+            L"Virtual Villagers Fun Patcher Logs\\Tribe Parental Records",
+            L"VVFP Logs\\Tribe Parental Records"
+        };
+        /* The old stem went with the old folder name. It differs from
+           log_name only in the words after the game number, so it is
+           derived from that number rather than carried in a second
+           per-game table that could drift out of step with the first. */
+        static const int OLD_STEM[3] = { 0, 1, 1 };
+        int pass;
+        legacy_logs_migrated = 1;
+        if (vv_save_folder_w(root, 96)) {
+            for (pass = 0; pass < 3; ++pass) {
+                int moved;
+                const wchar_t *stem = g->log_name;
+                if (OLD_STEM[pass]) {
+                    /* "Virtual Villagers N Births and Conceptions Log"
+                       -> "Virtual Villagers N Parentage Log".
+
+                       FIND the digit rather than indexing a fixed offset
+                       into the name. [18] is correct for every current
+                       name, but it is an index into a string: rename the
+                       log and it silently addresses a letter, and this
+                       feature would go on quietly migrating nothing while
+                       every test that reads the source still passed.
+
+                       If there is no single digit to find, migrate
+                       nothing for this pass rather than guessing at a
+                       stem -- a wrong stem cannot match anything anyway,
+                       and refusing keeps the failure legible. */
+                    const wchar_t *scan;
+                    wchar_t digit = 0;
+                    for (scan = g->log_name; *scan; ++scan) {
+                        if (*scan >= L'0' && *scan <= L'9') {
+                            if (digit != 0) {
+                                digit = 0;      /* more than one: ambiguous */
+                                break;
+                            }
+                            digit = *scan;
+                        }
+                    }
+                    if (digit == 0) {
+                        continue;
+                    }
+                    _snwprintf_s(legacy_stem, 64, _TRUNCATE,
+                                 L"Virtual Villagers %c Parentage Log", digit);
+                    stem = legacy_stem;
+                }
+                _snwprintf_s(legacy_dir, MAX_LOG_PATH, _TRUNCATE,
+                             L"%ls\\%ls", root, RETIRED[pass]);
+                if (GetFileAttributesW(legacy_dir) == INVALID_FILE_ATTRIBUTES) {
+                    continue;   /* nothing of that vintage to migrate */
+                }
+                /* THE WALK MUST BE RESUMABLE, so neither an absent source
+                   nor a failed move ends it.
+
+                   A move can fail transiently -- a lock, an antivirus
+                   scanner, a sharing violation. Stopping there left the
+                   later files behind, and because the earlier ones had
+                   already moved, the NEXT attempt found file 1 absent and
+                   stopped immediately, treating "already migrated" as
+                   "end of run". Those files were then stranded for good,
+                   and select_log_file, stopping at the gap they left in
+                   the new folder, handed out a number an unmigrated file
+                   was still using: one village's history split across two
+                   folders with the same conception numbers in both.
+
+                   So an absent source is skipped rather than terminal, and
+                   a failed move is simply left for the next launch to
+                   retry. Found in review. */
+                for (moved = 1; moved <= 4096; ++moved) {   /* select_log_file's own ceiling */
+                    wchar_t from[MAX_LOG_PATH];
+                    wchar_t to[MAX_LOG_PATH];
+                    _snwprintf_s(from, MAX_LOG_PATH, _TRUNCATE,
+                                 L"%ls\\%ls %d.txt", legacy_dir, stem, moved);
+                    if (GetFileAttributesW(from) == INVALID_FILE_ATTRIBUTES) {
+                        continue;   /* already migrated, or never existed */
+                    }
+                    _snwprintf_s(to, MAX_LOG_PATH, _TRUNCATE,
+                                 L"%ls\\%ls %d.txt", folder, g->log_name, moved);
+                    if (GetFileAttributesW(to) != INVALID_FILE_ATTRIBUTES) {
+                        continue;   /* already migrated: never overwrite */
+                    }
+                    if (!MoveFileW(from, to)) {
+                        /* A FAILED MOVE MUST NOT BE CONSUMED AS A COMPLETE
+                           MIGRATION.
+
+                           Migration and selection happen in the same call,
+                           so leaving a hole here lets select_log_file hand
+                           out the missing number immediately: a brand-new
+                           log is created at that number, and on the next
+                           launch the destination-exists branch skips the
+                           locked legacy file forever. Two files numbered
+                           the same in two folders -- exactly the split this
+                           migration exists to prevent.
+
+                           Refusing the path build is safe: every caller
+                           already treats it as non-fatal and simply does
+                           not write this record, and the move is retried on
+                           the next launch. Losing one record's log line is
+                           a far smaller harm than permanently splitting the
+                           village's history. Found in review. */
+                        legacy_logs_migrated = 0;   /* retry next time */
+                        return 0;
+                    }
+                }
+            }
+        }
     }
     return _snwprintf_s(
         destination,
@@ -1005,6 +1173,85 @@ static int log_belongs_to_village(const wchar_t *path, const char *village) {
     return strcmp(existing, current) == 0;
 }
 
+/* The highest numbered log present, or 0 when the folder holds none.
+
+   ASK THE DIRECTORY, DO NOT PREDICT IT. An earlier version walked until
+   it had seen a fixed run of missing numbers, on the reasoning that the
+   widest run of holes a reset can leave is bounded by what one village
+   owned. That was wrong: a reset deletes one village's files, but gaps
+   from SEVERAL reset villages coalesce, so no per-village figure bounds
+   them. With a leading gap wider than the bound the selector returned no
+   path at all and logging stopped; with an earlier survivor it could
+   place a new file inside the gap and split numbering from history it had
+   never seen. Found in review.
+
+   One enumeration answers it exactly, which is the same fix the reset
+   sweep already uses, and costs a single directory scan rather than
+   thousands of probes.
+
+   The name filter is the shape this exporter writes -- the stem, a space,
+   a number, ".txt" -- so a hand-made or corrupt name cannot raise the
+   ceiling and strand real logs above it. */
+static int highest_log_number(const struct game_layout *g,
+                              const wchar_t *folder) {
+    WIN32_FIND_DATAW found;
+    HANDLE search;
+    wchar_t filter[MAX_LOG_PATH];
+    int stem_len;
+    int best = 0;
+    if (g == NULL || g->log_name == NULL || folder == NULL) {
+        return 0;
+    }
+    stem_len = lstrlenW(g->log_name);
+    if (_snwprintf_s(filter, MAX_LOG_PATH, _TRUNCATE,
+                     L"%ls\\%ls *.txt", folder, g->log_name) < 0) {
+        return 0;
+    }
+    search = FindFirstFileW(filter, &found);
+    if (search == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    do {
+        const wchar_t *tail;
+        int number = 0;
+        int digits = 0;
+        if (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            continue;
+        }
+        if (lstrlenW(found.cFileName) <= stem_len + 1) {
+            continue;
+        }
+        tail = found.cFileName + stem_len + 1;
+        /* CANONICAL DECIMAL ONLY. The exporter formats the number with
+           %d, which never emits a leading zero, so "... Log 04096.txt" is
+           not a file this code wrote. Accepting it let one hand-made name
+           raise the ceiling to 4096 and reintroduce the per-call probe
+           cost this enumeration exists to remove. Found in review. */
+        if (*tail == L'0') {
+            continue;
+        }
+        while (*tail >= L'0' && *tail <= L'9') {
+            if (digits > 5) {
+                break;          /* absurd; not one of ours */
+            }
+            number = number * 10 + (int)(*tail - L'0');
+            ++digits;
+            ++tail;
+        }
+        if (digits == 0 || number < 1 || number > 4096) {
+            continue;
+        }
+        if (lstrcmpiW(tail, L".txt") != 0) {
+            continue;
+        }
+        if (number > best) {
+            best = number;
+        }
+    } while (FindNextFileW(search, &found));
+    FindClose(search);
+    return best;
+}
+
 /* Choose the file to append to: the highest-numbered existing file that is not
    yet full, else the next one. Starts at 1 so the first log reads "... 1.txt".
 
@@ -1026,7 +1273,7 @@ static int log_belongs_to_village(const wchar_t *path, const char *village) {
 
    Bounded so a corrupt or unwritable directory cannot spin forever; 4096 files
    is far beyond any real playthrough. */
-static int select_log_file(
+VV_PARENTAGE_STATIC int select_log_file(
     const struct game_layout *g,
     const char *village,
     wchar_t *destination,
@@ -1046,29 +1293,76 @@ static int select_log_file(
        running total at that point. Zero until one is found. */
     int last_match = 0;
     int last_total = 0;
+    /* The highest number that exists. A new file goes after it, so the
+       printed running total stays monotonic across the whole sequence. */
+    int highest = 0;
+    /* The highest number the folder actually holds, measured once. The
+       walk runs to exactly this, so every hole is crossed and nothing
+       above one is missed. */
+    int ceiling;
+    /* The lowest number with no file. Only used when the folder holds
+       NOTHING at all, so a fresh installation still gets file 1. */
+    int first_free = 0;
+    wchar_t folder[MAX_PATH];
 
     *existing_records = 0;
-    for (number = 1; number <= 4096; ++number) {
+    /* MIGRATE BEFORE MEASURING.
+
+       build_log_path performs the retired-folder migration on its first
+       call. Measuring the ceiling before that ran meant an upgrading
+       player -- new folder empty, legacy folder full of logs -- recorded
+       ceiling 0, and the walk then examined only the single file the
+       migration had just moved into place. A birth went there even when
+       its conception was in a later file, and a conception after a full
+       or foreign file 1 took file 2 without checking its header or
+       fullness. Found in review.
+
+       One throwaway call does the migration, so the enumeration below
+       sees the folder as it will actually be. */
+    if (!build_log_path(g, 1, destination)) {
+        return 0;
+    }
+    if (!vv_save_subfolder_w(
+            folder, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64)) {
+        return 0;
+    }
+    ceiling = highest_log_number(g, folder);
+    for (number = 1; number <= ceiling + 1 && number <= 4096; ++number) {
         int records;
         if (!build_log_path(g, number, destination)) {
             return 0;
         }
         if (GetFileAttributesW(destination) == INVALID_FILE_ATTRIBUTES) {
-            /* A gap in the numbering ends the walk, so `total` counts the
-               unbroken run this file continues rather than silently skipping
-               past a deleted log and numbering as though it were still there. */
-            if (for_birth && last_match != 0) {
-                /* The village's newest existing file, which is where its most
-                   recent conception went. */
-                if (!build_log_path(g, last_match, destination)) {
-                    return 0;
-                }
-                *existing_records = last_total;
-                return 1;
+            /* A HOLE IS NOT THE END OF THE WALK.
+
+               The reset deletes only the erased village's numbered logs, so
+               it leaves gaps between files other villages still own: delete
+               A's 1 and 3 while B keeps 2 and 4. Since the reset started
+               enumerating the folder rather than stopping at the first
+               absence, it makes those holes reliably.
+
+               Ending the walk here meant village B never saw file 4: its
+               cumulative conception count restarted, and a birth took file 2
+               as the newest and landed apart from its own conception. Found
+               in review, as a consequence of the enumeration fix.
+
+               So skip the hole and keep walking, as far as the ceiling
+               highest_log_number measured. An earlier version instead
+               stopped after a fixed run of misses, assuming the widest gap
+               a reset leaves is bounded by what one village owned; gaps
+               from SEVERAL reset villages coalesce, so no per-village
+               figure bounds them, and a leading gap wider than the bound
+               made this return no path and stop logging. Found in review.
+               Enumerating once removes the guess entirely.
+
+               A NEW file still goes after the highest that exists, never
+               into a hole: see the tail of this function. */
+            if (first_free == 0) {
+                first_free = number;
             }
-            *existing_records = total;
-            return 1;
+            continue;
         }
+        highest = number;       /* the newest file that exists, for the tail */
         records = count_records(destination);
         total += records;
         if (!log_belongs_to_village(destination, village)) {
@@ -1104,6 +1398,45 @@ static int select_log_file(
             *existing_records = total;
             return 1;
         }
+    }
+
+    /* The whole range was walked without finding room.
+
+       A birth belongs in this village's newest file wherever that is, even
+       when later numbers belong to other villages. */
+    if (for_birth && last_match != 0) {
+        if (!build_log_path(g, last_match, destination)) {
+            return 0;
+        }
+        *existing_records = last_total;
+        return 1;
+    }
+    /* Otherwise a new file goes AFTER everything that exists, never into a
+       hole an earlier reset left.
+
+       The printed conception number is `existing_records + 1`, a running
+       total across every file in order, so dropping a new file into a hole
+       below a file that already holds later records would number records out
+       of order. Numbering past the highest existing file keeps the sequence
+       monotonic; the cost is that a reset's holes are not reused, which is
+       only a gap in file NAMES and costs nothing. */
+    if (highest != 0 && highest < 4096) {
+        if (!build_log_path(g, highest + 1, destination)) {
+            return 0;
+        }
+        *existing_records = total;
+        return 1;
+    }
+    /* NOTHING EXISTS AT ALL: a fresh installation, or the folder after
+       resetting the only village. The first log is file 1, and returning
+       failure here meant it could never be created -- the feature simply
+       did not work for a new player. Found in review. */
+    if (first_free != 0) {
+        if (!build_log_path(g, first_free, destination)) {
+            return 0;
+        }
+        *existing_records = 0;
+        return 1;
     }
     return 0;
 }
@@ -1981,6 +2314,83 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
 /* The original three argument entry point, kept so that a trampoline built
    before the father record was carried keeps working unchanged. It forwards
    with no father, which is exactly the behaviour it had. */
+/* Create this village's log now, empty but headed, if it does not exist.
+
+   The owner asked for the logs to appear as soon as a village exists rather
+   than only when something happens in it. A brand-new village has had no
+   conception yet, so without this its Births and Conceptions folder sits
+   empty and a player cannot tell whether the feature is working or simply
+   has nothing to say. The same applies after Start Over, which deliberately
+   deletes the previous village's files.
+
+   CREATE-IF-ABSENT, never a write. The logs are append-only and a record,
+   once written, is never modified -- so this opens the selected file in
+   append mode and writes only the header, and only when the file is empty.
+   An existing log for an existing village is left exactly as it was.
+
+   The header matters beyond presentation: Start Over identifies which files
+   belong to the village being erased by that first line, so a headerless
+   file could never be attributed to any village and would survive a reset
+   that was meant to clear it.
+
+   Returns 1 when the log exists afterwards, 0 if it could not be created.
+   Failure is not fatal to anything: the next real record creates the file
+   the same way it always did. */
+__declspec(dllexport) int __stdcall EnsureParentageLog(
+    int game_id,
+    const char *village
+) {
+    const struct game_layout *g;
+    wchar_t path[MAX_LOG_PATH];
+    int existing = 0;
+    FILE *file;
+
+    if (game_id < GAME_VV1 || game_id > GAME_VV5) {
+        return 0;
+    }
+    g = &GAME_LAYOUTS[game_id];
+    if (!layout_is_usable(g)) {
+        return 0;
+    }
+    if (village == NULL || village[0] == '\0') {
+        /* Without the header the file could not be attributed to a village,
+           and an unattributable log is worse than an absent one. */
+        return 0;
+    }
+    /* ASK FOR THE FILE A BIRTH WOULD USE, NOT THE ONE A CONCEPTION WOULD.
+
+       for_birth = 1 returns the village's NEWEST EXISTING file; for_birth = 0
+       returns the next one to write into, which after the 256th conception is
+       a file that does not exist yet. Creating that one here would leave a
+       header-only rollover sitting ahead of any conception -- and
+       WriteParentageBirth picks the newest matching file, so a birth from the
+       pregnancy still in flight would be written into it, apart from its own
+       conception. That is the defect this feature exists alongside, not one
+       to reintroduce. Found in review.
+
+       With for_birth = 1 this creates a file only when the village has no
+       matching log at all, which is exactly the case the owner asked for: a
+       brand-new village, or one restarted after Start Over. */
+    if (!select_log_file(g, village, path, &existing, 1)) {
+        return 0;
+    }
+    if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
+        return 1;               /* this village already has a log */
+    }
+    file = _wfopen(path, L"a");
+    if (file == NULL) {
+        return 0;
+    }
+    /* Empty means brand new: ftell is the end of the file in append mode. */
+    if (ftell(file) == 0) {
+        if (fprintf(file, "%s", village) < 0) {
+            fclose(file);
+            return 0;
+        }
+    }
+    return fclose(file) == 0;
+}
+
 __declspec(dllexport) int __stdcall WriteParentageRecord(
     int game_id,
     const void *records_pointer,
@@ -1989,3 +2399,24 @@ __declspec(dllexport) int __stdcall WriteParentageRecord(
     return WriteParentageRecordWithFather(
         game_id, records_pointer, mother_pointer, NULL);
 }
+
+#ifdef VV_PARENTAGE_TESTABLE
+/* Accessors for native/parentage_export/select_holes_harness.c.
+
+   select_log_file's behaviour around the holes a reset leaves cannot be
+   established by reading the source: the question is what it RETURNS when
+   village A's files 1 and 3 are gone and village B still owns 2 and 4. The
+   harness builds that layout on disk and asks. These exist only under this
+   macro, so the shipped DLL is unchanged. */
+const struct game_layout *vv_parentage_layout(int game) {
+    if (game < 1 || game > 5) {
+        return NULL;
+    }
+    return &GAME_LAYOUTS[game];
+}
+
+int vv_parentage_log_folder(wchar_t *out) {
+    return vv_save_subfolder_w(
+        out, L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", 64);
+}
+#endif

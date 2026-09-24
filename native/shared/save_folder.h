@@ -60,7 +60,7 @@ int vv_save_folder_w(wchar_t *out, int reserve);
 
 /* Write "<My Documents>\LDW\<exe basename>\<sub>" into `out`, creating every
    level of `sub` that does not exist. `sub` is a relative tail such as
-   L"VVFP Logs\\Tribe History" -- each backslash-separated component is created
+   L"Virtual Villagers Fun Patcher Logs\\Tribe History" -- each backslash-separated component is created
    in turn, so a two-level tail works without the caller pre-creating the
    parent.
 

@@ -20,12 +20,23 @@ int vv_reset_refused_paths = 0;
    another game owns would be a bug even though the folder differs: a player who
    renames two installs to the same basename would have them share a folder. Only
    the running game's own files are removed. */
-static const char *const SIDECAR_FORMATS[5][3] = {
-    /* VV1 */ { "%s\\vv1_masks_%d.dat", "%s\\vv1_doublers_%d.dat", 0 },
-    /* VV2 */ { "%s\\vv2_masks_%d.dat", 0, 0 },
-    /* VV3 */ { "%s\\vvfp_masks_%d.dat", 0, 0 },
-    /* VV4 */ { "%s\\vvfp_masks_%d.dat", 0, 0 },
-    /* VV5 */ { "%s\\vvfp_masks_%d.dat", 0, 0 },
+/* Both the current folder and the loose pre-move names. A player who
+   upgrades keeps whatever the previous build wrote beside their saves, and a
+   sidecar left behind would restore a reset village's masks or parentage. */
+static const char *const SIDECAR_FORMATS[5][6] = {
+    /* VV1 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Village Masks - Save %d.dat",
+               "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Origins Doublers - Save %d.dat",
+               "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 1 Parentage Records - Save %d.dat",
+               "%s\\vv1_masks_%d.dat", "%s\\vv1_doublers_%d.dat",
+               "%s\\vv1_parents_%d.dat" },
+    /* VV2 */ { "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
+               "%s\\vv2_masks_%d.dat", 0, 0, 0, 0 },
+    /* VV3 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
+               "%s\\vvfp_masks_%d.dat", 0, 0, 0, 0 },
+    /* VV4 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
+               "%s\\vvfp_masks_%d.dat", 0, 0, 0, 0 },
+    /* VV5 */ { "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
+               "%s\\vvfp_masks_%d.dat", 0, 0, 0, 0 },
 };
 
 /* The exported logs, which carry the village name in their first line and are
@@ -124,6 +135,25 @@ VV_RESET_STATIC int delete_if_present(const char *path) {
     return 0;                   /* absent, or in use: not an error */
 }
 
+/* Resolve "<save folder>\\<sub>" WITHOUT creating any of it.
+
+   vv_save_subfolder_w makes every missing component, which is right for a
+   folder the exporters write to but wrong for a retired one: using it here
+   would recreate an obsolete directory on every Start Over for players who
+   never had one. Returns 0 when the folder does not exist, so the caller
+   simply skips it. */
+VV_RESET_STATIC int legacy_subfolder_w(wchar_t *out, const wchar_t *sub) {
+    wchar_t root[MAX_PATH];
+    if (out == NULL || sub == NULL || sub[0] == L'\0') {
+        return 0;
+    }
+    if (!vv_save_folder_w(root, (int)wcslen(sub) + 1 + 64)) {
+        return 0;
+    }
+    wsprintfW(out, L"%ls\\%ls", root, sub);
+    return GetFileAttributesW(out) != INVALID_FILE_ATTRIBUTES;
+}
+
 VV_RESET_STATIC int delete_if_present_w(const wchar_t *path) {
     if (path == NULL || path[0] == L'\0') {
         ++vv_reset_refused_paths;
@@ -151,15 +181,28 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
     if (game < 1 || game > 5 || slot < 1 || slot > 5) {
         return -1;
     }
-    /* Reserve the longest tail any name below appends. */
-    if (!vv_save_folder(folder, 64)) {
+    /* Reserve the longest tail any name below appends.
+
+       This is NOT a round number. wsprintfA takes no destination bound, so a
+       reserve shorter than the longest suffix is a stack overrun rather than
+       a truncation -- and the data files' names grew when they moved into
+       their own folder. The longest is VV1's parentage sidecar:
+
+           "\\Virtual Villagers Fun Patcher Data"
+           "\\Virtual Villagers 1 Parentage Records - Save 0.dat"
+
+       sizeof includes the NUL, so this is the exact figure rather than a
+       guess at it, and it recomputes if either name is ever edited. */
+    if (!vv_save_folder(folder, (int)sizeof(
+            "\\Virtual Villagers Fun Patcher Data"
+            "\\Virtual Villagers 1 Parentage Records - Save 0.dat"))) {
         return -1;              /* unresolved path is never a deletion target */
     }
 
-    for (i = 0; i < 3; ++i) {
+    for (i = 0; i < 6; ++i) {
         const char *fmt = SIDECAR_FORMATS[game - 1][i];
         if (fmt == NULL) {
-            break;
+            continue;   /* a hole, not the end: the rows are not packed */
         }
         wsprintfA(path, fmt, folder, slot);
         removed += delete_if_present(path);
@@ -177,12 +220,37 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
 
        An earlier version of this function walked every number and deleted what
        it found. Codex caught it on #380. */
+    /* Village Statistics moved into the owner's log layout, so the reset
+       follows it -- and still clears the pre-move copy, which a player who
+       upgrades keeps loose in the save folder. Leaving that behind would
+       survive a Start Over as a record of the village just erased, the
+       same defect the parentage passes below already guard against.
+
+       Both are addressed by SLOT, never by walking every number: a reset
+       of slot 1 must not touch slots 2..5. */
+    if (vv_save_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Village Statistics", 64)) {
+        wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", sub_w, slot);
+        removed += delete_if_present_w(path_w);
+    }
+    /* The folder name before it was spelled out, probed but never
+       recreated: a player who upgrades keeps whatever the previous build
+       wrote, and a file left in a folder nothing writes to any more would
+       survive a reset that was meant to clear it. */
+    if (legacy_subfolder_w(sub_w, L"VVFP Logs\\Village Statistics")) {
+        wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", sub_w, slot);
+        removed += delete_if_present_w(path_w);
+    }
+    /* The pre-move location, probed and cleared but never recreated. */
     wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", folder_w, slot);
     removed += delete_if_present_w(path_w);
     /* The roster moved into the owner's log layout; the reset follows it.
        vv_save_subfolder_w creates the folder if absent, which is harmless
        here -- an empty folder is not a stale roster. */
-    if (vv_save_subfolder_w(sub_w, L"VVFP Logs\\Tribe Population", 64)) {
+    if (vv_save_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Tribe Population", 64)) {
+        wsprintfW(path_w, L"%ls\\Village Population %d.txt", sub_w, slot);
+        removed += delete_if_present_w(path_w);
+    }
+    if (legacy_subfolder_w(sub_w, L"VVFP Logs\\Tribe Population")) {
         wsprintfW(path_w, L"%ls\\Village Population %d.txt", sub_w, slot);
         removed += delete_if_present_w(path_w);
     }
@@ -208,9 +276,20 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
            A build predating the rename cannot have written the new names and
            one following it cannot have written the old, so the two passes
            never contend for the same file. */
-        static const wchar_t *const FOLDERS[2] = {
+        /* Every folder these logs have EVER lived in. Index 0 is the one
+           the exporter writes to now; the rest are retired and only probed.
+
+           The folder was renamed twice: "VVFP Logs" spelled out to
+           "Virtual Villagers Fun Patcher Logs" at the owner's request, and
+           before that "Tribe Parental Records" renamed to "Births and
+           Conceptions". A player can be upgrading from either, so all four
+           combinations are swept. No build wrote more than one of them, so
+           the passes never contend for the same file. */
+        static const wchar_t *const FOLDERS[4] = {
+            L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions",
+            L"Virtual Villagers Fun Patcher Logs\\Tribe Parental Records",
             L"VVFP Logs\\Births and Conceptions",
-            L"VVFP Logs\\Tribe Parental Records"     /* pre-rename, legacy */
+            L"VVFP Logs\\Tribe Parental Records"
         };
         static const wchar_t *const LEGACY_LOG[5] = {
             L"Virtual Villagers 1 Parentage Log",
@@ -220,37 +299,94 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
             L"Virtual Villagers 5 Parentage Log"
         };
         int pass;
-        for (pass = 0; pass < 2; ++pass) {
-            const wchar_t *stem = pass == 0
+        for (pass = 0; pass < 4; ++pass) {
+            /* The old FILE name went with the old FOLDER name, so the
+               stem follows the folder rather than the pass number. */
+            const wchar_t *stem = (pass % 2 == 0)
                 ? PARENTAGE_LOG[game - 1] : LEGACY_LOG[game - 1];
             if (pass == 0) {
                 /* The current folder, which the exporter writes to anyway. */
                 if (!vv_save_subfolder_w(sub_w, FOLDERS[pass], 64)) {
                     continue;
                 }
-            } else {
-                /* The RETIRED folder is only probed, never created.
-                   vv_save_subfolder_w makes every missing component, so using
-                   it here would recreate an obsolete directory on every Start
-                   Over for players who never had one -- litter, produced by a
-                   compatibility path that should be invisible to them. Found
-                   in review. */
-                wchar_t root[MAX_PATH];
-                if (!vv_save_folder_w(root, (int)wcslen(FOLDERS[pass]) + 1 + 64)) {
-                    continue;
-                }
-                wsprintfW(sub_w, L"%ls\\%ls", root, FOLDERS[pass]);
-                if (GetFileAttributesW(sub_w) == INVALID_FILE_ATTRIBUTES) {
-                    continue;   /* no legacy folder: nothing to clean up */
-                }
+            } else if (!legacy_subfolder_w(sub_w, FOLDERS[pass])) {
+                /* A RETIRED folder is only probed, never created: creating
+                   it would litter every player who never had one. Absent
+                   means there is nothing of that vintage to clean up. */
+                continue;
             }
-            for (i = 1; i <= MAX_LOG_FILES; ++i) {
-                wsprintfW(path_w, L"%ls\\%ls %d.txt", sub_w, stem, i);
-                if (GetFileAttributesW(path_w) == INVALID_FILE_ATTRIBUTES) {
-                    break;      /* the exporter numbers without holes */
-                }
-                if (log_header_matches(path_w, village)) {
-                    removed += delete_if_present_w(path_w);
+            /* ENUMERATE THE FOLDER, DO NOT PREDICT ITS CONTENTS.
+
+               An earlier version walked 1..MAX_LOG_FILES and stopped at
+               the first absent number. That was wrong, because THIS
+               FUNCTION MAKES HOLES: it deletes the erased village's files
+               and select_log_file then hands the freed number to the next
+               village, so different villages legitimately own
+               non-consecutive numbers. A second reset walked into the hole
+               the first had left and stopped there -- village A in file 1
+               and village B in file 2, resetting A deletes 1, and B's own
+               Start Over never looked at 2.
+
+               Walking the whole range fixed that but cost 4096 probes per
+               pass, four passes, whether or not the folder held anything:
+               609 ms on a local disk, and far worse on Documents
+               redirected to an SMB share, where each probe is a round trip
+               and this runs inside the game's own delete handler. Both
+               problems were found in review.
+
+               Asking the directory what it contains costs what the folder
+               actually holds, and holes stop mattering because nothing is
+               being predicted.
+
+               The name filter is the shape the exporter writes -- the stem,
+               a space, a number in 1..MAX_LOG_FILES, ".txt" -- so a
+               hand-made or corrupt name is left alone rather than guessed
+               at, exactly as the bounded walk did. Every match is still
+               checked by header before deletion, so this can only ever
+               remove the erased village's own logs. */
+            {
+                WIN32_FIND_DATAW found;
+                HANDLE search;
+                wchar_t filter[MAX_PATH];
+                int stem_len = lstrlenW(stem);
+                wsprintfW(filter, L"%ls\\%ls *.txt", sub_w, stem);
+                search = FindFirstFileW(filter, &found);
+                if (search != INVALID_HANDLE_VALUE) {
+                    do {
+                        const wchar_t *tail;
+                        int number = 0;
+                        int digits = 0;
+                        if (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                            continue;
+                        }
+                        /* The wildcard matched "<stem> <something>.txt".
+                           Accept only a plain number in range: FindFirstFileW
+                           also matches short 8.3 aliases and anything else
+                           sharing the prefix. */
+                        if (lstrlenW(found.cFileName) <= stem_len + 1) {
+                            continue;
+                        }
+                        tail = found.cFileName + stem_len + 1;
+                        while (*tail >= L'0' && *tail <= L'9') {
+                            if (digits > 5) {
+                                break;      /* absurd; not ours */
+                            }
+                            number = number * 10 + (int)(*tail - L'0');
+                            ++digits;
+                            ++tail;
+                        }
+                        if (digits == 0 || number < 1 || number > MAX_LOG_FILES) {
+                            continue;
+                        }
+                        if (lstrcmpiW(tail, L".txt") != 0) {
+                            continue;
+                        }
+                        wsprintfW(path_w, L"%ls\\%ls", sub_w, found.cFileName);
+                        if (log_header_matches(path_w, village)) {
+                            removed += delete_if_present_w(path_w);
+                        }
+                    } while (FindNextFileW(search, &found));
+                    FindClose(search);
                 }
             }
         }

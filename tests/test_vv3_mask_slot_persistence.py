@@ -102,7 +102,8 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn(b".vv3md", section_bytes)
 
     def test_slot_specific_path_and_fail_closed_slot_switch_are_source_guarded(self) -> None:
-        self.assertIn('vvfp_masks_%d.dat', self.source)
+        self.assertIn('Virtual Villagers Fun Patcher Data\\\\Village Masks - Save %d.dat',
+                      self.source)
         self.assertNotIn('vvfp_masks.dat', self.source)
         self.assertIn("return (slot >= 1 && slot <= 5) ? slot : 0;", self.source)
         self.assertIn("if (slot < 1 || slot > 5) return 0;", self.source)

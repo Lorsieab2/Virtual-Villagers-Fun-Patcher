@@ -45,9 +45,9 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # file itself is byte-for-byte unchanged, which is why only this entry
     # moves and the birth-control entry above does not.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "A8E218F36A10FEC0DB42FB65503A32FBFE575CD7AD31D1F59824599DD2B41915",
-        "collection_progression": "8DD5B4ED77DE423B54579D276F455C88A0A23E749DE2ACBA2E9E8CB58F42DA95",
-        "immediate_fixed": "8DD5B4ED77DE423B54579D276F455C88A0A23E749DE2ACBA2E9E8CB58F42DA95",
+        "stock": "3A1F458EA596C68E705B5F444B30B01AE331859C2CCFD4478F6A8B919D35DC30",
+        "collection_progression": "EC395592B26826D4D1717A71F531DA370EEABFBAC9750A5F24ED3D6C67FD0B16",
+        "immediate_fixed": "EC395592B26826D4D1717A71F531DA370EEABFBAC9750A5F24ED3D6C67FD0B16",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
@@ -289,11 +289,14 @@ class VV1VV3BirthControlTests(unittest.TestCase):
             index for index, value in enumerate(origins_code_page) if value
         )
         self.assertLess(highest, overlay_start)
-        # 0xB8B == the end of the Barrel disarm stub, which shares the room
-        # check's 0x100 reservation at 0x8EB00 (check at +0x00, disarm at
-        # +0x80). Still the last .vv1mc bytes Origins owns, and still clear
-        # of the 0xC00 overlay by 0x75 bytes.
-        self.assertEqual(highest, 0xB8B)
+        # 0xBED == the end of the tribe-delete stub, which Origins took
+        # ownership of so that a build with Origins and no parentage log still
+        # sweeps a deleted tribe's masks. It begins at 0xB8C, immediately after
+        # the Barrel disarm stub's 0xB8B, and ends at 0xBED -- 0x13 bytes
+        # short of the 0xC00 overlay. The cave declares only the stub's own
+        # content rather than a rounded size, so that margin is genuinely
+        # unclaimed rather than reserved-and-empty.
+        self.assertEqual(highest, 0xBED)
         self.assertEqual(origins_only[0x8F000:0x90000], b"\x00" * 0x1000)
 
     def test_vv1_append_base_precedes_overlay_independent_of_catalog_order(self) -> None:

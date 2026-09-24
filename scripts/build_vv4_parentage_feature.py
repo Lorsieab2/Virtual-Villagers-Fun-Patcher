@@ -98,6 +98,8 @@ ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "inputs" / "vv4-stock-copy"
 EXE = "Virtual Villagers - The Tree of Life.exe"
 COMPANION = ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"
+# The tribe-delete stub resolves this at runtime; it ships alongside.
+RESET_COMPANION = ROOT / "assets" / "save_reset" / "VVFP Save Reset.dll"
 OUTPUT = ROOT / "data" / "vv4_parentage_feature.json"
 
 GAME_ID = 4
@@ -150,6 +152,31 @@ EXPORT_NAME = b"WriteParentageRecordWithFather\0"
 # Where the two strings sit inside the page, clear of the trampoline.
 DLL_NAME_OFFSET = 0xF0
 EXPORT_NAME_OFFSET = 0x110
+
+# THE TRIBE-DELETE HOOK, sharing this page.
+#
+# The save-slot menu deletes a tribe by calling deleteSave through a `jmp`
+# thunk with the RAW slot in edi. The game's OTHER caller of deleteSave is a
+# save routine rotating backup generations, which passes slot + 0x14 -- so
+# hooking the menu handler's own call reaches the reset and never ordinary
+# play. See docs/start-over-reset-hook.md.
+#
+# Without this the patcher's per-slot state outlives the village: a new tribe
+# started in a reused slot inherits the old one's masks, which is the bleed
+# the owner reported. vv_reset_slot_state has always been correct and never
+# ran, because save_reset.c was not compiled into any shipped companion until
+# VVFP Save Reset.dll.
+RESET_DLL_NAME = b"VVFP Save Reset.dll\0"
+RESET_EXPORT_NAME = b"ResetDeletedTribe\0"
+RESET_DLL_NAME_OFFSET = 0x130
+RESET_EXPORT_NAME_OFFSET = 0x150
+RESET_CODE_OFFSET = 0x170
+
+RESET_HOOK_VA = 0x00418CD5
+RESET_HOOK_FILE = 0x00018CD5
+RESET_HOOK_STOLEN = bytes.fromhex("e8f6640000")
+RESET_THUNK_VA = 0x0041F1D0
+
 
 # The villager record array's container, and the header the game's own accessor
 # adds to reach record zero.  sub_466040 does:
@@ -366,6 +393,12 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
     if len(entry) != len(HOOK_STOLEN):
         raise RuntimeError("hook entry does not match the stolen byte count")
 
+    # Origins owns the tribe-delete stub and hook now; see
+    # scripts/build_vv4_origins_feature.py. Claiming the same bytes here too
+    # would make uninstalling the parentage log strip a stub Origins still
+    # needs, and Origins is what writes the per-slot mask files the reset
+    # exists to sweep.
+
     patches = [
         {
             "offset": f"0x{HOOK_FILE:X}",
@@ -413,6 +446,8 @@ def build() -> dict:
     patches, page = _emit(source)
 
     companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper()
+
+    reset_hash = hashlib.sha256(RESET_COMPANION.read_bytes()).hexdigest().upper()
     page_hash = hashlib.sha256(page).hexdigest().upper()
 
     layout = {
@@ -492,7 +527,12 @@ def build() -> dict:
                         "source": "assets/parentage/VVFP Parentage Export.dll",
                         "destination": "VVFP Parentage Export.dll",
                         "sha256": companion_hash,
-                    }
+                    },
+                    {
+                        "source": "assets/save_reset/VVFP Save Reset.dll",
+                        "destination": "VVFP Save Reset.dll",
+                        "sha256": reset_hash,
+                    },
                 ],
                 "pe_append_transaction": {
                     "section": SECTION_NAME,

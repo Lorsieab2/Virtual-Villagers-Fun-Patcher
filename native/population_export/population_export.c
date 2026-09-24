@@ -641,9 +641,9 @@ static int build_log_paths(
        directory, which put exported logs in the install folder while the
        village they describe lives under Documents\LDW\<exe basename>\. */
     /* The owner's layout: every exported log lives under
-       <save folder>\VVFP Logs\, one subfolder per kind. The roster is
+       <save folder>\Virtual Villagers Fun Patcher Logs\, one subfolder per kind. The roster is
        "Tribe Population". */
-    if (!vv_save_subfolder_w(module_path, L"VVFP Logs\\Tribe Population", 64)) {
+    if (!vv_save_subfolder_w(module_path, L"Virtual Villagers Fun Patcher Logs\\Tribe Population", 64)) {
         return 0;
     }
     if (_snwprintf_s(
@@ -730,6 +730,65 @@ static int vv1_parents_resolve(void) {
     }
     vv1_parents_state = 1;
     return 1;
+}
+
+/* Ask the parentage companion to create this village's log if it has none.
+
+   The owner asked for the logs to exist as soon as a village does, rather
+   than appearing only once something happens in it. This runs on every save,
+   which covers both cases they named: a brand-new village in a slot, and a
+   village restarted with Start Over, since a reset deletes the old files and
+   the next save then finds none.
+
+   The call goes DLL to DLL. Both companions ship together, so the dependency
+   is safe, and it costs the executable no new bytes.
+
+   Every failure is silent and harmless. A missing companion, a missing
+   export or a refused write all leave the log to be created by the first
+   real record exactly as before; none of them may disturb the roster, which
+   is the file the player actually relies on. */
+typedef int (__stdcall *ensure_parentage_log_t)(int, const char *);
+static int parentage_log_state;      /* 0 unknown, 1 resolved, -1 failed */
+static ensure_parentage_log_t ensure_parentage_log;
+
+static void ensure_parentage_log_for_village(int game_id, const char *village) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+
+    if (village == NULL || village[0] == '\0') {
+        /* Without a header the file could not be attributed to a village,
+           and Start Over matches files to villages by that first line. */
+        return;
+    }
+    if (parentage_log_state == 0) {
+        parentage_log_state = -1;
+        n = GetModuleFileNameA(NULL, path, MAX_PATH);
+        if (n == 0 || n >= MAX_PATH) {
+            return;
+        }
+        slash = strrchr(path, '\\');
+        if (slash == NULL
+            || (size_t)(slash + 1 - path)
+               + sizeof("VVFP Parentage Export.dll") > sizeof(path)) {
+            return;
+        }
+        lstrcpyA(slash + 1, "VVFP Parentage Export.dll");
+        companion = LoadLibraryA(path);
+        if (companion == NULL) {
+            return;
+        }
+        ensure_parentage_log = (ensure_parentage_log_t)GetProcAddress(
+            companion, "EnsureParentageLog");
+        if (ensure_parentage_log == NULL) {
+            return;
+        }
+        parentage_log_state = 1;
+    }
+    if (parentage_log_state == 1) {
+        (void)ensure_parentage_log(game_id, village);
+    }
 }
 
 /* The block, when at least one parent is known.  Returns 0 only on a write
@@ -929,14 +988,126 @@ static int write_villager(
    One path, not two: the history is APPENDED, so there is no temporary to
    publish and nothing to rename over. A partial append at the end of the file
    is visibly partial, where a truncated roster would look complete. */
-static int build_history_path(wchar_t *destination) {
-    wchar_t module_path[MAX_LONG_PATH];
-    if (!vv_save_subfolder_w(module_path, L"VVFP Logs\\Tribe History", 64)) {
+enum { HISTORY_BYTES_PER_FILE = 4 * 1024 * 1024 };
+
+/* The size of a file, or 0 when it does not exist or cannot be measured.
+
+   A file that cannot be measured reads as 0, which keeps the CURRENT file in
+   use rather than rolling to a new one. That is the safe direction: a failed
+   measurement must not scatter one village's history across a new file on
+   every save. */
+static long long history_file_size(const wchar_t *path) {
+    WIN32_FILE_ATTRIBUTE_DATA info;
+    if (!GetFileAttributesExW(path, GetFileExInfoStandard, &info)) {
         return 0;
     }
-    return _snwprintf_s(
-        destination, MAX_LONG_PATH, _TRUNCATE,
-        L"%ls\\Village History.txt", module_path) >= 0;
+    return ((long long)info.nFileSizeHigh << 32) | info.nFileSizeLow;
+}
+
+/* "<save folder>\Virtual Villagers Fun Patcher Logs\Tribe History\Village History <n>.txt".
+
+   One path, not two: the history is APPENDED, so there is no temporary to
+   publish and nothing to rename over. A partial append at the end of the file
+   is visibly partial, where a truncated roster would look complete.
+
+   IT ROLLS. The history appends a full roster on EVERY save, so it grows
+   without bound: measured on a real 85-villager village, one snapshot is about
+   27 KB, which reaches a gigabyte in a few tens of thousands of saves. The
+   parentage log and the roster already roll by record count; a snapshot is
+   many lines rather than one record, so this rolls on SIZE instead.
+
+   The roll is checked before each append and never rewrites an existing file:
+   a file at or over the threshold is left closed and the next number is used.
+   Numbering starts at 1 and walks upward, so a player reads them in order and
+   older files stay exactly as they were written. */
+static int build_history_path(wchar_t *destination) {
+    wchar_t module_path[MAX_LONG_PATH];
+    int number;
+    if (!vv_save_subfolder_w(module_path, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
+        return 0;
+    }
+    /* MIGRATE THE UNNUMBERED HISTORY AND THE RETIRED FOLDER.
+
+       Two renames happened here: the folder was spelled out, and the file
+       gained a number when it started rolling. A player upgrading has
+       "VVFP Logs\Tribe History\Village History.txt" -- an append-only
+       timeline with their whole village in it. Starting a fresh
+       "Village History 1.txt" beside it would silently split that timeline,
+       and every later save would ignore the earlier part.
+
+       It becomes file 1 of the numbered sequence, which is what it is: the
+       oldest snapshots. Only when no file 1 exists, so a village that has
+       already rolled is never overwritten. Both the current folder and the
+       retired one are tried, because the file could be in either depending
+       on which build the player came from.
+
+       A failed move leaves both files alone and is retried next launch. */
+    {
+        static int history_migrated;
+        if (!history_migrated) {
+            wchar_t root[MAX_LONG_PATH];
+            wchar_t legacy[MAX_LONG_PATH];
+            wchar_t first[MAX_LONG_PATH];
+            int stranded = 0;       /* a legacy file exists and would not move */
+            history_migrated = 1;
+            if (_snwprintf_s(first, MAX_LONG_PATH, _TRUNCATE,
+                             L"%ls\\Village History 1.txt", module_path) >= 0
+                && GetFileAttributesW(first) == INVALID_FILE_ATTRIBUTES) {
+                /* AN ABSENT SOURCE AND A FAILED MOVE ARE NOT THE SAME THING.
+
+                   This used to discard the MoveFileW result. A transient
+                   failure -- the file open without delete sharing, a
+                   scanner, a lock -- then fell through to the walk below,
+                   which handed back "Village History 1.txt" as vacant. The
+                   current save created it, and on the NEXT launch the
+                   `first`-exists guard skipped migration entirely: the
+                   player's whole append-only timeline was stranded for good,
+                   while the comment above promised a retry that could never
+                   happen. Found in review.
+
+                   So when a legacy file is really there and will not move,
+                   refuse to build a path at all and clear the latch so the
+                   next launch tries again. The caller already treats a failed
+                   path build as non-fatal and simply does not append this
+                   save's snapshot; losing one snapshot is a far smaller harm
+                   than splitting a timeline that cannot be rebuilt. */
+                int have_legacy = 0;
+                if (_snwprintf_s(legacy, MAX_LONG_PATH, _TRUNCATE,
+                                 L"%ls\\Village History.txt", module_path) >= 0
+                    && GetFileAttributesW(legacy) != INVALID_FILE_ATTRIBUTES) {
+                    have_legacy = 1;
+                    if (!MoveFileW(legacy, first)) {
+                        stranded = 1;
+                    }
+                }
+                if (!have_legacy
+                    && vv_save_folder_w(root, 96)
+                    && _snwprintf_s(legacy, MAX_LONG_PATH, _TRUNCATE,
+                                    L"%ls\\VVFP Logs\\Tribe History\\Village History.txt",
+                                    root) >= 0
+                    && GetFileAttributesW(legacy) != INVALID_FILE_ATTRIBUTES) {
+                    if (!MoveFileW(legacy, first)) {
+                        stranded = 1;
+                    }
+                }
+            }
+            if (stranded) {
+                history_migrated = 0;   /* retry on the next launch */
+                return 0;
+            }
+        }
+    }
+    for (number = 1; number < 100000; ++number) {
+        if (_snwprintf_s(
+                destination, MAX_LONG_PATH, _TRUNCATE,
+                L"%ls\\Village History %d.txt", module_path, number) < 0) {
+            return 0;
+        }
+        if (history_file_size(destination) < HISTORY_BYTES_PER_FILE) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /* Append this save's roster to the history.
@@ -1110,6 +1281,12 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
        published so a history failure can never cost the player their
        roster. Its return is ignored for the same reason. */
     (void)append_history(g, villagers, game_id, village);
+
+    /* And the parentage log, created empty-but-headed if this village has
+       none yet. Also after the roster, and also ignoring its result: the
+       owner wants the logs to exist as soon as a village does, but not at
+       the cost of the file they actually rely on. */
+    ensure_parentage_log_for_village(game_id, village);
 
     /* Remove any roster files a LARGER village left behind.
 

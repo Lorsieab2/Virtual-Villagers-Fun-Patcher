@@ -206,7 +206,9 @@ static int g_current_slot = 0;
 static int g_sidecar_loaded = 0;
 
 static void vv_write_mask_sidecar(void);
-static void vv_read_mask_sidecar(void);
+/* 1 when the load is settled (read, or legitimately absent), 0 when the
+   path could not be built and the load must stay pending. */
+static int vv_read_mask_sidecar(void);
 
 static void vv_clear_mask_state(void) {
     int i;
@@ -241,8 +243,12 @@ static void vv_sync_save_slot(void) {
 static void vv_prepare_mask_state(void) {
     vv_sync_save_slot();
     if (g_current_slot > 0 && !g_sidecar_loaded) {
-        g_sidecar_loaded = 1;
-        vv_read_mask_sidecar();
+        /* LATCH ONLY WHEN THE LOAD SETTLED. This used to set the flag
+           first, so a read that could not build its path -- a locked
+           legacy sidecar -- left an empty table marked loaded with no
+           retry. The next write then migrated the real file and
+           overwrote it. Found in review. */
+        g_sidecar_loaded = vv_read_mask_sidecar();
     }
 }
 
@@ -592,15 +598,71 @@ __declspec(dllexport) int __stdcall Vv4MaskGetForRecord(unsigned char *villager)
    fingerprints and putting masks on the wrong villagers. */
 #define VV_SIDECAR_VERSION 2u
 
+/* Move a sidecar left by an older build into the name this one reads.
+
+   The data files moved into "Virtual Villagers Fun Patcher Data" when the
+   folders were spelled out. A player upgrading still has valid persisted
+   masks under the loose pre-move name, and a loader that looks only at the
+   new path clears them -- the village comes back unmasked even though the
+   state is sitting right there. The other five games already migrate; VV4
+   was missed. Found in review.
+
+   Every failure is silent and harmless: the worst case is the old file
+   staying where it is and the village loading unmasked, which is exactly
+   what happens today. */
+/* 1 to proceed, 0 when a legacy sidecar exists and could NOT be moved.
+   The result used to be discarded, so a transient failure left the
+   caller reporting success while pointing at a file that does not
+   exist -- after which an empty table could be published over the
+   real records. Found in review. */
+static int vv4_migrate_legacy_sidecar(const char *new_path,
+                                       const char *docs,
+                                       const char *base,
+                                       int slot) {
+    char legacy[MAX_PATH];
+    if (new_path == NULL || docs == NULL || base == NULL) {
+        return 1;
+    }
+    /* THE BOUND BELOW ASSUMES ONE DIGIT, so the slot has to be one. The
+       caller validates it, but this formats %d into a buffer sized for a
+       single character, and a multi-digit slot is not a real save slot. */
+    if (slot < 0 || slot > 9) {
+        return 1;
+    }
+    if (GetFileAttributesA(new_path) != INVALID_FILE_ATTRIBUTES) {
+        return 1;               /* already migrated, or never needed it */
+    }
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
+        + sizeof("\\LDW\\\\vvfp_masks_0.dat") > sizeof(legacy)) {
+        return 1;
+    }
+    wsprintfA(legacy, "%s\\LDW\\%s\\vvfp_masks_%d.dat", docs, base, slot);
+    if (GetFileAttributesA(legacy) == INVALID_FILE_ATTRIBUTES) {
+        return 1;               /* nothing of that vintage to migrate */
+    }
+    if (!MoveFileA(legacy, new_path)) {
+        /* The masks are still there under the old name. */
+        return 0;
+    }
+    return 1;
+}
+
 static int vv_build_sidecar_path(char *out, int slot) {
     char exe[MAX_PATH];
     char base[MAX_PATH];
+    char docs[MAX_PATH];
     DWORD n;
     int i, start, end, j;
     if (slot < 1 || slot > 5 ||
         !SHGetSpecialFolderPathA(NULL, out, CSIDL_PERSONAL, TRUE)) {
         return 0;
     }
+    /* `out` is appended to below, so keep the bare Documents path for the
+       legacy migration, which needs it after the appends have happened. */
+    if (lstrlenA(out) >= (int)sizeof(docs)) {
+        return 0;
+    }
+    lstrcpyA(docs, out);
     n = GetModuleFileNameA(NULL, exe, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) {
         return 0;
@@ -621,10 +683,10 @@ static int vv_build_sidecar_path(char *out, int slot) {
     /* lstrcatA has no destination bound. Validate the COMPLETE final path
        before the first append so a redirected Documents folder plus a long
        renamed executable fails open instead of overrunning path[MAX_PATH].
-       sizeof("\\vvfp_masks_0.dat") includes the final NUL; slots 1..5 retain
-       the exact existing one-digit filename namespace. */
+       The data file now lives in a clearly named folder rather than loose
+       beside the saves, so the bound covers that component too. */
     if (lstrlenA(out) + (int)(sizeof("\\LDW\\") - 1) + lstrlenA(base) +
-        (int)sizeof("\\vvfp_masks_0.dat") > MAX_PATH) {
+        (int)sizeof("\\Virtual Villagers Fun Patcher Data\\Village Masks - Save 0.dat") > MAX_PATH) {
         return 0;
     }
     lstrcatA(out, "\\LDW");
@@ -632,11 +694,22 @@ static int vv_build_sidecar_path(char *out, int slot) {
     lstrcatA(out, "\\");
     lstrcatA(out, base);
     CreateDirectoryA(out, NULL);
-    lstrcatA(out, "\\vvfp_masks_");
+    lstrcatA(out, "\\Virtual Villagers Fun Patcher Data");
+    CreateDirectoryA(out, NULL);
+    lstrcatA(out, "\\Village Masks - Save ");
     i = lstrlenA(out);
     out[i] = (char)('0' + slot);
     out[i + 1] = '\0';
     lstrcatA(out, ".dat");
+    /* A player upgrading from a build that wrote the loose name still has
+       their masks under it; move it into place so it is not lost. */
+    /* A legacy file that exists and will not move means the masks
+       are still under the old name. Refuse rather than hand back a
+       path to a file that does not exist: an empty table published
+       there would overwrite them for good. Found in review. */
+    if (!vv4_migrate_legacy_sidecar(out, docs, base, slot)) {
+        return 0;
+    }
     return 1;
 }
 
@@ -704,7 +777,7 @@ static void vv_write_mask_sidecar(void) {
     }
 }
 
-static void vv_read_mask_sidecar(void) {
+static int vv_read_mask_sidecar(void) {
     char path[MAX_PATH];
     HANDLE h;
     DWORD rd;
@@ -714,12 +787,19 @@ static void vv_read_mask_sidecar(void) {
     unsigned int fps[VV_MAX_VILLAGERS];
     int i;
     if (!vv_build_sidecar_path(path, g_current_slot)) {
-        return;
+        /* THE LOAD IS NOT SETTLED. The path builder refuses when a legacy
+           sidecar exists and will not move, so the masks are still on disk
+           under the old name. Latching here would leave an empty table
+           marked as loaded, and the next write would migrate the real file
+           and overwrite it. Found in review. */
+        return 0;
     }
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
-        return;                                  /* no file yet -> stay all-unmasked */
+        /* A fresh slot legitimately has no sidecar. That IS settled:
+           retrying every frame would repeat a read that cannot succeed. */
+        return 1;                                /* no file yet -> unmasked */
     }
     if (ReadFile(h, magic, 4, &rd, NULL) && rd == 4 &&
         magic[0] == 'V' && magic[1] == 'V' && magic[2] == 'M' && magic[3] == 'K' &&
@@ -733,6 +813,7 @@ static void vv_read_mask_sidecar(void) {
         }
     }
     CloseHandle(h);
+    return 1;
 }
 
 /* --- In-world / details mask render via SDL surface blit -------------------

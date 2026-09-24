@@ -139,6 +139,35 @@ def centered_origin(parent_rect, size, screen):
     return max(0, (swidth - width) // 2), max(0, (sheight - height) // 2)
 
 
+
+def _documents_folder() -> Path:
+    """The Documents folder Windows actually resolves, not a home-relative guess.
+
+    The exporters call SHGetFolderPathA(CSIDL_PERSONAL) (see
+    native/shared/save_folder.c), which follows the Known Folder redirection a
+    player may have to OneDrive or a corporate share. Path.home()/"Documents"
+    ignores that redirection, so on a redirected account the completion dialog
+    named a folder the logs are never written to -- the same class of mistake
+    as pointing at the install directory, one layer down. Found in review.
+
+    Falls back to the literal only when the shell call is unavailable, which
+    is the best guess left rather than no path at all.
+    """
+    try:
+        import ctypes
+        import ctypes.wintypes
+        CSIDL_PERSONAL = 5
+        SHGFP_TYPE_CURRENT = 0
+        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+        if ctypes.windll.shell32.SHGetFolderPathW(
+            None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf
+        ) == 0 and buf.value:
+            return Path(buf.value)
+    except (OSError, AttributeError, ImportError):
+        pass
+    return Path.home() / "Documents"
+
+
 class WaitWindow:
     """A small "Please wait..." window shown over blocking work.
 
@@ -1291,9 +1320,18 @@ class App(tk.Tk):
                     f"Transparency Log: {modded_folder / 'VVFP Transparency Log.txt'}"
                 )
                 selected = set(self._selected_fun_patch_ids(build.id))
+                # THE LOGS GO WITH THE SAVE, NOT WITH THE INSTALL. The
+                # exporters resolve Documents\LDW\<exe basename>\ -- the
+                # folder the game itself saves into -- so pointing at
+                # modded_folder sent a player to a directory where these files
+                # are never created. Found in review.
+                save_folder = (
+                    _documents_folder() / "LDW" / output_exe.stem
+                    / "Virtual Villagers Fun Patcher Logs"
+                )
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(
-                        f"Village Statistics - Save N.txt: {modded_folder} — refreshed after each successful save; contains that save's lifetime statistics."
+                        f"Village Statistics - Save N.txt: {save_folder / 'Village Statistics'} — refreshed after each successful save; contains that save's lifetime statistics."
                     )
                 if f"{build.id}_write_parentage_log" in selected:
                     # The game number comes from the build. The condition above
@@ -1303,7 +1341,7 @@ class App(tk.Tk):
                     # game.
                     artifact_lines.append(
                         f"Virtual Villagers {build.id.removeprefix('vv')} Births and Conceptions Log N.txt: "
-                        f"{modded_folder} — one plain-text record per pregnancy, written at "
+                        f"{save_folder / 'Births and Conceptions'} — one plain-text record per pregnancy, written at "
                         "conception; rolls to a new numbered file every 256 records."
                     )
                 ttk.Label(
