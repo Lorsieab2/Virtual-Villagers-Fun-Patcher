@@ -234,6 +234,52 @@ RECORDS_CONTAINER_VA = 0x00554148
 SUPPRESSION_ARG_DISPLACEMENT = 0x1C
 
 
+
+# THE BIRTH HOOK.
+#
+# The conception hook above records the parents when a pregnancy
+# starts. This records the CHILD when it is born, so the Births and
+# Conceptions log carries both halves of what its name promises --
+# the owner's requirement that all five games ship the same log
+# format, which VV1 already meets and this game did not.
+#
+# One stub per child-creation site, all calling a shared body. The
+# splices are the instruction AFTER each creating call, which is
+# where VV1's shipped birth hook splices too: the new child's record
+# INDEX is in EAX there.
+#
+# The addresses were found by tracking that index through register
+# copies to its `imul <reg>,<reg>,<stride>`, with VV1's four known
+# splices used as a control -- the method had to rediscover them
+# before this game's output was believed -- and then re-verified from
+# the file bytes: 0xE8 opcode, hand-decoded rel32 reproducing the
+# target, splice at call+5.
+#
+# THE DISPLACED BYTES ARE NOT UNIFORM. The destination register
+# varies, and the triplet site needs eight bytes rather than five
+# because a five-byte jump would land inside an imul. They are read
+# from the stock file and checked against it at build time.
+BIRTH_SITES = (
+    (0x00473125, bytes.fromhex("8bf883ffff"), "the first child of every birth"),
+    (0x004731C4, bytes.fromhex("8be883fdff"), "the twin"),
+    (0x0047325F, bytes.fromhex("8bf869c0442f0000"), "the triplet"),
+)
+BIRTH_EXPORT_NAME = b"WriteParentageBirth\0"
+# The child's record, for a game whose ESI points into the MOTHER's
+# record rather than at a village object, so [ESI+4] is meaningless:
+#     records container + record base + index * stride
+BIRTH_RECORD_BASE = 0x48
+BIRTH_STRIDE = 0x2F44
+BIRTH_RECORDS_VA = 0x00554148
+# Placed after the reset block, in the filler tail this page already
+# carries. Measured on the emitted page rather than assumed.
+BIRTH_BODY_OFFSET = 0x201
+BIRTH_EXPORT_NAME_OFFSET = 0x261
+BIRTH_STUBS_OFFSET = 0x275
+# Sized for the LONGEST site. The triplet replays eight displaced
+# bytes rather than five, so 5 (call) + 8 (replay) + 5 (jump) = 0x12.
+BIRTH_STUB_SIZE = 0x12
+
 def assemble(source: str, address: int) -> bytes:
     engine = keystone.Ks(keystone.KS_ARCH_X86, keystone.KS_MODE_32)
     encoding, _ = engine.asm(source, address)
@@ -434,6 +480,160 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
             ),
         },
     ]
+
+    # ---- THE BIRTH HOOK -------------------------------------------------
+    #
+    # A shared body plus one stub per child-creation site. The body hands
+    # the companion the game id and the new child's record; the companion
+    # reads the child's own name, head, body, likes, dislikes and skills
+    # from that record, and both parents from it too, so there is nothing
+    # for this stub to extract.
+    # page_va, NOT the PAGE_VA constant: _emit is called twice, once for the
+    # plain page and once for the overlay at OVERLAY_PAGE_VA. Using the
+    # constant emitted overlay stubs pointing at the plain page, so the
+    # shipped artifact's stubs called into zeros.
+    birth_body_va = page_va + BIRTH_BODY_OFFSET
+    birth_export_va = page_va + BIRTH_EXPORT_NAME_OFFSET
+    birth_body = assemble(
+        f"""
+            pushad
+            push 0x{dll_name_va:X}
+            call dword ptr [0x{GET_MODULE_HANDLE_IAT:X}]
+            test eax, eax
+            jne birth_resolve
+            push 0x{dll_name_va:X}
+            call dword ptr [0x{LOAD_LIBRARY_IAT:X}]
+            test eax, eax
+            jz birth_done
+        birth_resolve:
+            push 0x{birth_export_va:X}
+            push eax
+            call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
+            test eax, eax
+            jz birth_done
+            mov ecx, dword ptr [esp + 0x1C]
+            # THE CHILD MAY NEVER HAVE BEEN ALLOCATED.
+            #
+            # The game's own handling of that is the `cmp <reg>,-1` this
+            # stub displaces, and the stub calls here BEFORE replaying it.
+            # Without this test the scale below turns -1 into a pointer
+            # before record zero, which the companion then reads as a
+            # villager. Found in review.
+            cmp ecx, -1
+            je birth_done
+            imul ecx, ecx, 0x{BIRTH_STRIDE:X}
+            add ecx, 0x{BIRTH_RECORDS_VA + BIRTH_RECORD_BASE:X}
+            push ecx
+            push -1
+            push -1
+            push 0
+            push -1
+            push -1
+            push 0
+            push -1
+            push -1
+            push 0
+            push {GAME_ID}
+            call eax
+        birth_done:
+            popad
+            ret
+        """,
+        birth_body_va,
+    )
+    if len(birth_body) > BIRTH_EXPORT_NAME_OFFSET - BIRTH_BODY_OFFSET:
+        raise RuntimeError(
+            f"the birth body is {len(birth_body):#x} bytes and runs into "
+            f"the export name"
+        )
+
+    # DO NOT PLACE THE BIRTH BLOCK ON TOP OF ANYTHING.
+    #
+    # Codex found that VV3's block had landed on the conception
+    # trampoline, the DLL name and the export name: the emitted page no
+    # longer contained either loader string, so the conception hook could
+    # not resolve its exports. The offsets had been chosen by scanning a
+    # BUILT ARTIFACT for zero runs, which measures the composed page --
+    # where a run is free only because the generator has not written it
+    # yet. These slice assignments run last, so they overwrote it.
+    #
+    # This reads the page in hand instead, which write order cannot fool.
+    for _lo, _hi, _what in (
+        (BIRTH_BODY_OFFSET, BIRTH_BODY_OFFSET + len(birth_body), "body"),
+        (
+            BIRTH_EXPORT_NAME_OFFSET,
+            BIRTH_EXPORT_NAME_OFFSET + len(BIRTH_EXPORT_NAME),
+            "export name",
+        ),
+        (
+            BIRTH_STUBS_OFFSET,
+            BIRTH_STUBS_OFFSET + len(BIRTH_SITES) * BIRTH_STUB_SIZE,
+            "stubs",
+        ),
+    ):
+        _clash = [_i for _i in range(_lo, _hi) if page[_i]]
+        if _clash:
+            raise RuntimeError(
+                f"the birth {_what} at {_lo:#x}..{_hi:#x} would overwrite "
+                f"{len(_clash)} occupied byte(s), first at "
+                f"{_clash[0]:#x}"
+            )
+    page[BIRTH_BODY_OFFSET : BIRTH_BODY_OFFSET + len(birth_body)] = birth_body
+    page[
+        BIRTH_EXPORT_NAME_OFFSET : BIRTH_EXPORT_NAME_OFFSET
+        + len(BIRTH_EXPORT_NAME)
+    ] = BIRTH_EXPORT_NAME
+
+    for _index, (_site_va, _displaced, _what) in enumerate(BIRTH_SITES):
+        # Each site replays its OWN displaced bytes: five at most sites,
+        # eight at the triplet, where a five-byte jump would land inside
+        # an imul. Checked against the stock file below.
+        _actual = source[
+            _site_va - IMAGE_BASE : _site_va - IMAGE_BASE + len(_displaced)
+        ]
+        if _actual != _displaced:
+            raise RuntimeError(
+                f"{_what} at {_site_va:#x}: stock bytes are "
+                f"{_actual.hex()}, expected {_displaced.hex()}"
+            )
+        _stub_off = BIRTH_STUBS_OFFSET + _index * BIRTH_STUB_SIZE
+        _stub_va = page_va + _stub_off
+        _stub = (
+            b"\xE8"
+            + int(birth_body_va - (_stub_va + 5)).to_bytes(4, "little", signed=True)
+            + _displaced
+            + b"\xE9"
+            + int(
+                (_site_va + len(_displaced))
+                - (_stub_va + 5 + len(_displaced) + 5)
+            ).to_bytes(4, "little", signed=True)
+        )
+        if len(_stub) > BIRTH_STUB_SIZE:
+            raise RuntimeError(
+                f"birth stub {_index} is {len(_stub):#x} bytes, reserved "
+                f"{BIRTH_STUB_SIZE:#x}"
+            )
+        page[_stub_off : _stub_off + len(_stub)] = _stub
+
+        # A five-byte jump leaves the rest of the displaced bytes behind,
+        # which would execute as whatever they decode to; 0x90 makes the
+        # tail an explicit no-op rather than a fragment.
+        _entry = b"\xE9" + int(_stub_va - (_site_va + 5)).to_bytes(
+            4, "little", signed=True
+        )
+        _entry += b"\x90" * (len(_displaced) - len(_entry))
+        patches.append(
+            {
+                "offset": f"0x{_site_va - IMAGE_BASE:X}",
+                "before": _actual.hex(),
+                "after": _entry.hex(),
+                "purpose": (
+                    f"divert {_what} into its birth stub, which calls the "
+                    f"companion, replays these bytes and returns to "
+                    f"{_site_va + len(_displaced):#x}"
+                ),
+            }
+        )
     return patches, bytes(page)
 
 

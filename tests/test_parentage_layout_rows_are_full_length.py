@@ -43,6 +43,28 @@ def _fields() -> list[str]:
     )
 
 
+def _members() -> list[str]:
+    """Every member, in the order the struct declares them.
+
+    Not `_fields()`: that regex misses `preference_list` (a plain
+    `const char *`) and `log_name` (its declaration carries a trailing
+    comment), so it returns 33 names for a 34-member struct. Zipping a
+    row against it shifts names past the gap and reports a
+    misalignment that is in the test rather than the source.
+
+    One regex covering every type form the struct uses, in source
+    order, so the decode follows the file."""
+    source = EXPORTER.read_text(encoding="utf-8")
+    body = source[source.index("struct game_layout {") :]
+    body = body[: body.index("\n};")]
+    return re.findall(
+        r"^\s+(?:unsigned int|int|const wchar_t \*"
+        r"|const char \*const \*|const char \*)\s*\*?(\w+);",
+        body,
+        re.M,
+    )
+
+
 def _rows() -> list[list[str]]:
     """The five real rows, comments stripped, as lists of initialiser values."""
     source = EXPORTER.read_text(encoding="utf-8")
@@ -88,7 +110,9 @@ class ParentageLayoutRowsAreFullLengthTests(unittest.TestCase):
         if every row were short by the same amount. These are read by name from
         the decoded row, so they fail loudly if the columns move.
         """
-        names = self.fields + ["log_name"]
+        # The struct's REAL order. log_name is no longer its final
+        # member, and two members are invisible to the field regex.
+        names = _members()
         decoded = [dict(zip(names, row)) for row in self.rows]
 
         # VV1 is the only game with a "no such villager" sentinel, and it is

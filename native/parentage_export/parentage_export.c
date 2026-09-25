@@ -417,6 +417,34 @@ struct game_layout {
     int skills_are_float;
     const char *const *skill_names;
     const wchar_t *log_name;  /* "<name> <n>.txt" beside the executable */
+    /* THE CHILD'S OWN PARENTS, on the child's own record.
+
+       APPENDED HERE ON PURPOSE. The rows below use positional
+       initializers, so a member inserted higher up would shift every
+       value in all five rows and each game would silently read its
+       neighbour's offsets.
+
+       VV1 stores none of this -- it passes its parents in as
+       arguments -- so its seven values are 0. VV2-VV5 keep both
+       parents' name, head and body on every villager for life, which
+       is what lets their Birth records carry the same fields VV1's do
+       without any extra mechanism.
+
+       Verified against the running games, not taken on trust from the
+       population exporter: 370 living villagers read live, no
+       malformed name in any game, and no name resolving as both a
+       father and a mother across 96 distinct parents. The nine
+       parents with two recorded appearances each have one matching
+       that villager's current live looks, which is a birth-time
+       snapshot from before an Origins upgrade rather than a bad
+       offset. */
+    unsigned int parent_father_name;
+    unsigned int parent_mother_name;
+    unsigned int parent_name_capacity;
+    unsigned int parent_father_head;
+    unsigned int parent_father_body;
+    unsigned int parent_mother_head;
+    unsigned int parent_mother_body;
 };
 
 /* MAX_SKILLS and the five skill tables, restated from the population
@@ -565,7 +593,9 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xC7,
         0x398, 0x3A8, 4, PREFERENCES_47,
         0x3BC, 5, 0, SKILL_NAMES_VV1,
-        L"Virtual Villagers 1 Births and Conceptions Log"
+        L"Virtual Villagers 1 Births and Conceptions Log",
+        /* the child's own parents -- VV1 stores no parents on the record; the caller supplies them */
+        0, 0, 0, 0, 0, 0, 0,
     },
 
     /* VV2 -- The Lost Children. Conception is sub_44B980; the mother arrives as
@@ -616,7 +646,9 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0,
         0x5F0, 0x6E8, 62, PREFERENCES_62,
         0x7E4, 5, 0, SKILL_NAMES_VV2,
-        L"Virtual Villagers 2 Births and Conceptions Log"
+        L"Virtual Villagers 2 Births and Conceptions Log",
+        /* the child's own parents, live-verified */
+        0x57D, 0x596, 0x18, 0x5B0, 0x5B4, 0x5B8, 0x5BC,
     },
 
     /* VV3 -- The Secret City. Conception is sub_455AB0, and unlike VV1 and VV2
@@ -683,7 +715,9 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0,
         0xFB4, 0xFC0, 3, PREFERENCES_79,
         0xEAC, 5, 0, SKILL_NAMES_VV3,
-        L"Virtual Villagers 3 Births and Conceptions Log"
+        L"Virtual Villagers 3 Births and Conceptions Log",
+        /* the child's own parents, live-verified */
+        0xDF8, 0xE11, 0x19, 0xE2C, 0xE30, 0xE34, 0xE38,
     },
 
     /* VV4 -- The Tree of Life. Verified against the stock binary:
@@ -744,7 +778,9 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0,
         0x1E60, 0x1E6C, 3, PREFERENCES_79,
         0x1C5C, 5, 1, SKILL_NAMES_VV4,
-        L"Virtual Villagers 4 Births and Conceptions Log"
+        L"Virtual Villagers 4 Births and Conceptions Log",
+        /* the child's own parents, live-verified */
+        0x1BC0, 0x1BD9, 0x19, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00,
     },
 
     /* VV5 -- New Believers. Structurally identical to VV4 at every offset used
@@ -784,7 +820,9 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0,
         0x1F5C, 0x1F68, 3, PREFERENCES_79,
         0x1C5C, 6, 1, SKILL_NAMES_VV5,
-        L"Virtual Villagers 5 Births and Conceptions Log"
+        L"Virtual Villagers 5 Births and Conceptions Log",
+        /* the child's own parents, live-verified */
+        0x1BC0, 0x1BD9, 0x19, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00,
     }
 };
 
@@ -2253,14 +2291,90 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     int existing_records;
     int written;
 
-    if (game_id != GAME_VV1) {
-        return 0;                 /* only A New Home needs a companion for this */
-    }
-    g = &GAME_LAYOUTS[game_id];
-    if (!layout_is_usable(g) || child_name == NULL) {
+    /* EVERY GAME, not just VV1.
+
+       This used to refuse anything but A New Home, on the reasoning
+       that only VV1 needs a companion to recover parentage: VV2-VV5
+       store both parents on the child's own record, and their
+       Population log already prints them.
+
+       That is true and beside the point. The owner's requirement is
+       that all five games ship the same log format, so a Birth record
+       VV1 writes has to be written by the other four as well. The
+       facts being recoverable from another log is not a reason for
+       this one to differ between games.
+
+       The difference in where the parents come from is absorbed
+       below: VV1 takes them from its arguments, VV2-VV5 read them
+       from the child record the caller already supplies. */
+    if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
     }
+    g = &GAME_LAYOUTS[game_id];
+    if (!layout_is_usable(g)) {
+        return 0;
+    }
+
+    /* THE CHILD'S OWN FIELDS, from its record when the caller has none.
+
+       VV1 passes a real name and real values and is unchanged: an
+       explicit argument always wins, and the record path engages only
+       when the caller supplies nothing.
+
+       It exists so a birth hook can pass just the game id and the
+       child's record. Extracting the name and two integers in the
+       hook instead would mean hand-written assembly inside a cave's
+       byte budget, in four games, to produce facts this function is
+       already holding a pointer to. */
+    if (rec != NULL && (child_name == NULL || child_name[0] == '\0')) {
+        child_name = (const char *)(rec + g->name);
+        if (child_head < 0) {
+            child_head = *(const int *)(rec + g->head);
+        }
+        if (child_body < 0) {
+            child_body = *(const int *)(rec + g->body);
+        }
+    }
+    if (child_name == NULL || child_name[0] == '\0') {
+        return 0;         /* no name from either source: not a villager */
+    }
     copy_name_field((const unsigned char *)child_name, child, sizeof(child), g->name_capacity);
+
+    /* WHERE THE PARENTS COME FROM, per game.
+
+       VV1 stores none on the record, so parent_father_name is 0 there
+       and its caller's arguments are the only source -- unchanged.
+
+       VV2-VV5 keep both parents on the CHILD's own record for life.
+       When the caller names no parent, they are read from `rec`,
+       which is the child record the caller already passes for the
+       likes, dislikes and skills below. An explicit argument still
+       wins, so a future caller that knows better is not overridden.
+
+       The offsets were verified against all four running games over
+       370 living villagers: no malformed name, and no name resolving
+       as both a father and a mother across 96 distinct parents. */
+    if (rec != NULL && g->parent_father_name != 0u) {
+        if (mother_name == NULL || mother_name[0] == '\0') {
+            mother_name = (const char *)(rec + g->parent_mother_name);
+            if (mother_head < 0) {
+                mother_head = *(const int *)(rec + g->parent_mother_head);
+            }
+            if (mother_body < 0) {
+                mother_body = *(const int *)(rec + g->parent_mother_body);
+            }
+        }
+        if (father_name == NULL || father_name[0] == '\0') {
+            father_name = (const char *)(rec + g->parent_father_name);
+            if (father_head < 0) {
+                father_head = *(const int *)(rec + g->parent_father_head);
+            }
+            if (father_body < 0) {
+                father_body = *(const int *)(rec + g->parent_father_body);
+            }
+        }
+    }
+
     if (mother_name != NULL && mother_name[0] != '\0') {
         copy_name_field((const unsigned char *)mother_name, mother, sizeof(mother), g->name_capacity);
     } else {
