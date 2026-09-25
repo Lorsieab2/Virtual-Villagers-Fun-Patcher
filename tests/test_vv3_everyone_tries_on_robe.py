@@ -85,17 +85,21 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     #     cmp dword ptr [esp+0x24], 0x45B8CE
     # Nothing outside those two regions moved, and this test was green at
     # the preceding commit, so the move is caused by that change alone.
+    # Re-pinned for the B caller's father slot correction. A full-catalog
+    # before/after byte comparison found 34 changed bytes in each mode:
+    # two PE checksum bytes and 32 within the parentage trampoline at
+    # 0xCB000..0xCB078. No other rendered bytes changed.
     "stock": (
-        "F9D089B30684CE44BCDCC86EC7983AEBAA91CD3CD02EBD7814134D0FBC024BE5",
-        "6A5D0D00",
+        "A6A307A4EBA92274110B31B892876747FAA0B3D683F28200BDF4CC3E0290A199",
+        "C1690D00",
     ),
     "collection_progression": (
-        "DBE8A9A39153D45DB937F5099C5BA36D95A948AF05437BD841F0DDDFE20A3980",
-        "6A760D00",
+        "D6593D2F5C6ED58AFEAE4AC57DF243AAD6D0DEA323FEB1084C57EB5EE19B8503",
+        "C1820D00",
     ),
     "immediate_fixed": (
-        "02A3B162970023815D19467837E3D2647A6522551EFCDD6522118037BB70728A",
-        "68B80D00",
+        "81FD4C3870ED3D9926BFDE3E7F4585FE07F440C550BAC244EC34FF74F255B79E",
+        "BFC40D00",
     ),
 }
 
