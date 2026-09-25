@@ -266,9 +266,9 @@ BIRTH_STRIDE = 0x1F8C
 BIRTH_RECORDS_VA = 0x0059E110
 # Placed after the reset block, in the filler tail this page already
 # carries. Measured on the emitted page rather than assumed.
-BIRTH_BODY_OFFSET = 0x49
-BIRTH_EXPORT_NAME_OFFSET = 0xA5
-BIRTH_STUBS_OFFSET = 0xB9
+BIRTH_BODY_OFFSET = 0x100
+BIRTH_EXPORT_NAME_OFFSET = 0x15C
+BIRTH_STUBS_OFFSET = 0x170
 # Sized for the LONGEST site. The triplet replays eight displaced
 # bytes rather than five, so 5 (call) + 8 (replay) + 5 (jump) = 0x12.
 BIRTH_STUB_SIZE = 0x12
@@ -443,6 +443,38 @@ def _build_page(base_va: int = PAGE_VA) -> bytes:
             f"the birth body is {len(birth_body):#x} bytes and runs into "
             f"the export name"
         )
+
+    # DO NOT PLACE THE BIRTH BLOCK ON TOP OF ANYTHING.
+    #
+    # Codex found that VV3's block had landed on the conception
+    # trampoline, the DLL name and the export name: the emitted page no
+    # longer contained either loader string, so the conception hook could
+    # not resolve its exports. The offsets had been chosen by scanning a
+    # BUILT ARTIFACT for zero runs, which measures the composed page --
+    # where a run is free only because the generator has not written it
+    # yet. These slice assignments run last, so they overwrote it.
+    #
+    # This reads the page in hand instead, which write order cannot fool.
+    for _lo, _hi, _what in (
+        (BIRTH_BODY_OFFSET, BIRTH_BODY_OFFSET + len(birth_body), "body"),
+        (
+            BIRTH_EXPORT_NAME_OFFSET,
+            BIRTH_EXPORT_NAME_OFFSET + len(BIRTH_EXPORT_NAME),
+            "export name",
+        ),
+        (
+            BIRTH_STUBS_OFFSET,
+            BIRTH_STUBS_OFFSET + len(BIRTH_SITES) * BIRTH_STUB_SIZE,
+            "stubs",
+        ),
+    ):
+        _clash = [_i for _i in range(_lo, _hi) if page[_i]]
+        if _clash:
+            raise RuntimeError(
+                f"the birth {_what} at {_lo:#x}..{_hi:#x} would overwrite "
+                f"{len(_clash)} occupied byte(s), first at "
+                f"{_clash[0]:#x}"
+            )
     page[BIRTH_BODY_OFFSET : BIRTH_BODY_OFFSET + len(birth_body)] = birth_body
     page[
         BIRTH_EXPORT_NAME_OFFSET : BIRTH_EXPORT_NAME_OFFSET

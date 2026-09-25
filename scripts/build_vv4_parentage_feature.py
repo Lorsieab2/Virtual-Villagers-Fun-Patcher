@@ -509,6 +509,38 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             f"the birth body is {len(birth_body):#x} bytes and runs into "
             f"the export name"
         )
+
+    # DO NOT PLACE THE BIRTH BLOCK ON TOP OF ANYTHING.
+    #
+    # Codex found that VV3's block had landed on the conception
+    # trampoline, the DLL name and the export name: the emitted page no
+    # longer contained either loader string, so the conception hook could
+    # not resolve its exports. The offsets had been chosen by scanning a
+    # BUILT ARTIFACT for zero runs, which measures the composed page --
+    # where a run is free only because the generator has not written it
+    # yet. These slice assignments run last, so they overwrote it.
+    #
+    # This reads the page in hand instead, which write order cannot fool.
+    for _lo, _hi, _what in (
+        (BIRTH_BODY_OFFSET, BIRTH_BODY_OFFSET + len(birth_body), "body"),
+        (
+            BIRTH_EXPORT_NAME_OFFSET,
+            BIRTH_EXPORT_NAME_OFFSET + len(BIRTH_EXPORT_NAME),
+            "export name",
+        ),
+        (
+            BIRTH_STUBS_OFFSET,
+            BIRTH_STUBS_OFFSET + len(BIRTH_SITES) * BIRTH_STUB_SIZE,
+            "stubs",
+        ),
+    ):
+        _clash = [_i for _i in range(_lo, _hi) if page[_i]]
+        if _clash:
+            raise RuntimeError(
+                f"the birth {_what} at {_lo:#x}..{_hi:#x} would overwrite "
+                f"{len(_clash)} occupied byte(s), first at "
+                f"{_clash[0]:#x}"
+            )
     page[BIRTH_BODY_OFFSET : BIRTH_BODY_OFFSET + len(birth_body)] = birth_body
     page[
         BIRTH_EXPORT_NAME_OFFSET : BIRTH_EXPORT_NAME_OFFSET
