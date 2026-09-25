@@ -414,7 +414,7 @@ Records both parents at conception in a plain text log: their names, both parent
 - Explicit non-changes/exclusions: none declared
 - Dependencies: vv2_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits when its required base is also selected: 3; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 7; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv2_write_village_statistics`)
 
