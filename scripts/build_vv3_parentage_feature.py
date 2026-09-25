@@ -124,12 +124,13 @@ GAME_ID = 3
 
 # The hook. `add dword_5824A8, ecx`, six bytes, zero incoming branches.
 # The two callers of sub_455AB0, and the return address each lands on. The
-# caller's ESI holds the father at both sites. The routine saves that entry
-# value with `push esi`, then `mov esi, ecx` makes ESI the mother at the hook.
-# The saved caller ESI is at [esp+0x20] after pushad. Match the FULL return
-# address so an unknown caller still supplies no father rather than a guess.
+# caller's ESI holds the father at A and on one path through B. The routine
+# saves that entry value with `push esi`, then `mov esi, ecx` makes ESI the
+# mother at the hook. The saved caller ESI is at [esp+0x20] after pushad.
+# Match the FULL return address so an unknown caller still supplies no father.
 #   0x45833E  ESI = father, EBP = ECX = mother
-#   0x45B8C9  ESI = father, EDI = ECX = mother (measured in 45 B hits)
+#   0x45B8C9  either ESI = father, EDI = ECX = mother (45 measured B hits)
+#             or ESI = ECX = mother, EDI = father (alternate stock branch)
 CALLER_ESI_RETURN = 0x00458343
 CALLER_EDI_RETURN = 0x0045B8CE
 
@@ -347,12 +348,14 @@ def _build_page(base_va: int = PAGE_VA) -> bytes:
             # At the hook ESI is the mother's record: sub_455AB0 does
             # `mov esi, ecx` at 0x455AB1 and saves only the caller's esi.
             # pushad then puts hook-time EDI at +0 and hook-time ESI at +4.
-            # Both are the mother on caller B: its call-site ESI is the father,
-            # but the routine's `mov esi, ecx` replaces it with the mother.
-            # The entry `push esi` is the surviving father at [esp + 0x20].
-            # Runtime evidence: ECX == EDI in 45 B hits; the companion got
-            # the mother from pushad ESI and rejected pushad EDI as father in
-            # 44 calls. Caller A also reads [esp + 0x20] and passes the guard.
+            # Caller B has two paths. When call-site EDI is the mother, saved
+            # entry ESI at +0x20 is the father; when call-site ESI is the
+            # mother, EDI at +0x00 is the father. Compare saved entry ESI to
+            # hook-time ESI (the mother) to select the other parent.
+            # Runtime evidence covers the first path: ECX == EDI in 45 B
+            # hits; the companion rejected pushad EDI as father in 44 calls.
+            # The alternate path is established by the stock caller's gender
+            # branch at 0x45B89A; live validation remains pending.
             # The return address at [esp + 0x24] still selects only the two
             # known callers, 0x458343 and 0x45B8CE.
             #
@@ -383,6 +386,9 @@ def _build_page(base_va: int = PAGE_VA) -> bytes:
             cmp dword ptr [esp + 0x24], 0x{CALLER_EDI_RETURN:X}
             jne have_father
             mov edx, dword ptr [esp + 0x20]
+            cmp edx, dword ptr [esp + 0x04]
+            jne have_father
+            mov edx, dword ptr [esp + 0x00]
         have_father:
             push edx
             push dword ptr [esp + 0x08]
@@ -714,8 +720,8 @@ def build() -> dict:
                     "so the log reads them from her record and they are "
                     "correct even after he dies or another villager takes his "
                     "name. His AGE, which has no copy on her, is read from his "
-                    "own record at conception -- the conception routine saved "
-                    "the caller's ESI -- so a normal birth records his real "
+                    "own record at conception -- the conception hook reads "
+                    "the other parent's saved record -- so a normal birth records his real "
                     "age. Rolls to a new numbered file every 256 records."
                 ),
                 "needs_on": [

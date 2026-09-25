@@ -89,17 +89,22 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # before/after byte comparison found 34 changed bytes in each mode:
     # two PE checksum bytes and 32 within the parentage trampoline at
     # 0xCB000..0xCB078. No other rendered bytes changed.
+    # Re-pinned again for caller B's second gender path. Relative to the
+    # preceding PR commit, each render changes 38 bytes in the parentage
+    # trampoline (through page offset 0x71) and only its PE checksum:
+    # three checksum bytes in stock/collection_progression, two in
+    # immediate_fixed. The optional overlay has those same 38 code changes.
     "stock": (
-        "A6A307A4EBA92274110B31B892876747FAA0B3D683F28200BDF4CC3E0290A199",
-        "C1690D00",
+        "8EC1CB04066431C4F91A7D67921126949B41F3E18E2747FA90FD6AC01CBAD99A",
+        "59E10C00",
     ),
     "collection_progression": (
-        "D6593D2F5C6ED58AFEAE4AC57DF243AAD6D0DEA323FEB1084C57EB5EE19B8503",
-        "C1820D00",
+        "DC72BBA102F74AAFC6FD699F8AF9AB824A0BC48625A58C7FAFB6508082FE9D9C",
+        "59FA0C00",
     ),
     "immediate_fixed": (
-        "81FD4C3870ED3D9926BFDE3E7F4585FE07F440C550BAC244EC34FF74F255B79E",
-        "BFC40D00",
+        "84F9D7D6384E0CB48B056CA584846880F8D8E10A6734C973F798212C814CB4B8",
+        "573C0D00",
     ),
 }
 
