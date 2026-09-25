@@ -227,6 +227,52 @@ RESET_THUNK_VA = 0x00427E00
 
 
 
+
+# THE BIRTH HOOK.
+#
+# The conception hook above records the parents when a pregnancy
+# starts. This records the CHILD when it is born, so the Births and
+# Conceptions log carries both halves of what its name promises --
+# the owner's requirement that all five games ship the same log
+# format, which VV1 already meets and this game did not.
+#
+# One stub per child-creation site, all calling a shared body. The
+# splices are the instruction AFTER each creating call, which is
+# where VV1's shipped birth hook splices too: the new child's record
+# INDEX is in EAX there.
+#
+# The addresses were found by tracking that index through register
+# copies to its `imul <reg>,<reg>,<stride>`, with VV1's four known
+# splices used as a control -- the method had to rediscover them
+# before this game's output was believed -- and then re-verified from
+# the file bytes: 0xE8 opcode, hand-decoded rel32 reproducing the
+# target, splice at call+5.
+#
+# THE DISPLACED BYTES ARE NOT UNIFORM. The destination register
+# varies, and the triplet site needs eight bytes rather than five
+# because a five-byte jump would land inside an imul. They are read
+# from the stock file and checked against it at build time.
+BIRTH_SITES = (
+    (0x004603BB, bytes.fromhex("8bf883ffff"), "the first child of every birth"),
+    (0x00460438, bytes.fromhex("8bd883fbff"), "the twin"),
+    (0x004604AD, bytes.fromhex("8bf883ffff"), "the triplet"),
+)
+BIRTH_EXPORT_NAME = b"WriteParentageBirth\0"
+# The child's record, for a game whose ESI points into the MOTHER's
+# record rather than at a village object, so [ESI+4] is meaningless:
+#     records container + record base + index * stride
+BIRTH_RECORD_BASE = 0x14
+BIRTH_STRIDE = 0x1F8C
+BIRTH_RECORDS_VA = 0x0059E110
+# Placed after the reset block, in the filler tail this page already
+# carries. Measured on the emitted page rather than assumed.
+BIRTH_BODY_OFFSET = 0x49
+BIRTH_EXPORT_NAME_OFFSET = 0xA5
+BIRTH_STUBS_OFFSET = 0xB9
+# Sized for the LONGEST site. The triplet replays eight displaced
+# bytes rather than five, so 5 (call) + 8 (replay) + 5 (jump) = 0x12.
+BIRTH_STUB_SIZE = 0x12
+
 def assemble(source: str, address: int) -> bytes:
     engine = keystone.Ks(keystone.KS_ARCH_X86, keystone.KS_MODE_32)
     encoding, _ = engine.asm(source, address)
@@ -340,6 +386,88 @@ def _build_page(base_va: int = PAGE_VA) -> bytes:
     page[DLL_NAME_OFFSET : DLL_NAME_OFFSET + len(DLL_NAME)] = DLL_NAME
     page[EXPORT_NAME_OFFSET : EXPORT_NAME_OFFSET + len(EXPORT_NAME)] = EXPORT_NAME
 
+    # ---- THE BIRTH HOOK ------------------------------------------------
+    #
+    # The trampoline above records the parents when a pregnancy starts.
+    # This records the CHILD when it is born, so the Births and
+    # Conceptions log carries both halves of what its name promises --
+    # the owner's requirement that all five games ship the same log
+    # format, which VV1 already meets and VV3 did not.
+    #
+    # VV3's ESI points into the MOTHER's record at these splices rather
+    # than at a village object, so [ESI+4] is meaningless and the child's
+    # record is computed from the game's own records container instead.
+    # The child's record INDEX is in EAX at all three splices.
+    birth_body_va = cave_va + BIRTH_BODY_OFFSET
+    birth_export_va = cave_va + BIRTH_EXPORT_NAME_OFFSET
+    birth_body = assemble(
+        f"""
+            pushad
+            push 0x{dll_name_va:X}
+            call dword ptr [0x{GET_MODULE_HANDLE_IAT:X}]
+            test eax, eax
+            jne birth_resolve
+            push 0x{dll_name_va:X}
+            call dword ptr [0x{LOAD_LIBRARY_IAT:X}]
+            test eax, eax
+            jz birth_done
+        birth_resolve:
+            push 0x{birth_export_va:X}
+            push eax
+            call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
+            test eax, eax
+            jz birth_done
+            mov ecx, dword ptr [esp + 0x1C]
+            imul ecx, ecx, 0x{BIRTH_STRIDE:X}
+            add ecx, 0x{BIRTH_RECORDS_VA + BIRTH_RECORD_BASE:X}
+            push ecx
+            push -1
+            push -1
+            push 0
+            push -1
+            push -1
+            push 0
+            push -1
+            push -1
+            push 0
+            push {GAME_ID}
+            call eax
+        birth_done:
+            popad
+            ret
+        """,
+        birth_body_va,
+    )
+    if len(birth_body) > BIRTH_EXPORT_NAME_OFFSET - BIRTH_BODY_OFFSET:
+        raise RuntimeError(
+            f"the birth body is {len(birth_body):#x} bytes and runs into "
+            f"the export name"
+        )
+    page[BIRTH_BODY_OFFSET : BIRTH_BODY_OFFSET + len(birth_body)] = birth_body
+    page[
+        BIRTH_EXPORT_NAME_OFFSET : BIRTH_EXPORT_NAME_OFFSET
+        + len(BIRTH_EXPORT_NAME)
+    ] = BIRTH_EXPORT_NAME
+    for _index, (_site_va, _displaced, _what) in enumerate(BIRTH_SITES):
+        _stub_off = BIRTH_STUBS_OFFSET + _index * BIRTH_STUB_SIZE
+        _stub_va = cave_va + _stub_off
+        _stub = (
+            b"\xE8"
+            + int(birth_body_va - (_stub_va + 5)).to_bytes(4, "little", signed=True)
+            + _displaced
+            + b"\xE9"
+            + int(
+                (_site_va + len(_displaced))
+                - (_stub_va + 5 + len(_displaced) + 5)
+            ).to_bytes(4, "little", signed=True)
+        )
+        if len(_stub) > BIRTH_STUB_SIZE:
+            raise RuntimeError(
+                f"birth stub {_index} is {len(_stub):#x} bytes, reserved "
+                f"{BIRTH_STUB_SIZE:#x}"
+            )
+        page[_stub_off : _stub_off + len(_stub)] = _stub
+
     return bytes(page)
 
 
@@ -357,7 +485,7 @@ def _hook_patches(page_va: int) -> list[dict[str, object]]:
     # too would make uninstalling the parentage log strip a stub Origins
     # still needs.
 
-    return [
+    _entries = [
         {
             "offset": f"0x{HOOK_FILE:X}",
             "before": HOOK_STOLEN.hex().upper(),
@@ -370,6 +498,31 @@ def _hook_patches(page_va: int) -> list[dict[str, object]]:
             ),
         },
     ]
+
+    # The three birth splices. Each replays its OWN displaced bytes --
+    # five at every VV3 site, but the count is read from the table rather
+    # than assumed, because VV4 and VV5 need eight at their triplet.
+    for _index, (_site_va, _displaced, _what) in enumerate(BIRTH_SITES):
+        _stub_va = page_va + BIRTH_STUBS_OFFSET + _index * BIRTH_STUB_SIZE
+        _entry = b"\xE9" + int(_stub_va - (_site_va + 5)).to_bytes(
+            4, "little", signed=True
+        )
+        # A five-byte jump leaves the rest behind, which would execute as
+        # whatever it decodes to; 0x90 makes the tail an explicit no-op.
+        _entry += b"\x90" * (len(_displaced) - len(_entry))
+        _entries.append(
+            {
+                "offset": f"0x{_site_va - 0x400000:X}",
+                "before": _displaced.hex().upper(),
+                "after": _entry.hex().upper(),
+                "purpose": (
+                    f"Divert {_what} into its birth stub, which calls the "
+                    f"companion, replays these bytes and returns to "
+                    f"{_site_va + len(_displaced):#x}."
+                ),
+            }
+        )
+    return _entries
 
 
 def _emit(

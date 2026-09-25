@@ -62,18 +62,23 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
+    # Re-pinned again when the parentage feature gained the birth hook:
+    # three site rewrites, plus a body, export name and stubs placed in
+    # the feature's own overlay. Verified before re-pinning that every
+    # differing byte lies inside that overlay (0xCB400, length 0x400)
+    # and that nothing outside it moved.
     # Re-pinned when the shared parentage-export DLL gained the father's age at
     # conception and the recovery/twins/village fixes: its hash changed, and
     # VV3's parentage trampoline embeds that hash, so the composed render
     # shifted -- both the digest and the PE checksum word at 0x160 moved, for
     # all five games.
     "collection_progression": (
-        "825B00CF7A2D36131DA4F3FD72B199C7A5378601675DF0DB8F160CD78C20C58C",
-        "99540D00",
+        "447C85793065F18A495CF41DCAA2D09D317D0DC7CF92F47AE74D2525B1DFAF05",
+        "98EB0C00",
     ),
     "immediate_fixed": (
-        "17D316F84002F8D1FB9DF7D7F3F8C0A4C28CE0C8702E34AA0A326986002BB577",
-        "97960D00",
+        "6F48DC529BF17AD4C4DF2D4C588272C3969C240C38C4667966627A09E00178C8",
+        "962D0D00",
     ),
 }
 
