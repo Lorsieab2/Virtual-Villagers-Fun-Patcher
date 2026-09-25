@@ -50,8 +50,8 @@ CASES = {
 
 MODES = ("collection_progression", "immediate_fixed")
 
-# The conception routine cleans its own seven arguments, so the suppression
-# flag has to be read before the stolen call, not after it.
+# The conception routine cleans its seven copied arguments; the caller's
+# originals remain on the stack for the trampoline to read afterwards.
 FLAG_READ_MNEMONIC = "mov"
 
 
@@ -193,26 +193,14 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
         self.assertTrue(listing, "%s: trampoline did not disassemble" % where)
         decoded = [(item.mnemonic, item.op_str) for item in listing]
 
-        # NOTHING MAY BE PUSHED BEFORE THE STOLEN CALL EXCEPT THE ARGUMENTS.
+        # Only a checked snapshot and the seven copied arguments may precede
+        # the stolen call.
         #
-        # This previously required the trampoline to open with `push ebx`, on
-        # the stated premise that the caller dereferences ebx after the call.
-        # That premise is false in both games: disassembling the hook site
-        # shows only `pop edi; pop esi; pop ebp; ret 8` afterwards, and the
-        # enclosing routine pops its own saved ebx well before reaching the
-        # hook. ebx is dead across this call.
-        #
-        # Worse, the assertion pinned the exact shape that crashed VV4 and VV5
-        # on startup. The hook REPLACES the game's `call`, so the game's call
-        # already pushed a return address; anything else on the stack when the
-        # callee is entered shifts its esp-relative argument reads. The owner
-        # reported the crash and the Windows dumps named it precisely: the
-        # callee's "arg1" held the game's own return address, and MSVC's string
-        # copy faulted on a source pointer of 0x1 -- a save-slot index read
-        # where a name pointer belongs.
-        #
-        # So the requirement is the opposite of what was asserted: only the
-        # re-pushed arguments may precede the stolen call.
+        # The hook replaces a call, so the game's call already pushed a return
+        # address. A stray push between that return address and the seven
+        # copied arguments shifts the callee's frame. A conception-total
+        # snapshot is safe only when all seven copies read one dword farther
+        # down the original frame.
         call_first = next(
             (i for i, item in enumerate(listing)
              if item.mnemonic == "call" and item.op_str.startswith("0x")),
@@ -220,15 +208,16 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
         )
         self.assertIsNotNone(
             call_first, "%s: trampoline makes no direct call" % where)
-        for item in listing[:call_first]:
-            if item.mnemonic != "push":
-                continue
-            self.assertRegex(
-                item.op_str,
-                r"^dword ptr \[esp \+ 0x[0-9a-f]+\]$",
-                "%s: only argument re-pushes may precede the stolen call, "
-                "found `push %s`" % (where, item.op_str),
-            )
+        pushes = [item.op_str for item in listing[:call_first]
+                  if item.mnemonic == "push"]
+        if len(pushes) == 8:
+            total = {4: "0x4d6de8", 5: "0x51d360"}[game]
+            expected = ["dword ptr [%s]" % total] + [
+                "dword ptr [esp + 0x20]"] * 7
+        else:
+            expected = ["dword ptr [esp + 0x1c]"] * 7
+        self.assertEqual(pushes, expected,
+                         "%s: copied argument frame is shifted" % where)
 
         # The trampoline impersonates the routine it replaces, so it must clean
         # the caller's arguments itself with the same `ret <n>`. A bare `ret`
