@@ -188,13 +188,25 @@ JOIN_STOCK = bytes.fromhex("5e5fc21c00")          # pop esi; pop edi; ret 0x1C
 CAVE_FILE = 0xB241A
 CAVE_SIZE = 0xBE
 
-# Layout inside the cave. The trampoline measures about 0x41 bytes, so the stub
-# sits at 0x60 and the strings at 0x70 and 0x90 -- deliberately generous,
-# because an earlier VV1 layout let a trampoline run into the DLL name and the
-# overrun decoded as plausible instructions rather than failing.
-STUB_OFFSET = 0x60
-DLL_NAME_OFFSET = 0x70
-EXPORT_NAME_OFFSET = 0x90
+# Layout inside the cave, measured against what is actually emitted rather
+# than estimated. An earlier VV1 layout let a trampoline run into the DLL name
+# and the overrun decoded as plausible instructions instead of failing, which
+# is why each region is guarded below and why the gaps are kept honest.
+#
+#   trampoline                  0x78   (grew from ~0x41 when the caller
+#                                       selector widened to full 32-bit
+#                                       compares and gained two callers)
+#   relocated rejection stub    0x04   (pop edi; ret 0x1C)
+#   DLL_NAME                    0x1A
+#   EXPORT_NAME                 0x1F
+#
+# 0x7C + 4 = 0x80 for the code, strings at 0x80 and 0x9A, last byte used 0xB8,
+# five spare at the end of the 0xBE cave. The trampoline's old 0x60 budget is
+# what the size guard rejected; this gives it a real slot instead of raising
+# the ceiling.
+STUB_OFFSET = 0x7C
+DLL_NAME_OFFSET = 0x80
+EXPORT_NAME_OFFSET = 0x9A
 
 DLL_NAME = b"VVFP Parentage Export.dll\0"
 EXPORT_NAME = b"WriteParentageRecordWithFather\0"
@@ -234,6 +246,17 @@ RESET_COMPANION_SOURCE = "assets/save_reset/VVFP Save Reset.dll"
 # Other callers pass only decomposed values and deliberately receive NULL.
 NORMAL_CALLER_EBX_RETURN = 0x0044F8F5
 NORMAL_CALLER_EDI_RETURN = 0x0044F935
+# Two further ordinary callers hold the father in EDI and were passing NULL,
+# which sent the companion to the name scan and lost his age, likes and
+# dislikes whenever two living villagers shared his name. Proven father
+# records: each block dereferences its register at +0x548 (head), +0x54C
+# (body) and +0x564 (name), and EDI survives to the call in both.
+#   0x00464A38 -> [edi+0x54C] 0x464A03, [edi+0x548] 0x464A09,
+#                 lea eax,[edi+0x564] 0x464A21
+#   0x00464C4D -> [edi+0x548] 0x464C18, [edi+0x54C] 0x464C24,
+#                 lea edx,[edi+0x564] 0x464C36
+NORMAL_CALLER_EDI_RETURN_2 = 0x00464A3D
+NORMAL_CALLER_EDI_RETURN_3 = 0x00464C52
 
 # Resolved from the stock import table, not assumed. All three are the ANSI
 # variants, which is what the ASCII name string above requires.
@@ -381,13 +404,31 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             # address at +0x28. Saved EBX is at +0x10. Select only the two
             # ordinary callers whose registers are proven father records.
             xor edx, edx
-            cmp byte ptr [esp + 0x29], 0xF8
+            # FULL 32-BIT COMPARES, not a byte or word of the address.
+            #
+            # The earlier `cmp byte ptr [esp+0x29], 0xF8` matched any return
+            # address whose second byte was 0xF8, and the word form any
+            # address ending 0xF935. Both were unambiguous among the six real
+            # sites by luck rather than by construction, and the two callers
+            # added below sit in a different 64K page -- so a fragment test
+            # would be unsafe for them. Three bytes each buys the whole
+            # pointer.
+            cmp dword ptr [esp + 0x28], 0x{NORMAL_CALLER_EBX_RETURN:X}
             jne check_edi_caller
             mov edx, dword ptr [esp + 0x10]
             jmp have_father
         check_edi_caller:
-            cmp word ptr [esp + 0x28], 0xF935
+            # All three EDI callers share one load: the father is the caller's
+            # EDI, preserved by the routine's own `push edi` prologue at
+            # [esp + 0x24]. The pushad copy at [esp + 0x00] is the records
+            # container the routine put there, not the father.
+            cmp dword ptr [esp + 0x28], 0x{NORMAL_CALLER_EDI_RETURN:X}
+            je take_edi
+            cmp dword ptr [esp + 0x28], 0x{NORMAL_CALLER_EDI_RETURN_2:X}
+            je take_edi
+            cmp dword ptr [esp + 0x28], 0x{NORMAL_CALLER_EDI_RETURN_3:X}
             jne have_father
+        take_edi:
             mov edx, dword ptr [esp + 0x24]
         have_father:
             # WriteParentageRecordWithFather(game_id, records, mother, father).
