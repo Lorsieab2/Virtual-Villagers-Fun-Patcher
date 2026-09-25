@@ -195,14 +195,23 @@ class ParentageTrampolinesDoNotNestCallsTests(unittest.TestCase):
                     and ins.op_str == hex(conception))
                 pushes = [ins.op_str for ins in stream[:call_index]
                           if ins.mnemonic == "push"]
-                if game == 4:
-                    total = "0x4d6de8"
+                if game in (4, 5):
+                    total = {4: "0x4d6de8", 5: "0x51d360"}[game]
                     self.assertEqual(pushes,
                                      [f"dword ptr [{total}]"]
                                      + ["dword ptr [esp + 0x20]"] * 7)
                 else:
                     self.assertEqual(pushes,
                                      ["dword ptr [esp + 0x1c]"] * 7)
+                if game in (4, 5):
+                    cleanup = next(
+                        (ins for ins in stream[call_index + 1:call_index + 8]
+                         if ins.mnemonic == "lea"
+                         and ins.op_str.replace(" ", "") == "esp,[esp+4]"),
+                        None,
+                    )
+                    self.assertIsNotNone(
+                        cleanup, "snapshot dword must be removed after the call")
 
 
 if __name__ == "__main__":

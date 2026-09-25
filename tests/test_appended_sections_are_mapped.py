@@ -210,14 +210,23 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
             call_first, "%s: trampoline makes no direct call" % where)
         pushes = [item.op_str for item in listing[:call_first]
                   if item.mnemonic == "push"]
-        if game == 4:
-            total = "0x4d6de8"
+        if game in (4, 5):
+            total = {4: "0x4d6de8", 5: "0x51d360"}[game]
             expected = ["dword ptr [%s]" % total] + [
                 "dword ptr [esp + 0x20]"] * 7
         else:
             expected = ["dword ptr [esp + 0x1c]"] * 7
         self.assertEqual(pushes, expected,
                          "%s: copied argument frame is shifted" % where)
+        if game in (4, 5):
+            cleanup = next(
+                (item for item in listing[call_first + 1:call_first + 8]
+                 if item.mnemonic == "lea"
+                 and item.op_str.replace(" ", "") == "esp,[esp+4]"),
+                None,
+            )
+            self.assertIsNotNone(
+                cleanup, "%s: snapshot dword must be removed after the call" % where)
 
         # The trampoline impersonates the routine it replaces, so it must clean
         # the caller's arguments itself with the same `ret <n>`. A bare `ret`
