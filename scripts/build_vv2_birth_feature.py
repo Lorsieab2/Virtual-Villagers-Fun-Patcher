@@ -204,6 +204,17 @@ def _payload() -> bytes:
             mov esi, dword ptr [esp + 0x04]
             mov esi, dword ptr [esi + 4]
             mov ecx, dword ptr [esp + 0x1C]
+            # THE CHILD MAY NEVER HAVE BEEN ALLOCATED.
+            #
+            # The game handles a failed creation with its own test of the
+            # returned index against -1, and this stub runs BEFORE that test
+            # replays. Without this, the scale below turns -1 into a pointer
+            # before record zero, which the companion then reads as a
+            # villager -- logging unrelated memory as a birth, or crashing,
+            # instead of following the game's allocation-failure path.
+            # Found in review.
+            cmp ecx, -1
+            je done
             imul ecx, ecx, 0x{STRIDE:X}
             add ecx, esi
             push ecx

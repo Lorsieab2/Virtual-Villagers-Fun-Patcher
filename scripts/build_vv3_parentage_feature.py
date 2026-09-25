@@ -267,8 +267,8 @@ BIRTH_RECORDS_VA = 0x0059E110
 # Placed after the reset block, in the filler tail this page already
 # carries. Measured on the emitted page rather than assumed.
 BIRTH_BODY_OFFSET = 0x100
-BIRTH_EXPORT_NAME_OFFSET = 0x15C
-BIRTH_STUBS_OFFSET = 0x170
+BIRTH_EXPORT_NAME_OFFSET = 0x160
+BIRTH_STUBS_OFFSET = 0x174
 # Sized for the LONGEST site. The triplet replays eight displaced
 # bytes rather than five, so 5 (call) + 8 (replay) + 5 (jump) = 0x12.
 BIRTH_STUB_SIZE = 0x12
@@ -418,6 +418,15 @@ def _build_page(base_va: int = PAGE_VA) -> bytes:
             test eax, eax
             jz birth_done
             mov ecx, dword ptr [esp + 0x1C]
+            # THE CHILD MAY NEVER HAVE BEEN ALLOCATED.
+            #
+            # The game's own handling of that is the `cmp <reg>,-1` this
+            # stub displaces, and the stub calls here BEFORE replaying it.
+            # Without this test the scale below turns -1 into a pointer
+            # before record zero, which the companion then reads as a
+            # villager. Found in review.
+            cmp ecx, -1
+            je birth_done
             imul ecx, ecx, 0x{BIRTH_STRIDE:X}
             add ecx, 0x{BIRTH_RECORDS_VA + BIRTH_RECORD_BASE:X}
             push ecx
