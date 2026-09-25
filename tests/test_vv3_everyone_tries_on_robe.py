@@ -67,28 +67,35 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the feature's own overlay. Verified before re-pinning that every
     # differing byte lies inside that overlay (0xCB400, length 0x400)
     # and that nothing outside it moved.
-    # Re-pinned again when the parentage feature gained the birth hook:
-    # three site rewrites, plus a body, export name and stubs placed in
-    # the feature's own overlay. Verified before re-pinning that every
-    # differing byte lies inside that overlay (0xCB400, length 0x400)
-    # and that nothing outside it moved.
-    # Re-pinned again when the parentage feature gained the birth hook:
-    # three site rewrites, plus a body, export name and stubs placed in
-    # the feature's own overlay. Verified before re-pinning that every
-    # differing byte lies inside that overlay (0xCB400, length 0x400)
-    # and that nothing outside it moved.
     # Re-pinned when the shared parentage-export DLL gained the father's age at
     # conception and the recovery/twins/village fixes: its hash changed, and
     # VV3's parentage trampoline embeds that hash, so the composed render
     # shifted -- both the digest and the PE checksum word at 0x160 moved, for
     # all five games.
+    # Re-pinned when VV3's caller selector widened to full 32-bit return
+    # addresses and stopped defaulting an unknown caller to the EDI branch.
+    # Justified BEFORE re-pinning by rendering this executable from the
+    # current tree and from the previous manifest and diffing them byte for
+    # byte: 53 differing bytes, of which 0x160..0x162 are the PE CheckSum
+    # (PE+0x58; SizeOfImage is unchanged at 0x2E1000) and 0xCB41E..0xCB467
+    # are the trampoline itself, disassembling from
+    #     cmp byte ptr [esp+0x24], 0x43
+    # to
+    #     cmp dword ptr [esp+0x24], 0x458343
+    #     cmp dword ptr [esp+0x24], 0x45B8CE
+    # Nothing outside those two regions moved, and this test was green at
+    # the preceding commit, so the move is caused by that change alone.
+    "stock": (
+        "F9D089B30684CE44BCDCC86EC7983AEBAA91CD3CD02EBD7814134D0FBC024BE5",
+        "6A5D0D00",
+    ),
     "collection_progression": (
-        "A5AC93CD451E7ACE2169BDA0F942480E65AAE9962EC6FBDB408A46DE900D9D08",
-        "84F00C00",
+        "DBE8A9A39153D45DB937F5099C5BA36D95A948AF05437BD841F0DDDFE20A3980",
+        "6A760D00",
     ),
     "immediate_fixed": (
-        "A76D16E5D103ADCEBC83C841601B08F31286C2E8874B48EA268C44E6E9DA2CB4",
-        "82320D00",
+        "02A3B162970023815D19467837E3D2647A6522551EFCDD6522118037BB70728A",
+        "68B80D00",
     ),
 }
 

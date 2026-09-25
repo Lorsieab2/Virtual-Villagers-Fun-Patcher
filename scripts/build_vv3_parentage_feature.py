@@ -123,6 +123,15 @@ EXE = "Virtual Villagers - The Secret City.exe"
 GAME_ID = 3
 
 # The hook. `add dword_5824A8, ecx`, six bytes, zero incoming branches.
+# The two callers of sub_455AB0, and the return address each lands on. The
+# father is in a different register at each, so the trampoline tells them
+# apart by the FULL return address -- never a byte of it, and never by
+# assuming an unmatched caller must be the other one.
+#   0x45833E  mov ecx, ebp  -> mother = EBP, father = ESI (saved, [esp+0x20])
+#   0x45B8C9  mov ecx, esi  -> mother = ESI, father = EDI (pushad, [esp+0x00])
+CALLER_ESI_RETURN = 0x00458343
+CALLER_EDI_RETURN = 0x0045B8CE
+
 HOOK_VA = 0x00455BF3
 HOOK_FILE = 0x00055BF3
 HOOK_STOLEN = bytes.fromhex("010DA8245800")
@@ -355,12 +364,28 @@ def _build_page(base_va: int = PAGE_VA) -> bytes:
             # so the mother (pushad ESI) is then at +0x08, NOT +0x04 --
             # reading +0x04 there would re-push the father and log him as the
             # mother. VV1's trampoline reads its shifted slot the same way.
+            # FULL 32-BIT COMPARES, AND NO GUESSING FOR AN UNKNOWN CALLER.
+            #
+            # This tested `cmp byte ptr [esp+0x24], 0x43` -- the low byte of
+            # 0x458343 -- so any return address ending in 0x43 took the ESI
+            # path. Worse, the `jne` fell through to the EDI branch
+            # unconditionally, which handed a caller that is neither of the
+            # two known ones whatever the pushad EDI happened to hold, and the
+            # companion logged it as the father.
+            #
+            # Both of VV3's callers are accounted for, so that was latent
+            # rather than firing. It is still wrong: a guess presented as a
+            # father is worse than an honest "(not captured for this birth)".
+            # Now each caller is matched on its whole return address and
+            # anything else leaves edx at 0, exactly as VV2's selector does.
             xor edx, edx
-            cmp byte ptr [esp + 0x24], 0x43
-            jne father_in_edi
+            cmp dword ptr [esp + 0x24], 0x{CALLER_ESI_RETURN:X}
+            jne check_edi_caller
             mov edx, dword ptr [esp + 0x20]
             jmp have_father
-        father_in_edi:
+        check_edi_caller:
+            cmp dword ptr [esp + 0x24], 0x{CALLER_EDI_RETURN:X}
+            jne have_father
             mov edx, dword ptr [esp + 0x00]
         have_father:
             push edx
