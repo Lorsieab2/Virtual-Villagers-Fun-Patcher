@@ -1835,13 +1835,26 @@ static int is_record_slot(
    Before a held record is written its villager is re-read: the mother for a
    conception, the child for a birth. The pointer is the one the game handed
    over, read directly -- nothing is searched for. The record is kept only if
-   that slot is still live and still holds the same villager: same name, head,
-   body, likes and dislikes. Age is not compared, because it moves. A villager
-   of the pre-tribe simulation fails this, because the tribe replaced the whole
-   table; a villager of the player's tribe passes it. The one real record this
-   can drop is a conception whose mother died before the village's very first
-   save -- rare, and the alternative is filing another village's villagers
-   under this one.
+   that slot is still live and still holds the same villager.
+
+   WHICH FIELDS, AND WHY NOT ALL EIGHT.  This is not identification from
+   values (issue #436, Rule 3): the villager is addressed directly, by the
+   record pointer the game supplied, which is #436's first precedence.  The
+   check only has to notice that the slot now holds SOMEONE ELSE.  So it
+   compares every identity field that cannot legitimately change between the
+   conception and the first save -- the name, head, body, the COMPLETE likes
+   array and the COMPLETE dislikes array, each slot as stored -- and requires
+   that the age, in native units, has not gone backwards.  Age and skills are
+   not required to be equal because a real villager's do change in that
+   interval.  Codex (#449 review) pointed out that an earlier version compared
+   only the first rendered like and dislike, a subset; that is what this
+   replaced.
+
+   A villager of the pre-tribe simulation fails this, because the tribe
+   replaced the whole table; a villager of the player's tribe passes it.  The
+   real records this can drop are a conception whose mother died, or was made
+   younger by an Origins upgrade, before the village's very first save -- rare,
+   and the alternative is filing another village's villagers under this one.
 
    A process that exits with records still held never saved its village, so
    the save the records describe does not exist either, and they are dropped
@@ -1858,6 +1871,8 @@ static int is_record_slot(
 #define PENDING_MAX 4096
 /* One rendered record: 13 short lines plus a skills block of at most 512. */
 #define RECORD_TEXT_MAX 2048
+/* The widest preference array in any game: VV2's 62 slots. */
+#define PENDING_PREFERENCE_SLOTS 64
 
 struct pending_record {
     int game_id;
@@ -1866,8 +1881,10 @@ struct pending_record {
     char name[MAX_NAME_BYTES];
     int head;
     int body;
-    char likes[64];
-    char dislikes[64];
+    int age;
+    /* The whole arrays, raw: every slot, not just the first one printed. */
+    int likes[PENDING_PREFERENCE_SLOTS];
+    int dislikes[PENDING_PREFERENCE_SLOTS];
     char *text;
 };
 
@@ -1932,11 +1949,23 @@ static void identify_villager(
     const unsigned char *record,
     struct pending_record *entry
 ) {
+    unsigned int slots = g->preference_slots;
+
+    if (slots > PENDING_PREFERENCE_SLOTS) {
+        slots = PENDING_PREFERENCE_SLOTS;
+    }
+    memset(entry->likes, 0, sizeof(entry->likes));
+    memset(entry->dislikes, 0, sizeof(entry->dislikes));
     copy_villager_name(g, record, entry->name, sizeof(entry->name));
     entry->head = *(const int *)(record + g->head);
     entry->body = *(const int *)(record + g->body);
-    preference_text(g, record, g->likes, entry->likes, sizeof(entry->likes));
-    preference_text(g, record, g->dislikes, entry->dislikes, sizeof(entry->dislikes));
+    entry->age = *(const int *)(record + g->age);
+    if (g->likes != 0u) {
+        memcpy(entry->likes, record + g->likes, slots * sizeof(int));
+    }
+    if (g->dislikes != 0u) {
+        memcpy(entry->dislikes, record + g->dislikes, slots * sizeof(int));
+    }
 }
 
 static int still_the_same_villager(
@@ -1956,8 +1985,9 @@ static int still_the_same_villager(
     return strcmp(now.name, entry->name) == 0
         && now.head == entry->head
         && now.body == entry->body
-        && strcmp(now.likes, entry->likes) == 0
-        && strcmp(now.dislikes, entry->dislikes) == 0;
+        && now.age >= entry->age
+        && memcmp(now.likes, entry->likes, sizeof(now.likes)) == 0
+        && memcmp(now.dislikes, entry->dislikes, sizeof(now.dislikes)) == 0;
 }
 
 /* Append one rendered record to this village's log, heading a new file.

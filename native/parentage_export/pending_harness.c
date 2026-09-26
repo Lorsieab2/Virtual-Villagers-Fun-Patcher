@@ -212,6 +212,15 @@ int main(int argc, char **argv) {
     villager(3, "Kao", 434, 22, 2);
     villager(5, "Tufi", 453, 22, 3);
     villager(6, "Maro", 479, 8, 16);
+    /* Codex's case: a simulated villager whose slot is later reused by a
+       tribe villager sharing her name, head, body and FIRST like. */
+    villager(8, "Ika", 380, 29, 26);
+    *(int *)(rec(8) + LIKES) = 7;
+    *(int *)(rec(8) + LIKES + 4) = 12;
+    villager(9, "Pichu", 430, 7, 25);
+    /* And one whose age goes backwards in the same slot. */
+    villager(10, "Samoa", 494, 6, 28);
+    villager(11, "Fatu", 415, 29, 16);
 
     printf("-- before the first save: records are held --\n");
     conceive(2, 3);
@@ -222,11 +231,23 @@ int main(int argc, char **argv) {
     CHECK(write(3, records, rec(5), rec(6)) == 1, "a second pre-tribe conception is accepted");
     CHECK(birth(3, "", -1, -1, "Tikina", 23, 1, "Koro", 9, 25, rec(4)) == 1,
           "the tribe's birth is accepted");
+    conceive(8, 9);
+    CHECK(write(3, records, rec(8), rec(9)) == 1, "a look-alike's conception is accepted");
+    conceive(10, 11);
+    CHECK(write(3, records, rec(10), rec(11)) == 1, "a younger replacement's conception is accepted");
     CHECK(log_files() == 0, "nothing is written while the village is unknown");
 
     printf("-- the tribe replaces the simulated villagers --\n");
     villager(2, "Tasiri", 380, 17, 8);     /* a different villager in Makawa's slot */
     rec(5)[ACTIVE] = 0;                     /* Tufi's slot is no longer live */
+    /* Same name, head, body and first like -- only the second like differs. */
+    villager(8, "Ika", 380, 29, 26);
+    *(int *)(rec(8) + LIKES) = 7;
+    *(int *)(rec(8) + LIKES + 4) = 40;
+    /* Same everything except an age lower than at conception. */
+    villager(10, "Samoa", 300, 6, 28);
+    /* The tribe's mother has aged in the meantime, as a real villager does. */
+    *(int *)(rec(0) + AGE) = 534;
 
     printf("-- the first save --\n");
     vv_village_publish(VILLAGE);
@@ -240,6 +261,9 @@ int main(int argc, char **argv) {
           "the tribe's conception is Conception 1");
     CHECK(strstr(logtext, "Makawa") == NULL, "the replaced villager's conception is dropped");
     CHECK(strstr(logtext, "Tufi") == NULL, "the no-longer-live villager's conception is dropped");
+    CHECK(strstr(logtext, "Ika") == NULL,
+          "a look-alike differing only in a later like slot is dropped");
+    CHECK(strstr(logtext, "Samoa") == NULL, "a villager whose age went backwards is dropped");
     CHECK(strstr(logtext, "Birth\r\n  Child: Mahu\r\n") != NULL, "the tribe's birth is kept");
     CHECK(strstr(logtext, "Conception 1") < strstr(logtext, "Birth"),
           "held records keep their order");

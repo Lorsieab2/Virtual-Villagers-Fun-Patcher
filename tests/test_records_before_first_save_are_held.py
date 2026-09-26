@@ -14,8 +14,8 @@ The owner's first v1.35.27 tribes showed two defects from the same window:
 The parentage companion now holds such records until the village is known and
 writes them then, dropping any whose villager no longer occupies its slot.
 native/parentage_export/pending_harness.c drives the shipped DLL through that
-window and checks the log on disk; against the v1.35.27 DLL it fails ten of its
-twenty-four checks, which is what makes it a regression test rather than a
+window and checks the log on disk; against the v1.35.27 DLL it fails twelve of
+its twenty-six checks, which is what makes it a regression test rather than a
 restatement of the fix.
 
 The harness needs the 32-bit MSVC toolchain, so it runs where that is installed
@@ -72,6 +72,11 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         self.assertIn("entry->subject + g->active) != 1", check)
         for field in ("name", "head", "body", "likes", "dislikes"):
             self.assertIn(f"entry->{field}", check)
+        # The COMPLETE preference arrays, not the first rendered entry (#449
+        # review), and an age that has not gone backwards.
+        self.assertIn("memcmp(now.likes, entry->likes, sizeof(now.likes))", check)
+        self.assertIn("memcmp(now.dislikes, entry->dislikes, sizeof(now.dislikes))", check)
+        self.assertIn("now.age >= entry->age", check)
         self.assertNotIn("find_record_by_name", check)
 
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
