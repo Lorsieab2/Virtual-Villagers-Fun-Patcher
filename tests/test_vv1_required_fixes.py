@@ -42,7 +42,9 @@ class VV1RequiredFixTests(unittest.TestCase):
         preflight = source.split("detail_preflight_code = assemble", 1)[1].split(
             "preflight_no_change:", 1
         )[0]
-        self.assertIn("mov ecx, 4", preflight)
+        # Four like slots; `push 4 / pop ecx` is the short form of mov ecx, 4
+        # that keeps the preflight within its 256-byte budget.
+        self.assertRegex(preflight, r"push 4\s+pop ecx")
 
         mastery = source.split("detail_mastery:", 1)[1].split(
             "detail_success:", 1
@@ -992,9 +994,13 @@ class VV1RequiredFixTests(unittest.TestCase):
         # put the jump through the clamp and age it by 2.55 / 4.3 / 8.6 years.
         body = dll[dll.index("static int vv1_time_warp_apply"):]
         body = body[: body.index(chr(10) + "}")]
-        self.assertIn("golden = VV_GOLDEN_CHILD_PTR;", body)
+        # Identified by the Golden Child's own record flag (+0x36C == 0xC7,
+        # the game's test), never by [0x48B614] -- that is the villager array,
+        # so comparing against it skipped whoever occupied record 0.
+        self.assertNotIn("0x0048B614", body)
+        self.assertNotIn("VV_GOLDEN_CHILD_PTR", dll)
         marker = body.index("VV1_TW_LAST_SEEN_OFFSET) += delta;")
-        skip = body.index("if (rec == golden) {", marker)
+        skip = body.index("if (VV_IS_GOLDEN_CHILD(rec)) {", marker)
         credit = body.index("VV1_TW_AGE_OFFSET) += units;", marker)
         self.assertLess(marker, skip, "the Golden Child must still get the marker")
         self.assertLess(skip, credit, "the Golden Child must not get the years")

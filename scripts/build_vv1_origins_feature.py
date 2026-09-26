@@ -108,15 +108,26 @@ AGE_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x44
 # age_golden_child_va = entry_va + 0x48 (entry_va there and
 # VILLAGE_WIDE_ENTRY_VA here are the same address for VV1).
 AGE_GOLDEN_CHILD_VA = VILLAGE_WIDE_ENTRY_VA + 0x48
-# This exact VV1 build's own module-static singleton pointer to the current
-# Golden Child's villager record -- dword ptr [GOLDEN_CHILD_SINGLETON_VA]
-# holds that record's address (0 if none exists yet). Confirmed via a live
-# memory scan (found the address, then found this stable pointer to it) and
-# via static disassembly of its lazy-getter/destructor pair at 0x43da37 /
-# 0x43da9d-0x43dac6. This is the stock game's own global, not anything we
-# allocate -- unlike RUNNING_GRANTED_VA and friends above, it is never
-# written by our own code, only read and compared against.
-GOLDEN_CHILD_SINGLETON_VA = 0x48B614
+# THE GOLDEN CHILD IS A FLAG ON THE VILLAGER'S OWN RECORD: +0x36C == 0xC7.
+#
+# That is the game's own test. It checks `cmp dword ptr [rec+0x36C], 0xC7` in
+# six places -- 0x41FBDC, 0x42242D, 0x424B56, 0x42E5A4 (the aging tick, which
+# is how the Golden Child stays a child), 0x438982, and 0x43C7AF, where the
+# creation routine sub_43C350 turns a villager created with 0xC7 into the
+# Golden Child (skills 100, head 19, body 19, male). The golden-child birth at
+# 0x42EF5A is the one that passes 0xC7.
+#
+# These checks used to compare the villager against dword ptr [0x48B614],
+# believed to be a "current Golden Child" pointer. It is not: 0x48B614 is the
+# villager ARRAY, allocated by the lazy getter at 0x43DA30 (new 0x3E034) with
+# record 0 at the allocation itself -- vv1_sort_by.c and vv1_parentage.c read
+# it as exactly that. So every "is the Golden Child" test here was "is record
+# 0", and whoever occupied record 0 was never aged to 18, never given an
+# Equal Division profession, and skipped by Time Warp. In the owner's
+# v1.35.27 tribe that was Sef, whose age stood still across a Time Warp that
+# aged everyone else by 120 units.
+GOLDEN_CHILD_MARKER_OFFSET = 0x36C
+GOLDEN_CHILD_MARKER = 0xC7
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
@@ -2401,9 +2412,14 @@ def main() -> None:
         """,
         CONFIRM_HELPER_VA,
     )
+    # Two exact-equivalent short forms keep this inside its 256 bytes now that
+    # the Golden Child test reads the record's own flag (10 bytes) instead of
+    # comparing against a pointer (6): `test ebx, ebx` sets the same ZF as
+    # `cmp ebx, 0` for the je that reads it, and `push 4 / pop ecx` loads the
+    # same count as `mov ecx, 4`, the idiom this block already uses for eax.
     detail_preflight_code = assemble(
         f"""
-            cmp ebx, 0
+            test ebx, ebx
             je preflight_youth
             cmp ebx, 1
             je preflight_mastery
@@ -2422,7 +2438,7 @@ def main() -> None:
             # -- this function's .shr cave has a fixed 256-byte budget
             # (POPULATION_FINAL_TIER_VA sits immediately after it) with no
             # slack for the naive encoding once this branch is added.
-            cmp edx, dword ptr [0x{GOLDEN_CHILD_SINGLETON_VA:X}]
+            cmp dword ptr [edx + 0x{GOLDEN_CHILD_MARKER_OFFSET:X}], 0x{GOLDEN_CHILD_MARKER:X}
             jne preflight_age_check
             push 6
             pop eax
@@ -2478,7 +2494,8 @@ def main() -> None:
 
         preflight_running:
             lea eax, [edx + 0x398]
-            mov ecx, 4
+            push 4
+            pop ecx
         preflight_running_scan:
             cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
             je preflight_no_change
@@ -2561,12 +2578,9 @@ def main() -> None:
     # is what actually gives "an equal number of males/females per
     # profession" (a single population-wide cycle can't guarantee that on
     # its own, since gender isn't evenly interleaved in record order).
-    # 0x48B614 is this exact VV1 build's own module-static singleton
-    # pointer to the current Golden Child's villager record (confirmed via
-    # live memory scan + disassembly of its lazy-getter/destructor pair at
-    # 0x43da37/0x43da9d-0x43dac6 -- see the Golden Child age-exclusion
-    # feature's own record of this, which reached main independently of
-    # this one). Only pass 1 counts a Golden Child match into
+    # The Golden Child is the record whose +0x36C holds 0xC7, the game's own
+    # test (see GOLDEN_CHILD_MARKER above). Only pass 1 counts a Golden Child
+    # match into
     # EQUAL_DIVISION_GOLDEN_SKIPPED_VA -- the same record is visited once
     # per pass (both passes scan the full record array), so counting in
     # both would double the reported skip count for what is always exactly
@@ -2599,7 +2613,7 @@ def main() -> None:
             je equal_division_next1
             cmp dword ptr [ebx + 0x344], 0
             jle equal_division_next1
-            cmp ebx, dword ptr [0x48B614]
+            cmp dword ptr [ebx + 0x{GOLDEN_CHILD_MARKER_OFFSET:X}], 0x{GOLDEN_CHILD_MARKER:X}
             jne equal_division_check_gender1
             inc dword ptr [0x{EQUAL_DIVISION_GOLDEN_SKIPPED_VA:X}]
             jmp equal_division_next1
@@ -2629,7 +2643,7 @@ def main() -> None:
             je equal_division_next2
             cmp dword ptr [ebx + 0x344], 0
             jle equal_division_next2
-            cmp ebx, dword ptr [0x48B614]
+            cmp dword ptr [ebx + 0x{GOLDEN_CHILD_MARKER_OFFSET:X}], 0x{GOLDEN_CHILD_MARKER:X}
             je equal_division_next2
             cmp dword ptr [ebx + 0x350], 1
             je equal_division_next2

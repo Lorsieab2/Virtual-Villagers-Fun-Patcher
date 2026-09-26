@@ -44,10 +44,17 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # the Vv1NumberKeysUpdate export name at 0x8E9E0. The number-keys feature
     # file itself is byte-for-byte unchanged, which is why only this entry
     # moves and the birth-control entry above does not.
+    #
+    # Re-pinned again when the Golden Child checks stopped comparing against
+    # [0x48B614] (VV1's villager array, so "record 0") and began testing the
+    # record's own flag, +0x36C == 0xC7. A render against main differs only at
+    # 0x150-0x151 (PE checksum), 0x8B7CD-0x8B89D (inside the Equal Division
+    # cave, which ends at its table at 0x8B8A0) and 0x8BC00-0x8BCFE (inside the
+    # 256-byte Set Age preflight).
     "vv1_enable_origins_exclusive_features": {
-        "stock": "3A1F458EA596C68E705B5F444B30B01AE331859C2CCFD4478F6A8B919D35DC30",
-        "collection_progression": "EC395592B26826D4D1717A71F531DA370EEABFBAC9750A5F24ED3D6C67FD0B16",
-        "immediate_fixed": "EC395592B26826D4D1717A71F531DA370EEABFBAC9750A5F24ED3D6C67FD0B16",
+        "stock": "2BF82EF8B40DE2C160AF1EC7EADAC820353BF14439D00342CC774225C350B890",
+        "collection_progression": "FD9C9BE436C1FFB6BBD1E81CFF5CC090A61ECA5AD7D56961964F5DC88778EABF",
+        "immediate_fixed": "FD9C9BE436C1FFB6BBD1E81CFF5CC090A61ECA5AD7D56961964F5DC88778EABF",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

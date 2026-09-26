@@ -155,6 +155,19 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       instruction (`jne` after the saved compare / `xor bl,bl`) redefines
 #       flags.  The handled paths use balanced `ret 8`; helper calls preserve
 #       nonvolatiles.
+#   0x35AB0/0x4A700                  re-confirmed after the Golden Child
+#       checks stopped comparing against [0x48B614] -- VV1's villager array,
+#       so they matched record 0 -- and began testing the record's own flag.
+#       The Set Age preflight (reached from 0x35AB0) and Equal Division
+#       (reached from 0x4A700) now use `cmp dword ptr [edx|ebx+0x36C], 0xC7`
+#       in place of `cmp edx|ebx, [0x48B614]`: it writes no register, only
+#       flags, and the following je/jne keep their meaning (equal = Golden
+#       Child). EDX/EBX are the record pointers these blocks already
+#       dereference at +0x348 / +0x28, and 0x36C is inside the 0x3D8 stride.
+#       To keep the preflight inside its 256 bytes, `cmp ebx, 0` became
+#       `test ebx, ebx` (same ZF for the je that reads it, EBX untouched) and
+#       `mov ecx, 4` became `push 4 / pop ecx` (same ECX, ESP balanced, flags
+#       untouched). No stock re-entry is added.
 #   0x3C393                         confirmed.  Exact stock sub_43C350 selects
 #       the first free record, sets its occupied/faction bytes at this
 #       boundary, and keeps the selected record index in [esp+0x10]. The cave
@@ -443,10 +456,10 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # pushes eax/ecx/edx/ebx on entry and pops all four before ret, the helper
     # clobbers only eax (already saved), and edi -- which carries the result
     # flags -- is neither read nor written by it.
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "817FA84F4EB61E560C44F50751DABC830899945155476CEB2D9709A7BE5CE8C4",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "1190FF74D668E68FB2E22660BC8201239A637CE905EAC19BD9B8ECF9D3FB5710",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
-    ("vv1_enable_origins_exclusive_features", "0x4A700"): "B27C3ED0ED83B05CFC9B159F33AFC08F94C184393C8B211382198EA7005628BC",
+    ("vv1_enable_origins_exclusive_features", "0x4A700"): "85981BBBF90AF4359201D349D4DE3630C9BE14F1286B400FD780588BF6476BFE",
     ("vv1_enable_origins_exclusive_features", "0x8B004"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "D44A6B9C0DB1C684604A9818144F1209EFCC19BA484337579CD40B644FB56257",
     ("vv1_enable_origins_exclusive_features", "0x913C"): "E8C3E35B56C0AD00518A27056132703EE942FDC5C6BAD9C3C1F90698AD701198",

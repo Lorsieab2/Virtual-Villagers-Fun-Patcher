@@ -321,10 +321,14 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
         # The DLL still links shell32 and derives the mask sidecar path from
         # the exe basename; data/vv2_origins_feature.json certifies this same
-        # digest, and this assertion is the second pin.
+        # digest, and this assertion is the second pin. Re-pinned again when
+        # the shared vv1_origins_icons.c source replaced its 0x48B614 "Golden
+        # Child pointer" (really VV1's villager array) with the record flag
+        # +0x36C == 0xC7; VV2 compiles that source but does not use either
+        # affected function, and its own behaviour is unchanged.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "C9B54394FAF91B2C7DEBECED17B5A25AF9BCBDA82806FA5E1DD719B91CC928FC",
+            "7EBA7F9DE4A5545D7E7C7EB1DA71A972DD08C0429D06A573F61B7061DE6C5B2D",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
