@@ -81,8 +81,8 @@ class BothRecordKindsTests(unittest.TestCase):
         # record held until the village's first save, is later than the
         # conception. The conception export passes is_birth = 0; the birth
         # export renders its own "Birth" block and passes is_birth = 1.
-        self.assertIn("return emit_record(game_id, 0, mother, text);", conception)
-        self.assertIn("return emit_record(game_id, 1, rec, text);", birth)
+        self.assertIn("return emit_record(game_id, 0, records, text);", conception)
+        self.assertIn("return emit_record(game_id, 1, NULL, text);", birth)
         self.assertIn('"Birth\\n"', birth)
         # Neither may write the other's marker: one record kind printing the
         # other's header is indistinguishable in the log from the wrong event

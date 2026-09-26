@@ -114,6 +114,23 @@ static void remove_logs(void) {
         FindClose(h);
     }
     RemoveDirectoryA(folder);
+    /* And the two folders above it that the DLL created for this harness --
+       "Virtual Villagers Fun Patcher Logs" and Documents\LDW\<harness name>.
+       Left behind, they piled up in the owner's real LDW save folder after
+       every run. RemoveDirectory only removes an EMPTY folder, so nothing
+       else can be lost. */
+    {
+        char parent[MAX_PATH];
+        char *cut;
+        int level;
+        lstrcpynA(parent, folder, MAX_PATH);
+        for (level = 0; level < 2; ++level) {
+            cut = strrchr(parent, '\\');
+            if (cut == NULL) break;
+            *cut = 0;
+            RemoveDirectoryA(parent);
+        }
+    }
 }
 static char logtext[1 << 16];
 static int read_log(void) {

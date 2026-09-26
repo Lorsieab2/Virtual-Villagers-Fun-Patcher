@@ -1871,33 +1871,33 @@ static int is_record_slot(
    it -- the held records are written in order, under the header, numbered as
    if they had been written live.
 
-   Before a held record is written its villager is re-read: the mother for a
-   conception, the child for a birth. The pointer is the one the game handed
-   over, read directly -- nothing is searched for. The record is kept only if
-   that slot is still live and still holds the same villager.
+   EVERY HELD RECORD IS KEPT. The owner: "no one should be dropped. nothing
+   should be dropped." Held records are written, in order, at the next save,
+   under that save's village -- including a record written while the game's
+   pre-tribe simulation was loaded, or from a tribe that was never saved
+   before Start Over; those land in the next saved village's log.
 
-   WHICH FIELDS, AND WHY NOT ALL EIGHT.  This is not identification from
-   values (issue #436, Rule 3): the villager is addressed directly, by the
-   record pointer the game supplied, which is #436's first precedence.  The
-   check only has to notice that the slot now holds SOMEONE ELSE.  So it
-   compares every identity field that cannot legitimately change between the
-   conception and the first save -- the name, head, body, the COMPLETE likes
-   array and the COMPLETE dislikes array, each slot as stored -- and requires
-   that the age, in native units, has not gone backwards.  Age and skills are
-   not required to be equal because a real villager's do change in that
-   interval.  Codex (#449 review) pointed out that an earlier version compared
-   only the first rendered like and dislike, a subset; that is what this
-   replaced.
+   Earlier versions dropped a held record whose villager or tribe no longer
+   matched at the save. Every such test proved wrong in play, because no
+   villager field is fixed for life:
 
-   A villager of the pre-tribe simulation fails this, because the tribe
-   replaced the whole table; a villager of the player's tribe passes it.  The
-   real records this can drop are a conception whose mother died, or was made
-   younger by an Origins upgrade, before the village's very first save -- rare,
-   and the alternative is filing another village's villagers under this one.
+     names            the player can rename a villager
+     age              goes DOWN through island events, the Gong of Wonder and
+                      Origins upgrades
+     head, body       change through Origins' Change Appearance
+     likes, dislikes  change as a villager grows
+     skills           grow; and villagers die, freeing their slots
 
-   A process that exits with records still held never saved its village, so
-   the save the records describe does not exist either, and they are dropped
-   with it.
+   (All of that is ordinary game behaviour, per the owner, and one villager
+   can have their name, head and body all changed.) v1.35.28 compared one
+   villager's fields and so DROPPED A REAL BIRTH: in the owner's VV3 tribe a
+   Time Warp with no save delivered Epeli, who took up a like before the save.
+
+   The records are held only while no save can vouch for the loaded tribe, and
+   the queue grows as needed rather than refusing a record past a limit.
+   A record still held when the process exits was never followed by a save;
+   writing it from DllMain at exit could hang the game's shutdown, so it is
+   not attempted.
 
    WITHOUT A PUBLISHER, NOTHING IS HELD. A player who unticks Village
    Statistics has no publisher at all, and holding would lose every record.
@@ -1905,30 +1905,18 @@ static int is_record_slot(
    so the statistics DLL's presence next to the executable is the test. With
    it absent, records are written immediately and unlabelled, as before. */
 
-/* 4096 conceptions and births before a village's first save is far beyond any
-   real session; a record past it is refused rather than written unlabelled. */
-#define PENDING_MAX 4096
 /* One rendered record: 13 short lines plus a skills block of at most 512. */
 #define RECORD_TEXT_MAX 2048
-/* The widest preference array in any game: VV2's 62 slots. */
-#define PENDING_PREFERENCE_SLOTS 64
 
 struct pending_record {
     int game_id;
     int is_birth;
-    const unsigned char *subject;   /* the mother or the child; NULL = no check */
-    char name[MAX_NAME_BYTES];
-    int head;
-    int body;
-    int age;
-    /* The whole arrays, raw: every slot, not just the first one printed. */
-    int likes[PENDING_PREFERENCE_SLOTS];
-    int dislikes[PENDING_PREFERENCE_SLOTS];
     char *text;
 };
 
 static struct pending_record *pending;
 static int pending_count;
+static int pending_capacity;
 static int publisher_state;         /* 0 unknown, 1 present, -1 absent */
 
 static int statistics_publisher_present(void) {
@@ -1982,51 +1970,147 @@ static int memory_is_readable(const void *p, size_t size) {
     return 1;
 }
 
-/* The fields a held record's villager must still have when it is written. */
-static void identify_villager(
-    const struct game_layout *g,
-    const unsigned char *record,
-    struct pending_record *entry
-) {
-    unsigned int slots = g->preference_slots;
+/* ---- The tribe as a whole -------------------------------------------------- */
 
-    if (slots > PENDING_PREFERENCE_SLOTS) {
-        slots = PENDING_PREFERENCE_SLOTS;
+/* Where each game keeps its villager table, from the executable's base: the
+   same addresses the population exporter reads (VV1 and VV2 hold a pointer to
+   a lazily built table, VV3-VV5 the table itself). */
+static const struct { unsigned int rva; int is_pointer; } VILLAGER_TABLE[6] = {
+    { 0, 0 }, { 0x8B614u, 1 }, { 0x99F24u, 1 }, { 0x19E110u, 0 },
+    { 0x10E568u, 0 }, { 0x154148u, 0 },
+};
+
+#define TRIBE_SLOTS 256
+
+struct tribe_member {
+    int slot;
+    char name[MAX_NAME_BYTES];
+    int head;
+    int body;
+    char father_of[MAX_NAME_BYTES];   /* the villager's own parents; empty in VV1 */
+    char mother_of[MAX_NAME_BYTES];
+};
+
+struct tribe {
+    int game;
+    int count;
+    struct tribe_member member[TRIBE_SLOTS];
+};
+
+static struct tribe *saved_tribe;       /* the tribe at the last save */
+static int saved_valid;
+static struct tribe *scratch_tribe;
+static const unsigned char *last_table[6];
+
+static const unsigned char *villager_table(int game_id) {
+    const unsigned char *module;
+    const unsigned char *table;
+
+    if (last_table[game_id] != NULL) {
+        return last_table[game_id];
     }
-    memset(entry->likes, 0, sizeof(entry->likes));
-    memset(entry->dislikes, 0, sizeof(entry->dislikes));
-    copy_villager_name(g, record, entry->name, sizeof(entry->name));
-    entry->head = *(const int *)(record + g->head);
-    entry->body = *(const int *)(record + g->body);
-    entry->age = *(const int *)(record + g->age);
-    if (g->likes != 0u) {
-        memcpy(entry->likes, record + g->likes, slots * sizeof(int));
+    module = (const unsigned char *)GetModuleHandleW(NULL);
+    if (module == NULL || VILLAGER_TABLE[game_id].rva == 0u) {
+        return NULL;
     }
-    if (g->dislikes != 0u) {
-        memcpy(entry->dislikes, record + g->dislikes, slots * sizeof(int));
+    table = module + VILLAGER_TABLE[game_id].rva;
+    if (VILLAGER_TABLE[game_id].is_pointer) {
+        if (!memory_is_readable(table, sizeof(void *))) {
+            return NULL;
+        }
+        table = *(const unsigned char *const *)table;
     }
+    return table;
 }
 
-static int still_the_same_villager(
-    const struct game_layout *g,
-    const struct pending_record *entry
-) {
-    struct pending_record now;
+/* Snapshot the tribe in `records` (or where the game keeps it). */
+static int take_tribe(int game_id, const unsigned char *records, struct tribe *out) {
+    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    unsigned int slot;
 
-    if (entry->subject == NULL) {
-        return 1;
+    out->game = game_id;
+    out->count = 0;
+    if (records == NULL) {
+        records = villager_table(game_id);
     }
-    if (!memory_is_readable(entry->subject, g->stride)
-        || *(const unsigned char *)(entry->subject + g->active) != 1) {
+    if (records == NULL
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
         return 0;
     }
-    identify_villager(g, entry->subject, &now);
-    return strcmp(now.name, entry->name) == 0
-        && now.head == entry->head
-        && now.body == entry->body
-        && now.age >= entry->age
-        && memcmp(now.likes, entry->likes, sizeof(now.likes)) == 0
-        && memcmp(now.dislikes, entry->dislikes, sizeof(now.dislikes)) == 0;
+    last_table[game_id] = records;
+    for (slot = 0; slot < g->slots && slot < TRIBE_SLOTS; ++slot) {
+        const unsigned char *record = records + g->record_base + slot * g->stride;
+        struct tribe_member *m;
+        if (*(const unsigned char *)(record + g->active) != 1) {
+            continue;
+        }
+        m = &out->member[out->count++];
+        m->slot = (int)slot;
+        copy_villager_name(g, record, m->name, sizeof(m->name));
+        m->head = *(const int *)(record + g->head);
+        m->body = *(const int *)(record + g->body);
+        m->father_of[0] = '\0';
+        m->mother_of[0] = '\0';
+        if (g->parent_father_name != 0u) {
+            copy_name_field(record + g->parent_father_name, m->father_of,
+                            sizeof(m->father_of), g->parent_name_capacity);
+            copy_name_field(record + g->parent_mother_name, m->mother_of,
+                            sizeof(m->mother_of), g->parent_name_capacity);
+        }
+    }
+    return 1;
+}
+
+/* A villager still counts when at least two of name, looks and own parents
+   are unchanged -- a rename, a de-aging or a restyle moves only one. */
+static int still_counts(const struct tribe_member *then, const struct tribe_member *now) {
+    int same = 0;
+    if (strcmp(then->name, now->name) == 0) {
+        ++same;
+    }
+    if (then->head == now->head && then->body == now->body) {
+        ++same;
+    }
+    if ((then->father_of[0] != '\0' || then->mother_of[0] != '\0')
+        && strcmp(then->father_of, now->father_of) == 0
+        && strcmp(then->mother_of, now->mother_of) == 0) {
+        ++same;
+    }
+    return same >= 2;
+}
+
+/* Whether `now` is still the tribe `then` was: at least a quarter of then's
+   villagers, and at least one, still count in the same slots. */
+static int same_tribe(const struct tribe *then, const struct tribe *now) {
+    int i = 0;
+    int j = 0;
+    int counted = 0;
+
+    if (then->game != now->game || then->count == 0) {
+        return 0;
+    }
+    while (i < then->count && j < now->count) {
+        if (then->member[i].slot < now->member[j].slot) {
+            ++i;
+        } else if (then->member[i].slot > now->member[j].slot) {
+            ++j;
+        } else {
+            if (still_counts(&then->member[i], &now->member[j])) {
+                ++counted;
+            }
+            ++i;
+            ++j;
+        }
+    }
+    return counted >= 1 && counted * 4 >= then->count;
+}
+
+static int tribes_ready(void) {
+    if (saved_tribe == NULL) {
+        saved_tribe = (struct tribe *)calloc(1, sizeof(*saved_tribe));
+        scratch_tribe = (struct tribe *)calloc(1, sizeof(*scratch_tribe));
+    }
+    return saved_tribe != NULL && scratch_tribe != NULL;
 }
 
 /* ---- Which tribe is loaded ------------------------------------------------
@@ -2034,85 +2118,31 @@ static int still_the_same_villager(
    Codex (#449 review, P1): the published village header outlives the tribe it
    names. After Start Over, or after leaving a tribe for the menu and starting
    or loading another, vv_village_recall still returns the LAST SAVED tribe's
-   header until the new one is saved -- so the new tribe's records from before
-   its first save, the simulated ones included, were written straight under
-   the old tribe's header instead of being held.
+   header until the new one is saved. So a record is written straight under the
+   recalled header only while the table is still the tribe of the last save --
+   same_tribe above, against a snapshot taken at every save from the table the
+   population exporter hands over (EnsureParentageLogForVillage). Otherwise it
+   is held, and written at the next save.
 
-   Only VV1 captures the loaded save slot; VV2 to VV5 learn it at save. So
-   rather than trusting the header, the companion checks the TRIBE. At every
-   save the population exporter hands over the villager table it has just
-   written the roster from (EnsureParentageLogForVillage), and a snapshot of
-   every live villager's identity is kept. A record is written straight under
-   the recalled header only while the table still holds that tribe: more than
-   half of the villagers live at the last save still in their slots as the
-   same villagers (the fields still_the_same_villager uses). A different
-   tribe replaces the table and fails; a tribe that merely lost or gained a
-   few villagers since its save passes. Anything that fails is HELD, never
-   dropped or misfiled, and the next save's flush re-checks each held record
-   against its own slot. The worst case is a delay until the next save. */
-
-struct saved_villager {
-    int slot;
-    struct pending_record identity;
-};
-
-static struct saved_villager *saved_tribe;
-static int saved_count;
-static int saved_game;
-static const unsigned char *saved_records;
-static int saved_valid;
+   This decides only WHEN and WHERE a record is written, never WHETHER. A
+   wrong "not the same tribe" -- say every founder renamed and restyled --
+   only holds the record until the next save, which files it under the right
+   village. A wrong "the same" would file it in the old tribe's log, so the
+   stricter two-of-three rule is the safe direction here. */
 
 static void remember_saved_tribe(int game_id, const unsigned char *records) {
-    const struct game_layout *g = &GAME_LAYOUTS[game_id];
-    unsigned int slot;
-
-    saved_valid = 0;
-    saved_count = 0;
-    if (records == NULL
-        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
-        return;
-    }
-    if (saved_tribe == NULL) {
-        saved_tribe = (struct saved_villager *)calloc(256, sizeof(*saved_tribe));
-        if (saved_tribe == NULL) {
-            return;
-        }
-    }
-    for (slot = 0; slot < g->slots && slot < 256u; ++slot) {
-        const unsigned char *record = records + g->record_base + slot * g->stride;
-        if (*(const unsigned char *)(record + g->active) != 1) {
-            continue;
-        }
-        saved_tribe[saved_count].slot = (int)slot;
-        saved_tribe[saved_count].identity.subject = record;
-        identify_villager(g, record, &saved_tribe[saved_count].identity);
-        ++saved_count;
-    }
-    saved_game = game_id;
-    saved_records = records;
-    saved_valid = 1;
+    saved_valid = tribes_ready() && take_tribe(game_id, records, saved_tribe)
+        && saved_tribe->count > 0;
 }
 
-/* Whether the table still holds the tribe last saved. An empty tribe, or none
-   seen yet, cannot vouch for anything, so records are held. */
 static int saved_tribe_still_loaded(int game_id) {
-    const struct game_layout *g = &GAME_LAYOUTS[game_id];
-    int i;
-    int same = 0;
-
-    if (!saved_valid || saved_game != game_id || saved_count == 0) {
+    if (!saved_valid || saved_tribe->game != game_id) {
         return 0;
     }
-    if (!memory_is_readable(saved_records,
-                            g->record_base + (size_t)g->slots * g->stride)) {
+    if (!take_tribe(game_id, NULL, scratch_tribe)) {
         return 0;
     }
-    for (i = 0; i < saved_count; ++i) {
-        if (still_the_same_villager(g, &saved_tribe[i].identity)) {
-            ++same;
-        }
-    }
-    return same * 2 > saved_count;
+    return same_tribe(saved_tribe, scratch_tribe);
 }
 
 /* What append_record reports. A record that fails with its file restored is
@@ -2187,14 +2217,16 @@ static int append_record(
     return APPEND_WRITTEN;
 }
 
-/* Write every held record for this game under `village`, dropping any whose
-   villager is gone. Called once the village is known. */
-/* A held record is released only once it is on disk, or once its villager is
-   shown to be gone. A write that fails -- a locked log, a full disk, a failed
-   flush -- stops the pass and keeps that record and every one after it, in
-   order, for the next save to retry. Codex (#449 review) found the earlier
-   version freed every entry whether or not it had been written, so a transient
-   failure at the first save lost the records for good. */
+/* Write every held record for this game under `village`, in order. Called once
+   the village is known.
+
+   A held record is released only once it is on disk. A write that fails -- a
+   locked log, a full disk, a failed flush -- stops the pass and keeps that
+   record and every one after it, in order, for the next save to retry. Codex
+   (#449 review) found an earlier version freed every entry whether or not it
+   had been written, so a transient failure at the first save lost the records
+   for good. The one exception is a write whose partial output could not be
+   rolled back: retrying it could only duplicate what may already be on disk. */
 static void flush_pending(int game_id, const char *village) {
     const struct game_layout *g = &GAME_LAYOUTS[game_id];
     int i;
@@ -2205,17 +2237,11 @@ static void flush_pending(int game_id, const char *village) {
         struct pending_record *entry = &pending[i];
         int release = 0;
         if (entry->game_id == game_id && !stopped) {
-            if (!still_the_same_villager(g, entry)) {
-                release = 1;                  /* not this village's villager */
+            int outcome = append_record(g, village, entry->is_birth, entry->text);
+            if (outcome == APPEND_RETRY) {
+                stopped = 1;                  /* keep it and all after it */
             } else {
-                int outcome = append_record(g, village, entry->is_birth, entry->text);
-                if (outcome == APPEND_RETRY) {
-                    stopped = 1;              /* keep it and all after it */
-                } else {
-                    /* Written, or unrecoverable: retrying the latter could
-                       only duplicate what may already be on disk. */
-                    release = 1;
-                }
+                release = 1;
             }
         }
         if (release) {
@@ -2229,24 +2255,19 @@ static void flush_pending(int game_id, const char *village) {
 }
 
 /* Queue a finished record behind any already held. */
-static int hold_record(
-    int game_id,
-    int is_birth,
-    const unsigned char *subject,
-    const char *text
-) {
-    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+static int hold_record(int game_id, int is_birth, const char *text) {
     struct pending_record *entry;
     size_t length;
 
-    if (pending == NULL) {
-        pending = (struct pending_record *)calloc(PENDING_MAX, sizeof(*pending));
-        if (pending == NULL) {
+    if (pending_count >= pending_capacity) {
+        int capacity = pending_capacity == 0 ? 64 : pending_capacity * 2;
+        struct pending_record *grown = (struct pending_record *)realloc(
+            pending, (size_t)capacity * sizeof(*pending));
+        if (grown == NULL) {
             return 0;
         }
-    }
-    if (pending_count >= PENDING_MAX) {
-        return 0;
+        pending = grown;
+        pending_capacity = capacity;
     }
     length = strlen(text) + 1;
     entry = &pending[pending_count];
@@ -2257,10 +2278,6 @@ static int hold_record(
     memcpy(entry->text, text, length);
     entry->game_id = game_id;
     entry->is_birth = is_birth;
-    entry->subject = subject;
-    if (subject != NULL) {
-        identify_villager(g, subject, entry);
-    }
     ++pending_count;
     return 1;
 }
@@ -2269,12 +2286,16 @@ static int hold_record(
 static int emit_record(
     int game_id,
     int is_birth,
-    const unsigned char *subject,
+    const unsigned char *records,
     const char *text
 ) {
     const struct game_layout *g = &GAME_LAYOUTS[game_id];
     char village[VV_VILLAGE_NAME_MAX + 32];
 
+    if (records != NULL
+        && memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+        last_table[game_id] = records;    /* where the game keeps the tribe */
+    }
     if (!vv_village_recall(village, sizeof village)) {
         village[0] = '\0';
     }
@@ -2292,13 +2313,13 @@ static int emit_record(
                 return 0;             /* never queued: a retry could duplicate */
             }
         }
-        return hold_record(game_id, is_birth, subject, text);
+        return hold_record(game_id, is_birth, text);
     }
     if (village[0] == '\0' && !statistics_publisher_present()) {
         return append_record(g, village, is_birth, text) == APPEND_WRITTEN;
     }
     /* No village yet, or a recalled one the loaded tribe cannot vouch for. */
-    return hold_record(game_id, is_birth, subject, text);
+    return hold_record(game_id, is_birth, text);
 }
 
 /* The full entry point. WriteParentageRecord below is the original three
@@ -2663,7 +2684,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
     }
-    return emit_record(game_id, 0, mother, text);
+    return emit_record(game_id, 0, records, text);
 }
 
 /* One birth record, written by the VV1 parentage companion the moment it sees
@@ -2835,7 +2856,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
         return 0;
     }
     /* The child is the villager a held birth is re-checked against. */
-    return emit_record(game_id, 1, rec, text);
+    return emit_record(game_id, 1, NULL, text);
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
