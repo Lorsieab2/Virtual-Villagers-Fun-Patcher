@@ -213,8 +213,9 @@ The owner confirmed no earlier tribe had been started in that VV3 session.
 So "a record exists for a villager nobody has" is not by itself a logging
 defect or a duplicate. It is the window before the village's first save. The
 parentage companion holds records written in that window until the village is
-known, then keeps only those whose villager still occupies the same slot as the
-same villager (`native/parentage_export/parentage_export.c`, `emit_record`).
+known, then writes every one of them -- the owner's rule is that nothing is
+dropped -- so such simulated records appear at the top of the first saved
+village's log (`native/parentage_export/parentage_export.c`, `emit_record`).
 Where the pre-tribe simulation comes from (for example the scene behind the
 menus) is **UNVERIFIED**; the fix does not depend on it.
 
@@ -290,12 +291,15 @@ Almost everything on a villager record changes in ordinary play:
 So code that asks "is this still the same villager" across time must not rely
 on any one field, and must not pair villagers by age order (the details
 screen's ordering): a birth, a death or de-aging shifts every later position.
-The parentage companion (v1.35.29) instead asks whether the *tribe* is still
-the same. When it holds a record it snapshots every live slot's name, head,
-body and (VV2-VV5) own parents. A villager still counts if at least two of
-{name, head+body, parents} match in the same slot, so a rename, de-aging or a
-restyle moves only one; the tribe is the same if at least a quarter of the
-snapshot still counts. Only a replaced table -- the pre-tribe simulation, or a
-tribe left by Start Over -- matches almost no one. The v1.35.28 companion
-compared one villager's fields, including preferences, and so dropped Epeli's
-birth.
+The changes also combine: one villager can be renamed and restyled together,
+and founders have no parents on record, so nothing on a founder is guaranteed
+to stay the same.
+
+The parentage companion therefore never uses such a comparison to discard a
+record. v1.35.28 dropped Epeli's held birth because Epeli took up a like; a
+whole-tribe check tried next would still have dropped VV1 records once the
+founders were renamed and restyled. The owner's rule since v1.35.29: every
+held record is written at the next save. A slot-by-slot tribe comparison
+remains only to decide whether a record can go straight under the last
+saved village's header or must wait for the next save -- a wrong answer there
+delays a record until the next save, never discards it.

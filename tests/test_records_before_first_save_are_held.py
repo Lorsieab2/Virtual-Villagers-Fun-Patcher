@@ -12,13 +12,16 @@ The owner's first v1.35.27 tribes showed two defects from the same window:
     simulates before the player's tribe exists.
 
 The parentage companion now holds such records until the village is known and
-writes them then, dropping any whose villager no longer occupies its slot.
+writes them then -- EVERY one of them. Each earlier attempt to drop some (a
+villager no longer in its slot, then a tribe no longer matching) dropped real
+records, because no villager field is fixed for life, and the owner ruled:
+"no one should be dropped. nothing should be dropped."
 native/parentage_export/pending_harness.c drives the shipped DLL through that
-window and checks the log on disk; against the v1.35.27 DLL it fails thirty-three of
-its sixty-seven checks, and against v1.35.28's it fails twenty-two -- including
-Epeli, the birth that DLL dropped in the owner's VV3 tribe -- which is what makes it a
-regression test rather than a
-restatement of the fix.
+window and checks the log on disk. Of its sixty-seven checks, the v1.35.27 DLL
+fails thirty-three, v1.35.28's fails thirty (among them Epeli, the birth it
+dropped in the owner's VV3 tribe), and the whole-tribe DLL fails twenty (among
+them VV1's records once every founder is renamed and restyled). That is what
+makes it a regression test rather than a restatement of the fix.
 
 The harness needs the 32-bit MSVC toolchain, so it runs where that is installed
 and is skipped elsewhere. The static checks below run everywhere.
@@ -58,11 +61,15 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         emit = function("emit_record")
         known = emit.index("if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)) {")
         publisher = emit.index("if (village[0] == '\\0' && !statistics_publisher_present()) {")
-        held = emit.rindex("return hold_record(game_id, is_birth, records, text);")
+        held = emit.rindex("return hold_record(game_id, is_birth, text);")
         self.assertLess(known, publisher)
         self.assertLess(publisher, held,
                         "records must be held only when a publisher exists")
-        self.assertIn("++pending_count;", function("hold_record"))
+        hold = function("hold_record")
+        self.assertIn("++pending_count;", hold)
+        # No cap: the queue grows rather than refusing a record.
+        self.assertIn("realloc(", hold)
+        self.assertNotIn("PENDING_MAX", SOURCE.read_text(encoding="utf-8"))
 
     def test_a_failed_write_keeps_the_record(self) -> None:
         """#449 review: a held record is released only once it is on disk."""
@@ -88,29 +95,22 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         ensure = ensure[:ensure.index("\n}")]
         self.assertIn("flush_pending(game_id, village);", ensure)
 
-    def test_the_whole_tribe_decides_whether_a_held_record_is_kept(self) -> None:
-        """A held record is dropped only when its tribe's table was replaced.
+    def test_no_held_record_is_ever_dropped(self) -> None:
+        """The owner: "no one should be dropped. nothing should be dropped."
 
-        No single villager field is fixed for life -- the player renames
-        villagers; island events, the Gong of Wonder and Origins upgrades
-        de-age them; Change Appearance restyles them; likes change as they grow.
-        v1.35.28 compared one villager's fields and dropped Epeli's birth in the
-        owner's VV3 tribe. The owner chose a whole-tribe check instead."""
+        Every held record is written at the next save; the only one released
+        unwritten is a write whose partial output could not be rolled back,
+        where a retry could only duplicate it."""
         flush = function("flush_pending")
-        self.assertIn("!same_tribe(&held_tribes[entry->tribe], scratch_tribe)", flush)
-        counts = function("still_counts")
-        # A villager still counts on two of name, looks and own parents.
-        self.assertIn("strcmp(then->name, now->name) == 0", counts)
-        self.assertIn("then->head == now->head && then->body == now->body", counts)
-        self.assertIn("strcmp(then->father_of, now->father_of) == 0", counts)
-        self.assertIn("return same >= 2;", counts)
-        self.assertNotIn("likes", counts)
-        self.assertNotIn("age", counts)
-        same = function("same_tribe")
-        self.assertIn("return counted >= 1 && counted * 4 >= then->count;", same)
-        # Pairs villagers by record slot: direct record access, never a scan.
-        self.assertIn("then->member[i].slot", same)
-        self.assertNotIn("find_record_by_name", same)
+        self.assertNotIn("same_tribe", flush)
+        self.assertNotIn("take_tribe", flush)
+        self.assertNotIn("->tribe", flush)
+        self.assertEqual(flush.count("release = 1;"), 1,
+                         "a record is released only after append_record")
+        self.assertLess(flush.index("append_record("), flush.index("release = 1;"))
+        source = SOURCE.read_text(encoding="utf-8")
+        self.assertNotIn("held_tribes", source)
+        self.assertNotIn("current_tribe_index", source)
 
     def test_a_recalled_header_is_trusted_only_for_the_saved_tribe(self) -> None:
         """#449 review, P1: after Start Over the old tribe's header is still
@@ -121,6 +121,15 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
             "if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)) {", emit)
         still = function("saved_tribe_still_loaded")
         self.assertIn("return same_tribe(saved_tribe, scratch_tribe);", still)
+        # This decides only when and where a record is written. A wrong "not
+        # the same" merely holds it to the next save; a wrong "the same" would
+        # misfile it, so the stricter two-of-three rule stays.
+        counts = function("still_counts")
+        self.assertIn("return same >= 2;", counts)
+        self.assertNotIn("likes", counts)
+        self.assertIn("return counted >= 1 && counted * 4 >= then->count;",
+                      function("same_tribe"))
+        self.assertIn("then->member[i].slot", function("same_tribe"))
         source = SOURCE.read_text(encoding="utf-8")
         self.assertIn("int __stdcall EnsureParentageLogForVillage(", source)
         self.assertIn("remember_saved_tribe(game_id, (const unsigned char *)records);", source)

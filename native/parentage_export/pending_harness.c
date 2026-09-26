@@ -11,16 +11,15 @@
 
      1. With the statistics companion present and no village published, a
         conception and a birth are HELD: nothing reaches the disk.
-     2. A second held conception's mother is then replaced in her slot -- a
-        different villager where she was, as when the game builds the player's
-        tribe over the villagers it simulated before it -- and a third's
-        mother stops being live.
+     2. The game replaces the whole table with the player's tribe, and
+        villagers are renamed, restyled, de-aged, grow, and die before the
+        save.
      3. The village is published and EnsureParentageLog runs, as the
         population exporter does after every save. The log must now exist,
-        open with the Village header, hold the kept conception as number 1
-        and the birth, and hold neither dropped conception.
+        open with the Village header, and hold EVERY held record in order --
+        the owner: "nothing should be dropped".
      4. A conception written once the village is known goes straight to the
-        log as number 2, under the same single header.
+        log, under the same single header.
 
    The statistics companion is detected by its file beside the executable, so
    the harness creates an empty stand-in there and removes it when done. Logs
@@ -301,30 +300,31 @@ int main(int argc, char **argv) {
     CHECK(strncmp(logtext, "Village: Harness Tribe (Save 1)\r\n", 33) == 0,
           "the log opens with the Village header");
     CHECK(count("Village: ") == 1, "exactly one header");
-    CHECK(strstr(logtext, "Makawa") == NULL && strstr(logtext, "Tufi") == NULL,
-          "the simulation's conceptions are dropped: its table was replaced");
-    CHECK(count("Conception ") == 3, "all three of the tribe's conceptions are kept");
-    CHECK(strstr(logtext, "Conception 1\r\n  Mother: Tikina\r\n") != NULL, "Tikina's is Conception 1");
-    CHECK(strstr(logtext, "Conception 2\r\n  Mother: Nui\r\n") != NULL,
+    CHECK(strstr(logtext, "Conception 1\r\n  Mother: Makawa\r\n") != NULL
+          && strstr(logtext, "Conception 2\r\n  Mother: Tufi\r\n") != NULL,
+          "the simulation's conceptions are kept too: nothing is dropped");
+    CHECK(count("Conception ") == 5, "all five held conceptions are written");
+    CHECK(strstr(logtext, "Conception 3\r\n  Mother: Tikina\r\n") != NULL, "Tikina's is Conception 3");
+    CHECK(strstr(logtext, "Conception 4\r\n  Mother: Nui\r\n") != NULL,
           "a mother who died before the save is still logged");
-    CHECK(strstr(logtext, "Conception 3\r\n  Mother: Ika\r\n") != NULL,
+    CHECK(strstr(logtext, "Conception 5\r\n  Mother: Ika\r\n") != NULL,
           "a mother renamed before the save is logged under the name she had");
     CHECK(strstr(logtext, "Birth\r\n  Child: Mahu\r\n") != NULL, "the tribe's birth is kept");
     CHECK(strstr(logtext, "Birth\r\n  Child: Epeli\r\n") != NULL,
           "a child who grew and took up a like before the save is logged (Epeli)");
     CHECK(strstr(logtext, "Birth\r\n  Child: Samoa\r\n") != NULL,
           "a child de-aged and restyled before the save is logged");
-    CHECK(strstr(logtext, "Conception 1") < strstr(logtext, "Birth"), "held records keep their order");
+    CHECK(strstr(logtext, "Conception 5") < strstr(logtext, "Birth"), "held records keep their order");
 
     printf("-- after the first save: records are written at once --\n");
     conceive(7, 1);
     CHECK(write(3, records, rec(7), rec(1)) == 1, "a later conception is accepted");
     CHECK(read_log(), "the log is still there");
-    second = strstr(logtext, "Conception 4\r\n  Mother: Saka\r\n");
-    CHECK(second != NULL, "it is written immediately as Conception 4");
+    second = strstr(logtext, "Conception 6\r\n  Mother: Saka\r\n");
+    CHECK(second != NULL, "it is written immediately as Conception 6");
     CHECK(count("Village: ") == 1, "still exactly one header");
     CHECK(save(VILLAGE) == 1, "a later save changes nothing");
-    CHECK(read_log() && count("Conception ") == 4 && count("Village: ") == 1,
+    CHECK(read_log() && count("Conception ") == 6 && count("Village: ") == 1,
           "no record is written twice");
 
     printf("-- a write that fails is retried, not lost --\n");
@@ -342,11 +342,11 @@ int main(int argc, char **argv) {
         CHECK(write(3, records, rec(9), rec(1)) == 1, "a second one during the lock is kept");
         (void)save(VILLAGE);                 /* a save while the log is still locked */
         CloseHandle(lock);
-        CHECK(read_log() && count("Conception ") == 4, "nothing reached the locked log");
+        CHECK(read_log() && count("Conception ") == 6, "nothing reached the locked log");
         CHECK(save(VILLAGE) == 1, "the next save succeeds");
-        CHECK(read_log() && count("Conception ") == 6, "both held conceptions are written after it");
-        CHECK(strstr(logtext, "Conception 5\r\n  Mother: Napa\r\n") != NULL
-              && strstr(logtext, "Conception 6\r\n  Mother: Lomai\r\n") != NULL,
+        CHECK(read_log() && count("Conception ") == 8, "both held conceptions are written after it");
+        CHECK(strstr(logtext, "Conception 7\r\n  Mother: Napa\r\n") != NULL
+              && strstr(logtext, "Conception 8\r\n  Mother: Lomai\r\n") != NULL,
               "in the order they happened");
         CHECK(count("Village: ") == 1, "still exactly one header");
     }
@@ -362,19 +362,21 @@ int main(int argc, char **argv) {
     villager(1, "Tane", 450, 3, 17);
     conceive(0, 1);
     CHECK(write(3, records, rec(0), rec(1)) == 1, "the new tribe's conception is accepted");
-    CHECK(read_log() && count("Conception ") == 6 && strstr(logtext, "Vaea") == NULL
+    CHECK(read_log() && count("Conception ") == 8 && strstr(logtext, "Vaea") == NULL
           && strstr(logtext, "Moana") == NULL,
           "neither is written under the OLD tribe's header");
     vv_village_publish(VILLAGE2);
     CHECK(save(VILLAGE2) == 1, "the new tribe's first save");
-    CHECK(read_log() && count("Conception ") == 6 && strstr(logtext, "Vaea") == NULL,
+    CHECK(read_log() && count("Conception ") == 8 && strstr(logtext, "Vaea") == NULL,
           "the old tribe's log is untouched");
     CHECK(read_log_n(2) && strncmp(logtext, "Village: Second Tribe (Save 2)\r\n", 32) == 0,
           "the new tribe gets its own headed log");
     CHECK(strstr(logtext, "  Mother: Vaea\r\n") != NULL, "its conception is filed there");
-    CHECK(strstr(logtext, "Moana") == NULL, "the simulated one is dropped");
+    CHECK(strstr(logtext, "  Mother: Moana\r\n") != NULL
+          && strstr(logtext, "  Mother: Moana\r\n") < strstr(logtext, "  Mother: Vaea\r\n"),
+          "the simulated one is kept too, before it, in order");
 
-    printf("-- all five games: a replaced table is dropped; growth, de-aging, restyling and renames are not --\n");
+    printf("-- all five games: nothing is dropped -- not a replaced table, not renamed and restyled founders --\n");
     {
         /* Each game's own record geometry, from the export DLL's GAME_LAYOUTS. */
         static const struct {
@@ -427,8 +429,17 @@ int main(int argc, char **argv) {
             *(int *)(GREC(2) + G[k].likes) = 5;
             *(int *)(GREC(2) + G[k].head) = 9;
             *(int *)(GREC(2) + G[k].body) = 11;
+            /* ...and renames AND restyles every founder -- founders have no
+               parents on record, so nothing on them stays the same. */
             memset(GREC(0) + G[k].name, 0, G[k].cap);
             strncpy((char *)GREC(0) + G[k].name, "Kukana", G[k].cap);
+            memset(GREC(1) + G[k].name, 0, G[k].cap);
+            strncpy((char *)GREC(1) + G[k].name, "Yapi", G[k].cap);
+            memset(GREC(3) + G[k].name, 0, G[k].cap);
+            strncpy((char *)GREC(3) + G[k].name, "Pakala", G[k].cap);
+            *(int *)(GREC(0) + G[k].head) = 3;  *(int *)(GREC(0) + G[k].body) = 4;
+            *(int *)(GREC(1) + G[k].head) = 5;  *(int *)(GREC(1) + G[k].body) = 6;
+            *(int *)(GREC(3) + G[k].head) = 1;  *(int *)(GREC(3) + G[k].body) = 8;
             _snprintf(village, sizeof village, "Village: Game %d Tribe (Save 3)\n", G[k].game);
             vv_village_publish(village);
             if (ensure_village != NULL) {
@@ -451,11 +462,13 @@ int main(int argc, char **argv) {
             }
             CHECK(strncmp(text, "Village: Game ", 14) == 0, "VV%d: the log opens with the Village header", G[k].game);
             CHECK(strstr(text, "  Mother: Kuka\r\n") != NULL,
-                  "VV%d: the tribe's conception is logged although the mother was renamed", G[k].game);
+                  "VV%d: the tribe's conception is logged although every founder was renamed and restyled",
+                  G[k].game);
             CHECK(strstr(text, "Birth\r\n  Child: Epeli\r\n") != NULL,
                   "VV%d: a child who grew, took up a like, was de-aged and restyled is logged", G[k].game);
-            CHECK(strstr(text, "Makawa") == NULL,
-                  "VV%d: the simulation's conception is dropped (its table was replaced)", G[k].game);
+            CHECK(strstr(text, "  Mother: Makawa\r\n") != NULL
+                  && strstr(text, "  Mother: Makawa\r\n") < strstr(text, "  Mother: Kuka\r\n"),
+                  "VV%d: the simulation's conception is kept too, in order", G[k].game);
 #undef GPUT
 #undef GREC
             free(t);
