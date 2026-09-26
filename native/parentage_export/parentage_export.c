@@ -1136,6 +1136,45 @@ static int log_file_has_content(const wchar_t *path) {
     }
     return info.nFileSizeHigh != 0 || info.nFileSizeLow != 0;
 }
+
+/* The file's length on disk, 0 when it does not exist. Taken before an append
+   so a failed append can be cut back to exactly this. */
+static LONGLONG log_file_size(const wchar_t *path) {
+    WIN32_FILE_ATTRIBUTE_DATA info;
+    if (!GetFileAttributesExW(path, GetFileExInfoStandard, &info)) {
+        return 0;
+    }
+    return ((LONGLONG)info.nFileSizeHigh << 32) | info.nFileSizeLow;
+}
+
+/* Undo a failed append: cut the file back to the length it had before.
+
+   Codex (#449 review): a record that fails part-way -- the write, fflush or
+   fclose failing on a nearly full disk -- may already have put bytes on disk,
+   including its "Conception " marker, which select_log_file counts. The
+   record is kept and retried, so without this the retry would add a second,
+   misnumbered copy. A file the failed append created is cut to nothing and
+   removed, so the retry writes its header again. Returns 0 if the file could
+   not be restored. */
+static int roll_back_append(const wchar_t *path, LONGLONG size) {
+    HANDLE handle;
+    LARGE_INTEGER at;
+    int restored;
+
+    if (size == 0) {
+        return DeleteFileW(path) || GetLastError() == ERROR_FILE_NOT_FOUND;
+    }
+    handle = CreateFileW(path, GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+                         FILE_ATTRIBUTE_NORMAL, NULL);
+    if (handle == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    at.QuadPart = size;
+    restored = SetFilePointerEx(handle, at, NULL, FILE_BEGIN)
+        && SetEndOfFile(handle);
+    CloseHandle(handle);
+    return restored;
+}
 /* Count the records already in a file, so a roll happens at the right point
    and a restarted game continues the current file rather than overwriting it.
 
@@ -1990,6 +2029,92 @@ static int still_the_same_villager(
         && memcmp(now.dislikes, entry->dislikes, sizeof(now.dislikes)) == 0;
 }
 
+/* ---- Which tribe is loaded ------------------------------------------------
+
+   Codex (#449 review, P1): the published village header outlives the tribe it
+   names. After Start Over, or after leaving a tribe for the menu and starting
+   or loading another, vv_village_recall still returns the LAST SAVED tribe's
+   header until the new one is saved -- so the new tribe's records from before
+   its first save, the simulated ones included, were written straight under
+   the old tribe's header instead of being held.
+
+   Only VV1 captures the loaded save slot; VV2 to VV5 learn it at save. So
+   rather than trusting the header, the companion checks the TRIBE. At every
+   save the population exporter hands over the villager table it has just
+   written the roster from (EnsureParentageLogForVillage), and a snapshot of
+   every live villager's identity is kept. A record is written straight under
+   the recalled header only while the table still holds that tribe: more than
+   half of the villagers live at the last save still in their slots as the
+   same villagers (the fields still_the_same_villager uses). A different
+   tribe replaces the table and fails; a tribe that merely lost or gained a
+   few villagers since its save passes. Anything that fails is HELD, never
+   dropped or misfiled, and the next save's flush re-checks each held record
+   against its own slot. The worst case is a delay until the next save. */
+
+struct saved_villager {
+    int slot;
+    struct pending_record identity;
+};
+
+static struct saved_villager *saved_tribe;
+static int saved_count;
+static int saved_game;
+static const unsigned char *saved_records;
+static int saved_valid;
+
+static void remember_saved_tribe(int game_id, const unsigned char *records) {
+    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    unsigned int slot;
+
+    saved_valid = 0;
+    saved_count = 0;
+    if (records == NULL
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+        return;
+    }
+    if (saved_tribe == NULL) {
+        saved_tribe = (struct saved_villager *)calloc(256, sizeof(*saved_tribe));
+        if (saved_tribe == NULL) {
+            return;
+        }
+    }
+    for (slot = 0; slot < g->slots && slot < 256u; ++slot) {
+        const unsigned char *record = records + g->record_base + slot * g->stride;
+        if (*(const unsigned char *)(record + g->active) != 1) {
+            continue;
+        }
+        saved_tribe[saved_count].slot = (int)slot;
+        saved_tribe[saved_count].identity.subject = record;
+        identify_villager(g, record, &saved_tribe[saved_count].identity);
+        ++saved_count;
+    }
+    saved_game = game_id;
+    saved_records = records;
+    saved_valid = 1;
+}
+
+/* Whether the table still holds the tribe last saved. An empty tribe, or none
+   seen yet, cannot vouch for anything, so records are held. */
+static int saved_tribe_still_loaded(int game_id) {
+    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    int i;
+    int same = 0;
+
+    if (!saved_valid || saved_game != game_id || saved_count == 0) {
+        return 0;
+    }
+    if (!memory_is_readable(saved_records,
+                            g->record_base + (size_t)g->slots * g->stride)) {
+        return 0;
+    }
+    for (i = 0; i < saved_count; ++i) {
+        if (still_the_same_villager(g, &saved_tribe[i].identity)) {
+            ++same;
+        }
+    }
+    return same * 2 > saved_count;
+}
+
 /* Append one rendered record to this village's log, heading a new file.
    `text` is everything after the "Conception <n>" line for a conception, and
    the whole block for a birth. `village` may be empty only when there is no
@@ -2004,6 +2129,7 @@ static int append_record(
     int existing_records;
     int had_content;
     int written;
+    LONGLONG original_size;
     FILE *file;
 
     if (!select_log_file(g, village, path, &existing_records, is_birth)) {
@@ -2013,20 +2139,23 @@ static int append_record(
        WriteParentageRecordWithFather. Content measured BEFORE the open, which
        would create the file -- see log_file_has_content. */
     had_content = log_file_has_content(path);
+    original_size = log_file_size(path);
     file = _wfopen(path, L"a");
     if (file == NULL) {
         return 0;
     }
+    written = 1;
     if (!had_content && village[0] != '\0') {
         if (fprintf(file, "%s", village) < 0) {
-            fclose(file);
-            return 0;
+            written = 0;
         }
     }
-    if (is_birth) {
-        written = fprintf(file, "%s", text) >= 0;
-    } else {
-        written = fprintf(file, "Conception %d\n%s", existing_records + 1, text) >= 0;
+    if (written) {
+        if (is_birth) {
+            written = fprintf(file, "%s", text) >= 0;
+        } else {
+            written = fprintf(file, "Conception %d\n%s", existing_records + 1, text) >= 0;
+        }
     }
     /* Flushed separately so a failed write is reported rather than hidden in
        fclose; a half-flushed "Conception " marker would be counted. */
@@ -2034,9 +2163,15 @@ static int append_record(
         written = 0;
     }
     if (fclose(file) != 0) {
+        written = 0;
+    }
+    if (!written) {
+        /* The caller keeps the record and retries it, so whatever part of it
+           reached the disk must go, or the retry duplicates it. */
+        (void)roll_back_append(path, original_size);
         return 0;
     }
-    return written;
+    return 1;
 }
 
 /* Write every held record for this game under `village`, dropping any whose
@@ -2125,7 +2260,7 @@ static int emit_record(
     if (!vv_village_recall(village, sizeof village)) {
         village[0] = '\0';
     }
-    if (village[0] != '\0') {
+    if (village[0] != '\0' && saved_tribe_still_loaded(game_id)) {
         flush_pending(game_id, village);
         /* Written now only when nothing is still waiting and the write works.
            Otherwise it queues BEHIND what is waiting, so a failed write can
@@ -2135,9 +2270,10 @@ static int emit_record(
         }
         return hold_record(game_id, is_birth, subject, text);
     }
-    if (!statistics_publisher_present()) {
+    if (village[0] == '\0' && !statistics_publisher_present()) {
         return append_record(g, village, is_birth, text);
     }
+    /* No village yet, or a recalled one the loaded tribe cannot vouch for. */
     return hold_record(game_id, is_birth, subject, text);
 }
 
@@ -2711,9 +2847,34 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
    Returns 1 when the log exists afterwards, 0 if it could not be created.
    Failure is not fatal to anything: the next real record creates the file
    the same way it always did. */
+static int ensure_parentage_log(int game_id, const char *village,
+                                const void *records);
+
+/* The form the population exporter calls after every save: the village just
+   saved, and the villager table the roster was written from, which becomes
+   the tribe records are checked against until the next save. */
+__declspec(dllexport) int __stdcall EnsureParentageLogForVillage(
+    int game_id,
+    const char *village,
+    const void *records
+) {
+    return ensure_parentage_log(game_id, village, records);
+}
+
+/* The original two-argument form, kept for a population exporter that has not
+   been rebuilt. With no table it cannot vouch for the tribe, so records keep
+   being held and are written here at each save instead of at once. */
 __declspec(dllexport) int __stdcall EnsureParentageLog(
     int game_id,
     const char *village
+) {
+    return ensure_parentage_log(game_id, village, NULL);
+}
+
+static int ensure_parentage_log(
+    int game_id,
+    const char *village,
+    const void *records
 ) {
     const struct game_layout *g;
     wchar_t path[MAX_LOG_PATH];
@@ -2733,8 +2894,12 @@ __declspec(dllexport) int __stdcall EnsureParentageLog(
            and an unattributable log is worse than an absent one. */
         return 0;
     }
-    /* The village has just been saved, so it is known: write any records
-       held since before its first save, under its header. See emit_record. */
+    /* The village has just been saved, so it is known: remember the tribe it
+       holds, then write any records held since before this save under its
+       header. See emit_record. */
+    if (records != NULL) {
+        remember_saved_tribe(game_id, (const unsigned char *)records);
+    }
     flush_pending(game_id, village);
     /* ASK FOR THE FILE A BIRTH WOULD USE, NOT THE ONE A CONCEPTION WOULD.
 

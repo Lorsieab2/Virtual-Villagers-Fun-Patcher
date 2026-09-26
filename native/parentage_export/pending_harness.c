@@ -45,6 +45,7 @@ typedef int (__stdcall *write_t)(int, const void *, const void *, const void *);
 typedef int (__stdcall *birth_t)(int, const char *, int, int, const char *, int, int,
                                  const char *, int, int, const void *);
 typedef int (__stdcall *ensure_t)(int, const char *);
+typedef int (__stdcall *ensure_village_t)(int, const char *, const void *);
 
 /* VV3, as the export DLL's GAME_LAYOUTS row and parentage_export_harness.c
    have it. */
@@ -66,6 +67,7 @@ typedef int (__stdcall *ensure_t)(int, const char *);
 #define PREF_SLOTS  3
 #define TITLE       "Virtual Villagers 3 Births and Conceptions Log"
 #define VILLAGE     "Village: Harness Tribe (Save 1)\n"
+#define VILLAGE2    "Village: Second Tribe (Save 2)\n"
 
 static unsigned char *records;
 static unsigned char *rec(int i) { return records + BASE + i * STRIDE; }
@@ -141,17 +143,30 @@ static int log_files(void) {
 }
 
 static char logtext[1 << 16];
-static int read_log(void) {
+static int read_log_n(int number) {
     char path[MAX_PATH];
     FILE *f;
     size_t n;
-    _snprintf(path, MAX_PATH, "%s\\%s 1.txt", folder, TITLE);
+    _snprintf(path, MAX_PATH, "%s\\%s %d.txt", folder, TITLE, number);
     f = fopen(path, "rb");
     if (f == NULL) { logtext[0] = 0; return 0; }
     n = fread(logtext, 1, sizeof logtext - 1, f);
     logtext[n] = 0;
     fclose(f);
     return 1;
+}
+static int read_log(void) { return read_log_n(1); }
+
+/* A save, as the population exporter makes it: the village just saved and the
+   villager table it wrote the roster from. Falls back to the two-argument
+   export for a DLL that predates the three-argument one. */
+static ensure_t ensure;
+static ensure_village_t ensure_village;
+static int save(const char *village) {
+    if (ensure_village != NULL) {
+        return ensure_village(3, village, records);
+    }
+    return ensure(3, village);
 }
 
 static int count(const char *needle) {
@@ -166,7 +181,6 @@ int main(int argc, char **argv) {
     HMODULE dll;
     write_t write;
     birth_t birth;
-    ensure_t ensure;
     HANDLE stand_in;
     const char *second;
 
@@ -195,6 +209,8 @@ int main(int argc, char **argv) {
     write = (write_t)GetProcAddress(dll, "WriteParentageRecordWithFather");
     birth = (birth_t)GetProcAddress(dll, "WriteParentageBirth");
     ensure = (ensure_t)GetProcAddress(dll, "EnsureParentageLog");
+    ensure_village = (ensure_village_t)GetProcAddress(dll, "EnsureParentageLogForVillage");
+    CHECK(ensure_village != NULL, "EnsureParentageLogForVillage is exported");
     CHECK(write && birth && ensure, "the three exports resolve");
     if (!(write && birth && ensure)) {
         DeleteFileA(marker);
@@ -251,7 +267,7 @@ int main(int argc, char **argv) {
 
     printf("-- the first save --\n");
     vv_village_publish(VILLAGE);
-    CHECK(ensure(3, VILLAGE) == 1, "EnsureParentageLog succeeds");
+    CHECK(save(VILLAGE) == 1, "EnsureParentageLog succeeds");
     CHECK(read_log(), "the log now exists");
     CHECK(strncmp(logtext, "Village: Harness Tribe (Save 1)\r\n", 33) == 0,
           "the log opens with the Village header");
@@ -276,7 +292,7 @@ int main(int argc, char **argv) {
     second = strstr(logtext, "Conception 2\r\n  Mother: Saka\r\n");
     CHECK(second != NULL, "it is written immediately as Conception 2");
     CHECK(count("Village: ") == 1, "still exactly one header");
-    CHECK(ensure(3, VILLAGE) == 1, "a later save changes nothing");
+    CHECK(save(VILLAGE) == 1, "a later save changes nothing");
     CHECK(read_log() && count("Conception ") == 2 && count("Village: ") == 1,
           "no record is written twice");
 
@@ -293,15 +309,45 @@ int main(int argc, char **argv) {
         villager(13, "Lomai", 466, 7, 0);
         conceive(13, 1);
         CHECK(write(3, records, rec(13), rec(1)) == 1, "a second one during the lock is kept");
-        (void)ensure(3, VILLAGE);          /* a save while the log is still locked */
+        (void)save(VILLAGE);          /* a save while the log is still locked */
         CloseHandle(lock);
         CHECK(read_log() && count("Conception ") == 2, "nothing reached the locked log");
-        CHECK(ensure(3, VILLAGE) == 1, "the next save succeeds");
+        CHECK(save(VILLAGE) == 1, "the next save succeeds");
         CHECK(read_log() && count("Conception ") == 4, "both held conceptions are written after it");
         CHECK(strstr(logtext, "Conception 3\r\n  Mother: Napa\r\n") != NULL
               && strstr(logtext, "Conception 4\r\n  Mother: Lomai\r\n") != NULL,
               "in the order they happened");
         CHECK(count("Village: ") == 1, "still exactly one header");
+    }
+
+    printf("-- Start Over: a new tribe while the old header is still published --\n");
+    {
+        int s2;
+        /* The table is rebuilt for the new tribe; nothing publishes a village
+           until it is saved, so the recalled header is still the old one. */
+        for (s2 = 0; s2 < 20; ++s2) {
+            memset(rec(s2), 0, STRIDE);
+        }
+        villager(0, "Vaea", 420, 11, 5);
+        villager(1, "Tane", 450, 3, 17);
+        villager(2, "Moana", 470, 5, 5);      /* simulated before the tribe */
+        villager(3, "Rua", 460, 6, 6);
+        conceive(2, 3);
+        CHECK(write(3, records, rec(2), rec(3)) == 1, "a simulated conception is accepted");
+        conceive(0, 1);
+        CHECK(write(3, records, rec(0), rec(1)) == 1, "the new tribe's conception is accepted");
+        CHECK(read_log() && count("Conception ") == 4 && strstr(logtext, "Vaea") == NULL
+              && strstr(logtext, "Moana") == NULL,
+              "neither is written under the OLD tribe's header");
+        villager(2, "Hina", 380, 1, 2);        /* the tribe replaces the simulation */
+        vv_village_publish(VILLAGE2);
+        CHECK(save(VILLAGE2) == 1, "the new tribe's first save");
+        CHECK(read_log() && count("Conception ") == 4 && strstr(logtext, "Vaea") == NULL,
+              "the old tribe's log is untouched");
+        CHECK(read_log_n(2) && strncmp(logtext, "Village: Second Tribe (Save 2)\r\n", 32) == 0,
+              "the new tribe gets its own headed log");
+        CHECK(strstr(logtext, "  Mother: Vaea\r\n") != NULL, "its conception is filed there");
+        CHECK(strstr(logtext, "Moana") == NULL, "the simulated one is dropped");
     }
 
     FreeLibrary(dll);

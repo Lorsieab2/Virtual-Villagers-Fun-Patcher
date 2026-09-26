@@ -320,7 +320,13 @@ class LogFolderTests(unittest.TestCase):
         not only once something happens in it -- which covers a brand-new
         village and one restarted with Start Over, since a reset deletes the
         previous village's files and the next save then finds none."""
-        fn = function(self.par, "__declspec(dllexport) int __stdcall EnsureParentageLog(")
+        # Both exports -- the population exporter's three-argument form and the
+        # original two-argument one -- forward to this one body.
+        self.assertIn("return ensure_parentage_log(game_id, village, NULL);",
+                      function(self.par, "__declspec(dllexport) int __stdcall EnsureParentageLog("))
+        self.assertIn("return ensure_parentage_log(game_id, village, records);",
+                      function(self.par, "__declspec(dllexport) int __stdcall EnsureParentageLogForVillage("))
+        fn = function(self.par, "static int ensure_parentage_log(\n    int game_id,")
         # CREATE-IF-ABSENT, never a rewrite: the logs are append-only and a
         # record once written is never modified.
         self.assertIn('_wfopen(path, L"a")', fn)
@@ -342,14 +348,15 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn("village[0] == " + chr(39) + chr(92) + "0" + chr(39), fn)
 
         # And the save path actually calls it, DLL to DLL.
-        self.assertIn("ensure_parentage_log_for_village(game_id, village)", self.pop)
+        self.assertIn("ensure_parentage_log_for_village(game_id, village, villagers)", self.pop)
         self.assertIn('"VVFP Parentage Export.dll"', self.pop)
         self.assertIn('"EnsureParentageLog"', self.pop)
+        self.assertIn('"EnsureParentageLogForVillage"', self.pop)
         # After the roster is published: a failure here must never cost the
         # player the file they actually rely on.
         self.assertLess(
             self.pop.index("publish_file(file, temporary, destination)"),
-            self.pop.index("ensure_parentage_log_for_village(game_id, village)"))
+            self.pop.index("ensure_parentage_log_for_village(game_id, village, villagers)"))
 
     def test_the_sidecar_migration_bounds_its_own_slot(self):
         """The legacy path's length bound assumes a single digit, and the slot
