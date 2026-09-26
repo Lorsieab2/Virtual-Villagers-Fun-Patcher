@@ -109,6 +109,9 @@ HOOK_VA = 0x00467DBE
 HOOK_FILE = 0x00067DBE
 HOOK_STOLEN = bytes.fromhex("e83de0ffff")
 CONCEPTION_VA = 0x00465E00
+# sub_465E00 adds the accepted litter size here at 0x465F3E. Its early
+# capacity-check exit at 0x465E18 does not touch this counter.
+CONCEPTION_TOTAL_VA = 0x0051D360
 
 # The appended page.  VV4's stock file ends at 0xE3000 and its last section
 # (.rsrc) ends at VA 0x329000 + 0x15DE0, so 0x73F000 is the next 0x1000-aligned
@@ -216,21 +219,20 @@ RESET_THUNK_VA = 0x00424690
 # one instruction here and no register pressure.
 RECORDS_CONTAINER_VA = 0x00554148
 
-# The suppression argument.  sub_45E7B0 is __thiscall with seven stack dwords
-# and cleans them itself (retn 1Ch), so they are GONE by the time the stolen
-# call returns.  The flag therefore has to be read BEFORE that call, while the
-# caller's pushes are still on the stack.
+# The suppression argument. sub_465E00 is __thiscall with seven stack dwords
+# and cleans them itself (retn 1Ch). The trampoline passes COPIES of the
+# caller's arguments to that call; the originals remain above its return
+# address, so the flag can be read after the game routine returns.
 #
 # The trampoline is entered by CALL, so at its first instruction:
-#     [esp+0x00]  the trampoline's own return address (0x460A33)
+#     [esp+0x00]  the trampoline's own return address (0x467DC3)
 #     [esp+0x04]  the first of the seven arguments
 #     [esp+0x1C]  the seventh -- the suppression flag
 #
-# An earlier draft read it after the call, at a displacement into the pushad
-# frame.  That address holds whatever the caller had above its arguments, not
-# the flag, so seeding would not have been filtered and every new village would
-# have written a record per starting villager.  Disassembling the emitted page
-# is what exposed it; the source read plausibly.
+# An earlier draft read it from the wrong pushad-frame displacement. That
+# address holds whatever the caller had above its arguments, not the flag, so
+# seeding would not have been filtered. The current code reads the original
+# seventh argument after saving ebx; its displacement is +0x20 at that point.
 SUPPRESSION_ARG_DISPLACEMENT = 0x1C
 
 
@@ -335,24 +337,34 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
             # contract -- give the callee a frame of its own, and clean the
             # game's seven arguments itself on the way out.
             #
-            # The seven arguments are re-pushed right to left.  Each push
-            # lowers esp by four, which moves the next argument down into the
-            # same displacement, so seven identical reads at +0x1C copy the
-            # whole list in order.  +0x1C is also where the seventh argument
-            # sits before any push, which is why the suppression flag is read
-            # at the same displacement first.
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT:X}]
+            # Keep the game's conception total on our stack. An accepted
+            # pregnancy adds its litter size at 0x465F3E; the capacity-check
+            # rejection leaves it unchanged. The extra dword shifts every
+            # original argument by four, so the seven copies all read +0x20.
+            # Each push advances the next argument into that displacement.
+            push dword ptr [0x{CONCEPTION_TOTAL_VA:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
+            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
 
             # ecx is the __thiscall `this` pointer.  The call site loads it at
             # 0x467DBC (`mov ecx, ebp`) immediately before the hook, and the
             # seven pushes above do not touch it, so it arrives intact.
             call 0x{CONCEPTION_VA:X}
+
+            # The routine consumed only its seven copied arguments. A stable
+            # accepted-conception total means it declined the pregnancy, so
+            # bypass the logger. Preserve EAX and remove our saved dword.
+            push eax
+            mov eax, dword ptr [0x{CONCEPTION_TOTAL_VA:X}]
+            cmp eax, dword ptr [esp + 4]
+            pop eax
+            lea esp, [esp + 4]
+            je no_log
 
             # Save the caller's ebx, then read the suppression flag into it.
             #
@@ -441,6 +453,7 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
             # otherwise put the suppression flag back into it.
             pop ebx
 
+        no_log:
             # Clean the GAME's seven arguments, exactly as the routine this
             # page impersonates would have.  Returning with a bare `ret` would
             # leave 0x1C bytes of the caller's frame stranded.
