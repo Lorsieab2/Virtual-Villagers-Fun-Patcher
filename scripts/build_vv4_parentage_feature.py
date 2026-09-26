@@ -22,32 +22,26 @@ independently proven by the shipping statistics companion:
 Exactly one function writes all of those.  That is the birth site by
 construction rather than by resemblance.
 
-The hook is NOT placed at that routine's head.  It is placed on the CALL to it
-inside the role resolver sub_460990, at 0x00460A2E:
+THE HOOK SITS AT THE ROUTINE'S SUCCESS EXIT
 
-    0x460A09  mov edx,[esi+0x1BBC]     father BODY
-    0x460A10  mov ecx,[esi+0x1BB8]     father HEAD
-    0x460A1D  lea edx,[esi+0x1B9C]     father NAME
-    0x460A2B  mov ecx, ebp             MOTHER record  (thiscall)
-    0x460A2E  call sub_45E7B0          <-- the five bytes this feature steals
+It used to replace the CALL to sub_45E7B0 in the role resolver (0x460A2E),
+so only that caller was logged -- autonomous embracing (0x4650EB / 0x46511B, the two
+gender branches) never was. The routine is the only code that writes the
+pregnancy fields, so every way a villager conceives -- embracing, the player's
+drop, time catch-up, island events -- goes through it, and its success exit
+sees them all.
 
-At the routine's head the father exists only as decomposed scalars pushed by
-the caller, so his AGE is unreachable.  At the resolver's call site both
-parents are live RECORD pointers -- ebp is the mother, esi is the father --
-which is what makes every logged field readable from one place.
+0x45E8E4 is that exit: all three litter outcomes converge on it after the litter
+size is final, and the capacity rejection jumps past it to 0x45E922. No branch
+or stored pointer targets the ten bytes taken there
+(`test bl,bl / jne 0x45E922 / mov eax,[esi+0x1C50]`); the page replays them
+and jumps back to 0x45E8EE.
 
-That site was validated before any byte was taken.  Using IDA's cross-reference
-database rather than a linear sweep (a linear sweep desynchronises on embedded
-data and reported zero incoming branches at an address that has three):
-
-    every byte of 0x460A2E..0x460A32   0 non-flow code refs, 0 data refs
-    resume 0x460A33                    0 non-flow code refs
-    the call decodes as E8 7DDDFFFF -> 0x45E7B0, exactly 5 bytes
-
-so nothing jumps into the stolen span or the resume, and no stored pointer or
-jump-table entry aims at either.  The hook is also the last instruction before
-the resolver's epilogue (pop edi/esi/ebp; retn 8), so register state at the
-resume point is consumed only by that epilogue.
+At the exit, esi is the mother (`mov esi, ecx` at the head; the father's name
+is copied onto her), bl is the seventh argument, and the father's NAME argument
+is at [esp+0x18] -- a pointer to the name inside his record, `lea reg,
+[father+0x1B9C]` at every caller that has him, so his record is that pointer
+minus 0x1B9C. Nothing is scanned for.
 
 THE SUPPRESSION FLAG, WHICH IS NOT OPTIONAL
 
@@ -59,9 +53,8 @@ calls it with that argument SET and a hardcoded father "Joey":
 Every genuine conception passes it clear.  Without filtering on it, starting a
 new village writes one bogus "Joey" record per starting villager -- permanently,
 into a log whose whole premise is that parentage cannot be recovered afterwards,
-and invisibly until someone starts a new game.  The trampoline therefore reads
-that argument from the caller's frame and returns without logging when it is
-set.
+and invisibly until someone starts a new game.  The page therefore tests it (bl)
+first and logs nothing when it is set.
 
 WHERE THE PAYLOAD LIVES
 
