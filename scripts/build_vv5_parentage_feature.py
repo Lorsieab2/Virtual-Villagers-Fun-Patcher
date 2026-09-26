@@ -105,9 +105,38 @@ OUTPUT = ROOT / "data" / "vv5_parentage_feature.json"
 GAME_ID = 5
 
 # The conception call inside the role resolver, and the five bytes it occupies.
-HOOK_VA = 0x00467DBE
-HOOK_FILE = 0x00067DBE
-HOOK_STOLEN = bytes.fromhex("e83de0ffff")
+# THE HOOK SITS AT THE CONCEPTION ROUTINE'S SUCCESS EXIT, NOT AT ONE CALL SITE.
+#
+# It used to replace one `call` to the routine -- the role resolver's -- so
+# only that path was logged. The routine has four callers:
+#     0x467DBE (the player's drop and the role resolver), 0x46E16B and 0x46E19B (the two gender branches of autonomous embracing), and 0x471B6D (village seeding, suppression set).
+# The owner's requirement is that every way a villager conceives is logged:
+# autonomous embracing, the player dropping one villager on another, time
+# catch-up, and island events. Every one of them starts the pregnancy in this
+# routine: it is the only code in the executable that writes the pregnancy
+# fields (due, father name, the father's head/body copies, litter) -- verified
+# by enumerating every writer of those offsets in the stock image. So the
+# routine is the one place that sees them all.
+#
+# 0x465F34 is reached only after the litter size is final (all three
+# litter outcomes converge there) and never by the capacity rejection, which
+# jumps straight to 0x465F44. No branch or stored pointer targets
+# any byte of the ten stolen here (checked over the whole .text and image).
+# The stolen bytes are `test bl,bl / jne 0x465F44 / mov ecx,[esi+0x1C50]`,
+# replayed verbatim before resuming at 0x465F3E.
+HOOK_VA = 0x00465F34
+HOOK_FILE = 0x00065F34
+HOOK_STOLEN = bytes.fromhex("84db750c8b8e501c0000")
+HOOK_REJECT_VA = 0x00465F44
+HOOK_RESUME_VA = 0x00465F3E
+# The routine's father-NAME argument. Every caller that has the father's record
+# passes `lea reg, [father + 0x1B9C]` -- the name inside his record, which the
+# routine copies onto the mother -- so his record is this argument minus 0x1B9C.
+# At the exit the routine's own `push ebx; push esi` are the only things above
+# its return address, so the argument is at [esp+0x18] there, the same slot the
+# routine reads it from when it copies the name.
+FATHER_NAME_ARG_AT_TAIL = 0x18
+FATHER_NAME_OFFSET = 0x1B9C
 CONCEPTION_VA = 0x00465E00
 # sub_465E00 adds the accepted litter size here at 0x465F3E. Its early
 # capacity-check exit at 0x465E18 does not touch this counter.
@@ -313,86 +342,20 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
     #
     # pushad stores edi, esi, ebp, esp, ebx, edx, ecx, eax from low address up,
     # so inside the handler saved esi is at esp+0x14 and saved ebp at esp+0x10.
+    # The trampoline is entered by a JMP from the routine's success exit, so it
+    # runs inside the routine's own frame: esi is the mother (`mov esi, ecx`
+    # at the routine's head, and the record the father's name was copied onto),
+    # bl is the suppression flag the routine loaded from its seventh argument,
+    # and the father's name argument is at [esp+FATHER_NAME_ARG_AT_TAIL].
+    # pushad adds 0x20 to that. It ends by replaying the stolen bytes and
+    # jumping back, so the routine finishes exactly as it would have.
     code = assemble(
         f"""
-            # THE TRAMPOLINE MUST IMPERSONATE sub_465E00, NOT WRAP IT.
-            #
-            # The hook replaces `call 0x465E00` at 0x467DBE, so the game's own
-            # `call` has already pushed its return address by the time this
-            # page runs.  An inner `call 0x465E00` pushes a SECOND one, and the
-            # callee then starts with two return addresses below its arguments
-            # and reads every one of them a dword high.
-            #
-            # That is what crashed the game on startup, established from the
-            # crash dump rather than inferred.  Walking the frame from this
-            # page's return address showed sub_465E00's "arg1" holding
-            # 0x467DC3 -- the game's own return address -- and strncpy
-            # faulting with a source pointer of 0x1, a save-slot index read
-            # where a name pointer belongs.  This routine also builds the
-            # save-slot name list, which is why a parentage patch produced a
-            # startup crash rather than a conception-time one.
-            #
-            # sub_465E00 is __thiscall and ends in `ret 0x1C`: it cleans its
-            # own seven arguments.  So this page has to honour the same
-            # contract -- give the callee a frame of its own, and clean the
-            # game's seven arguments itself on the way out.
-            #
-            # Keep the game's conception total on our stack. An accepted
-            # pregnancy adds its litter size at 0x465F3E; the capacity-check
-            # rejection leaves it unchanged. The extra dword shifts every
-            # original argument by four, so the seven copies all read +0x20.
-            # Each push advances the next argument into that displacement.
-            push dword ptr [0x{CONCEPTION_TOTAL_VA:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
-            push dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
-
-            # ecx is the __thiscall `this` pointer.  The call site loads it at
-            # 0x467DBC (`mov ecx, ebp`) immediately before the hook, and the
-            # seven pushes above do not touch it, so it arrives intact.
-            call 0x{CONCEPTION_VA:X}
-
-            # The routine consumed only its seven copied arguments. A stable
-            # accepted-conception total means it declined the pregnancy, so
-            # bypass the logger. Preserve EAX and remove our saved dword.
-            push eax
-            mov eax, dword ptr [0x{CONCEPTION_TOTAL_VA:X}]
-            cmp eax, dword ptr [esp + 4]
-            pop eax
-            lea esp, [esp + 4]
-            je no_log
-
-            # Save the caller's ebx, then read the suppression flag into it.
-            #
-            # BOTH happen after the callee returns, and that is deliberate.
-            #
-            # ebx is not dead across this call, which an earlier version of
-            # this page assumed after looking only at the instructions
-            # immediately following the hook.  The routine the hook sits in is
-            # entered from a caller that keeps a live ebx across it and then
-            # dereferences it -- `mov eax, [ebx+0x18]` -- before popping its
-            # own saved copy.  Leaving the flag in ebx makes that a null
-            # dereference whenever the flag is zero.  Codex caught this.
-            #
-            # Reading the flag afterwards is possible because this page cleans
-            # the GAME's seven arguments itself: the callee popped only the
-            # copies pushed above, so the originals are still in place here,
-            # and the flag sits at the same displacement plus the four bytes
-            # this push adds.  Nothing touches ebx or the stack across the
-            # call, which is what the callee's esp-relative argument reads
-            # require.
-            push ebx
-            mov ebx, dword ptr [esp + 0x{SUPPRESSION_ARG_DISPLACEMENT + 4:X}]
-
             pushad
             # Village seeding passes the suppression flag set, with a hardcoded
-            # father.  Logging those would write one bogus record per starting
+            # father; logging it would write one bogus record per starting
             # villager on every new game.
-            test ebx, ebx
+            test bl, bl
             jnz done
 
             push 0x{dll_name_va:X}
@@ -410,54 +373,31 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
             test eax, eax
             jz done
 
-            # WriteParentageRecordWithFather(game_id, records, mother,
-            # father).  stdcall, so the callee cleans its own 16 bytes and
-            # the frame stays balanced.  Pushed right to left: the father
-            # first, then the mother, then the container, then the game id.
-            # The container is passed UNBIASED -- the companion's layout
-            # row carries record_base 0x48 and applies it itself, and a
-            # pre-biased pointer would be rejected at slot zero.
-            #
-            # pushad stores eax first and edi last, so from esp the frame
-            # reads edi +0x00, esi +0x04, ebp +0x08, esp +0x0C, ebx +0x10,
-            # edx +0x14, ecx +0x18, eax +0x1C.  An earlier draft used
-            # +0x10 for the mother and would have passed ebx -- a
-            # plausible-looking pointer that is not the mother, which the
-            # companion's boundary guard would have rejected silently on
-            # every birth.
-            #
-            # Both parents are live here.  The routine picks the roles at
-            # its head: it tests [ecx + 0x1B90] and either sets ebp = ecx
-            # with esi the partner, or ebp = esi and esi = ecx.  ebp is
-            # the record carrying the litter count and the father's NAME,
-            # which is what makes ebp the mother and esi the father.
-            #
-            # esi is passed as a hint, not as a trusted pointer.  The
-            # companion validates it against the record array exactly as
-            # it does the mother, rejects it if it is the mother herself
-            # or an inactive slot, and falls back to the name-only text if
-            # any of that fails -- so a wrong guess costs three fields,
-            # never a wrong record.
-            #
-            # The father is read before the mother is pushed, so it uses
-            # the raw frame offset; the mother is read one push later and
-            # so needs 0x08 + 0x04.
-            push dword ptr [esp + 0x04]
-            push dword ptr [esp + 0x0C]
+            # The father: his name argument minus the name's offset inside
+            # his record. A name that is not inside a record -- a literal
+            # string -- is refused by the companion's slot check, and so is
+            # the mother herself; either way nothing is scanned for.
+            mov edx, dword ptr [esp + 0x{0x20 + FATHER_NAME_ARG_AT_TAIL:X}]
+            test edx, edx
+            jz have_father
+            sub edx, 0x{FATHER_NAME_OFFSET:X}
+        have_father:
+            # WriteParentageRecordWithFather(game_id, container, mother,
+            # father), stdcall. The mother is the pushad copy of esi, read
+            # one push later (+0x04 + 0x04). The container is passed
+            # unbiased; the companion's layout row applies record_base.
+            push edx
+            push dword ptr [esp + 0x08]
             push 0x{RECORDS_CONTAINER_VA:X}
             push {GAME_ID}
             call eax
         done:
             popad
-            # Restore the caller's ebx.  This must follow popad, which would
-            # otherwise put the suppression flag back into it.
-            pop ebx
-
-        no_log:
-            # Clean the GAME's seven arguments, exactly as the routine this
-            # page impersonates would have.  Returning with a bare `ret` would
-            # leave 0x1C bytes of the caller's frame stranded.
-            ret 0x{SUPPRESSION_ARG_DISPLACEMENT:X}
+            # The stolen bytes, replayed.
+            test bl, bl
+            jne 0x{HOOK_REJECT_VA:X}
+            mov ecx, dword ptr [esi + 0x1C50]
+            jmp 0x{HOOK_RESUME_VA:X}
         """,
         page_va,
     )
@@ -472,7 +412,10 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
 
     # Divert the call: a five-byte call to the page replaces the five-byte call
     # to the conception routine exactly, so nothing downstream shifts.
-    entry = assemble(f"call 0x{page_va:X}", HOOK_VA)
+    # A five-byte jump into the page, padded with NOPs to the ten stolen bytes
+    # so the whole span decodes cleanly.
+    entry = assemble(f"jmp 0x{page_va:X}", HOOK_VA)
+    entry += b"\x90" * (len(HOOK_STOLEN) - len(entry))
     if len(entry) != len(HOOK_STOLEN):
         raise RuntimeError("hook entry does not match the stolen byte count")
 
@@ -488,8 +431,9 @@ def _emit(source: bytes, page_va: int = PAGE_VA, page_len: int = APPEND_LENGTH) 
             "before": HOOK_STOLEN.hex(),
             "after": entry.hex(),
             "purpose": (
-                "route the conception call through the parentage trampoline, "
-                "which performs the original call and then records both parents"
+                "divert the conception routine's success exit -- reached by every accepted "
+                "conception on every path, and never by the capacity rejection -- into "
+                "the parentage trampoline, which records both parents and resumes"
             ),
         },
     ]

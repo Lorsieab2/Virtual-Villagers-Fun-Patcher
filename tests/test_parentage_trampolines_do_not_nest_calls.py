@@ -31,16 +31,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# The two games whose parentage trampoline wraps a game routine by replacing
-# its call site. VV1 redirects conception call sites to stubs that `jmp`, and
-# VV2/VV3 hook-and-resume, so none of them wrap a call.
-WRAPPING_GAMES = {
-    4: ("vv4_parentage_feature.json", 0x45E7B0),
-    5: ("vv5_parentage_feature.json", 0x465E00),
+# VV4 and VV5 no longer wrap a call at all. Their hook moved from one call
+# site to the conception routine's success exit (so every conception path is
+# logged -- see tests/test_vv45_every_conception_path_is_logged.py): the page is
+# entered by a JMP from inside the routine, runs in the routine's own frame, and
+# JMPs back. There is no replaced call, so the double-return-address defect
+# this file was written for cannot occur -- provided no page ever CALLS the
+# conception routine again. That is what is pinned now.
+TAIL_HOOKED_GAMES = {
+    4: ("vv4_parentage_feature.json", 0x45E7B0, 0x45E8E4, 0x45E8EE, 0x45E922),
+    5: ("vv5_parentage_feature.json", 0x465E00, 0x465F34, 0x465F3E, 0x465F44),
 }
-
-# Both callees are __thiscall with seven arguments and end in `ret 0x1C`.
-CALLEE_CLEANUP = 0x1C
 
 
 def payloads(manifest_name):
@@ -73,145 +74,31 @@ class ParentageTrampolinesDoNotNestCallsTests(unittest.TestCase):
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
         return list(md.disasm(code[:limit], address))
 
-    def test_the_trampoline_rebuilds_the_argument_frame(self) -> None:
-        """Seven re-pushes before the call, so the callee gets its own frame.
+    def test_no_page_calls_the_conception_routine(self) -> None:
+        """The defect needed a nested call to the routine; none may exist."""
+        for game, (manifest, conception, _, _, _) in sorted(TAIL_HOOKED_GAMES.items()):
+            for code, address in payloads(manifest):
+                with self.subTest(game=game, page=hex(address)):
+                    stream = self.decoded(code, address, 0x100)
+                    self.assertFalse(
+                        [ins for ins in stream
+                         if ins.mnemonic == "call" and ins.op_str == hex(conception)],
+                        "a parentage page calls the conception routine again")
 
-        Without them the callee reads the game's arguments through two return
-        addresses instead of one. The pushes all read the same displacement
-        because each one lowers esp by four, moving the next argument down
-        into that slot.
-        """
-        for game, (manifest, conception) in sorted(WRAPPING_GAMES.items()):
-            with self.subTest(game=game):
-                pages = payloads(manifest)
-                self.assertTrue(pages, "%s has no appended page" % manifest)
-                code, address = pages[0]
-                stream = self.decoded(code, address)
-
-                call_index = next(
-                    (i for i, ins in enumerate(stream)
-                     if ins.mnemonic == "call"
-                     and ins.op_str == hex(conception)), None)
-                self.assertIsNotNone(
-                    call_index,
-                    "no call to the conception routine in the page")
-
-                pushes = [ins for ins in stream[:call_index]
-                          if ins.mnemonic == "push"
-                          and "esp" in ins.op_str]
-                self.assertEqual(
-                    len(pushes), 7,
-                    "the seven arguments must be re-pushed before the call")
-
-    def test_the_trampoline_cleans_the_callers_arguments(self) -> None:
-        """It must end in the same `ret 0x1C` the routine it replaces used.
-
-        A bare `ret` would strand 0x1C bytes of the caller's frame, because
-        the caller expects the callee to have cleaned them.
-        """
-        for game, (manifest, conception) in sorted(WRAPPING_GAMES.items()):
-            with self.subTest(game=game):
-                code, address = payloads(manifest)[0]
-                rets = [ins for ins in self.decoded(code, address, 0x100)
-                        if ins.mnemonic == "ret"]
-                self.assertTrue(rets, "the page never returns")
-                self.assertTrue(
-                    any(r.op_str and int(r.op_str, 16) == CALLEE_CLEANUP
-                        for r in rets),
-                    "the trampoline must clean the caller's arguments with "
-                    "ret %#x, as the routine it replaces does" % CALLEE_CLEANUP)
-
-    def test_the_callers_ebx_is_preserved(self) -> None:
-        """ebx is live across this call site, so the page must restore it.
-
-        Codex raised this as a P1 and was right. An earlier version read the
-        suppression flag into ebx and never restored it, on the premise that
-        ebx was dead -- a premise drawn from looking only at the instructions
-        immediately after the hook.
-
-        The routine the hook sits in is entered from a caller that keeps a
-        live ebx across it and then dereferences it: in VV5 that is
-        `mov eax, [ebx+0x18]` at 0x43E397, which runs before the caller pops
-        its own saved copy. Leaving the flag there is a null dereference
-        whenever the flag is zero.
-
-        The save has to come AFTER the stolen call, because nothing may sit
-        between esp and the callee's arguments; and the restore has to come
-        after popad, which would otherwise put the flag straight back.
-        """
-        for game, (manifest, conception) in sorted(WRAPPING_GAMES.items()):
-            with self.subTest(game=game):
-                code, address = payloads(manifest)[0]
-                stream = self.decoded(code, address, 0x120)
-                decoded = [(i.mnemonic, i.op_str) for i in stream]
-
-                call_index = next(
-                    i for i, ins in enumerate(stream)
-                    if ins.mnemonic == "call"
-                    and ins.op_str == hex(conception))
-                push_ebx = next(
-                    (i for i, item in enumerate(decoded)
-                     if item == ("push", "ebx")), None)
-                pop_ebx = next(
-                    (i for i, item in enumerate(decoded)
-                     if item == ("pop", "ebx")), None)
-                popad = next(
-                    (i for i, item in enumerate(decoded)
-                     if item[0] in ("popal", "popad")), None)
-
-                self.assertIsNotNone(
-                    push_ebx, "the caller's ebx is never saved")
-                self.assertIsNotNone(
-                    pop_ebx, "the caller's ebx is never restored")
-                self.assertIsNotNone(popad, "the page never restores the frame")
-                self.assertGreater(
-                    push_ebx, call_index,
-                    "ebx must be saved AFTER the stolen call; saving it "
-                    "before puts a dword between esp and the arguments")
-                self.assertGreater(
-                    pop_ebx, popad,
-                    "ebx must be restored after popad, which would otherwise "
-                    "put the suppression flag back into it")
-
-    def test_no_stray_push_sits_between_entry_and_the_stolen_call(
-        self,
-    ) -> None:
-        """Only an optional saved total and seven argument copies precede it.
-
-        The first version of this trampoline did `push ebx` and then called,
-        which shifted the callee's frame by a further dword on top of the
-        nested-call shift. A game that keeps a conception-total snapshot below
-        the seven copied arguments must read those arguments from +0x20 rather
-        than +0x1C. The callee must still see seven arguments immediately
-        below its return address.
-        """
-        for game, (manifest, conception) in sorted(WRAPPING_GAMES.items()):
-            with self.subTest(game=game):
-                code, address = payloads(manifest)[0]
-                stream = self.decoded(code, address)
-                call_index = next(
-                    i for i, ins in enumerate(stream)
-                    if ins.mnemonic == "call"
-                    and ins.op_str == hex(conception))
-                pushes = [ins.op_str for ins in stream[:call_index]
-                          if ins.mnemonic == "push"]
-                if game in (4, 5):
-                    total = {4: "0x4d6de8", 5: "0x51d360"}[game]
-                    self.assertEqual(pushes,
-                                     [f"dword ptr [{total}]"]
-                                     + ["dword ptr [esp + 0x20]"] * 7)
-                else:
-                    self.assertEqual(pushes,
-                                     ["dword ptr [esp + 0x1c]"] * 7)
-                if game in (4, 5):
-                    cleanup = next(
-                        (ins for ins in stream[call_index + 1:call_index + 8]
-                         if ins.mnemonic == "lea"
-                         and ins.op_str.replace(" ", "") == "esp,[esp+4]"),
-                        None,
-                    )
-                    self.assertIsNotNone(
-                        cleanup, "snapshot dword must be removed after the call")
+    def test_the_page_returns_through_the_replayed_exit(self) -> None:
+        """Entered by jmp, it must end by replaying the stolen exit and
+        jumping back to the instruction after it -- never by `ret`, which
+        would return from the routine early."""
+        for game, (manifest, _, _, resume, reject) in sorted(TAIL_HOOKED_GAMES.items()):
+            for code, address in payloads(manifest):
+                with self.subTest(game=game, page=hex(address)):
+                    stream = self.decoded(code, address, 0x100)
+                    text = [(ins.mnemonic, ins.op_str) for ins in stream]
+                    popad = text.index(("popal", ""))
+                    self.assertEqual(text[popad + 1], ("test", "bl, bl"))
+                    self.assertEqual(text[popad + 2], ("jne", hex(reject)))
+                    self.assertEqual(text[popad + 4], ("jmp", hex(resume)))
+                    self.assertNotIn("ret", [m for m, _ in text[:popad + 5]])
 
 
 if __name__ == "__main__":
