@@ -75,13 +75,26 @@ class BothRecordKindsTests(unittest.TestCase):
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
         birth = function(
             self.source, "__declspec(dllexport) int __stdcall WriteParentageBirth(")
-        self.assertIn('"Conception %d\\n"', conception)
+        append = function(self.source, "static int append_record(")
+        # The "Conception <n>" line is printed by append_record, because the
+        # number is only known when the record is written -- which, for a
+        # record held until the village's first save, is later than the
+        # conception. The conception export passes is_birth = 0; the birth
+        # export renders its own "Birth" block and passes is_birth = 1.
+        self.assertIn("return emit_record(game_id, 0, mother, text);", conception)
+        self.assertIn("return emit_record(game_id, 1, rec, text);", birth)
         self.assertIn('"Birth\\n"', birth)
         # Neither may write the other's marker: one record kind printing the
         # other's header is indistinguishable in the log from the wrong event
-        # having happened.
+        # having happened. append_record prints the conception marker only on
+        # its not-a-birth branch.
         self.assertNotIn('"Birth\\n"', conception)
-        self.assertNotIn('"Conception %d\\n"', birth)
+        self.assertNotIn('"Conception %d', birth)
+        self.assertRegex(
+            append,
+            r'if \(is_birth\) \{\s*written = fprintf\(file, "%s", text\)[^}]*\} else \{\s*'
+            r'written = fprintf\(file, "Conception %d',
+        )
 
     def test_only_conceptions_are_counted(self):
         """Births must not advance the conception number or the rollover.
@@ -105,8 +118,11 @@ class BothRecordKindsTests(unittest.TestCase):
         conception = function(
             self.source,
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
-        self.assertIn("select_log_file(g, village, path, &existing_records", birth)
-        self.assertIn("select_log_file(g, village, path, &existing_records", conception)
+        append = function(self.source, "static int append_record(")
+        self.assertIn("emit_record(game_id, 1,", birth)
+        self.assertIn("emit_record(game_id, 0,", conception)
+        self.assertIn(
+            "select_log_file(g, village, path, &existing_records, is_birth)", append)
         # And no separate birth log exists to split the two kinds apart.
         self.assertNotIn("Birth Log", self.source)
 
@@ -149,17 +165,21 @@ class BothRecordKindsTests(unittest.TestCase):
             "__declspec(dllexport) int __stdcall WriteParentageRecordWithFather(")
         birth = function(
             self.source, "__declspec(dllexport) int __stdcall WriteParentageBirth(")
-        self.assertIn("&existing_records, 0)", conception,
+        append = function(self.source, "static int append_record(")
+        # The kind travels as is_birth -- 0 from the conception export, 1 from
+        # the birth export -- into select_log_file's for_birth.
+        self.assertIn("emit_record(game_id, 0,", conception,
                       "the conception path rolls over normally")
-        self.assertIn("&existing_records, 1)", birth,
+        self.assertIn("emit_record(game_id, 1,", birth,
                       "the birth path must ask not to roll over")
+        self.assertIn("&existing_records, is_birth)", append,
+                      "append_record must hand the kind to select_log_file")
 
     def test_a_birth_appends_rather_than_truncating(self):
         """A birth that opened "w" would erase the conceptions before it."""
-        birth = function(
-            self.source, "__declspec(dllexport) int __stdcall WriteParentageBirth(")
-        self.assertIn('_wfopen(path, L"a")', birth)
-        self.assertNotIn('_wfopen(path, L"w")', birth)
+        append = function(self.source, "static int append_record(")
+        self.assertIn('_wfopen(path, L"a")', append)
+        self.assertNotIn('_wfopen(path, L"w")', self.source)
 
 
 if __name__ == "__main__":

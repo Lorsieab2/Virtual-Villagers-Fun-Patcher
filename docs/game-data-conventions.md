@@ -198,3 +198,51 @@ independent tests:
   one constant shared by everyone, or values shifted by a field.
 * **A control field.** An unrelated pair of dwords matches a living villager's
   appearance 0% of the time, against 45–87% for the real ones.
+
+## The games simulate villagers before the player's tribe exists
+
+Records can reach the conception hook for villagers who are **not** in the
+tribe the player then plays. The owner's first v1.35.27 VV3 tribe logged seven
+conceptions between fourteen villagers who appear in neither of that tribe's
+saves, before its first save. Only the two hooked callers reach VV3's
+conception routine (`0x45833E`, `0x45B8C9`), so those villagers were live
+records in the game's table when it ran. VV5's own `ldwLog.txt` from the same
+session names two villagers (Upuro, Sanda) who never joined the tribe either.
+The owner confirmed no earlier tribe had been started in that VV3 session.
+
+So "a record exists for a villager nobody has" is not by itself a logging
+defect or a duplicate. It is the window before the village's first save. The
+parentage companion holds records written in that window until the village is
+known, then keeps only those whose villager still occupies the same slot as the
+same villager (`native/parentage_export/parentage_export.c`, `emit_record`).
+Where the pre-tribe simulation comes from (for example the scene behind the
+menus) is **UNVERIFIED**; the fix does not depend on it.
+
+## A villager can be born without a father on purpose
+
+VV2's Gong ("grants life", caller `0x44EB3E`) starts a pregnancy whose father
+name is the game's own `"?"` placeholder at `0x476290` in `.rdata`. It is not
+inside any villager record, so no father record exists to report, and the log
+must say so rather than invent one. Every other VV2 caller passes the father's
+name as `father + 0x564`, a pointer inside his record, which is how the hook
+finds him (see `scripts/build_vv2_parentage_feature.py`).
+
+## Shared names and shared looks are normal
+
+Names, heads, bodies, likes and dislikes come from fixed pools, so two
+villagers sharing a name, or siblings sharing an appearance, is expected game
+behaviour (issues #434, #436, #443). Neither is evidence of a duplicate record.
+Identify a villager by reading its record directly, or, where that is
+impossible, by the full eight-field key in #436 -- never by a subset.
+
+## VV1's `0x48B614` is the villager manager, not the Golden Child
+
+The stock getter at `0x43DA30` allocates `0x3E034` bytes (`new`) and
+constructs it with `sub_43BFF0`, whose fields sit at `+0x3DFE0` and beyond, past
+256 records of stride `0x3D8`. Several VV1 Origins upgrades read
+`[0x48B614]` as "the current Golden Child's record" and skip that villager
+(`native/vv1_origins_icons/vv1_origins_icons.c`, `VV_GOLDEN_CHILD_PTR`). In the
+owner's v1.35.27 VV1 tribe, Time Warp aged every villager by exactly 120 units
+(6 years at normal speed) except Sef, listed first -- consistent with the
+pointer landing on record 0. Fixed by testing the record flag everywhere; see
+issue #448.

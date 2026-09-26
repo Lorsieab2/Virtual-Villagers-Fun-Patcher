@@ -669,7 +669,16 @@ __declspec(dllexport) int __stdcall Vv1DrawPortraitMask(void *gameobj,
  * a villager record or the save. Exported for the exe's upgrade handler to
  * call after it charges the 450k tech points. Fail-safe when the engine isn't
  * up (base 0) or the village is empty. */
-#define VV_GOLDEN_CHILD_PTR (*(unsigned char **)0x0048B614) /* current golden child record, 0=none */
+/* The Golden Child is the villager whose record holds 0xC7 at +0x36C -- the
+   game's own test, made in six places including its aging tick at 0x42E5A4,
+   and set by the creation routine at 0x43C7AF for the villager the
+   golden-child birth (0x42EF5A) creates.  This used to compare against
+   dword ptr [0x48B614], taken for a "current Golden Child" pointer; that is
+   the villager array, whose record 0 is the allocation itself, so the test
+   matched whoever occupied record 0 and never the real Golden Child. */
+#define VV_GOLDEN_CHILD_OFFSET 0x36C
+#define VV_GOLDEN_CHILD_MARK   0xC7
+#define VV_IS_GOLDEN_CHILD(rec) (*(const int *)((rec) + VV_GOLDEN_CHILD_OFFSET) == VV_GOLDEN_CHILD_MARK)
 
 __declspec(dllexport) int __stdcall Vv1MaskApplyDistribution(int mode,
                                                              int single_mask) {
@@ -705,18 +714,12 @@ __declspec(dllexport) int __stdcall Vv1MaskApplyDistribution(int mode,
     if (count == 0) {
         return 0;
     }
-    /* map the golden child's record pointer to a position in the compact list */
-    golden_rec = VV_GOLDEN_CHILD_PTR;
-    if (golden_rec != NULL && golden_rec >= base) {
-        size_t delta = (size_t)(golden_rec - base);
-        if (delta % VV_RECORD_STRIDE == 0) {
-            int gidx = (int)(delta / VV_RECORD_STRIDE);
-            for (i = 0; i < count; i++) {
-                if (rec_index[i] == gidx) {
-                    golden = i;
-                    break;
-                }
-            }
+    /* the golden child's position in the compact list, by its own flag */
+    for (i = 0; i < count; i++) {
+        golden_rec = base + (size_t)rec_index[i] * VV_RECORD_STRIDE;
+        if (VV_IS_GOLDEN_CHILD(golden_rec)) {
+            golden = i;
+            break;
         }
     }
     rng = GetTickCount() ^ 0x9E3779B9u;   /* varies per apply; fine to be cheap */
@@ -2760,12 +2763,10 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
 
    The Golden Child is always excluded (hardcoded to stay a child, per the
    user) regardless of how many the village happens to have -- age_va's
-   own per-villager loop compares each candidate against the live
-   dword ptr [0x48B614] singleton (the stock game's own lazily-created
-   "current Golden Child" pointer, confirmed via disassembly of its
-   matching getter/destructor pair) rather than assuming there is exactly
-   one, so this reports however many were actually skipped for that
-   reason, same as every other count here. */
+   own per-villager loop tests each candidate's own Golden Child flag
+   (+0x36C == 0xC7, the game's test -- see VV_IS_GOLDEN_CHILD) rather than
+   assuming there is exactly one, so this reports however many were
+   actually skipped for that reason, same as every other count here. */
 __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
     int granted,
     int already,
@@ -3026,7 +3027,6 @@ static const char *vv1_speed_name(int speed) {
    age -- the caller treats that as "nothing happened" and does not charge. */
 static int vv1_time_warp_apply(int speed, int years) {
     unsigned char *base = VV_MASK_MANAGER;
-    unsigned char *golden;
     int units = years * VV1_TW_UNITS_PER_YEAR;
     int delta = units * 60 * speed;   /* the real seconds those units cost */
     int i, credited = 0;
@@ -3034,7 +3034,6 @@ static int vv1_time_warp_apply(int speed, int years) {
     if (base == NULL) {
         return 0;
     }
-    golden = VV_GOLDEN_CHILD_PTR;     /* 0 when the village has none */
 
     /* Count BEFORE touching anything.  A village with nobody in it must not
        move the world clock: the caller reads a zero return as "nothing
@@ -3070,7 +3069,7 @@ static int vv1_time_warp_apply(int speed, int years) {
            Child's marker alone would not keep it a child, it would age it by
            the clamped 2.55 / 4.3 / 8.6 years instead of not at all. */
         *(int *)(rec + VV1_TW_LAST_SEEN_OFFSET) += delta;
-        if (rec == golden) {
+        if (VV_IS_GOLDEN_CHILD(rec)) {
             /* Hardcoded to remain a child, the same categorical exclusion
                Set Age to 18 already makes (VV1_ROWMSG_IS_GOLDEN_CHILD). */
             continue;

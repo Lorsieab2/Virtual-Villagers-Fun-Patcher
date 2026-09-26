@@ -201,7 +201,24 @@ class LogsCarryTheVillageTests(unittest.TestCase):
         test failed while the code was right. Position is not the property
         worth pinning here -- relative order is.
         """
-        source = PARENTAGE_C.read_text(encoding="utf-8")
+        full = PARENTAGE_C.read_text(encoding="utf-8")
+        # Both record kinds go through emit_record, which recalls the village
+        # and hands it to append_record, which chooses the file and gates the
+        # header. So the order is checked across that call: emit_record must
+        # recall before it calls append_record, and the choice and the gate
+        # must follow inside append_record.
+        emit = full[full.index("static int emit_record("):]
+        emit = emit[:emit.index("\n}")]
+        append = full[full.index("static int append_record("):]
+        append = append[:append.index("\n}")]
+        emit_recall = emit.find("vv_village_recall(village, sizeof village)")
+        self.assertNotEqual(emit_recall, -1, "emit_record never recalls the village")
+        self.assertLess(
+            emit_recall,
+            emit.find("append_record(g, village"),
+            "emit_record must recall the village before it writes a record",
+        )
+        source = "vv_village_recall(village, sizeof village)\n" + append
         recall = source.find("vv_village_recall(village, sizeof village)")
         select = source.find("select_log_file(g, village, path")
         # The gate, located by the measurement that decides it. This

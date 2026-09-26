@@ -55,15 +55,15 @@ CONFIG = {
         "report_mastery_counts": True,
         "report_age_granted": True,
         "always_clear_running_dislike": True,
-        # golden_child_ptr: dword ptr [0x48B614] is this exact VV1 build's
-        # own module-static singleton pointer to the current Golden Child's
-        # villager record (lazy-getter/destructor pair at 0x43da37 /
-        # 0x43da9d-0x43dac6; confirmed via live memory scan + pefile
-        # section layout to sit safely in .data's BSS tail, disjoint from
-        # our own .shr cave). Set Age to 18 must never age this villager
-        # up -- VV1-only, mirrors always_clear_running_dislike's own
-        # per-game opt-in shape.
-        "golden_child_ptr": 0x48B614,
+        # golden_child_ptr: (offset, value) of the Golden Child flag on the
+        # villager's own record. The game tests [rec+0x36C] == 0xC7 in six
+        # places, including its aging tick at 0x42E5A4, which is how the
+        # Golden Child stays a child. This used to hold 0x48B614, read as a
+        # "current Golden Child" pointer; it is the villager array itself,
+        # so the test matched record 0 -- whoever that was -- and never the
+        # real Golden Child. Set Age to 18 must never age this villager up.
+        # VV1-only, mirroring always_clear_running_dislike's opt-in shape.
+        "golden_child_ptr": (0x36C, 0xC7),
     },
     "vv2": {
         "title": "Virtual Villagers - The Lost Children",
@@ -757,17 +757,12 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     # All Villagers to 18 result can report a skipped count again, per the
     # OFFICIAL Origins Upgrade Prompts spreadsheet.
     age_already_va = entry_va + 0x44
-    # golden_child_ptr is a VV1-only opt-in carrying the exact-build live
-    # address of the stock game's own "current Golden Child" singleton
-    # pointer (dword ptr [golden_child_ptr], confirmed via disassembly of
-    # its matching lazy-getter/destructor pair -- not a per-villager
-    # record flag; none was found on the record itself despite looking).
-    # The Golden Child is hardcoded to stay a child and must never be aged
-    # up by this row, however many the village happens to have (normally
-    # exactly one, but this compares every candidate against the live
-    # pointer rather than assuming a count), so age_golden_child_va tracks
-    # how many were actually skipped for that specific reason, separate
-    # from the ordinary already-18 count.
+    # golden_child_ptr is a VV1-only opt-in: the (offset, value) of the
+    # Golden Child flag on the villager record, which is the game's own test
+    # (see the vv1 config above). The Golden Child is hardcoded to stay a
+    # child and must never be aged up by this row, however many the village
+    # has, so age_golden_child_va counts how many were skipped for that
+    # specific reason, separate from the ordinary already-18 count.
     golden_child_ptr = config.get("golden_child_ptr")
     age_golden_child_va = entry_va + 0x48
     age_scratch_init = (
@@ -788,7 +783,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     # block's body as the single, final fallthrough target.
     age_golden_child_check = (
         f"""
-            cmp esi, dword ptr [0x{golden_child_ptr:X}]
+            cmp dword ptr [esi + 0x{golden_child_ptr[0]:X}], 0x{golden_child_ptr[1]:X}
             jne age_needs_write
             inc dword ptr [0x{age_golden_child_va:X}]
             jmp age_next

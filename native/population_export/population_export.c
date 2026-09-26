@@ -748,10 +748,17 @@ static int vv1_parents_resolve(void) {
    real record exactly as before; none of them may disturb the roster, which
    is the file the player actually relies on. */
 typedef int (__stdcall *ensure_parentage_log_t)(int, const char *);
+/* The form that also takes the villager table, so the parentage companion can
+   tell whether a later record still belongs to the tribe just saved (#449
+   review). Preferred when present; the two-argument form is the fallback for
+   a companion that predates it. */
+typedef int (__stdcall *ensure_parentage_log_for_village_t)(int, const char *, const void *);
 static int parentage_log_state;      /* 0 unknown, 1 resolved, -1 failed */
 static ensure_parentage_log_t ensure_parentage_log;
+static ensure_parentage_log_for_village_t ensure_parentage_log_with_tribe;
 
-static void ensure_parentage_log_for_village(int game_id, const char *village) {
+static void ensure_parentage_log_for_village(int game_id, const char *village,
+                                             const unsigned char *villagers) {
     char path[MAX_PATH];
     char *slash;
     DWORD n;
@@ -779,15 +786,21 @@ static void ensure_parentage_log_for_village(int game_id, const char *village) {
         if (companion == NULL) {
             return;
         }
+        ensure_parentage_log_with_tribe = (ensure_parentage_log_for_village_t)
+            GetProcAddress(companion, "EnsureParentageLogForVillage");
         ensure_parentage_log = (ensure_parentage_log_t)GetProcAddress(
             companion, "EnsureParentageLog");
-        if (ensure_parentage_log == NULL) {
+        if (ensure_parentage_log_with_tribe == NULL && ensure_parentage_log == NULL) {
             return;
         }
         parentage_log_state = 1;
     }
     if (parentage_log_state == 1) {
-        (void)ensure_parentage_log(game_id, village);
+        if (ensure_parentage_log_with_tribe != NULL) {
+            (void)ensure_parentage_log_with_tribe(game_id, village, villagers);
+        } else {
+            (void)ensure_parentage_log(game_id, village);
+        }
     }
 }
 
@@ -1322,7 +1335,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
        none yet. Also after the roster, and also ignoring its result: the
        owner wants the logs to exist as soon as a village does, but not at
        the cost of the file they actually rely on. */
-    ensure_parentage_log_for_village(game_id, village);
+    ensure_parentage_log_for_village(game_id, village, villagers);
 
     /* Remove any roster files a LARGER village left behind.
 

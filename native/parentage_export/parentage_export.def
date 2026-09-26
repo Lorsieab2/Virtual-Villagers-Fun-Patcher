@@ -4,3 +4,4 @@ EXPORTS
     WriteParentageRecordWithFather=_WriteParentageRecordWithFather@16
     WriteParentageBirth=_WriteParentageBirth@44
     EnsureParentageLog=_EnsureParentageLog@8
+    EnsureParentageLogForVillage=_EnsureParentageLogForVillage@12

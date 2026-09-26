@@ -60,8 +60,10 @@ class ParentageNumberingIsCumulativeTests(unittest.TestCase):
         below would still be correct and still be pointless.
         """
         source = EXPORTER.read_text(encoding="utf-8")
-        self.assertIn('"Conception %d\\n"', source)
-        self.assertIn("existing_records + 1", source)
+        self.assertIn(
+            'fprintf(file, "Conception %d\\n%s", existing_records + 1, text)',
+            source,
+        )
 
     def test_the_count_accumulates_over_every_log_file(self):
         body = _function("select_log_file")

@@ -61,6 +61,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
 
@@ -1135,6 +1136,45 @@ static int log_file_has_content(const wchar_t *path) {
     }
     return info.nFileSizeHigh != 0 || info.nFileSizeLow != 0;
 }
+
+/* The file's length on disk, 0 when it does not exist. Taken before an append
+   so a failed append can be cut back to exactly this. */
+static LONGLONG log_file_size(const wchar_t *path) {
+    WIN32_FILE_ATTRIBUTE_DATA info;
+    if (!GetFileAttributesExW(path, GetFileExInfoStandard, &info)) {
+        return 0;
+    }
+    return ((LONGLONG)info.nFileSizeHigh << 32) | info.nFileSizeLow;
+}
+
+/* Undo a failed append: cut the file back to the length it had before.
+
+   Codex (#449 review): a record that fails part-way -- the write, fflush or
+   fclose failing on a nearly full disk -- may already have put bytes on disk,
+   including its "Conception " marker, which select_log_file counts. The
+   record is kept and retried, so without this the retry would add a second,
+   misnumbered copy. A file the failed append created is cut to nothing and
+   removed, so the retry writes its header again. Returns 0 if the file could
+   not be restored. */
+static int roll_back_append(const wchar_t *path, LONGLONG size) {
+    HANDLE handle;
+    LARGE_INTEGER at;
+    int restored;
+
+    if (size == 0) {
+        return DeleteFileW(path) || GetLastError() == ERROR_FILE_NOT_FOUND;
+    }
+    handle = CreateFileW(path, GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+                         FILE_ATTRIBUTE_NORMAL, NULL);
+    if (handle == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    at.QuadPart = size;
+    restored = SetFilePointerEx(handle, at, NULL, FILE_BEGIN)
+        && SetEndOfFile(handle);
+    CloseHandle(handle);
+    return restored;
+}
 /* Count the records already in a file, so a roll happens at the right point
    and a restarted game continues the current file rather than overwriting it.
 
@@ -1802,6 +1842,465 @@ static int is_record_slot(
     return 1;
 }
 
+/* ---- Records written before the village's first save ---------------------
+
+   The village header is published by the statistics companion, which sits on
+   the game's save call -- the only place the village name and slot both exist.
+   Until a village has been saved once in this process, nothing is published.
+
+   Two defects came out of writing records in that window, both seen in the
+   owner's first v1.35.27 tribes:
+
+   1. A record written then created the log WITHOUT a header, and the header is
+      only ever written into an empty file, so that log never got one. VV1's
+      and VV3's logs both opened on "Conception 1". A headerless log is also
+      attributed to every village by log_belongs_to_village, so a later village
+      or Start Over could append to it or sweep it.
+
+   2. VV3 logged seven conceptions between fourteen villagers who are in
+      neither of that tribe's saves. Only the two hooked callers reach VV3's
+      conception routine, so those villagers were real records in the game's
+      table when it ran, and gone by the first save. The game simulates
+      villagers before the player's tribe exists (VV5's own ldwLog names two
+      who never joined the tribe), and those are what was logged.
+
+   Both are the same window, so one mechanism closes both. While no village is
+   known, a finished record is HELD here instead of being written. At the next
+   point the village is known -- the first save (EnsureParentageLog, called by
+   the population exporter after every save) or the next record written after
+   it -- the held records are written in order, under the header, numbered as
+   if they had been written live.
+
+   Before a held record is written its villager is re-read: the mother for a
+   conception, the child for a birth. The pointer is the one the game handed
+   over, read directly -- nothing is searched for. The record is kept only if
+   that slot is still live and still holds the same villager.
+
+   WHICH FIELDS, AND WHY NOT ALL EIGHT.  This is not identification from
+   values (issue #436, Rule 3): the villager is addressed directly, by the
+   record pointer the game supplied, which is #436's first precedence.  The
+   check only has to notice that the slot now holds SOMEONE ELSE.  So it
+   compares every identity field that cannot legitimately change between the
+   conception and the first save -- the name, head, body, the COMPLETE likes
+   array and the COMPLETE dislikes array, each slot as stored -- and requires
+   that the age, in native units, has not gone backwards.  Age and skills are
+   not required to be equal because a real villager's do change in that
+   interval.  Codex (#449 review) pointed out that an earlier version compared
+   only the first rendered like and dislike, a subset; that is what this
+   replaced.
+
+   A villager of the pre-tribe simulation fails this, because the tribe
+   replaced the whole table; a villager of the player's tribe passes it.  The
+   real records this can drop are a conception whose mother died, or was made
+   younger by an Origins upgrade, before the village's very first save -- rare,
+   and the alternative is filing another village's villagers under this one.
+
+   A process that exits with records still held never saved its village, so
+   the save the records describe does not exist either, and they are dropped
+   with it.
+
+   WITHOUT A PUBLISHER, NOTHING IS HELD. A player who unticks Village
+   Statistics has no publisher at all, and holding would lose every record.
+   The patcher deletes a feature's companion DLLs when the feature is removed,
+   so the statistics DLL's presence next to the executable is the test. With
+   it absent, records are written immediately and unlabelled, as before. */
+
+/* 4096 conceptions and births before a village's first save is far beyond any
+   real session; a record past it is refused rather than written unlabelled. */
+#define PENDING_MAX 4096
+/* One rendered record: 13 short lines plus a skills block of at most 512. */
+#define RECORD_TEXT_MAX 2048
+/* The widest preference array in any game: VV2's 62 slots. */
+#define PENDING_PREFERENCE_SLOTS 64
+
+struct pending_record {
+    int game_id;
+    int is_birth;
+    const unsigned char *subject;   /* the mother or the child; NULL = no check */
+    char name[MAX_NAME_BYTES];
+    int head;
+    int body;
+    int age;
+    /* The whole arrays, raw: every slot, not just the first one printed. */
+    int likes[PENDING_PREFERENCE_SLOTS];
+    int dislikes[PENDING_PREFERENCE_SLOTS];
+    char *text;
+};
+
+static struct pending_record *pending;
+static int pending_count;
+static int publisher_state;         /* 0 unknown, 1 present, -1 absent */
+
+static int statistics_publisher_present(void) {
+    wchar_t path[MAX_PATH];
+    wchar_t *slash;
+    DWORD n;
+    static const wchar_t name[] = L"VVFP Statistics Export.dll";
+
+    if (publisher_state != 0) {
+        return publisher_state == 1;
+    }
+    publisher_state = -1;
+    n = GetModuleFileNameW(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    slash = wcsrchr(path, L'\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof(name) / sizeof(name[0]) > MAX_PATH) {
+        return 0;
+    }
+    wcscpy(slash + 1, name);
+    if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
+        publisher_state = 1;
+    }
+    return publisher_state == 1;
+}
+
+/* Whether `size` bytes at `p` can be read without faulting. A held record's
+   villager may belong to a table the game has since freed, so it is checked
+   before it is re-read rather than trusted. */
+static int memory_is_readable(const void *p, size_t size) {
+    MEMORY_BASIC_INFORMATION info;
+    const unsigned char *at = (const unsigned char *)p;
+    const unsigned char *end = at + size;
+    const DWORD readable = PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY
+        | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
+
+    if (p == NULL || end < at) {
+        return 0;
+    }
+    while (at < end) {
+        if (VirtualQuery(at, &info, sizeof info) == 0
+            || info.State != MEM_COMMIT
+            || (info.Protect & (PAGE_GUARD | PAGE_NOACCESS)) != 0
+            || (info.Protect & readable) == 0) {
+            return 0;
+        }
+        at = (const unsigned char *)info.BaseAddress + info.RegionSize;
+    }
+    return 1;
+}
+
+/* The fields a held record's villager must still have when it is written. */
+static void identify_villager(
+    const struct game_layout *g,
+    const unsigned char *record,
+    struct pending_record *entry
+) {
+    unsigned int slots = g->preference_slots;
+
+    if (slots > PENDING_PREFERENCE_SLOTS) {
+        slots = PENDING_PREFERENCE_SLOTS;
+    }
+    memset(entry->likes, 0, sizeof(entry->likes));
+    memset(entry->dislikes, 0, sizeof(entry->dislikes));
+    copy_villager_name(g, record, entry->name, sizeof(entry->name));
+    entry->head = *(const int *)(record + g->head);
+    entry->body = *(const int *)(record + g->body);
+    entry->age = *(const int *)(record + g->age);
+    if (g->likes != 0u) {
+        memcpy(entry->likes, record + g->likes, slots * sizeof(int));
+    }
+    if (g->dislikes != 0u) {
+        memcpy(entry->dislikes, record + g->dislikes, slots * sizeof(int));
+    }
+}
+
+static int still_the_same_villager(
+    const struct game_layout *g,
+    const struct pending_record *entry
+) {
+    struct pending_record now;
+
+    if (entry->subject == NULL) {
+        return 1;
+    }
+    if (!memory_is_readable(entry->subject, g->stride)
+        || *(const unsigned char *)(entry->subject + g->active) != 1) {
+        return 0;
+    }
+    identify_villager(g, entry->subject, &now);
+    return strcmp(now.name, entry->name) == 0
+        && now.head == entry->head
+        && now.body == entry->body
+        && now.age >= entry->age
+        && memcmp(now.likes, entry->likes, sizeof(now.likes)) == 0
+        && memcmp(now.dislikes, entry->dislikes, sizeof(now.dislikes)) == 0;
+}
+
+/* ---- Which tribe is loaded ------------------------------------------------
+
+   Codex (#449 review, P1): the published village header outlives the tribe it
+   names. After Start Over, or after leaving a tribe for the menu and starting
+   or loading another, vv_village_recall still returns the LAST SAVED tribe's
+   header until the new one is saved -- so the new tribe's records from before
+   its first save, the simulated ones included, were written straight under
+   the old tribe's header instead of being held.
+
+   Only VV1 captures the loaded save slot; VV2 to VV5 learn it at save. So
+   rather than trusting the header, the companion checks the TRIBE. At every
+   save the population exporter hands over the villager table it has just
+   written the roster from (EnsureParentageLogForVillage), and a snapshot of
+   every live villager's identity is kept. A record is written straight under
+   the recalled header only while the table still holds that tribe: more than
+   half of the villagers live at the last save still in their slots as the
+   same villagers (the fields still_the_same_villager uses). A different
+   tribe replaces the table and fails; a tribe that merely lost or gained a
+   few villagers since its save passes. Anything that fails is HELD, never
+   dropped or misfiled, and the next save's flush re-checks each held record
+   against its own slot. The worst case is a delay until the next save. */
+
+struct saved_villager {
+    int slot;
+    struct pending_record identity;
+};
+
+static struct saved_villager *saved_tribe;
+static int saved_count;
+static int saved_game;
+static const unsigned char *saved_records;
+static int saved_valid;
+
+static void remember_saved_tribe(int game_id, const unsigned char *records) {
+    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    unsigned int slot;
+
+    saved_valid = 0;
+    saved_count = 0;
+    if (records == NULL
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+        return;
+    }
+    if (saved_tribe == NULL) {
+        saved_tribe = (struct saved_villager *)calloc(256, sizeof(*saved_tribe));
+        if (saved_tribe == NULL) {
+            return;
+        }
+    }
+    for (slot = 0; slot < g->slots && slot < 256u; ++slot) {
+        const unsigned char *record = records + g->record_base + slot * g->stride;
+        if (*(const unsigned char *)(record + g->active) != 1) {
+            continue;
+        }
+        saved_tribe[saved_count].slot = (int)slot;
+        saved_tribe[saved_count].identity.subject = record;
+        identify_villager(g, record, &saved_tribe[saved_count].identity);
+        ++saved_count;
+    }
+    saved_game = game_id;
+    saved_records = records;
+    saved_valid = 1;
+}
+
+/* Whether the table still holds the tribe last saved. An empty tribe, or none
+   seen yet, cannot vouch for anything, so records are held. */
+static int saved_tribe_still_loaded(int game_id) {
+    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    int i;
+    int same = 0;
+
+    if (!saved_valid || saved_game != game_id || saved_count == 0) {
+        return 0;
+    }
+    if (!memory_is_readable(saved_records,
+                            g->record_base + (size_t)g->slots * g->stride)) {
+        return 0;
+    }
+    for (i = 0; i < saved_count; ++i) {
+        if (still_the_same_villager(g, &saved_tribe[i].identity)) {
+            ++same;
+        }
+    }
+    return same * 2 > saved_count;
+}
+
+/* What append_record reports. A record that fails with its file restored is
+   safe to retry; one whose file could not be restored is not. */
+#define APPEND_WRITTEN        1
+#define APPEND_RETRY          0
+#define APPEND_UNRECOVERABLE (-1)
+
+/* Append one rendered record to this village's log, heading a new file.
+   `text` is everything after the "Conception <n>" line for a conception, and
+   the whole block for a birth. `village` may be empty only when there is no
+   publisher, in which case the log is unlabelled, as it always was then. */
+static int append_record(
+    const struct game_layout *g,
+    const char *village,
+    int is_birth,
+    const char *text
+) {
+    wchar_t path[MAX_LOG_PATH];
+    int existing_records;
+    int had_content;
+    int written;
+    LONGLONG original_size;
+    FILE *file;
+
+    if (!select_log_file(g, village, path, &existing_records, is_birth)) {
+        return 0;
+    }
+    /* Text mode, so each \n becomes the CRLF Notepad needs; see the note in
+       WriteParentageRecordWithFather. Content measured BEFORE the open, which
+       would create the file -- see log_file_has_content. */
+    had_content = log_file_has_content(path);
+    original_size = log_file_size(path);
+    file = _wfopen(path, L"a");
+    if (file == NULL) {
+        return 0;
+    }
+    written = 1;
+    if (!had_content && village[0] != '\0') {
+        if (fprintf(file, "%s", village) < 0) {
+            written = 0;
+        }
+    }
+    if (written) {
+        if (is_birth) {
+            written = fprintf(file, "%s", text) >= 0;
+        } else {
+            written = fprintf(file, "Conception %d\n%s", existing_records + 1, text) >= 0;
+        }
+    }
+    /* Flushed separately so a failed write is reported rather than hidden in
+       fclose; a half-flushed "Conception " marker would be counted. */
+    if (fflush(file) != 0) {
+        written = 0;
+    }
+    if (fclose(file) != 0) {
+        written = 0;
+    }
+    if (!written) {
+        /* The caller keeps the record and retries it, so whatever part of it
+           reached the disk must go, or the retry duplicates it.
+
+           If the file cannot be put back, its state is unknown -- part of
+           this record may be on disk -- and a retry could only add a second
+           copy. Codex (#449 review) found that failure was being ignored. So
+           that case is reported separately, and the caller does NOT retry. */
+        if (!roll_back_append(path, original_size)) {
+            return APPEND_UNRECOVERABLE;
+        }
+        return APPEND_RETRY;
+    }
+    return APPEND_WRITTEN;
+}
+
+/* Write every held record for this game under `village`, dropping any whose
+   villager is gone. Called once the village is known. */
+/* A held record is released only once it is on disk, or once its villager is
+   shown to be gone. A write that fails -- a locked log, a full disk, a failed
+   flush -- stops the pass and keeps that record and every one after it, in
+   order, for the next save to retry. Codex (#449 review) found the earlier
+   version freed every entry whether or not it had been written, so a transient
+   failure at the first save lost the records for good. */
+static void flush_pending(int game_id, const char *village) {
+    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    int i;
+    int kept = 0;
+    int stopped = 0;
+
+    for (i = 0; i < pending_count; ++i) {
+        struct pending_record *entry = &pending[i];
+        int release = 0;
+        if (entry->game_id == game_id && !stopped) {
+            if (!still_the_same_villager(g, entry)) {
+                release = 1;                  /* not this village's villager */
+            } else {
+                int outcome = append_record(g, village, entry->is_birth, entry->text);
+                if (outcome == APPEND_RETRY) {
+                    stopped = 1;              /* keep it and all after it */
+                } else {
+                    /* Written, or unrecoverable: retrying the latter could
+                       only duplicate what may already be on disk. */
+                    release = 1;
+                }
+            }
+        }
+        if (release) {
+            free(entry->text);
+            entry->text = NULL;
+        } else {
+            pending[kept++] = *entry;
+        }
+    }
+    pending_count = kept;
+}
+
+/* Queue a finished record behind any already held. */
+static int hold_record(
+    int game_id,
+    int is_birth,
+    const unsigned char *subject,
+    const char *text
+) {
+    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    struct pending_record *entry;
+    size_t length;
+
+    if (pending == NULL) {
+        pending = (struct pending_record *)calloc(PENDING_MAX, sizeof(*pending));
+        if (pending == NULL) {
+            return 0;
+        }
+    }
+    if (pending_count >= PENDING_MAX) {
+        return 0;
+    }
+    length = strlen(text) + 1;
+    entry = &pending[pending_count];
+    entry->text = (char *)malloc(length);
+    if (entry->text == NULL) {
+        return 0;
+    }
+    memcpy(entry->text, text, length);
+    entry->game_id = game_id;
+    entry->is_birth = is_birth;
+    entry->subject = subject;
+    if (subject != NULL) {
+        identify_villager(g, subject, entry);
+    }
+    ++pending_count;
+    return 1;
+}
+
+/* Write a finished record now, or hold it until the village is known. */
+static int emit_record(
+    int game_id,
+    int is_birth,
+    const unsigned char *subject,
+    const char *text
+) {
+    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    char village[VV_VILLAGE_NAME_MAX + 32];
+
+    if (!vv_village_recall(village, sizeof village)) {
+        village[0] = '\0';
+    }
+    if (village[0] != '\0' && saved_tribe_still_loaded(game_id)) {
+        flush_pending(game_id, village);
+        /* Written now only when nothing is still waiting and the write works.
+           Otherwise it queues BEHIND what is waiting, so a failed write can
+           neither lose it nor let it overtake an earlier record. */
+        if (pending_count == 0) {
+            int outcome = append_record(g, village, is_birth, text);
+            if (outcome == APPEND_WRITTEN) {
+                return 1;
+            }
+            if (outcome == APPEND_UNRECOVERABLE) {
+                return 0;             /* never queued: a retry could duplicate */
+            }
+        }
+        return hold_record(game_id, is_birth, subject, text);
+    }
+    if (village[0] == '\0' && !statistics_publisher_present()) {
+        return append_record(g, village, is_birth, text) == APPEND_WRITTEN;
+    }
+    /* No village yet, or a recalled one the loaded tribe cannot vouch for. */
+    return hold_record(game_id, is_birth, subject, text);
+}
+
 /* The full entry point. WriteParentageRecord below is the original three
    argument form and forwards here with no father record, so a trampoline that
    has not been rebuilt keeps working exactly as it did. */
@@ -1869,12 +2368,8 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     const unsigned char *father_from_caller = NULL;
     int babies;
     const unsigned char *father;
-    wchar_t path[MAX_LOG_PATH];
-    /* The village header, as published at the last save. Empty when
-       nothing has been saved yet in this session. */
-    char village[VV_VILLAGE_NAME_MAX + 32];
-    FILE *file;
-    int had_content;
+    /* The rendered record, written now or held until the village is known. */
+    char text[RECORD_TEXT_MAX];
     char mother_name[MAX_NAME_BYTES];
     char father_name[MAX_NAME_BYTES];
     /* Rendered rather than printed as %d, so an unavailable field can say so
@@ -1889,7 +2384,6 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     char father_likes[64];
     char father_dislikes[64];
     int written;
-    int existing_records;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
@@ -2028,80 +2522,6 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         memcpy(father_name, "(unknown)", 10);
     }
 
-    /* Recall the village BEFORE choosing the file. The choice depends on
-       it: a log belonging to a different village must not be appended
-       to, or its records would be filed under the wrong village name
-       and save number.
-
-       WHEN THIS IS EMPTY, AND WHY THAT IS THE RIGHT ANSWER.  The village is
-       published by the statistics companion, which is the only code sitting
-       on the save call where the name and slot both exist.  A player who
-       selects the parentage log WITHOUT Village Statistics therefore has no
-       publisher, and every log is written with no header.
-
-       Codex raised this and was right that it happens.  The fix is not to
-       make Statistics a prerequisite: the patcher closes a selection over its
-       prerequisites in BOTH directions, so declaring one would mean
-       unticking Village Statistics silently unticks the parentage log.  That
-       trades a missing header line for a missing feature, which is the wrong
-       way round -- the records are the feature and the header is a label on
-       them.
-
-       So the log degrades instead.  With no publisher it is written exactly
-       as it was before headers existed: every record correct, simply
-       unlabelled.  Both features ship enabled by default, so the ordinary
-       player gets the header anyway. */
-    if (!vv_village_recall(village, sizeof village)) {
-        village[0] = '\0';
-    }
-    if (!select_log_file(g, village, path, &existing_records, 0)) {
-        return 0;
-    }
-    /* Text mode, so the C runtime translates each \n into the CRLF that every
-       Windows text viewer expects. These games are Windows-only and the log is
-       something a player opens in Notepad, which renders a bare-LF file as one
-       unbroken line -- a 256-record log became 2816 LFs and zero CRLFs, all of
-       it on one line.
-
-       The read side stays BINARY on purpose: count_records must see the bytes
-       as they are on disk, and matching "Conception " at the start of a line
-       works under either ending because the marker is at the START. Reading in
-       text mode would also silently swallow a lone CR, which is exactly the
-       corruption the count is supposed to survive. */
-    /* Measured BEFORE the open, which would create the file. */
-    had_content = log_file_has_content(path);
-    file = _wfopen(path, L"a");
-    if (file == NULL) {
-        return 0;
-    }
-    /* Name the village at the top of a NEW log, so a player with several
-       villages per game can tell which one a log belongs to and can
-       cross-reference it against that village's statistics and roster.
-
-       Only on a new file. The log is appended to across a whole village's
-       history, so writing the header on every birth would interleave it
-       between records.
-
-       The file's SIZE ON DISK is the test, not existing_records and not
-       ftell. existing_records spans every file in the run, so it is
-       non-zero for a brand-new roll-over file -- exactly a file that
-       still needs a header. ftell is worse: on a freshly opened append
-       stream it reports 0 however long the file is, so it held for every
-       record. See log_file_has_content.
-
-       The village was recalled BEFORE the file was chosen, because
-       select_log_file needs it: a file belonging to a different village is
-       skipped rather than appended to, so the header written here always
-       matches the records that follow it.
-
-       A village that has not been saved in this session publishes nothing,
-       and the log is then written without a header rather than not at all. */
-    if (!had_content && village[0] != '\0') {
-        if (fprintf(file, "%s", village) < 0) {
-            fclose(file);
-            return 0;
-        }
-    }
     /* The father's two numbers are rendered as text so an unavailable field
        can say so. They used to print 0 whenever no father record was found,
        and 0 is a value a real villager can hold -- so a reader could not tell
@@ -2207,9 +2627,11 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
                   *(const int *)(mother + g->father_body_copy));
         father_body[sizeof(father_body) - 1] = '\0';
     }
-    written = fprintf(
-        file,
-        "Conception %d\n"
+    /* Everything after the "Conception <n>" line. The number is assigned when
+       the record is actually written, which for a record held until the
+       village's first save is later than now -- see emit_record. */
+    written = _snprintf(
+        text, sizeof(text),
         "  Mother: %s\n"
         "    Age at conception: %d\n"
         "    Head: %d\n"
@@ -2224,7 +2646,6 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "    Dislikes: %s\n"
         "  Babies in pregnancy: %d\n"
         "\n",
-        existing_records + 1,
         mother_name,
         *(const int *)(mother + g->age),
         *(const int *)(mother + g->head),
@@ -2238,20 +2659,11 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         father_likes,
         father_dislikes,
         babies
-    ) >= 0;
-    /* Flush before closing so a write error is seen while the record can still
-       be reported as failed. A record begins with its "Conception " marker, and
-       that marker is what count_records counts -- so a half-flushed row would
-       be counted as complete by the next call and shift every later record
-       number. Checking the flush separately keeps the failure visible instead
-       of hiding it in fclose. */
-    if (fflush(file) != 0) {
-        written = 0;
-    }
-    if (fclose(file) != 0) {
+    );
+    if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
     }
-    return written;
+    return emit_record(game_id, 0, mother, text);
 }
 
 /* One birth record, written by the VV1 parentage companion the moment it sees
@@ -2277,8 +2689,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     const void *child_record
 ) {
     const struct game_layout *g;
-    wchar_t path[MAX_LOG_PATH];
-    char village[VV_VILLAGE_NAME_MAX + 32];
+    char text[RECORD_TEXT_MAX];
     char child[MAX_NAME_BYTES];
     char mother[MAX_NAME_BYTES];
     char father[MAX_NAME_BYTES];
@@ -2286,9 +2697,6 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     char child_likes[64], child_dislikes[64];
     char skills[512];
     const unsigned char *rec = (const unsigned char *)child_record;
-    FILE *file;
-    int had_content;
-    int existing_records;
     int written;
 
     /* EVERY GAME, not just VV1.
@@ -2403,26 +2811,8 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
     preference_text(g, rec, g->dislikes, child_dislikes, sizeof child_dislikes);
     skill_text(g, rec, skills, sizeof skills);
 
-    if (!vv_village_recall(village, sizeof village)) {
-        village[0] = '\0';
-    }
-    if (!select_log_file(g, village, path, &existing_records, 1)) {
-        return 0;
-    }
-    /* Measured BEFORE the open, which would create the file. */
-    had_content = log_file_has_content(path);
-    file = _wfopen(path, L"a");
-    if (file == NULL) {
-        return 0;
-    }
-    if (!had_content && village[0] != '\0') {
-        if (fprintf(file, "%s", village) < 0) {
-            fclose(file);
-            return 0;
-        }
-    }
-    written = fprintf(
-        file,
+    written = _snprintf(
+        text, sizeof(text),
         "Birth\n"
         "  Child: %s\n"
         "    Head: %d\n"
@@ -2440,14 +2830,12 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
         child, child_head, child_body, child_likes, child_dislikes, skills,
         mother, mh, mb,
         father, fh, fb
-    ) >= 0;
-    if (fflush(file) != 0) {
-        written = 0;
-    }
-    if (fclose(file) != 0) {
+    );
+    if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
     }
-    return written;
+    /* The child is the villager a held birth is re-checked against. */
+    return emit_record(game_id, 1, rec, text);
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
@@ -2483,9 +2871,34 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
    Returns 1 when the log exists afterwards, 0 if it could not be created.
    Failure is not fatal to anything: the next real record creates the file
    the same way it always did. */
+static int ensure_parentage_log(int game_id, const char *village,
+                                const void *records);
+
+/* The form the population exporter calls after every save: the village just
+   saved, and the villager table the roster was written from, which becomes
+   the tribe records are checked against until the next save. */
+__declspec(dllexport) int __stdcall EnsureParentageLogForVillage(
+    int game_id,
+    const char *village,
+    const void *records
+) {
+    return ensure_parentage_log(game_id, village, records);
+}
+
+/* The original two-argument form, kept for a population exporter that has not
+   been rebuilt. With no table it cannot vouch for the tribe, so records keep
+   being held and are written here at each save instead of at once. */
 __declspec(dllexport) int __stdcall EnsureParentageLog(
     int game_id,
     const char *village
+) {
+    return ensure_parentage_log(game_id, village, NULL);
+}
+
+static int ensure_parentage_log(
+    int game_id,
+    const char *village,
+    const void *records
 ) {
     const struct game_layout *g;
     wchar_t path[MAX_LOG_PATH];
@@ -2505,6 +2918,13 @@ __declspec(dllexport) int __stdcall EnsureParentageLog(
            and an unattributable log is worse than an absent one. */
         return 0;
     }
+    /* The village has just been saved, so it is known: remember the tribe it
+       holds, then write any records held since before this save under its
+       header. See emit_record. */
+    if (records != NULL) {
+        remember_saved_tribe(game_id, (const unsigned char *)records);
+    }
+    flush_pending(game_id, village);
     /* ASK FOR THE FILE A BIRTH WOULD USE, NOT THE ONE A CONCEPTION WOULD.
 
        for_birth = 1 returns the village's NEWEST EXISTING file; for_birth = 0
