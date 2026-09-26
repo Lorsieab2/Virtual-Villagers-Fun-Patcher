@@ -274,13 +274,28 @@ body 2); it is deliberately not logged, but the resulting births are -- which
 is why a new tribe can show a Birth with no Conception, or a pregnant villager
 whose father is "Unknown".
 
-## Likes and dislikes change during a villager's life
+## No single villager field is identity over time
 
-A villager's likes and dislikes are NOT fixed identity: VV3 keeps each as an
-object that well over a hundred sites in the game operate on, and the owner's
-v1.35.28 VV3 tribe showed a child (Epeli) with no preference at birth liking
-ants twelve years later. Code that checks "is this still the same villager"
-across time must use what a villager keeps for life -- name, head, body, and
-(VV2-VV5) their own parents on the record -- and may require only that age has
-not gone backwards. The v1.35.28 parentage companion compared preferences and
-so dropped Epeli's birth; fixed in v1.35.29.
+Almost everything on a villager record changes in ordinary play:
+
+- **Likes and dislikes** grow: VV3 keeps each as an object that well over a
+  hundred sites in the game operate on, and the owner's v1.35.28 VV3 tribe
+  showed a child (Epeli) with no preference at birth liking ants twelve years
+  later.
+- **Names** -- the player can rename a villager.
+- **Age goes backwards** -- island events, VV2's Gong of Wonder and the Origins
+  upgrades de-age villagers.
+- **Head and body** -- Change Appearance restyles a villager.
+
+So code that asks "is this still the same villager" across time must not rely
+on any one field, and must not pair villagers by age order (the details
+screen's ordering): a birth, a death or de-aging shifts every later position.
+The parentage companion (v1.35.29) instead asks whether the *tribe* is still
+the same. When it holds a record it snapshots every live slot's name, head,
+body and (VV2-VV5) own parents. A villager still counts if at least two of
+{name, head+body, parents} match in the same slot, so a rename, de-aging or a
+restyle moves only one; the tribe is the same if at least a quarter of the
+snapshot still counts. Only a replaced table -- the pre-tribe simulation, or a
+tribe left by Start Over -- matches almost no one. The v1.35.28 companion
+compared one villager's fields, including preferences, and so dropped Epeli's
+birth.
