@@ -124,10 +124,18 @@ FILES = [
     "scripts/build_village_wide_origins_features.py",
     "scripts/generate_transparency_docs.py",
     "scripts/build_vv5_task9_native_actions.py",
+    "scripts/build_vv5_appearance_sheets.py",
     "scripts/build_vv5_task9_origins_dll.ps1",
     "native/vv5_task9_origins/vv5_task9_origins.c",
     "native/vv5_task9_origins/vv5_task9_origins.def",
     "native/vv5_task9_origins/vv5_task9_origins.rc",
+    "native/vv5_task9_origins/appearance/head_m_young.bmp",
+    "native/vv5_task9_origins/appearance/head_m_old.bmp",
+    "native/vv5_task9_origins/appearance/head_f_young.bmp",
+    "native/vv5_task9_origins/appearance/head_f_old.bmp",
+    "native/vv5_task9_origins/appearance/body_m.bmp",
+    "native/vv5_task9_origins/appearance/body_f.bmp",
+    "native/vv5_task9_origins/appearance/mask_preview.bmp",
     # Fun-patch companion assets (asset-swap patches). Without these the
     # patcher cannot apply the "Optional Text Changes" (VV4) or "Guardians
     # of Isola" (VV5) fun patches, nor restore them on removal.
