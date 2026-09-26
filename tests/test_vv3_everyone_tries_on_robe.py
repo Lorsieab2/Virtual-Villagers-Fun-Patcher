@@ -85,17 +85,26 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     #     cmp dword ptr [esp+0x24], 0x45B8CE
     # Nothing outside those two regions moved, and this test was green at
     # the preceding commit, so the move is caused by that change alone.
+    # Re-pinned for the B caller's father slot correction. A full-catalog
+    # before/after byte comparison found 34 changed bytes in each mode:
+    # two PE checksum bytes and 32 within the parentage trampoline at
+    # 0xCB000..0xCB078. No other rendered bytes changed.
+    # Re-pinned again for caller B's second gender path. Relative to the
+    # preceding PR commit, each render changes 38 bytes in the parentage
+    # trampoline (through page offset 0x71) and only its PE checksum:
+    # three checksum bytes in stock/collection_progression, two in
+    # immediate_fixed. The optional overlay has those same 38 code changes.
     "stock": (
-        "F9D089B30684CE44BCDCC86EC7983AEBAA91CD3CD02EBD7814134D0FBC024BE5",
-        "6A5D0D00",
+        "8EC1CB04066431C4F91A7D67921126949B41F3E18E2747FA90FD6AC01CBAD99A",
+        "59E10C00",
     ),
     "collection_progression": (
-        "DBE8A9A39153D45DB937F5099C5BA36D95A948AF05437BD841F0DDDFE20A3980",
-        "6A760D00",
+        "DC72BBA102F74AAFC6FD699F8AF9AB824A0BC48625A58C7FAFB6508082FE9D9C",
+        "59FA0C00",
     ),
     "immediate_fixed": (
-        "02A3B162970023815D19467837E3D2647A6522551EFCDD6522118037BB70728A",
-        "68B80D00",
+        "84F9D7D6384E0CB48B056CA584846880F8D8E10A6734C973F798212C814CB4B8",
+        "573C0D00",
     ),
 }
 
