@@ -54,8 +54,6 @@ INSTALL_NAME = {
 }
 
 HEAD_ROW_PX = 65
-BODY_CELLS_PER_SHEET = (640 // 64) * (650 // 65)   # 100
-BODY_ANIMATION_FRAMES = 20
 
 EXPECTED = {
     "vv1": {"heads": 20, "bodies": 20},
@@ -122,6 +120,89 @@ class AppearanceOptionCountTests(unittest.TestCase):
                             f"appearance the game ships",
                         )
 
+    def test_embedded_preview_strips_have_a_cell_for_every_choice(self) -> None:
+        """The owner-drawn preview must not run off the end of its bitmap."""
+        strips = {
+            "vv1": ("native/vv1_origins_icons/appearance", (
+                ("head_m.bmp", 20, "vertical"), ("head_f.bmp", 20, "vertical"),
+                ("body_m.bmp", 20, "vertical"), ("body_f.bmp", 20, "vertical"),
+                ("mask.bmp", 6, "vertical"),
+            )),
+            "vv2": ("native/vv2_origins_icons/appearance", (
+                *((name, 30, "horizontal") for name in (
+                    "head_m_young.bmp", "head_m_old.bmp", "head_f_young.bmp",
+                    "head_f_old.bmp", "body_m.bmp", "body_f.bmp")),
+                ("mask_preview.bmp", 6, "horizontal"),
+            )),
+            "vv3": ("native/vv3_full_mastery_candidate/appearance", (
+                *((name, 30, "horizontal") for name in (
+                    "head_m_young.bmp", "head_m_old.bmp", "head_f_young.bmp",
+                    "head_f_old.bmp", "body_m.bmp", "body_f.bmp")),
+                ("mask_strip.bmp", 6, "horizontal"),
+            )),
+            "vv4": ("assets/vv4_masks", (("vvfp_mask_preview.png", 6, "horizontal"),)),
+            "vv5": ("native/vv5_task9_origins/appearance", (
+                *((name, 30, "horizontal") for name in (
+                    "head_m_young.bmp", "head_m_old.bmp", "head_f_young.bmp",
+                    "head_f_old.bmp", "body_m.bmp", "body_f.bmp")),
+                ("mask_preview.bmp", 6, "horizontal"),
+            )),
+        }
+        from PIL import Image, ImageChops
+
+        for game, (directory, files) in strips.items():
+            for filename, expected_cells, orientation in files:
+                path = ROOT / directory / filename
+                with self.subTest(game=game, file=filename):
+                    with Image.open(path) as image:
+                        width, height = image.size
+                        cell_w, cell_h = (40, 65)
+                        cells = height // cell_h if orientation == "vertical" else width // cell_w
+                        self.assertEqual(
+                            cells, expected_cells,
+                            f"{filename} has {cells} cells; the selector offers {expected_cells}",
+                        )
+                        if "mask" in filename:
+                            indices = range(1, expected_cells)  # index 0 is the intentional no-mask cell
+                        else:
+                            indices = range(expected_cells)
+                        pixels = image.convert("RGB")
+                        for index in indices:
+                            if orientation == "vertical":
+                                cell = pixels.crop((0, index * cell_h, cell_w, (index + 1) * cell_h))
+                            else:
+                                cell = pixels.crop((index * cell_w, 0, (index + 1) * cell_w, cell_h))
+                            self.assertNotEqual(
+                                ImageChops.difference(
+                                    cell, Image.new("RGB", cell.size, (236, 236, 236))
+                                ).getbbox(), None,
+                                f"{filename} cell {index} is blank",
+                            )
+
+    def test_vv4_live_atlas_picker_uses_all_rows_and_the_requested_body_frame(self) -> None:
+        source = (ROOT / "native/vv4_origins_icons/vv4_origins_icons.c").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("#define VV_HEAD_COUNT 30", source)
+        self.assertIn("#define VV_BODY_COUNT 30", source)
+        self.assertIn("#define VV_BODY_FRAME_COL 8", source)
+        draw = source.split("static void appearance_draw_cell(", 1)[1].split("\n}", 1)[0]
+        self.assertIn("row = value;", draw)
+        self.assertIn("page = value / VV_BODY_ROWS_PER_PAGE;", draw)
+        self.assertIn("row = value % VV_BODY_ROWS_PER_PAGE;", draw)
+
+    def test_all_games_use_body_pose_frame_index_8(self) -> None:
+        sources = {
+            "vv1": ("scripts/build_vv1_appearance_bitmaps.py", "BODY_FRAME = 8"),
+            "vv2": ("scripts/build_vv2_appearance_sheets.py", "BODY_FRAME = 8"),
+            "vv3": ("scripts/build_vv3_appearance_bmps.py", "BODY_FRAME = 8"),
+            "vv4": ("native/vv4_origins_icons/vv4_origins_icons.c", "#define VV_BODY_FRAME_COL 8"),
+            "vv5": ("scripts/build_vv5_appearance_sheets.py", "BODY_FRAME = 8"),
+        }
+        for game, (path, expected) in sources.items():
+            with self.subTest(game=game):
+                self.assertIn(expected, (ROOT / path).read_text(encoding="utf-8"))
+
     def test_both_sexes_get_the_same_number_of_options(self) -> None:
         """VV1 is the only per-sex declaration, and both sexes are 20."""
         spec = DECLARED["vv1"]
@@ -137,34 +218,62 @@ class AppearanceOptionCountTests(unittest.TestCase):
 
     @unittest.skipUnless(VANILLA.is_dir(), "vanilla game installs are not present")
     def test_the_expected_table_is_re_derived_from_the_art(self) -> None:
-        """Anti-vacuity: the table above is checked against the real files."""
+        """Count populated value rows, grouping body pages by age correctly."""
         from PIL import Image
 
-        checked = 0
         for game, wanted in EXPECTED.items():
             images = VANILLA / INSTALL_NAME[game] / "Images"
-            if not images.is_dir():
-                continue
-            heads = sorted(images.glob("male_heads*.png"))
-            bodies = sorted(images.glob("male_bodies*.png"))
-            if not heads or not bodies:
-                continue
-            checked += 1
+            self.assertTrue(images.is_dir(), f"missing vanilla Images folder for {game}")
             with self.subTest(game=game):
-                rows = Image.open(heads[0]).size[1] // HEAD_ROW_PX
-                self.assertEqual(
-                    rows, wanted["heads"],
-                    f"{game}: head atlas holds {rows} rows, table says "
-                    f"{wanted['heads']}",
-                )
-                cells = len(bodies) * BODY_CELLS_PER_SHEET
-                self.assertEqual(
-                    cells // BODY_ANIMATION_FRAMES, wanted["bodies"],
-                    f"{game}: {len(bodies)} body sheets give "
-                    f"{cells // BODY_ANIMATION_FRAMES} bodies, table says "
-                    f"{wanted['bodies']}",
-                )
-        self.assertGreaterEqual(checked, 5, "expected all five installs")
+                for sex in ("male", "female"):
+                    heads = sorted(images.glob(f"{sex}_heads*.png"))
+                    self.assertEqual(len(heads), 1 if game == "vv1" else 2)
+                    for path in heads:
+                        with Image.open(path) as image:
+                            rows = image.height // HEAD_ROW_PX
+                            alpha = image.convert("RGBA").getchannel("A")
+                            populated = sum(
+                                alpha.crop((0, row * HEAD_ROW_PX, image.width,
+                                            (row + 1) * HEAD_ROW_PX)).getbbox() is not None
+                                for row in range(rows)
+                            )
+                        self.assertEqual((rows, populated), (wanted["heads"], wanted["heads"]),
+                                         f"{path.name}: not every head row is populated")
+
+                    body_files = sorted(images.glob(f"{sex}_bodies*.png"))
+                    self.assertTrue(body_files, f"no body sheets for {game} {sex}")
+                    groups: dict[str, list[Path]] = {}
+                    for path in body_files:
+                        suffix = path.stem.removeprefix(f"{sex}_bodies")
+                        # VV1's two suffix digits are column-block then row-block;
+                        # the first digit duplicates the same value rows.
+                        key = suffix[1] if game == "vv1" else suffix[0]
+                        groups.setdefault(key, []).append(path)
+                    group_row_counts = []
+                    for group, pages in groups.items():
+                        if game == "vv1":
+                            # One representative column block per row page.
+                            pages = [next(p for p in pages if p.stem.endswith("0" + group))]
+                        rows_in_group = 0
+                        for path in pages:
+                            with Image.open(path) as image:
+                                rows = image.height // HEAD_ROW_PX
+                                alpha = image.convert("RGBA").getchannel("A")
+                                populated = sum(
+                                    alpha.crop((0, row * HEAD_ROW_PX, image.width,
+                                                (row + 1) * HEAD_ROW_PX)).getbbox() is not None
+                                    for row in range(rows)
+                                )
+                            self.assertEqual(populated, rows, f"{path.name}: blank body row")
+                            rows_in_group += rows
+                        group_row_counts.append(rows_in_group)
+                        expected_group_rows = 10 if game == "vv1" else wanted["bodies"]
+                        self.assertEqual(
+                            rows_in_group, expected_group_rows,
+                            f"{game} {sex} age/page group {group} has {rows_in_group} body rows",
+                        )
+                    if game == "vv1":
+                        self.assertEqual(sum(group_row_counts), wanted["bodies"])
 
     def test_the_whole_village_cyclers_use_the_same_counts(self) -> None:
         """Change Appearance for All must offer what Change Appearance offers.
