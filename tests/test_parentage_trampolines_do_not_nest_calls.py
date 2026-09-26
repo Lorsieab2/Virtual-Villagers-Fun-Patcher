@@ -176,12 +176,14 @@ class ParentageTrampolinesDoNotNestCallsTests(unittest.TestCase):
     def test_no_stray_push_sits_between_entry_and_the_stolen_call(
         self,
     ) -> None:
-        """Only the seven argument re-pushes may precede the call.
+        """Only an optional saved total and seven argument copies precede it.
 
         The first version of this trampoline did `push ebx` and then called,
         which shifted the callee's frame by a further dword on top of the
-        nested-call shift. Anything pushed that is not one of the seven
-        argument copies reintroduces that class of bug.
+        nested-call shift. A game that keeps a conception-total snapshot below
+        the seven copied arguments must read those arguments from +0x20 rather
+        than +0x1C. The callee must still see seven arguments immediately
+        below its return address.
         """
         for game, (manifest, conception) in sorted(WRAPPING_GAMES.items()):
             with self.subTest(game=game):
@@ -191,12 +193,16 @@ class ParentageTrampolinesDoNotNestCallsTests(unittest.TestCase):
                     i for i, ins in enumerate(stream)
                     if ins.mnemonic == "call"
                     and ins.op_str == hex(conception))
-                for ins in stream[:call_index]:
-                    if ins.mnemonic != "push":
-                        continue
-                    self.assertRegex(
-                        ins.op_str, r"^dword ptr \[esp \+ 0x[0-9a-f]+\]$",
-                        "only argument re-pushes may precede the stolen call")
+                pushes = [ins.op_str for ins in stream[:call_index]
+                          if ins.mnemonic == "push"]
+                if game == 4:
+                    total = "0x4d6de8"
+                    self.assertEqual(pushes,
+                                     [f"dword ptr [{total}]"]
+                                     + ["dword ptr [esp + 0x20]"] * 7)
+                else:
+                    self.assertEqual(pushes,
+                                     ["dword ptr [esp + 0x1c]"] * 7)
 
 
 if __name__ == "__main__":
