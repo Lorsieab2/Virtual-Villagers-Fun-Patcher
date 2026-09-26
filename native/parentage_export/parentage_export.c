@@ -1880,14 +1880,22 @@ static int is_record_slot(
    values (issue #436, Rule 3): the villager is addressed directly, by the
    record pointer the game supplied, which is #436's first precedence.  The
    check only has to notice that the slot now holds SOMEONE ELSE.  So it
-   compares every identity field that cannot legitimately change between the
-   conception and the first save -- the name, head, body, the COMPLETE likes
-   array and the COMPLETE dislikes array, each slot as stored -- and requires
-   that the age, in native units, has not gone backwards.  Age and skills are
-   not required to be equal because a real villager's do change in that
-   interval.  Codex (#449 review) pointed out that an earlier version compared
-   only the first rendered like and dislike, a subset; that is what this
-   replaced.
+   compares the identity fields a villager keeps for life -- the name, head and
+   body, and in VV2 to VV5 the villager's OWN parents, which the game stores on
+   every record permanently -- and requires that the age, in native units, has
+   not gone backwards.
+
+   LIKES AND DISLIKES ARE NOT COMPARED, because they change during a
+   villager's life. The v1.35.28 check compared both arrays in full (after
+   Codex, #449 review, rightly objected that comparing only the first entry was
+   a subset), on the premise that they cannot change before the first save.
+   The owner's VV3 tribe disproved it: a Time Warp that ran with no save
+   delivered Epeli and Watoto together, and at the next save Epeli -- who by
+   then liked ants -- no longer matched the held birth record and was DROPPED,
+   while Watoto, whose preferences had not moved, was written. VV3 keeps each
+   array as an object that well over a hundred sites in the game operate on,
+   so a preference is no more fixed than age or skills. Name, head, body and
+   parents are what a reused slot would have to reproduce all at once.
 
    A villager of the pre-tribe simulation fails this, because the tribe
    replaced the whole table; a villager of the player's tribe passes it.  The
@@ -1910,8 +1918,6 @@ static int is_record_slot(
 #define PENDING_MAX 4096
 /* One rendered record: 13 short lines plus a skills block of at most 512. */
 #define RECORD_TEXT_MAX 2048
-/* The widest preference array in any game: VV2's 62 slots. */
-#define PENDING_PREFERENCE_SLOTS 64
 
 struct pending_record {
     int game_id;
@@ -1921,9 +1927,10 @@ struct pending_record {
     int head;
     int body;
     int age;
-    /* The whole arrays, raw: every slot, not just the first one printed. */
-    int likes[PENDING_PREFERENCE_SLOTS];
-    int dislikes[PENDING_PREFERENCE_SLOTS];
+    /* The villager's own parents, as the game keeps them on the record for
+       life (VV2-VV5); empty in VV1, which keeps none. */
+    char father_of[MAX_NAME_BYTES];
+    char mother_of[MAX_NAME_BYTES];
     char *text;
 };
 
@@ -1988,22 +1995,17 @@ static void identify_villager(
     const unsigned char *record,
     struct pending_record *entry
 ) {
-    unsigned int slots = g->preference_slots;
-
-    if (slots > PENDING_PREFERENCE_SLOTS) {
-        slots = PENDING_PREFERENCE_SLOTS;
-    }
-    memset(entry->likes, 0, sizeof(entry->likes));
-    memset(entry->dislikes, 0, sizeof(entry->dislikes));
     copy_villager_name(g, record, entry->name, sizeof(entry->name));
     entry->head = *(const int *)(record + g->head);
     entry->body = *(const int *)(record + g->body);
     entry->age = *(const int *)(record + g->age);
-    if (g->likes != 0u) {
-        memcpy(entry->likes, record + g->likes, slots * sizeof(int));
-    }
-    if (g->dislikes != 0u) {
-        memcpy(entry->dislikes, record + g->dislikes, slots * sizeof(int));
+    entry->father_of[0] = '\0';
+    entry->mother_of[0] = '\0';
+    if (g->parent_father_name != 0u) {
+        copy_name_field(record + g->parent_father_name, entry->father_of,
+                        sizeof(entry->father_of), g->parent_name_capacity);
+        copy_name_field(record + g->parent_mother_name, entry->mother_of,
+                        sizeof(entry->mother_of), g->parent_name_capacity);
     }
 }
 
@@ -2025,8 +2027,8 @@ static int still_the_same_villager(
         && now.head == entry->head
         && now.body == entry->body
         && now.age >= entry->age
-        && memcmp(now.likes, entry->likes, sizeof(now.likes)) == 0
-        && memcmp(now.dislikes, entry->dislikes, sizeof(now.dislikes)) == 0;
+        && strcmp(now.father_of, entry->father_of) == 0
+        && strcmp(now.mother_of, entry->mother_of) == 0;
 }
 
 /* ---- Which tribe is loaded ------------------------------------------------

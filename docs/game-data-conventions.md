@@ -273,3 +273,14 @@ routine with its suppression argument set and a made-up father ("Joey", head 2,
 body 2); it is deliberately not logged, but the resulting births are -- which
 is why a new tribe can show a Birth with no Conception, or a pregnant villager
 whose father is "Unknown".
+
+## Likes and dislikes change during a villager's life
+
+A villager's likes and dislikes are NOT fixed identity: VV3 keeps each as an
+object that well over a hundred sites in the game operate on, and the owner's
+v1.35.28 VV3 tribe showed a child (Epeli) with no preference at birth liking
+ants twelve years later. Code that checks "is this still the same villager"
+across time must use what a villager keeps for life -- name, head, body, and
+(VV2-VV5) their own parents on the record -- and may require only that age has
+not gone backwards. The v1.35.28 parentage companion compared preferences and
+so dropped Epeli's birth; fixed in v1.35.29.

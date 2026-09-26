@@ -15,7 +15,9 @@ The parentage companion now holds such records until the village is known and
 writes them then, dropping any whose villager no longer occupies its slot.
 native/parentage_export/pending_harness.c drives the shipped DLL through that
 window and checks the log on disk; against the v1.35.27 DLL it fails twenty-three of
-its forty-three checks, which is what makes it a regression test rather than a
+its forty-five checks, and against v1.35.28's it fails ten -- including Epeli, the
+birth that DLL dropped in the owner's VV3 tribe -- which is what makes it a
+regression test rather than a
 restatement of the fix.
 
 The harness needs the 32-bit MSVC toolchain, so it runs where that is installed
@@ -89,13 +91,17 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         check = function("still_the_same_villager")
         self.assertIn("memory_is_readable(entry->subject, g->stride)", check)
         self.assertIn("entry->subject + g->active) != 1", check)
-        for field in ("name", "head", "body", "likes", "dislikes"):
+        for field in ("name", "head", "body"):
             self.assertIn(f"entry->{field}", check)
-        # The COMPLETE preference arrays, not the first rendered entry (#449
-        # review), and an age that has not gone backwards.
-        self.assertIn("memcmp(now.likes, entry->likes, sizeof(now.likes))", check)
-        self.assertIn("memcmp(now.dislikes, entry->dislikes, sizeof(now.dislikes))", check)
+        # Fields a villager keeps for life: name, head, body and their own
+        # parents, plus an age that has not gone backwards.
+        self.assertIn("strcmp(now.father_of, entry->father_of) == 0", check)
+        self.assertIn("strcmp(now.mother_of, entry->mother_of) == 0", check)
         self.assertIn("now.age >= entry->age", check)
+        # NOT likes or dislikes: they change during a villager's life. v1.35.28
+        # compared them and dropped Epeli's birth in the owner's VV3 tribe,
+        # because Epeli had taken up a like by the time the save came.
+        self.assertNotIn("likes", check)
         self.assertNotIn("find_record_by_name", check)
 
     def test_a_recalled_header_is_trusted_only_for_the_saved_tribe(self) -> None:

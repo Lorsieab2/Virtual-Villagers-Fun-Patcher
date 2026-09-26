@@ -65,6 +65,9 @@ typedef int (__stdcall *ensure_village_t)(int, const char *, const void *);
 #define LIKES       0xFB4
 #define DISLIKES    0xFC0
 #define PREF_SLOTS  3
+#define OWN_FATHER  0xDF8   /* the villager's own parents, kept for life */
+#define OWN_MOTHER  0xE11
+#define OWN_CAP     0x19
 #define TITLE       "Virtual Villagers 3 Births and Conceptions Log"
 #define VILLAGE     "Village: Harness Tribe (Save 1)\n"
 #define VILLAGE2    "Village: Second Tribe (Save 2)\n"
@@ -84,6 +87,13 @@ static void villager(int i, const char *name, int age, int head, int body) {
         *(int *)(rec(i) + LIKES + s * 4) = -1;
         *(int *)(rec(i) + DISLIKES + s * 4) = -1;
     }
+}
+
+static void parents(int i, const char *father, const char *mother) {
+    memset(rec(i) + OWN_FATHER, 0, OWN_CAP);
+    memset(rec(i) + OWN_MOTHER, 0, OWN_CAP);
+    strncpy((char *)rec(i) + OWN_FATHER, father, OWN_CAP);
+    strncpy((char *)rec(i) + OWN_MOTHER, mother, OWN_CAP);
 }
 
 static void conceive(int mother, int father) {
@@ -126,6 +136,23 @@ static void remove_logs(void) {
         FindClose(h);
     }
     RemoveDirectoryA(folder);
+    /* And the two folders above it that the DLL created for this harness --
+       "Virtual Villagers Fun Patcher Logs" and Documents\LDW\<harness name>.
+       Left behind, they piled up in the owner's real LDW save folder after
+       every run. RemoveDirectory only removes an EMPTY folder, so nothing
+       else can be lost. */
+    {
+        char parent[MAX_PATH];
+        char *cut;
+        int level;
+        lstrcpynA(parent, folder, MAX_PATH);
+        for (level = 0; level < 2; ++level) {
+            cut = strrchr(parent, '\\');
+            if (cut == NULL) break;
+            *cut = 0;
+            RemoveDirectoryA(parent);
+        }
+    }
 }
 
 static int log_files(void) {
@@ -229,10 +256,10 @@ int main(int argc, char **argv) {
     villager(5, "Tufi", 453, 22, 3);
     villager(6, "Maro", 479, 8, 16);
     /* Codex's case: a simulated villager whose slot is later reused by a
-       tribe villager sharing her name, head, body and FIRST like. */
+       tribe villager sharing her name, head and body -- told apart by the
+       parents each keeps for life. */
     villager(8, "Ika", 380, 29, 26);
-    *(int *)(rec(8) + LIKES) = 7;
-    *(int *)(rec(8) + LIKES + 4) = 12;
+    parents(8, "Oha", "Mei");
     villager(9, "Pichu", 430, 7, 25);
     /* And one whose age goes backwards in the same slot. */
     villager(10, "Samoa", 494, 6, 28);
@@ -251,19 +278,27 @@ int main(int argc, char **argv) {
     CHECK(write(3, records, rec(8), rec(9)) == 1, "a look-alike's conception is accepted");
     conceive(10, 11);
     CHECK(write(3, records, rec(10), rec(11)) == 1, "a younger replacement's conception is accepted");
+    /* The owner's VV3 tribe: Epeli is born during a Time Warp that runs with
+       no save, and has grown to like ants by the time the save comes. */
+    villager(15, "Epeli", 0, 16, 15);
+    parents(15, "Yap", "Kuka");
+    CHECK(birth(3, "", -1, -1, "Kuka", 7, 2, "Yap", 24, 0, rec(15)) == 1,
+          "a birth during a save-less Time Warp is accepted");
     CHECK(log_files() == 0, "nothing is written while the village is unknown");
 
     printf("-- the tribe replaces the simulated villagers --\n");
     villager(2, "Tasiri", 380, 17, 8);     /* a different villager in Makawa's slot */
     rec(5)[ACTIVE] = 0;                     /* Tufi's slot is no longer live */
-    /* Same name, head, body and first like -- only the second like differs. */
+    /* Same name, head and body -- but a different villager: other parents. */
     villager(8, "Ika", 380, 29, 26);
-    *(int *)(rec(8) + LIKES) = 7;
-    *(int *)(rec(8) + LIKES + 4) = 40;
+    parents(8, "Ruru", "Tia");
     /* Same everything except an age lower than at conception. */
     villager(10, "Samoa", 300, 6, 28);
     /* The tribe's mother has aged in the meantime, as a real villager does. */
     *(int *)(rec(0) + AGE) = 534;
+    /* ...and Epeli has grown up and taken a liking to something. */
+    *(int *)(rec(15) + AGE) = 241;
+    *(int *)(rec(15) + LIKES) = 5;
 
     printf("-- the first save --\n");
     vv_village_publish(VILLAGE);
@@ -278,9 +313,11 @@ int main(int argc, char **argv) {
     CHECK(strstr(logtext, "Makawa") == NULL, "the replaced villager's conception is dropped");
     CHECK(strstr(logtext, "Tufi") == NULL, "the no-longer-live villager's conception is dropped");
     CHECK(strstr(logtext, "Ika") == NULL,
-          "a look-alike differing only in a later like slot is dropped");
+          "a look-alike with the same name and looks but other parents is dropped");
     CHECK(strstr(logtext, "Samoa") == NULL, "a villager whose age went backwards is dropped");
     CHECK(strstr(logtext, "Birth\r\n  Child: Mahu\r\n") != NULL, "the tribe's birth is kept");
+    CHECK(strstr(logtext, "Birth\r\n  Child: Epeli\r\n") != NULL,
+          "a child who took up a like before the save is still logged (Epeli)");
     CHECK(strstr(logtext, "Conception 1") < strstr(logtext, "Birth"),
           "held records keep their order");
 
