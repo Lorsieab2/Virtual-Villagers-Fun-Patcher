@@ -246,59 +246,53 @@ int main(int argc, char **argv) {
 
     records = (unsigned char *)calloc(1, BASE + SLOTS * STRIDE);
 
-    /* The player's tribe: Tikina and Koro, and their child Mahu. */
-    villager(0, "Tikina", 414, 23, 1);
-    villager(1, "Koro", 436, 9, 25);
-    villager(4, "Mahu", 0, 16, 21);
-    /* Two villagers of the simulation the game runs before the tribe exists. */
-    villager(2, "Makawa", 487, 24, 20);
-    villager(3, "Kao", 434, 22, 2);
-    villager(5, "Tufi", 453, 22, 3);
-    villager(6, "Maro", 479, 8, 16);
-    /* Codex's case: a simulated villager whose slot is later reused by a
-       tribe villager sharing her name, head and body -- told apart by the
-       parents each keeps for life. */
-    villager(8, "Ika", 380, 29, 26);
-    parents(8, "Oha", "Mei");
-    villager(9, "Pichu", 430, 7, 25);
-    /* And one whose age goes backwards in the same slot. */
-    villager(10, "Samoa", 494, 6, 28);
-    villager(11, "Fatu", 415, 29, 16);
-
-    printf("-- before the first save: records are held --\n");
-    conceive(2, 3);
-    CHECK(write(3, records, rec(2), rec(3)) == 1, "a pre-tribe conception is accepted");
+    printf("-- the game's pre-tribe simulation: its records are held --\n");
+    villager(0, "Makawa", 487, 24, 20);
+    villager(1, "Kao", 434, 22, 2);
+    villager(2, "Tufi", 453, 22, 3);
+    villager(3, "Maro", 479, 8, 16);
     conceive(0, 1);
-    CHECK(write(3, records, rec(0), rec(1)) == 1, "the tribe's conception is accepted");
-    conceive(5, 6);
-    CHECK(write(3, records, rec(5), rec(6)) == 1, "a second pre-tribe conception is accepted");
-    CHECK(birth(3, "", -1, -1, "Tikina", 23, 1, "Koro", 9, 25, rec(4)) == 1,
-          "the tribe's birth is accepted");
-    conceive(8, 9);
-    CHECK(write(3, records, rec(8), rec(9)) == 1, "a look-alike's conception is accepted");
-    conceive(10, 11);
-    CHECK(write(3, records, rec(10), rec(11)) == 1, "a younger replacement's conception is accepted");
-    /* The owner's VV3 tribe: Epeli is born during a Time Warp that runs with
-       no save, and has grown to like ants by the time the save comes. */
-    villager(15, "Epeli", 0, 16, 15);
-    parents(15, "Yap", "Kuka");
-    CHECK(birth(3, "", -1, -1, "Kuka", 7, 2, "Yap", 24, 0, rec(15)) == 1,
-          "a birth during a save-less Time Warp is accepted");
+    CHECK(write(3, records, rec(0), rec(1)) == 1, "a simulated conception is accepted");
+    conceive(2, 3);
+    CHECK(write(3, records, rec(2), rec(3)) == 1, "a second simulated conception is accepted");
     CHECK(log_files() == 0, "nothing is written while the village is unknown");
 
-    printf("-- the tribe replaces the simulated villagers --\n");
-    villager(2, "Tasiri", 380, 17, 8);     /* a different villager in Makawa's slot */
-    rec(5)[ACTIVE] = 0;                     /* Tufi's slot is no longer live */
-    /* Same name, head and body -- but a different villager: other parents. */
-    villager(8, "Ika", 380, 29, 26);
-    parents(8, "Ruru", "Tia");
-    /* Same everything except an age lower than at conception. */
-    villager(10, "Samoa", 300, 6, 28);
-    /* The tribe's mother has aged in the meantime, as a real villager does. */
-    *(int *)(rec(0) + AGE) = 534;
-    /* ...and Epeli has grown up and taken a liking to something. */
-    *(int *)(rec(15) + AGE) = 241;
-    *(int *)(rec(15) + LIKES) = 5;
+    printf("-- the player's tribe replaces the whole table --\n");
+    memset(records, 0, BASE + SLOTS * STRIDE);
+    villager(0, "Tikina", 414, 23, 1);
+    villager(1, "Koro", 436, 9, 25);
+    villager(2, "Nui", 400, 17, 9);
+    villager(3, "Ika", 380, 29, 26);
+    villager(4, "Samoa", 0, 6, 28);
+    parents(4, "Koro", "Tikina");
+    villager(5, "Epeli", 0, 16, 15);
+    parents(5, "Koro", "Nui");
+    villager(6, "Mahu", 0, 16, 21);
+    parents(6, "Koro", "Tikina");
+    villager(7, "Saka", 400, 4, 15);
+    conceive(0, 1);
+    CHECK(write(3, records, rec(0), rec(1)) == 1, "the tribe's conception is accepted");
+    conceive(2, 1);
+    CHECK(write(3, records, rec(2), rec(1)) == 1, "a conception whose mother will die is accepted");
+    conceive(3, 1);
+    CHECK(write(3, records, rec(3), rec(1)) == 1, "a conception whose mother will be renamed is accepted");
+    CHECK(birth(3, "", -1, -1, "Tikina", 23, 1, "Koro", 9, 25, rec(6)) == 1, "a birth is accepted");
+    CHECK(birth(3, "", -1, -1, "Nui", 17, 9, "Koro", 9, 25, rec(5)) == 1,
+          "a birth during a save-less Time Warp is accepted (Epeli)");
+    CHECK(birth(3, "", -1, -1, "Tikina", 23, 1, "Koro", 9, 25, rec(4)) == 1,
+          "a birth that will be de-aged and restyled is accepted");
+    CHECK(log_files() == 0, "still nothing written");
+
+    printf("-- before the save: ordinary game behaviour changes villagers --\n");
+    *(int *)(rec(0) + AGE) = 534;                   /* ages */
+    *(int *)(rec(5) + AGE) = 241;                   /* Epeli grows... */
+    *(int *)(rec(5) + LIKES) = 5;                   /* ...and takes up a like */
+    *(int *)(rec(4) + AGE) = 0;                     /* Samoa: the Gong de-ages */
+    *(int *)(rec(4) + HEAD) = 12;                   /* Change Appearance */
+    *(int *)(rec(4) + BODY) = 3;
+    memset(rec(3) + NAME, 0, NAME_CAP);             /* the player renames Ika */
+    strncpy((char *)rec(3) + NAME, "Ikaika", NAME_CAP);
+    rec(2)[ACTIVE] = 0;                             /* Nui dies */
 
     printf("-- the first save --\n");
     vv_village_publish(VILLAGE);
@@ -307,30 +301,30 @@ int main(int argc, char **argv) {
     CHECK(strncmp(logtext, "Village: Harness Tribe (Save 1)\r\n", 33) == 0,
           "the log opens with the Village header");
     CHECK(count("Village: ") == 1, "exactly one header");
-    CHECK(count("Conception ") == 1, "exactly one conception was kept");
-    CHECK(strstr(logtext, "Conception 1\r\n  Mother: Tikina\r\n") != NULL,
-          "the tribe's conception is Conception 1");
-    CHECK(strstr(logtext, "Makawa") == NULL, "the replaced villager's conception is dropped");
-    CHECK(strstr(logtext, "Tufi") == NULL, "the no-longer-live villager's conception is dropped");
-    CHECK(strstr(logtext, "Ika") == NULL,
-          "a look-alike with the same name and looks but other parents is dropped");
-    CHECK(strstr(logtext, "Samoa") == NULL, "a villager whose age went backwards is dropped");
+    CHECK(strstr(logtext, "Makawa") == NULL && strstr(logtext, "Tufi") == NULL,
+          "the simulation's conceptions are dropped: its table was replaced");
+    CHECK(count("Conception ") == 3, "all three of the tribe's conceptions are kept");
+    CHECK(strstr(logtext, "Conception 1\r\n  Mother: Tikina\r\n") != NULL, "Tikina's is Conception 1");
+    CHECK(strstr(logtext, "Conception 2\r\n  Mother: Nui\r\n") != NULL,
+          "a mother who died before the save is still logged");
+    CHECK(strstr(logtext, "Conception 3\r\n  Mother: Ika\r\n") != NULL,
+          "a mother renamed before the save is logged under the name she had");
     CHECK(strstr(logtext, "Birth\r\n  Child: Mahu\r\n") != NULL, "the tribe's birth is kept");
     CHECK(strstr(logtext, "Birth\r\n  Child: Epeli\r\n") != NULL,
-          "a child who took up a like before the save is still logged (Epeli)");
-    CHECK(strstr(logtext, "Conception 1") < strstr(logtext, "Birth"),
-          "held records keep their order");
+          "a child who grew and took up a like before the save is logged (Epeli)");
+    CHECK(strstr(logtext, "Birth\r\n  Child: Samoa\r\n") != NULL,
+          "a child de-aged and restyled before the save is logged");
+    CHECK(strstr(logtext, "Conception 1") < strstr(logtext, "Birth"), "held records keep their order");
 
     printf("-- after the first save: records are written at once --\n");
-    villager(7, "Saka", 400, 4, 15);
     conceive(7, 1);
     CHECK(write(3, records, rec(7), rec(1)) == 1, "a later conception is accepted");
     CHECK(read_log(), "the log is still there");
-    second = strstr(logtext, "Conception 2\r\n  Mother: Saka\r\n");
-    CHECK(second != NULL, "it is written immediately as Conception 2");
+    second = strstr(logtext, "Conception 4\r\n  Mother: Saka\r\n");
+    CHECK(second != NULL, "it is written immediately as Conception 4");
     CHECK(count("Village: ") == 1, "still exactly one header");
     CHECK(save(VILLAGE) == 1, "a later save changes nothing");
-    CHECK(read_log() && count("Conception ") == 2 && count("Village: ") == 1,
+    CHECK(read_log() && count("Conception ") == 4 && count("Village: ") == 1,
           "no record is written twice");
 
     printf("-- a write that fails is retried, not lost --\n");
@@ -340,51 +334,132 @@ int main(int argc, char **argv) {
         _snprintf(path, MAX_PATH, "%s\\%s 1.txt", folder, TITLE);
         lock = CreateFileA(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
         CHECK(lock != INVALID_HANDLE_VALUE, "the log can be locked for the test");
-        villager(12, "Napa", 380, 28, 9);
-        conceive(12, 1);
-        CHECK(write(3, records, rec(12), rec(1)) == 1, "a conception during the lock is kept");
-        villager(13, "Lomai", 466, 7, 0);
-        conceive(13, 1);
-        CHECK(write(3, records, rec(13), rec(1)) == 1, "a second one during the lock is kept");
-        (void)save(VILLAGE);          /* a save while the log is still locked */
+        villager(8, "Napa", 380, 28, 9);
+        conceive(8, 1);
+        CHECK(write(3, records, rec(8), rec(1)) == 1, "a conception during the lock is kept");
+        villager(9, "Lomai", 466, 7, 0);
+        conceive(9, 1);
+        CHECK(write(3, records, rec(9), rec(1)) == 1, "a second one during the lock is kept");
+        (void)save(VILLAGE);                 /* a save while the log is still locked */
         CloseHandle(lock);
-        CHECK(read_log() && count("Conception ") == 2, "nothing reached the locked log");
+        CHECK(read_log() && count("Conception ") == 4, "nothing reached the locked log");
         CHECK(save(VILLAGE) == 1, "the next save succeeds");
-        CHECK(read_log() && count("Conception ") == 4, "both held conceptions are written after it");
-        CHECK(strstr(logtext, "Conception 3\r\n  Mother: Napa\r\n") != NULL
-              && strstr(logtext, "Conception 4\r\n  Mother: Lomai\r\n") != NULL,
+        CHECK(read_log() && count("Conception ") == 6, "both held conceptions are written after it");
+        CHECK(strstr(logtext, "Conception 5\r\n  Mother: Napa\r\n") != NULL
+              && strstr(logtext, "Conception 6\r\n  Mother: Lomai\r\n") != NULL,
               "in the order they happened");
         CHECK(count("Village: ") == 1, "still exactly one header");
     }
 
-    printf("-- Start Over: a new tribe while the old header is still published --\n");
+    printf("-- Start Over: a simulation, then a new tribe, while the old header is still published --\n");
+    memset(records, 0, BASE + SLOTS * STRIDE);
+    villager(0, "Moana", 470, 5, 5);
+    villager(1, "Rua", 460, 6, 6);
+    conceive(0, 1);
+    CHECK(write(3, records, rec(0), rec(1)) == 1, "a simulated conception is accepted");
+    memset(records, 0, BASE + SLOTS * STRIDE);
+    villager(0, "Vaea", 420, 11, 5);
+    villager(1, "Tane", 450, 3, 17);
+    conceive(0, 1);
+    CHECK(write(3, records, rec(0), rec(1)) == 1, "the new tribe's conception is accepted");
+    CHECK(read_log() && count("Conception ") == 6 && strstr(logtext, "Vaea") == NULL
+          && strstr(logtext, "Moana") == NULL,
+          "neither is written under the OLD tribe's header");
+    vv_village_publish(VILLAGE2);
+    CHECK(save(VILLAGE2) == 1, "the new tribe's first save");
+    CHECK(read_log() && count("Conception ") == 6 && strstr(logtext, "Vaea") == NULL,
+          "the old tribe's log is untouched");
+    CHECK(read_log_n(2) && strncmp(logtext, "Village: Second Tribe (Save 2)\r\n", 32) == 0,
+          "the new tribe gets its own headed log");
+    CHECK(strstr(logtext, "  Mother: Vaea\r\n") != NULL, "its conception is filed there");
+    CHECK(strstr(logtext, "Moana") == NULL, "the simulated one is dropped");
+
+    printf("-- all five games: a replaced table is dropped; growth, de-aging, restyling and renames are not --\n");
     {
-        int s2;
-        /* The table is rebuilt for the new tribe; nothing publishes a village
-           until it is saved, so the recalled header is still the old one. */
-        for (s2 = 0; s2 < 20; ++s2) {
-            memset(rec(s2), 0, STRIDE);
+        /* Each game's own record geometry, from the export DLL's GAME_LAYOUTS. */
+        static const struct {
+            int game; unsigned int stride, slots, base, active, age, head, body,
+                name, cap, likes, father_of, mother_of, parent_cap;
+            const char *title;
+        } G[5] = {
+            {1, 0x3D8, 256, 0, 0x28, 0x348, 0x360, 0x364, 0x370, 0x1C, 0x398, 0, 0, 0,
+             "Virtual Villagers 1 Births and Conceptions Log"},
+            {2, 0xE48C, 256, 0, 0x30, 0x530, 0x548, 0x54C, 0x564, 0x18, 0x5F0, 0x57D, 0x596, 0x18,
+             "Virtual Villagers 2 Births and Conceptions Log"},
+            {3, 0x1F8C, 150, 0x14, 0xF10, 0xDC4, 0xDF0, 0xDF4, 0xDD4, 0x19, 0xFB4, 0xDF8, 0xE11, 0x19,
+             "Virtual Villagers 3 Births and Conceptions Log"},
+            {4, 0x2E3C, 150, 0x44, 0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1E60, 0x1BC0, 0x1BD9, 0x19,
+             "Virtual Villagers 4 Births and Conceptions Log"},
+            {5, 0x2F44, 150, 0x48, 0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1F5C, 0x1BC0, 0x1BD9, 0x19,
+             "Virtual Villagers 5 Births and Conceptions Log"},
+        };
+        int k;
+        for (k = 0; k < 5; ++k) {
+            size_t bytes = G[k].base + G[k].slots * G[k].stride;
+            unsigned char *t = (unsigned char *)calloc(1, bytes);
+            char village[64], path[MAX_PATH], text[1 << 14];
+            FILE *f;
+            size_t n;
+#define GREC(i) (t + G[k].base + (i) * G[k].stride)
+#define GPUT(i, nm, a, h, b, pa, ma) do { unsigned char *r_ = GREC(i); \
+                r_[G[k].active] = 1; *(int *)(r_ + G[k].age) = (a); \
+                *(int *)(r_ + G[k].head) = (h); *(int *)(r_ + G[k].body) = (b); \
+                memset(r_ + G[k].name, 0, G[k].cap); strncpy((char *)r_ + G[k].name, (nm), G[k].cap); \
+                *(int *)(r_ + G[k].likes) = -1; \
+                if (G[k].father_of) { strncpy((char *)r_ + G[k].father_of, (pa), G[k].parent_cap); \
+                                      strncpy((char *)r_ + G[k].mother_of, (ma), G[k].parent_cap); } } while (0)
+            /* The game's pre-tribe simulation. */
+            GPUT(0, "Makawa", 487, 24, 20, "", "");
+            GPUT(1, "Kao", 434, 22, 2, "", "");
+            GPUT(2, "Tufi", 453, 22, 3, "", "");
+            (void)write(G[k].game, t, GREC(0), GREC(1));
+            /* The tribe replaces the whole table. */
+            memset(t, 0, bytes);
+            GPUT(0, "Kuka", 501, 7, 2, "", "");
+            GPUT(1, "Yap", 565, 24, 0, "", "");
+            GPUT(2, "Epeli", 0, 16, 15, "Yap", "Kuka");
+            GPUT(3, "Paka", 542, 9, 2, "", "");
+            (void)write(G[k].game, t, GREC(0), GREC(1));
+            (void)birth(G[k].game, "", -1, -1, "Kuka", 7, 2, "Yap", 24, 0, GREC(2));
+            /* Before the save: Epeli grows, takes up a like, is de-aged by an
+               event and restyled; the player renames Kuka. */
+            *(int *)(GREC(2) + G[k].age) = 60;
+            *(int *)(GREC(2) + G[k].likes) = 5;
+            *(int *)(GREC(2) + G[k].head) = 9;
+            *(int *)(GREC(2) + G[k].body) = 11;
+            memset(GREC(0) + G[k].name, 0, G[k].cap);
+            strncpy((char *)GREC(0) + G[k].name, "Kukana", G[k].cap);
+            _snprintf(village, sizeof village, "Village: Game %d Tribe (Save 3)\n", G[k].game);
+            vv_village_publish(village);
+            if (ensure_village != NULL) {
+                (void)ensure_village(G[k].game, village, t);
+            } else {
+                (void)ensure(G[k].game, village);    /* a DLL that predates it */
+            }
+            /* The village's own log: another village may already own log 1
+               (VV3's earlier phases do), and this one then rolls to a new file. */
+            text[0] = 0;
+            {
+                int number;
+                for (number = 1; number <= 5
+                     && strncmp(text, village, strlen(village) - 1) != 0; ++number) {
+                    _snprintf(path, MAX_PATH, "%s\\%s %d.txt", folder, G[k].title, number);
+                    text[0] = 0;
+                    f = fopen(path, "rb");
+                    if (f) { n = fread(text, 1, sizeof text - 1, f); text[n] = 0; fclose(f); }
+                }
+            }
+            CHECK(strncmp(text, "Village: Game ", 14) == 0, "VV%d: the log opens with the Village header", G[k].game);
+            CHECK(strstr(text, "  Mother: Kuka\r\n") != NULL,
+                  "VV%d: the tribe's conception is logged although the mother was renamed", G[k].game);
+            CHECK(strstr(text, "Birth\r\n  Child: Epeli\r\n") != NULL,
+                  "VV%d: a child who grew, took up a like, was de-aged and restyled is logged", G[k].game);
+            CHECK(strstr(text, "Makawa") == NULL,
+                  "VV%d: the simulation's conception is dropped (its table was replaced)", G[k].game);
+#undef GPUT
+#undef GREC
+            free(t);
         }
-        villager(0, "Vaea", 420, 11, 5);
-        villager(1, "Tane", 450, 3, 17);
-        villager(2, "Moana", 470, 5, 5);      /* simulated before the tribe */
-        villager(3, "Rua", 460, 6, 6);
-        conceive(2, 3);
-        CHECK(write(3, records, rec(2), rec(3)) == 1, "a simulated conception is accepted");
-        conceive(0, 1);
-        CHECK(write(3, records, rec(0), rec(1)) == 1, "the new tribe's conception is accepted");
-        CHECK(read_log() && count("Conception ") == 4 && strstr(logtext, "Vaea") == NULL
-              && strstr(logtext, "Moana") == NULL,
-              "neither is written under the OLD tribe's header");
-        villager(2, "Hina", 380, 1, 2);        /* the tribe replaces the simulation */
-        vv_village_publish(VILLAGE2);
-        CHECK(save(VILLAGE2) == 1, "the new tribe's first save");
-        CHECK(read_log() && count("Conception ") == 4 && strstr(logtext, "Vaea") == NULL,
-              "the old tribe's log is untouched");
-        CHECK(read_log_n(2) && strncmp(logtext, "Village: Second Tribe (Save 2)\r\n", 32) == 0,
-              "the new tribe gets its own headed log");
-        CHECK(strstr(logtext, "  Mother: Vaea\r\n") != NULL, "its conception is filed there");
-        CHECK(strstr(logtext, "Moana") == NULL, "the simulated one is dropped");
     }
 
     FreeLibrary(dll);
