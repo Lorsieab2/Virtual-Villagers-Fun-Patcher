@@ -195,8 +195,8 @@ class ParentageTrampolinesDoNotNestCallsTests(unittest.TestCase):
                     and ins.op_str == hex(conception))
                 pushes = [ins.op_str for ins in stream[:call_index]
                           if ins.mnemonic == "push"]
-                if len(pushes) == 8:
-                    total = {4: "0x4d6de8", 5: "0x51d360"}[game]
+                if game == 4:
+                    total = "0x4d6de8"
                     self.assertEqual(pushes,
                                      [f"dword ptr [{total}]"]
                                      + ["dword ptr [esp + 0x20]"] * 7)

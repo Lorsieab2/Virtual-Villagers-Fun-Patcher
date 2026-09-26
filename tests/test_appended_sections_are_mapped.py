@@ -210,8 +210,8 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
             call_first, "%s: trampoline makes no direct call" % where)
         pushes = [item.op_str for item in listing[:call_first]
                   if item.mnemonic == "push"]
-        if len(pushes) == 8:
-            total = {4: "0x4d6de8", 5: "0x51d360"}[game]
+        if game == 4:
+            total = "0x4d6de8"
             expected = ["dword ptr [%s]" % total] + [
                 "dword ptr [esp + 0x20]"] * 7
         else:
