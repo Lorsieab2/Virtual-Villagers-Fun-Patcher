@@ -2115,6 +2115,12 @@ static int saved_tribe_still_loaded(int game_id) {
     return same * 2 > saved_count;
 }
 
+/* What append_record reports. A record that fails with its file restored is
+   safe to retry; one whose file could not be restored is not. */
+#define APPEND_WRITTEN        1
+#define APPEND_RETRY          0
+#define APPEND_UNRECOVERABLE (-1)
+
 /* Append one rendered record to this village's log, heading a new file.
    `text` is everything after the "Conception <n>" line for a conception, and
    the whole block for a birth. `village` may be empty only when there is no
@@ -2167,11 +2173,18 @@ static int append_record(
     }
     if (!written) {
         /* The caller keeps the record and retries it, so whatever part of it
-           reached the disk must go, or the retry duplicates it. */
-        (void)roll_back_append(path, original_size);
-        return 0;
+           reached the disk must go, or the retry duplicates it.
+
+           If the file cannot be put back, its state is unknown -- part of
+           this record may be on disk -- and a retry could only add a second
+           copy. Codex (#449 review) found that failure was being ignored. So
+           that case is reported separately, and the caller does NOT retry. */
+        if (!roll_back_append(path, original_size)) {
+            return APPEND_UNRECOVERABLE;
+        }
+        return APPEND_RETRY;
     }
-    return 1;
+    return APPEND_WRITTEN;
 }
 
 /* Write every held record for this game under `village`, dropping any whose
@@ -2194,10 +2207,15 @@ static void flush_pending(int game_id, const char *village) {
         if (entry->game_id == game_id && !stopped) {
             if (!still_the_same_villager(g, entry)) {
                 release = 1;                  /* not this village's villager */
-            } else if (append_record(g, village, entry->is_birth, entry->text)) {
-                release = 1;                  /* written */
             } else {
-                stopped = 1;                  /* keep it and all after it */
+                int outcome = append_record(g, village, entry->is_birth, entry->text);
+                if (outcome == APPEND_RETRY) {
+                    stopped = 1;              /* keep it and all after it */
+                } else {
+                    /* Written, or unrecoverable: retrying the latter could
+                       only duplicate what may already be on disk. */
+                    release = 1;
+                }
             }
         }
         if (release) {
@@ -2265,13 +2283,19 @@ static int emit_record(
         /* Written now only when nothing is still waiting and the write works.
            Otherwise it queues BEHIND what is waiting, so a failed write can
            neither lose it nor let it overtake an earlier record. */
-        if (pending_count == 0 && append_record(g, village, is_birth, text)) {
-            return 1;
+        if (pending_count == 0) {
+            int outcome = append_record(g, village, is_birth, text);
+            if (outcome == APPEND_WRITTEN) {
+                return 1;
+            }
+            if (outcome == APPEND_UNRECOVERABLE) {
+                return 0;             /* never queued: a retry could duplicate */
+            }
         }
         return hold_record(game_id, is_birth, subject, text);
     }
     if (village[0] == '\0' && !statistics_publisher_present()) {
-        return append_record(g, village, is_birth, text);
+        return append_record(g, village, is_birth, text) == APPEND_WRITTEN;
     }
     /* No village yet, or a recalled one the loaded tribe cannot vouch for. */
     return hold_record(game_id, is_birth, subject, text);

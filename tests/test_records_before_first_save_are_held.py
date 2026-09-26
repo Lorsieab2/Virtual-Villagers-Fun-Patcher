@@ -64,12 +64,19 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         """#449 review: a held record is released only once it is on disk."""
         flush = function("flush_pending")
         self.assertIn(
-            "} else if (append_record(g, village, entry->is_birth, entry->text)) {", flush)
+            "int outcome = append_record(g, village, entry->is_birth, entry->text);", flush)
+        # Only a failure whose file was restored is retried: one that could not
+        # be rolled back is released, because a retry could duplicate it.
+        self.assertIn("if (outcome == APPEND_RETRY) {", flush)
         self.assertIn("stopped = 1;", flush)
         self.assertIn("pending[kept++] = *entry;", flush)
         emit = function("emit_record")
-        self.assertIn(
-            "if (pending_count == 0 && append_record(g, village, is_birth, text)) {", emit)
+        self.assertIn("int outcome = append_record(g, village, is_birth, text);", emit)
+        self.assertIn("if (outcome == APPEND_UNRECOVERABLE) {", emit)
+        append = function("append_record")
+        self.assertIn("if (!roll_back_append(path, original_size)) {", append)
+        self.assertIn("return APPEND_UNRECOVERABLE;", append)
+        self.assertIn("return APPEND_RETRY;", append)
 
     def test_the_first_save_writes_what_was_held(self) -> None:
         source = SOURCE.read_text(encoding="utf-8")
@@ -120,7 +127,7 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         self.assertIn("original_size = log_file_size(path);", append)
         self.assertLess(append.index("original_size = log_file_size(path);"),
                         append.index('file = _wfopen(path, L"a");'))
-        self.assertIn("(void)roll_back_append(path, original_size);", append)
+        self.assertIn("if (!roll_back_append(path, original_size)) {", append)
         roll = function("roll_back_append")
         self.assertIn("SetEndOfFile(handle)", roll)
 
