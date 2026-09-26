@@ -34,7 +34,7 @@ CASES = {
         "Virtual Villagers - The Tree of Life.exe",
         "vv4",
         "vv4_write_parentage_log",
-        0x00460A2E,
+        0x0045E8E4,     # the conception routine's success exit
         0x0073F000,
         0x0045E7B0,
     ),
@@ -42,7 +42,7 @@ CASES = {
         "Virtual Villagers - New Believers.exe",
         "vv5",
         "vv5_write_parentage_log",
-        0x00467DBE,
+        0x00465F34,     # the conception routine's success exit
         0x007C9000,
         0x00465E00,
     ),
@@ -158,13 +158,14 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
                         % (game, mode),
                     )
 
-                    # The installed hook must reach it, and the trampoline there
-                    # must still perform the call it stole.
+                    # The installed hook must reach it: a JMP from the conception
+                    # routine's success exit (the hook no longer replaces a call;
+                    # see tests/test_vv45_every_conception_path_is_logged.py).
                     hook_file = _va_to_file(sections, hook_va)
                     self.assertIsNotNone(hook_file)
                     call = data[hook_file : hook_file + 5]
                     self.assertEqual(
-                        call[0], 0xE8, "VV%d %s: hook is not a call" % (game, mode)
+                        call[0], 0xE9, "VV%d %s: hook is not a jmp" % (game, mode)
                     )
                     target = hook_va + 5 + struct.unpack_from("<i", call, 1)[0]
                     self.assertEqual(target, page_va)
@@ -178,143 +179,35 @@ class AppendedSectionsAreMappedTests(unittest.TestCase):
                     )
 
     def _check_trampoline(self, game, mode, data, target_file, target, conception):
-        """Decode the trampoline and check what it does, not how it encodes it.
+        """Decode the page and check what it does, not how it encodes it.
 
-        Asserted as behaviour rather than as a byte pattern, so a correct change
-        to the prologue does not fail a test it did not break -- pinning the
-        first four bytes did exactly that when ebx preservation was added.
+        The page runs inside the conception routine's own frame, entered by a
+        JMP from its success exit. It must skip village seeding (bl, the
+        routine's seventh argument), recover the father from the name argument,
+        never call the conception routine, and end by replaying the stolen exit
+        and jumping back into the routine.
         """
         where = "VV%d %s" % (game, mode)
         md = Cs(CS_ARCH_X86, CS_MODE_32)
-        # 0x100, not 0x60: the trampoline re-pushes the callee's seven
-        # arguments before the stolen call, so its epilogue sits further in
-        # than it did when the page merely wrapped the call.
         listing = list(md.disasm(data[target_file : target_file + 0x100], target))
         self.assertTrue(listing, "%s: trampoline did not disassemble" % where)
         decoded = [(item.mnemonic, item.op_str) for item in listing]
-
-        # Only a checked snapshot and the seven copied arguments may precede
-        # the stolen call.
-        #
-        # The hook replaces a call, so the game's call already pushed a return
-        # address. A stray push between that return address and the seven
-        # copied arguments shifts the callee's frame. A conception-total
-        # snapshot is safe only when all seven copies read one dword farther
-        # down the original frame.
-        call_first = next(
-            (i for i, item in enumerate(listing)
-             if item.mnemonic == "call" and item.op_str.startswith("0x")),
-            None,
-        )
-        self.assertIsNotNone(
-            call_first, "%s: trampoline makes no direct call" % where)
-        pushes = [item.op_str for item in listing[:call_first]
-                  if item.mnemonic == "push"]
-        if game in (4, 5):
-            total = {4: "0x4d6de8", 5: "0x51d360"}[game]
-            expected = ["dword ptr [%s]" % total] + [
-                "dword ptr [esp + 0x20]"] * 7
-        else:
-            expected = ["dword ptr [esp + 0x1c]"] * 7
-        self.assertEqual(pushes, expected,
-                         "%s: copied argument frame is shifted" % where)
-        if game in (4, 5):
-            cleanup = next(
-                (item for item in listing[call_first + 1:call_first + 8]
-                 if item.mnemonic == "lea"
-                 and item.op_str.replace(" ", "") == "esp,[esp+4]"),
-                None,
-            )
-            self.assertIsNotNone(
-                cleanup, "%s: snapshot dword must be removed after the call" % where)
-
-        # The trampoline impersonates the routine it replaces, so it must clean
-        # the caller's arguments itself with the same `ret <n>`. A bare `ret`
-        # would strand them.
-        popad = next(
-            (i for i, item in enumerate(decoded) if item[0] in ("popal", "popad")),
-            None,
-        )
-        self.assertIsNotNone(popad, "%s: trampoline never restores the frame" % where)
-        cleaning_ret = next(
-            (item for item in listing
-             if item.mnemonic == "ret" and item.op_str),
-            None,
-        )
-        self.assertIsNotNone(
-            cleaning_ret,
-            "%s: trampoline must clean the caller's arguments with ret <n>"
-            % where,
-        )
-
-        # The flag is read into ebx AFTER the stolen call.
-        #
-        # This previously required the opposite, on the premise that the
-        # callee cleans its own arguments so they no longer exist afterwards.
-        # That was true while the page WRAPPED the call. It is false now that
-        # the page impersonates the routine: the callee pops only the copies
-        # this page re-pushed, and the game's own seven arguments survive
-        # untouched -- this page cleans those itself with its `ret 0x1C`.
-        #
-        # Reading afterwards is what lets ebx be preserved. Saving the
-        # caller's ebx before the call would put a dword between esp and the
-        # callee's arguments and shift its esp-relative reads, which is the
-        # defect this whole page exists to avoid; and the flag cannot be read
-        # into ebx before saving ebx, because the read destroys it. Doing both
-        # after the call resolves that, and the displacement accounts for the
-        # push: the seventh argument sits one dword higher.
-        call_index = next(
-            (
-                i
-                for i, item in enumerate(listing)
-                if item.mnemonic == "call" and item.op_str.startswith("0x")
-            ),
-            None,
-        )
-        self.assertIsNotNone(call_index, "%s: trampoline makes no direct call" % where)
-        flag_read = next(
-            (
-                i
-                for i, item in enumerate(listing)
-                if item.mnemonic == FLAG_READ_MNEMONIC
-                and item.op_str.startswith("ebx, dword ptr [esp")
-            ),
-            None,
-        )
-        self.assertIsNotNone(flag_read, "%s: trampoline never reads the flag" % where)
-        self.assertGreater(
-            flag_read,
-            call_index,
-            "%s: the flag must be read after the call, so that saving ebx "
-            "cannot shift the callee's argument frame" % where,
-        )
-
-        # And it must read the GAME's surviving argument, one dword above its
-        # entry displacement to account for the pushed ebx.
-        save_ebx = next(
-            (i for i, item in enumerate(decoded) if item == ("push", "ebx")),
-            None,
-        )
-        self.assertIsNotNone(save_ebx, "%s: the caller's ebx is never saved" % where)
-        self.assertGreater(
-            save_ebx,
-            call_index,
-            "%s: ebx is saved before the call, which shifts the frame" % where,
-        )
-        self.assertLess(
-            save_ebx,
-            flag_read,
-            "%s: the flag read destroys ebx, so ebx must be saved first"
-            % where,
-        )
-
-        # And the stolen call still goes where it went before the hook.
-        self.assertEqual(
-            int(listing[call_index].op_str, 16),
-            conception,
-            "%s: trampoline does not perform the stolen call" % where,
-        )
-
+        self.assertEqual(decoded[0], ("pushal", ""), "%s: frame not saved first" % where)
+        self.assertEqual(decoded[1], ("test", "bl, bl"),
+                         "%s: seeding must be checked before anything is logged" % where)
+        self.assertIn(("sub", "edx, 0x1b9c"), decoded,
+                      "%s: the father is not taken from the name argument" % where)
+        self.assertNotIn(("call", hex(conception)), decoded,
+                         "%s: the page must never call the conception routine" % where)
+        popad = decoded.index(("popal", ""))
+        resume = {4: 0x45E8EE, 5: 0x465F3E}[game]
+        reject = {4: 0x45E922, 5: 0x465F44}[game]
+        self.assertEqual(decoded[popad + 1], ("test", "bl, bl"))
+        self.assertEqual(decoded[popad + 2], ("jne", hex(reject)))
+        self.assertEqual(decoded[popad + 3][0], "mov")
+        self.assertTrue(decoded[popad + 3][1].endswith("dword ptr [esi + 0x1c50]"))
+        self.assertEqual(decoded[popad + 4], ("jmp", hex(resume)),
+                         "%s: the page must resume the routine" % where)
 
 
 if __name__ == "__main__":
