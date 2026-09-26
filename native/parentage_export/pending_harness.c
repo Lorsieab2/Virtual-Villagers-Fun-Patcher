@@ -203,6 +203,22 @@ static int count(const char *needle) {
     return n;
 }
 
+/* Whether the record containing `marker` in `log` carries the Note line:
+   searched from the marker to the record's closing blank line. -1 when the
+   marker is not there at all. */
+static int noted_in(const char *log, const char *marker) {
+    const char *at = strstr(log, marker);
+    const char *end;
+    const char *note;
+    if (at == NULL) {
+        return -1;
+    }
+    end = strstr(at, "\r\n\r\n");
+    note = strstr(at, "  Note: Recorded before this village was saved");
+    return note != NULL && (end == NULL || note < end);
+}
+static int noted(const char *marker) { return noted_in(logtext, marker); }
+
 int main(int argc, char **argv) {
     HMODULE dll;
     write_t write;
@@ -315,6 +331,15 @@ int main(int argc, char **argv) {
     CHECK(strstr(logtext, "Birth\r\n  Child: Samoa\r\n") != NULL,
           "a child de-aged and restyled before the save is logged");
     CHECK(strstr(logtext, "Conception 5") < strstr(logtext, "Birth"), "held records keep their order");
+    CHECK(noted("  Mother: Makawa\r\n") == 1 && noted("  Mother: Tufi\r\n") == 1,
+          "the simulation's records are labelled with the Note");
+    CHECK(noted("  Mother: Tikina\r\n") == 0 && noted("  Mother: Nui\r\n") == 0
+          && noted("  Mother: Ika\r\n") == 0 && noted("  Child: Epeli\r\n") == 0
+          && noted("  Child: Samoa\r\n") == 0 && noted("  Child: Mahu\r\n") == 0,
+          "the tribe's own records are not labelled");
+    CHECK(count("  Note: ") == 2, "exactly two records are labelled");
+    CHECK(strstr(logtext, "tribe left unsaved by Start Over.\r\n\r\nConception 3") != NULL,
+          "the Note closes its record, before the blank line");
 
     printf("-- after the first save: records are written at once --\n");
     conceive(7, 1);
@@ -375,6 +400,8 @@ int main(int argc, char **argv) {
     CHECK(strstr(logtext, "  Mother: Moana\r\n") != NULL
           && strstr(logtext, "  Mother: Moana\r\n") < strstr(logtext, "  Mother: Vaea\r\n"),
           "the simulated one is kept too, before it, in order");
+    CHECK(noted("  Mother: Moana\r\n") == 1, "...and labelled");
+    CHECK(noted("  Mother: Vaea\r\n") == 0, "the new tribe's own record is not");
 
     printf("-- all five games: nothing is dropped -- not a replaced table, not renamed and restyled founders --\n");
     {
@@ -469,6 +496,12 @@ int main(int argc, char **argv) {
             CHECK(strstr(text, "  Mother: Makawa\r\n") != NULL
                   && strstr(text, "  Mother: Makawa\r\n") < strstr(text, "  Mother: Kuka\r\n"),
                   "VV%d: the simulation's conception is kept too, in order", G[k].game);
+            CHECK(noted_in(text, "  Mother: Makawa\r\n") == 1,
+                  "VV%d: ...and labelled", G[k].game);
+            CHECK(noted_in(text, "  Mother: Kuka\r\n") == 0
+                  && noted_in(text, "  Child: Epeli\r\n") == 0,
+                  "VV%d: the tribe's records are not labelled though every founder was renamed and restyled",
+                  G[k].game);
 #undef GPUT
 #undef GREC
             free(t);

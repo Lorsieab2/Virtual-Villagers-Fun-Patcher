@@ -1895,6 +1895,17 @@ static int is_record_slot(
 
    The records are held only while no save can vouch for the loaded tribe, and
    the queue grows as needed rather than refusing a record past a limit.
+
+   A HELD RECORD FROM OTHER VILLAGERS IS LABELLED, NOT DROPPED. The owner asked
+   for records the tribe cannot vouch for to be told apart. When a record is
+   held, the villager table is snapshotted; at the save, if hardly anyone in
+   that snapshot is still in their slot (the loose rule below: not even a
+   quarter keep any one of name, looks or parents), the record is written with
+   a closing "Note:" line. That is the game's pre-tribe simulation, or a tribe
+   left unsaved by Start Over. The loose rule is deliberate: renaming and
+   restyling every founder must not label the tribe's own records, and the
+   price -- a rare simulated record matching by chance and going unlabelled --
+   costs nothing but the label.
    A record still held when the process exits was never followed by a save;
    writing it from DllMain at exit could hang the game's shutdown, so it is
    not attempted.
@@ -1911,6 +1922,7 @@ static int is_record_slot(
 struct pending_record {
     int game_id;
     int is_birth;
+    int tribe;          /* index into held_tribes; -1 = not snapshotted */
     char *text;
 };
 
@@ -1981,6 +1993,7 @@ static const struct { unsigned int rva; int is_pointer; } VILLAGER_TABLE[6] = {
 };
 
 #define TRIBE_SLOTS 256
+#define TRIBES_HELD 8
 
 struct tribe_member {
     int slot;
@@ -1997,6 +2010,8 @@ struct tribe {
     struct tribe_member member[TRIBE_SLOTS];
 };
 
+static struct tribe *held_tribes;       /* the tables held records were written from */
+static int held_tribe_count;
 static struct tribe *saved_tribe;       /* the tribe at the last save */
 static int saved_valid;
 static struct tribe *scratch_tribe;
@@ -2051,9 +2066,15 @@ static int take_tribe(int game_id, const unsigned char *records, struct tribe *o
         m->body = *(const int *)(record + g->body);
         m->father_of[0] = '\0';
         m->mother_of[0] = '\0';
-        if (g->parent_father_name != 0u) {
+        /* An empty parent field stays EMPTY here. copy_name_field renders
+           it as its "(unnamed)" placeholder, which made every founder "share
+           parents" with every other founder and with the pre-tribe
+           simulation's villagers. */
+        if (g->parent_father_name != 0u && record[g->parent_father_name] != 0) {
             copy_name_field(record + g->parent_father_name, m->father_of,
                             sizeof(m->father_of), g->parent_name_capacity);
+        }
+        if (g->parent_mother_name != 0u && record[g->parent_mother_name] != 0) {
             copy_name_field(record + g->parent_mother_name, m->mother_of,
                             sizeof(m->mother_of), g->parent_name_capacity);
         }
@@ -2061,9 +2082,12 @@ static int take_tribe(int game_id, const unsigned char *records, struct tribe *o
     return 1;
 }
 
-/* A villager still counts when at least two of name, looks and own parents
-   are unchanged -- a rename, a de-aging or a restyle moves only one. */
-static int still_counts(const struct tribe_member *then, const struct tribe_member *now) {
+/* A villager still counts when at least `needed` of name, looks and own
+   parents are unchanged (TRIBE_STRICT or TRIBE_LOOSE, below). Parents count
+   only for a villager who has them on record: founders, and everyone in VV1,
+   have none. */
+static int still_counts(const struct tribe_member *then, const struct tribe_member *now,
+                        int needed) {
     int same = 0;
     if (strcmp(then->name, now->name) == 0) {
         ++same;
@@ -2076,12 +2100,19 @@ static int still_counts(const struct tribe_member *then, const struct tribe_memb
         && strcmp(then->mother_of, now->mother_of) == 0) {
         ++same;
     }
-    return same >= 2;
+    return same >= needed;
 }
+
+/* How many of name, looks and own parents must still match for a villager
+   to count. STRICT decides whether a record may go straight under the last
+   saved header (a wrong yes would misfile it). LOOSE decides only the label
+   (a wrong no would label the tribe's own record). */
+#define TRIBE_STRICT 2
+#define TRIBE_LOOSE  1
 
 /* Whether `now` is still the tribe `then` was: at least a quarter of then's
    villagers, and at least one, still count in the same slots. */
-static int same_tribe(const struct tribe *then, const struct tribe *now) {
+static int same_tribe(const struct tribe *then, const struct tribe *now, int needed) {
     int i = 0;
     int j = 0;
     int counted = 0;
@@ -2095,7 +2126,7 @@ static int same_tribe(const struct tribe *then, const struct tribe *now) {
         } else if (then->member[i].slot > now->member[j].slot) {
             ++j;
         } else {
-            if (still_counts(&then->member[i], &now->member[j])) {
+            if (still_counts(&then->member[i], &now->member[j], needed)) {
                 ++counted;
             }
             ++i;
@@ -2107,10 +2138,29 @@ static int same_tribe(const struct tribe *then, const struct tribe *now) {
 
 static int tribes_ready(void) {
     if (saved_tribe == NULL) {
+        held_tribes = (struct tribe *)calloc(TRIBES_HELD, sizeof(*held_tribes));
         saved_tribe = (struct tribe *)calloc(1, sizeof(*saved_tribe));
         scratch_tribe = (struct tribe *)calloc(1, sizeof(*scratch_tribe));
     }
-    return saved_tribe != NULL && scratch_tribe != NULL;
+    return held_tribes != NULL && saved_tribe != NULL && scratch_tribe != NULL;
+}
+
+/* The table a record held now was written from: the last snapshot if the
+   table still holds it, else a new one. -1 when it cannot be read or eight
+   tables are already held; such a record is simply written unlabelled. */
+static int current_tribe_index(int game_id, const unsigned char *records) {
+    if (!tribes_ready() || !take_tribe(game_id, records, scratch_tribe)) {
+        return -1;
+    }
+    if (held_tribe_count > 0
+        && same_tribe(&held_tribes[held_tribe_count - 1], scratch_tribe, TRIBE_STRICT)) {
+        return held_tribe_count - 1;
+    }
+    if (held_tribe_count >= TRIBES_HELD) {
+        return -1;
+    }
+    memcpy(&held_tribes[held_tribe_count], scratch_tribe, sizeof(*scratch_tribe));
+    return held_tribe_count++;
 }
 
 /* ---- Which tribe is loaded ------------------------------------------------
@@ -2142,7 +2192,7 @@ static int saved_tribe_still_loaded(int game_id) {
     if (!take_tribe(game_id, NULL, scratch_tribe)) {
         return 0;
     }
-    return same_tribe(saved_tribe, scratch_tribe);
+    return same_tribe(saved_tribe, scratch_tribe, TRIBE_STRICT);
 }
 
 /* What append_record reports. A record that fails with its file restored is
@@ -2217,6 +2267,33 @@ static int append_record(
     return APPEND_WRITTEN;
 }
 
+/* The closing line of a record whose villagers were not in the village when
+   it was saved. */
+static const char UNVOUCHED_NOTE[] =
+    "  Note: Recorded before this village was saved, among villagers who were\n"
+    "    not in it when it was -- likely the game's pre-tribe simulation, or a\n"
+    "    tribe left unsaved by Start Over.\n";
+
+/* `text` with UNVOUCHED_NOTE before its closing blank line; NULL if out of
+   memory, in which case the record is written unlabelled. */
+static char *label_record(const char *text) {
+    size_t length = strlen(text);
+    size_t body = length;
+    char *out;
+
+    if (body > 0 && text[body - 1] == '\n') {
+        --body;                           /* keep the closing blank line last */
+    }
+    out = (char *)malloc(length + sizeof(UNVOUCHED_NOTE));
+    if (out == NULL) {
+        return NULL;
+    }
+    memcpy(out, text, body);
+    memcpy(out + body, UNVOUCHED_NOTE, sizeof(UNVOUCHED_NOTE) - 1);
+    memcpy(out + body + sizeof(UNVOUCHED_NOTE) - 1, text + body, length - body + 1);
+    return out;
+}
+
 /* Write every held record for this game under `village`, in order. Called once
    the village is known.
 
@@ -2232,12 +2309,24 @@ static void flush_pending(int game_id, const char *village) {
     int i;
     int kept = 0;
     int stopped = 0;
+    int now_known = tribes_ready() && take_tribe(game_id, NULL, scratch_tribe);
 
     for (i = 0; i < pending_count; ++i) {
         struct pending_record *entry = &pending[i];
         int release = 0;
         if (entry->game_id == game_id && !stopped) {
-            int outcome = append_record(g, village, entry->is_birth, entry->text);
+            const char *text = entry->text;
+            char *labelled = NULL;
+            int outcome;
+            if (now_known && entry->tribe >= 0
+                && !same_tribe(&held_tribes[entry->tribe], scratch_tribe, TRIBE_LOOSE)) {
+                labelled = label_record(entry->text);
+                if (labelled != NULL) {
+                    text = labelled;
+                }
+            }
+            outcome = append_record(g, village, entry->is_birth, text);
+            free(labelled);
             if (outcome == APPEND_RETRY) {
                 stopped = 1;                  /* keep it and all after it */
             } else {
@@ -2252,10 +2341,14 @@ static void flush_pending(int game_id, const char *village) {
         }
     }
     pending_count = kept;
+    if (pending_count == 0) {
+        held_tribe_count = 0;             /* no held record refers to them now */
+    }
 }
 
 /* Queue a finished record behind any already held. */
-static int hold_record(int game_id, int is_birth, const char *text) {
+static int hold_record(int game_id, int is_birth, const unsigned char *records,
+                       const char *text) {
     struct pending_record *entry;
     size_t length;
 
@@ -2278,6 +2371,7 @@ static int hold_record(int game_id, int is_birth, const char *text) {
     memcpy(entry->text, text, length);
     entry->game_id = game_id;
     entry->is_birth = is_birth;
+    entry->tribe = current_tribe_index(game_id, records);
     ++pending_count;
     return 1;
 }
@@ -2313,13 +2407,13 @@ static int emit_record(
                 return 0;             /* never queued: a retry could duplicate */
             }
         }
-        return hold_record(game_id, is_birth, text);
+        return hold_record(game_id, is_birth, records, text);
     }
     if (village[0] == '\0' && !statistics_publisher_present()) {
         return append_record(g, village, is_birth, text) == APPEND_WRITTEN;
     }
     /* No village yet, or a recalled one the loaded tribe cannot vouch for. */
-    return hold_record(game_id, is_birth, text);
+    return hold_record(game_id, is_birth, records, text);
 }
 
 /* The full entry point. WriteParentageRecord below is the original three

@@ -17,11 +17,13 @@ villager no longer in its slot, then a tribe no longer matching) dropped real
 records, because no villager field is fixed for life, and the owner ruled:
 "no one should be dropped. nothing should be dropped."
 native/parentage_export/pending_harness.c drives the shipped DLL through that
-window and checks the log on disk. Of its sixty-seven checks, the v1.35.27 DLL
-fails thirty-three, v1.35.28's fails thirty (among them Epeli, the birth it
-dropped in the owner's VV3 tribe), and the whole-tribe DLL fails twenty (among
-them VV1's records once every founder is renamed and restyled). That is what
-makes it a regression test rather than a restatement of the fix.
+window and checks the log on disk. Records the tribe cannot vouch for (the
+pre-tribe simulation's) are written with a closing Note line. Of its
+eighty-three checks, v1.35.29's DLL fails nine (it adds no Note), the
+whole-tribe DLL thirty (among them VV1's records once every founder is renamed
+and restyled), v1.35.28's forty-five (among them Epeli, the birth it dropped in
+the owner's VV3 tribe) and v1.35.27's forty-eight. That is what makes it a
+regression test rather than a restatement of the fix.
 
 The harness needs the 32-bit MSVC toolchain, so it runs where that is installed
 and is skipped elsewhere. The static checks below run everywhere.
@@ -61,7 +63,7 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         emit = function("emit_record")
         known = emit.index("if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)) {")
         publisher = emit.index("if (village[0] == '\\0' && !statistics_publisher_present()) {")
-        held = emit.rindex("return hold_record(game_id, is_birth, text);")
+        held = emit.rindex("return hold_record(game_id, is_birth, records, text);")
         self.assertLess(known, publisher)
         self.assertLess(publisher, held,
                         "records must be held only when a publisher exists")
@@ -75,7 +77,7 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         """#449 review: a held record is released only once it is on disk."""
         flush = function("flush_pending")
         self.assertIn(
-            "int outcome = append_record(g, village, entry->is_birth, entry->text);", flush)
+            "outcome = append_record(g, village, entry->is_birth, text);", flush)
         # Only a failure whose file was restored is retried: one that could not
         # be rolled back is released, because a retry could duplicate it.
         self.assertIn("if (outcome == APPEND_RETRY) {", flush)
@@ -102,15 +104,41 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         unwritten is a write whose partial output could not be rolled back,
         where a retry could only duplicate it."""
         flush = function("flush_pending")
-        self.assertNotIn("same_tribe", flush)
-        self.assertNotIn("take_tribe", flush)
-        self.assertNotIn("->tribe", flush)
         self.assertEqual(flush.count("release = 1;"), 1,
                          "a record is released only after append_record")
         self.assertLess(flush.index("append_record("), flush.index("release = 1;"))
+        # The tribe comparison may only LABEL the record, never skip it.
+        self.assertNotIn("continue", flush)
+        self.assertEqual(flush.count("append_record("), 1)
+
+    def test_a_record_the_tribe_cannot_vouch_for_is_labelled(self) -> None:
+        """The owner asked for records from other villagers (the pre-tribe
+        simulation, a tribe left unsaved by Start Over) to be told apart.
+
+        The label uses the LOOSE rule -- one of name, looks or parents -- so
+        renaming and restyling every founder cannot label the tribe's own
+        records."""
+        flush = function("flush_pending")
+        self.assertIn(
+            "!same_tribe(&held_tribes[entry->tribe], scratch_tribe, TRIBE_LOOSE)", flush)
+        self.assertIn("labelled = label_record(entry->text);", flush)
+        self.assertIn("outcome = append_record(g, village, entry->is_birth, text);", flush)
         source = SOURCE.read_text(encoding="utf-8")
-        self.assertNotIn("held_tribes", source)
-        self.assertNotIn("current_tribe_index", source)
+        self.assertIn("#define TRIBE_LOOSE  1", source)
+        self.assertIn("  Note: Recorded before this village was saved", source)
+        # The note goes before the record's closing blank line.
+        label = source[source.index("static char *label_record("):]
+        self.assertIn("--body;", label[:label.index("\n}")])
+        self.assertIn("entry->tribe = current_tribe_index(game_id, records);",
+                      function("hold_record"))
+
+    def test_an_empty_parent_is_not_a_shared_parent(self) -> None:
+        """copy_name_field renders an empty name as "(unnamed)", which made
+        every founder "share parents" with every other founder and with the
+        simulation's villagers. take_tribe reads the raw byte first."""
+        take = function("take_tribe")
+        self.assertIn("record[g->parent_father_name] != 0", take)
+        self.assertIn("record[g->parent_mother_name] != 0", take)
 
     def test_a_recalled_header_is_trusted_only_for_the_saved_tribe(self) -> None:
         """#449 review, P1: after Start Over the old tribe's header is still
@@ -120,12 +148,13 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         self.assertIn(
             "if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)) {", emit)
         still = function("saved_tribe_still_loaded")
-        self.assertIn("return same_tribe(saved_tribe, scratch_tribe);", still)
+        self.assertIn("return same_tribe(saved_tribe, scratch_tribe, TRIBE_STRICT);", still)
         # This decides only when and where a record is written. A wrong "not
         # the same" merely holds it to the next save; a wrong "the same" would
         # misfile it, so the stricter two-of-three rule stays.
         counts = function("still_counts")
-        self.assertIn("return same >= 2;", counts)
+        self.assertIn("return same >= needed;", counts)
+        self.assertIn("#define TRIBE_STRICT 2", SOURCE.read_text(encoding="utf-8"))
         self.assertNotIn("likes", counts)
         self.assertIn("return counted >= 1 && counted * 4 >= then->count;",
                       function("same_tribe"))
