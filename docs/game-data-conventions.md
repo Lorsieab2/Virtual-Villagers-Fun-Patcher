@@ -306,11 +306,14 @@ delays a record until the next save, never discards it.
 
 A held record from other villagers is labelled, not dropped (v1.35.30, at the
 owner's request): if hardly anyone from the table it was written from is still
-in their slot at the save -- not even a quarter keep any one of name, looks or
-parents -- the record closes with a "Note:" line naming the likely source, the
-pre-tribe simulation or a tribe left unsaved by Start Over. The label uses that
-loose rule so renamed and restyled founders never label the tribe's own
-records; a simulated record that matches by chance just goes unlabelled.
+in their slot at the save -- not even a quarter keep any one of name, looks,
+parents, or their likes and dislikes -- the record closes with a "Note:" line
+naming the likely source, the pre-tribe simulation or a tribe left unsaved by
+Start Over. The label uses that loose rule so renamed and restyled founders
+never label the tribe's own records: preferences are the one thing the player
+cannot edit, which matters for a tribe of founders only, who have no parents
+on record (Codex, #452). A simulated record that matches by chance just goes
+unlabelled.
 
 An empty name field reads back as the placeholder "(unnamed)". Code comparing
 villagers must treat an empty field as empty, or every founder "shares

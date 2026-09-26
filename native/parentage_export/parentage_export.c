@@ -2002,6 +2002,13 @@ struct tribe_member {
     int body;
     char father_of[MAX_NAME_BYTES];   /* the villager's own parents; empty in VV1 */
     char mother_of[MAX_NAME_BYTES];
+    /* A fingerprint of the likes and dislikes arrays, and whether there is
+       anything in them. The player cannot edit preferences, so for a founder
+       -- no parents on record -- renamed AND restyled before the first save,
+       they are what is left to recognise. They do change as villagers grow,
+       so they count only toward the label (TRIBE_LOOSE). Codex, #452. */
+    unsigned int preferences;
+    int has_preferences;
 };
 
 struct tribe {
@@ -2066,6 +2073,22 @@ static int take_tribe(int game_id, const unsigned char *records, struct tribe *o
         m->body = *(const int *)(record + g->body);
         m->father_of[0] = '\0';
         m->mother_of[0] = '\0';
+        m->preferences = 2166136261u;
+        m->has_preferences = 0;
+        if (g->likes != 0u && g->dislikes != 0u && g->preference_slots != 0u) {
+            unsigned int k;
+            for (k = 0; k < 2u * g->preference_slots; ++k) {
+                unsigned int base = k < g->preference_slots ? g->likes : g->dislikes;
+                int value = *(const int *)(record + base
+                                           + (k % g->preference_slots) * 4u);
+                if (value < 0) {
+                    value = -1;           /* every empty slot alike */
+                } else {
+                    m->has_preferences = 1;
+                }
+                m->preferences = (m->preferences ^ (unsigned int)value) * 16777619u;
+            }
+        }
         /* An empty parent field stays EMPTY here. copy_name_field renders
            it as its "(unnamed)" placeholder, which made every founder "share
            parents" with every other founder and with the pre-tribe
@@ -2081,6 +2104,13 @@ static int take_tribe(int game_id, const unsigned char *records, struct tribe *o
     }
     return 1;
 }
+
+/* How many of name, looks and own parents -- and, for LOOSE only, likes and
+   dislikes -- must still match for a villager to count. STRICT decides whether a record may go straight under the last
+   saved header (a wrong yes would misfile it). LOOSE decides only the label
+   (a wrong no would label the tribe's own record). */
+#define TRIBE_STRICT 2
+#define TRIBE_LOOSE  1
 
 /* A villager still counts when at least `needed` of name, looks and own
    parents are unchanged (TRIBE_STRICT or TRIBE_LOOSE, below). Parents count
@@ -2100,15 +2130,12 @@ static int still_counts(const struct tribe_member *then, const struct tribe_memb
         && strcmp(then->mother_of, now->mother_of) == 0) {
         ++same;
     }
+    if (needed <= TRIBE_LOOSE && then->has_preferences && now->has_preferences
+        && then->preferences == now->preferences) {
+        ++same;
+    }
     return same >= needed;
 }
-
-/* How many of name, looks and own parents must still match for a villager
-   to count. STRICT decides whether a record may go straight under the last
-   saved header (a wrong yes would misfile it). LOOSE decides only the label
-   (a wrong no would label the tribe's own record). */
-#define TRIBE_STRICT 2
-#define TRIBE_LOOSE  1
 
 /* Whether `now` is still the tribe `then` was: at least a quarter of then's
    villagers, and at least one, still count in the same slots. */

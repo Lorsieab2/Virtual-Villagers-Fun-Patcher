@@ -430,24 +430,24 @@ int main(int argc, char **argv) {
             FILE *f;
             size_t n;
 #define GREC(i) (t + G[k].base + (i) * G[k].stride)
-#define GPUT(i, nm, a, h, b, pa, ma) do { unsigned char *r_ = GREC(i); \
+#define GPUT(i, nm, a, h, b, pa, ma, lk) do { unsigned char *r_ = GREC(i); \
                 r_[G[k].active] = 1; *(int *)(r_ + G[k].age) = (a); \
                 *(int *)(r_ + G[k].head) = (h); *(int *)(r_ + G[k].body) = (b); \
                 memset(r_ + G[k].name, 0, G[k].cap); strncpy((char *)r_ + G[k].name, (nm), G[k].cap); \
-                *(int *)(r_ + G[k].likes) = -1; \
+                *(int *)(r_ + G[k].likes) = (lk); \
                 if (G[k].father_of) { strncpy((char *)r_ + G[k].father_of, (pa), G[k].parent_cap); \
                                       strncpy((char *)r_ + G[k].mother_of, (ma), G[k].parent_cap); } } while (0)
             /* The game's pre-tribe simulation. */
-            GPUT(0, "Makawa", 487, 24, 20, "", "");
-            GPUT(1, "Kao", 434, 22, 2, "", "");
-            GPUT(2, "Tufi", 453, 22, 3, "", "");
+            GPUT(0, "Makawa", 487, 24, 20, "", "", 1);
+            GPUT(1, "Kao", 434, 22, 2, "", "", 2);
+            GPUT(2, "Tufi", 453, 22, 3, "", "", 3);
             (void)write(G[k].game, t, GREC(0), GREC(1));
             /* The tribe replaces the whole table. */
             memset(t, 0, bytes);
-            GPUT(0, "Kuka", 501, 7, 2, "", "");
-            GPUT(1, "Yap", 565, 24, 0, "", "");
-            GPUT(2, "Epeli", 0, 16, 15, "Yap", "Kuka");
-            GPUT(3, "Paka", 542, 9, 2, "", "");
+            GPUT(0, "Kuka", 501, 7, 2, "", "", 4);
+            GPUT(1, "Yap", 565, 24, 0, "", "", 6);
+            GPUT(2, "Epeli", 0, 16, 15, "Yap", "Kuka", -1);
+            GPUT(3, "Paka", 542, 9, 2, "", "", 7);
             (void)write(G[k].game, t, GREC(0), GREC(1));
             (void)birth(G[k].game, "", -1, -1, "Kuka", 7, 2, "Yap", 24, 0, GREC(2));
             /* Before the save: Epeli grows, takes up a like, is de-aged by an
@@ -502,6 +502,45 @@ int main(int argc, char **argv) {
                   && noted_in(text, "  Child: Epeli\r\n") == 0,
                   "VV%d: the tribe's records are not labelled though every founder was renamed and restyled",
                   G[k].game);
+            /* Codex, #452: a tribe of founders ONLY -- no child to match --
+               every one renamed and restyled before the first save. Nothing
+               of name, looks or parents is left; their preferences, which the
+               player cannot edit, still recognise them. */
+            memset(t, 0, bytes);
+            GPUT(0, "Aru", 480, 3, 3, "", "", 8);
+            GPUT(1, "Bel", 470, 4, 4, "", "", 9);
+            GPUT(2, "Cim", 460, 5, 5, "", "", 10);
+            (void)write(G[k].game, t, GREC(0), GREC(1));
+            memset(GREC(0) + G[k].name, 0, G[k].cap);
+            strncpy((char *)GREC(0) + G[k].name, "Arua", G[k].cap);
+            memset(GREC(1) + G[k].name, 0, G[k].cap);
+            strncpy((char *)GREC(1) + G[k].name, "Bela", G[k].cap);
+            memset(GREC(2) + G[k].name, 0, G[k].cap);
+            strncpy((char *)GREC(2) + G[k].name, "Cima", G[k].cap);
+            *(int *)(GREC(0) + G[k].head) = 11; *(int *)(GREC(0) + G[k].body) = 12;
+            *(int *)(GREC(1) + G[k].head) = 13; *(int *)(GREC(1) + G[k].body) = 14;
+            *(int *)(GREC(2) + G[k].head) = 15; *(int *)(GREC(2) + G[k].body) = 16;
+            _snprintf(village, sizeof village, "Village: Game %d Founders (Save 4)\n", G[k].game);
+            vv_village_publish(village);
+            if (ensure_village != NULL) {
+                (void)ensure_village(G[k].game, village, t);
+            } else {
+                (void)ensure(G[k].game, village);    /* a DLL that predates it */
+            }
+            {
+                int number;
+                for (number = 1; number <= 9; ++number) {   /* the log headed by this village */
+                    _snprintf(path, MAX_PATH, "%s\\%s %d.txt", folder, G[k].title, number);
+                    text[0] = 0;
+                    f = fopen(path, "rb");
+                    if (f) { n = fread(text, 1, sizeof text - 1, f); text[n] = 0; fclose(f); }
+                    if (strstr(text, "Founders (Save 4)") != NULL) break;
+                }
+            }
+            CHECK(strstr(text, "Founders (Save 4)") != NULL && strstr(text, "  Mother: Aru\r\n") != NULL,
+                  "VV%d: a founders-only tribe's conception is filed in its own log", G[k].game);
+            CHECK(noted_in(text, "  Mother: Aru\r\n") == 0,
+                  "VV%d: ...unlabelled, though every founder was renamed and restyled", G[k].game);
 #undef GPUT
 #undef GREC
             free(t);

@@ -19,11 +19,13 @@ records, because no villager field is fixed for life, and the owner ruled:
 native/parentage_export/pending_harness.c drives the shipped DLL through that
 window and checks the log on disk. Records the tribe cannot vouch for (the
 pre-tribe simulation's) are written with a closing Note line. Of its
-eighty-three checks, v1.35.29's DLL fails nine (it adds no Note), the
-whole-tribe DLL thirty (among them VV1's records once every founder is renamed
-and restyled), v1.35.28's forty-five (among them Epeli, the birth it dropped in
-the owner's VV3 tribe) and v1.35.27's forty-eight. That is what makes it a
-regression test rather than a restatement of the fix.
+ninety-three checks, v1.35.29's DLL fails nine (it adds no Note, though it
+writes every record), the first labelling DLL five (a founders-only tribe,
+renamed and restyled, was labelled -- Codex, #452), the whole-tribe DLL forty
+(among them VV1's records once every founder is renamed and restyled),
+v1.35.28's fifty-five (among them Epeli, the birth it dropped in the owner's
+VV3 tribe) and v1.35.27's fifty-eight. That is what makes it a regression test
+rather than a restatement of the fix.
 
 The harness needs the 32-bit MSVC toolchain, so it runs where that is installed
 and is skipped elsewhere. The static checks below run everywhere.
@@ -131,6 +133,19 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         self.assertIn("--body;", label[:label.index("\n}")])
         self.assertIn("entry->tribe = current_tribe_index(game_id, records);",
                       function("hold_record"))
+
+    def test_preferences_recognise_renamed_and_restyled_founders(self) -> None:
+        """Codex, #452 (P2): a tribe of founders only, all renamed and
+        restyled before the first save, has no name, looks or parents left to
+        match. The player cannot edit preferences, so the LOOSE rule -- the
+        label's -- also counts an unchanged likes-and-dislikes fingerprint.
+        Preferences change as villagers grow, so the STRICT rule ignores it."""
+        counts = function("still_counts")
+        self.assertIn("needed <= TRIBE_LOOSE && then->has_preferences", counts)
+        self.assertIn("then->preferences == now->preferences", counts)
+        take = function("take_tribe")
+        self.assertIn("m->has_preferences = 1;", take)
+        self.assertIn("value = -1;", take)
 
     def test_an_empty_parent_is_not_a_shared_parent(self) -> None:
         """copy_name_field renders an empty name as "(unnamed)", which made
