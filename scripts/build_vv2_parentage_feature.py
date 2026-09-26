@@ -2,11 +2,12 @@
 
 VV2 keeps no father id anywhere. What it does keep is the father's NAME,
 sprintf'd onto the MOTHER's record at +0x5C0 by the conception routine itself.
-For normal live conceptions, the caller also still has the father's complete
-record: the two ordinary call sites pass it in EBX/EDI while decomposing its
-name, head and body. The trampoline identifies those return addresses and
-passes that captured record to WriteParentageRecordWithFather. Batch/event
-callers that only provide decomposed values remain uncaptured honestly:
+Every caller that has the father's complete record also passes a pointer to
+his name INSIDE that record (father + 0x564) as the routine's fifth argument,
+so the trampoline recovers the record from that argument and passes it to
+WriteParentageRecordWithFather. A caller whose name argument is not inside a
+record (the Gong) is refused by the companion's slot check and stays
+uncaptured honestly:
 
     0x44BA20  mov edx, [esp+0x1C]          ; the father's name string, an argument
     0x44BA35  lea eax, [esi+0x5C0]         ; esi is still the mother's record
@@ -239,24 +240,17 @@ RESET_THUNK_VA = 0x00424C70
 RESET_COMPANION_SOURCE = "assets/save_reset/VVFP Save Reset.dll"
 
 
-# Normal conception callers return here after sub_44B980. At the hook, the
-# routine has overwritten EDI with its records container but has preserved the
-# caller's original EDI in the saved prologue slot. The ordinary singleton
-# path has the father in EBX; the alternate ordinary path has him in EDI.
-# Other callers pass only decomposed values and deliberately receive NULL.
-NORMAL_CALLER_EBX_RETURN = 0x0044F8F5
-NORMAL_CALLER_EDI_RETURN = 0x0044F935
-# Two further ordinary callers hold the father in EDI and were passing NULL,
-# which sent the companion to the name scan and lost his age, likes and
-# dislikes whenever two living villagers shared his name. Proven father
-# records: each block dereferences its register at +0x548 (head), +0x54C
-# (body) and +0x564 (name), and EDI survives to the call in both.
-#   0x00464A38 -> [edi+0x54C] 0x464A03, [edi+0x548] 0x464A09,
-#                 lea eax,[edi+0x564] 0x464A21
-#   0x00464C4D -> [edi+0x548] 0x464C18, [edi+0x54C] 0x464C24,
-#                 lea edx,[edi+0x564] 0x464C36
-NORMAL_CALLER_EDI_RETURN_2 = 0x00464A3D
-NORMAL_CALLER_EDI_RETURN_3 = 0x00464C52
+# The father's record is recovered from the routine's fifth argument, the
+# pointer to his name, which every record-holding caller builds as
+# `lea reg, [father + 0x564]` -- see the trampoline. The six stock callers of
+# sub_44B980, for the record:
+#   0x422006  Love Note               arg5 = eax + 0x564
+#   0x44EB3E  Gong grants life        arg5 = 0x476290, the game's "?" in .rdata
+#   0x44F8F0  ordinary                arg5 = ebx + 0x564
+#   0x44F930  ordinary                arg5 = edi + 0x564
+#   0x464A38  ordinary                arg5 = edi + 0x564
+#   0x464C4D  ordinary                arg5 = edi + 0x564
+FATHER_NAME_OFFSET = 0x564
 
 # Resolved from the stock import table, not assumed. All three are the ANSI
 # variants, which is what the ASCII name string above requires.
@@ -399,37 +393,44 @@ def _emit(source: bytes) -> tuple[list[dict], bytes]:
             call dword ptr [0x{GET_PROC_ADDRESS_IAT:X}]
             test eax, eax
             jz done
-            # The function's saved prologue stack is below pushad: saved ESI
-            # (the mother) at +0x20, saved EDI at +0x24, and the caller return
-            # address at +0x28. Saved EBX is at +0x10. Select only the two
-            # ordinary callers whose registers are proven father records.
-            xor edx, edx
-            # FULL 32-BIT COMPARES, not a byte or word of the address.
+            # THE FATHER IS ARGUMENT 5, MINUS THE NAME OFFSET.
             #
-            # The earlier `cmp byte ptr [esp+0x29], 0xF8` matched any return
-            # address whose second byte was 0xF8, and the word form any
-            # address ending 0xF935. Both were unambiguous among the six real
-            # sites by luck rather than by construction, and the two callers
-            # added below sit in a different 64K page -- so a fragment test
-            # would be unsafe for them. Three bytes each buys the whole
-            # pointer.
-            cmp dword ptr [esp + 0x28], 0x{NORMAL_CALLER_EBX_RETURN:X}
-            jne check_edi_caller
-            mov edx, dword ptr [esp + 0x10]
-            jmp have_father
-        check_edi_caller:
-            # All three EDI callers share one load: the father is the caller's
-            # EDI, preserved by the routine's own `push edi` prologue at
-            # [esp + 0x24]. The pushad copy at [esp + 0x00] is the records
-            # container the routine put there, not the father.
-            cmp dword ptr [esp + 0x28], 0x{NORMAL_CALLER_EDI_RETURN:X}
-            je take_edi
-            cmp dword ptr [esp + 0x28], 0x{NORMAL_CALLER_EDI_RETURN_2:X}
-            je take_edi
-            cmp dword ptr [esp + 0x28], 0x{NORMAL_CALLER_EDI_RETURN_3:X}
-            jne have_father
-        take_edi:
-            mov edx, dword ptr [esp + 0x24]
+            # Every caller hands the routine the father's NAME as its fifth
+            # argument -- it is what 0x44BA20 reads and sprintf's onto the
+            # mother at +0x5C0. At the five callers that have his record, that
+            # argument is `lea reg, [father + 0x564]`, the name field INSIDE
+            # his record, so subtracting 0x564 gives the record itself:
+            #
+            #     0x422006  lea edx,[eax+0x564]  push edx   (Love Note)
+            #     0x44F8F0  lea edx,[ebx+0x564]  push edx
+            #     0x44F930  lea edx,[edi+0x564]  push edx
+            #     0x464A38  lea eax,[edi+0x564]  push eax
+            #     0x464C4D  lea edx,[edi+0x564]  push edx
+            #
+            # This replaces a per-caller selector that matched the last four
+            # return addresses and passed NULL for anything else. 0x422006 --
+            # the Love Note's pregnancy -- was not in that list, and the
+            # owner's first v1.35.27 tribe logged its father's age, likes and
+            # dislikes as "(not captured for this birth)". The rule below
+            # yields the SAME record at the four callers the selector knew
+            # (the register it read is the one each lea is built from), and the
+            # one it did not.
+            #
+            # 0x44EB3E, the Gong, passes the game's own "?" placeholder at
+            # 0x476290 in .rdata -- a genuinely fatherless birth -- and a NULL
+            # name passes NULL. Neither is inside a record, and the companion's
+            # is_record_slot -- inside the array, on a stride boundary, below
+            # the slot count -- plus the active flag and the not-the-mother
+            # check refuse it, and the record is logged by name only exactly as
+            # before. Nothing is scanned: the pointer is the caller's own.
+            #
+            # Stack at this point: pushad (0x20), the routine's saved ESI and
+            # EDI (+0x20, +0x24), the return address (+0x28), then its seven
+            # arguments from +0x2C. The fifth is at +0x3C.
+            mov edx, dword ptr [esp + 0x3C]
+            test edx, edx
+            jz have_father
+            sub edx, 0x{FATHER_NAME_OFFSET:X}
         have_father:
             # WriteParentageRecordWithFather(game_id, records, mother, father).
             # stdcall cleans all sixteen bytes. Pushed right to left; the
@@ -621,9 +622,9 @@ def build() -> dict:
                     "her at conception, so the log reads them from her record "
                     "and they stay correct even after he dies or another "
                     "villager takes his name. His age, which has no copy on "
-                    "her, is read from his own record -- the two ordinary "
-                    "conception callers still hold it -- so a normal birth "
-                    "records his real age. Requires the Origins upgrades: "
+                    "her, is read from his own record -- every caller that holds "
+                    "it passes it, the Love Note included -- so a normal "
+                    "birth records his real age. Requires the Origins upgrades: "
                     "the loader trampoline lives in the page they append, because "
                     "VV2's own code cave is occupied by the renamed-build crash "
                     "guard and has no room for it."
