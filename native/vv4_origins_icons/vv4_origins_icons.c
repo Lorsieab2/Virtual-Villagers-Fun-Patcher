@@ -37,11 +37,21 @@ __declspec(dllimport) BOOL __stdcall SHGetSpecialFolderPathA(HWND, LPSTR, int, B
 #endif
 #ifndef VV_BODY_FRAME_COL
 /* Bodies use a 16-column atlas (vs the head's 8), and its column order differs
-   from the head's: col 5 faces the wrong way. The front-facing (camera-on)
-   frame is the 9th column counting from 1 at the left = 0-based col 8
-   (owner-selected; sits in the symmetric front hemisphere cols 8-14 per an
-   L-R silhouette-symmetry scan of the atlas). */
-#define VV_BODY_FRAME_COL 8
+   from the head's: col 5 faces the wrong way.
+
+   INDEX-0: columns are numbered from 0, so this is a raw column index and
+   never an "Nth from the left" count. An earlier value of 8 was derived as
+   "the 9th column counting from 1", which is the 1-based framing the games
+   never use, and it selected the BACK-facing frame -- the villager seen from
+   behind, with the garment hidden. The owner reported it from the running
+   game's Details-screen picker.
+
+   Col 9 is the front-facing (camera-on) frame. Verified by rendering cols
+   7-10 of rows 0-2 from both female_bodies00.png and male_bodies00.png: col 8
+   faces away in every row of both sheets, col 9 faces the camera in all of
+   them. Do not re-derive this from silhouette symmetry -- a front and a back
+   pose are both symmetric, which is how the wrong column was picked. */
+#define VV_BODY_FRAME_COL 9
 #endif
 #ifndef VV_BODY_ROWS_PER_PAGE
 #define VV_BODY_ROWS_PER_PAGE 10
