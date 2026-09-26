@@ -14,8 +14,8 @@ The owner's first v1.35.27 tribes showed two defects from the same window:
 The parentage companion now holds such records until the village is known and
 writes them then, dropping any whose villager no longer occupies its slot.
 native/parentage_export/pending_harness.c drives the shipped DLL through that
-window and checks the log on disk; against the v1.35.27 DLL it fails twelve of
-its twenty-six checks, which is what makes it a regression test rather than a
+window and checks the log on disk; against the v1.35.27 DLL it fails eighteen of
+its thirty-four checks, which is what makes it a regression test rather than a
 restatement of the fix.
 
 The harness needs the 32-bit MSVC toolchain, so it runs where that is installed
@@ -54,10 +54,22 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         emit = function("emit_record")
         known = emit.index("if (village[0] != '\\0') {")
         publisher = emit.index("if (!statistics_publisher_present()) {")
-        held = emit.index("++pending_count;")
+        held = emit.rindex("return hold_record(game_id, is_birth, subject, text);")
         self.assertLess(known, publisher)
         self.assertLess(publisher, held,
                         "records must be held only when a publisher exists")
+        self.assertIn("++pending_count;", function("hold_record"))
+
+    def test_a_failed_write_keeps_the_record(self) -> None:
+        """#449 review: a held record is released only once it is on disk."""
+        flush = function("flush_pending")
+        self.assertIn(
+            "} else if (append_record(g, village, entry->is_birth, entry->text)) {", flush)
+        self.assertIn("stopped = 1;", flush)
+        self.assertIn("pending[kept++] = *entry;", flush)
+        emit = function("emit_record")
+        self.assertIn(
+            "if (pending_count == 0 && append_record(g, village, is_birth, text)) {", emit)
 
     def test_the_first_save_writes_what_was_held(self) -> None:
         source = SOURCE.read_text(encoding="utf-8")

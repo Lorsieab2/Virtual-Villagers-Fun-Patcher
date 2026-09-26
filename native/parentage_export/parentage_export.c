@@ -2041,43 +2041,51 @@ static int append_record(
 
 /* Write every held record for this game under `village`, dropping any whose
    villager is gone. Called once the village is known. */
+/* A held record is released only once it is on disk, or once its villager is
+   shown to be gone. A write that fails -- a locked log, a full disk, a failed
+   flush -- stops the pass and keeps that record and every one after it, in
+   order, for the next save to retry. Codex (#449 review) found the earlier
+   version freed every entry whether or not it had been written, so a transient
+   failure at the first save lost the records for good. */
 static void flush_pending(int game_id, const char *village) {
     const struct game_layout *g = &GAME_LAYOUTS[game_id];
     int i;
+    int kept = 0;
+    int stopped = 0;
 
     for (i = 0; i < pending_count; ++i) {
         struct pending_record *entry = &pending[i];
-        if (entry->game_id == game_id && still_the_same_villager(g, entry)) {
-            (void)append_record(g, village, entry->is_birth, entry->text);
+        int release = 0;
+        if (entry->game_id == game_id && !stopped) {
+            if (!still_the_same_villager(g, entry)) {
+                release = 1;                  /* not this village's villager */
+            } else if (append_record(g, village, entry->is_birth, entry->text)) {
+                release = 1;                  /* written */
+            } else {
+                stopped = 1;                  /* keep it and all after it */
+            }
         }
-        free(entry->text);
-        entry->text = NULL;
+        if (release) {
+            free(entry->text);
+            entry->text = NULL;
+        } else {
+            pending[kept++] = *entry;
+        }
     }
-    pending_count = 0;
+    pending_count = kept;
 }
 
-/* Write a finished record now, or hold it until the village is known. */
-static int emit_record(
+/* Queue a finished record behind any already held. */
+static int hold_record(
     int game_id,
     int is_birth,
     const unsigned char *subject,
     const char *text
 ) {
     const struct game_layout *g = &GAME_LAYOUTS[game_id];
-    char village[VV_VILLAGE_NAME_MAX + 32];
     struct pending_record *entry;
     size_t length;
 
-    if (!vv_village_recall(village, sizeof village)) {
-        village[0] = '\0';
-    }
-    if (village[0] != '\0') {
-        flush_pending(game_id, village);
-        return append_record(g, village, is_birth, text);
-    }
-    if (!statistics_publisher_present()) {
-        return append_record(g, village, is_birth, text);
-    }
     if (pending == NULL) {
         pending = (struct pending_record *)calloc(PENDING_MAX, sizeof(*pending));
         if (pending == NULL) {
@@ -2102,6 +2110,35 @@ static int emit_record(
     }
     ++pending_count;
     return 1;
+}
+
+/* Write a finished record now, or hold it until the village is known. */
+static int emit_record(
+    int game_id,
+    int is_birth,
+    const unsigned char *subject,
+    const char *text
+) {
+    const struct game_layout *g = &GAME_LAYOUTS[game_id];
+    char village[VV_VILLAGE_NAME_MAX + 32];
+
+    if (!vv_village_recall(village, sizeof village)) {
+        village[0] = '\0';
+    }
+    if (village[0] != '\0') {
+        flush_pending(game_id, village);
+        /* Written now only when nothing is still waiting and the write works.
+           Otherwise it queues BEHIND what is waiting, so a failed write can
+           neither lose it nor let it overtake an earlier record. */
+        if (pending_count == 0 && append_record(g, village, is_birth, text)) {
+            return 1;
+        }
+        return hold_record(game_id, is_birth, subject, text);
+    }
+    if (!statistics_publisher_present()) {
+        return append_record(g, village, is_birth, text);
+    }
+    return hold_record(game_id, is_birth, subject, text);
 }
 
 /* The full entry point. WriteParentageRecord below is the original three

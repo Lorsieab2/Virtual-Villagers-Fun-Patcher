@@ -280,6 +280,30 @@ int main(int argc, char **argv) {
     CHECK(read_log() && count("Conception ") == 2 && count("Village: ") == 1,
           "no record is written twice");
 
+    printf("-- a write that fails is retried, not lost --\n");
+    {
+        char path[MAX_PATH];
+        HANDLE lock;
+        _snprintf(path, MAX_PATH, "%s\\%s 1.txt", folder, TITLE);
+        lock = CreateFileA(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+        CHECK(lock != INVALID_HANDLE_VALUE, "the log can be locked for the test");
+        villager(12, "Napa", 380, 28, 9);
+        conceive(12, 1);
+        CHECK(write(3, records, rec(12), rec(1)) == 1, "a conception during the lock is kept");
+        villager(13, "Lomai", 466, 7, 0);
+        conceive(13, 1);
+        CHECK(write(3, records, rec(13), rec(1)) == 1, "a second one during the lock is kept");
+        (void)ensure(3, VILLAGE);          /* a save while the log is still locked */
+        CloseHandle(lock);
+        CHECK(read_log() && count("Conception ") == 2, "nothing reached the locked log");
+        CHECK(ensure(3, VILLAGE) == 1, "the next save succeeds");
+        CHECK(read_log() && count("Conception ") == 4, "both held conceptions are written after it");
+        CHECK(strstr(logtext, "Conception 3\r\n  Mother: Napa\r\n") != NULL
+              && strstr(logtext, "Conception 4\r\n  Mother: Lomai\r\n") != NULL,
+              "in the order they happened");
+        CHECK(count("Village: ") == 1, "still exactly one header");
+    }
+
     FreeLibrary(dll);
     free(records);
     remove_logs();
