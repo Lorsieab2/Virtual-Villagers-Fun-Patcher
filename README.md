@@ -93,11 +93,20 @@ The stock skill gains and caps remain active. It does not change pregnancies,
 food, tech-point gain, or other outcomes. In New Believers it applies only to
 believers; heathens remain unchanged. This optional patch is off by default.
 
+**Write Births and Conceptions Log to Text File** is also available for all
+five games. Records made before a village's first save are held and written
+at that save; none is dropped. Since v1.35.30, a held record from a villager
+table where hardly anyone is still present at that save ends with a `Note:`
+line saying it was probably recorded among villagers who were not in the
+village (for example the game's pre-tribe simulation, or a tribe left unsaved
+by Start Over). The Note is only a hint and never decides whether a record is
+written. A record is still lost if the game closes without saving after it.
+
 ### Virtual Villagers - A New Home
 
 **Birth Control**
 
-Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and requires the parenting preference to be checked, rejecting an unchecked villager rather than rolling the former 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
+Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and REQUIRES the parenting preference to be checked, rejecting an unchecked villager rather than applying the VV4/VV5 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
 
 - Patch ID: `vv1_birth_control`
 
@@ -122,19 +131,19 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 **Numeric Keys: Zip Around the Island**
 
-The number keys move the view to one of nine sections of the island, laid out like a numeric keypad (`7 8 9` across the top, `4 5 6` in the middle, `1 2 3` along the bottom), gliding there the way the later games do. Top-row digits and keypad digits both work; holding a key does not repeat; a glide keeps going even if the view is scrolled or a villager is dragged mid-glide -- press another number key to change course. Also adds the loading-screen tip "You can zip around the island with your numeric keys." The feature lives in its own companion, `VVFP VV1 Number Keys.dll`, loaded by the Origins companion, so it requires Enable Origins-Exclusive Features.
+The number keys move the view to nine measured feature targets in the VV1 1680-unit map, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), using the measured truncating tenth-of-remaining glide on the native village-update cadence. Top-row digits and keypad digits both work; holding a key does not repeat; a glide keeps going even if the view is scrolled or a villager is dragged mid-glide -- press another number key to change course. Adds the loading-screen tip "You can zip around the island with your numeric keys." Requires Enable Origins-Exclusive Features, whose companion loads this one.
 
 - Patch ID: `vv1_number_keys`
 
 **Show Parents in Details Screen**
 
-Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait, the father on the left facing right and the mother on the right facing left, and hovering one reads "Son of <name>" or "Daughter of <name>". The record lives in `vv1_parents_<slot>.dat` beside the save, never in a villager record or the save itself, and an entry is never erased: only a new villager in the same slot starts it over. Each birth is also appended to the births and conceptions log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before the patch have no recorded parents. The feature is its own companion, `VVFP VV1 Parentage.dll`, loaded by the Origins companion, so it requires Enable Origins-Exclusive Features; the father comes from Write Births and Conceptions Log's conception hook, so with that row off only the mother is recorded. **Needs Write Births and Conceptions Log to Text File on for the father and for the "Birth" records in the births and conceptions log.**
+Gives A New Home the true parentage the later games keep: every villager born in the village remembers their mother and father for life. While a villager is under 18 (and again if they are ever made younger), two small, faded figures of the parents stand in the upper corners of the Details portrait -- the father on the left facing right, the mother on the right facing left -- and hovering one reads "Son of <name>" or "Daughter of <name>". The record is kept in vv1_parents_<slot>.dat beside the save, never inside a villager record or the save itself, and an entry is never erased: only a new villager in the same slot starts it over. Each birth is also written to the parentage log the moment it is seen, and the Village Population roster lists each villager's own parents. Founders and villagers born before this patch have no recorded parents. Requires Enable Origins-Exclusive Features, whose companion loads this one. The father is supplied by Write Births and Conceptions Log's conception hook, so with that row off only the mother is recorded. **Needs Write Births and Conceptions Log to Text File on for the father (with it off only the mother is recorded) and for the "Birth" records in the parentage log.**
 
 - Patch ID: `vv1_show_parents`
 
 **Sort by Age/Skill/Health in Details Screen**
 
-Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do: ascending by age, by the villager's highest skill, or by health, earlier villagers first among equals, wrapping at either end, and the place in the list is kept when the order is changed. Age is the default; the choice lasts for the session. The band is drawn over the stock Details background (which is not replaced), 1:1, with The Lost Children's 16-pixel radio marking the chosen order. The feature is its own companion, `VVFP VV1 Sort By.dll`, loaded by the Origins companion, whose arrow hooks ask it which villager comes next; it requires Enable Origins-Exclusive Features.
+Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do -- ascending by age, by the villager's highest skill, or by health, with earlier villagers first among equals, and the place in the list is kept when the order is changed. Age is the default. Requires Enable Origins-Exclusive Features, whose companion loads this one and whose arrow hooks ask it which villager comes next.
 
 - Patch ID: `vv1_sort_by`
 
@@ -162,9 +171,15 @@ Adds decorative flowers to the lagoon and love hut, clothes to the extra hut nea
 
 - Patch ID: `vv1_visual_mods`
 
+**Write Births and Conceptions Log to Text File**
+
+On each new pregnancy, appends both parents' names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies to 'Virtual Villagers 1 Births and Conceptions Log N.txt' beside the game executable. The mother's age determines the child's age, and the father's age is recorded too. VV1 stores nothing about the father in the mother's record -- not his name, and no id that could find him -- so his details, his age included, are captured from his own record at the six conception call sites, where the game holds it briefly. A birth that reaches delivery without such a capture reports the father as not captured for that birth, rather than naming the wrong villager. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records. **Needs Write Village Statistics to Text File on for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).** **Needs Show Parents in Details Screen on for the "Birth" records (conceptions are logged without it).**
+
+- Patch ID: `vv1_write_parentage_log`
+
 **Write Village Statistics to Text File**
 
-After a successful save, writes the village's lifetime statistics to a Village Statistics text file. **Needs Show Parents in Details Screen on for the "Parents:" lines in the Village Population roster.**
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure. **Needs Show Parents in Details Screen on for the "Parents:" lines in the Village Population roster.**
 
 - Patch ID: `vv1_write_village_statistics`
 
@@ -192,7 +207,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 **Tip Wording: Numeric Keys**
 
-Rewords the loading-screen tip "You can zip around the island with your keypad." to "You can zip around the island with your numeric keys.", matching A New Home's new tip. The keys themselves already work in The Lost Children.
+Rewords the loading-screen tip "You can zip around the island with your keypad." to "You can zip around the island with your numeric keys.", matching A New Home's new tip. The keys themselves already work in The Lost Children; nothing else changes.
 
 - Patch ID: `vv2_numeric_keys_tip_wording`
 
@@ -214,9 +229,15 @@ Each child who finishes a Teaching Children lesson gains 7 to 9 points in one eq
 
 - Patch ID: `vv2_teaching_children_grants_skill`
 
+**Write Births and Conceptions Log to Text File**
+
+Records both parents at conception in a plain text log: their names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies. The mother's age determines the child's age, and the father's age is recorded too. VV2 keeps the father's name on the mother's record and no father id; his head and body are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His age, which has no copy on her, is read from his own record -- every caller that holds it passes it, the Love Note included -- so a normal birth records his real age. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it. **Needs Write Village Statistics to Text File on for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
+
+- Patch ID: `vv2_write_parentage_log`
+
 **Write Village Statistics to Text File**
 
-After a successful save, writes the village's lifetime statistics to a Village Statistics text file.
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 - Patch ID: `vv2_write_village_statistics`
 
@@ -225,7 +246,7 @@ After a successful save, writes the village's lifetime statistics to a Village S
 
 **Birth Control**
 
-Matches the VV4/VV5 Birth Control boundary on the exact VV3 ordinary action-13 route: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the scanned candidate stays in the stock internal-age 360..999 range, and the initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.
+Requires BOTH parenting skill and the checked preference before a villager will initiate Embracing. The native chooser's score floor remains in force and the scanned candidate stays in the stock internal-age 360..999 range, but the 25% non-preference fallback is removed: a roll that admitted one unchecked villager in four is the reported leak. The initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.
 
 - Patch ID: `vv3_birth_control`
 
@@ -261,9 +282,15 @@ When the Tribal Chief completes Pointing out a rare collectible, rejected random
 
 - Patch ID: `vv3_rare_collectible_retry`
 
+**Write Births and Conceptions Log to Text File**
+
+Records both parents at conception in a plain text log: their names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies, appended to 'Virtual Villagers 3 Births and Conceptions Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. VV3 keeps the father's name on the mother's record and no father id. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they are correct even after he dies or another villager takes his name. His AGE, which has no copy on her, is read from his own record at conception -- the conception hook reads the other parent's saved record -- so a normal birth records his real age. Rolls to a new numbered file every 256 records. **Needs Write Village Statistics to Text File on for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
+
+- Patch ID: `vv3_write_parentage_log`
+
 **Write Village Statistics to Text File**
 
-After a successful save, writes the village's lifetime statistics to a Village Statistics text file.
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 - Patch ID: `vv3_write_village_statistics`
 
@@ -289,9 +316,15 @@ Replaces some in-game text with wording consistent with the other Virtual Villag
 
 - Patch ID: `vv4_optional_text_changes`
 
+**Write Births and Conceptions Log to Text File**
+
+On each new pregnancy, appends the mother's and father's names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies to 'Virtual Villagers 4 Births and Conceptions Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His AGE, which has no copy on her, is read from his own record at conception -- the moment the engine hands both parents to the hook -- so a normal birth records his real age. **Needs Write Village Statistics to Text File on for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
+
+- Patch ID: `vv4_write_parentage_log`
+
 **Write Village Statistics to Text File**
 
-After a successful save, writes the village's lifetime statistics to a Village Statistics text file.
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 - Patch ID: `vv4_write_village_statistics`
 
@@ -331,13 +364,13 @@ Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen
 
 **Move the "Playing in the dirt" Spot**
 
-Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path, the worn ground with the flowers west of the flower rock (about 305 by 205, six random steps inside it). The routine's own bytes are recoded in place; the action, its text, its sound and its length are unchanged.
+Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 305 by 205 with six random steps inside it. The action, its text, its sound and its length are unchanged.
 
 - Patch ID: `vv5_playing_in_the_dirt_spot`
 
 **Statue Drops: Normal Action or Honoring**
 
-Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.
+Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.
 
 - Patch ID: `vv5_statue_polishing_or_honoring`
 
@@ -347,9 +380,15 @@ For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divis
 
 - Patch ID: `vv5_vv4_nursery_divisor_parity`
 
+**Write Births and Conceptions Log to Text File**
+
+On each new pregnancy, appends the mother's and father's names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies to 'Virtual Villagers 5 Births and Conceptions Log N.txt' beside the game executable. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Village seeding is excluded, so a new village does not write a record for every starting villager. Rolls to a new numbered file every 256 records. The game keeps only the father's name on the mother's record. His HEAD and BODY are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His AGE, which has no copy on her, is read from his own record at conception -- the moment the engine hands both parents to the hook -- so a normal birth records his real age. **Needs Write Village Statistics to Text File on for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
+
+- Patch ID: `vv5_write_parentage_log`
+
 **Write Village Statistics to Text File**
 
-After a successful save, writes the village's lifetime statistics to a Village Statistics text file, including current puzzle totals.
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 - Patch ID: `vv5_write_village_statistics`
 
