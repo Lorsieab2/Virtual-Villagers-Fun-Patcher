@@ -1737,6 +1737,7 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
    A null base means the hook fired with no village; do nothing. */
 __declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
     int i;
+    vvfp_pathfinding_bridge(2); /* pathfinding companion: installs its detours once, fail-open */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }
