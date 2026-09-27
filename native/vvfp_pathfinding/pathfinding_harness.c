@@ -133,23 +133,33 @@ int main(int argc, char **argv) {
         CHECK(n >= 0 && ex == 505 && ey == 105, "and arrives at the task (%d,%d)", ex, ey);
         CHECK(!vv1_line_clear(105, 105, 505, 105), "(the straight line really was blocked)");
     }
-    printf("-- A New Home: an enclosed task is refused, so the stock handler runs --\n");
+    printf("-- A New Home: a walled-off task has no route (the action ends, as in The Secret City) --\n");
     {
         int i, wx, wy;
         vv1_clear();
         for (i = 48; i <= 52; ++i) { vv1_block(i, 8); vv1_block(i, 12); vv1_block(48, i - 40); vv1_block(52, i - 40); }
         CHECK(vv1_route(grid1, 105, 105, 505, 105, &wx, &wy) == 0, "no route: the probe returns 0");
     }
-    printf("-- A New Home: a task on an obstacle's edge is approached, then left to the stock walk --\n");
+    printf("-- A New Home: a task on an obstacle is refused outright, as The Secret City's flood does --\n");
     {
-        int ex, ey, n, wx, wy, x;
+        int wx, wy, x;
         vv1_clear();
         for (x = 0; x <= 20; ++x) vv1_block(30, x);
         vv1_block(50, 10);                                   /* the goal cell itself */
+        CHECK(vv1_route(grid1, 105, 105, 505, 105, &wx, &wy) == 0, "no route: the probe returns 0");
+        vv1_clear();
+        for (x = 0; x <= 20; ++x) vv1_block(30, x);
+        CHECK(vv1_route(grid1, 105, 105, 505, 105, &wx, &wy) == 1, "...and with the goal open the same map routes");
+    }
+    printf("-- A New Home: bumping into a hut is never unreachable --\n");
+    {
+        int ex, ey, n, x, y;
+        vv1_clear();
+        for (x = 20; x <= 26; ++x) for (y = 8; y <= 13; ++y) vv1_block(x, y);   /* a hut footprint */
         n = vv1_walk(105, 105, 505, 105, &ex, &ey);
-        CHECK(n == -2, "the walk ends with the stock handler asked to finish (%d)", n);
-        CHECK(abs(ex / 10 - 50) <= 1 && abs(ey / 10 - 10) <= 1, "beside the goal, at (%d,%d)", ex, ey);
-        CHECK(vv1_route(grid1, ex, ey, 505, 105, &wx, &wy) == 0, "and from there the probe defers");
+        CHECK(n >= 1 && ex == 505 && ey == 105, "the villager is routed round it in %d corner(s)", n);
+        n = vv1_walk(105, 105, 235, 55, &ex, &ey);           /* a task at the hut's side */
+        CHECK(n >= 0 && ex == 235 && ey == 55, "and to a task on the hut's own side (%d corner(s))", n);
     }
     printf("-- A New Home: never between two obstacles touching at a corner --\n");
     {
@@ -197,16 +207,13 @@ int main(int argc, char **argv) {
         CHECK(r == 1 && vv2_at(10, 10) == 0x7FFF, "a cell the goal cannot reach reads 0x7FFF");
         CHECK(vv2_flood(grid2, field2, -5, 105) == 0 && field2[0] == -1, "a goal off the grid is refused, as before");
     }
-    printf("-- The Lost Children: a goal on a blocked cell no longer fails the flood --\n");
+    printf("-- The Lost Children: a goal on a blocked cell is refused, as the stock and The Secret City do --\n");
     {
-        int r, steps, w;
+        int r;
         vv2_clear();
         vv2_set(50, 10, 3);
         r = vv2_flood(grid2, field2, 505, 105);
-        CHECK(r == 1, "the flood succeeds (the stock routine returned 0 here, and the villager gave up)");
-        CHECK(vv2_at(50, 10) == 1 && vv2_at(49, 10) == 2, "the goal reads 1 and is walked to from beside it");
-        w = vv2_walk(105, 105, 505, 105, &steps, 1);
-        CHECK(w == 1, "a villager walks to the goal's exact point in %d step(s)", steps);
+        CHECK(r == 0 && field2[0] == -1, "the flood returns 0 and marks the field");
     }
     printf("-- The Lost Children: a wall is walked round --\n");
     {

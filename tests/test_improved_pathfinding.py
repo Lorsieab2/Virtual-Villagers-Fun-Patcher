@@ -153,18 +153,35 @@ class RowsAndDllTests(unittest.TestCase):
         self.assertIn("return TRUE;", dllmain)
         self.assertNotIn("Install", dllmain)
 
-    def test_the_stock_handler_is_kept_for_the_cases_it_still_owns(self):
-        """A New Home: no route, or the villager beside its goal, falls
-        through to the stock handler in full -- the trampoline runs the
-        displaced bytes and jumps back."""
+    def test_a_new_home_ends_like_the_secret_city_and_never_nudges(self):
+        """The owner: exactly VV3.  A route is always followed while one
+        exists (a hut or the side of anything is never "unreachable"); with
+        no route at all -- the goal on an obstacle or walled off -- the action
+        ends at once through the game's own queue clear (0x439470), the call
+        The Secret City's 0x460F70 corresponds to, never through fifteen
+        nudges first.  The stock handler runs only with no village or grid."""
         source = SOURCE.read_text(encoding="utf-8")
         stub = source[source.index("vv1_blocked_stub(void) {"):]
         stub = stub[:stub.index("\n}")]
         self.assertIn("jmp dword ptr [vv1_trampoline]", stub)
         self.assertIn("ret 8", stub, "thiscall with two stack arguments")
+        handler = source[source.index("static int __cdecl vv1_blocked("):]
+        handler = handler[:handler.index("\n}")]
+        self.assertEqual(handler.count("return 0;"), 2, "only a missing village or grid falls through")
+        self.assertIn("((vv1_give_up_t)VV1_GIVE_UP)(village, NULL, idx);", handler)
+        self.assertIn("#define VV1_GIVE_UP 0x439470u", source)
+        self.assertNotIn("hits > VV1_GUARD_LIMIT) {\n            ++VvfpPathfindingStats.vv1_fell_through", source,
+                         "the guard never hands a routed villager back to the stock handler")
         corner = source[source.index("static int vv1_next_corner("):]
         corner = corner[:corner.index("\n}")]
-        self.assertIn("return 0;                       /* adjacent to the goal", corner)
+        self.assertIn("return CORNER_NONE;             /* a goal on an obstacle: refused", corner)
+        self.assertEqual(_stock_bytes("vv1", 0x439470, 7), bytes.fromhex("8B44240469C0D8"),
+                         "0x439470 is the record-stride routine the stock handler calls to give up")
+        flood = source[source.index("static int __cdecl vv2_flood("):]
+        flood = flood[:flood.index("\n}")]
+        self.assertIn("if (!vv2_walkable(grid, gx, gy, allow24)) {", flood)
+        self.assertIn("return 0;", flood[flood.index("if (!vv2_walkable(grid, gx, gy, allow24)) {"):],
+                      "The Lost Children keeps its (and The Secret City's) refusal of a goal on an obstacle")
 
 
 class BridgeTests(unittest.TestCase):

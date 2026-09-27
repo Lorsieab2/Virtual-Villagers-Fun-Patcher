@@ -240,12 +240,17 @@ static int vv1_walkable(const void *grid, int x, int y, int allow) {
 }
 
 /* The corner to walk to next, in feet coordinates: from the feet's cell,
-   follow the field toward the goal and stop where the direction changes.
-   Returns 0 when the stock handler should run instead: no grid, the feet
-   off the grid, no route, or the next stretch is the goal itself (the
-   straight walk the game is already attempting). */
+   follow the field toward the goal for at most `max_run` cells and stop
+   where the direction changes.  CORNER_FOUND with the waypoint; CORNER_NONE
+   when there is no route -- the goal's own cell blocked (The Secret City's
+   flood refuses that outright, 0x4232A0), the goal walled off, or the feet
+   or goal off the grid; CORNER_AT_GOAL when the feet already stand in the
+   goal's cell. */
+#define CORNER_NONE    0
+#define CORNER_FOUND   1
+#define CORNER_AT_GOAL 2
 static int vv1_next_corner(const unsigned int *grid, int feet_x, int feet_y,
-                           int goal_x, int goal_y, int *out_x, int *out_y) {
+                           int goal_x, int goal_y, int max_run, int *out_x, int *out_y) {
     int cx = feet_x / VV1_CELL;
     int cy = feet_y / VV1_CELL;
     int gx = goal_x / VV1_CELL;
@@ -259,34 +264,34 @@ static int vv1_next_corner(const unsigned int *grid, int feet_x, int feet_y,
     int steps = 0;
     if (feet_x < 0 || feet_y < 0 || goal_x < 0 || goal_y < 0
         || cx >= VV1_GRID || cy >= VV1_GRID || gx >= VV1_GRID || gy >= VV1_GRID) {
-        return 0;
+        return CORNER_NONE;
+    }
+    if (!vv1_walkable(grid, gx, gy, 0)) {
+        return CORNER_NONE;             /* a goal on an obstacle: refused, as The Secret City does */
     }
     if (cx == gx && cy == gy) {
-        return 0;
+        return CORNER_AT_GOAL;
     }
     flood(grid, vv1_walkable, 0, VV1_GRID, VV1_GRID, gx, gy, g_field);
     if (g_field[cx + cy * VV1_GRID] >= BLOCKED) {
         /* Standing off the reachable area (nudged onto an edge): step to the
            nearest reached cell first. */
         if (!nearest_reached(g_field, VV1_GRID, VV1_GRID, cx, cy, 3, &nx, &ny)) {
-            return 0;
+            return CORNER_NONE;
         }
         *out_x = nx * VV1_CELL + VV1_CELL / 2;
         *out_y = ny * VV1_CELL + VV1_CELL / 2;
-        return 1;
+        return CORNER_FOUND;
     }
     if (!best_step(g_field, VV1_GRID, VV1_GRID, cx, cy, &nx, &ny)) {
-        return 0;
-    }
-    if (nx == gx && ny == gy) {
-        return 0;                       /* adjacent to the goal: the stock walk finishes it */
+        return CORNER_NONE;             /* walled off: no reached neighbour */
     }
     dirx = nx - cx;
     diry = ny - cy;
     x = nx;
     y = ny;
     /* Extend the straight run while the field keeps pointing the same way. */
-    while (steps++ < VV1_GRID) {
+    while (++steps < max_run && !(x == gx && y == gy)) {
         int tx;
         int ty;
         if (!best_step(g_field, VV1_GRID, VV1_GRID, x, y, &tx, &ty)) {
@@ -295,18 +300,12 @@ static int vv1_next_corner(const unsigned int *grid, int feet_x, int feet_y,
         if (tx - x != dirx || ty - y != diry) {
             break;
         }
-        if (tx == gx && ty == gy && !vv1_walkable(grid, gx, gy, 0)) {
-            break;                      /* stop beside a blocked goal, never on it */
-        }
         x = tx;
         y = ty;
-        if (x == gx && y == gy) {
-            break;
-        }
     }
     *out_x = x * VV1_CELL + VV1_CELL / 2;
     *out_y = y * VV1_CELL + VV1_CELL / 2;
-    return 1;
+    return CORNER_FOUND;
 }
 
 /* Counters a test can read out of the running game (exported data): how
@@ -315,7 +314,9 @@ struct vvfp_pathfinding_stats {
     int vv1_calls;          /* the blocked handler fired */
     int vv1_routed;         /* a corner was queued */
     int vv1_unstuck;        /* ...of which from off the reachable area */
-    int vv1_fell_through;   /* the stock handler ran */
+    int vv1_fell_through;   /* the stock handler ran (no village or grid) */
+    int vv1_gave_up;        /* no route: the action ended, as The Secret City would */
+    int vv1_arrived;        /* blocked inside the goal's own cell: aimed at the feet */
     int vv2_floods;
     int vv2_blocked_goal_floods;
     int vv2_descents;
@@ -324,16 +325,26 @@ struct vvfp_pathfinding_stats {
 };
 __declspec(dllexport) struct vvfp_pathfinding_stats VvfpPathfindingStats = { 0 };
 
-/* Loop guard: a villager whose handler keeps firing from the same cell is
-   being blocked by something the grid does not show (another villager, a
-   moving object); after a while the stock handler gets its turn. */
+/* A villager whose handler keeps firing from the same cell is not making
+   the corner it was given; it is then given one cell at a time -- the very
+   next step along the field -- until it moves on.  While a route exists the
+   villager is never handed back to the stock handler: bumping into a hut or
+   the side of anything is routed round, as The Secret City does it. */
 static struct { int cell; int hits; } vv1_guard[VV1_RECORDS];
 #define VV1_GUARD_LIMIT 24
 
 static void *vv1_trampoline;
 
-/* The detoured blocked handler.  Returns 1 when a corner was queued and the
-   stock handler must not run. */
+/* No route at all -- the goal on an obstacle or walled off.  The Secret
+   City ends the action at once (0x460F70: the queue cleared, the villager
+   idle); A New Home's equivalent is 0x439470, the call its own handler
+   makes after fifteen failed nudges.  Called directly, so the villager does
+   not jitter first. */
+#define VV1_GIVE_UP 0x439470u
+typedef int (__fastcall *vv1_give_up_t)(void *village, void *edx, int idx);
+
+/* The detoured blocked handler.  Returns 1 when it dealt with the villager
+   and the stock handler must not run. */
 static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     unsigned char *record;
     const unsigned int *grid;
@@ -360,17 +371,26 @@ static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     feet_y = fields[2] + VV1_FEET_DY;
     cell = feet_x / VV1_CELL + (feet_y / VV1_CELL) * VV1_GRID;
     if (vv1_guard[idx].cell == cell) {
-        if (++vv1_guard[idx].hits > VV1_GUARD_LIMIT) {
-            ++VvfpPathfindingStats.vv1_fell_through;
-            return 0;
-        }
+        ++vv1_guard[idx].hits;
     } else {
         vv1_guard[idx].cell = cell;
         vv1_guard[idx].hits = 1;
     }
-    if (!vv1_next_corner(grid, feet_x, feet_y, fields[18], fields[19], &wx, &wy)) {
-        ++VvfpPathfindingStats.vv1_fell_through;
-        return 0;
+    switch (vv1_next_corner(grid, feet_x, feet_y, fields[18], fields[19],
+                            vv1_guard[idx].hits > VV1_GUARD_LIMIT ? 1 : VV1_GRID, &wx, &wy)) {
+    case CORNER_NONE:
+        ++VvfpPathfindingStats.vv1_gave_up;
+        ((vv1_give_up_t)VV1_GIVE_UP)(village, NULL, idx);
+        return 1;
+    case CORNER_AT_GOAL:
+        /* In the goal's cell yet blocked: a sub-cell edge.  Aim the action
+           at the feet so the arrival test passes and the task goes on. */
+        ++VvfpPathfindingStats.vv1_arrived;
+        fields[18] = feet_x;
+        fields[19] = feet_y;
+        return 1;
+    default:
+        break;
     }
     ++VvfpPathfindingStats.vv1_routed;
     if (!vv1_walkable(grid, feet_x / VV1_CELL, feet_y / VV1_CELL, 0)) {
@@ -445,8 +465,10 @@ static int vv2_walkable(const void *grid, int x, int y, int allow24) {
 }
 
 /* Replaces 0x41A700: fill the villager's field from the goal.  Returns 1
-   unless the goal is off the grid.  The stock routine also refused a goal
-   on a blocked cell; that is the give-up this companion removes. */
+   unless the goal is off the grid or on a blocked cell -- the stock rule,
+   and The Secret City's (0x4232A0): such a goal is unreachable and the
+   walker ends the action.  What this replacement changes is only the
+   field's quality for the descent that follows. */
 static int __cdecl vv2_flood(const unsigned int *grid, int *field, int goal_x, int goal_y) {
     int gx = goal_x / VV2_CELL;
     int gy = goal_y / VV2_CELL;
@@ -464,6 +486,8 @@ static int __cdecl vv2_flood(const unsigned int *grid, int *field, int goal_x, i
     ++VvfpPathfindingStats.vv2_floods;
     if (!vv2_walkable(grid, gx, gy, allow24)) {
         ++VvfpPathfindingStats.vv2_blocked_goal_floods;
+        field[0] = -1;
+        return 0;
     }
     field[0] = goal_x;
     field[1] = goal_y;
@@ -480,7 +504,7 @@ static int __cdecl vv2_flood(const unsigned int *grid, int *field, int goal_x, i
             words[i] = (unsigned short)d;
         }
     }
-    words[gx + gy * VV2_GRID] = 1;      /* the goal, even on the ring or an obstacle */
+    words[gx + gy * VV2_GRID] = 1;      /* the goal, even on the ring */
     return 1;
 }
 
@@ -772,7 +796,7 @@ __declspec(dllexport) int __stdcall VvfpPathfindingProbeVv1(const unsigned int *
                                                              int feet_x, int feet_y,
                                                              int goal_x, int goal_y,
                                                              int *out_x, int *out_y) {
-    return vv1_next_corner(grid, feet_x, feet_y, goal_x, goal_y, out_x, out_y);
+    return vv1_next_corner(grid, feet_x, feet_y, goal_x, goal_y, VV1_GRID, out_x, out_y);
 }
 
 /* The Lost Children's flood and descent over a caller-supplied grid

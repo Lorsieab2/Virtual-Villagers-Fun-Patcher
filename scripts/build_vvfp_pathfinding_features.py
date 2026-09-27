@@ -6,8 +6,9 @@ the villager down it, round the obstacle (0x4232A0 / 0x423590 in The Secret
 City).  A New Home has no such search -- its blocked handler (0x43DFC0) nudges
 the villager sideways fifteen times and then clears the whole action queue, so
 the villager forgets the task and drops what it carried -- and The Lost
-Children's own router gives up on a goal that sits on a blocked cell and on a
-villager pushed onto an unreached one.  The shared companion
+Children's own router gives up on a villager pushed onto an unreached cell.
+The owner: exactly VV3, where a hut or the side of anything is never
+"unreachable" and only a walled-off task ends the action.  The shared companion
 "VVFP Improved Pathfinding.dll" (native/vvfp_pathfinding) brings The Secret
 City's model to both.
 
@@ -35,7 +36,7 @@ GAMES = {
         ],
         "changes": [
             "When a villager walking to a task finds the next step blocked, the companion floods the game's own 168x168 walkability grid from the task and queues the end of the first straight run of the way round as a walk-to in front of the current action (the same call the stock nudge makes); on reaching it the villager resumes the task, and a further blockage is handled the same way from there.",
-            "The stock handler -- sideways nudges and, after fifteen, clearing the villager's action queue -- runs only when no route exists, so a genuinely unreachable task still ends as it always did.",
+            "While a route exists the villager is never handed back to the stock handler's sideways nudges: bumping into a hut or the side of anything is routed round. Only a task that is truly unreachable -- its own cell on an obstacle, or walled off -- ends the action, at once through the game's own queue clear (0x439470), as The Secret City does; the fifteen nudges never run.",
         ],
         "non_changes": [
             "This row changes no executable bytes: the Origins companion loads the DLL, which detours the handler at 0x43DFC0 at run time only after verifying its seven stock bytes; a different build of the game installs nothing.",
@@ -52,7 +53,7 @@ GAMES = {
             {"va": "0x41A9B0", "stock": "B867666666", "routine": "the route descent"},
         ],
         "changes": [
-            "The route flood no longer fails when the task's cell is blocked: the cell is seeded as the goal and the villager is walked to the obstacle's open side and then onto the task's exact point, instead of the walker clearing the villager's action queue.",
+            "The route flood keeps the game's (and The Secret City's) rule that a task on a blocked cell is unreachable, but writes the field with the shared flood so the descent below has it.",
             "The route descent takes the neighbour nearest the task rather than the first smaller one in a fixed order, never cuts the corner between two blocked cells, and from an unreached or blocked cell heads for the nearest reached one; the field it writes and reads is laid out exactly as the game's own follower expects.",
         ],
         "non_changes": [
