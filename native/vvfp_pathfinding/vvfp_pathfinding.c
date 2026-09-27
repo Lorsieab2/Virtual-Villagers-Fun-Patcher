@@ -697,10 +697,13 @@ static int install_detour(const struct detour *d) {
 }
 
 /* Put the stock bytes back (Codex, #454: a set that fails part-way must
-   not leave the earlier sites detoured). */
+   not leave the earlier sites detoured).  If even that write fails, the
+   site is still detoured, so its trampoline page must stay: the handler
+   is complete on its own and keeps working (Codex, #455). */
 static void restore_detour(const struct detour *d) {
-    (void)write_site(d, d->stock);
-    discard_detour(d);
+    if (write_site(d, d->stock)) {
+        discard_detour(d);
+    }
 }
 
 static int install_state[3];            /* per game: 0 untried, 1 installed, -1 refused */
@@ -745,11 +748,12 @@ __declspec(dllexport) int __stdcall VvfpPathfindingInstall(int game_id) {
     }
     for (i = 0; i < count; ++i) {
         if (!install_detour(&set[i])) {
+            int failed = i;
             while (i-- > 0) {
-                restore_detour(&set[i]);
+                restore_detour(&set[i]);      /* keeps its page if the site stays detoured */
             }
-            for (i = 0; i < count; ++i) {
-                discard_detour(&set[i]);
+            for (i = failed; i < count; ++i) {
+                discard_detour(&set[i]);      /* never written: only their pages exist */
             }
             install_state[game_id] = -1;
             return 0;

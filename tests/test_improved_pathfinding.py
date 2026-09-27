@@ -142,7 +142,12 @@ class RowsAndDllTests(unittest.TestCase):
         self.assertLess(install.index("prepare_detour(&set[i])"), install.index("install_detour(&set[i])"))
         self.assertIn("restore_detour(&set[i]);", install)
         restore = source[source.index("static void restore_detour("):]
-        self.assertIn("write_site(d, d->stock)", restore[:200])
+        restore = restore[:restore.index("\n}")]
+        # Codex (#455, P2): a site whose stock bytes could not be put back is
+        # still detoured, so its trampoline page must not be freed.
+        self.assertIn("if (write_site(d, d->stock)) {", restore)
+        self.assertIn("for (i = failed; i < count; ++i) {", install,
+                      "only the never-written sites' pages are discarded unconditionally")
         # Nothing runs from DllMain.
         dllmain = source[source.index("BOOL WINAPI DllMain("):]
         self.assertIn("return TRUE;", dllmain)
