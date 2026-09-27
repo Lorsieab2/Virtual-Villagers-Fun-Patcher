@@ -632,11 +632,12 @@ static void write_jmp(unsigned char *at, const void *to) {
     memcpy(at + 1, &rel, 4);
 }
 
-static int install_detour(const struct detour *d) {
+/* Everything that can fail is done here, before any site is touched: the
+   stock bytes checked and the trampoline page built and made read-execute. */
+static int prepare_detour(const struct detour *d) {
     unsigned char *site = (unsigned char *)(uintptr_t)d->va;
     unsigned char *page;
     DWORD old;
-    int i;
     if (!stock_bytes_present(d)) {
         return 0;
     }
@@ -651,16 +652,47 @@ static int install_detour(const struct detour *d) {
         return 0;
     }
     *d->trampoline = page;
+    return 1;
+}
+
+static void discard_detour(const struct detour *d) {
+    if (*d->trampoline != NULL) {
+        VirtualFree(*d->trampoline, 0, MEM_RELEASE);
+        *d->trampoline = NULL;
+    }
+}
+
+/* Write `bytes` (the jmp, or the stock bytes back) over the site. */
+static int write_site(const struct detour *d, const unsigned char *bytes) {
+    unsigned char *site = (unsigned char *)(uintptr_t)d->va;
+    DWORD old;
     if (!VirtualProtect(site, (SIZE_T)d->length, PAGE_EXECUTE_READWRITE, &old)) {
         return 0;
     }
-    write_jmp(site, (const void *)d->handler);
-    for (i = 5; i < d->length; ++i) {
-        site[i] = 0x90;
-    }
+    memcpy(site, bytes, (size_t)d->length);
     VirtualProtect(site, (SIZE_T)d->length, old, &old);
     FlushInstructionCache(GetCurrentProcess(), site, (SIZE_T)d->length);
     return 1;
+}
+
+static int install_detour(const struct detour *d) {
+    unsigned char jmp[16];
+    int i;
+    if (!stock_bytes_present(d)) {
+        return 0;
+    }
+    write_jmp(jmp, (const void *)d->handler);
+    for (i = 5; i < d->length; ++i) {
+        jmp[i] = 0x90;
+    }
+    return write_site(d, jmp);
+}
+
+/* Put the stock bytes back (Codex, #454: a set that fails part-way must
+   not leave the earlier sites detoured). */
+static void restore_detour(const struct detour *d) {
+    (void)write_site(d, d->stock);
+    discard_detour(d);
 }
 
 static int install_state[3];            /* per game: 0 untried, 1 installed, -1 refused */
@@ -691,15 +723,26 @@ __declspec(dllexport) int __stdcall VvfpPathfindingInstall(int game_id) {
     count = game_id == GAME_VV1 ? (int)(sizeof vv1 / sizeof vv1[0])
                                 : (int)(sizeof vv2 / sizeof vv2[0]);
     /* All or nothing: The Lost Children's flood and descent share a field
-       layout contract, so one without the other is refused. */
+       layout contract, so one without the other is refused.  Every site is
+       verified and every trampoline built before the first byte is written;
+       a write that still fails puts the sites already written back. */
     for (i = 0; i < count; ++i) {
-        if (!stock_bytes_present(&set[i])) {
+        if (!prepare_detour(&set[i])) {
+            while (i-- > 0) {
+                discard_detour(&set[i]);
+            }
             install_state[game_id] = -1;
             return 0;
         }
     }
     for (i = 0; i < count; ++i) {
         if (!install_detour(&set[i])) {
+            while (i-- > 0) {
+                restore_detour(&set[i]);
+            }
+            for (i = 0; i < count; ++i) {
+                discard_detour(&set[i]);
+            }
             install_state[game_id] = -1;
             return 0;
         }
