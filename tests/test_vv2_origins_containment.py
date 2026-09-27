@@ -144,6 +144,12 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # not do -- so it belongs outside the set rather than inside it.
                 "vv2_write_parentage_log",
                 "vv2_learning_never_fails",
+                # Improved Pathfinding patches no byte at all: its companion
+                # is loaded by the Origins companion's per-frame sweep, so
+                # the row declares the Origins base as a dependency and
+                # selecting it resolves the base in -- the same reason the
+                # parentage tracker sits outside this set.
+                "vv2_improved_pathfinding",
                 *PUBLIC,
             }
         ]

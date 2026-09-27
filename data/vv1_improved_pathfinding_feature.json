@@ -1,0 +1,38 @@
+{
+  "id": "vv1_improved_pathfinding",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Improved Pathfinding",
+  "description": "Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck behind things anymore! When a villager's next step toward a task is blocked, a route round the obstacle is planned on the game's own walkability grid and followed, the way The Secret City does it, instead of the villager giving up and dropping the task. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock walk runs unchanged.",
+  "output_tag": "Pathfinding",
+  "dependencies": [
+    "vv1_enable_origins_exclusive_features"
+  ],
+  "behavior_changes": [
+    "When a villager walking to a task finds the next step blocked, the companion floods the game's own 168x168 walkability grid from the task and queues the end of the first straight run of the way round as a walk-to in front of the current action (the same call the stock nudge makes); on reaching it the villager resumes the task, and a further blockage is handled the same way from there.",
+    "The stock handler -- sideways nudges and, after fifteen, clearing the villager's action queue -- runs only when no route exists, so a genuinely unreachable task still ends as it always did."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the Origins companion loads the DLL, which detours the handler at 0x43DFC0 at run time only after verifying its seven stock bytes; a different build of the game installs nothing.",
+    "Wandering, running from danger and every other movement are untouched; only the walk toward a queued task consults the route.",
+    "Nothing is written to a villager record beyond the same walk-to queue entry the stock nudge writes, and nothing to the save or any file."
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x43DFC0",
+      "stock_bytes": "5153558B6C2410",
+      "routine": "the blocked-walk handler",
+      "installed_by": "VVFP Improved Pathfinding.dll, VvfpPathfindingInstall"
+    }
+  ],
+  "companion_files": [
+    {
+      "source": "assets/pathfinding/VVFP Improved Pathfinding.dll",
+      "destination": "VVFP Improved Pathfinding.dll",
+      "sha256": "AB506F68562B293B71471497B675C831927E27A6BBA93A74216CC7090FC38801"
+    }
+  ],
+  "patches": []
+}

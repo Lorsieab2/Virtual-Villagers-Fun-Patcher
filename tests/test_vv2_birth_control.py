@@ -305,8 +305,14 @@ class VV2BirthControlTests(unittest.TestCase):
                 # the stock build plus that deterministic append transaction.
                 self.assertEqual(len(rendered), self.build.size + 0x2000)
                 owners = {edit["owner"] for edit in applied}
+                # A row with no executable edits owns nothing here: Improved
+                # Pathfinding ships only a companion that detours at run time.
+                byte_editing = {
+                    patch.id for patch in catalog
+                    if patch.id in selected and patch.raw.get("patches")
+                }
                 self.assertTrue(
-                    {f"feature:{patch_id}" for patch_id in selected}.issubset(owners)
+                    {f"feature:{patch_id}" for patch_id in byte_editing}.issubset(owners)
                 )
                 feature_offsets = [
                     int(edit["offset"], 0)

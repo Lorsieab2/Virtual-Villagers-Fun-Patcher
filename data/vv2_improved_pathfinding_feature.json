@@ -1,0 +1,44 @@
+{
+  "id": "vv2_improved_pathfinding",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Improved Pathfinding",
+  "description": "Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck behind things anymore! When a villager's next step toward a task is blocked, a route round the obstacle is planned on the game's own walkability grid and followed, the way The Secret City does it, instead of the villager giving up and dropping the task. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock walk runs unchanged.",
+  "output_tag": "Pathfinding",
+  "dependencies": [
+    "vv2_enable_origins_exclusive_features"
+  ],
+  "behavior_changes": [
+    "The route flood no longer fails when the task's cell is blocked: the cell is seeded as the goal and the villager is walked to the obstacle's open side and then onto the task's exact point, instead of the walker clearing the villager's action queue.",
+    "The route descent takes the neighbour nearest the task rather than the first smaller one in a fixed order, never cuts the corner between two blocked cells, and from an unreached or blocked cell heads for the nearest reached one; the field it writes and reads is laid out exactly as the game's own follower expects."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the Origins companion loads the DLL, which detours the flood at 0x41A700 and the descent at 0x41A9B0 at run time only after verifying their stock bytes; a different build of the game installs nothing.",
+    "The follower, the arrival test, the goal-on-24 rule and the child rule for 24 cells are the game's own and are unchanged.",
+    "Nothing is written to the save or any file."
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x41A700",
+      "stock_bytes": "B810B90100",
+      "routine": "the route flood",
+      "installed_by": "VVFP Improved Pathfinding.dll, VvfpPathfindingInstall"
+    },
+    {
+      "va": "0x41A9B0",
+      "stock_bytes": "B867666666",
+      "routine": "the route descent",
+      "installed_by": "VVFP Improved Pathfinding.dll, VvfpPathfindingInstall"
+    }
+  ],
+  "companion_files": [
+    {
+      "source": "assets/pathfinding/VVFP Improved Pathfinding.dll",
+      "destination": "VVFP Improved Pathfinding.dll",
+      "sha256": "AB506F68562B293B71471497B675C831927E27A6BBA93A74216CC7090FC38801"
+    }
+  ],
+  "patches": []
+}

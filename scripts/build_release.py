@@ -40,6 +40,9 @@ FILES = [
     "assets/sort_by/VVFP VV1 Sort By.dll",
     "assets/sort_by/vvfp_sort_band.png",
     "assets/sort_by/vvfp_sort_radio.png",
+    # Improved Pathfinding: one companion for A New Home and The Lost Children,
+    # loaded by each game's Origins companion; no executable bytes.
+    "assets/pathfinding/VVFP Improved Pathfinding.dll",
     "data/builds.json",
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",
@@ -65,6 +68,8 @@ FILES = [
     "data/vv1_number_keys_feature.json",
     "data/vv1_show_parents_feature.json",
     "data/vv1_sort_by_feature.json",
+    "data/vv1_improved_pathfinding_feature.json",
+    "data/vv2_improved_pathfinding_feature.json",
     "data/vv2_numeric_keys_tip_feature.json",
     "data/vv5_playing_in_the_dirt_feature.json",
     "data/expanded_atomic_writer_integration.json",

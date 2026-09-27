@@ -131,6 +131,13 @@ SHOW_PARENTS_FEATURE_PATHS = (ROOT / "data" / "vv1_show_parents_feature.json",)
 # Sort by Age/Skill/Health in Details Screen: A New Home's companion that
 # walks the Details arrows in the later games' orders and draws the band.
 SORT_BY_FEATURE_PATHS = (ROOT / "data" / "vv1_sort_by_feature.json",)
+# Improved Pathfinding: The Secret City's route planning for A New Home's and
+# The Lost Children's walkers, one shared companion that detours the walk
+# routines at run time; no executable bytes.
+IMPROVED_PATHFINDING_FEATURE_PATHS = (
+    ROOT / "data" / "vv1_improved_pathfinding_feature.json",
+    ROOT / "data" / "vv2_improved_pathfinding_feature.json",
+)
 # Move the "Playing in the dirt" Spot: New Believers' two base coordinates
 # of the stock routine, so children play on the grass rather than on the
 # totem statue (the owner marked the spot).
@@ -2851,6 +2858,11 @@ def _load_fun_patch_records(
             if record.get("enabled", True):
                 items.append(record)
     for feature_path in SORT_BY_FEATURE_PATHS:
+        if feature_path.is_file():
+            record = json.loads(feature_path.read_text(encoding="utf-8"))
+            if record.get("enabled", True):
+                items.append(record)
+    for feature_path in IMPROVED_PATHFINDING_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

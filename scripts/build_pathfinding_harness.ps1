@@ -1,0 +1,47 @@
+param(
+    [string]$OutDir = (Join-Path $env:TEMP "vvfp_pathfinding_harness")
+)
+
+$ErrorActionPreference = "Stop"
+
+# Builds and runs the 32-bit harness for "VVFP Improved Pathfinding.dll"
+# (native/vvfp_pathfinding/pathfinding_harness.c): it drives the DLL's routing
+# over synthetic grids laid out as A New Home and The Lost Children keep theirs
+# and checks the routes.  Exit code 0 means every check passed.  The harness
+# executable is left in -OutDir, never in the repository.
+
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$nativeRoot = Join-Path $projectRoot "native\vvfp_pathfinding"
+$dll = Join-Path $projectRoot "assets\pathfinding\VVFP Improved Pathfinding.dll"
+$sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
+$sdkVersion = "10.0.26100.0"
+$vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231"
+
+New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
+Push-Location $OutDir
+try {
+    & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") `
+        /nologo `
+        /O2 `
+        /MT `
+        /I (Join-Path $vsTools "include") `
+        /I (Join-Path $sdkRoot "Include\$sdkVersion\um") `
+        /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
+        /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
+        (Join-Path $nativeRoot "pathfinding_harness.c") `
+        /link `
+        ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
+        ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
+        ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
+        ("/OUT:" + (Join-Path $OutDir "pathfinding_harness.exe")) `
+        kernel32.lib
+    if ($LASTEXITCODE -ne 0) {
+        throw "Pathfinding harness compilation failed."
+    }
+    & (Join-Path $OutDir "pathfinding_harness.exe") $dll
+    if ($LASTEXITCODE -ne 0) {
+        throw "Pathfinding harness reported failures."
+    }
+} finally {
+    Pop-Location
+}

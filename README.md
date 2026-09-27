@@ -147,6 +147,12 @@ Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, un
 
 - Patch ID: `vv1_sort_by`
 
+**Improved Pathfinding**
+
+Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck behind things anymore! A New Home has no route search: when a villager's next step toward a task is blocked, the stock game nudges them sideways a few times and then clears their whole action list, so they forget the task and drop what they carried. With this row the companion floods the game's own walkability grid from the task and walks the villager round the obstacle, corner by corner, the way The Secret City does. No executable bytes change: the Origins companion loads "VVFP Improved Pathfinding.dll", which installs its detour only after verifying the stock bytes at the handler. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+
+- Patch ID: `vv1_improved_pathfinding`
+
 **Magic Fruit of Life Alters Mortality**
 
 Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
@@ -197,6 +203,12 @@ Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the
 Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.
 
 - Patch ID: `vv2_easier_healing_mastery`
+
+**Improved Pathfinding**
+
+Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck behind things anymore! The Lost Children already plans routes, but its planner refuses a task whose cell is blocked and gives up when a villager stands on a cell the route never reached -- both clear the villager's action list, so the task is dropped. With this row the companion's flood seeds the task's cell even when it is blocked and walks the villager to it from the open side, and its descent takes the neighbour nearest the task, never cuts a corner between two obstacles, and brings a stranded villager back to the route. No executable bytes change: the Origins companion loads "VVFP Improved Pathfinding.dll", which installs its two detours only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+
+- Patch ID: `vv2_improved_pathfinding`
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 

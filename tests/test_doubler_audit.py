@@ -328,7 +328,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # affected function, and its own behaviour is unchanged.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "7EBA7F9DE4A5545D7E7C7EB1DA71A972DD08C0429D06A573F61B7061DE6C5B2D",
+            "D37DF2672A03ECD43CFD070D3D338C127C8A1F11E92ADF68843A64A41C0D4F7B",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
