@@ -626,17 +626,30 @@ static int stock_bytes_present(const struct detour *d) {
     return memcmp((const void *)(uintptr_t)d->va, d->stock, (size_t)d->length) == 0;
 }
 
-static void write_jmp(unsigned char *at, const void *to) {
-    unsigned int rel = (unsigned int)((const unsigned char *)to - (at + 5));
-    at[0] = 0xE9;
-    memcpy(at + 1, &rel, 4);
+/* A jmp rel32 into `out`, displaced from `from` -- the address the five
+   bytes will EXECUTE at, which is not always where they are assembled
+   (the site's jmp is assembled in a buffer first). */
+static void write_jmp(unsigned char *out, const unsigned char *from, const void *to) {
+    unsigned int rel = (unsigned int)((const unsigned char *)to - (from + 5));
+    out[0] = 0xE9;
+    memcpy(out + 1, &rel, 4);
 }
 
-static int install_detour(const struct detour *d) {
+/* The bytes that replace a site: the jmp to its handler, then nops. */
+static void site_bytes(const struct detour *d, unsigned char *out) {
+    int i;
+    write_jmp(out, (const unsigned char *)(uintptr_t)d->va, (const void *)d->handler);
+    for (i = 5; i < d->length; ++i) {
+        out[i] = 0x90;
+    }
+}
+
+/* Everything that can fail is done here, before any site is touched: the
+   stock bytes checked and the trampoline page built and made read-execute. */
+static int prepare_detour(const struct detour *d) {
     unsigned char *site = (unsigned char *)(uintptr_t)d->va;
     unsigned char *page;
     DWORD old;
-    int i;
     if (!stock_bytes_present(d)) {
         return 0;
     }
@@ -645,22 +658,52 @@ static int install_detour(const struct detour *d) {
         return 0;
     }
     memcpy(page, d->stock, (size_t)d->length);
-    write_jmp(page + d->length, site + d->length);
+    write_jmp(page + d->length, page + d->length, site + d->length);
     if (!VirtualProtect(page, 64, PAGE_EXECUTE_READ, &old)) {
         VirtualFree(page, 0, MEM_RELEASE);
         return 0;
     }
     *d->trampoline = page;
+    return 1;
+}
+
+static void discard_detour(const struct detour *d) {
+    if (*d->trampoline != NULL) {
+        VirtualFree(*d->trampoline, 0, MEM_RELEASE);
+        *d->trampoline = NULL;
+    }
+}
+
+/* Write `bytes` (the jmp, or the stock bytes back) over the site. */
+static int write_site(const struct detour *d, const unsigned char *bytes) {
+    unsigned char *site = (unsigned char *)(uintptr_t)d->va;
+    DWORD old;
     if (!VirtualProtect(site, (SIZE_T)d->length, PAGE_EXECUTE_READWRITE, &old)) {
         return 0;
     }
-    write_jmp(site, (const void *)d->handler);
-    for (i = 5; i < d->length; ++i) {
-        site[i] = 0x90;
-    }
+    memcpy(site, bytes, (size_t)d->length);
     VirtualProtect(site, (SIZE_T)d->length, old, &old);
     FlushInstructionCache(GetCurrentProcess(), site, (SIZE_T)d->length);
     return 1;
+}
+
+static int install_detour(const struct detour *d) {
+    unsigned char jmp[16];
+    if (!stock_bytes_present(d)) {
+        return 0;
+    }
+    site_bytes(d, jmp);
+    return write_site(d, jmp);
+}
+
+/* Put the stock bytes back (Codex, #454: a set that fails part-way must
+   not leave the earlier sites detoured).  If even that write fails, the
+   site is still detoured, so its trampoline page must stay: the handler
+   is complete on its own and keeps working (Codex, #455). */
+static void restore_detour(const struct detour *d) {
+    if (write_site(d, d->stock)) {
+        discard_detour(d);
+    }
 }
 
 static int install_state[3];            /* per game: 0 untried, 1 installed, -1 refused */
@@ -691,15 +734,27 @@ __declspec(dllexport) int __stdcall VvfpPathfindingInstall(int game_id) {
     count = game_id == GAME_VV1 ? (int)(sizeof vv1 / sizeof vv1[0])
                                 : (int)(sizeof vv2 / sizeof vv2[0]);
     /* All or nothing: The Lost Children's flood and descent share a field
-       layout contract, so one without the other is refused. */
+       layout contract, so one without the other is refused.  Every site is
+       verified and every trampoline built before the first byte is written;
+       a write that still fails puts the sites already written back. */
     for (i = 0; i < count; ++i) {
-        if (!stock_bytes_present(&set[i])) {
+        if (!prepare_detour(&set[i])) {
+            while (i-- > 0) {
+                discard_detour(&set[i]);
+            }
             install_state[game_id] = -1;
             return 0;
         }
     }
     for (i = 0; i < count; ++i) {
         if (!install_detour(&set[i])) {
+            int failed = i;
+            while (i-- > 0) {
+                restore_detour(&set[i]);      /* keeps its page if the site stays detoured */
+            }
+            for (i = failed; i < count; ++i) {
+                discard_detour(&set[i]);      /* never written: only their pages exist */
+            }
             install_state[game_id] = -1;
             return 0;
         }
@@ -732,6 +787,36 @@ __declspec(dllexport) int __stdcall VvfpPathfindingProbeVv2Next(const unsigned i
                                                                  int retry, int *out) {
     vv2_next(grid, out, field, x, y, retry);
     return out[0] != -1;
+}
+
+/* What a site would be overwritten with, and the handler's address, so a
+   test can decode the jmp and confirm it lands on the handler from the
+   SITE (Codex, #455: an earlier version displaced it from the buffer it
+   was assembled in).  Returns the byte count. */
+__declspec(dllexport) int __stdcall VvfpPathfindingProbeSiteBytes(int game_id, int which,
+                                                                   unsigned int *va,
+                                                                   unsigned char *bytes,
+                                                                   unsigned int *handler_va) {
+    static const struct detour vv1_blocked = { VV1_BLOCKED_HANDLER, VV1_BLOCKED_STOCK,
+        sizeof VV1_BLOCKED_STOCK, vv1_blocked_stub, &vv1_trampoline };
+    static const struct detour vv2_flood_d = { VV2_FLOOD, VV2_FLOOD_STOCK,
+        sizeof VV2_FLOOD_STOCK, vv2_flood_stub, &vv2_flood_trampoline };
+    static const struct detour vv2_descent_d = { VV2_DESCENT, VV2_DESCENT_STOCK,
+        sizeof VV2_DESCENT_STOCK, vv2_descent_stub, &vv2_descent_trampoline };
+    const struct detour *d;
+    if (game_id == GAME_VV1 && which == 0) {
+        d = &vv1_blocked;
+    } else if (game_id == GAME_VV2 && which == 0) {
+        d = &vv2_flood_d;
+    } else if (game_id == GAME_VV2 && which == 1) {
+        d = &vv2_descent_d;
+    } else {
+        return 0;
+    }
+    *va = d->va;
+    *handler_va = (unsigned int)(uintptr_t)d->handler;
+    site_bytes(d, bytes);
+    return d->length;
 }
 
 /* The bytes each hook site must hold, so a test can pin them against the

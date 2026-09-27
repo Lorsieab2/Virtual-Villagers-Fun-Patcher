@@ -126,13 +126,28 @@ class RowsAndDllTests(unittest.TestCase):
 
     def test_the_dll_verifies_before_it_writes_and_never_leaves_a_writable_code_page(self):
         source = SOURCE.read_text(encoding="utf-8")
-        install = source[source.index("static int install_detour("):]
-        install = install[:install.index("\n}")]
-        self.assertLess(install.index("stock_bytes_present("), install.index("VirtualProtect("))
-        self.assertIn("PAGE_EXECUTE_READ, &old", install, "the trampoline page is made read-execute")
-        self.assertIn("VirtualProtect(site, (SIZE_T)d->length, old, &old);", install,
+        prepare = source[source.index("static int prepare_detour("):]
+        prepare = prepare[:prepare.index("\n}")]
+        self.assertLess(prepare.index("stock_bytes_present("), prepare.index("VirtualAlloc("))
+        self.assertIn("PAGE_EXECUTE_READ, &old", prepare, "the trampoline page is made read-execute")
+        write = source[source.index("static int write_site("):]
+        write = write[:write.index("\n}")]
+        self.assertIn("VirtualProtect(site, (SIZE_T)d->length, old, &old);", write,
                       "the site's protection is put back after the write")
-        self.assertIn("FlushInstructionCache(", install)
+        self.assertIn("FlushInstructionCache(", write)
+        # Codex (#454, P2): all sites are prepared before any is written, and
+        # a write that fails part-way restores the sites already written.
+        install = source[source.index("__stdcall VvfpPathfindingInstall("):]
+        install = install[:install.index("\n}")]
+        self.assertLess(install.index("prepare_detour(&set[i])"), install.index("install_detour(&set[i])"))
+        self.assertIn("restore_detour(&set[i]);", install)
+        restore = source[source.index("static void restore_detour("):]
+        restore = restore[:restore.index("\n}")]
+        # Codex (#455, P2): a site whose stock bytes could not be put back is
+        # still detoured, so its trampoline page must not be freed.
+        self.assertIn("if (write_site(d, d->stock)) {", restore)
+        self.assertIn("for (i = failed; i < count; ++i) {", install,
+                      "only the never-written sites' pages are discarded unconditionally")
         # Nothing runs from DllMain.
         dllmain = source[source.index("BOOL WINAPI DllMain("):]
         self.assertIn("return TRUE;", dllmain)

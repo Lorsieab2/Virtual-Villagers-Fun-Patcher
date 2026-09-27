@@ -260,6 +260,27 @@ int main(int argc, char **argv) {
         n = site(2, 1, &va, bytes, sizeof bytes);
         CHECK(n == 5 && va == 0x41A9B0 && bytes[0] == 0xB8, "The Lost Children's descent at 0x41A9B0, 5 stock bytes");
     }
+    printf("-- the jmp each site is overwritten with lands on its handler --\n");
+    {
+        typedef int (__stdcall *probe_bytes_t)(int, int, unsigned int *, unsigned char *, unsigned int *);
+        probe_bytes_t bytes_of = (probe_bytes_t)GetProcAddress(dll, "VvfpPathfindingProbeSiteBytes");
+        int game, which;
+        CHECK(bytes_of != NULL, "VvfpPathfindingProbeSiteBytes is exported");
+        for (game = 1; bytes_of != NULL && game <= 2; ++game) {
+            for (which = 0; which < 2; ++which) {
+                unsigned int va, handler; unsigned char b[16]; int n, i, pad_ok = 1;
+                int rel; unsigned int lands;
+                n = bytes_of(game, which, &va, b, &handler);
+                if (n == 0) continue;
+                memcpy(&rel, b + 1, 4);
+                lands = va + 5 + (unsigned int)rel;
+                for (i = 5; i < n; ++i) if (b[i] != 0x90) pad_ok = 0;
+                CHECK(b[0] == 0xE9 && lands == handler && pad_ok,
+                      "VV%d site %d: jmp from 0x%X lands on the handler at 0x%X (%s), %d byte(s) padded",
+                      game, which, va, handler, lands == handler ? "yes" : "NO", n - 5);
+            }
+        }
+    }
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
 }
