@@ -37,7 +37,7 @@
     {
       "source": "assets/pathfinding/VVFP Improved Pathfinding.dll",
       "destination": "VVFP Improved Pathfinding.dll",
-      "sha256": "35E1DF8089D70FA359BD489BF0D1766DA7294CE9B2381FFA400E934C80B3B578"
+      "sha256": "75E609239BAA798B431F0138D75A03DD684FB271BC22BDF0ED5C14379BA15006"
     }
   ],
   "patches": []

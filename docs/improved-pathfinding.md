@@ -44,9 +44,11 @@ villager's speed: the exact call the stock nudge makes; at most the queue's
 free entries, up to twelve), starts the first (`0x43DEF0`) and forces a
 re-aim (`[21] = 99`, as the stock does). Reaching each corner pops to the
 next and, after the last, back to the task, so the obstacle is never met
-again -- The Secret City hands its walker the whole list too. A villager
-that keeps being blocked in the same cell is given one cell at a time
-instead of a whole run. While a route exists the stock handler never runs:
+again -- The Secret City hands its walker the whole list too. There is no
+retry guard, and none is needed: the task walk's only collision test is
+this same grid (`0x414200`, both axes, in `0x445CB0`), and the handler is
+called from nowhere else, so nothing can block a villager that the route
+does not see. While a route exists the stock handler never runs:
 bumping into a hut or the side of anything is routed round (the owner:
 those never count as unreachable). With no route at all -- the task's own
 cell on an obstacle, or walled off -- the action ends at once through the

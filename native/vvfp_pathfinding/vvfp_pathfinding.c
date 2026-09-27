@@ -341,13 +341,13 @@ struct vvfp_pathfinding_stats {
 };
 __declspec(dllexport) struct vvfp_pathfinding_stats VvfpPathfindingStats = { 0 };
 
-/* A villager whose handler keeps firing from the same cell is not making
-   the corner it was given; it is then given one cell at a time -- the very
-   next step along the field -- until it moves on.  While a route exists the
-   villager is never handed back to the stock handler: bumping into a hut or
-   the side of anything is routed round, as The Secret City does it. */
-static struct { int cell; int hits; } vv1_guard[VV1_RECORDS];
-#define VV1_GUARD_LIMIT 24
+/* While a route exists the villager is never handed back to the stock
+   handler: bumping into a hut or the side of anything is routed round, as
+   The Secret City does it.  There is no retry guard, and none is needed:
+   the task walk's only collision test is this same grid (0x414200, both
+   axes, in 0x445CB0), and this handler is called from nowhere else, so
+   nothing can block a villager that the route does not see (Codex, #456).
+   The Secret City has no such guard either. */
 
 static void *vv1_trampoline;
 
@@ -369,7 +369,6 @@ static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     int *fields;
     int feet_x;
     int feet_y;
-    int cell;
     int corners[VV1_MAX_CORNERS * 2];
     int count;
     int occupied;
@@ -391,13 +390,6 @@ static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     fields = (int *)record;
     feet_x = fields[1] + VV1_FEET_DX;
     feet_y = fields[2] + VV1_FEET_DY;
-    cell = feet_x / VV1_CELL + (feet_y / VV1_CELL) * VV1_GRID;
-    if (vv1_guard[idx].cell == cell) {
-        ++vv1_guard[idx].hits;
-    } else {
-        vv1_guard[idx].cell = cell;
-        vv1_guard[idx].hits = 1;
-    }
     /* Room in the action queue: thirty entries, the current action first;
        every corner pushed in front moves the rest down, and the last entry
        would fall off, so never push more than the free entries hold. */
@@ -410,8 +402,7 @@ static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     if (room > VV1_MAX_CORNERS) {
         room = VV1_MAX_CORNERS;
     }
-    switch (vv1_route(grid, feet_x, feet_y, fields[18], fields[19],
-                      vv1_guard[idx].hits > VV1_GUARD_LIMIT ? 1 : VV1_GRID,
+    switch (vv1_route(grid, feet_x, feet_y, fields[18], fields[19], VV1_GRID,
                       corners, room > 0 ? room : 1, &count)) {
     case CORNER_NONE:
         ++VvfpPathfindingStats.vv1_gave_up;
