@@ -249,8 +249,14 @@ static int vv1_walkable(const void *grid, int x, int y, int allow) {
 #define CORNER_NONE    0
 #define CORNER_FOUND   1
 #define CORNER_AT_GOAL 2
-static int vv1_next_corner(const unsigned int *grid, int feet_x, int feet_y,
-                           int goal_x, int goal_y, int max_run, int *out_x, int *out_y) {
+/* The whole route as corners -- the end of each straight run along the
+   field, the last one the goal's own cell -- so the villager walks leg to
+   leg and never meets the obstacle again (The Secret City hands its walker
+   the whole waypoint list at once).  At most `max_corners` are written to
+   `corners` (x, y pairs, feet coordinates); `*count` receives how many. */
+static int vv1_route(const unsigned int *grid, int feet_x, int feet_y,
+                     int goal_x, int goal_y, int max_run,
+                     int *corners, int max_corners, int *count) {
     int cx = feet_x / VV1_CELL;
     int cy = feet_y / VV1_CELL;
     int gx = goal_x / VV1_CELL;
@@ -259,11 +265,11 @@ static int vv1_next_corner(const unsigned int *grid, int feet_x, int feet_y,
     int y;
     int nx;
     int ny;
-    int dirx;
-    int diry;
-    int steps = 0;
+    int total = 0;
+    *count = 0;
     if (feet_x < 0 || feet_y < 0 || goal_x < 0 || goal_y < 0
-        || cx >= VV1_GRID || cy >= VV1_GRID || gx >= VV1_GRID || gy >= VV1_GRID) {
+        || cx >= VV1_GRID || cy >= VV1_GRID || gx >= VV1_GRID || gy >= VV1_GRID
+        || max_corners < 1) {
         return CORNER_NONE;
     }
     if (!vv1_walkable(grid, gx, gy, 0)) {
@@ -273,39 +279,49 @@ static int vv1_next_corner(const unsigned int *grid, int feet_x, int feet_y,
         return CORNER_AT_GOAL;
     }
     flood(grid, vv1_walkable, 0, VV1_GRID, VV1_GRID, gx, gy, g_field);
+    x = cx;
+    y = cy;
     if (g_field[cx + cy * VV1_GRID] >= BLOCKED) {
         /* Standing off the reachable area (nudged onto an edge): step to the
            nearest reached cell first. */
         if (!nearest_reached(g_field, VV1_GRID, VV1_GRID, cx, cy, 3, &nx, &ny)) {
             return CORNER_NONE;
         }
-        *out_x = nx * VV1_CELL + VV1_CELL / 2;
-        *out_y = ny * VV1_CELL + VV1_CELL / 2;
-        return CORNER_FOUND;
+        corners[0] = nx * VV1_CELL + VV1_CELL / 2;
+        corners[1] = ny * VV1_CELL + VV1_CELL / 2;
+        *count = 1;
+        x = nx;
+        y = ny;
     }
-    if (!best_step(g_field, VV1_GRID, VV1_GRID, cx, cy, &nx, &ny)) {
-        return CORNER_NONE;             /* walled off: no reached neighbour */
-    }
-    dirx = nx - cx;
-    diry = ny - cy;
-    x = nx;
-    y = ny;
-    /* Extend the straight run while the field keeps pointing the same way. */
-    while (++steps < max_run && !(x == gx && y == gy)) {
-        int tx;
-        int ty;
-        if (!best_step(g_field, VV1_GRID, VV1_GRID, x, y, &tx, &ty)) {
-            break;
+    while (*count < max_corners && !(x == gx && y == gy) && total < VV1_GRID * 4) {
+        int dirx;
+        int diry;
+        int steps = 0;
+        if (!best_step(g_field, VV1_GRID, VV1_GRID, x, y, &nx, &ny)) {
+            break;                      /* walled off: no reached neighbour */
         }
-        if (tx - x != dirx || ty - y != diry) {
-            break;
+        dirx = nx - x;
+        diry = ny - y;
+        x = nx;
+        y = ny;
+        ++total;
+        /* Extend the straight run while the field keeps pointing the same way. */
+        while (++steps < max_run && !(x == gx && y == gy)) {
+            int tx;
+            int ty;
+            if (!best_step(g_field, VV1_GRID, VV1_GRID, x, y, &tx, &ty)
+                || tx - x != dirx || ty - y != diry) {
+                break;
+            }
+            x = tx;
+            y = ty;
+            ++total;
         }
-        x = tx;
-        y = ty;
+        corners[*count * 2] = x * VV1_CELL + VV1_CELL / 2;
+        corners[*count * 2 + 1] = y * VV1_CELL + VV1_CELL / 2;
+        ++*count;
     }
-    *out_x = x * VV1_CELL + VV1_CELL / 2;
-    *out_y = y * VV1_CELL + VV1_CELL / 2;
-    return CORNER_FOUND;
+    return *count > 0 ? CORNER_FOUND : CORNER_NONE;
 }
 
 /* Counters a test can read out of the running game (exported data): how
@@ -345,6 +361,8 @@ typedef int (__fastcall *vv1_give_up_t)(void *village, void *edx, int idx);
 
 /* The detoured blocked handler.  Returns 1 when it dealt with the villager
    and the stock handler must not run. */
+#define VV1_MAX_CORNERS 12
+
 static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     unsigned char *record;
     const unsigned int *grid;
@@ -352,8 +370,12 @@ static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     int feet_x;
     int feet_y;
     int cell;
-    int wx;
-    int wy;
+    int corners[VV1_MAX_CORNERS * 2];
+    int count;
+    int occupied;
+    int room;
+    int speed;
+    int i;
     (void)direction;
     ++VvfpPathfindingStats.vv1_calls;
     if (village == NULL || idx < 0 || idx >= VV1_RECORDS) {
@@ -376,8 +398,21 @@ static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
         vv1_guard[idx].cell = cell;
         vv1_guard[idx].hits = 1;
     }
-    switch (vv1_next_corner(grid, feet_x, feet_y, fields[18], fields[19],
-                            vv1_guard[idx].hits > VV1_GUARD_LIMIT ? 1 : VV1_GRID, &wx, &wy)) {
+    /* Room in the action queue: thirty entries, the current action first;
+       every corner pushed in front moves the rest down, and the last entry
+       would fall off, so never push more than the free entries hold. */
+    occupied = 0;
+    while (occupied < VV1_QUEUE_ENTRIES
+           && *(int *)(record + VV1_QUEUE + occupied * VV1_QUEUE_ENTRY) != 0) {
+        ++occupied;
+    }
+    room = VV1_QUEUE_ENTRIES - 1 - occupied;
+    if (room > VV1_MAX_CORNERS) {
+        room = VV1_MAX_CORNERS;
+    }
+    switch (vv1_route(grid, feet_x, feet_y, fields[18], fields[19],
+                      vv1_guard[idx].hits > VV1_GUARD_LIMIT ? 1 : VV1_GRID,
+                      corners, room > 0 ? room : 1, &count)) {
     case CORNER_NONE:
         ++VvfpPathfindingStats.vv1_gave_up;
         ((vv1_give_up_t)VV1_GIVE_UP)(village, NULL, idx);
@@ -396,11 +431,17 @@ static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     if (!vv1_walkable(grid, feet_x / VV1_CELL, feet_y / VV1_CELL, 0)) {
         ++VvfpPathfindingStats.vv1_unstuck;
     }
-    /* Exactly what the stock nudge does with its own waypoint: push it in
-       front of the current action at the villager's speed, start it, and
-       force a re-aim on the next frame. */
-    ((vv1_push_t)VV1_PUSH_ACTION)(village, NULL, idx, VV1_WALK_TO, wx, wy, 0,
-                                  VV1_PUSH_FRONT, fields[22]);
+    /* Exactly what the stock nudge does with its own waypoint, once per
+       corner: pushed in front of the current action at the villager's
+       speed -- last corner first, so the first ends up in front -- then the
+       first is started and a re-aim forced on the next frame.  Reaching
+       each corner pops to the next; after the last, to the task. */
+    speed = fields[22];
+    for (i = count - 1; i >= 0; --i) {
+        ((vv1_push_t)VV1_PUSH_ACTION)(village, NULL, idx, VV1_WALK_TO,
+                                      corners[i * 2], corners[i * 2 + 1], 0,
+                                      VV1_PUSH_FRONT, speed);
+    }
     ((vv1_start_t)VV1_START_NEXT)(village, NULL, idx);
     fields[21] = 99;
     return 1;
@@ -796,7 +837,28 @@ __declspec(dllexport) int __stdcall VvfpPathfindingProbeVv1(const unsigned int *
                                                              int feet_x, int feet_y,
                                                              int goal_x, int goal_y,
                                                              int *out_x, int *out_y) {
-    return vv1_next_corner(grid, feet_x, feet_y, goal_x, goal_y, VV1_GRID, out_x, out_y);
+    int corners[2];
+    int count;
+    int r = vv1_route(grid, feet_x, feet_y, goal_x, goal_y, VV1_GRID, corners, 1, &count);
+    if (r == CORNER_FOUND) {
+        *out_x = corners[0];
+        *out_y = corners[1];
+    }
+    return r == CORNER_FOUND;
+}
+
+/* The whole route A New Home's handler would queue: up to `capacity`
+   corners into `out` (x, y pairs); returns the count, 0 for no route. */
+__declspec(dllexport) int __stdcall VvfpPathfindingProbeVv1Route(const unsigned int *grid,
+                                                                  int feet_x, int feet_y,
+                                                                  int goal_x, int goal_y,
+                                                                  int *out, int capacity) {
+    int count;
+    if (vv1_route(grid, feet_x, feet_y, goal_x, goal_y, VV1_GRID, out, capacity, &count)
+        != CORNER_FOUND) {
+        return 0;
+    }
+    return count;
 }
 
 /* The Lost Children's flood and descent over a caller-supplied grid

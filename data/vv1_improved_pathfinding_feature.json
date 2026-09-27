@@ -11,7 +11,7 @@
     "vv1_enable_origins_exclusive_features"
   ],
   "behavior_changes": [
-    "When a villager walking to a task finds the next step blocked, the companion floods the game's own 168x168 walkability grid from the task and queues the end of the first straight run of the way round as a walk-to in front of the current action (the same call the stock nudge makes); on reaching it the villager resumes the task, and a further blockage is handled the same way from there.",
+    "When a villager walking to a task finds the next step blocked, the companion floods the game's own 168x168 walkability grid from the task and queues every corner of the way round as walk-tos in front of the current action (the same call the stock nudge makes, as many free queue entries as there are, up to twelve), so the villager walks leg to leg without meeting the obstacle again and then resumes the task.",
     "While a route exists the villager is never handed back to the stock handler's sideways nudges: bumping into a hut or the side of anything is routed round. Only a task that is truly unreachable -- its own cell on an obstacle, or walled off -- ends the action, at once through the game's own queue clear (0x439470), as The Secret City does; the fifteen nudges never run."
   ],
   "explicit_non_changes": [
@@ -31,7 +31,7 @@
     {
       "source": "assets/pathfinding/VVFP Improved Pathfinding.dll",
       "destination": "VVFP Improved Pathfinding.dll",
-      "sha256": "06465A262A28965F551A4D29DBC07CC5BD0D1345678ADE320BD2E2C067CAB016"
+      "sha256": "35E1DF8089D70FA359BD489BF0D1766DA7294CE9B2381FFA400E934C80B3B578"
     }
   ],
   "patches": []

@@ -172,9 +172,13 @@ class RowsAndDllTests(unittest.TestCase):
         self.assertIn("#define VV1_GIVE_UP 0x439470u", source)
         self.assertNotIn("hits > VV1_GUARD_LIMIT) {\n            ++VvfpPathfindingStats.vv1_fell_through", source,
                          "the guard never hands a routed villager back to the stock handler")
-        corner = source[source.index("static int vv1_next_corner("):]
+        corner = source[source.index("static int vv1_route("):]
         corner = corner[:corner.index("\n}")]
         self.assertIn("return CORNER_NONE;             /* a goal on an obstacle: refused", corner)
+        # The whole route is queued at once, last corner first, within the
+        # queue's free entries, so the villager never meets the obstacle again.
+        self.assertIn("for (i = count - 1; i >= 0; --i) {", handler)
+        self.assertIn("room = VV1_QUEUE_ENTRIES - 1 - occupied;", handler)
         self.assertEqual(_stock_bytes("vv1", 0x439470, 7), bytes.fromhex("8B44240469C0D8"),
                          "0x439470 is the record-stride routine the stock handler calls to give up")
         flood = source[source.index("static int __cdecl vv2_flood("):]

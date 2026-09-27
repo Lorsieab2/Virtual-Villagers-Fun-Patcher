@@ -36,13 +36,15 @@ task lives in the action queue (VV1: thirty 24-byte entries from record
 
 **A New Home.** The blocked handler `0x43DFC0` is detoured. The companion
 floods the game's grid from the goal (breadth-first, four neighbours, the
-game's own 1..14 rule), walks the field from the villager's cell to the end
-of the first straight run -- diagonals only where both cells they pass
-between are open -- and pushes that point to the front of the action queue
-as a walk-to (`0x4399F0` with mode 2, type 3, the villager's speed: the
-exact call the stock nudge makes), starts it (`0x43DEF0`) and forces a
-re-aim (`[21] = 99`, as the stock does). Reaching the corner pops back to
-the task; a further blockage fires the handler again from there. A villager
+game's own 1..14 rule), walks the field from the villager's cell collecting
+the end of every straight run -- diagonals only where both cells they pass
+between are open -- and pushes those corners to the front of the action
+queue as walk-tos, last corner first (`0x4399F0` with mode 2, type 3, the
+villager's speed: the exact call the stock nudge makes; at most the queue's
+free entries, up to twelve), starts the first (`0x43DEF0`) and forces a
+re-aim (`[21] = 99`, as the stock does). Reaching each corner pops to the
+next and, after the last, back to the task, so the obstacle is never met
+again -- The Secret City hands its walker the whole list too. A villager
 that keeps being blocked in the same cell is given one cell at a time
 instead of a whole run. While a route exists the stock handler never runs:
 bumping into a hut or the side of anything is routed round (the owner:

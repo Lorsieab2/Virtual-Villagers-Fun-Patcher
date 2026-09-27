@@ -35,7 +35,7 @@ GAMES = {
             {"va": "0x43DFC0", "stock": "5153558B6C2410", "routine": "the blocked-walk handler"},
         ],
         "changes": [
-            "When a villager walking to a task finds the next step blocked, the companion floods the game's own 168x168 walkability grid from the task and queues the end of the first straight run of the way round as a walk-to in front of the current action (the same call the stock nudge makes); on reaching it the villager resumes the task, and a further blockage is handled the same way from there.",
+            "When a villager walking to a task finds the next step blocked, the companion floods the game's own 168x168 walkability grid from the task and queues every corner of the way round as walk-tos in front of the current action (the same call the stock nudge makes, as many free queue entries as there are, up to twelve), so the villager walks leg to leg without meeting the obstacle again and then resumes the task.",
             "While a route exists the villager is never handed back to the stock handler's sideways nudges: bumping into a hut or the side of anything is routed round. Only a task that is truly unreachable -- its own cell on an obstacle, or walled off -- ends the action, at once through the game's own queue clear (0x439470), as The Secret City does; the fifteen nudges never run.",
         ],
         "non_changes": [

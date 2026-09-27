@@ -2,6 +2,7 @@ LIBRARY "VVFP Improved Pathfinding"
 EXPORTS
     VvfpPathfindingInstall=_VvfpPathfindingInstall@4
     VvfpPathfindingProbeVv1=_VvfpPathfindingProbeVv1@28
+    VvfpPathfindingProbeVv1Route=_VvfpPathfindingProbeVv1Route@28
     VvfpPathfindingProbeVv2Flood=_VvfpPathfindingProbeVv2Flood@16
     VvfpPathfindingProbeVv2Next=_VvfpPathfindingProbeVv2Next@24
     VvfpPathfindingProbeSite=_VvfpPathfindingProbeSite@20

@@ -179,6 +179,25 @@ int main(int argc, char **argv) {
         CHECK(r == 1 && vv1_open(wx / 10, wy / 10) && abs(wx / 10 - 10) <= 1 && abs(wy / 10 - 10) <= 1,
               "the first waypoint is an open neighbour (%d,%d)", wx, wy);
     }
+    printf("-- A New Home: the whole route is queued at once, so the obstacle is never met again --\n");
+    {
+        typedef int (__stdcall *route_t)(const unsigned int *, int, int, int, int, int *, int);
+        route_t route = (route_t)GetProcAddress(dll, "VvfpPathfindingProbeVv1Route");
+        int pts[24], n, i, x = 105, y = 105, clear = 1, at_goal = 0;
+        CHECK(route != NULL, "VvfpPathfindingProbeVv1Route is exported");
+        vv1_clear();
+        for (i = 0; i <= 20; ++i) vv1_block(30, i);
+        for (i = 20; i <= 26; ++i) { int yy; for (yy = 8; yy <= 13; ++yy) vv1_block(i, yy); }
+        n = route ? route(grid1, x, y, 505, 105, pts, 12) : 0;
+        for (i = 0; i < n; ++i) {
+            if (!vv1_line_clear(x, y, pts[i * 2], pts[i * 2 + 1])) clear = 0;
+            x = pts[i * 2]; y = pts[i * 2 + 1];
+        }
+        at_goal = n > 0 && x / 10 == 50 && y / 10 == 10;
+        CHECK(n >= 2 && n <= 12, "a hut and a wall give %d corner(s)", n);
+        CHECK(clear, "every leg between corners is clear of blocked cells");
+        CHECK(at_goal, "and the last corner is the task's own cell (%d,%d)", x, y);
+    }
     printf("-- A New Home: a maze --\n");
     {
         int ex, ey, n, i;
