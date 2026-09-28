@@ -11,7 +11,7 @@
     "vv2_enable_origins_exclusive_features"
   ],
   "behavior_changes": [
-    "The route flood no longer fails when the task's cell is blocked: the cell is seeded as the goal and the villager is walked to the obstacle's open side and then onto the task's exact point, instead of the walker clearing the villager's action queue.",
+    "The route flood keeps the game's (and The Secret City's) rule that a task on a blocked cell is unreachable, but writes the field with the shared flood so the descent below has it.",
     "The route descent takes the neighbour nearest the task rather than the first smaller one in a fixed order, never cuts the corner between two blocked cells, and from an unreached or blocked cell heads for the nearest reached one; the field it writes and reads is laid out exactly as the game's own follower expects."
   ],
   "explicit_non_changes": [
@@ -37,7 +37,7 @@
     {
       "source": "assets/pathfinding/VVFP Improved Pathfinding.dll",
       "destination": "VVFP Improved Pathfinding.dll",
-      "sha256": "7D093C2C921623B8AB77A064538B403DFA24B89C3D51649AAE8B8B3B801BB921"
+      "sha256": "75E609239BAA798B431F0138D75A03DD684FB271BC22BDF0ED5C14379BA15006"
     }
   ],
   "patches": []

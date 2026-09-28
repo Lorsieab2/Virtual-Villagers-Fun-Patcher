@@ -36,27 +36,34 @@ task lives in the action queue (VV1: thirty 24-byte entries from record
 
 **A New Home.** The blocked handler `0x43DFC0` is detoured. The companion
 floods the game's grid from the goal (breadth-first, four neighbours, the
-game's own 1..14 rule), walks the field from the villager's cell to the end
-of the first straight run -- diagonals only where both cells they pass
-between are open -- and pushes that point to the front of the action queue
-as a walk-to (`0x4399F0` with mode 2, type 3, the villager's speed: the
-exact call the stock nudge makes), starts it (`0x43DEF0`) and forces a
-re-aim (`[21] = 99`, as the stock does). Reaching the corner pops back to
-the task; a further blockage fires the handler again from there. The stock
-handler runs, through the trampoline, whenever no route exists, the
-villager is already beside a goal that sits on an obstacle, or the handler
-keeps firing from one cell (something the grid does not show is in the
-way): a genuinely unreachable task ends exactly as before.
+game's own 1..14 rule), walks the field from the villager's cell collecting
+the end of every straight run -- diagonals only where both cells they pass
+between are open -- and pushes those corners to the front of the action
+queue as walk-tos, last corner first (`0x4399F0` with mode 2, type 3, the
+villager's speed: the exact call the stock nudge makes; at most the queue's
+free entries, up to twelve), starts the first (`0x43DEF0`) and forces a
+re-aim (`[21] = 99`, as the stock does). Reaching each corner pops to the
+next and, after the last, back to the task, so the obstacle is never met
+again -- The Secret City hands its walker the whole list too. There is no
+retry guard, and none is needed: the task walk's only collision test is
+this same grid (`0x414200`, both axes, in `0x445CB0`), and the handler is
+called from nowhere else, so nothing can block a villager that the route
+does not see. While a route exists the stock handler never runs:
+bumping into a hut or the side of anything is routed round (the owner:
+those never count as unreachable). With no route at all -- the task's own
+cell on an obstacle, or walled off -- the action ends at once through the
+game's own queue clear (`0x439470`), which is what The Secret City does
+(`0x460F70`), never through fifteen nudges first. The stock handler runs,
+through the trampoline, only when there is no village or grid to read.
 
 **The Lost Children.** Two routines are replaced wholesale, keeping the
 game's follower and its field layout (two ints then 168x168 WORDs in the
 villager's record, 1 at the goal, `0x7FFE` blocked, `0x7FFF` unreached, the
 outer ring blocked):
 
-* `0x41A700` (flood): the stock refuses a goal on a blocked cell, which is
-  a give-up. The companion seeds the goal cell regardless and floods from
-  it, so the villager is walked to the obstacle's open side and then onto
-  the task's exact point.
+* `0x41A700` (flood): the same rule as the stock and as The Secret City --
+  a goal on a blocked cell is refused and the action ends -- but the field
+  is written by the shared flood so the descent below has it.
 * `0x41A9B0` (descent): the stock takes the first neighbour in a fixed
   order whose distance is smaller, cuts corners between obstacles, and
   returns -1 from a cell the flood never reached. The companion takes the
