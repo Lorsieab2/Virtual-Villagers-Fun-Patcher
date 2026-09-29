@@ -242,6 +242,21 @@ class DispatcherStubTests(unittest.TestCase):
                     self.assertEqual(r.stock_frame, (g["calls"][0] + 5, VILLAGE),
                                      "the stock request sees the scheduler's own frame and ecx")
 
+    def test_healers_come_first_even_with_every_hut_built(self):
+        # The owner, v1.35.38: "For healers, they should study medicine at all
+        # food levels, when they can study medicine" -- not tied to the huts,
+        # unlike builders.
+        for game in self.GAMES:
+            g = G[game]
+            with self.subTest(game=game):
+                r = DispatchRun(game, g["calls"][0], g["healing"], self.other_job(g), huts_done=True,
+                                starts=lambda job: job == g["healing"])
+                self.assertEqual(r.asked, [g["healing"]])
+                self.assertEqual(r.reg(UC_X86_REG_EAX) & 0xFF, 1)
+                r = DispatchRun(game, g["calls"][0], g["healing"], self.other_job(g), huts_done=True,
+                                starts=lambda job: False)
+                self.assertEqual(r.asked, [g["healing"], self.other_job(g)], "can't study: the stock request")
+
     def test_everything_else_runs_the_stock_request_alone(self):
         for game in self.GAMES:
             g = G[game]

@@ -13,7 +13,7 @@
   "behavior_changes": [
     "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.",
     "While not every population hut is complete, a builder's work attempt no longer depends on the food supply: at 400 food or more a villager whose selected job is Building still gets the preferred-job attempt the stock game gives below 400. Every other villager, and every village whose huts are all built, keeps the stock food behaviour.",
-    "Below Building level 3 the stock Building branch gave up before the hut fix; it now goes on to it. And wherever A New Home's Building branch gives up (the 20% skip roll, the level gate with no hut to fix, no hut standing) it reported 'started' with nothing started, leaving the builder on 'Nothing'; it now reports 'nothing started', so the villager goes on to other work."
+    "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut whenever at least one is built and no other building project is available (every hut built included). And wherever A New Home's Building branch gives up (the 20% skip roll, the level gate with no hut to fix, no hut standing) it reported 'started' with nothing started, leaving the builder on 'Nothing'; it now reports 'nothing started', so the villager goes on to other work."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.",
@@ -25,7 +25,7 @@
     {
       "source": "assets/fix_huts/VVFP Fix Huts.dll",
       "destination": "VVFP Fix Huts.dll",
-      "sha256": "618C5888A3431B5AF33CC8E609C495354795279FF47CCA132645733DCD9B6ABA"
+      "sha256": "B7D98B39F3191F001BD5588CBEE6DA8F157FF160E433B9FDC5B839634C1BF6D2"
     }
   ],
   "patches": [],

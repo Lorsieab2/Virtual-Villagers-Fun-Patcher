@@ -94,9 +94,17 @@ struct vvfp_work_first_stats {
 };
 __declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0 };
 
-/* The villager's own job to try first, or -1: the stock request alone. */
+/* The villager's own job to try first, or -1: the stock request alone.
+   Builders: only while a population hut is unbuilt.  Healers: always -- the
+   owner: "For healers, they should study medicine at all food levels, when
+   they can study medicine"; whether they can (a patient, the Medicine tech,
+   the Hospital) is the game's own healing dispatcher's decision, and when it
+   starts nothing the scheduler's own request runs. */
 static int own_first(int selected, int requested, int building, int healing, int huts_incomplete) {
-    if ((selected != building && selected != healing) || selected == requested || !huts_incomplete) {
+    if (selected == requested) {
+        return -1;
+    }
+    if (selected == building ? !huts_incomplete : selected != healing) {
         return -1;
     }
     ++VvfpWorkFirstStats.tried;

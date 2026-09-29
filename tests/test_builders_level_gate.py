@@ -182,24 +182,46 @@ class LevelGateTests(unittest.TestCase):
 
 
 class BelowLevelOnlyAHutTests(unittest.TestCase):
-    """Codex on #463: below level 3 the detour must never reach the stock
-    random pick the gate used to skip (VV2's fourth option is building 5,
-    not a hut).  No hut complete, or every hut complete: "nothing"."""
+    """The owner: "below level 3, at all food levels, villagers will fix huts
+    if at least one is built and there are no other building projects
+    available".  Every hut built: a built population hut is fixed.  No hut
+    built: "nothing".  Codex on #463: never the stock random pick the gate
+    used to skip (VV2's fourth option is building 5, not a hut)."""
 
-    def test_no_hut_or_every_hut_complete_keeps_the_gates_nothing(self):
+    HUTS = {"vv1": (9, 10, 11), "vv2": (24, 25, 26)}
+
+    def test_every_hut_built_a_built_hut_is_fixed(self):
         for game, g in G.items():
             stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
-            for huts in ((0, 0, 0), (1, 1, 1)):
+            with self.subTest(game=game):
+                r = Run(game, stub, level=2, huts=(1, 1, 1))
+                self.assertIsNotNone(r.examined)
+                self.assertIn(r.examined[1], self.HUTS[game], "a population hut, never building 5")
+                self.assertEqual(r.exit, g["started"])
+                self.assertEqual(r.rolled, [], "the stock random pick is never reached")
+
+    def test_only_built_huts_are_chosen(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
+            for huts, allowed in (((0, 1, 0), {1}), ((1, 0, 1), {0, 2})):
                 with self.subTest(game=game, huts=huts):
-                    r = Run(game, stub, level=2, huts=huts)
-                    self.assertIsNone(r.examined, "nothing examined")
-                    self.assertEqual(r.rolled, [], "the stock random pick is never reached")
-                    if game == "vv2":
-                        self.assertEqual(r.exit, 0x46004C, "the stock gate's own target (al = 0)")
-                    else:
-                        self.assertEqual(r.exit, r.ret)
-                        self.assertEqual(r.reg(UC_X86_REG_EAX) & 0xFF, 0)
-                        self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 7 * 4)
+                    seen = {Run(game, stub, level=2, huts=huts).examined[1] - self.HUTS[game][0]
+                            for _ in range(6)}
+                    self.assertTrue(seen <= allowed, seen)
+
+    def test_no_hut_built_keeps_the_gates_nothing(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
+            with self.subTest(game=game):
+                r = Run(game, stub, level=2, huts=(0, 0, 0))
+                self.assertIsNone(r.examined, "nothing examined")
+                self.assertEqual(r.rolled, [], "the stock random pick is never reached")
+                if game == "vv2":
+                    self.assertEqual(r.exit, 0x46004C, "the stock gate's own target (al = 0)")
+                else:
+                    self.assertEqual(r.exit, r.ret)
+                    self.assertEqual(r.reg(UC_X86_REG_EAX) & 0xFF, 0)
+                    self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 7 * 4)
 
 
 class NewHomeNothingTests(unittest.TestCase):
