@@ -784,7 +784,7 @@ beyond a normal Python install.
 | --- | --- |
 | Windows | The five games are 32-bit Windows executables and the patcher writes Windows PE files. `Launch Virtual Villagers Fun Patcher.bat` is a Windows batch file. |
 | Python 3.10 or newer | Download from [python.org](https://www.python.org/downloads/). During setup keep **tcl/tk and IDLE** ticked, which is the default: the patcher's window is built with `tkinter`. |
-| No extra packages | The patcher uses only the Python standard library. There is nothing to `pip install`, and no internet connection is needed to patch. The **Check for updates** link is the one feature that reaches the internet, and it is entirely optional: it just opens the releases page in your browser, and everything else works with no connection at all. |
+| No extra packages | The patcher uses only the Python standard library. There is nothing to `pip install`, and no internet connection is needed to patch. The **Check for updates** link is the one feature that reaches the internet, and it is entirely optional: it just opens the patcher's GitHub page in your browser, and everything else works with no connection at all. |
 | An original game | The free downloads from [ldw.com](https://ldw.com), installed normally. Only those builds are supported. |
 | Free disk space | The patcher copies each game whole rather than editing your original, so each modded copy needs about as much space as the game folder itself: roughly 25-85 MB per game, or about 300 MB for all five. |
 
@@ -797,9 +797,9 @@ Your original game is never modified. Every patch is written into a separate
 keep playing the original.
 
 The top-right of the window shows which build you are running, next to a
-**Check for updates** link. Clicking it opens the releases page in your
-browser. It deliberately makes no judgement about which build is newer: the
-releases page already shows what is newest, and your build version is printed
+**Check for updates** link. Clicking it opens the patcher's GitHub page in
+your browser. It deliberately makes no judgement about which build is newer: the
+GitHub page already shows the latest release, and your build version is printed
 directly beside the link, so the comparison is yours to make and nothing here
 can hang or report a wrong answer.
 
