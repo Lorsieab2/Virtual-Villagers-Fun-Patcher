@@ -160,7 +160,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Numeric Keys: Zip Around the Island: unticking this unticks it. Needed by Show Parents in Details Screen: unticking this unticks it. Needed by Sort by Age/Skill/Health in Details Screen: unticking this unticks it. Needed by Improved Pathfinding: unticking this unticks it. Needed by Watering the Field Trains Building: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it.**
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Numeric Keys: Zip Around the Island: unticking this unticks it. Needed by Show Parents in Details Screen: unticking this unticks it. Needed by Sort by Age/Skill/Health in Details Screen: unticking this unticks it. Needed by Improved Pathfinding: unticking this unticks it. Needed by Watering the Field Trains Building: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it. Needed by School Lessons Stop at 50: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.
 - Explicit non-changes/exclusions: none declared
@@ -249,13 +249,25 @@ The clothing shortcut cycles the selected active villager through the stock outf
 
 Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 
-**Requires no other patch to be ticked.**
+**Requires no other patch to be ticked. Needed by School Lessons Stop at 50: unticking this unticks it.**
 
 - Behavior changes: Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
+
+#### School Lessons Stop at 50 (`vv1_school_lessons_cap_50`)
+
+Each child who finishes the Going to school activity still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered. When every skill is at 50 the lesson awards nothing. This matches the Nursery Schools of the later games, which skip any skill at 50. **Requires School Lessons Grant Skill** (the lesson it caps) **and Enable Origins-Exclusive Features**, whose companion loads this one; without either, lessons train to 100 as before.
+
+**Requires School Lessons Grant Skill: ticking this ticks it, and unticking it unticks this. The Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When the lesson's completion callback 127 runs, the companion counts the child's skills below 50, asks the game's own RNG for one of them and for the stock 7 to 9 points, adds them and stops at exactly 50. With every skill at 50 or above the lesson awards nothing.
+- Explicit non-changes/exclusions: This row changes no executable bytes: the Origins companion loads the DLL, which detours the lesson row's own callback cave at run time only after verifying its bytes; the lesson row not applied, or a different build, installs nothing. A skill at or above 50 is never lowered; work-task training past 50 is untouched. The lesson itself -- who teaches, who attends, its length, its animation and its messages -- is the game's own; only the award at its end changes. Nothing is written to a villager record beyond the skill the lesson would have written, nor to the save or any file.
+- Dependencies: vv1_school_lessons_grant_skill, vv1_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Show Parents in Details Screen (`vv1_show_parents`)
 
@@ -391,7 +403,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Improved Pathfinding: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it. Needed by Write Births and Conceptions Log to Text File: unticking this unticks it.**
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Improved Pathfinding: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it. Needed by Teaching Children Stops at 50: unticking this unticks it. Needed by Write Births and Conceptions Log to Text File: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art.
 - Explicit non-changes/exclusions: none declared
@@ -456,13 +468,25 @@ Villagers succeed every work-task skill roll for Farming, Building, Researching,
 
 Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 
-**Requires no other patch to be ticked.**
+**Requires no other patch to be ticked. Needed by Teaching Children Stops at 50: unticking this unticks it.**
 
 - Behavior changes: Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Teaching Children Stops at 50 (`vv2_teaching_children_cap_50`)
+
+Each child who finishes a Teaching Children lesson (Attending lessons) still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered. When every skill is at 50 the lesson awards nothing. This matches the Nursery Schools of the later games, which skip any skill at 50. **Requires Teaching Children Grants Skill** (the lesson it caps) **and Enable Origins-Exclusive Features**, whose companion loads this one; without either, lessons train to 100 as before.
+
+**Requires Teaching Children Grants Skill: ticking this ticks it, and unticking it unticks this. The Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When the lesson's completion callback 127 runs, the companion counts the child's skills below 50, asks the game's own RNG for one of them and for the stock 7 to 9 points, adds them and stops at exactly 50. With every skill at 50 or above the lesson awards nothing.
+- Explicit non-changes/exclusions: This row changes no executable bytes: the Origins companion loads the DLL, which detours the lesson row's own callback cave at run time only after verifying its bytes; the lesson row not applied, or a different build, installs nothing. A skill at or above 50 is never lowered; work-task training past 50 is untouched. The lesson itself -- who teaches, who attends, its length, its animation and its messages -- is the game's own; only the award at its end changes. Nothing is written to a villager record beyond the skill the lesson would have written, nor to the save or any file.
+- Dependencies: vv2_teaching_children_grants_skill, vv2_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Tip Wording: Numeric Keys (`vv2_numeric_keys_tip_wording`)
 
@@ -551,7 +575,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it.**
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it. Needed by Tribal Chief Lessons Stop at 50: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
 - Explicit non-changes/exclusions: none declared
@@ -624,6 +648,20 @@ When the Tribal Chief completes Pointing out a rare collectible, rejected random
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Tribal Chief Lessons Stop at 50 (`vv3_chief_lessons_cap_50`)
+
+The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered. When every skill is at 50 the lesson awards nothing. This matches the Nursery Schools of the later games, which skip any skill at 50. The Secret City has no companion that runs every frame, so this row diverts the lesson award's first seven bytes into a small stub in the page Origins appends, which calls "VVFP Lesson Cap.dll". **Requires Enable Origins-Exclusive Features**, whose page holds the stub; without it the stock lesson runs and trains to 100.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When a child finishes a Tribal Chief lesson (callback 42), the companion counts the skills below 50, asks the game's own RNG for one of them and for the stock 7 to 9 points, adds them and stops at exactly 50. With every skill at 50 or above the lesson awards nothing.
+- Explicit non-changes/exclusions: This row diverts one seven-byte instruction pair in the lesson award into a stub in the page Origins appends; the stub resolves the companion once and otherwise replays the stock bytes, so with the DLL missing the stock lesson runs (capped at 100). A skill at or above 50 is never lowered; work-task training past 50 is untouched. The lesson itself -- who teaches, who attends, its length, its animation and its messages -- is the game's own; only the award at its end changes. Nothing is written to a villager record beyond the skill the lesson would have written, nor to the save or any file.
+- Dependencies: vv3_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+- Appends 4096 bytes as 1 new PE section -- `.vv3lc` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 
 #### Write Births and Conceptions Log to Text File (`vv3_write_parentage_log`)
 

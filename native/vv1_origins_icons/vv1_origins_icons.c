@@ -1372,6 +1372,44 @@ static void vvfp_fix_huts_bridge(int game_id) {
     }
 }
 
+/* "VVFP Lesson Cap.dll" (School Lessons Stop at 50 / Teaching Children
+   Stops at 50): loaded by full path and asked to install its detour on the
+   lesson row's own callback cave, once, from this per-frame tick -- outside
+   DllMain.  Not shipped (the row is off), or the lesson row not applied:
+   nothing is installed, the lesson trains to 100 as before.  Compiled into
+   The Lost Children's companion as well, which calls it with game 2. */
+static int vvfp_lesson_cap_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
+
+static void vvfp_lesson_cap_bridge(int game_id) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    int (__stdcall *install)(int game_id);
+    if (vvfp_lesson_cap_state != 0) {
+        return;
+    }
+    vvfp_lesson_cap_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP Lesson Cap.dll") > sizeof(path)) {
+        return;
+    }
+    lstrcpyA(slash + 1, "VVFP Lesson Cap.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return;                   /* not shipped: the row is off */
+    }
+    install = (int (__stdcall *)(int))GetProcAddress(companion, "VvfpLessonCapInstall");
+    if (install != NULL && install(game_id)) {
+        vvfp_lesson_cap_state = 1;
+    }
+}
+
 /* "VVFP VV1 Watering Builds.dll" (Watering the Field Trains Building): it
    installs its own detour on the garden progress step, so the only wiring
    here is to load it by full path and ask it to install, once, from this
@@ -1491,6 +1529,7 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     vvfp_pathfinding_bridge(1); /* pathfinding companion: installs its detour once, fail-open */
     vv1_watering_bridge();      /* watering companion: installs its detour once, fail-open */
     vvfp_fix_huts_bridge(1);    /* fix-huts companion: once, fail-open */
+    vvfp_lesson_cap_bridge(1);  /* lesson-cap companion: once, fail-open */
     vv1_parentage_bridge_tick(); /* parentage companion: watches for births, fail-open */
     if (!vv1_mask_prepare_slot()) {
         return;  /* slot not captured yet -> no table or sidecar mutation */

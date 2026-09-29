@@ -94,17 +94,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # trampoline (through page offset 0x71) and only its PE checksum:
     # three checksum bytes in stock/collection_progression, two in
     # immediate_fixed. The optional overlay has those same 38 code changes.
+    # Re-pinned when Tribal Chief Lessons Stop at 50 joined the catalog.
+    # Justified BEFORE re-pinning by rendering the full catalog with and
+    # without that row and diffing byte for byte: 136-137 differing bytes per
+    # mode, every one inside its own overlay (0xCBC00..0xCC000), its seven-byte
+    # site at 0x58F11 (callback 42's push 5; call RNG) or the PE CheckSum at
+    # 0x160..0x163; nothing else moved and the length is unchanged.
     "stock": (
-        "8EC1CB04066431C4F91A7D67921126949B41F3E18E2747FA90FD6AC01CBAD99A",
-        "59E10C00",
+        "5A1429652A67303CFA51B18CB80AEFF082CC05C643F870DE066D2632C435D371",
+        "27C90D00",
     ),
     "collection_progression": (
-        "DC72BBA102F74AAFC6FD699F8AF9AB824A0BC48625A58C7FAFB6508082FE9D9C",
-        "59FA0C00",
+        "A7D153518573AD8301384B52E9FE3D405E179759B83B3C8201986480216D4D71",
+        "28E20C00",
     ),
     "immediate_fixed": (
-        "84F9D7D6384E0CB48B056CA584846880F8D8E10A6734C973F798212C814CB4B8",
-        "573C0D00",
+        "4D270345E6E3266F6CA565DCE4B7E7B66905148210C03046E9206A6182EAA608",
+        "26240D00",
     ),
 }
 

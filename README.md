@@ -183,6 +183,12 @@ Each child who finishes the unlocked Going to school activity gains 7 to 9 point
 
 - Patch ID: `vv1_school_lessons_grant_skill`
 
+**School Lessons Stop at 50**
+
+Each child who finishes the Going to school activity still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered. When every skill is at 50 the lesson awards nothing. This matches the Nursery Schools of the later games, which skip any skill at 50. **Requires School Lessons Grant Skill** (the lesson it caps) **and Enable Origins-Exclusive Features**, whose companion loads this one; without either, lessons train to 100 as before.
+
+- Patch ID: `vv1_school_lessons_cap_50`
+
 **Visual Mods**
 
 Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.
@@ -258,6 +264,12 @@ A villager who completes Recovering at the hospital gains exactly 1 health point
 Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 
 - Patch ID: `vv2_teaching_children_grants_skill`
+
+**Teaching Children Stops at 50**
+
+Each child who finishes a Teaching Children lesson (Attending lessons) still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered. When every skill is at 50 the lesson awards nothing. This matches the Nursery Schools of the later games, which skip any skill at 50. **Requires Teaching Children Grants Skill** (the lesson it caps) **and Enable Origins-Exclusive Features**, whose companion loads this one; without either, lessons train to 100 as before.
+
+- Patch ID: `vv2_teaching_children_cap_50`
 
 **Write Births and Conceptions Log to Text File**
 
@@ -335,6 +347,12 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. The Secret City has no companion that runs every frame, so its row diverts one eight-byte test in the Building dispatcher into a small stub in the page Origins appends, which calls "VVFP Fix Huts.dll". **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
 
 - Patch ID: `vv3_builders_fix_huts`
+
+**Tribal Chief Lessons Stop at 50**
+
+The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered, and when every skill is at 50 the lesson awards nothing. This matches A New Home's and The Lost Children's lesson patches and the later games' Nursery Schools. The Secret City has no companion that runs every frame, so the row diverts the lesson award into a small stub in the page Origins appends, which calls "VVFP Lesson Cap.dll". **Requires Enable Origins-Exclusive Features**, whose page holds the stub; without it the stock lesson runs and trains to 100.
+
+- Patch ID: `vv3_chief_lessons_cap_50`
 
 
 ### Virtual Villagers - The Tree of Life

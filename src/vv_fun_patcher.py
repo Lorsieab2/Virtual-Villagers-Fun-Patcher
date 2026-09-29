@@ -153,6 +153,16 @@ FIX_HUTS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_builders_fix_huts_feature.json"
     for game_number in range(1, 6)
 )
+# Lessons stop at 50: one companion for A New Home, The Lost Children and
+# The Secret City, on top of the ordinary lesson rows. VV1/VV2 load it from
+# the Origins companion (run-time detour on the lesson row's own cave; no
+# executable bytes); VV3 reaches it through a stub overlaid on the page
+# Origins appends.
+LESSON_CAP_FEATURE_PATHS = (
+    ROOT / "data" / "vv1_school_lessons_cap_feature.json",
+    ROOT / "data" / "vv2_teaching_children_cap_feature.json",
+    ROOT / "data" / "vv3_chief_lessons_cap_feature.json",
+)
 # Move the "Playing in the dirt" Spot: New Believers' two base coordinates
 # of the stock routine, so children play on the grass rather than on the
 # totem statue (the owner marked the spot).
@@ -2878,7 +2888,7 @@ def _load_fun_patch_records(
             if record.get("enabled", True):
                 items.append(record)
     for feature_path in (IMPROVED_PATHFINDING_FEATURE_PATHS + WATERING_BUILDS_FEATURE_PATHS
-                         + FIX_HUTS_FEATURE_PATHS):
+                         + FIX_HUTS_FEATURE_PATHS + LESSON_CAP_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

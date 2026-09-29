@@ -1169,8 +1169,10 @@ class ManifestTests(unittest.TestCase):
         # changes one string pointer and dead storage and composes with everything;
         # 12 with Improved Pathfinding (vv2_improved_pathfinding), which patches
         # no executable bytes at all -- its companion detours at run time;
-        # 13 with Builders Fix Huts When Idle (vv2_builders_fix_huts), the same.
-        self.assertEqual(len(feature_ids), 13)
+        # 13 with Builders Fix Huts When Idle (vv2_builders_fix_huts), the same;
+        # 14 with Teaching Children Stops at 50 (vv2_teaching_children_cap_50),
+        # the same again.
+        self.assertEqual(len(feature_ids), 14)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -1206,11 +1208,21 @@ class ManifestTests(unittest.TestCase):
         )
         new_guard_offsets = {0x3BE8E, 0x73F20}
 
+        catalog = {patch.id: patch for patch in load_fun_patches()}
         for mode in ALL_MODES:
             for feature_id in feature_ids:
                 with self.subTest(mode=mode, feature=feature_id):
+                    # As the GUI selects it: a row's public prerequisites come
+                    # with it (Teaching Children Stops at 50 brings in the
+                    # lesson row it caps); the Origins base resolves itself.
+                    prerequisites = [
+                        dependency
+                        for dependency in catalog[feature_id].raw.get("dependencies") or ()
+                        if dependency in feature_ids
+                        and not dependency.endswith("_enable_origins_exclusive_features")
+                    ]
                     rendered, applied = render_patched_bytes(
-                        source, build, mode, [feature_id]
+                        source, build, mode, prerequisites + [feature_id]
                     )
                     records = [
                         (
@@ -1714,7 +1726,17 @@ class StockIntegrationTests(unittest.TestCase):
                 if feature.game_id == build.id
             ]
             scenarios = [("none", [])]
-            scenarios.extend((feature_id, [feature_id]) for feature_id in public_ids)
+            # Each feature as the GUI selects it: ticking a row ticks its
+            # public prerequisites too (a "Stops at 50" row brings in the
+            # lesson row it caps); the Origins base is resolved internally.
+            public_set = set(public_ids)
+            for feature_id in public_ids:
+                prerequisites = [
+                    dependency
+                    for dependency in feature_catalog[feature_id].raw.get("dependencies") or ()
+                    if dependency in public_set
+                ]
+                scenarios.append((feature_id, prerequisites + [feature_id]))
             scenarios.append(("all", public_ids))
             expected_safety = {
                 int(patch["offset"], 0) for patch in build.safety_patches
@@ -3962,6 +3984,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_origins_village_wide_upgrades",
                 "vv2_improved_pathfinding",
                 "vv2_builders_fix_huts",
+                "vv2_teaching_children_cap_50",
                 "vv2_numeric_keys_tip_wording",
             },
         )

@@ -325,10 +325,13 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # the shared vv1_origins_icons.c source replaced its 0x48B614 "Golden
         # Child pointer" (really VV1's villager array) with the record flag
         # +0x36C == 0xC7; VV2 compiles that source but does not use either
-        # affected function, and its own behaviour is unchanged.
+        # affected function, and its own behaviour is unchanged. Re-pinned
+        # again when the shared source gained vvfp_lesson_cap_bridge(), which
+        # loads "VVFP Lesson Cap.dll" by full path once from the per-frame
+        # sweep (Teaching Children Stops at 50); nothing else changed.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "7B2D03117A94C25CC54918B11516BED2335F486A2A64E23B4DAFA134C9B4A15C",
+            "370D79EBD251254D1C0E258BFABAEBD32EDBFECD0D70DD700417222821842AB2",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
