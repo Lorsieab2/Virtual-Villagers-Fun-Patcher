@@ -257,7 +257,18 @@ static int later_complete(const struct later_game *g, int hut) {
     return r != 0;
 }
 
-/* The hut to fix, or -1 for "leave the stock code alone". */
+/* The hut to fix, or -1 for "leave the stock code alone".
+
+   "All complete" is judged over all FOUR population huts, the candidates
+   over the first three.  Both come from the stock dispatchers: hut 3 (VV3
+   index 3; VV4/VV5 project 22) is built through the same build-a-hut job as
+   huts 0..2 (VV3 job 9 with argument 3; VV4/VV5 job 16 with argument 3), so
+   it is a population hut, and the stock "fix a hut" option appears only once
+   all four are complete while its random pick covers 0..2 only.  So huts
+   0..2 complete with hut 3 still unbuilt is exactly a "not all population
+   huts are complete" state in which the stock game never fixes anything --
+   the case the owner asked to cover -- and the fix goes to one of the three
+   huts the stock code itself fixes. */
 static int __cdecl later_choose(const struct later_game *g) {
     unsigned int mask = 0;
     int all = 1;
