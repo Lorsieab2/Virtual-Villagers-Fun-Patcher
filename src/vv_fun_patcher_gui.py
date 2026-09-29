@@ -55,6 +55,8 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
     # The owner: VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5) is a default-off patch.
     + ["vv%d_everyone_collects_like_vv1" % game for game in range(2, 6)]
+    # The owner: Super-Secret Golden Mushroom (all five games) is default-off.
+    + ["vv%d_super_secret_golden_mushroom" % game for game in range(1, 6)]
 )
 
 

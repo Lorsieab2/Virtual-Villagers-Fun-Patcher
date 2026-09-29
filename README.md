@@ -225,6 +225,12 @@ Builders and healers do their own work first, at any food level: whenever the ga
 
 - Patch ID: `vv1_builders_and_healers_work_first`
 
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv1_super_secret_golden_mushroom`
+
 
 ### Virtual Villagers - The Lost Children
 
@@ -319,6 +325,12 @@ Multiple children can be dropped onto a single mushroom (and collectible) and it
 
 - Patch ID: `vv2_everyone_collects_like_vv1`
 
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv2_super_secret_golden_mushroom`
+
 
 ### Virtual Villagers - The Secret City
 
@@ -396,6 +408,12 @@ Multiple children can be dropped onto a single mushroom (and collectible) and it
 
 - Patch ID: `vv3_everyone_collects_like_vv1`
 
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv3_super_secret_golden_mushroom`
+
 
 ### Virtual Villagers - The Tree of Life
 
@@ -447,6 +465,12 @@ Builders and healers do their own work first, at any food level: whenever the ga
 Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
 
 - Patch ID: `vv4_everyone_collects_like_vv1`
+
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv4_super_secret_golden_mushroom`
 
 
 ### Virtual Villagers - New Believers
@@ -529,6 +553,12 @@ Builders and healers do their own work first, at any food level: whenever the ga
 Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
 
 - Patch ID: `vv5_everyone_collects_like_vv1`
+
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv5_super_secret_golden_mushroom`
 
 
 That is 35 optional patches across the five games.
