@@ -357,7 +357,7 @@ def main() -> None:
     sha = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
     common_non_changes = [
         "Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own.",
-        "A builder with a project available still takes the project; a village where every population hut is complete, or none is, runs the stock scheduler unchanged.",
+        "A builder with a project available still takes the project; in a village where every population hut is complete, or none is, the Building dispatcher's hut choice is the stock one (no hut to fix, or the stock fix-a-hut option). The food bypass applies whenever any population hut is unbuilt, and a village with every hut complete keeps the stock food behaviour.",
         "Nothing is written to a villager record, the save or any file.",
     ]
     for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):

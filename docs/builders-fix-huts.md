@@ -70,6 +70,34 @@ started" epilogue. Otherwise the stock code runs unchanged.
   and takes the stock "started" or "nothing" path. A failed resolution is
   remembered and the stock path runs from then on.
 
+## Regardless of the food supply (v1.35.35)
+
+The owner: "Builders fix huts regardless of the food supply when not all
+population huts are built." Every game's idle scheduler reads the food total
+before the Building dispatcher -- one scheduler, reached from both the live
+per-frame caller and the catch-up loop:
+
+| Game | Stock gate | Builder bypass (while any population hut is unbuilt) |
+| --- | --- | --- |
+| VV1 | `0x448336` `cmp [state+0xA2EC], 400; jge` skips the preferred-job attempt | selected job 4 (Building) -> the preferred-job attempt; installs only while Builder Action Fixes (same bytes) is off |
+| VV2 | `0x4619E9` `cmp [state+0x2EAA4], 300; jge`, the same | selected job `[record+0x7F8]` 5 (Building) -> the preferred-job attempt |
+| VV3 | `0x45C229`, at 250 food or less the pick (`ebx`) waits behind a farming attempt, then half the time is swapped for food action 0x76 | picked job 4 -> the stock dispatch-with-pick `0x45C271`; a second executable-side stub at page offset 0x100 of the fix-huts overlay, cache slot `0x6E0FFC` |
+| VV4 | `0x4659B0`, the same after the pick (`eax`), food action 0x41 | picked job 4 -> `0x465A0F` |
+| VV5 | `0x46F271`, the same, food action 0x47 | picked job 4 -> `0x46F2CE` |
+
+Job numbers are each dispatcher's own: the case that holds the fix-huts site
+is Building. In VV1 the picker's switch at `0x439CAC` confirms it (1 Research,
+2 Farming, 3 Parenting, 4 Building, 5 Healing) -- which also showed that
+Builder Action Fixes compared the selected job with 1, Research, until
+v1.35.35.
+
+Evidence: `tests/test_builders_regardless_of_food.py` runs every food stub
+in an emulator over the games' own layouts (builder, non-builder, all huts
+built, the exact threshold, low food, and for VV3 the companion missing),
+checks every exit's registers and stack, and checks each site against the
+stock executable; each assertion was mutation-checked. **TESTED.** Live play:
+**UNVERIFIED** until played.
+
 ## Evidence
 
 * `tests/test_builders_fix_huts.py`: the runtime sites' stock bytes equal
