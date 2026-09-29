@@ -85,7 +85,8 @@ G = {
     "vv1": dict(no=1, state_ptr=0x3E010, level=0xA2CC, huts=(0x9FE8, 0x9FF0, 0x9FF8), first_hut=9,
                 resume=0x447671, examine=0x446600, started=0x4477A6, rand=0x402F10, hut_pick=0x447737),
     "vv2": dict(no=2, state_ptr=0xE574D4, level=0x2EA84, huts=(0x2E818, 0x2E820, 0x2E828), first_hut=24,
-                resume=0x4601FF, examine=0x45F7C0, started=0x4602E5, rand=0x4031A0, hut_resume=0x4602A7),
+                resume=0x4601FF, examine=0x45F7C0, started=0x4602E5, rand=0x4031A0, hut_resume=0x4602A7,
+                nothing=0x46004C),
 }
 
 
@@ -100,7 +101,7 @@ class Run:
         mu.mem_write(STATE + g["level"], struct.pack("<i", level))
         for off, done in zip(g["huts"], huts):
             mu.mem_write(STATE + off, bytes([done]))
-        exits = [g["resume"], g["examine"], g["started"], g["rand"]] + [g[k] for k in ("hut_pick", "hut_resume") if k in g]
+        exits = [g["resume"], g["examine"], g["started"], g["rand"]] + [g[k] for k in ("hut_pick", "hut_resume", "nothing") if k in g]
         for va in exits:
             try:
                 mu.mem_map(va & ~0xFFF, 0x1000)
@@ -138,7 +139,7 @@ class Run:
             self.examined = (a, b)
             mu.reg_write(UC_X86_REG_ESP, sp + 12)
             mu.reg_write(UC_X86_REG_EIP, ret)
-        elif address in (g["resume"], g["started"], self.ret) or address in [g.get("hut_pick"), g.get("hut_resume")]:
+        elif address in (g["resume"], g["started"], self.ret) or address in [g.get("hut_pick"), g.get("hut_resume"), g.get("nothing")]:
             self.exit = address
             mu.emu_stop()
 
@@ -177,8 +178,28 @@ class LevelGateTests(unittest.TestCase):
                 self.assertEqual(r.examined, (INDEX, g["first_hut"]) if game == "vv1" else (INDEX, g["first_hut"]))
                 self.assertEqual(r.exit, g["started"])
                 self.assertEqual(r.reg(UC_X86_REG_EBX) & 0xFF, 1, "the started epilogue returns bl")
-                if game == "vv2":
-                    self.assertEqual(r.reg(UC_X86_REG_EBP), 3, "rand(4) bound for the stock hut table")
+                self.assertEqual(r.rolled, [], "the chooser's hut, never the stock random pick")
+
+
+class BelowLevelOnlyAHutTests(unittest.TestCase):
+    """Codex on #463: below level 3 the detour must never reach the stock
+    random pick the gate used to skip (VV2's fourth option is building 5,
+    not a hut).  No hut complete, or every hut complete: "nothing"."""
+
+    def test_no_hut_or_every_hut_complete_keeps_the_gates_nothing(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
+            for huts in ((0, 0, 0), (1, 1, 1)):
+                with self.subTest(game=game, huts=huts):
+                    r = Run(game, stub, level=2, huts=huts)
+                    self.assertIsNone(r.examined, "nothing examined")
+                    self.assertEqual(r.rolled, [], "the stock random pick is never reached")
+                    if game == "vv2":
+                        self.assertEqual(r.exit, 0x46004C, "the stock gate's own target (al = 0)")
+                    else:
+                        self.assertEqual(r.exit, r.ret)
+                        self.assertEqual(r.reg(UC_X86_REG_EAX) & 0xFF, 0)
+                        self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 7 * 4)
 
 
 class NewHomeNothingTests(unittest.TestCase):
@@ -204,10 +225,6 @@ class NewHomeNothingTests(unittest.TestCase):
         r = Run("vv1", self.stub, level=3, huts=(1, 1, 1), roll=21)
         self.assertEqual(r.exit, G["vv1"]["hut_pick"], "the stock rand(3) hut pick")
 
-    def test_below_level_3_with_no_hut_standing_is_nothing(self):
-        level_stub = _probe("VvfpFixHutsProbeLevelSite", 1)[4]
-        r = Run("vv1", level_stub, level=2, huts=(0, 0, 0))
-        self._assert_nothing(r)
 
 
 if __name__ == "__main__":
