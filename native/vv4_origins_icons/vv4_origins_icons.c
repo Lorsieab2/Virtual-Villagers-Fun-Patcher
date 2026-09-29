@@ -902,8 +902,45 @@ static void vv4_mask_render_init(void) {
 
 /* Called from the present-path hook every frame with the live render-target
    surface ([screen_obj+0x30]); read at the real site, never a guessed global. */
+/* "VVFP Fix Huts.dll" (Builders Fix Huts When Idle,: loaded by
+   full path and asked to install its detour for this game, once, from this
+   per-frame entry -- outside DllMain.  Not shipped (the row is off): nothing
+   is installed, the stock scheduler runs. */
+static int vvfp_fix_huts_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
+
+static void vvfp_fix_huts_bridge(void) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    int (__stdcall *install)(int game_id);
+    if (vvfp_fix_huts_state != 0) {
+        return;
+    }
+    vvfp_fix_huts_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP Fix Huts.dll") > sizeof(path)) {
+        return;
+    }
+    lstrcpyA(slash + 1, "VVFP Fix Huts.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return;                   /* not shipped: the row is off */
+    }
+    install = (int (__stdcall *)(int))GetProcAddress(companion, "VvfpFixHutsInstall");
+    if (install != NULL && install(4)) {
+        vvfp_fix_huts_state = 1;
+    }
+}
+
 __declspec(dllexport) void __stdcall Vv4MaskCacheSurface(void *surface) {
     int cleared;
+    vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
     g_dest_surface = surface;
     vv_prepare_mask_state();
     cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */

@@ -1,0 +1,60 @@
+{
+  "id": "vv1_misc_text_fixes",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Misc Text Fixes",
+  "description": "Corrects a handful of A New Home's English texts: \"breeding\" becomes \"parenting\" wherever the game names the skill (the skill name, the improvement message and the Fish of Fertility popup), \"This villager improved at farming\" gains its full stop, and \"Food available to villagers\" ends with a colon before the number.",
+  "output_tag": "Text Fixes",
+  "behavior_changes": [
+    "string 3: 'This villager improved at farming' -> 'This villager improved at farming.', in place (text + 2 padding byte(s))",
+    "string 15: 'The villager has improved at breeding.' -> 'The villager has improved at parenting.', in place (text + 1 padding byte(s))",
+    "string 21: 'Food available to villagers.' -> 'Food available to villagers:', in place (text + 3 padding byte(s))",
+    "string 218: 'Breeding' -> 'Parenting', in place (text + 3 padding byte(s))",
+    "string 319: '         The Magic Fish of Fertility\\n \\nYour master fisherman found a strange, \\nsparkling fish deep in  the lagoon.  This \\ndelicious  and  rare fish is the  Fish  of \\nFertility. Your tribe now enjoys greater \\nsuccess at breeding!\\n' -> '         The Magic Fish of Fertility\\n \\nYour master fisherman found a strange, \\nsparkling fish deep in  the lagoon.  This \\ndelicious  and  rare fish is the  Fish  of \\nFertility. Your tribe now enjoys greater \\nsuccess at parenting!\\n', in place (text + 2 padding byte(s))",
+    "string 477: 'breeding' -> 'parenting', in place (text + 3 padding byte(s))"
+  ],
+  "explicit_non_changes": [
+    "Only English texts in the game's string table change, each in place within its own storage; no pointer moves and the German, French and Spanish texts are untouched.",
+    "No game logic changes."
+  ],
+  "patches": [
+    {
+      "offset": "0x80354",
+      "before": "546869732076696C6C6167657220696D70726F766564206174206661726D696E67000000",
+      "after": "546869732076696C6C6167657220696D70726F766564206174206661726D696E672E0000",
+      "purpose": "string 3: 'This villager improved at farming' -> 'This villager improved at farming.', in place (text + 2 padding byte(s))"
+    },
+    {
+      "offset": "0x7FA00",
+      "before": "5468652076696C6C616765722068617320696D70726F766564206174206272656564696E672E0000",
+      "after": "5468652076696C6C616765722068617320696D70726F76656420617420706172656E74696E672E00",
+      "purpose": "string 15: 'The villager has improved at breeding.' -> 'The villager has improved at parenting.', in place (text + 1 padding byte(s))"
+    },
+    {
+      "offset": "0x7F5F0",
+      "before": "466F6F6420617661696C61626C6520746F2076696C6C61676572732E00000000",
+      "after": "466F6F6420617661696C61626C6520746F2076696C6C61676572733A00000000",
+      "purpose": "string 21: 'Food available to villagers.' -> 'Food available to villagers:', in place (text + 3 padding byte(s))"
+    },
+    {
+      "offset": "0x7ACA8",
+      "before": "4272656564696E6700000000",
+      "after": "506172656E74696E67000000",
+      "purpose": "string 218: 'Breeding' -> 'Parenting', in place (text + 3 padding byte(s))"
+    },
+    {
+      "offset": "0x71C20",
+      "before": "202020202020202020546865204D616769632046697368206F662046657274696C6974790A200A596F7572206D6173746572206669736865726D616E20666F756E64206120737472616E67652C200A737061726B6C696E672066697368206465657020696E2020746865206C61676F6F6E2E202054686973200A64656C6963696F75732020616E6420207261726520666973682069732074686520204669736820206F66200A46657274696C6974792E20596F7572207472696265206E6F7720656E6A6F79732067726561746572200A73756363657373206174206272656564696E67210A000000",
+      "after": "202020202020202020546865204D616769632046697368206F662046657274696C6974790A200A596F7572206D6173746572206669736865726D616E20666F756E64206120737472616E67652C200A737061726B6C696E672066697368206465657020696E2020746865206C61676F6F6E2E202054686973200A64656C6963696F75732020616E6420207261726520666973682069732074686520204669736820206F66200A46657274696C6974792E20596F7572207472696265206E6F7720656E6A6F79732067726561746572200A7375636365737320617420706172656E74696E67210A0000",
+      "purpose": "string 319: '         The Magic Fish of Fertility\\n \\nYour master fisherman found a strange, \\nsparkling fish deep in  the lagoon.  This \\ndelicious  and  rare fish is the  Fish  of \\nFertility. Your tribe now enjoys greater \\nsuccess at breeding!\\n' -> '         The Magic Fish of Fertility\\n \\nYour master fisherman found a strange, \\nsparkling fish deep in  the lagoon.  This \\ndelicious  and  rare fish is the  Fish  of \\nFertility. Your tribe now enjoys greater \\nsuccess at parenting!\\n', in place (text + 2 padding byte(s))"
+    },
+    {
+      "offset": "0x5D7C4",
+      "before": "6272656564696E6700000000",
+      "after": "706172656E74696E67000000",
+      "purpose": "string 477: 'breeding' -> 'parenting', in place (text + 3 padding byte(s))"
+    }
+  ]
+}

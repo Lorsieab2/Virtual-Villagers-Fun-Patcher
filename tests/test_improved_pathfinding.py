@@ -224,7 +224,7 @@ class RegistrationTests(unittest.TestCase):
         patcher = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
         self.assertIn('ROOT / "data" / "vv1_improved_pathfinding_feature.json"', patcher)
         self.assertIn('ROOT / "data" / "vv2_improved_pathfinding_feature.json"', patcher)
-        self.assertIn("for feature_path in IMPROVED_PATHFINDING_FEATURE_PATHS:", patcher)
+        self.assertIn("for feature_path in (IMPROVED_PATHFINDING_FEATURE_PATHS + WATERING_BUILDS_FEATURE_PATHS", patcher)
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         self.assertIn("assets/pathfinding/VVFP Improved Pathfinding.dll", release)
         self.assertIn("data/vv1_improved_pathfinding_feature.json", release)
