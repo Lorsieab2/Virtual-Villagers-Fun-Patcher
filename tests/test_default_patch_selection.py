@@ -88,12 +88,13 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         self,
     ) -> None:
         """Nothing else may be quietly excluded along with them -- the one
-        other default-off patch the owner asked for is VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5)."""
+        other default-off patches the owner asked for are the VV1 Mushroom/Collectible Duplication Cheat and the Super-Secret Golden Mushroom (VV2-VV5)."""
         ids = fun_patch_ids()
         off = {p for p in ids if not default_fun_patch_selection(p)}
         self.assertEqual(
             off, {p for p in ids if "learning_never_fails" in p
-                  or p.endswith("_everyone_collects_like_vv1")})
+                  or p.endswith("_everyone_collects_like_vv1")
+                  or p.endswith("_super_secret_golden_mushroom")})
 
     def test_everyone_collects_is_off_by_default_in_vv2_to_vv5(self) -> None:
         """The owner: "I would like a DEFAULT OFF patch for VV2-VV5"."""
