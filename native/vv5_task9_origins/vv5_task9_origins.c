@@ -489,11 +489,48 @@ __declspec(dllexport) void __stdcall ReadMaskSidecar(unsigned char *table) {
    0 when nothing is known.  The appended page ignores the result. */
 #define VV5_SYNC_INTERVAL_MS 250u
 
+/* "VVFP Fix Huts.dll" (Builders Fix Huts When Idle,: loaded by
+   full path and asked to install its detour for this game, once, from this
+   periodic entry -- outside DllMain.  Not shipped (the row is off): nothing
+   is installed, the stock scheduler runs. */
+static int vvfp_fix_huts_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
+
+static void vvfp_fix_huts_bridge(void) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    int (__stdcall *install)(int game_id);
+    if (vvfp_fix_huts_state != 0) {
+        return;
+    }
+    vvfp_fix_huts_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP Fix Huts.dll") > sizeof(path)) {
+        return;
+    }
+    lstrcpyA(slash + 1, "VVFP Fix Huts.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return;                   /* not shipped: the row is off */
+    }
+    install = (int (__stdcall *)(int))GetProcAddress(companion, "VvfpFixHutsInstall");
+    if (install != NULL && install(5)) {
+        vvfp_fix_huts_state = 1;
+    }
+}
+
 __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     unsigned int cur[VV5_RECORD_COUNT];
     unsigned char *table = (unsigned char *)VV5_MASK_TABLE;
     DWORD now = GetTickCount();
     int slot;
+    vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
     if (g_vv5_have_roster && (now - g_vv5_sync_tick) < VV5_SYNC_INTERVAL_MS) {
         return 1;                   /* checked a moment ago */
     }

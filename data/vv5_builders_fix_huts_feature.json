@@ -1,0 +1,38 @@
+{
+  "id": "vv5_builders_fix_huts",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Builders Fix Huts When Idle",
+  "description": "Builders fix huts when no building projects are present. When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.",
+  "output_tag": "Fix Huts",
+  "dependencies": [
+    "vv5_enable_origins_exclusive_features"
+  ],
+  "behavior_changes": [
+    "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.",
+    "Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own.",
+    "A builder with a project available still takes the project; a village where every population hut is complete, or none is, runs the stock scheduler unchanged.",
+    "Nothing is written to a villager record, the save or any file."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/fix_huts/VVFP Fix Huts.dll",
+      "destination": "VVFP Fix Huts.dll",
+      "sha256": "86C6E6EDADE01BBEDC88E35F983187A2F2B40023310CF53E50E3DE04D6C59704"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x46CADA",
+      "stock_bytes": "3BFB0F8415030000",
+      "routine": "the Building dispatcher's empty-option-list test (0x46C540)",
+      "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"
+    }
+  ]
+}

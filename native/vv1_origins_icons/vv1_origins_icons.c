@@ -1335,6 +1335,80 @@ static void vvfp_pathfinding_bridge(int game_id) {
     }
 }
 
+/* "VVFP Fix Huts.dll" (Builders Fix Huts When Idle, all five
+   games): loaded by full path and asked to install its detour for this
+   game, once, from a per-frame tick -- outside DllMain.  Not shipped (the
+   row is off): nothing is installed, the stock scheduler runs.  Compiled
+   into The Lost Children's companion as well, which calls it with game 2. */
+static int vvfp_fix_huts_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
+
+static void vvfp_fix_huts_bridge(int game_id) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    int (__stdcall *install)(int game_id);
+    if (vvfp_fix_huts_state != 0) {
+        return;
+    }
+    vvfp_fix_huts_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP Fix Huts.dll") > sizeof(path)) {
+        return;
+    }
+    lstrcpyA(slash + 1, "VVFP Fix Huts.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return;                   /* not shipped: the row is off */
+    }
+    install = (int (__stdcall *)(int))GetProcAddress(companion, "VvfpFixHutsInstall");
+    if (install != NULL && install(game_id)) {
+        vvfp_fix_huts_state = 1;
+    }
+}
+
+/* "VVFP VV1 Watering Builds.dll" (Watering the Field Trains Building): it
+   installs its own detour on the garden progress step, so the only wiring
+   here is to load it by full path and ask it to install, once, from this
+   per-frame tick -- outside DllMain.  Not shipped: the row is off, nothing
+   is installed, the stock game runs. */
+static int vv1_watering_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
+
+static void vv1_watering_bridge(void) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    int (__stdcall *install)(void);
+    if (vv1_watering_state != 0) {
+        return;
+    }
+    vv1_watering_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP VV1 Watering Builds.dll") > sizeof(path)) {
+        return;
+    }
+    lstrcpyA(slash + 1, "VVFP VV1 Watering Builds.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return;                   /* not shipped: the row is off */
+    }
+    install = (int (__stdcall *)(void))GetProcAddress(companion, "VvfpVv1WateringBuildsInstall");
+    if (install != NULL && install()) {
+        vv1_watering_state = 1;
+    }
+}
+
 /* "VVFP VV1 Sort By.dll" (Sort by Age/Skill/Health in Details Screen): the
    executable's two Details-arrow stubs ask Vv1SortStep which villager to
    select, and the Details portrait hook lets it draw its band.  Same
@@ -1415,6 +1489,8 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     int birth_dirty;
     vv1_numkeys_bridge();       /* number keys companion: loaded once, fail-open */
     vvfp_pathfinding_bridge(1); /* pathfinding companion: installs its detour once, fail-open */
+    vv1_watering_bridge();      /* watering companion: installs its detour once, fail-open */
+    vvfp_fix_huts_bridge(1);    /* fix-huts companion: once, fail-open */
     vv1_parentage_bridge_tick(); /* parentage companion: watches for births, fail-open */
     if (!vv1_mask_prepare_slot()) {
         return;  /* slot not captured yet -> no table or sidecar mutation */

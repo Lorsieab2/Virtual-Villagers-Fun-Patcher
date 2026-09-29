@@ -138,6 +138,21 @@ IMPROVED_PATHFINDING_FEATURE_PATHS = (
     ROOT / "data" / "vv1_improved_pathfinding_feature.json",
     ROOT / "data" / "vv2_improved_pathfinding_feature.json",
 )
+# Watering the Field Trains Building: A New Home's garden watering ends with a
+# Building practice roll while it advances the garden; companion only.
+WATERING_BUILDS_FEATURE_PATHS = (
+    ROOT / "data" / "vv1_watering_trains_building_feature.json",
+    # Misc Text Fixes: the owner's corrections to A New Home's English
+    # string table, each guarded in place.
+    ROOT / "data" / "vv1_misc_text_fixes_feature.json",
+)
+# Builders Fix Huts When Idle (default-off): one companion for all five
+# games; VV1/VV2/VV4/VV5 load it from a per-frame companion, VV3 through a
+# stub overlaid on the page Origins appends.
+FIX_HUTS_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{game_number}_builders_fix_huts_feature.json"
+    for game_number in range(1, 6)
+)
 # Move the "Playing in the dirt" Spot: New Believers' two base coordinates
 # of the stock routine, so children play on the grass rather than on the
 # totem statue (the owner marked the spot).
@@ -725,10 +740,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "F89CDE1B3F403E35A6BBAFC32459BE024BC5EE2F57484FCE1561F82EED223667",
-    "map": "39E679CD3E11B3F08FA039D703F6AE77E6A7D23FCB26AD1BFA17B682BE6CFD8E",
+    "manifest": "E7F6479E5FCA6AA7E2EFE35EAAFB098C4F817D97477444D050EB45E556D38493",
+    "map": "D99D45589D232F53C4D0BB0B409CA293B1A7F291A95C8DD708BE2AE1195562CE",
 }
-VV5_TASK9_DLL_SHA256 = "7D7CAB388E2BBF554D0FB664EBC59EA0A6DDE2A6EC6BB174D12C2D16144705DA"
+VV5_TASK9_DLL_SHA256 = "6F0068B7D9F06C89C0D7925AB67F42C6EFC83C2AD70EBC604005CC1C5AA286C0"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -800,7 +815,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "8B92B7F45C3F560A0A64EAB87659712F0B0A30F14B00E26E37B616C5D18385F3",
+    "builder": "EAE2DADD60B30C93C21FFB47CC0C9A379591BA89D2ECB12A58069AA1DE68800B",
     "task9_builder": "0D118BE516801B86CED2D1305871838F95B2D256B49E03E6F34F3D830B2EDF82",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
@@ -813,8 +828,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "C27AE1C5E508C3EC04C083E3D47B894A76867B52223C121381DEE5D8453A647E",
-        "map": "08C81CFB3B95A26DE89BFA226678A4A1B36B5879B23014F3113A6627ED007870",
+        "manifest": "57446D3084CDBF72C824246A411773D85AC75AC43733D8A97CA6EC4951F69FB2",
+        "map": "F7C6B7582C4A89231D214CC0DE7D90F0686C3F09AD1143E1C3931C2D24CF3FE8",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -2862,7 +2877,8 @@ def _load_fun_patch_records(
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
                 items.append(record)
-    for feature_path in IMPROVED_PATHFINDING_FEATURE_PATHS:
+    for feature_path in (IMPROVED_PATHFINDING_FEATURE_PATHS + WATERING_BUILDS_FEATURE_PATHS
+                         + FIX_HUTS_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

@@ -153,6 +153,18 @@ Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck
 
 - Patch ID: `vv1_improved_pathfinding`
 
+**Watering the Field Trains Building**
+
+"Watering the field" now gives Building skill, but only when it makes progress towards the garden puzzle (after the lagoon puzzle is complete). Each watering that advances the garden ends with one ordinary Building practice roll, exactly like every other Building job; once the garden is restored, watering gives nothing extra. "Watering crops" and "Trying to water strange patch" are unchanged. No executable bytes change: the Origins companion loads "VVFP VV1 Watering Builds.dll", which installs its hook only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+
+- Patch ID: `vv1_watering_trains_building`
+
+**Misc Text Fixes**
+
+Corrects a handful of A New Home's English texts: "breeding" becomes "parenting" wherever the game names the skill (the skill name, the improvement message and the Fish of Fertility popup), "This villager improved at farming" gains its full stop, and "Food available to villagers" ends with a colon before the number. Each text is changed in place in the game's own string table; the other languages are untouched.
+
+- Patch ID: `vv1_misc_text_fixes`
+
 **Magic Fruit of Life Alters Mortality**
 
 Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
@@ -188,6 +200,12 @@ On each new pregnancy, appends both parents' names, both parents' ages at concep
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure. **Needs Show Parents in Details Screen on for the "Parents:" lines in the Village Population roster.**
 
 - Patch ID: `vv1_write_village_statistics`
+
+**Builders Fix Huts When Idle**
+
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+
+- Patch ID: `vv1_builders_fix_huts`
 
 
 ### Virtual Villagers - The Lost Children
@@ -253,6 +271,12 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 
 - Patch ID: `vv2_write_village_statistics`
 
+**Builders Fix Huts When Idle**
+
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+
+- Patch ID: `vv2_builders_fix_huts`
+
 
 ### Virtual Villagers - The Secret City
 
@@ -306,6 +330,12 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 
 - Patch ID: `vv3_write_village_statistics`
 
+**Builders Fix Huts When Idle**
+
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. The Secret City has no companion that runs every frame, so its row diverts one eight-byte test in the Building dispatcher into a small stub in the page Origins appends, which calls "VVFP Fix Huts.dll". **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+
+- Patch ID: `vv3_builders_fix_huts`
+
 
 ### Virtual Villagers - The Tree of Life
 
@@ -339,6 +369,12 @@ On each new pregnancy, appends the mother's and father's names, both parents' ag
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 - Patch ID: `vv4_write_village_statistics`
+
+**Builders Fix Huts When Idle**
+
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+
+- Patch ID: `vv4_builders_fix_huts`
 
 
 ### Virtual Villagers - New Believers
@@ -403,6 +439,12 @@ On each new pregnancy, appends the mother's and father's names, both parents' ag
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
 
 - Patch ID: `vv5_write_village_statistics`
+
+**Builders Fix Huts When Idle**
+
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+
+- Patch ID: `vv5_builders_fix_huts`
 
 
 That is 35 optional patches across the five games.

@@ -150,6 +150,7 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # selecting it resolves the base in -- the same reason the
                 # parentage tracker sits outside this set.
                 "vv2_improved_pathfinding",
+                "vv2_builders_fix_huts",
                 *PUBLIC,
             }
         ]

@@ -1,0 +1,7 @@
+LIBRARY "VVFP Fix Huts"
+EXPORTS
+    VvfpFixHutsInstall=_VvfpFixHutsInstall@4
+    VvfpFixHutsProbeSite=_VvfpFixHutsProbeSite@20
+    VvfpFixHutsProbeChoose=_VvfpFixHutsProbeChoose@8
+    VvfpFixHutsProbePick=_VvfpFixHutsProbePick@8
+    VvfpFixHutsStats DATA

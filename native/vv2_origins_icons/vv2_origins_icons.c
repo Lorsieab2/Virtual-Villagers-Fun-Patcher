@@ -1738,6 +1738,7 @@ __declspec(dllexport) int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
 __declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
     int i;
     vvfp_pathfinding_bridge(2); /* pathfinding companion: installs its detours once, fail-open */
+    vvfp_fix_huts_bridge(2);    /* fix-huts companion: once, fail-open */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }

@@ -1168,8 +1168,9 @@ class ManifestTests(unittest.TestCase):
         # 11 since the tip-wording row (vv2_numeric_keys_tip_wording), which
         # changes one string pointer and dead storage and composes with everything;
         # 12 with Improved Pathfinding (vv2_improved_pathfinding), which patches
-        # no executable bytes at all -- its companion detours at run time.
-        self.assertEqual(len(feature_ids), 12)
+        # no executable bytes at all -- its companion detours at run time;
+        # 13 with Builders Fix Huts When Idle (vv2_builders_fix_huts), the same.
+        self.assertEqual(len(feature_ids), 13)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -3960,6 +3961,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_enable_origins_exclusive_features",
                 "vv2_origins_village_wide_upgrades",
                 "vv2_improved_pathfinding",
+                "vv2_builders_fix_huts",
                 "vv2_numeric_keys_tip_wording",
             },
         )

@@ -119,6 +119,18 @@ Villagers whose selected job is Building try the stock construction dispatcher a
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Builders Fix Huts When Idle (`vv1_builders_fix_huts`)
+
+Builders fix huts when no building projects are present. When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands, the game's own "Examining hut" / "Fixing hut" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.
+- Explicit non-changes/exclusions: This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing. Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own. A builder with a project available still takes the project; a village where every population hut is complete, or none is, runs the stock scheduler unchanged. Nothing is written to a villager record, the save or any file.
+- Dependencies: vv1_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Continue Research at Max Technologies (`vv1_continue_research_at_max_technologies`)
 
 Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.
@@ -148,7 +160,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Numeric Keys: Zip Around the Island: unticking this unticks it. Needed by Show Parents in Details Screen: unticking this unticks it. Needed by Sort by Age/Skill/Health in Details Screen: unticking this unticks it. Needed by Improved Pathfinding: unticking this unticks it.**
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Numeric Keys: Zip Around the Island: unticking this unticks it. Needed by Show Parents in Details Screen: unticking this unticks it. Needed by Sort by Age/Skill/Health in Details Screen: unticking this unticks it. Needed by Improved Pathfinding: unticking this unticks it. Needed by Watering the Field Trains Building: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.
 - Explicit non-changes/exclusions: none declared
@@ -196,6 +208,18 @@ Completing the Magic Fruit of Life puzzle globally shifts every ordinary village
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Misc Text Fixes (`vv1_misc_text_fixes`)
+
+Corrects a handful of A New Home's English texts: "breeding" becomes "parenting" wherever the game names the skill (the skill name, the improvement message and the Fish of Fertility popup), "This villager improved at farming" gains its full stop, and "Food available to villagers" ends with a colon before the number.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: string 3: 'This villager improved at farming' -> 'This villager improved at farming.', in place (text + 2 padding byte(s)) string 15: 'The villager has improved at breeding.' -> 'The villager has improved at parenting.', in place (text + 1 padding byte(s)) string 21: 'Food available to villagers.' -> 'Food available to villagers:', in place (text + 3 padding byte(s)) string 218: 'Breeding' -> 'Parenting', in place (text + 3 padding byte(s)) string 319: '         The Magic Fish of Fertility\n \nYour master fisherman found a strange, \nsparkling fish deep in  the lagoon.  This \ndelicious  and  rare fish is the  Fish  of \nFertility. Your tribe now enjoys greater \nsuccess at breeding!\n' -> '         The Magic Fish of Fertility\n \nYour master fisherman found a strange, \nsparkling fish deep in  the lagoon.  This \ndelicious  and  rare fish is the  Fish  of \nFertility. Your tribe now enjoys greater \nsuccess at parenting!\n', in place (text + 2 padding byte(s)) string 477: 'breeding' -> 'parenting', in place (text + 3 padding byte(s))
+- Explicit non-changes/exclusions: Only English texts in the game's string table change, each in place within its own storage; no pointer moves and the German, French and Spanish texts are untouched. No game logic changes.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Numeric Keys: Zip Around the Island (`vv1_number_keys`)
 
@@ -269,6 +293,18 @@ Adds decorative flowers to the lagoon and love hut, clothes to the extra hut nea
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Watering the Field Trains Building (`vv1_watering_trains_building`)
+
+"Watering the field" now gives Building skill, but only when it makes progress towards the garden puzzle (after the lagoon puzzle is complete). Each watering that advances the garden ends with one ordinary Building practice roll, exactly like every other Building job; once the garden is restored, watering gives nothing extra. "Watering crops" and "Trying to water strange patch" are unchanged. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock game runs unchanged.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When a villager's "Watering the field" job reaches its garden progress step (0x43B1E6) while the garden is not yet restored, one practice-Building action (type 6, skill 4) is appended to the end of that villager's job -- the same action every stock Building job queues last, with the stock chance, amount and failure handling. The last watering that completes the garden counts.
+- Explicit non-changes/exclusions: This row changes no executable bytes: the Origins companion loads the DLL, which detours 0x43B1E6 at run time only after verifying its twelve stock bytes; a different build of the game installs nothing. The garden progress itself, its 200-step goal, the lagoon and well requirements, "Watering crops" (Farming) and "Trying to water strange patch" are unchanged. Once the garden is restored, watering the field queues no extra practice action.
+- Dependencies: vv1_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Write Births and Conceptions Log to Text File (`vv1_write_parentage_log`)
 
 On each new pregnancy, appends both parents' names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies to 'Virtual Villagers 1 Births and Conceptions Log N.txt' beside the game executable. The mother's age determines the child's age, and the father's age is recorded too. VV1 stores nothing about the father in the mother's record -- not his name, and no id that could find him -- so his details, his age included, are captured from his own record at the six conception call sites, where the game holds it briefly. A birth that reaches delivery without such a capture reports the father as not captured for that birth, rather than naming the wrong villager. Parentage is not stored in any villager record, so both parents are captured at conception; they cannot be recovered from the child afterwards. Rolls to a new numbered file every 256 records.
@@ -314,6 +350,18 @@ Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the
 - Evidence status: implemented from exact-build disassembly commit 74778bd6a7d3a17dd990636cf6d4e769466800c6; static verification complete, runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Builders Fix Huts When Idle (`vv2_builders_fix_huts`)
+
+Builders fix huts when no building projects are present. When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands, the game's own "Examining hut" / "Fixing hut" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.
+- Explicit non-changes/exclusions: This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing. Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own. A builder with a project available still takes the project; a village where every population hut is complete, or none is, runs the stock scheduler unchanged. Nothing is written to a villager record, the save or any file.
+- Dependencies: vv2_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Easier Healing Mastery (`vv2_easier_healing_mastery`)
 
 Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.
@@ -343,7 +391,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Improved Pathfinding: unticking this unticks it. Needed by Write Births and Conceptions Log to Text File: unticking this unticks it.**
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Improved Pathfinding: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it. Needed by Write Births and Conceptions Log to Text File: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art.
 - Explicit non-changes/exclusions: none declared
@@ -472,6 +520,20 @@ Requires BOTH parenting skill and the checked preference before a villager will 
 - Evidence status: implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending
 - Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Builders Fix Huts When Idle (`vv3_builders_fix_huts`)
+
+Builders fix huts when no building projects are present. When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands, the game's own "Examining hut" / "Fixing hut" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.
+- Explicit non-changes/exclusions: The Secret City's row diverts one eight-byte test in the Building dispatcher into a stub in the page Origins appends; the stub resolves the companion once and otherwise replays the stock test, so with the DLL missing the stock scheduler runs. Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own. A builder with a project available still takes the project; a village where every population hut is complete, or none is, runs the stock scheduler unchanged. Nothing is written to a villager record, the save or any file.
+- Dependencies: vv3_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+- Appends 4096 bytes as 1 new PE section -- `.vv3fh` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
+
 #### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv3_origins_village_wide_upgrades`)
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. Island Events and Duplicate Collectibles are excluded.
@@ -489,7 +551,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it.**
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
 - Explicit non-changes/exclusions: none declared
@@ -597,6 +659,18 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 ### Optional features
 
+#### Builders Fix Huts When Idle (`vv4_builders_fix_huts`)
+
+Builders fix huts when no building projects are present. When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands, the game's own "Examining hut" / "Fixing hut" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.
+- Explicit non-changes/exclusions: This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing. Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own. A builder with a project available still takes the project; a village where every population hut is complete, or none is, runs the stock scheduler unchanged. Nothing is written to a villager record, the save or any file.
+- Dependencies: vv4_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Complete Fish Scales = Golden Fish in Nets (`vv4_complete_scales_golden_fish`)
 
 Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
@@ -626,7 +700,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it.**
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.
 - Explicit non-changes/exclusions: none declared
@@ -695,6 +769,18 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 
 ### Optional features
 
+#### Builders Fix Huts When Idle (`vv5_builders_fix_huts`)
+
+Builders fix huts when no building projects are present. When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands, the game's own "Examining hut" / "Fixing hut" job, which trains Building. It only makes that job able to be chosen autonomously; the job itself, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.
+- Explicit non-changes/exclusions: This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing. Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own. A builder with a project available still takes the project; a village where every population hut is complete, or none is, runs the stock scheduler unchanged. Nothing is written to a villager record, the save or any file.
+- Dependencies: vv5_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Clickable Tips (`vv5_clickable_tips`)
 
 Clicking the curled vine beneath the on-screen Puzzles button shows a random in-game tip in the gray message bar (with the engine's own auto-hide timer) and plays the hou.ogg chime.
@@ -736,7 +822,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years on slow, six on normal and twelve on fast for a single 50,000 tech-point charge, and is refused with no charge while the game is paused; the confirmation names the cost, the current speed and the exact number of years before you buy, with the cost written the same way as every other row (50,000, not 50000). Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point "Change Appearance for All" Tech upgrade. Both charge only when something actually changes: if every villager already has the chosen head, body and mask, they say so and deduct nothing. The chosen Heathen masks are rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it.**
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years on slow, six on normal and twelve on fast for a single 50,000 tech-point charge, and is refused with no charge while the game is paused; the confirmation names the cost, the current speed and the exact number of years before you buy, with the cost written the same way as every other row (50,000, not 50000). Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point "Change Appearance for All" Tech upgrade. Both charge only when something actually changes: if every villager already has the chosen head, body and mask, they say so and deduct nothing. The chosen Heathen masks are rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.
 - Explicit non-changes/exclusions: none declared
