@@ -1953,6 +1953,114 @@
       ]
     },
     {
+      "id": "vv1_faster_village_scrolling",
+      "game_id": "vv1",
+      "name": "Faster Village-Scrolling",
+      "description": "Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.",
+      "output_tag": "Faster Scrolling",
+      "patches": [
+        {
+          "offset": "0x23F3B",
+          "before": "3DF5000000BDFEFFFFFF7D0889AED8020000EB1433C93DDF0200000F9EC14983E102898ED80200008BC72B420C83F82D7D0889AEDC020000EB1433C93D7C0100000F9EC14983E102898EDC020000",
+          "after": "3DF50000007C0F3DDF0200007F10899ED8020000EB0EFF8ED8020000EB06FF86D802000089F82B420C83F82D7C0F3D7C0100007F10899EDC020000EB0EFF8EDC020000EB06FF86DC020000909090",
+          "purpose": "following the selected villager (also after choosing one on the Details screen): speed up by 1 pixel every frame, as The Secret City does, instead of a flat 2"
+        },
+        {
+          "offset": "0x23FD6",
+          "before": "8B4E108B86980200008B5108F7D83BD07C118BAEA0020000B8900600002BC53BD07E09894108899ED80200008B869C0200008B7E108B570C8BC8F7D93BD17D05894F0CEB122B86A402000005900600003BD07E0389470C",
+          "after": "8B4E108B51088B8698020000F7D839C27C0FB8900600002B86A002000039C27E09894108899ED80200008B510C8BBE9C02000089F8F7D839C27C108D87900600002B86A402000039C27E0989410C899EDC020000909090",
+          "purpose": "view clamp: also stop vertical movement at the top/bottom edge, as The Lost Children and The Secret City do"
+        },
+        {
+          "offset": "0x25963",
+          "before": "8D8DFAFDFFFF",
+          "after": "8D8D0CFEFFFF",
+          "purpose": "carried villager: measure from the view's centre"
+        },
+        {
+          "offset": "0x25972",
+          "before": "04",
+          "after": "03",
+          "purpose": "carried villager: speed = distance / 20, not / 40"
+        },
+        {
+          "offset": "0x2597C",
+          "before": "8D9309FFFFFF",
+          "after": "8D930EFFFFFF",
+          "purpose": "carried villager: measure from the view's centre"
+        },
+        {
+          "offset": "0x2598B",
+          "before": "04",
+          "after": "03",
+          "purpose": "carried villager: speed = distance / 20, not / 40"
+        },
+        {
+          "offset": "0x259AB",
+          "before": "7D",
+          "after": "EB",
+          "purpose": "carried villager: no 120-pixel dead zone"
+        },
+        {
+          "offset": "0x259C1",
+          "before": "7D",
+          "after": "EB",
+          "purpose": "carried villager: no 120-pixel dead zone"
+        }
+      ]
+    },
+    {
+      "id": "vv2_faster_village_scrolling",
+      "game_id": "vv2",
+      "name": "Faster Village-Scrolling",
+      "description": "Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.",
+      "output_tag": "Faster Scrolling",
+      "patches": [
+        {
+          "offset": "0x2F7C6",
+          "before": "3DF5000000BDFEFFFFFF7D0889AE28020000EB1433D23DDF0200000F9EC24A83E2028996280200008BC72B410C83F82D7D0889AE2C020000EB1433D23D7C0100000F9EC24A83E20289962C020000",
+          "after": "3DF50000007C0F3DDF0200007F10899E28020000EB0EFF8E28020000EB06FF862802000089F82B410C83F82D7C0F3D7C0100007F10899E2C020000EB0EFF8E2C020000EB06FF862C020000909090",
+          "purpose": "following the selected villager (also after choosing one on the Details screen): speed up by 1 pixel every frame, as The Secret City does, instead of a flat 2"
+        },
+        {
+          "offset": "0x316DD",
+          "before": "8D8BFAFDFFFF",
+          "after": "8D8B0CFEFFFF",
+          "purpose": "carried villager: measure from the view's centre"
+        },
+        {
+          "offset": "0x316EC",
+          "before": "04",
+          "after": "03",
+          "purpose": "carried villager: speed = distance / 20, not / 40"
+        },
+        {
+          "offset": "0x316F6",
+          "before": "8D9709FFFFFF",
+          "after": "8D970EFFFFFF",
+          "purpose": "carried villager: measure from the view's centre"
+        },
+        {
+          "offset": "0x31705",
+          "before": "04",
+          "after": "03",
+          "purpose": "carried villager: speed = distance / 20, not / 40"
+        },
+        {
+          "offset": "0x31725",
+          "before": "7D",
+          "after": "EB",
+          "purpose": "carried villager: no 120-pixel dead zone"
+        },
+        {
+          "offset": "0x3173B",
+          "before": "7D",
+          "after": "EB",
+          "purpose": "carried villager: no 120-pixel dead zone"
+        }
+      ]
+    },
+    {
       "id": "vv2_everyone_collects_like_vv1",
       "game_id": "vv2",
       "name": "VV1 Mushroom/Collectible Duplication Cheat",

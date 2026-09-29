@@ -231,6 +231,12 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 
 - Patch ID: `vv1_super_secret_golden_mushroom`
 
+**Faster Village-Scrolling**
+
+Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+
+- Patch ID: `vv1_faster_village_scrolling`
+
 
 ### Virtual Villagers - The Lost Children
 
@@ -330,6 +336,12 @@ Multiple children can be dropped onto a single mushroom (and collectible) and it
 Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
 
 - Patch ID: `vv2_super_secret_golden_mushroom`
+
+**Faster Village-Scrolling**
+
+Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+
+- Patch ID: `vv2_faster_village_scrolling`
 
 
 ### Virtual Villagers - The Secret City
