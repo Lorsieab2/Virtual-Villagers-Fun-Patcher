@@ -112,6 +112,20 @@ static int __cdecl vv1_choose(const unsigned char *village) {
     return 9 + pick(mask);
 }
 
+/* Below Building level 3 (the owner: "below level 3, at all food levels,
+   villagers will fix huts if at least one is built and there are no other
+   building projects available"): any complete population hut, including
+   when every one is complete; -1 only when none is. */
+static int __cdecl vv1_choose_any(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    unsigned int mask = 0;
+    ++VvfpFixHutsStats.checks;
+    if (state[0x9FE8] == 1) mask |= 1;
+    if (state[0x9FF0] == 1) mask |= 2;
+    if (state[0x9FF8] == 1) mask |= 4;
+    return mask == 0 ? -1 : 9 + pick(mask);
+}
+
 static const unsigned int vv1_rand = VV1_RAND, vv1_resume = VV1_RESUME;
 static const unsigned int vv1_examine = VV1_EXAMINE, vv1_started = VV1_STARTED;
 /* No population hut complete: nothing to fix. */
@@ -184,9 +198,11 @@ static __declspec(naked) void vv1_stub(void) {
 #define VV1_LEVEL_SITE   0x44765Eu
 static const unsigned char VV1_LEVEL_STOCK[6] = { 0x8B, 0x96, 0x10, 0xE0, 0x03, 0x00 };
 static const unsigned int vv1_level_resume = 0x447671u;
-/* Below level 3 only a population hut the chooser picks (a complete one
-   while another is unbuilt) is fixed; otherwise "nothing" -- never the stock
-   random pick the gate used to skip (Codex on #463, the same rule as VV2). */
+/* Below level 3 a builder fixes any complete population hut -- the owner:
+   "below level 3, at all food levels, villagers will fix huts if at least
+   one is built and there are no other building projects available" -- and
+   with none built, "nothing".  Never the stock random pick the gate used to
+   skip (Codex on #463). */
 static __declspec(naked) void vv1_level_stub(void) {
     __asm {
         mov edx, dword ptr [esi + 0x3E010]
@@ -196,7 +212,7 @@ static __declspec(naked) void vv1_level_stub(void) {
     below:
         pushad
         push esi
-        call vv1_choose
+        call vv1_choose_any
         add esp, 4
         mov [esp + 0x1C], eax
         popad
@@ -237,6 +253,18 @@ static int __cdecl vv2_choose(const unsigned char *village) {
     return 24 + pick(mask);
 }
 
+/* Below Building level 3: any complete population hut (24/25/26), including
+   when every one is complete; -1 only when none is.  Never building 5. */
+static int __cdecl vv2_choose_any(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    unsigned int mask = 0;
+    ++VvfpFixHutsStats.checks;
+    if (state[0x2E818] == 1) mask |= 1;
+    if (state[0x2E820] == 1) mask |= 2;
+    if (state[0x2E828] == 1) mask |= 4;
+    return mask == 0 ? -1 : 24 + pick(mask);
+}
+
 static const unsigned int vv2_rand = VV2_RAND, vv2_resume = VV2_RESUME;
 static const unsigned int vv2_examine = VV2_EXAMINE, vv2_started = VV2_STARTED;
 static __declspec(naked) void vv2_stub(void) {
@@ -266,8 +294,8 @@ static __declspec(naked) void vv2_stub(void) {
 /* The Building-level gate before the hut: `cmp [state+0x2EA84], 3; jl
    nothing` at 0x4601F2 (edx = state).  Below level 3 the stock branch gives up
    here, before the hut fix -- the same gate A New Home has -- so a builder in
-   a village below level 3 never fixes a hut.  With this detour it fixes the
-   hut the chooser picks, with ebx = 1 for the "started" epilogue.  Level 3
+   a village below level 3 never fixes a hut.  With this detour it fixes a
+   complete population hut, with ebx = 1 for the "started" epilogue.  Level 3
    and above: the stock code at 0x4601FF.  The Lost Children already reports
    "nothing started" when it gives up (xor al, al). */
 #define VV2_LEVEL_SITE   0x4601F2u
@@ -275,11 +303,11 @@ static const unsigned char VV2_LEVEL_STOCK[13] = {
     0x83, 0xBA, 0x84, 0xEA, 0x02, 0x00, 0x03, 0x0F, 0x8C, 0x4D, 0xFE, 0xFF, 0xFF };
 static const unsigned int vv2_level_resume = 0x4601FFu;
 static const unsigned int vv2_level_nothing = 0x46004Cu;   /* the stock gate's own target: al = 0 */
-/* Below level 3 only a population hut is ever fixed: a complete one while
-   another is unbuilt (the chooser's answer).  Every other case -- no hut
-   complete, or every hut complete -- keeps the stock gate's "nothing", so the
-   stock random pick, whose fourth option is building 5 rather than a hut, is
-   never reached from here (Codex on #463). */
+/* Below level 3 only a population hut is ever fixed: any complete one (the
+   owner: "if at least one is built"), including when every one is.  With none
+   built, the stock gate's "nothing"; the stock random pick, whose fourth
+   option is building 5 rather than a hut, is never reached from here (Codex
+   on #463). */
 static __declspec(naked) void vv2_level_stub(void) {
     __asm {
         cmp dword ptr [edx + 0x2EA84], 3
@@ -288,7 +316,7 @@ static __declspec(naked) void vv2_level_stub(void) {
     below:
         pushad
         push esi
-        call vv2_choose
+        call vv2_choose_any
         add esp, 4
         mov [esp + 0x1C], eax
         popad
@@ -522,8 +550,25 @@ static int later_huts_incomplete(const struct later_game *g) {
 /* Counts for a test reading the running game.  Diagnostic only. */
 __declspec(dllexport) int VvfpFixHutsFoodBypasses = 0;
 
+/* When a builder has hut work to do (Codex on #464): a population hut still
+   unbuilt, or -- below Building level 3, where the owner wants builders to
+   fix huts "if at least one is built", every one built included -- at least
+   one built. */
+static int vv1_builder_has_hut_work(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    if (vv1_huts_incomplete(village)) return 1;
+    return *(const int *)(state + 0xA2CC) < 3 && !vv1_none_complete(village);
+}
+
+static int vv2_builder_has_hut_work(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    if (vv2_huts_incomplete(village)) return 1;
+    return *(const int *)(state + 0x2EA84) < 3
+        && (state[0x2E818] == 1 || state[0x2E820] == 1 || state[0x2E828] == 1);
+}
+
 static int __cdecl vv1_builder_first(const unsigned char *village, unsigned int index) {
-    if (*(const int *)(village + index * 0x3D8u + 0x3D0u) != 4 || !vv1_huts_incomplete(village)) {
+    if (*(const int *)(village + index * 0x3D8u + 0x3D0u) != 4 || !vv1_builder_has_hut_work(village)) {
         return 0;
     }
     ++VvfpFixHutsFoodBypasses;
@@ -531,7 +576,7 @@ static int __cdecl vv1_builder_first(const unsigned char *village, unsigned int 
 }
 
 static int __cdecl vv2_builder_first(const unsigned char *village, const unsigned char *record) {
-    if (*(const int *)(record + 0x7F8u) != 5 || !vv2_huts_incomplete(village)) {
+    if (*(const int *)(record + 0x7F8u) != 5 || !vv2_builder_has_hut_work(village)) {
         return 0;
     }
     ++VvfpFixHutsFoodBypasses;
@@ -545,7 +590,14 @@ static int __cdecl vv2_builder_first(const unsigned char *village, const unsigne
 static int work_first_present(void);
 
 static int __cdecl later_builder_first(const struct later_game *g, int pick) {
-    if ((pick != 4 && !(pick == 2 && work_first_present())) || !later_huts_incomplete(g)) {
+    /* A builder: always.  VV3-VV5 have no level gate before their hut site,
+       so a builder always has hut work -- this companion's fix while a hut is
+       unbuilt, the stock "fix a hut" option once every one is built -- and the
+       owner wants it done "at all food levels" (Codex on #464).  A healer:
+       whenever the addendum is shipped -- "Healers should not be gated by
+       huts at all". */
+    (void)g;
+    if (pick != 4 && !(pick == 2 && work_first_present())) {
         return 0;
     }
     ++VvfpFixHutsFoodBypasses;

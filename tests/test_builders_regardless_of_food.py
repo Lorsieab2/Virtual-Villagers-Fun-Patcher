@@ -179,7 +179,10 @@ VV12 = {
 }
 
 
-def _run_vv12(game: str, food: int, preference: int, huts: tuple[int, int, int]):
+LEVEL_OFF = {"vv1": 0xA2CC, "vv2": 0x2EA84}
+
+
+def _run_vv12(game: str, food: int, preference: int, huts: tuple[int, int, int], level: int = 3):
     g = VV12[game]
     index = 7
 
@@ -188,6 +191,7 @@ def _run_vv12(game: str, food: int, preference: int, huts: tuple[int, int, int])
         for off, done in zip(g["huts"], huts):
             mu.mem_write(STATE + off, bytes([done]))
         mu.mem_write(STATE + g["food_off"], struct.pack("<i", food))
+        mu.mem_write(STATE + LEVEL_OFF[game], struct.pack("<i", level))
         if game == "vv1":
             mu.mem_write(VILLAGE + index * g["stride"] + g["pref"], struct.pack("<i", preference))
         else:
@@ -229,6 +233,19 @@ class HighFoodGateTests(unittest.TestCase):
                 self.assertEqual(r.regs[UC_X86_REG_ESI], VILLAGE)
                 self.assertEqual(r.regs[UC_X86_REG_EDI], 7)
 
+    def test_below_level_3_a_builder_with_every_hut_built_gets_the_attempt(self):
+        # The owner: "below level 3, at all food levels, villagers will fix
+        # huts if at least one is built" -- every hut built included (Codex on
+        # #464: the food gate must let them through too).
+        for game, g in VV12.items():
+            with self.subTest(game=game):
+                r = _run_vv12(game, food=g["threshold"] + 5000, preference=g["builder"], huts=(1, 1, 1), level=2)
+                self.assertEqual(r.exit, g["low"])
+                r = _run_vv12(game, food=g["threshold"] + 5000, preference=g["builder"], huts=(0, 0, 0), level=2)
+                self.assertEqual(r.exit, g["low"], "no hut built: a hut is still unbuilt, the attempt as before")
+                r = _run_vv12(game, food=g["threshold"] + 5000, preference=g["builder"], huts=(1, 1, 1), level=3)
+                self.assertEqual(r.exit, g["high"], "level 3 or above with every hut built: stock")
+
     def test_everything_else_takes_the_stock_path(self):
         for game, g in VV12.items():
             with self.subTest(game=game):
@@ -242,7 +259,7 @@ class HighFoodGateTests(unittest.TestCase):
                     (0, g["builder"], (1, 1, 1), g["low"]),
                 ]
                 for food, pref, huts, expected in cases:
-                    r = _run_vv12(game, food, pref, huts)
+                    r = _run_vv12(game, food, pref, huts, level=3)
                     self.assertEqual(r.exit, expected, (food, pref, huts))
                     self.assertEqual(r.regs[UC_X86_REG_ESP], r.esp_before)
 
@@ -295,6 +312,16 @@ class LowFoodPathTests(unittest.TestCase):
                 self.assertEqual(r.regs[UC_X86_REG_EDI], 4, "the dispatch reads the pick from edi")
                 self.assertEqual(r.regs[UC_X86_REG_ESP], r.esp_before)
 
+    def test_a_builders_pick_is_dispatched_with_every_hut_built_too(self):
+        # Codex on #464: once every hut is built the stock "fix a hut" option is
+        # the builder's hut work (no level gate before these games' hut site),
+        # and the owner wants huts fixed "at all food levels".
+        for game, g in LATER.items():
+            with self.subTest(game=game):
+                r = _run_later(game, pick=4, huts=(1, 1, 1, 1))
+                self.assertEqual(r.exit, g["dispatch"])
+                self.assertEqual(r.regs[UC_X86_REG_EDI], 4)
+
     def test_a_healers_pick_waits_unless_work_first_is_shipped(self):
         # Builders and Healers Work First (the addendum) extends the bypass to
         # a healer's pick (job 2); without its DLL the healer keeps the stock
@@ -307,12 +334,15 @@ class LowFoodPathTests(unittest.TestCase):
                 self.assertEqual(r.loaded, ["C:\\Games\\VV\\VVFP Work First.dll"], "loaded by full path")
                 r = _run_later(game, pick=2, huts=(1, 0, 1, 1), work_first=False)
                 self.assertEqual(r.exit, g["resume"])
+                # "Healers should not be gated by huts at all."
                 r = _run_later(game, pick=2, huts=(1, 1, 1, 1), work_first=True)
-                self.assertEqual(r.exit, g["resume"], "all huts built: stock")
+                self.assertEqual(r.exit, g["dispatch"], "every hut built: still dispatched at once")
+                r = _run_later(game, pick=2, huts=(0, 0, 0, 0), work_first=True)
+                self.assertEqual(r.exit, g["dispatch"], "no hut built: still dispatched at once")
 
     def test_everything_else_resumes_the_stock_low_food_path(self):
         for game, g in LATER.items():
-            for pick, huts in ((4, (1, 1, 1, 1)), (0, (0, 0, 0, 0)), (2, (1, 0, 1, 0)), (3, (1, 1, 1, 0))):
+            for pick, huts in ((0, (0, 0, 0, 0)), (2, (1, 0, 1, 0)), (3, (1, 1, 1, 0))):
                 with self.subTest(game=game, pick=pick, huts=huts):
                     r = _run_later(game, pick, huts)
                     self.assertEqual(r.exit, g["resume"])

@@ -42,13 +42,14 @@ STOCK_VV3 = ROOT / "research" / "stock-executables" / "Virtual Villagers - The S
 
 DESCRIPTION = (
     "Builders fix huts when no building projects are present. When no building "
-    "project is available to be worked on and not all population huts are "
-    "complete, a builder with nothing to do examines and fixes one of the huts "
-    "that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, "
+    "project is available to be worked on and at least one population hut "
+    "stands -- while another is unbuilt, and below Building level 3 even once "
+    "every one is built -- a builder with nothing to do examines and fixes one "
+    "of the huts that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, "
     "which trains Building. It only makes that job able to be chosen "
     "autonomously; the job itself, its chance of a repair and its skill roll are "
-    "the game's own. While not every population hut is built, a builder also "
-    "does this regardless of the food supply: plentiful food no longer skips "
+    "the game's own. Whenever there is hut work to do, a builder also does "
+    "this regardless of the food supply: plentiful food no longer skips "
     "the builder's work attempt (A New Home, The Lost Children), and scarce "
     "food no longer sends the builder to farm or gather first (The Secret City, "
     "The Tree of Life, New Believers). Applies in live play and during catch-up. "
@@ -78,13 +79,13 @@ FOOD_RUNTIME = {
             "routine": "the idle scheduler's low-food path, after the pick (0x46F070)"},
 }
 LEVEL_BEHAVIOR = {
-    "vv1": "Below Building level 3 the stock Building branch gave up before the hut fix; it now goes on to it. And wherever A New Home's Building branch gives up (the 20% skip roll, the level gate with no hut to fix, no hut standing) it reported 'started' with nothing started, leaving the builder on 'Nothing'; it now reports 'nothing started', so the villager goes on to other work.",
-    "vv2": "Below Building level 3 the stock Building branch gave up before the hut fix; it now goes on to it.",
+    "vv1": "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut whenever at least one is built and no other building project is available (every hut built included). And wherever A New Home's Building branch gives up (the 20% skip roll, the level gate with no hut to fix, no hut standing) it reported 'started' with nothing started, leaving the builder on 'Nothing'; it now reports 'nothing started', so the villager goes on to other work.",
+    "vv2": "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut (never building 5) whenever at least one is built and no other building project is available (every hut built included).",
 }
 FOOD_BEHAVIOR = (
-    "While not every population hut is complete, a builder's work attempt no "
-    "longer depends on the food supply: {how}. Every other villager, and every "
-    "village whose huts are all built, keeps the stock food behaviour."
+    "Whenever a builder has hut work to do, its work attempt no longer depends "
+    "on the food supply: {how}. Every other villager keeps the stock food "
+    "behaviour."
 )
 FOOD_HOW = {
     "vv1": "at 400 food or more a villager whose selected job is Building still gets the preferred-job attempt the stock game gives below 400",
@@ -97,16 +98,18 @@ FOOD_HOW = {
 # ---- The addendum: Builders and Healers Work First -------------------------
 WORK_FIRST_DLL = ROOT / "assets" / "work_first" / "VVFP Work First.dll"
 WORK_FIRST_DESCRIPTION = (
-    "Builders and healers do their own work first while not every population "
-    "hut is built, at any food level: whenever the game looks for something for "
-    "a villager whose selected job is Building to do, it first tries building "
-    "work (a project, or fixing a hut), and for one whose selected job is "
-    "Healing, healing and study, before idling, farming or gathering. When "
+    "Builders and healers do their own work first, at any food level: whenever "
+    "the game looks for something for a villager whose selected job is Building "
+    "to do, it first tries building work (a project, or fixing a hut) while not "
+    "every population hut is built -- and, in A New Home and The Lost Children "
+    "below Building level 3, whenever any hut is built; for one whose selected "
+    "job is Healing it "
+    "always first tries healing and study, whenever there is a patient or they "
+    "can study medicine. This comes before idling, farming or gathering. When "
     "there is nothing of their own to do, they do whatever the game would have "
-    "had them do. Once every population hut stands, the game's own choices "
-    "return. An addendum to Builders Fix Huts When Idle. **Requires Builders "
-    "Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), "
-    "whose companion loads this one; without it nothing changes."
+    "had them do. An addendum to Builders Fix Huts When Idle. **Requires "
+    "Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive "
+    "Features), whose companion loads this one; without it nothing changes."
 )
 PICKER_RUNTIME = {
     "vv1": {"va": "0x4472C0", "stock_bytes": "8B44240885C0",
@@ -124,7 +127,7 @@ JOB_NUMBERS = {"vv1": (4, 5), "vv2": (5, 3), "vv3": (4, 2), "vv4": (4, 2), "vv5"
 def work_first_row(game: str, sha: str) -> dict:
     building, healing = JOB_NUMBERS[game]
     behavior = [
-        f"While not every population hut is complete, whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Building (job {building}) or Healing (job {healing}), the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt.",
+        f"Whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Healing (job {healing}), or Building (job {building}) while it has hut work (a population hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built), the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt.",
     ]
     if game in ("vv3", "vv4", "vv5"):
         behavior.append("At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders.")
@@ -140,7 +143,7 @@ def work_first_row(game: str, sha: str) -> dict:
         "dependencies": [f"{game}_builders_fix_huts"],
         "behavior_changes": behavior,
         "explicit_non_changes": [
-            "A builder or healer with nothing of their own to do does whatever the stock scheduler chose (farming, research, ...); the younger villagers' routine, every other caller of the dispatcher, every other selected job, and every village whose population huts are all built are untouched.",
+            "A builder or healer with nothing of their own to do does whatever the stock scheduler chose (farming, research, ...); the younger villagers' routine, every other caller of the dispatcher and every other selected job are untouched. A builder is put first only while it has hut work (a hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built); a healer always.",
             "What the work does -- which project, which hut, which patient or study -- is the game's own dispatcher's choice.",
             "Nothing is written to a villager record, the save or any file.",
         ],
@@ -542,7 +545,7 @@ def main() -> None:
     sha = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
     common_non_changes = [
         "Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own.",
-        "A builder with a project available still takes the project; in a village where every population hut is complete, or none is, the Building dispatcher's hut choice is the stock one (no hut to fix, or the stock fix-a-hut option). The food bypass applies whenever any population hut is unbuilt, and a village with every hut complete keeps the stock food behaviour.",
+        "A builder with a project available still takes the project. With no population hut built there is nothing to fix. With every hut built, at Building level 3 or above (and in The Secret City, The Tree of Life and New Believers at any level) the hut choice is the stock fix-a-hut option; below level 3 in A New Home and The Lost Children a built population hut is fixed directly (never The Lost Children's building 5).",
         "Nothing is written to a villager record, the save or any file.",
     ]
     for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):

@@ -107,7 +107,7 @@ class DispatchRun:
     the job it was asked for and answers `starts(job)`."""
 
     def __init__(self, game: str, call_site: int, selected: int, requested: int,
-                 huts_done: bool, starts):
+                 huts_done: bool, starts, level: int = 3):
         g = G[game]
         stub = _probe(GAME_NO[game])[4]
         mu, _ = _emulator()
@@ -118,6 +118,7 @@ class DispatchRun:
             if not huts_done:
                 mu.mem_write(STATE + 0x9FF0, bytes([0]))
             mu.mem_write(VILLAGE + INDEX * 0x3D8 + 0x3D0, struct.pack("<i", selected))
+            mu.mem_write(STATE + 0xA2CC, struct.pack("<i", level))
         elif game == "vv2":
             mu.mem_write(VILLAGE + 0xE574D4, struct.pack("<I", STATE))
             for off in (0x2E818, 0x2E820, 0x2E828):
@@ -125,6 +126,7 @@ class DispatchRun:
             if not huts_done:
                 mu.mem_write(STATE + 0x2E828, bytes([0]))
             mu.mem_write(VILLAGE + INDEX * 0xE48C + 0x7F8, struct.pack("<i", selected))
+            mu.mem_write(STATE + 0x2EA84, struct.pack("<i", level))
         else:
             mu.mem_write(VILLAGE + 0x1B88, struct.pack("<I", RECORD))
             mu.mem_write(RECORD + (0x1C70 if game == "vv4" else 0x1C74), struct.pack("<i", selected))
@@ -241,6 +243,31 @@ class DispatcherStubTests(unittest.TestCase):
                     self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 4 + g["ret"])
                     self.assertEqual(r.stock_frame, (g["calls"][0] + 5, VILLAGE),
                                      "the stock request sees the scheduler's own frame and ecx")
+
+    def test_healers_come_first_even_with_every_hut_built(self):
+        # The owner, v1.35.38: "For healers, they should study medicine at all
+        # food levels, when they can study medicine" -- not tied to the huts,
+        # unlike builders.
+        for game in self.GAMES:
+            g = G[game]
+            with self.subTest(game=game):
+                r = DispatchRun(game, g["calls"][0], g["healing"], self.other_job(g), huts_done=True,
+                                starts=lambda job: job == g["healing"])
+                self.assertEqual(r.asked, [g["healing"]])
+                self.assertEqual(r.reg(UC_X86_REG_EAX) & 0xFF, 1)
+                r = DispatchRun(game, g["calls"][0], g["healing"], self.other_job(g), huts_done=True,
+                                starts=lambda job: False)
+                self.assertEqual(r.asked, [g["healing"], self.other_job(g)], "can't study: the stock request")
+
+    def test_below_level_3_a_builder_with_every_hut_built_comes_first(self):
+        # A New Home / The Lost Children: below Building level 3 a built hut is
+        # hut work even once every one is built (Codex on #464).
+        for game in ("vv1", "vv2"):
+            g = G[game]
+            with self.subTest(game=game):
+                r = DispatchRun(game, g["calls"][0], g["building"], self.other_job(g), huts_done=True,
+                                starts=lambda job: job == g["building"], level=2)
+                self.assertEqual(r.asked, [g["building"]])
 
     def test_everything_else_runs_the_stock_request_alone(self):
         for game in self.GAMES:

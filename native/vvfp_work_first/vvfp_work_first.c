@@ -51,6 +51,24 @@ static int vv2_huts_incomplete(const unsigned char *village) {
     return !(state[0x2E818] == 1 && state[0x2E820] == 1 && state[0x2E828] == 1);
 }
 
+/* A New Home / The Lost Children: a builder has hut work while a population
+   hut is unbuilt, or -- below Building level 3, where the owner wants
+   builders to fix huts "if at least one is built" -- whenever one is built
+   (Codex on #464). */
+static int vv1_builder_has_hut_work(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    if (vv1_huts_incomplete(village)) return 1;
+    return *(const int *)(state + 0xA2CC) < 3
+        && (state[0x9FE8] == 1 || state[0x9FF0] == 1 || state[0x9FF8] == 1);
+}
+
+static int vv2_builder_has_hut_work(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    if (vv2_huts_incomplete(village)) return 1;
+    return *(const int *)(state + 0x2EA84) < 3
+        && (state[0x2E818] == 1 || state[0x2E820] == 1 || state[0x2E828] == 1);
+}
+
 struct later_game {
     unsigned int complete_fn;      /* __stdcall(int) -> al, ecx = complete_obj */
     unsigned int complete_obj;
@@ -94,9 +112,17 @@ struct vvfp_work_first_stats {
 };
 __declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0 };
 
-/* The villager's own job to try first, or -1: the stock request alone. */
+/* The villager's own job to try first, or -1: the stock request alone.
+   Builders: only while a population hut is unbuilt.  Healers: always -- the
+   owner: "For healers, they should study medicine at all food levels, when
+   they can study medicine"; whether they can (a patient, the Medicine tech,
+   the Hospital) is the game's own healing dispatcher's decision, and when it
+   starts nothing the scheduler's own request runs. */
 static int own_first(int selected, int requested, int building, int healing, int huts_incomplete) {
-    if ((selected != building && selected != healing) || selected == requested || !huts_incomplete) {
+    if (selected == requested) {
+        return -1;
+    }
+    if (selected == building ? !huts_incomplete : selected != healing) {
         return -1;
     }
     ++VvfpWorkFirstStats.tried;
@@ -120,13 +146,13 @@ static const unsigned int VV5_CALLS[] = { 0x46F291u, 0x46F2D6u, 0x46F2EAu };
 static int __cdecl vv1_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
     if (!is_one_of(ret, VV1_CALLS, 2)) return -1;
     return own_first(*(const int *)(village + index * 0x3D8u + 0x3D0u), job, 4, 5,
-                     vv1_huts_incomplete(village));
+                     vv1_builder_has_hut_work(village));
 }
 
 static int __cdecl vv2_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
     if (!is_one_of(ret, VV2_CALLS, 2)) return -1;
     return own_first(*(const int *)(village + index * 0xE48Cu + 0x7F8u), job, 5, 3,
-                     vv2_huts_incomplete(village));
+                     vv2_builder_has_hut_work(village));
 }
 
 static int __cdecl vv4_first(unsigned int ret, const unsigned char *object, int job) {

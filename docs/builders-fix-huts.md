@@ -110,15 +110,19 @@ check counter 0 -- the hut site `0x447724` was never reached.
 * **The level gate.** Below Building level 3 the stock Building branch gives
   up at `cmp [state+0xA2CC], 3; jl` (VV1 `0x44765E`), before the hut.  The
   Lost Children has the same gate (`cmp [state+0x2EA84], 3; jl` at
-  `0x4601F2`).  Below level 3 each level stub now calls the chooser itself
-  (`vv1_choose` / `vv2_choose`) and, when it picks a complete population hut
-  while another is unbuilt, examines it directly (VV1 `0x446600`, VV2
-  `0x45F7C0`) with `ebx = 1` for the stock "started" epilogue.  Otherwise --
-  no hut complete, or every hut complete -- it keeps the gate's "nothing"
-  (VV2 the gate's own `0x46004C`; VV1 `al = 0` after the dispatcher's pops),
-  so the stock random pick (VV2's fourth option is building 5, not a hut) is
-  never reached from below level 3 (Codex on #463).  The Secret City, The
-  Tree of Life and New Believers have no exit before their site.
+  `0x4601F2`).  The owner (v1.35.38): "below level 3, at all food levels,
+  villagers will fix huts if at least one is built and there are no other
+  building projects available" -- every hut built included.  Below level 3
+  each level stub calls its own chooser (`vv1_choose_any` /
+  `vv2_choose_any`: any built population hut) and examines it directly (VV1
+  `0x446600`, VV2 `0x45F7C0`) with `ebx = 1` for the stock "started"
+  epilogue; with no hut built it keeps the gate's "nothing" (VV2 the gate's
+  own `0x46004C`; VV1 `al = 0` after the dispatcher's pops).  The stock
+  random pick (VV2's fourth option is building 5, not a hut) is never reached
+  from below level 3 (Codex on #463).  The Secret City, The Tree of Life and
+  New Believers have no exit before their site: a built hut is offered while
+  another is unbuilt (this companion) and, once every hut is built, by the
+  stock "fix a hut" option.
 * **A New Home's false "started".** Every way VV1's Building branch gives up
   (`0x4474A1`, `0x4477A6`) returns `mov al, bl` with `bl = 1`: "started" with
   nothing started, so the builder stood idle and the scheduler (and Builders
@@ -143,8 +147,9 @@ addendum to the preexisting ones". Its own companion, `VVFP Work First.dll`
 
 Every adult idle scheduler asks one work dispatcher "start job N for this
 villager". When the adult scheduler asks it for a villager whose selected job
-is Building or Healing, while a population hut is unbuilt, the dispatcher is
-first asked for that own job; if it starts something the scheduler sees
+is Healing (always -- the owner, v1.35.38: "For healers, they should study
+medicine at all food levels, when they can study medicine"), or Building while
+a population hut is unbuilt, the dispatcher is first asked for that own job; if it starts something the scheduler sees
 "started", and if there is nothing of theirs to do the scheduler's own request
 runs unchanged (Codex on #462: a first version forced the pick instead, which
 left a builder or healer with nothing to do idle). At low food in VV3-VV5 the
