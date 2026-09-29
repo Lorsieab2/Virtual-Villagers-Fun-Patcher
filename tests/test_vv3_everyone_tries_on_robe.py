@@ -112,17 +112,21 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # diffing byte for byte: 168 differing bytes per mode, every one inside the
     # fix-huts overlay (0xCB800..0xCBC00), the dispatcher's ten-byte entry at
     # 0x5AF00 or the PE CheckSum; nothing else moved.
+    # Re-pinned when Everyone Collects Like A New Home joined the catalog.
+    # Justified BEFORE re-pinning by rendering the full catalog without and
+    # with the row and diffing byte for byte: 4 differing bytes per mode, the
+    # row's two-byte jne at 0x2DDCF and two bytes of the PE CheckSum.
     "stock": (
-        "1603805860C7413151E4D2702498AC89D6DE9B84C8085A90721822F0BD420B46",
-        "D3200D00",
+        "8D2F94DB334EE3E42BDADFEEDC6D1054459B25BF3E48E13E68E846E578C926CC",
+        "413C0D00",
     ),
     "collection_progression": (
-        "7A9B542BB0C441051CA617AE992D305FE7FFF577CB856F74C4512B0397C825F7",
-        "D3390D00",
+        "C8D3D920FF6B27CEAA3593BFDB16051255544D0CCE5A242835D9485A65911AC9",
+        "41550D00",
     ),
     "immediate_fixed": (
-        "6A16A729E8CBB05FEA5A4FB90540AE2ED39EA6C770B1A374DC67C879ABE8BE02",
-        "D17B0D00",
+        "CEB5275D0B267681633FCF5B7090DB077CCF7DA4D536F12362CF94F0F831804C",
+        "3F970D00",
     ),
 }
 

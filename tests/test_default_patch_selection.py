@@ -87,11 +87,25 @@ class DefaultPatchSelectionTests(unittest.TestCase):
     def test_the_deny_list_holds_back_exactly_the_learning_patches(
         self,
     ) -> None:
-        """Nothing else may be quietly excluded along with them."""
+        """Nothing else may be quietly excluded along with them -- the one
+        other default-off patch the owner asked for is Everyone Collects Like
+        A New Home (VV2-VV5)."""
         ids = fun_patch_ids()
         off = {p for p in ids if not default_fun_patch_selection(p)}
         self.assertEqual(
-            off, {p for p in ids if "learning_never_fails" in p})
+            off, {p for p in ids if "learning_never_fails" in p
+                  or p.endswith("_everyone_collects_like_vv1")})
+
+    def test_everyone_collects_is_off_by_default_in_vv2_to_vv5(self) -> None:
+        """The owner: "I would like a DEFAULT OFF patch for VV2-VV5"."""
+        ids = fun_patch_ids()
+        for game in range(2, 6):
+            patch_id = "vv%d_everyone_collects_like_vv1" % game
+            with self.subTest(patch=patch_id):
+                self.assertIn(patch_id, ids)
+                self.assertFalse(default_fun_patch_selection(patch_id))
+        self.assertNotIn("vv1_everyone_collects_like_vv1", ids,
+                         "A New Home already behaves this way")
 
     def test_the_button_exists_and_uses_the_shared_rule(self) -> None:
         """A button that ticks everything would satisfy its own label.

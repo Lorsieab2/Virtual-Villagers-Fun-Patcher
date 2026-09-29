@@ -1951,6 +1951,72 @@
           "restore_sha256": "3E69F187E1523A9801616D7D7736102B64C9DCF62ABDB913B9F81BDEA0B5907A"
         }
       ]
+    },
+    {
+      "id": "vv2_everyone_collects_like_vv1",
+      "game_id": "vv2",
+      "name": "Everyone Collects Like A New Home",
+      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
+      "output_tag": "Everyone Collects",
+      "patches": [
+        {
+          "offset": "0x61D5F",
+          "before": "33DB",
+          "after": "EB70",
+          "purpose": "mushroom pickup (callback 0x3E): skip the loop that cancels another child's 'Picking a mushroom' job, going straight to the callback's own ending at 0x461DD1"
+        },
+        {
+          "offset": "0x61E01",
+          "before": "33DB8DAEFC040000",
+          "after": "E9D3000000909090",
+          "purpose": "collectible pickup (callback 0x3F): skip the loop that cancels another child's collecting job, going straight to the callback's own ending at 0x461ED9"
+        }
+      ]
+    },
+    {
+      "id": "vv3_everyone_collects_like_vv1",
+      "game_id": "vv3",
+      "name": "Everyone Collects Like A New Home",
+      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
+      "output_tag": "Everyone Collects",
+      "patches": [
+        {
+          "offset": "0x2DDCF",
+          "before": "7522",
+          "after": "9090",
+          "purpose": "collectible drop hit-test (0x42DDB0): accept a slot another villager has already claimed (reserver field +0x18 not -1)"
+        }
+      ]
+    },
+    {
+      "id": "vv4_everyone_collects_like_vv1",
+      "game_id": "vv4",
+      "name": "Everyone Collects Like A New Home",
+      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
+      "output_tag": "Everyone Collects",
+      "patches": [
+        {
+          "offset": "0x13A3F",
+          "before": "751E",
+          "after": "9090",
+          "purpose": "collectible drop hit-test (0x413A20): accept a slot another villager has already claimed (reserver field +0x18 not -1)"
+        }
+      ]
+    },
+    {
+      "id": "vv5_everyone_collects_like_vv1",
+      "game_id": "vv5",
+      "name": "Everyone Collects Like A New Home",
+      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
+      "output_tag": "Everyone Collects",
+      "patches": [
+        {
+          "offset": "0x13E5F",
+          "before": "751E",
+          "after": "9090",
+          "purpose": "collectible drop hit-test (0x413E40): accept a slot another villager has already claimed (reserver field +0x18 not -1)"
+        }
+      ]
     }
   ]
 }

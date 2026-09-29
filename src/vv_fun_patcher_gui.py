@@ -52,7 +52,9 @@ SETTINGS = ROOT / "patcher_local_settings.json"
 # Matched by exact id rather than by substring or display name, so a future
 # patch whose name merely mentions learning is not excluded by accident.
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
-    "vv%d_learning_never_fails" % game for game in range(1, 6)
+    ["vv%d_learning_never_fails" % game for game in range(1, 6)]
+    # The owner: Everyone Collects Like A New Home is a default-off patch.
+    + ["vv%d_everyone_collects_like_vv1" % game for game in range(2, 6)]
 )
 
 

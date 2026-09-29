@@ -1173,8 +1173,10 @@ class ManifestTests(unittest.TestCase):
         # 14 with Teaching Children Stops at 50 (vv2_teaching_children_cap_50),
         # the same again; 15 with Healers Study Plants Regardless of Food
         # (vv2_healers_study_regardless_of_food), the same; 16 with Builders and
-        # Healers Work First (vv2_builders_and_healers_work_first), the same.
-        self.assertEqual(len(feature_ids), 16)
+        # Healers Work First (vv2_builders_and_healers_work_first), the same;
+        # 17 with Everyone Collects Like A New Home
+        # (vv2_everyone_collects_like_vv1), two jumps in the pickup callbacks.
+        self.assertEqual(len(feature_ids), 17)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -3996,6 +3998,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_teaching_children_cap_50",
                 "vv2_healers_study_regardless_of_food",
                 "vv2_builders_and_healers_work_first",
+                "vv2_everyone_collects_like_vv1",
                 "vv2_numeric_keys_tip_wording",
             },
         )
