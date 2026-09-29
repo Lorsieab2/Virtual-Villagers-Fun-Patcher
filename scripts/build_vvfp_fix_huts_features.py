@@ -42,13 +42,14 @@ STOCK_VV3 = ROOT / "research" / "stock-executables" / "Virtual Villagers - The S
 
 DESCRIPTION = (
     "Builders fix huts when no building projects are present. When no building "
-    "project is available to be worked on and not all population huts are "
-    "complete, a builder with nothing to do examines and fixes one of the huts "
-    "that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, "
+    "project is available to be worked on and at least one population hut "
+    "stands -- while another is unbuilt, and below Building level 3 even once "
+    "every one is built -- a builder with nothing to do examines and fixes one "
+    "of the huts that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, "
     "which trains Building. It only makes that job able to be chosen "
     "autonomously; the job itself, its chance of a repair and its skill roll are "
-    "the game's own. While not every population hut is built, a builder also "
-    "does this regardless of the food supply: plentiful food no longer skips "
+    "the game's own. Whenever there is hut work to do, a builder also does "
+    "this regardless of the food supply: plentiful food no longer skips "
     "the builder's work attempt (A New Home, The Lost Children), and scarce "
     "food no longer sends the builder to farm or gather first (The Secret City, "
     "The Tree of Life, New Believers). Applies in live play and during catch-up. "
@@ -82,9 +83,9 @@ LEVEL_BEHAVIOR = {
     "vv2": "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut (never building 5) whenever at least one is built and no other building project is available (every hut built included).",
 }
 FOOD_BEHAVIOR = (
-    "While not every population hut is complete, a builder's work attempt no "
-    "longer depends on the food supply: {how}. Every other villager, and every "
-    "village whose huts are all built, keeps the stock food behaviour."
+    "Whenever a builder has hut work to do, its work attempt no longer depends "
+    "on the food supply: {how}. Every other villager keeps the stock food "
+    "behaviour."
 )
 FOOD_HOW = {
     "vv1": "at 400 food or more a villager whose selected job is Building still gets the preferred-job attempt the stock game gives below 400",
@@ -140,7 +141,7 @@ def work_first_row(game: str, sha: str) -> dict:
         "dependencies": [f"{game}_builders_fix_huts"],
         "behavior_changes": behavior,
         "explicit_non_changes": [
-            "A builder or healer with nothing of their own to do does whatever the stock scheduler chose (farming, research, ...); the younger villagers' routine, every other caller of the dispatcher, every other selected job, and every village whose population huts are all built are untouched.",
+            "A builder or healer with nothing of their own to do does whatever the stock scheduler chose (farming, research, ...); the younger villagers' routine, every other caller of the dispatcher and every other selected job are untouched. A builder is put first only while it has hut work (a hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built); a healer always.",
             "What the work does -- which project, which hut, which patient or study -- is the game's own dispatcher's choice.",
             "Nothing is written to a villager record, the save or any file.",
         ],
@@ -542,7 +543,7 @@ def main() -> None:
     sha = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
     common_non_changes = [
         "Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own.",
-        "A builder with a project available still takes the project; in a village where every population hut is complete, or none is, the Building dispatcher's hut choice is the stock one (no hut to fix, or the stock fix-a-hut option). The food bypass applies whenever any population hut is unbuilt, and a village with every hut complete keeps the stock food behaviour.",
+        "A builder with a project available still takes the project. With no population hut built there is nothing to fix. With every hut built, at Building level 3 or above (and in The Secret City, The Tree of Life and New Believers at any level) the hut choice is the stock fix-a-hut option; below level 3 in A New Home and The Lost Children a built population hut is fixed directly (never The Lost Children's building 5).",
         "Nothing is written to a villager record, the save or any file.",
     ]
     for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):

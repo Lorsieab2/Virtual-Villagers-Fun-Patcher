@@ -15,7 +15,7 @@
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: the fix-huts companion loads the DLL, which detours the work dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.",
-    "A builder or healer with nothing of their own to do does whatever the stock scheduler chose (farming, research, ...); the younger villagers' routine, every other caller of the dispatcher, every other selected job, and every village whose population huts are all built are untouched.",
+    "A builder or healer with nothing of their own to do does whatever the stock scheduler chose (farming, research, ...); the younger villagers' routine, every other caller of the dispatcher and every other selected job are untouched. A builder is put first only while it has hut work (a hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built); a healer always.",
     "What the work does -- which project, which hut, which patient or study -- is the game's own dispatcher's choice.",
     "Nothing is written to a villager record, the save or any file."
   ],
@@ -23,7 +23,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "5CC096B14E9F4640D44258C3FF7E9B589AA7B144FFF792187321C33DDBF801E7"
+      "sha256": "B5DCF4E1C2A9992BA77F3B3DA7A8AB86DFC3F2C572623737F6BF731C08BD2658"
     }
   ],
   "patches": [],

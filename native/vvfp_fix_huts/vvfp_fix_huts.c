@@ -550,8 +550,25 @@ static int later_huts_incomplete(const struct later_game *g) {
 /* Counts for a test reading the running game.  Diagnostic only. */
 __declspec(dllexport) int VvfpFixHutsFoodBypasses = 0;
 
+/* When a builder has hut work to do (Codex on #464): a population hut still
+   unbuilt, or -- below Building level 3, where the owner wants builders to
+   fix huts "if at least one is built", every one built included -- at least
+   one built. */
+static int vv1_builder_has_hut_work(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    if (vv1_huts_incomplete(village)) return 1;
+    return *(const int *)(state + 0xA2CC) < 3 && !vv1_none_complete(village);
+}
+
+static int vv2_builder_has_hut_work(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    if (vv2_huts_incomplete(village)) return 1;
+    return *(const int *)(state + 0x2EA84) < 3
+        && (state[0x2E818] == 1 || state[0x2E820] == 1 || state[0x2E828] == 1);
+}
+
 static int __cdecl vv1_builder_first(const unsigned char *village, unsigned int index) {
-    if (*(const int *)(village + index * 0x3D8u + 0x3D0u) != 4 || !vv1_huts_incomplete(village)) {
+    if (*(const int *)(village + index * 0x3D8u + 0x3D0u) != 4 || !vv1_builder_has_hut_work(village)) {
         return 0;
     }
     ++VvfpFixHutsFoodBypasses;
@@ -559,7 +576,7 @@ static int __cdecl vv1_builder_first(const unsigned char *village, unsigned int 
 }
 
 static int __cdecl vv2_builder_first(const unsigned char *village, const unsigned char *record) {
-    if (*(const int *)(record + 0x7F8u) != 5 || !vv2_huts_incomplete(village)) {
+    if (*(const int *)(record + 0x7F8u) != 5 || !vv2_builder_has_hut_work(village)) {
         return 0;
     }
     ++VvfpFixHutsFoodBypasses;
@@ -573,7 +590,14 @@ static int __cdecl vv2_builder_first(const unsigned char *village, const unsigne
 static int work_first_present(void);
 
 static int __cdecl later_builder_first(const struct later_game *g, int pick) {
-    if ((pick != 4 && !(pick == 2 && work_first_present())) || !later_huts_incomplete(g)) {
+    /* A builder: always.  VV3-VV5 have no level gate before their hut site,
+       so a builder always has hut work -- this companion's fix while a hut is
+       unbuilt, the stock "fix a hut" option once every one is built -- and the
+       owner wants it done "at all food levels" (Codex on #464).  A healer:
+       whenever the addendum is shipped -- "Healers should not be gated by
+       huts at all". */
+    (void)g;
+    if (pick != 4 && !(pick == 2 && work_first_present())) {
         return 0;
     }
     ++VvfpFixHutsFoodBypasses;
