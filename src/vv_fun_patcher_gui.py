@@ -61,9 +61,10 @@ def default_fun_patch_selection(patch_id: str) -> bool:
     return patch_id not in DEFAULT_OFF_FUN_PATCH_IDS
 
 
-# The releases page is what a player actually wants to land on, so the link
-# goes straight there rather than querying an API and reporting a comparison.
-RELEASES_PAGE = "https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases"
+# The owner: the update link opens the project's base GitHub
+# repository, not the releases page. It opens the page rather than querying an
+# API and reporting a comparison.
+RELEASES_PAGE = "https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/"
 # How long to keep retrying the wait window's modal grab before giving up, and
 # how long to wait between attempts. Two seconds is far longer than a window
 # manager needs to make a window viewable, so exhausting it means something is
@@ -624,12 +625,12 @@ class App(tk.Tk):
         self.open_button.pack(anchor="e", pady=(8, 0))
 
     def _open_releases_page(self) -> None:
-        """Open the releases page. No version check, by design.
+        """Open the project's GitHub page. No version check, by design.
 
         This used to ask GitHub for the newest tag and compare it against the
         build, which meant version parsing, prerelease ordering, a request
         timeout and a failure path for every way a network call can fail. The
-        releases page already shows what is newest, and the build version is
+        repository page already shows the latest release, and the build version is
         printed directly under this link, so the comparison is the player's to
         make and nothing here can hang or fail.
         """

@@ -1,17 +1,18 @@
-"""The "Check for Updates" link sits at the top and opens the releases page.
+"""The "Check for Updates" link sits at the top and opens the project's GitHub page.
 
 This replaces a much larger file that tested a version-comparison machine: the
 patcher used to query GitHub's API for the newest tag, parse both versions,
 order prereleases below their final release, and handle every way a network
-call can fail. The owner asked for the link to go straight to the releases
-page instead, which deletes all of that -- the page already shows what is
-newest, and the build version is printed under the link so the comparison is
-the player's to make.
+call can fail. The owner asked for the link to simply open a page instead,
+which deletes all of that -- first the releases page, and now (the owner's
+later request) the base GitHub repository, whose page shows the latest
+release. The build version is printed under the link so the comparison is the
+player's to make.
 
 What still matters, and is checked here:
 
   * The link is at the TOP, beside the description, not in a footer.
-  * It opens the real releases page for this repository.
+  * It opens this repository's base GitHub page, exactly the owner's URL.
   * The build version is visible next to it, or the link tells the player
     nothing actionable.
   * Nothing in the module reaches the network any more, so the patcher cannot
@@ -32,8 +33,9 @@ sys.path.insert(0, str(ROOT / "src"))
 from transparency import PATCHER_VERSION  # noqa: E402
 from vv_fun_patcher_gui import RELEASES_PAGE  # noqa: E402
 
+# The owner: the link goes to the base repository, not the releases page.
 EXPECTED_RELEASES_PAGE = (
-    "https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/releases"
+    "https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/"
 )
 
 
@@ -52,7 +54,7 @@ class ReleasesLinkTests(unittest.TestCase):
                 names.add(node.module.split(".")[0])
         return names
 
-    def test_it_points_at_the_releases_page_exactly(self) -> None:
+    def test_it_points_at_the_repository_page_exactly(self) -> None:
         """The owner supplied this URL directly; a near-miss is not good enough."""
         self.assertEqual(RELEASES_PAGE, EXPECTED_RELEASES_PAGE)
 
