@@ -36,6 +36,8 @@ REMAINING = {
     "vv2_gong_of_wonder_coconuts_fix",
     # two jumps in the pickup callbacks; owns no Origins bytes
     "vv2_everyone_collects_like_vv1",
+    # the mushroom spawn roll and pickup; owns no Origins bytes
+    "vv2_super_secret_golden_mushroom",
     "vv2_write_village_statistics",
     # one string pointer and dead storage; owns no Origins bytes
     "vv2_numeric_keys_tip_wording",

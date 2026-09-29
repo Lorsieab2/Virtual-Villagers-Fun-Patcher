@@ -2132,6 +2132,32 @@
       "name": "Super-Secret Golden Mushroom",
       "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
       "output_tag": "Golden Mushroom",
+      "companion_files": [
+        {
+          "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+          "destination": "VVFP Golden Mushroom.dll",
+          "sha256": "DE71858E39F70AB2F94244D95D956C9AFFEDE74EBE6410AC6A11402E73AA1657"
+        },
+        {
+          "source": "assets/golden_mushroom/golden_mushroom.png",
+          "destination": "Images/golden_mushroom.png",
+          "sha256": "9ADFFC452EA714C156936197A52622D46F4CF32B883161F2387367CE2668ACDA"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x4093D0",
+          "stock_bytes": "8B09E9D9F3FFFF",
+          "routine": "the frame-draw thunk (mov ecx, [ecx]; jmp 0x4087B0)",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
+        },
+        {
+          "va": "0x41ABA0",
+          "stock_bytes": "E83BE8FEFF",
+          "routine": "a dropped item's fading draw (call 0x4093E0)",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
+        }
+      ],
       "patches": [
         {
           "offset": "0x236C7",
@@ -2168,6 +2194,30 @@
           "before": "0F8479030000",
           "after": "0F8D79030000",
           "purpose": "zoomed-out map: hide every mushroom frame, as stock hides its two"
+        },
+        {
+          "offset": "0x3C26E",
+          "before": "E8FDDDFCFF",
+          "after": "E84EA40100",
+          "purpose": "image loading: load this patch's companion first, then the stock call"
+        },
+        {
+          "offset": "0x566C1",
+          "before": "000000000000000000000000000000000000000000000000000000",
+          "after": "606880D04800FF151070450085C074996A0150FF15D4704500EB88",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved) (part one)"
+        },
+        {
+          "offset": "0x56664",
+          "before": "000000000000000000000000",
+          "after": "85C07402FFD061E9003AFBFF",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved) (part two)"
+        },
+        {
+          "offset": "0x8B080",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "5656465020476F6C64656E204D757368726F6F6D2E646C6C00",
+          "purpose": "this patch's companion file name"
         }
       ]
     },
@@ -2222,6 +2272,26 @@
       "name": "Super-Secret Golden Mushroom",
       "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
       "output_tag": "Golden Mushroom",
+      "companion_files": [
+        {
+          "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+          "destination": "VVFP Golden Mushroom.dll",
+          "sha256": "DE71858E39F70AB2F94244D95D956C9AFFEDE74EBE6410AC6A11402E73AA1657"
+        },
+        {
+          "source": "assets/golden_mushroom/golden_mushroom.png",
+          "destination": "Images/golden_mushroom.png",
+          "sha256": "9ADFFC452EA714C156936197A52622D46F4CF32B883161F2387367CE2668ACDA"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x42E510",
+          "stock_bytes": "DB44240856",
+          "routine": "the world sprite draw entry (fild dword [esp+8]; push esi)",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 3"
+        }
+      ],
       "patches": [
         {
           "offset": "0x2DA8B",
@@ -2252,6 +2322,24 @@
           "before": "33C083FE640F95C0B9902458004883E0E383C023",
           "after": "0FB6860EE04200B990245800EB06062364CCCCCC",
           "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+        },
+        {
+          "offset": "0x2795E",
+          "before": "E85D5A0000",
+          "after": "E858440500",
+          "purpose": "image loading: load this patch's companion first, then the stock call"
+        },
+        {
+          "offset": "0x7BDBB",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "606800886C00FF1524C1470085C0740F6A0350FF1528C1470085C07402FFD061E9E015FBFF",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved)"
+        },
+        {
+          "offset": "0xB4800",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "5656465020476F6C64656E204D757368726F6F6D2E646C6C00",
+          "purpose": "this patch's companion file name"
         }
       ]
     },
@@ -2261,6 +2349,26 @@
       "name": "Super-Secret Golden Mushroom",
       "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
       "output_tag": "Golden Mushroom",
+      "companion_files": [
+        {
+          "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+          "destination": "VVFP Golden Mushroom.dll",
+          "sha256": "DE71858E39F70AB2F94244D95D956C9AFFEDE74EBE6410AC6A11402E73AA1657"
+        },
+        {
+          "source": "assets/golden_mushroom/golden_mushroom.png",
+          "destination": "Images/golden_mushroom.png",
+          "sha256": "9ADFFC452EA714C156936197A52622D46F4CF32B883161F2387367CE2668ACDA"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x44C640",
+          "stock_bytes": "DB44240856",
+          "routine": "the world sprite draw entry (fild dword [esp+8]; push esi)",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 4"
+        }
+      ],
       "patches": [
         {
           "offset": "0x13FAF",
@@ -2291,6 +2399,24 @@
           "before": "BE23000000",
           "after": "E9414B0700",
           "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+        },
+        {
+          "offset": "0x1E971",
+          "before": "E8AA4DFFFF",
+          "after": "E821A70600",
+          "purpose": "image loading: load this patch's companion first, then the stock call"
+        },
+        {
+          "offset": "0x89097",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6068007F4B00FF15E0A1480085C0740F6A0450FF15DCA1480085C07402FFD061E964A6F8FF",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved)"
+        },
+        {
+          "offset": "0xB7F00",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "5656465020476F6C64656E204D757368726F6F6D2E646C6C00",
+          "purpose": "this patch's companion file name"
         }
       ]
     },
@@ -2300,6 +2426,26 @@
       "name": "Super-Secret Golden Mushroom",
       "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
       "output_tag": "Golden Mushroom",
+      "companion_files": [
+        {
+          "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+          "destination": "VVFP Golden Mushroom.dll",
+          "sha256": "DE71858E39F70AB2F94244D95D956C9AFFEDE74EBE6410AC6A11402E73AA1657"
+        },
+        {
+          "source": "assets/golden_mushroom/golden_mushroom.png",
+          "destination": "Images/golden_mushroom.png",
+          "sha256": "9ADFFC452EA714C156936197A52622D46F4CF32B883161F2387367CE2668ACDA"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x44F380",
+          "stock_bytes": "DB44240856",
+          "routine": "the world sprite draw entry (fild dword [esp+8]; push esi)",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 5"
+        }
+      ],
       "patches": [
         {
           "offset": "0x142B5",
@@ -2330,6 +2476,24 @@
           "before": "BE23000000",
           "after": "E9A6FE0700",
           "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+        },
+        {
+          "offset": "0x23E21",
+          "before": "E8AAFCFEFF",
+          "after": "E8AF090700",
+          "purpose": "image loading: load this patch's companion first, then the stock call"
+        },
+        {
+          "offset": "0x947D5",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6068FD474900FF15E051490085C0740F6A0550FF15DC51490085C07402FFD061E9D6F2F7FF",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved)"
+        },
+        {
+          "offset": "0x947FD",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "5656465020476F6C64656E204D757368726F6F6D2E646C6C00",
+          "purpose": "this patch's companion file name"
         }
       ]
     }

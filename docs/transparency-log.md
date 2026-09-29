@@ -327,7 +327,7 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 10; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Visual Mods (`vv1_visual_mods`)
 
@@ -755,7 +755,7 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Tribal Chief Lessons Stop at 50 (`vv3_chief_lessons_cap_50`)
 
@@ -916,7 +916,7 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv4_everyone_collects_like_vv1`)
 
@@ -1113,7 +1113,7 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV1 Mushroom/Collectible Duplication Cheat (`vv5_everyone_collects_like_vv1`)
 
