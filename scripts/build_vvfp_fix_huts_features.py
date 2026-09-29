@@ -101,7 +101,9 @@ WORK_FIRST_DESCRIPTION = (
     "Builders and healers do their own work first, at any food level: whenever "
     "the game looks for something for a villager whose selected job is Building "
     "to do, it first tries building work (a project, or fixing a hut) while not "
-    "every population hut is built; for one whose selected job is Healing it "
+    "every population hut is built -- and, in A New Home and The Lost Children "
+    "below Building level 3, whenever any hut is built; for one whose selected "
+    "job is Healing it "
     "always first tries healing and study, whenever there is a patient or they "
     "can study medicine. This comes before idling, farming or gathering. When "
     "there is nothing of their own to do, they do whatever the game would have "
@@ -125,7 +127,7 @@ JOB_NUMBERS = {"vv1": (4, 5), "vv2": (5, 3), "vv3": (4, 2), "vv4": (4, 2), "vv5"
 def work_first_row(game: str, sha: str) -> dict:
     building, healing = JOB_NUMBERS[game]
     behavior = [
-        f"Whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Healing (job {healing}), or Building (job {building}) while not every population hut is complete, the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt.",
+        f"Whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Healing (job {healing}), or Building (job {building}) while it has hut work (a population hut unbuilt, or in A New Home and The Lost Children below Building level 3 any hut built), the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt.",
     ]
     if game in ("vv3", "vv4", "vv5"):
         behavior.append("At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders.")
