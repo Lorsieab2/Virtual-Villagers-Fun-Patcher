@@ -261,7 +261,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x4A7FF"): "A60BAC3A2FCB534ADD52306CD7ACC3F6C7BBB6EEF8697FA5E93D5AC03AF29407",
     ("vv1_enable_origins_exclusive_features", "0x4A8B4"): "BD8F67537F178A076E15F82A2F47AF0D2E0079AAB7E7A0A798B515BCCD6B147D",
     # Re-reviewed when the selected-job compare's immediate changed from 1 to
-    # 4 (Building; 1 is Research in the picker's own switch at 0x439CAC).
+    # 4 (Building; 1 is Farming in the picker's own switch at 0x439CAC).
     # One immediate byte; the registers read, the flags consumed and both
     # re-entry targets (0x448342, 0x44836F) are unchanged.
     ("vv1_builder_action_fixes", "0x48336"): "83E41508B3B44724B871B148EDEDB57130092392AC26005013AE744A5147CE32",

@@ -106,17 +106,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # differing bytes per mode, every one inside the fix-huts overlay
     # (0xCB800..0xCBC00), its new nine-byte site at 0x5C229 (the low-food
     # farming test) or the PE CheckSum; nothing else moved.
+    # Re-pinned when the fix-huts page gained the dispatcher stub for the
+    # Builders and Healers Work First addendum. Justified BEFORE re-pinning by
+    # rendering the full catalog on main (ac363f0e) and on the branch and
+    # diffing byte for byte: 168 differing bytes per mode, every one inside the
+    # fix-huts overlay (0xCB800..0xCBC00), the dispatcher's ten-byte entry at
+    # 0x5AF00 or the PE CheckSum; nothing else moved.
     "stock": (
-        "E5C1ECFB67ED8AE0333CD50E6F8359D4DACCDAD55C6E5679AE836062715AACB9",
-        "7F0C0D00",
+        "1603805860C7413151E4D2702498AC89D6DE9B84C8085A90721822F0BD420B46",
+        "D3200D00",
     ),
     "collection_progression": (
-        "CA61C0BF0A624C43217E7964F20806AED74106EE13954020ED931F70294DDB86",
-        "7F250D00",
+        "7A9B542BB0C441051CA617AE992D305FE7FFF577CB856F74C4512B0397C825F7",
+        "D3390D00",
     ),
     "immediate_fixed": (
-        "A994ACC81D7ACAECEAA2E0F6BE437B07400343E4A6BB185366C0D7B57F54F21D",
-        "7D670D00",
+        "6A16A729E8CBB05FEA5A4FB90540AE2ED39EA6C770B1A374DC67C879ABE8BE02",
+        "D17B0D00",
     ),
 }
 

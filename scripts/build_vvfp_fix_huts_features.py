@@ -81,6 +81,72 @@ FOOD_HOW = {
     "vv5": "at 250 food or less a picked Building job is dispatched at once instead of waiting behind a farming attempt and a 50% swap for a food action",
 }
 
+# ---- The addendum: Builders and Healers Work First -------------------------
+WORK_FIRST_DLL = ROOT / "assets" / "work_first" / "VVFP Work First.dll"
+WORK_FIRST_DESCRIPTION = (
+    "Builders and healers do their own work first while not every population "
+    "hut is built, at any food level: whenever the game looks for something for "
+    "a villager whose selected job is Building to do, it first tries building "
+    "work (a project, or fixing a hut), and for one whose selected job is "
+    "Healing, healing and study, before idling, farming or gathering. When "
+    "there is nothing of their own to do, they do whatever the game would have "
+    "had them do. Once every population hut stands, the game's own choices "
+    "return. An addendum to Builders Fix Huts When Idle. **Requires Builders "
+    "Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), "
+    "whose companion loads this one; without it nothing changes."
+)
+PICKER_RUNTIME = {
+    "vv1": {"va": "0x4472C0", "stock_bytes": "8B44240885C0",
+            "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x448355, 0x448382)"},
+    "vv2": {"va": "0x45FBF0", "stock_bytes": "8B44240885C0",
+            "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x461A08, 0x461A35)"},
+    "vv4": {"va": "0x4639B0", "stock_bytes": "8B44240481EC98000000",
+            "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x4659D2, 0x465A17, 0x465A2A)"},
+    "vv5": {"va": "0x46C540", "stock_bytes": "81EC94000000",
+            "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x46F291, 0x46F2D6, 0x46F2EA)"},
+}
+JOB_NUMBERS = {"vv1": (4, 5), "vv2": (5, 3), "vv3": (4, 2), "vv4": (4, 2), "vv5": (4, 2)}
+
+
+def work_first_row(game: str, sha: str) -> dict:
+    building, healing = JOB_NUMBERS[game]
+    behavior = [
+        f"While not every population hut is complete, whenever the adult scheduler asks the work dispatcher to start a job for a villager whose selected job is Building (job {building}) or Healing (job {healing}), the dispatcher is first asked for that villager's own job; if that starts something the scheduler sees it started, and if there is nothing of theirs to do the scheduler's own request runs unchanged. At any food level; at 250 food or less in The Secret City, The Tree of Life and New Believers this includes the scheduler's farming attempt.",
+    ]
+    if game in ("vv3", "vv4", "vv5"):
+        behavior.append("At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders.")
+    row = {
+        "id": f"{game}_builders_and_healers_work_first",
+        "enabled": True,
+        "catalog_enabled": True,
+        "catalog_hidden": False,
+        "game_id": game,
+        "name": "Builders and Healers Work First",
+        "description": WORK_FIRST_DESCRIPTION,
+        "output_tag": "Work First",
+        "dependencies": [f"{game}_builders_fix_huts"],
+        "behavior_changes": behavior,
+        "explicit_non_changes": [
+            "A builder or healer with nothing of their own to do does whatever the stock scheduler chose (farming, research, ...); the younger villagers' routine, every other caller of the dispatcher, every other selected job, and every village whose population huts are all built are untouched.",
+            "What the work does -- which project, which hut, which patient or study -- is the game's own dispatcher's choice.",
+            "Nothing is written to a villager record, the save or any file.",
+        ],
+        "companion_files": [
+            {"source": "assets/work_first/VVFP Work First.dll",
+             "destination": "VVFP Work First.dll", "sha256": sha},
+        ],
+        "patches": [],
+    }
+    if game in PICKER_RUNTIME:
+        row["explicit_non_changes"].insert(0,
+            "This row changes no executable bytes: the fix-huts companion loads the DLL, which detours the work dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.")
+        row["runtime_detours"] = [{**PICKER_RUNTIME[game], "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"}]
+    else:
+        row["explicit_non_changes"].insert(0,
+            "This row changes no executable bytes: The Secret City's hook is the dispatcher stub that Builders Fix Huts When Idle places in the page Origins appends, which resolves this DLL's VvfpWorkFirstFirst; without this row the DLL is not shipped and the stub runs the stock dispatcher.")
+    return row
+
+
 RUNTIME = {
     "vv1": {"va": "0x447724", "stock_bytes": "6A64E8E5B7FBFF83C404",
             "routine": "the Building dispatcher's skip roll before the random hut (0x4472C0)"},
@@ -126,6 +192,28 @@ VV3_FOOD_CACHE_SLOT = 0x6E0FFC    # .vv3md; fix-huts 0x6E0FF8, lesson-cap 0x6E0F
 VV3_FOOD_EXPORT_NAME = b"VvfpFixHutsBuilderFirst\0"
 VV3_FOOD_EXPORT_OFFSET = 0xC0
 VV3_FOOD_CODE_OFFSET = 0x100
+
+# The hook for the addendum row "Builders and Healers Work First": the work
+# dispatcher's entry (0x45AF00: mov eax, [esp+8]; sub esp, 0xA0) jumps to a
+# third stub, which resolves "VVFP Work First.dll"'s VvfpWorkFirstFirst(3,
+# caller, record, job).  A job number back means: ask the stock dispatcher for
+# that job first (the villager's own Building or Healing work); if it starts
+# something, return "started" (ret 8); otherwise, and for -1, the stock
+# request runs through the displaced bytes.  The addendum acts only for the
+# adult scheduler's three call sites and only while a population hut is
+# unbuilt.  The Secret City has no per-frame companion, so the hook lives in
+# this row's page; with the addendum's DLL not shipped the resolution fails
+# once, is remembered, and the stock dispatcher runs.
+VV3_PICKER_VA = 0x45AF00
+VV3_PICKER_FILE = VV3_PICKER_VA - 0x400000
+VV3_PICKER_STOCK = bytes.fromhex("8B44240881ECA0000000")   # mov eax, [esp+8]; sub esp, 0xA0
+VV3_PICKER_BODY = 0x45AF0A
+VV3_PRIORITY_CACHE_SLOT = 0x6E0FF0
+VV3_PRIORITY_EXPORT_NAME = b"VvfpWorkFirstFirst\0"
+VV3_WORK_FIRST_DLL_NAME = b"VVFP Work First.dll\0"
+VV3_WORK_FIRST_NAME_OFFSET = 0x1A0
+VV3_PRIORITY_EXPORT_OFFSET = 0x1C0
+VV3_PRIORITY_CODE_OFFSET = 0x200
 
 # Origins' appended pages: .vv3mc (R-X) at 0x6DF000 / file 0xCB000, whose own
 # content ends at 0x3A0; the parentage overlay takes 0x400..0x800; this one
@@ -248,6 +336,67 @@ def vv3_build_page(base_va: int) -> bytes:
     if VV3_FOOD_EXPORT_OFFSET + len(VV3_FOOD_EXPORT_NAME) > VV3_FOOD_CODE_OFFSET:
         raise RuntimeError("the food export name runs into the food stub")
     page[VV3_FOOD_CODE_OFFSET : VV3_FOOD_CODE_OFFSET + len(food)] = food
+    if VV3_FOOD_CODE_OFFSET + len(food) > VV3_WORK_FIRST_NAME_OFFSET:
+        raise RuntimeError("the food stub runs into the Work First DLL name")
+    priority_va = base_va + VV3_PRIORITY_CODE_OFFSET
+    work_first_name_va = base_va + VV3_WORK_FIRST_NAME_OFFSET
+    priority = assemble(
+        f"""
+        pushad
+        mov eax, dword ptr [0x{VV3_PRIORITY_CACHE_SLOT:X}]
+        cmp eax, 1
+        ja call_it
+        je give_up
+        push 0x{work_first_name_va:X}
+        call dword ptr [0x{VV3_GET_MODULE_HANDLE_IAT:X}]
+        test eax, eax
+        jne have_module
+        push 0x{work_first_name_va:X}
+        call dword ptr [0x{VV3_LOAD_LIBRARY_IAT:X}]
+        test eax, eax
+        je mark_failed
+    have_module:
+        push 0x{base_va + VV3_PRIORITY_EXPORT_OFFSET:X}
+        push eax
+        call dword ptr [0x{VV3_GET_PROC_ADDRESS_IAT:X}]
+        test eax, eax
+        je mark_failed
+        mov dword ptr [0x{VV3_PRIORITY_CACHE_SLOT:X}], eax
+    call_it:
+        push dword ptr [esp + 0x28]
+        push dword ptr [esp + 0x28]
+        push dword ptr [esp + 0x28]
+        push 3
+        call eax
+        add esp, 16
+        cmp eax, -1
+        je give_up
+        mov dword ptr [esp + 0x1C], eax
+        popad
+        push ecx
+        push eax
+        push dword ptr [esp + 0xC]
+        call original
+        pop ecx
+        test al, al
+        jz original
+        ret 8
+    mark_failed:
+        mov dword ptr [0x{VV3_PRIORITY_CACHE_SLOT:X}], 1
+    give_up:
+        popad
+    original:
+        mov eax, dword ptr [esp + 8]
+        sub esp, 0xA0
+        jmp 0x{VV3_PICKER_BODY:X}
+        """,
+        priority_va,
+    )
+    page[VV3_WORK_FIRST_NAME_OFFSET : VV3_WORK_FIRST_NAME_OFFSET + len(VV3_WORK_FIRST_DLL_NAME)] = VV3_WORK_FIRST_DLL_NAME
+    if VV3_WORK_FIRST_NAME_OFFSET + len(VV3_WORK_FIRST_DLL_NAME) > VV3_PRIORITY_EXPORT_OFFSET:
+        raise RuntimeError("the Work First DLL name runs into the export name")
+    page[VV3_PRIORITY_EXPORT_OFFSET : VV3_PRIORITY_EXPORT_OFFSET + len(VV3_PRIORITY_EXPORT_NAME)] = VV3_PRIORITY_EXPORT_NAME
+    page[VV3_PRIORITY_CODE_OFFSET : VV3_PRIORITY_CODE_OFFSET + len(priority)] = priority
     if any(page[VV3_OVERLAY_LENGTH:]):
         raise RuntimeError("the VV3 stub must fit in the 0x400 overlay")
     return bytes(page)
@@ -286,6 +435,25 @@ def vv3_food_site_patch(page_va: int) -> dict:
     }
 
 
+def vv3_picker_site_patch(page_va: int) -> dict:
+    target = page_va + VV3_PRIORITY_CODE_OFFSET
+    entry = b"\xE9" + int(target - (VV3_PICKER_VA + 5)).to_bytes(4, "little", signed=True)
+    entry += b"\x90" * (len(VV3_PICKER_STOCK) - len(entry))
+    return {
+        "offset": f"0x{VV3_PICKER_FILE:X}",
+        "before": VV3_PICKER_STOCK.hex().upper(),
+        "after": entry.hex().upper(),
+        "purpose": (
+            "Divert the work dispatcher's entry (mov eax, [esp+8]; sub esp, 0xA0 at "
+            "0x45AF00) into the work-first stub for the Builders and Healers Work First "
+            "addendum, which resolves \"VVFP Work First.dll\" and, for the adult "
+            "scheduler while a population hut is unbuilt, tries a builder's or healer's "
+            "own job first; if that starts nothing, without that DLL, or otherwise, the "
+            "stock request runs through the displaced bytes."
+        ),
+    }
+
+
 def vv3_section_header() -> bytes:
     header = bytearray(40)
     header[0:8] = VV3_SECTION_NAME
@@ -306,8 +474,12 @@ def vv3_transaction(stock: bytes) -> tuple[list[dict], dict, list[dict]]:
     overlay_page = vv3_build_page(VV3_OVERLAY_VA)
     if stock[VV3_FOOD_SITE_FILE : VV3_FOOD_SITE_FILE + len(VV3_FOOD_SITE_STOCK)] != VV3_FOOD_SITE_STOCK:
         raise RuntimeError("stock bytes at 0x45C229 are not the expected farming test")
-    patches = [vv3_site_patch(VV3_PAGE_VA), vv3_food_site_patch(VV3_PAGE_VA)]
-    overlay_patches = [vv3_site_patch(VV3_OVERLAY_VA), vv3_food_site_patch(VV3_OVERLAY_VA)]
+    if stock[VV3_PICKER_FILE : VV3_PICKER_FILE + len(VV3_PICKER_STOCK)] != VV3_PICKER_STOCK:
+        raise RuntimeError("stock bytes at 0x45AF00 are not the expected dispatcher prologue")
+    patches = [vv3_site_patch(VV3_PAGE_VA), vv3_food_site_patch(VV3_PAGE_VA),
+               vv3_picker_site_patch(VV3_PAGE_VA)]
+    overlay_patches = [vv3_site_patch(VV3_OVERLAY_VA), vv3_food_site_patch(VV3_OVERLAY_VA),
+                       vv3_picker_site_patch(VV3_OVERLAY_VA)]
     layout = {
         "original_file_size": f"0x{VV3_STOCK_FILE_SIZE:X}",
         "append_offset": f"0x{VV3_PAGE_FILE:X}",
@@ -392,12 +564,16 @@ def main() -> None:
         else:
             patches, transaction, _overlay_patches = vv3_transaction(STOCK_VV3.read_bytes())
             manifest["explicit_non_changes"].insert(0,
-                "The Secret City's row diverts one eight-byte test in the Building dispatcher and one nine-byte test in the idle scheduler's low-food path into two stubs in the page Origins appends; each resolves the companion once and otherwise replays the stock test, so with the DLL missing the stock scheduler runs.")
+                "The Secret City's row diverts one eight-byte test in the Building dispatcher, one nine-byte test in the idle scheduler's low-food path and the work dispatcher's ten-byte entry into three stubs in the page Origins appends; each resolves its companion once and otherwise replays the stock bytes, so with the DLL missing the stock scheduler runs. The dispatcher stub serves the Builders and Healers Work First addendum and does nothing unless \"VVFP Work First.dll\" is shipped.")
             manifest["patches"] = patches
             manifest["pe_append_transaction"] = transaction
         out = ROOT / "data" / f"{game}_builders_fix_huts_feature.json"
         out.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
         print("wrote", out.relative_to(ROOT), sha)
+        work_sha = hashlib.sha256(WORK_FIRST_DLL.read_bytes()).hexdigest().upper()
+        out = ROOT / "data" / f"{game}_work_first_feature.json"
+        out.write_text(json.dumps(work_first_row(game, work_sha), indent=2) + "\n", encoding="utf-8", newline="\n")
+        print("wrote", out.relative_to(ROOT), work_sha)
 
 
 if __name__ == "__main__":

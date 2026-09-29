@@ -219,6 +219,12 @@ When no building project is available to be worked on and not all population hut
 
 - Patch ID: `vv1_builders_fix_huts`
 
+**Builders and Healers Work First**
+
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+
+- Patch ID: `vv1_builders_and_healers_work_first`
+
 
 ### Virtual Villagers - The Lost Children
 
@@ -301,6 +307,12 @@ When no building project is available to be worked on and not all population hut
 
 - Patch ID: `vv2_builders_fix_huts`
 
+**Builders and Healers Work First**
+
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+
+- Patch ID: `vv2_builders_and_healers_work_first`
+
 
 ### Virtual Villagers - The Secret City
 
@@ -360,6 +372,12 @@ When no building project is available to be worked on and not all population hut
 
 - Patch ID: `vv3_builders_fix_huts`
 
+**Builders and Healers Work First**
+
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+
+- Patch ID: `vv3_builders_and_healers_work_first`
+
 **Tribal Chief Lessons Stop at 50**
 
 The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered, and when every skill is at 50 the lesson awards nothing. This matches A New Home's and The Lost Children's lesson patches and the later games' Nursery Schools. The Secret City has no companion that runs every frame, so the row diverts the lesson award into a small stub in the page Origins appends, which calls "VVFP Lesson Cap.dll". **Requires Enable Origins-Exclusive Features**, whose page holds the stub; without it the stock lesson runs and trains to 100.
@@ -405,6 +423,12 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. While not every population hut is built, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
 
 - Patch ID: `vv4_builders_fix_huts`
+
+**Builders and Healers Work First**
+
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+
+- Patch ID: `vv4_builders_and_healers_work_first`
 
 
 ### Virtual Villagers - New Believers
@@ -475,6 +499,12 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. While not every population hut is built, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
 
 - Patch ID: `vv5_builders_fix_huts`
+
+**Builders and Healers Work First**
+
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+
+- Patch ID: `vv5_builders_and_healers_work_first`
 
 
 That is 35 optional patches across the five games.

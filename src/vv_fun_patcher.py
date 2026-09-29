@@ -152,6 +152,11 @@ WATERING_BUILDS_FEATURE_PATHS = (
 FIX_HUTS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_builders_fix_huts_feature.json"
     for game_number in range(1, 6)
+) + tuple(
+    # Builders and Healers Work First: the addendum to Builders Fix Huts When
+    # Idle, whose companion loads "VVFP Work First.dll".
+    ROOT / "data" / f"vv{game_number}_work_first_feature.json"
+    for game_number in range(1, 6)
 )
 # Lessons stop at 50: one companion for A New Home, The Lost Children and
 # The Secret City, on top of the ordinary lesson rows. VV1/VV2 load it from

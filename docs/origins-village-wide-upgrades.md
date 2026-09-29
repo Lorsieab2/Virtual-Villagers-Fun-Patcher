@@ -324,8 +324,13 @@ remain native and unmodified. Expanded-256 modes reject before output.
 ### VV1 Full Mastery exact-build boundary
 
 Disassembly commit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa`
-confirms five contiguous signed DWORD skills: Farming `+0x3BC`, Building
-`+0x3C0`, Research `+0x3C4`, Healing `+0x3C8`, and Parenting `+0x3CC`.
+confirms five contiguous signed DWORD skills at `+0x3BC`..`+0x3CC`. Their
+names, measured in the owner's running game (and in the population exporter,
+`native/population_export`: a child whose only skill the Details screen shows
+as Research holds it at `+0x3CC`), are Parenting (the game's "Breeding")
+`+0x3BC`, Building `+0x3C0`, Farming `+0x3C4`, Healing `+0x3C8`, and Research
+`+0x3CC`. An earlier revision of this line named `+0x3BC` Farming and `+0x3C4`
+Research; the live values contradict it.
 The following DWORD `+0x3D0` is job preference. Master rank begins at 90,
 while ordinary native award paths cap at 100. Save pack scans 32 physical
 records at stride `0x3D8` and persists the skills and preference.
