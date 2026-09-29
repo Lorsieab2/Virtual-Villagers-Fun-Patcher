@@ -5,12 +5,12 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Misc Text Fixes",
-  "description": "Corrects a handful of A New Home's English texts: \"breeding\" becomes \"parenting\" wherever the game names the skill (the skill name, the improvement message and the Fish of Fertility popup), \"This villager improved at farming\" gains its full stop, and \"Food available to villagers\" ends with a colon before the number.",
+  "description": "Corrects a handful of A New Home's English texts: \"breeding\" becomes \"parenting\" wherever the game names the skill (the skill name, the improvement message and the Fish of Fertility popup), \"This villager improved at farming\" gains its full stop, and \"Food available to villagers\" loses its stray full stop.",
   "output_tag": "Text Fixes",
   "behavior_changes": [
     "string 3: 'This villager improved at farming' -> 'This villager improved at farming.', in place (text + 2 padding byte(s))",
     "string 15: 'The villager has improved at breeding.' -> 'The villager has improved at parenting.', in place (text + 1 padding byte(s))",
-    "string 21: 'Food available to villagers.' -> 'Food available to villagers:', in place (text + 3 padding byte(s))",
+    "string 21: 'Food available to villagers.' -> 'Food available to villagers', in place (text + 3 padding byte(s))",
     "string 218: 'Breeding' -> 'Parenting', in place (text + 3 padding byte(s))",
     "string 319: '         The Magic Fish of Fertility\\n \\nYour master fisherman found a strange, \\nsparkling fish deep in  the lagoon.  This \\ndelicious  and  rare fish is the  Fish  of \\nFertility. Your tribe now enjoys greater \\nsuccess at breeding!\\n' -> '         The Magic Fish of Fertility\\n \\nYour master fisherman found a strange, \\nsparkling fish deep in  the lagoon.  This \\ndelicious  and  rare fish is the  Fish  of \\nFertility. Your tribe now enjoys greater \\nsuccess at parenting!\\n', in place (text + 2 padding byte(s))",
     "string 477: 'breeding' -> 'parenting', in place (text + 3 padding byte(s))"
@@ -35,8 +35,8 @@
     {
       "offset": "0x7F5F0",
       "before": "466F6F6420617661696C61626C6520746F2076696C6C61676572732E00000000",
-      "after": "466F6F6420617661696C61626C6520746F2076696C6C61676572733A00000000",
-      "purpose": "string 21: 'Food available to villagers.' -> 'Food available to villagers:', in place (text + 3 padding byte(s))"
+      "after": "466F6F6420617661696C61626C6520746F2076696C6C61676572730000000000",
+      "purpose": "string 21: 'Food available to villagers.' -> 'Food available to villagers', in place (text + 3 padding byte(s))"
     },
     {
       "offset": "0x7ACA8",

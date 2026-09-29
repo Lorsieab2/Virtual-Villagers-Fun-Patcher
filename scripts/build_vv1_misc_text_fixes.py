@@ -28,7 +28,7 @@ TABLE_ENTRIES = 0x275
 EDITS = [
     (3, "This villager improved at farming", "This villager improved at farming."),
     (15, "The villager has improved at breeding.", "The villager has improved at parenting."),
-    (21, "Food available to villagers.", "Food available to villagers:"),
+    (21, "Food available to villagers.", "Food available to villagers"),
     (218, "Breeding", "Parenting"),
     (319, None, None),   # the Fish of Fertility popup: "breeding!" -> "parenting!"
     (477, "breeding", "parenting"),
@@ -95,7 +95,7 @@ def main() -> None:
             "\"parenting\" wherever the game names the skill (the skill name, the "
             "improvement message and the Fish of Fertility popup), \"This villager "
             "improved at farming\" gains its full stop, and \"Food available to "
-            "villagers\" ends with a colon before the number."
+            "villagers\" loses its stray full stop."
         ),
         "output_tag": "Text Fixes",
         "behavior_changes": [p["purpose"] for p in patches],
