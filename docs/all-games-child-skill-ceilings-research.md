@@ -7,9 +7,11 @@ stock behavior below.
 | Game | Teaching mechanism | Skills | Award ceiling |
 | --- | --- | --- | --- |
 | A New Home | Stock Going to school action | None | Stock does not award skill |
-| A New Home | Optional School Lessons Grant Skill patch | One random skill still below 50 receives 7-9 points | Exactly 50 |
+| A New Home | Optional School Lessons Grant Skill patch | One random skill receives 7-9 points | 100 |
+| A New Home | Optional School Lessons Stop at 50 patch (on top of it) | One random skill still below 50 receives 7-9 points | Exactly 50 |
 | The Lost Children | Stock Teaching Children / Attending lessons actions | None | Stock does not award skill |
-| The Lost Children | Optional Teaching Children Grants Skill patch | One random skill still below 50 receives 7-9 points | Exactly 50 |
+| The Lost Children | Optional Teaching Children Grants Skill patch | One random skill receives 7-9 points | 100 |
+| The Lost Children | Optional Teaching Children Stops at 50 patch (on top of it) | One random skill still below 50 receives 7-9 points | Exactly 50 |
 | The Secret City | Tribal Chief lesson callback | One of five random skills receives 7-9 points | 100 |
 | The Secret City | Optional Tribal Chief Lessons Stop at 50 patch | One random skill still below 50 receives 7-9 points | Exactly 50 |
 | The Tree of Life | Periodic Nursery School updater | Five skills | Each skill is eligible only while its integer value is below 50 |
@@ -17,16 +19,21 @@ stock behavior below.
 
 ## VV1 and VV2 optional lesson patches
 
-The owner (2026-09-29): lessons in A New Home, The Lost Children and The
-Secret City stop at exactly 50, and a lesson picks only among the skills still
-below 50, as the VV4/VV5 Nursery Schools skip any skill at 50. The VV1 and VV2
-private completion callbacks count the skills below 50, ask the game's RNG for
-one of them and for the stock 7-9 points, and clamp at 50; a skill at or above
-50 is never chosen or lowered, and with all five at 50 a lesson awards nothing.
-VV3's stock callback 42 is diverted to "VVFP Lesson Cap.dll" by the Tribal
-Chief Lessons Stop at 50 row. Unlike the Nursery Schools' integer-below-50
-eligibility test, the award is clamped, so it never ends above 50.
-tests/test_lesson_cap_at_50.py runs all three awards in an emulator.
+The VV1 and VV2 patches deliberately match the amount and random five-skill
+selection used by the VV3 Tribal Chief lesson. Their private completion
+callbacks cap the selected skill at 100 and are unchanged.
+
+The owner (2026-09-29): on top of them, three SEPARATE rows make lessons stop
+at exactly 50, picking only among the skills still below 50, as the VV4/VV5
+Nursery Schools skip any skill at 50: School Lessons Stop at 50 (VV1),
+Teaching Children Stops at 50 (VV2) and Tribal Chief Lessons Stop at 50 (VV3),
+all in "VVFP Lesson Cap.dll". In VV1/VV2 the Origins companion loads it and it
+detours the lesson row's own callback-127 cave at run time (the .text slack has
+no room for a second cave); in VV3 a stub overlaid on the Origins page diverts
+the stock callback 42. A skill at or above 50 is never chosen or lowered, and
+with all five at 50 a lesson awards nothing. Unlike the Nursery Schools'
+integer-below-50 eligibility test, the award is clamped, so it never ends above
+50. tests/test_lessons_stop_at_50.py runs the award in an emulator.
 
 The player confirmed on 2026-07-24 that completed VV2 Teaching Children
 lessons appear to award skill. Distribution across all five possible skills

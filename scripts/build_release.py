@@ -80,6 +80,8 @@ FILES = [
     "data/vv3_builders_fix_huts_feature.json",
     "data/vv4_builders_fix_huts_feature.json",
     "data/vv5_builders_fix_huts_feature.json",
+    "data/vv1_school_lessons_cap_feature.json",
+    "data/vv2_teaching_children_cap_feature.json",
     "data/vv3_chief_lessons_cap_feature.json",
     "data/vv2_numeric_keys_tip_feature.json",
     "data/vv5_playing_in_the_dirt_feature.json",

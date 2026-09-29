@@ -151,6 +151,9 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # parentage tracker sits outside this set.
                 "vv2_improved_pathfinding",
                 "vv2_builders_fix_huts",
+                # Teaching Children Stops at 50: loaded the same way, and it
+                # also depends on the lesson row it caps.
+                "vv2_teaching_children_cap_50",
                 *PUBLIC,
             }
         ]

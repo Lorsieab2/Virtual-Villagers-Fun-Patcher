@@ -980,7 +980,6 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("VV3 reaches 150", descriptions["collection_progression"])
         self.assertIn("10 points from Magic Level 3", descriptions["collection_progression"])
         self.assertIn("7 to 9 points", descriptions["vv1_school_lessons_grant_skill"])
-        self.assertIn("stops at exactly 50", descriptions["vv1_school_lessons_grant_skill"])
         self.assertIn("5,000 tech points", descriptions["vv1_f6_clothing_change_cheat"])
         self.assertIn("3 hours to 2 hours 15 minutes", descriptions["vv3_nature_honey_refill"])
         self.assertIn("all 12 Fish Scales", descriptions["vv4_complete_scales_golden_fish"])
@@ -1170,8 +1169,10 @@ class ManifestTests(unittest.TestCase):
         # changes one string pointer and dead storage and composes with everything;
         # 12 with Improved Pathfinding (vv2_improved_pathfinding), which patches
         # no executable bytes at all -- its companion detours at run time;
-        # 13 with Builders Fix Huts When Idle (vv2_builders_fix_huts), the same.
-        self.assertEqual(len(feature_ids), 13)
+        # 13 with Builders Fix Huts When Idle (vv2_builders_fix_huts), the same;
+        # 14 with Teaching Children Stops at 50 (vv2_teaching_children_cap_50),
+        # the same again.
+        self.assertEqual(len(feature_ids), 14)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -1207,11 +1208,21 @@ class ManifestTests(unittest.TestCase):
         )
         new_guard_offsets = {0x3BE8E, 0x73F20}
 
+        catalog = {patch.id: patch for patch in load_fun_patches()}
         for mode in ALL_MODES:
             for feature_id in feature_ids:
                 with self.subTest(mode=mode, feature=feature_id):
+                    # As the GUI selects it: a row's public prerequisites come
+                    # with it (Teaching Children Stops at 50 brings in the
+                    # lesson row it caps); the Origins base resolves itself.
+                    prerequisites = [
+                        dependency
+                        for dependency in catalog[feature_id].raw.get("dependencies") or ()
+                        if dependency in feature_ids
+                        and not dependency.endswith("_enable_origins_exclusive_features")
+                    ]
                     rendered, applied = render_patched_bytes(
-                        source, build, mode, [feature_id]
+                        source, build, mode, prerequisites + [feature_id]
                     )
                     records = [
                         (
@@ -1715,7 +1726,17 @@ class StockIntegrationTests(unittest.TestCase):
                 if feature.game_id == build.id
             ]
             scenarios = [("none", [])]
-            scenarios.extend((feature_id, [feature_id]) for feature_id in public_ids)
+            # Each feature as the GUI selects it: ticking a row ticks its
+            # public prerequisites too (a "Stops at 50" row brings in the
+            # lesson row it caps); the Origins base is resolved internally.
+            public_set = set(public_ids)
+            for feature_id in public_ids:
+                prerequisites = [
+                    dependency
+                    for dependency in feature_catalog[feature_id].raw.get("dependencies") or ()
+                    if dependency in public_set
+                ]
+                scenarios.append((feature_id, prerequisites + [feature_id]))
             scenarios.append(("all", public_ids))
             expected_safety = {
                 int(patch["offset"], 0) for patch in build.safety_patches
@@ -2929,17 +2950,13 @@ class StockIntegrationTests(unittest.TestCase):
                 "578BCEE83478FEFFE96FE4FEFF"
             ),
         )
-        self.assertEqual(bytes(rendered[0x3A230:0x3A235]), bytes.fromhex("E98CC40100"))
+        self.assertEqual(bytes(rendered[0x3A230:0x3A235]), bytes.fromhex("E9ABC40100"))
         self.assertEqual(
-            bytes(rendered[0x566C1:0x5672E]),
-            # Lessons stop at 50, among the skills still below 50 only
-            # (tests/test_lesson_cap_at_50.py runs these bytes).
+            bytes(rendered[0x566E0:0x56730]),
             bytes.fromhex(
-                "837C24087F755C6069442424D80300008D9C08BC03000031C931D2"
-                "833C93327D01414283FA057CF3E33551E81FC8FAFF5931D2833C93"
-                "327D034878084283FA057CF1EB1B8D3C936A03E801C8FAFF5983C0"
-                "070107833F327E06C7073200000061C208008B44240848E9073BFE"
-                "FF"
+                "837C24087F753F608BF18B44242469C0D80300008D9C30BC030000"
+                "6A05E80EC8FAFF83C4048D3C836A03E801C8FAFF83C40483C007"
+                "0107833F647E06C7076400000061C208008B44240848E9053BFEFF"
             ),
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
@@ -3111,18 +3128,15 @@ class StockIntegrationTests(unittest.TestCase):
                 "578BCEE8C4BEFDFFE9626EFDFF"
             ),
         )
-        self.assertEqual(bytes(rendered[0x61B10:0x61B15]), bytes.fromhex("E93B240100"))
+        self.assertEqual(bytes(rendered[0x61B10:0x61B15]), bytes.fromhex("E96B220100"))
         self.assertEqual(
-            bytes(rendered[0x73F50:0x73FE1]),
-            # Lessons stop at 50, among the skills still below 50 only
-            # (tests/test_lesson_cap_at_50.py runs these bytes).
+            bytes(rendered[0x73D80:0x73DF4]),
             bytes.fromhex(
-                "837C24087F755C60694424248CE400008D9C08E407000031C931D2"
-                "833C93327D01414283FA057CF3E33551E820F2F8FF5931D2833C93"
-                "327D034878084283FA057CF1EB1B8D3C936A03E802F2F8FF5983C0"
-                "070107833F327E06C7073200000061C20800837C24087E740A518B"
-                "44240CE951DBFEFF608B44242469C08CE400008D9C082C05000083"
-                "3B647D02FF0361C20800"
+                "837C24087F753F608BF18B44242469C08CE400008D9C30E4070000"
+                "6A05E8FEF3F8FF83C4048D3C836A03E8F1F3F8FF83C40483C007"
+                "0107833F647E06C7076400000061C20800837C24087E740A518B44"
+                "240CE93EDDFEFF608B44242469C08CE400008D9C082C050000833B"
+                "647D02FF0361C20800"
             ),
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
@@ -3197,7 +3211,7 @@ class StockIntegrationTests(unittest.TestCase):
             bytes.fromhex("E9B2780100909090"),
         )
         self.assertEqual(
-            bytes(rendered[0x73FC4:0x73FE1]),
+            bytes(rendered[0x73DD7:0x73DF4]),
             bytes.fromhex(
                 "608B44242469C08CE400008D9C082C050000"
                 "833B647D02FF0361C20800"
@@ -3970,6 +3984,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_origins_village_wide_upgrades",
                 "vv2_improved_pathfinding",
                 "vv2_builders_fix_huts",
+                "vv2_teaching_children_cap_50",
                 "vv2_numeric_keys_tip_wording",
             },
         )

@@ -1,23 +1,30 @@
-"""Generate the "Tribal Chief Lessons Stop at 50" row (The Secret City).
+"""Generate the three "lessons stop at 50" rows.
 
-The owner: "Tribal chief lecturing children limits skill gain to exactly 50",
-picking only among the skills still below 50 (option b).  A New Home's and
-The Lost Children's lesson patches carry the same rule in their own callback
-bodies (scripts/build_lesson_cap_bodies.py); The Secret City's award is the
-game's own callback 42, whose cap is the shared skill helper's 100, so the
-rule lives in a companion, "VVFP Lesson Cap.dll" (native/vvfp_lesson_cap).
+The owner: "going to school (A New Home) / attending lessons (The Lost
+Children) / the Tribal Chief lecturing children (The Secret City) limits
+skill gain to exactly 50", picking only among the skills still below 50
+(option b) -- and the ordinary lesson rows stay as they are (cap 100), with
+these as SEPARATE rows on top of them.  All three live in one companion,
+"VVFP Lesson Cap.dll" (native/vvfp_lesson_cap).  How it is reached differs:
 
-The Secret City has no companion that runs every frame, so, exactly like the
-Builders Fix Huts row (scripts/build_vvfp_fix_huts_features.py), the row
-carries a small executable-side stub in the page Origins appends: the
-callback-42 case's first seven bytes (push 5; call RNG) jump to the stub,
-which resolves the companion's VvfpLessonCapAward once (GetModuleHandleA /
-LoadLibraryA / GetProcAddress from the stock import table, cached in
-.vv3md), calls it with the case's record, and returns through the case's
-own `pop esi; ret 8`.  With the DLL missing the stub replays the displaced
-bytes and the stock case runs, so the lesson still awards -- capped at 100.
-The stub takes the overlay range 0xC00..0x1000 of that page, after the
-parentage (0x400) and fix-huts (0x800) overlays.
+  * A New Home, The Lost Children: the lesson rows' callback-127 caves are
+    private code with no room left beside them (every free run in the .text
+    slack is claimed), so the Origins companion, which already runs every
+    frame, loads the DLL by full path and calls VvfpLessonCapInstall(game);
+    that verifies the lesson row's own cave head and detours it at run time.
+    Those rows patch no executable byte and require the lesson row AND
+    Origins.
+  * The Secret City: the award is the game's own callback 42, capped by the
+    shared 100-cap helper; the game has no per-frame companion, so, exactly
+    like Builders Fix Huts, the row carries a small executable-side stub in
+    the page Origins appends: the case's first seven bytes (push 5; call
+    RNG) jump to the stub, which resolves VvfpLessonCapAward once
+    (GetModuleHandleA / LoadLibraryA / GetProcAddress from the stock import
+    table, cached in .vv3md), calls it with the case's record, and returns
+    through the case's own `pop esi; ret 8`.  With the DLL missing the stub
+    replays the displaced bytes and the stock case runs (cap 100).  The stub
+    takes the overlay range 0xC00..0x1000 of that page, after the parentage
+    (0x400) and fix-huts (0x800) overlays.
 
 The DLL is pinned by SHA-256, so re-run this after every rebuild.
 """
@@ -32,21 +39,51 @@ import keystone
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "lesson_cap" / "VVFP Lesson Cap.dll"
 STOCK_VV3 = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
-OUT = ROOT / "data" / "vv3_chief_lessons_cap_feature.json"
 
-FEATURE_ID = "vv3_chief_lessons_cap_50"
-DESCRIPTION = (
-    "The Tribal Chief's lessons stop at 50. Each child who finishes a lesson "
-    "still gains 7 to 9 points in one random skill, but only a skill still "
-    "below 50 can be chosen, and the gain stops at exactly 50; a skill already "
-    "at 50 or above is never chosen and never lowered. When every skill is at "
-    "50 the lesson awards nothing. This matches A New Home's and The Lost "
-    "Children's lesson patches and the Nursery Schools of the later games, "
-    "which skip any skill at 50. The Secret City has no companion that runs "
-    "every frame, so this row diverts the lesson award's first seven bytes "
-    "into a small stub in the page Origins appends, which calls \"VVFP Lesson "
-    "Cap.dll\". **Requires Enable Origins-Exclusive Features**, whose page "
-    "holds the stub; without it the stock lesson runs and trains to 100."
+RULE = (
+    "Each child who finishes {lesson} still gains 7 to 9 points in one random "
+    "skill, but only a skill still below 50 can be chosen, and the gain stops at "
+    "exactly 50; a skill already at 50 or above is never chosen and never "
+    "lowered. When every skill is at 50 the lesson awards nothing. This matches "
+    "the Nursery Schools of the later games, which skip any skill at 50. "
+)
+ROWS = {
+    "vv1": {
+        "id": "vv1_school_lessons_cap_50",
+        "out": "vv1_school_lessons_cap_feature.json",
+        "name": "School Lessons Stop at 50",
+        "output_tag": "School Stops at 50",
+        "lesson_row": "vv1_school_lessons_grant_skill",
+        "description": RULE.format(lesson="the Going to school activity") + (
+            "**Requires School Lessons Grant Skill** (the lesson it caps) **and Enable "
+            "Origins-Exclusive Features**, whose companion loads this one; without "
+            "either, lessons train to 100 as before."),
+        "va": "0x4566E0", "stock_bytes": "837C24087F753F608BF1",
+        "routine": "School Lessons Grant Skill's callback-127 cave (its cmp [esp+8], 7Fh; jne; pushad; mov esi, ecx)",
+    },
+    "vv2": {
+        "id": "vv2_teaching_children_cap_50",
+        "out": "vv2_teaching_children_cap_feature.json",
+        "name": "Teaching Children Stops at 50",
+        "output_tag": "Teaching Stops at 50",
+        "lesson_row": "vv2_teaching_children_grants_skill",
+        "description": RULE.format(lesson="a Teaching Children lesson (Attending lessons)") + (
+            "**Requires Teaching Children Grants Skill** (the lesson it caps) **and Enable "
+            "Origins-Exclusive Features**, whose companion loads this one; without "
+            "either, lessons train to 100 as before."),
+        "va": "0x473D80", "stock_bytes": "837C24087F753F608BF1",
+        "routine": "the shared private callback dispatcher cave (Teaching Children's callback 127; Hospital Recovery's callback 126 stays the cave's own)",
+    },
+}
+VV3_ID = "vv3_chief_lessons_cap_50"
+VV3_OUT = ROOT / "data" / "vv3_chief_lessons_cap_feature.json"
+VV3_DESCRIPTION = (
+    "The Tribal Chief's lessons stop at 50. " + RULE.format(lesson="a lesson")
+    + "The Secret City has no companion that runs every frame, so this row "
+    "diverts the lesson award's first seven bytes into a small stub in the page "
+    "Origins appends, which calls \"VVFP Lesson Cap.dll\". **Requires Enable "
+    "Origins-Exclusive Features**, whose page holds the stub; without it the "
+    "stock lesson runs and trains to 100."
 )
 
 # The callback-42 case (the Leadership-2 Tribal Chief's lesson award).
@@ -221,17 +258,53 @@ def transaction(stock: bytes) -> tuple[list[dict], dict]:
     }
 
 
+COMMON_NON_CHANGES = [
+    "A skill at or above 50 is never lowered; work-task training past 50 is untouched.",
+    "The lesson itself -- who teaches, who attends, its length, its animation and its messages -- is the game's own; only the award at its end changes.",
+    "Nothing is written to a villager record beyond the skill the lesson would have written, nor to the save or any file.",
+]
+
+
 def main() -> None:
     sha = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
+    companion = [{"source": "assets/lesson_cap/VVFP Lesson Cap.dll",
+                  "destination": "VVFP Lesson Cap.dll", "sha256": sha}]
+    for game, row in ROWS.items():
+        manifest = {
+            "id": row["id"],
+            "enabled": True,
+            "catalog_enabled": True,
+            "catalog_hidden": False,
+            "game_id": game,
+            "name": row["name"],
+            "description": row["description"],
+            "output_tag": row["output_tag"],
+            "dependencies": [row["lesson_row"], f"{game}_enable_origins_exclusive_features"],
+            "behavior_changes": [
+                "When the lesson's completion callback 127 runs, the companion counts the child's skills below 50, asks the game's own RNG for one of them and for the stock 7 to 9 points, adds them and stops at exactly 50. With every skill at 50 or above the lesson awards nothing.",
+            ],
+            "explicit_non_changes": [
+                "This row changes no executable bytes: the Origins companion loads the DLL, which detours the lesson row's own callback cave at run time only after verifying its bytes; the lesson row not applied, or a different build, installs nothing.",
+            ] + COMMON_NON_CHANGES,
+            "companion_files": list(companion),
+            "patches": [],
+            "runtime_detours": [{
+                "va": row["va"], "stock_bytes": row["stock_bytes"], "routine": row["routine"],
+                "installed_by": "VVFP Lesson Cap.dll, VvfpLessonCapInstall"}],
+        }
+        out = ROOT / "data" / row["out"]
+        out.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
+        print("wrote", out.relative_to(ROOT), sha)
+
     patches, pe_transaction = transaction(STOCK_VV3.read_bytes())
     manifest = {
-        "id": FEATURE_ID,
+        "id": VV3_ID,
         "enabled": True,
         "catalog_enabled": True,
         "catalog_hidden": False,
         "game_id": "vv3",
         "name": "Tribal Chief Lessons Stop at 50",
-        "description": DESCRIPTION,
+        "description": VV3_DESCRIPTION,
         "output_tag": "Lessons Stop at 50",
         "dependencies": [ORIGINS_ID],
         "behavior_changes": [
@@ -239,19 +312,13 @@ def main() -> None:
         ],
         "explicit_non_changes": [
             "This row diverts one seven-byte instruction pair in the lesson award into a stub in the page Origins appends; the stub resolves the companion once and otherwise replays the stock bytes, so with the DLL missing the stock lesson runs (capped at 100).",
-            "The lesson itself -- who teaches, who attends, its length, its animation and its messages -- is the game's own; only the award at its end changes.",
-            "A skill at or above 50 is never lowered; work-task training past 50 is untouched.",
-            "Nothing is written to a villager record beyond the skill the stock case would have written, nor to the save or any file.",
-        ],
-        "companion_files": [
-            {"source": "assets/lesson_cap/VVFP Lesson Cap.dll",
-             "destination": "VVFP Lesson Cap.dll", "sha256": sha},
-        ],
+        ] + COMMON_NON_CHANGES,
+        "companion_files": list(companion),
         "patches": patches,
         "pe_append_transaction": pe_transaction,
     }
-    OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
-    print("wrote", OUT.relative_to(ROOT), sha)
+    VV3_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
+    print("wrote", VV3_OUT.relative_to(ROOT), sha)
 
 
 if __name__ == "__main__":

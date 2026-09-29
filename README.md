@@ -179,9 +179,15 @@ The clothing shortcut cycles the selected active villager through the stock outf
 
 **School Lessons Grant Skill**
 
-Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.
+Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 
 - Patch ID: `vv1_school_lessons_grant_skill`
+
+**School Lessons Stop at 50**
+
+Each child who finishes the Going to school activity still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered. When every skill is at 50 the lesson awards nothing. This matches the Nursery Schools of the later games, which skip any skill at 50. **Requires School Lessons Grant Skill** (the lesson it caps) **and Enable Origins-Exclusive Features**, whose companion loads this one; without either, lessons train to 100 as before.
+
+- Patch ID: `vv1_school_lessons_cap_50`
 
 **Visual Mods**
 
@@ -255,9 +261,15 @@ A villager who completes Recovering at the hospital gains exactly 1 health point
 
 **Teaching Children Grants Skill**
 
-Each child who finishes a Teaching Children lesson (Attending lessons) gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.
+Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 
 - Patch ID: `vv2_teaching_children_grants_skill`
+
+**Teaching Children Stops at 50**
+
+Each child who finishes a Teaching Children lesson (Attending lessons) still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered. When every skill is at 50 the lesson awards nothing. This matches the Nursery Schools of the later games, which skip any skill at 50. **Requires Teaching Children Grants Skill** (the lesson it caps) **and Enable Origins-Exclusive Features**, whose companion loads this one; without either, lessons train to 100 as before.
+
+- Patch ID: `vv2_teaching_children_cap_50`
 
 **Write Births and Conceptions Log to Text File**
 

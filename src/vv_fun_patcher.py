@@ -153,11 +153,16 @@ FIX_HUTS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_builders_fix_huts_feature.json"
     for game_number in range(1, 6)
 )
-# Tribal Chief Lessons Stop at 50: The Secret City's lesson award capped at
-# 50 by a companion, reached through a stub overlaid on the page Origins
-# appends (A New Home's and The Lost Children's lesson rows carry the same
-# rule in their own callback bodies in builds.json).
-LESSON_CAP_FEATURE_PATHS = (ROOT / "data" / "vv3_chief_lessons_cap_feature.json",)
+# Lessons stop at 50: one companion for A New Home, The Lost Children and
+# The Secret City, on top of the ordinary lesson rows. VV1/VV2 load it from
+# the Origins companion (run-time detour on the lesson row's own cave; no
+# executable bytes); VV3 reaches it through a stub overlaid on the page
+# Origins appends.
+LESSON_CAP_FEATURE_PATHS = (
+    ROOT / "data" / "vv1_school_lessons_cap_feature.json",
+    ROOT / "data" / "vv2_teaching_children_cap_feature.json",
+    ROOT / "data" / "vv3_chief_lessons_cap_feature.json",
+)
 # Move the "Playing in the dirt" Spot: New Believers' two base coordinates
 # of the stock routine, so children play on the grass rather than on the
 # totem statue (the owner marked the spot).
