@@ -753,14 +753,14 @@
         {
           "offset": "0x61B10",
           "before": "518B44240C",
-          "after": "E96B220100",
+          "after": "E93B240100",
           "purpose": "route private lesson and hospital completion callbacks through their guarded shared dispatcher"
         },
         {
-          "offset": "0x73D80",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "837C24087F753F608BF18B44242469C08CE400008D9C30E40700006A05E8FEF3F8FF83C4048D3C836A03E8F1F3F8FF83C40483C0070107833F647E06C7076400000061C20800837C24087E740A518B44240CE93EDDFEFF608B44242469C08CE400008D9C082C050000833B647D02FF0361C20800",
-          "purpose": "award callback 127's capped random child skill or callback 126's capped one health point, while preserving every stock callback"
+          "offset": "0x73F50",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "837C24087F755C60694424248CE400008D9C08E407000031C931D2833C93327D01414283FA057CF3E33551E820F2F8FF5931D2833C93327D034878084283FA057CF1EB1B8D3C936A03E802F2F8FF5983C0070107833F327E06C7073200000061C20800837C24087E740A518B44240CE951DBFEFF608B44242469C08CE400008D9C082C050000833B647D02FF0361C20800",
+          "purpose": "award callback 127's 7 to 9 points, stopping at 50, to one uniformly selected child skill still below 50 (nothing when all five are at 50), or callback 126's capped one health point, while preserving every stock callback"
         }
       ]
     }
@@ -992,7 +992,7 @@
       "id": "vv2_teaching_children_grants_skill",
       "game_id": "vv2",
       "name": "Teaching Children Grants Skill",
-      "description": "Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.",
+      "description": "Each child who finishes a Teaching Children lesson (Attending lessons) gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.",
       "output_tag": "Teaching Grants Skill",
       "patches": [
         {
@@ -1072,7 +1072,7 @@
       "id": "vv1_school_lessons_grant_skill",
       "game_id": "vv1",
       "name": "School Lessons Grant Skill",
-      "description": "Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.",
+      "description": "Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.",
       "output_tag": "School Grants Skill",
       "patches": [
         {
@@ -1090,14 +1090,14 @@
         {
           "offset": "0x3A230",
           "before": "8B44240848",
-          "after": "E9ABC40100",
+          "after": "E98CC40100",
           "purpose": "route callback 127 through the school-completion skill award while preserving every stock callback"
         },
         {
-          "offset": "0x566E0",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "837C24087F753F608BF18B44242469C0D80300008D9C30BC0300006A05E80EC8FAFF83C4048D3C836A03E801C8FAFF83C40483C0070107833F647E06C7076400000061C208008B44240848E9053BFEFF",
-          "purpose": "award 7 to 9 capped points to one uniformly selected child skill only when callback 127 executes"
+          "offset": "0x566C1",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "837C24087F755C6069442424D80300008D9C08BC03000031C931D2833C93327D01414283FA057CF3E33551E81FC8FAFF5931D2833C93327D034878084283FA057CF1EB1B8D3C936A03E801C8FAFF5983C0070107833F327E06C7073200000061C208008B44240848E9073BFEFF",
+          "purpose": "award 7 to 9 points, stopping at 50, to one uniformly selected child skill still below 50 (nothing when all five are at 50) only when callback 127 executes"
         }
       ]
     },

@@ -494,7 +494,12 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_f6_clothing_change_cheat", "0x1FF2E"): "A00945F8D66A35B8BDB078E933690DDE5B048C60287B716EED0276AC20A07F3E",
     ("vv1_magic_fruit_alters_mortality", "0x2EEAA"): "81719DCFD4BC20C6F136E88308A12EDFA14447AF58E3B8B6DC239BBF4053BF10",
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",
-    ("vv1_school_lessons_grant_skill", "0x3A230"): "846EAF1C3E8A0897824E1607D8568B3050F240A670A857D88D59F3479E24089A",
+    # Re-reviewed when the lesson award learned to stop at 50 and moved to
+    # 0x4566C1: the same pushad..popad window, the same displaced prologue
+    # (mov eax, [esp+8]; dec eax) and the same re-entry at 0x43A235; the
+    # award now calls the stock RNG with a count instead of 5 and walks the
+    # five skills twice. tests/test_lesson_cap_at_50.py runs the cave.
+    ("vv1_school_lessons_grant_skill", "0x3A230"): "29341E1E77DBD35F6540813CDD80799E43C9BAC9DE99252317C7B751449BC3DD",
     ("vv1_school_lessons_grant_skill", "0x44B28"): "E695CAD15B97EF9EC985AC6A3EB1C2045C0BE465D922AD6F57F3FAC975EF43E9",
 }
 

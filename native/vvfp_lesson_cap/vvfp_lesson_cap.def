@@ -1,0 +1,4 @@
+LIBRARY "VVFP Lesson Cap"
+EXPORTS
+    VvfpLessonCapProbe=_VvfpLessonCapProbe@8
+    VvfpLessonCapStats DATA

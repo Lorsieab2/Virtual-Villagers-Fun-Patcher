@@ -179,7 +179,7 @@ The clothing shortcut cycles the selected active villager through the stock outf
 
 **School Lessons Grant Skill**
 
-Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.
 
 - Patch ID: `vv1_school_lessons_grant_skill`
 
@@ -255,7 +255,7 @@ A villager who completes Recovering at the hospital gains exactly 1 health point
 
 **Teaching Children Grants Skill**
 
-Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+Each child who finishes a Teaching Children lesson (Attending lessons) gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.
 
 - Patch ID: `vv2_teaching_children_grants_skill`
 
@@ -335,6 +335,12 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. The Secret City has no companion that runs every frame, so its row diverts one eight-byte test in the Building dispatcher into a small stub in the page Origins appends, which calls "VVFP Fix Huts.dll". **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
 
 - Patch ID: `vv3_builders_fix_huts`
+
+**Tribal Chief Lessons Stop at 50**
+
+The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered, and when every skill is at 50 the lesson awards nothing. This matches A New Home's and The Lost Children's lesson patches and the later games' Nursery Schools. The Secret City has no companion that runs every frame, so the row diverts the lesson award into a small stub in the page Origins appends, which calls "VVFP Lesson Cap.dll". **Requires Enable Origins-Exclusive Features**, whose page holds the stub; without it the stock lesson runs and trains to 100.
+
+- Patch ID: `vv3_chief_lessons_cap_50`
 
 
 ### Virtual Villagers - The Tree of Life

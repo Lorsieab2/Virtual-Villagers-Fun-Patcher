@@ -30,7 +30,7 @@ guarded zero-filled padding at `0x73E20`. The cave:
 2. calls the original queue finalizer;
 3. resumes the original return path.
 
-The shared callback dispatcher at file offset `0x73D80` handles callback 126 by
+The shared callback dispatcher at file offset `0x73F50` (moved from `0x73D80` when the lesson award grew to stop at 50) handles callback 126 by
 locating the completing villager's record, adding exactly one to health only
 when it is below 100, and returning. Every stock callback follows the displaced
 dispatcher prologue and original switch. Callback 127 remains reserved for the

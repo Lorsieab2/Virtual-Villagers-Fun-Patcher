@@ -247,11 +247,11 @@ The clothing shortcut cycles the selected active villager through the stock outf
 
 #### School Lessons Grant Skill (`vv1_school_lessons_grant_skill`)
 
-Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+- Behavior changes: Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -454,11 +454,11 @@ Villagers succeed every work-task skill roll for Farming, Building, Researching,
 
 #### Teaching Children Grants Skill (`vv2_teaching_children_grants_skill`)
 
-Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+Each child who finishes a Teaching Children lesson (Attending lessons) gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+- Behavior changes: Each child who finishes a Teaching Children lesson (Attending lessons) gains 7 to 9 points in one equally random skill still below 50, and the gain stops at exactly 50. A skill already at 50 or above is never chosen and never lowered; when every skill is at 50 the lesson awards nothing, as the Nursery Schools of The Tree of Life and New Believers skip any skill at 50.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -551,7 +551,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it.**
+**Requires no other patch to be ticked. Needed by Enable Origins Tech, Details, and Village-Wide Upgrades: unticking this unticks it. Needed by Builders Fix Huts When Idle: unticking this unticks it. Needed by Tribal Chief Lessons Stop at 50: unticking this unticks it.**
 
 - Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
 - Explicit non-changes/exclusions: none declared
@@ -624,6 +624,20 @@ When the Tribal Chief completes Pointing out a rare collectible, rejected random
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Tribal Chief Lessons Stop at 50 (`vv3_chief_lessons_cap_50`)
+
+The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered. When every skill is at 50 the lesson awards nothing. This matches A New Home's and The Lost Children's lesson patches and the Nursery Schools of the later games, which skip any skill at 50. The Secret City has no companion that runs every frame, so this row diverts the lesson award's first seven bytes into a small stub in the page Origins appends, which calls "VVFP Lesson Cap.dll". **Requires Enable Origins-Exclusive Features**, whose page holds the stub; without it the stock lesson runs and trains to 100.
+
+**Requires no other patch to be ticked; the Origins-exclusive base it runs on is included automatically.**
+
+- Behavior changes: When a child finishes a Tribal Chief lesson (callback 42), the companion counts the skills below 50, asks the game's own RNG for one of them and for the stock 7 to 9 points, adds them and stops at exactly 50. With every skill at 50 or above the lesson awards nothing.
+- Explicit non-changes/exclusions: This row diverts one seven-byte instruction pair in the lesson award into a stub in the page Origins appends; the stub resolves the companion once and otherwise replays the stock bytes, so with the DLL missing the stock lesson runs (capped at 100). The lesson itself -- who teaches, who attends, its length, its animation and its messages -- is the game's own; only the award at its end changes. A skill at or above 50 is never lowered; work-task training past 50 is untouched. Nothing is written to a villager record beyond the skill the stock case would have written, nor to the save or any file.
+- Dependencies: vv3_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+- Appends 4096 bytes as 1 new PE section -- `.vv3lc` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
+- When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 
 #### Write Births and Conceptions Log to Text File (`vv3_write_parentage_log`)
 
