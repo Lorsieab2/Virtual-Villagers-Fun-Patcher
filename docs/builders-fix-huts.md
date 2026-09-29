@@ -98,6 +98,41 @@ checks every exit's registers and stack, and checks each site against the
 stock executable; each assertion was mutation-checked. **TESTED.** Live play:
 **UNVERIFIED** until played.
 
+## Below Building level 3, and A New Home's false "started" (v1.35.37)
+
+The owner, v1.35.36 installed: "how come vv1 builders stay idle doing nothing
+still?" -- "In VV1 right now I only have 1 hut built. The builders should be
+fixing huts."  Read live from the owner's running village: Building level
+(`[state+0xA2CC]`) 2, hut 9 built, huts 10/11 not, every project flag
+complete, both builders on "Nothing" for a full minute, and this companion's
+check counter 0 -- the hut site `0x447724` was never reached.
+
+* **The level gate.** Below Building level 3 the stock Building branch gives
+  up at `cmp [state+0xA2CC], 3; jl` (VV1 `0x44765E`), before the hut.  The
+  Lost Children has the same gate (`cmp [state+0x2EA84], 3; jl` at
+  `0x4601F2`).  Below level 3 each level stub now calls the chooser itself
+  (`vv1_choose` / `vv2_choose`) and, when it picks a complete population hut
+  while another is unbuilt, examines it directly (VV1 `0x446600`, VV2
+  `0x45F7C0`) with `ebx = 1` for the stock "started" epilogue.  Otherwise --
+  no hut complete, or every hut complete -- it keeps the gate's "nothing"
+  (VV2 the gate's own `0x46004C`; VV1 `al = 0` after the dispatcher's pops),
+  so the stock random pick (VV2's fourth option is building 5, not a hut) is
+  never reached from below level 3 (Codex on #463).  The Secret City, The
+  Tree of Life and New Believers have no exit before their site.
+* **A New Home's false "started".** Every way VV1's Building branch gives up
+  (`0x4474A1`, `0x4477A6`) returns `mov al, bl` with `bl = 1`: "started" with
+  nothing started, so the builder stood idle and the scheduler (and Builders
+  and Healers Work First's fallback) never looked further.  The hut stub now
+  reports "nothing" (`xor al, al` after the dispatcher's own pops) when no hut
+  stands and when the stock 20% skip roll fires.  The Lost Children and the
+  later games already report "nothing" (`xor al, al`).
+
+Evidence: `tests/test_builders_level_gate.py` runs the level stubs and A New
+Home's hut stub in an emulator (level 3 continues stock; level 2 with hut 9
+built fixes hut 9; no hut standing and the skip roll say "nothing" with the
+dispatcher's saves popped in order), mutation-checked. **TESTED.** Live play:
+**UNVERIFIED** until the owner runs v1.35.37.
+
 ## Addendum: Builders and Healers Work First (v1.35.36)
 
 The owner: "in both low and high food situations, builders and healers still

@@ -5,5 +5,6 @@ EXPORTS
     VvfpFixHutsProbeChoose=_VvfpFixHutsProbeChoose@8
     VvfpFixHutsProbePick=_VvfpFixHutsProbePick@8
     VvfpFixHutsProbeFoodSite=_VvfpFixHutsProbeFoodSite@20
+    VvfpFixHutsProbeLevelSite=_VvfpFixHutsProbeLevelSite@20
     VvfpFixHutsFoodBypasses DATA
     VvfpFixHutsStats DATA

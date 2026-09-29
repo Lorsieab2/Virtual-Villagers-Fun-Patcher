@@ -12,7 +12,8 @@
   ],
   "behavior_changes": [
     "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.",
-    "While not every population hut is complete, a builder's work attempt no longer depends on the food supply: at 400 food or more a villager whose selected job is Building still gets the preferred-job attempt the stock game gives below 400. Every other villager, and every village whose huts are all built, keeps the stock food behaviour."
+    "While not every population hut is complete, a builder's work attempt no longer depends on the food supply: at 400 food or more a villager whose selected job is Building still gets the preferred-job attempt the stock game gives below 400. Every other villager, and every village whose huts are all built, keeps the stock food behaviour.",
+    "Below Building level 3 the stock Building branch gave up before the hut fix; it now goes on to it. And wherever A New Home's Building branch gives up (the 20% skip roll, the level gate with no hut to fix, no hut standing) it reported 'started' with nothing started, leaving the builder on 'Nothing'; it now reports 'nothing started', so the villager goes on to other work."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.",
@@ -24,7 +25,7 @@
     {
       "source": "assets/fix_huts/VVFP Fix Huts.dll",
       "destination": "VVFP Fix Huts.dll",
-      "sha256": "F023784CF6A9616EC8718F4CFF0E28B2E8E70392BAAD71057BD48D6656CF683C"
+      "sha256": "618C5888A3431B5AF33CC8E609C495354795279FF47CCA132645733DCD9B6ABA"
     }
   ],
   "patches": [],
@@ -39,6 +40,12 @@
       "va": "0x448336",
       "stock_bytes": "81BDECA20000900100007D2D",
       "routine": "the idle scheduler's 400-food gate (0x448220); installs only while Builder Action Fixes, which owns the same bytes, is off",
+      "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"
+    },
+    {
+      "va": "0x44765E",
+      "stock_bytes": "8B9610E00300",
+      "routine": "the Building dispatcher's level-3 gate before the hut (0x4472C0)",
       "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"
     }
   ]

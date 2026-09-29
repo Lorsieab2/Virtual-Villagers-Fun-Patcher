@@ -114,6 +114,34 @@ static int __cdecl vv1_choose(const unsigned char *village) {
 
 static const unsigned int vv1_rand = VV1_RAND, vv1_resume = VV1_RESUME;
 static const unsigned int vv1_examine = VV1_EXAMINE, vv1_started = VV1_STARTED;
+/* No population hut complete: nothing to fix. */
+static int __cdecl vv1_none_complete(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    return state[0x9FE8] != 1 && state[0x9FF0] != 1 && state[0x9FF8] != 1;
+}
+
+/* A New Home's Building branch reports "started" (al = bl = 1) on every way
+   it gives up -- the 20% skip roll, a picked hut that is not complete, the
+   Building-level-below-3 gate -- so a builder with nothing to do stands on
+   "Nothing" and the scheduler never looks further.  Seen in the owner's live
+   village (v1.35.36): Building level 2, hut 9 built, huts 10/11 not, both
+   builders on "Nothing" for a full minute and this companion's check counter
+   still 0.  Here the give-up paths report "nothing started" (al = 0), the
+   same as The Lost Children and the later games do, so the scheduler goes on
+   to other work; the epilogue pops the dispatcher's own saves. */
+static __declspec(naked) void vv1_nothing(void) {
+    __asm {
+        pop edi
+        pop ebp
+        pop ebx
+        pop esi
+        xor al, al
+        ret 8
+    }
+}
+
+static const unsigned int vv1_hut_pick = VV1_RESUME + 9;   /* 0x447737: push 3; the stock rand(3) hut */
+
 static __declspec(naked) void vv1_stub(void) {
     __asm {
         pushad
@@ -131,10 +159,56 @@ static __declspec(naked) void vv1_stub(void) {
         inc dword ptr [VvfpFixHutsStats + 4]
         jmp dword ptr [vv1_started]
     stock:
-        push 0x64                      ; the displaced bytes
+        pushad
+        push esi
+        call vv1_none_complete
+        add esp, 4
+        mov [esp + 0x1C], eax
+        popad
+        test eax, eax
+        jnz vv1_nothing                ; no hut stands: nothing to fix
+        push 0x64                      ; the displaced bytes: the skip roll
         call dword ptr [vv1_rand]
         add esp, 4
-        jmp dword ptr [vv1_resume]
+        cmp eax, 0x14
+        jle vv1_nothing                ; skipped: "nothing", not a false "started"
+        jmp dword ptr [vv1_hut_pick]   ; every hut complete: the stock random hut
+    }
+}
+
+/* The Building-level gate before the hut: `mov edx, [esi+0x3E010]; cmp
+   [edx+0xA2CC], 3; jl give-up` at 0x44765E.  Below level 3 the stock branch
+   gives up here, before the hut fix; with this detour it goes on to the hut
+   fix above (esi, ebp and bl = 1 are what the hut site sees).  Level 3 and
+   above: the stock code at 0x447664. */
+#define VV1_LEVEL_SITE   0x44765Eu
+static const unsigned char VV1_LEVEL_STOCK[6] = { 0x8B, 0x96, 0x10, 0xE0, 0x03, 0x00 };
+static const unsigned int vv1_level_resume = 0x447671u;
+/* Below level 3 only a population hut the chooser picks (a complete one
+   while another is unbuilt) is fixed; otherwise "nothing" -- never the stock
+   random pick the gate used to skip (Codex on #463, the same rule as VV2). */
+static __declspec(naked) void vv1_level_stub(void) {
+    __asm {
+        mov edx, dword ptr [esi + 0x3E010]
+        cmp dword ptr [edx + 0xA2CC], 3
+        jl below
+        jmp dword ptr [vv1_level_resume]
+    below:
+        pushad
+        push esi
+        call vv1_choose
+        add esp, 4
+        mov [esp + 0x1C], eax
+        popad
+        cmp eax, -1
+        je vv1_nothing
+        mov ebx, 1                     ; the started epilogue returns bl
+        push eax                       ; project 9/10/11
+        mov ecx, esi
+        push ebp                       ; the villager's index
+        call dword ptr [vv1_examine]
+        inc dword ptr [VvfpFixHutsStats + 4]
+        jmp dword ptr [vv1_started]
     }
 }
 
@@ -186,6 +260,49 @@ static __declspec(naked) void vv2_stub(void) {
         call dword ptr [vv2_rand]
         add esp, 4
         jmp dword ptr [vv2_resume]
+    }
+}
+
+/* The Building-level gate before the hut: `cmp [state+0x2EA84], 3; jl
+   nothing` at 0x4601F2 (edx = state).  Below level 3 the stock branch gives up
+   here, before the hut fix -- the same gate A New Home has -- so a builder in
+   a village below level 3 never fixes a hut.  With this detour it fixes the
+   hut the chooser picks, with ebx = 1 for the "started" epilogue.  Level 3
+   and above: the stock code at 0x4601FF.  The Lost Children already reports
+   "nothing started" when it gives up (xor al, al). */
+#define VV2_LEVEL_SITE   0x4601F2u
+static const unsigned char VV2_LEVEL_STOCK[13] = {
+    0x83, 0xBA, 0x84, 0xEA, 0x02, 0x00, 0x03, 0x0F, 0x8C, 0x4D, 0xFE, 0xFF, 0xFF };
+static const unsigned int vv2_level_resume = 0x4601FFu;
+static const unsigned int vv2_level_nothing = 0x46004Cu;   /* the stock gate's own target: al = 0 */
+/* Below level 3 only a population hut is ever fixed: a complete one while
+   another is unbuilt (the chooser's answer).  Every other case -- no hut
+   complete, or every hut complete -- keeps the stock gate's "nothing", so the
+   stock random pick, whose fourth option is building 5 rather than a hut, is
+   never reached from here (Codex on #463). */
+static __declspec(naked) void vv2_level_stub(void) {
+    __asm {
+        cmp dword ptr [edx + 0x2EA84], 3
+        jl below
+        jmp dword ptr [vv2_level_resume]
+    below:
+        pushad
+        push esi
+        call vv2_choose
+        add esp, 4
+        mov [esp + 0x1C], eax
+        popad
+        cmp eax, -1
+        je nothing
+        mov ebx, 1                     ; the started epilogue returns bl
+        push eax                       ; project 24/25/26
+        push edi                       ; the villager's index
+        mov ecx, esi
+        call dword ptr [vv2_examine]
+        inc dword ptr [VvfpFixHutsStats + 4]
+        jmp dword ptr [vv2_started]
+    nothing:
+        jmp dword ptr [vv2_level_nothing]
     }
 }
 
@@ -625,6 +742,15 @@ static const struct site FOOD_SITES[6] = {
 };
 static int food_install_state[6];
 
+/* The Building-level gates (A New Home, The Lost Children only). */
+static const struct site LEVEL_SITES[6] = {
+    { 0 },
+    { VV1_LEVEL_SITE, VV1_LEVEL_STOCK, sizeof VV1_LEVEL_STOCK, vv1_level_stub },
+    { VV2_LEVEL_SITE, VV2_LEVEL_STOCK, sizeof VV2_LEVEL_STOCK, vv2_level_stub },
+    { 0 }, { 0 }, { 0 },
+};
+static int level_install_state[6];
+
 
 /* Verify the stock bytes, then write the jmp.  1 on success. */
 static int install_site(const struct site *s) {
@@ -653,6 +779,9 @@ __declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
     if (game_id < 1 || game_id > 5) {
         return 0;
     }
+    if (level_install_state[game_id] == 0) {
+        level_install_state[game_id] = install_site(&LEVEL_SITES[game_id]) ? 1 : -1;
+    }
     if (food_install_state[game_id] == 0) {
         food_install_state[game_id] = install_site(&FOOD_SITES[game_id]) ? 1 : -1;
     }
@@ -665,6 +794,25 @@ __declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
 }
 
 /* For the test: the food site, its stock bytes, what it becomes, the stub. */
+__declspec(dllexport) int __stdcall VvfpFixHutsProbeLevelSite(int game_id, unsigned int *va,
+                                                               unsigned char *stock,
+                                                               unsigned char *patched,
+                                                               unsigned int *stub_va) {
+    const struct site *s;
+    if (game_id < 1 || game_id > 5) {
+        return 0;
+    }
+    s = &LEVEL_SITES[game_id];
+    if (s->va == 0) {
+        return 0;
+    }
+    *va = s->va;
+    memcpy(stock, s->stock, (size_t)s->length);
+    site_bytes(s, patched);
+    *stub_va = (unsigned int)(uintptr_t)s->stub;
+    return s->length;
+}
+
 __declspec(dllexport) int __stdcall VvfpFixHutsProbeFoodSite(int game_id, unsigned int *va,
                                                               unsigned char *stock,
                                                               unsigned char *patched,

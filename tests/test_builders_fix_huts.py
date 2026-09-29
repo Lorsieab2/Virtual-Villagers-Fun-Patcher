@@ -93,8 +93,10 @@ class RuntimeSiteTests(unittest.TestCase):
         for game in ("vv1", "vv2", "vv4", "vv5"):
             manifest = json.loads(MANIFESTS[game].read_text(encoding="utf-8"))
             # The hut site first; the food-gate site second (its own tests
-            # are in tests/test_builders_regardless_of_food.py).
-            self.assertEqual(len(manifest["runtime_detours"]), 2, game)
+            # are in tests/test_builders_regardless_of_food.py); in A New Home
+            # and The Lost Children the Building-level gate third
+            # (tests/test_builders_level_gate.py).
+            self.assertEqual(len(manifest["runtime_detours"]), 3 if game in ("vv1", "vv2") else 2, game)
             site = manifest["runtime_detours"][0]
             n, va, stock, patched, stub = _probe_site(GAME_NO[game])
             self.assertEqual(va, int(site["va"], 16), game)
