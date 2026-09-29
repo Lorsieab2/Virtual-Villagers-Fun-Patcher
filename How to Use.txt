@@ -104,7 +104,9 @@ PATCH ONE GAME
 OPTIONAL PATCH SELECTION
 
 Use "Select All Patches" to turn on every optional fun patch at once. Use
-"Deselect All Patches" to turn them all off. These buttons do not change the
+"Default Patches" for the default selection, "Owner's Defaults" for every patch
+except Learning Skills Never Fails, and "Deselect All Patches" to turn them all
+off. These buttons do not change the
 selected population mode. Optional patches are grouped under the five
 game-title headers, in order: Virtual Villagers - A New Home, The Lost
 Children, The Secret City, The Tree of Life, and New Believers. Shared/all-games

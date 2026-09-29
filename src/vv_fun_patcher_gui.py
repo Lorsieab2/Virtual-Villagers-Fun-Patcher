@@ -63,6 +63,15 @@ def default_fun_patch_selection(patch_id: str) -> bool:
     return patch_id not in DEFAULT_OFF_FUN_PATCH_IDS
 
 
+def owners_default_fun_patch_selection(patch_id: str) -> bool:
+    """Whether the Owner's Defaults button ticks this.
+
+    The owner: "Every patch EXCEPT FOR LEARNING NEVER FAILS is on." -- so the
+    other default-off patches are ticked here too.
+    """
+    return not patch_id.endswith("_learning_never_fails")
+
+
 # The owner: the update link opens the project's base GitHub
 # repository, not the releases page. It opens the page rather than querying an
 # API and reporting a comparison.
@@ -516,6 +525,11 @@ class App(tk.Tk):
         ).pack(side="left", padx=(8, 0))
         ttk.Button(
             fun_actions,
+            text="Owner's Defaults",
+            command=self._owners_default_fun_patches,
+        ).pack(side="left", padx=(8, 0))
+        ttk.Button(
+            fun_actions,
             text="Deselect All Patches",
             command=self._deselect_all_fun_patches,
         ).pack(side="left", padx=(8, 0))
@@ -846,6 +860,14 @@ class App(tk.Tk):
         """
         for patch_id, variable in self.fun_patch_vars.items():
             variable.set(default_fun_patch_selection(patch_id))
+        self._last_fun_selection = set()
+        self._fun_patch_changed()
+
+    def _owners_default_fun_patches(self) -> None:
+        """The owner's own selection: every patch except Learning Skills
+        Never Fails, including the other default-off patches."""
+        for patch_id, variable in self.fun_patch_vars.items():
+            variable.set(owners_default_fun_patch_selection(patch_id))
         self._last_fun_selection = set()
         self._fun_patch_changed()
 

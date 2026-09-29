@@ -909,9 +909,10 @@ window means it is working, not stuck.
 The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modified EXE Folder** links. All 5 Games provides matching Vanilla folder and Modified folder links on every game row. After patching, a compact confirmation window provides clear clickable links to both folders for every completed game.
 
 The **Additional fun patches** section is grouped in game order, with each
-game's patches sorted by patch name. It includes **Select All Patches** and
-**Deselect All Patches** buttons. They change every optional fun-patch checkbox
-at once without changing the selected population mode, and the
+game's patches sorted by patch name. It includes **Select All Patches**,
+**Default Patches**, **Owner's Defaults** (every patch except Learning Skills
+Never Fails) and **Deselect All Patches** buttons. They change every optional
+fun-patch checkbox at once without changing the selected population mode, and the
 selection is remembered normally.
 
 For every selected game, all three modes create **`(Game name) - Modded`**
