@@ -56,6 +56,15 @@ DESCRIPTION = (
     "one; without it the stock scheduler runs unchanged."
 )
 
+# The Building-level gates before the hut (A New Home, The Lost Children):
+# below Building level 3 the stock Building branch gave up before the hut fix.
+LEVEL_RUNTIME = {
+    "vv1": {"va": "0x44765E", "stock_bytes": "8B9610E00300",
+            "routine": "the Building dispatcher's level-3 gate before the hut (0x4472C0)"},
+    "vv2": {"va": "0x4601F2", "stock_bytes": "83BA84EA0200030F8C4DFEFFFF",
+            "routine": "the Building dispatcher's level-3 gate before the hut (0x45FBF0)"},
+}
+
 # The idle scheduler's food gates (see "Regardless of the food supply" in
 # native/vvfp_fix_huts/vvfp_fix_huts.c).  VV3's is executable-side.
 FOOD_RUNTIME = {
@@ -67,6 +76,10 @@ FOOD_RUNTIME = {
             "routine": "the idle scheduler's low-food path, after the pick (0x465840)"},
     "vv5": {"va": "0x46F271", "stock_bytes": "8B8E881B0000",
             "routine": "the idle scheduler's low-food path, after the pick (0x46F070)"},
+}
+LEVEL_BEHAVIOR = {
+    "vv1": "Below Building level 3 the stock Building branch gave up before the hut fix; it now goes on to it. And wherever A New Home's Building branch gives up (the 20% skip roll, the level gate with no hut to fix, no hut standing) it reported 'started' with nothing started, leaving the builder on 'Nothing'; it now reports 'nothing started', so the villager goes on to other work.",
+    "vv2": "Below Building level 3 the stock Building branch gave up before the hut fix; it now goes on to it.",
 }
 FOOD_BEHAVIOR = (
     "While not every population hut is complete, a builder's work attempt no "
@@ -546,7 +559,7 @@ def main() -> None:
             "behavior_changes": [
                 "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.",
                 FOOD_BEHAVIOR.format(how=FOOD_HOW[game]),
-            ],
+            ] + ([LEVEL_BEHAVIOR[game]] if game in LEVEL_BEHAVIOR else []),
             "explicit_non_changes": list(common_non_changes),
             "companion_files": [
                 {"source": "assets/fix_huts/VVFP Fix Huts.dll",
@@ -560,7 +573,8 @@ def main() -> None:
             manifest["runtime_detours"] = [
                 {**RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"},
                 {**FOOD_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"},
-            ]
+            ] + ([{**LEVEL_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"}]
+                 if game in LEVEL_RUNTIME else [])
         else:
             patches, transaction, _overlay_patches = vv3_transaction(STOCK_VV3.read_bytes())
             manifest["explicit_non_changes"].insert(0,
