@@ -110,9 +110,15 @@ check counter 0 -- the hut site `0x447724` was never reached.
 * **The level gate.** Below Building level 3 the stock Building branch gives
   up at `cmp [state+0xA2CC], 3; jl` (VV1 `0x44765E`), before the hut.  The
   Lost Children has the same gate (`cmp [state+0x2EA84], 3; jl` at
-  `0x4601F2`).  Both now go on to the hut fix; VV2's stub sets the `ebx = 1`
-  and `ebp = 3` the hut site expects.  The Secret City, The Tree of Life and
-  New Believers have no exit before their site.
+  `0x4601F2`).  Below level 3 each level stub now calls the chooser itself
+  (`vv1_choose` / `vv2_choose`) and, when it picks a complete population hut
+  while another is unbuilt, examines it directly (VV1 `0x446600`, VV2
+  `0x45F7C0`) with `ebx = 1` for the stock "started" epilogue.  Otherwise --
+  no hut complete, or every hut complete -- it keeps the gate's "nothing"
+  (VV2 the gate's own `0x46004C`; VV1 `al = 0` after the dispatcher's pops),
+  so the stock random pick (VV2's fourth option is building 5, not a hut) is
+  never reached from below level 3 (Codex on #463).  The Secret City, The
+  Tree of Life and New Believers have no exit before their site.
 * **A New Home's false "started".** Every way VV1's Building branch gives up
   (`0x4474A1`, `0x4477A6`) returns `mov al, bl` with `bl = 1`: "started" with
   nothing started, so the builder stood idle and the scheduler (and Builders
