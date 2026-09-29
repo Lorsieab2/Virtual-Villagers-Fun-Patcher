@@ -1,9 +1,10 @@
 $ErrorActionPreference = "Stop"
 
-# Builds "VVFP Lesson Cap.dll" (Tribal Chief Lessons Stop at 50, The Secret
-# City) from native\vvfp_lesson_cap.  32-bit, static CRT, like every other
-# companion.  Re-run scripts\build_vv3_lesson_cap_feature.py afterwards: the
-# row pins the DLL by SHA-256.
+# Builds "VVFP Lesson Cap.dll" (School Lessons Stop at 50, Teaching Children
+# Stops at 50, Tribal Chief Lessons Stop at 50) from native\vvfp_lesson_cap.
+# 32-bit, static CRT, like every other companion.  Re-run
+# scripts\build_lesson_cap_features.py afterwards: all three rows pin the DLL
+# by SHA-256.
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nativeRoot = Join-Path $projectRoot "native\vvfp_lesson_cap"
