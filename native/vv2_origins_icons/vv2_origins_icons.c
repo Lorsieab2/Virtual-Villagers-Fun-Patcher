@@ -1740,6 +1740,7 @@ __declspec(dllexport) void __stdcall Vv2MaskSweep(unsigned char *base) {
     vvfp_pathfinding_bridge(2); /* pathfinding companion: installs its detours once, fail-open */
     vvfp_fix_huts_bridge(2);    /* fix-huts companion: once, fail-open */
     vvfp_lesson_cap_bridge(2);  /* lesson-cap companion: once, fail-open */
+    vvfp_healers_study_bridge(2); /* healers-study companion: once, fail-open */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }

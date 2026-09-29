@@ -1410,6 +1410,44 @@ static void vvfp_lesson_cap_bridge(int game_id) {
     }
 }
 
+/* "VVFP Healers Study.dll" (Healers Study Plants Regardless of Food):
+   loaded by full path and asked to install its detour on the idle
+   scheduler's general selection, once, from this per-frame tick -- outside
+   DllMain.  Not shipped (the row is off): nothing is installed, the stock
+   scheduler runs.  Compiled into The Lost Children's companion as well, which
+   calls it with game 2. */
+static int vvfp_healers_study_state;   /* 0 = not tried, 1 = installed, -1 = unavailable */
+
+static void vvfp_healers_study_bridge(int game_id) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    HMODULE companion;
+    int (__stdcall *install)(int game_id);
+    if (vvfp_healers_study_state != 0) {
+        return;
+    }
+    vvfp_healers_study_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP Healers Study.dll") > sizeof(path)) {
+        return;
+    }
+    lstrcpyA(slash + 1, "VVFP Healers Study.dll");
+    companion = LoadLibraryA(path);
+    if (companion == NULL) {
+        return;                   /* not shipped: the row is off */
+    }
+    install = (int (__stdcall *)(int))GetProcAddress(companion, "VvfpHealersStudyInstall");
+    if (install != NULL && install(game_id)) {
+        vvfp_healers_study_state = 1;
+    }
+}
+
 /* "VVFP VV1 Watering Builds.dll" (Watering the Field Trains Building): it
    installs its own detour on the garden progress step, so the only wiring
    here is to load it by full path and ask it to install, once, from this
@@ -1530,6 +1568,7 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     vv1_watering_bridge();      /* watering companion: installs its detour once, fail-open */
     vvfp_fix_huts_bridge(1);    /* fix-huts companion: once, fail-open */
     vvfp_lesson_cap_bridge(1);  /* lesson-cap companion: once, fail-open */
+    vvfp_healers_study_bridge(1); /* healers-study companion: once, fail-open */
     vv1_parentage_bridge_tick(); /* parentage companion: watches for births, fail-open */
     if (!vv1_mask_prepare_slot()) {
         return;  /* slot not captured yet -> no table or sidecar mutation */

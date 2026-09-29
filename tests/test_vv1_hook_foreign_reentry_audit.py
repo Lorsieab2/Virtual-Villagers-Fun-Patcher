@@ -260,7 +260,11 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # selected flag at record+0x29 lands on the villager the sort chose.
     ("vv1_enable_origins_exclusive_features", "0x4A7FF"): "A60BAC3A2FCB534ADD52306CD7ACC3F6C7BBB6EEF8697FA5E93D5AC03AF29407",
     ("vv1_enable_origins_exclusive_features", "0x4A8B4"): "BD8F67537F178A076E15F82A2F47AF0D2E0079AAB7E7A0A798B515BCCD6B147D",
-    ("vv1_builder_action_fixes", "0x48336"): "8901998FCDDD8EB745F1666B550B4C384919536E546CA4B1EAAF3BDB90176485",
+    # Re-reviewed when the selected-job compare's immediate changed from 1 to
+    # 4 (Building; 1 is Research in the picker's own switch at 0x439CAC).
+    # One immediate byte; the registers read, the flags consumed and both
+    # re-entry targets (0x448342, 0x44836F) are unchanged.
+    ("vv1_builder_action_fixes", "0x48336"): "83E41508B3B44724B871B148EDEDB57130092392AC26005013AE744A5147CE32",
     # The statistics tracker's lifetime burial counter, spliced over the
     # skeleton-pickup latch clear at 0x448F65 in sub_448600's case 20. That
     # instruction IS the pickup: it clears the corpse's exists-flag before the

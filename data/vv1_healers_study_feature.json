@@ -1,0 +1,39 @@
+{
+  "id": "vv1_healers_study_regardless_of_food",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Healers Study Plants Regardless of Food",
+  "description": "Healers keep studying plants regardless of the food supply. A villager who was studying the plant it was dropped on (the medical cactus) carries on studying when the village has 400 food or more, exactly as the stock game already does below 400; plentiful food no longer makes a healer stop. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.",
+  "output_tag": "Healers Study",
+  "dependencies": [
+    "vv1_enable_origins_exclusive_features"
+  ],
+  "behavior_changes": [
+    "At 400 food or more, a villager in plant-study state 9 gets the stock continue-last-activity call 0x447CD0(index, 60) that the stock scheduler makes only below 400; if it starts a job, the scheduler's own done epilogue runs."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the Origins companion loads the DLL, which detours the scheduler at run time only after verifying the stock bytes; a different build of the game installs nothing.",
+    "Below 400 food nothing changes: the stock code has already made the call.",
+    "Only villagers already studying a plant (state 9, set when the player drops a villager on a plant) are affected; every other villager's selection is the stock one.",
+    "What the study does -- which plant, its animation, its Healing practice -- is the game's own.",
+    "Nothing is written to a villager record, the save or any file."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/healers_study/VVFP Healers Study.dll",
+      "destination": "VVFP Healers Study.dll",
+      "sha256": "53DC2EFDD5AFF8BB11AA79ED3630EA4AFE4A1BDBE44C8A0E7B26D41D0CEBE2A7"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x44836F",
+      "stock_bytes": "6A00578BCEE86717FFFF",
+      "routine": "the idle scheduler's general selection (0x448220), the target of its 400-food jump",
+      "installed_by": "VVFP Healers Study.dll, VvfpHealersStudyInstall"
+    }
+  ]
+}

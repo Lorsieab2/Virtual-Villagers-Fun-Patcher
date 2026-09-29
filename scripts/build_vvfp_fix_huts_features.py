@@ -47,10 +47,39 @@ DESCRIPTION = (
     "that already stands, the game's own \"Examining hut\" / \"Fixing hut\" job, "
     "which trains Building. It only makes that job able to be chosen "
     "autonomously; the job itself, its chance of a repair and its skill roll are "
-    "the game's own. Applies in live play and during catch-up. "
+    "the game's own. While not every population hut is built, a builder also "
+    "does this regardless of the food supply: plentiful food no longer skips "
+    "the builder's work attempt (A New Home, The Lost Children), and scarce "
+    "food no longer sends the builder to farm or gather first (The Secret City, "
+    "The Tree of Life, New Believers). Applies in live play and during catch-up. "
     "**Requires Enable Origins-Exclusive Features**, whose companion loads this "
     "one; without it the stock scheduler runs unchanged."
 )
+
+# The idle scheduler's food gates (see "Regardless of the food supply" in
+# native/vvfp_fix_huts/vvfp_fix_huts.c).  VV3's is executable-side.
+FOOD_RUNTIME = {
+    "vv1": {"va": "0x448336", "stock_bytes": "81BDECA2000090010000" "7D2D",
+            "routine": "the idle scheduler's 400-food gate (0x448220); installs only while Builder Action Fixes, which owns the same bytes, is off"},
+    "vv2": {"va": "0x4619E9", "stock_bytes": "81B9A4EA02002C010000" "7D2D",
+            "routine": "the idle scheduler's 300-food gate (0x461850)"},
+    "vv4": {"va": "0x4659B0", "stock_bytes": "8B8E881B0000",
+            "routine": "the idle scheduler's low-food path, after the pick (0x465840)"},
+    "vv5": {"va": "0x46F271", "stock_bytes": "8B8E881B0000",
+            "routine": "the idle scheduler's low-food path, after the pick (0x46F070)"},
+}
+FOOD_BEHAVIOR = (
+    "While not every population hut is complete, a builder's work attempt no "
+    "longer depends on the food supply: {how}. Every other villager, and every "
+    "village whose huts are all built, keeps the stock food behaviour."
+)
+FOOD_HOW = {
+    "vv1": "at 400 food or more a villager whose selected job is Building still gets the preferred-job attempt the stock game gives below 400",
+    "vv2": "at 300 food or more a villager whose selected job is Building still gets the preferred-job attempt the stock game gives below 300",
+    "vv3": "at 250 food or less a picked Building job is dispatched at once instead of waiting behind a farming attempt and a 50% swap for a food action",
+    "vv4": "at 250 food or less a picked Building job is dispatched at once instead of waiting behind a farming attempt and a 50% swap for a food action",
+    "vv5": "at 250 food or less a picked Building job is dispatched at once instead of waiting behind a farming attempt and a 50% swap for a food action",
+}
 
 RUNTIME = {
     "vv1": {"va": "0x447724", "stock_bytes": "6A64E8E5B7FBFF83C404",
@@ -78,6 +107,25 @@ VV3_DLL_NAME = b"VVFP Fix Huts.dll\0"
 VV3_EXPORT_NAME = b"VvfpFixHutsDecide\0"
 VV3_NAME_OFFSET = 0x80
 VV3_EXPORT_OFFSET = 0xA0
+
+# "Regardless of the food supply": at 250 food or less The Secret City's idle
+# scheduler makes the pick (ebx) wait behind a farming attempt and then,
+# half the time, swaps it for a food action.  The farming test at 0x45C229
+# (cmp [esi+0xEAC], 20; jl 0x45C244) jumps to a second stub, which asks the
+# companion's VvfpFixHutsBuilderFirst(3, pick): a builder while not every
+# population hut is complete goes straight to the stock dispatch-with-pick at
+# 0x45C271; anything else replays the test.  With the DLL missing the stock
+# test runs.
+VV3_FOOD_SITE_VA = 0x45C229
+VV3_FOOD_SITE_FILE = VV3_FOOD_SITE_VA - 0x400000
+VV3_FOOD_SITE_STOCK = bytes.fromhex("83BEAC0E0000147C12")   # cmp [esi+0xEAC], 0x14; jl 0x45C244
+VV3_FOOD_FARM = 0x45C232          # the jl not taken: try farming
+VV3_FOOD_SKIP = 0x45C244          # the jl taken: skill below 20
+VV3_FOOD_DISPATCH = 0x45C271      # push ebx; push esi; mov ecx, edi; call dispatcher
+VV3_FOOD_CACHE_SLOT = 0x6E0FFC    # .vv3md; fix-huts 0x6E0FF8, lesson-cap 0x6E0FF4
+VV3_FOOD_EXPORT_NAME = b"VvfpFixHutsBuilderFirst\0"
+VV3_FOOD_EXPORT_OFFSET = 0xC0
+VV3_FOOD_CODE_OFFSET = 0x100
 
 # Origins' appended pages: .vv3mc (R-X) at 0x6DF000 / file 0xCB000, whose own
 # content ends at 0x3A0; the parentage overlay takes 0x400..0x800; this one
@@ -153,6 +201,53 @@ def vv3_build_page(base_va: int) -> bytes:
     page[: len(code)] = code
     page[VV3_NAME_OFFSET : VV3_NAME_OFFSET + len(VV3_DLL_NAME)] = VV3_DLL_NAME
     page[VV3_EXPORT_OFFSET : VV3_EXPORT_OFFSET + len(VV3_EXPORT_NAME)] = VV3_EXPORT_NAME
+    food_va = base_va + VV3_FOOD_CODE_OFFSET
+    food = assemble(
+        f"""
+        pushad
+        mov eax, dword ptr [0x{VV3_FOOD_CACHE_SLOT:X}]
+        cmp eax, 1
+        ja call_it
+        je give_up
+        push 0x{name_va:X}
+        call dword ptr [0x{VV3_GET_MODULE_HANDLE_IAT:X}]
+        test eax, eax
+        jne have_module
+        push 0x{name_va:X}
+        call dword ptr [0x{VV3_LOAD_LIBRARY_IAT:X}]
+        test eax, eax
+        je mark_failed
+    have_module:
+        push 0x{base_va + VV3_FOOD_EXPORT_OFFSET:X}
+        push eax
+        call dword ptr [0x{VV3_GET_PROC_ADDRESS_IAT:X}]
+        test eax, eax
+        je mark_failed
+        mov dword ptr [0x{VV3_FOOD_CACHE_SLOT:X}], eax
+    call_it:
+        push ebx
+        push 3
+        call eax
+        add esp, 8
+        test eax, eax
+        popad
+        jne 0x{VV3_FOOD_DISPATCH:X}
+        jmp stock
+    mark_failed:
+        mov dword ptr [0x{VV3_FOOD_CACHE_SLOT:X}], 1
+    give_up:
+        popad
+    stock:
+        cmp dword ptr [esi + 0xEAC], 0x14
+        jl 0x{VV3_FOOD_SKIP:X}
+        jmp 0x{VV3_FOOD_FARM:X}
+        """,
+        food_va,
+    )
+    page[VV3_FOOD_EXPORT_OFFSET : VV3_FOOD_EXPORT_OFFSET + len(VV3_FOOD_EXPORT_NAME)] = VV3_FOOD_EXPORT_NAME
+    if VV3_FOOD_EXPORT_OFFSET + len(VV3_FOOD_EXPORT_NAME) > VV3_FOOD_CODE_OFFSET:
+        raise RuntimeError("the food export name runs into the food stub")
+    page[VV3_FOOD_CODE_OFFSET : VV3_FOOD_CODE_OFFSET + len(food)] = food
     if any(page[VV3_OVERLAY_LENGTH:]):
         raise RuntimeError("the VV3 stub must fit in the 0x400 overlay")
     return bytes(page)
@@ -170,6 +265,23 @@ def vv3_site_patch(page_va: int) -> dict:
             "je nothing at 0x45B39E) into the fix-huts stub, which replays the test, "
             "asks the companion whether to fix a hut, and resumes at the stock "
             "'job started' or 'nothing' path."
+        ),
+    }
+
+
+def vv3_food_site_patch(page_va: int) -> dict:
+    target = page_va + VV3_FOOD_CODE_OFFSET
+    entry = b"\xE9" + int(target - (VV3_FOOD_SITE_VA + 5)).to_bytes(4, "little", signed=True)
+    entry += b"\x90" * (len(VV3_FOOD_SITE_STOCK) - len(entry))
+    return {
+        "offset": f"0x{VV3_FOOD_SITE_FILE:X}",
+        "before": VV3_FOOD_SITE_STOCK.hex().upper(),
+        "after": entry.hex().upper(),
+        "purpose": (
+            "Divert the idle scheduler's low-food farming test (cmp [esi+0xEAC], 20; "
+            "jl at 0x45C229) into the food stub, which sends a builder straight to the "
+            "stock dispatch-with-pick while not every population hut is complete, and "
+            "otherwise replays the test."
         ),
     }
 
@@ -192,8 +304,10 @@ def vv3_transaction(stock: bytes) -> tuple[list[dict], dict, list[dict]]:
         raise RuntimeError("stock bytes at 0x45B39E are not the expected test")
     page = vv3_build_page(VV3_PAGE_VA)
     overlay_page = vv3_build_page(VV3_OVERLAY_VA)
-    patches = [vv3_site_patch(VV3_PAGE_VA)]
-    overlay_patches = [vv3_site_patch(VV3_OVERLAY_VA)]
+    if stock[VV3_FOOD_SITE_FILE : VV3_FOOD_SITE_FILE + len(VV3_FOOD_SITE_STOCK)] != VV3_FOOD_SITE_STOCK:
+        raise RuntimeError("stock bytes at 0x45C229 are not the expected farming test")
+    patches = [vv3_site_patch(VV3_PAGE_VA), vv3_food_site_patch(VV3_PAGE_VA)]
+    overlay_patches = [vv3_site_patch(VV3_OVERLAY_VA), vv3_food_site_patch(VV3_OVERLAY_VA)]
     layout = {
         "original_file_size": f"0x{VV3_STOCK_FILE_SIZE:X}",
         "append_offset": f"0x{VV3_PAGE_FILE:X}",
@@ -259,6 +373,7 @@ def main() -> None:
             "dependencies": [f"{game}_enable_origins_exclusive_features"],
             "behavior_changes": [
                 "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.",
+                FOOD_BEHAVIOR.format(how=FOOD_HOW[game]),
             ],
             "explicit_non_changes": list(common_non_changes),
             "companion_files": [
@@ -270,12 +385,14 @@ def main() -> None:
         if game in RUNTIME:
             manifest["explicit_non_changes"].insert(0,
                 "This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.")
-            manifest["runtime_detours"] = [{
-                **RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"}]
+            manifest["runtime_detours"] = [
+                {**RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"},
+                {**FOOD_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"},
+            ]
         else:
             patches, transaction, _overlay_patches = vv3_transaction(STOCK_VV3.read_bytes())
             manifest["explicit_non_changes"].insert(0,
-                "The Secret City's row diverts one eight-byte test in the Building dispatcher into a stub in the page Origins appends; the stub resolves the companion once and otherwise replays the stock test, so with the DLL missing the stock scheduler runs.")
+                "The Secret City's row diverts one eight-byte test in the Building dispatcher and one nine-byte test in the idle scheduler's low-food path into two stubs in the page Origins appends; each resolves the companion once and otherwise replays the stock test, so with the DLL missing the stock scheduler runs.")
             manifest["patches"] = patches
             manifest["pe_append_transaction"] = transaction
         out = ROOT / "data" / f"{game}_builders_fix_huts_feature.json"

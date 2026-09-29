@@ -92,7 +92,10 @@ class RuntimeSiteTests(unittest.TestCase):
     def test_each_runtime_sites_stock_bytes_match_and_the_jmp_lands_on_the_stub(self):
         for game in ("vv1", "vv2", "vv4", "vv5"):
             manifest = json.loads(MANIFESTS[game].read_text(encoding="utf-8"))
-            (site,) = manifest["runtime_detours"]
+            # The hut site first; the food-gate site second (its own tests
+            # are in tests/test_builders_regardless_of_food.py).
+            self.assertEqual(len(manifest["runtime_detours"]), 2, game)
+            site = manifest["runtime_detours"][0]
             n, va, stock, patched, stub = _probe_site(GAME_NO[game])
             self.assertEqual(va, int(site["va"], 16), game)
             self.assertEqual(stock, bytes.fromhex(site["stock_bytes"]), game)
@@ -148,7 +151,8 @@ class SecretCityTests(unittest.TestCase):
             "vv3_enable_origins_exclusive_features"]
 
     def test_the_site_patch_replaces_the_exact_stock_test(self):
-        (patch,) = self.overlay["hook_patches"]
+        self.assertEqual([p["offset"] for p in self.overlay["hook_patches"]], ["0x5B39E", "0x5C229"])
+        patch = self.overlay["hook_patches"][0]
         self.assertEqual(int(patch["offset"], 16), 0x45B39E - 0x400000)
         self.assertEqual(_stock("vv3", 0x45B39E, 8), bytes.fromhex(patch["before"]))
         self.assertEqual(bytes.fromhex(patch["before"]), bytes.fromhex("3BFB0F849C030000"))

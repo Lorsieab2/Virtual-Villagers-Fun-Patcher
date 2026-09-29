@@ -189,6 +189,12 @@ Each child who finishes the Going to school activity still gains 7 to 9 points i
 
 - Patch ID: `vv1_school_lessons_cap_50`
 
+**Healers Study Plants Regardless of Food**
+
+Healers keep studying plants regardless of the food supply. A villager who was studying the plant it was dropped on (the medical cactus) carries on studying when the village has 400 food or more, exactly as the stock game already does below 400; plentiful food no longer makes a healer stop. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.
+
+- Patch ID: `vv1_healers_study_regardless_of_food`
+
 **Visual Mods**
 
 Adds decorative flowers to the lagoon and love hut, clothes to the extra hut near the farm, and colorful flowers to the restored garden, by swapping four scene/map images in the game's Images folder. Purely cosmetic -- no executable, gameplay, or save bytes change. Disabling restores the exact base-game images. Credit to the original mod creators.
@@ -209,7 +215,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 
 **Builders Fix Huts When Idle**
 
-When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. While not every population hut is built, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
 
 - Patch ID: `vv1_builders_fix_huts`
 
@@ -271,6 +277,12 @@ Each child who finishes a Teaching Children lesson (Attending lessons) still gai
 
 - Patch ID: `vv2_teaching_children_cap_50`
 
+**Healers Study Plants Regardless of Food**
+
+Healers keep studying plants regardless of the food supply. A villager who was studying a plant (the same four-plant roll the stock game makes) carries on studying when the village has 300 food or more, exactly as the stock game already does below 300; plentiful food no longer makes a healer stop. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.
+
+- Patch ID: `vv2_healers_study_regardless_of_food`
+
 **Write Births and Conceptions Log to Text File**
 
 Records both parents at conception in a plain text log: their names, both parents' ages at conception, both head and body values, both parents' likes and dislikes, and the number of babies. The mother's age determines the child's age, and the father's age is recorded too. VV2 keeps the father's name on the mother's record and no father id; his head and body are copied onto her at conception, so the log reads them from her record and they stay correct even after he dies or another villager takes his name. His age, which has no copy on her, is read from his own record -- every caller that holds it passes it, the Love Note included -- so a normal birth records his real age. Requires the Origins upgrades: the loader trampoline lives in the page they append, because VV2's own code cave is occupied by the renamed-build crash guard and has no room for it. **Needs Write Village Statistics to Text File on for the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled).**
@@ -285,7 +297,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 
 **Builders Fix Huts When Idle**
 
-When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. While not every population hut is built, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
 
 - Patch ID: `vv2_builders_fix_huts`
 
@@ -344,7 +356,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 
 **Builders Fix Huts When Idle**
 
-When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. The Secret City has no companion that runs every frame, so its row diverts one eight-byte test in the Building dispatcher into a small stub in the page Origins appends, which calls "VVFP Fix Huts.dll". **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. The Secret City has no companion that runs every frame, so its row diverts one eight-byte test in the Building dispatcher into a small stub in the page Origins appends, which calls "VVFP Fix Huts.dll". While not every population hut is built, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
 
 - Patch ID: `vv3_builders_fix_huts`
 
@@ -390,7 +402,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 
 **Builders Fix Huts When Idle**
 
-When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. While not every population hut is built, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
 
 - Patch ID: `vv4_builders_fix_huts`
 
@@ -460,7 +472,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 
 **Builders Fix Huts When Idle**
 
-When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
+When no building project is available to be worked on and not all population huts are complete, a builder with nothing to do examines and fixes one of the huts that already stands: the game's own "Examining hut" / "Fixing hut" job, which trains Building. The patch only makes that job able to be chosen autonomously; the job, its chance of a repair and its skill roll are the game's own. Applies in live play and during catch-up. No executable bytes change: a companion that already runs every frame loads "VVFP Fix Huts.dll", which installs its hook only after verifying the stock bytes. While not every population hut is built, a builder also does this regardless of the food supply: plentiful food no longer skips the builder's work attempt (A New Home, The Lost Children), and scarce food no longer sends the builder to farm or gather first (The Secret City, The Tree of Life, New Believers). **Requires Enable Origins-Exclusive Features**, whose companion loads this one.
 
 - Patch ID: `vv5_builders_fix_huts`
 

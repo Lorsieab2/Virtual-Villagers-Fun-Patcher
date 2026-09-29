@@ -100,17 +100,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # mode, every one inside its own overlay (0xCBC00..0xCC000), its seven-byte
     # site at 0x58F11 (callback 42's push 5; call RNG) or the PE CheckSum at
     # 0x160..0x163; nothing else moved and the length is unchanged.
+    # Re-pinned when Builders Fix Huts When Idle gained its food-gate stub.
+    # Justified BEFORE re-pinning by rendering the full catalog on main
+    # (bfb06b3e) and on the branch and diffing byte for byte: 131-132
+    # differing bytes per mode, every one inside the fix-huts overlay
+    # (0xCB800..0xCBC00), its new nine-byte site at 0x5C229 (the low-food
+    # farming test) or the PE CheckSum; nothing else moved.
     "stock": (
-        "5A1429652A67303CFA51B18CB80AEFF082CC05C643F870DE066D2632C435D371",
-        "27C90D00",
+        "E5C1ECFB67ED8AE0333CD50E6F8359D4DACCDAD55C6E5679AE836062715AACB9",
+        "7F0C0D00",
     ),
     "collection_progression": (
-        "A7D153518573AD8301384B52E9FE3D405E179759B83B3C8201986480216D4D71",
-        "28E20C00",
+        "CA61C0BF0A624C43217E7964F20806AED74106EE13954020ED931F70294DDB86",
+        "7F250D00",
     ),
     "immediate_fixed": (
-        "4D270345E6E3266F6CA565DCE4B7E7B66905148210C03046E9206A6182EAA608",
-        "26240D00",
+        "A994ACC81D7ACAECEAA2E0F6BE437B07400343E4A6BB185366C0D7B57F54F21D",
+        "7D670D00",
     ),
 }
 
