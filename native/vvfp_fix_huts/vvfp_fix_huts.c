@@ -528,8 +528,8 @@ __declspec(dllexport) int __cdecl VvfpFixHutsBuilderFirst(int game_id, int pick)
 /* ---- The "Builders and Healers Work First" addendum ---------------------- */
 /* "VVFP Work First.dll" is its own companion (one feature per DLL); this one
    loads it by full path, once, from the same per-frame install call, and asks
-   it to install its picker hooks for this game.  Not shipped (the row is off):
-   nothing is loaded and nothing changes.  The Secret City's picker stub
+   it to install its dispatcher hook for this game.  Not shipped (the row is
+   off): nothing is loaded and nothing changes.  The Secret City's dispatcher stub
    resolves the addendum's export itself (scripts/build_vvfp_fix_huts_features.py);
    its low-food healer bypass asks work_first_present(). */
 static HMODULE work_first_module;

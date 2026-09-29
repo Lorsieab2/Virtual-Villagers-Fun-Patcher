@@ -221,7 +221,7 @@ When no building project is available to be worked on and not all population hut
 
 **Builders and Healers Work First**
 
-Builders and healers do their own work first while not every population hut is built, at any food level: a villager whose selected job is Building goes to building work (a project, or fixing a hut) and one whose selected job is Healing goes to healing and study, before idling, farming or gathering. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
 
 - Patch ID: `vv1_builders_and_healers_work_first`
 
@@ -309,7 +309,7 @@ When no building project is available to be worked on and not all population hut
 
 **Builders and Healers Work First**
 
-Builders and healers do their own work first while not every population hut is built, at any food level: a villager whose selected job is Building goes to building work (a project, or fixing a hut) and one whose selected job is Healing goes to healing and study, before idling, farming or gathering. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
 
 - Patch ID: `vv2_builders_and_healers_work_first`
 
@@ -374,7 +374,7 @@ When no building project is available to be worked on and not all population hut
 
 **Builders and Healers Work First**
 
-Builders and healers do their own work first while not every population hut is built, at any food level: a villager whose selected job is Building goes to building work (a project, or fixing a hut) and one whose selected job is Healing goes to healing and study, before idling, farming or gathering. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
 
 - Patch ID: `vv3_builders_and_healers_work_first`
 
@@ -426,7 +426,7 @@ When no building project is available to be worked on and not all population hut
 
 **Builders and Healers Work First**
 
-Builders and healers do their own work first while not every population hut is built, at any food level: a villager whose selected job is Building goes to building work (a project, or fixing a hut) and one whose selected job is Healing goes to healing and study, before idling, farming or gathering. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
 
 - Patch ID: `vv4_builders_and_healers_work_first`
 
@@ -502,7 +502,7 @@ When no building project is available to be worked on and not all population hut
 
 **Builders and Healers Work First**
 
-Builders and healers do their own work first while not every population hut is built, at any food level: a villager whose selected job is Building goes to building work (a project, or fixing a hut) and one whose selected job is Healing goes to healing and study, before idling, farming or gathering. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
+Builders and healers do their own work first while not every population hut is built, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut), and for one whose selected job is Healing, healing and study, before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
 
 - Patch ID: `vv5_builders_and_healers_work_first`
 

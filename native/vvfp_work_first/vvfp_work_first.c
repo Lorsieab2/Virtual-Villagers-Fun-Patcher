@@ -1,24 +1,46 @@
 /* VVFP Work First -- Builders and Healers Work First (all five games).
 
-   An addendum to Builders Fix Huts When Idle (and, in A New Home and The Lost
-   Children, Healers Study Plants Regardless of Food): while not every
-   population hut is built, a villager whose selected job is Building does
-   building work first and one whose selected job is Healing does healing and
-   study first, at any food level, before idling, farming or gathering.
+   An addendum to Builders Fix Huts When Idle.  The owner: "in both low and
+   high food situations, builders and healers still should prioritize fixing
+   huts over other stuff for all 5 games" -- builders their building work,
+   healers their healing and study, first, only while not every population
+   hut is built -- and "make the work patches an addendum to the preexisting
+   ones".
+
+   HOW.  Every game's adult idle scheduler asks one work dispatcher to start
+   a job for the villager ("dispatch job N; true if something started").  When
+   the adult scheduler makes that call for a villager whose selected job is
+   Building or Healing, while a population hut is unbuilt, this companion
+   first asks the dispatcher for the villager's own job; if that starts
+   something, the scheduler sees "started".  If it starts nothing -- no
+   project, no hut to fix, no one sick, nothing to study -- the scheduler's own
+   request runs exactly as it would have.  So builders and healers work first
+   when there is work of theirs to do, and otherwise do whatever the stock
+   game would have them do (farming, research, ...).  At low food in VV3-VV5
+   the scheduler's farming attempt is one of these calls, so a builder or
+   healer tries their own work before farming.
+
+     game  dispatcher  displaced                      adult-scheduler returns         selected job             Bld Heal
+     VV1   0x4472C0    mov eax,[esp+8]; test eax,eax  0x448355 0x448382               village+i*0x3D8+0x3D0     4   5
+     VV2   0x45FBF0    the same                       0x461A08 0x461A35               village+i*0xE48C+0x7F8    5   3
+     VV3   0x45AF00    mov eax,[esp+8]; sub esp,0xA0  0x45C23C 0x45C27A 0x45C28F      record+0xEC0              4   2
+     VV4   0x4639B0    mov eax,[esp+4]; sub esp,0x98  0x4659D2 0x465A17 0x465A2A      [obj+0x1B88]+0x1C70       4   2
+     VV5   0x46C540    sub esp,0x94                   0x46F291 0x46F2D6 0x46F2EA      [obj+0x1B88]+0x1C74       4   2
+
+   VV1/VV2: thiscall(index, job), ret 8, ecx = village.  VV3: thiscall(record,
+   job), ret 8.  VV4/VV5: thiscall(job), ret 4, ecx = the villager object.
+   The result is in al.  Every other caller of a dispatcher is untouched.
 
    Loaded by "VVFP Fix Huts.dll" (VvfpFixHutsInstall, from a companion that
    runs every frame) by full path; The Secret City's hook is a stub in the
-   fix-huts page that resolves VvfpWorkFirstPriority.  Not shipped: nothing
-   is loaded, and every hook falls through to the stock code. */
+   fix-huts page that resolves VvfpWorkFirstFirst.  Not shipped: nothing is
+   loaded, and every hook falls through to the stock code. */
 #include <windows.h>
 #include <string.h>
 #include <stdint.h>
 
 /* ---- Population huts ------------------------------------------------------ */
-/* The same tests the fix-huts companion makes (native/vvfp_fix_huts):
-   VV1 state = [village+0x3E010], huts complete: bytes +0x9FE8/+0x9FF0/+0x9FF8
-   == 1; VV2 state = [village+0xE574D4], +0x2E818/+0x2E820/+0x2E828; VV3-VV5
-   the games' own "project complete" predicate over the four huts. */
+/* The same tests the fix-huts companion makes (native/vvfp_fix_huts). */
 static int vv1_huts_incomplete(const unsigned char *village) {
     const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
     return !(state[0x9FE8] == 1 && state[0x9FF0] == 1 && state[0x9FF8] == 1);
@@ -64,163 +86,177 @@ static int later_huts_incomplete(const struct later_game *g) {
     return 0;
 }
 
-/* ---- Builders and healers work first ------------------------------------ */
-/* The owner: "in both low and high food situations, builders and healers
-   still should prioritize fixing huts over other stuff for all 5 games" --
-   builders their building work and healers their healing and study, before
-   anything else, at any food level, while not every population hut is built.
+/* ---- The decision ---------------------------------------------------------- */
+/* Counters a test can read from the running game.  Diagnostic only. */
+struct vvfp_work_first_stats {
+    int tried;          /* the villager's own job was tried first */
+    int started;        /* ... and started something */
+};
+__declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0 };
 
-   Every game's adult idle scheduler asks one job picker what to do; the
-   picker weighs the skills and the selected job and may also say "nothing".
-   Here the picker, when called from the adult scheduler, answers with the
-   villager's own selected job when that job is Building or Healing and a
-   population hut is still unbuilt; the stock scheduler then dispatches it
-   exactly as it dispatches any pick (on both of its food paths).  Every other
-   villager, every other caller of the picker (the younger villagers' routine)
-   and every village whose huts are all built get the stock picker.
-
-     game  picker     entry (displaced)             scheduler return addresses  selected job      Building  Healing
-     VV1   0x439AE0   push ebx/ebp/esi; push 100    0x44834C 0x448379           village+i*0x3D8+0x3D0   4       5
-     VV2   0x449C60   push ecx/ebx/esi/edi; xor esi 0x4619FF 0x461A2C           village+i*0xE48C+0x7F8  5       3
-     VV3   0x459730   push ebx/esi/edi; push 100    0x45C227 0x45C286           record+0xEC0            4       2
-     VV4   0x461CC0   push ebx/esi/edi; push 100    0x4659B0 0x465A22           [obj+0x1B88]+0x1C70     4       2
-     VV5   0x46A3C0   push ebx/esi/edi; push 100    0x46F271 0x46F2E2           [obj+0x1B88]+0x1C74     4       2
-
-   VV1/VV2: thiscall(index, flag), ret 8, ecx = village.  VV3: thiscall
-   (record), ret 4, ecx = the scheduler object.  VV4/VV5: thiscall(), ret,
-   ecx = the villager object.  The Secret City's hook is executable-side
-   (VvfpWorkFirstPriority below). */
-
-__declspec(dllexport) int VvfpWorkFirstPicks = 0;
-
-static int priority_job(int selected, int building, int healing, int huts_incomplete) {
-    if ((selected == building || selected == healing) && huts_incomplete) {
-        ++VvfpWorkFirstPicks;
-        return selected;
+/* The villager's own job to try first, or -1: the stock request alone. */
+static int own_first(int selected, int requested, int building, int healing, int huts_incomplete) {
+    if ((selected != building && selected != healing) || selected == requested || !huts_incomplete) {
+        return -1;
     }
-    return -1;
+    ++VvfpWorkFirstStats.tried;
+    return selected;
 }
 
-static int __cdecl vv1_priority(unsigned int ret, const unsigned char *village, unsigned int index) {
-    if (ret != 0x44834Cu && ret != 0x448379u) return -1;
-    return priority_job(*(const int *)(village + index * 0x3D8u + 0x3D0u), 4, 5,
-                        vv1_huts_incomplete(village));
+static int is_one_of(unsigned int ret, const unsigned int *sites, int n) {
+    int i;
+    for (i = 0; i < n; ++i) {
+        if (ret == sites[i]) return 1;
+    }
+    return 0;
 }
 
-static int __cdecl vv2_priority(unsigned int ret, const unsigned char *village, unsigned int index) {
-    if (ret != 0x4619FFu && ret != 0x461A2Cu) return -1;
-    return priority_job(*(const int *)(village + index * 0xE48Cu + 0x7F8u), 5, 3,
-                        vv2_huts_incomplete(village));
+static const unsigned int VV1_CALLS[] = { 0x448355u, 0x448382u };
+static const unsigned int VV2_CALLS[] = { 0x461A08u, 0x461A35u };
+static const unsigned int VV3_CALLS[] = { 0x45C23Cu, 0x45C27Au, 0x45C28Fu };
+static const unsigned int VV4_CALLS[] = { 0x4659D2u, 0x465A17u, 0x465A2Au };
+static const unsigned int VV5_CALLS[] = { 0x46F291u, 0x46F2D6u, 0x46F2EAu };
+
+static int __cdecl vv1_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
+    if (!is_one_of(ret, VV1_CALLS, 2)) return -1;
+    return own_first(*(const int *)(village + index * 0x3D8u + 0x3D0u), job, 4, 5,
+                     vv1_huts_incomplete(village));
 }
 
-static int __cdecl vv4_priority(unsigned int ret, const unsigned char *object) {
+static int __cdecl vv2_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
+    if (!is_one_of(ret, VV2_CALLS, 2)) return -1;
+    return own_first(*(const int *)(village + index * 0xE48Cu + 0x7F8u), job, 5, 3,
+                     vv2_huts_incomplete(village));
+}
+
+static int __cdecl vv4_first(unsigned int ret, const unsigned char *object, int job) {
     const unsigned char *record;
-    if (ret != 0x4659B0u && ret != 0x465A22u) return -1;
+    if (!is_one_of(ret, VV4_CALLS, 3)) return -1;
     record = *(const unsigned char *const *)(object + 0x1B88u);
-    return priority_job(*(const int *)(record + 0x1C70u), 4, 2, later_huts_incomplete(&VV4));
+    return own_first(*(const int *)(record + 0x1C70u), job, 4, 2, later_huts_incomplete(&VV4));
 }
 
-static int __cdecl vv5_priority(unsigned int ret, const unsigned char *object) {
+static int __cdecl vv5_first(unsigned int ret, const unsigned char *object, int job) {
     const unsigned char *record;
-    if (ret != 0x46F271u && ret != 0x46F2E2u) return -1;
+    if (!is_one_of(ret, VV5_CALLS, 3)) return -1;
     record = *(const unsigned char *const *)(object + 0x1B88u);
-    return priority_job(*(const int *)(record + 0x1C74u), 4, 2, later_huts_incomplete(&VV5));
+    return own_first(*(const int *)(record + 0x1C74u), job, 4, 2, later_huts_incomplete(&VV5));
 }
 
-/* For The Secret City's executable-side stub at the picker's entry: the
-   scheduler's return address and the record argument.  -1 = the stock
-   picker. */
-__declspec(dllexport) int __cdecl VvfpWorkFirstPriority(int game_id, unsigned int ret, const unsigned char *record) {
+/* For The Secret City's executable-side stub at the dispatcher's entry: the
+   scheduler's return address, the record and the requested job.  The job to
+   try first, or -1.  A started job is counted by the stub's caller. */
+__declspec(dllexport) int __cdecl VvfpWorkFirstFirst(int game_id, unsigned int ret,
+                                                     const unsigned char *record, int job) {
     if (game_id != 3 || record == NULL) return -1;
-    if (ret != 0x45C227u && ret != 0x45C286u) return -1;
-    return priority_job(*(const int *)(record + 0xEC0u), 4, 2, later_huts_incomplete(&VV3));
+    if (!is_one_of(ret, VV3_CALLS, 3)) return -1;
+    return own_first(*(const int *)(record + 0xEC0u), job, 4, 2, later_huts_incomplete(&VV3));
 }
 
-#define VV1_PICKER 0x439AE0u
-#define VV2_PICKER 0x449C60u
-#define VV4_PICKER 0x461CC0u
-#define VV5_PICKER 0x46A3C0u
-static const unsigned char VV1_PICKER_STOCK[5] = { 0x53, 0x55, 0x56, 0x6A, 0x64 };
-static const unsigned char VV2_PICKER_STOCK[6] = { 0x51, 0x53, 0x56, 0x57, 0x33, 0xF6 };
-static const unsigned char VV4_PICKER_STOCK[5] = { 0x53, 0x56, 0x57, 0x6A, 0x64 };
-static const unsigned char VV5_PICKER_STOCK[5] = { 0x53, 0x56, 0x57, 0x6A, 0x64 };
-static const unsigned int vv1_picker_body = VV1_PICKER + 5, vv2_picker_body = VV2_PICKER + 6;
-static const unsigned int vv4_picker_body = VV4_PICKER + 5, vv5_picker_body = VV5_PICKER + 5;
+/* ---- The stubs ------------------------------------------------------------ */
+#define VV1_DISPATCHER 0x4472C0u
+#define VV2_DISPATCHER 0x45FBF0u
+#define VV4_DISPATCHER 0x4639B0u
+#define VV5_DISPATCHER 0x46C540u
+static const unsigned char VV1_STOCK[6] = { 0x8B, 0x44, 0x24, 0x08, 0x85, 0xC0 };
+static const unsigned char VV2_STOCK[6] = { 0x8B, 0x44, 0x24, 0x08, 0x85, 0xC0 };
+static const unsigned char VV4_STOCK[10] = { 0x8B, 0x44, 0x24, 0x04, 0x81, 0xEC, 0x98, 0x00, 0x00, 0x00 };
+static const unsigned char VV5_STOCK[6] = { 0x81, 0xEC, 0x94, 0x00, 0x00, 0x00 };
+static const unsigned int vv1_body = VV1_DISPATCHER + 6, vv2_body = VV2_DISPATCHER + 6;
+static const unsigned int vv4_body = VV4_DISPATCHER + 10, vv5_body = VV5_DISPATCHER + 6;
 
-/* pushad puts the return address at [esp+0x20] and the first argument at
-   [esp+0x24]; a forced job goes back through pushad's eax slot. */
-static __declspec(naked) void vv1_picker_stub(void) {
+/* The stock dispatcher, callable: the displaced bytes, then its body.  Also
+   the target when the stock request should simply run. */
+static __declspec(naked) void vv1_original(void) {
     __asm {
-        pushad
-        push dword ptr [esp + 0x24]     ; index
-        push ecx                        ; village
-        push dword ptr [esp + 0x28]     ; the caller (0x20 + the two pushes)
-        call vv1_priority
-        add esp, 12
-        cmp eax, -1
-        je stock
-        mov [esp + 0x1C], eax
-        popad
-        ret 8
-    stock:
-        popad
-        push ebx
-        push ebp
-        push esi
-        push 0x64
-        jmp dword ptr [vv1_picker_body]
+        mov eax, dword ptr [esp + 8]
+        test eax, eax
+        jmp dword ptr [vv1_body]
+    }
+}
+static __declspec(naked) void vv2_original(void) {
+    __asm {
+        mov eax, dword ptr [esp + 8]
+        test eax, eax
+        jmp dword ptr [vv2_body]
+    }
+}
+static __declspec(naked) void vv4_original(void) {
+    __asm {
+        mov eax, dword ptr [esp + 4]
+        sub esp, 0x98
+        jmp dword ptr [vv4_body]
+    }
+}
+static __declspec(naked) void vv5_original(void) {
+    __asm {
+        sub esp, 0x94
+        jmp dword ptr [vv5_body]
     }
 }
 
-static __declspec(naked) void vv2_picker_stub(void) {
-    __asm {
-        pushad
-        push dword ptr [esp + 0x24]
-        push ecx
-        push dword ptr [esp + 0x28]
-        call vv2_priority
-        add esp, 12
-        cmp eax, -1
-        je stock
-        mov [esp + 0x1C], eax
-        popad
-        ret 8
-    stock:
-        popad
-        push ecx
-        push ebx
-        push esi
-        push edi
-        xor esi, esi
-        jmp dword ptr [vv2_picker_body]
-    }
-}
-
-#define LATER_PICKER_STUB(NAME)                                               \
-    static __declspec(naked) void NAME##_picker_stub(void) {                  \
+/* VV1/VV2: [esp] = the caller, [esp+4] = index, [esp+8] = job; after
+   pushad, +0x20.  Try the own job with the same ecx; al != 0 -> "started"
+   (ret 8); else the stock request with the stack untouched. */
+#define VV12_STUB(NAME)                                                       \
+    static __declspec(naked) void NAME##_stub(void) {                         \
         __asm {                                                              \
             __asm pushad                                                     \
-            __asm push ecx                                                   \
-            __asm push dword ptr [esp + 0x24]                                \
-            __asm call NAME##_priority                                       \
-            __asm add esp, 8                                                 \
-            __asm cmp eax, -1                                                \
-            __asm je stock_picker                                            \
+            __asm push dword ptr [esp + 0x28]      /* job */                  \
+            __asm push dword ptr [esp + 0x28]      /* index */                \
+            __asm push ecx                         /* village */              \
+            __asm push dword ptr [esp + 0x2C]      /* the caller */           \
+            __asm call NAME##_first                                          \
+            __asm add esp, 16                                                \
             __asm mov [esp + 0x1C], eax                                      \
             __asm popad                                                      \
-            __asm ret                                                        \
-            __asm stock_picker:                                              \
-            __asm popad                                                      \
-            __asm push ebx                                                   \
-            __asm push esi                                                   \
-            __asm push edi                                                   \
-            __asm push 0x64                                                  \
-            __asm jmp dword ptr [NAME##_picker_body]                          \
+            __asm cmp eax, -1                                                \
+            __asm je stock_request                                           \
+            __asm push ecx                                                   \
+            __asm push eax                         /* the own job */          \
+            __asm push dword ptr [esp + 0x0C]      /* index */                \
+            __asm call NAME##_original                                       \
+            __asm pop ecx                                                    \
+            __asm test al, al                                                \
+            __asm jz stock_request                                           \
+            __asm inc dword ptr [VvfpWorkFirstStats + 4]                     \
+            __asm ret 8                                                      \
+            __asm stock_request:                                             \
+            __asm jmp NAME##_original                                        \
         }                                                                    \
     }
 
-LATER_PICKER_STUB(vv4)
-LATER_PICKER_STUB(vv5)
+/* VV4/VV5: [esp] = the caller, [esp+4] = job; ecx = the villager object. */
+#define LATER_STUB(NAME)                                                      \
+    static __declspec(naked) void NAME##_stub(void) {                         \
+        __asm {                                                              \
+            __asm pushad                                                     \
+            __asm push dword ptr [esp + 0x24]      /* job */                  \
+            __asm push ecx                         /* the object */           \
+            __asm push dword ptr [esp + 0x28]      /* the caller */           \
+            __asm call NAME##_first                                          \
+            __asm add esp, 12                                                \
+            __asm mov [esp + 0x1C], eax                                      \
+            __asm popad                                                      \
+            __asm cmp eax, -1                                                \
+            __asm je stock_request                                           \
+            __asm push ecx                                                   \
+            __asm push eax                         /* the own job */          \
+            __asm call NAME##_original                                       \
+            __asm pop ecx                                                    \
+            __asm test al, al                                                \
+            __asm jz stock_request                                           \
+            __asm inc dword ptr [VvfpWorkFirstStats + 4]                     \
+            __asm ret 4                                                      \
+            __asm stock_request:                                             \
+            __asm jmp NAME##_original                                        \
+        }                                                                    \
+    }
+
+VV12_STUB(vv1)
+VV12_STUB(vv2)
+LATER_STUB(vv4)
+LATER_STUB(vv5)
 
 /* ---- Installing ---------------------------------------------------------- */
 struct site {
@@ -232,11 +268,11 @@ struct site {
 
 static const struct site SITES[6] = {
     { 0 },
-    { VV1_PICKER, VV1_PICKER_STOCK, sizeof VV1_PICKER_STOCK, vv1_picker_stub },
-    { VV2_PICKER, VV2_PICKER_STOCK, sizeof VV2_PICKER_STOCK, vv2_picker_stub },
+    { VV1_DISPATCHER, VV1_STOCK, sizeof VV1_STOCK, vv1_stub },
+    { VV2_DISPATCHER, VV2_STOCK, sizeof VV2_STOCK, vv2_stub },
     { 0 },
-    { VV4_PICKER, VV4_PICKER_STOCK, sizeof VV4_PICKER_STOCK, vv4_picker_stub },
-    { VV5_PICKER, VV5_PICKER_STOCK, sizeof VV5_PICKER_STOCK, vv5_picker_stub },
+    { VV4_DISPATCHER, VV4_STOCK, sizeof VV4_STOCK, vv4_stub },
+    { VV5_DISPATCHER, VV5_STOCK, sizeof VV5_STOCK, vv5_stub },
 };
 static int install_state[6];
 

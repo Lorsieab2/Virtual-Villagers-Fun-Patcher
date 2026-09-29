@@ -106,29 +106,32 @@ addendum to the preexisting ones". Its own companion, `VVFP Work First.dll`
 (`native/vvfp_work_first`), loaded by full path by this one's per-frame install
 (`work_first_bridge`); five rows, each depending on this row.
 
-While a population hut is unbuilt, the adult scheduler's job picker answers
-with the villager's own selected job when it is Building or Healing, and the
-stock scheduler dispatches it on either food path. The picker is hooked at its
-entry and acts only when called from the adult scheduler (by return address);
-its other caller, the younger villagers' routine, is untouched.
+Every adult idle scheduler asks one work dispatcher "start job N for this
+villager". When the adult scheduler asks it for a villager whose selected job
+is Building or Healing, while a population hut is unbuilt, the dispatcher is
+first asked for that own job; if it starts something the scheduler sees
+"started", and if there is nothing of theirs to do the scheduler's own request
+runs unchanged (Codex on #462: a first version forced the pick instead, which
+left a builder or healer with nothing to do idle). At low food in VV3-VV5 the
+scheduler's farming attempt is one of these calls. Only the adult scheduler's
+call sites (by return address) are affected.
 
-| Game | Picker | Scheduler returns | Selected job | Building | Healing |
+| Game | Dispatcher | Scheduler call returns | Selected job | Building | Healing |
 | --- | --- | --- | --- | --- | --- |
-| VV1 | `0x439AE0` | `0x44834C`, `0x448379` | `village+i*0x3D8+0x3D0` | 4 | 5 |
-| VV2 | `0x449C60` | `0x4619FF`, `0x461A2C` | `village+i*0xE48C+0x7F8` | 5 | 3 |
-| VV3 | `0x459730` (stub in this row's page, resolves `VvfpWorkFirstPriority`) | `0x45C227`, `0x45C286` | `record+0xEC0` | 4 | 2 |
-| VV4 | `0x461CC0` | `0x4659B0`, `0x465A22` | `[obj+0x1B88]+0x1C70` | 4 | 2 |
-| VV5 | `0x46A3C0` | `0x46F271`, `0x46F2E2` | `[obj+0x1B88]+0x1C74` | 4 | 2 |
+| VV1 | `0x4472C0` | `0x448355`, `0x448382` | `village+i*0x3D8+0x3D0` | 4 | 5 |
+| VV2 | `0x45FBF0` | `0x461A08`, `0x461A35` | `village+i*0xE48C+0x7F8` | 5 | 3 |
+| VV3 | `0x45AF00` (stub in this row's page, resolves `VvfpWorkFirstFirst`) | `0x45C23C`, `0x45C27A`, `0x45C28F` | `record+0xEC0` | 4 | 2 |
+| VV4 | `0x4639B0` | `0x4659D2`, `0x465A17`, `0x465A2A` | `[obj+0x1B88]+0x1C70` | 4 | 2 |
+| VV5 | `0x46C540` | `0x46F291`, `0x46F2D6`, `0x46F2EA` | `[obj+0x1B88]+0x1C74` | 4 | 2 |
 
 In VV3-VV5 the low-food bypass above also covers a healer's pick (job 2) while
-the addendum is shipped. Healers Study Plants Regardless of Food hands its
-fallback selection back to the picker as the scheduler's own call (return
-address pushed, then jmp), so the addendum sees the scheduler there too.
+the addendum is shipped.
 
-Evidence: `tests/test_work_first.py` runs every picker stub in an emulator
-(builder and healer from each scheduler call site, other jobs, the other
-caller, all huts built, and for VV3 the DLL missing), mutation-checked.
-**TESTED.** Live play: **UNVERIFIED** until played.
+Evidence: `tests/test_work_first.py` runs every dispatcher stub in an emulator
+with the dispatcher body scripted (own job starts / starts nothing, the stock
+request starts or not, other jobs, another caller, all huts built, and for VV3
+the DLL missing); mutation-checked (the Building/Healing match, and the
+fallback). **TESTED.** Live play: **UNVERIFIED** until played.
 
 ## Evidence
 
