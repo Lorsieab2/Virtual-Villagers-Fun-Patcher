@@ -216,6 +216,14 @@ class LaterGamesTests(unittest.TestCase):
                 with self.subTest(game=game, patched=patched, id=hex(esi)):
                     mu, _ = run(game, start, stop, {UC_X86_REG_ESI: esi}, stubs={achievement: 8}, patched=patched)
                     self.assertEqual(mu.reg_read(UC_X86_REG_ESI), want)
+            # The owner: the golden mushroom counts as a rare mushroom for
+            # achievements -- the same achievement calls as the red one.
+            _, red_calls = run(game, start, stop, {UC_X86_REG_ESI: red}, stubs={achievement: 8})
+            _, golden_calls = run(game, start, stop, {UC_X86_REG_ESI: golden}, stubs={achievement: 8})
+            _, brown_calls = run(game, start, stop, {UC_X86_REG_ESI: brown}, stubs={achievement: 8})
+            with self.subTest(game=game, check="rare achievements"):
+                self.assertEqual(golden_calls, red_calls)
+                self.assertNotEqual(red_calls, brown_calls, "the rare achievements are the extra calls")
 
 
 class DescriptionTests(unittest.TestCase):
