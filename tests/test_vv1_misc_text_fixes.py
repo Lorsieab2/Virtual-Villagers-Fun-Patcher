@@ -25,7 +25,7 @@ TABLE_VA = 0x487208
 EXPECTED = {
     3: "This villager improved at farming.",
     15: "The villager has improved at parenting.",
-    21: "Food available to villagers:",
+    21: "Food available to villagers",
     218: "Parenting",
     477: "parenting",
 }

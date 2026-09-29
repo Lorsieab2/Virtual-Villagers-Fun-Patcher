@@ -161,7 +161,7 @@ Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck
 
 **Misc Text Fixes**
 
-Corrects a handful of A New Home's English texts: "breeding" becomes "parenting" wherever the game names the skill (the skill name, the improvement message and the Fish of Fertility popup), "This villager improved at farming" gains its full stop, and "Food available to villagers" ends with a colon before the number. Each text is changed in place in the game's own string table; the other languages are untouched.
+Corrects a handful of A New Home's English texts: "breeding" becomes "parenting" wherever the game names the skill (the skill name, the improvement message and the Fish of Fertility popup), "This villager improved at farming" gains its full stop, and "Food available to villagers" loses its stray full stop. Each text is changed in place in the game's own string table; the other languages are untouched.
 
 - Patch ID: `vv1_misc_text_fixes`
 
