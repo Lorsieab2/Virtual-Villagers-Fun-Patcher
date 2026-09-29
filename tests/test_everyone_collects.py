@@ -1,4 +1,4 @@
-"""Everyone Collects Like A New Home (VV2-VV5, off by default).
+"""VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5, off by default).
 
 The owner: "In Virtual Villagers A New Home you can drop as many children as
 you like on a mushroom and they will all pick it up, as long as it's still

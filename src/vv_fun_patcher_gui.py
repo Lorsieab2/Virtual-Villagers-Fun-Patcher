@@ -53,7 +53,7 @@ SETTINGS = ROOT / "patcher_local_settings.json"
 # patch whose name merely mentions learning is not excluded by accident.
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
-    # The owner: Everyone Collects Like A New Home is a default-off patch.
+    # The owner: VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5) is a default-off patch.
     + ["vv%d_everyone_collects_like_vv1" % game for game in range(2, 6)]
 )
 

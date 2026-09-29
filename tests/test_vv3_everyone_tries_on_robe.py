@@ -112,7 +112,7 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # diffing byte for byte: 168 differing bytes per mode, every one inside the
     # fix-huts overlay (0xCB800..0xCBC00), the dispatcher's ten-byte entry at
     # 0x5AF00 or the PE CheckSum; nothing else moved.
-    # Re-pinned when Everyone Collects Like A New Home joined the catalog.
+    # Re-pinned when VV1 Mushroom/Collectible Duplication Cheat joined the catalog.
     # Justified BEFORE re-pinning by rendering the full catalog without and
     # with the row and diffing byte for byte: 4 differing bytes per mode, the
     # row's two-byte jne at 0x2DDCF and two bytes of the PE CheckSum.

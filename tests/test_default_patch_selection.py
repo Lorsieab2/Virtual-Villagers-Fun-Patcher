@@ -88,8 +88,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         self,
     ) -> None:
         """Nothing else may be quietly excluded along with them -- the one
-        other default-off patch the owner asked for is Everyone Collects Like
-        A New Home (VV2-VV5)."""
+        other default-off patch the owner asked for is VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5)."""
         ids = fun_patch_ids()
         off = {p for p in ids if not default_fun_patch_selection(p)}
         self.assertEqual(

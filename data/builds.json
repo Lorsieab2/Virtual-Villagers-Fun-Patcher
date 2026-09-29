@@ -1955,9 +1955,9 @@
     {
       "id": "vv2_everyone_collects_like_vv1",
       "game_id": "vv2",
-      "name": "Everyone Collects Like A New Home",
-      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
-      "output_tag": "Everyone Collects",
+      "name": "VV1 Mushroom/Collectible Duplication Cheat",
+      "description": "Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.",
+      "output_tag": "Duplication Cheat",
       "patches": [
         {
           "offset": "0x61D5F",
@@ -1976,9 +1976,9 @@
     {
       "id": "vv3_everyone_collects_like_vv1",
       "game_id": "vv3",
-      "name": "Everyone Collects Like A New Home",
-      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
-      "output_tag": "Everyone Collects",
+      "name": "VV1 Mushroom/Collectible Duplication Cheat",
+      "description": "Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.",
+      "output_tag": "Duplication Cheat",
       "patches": [
         {
           "offset": "0x2DDCF",
@@ -1991,9 +1991,9 @@
     {
       "id": "vv4_everyone_collects_like_vv1",
       "game_id": "vv4",
-      "name": "Everyone Collects Like A New Home",
-      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
-      "output_tag": "Everyone Collects",
+      "name": "VV1 Mushroom/Collectible Duplication Cheat",
+      "description": "Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.",
+      "output_tag": "Duplication Cheat",
       "patches": [
         {
           "offset": "0x13A3F",
@@ -2006,9 +2006,9 @@
     {
       "id": "vv5_everyone_collects_like_vv1",
       "game_id": "vv5",
-      "name": "Everyone Collects Like A New Home",
-      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
-      "output_tag": "Everyone Collects",
+      "name": "VV1 Mushroom/Collectible Duplication Cheat",
+      "description": "Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.",
+      "output_tag": "Duplication Cheat",
       "patches": [
         {
           "offset": "0x13E5F",

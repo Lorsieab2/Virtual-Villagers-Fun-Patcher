@@ -2,8 +2,7 @@
 
 The owner: "can you add a new button to the patcher? Owner's Defaults: Every
 patch EXCEPT FOR LEARNING NEVER FAILS is on. (makes my life easier)" -- so it
-ticks the other default-off patches too (e.g. Everyone Collects Like A New
-Home), unlike Default Patches.
+ticks the other default-off patches too (e.g. VV1 Mushroom/Collectible Duplication Cheat), unlike Default Patches.
 """
 from __future__ import annotations
 

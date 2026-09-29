@@ -1174,7 +1174,7 @@ class ManifestTests(unittest.TestCase):
         # the same again; 15 with Healers Study Plants Regardless of Food
         # (vv2_healers_study_regardless_of_food), the same; 16 with Builders and
         # Healers Work First (vv2_builders_and_healers_work_first), the same;
-        # 17 with Everyone Collects Like A New Home
+        # 17 with VV1 Mushroom/Collectible Duplication Cheat
         # (vv2_everyone_collects_like_vv1), two jumps in the pickup callbacks.
         self.assertEqual(len(feature_ids), 17)
         expected_safety_offsets = {
