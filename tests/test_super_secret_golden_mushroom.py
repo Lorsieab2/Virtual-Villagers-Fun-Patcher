@@ -4,8 +4,8 @@ The owner: 1 in 1000 of the normal random mushroom spawns is golden, picking
 it gives 100 food, it never comes from anything else (New Believers' Hand of
 Bloom, island events, story items), and the patcher says nothing about it but
 the owner's description.  The art is a separate image drawn by its own
-companion DLL (not an edited sprite sheet) -- that part is pinned elsewhere
-once it lands; this file pins the spawn roll and the award.
+companion DLL (not an edited sprite sheet) -- that part is pinned in
+tests/test_golden_mushroom_art.py; this file pins the spawn roll and the award.
 
 Everything here RUNS the patcher's own rendered bytes in an emulator with the
 game's rand stubbed:
@@ -242,6 +242,20 @@ class DescriptionTests(unittest.TestCase):
                 self.assertIn(row.get("behavior_changes", [DESCRIPTION]), ([DESCRIPTION], []))
                 self.assertEqual(row.get("explicit_non_changes", []), [])
                 text = " ".join(p["purpose"] for p in row["patches"]).lower()
+                # The image companion's run-time detours describe themselves
+                # too; only the DLL's own file name may carry the row's name.
+                text += " " + " ".join(d["routine"] for d in row.get("runtime_detours", [])).lower()
+                for d in row.get("runtime_detours", []):
+                    self.assertEqual(d["installed_by"], f"VVFP Golden Mushroom.dll, ordinal {game}")
+                self.assertEqual({c["destination"] for c in row.get("companion_files", [])},
+                                 set() if game == 2 else {"VVFP Golden Mushroom.dll", "Images/golden_mushroom.png"})
+                # (behavior_changes / explicit_non_changes / evidence_status are
+                # the loader's derived defaults, checked above and below.)
+                self.assertEqual(set(row) - {"id", "game_id", "name", "description", "output_tag", "patches",
+                                             "companion_files", "runtime_detours", "behavior_changes",
+                                             "explicit_non_changes", "evidence_status"}, set(),
+                                 "no other field says anything about the row")
+                text += " " + str(row.get("evidence_status", "")).lower()
                 for word in ("100", "food", "golden", "gold"):
                     self.assertNotIn(word, text, f"a purpose line gives it away: {word!r}")
 

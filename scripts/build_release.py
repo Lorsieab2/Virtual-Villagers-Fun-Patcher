@@ -48,6 +48,8 @@ FILES = [
     "assets/lesson_cap/VVFP Lesson Cap.dll",
     "assets/healers_study/VVFP Healers Study.dll",
     "assets/work_first/VVFP Work First.dll",
+    "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+    "assets/golden_mushroom/golden_mushroom.png",
     "data/builds.json",
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",

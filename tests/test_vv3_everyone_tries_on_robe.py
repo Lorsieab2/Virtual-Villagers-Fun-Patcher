@@ -116,17 +116,27 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Justified BEFORE re-pinning by rendering the full catalog without and
     # with the row and diffing byte for byte: 4 differing bytes per mode, the
     # row's two-byte jne at 0x2DDCF and two bytes of the PE CheckSum.
+    # Re-pinned when Super-Secret Golden Mushroom joined the catalog (its
+    # spawn/award bytes, which had left this pin stale, and its image
+    # companion's loader). Justified BEFORE re-pinning by rendering the full
+    # catalog without and with vv3_super_secret_golden_mushroom: without it
+    # the render is exactly the previous pin (8D2F94DB.../C8D3D920.../
+    # CEB5275D...) in every mode; with it, 120 differing bytes per mode, every
+    # one inside the row's own patch ranges (0x2DA8B, 0x2DA94, 0x2FAD1,
+    # 0x2FB51, 0x2E064, the loader call at 0x2795E, its stub at 0x7BDBB and
+    # its DLL name at 0xB4800) or the PE CheckSum at 0x160..0x163; nothing
+    # else moved and the length is unchanged.
     "stock": (
-        "8D2F94DB334EE3E42BDADFEEDC6D1054459B25BF3E48E13E68E846E578C926CC",
-        "413C0D00",
+        "EBD8F98E068C885C4C95B23CB2721B3A069B7D292868344AF9F6E9B136CD18B1",
+        "3F650D00",
     ),
     "collection_progression": (
-        "C8D3D920FF6B27CEAA3593BFDB16051255544D0CCE5A242835D9485A65911AC9",
-        "41550D00",
+        "0DFAB1EB8CE99CC9FAFAA2F4D1AA43619E8767EFCF245135F82A32131371E7D2",
+        "3F7E0D00",
     ),
     "immediate_fixed": (
-        "CEB5275D0B267681633FCF5B7090DB077CCF7DA4D536F12362CF94F0F831804C",
-        "3F970D00",
+        "4943FDCA69462E19F76CE0564DCE3C5AB219B6AB4CEB5DAF5A3A941EC00B7873",
+        "3DC00D00",
     ),
 }
 
