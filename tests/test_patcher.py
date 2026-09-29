@@ -1172,8 +1172,9 @@ class ManifestTests(unittest.TestCase):
         # 13 with Builders Fix Huts When Idle (vv2_builders_fix_huts), the same;
         # 14 with Teaching Children Stops at 50 (vv2_teaching_children_cap_50),
         # the same again; 15 with Healers Study Plants Regardless of Food
-        # (vv2_healers_study_regardless_of_food), the same.
-        self.assertEqual(len(feature_ids), 15)
+        # (vv2_healers_study_regardless_of_food), the same; 16 with Builders and
+        # Healers Work First (vv2_builders_and_healers_work_first), the same.
+        self.assertEqual(len(feature_ids), 16)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -2595,11 +2596,11 @@ class StockIntegrationTests(unittest.TestCase):
 
         # The scheduler hook and its 43-byte cave. The selected-job compare
         # is against 4, Building: the picker 0x439AE0 maps preference 1 to
-        # Research (+0x3C4), 2 Farming, 3 Parenting, 4 Building (+0x3C0) and
+        # Farming (+0x3C4), 2 Parenting, 3 Research, 4 Building (+0x3C0) and
         # 5 Healing through its switch at 0x439CAC, and dispatcher 0x4472C0's
         # case 4 is the Building branch (it holds the fix-huts site
         # 0x447724). The cave shipped comparing with 1 until v1.35.35, which
-        # gave the high-food bypass to Research-preferring villagers.
+        # gave the high-food bypass to Farming-preferring villagers.
         self.assertEqual(
             bytes(rendered[0x48336:0x48342]),
             bytes.fromhex("E965E5000090909090909090"),
@@ -3994,6 +3995,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_builders_fix_huts",
                 "vv2_teaching_children_cap_50",
                 "vv2_healers_study_regardless_of_food",
+                "vv2_builders_and_healers_work_first",
                 "vv2_numeric_keys_tip_wording",
             },
         )

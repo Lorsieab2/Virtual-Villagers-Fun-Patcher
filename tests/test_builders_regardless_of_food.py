@@ -19,7 +19,7 @@ Pinned here:
 * The Secret City's executable-side food stub, run the same way through a
   scripted VvfpFixHutsBuilderFirst.
 * A New Home's Builder Action Fixes compares the selected job with 4
-  (Building) -- the picker's own switch maps 1 to Research.
+  (Building) -- the picker's own switch maps 1 to Farming.
 """
 from __future__ import annotations
 
@@ -61,12 +61,28 @@ def _dll():
     return pe, base, exports
 
 
+IMPORTS = 0x7C000000
+IMPORT_STUBS: dict[str, int] = {}
+STDCALL_BYTES = {"GetModuleFileNameA": 12, "LoadLibraryA": 4, "GetProcAddress": 8, "lstrcpyA": 8}
+
+
 def _new_emulator():
     pe, base, exports = _dll()
-    image = pe.get_memory_mapped_image()
+    image = bytearray(pe.get_memory_mapped_image())
+    # Point every import at a `ret N` stand-in the test's hook answers:
+    # "VVFP Work First.dll" shipped or not is the only question the food
+    # stubs can ask KERNEL32.
+    for k, imp in enumerate(i for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports):
+        name = imp.name.decode() if imp.name else f"ord{imp.ordinal}"
+        stub = IMPORTS + 16 * k
+        IMPORT_STUBS[name] = stub
+        struct.pack_into("<I", image, imp.address - base, stub)
     mu = Uc(UC_ARCH_X86, UC_MODE_32)
     mu.mem_map(base, (len(image) + 0xFFFF) & ~0xFFFF)
-    mu.mem_write(base, image)
+    mu.mem_write(base, bytes(image))
+    mu.mem_map(IMPORTS, 0x10000)
+    for name, stub in IMPORT_STUBS.items():
+        mu.mem_write(stub, b"\xC2" + struct.pack("<H", STDCALL_BYTES.get(name, 0)) if name in STDCALL_BYTES else b"\xC3")
     mu.mem_map(STACK - 0x10000, 0x20000)
     mu.mem_map(VILLAGE, 0x1000000)
     mu.mem_map(STATE, 0x100000)
@@ -93,10 +109,13 @@ class StubRun:
     """Run a food stub from its first byte until it leaves for a game
     address in `exits`; game helpers in `predicates` answer per call."""
 
-    def __init__(self, game: str, regs: dict, exits: set[int], setup, predicates=None):
+    def __init__(self, game: str, regs: dict, exits: set[int], setup, predicates=None,
+                 work_first: bool = False):
         _, _, _, _, stub = _probe_food_site(GAME_NO[game])
         mu, _ = _new_emulator()
         setup(mu)
+        self.work_first = work_first
+        self.loaded: list[str] = []
         self.predicates = predicates or {}
         for va in set(exits) | set(self.predicates):
             try:
@@ -118,7 +137,24 @@ class StubRun:
                                                  UC_X86_REG_ESP)}
 
     def _hook(self, mu, address, size, user_data):
-        if address in self.predicates:
+        if address == IMPORT_STUBS.get("GetModuleFileNameA"):
+            esp = mu.reg_read(UC_X86_REG_ESP)
+            buf, = struct.unpack("<I", mu.mem_read(esp + 8, 4))
+            path = b"C:\\Games\\VV\\game.exe\0"
+            mu.mem_write(buf, path)
+            mu.reg_write(UC_X86_REG_EAX, len(path) - 1)
+        elif address == IMPORT_STUBS.get("lstrcpyA"):
+            esp = mu.reg_read(UC_X86_REG_ESP)
+            dst, src = struct.unpack("<2I", mu.mem_read(esp + 4, 8))
+            text = bytes(mu.mem_read(src, 260)).split(b"\0")[0] + b"\0"
+            mu.mem_write(dst, text)
+            mu.reg_write(UC_X86_REG_EAX, dst)
+        elif address == IMPORT_STUBS.get("LoadLibraryA"):
+            esp = mu.reg_read(UC_X86_REG_ESP)
+            name, = struct.unpack("<I", mu.mem_read(esp + 4, 4))
+            self.loaded.append(bytes(mu.mem_read(name, 64)).split(b"\0")[0].decode())
+            mu.reg_write(UC_X86_REG_EAX, 0x10000000 if self.work_first else 0)
+        elif address in self.predicates:
             esp = mu.reg_read(UC_X86_REG_ESP)
             arg, = struct.unpack("<I", mu.mem_read(esp + 4, 4))
             self.calls.append(arg)
@@ -221,7 +257,7 @@ LATER = {
 }
 
 
-def _run_later(game: str, pick: int, huts: tuple[int, int, int, int]):
+def _run_later(game: str, pick: int, huts: tuple[int, int, int, int], work_first: bool = False):
     g = LATER[game]
     villager = 0x0BADF00D
 
@@ -231,7 +267,8 @@ def _run_later(game: str, pick: int, huts: tuple[int, int, int, int]):
     regs = {UC_X86_REG_EAX: pick, UC_X86_REG_ESI: VILLAGE, UC_X86_REG_EDI: 0x55555555,
             UC_X86_REG_ECX: 0x66666666}
     done = lambda arg: huts[arg - g["base"]] == 1
-    r = StubRun(game, regs, {g["dispatch"], g["resume"]}, setup, {g["complete"]: done})
+    r = StubRun(game, regs, {g["dispatch"], g["resume"]}, setup, {g["complete"]: done},
+                work_first=work_first)
     r.villager = villager
     return r
 
@@ -257,6 +294,21 @@ class LowFoodPathTests(unittest.TestCase):
                 self.assertEqual(r.exit, g["dispatch"])
                 self.assertEqual(r.regs[UC_X86_REG_EDI], 4, "the dispatch reads the pick from edi")
                 self.assertEqual(r.regs[UC_X86_REG_ESP], r.esp_before)
+
+    def test_a_healers_pick_waits_unless_work_first_is_shipped(self):
+        # Builders and Healers Work First (the addendum) extends the bypass to
+        # a healer's pick (job 2); without its DLL the healer keeps the stock
+        # low-food path.
+        for game, g in LATER.items():
+            with self.subTest(game=game):
+                r = _run_later(game, pick=2, huts=(1, 0, 1, 1), work_first=True)
+                self.assertEqual(r.exit, g["dispatch"])
+                self.assertEqual(r.regs[UC_X86_REG_EDI], 2)
+                self.assertEqual(r.loaded, ["C:\\Games\\VV\\VVFP Work First.dll"], "loaded by full path")
+                r = _run_later(game, pick=2, huts=(1, 0, 1, 1), work_first=False)
+                self.assertEqual(r.exit, g["resume"])
+                r = _run_later(game, pick=2, huts=(1, 1, 1, 1), work_first=True)
+                self.assertEqual(r.exit, g["resume"], "all huts built: stock")
 
     def test_everything_else_resumes_the_stock_low_food_path(self):
         for game, g in LATER.items():
@@ -356,7 +408,8 @@ class SecretCityFoodTests(unittest.TestCase):
 class BuilderActionFixesTests(unittest.TestCase):
     def test_the_selected_job_compare_is_building_by_the_pickers_own_numbering(self):
         # The picker's switch on the selected job (0x439CAC): 1..5 -> the skill
-        # it rates. Building's skill is +0x3C0 (docs/origins-village-wide-upgrades.md).
+        # it rates. Building's skill is +0x3C0 and Farming's +0x3C4, measured in
+        # the owner's running game (docs/origins-village-wide-upgrades.md).
         pe = pefile.PE(str(STOCK["vv1"]), fast_load=True)
         data = STOCK["vv1"].read_bytes()
         table = pe.get_offset_from_rva(0x439CAC - 0x400000)

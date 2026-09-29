@@ -86,10 +86,10 @@ per-frame caller and the catch-up loop:
 | VV5 | `0x46F271`, the same, food action 0x47 | picked job 4 -> `0x46F2CE` |
 
 Job numbers are each dispatcher's own: the case that holds the fix-huts site
-is Building. In VV1 the picker's switch at `0x439CAC` confirms it (1 Research,
-2 Farming, 3 Parenting, 4 Building, 5 Healing) -- which also showed that
-Builder Action Fixes compared the selected job with 1, Research, until
-v1.35.35.
+is Building. In VV1 the picker's switch at `0x439CAC` confirms it (1 Farming,
+2 Parenting, 3 Research, 4 Building, 5 Healing, by the skill each rates, named
+from the owner's live game) -- which also showed that Builder Action Fixes
+compared the selected job with 1, Farming, until v1.35.35.
 
 Evidence: `tests/test_builders_regardless_of_food.py` runs every food stub
 in an emulator over the games' own layouts (builder, non-builder, all huts
@@ -97,6 +97,38 @@ built, the exact threshold, low food, and for VV3 the companion missing),
 checks every exit's registers and stack, and checks each site against the
 stock executable; each assertion was mutation-checked. **TESTED.** Live play:
 **UNVERIFIED** until played.
+
+## Addendum: Builders and Healers Work First (v1.35.36)
+
+The owner: "in both low and high food situations, builders and healers still
+should prioritize fixing huts over other stuff for all 5 games", as "an
+addendum to the preexisting ones". Its own companion, `VVFP Work First.dll`
+(`native/vvfp_work_first`), loaded by full path by this one's per-frame install
+(`work_first_bridge`); five rows, each depending on this row.
+
+While a population hut is unbuilt, the adult scheduler's job picker answers
+with the villager's own selected job when it is Building or Healing, and the
+stock scheduler dispatches it on either food path. The picker is hooked at its
+entry and acts only when called from the adult scheduler (by return address);
+its other caller, the younger villagers' routine, is untouched.
+
+| Game | Picker | Scheduler returns | Selected job | Building | Healing |
+| --- | --- | --- | --- | --- | --- |
+| VV1 | `0x439AE0` | `0x44834C`, `0x448379` | `village+i*0x3D8+0x3D0` | 4 | 5 |
+| VV2 | `0x449C60` | `0x4619FF`, `0x461A2C` | `village+i*0xE48C+0x7F8` | 5 | 3 |
+| VV3 | `0x459730` (stub in this row's page, resolves `VvfpWorkFirstPriority`) | `0x45C227`, `0x45C286` | `record+0xEC0` | 4 | 2 |
+| VV4 | `0x461CC0` | `0x4659B0`, `0x465A22` | `[obj+0x1B88]+0x1C70` | 4 | 2 |
+| VV5 | `0x46A3C0` | `0x46F271`, `0x46F2E2` | `[obj+0x1B88]+0x1C74` | 4 | 2 |
+
+In VV3-VV5 the low-food bypass above also covers a healer's pick (job 2) while
+the addendum is shipped. Healers Study Plants Regardless of Food hands its
+fallback selection back to the picker as the scheduler's own call (return
+address pushed, then jmp), so the addendum sees the scheduler there too.
+
+Evidence: `tests/test_work_first.py` runs every picker stub in an emulator
+(builder and healer from each scheduler call site, other jobs, the other
+caller, all huts built, and for VV3 the DLL missing), mutation-checked.
+**TESTED.** Live play: **UNVERIFIED** until played.
 
 ## Evidence
 

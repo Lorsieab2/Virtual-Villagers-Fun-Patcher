@@ -89,11 +89,15 @@ static __declspec(naked) void vv1_stub(void) {
         inc dword ptr [VvfpHealersStudyStats + 4]
         jmp dword ptr [vv1_done]
     selection:
+        ; the displaced selection, entered as the scheduler's own call: the
+        ; picker returns straight to the stock code after the call site, so
+        ; anything that looks at the picker's caller (Builders and Healers
+        ; Work First) sees the scheduler.
         push 0
         push edi
         mov ecx, esi
-        call dword ptr [vv1_picker]
-        jmp dword ptr [vv1_resume]
+        push dword ptr [vv1_resume]
+        jmp dword ptr [vv1_picker]
     }
 }
 
@@ -140,11 +144,15 @@ static __declspec(naked) void vv2_stub(void) {
         inc dword ptr [VvfpHealersStudyStats + 4]
         jmp dword ptr [vv2_done]
     selection:
+        ; the displaced selection, entered as the scheduler's own call: the
+        ; picker returns straight to the stock code after the call site, so
+        ; anything that looks at the picker's caller (Builders and Healers
+        ; Work First) sees the scheduler.
         push 0
         push edi
         mov ecx, esi
-        call dword ptr [vv2_picker]
-        jmp dword ptr [vv2_resume]
+        push dword ptr [vv2_resume]
+        jmp dword ptr [vv2_picker]
     }
 }
 

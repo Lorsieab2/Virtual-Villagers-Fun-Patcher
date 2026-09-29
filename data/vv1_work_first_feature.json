@@ -1,0 +1,38 @@
+{
+  "id": "vv1_builders_and_healers_work_first",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Builders and Healers Work First",
+  "description": "Builders and healers do their own work first while not every population hut is built, at any food level: a villager whose selected job is Building goes to building work (a project, or fixing a hut) and one whose selected job is Healing goes to healing and study, before idling, farming or gathering. Once every population hut stands, the game's own choices return. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.",
+  "output_tag": "Work First",
+  "dependencies": [
+    "vv1_builders_fix_huts"
+  ],
+  "behavior_changes": [
+    "While not every population hut is complete, the adult scheduler's job picker answers with the villager's own selected job when it is Building (job 4) or Healing (job 5), at any food level, and the stock scheduler dispatches it as it dispatches any pick."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the fix-huts companion loads the DLL, which detours the job picker at run time only after verifying the stock bytes; a different build of the game installs nothing.",
+    "The younger villagers' routine, every other selected job, and every village whose population huts are all built keep the stock job picker.",
+    "What the work does -- which project, which hut, which patient or study -- is the game's own dispatcher's choice.",
+    "Nothing is written to a villager record, the save or any file."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/work_first/VVFP Work First.dll",
+      "destination": "VVFP Work First.dll",
+      "sha256": "F3653B4A62C5FD1555DE119EF88AA9BCBAEA2358C9041350CD3D18BCD73F5EE7"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x439AE0",
+      "stock_bytes": "5355566A64",
+      "routine": "the job picker's entry, acting only for the adult scheduler's calls (returns 0x44834C, 0x448379)",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    }
+  ]
+}

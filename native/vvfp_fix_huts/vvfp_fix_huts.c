@@ -421,8 +421,14 @@ static int __cdecl vv2_builder_first(const unsigned char *village, const unsigne
     return 1;
 }
 
+/* VV3-VV5 pick numbering: 4 Building, 2 Healing.  A healer's pick waits
+   behind the same farming attempt (the 50% food swap already spares job 2);
+   while "VVFP Work First.dll" (Builders and Healers Work First) is shipped,
+   it is dispatched at once too. */
+static int work_first_present(void);
+
 static int __cdecl later_builder_first(const struct later_game *g, int pick) {
-    if (pick != 4 || !later_huts_incomplete(g)) {
+    if ((pick != 4 && !(pick == 2 && work_first_present())) || !later_huts_incomplete(g)) {
         return 0;
     }
     ++VvfpFixHutsFoodBypasses;
@@ -519,6 +525,55 @@ __declspec(dllexport) int __cdecl VvfpFixHutsBuilderFirst(int game_id, int pick)
     return 0;
 }
 
+/* ---- The "Builders and Healers Work First" addendum ---------------------- */
+/* "VVFP Work First.dll" is its own companion (one feature per DLL); this one
+   loads it by full path, once, from the same per-frame install call, and asks
+   it to install its picker hooks for this game.  Not shipped (the row is off):
+   nothing is loaded and nothing changes.  The Secret City's picker stub
+   resolves the addendum's export itself (scripts/build_vvfp_fix_huts_features.py);
+   its low-food healer bypass asks work_first_present(). */
+static HMODULE work_first_module;
+static int work_first_state;          /* 0 = not tried, 1 = loaded, -1 = absent */
+static int work_first_installed[6];
+
+static int work_first_present(void) {
+    char path[MAX_PATH];
+    char *slash;
+    DWORD n;
+    if (work_first_state != 0) {
+        return work_first_state == 1;
+    }
+    work_first_state = -1;
+    n = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    slash = strrchr(path, '\\');
+    if (slash == NULL
+        || (size_t)(slash + 1 - path) + sizeof("VVFP Work First.dll") > sizeof(path)) {
+        return 0;
+    }
+    lstrcpyA(slash + 1, "VVFP Work First.dll");
+    work_first_module = LoadLibraryA(path);
+    if (work_first_module == NULL) {
+        return 0;
+    }
+    work_first_state = 1;
+    return 1;
+}
+
+static void work_first_bridge(int game_id) {
+    int (__stdcall *install)(int);
+    if (work_first_installed[game_id] != 0 || !work_first_present()) {
+        return;
+    }
+    work_first_installed[game_id] = -1;
+    install = (int (__stdcall *)(int))GetProcAddress(work_first_module, "VvfpWorkFirstInstall");
+    if (install != NULL && install(game_id)) {
+        work_first_installed[game_id] = 1;
+    }
+}
+
 /* ---- Installing ---------------------------------------------------------- */
 struct site {
     unsigned int va;
@@ -570,6 +625,7 @@ static const struct site FOOD_SITES[6] = {
 };
 static int food_install_state[6];
 
+
 /* Verify the stock bytes, then write the jmp.  1 on success. */
 static int install_site(const struct site *s) {
     unsigned char bytes[16];
@@ -600,6 +656,7 @@ __declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
     if (food_install_state[game_id] == 0) {
         food_install_state[game_id] = install_site(&FOOD_SITES[game_id]) ? 1 : -1;
     }
+    work_first_bridge(game_id);
     if (install_state[game_id] != 0) {
         return install_state[game_id] == 1;
     }

@@ -151,7 +151,9 @@ class SecretCityTests(unittest.TestCase):
             "vv3_enable_origins_exclusive_features"]
 
     def test_the_site_patch_replaces_the_exact_stock_test(self):
-        self.assertEqual([p["offset"] for p in self.overlay["hook_patches"]], ["0x5B39E", "0x5C229"])
+        # The hut site, the food site and the picker site for the Builders and
+        # Healers Work First addendum (tests/test_work_first.py).
+        self.assertEqual([p["offset"] for p in self.overlay["hook_patches"]], ["0x5B39E", "0x5C229", "0x59730"])
         patch = self.overlay["hook_patches"][0]
         self.assertEqual(int(patch["offset"], 16), 0x45B39E - 0x400000)
         self.assertEqual(_stock("vv3", 0x45B39E, 8), bytes.fromhex(patch["before"]))
