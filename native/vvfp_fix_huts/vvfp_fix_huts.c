@@ -355,6 +355,170 @@ __declspec(dllexport) int __cdecl VvfpFixHutsDecide(int game_id, unsigned int es
     return 0;
 }
 
+/* ---- Regardless of the food supply --------------------------------------- */
+/* The owner: "Builders fix huts regardless of the food supply when not all
+   population huts are built."  Every game's idle scheduler reads the food
+   total before it reaches the Building dispatcher (one scheduler, reached
+   from both the live per-frame caller and the catch-up loop):
+
+     VV1 0x448336  cmp [ebp+0xA2EC], 400; jge -> at 400+ food the preferred
+                   job attempt (and the continue-assigned-job step) is
+                   skipped for every job.  ebp = state, esi = village,
+                   edi = index; preference [esi + edi*0x3D8 + 0x3D0], and
+                   Building is job 4 (dispatcher case 4 holds VV1_SITE).
+     VV2 0x4619E9  cmp [ecx+0x2EAA4], 300; jge -> the same at 300+ food.
+                   ebp = the villager's record; preference [ebp+0x7F8],
+                   Building is job 5 (case 5 holds VV2_SITE).
+     VV3 0x45C229  at 250 food or LESS the pick (ebx) waits behind a
+                   farming attempt, then half the time is swapped for a food
+                   action; Building is job 4.  Replaced: the farming test.
+     VV4 0x4659B0  the same at 250 or less, pick in eax; Building job 4.
+     VV5 0x46F271  the same, pick in eax; Building job 4.
+
+   So a builder -- preferred job Building (VV1/VV2) or picked Building
+   (VV3-VV5) -- takes the path the stock game gives it when food is
+   plentiful (VV3-VV5) or scarce (VV1/VV2), only while not every population
+   hut is complete; everyone else, and every village whose huts are all
+   built, runs the stock code.  A different build, or VV1 with Builder
+   Action Fixes already owning 0x448336, installs nothing here. */
+
+static int vv1_huts_incomplete(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    return !(state[0x9FE8] == 1 && state[0x9FF0] == 1 && state[0x9FF8] == 1);
+}
+
+static int vv2_huts_incomplete(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    return !(state[0x2E818] == 1 && state[0x2E820] == 1 && state[0x2E828] == 1);
+}
+
+static int later_huts_incomplete(const struct later_game *g) {
+    int i;
+    for (i = 0; i < 4; ++i) {
+        if (!later_complete(g, i)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Counts for a test reading the running game.  Diagnostic only. */
+__declspec(dllexport) int VvfpFixHutsFoodBypasses = 0;
+
+static int __cdecl vv1_builder_first(const unsigned char *village, unsigned int index) {
+    if (*(const int *)(village + index * 0x3D8u + 0x3D0u) != 4 || !vv1_huts_incomplete(village)) {
+        return 0;
+    }
+    ++VvfpFixHutsFoodBypasses;
+    return 1;
+}
+
+static int __cdecl vv2_builder_first(const unsigned char *village, const unsigned char *record) {
+    if (*(const int *)(record + 0x7F8u) != 5 || !vv2_huts_incomplete(village)) {
+        return 0;
+    }
+    ++VvfpFixHutsFoodBypasses;
+    return 1;
+}
+
+static int __cdecl later_builder_first(const struct later_game *g, int pick) {
+    if (pick != 4 || !later_huts_incomplete(g)) {
+        return 0;
+    }
+    ++VvfpFixHutsFoodBypasses;
+    return 1;
+}
+
+static int __cdecl vv4_builder_first(int pick) { return later_builder_first(&VV4, pick); }
+static int __cdecl vv5_builder_first(int pick) { return later_builder_first(&VV5, pick); }
+
+#define VV1_FOOD_SITE 0x448336u
+#define VV2_FOOD_SITE 0x4619E9u
+#define VV4_FOOD_SITE 0x4659B0u
+#define VV5_FOOD_SITE 0x46F271u
+static const unsigned char VV1_FOOD_STOCK[12] = {
+    0x81, 0xBD, 0xEC, 0xA2, 0x00, 0x00, 0x90, 0x01, 0x00, 0x00, 0x7D, 0x2D };
+static const unsigned char VV2_FOOD_STOCK[12] = {
+    0x81, 0xB9, 0xA4, 0xEA, 0x02, 0x00, 0x2C, 0x01, 0x00, 0x00, 0x7D, 0x2D };
+static const unsigned char VV4_FOOD_STOCK[6] = { 0x8B, 0x8E, 0x88, 0x1B, 0x00, 0x00 };
+static const unsigned char VV5_FOOD_STOCK[6] = { 0x8B, 0x8E, 0x88, 0x1B, 0x00, 0x00 };
+static const unsigned int vv1_food_low = 0x448342u, vv1_food_high = 0x44836Fu;
+static const unsigned int vv2_food_low = 0x4619F5u, vv2_food_high = 0x461A22u;
+static const unsigned int vv4_food_dispatch = 0x465A0Fu, vv4_food_resume = 0x4659B6u;
+static const unsigned int vv5_food_dispatch = 0x46F2CEu, vv5_food_resume = 0x46F277u;
+
+/* VV1: the displaced compare, then low food or a builder -> the preferred
+   attempt; else the stock high-food jump. */
+static __declspec(naked) void vv1_food_stub(void) {
+    __asm {
+        cmp dword ptr [ebp + 0xA2EC], 400
+        jl low_path
+        pushad
+        push edi
+        push esi
+        call vv1_builder_first
+        add esp, 8
+        mov [esp + 0x1C], eax
+        popad
+        test eax, eax
+        jnz low_path
+        jmp dword ptr [vv1_food_high]
+    low_path:
+        jmp dword ptr [vv1_food_low]
+    }
+}
+
+static __declspec(naked) void vv2_food_stub(void) {
+    __asm {
+        cmp dword ptr [ecx + 0x2EAA4], 300
+        jl low_path
+        pushad
+        push ebp
+        push esi
+        call vv2_builder_first
+        add esp, 8
+        mov [esp + 0x1C], eax
+        popad
+        test eax, eax
+        jnz low_path
+        jmp dword ptr [vv2_food_high]
+    low_path:
+        jmp dword ptr [vv2_food_low]
+    }
+}
+
+/* VV4/VV5: eax = the pick, fresh from the picker.  A builder goes straight
+   to the stock dispatch-with-pick (which reads edi); else the displaced
+   mov ecx, [esi+0x1B88] and on into the stock farming-first test. */
+#define LATER_FOOD_STUB(NAME)                                                 \
+    static __declspec(naked) void NAME##_food_stub(void) {                    \
+        __asm {                                                              \
+            __asm pushad                                                     \
+            __asm push eax                                                   \
+            __asm call NAME##_builder_first                                  \
+            __asm add esp, 4                                                 \
+            __asm test eax, eax                                              \
+            __asm popad                                                      \
+            __asm jz stock_path                                              \
+            __asm mov edi, eax                                               \
+            __asm jmp dword ptr [NAME##_food_dispatch]                       \
+            __asm stock_path:                                                \
+            __asm mov ecx, dword ptr [esi + 0x1B88]                          \
+            __asm jmp dword ptr [NAME##_food_resume]                         \
+        }                                                                    \
+    }
+
+LATER_FOOD_STUB(vv4)
+LATER_FOOD_STUB(vv5)
+
+/* The Secret City has no companion that runs every frame, so its detour
+   is an executable-side stub (scripts/build_vvfp_fix_huts_features.py) that
+   calls this with the pick in ebx at 0x45C229: 1 = dispatch the pick now. */
+__declspec(dllexport) int __cdecl VvfpFixHutsBuilderFirst(int game_id, int pick) {
+    if (game_id == 3) return later_builder_first(&VV3, pick);
+    return 0;
+}
+
 /* ---- Installing ---------------------------------------------------------- */
 struct site {
     unsigned int va;
@@ -395,21 +559,23 @@ static const struct site SITES[6] = {
 };
 static int install_state[6];
 
-/* Called by a companion that runs every frame in the game.  Idempotent. */
-__declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
-    const struct site *s;
+/* The food-gate sites (VV3's is executable-side, so none here). */
+static const struct site FOOD_SITES[6] = {
+    { 0 },
+    { VV1_FOOD_SITE, VV1_FOOD_STOCK, sizeof VV1_FOOD_STOCK, vv1_food_stub },
+    { VV2_FOOD_SITE, VV2_FOOD_STOCK, sizeof VV2_FOOD_STOCK, vv2_food_stub },
+    { 0 },
+    { VV4_FOOD_SITE, VV4_FOOD_STOCK, sizeof VV4_FOOD_STOCK, vv4_food_stub },
+    { VV5_FOOD_SITE, VV5_FOOD_STOCK, sizeof VV5_FOOD_STOCK, vv5_food_stub },
+};
+static int food_install_state[6];
+
+/* Verify the stock bytes, then write the jmp.  1 on success. */
+static int install_site(const struct site *s) {
     unsigned char bytes[16];
     unsigned char *at;
     DWORD old;
-    if (game_id < 1 || game_id > 5) {
-        return 0;
-    }
-    if (install_state[game_id] != 0) {
-        return install_state[game_id] == 1;
-    }
-    install_state[game_id] = -1;
-    s = &SITES[game_id];
-    if (!site_is_stock(s)) {
+    if (s->va == 0 || !site_is_stock(s)) {
         return 0;
     }
     at = (unsigned char *)(uintptr_t)s->va;
@@ -420,8 +586,45 @@ __declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
     memcpy(at, bytes, (size_t)s->length);
     VirtualProtect(at, (SIZE_T)s->length, old, &old);
     FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)s->length);
-    install_state[game_id] = 1;
     return 1;
+}
+
+/* Called by a companion that runs every frame in the game.  Idempotent.
+   The hut site and the food site are independent: either may be absent
+   (another patch owns its bytes) without holding back the other.  Returns
+   whether the hut site is installed, as before. */
+__declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
+    if (game_id < 1 || game_id > 5) {
+        return 0;
+    }
+    if (food_install_state[game_id] == 0) {
+        food_install_state[game_id] = install_site(&FOOD_SITES[game_id]) ? 1 : -1;
+    }
+    if (install_state[game_id] != 0) {
+        return install_state[game_id] == 1;
+    }
+    install_state[game_id] = install_site(&SITES[game_id]) ? 1 : -1;
+    return install_state[game_id] == 1;
+}
+
+/* For the test: the food site, its stock bytes, what it becomes, the stub. */
+__declspec(dllexport) int __stdcall VvfpFixHutsProbeFoodSite(int game_id, unsigned int *va,
+                                                              unsigned char *stock,
+                                                              unsigned char *patched,
+                                                              unsigned int *stub_va) {
+    const struct site *s;
+    if (game_id < 1 || game_id > 5) {
+        return 0;
+    }
+    s = &FOOD_SITES[game_id];
+    if (s->va == 0) {
+        return 0;
+    }
+    *va = s->va;
+    memcpy(stock, s->stock, (size_t)s->length);
+    site_bytes(s, patched);
+    *stub_va = (unsigned int)(uintptr_t)s->stub;
+    return s->length;
 }
 
 /* For the test: the site, its stock bytes, what it becomes, the stub. */

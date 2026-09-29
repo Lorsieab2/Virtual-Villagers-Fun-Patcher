@@ -162,6 +162,11 @@ LESSON_CAP_FEATURE_PATHS = (
     ROOT / "data" / "vv1_school_lessons_cap_feature.json",
     ROOT / "data" / "vv2_teaching_children_cap_feature.json",
     ROOT / "data" / "vv3_chief_lessons_cap_feature.json",
+    # Healers Study Plants Regardless of Food: A New Home's and The Lost
+    # Children's plant study continues at high food; companion only, loaded
+    # by the Origins companion.
+    ROOT / "data" / "vv1_healers_study_feature.json",
+    ROOT / "data" / "vv2_healers_study_feature.json",
 )
 # Move the "Playing in the dirt" Spot: New Believers' two base coordinates
 # of the stock routine, so children play on the grass rather than on the

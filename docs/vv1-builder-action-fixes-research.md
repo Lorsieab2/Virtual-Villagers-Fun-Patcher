@@ -17,8 +17,12 @@ passes the result to the stock work dispatcher at `0x4472C0`. At 400 food or
 more, it jumps over that preferred-job attempt and proceeds to the general
 selection path.
 
-The selected-job field is at villager-record offset `+0x3D0`; value 1 is the
-Building job. The villager record stride is `0x3D8`.
+The selected-job field is at villager-record offset `+0x3D0`; value 4 is the
+Building job. The preferred-job selector's own switch at `0x439CAC` maps 1 to
+Research (`+0x3C4`), 2 Farming, 3 Parenting, 4 Building (`+0x3C0`) and 5
+Healing, and the dispatcher's case 4 is the Building branch. The patch
+compared with 1 until v1.35.35, so its high-food bypass went to
+Research-preferring villagers instead of Builders. The villager record stride is `0x3D8`.
 
 The Building branch in `0x4472C0` is already capable of selecting incomplete
 huts, eligible repairs, and the other stock construction projects. The first

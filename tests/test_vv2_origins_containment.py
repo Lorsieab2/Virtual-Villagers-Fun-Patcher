@@ -154,6 +154,8 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # Teaching Children Stops at 50: loaded the same way, and it
                 # also depends on the lesson row it caps.
                 "vv2_teaching_children_cap_50",
+                # Healers Study Plants Regardless of Food: loaded the same way.
+                "vv2_healers_study_regardless_of_food",
                 *PUBLIC,
             }
         ]

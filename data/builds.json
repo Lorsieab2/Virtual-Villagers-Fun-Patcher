@@ -1198,7 +1198,7 @@
         {
           "offset": "0x568A0",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "81BDECA20000900100000F8C921AFFFF89F869C0D803000083BC30D0030000010F847C1AFFFFE9A41AFFFF",
+          "after": "81BDECA20000900100000F8C921AFFFF89F869C0D803000083BC30D0030000040F847C1AFFFFE9A41AFFFF",
           "purpose": "preserve the stock low-food path, let Building-job villagers try construction first at high food subject to the positive-progress project guards, and preserve every other job's high-food behavior"
         },
         {

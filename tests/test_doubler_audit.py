@@ -328,10 +328,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # affected function, and its own behaviour is unchanged. Re-pinned
         # again when the shared source gained vvfp_lesson_cap_bridge(), which
         # loads "VVFP Lesson Cap.dll" by full path once from the per-frame
-        # sweep (Teaching Children Stops at 50); nothing else changed.
+        # sweep (Teaching Children Stops at 50); nothing else changed. And
+        # again when it gained vvfp_healers_study_bridge(), the same shape for
+        # "VVFP Healers Study.dll" (Healers Study Plants Regardless of Food).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "370D79EBD251254D1C0E258BFABAEBD32EDBFECD0D70DD700417222821842AB2",
+            "206FC809E1E56FC5913F4FA1E9AB6B10EB5B4A51EED0C0733F5813A062514FFD",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
