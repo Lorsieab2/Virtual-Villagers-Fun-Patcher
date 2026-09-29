@@ -452,6 +452,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Guarded executable edits: 40; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.mtab` (writable data), `.vvmk` (executable code) -- and rewrites 4 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
+#### Everyone Collects Like A New Home (`vv2_everyone_collects_like_vv1`)
+
+Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Gong of Wonder Coconuts Fix (`vv2_gong_of_wonder_coconuts_fix`)
 
 When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
@@ -648,6 +660,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Guarded executable edits: 29; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.vv3mc` (executable code), `.vv3md` (writable data) -- and rewrites 3 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
+#### Everyone Collects Like A New Home (`vv3_everyone_collects_like_vv1`)
+
+Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
 
 Dropping an active, living, non-nursing villager on the robe interrupts every other active, living, non-nursing villager and sends them to try on the robe too. Each villager receives the complete base-game success or failed-fit result, and the base game alone decides who becomes Tribal Chief.
@@ -822,6 +846,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 52; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Everyone Collects Like A New Home (`vv4_everyone_collects_like_vv1`)
+
+Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Learning Skills Never Fails (`vv4_learning_never_fails`)
 
 Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
@@ -958,6 +994,18 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 - Guarded executable edits: 14; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 32768 bytes as 1 new PE section -- `.vv5t9` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - Mode-specific guarded edits: experimental_expanded_256=7, experimental_expanded_256_progression=7, collection_progression=8, immediate_fixed=8; these rows are selected only for the named population mode.
+
+#### Everyone Collects Like A New Home (`vv5_everyone_collects_like_vv1`)
+
+Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Guardians of Isola Rewrite (`vv5_guardians_of_isola_rewrite`)
 

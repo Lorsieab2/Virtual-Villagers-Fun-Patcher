@@ -313,6 +313,12 @@ Builders and healers do their own work first, at any food level: whenever the ga
 
 - Patch ID: `vv2_builders_and_healers_work_first`
 
+**Everyone Collects Like A New Home**
+
+Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+
+- Patch ID: `vv2_everyone_collects_like_vv1`
+
 
 ### Virtual Villagers - The Secret City
 
@@ -384,6 +390,12 @@ The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still ga
 
 - Patch ID: `vv3_chief_lessons_cap_50`
 
+**Everyone Collects Like A New Home**
+
+Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+
+- Patch ID: `vv3_everyone_collects_like_vv1`
+
 
 ### Virtual Villagers - The Tree of Life
 
@@ -429,6 +441,12 @@ Builders fix huts when no building projects are present. When no building projec
 Builders and healers do their own work first, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut) while not every population hut is built -- and, in A New Home and The Lost Children below Building level 3, whenever any hut is built; for one whose selected job is Healing it always first tries healing and study, whenever there is a patient or they can study medicine. This comes before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
 
 - Patch ID: `vv4_builders_and_healers_work_first`
+
+**Everyone Collects Like A New Home**
+
+Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+
+- Patch ID: `vv4_everyone_collects_like_vv1`
 
 
 ### Virtual Villagers - New Believers
@@ -505,6 +523,12 @@ Builders fix huts when no building projects are present. When no building projec
 Builders and healers do their own work first, at any food level: whenever the game looks for something for a villager whose selected job is Building to do, it first tries building work (a project, or fixing a hut) while not every population hut is built -- and, in A New Home and The Lost Children below Building level 3, whenever any hut is built; for one whose selected job is Healing it always first tries healing and study, whenever there is a patient or they can study medicine. This comes before idling, farming or gathering. When there is nothing of their own to do, they do whatever the game would have had them do. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive Features), whose companion loads this one; without it nothing changes.
 
 - Patch ID: `vv5_builders_and_healers_work_first`
+
+**Everyone Collects Like A New Home**
+
+Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+
+- Patch ID: `vv5_everyone_collects_like_vv1`
 
 
 That is 35 optional patches across the five games.

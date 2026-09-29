@@ -34,6 +34,8 @@ REMAINING = {
     "vv2_teaching_children_grants_skill",
     "vv2_hospital_recovery_heals",
     "vv2_gong_of_wonder_coconuts_fix",
+    # two jumps in the pickup callbacks; owns no Origins bytes
+    "vv2_everyone_collects_like_vv1",
     "vv2_write_village_statistics",
     # one string pointer and dead storage; owns no Origins bytes
     "vv2_numeric_keys_tip_wording",
