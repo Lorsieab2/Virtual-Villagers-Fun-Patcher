@@ -4,6 +4,7 @@
 #include <string.h>   /* strrchr / memcpy for the sidecar */
 #include "vv1_mask_distribute.h"  /* Change Appearance for All distribution modes */
 #include "vv1_head_buckets.h"     /* head-index buckets by hair colour (Heads override) */
+#include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 
 #ifndef VV_AGE_OFFSET
 #define VV_AGE_OFFSET 0x348
@@ -396,98 +397,85 @@ static int vv1_mask_sidecar_path(char *out, size_t n, int slot) {
     return 1;
 }
 
+/* The load/publish gate for the mask sidecar (native/shared/sidecar_io.h).
+   Keyed by save slot.  A write is allowed only after this slot's file was
+   loaded, found missing, or -- when present but invalid -- moved aside; a
+   file that exists but cannot be opened is never written over. */
+static vv_sidecar_gate vv1_mask_gate;
+
+static int vv1_mask_sidecar_valid(const unsigned char *data, DWORD len,
+                                  void *ctx) {
+    unsigned int magic;
+    (void)ctx;
+    if (len < sizeof(magic) + VV_MASK_TABLE_BYTES) {
+        return 0;
+    }
+    memcpy(&magic, data, sizeof(magic));
+    return magic == VV_MASK_SIDECAR_MAGIC;
+}
+
 static int vv1_mask_sidecar_save(void) {
     char path[MAX_PATH];
-    char tmp[MAX_PATH];
-    HANDLE file;
-    DWORD wrote;
     unsigned int magic = VV_MASK_SIDECAR_MAGIC;
-    BOOL ok = TRUE;
+    const void *parts[2];
+    DWORD sizes[2];
     int slot = vv1_mask_prepare_slot();
-    if (!slot || !vv1_mask_sidecar_path(path, sizeof(path), slot)) {
+    /* NEVER BEFORE THE LOAD SETTLED.  A slot whose file has not been read,
+       or is present but could not be opened, still holds the player's masks
+       on disk while this table is empty; publishing now would replace them.
+       Checked before the path is built so a blocked slot costs no I/O. */
+    if (!slot || !vv_sidecar_gate_ready(&vv1_mask_gate, slot)
+        || !vv1_mask_sidecar_path(path, sizeof(path), slot)) {
         return 0;
     }
-    /* Keep the published sidecar intact until the complete replacement has
-       been written, flushed, and closed.  The path builder's caller contract
-       is a MAX_PATH byte buffer; budget the additional temporary suffix
-       against this writer-owned buffer before copying or appending it. */
-    if (lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)) {
-        return 0;
-    }
-    lstrcpyA(tmp, path);
-    lstrcatA(tmp, ".tmp");
-    file = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-                       FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file == INVALID_HANDLE_VALUE) {
-        return 0;
-    }
-    if (!WriteFile(file, &magic, sizeof(magic), &wrote, NULL)
-        || wrote != sizeof(magic)) {
-        ok = FALSE;
-    }
-    if (ok && (!WriteFile(file, VV_MASK_TABLE, VV_MASK_TABLE_BYTES, &wrote, NULL)
-               || wrote != VV_MASK_TABLE_BYTES)) {
-        ok = FALSE;
-    }
-    if (ok && !FlushFileBuffers(file)) {
-        ok = FALSE;
-    }
-    if (!CloseHandle(file)) {
-        ok = FALSE;
-    }
-    if (!ok) {
-        /* Delete only the exact temporary name; an existing final sidecar is
-           never truncated or removed when a write fails. */
-        DeleteFileA(tmp);
-        return 0;
-    }
-    /* Publish only after both payload writes, flush, and close succeed. */
-    if (!MoveFileExA(tmp, path,
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-        DeleteFileA(tmp);
-        return 0;
-    }
-    return 1;
+    /* Written to "<path>.tmp", every write checked, flushed, then moved over
+       the published file -- which stays byte-for-byte intact on any failure. */
+    parts[0] = &magic;
+    sizes[0] = sizeof(magic);
+    parts[1] = VV_MASK_TABLE;
+    sizes[1] = VV_MASK_TABLE_BYTES;
+    return vv_sidecar_publish(&vv1_mask_gate, path, parts, sizes, 2);
 }
 
 static void vv1_mask_sidecar_load(void) {
     char path[MAX_PATH];
-    HANDLE file;
     DWORD got;
-    unsigned int magic = 0;
-    unsigned char buf[VV_MASK_TABLE_BYTES];
+    unsigned char buf[sizeof(unsigned int) + VV_MASK_TABLE_BYTES];
     int slot = vv1_mask_prepare_slot();
     /* Missing, malformed, or unreadable sidecars must not leave a previous
        slot's in-memory choices visible. Slot changes already clear this in
        vv1_mask_prepare_slot; clearing here also makes a same-slot re-open
        deterministic and fail closed. */
     memset(VV_MASK_TABLE, 0, VV_MASK_TABLE_BYTES);
-    if (!slot || !vv1_mask_sidecar_path(path, sizeof(path), slot)) {
+    if (!slot) {
         return;
     }
-    file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                       FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file == INVALID_HANDLE_VALUE) {
-        return;  /* no sidecar yet -> the table is already cleared */
+    vv_sidecar_gate_bind(&vv1_mask_gate, slot);
+    if (vv_sidecar_gate_throttled(&vv1_mask_gate)) {
+        return;  /* blocked a moment ago: retried by Vv1MaskTick later */
     }
-    if (ReadFile(file, &magic, sizeof(magic), &got, NULL) && got == sizeof(magic)
-        && magic == VV_MASK_SIDECAR_MAGIC
-        && ReadFile(file, buf, sizeof(buf), &got, NULL) && got == sizeof(buf)) {
+    if (!vv1_mask_sidecar_path(path, sizeof(path), slot)) {
+        /* A legacy file that would not migrate: the masks are still on disk
+           under the old name, so nothing may be published over them yet. */
+        vv_sidecar_gate_block(&vv1_mask_gate);
+        return;
+    }
+    /* Only a truly missing file starts empty.  A present-but-invalid one is
+       moved aside first; an unopenable one leaves the gate blocked. */
+    if (vv_sidecar_load(&vv1_mask_gate, path, buf, sizeof(buf), &got,
+                        vv1_mask_sidecar_valid, NULL) == VV_SIDECAR_LOAD_VALID) {
         int swept;
-        memcpy(VV_MASK_TABLE, buf, sizeof(buf));
+        memcpy(VV_MASK_TABLE, buf + sizeof(unsigned int), VV_MASK_TABLE_BYTES);
         /* Drop any restored mask whose slot isn't a live villager now -- this
            clears entries left by villagers who died since the save, and (for a
            different village loaded from the same folder) any freed slots. */
         swept = vv1_mask_sweep_dead();
-        CloseHandle(file);
         if (swept) {
             /* Persist the clears so a later restart can't restore a dead
                slot's mask onto whoever reuses that record slot. */
             vv1_mask_sidecar_save();
         }
-        return;
     }
-    CloseHandle(file);
 }
 
 /* ---- Details-screen portrait ("bighead") mask overlay --------------------
@@ -1563,6 +1551,7 @@ __declspec(dllexport) int __stdcall Vv1Born(void *child, void *mother) {
 __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     int swept;
     int birth_dirty;
+    int slot;
     vv1_numkeys_bridge();       /* number keys companion: loaded once, fail-open */
     vvfp_pathfinding_bridge(1); /* pathfinding companion: installs its detour once, fail-open */
     vv1_watering_bridge();      /* watering companion: installs its detour once, fail-open */
@@ -1570,8 +1559,19 @@ __declspec(dllexport) void __stdcall Vv1MaskTick(void) {
     vvfp_lesson_cap_bridge(1);  /* lesson-cap companion: once, fail-open */
     vvfp_healers_study_bridge(1); /* healers-study companion: once, fail-open */
     vv1_parentage_bridge_tick(); /* parentage companion: watches for births, fail-open */
-    if (!vv1_mask_prepare_slot()) {
+    slot = vv1_mask_prepare_slot();
+    if (!slot) {
         return;  /* slot not captured yet -> no table or sidecar mutation */
+    }
+    if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {
+        /* This slot's sidecar has not loaded: never read yet, or present but
+           unopenable when last tried.  Retry here -- the load itself is a
+           no-op inside the retry window -- and do nothing that would persist
+           until it settles; a write now would replace masks still on disk. */
+        vv1_mask_sidecar_load();
+        if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {
+            return;
+        }
     }
     birth_dirty = VV_MASK_BIRTH_DIRTY != 0;
     swept = vv1_mask_sweep_dead();
