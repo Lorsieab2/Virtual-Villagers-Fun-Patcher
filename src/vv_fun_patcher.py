@@ -8841,6 +8841,56 @@ def _copy_companion_files(
     return copied
 
 
+def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]:
+    """Casefolded relative paths of every companion the patcher may install.
+
+    Two sources, so nothing the patcher put there can masquerade as a user
+    file on overwrite: every companion destination in this game's catalog
+    (public and internal records), and every companion the earlier install's
+    own patch log recorded -- which also covers a feature that has since been
+    retired from the catalog.
+
+    The Expanded-only Time Warp records are deliberately not loaded: the
+    release archive does not ship their artifacts (loading them raises there),
+    and the Expanded modes they belong to are no longer public. Anything such
+    a build installed is still named in its own patch log.
+    """
+    owned: set[str] = set()
+    for feature in _load_fun_patch_records():
+        if feature.raw.get("game_id") != build.id:
+            continue
+        for item in feature.raw.get("companion_files", []):
+            try:
+                destination = _safe_companion_destination(item.get("destination"))
+            except PatcherError:
+                continue
+            owned.add(destination.as_posix().casefold())
+    for log_path in output_folder.glob("*.patch-log.json"):
+        try:
+            log = json.loads(log_path.read_text(encoding="utf-8"))
+            records = log.get("companion_files", [])
+        except (OSError, ValueError, AttributeError):
+            continue
+        # The log records absolute paths. Resolve them against the folder the
+        # log itself says it was published to, so an install moved since then
+        # (both folders relocated together) still names its own companions.
+        bases = [output_folder]
+        recorded = log.get("output_path")
+        if isinstance(recorded, str) and recorded:
+            bases.insert(0, Path(recorded).parent)
+        for record in records if isinstance(records, list) else ():
+            for base in bases:
+                try:
+                    _, key = _companion_relative_destination(
+                        Path(record["path"]), base
+                    )
+                except (PatcherError, KeyError, TypeError):
+                    continue
+                owned.add(key)
+                break
+    return owned
+
+
 def _companion_relative_destination(path: Path, output_folder: Path) -> tuple[Path, str]:
     """Return a normalized full relative destination and its comparison key.
 
@@ -10388,12 +10438,19 @@ def apply_patch(
             if not overwrite:
                 raise PatcherError(f"Modified game folder appeared before publish: {output_folder}")
             # Preserve user-created files in an overwrite transaction while
-            # still replacing the certified EXE/DLL pair as one tree.
+            # still replacing the certified EXE/DLL pair as one tree. Files the
+            # patcher itself installed are NOT user files: a companion DLL left
+            # behind by an earlier, larger selection keeps its feature running
+            # (most companions switch on merely by being present), so only the
+            # companions the new selection staged may survive.
             original_records = _capture_tree_records(output_folder)
+            owned = _patcher_owned_companion_keys(build, output_folder)
             for prior in output_folder.rglob("*"):
                 if not prior.is_file():
                     continue
                 relative = prior.relative_to(output_folder)
+                if relative.as_posix().casefold() in owned:
+                    continue
                 target = staging_folder / relative
                 if target.exists():
                     continue
