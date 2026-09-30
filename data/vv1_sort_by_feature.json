@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Sort by Age/Skill/Health in Details Screen",
-  "description": "Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do -- ascending by age, by the villager's highest skill, or by health, with earlier villagers first among equals, and the place in the list is kept when the order is changed. Age is the default. Requires Enable Origins-Exclusive Features, whose companion loads this one and whose arrow hooks ask it which villager comes next.",
+  "description": "Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do -- ascending by age, by the villager's highest skill, or by health, with earlier villagers first among equals, and the place in the list is kept when the order is changed. Age is the default. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL, and the base's arrow hooks ask it which villager comes next.",
   "output_tag": "Sort By",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"

@@ -36,6 +36,10 @@ from pathlib import Path
 
 import keystone
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "fix_huts" / "VVFP Fix Huts.dll"
 STOCK_VV3 = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
@@ -53,8 +57,10 @@ DESCRIPTION = (
     "the builder's work attempt (A New Home, The Lost Children), and scarce "
     "food no longer sends the builder to farm or gather first (The Secret City, "
     "The Tree of Life, New Believers). Applies in live play and during catch-up. "
-    "**Requires Enable Origins-Exclusive Features**, whose companion loads this "
-    "one; without it the stock scheduler runs unchanged."
+    + ORIGINS_BASE_SENTENCE
+    + " That base's companion loads this patch's DLL (in The Secret City, a "
+    "small stub in the page the base appends does); if the DLL cannot be "
+    "loaded, the stock scheduler runs unchanged."
 )
 
 # The Building-level gates before the hut (A New Home, The Lost Children):
@@ -108,8 +114,10 @@ WORK_FIRST_DESCRIPTION = (
     "can study medicine. This comes before idling, farming or gathering. When "
     "there is nothing of their own to do, they do whatever the game would have "
     "had them do. An addendum to Builders Fix Huts When Idle. **Requires "
-    "Builders Fix Huts When Idle** (and with it Enable Origins-Exclusive "
-    "Features), whose companion loads this one; without it nothing changes."
+    "Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret "
+    "City, whose stub does); ticking this ticks it, and it brings with it the "
+    "Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech "
+    "and Villager Details screens."
 )
 PICKER_RUNTIME = {
     "vv1": {"va": "0x4472C0", "stock_bytes": "8B44240885C0",
@@ -194,9 +202,10 @@ VV3_EXPORT_OFFSET = 0xA0
 # scheduler makes the pick (ebx) wait behind a farming attempt and then,
 # half the time, swaps it for a food action.  The farming test at 0x45C229
 # (cmp [esi+0xEAC], 20; jl 0x45C244) jumps to a second stub, which asks the
-# companion's VvfpFixHutsBuilderFirst(3, pick): a builder while not every
-# population hut is complete goes straight to the stock dispatch-with-pick at
-# 0x45C271; anything else replays the test.  With the DLL missing the stock
+# companion's VvfpFixHutsBuilderFirst(3, pick): a Building pick always (and a
+# Healing pick while "VVFP Work First.dll" is shipped) goes straight to the
+# stock dispatch-with-pick at 0x45C271 -- the companion makes no hut check,
+# since a builder here always has hut work; anything else replays the test.  With the DLL missing the stock
 # test runs.
 VV3_FOOD_SITE_VA = 0x45C229
 VV3_FOOD_SITE_FILE = VV3_FOOD_SITE_VA - 0x400000
@@ -444,9 +453,13 @@ def vv3_food_site_patch(page_va: int) -> dict:
         "after": entry.hex().upper(),
         "purpose": (
             "Divert the idle scheduler's low-food farming test (cmp [esi+0xEAC], 20; "
-            "jl at 0x45C229) into the food stub, which sends a builder straight to the "
-            "stock dispatch-with-pick while not every population hut is complete, and "
-            "otherwise replays the test."
+            "jl at 0x45C229) into the food stub, which asks the companion's "
+            "VvfpFixHutsBuilderFirst whether to send the pick straight to the stock "
+            "dispatch-with-pick -- always for a Building pick, and for a Healing pick "
+            "while \"VVFP Work First.dll\" is shipped; there is no hut check, because "
+            "a builder always has hut work (fixing an unbuilt hut, or the stock "
+            "fix-a-hut option once every one is built) -- and otherwise replays the "
+            "test."
         ),
     }
 

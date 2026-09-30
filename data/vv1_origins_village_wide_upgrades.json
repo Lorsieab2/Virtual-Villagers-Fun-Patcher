@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Tech, Details, and Village-Wide Upgrades",
-  "description": "Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded.",
+  "description": "Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen's Food and Tech Point Doublers do not double Island Event, Duplicate Collectible or Golden Child tech gains.",
   "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"

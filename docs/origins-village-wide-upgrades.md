@@ -46,9 +46,11 @@ available.
 
 The optional ABI exposes three commands to the dormant base-payload extension
 hook. The base passes `EAX=6/7/8`, `ECX=first physical record pointer`, and
-`EDX=physical record bound`. Running returns full-Like skips in `EAX`,
+`EDX=physical record bound`. Running returns full-Like skips in `EAX` (VV4:
+villagers granted Running, which its base payload passes on as "granted"),
 already-running villagers in `EDX`, and villagers whose Running dislike was
-removed in `ECX`; commands 7/8 return zero counts and invalid commands return
+removed in `ECX`. A full-Like villager gains no Like but still has any Running
+Dislike removed, in all five games; commands 7/8 return zero counts and invalid commands return
 `EAX=-1`, `EDX=0`, `ECX=0`. All helpers preserve `EBX`, `ESI`, `EDI`, `EBP`,
 and `ESP`.
 
@@ -278,8 +280,10 @@ award evaluator at `0x462500` once per changed villager. Already-complete
 villagers do not receive a second evaluator call.
 
 The VV3 Running route scans exactly three Like and three Dislike slots, inserts
-ID `38` into the first free Like slot, and clears Running Dislikes only after a
-successful insertion. Already-Running and full-Like villagers are no-ops.
+ID `38` into the first free Like slot, and clears every Running Dislike whether
+or not a Like was added: a full-Like villager gains no Like but still loses a
+Running Dislike, and is counted both as a full-Like skip and as a removed
+Dislike. Already-Running villagers are no-ops.
 The native preference-write ABI is not independently proven, so these exact
 three-slot stores remain a static implementation boundary pending player proof.
 

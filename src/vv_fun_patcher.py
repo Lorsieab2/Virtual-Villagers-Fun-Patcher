@@ -760,24 +760,24 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "E7F6479E5FCA6AA7E2EFE35EAAFB098C4F817D97477444D050EB45E556D38493",
-    "map": "D99D45589D232F53C4D0BB0B409CA293B1A7F291A95C8DD708BE2AE1195562CE",
+    "manifest": "121D2F9CF32D7B1C65F0203A4140F24BB7D2F1BACC61192AA29B9F41134C564C",
+    "map": "540DACF742723B7683C3F88C6C9C6BC46E70A85B30829F9FF077ED5C87267D1A",
 }
-VV5_TASK9_DLL_SHA256 = "6F0068B7D9F06C89C0D7925AB67F42C6EFC83C2AD70EBC604005CC1C5AA286C0"
+VV5_TASK9_DLL_SHA256 = "0438619A56DC4336B1FD2C2D3ED35C4E2F3B92C1645595DCEBC3A3C8F0188820"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "7E395526CFFA7C61F6B34E20D839C49589B699202C8AA9FDF37EF94FAD19E809"
-VV5_TASK9_SAVE_RESET_SIZE = 130048
+VV5_TASK9_SAVE_RESET_SHA256 = "2DD00AA6C918C083775D5E275D6D75FC4BD0BB60700FF7022538C63D4F568721"
+VV5_TASK9_SAVE_RESET_SIZE = 131072
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "86441019FB4C0AD8C4B5D49AECFBFFE72DAB8D04774976EE1F3D97013C8557BA",
-    "immediate_fixed": "86441019FB4C0AD8C4B5D49AECFBFFE72DAB8D04774976EE1F3D97013C8557BA",
+    "collection_progression": "A504FF02D0194753FFC0920BD9BEE7FCA7955821153F65BD5257AAD7D723C293",
+    "immediate_fixed": "A504FF02D0194753FFC0920BD9BEE7FCA7955821153F65BD5257AAD7D723C293",
     "experimental_expanded_256": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
     "experimental_expanded_256_progression": "654BF9362C793DAD658FA6615017B0326072B4AE5AD5B14682CE50F2FEFDA8B3",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "641C40B6B3EC696384E305D33E06ADCB2D73DF82180BB769DAF3651FC971AC26"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "E584CEC3286C3A9231F2D235BF5BE7C656CCB3E1A8FEA932DC28424477E3C619"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -805,6 +805,11 @@ EXPANDED_TIME_WARP_PATHS = {
 # claim the same five-byte call at the same offset, and whichever applies
 # second is a no-op. Naming them here keeps the overlap exemption from
 # admitting any other pair.
+#
+# Today only Origins' manifest writes the hook. A parentage or statistics
+# build without Origins is handed it by _attach_start_over_reset below, which
+# never does so when Origins is selected, so this exemption is not what keeps
+# the hook single; it stays as the narrow allowance it always was.
 RESET_HOOK_OWNERS = {
     "vv1": frozenset({
         "feature:vv1_enable_origins_exclusive_features",
@@ -828,6 +833,526 @@ RESET_HOOK_OWNERS = {
     }),
 }
 
+# THE START OVER RESET IS INSTALLED WHENEVER A FEATURE THAT OWNS FILES IS.
+#
+# Start Over keeps the tribe name and the save slot, so every per-slot file
+# the patcher writes -- the Births and Conceptions log, the Village Statistics
+# log and its .dat files -- would otherwise carry the old village straight
+# into the new one's records. The tribe-delete hook routes the save-slot menu's
+# delete through VVFP Save Reset.dll, which deletes them.
+#
+# Only Origins carries that hook in its manifest (4c5c2c76 moved it there), so
+# a build with the parentage log or the statistics log and WITHOUT Origins
+# shipped the DLL, or not even that, and never called it: the hook site stayed
+# stock in VV1, VV3, VV4 and VV5 parentage builds and in every statistics-only
+# build. VV2's parentage log depends on Origins, so there it was only the
+# statistics-only build.
+#
+# The fix is a composition rule, not a new stub. When a file-owning feature is
+# selected and no selected feature already writes the hook site, exactly one
+# of them -- parentage first, else statistics -- is handed the reset. Its bytes
+# are DERIVED from that game's own Origins record at render time: the 0x62-byte
+# block (the two names, then the loader) is found in Origins' bytes, rebuilt
+# from a strict template and required to equal Origins' block byte for byte,
+# and only then re-emitted at a cave the build without Origins leaves free. The
+# three absolute name pointers and the one rel32 back into the game's own
+# deleteSave thunk are the only position-dependent fields, and they are the
+# ones the template re-encodes -- so the move cannot leave a jump short. Where
+# Origins' own cave exists in the stock image (VV5's .text tail) the carrier
+# uses the same address, and hook and block are byte-identical to Origins'.
+#
+# Every cave was measured against every active manifest's claims with Origins
+# and the features that require it removed, since the carrier never coexists
+# with them. VV1, VV3, VV4 and VV5 use the last page of .text, which the loader
+# maps with the section's execute permission; VV2 uses .shr, see below. Render
+# re-checks each placement against the source's own section table, and the
+# byte and overlap guards still require the cave to be stock zeros claimed by
+# nothing else, so a later claim on it fails the build rather than corrupting
+# it.
+START_OVER_RESET_FILE_OWNERS = {
+    f"vv{number}": (
+        f"vv{number}_write_parentage_log",
+        f"vv{number}_write_village_statistics",
+    )
+    for number in range(1, 6)
+}
+START_OVER_RESET_HOOK_FILE = {
+    "vv1": 0x13E07,
+    "vv2": 0x14E77,
+    "vv3": 0x1B5D3,
+    "vv4": 0x18CD5,
+    "vv5": 0x193F5,
+}
+# Where the carrier's block goes, per game: raw file offset, the VA the block
+# is assembled for, and the Origins header patches it needs copied along.
+#
+# VV2 is the exception to the .text tail. With every other feature selected
+# the last free run there is the one the executable-name crash guard takes
+# after rendering, and it needs 169 of its 171 bytes, so a statistics-only
+# VV2 build could not be published with the block in it. The block goes in
+# the stock .shr page instead, which Origins already maps whole and marks
+# executable with exactly these two header patches (0x268 VirtualSize 4 ->
+# 0x1000, 0x284 characteristics + execute); no feature but Origins claims any
+# of that page or those two fields. It sits 0x10 in, clear of the game's own
+# shared dword at +0 and leaving no zero run there the crash guard could use.
+START_OVER_RESET_CAVE = {
+    "vv1": {"file": 0x56B00, "va": 0x456B00, "headers": ()},
+    "vv2": {"file": 0x9A010, "va": 0x49C010, "headers": (0x268, 0x284)},
+    "vv3": {"file": 0x7B800, "va": 0x47B800, "headers": ()},
+    "vv4": {"file": 0x89400, "va": 0x489400, "headers": ()},
+    "vv5": {"file": 0x94730, "va": 0x494730, "headers": ()},
+}
+START_OVER_RESET_BLOCK_SIZE = 0x62
+START_OVER_RESET_CODE_OFFSET = 0x28
+START_OVER_RESET_DLL_NAME = b"VVFP Save Reset.dll\0"
+START_OVER_RESET_EXPORT_NAME = b"ResetDeletedTribe\0"
+START_OVER_RESET_EXPORT_OFFSET = 0x14
+START_OVER_RESET_COMPANION_DESTINATION = "VVFP Save Reset.dll"
+# All five .text sections map file offset N to VA 0x400000 + N, which places
+# the hook; render checks every address against the real section table before
+# any carrier byte is written.
+START_OVER_RESET_TEXT_BASE = 0x400000
+
+
+def _start_over_reset_block(
+    block_va: int,
+    get_module_handle_iat: int,
+    load_library_iat: int,
+    get_proc_address_iat: int,
+    game_number: int,
+    thunk_va: int,
+) -> bytes:
+    """The Origins tribe-delete block, as every one of the five games has it.
+
+    pushad; resolve the DLL by name (GetModuleHandleA, else LoadLibraryA),
+    GetProcAddress("ResetDeletedTribe"), call it with (game, raw slot in edi),
+    popad, then tail-jump to the game's own deleteSave thunk. Any failure falls
+    through to the delete, so a missing DLL costs the sweep and never the save.
+    """
+    def u32(value: int) -> bytes:
+        return struct.pack("<I", value & 0xFFFFFFFF)
+
+    code = bytearray()
+    code += b"\x60\x68" + u32(block_va) + b"\xff\x15" + u32(get_module_handle_iat)
+    code += b"\x85\xc0\x75\x0f"
+    code += b"\x68" + u32(block_va) + b"\xff\x15" + u32(load_library_iat)
+    code += b"\x85\xc0\x74\x15"
+    code += b"\x68" + u32(block_va + START_OVER_RESET_EXPORT_OFFSET)
+    code += b"\x50\xff\x15" + u32(get_proc_address_iat)
+    code += b"\x85\xc0\x74\x05"
+    code += b"\x57\x6a" + bytes([game_number]) + b"\xff\xd0\x61\xe9"
+    jump_end = block_va + START_OVER_RESET_CODE_OFFSET + len(code) + 4
+    code += u32(thunk_va - jump_end)
+    names = bytearray(START_OVER_RESET_CODE_OFFSET)
+    names[: len(START_OVER_RESET_DLL_NAME)] = START_OVER_RESET_DLL_NAME
+    names[
+        START_OVER_RESET_EXPORT_OFFSET : START_OVER_RESET_EXPORT_OFFSET
+        + len(START_OVER_RESET_EXPORT_NAME)
+    ] = START_OVER_RESET_EXPORT_NAME
+    block = bytes(names + code)
+    if len(block) != START_OVER_RESET_BLOCK_SIZE:
+        raise PatcherError("Internal error: the Start Over reset block changed size.")
+    return block
+
+
+def _patch_claims_offset(patch: dict[str, Any], offset: int) -> bool:
+    start = int(patch["offset"], 0)
+    return start <= offset < start + len(_patch_bytes(patch, "after"))
+
+
+def _feature_writes_offset(feature: FunPatch, offset: int) -> bool:
+    patches = list(feature.raw.get("patches", []))
+    for override in (feature.raw.get("patch_mode_overrides") or {}).values():
+        patches.extend(override)
+    return any(_patch_claims_offset(patch, offset) for patch in patches)
+
+
+def _start_over_reset_from_origins(
+    build_id: str,
+) -> tuple[list[dict[str, str]], dict[str, str]]:
+    """Derive the carrier's stub and hook patches from this game's Origins.
+
+    Returns the two patches and the Save Reset companion item Origins ships.
+    """
+    origins_id = f"{build_id}_enable_origins_exclusive_features"
+    origins = next(
+        (patch for patch in load_fun_patches() if patch.id == origins_id), None
+    )
+    if origins is None:
+        raise PatcherError(f"Start Over reset: {origins_id} is not in the catalog.")
+    raw = origins.raw
+    hook_file = START_OVER_RESET_HOOK_FILE[build_id]
+    hook_patches = [
+        patch
+        for patch in raw.get("patches", [])
+        if int(patch["offset"], 0) == hook_file
+    ]
+    if len(hook_patches) != 1:
+        raise PatcherError(
+            f"Start Over reset: {origins_id} must write the tribe-delete hook exactly once."
+        )
+    hook_before = _patch_bytes(hook_patches[0], "before")
+    hook_after = _patch_bytes(hook_patches[0], "after")
+    if len(hook_before) != 5 or hook_before[0] != 0xE8 or hook_after[0] != 0xE8:
+        raise PatcherError("Start Over reset: the Origins hook is not a call rewrite.")
+    hook_va = START_OVER_RESET_TEXT_BASE + hook_file
+    thunk_va = (
+        hook_va + 5 + struct.unpack_from("<i", hook_before, 1)[0]
+    ) & 0xFFFFFFFF
+    origins_stub_va = (
+        hook_va + 5 + struct.unpack_from("<i", hook_after, 1)[0]
+    ) & 0xFFFFFFFF
+
+    # Every copy of the block Origins carries, in any patch or appended page.
+    sources: list[bytes] = [
+        _patch_bytes(patch, "after") for patch in raw.get("patches", [])
+    ]
+    for override in (raw.get("patch_mode_overrides") or {}).values():
+        sources.extend(_patch_bytes(patch, "after") for patch in override)
+    transaction = raw.get("pe_append_transaction") or {}
+    for layout in (transaction.get("layouts") or {}).values():
+        if isinstance(layout, dict) and isinstance(layout.get("append_bytes"), str):
+            sources.append(bytes.fromhex(layout["append_bytes"]))
+    blocks: set[bytes] = set()
+    signature = START_OVER_RESET_DLL_NAME
+    for blob in sources:
+        at = blob.find(signature)
+        while at != -1:
+            candidate = blob[at : at + START_OVER_RESET_BLOCK_SIZE]
+            export_at = at + START_OVER_RESET_EXPORT_OFFSET
+            if (
+                len(candidate) == START_OVER_RESET_BLOCK_SIZE
+                and blob[export_at : export_at + len(START_OVER_RESET_EXPORT_NAME)]
+                == START_OVER_RESET_EXPORT_NAME
+            ):
+                blocks.add(candidate)
+            at = blob.find(signature, at + 1)
+    if len(blocks) != 1:
+        raise PatcherError(
+            f"Start Over reset: expected one reset block in {origins_id}, found {len(blocks)}."
+        )
+    origins_block = blocks.pop()
+    code = START_OVER_RESET_CODE_OFFSET
+    # The block's own first pointer is its address; the hook must land on its
+    # code, which is the cross-check that the right bytes were found.
+    origins_block_va = struct.unpack_from("<I", origins_block, code + 2)[0]
+    if origins_block_va + code != origins_stub_va:
+        raise PatcherError(
+            "Start Over reset: the Origins hook does not land on the Origins block."
+        )
+    game_number = int(build_id.removeprefix("vv"))
+    rebuilt = _start_over_reset_block(
+        origins_block_va,
+        struct.unpack_from("<I", origins_block, code + 8)[0],
+        struct.unpack_from("<I", origins_block, code + 0x17)[0],
+        struct.unpack_from("<I", origins_block, code + 0x27)[0],
+        game_number,
+        thunk_va,
+    )
+    if rebuilt != origins_block:
+        raise PatcherError(
+            "Start Over reset: the Origins block does not match the reset template, "
+            "or does not return to the game's own deleteSave thunk."
+        )
+    cave = START_OVER_RESET_CAVE[build_id]
+    cave_file = cave["file"]
+    cave_va = cave["va"]
+    header_patches = []
+    for header_offset in cave["headers"]:
+        matches = [
+            patch
+            for patch in raw.get("patches", [])
+            if int(patch["offset"], 0) == header_offset
+        ]
+        if len(matches) != 1:
+            raise PatcherError(
+                f"Start Over reset: {origins_id} must write header field "
+                f"0x{header_offset:X} exactly once."
+            )
+        header_patches.append(
+            {
+                "offset": matches[0]["offset"],
+                "before": _patch_bytes(matches[0], "before").hex().upper(),
+                "after": _patch_bytes(matches[0], "after").hex().upper(),
+                "purpose": (
+                    "the Origins section-header change that maps the reset stub's "
+                    "page as executable code: " + str(matches[0].get("purpose", ""))
+                ),
+            }
+        )
+    block = _start_over_reset_block(
+        cave_va,
+        struct.unpack_from("<I", origins_block, code + 8)[0],
+        struct.unpack_from("<I", origins_block, code + 0x17)[0],
+        struct.unpack_from("<I", origins_block, code + 0x27)[0],
+        game_number,
+        thunk_va,
+    )
+    hook = b"\xe8" + struct.pack("<i", cave_va + code - (hook_va + 5))
+    companions = [
+        item
+        for item in raw.get("companion_files", [])
+        if item.get("destination") == START_OVER_RESET_COMPANION_DESTINATION
+    ]
+    if len(companions) != 1:
+        raise PatcherError(
+            f"Start Over reset: {origins_id} must ship exactly one Save Reset companion."
+        )
+    patches = [
+        *header_patches,
+        {
+            "offset": f"0x{cave_file:X}",
+            "before": "00" * START_OVER_RESET_BLOCK_SIZE,
+            "after": block.hex().upper(),
+            "purpose": (
+                "the tribe-delete reset stub and its companion and export names, "
+                "derived from the Origins record's own block because Origins is "
+                "not selected, so Start Over deletes this feature's per-slot files"
+            ),
+        },
+        {
+            "offset": f"0x{hook_file:X}",
+            "before": hook_before.hex().upper(),
+            "after": hook.hex().upper(),
+            "purpose": (
+                "route the save-slot menu's tribe delete through the reset stub, "
+                "so a new village started in the same slot does not inherit the "
+                "old one's logs and data files"
+            ),
+        },
+    ]
+    return patches, dict(companions[0])
+
+
+def _attach_start_over_reset(
+    build_id: str, fun_patches: list[FunPatch]
+) -> list[FunPatch]:
+    """Hand the Start Over reset to exactly one selected file-owning feature.
+
+    Nothing changes when no file-owning feature is selected, or when a selected
+    feature -- Origins, or a carrier attached earlier -- already writes the
+    hook site; so the hook is written exactly once whenever it is needed and
+    never otherwise, and a second call is a no-op. The carrier is a copy
+    marked `_start_over_reset_carrier`, which render uses to check placement;
+    the catalog record is never modified.
+    """
+    fun_patches = list(fun_patches)
+    owners = START_OVER_RESET_FILE_OWNERS.get(build_id)
+    if not owners:
+        return fun_patches
+    selected = {feature.id: feature for feature in fun_patches}
+    carrier_id = next((owner for owner in owners if owner in selected), None)
+    if carrier_id is None:
+        return fun_patches
+    hook_file = START_OVER_RESET_HOOK_FILE[build_id]
+    if any(_feature_writes_offset(feature, hook_file) for feature in fun_patches):
+        return fun_patches
+    patches, companion = _start_over_reset_from_origins(build_id)
+    carrier = selected[carrier_id]
+    raw = dict(carrier.raw)
+    raw["patches"] = [*raw.get("patches", []), *patches]
+    companion_files = list(raw.get("companion_files", []))
+    shipped = [
+        item
+        for item in companion_files
+        if item.get("destination") == START_OVER_RESET_COMPANION_DESTINATION
+    ]
+    identity = lambda item: (  # noqa: E731
+        item.get("source"),
+        item.get("destination"),
+        str(item.get("sha256", "")).upper(),
+    )
+    if shipped:
+        if any(identity(item) != identity(companion) for item in shipped):
+            raise PatcherError(
+                f"Start Over reset: {carrier_id} ships a different Save Reset "
+                "companion than Origins."
+            )
+    else:
+        companion_files.append(companion)
+    raw["companion_files"] = companion_files
+    raw["_start_over_reset_carrier"] = True
+    return [Record(raw) if feature is carrier else feature for feature in fun_patches]
+
+
+def _start_over_reset_hook_live(data: bytes | bytearray, build_id: str) -> bool:
+    """Whether anything still routes the tribe delete away from stock."""
+    patches, _companion = _start_over_reset_from_origins(build_id)
+    hook = next(
+        patch for patch in patches
+        if int(patch["offset"], 0) == START_OVER_RESET_HOOK_FILE[build_id]
+    )
+    offset = int(hook["offset"], 0)
+    return bytes(data[offset : offset + 5]) != _patch_bytes(hook, "before")
+
+
+def _patches_present(data: bytes | bytearray, patches: list[dict[str, Any]]) -> bool:
+    for patch in patches:
+        offset = int(patch["offset"], 0)
+        after = _patch_bytes(patch, "after")
+        if bytes(data[offset : offset + len(after)]) != after:
+            return False
+    return True
+
+
+def _rebalance_start_over_reset(
+    work: bytearray, feature: FunPatch
+) -> list[dict[str, str]]:
+    """Keep the carrier rule true after removing one feature from an image.
+
+    Removal is handed one feature and reads everything else back out of the
+    image, so the rule is re-applied the same way: after removing a
+    file-owning feature that carried the reset, the reset goes too unless the
+    other file-owning feature is still installed (it would carry the very same
+    bytes); after removing Origins, a file-owning feature still installed is
+    handed the reset Origins took with it. Either way the result is the image
+    rendering the remaining selection would produce.
+    """
+    game_id = feature.raw.get("game_id")
+    owners = START_OVER_RESET_FILE_OWNERS.get(game_id)
+    if not owners:
+        return []
+    patches, _companion = _start_over_reset_from_origins(game_id)
+
+    def other_owner_installed(exclude: str) -> bool:
+        for owner_id in owners:
+            if owner_id == exclude:
+                continue
+            owner = get_fun_patch(owner_id)
+            own = list(owner.raw.get("patches", []))
+            if own and _patches_present(work, own):
+                return True
+        return False
+
+    def origins_installed() -> bool:
+        # VV5's carrier bytes ARE Origins' bytes, so the reset's own bytes
+        # cannot say who wrote them. Origins' other patches can: any of them
+        # present means Origins is installed and owns the hook.
+        reset_offsets = {int(patch["offset"], 0) for patch in patches}
+        origins = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
+        return any(
+            int(patch["offset"], 0) not in reset_offsets
+            and _patch_bytes(patch, "after") != _patch_bytes(patch, "before")
+            and _patches_present(work, [patch])
+            for patch in origins.raw.get("patches", [])
+        )
+
+    records: list[dict[str, str]] = []
+    if feature.id in owners:
+        if (
+            not _patches_present(work, patches)
+            or other_owner_installed(feature.id)
+            or origins_installed()
+        ):
+            return []
+        for patch in reversed(patches):
+            offset = int(patch["offset"], 0)
+            before = _patch_bytes(patch, "before")
+            after = _patch_bytes(patch, "after")
+            work[offset : offset + len(before)] = before
+            records.append(
+                {
+                    "offset": patch["offset"],
+                    "before": after.hex().upper(),
+                    "after": before.hex().upper(),
+                    "purpose": f"remove the Start Over reset {feature.id} carried: "
+                    + patch["purpose"],
+                    "owner": f"feature:{feature.id}",
+                }
+            )
+        return records
+    if feature.id == f"{game_id}_enable_origins_exclusive_features":
+        if _start_over_reset_hook_live(work, game_id):
+            return []
+        carrier = None
+        for owner_id in owners:
+            own = list(get_fun_patch(owner_id).raw.get("patches", []))
+            if own and _patches_present(work, own):
+                carrier = owner_id
+                break
+        if carrier is None:
+            return []
+        for patch in patches:
+            offset = int(patch["offset"], 0)
+            before = _patch_bytes(patch, "before")
+            after = _patch_bytes(patch, "after")
+            if bytes(work[offset : offset + len(before)]) != before:
+                raise PatcherError(
+                    f"Start Over reset: cannot hand the reset to {carrier}; "
+                    f"0x{offset:X} is not stock after removing Origins."
+                )
+            work[offset : offset + len(after)] = after
+            records.append(
+                {
+                    "offset": patch["offset"],
+                    "before": before.hex().upper(),
+                    "after": after.hex().upper(),
+                    "purpose": f"hand the Start Over reset to {carrier}: "
+                    + patch["purpose"],
+                    "owner": f"feature:{carrier}",
+                }
+            )
+    return records
+
+
+def _validate_start_over_reset_placement(data: bytes, build_id: str) -> None:
+    """Check the carrier's fixed addresses against the source's own sections.
+
+    Evaluated on the source headers WITH the carrier's own header patches
+    applied, because that is the image the loader will map. The hook and the
+    block must each lie in an executable section, inside the part the loader
+    maps (VirtualSize rounded up to the page), at the VA the block was
+    assembled for. A block in a non-executable or unmapped range is a crash on
+    Start Over rather than a build failure, so it is refused here.
+    """
+    image = bytearray(data[:0x1000])
+    patches, _companion = _start_over_reset_from_origins(build_id)
+    for patch in patches:
+        offset = int(patch["offset"], 0)
+        if offset < len(image):
+            after = _patch_bytes(patch, "after")
+            if bytes(image[offset : offset + len(after)]) != _patch_bytes(patch, "before"):
+                raise PatcherError(
+                    f"Start Over reset: header field 0x{offset:X} is not stock."
+                )
+            image[offset : offset + len(after)] = after
+    pe = struct.unpack_from("<I", image, 0x3C)[0]
+    count = struct.unpack_from("<H", image, pe + 6)[0]
+    optional_size = struct.unpack_from("<H", image, pe + 20)[0]
+    sections = []
+    for index in range(count):
+        header = pe + 24 + optional_size + 40 * index
+        virtual_size, virtual_address, raw_size, raw_pointer = struct.unpack_from(
+            "<IIII", image, header + 8
+        )
+        characteristics = struct.unpack_from("<I", image, header + 36)[0]
+        sections.append(
+            (virtual_size, virtual_address, raw_size, raw_pointer, characteristics)
+        )
+    cave = START_OVER_RESET_CAVE[build_id]
+    hook = START_OVER_RESET_HOOK_FILE[build_id]
+    for offset, length, va in (
+        (hook, 5, START_OVER_RESET_TEXT_BASE + hook),
+        (cave["file"], START_OVER_RESET_BLOCK_SIZE, cave["va"]),
+    ):
+        placed = False
+        for virtual_size, virtual_address, raw_size, raw_pointer, chars in sections:
+            mapped_end = raw_pointer + ((virtual_size + 0xFFF) & ~0xFFF)
+            if (
+                chars & 0x20000000
+                and raw_pointer <= offset
+                and offset + length <= min(raw_pointer + raw_size, mapped_end)
+                and START_OVER_RESET_TEXT_BASE + virtual_address + offset - raw_pointer
+                == va
+            ):
+                placed = True
+        if not placed:
+            raise PatcherError(
+                f"Start Over reset: 0x{offset:X} is not mapped executable code "
+                f"at its assembled address in this {build_id.upper()} executable."
+            )
+
+
 EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # VV3's generated Expanded-256 record is frozen archival evidence.  Its
     # builder binding is the exact historical artifact binding recorded by the
@@ -835,8 +1360,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "EAE2DADD60B30C93C21FFB47CC0C9A379591BA89D2ECB12A58069AA1DE68800B",
-    "task9_builder": "0D118BE516801B86CED2D1305871838F95B2D256B49E03E6F34F3D830B2EDF82",
+    "builder": "D5995D4000DC84983ADFBBD2462BF88F84ACCEF019B257F4A9D1338E009D5F80",
+    "task9_builder": "21BBCAF1F3D34FDDBBC6F34F68A56FDCD48032709C03C46722BFD49B87F02EB7",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -848,8 +1373,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "57446D3084CDBF72C824246A411773D85AC75AC43733D8A97CA6EC4951F69FB2",
-        "map": "F7C6B7582C4A89231D214CC0DE7D90F0686C3F09AD1143E1C3931C2D24CF3FE8",
+        "manifest": "B2291639469027EE34A4E408DBDB9828D0B8F5FAC0344E1B872FB2E14EDBC2E5",
+        "map": "69B0D99A8E11A7715A82B16AC9C5B6679BE8B56C8632ABE4921A3B3CF16DFD58",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -2271,7 +2796,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1774592,
+        "size": 1776640,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -2626,7 +3151,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1774592,
+        "size": 1776640,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -5157,11 +5682,30 @@ def _remove_feature_bytes(
                 "owner": f"feature:{feature.id}",
             }
         )
+    reset_records = _rebalance_start_over_reset(work, feature)
+    removed.extend(reset_records)
     checksum_offset, _ = _pe_checksum_layout(work)
     struct.pack_into("<I", work, checksum_offset, 0)
     struct.pack_into("<I", work, checksum_offset, pe_checksum(work))
     if output_folder is not None:
-        _remove_companion_files(output_folder, [feature])
+        companion_feature = feature
+        game_id = feature.raw.get("game_id")
+        ships_reset = any(
+            item.get("destination") == START_OVER_RESET_COMPANION_DESTINATION
+            for item in feature.raw.get("companion_files", [])
+        )
+        if game_id in START_OVER_RESET_HOOK_FILE and (ships_reset or reset_records):
+            # The Save Reset DLL follows the hook: it stays while any feature
+            # still routes Start Over through it, and goes with the last one.
+            own = [
+                item for item in feature.raw.get("companion_files", [])
+                if item.get("destination") != START_OVER_RESET_COMPANION_DESTINATION
+            ]
+            if not _start_over_reset_hook_live(work, game_id):
+                _patches, reset_companion = _start_over_reset_from_origins(game_id)
+                own.append(reset_companion)
+            companion_feature = Record({**feature.raw, "companion_files": own})
+        _remove_companion_files(output_folder, [companion_feature])
     data[:] = work
     return removed
 
@@ -7721,6 +8265,9 @@ def render_patched_bytes(
                 build, playtest_disabled_feature_ids, patch_mode
             )
         )
+    # On the FINAL list, so a feature added above that writes the hook itself
+    # is seen and the reset is never carried twice.
+    fun_patches = _attach_start_over_reset(build.id, fun_patches)
     selected_fun_ids = {patch.id for patch in fun_patches}
     for feature in fun_patches:
         if feature.id in EXPANDED_TIME_WARP_IDS.values():
@@ -7784,6 +8331,8 @@ def render_patched_bytes(
     _validate_companion_sources(fun_patches)
     data = bytearray(source.read_bytes())
     original_data = bytes(data)
+    if any(feature.raw.get("_start_over_reset_carrier") for feature in fun_patches):
+        _validate_start_over_reset_placement(original_data, build.id)
     applied: list[dict[str, str]] = []
     applied_ranges: list[tuple[int, int, str]] = []
     expanded = [dict(patch, _owner="automatic:population") for patch in _expanded_patches(build, variant)]
@@ -8839,6 +9388,56 @@ def _copy_companion_files(
                 if generated_temp is not None:
                     generated_temp.cleanup()
     return copied
+
+
+def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]:
+    """Casefolded relative paths of every companion the patcher may install.
+
+    Two sources, so nothing the patcher put there can masquerade as a user
+    file on overwrite: every companion destination in this game's catalog
+    (public and internal records), and every companion the earlier install's
+    own patch log recorded -- which also covers a feature that has since been
+    retired from the catalog.
+
+    The Expanded-only Time Warp records are deliberately not loaded: the
+    release archive does not ship their artifacts (loading them raises there),
+    and the Expanded modes they belong to are no longer public. Anything such
+    a build installed is still named in its own patch log.
+    """
+    owned: set[str] = set()
+    for feature in _load_fun_patch_records():
+        if feature.raw.get("game_id") != build.id:
+            continue
+        for item in feature.raw.get("companion_files", []):
+            try:
+                destination = _safe_companion_destination(item.get("destination"))
+            except PatcherError:
+                continue
+            owned.add(destination.as_posix().casefold())
+    for log_path in output_folder.glob("*.patch-log.json"):
+        try:
+            log = json.loads(log_path.read_text(encoding="utf-8"))
+            records = log.get("companion_files", [])
+        except (OSError, ValueError, AttributeError):
+            continue
+        # The log records absolute paths. Resolve them against the folder the
+        # log itself says it was published to, so an install moved since then
+        # (both folders relocated together) still names its own companions.
+        bases = [output_folder]
+        recorded = log.get("output_path")
+        if isinstance(recorded, str) and recorded:
+            bases.insert(0, Path(recorded).parent)
+        for record in records if isinstance(records, list) else ():
+            for base in bases:
+                try:
+                    _, key = _companion_relative_destination(
+                        Path(record["path"]), base
+                    )
+                except (PatcherError, KeyError, TypeError):
+                    continue
+                owned.add(key)
+                break
+    return owned
 
 
 def _companion_relative_destination(path: Path, output_folder: Path) -> tuple[Path, str]:
@@ -10287,6 +10886,8 @@ def apply_patch(
             build, playtest_disabled_feature_ids, patch_mode
         )
     )
+    # The same carrier render_patched_bytes picks, so its companion ships.
+    fun_patches = _attach_start_over_reset(build.id, fun_patches)
     if any(
         patch.id in EXPANDED_TIME_WARP_IDS.values()
         and patch.raw.get("playtest_only") is True
@@ -10388,12 +10989,19 @@ def apply_patch(
             if not overwrite:
                 raise PatcherError(f"Modified game folder appeared before publish: {output_folder}")
             # Preserve user-created files in an overwrite transaction while
-            # still replacing the certified EXE/DLL pair as one tree.
+            # still replacing the certified EXE/DLL pair as one tree. Files the
+            # patcher itself installed are NOT user files: a companion DLL left
+            # behind by an earlier, larger selection keeps its feature running
+            # (most companions switch on merely by being present), so only the
+            # companions the new selection staged may survive.
             original_records = _capture_tree_records(output_folder)
+            owned = _patcher_owned_companion_keys(build, output_folder)
             for prior in output_folder.rglob("*"):
                 if not prior.is_file():
                     continue
                 relative = prior.relative_to(output_folder)
+                if relative.as_posix().casefold() in owned:
+                    continue
                 target = staging_folder / relative
                 if target.exists():
                     continue

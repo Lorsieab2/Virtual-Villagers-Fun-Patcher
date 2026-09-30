@@ -78,7 +78,11 @@ fills up.
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from parentage_log_text import PLAYER_LOG_DESCRIPTION  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "research" / "stock-executables" / (
@@ -612,22 +616,22 @@ def build() -> dict:
                 "name": "Write Births and Conceptions Log to Text File",
                 "output_tag": "parentage",
                 "description": (
-                    "Records both parents at conception in a plain text log: "
-                    "their names, both parents' ages at conception, both head "
-                    "and body values, both parents' likes and dislikes, and the "
-                    "number of babies. The mother's "
-                    "age determines the child's age, and the father's age is "
-                    "recorded too. VV2 keeps the father's name on the mother's "
+                    PLAYER_LOG_DESCRIPTION.format(game_number=2)
+                    + "The game keeps both parents on the child's own record, "
+                    "and each Birth record reads them from there. VV2 keeps the "
+                    "father's name on the mother's "
                     "record and no father id; his head and body are copied onto "
                     "her at conception, so the log reads them from her record "
                     "and they stay correct even after he dies or another "
                     "villager takes his name. His age, which has no copy on "
                     "her, is read from his own record -- every caller that holds "
                     "it passes it, the Love Note included -- so a normal "
-                    "birth records his real age. Requires the Origins upgrades: "
-                    "the loader trampoline lives in the page they append, because "
-                    "VV2's own code cave is occupied by the renamed-build crash "
-                    "guard and has no room for it."
+                    "birth records his real age. **Runs on the Origins-exclusive "
+                    "base, which is installed automatically with it and adds the "
+                    "Origins Upgrades buttons to the Tech and Villager Details "
+                    "screens**: the loader trampoline lives in the page that base "
+                    "appends, because VV2's own code cave is occupied by the "
+                    "renamed-build crash guard and has no room for it."
                 ),
                 # Declared, not implied. The payload lives in the page the
                 # Origins upgrades append, so selecting parentage without them
@@ -639,7 +643,7 @@ def build() -> dict:
                     {
                         "id": "vv2_write_village_statistics",
                         "for": (
-                            "the village and savegame header at the top of the log (records are still written correctly without it, just unlabelled)"
+                            "the village and savegame header at the top of the log, and for creating the log at a village's first save -- a new village, or one restarted with Start Over -- before anything is recorded (without it, records are still written correctly, just unlabelled, and the log first appears with its first record)"
                         ),
                     },
                 ],

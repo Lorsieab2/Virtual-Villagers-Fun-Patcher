@@ -684,45 +684,45 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("g_vv3_running_capture = 0;", clear)
 
     def test_sidecar_write_and_short_read_fail_closed(self) -> None:
-        self.assertIn("WriteFile(h, mask_table, sizeof(g_vv3_mask)", self.source)
-        self.assertIn("WriteFile(h, fp_table, sizeof(g_vv3_mask_fp)", self.source)
-        self.assertIn("mask_r != sizeof(g_vv3_mask)", self.source)
-        self.assertIn("fp_r != sizeof(g_vv3_mask_fp)", self.source)
-        self.assertIn("vv3_mask_clear_tables();", self.source)
+        # A short or wrong-magic file fails the validator: the load clears the
+        # tables first, and vv_sidecar_load moves such a file aside intact
+        # rather than letting the next write replace it (see
+        # tests/test_mask_sidecar_durability.py).
+        valid = self.source.split("static int vv3_mask_sidecar_valid(", 1)[1].split("\n}", 1)[0]
+        self.assertIn("if (len < VV3_MASK_SIDECAR_BYTES) return 0;", valid)
+        self.assertIn("return magic == VV3_MASK_MAGIC;", valid)
+        self.assertIn(
+            "(sizeof(unsigned int) + sizeof(g_vv3_mask) + sizeof(g_vv3_mask_fp))", self.source)
+        reader = self.source.split("static void vv3_mask_read_sidecar(int slot) {", 1)[1].split(
+            "\n}", 1)[0]
+        self.assertLess(reader.index("vv3_mask_clear_tables();"),
+                        reader.index("vv_sidecar_load("))
 
     def test_sidecar_write_is_transactional_with_checked_publication(self) -> None:
         write = self.source.split("static int vv3_mask_write_sidecar_tables", 1)[1].split(
             "static int vv3_mask_write_sidecar(void) {", 1
         )[0]
-        self.assertIn("char tmp[MAX_PATH];", write)
-        self.assertIn('lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH', write)
-        self.assertIn("lstrcpyA(tmp, path);", write)
-        self.assertIn('lstrcatA(tmp, ".tmp");', write)
-        self.assertIn("CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,", write)
-        self.assertEqual(write.count("WriteFile("), 3)
+        # The temp-file / checked-write / flush / replace sequence now lives in
+        # native/shared/sidecar_io.h and is exercised against real files by
+        # tests/test_mask_sidecar_durability.py.  The payload is unchanged:
+        # magic, mask table, fingerprint table.
         for expected in (
-            "WriteFile(h, &magic, sizeof(magic), &w, NULL)",
-            "w != sizeof(magic)",
-            "WriteFile(h, mask_table, sizeof(g_vv3_mask), &w, NULL)",
-            "w != sizeof(g_vv3_mask)",
-            "WriteFile(h, fp_table, sizeof(g_vv3_mask_fp), &w, NULL)",
-            "w != sizeof(g_vv3_mask_fp)",
+            "parts[0] = &magic;      sizes[0] = sizeof(magic);",
+            "parts[1] = mask_table;  sizes[1] = sizeof(g_vv3_mask);",
+            "parts[2] = fp_table;    sizes[2] = sizeof(g_vv3_mask_fp);",
+            "return vv_sidecar_publish(&g_vv3_mask_gate, path, parts, sizes, 3);",
         ):
             self.assertIn(expected, write)
-        self.assertIn("FlushFileBuffers(h)", write)
-        self.assertIn("if (!CloseHandle(h))", write)
-        self.assertEqual(write.count("DeleteFileA(tmp);"), 2)
-        self.assertNotIn("DeleteFileA(path);", write)
-        writes_done = write.rindex("WriteFile(h, fp_table,")
-        flush = write.index("FlushFileBuffers(h)")
-        close = write.index("if (!CloseHandle(h))")
-        publish = write.index("MoveFileExA(tmp, path,")
-        self.assertLess(writes_done, flush)
-        self.assertLess(flush, close)
-        self.assertLess(close, publish)
-        self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", write)
-        self.assertIn("return 0;", write)
-        self.assertIn("return 1;", write)
+        for raw in ("CreateFileA", "WriteFile(", "MoveFileExA", "DeleteFileA(path);"):
+            self.assertNotIn(raw, write)
+        self.assertLess(write.index("vv_sidecar_gate_ready(&g_vv3_mask_gate, g_vv3_mask_slot)"),
+                        write.index("vv3_mask_sidecar_path(path, sizeof(path), g_vv3_mask_slot)"))
+        header = (ROOT / "native/shared/sidecar_io.h").read_text(encoding="utf-8")
+        publish = header[header.index("static int vv_sidecar_publish("):]
+        self.assertIn('lstrcatA(tmp, ".tmp");', publish)
+        self.assertIn("|| wrote != sizes[i]) {", publish)
+        self.assertLess(publish.index("FlushFileBuffers(h)"), publish.index("MoveFileExA(tmp, path,"))
+        self.assertIn("MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH", publish)
 
     @unittest.skipUnless(HAVE_BINARY_DEPS, "pefile is unavailable")
     def test_rebuilt_dll_imports_transactional_sidecar_apis(self) -> None:
@@ -752,9 +752,14 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
             "static void vv3_mask_read_sidecar(int slot) {", 1
         )[1].split("static int vv3_mask_prepare_slot", 1)[0]
         self.assertIn("vv3_mask_sanitize_loaded_table();", reader)
+        # Sanitized as soon as both tables are copied in, before the load latches.
+        self.assertLess(
+            reader.index("memcpy(g_vv3_mask_fp,"),
+            reader.index("vv3_mask_sanitize_loaded_table();"),
+        )
         self.assertLess(
             reader.index("vv3_mask_sanitize_loaded_table();"),
-            reader.index("CloseHandle(h);"),
+            reader.index("g_vv3_mask_loaded = 1;"),
         )
 
         # The two native atlas paths both derive their row from the returned

@@ -24,6 +24,10 @@ import hashlib
 import json
 from pathlib import Path
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "sort_by" / "VVFP VV1 Sort By.dll"
 RADIO = ROOT / "assets" / "sort_by" / "vvfp_sort_radio.png"
@@ -50,8 +54,9 @@ def main() -> None:
             "the way the later games do -- ascending by age, by the villager's highest "
             "skill, or by health, with earlier villagers first among equals, and the "
             "place in the list is kept when the order is changed. Age is the default. "
-            "Requires Enable Origins-Exclusive Features, whose companion loads "
-            "this one and whose arrow hooks ask it which villager comes next."
+            + ORIGINS_BASE_SENTENCE
+            + " That base's companion loads this patch's DLL, and the base's "
+            "arrow hooks ask it which villager comes next."
         ),
         "output_tag": "Sort By",
         "dependencies": [

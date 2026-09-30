@@ -92,7 +92,8 @@ class RowsAndDllTests(unittest.TestCase):
             description = json.loads(path.read_text(encoding="utf-8"))["description"]
             self.assertIn("Updates the pathfinding to resemble VV3-VV5.", description)
             self.assertIn("Hopefully villagers don't get stuck behind things anymore!", description)
-            self.assertIn("**Requires Enable Origins-Exclusive Features**", description)
+            self.assertIn("**Runs on the Origins-exclusive base, which the patcher installs automatically with it**", description)
+            self.assertNotIn("Enable Origins-Exclusive Features", description)
 
     def test_each_detour_sites_stock_bytes_are_what_the_stock_executable_holds(self):
         """The DLL installs only after matching these bytes in the running
