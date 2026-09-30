@@ -62,7 +62,7 @@ CONFIG = {
         # "current Golden Child" pointer; it is the villager array itself,
         # so the test matched record 0 -- whoever that was -- and never the
         # real Golden Child. Set Age to 18 must never age this villager up.
-        # VV1-only, mirroring always_clear_running_dislike's opt-in shape.
+        # VV1-only, a per-game opt-in like always_clear_running_dislike.
         "golden_child_ptr": (0x36C, 0xC7),
     },
     "vv2": {
@@ -104,6 +104,10 @@ CONFIG = {
         # parameter. Opting VV2 in here is what actually fixes that,
         # not just re-aligning the two sides' arg counts.
         "report_running_granted": True,
+        # A full-Like villager still has a Running Dislike removed, as the
+        # description and the OFFICIAL spreadsheet say. Without this VV2's
+        # full-Like branch skipped the Dislike scan entirely.
+        "always_clear_running_dislike": True,
     },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",
@@ -137,6 +141,8 @@ CONFIG = {
         "bound": "edx",
         "heathen": False,
         "master_value": 100,
+        # See vv2: full-Like villagers still lose a Running Dislike.
+        "always_clear_running_dislike": True,
     },
     "vv4": {
         "title": "Virtual Villagers - The Tree of Life",
@@ -206,6 +212,9 @@ CONFIG = {
         "native_running_insert": 0x464AD0,
         "native_running_remove": 0x4649E0,
         "native_mastery": 0x475730,
+        # See vv2: full-Like villagers still lose a Running Dislike. VV5's
+        # native_running branch honours the same flag.
+        "always_clear_running_dislike": True,
     },
 }
 
@@ -381,6 +390,15 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """
     elif config.get("native_running"):
         slot_count = config["slot_count"]
+        # Same always_clear_running_dislike contract as the generic branch
+        # below: a full-Like villager is counted in EAX and then falls into
+        # the Dislike scan so any Running Dislike is still removed (and
+        # counted in ECX).
+        native_full_like_target = (
+            "running_remove_dislikes"
+            if config.get("always_clear_running_dislike")
+            else "running_next"
+        )
         running_source = f"""
             push ebp
             push ebx
@@ -415,7 +433,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             cmp edx, -1
             jne running_insert
             inc edi
-            jmp running_next
+            jmp {native_full_like_target}
             running_existing:
                 inc ebp
                 jmp running_next
@@ -474,10 +492,13 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             )
         else:
             granted_store = ""
-        # always_clear_running_dislike is opt-in (VV1 only as of this
-        # writing, same as report_running_granted above) so this shared
-        # branch stays byte-identical for every other game that also
-        # reaches it. A villager whose Like slots are all full still can't
+        # always_clear_running_dislike is set for every game that reaches
+        # this branch (VV1, VV2, VV3) and for VV5's native_running branch;
+        # VV4's native helper path clears unconditionally. It stays a flag
+        # only so a game that genuinely needs the old skip can say so.
+        # Before VV2 and VV3 opted in, their full-Like branch skipped the
+        # Dislike scan, contradicting their own description.
+        # A villager whose Like slots are all full still can't
         # gain the Running Like, but per the OFFICIAL Origins Upgrade
         # Prompts spreadsheet's own documented edge case, any Running
         # Dislike they have is still cleared for free -- counted in BOTH
@@ -1038,7 +1059,19 @@ def main() -> None:
                 "signature_offset": f"0x{entries['signature_offset']:X}",
                 "entry_offset": f"0x{entries['entry_offset']:X}",
                 "entry_virtual_address": f"0x{config['cave_va'] + (entries['entry_offset'] - config['cave_offset']):X}",
-                "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full-Like villagers still have any Running Dislike removed (no Like is added); commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
+                "calling_convention": (
+                    "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns "
+                    # VV4's native-helper branch counts villagers granted
+                    # Running in EAX (its base payload passes EAX to the
+                    # companion as "granted"); every other game returns
+                    # full-Like skips there.
+                    + (
+                        "villagers granted Running in EAX"
+                        if config.get("native_like_add")
+                        else "full-Like skips in EAX"
+                    )
+                    + ", already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full-Like villagers still have any Running Dislike removed (no Like is added); commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP"
+                ),
                 "commands": {
                     "6": "All Villagers Like Running",
                     "7": "Grant Full Mastery to All Villagers",

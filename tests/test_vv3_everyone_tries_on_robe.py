@@ -132,17 +132,33 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the new rows, 16/16/17 differing bytes per mode, every one inside the
     # row's own ranges at 0x2FAD1 and 0x2FB51 or the PE CheckSum at
     # 0x160..0x163; the length is unchanged.
+    # Re-pinned when Origins "Cure all" moved its People Cured increment from
+    # the statistics block's save-time copy [edi+0x4FC] to the live counter
+    # [0x5824B0] (2026-09-30). Justified BEFORE re-pinning: with the previous
+    # vv3_origins_feature.json the render is exactly the previous pin
+    # (D4C10313.../D3BD1ECB.../91599ED3...); with the new one, the only
+    # differing bytes in every mode are 0x7B752..0x7B755 (that instruction's
+    # ModRM and operand) and the PE CheckSum at 0x160..0x161.
+    # Re-pinned for the Nature honey refill (#468) on top of main (2026-09-30).
+    # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
+    # byte that differs lies inside the honey-refill patch records or the PE CheckSum.
+    # Re-pinned for the rare collectible retry (#470) on top of main (2026-09-30).
+    # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
+    # byte that differs lies inside the rare-collectible patch records or the PE CheckSum.
+    # Re-pinned for village-wide Running clearing a Running Dislike (#478) on top of main
+    # (2026-09-30). Justified BEFORE re-pinning: main's tree reproduces the previous pins;
+    # the only differing bytes are the PE CheckSum.
     "stock": (
-        "1BF2BC70A5CD796F92A5D74BBCECA61AF08820921DB6FAE5771F8FC2D7F25E7D",
-        "16790D00",
+        "26E203135581EF8CDBF9DE83B14B36C621D9F1E3A8D90EC347E16A15C3809237",
+        "ADE20C00",
     ),
     "collection_progression": (
-        "C2D11051394EDB16B3E7F50C4A9E9CCA74FF0534B9E236F1EC0341C70E0A78B4",
-        "16920D00",
+        "2CC59D137060A79AC8C97C4B471E67236EB08CDEBFCDE9546902D2F1ACA6A915",
+        "ADFB0C00",
     ),
     "immediate_fixed": (
-        "0878A273A8C28CEB4C1C36789A03ED819449C5470720532CDCB0E8D533B52EF8",
-        "15D40C00",
+        "DC7551178BF924A37612FBEF2426467018432EA127E8516E0F660BAAE037871C",
+        "AB3D0D00",
     ),
 }
 

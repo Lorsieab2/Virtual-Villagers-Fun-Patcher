@@ -259,12 +259,16 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         # place, so every argument after `manager` shifted by one. The count
         # assertion above is what forces this table to be revisited rather
         # than silently reading the neighbouring argument.
+        # The counter arguments (burial offsets, extra offsets, live block,
+        # chiefs offsets, chief flag) were replaced by an extra-counter kind,
+        # its label and a has-chiefs flag when those counters moved into the
+        # statistics .dat, so the villager layout moved down to 15.
         positions = {
-            "villagers_rva": 21,
-            "stride": 23,
-            "slots": 24,
-            "skills": 27,
-            "skill_count": 28,
+            "villagers_rva": 15,
+            "stride": 17,
+            "slots": 18,
+            "skills": 20,
+            "skill_count": 21,
         }
         titles = {
             # VV1 and VV2 are absent: the statistics companion has no Village
@@ -278,7 +282,7 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 row = self.rows[game]
                 arguments = arguments_of_the_call_naming(title)
                 self.assertEqual(
-                    len(arguments), 33,
+                    len(arguments), 27,
                     "game %d's statistics call changed shape; the positional "
                     "offsets below are no longer trustworthy" % game)
                 self.assertEqual(
@@ -294,10 +298,17 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         # Its villager RVA is still shared, and is compared against the single
         # literal the statistics source uses for it.
         with self.subTest(game=5):
-            self.assertEqual(
+            # It appears in the Village Elders layout (village_elders_for) and
+            # in the living-roster table (ROSTER_LAYOUTS, pinned field for
+            # field against this exporter by
+            # tests/test_statistics_new_village_in_slot.py). Both must be the
+            # value this exporter uses, and no other VV5-shaped base may appear.
+            self.assertGreaterEqual(
                 stripped.count("0x154148u"), 1,
-                "VV5's villager array RVA must appear exactly once")
+                "VV5's villager array RVA must appear in the statistics source")
             self.assertEqual(self.rows[5]["villagers_rva"], 0x154148)
+            self.assertNotIn("0x154148u + ", stripped.replace("0x154148u;", ""),
+                             "VV5's villager array base must be used as is")
 
         # No two games may share a villager array base. Positional equality
         # alone still passes if a row and its call are given the same wrong
