@@ -278,7 +278,7 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 row = self.rows[game]
                 arguments = arguments_of_the_call_naming(title)
                 self.assertEqual(
-                    len(arguments), 33,
+                    len(arguments), 34,   # the trailing game_id (Stews Found) was appended; earlier positions are unchanged
                     "game %d's statistics call changed shape; the positional "
                     "offsets below are no longer trustworthy" % game)
                 self.assertEqual(

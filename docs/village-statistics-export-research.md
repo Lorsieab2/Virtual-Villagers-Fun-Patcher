@@ -297,16 +297,14 @@ separate path and must not trigger a village-statistics export.
 The following requested totals were not added in this pass because no exact,
 uncapped lifetime storage field and mutation route have yet been proven:
 
-- Village Elders in **A New Home only**. The Lost Children exposes it at
-  `+0x2E514`, and the later three games at `+0x1C` of the inherited block, so
-  all four already ship the row. A New Home does not have the field: its
-  statistics run is `+0x9E20` through `+0x9E48` with every slot accounted for,
-  and the slot its successors use for Village Elders holds the saturating
-  memorial recount instead -- the layouts diverge there rather than one being
-  a superset of the other. The `Elderly` string in that executable is a
-  villager health and age status, not a counter, and the remaining matches are
-  German and Spanish words containing "elder" by coincidence. Completing this
-  needs new storage plus a hook, not a field that is waiting to be read.
+- Village Elders: **none** blocked. All five games ship the row. The Lost
+  Children prints its own lifetime counter `+0x2E514` (incremented once per
+  villager at promotion, 0x44D55F). A New Home -- which has no elder field or
+  title of its own (its `Elderly` string is a health/age status) -- and The
+  Secret City, The Tree of Life and New Believers (whose `+0x1C` slot has no
+  writer at all) are tracked by the statistics companion in a per-save
+  "Village Elders - Save N.dat" (native/statistics_export/village_elders.c),
+  using each game's own Master threshold.
 - Villagers Died in **A New Home and The Lost Children**. **Closed at
   proportional cost, not blocked on evidence** -- and both are now measured
   rather than one measured and one asserted to match: 19 hooks for A New Home,

@@ -132,17 +132,22 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the new rows, 16/16/17 differing bytes per mode, every one inside the
     # row's own ranges at 0x2FAD1 and 0x2FB51 or the PE CheckSum at
     # 0x160..0x163; the length is unchanged.
+    # Re-pinned for People Cured counting only real cures (2026-09-29).
+    # Justified BEFORE re-pinning by rendering with origin/main's statistics
+    # files and with this branch's: exactly 2 differing bytes per mode --
+    # 0x5B969, the rel8 of the healing-roll `je` at 0x45B968 (0x07 -> 0x0D,
+    # so a failed roll skips the +1), and PE CheckSum byte 0x161. Same length.
     "stock": (
-        "1BF2BC70A5CD796F92A5D74BBCECA61AF08820921DB6FAE5771F8FC2D7F25E7D",
-        "16790D00",
+        "4EEB574FE53CC66660476241F0A46BEB27B8191A4C0334BBAE6EA0B66A1E28B7",
+        "167F0D00",
     ),
     "collection_progression": (
-        "C2D11051394EDB16B3E7F50C4A9E9CCA74FF0534B9E236F1EC0341C70E0A78B4",
-        "16920D00",
+        "23F38B0A28DA733614ED94B4534DE00943F9F01ED5D1093F33340DEBFDF8D2B9",
+        "16980D00",
     ),
     "immediate_fixed": (
-        "0878A273A8C28CEB4C1C36789A03ED819449C5470720532CDCB0E8D533B52EF8",
-        "15D40C00",
+        "A882335C10C8B37A1E8009AC005443325F3F010682E53F0907DA958886ED89AC",
+        "15DA0C00",
     ),
 }
 
