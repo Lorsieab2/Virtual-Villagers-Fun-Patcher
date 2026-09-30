@@ -279,7 +279,10 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # fingerprint is what catches the cave's body changing underneath it.
     #
     #   * The body is four instructions: load the manager from [edi+0x3E010],
-    #     increment the counter at [eax+0x9E84], replay the stolen
+    #     increment the counter at [eax+0x9E9C] (the pending field flushed to
+    #     the slot's .dat before each save; re-reviewed 2026-09-29 when it
+    #     moved from +0x9E84, which is now frozen -- the instruction shapes,
+    #     registers and re-entry are identical), replay the stolen
     #     `mov byte [ecx+edi+0x28], 0` byte-identically, and jump back. No push,
     #     no pop, no call, so ESP at re-entry equals ESP at the splice -- the
     #     stack is untouched rather than merely balanced.
@@ -299,7 +302,7 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     (
         "vv1_write_village_statistics",
         "0x48F65",
-    ): "02508335BD2CD30D6BB49EB3DDFB8C9BBF7F236EC07AC525DA03D2EC1E0EA9B5",
+    ): "301E87535820D00A3E1C8983249BADE939957DFF12CF19939ED69C7639D1A30F",
     # Re-reviewed when the companion gained a game id, so one DLL can serve
     # all five games the way the statistics companion already does. Each
     # trampoline grew a single `push <game id>` before the call and the
