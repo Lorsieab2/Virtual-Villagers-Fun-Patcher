@@ -297,8 +297,10 @@ def test_slot_capture_routine_records_current_save_slot():
     text = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in ins)
     # reads the slot arg (a2 at [esp+4], return addr at [esp]) on buildSavePath entry
     assert "mov eax, dword ptr [esp + 4]" in text
-    # stores it only when non-zero, so the meta file's slot 0 never clobbers a village slot
-    assert "test eax, eax" in text
+    # stores it only for village slots 1..5: the meta file's slot 0 and the
+    # backup path's slot+0x14 never clobber the village slot (see
+    # test_vv5_save_keeps_origins_ownership.py)
+    assert "cmp eax, 1 ; jb " in text and "cmp eax, 5 ; ja " in text
     assert f"mov dword ptr [0x{t9.SLOT_SCRATCH:x}], eax" in text
     # replays the displaced prologue and returns just past it
     assert "sub esp, 0x104" in text
