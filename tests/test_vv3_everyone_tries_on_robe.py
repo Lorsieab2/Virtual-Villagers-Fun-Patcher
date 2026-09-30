@@ -142,17 +142,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for the Nature honey refill (#468) on top of main (2026-09-30).
     # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
     # byte that differs lies inside the honey-refill patch records or the PE CheckSum.
+    # Re-pinned for the rare collectible retry (#470) on top of main (2026-09-30).
+    # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
+    # byte that differs lies inside the rare-collectible patch records or the PE CheckSum.
     "stock": (
-        "EF900D4604A99BBD85F9054A983F8E078C526B7CC8492F50E69DB29FC3F182E7",
-        "6C5B0D00",
+        "6D8975394F69EB6DD2FCF8F587E3C606AF2A9E179B750F98AACB86DB2F32ADEC",
+        "CEE20C00",
     ),
     "collection_progression": (
-        "892CFE36052047004BC94F94376CFC28DF077DC872ACF602D42EF9A5F8082AB2",
-        "6C740D00",
+        "719756E336E2FA65C449F9A6CB15F0BDD9A3DB910C2A43483F7751A289E48CEA",
+        "CEFB0C00",
     ),
     "immediate_fixed": (
-        "2B06FF2F916944D5BE15569C73B31D64E7EDEFDD43E47905C200A28EA625B08E",
-        "6AB60D00",
+        "BBBF6AC1719C5AE4F75D1EC7EE31EE752BDA18B1AF98DFCDB81B27752000E046",
+        "CC3D0D00",
     ),
 }
 

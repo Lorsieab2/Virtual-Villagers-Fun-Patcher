@@ -1309,26 +1309,26 @@
       "id": "vv3_rare_collectible_retry",
       "game_id": "vv3",
       "name": "Pointing Out a Rare Collectible Always Works",
-      "description": "When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.",
+      "description": "When the Tribal Chief completes Pointing out a rare collectible and the stock game rejects its random choice (a collectible a villager is already after, or a special one already collected), the whole stock selection is run again, up to 20 times in all, stopping as soon as a collectible is placed. In practice a collectible almost always appears instead of the stock cooldown being spent for nothing; if every attempt is refused (for example, when every special collectible has already been found), nothing is placed, exactly as in the stock game. The original rare categories, collectible IDs, collection rules and placement logic are unchanged.",
       "output_tag": "Reliable Rare Collectible",
       "patches": [
         {
-          "offset": "0x2DC4F",
-          "before": "752C",
-          "after": "7534",
-          "purpose": "route a rare collectible already targeted by a villager to the guarded reroll stub"
+          "offset": "0x6217F",
+          "before": "E8ACB9FCFF",
+          "after": "E8ED910100",
+          "purpose": "call the bounded retry wrapper instead of the stock rare-collectible placement routine 0x42DB30"
         },
         {
-          "offset": "0x2DC5E",
-          "before": "751D",
-          "after": "7525",
-          "purpose": "route the stock already-collected rejection for the special rare category to the guarded reroll stub"
+          "offset": "0x7B371",
+          "before": "000000000000000000000000000000",
+          "after": "6A145FB928F45800E8B227FBFFEB51",
+          "purpose": "retry wrapper, part 1: allow at most 20 attempts (EDI, restored by the caller's own epilogue) and call the unmodified stock routine with the collections tracker 0x58F428"
         },
         {
-          "offset": "0x2DC85",
-          "before": "9090909090",
-          "after": "E9E6FEFFFF",
-          "purpose": "rerun the stock rare category and collectible selection after an ineligible random choice"
+          "offset": "0x7B3D1",
+          "before": "00000000000000000000000000",
+          "after": "803D2CF458000075034F7597C3",
+          "purpose": "retry wrapper, part 2: stop once the stock routine has placed a collectible (tracker slot flag 0x58F42C set), otherwise try again until the attempts run out"
         }
       ]
     },
