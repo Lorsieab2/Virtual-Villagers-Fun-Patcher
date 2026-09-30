@@ -180,11 +180,16 @@ class SecretCityTests(unittest.TestCase):
         self.assertEqual(base, 0x6DF800, "after the parentage overlay at 0x6DF400")
         self.assertEqual(self.overlay["overlay_offset"], "0xCB800")
         self.assertIn(b"VVFP Fix Huts.dll\0", page)
-        self.assertIn(b"VvfpFixHutsDecide\0", page)
+        # Build first, fix last: every option list goes to VvfpFixHutsFilter
+        # (tests/test_builders_build_before_fixing.py runs it in the real
+        # dispatcher).
+        self.assertIn(b"VvfpFixHutsFilter\0", page)
         md = Cs(CS_ARCH_X86, CS_MODE_32)
         text = "\n".join(f"{i.mnemonic} {i.op_str}" for i in md.disasm(page[:0x80], base))
+        self.assertIn("lea ecx, [esp + 0x84]", text, "the option list, [esp+0x64] before pushad")
+        self.assertIn("mov dword ptr [esp], eax", text, "the filtered count replaces edi")
         self.assertIn("cmp edi, ebx", text)
-        self.assertIn("jne 0x45b3a6", text, "an option exists: the stock path")
+        self.assertIn("jmp 0x45b3a6", text, "an option remains: the stock pick")
         self.assertIn("call dword ptr [0x47c074]", text, "GetModuleHandleA")
         self.assertIn("call dword ptr [0x47c124]", text, "LoadLibraryA")
         self.assertIn("call dword ptr [0x47c128]", text, "GetProcAddress")

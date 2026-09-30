@@ -257,8 +257,10 @@ class BelowLevelOnlyAHutTests(unittest.TestCase):
         # A New Home: hut 9 unbuilt is construction (built first, never passed
         # over for a fix), so its cases keep hut 9 built; population 10 leaves
         # huts 10 and 11 locked.
+        # The Lost Children builds hut 24 whenever it is unbuilt, as A New Home
+        # builds hut 9, so each game keeps its first hut built here.
         cases = {"vv1": (((1, 1, 0), {0, 1}), ((1, 0, 1), {0, 2})),
-                 "vv2": (((0, 1, 0), {1}), ((1, 0, 1), {0, 2}))}
+                 "vv2": (((1, 1, 0), {0, 1}), ((1, 0, 1), {0, 2}))}
         for game, g in G.items():
             stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
             for huts, allowed in cases[game]:
@@ -266,6 +268,16 @@ class BelowLevelOnlyAHutTests(unittest.TestCase):
                     seen = {Run(game, stub, level=2, huts=huts).examined[1] - self.HUTS[game][0]
                             for _ in range(6)}
                     self.assertTrue(seen <= allowed, seen)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_lost_children_hut_24_unbuilt_is_built_first_never_a_fix(self):
+        # Build first, fix last (tests/test_builders_build_before_fixing.py
+        # runs the whole dispatcher): hut 24 unbuilt is construction the
+        # stock branch always offers, so the level gate gives "nothing".
+        stub = _probe("VvfpFixHutsProbeLevelSite", 2)[4]
+        r = Run("vv2", stub, level=2, huts=(0, 1, 0))
+        self.assertIsNone(r.examined)
+        self.assertEqual(r.exit, 0x46004C)
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_no_hut_built_keeps_the_gates_nothing(self):

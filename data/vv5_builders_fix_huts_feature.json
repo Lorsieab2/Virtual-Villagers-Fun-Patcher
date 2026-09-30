@@ -12,19 +12,20 @@
   ],
   "behavior_changes": [
     "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.",
-    "Whenever a builder has hut work to do, its work attempt no longer depends on the food supply: at 250 food or less a picked Building job is dispatched at once instead of waiting behind a farming attempt and a 50% swap for a food action. Every other villager keeps the stock food behaviour."
+    "Whenever a builder has hut work to do, its work attempt no longer depends on the food supply: at 250 food or less a picked Building job is dispatched at once instead of waiting behind a farming attempt and a 50% swap for a food action. Every other villager keeps the stock food behaviour.",
+    "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 15% of the time), it gets 'nothing' rather than a hut fix; a hut is fixed only when there is no construction at all."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: a companion that already runs every frame loads the DLL, which detours the dispatcher at run time only after verifying the stock bytes; a different build of the game installs nothing.",
     "Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own.",
-    "A builder with a project available still takes the project. With no population hut built there is nothing to fix. With every hut built, at Building level 3 or above (and in The Secret City, The Tree of Life and New Believers at any level) the hut choice is the stock fix-a-hut option; below level 3 in A New Home and The Lost Children a built population hut is fixed directly (never The Lost Children's building 5).",
+    "A builder with a project available still takes the project. With no population hut built there is nothing to fix. With every hut built and no construction available, at Building level 3 or above (and in The Secret City, The Tree of Life and New Believers at any level) the hut choice is the stock fix-a-hut option; below level 3 in A New Home and The Lost Children a built population hut is fixed directly (never The Lost Children's building 5).",
     "Nothing is written to a villager record, the save or any file."
   ],
   "companion_files": [
     {
       "source": "assets/fix_huts/VVFP Fix Huts.dll",
       "destination": "VVFP Fix Huts.dll",
-      "sha256": "0D9AA0107B913A8C82A46ECE2259C856AE09ACD4E1F18575A8559D15882AA5BB"
+      "sha256": "D0ACE4F5B661E2BE06CF074E9D3D52C520465FBC3D9D07E5D4F0AD29AB59B0AB"
     }
   ],
   "patches": [],

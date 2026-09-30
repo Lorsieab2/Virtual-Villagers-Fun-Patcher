@@ -62,6 +62,10 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
+    # Re-pinned when Builders Fix Huts When Idle's page stub began handing
+    # every option list to VvfpFixHutsFilter (build first, fix last): against
+    # v1.35.41 only the checksum word at 0x160 and bytes inside the fix-huts
+    # overlay (0xCB800, length 0x400) differ.
     # Re-pinned again when the parentage feature gained the birth hook:
     # three site rewrites, plus a body, export name and stubs placed in
     # the feature's own overlay. Verified before re-pinning that every
@@ -149,16 +153,16 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # (2026-09-30). Justified BEFORE re-pinning: main's tree reproduces the previous pins;
     # the only differing bytes are the PE CheckSum.
     "stock": (
-        "26E203135581EF8CDBF9DE83B14B36C621D9F1E3A8D90EC347E16A15C3809237",
-        "ADE20C00",
+        "571ADE8E71BBB0DEBFFB3CA1CF597050E56F10C91311A619A74FA73FE6627367",
+        "D5380D00",
     ),
     "collection_progression": (
-        "2CC59D137060A79AC8C97C4B471E67236EB08CDEBFCDE9546902D2F1ACA6A915",
-        "ADFB0C00",
+        "2BC3085F3A2B5B7E429852A723B69ADA0FE1278A91BFAAB9C61483C80AA03D3A",
+        "D5510D00",
     ),
     "immediate_fixed": (
-        "DC7551178BF924A37612FBEF2426467018432EA127E8516E0F660BAAE037871C",
-        "AB3D0D00",
+        "13B3561006F09169AD663702EC24A5A5B443F62F84FDEC2262E14E64F934FB12",
+        "D3930D00",
     ),
 }
 

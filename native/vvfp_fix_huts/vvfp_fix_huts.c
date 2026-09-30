@@ -389,10 +389,84 @@ static int __cdecl vv2_choose_any(const unsigned char *village) {
     return mask == 0 ? -1 : 24 + pick(mask);
 }
 
+/* Build first, fix last (the owner: "The builders will prioritize fixing huts
+   OVER building the new huts or other projects, when in fact they should
+   build new stuff first, then fix huts").  The Lost Children's Building
+   branch (case 5 of 0x45FBF0) tries its construction in this order, each
+   behind a rand(100) > 20 roll (80%), and reaches the level gate
+   (0x4601F2) and the hut site (0x46029D) whenever a roll fails:
+
+     1. the villager's own assigned build task, [record+0x7E0] 11..20, while
+        that project's complete flag is still 0;
+     2. project 1 (progress > 0, not complete) when the villager has no task;
+     3. new huts: hut 24 while incomplete (at any progress); hut 25 with
+        population > 22, incomplete, progress >= 2; hut 26 the same with
+        population > 45;
+     4. Building level >= 2: project 17 (project 9 complete), project 8
+        (progress > 0), project 5 (progress >= 2, [state+0x2EA8C] >= 3);
+     5. Building level >= 3: project 12 and project 11 (progress >= 1, not
+        complete, [state+0x2EA74] >= 3; 11 also needs project 9 complete).
+
+   A project record is (signed progress dword, complete-flag byte) at state
+   + 0x2E754 + id*8 -- in the owner's saves (state + 4 in the .ldw) hut 24
+   reads 383/0 while being built and 24/1 once built.  So a failed roll could
+   send a builder to fix a hut -- this companion's fix or the stock one --
+   while a hut or project the stock game would build was right there.  This
+   is the same test without the rolls: while it holds, the hut site and the
+   level gate give "nothing" (al = 0, the stock gate's own target), so the
+   builder is never sent to fix a hut and the next attempt rolls for the
+   construction again.  Population: 0x425860, thiscall on the state. */
+static int vv2_population(const unsigned char *state) {
+    int n;
+    __asm {
+        mov ecx, state
+        mov eax, 0x425860
+        call eax
+        mov n, eax
+    }
+    return n;
+}
+
+#define VV2_PROGRESS(state, id) (*(const int *)((state) + 0x2E754 + (id) * 8))
+#define VV2_DONE(state, id) ((state)[0x2E758 + (id) * 8])
+
+static int __cdecl vv2_construction_available(const unsigned char *village, unsigned int index) {
+    /* [record+0x7E0] task 11..20 -> the project whose flag the stock handler
+       tests (jump table 0x460550). */
+    static const unsigned char task_project[10] = { 24, 25, 26, 5, 7, 8, 1, 17, 12, 11 };
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    int task = *(const int *)(village + index * 0xE48Cu + 0x7E0u);
+    int level = *(const int *)(state + 0x2EA84);
+    if (task >= 11 && task <= 20 && VV2_DONE(state, task_project[task - 11]) == 0) return 1;
+    if (VV2_DONE(state, 1) != 1 && VV2_PROGRESS(state, 1) > 0 && task == 0) return 1;
+    if (VV2_DONE(state, 24) != 1) return 1;
+    if (VV2_DONE(state, 25) != 1 && VV2_PROGRESS(state, 25) >= 2 && vv2_population(state) > 22) return 1;
+    if (VV2_DONE(state, 26) != 1 && VV2_PROGRESS(state, 26) >= 2 && vv2_population(state) > 45) return 1;
+    if (level < 2) return 0;
+    if (VV2_DONE(state, 9) != 0 && VV2_PROGRESS(state, 17) > 0 && VV2_DONE(state, 17) == 0) return 1;
+    if (VV2_DONE(state, 8) != 1 && VV2_PROGRESS(state, 8) > 0) return 1;
+    if (VV2_DONE(state, 5) != 1 && VV2_PROGRESS(state, 5) >= 2 && *(const int *)(state + 0x2EA8C) >= 3) return 1;
+    if (level < 3) return 0;
+    if (VV2_PROGRESS(state, 12) >= 1 && VV2_DONE(state, 12) == 0 && *(const int *)(state + 0x2EA74) >= 3) return 1;
+    if (VV2_PROGRESS(state, 11) >= 1 && VV2_DONE(state, 11) == 0 && VV2_DONE(state, 9) != 0
+        && *(const int *)(state + 0x2EA74) >= 3) return 1;
+    return 0;
+}
+
 static const unsigned int vv2_rand = VV2_RAND, vv2_resume = VV2_RESUME;
 static const unsigned int vv2_examine = VV2_EXAMINE, vv2_started = VV2_STARTED;
+static const unsigned int vv2_nothing = 0x46004Cu;   /* pop edi/ebp/ebx; al = 0; pop esi; ret 8 */
 static __declspec(naked) void vv2_stub(void) {
     __asm {
+        pushad
+        push edi                       ; the villager's index
+        push esi
+        call vv2_construction_available
+        add esp, 8
+        mov [esp + 0x1C], eax
+        popad
+        test eax, eax
+        jnz build_first                ; construction the stock game would do: never a hut fix
         pushad
         push esi
         call vv2_choose
@@ -414,6 +488,8 @@ static __declspec(naked) void vv2_stub(void) {
         call dword ptr [vv2_rand]
         add esp, 4
         jmp dword ptr [vv2_resume]
+    build_first:
+        jmp dword ptr [vv2_nothing]
     }
 }
 
@@ -440,6 +516,15 @@ static __declspec(naked) void vv2_level_stub(void) {
         jl below
         jmp dword ptr [vv2_level_resume]
     below:
+        pushad
+        push edi                       ; the villager's index
+        push esi
+        call vv2_construction_available
+        add esp, 8
+        mov [esp + 0x1C], eax
+        popad
+        test eax, eax
+        jnz nothing                    ; construction first: never a hut fix
         pushad
         push esi
         call vv2_choose_any
@@ -579,53 +664,178 @@ static void later_start(const struct later_game *g, unsigned int esi, int hut) {
     FIX_HUTS_COUNT(started);
 }
 
-/* One stub per game: on the empty-list path, choose; if a hut was chosen,
-   start it and take the stock "started" epilogue; else the stock je. */
-#define LATER_STUB(NAME, G, NOTHING, RESUME, STARTED)                        \
-    static int __cdecl NAME##_decide(unsigned int esi) {                     \
-        int hut = later_choose(&G);                                          \
-        if (hut < 0) {                                                       \
-            return 0;                                                        \
-        }                                                                    \
-        later_start(&G, esi, hut);                                           \
-        return 1;                                                            \
-    }                                                                        \
+/* ---- Build first, fix last (VV3 / VV4 / VV5) ---------------------------- */
+/* The owner: "The builders will prioritize fixing huts OVER building the new
+   huts or other projects, when in fact they should build new stuff first,
+   then fix huts."  At the site the dispatcher's option list is complete:
+   `count` = edi entries at [esp + list offset] (VV3 +0x64, VV4 +0x5C, VV5
+   +0x58), each an option number; the stock random pick then takes one of
+   them uniformly.  Option 9 is the stock "fix a hut" (present once all four
+   huts are complete); every other option is construction -- a new hut, or a
+   project to start or continue (VV3 options 1-8; VV4 1-8, 10, 11; VV5 1-8,
+   11, 12).  Two ways led a builder to fix a hut while construction stood:
+
+     * The stock mix: with every hut built, option 9 sits in the list beside
+       the projects and is picked 1 time in n.
+     * The Tree of Life and New Believers roll most construction options
+       away for a villager whose dislikes (record +0x1E6C / +0x1F68, the game's
+       own membership test 0x45D1F0 / 0x464F90) include item 30 -- and VV5's
+       option 6 for item 53: only a rand(100) <= 15 keeps the option.  So
+       the list came out empty (this companion then fixed a hut) or held only
+       option 9 while a hut or project was there to build.
+
+   So option 9 is taken out of any list that has construction in it, and a
+   list emptied by those rolls while construction stands gives the stock
+   "nothing" -- the next attempt rolls for the construction again, exactly as
+   the stock game does; the villager is never sent to a hut instead.  Only
+   when there is no construction at all is a hut fixed: the stock option 9
+   when every hut is built, or this companion's pick among the built huts
+   when some are not.  The Secret City has no such rolls, so there the
+   filter only drops option 9 from a mixed list. */
+#define FIX_A_HUT_OPTION 9
+
+/* thiscall(arg) -> eax, and thiscall() -> eax, on a game object. */
+static int call_state(unsigned int fn, unsigned int obj, int arg) {
+    int r;
+    __asm {
+        mov ecx, obj
+        push arg
+        call fn
+        mov r, eax
+    }
+    return r;
+}
+
+static int call_count(unsigned int fn, unsigned int obj) {
+    int r;
+    __asm {
+        mov ecx, obj
+        call fn
+        mov r, eax
+    }
+    return r;
+}
+
+/* The options the dislike rolls can remove, without the rolls: the game's
+   own tests, in the dispatcher's order. */
+static int vv4_rolled_construction(void) {
+    static const int projects[7] = { 19, 20, 21, 23, 22, 25, 24 };  /* options 1-4, 8, 10, 11 */
+    int i;
+    for (i = 0; i < 7; ++i) {
+        if (call_state(0x438980u, 0x4D8BF8u, projects[i]) >= 1
+            && !later_complete(&VV4, projects[i] - 19)) {
+            return 1;
+        }
+    }
+    /* option 6: 0x4396D0(0x4D86A8) < 2 and 0x421570(0x4D86A8) < 100 */
+    return call_count(0x4396D0u, 0x4D86A8u) < 2 && call_count(0x421570u, 0x4D86A8u) < 100;
+}
+
+static int vv5_rolled_construction(void) {
+    static const int projects[6] = { 19, 20, 21, 23, 22, 24 };      /* options 1-4, 8, 11 */
+    int i, n;
+    for (i = 0; i < 6; ++i) {
+        if (call_state(0x43AEA0u, 0x51E008u, projects[i]) > 1
+            && !later_complete(&VV5, projects[i] - 19)) {
+            return 1;
+        }
+    }
+    /* option 6: 0 < 0x4388D0(0x51DE40) < 100 */
+    n = call_count(0x4388D0u, 0x51DE40u);
+    return n > 0 && n < 100;
+}
+
+/* The filter.  -1: a hut fix was started (take the stock "started"
+   epilogue); otherwise the new option count (0: the stock "nothing"). */
+static int later_filter(const struct later_game *g, int (*rolled)(void), unsigned int esi,
+                        int *list, int count) {
+    int i, fix_at = -1, construction;
+    for (i = 0; i < count; ++i) {
+        if (list[i] == FIX_A_HUT_OPTION) {
+            fix_at = i;
+        }
+    }
+    construction = count - (fix_at >= 0 ? 1 : 0) > 0 || (rolled != NULL && rolled());
+    if (construction) {
+        if (fix_at >= 0) {
+            for (i = fix_at; i + 1 < count; ++i) {
+                list[i] = list[i + 1];
+            }
+            list[--count] = 0;
+        }
+        return count;
+    }
+    if (count > 0) {
+        return count;                  /* only option 9: the stock fix, every hut built */
+    }
+    {
+        int hut = later_choose(g);
+        if (hut < 0) {
+            return 0;
+        }
+        later_start(g, esi, hut);
+        return -1;
+    }
+}
+
+static int __cdecl vv3_filter(unsigned int esi, int *list, int count) { return later_filter(&VV3, NULL, esi, list, count); }
+static int __cdecl vv4_filter(unsigned int esi, int *list, int count) { return later_filter(&VV4, vv4_rolled_construction, esi, list, count); }
+static int __cdecl vv5_filter(unsigned int esi, int *list, int count) { return later_filter(&VV5, vv5_rolled_construction, esi, list, count); }
+
+/* One stub per game, at `cmp edi, ebx; je nothing` (ebx = 0): filter the
+   list, then the stock test on the new count -- or, after a hut fix was
+   started, the stock "started" epilogue. */
+#define LATER_STUB(NAME, LIST, NOTHING, RESUME, STARTED)                     \
     static const unsigned int NAME##_nothing = NOTHING;                      \
     static const unsigned int NAME##_resume = RESUME;                        \
     static const unsigned int NAME##_started = STARTED;                      \
     static __declspec(naked) void NAME##_stub(void) {                        \
         __asm {                                                              \
-            __asm cmp edi, ebx              /* the displaced compare */      \
-            __asm jne has_option                                             \
             __asm pushad                                                     \
+            __asm lea eax, [esp + 0x20 + LIST]                               \
+            __asm push edi                  /* count */                      \
+            __asm push eax                  /* the option list */            \
             __asm push esi                                                   \
-            __asm call NAME##_decide                                         \
-            __asm add esp, 4                                                 \
-            __asm test eax, eax                                              \
+            __asm call NAME##_filter                                         \
+            __asm add esp, 12                                                \
+            __asm cmp eax, -1                                                \
+            __asm je started                                                 \
+            __asm mov [esp], eax            /* pushad's edi slot */          \
             __asm popad                                                      \
-            __asm jz nothing                                                 \
-            __asm jmp dword ptr [NAME##_started]                             \
+            __asm cmp edi, ebx              /* the displaced compare */      \
+            __asm je nothing                                                 \
+            __asm jmp dword ptr [NAME##_resume]                              \
             __asm nothing:                                                   \
             __asm jmp dword ptr [NAME##_nothing]                             \
-            __asm has_option:                                                \
-            __asm jmp dword ptr [NAME##_resume]                              \
+            __asm started:                                                   \
+            __asm popad                                                      \
+            __asm jmp dword ptr [NAME##_started]                             \
         }                                                                    \
     }
 
-LATER_STUB(vv3, VV3, VV3_NOTHING, VV3_RESUME, VV3_STARTED)
-LATER_STUB(vv4, VV4, VV4_NOTHING, VV4_RESUME, VV4_STARTED)
-LATER_STUB(vv5, VV5, VV5_NOTHING, VV5_RESUME, VV5_STARTED)
+LATER_STUB(vv3, 0x64, VV3_NOTHING, VV3_RESUME, VV3_STARTED)
+LATER_STUB(vv4, 0x5C, VV4_NOTHING, VV4_RESUME, VV4_STARTED)
+LATER_STUB(vv5, 0x58, VV5_NOTHING, VV5_RESUME, VV5_STARTED)
 
-/* For an executable-side trampoline (The Secret City has no companion that
-   runs every frame to install a detour from, so its row patches the site
-   to a stub in the Origins page which calls this): the decision itself.
-   Returns 1 when a hut fix was started for the villager the dispatcher's
-   esi identifies, 0 when the stock "nothing" path should run.  cdecl. */
+/* For The Secret City's executable-side trampoline (it has no companion that
+   runs every frame to install a detour from, so its row patches the site to
+   a stub in the Origins page which calls this): the filter above.  `list`
+   is the dispatcher's option list, `count` its length (edi).  -1: a hut fix
+   was started for the villager the dispatcher's esi identifies; otherwise
+   the new count for the stock `cmp edi, ebx; je nothing`.  cdecl. */
+__declspec(dllexport) int __cdecl VvfpFixHutsFilter(int game_id, unsigned int esi, int *list, int count) {
+    if (game_id == 3) return vv3_filter(esi, list, count);
+    if (game_id == 4) return vv4_filter(esi, list, count);
+    if (game_id == 5) return vv5_filter(esi, list, count);
+    return count;
+}
+
+/* The earlier export, kept for a page built before VvfpFixHutsFilter: on an
+   empty list, 1 when a hut fix was started, else 0.  With construction
+   rolled away (VV4/VV5) it now answers 0, as the filter does. */
 __declspec(dllexport) int __cdecl VvfpFixHutsDecide(int game_id, unsigned int esi) {
-    if (game_id == 3) return vv3_decide(esi);
-    if (game_id == 4) return vv4_decide(esi);
-    if (game_id == 5) return vv5_decide(esi);
-    return 0;
+    int none[1] = { 0 };
+    return VvfpFixHutsFilter(game_id, esi, none, 0) == -1;
 }
 
 /* ---- Regardless of the food supply --------------------------------------- */

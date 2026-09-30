@@ -88,6 +88,14 @@ LEVEL_BEHAVIOR = {
     "vv1": "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut whenever at least one is built and no other building project is available (every hut built included). And wherever A New Home's Building branch gives up (the 20% skip roll, the level gate with no hut to fix, no hut standing) it reported 'started' with nothing started, leaving the builder on 'Nothing'; it now reports 'nothing started', so the villager goes on to other work.",
     "vv2": "Below Building level 3 the stock Building branch gave up before the hut fix; now, at any food level, a builder fixes a built population hut (never building 5) whenever at least one is built and no other building project is available (every hut built included).",
 }
+# Build first, fix last (the owner: builders "should build new stuff first,
+# then fix huts").  See "Build first, fix last" in the companion's source.
+BUILD_FIRST_BEHAVIOR = {
+    "vv2": "Construction always comes first: while the Building branch has a new hut to build or a project to start or continue -- the villager's own build task, project 1, hut 24, hut 25 or 26 once the population allows, and the level-2 and level-3 projects -- with only its 80% rolls against it, a failed roll no longer leads to a hut fix (the companion's or the stock one); the builder gets 'nothing' and the next attempt rolls for the construction again.",
+    "vv3": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, so a builder fixes a hut only when there is no construction to choose.",
+    "vv4": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 15% of the time), it gets 'nothing' rather than a hut fix; a hut is fixed only when there is no construction at all.",
+    "vv5": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 15% of the time), it gets 'nothing' rather than a hut fix; a hut is fixed only when there is no construction at all.",
+}
 FOOD_BEHAVIOR = (
     "Whenever a builder has hut work to do, its work attempt no longer depends "
     "on the food supply: {how}. Every other villager keeps the stock food "
@@ -194,7 +202,8 @@ VV3_GET_MODULE_HANDLE_IAT = 0x47C074
 VV3_GET_PROC_ADDRESS_IAT = 0x47C128
 VV3_CACHE_SLOT = 0x6E0FF8          # .vv3md (R/W), unused by Origins and parentage
 VV3_DLL_NAME = b"VVFP Fix Huts.dll\0"
-VV3_EXPORT_NAME = b"VvfpFixHutsDecide\0"
+VV3_EXPORT_NAME = b"VvfpFixHutsFilter\0"
+VV3_LIST_OFFSET = 0x64             # the dispatcher's option list, [esp+0x64] at the site
 VV3_NAME_OFFSET = 0x80
 VV3_EXPORT_OFFSET = 0xA0
 
@@ -267,10 +276,12 @@ def vv3_build_page(base_va: int) -> bytes:
     """The stub, re-assembled for the address it will live at."""
     name_va = base_va + VV3_NAME_OFFSET
     export_va = base_va + VV3_EXPORT_OFFSET
+    # Build first, fix last: the companion's VvfpFixHutsFilter(3, esi, list,
+    # count) sees every option list, drops the stock "fix a hut" option 9
+    # from a list that holds construction, and on an empty list may start a
+    # hut fix (-1).  Its answer replaces edi before the stock test.
     code = assemble(
         f"""
-        cmp edi, ebx
-        jne 0x{VV3_RESUME:X}
         pushad
         mov eax, dword ptr [0x{VV3_CACHE_SLOT:X}]
         cmp eax, 1
@@ -292,19 +303,27 @@ def vv3_build_page(base_va: int) -> bytes:
         je mark_failed
         mov dword ptr [0x{VV3_CACHE_SLOT:X}], eax
     call_it:
+        lea ecx, [esp + 0x{0x20 + VV3_LIST_OFFSET:X}]
+        push edi
+        push ecx
         push esi
         push 3
         call eax
-        add esp, 8
-        test eax, eax
-        popad
-        je 0x{VV3_NOTHING:X}
-        jmp 0x{VV3_STARTED:X}
+        add esp, 16
+        cmp eax, -1
+        je started
+        mov dword ptr [esp], eax
+        jmp give_up
     mark_failed:
         mov dword ptr [0x{VV3_CACHE_SLOT:X}], 1
     give_up:
         popad
-        jmp 0x{VV3_NOTHING:X}
+        cmp edi, ebx
+        je 0x{VV3_NOTHING:X}
+        jmp 0x{VV3_RESUME:X}
+    started:
+        popad
+        jmp 0x{VV3_STARTED:X}
         """,
         base_va,
     )
@@ -435,10 +454,12 @@ def vv3_site_patch(page_va: int) -> dict:
         "before": VV3_SITE_STOCK.hex().upper(),
         "after": entry.hex().upper(),
         "purpose": (
-            "Divert the Building dispatcher's empty-option-list test (cmp edi, ebx; "
-            "je nothing at 0x45B39E) into the fix-huts stub, which replays the test, "
-            "asks the companion whether to fix a hut, and resumes at the stock "
-            "'job started' or 'nothing' path."
+            "Divert the Building dispatcher's option-list test (cmp edi, ebx; "
+            "je nothing at 0x45B39E) into the fix-huts stub, which hands the option "
+            "list to the companion's VvfpFixHutsFilter -- the stock 'fix a hut' "
+            "option is dropped from a list that holds construction, and an empty "
+            "list may start a hut fix -- then replays the test on the answer and "
+            "resumes at the stock pick, 'job started' or 'nothing' path."
         ),
     }
 
@@ -558,7 +579,7 @@ def main() -> None:
     sha = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
     common_non_changes = [
         "Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own.",
-        "A builder with a project available still takes the project. With no population hut built there is nothing to fix. With every hut built, at Building level 3 or above (and in The Secret City, The Tree of Life and New Believers at any level) the hut choice is the stock fix-a-hut option; below level 3 in A New Home and The Lost Children a built population hut is fixed directly (never The Lost Children's building 5).",
+        "A builder with a project available still takes the project. With no population hut built there is nothing to fix. With every hut built and no construction available, at Building level 3 or above (and in The Secret City, The Tree of Life and New Believers at any level) the hut choice is the stock fix-a-hut option; below level 3 in A New Home and The Lost Children a built population hut is fixed directly (never The Lost Children's building 5).",
         "Nothing is written to a villager record, the save or any file.",
     ]
     for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):
@@ -575,7 +596,8 @@ def main() -> None:
             "behavior_changes": [
                 "When the Building dispatcher finds no project to work on (every project check has failed) and at least one population hut is complete while another is not, the companion picks a random complete hut and starts the game's own 'Examining hut' job for it, in live play and in catch-up alike.",
                 FOOD_BEHAVIOR.format(how=FOOD_HOW[game]),
-            ] + ([LEVEL_BEHAVIOR[game]] if game in LEVEL_BEHAVIOR else []),
+            ] + ([LEVEL_BEHAVIOR[game]] if game in LEVEL_BEHAVIOR else [])
+              + ([BUILD_FIRST_BEHAVIOR[game]] if game in BUILD_FIRST_BEHAVIOR else []),
             "explicit_non_changes": list(common_non_changes),
             "companion_files": [
                 {"source": "assets/fix_huts/VVFP Fix Huts.dll",
