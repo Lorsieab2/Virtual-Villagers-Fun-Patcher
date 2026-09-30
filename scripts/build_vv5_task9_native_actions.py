@@ -4189,8 +4189,18 @@ def build_mask_render(page: bytearray, page_va: int, s: dict[str, int]) -> dict[
     # and keeps this routine byte-for-byte what it was.
     slot_capture = put(page, page_va, "slot_capture", f"""
         mov eax, dword ptr [esp + 4]
-        test eax, eax
-        jz sc_skip
+        # Village slots 1..5 only, as in The Secret City and The Tree of
+        # Life. The stock file writer (0x403940) builds the BACKUP path
+        # first, through this same builder with slot+0x14 (0x403982), and
+        # only then the slot's own path (0x40399F, 0x4039B7). Without the
+        # range gate every save looked like two slot changes (N -> N+20 ->
+        # N) and cleared the Origins ownership word below: doublers the
+        # player paid for were gone from memory after the first save and
+        # from the save file after the next. Slot 0 is the meta file.
+        cmp eax, 1
+        jb sc_skip
+        cmp eax, 5
+        ja sc_skip
         cmp eax, dword ptr [0x{SLOT_SCRATCH:X}]
         je sc_skip
         mov dword ptr [0x{SLOT_SCRATCH:X}], eax
