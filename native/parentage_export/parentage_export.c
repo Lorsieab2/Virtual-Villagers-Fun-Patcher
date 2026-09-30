@@ -19,7 +19,7 @@
 
    WHERE THE DATA COMES FROM
 
-   The hook runs at the head of VV1's conception routine, sub_43BBC0
+   The hooks sit in VV1's conception routine, sub_43BBC0
    (0x00043BBC0 -> VA 0x0043BBC0), which is the only function in the image that
    increments all three birth counters. Those counter offsets are not guesses:
    they are the ones the shipping statistics companion already reads --
@@ -102,8 +102,8 @@ enum {
 
     /* How a game records the other parent.
 
-       This is not a detail: VV1 stores a father ID and his record is found by
-       scanning the array for it, while VV4 and VV5 store the father's NAME
+       This is not a detail: a game that stores a father ID finds his record
+       by scanning the array for it, while VV4 and VV5 store the father's NAME
        directly in the mother's record and keep no id anywhere. Reading one as
        the other interprets a name buffer as an integer, resolves nothing, and
        logs "(unknown)" for every single birth -- a feature that appears to work
@@ -111,33 +111,29 @@ enum {
     FATHER_BY_ID = 0,
     FATHER_BY_NAME = 1,
     /* The game records nothing about the other parent that can be read back
-       from the mother. VV1 is the only such case: its conception routine
-       RECEIVES a partner value and never reads it, and the field that looked
-       like a father id turned out to be a skill value -- see the VV1 row. */
+       from the mother. No shipped row uses this any more; VV1, the case it was
+       written for, now captures him instead (FATHER_BY_CAPTURE). */
     FATHER_NOT_RECORDED = 2,
-    /* The game records nothing about the father that can be read back from the
-       mother, but the CALLER hands us his record. VV1 only.
+    /* The game records nothing that identifies the father in the mother's
+       record, but the CALLER hands us his record. VV1 only.
 
        This is a different situation from FATHER_NOT_RECORDED and collapsing
-       the two would be wrong in both directions. There is still no father
-       field anywhere in the mother's record, so there is no name to copy and
-       no id to resolve. But VV1's conception routine is called from six sites,
-       and every one of them holds his record POINTER in a register at the
-       call -- the game loads exactly one field off it (+0x36C) and discards
-       the rest. So the trampolines capture the pointer and every father field
-       comes from his own record, his name included.
+       the two would be wrong in both directions. There is no father field in
+       the mother's record to copy a name from or resolve an id through (+0x394
+       holds a copy of his +0x36C, which is not unique -- see the VV1 row). But
+       each of the six callers of VV1's conception routine holds his record
+       while it conceives, so the success-tail trampolines find him in the
+       caller's frame -- by the return address into that caller -- and every
+       father field comes from his own record, his name included.
 
-       He travels in an argument slot the routine never reads: sub_43BBC0
-       takes four stack arguments and reads only three of them, so the stubs
-       overwrite the unread one with his record pointer. That needs no writable
-       storage anywhere in the image, which matters because every code page the
-       feature could have used is R-X.
+       Nothing is passed through the routine's own arguments: all four are
+       read, and the second is the value stored into the mother's +0x394,
+       which the game acts on at delivery. An earlier design overwrote that
+       argument with his pointer and so changed the game.
 
-       A record is not guaranteed. If a site is ever reached without one the
-       slot still holds whatever the stock caller pushed -- his +0x36C scalar,
-       a small integer that fails the record validation below -- and the log
-       says the father is unavailable for that birth rather than inventing
-       him. */
+       A record is not guaranteed. A caller the trampolines do not recognise
+       passes NULL, and the log says the father is unavailable for that birth
+       rather than inventing him. */
     FATHER_BY_CAPTURE = 3,
 
     GAME_VV1 = 1,
@@ -513,71 +509,68 @@ static const struct game_layout GAME_LAYOUTS[6] = {
                  rand()%50+1 at 0x43C669, a second writer using %99, and
                  copied parent->child at 0x43C9E5 beside gender, head and
                  body. Every reader compares it paired with +0x368, which is
-                 look-alike avoidance rather than lookup. Its 0xC7 sentinel
-                 is NOT evidence that it identifies anyone -- the skill field
-                 at +0x394 carries the same constant, which is exactly the
-                 coincidence that made this file misread that one as a
-                 father id.
+                 look-alike avoidance rather than lookup. The conception
+                 routine copies the father's value into the mother's +0x394,
+                 and 0xC7 is a sentinel written there at 0x42427B and tested
+                 at delivery (0x42EF39) -- none of which makes it an id.
          +0x370  name        sprintf destination at 0x43C696..0x43C6A1, read
                              back as a string at 0x418753..0x418760; bounded at
                              0x1C because nothing is referenced between +0x370
                              and +0x38C, and +0x38C is the next field the
                              conception routine itself writes
-         +0x394  NOT the father -- see below
+         +0x394  a COPY of the father's +0x36C -- not an identity, see below
 
-       VV1 RECORDS NOTHING ABOUT THE FATHER IN THE MOTHER'S RECORD, which is
-       why father_kind is FATHER_BY_CAPTURE here and only here: his fields come
-       from a record pointer the trampolines capture at the conception CALL
-       SITES, not from any field of hers.
+       VV1 RECORDS NOTHING THAT IDENTIFIES THE FATHER IN THE MOTHER'S RECORD,
+       which is why father_kind is FATHER_BY_CAPTURE here and only here: his
+       fields come from a record pointer the trampolines find in the frame of
+       the routine's CALLER, not from any field of hers.
 
        An earlier version of this file read +0x394 as a father id, on the
-       strength of `mov [esi+0x394], edx` at 0x43BC04 inside the conception
-       routine. That was wrong, and the disassembly says so plainly once the
-       argument slots are traced rather than assumed:
+       strength of `mov [esi+0x394], edx` at 0x43BC04. A later one called it a
+       skill value. Both were wrong. The routine is __thiscall, ends in
+       `ret 0x10`, and with E its entry esp its four arguments are at
+       E+0x04..E+0x10. Tracking its own pushes (push edi at 0x43BBC0, push esi
+       at 0x43BBF0):
 
-           0x43BBD0  mov eax, [esp+0x10]     ; the same argument
-           0x43BBD4  cmp eax, 2              ; normalised...
-           0x43BBD9  mov eax, 1              ; ...into a skill slot
-           0x43BC00  mov edx, [esp+0x10]     ; and reloaded here
-           0x43BC04  mov [esi+0x394], edx    ; stored as what looked like a father
-           0x43BC0A  mov [esi+0x38C], eax    ; skill slot
-           0x43BC10  mov [esi+0x390], ecx    ; skill value
+           0x43BBD0  mov eax,[esp+0x10]   esp=E-4 -> E+0x0C  arg3, a skill selector
+           0x43BBE2  mov ecx,[esp+0x14]   esp=E-4 -> E+0x10  arg4
+           0x43BBE6  mov edx,[esp+0x08]   esp=E-4 -> E+0x04  arg1, the mother's index
+           0x43BC00  mov edx,[esp+0x10]   esp=E-8 -> E+0x08  arg2
+           0x43BC04  mov [esi+0x394],edx
 
-       All three come from one skill-selection pair. The caller does pass the
-       partner's +0x36C at [esp+0xC], and the routine never reads that slot at
-       all.
+       0x43BBD0 and 0x43BC00 share a displacement but not an argument. arg2 is
+       what every caller loads off the father's record, +0x36C, so +0x394 is a
+       copy of that value -- and +0x36C does not identify him: it is
+       rand()%50+1 at 0x43C669 (and rand()%99+1 at 0x41C247), it is COPIED from
+       parent to child at 0x43C9E5 alongside gender, head and body, and every
+       reader compares it paired with +0x368. That is look-alike avoidance --
+       with ~90 villagers and 50 possible values, living villagers share it
+       routinely.
 
-       +0x36C would not have identified him anyway: it is rand()%50+1 at
-       0x43C669 (and rand()%99+1 at 0x41C247), it is COPIED from parent to child
-       at 0x43C9E5 alongside gender, head and body, and every reader compares it
-       paired with +0x368. That is look-alike avoidance, not identity -- with
-       ~90 villagers and 50 possible values, living villagers share it routinely.
+       The game DOES act on +0x394: delivery compares it with 0xC7 at 0x42EF39.
+       So the patcher must never change it, and it does not: all four
+       arguments reach the routine exactly as the caller pushed them. (An
+       earlier design overwrote arg2 with his record pointer, believing it
+       unread, and so wrote a pointer into this field.)
 
-       So there is no father to name from the mother's record -- and the log
-       never prints a skill value as if it were a parent.
-
-       His record IS live at all six call sites, and that is where he now comes
-       from. sub_43BBC0 is called from exactly six places and referenced
-       indirectly from none:
+       His record IS in the caller's frame at every one of the six call sites,
+       and that is where he now comes from. sub_43BBC0 is called from exactly
+       six places and referenced indirectly from none:
 
            0x43DD33  0x43DD54  0x43DD7B  0x43DD94  0x447031  0x447238
 
-       Each loads one field off his record and throws the pointer away:
+       Each loads one field off his record and passes only that on, e.g.
 
-           0x43DD33  mov edx,[esp+0x1C]      ; his record
+           0x43DD20  mov edx,[esp+0x1C]      ; his record
            0x43DD24  mov eax,[edx+0x36C]     ; the only field the game wants
-           0x43DD2F  push eax                ; only the scalar is passed on
+           0x43DD2F  push eax                ; arg2
 
-       Scanning the 96 bytes before each call for loads in the record range
-       0x300..0x3E0 returns ['0x36c'] at all six and nothing else, so his name,
-       head, body and age are all readable there and simply unused.
-
-       A hook INSIDE the routine cannot reach him: its prologue forms exactly
-       one record pointer (imul 0x3D8 at 0x43BBEA, the mother's), that is the
-       only stride multiply in the whole function, and its only stack reads are
-       +0x08, +0x10 and +0x14 -- none of which carries a father pointer or
-       index. So the six call sites are the only place his identity exists, and
-       each one stashes the pointer for the success-tail trampolines to read.
+       The trampolines identify the caller by the return address at E and read
+       him from that caller's frame: [E+0x2C] for 0x43DD33/0x43DD54, EBP for
+       0x43DD7B/0x43DD94, and for the two pairing scans 0x447031/0x447238
+       whichever of the scan's two villagers its own `cmp [A+0x350],2` branch
+       did not make the mother (A at [E+0x24], or the scan cursor at [E+0x2C]
+       less 0x348). scripts/build_vv1_parentage_feature.py has the derivation.
          +0x35C  litter      2 at 0x43BC4E, 3 at 0x43BC8C; cleared per
                              pregnancy by 0x42F0C7, 0x43C722 and 0x43CABE
 
