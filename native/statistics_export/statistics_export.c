@@ -1055,13 +1055,13 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
                0x45D4E3 in the burial writer. FLOAT32 against 88.0, five
                skills. */
             0x1C5Cu, 5u, 1,
-            /* PENDING-IMPLEMENTATION: the per-save Village Elders .dat.
-               Until then only the game's own grave flag at +0x31 is read --
-               the stock burial writer stores sub_46AC70's all-five-skills
-               verdict there -- and NOTHING is written to any grave: the
-               old patch-owned byte +0x37 is overwritten by the stock dword
-               store at +0x34 (0x45D524), and seeding it pushed +0x34 out of
-               the -1..4 range the memorial loader 0x45D6E0 accepts. */
+            /* The grave elder flag the game's own burial writer stores at
+               +0x31 (sub_46AC70's all-five-skills verdict). Village Elders
+               itself comes from the per-save .dat (village_elders_for), and
+               NOTHING is written to any grave: the old patch-owned byte
+               +0x37 was overwritten by the stock dword store at +0x34
+               (0x45D524), and seeding it pushed +0x34 out of the -1..4 range
+               the memorial loader 0x45D6E0 accepts. */
             0x31u,
             0u, 0u,
             GAME_VV4
