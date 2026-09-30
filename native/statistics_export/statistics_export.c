@@ -1129,6 +1129,139 @@ typedef int (__fastcall *save_writer)(void *manager, void *unused,
 
    The wrapper only calls this for slots 1..5 and when this export resolves;
    every other save goes straight to the writer. */
+/* A NEW VILLAGE IN THE SAME SLOT.
+
+   The slot's .dat files (statistics counters, stew discoveries, Village
+   Elders) belong to one village. Start Over clears them through the reset
+   companion, but that companion only ships with the Origins and parentage
+   features; without them a new village started in the same slot would carry
+   the old village's totals and stews. So the statistics companion checks for
+   itself, the way the owner's rule says a village is identified: by its
+   LIVING ROSTER, and by overlap -- any villager in common means the same
+   village, because births and deaths change the roster during play.
+
+   Each save records the living villagers (slot and name) in
+   "Village Roster - Save N.dat". If the next save's living roster shares no
+   villager with the recorded one, the slot now holds a different village:
+   the three .dat files are moved aside as "... .previous-village-<ticks>.dat"
+   (never deleted) and tracking starts fresh. An empty recorded roster never
+   triggers this. */
+struct roster_layout {
+    unsigned int villagers_rva;
+    int rva_is_pointer;
+    unsigned int record_base, stride, slots, active, name, name_capacity;
+};
+
+static const struct roster_layout ROSTER_LAYOUTS[6] = {
+    { 0 },
+    { 0x8B614u, 1, 0u, 0x3D8u, 256u, 0x28u, 0x370u, 0x1Cu },     /* VV1 */
+    { 0x99F24u, 1, 0u, 0xE48Cu, 256u, 0x30u, 0x564u, 0x18u },    /* VV2 */
+    { 0x19E110u, 0, 0x14u, 0x1F8Cu, 150u, 0xF10u, 0xDD4u, 0x19u },   /* VV3 */
+    { 0x10E568u, 0, 0x44u, 0x2E3Cu, 150u, 0x1CC4u, 0x1B9Cu, 0x19u }, /* VV4 */
+    { 0x154148u, 0, 0x48u, 0x2F44u, 150u, 0x1CD4u, 0x1B9Cu, 0x19u }, /* VV5 */
+};
+
+#define ROSTER_MAX 256
+#define ROSTER_NAME 32
+static char g_roster_now[ROSTER_MAX][ROSTER_NAME + 8];
+static char g_roster_was[ROSTER_MAX][ROSTER_NAME + 8];
+
+static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_NAME + 8]) {
+    const struct roster_layout *r = &ROSTER_LAYOUTS[game_id];
+    unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    const unsigned char *villagers;
+    unsigned int slot;
+    int count = 0;
+    if (module == NULL) {
+        return 0;
+    }
+    villagers = r->rva_is_pointer ? *(unsigned char *const *)(module + r->villagers_rva)
+                                  : module + r->villagers_rva;
+    if (villagers == NULL) {
+        return 0;
+    }
+    for (slot = 0; slot < r->slots && count < ROSTER_MAX; ++slot) {
+        const unsigned char *record = villagers + r->record_base + slot * r->stride;
+        char name[ROSTER_NAME];
+        unsigned int i;
+        if (record[r->active] != 1) {
+            continue;
+        }
+        for (i = 0; i < r->name_capacity && i < ROSTER_NAME - 1 && record[r->name + i] != 0; ++i) {
+            name[i] = (record[r->name + i] == '\t' || record[r->name + i] < 0x20) ? ' ' : (char)record[r->name + i];
+        }
+        name[i] = '\0';
+        _snprintf_s(rows[count], ROSTER_NAME + 8, _TRUNCATE, "%u\t%s", slot, name);
+        ++count;
+    }
+    return count;
+}
+
+static void move_aside(const wchar_t *path, unsigned long long stamp) {
+    wchar_t aside[MAX_PATH];
+    if (path == NULL || path[0] == L'\0' || GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+        return;
+    }
+    if (_snwprintf_s(aside, MAX_PATH, _TRUNCATE, L"%ls.previous-village-%llu.dat", path, stamp) > 0) {
+        MoveFileExW(path, aside, 0);
+    }
+}
+
+static void start_fresh_if_new_village(int game_id, int save_id) {
+    wchar_t folder[MAX_PATH], roster[MAX_PATH], temporary[MAX_PATH], elders[MAX_PATH], elders_folder[MAX_PATH];
+    FILE *f;
+    char line[128];
+    int now = living_roster(game_id, g_roster_now);
+    int was = 0;
+    int i, j, shared = 0;
+    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Statistics", 64)
+        || _snwprintf_s(roster, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.dat", folder, save_id) <= 0
+        || _snwprintf_s(temporary, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.tmp", folder, save_id) <= 0) {
+        return;
+    }
+    if (_wfopen_s(&f, roster, L"rb") == 0 && f != NULL) {
+        if (fgets(line, sizeof(line), f) != NULL && strncmp(line, "VVFP VILLAGE ROSTER v1", 22) == 0) {
+            while (was < ROSTER_MAX && fgets(g_roster_was[was], ROSTER_NAME + 8, f) != NULL) {
+                size_t len = strlen(g_roster_was[was]);
+                while (len > 0 && (g_roster_was[was][len - 1] == '\n' || g_roster_was[was][len - 1] == '\r')) {
+                    g_roster_was[was][--len] = '\0';
+                }
+                if (len > 0) {
+                    ++was;
+                }
+            }
+        }
+        fclose(f);
+    }
+    if (now == 0) {
+        return;                       /* nothing to compare or record */
+    }
+    for (i = 0; i < was && !shared; ++i) {
+        for (j = 0; j < now && !shared; ++j) {
+            shared = strcmp(g_roster_was[i], g_roster_now[j]) == 0;
+        }
+    }
+    if (was > 0 && !shared) {
+        unsigned long long stamp = (unsigned long long)GetTickCount64();
+        move_aside(g_store_counters, stamp);
+        move_aside(g_store_stews, stamp);
+        if (vv_save_subfolder_w(elders_folder, L"Virtual Villagers Fun Patcher Data\\Village Elders", 64)
+            && _snwprintf_s(elders, MAX_PATH, _TRUNCATE, L"%ls\\Village Elders - Save %d.dat",
+                            elders_folder, save_id) > 0) {
+            move_aside(elders, stamp);
+        }
+    }
+    if (_wfopen_s(&f, temporary, L"wb") == 0 && f != NULL) {
+        fputs("VVFP VILLAGE ROSTER v1\r\n", f);
+        for (j = 0; j < now; ++j) {
+            fprintf(f, "%s\r\n", g_roster_now[j]);
+        }
+        if (fclose(f) == 0) {
+            MoveFileExW(temporary, roster, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+        }
+    }
+}
+
 __declspec(dllexport) int __stdcall SaveVillageStatistics(
     int game_id,
     void *manager_pointer,
@@ -1143,6 +1276,7 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
         && game_id >= GAME_VV1 && game_id <= GAME_VV5;
     if (primary) {
         bind_store(game_id, manager, save_id);
+        start_fresh_if_new_village(game_id, save_id);
         vvs_flush(&g_store);
     }
     result = ((save_writer)writer)(manager_pointer, NULL, buffer, size, save_id);
