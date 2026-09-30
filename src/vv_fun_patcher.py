@@ -8846,12 +8846,17 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
 
     Two sources, so nothing the patcher put there can masquerade as a user
     file on overwrite: every companion destination in this game's catalog
-    (public, internal and Time Warp records alike), and every companion the
-    earlier install's own patch log recorded -- which also covers a feature
-    that has since been retired from the catalog.
+    (public and internal records), and every companion the earlier install's
+    own patch log recorded -- which also covers a feature that has since been
+    retired from the catalog.
+
+    The Expanded-only Time Warp records are deliberately not loaded: the
+    release archive does not ship their artifacts (loading them raises there),
+    and the Expanded modes they belong to are no longer public. Anything such
+    a build installed is still named in its own patch log.
     """
     owned: set[str] = set()
-    for feature in _load_fun_patch_records(include_expanded_time_warp=True):
+    for feature in _load_fun_patch_records():
         if feature.raw.get("game_id") != build.id:
             continue
         for item in feature.raw.get("companion_files", []):
