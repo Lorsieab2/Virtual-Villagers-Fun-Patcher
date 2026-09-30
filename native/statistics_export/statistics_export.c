@@ -5,6 +5,7 @@
 
 #include "village_identity.h"
 #include "save_folder.h"
+#include "village_elders.h"
 
 enum {
     GAME_VV1 = 1,
@@ -44,7 +45,6 @@ static void write_int(unsigned char *manager, unsigned int offset, int value) {
    seed only ever raises the counter, so a re-seed never loses a pickup. */
 #define BURIAL_BASELINE_MARKER_VV1 0x56425332 /* 'VBS2' */
 #define ROBING_BASELINE_MARKER 0x56433131 /* 'VC11' */
-#define ELDER_BASELINE_MARKER 0x56453431 /* 'VE41' */
 
 static int count_flags(
     const unsigned char *manager,
@@ -186,65 +186,6 @@ static int count_living_elders(
         }
     }
     return total;
-}
-
-/* Seed VV4's patch-owned elder flag once, from the stock all-five flag.
-
-   Only the burial hook writes grave+0x37, so every grave in a save created
-   before this patch reads zero there. Without this, VV4's dead half would
-   report 0 for exactly the long-running villages the owner asked to see
-   counted retroactively -- which would contradict the whole point of the
-   change rather than merely be incomplete. Codex raised this as a P1 on
-   #353 and was right.
-
-   WHAT IS RECOVERABLE. The stock writer stores sub_46AC70's verdict at
-   grave+0x31, and that predicate is `cmp edx, 5` -- mastered ALL FIVE. Every
-   villager who mastered five also mastered three, so the stock flag is a
-   strict SUBSET of the owner's rule. Seeding from it can never overcount; it
-   is a true lower bound, and it is exact for any village whose dead elders
-   all mastered everything.
-
-   It does NOT recover villagers who died having mastered three or four, and
-   nothing in a VV4 save records those -- the game never computed the
-   predicate, which is the defect being fixed. So this is the same bargain
-   the memorial baseline already makes for Villagers Buried: strictly better
-   than zero, never overstated, and exact from the patch forward.
-
-   Gated on its own marker rather than on the field being zero. A save whose
-   graves genuinely hold no elders is indistinguishable by value from an
-   unseeded one, and re-running the migration every export would be harmless
-   only until the burial hook had written a real verdict the stock flag
-   disagrees with -- at which point a re-seed would clear it. The marker is
-   written once whether or not anything was seeded. */
-static void seed_vv4_elder_flags(
-    unsigned char *counters,
-    unsigned int marker_offset,
-    unsigned char *graves,
-    unsigned int stride,
-    unsigned int capacity,
-    unsigned int occupied_offset,
-    unsigned int stock_offset,
-    unsigned int elder_offset
-) {
-    unsigned int index;
-    if (counters == NULL || graves == NULL) {
-        return;
-    }
-    if (read_int(counters, marker_offset) == (int)ELDER_BASELINE_MARKER) {
-        return;
-    }
-    for (index = 0; index < capacity; ++index) {
-        unsigned char *record = graves + index * stride;
-        if (read_int(record, occupied_offset) == 0) {
-            continue;
-        }
-        /* Only ever sets, never clears: a verdict the burial hook already
-           wrote must survive a seed that runs after it. */
-        if (*(const unsigned char *)(record + stock_offset) != 0) {
-            *(unsigned char *)(record + elder_offset) = 1;
-        }
-    }
-    write_int(counters, marker_offset, (int)ELDER_BASELINE_MARKER);
 }
 
 /* Count villagers who died holding the status, from the flag their game's
@@ -484,7 +425,7 @@ static int build_output_paths(
             temporary,
             MAX_LONG_PATH,
             _TRUNCATE,
-            L"%ls\\Village Statistics - Save %d.tmp",
+            L"%ls\\Village Statistics v2 - Save %d.tmp",
             module_path,
             save_id
         ) < 0) {
@@ -494,7 +435,11 @@ static int build_output_paths(
             destination,
             MAX_LONG_PATH,
             _TRUNCATE,
-            L"%ls\\Village Statistics - Save %d.txt",
+            /* v2: the owner's five-game directive layout. The earlier
+               "Village Statistics - Save N.txt" is preserved as it is and
+               never written again ("preserve old statistics and logs,
+               write new ones"). */
+            L"%ls\\Village Statistics v2 - Save %d.txt",
             module_path,
             save_id
         ) < 0) {
@@ -514,13 +459,100 @@ static int real_hours(int game_id, const unsigned char *manager) {
     return ((real_hours_function)(module + rva))(manager, NULL);
 }
 
-/* PENDING-IMPLEMENTATION: A New Home's Village Elders (the owner's
-   definition: one villager with Master status in any 3 distinct skills).
-   tests/test_statistics_no_placeholders.py fails while this marker exists,
-   so a placeholder can never ship. */
+/* The save slot being exported, set by the exporter entry before any writer
+   runs: the per-save .dat files are keyed by it. */
+static int g_save_id;
+
+/* Village Elders for the later games, from the save's Village Elders .dat
+   (village_elders.c). Record offsets are the ones the Village Population
+   exporter already carries and has verified per game
+   (native/population_export/population_export.c GAME_LAYOUTS): name, the
+   villager's own parents' names, the skill block. Master thresholds are the
+   games' own predicates: VV3 sub_462570 counts int skills >= 0x58; VV4
+   sub_46AD00 and VV5 sub_475610 count float skills >= 88.0. Memorials:
+   VV3 the Roster of the Dead (0x597D64, stride 0x30, 500; the graveyard is
+   only roster entries 0..49, so the roster alone counts each death once),
+   elder verdict at +0x29 (0x455075 stores sub_462570's three-or-more);
+   VV4 mausoleum 0x5025C8 and VV5 0x5481A8 (stride 0x5C, 500), verdict at
+   +0x31 -- three-or-more in VV5 (0x464CFE), but all-FIVE in VV4 (0x45D4FE,
+   sub_46AC70 `cmp edx,5`), which is still an elder, only a stricter test. */
+static int village_elders_for(int game_id) {
+    unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    struct elders_layout l;
+    if (module == NULL) {
+        return -1;
+    }
+    memset(&l, 0, sizeof(l));
+    l.name_capacity = 0x19u;
+    l.parent_name_capacity = 0x19u;
+    l.grave_occupied = 0x1Cu;
+    l.grave_name = 0u;
+    l.grave_name_capacity = 0x19u;
+    l.grave_capacity = 500u;
+    if (game_id == GAME_VV3) {
+        l.villagers = module + 0x19E110u; l.record_base = 0x14u; l.stride = 0x1F8Cu;
+        l.slots = 150u; l.active = 0xF10u; l.name = 0xDD4u;
+        l.father_name = 0xDF8u; l.mother_name = 0xE11u;
+        l.skills = 0xEACu; l.skill_count = 5u; l.skills_are_float = 0; l.master_int = 0x58;
+        l.graves = module + 0x197D64u; l.grave_stride = 0x30u; l.grave_elder_flag = 0x29u;
+    } else if (game_id == GAME_VV4) {
+        l.villagers = module + 0x10E568u; l.record_base = 0x44u; l.stride = 0x2E3Cu;
+        l.slots = 150u; l.active = 0x1CC4u; l.name = 0x1B9Cu;
+        l.father_name = 0x1BC0u; l.mother_name = 0x1BD9u;
+        l.skills = 0x1C5Cu; l.skill_count = 5u; l.skills_are_float = 1; l.master_float = 88.0f;
+        l.graves = module + 0x1025C8u; l.grave_stride = 0x5Cu; l.grave_elder_flag = 0x31u;
+    } else if (game_id == GAME_VV5) {
+        l.villagers = module + 0x154148u; l.record_base = 0x48u; l.stride = 0x2F44u;
+        l.slots = 150u; l.active = 0x1CD4u; l.name = 0x1B9Cu;
+        l.father_name = 0x1BC0u; l.mother_name = 0x1BD9u;
+        l.skills = 0x1C5Cu; l.skill_count = 6u; l.skills_are_float = 1; l.master_float = 88.0f;
+        l.graves = module + 0x1481A8u; l.grave_stride = 0x5Cu; l.grave_elder_flag = 0x31u;
+    } else {
+        return -1;
+    }
+    return vv_village_elders(game_id, g_save_id, &l);
+}
+
+/* A New Home's Village Elders: the owner's definition -- one villager with
+   Master status in any three distinct skills -- applied to A New Home, which
+   has no elder mechanism of its own (no title, string or routine).
+
+   Master is the game's own: the Details title code at 0x41FC16 shows
+   "Master" (string 0x59) for a skill >= 90 (`cmp ...,0x5A / jl`), and the
+   gameplay checks at 0x4243CF, 0x424438, 0x4246B0, 0x43A5DF, 0x43B3A9 and
+   0x43F4B0 use the same >= 90. Five int32 skills at record+0x3BC (Parent,
+   Builder, Farmer, Doctor, Scientist; mapping from 0x43B520 and the name
+   switch at 0x41FC6A), range 0..100 (clamped by 0x437230). No age gate: the
+   later games' own elder predicates have none either.
+
+   Records: the villager array is the lazily-allocated singleton behind the
+   global at RVA 0x8B614 (null until the game first builds it), stride
+   0x3D8, 256 slots, active byte +0x28, name +0x370 (Village Population
+   exporter layout). A New Home keeps no parents on the record.
+
+   Graves keep only the name, the single best skill and the age at death
+   (0x448F70), so elders who died before this tracking began cannot be
+   reconstructed: the count starts from the living and grows from there. */
 static int vv1_village_elders(const unsigned char *manager) {
+    unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    struct elders_layout l;
     (void)manager;
-    return -1;
+    if (module == NULL) {
+        return -1;
+    }
+    memset(&l, 0, sizeof(l));
+    l.villagers = *(unsigned char *const *)(module + 0x8B614u);
+    l.record_base = 0u;
+    l.stride = 0x3D8u;
+    l.slots = 256u;
+    l.active = 0x28u;
+    l.name = 0x370u;
+    l.name_capacity = 0x1Cu;
+    l.skills = 0x3BCu;
+    l.skill_count = 5u;
+    l.skills_are_float = 0;
+    l.master_int = 90;
+    return vv_village_elders(GAME_VV1, g_save_id, &l);
 }
 
 /* PENDING-IMPLEMENTATION: unique stew combinations (VV2 Total Stews Found,
@@ -885,12 +917,6 @@ static int write_later_game(
     unsigned char *live = module == NULL
         ? NULL
         : module + live_statistics_rva;
-    if (grave_elder_seed_offset != 0 && module != NULL) {
-        seed_vv4_elder_flags(
-            statistics, elder_marker_offset,
-            module + graves_rva, graves_stride, graves_capacity,
-            0x1Cu, grave_elder_seed_offset, grave_elder_offset);
-    }
     /* Rows and their order are the owner's directive
        (docs/village-statistics-directive.md, sections IV and V): the
        fourteen common rows, Villagers Buried and Puzzles Solved last among
@@ -932,24 +958,11 @@ static int write_later_game(
            references in any of the three executables -- the games allocate
            the field and never compute it, which is why the row reported 0.
 
-           The objection recorded here previously was that a walk of the
-           living roster is not a lifetime total and counts DOWN as elders
-           die. That is right, and it is why this adds the buried half: the
-           living evaluation is paired with the flag each game's burial
-           writer already stored, so the figure only ever grows and covers
-           villages that predate the patch. The owner asked for exactly
-           that -- "a retroactive counter for dead villagers too". */
-        count_living_elders(
-            villagers_rva == 0 || module == NULL
-                ? NULL
-                : module + villagers_rva,
-            villager_record_base, villager_stride,
-            (unsigned int)villager_slots, villager_active,
-            villager_skills, villager_skill_count,
-            villager_skills_are_float)
-        + count_buried_elders(
-            module == NULL ? NULL : module + graves_rva,
-            graves_stride, graves_capacity, 0x1Cu, grave_elder_offset),
+           A lifetime count: every villager ever seen with Master in three
+           or more skills, kept in the save's Village Elders .dat
+           (village_elders.c), plus elders the game itself flagged on their
+           graves. */
+        village_elders_for(game_id),
         read_int(statistics, 0x20),
         read_int(statistics, 0x24),
         read_int(statistics, 0x08),
@@ -1054,28 +1067,8 @@ static int write_vv5(
         read_int(statistics, 0x10),
         read_int(statistics, 0x14),
         read_int(statistics, 0x18),
-        /* Village Elders; see the note in write_later_game. Living elders
-           plus those who died holding the status.
-
-           Container 0x554148 (the immediate all 445 of its accessor's
-           occurrences load), record base 0x48, stride 0x2F44, 150 slots,
-           active byte +0x1CD4 -- the geometry the parentage layout already
-           carries for this game. Skills at villager+0x1C5C, from
-           `lea ebx,[edi+1C5Ch]` at 0x464CE3 in the burial writer.
-
-           SIX skills here, not five: sub_475610 compares [ecx+0x00] through
-           [ecx+0x14]. VV3 and VV4 have five, and carrying either count
-           across would be wrong in both directions.
-
-           Buried elders at grave+0x31, where 0x464CFE stores sub_475610's
-           result -- the three-or-more rule itself. Measured across 52 of the
-           owner's saves: 562 occupied graves, 8 of them elders. */
-        count_living_elders(
-            module == NULL ? NULL : module + 0x154148u,
-            0x48u, 0x2F44u, 150u, 0x1CD4u, 0x1C5Cu, 6u, 1)
-        + count_buried_elders(
-            module == NULL ? NULL : module + 0x1481A8u,
-            0x5Cu, 500u, 0x1Cu, 0x31u),
+        /* Village Elders; see village_elders_for. */
+        village_elders_for(GAME_VV5),
         read_int(statistics, 0x20),
         read_int(statistics, 0x24),
         read_int(statistics, 0x08),
@@ -1172,6 +1165,7 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     if (manager == NULL || save_id < 1 || save_id > 5) {
         return 0;
     }
+    g_save_id = save_id;
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
     }
@@ -1344,24 +1338,17 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             0u,
             /* Skills at villager+0x1C5C, from `lea ebx,[edi+1C5Ch]` at
                0x45D4E3 in the burial writer. FLOAT32 against 88.0, five
-               skills.
-
-               Buried elders at grave+0x37, which is PATCH-OWNED rather than
-               stock. VV4 is the only one of the three whose burial writer
-               does not persist the owner's predicate: 0x45D4FE stores
-               sub_46AC70's result, and that is `cmp edx,5` -- mastered ALL
-               five -- which undercounts three-and-four-skill elders. The
-               hook in scripts/build_statistics_features.py stores the real
-               verdict at +0x37, verified free: always zero across 701 of the
-               owner's real grave records, and the only two [reg+0x37] forms
-               image-wide are `lea` address arithmetic at 0x444382 and
-               0x460790, neither in the burial writer nor the grave
-               accessor. */
+               skills. */
             0x1C5Cu, 5u, 1,
-            0x37u,
-            /* Seed +0x37 once from the stock all-five flag at +0x31, marked
-               at statistics+0x4C (0x4D6E2C, zero references image-wide). */
-            0x31u, 0x4Cu,
+            /* PENDING-IMPLEMENTATION: the per-save Village Elders .dat.
+               Until then only the game's own grave flag at +0x31 is read --
+               the stock burial writer stores sub_46AC70's all-five-skills
+               verdict there -- and NOTHING is written to any grave: the
+               old patch-owned byte +0x37 is overwritten by the stock dword
+               store at +0x34 (0x45D524), and seeding it pushed +0x34 out of
+               the -1..4 range the memorial loader 0x45D6E0 accepts. */
+            0x31u,
+            0u, 0u,
             GAME_VV4
         );
     } else {

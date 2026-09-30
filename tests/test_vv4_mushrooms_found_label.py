@@ -20,7 +20,7 @@ DLL = ROOT / "assets" / "statistics" / "VVFP Statistics Export.dll"
 class TreeOfLifeLabelTests(unittest.TestCase):
     def test_the_source_labels_vv4_mushrooms_found(self):
         text = SOURCE.read_text(encoding="utf-8")
-        block = text[text.index("game_id == GAME_VV4"):]
+        block = text[text.rindex("written = write_later_game("):]
         block = block[:block.index("0x850u")]
         block = re.sub(r"/\*.*?\*/", "", block, flags=re.S)   # code, not comments
         labels = re.findall(r'"([^"]+ Found)"', block)

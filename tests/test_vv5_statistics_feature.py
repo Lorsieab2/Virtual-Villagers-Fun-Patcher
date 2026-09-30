@@ -46,7 +46,7 @@ class VV5StatisticsFeatureTests(unittest.TestCase):
         )
         source = SOURCE.read_text(encoding="utf-8")
         self.assertIn('"Heathens Converted: %d\\n"', source)
-        self.assertIn("read_int(statistics, 0x34)", source)
+        self.assertIn("read_int(live, 0x34)", source)
         self.assertIn("write_vv5(", source)
 
     def test_conversion_hook_is_exactly_guarded(self) -> None:

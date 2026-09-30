@@ -1473,7 +1473,7 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn("Open Vanilla Folder:", source)
         self.assertIn("Open Modded Folder:", source)
         self.assertIn("Patch audit:", source)
-        self.assertIn("Village Statistics - Save N.txt:", source)
+        self.assertIn("Village Statistics v2 - Save N.txt:", source)
         # Plain text, not HTML: the owner asked for "plain text and numbers,
         # nothing fancy". The GUI previously advertised an HTML log for a
         # feature no manifest defined and no builder emitted.
