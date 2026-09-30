@@ -1016,7 +1016,7 @@ class ManifestTests(unittest.TestCase):
                 "vv1": 22,
                 "vv2": 21,
                 "vv3": 9,
-                "vv4": 11,
+                "vv4": 12,
                 "vv5": 13,
             }
             self.assertEqual(len(build.safety_patches), expected_safety_counts[build.id])

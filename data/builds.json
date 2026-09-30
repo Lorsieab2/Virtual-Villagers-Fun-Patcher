@@ -579,6 +579,12 @@
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "515231C0BAACE55000B99600000080BAC41C000000741283C00183BA4C1C00000074060382501C000081C23C2E000083E90175DA5A59C3",
           "purpose": "count VV4 physical villager demand for the 150-slot saturation guards: every occupied record plus the babies each pregnant mother still owes a record, mirroring the VV5 counter"
+        },
+        {
+          "offset": "0x5D700",
+          "before": "8B7BF485FF744E8D53D8BE19000000E85CFCFFFF84C0744785FF7C438B0383F8FF7C3C83F8057D378B430C83F8FF7C2F83F8057D2A8B7C2410834424105C83C501B9170000008BF283C35C81FDF4010000F3A57CAB5F5E5DB0015B59C204005F5E5D32C05B59C20400CCCCCCCCCCCCCC",
+          "after": "8B7BF485FF74598D53D8BE19000000E85CFCFFFF84C0744C85FF7C488B034083F80673408B430C807B0F017511C1E008C1F8088D480183F906732989430C4083F80673208B7C2410834424105C456A17598BF283C35C81FDF4010000F3A57CA0B001EB0232C05F5E5D5B59C20400CCCC",
+          "purpose": "repair graves damaged by Village Statistics v1.35.40 and earlier before the memorial loader validates them: a grave whose stock dword +0x34 carries a patch-set 0x01 in its top byte over a valid -1..4 value is restored to that value, so the save loads; every stock-valid grave is left byte-identical and any other invalid grave is still rejected exactly as stock"
         }
       ]
     },
