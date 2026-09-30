@@ -1222,8 +1222,12 @@ def build_game(
     )
     description = (
         "After each successful save of slots 1 through 5, writes the save's "
-        "local lifetime statistics to 'Village Statistics v2 - Save N.txt' "
-        "(an earlier 'Village Statistics - Save N.txt' is kept unchanged).Later games retain the inherited per-save "
+        "local lifetime statistics to 'Village Statistics v2 - Save N.txt' in "
+        "the 'Virtual Villagers Fun Patcher Logs\\Village Statistics' folder "
+        "beside the game's saves (an earlier 'Village Statistics - Save N.txt' "
+        "is kept unchanged). Counts the game does not keep are stored in "
+        "per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later "
+        "games retain the inherited per-save "
         "statistics block even where no Statistics screen is reachable; omitted "
         "stock bookkeeping is restored by exact gameplay hooks. "
         + puzzle_clause

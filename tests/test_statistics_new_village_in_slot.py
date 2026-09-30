@@ -51,26 +51,52 @@ class NewVillageInSlotTests(unittest.TestCase):
                 # the rename-proof fingerprint fields
                 self.assertEqual(mine[8:], [likes, dislikes, pref_slots, pf_name, pm_name, p_cap])
 
-    def test_the_check_gates_the_flush(self):
-        """Codex (PR #467): if moving the old files aside fails, the new
-        village's events must not be flushed into the old village's files."""
+    def test_the_rollover_is_transactional_with_the_save(self):
+        """Codex (PR #467, rounds 1-2): the decision is made before the save
+        but nothing moves until the stock save succeeds; a save that detects a
+        new village does not flush (its events stay in the save and are
+        flushed into fresh files next time); the roster is committed after."""
         body = EXPORTER[EXPORTER.index("__declspec(dllexport) int __stdcall SaveVillageStatistics("):]
         body = body[:body.index("\n}\n")]
-        self.assertRegex(body, r"if \(start_fresh_if_new_village\(game_id, save_id\)\) \{\s*vvs_flush\(&g_store\);")
+        decide = body.index("changed = village_changed(game_id, save_id);")
+        flush = body.index("vvs_flush(&g_store);")
+        write = body.index("result = ((save_writer)writer)(")
+        commit = body.index("commit_roster(save_id, changed);")
+        self.assertLess(decide, flush)
+        self.assertLess(flush, write)
+        self.assertLess(write, commit)
+        self.assertRegex(body, r"if \(!changed\) \{\s*vvs_flush\(&g_store\);")
+        self.assertRegex(body, r"if \(primary && \(result & 0xFF\) != 0\) \{\s*commit_roster\(save_id, changed\);")
+        check = EXPORTER[EXPORTER.index("static int village_changed("):]
+        check = check[:check.index("\n}\n")]
+        for writes in ("MoveFileExW", "DeleteFileW", "_wfopen_s(&f, temporary", '"w"'):
+            self.assertNotIn(writes, check, "the pre-save decision must not change anything on disk")
 
     def test_old_files_are_moved_aside_never_deleted_or_overwritten(self):
-        body = EXPORTER[EXPORTER.index("static int start_fresh_if_new_village("):]
+        body = EXPORTER[EXPORTER.index("static int commit_roster("):]
         body = body[:body.index("\n}\n")]
-        self.assertNotIn("DeleteFile", body)
         for moved in ("move_aside(g_store_counters, stamp)", "move_aside(g_store_stews, stamp)",
                       "move_aside(elders, stamp)"):
             self.assertIn(moved, body)
-        self.assertIn("if (was > 0 && !shared) {", body)
         self.assertIn("return 0;                 /* keep the recorded roster: retry next save */", body)
+        # the roster replacement is checked, and only the roster's own temp file is ever deleted
+        self.assertIn("if (!MoveFileExW(temporary, roster, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {", body)
+        self.assertEqual(set(__import__("re").findall(r"DeleteFileW\((\w+)\)", body)), {"temporary"})
         mover = EXPORTER[EXPORTER.index("static int move_aside("):]
         mover = mover[:mover.index("\n}\n")]
         self.assertIn("MoveFileExW(path, aside, 0)", mover)          # never replaces a file
         self.assertNotIn("MOVEFILE_REPLACE_EXISTING", mover)
+
+    def test_elders_are_recorded_even_if_the_log_cannot_be_opened(self):
+        """Codex (PR #467, round 2): the elder .dat is updated on every
+        successful save before the text log is opened."""
+        body = EXPORTER[EXPORTER.index("__declspec(dllexport) int __stdcall WriteVillageStatistics("):]
+        body = body[:body.index("\n}\n")]
+        update = body.index("g_elders_ready = 0;")
+        opened = body.index('file = _wfopen(temporary, L"w");')
+        self.assertLess(update, opened)
+        self.assertIn("vv1_village_elders(manager);", body[update:opened])
+        self.assertIn("village_elders_for(game_id);", body[update:opened])
 
     def test_renaming_never_looks_like_a_new_village(self):
         """Codex (PR #467): renaming every living villager must not discard

@@ -275,8 +275,18 @@ static int g_save_id;
    VV4 mausoleum 0x5025C8 and VV5 0x5481A8 (stride 0x5C, 500), verdict at
    +0x31 -- three-or-more in VV5 (0x464CFE), but all-FIVE in VV4 (0x45D4FE,
    sub_46AC70 `cmp edx,5`), which is still an elder, only a stricter test. */
+/* The elder count for the current save. Computed ONCE per successful save,
+   by elders_update_for_save, before the text log is opened -- so a locked or
+   unwritable log never skips recording an elder -- and read from here by the
+   writers. */
+static int g_elders_ready;
+static int g_elders_value;
+
 static int village_elders_for(int game_id) {
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    if (g_elders_ready) {
+        return g_elders_value;
+    }
     struct elders_layout l;
     if (module == NULL) {
         return -1;
@@ -309,7 +319,9 @@ static int village_elders_for(int game_id) {
     } else {
         return -1;
     }
-    return vv_village_elders(game_id, g_save_id, &l);
+    g_elders_value = vv_village_elders(game_id, g_save_id, &l);
+    g_elders_ready = 1;
+    return g_elders_value;
 }
 
 /* A New Home's Village Elders: the owner's definition -- one villager with
@@ -336,6 +348,9 @@ static int vv1_village_elders(const unsigned char *manager) {
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
     struct elders_layout l;
     (void)manager;
+    if (g_elders_ready) {
+        return g_elders_value;
+    }
     if (module == NULL) {
         return -1;
     }
@@ -351,7 +366,9 @@ static int vv1_village_elders(const unsigned char *manager) {
     l.skill_count = 5u;
     l.skills_are_float = 0;
     l.master_int = 90;
-    return vv_village_elders(GAME_VV1, g_save_id, &l);
+    g_elders_value = vv_village_elders(GAME_VV1, g_save_id, &l);
+    g_elders_ready = 1;
+    return g_elders_value;
 }
 
 /* Unique stew combinations: VV2 Total Stews Found, VV3 and VV4 Stews Found.
@@ -912,6 +929,14 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
         return 0;
     }
     bind_store(game_id, manager, save_id);
+    /* Village Elders: update the save's .dat now, before anything that can
+       fail (the text log below), so every successful save records it. */
+    g_elders_ready = 0;
+    if (game_id == GAME_VV1) {
+        vv1_village_elders(manager);
+    } else if (game_id != GAME_VV2) {
+        village_elders_for(game_id);
+    }
     /* Identify the village at the top of the log. The owner keeps several
        villages per game, so a log naming only the game cannot be matched to
        the village it describes, and these logs are meant to be
@@ -1147,11 +1172,14 @@ typedef int (__fastcall *save_writer)(void *manager, void *unused,
    the slot AND either the name or the fingerprint, so a player renaming
    villagers never looks like a new village. If the next save's living
    roster shares no villager with the recorded one, the slot now holds a
-   different village: the three .dat files are moved aside as
-   "... .previous-village-<ticks>-<n>.dat" (never deleted, never over an
-   existing file) and tracking starts fresh. If a move fails, nothing is
-   flushed for that save, so a new village's events can never merge into the
-   old village's files. An empty recorded roster never triggers this. */
+   different village. The decision is made before the stock save, but it is
+   committed only AFTER the save succeeds: the three .dat files are then
+   moved aside as "... .previous-village-<ticks>-<n>.dat" (never deleted,
+   never over an existing file) and the new roster is committed; the save
+   that detects the change does not flush, so a new village's events can
+   never merge into the old village's files, and a failed save changes
+   nothing. If a move or the roster commit fails, the old roster stays and
+   the next save retries. An empty recorded roster never triggers this. */
 struct roster_layout {
     unsigned int villagers_rva;
     int rva_is_pointer;
@@ -1281,19 +1309,27 @@ static int move_aside(const wchar_t *path, unsigned long long stamp) {
     return 0;
 }
 
-/* 1 = tracking may be flushed; 0 = a new village was detected and its old
-   files could not all be moved aside, so this save must not flush. */
-static int start_fresh_if_new_village(int game_id, int save_id) {
-    wchar_t folder[MAX_PATH], roster[MAX_PATH], temporary[MAX_PATH], elders[MAX_PATH], elders_folder[MAX_PATH];
+static int g_roster_now_count;
+
+static int roster_paths(int save_id, wchar_t *roster, wchar_t *temporary) {
+    wchar_t folder[MAX_PATH];
+    return vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Statistics", 64)
+        && _snwprintf_s(roster, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.dat", folder, save_id) > 0
+        && _snwprintf_s(temporary, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.tmp", folder, save_id) > 0;
+}
+
+/* BEFORE the save: does the slot now hold a different village? Reads only;
+   changes nothing on disk. 1 = a new village (the recorded roster and the
+   living one share no villager), 0 = the same village or nothing to compare. */
+static int village_changed(int game_id, int save_id) {
+    wchar_t roster[MAX_PATH], temporary[MAX_PATH];
     FILE *f;
     char line[128];
-    int now = living_roster(game_id, g_roster_now);
     int was = 0;
     int i, j, shared = 0;
-    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Statistics", 64)
-        || _snwprintf_s(roster, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.dat", folder, save_id) <= 0
-        || _snwprintf_s(temporary, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.tmp", folder, save_id) <= 0) {
-        return 1;
+    g_roster_now_count = living_roster(game_id, g_roster_now);
+    if (!roster_paths(save_id, roster, temporary)) {
+        return 0;
     }
     if (_wfopen_s(&f, roster, L"rb") == 0 && f != NULL) {
         if (fgets(line, sizeof(line), f) != NULL && strncmp(line, "VVFP VILLAGE ROSTER v1", 22) == 0) {
@@ -1309,39 +1345,63 @@ static int start_fresh_if_new_village(int game_id, int save_id) {
         }
         fclose(f);
     }
-    if (now == 0) {
-        return 1;                     /* nothing to compare or record */
+    if (was == 0 || g_roster_now_count == 0) {
+        return 0;
     }
     for (i = 0; i < was && !shared; ++i) {
-        for (j = 0; j < now && !shared; ++j) {
+        for (j = 0; j < g_roster_now_count && !shared; ++j) {
             shared = same_villager(g_roster_was[i], g_roster_now[j]);
         }
     }
-    if (was > 0 && !shared) {
+    return !shared;
+}
+
+/* AFTER the stock save succeeded: for a new village, move the slot's three
+   .dat files aside (never deleted, never over an existing file), then
+   commit the living roster. Returns 1 only if everything that had to happen
+   did. On failure the old roster stays, so the next save detects the change
+   again and retries -- and, because a detected change suppresses that
+   save's flush, nothing is ever merged into the wrong village's files or
+   reset in a loop. */
+static int commit_roster(int save_id, int changed) {
+    wchar_t roster[MAX_PATH], temporary[MAX_PATH], elders[MAX_PATH], elders_folder[MAX_PATH];
+    FILE *f;
+    int j;
+    int ok = 1;
+    if (g_roster_now_count == 0 || !roster_paths(save_id, roster, temporary)) {
+        return !changed;
+    }
+    if (changed) {
         unsigned long long stamp = (unsigned long long)GetTickCount64();
-        int moved = move_aside(g_store_counters, stamp);
-        moved = move_aside(g_store_stews, stamp) && moved;
+        ok = move_aside(g_store_counters, stamp);
+        ok = move_aside(g_store_stews, stamp) && ok;
         if (vv_save_subfolder_w(elders_folder, L"Virtual Villagers Fun Patcher Data\\Village Elders", 64)
             && _snwprintf_s(elders, MAX_PATH, _TRUNCATE, L"%ls\\Village Elders - Save %d.dat",
                             elders_folder, save_id) > 0) {
-            moved = move_aside(elders, stamp) && moved;
+            ok = move_aside(elders, stamp) && ok;
         } else {
-            moved = 0;
+            ok = 0;
         }
-        if (!moved) {
+        if (!ok) {
             return 0;                 /* keep the recorded roster: retry next save */
         }
     }
     /* Text mode: the C runtime writes the Windows line endings, as for every
        other file this companion writes. */
-    if (_wfopen_s(&f, temporary, L"w") == 0 && f != NULL) {
-        fputs("VVFP VILLAGE ROSTER v1\n", f);
-        for (j = 0; j < now; ++j) {
-            fprintf(f, "%s\n", g_roster_now[j]);
-        }
-        if (fclose(f) == 0) {
-            MoveFileExW(temporary, roster, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
-        }
+    if (_wfopen_s(&f, temporary, L"w") != 0 || f == NULL) {
+        return 0;
+    }
+    fputs("VVFP VILLAGE ROSTER v1\n", f);
+    for (j = 0; j < g_roster_now_count; ++j) {
+        fprintf(f, "%s\n", g_roster_now[j]);
+    }
+    if (fclose(f) != 0) {
+        DeleteFileW(temporary);
+        return 0;
+    }
+    if (!MoveFileExW(temporary, roster, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileW(temporary);
+        return 0;
     }
     return 1;
 }
@@ -1358,14 +1418,22 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
     int result;
     int primary = manager != NULL && save_id >= 1 && save_id <= 5
         && game_id >= GAME_VV1 && game_id <= GAME_VV5;
+    int changed = 0;
     if (primary) {
         bind_store(game_id, manager, save_id);
-        if (start_fresh_if_new_village(game_id, save_id)) {
+        /* Decided before the save, committed only after it succeeds. When
+           the slot holds a new village this save does not flush: its pending
+           events stay in memory and in the save it writes, and are flushed
+           into fresh files by the next save, once the rollover is committed.
+           A failed save therefore changes nothing on disk. */
+        changed = village_changed(game_id, save_id);
+        if (!changed) {
             vvs_flush(&g_store);
         }
     }
     result = ((save_writer)writer)(manager_pointer, NULL, buffer, size, save_id);
     if (primary && (result & 0xFF) != 0) {
+        commit_roster(save_id, changed);
         WriteVillageStatistics(game_id, manager_pointer, save_id);
     }
     return result;
