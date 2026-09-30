@@ -74,6 +74,12 @@ Expanded-256 population modes have been removed from the patcher.
 8. Optional for any game: check that game's "Write Village Statistics to Text
    File" feature. It refreshes a separate "Village Statistics - Save N.txt"
    file after each successful save of slots 1 through 5.
+   Also optional for every game, and off by default: "Manual Drop-Breeding
+   overrides Birth Control". When you drop an adult villager onto an adult
+   of the opposite sex, a woman aged 50 or older is no longer refused. The
+   game's usual chances still decide whether a baby is conceived, and every
+   other rule of the drop still applies. A New Home never refuses her on its
+   own, so there it only matters when Birth Control is also ticked.
 9. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE

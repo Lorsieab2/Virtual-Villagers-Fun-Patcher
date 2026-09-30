@@ -148,17 +148,24 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for village-wide Running clearing a Running Dislike (#478) on top of main
     # (2026-09-30). Justified BEFORE re-pinning: main's tree reproduces the previous pins;
     # the only differing bytes are the PE CheckSum.
+    # Re-pinned when Manual Drop-Breeding overrides Birth Control joined the
+    # catalog (2026-09-30). Justified BEFORE re-pinning by rendering the full
+    # catalog without and with vv3_manual_drop_breeding_overrides_birth_control:
+    # without it the render is exactly the previous pin (26E20313.../2CC59D13.../
+    # DC755117...) in every mode; with it, the only differing bytes are the
+    # row's six-byte jump at 0x586F3..0x586F8 and the PE CheckSum at
+    # 0x160..0x162; the length is unchanged.
     "stock": (
-        "26E203135581EF8CDBF9DE83B14B36C621D9F1E3A8D90EC347E16A15C3809237",
-        "ADE20C00",
+        "34D3D853FE203292A1F0F45E22CDF045DCBDA726A6F3D54678230213B1E75193",
+        "599F0D00",
     ),
     "collection_progression": (
-        "2CC59D137060A79AC8C97C4B471E67236EB08CDEBFCDE9546902D2F1ACA6A915",
-        "ADFB0C00",
+        "B37BF2CCD61F7667799C147EE675167FD295AA0E87DF332645A4D736E834BAC5",
+        "59B80D00",
     ),
     "immediate_fixed": (
-        "DC7551178BF924A37612FBEF2426467018432EA127E8516E0F660BAAE037871C",
-        "AB3D0D00",
+        "826D9664FE8D446E4077F0147331FD65C8623A848698CEAAAAC87B7905C9729E",
+        "58FA0C00",
     ),
 }
 
