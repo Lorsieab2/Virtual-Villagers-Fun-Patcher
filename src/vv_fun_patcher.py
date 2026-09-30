@@ -8841,6 +8841,43 @@ def _copy_companion_files(
     return copied
 
 
+def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]:
+    """Casefolded relative paths of every companion the patcher may install.
+
+    Two sources, so nothing the patcher put there can masquerade as a user
+    file on overwrite: every companion destination in this game's catalog
+    (public, internal and Time Warp records alike), and every companion the
+    earlier install's own patch log recorded -- which also covers a feature
+    that has since been retired from the catalog.
+    """
+    owned: set[str] = set()
+    for feature in _load_fun_patch_records(include_expanded_time_warp=True):
+        if feature.raw.get("game_id") != build.id:
+            continue
+        for item in feature.raw.get("companion_files", []):
+            try:
+                destination = _safe_companion_destination(item.get("destination"))
+            except PatcherError:
+                continue
+            owned.add(destination.as_posix().casefold())
+    for log_path in output_folder.glob("*.patch-log.json"):
+        try:
+            records = json.loads(log_path.read_text(encoding="utf-8")).get(
+                "companion_files", []
+            )
+        except (OSError, ValueError, AttributeError):
+            continue
+        for record in records if isinstance(records, list) else ():
+            try:
+                _, key = _companion_relative_destination(
+                    Path(record["path"]), output_folder
+                )
+            except (PatcherError, KeyError, TypeError):
+                continue
+            owned.add(key)
+    return owned
+
+
 def _companion_relative_destination(path: Path, output_folder: Path) -> tuple[Path, str]:
     """Return a normalized full relative destination and its comparison key.
 
@@ -10388,12 +10425,19 @@ def apply_patch(
             if not overwrite:
                 raise PatcherError(f"Modified game folder appeared before publish: {output_folder}")
             # Preserve user-created files in an overwrite transaction while
-            # still replacing the certified EXE/DLL pair as one tree.
+            # still replacing the certified EXE/DLL pair as one tree. Files the
+            # patcher itself installed are NOT user files: a companion DLL left
+            # behind by an earlier, larger selection keeps its feature running
+            # (most companions switch on merely by being present), so only the
+            # companions the new selection staged may survive.
             original_records = _capture_tree_records(output_folder)
+            owned = _patcher_owned_companion_keys(build, output_folder)
             for prior in output_folder.rglob("*"):
                 if not prior.is_file():
                     continue
                 relative = prior.relative_to(output_folder)
+                if relative.as_posix().casefold() in owned:
+                    continue
                 target = staging_folder / relative
                 if target.exists():
                     continue
