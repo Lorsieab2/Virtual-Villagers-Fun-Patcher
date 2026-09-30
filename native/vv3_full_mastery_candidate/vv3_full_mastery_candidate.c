@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <shlobj.h>   /* SHGetSpecialFolderPathA for the mask-sidecar path */
 #include <string.h>
+#include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 
 static HINSTANCE module_instance;
 
@@ -131,14 +132,14 @@ __declspec(dllexport) void __stdcall VV3RunningMaskBoundary(int after);
    VirtualSize (0x6C7518) -- i.e. in the slack between .data's vsize and the next section.
    That is a code cave and violates docs/head-mask-rendering.md Part 7, so the build now
    appends .vv3mc (R-X, trampolines) + .vv3md (R/W, these slots) and everything moved.
-   Layout: +0x00 MASK_DRAWFN (Detail cave), +0x04 world DrawAt, +0x08..+0x34 reserved,
-   +0x34 auto-load latch (exe-side), +0x3C worlddbg, +0x40 chiefdbg, +0x44 active save
-   slot (captured by the exe save-builder trampoline), +0x48 Running-boundary fn. */
+   Layout (the DLL publishes only +0x04 and +0x48; the rest is exe-side, defined by
+   scripts/build_vv3_origins_feature.py): +0x00 MASK_DRAWFN (Detail cave), +0x04 world
+   DrawAt, +0x08..+0x43 unused, +0x44 active save slot (captured by the exe
+   save-builder trampoline), +0x48 Running-boundary fn, +0x4C barrel due, +0x50 island
+   pending flag, +0x54 island due, +0x58 barrel pending flag.  Nothing debug-only is
+   published into this page. */
 #define VV3_WORLD_DRAWFN_PTR_SLOT  0x006E0004u
 #define VV3_RUNNING_BOUNDARY_PTR_SLOT 0x006E0048u
-
-extern int g_vv3_worlddbg[8];
-extern int g_vv3_chiefdbg[8];
 
 /* The companion can be loaded by an unpatched executable (or inspected by a
    tool) before the patch-owned .vv3md section exists.  Do not let DllMain
@@ -182,8 +183,6 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
            selector is 0..2, entries are 24 bytes, elapsed time is compared with 0x12C and
            0x7080, and no villager record reaches either call.  Their bytes remain stock until
            a player trace proves the real grab and held-render boundaries. */
-        *(void **)(UINT_PTR)0x006E003Cu                  = (void *)&g_vv3_worlddbg[0];
-        *(void **)(UINT_PTR)0x006E0040u                  = (void *)&g_vv3_chiefdbg[0];
         *(void **)(UINT_PTR)VV3_RUNNING_BOUNDARY_PTR_SLOT = (void *)&VV3RunningMaskBoundary;
     }
     return TRUE;
@@ -1221,54 +1220,42 @@ static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
     return 1;
 }
 
+/* The load/publish gate for the mask sidecar (native/shared/sidecar_io.h),
+   keyed by save slot: a write is refused until this slot's file has loaded,
+   been found missing, or -- present but invalid -- been moved aside intact. */
+static vv_sidecar_gate g_vv3_mask_gate;
+
+#define VV3_MASK_SIDECAR_BYTES \
+    (sizeof(unsigned int) + sizeof(g_vv3_mask) + sizeof(g_vv3_mask_fp))
+
+static int vv3_mask_sidecar_valid(const unsigned char *data, DWORD len,
+                                  void *ctx) {
+    unsigned int magic;
+    (void)ctx;
+    if (len < VV3_MASK_SIDECAR_BYTES) return 0;
+    memcpy(&magic, data, sizeof(magic));
+    return magic == VV3_MASK_MAGIC;
+}
+
 static int vv3_mask_write_sidecar_tables(const unsigned char *mask_table,
                                          const unsigned int *fp_table) {
     char path[MAX_PATH];
-    char tmp[MAX_PATH];
-    HANDLE h;
-    DWORD w = 0;
     unsigned int magic = VV3_MASK_MAGIC;
-    BOOL ok = TRUE;
+    const void *parts[3];
+    DWORD sizes[3];
     if (g_vv3_mask_slot <= 0) return 0;
+    /* NEVER BEFORE THE LOAD SETTLED.  A present file that could not be
+       opened, or failed the magic/length check, used to load as an empty
+       table which the next write then published over it.  Checked before
+       the path is built, so a blocked slot costs no file I/O. */
+    if (!vv_sidecar_gate_ready(&g_vv3_mask_gate, g_vv3_mask_slot)) return 0;
     if (!vv3_mask_sidecar_path(path, sizeof(path), g_vv3_mask_slot)) return 0;
-    /* Keep the published sidecar intact until the complete payload is durable.
-       The temporary suffix has its own MAX_PATH budget because the final path
-       may be valid while its publication path is not. */
-    if (lstrlenA(path) + (int)sizeof(".tmp") > MAX_PATH) return 0;
-    lstrcpyA(tmp, path);
-    lstrcatA(tmp, ".tmp");
-    h = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-                    FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) return 0;
-    if (!WriteFile(h, &magic, sizeof(magic), &w, NULL) ||
-        w != sizeof(magic)) {
-        ok = FALSE;
-    }
-    if (ok && (!WriteFile(h, mask_table, sizeof(g_vv3_mask), &w, NULL) ||
-               w != sizeof(g_vv3_mask))) {
-        ok = FALSE;
-    }
-    if (ok && (!WriteFile(h, fp_table, sizeof(g_vv3_mask_fp), &w, NULL) ||
-               w != sizeof(g_vv3_mask_fp))) {
-        ok = FALSE;
-    }
-    if (ok && !FlushFileBuffers(h)) {
-        ok = FALSE;
-    }
-    if (!CloseHandle(h)) {
-        ok = FALSE;
-    }
-    if (!ok) {
-        /* Only remove the exact temporary path; the previous final remains. */
-        DeleteFileA(tmp);
-        return 0;
-    }
-    if (!MoveFileExA(tmp, path,
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-        DeleteFileA(tmp);
-        return 0;
-    }
-    return 1;
+    /* Keep the published sidecar intact until the complete payload is durable:
+       "<path>.tmp", every write checked, flushed, then moved over it. */
+    parts[0] = &magic;      sizes[0] = sizeof(magic);
+    parts[1] = mask_table;  sizes[1] = sizeof(g_vv3_mask);
+    parts[2] = fp_table;    sizes[2] = sizeof(g_vv3_mask_fp);
+    return vv_sidecar_publish(&g_vv3_mask_gate, path, parts, sizes, 3);
 }
 
 static int vv3_mask_write_sidecar(void) {
@@ -1277,9 +1264,8 @@ static int vv3_mask_write_sidecar(void) {
 
 static void vv3_mask_read_sidecar(int slot) {
     char path[MAX_PATH];
-    HANDLE h;
-    DWORD r = 0, mask_r = 0, fp_r = 0;
-    unsigned int magic = 0;
+    DWORD got = 0;
+    unsigned char file[VV3_MASK_SIDECAR_BYTES];
     /* BUILD THE PATH BEFORE COMMITTING TO THE LOAD.
 
        This used to latch the one-shot AND clear the tables first, so a
@@ -1296,23 +1282,31 @@ static void vv3_mask_read_sidecar(int slot) {
        latched only once the path is known, so a refused migration is
        retried rather than being recorded as a finished load. */
     vv3_mask_clear_tables();
-    if (!vv3_mask_sidecar_path(path, sizeof(path), slot)) return;
-    g_vv3_mask_loaded = 1;                                 /* one-shot */
-    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                    FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) return;
-    if (ReadFile(h, &magic, sizeof(magic), &r, NULL) && r == sizeof(magic)
-        && magic == VV3_MASK_MAGIC) {
-        if (!ReadFile(h, g_vv3_mask, sizeof(g_vv3_mask), &mask_r, NULL)
-            || mask_r != sizeof(g_vv3_mask)
-            || !ReadFile(h, g_vv3_mask_fp, sizeof(g_vv3_mask_fp), &fp_r, NULL)
-            || fp_r != sizeof(g_vv3_mask_fp)) {
-            vv3_mask_clear_tables();
-        } else {
-            vv3_mask_sanitize_loaded_table();
-        }
+    vv_sidecar_gate_bind(&g_vv3_mask_gate, slot);
+    if (vv_sidecar_gate_throttled(&g_vv3_mask_gate)) return; /* retry window: no I/O */
+    if (!vv3_mask_sidecar_path(path, sizeof(path), slot)) {
+        vv_sidecar_gate_block(&g_vv3_mask_gate);
+        return;
     }
-    CloseHandle(h);
+    /* Only a genuinely missing file is settled-and-empty.  A present file
+       that cannot be opened leaves the one-shot UNLATCHED -- neither read nor
+       written until a later retry opens it -- and one that fails the magic or
+       is short is moved aside intact before any write may replace it.  Both
+       used to latch an empty table that the next write published over them. */
+    switch (vv_sidecar_load(&g_vv3_mask_gate, path, file, sizeof(file), &got,
+                            vv3_mask_sidecar_valid, NULL)) {
+    case VV_SIDECAR_LOAD_BLOCKED:
+        return;
+    case VV_SIDECAR_LOAD_VALID:
+        memcpy(g_vv3_mask, file + sizeof(unsigned int), sizeof(g_vv3_mask));
+        memcpy(g_vv3_mask_fp, file + sizeof(unsigned int) + sizeof(g_vv3_mask),
+               sizeof(g_vv3_mask_fp));
+        vv3_mask_sanitize_loaded_table();
+        break;
+    default:
+        break;                                             /* missing or set aside */
+    }
+    g_vv3_mask_loaded = 1;                                 /* one-shot */
 }
 
 /* Observe the active save number before every read/write.  On a save switch,
@@ -1597,28 +1591,7 @@ __declspec(dllexport) void __stdcall VV3DrawMaskOnHead(
    body/head sequence, so held masks inherit the true tuple; cursor ownership and
    visual follow remain player-trace gates. */
 #define VV3_WORLD_MGR      0x0058F6F8u   /* the world appearance manager object   */
-#define VV3_WORLD_POS_FN   0x00455EF0u   /* __thiscall(record, &out{x,y}) -> base   */
 #define VV3_WORLD_HEAD_DRAW_FN 0x0042E5E0u /* __thiscall(mgr, atlas, x, y, row, facing, scale) */
-/* WORLD-path draw log, so the running game can say WHICH hook paints a given mask instead of
-   me inferring it.  [0]=villager index [1]=anim [2]=facing [3]=x [4]=y [5]=scale bits
-   [6]=mask colour [7]=draw count.  Published at 0x6E003C. */
-int g_vv3_worlddbg[8] = {0};
-/* Targeted log of the CHIEF-colour (mask==5) world draw. A player trace may correlate this
-   with a pickup, but this diagnostic does not identify grab state. [0]=index [1]=anim
-   [2]=facing [3]=x [4]=y [5]=record state +0xF1C [6]=villager world x [7]=count.
-   Published at 0x6E0040. */
-int g_vv3_chiefdbg[8] = {0};
-
-static int vv3_world_record_index(void *record)
-{
-    UINT_PTR p = (UINT_PTR)record;
-    UINT_PTR base = (UINT_PTR)VV3_REC_BASE;
-    UINT_PTR delta;
-    if (p < base) return -1;
-    delta = p - base;
-    if ((delta % VV3_STRIDE) != 0 || (delta / VV3_STRIDE) >= 150) return -1;
-    return (int)(delta / VV3_STRIDE);
-}
 
 /* ---- Village-view mask registration --------------------------------------
    Screen X grows rightward and screen Y grows downward, so both negatives seat
@@ -1699,10 +1672,9 @@ static int vv3_scaled_nudge(int px, float scale)
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
     void *atlas;
-    int mask, index, facing, mask_args[6], i;
+    int mask, facing, mask_args[6], i;
     int arg0, arg1, arg2, arg3, arg4, arg5;
     float scale;
-    int wp[2];
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) return;
@@ -1722,40 +1694,13 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
        Passing the raw composite indexed past column 7 and drew the wrong
        cell.  When args[4] already holds a bare facing this is a no-op. */
     mask_args[4] = facing;
-    /* Seat the mask on the face.  Applied BEFORE the debug capture below so
-       g_vv3_worlddbg reports the coordinates actually drawn, and before the
-       arg0..arg5 copy so the renderer receives them. */
+    /* Seat the mask on the face.  Applied before the arg0..arg5 copy so the
+       renderer receives the nudged coordinates. */
     scale = vv3_world_scale(mask_args[5]);
     mask_args[1] += vv3_scaled_nudge(
         VV3_WORLD_MASK_X_NUDGE_PX + VV3_WORLD_MASK_X_NUDGE_BY_FACING[facing & 7],
         scale);
     mask_args[2] += vv3_scaled_nudge(VV3_WORLD_MASK_Y_NUDGE_PX, scale);
-    index = vv3_world_record_index(record);
-    g_vv3_worlddbg[0] = index;
-    g_vv3_worlddbg[1] = *(int *)((unsigned char *)record + 0xF20);
-    g_vv3_worlddbg[2] = facing;
-    g_vv3_worlddbg[3] = mask_args[1];
-    g_vv3_worlddbg[4] = mask_args[2];
-    g_vv3_worlddbg[5] = mask_args[5];
-    g_vv3_worlddbg[6] = mask | (*(int *)((unsigned char *)record + 0xF1C) << 8);
-    g_vv3_worlddbg[7]++;
-    if (mask == 5) {
-        __asm {
-            lea  eax, wp
-            push eax
-            mov  ecx, record
-            mov  edx, VV3_WORLD_POS_FN
-            call edx
-        }
-        g_vv3_chiefdbg[0] = index;
-        g_vv3_chiefdbg[1] = *(int *)((unsigned char *)record + 0xF20);
-        g_vv3_chiefdbg[2] = facing;
-        g_vv3_chiefdbg[3] = mask_args[1];
-        g_vv3_chiefdbg[4] = mask_args[2];
-        g_vv3_chiefdbg[5] = *(int *)((unsigned char *)record + 0xF1C);
-        g_vv3_chiefdbg[6] = wp[0];
-        g_vv3_chiefdbg[7]++;
-    }
     /* MSVC inline assembly treats `arr[N]` as a BYTE displacement, not an
        element index.  `push mask_args[4]` therefore pushed base+4 -- element 1,
        the x coordinate -- and four of the six pushes were UNALIGNED reads

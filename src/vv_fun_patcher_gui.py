@@ -389,6 +389,12 @@ class App(tk.Tk):
             self.last_output_dir: Path | None = None
             self.last_modified_paths: dict[str, Path] = {}
             self._load_settings()
+            # Record the starting selection as the baseline the dependency
+            # closure diffs against. _load_settings does this only when a
+            # saved selection exists; on a fresh install the baseline stayed
+            # empty, so the first untick of a prerequisite read every ticked
+            # patch as newly added and ticked the prerequisite straight back.
+            self._apply_gui_dependency_selection()
             self._build_ui()
             self._mode_changed(save=False)
         finally:
@@ -1395,7 +1401,7 @@ class App(tk.Tk):
                 )
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(
-                        f"Village Statistics - Save N.txt: {save_folder / 'Village Statistics'} — refreshed after each successful save; contains that save's lifetime statistics."
+                        f"Village Statistics v2 - Save N.txt: {save_folder / 'Village Statistics'} — refreshed after each successful save; contains that save's lifetime statistics (the earlier 'Village Statistics - Save N.txt' is kept as it was)."
                     )
                 if f"{build.id}_write_parentage_log" in selected:
                     # The game number comes from the build. The condition above
