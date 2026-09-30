@@ -109,15 +109,15 @@ Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manua
 
 #### Builder Action Fixes (`vv1_builder_action_fixes`)
 
-Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
+Villagers whose selected job is Building try the stock construction dispatcher at every food level. What they build, and in what order, is the stock game's: a new population hut first (project IDs 9, 10, and 11, started from nothing as the stock game does), then the projects already under way; the project gates and the manual, existing-work, and repair routes remain stock.
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
+- Behavior changes: Villagers whose selected job is Building try the stock construction dispatcher at every food level. What they build, and in what order, is the stock game's: a new population hut first (project IDs 9, 10, and 11, started from nothing as the stock game does), then the projects already under way; the project gates and the manual, existing-work, and repair routes remain stock.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Builders and Healers Work First (`vv1_builders_and_healers_work_first`)
 
