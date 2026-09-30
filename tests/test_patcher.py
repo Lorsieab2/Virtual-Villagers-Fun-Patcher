@@ -3523,7 +3523,7 @@ class StockIntegrationTests(unittest.TestCase):
                 )
                 cave = bytes(rendered[details["cave"] : details["cave"] + 0xD0])
                 self.assertIn(b"VVFP Statistics Export.dll\0", cave)
-                self.assertIn(b"WriteVillageStatistics\0", cave)
+                self.assertIn(b"SaveVillageStatistics\0", cave)
                 self.assertIn(bytes.fromhex(details["game_push"]), cave)
                 self.assertIn(bytes.fromhex("83FF017C"), cave)
                 self.assertIn(bytes.fromhex("83FF057F"), cave)
@@ -3603,7 +3603,7 @@ class StockIntegrationTests(unittest.TestCase):
                         ]
                     )
                     self.assertIn(b"VVFP Statistics Export.dll\0", cave)
-                    self.assertIn(b"WriteVillageStatistics\0", cave)
+                    self.assertIn(b"SaveVillageStatistics\0", cave)
                     for offset, stock_hex in details.get("patched_hooks", {}).items():
                         stock_bytes = bytes.fromhex(stock_hex)
                         self.assertNotEqual(

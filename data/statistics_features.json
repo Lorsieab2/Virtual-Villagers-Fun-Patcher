@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "C563F9D1214FBDD13141AAF74C1DAECB74E11BB8DD44BB34419CC470A700AF6B",
+  "companion_sha256": "CA037564AD07D86859E4AF85FD66512FE85E51AD51FEC0D60F8DF1EF26C30253",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -18,7 +18,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "C563F9D1214FBDD13141AAF74C1DAECB74E11BB8DD44BB34419CC470A700AF6B"
+          "sha256": "CA037564AD07D86859E4AF85FD66512FE85E51AD51FEC0D60F8DF1EF26C30253"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -37,7 +37,7 @@
           "offset": "0x56730",
           "before_fill": "00",
           "length": 208,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoGsr6/1CEwHQ+g/8BfDmD/wV/NGiwZ0UA/xXQcEUAhcB1D2iwZ0UA/xUQcEUAhcB0FmjMZ0UAUP8V1HBFAIXAdAZXU2oB/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAi4cQ4AMA/4CEngAAxkQ5KADpcCf//wAAAAAAAA==",
+          "after_base64": "U4nLg/8BfEqD/wV/RWiwZ0UA/xXQcEUAhcB1D2iwZ0UA/xUQcEUAhcB0J2jMZ0UAUP8V1HBFAIXAdBf/dCQM/3QkDGhgMUAAV1NqAf/QW8IMAP90JBD/dCQQ/3QkEInZ6MvJ+v9bwgwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAU2F2ZVZpbGxhZ2VTdGF0aXN0aWNzAAAAi4cQ4AMA/4CcngAAxkQ5KADpcCf//wAAAAAAAA==",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -59,7 +59,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "C563F9D1214FBDD13141AAF74C1DAECB74E11BB8DD44BB34419CC470A700AF6B"
+          "sha256": "CA037564AD07D86859E4AF85FD66512FE85E51AD51FEC0D60F8DF1EF26C30253"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -78,7 +78,7 @@
           "offset": "0x73E50",
           "before_fill": "00",
           "length": 208,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoivX4/1CEwHQ+g/8BfDmD/wV/NGjQPkcA/xXQQEcAhcB1D2jQPkcA/xUQQEcAhcB0FmjsPkcAUP8V1EBHAIXAdAZXU2oC/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAi4bUdOUA/4DU5QIAxkQyMADpJhH//wAAAAAAAA==",
+          "after_base64": "U4nLg/8BfEqD/wV/RWjQPkcA/xXQQEcAhcB1D2jQPkcA/xUQQEcAhcB0J2jsPkcAUP8V1EBHAIXAdBf/dCQM/3QkDGjwM0AAV1NqAv/QW8IMAP90JBD/dCQQ/3QkEInZ6Dv1+P9bwgwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAU2F2ZVZpbGxhZ2VTdGF0aXN0aWNzAAAAi4bUdOUA/4Dg5QIAxkQyMADpJhH//wAAAAAAAA==",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -90,7 +90,7 @@
         {
           "offset": "0x73DF4",
           "before": "0000000000000000000000000000000000",
-          "after": "8B87D474E500FF80D8E50200E98D7CFDFF",
+          "after": "8B87D474E500FF80E4E50200E98D7CFDFF",
           "purpose": "install the twins counter wrapper in stock zero padding"
         },
         {
@@ -102,7 +102,7 @@
         {
           "offset": "0x73FED",
           "before": "0000000000000000000000000000000000",
-          "after": "FF8FD8E50200FF8724E50200E9DA7AFDFF",
+          "after": "FF8FE4E50200FF8724E50200E9DA7AFDFF",
           "purpose": "install the triplet correction wrapper in stock zero padding"
         },
         {
@@ -110,6 +110,84 @@
           "before": "FF8724E50200",
           "after": "E91685020090",
           "purpose": "remove the twins over-count for a birth promoted to triplets, so twins counts twins only"
+        },
+        {
+          "offset": "0x255D3",
+          "before": "90909090909090909090909090",
+          "after": "9C608B813C040300E9A3040000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x25A83",
+          "before": "9090909090909090909090",
+          "after": "83E83083F805E9C5000000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x25B53",
+          "before": "9090909090909090909090",
+          "after": "0F8750130000E9B5050000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x26113",
+          "before": "9090909090909090909090",
+          "after": "8B9140040300E935000000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x26153",
+          "before": "9090909090909090909090",
+          "after": "83EA3083FA05E964000000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x261C2",
+          "before": "9090909090909090909090909090",
+          "after": "0F87E10C00006BC006E9B2000000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x26282",
+          "before": "90909090909090909090909090",
+          "after": "01D08B9144040300E914000000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x262A3",
+          "before": "9090909090909090909090",
+          "after": "83EA3083FA05E915000000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x262C3",
+          "before": "9090909090909090909090",
+          "after": "0F87E00B0000E9C3030000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x26691",
+          "before": "90909090909090909090",
+          "after": "6BC00601D0E907080000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x26EA2",
+          "before": "9090909090909090909090909090",
+          "after": "0FAB81E8E50200619DE903040000",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x272B3",
+          "before": "909090909090909090909090",
+          "after": "5556578BF133FFE9D8E8FFFF",
+          "purpose": "install part of the stew-discovery recorder in stock NOP padding between functions"
+        },
+        {
+          "offset": "0x25B90",
+          "before": "5556578BF133FF",
+          "after": "E93EFAFFFF9090",
+          "purpose": "record which herb combination every completed stew used, for the unique Stews Found statistic"
         },
         {
           "offset": "0x63742",
@@ -130,7 +208,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "C563F9D1214FBDD13141AAF74C1DAECB74E11BB8DD44BB34419CC470A700AF6B"
+          "sha256": "CA037564AD07D86859E4AF85FD66512FE85E51AD51FEC0D60F8DF1EF26C30253"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -149,7 +227,7 @@
           "offset": "0x7B464",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnotoD4/1CEwHQ+g/8BfDmD/wV/NGjktEcA/xV0wEcAhcB1D2jktEcA/xUkwUcAhcB0FmgAtUcAUP8VKMFHAIXAdAZXU2oD/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAA/wXkJFgAi0QkBIuIdA4AAOmdRv7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8F2CRYAMaHEA8AAADplGz+/wAAAAAAAIN5EP91Bv8F4CRYAMdBDAAAAADpqXD+/wAAAAAAAAAAg3kQ/3UG/wXgJFgAx0EMAAAAAOlCcP7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nLg/8BfEqD/wV/RWjktEcA/xV0wEcAhcB1D2jktEcA/xUkwUcAhcB0J2gAtUcAUP8VKMFHAIXAdBf/dCQM/3QkDGgwNUAAV1NqA//QW8IMAP90JBD/dCQQ/3QkEInZ6GeA+P9bwgwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAU2F2ZVZpbGxhZ2VTdGF0aXN0aWNzAAAA/wX0JFgAi0QkBIuIdA4AAOmdRv7/AAAAnGCLRCQog+gfg/gGD4cxAAAAi1QkLIPqH4P6Bg+HIQAAAGvABwHQi1QkMIPqH4P6Bg+HDAAAAGvABwHQD6sF+CRYAGGdU4tcJAzplk/7/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8F7CRYAMaHEA8AAADplGz+/wAAAAAAAIN5EP91Bv8F8CRYAMdBDAAAAADpqXD+/wAAAAAAAAAAg3kQ/3UG/wXwJFgAx0EMAAAAAOlCcP7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -163,6 +241,12 @@
           "before": "C687100F000000",
           "after": "E95C9301009090",
           "purpose": "count every skeleton pickup once in the per-save reserve, including pickups made after the memorial array is full"
+        },
+        {
+          "offset": "0x30510",
+          "before": "538B5C240C",
+          "after": "E91BB00400",
+          "purpose": "record which herb combination every completed stew used, for the unique Stews Found statistic"
         },
         {
           "offset": "0x626C6",
@@ -195,7 +279,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "C563F9D1214FBDD13141AAF74C1DAECB74E11BB8DD44BB34419CC470A700AF6B"
+          "sha256": "CA037564AD07D86859E4AF85FD66512FE85E51AD51FEC0D60F8DF1EF26C30253"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -214,7 +298,7 @@
           "offset": "0x89173",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoJ6j3/1CEwHQ+g/8BfDmD/wV/NGjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0FmgPkkgAUP8V3KFIAIXAdAZXU2oE/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNextTQABN4sHeQXpNUf5/+k7R/n/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FHG5NAMaGxBwAAADpaRb+/wAAAAAAAP8FJG5NAINGFP9qAek0A/v/AAAAAAAAAAAAAAAAAAAAg3kQ/3UG/wUobk0Ax0EMAAAAAOnDG/7/g3kQ/3UG/wUobk0Ax0EMAAAAAOnuG/7/AAAAAAAAAAA=",
+          "after_base64": "U4nLg/8BfEqD/wV/RWjzkUgA/xXYoUgAhcB1D2jzkUgA/xXgoUgAhcB0J2gPkkgAUP8V3KFIAIXAdBf/dCQM/3QkDGiwOUAAV1NqBP/QW8IMAP90JBD/dCQQ/3QkEInZ6Nin9/9bwgwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAU2F2ZVZpbGxhZ2VTdGF0aXN0aWNzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNTxuTQABN4sHeQXpNUf5/+k7R/n/AACcYItGDIPoH4P4Aw+HPgAAAItWEIPqH4P6Aw+HLwAAAGvABAHQi1YUg+ofg/oDD4cbAAAAa8AEAdAx0oA9AE9wAAAPlcKNBEIPqwVAbk0AYZ1qGLlIUXAA6apb+v8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FMG5NAMaGxBwAAADpaRb+/wAAAAAAAP8FOG5NAINGFP9qAek0A/v/AAAAAAAAAAAAAAAAAAAAg3kQ/3UG/wU0bk0Ax0EMAAAAAOnDG/7/g3kQ/3UG/wU0bk0Ax0EMAAAAAOnuG/7/AAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -234,6 +318,12 @@
           "before": "834614FF6A01",
           "after": "E9BCFC040090",
           "purpose": "count every unit of stream debris cleared in the per-save reserve, without the trophy's earned-once cap"
+        },
+        {
+          "offset": "0x2EE5F",
+          "before": "6A18B948517000",
+          "after": "E9FBA305009090",
+          "purpose": "record which herb combination every completed stew used, for the unique Stews Found statistic"
         },
         {
           "offset": "0x6AF0F",
@@ -266,7 +356,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "C563F9D1214FBDD13141AAF74C1DAECB74E11BB8DD44BB34419CC470A700AF6B"
+          "sha256": "CA037564AD07D86859E4AF85FD66512FE85E51AD51FEC0D60F8DF1EF26C30253"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
@@ -285,7 +375,7 @@
           "offset": "0x94932",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidno+O/2/1CEwHQ+g/8BfDmD/wV/NGiySUkA/xXYUUkAhcB1D2iySUkA/xXgUUkAhcB0FmjOSUkAUP8V3FFJAIXAdAZXU2oF/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNWTTUQABN4sHeQXplqH4/+mcofj/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIO5/BwAABF1CYMFjNNRAALrBv8FjNNRAIPsEFaJzukxHv3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FkNNRAMaG1BwAAADpwvT9/wAAAAAAAIN5EP91Bv8FmNNRAMdBDAAAAADpFw7+/wAAAAAAAAAAg3kQ/3UG/wWY01EAx0EMAAAAAOm0Df7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nLg/8BfEqD/wV/RWiySUkA/xXYUUkAhcB1D2iySUkA/xXgUUkAhcB0J2jOSUkAUP8V3FFJAIXAdBf/dCQM/3QkDGhAOUAAV1NqBf/QW8IMAP90JBD/dCQQ/3QkEInZ6Knv9v9bwgwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAU2F2ZVZpbGxhZ2VTdGF0aXN0aWNzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNajTUQABN4sHeQXplqH4/+mcofj/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIO5/BwAABF1CYMFpNNRAALrBv8FpNNRAIPsEFaJzukxHv3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8FnNNRAMaG1BwAAADpwvT9/wAAAAAAAIN5EP91Bv8FoNNRAMdBDAAAAADpFw7+/wAAAAAAAAAAg3kQ/3UG/wWg01EAx0EMAAAAAOm0Df7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {

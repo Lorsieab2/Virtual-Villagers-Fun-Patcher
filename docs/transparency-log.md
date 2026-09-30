@@ -630,7 +630,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 21; every edit has an exact purpose and before/after guard in the manifest.
 
 ## Virtual Villagers - The Secret City
 
@@ -831,7 +831,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 7; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
 
 ## Virtual Villagers - The Tree of Life
 
@@ -977,7 +977,7 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 9; every edit has an exact purpose and before/after guard in the manifest.
 
 ## Virtual Villagers - New Believers
 
