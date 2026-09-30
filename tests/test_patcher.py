@@ -3387,9 +3387,9 @@ class StockIntegrationTests(unittest.TestCase):
                 self.assertEqual(
                     bytes(rendered[0x7B2A0:0x7B2E0]),
                     bytes.fromhex(
-                        "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C15"
-                        "B954000000F7E1B93C860100F7F18BD0E93C67FBFF8BD0D1"
-                        "E2B8C5B3A291F7E2C1EA0BE92967FBFF"
+                        "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C12"
+                        "B954000000F7E1B93C860100F7F18BD0EB0E8BD0D1E2B8C5"
+                        "B3A291F7E2C1EA0B8B4610E92F67FBFF"
                     ),
                 )
                 self.assertEqual(
