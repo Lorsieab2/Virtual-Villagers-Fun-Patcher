@@ -318,7 +318,12 @@ GAMES = {
         ],
         # Stews Found. The CAlchemyPot brew 0x42EDE0 looks the herbs
         # (pot+0xC/+0x10/+0x14, 0x1F..0x22: spicy, sweet, soapy, pulpy vines)
-        # up, then 0x42DC80 decides success. Failure returns at 0x42EE43;
+        # up, then 0x42DC80 decides success. 0x22 is also the item the cloth
+        # vine-cutter carries (job 0x7A, 0x436B98 push 0x22 ; call 0x4697C0):
+        # the game has one pulpy-vine item, so vines dropped on the herb pile
+        # for cloth, and any stew mixing them with other herbs, are recorded
+        # like every other stew (tests/test_unique_stews.py
+        # TreeOfLifeVineStewTests). Failure returns at 0x42EE43;
         # success always reaches 0x42EE5F (directly, or after the brewer's
         # animation at 0x42EE48), where the pot clears flag 0x18 and the two
         # water flags -- 9 (fresh, byte 0x704EEC) at 0x42EE6B and 0xA (salt,

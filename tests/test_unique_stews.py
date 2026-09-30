@@ -344,6 +344,156 @@ class TreeOfLifeSuccessOnlyTests(unittest.TestCase):
         self.assertFalse(any(i.op_str == "0x42ee5f" for i in failure))
 
 
+class TreeOfLifeVineStewTests(unittest.TestCase):
+    """The pulpy vines cut for cloth are a herb in every stew the pot makes.
+
+    The owner's rule: a player can have the vines the cloth-maker cuts put in
+    the pot, drop one or two, and add other herbs, and every such stew must
+    be counted in Stews Found like any other. In The Tree of Life the vines
+    are not a separate item: "herb 4" IS the pulpy vines (eSaySeesHerb4 =
+    "{name} sees pulpy vines."), item 0x22.
+
+    * The vine-cutting job (0x7A, registered at 0x436DDF with its script
+      0x436AF0, status eSayCuttingPulpyVines) ends by making the villager
+      carry item 0x22 (0x436B98 push 0x22 ; call 0x4697C0 -- the carry
+      action, whose handler 0x46A646 -> 0x45ED50 stores it at +0x1CDC).
+    * The herb pile beside the pot (0x4D8220) takes it: its drop handler
+      0x42F2D0 fills all three slots with the dropped item for a job-0x7A
+      villager. The cook (job 0x3E, script 0x455B40) carries each pile slot to
+      the pot, whose drop handler writes the carried item into pot+0xC+4*n
+      (0x42EB1A). So vine ids reach the pot slots unchanged, beside any herbs.
+    * The stock brew 0x42EDE0, run here on the rendered image, completes every
+      vine stew through 0x42EE5F, and the hook records it.
+    """
+
+    POT = 0x4D76D8
+    PILE = 0x4D8220
+    FLAGS = 0x704E38          # flag i is the byte at FLAGS + 0x14 * i
+    VINES = 0x22
+    SUCCESS = 0x42EE66        # the stock continuation after the hooked bytes
+    FAILURE = 0x42EE14        # the fall-through after 0x42EE12 jne 0x42EE44
+
+    def string_id(self, stock: bytes, name: str) -> tuple[int, str]:
+        """The game's own string table at 0x4C41F8: 16-byte entries of
+        (id, name pointer, text pointer, 0)."""
+        pe = pefile.PE(data=stock, fast_load=True)
+
+        def cstr(va: int) -> str:
+            off = pe.get_offset_from_rva(va - 0x400000)
+            return stock[off:stock.index(b"\0", off)].decode("latin-1")
+
+        va = 0x4C41F8
+        while True:
+            off = pe.get_offset_from_rva(va - 0x400000)
+            ident, name_va, text_va = struct.unpack_from("<3I", stock, off)
+            if not 0x480000 <= name_va < 0x4C0000:
+                self.fail(f"{name} is not in the string table")
+            if cstr(name_va) == name:
+                return ident, cstr(text_va)
+            va += 16
+
+    def disasm(self, stock: bytes, start: int, end: int) -> list:
+        import capstone
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        return list(md.disasm(stock[start - 0x400000:end - 0x400000], start))
+
+    def test_the_vines_cut_for_cloth_are_the_recorded_herb_0x22(self):
+        stock = (STOCK / EXE["vv4"]).read_bytes()
+        stew = builder.GAMES["vv4"]["stew"]
+        herbs = range(int(stew["first_herb"]), int(stew["first_herb"]) + int(stew["herb_count"]))
+        # Herb 4 is the pulpy vines.
+        ident, text = self.string_id(stock, "eSaySeesHerb4")
+        self.assertEqual(text, "{name} sees pulpy vines.")
+        # Job 0x7A runs script 0x436AF0.
+        ctor = self.disasm(stock, 0x436DC0, 0x436E17)
+        pushes = [(i.address, i.op_str) for i in ctor if i.mnemonic == "push"]
+        at = pushes.index((0x436DDF, "0x436af0"))
+        self.assertEqual(pushes[at + 1][1], "0x7a")
+        # That script is the vine cutter, and the item it leaves the villager
+        # carrying is 0x22.
+        script = self.disasm(stock, 0x436AF0, 0x436BDC)
+        cutting, _ = self.string_id(stock, "eSayCuttingPulpyVines")
+        self.assertEqual((script[2].mnemonic, int(script[2].op_str, 16)), ("push", cutting))
+        carried = [int(script[k - 2].op_str, 16) for k, i in enumerate(script)
+                   if i.mnemonic == "call" and i.op_str == "0x4697c0"]
+        self.assertEqual(carried, [0x12, self.VINES], "the cutting tool, then the vines")
+        self.assertIn(self.VINES, herbs, "the vines must be inside the recorded herb range")
+        # The pile gives a job-0x7A villager's item all three slots.
+        pile = self.disasm(stock, 0x42F330, 0x42F337)
+        self.assertEqual((pile[0].mnemonic, pile[0].op_str),
+                         ("cmp", "dword ptr [edi + 0x1ce0], 0x7a"))
+
+    def brew(self, image: bytes, herbs: tuple[int, int, int], salt: int, heat: int):
+        """Register the stock recipes (0x42ECF0 up to its tail-jump into the
+        pot reset), put `herbs` in the pot with the given water and heat, and
+        run the stock brew 0x42EDE0 until it passes or fails the success test."""
+        mu = machine(image)
+        esp = STACK - 0x400
+        mu.mem_write(esp, struct.pack("<I", RETURN))
+        mu.reg_write(UC_X86_REG_ESP, esp)
+        mu.reg_write(UC_X86_REG_ECX, self.POT)
+        self.assertEqual(run_until(mu, 0x42ECF0, {0x42EDD4, RETURN}, 20000), 0x42EDD4)
+        self.assertEqual(struct.unpack("<I", mu.mem_read(self.POT + 0xB0C, 4))[0], 12)
+        mu.mem_write(self.POT + 0xC, struct.pack("<3I", *herbs))
+        mu.mem_write(self.POT + 0xB14, struct.pack("<i", -1))
+        mu.mem_write(self.POT + 0xB1C, struct.pack("<I", heat))
+        mu.mem_write(self.FLAGS + 0x14 * 9, bytes([0 if salt else 1]))      # fresh
+        mu.mem_write(self.FLAGS + 0x14 * 0xA, bytes([1 if salt else 0]))    # salt
+        mu.mem_write(self.PILE + 0x1C, struct.pack("<i", -1))               # no brewer
+        mu.mem_write(esp, struct.pack("<I", RETURN))
+        mu.reg_write(UC_X86_REG_ESP, esp)
+        mu.reg_write(UC_X86_REG_ECX, self.POT)
+        at = run_until(mu, 0x42EDE0, {self.FAILURE, self.SUCCESS, RETURN}, 20000)
+        result = struct.unpack("<i", mu.mem_read(self.POT + 0xB10, 4))[0]
+        return at, result, set_bits(bytes(mu.mem_read(0x4D6E40, bits_size("vv4"))))
+
+    def test_every_stew_with_vines_is_recorded_as_its_identity(self):
+        image = render("vv4")
+        first, n = STEW["vv4"]["first"], STEW["vv4"]["n"]
+        herb_identities = 20
+        seen = set()
+        for multiset in itertools.combinations_with_replacement(range(first, first + n), 3):
+            if self.VINES not in multiset:
+                continue
+            # The vines go in last, as the cook adds them after other herbs,
+            # and first, as the cloth-maker's pile is emptied in slot order.
+            for herbs in {multiset, tuple(reversed(multiset))}:
+                for salt in (0, 1):
+                    with self.subTest(herbs=[hex(h) for h in herbs], salt=salt):
+                        at, result, bits = self.brew(image, herbs, salt, heat=20)
+                        self.assertEqual(at, self.SUCCESS, "the brew succeeds through the hook")
+                        h = [x - first for x in herbs]
+                        self.assertEqual(bits, [((h[0] * n + h[1]) * n + h[2]) * 2 + salt])
+                        a, b, c = sorted(h)
+                        identity = (c + 2) * (c + 1) * c // 6 + (b + 1) * b // 2 + a
+                        identity += herb_identities if salt else 0
+                        seen.add(identity)
+                        if herbs == (self.VINES,) * 3 and salt:
+                            self.assertEqual(result, 0xB, "the stock recipe 0xB, cloth pulp")
+        # 10 herb sets hold the vines; each in both waters.
+        self.assertEqual(len(seen), 20)
+        self.assertTrue(all(0 <= i < 2 * herb_identities for i in seen))
+
+    def test_a_vine_stew_the_game_fails_records_nothing(self):
+        """Control: a cold pot of mixed herbs fails 0x42DC80 (heat < 10) and
+        never reaches the hook, in the patched and the stock image alike."""
+        for image in (render("vv4"), (STOCK / EXE["vv4"]).read_bytes()):
+            for herbs in ((0x22, 0x22, 0x1F), (0x1F, 0x20, 0x22)):
+                for salt in (0, 1):
+                    with self.subTest(herbs=herbs, salt=salt):
+                        at, _, bits = self.brew(image, herbs, salt, heat=0)
+                        self.assertEqual(at, self.FAILURE)
+                        self.assertEqual(bits, [])
+
+    def test_the_stock_image_reaches_the_same_point_and_records_nothing(self):
+        stock = (STOCK / EXE["vv4"]).read_bytes()
+        for herbs, salt in (((0x22, 0x22, 0x1F), 0), ((0x22, 0x22, 0x22), 1)):
+            with self.subTest(herbs=herbs, salt=salt):
+                at, _, bits = self.brew(stock, herbs, salt, heat=20)
+                self.assertEqual(at, self.SUCCESS)
+                self.assertEqual(bits, [])
+
+
 class SaveWrapperTests(unittest.TestCase):
     """The full-save wrapper in each game's statistics cave."""
 
