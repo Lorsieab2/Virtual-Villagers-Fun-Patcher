@@ -331,9 +331,13 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # sweep (Teaching Children Stops at 50); nothing else changed. And
         # again when it gained vvfp_healers_study_bridge(), the same shape for
         # "VVFP Healers Study.dll" (Healers Study Plants Regardless of Food).
+        # Re-pinned when the mask sidecar moved onto native/shared/sidecar_io.h:
+        # VV2's own writer became atomic (temp file, checked writes, flush,
+        # replace), and in both VV2's and the shared VV1 source an invalid
+        # sidecar is set aside and an unopenable one is never overwritten.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "206FC809E1E56FC5913F4FA1E9AB6B10EB5B4A51EED0C0733F5813A062514FFD",
+            "23C546757DC639489121D9DBB50C89456E4E8A6B88E1B6162D6CA8DC0DAADF6E",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

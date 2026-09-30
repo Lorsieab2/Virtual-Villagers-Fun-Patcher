@@ -231,6 +231,47 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
     if (vv_save_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Village Statistics", 64)) {
         wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", sub_w, slot);
         removed += delete_if_present_w(path_w);
+        /* The current log, which replaced the file above. */
+        wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.txt", sub_w, slot);
+        removed += delete_if_present_w(path_w);
+    }
+    /* THE STATISTICS COMPANION'S PER-SLOT DATA. Village Statistics holds the
+       patch's own lifetime counters, Stew Discoveries the unique stews (The
+       Lost Children, The Secret City and The Tree of Life only), and Village
+       Elders the villagers seen holding the status. Each is one file per
+       slot, addressed by slot, and belongs to the village being erased: left
+       behind, the next village started in this slot would inherit its totals
+       and discoveries. The ".tmp" beside each is the companion's
+       half-written replacement, which a crash can leave.
+
+       The folders are probed, never created: a player who never ran the
+       companion has nothing here to clear. Files set aside as unreadable
+       ("<name>.unreadable") are deliberately left: they are kept evidence of
+       a file the companion could not read, and nothing ever loads them. */
+    {
+        static const wchar_t *const DATA_FOLDERS[3] = {
+            L"Virtual Villagers Fun Patcher Data\\Village Statistics",
+            L"Virtual Villagers Fun Patcher Data\\Stew Discoveries",
+            L"Virtual Villagers Fun Patcher Data\\Village Elders"
+        };
+        static const wchar_t *const DATA_STEMS[3] = {
+            L"Village Statistics - Save",
+            L"Stew Discoveries - Save",
+            L"Village Elders - Save"
+        };
+        int data;
+        for (data = 0; data < 3; ++data) {
+            if (data == 1 && (game < 2 || game > 4)) {
+                continue;   /* only three games make stews */
+            }
+            if (!legacy_subfolder_w(sub_w, DATA_FOLDERS[data])) {
+                continue;
+            }
+            wsprintfW(path_w, L"%ls\\%ls %d.dat", sub_w, DATA_STEMS[data], slot);
+            removed += delete_if_present_w(path_w);
+            wsprintfW(path_w, L"%ls\\%ls %d.dat.tmp", sub_w, DATA_STEMS[data], slot);
+            removed += delete_if_present_w(path_w);
+        }
     }
     /* The folder name before it was spelled out, probed but never
        recreated: a player who upgrades keeps whatever the previous build
