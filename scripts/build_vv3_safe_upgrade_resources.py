@@ -35,8 +35,13 @@ FOUNDATION_OUTPUT = (
 # empty mask table was then published there, and because the destination now
 # existed, migration was skipped forever and the real masks were lost. Found
 # in review.
-SOURCE_SHA256 = "A58ADFAD54EA5E6F51D11DFD43A2B8BA445642183D9A299393E9DF05AAAFE362"
-SOURCE_SIZE = 1902592
+# Recertified when the unread world-draw debug capture was removed: the two
+# g_vv3_worlddbg / g_vv3_chiefdbg buffers DllMain published at 0x6E003C and
+# 0x6E0040, the per-draw writes into them, and the extra 0x455EF0 position
+# call made on every chief-mask draw only to fill one of them.  No executable
+# cave, companion or tool reads either slot; nothing debug-only may ship.
+SOURCE_SHA256 = "5BB3EA4AABE492D470EF6D093482B1B305F196E809A4BE31B8463B74B81A4D34"
+SOURCE_SIZE = 1902080
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

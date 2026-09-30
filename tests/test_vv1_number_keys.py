@@ -145,8 +145,12 @@ class NumberKeysDllTest(unittest.TestCase):
 
     def test_exports_and_built_dll(self) -> None:
         deftext = KEYS_DEF.read_text(encoding="utf-8")
-        for name in ("Vv1NumberKeysInstall=_Vv1NumberKeysInstall@0", "Vv1NumberKeysTick=_Vv1NumberKeysTick@0", "Vv1NumberKeysUpdate=_Vv1NumberKeysUpdate@4", "Vv1NumberKeysProbe=_Vv1NumberKeysProbe@4"):
+        for name in ("Vv1NumberKeysInstall=_Vv1NumberKeysInstall@0", "Vv1NumberKeysTick=_Vv1NumberKeysTick@0", "Vv1NumberKeysUpdate=_Vv1NumberKeysUpdate@4"):
             self.assertIn(name, deftext)
+        # The harness's test seam ships only in the TEST build (VVFP_TEST).
+        self.assertNotIn("Vv1NumberKeysProbe", deftext)
+        self.assertIn("Vv1NumberKeysProbe=_Vv1NumberKeysProbe@4",
+                      KEYS_DEF.with_name("vv1_number_keys_test.def").read_text(encoding="utf-8"))
         self.assertTrue(KEYS_DLL.is_file())
         blob = KEYS_DLL.read_bytes()
         for needle in (b"SDL2.dll\0", b"SDL_AddEventWatch\0", b"Vv1NumberKeysTick\0", b"Vv1NumberKeysUpdate\0", struct.pack("<i", -150), struct.pack("<i", 1200), struct.pack("<i", 570)):

@@ -7,7 +7,10 @@
    address the game keeps its pointer, 0x0048AEDC (a 64 KiB block reserved at
    0x00480000, which a small harness executable leaves free).
 
-   Usage:  vv1_number_keys_harness.exe "<path to VVFP VV1 Number Keys.dll>" "<path to SDL2.dll>"
+   Usage:  vv1_number_keys_harness.exe "<path to VVFP VV1 Number Keys.test.dll>" "<path to SDL2.dll>"
+   The probe exports it calls exist only in the TEST build
+   (tests\test_dlls\, built with VVFP_TEST by the DLL's own build script);
+   the shipped DLL exports none of them.
    Exit code 0 when every check passes. */
 #include <windows.h>
 #include <stdio.h>

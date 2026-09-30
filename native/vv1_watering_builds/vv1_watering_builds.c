@@ -45,12 +45,15 @@ static const unsigned char SITE_STOCK[SITE_LENGTH] = {
     0xFF, 0x80, 0xBC, 0x9F, 0x00, 0x00          /* inc dword ptr [eax+0x9FBC] */
 };
 
-/* Counters a test can read from the running game.  Diagnostic only. */
+/* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
+   tests/test_dlls/): the shipped DLL carries no counters and no probe. */
+#ifdef VVFP_TEST
 struct vv1_watering_stats {
     int progress_steps;     /* the garden progress step ran */
     int builds_queued;      /* ...and a practice-Building action was appended */
 };
 __declspec(dllexport) struct vv1_watering_stats VvfpVv1WateringStats = { 0 };
+#endif
 
 static const unsigned int push_action_va = PUSH_ACTION_VA;
 static const unsigned int resume_va = RESUME_VA;
@@ -63,11 +66,15 @@ static __declspec(naked) void watering_stub(void) {
     __asm {
         pushfd
         pushad
+#ifdef VVFP_TEST
         inc dword ptr [VvfpVv1WateringStats]
+#endif
         mov eax, dword ptr [esi + 0x3E010]      ; village state
         cmp byte ptr [eax + 0x9FC0], 0          ; garden already done?
         jne skip
+#ifdef VVFP_TEST
         inc dword ptr [VvfpVv1WateringStats + 4]
+#endif
         mov edx, dword ptr [esp + 0x38]         ; the villager's index
         push 4                                  ; skill: Building
         push 0                                  ; mode: append
@@ -136,7 +143,9 @@ __declspec(dllexport) int __stdcall VvfpVv1WateringBuildsInstall(void) {
     return 1;
 }
 
-/* For the test: the site, its stock bytes, what it becomes, and the stub. */
+#ifdef VVFP_TEST
+/* For the test build only: the site, its stock bytes, what it becomes,
+   and the stub. */
 __declspec(dllexport) int __stdcall VvfpVv1WateringBuildsProbe(unsigned int *site_va,
                                                                 unsigned char *stock,
                                                                 unsigned char *patched,
@@ -147,6 +156,7 @@ __declspec(dllexport) int __stdcall VvfpVv1WateringBuildsProbe(unsigned int *sit
     *stub_va = (unsigned int)(uintptr_t)watering_stub;
     return SITE_LENGTH;
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance;

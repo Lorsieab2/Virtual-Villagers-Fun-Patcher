@@ -38,6 +38,9 @@ from unicorn.x86_const import (
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 DLL = ROOT / "assets" / "healers_study" / "VVFP Healers Study.dll"
+# The probes and counters the emulator drives exist only in the TEST build
+# (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
+TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Healers Study.test.dll"
 STOCK = {"vv1": ROOT / "research" / "stock-executables" / "Virtual Villagers - A New Home.exe",
          "vv2": ROOT / "research" / "stock-executables" / "Virtual Villagers - The Lost Children.exe"}
 STACK = 0x70000000
@@ -60,7 +63,7 @@ def _stock(game: str, va: int, n: int) -> bytes:
 
 
 def _emulator():
-    pe = pefile.PE(str(DLL))
+    pe = pefile.PE(str(TEST_DLL))
     base = pe.OPTIONAL_HEADER.ImageBase
     exports = {e.name.decode(): base + e.address for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
     image = pe.get_memory_mapped_image()

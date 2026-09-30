@@ -37,6 +37,9 @@ from unicorn.x86_const import (UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX,
 ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - A New Home.exe"
 DLL = ROOT / "assets" / "watering" / "VVFP VV1 Watering Builds.dll"
+# The probes and counters the emulator drives exist only in the TEST build
+# (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
+TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP VV1 Watering Builds.test.dll"
 MANIFEST = ROOT / "data" / "vv1_watering_trains_building_feature.json"
 ORIGINS_C = ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
 ORIGINS_DLL = ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll"
@@ -63,7 +66,7 @@ def _stock(va: int, n: int) -> bytes:
 
 
 def _dll():
-    pe = pefile.PE(str(DLL))
+    pe = pefile.PE(str(TEST_DLL))
     exports = {e.name.decode(): pe.OPTIONAL_HEADER.ImageBase + e.address
                for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
     return pe, exports

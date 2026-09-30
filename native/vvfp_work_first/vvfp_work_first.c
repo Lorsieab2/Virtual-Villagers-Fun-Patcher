@@ -105,12 +105,20 @@ static int later_huts_incomplete(const struct later_game *g) {
 }
 
 /* ---- The decision ---------------------------------------------------------- */
-/* Counters a test can read from the running game.  Diagnostic only. */
+/* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
+   tests/test_dlls/): the shipped DLL carries no counters and no probe. */
+#ifdef VVFP_TEST
 struct vvfp_work_first_stats {
     int tried;          /* the villager's own job was tried first */
     int started;        /* ... and started something */
 };
 __declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0 };
+#define WORK_FIRST_COUNT_TRIED ++VvfpWorkFirstStats.tried
+#define WORK_FIRST_COUNT_STARTED __asm inc dword ptr [VvfpWorkFirstStats + 4]
+#else
+#define WORK_FIRST_COUNT_TRIED ((void)0)
+#define WORK_FIRST_COUNT_STARTED
+#endif
 
 /* The villager's own job to try first, or -1: the stock request alone.
    Builders: only while a population hut is unbuilt.  Healers: always -- the
@@ -125,7 +133,7 @@ static int own_first(int selected, int requested, int building, int healing, int
     if (selected == building ? !huts_incomplete : selected != healing) {
         return -1;
     }
-    ++VvfpWorkFirstStats.tried;
+    WORK_FIRST_COUNT_TRIED;
     return selected;
 }
 
@@ -245,7 +253,7 @@ static __declspec(naked) void vv5_original(void) {
             __asm pop ecx                                                    \
             __asm test al, al                                                \
             __asm jz stock_request                                           \
-            __asm inc dword ptr [VvfpWorkFirstStats + 4]                     \
+            WORK_FIRST_COUNT_STARTED                                         \
             __asm ret 8                                                      \
             __asm stock_request:                                             \
             __asm jmp NAME##_original                                        \
@@ -272,7 +280,7 @@ static __declspec(naked) void vv5_original(void) {
             __asm pop ecx                                                    \
             __asm test al, al                                                \
             __asm jz stock_request                                           \
-            __asm inc dword ptr [VvfpWorkFirstStats + 4]                     \
+            WORK_FIRST_COUNT_STARTED                                         \
             __asm ret 4                                                      \
             __asm stock_request:                                             \
             __asm jmp NAME##_original                                        \
@@ -353,7 +361,9 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
     return 1;
 }
 
-/* For the test: the site, its stock bytes, what it becomes, the stub. */
+#ifdef VVFP_TEST
+/* For the test build only: the site, its stock bytes, what it becomes, the
+   stub. */
 __declspec(dllexport) int __stdcall VvfpWorkFirstProbeSite(int game_id, unsigned int *va,
                                                             unsigned char *stock,
                                                             unsigned char *patched,
@@ -372,6 +382,7 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstProbeSite(int game_id, unsigned
     *stub_va = (unsigned int)(uintptr_t)s->stub;
     return s->length;
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance; (void)reserved;

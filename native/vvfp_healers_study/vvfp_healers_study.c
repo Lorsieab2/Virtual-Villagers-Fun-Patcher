@@ -40,12 +40,18 @@
 #include <string.h>
 #include <stdint.h>
 
-/* Counters a test can read from the running game.  Diagnostic only. */
+/* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
+   tests/test_dlls/): the shipped DLL carries no counters and no probe. */
+#ifdef VVFP_TEST
 struct vvfp_healers_stats {
     int checks;         /* a studying villager reached the site at high food */
     int continued;      /* the continuation started a job */
 };
 __declspec(dllexport) struct vvfp_healers_stats VvfpHealersStudyStats = { 0 };
+#define HEALERS_COUNT_CHECK ++VvfpHealersStudyStats.checks
+#else
+#define HEALERS_COUNT_CHECK ((void)0)
+#endif
 
 /* ---- VV1 --------------------------------------------------------------- */
 /* ebp = state, esi = village (villager array), edi = the villager's index. */
@@ -63,7 +69,7 @@ static int __cdecl vv1_studying(const unsigned char *state, const unsigned char 
     if (*(const int *)(village + index * 0x3D8u + 0x3B8u) != 9) {
         return 0;
     }
-    ++VvfpHealersStudyStats.checks;
+    HEALERS_COUNT_CHECK;
     return 1;
 }
 
@@ -86,7 +92,9 @@ static __declspec(naked) void vv1_stub(void) {
         call dword ptr [vv1_continue]
         test eax, eax
         jz selection
+#ifdef VVFP_TEST
         inc dword ptr [VvfpHealersStudyStats + 4]
+#endif
         jmp dword ptr [vv1_done]
     selection:
         push 0
@@ -115,7 +123,7 @@ static int __cdecl vv2_studying(const unsigned char *village, const unsigned cha
     if (*(const int *)(record + 0x7E0u) != 9) {
         return 0;
     }
-    ++VvfpHealersStudyStats.checks;
+    HEALERS_COUNT_CHECK;
     return 1;
 }
 
@@ -137,7 +145,9 @@ static __declspec(naked) void vv2_stub(void) {
         call dword ptr [vv2_continue]
         test eax, eax
         jz selection
+#ifdef VVFP_TEST
         inc dword ptr [VvfpHealersStudyStats + 4]
+#endif
         jmp dword ptr [vv2_done]
     selection:
         push 0
@@ -213,7 +223,9 @@ __declspec(dllexport) int __stdcall VvfpHealersStudyInstall(int game_id) {
     return 1;
 }
 
-/* For the test: the site, its stock bytes, what it becomes, the stub. */
+#ifdef VVFP_TEST
+/* For the test build only: the site, its stock bytes, what it becomes, the
+   stub. */
 __declspec(dllexport) int __stdcall VvfpHealersStudyProbeSite(int game_id, unsigned int *va,
                                                                unsigned char *stock,
                                                                unsigned char *patched,
@@ -229,6 +241,7 @@ __declspec(dllexport) int __stdcall VvfpHealersStudyProbeSite(int game_id, unsig
     *stub_va = (unsigned int)(uintptr_t)s->stub;
     return s->length;
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance; (void)reserved;

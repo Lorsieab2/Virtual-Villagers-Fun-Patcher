@@ -12,7 +12,9 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nativeRoot = Join-Path $projectRoot "native\vvfp_pathfinding"
-$dll = Join-Path $projectRoot "assets\pathfinding\VVFP Improved Pathfinding.dll"
+# The harness drives the probe exports, which only the TEST build carries --
+# the same source compiled with VVFP_TEST by scripts\build_vvfp_pathfinding.ps1.
+$dll = Join-Path $projectRoot "tests\test_dlls\VVFP Improved Pathfinding.test.dll"
 $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
 $sdkVersion = "10.0.26100.0"
 $vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231"

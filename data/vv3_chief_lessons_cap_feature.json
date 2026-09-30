@@ -23,7 +23,7 @@
     {
       "source": "assets/lesson_cap/VVFP Lesson Cap.dll",
       "destination": "VVFP Lesson Cap.dll",
-      "sha256": "16EF633999DE1A0DAAA759DF23ED310B1F0BE702A94E009CABCD3A4F5F5AD64C"
+      "sha256": "1B6E33A8B4E7CFA885656CFAB23206983EEC75FFB1EE774EF375A00D139C5618"
     }
   ],
   "patches": [

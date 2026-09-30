@@ -6,7 +6,10 @@
    answers are the later games' rule as measured live in The Secret City:
    ascending key, index tie-break, a position that survives a mode change.
 
-   Usage:  vv1_sort_by_harness.exe "<path to VVFP VV1 Sort By.dll>"
+   Usage:  vv1_sort_by_harness.exe "<path to VVFP VV1 Sort By.test.dll>"
+   The probe exports it calls exist only in the TEST build
+   (tests\test_dlls\, built with VVFP_TEST by the DLL's own build script);
+   the shipped DLL exports none of them.
    Exit code 0 when every check passes. */
 #include <windows.h>
 #include <stdio.h>

@@ -45,6 +45,9 @@ sys.path.insert(0, str(ROOT / "src"))
 import vv_fun_patcher as vfp  # noqa: E402
 
 DLL = ROOT / "assets" / "golden_mushroom" / "VVFP Golden Mushroom.dll"
+# The probes and counters the emulator drives exist only in the TEST build
+# (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
+TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Golden Mushroom.test.dll"
 PNG = ROOT / "assets" / "golden_mushroom" / "golden_mushroom.png"
 STOCK = ROOT / "research" / "stock-executables"
 NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
@@ -120,7 +123,7 @@ def _probed(m) -> list:
 
 def _dll():
     if "dll" not in _CACHE:
-        pe = pefile.PE(str(DLL))
+        pe = pefile.PE(str(TEST_DLL))
         base = pe.OPTIONAL_HEADER.ImageBase
         by_ordinal = {e.ordinal: base + e.address for e in pe.DIRECTORY_ENTRY_EXPORT.symbols}
         by_name = {e.name.decode(): base + e.address for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}

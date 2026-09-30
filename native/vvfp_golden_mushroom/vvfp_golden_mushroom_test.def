@@ -1,0 +1,9 @@
+LIBRARY "VVFP Golden Mushroom.test.dll"
+EXPORTS
+    VvfpGoldenMushroomVv1=_VvfpGoldenMushroomVv1@0 @1
+    VvfpGoldenMushroomVv3=_VvfpGoldenMushroomVv3@0 @3
+    VvfpGoldenMushroomVv4=_VvfpGoldenMushroomVv4@0 @4
+    VvfpGoldenMushroomVv5=_VvfpGoldenMushroomVv5@0 @5
+    VvfpGoldenMushroomProbeSite=_VvfpGoldenMushroomProbeSite@24 @10
+    VvfpGoldenMushroomProbeSelect=_VvfpGoldenMushroomProbeSelect@4 @11
+    VvfpGoldenMushroomStats @12 DATA

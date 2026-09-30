@@ -50,12 +50,18 @@
 #include <windows.h>
 #include <string.h>
 
-/* Counters a test can read from the running game.  Diagnostic only. */
+/* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
+   tests/test_dlls/): the shipped DLL carries no counters and no probe. */
+#ifdef VVFP_TEST
 struct vvfp_fix_huts_stats {
     int checks;         /* the site was reached with nothing available */
     int started;        /* a hut fix was started */
 };
 __declspec(dllexport) struct vvfp_fix_huts_stats VvfpFixHutsStats = { 0 };
+#define FIX_HUTS_COUNT(field) (++VvfpFixHutsStats.field)
+#else
+#define FIX_HUTS_COUNT(field) ((void)0)
+#endif
 
 /* A small generator of our own (xorshift32) rather than the CRT's rand():
    no CRT state, no import, so the chooser runs anywhere -- including the
@@ -102,7 +108,7 @@ static const unsigned char VV1_STOCK[] = { 0x6A, 0x64, 0xE8, 0xE5, 0xB7, 0xFB, 0
 static int __cdecl vv1_choose(const unsigned char *village) {
     const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
     unsigned int mask = 0;
-    ++VvfpFixHutsStats.checks;
+    FIX_HUTS_COUNT(checks);
     if (state[0x9FE8] == 1) mask |= 1;
     if (state[0x9FF0] == 1) mask |= 2;
     if (state[0x9FF8] == 1) mask |= 4;
@@ -119,7 +125,7 @@ static int __cdecl vv1_choose(const unsigned char *village) {
 static int __cdecl vv1_choose_any(const unsigned char *village) {
     const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
     unsigned int mask = 0;
-    ++VvfpFixHutsStats.checks;
+    FIX_HUTS_COUNT(checks);
     if (state[0x9FE8] == 1) mask |= 1;
     if (state[0x9FF0] == 1) mask |= 2;
     if (state[0x9FF8] == 1) mask |= 4;
@@ -170,7 +176,9 @@ static __declspec(naked) void vv1_stub(void) {
         mov ecx, esi
         push ebp                       ; the villager's index
         call dword ptr [vv1_examine]
+#ifdef VVFP_TEST
         inc dword ptr [VvfpFixHutsStats + 4]
+#endif
         jmp dword ptr [vv1_started]
     stock:
         pushad
@@ -223,7 +231,9 @@ static __declspec(naked) void vv1_level_stub(void) {
         mov ecx, esi
         push ebp                       ; the villager's index
         call dword ptr [vv1_examine]
+#ifdef VVFP_TEST
         inc dword ptr [VvfpFixHutsStats + 4]
+#endif
         jmp dword ptr [vv1_started]
     }
 }
@@ -243,7 +253,7 @@ static const unsigned char VV2_STOCK[] = { 0x6A, 0x64, 0xE8, 0xFC, 0x2E, 0xFA, 0
 static int __cdecl vv2_choose(const unsigned char *village) {
     const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
     unsigned int mask = 0;
-    ++VvfpFixHutsStats.checks;
+    FIX_HUTS_COUNT(checks);
     if (state[0x2E818] == 1) mask |= 1;
     if (state[0x2E820] == 1) mask |= 2;
     if (state[0x2E828] == 1) mask |= 4;
@@ -258,7 +268,7 @@ static int __cdecl vv2_choose(const unsigned char *village) {
 static int __cdecl vv2_choose_any(const unsigned char *village) {
     const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
     unsigned int mask = 0;
-    ++VvfpFixHutsStats.checks;
+    FIX_HUTS_COUNT(checks);
     if (state[0x2E818] == 1) mask |= 1;
     if (state[0x2E820] == 1) mask |= 2;
     if (state[0x2E828] == 1) mask |= 4;
@@ -281,7 +291,9 @@ static __declspec(naked) void vv2_stub(void) {
         push edi                       ; the villager's index
         mov ecx, esi
         call dword ptr [vv2_examine]
+#ifdef VVFP_TEST
         inc dword ptr [VvfpFixHutsStats + 4]
+#endif
         jmp dword ptr [vv2_started]
     stock:
         push 0x64
@@ -327,7 +339,9 @@ static __declspec(naked) void vv2_level_stub(void) {
         push edi                       ; the villager's index
         mov ecx, esi
         call dword ptr [vv2_examine]
+#ifdef VVFP_TEST
         inc dword ptr [VvfpFixHutsStats + 4]
+#endif
         jmp dword ptr [vv2_started]
     nothing:
         jmp dword ptr [vv2_level_nothing]
@@ -418,7 +432,7 @@ static int __cdecl later_choose(const struct later_game *g) {
     unsigned int mask = 0;
     int all = 1;
     int i;
-    ++VvfpFixHutsStats.checks;
+    FIX_HUTS_COUNT(checks);
     for (i = 0; i < 4; ++i) {
         int c = later_complete(g, i);
         if (!c) {
@@ -448,7 +462,7 @@ static void later_start(const struct later_game *g, unsigned int esi, int hut) {
         mov ecx, villager
         call fn
     }
-    ++VvfpFixHutsStats.started;
+    FIX_HUTS_COUNT(started);
 }
 
 /* One stub per game: on the empty-list path, choose; if a hut was chosen,
@@ -547,8 +561,14 @@ static int later_huts_incomplete(const struct later_game *g) {
     return 0;
 }
 
-/* Counts for a test reading the running game.  Diagnostic only. */
+/* Builders sent to hut work regardless of the food supply, counted for the
+   tests.  TEST build only (VVFP_TEST), like the counters above. */
+#ifdef VVFP_TEST
 __declspec(dllexport) int VvfpFixHutsFoodBypasses = 0;
+#define FIX_HUTS_COUNT_BYPASS (++VvfpFixHutsFoodBypasses)
+#else
+#define FIX_HUTS_COUNT_BYPASS ((void)0)
+#endif
 
 /* When a builder has hut work to do (Codex on #464): a population hut still
    unbuilt, or -- below Building level 3, where the owner wants builders to
@@ -571,7 +591,7 @@ static int __cdecl vv1_builder_first(const unsigned char *village, unsigned int 
     if (*(const int *)(village + index * 0x3D8u + 0x3D0u) != 4 || !vv1_builder_has_hut_work(village)) {
         return 0;
     }
-    ++VvfpFixHutsFoodBypasses;
+    FIX_HUTS_COUNT_BYPASS;
     return 1;
 }
 
@@ -579,7 +599,7 @@ static int __cdecl vv2_builder_first(const unsigned char *village, const unsigne
     if (*(const int *)(record + 0x7F8u) != 5 || !vv2_builder_has_hut_work(village)) {
         return 0;
     }
-    ++VvfpFixHutsFoodBypasses;
+    FIX_HUTS_COUNT_BYPASS;
     return 1;
 }
 
@@ -600,7 +620,7 @@ static int __cdecl later_builder_first(const struct later_game *g, int pick) {
     if (pick != 4 && !(pick == 2 && work_first_present())) {
         return 0;
     }
-    ++VvfpFixHutsFoodBypasses;
+    FIX_HUTS_COUNT_BYPASS;
     return 1;
 }
 
@@ -845,7 +865,9 @@ __declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
     return install_state[game_id] == 1;
 }
 
-/* For the test: the food site, its stock bytes, what it becomes, the stub. */
+#ifdef VVFP_TEST
+/* For the test build only: the level-gate site, its stock bytes, what it
+   becomes, the stub. */
 __declspec(dllexport) int __stdcall VvfpFixHutsProbeLevelSite(int game_id, unsigned int *va,
                                                                unsigned char *stock,
                                                                unsigned char *patched,
@@ -865,6 +887,8 @@ __declspec(dllexport) int __stdcall VvfpFixHutsProbeLevelSite(int game_id, unsig
     return s->length;
 }
 
+/* For the test build only: the food site, its stock bytes, what it
+   becomes, the stub. */
 __declspec(dllexport) int __stdcall VvfpFixHutsProbeFoodSite(int game_id, unsigned int *va,
                                                               unsigned char *stock,
                                                               unsigned char *patched,
@@ -884,7 +908,8 @@ __declspec(dllexport) int __stdcall VvfpFixHutsProbeFoodSite(int game_id, unsign
     return s->length;
 }
 
-/* For the test: the site, its stock bytes, what it becomes, the stub. */
+/* For the test build only: the site, its stock bytes, what it becomes,
+   the stub. */
 __declspec(dllexport) int __stdcall VvfpFixHutsProbeSite(int game_id, unsigned int *va,
                                                           unsigned char *stock,
                                                           unsigned char *patched,
@@ -901,20 +926,21 @@ __declspec(dllexport) int __stdcall VvfpFixHutsProbeSite(int game_id, unsigned i
     return s->length;
 }
 
-/* For the test: the choosers over a caller-supplied village image (VV1/VV2)
-   -- the game's own offsets are read, so the test lays the flags out where
-   the game keeps them. */
+/* For the test build only: the choosers over a caller-supplied village
+   image (VV1/VV2) -- the game's own offsets are read, so the test lays the flags
+   out where the game keeps them. */
 __declspec(dllexport) int __stdcall VvfpFixHutsProbeChoose(int game_id, const void *village) {
     if (game_id == 1) return vv1_choose((const unsigned char *)village);
     if (game_id == 2) return vv2_choose((const unsigned char *)village);
     return -2;
 }
 
-/* For the test: `pick` over a mask, with the RNG seeded. */
+/* For the test build only: `pick` over a mask, with the RNG seeded. */
 __declspec(dllexport) int __stdcall VvfpFixHutsProbePick(unsigned int mask, unsigned int seed) {
     pick_state = seed ? seed : 1u;
     return pick(mask);
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance;

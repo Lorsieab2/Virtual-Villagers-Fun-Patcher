@@ -53,7 +53,9 @@
 
    The routing itself is exposed through the VvfpPathfindingProbe* exports
    so native/vvfp_pathfinding/pathfinding_harness.c can drive it over
-   synthetic grids without a game. */
+   synthetic grids without a game.  Those probes and the counters exist
+   only in the TEST build (VVFP_TEST, tests/test_dlls/); the shipped DLL
+   exports VvfpPathfindingInstall alone. */
 #include <windows.h>
 #include <stdlib.h>
 #include <string.h>
@@ -324,8 +326,10 @@ static int vv1_route(const unsigned int *grid, int feet_x, int feet_y,
     return *count > 0 ? CORNER_FOUND : CORNER_NONE;
 }
 
-/* Counters a test can read out of the running game (exported data): how
-   often each detour fired and what it decided.  Diagnostic only. */
+/* Counters the tests read (exported data): how often each detour fired
+   and what it decided.  Compiled only into the TEST build (VVFP_TEST,
+   tests/test_dlls/): the shipped DLL carries no counters and no probe. */
+#ifdef VVFP_TEST
 struct vvfp_pathfinding_stats {
     int vv1_calls;          /* the blocked handler fired */
     int vv1_routed;         /* a corner was queued */
@@ -340,6 +344,10 @@ struct vvfp_pathfinding_stats {
     int vv2_descent_unstuck;
 };
 __declspec(dllexport) struct vvfp_pathfinding_stats VvfpPathfindingStats = { 0 };
+#define PATHFINDING_COUNT(field) (++VvfpPathfindingStats.field)
+#else
+#define PATHFINDING_COUNT(field) ((void)0)
+#endif
 
 /* While a route exists the villager is never handed back to the stock
    handler: bumping into a hut or the side of anything is routed round, as
@@ -376,14 +384,14 @@ static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     int speed;
     int i;
     (void)direction;
-    ++VvfpPathfindingStats.vv1_calls;
+    PATHFINDING_COUNT(vv1_calls);
     if (village == NULL || idx < 0 || idx >= VV1_RECORDS) {
-        ++VvfpPathfindingStats.vv1_fell_through;
+        PATHFINDING_COUNT(vv1_fell_through);
         return 0;
     }
     grid = *(const unsigned int *const *)(village + VV1_MAP_OFFSET);
     if (grid == NULL) {
-        ++VvfpPathfindingStats.vv1_fell_through;
+        PATHFINDING_COUNT(vv1_fell_through);
         return 0;
     }
     record = village + (size_t)idx * VV1_RECORD_STRIDE;
@@ -405,23 +413,25 @@ static int __cdecl vv1_blocked(unsigned char *village, int idx, int direction) {
     switch (vv1_route(grid, feet_x, feet_y, fields[18], fields[19], VV1_GRID,
                       corners, room > 0 ? room : 1, &count)) {
     case CORNER_NONE:
-        ++VvfpPathfindingStats.vv1_gave_up;
+        PATHFINDING_COUNT(vv1_gave_up);
         ((vv1_give_up_t)VV1_GIVE_UP)(village, NULL, idx);
         return 1;
     case CORNER_AT_GOAL:
         /* In the goal's cell yet blocked: a sub-cell edge.  Aim the action
            at the feet so the arrival test passes and the task goes on. */
-        ++VvfpPathfindingStats.vv1_arrived;
+        PATHFINDING_COUNT(vv1_arrived);
         fields[18] = feet_x;
         fields[19] = feet_y;
         return 1;
     default:
         break;
     }
-    ++VvfpPathfindingStats.vv1_routed;
+    PATHFINDING_COUNT(vv1_routed);
+#ifdef VVFP_TEST
     if (!vv1_walkable(grid, feet_x / VV1_CELL, feet_y / VV1_CELL, 0)) {
-        ++VvfpPathfindingStats.vv1_unstuck;
+        PATHFINDING_COUNT(vv1_unstuck);
     }
+#endif
     /* Exactly what the stock nudge does with its own waypoint, once per
        corner: pushed in front of the current action at the villager's
        speed -- last corner first, so the first ends up in front -- then the
@@ -515,9 +525,9 @@ static int __cdecl vv2_flood(const unsigned int *grid, int *field, int goal_x, i
         return 0;
     }
     allow24 = grid[gx * VV2_MAP_STRIDE + gy] == 24u;
-    ++VvfpPathfindingStats.vv2_floods;
+    PATHFINDING_COUNT(vv2_floods);
     if (!vv2_walkable(grid, gx, gy, allow24)) {
-        ++VvfpPathfindingStats.vv2_blocked_goal_floods;
+        PATHFINDING_COUNT(vv2_blocked_goal_floods);
         field[0] = -1;
         return 0;
     }
@@ -554,10 +564,10 @@ static int *__cdecl vv2_next(const unsigned int *grid, int *out, int *field,
     out[0] = -1;
     out[1] = -1;
     if (!retry) {
-        ++VvfpPathfindingStats.vv2_descents;
+        PATHFINDING_COUNT(vv2_descents);
     }
     if (grid == NULL || field == NULL || x < 0 || y < 0 || cx >= VV2_GRID || cy >= VV2_GRID) {
-        ++VvfpPathfindingStats.vv2_descent_none;
+        PATHFINDING_COUNT(vv2_descent_none);
         return out;
     }
     /* The game's words, in this file's terms, for the shared helpers. */
@@ -573,7 +583,7 @@ static int *__cdecl vv2_next(const unsigned int *grid, int *out, int *field,
     }
     if (g_field[cx + cy * VV2_GRID] >= BLOCKED) {
         if (nearest_reached(g_field, VV2_GRID, VV2_GRID, cx, cy, 3, &nx, &ny)) {
-            ++VvfpPathfindingStats.vv2_descent_unstuck;
+            PATHFINDING_COUNT(vv2_descent_unstuck);
             out[0] = nx * VV2_CELL + VV2_CELL / 2;
             out[1] = ny * VV2_CELL + VV2_CELL / 2;
             return out;
@@ -591,7 +601,7 @@ static int *__cdecl vv2_next(const unsigned int *grid, int *out, int *field,
     if (!retry && vv2_flood(grid, field, field[0], field[1])) {
         return vv2_next(grid, out, field, x, y, 1);
     }
-    ++VvfpPathfindingStats.vv2_descent_none;
+    PATHFINDING_COUNT(vv2_descent_none);
     return out;
 }
 
@@ -819,7 +829,8 @@ __declspec(dllexport) int __stdcall VvfpPathfindingInstall(int game_id) {
     return 1;
 }
 
-/* ---- Probes for the harness ---------------------------------------------- */
+/* ---- Probes for the harness (TEST build only) ---------------------------- */
+#ifdef VVFP_TEST
 
 /* A New Home's corner finder over a caller-supplied 168x168 grid (the
    game's own indexing, [x * 168 + y]).  Returns 1 with the waypoint in feet
@@ -918,6 +929,7 @@ __declspec(dllexport) int __stdcall VvfpPathfindingProbeSite(int game_id, int wh
     memcpy(bytes, stock, (size_t)length);
     return length;
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance;

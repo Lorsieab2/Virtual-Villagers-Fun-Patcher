@@ -51,6 +51,9 @@ from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_EIP, UC_X86_REG_ESP
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 DLL = ROOT / "assets" / "lesson_cap" / "VVFP Lesson Cap.dll"
+# The probes and counters the emulator drives exist only in the TEST build
+# (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
+TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Lesson Cap.test.dll"
 MANIFEST = ROOT / "data" / "vv3_chief_lessons_cap_feature.json"
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 FEATURE = "vv3_chief_lessons_cap_50"
@@ -72,7 +75,7 @@ class Probe:
     """VvfpLessonCapProbe(skills, rng) in the emulator with a scripted rng."""
 
     def __init__(self, skills: list[int], rng: list[int]):
-        pe = pefile.PE(str(DLL))
+        pe = pefile.PE(str(TEST_DLL))
         base = pe.OPTIONAL_HEADER.ImageBase
         exports = {e.name.decode(): base + e.address
                    for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
@@ -279,7 +282,7 @@ ARRAY = 0x40000000
 
 
 def _dll_image():
-    pe = pefile.PE(str(DLL))
+    pe = pefile.PE(str(TEST_DLL))
     base = pe.OPTIONAL_HEADER.ImageBase
     exports = {e.name.decode(): base + e.address
                for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}

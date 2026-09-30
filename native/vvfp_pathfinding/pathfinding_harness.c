@@ -19,7 +19,10 @@
      entering a blocked cell except the goal, recovers from an unreached
      cell, and refuses to cut a corner.
 
-   Usage:  pathfinding_harness.exe "<path to VVFP Improved Pathfinding.dll>"
+   Usage:  pathfinding_harness.exe "<path to VVFP Improved Pathfinding.test.dll>"
+   The probe exports it calls exist only in the TEST build
+   (tests\test_dlls\, built with VVFP_TEST by the DLL's own build script);
+   the shipped DLL exports none of them.
    Exit code 0 when every check passes. */
 #include <windows.h>
 #include <stdio.h>

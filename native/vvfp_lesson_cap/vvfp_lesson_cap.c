@@ -49,26 +49,32 @@
 
 typedef int (__cdecl *rng_t)(int bound);
 
-/* Counters a test can read from the running game.  Diagnostic only. */
+/* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
+   tests/test_dlls/): the shipped DLL carries no counters and no probe. */
+#ifdef VVFP_TEST
 struct vvfp_lesson_cap_stats {
     int lessons;        /* the award was reached */
     int awarded;        /* a skill gained */
     int nothing;        /* every skill was already at 50 or above */
 };
 __declspec(dllexport) struct vvfp_lesson_cap_stats VvfpLessonCapStats = { 0 };
+#define LESSON_CAP_COUNT(field) (++VvfpLessonCapStats.field)
+#else
+#define LESSON_CAP_COUNT(field) ((void)0)
+#endif
 
 static int award(int *skills, rng_t rng) {
     int eligible[SKILLS];
     int count = 0;
     int i, k, points;
-    ++VvfpLessonCapStats.lessons;
+    LESSON_CAP_COUNT(lessons);
     for (i = 0; i < SKILLS; ++i) {
         if (skills[i] < CAP) {
             eligible[count++] = i;
         }
     }
     if (count == 0) {
-        ++VvfpLessonCapStats.nothing;
+        LESSON_CAP_COUNT(nothing);
         return 0;
     }
     k = rng(count);
@@ -81,7 +87,7 @@ static int award(int *skills, rng_t rng) {
     if (skills[i] > CAP) {
         skills[i] = CAP;
     }
-    ++VvfpLessonCapStats.awarded;
+    LESSON_CAP_COUNT(awarded);
     return 1;
 }
 
@@ -204,8 +210,9 @@ __declspec(dllexport) int __stdcall VvfpLessonCapInstall(int game_id) {
     return 1;
 }
 
-/* For the test: the site, the cave head it expects, what it becomes, the
-   stub. */
+#ifdef VVFP_TEST
+/* For the test build only: the site, the cave head it expects, what it
+   becomes, the stub. */
 __declspec(dllexport) int __stdcall VvfpLessonCapProbeSite(int game_id, unsigned int *va,
                                                             unsigned char *expected,
                                                             unsigned char *patched,
@@ -222,11 +229,13 @@ __declspec(dllexport) int __stdcall VvfpLessonCapProbeSite(int game_id, unsigned
     return (int)sizeof CAVE_HEAD;
 }
 
-/* For tests: the same award over a caller-supplied skill array with a
-   caller-supplied generator, so an emulator can script every branch. */
+/* For the test build only: the same award over a caller-supplied skill
+   array with a caller-supplied generator, so an emulator can script every
+   branch. */
 __declspec(dllexport) int __stdcall VvfpLessonCapProbe(int *skills, rng_t rng) {
     return award(skills, rng);
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance; (void)reserved;
