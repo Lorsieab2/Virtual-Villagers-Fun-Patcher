@@ -971,8 +971,10 @@ def main() -> None:
                 "Appearance for All, the Villager Details screen grants Youth, Full "
                 "Mastery, Running, Set Age to 18, and Change Appearance, and the "
                 "Heathen mask cosmetics are included. The point doublers do not "
-                "double Island Event or Duplicate Collectible tech gains. Only "
-                "Believers are processed; Heathens are skipped."
+                "double Island Event or Duplicate Collectible tech gains. The "
+                "Village-Wide Running, Full Mastery and Make Villagers Young "
+                "Adults process only Believers and skip Heathens; Change "
+                "Appearance for All changes every villager, Heathens included."
             )
         record_fields = {
             "stride": f"0x{config['stride']:X}",
