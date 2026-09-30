@@ -38,6 +38,9 @@
    the image is missing or does not load, the golden frame is simply not
    drawn -- the stock frame is never shown in its place.
 
+   It also answers the spawn's kind roll (see "The spawn's kind roll"), so
+   without this companion that roll always answers no.
+
    INSTALLED by the export whose ordinal is the game number (1, 3, 4, 5),
    stdcall, no arguments.  The row's executable-side loader stub calls it:
    LoadLibraryA("VVFP Golden Mushroom.dll") then GetProcAddress(module,
@@ -262,6 +265,41 @@ LATER_STUB(vv3, 0x58F5D8, 0x42E515u, 7, 0)
 LATER_STUB(vv4, 0x4CC9E8, 0x44C645u, 7, 0)
 LATER_STUB(vv5, 0x4DC808, 0x44F385u, 7, 1)
 
+/* ---- The spawn's kind roll -------------------------------------------------- */
+/* The row puts a 5-byte stub in its own spawn code, `test esp, esp; ret`
+   (ZF = 0: the plain kinds), that the spawn calls.  Installing turns it into
+   a jmp to roll_stub.  The roll draws from the game's own C rand() (0..32767,
+   the same generator every other roll uses); the tests pin its exact rule. */
+static const unsigned int RAW_RAND[6] = { 0, 0x44B648u, 0, 0x46F3D8u, 0x471CF8u, 0x47CFD8u };
+static const unsigned char ROLL_STUB[5] = { 0x85, 0xE4, 0xC3, 0x90, 0x90 };
+typedef int (__cdecl *rand_t)(void);
+
+static int __cdecl kind_roll(void) {
+    rand_t raw = (rand_t)(uintptr_t)RAW_RAND[active_game];
+    int draw, tries, v;
+    for (draw = 0; draw < 2; ++draw) {
+        v = 32000;
+        for (tries = 0; tries < 16 && v >= 32000; ++tries) {
+            v = raw();
+        }
+        if (v >= 32000 || v % 1000 != 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* Every register preserved; the answer is the zero flag (ZF = 1: yes). */
+static __declspec(naked) void roll_stub(void) {
+    __asm {
+        pushad
+        call kind_roll
+        cmp eax, 1
+        popad
+        ret
+    }
+}
+
 /* ---- Installing ------------------------------------------------------------ */
 struct site {
     unsigned int va;
@@ -271,15 +309,19 @@ struct site {
     void (*stub)(void);
 };
 
-#define MAX_SITES 2
+#define MAX_SITES 3
 static const struct site SITES[6][MAX_SITES] = {
     { { 0 } },
     { { VV1_FRAME_SITE, VV1_FRAME_STOCK, sizeof VV1_FRAME_STOCK, 0xE9, vv1_frame_stub },
-      { VV1_FADE_SITE, VV1_FADE_STOCK, sizeof VV1_FADE_STOCK, 0xE8, vv1_fade_stub } },
+      { VV1_FADE_SITE, VV1_FADE_STOCK, sizeof VV1_FADE_STOCK, 0xE8, vv1_fade_stub },
+      { 0x4236EDu, ROLL_STUB, sizeof ROLL_STUB, 0xE9, roll_stub } },
     { { 0 } },
-    { { 0x42E510u, LATER_STOCK, sizeof LATER_STOCK, 0xE9, vv3_stub } },
-    { { 0x44C640u, LATER_STOCK, sizeof LATER_STOCK, 0xE9, vv4_stub } },
-    { { 0x44F380u, LATER_STOCK, sizeof LATER_STOCK, 0xE9, vv5_stub } },
+    { { 0x42E510u, LATER_STOCK, sizeof LATER_STOCK, 0xE9, vv3_stub },
+      { 0x42FAD9u, ROLL_STUB, sizeof ROLL_STUB, 0xE9, roll_stub } },
+    { { 0x44C640u, LATER_STOCK, sizeof LATER_STOCK, 0xE9, vv4_stub },
+      { 0x489140u, ROLL_STUB, sizeof ROLL_STUB, 0xE9, roll_stub } },
+    { { 0x44F380u, LATER_STOCK, sizeof LATER_STOCK, 0xE9, vv5_stub },
+      { 0x4947B0u, ROLL_STUB, sizeof ROLL_STUB, 0xE9, roll_stub } },
 };
 static int install_state[6];       /* 0 = not tried, 1 = installed, -1 = refused */
 

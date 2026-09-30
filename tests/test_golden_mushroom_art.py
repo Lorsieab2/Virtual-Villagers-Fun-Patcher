@@ -37,7 +37,7 @@ import pefile
 from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
 from unicorn.x86_const import (
     UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EDX,
-    UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP,
+    UC_X86_REG_EFLAGS, UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,6 +53,11 @@ DLL_NAME = b"VVFP Golden Mushroom.dll"
 
 # Per game, read from the stock executables (see the DLL source).
 ALLOC = {1: 0x44AF03, 3: 0x46EC93, 4: 0x470C5C, 5: 0x47BBDC}
+# The spawn's kind roll: the row's 5-byte stub the DLL turns into a jmp, and
+# the game's raw C rand() the DLL draws from.
+ROLL_SITE = {1: 0x4236ED, 3: 0x42FAD9, 4: 0x489140, 5: 0x4947B0}
+ROLL_STUB = bytes.fromhex("85E4C39090")
+RAW = {1: 0x44B648, 3: 0x46F3D8, 4: 0x471CF8, 5: 0x47CFD8}
 CTOR = {1: 0x40A070, 3: 0x40AF10, 4: 0x40AB10, 5: 0x40B010}
 LATER = {  # draw entry, collectables-sheet field, dy
     3: dict(entry=0x42E510, slot=0x58F428 + 0x1B0, dy=0),
@@ -90,6 +95,29 @@ def _stock_bytes(game: int, va: int, n: int) -> bytes:
     return _CACHE[key][va - 0x400000:va - 0x400000 + n]
 
 
+def _rendered(game: int) -> bytes:
+    """The game with only this row applied -- what the DLL meets at run time
+    (the roll stub is the row's own bytes, not stock)."""
+    key = ("rendered", game)
+    if key not in _CACHE:
+        exe = STOCK / f"Virtual Villagers - {NAMES[game]}.exe"
+        build = next(b for b in vfp.load_builds() if b.id == f"vv{game}")
+        data, _ = vfp.render_patched_bytes(exe, build, "immediate_fixed", [f"vv{game}_super_secret_golden_mushroom"])
+        _CACHE[key] = bytes(data)
+    return _CACHE[key]
+
+
+def _rendered_bytes(game: int, va: int, n: int) -> bytes:
+    key = ("rendered-image", game)
+    if key not in _CACHE:
+        _CACHE[key] = _pe_image(_rendered(game))[0]
+    return _CACHE[key][va - 0x400000:va - 0x400000 + n]
+
+
+def _probed(m) -> list:
+    return [p for p in (m.probe(i) for i in range(3)) if p]
+
+
 def _dll():
     if "dll" not in _CACHE:
         pe = pefile.PE(str(DLL))
@@ -119,7 +147,7 @@ class Machine:
             mutate(dll, base)
         mu.mem_map(base, (len(dll) + 0xFFFF) & ~0xFFFF)
         mu.mem_write(base, bytes(dll))
-        gimg, size = _pe_image(game_bytes or (STOCK / f"Virtual Villagers - {NAMES[game]}.exe").read_bytes())
+        gimg, size = _pe_image(game_bytes or _rendered(game))
         mu.mem_map(0x400000, (size + 0xFFF) & ~0xFFF)
         mu.mem_write(0x400000, gimg)
         mu.mem_map(STACK - 0x100000, 0x200000)
@@ -138,6 +166,8 @@ class Machine:
         self.fail_protect_call: int | None = None  # index of a VirtualProtect call to fail
         self.stop_at: set[int] = set()
         self.stopped = None
+        self.raw: list = []                # values the game's raw rand() returns, in order
+        self.raw_calls = 0
         mu.hook_add(UC_HOOK_CODE, self._hook)
 
     def _ret(self, value, nargs):
@@ -194,6 +224,10 @@ class Machine:
                 self._ret(0xFFFFFFFF, 0)
             else:
                 raise AssertionError(f"unexpected import {name}")
+        elif addr == RAW.get(self.game):
+            self.raw_calls += 1
+            value = self.raw.pop(0) if self.raw else 1
+            self._ret(value, 0)                            # cdecl, no arguments
         elif addr == ALLOC.get(self.game):
             n, = self._args(1)
             self.calls.append(("alloc", n))
@@ -265,15 +299,21 @@ class SiteTests(unittest.TestCase):
         for game in ART_GAMES:
             m = Machine(game)
             detours = rows[f"vv{game}_super_secret_golden_mushroom"]["runtime_detours"]
-            probed = [m.probe(i) for i in range(2)]
-            probed = [p for p in probed if p]
+            probed = _probed(m)
             with self.subTest(game=game):
                 self.assertEqual([(f"0x{va:X}", stock.hex().upper()) for va, stock, _, _ in probed],
                                  [(d["va"], d["stock_bytes"]) for d in detours])
                 for d in detours:
                     self.assertEqual(d["installed_by"], f"VVFP Golden Mushroom.dll, ordinal {game}")
+                self.assertEqual(probed[-1][0], ROLL_SITE[game], "the roll site is the last")
                 for va, stock, patched, stub in probed:
-                    self.assertEqual(_stock_bytes(game, va, len(stock)), stock, hex(va))
+                    if va == ROLL_SITE[game]:
+                        # the row's own stub (never golden without the DLL)
+                        self.assertEqual(stock, ROLL_STUB)
+                        self.assertEqual(_rendered_bytes(game, va, len(stock)), stock, hex(va))
+                        self.assertNotEqual(_stock_bytes(game, va, len(stock)), stock)
+                    else:
+                        self.assertEqual(_stock_bytes(game, va, len(stock)), stock, hex(va))
                     self.assertIn(patched[0], (0xE8, 0xE9))
                     self.assertEqual(va + 5 + struct.unpack("<i", patched[1:5])[0], stub)
                     self.assertEqual(patched[5:], b"\x90" * (len(stock) - 5))
@@ -301,12 +341,81 @@ class SiteTests(unittest.TestCase):
                 self.assertEqual(base + 50, {3: 0x66, 4: 0x78, 5: 0x82}[game], "frame 50 is the new id")
 
 
+def roll_model(raw):
+    """The kind roll's rule (owner, 2026-09-29: exactly 1 in 1,000,000): two
+    draws, each the first raw value below 32000 within 16 tries (else no),
+    taken mod 1000; yes only when both are 0.  Returns (yes, raw calls)."""
+    raw, calls = list(raw), 0
+    for _ in range(2):
+        for _ in range(16):
+            calls += 1
+            v = raw.pop(0) if raw else 1
+            if v < 32000:
+                break
+        else:
+            return False, calls
+        if v % 1000:
+            return False, calls
+    return True, calls
+
+
+class RollTests(unittest.TestCase):
+    """The DLL's answer at the row's roll stub, entered as the spawn calls it."""
+    REGS = (UC_X86_REG_EAX, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDX, UC_X86_REG_ESI,
+            UC_X86_REG_EDI, UC_X86_REG_EBP)
+
+    def _roll(self, m, raw):
+        mu = m.mu
+        m.raw, m.raw_calls = list(raw), 0
+        before = [0x11110000 + i for i in range(len(self.REGS))]
+        for r, v in zip(self.REGS, before):
+            mu.reg_write(r, v)
+        esp = STACK - 0x800
+        mu.mem_write(esp, struct.pack("<I", SENTINEL))
+        mu.reg_write(UC_X86_REG_ESP, esp)
+        m.stop_at, m.stopped = {SENTINEL}, None
+        mu.emu_start(ROLL_SITE[m.game], 0xFFFFFFFF, count=20000)
+        self.assertEqual(m.stopped, SENTINEL)
+        self.assertEqual(mu.reg_read(UC_X86_REG_ESP), esp + 4, "stack balanced")
+        self.assertEqual([mu.reg_read(r) for r in self.REGS], before, "every register preserved")
+        return bool(mu.reg_read(UC_X86_REG_EFLAGS) & 0x40), m.raw_calls
+
+    def test_without_the_install_the_stub_always_answers_no(self):
+        for game in ART_GAMES:
+            with self.subTest(game=game):
+                self.assertEqual(self._roll(Machine(game), [0, 0]), (False, 0))
+
+    def test_every_raw_value_of_each_draw(self):
+        for game in ART_GAMES:
+            m = _installed(game)
+            with self.subTest(game=game):
+                yes_first = yes_second = 0
+                for v in range(32768):
+                    for raw in ([v, 0], [0, v, 0]):
+                        self.assertEqual(self._roll(m, raw), roll_model(raw), raw)
+                    if v < 32000:
+                        yes_first += self._roll(m, [v, 0])[0]
+                        yes_second += self._roll(m, [0, v])[0]
+                # 32 of the 32000 accepted values pass each draw: (32/32000)^2
+                self.assertEqual((yes_first, yes_second), (32, 32))
+
+    def test_the_sixteen_draw_cap(self):
+        for game in ART_GAMES:
+            m = _installed(game)
+            with self.subTest(game=game):
+                self.assertEqual(self._roll(m, [32767] * 15 + [0, 0]), (True, 17))
+                self.assertEqual(self._roll(m, [32000] * 16 + [0, 0]), (False, 16),
+                                 "16 rejected draws end the roll: no, and no hang")
+                self.assertEqual(self._roll(m, [0] + [32500] * 16 + [0]), (False, 17))
+                self.assertEqual(self._roll(m, [0] + [32500] * 15 + [0]), (True, 17))
+
+
 class InstallTests(unittest.TestCase):
     def test_install_writes_exactly_the_probed_bytes_once(self):
         for game in ART_GAMES:
             with self.subTest(game=game):
                 m = Machine(game)
-                probed = [p for p in (m.probe(0), m.probe(1)) if p]
+                probed = _probed(m)
                 self.assertEqual(m.export(game), 1)
                 for va, stock, patched, _ in probed:
                     self.assertEqual(bytes(m.mu.mem_read(va, len(patched))), patched)
@@ -323,7 +432,7 @@ class InstallTests(unittest.TestCase):
         for game in ART_GAMES:
             with self.subTest(game=game):
                 m = Machine(game)
-                probed = [p for p in (m.probe(0), m.probe(1)) if p]
+                probed = _probed(m)
                 last_va = probed[-1][0]
                 m.mu.mem_write(last_va, b"\xCC")
                 self.assertEqual(m.export(game), 0)
@@ -337,8 +446,8 @@ class InstallTests(unittest.TestCase):
         # (the loader ignores the export's result).  Every site is now unlocked
         # before any is written, and a failure re-locks what was unlocked.
         m = Machine(1)
-        probed = [p for p in (m.probe(0), m.probe(1)) if p]
-        self.assertEqual(len(probed), 2)
+        probed = _probed(m)
+        self.assertEqual(len(probed), 3)
         m.fail_protect_call = 1
         self.assertEqual(m.export(1), 0)
         for va, stock, _, _ in probed:

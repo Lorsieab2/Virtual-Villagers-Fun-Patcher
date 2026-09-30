@@ -2136,7 +2136,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "155E899EF4377D8D1A062BDC021318EF3D8921B09EF782C4B274A8C6CCA2DADC"
+          "sha256": "90FD96371A504209DB3659484D5E35784CC566810CC27DB9322A9C3339EACC86"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -2148,13 +2148,19 @@
         {
           "va": "0x4093D0",
           "stock_bytes": "8B09E9D9F3FFFF",
-          "routine": "the frame-draw thunk (mov ecx, [ecx]; jmp 0x4087B0)",
+          "routine": "part of the secret",
           "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
         },
         {
           "va": "0x41ABA0",
           "stock_bytes": "E83BE8FEFF",
-          "routine": "a dropped item's fading draw (call 0x4093E0)",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
+        },
+        {
+          "va": "0x4236ED",
+          "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
           "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
         }
       ],
@@ -2162,44 +2168,44 @@
         {
           "offset": "0x236C7",
           "before": "6A64E842F8FDFF83C40483F8057D118B5610C782B0AC0000010000006A21EB248B46108998B0AC00006A21EB17",
-          "after": "68E8030000E83FF8FDFF5933C983F83373064185C07501418B5610898AB0AC00006A21EB1F9090909090909090",
-          "purpose": "mushroom spawn: one roll picks the mushroom's kind (the red mushroom keeps its stock 5%)"
+          "after": "6A64E842F8FDFF5933C983F8057D0141E8110000007502B1028B5610898AB0AC00006A21EB1E85E4C390909090",
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x44591",
           "before": "8B81B0AC000085C08BCE75046A0DEB026A0E",
           "after": "8B81B0AC000083C00D508BCE909090909090",
-          "purpose": "mushroom pickup job: the held sprite follows the mushroom's kind"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x44653",
           "before": "8B81B0AC000085C08BCE75046A20EB026A21",
           "after": "8B81B0AC000083C020508BCE909090909090",
-          "purpose": "mushroom pickup job: the pickup's result follows the mushroom's kind"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x3B4F0",
           "before": "65B44300",
           "after": "83464400",
-          "purpose": "callback table: the unused entry 0x22 points to the new mushroom's result"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x44683",
           "before": "90909090909090",
           "after": "6A64E96769FFFF",
-          "purpose": "the new mushroom's result, through the stock mushroom path"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x15FBA",
           "before": "0F8479030000",
           "after": "0F8D79030000",
-          "purpose": "zoomed-out map: hide every mushroom frame, as stock hides its two"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x3C26E",
           "before": "E8FDDDFCFF",
           "after": "E84EA40100",
-          "purpose": "image loading: load this patch's companion first, then the stock call"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x566C1",
@@ -2232,37 +2238,79 @@
           "offset": "0x15949",
           "before": "6A2FE975050000",
           "after": "E9C40600009090",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x16012",
           "before": "90909090909090909090909090",
-          "after": "68E8030000E884D1FEFF59EB32",
-          "purpose": "mushroom spawn: the extra roll (part one)"
+          "after": "E8CBD60500EB38909090909090",
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x16051",
           "before": "909090909090909090909090909090",
-          "after": "85C07504C64628326A2FE965FEFFFF",
-          "purpose": "mushroom spawn: the extra roll (part two)"
+          "after": "90907504C64628326A2FE965FEFFFF",
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x152EC",
           "before": "742A",
           "after": "7D2A",
-          "purpose": "mushroom zones: register the new mushroom kind as a mushroom"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x73E05",
           "before": "000000000000000000000000000000000000000000000000000000",
           "after": "8B44242069C08CE40000837C3044507505C644240464E99024FBFF",
-          "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x633CD",
           "before": "E8DE2EFCFF",
           "after": "E8330A0100",
-          "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x736E2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "606A025F6A105BE8DA4FFFFFEB15",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73705",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "3D007D0000721C4BEB13CC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73722",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "75C585E461C333D2EB19CCCCCCCC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73745",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "B9E8030000E947010000CC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73896",
+          "before": "CCCCCCCCCCCCCCCCCCCC",
+          "after": "F7F185D2EB16CCCCCCCC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x738B2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F856CFEFFFF4FEB59CCCCCCCCCC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73914",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F85CCFDFFFF61C3CCCCCCCC",
+          "purpose": "part of the secret"
         }
       ]
     },
@@ -2276,7 +2324,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "155E899EF4377D8D1A062BDC021318EF3D8921B09EF782C4B274A8C6CCA2DADC"
+          "sha256": "90FD96371A504209DB3659484D5E35784CC566810CC27DB9322A9C3339EACC86"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -2288,7 +2336,13 @@
         {
           "va": "0x42E510",
           "stock_bytes": "DB44240856",
-          "routine": "the world sprite draw entry (fild dword [esp+8]; push esi)",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 3"
+        },
+        {
+          "va": "0x42FAD9",
+          "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
           "installed_by": "VVFP Golden Mushroom.dll, ordinal 3"
         }
       ],
@@ -2297,37 +2351,37 @@
           "offset": "0x2DA8B",
           "before": "C7470865000000",
           "after": "6A65E93F200000",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x2DA94",
           "before": "C7470864000000",
           "after": "6A64E936200000",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x2FAD1",
           "before": "9090909090909090909090909090",
-          "after": "68E8030000E8F537FDFF5959EB72",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "after": "E80300000059EB7885E4C3909090",
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x2FB51",
           "before": "9090909090909090909090909090",
-          "after": "85C07502B166894F08E977DFFFFF",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "after": "90907502B166894F08E977DFFFFF",
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x2E064",
           "before": "33C083FE640F95C0B9902458004883E0E383C023",
           "after": "0FB6860EE04200B990245800EB06062364CCCCCC",
-          "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x2795E",
           "before": "E85D5A0000",
           "after": "E858440500",
-          "purpose": "image loading: load this patch's companion first, then the stock call"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x7BDBB",
@@ -2353,7 +2407,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "155E899EF4377D8D1A062BDC021318EF3D8921B09EF782C4B274A8C6CCA2DADC"
+          "sha256": "90FD96371A504209DB3659484D5E35784CC566810CC27DB9322A9C3339EACC86"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -2365,7 +2419,13 @@
         {
           "va": "0x44C640",
           "stock_bytes": "DB44240856",
-          "routine": "the world sprite draw entry (fild dword [esp+8]; push esi)",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 4"
+        },
+        {
+          "va": "0x489140",
+          "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
           "installed_by": "VVFP Golden Mushroom.dll, ordinal 4"
         }
       ],
@@ -2374,37 +2434,37 @@
           "offset": "0x13FAF",
           "before": "E9DF000000",
           "after": "E97C510700",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x13FC7",
           "before": "E9C7000000",
           "after": "E964510700",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x89130",
           "before": "000000000000000000000000000000000000000000000000",
-          "after": "68E8030000E896A5F7FF5985C07504C6460878E94BAFF8FF",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "after": "E80B0000007504C6460878E953AFF8FF85E4C39090000000",
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x89150",
           "before": "000000000000000000000000000000000000",
           "after": "83FE78BE2300000075036A645EE9ADB4F8FF",
-          "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x1460A",
           "before": "BE23000000",
           "after": "E9414B0700",
-          "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x1E971",
           "before": "E8AA4DFFFF",
           "after": "E821A70600",
-          "purpose": "image loading: load this patch's companion first, then the stock call"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x89097",
@@ -2430,7 +2490,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "155E899EF4377D8D1A062BDC021318EF3D8921B09EF782C4B274A8C6CCA2DADC"
+          "sha256": "90FD96371A504209DB3659484D5E35784CC566810CC27DB9322A9C3339EACC86"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -2442,7 +2502,13 @@
         {
           "va": "0x44F380",
           "stock_bytes": "DB44240856",
-          "routine": "the world sprite draw entry (fild dword [esp+8]; push esi)",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 5"
+        },
+        {
+          "va": "0x4947B0",
+          "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
           "installed_by": "VVFP Golden Mushroom.dll, ordinal 5"
         }
       ],
@@ -2451,37 +2517,37 @@
           "offset": "0x142B5",
           "before": "E90D010000",
           "after": "E9E6040800",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x142CE",
           "before": "E9F4000000",
           "after": "E9CD040800",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x947A0",
           "before": "000000000000000000000000000000000000000000000000",
-          "after": "68E8030000E8B6EEF6FF5985C07504C6460882E90FFCF7FF",
-          "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
+          "after": "E80B0000007504C6460882E917FCF7FF85E4C39090000000",
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x947C0",
           "before": "000000000000000000000000000000000000000000",
           "after": "81FE82000000BE2300000075036A645EE94501F8FF",
-          "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x14915",
           "before": "BE23000000",
           "after": "E9A6FE0700",
-          "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x23E21",
           "before": "E8AAFCFEFF",
           "after": "E8AF090700",
-          "purpose": "image loading: load this patch's companion first, then the stock call"
+          "purpose": "part of the secret"
         },
         {
           "offset": "0x947D5",

@@ -126,17 +126,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # 0x2FB51, 0x2E064, the loader call at 0x2795E, its stub at 0x7BDBB and
     # its DLL name at 0xB4800) or the PE CheckSum at 0x160..0x163; nothing
     # else moved and the length is unchanged.
+    # Re-pinned when that row's spawn roll moved into its companion (2026-09-29).
+    # Justified BEFORE re-pinning: with the previous rows and DLL the render
+    # is exactly the previous pin (EBD8F98E.../0DFAB1EB.../4943FDCA...); with
+    # the new rows, 16/16/17 differing bytes per mode, every one inside the
+    # row's own ranges at 0x2FAD1 and 0x2FB51 or the PE CheckSum at
+    # 0x160..0x163; the length is unchanged.
     "stock": (
-        "EBD8F98E068C885C4C95B23CB2721B3A069B7D292868344AF9F6E9B136CD18B1",
-        "3F650D00",
+        "1BF2BC70A5CD796F92A5D74BBCECA61AF08820921DB6FAE5771F8FC2D7F25E7D",
+        "16790D00",
     ),
     "collection_progression": (
-        "0DFAB1EB8CE99CC9FAFAA2F4D1AA43619E8767EFCF245135F82A32131371E7D2",
-        "3F7E0D00",
+        "C2D11051394EDB16B3E7F50C4A9E9CCA74FF0534B9E236F1EC0341C70E0A78B4",
+        "16920D00",
     ),
     "immediate_fixed": (
-        "4943FDCA69462E19F76CE0564DCE3C5AB219B6AB4CEB5DAF5A3A941EC00B7873",
-        "3DC00D00",
+        "0878A273A8C28CEB4C1C36789A03ED819449C5470720532CDCB0E8D533B52EF8",
+        "15D40C00",
     ),
 }
 

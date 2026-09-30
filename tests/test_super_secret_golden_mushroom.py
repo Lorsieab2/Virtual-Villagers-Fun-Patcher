@@ -10,8 +10,10 @@ tests/test_golden_mushroom_art.py; this file pins the spawn roll and the award.
 Everything here RUNS the patcher's own rendered bytes in an emulator with the
 game's rand stubbed:
 
-* the spawn roll gives golden only on rand(1000) == 0 and keeps the stock
-  brown/red odds otherwise (A New Home over all 1000 outcomes: 1/50/949);
+* the kind roll is exactly 1 in 1,000,000 (owner, 2026-09-29): two unbiased
+  draws from the raw C rand (0..32767), each redrawn at 32000 or more (at
+  most 16 draws, then not golden) and taken mod 1000, golden only when both
+  are 0 -- checked over every raw value; brown/red keep their stock odds;
 * the award is 100 for golden and the stock amount for brown and red;
 * The Lost Children registers the golden type as a mushroom zone;
 * the stock bytes give the stock result (so each check can fail).
@@ -26,8 +28,8 @@ from pathlib import Path
 import pefile
 from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
 from unicorn.x86_const import (
-    UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI,
-    UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP,
+    UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EDX,
+    UC_X86_REG_EFLAGS, UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +39,28 @@ import vv_fun_patcher as vfp  # noqa: E402
 STOCK = ROOT / "research" / "stock-executables"
 NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
 RAND = {1: 0x402F10, 2: 0x4031A0, 3: 0x4032D0, 4: 0x4036D0, 5: 0x403660}
+# each game's raw C rand() (0..32767), which its RAND helper wraps as rand() % n
+RAW = {1: 0x44B648, 2: 0x4686C8, 3: 0x46F3D8, 4: 0x471CF8, 5: 0x47CFD8}
+# The Lost Children's kind-roll routine (file offset of its patch entry).  The
+# other four games have no free code space for it: their rows call a 5-byte
+# stub that VVFP Golden Mushroom.dll answers (tests/test_golden_mushroom_art.py
+# runs the DLL's answer over every raw value); here the DLL's rule stands in.
+ROLL_FILE = {2: 0x736E2}
+ROLL_SITE = {1: 0x4236ED, 3: 0x42FAD9, 4: 0x489140, 5: 0x4947B0}
+
+
+def roll_rule(raw: list) -> bool:
+    """Consume raw C rand values as the kind roll does; True = golden."""
+    for _ in range(2):
+        for _ in range(16):
+            v = raw.pop(0) if raw else 1
+            if v < 32000:
+                break
+        else:
+            return False
+        if v % 1000:
+            return False
+    return True
 STACK = 0x10000000
 HEAP = 0x20000000
 DESCRIPTION = ("Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what "
@@ -61,7 +85,12 @@ def _image(game: int, patched: bool) -> tuple[bytes, int]:
     return _IMAGES[key], 0x400000
 
 
-def run(game, start, stop, regs, rand1000=0, rand_other=50, stubs=None, patched=True, setup=None):
+def run(game, start, stop, regs, rand1000=0, rand_other=50, stubs=None, patched=True, setup=None, raw=None):
+    """rand1000 picks the kind roll's outcome: 0 feeds the raw C rand two
+    zeros (golden), anything else one non-multiple of 1000 (not golden)."""
+    if raw is None:
+        raw = [0, 0] if rand1000 == 0 else [rand1000 if rand1000 % 1000 else 1]
+    raw = list(raw)
     image, base = _image(game, patched)
     mu = Uc(UC_ARCH_X86, UC_MODE_32)
     mu.mem_map(base, (len(image) + 0xFFF) & ~0xFFF)
@@ -84,6 +113,24 @@ def run(game, start, stop, regs, rand1000=0, rand_other=50, stubs=None, patched=
             uc.reg_write(UC_X86_REG_EAX, rand1000 if arg == 1000 else rand_other)
             uc.reg_write(UC_X86_REG_ESP, esp + 4)
             uc.reg_write(UC_X86_REG_EIP, ret)
+        elif patched and addr == ROLL_SITE.get(game):
+            # the DLL's answer (installed): ZF = golden, every register kept
+            esp = uc.reg_read(UC_X86_REG_ESP)
+            ret, = struct.unpack("<I", uc.mem_read(esp, 4))
+            calls.append(("roll",))
+            flags = uc.reg_read(UC_X86_REG_EFLAGS) & ~0x40
+            uc.reg_write(UC_X86_REG_EFLAGS, flags | (0x40 if roll_rule(raw) else 0))
+            uc.reg_write(UC_X86_REG_ESP, esp + 4)
+            uc.reg_write(UC_X86_REG_EIP, ret)
+        elif addr == RAW[game]:
+            esp = uc.reg_read(UC_X86_REG_ESP)
+            ret, = struct.unpack("<I", uc.mem_read(esp, 4))
+            calls.append(("raw",))
+            uc.reg_write(UC_X86_REG_EAX, raw.pop(0) if raw else 1)
+            uc.reg_write(UC_X86_REG_ECX, 0xBAD0BAD1)   # the C rand may clobber these
+            uc.reg_write(UC_X86_REG_EDX, 0xBAD0BAD2)
+            uc.reg_write(UC_X86_REG_ESP, esp + 4)
+            uc.reg_write(UC_X86_REG_EIP, ret)
         elif addr in stubs:
             esp = uc.reg_read(UC_X86_REG_ESP)
             ret, arg = struct.unpack("<II", uc.mem_read(esp, 8))
@@ -102,30 +149,129 @@ def rd32(mu, a):
     return struct.unpack("<I", mu.mem_read(a, 4))[0]
 
 
-class NewHomeTests(unittest.TestCase):
-    """A New Home: one roll rand(1000) picks the kind -- 0 golden (flag 2),
-    1..50 red (flag 1, the stock 5%), else brown -- then the stock expiry."""
+class KindRollTests(unittest.TestCase):
+    """The Lost Children's kind-roll routine, run over every raw C rand value.
 
-    def _spawn(self, r, patched=True):
+    Model: draw = the first raw value below 32000 within 16 tries (else "not
+    golden"), taken mod 1000; golden iff two such draws are both 0.  32 of the
+    32000 accepted values are multiples of 1000, so each draw is exactly
+    1/1000 and the pair exactly 1/1,000,000.
+    """
+    SENTINEL = 0x00DEAD00
+    REGS = (UC_X86_REG_EAX, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDX, UC_X86_REG_ESI,
+            UC_X86_REG_EDI, UC_X86_REG_EBP)
+
+    def _machine(self, game):
+        image, base = _image(game, True)
+        entry = self._va(game)
+        mu = Uc(UC_ARCH_X86, UC_MODE_32)
+        mu.mem_map(base, (len(image) + 0xFFF) & ~0xFFF)
+        mu.mem_write(base, image)
+        mu.mem_map(STACK - 0x10000, 0x20000)
+        mu.mem_map(self.SENTINEL & ~0xFFF, 0x1000)
+        state = {"raw": [], "calls": 0}
+
+        def hook(uc, addr, size, user_data):
+            if addr == RAW[game]:
+                esp = uc.reg_read(UC_X86_REG_ESP)
+                ret, = struct.unpack("<I", uc.mem_read(esp, 4))
+                state["calls"] += 1
+                uc.reg_write(UC_X86_REG_EAX, state["raw"].pop(0) if state["raw"] else 1)
+                uc.reg_write(UC_X86_REG_ECX, 0xBAD0BAD1)
+                uc.reg_write(UC_X86_REG_EDX, 0xBAD0BAD2)
+                uc.reg_write(UC_X86_REG_ESP, esp + 4)
+                uc.reg_write(UC_X86_REG_EIP, ret)
+            elif addr == self.SENTINEL:
+                uc.emu_stop()
+        mu.hook_add(UC_HOOK_CODE, hook)
+        return mu, entry, state
+
+    def _va(self, game):
+        exe = STOCK / f"Virtual Villagers - {NAMES[game]}.exe"
+        pe = pefile.PE(str(exe), fast_load=True)
+        return 0x400000 + pe.get_rva_from_offset(ROLL_FILE[game])
+
+    def _roll(self, mu, entry, state, raw):
+        state["raw"], state["calls"] = list(raw), 0
+        before = [0x11110000 + i for i in range(len(self.REGS))]
+        for r, v in zip(self.REGS, before):
+            mu.reg_write(r, v)
+        esp = STACK - 0x100
+        mu.mem_write(esp, struct.pack("<I", self.SENTINEL))
+        mu.reg_write(UC_X86_REG_ESP, esp)
+        mu.emu_start(entry, 0xFFFFFFFF, count=2000)
+        self.assertEqual(mu.reg_read(UC_X86_REG_EIP), self.SENTINEL, "returned")
+        self.assertEqual(mu.reg_read(UC_X86_REG_ESP), esp + 4, "stack balanced")
+        self.assertEqual([mu.reg_read(r) for r in self.REGS], before, "every register preserved")
+        zf = bool(mu.reg_read(UC_X86_REG_EFLAGS) & 0x40)
+        return zf, state["calls"]
+
+    @staticmethod
+    def _model(raw):
+        raw, calls = list(raw), 0
+        for _ in range(2):
+            for _ in range(16):
+                calls += 1
+                v = raw.pop(0) if raw else 1
+                if v < 32000:
+                    break
+            else:
+                return False, calls
+            if v % 1000:
+                return False, calls
+        return True, calls
+
+    def test_every_raw_value_of_each_draw(self):
+        for game in ROLL_FILE:
+            mu, entry, state = self._machine(game)
+            with self.subTest(game=game):
+                golden_first = golden_second = 0
+                for v in range(32768):
+                    for raw in ([v, 0], [0, v, 0]):
+                        got = self._roll(mu, entry, state, raw)
+                        self.assertEqual(got, self._model(raw), raw)
+                    if v < 32000:
+                        golden_first += self._roll(mu, entry, state, [v, 0])[0]
+                        golden_second += self._roll(mu, entry, state, [0, v])[0]
+                # exactly 32 of the 32000 accepted values pass each draw:
+                # (32/32000)^2 = 1/1,000,000
+                self.assertEqual((golden_first, golden_second), (32, 32))
+
+    def test_the_sixteen_draw_cap(self):
+        for game in ROLL_FILE:
+            mu, entry, state = self._machine(game)
+            with self.subTest(game=game):
+                self.assertEqual(self._roll(mu, entry, state, [32767] * 15 + [0, 0]), (True, 17))
+                self.assertEqual(self._roll(mu, entry, state, [32000] * 16 + [0, 0]), (False, 16),
+                                 "16 rejected draws end the roll: not golden, no hang")
+                self.assertEqual(self._roll(mu, entry, state, [0] + [32500] * 16 + [0]), (False, 17))
+                self.assertEqual(self._roll(mu, entry, state, [0] + [32500] * 15 + [0]), (True, 17))
+
+
+class NewHomeTests(unittest.TestCase):
+    """A New Home: the stock red roll rand(100) < 5 (flag 1) is kept as it
+    was, then the kind-roll routine makes it golden (flag 2) -- then the
+    stock expiry."""
+
+    def _spawn(self, r100, golden, patched=True):
         mgr = HEAP + 0x100000
         mu, calls = run(1, 0x4236C7, 0x42370B, {UC_X86_REG_ESI: HEAP, UC_X86_REG_EBX: 0},
-                        rand1000=r, rand_other=r, patched=patched,
+                        rand1000=0 if golden else 7, rand_other=r100, patched=patched,
                         setup=lambda m: m.mem_write(HEAP + 0x10, struct.pack("<I", mgr)))
         return rd32(mu, mgr + 0xACB0), rd32(mu, mu.reg_read(UC_X86_REG_ESP)), STACK - mu.reg_read(UC_X86_REG_ESP), calls
 
     def test_the_roll_over_every_outcome(self):
-        counts = {0: 0, 1: 0, 2: 0}
-        for r in range(1000):
-            flag, pushed, depth, calls = self._spawn(r)
-            counts[flag] += 1
-            self.assertEqual((pushed, depth), (0x21, 4), r)
-            self.assertEqual(calls, [("rand", 1000)], "one rand call, as stock makes one")
-        self.assertEqual(counts, {2: 1, 1: 50, 0: 949})
-        self.assertEqual(self._spawn(0)[0], 2)
+        for r100 in range(100):
+            for golden in (False, True):
+                flag, pushed, depth, calls = self._spawn(r100, golden)
+                self.assertEqual(flag, 2 if golden else (1 if r100 < 5 else 0), (r100, golden))
+                self.assertEqual((pushed, depth), (0x21, 4), r100)
+                self.assertEqual(calls[0], ("rand", 100), "the stock red roll, unchanged")
+                self.assertEqual(calls[1:], [("roll",)], "one kind roll")
 
     def test_stock_never_makes_golden(self):
         for r in (0, 4, 5, 99):
-            self.assertIn(self._spawn(r, patched=False)[0], (0, 1))
+            self.assertIn(self._spawn(r, True, patched=False)[0], (0, 1))
 
     def test_the_job_picks_pose_and_award_from_the_kind(self):
         for flag, pose, award in ((0, 0xD, 0x20), (1, 0xE, 0x21), (2, 0xF, 0x22)):

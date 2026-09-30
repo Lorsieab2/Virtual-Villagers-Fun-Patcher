@@ -558,7 +558,7 @@ Adds a super-secret golden spotted mushroom to the game. You'll have to pick it 
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 13; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Teaching Children Grants Skill (`vv2_teaching_children_grants_skill`)
 
