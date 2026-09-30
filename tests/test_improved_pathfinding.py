@@ -30,6 +30,9 @@ DEF = ROOT / "native" / "vvfp_pathfinding" / "vvfp_pathfinding.def"
 # The probes the harness drives exist only in the TEST build (VVFP_TEST).
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Improved Pathfinding.test.dll"
 TEST_DEF = ROOT / "native" / "vvfp_pathfinding" / "vvfp_pathfinding_test.def"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 HARNESS_BUILD = ROOT / "scripts" / "build_pathfinding_harness.ps1"
 MANIFESTS = {
     "vv1": ROOT / "data" / "vv1_improved_pathfinding_feature.json",
@@ -125,16 +128,19 @@ class RowsAndDllTests(unittest.TestCase):
         self.assertIn("VvfpPathfindingInstall", exports)
         self.assertFalse({n for n in exports if "Probe" in n or "Stats" in n},
                          "the shipped DLL exports no probe or counter")
+        definition = DEF.read_text(encoding="utf-8")
+        self.assertIn("VvfpPathfindingInstall=_VvfpPathfindingInstall@4", definition)
+        self.assertNotIn("Probe", definition)
+        self.assertIn("VvfpPathfindingProbeVv1=", TEST_DEF.read_text(encoding="utf-8"))
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_the_test_build_exports_what_the_harness_calls(self):
         test_exports = _exports(TEST_DLL)
         for name in ("VvfpPathfindingInstall", "VvfpPathfindingProbeVv1",
                      "VvfpPathfindingProbeVv1Route", "VvfpPathfindingProbeVv2Flood",
                      "VvfpPathfindingProbeVv2Next", "VvfpPathfindingProbeSite",
                      "VvfpPathfindingProbeSiteBytes", "VvfpPathfindingStats"):
             self.assertIn(name, test_exports)
-        definition = DEF.read_text(encoding="utf-8")
-        self.assertIn("VvfpPathfindingInstall=_VvfpPathfindingInstall@4", definition)
-        self.assertNotIn("Probe", definition)
-        self.assertIn("VvfpPathfindingProbeVv1=", TEST_DEF.read_text(encoding="utf-8"))
 
     def test_the_dll_verifies_before_it_writes_and_never_leaves_a_writable_code_page(self):
         source = SOURCE.read_text(encoding="utf-8")
@@ -257,6 +263,7 @@ class RegistrationTests(unittest.TestCase):
 
 class HarnessTests(unittest.TestCase):
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_harness_passes_against_the_test_build(self):
         result = subprocess.run(
             ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(HARNESS_BUILD)],

@@ -40,6 +40,9 @@ DLL = ROOT / "assets" / "fix_huts" / "VVFP Fix Huts.dll"
 # The probes and counters the emulator drives exist only in the TEST build
 # (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Fix Huts.test.dll"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 STOCK = {g: ROOT / "research" / "stock-executables" / n for g, n in (
     ("vv1", "Virtual Villagers - A New Home.exe"), ("vv2", "Virtual Villagers - The Lost Children.exe"),
     ("vv3", "Virtual Villagers - The Secret City.exe"), ("vv4", "Virtual Villagers - The Tree of Life.exe"),
@@ -210,6 +213,7 @@ def _run_vv12(game: str, food: int, preference: int, huts: tuple[int, int, int],
 
 
 class HighFoodGateTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_sites_hold_the_stock_food_gates(self):
         for game, g in VV12.items():
             with self.subTest(game=game):
@@ -227,6 +231,7 @@ class HighFoodGateTests(unittest.TestCase):
                 self.assertIn({"va": f"{va:#x}", "stock_bytes": stock.hex().upper()},
                               [{"va": d["va"].lower(), "stock_bytes": d["stock_bytes"]} for d in manifest["runtime_detours"]])
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_builder_with_a_hut_unbuilt_gets_the_attempt_at_high_food(self):
         for game, g in VV12.items():
             with self.subTest(game=game):
@@ -236,6 +241,7 @@ class HighFoodGateTests(unittest.TestCase):
                 self.assertEqual(r.regs[UC_X86_REG_ESI], VILLAGE)
                 self.assertEqual(r.regs[UC_X86_REG_EDI], 7)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_below_level_3_a_builder_with_every_hut_built_gets_the_attempt(self):
         # The owner: "below level 3, at all food levels, villagers will fix
         # huts if at least one is built" -- every hut built included (Codex on
@@ -249,6 +255,7 @@ class HighFoodGateTests(unittest.TestCase):
                 r = _run_vv12(game, food=g["threshold"] + 5000, preference=g["builder"], huts=(1, 1, 1), level=3)
                 self.assertEqual(r.exit, g["high"], "level 3 or above with every hut built: stock")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_everything_else_takes_the_stock_path(self):
         for game, g in VV12.items():
             with self.subTest(game=game):
@@ -294,6 +301,7 @@ def _run_later(game: str, pick: int, huts: tuple[int, int, int, int], work_first
 
 
 class LowFoodPathTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_sites_hold_the_stock_instruction_after_the_pick(self):
         for game, g in LATER.items():
             with self.subTest(game=game):
@@ -307,6 +315,7 @@ class LowFoodPathTests(unittest.TestCase):
                 rel, = struct.unpack("<i", patched[1:5])
                 self.assertEqual(va + 5 + rel, stub)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_picked_building_job_with_a_hut_unbuilt_is_dispatched_at_once(self):
         for game, g in LATER.items():
             with self.subTest(game=game):
@@ -315,6 +324,7 @@ class LowFoodPathTests(unittest.TestCase):
                 self.assertEqual(r.regs[UC_X86_REG_EDI], 4, "the dispatch reads the pick from edi")
                 self.assertEqual(r.regs[UC_X86_REG_ESP], r.esp_before)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_builders_pick_is_dispatched_with_every_hut_built_too(self):
         # Codex on #464: once every hut is built the stock "fix a hut" option is
         # the builder's hut work (no level gate before these games' hut site),
@@ -325,6 +335,7 @@ class LowFoodPathTests(unittest.TestCase):
                 self.assertEqual(r.exit, g["dispatch"])
                 self.assertEqual(r.regs[UC_X86_REG_EDI], 4)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_healers_pick_waits_unless_work_first_is_shipped(self):
         # Builders and Healers Work First (the addendum) extends the bypass to
         # a healer's pick (job 2); without its DLL the healer keeps the stock
@@ -343,6 +354,7 @@ class LowFoodPathTests(unittest.TestCase):
                 r = _run_later(game, pick=2, huts=(0, 0, 0, 0), work_first=True)
                 self.assertEqual(r.exit, g["dispatch"], "no hut built: still dispatched at once")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_everything_else_resumes_the_stock_low_food_path(self):
         for game, g in LATER.items():
             for pick, huts in ((0, (0, 0, 0, 0)), (2, (1, 0, 1, 0)), (3, (1, 1, 1, 0))):

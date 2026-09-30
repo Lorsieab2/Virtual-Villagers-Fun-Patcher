@@ -54,6 +54,9 @@ DLL = ROOT / "assets" / "lesson_cap" / "VVFP Lesson Cap.dll"
 # The probes and counters the emulator drives exist only in the TEST build
 # (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Lesson Cap.test.dll"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 MANIFEST = ROOT / "data" / "vv3_chief_lessons_cap_feature.json"
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 FEATURE = "vv3_chief_lessons_cap_50"
@@ -116,6 +119,7 @@ class Probe:
 
 
 class AwardTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_one_of_five_below_50_gains_7_to_9(self):
         for pick, extra in ((0, 0), (4, 2), (2, 1)):
             p = Probe([10, 20, 30, 40, 0], rng=[pick, extra])
@@ -127,12 +131,14 @@ class AwardTests(unittest.TestCase):
             self.assertEqual(p.result, 1)
             self.assertEqual(p.stats, (1, 1, 0))
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_gain_stops_at_exactly_50(self):
         for start, extra in ((49, 0), (49, 2), (43, 0), (43, 2), (42, 1)):
             p = Probe([start, 0, 0, 0, 0], rng=[0, extra])
             self.assertEqual(p.skills()[0], min(CAP, start + 7 + extra), (start, extra))
         self.assertEqual(Probe([41, 0, 0, 0, 0], rng=[0, 1]).skills()[0], 49)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_only_skills_below_50_are_chosen_and_none_is_lowered(self):
         for k, index in ((0, 1), (1, 3), (2, 4)):
             p = Probe([100, 12, 50, 33, 49], rng=[k, 1])
@@ -146,6 +152,7 @@ class AwardTests(unittest.TestCase):
         self.assertEqual(p.result, 0)
         self.assertEqual(p.stats, (1, 0, 1))
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_all_at_50_awards_nothing(self):
         p = Probe([50] * 5, rng=[])
         self.assertEqual(p.skills(), [50] * 5)
@@ -363,6 +370,7 @@ class StubRun:
 
 
 class VV1VV2Tests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_site_is_the_lesson_rows_cave_head_and_nothing_without_it(self):
         import vv_fun_patcher as vfp
         for game, g in VV12.items():
@@ -381,6 +389,7 @@ class VV1VV2Tests(unittest.TestCase):
                 self.assertFalse(any(exe.read_bytes()[g["file"]:g["file"] + 10]),
                                  "stock is zeros: without the lesson row nothing installs")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_callback_127_awards_only_below_50_and_stops_at_50(self):
         for game in VV12:
             with self.subTest(game=game):
@@ -399,6 +408,7 @@ class VV1VV2Tests(unittest.TestCase):
                 self.assertEqual(r.calls, [])
                 self.assertEqual(r.stopped, RETURN)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_every_other_callback_goes_back_into_the_cave(self):
         for game in VV12:
             for callback in (0, 1, 42, 126, 128):

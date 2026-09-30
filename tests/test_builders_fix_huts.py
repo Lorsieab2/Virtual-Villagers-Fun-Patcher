@@ -39,6 +39,9 @@ DLL = ROOT / "assets" / "fix_huts" / "VVFP Fix Huts.dll"
 # The probes and counters the emulator drives exist only in the TEST build
 # (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Fix Huts.test.dll"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 SOURCE = ROOT / "native" / "vvfp_fix_huts" / "vvfp_fix_huts.c"
 STOCK = {g: ROOT / "research" / "stock-executables" / n for g, n in (
     ("vv1", "Virtual Villagers - A New Home.exe"), ("vv2", "Virtual Villagers - The Lost Children.exe"),
@@ -92,6 +95,7 @@ def _probe_site(game_no: int):
 
 
 class RuntimeSiteTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_each_runtime_sites_stock_bytes_match_and_the_jmp_lands_on_the_stub(self):
         for game in ("vv1", "vv2", "vv4", "vv5"):
             manifest = json.loads(MANIFESTS[game].read_text(encoding="utf-8"))
@@ -133,6 +137,7 @@ class ChooserTests(unittest.TestCase):
             mu.mem_write(STATE + off, bytes([value]))
         return _call(mu, ex["VvfpFixHutsProbeChoose"], game_no, VILLAGE) & 0xFFFFFFFF
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_vv1_chooses_only_among_complete_huts_while_one_is_incomplete(self):
         none = self._choose(1, {0x9FE8: 0, 0x9FF0: 0, 0x9FF8: 0})
         self.assertEqual(none, 0xFFFFFFFF, "no hut complete: stock")
@@ -142,6 +147,7 @@ class ChooserTests(unittest.TestCase):
         self.assertTrue(seen <= {9, 11}, seen)
         self.assertEqual(self._choose(1, {0x9FE8: 0, 0x9FF0: 1, 0x9FF8: 0}), 10)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_vv2_chooses_only_among_complete_huts_while_one_is_incomplete(self):
         self.assertEqual(self._choose(2, {0x2E818: 0, 0x2E820: 0, 0x2E828: 0}), 0xFFFFFFFF)
         self.assertEqual(self._choose(2, {0x2E818: 1, 0x2E820: 1, 0x2E828: 1}), 0xFFFFFFFF)

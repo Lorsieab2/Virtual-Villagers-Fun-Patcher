@@ -44,6 +44,9 @@ DLL = ROOT / "assets" / "fix_huts" / "VVFP Fix Huts.dll"
 # The probes and counters the emulator drives exist only in the TEST build
 # (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Fix Huts.test.dll"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 STOCK = {"vv1": ROOT / "research" / "stock-executables" / "Virtual Villagers - A New Home.exe",
          "vv2": ROOT / "research" / "stock-executables" / "Virtual Villagers - The Lost Children.exe"}
 STACK = 0x70000000
@@ -151,6 +154,7 @@ class Run:
 
 
 class LevelGateTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_sites_are_the_stock_level_gates(self):
         for game, g in G.items():
             with self.subTest(game=game):
@@ -164,6 +168,7 @@ class LevelGateTests(unittest.TestCase):
         # VV2: cmp [edx+0x2EA84], 3; jl 0x46004C, and 0x46004C returns al = 0
         self.assertEqual(_stock("vv2", 0x46004C, 6), bytes.fromhex("5F5D5B32C05E"))
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_level_3_or_more_continues_the_stock_branch(self):
         for game, g in G.items():
             with self.subTest(game=game):
@@ -172,6 +177,7 @@ class LevelGateTests(unittest.TestCase):
                 self.assertEqual(r.exit, g["resume"])
                 self.assertIsNone(r.examined)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_below_level_3_a_standing_hut_is_fixed(self):
         # The owner's village: level 2, hut 9 built, huts 10/11 not.
         for game, g in G.items():
@@ -193,6 +199,7 @@ class BelowLevelOnlyAHutTests(unittest.TestCase):
 
     HUTS = {"vv1": (9, 10, 11), "vv2": (24, 25, 26)}
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_every_hut_built_a_built_hut_is_fixed(self):
         for game, g in G.items():
             stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
@@ -203,6 +210,7 @@ class BelowLevelOnlyAHutTests(unittest.TestCase):
                 self.assertEqual(r.exit, g["started"])
                 self.assertEqual(r.rolled, [], "the stock random pick is never reached")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_only_built_huts_are_chosen(self):
         for game, g in G.items():
             stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
@@ -212,6 +220,7 @@ class BelowLevelOnlyAHutTests(unittest.TestCase):
                             for _ in range(6)}
                     self.assertTrue(seen <= allowed, seen)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_no_hut_built_keeps_the_gates_nothing(self):
         for game, g in G.items():
             stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
@@ -238,11 +247,13 @@ class NewHomeNothingTests(unittest.TestCase):
         self.assertEqual((r.reg(UC_X86_REG_EDI), r.reg(UC_X86_REG_EBP), r.reg(UC_X86_REG_EBX), r.reg(UC_X86_REG_ESI)),
                          (0xE0E0E0E0, 0xB0B0B0B0, 0xB1B1B1B1, 0x51515151), "the dispatcher's own pops, in order")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_no_hut_standing_is_nothing(self):
         r = Run("vv1", self.stub, level=3, huts=(0, 0, 0))
         self._assert_nothing(r)
         self.assertEqual(r.rolled, [])
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_every_hut_complete_the_skip_roll_is_nothing_else_the_stock_hut(self):
         r = Run("vv1", self.stub, level=3, huts=(1, 1, 1), roll=20)
         self._assert_nothing(r)

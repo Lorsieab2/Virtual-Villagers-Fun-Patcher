@@ -47,6 +47,9 @@ DLL = ROOT / "assets" / "work_first" / "VVFP Work First.dll"
 # The probes and counters the emulator drives exist only in the TEST build
 # (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Work First.test.dll"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 STOCK = {g: ROOT / "research" / "stock-executables" / n for g, n in (
     ("vv1", "Virtual Villagers - A New Home.exe"), ("vv2", "Virtual Villagers - The Lost Children.exe"),
     ("vv3", "Virtual Villagers - The Secret City.exe"), ("vv4", "Virtual Villagers - The Tree of Life.exe"),
@@ -190,6 +193,7 @@ class DispatchRun:
 
 
 class SiteTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_dispatcher_entries_and_the_scheduler_call_sites(self):
         for game, g in G.items():
             with self.subTest(game=game):
@@ -214,6 +218,7 @@ class DispatcherStubTests(unittest.TestCase):
     def other_job(self, g):
         return next(j for j in range(0, 6) if j not in (g["building"], g["healing"]))
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_own_job_is_tried_first_and_a_start_is_returned(self):
         for game in self.GAMES:
             g = G[game]
@@ -230,6 +235,7 @@ class DispatcherStubTests(unittest.TestCase):
                         self.assertEqual((r.reg(UC_X86_REG_EBX), r.reg(UC_X86_REG_ESI), r.reg(UC_X86_REG_EDI)),
                                          (0x11111111, 0x22222222, 0x33333333))
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_with_nothing_of_their_own_to_do_the_stock_request_runs(self):
         # Codex #462: never leave the villager idle -- the scheduler's own
         # request still runs when the own job starts nothing.
@@ -247,6 +253,7 @@ class DispatcherStubTests(unittest.TestCase):
                     self.assertEqual(r.stock_frame, (g["calls"][0] + 5, VILLAGE),
                                      "the stock request sees the scheduler's own frame and ecx")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_healers_come_first_even_with_every_hut_built(self):
         # The owner, v1.35.38: "For healers, they should study medicine at all
         # food levels, when they can study medicine" -- not tied to the huts,
@@ -262,6 +269,7 @@ class DispatcherStubTests(unittest.TestCase):
                                 starts=lambda job: False)
                 self.assertEqual(r.asked, [g["healing"], self.other_job(g)], "can't study: the stock request")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_below_level_3_a_builder_with_every_hut_built_comes_first(self):
         # A New Home / The Lost Children: below Building level 3 a built hut is
         # hut work even once every one is built (Codex on #464).
@@ -272,6 +280,7 @@ class DispatcherStubTests(unittest.TestCase):
                                 starts=lambda job: job == g["building"], level=2)
                 self.assertEqual(r.asked, [g["building"]])
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_everything_else_runs_the_stock_request_alone(self):
         for game in self.GAMES:
             g = G[game]

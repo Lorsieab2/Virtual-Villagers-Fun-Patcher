@@ -40,6 +40,9 @@ DLL = ROOT / "assets" / "watering" / "VVFP VV1 Watering Builds.dll"
 # The probes and counters the emulator drives exist only in the TEST build
 # (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP VV1 Watering Builds.test.dll"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 MANIFEST = ROOT / "data" / "vv1_watering_trains_building_feature.json"
 ORIGINS_C = ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c"
 ORIGINS_DLL = ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll"
@@ -165,6 +168,7 @@ class StockTests(unittest.TestCase):
 
 
 class StubTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_site_jmp_lands_on_the_stub(self):
         site, stock, patched, stub = _stub_va()
         self.assertEqual(site, SITE)
@@ -174,6 +178,7 @@ class StubTests(unittest.TestCase):
         self.assertEqual((SITE + 5 + rel) & 0xFFFFFFFF, stub)
         self.assertEqual(patched[5:], b"\x90" * 7)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_garden_in_progress_queues_one_practice_building_action(self):
         calls, regs, progress, esp = _run_stub(garden_done=0, progress=41, idx=17)
         self.assertEqual(len(calls), 1)
@@ -185,6 +190,7 @@ class StubTests(unittest.TestCase):
         self.assertEqual((regs["esi"], regs["edi"], regs["ebx"], regs["ebp"], regs["esp"]),
                          (THIS, 0x7777, 0x5555, 0x6666, esp), "registers preserved")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_garden_done_queues_nothing(self):
         calls, regs, progress, esp = _run_stub(garden_done=1, progress=200, idx=3)
         self.assertEqual(calls, [], "no progress, no Building")
@@ -192,6 +198,7 @@ class StubTests(unittest.TestCase):
         self.assertEqual(regs["eax"], STATE)
         self.assertEqual(regs["esp"], esp)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_last_step_that_completes_the_garden_still_counts(self):
         calls, _, progress, _ = _run_stub(garden_done=0, progress=199, idx=0)
         self.assertEqual(len(calls), 1)

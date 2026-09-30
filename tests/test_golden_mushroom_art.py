@@ -48,6 +48,9 @@ DLL = ROOT / "assets" / "golden_mushroom" / "VVFP Golden Mushroom.dll"
 # The probes and counters the emulator drives exist only in the TEST build
 # (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Golden Mushroom.test.dll"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 PNG = ROOT / "assets" / "golden_mushroom" / "golden_mushroom.png"
 STOCK = ROOT / "research" / "stock-executables"
 NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
@@ -297,6 +300,7 @@ def _sheet(m: Machine, cols, rows):
 
 
 class SiteTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_every_detour_site_and_loader_call_is_stock(self):
         rows = {p.id: p.raw for p in vfp.load_fun_patches()}
         for game in ART_GAMES:
@@ -383,11 +387,13 @@ class RollTests(unittest.TestCase):
         self.assertEqual([mu.reg_read(r) for r in self.REGS], before, "every register preserved")
         return bool(mu.reg_read(UC_X86_REG_EFLAGS) & 0x40), m.raw_calls
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_without_the_install_the_stub_always_answers_no(self):
         for game in ART_GAMES:
             with self.subTest(game=game):
                 self.assertEqual(self._roll(Machine(game), [0, 0]), (False, 0))
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_every_raw_value_of_each_draw(self):
         for game in ART_GAMES:
             m = _installed(game)
@@ -402,6 +408,7 @@ class RollTests(unittest.TestCase):
                 # 32 of the 32000 accepted values pass each draw: (32/32000)^2
                 self.assertEqual((yes_first, yes_second), (32, 32))
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_sixteen_draw_cap(self):
         for game in ART_GAMES:
             m = _installed(game)
@@ -414,6 +421,7 @@ class RollTests(unittest.TestCase):
 
 
 class InstallTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_install_writes_exactly_the_probed_bytes_once(self):
         for game in ART_GAMES:
             with self.subTest(game=game):
@@ -431,6 +439,7 @@ class InstallTests(unittest.TestCase):
                 self.assertEqual(m.export(game), 1, "a second call reports installed")
                 self.assertEqual(len(m.writes), before, "and writes nothing")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_nothing_is_written_unless_every_site_is_stock(self):
         for game in ART_GAMES:
             with self.subTest(game=game):
@@ -443,6 +452,7 @@ class InstallTests(unittest.TestCase):
                 for va, stock, _, _ in probed[:-1]:
                     self.assertEqual(bytes(m.mu.mem_read(va, len(stock))), stock)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_site_that_cannot_be_made_writable_leaves_every_site_stock(self):
         # Codex (PR #466): A New Home has two sites; if VirtualProtect fails at
         # the second after the first was written, the feature is half-installed
@@ -461,6 +471,7 @@ class InstallTests(unittest.TestCase):
         self.assertEqual(m.protects[2:], [(*first, 0x20)], "the first site is re-locked")
         self.assertEqual(m.export(1), 0, "and it stays refused")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_different_game_installs_nothing(self):
         m = Machine(3)
         self.assertEqual(m.export(4), 0)
@@ -488,6 +499,7 @@ class NewHomeDrawTests(unittest.TestCase):
             self.assertEqual(m.mu.reg_read(r), v, r)
         self.assertEqual(m.mu.reg_read(UC_X86_REG_ECX), ecx)
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_golden_frame_draws_the_new_image_through_the_stock_draw(self):
         m = _installed(1)
         esp = self._frame(m)
@@ -504,6 +516,7 @@ class NewHomeDrawTests(unittest.TestCase):
         self.assertEqual(len([c for c in m.calls if c[0] == "alloc"]), 1)
         self.assertEqual(m.stats(), (2, 0, 1))
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_fading_draw_does_the_same_into_the_five_argument_thunk(self):
         m = _installed(1)
         esp = self._fade(m)
@@ -513,6 +526,7 @@ class NewHomeDrawTests(unittest.TestCase):
                          (0x41ABA5, NEW_SPRITE, 106, 202, 0, 0x3F000000))
         self._regs_intact(m, HOLDER)        # the thunk has not run yet
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_anything_else_passes_through_untouched(self):
         for cols, rows, frame in ((15, 1, 14), (15, 1, 0), (14, 1, 15), (15, 2, 15), (16, 1, 15)):
             with self.subTest(cols=cols, rows=rows, frame=frame):
@@ -528,6 +542,7 @@ class NewHomeDrawTests(unittest.TestCase):
                 self._regs_intact(m, HOLDER)
                 self.assertEqual(m.calls, [], "no image is built for a stock frame")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_an_image_that_is_missing_or_does_not_load_is_never_drawn(self):
         for present, loads in ((False, True), (True, False)):
             with self.subTest(present=present, loads=loads):
@@ -558,6 +573,7 @@ class LaterGamesDrawTests(unittest.TestCase):
         esp = m.draw(g["entry"], [SENTINEL, sheet, x, y, frame, scale], RENDERER, {resume + 6, SENTINEL})
         return m, esp, out
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_golden_frame_draws_the_new_image_through_the_stock_entry(self):
         for game, g in LATER.items():
             with self.subTest(game=game):
@@ -573,6 +589,7 @@ class LaterGamesDrawTests(unittest.TestCase):
                 self.assertEqual(m.calls[2:], [("alloc", 0x34), ("ctor", NEW_SPRITE, b"golden_mushroom.png", 1, 1)])
                 self.assertEqual(m.stats(), (1, 0, 1))
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_anything_else_passes_through_untouched(self):
         other = HEAP + 0x4000
         for game, g in LATER.items():
@@ -589,6 +606,7 @@ class LaterGamesDrawTests(unittest.TestCase):
                     self.assertEqual(m.mu.reg_read(UC_X86_REG_ECX), RENDERER)
                     self.assertEqual(m.calls, [])
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_sheet_field_is_read_at_every_draw(self):
         for game in LATER:
             with self.subTest(game=game):
@@ -597,6 +615,7 @@ class LaterGamesDrawTests(unittest.TestCase):
                 m, esp, _ = self._run(game, machine=m)
                 self.assertEqual(rd32(m.mu, esp + 4), NEW_SPRITE, "the field now holds it")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_an_image_that_is_missing_or_does_not_load_is_never_drawn(self):
         for game in LATER:
             for present, loads in ((False, True), (True, False)):
@@ -624,6 +643,7 @@ class MutationTests(unittest.TestCase):
             image[i:i + len(pattern)] = replacement
         return mutate
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_mutated_frame_constants_break_the_golden_path(self):
         # VV1 frame stub: cmp dword [esp+0x14], 15 -> 14
         m = _installed(1, mutate=self._mutator(bytes.fromhex("837C24140F"), bytes.fromhex("837C24140E")))

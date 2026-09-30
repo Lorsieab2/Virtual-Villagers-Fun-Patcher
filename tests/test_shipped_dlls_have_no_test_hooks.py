@@ -20,6 +20,9 @@ This file keeps it that way:
   list, not a patch manifest;
 * each test build exists, carries what its shipped twin exports plus the
   hooks, and is named so it cannot be mistaken for the shipped file;
+* the test builds are export-ignore, so not even the release SOURCE zip
+  carries them (there, the tests that drive them skip), while a git
+  checkout must track every one so CI never skips them;
 * the VV3 companion no longer publishes the two world-draw debug buffers it
   used to hand the executable at 0x6E003C / 0x6E0040.
 """
@@ -148,6 +151,24 @@ class TestBuildsStayOutOfTheRelease(unittest.TestCase):
                 self.assertNotIn("test_dlls", text)
                 self.assertNotIn(".test.dll", text)
 
+    def test_the_source_archive_leaves_the_test_builds_out(self):
+        """`git archive` (the release source zip) honours export-ignore, so the
+        test builds never reach a release, source or patcher zip."""
+        rules = (ROOT / ".gitattributes").read_text(encoding="utf-8").splitlines()
+        self.assertIn("/tests/test_dlls/** export-ignore", rules)
+
+    @unittest.skipUnless((ROOT / ".git").exists(), "not a git checkout")
+    def test_a_checkout_tracks_every_test_build(self):
+        """The emulator tests skip when a test build is absent, which is right
+        in the source archive and wrong anywhere else: in a checkout every
+        test build must be tracked, so CI can never skip them silently."""
+        import subprocess
+        tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "tests/test_dlls"],
+                                 capture_output=True, text=True, check=True).stdout.splitlines()
+        self.assertEqual(sorted(Path(t).name for t in tracked),
+                         sorted(name for name, _ in TEST_BUILDS.values()))
+
+    @unittest.skipUnless(TEST_DLLS.is_dir(), "test builds are not in the release source archive (tests/test_dlls)")
     def test_each_test_build_is_the_shipped_dll_plus_its_hooks(self):
         for shipped, (test_name, native) in TEST_BUILDS.items():
             with self.subTest(dll=shipped):
