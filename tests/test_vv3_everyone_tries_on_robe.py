@@ -139,17 +139,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # (D4C10313.../D3BD1ECB.../91599ED3...); with the new one, the only
     # differing bytes in every mode are 0x7B752..0x7B755 (that instruction's
     # ModRM and operand) and the PE CheckSum at 0x160..0x161.
+    # Re-pinned for the Nature honey refill (#468) on top of main (2026-09-30).
+    # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
+    # byte that differs lies inside the honey-refill patch records or the PE CheckSum.
     "stock": (
-        "6CCDE108C48937C64D4AD9290D525F8DAA02E684201DBF475B00D3B89657B647",
-        "E8890D00",
+        "EF900D4604A99BBD85F9054A983F8E078C526B7CC8492F50E69DB29FC3F182E7",
+        "6C5B0D00",
     ),
     "collection_progression": (
-        "E53C7AB5EEE06D0C2B13837B7F58020B4C5B69879B67A0A5FD6DE24C42726CF1",
-        "E8A20D00",
+        "892CFE36052047004BC94F94376CFC28DF077DC872ACF602D42EF9A5F8082AB2",
+        "6C740D00",
     ),
     "immediate_fixed": (
-        "5CC58FD274B3CF4CDF3C0A79F2AE8539C97EEAD068772D92EE8D4193E8BCB7D8",
-        "E7E40C00",
+        "2B06FF2F916944D5BE15569C73B31D64E7EDEFDD43E47905C200A28EA625B08E",
+        "6AB60D00",
     ),
 }
 

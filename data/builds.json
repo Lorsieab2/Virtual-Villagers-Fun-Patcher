@@ -1255,8 +1255,8 @@
         {
           "offset": "0x7B2A0",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C15B954000000F7E1B93C860100F7F18BD0E93C67FBFF8BD0D1E2B8C5B3A291F7E2C1EA0BE92967FBFF",
-          "purpose": "preserve the stock honey rate at Nature 0 and apply the 42-to-37 quantity improvement against the new 45-minute Nature interval"
+          "after": "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C12B954000000F7E1B93C860100F7F18BD0EB0E8BD0D1E2B8C5B3A291F7E2C1EA0B8B4610E92F67FBFF",
+          "purpose": "compute the honey added -- the stock elapsed/1800 at Nature 0, elapsed*84/99900 at Nature 1 or higher -- then load the stored honey and resume at the stock add (0x431A0F), past the stock shift, so the amount is shifted exactly once"
         },
         {
           "offset": "0x7B340",
