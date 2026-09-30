@@ -93,7 +93,10 @@ class VV3RequiredFixTests(unittest.TestCase):
         self.assertIn("call 0x462670", cure)
         self.assertIn("cmp dword ptr [esi + 0xE78], 100", cure)
         self.assertIn("mov byte ptr [esi + 0xE89], 0", cure)
-        self.assertIn("inc dword ptr [edi + 0x4FC]", cure)
+        # People Cured: the live statistics block +0x10, as the stock cure;
+        # [edi+0x4FC] was the save-time copy, overwritten on every save.
+        self.assertIn("inc dword ptr [0x5824B0]", cure)
+        self.assertNotIn("inc dword ptr [edi + 0x4FC]", cure)
 
     def test_vv3_tech_menu_marks_village_wide_rows_buyable(self) -> None:
         source = (ROOT / "scripts" / "build_vv3_origins_feature.py").read_text(

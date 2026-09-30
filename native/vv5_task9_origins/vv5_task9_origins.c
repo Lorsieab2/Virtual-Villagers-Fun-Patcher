@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <shlobj.h>   /* SHGetSpecialFolderPathA, CSIDL_PERSONAL */
 #include <string.h>   /* strrchr */
+#include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20. The
@@ -368,26 +369,48 @@ static int vv5_roster_equal(const unsigned int *a, const unsigned int *b) {
    identified writes nothing: an unsnapshotted file could never be matched,
    and writing one would recreate the very bleed this exists to stop.  Never
    touches the .ldw. */
+/* The load/publish gate for the mask sidecar (native/shared/sidecar_io.h),
+   keyed by save slot: a write is refused until this slot's file has loaded,
+   been found missing, or -- present but invalid -- been moved aside intact. */
+static vv_sidecar_gate g_vv5_mask_gate;
+
+#define VV5_MASK_SIDECAR_BYTES (4 + sizeof(g_vv5_roster) + MASK_TABLE_BYTES)
+
+static int vv5_mask_sidecar_valid(const unsigned char *data, DWORD len,
+                                  void *ctx) {
+    unsigned int magic;
+    (void)ctx;
+    if (len < VV5_MASK_SIDECAR_BYTES) {
+        return 0;
+    }
+    memcpy(&magic, data, sizeof(magic));
+    return magic == VV5_MASK_SIDECAR_MAGIC;
+}
+
 __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table) {
     char path[MAX_PATH];
-    HANDLE h;
-    DWORD wrote = 0;
     unsigned int magic = VV5_MASK_SIDECAR_MAGIC;
-    if (table == NULL || !build_mask_sidecar_path(path)) {
-        return;
-    }
-    if (!g_vv5_have_roster) {
+    const void *parts[3];
+    DWORD sizes[3];
+    if (table == NULL || !g_vv5_have_roster) {
         return;                     /* unknown village -> do not write */
     }
-    h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-                    FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) {
+    /* Never before this slot's load settled: a file that is present but
+       could not be opened still holds the masks this table lacks.  Checked
+       before the path is built, so a blocked slot costs no file I/O. */
+    if (!vv_sidecar_gate_ready(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH)
+        || !build_mask_sidecar_path(path)) {
         return;
     }
-    WriteFile(h, &magic, sizeof(magic), &wrote, NULL);
-    WriteFile(h, g_vv5_roster, sizeof(g_vv5_roster), &wrote, NULL); /* binds the file to its village */
-    WriteFile(h, table, MASK_TABLE_BYTES, &wrote, NULL);
-    CloseHandle(h);
+    /* ATOMIC: this used to CREATE_ALWAYS the real file -- truncating it at
+       once -- and ignore every WriteFile, so a crash or a full disk left a
+       short file the loader rejected, and every mask was lost.  Now the
+       payload goes to "<path>.tmp", each write is checked, and only a
+       complete, flushed file replaces the published one. */
+    parts[0] = &magic;        sizes[0] = sizeof(magic);
+    parts[1] = g_vv5_roster;  sizes[1] = sizeof(g_vv5_roster); /* binds the file to its village */
+    parts[2] = table;         sizes[2] = MASK_TABLE_BYTES;
+    (void)vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3);
 }
 
 /* Load the table for the village whose living roster is `live`.  Clears
@@ -395,16 +418,17 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
    from a village that shares no majority with this one -- leaves NO masks,
    which is exactly what a village that never chose any sees, and what stops
    a new village inheriting a dead one's choices. */
-/* 1 when the load settled (read, or legitimately absent), 0 when the
-   path was refused and the load must stay pending. */
+/* 1 when the load settled (read, legitimately absent, or an invalid file
+   moved aside), 0 when it must stay pending: the path was refused, or the
+   file is present but cannot be opened.  Pending never permits a write. */
 static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live) {
     char path[MAX_PATH];
-    HANDLE h;
     DWORD got = 0;
-    unsigned int magic = 0;
     unsigned int filesnap[VV5_RECORD_COUNT];
+    unsigned char file[VV5_MASK_SIDECAR_BYTES];
     unsigned char buf[MASK_TABLE_BYTES];
     int i;
+    int status;
     /* FAIL CLOSED: the clear precedes EVERY exit.
 
        A load that does not complete must not leave the PREVIOUS village's
@@ -416,22 +440,33 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
        The refusal is still REPORTED, so the caller does not latch the roster
        and adopt an empty table as this village's state. */
     memset(table, 0, MASK_TABLE_BYTES);
-    if (!build_mask_sidecar_path(path)) {
-        return 0;               /* not settled; retried on the next call */
+    vv_sidecar_gate_bind(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH);
+    if (vv_sidecar_gate_throttled(&g_vv5_mask_gate)) {
+        return 0;               /* blocked a moment ago: no I/O until the retry */
     }
-    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                    FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) {
+    if (!build_mask_sidecar_path(path)) {
+        vv_sidecar_gate_block(&g_vv5_mask_gate);
+        return 0;               /* not settled; retried later */
+    }
+    /* Only a genuinely missing file is "no masks".  A present file that fails
+       the magic or is short is moved aside intact before anything may be
+       written; one that cannot be opened at all keeps the load pending. */
+    status = vv_sidecar_load(&g_vv5_mask_gate, path, file, sizeof(file), &got,
+                             vv5_mask_sidecar_valid, NULL);
+    if (status == VV_SIDECAR_LOAD_BLOCKED) {
+        return 0;
+    }
+    if (status != VV_SIDECAR_LOAD_VALID) {
         return 1;                     /* no sidecar -> no masks, as before */
     }
     /* THE ROSTER DECIDES, not the slot.  Slots are reused, so a file left by
        the previous village is exactly what a Start Over leaves behind; its
-       snapshot shares at most a coincidence with the village on screen. */
-    if (ReadFile(h, &magic, sizeof(magic), &got, NULL) && got == sizeof(magic)
-        && magic == VV5_MASK_SIDECAR_MAGIC
-        && ReadFile(h, filesnap, sizeof(filesnap), &got, NULL) && got == sizeof(filesnap)
-        && vv5_roster_same(filesnap, live)
-        && ReadFile(h, buf, sizeof(buf), &got, NULL) && got == sizeof(buf)) {
+       snapshot shares at most a coincidence with the village on screen.
+       That is a valid file of another village, not a damaged one: it stays
+       in place, as before, for this village's first write to replace. */
+    memcpy(filesnap, file + 4, sizeof(filesnap));
+    memcpy(buf, file + 4 + sizeof(filesnap), sizeof(buf));
+    if (vv5_roster_same(filesnap, live)) {
         /* Sidecars are user-writable: only 0 (none) through 5 are valid
            nibbles, so normalise before publishing to the render thunks. */
         for (i = 0; i < MASK_TABLE_BYTES; ++i) {
@@ -440,7 +475,6 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
         }
         memcpy(table, buf, sizeof(buf));
     }
-    CloseHandle(h);
     return 1;
 }
 

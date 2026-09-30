@@ -19,6 +19,36 @@ from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 
 POPULATION_COMPANION = ROOT / "assets/population/VVFP Population Export.dll"
 
+# PENDING FIELDS, NOT COUNTERS.
+#
+# The owner's rule: patcher-owned state lives in .dat files beside the saves,
+# never in the save itself. Every counter hook below therefore increments a
+# PENDING field -- scratch space inside the block the game saves and loads
+# wholesale -- and the save wrapper hands the whole save to the statistics
+# companion, whose PreSave adds each pending value into the slot's
+# "Village Statistics - Save N.dat", ORs the pending stew bits into
+# "Stew Discoveries - Save N.dat", and zeroes the pending fields before the
+# stock writer runs. A saved file only ever holds zeros there.
+#
+# Keeping them inside the saved/loaded block is what makes a village switch
+# safe: loading another village overwrites the pending area with that save's
+# zeros, discarding the previous village's unsaved events exactly as the game
+# discards its own unsaved progress, and each game's new-village reset zeroes
+# the block too (VV1 0x41C40E rep stosd +0x9E4C..+0x9ED7, VV2 0x425210
+# +0x2E528..+0x2E607, VV3 0x426450 / VV4 0x41D9D0 / VV5 0x41EBF0 the whole
+# 0x98-byte live block).
+#
+# The fields the earlier builds counted into (VV1 +0x9E84/+0x9E88, VV2
+# +0x2E5D4..+0x2E5DC, VV3 +0x38..+0x48, VV4 +0x0C/+0x3C..+0x48, VV5
+# +0x0C/+0x34..+0x40) are FROZEN: nothing writes them any more, and the
+# companion reads each exactly once, when the slot's .dat is first created,
+# as that counter's starting total.
+#
+# Every pending field was verified free: zero stock references (byte search
+# for the displacement or absolute address across .text), no reference in any
+# rendered patch of any public feature in any mode, none in native/ or a
+# shipped DLL, and none anywhere in the repository history.
+
 GAMES = {
     "vv1": {
         "title": "Virtual Villagers - A New Home",
@@ -36,7 +66,7 @@ GAMES = {
         "burial_hook_va": 0x448F65,
         "burial_guard": "C644392800",
         "burial_manager": "mov eax, dword ptr [edi + 0x3E010]",
-        "burial_stat_offset": 0x9E84,
+        "burial_stat_offset": 0x9E9C,  # pending (old field +0x9E84 frozen)
         "burial_replay": "mov byte ptr [ecx + edi + 0x28], 0",
     },
     "vv2": {
@@ -55,7 +85,7 @@ GAMES = {
         "burial_hook_va": 0x46503B,
         "burial_guard": "C644323000",
         "burial_manager": "mov eax, dword ptr [esi + 0xE574D4]",
-        "burial_stat_offset": 0x2E5D4,
+        "burial_stat_offset": 0x2E5E0,  # pending (old field +0x2E5D4 frozen)
         "burial_replay": "mov byte ptr [edx + esi + 0x30], 0",
         # Counted in two parts, because The Lost Children's childbirth is
         # cumulative rather than exclusive: the twins branch sets litter 2 and
@@ -78,7 +108,7 @@ GAMES = {
         "twins_guard": "8B87D474E500",
         "twins_wrapper_va": 0x473DF4,
         "twins_manager": "mov eax, dword ptr [edi + 0xE574D4]",
-        "twins_stat_offset": 0x2E5D8,
+        "twins_stat_offset": 0x2E5E4,  # pending (old field +0x2E5D8 frozen)
         "twins_resume_va": 0x44BA92,
         # The correcting decrement on the triplet path. edi is already the
         # manager here (0x44BACC loads it), so no extra load is needed.
@@ -88,8 +118,47 @@ GAMES = {
         # longest contiguous zero run in this section stays as large as
         # possible for publish-time name-crash immunity.
         "triplet_wrapper_va": 0x473FED,
-        "triplet_body": "dec dword ptr [edi + 0x2E5D8]",
+        "triplet_body": "dec dword ptr [edi + 0x2E5E4]",
         "triplet_replay": "inc dword ptr [edi + 0x2E524]",
+        # Total Stews Found. sub_425B90 is the cook routine: ECX is the
+        # manager, and the three herb slots +0x3043C/+0x30440/+0x30444 hold
+        # herb ids 0x30..0x35 -- written only by the six herb-drop handlers in
+        # the dispatcher 0x461B10, each into an EMPTY slot, and cleared only at
+        # this routine's own end (0x4260E2) -- and all seven of its callers sit
+        # in that dispatcher, each after the pot is full. Every stew the game
+        # makes passes here, including the ones the Special Stews logic skips.
+        # Its recipe test 0x425B60 COUNTS occurrences of a herb across the
+        # three slots, so ingredient order does not matter to the game; the
+        # hook records the ORDERED triple ((h1*6)+h2)*6+h3 and the companion
+        # normalises it to the sorted multiset.
+        "stew": {
+            "hook_va": 0x425B90,
+            # push ebp ; push esi ; push edi ; mov esi, ecx ; xor edi, edi
+            "guard": "5556578BF133FF",
+            "manager_reg": "ecx",
+            "slots": (0x3043C, 0x30440, 0x30444),
+            "first_herb": 0x30,
+            "herb_count": 6,
+            # Pending ordered-triple bits, 216 of them, at manager+0x2E5E8..
+            # +0x2E602 (27 bytes; +0x2E5E0/+0x2E5E4 are the pending burial and
+            # twins counters). Inside the saved extent and zeroed by the
+            # new-village reset 0x425210.
+            "bits": 0x2E5E8,
+            # The Lost Children has no free contiguous run for this routine:
+            # its statistics cave is full and its one large zero run (0x73F42)
+            # belongs to the publish-time crash-immunity wrapper. So the
+            # routine is laid over NOP padding between functions -- each run
+            # follows a `ret`, is the target of no branch, is stock 0x90, and
+            # is claimed by no public feature in any mode -- chained with
+            # jumps. The publish-time cave finder takes only zero runs, so it
+            # can never reuse these.
+            "runs": (
+                (0x4255D3, 13), (0x425A83, 13), (0x425B53, 13),
+                (0x426113, 13), (0x426153, 13), (0x4261C2, 14),
+                (0x426282, 14), (0x4262A3, 13), (0x4262C3, 13),
+                (0x426691, 15), (0x426EA2, 14), (0x4272B3, 13),
+            ),
+        },
     },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",
@@ -111,7 +180,7 @@ GAMES = {
         # bits 0 and 1 mark the Tech and Food Doublers owned. Incrementing it
         # per pickup would grant doublers and be reset by Origins purchases,
         # so this and its marker start at +0x38.
-        "burial_stat_va": 0x5824D8,
+        "burial_stat_va": 0x5824EC,  # pending +0x4C (old +0x38 frozen)
         # The robing routine sub_45FBC0, whose first instruction loads the
         # villager record. It is the ONLY writer of the chief flag +0xE80 in
         # the image, and its single caller sub_431FE0 is the ceremony -- which
@@ -122,7 +191,7 @@ GAMES = {
         "robing_guard": "8B4424048B88740E0000",
         # +0x38/+0x3C are burials and their marker, +0x40 the death counter,
         # so the next free per-save reserve dword is +0x44.
-        "robing_stat_va": 0x5824E4,
+        "robing_stat_va": 0x5824F4,  # pending +0x54 (old +0x44 frozen)
         # One-time seed marker for the robing counter, at +0x48. A save
         # created before the hook existed has had chiefs the counter never
         # saw, so the raw counter would read 0 for a village that plainly
@@ -139,12 +208,33 @@ GAMES = {
         # RESULTING health, not the prior, so calling either again on an
         # already-dead villager re-enters the death path; testing the cause
         # for -1 counts the transition exactly once.
-        "death_stat_va": 0x5824E0,
+        "death_stat_va": 0x5824F0,  # pending +0x50 (old +0x40 frozen)
         "death_cause_offset": 0x10,
         "death_hooks": [
             {"hook_va": 0x4626C6, "guard": "C7410C00000000", "slot": 0x1A8},
             {"hook_va": 0x46267F, "guard": "C7410C00000000", "slot": 0x1C8},
         ],
+        # Stews Found: the Alchemy Lab potions. sub_430A50 is the brew: it
+        # rolls rand(100) against the brewer's odds and on failure (0x430A9C
+        # jle) the potion blows up and it never reaches 0x430AAC. On success
+        # 0x430AAC -- the ONLY caller of sub_430510 -- passes the three herbs
+        # (pot+8, +0xC, +0x10) as stack arguments with ECX = the recipe
+        # object. Herbs are 0x1F..0x25 (seven, including the faction herbs):
+        # the recipe key 0x430270 indexes a seven-counter array by herb-0x1F
+        # and packs the COUNTS, so order does not matter to the game.
+        "stew": {
+            "hook_va": 0x430510,
+            # push ebx ; mov ebx, [esp+0xC]
+            "guard": "538B5C240C",
+            "stack_args": True,
+            "first_herb": 0x1F,
+            "herb_count": 7,
+            # 343 pending ordered-triple bits at live +0x58..+0x82.
+            "bits_va": 0x5824F8,
+            # Free gap after the robing wrapper (0xB4..0xC8) and before the
+            # burial wrapper (0x190).
+            "slot": 0xCC,
+        },
     },
     "vv4": {
         "title": "Virtual Villagers - The Tree of Life",
@@ -160,42 +250,21 @@ GAMES = {
         "get_module_handle_iat": 0x48A1D8,
         "get_proc_address_iat": 0x48A1DC,
         "food_hook_va": 0x41D987,
-        "food_stat_va": 0x4D6DEC,
+        "food_stat_va": 0x4D6E3C,  # pending +0x5C (old +0x0C frozen)
         "burial_hook_va": 0x46A977,
         "burial_guard": "C686C41C000000",
         "burial_replay": "mov byte ptr [esi + 0x1CC4], 0",
         # +0x30 (0x4D6E10) is the Origins doubler ownership bitmask; see the
         # VV3 note. Burial counter and marker take +0x3C and +0x40.
-        "burial_stat_va": 0x4D6E1C,
-        # Village Elders. The Tree of Life is the only one of the three later
-        # games whose burial writer does not persist the owner's predicate:
-        # 0x45D4FE stores sub_46AC70's result, and that routine is
-        # `cmp edx, 5` -- mastered ALL FIVE skills -- which misses every
-        # villager who died having mastered three or four. VV3 (grave+0x29)
-        # and VV5 (grave+0x31) both store the real three-or-more verdict and
-        # need no hook at all.
-        #
-        # The splice replaces `call sub_46AC70` at 0x45D4F9, which is exactly
-        # five bytes. The wrapper calls sub_46AD00 -- the game's own routine,
-        # which RETURNS the mastered count over the same five skills, so the
-        # counting stays the game's and only the comparison against 3 is ours
-        # -- stores the verdict at grave+0x37, then replays the stolen call so
-        # grave+0x31 still receives its stock value and nothing the game does
-        # changes.
-        #
-        # ECX already holds the skill block: 0x45D4F4 does `mov ecx, ebx`
-        # immediately before the call, and EBX was loaded with
-        # `lea ebx, [edi+1C5Ch]` at 0x45D4E3. ESI is the grave record.
-        #
-        # +0x37 verified free: always zero across 701 of the owner's real VV4
-        # grave records, and the only two [reg+0x37] forms anywhere in the
-        # image are `lea` address arithmetic at 0x444382 (a string buffer)
-        # and 0x460790 (the constant 5 + 0x37), neither in the burial writer
-        # sub_45D470 nor in the grave accessor sub_45D650.
-        "elder_hook_va": 0x45D4F9,
-        "elder_guard": "E872D70000",
-        "elder_count_va": 0x46AD00,
-        "elder_grave_offset": 0x37,
+        "burial_stat_va": 0x4D6E30,  # pending +0x50 (old +0x3C frozen)
+        # Village Elders: no burial hook. An earlier revision stored its own
+        # elder verdict in grave byte +0x37, but the burial writer stores the
+        # dword [villager+0x1C44] at grave+0x34 (0x45D524) right after, so the
+        # byte never held the verdict; and a one-time seed that set it pushed
+        # +0x34 outside the -1..4 range the memorial loader 0x45D6E0 accepts,
+        # which rejects the whole memorial. Elders are now tracked in a
+        # per-save .dat file by the statistics companion instead (the owner:
+        # "if the game doesn't keep track of it, make a .dat file").
         # Debris is not discrete pieces -- the stream carries an obstruction
         # level at debris-manager +0x14 that each clearing action decrements
         # by one. The game's own unit for that action is the Civil Engineer
@@ -212,7 +281,7 @@ GAMES = {
         "debris_replay": (
             "add dword ptr [esi + 0x14], -1 ; push 1"
         ),
-        "debris_stat_va": 0x4D6E24,
+        "debris_stat_va": 0x4D6E38,  # pending +0x58 (old +0x44 frozen)
         # 0x190 holds the burial wrapper (18 bytes, ends 0x1A2).
         "debris_slot": 0x1A8,
         # Every death in this game routes through one of two sibling health
@@ -238,7 +307,7 @@ GAMES = {
         # burial marker. The reserve layouts are not parallel across games.
         # Stock code touches this block only up to +0x2C, so +0x48 is free of
         # both stock use and every other patch.
-        "death_stat_va": 0x4D6E28,
+        "death_stat_va": 0x4D6E34,  # pending +0x54 (old +0x48 frozen)
         "death_cause_offset": 0x10,
         "death_hooks": [
             # 0x46AF00 sets health absolutely; 0x46AF40 applies a delta with
@@ -247,6 +316,32 @@ GAMES = {
             {"hook_va": 0x46AF0F, "guard": "C7410C00000000", "slot": 0x1C8},
             {"hook_va": 0x46AF52, "guard": "C7410C00000000", "slot": 0x1E0},
         ],
+        # Stews Found. The CAlchemyPot brew 0x42EDE0 looks the herbs
+        # (pot+0xC/+0x10/+0x14, 0x1F..0x22: spicy, sweet, soapy, pulpy vines)
+        # up, then 0x42DC80 decides success. Failure returns at 0x42EE43;
+        # success always reaches 0x42EE5F (directly, or after the brewer's
+        # animation at 0x42EE48), where the pot clears flag 0x18 and the two
+        # water flags -- 9 (fresh, byte 0x704EEC) at 0x42EE6B and 0xA (salt,
+        # byte 0x704F00) at 0x42EE77. The hook runs BEFORE those clears, so
+        # the water type is still readable. The recipe lookup 0x42DBF0 keys
+        # on the herb counts, and its fallback 0x42ECA0 makes the result salty
+        # exactly when flag 0xA is set, which is the rule recorded here.
+        "stew": {
+            "hook_va": 0x42EE5F,
+            # push 0x18 ; mov ecx, 0x705148
+            "guard": "6A18B948517000",
+            "pot_reg": "esi",
+            "slots": (0xC, 0x10, 0x14),
+            "first_herb": 0x1F,
+            "herb_count": 4,
+            "salt_flag_va": 0x704F00,
+            # 128 pending bits (64 ordered triples x fresh/salt) at live
+            # +0x60..+0x6F.
+            "bits_va": 0x4D6E40,
+            # Free gap after the food wrapper (0xD0), before the burial
+            # wrapper (0x190).
+            "slot": 0xEC,
+        },
     },
     "vv5": {
         "title": "Virtual Villagers - New Believers",
@@ -262,17 +357,17 @@ GAMES = {
         "get_module_handle_iat": 0x4951D8,
         "get_proc_address_iat": 0x4951DC,
         "food_hook_va": 0x41EBA7,
-        "food_stat_va": 0x51D364,
+        "food_stat_va": 0x51D3A8,  # pending +0x50 (old +0x0C frozen)
         "conversion_hook_va": 0x4668B0,
-        "conversion_stat_va": 0x51D38C,
+        "conversion_stat_va": 0x51D3A4,  # pending +0x4C (old +0x34 frozen)
         "burial_hook_va": 0x473F8F,
         "burial_guard": "C686D41C000000",
         "burial_replay": "mov byte ptr [esi + 0x1CD4], 0",
         # +0x30 holds the Origins saved bit flags and +0x34 the Heathens
         # Converted total, so this game's first free reserve dword is +0x38.
-        "burial_stat_va": 0x51D390,
+        "burial_stat_va": 0x51D39C,  # pending +0x44 (old +0x38 frozen)
         # Same two-arbiter shape as The Secret City; see that note.
-        "death_stat_va": 0x51D398,
+        "death_stat_va": 0x51D3A0,  # pending +0x48 (old +0x40 frozen)
         "death_cause_offset": 0x10,
         "death_hooks": [
             {"hook_va": 0x475902, "guard": "C7410C00000000", "slot": 0x1A8},
@@ -293,6 +388,128 @@ def rel32_call(source_va: int, target_va: int) -> bytes:
     )
 
 
+def rel32_jump(source_va: int, target_va: int) -> bytes:
+    return b"\xE9" + int(target_va - source_va - 5).to_bytes(
+        4, "little", signed=True
+    )
+
+
+_JCC_REL32 = {"ja": b"\x0F\x87", "jb": b"\x0F\x82", "je": b"\x0F\x84", "jne": b"\x0F\x85"}
+
+
+def chain_assemble(
+    items: list[tuple[str, ...]],
+    runs: tuple[tuple[int, int], ...],
+) -> list[tuple[int, bytes]]:
+    """Lay a routine over several separate padding runs, joined by jumps.
+
+    `items` is a list of ("asm", text), ("label", name) and ("jcc", cc, name)
+    entries. Conditional branches to a label are always encoded rel32, so
+    every item's size is fixed before any address is known and one layout
+    pass determines every label. An item is placed in the current run only
+    if it still leaves five bytes for the jump to the next run, except the
+    last item, which must itself end the flow (the jump back into the game).
+    Returns the (va, bytes) actually written in each run used.
+    """
+    def place(labels: dict[str, int] | None) -> tuple[list[tuple[int, bytes]], dict[str, int]]:
+        found: dict[str, int] = {}
+        pieces: list[tuple[int, bytearray]] = []
+        run_index = 0
+        cursor = runs[0][0]
+        pieces.append((cursor, bytearray()))
+        for position, item in enumerate(items):
+            last = position == len(items) - 1
+            if item[0] == "label":
+                found[item[1]] = cursor
+                continue
+            if item[0] == "jcc":
+                size = 6
+            else:
+                size = len(assemble(item[1], cursor))
+            end = runs[run_index][0] + runs[run_index][1]
+            if cursor + size + (0 if last else 5) > end:
+                run_index += 1
+                if run_index >= len(runs):
+                    raise RuntimeError("routine does not fit the padding runs")
+                pieces[-1][1].extend(rel32_jump(cursor, runs[run_index][0]))
+                cursor = runs[run_index][0]
+                pieces.append((cursor, bytearray()))
+                end = runs[run_index][0] + runs[run_index][1]
+                if cursor + size + (0 if last else 5) > end:
+                    raise RuntimeError("an instruction is larger than a padding run")
+            if item[0] == "jcc":
+                target = (labels or {}).get(item[2], cursor)
+                encoded = _JCC_REL32[item[1]] + int(target - cursor - 6).to_bytes(
+                    4, "little", signed=True)
+            else:
+                encoded = assemble(item[1], cursor)
+            if len(encoded) != size:
+                raise RuntimeError("instruction size changed between passes")
+            pieces[-1][1].extend(encoded)
+            cursor += size
+        return [(va, bytes(blob)) for va, blob in pieces if blob], found
+
+    _, labels = place(None)
+    placed, again = place(labels)
+    if again != labels:
+        raise RuntimeError("chain layout did not converge")
+    return placed
+
+
+def stew_routine(stew: dict[str, object]) -> list[tuple[str, ...]]:
+    """The stew-completion hook body, as chain_assemble items.
+
+    Records the ORDERED herb triple in a pending bitset:
+        index = ((h1 * n) + h2) * n + h3,   h = herb - first_herb, n = herb_count
+    and for The Tree of Life additionally `index * 2 + salt`. Each herb is
+    range-checked first, so a value the game never produces cannot set a bit
+    outside the bitset; nothing is recorded then. The companion normalises
+    each ordered triple to its sorted multiset when it flushes the bits into
+    the .dat, because every one of these games matches recipes on herb
+    COUNTS, not order.
+
+    pushfd/pushad around the body restore every register and flag, and the
+    stolen instruction(s) are replayed verbatim before jumping back.
+    """
+    first = int(stew["first_herb"])
+    count = int(stew["herb_count"])
+    if stew.get("stack_args"):
+        # At entry [esp+4..0xC] are the three herbs; pushfd + pushad move
+        # them up by 0x24.
+        sources = ["dword ptr [esp + 0x28]", "dword ptr [esp + 0x2C]", "dword ptr [esp + 0x30]"]
+    else:
+        base = str(stew.get("manager_reg") or stew.get("pot_reg"))
+        sources = [f"dword ptr [{base} + 0x{int(o):X}]" for o in stew["slots"]]
+    items: list[tuple[str, ...]] = [("asm", "pushfd"), ("asm", "pushad")]
+    for position, source in enumerate(sources):
+        register = "eax" if position == 0 else "edx"
+        items += [
+            ("asm", f"mov {register}, {source}"),
+            ("asm", f"sub {register}, 0x{first:X}"),
+            ("asm", f"cmp {register}, {count - 1}"),
+            ("jcc", "ja", "stew_done"),
+        ]
+        if position:
+            items += [("asm", f"imul eax, eax, {count}"), ("asm", "add eax, edx")]
+    if stew.get("salt_flag_va"):
+        items += [
+            ("asm", "xor edx, edx"),
+            ("asm", f"cmp byte ptr [0x{int(stew['salt_flag_va']):X}], 0"),
+            ("asm", "setne dl"),
+            ("asm", "lea eax, [edx + eax*2]"),
+        ]
+    if stew.get("bits_va"):
+        items.append(("asm", f"bts dword ptr [0x{int(stew['bits_va']):X}], eax"))
+    else:
+        items.append(
+            ("asm", f"bts dword ptr [{stew['manager_reg']} + 0x{int(stew['bits']):X}], eax"))
+    items += [("label", "stew_done"), ("asm", "popad"), ("asm", "popfd")]
+    guard = bytes.fromhex(str(stew["guard"]))
+    items += [("asm", ".byte " + ", ".join("0x%02X" % b for b in guard))]
+    items.append(("asm", "jmp 0x%X" % (int(stew["hook_va"]) + len(guard))))
+    return items
+
+
 def build_game(
     game_id: str,
     config: dict[str, object],
@@ -306,22 +523,31 @@ def build_game(
     dll_name_va = cave_va + 0x80
     export_name_va = cave_va + 0x9C
 
+    # The full-save wrapper. It replaces the stock `call writer` at the save
+    # routine's primary-slot save, where EDI holds the slot and ECX the
+    # manager, and the three stack arguments are the buffer, its size and the
+    # slot.
+    #
+    # For a primary slot (1..5) whose companion resolves, the whole save goes
+    # through SaveVillageStatistics(game, manager, slot, writer, buffer, size):
+    # the companion first FLUSHES the patch's pending counters and stew bits
+    # into that slot's .dat files and zeroes them in memory -- so the stock
+    # writer, which it then calls with the original arguments, saves only
+    # zeros in those fields and nothing patcher-owned persists in the save --
+    # and after a successful save writes the statistics log. The writer's
+    # result is returned unchanged in EAX.
+    #
+    # Any other slot (the meta save 0 and the +0x14 backup copies), or a
+    # missing companion or export, calls the stock writer directly with the
+    # original arguments, so a save never depends on the companion.
     code = assemble(
         f"""
             push ebx
             mov ebx, ecx
-            push dword ptr [esp + 0x10]
-            push dword ptr [esp + 0x10]
-            push dword ptr [esp + 0x10]
-            mov ecx, ebx
-            call 0x{int(config['writer_va']):X}
-            push eax
-            test al, al
-            jz done
             cmp edi, 1
-            jl done
+            jl direct
             cmp edi, 5
-            jg done
+            jg direct
             push 0x{dll_name_va:X}
             call dword ptr [0x{int(config['get_module_handle_iat']):X}]
             test eax, eax
@@ -329,19 +555,28 @@ def build_game(
             push 0x{dll_name_va:X}
             call dword ptr [0x{int(config['load_library_iat']):X}]
             test eax, eax
-            jz done
+            jz direct
         resolve_export:
             push 0x{export_name_va:X}
             push eax
             call dword ptr [0x{int(config['get_proc_address_iat']):X}]
             test eax, eax
-            jz done
+            jz direct
+            push dword ptr [esp + 0xC]
+            push dword ptr [esp + 0xC]
+            push 0x{int(config['writer_va']):X}
             push edi
             push ebx
             push {int(config['game_number'])}
             call eax
-        done:
-            pop eax
+            pop ebx
+            ret 0x0C
+        direct:
+            push dword ptr [esp + 0x10]
+            push dword ptr [esp + 0x10]
+            push dword ptr [esp + 0x10]
+            mov ecx, ebx
+            call 0x{int(config['writer_va']):X}
             pop ebx
             ret 0x0C
         """,
@@ -352,7 +587,7 @@ def build_game(
     payload = bytearray(cave_size)
     payload[: len(code)] = code
     dll_name = b"VVFP Statistics Export.dll\0"
-    export_name = b"WriteVillageStatistics\0"
+    export_name = b"SaveVillageStatistics\0"
     payload[0x80 : 0x80 + len(dll_name)] = dll_name
     payload[0x9C : 0x9C + len(export_name)] = export_name
     extra_patches: list[dict[str, object]] = []
@@ -446,84 +681,6 @@ def build_game(
                 "purpose": (
                     "count every completed Heathen conversion once in the "
                     "per-save reserve, counting the tag-17 Heathen Mommy as two"
-                ),
-            }
-        )
-
-    elder_hook_va = config.get("elder_hook_va")
-    if elder_hook_va:
-        # Village Elders, buried half, for The Tree of Life only.
-        #
-        # The row is living elders plus villagers who died holding the status.
-        # VV3 and VV5 persist the three-or-more verdict at burial already, so
-        # their buried half is exactly retroactive from stock data and needs
-        # no code. VV4 persists only the stricter all-five predicate, so this
-        # wrapper records the real verdict alongside it.
-        #
-        # It ADDS a field and changes nothing: the stolen `call sub_46AC70` is
-        # replayed, so grave+0x31 still receives exactly the value the stock
-        # game would have written there.
-        #
-        # Placement is tested, not predicted. VV4 uses neither the robing
-        # wrapper (no chief) nor the conversion wrapper (no heathens), so
-        # 0xB4 is free here -- but the `any(payload[...])` check below is what
-        # actually decides, because sibling wrappers are laid down at render
-        # time and a region that looks free in this file can still be taken.
-        elder_slot = 0xB4
-        elder_wrapper_va = cave_va + elder_slot
-        elder_guard = bytes.fromhex(str(config["elder_guard"]))
-        # The stolen instruction is a relative call; decode its target from
-        # the guard bytes rather than naming it separately, so the replay can
-        # never drift from the instruction actually being replaced.
-        if elder_guard[0] != 0xE8 or len(elder_guard) != 5:
-            raise RuntimeError(f"{game_id} elder guard is not a 5-byte rel32 call")
-        elder_stolen_target = (
-            int(elder_hook_va)
-            + 5
-            + int.from_bytes(elder_guard[1:5], "little", signed=True)
-        )
-        elder_wrapper = assemble(
-            f"""
-                pushad
-                call 0x{int(config['elder_count_va']):X}
-                cmp eax, 3
-                setge al
-                mov [esi + 0x{int(config['elder_grave_offset']):X}], al
-                popad
-                call 0x{elder_stolen_target:X}
-                jmp 0x{int(elder_hook_va) + len(elder_guard):X}
-            """,
-            elder_wrapper_va,
-        )
-        if elder_slot + len(elder_wrapper) > cave_size:
-            raise RuntimeError(f"{game_id} elder wrapper exceeds cave allowance")
-        if any(payload[elder_slot : elder_slot + len(elder_wrapper)]):
-            raise RuntimeError(f"{game_id} elder wrapper would overwrite the cave")
-        payload[elder_slot : elder_slot + len(elder_wrapper)] = elder_wrapper
-        elder_hook_file = int(elder_hook_va) - 0x400000
-        if source[elder_hook_file : elder_hook_file + len(elder_guard)] != elder_guard:
-            raise RuntimeError(f"{game_id} elder hook guard does not match")
-        extra_patches.append(
-            {
-                "offset": f"0x{elder_hook_file:X}",
-                "before": elder_guard.hex().upper(),
-                "after": (
-                    b"\xE9"
-                    + int(
-                        elder_wrapper_va - int(elder_hook_va) - 5
-                    ).to_bytes(4, "little", signed=True)
-                    + b"\x90" * (len(elder_guard) - 5)
-                ).hex().upper(),
-                # Deliberately avoids the words "buried" and "pickup":
-                # tests/test_c324_legacy_containment.py keys on those to
-                # identify BURIAL-COUNTER patches, which may only hook the
-                # pickup latch clear. This is not one -- it counts nothing
-                # and increments nothing. It records a mastery verdict in the
-                # grave record the game is already filling in, alongside the
-                # stricter verdict the stock writer stores there.
-                "purpose": (
-                    "record the three-or-more-skills mastery verdict in the "
-                    "memorial record, which this game does not persist"
                 ),
             }
         )
@@ -826,6 +983,68 @@ def build_game(
             }
         )
 
+    stew = config.get("stew")
+    if stew:
+        # Unique stews: record the ordered herb triple of every stew the game
+        # completes in the pending bitset; see stew_routine and the "stew"
+        # notes in GAMES. The companion's PreSave turns the bits into the
+        # slot's Stew Discoveries .dat.
+        stew_hook_va = int(stew["hook_va"])
+        stew_guard = bytes.fromhex(str(stew["guard"]))
+        stew_hook_file = stew_hook_va - 0x400000
+        if source[stew_hook_file : stew_hook_file + len(stew_guard)] != stew_guard:
+            raise RuntimeError(f"{game_id} stew hook guard does not match")
+        items = stew_routine(stew)
+        if "runs" in stew:
+            runs = tuple((int(va), int(length)) for va, length in stew["runs"])
+            for run_va, run_length in runs:
+                run_file = run_va - 0x400000
+                if source[run_file : run_file + run_length] != b"\x90" * run_length:
+                    raise RuntimeError(f"{game_id} stew run {run_va:#x} is not stock NOP padding")
+                # A run must follow a return: the byte before it ends `ret`
+                # (C3) or `ret imm16` (C2 xx xx), so nothing falls into it.
+                if source[run_file - 1] != 0xC3 and source[run_file - 3] != 0xC2:
+                    raise RuntimeError(f"{game_id} stew run {run_va:#x} does not follow a return")
+            placed = chain_assemble(items, runs)
+            for piece_va, piece in placed:
+                piece_file = piece_va - 0x400000
+                extra_patches.append(
+                    {
+                        "offset": f"0x{piece_file:X}",
+                        "before": source[piece_file : piece_file + len(piece)].hex().upper(),
+                        "after": piece.hex().upper(),
+                        "purpose": (
+                            "install part of the stew-discovery recorder in stock "
+                            "NOP padding between functions"
+                        ),
+                    }
+                )
+            stew_entry_va = placed[0][0]
+        else:
+            stew_slot = int(stew["slot"])
+            stew_entry_va = cave_va + stew_slot
+            placed = chain_assemble(items, ((stew_entry_va, cave_size - stew_slot),))
+            if len(placed) != 1:
+                raise RuntimeError(f"{game_id} stew routine is not contiguous")
+            routine = placed[0][1]
+            if any(payload[stew_slot : stew_slot + len(routine)]):
+                raise RuntimeError(f"{game_id} stew routine would overwrite the cave")
+            payload[stew_slot : stew_slot + len(routine)] = routine
+        extra_patches.append(
+            {
+                "offset": f"0x{stew_hook_file:X}",
+                "before": stew_guard.hex().upper(),
+                "after": (
+                    rel32_jump(stew_hook_va, stew_entry_va)
+                    + b"\x90" * (len(stew_guard) - 5)
+                ).hex().upper(),
+                "purpose": (
+                    "record which herb combination every completed stew used, "
+                    "for the unique Stews Found statistic"
+                ),
+            }
+        )
+
     for death in config.get("death_hooks", []):
         # Count the transition into death, once. The wrapper reads ecx only
         # and writes no register, so no value live at the hook can be lost.
@@ -936,6 +1155,58 @@ def build_game(
             }
         )
 
+    if game_id == "vv2":
+        # Points Earned counted one research path twice. On the path taken
+        # when [container+0x2EA7C] == 3 the research routine calls the award
+        # routine 0x426290 -- which already adds the amount to both the
+        # spendable tech total (+0x2EADC) and the Points Earned statistic
+        # (+0x2E4FC) -- and then adds the same EDI to +0x2E4FC again at
+        # 0x463742. Every other path, and every other game, adds once. The
+        # second add is removed; spendable tech is unaffected.
+        double_add_file = 0x63742
+        double_add = bytes.fromhex("01B8FCE40200")   # add dword ptr [eax+0x2E4FC], edi
+        if source[double_add_file : double_add_file + 6] != double_add:
+            raise RuntimeError("vv2 Points Earned double-add guard does not match")
+        extra_patches.append(
+            {
+                "offset": f"0x{double_add_file:X}",
+                "before": double_add.hex().upper(),
+                "after": "90" * 6,
+                "purpose": (
+                    "Points Earned: remove the second add of the same research "
+                    "award (0x426290 already counted it)"
+                ),
+            }
+        )
+
+    if game_id in ("vv3", "vv4", "vv5"):
+        # People Cured counted failed healing attempts. After the healer's
+        # treatment roll (call ...; test al, al), a success clears the sick
+        # flag and falls into the +1, but the failure branch `je` jumps
+        # straight to that same +1. Retargeting the `je` past the increment
+        # makes only an actual cure count; the failure path then continues
+        # exactly where the stock code goes after the increment.
+        #   (je site, stock rel8 -> the +1, fixed rel8 -> the next instruction)
+        je_site, stock_rel, fixed_rel = {
+            "vv3": (0x45B968, 0x07, 0x0D),   # +1 at 0x45B971 (inc [0x5824B0]); next 0x45B977
+            "vv4": (0x465179, 0x07, 0x0E),   # +1 at 0x465182 (add [0x4D6DF0],1); next 0x465189
+            "vv5": (0x46E1F9, 0x07, 0x0E),   # +1 at 0x46E202 (add [0x51D368],1); next 0x46E209
+        }[game_id]
+        je_file = je_site - 0x400000
+        if source[je_file : je_file + 2] != bytes([0x74, stock_rel]):
+            raise RuntimeError(f"{game_id} People Cured branch guard does not match")
+        extra_patches.append(
+            {
+                "offset": f"0x{je_file:X}",
+                "before": bytes([0x74, stock_rel]).hex().upper(),
+                "after": bytes([0x74, fixed_rel]).hex().upper(),
+                "purpose": (
+                    "People Cured: a failed healing roll skips the increment, "
+                    "so only an actual cure is counted"
+                ),
+            }
+        )
+
     hook_file = int(config["hook_file"])
     hook_va = int(config["hook_va"])
     stock_call = rel32_call(hook_va, int(config["writer_va"]))
@@ -951,8 +1222,12 @@ def build_game(
     )
     description = (
         "After each successful save of slots 1 through 5, writes the save's "
-        "local lifetime statistics to 'Village Statistics - Save N.txt' in the "
-        "modified game folder. Later games retain the inherited per-save "
+        "local lifetime statistics to 'Village Statistics v2 - Save N.txt' in "
+        "the 'Virtual Villagers Fun Patcher Logs\\Village Statistics' folder "
+        "beside the game's saves (an earlier 'Village Statistics - Save N.txt' "
+        "is kept unchanged). Counts the game does not keep are stored in "
+        "per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later "
+        "games retain the inherited per-save "
         "statistics block even where no Statistics screen is reachable; omitted "
         "stock bookkeeping is restored by exact gameplay hooks. "
         + puzzle_clause
