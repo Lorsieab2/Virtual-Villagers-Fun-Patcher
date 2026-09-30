@@ -259,12 +259,16 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         # place, so every argument after `manager` shifted by one. The count
         # assertion above is what forces this table to be revisited rather
         # than silently reading the neighbouring argument.
+        # The counter arguments (burial offsets, extra offsets, live block,
+        # chiefs offsets, chief flag) were replaced by an extra-counter kind,
+        # its label and a has-chiefs flag when those counters moved into the
+        # statistics .dat, so the villager layout moved down to 15.
         positions = {
-            "villagers_rva": 21,
-            "stride": 23,
-            "slots": 24,
-            "skills": 27,
-            "skill_count": 28,
+            "villagers_rva": 15,
+            "stride": 17,
+            "slots": 18,
+            "skills": 20,
+            "skill_count": 21,
         }
         titles = {
             # VV1 and VV2 are absent: the statistics companion has no Village
@@ -278,7 +282,7 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
                 row = self.rows[game]
                 arguments = arguments_of_the_call_naming(title)
                 self.assertEqual(
-                    len(arguments), 33,
+                    len(arguments), 27,
                     "game %d's statistics call changed shape; the positional "
                     "offsets below are no longer trustworthy" % game)
                 self.assertEqual(

@@ -169,86 +169,50 @@ class ChiefsRobedIsSeededForExistingSavesTests(unittest.TestCase):
     """A save that predates the hook must not export a confident 0.
 
     The wrapper only counts robings that happen after the patch is
-    installed. Without a seed, a village that already has a chief exports
-    Chiefs Robed: 0 and stays short by every pre-install robing for ever,
-    which is not a lifetime total "from creation of the individual save".
-    Review raised this on #351 after the counter itself was correct.
+    installed. Without a starting value, a village that already has a chief
+    exports Chiefs Robed: 0 and stays short by every pre-install robing for
+    ever, which is not a lifetime total "from creation of the individual
+    save". Review raised this on #351 after the counter itself was correct.
 
-    The baseline is deliberately modest. Nothing in a save records chiefs
-    who have died -- that is why the row needs a counter and not a walk --
-    so the only recoverable fact is whether a chief exists now. Seeding 1
-    in that case is exact for a village that has never lost a chief and a
-    lower bound for one that has, and it never overstates.
+    The count now lives in the slot's statistics .dat
+    (native/statistics_export/statistics_store.c). When that file has no
+    Chiefs Robed entry, the count starts from the frozen field an earlier
+    build counted into (+0x44), raised to 1 if a chief lives and that
+    build's own one-time seed (marker +0x48) never ran; the start is written
+    as "migrated.chiefs_robed" and, the entry then existing, is never taken
+    again. Behaviour is RUN by the store harness
+    (tests/test_unique_stews.py); this pins the source that decides it.
     """
 
     def setUp(self) -> None:
-        self.exporter = EXPORTER.read_text(encoding="utf-8")
+        self.store = (
+            ROOT / "native" / "statistics_export" / "statistics_store.c"
+        ).read_text(encoding="utf-8")
         self.builder = BUILDER.read_text(encoding="utf-8")
 
-    def test_the_counter_is_seeded_once(self) -> None:
-        self.assertIn("static int seeded_robing_total(", self.exporter)
-        self.assertIn("ROBING_BASELINE_MARKER", self.exporter)
+    def test_the_start_is_taken_only_when_the_dat_has_no_entry(self) -> None:
+        body = self.store[self.store.index("static int flush_counters("):]
+        body = body[:body.index("\n}\n")]
+        self.assertIn("entry *e = find_entry(&file, d->key);", body)
+        self.assertIn("if (e == NULL) {", body)
+        self.assertIn("total = migration_value(c, g, d, block);", body)
+        self.assertIn("migrated_key(d, marker, sizeof marker);", body)
 
-    def test_the_seed_is_gated_on_a_marker_not_on_the_value(self) -> None:
-        """A new village with no chief looks identical to an unseeded one.
+    def test_the_living_chief_baseline_is_gated_on_the_old_marker(self) -> None:
+        """A save the earlier build already seeded keeps its own value."""
+        body = self.store[self.store.index("static long long migration_value("):]
+        body = body[:body.index("\n}\n")]
+        self.assertIn("d->kind == VVS_CHIEFS", body)
+        self.assertIn("!= ROBING_BASELINE_MARKER", body)
+        self.assertIn("if (living_chief(c, g) && value < 1) {", body)
+        self.assertIn("#define ROBING_BASELINE_MARKER 0x56433131", self.store)
 
-        Gating on `counter == 0` would re-seed every export and pin a
-        village that has genuinely never had a chief at 1 for ever.
-        """
-        block = self.exporter[self.exporter.index("static int seeded_robing_total(") :]
-        block = block[: block.index("\n}\n")]
-        self.assertIn("!= (int)ROBING_BASELINE_MARKER", block)
-
-    def test_the_marker_is_written_even_when_no_chief_is_found(self) -> None:
-        """Otherwise the walk repeats on every export for a chiefless village.
-
-        Checked by INDENTATION, not by textual order. Moving the write inside
-        the `if (baseline > stored)` block leaves it after that test in the
-        text, so an ordering check passes while the bug is present: a village
-        with no chief yet would never be marked, would re-walk on every
-        export, and would be seeded the moment it gained its first chief --
-        double-counting that chief against the hook.
-
-        The marker write belongs at the same indent as the `if`, so it runs on
-        both paths.
-        """
-        body = self.exporter[self.exporter.index("static int seeded_robing_total(") :]
-        body = body[: body.index("\n}\n")]
-        marker_lines = [
-            line for line in body.splitlines()
-            if "write_int(counters, marker_offset" in line
-        ]
-        self.assertEqual(len(marker_lines), 1, "expected exactly one marker write")
-        indent = len(marker_lines[0]) - len(marker_lines[0].lstrip())
-        self.assertEqual(
-            indent,
-            8,
-            "the marker write is nested inside the raise, so a chiefless "
-            "village would never be marked as seeded",
-        )
-
-    def test_the_seed_never_lowers_a_counter_that_has_run_ahead(self) -> None:
-        """The baseline raises, never replaces.
-
-        A save whose counter has already passed the baseline -- any village
-        that has robed a chief since the patch was installed -- must not be
-        walked back to 1. `>` is the only comparison that is safe here; `!=`
-        or `<` would overwrite a larger stored value.
-        """
-        body = self.exporter[self.exporter.index("static int seeded_robing_total(") :]
-        body = body[: body.index("\n}\n")]
-        guards = [
-            line.strip() for line in body.splitlines()
-            if "baseline" in line and "stored" in line and "if" in line
-        ]
-        self.assertEqual(
-            guards,
-            ["if (baseline > stored) {"],
-            "the seed must raise the counter, never replace it",
-        )
-
-    def test_the_marker_has_its_own_reserve_slot(self) -> None:
-        """+0x48, clear of burials (+0x38/+0x3C), deaths (+0x40), chiefs (+0x44)."""
+    def test_the_frozen_fields_are_the_earlier_counter_and_marker(self) -> None:
+        """+0x44 and +0x48 are read, never written; the hook now counts into
+        the pending field +0x54."""
+        self.assertIn(
+            '{ VVS_CHIEFS, "chiefs_robed", 0x54u, 0x44u, 0x48u }', self.store)
+        self.assertIn('"robing_stat_va": 0x5824F4,', self.builder)
         self.assertIn('"robing_marker_va": 0x5824E8,', self.builder)
 
     def test_the_baseline_reads_the_runtime_confirmed_chief_flag(self) -> None:
@@ -257,8 +221,8 @@ class ChiefsRobedIsSeededForExistingSavesTests(unittest.TestCase):
         The saved record has stride 0x11C and the in-memory one 0x1F8C, so a
         save-file offset is meaningless at runtime.
         """
-        self.assertIn("0xF10u, 0xE80u", self.exporter)
-        self.assertNotIn("0xACu", self.exporter)
+        self.assertIn("0x19E110u, 0x14u, 0x1F8Cu, 150u, 0xF10u, 0xE80u", self.store)
+        self.assertNotIn("0xACu", self.store)
 
 
 class VillageEldersIsTrackedInADatFileTests(unittest.TestCase):
