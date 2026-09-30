@@ -145,17 +145,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for the rare collectible retry (#470) on top of main (2026-09-30).
     # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
     # byte that differs lies inside the rare-collectible patch records or the PE CheckSum.
+    # Re-pinned for village-wide Running clearing a Running Dislike (#478) on top of main
+    # (2026-09-30). Justified BEFORE re-pinning: main's tree reproduces the previous pins;
+    # the only differing bytes are the PE CheckSum.
     "stock": (
-        "6D8975394F69EB6DD2FCF8F587E3C606AF2A9E179B750F98AACB86DB2F32ADEC",
-        "CEE20C00",
+        "26E203135581EF8CDBF9DE83B14B36C621D9F1E3A8D90EC347E16A15C3809237",
+        "ADE20C00",
     ),
     "collection_progression": (
-        "719756E336E2FA65C449F9A6CB15F0BDD9A3DB910C2A43483F7751A289E48CEA",
-        "CEFB0C00",
+        "2CC59D137060A79AC8C97C4B471E67236EB08CDEBFCDE9546902D2F1ACA6A915",
+        "ADFB0C00",
     ),
     "immediate_fixed": (
-        "BBBF6AC1719C5AE4F75D1EC7EE31EE752BDA18B1AF98DFCDB81B27752000E046",
-        "CC3D0D00",
+        "DC7551178BF924A37612FBEF2426467018432EA127E8516E0F660BAAE037871C",
+        "AB3D0D00",
     ),
 }
 
