@@ -865,10 +865,10 @@ class ManifestTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(encoding="utf-8")
         full_like = source.split("running_full_like:", 1)[1].split("running_existing:", 1)[0]
         self.assertIn("jmp {full_like_target}", full_like)
-        # full_like_target is opt-in per game (always_clear_running_dislike,
-        # VV1 only as of this writing) -- default games still skip straight
-        # to running_next (no dislike clearing) when Likes are full; only
-        # an opted-in game falls through to running_remove_dislikes instead.
+        # full_like_target is a per-game flag (always_clear_running_dislike),
+        # set for VV1, VV2, VV3 and VV5 so a full-Like villager falls through
+        # to running_remove_dislikes. The behaviour itself is executed in
+        # tests/test_village_wide_running_clears_dislike_executes.py.
         self.assertIn(
             'full_like_target = (\n            "running_remove_dislikes" if always_clear_dislike else "running_next"',
             source,

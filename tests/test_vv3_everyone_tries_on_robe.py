@@ -132,17 +132,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the new rows, 16/16/17 differing bytes per mode, every one inside the
     # row's own ranges at 0x2FAD1 and 0x2FB51 or the PE CheckSum at
     # 0x160..0x163; the length is unchanged.
+    # Re-pinned when Village-wide Running began clearing a full-Like
+    # villager's Running Dislike. Justified BEFORE re-pinning: main (fa80eb93)
+    # renders exactly the previous pin (1BF2BC70.../C2D11051.../0878A273...);
+    # the branch differs in 3 bytes per mode, the village-wide payload's
+    # full-Like jmp displacement at 0x7B8F0 (24 -> 03) and two bytes of the
+    # PE CheckSum at 0x160..0x161; the length is unchanged.
     "stock": (
-        "1BF2BC70A5CD796F92A5D74BBCECA61AF08820921DB6FAE5771F8FC2D7F25E7D",
-        "16790D00",
+        "E9A096666B1FFB44ED613A447848648094324270920AA6EF5DBD5932178AB5C0",
+        "F5780D00",
     ),
     "collection_progression": (
-        "C2D11051394EDB16B3E7F50C4A9E9CCA74FF0534B9E236F1EC0341C70E0A78B4",
-        "16920D00",
+        "3E564CD75FE1D32E821AD07E7D6FE2208F5250545E42CE0315A77A0E31A2E426",
+        "F5910D00",
     ),
     "immediate_fixed": (
-        "0878A273A8C28CEB4C1C36789A03ED819449C5470720532CDCB0E8D533B52EF8",
-        "15D40C00",
+        "F935214A154DC9BFDFE2E374A189A0ADC28F975C7F4462E762CFBA9C3ECC1762",
+        "F4D30C00",
     ),
 }
 
