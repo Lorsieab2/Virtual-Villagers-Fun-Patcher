@@ -261,7 +261,7 @@ Golden Child event) create a child directly.
 
 | game | routine | callers | parentage hook |
 |---|---|---|---|
-| VV1 | `0x43BBC0` | 6 | success tails + a father stub at each of the 6 callers |
+| VV1 | `0x43BBC0` | 6 | success tails; father read from the caller's frame, chosen by return address (no call site patched) |
 | VV2 | `0x44B980` | 6 (incl. Love Note `0x422006`, Gong `0x44EB3E`) | success join; father = arg 5 − `0x564` |
 | VV3 | `0x455AB0` | 2 | success tail; father by caller-B gender branch |
 | VV4 | `0x45E7B0` | 4 (resolver, 2 embrace branches, seeding) | success exit `0x45E8E4`; father = arg 4 − `0x1B9C` |
