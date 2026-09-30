@@ -185,6 +185,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Guarded executable edits: 90; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.vv1mc` (executable code), `.vv1md` (writable data) -- and rewrites 4 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
+#### Faster Village-Scrolling (`vv1_faster_village_scrolling`)
+
+Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Healers Study Plants Regardless of Food (`vv1_healers_study_regardless_of_food`)
 
 Healers keep studying plants regardless of the food supply. A villager who was studying the plant it was dropped on (the medical cactus) carries on studying when the village has 400 food or more, exactly as the stock game already does below 400; plentiful food no longer makes a healer stop. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.
@@ -463,6 +475,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 40; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.mtab` (writable data), `.vvmk` (executable code) -- and rewrites 4 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
+
+#### Faster Village-Scrolling (`vv2_faster_village_scrolling`)
+
+Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 7; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Gong of Wonder Coconuts Fix (`vv2_gong_of_wonder_coconuts_fix`)
 

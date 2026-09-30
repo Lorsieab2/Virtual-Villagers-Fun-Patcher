@@ -91,10 +91,40 @@ def _resolution_sites(data: bytes, stock: bytes, pe):
     return out
 
 
-def _is_guarded(md, data: bytes, offset: int, va: int) -> tuple[bool, str]:
+def _straight_line(md, data: bytes, offset: int, va: int, pe):
+    """The instructions after the call, following direct unconditional jmps.
+
+    A loader stub split across two caves ends part one with `jmp part_two`, so
+    the check that guards the result sits at the jump target, not after it.
+    """
+    out = []
+    first = True
+    while len(out) < LOOKAHEAD:
+        jumped = False
+        for ins in md.disasm(data[offset : offset + 96], va):
+            if first:
+                first = False
+                continue
+            out.append(ins)
+            if len(out) >= LOOKAHEAD:
+                break
+            if ins.mnemonic == "jmp" and ins.op_str.startswith("0x") and pe is not None:
+                try:
+                    offset = pe.get_offset_from_rva(int(ins.op_str, 16) - pe.OPTIONAL_HEADER.ImageBase)
+                except Exception:
+                    return out
+                va = int(ins.op_str, 16)
+                jumped = True
+                break
+        if not jumped:
+            break
+    return out
+
+
+def _is_guarded(md, data: bytes, offset: int, va: int, pe=None) -> tuple[bool, str]:
     """True if the result is NULL-checked before being called or dereferenced."""
     tracked = {"eax"}
-    body = list(md.disasm(data[offset : offset + 96], va))[1 : LOOKAHEAD + 1]
+    body = _straight_line(md, data, offset, va, pe)
     for ins in body:
         text = f"{ins.mnemonic} {ins.op_str}"
         if ins.mnemonic in ("test", "cmp"):
@@ -141,7 +171,7 @@ class VV1NoUnguardedRuntimeResolutionTests(unittest.TestCase):
             self.assertGreater(len(sites), 0, f"{mode}: found no patched sites to check")
             for va, offset, name in sites:
                 with self.subTest(mode=mode, site=hex(va), api=name):
-                    guarded, why = _is_guarded(md, data, offset, va)
+                    guarded, why = _is_guarded(md, data, offset, va, pe)
                     self.assertTrue(
                         guarded,
                         f"{name} at {va:#x} ({mode}) is used without a NULL check "

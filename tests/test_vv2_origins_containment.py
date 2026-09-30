@@ -38,6 +38,7 @@ REMAINING = {
     "vv2_everyone_collects_like_vv1",
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
+    "vv2_faster_village_scrolling",
     "vv2_write_village_statistics",
     # one string pointer and dead storage; owns no Origins bytes
     "vv2_numeric_keys_tip_wording",
