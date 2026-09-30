@@ -259,8 +259,8 @@ def _refuse_dirty_tree() -> bool:
         return False
     if dirty:
         raise RuntimeError(
-            "refusing to build a source archive from a dirty tree -- the patcher "
-            "archive is built from the working tree and this from HEAD, so they "
+            "refusing to build the release from a dirty tree -- the patcher "
+            "archive is built from the working tree and the source archive from HEAD, so they "
             "would not match. Commit or stash first:\n" + dirty
         )
     return True
@@ -355,6 +355,9 @@ def main() -> int:
     OUTPUTS.mkdir(exist_ok=True)
     target = OUTPUTS / NAME
     temp = OUTPUTS / (NAME + ".tmp")
+    # The manifest names this build's ZIP; a failed build must not leave an
+    # older one behind describing a ZIP that is no longer there.
+    manifest_path = OUTPUTS / f"{target.stem}.manifest.json"
     temp.unlink(missing_ok=True)
     # Validate the TEMP file and publish it only once it has passed, as the
     # source archive does; a rejected build removes both the temp file and any
@@ -375,6 +378,7 @@ def main() -> int:
     except BaseException:
         temp.unlink(missing_ok=True)
         target.unlink(missing_ok=True)
+        manifest_path.unlink(missing_ok=True)
         raise
     temp.replace(target)
     digest = hashlib.sha256(target.read_bytes()).hexdigest().upper()
@@ -385,10 +389,11 @@ def main() -> int:
         # The tree was clean a moment ago; if it is not now, or the source
         # archive is rejected, do not leave the patcher ZIP looking released.
         target.unlink(missing_ok=True)
+        manifest_path.unlink(missing_ok=True)
         raise
     if source is not None:
         manifest["source_archive"] = source
-    (OUTPUTS / f"{target.stem}.manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="")
     print(json.dumps(manifest, indent=2))
     return 0
 

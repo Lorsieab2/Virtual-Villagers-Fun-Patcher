@@ -99,6 +99,22 @@ class DirtyTreeLeavesNoReleaseZipTests(unittest.TestCase):
             self.release.main()
         self.assertNotIn(self.release.NAME, self._outputs())
 
+    def test_a_failed_build_leaves_no_stale_manifest(self) -> None:
+        # A good build first, so a manifest from it is on disk; then a build
+        # that fails must not leave that manifest describing a ZIP it removed.
+        self.assertEqual(self.release.main(), 0)
+        manifest = Path(self.release.NAME).stem + ".manifest.json"
+        self.assertIn(manifest, self._outputs())
+
+        def reject() -> dict:
+            raise RuntimeError("source archive CRC failure: simulated")
+
+        self.release._build_source_archive = reject
+        with self.assertRaisesRegex(RuntimeError, "simulated"):
+            self.release.main()
+        self.assertNotIn(self.release.NAME, self._outputs())
+        self.assertNotIn(manifest, self._outputs())
+
 
 if __name__ == "__main__":
     unittest.main()
