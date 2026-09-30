@@ -24,7 +24,7 @@
     {
       "source": "assets/fix_huts/VVFP Fix Huts.dll",
       "destination": "VVFP Fix Huts.dll",
-      "sha256": "EA870749D87FF8C08659B1105503A03B5D04B4D7958E46636DC0290DA148629C"
+      "sha256": "0D9AA0107B913A8C82A46ECE2259C856AE09ACD4E1F18575A8559D15882AA5BB"
     }
   ],
   "patches": [],

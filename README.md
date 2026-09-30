@@ -117,7 +117,7 @@ Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manua
 
 **Builder Action Fixes**
 
-Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
+Villagers whose selected job is Building try the stock construction dispatcher at every food level. What they build, and in what order, is the stock game's: a new population hut first (project IDs 9, 10, and 11, started from nothing as the stock game does), then the projects already under way; the project gates and the manual, existing-work, and repair routes remain stock.
 
 - Patch ID: `vv1_builder_action_fixes`
 

@@ -162,8 +162,112 @@ static __declspec(naked) void vv1_nothing(void) {
 
 static const unsigned int vv1_hut_pick = VV1_RESUME + 9;   /* 0x447737: push 3; the stock rand(3) hut */
 
+/* BUILD FIRST, THEN FIX.  The owner: "The builders will prioritize fixing huts
+   OVER building the new huts or other projects, when in fact they should build
+   new stuff first, then fix huts."
+
+   Both places this companion fixes a hut are reached on paths where the stock
+   branch had NOT chosen construction for reasons that are not "there is none":
+   the 20% "not this time" roll at 0x447724, and the Building-level-below-3 gate
+   at 0x44765E, which the stock branch also reaches through a 20% roll in front
+   of each project (0x4475E0, 0x447621).  Stock then retried on a later tick and
+   built; a hut fix started here instead occupies the builder.  So before any
+   fix, this asks whether construction is available exactly as the stock branch
+   judges it, and if so enters that construction's own stock code:
+
+     new huts (entry 0x447528, the stock hut section): hut 9 while incomplete,
+       hut 10 while incomplete and population > 22, hut 11 while incomplete
+       and population > 45 -- population from the game's own counter 0x41CF90
+       (ecx = village state), as the stock checks call it;
+     started projects, each at the check block after its random roll:
+       project 3 (0x4475A8) at any level, 2 (0x4475F8) and 4 (0x447635) from
+       Building level 2, 8 (0x447685), 7 (0x4476C2) and 5 (0x4476FB) from 3 --
+       each only while its progress dword > 0 and its complete flag != 1,
+       the very tests its block makes.
+
+   The predicates mirror the blocks they enter, so a jump always starts that
+   construction and never falls back here.  Project record i: progress dword at
+   state + 0x9F9C + 8*i, complete flag byte 4 bytes later (read from the
+   owner's saves: progress counts up to the target, the flag turns 1). */
+#define VV1_POPULATION   0x41CF90u
+#define VV1_HUT_SECTION  0x447528u
+#define VV1_HUT9_CALL    0x44753Cu   /* stock: call 0x442090, the hut gate */
+#define VV1_HUT_GATE     0x442090u
+static const unsigned int vv1_population_fn = VV1_POPULATION;
+
+static const struct { unsigned int id; int min_level; unsigned int block; } VV1_PROJECTS[] = {
+    { 3, 0, 0x4475A8u }, { 2, 2, 0x4475F8u }, { 4, 2, 0x447635u },
+    { 8, 3, 0x447685u }, { 7, 3, 0x4476C2u }, { 5, 3, 0x4476FBu },
+};
+
+static int vv1_progress(const unsigned char *state, unsigned int id) {
+    return *(const int *)(state + 0x9F9C + 8 * id);
+}
+
+static int vv1_complete(const unsigned char *state, unsigned int id) {
+    return state[0x9F9C + 8 * id + 4] == 1;
+}
+
+static int vv1_population(const unsigned char *state) {
+    int n;
+    __asm {
+        mov ecx, state
+        call dword ptr [vv1_population_fn]
+        mov n, eax
+    }
+    return n;
+}
+
+/* A progress gate on the new-hut calls (older Builder Action Fixes) would make
+   the stock hut section skip a hut at zero progress; mirror it if present, so
+   the hut predicate still matches what that section will do. */
+static int vv1_huts_need_progress(void) {
+    const unsigned char *call = (const unsigned char *)VV1_HUT9_CALL;
+    if (call[0] != 0xE8) return 1;
+    return VV1_HUT9_CALL + 5 + *(const int *)(call + 1) != VV1_HUT_GATE;
+}
+
+static int vv1_hut_buildable(const unsigned char *state, unsigned int id, int population, int need_progress) {
+    static const int min_population[3] = { -1, 0x16, 0x2D };
+    if (vv1_complete(state, id)) return 0;
+    if (population <= min_population[id - 9]) return 0;
+    return !need_progress || vv1_progress(state, id) > 0;
+}
+
+/* The stock construction entry to take instead of a fix, or 0 when there is
+   no construction to do. */
+static unsigned int __cdecl vv1_construction(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    const int level = *(const int *)(state + 0xA2CC);
+    const int need_progress = vv1_huts_need_progress();
+    unsigned int i;
+    int population = -1;
+    for (i = 9; i <= 11; ++i) {
+        if (vv1_complete(state, i)) continue;
+        if (population < 0) population = vv1_population(state);
+        if (vv1_hut_buildable(state, i, population, need_progress)) return VV1_HUT_SECTION;
+    }
+    for (i = 0; i < sizeof VV1_PROJECTS / sizeof VV1_PROJECTS[0]; ++i) {
+        if (level < VV1_PROJECTS[i].min_level) continue;
+        if (!vv1_complete(state, VV1_PROJECTS[i].id) && vv1_progress(state, VV1_PROJECTS[i].id) > 0) {
+            return VV1_PROJECTS[i].block;
+        }
+    }
+    return 0;
+}
+
 static __declspec(naked) void vv1_stub(void) {
     __asm {
+        pushad                         ; construction first, whatever the roll
+        push esi
+        call vv1_construction
+        add esp, 4
+        mov [esp + 0x1C], eax
+        popad
+        test eax, eax
+        jz no_construction
+        jmp eax                        ; the stock code for that construction
+    no_construction:
         pushad
         push esi
         call vv1_choose
@@ -218,6 +322,16 @@ static __declspec(naked) void vv1_level_stub(void) {
         jl below
         jmp dword ptr [vv1_level_resume]
     below:
+        pushad                         ; construction first, whatever the rolls
+        push esi
+        call vv1_construction
+        add esp, 4
+        mov [esp + 0x1C], eax
+        popad
+        test eax, eax
+        jz below_no_construction
+        jmp eax                        ; the stock code for that construction
+    below_no_construction:
         pushad
         push esi
         call vv1_choose_any
