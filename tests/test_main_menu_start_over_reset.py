@@ -648,5 +648,95 @@ class PlacementGuardTests(unittest.TestCase):
             vp._validate_main_menu_start_over(data, "vv1")
 
 
+class SavedVillageHeaderTests(unittest.TestCase):
+    """The erased village is read from the slot's own save, not a prior save.
+
+    Live, VV2: launch the game and press Start Over at once, and the old
+    village's Births and Conceptions log survived -- nothing had been saved in
+    that process, so there was no published header to match it by, and the
+    new village then wrote into the old one's log. VVFP Save Reset.dll now
+    reads the name from "<base><slot>.ldw" (both hooks run before the game
+    removes or overwrites it) through the exporters' own vv_village_name and
+    vv_village_header. The on-disk proof is the harness
+    (scripts/build_saved_village_harness.ps1, which compiles the shipped
+    source); these hold its cases, the layout and the shipped DLL in place.
+    """
+
+    EXPORT_C = ROOT / "native" / "save_reset_export" / "save_reset_export.c"
+    HARNESS = ROOT / "native" / "save_reset_export" / "saved_village_harness.c"
+    IDENTITY_C = ROOT / "native" / "shared" / "village_identity.c"
+    DLL_PATH = ROOT / "assets" / "save_reset" / DLL
+
+    def _table(self, text: str, name: str) -> list[int]:
+        match = re.search(name + r"\[5\] = \{([^}]*)\}", text)
+        self.assertIsNotNone(match, name)
+        return [int(v.strip().rstrip("u"), 0) for v in match.group(1).split(",")]
+
+    def test_the_save_buffer_ends_at_the_slot_field(self) -> None:
+        """The game's current-slot field sits right after the save buffer
+        (village + 8 + length), which ties the three measurements together."""
+        text = self.EXPORT_C.read_text(encoding="utf-8")
+        lengths = self._table(text, "SAVE_BUFFER_BYTES")
+        for index, game in enumerate(EXE):
+            with self.subTest(game=game):
+                self.assertEqual(8 + lengths[index], SLOT[game])
+        self.assertEqual(self._table(text, "SAVE_FILE_HEADER"), [12, 12, 12, 24, 24])
+        self.assertEqual(self._table(text, "SAVE_LENGTH_AT"), [8, 8, 8, 16, 16])
+
+    def test_the_name_is_read_with_the_exporters_own_functions(self) -> None:
+        text = self.EXPORT_C.read_text(encoding="utf-8")
+        body = text[text.index("int vv_saved_village_header(") :]
+        self.assertIn("vv_village_name(game,", body)
+        self.assertIn("data + SAVE_FILE_HEADER[game - 1] - 8", body)
+        self.assertIn("vv_village_header(header, sizeof header, name, slot)", body)
+        self.assertIn("valid != 1", body)
+        self.assertIn("!(tail[-1] >= L'0' && tail[-1] <= L'9')", text)
+
+    def test_the_reset_prefers_the_save_then_the_published_header(self) -> None:
+        text = self.EXPORT_C.read_text(encoding="utf-8")
+        body = text[text.index("int __stdcall ResetDeletedTribe(") :]
+        saved = body.index("vv_saved_village_header(game, slot, folder")
+        recalled = body.index("vv_village_recall(village")
+        self.assertLess(saved, recalled)
+        self.assertIn("header_is_for_slot(village, slot)", body[recalled:])
+
+    def test_the_harness_covers_every_case(self) -> None:
+        text = self.HARNESS.read_text(encoding="utf-8")
+        self.assertIn('#include "save_reset_export.c"', text)  # the shipped source
+        for case in (
+            "the header is exactly the exporters'",
+            "slot 1 names its own village, not slot 2's",
+            "slot 1 with no save of its own returns nothing",
+            "backups 21 and 41 are never read as slot 1",
+            "two valid saves for one slot: nothing is returned",
+            "a file one byte too long is refused",
+            "a file without the ldwg magic is refused",
+            "a file whose length field is not this game's buffer is refused",
+            "another game's save is refused",
+            "a control byte in the name returns nothing",
+            "the base name is found, not assumed",
+        ):
+            with self.subTest(case=case):
+                self.assertIn(case, text)
+
+    def test_the_harness_uses_the_exporters_name_offsets(self) -> None:
+        identity = self.IDENTITY_C.read_text(encoding="utf-8")
+        match = re.search(r"NAME_OFFSETS\[5\] = \{([^}]*)\}", identity)
+        offsets = [int(v, 16) for v in re.findall(r"0x([0-9A-Fa-f]+)", match.group(1))]
+        harness = self.HARNESS.read_text(encoding="utf-8")
+        self.assertEqual(self._table(harness, "NAME_AT"), offsets)
+
+    def test_the_shipped_dll_carries_the_reader(self) -> None:
+        blob = self.DLL_PATH.read_bytes()
+        self.assertIn("%ls\\*%d.ldw".encode("utf-16-le"), blob)
+        self.assertEqual(
+            vp.sha256(self.DLL_PATH),
+            next(
+                item["sha256"].upper()
+                for item in vp._start_over_reset_from_origins("vv2")[1:]
+            ),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

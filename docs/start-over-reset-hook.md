@@ -164,6 +164,20 @@ still in memory -- and its published header still recallable -- when the files
 go. `src/vv_fun_patcher.py` (`MAIN_MENU_START_OVER`) places it; see
 `tests/test_main_menu_start_over_reset.py`.
 
+**Which village is being erased.** The Births and Conceptions log can only be
+matched by its `Village: <name> (Save <n>)` header. Both hooks run before the
+game removes or overwrites the slot's save, so `VVFP Save Reset.dll` reads the
+name from `<base><slot>.ldw` itself -- the save buffer behind a 12-byte (VV1-VV3)
+or 24-byte (VV4, VV5) file header -- with the exporters' own `vv_village_name`
+and `vv_village_header`. Only the header the statistics companion published at
+a save in the same session was used before, so a Start Over straight after
+launching the game (live, VV2) left the old log in place. Exactly one valid
+save for the slot must exist, and the base name before the slot number must
+not end in a digit, so the backup generations 21 and 41 are never read as slot
+1; otherwise the published header is the fallback, and with neither the log is
+left alone. `native/save_reset_export/saved_village_harness.c` runs the shipped
+reader against synthetic saves (`scripts/build_saved_village_harness.ps1`).
+
 ## Hooking space
 
 Every `deleteSave` prologue is at least 10 clean bytes, enough for a 5-byte

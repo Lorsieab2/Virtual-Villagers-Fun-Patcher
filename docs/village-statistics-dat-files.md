@@ -153,9 +153,12 @@ reloading an older backup of the save cannot add it twice.
   flushed events stay counted; they happened.
 * The Start Over reset ships whenever Origins, the Births and Conceptions log
   or this log is selected. It finds the Births and Conceptions log by the
-  village header this log publishes when the village is saved, so a Start Over
-  in a session in which that village was never saved leaves that log alone;
-  the slot-addressed statistics files go either way.
+  village header, built from the name in the slot's own save file, which both
+  reset hooks reach before the game removes or overwrites it (so a Start Over
+  straight after launching the game works too); failing that, from the header
+  this log published at the village's last save in the same session. With
+  neither, that log is left alone; the slot-addressed statistics files go
+  either way.
 
 ## Verification
 
