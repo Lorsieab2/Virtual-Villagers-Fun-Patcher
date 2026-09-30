@@ -1075,19 +1075,35 @@ class DecisionBookkeepingTests(unittest.TestCase):
                 self.assertEqual(d.roll(), 1)
                 d.exit()
                 self.assertEqual(d.draws(), 1)
-                # Anything else is a new decision (the forced fail shows it drew).
+                # Anything else is a new decision (the forced fail shows it
+                # drew): each case right after the loop's attempt 2 for 0xA000,
+                # so only the one difference named separates it from attempt 3.
                 for label, (g, r, counter, key) in {
                     "the loop starts again (counter 0)": (game, ret, 0, 0xA000),
-                    "a counter that skips": (game, ret, 5, 0xA000),
+                    "a counter that skips": (game, ret, 4, 0xA000),
                     "another villager": (game, ret, 3, 0xB000),
-                    "another caller": (game, ret + 1, 4, 0xA000),
+                    "another caller": (game, ret + 1, 3, 0xA000),
                 }.items():
                     with self.subTest(case=label):
-                        before = d.draws()
-                        d.enter(g, r, counter, key)
-                        self.assertEqual(d.roll(), 0)
-                        d.exit()
-                        self.assertEqual(d.draws(), before + 1)
+                        e = FixHutsDll()
+                        e.force(FORCE_PASS)
+                        e.enter(game, ret, 2, 0xA000)
+                        e.roll()
+                        e.exit()
+                        e.force(FORCE_FAIL)
+                        e.enter(g, r, counter, key)
+                        self.assertEqual(e.roll(), 0)
+                        e.exit()
+                        self.assertEqual(e.draws(), 2)
+                        # ...while attempt 3 itself continues it.
+                        e.force(FORCE_PASS)
+                        e.enter(game, ret, 2, 0xA000)
+                        e.roll()
+                        e.exit()
+                        e.force(FORCE_FAIL)
+                        e.enter(game, ret, 3, 0xA000)
+                        self.assertEqual(e.roll(), 1)
+                        e.exit()
 
     def test_a_new_home_and_the_lost_children_never_continue(self):
         # Their only retry loop does not zero its counter per villager, so a
