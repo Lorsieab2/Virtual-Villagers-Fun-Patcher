@@ -132,17 +132,30 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the new rows, 16/16/17 differing bytes per mode, every one inside the
     # row's own ranges at 0x2FAD1 and 0x2FB51 or the PE CheckSum at
     # 0x160..0x163; the length is unchanged.
+    # Re-pinned when Origins "Cure all" moved its People Cured increment from
+    # the statistics block's save-time copy [edi+0x4FC] to the live counter
+    # [0x5824B0] (2026-09-30). Justified BEFORE re-pinning: with the previous
+    # vv3_origins_feature.json the render is exactly the previous pin
+    # (D4C10313.../D3BD1ECB.../91599ED3...); with the new one, the only
+    # differing bytes in every mode are 0x7B752..0x7B755 (that instruction's
+    # ModRM and operand) and the PE CheckSum at 0x160..0x161.
+    # Re-pinned for the Nature honey refill (#468) on top of main (2026-09-30).
+    # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
+    # byte that differs lies inside the honey-refill patch records or the PE CheckSum.
+    # Re-pinned for the rare collectible retry (#470) on top of main (2026-09-30).
+    # Justified BEFORE re-pinning: main's tree reproduces the previous pins, and every
+    # byte that differs lies inside the rare-collectible patch records or the PE CheckSum.
     "stock": (
-        "B8B80C8979C08141512DA0732DD6D683E4F2FF75DC2ADD88149D5F95D32AA00D",
-        "78000D00",
+        "6D8975394F69EB6DD2FCF8F587E3C606AF2A9E179B750F98AACB86DB2F32ADEC",
+        "CEE20C00",
     ),
     "collection_progression": (
-        "1DAEC4815A9F08861F2A5D862204385B166836530EE57871C2F2B0C47F73854E",
-        "78190D00",
+        "719756E336E2FA65C449F9A6CB15F0BDD9A3DB910C2A43483F7751A289E48CEA",
+        "CEFB0C00",
     ),
     "immediate_fixed": (
-        "93340D083F20CB47CEDE11FF9B3CBDAE5AABB178CB041C646BF38CC286DC87C6",
-        "765B0D00",
+        "BBBF6AC1719C5AE4F75D1EC7EE31EE752BDA18B1AF98DFCDB81B27752000E046",
+        "CC3D0D00",
     ),
 }
 

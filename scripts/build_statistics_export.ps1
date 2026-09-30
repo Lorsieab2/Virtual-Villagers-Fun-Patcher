@@ -21,6 +21,9 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     /I $sharedRoot `
     (Join-Path $nativeRoot "statistics_export.c") `
+    (Join-Path $nativeRoot "village_elders.c") `
+    (Join-Path $nativeRoot "statistics_store.c") `
+    (Join-Path $nativeRoot "roster_match.c") `
     (Join-Path $sharedRoot "village_identity.c") `
     (Join-Path $sharedRoot "save_folder.c") `
     /link `
@@ -38,6 +41,8 @@ if ($LASTEXITCODE -ne 0) {
 
 @(
     (Join-Path $projectRoot "statistics_export.obj"),
+    (Join-Path $projectRoot "village_elders.obj"),
+    (Join-Path $projectRoot "statistics_store.obj"),
     (Join-Path $projectRoot "village_identity.obj"),
     (Join-Path $projectRoot "save_folder.obj"),
     (Join-Path $projectRoot "statistics_export.exp"),

@@ -1,218 +1,215 @@
-"""The VV1 father must be read from the argument slot the stub writes.
+"""sub_43BBC0 reads all four of its arguments, so none may carry the father.
 
-The owner's parentage log showed every VV1 conception reporting "(not captured
-for this birth)". Nothing static caught it: the trampolines disassembled
-correctly, every byte guard passed, and the companion behaved exactly as
-designed -- it validated the pointer it was handed, found it was not a villager
-record, and said so.
+The VV1 parentage feature once routed the six calls into the conception
+routine through stubs that overwrote its second argument with the father's
+record pointer, on the belief that the routine never read it. It does: the
+routine's reads at 0x43BBD0 and 0x43BC00 share the displacement [esp+0x10] but
+a `push esi` sits between them, so the first is arg3 and the second is arg2 --
+which 0x43BC04 stores into the mother's +0x394, a field delivery compares with
+0xC7 at 0x42EF39. The overwrite therefore changed what the game did at birth,
+and the same miscounting of the routine's pushes made the twins tail read a
+return address instead of the father.
 
-The fault was one constant. The stub writes the father into the dead SECOND
-argument, but the trampolines computed their displacement from arg1's position,
-so they read arg3 -- a skill selector -- and passed that instead.
+Both mistakes came from reading displacements by eye. These guards derive the
+stack depth at every instruction of the routine by walking its control flow
+from the stock bytes, and hold the feature to what that walk finds:
 
-These guards close the loop by deriving the displacement from the emitted bytes
-rather than restating the constant, so the two halves of the mechanism cannot
-disagree again.
+  * every one of the four arguments is read, so there is no dead slot;
+  * the +0x394 store is fed from arg2;
+  * every place the feature's trampolines are entered from is exactly two
+    pushes deep, which is the depth the shared log body assumes when it finds
+    the routine's entry esp;
+  * nothing the feature emits stores to the stack or to any other memory, and
+    no call site is patched.
 """
 
 from __future__ import annotations
 
 import json
 import re
+import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+
 FEATURE = ROOT / "data" / "vv1_parentage_feature.json"
+STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - A New Home.exe"
 
-# Where the father sits relative to the esp the routine is entered with, i.e.
-# at the moment `call 0x43BBC0` transfers control and esp points at the return
-# address. arg1..arg4 follow at +0x04, +0x08, +0x0C, +0x10, and the dead slot
-# the stub commandeers is arg2.
-FATHER_AT_ENTRY_ESP = 0x08
+CONCEPTION_VA = 0x43BBC0
+CONCEPTION_END = 0x43BCCB  # the five-byte nop pad after `ret 0x10`
 
-# What each tail has pushed before the trampoline runs. sub_43BBC0 opens with
-# `push edi` then `push esi`; the twins tail at 0x43BCBA is past both pops and
-# so is back at the entry esp, while the other two are eight bytes deeper.
-TAIL_ADJUSTMENTS = (0, 8)
-
-PUSHAL = 0x20
+# Where the feature's code is entered from inside the routine: the two
+# diverted tails, and the two retargeted singleton branches (whose stock
+# target is the epilogue 0x43BCC6).
+TAILS = (0x43BCA2, 0x43BCBA)
+SINGLE_BRANCHES = (0x43BC39, 0x43BC4C)
 
 
-def emitted_payloads():
-    record = json.loads(FEATURE.read_text(encoding="utf-8"))
-    out = []
-    stack = [record]
-    while stack:
-        node = stack.pop()
-        if isinstance(node, dict):
-            after = node.get("after")
-            offset = node.get("offset")
-            if isinstance(after, str) and len(after) >= 40 and offset:
-                try:
-                    out.append((bytes.fromhex(after), int(offset, 16)))
-                except ValueError:
-                    pass
-            stack.extend(node.values())
-        elif isinstance(node, list):
-            stack.extend(node)
-    return out
+def _walk_stock_routine():
+    """{address: (instruction, bytes pushed since entry)} over sub_43BBC0.
+
+    A worklist over real control flow, not a linear sweep: the twins tail at
+    0x43BCBA follows a `ret 0x10` and is reached only by jumps, so a linear
+    sweep would assign it the depth after the pops -- the exact error that
+    shipped.
+    """
+    import capstone
+
+    blob = STOCK.read_bytes()
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    md.detail = True
+
+    def decode(va):
+        at = va - 0x400000
+        return next(md.disasm(blob[at : at + 16], va))
+
+    seen: dict[int, tuple[object, int]] = {}
+    work = [(CONCEPTION_VA, 0)]
+    while work:
+        va, depth = work.pop()
+        if va in seen:
+            if seen[va][1] != depth:
+                raise AssertionError(
+                    "%#x reached at two stack depths (%d and %d)"
+                    % (va, seen[va][1], depth))
+            continue
+        if not CONCEPTION_VA <= va < CONCEPTION_END:
+            raise AssertionError("control left the routine at %#x" % va)
+        insn = decode(va)
+        seen[va] = (insn, depth)
+        after = depth
+        if insn.mnemonic == "push":
+            after += 4
+        elif insn.mnemonic == "pop":
+            after -= 4
+        elif insn.mnemonic == "add" and insn.op_str.startswith("esp, "):
+            after -= int(insn.op_str.split(", ")[1], 0)
+        elif insn.mnemonic == "sub" and insn.op_str.startswith("esp, "):
+            after += int(insn.op_str.split(", ")[1], 0)
+        if insn.mnemonic == "ret":
+            continue
+        if insn.mnemonic.startswith("j"):
+            target = int(insn.op_str, 16)
+            work.append((target, after))
+            if insn.mnemonic == "jmp":
+                continue
+        work.append((va + insn.size, after))
+    return seen
 
 
-class VV1FatherArgumentSlotTests(unittest.TestCase):
+def _argument_reads(seen):
+    """{argument number: [reading addresses]} for every [esp+disp] read."""
+    reads: dict[int, list[int]] = {}
+    for va, (insn, depth) in seen.items():
+        match = re.search(r"\[esp \+ (0x[0-9a-f]+|\d+)\]", insn.op_str)
+        if not match or insn.mnemonic == "lea":
+            continue
+        entry_relative = int(match.group(1), 0) - depth
+        if entry_relative <= 0:
+            continue
+        self_arg = entry_relative // 4
+        reads.setdefault(self_arg, []).append(va)
+    return reads
+
+
+@unittest.skipUnless(STOCK.is_file(), "the exact-build VV1 executable is not available")
+class ConceptionRoutineArgumentTests(unittest.TestCase):
     def setUp(self) -> None:
         try:
             import capstone  # noqa: F401
         except ImportError:  # pragma: no cover - optional dependency
             self.skipTest("capstone is not installed")
-        self.assertTrue(
-            FEATURE.is_file(), "the VV1 parentage feature must be rendered")
+        self.seen = _walk_stock_routine()
 
-    def father_pushes(self):
-        """Every `push [esp+disp]` in the emitted payloads, disp > pushal."""
+    def test_all_four_arguments_are_read(self) -> None:
+        """There is no dead argument to carry anything in."""
+        reads = _argument_reads(self.seen)
+        self.assertEqual(sorted(reads), [1, 2, 3, 4], reads)
+
+    def test_the_mothers_394_is_fed_from_the_second_argument(self) -> None:
+        """0x43BC00 loads arg2 and 0x43BC04 stores it into the mother."""
+        load, depth = self.seen[0x43BC00]
+        self.assertEqual(load.mnemonic, "mov")
+        self.assertEqual(load.op_str, "edx, dword ptr [esp + 0x10]")
+        self.assertEqual(depth, 8, "0x43BC00 runs after both pushes")
+        self.assertEqual((0x10 - depth) // 4, 2)
+        store, _ = self.seen[0x43BC04]
+        self.assertEqual(store.op_str, "dword ptr [esi + 0x394], edx")
+        self.assertIn(0x43BC00, _argument_reads(self.seen)[2])
+
+    def test_every_hook_entry_is_two_pushes_deep(self) -> None:
+        """The depth the shared log body assumes when it locates E.
+
+        LOG_ENTRY_TO_E is the body's own return address, the trampoline's
+        pushad, and this depth. The twins tail once assumed zero here.
+        """
+        import build_vv1_parentage_feature as generator
+
+        assumed = generator.LOG_ENTRY_TO_E - 0x04 - 0x20
+        for va in TAILS + SINGLE_BRANCHES:
+            with self.subTest(entry=hex(va)):
+                self.assertIn(va, self.seen, "not reachable in the routine")
+                self.assertEqual(self.seen[va][1], 8)
+                self.assertEqual(
+                    assumed, self.seen[va][1],
+                    "the log body assumes %d bytes pushed at %#x, the routine "
+                    "has pushed %d" % (assumed, va, self.seen[va][1]))
+
+    def test_the_twins_tail_is_reached_only_before_the_pops(self) -> None:
+        """0x43BCBA sits after `ret 0x10`, so it is never a fallthrough."""
+        previous = max(va for va in self.seen if va < 0x43BCBA)
+        self.assertEqual(self.seen[previous][0].mnemonic, "ret")
+
+
+class NothingTheFeatureEmitsWritesMemoryTests(unittest.TestCase):
+    def setUp(self) -> None:
+        try:
+            import capstone  # noqa: F401
+        except ImportError:  # pragma: no cover - optional dependency
+            self.skipTest("capstone is not installed")
+
+    def _layouts(self):
+        feature = json.loads(FEATURE.read_text(encoding="utf-8"))["features"][0]
+        yield "standalone", feature["patches"], 0x456900
+        yield "composed", feature["composition_patches"][
+            "vv1_enable_origins_exclusive_features"], 0x490E00
+
+    def test_no_call_site_or_argument_is_touched(self) -> None:
+        """The six calls run stock bytes with stock arguments."""
+        call_sites = (0x43DD33, 0x43DD54, 0x43DD7B, 0x43DD94, 0x447031, 0x447238)
+        for label, patches, _cave in self._layouts():
+            for patch in patches:
+                start = int(patch["offset"], 16)
+                end = start + len(bytes.fromhex(patch["after"]))
+                for site in call_sites:
+                    at = site - 0x400000
+                    with self.subTest(layout=label, site=hex(site)):
+                        self.assertFalse(
+                            start < at + 5 and at < end,
+                            "a patch at %#x rewrites the call at %#x"
+                            % (start, site))
+
+    def test_the_cave_code_stores_nowhere(self) -> None:
+        """Only pushes and calls touch memory; no mov/add/... destination."""
         import capstone
+        from capstone import x86
 
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-        found = set()
-        for code, offset in emitted_payloads():
-            address = offset + 0x400000 if offset < 0x400000 else offset
-            for instruction in md.disasm(code, address):
-                if instruction.mnemonic != "push":
+        md.detail = True
+        for label, patches, cave in self._layouts():
+            payload = next(bytes.fromhex(p["after"]) for p in patches
+                           if len(p["after"]) // 2 == 0x200)
+            code = payload[:0x120]  # trampolines and the log body
+            for insn in md.disasm(code, cave):
+                if insn.mnemonic in ("push", "call", "cmp", "test"):
                     continue
-                match = re.fullmatch(
-                    r"dword ptr \[esp \+ (0x[0-9a-f]+)\]",
-                    instruction.op_str)
-                if match:
-                    displacement = int(match.group(1), 16)
-                    # The three small pushes are the companion's own
-                    # arguments, re-pushed from its stack frame.
-                    if displacement > PUSHAL:
-                        found.add(displacement)
-        return sorted(found)
-
-    def test_every_trampoline_reads_the_dead_second_argument(self) -> None:
-        """Derived from the bytes, not restated from the constant.
-
-        A displacement one dword out reads arg3 and passes a skill selector
-        as the father. That is exactly what shipped, and it produced a log
-        that said the father was not captured on every single birth.
-        """
-        pushes = self.father_pushes()
-        self.assertTrue(
-            pushes, "no father push found in the emitted payloads")
-        for displacement in pushes:
-            with self.subTest(displacement=hex(displacement)):
-                tail_relative = displacement - PUSHAL
-                candidates = {
-                    tail_relative - adjustment
-                    for adjustment in TAIL_ADJUSTMENTS
-                }
-                self.assertIn(
-                    FATHER_AT_ENTRY_ESP, candidates,
-                    "push [esp+%#x] resolves to entry+%s, and the father is "
-                    "at entry+%#x"
-                    % (displacement,
-                       "/".join(hex(c) for c in sorted(candidates)),
-                       FATHER_AT_ENTRY_ESP))
-
-    def test_the_stub_and_the_trampoline_agree(self) -> None:
-        """Both halves must name the same slot.
-
-        The stub writes at the call site, where esp is one dword lower than
-        the routine's entry esp because the call has pushed a return address
-        -- so its displacement is the entry-relative one exactly. They were
-        consistent before this fix on the stub side and wrong on the read
-        side, which is why only one of the two was corrected.
-        """
-        source = (ROOT / "scripts"
-                  / "build_vv1_parentage_feature.py").read_text(
-                      encoding="utf-8")
-        match = re.search(r"FATHER_ARG_AT_STUB = (0x[0-9A-Fa-f]+)", source)
-        self.assertIsNotNone(match, "the stub displacement must be declared")
-        self.assertEqual(
-            int(match.group(1), 16), FATHER_AT_ENTRY_ESP,
-            "the stub must write the dead second argument")
-
-        for name in ("TRIPLETS", "TWINS", "SINGLE"):
-            with self.subTest(tail=name):
-                tail = re.search(
-                    r"FATHER_ARG_AT_%s = (0x[0-9A-Fa-f]+) \+ (\d+)"
-                    % name, source)
-                self.assertIsNotNone(
-                    tail, "FATHER_ARG_AT_%s must be declared" % name)
-                base, adjustment = int(tail.group(1), 16), int(tail.group(2))
-                self.assertEqual(
-                    base, FATHER_AT_ENTRY_ESP,
-                    "%s must be measured from the father's own slot" % name)
-                self.assertIn(adjustment, TAIL_ADJUSTMENTS)
-
-    def test_the_reentry_audit_records_the_same_displacement(self) -> None:
-        """The audit prose must not contradict the emitted bytes.
-
-        Codex raised this: the fingerprints were updated but the register
-        contract recorded alongside them still described the defective
-        offsets. An audit that records the wrong contract is worse than no
-        audit, because it is what a later reviewer consults -- it would have
-        justified restoring the exact bug being fixed here.
-
-        So the prose is checked against the same constant the trampolines are
-        built from, rather than left to be re-read by eye.
-        """
-        audit = (ROOT / "tests"
-                 / "test_vv1_hook_foreign_reentry_audit.py").read_text(
-                     encoding="utf-8")
-        self.assertIn(
-            "0x20+0x08", audit,
-            "the audit must record the twins tail's real displacement")
-        self.assertIn(
-            "0x20+0x08+8", audit,
-            "the audit must show how the deeper tails are derived")
-        # The defective values must not survive anywhere in the prose.
-        self.assertNotIn(
-            "0x20+0x14", audit,
-            "the audit still records arg3's displacement")
-        self.assertNotIn(
-            "0x20+0x0C", audit,
-            "the audit still records arg1's displacement")
-        # Case-insensitive: the prose capitalises SECOND for emphasis, so a
-        # revert to "third" could arrive in any casing.
-        # Case-insensitive, and tolerant of the comment wrapping: the prose
-        # capitalises SECOND for emphasis and the phrase spans a line break,
-        # so a revert to "third" could arrive in any casing or layout.
-        self.assertNotRegex(
-            audit,
-            r"(?i)third\s+stack\s*(?:\n\s*#)?\s*argument",
-            "the dead slot is the second argument, not the third")
-        self.assertRegex(
-            audit,
-            r"(?i)second\s+stack\s*(?:\n\s*#)?\s*argument",
-            "the audit must name the second argument as the dead slot")
-
-    def test_no_site_passes_the_mothers_register(self) -> None:
-        """esi is the `this` pointer -- the mother -- at every call site.
-
-        0x447238 chose ecx, which 0x44722E overwrites with esi before the
-        call, so that site handed the companion the mother. The companion
-        rejects a father equal to the mother, so it could never have captured
-        even once the displacement was right.
-        """
-        source = (ROOT / "scripts"
-                  / "build_vv1_parentage_feature.py").read_text(
-                      encoding="utf-8")
-        table = source[source.index("FATHER_CALL_SITES = ("):]
-        table = table[:table.index("\n)")]
-        registers = re.findall(r'"(e[a-z]{2})"', table)
-        self.assertEqual(
-            len(registers), 6, "all six call sites must name a register")
-        self.assertNotIn(
-            "esi", registers, "esi is the mother, never the father")
-        # 0x447238 specifically: ecx is clobbered there.
-        site = re.search(
-            r"\(0x00447238,[^)]*?\"(e[a-z]{2})\"", table, re.S)
-        self.assertIsNotNone(site, "site 0x447238 must be present")
-        self.assertEqual(
-            site.group(1), "eax",
-            "0x447238 must pass eax; ecx is overwritten with the mother")
+                if insn.mnemonic == "add" and insn.op_str == "byte ptr [eax], al":
+                    continue  # zero padding between blocks
+                if insn.operands and insn.operands[0].type == x86.X86_OP_MEM:
+                    with self.subTest(layout=label, at=hex(insn.address)):
+                        self.fail("%s %s writes memory" % (insn.mnemonic, insn.op_str))
 
 
 if __name__ == "__main__":

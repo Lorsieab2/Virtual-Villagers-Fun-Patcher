@@ -579,6 +579,12 @@
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "515231C0BAACE55000B99600000080BAC41C000000741283C00183BA4C1C00000074060382501C000081C23C2E000083E90175DA5A59C3",
           "purpose": "count VV4 physical villager demand for the 150-slot saturation guards: every occupied record plus the babies each pregnant mother still owes a record, mirroring the VV5 counter"
+        },
+        {
+          "offset": "0x5D700",
+          "before": "8B7BF485FF744E8D53D8BE19000000E85CFCFFFF84C0744785FF7C438B0383F8FF7C3C83F8057D378B430C83F8FF7C2F83F8057D2A8B7C2410834424105C83C501B9170000008BF283C35C81FDF4010000F3A57CAB5F5E5DB0015B59C204005F5E5D32C05B59C20400CCCCCCCCCCCCCC",
+          "after": "8B7BF485FF74598D53D8BE19000000E85CFCFFFF84C0744C85FF7C488B034083F80673408B430C807B0F017511C1E008C1F8088D480183F906732989430C4083F80673208B7C2410834424105C456A17598BF283C35C81FDF4010000F3A57CA0B001EB0232C05F5E5D5B59C20400CCCC",
+          "purpose": "repair graves damaged by Village Statistics v1.35.40 and earlier before the memorial loader validates them: a grave whose stock dword +0x34 carries a patch-set 0x01 in its top byte over a valid -1..4 value is restored to that value, so the save loads; every stock-valid grave is left byte-identical and any other invalid grave is still rejected exactly as stock"
         }
       ]
     },
@@ -1249,8 +1255,8 @@
         {
           "offset": "0x7B2A0",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C15B954000000F7E1B93C860100F7F18BD0E93C67FBFF8BD0D1E2B8C5B3A291F7E2C1EA0BE92967FBFF",
-          "purpose": "preserve the stock honey rate at Nature 0 and apply the 42-to-37 quantity improvement against the new 45-minute Nature interval"
+          "after": "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C12B954000000F7E1B93C860100F7F18BD0EB0E8BD0D1E2B8C5B3A291F7E2C1EA0B8B4610E92F67FBFF",
+          "purpose": "compute the honey added -- the stock elapsed/1800 at Nature 0, elapsed*84/99900 at Nature 1 or higher -- then load the stored honey and resume at the stock add (0x431A0F), past the stock shift, so the amount is shifted exactly once"
         },
         {
           "offset": "0x7B340",
@@ -1836,8 +1842,8 @@
         {
           "source": "data/guardians_of_isola/new/Assets/sm.xml",
           "destination": "Assets/sm.xml",
-          "size": 149915,
-          "sha256": "203D4BD689DC032989F57C09992F82115B5D473C7079611E2BFD7140DA5FE89A",
+          "size": 149921,
+          "sha256": "B48B5242E513E58538EC37160EB04708CB8965C1F2C759ED606334B7486659C7",
           "preimage_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071",
           "restore_source": "data/guardians_of_isola/base/Assets/sm.xml",
           "restore_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071"

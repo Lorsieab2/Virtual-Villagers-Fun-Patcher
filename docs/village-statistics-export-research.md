@@ -104,7 +104,7 @@ The common layout is:
 | `+0x08` | Babies Made |
 | `+0x0C` | Food Gathered |
 | `+0x10` | People Cured |
-| `+0x14` | Mushrooms Found in VV3/VV5; Collectibles Found in VV4 |
+| `+0x14` | Mushrooms Found (VV3/VV4/VV5; VV4 printed "Collectibles Found" until v1.35.41, but only mushroom pickups increment it) |
 | `+0x18` | Highest Population |
 | `+0x1C` | Village Elders |
 | `+0x20` | Oldest Villager |
@@ -264,9 +264,15 @@ earliest-successful-skeleton-pickup contract.
 - VV4 calls predicate RVA `0x38960` with puzzle manager RVA `0xD8BF8`, IDs
   0 through 15.
 - VV5 stores progress at `manager+0x16D20+8*id`, with thresholds at RVA
-  `0x11DF30`. Stock counts IDs 1 through 16. When the Heathen Parent patch
-  marker at RVA `0x8F16` is active, the exporter counts ID 17 and reports a
-  denominator of 17.
+  `0x11DF30` (filled at startup by `register(handler, id, threshold)` at
+  0x43ABB0). Stock counts IDs 1 through 16. When the Heathen Mommy patch is
+  active -- its own jump at RVA `0x48F16` reads `E9` (stock `B9`) -- the
+  exporter counts IDs 1 through 17 and reports a denominator of 17. ID 17 is
+  `CHeathenMommyPuzzle`, registered at 0x439C8E with threshold **1**; it
+  completes when stat 0xC1 reaches 3 by advancing its progress once (0 -> 1).
+  Until v1.35.40 the exporter tested RVA `0x8F16` (0x24 in every build) and
+  required progress >= 3, so puzzle 17 was never counted and the total was
+  always 16.
 
 ## Safe update points
 
@@ -291,16 +297,14 @@ separate path and must not trigger a village-statistics export.
 The following requested totals were not added in this pass because no exact,
 uncapped lifetime storage field and mutation route have yet been proven:
 
-- Village Elders in **A New Home only**. The Lost Children exposes it at
-  `+0x2E514`, and the later three games at `+0x1C` of the inherited block, so
-  all four already ship the row. A New Home does not have the field: its
-  statistics run is `+0x9E20` through `+0x9E48` with every slot accounted for,
-  and the slot its successors use for Village Elders holds the saturating
-  memorial recount instead -- the layouts diverge there rather than one being
-  a superset of the other. The `Elderly` string in that executable is a
-  villager health and age status, not a counter, and the remaining matches are
-  German and Spanish words containing "elder" by coincidence. Completing this
-  needs new storage plus a hook, not a field that is waiting to be read.
+- Village Elders: **none** blocked. All five games ship the row. The Lost
+  Children prints its own lifetime counter `+0x2E514` (incremented once per
+  villager at promotion, 0x44D55F). A New Home -- which has no elder field or
+  title of its own (its `Elderly` string is a health/age status) -- and The
+  Secret City, The Tree of Life and New Believers (whose `+0x1C` slot has no
+  writer at all) are tracked by the statistics companion in a per-save
+  "Village Elders - Save N.dat" (native/statistics_export/village_elders.c),
+  using each game's own Master threshold.
 - Villagers Died in **A New Home and The Lost Children**. **Closed at
   proportional cost, not blocked on evidence** -- and both are now measured
   rather than one measured and one asserted to match: 19 hooks for A New Home,
