@@ -9132,6 +9132,21 @@ def _tree_snapshot_matches(root: Path, snapshot: dict[str, Any]) -> bool:
     return True
 
 
+def _clear_readonly(path: Path) -> None:
+    """Clear Windows' read-only attribute so an owned entry can be removed.
+
+    A game folder copied from a read-only install (the owner keeps "Read-Only
+    Vanilla" copies) carries FILE_ATTRIBUTE_READONLY into the output -- e.g.
+    Images\\DRM -- and Windows then refuses rmdir/unlink with "Access is
+    denied", so re-creating an output over an earlier one failed.  Only the
+    read-only bit is changed, never on a link (callers have already rejected
+    reparse points), and only for an entry about to be removed.
+    """
+    info = os.lstat(path)
+    if int(getattr(info, "st_file_attributes", 0)) & 0x1 or not info.st_mode & stat.S_IWRITE:
+        os.chmod(path, stat.S_IMODE(info.st_mode) | stat.S_IWRITE)
+
+
 def _cleanup_owned_tree(root: Path) -> None:
     """Remove an inventory-owned tree bottom-up without following links."""
     root = Path(root)
@@ -9166,12 +9181,14 @@ def _cleanup_owned_tree(root: Path) -> None:
                 reject(path, after)
                 if (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):
                     raise PatcherError(f"Owned cleanup directory identity changed: {path}")
+                _clear_readonly(path)
                 path.rmdir()
             elif stat.S_ISREG(before.st_mode):
                 after = os.lstat(path)
                 reject(path, after)
                 if (before.st_dev, before.st_ino, before.st_size) != (after.st_dev, after.st_ino, after.st_size):
                     raise PatcherError(f"Owned cleanup file changed: {path}")
+                _clear_readonly(path)
                 path.unlink()
             else:
                 raise PatcherError(f"Owned cleanup encountered unsupported type: {path}")
@@ -9181,6 +9198,7 @@ def _cleanup_owned_tree(root: Path) -> None:
             raise PatcherError(f"Owned cleanup root identity changed: {directory}")
 
     remove_dir(root)
+    _clear_readonly(root)
     root.rmdir()
 
 

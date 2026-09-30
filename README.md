@@ -225,6 +225,18 @@ Builders and healers do their own work first, at any food level: whenever the ga
 
 - Patch ID: `vv1_builders_and_healers_work_first`
 
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv1_super_secret_golden_mushroom`
+
+**Faster Village-Scrolling**
+
+Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+
+- Patch ID: `vv1_faster_village_scrolling`
+
 
 ### Virtual Villagers - The Lost Children
 
@@ -313,11 +325,23 @@ Builders and healers do their own work first, at any food level: whenever the ga
 
 - Patch ID: `vv2_builders_and_healers_work_first`
 
-**Everyone Collects Like A New Home**
+**VV1 Mushroom/Collectible Duplication Cheat**
 
-Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
 
 - Patch ID: `vv2_everyone_collects_like_vv1`
+
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv2_super_secret_golden_mushroom`
+
+**Faster Village-Scrolling**
+
+Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+
+- Patch ID: `vv2_faster_village_scrolling`
 
 
 ### Virtual Villagers - The Secret City
@@ -390,11 +414,17 @@ The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still ga
 
 - Patch ID: `vv3_chief_lessons_cap_50`
 
-**Everyone Collects Like A New Home**
+**VV1 Mushroom/Collectible Duplication Cheat**
 
-Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
 
 - Patch ID: `vv3_everyone_collects_like_vv1`
+
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv3_super_secret_golden_mushroom`
 
 
 ### Virtual Villagers - The Tree of Life
@@ -442,11 +472,17 @@ Builders and healers do their own work first, at any food level: whenever the ga
 
 - Patch ID: `vv4_builders_and_healers_work_first`
 
-**Everyone Collects Like A New Home**
+**VV1 Mushroom/Collectible Duplication Cheat**
 
-Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
 
 - Patch ID: `vv4_everyone_collects_like_vv1`
+
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv4_super_secret_golden_mushroom`
 
 
 ### Virtual Villagers - New Believers
@@ -524,11 +560,17 @@ Builders and healers do their own work first, at any food level: whenever the ga
 
 - Patch ID: `vv5_builders_and_healers_work_first`
 
-**Everyone Collects Like A New Home**
+**VV1 Mushroom/Collectible Duplication Cheat**
 
-Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
 
 - Patch ID: `vv5_everyone_collects_like_vv1`
+
+**Super-Secret Golden Mushroom**
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+- Patch ID: `vv5_super_secret_golden_mushroom`
 
 
 That is 35 optional patches across the five games.
@@ -909,9 +951,10 @@ window means it is working, not stuck.
 The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modified EXE Folder** links. All 5 Games provides matching Vanilla folder and Modified folder links on every game row. After patching, a compact confirmation window provides clear clickable links to both folders for every completed game.
 
 The **Additional fun patches** section is grouped in game order, with each
-game's patches sorted by patch name. It includes **Select All Patches** and
-**Deselect All Patches** buttons. They change every optional fun-patch checkbox
-at once without changing the selected population mode, and the
+game's patches sorted by patch name. It includes **Select All Patches**,
+**Default Patches**, **Owner's Defaults** (every patch except Learning Skills
+Never Fails) and **Deselect All Patches** buttons. They change every optional
+fun-patch checkbox at once without changing the selected population mode, and the
 selection is remembered normally.
 
 For every selected game, all three modes create **`(Game name) - Modded`**

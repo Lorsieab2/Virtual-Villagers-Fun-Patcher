@@ -53,14 +53,58 @@ SETTINGS = ROOT / "patcher_local_settings.json"
 # patch whose name merely mentions learning is not excluded by accident.
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
-    # The owner: Everyone Collects Like A New Home is a default-off patch.
+    # The owner: VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5) is a default-off patch.
     + ["vv%d_everyone_collects_like_vv1" % game for game in range(2, 6)]
+    # The owner: Super-Secret Golden Mushroom (all five games) is default-off.
+    + ["vv%d_super_secret_golden_mushroom" % game for game in range(1, 6)]
 )
 
 
 def default_fun_patch_selection(patch_id: str) -> bool:
     """Whether a fresh install, or the Default Patches button, ticks this."""
     return patch_id not in DEFAULT_OFF_FUN_PATCH_IDS
+
+
+def split_bold(text: str) -> list[tuple[str, bool]]:
+    """Split a description at its **bold** markers: [(segment, is_bold), ...].
+
+    The owner: descriptions state dependencies in **bold**, and the patcher
+    must show them bold, not as literal asterisks.  An unmatched trailing
+    marker is kept as text rather than swallowing the rest of the line.
+    """
+    parts = text.split("**")
+    if len(parts) % 2 == 0:            # odd number of markers: the last is literal
+        parts[-2:] = [parts[-2] + "**" + parts[-1]]
+    return [(part, index % 2 == 1) for index, part in enumerate(parts) if part]
+
+
+class RichDescription(tk.Text):
+    """A read-only, auto-height text block that shows **bold** segments bold."""
+
+    def __init__(self, parent, text: str, width_px: int, bold_font, normal_font, background):
+        super().__init__(parent, wrap="word", borderwidth=0, highlightthickness=0,
+                         padx=0, pady=0, cursor="arrow", font=normal_font, background=background,
+                         height=1, width=max(20, width_px // max(1, normal_font.measure("0"))))
+        self.tag_configure("bold", font=bold_font)
+        for segment, bold in split_bold(text):
+            self.insert("end", segment, ("bold",) if bold else ())
+        self.configure(state="disabled")
+        self.bind("<Configure>", lambda _event: self._fit())
+
+    def _fit(self) -> None:
+        lines = self.count("1.0", "end", "displaylines")
+        count = lines[0] if isinstance(lines, tuple) else lines
+        if count and int(self.cget("height")) != count:
+            self.configure(height=count)
+
+
+def owners_default_fun_patch_selection(patch_id: str) -> bool:
+    """Whether the Owner's Defaults button ticks this.
+
+    The owner: "Every patch EXCEPT FOR LEARNING NEVER FAILS is on." -- so the
+    other default-off patches are ticked here too.
+    """
+    return not patch_id.endswith("_learning_never_fails")
 
 
 # The owner: the update link opens the project's base GitHub
@@ -516,6 +560,11 @@ class App(tk.Tk):
         ).pack(side="left", padx=(8, 0))
         ttk.Button(
             fun_actions,
+            text="Owner's Defaults",
+            command=self._owners_default_fun_patches,
+        ).pack(side="left", padx=(8, 0))
+        ttk.Button(
+            fun_actions,
             text="Deselect All Patches",
             command=self._deselect_all_fun_patches,
         ).pack(side="left", padx=(8, 0))
@@ -523,6 +572,8 @@ class App(tk.Tk):
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
         requirement_font.configure(weight="bold")
+        description_font = tkfont.nametofont("TkDefaultFont")
+        description_background = ttk.Style().lookup("TLabelframe", "background") or self.cget("background")
         row = fun_row + 2
         for header, patches in group_fun_patches(self.builds, self.fun_patches):
             if header == "Shared / All Games":
@@ -540,7 +591,8 @@ class App(tk.Tk):
                         command=self._fun_patch_changed,
                     ).grid(row=row, column=1, sticky="w", pady=3)
                     row += 1
-                    ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
+                    RichDescription(mode_box, patch.description, 620, requirement_font,
+                                    description_font, description_background).grid(
                         row=row, column=1, sticky="w", pady=(0, 3)
                     )
                     row += 1
@@ -567,7 +619,8 @@ class App(tk.Tk):
                     command=self._fun_patch_changed,
                 ).grid(row=row, column=1, sticky="w", pady=3)
                 row += 1
-                ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
+                RichDescription(mode_box, patch.description, 620, requirement_font,
+                                description_font, description_background).grid(
                     row=row, column=1, sticky="w", pady=(0, 3)
                 )
                 row += 1
@@ -846,6 +899,14 @@ class App(tk.Tk):
         """
         for patch_id, variable in self.fun_patch_vars.items():
             variable.set(default_fun_patch_selection(patch_id))
+        self._last_fun_selection = set()
+        self._fun_patch_changed()
+
+    def _owners_default_fun_patches(self) -> None:
+        """The owner's own selection: every patch except Learning Skills
+        Never Fails, including the other default-off patches."""
+        for patch_id, variable in self.fun_patch_vars.items():
+            variable.set(owners_default_fun_patch_selection(patch_id))
         self._last_fun_selection = set()
         self._fun_patch_changed()
 

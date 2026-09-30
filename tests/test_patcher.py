@@ -1174,9 +1174,12 @@ class ManifestTests(unittest.TestCase):
         # the same again; 15 with Healers Study Plants Regardless of Food
         # (vv2_healers_study_regardless_of_food), the same; 16 with Builders and
         # Healers Work First (vv2_builders_and_healers_work_first), the same;
-        # 17 with Everyone Collects Like A New Home
-        # (vv2_everyone_collects_like_vv1), two jumps in the pickup callbacks.
-        self.assertEqual(len(feature_ids), 17)
+        # 17 with VV1 Mushroom/Collectible Duplication Cheat
+        # (vv2_everyone_collects_like_vv1), two jumps in the pickup callbacks;
+        # 18 with Super-Secret Golden Mushroom (vv2_super_secret_golden_mushroom),
+        # the mushroom spawn roll and pickup in .text slack; 19 with Faster
+        # Village-Scrolling (vv2_faster_village_scrolling), in-place camera edits.
+        self.assertEqual(len(feature_ids), 19)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -3999,6 +4002,8 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_healers_study_regardless_of_food",
                 "vv2_builders_and_healers_work_first",
                 "vv2_everyone_collects_like_vv1",
+                "vv2_super_secret_golden_mushroom",
+                "vv2_faster_village_scrolling",
                 "vv2_numeric_keys_tip_wording",
             },
         )

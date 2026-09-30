@@ -1953,11 +1953,119 @@
       ]
     },
     {
+      "id": "vv1_faster_village_scrolling",
+      "game_id": "vv1",
+      "name": "Faster Village-Scrolling",
+      "description": "Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.",
+      "output_tag": "Faster Scrolling",
+      "patches": [
+        {
+          "offset": "0x23F3B",
+          "before": "3DF5000000BDFEFFFFFF7D0889AED8020000EB1433C93DDF0200000F9EC14983E102898ED80200008BC72B420C83F82D7D0889AEDC020000EB1433C93D7C0100000F9EC14983E102898EDC020000",
+          "after": "3DF50000007C0F3DDF0200007F10899ED8020000EB0EFF8ED8020000EB06FF86D802000089F82B420C83F82D7C0F3D7C0100007F10899EDC020000EB0EFF8EDC020000EB06FF86DC020000909090",
+          "purpose": "following the selected villager (also after choosing one on the Details screen): speed up by 1 pixel every frame, as The Secret City does, instead of a flat 2"
+        },
+        {
+          "offset": "0x23FD6",
+          "before": "8B4E108B86980200008B5108F7D83BD07C118BAEA0020000B8900600002BC53BD07E09894108899ED80200008B869C0200008B7E108B570C8BC8F7D93BD17D05894F0CEB122B86A402000005900600003BD07E0389470C",
+          "after": "8B4E108B51088B8698020000F7D839C27C0FB8900600002B86A002000039C27E09894108899ED80200008B510C8BBE9C02000089F8F7D839C27C108D87900600002B86A402000039C27E0989410C899EDC020000909090",
+          "purpose": "view clamp: also stop vertical movement at the top/bottom edge, as The Lost Children and The Secret City do"
+        },
+        {
+          "offset": "0x25963",
+          "before": "8D8DFAFDFFFF",
+          "after": "8D8D0CFEFFFF",
+          "purpose": "carried villager: measure from the view's centre"
+        },
+        {
+          "offset": "0x25972",
+          "before": "04",
+          "after": "03",
+          "purpose": "carried villager: speed = distance / 20, not / 40"
+        },
+        {
+          "offset": "0x2597C",
+          "before": "8D9309FFFFFF",
+          "after": "8D930EFFFFFF",
+          "purpose": "carried villager: measure from the view's centre"
+        },
+        {
+          "offset": "0x2598B",
+          "before": "04",
+          "after": "03",
+          "purpose": "carried villager: speed = distance / 20, not / 40"
+        },
+        {
+          "offset": "0x259AB",
+          "before": "7D",
+          "after": "EB",
+          "purpose": "carried villager: no 120-pixel dead zone"
+        },
+        {
+          "offset": "0x259C1",
+          "before": "7D",
+          "after": "EB",
+          "purpose": "carried villager: no 120-pixel dead zone"
+        }
+      ]
+    },
+    {
+      "id": "vv2_faster_village_scrolling",
+      "game_id": "vv2",
+      "name": "Faster Village-Scrolling",
+      "description": "Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.",
+      "output_tag": "Faster Scrolling",
+      "patches": [
+        {
+          "offset": "0x2F7C6",
+          "before": "3DF5000000BDFEFFFFFF7D0889AE28020000EB1433D23DDF0200000F9EC24A83E2028996280200008BC72B410C83F82D7D0889AE2C020000EB1433D23D7C0100000F9EC24A83E20289962C020000",
+          "after": "3DF50000007C0F3DDF0200007F10899E28020000EB0EFF8E28020000EB06FF862802000089F82B410C83F82D7C0F3D7C0100007F10899E2C020000EB0EFF8E2C020000EB06FF862C020000909090",
+          "purpose": "following the selected villager (also after choosing one on the Details screen): speed up by 1 pixel every frame, as The Secret City does, instead of a flat 2"
+        },
+        {
+          "offset": "0x316DD",
+          "before": "8D8BFAFDFFFF",
+          "after": "8D8B0CFEFFFF",
+          "purpose": "carried villager: measure from the view's centre"
+        },
+        {
+          "offset": "0x316EC",
+          "before": "04",
+          "after": "03",
+          "purpose": "carried villager: speed = distance / 20, not / 40"
+        },
+        {
+          "offset": "0x316F6",
+          "before": "8D9709FFFFFF",
+          "after": "8D970EFFFFFF",
+          "purpose": "carried villager: measure from the view's centre"
+        },
+        {
+          "offset": "0x31705",
+          "before": "04",
+          "after": "03",
+          "purpose": "carried villager: speed = distance / 20, not / 40"
+        },
+        {
+          "offset": "0x31725",
+          "before": "7D",
+          "after": "EB",
+          "purpose": "carried villager: no 120-pixel dead zone"
+        },
+        {
+          "offset": "0x3173B",
+          "before": "7D",
+          "after": "EB",
+          "purpose": "carried villager: no 120-pixel dead zone"
+        }
+      ]
+    },
+    {
       "id": "vv2_everyone_collects_like_vv1",
       "game_id": "vv2",
-      "name": "Everyone Collects Like A New Home",
-      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
-      "output_tag": "Everyone Collects",
+      "name": "VV1 Mushroom/Collectible Duplication Cheat",
+      "description": "Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.",
+      "output_tag": "Duplication Cheat",
       "patches": [
         {
           "offset": "0x61D5F",
@@ -1976,9 +2084,9 @@
     {
       "id": "vv3_everyone_collects_like_vv1",
       "game_id": "vv3",
-      "name": "Everyone Collects Like A New Home",
-      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
-      "output_tag": "Everyone Collects",
+      "name": "VV1 Mushroom/Collectible Duplication Cheat",
+      "description": "Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.",
+      "output_tag": "Duplication Cheat",
       "patches": [
         {
           "offset": "0x2DDCF",
@@ -1991,9 +2099,9 @@
     {
       "id": "vv4_everyone_collects_like_vv1",
       "game_id": "vv4",
-      "name": "Everyone Collects Like A New Home",
-      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
-      "output_tag": "Everyone Collects",
+      "name": "VV1 Mushroom/Collectible Duplication Cheat",
+      "description": "Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.",
+      "output_tag": "Duplication Cheat",
       "patches": [
         {
           "offset": "0x13A3F",
@@ -2006,15 +2114,452 @@
     {
       "id": "vv5_everyone_collects_like_vv1",
       "game_id": "vv5",
-      "name": "Everyone Collects Like A New Home",
-      "description": "Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.",
-      "output_tag": "Everyone Collects",
+      "name": "VV1 Mushroom/Collectible Duplication Cheat",
+      "description": "Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.",
+      "output_tag": "Duplication Cheat",
       "patches": [
         {
           "offset": "0x13E5F",
           "before": "751E",
           "after": "9090",
           "purpose": "collectible drop hit-test (0x413E40): accept a slot another villager has already claimed (reserver field +0x18 not -1)"
+        }
+      ]
+    },
+    {
+      "id": "vv1_super_secret_golden_mushroom",
+      "game_id": "vv1",
+      "name": "Super-Secret Golden Mushroom",
+      "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
+      "output_tag": "Golden Mushroom",
+      "companion_files": [
+        {
+          "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+          "destination": "VVFP Golden Mushroom.dll",
+          "sha256": "90FD96371A504209DB3659484D5E35784CC566810CC27DB9322A9C3339EACC86"
+        },
+        {
+          "source": "assets/golden_mushroom/golden_mushroom.png",
+          "destination": "Images/golden_mushroom.png",
+          "sha256": "9ADFFC452EA714C156936197A52622D46F4CF32B883161F2387367CE2668ACDA"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x4093D0",
+          "stock_bytes": "8B09E9D9F3FFFF",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
+        },
+        {
+          "va": "0x41ABA0",
+          "stock_bytes": "E83BE8FEFF",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
+        },
+        {
+          "va": "0x4236ED",
+          "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
+        }
+      ],
+      "patches": [
+        {
+          "offset": "0x236C7",
+          "before": "6A64E842F8FDFF83C40483F8057D118B5610C782B0AC0000010000006A21EB248B46108998B0AC00006A21EB17",
+          "after": "6A64E842F8FDFF5933C983F8057D0141E8110000007502B1028B5610898AB0AC00006A21EB1E85E4C390909090",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x44591",
+          "before": "8B81B0AC000085C08BCE75046A0DEB026A0E",
+          "after": "8B81B0AC000083C00D508BCE909090909090",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x44653",
+          "before": "8B81B0AC000085C08BCE75046A20EB026A21",
+          "after": "8B81B0AC000083C020508BCE909090909090",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x3B4F0",
+          "before": "65B44300",
+          "after": "83464400",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x44683",
+          "before": "90909090909090",
+          "after": "6A64E96769FFFF",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x15FBA",
+          "before": "0F8479030000",
+          "after": "0F8D79030000",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x3C26E",
+          "before": "E8FDDDFCFF",
+          "after": "E84EA40100",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x566C1",
+          "before": "000000000000000000000000000000000000000000000000000000",
+          "after": "606880D04800FF151070450085C074996A0150FF15D4704500EB88",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved) (part one)"
+        },
+        {
+          "offset": "0x56664",
+          "before": "000000000000000000000000",
+          "after": "85C07402FFD061E9003AFBFF",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved) (part two)"
+        },
+        {
+          "offset": "0x8B080",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "5656465020476F6C64656E204D757368726F6F6D2E646C6C00",
+          "purpose": "this patch's companion file name"
+        }
+      ]
+    },
+    {
+      "id": "vv2_super_secret_golden_mushroom",
+      "game_id": "vv2",
+      "name": "Super-Secret Golden Mushroom",
+      "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
+      "output_tag": "Golden Mushroom",
+      "patches": [
+        {
+          "offset": "0x15949",
+          "before": "6A2FE975050000",
+          "after": "E9C40600009090",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x16012",
+          "before": "90909090909090909090909090",
+          "after": "E8CBD60500EB38909090909090",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x16051",
+          "before": "909090909090909090909090909090",
+          "after": "90907504C64628326A2FE965FEFFFF",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x152EC",
+          "before": "742A",
+          "after": "7D2A",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73E05",
+          "before": "000000000000000000000000000000000000000000000000000000",
+          "after": "8B44242069C08CE40000837C3044507505C644240464E99024FBFF",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x633CD",
+          "before": "E8DE2EFCFF",
+          "after": "E8330A0100",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x736E2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "606A025F6A105BE8DA4FFFFFEB15",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73705",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "3D007D0000721C4BEB13CC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73722",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "75C585E461C333D2EB19CCCCCCCC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73745",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "B9E8030000E947010000CC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73896",
+          "before": "CCCCCCCCCCCCCCCCCCCC",
+          "after": "F7F185D2EB16CCCCCCCC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x738B2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F856CFEFFFF4FEB59CCCCCCCCCC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x73914",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F85CCFDFFFF61C3CCCCCCCC",
+          "purpose": "part of the secret"
+        }
+      ]
+    },
+    {
+      "id": "vv3_super_secret_golden_mushroom",
+      "game_id": "vv3",
+      "name": "Super-Secret Golden Mushroom",
+      "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
+      "output_tag": "Golden Mushroom",
+      "companion_files": [
+        {
+          "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+          "destination": "VVFP Golden Mushroom.dll",
+          "sha256": "90FD96371A504209DB3659484D5E35784CC566810CC27DB9322A9C3339EACC86"
+        },
+        {
+          "source": "assets/golden_mushroom/golden_mushroom.png",
+          "destination": "Images/golden_mushroom.png",
+          "sha256": "9ADFFC452EA714C156936197A52622D46F4CF32B883161F2387367CE2668ACDA"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x42E510",
+          "stock_bytes": "DB44240856",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 3"
+        },
+        {
+          "va": "0x42FAD9",
+          "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 3"
+        }
+      ],
+      "patches": [
+        {
+          "offset": "0x2DA8B",
+          "before": "C7470865000000",
+          "after": "6A65E93F200000",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x2DA94",
+          "before": "C7470864000000",
+          "after": "6A64E936200000",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x2FAD1",
+          "before": "9090909090909090909090909090",
+          "after": "E80300000059EB7885E4C3909090",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x2FB51",
+          "before": "9090909090909090909090909090",
+          "after": "90907502B166894F08E977DFFFFF",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x2E064",
+          "before": "33C083FE640F95C0B9902458004883E0E383C023",
+          "after": "0FB6860EE04200B990245800EB06062364CCCCCC",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x2795E",
+          "before": "E85D5A0000",
+          "after": "E858440500",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x7BDBB",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "606800886C00FF1524C1470085C0740F6A0350FF1528C1470085C07402FFD061E9E015FBFF",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved)"
+        },
+        {
+          "offset": "0xB4800",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "5656465020476F6C64656E204D757368726F6F6D2E646C6C00",
+          "purpose": "this patch's companion file name"
+        }
+      ]
+    },
+    {
+      "id": "vv4_super_secret_golden_mushroom",
+      "game_id": "vv4",
+      "name": "Super-Secret Golden Mushroom",
+      "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
+      "output_tag": "Golden Mushroom",
+      "companion_files": [
+        {
+          "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+          "destination": "VVFP Golden Mushroom.dll",
+          "sha256": "90FD96371A504209DB3659484D5E35784CC566810CC27DB9322A9C3339EACC86"
+        },
+        {
+          "source": "assets/golden_mushroom/golden_mushroom.png",
+          "destination": "Images/golden_mushroom.png",
+          "sha256": "9ADFFC452EA714C156936197A52622D46F4CF32B883161F2387367CE2668ACDA"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x44C640",
+          "stock_bytes": "DB44240856",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 4"
+        },
+        {
+          "va": "0x489140",
+          "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 4"
+        }
+      ],
+      "patches": [
+        {
+          "offset": "0x13FAF",
+          "before": "E9DF000000",
+          "after": "E97C510700",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x13FC7",
+          "before": "E9C7000000",
+          "after": "E964510700",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x89130",
+          "before": "000000000000000000000000000000000000000000000000",
+          "after": "E80B0000007504C6460878E953AFF8FF85E4C39090000000",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x89150",
+          "before": "000000000000000000000000000000000000",
+          "after": "83FE78BE2300000075036A645EE9ADB4F8FF",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x1460A",
+          "before": "BE23000000",
+          "after": "E9414B0700",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x1E971",
+          "before": "E8AA4DFFFF",
+          "after": "E821A70600",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x89097",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6068007F4B00FF15E0A1480085C0740F6A0450FF15DCA1480085C07402FFD061E964A6F8FF",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved)"
+        },
+        {
+          "offset": "0xB7F00",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "5656465020476F6C64656E204D757368726F6F6D2E646C6C00",
+          "purpose": "this patch's companion file name"
+        }
+      ]
+    },
+    {
+      "id": "vv5_super_secret_golden_mushroom",
+      "game_id": "vv5",
+      "name": "Super-Secret Golden Mushroom",
+      "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
+      "output_tag": "Golden Mushroom",
+      "companion_files": [
+        {
+          "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+          "destination": "VVFP Golden Mushroom.dll",
+          "sha256": "90FD96371A504209DB3659484D5E35784CC566810CC27DB9322A9C3339EACC86"
+        },
+        {
+          "source": "assets/golden_mushroom/golden_mushroom.png",
+          "destination": "Images/golden_mushroom.png",
+          "sha256": "9ADFFC452EA714C156936197A52622D46F4CF32B883161F2387367CE2668ACDA"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x44F380",
+          "stock_bytes": "DB44240856",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 5"
+        },
+        {
+          "va": "0x4947B0",
+          "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 5"
+        }
+      ],
+      "patches": [
+        {
+          "offset": "0x142B5",
+          "before": "E90D010000",
+          "after": "E9E6040800",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x142CE",
+          "before": "E9F4000000",
+          "after": "E9CD040800",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x947A0",
+          "before": "000000000000000000000000000000000000000000000000",
+          "after": "E80B0000007504C6460882E917FCF7FF85E4C39090000000",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x947C0",
+          "before": "000000000000000000000000000000000000000000",
+          "after": "81FE82000000BE2300000075036A645EE94501F8FF",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x14915",
+          "before": "BE23000000",
+          "after": "E9A6FE0700",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x23E21",
+          "before": "E8AAFCFEFF",
+          "after": "E8AF090700",
+          "purpose": "part of the secret"
+        },
+        {
+          "offset": "0x947D5",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6068FD474900FF15E051490085C0740F6A0550FF15DC51490085C07402FFD061E9D6F2F7FF",
+          "purpose": "this patch's companion loader (LoadLibraryA, then GetProcAddress by ordinal; registers and stack preserved)"
+        },
+        {
+          "offset": "0x947FD",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "5656465020476F6C64656E204D757368726F6F6D2E646C6C00",
+          "purpose": "this patch's companion file name"
         }
       ]
     }

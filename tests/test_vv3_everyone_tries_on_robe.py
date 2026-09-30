@@ -112,21 +112,37 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # diffing byte for byte: 168 differing bytes per mode, every one inside the
     # fix-huts overlay (0xCB800..0xCBC00), the dispatcher's ten-byte entry at
     # 0x5AF00 or the PE CheckSum; nothing else moved.
-    # Re-pinned when Everyone Collects Like A New Home joined the catalog.
+    # Re-pinned when VV1 Mushroom/Collectible Duplication Cheat joined the catalog.
     # Justified BEFORE re-pinning by rendering the full catalog without and
     # with the row and diffing byte for byte: 4 differing bytes per mode, the
     # row's two-byte jne at 0x2DDCF and two bytes of the PE CheckSum.
+    # Re-pinned when Super-Secret Golden Mushroom joined the catalog (its
+    # spawn/award bytes, which had left this pin stale, and its image
+    # companion's loader). Justified BEFORE re-pinning by rendering the full
+    # catalog without and with vv3_super_secret_golden_mushroom: without it
+    # the render is exactly the previous pin (8D2F94DB.../C8D3D920.../
+    # CEB5275D...) in every mode; with it, 120 differing bytes per mode, every
+    # one inside the row's own patch ranges (0x2DA8B, 0x2DA94, 0x2FAD1,
+    # 0x2FB51, 0x2E064, the loader call at 0x2795E, its stub at 0x7BDBB and
+    # its DLL name at 0xB4800) or the PE CheckSum at 0x160..0x163; nothing
+    # else moved and the length is unchanged.
+    # Re-pinned when that row's spawn roll moved into its companion (2026-09-29).
+    # Justified BEFORE re-pinning: with the previous rows and DLL the render
+    # is exactly the previous pin (EBD8F98E.../0DFAB1EB.../4943FDCA...); with
+    # the new rows, 16/16/17 differing bytes per mode, every one inside the
+    # row's own ranges at 0x2FAD1 and 0x2FB51 or the PE CheckSum at
+    # 0x160..0x163; the length is unchanged.
     "stock": (
-        "8D2F94DB334EE3E42BDADFEEDC6D1054459B25BF3E48E13E68E846E578C926CC",
-        "413C0D00",
+        "1BF2BC70A5CD796F92A5D74BBCECA61AF08820921DB6FAE5771F8FC2D7F25E7D",
+        "16790D00",
     ),
     "collection_progression": (
-        "C8D3D920FF6B27CEAA3593BFDB16051255544D0CCE5A242835D9485A65911AC9",
-        "41550D00",
+        "C2D11051394EDB16B3E7F50C4A9E9CCA74FF0534B9E236F1EC0341C70E0A78B4",
+        "16920D00",
     ),
     "immediate_fixed": (
-        "CEB5275D0B267681633FCF5B7090DB077CCF7DA4D536F12362CF94F0F831804C",
-        "3F970D00",
+        "0878A273A8C28CEB4C1C36789A03ED819449C5470720532CDCB0E8D533B52EF8",
+        "15D40C00",
     ),
 }
 

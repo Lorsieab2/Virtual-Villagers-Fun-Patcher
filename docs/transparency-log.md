@@ -185,6 +185,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Guarded executable edits: 90; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.vv1mc` (executable code), `.vv1md` (writable data) -- and rewrites 4 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
+#### Faster Village-Scrolling (`vv1_faster_village_scrolling`)
+
+Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Healers Study Plants Regardless of Food (`vv1_healers_study_regardless_of_food`)
 
 Healers keep studying plants regardless of the food supply. A villager who was studying the plant it was dropped on (the medical cactus) carries on studying when the village has 400 food or more, exactly as the stock game already does below 400; plentiful food no longer makes a healer stop. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.
@@ -316,6 +328,18 @@ Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, un
 - Dependencies: vv1_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Super-Secret Golden Mushroom (`vv1_super_secret_golden_mushroom`)
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 10; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Visual Mods (`vv1_visual_mods`)
 
@@ -452,17 +476,17 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Guarded executable edits: 40; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.mtab` (writable data), `.vvmk` (executable code) -- and rewrites 4 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
-#### Everyone Collects Like A New Home (`vv2_everyone_collects_like_vv1`)
+#### Faster Village-Scrolling (`vv2_faster_village_scrolling`)
 
-Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
+- Behavior changes: Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 7; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Gong of Wonder Coconuts Fix (`vv2_gong_of_wonder_coconuts_fix`)
 
@@ -524,6 +548,18 @@ Villagers succeed every work-task skill roll for Farming, Building, Researching,
 - Evidence status: static exact-build evidence; runtime/player confirmation pending
 - Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Super-Secret Golden Mushroom (`vv2_super_secret_golden_mushroom`)
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 13; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Teaching Children Grants Skill (`vv2_teaching_children_grants_skill`)
 
 Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
@@ -556,6 +592,18 @@ Rewords the loading-screen tip "You can zip around the island with your keypad."
 
 - Behavior changes: One loading-screen tip reads "numeric keys" instead of "keypad".
 - Explicit non-changes/exclusions: No code, save, or village-state byte changes; the German text is untouched. No executable space is claimed: the new text replaces the unreferenced demo-version strings.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### VV1 Mushroom/Collectible Duplication Cheat (`vv2_everyone_collects_like_vv1`)
+
+Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
+- Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
@@ -660,18 +708,6 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Guarded executable edits: 29; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.vv3mc` (executable code), `.vv3md` (writable data) -- and rewrites 3 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
-#### Everyone Collects Like A New Home (`vv3_everyone_collects_like_vv1`)
-
-Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
-
-**Requires no other patch to be ticked.**
-
-- Behavior changes: Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
-- Explicit non-changes/exclusions: none declared
-- Dependencies: none
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-
 #### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
 
 Dropping an active, living, non-nursing villager on the robe interrupts every other active, living, non-nursing villager and sends them to try on the robe too. Each villager receives the complete base-game success or failed-fit result, and the base game alone decides who becomes Tribal Chief.
@@ -733,6 +769,18 @@ When the Tribal Chief completes Pointing out a rare collectible, rejected random
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Super-Secret Golden Mushroom (`vv3_super_secret_golden_mushroom`)
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Tribal Chief Lessons Stop at 50 (`vv3_chief_lessons_cap_50`)
 
 The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still gains 7 to 9 points in one random skill, but only a skill still below 50 can be chosen, and the gain stops at exactly 50; a skill already at 50 or above is never chosen and never lowered. When every skill is at 50 the lesson awards nothing. This matches the Nursery Schools of the later games, which skip any skill at 50. The Secret City has no companion that runs every frame, so this row diverts the lesson award's first seven bytes into a small stub in the page Origins appends, which calls "VVFP Lesson Cap.dll". **Requires Enable Origins-Exclusive Features**, whose page holds the stub; without it the stock lesson runs and trains to 100.
@@ -746,6 +794,18 @@ The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still ga
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 4096 bytes as 1 new PE section -- `.vv3lc` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
+
+#### VV1 Mushroom/Collectible Duplication Cheat (`vv3_everyone_collects_like_vv1`)
+
+Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Births and Conceptions Log to Text File (`vv3_write_parentage_log`)
 
@@ -846,18 +906,6 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 52; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Everyone Collects Like A New Home (`vv4_everyone_collects_like_vv1`)
-
-Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
-
-**Requires no other patch to be ticked.**
-
-- Behavior changes: Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
-- Explicit non-changes/exclusions: none declared
-- Dependencies: none
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-
 #### Learning Skills Never Fails (`vv4_learning_never_fails`)
 
 Believers succeed every work-task skill roll for Farming, Building, Researching, Healing, and Parenting; the native skill gains and all non-skill outcomes remain unchanged.
@@ -881,6 +929,30 @@ Replaces some in-game text with wording consistent with the other Virtual Villag
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Super-Secret Golden Mushroom (`vv4_super_secret_golden_mushroom`)
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+
+#### VV1 Mushroom/Collectible Duplication Cheat (`vv4_everyone_collects_like_vv1`)
+
+Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Births and Conceptions Log to Text File (`vv4_write_parentage_log`)
 
@@ -995,18 +1067,6 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 - Appends 32768 bytes as 1 new PE section -- `.vv5t9` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - Mode-specific guarded edits: experimental_expanded_256=7, experimental_expanded_256_progression=7, collection_progression=8, immediate_fixed=8; these rows are selected only for the named population mode.
 
-#### Everyone Collects Like A New Home (`vv5_everyone_collects_like_vv1`)
-
-Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
-
-**Requires no other patch to be ticked.**
-
-- Behavior changes: Like A New Home: every villager dropped on a mushroom or a collectible while it is still on the ground collects it, and each one counts -- drop several children on one mushroom (the game can be paused while you do) and every one of them brings one back. Stock, the game lets only one villager collect it. The item still disappears after it is picked up, as in A New Home, so a villager dropped after that finds nothing. Off by default.
-- Explicit non-changes/exclusions: none declared
-- Dependencies: none
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-
 #### Guardians of Isola Rewrite (`vv5_guardians_of_isola_rewrite`)
 
 Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.
@@ -1066,6 +1126,30 @@ Dropping a villager on a completed statue gives Polishing the Statue or Honoring
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Super-Secret Golden Mushroom (`vv5_super_secret_golden_mushroom`)
+
+Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 8; every edit has an exact purpose and before/after guard in the manifest.
+
+#### VV1 Mushroom/Collectible Duplication Cheat (`vv5_everyone_collects_like_vv1`)
+
+Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### VV4 Nursery School Divisor Parity (`vv5_vv4_nursery_divisor_parity`)
 
