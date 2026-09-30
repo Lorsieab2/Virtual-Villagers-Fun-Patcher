@@ -389,6 +389,12 @@ class App(tk.Tk):
             self.last_output_dir: Path | None = None
             self.last_modified_paths: dict[str, Path] = {}
             self._load_settings()
+            # Record the starting selection as the baseline the dependency
+            # closure diffs against. _load_settings does this only when a
+            # saved selection exists; on a fresh install the baseline stayed
+            # empty, so the first untick of a prerequisite read every ticked
+            # patch as newly added and ticked the prerequisite straight back.
+            self._apply_gui_dependency_selection()
             self._build_ui()
             self._mode_changed(save=False)
         finally:
