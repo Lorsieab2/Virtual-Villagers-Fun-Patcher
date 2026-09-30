@@ -103,7 +103,7 @@ class CommittedDllsMatchTheirSourceTests(unittest.TestCase):
                     fresh, kept = _comparable(dll), _comparable(committed)
                     self.assertEqual(sorted(fresh), sorted(kept), f"{relative}: section list differs")
                     for name in fresh:
-                        self.assertEqual(fresh[name], kept[name],
+                        self.assertTrue(fresh[name] == kept[name],
                                          f"{relative}: section {name} differs from a fresh build of the "
                                          f"current source -- rebuild with scripts/{script} and commit it")
                 ran += 1
