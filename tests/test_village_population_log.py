@@ -298,10 +298,17 @@ class VillagePopulationLayoutsAgreeTests(unittest.TestCase):
         # Its villager RVA is still shared, and is compared against the single
         # literal the statistics source uses for it.
         with self.subTest(game=5):
-            self.assertEqual(
+            # It appears in the Village Elders layout (village_elders_for) and
+            # in the living-roster table (ROSTER_LAYOUTS, pinned field for
+            # field against this exporter by
+            # tests/test_statistics_new_village_in_slot.py). Both must be the
+            # value this exporter uses, and no other VV5-shaped base may appear.
+            self.assertGreaterEqual(
                 stripped.count("0x154148u"), 1,
-                "VV5's villager array RVA must appear exactly once")
+                "VV5's villager array RVA must appear in the statistics source")
             self.assertEqual(self.rows[5]["villagers_rva"], 0x154148)
+            self.assertNotIn("0x154148u + ", stripped.replace("0x154148u;", ""),
+                             "VV5's villager array base must be used as is")
 
         # No two games may share a villager array base. Positional equality
         # alone still passes if a row and its call are given the same wrong

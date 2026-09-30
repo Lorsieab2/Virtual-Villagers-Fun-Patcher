@@ -1251,10 +1251,12 @@ static void start_fresh_if_new_village(int game_id, int save_id) {
             move_aside(elders, stamp);
         }
     }
-    if (_wfopen_s(&f, temporary, L"wb") == 0 && f != NULL) {
-        fputs("VVFP VILLAGE ROSTER v1\r\n", f);
+    /* Text mode: the C runtime writes the Windows line endings, as for every
+       other file this companion writes. */
+    if (_wfopen_s(&f, temporary, L"w") == 0 && f != NULL) {
+        fputs("VVFP VILLAGE ROSTER v1\n", f);
         for (j = 0; j < now; ++j) {
-            fprintf(f, "%s\r\n", g_roster_now[j]);
+            fprintf(f, "%s\n", g_roster_now[j]);
         }
         if (fclose(f) == 0) {
             MoveFileExW(temporary, roster, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
