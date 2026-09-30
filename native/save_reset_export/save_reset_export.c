@@ -152,6 +152,9 @@ static int is_slot_save_name(const wchar_t *name, int slot) {
     return !(tail[-1] >= L'0' && tail[-1] <= L'9');
 }
 
+/* "\\*<slot>.ldw" + NUL: all the reader appends to the folder itself. */
+#define SAVE_FILTER_RESERVE 8
+
 /* Write the header of the village saved in `slot` under `folder` into `out`.
    Returns 1 only when exactly one valid save for this game and slot exists
    and holds a readable name. */
@@ -171,7 +174,7 @@ int vv_saved_village_header(int game, int slot, const wchar_t *folder,
     }
     out[0] = '\0';
     if (folder == NULL || game < 1 || game > 5 || slot < 1 || slot > 5
-        || lstrlenW(folder) + 8 >= MAX_PATH) {   /* "\\*<slot>.ldw" + NUL */
+        || lstrlenW(folder) + SAVE_FILTER_RESERVE >= MAX_PATH) {
         return 0;
     }
     expected = SAVE_FILE_HEADER[game - 1] + SAVE_BUFFER_BYTES[game - 1];
@@ -246,8 +249,11 @@ __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
         return -1;
     }
     /* The village in the slot's own save, which both hooks reach before the
-     * game removes or overwrites it (see vv_saved_village_header). */
-    if (vv_save_folder_w(folder, MAX_PATH / 2)
+     * game removes or overwrites it (see vv_saved_village_header). The
+     * reserve is the reader's own "\\*<slot>.ldw" filter; it bounds each full
+     * save filename separately, so a longer reserve would only refuse
+     * folders whose saves still fit. */
+    if (vv_save_folder_w(folder, SAVE_FILTER_RESERVE)
         && vv_saved_village_header(game, slot, folder, village, sizeof(village))) {
         header = village;
     }

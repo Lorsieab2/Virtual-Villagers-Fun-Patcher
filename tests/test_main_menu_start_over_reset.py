@@ -700,6 +700,17 @@ class SavedVillageHeaderTests(unittest.TestCase):
         self.assertLess(saved, recalled)
         self.assertIn("header_is_for_slot(village, slot)", body[recalled:])
 
+    def test_the_folder_reserve_is_only_the_readers_filter(self) -> None:
+        # A larger reserve refuses a long Documents path whose saves still
+        # fit, and then the reset cannot name the village (Codex P2, #487).
+        text = self.EXPORT_C.read_text(encoding="utf-8")
+        self.assertIn("#define SAVE_FILTER_RESERVE 8", text)
+        self.assertEqual(len("\\*1.ldw") + 1, 8)
+        body = text[text.index("int __stdcall ResetDeletedTribe(") :]
+        self.assertIn("vv_save_folder_w(folder, SAVE_FILTER_RESERVE)", body)
+        reader = text[text.index("int vv_saved_village_header(") :]
+        self.assertIn("lstrlenW(folder) + SAVE_FILTER_RESERVE >= MAX_PATH", reader)
+
     def test_the_harness_covers_every_case(self) -> None:
         text = self.HARNESS.read_text(encoding="utf-8")
         self.assertIn('#include "save_reset_export.c"', text)  # the shipped source
