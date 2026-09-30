@@ -121,7 +121,15 @@ int main(void) {
 
     touch(mask1); touch(mask2); touch(doubler1);
     touch(save1); touch(other_game);
-    touch(stats1); touch(stats2); touch(pop1); touch(pop2);
+    touch(stats1); touch(stats2);
+    /* The roster is numbered by PAGE in a folder every slot shares, and each
+       page opens with the title and then the village header, exactly as
+       population_export.c writes it. Pages 1 and 2 are the erased village's;
+       see below for the pages that are not. */
+    write_text(pop1, "Virtual Villagers: A New Home Village Population\n"
+                     "Village: Kalahuna (Save 1)\n\n1. Someone\n");
+    write_text(pop2, "Virtual Villagers: A New Home Village Population\n"
+                     "Village: Kalahuna (Save 1)\n\n257. Someone else\n");
     /* The two parentage logs carry DIFFERENT village headers: log1 belongs to
        the village being erased, log_other to a village that is not. */
     write_text(log1, VILLAGE);
@@ -146,9 +154,78 @@ int main(void) {
     /* THE P1 CODEX FOUND ON #380. Statistics and population logs are numbered
        by SLOT, so an unscoped walk deleted villages that were never reset. */
     check(!exists(stats1), "slot 1 statistics log deleted");
-    check(!exists(pop1), "slot 1 population log deleted");
     check(exists(stats2), "SLOT 2 STATISTICS SURVIVES (was destroyed before the fix)");
-    check(exists(pop2), "SLOT 2 POPULATION SURVIVES (was destroyed before the fix)");
+    /* Population pages belong to a VILLAGE, not a slot: all of the erased
+       village's pages go, whatever their numbers. */
+    check(!exists(pop1), "population page 1 of the erased village deleted");
+    check(!exists(pop2), "POPULATION PAGE 2 OF THE ERASED VILLAGE DELETED (slot 1 left it before the fix)");
+
+    /* THE ROSTER IS MATCHED BY HEADER, NEVER BY SLOT.
+
+       Before this fix the reset deleted "Village Population <slot>.txt":
+       a slot-1 Start Over deleted page 1 of whichever village had saved
+       last, and slots 2..5 deleted a page of someone else's roster or
+       nothing at all. */
+    {
+        char legacy_dir[MAX_PATH], legacy1[MAX_PATH];
+        static const char OTHER_PAGE[] =
+            "Virtual Villagers: A New Home Village Population\n"
+            "Village: Elsewhere (Save 2)\n\n1. Someone\n";
+        static const char ERASED_PAGE[] =
+            "Virtual Villagers: A New Home Village Population\n"
+            "Village: Kalahuna (Save 1)\n\n1. Someone\n";
+
+        /* Another village owns page 1: a slot-1 reset of Kalahuna must
+           leave it, which the slot-numbered sweep did not. */
+        write_text(pop1, OTHER_PAGE);
+        write_text(pop2, ERASED_PAGE);
+        check(exists(pop1) && exists(pop2), "roster pages recreated (nonzero denominator)");
+        vv_reset_slot_state(1, 1, VILLAGE);
+        check(exists(pop1), "ANOTHER VILLAGE'S POPULATION PAGE 1 SURVIVES A SLOT-1 RESET");
+        check(!exists(pop2), "the erased village's page 2 is deleted though slot is 1");
+
+        /* The slot number is irrelevant: erasing slot 2's village deletes
+           the page it owns even though that page is number 1. */
+        vv_reset_slot_state(1, 2, VILLAGE2);
+        check(!exists(pop1), "SLOT-2 RESET DELETES ITS VILLAGE'S PAGE 1 (slot number irrelevant)");
+        /* That reset rightly took slot 2's own sidecar, statistics and
+           Elsewhere's parentage log; put them back for the survivor checks
+           further down. */
+        touch(mask2);
+        touch(stats2);
+        write_text(log_other, VILLAGE2);
+
+        /* Without a village string nothing is guessed at. */
+        write_text(pop1, ERASED_PAGE);
+        vv_reset_slot_state(1, 1, NULL);
+        check(exists(pop1), "NULL village leaves population pages alone");
+        vv_reset_slot_state(1, 1, "");
+        check(exists(pop1), "empty village leaves population pages alone");
+
+        /* A header on the FIRST line is not the roster's shape. */
+        write_text(pop2, "Village: Kalahuna (Save 1)\nnot a roster\n");
+        vv_reset_slot_state(1, 1, VILLAGE);
+        check(!exists(pop1), "erased village's page deleted on a real reset");
+        check(exists(pop2), "a file whose FIRST line is the header is not a roster page");
+        DeleteFileA(pop2);
+
+        /* The retired folder is swept the same way, and only by header. */
+        wsprintfA(legacy_dir, "%s\\VVFP Logs", folder);
+        CreateDirectoryA(legacy_dir, NULL);
+        wsprintfA(legacy_dir, "%s\\VVFP Logs\\Tribe Population", folder);
+        CreateDirectoryA(legacy_dir, NULL);
+        wsprintfA(legacy1, "%s\\Village Population 3.txt", legacy_dir);
+        write_text(legacy1, ERASED_PAGE);
+        write_text(pop1, OTHER_PAGE);
+        check(exists(legacy1), "legacy roster page created (nonzero denominator)");
+        vv_reset_slot_state(1, 1, VILLAGE);
+        check(!exists(legacy1), "erased village's page in the RETIRED folder deleted");
+        check(exists(pop1), "other village's page survives the retired-folder pass");
+        DeleteFileA(pop1);
+        RemoveDirectoryA(legacy_dir);
+        wsprintfA(legacy_dir, "%s\\VVFP Logs", folder);
+        RemoveDirectoryA(legacy_dir);
+    }
 
     /* The statistics companion's per-slot data: the counters, the stew
        discoveries and the elders, each a .dat addressed by slot, plus the

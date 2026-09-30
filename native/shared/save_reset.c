@@ -83,9 +83,14 @@ int vv_test_delete_if_present(const char *path);
    A file with no header is NOT matched. Logs written before headers existed
    cannot be attributed to any village, and deleting one on a guess would
    destroy history the player still wants. */
-static int log_header_matches(const wchar_t *path, const char *village) {
+/* The same test against a later line: LINE_INDEX lines are skipped first.
+   The Village Population roster opens with its title and puts the village
+   header on its SECOND line, so it is matched with line_index 1. */
+static int log_line_matches(const wchar_t *path, const char *village,
+                            int line_index) {
     HANDLE f;
-    char line[256];
+    char text[512];
+    char *line;
     char want[256];
     DWORD got = 0;
     DWORD i;
@@ -99,15 +104,25 @@ static int log_header_matches(const wchar_t *path, const char *village) {
     if (f == INVALID_HANDLE_VALUE) {
         return 0;
     }
-    if (!ReadFile(f, line, sizeof(line) - 1, &got, NULL)) {
+    if (!ReadFile(f, text, sizeof(text) - 1, &got, NULL)) {
         CloseHandle(f);
         return 0;
     }
     CloseHandle(f);
-    line[got] = '\0';
-    for (i = 0; i < got; ++i) {
-        if (line[i] == '\r' || line[i] == '\n') {
-            line[i] = '\0';
+    text[got] = '\0';
+    line = text;
+    for (i = 0; i < got && line_index > 0; ++i) {
+        if (text[i] == '\n') {
+            line = text + i + 1;
+            --line_index;
+        }
+    }
+    if (line_index > 0) {
+        return 0;               /* the file ends before the header line */
+    }
+    for (i = (DWORD)(line - text); i < got; ++i) {
+        if (text[i] == '\r' || text[i] == '\n') {
+            text[i] = '\0';
             break;
         }
     }
@@ -122,6 +137,10 @@ static int log_header_matches(const wchar_t *path, const char *village) {
         return 0;
     }
     return lstrcmpA(line, want) == 0;
+}
+
+static int log_header_matches(const wchar_t *path, const char *village) {
+    return log_line_matches(path, village, 0);
 }
 
 VV_RESET_STATIC int delete_if_present(const char *path) {
@@ -163,6 +182,74 @@ VV_RESET_STATIC int delete_if_present_w(const wchar_t *path) {
         return 1;
     }
     return 0;
+}
+
+/* Delete every "Village Population <n>.txt" page in DIR that belongs to
+   VILLAGE, by the header on its second line.
+
+   The roster is NOT numbered by slot. The exporter rolls it over by page --
+   one file per VILLAGERS_PER_FILE villagers, 1..N -- in a folder every slot
+   shares, and each page opens "<title> Village Population" then the village
+   header. So page 1 is whichever village saved last, and the only thing that
+   says whose a page is, is its header. Deleting "page <slot>" instead erased
+   page 1 of whatever village saved last on a slot-1 Start Over, and a page of
+   some other village, or nothing, on slots 2..5. */
+static int delete_village_population_pages(const wchar_t *dir,
+                                           const char *village) {
+    static const wchar_t STEM[] = L"Village Population ";
+    WIN32_FIND_DATAW found;
+    HANDLE search;
+    wchar_t filter[MAX_PATH];
+    wchar_t path[MAX_PATH];
+    int removed = 0;
+    int stem_len = lstrlenW(STEM);
+    int dir_len = lstrlenW(dir);
+
+    if (village == NULL || village[0] == '\0') {
+        return 0;
+    }
+    if (dir_len + 1 + stem_len + 5 + 1 >= MAX_PATH) {
+        return 0;
+    }
+    wsprintfW(filter, L"%ls\\Village Population *.txt", dir);
+    search = FindFirstFileW(filter, &found);
+    if (search == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    do {
+        const wchar_t *tail;
+        int number = 0;
+        int digits = 0;
+        if (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            continue;
+        }
+        /* Only the exporter's own shape: the stem, a plain page number,
+           ".txt". FindFirstFileW also matches 8.3 aliases and anything else
+           sharing the prefix, and those are left alone. */
+        if (lstrlenW(found.cFileName) <= stem_len
+            || CompareStringW(LOCALE_INVARIANT, NORM_IGNORECASE,
+                              found.cFileName, stem_len, STEM, stem_len)
+                   != CSTR_EQUAL) {
+            continue;
+        }
+        tail = found.cFileName + stem_len;
+        while (*tail >= L'0' && *tail <= L'9' && digits <= 5) {
+            number = number * 10 + (int)(*tail - L'0');
+            ++digits;
+            ++tail;
+        }
+        if (digits == 0 || digits > 5 || number < 1
+            || lstrcmpiW(tail, L".txt") != 0
+            || dir_len + 1 + lstrlenW(found.cFileName) >= MAX_PATH) {
+            continue;
+        }
+        wsprintfW(path, L"%ls\\%ls", dir, found.cFileName);
+        if (log_line_matches(path, village, 1)) {
+            removed += delete_if_present_w(path);
+        }
+    } while (FindNextFileW(search, &found));
+    FindClose(search);
+    return removed;
 }
 
 int vv_reset_slot_state(int game, int slot, const char *village) {
@@ -284,16 +371,17 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
     /* The pre-move location, probed and cleared but never recreated. */
     wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", folder_w, slot);
     removed += delete_if_present_w(path_w);
-    /* The roster moved into the owner's log layout; the reset follows it.
+    /* THE ROSTER IS NUMBERED BY PAGE, NOT BY SLOT, so it is matched by the
+       village header on each page's second line -- every page of the erased
+       village, in the current folder and the retired one, and nothing else.
+       Without a village string nothing is deleted, as for parentage.
        vv_save_subfolder_w creates the folder if absent, which is harmless
        here -- an empty folder is not a stale roster. */
     if (vv_save_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Tribe Population", 64)) {
-        wsprintfW(path_w, L"%ls\\Village Population %d.txt", sub_w, slot);
-        removed += delete_if_present_w(path_w);
+        removed += delete_village_population_pages(sub_w, village);
     }
     if (legacy_subfolder_w(sub_w, L"VVFP Logs\\Tribe Population")) {
-        wsprintfW(path_w, L"%ls\\Village Population %d.txt", sub_w, slot);
-        removed += delete_if_present_w(path_w);
+        removed += delete_village_population_pages(sub_w, village);
     }
 
     /* PARENTAGE IS VILLAGE-SCOPED, SO IT IS MATCHED BY HEADER.
