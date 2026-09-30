@@ -1,5 +1,3 @@
 LIBRARY "VVFP Work First"
 EXPORTS
     VvfpWorkFirstInstall=_VvfpWorkFirstInstall@4
-    VvfpWorkFirstProbeSite=_VvfpWorkFirstProbeSite@20
-    VvfpWorkFirstStats DATA

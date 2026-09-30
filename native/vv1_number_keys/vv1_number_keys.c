@@ -229,11 +229,14 @@ __declspec(dllexport) int __stdcall Vv1NumberKeysUpdate(void *screen) {
     return vv1_pan_update(screen);
 }
 
-/* Test seam: feed one SDL event exactly as the watch would see it and report
-   which section it selects (0 = none).  Touches no game state. */
+#ifdef VVFP_TEST
+/* Test seam, TEST build only (VVFP_TEST, tests/test_dlls/): feed one SDL
+   event exactly as the watch would see it and report which section it
+   selects (0 = none).  Touches no game state. */
 __declspec(dllexport) int __stdcall Vv1NumberKeysProbe(const void *event) {
     return vv1_numkeys_digit((const unsigned char *)event);
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance;

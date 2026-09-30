@@ -80,13 +80,23 @@ static int active_game;            /* the game whose sites are installed */
 static int sprite_state;           /* 0 = not built, 1 = built, -1 = failed */
 static unsigned char *sprite;
 
-/* Counters a test can read from the running game.  Diagnostic only. */
+/* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
+   tests/test_dlls/): the shipped DLL carries no counters and no probe. */
+#ifdef VVFP_TEST
 struct vvfp_golden_stats {
     int golden_draws;              /* golden frames drawn with the new image */
     int skipped_draws;             /* golden frames not drawn (image failed) */
     int builds;                    /* sprite construction attempts */
 };
 __declspec(dllexport) struct vvfp_golden_stats VvfpGoldenMushroomStats = { 0, 0, 0 };
+#define GOLDEN_COUNT_BUILD ++VvfpGoldenMushroomStats.builds
+#define GOLDEN_COUNT_DRAW __asm inc dword ptr [VvfpGoldenMushroomStats]
+#define GOLDEN_COUNT_SKIP __asm inc dword ptr [VvfpGoldenMushroomStats + 4]
+#else
+#define GOLDEN_COUNT_BUILD ((void)0)
+#define GOLDEN_COUNT_DRAW
+#define GOLDEN_COUNT_SKIP
+#endif
 
 typedef void *(__cdecl *alloc_t)(unsigned int);
 /* thiscall through fastcall: ecx = this, edx unused, callee pops the rest. */
@@ -118,7 +128,7 @@ static unsigned char *__cdecl golden_sprite(void) {
         const struct game_calls *c = &CALLS[active_game];
         unsigned char *mem;
         sprite_state = -1;
-        ++VvfpGoldenMushroomStats.builds;
+        GOLDEN_COUNT_BUILD;
         if (c->alloc == 0 || !image_present()) {
             return NULL;
         }
@@ -173,12 +183,12 @@ static __declspec(naked) void vv1_frame_stub(void) {
         add dword ptr [esp + 0xC], VV1_DX
         add dword ptr [esp + 0x10], VV1_DY
         mov dword ptr [esp + 0x14], 0      ; its only frame
-        inc dword ptr [VvfpGoldenMushroomStats]
+        GOLDEN_COUNT_DRAW
     stock:
         pop eax
         jmp dword ptr [vv1_frame_draw]
     skip:
-        inc dword ptr [VvfpGoldenMushroomStats + 4]
+        GOLDEN_COUNT_SKIP
         pop eax
         ret 0x10                           ; the draw's own cleanup
     }
@@ -206,12 +216,12 @@ static __declspec(naked) void vv1_fade_stub(void) {
         add dword ptr [esp + 0xC], VV1_DX
         add dword ptr [esp + 0x10], VV1_DY
         mov dword ptr [esp + 0x14], 0
-        inc dword ptr [VvfpGoldenMushroomStats]
+        GOLDEN_COUNT_DRAW
     stock:
         pop eax
         jmp dword ptr [vv1_fade_thunk]
     skip:
-        inc dword ptr [VvfpGoldenMushroomStats + 4]
+        GOLDEN_COUNT_SKIP
         pop eax
         ret 0x14
     }
@@ -247,14 +257,14 @@ static const unsigned char LATER_STOCK[5] = { 0xDB, 0x44, 0x24, 0x08, 0x56 };
             __asm add dword ptr [esp + 0xC], DX                                \
             __asm add dword ptr [esp + 0x10], DY                               \
             __asm mov dword ptr [esp + 0x14], 0                                \
-            __asm inc dword ptr [VvfpGoldenMushroomStats]                      \
+            GOLDEN_COUNT_DRAW                                                  \
             __asm stock:                                                       \
             __asm pop eax                                                      \
             __asm fild dword ptr [esp + 8]                                     \
             __asm push esi                                                     \
             __asm jmp dword ptr [NAME##_resume]                                \
             __asm skip:                                                        \
-            __asm inc dword ptr [VvfpGoldenMushroomStats + 4]                  \
+            GOLDEN_COUNT_SKIP                                                  \
             __asm pop eax                                                      \
             __asm ret 0x14                                                     \
         }                                                                      \
@@ -398,9 +408,10 @@ int __stdcall VvfpGoldenMushroomVv3(void) { return install(3); }
 int __stdcall VvfpGoldenMushroomVv4(void) { return install(4); }
 int __stdcall VvfpGoldenMushroomVv5(void) { return install(5); }
 
-/* For the test: site `index` of a game -- its address, stock bytes, the
-   bytes the install writes and the stub it enters.  Returns the length, or
-   0 when there is no such site. */
+#ifdef VVFP_TEST
+/* For the test build only: site `index` of a game -- its address, stock
+   bytes, the bytes the install writes and the stub it enters.  Returns the
+   length, or 0 when there is no such site. */
 int __stdcall VvfpGoldenMushroomProbeSite(int game_id, int index, unsigned int *va,
                                           unsigned char *stock, unsigned char *patched,
                                           unsigned int *stub_va) {
@@ -419,13 +430,14 @@ int __stdcall VvfpGoldenMushroomProbeSite(int game_id, int index, unsigned int *
     return s->length;
 }
 
-/* For the test: which game the stubs serve (as an install would set it),
-   with the sprite not yet built. */
+/* For the test build only: which game the stubs serve (as an install would
+   set it), with the sprite not yet built. */
 void __stdcall VvfpGoldenMushroomProbeSelect(int game_id) {
     active_game = game_id;
     sprite_state = 0;
     sprite = NULL;
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance;

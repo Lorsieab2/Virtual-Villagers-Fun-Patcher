@@ -38,6 +38,12 @@ from unicorn.x86_const import (
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 DLL = ROOT / "assets" / "healers_study" / "VVFP Healers Study.dll"
+# The probes and counters the emulator drives exist only in the TEST build
+# (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
+TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Healers Study.test.dll"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 STOCK = {"vv1": ROOT / "research" / "stock-executables" / "Virtual Villagers - A New Home.exe",
          "vv2": ROOT / "research" / "stock-executables" / "Virtual Villagers - The Lost Children.exe"}
 STACK = 0x70000000
@@ -60,7 +66,7 @@ def _stock(game: str, va: int, n: int) -> bytes:
 
 
 def _emulator():
-    pe = pefile.PE(str(DLL))
+    pe = pefile.PE(str(TEST_DLL))
     base = pe.OPTIONAL_HEADER.ImageBase
     exports = {e.name.decode(): base + e.address for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
     image = pe.get_memory_mapped_image()
@@ -131,6 +137,7 @@ class Run:
 
 
 class HealersStudyTests(unittest.TestCase):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_the_sites_and_their_surroundings_are_what_the_stub_assumes(self):
         for game, g in G.items():
             with self.subTest(game=game):
@@ -151,6 +158,7 @@ class HealersStudyTests(unittest.TestCase):
                 self.assertEqual(va - 18 + 10 + crel, g["cont"])
                 self.assertEqual(_stock(game, g["done"], 4), bytes.fromhex("5F5E5D5B"), "pop edi/esi/ebp/ebx")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_studying_villager_at_high_food_continues_the_study(self):
         for game, g in G.items():
             with self.subTest(game=game):
@@ -162,6 +170,7 @@ class HealersStudyTests(unittest.TestCase):
                 r = Run(game, food=g["threshold"], state9=9, cont_result=1)
                 self.assertEqual(r.exit, g["done"], "exactly the threshold counts as high")
 
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_otherwise_the_stock_selection_runs(self):
         for game, g in G.items():
             for food, state, result in ((g["threshold"] - 1, 9, 1), (0, 9, 1),

@@ -9,7 +9,10 @@
    exports minus the file I/O, the log and the game globals, so nothing here
    touches the player's folders.
 
-   Usage:  vv1_parentage_harness.exe "<path to VVFP VV1 Parentage.dll>"
+   Usage:  vv1_parentage_harness.exe "<path to VVFP VV1 Parentage.test.dll>"
+   The probe exports it calls exist only in the TEST build
+   (tests\test_dlls\, built with VVFP_TEST by the DLL's own build script);
+   the shipped DLL exports none of them.
    Exit code 0 when every check passes. */
 #include <windows.h>
 #include <stdio.h>

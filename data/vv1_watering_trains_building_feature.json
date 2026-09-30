@@ -30,7 +30,7 @@
     {
       "source": "assets/watering/VVFP VV1 Watering Builds.dll",
       "destination": "VVFP VV1 Watering Builds.dll",
-      "sha256": "5722F5938E6048573C27B802AA0EBD45794AD9A91DB0DF75434F879E21AD90C4"
+      "sha256": "1A79A2D6175C4F1F6FC755C31F0C8B3C1ECB7F170B00927C8B8C380543D855A7"
     }
   ],
   "patches": []

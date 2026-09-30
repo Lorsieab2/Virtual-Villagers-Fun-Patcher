@@ -100,3 +100,11 @@ assets/vv4_masks/** -text
 /data/candidates/vv4_full_mastery_all_candidate.json text eol=lf
 /data/native_evidence/vv1_vv2_native_query_manifest.json text eol=lf
 /data/native_evidence_queries.json text eol=lf
+
+# The TEST builds of the companion DLLs (probe exports and counters, built with
+# VVFP_TEST) are test fixtures only. export-ignore keeps them out of the release
+# source zip, which scripts/build_release.py makes with git archive; the tests
+# that drive them skip there. The first rule drops the directory entry itself,
+# the second its files. See tests/test_shipped_dlls_have_no_test_hooks.py.
+/tests/test_dlls export-ignore
+/tests/test_dlls/** export-ignore

@@ -448,7 +448,10 @@ __declspec(dllexport) int __stdcall Vv1SortByMode(void) {
     return g_mode;
 }
 
-/* ---- exports (test seams: caller-supplied records, no game globals) ------ */
+/* ---- exports (test seams: caller-supplied records, no game globals) ------
+   TEST build only (VVFP_TEST, tests/test_dlls/): the shipped DLL exports
+   none of the Vv1SortByProbe* seams. */
+#ifdef VVFP_TEST
 
 __declspec(dllexport) int __stdcall Vv1SortByProbeReset(int mode) {
     g_mode = (mode >= 0 && mode < SORT_MODES) ? mode : 0;
@@ -489,6 +492,7 @@ __declspec(dllexport) int __stdcall Vv1SortByProbeList(const void *records, int 
 __declspec(dllexport) int __stdcall Vv1SortByProbeHit(int x, int y) {
     return vv1_hit(x, y);
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;

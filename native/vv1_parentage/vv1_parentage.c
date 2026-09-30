@@ -1465,7 +1465,10 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryNames(int index, char *fath
     return 1;
 }
 
-/* ---- exports (test seams: same logic, caller-supplied records, no files) */
+/* ---- exports (test seams: same logic, caller-supplied records, no files)
+   TEST build only (VVFP_TEST, tests/test_dlls/): the shipped DLL exports
+   none of the Vv1ParentageProbe* seams. */
+#ifdef VVFP_TEST
 
 __declspec(dllexport) int __stdcall Vv1ParentageProbeReset(void) {
     memset(g_entries, 0, sizeof(g_entries));
@@ -1569,6 +1572,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeLayout(int *entry_bytes, in
     if (magic) *magic = VV1_PARENTS_MAGIC;
     return 1;
 }
+#endif /* VVFP_TEST */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;

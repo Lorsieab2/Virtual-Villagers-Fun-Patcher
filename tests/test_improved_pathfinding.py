@@ -2,7 +2,7 @@
 rows, the detour sites and the loader bridges.
 
 The routing itself runs at runtime in native/vvfp_pathfinding/
-pathfinding_harness.c (32-bit, loads the built DLL, synthetic grids laid out
+pathfinding_harness.c (32-bit, loads the TEST build, synthetic grids laid out
 as the games keep theirs).  This file pins what Python can check: both rows
 pin the shipped DLL and change no executable bytes; each detour site's stock
 bytes are exactly what the stock executable holds there, so the DLL's
@@ -27,6 +27,12 @@ ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "pathfinding" / "VVFP Improved Pathfinding.dll"
 SOURCE = ROOT / "native" / "vvfp_pathfinding" / "vvfp_pathfinding.c"
 DEF = ROOT / "native" / "vvfp_pathfinding" / "vvfp_pathfinding.def"
+# The probes the harness drives exist only in the TEST build (VVFP_TEST).
+TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Improved Pathfinding.test.dll"
+TEST_DEF = ROOT / "native" / "vvfp_pathfinding" / "vvfp_pathfinding_test.def"
+# tests/test_dlls/ is export-ignore: the release source archive carries no test
+# build, so there the tests that drive one skip instead of failing.
+TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 HARNESS_BUILD = ROOT / "scripts" / "build_pathfinding_harness.ps1"
 MANIFESTS = {
     "vv1": ROOT / "data" / "vv1_improved_pathfinding_feature.json",
@@ -117,13 +123,25 @@ class RowsAndDllTests(unittest.TestCase):
                          "the divide-by-ten constant that begins the descent")
 
     def test_the_dll_exports_what_the_bridges_and_the_harness_call(self):
+        """The bridges call VvfpPathfindingInstall in the shipped DLL; the
+        harness drives the probes, which only the TEST build carries."""
         exports = _exports(DLL)
-        for name in ("VvfpPathfindingInstall", "VvfpPathfindingProbeVv1",
-                     "VvfpPathfindingProbeVv2Flood", "VvfpPathfindingProbeVv2Next",
-                     "VvfpPathfindingProbeSite"):
-            self.assertIn(name, exports)
+        self.assertIn("VvfpPathfindingInstall", exports)
+        self.assertFalse({n for n in exports if "Probe" in n or "Stats" in n},
+                         "the shipped DLL exports no probe or counter")
         definition = DEF.read_text(encoding="utf-8")
         self.assertIn("VvfpPathfindingInstall=_VvfpPathfindingInstall@4", definition)
+        self.assertNotIn("Probe", definition)
+        self.assertIn("VvfpPathfindingProbeVv1=", TEST_DEF.read_text(encoding="utf-8"))
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_the_test_build_exports_what_the_harness_calls(self):
+        test_exports = _exports(TEST_DLL)
+        for name in ("VvfpPathfindingInstall", "VvfpPathfindingProbeVv1",
+                     "VvfpPathfindingProbeVv1Route", "VvfpPathfindingProbeVv2Flood",
+                     "VvfpPathfindingProbeVv2Next", "VvfpPathfindingProbeSite",
+                     "VvfpPathfindingProbeSiteBytes", "VvfpPathfindingStats"):
+            self.assertIn(name, test_exports)
 
     def test_the_dll_verifies_before_it_writes_and_never_leaves_a_writable_code_page(self):
         source = SOURCE.read_text(encoding="utf-8")
@@ -171,8 +189,8 @@ class RowsAndDllTests(unittest.TestCase):
         self.assertEqual(handler.count("return 0;"), 2, "only a missing village or grid falls through")
         self.assertIn("((vv1_give_up_t)VV1_GIVE_UP)(village, NULL, idx);", handler)
         self.assertIn("#define VV1_GIVE_UP 0x439470u", source)
-        self.assertNotIn("hits > VV1_GUARD_LIMIT) {\n            ++VvfpPathfindingStats.vv1_fell_through", source,
-                         "the guard never hands a routed villager back to the stock handler")
+        self.assertNotIn("GUARD_LIMIT", source,
+                         "no retry guard ever hands a routed villager back to the stock handler")
         corner = source[source.index("static int vv1_route("):]
         corner = corner[:corner.index("\n}")]
         self.assertIn("return CORNER_NONE;             /* a goal on an obstacle: refused", corner)
@@ -246,7 +264,8 @@ class RegistrationTests(unittest.TestCase):
 
 class HarnessTests(unittest.TestCase):
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
-    def test_the_harness_passes_against_the_shipped_dll(self):
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_the_harness_passes_against_the_test_build(self):
         result = subprocess.run(
             ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(HARNESS_BUILD)],
             capture_output=True, text=True, timeout=300,

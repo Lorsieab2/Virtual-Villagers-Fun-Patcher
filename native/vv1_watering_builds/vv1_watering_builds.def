@@ -1,5 +1,3 @@
 LIBRARY "VVFP VV1 Watering Builds"
 EXPORTS
     VvfpVv1WateringBuildsInstall=_VvfpVv1WateringBuildsInstall@0
-    VvfpVv1WateringBuildsProbe=_VvfpVv1WateringBuildsProbe@16
-    VvfpVv1WateringStats DATA
