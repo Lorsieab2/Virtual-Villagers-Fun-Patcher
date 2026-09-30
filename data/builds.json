@@ -829,10 +829,10 @@
       "evidence_status": "static exact-build evidence; runtime/player confirmation pending",
       "patches": [
         {"offset": "0x5A34E", "before": "0F8EBE000000", "after": "E9BF00000090", "purpose": "make the Farming success target unconditional"},
-        {"offset": "0x5A4FD", "before": "0F8EB6000000", "after": "E9B700000090", "purpose": "make the Building success target unconditional"},
-        {"offset": "0x5A67F", "before": "7E53", "after": "EB53", "purpose": "make the Researching success target unconditional"},
-        {"offset": "0x5A799", "before": "7E42", "after": "EB42", "purpose": "make the Healing success target unconditional"},
-        {"offset": "0x5A8A3", "before": "0F8EAC000000", "after": "E9AD00000090", "purpose": "make the Parenting success target unconditional"}
+        {"offset": "0x5A4FD", "before": "0F8EB6000000", "after": "E9B700000090", "purpose": "make the Parenting success target unconditional"},
+        {"offset": "0x5A67F", "before": "7E53", "after": "EB53", "purpose": "make the Healing success target unconditional"},
+        {"offset": "0x5A799", "before": "7E42", "after": "EB42", "purpose": "make the Building success target unconditional"},
+        {"offset": "0x5A8A3", "before": "0F8EAC000000", "after": "E9AD00000090", "purpose": "make the Researching success target unconditional"}
       ]
     },
     {
@@ -1433,7 +1433,7 @@
           "offset": "0x94400",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE9E0040000E9C1ADFDFFE910AEFDFF",
-          "purpose": "leave Retired Chiefs on the original stock branch while requiring both positive Devotion skill and Devotion as the selected preferred job before routing an ordinary villager to the added Honoring branch"
+          "purpose": "leave Retired Chiefs on the original stock branch while requiring positive Devotion skill ([villager+0x1C70] > 0; the selected preferred job is not checked) before routing an ordinary villager to the added Honoring branch"
         },
         {
           "offset": "0x94900",
@@ -1527,7 +1527,6 @@
       "enabled": true,
       "catalog_enabled": true,
       "catalog_hidden": false,
-      "default_selected": false,
       "supported_modes": [
         "stock",
         "collection_progression",

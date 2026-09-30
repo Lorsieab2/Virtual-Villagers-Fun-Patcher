@@ -27,6 +27,10 @@ import hashlib
 import json
 from pathlib import Path
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "parentage" / "VVFP VV1 Parentage.dll"
 OUT = ROOT / "data" / "vv1_show_parents_feature.json"
@@ -48,15 +52,19 @@ def main() -> None:
             "faded figures of the parents stand in the upper corners of the Details "
             "portrait -- the father on the left facing right, the mother on the right "
             "facing left -- and hovering one reads \"Son of <name>\" or \"Daughter of "
-            "<name>\". The record is kept in vv1_parents_<slot>.dat beside the save, "
-            "never inside a villager record or the save itself, and an entry is never "
+            "<name>\". The record is kept in 'Virtual Villagers 1 Parentage Records - "
+            "Save <slot>.dat' in the 'Virtual Villagers Fun Patcher Data' folder beside "
+            "the saves (Documents\\LDW\\<game executable name>\\), never inside a "
+            "villager record or the save itself, and an entry is never "
             "erased: only a new villager in the same slot starts it over. Each birth is "
             "also written to the parentage log the moment it is seen, and the Village "
             "Population roster lists each villager's own parents. Founders and villagers "
-            "born before this patch have no recorded parents. Requires Enable "
-            "Origins-Exclusive Features, whose companion loads this one. The father is "
-            "supplied by Write Births and Conceptions Log's conception hook, so with that row off only "
-            "the mother is recorded."
+            "born before this patch have no recorded parents. "
+            + ORIGINS_BASE_SENTENCE
+            + " That base's companion loads this patch's DLL. **Needs Write Births "
+            "and Conceptions Log to Text File on for the father**, which its "
+            "conception hook supplies: with that patch off only the mother is "
+            "recorded."
         ),
         "output_tag": "Show Parents",
         "dependencies": [

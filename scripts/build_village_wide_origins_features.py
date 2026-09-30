@@ -923,16 +923,33 @@ def main() -> None:
             "Village-Wide menu offers Running, Full Mastery, and Make Villagers "
             "Young Adults."
         )
+        # "Excluded" used to stand alone ("Island Events and Duplicate
+        # Collectibles are excluded"), which beside a Tech screen that sells an
+        # Island Event read as "no Island Events". It meant excluded from the
+        # point doublers, as each base feature's own description and doubler
+        # evidence say, so the sentence now says so -- and each game names what
+        # the internal base adds, because ticking this installs all of it.
         if game_id == "vv1":
-            description += " Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded."
+            description += (
+                " The Tech screen's Food and Tech Point Doublers do not double "
+                "Island Event, Duplicate Collectible or Golden Child tech gains."
+            )
         elif game_id == "vv2":
-            description += " Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded."
+            description += (
+                " The Tech screen also offers Time Warp, Island Event, Barrel of "
+                "Babies, Tech and Food Point Doublers, and Cure All Villagers, the "
+                "Villager Details screen grants Youth, Full Mastery, Running, and "
+                "Set Age to 18, and the Heathen mask cosmetics are included. The "
+                "point doublers do not double Island Event, Duplicate Collectible "
+                "or Gong of Wonder tech gains."
+            )
         elif game_id == "vv3":
             description += (
-                " The Tech screen also offers Complete all Collections, Reset all "
-                "Collections, and Equal Division of Labor with and without Parenting, "
-                "all supplied by the base Origins feature rather than this optional "
-                "payload. Island Events and Duplicate Collectibles are excluded."
+                " The Tech screen also offers Food and Tech Point Doublers, Complete "
+                "all Collections, Reset all Collections, and Equal Division of Labor "
+                "with and without Parenting, all supplied by the base Origins "
+                "feature rather than this optional payload. The point doublers do "
+                "not double Island Event or Duplicate Collectible tech gains."
             )
         elif game_id == "vv4":
             description += (
@@ -940,12 +957,23 @@ def main() -> None:
                 "Babies, Food and Tech Point Doublers, Full Heal/Cure All, All "
                 "Villagers are Exactly 18, Complete and Reset All Collections, and "
                 "Equal Division of Labor with and "
-                "without Parenting, and the Villager Details screen grants Youth, "
-                "Full Mastery, Running, Set Age to 18, and Change Appearance. Island "
-                "Events and Duplicate Collectibles are excluded."
+                "without Parenting, the Villager Details screen grants Youth, "
+                "Full Mastery, Running, Set Age to 18, and Change Appearance, and "
+                "the Heathen mask cosmetics are included. The point doublers do not "
+                "double Island Event or Duplicate Collectible tech gains."
             )
         else:
-            description += " Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped."
+            description += (
+                " The Tech screen also offers Time Warp, Island Event, Barrel of "
+                "Babies, Tech and Food Point Doublers, Full Heal/Cure All, All "
+                "Villagers are Exactly 18, Complete and Reset All Collections, "
+                "Equal Division of Labor with and without Parenting, and Change "
+                "Appearance for All, the Villager Details screen grants Youth, Full "
+                "Mastery, Running, Set Age to 18, and Change Appearance, and the "
+                "Heathen mask cosmetics are included. The point doublers do not "
+                "double Island Event or Duplicate Collectible tech gains. Only "
+                "Believers are processed; Heathens are skipped."
+            )
         record_fields = {
             "stride": f"0x{config['stride']:X}",
             "first_record_argument": "ECX",

@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Numeric Keys: Zip Around the Island",
-  "description": "The number keys move the view to nine measured feature targets in the VV1 1680-unit map, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), using the measured truncating tenth-of-remaining glide on the native village-update cadence. Top-row digits and keypad digits both work; holding a key does not repeat; a glide keeps going even if the view is scrolled or a villager is dragged mid-glide -- press another number key to change course. Adds the loading-screen tip \"You can zip around the island with your numeric keys.\" Requires Enable Origins-Exclusive Features, whose companion loads this one.",
+  "description": "The number keys move the view to nine measured feature targets in the VV1 1680-unit map, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), using the measured truncating tenth-of-remaining glide on the native village-update cadence. Top-row digits and keypad digits both work; holding a key does not repeat; a glide keeps going even if the view is scrolled or a villager is dragged mid-glide -- press another number key to change course. Adds the loading-screen tip \"You can zip around the island with your numeric keys.\" **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL.",
   "output_tag": "Numeric Keys",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"

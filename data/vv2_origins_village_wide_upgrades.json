@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Tech, Details, and Village-Wide Upgrades",
-  "description": "Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded.",
+  "description": "Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers, the Villager Details screen grants Youth, Full Mastery, Running, and Set Age to 18, and the Heathen mask cosmetics are included. The point doublers do not double Island Event, Duplicate Collectible or Gong of Wonder tech gains.",
   "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
   "dependencies": [
     "vv2_enable_origins_exclusive_features"

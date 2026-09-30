@@ -167,7 +167,9 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
         self.assertTrue(raw["enabled"])
         self.assertTrue(raw["catalog_enabled"])
         self.assertFalse(raw["catalog_hidden"])
-        self.assertFalse(raw["default_selected"])
+        # No `default_selected`: nothing reads it (the GUI ticks by
+        # default_fun_patch_selection), so it was removed as dead.
+        self.assertNotIn("default_selected", raw)
         self.assertEqual(tuple(raw["supported_modes"]), ("stock", *MODES))
         self.assertEqual(raw.get("dependencies", []), [])
         self.assertEqual(

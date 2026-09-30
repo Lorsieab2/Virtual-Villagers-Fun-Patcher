@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Healers Study Plants Regardless of Food",
-  "description": "Healers keep studying plants regardless of the food supply. A villager who was studying a plant (the same four-plant roll the stock game makes) carries on studying when the village has 300 food or more, exactly as the stock game already does below 300; plentiful food no longer makes a healer stop. Applies in live play and during catch-up. **Requires Enable Origins-Exclusive Features**, whose companion loads this one; without it the stock scheduler runs unchanged.",
+  "description": "Healers keep studying plants regardless of the food supply. A villager who was studying a plant (the same four-plant roll the stock game makes) carries on studying when the village has 300 food or more, exactly as the stock game already does below 300; plentiful food no longer makes a healer stop. Applies in live play and during catch-up. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs unchanged.",
   "output_tag": "Healers Study",
   "dependencies": [
     "vv2_enable_origins_exclusive_features"

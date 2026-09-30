@@ -23,6 +23,10 @@ import hashlib
 import json
 from pathlib import Path
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "pathfinding" / "VVFP Improved Pathfinding.dll"
 
@@ -85,8 +89,9 @@ def main() -> None:
                 "task is blocked, a route round the obstacle is planned on the game's "
                 "own walkability grid and followed, the way The Secret City does it, "
                 "instead of the villager giving up and dropping the task. "
-                "**Requires Enable Origins-Exclusive Features**, whose companion loads "
-                "this one; without it the stock walk runs unchanged."
+                + ORIGINS_BASE_SENTENCE
+                + " That base's companion loads this patch's DLL; if the DLL "
+                "cannot be loaded, the stock walk runs unchanged."
             ),
             "output_tag": "Pathfinding",
             "dependencies": [spec["origins"]],
