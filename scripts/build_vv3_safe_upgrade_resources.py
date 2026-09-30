@@ -35,8 +35,18 @@ FOUNDATION_OUTPUT = (
 # empty mask table was then published there, and because the destination now
 # existed, migration was skipped forever and the real masks were lost. Found
 # in review.
-SOURCE_SHA256 = "A58ADFAD54EA5E6F51D11DFD43A2B8BA445642183D9A299393E9DF05AAAFE362"
-SOURCE_SIZE = 1902592
+# Recertified again when the debug-only world/chief mask draw logs
+# (g_vv3_worlddbg / g_vv3_chiefdbg, published at .vv3md +0x3C/+0x40) were
+# removed: nothing read them, and no debug state may ship. The previous
+# source (A58ADFAD...) rebuilds byte-identically under /Brepro, so this
+# change is the only difference.
+# Recertified when the mask sidecar moved onto native/shared/sidecar_io.h: a
+# present-but-invalid file is now moved aside instead of being loaded as an
+# empty table and overwritten, and one that cannot be opened is neither read
+# nor written until a throttled retry opens it. (Built from the source with
+# both changes: the debug logs removed and the shared sidecar I/O.)
+SOURCE_SHA256 = "152209A2C64DE115B12C1F72D1E0E69371D01BA91A38A4DE7C1132C1D5AC0790"
+SOURCE_SIZE = 1903104
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

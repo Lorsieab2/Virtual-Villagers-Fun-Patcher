@@ -147,11 +147,14 @@ class Vv5RosterIdentityTest(unittest.TestCase):
     def test_sidecar_format_is_magic_roster_table(self) -> None:
         self.assertEqual(self._macro("VV5_MASK_SIDECAR_MAGIC"), MAGIC)
         write = self._function("__declspec(dllexport) void __stdcall WriteMaskSidecar(")
-        self.assertLess(write.index("if (!g_vv5_have_roster)"), write.index("CreateFileA"),
+        # The write is now an atomic publish through native/shared/sidecar_io.h
+        # (tests/test_mask_sidecar_durability.py); the payload is unchanged.
+        self.assertLess(write.index("!g_vv5_have_roster"), write.index("vv_sidecar_publish("),
                         "an unidentified village must not write a file")
-        self.assertRegex(write, r"WriteFile\(h,\s*&magic")
-        self.assertRegex(write, r"WriteFile\(h,\s*g_vv5_roster,\s*sizeof\(g_vv5_roster\)")
-        self.assertRegex(write, r"WriteFile\(h,\s*table,\s*MASK_TABLE_BYTES")
+        self.assertRegex(write, r"parts\[0\]\s*=\s*&magic;\s*sizes\[0\]\s*=\s*sizeof\(magic\);")
+        self.assertRegex(write, r"parts\[1\]\s*=\s*g_vv5_roster;\s*sizes\[1\]\s*=\s*sizeof\(g_vv5_roster\);")
+        self.assertRegex(write, r"parts\[2\]\s*=\s*table;\s*sizes\[2\]\s*=\s*MASK_TABLE_BYTES;")
+        self.assertIn("vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3)", write)
         load = self._function("static int vv5_mask_sidecar_load(")
         self.assertLess(load.index("memset(table, 0, MASK_TABLE_BYTES)"), load.index("return"),
                         "fail closed: the clear must precede EVERY exit, including a failed path")
