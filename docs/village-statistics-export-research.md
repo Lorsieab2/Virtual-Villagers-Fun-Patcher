@@ -104,7 +104,7 @@ The common layout is:
 | `+0x08` | Babies Made |
 | `+0x0C` | Food Gathered |
 | `+0x10` | People Cured |
-| `+0x14` | Mushrooms Found in VV3/VV5; Collectibles Found in VV4 |
+| `+0x14` | Mushrooms Found (VV3/VV4/VV5; VV4 printed "Collectibles Found" until v1.35.41, but only mushroom pickups increment it) |
 | `+0x18` | Highest Population |
 | `+0x1C` | Village Elders |
 | `+0x20` | Oldest Villager |

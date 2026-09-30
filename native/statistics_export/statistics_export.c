@@ -1271,7 +1271,10 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
             manager,
             village,
             "Virtual Villagers - The Tree of Life",
-            "Collectibles Found",
+            /* +0x14 counts mushrooms only (writer 0x414665 on the mushroom
+               award path; collectibles never touch it), and the game's own
+               name for it is "Mushrooms Found" (sm.xml eCrabsFound). */
+            "Mushrooms Found",
             0x850u,
             0x3750u,
             count_later_puzzles(0x38960u, 0xD8BF8u, 0, 16),
